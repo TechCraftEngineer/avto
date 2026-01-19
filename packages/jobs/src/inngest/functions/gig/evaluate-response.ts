@@ -127,6 +127,7 @@ export const evaluateGigResponseFunction = inngest.createFunction(
           score: scoring.detailedScore,
           rating: scoring.score,
           analysis: scoring.analysis,
+          botUsageDetected: scoring.botUsageDetected,
         })
         .onConflictDoUpdate({
           target: interviewScoring.interviewSessionId,
@@ -134,6 +135,7 @@ export const evaluateGigResponseFunction = inngest.createFunction(
             score: scoring.detailedScore,
             rating: scoring.score,
             analysis: scoring.analysis,
+            botUsageDetected: scoring.botUsageDetected,
           },
         });
 

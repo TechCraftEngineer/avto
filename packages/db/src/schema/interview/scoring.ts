@@ -38,6 +38,7 @@ export const interviewScoring = pgTable(
     score: integer("score").notNull(), // Основной скоринг 0-100
     rating: integer("rating"), // Звездный рейтинг 0-5 (удобно для UI)
     analysis: text("analysis"), // Анализ на основе интервью
+    botUsageDetected: integer("bot_usage_detected"), // 0-100: вероятность использования бота для ответов
 
     createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
       .defaultNow()
@@ -55,6 +56,10 @@ export const interviewScoring = pgTable(
       "interview_scoring_rating_check",
       sql`${table.rating} IS NULL OR ${table.rating} BETWEEN 0 AND 5`,
     ),
+    check(
+      "interview_scoring_bot_usage_check",
+      sql`${table.botUsageDetected} IS NULL OR ${table.botUsageDetected} BETWEEN 0 AND 100`,
+    ),
   ],
 );
 
@@ -66,6 +71,7 @@ export const CreateInterviewScoringSchema = createInsertSchema(
     rating: z.number().int().min(0).max(5).optional(),
     score: z.number().int().min(0).max(100),
     analysis: z.string().optional(),
+    botUsageDetected: z.number().int().min(0).max(100).optional(),
   },
 ).omit({
   id: true,
