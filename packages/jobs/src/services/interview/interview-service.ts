@@ -2,7 +2,11 @@ import { AgentFactory, InterviewOrchestrator } from "@qbs-autonaim/ai";
 import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { interviewSession } from "@qbs-autonaim/db/schema";
-import { getAIModel } from "@qbs-autonaim/lib/ai";
+import {
+  getActualProvider,
+  getAIModel,
+  getAIModelName,
+} from "@qbs-autonaim/lib";
 import { stripHtml } from "string-strip-html";
 import type { InterviewAnalysis } from "../../schemas/interview";
 import { createLogger, INTERVIEW } from "../base";
@@ -436,7 +440,13 @@ export async function createInterviewScoring(
 
   // Создаем агента
   const model = createAgentModel();
-  const factory = new AgentFactory({ model });
+  const modelProvider = getActualProvider();
+  const modelName = getAIModelName();
+  const factory = new AgentFactory({
+    model,
+    modelProvider,
+    modelName,
+  });
   const agent = factory.createInterviewScoring();
 
   // Проверяем наличие истории диалога
