@@ -47,6 +47,7 @@ interface InterviewContext {
     sender: "user" | "assistant";
     content: string;
     contentType?: "text" | "voice";
+    timestamp?: Date | string;
   }>;
   // Настройки бота
   botSettings?: {
@@ -231,6 +232,7 @@ export async function getInterviewContext(
       contentType: (msg.type === "text" || msg.type === "voice"
         ? msg.type
         : undefined) as "text" | "voice" | undefined,
+      timestamp: msg.createdAt,
     }));
 
   // Получаем response по responseId из session

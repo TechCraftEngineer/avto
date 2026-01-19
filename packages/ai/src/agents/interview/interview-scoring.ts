@@ -53,6 +53,13 @@ export class InterviewScoringAgent extends BaseAgent<
 - Использование сложных конструкций и терминологии, не характерных для устной речи
 - Ответы звучат как статьи или эссе, а не живой диалог
 - Отсутствие эмоциональной окраски и личных примеров
+- ВАЖНО: Анализируй время ответов (если доступно):
+  * Подозрительно быстрые ответы на сложные вопросы (<15-20 сек) - недостаточно времени чтобы прочитать, скопировать из бота и вставить
+  * Очень быстрые короткие ответы (<10 сек) на развернутые вопросы - явный признак копирования
+  * Слишком медленные ответы (>600 сек / 10 мин) - возможно ищет информацию или ждет ответа от бота
+  * Равномерное время всех ответов (все в диапазоне ±5 сек) - подозрительно, человек варьирует
+  * Естественные вариации (20-120 сек в зависимости от сложности) нормальны для человека
+  * Паттерн: быстрый ответ + длинный текст = высокая вероятность бота
 
 Шкала botUsageDetected:
 - 0-20: Естественные ответы, бот не использовался
@@ -86,26 +93,56 @@ export class InterviewScoringAgent extends BaseAgent<
       conversationHistory,
     } = context;
 
-    // Извлекаем пары вопрос-ответ из истории диалога
-    const qaText = (conversationHistory || [])
+    // Извлекаем пары вопрос-ответ из истории диалога с временными метками
+    const qaWithTimings = (conversationHistory || [])
       .filter((msg) => msg.sender === "BOT" || msg.sender === "CANDIDATE")
       .reduce(
         (acc, msg, idx, arr) => {
           // Если это сообщение от бота и следующее от кандидата - это пара вопрос-ответ
           const nextMsg = arr[idx + 1];
           if (msg.sender === "BOT" && nextMsg?.sender === "CANDIDATE") {
+            // Вычисляем время ответа
+            let responseTime: number | null = null;
+            if (msg.timestamp && nextMsg.timestamp) {
+              const questionTime = new Date(msg.timestamp).getTime();
+              const answerTime = new Date(nextMsg.timestamp).getTime();
+              responseTime = Math.round((answerTime - questionTime) / 1000); // в секундах
+            }
+
             acc.push({
               question: msg.content,
               answer: nextMsg.content,
+              responseTime,
+              questionTime: msg.timestamp
+                ? new Date(msg.timestamp).toISOString()
+                : null,
+              answerTime: nextMsg.timestamp
+                ? new Date(nextMsg.timestamp).toISOString()
+                : null,
             });
           }
           return acc;
         },
-        [] as Array<{ question: string; answer: string }>,
-      )
-      .map(
-        (qa, i) => `${i + 1}. Вопрос: ${qa.question}\n   Ответ: ${qa.answer}`,
-      )
+        [] as Array<{
+          question: string;
+          answer: string;
+          responseTime: number | null;
+          questionTime: string | null;
+          answerTime: string | null;
+        }>,
+      );
+
+    const qaText = qaWithTimings
+      .map((qa, i) => {
+        let timingInfo = "";
+        if (qa.responseTime !== null) {
+          timingInfo = `\n   Время ответа: ${qa.responseTime} сек`;
+          if (qa.questionTime && qa.answerTime) {
+            timingInfo += ` (вопрос: ${qa.questionTime}, ответ: ${qa.answerTime})`;
+          }
+        }
+        return `${i + 1}. Вопрос: ${qa.question}\n   Ответ: ${qa.answer}${timingInfo}`;
+      })
       .join("\n\n");
 
     return `КОНТЕКСТ:
@@ -118,10 +155,19 @@ ${qaText}
 
 Оцени интервью по критериям выше.
 
+АНАЛИЗ ВРЕМЕНИ ОТВЕТОВ (для детекции ботов):
+- Подозрительно быстрые ответы (<15-20 сек на сложный развернутый вопрос) - недостаточно времени для копирования из бота
+- Очень быстрые короткие ответы (<10 сек) на вопросы требующие размышления - явный признак
+- Слишком медленные ответы (>600 сек / 10 минут) - возможно ищет информацию или ждет бота
+- Равномерное время всех ответов (все в диапазоне ±5 сек друг от друга) - подозрительно
+- Естественные вариации (20-120 сек в зависимости от сложности вопроса) нормальны
+- Критический паттерн: быстрый ответ (15-30 сек) + очень длинный структурированный текст = высокая вероятность бота
+- Учитывай: человеку нужно время прочитать вопрос, подумать, набрать/скопировать, проверить
+
 Верни JSON с полями:
 - score: оценка от 1 до 5
 - detailedScore: детальная оценка от 0 до 100
 - analysis: текстовый анализ в формате HTML (используй <p>, <strong>, <br>)
-- botUsageDetected: вероятность использования AI-бота (0-100)`;
+- botUsageDetected: вероятность использования AI-бота (0-100), учитывая время ответов`;
   }
 }
