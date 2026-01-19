@@ -2,7 +2,7 @@
 
 import { paths } from "@qbs-autonaim/config";
 import { Button, Skeleton } from "@qbs-autonaim/ui";
-import { skipToken, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -25,13 +25,11 @@ export default function VacancyResponseDetailPage() {
   const trpc = useTRPC();
   const { workspaceId } = useWorkspaceContext();
 
-  const { data: response, isLoading } = useQuery(
-    workspaceId
-      ? trpc.vacancy.responses.get.queryOptions({
-          id: responseId,
-          workspaceId,
-        })
-      : skipToken,
+  const { data: responseData, isLoading } = useQuery(
+    trpc.vacancy.responses.get.queryOptions({
+      id: responseId,
+      workspaceId: workspaceId ?? "",
+    }),
   );
 
   if (!workspaceId) {
@@ -60,7 +58,7 @@ export default function VacancyResponseDetailPage() {
     );
   }
 
-  if (!response) {
+  if (!responseData) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center">
         <p className="text-muted-foreground">Отклик не найден</p>
@@ -68,14 +66,13 @@ export default function VacancyResponseDetailPage() {
     );
   }
 
-  // Type assertion to include globalCandidate
-  type ResponseWithGlobalCandidate = NonNullable<typeof response> & {
-    globalCandidate: null;
-  };
+  // Явно указываем тип для response после проверки на null
+  const response = responseData;
 
-  const responseWithGlobalCandidate: ResponseWithGlobalCandidate = {
+  // Создаём объект с globalCandidate для совместимости с ResponseDetail
+  const responseWithGlobalCandidate = {
     ...response,
-    globalCandidate: null, // TODO: load actual candidate if needed
+    globalCandidate: null as null, // TODO: load actual candidate if needed
   };
 
   return (

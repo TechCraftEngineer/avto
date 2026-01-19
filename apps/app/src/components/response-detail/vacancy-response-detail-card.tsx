@@ -38,13 +38,29 @@ export function ResponseDetailCard({
     getDefaultTab,
   } = useVacancyResponseFlags(response);
 
+  // Преобразуем conversation для ResponseHeaderCard
+  const mappedConversation = conversation
+    ? {
+        id: conversation.id,
+        status: conversation.status,
+        messages: conversation.messages.map((msg) => ({
+          id: msg.id,
+          sender: msg.role,
+          content: msg.content ?? "",
+          contentType: msg.type,
+          voiceTranscription: msg.voiceTranscription,
+          createdAt: msg.createdAt,
+        })),
+      }
+    : null;
+
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Header Card */}
       <ResponseHeaderCard
         response={{
           ...response,
-          conversation,
+          conversation: mappedConversation,
         }}
         onAccept={onAccept}
         onReject={onReject}
