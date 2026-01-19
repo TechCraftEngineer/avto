@@ -5,7 +5,6 @@ import {
   response as responseTable,
   vacancy,
 } from "@qbs-autonaim/db/schema";
-import { getFileUrl } from "@qbs-autonaim/lib/s3";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
@@ -44,23 +43,6 @@ export const listRecent = protectedProcedure
       .orderBy(desc(responseTable.createdAt))
       .limit(5);
 
-    // Получаем URLs для фото
-    const photoFileIds = responses
-      .map((r) => r.response.photoFileId)
-      .filter((id): id is string => id !== null);
-
-    const photoFiles =
-      photoFileIds.length > 0
-        ? await ctx.db.query.file.findMany({
-            where: (file, { inArray }) => inArray(file.id, photoFileIds),
-            columns: { id: true, key: true },
-          })
-        : [];
-
-    const photoUrlMap = new Map(
-      photoFiles.map((f) => [f.id, getFileUrl(f.key)]),
-    );
-
     // Получаем screening и interviewScoring для каждого отклика
     const responsesWithRelations = await Promise.all(
       responses.map(async (r) => {
@@ -76,9 +58,6 @@ export const listRecent = protectedProcedure
 
         return {
           ...r.response,
-          photoUrl: r.response.photoFileId
-            ? photoUrlMap.get(r.response.photoFileId) || null
-            : null,
           vacancy: r.vacancy,
           screening: screening
             ? {

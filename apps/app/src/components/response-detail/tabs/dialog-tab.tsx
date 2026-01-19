@@ -86,6 +86,16 @@ function DialogMessage({ message }: { message: Message }) {
     return null;
   }
 
+  // Валидация даты
+  const messageDate = new Date(message.createdAt);
+  const isValidDate = !isNaN(messageDate.getTime());
+  const formattedTime = isValidDate
+    ? new Intl.DateTimeFormat("ru-RU", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }).format(messageDate)
+    : null;
+
   return (
     <div
       className={cn(
@@ -123,12 +133,9 @@ function DialogMessage({ message }: { message: Message }) {
           >
             {isCandidate ? "Кандидат" : "AI Ассистент"}
           </span>
-          <span className="text-muted-foreground">
-            {new Intl.DateTimeFormat("ru-RU", {
-              hour: "2-digit",
-              minute: "2-digit",
-            }).format(new Date(message.createdAt))}
-          </span>
+          {formattedTime && (
+            <span className="text-muted-foreground">{formattedTime}</span>
+          )}
         </div>
 
         <div

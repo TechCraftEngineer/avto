@@ -1,5 +1,6 @@
 "use client";
 
+import type { RouterOutputs } from "@qbs-autonaim/api";
 import { paths } from "@qbs-autonaim/config";
 import {
   Badge,
@@ -15,8 +16,72 @@ import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
 import { FileText, Star } from "lucide-react";
 import Link from "next/link";
+import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { useWorkspace } from "~/hooks/use-workspace";
+import { getAvatarUrl } from "~/lib/avatar";
 import { useTRPC } from "~/trpc/react";
+
+type RecentResponse =
+  RouterOutputs["vacancy"]["responses"]["listRecent"][number];
+
+interface RecentResponseItemProps {
+  response: RecentResponse;
+  orgSlug: string;
+  workspaceSlug: string;
+}
+
+function RecentResponseItem({
+  response,
+  orgSlug,
+  workspaceSlug,
+}: RecentResponseItemProps) {
+  const photoUrl = useAvatarUrl(response.photoFileId);
+  const avatarUrl = getAvatarUrl(photoUrl, response.candidateName ?? "");
+
+  return (
+    <Link
+      href={
+        response.vacancy?.id
+          ? paths.workspace.vacancyResponse(
+              orgSlug,
+              workspaceSlug,
+              response.vacancy.id,
+              response.id,
+            )
+          : paths.workspace.responses(orgSlug, workspaceSlug, response.id)
+      }
+      className="flex items-center gap-3 rounded-lg border p-3 transition-colors hover:bg-muted/50"
+    >
+      <CandidateAvatar
+        name={response.candidateName}
+        photoUrl={avatarUrl}
+        className="h-10 w-10"
+      />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          <p className="text-sm font-medium truncate">
+            {response.candidateName || "Без имени"}
+          </p>
+          {response.screening && (
+            <Badge variant="outline" className="h-5 px-1.5">
+              <Star className="h-3 w-3 mr-1" />
+              {response.screening.score.toFixed(1)}
+            </Badge>
+          )}
+        </div>
+        <p className="text-xs text-muted-foreground truncate">
+          {response.vacancy?.title || "Вакансия"}
+        </p>
+      </div>
+      <div className="text-xs text-muted-foreground whitespace-nowrap">
+        {formatDistanceToNow(new Date(response.createdAt), {
+          addSuffix: true,
+          locale: ru,
+        })}
+      </div>
+    </Link>
+  );
+}
 
 export function RecentResponses({
   orgSlug,
@@ -91,56 +156,12 @@ export function RecentResponses({
       <CardContent>
         <div className="space-y-3">
           {recentResponses?.map((response) => (
-            <Link
+            <RecentResponseItem
               key={response.id}
-              href={
-                response.vacancy?.id
-                  ? paths.workspace.vacancyResponse(
-                      orgSlug,
-                      workspaceSlug,
-                      response.vacancy.id,
-                      response.id,
-                    )
-                  : paths.workspace.responses(
-                      orgSlug,
-                      workspaceSlug,
-                      response.id,
-                    )
-              }
-              className="flex items-center gap-3 rounded-lg border p-3 transition-colors hover:bg-muted/50"
-            >
-              <CandidateAvatar
-                name={response.candidateName}
-                photoUrl={
-                  typeof response.photoUrl === "string" && response.photoUrl
-                    ? response.photoUrl
-                    : null
-                }
-                className="h-10 w-10"
-              />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <p className="text-sm font-medium truncate">
-                    {response.candidateName || "Без имени"}
-                  </p>
-                  {response.screening && (
-                    <Badge variant="outline" className="h-5 px-1.5">
-                      <Star className="h-3 w-3 mr-1" />
-                      {response.screening.score.toFixed(1)}
-                    </Badge>
-                  )}
-                </div>
-                <p className="text-xs text-muted-foreground truncate">
-                  {response.vacancy?.title || "Вакансия"}
-                </p>
-              </div>
-              <div className="text-xs text-muted-foreground whitespace-nowrap">
-                {formatDistanceToNow(new Date(response.createdAt), {
-                  addSuffix: true,
-                  locale: ru,
-                })}
-              </div>
-            </Link>
+              response={response}
+              orgSlug={orgSlug}
+              workspaceSlug={workspaceSlug}
+            />
           ))}
         </div>
       </CardContent>

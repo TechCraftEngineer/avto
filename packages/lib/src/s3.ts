@@ -100,13 +100,13 @@ export async function getDownloadUrl(key: string): Promise<string> {
 }
 
 export function getFileUrl(fileKey: string): string {
+  // Для dev окружения с MinIO используем endpoint
   const s3Endpoint = env.AWS_S3_ENDPOINT;
-
   if (s3Endpoint) {
     // Для MinIO заменяем внутренний URL на публичный для браузера
     // http://minio:9002 -> http://localhost:9002
-    const publicEndpoint = s3Endpoint.replace("minio:", "localhost:");
-    return `${publicEndpoint}/${BUCKET_NAME}/${fileKey}`;
+    const localEndpoint = s3Endpoint.replace("minio:", "localhost:");
+    return `${localEndpoint}/${BUCKET_NAME}/${fileKey}`;
   }
 
   // Fallback на AWS S3
