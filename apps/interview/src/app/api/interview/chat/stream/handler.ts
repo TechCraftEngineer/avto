@@ -206,18 +206,24 @@ async function handler(request: Request) {
       "";
 
     // Сохраняем текстовое сообщение пользователя в БД
+    let savedMessageTimestamp: Date | null = null;
     if (lastUserMessage && userMessageText) {
       const hasVoiceFile = lastUserMessage.parts?.some(
         (p) => p.type === "file",
       );
       if (!hasVoiceFile) {
-        await db.insert(interviewMessage).values({
-          sessionId,
-          role: "user",
-          type: "text",
-          channel: "web",
-          content: userMessageText,
-        });
+        const [savedMessage] = await db
+          .insert(interviewMessage)
+          .values({
+            sessionId,
+            role: "user",
+            type: "text",
+            channel: "web",
+            content: userMessageText,
+          })
+          .returning({ createdAt: interviewMessage.createdAt });
+        
+        savedMessageTimestamp = savedMessage?.createdAt ?? null;
       }
     }
 
@@ -245,6 +251,7 @@ async function handler(request: Request) {
           | "CANDIDATE"
           | "BOT",
         content: msg.content ?? "",
+        timestamp: msg.createdAt,
       }));
 
     // Добавляем текущее сообщение в историю
@@ -252,6 +259,7 @@ async function handler(request: Request) {
       conversationHistory.push({
         sender: "CANDIDATE",
         content: userMessageText,
+        timestamp: savedMessageTimestamp ?? new Date(),
       });
     }
 

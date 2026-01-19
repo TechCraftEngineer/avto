@@ -4,7 +4,9 @@ export { InterviewScoringCard } from "./interview-scoring-card";
 export { ParsedProfileCard } from "./parsed-profile-card";
 export { MetadataCard } from "./metadata-card";
 export { ResponseDetailCard } from "./vacancy-response-detail-card";
+export { GigResponseDetailCard } from "./gig-response-detail-card";
 export { VacancyResponseTabs } from "./vacancy-response-tabs";
+export { GigResponseTabs } from "./gig-response-tabs";
 export {
   ProposalTab,
   PortfolioTab,

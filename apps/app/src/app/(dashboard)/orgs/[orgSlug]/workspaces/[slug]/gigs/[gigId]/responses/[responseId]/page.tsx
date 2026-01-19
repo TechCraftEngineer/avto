@@ -21,7 +21,7 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import { toast } from "sonner";
-import { ResponseDetailCard } from "~/components/response-detail";
+import { GigResponseDetailCard } from "~/components/response-detail";
 import type { ResponseDetail } from "~/components/response-detail/hooks/use-vacancy-response-flags";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
@@ -323,7 +323,7 @@ export default function GigResponseDetailPage({ params }: PageProps) {
       </div>
 
       {/* Response Detail */}
-      <ResponseDetailCard
+      <GigResponseDetailCard
         response={response as ResponseDetail}
         onAccept={handleAccept}
         onReject={handleReject}

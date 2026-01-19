@@ -101,24 +101,49 @@ export class InterviewScoringAgent extends BaseAgent<
           // Если это сообщение от бота и следующее от кандидата - это пара вопрос-ответ
           const nextMsg = arr[idx + 1];
           if (msg.sender === "BOT" && nextMsg?.sender === "CANDIDATE") {
-            // Вычисляем время ответа
+            // Вычисляем время ответа с валидацией
             let responseTime: number | null = null;
+            let questionTime: string | null = null;
+            let answerTime: string | null = null;
+
             if (msg.timestamp && nextMsg.timestamp) {
-              const questionTime = new Date(msg.timestamp).getTime();
-              const answerTime = new Date(nextMsg.timestamp).getTime();
-              responseTime = Math.round((answerTime - questionTime) / 1000); // в секундах
+              try {
+                const questionDate = new Date(msg.timestamp);
+                const answerDate = new Date(nextMsg.timestamp);
+
+                // Проверяем что даты валидны
+                const questionTimeMs = questionDate.getTime();
+                const answerTimeMs = answerDate.getTime();
+
+                if (
+                  Number.isFinite(questionTimeMs) &&
+                  Number.isFinite(answerTimeMs)
+                ) {
+                  const timeDiff = Math.round(
+                    (answerTimeMs - questionTimeMs) / 1000,
+                  ); // в секундах
+
+                  // Игнорируем отрицательные значения (некорректные данные)
+                  if (timeDiff >= 0) {
+                    responseTime = timeDiff;
+                    questionTime = questionDate.toISOString();
+                    answerTime = answerDate.toISOString();
+                  }
+                }
+              } catch (error) {
+                // Игнорируем ошибки парсинга дат
+                responseTime = null;
+                questionTime = null;
+                answerTime = null;
+              }
             }
 
             acc.push({
               question: msg.content,
               answer: nextMsg.content,
               responseTime,
-              questionTime: msg.timestamp
-                ? new Date(msg.timestamp).toISOString()
-                : null,
-              answerTime: nextMsg.timestamp
-                ? new Date(nextMsg.timestamp).toISOString()
-                : null,
+              questionTime,
+              answerTime,
             });
           }
           return acc;
@@ -135,11 +160,14 @@ export class InterviewScoringAgent extends BaseAgent<
     const qaText = qaWithTimings
       .map((qa, i) => {
         let timingInfo = "";
-        if (qa.responseTime !== null) {
-          timingInfo = `\n   Время ответа: ${qa.responseTime} сек`;
-          if (qa.questionTime && qa.answerTime) {
-            timingInfo += ` (вопрос: ${qa.questionTime}, ответ: ${qa.answerTime})`;
-          }
+        // Добавляем информацию о времени только если все данные валидны
+        if (
+          qa.responseTime !== null &&
+          qa.questionTime !== null &&
+          qa.answerTime !== null &&
+          Number.isFinite(qa.responseTime)
+        ) {
+          timingInfo = `\n   Время ответа: ${qa.responseTime} сек (вопрос: ${qa.questionTime}, ответ: ${qa.answerTime})`;
         }
         return `${i + 1}. Вопрос: ${qa.question}\n   Ответ: ${qa.answer}${timingInfo}`;
       })

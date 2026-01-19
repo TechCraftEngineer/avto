@@ -143,10 +143,12 @@ export const get = protectedProcedure
             analysis: directInterviewScoring.analysis
               ? sanitizeHtml(directInterviewScoring.analysis)
               : null,
+            botUsageDetected: directInterviewScoring.botUsageDetected,
           } as {
             score: number;
             detailedScore: number;
             analysis: string | null;
+            botUsageDetected: number | null;
           })
         : null,
       interviewSession: session
