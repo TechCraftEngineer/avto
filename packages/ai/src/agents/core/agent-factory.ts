@@ -26,6 +26,8 @@ export interface AgentFactoryConfig {
   langfuse?: Langfuse | undefined;
   traceId?: string;
   maxSteps?: number;
+  modelProvider?: "openai" | "deepseek" | string;
+  modelName?: string;
 }
 
 let globalLangfuse: Langfuse | undefined;
@@ -65,11 +67,15 @@ function getLangfuseInstance(): Langfuse | undefined {
 export class AgentFactory {
   private config: AgentFactoryConfig;
   private langfuse: Langfuse | undefined;
+  private modelProvider?: string;
+  private modelName?: string;
 
   constructor(config: AgentFactoryConfig) {
     this.config = config;
     // Используем переданный langfuse или создаем глобальный singleton
     this.langfuse = config.langfuse ?? getLangfuseInstance();
+    this.modelProvider = config.modelProvider;
+    this.modelName = config.modelName;
   }
 
   private getAgentConfig(overrides?: Partial<AgentConfig>): AgentConfig {
@@ -78,6 +84,8 @@ export class AgentFactory {
       langfuse: this.langfuse,
       traceId: this.config.traceId,
       maxSteps: this.config.maxSteps,
+      modelProvider: this.modelProvider,
+      modelName: this.modelName,
       ...overrides,
     };
   }
