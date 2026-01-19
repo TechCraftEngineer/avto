@@ -1,14 +1,14 @@
 "use client";
 
-import { ScrollArea } from "@qbs-autonaim/ui";
-import { Bot, User } from "lucide-react";
-import { cn } from "@qbs-autonaim/ui";
+import { Badge, cn, ScrollArea } from "@qbs-autonaim/ui";
+import { Bot, Mic, User } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 
 interface Message {
   id: string;
-  sender: string;
-  content: string;
-  contentType: string;
+  role: "user" | "assistant" | "system";
+  content: string | null;
+  type: "text" | "voice" | "file" | "event";
   voiceTranscription: string | null;
   createdAt: Date;
 }
@@ -23,83 +23,143 @@ interface DialogTabProps {
   conversation: Conversation;
 }
 
+// Кастомные компоненты для рендеринга Markdown
+const markdownComponents = {
+  p: ({ children }: { children?: React.ReactNode }) => (
+    <p className="mb-2 last:mb-0">{children}</p>
+  ),
+  ul: ({ children }: { children?: React.ReactNode }) => (
+    <ul className="mb-2 ml-4 list-disc space-y-1">{children}</ul>
+  ),
+  ol: ({ children }: { children?: React.ReactNode }) => (
+    <ol className="mb-2 ml-4 list-decimal space-y-1">{children}</ol>
+  ),
+  li: ({ children }: { children?: React.ReactNode }) => (
+    <li className="text-sm">{children}</li>
+  ),
+  strong: ({ children }: { children?: React.ReactNode }) => (
+    <strong className="font-semibold">{children}</strong>
+  ),
+  em: ({ children }: { children?: React.ReactNode }) => (
+    <em className="italic">{children}</em>
+  ),
+  code: ({ children }: { children?: React.ReactNode }) => (
+    <code className="rounded bg-muted px-1 py-0.5 text-xs font-mono">
+      {children}
+    </code>
+  ),
+  pre: ({ children }: { children?: React.ReactNode }) => (
+    <pre className="mb-2 overflow-x-auto rounded-lg bg-muted p-3">
+      {children}
+    </pre>
+  ),
+  a: ({ href, children }: { href?: string; children?: React.ReactNode }) => (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-primary underline hover:no-underline"
+    >
+      {children}
+    </a>
+  ),
+};
+
 export function DialogTab({ conversation }: DialogTabProps) {
   return (
     <ScrollArea className="h-[400px] sm:h-[600px] pr-2 sm:pr-4">
-      <div className="space-y-3 sm:space-y-4">
-        {conversation.messages.map((message) => {
-          const isBot = message.sender === "BOT";
-          const isVoice = message.contentType === "VOICE";
-
-          return (
-            <div
-              key={message.id}
-              className={cn(
-                "flex gap-2 sm:gap-3",
-                isBot ? "flex-row" : "flex-row-reverse",
-              )}
-            >
-              <div
-                className={cn(
-                  "flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full",
-                  isBot ? "bg-primary/10" : "bg-muted",
-                )}
-              >
-                {isBot ? (
-                  <Bot className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
-                ) : (
-                  <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
-                )}
-              </div>
-
-              <div
-                className={cn(
-                  "flex-1 space-y-1",
-                  isBot ? "items-start" : "items-end",
-                )}
-              >
-                <div
-                  className={cn(
-                    "inline-block rounded-2xl px-3 py-2 sm:px-4 sm:py-2 max-w-[85%] sm:max-w-[80%] shadow-sm",
-                    isBot
-                      ? "bg-muted text-foreground border border-border/50"
-                      : "bg-primary text-primary-foreground",
-                  )}
-                >
-                  {isVoice && message.voiceTranscription ? (
-                    <div className="space-y-2">
-                      <div className="text-xs opacity-70">
-                        Голосовое сообщение
-                      </div>
-                      <p className="text-xs sm:text-sm whitespace-pre-wrap leading-relaxed break-words">
-                        {message.voiceTranscription}
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="text-xs sm:text-sm whitespace-pre-wrap leading-relaxed break-words">
-                      {message.content}
-                    </p>
-                  )}
-                </div>
-                <div
-                  className={cn(
-                    "text-xs px-1",
-                    isBot ? "text-left" : "text-right",
-                    isBot
-                      ? "text-muted-foreground"
-                      : "text-primary-foreground/70",
-                  )}
-                >
-                  {new Intl.DateTimeFormat("ru-RU", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  }).format(new Date(message.createdAt))}
-                </div>
-              </div>
-            </div>
-          );
-        })}
+      <div className="space-y-4 sm:space-y-6">
+        {conversation.messages.map((message) => (
+          <DialogMessage key={message.id} message={message} />
+        ))}
       </div>
     </ScrollArea>
+  );
+}
+
+function DialogMessage({ message }: { message: Message }) {
+  const isCandidate = message.role === "user";
+  const isVoice = message.type === "voice";
+
+  // Пропускаем сообщения без контента (кроме голосовых с транскрипцией)
+  if (!message.content && !(isVoice && message.voiceTranscription)) {
+    return null;
+  }
+
+  return (
+    <div
+      className={cn(
+        "flex gap-3 sm:gap-4",
+        isCandidate ? "flex-row" : "flex-row-reverse",
+      )}
+    >
+      <div
+        className={cn(
+          "flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full",
+          isCandidate ? "bg-muted" : "bg-primary/5",
+        )}
+      >
+        {isCandidate ? (
+          <User className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
+        ) : (
+          <Bot className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+        )}
+      </div>
+
+      <div
+        className={cn(
+          "flex-1 space-y-1.5 min-w-0",
+          isCandidate ? "items-start" : "items-end",
+        )}
+      >
+        <div
+          className={cn(
+            "flex items-center gap-2 text-xs font-medium",
+            isCandidate ? "flex-row" : "flex-row-reverse",
+          )}
+        >
+          <span
+            className={cn(isCandidate ? "text-foreground" : "text-primary")}
+          >
+            {isCandidate ? "Кандидат" : "AI Ассистент"}
+          </span>
+          <span className="text-muted-foreground">
+            {new Intl.DateTimeFormat("ru-RU", {
+              hour: "2-digit",
+              minute: "2-digit",
+            }).format(new Date(message.createdAt))}
+          </span>
+        </div>
+
+        <div
+          className={cn(
+            "inline-block rounded-2xl px-4 py-2.5 sm:px-4 sm:py-3 max-w-[85%] sm:max-w-[75%]",
+            isCandidate
+              ? "bg-muted text-foreground"
+              : "bg-accent text-foreground",
+          )}
+        >
+          {isVoice && message.voiceTranscription ? (
+            <div className="space-y-2">
+              <Badge variant="secondary" className="gap-1.5 text-xs">
+                <Mic className="h-3 w-3" />
+                Голосовое сообщение
+              </Badge>
+              <div className="prose prose-sm max-w-none text-sm leading-relaxed">
+                <ReactMarkdown components={markdownComponents}>
+                  {message.voiceTranscription}
+                </ReactMarkdown>
+              </div>
+            </div>
+          ) : (
+            <div className="prose prose-sm max-w-none text-sm leading-relaxed">
+              <ReactMarkdown components={markdownComponents}>
+                {message.content ?? ""}
+              </ReactMarkdown>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }

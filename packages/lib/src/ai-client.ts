@@ -198,15 +198,17 @@ export function getAIModel(): LanguageModel {
 /**
  * Получить название модели для логирования
  */
-export function getAIModelName(): string {
-  const provider = env.AI_PROVIDER;
+export function getAIModelName(provider?: string): string {
+  const actualProvider = provider ?? env.AI_PROVIDER;
   const customModel = env.AI_MODEL;
 
   if (customModel) {
     return customModel;
   }
 
-  return provider === "openai" ? DEFAULT_MODEL_OPENAI : DEFAULT_MODEL_DEEPSEEK;
+  return actualProvider === "openai"
+    ? DEFAULT_MODEL_OPENAI
+    : DEFAULT_MODEL_DEEPSEEK;
 }
 
 /**

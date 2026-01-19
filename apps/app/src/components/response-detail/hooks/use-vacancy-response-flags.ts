@@ -17,15 +17,13 @@ export function isVacancyResponse(
 }
 
 // Type guard для проверки структуры interviewSession
-function hasValidInterviewSession(
-  session: unknown,
-): session is {
+function hasValidInterviewSession(session: unknown): session is {
   id: string;
   messages: Array<{
     id: string;
-    sender: string;
-    content: string;
-    contentType: string;
+    role: "user" | "assistant" | "system";
+    content: string | null;
+    type: "text" | "voice" | "file" | "event";
     voiceTranscription: string | null;
     createdAt: Date;
   }>;
@@ -40,16 +38,14 @@ function hasValidInterviewSession(
 }
 
 // Type guard для проверки структуры conversation
-function hasValidConversation(
-  conversation: unknown,
-): conversation is {
+function hasValidConversation(conversation: unknown): conversation is {
   id: string;
   status: string;
   messages: Array<{
     id: string;
-    sender: string;
-    content: string;
-    contentType: string;
+    role: "user" | "assistant" | "system";
+    content: string | null;
+    type: "text" | "voice" | "file" | "event";
     voiceTranscription: string | null;
     createdAt: Date;
   }>;
@@ -84,9 +80,9 @@ interface UseVacancyResponseFlagsResult {
     status: string;
     messages: Array<{
       id: string;
-      sender: string;
-      content: string;
-      contentType: string;
+      role: "user" | "assistant" | "system";
+      content: string | null;
+      type: "text" | "voice" | "file" | "event";
       voiceTranscription: string | null;
       createdAt: Date;
     }>;
@@ -102,17 +98,17 @@ export function useVacancyResponseFlags(
   // Определяем screening в зависимости от типа отклика
   const screening = isVacancy
     ? response.screening
-    : (
-          response.interviewSession as {
-            scoring?: {
-              score: number;
-              detailedScore: number;
-              analysis: string | null;
-              priceAnalysis?: string | null;
-              deliveryAnalysis?: string | null;
-            } | null;
-          } | null
-        )?.scoring ?? null;
+    : ((
+        response.interviewSession as {
+          scoring?: {
+            score: number;
+            detailedScore: number;
+            analysis: string | null;
+            priceAnalysis?: string | null;
+            deliveryAnalysis?: string | null;
+          } | null;
+        } | null
+      )?.scoring ?? null);
 
   const hasScreening = !!screening;
   const hasInterviewScoring = !!response.interviewScoring;
@@ -123,9 +119,9 @@ export function useVacancyResponseFlags(
     status: string;
     messages: Array<{
       id: string;
-      sender: string;
-      content: string;
-      contentType: string;
+      role: "user" | "assistant" | "system";
+      content: string | null;
+      type: "text" | "voice" | "file" | "event";
       voiceTranscription: string | null;
       createdAt: Date;
     }>;

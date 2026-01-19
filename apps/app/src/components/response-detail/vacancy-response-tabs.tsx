@@ -39,9 +39,9 @@ interface VacancyResponseTabsProps {
     status: string;
     messages: Array<{
       id: string;
-      sender: string;
-      content: string;
-      contentType: string;
+      role: "user" | "assistant" | "system";
+      content: string | null;
+      type: "text" | "voice" | "file" | "event";
       voiceTranscription: string | null;
       createdAt: Date;
     }>;
