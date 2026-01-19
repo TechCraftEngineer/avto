@@ -441,7 +441,7 @@ export async function createInterviewScoring(
   // Создаем агента
   const model = createAgentModel();
   const modelProvider = getActualProvider();
-  const modelName = getAIModelName();
+  const modelName = getAIModelName(modelProvider);
   const factory = new AgentFactory({
     model,
     modelProvider,

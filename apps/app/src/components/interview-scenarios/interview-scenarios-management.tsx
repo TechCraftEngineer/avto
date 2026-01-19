@@ -12,8 +12,8 @@ interface InterviewScenariosManagementProps {
 }
 
 export function InterviewScenariosManagement({
-  orgSlug,
-  workspaceSlug,
+  orgSlug: _orgSlug,
+  workspaceSlug: _workspaceSlug,
 }: InterviewScenariosManagementProps) {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingScenario, setEditingScenario] = useState<string | null>(null);

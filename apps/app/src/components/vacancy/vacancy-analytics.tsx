@@ -234,8 +234,15 @@ export function VacancyRequirements({
   return (
     <div className="rounded-xl border bg-card/50 backdrop-blur-sm p-6 shadow-md space-y-8">
       <div className="flex items-center justify-between border-b pb-4">
-        <h2 className="text-xl font-bold tracking-tight">Сгенерированные требования</h2>
-        <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20">AI Анализ</Badge>
+        <h2 className="text-xl font-bold tracking-tight">
+          Сгенерированные требования
+        </h2>
+        <Badge
+          variant="outline"
+          className="bg-primary/5 text-primary border-primary/20"
+        >
+          AI Анализ
+        </Badge>
       </div>
 
       {data.summary && (
@@ -243,7 +250,9 @@ export function VacancyRequirements({
           <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">
             Краткое описание
           </h3>
-          <p className="text-sm leading-relaxed text-foreground/90">{data.summary}</p>
+          <p className="text-sm leading-relaxed text-foreground/90">
+            {data.summary}
+          </p>
         </div>
       )}
 
@@ -290,13 +299,15 @@ export function VacancyRequirements({
               <div className="grid gap-2">
                 {data.mandatory_requirements.map((req, i) => (
                   <div
-                    key={i}
+                    key={`req-${i}-${req.slice(0, 20)}`}
                     className="flex gap-3 p-3 rounded-md border bg-background/40 text-sm items-start"
                   >
                     <div className="size-5 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5 text-[10px] font-bold">
                       {i + 1}
                     </div>
-                    <span className="text-muted-foreground leading-relaxed italic">{req}</span>
+                    <span className="text-muted-foreground leading-relaxed italic">
+                      {req}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -311,7 +322,11 @@ export function VacancyRequirements({
             </h3>
             <div className="flex flex-wrap gap-2 p-4 rounded-lg border bg-background/40">
               {data.tech_stack.map((tech) => (
-                <Badge key={tech} variant="secondary" className="bg-primary/10 text-primary border-primary/10 hover:bg-primary/20">
+                <Badge
+                  key={tech}
+                  variant="secondary"
+                  className="bg-primary/10 text-primary border-primary/10 hover:bg-primary/20"
+                >
                   {tech}
                 </Badge>
               ))}
@@ -328,11 +343,13 @@ export function VacancyRequirements({
             <ul className="grid gap-2">
               {data.nice_to_have_skills.map((skill, i) => (
                 <li
-                  key={i}
+                  key={`skill-${i}-${skill.slice(0, 20)}`}
                   className="group flex gap-3 p-3 rounded-md border border-dashed bg-background/20 text-sm items-start hover:border-primary/50 transition-colors"
                 >
                   <div className="size-1.5 rounded-full bg-muted-foreground/30 mt-2 group-hover:bg-primary/50" />
-                  <span className="text-muted-foreground leading-relaxed">{skill}</span>
+                  <span className="text-muted-foreground leading-relaxed">
+                    {skill}
+                  </span>
                 </li>
               ))}
             </ul>
@@ -342,12 +359,21 @@ export function VacancyRequirements({
         <div className="grid gap-6 md:grid-cols-2">
           {data.languages && data.languages.length > 0 && (
             <div className="space-y-3">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">Языки</h3>
+              <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">
+                Языки
+              </h3>
               <div className="flex flex-wrap gap-2">
                 {data.languages.map((lang, index) => {
-                  const label = typeof lang === "string" ? lang : `${lang.language}${lang.level ? ` (${lang.level})` : ""}`;
+                  const label =
+                    typeof lang === "string"
+                      ? lang
+                      : `${lang.language}${lang.level ? ` (${lang.level})` : ""}`;
                   return (
-                    <Badge key={index} variant="outline" className="bg-background">
+                    <Badge
+                      key={`lang-${index}-${label}`}
+                      variant="outline"
+                      className="bg-background"
+                    >
                       {label}
                     </Badge>
                   );
@@ -356,20 +382,25 @@ export function VacancyRequirements({
             </div>
           )}
 
-          {data.keywords_for_matching && data.keywords_for_matching.length > 0 && (
-            <div className="space-y-3">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">
-                Ключевые слова
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {data.keywords_for_matching.map((keyword, i) => (
-                  <Badge key={i} variant="outline" className="bg-background text-[10px]">
-                    {keyword}
-                  </Badge>
-                ))}
+          {data.keywords_for_matching &&
+            data.keywords_for_matching.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">
+                  Ключевые слова
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {data.keywords_for_matching.map((keyword, i) => (
+                    <Badge
+                      key={`keyword-${i}-${keyword}`}
+                      variant="outline"
+                      className="bg-background text-[10px]"
+                    >
+                      {keyword}
+                    </Badge>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
         </div>
       </div>
     </div>

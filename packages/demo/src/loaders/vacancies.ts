@@ -22,7 +22,6 @@ interface InsertedVacancy {
  * focused and manageable for testing/demonstration purposes.
  */
 const ValidPlatformSchema = z.enum(["HH", "SUPERJOB", "MANUAL"]);
-type ValidPlatform = z.infer<typeof ValidPlatformSchema>;
 
 export async function loadVacancies(): Promise<{
   insertedVacancies: InsertedVacancy[];
