@@ -4,7 +4,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
 
 interface CandidateAvatarProps {
   name?: string | null;
+  /**
+   * @deprecated Используйте photoFileId вместо photoUrl
+   */
   photoUrl?: string | null;
+  photoFileId?: string | null;
   className?: string;
 }
 
@@ -29,14 +33,19 @@ function getDiceBearUrl(name?: string | null): string {
 export function CandidateAvatar({
   name,
   photoUrl,
+  photoFileId,
   className,
 }: CandidateAvatarProps) {
   const initials = getInitials(name);
   const fallbackUrl = getDiceBearUrl(name);
 
+  // Поддержка обратной совместимости: если передан photoUrl, используем его
+  // В будущем нужно использовать только photoFileId + useAvatarUrl в родительском компоненте
+  const imageUrl = photoUrl || fallbackUrl;
+
   return (
     <Avatar className={className}>
-      <AvatarImage src={photoUrl || fallbackUrl} alt={name || "Кандидат"} />
+      <AvatarImage src={imageUrl} alt={name || "Кандидат"} />
       <AvatarFallback>{initials}</AvatarFallback>
     </Avatar>
   );

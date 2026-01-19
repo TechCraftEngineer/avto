@@ -2,7 +2,7 @@
 
 import { paths } from "@qbs-autonaim/config";
 import { Button, Skeleton } from "@qbs-autonaim/ui";
-import { useQuery } from "@tanstack/react-query";
+import { skipToken, useQuery } from "@tanstack/react-query";
 import { ArrowLeft, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -26,10 +26,12 @@ export default function VacancyResponseDetailPage() {
   const { workspaceId } = useWorkspaceContext();
 
   const { data: responseData, isLoading } = useQuery(
-    trpc.vacancy.responses.get.queryOptions({
-      id: responseId,
-      workspaceId: workspaceId ?? "",
-    }),
+    workspaceId
+      ? trpc.vacancy.responses.get.queryOptions({
+          id: responseId,
+          workspaceId,
+        })
+      : skipToken,
   );
 
   if (!workspaceId) {
@@ -72,7 +74,7 @@ export default function VacancyResponseDetailPage() {
   // Создаём объект с globalCandidate для совместимости с ResponseDetail
   const responseWithGlobalCandidate = {
     ...response,
-    globalCandidate: null as null, // TODO: load actual candidate if needed
+    globalCandidate: null as null, // TODO: загрузить фактического кандидата при необходимости
   };
 
   return (

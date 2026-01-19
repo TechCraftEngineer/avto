@@ -116,15 +116,17 @@ export function AIAssistantPanel({
         </CardContent>
       </Card>
 
-      <UniversalChatPanel
-        entityType="project"
-        entityId={workspace?.id ?? ""}
-        isOpen={isChatOpen}
-        onClose={() => setIsChatOpen(false)}
-        title="AI-Ассистент воркспейса"
-        description="Помощник по анализу данных и рекомендациям"
-        welcomeMessage="Привет! Я AI-ассистент вашего воркспейса. Я могу помочь с анализом откликов, рекомендациями по кандидатам, статистикой вакансий или ответить на любые вопросы о вашем проекте."
-      />
+      {isWorkspaceReady && workspace?.id && (
+        <UniversalChatPanel
+          entityType="project"
+          entityId={workspace.id}
+          isOpen={isChatOpen}
+          onClose={() => setIsChatOpen(false)}
+          title="AI-Ассистент воркспейса"
+          description="Помощник по анализу данных и рекомендациям"
+          welcomeMessage="Привет! Я AI-ассистент вашего воркспейса. Я могу помочь с анализом откликов, рекомендациями по кандидатам, статистикой вакансий или ответить на любые вопросы о вашем проекте."
+        />
+      )}
     </>
   );
 }
