@@ -65,9 +65,13 @@ export function VacancyTable({
 }: VacancyTableProps & {
   sortBy: string;
   sortOrder: "asc" | "desc";
-  onSortChange: (field: string) => void;
+  onSortChange: (
+    field: "createdAt" | "title" | "views" | "responses" | "newResponses",
+  ) => void;
 }) {
-  const handleSort = (field: string) => {
+  const handleSort = (
+    field: "createdAt" | "title" | "views" | "responses" | "newResponses",
+  ) => {
     onSortChange(field);
   };
 
@@ -95,11 +99,23 @@ export function VacancyTable({
               Просмотры
             </TableHead>
             <TableHead
-              className="cursor-pointer text-right font-semibold text-foreground hover:text-primary"
-              onClick={() => handleSort("responses")}
+              className="text-right font-semibold text-foreground"
+              aria-sort={
+                sortBy === "responses"
+                  ? sortOrder === "asc"
+                    ? "ascending"
+                    : "descending"
+                  : "none"
+              }
             >
-              Отклики
-              {renderSortIcon("responses")}
+              <button
+                type="button"
+                onClick={() => handleSort("responses")}
+                className="inline-flex items-center gap-1 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                Отклики
+                {renderSortIcon("responses")}
+              </button>
             </TableHead>
             <TableHead className="text-right font-semibold text-foreground">
               Новые

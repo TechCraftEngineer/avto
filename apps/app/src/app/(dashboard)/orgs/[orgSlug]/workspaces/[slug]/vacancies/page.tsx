@@ -21,23 +21,26 @@ import { useTRPC } from "~/trpc/react";
 
 export default function VacanciesPage() {
   const { orgSlug, slug: workspaceSlug } = useWorkspaceParams();
-  const api = useTRPC();
+  const trpc = useTRPC();
   const { workspace } = useWorkspace();
   const queryClient = useQueryClient();
   const [isUpdating, setIsUpdating] = useState(false);
   const [mergeOpenVacancyId, setMergeOpenVacancyId] = useState<string | null>(
-    null
+    null,
   );
   const [mergeTargetVacancyId, setMergeTargetVacancyId] = useState<string>("");
+  const [sortBy, setSortBy] = useState<
+    "createdAt" | "title" | "views" | "responses" | "newResponses"
+  >("createdAt");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
-  const { data: vacancies, isLoading } = useQuery({
-    ...api.freelancePlatforms.getVacancies.queryOptions({
+  const { data: vacancies, isLoading } = useQuery(
+    trpc.freelancePlatforms.getVacancies.queryOptions({
       workspaceId: workspace?.id ?? "",
       sortBy,
       sortOrder,
     }),
-    enabled: !!workspace?.id,
-  });
+  );
 
   const {
     searchQuery,
@@ -46,10 +49,6 @@ export default function VacanciesPage() {
     setSourceFilter,
     statusFilter,
     setStatusFilter,
-    sortBy,
-    setSortBy,
-    sortOrder,
-    setSortOrder,
     dateFrom,
     setDateFrom,
     dateTo,
@@ -61,19 +60,19 @@ export default function VacanciesPage() {
   const stats = useVacancyStats(vacancies);
 
   const mergeVacanciesMutation = useMutation(
-    api.freelancePlatforms.mergeVacancies.mutationOptions({
+    trpc.freelancePlatforms.mergeVacancies.mutationOptions({
       onSuccess: async () => {
-        toast.success("Вакансии успешно сдружены");
+        toast.success("Вакансии успешно объединены");
         setMergeOpenVacancyId(null);
         setMergeTargetVacancyId("");
         await queryClient.invalidateQueries({
-          queryKey: api.freelancePlatforms.getVacancies.queryKey(),
+          queryKey: trpc.freelancePlatforms.getVacancies.queryKey(),
         });
       },
-      onError: (err) => {
-        toast.error(err.message || "Не удалось сдружить вакансии");
+      onError: (error) => {
+        toast.error(error.message || "Не удалось объединить вакансии");
       },
-    })
+    }),
   );
 
   const handleUpdate = async () => {
@@ -104,11 +103,13 @@ export default function VacanciesPage() {
     });
   };
 
-  const handleTableSort = (field: string) => {
+  const handleTableSort = (
+    field: "createdAt" | "title" | "views" | "responses" | "newResponses",
+  ) => {
     if (sortBy === field) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     } else {
-      setSortBy(field as any);
+      setSortBy(field);
       setSortOrder("desc");
     }
   };
@@ -162,7 +163,7 @@ export default function VacanciesPage() {
               statusFilter={statusFilter}
               onStatusChange={setStatusFilter}
               sortBy={sortBy}
-              onSortChange={(val) => setSortBy(val as any)}
+              onSortChange={setSortBy}
               dateFrom={dateFrom}
               onDateFromChange={setDateFrom}
               dateTo={dateTo}

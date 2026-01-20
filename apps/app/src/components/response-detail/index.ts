@@ -1,13 +1,17 @@
 export * from "./constants";
+export { GigResponseDetailCard } from "./gig-response-detail-card";
 export { GigResponseTabs } from "./gig-response-tabs";
+export {
+  isVacancyResponse,
+  type ResponseDetail,
+  useVacancyResponseFlags,
+} from "./hooks/use-vacancy-response-flags";
 export { InterviewScoringCard } from "./interview-scoring-card";
 export { MetadataCard } from "./metadata-card";
 export { ParsedProfileCard } from "./parsed-profile-card";
 export { RecommendationCard } from "./recommendation-card";
-export { ResponseDetailCard } from "./vacancy-response-detail-card";
 export { ResponseHeaderCard } from "./response-header-card";
 export { ScreeningResultsCard } from "./screening-results-card";
-export { VacancyResponseTabs } from "./vacancy-response-tabs";
 export {
   ContactsTab,
   DialogTab,
@@ -15,10 +19,6 @@ export {
   PortfolioTab,
   ProposalTab,
 } from "./tabs";
-export {
-  isVacancyResponse,
-  useVacancyResponseFlags,
-  type ResponseDetail,
-} from "./hooks/use-vacancy-response-flags";
-export * from "./constants";
-export * from "./types";Tabs } from "./vacancy-response-tabs";
+export * from "./types";
+export { ResponseDetailCard } from "./vacancy-response-detail-card";
+export { VacancyResponseTabs } from "./vacancy-response-tabs";

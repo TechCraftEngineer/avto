@@ -1,15 +1,14 @@
 import { openai } from "@ai-sdk/openai";
-import { generateObject } from "ai";
-import { eq } from "drizzle-orm";
-
 import {
   buildCandidateRecommendationPrompt,
   CandidateRecommendationSchema,
-  formatRecommendationForTelegram,
   type EntityDataForRecommendation,
+  formatRecommendationForTelegram,
 } from "@qbs-autonaim/ai";
 import { db } from "@qbs-autonaim/db/client";
-import { gig, response, vacancy } from "@qbs-autonaim/db/schema";
+import { gig, vacancy } from "@qbs-autonaim/db/schema";
+import { generateObject } from "ai";
+import { eq } from "drizzle-orm";
 
 import {
   getResponseDataForRecommendation,
@@ -104,13 +103,17 @@ export const generateRecommendationFunction = inngest.createFunction(
             )
           : undefined;
 
+        // Санитизируем deliveryDays: если deadline в прошлом (<=0), используем undefined
+        const validDeliveryDays =
+          deliveryDays && deliveryDays > 0 ? deliveryDays : undefined;
+
         const entity: EntityDataForRecommendation = {
           type: "gig",
           title: gigData.title,
           description: gigData.description ?? undefined,
           requirements,
           budget,
-          deliveryDays,
+          deliveryDays: validDeliveryDays,
         };
 
         return entity;
@@ -132,22 +135,87 @@ export const generateRecommendationFunction = inngest.createFunction(
       async () => {
         const { screening, candidate } = responseData;
 
-        const result = await generateObject({
-          model: openai("gpt-4o-mini"),
-          schema: CandidateRecommendationSchema,
-          prompt: buildCandidateRecommendationPrompt(
-            screening,
-            candidate,
-            entityData,
-          ),
-        });
+        // Создаем AbortSignal с таймаутом 60 секунд
+        const timeoutMs = 60_000;
+        const abortSignal = AbortSignal.timeout(timeoutMs);
 
-        console.log("✅ Рекомендация сгенерирована", {
-          responseId,
-          level: result.object.recommendation,
-        });
+        try {
+          const result = await generateObject({
+            model: openai("gpt-4o-mini"),
+            schema: CandidateRecommendationSchema,
+            prompt: buildCandidateRecommendationPrompt(
+              screening,
+              candidate,
+              entityData,
+            ),
+            abortSignal,
+          });
 
-        return result.object;
+          console.log("✅ Рекомендация сгенерирована", {
+            responseId,
+            level: result.object.recommendation,
+          });
+
+          return result.object;
+        } catch (error) {
+          // Проверяем, является ли ошибка таймаутом
+          const isTimeout =
+            error instanceof Error &&
+            (error.name === "AbortError" ||
+              error.name === "TimeoutError" ||
+              error.message.includes("aborted") ||
+              error.message.includes("timeout"));
+
+          if (isTimeout) {
+            console.error("⏱️ Таймаут при генерации рекомендации", {
+              responseId,
+              candidateName: candidate.name,
+              entityType: entityData.type,
+              entityTitle: entityData.title,
+              timeoutMs,
+            });
+
+            throw new Error(
+              `Таймаут при генерации рекомендации для кандидата ${candidate.name} по ${entityData.type} "${entityData.title}" после ${timeoutMs}ms`,
+            );
+          }
+
+          // Обрабатываем сетевые ошибки
+          const isNetworkError =
+            error instanceof Error &&
+            (error.message.includes("fetch") ||
+              error.message.includes("network") ||
+              error.message.includes("ECONNREFUSED") ||
+              error.message.includes("ETIMEDOUT"));
+
+          if (isNetworkError) {
+            console.error("🌐 Сетевая ошибка при генерации рекомендации", {
+              responseId,
+              candidateName: candidate.name,
+              entityType: entityData.type,
+              entityTitle: entityData.title,
+              error: error instanceof Error ? error.message : String(error),
+            });
+
+            throw new Error(
+              `Сетевая ошибка при генерации рекомендации для кандидата ${candidate.name}: ${error instanceof Error ? error.message : String(error)}`,
+            );
+          }
+
+          // Обрабатываем другие ошибки
+          console.error("❌ Ошибка при генерации рекомендации", {
+            responseId,
+            candidateName: candidate.name,
+            entityType: entityData.type,
+            entityTitle: entityData.title,
+            error: error instanceof Error ? error.message : String(error),
+            errorName: error instanceof Error ? error.name : undefined,
+          });
+
+          throw new Error(
+            `Не удалось сгенерировать рекомендацию для кандидата ${candidate.name} по ${entityData.type} "${entityData.title}": ${error instanceof Error ? error.message : String(error)}`,
+          );
+        }
       },
     );
 
@@ -161,16 +229,9 @@ export const generateRecommendationFunction = inngest.createFunction(
       });
     });
 
-    // Получаем chatId для отправки в Telegram
-    const resp = await step.run("get-chat-info", async () => {
-      const r = await db.query.response.findFirst({
-        where: eq(response.id, responseId),
-      });
-      return r;
-    });
-
     // Отправляем рекомендацию в Telegram (если есть chatId)
-    if (resp?.chatId) {
+    // Используем уже загруженные данные из responseData
+    if (responseData.response.chatId) {
       const { candidate } = responseData;
       const formattedMessage = formatRecommendationForTelegram(
         recommendation,
@@ -181,14 +242,14 @@ export const generateRecommendationFunction = inngest.createFunction(
       await step.sendEvent("send-recommendation-telegram", {
         name: "telegram/message.send",
         data: {
-          chatId: resp.chatId,
+          chatId: responseData.response.chatId,
           content: formattedMessage,
         },
       });
 
       console.log("📤 Рекомендация отправлена в Telegram", {
         responseId,
-        chatId: resp.chatId,
+        chatId: responseData.response.chatId,
       });
     }
 

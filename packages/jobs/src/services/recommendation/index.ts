@@ -4,22 +4,18 @@
 
 import {
   buildCandidateRecommendationPrompt,
-  CandidateRecommendationSchema,
   type CandidateDataForRecommendation,
   type CandidateRecommendation,
+  CandidateRecommendationSchema,
   type EntityDataForRecommendation,
   type ScreeningDataForRecommendation,
 } from "@qbs-autonaim/ai";
 import { db } from "@qbs-autonaim/db";
 import { response } from "@qbs-autonaim/db/schema";
+import { sanitizeAiText, sanitizeAiTextArray } from "@qbs-autonaim/lib";
 import { eq } from "drizzle-orm";
 
-import type {
-  RecommendationEntityType,
-  RecommendationGenerationResult,
-  RecommendationInput,
-  RecommendationSaveData,
-} from "../../types/recommendation";
+import type { RecommendationSaveData } from "../../types/recommendation";
 import { createLogger, err, ok, type Result } from "../base";
 
 const logger = createLogger("RecommendationService");
@@ -139,22 +135,40 @@ export async function getResponseDataForRecommendation(
 
 /**
  * Конвертирует CandidateRecommendation в RecommendationSaveData
+ * Применяет санитизацию ко всем AI-сгенерированным полям
  */
 export function toSaveData(
   responseId: string,
   recommendation: CandidateRecommendation,
 ): RecommendationSaveData {
+  // Санитизируем массивы строк для rankingAnalysis
+  const sanitizedActionSuggestions = sanitizeAiTextArray(
+    recommendation.actionSuggestions,
+    1000,
+  );
+  const sanitizedRiskFactors = sanitizeAiTextArray(
+    recommendation.riskFactors ?? [],
+    1000,
+  );
+  const sanitizedInterviewQuestions = sanitizeAiTextArray(
+    recommendation.interviewQuestions ?? [],
+    1000,
+  );
+
+  // Собираем rankingAnalysis из санитизированных элементов
+  const rankingAnalysisParts = [
+    ...sanitizedActionSuggestions.map((a) => `Действие: ${a}`),
+    ...sanitizedRiskFactors.map((r) => `Риск: ${r}`),
+    ...sanitizedInterviewQuestions.map((q) => `Вопрос: ${q}`),
+  ];
+
   return {
     responseId,
     recommendation: recommendation.recommendation,
-    strengths: recommendation.strengths,
-    weaknesses: recommendation.weaknesses,
-    candidateSummary: recommendation.candidateSummary,
-    rankingAnalysis: [
-      ...recommendation.actionSuggestions.map((a) => `Действие: ${a}`),
-      ...(recommendation.riskFactors?.map((r) => `Риск: ${r}`) ?? []),
-      ...(recommendation.interviewQuestions?.map((q) => `Вопрос: ${q}`) ?? []),
-    ].join("\n"),
+    strengths: sanitizeAiTextArray(recommendation.strengths, 1000),
+    weaknesses: sanitizeAiTextArray(recommendation.weaknesses, 1000),
+    candidateSummary: sanitizeAiText(recommendation.candidateSummary, 3000),
+    rankingAnalysis: rankingAnalysisParts.join("\n"),
   };
 }
 

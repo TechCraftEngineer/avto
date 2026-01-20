@@ -2,11 +2,7 @@ import { AgentFactory, InterviewOrchestrator } from "@qbs-autonaim/ai";
 import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { interviewSession } from "@qbs-autonaim/db/schema";
-import {
-  getActualProvider,
-  getAIModel,
-  getAIModelName,
-} from "@qbs-autonaim/lib";
+import { getAIModel } from "@qbs-autonaim/lib";
 import { stripHtml } from "string-strip-html";
 import type { InterviewAnalysis } from "../../schemas/interview";
 import { createLogger, INTERVIEW } from "../base";

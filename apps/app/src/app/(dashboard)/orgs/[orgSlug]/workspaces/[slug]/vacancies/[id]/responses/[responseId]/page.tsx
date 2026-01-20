@@ -26,12 +26,14 @@ export default function VacancyResponseDetailPage() {
   const { workspaceId } = useWorkspaceContext();
 
   const { data: responseData, isLoading } = useQuery(
-    workspaceId
-      ? trpc.vacancy.responses.get.queryOptions({
-          id: responseId,
-          workspaceId,
-        })
-      : skipToken,
+    trpc.vacancy.responses.get.queryOptions(
+      workspaceId
+        ? {
+            id: responseId,
+            workspaceId,
+          }
+        : skipToken,
+    ),
   );
 
   if (!workspaceId) {

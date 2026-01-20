@@ -130,7 +130,7 @@ export class InterviewScoringAgent extends BaseAgent<
                     answerTime = answerDate.toISOString();
                   }
                 }
-              } catch (error) {
+              } catch {
                 // Игнорируем ошибки парсинга дат
                 responseTime = null;
                 questionTime = null;

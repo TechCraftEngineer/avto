@@ -28,7 +28,9 @@ interface VacancyFiltersProps {
   statusFilter: string;
   onStatusChange: (value: string) => void;
   sortBy: string;
-  onSortChange: (value: string) => void;
+  onSortChange: (
+    value: "createdAt" | "title" | "views" | "responses" | "newResponses",
+  ) => void;
   dateFrom: string;
   onDateFromChange: (value: string) => void;
   dateTo: string;
