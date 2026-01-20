@@ -20,7 +20,7 @@
   "dependencies": {
     "@qbs-autonaim/config": "workspace:*",
     "@qbs-autonaim/db": "workspace:*",
-    "better-auth": "1.4.15",
+    "better-auth": "1.4.16",
     "zod": "4.3.5"
   },
   "devDependencies": {

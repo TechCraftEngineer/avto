@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "@radix-ui/colors": "3.0.0",
-    "@react-email/components": "1.0.4",
+    "@react-email/components": "1.0.5",
     "@qbs-autonaim/config": "workspace:*",
     "@qbs-autonaim/tsconfig": "workspace:*",
     "@tailwindcss/typography": "0.5.19",
@@ -37,7 +37,7 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-email": "5.2.5",
-    "resend": "^6.7.0",
+    "resend": "^6.8.0",
     "sharp": "^0.34.5",
     "tailwindcss": "4.1.18",
     "tailwindcss-animate": "1.0.7",
