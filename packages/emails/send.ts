@@ -1,4 +1,4 @@
-import { render } from "@react-email/components";
+import { render } from "@react-email/render";
 import nodemailer from "nodemailer";
 import type Mail from "nodemailer/lib/mailer";
 import type { ReactNode } from "react";
@@ -25,10 +25,15 @@ export type EmailHtml = {
 };
 export const sendEmail = async (email: Emails): Promise<void> => {
   if (env.EMAIL_SANDBOX_ENABLED) {
+    const htmlContent = await render(email.react);
+    if (!htmlContent) {
+      console.error("Ошибка рендеринга email шаблона: render вернул undefined");
+      throw new Error("Не удалось отрендерить email шаблон");
+    }
     const mailOptions: Mail.Options = {
       from: email.from ?? env.EMAIL_FROM,
       to: email.to,
-      html: await render(email.react),
+      html: htmlContent,
       subject: email.subject,
     };
     const transporter = nodemailer.createTransport({
