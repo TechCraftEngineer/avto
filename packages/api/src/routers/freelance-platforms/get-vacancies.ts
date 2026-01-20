@@ -1,4 +1,5 @@
-import { and, count, desc, eq, isNull, sql } from "@qbs-autonaim/db";
+import type { SQL } from "@qbs-autonaim/db";
+import { and, count, eq, isNull, sql } from "@qbs-autonaim/db";
 import { response as responseTable, vacancy } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
@@ -32,14 +33,14 @@ export const getVacancies = protectedProcedure
       ctx.auditLogger,
       ctx.session.user.id,
       ctx.ipAddress,
-      ctx.userAgent
+      ctx.userAgent,
     );
 
     try {
       // Проверка доступа к workspace
       const access = await ctx.workspaceRepository.checkAccess(
         input.workspaceId,
-        ctx.session.user.id
+        ctx.session.user.id,
       );
 
       if (!access) {
@@ -95,29 +96,35 @@ export const getVacancies = protectedProcedure
           responseTable,
           and(
             eq(vacancy.id, responseTable.entityId),
-            eq(responseTable.entityType, "vacancy")
-          )
+            eq(responseTable.entityType, "vacancy"),
+          ),
         )
         .where(and(...conditions));
 
       // Сортировка
       const { sortBy = "createdAt", sortOrder = "desc" } = input;
-      const orderFn = sortOrder === "asc" ? sql.asc : desc;
 
-      const orderByMapping: Record<string, any> = {
+      // Строго типизированный маппинг: каждый ключ сортировки соответствует точному типу выражения
+      const orderByMapping: {
+        readonly createdAt: typeof vacancy.createdAt;
+        readonly title: typeof vacancy.title;
+        readonly views: typeof vacancy.views;
+        readonly responses: SQL<number>;
+        readonly newResponses: typeof vacancy.newResponses;
+      } = {
         createdAt: vacancy.createdAt,
         title: vacancy.title,
         views: vacancy.views,
         responses: count(responseTable.id),
         newResponses: vacancy.newResponses,
-      };
+      } as const;
 
       const orderBy = orderByMapping[sortBy] || vacancy.createdAt;
 
       const vacancies = await query
         .groupBy(vacancy.id)
         .orderBy(
-          sortOrder === "asc" ? sql`${orderBy} ASC` : sql`${orderBy} DESC`
+          sortOrder === "asc" ? sql`${orderBy} ASC` : sql`${orderBy} DESC`,
         );
 
       return vacancies;

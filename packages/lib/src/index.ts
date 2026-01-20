@@ -1,5 +1,7 @@
 // AI utilities
 export * from "./ai-client";
+// AI text sanitization utilities
+export * from "./ai-text-sanitizer";
 
 // Image utilities
 export * from "./image";

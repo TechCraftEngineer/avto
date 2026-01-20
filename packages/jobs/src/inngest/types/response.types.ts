@@ -35,7 +35,7 @@ export const parseMissingContactsDataSchema = z.object({
 });
 
 export const recommendationGenerateDataSchema = z.object({
-  responseId: z.string().min(1, "Response ID is required"),
+  responseId: z.string().min(1, "Требуется идентификатор ответа"),
 });
 
 /**
