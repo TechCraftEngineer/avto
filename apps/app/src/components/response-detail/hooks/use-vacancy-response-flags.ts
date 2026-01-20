@@ -38,7 +38,7 @@ function hasValidInterviewSession(session: unknown): session is {
 }
 
 // Type guard для проверки структуры conversation
-function hasValidConversation(conversation: unknown): conversation is {
+function _hasValidConversation(conversation: unknown): conversation is {
   id: string;
   status: string;
   messages: Array<{

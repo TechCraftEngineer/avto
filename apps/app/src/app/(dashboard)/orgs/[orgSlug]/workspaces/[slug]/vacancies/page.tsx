@@ -26,9 +26,11 @@ export default function VacanciesPage() {
   const queryClient = useQueryClient();
   const [isUpdating, setIsUpdating] = useState(false);
   const [mergeOpenVacancyId, setMergeOpenVacancyId] = useState<string | null>(
-    null
+    null,
   );
   const [mergeTargetVacancyId, setMergeTargetVacancyId] = useState<string>("");
+  const [sortBy, setSortBy] = useState<string>("createdAt");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   const { data: vacancies, isLoading } = useQuery({
     ...api.freelancePlatforms.getVacancies.queryOptions({
@@ -46,10 +48,6 @@ export default function VacanciesPage() {
     setSourceFilter,
     statusFilter,
     setStatusFilter,
-    sortBy,
-    setSortBy,
-    sortOrder,
-    setSortOrder,
     dateFrom,
     setDateFrom,
     dateTo,
@@ -73,7 +71,7 @@ export default function VacanciesPage() {
       onError: (err) => {
         toast.error(err.message || "Не удалось сдружить вакансии");
       },
-    })
+    }),
   );
 
   const handleUpdate = async () => {
@@ -108,7 +106,7 @@ export default function VacanciesPage() {
     if (sortBy === field) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     } else {
-      setSortBy(field as any);
+      setSortBy(field);
       setSortOrder("desc");
     }
   };
@@ -162,7 +160,7 @@ export default function VacanciesPage() {
               statusFilter={statusFilter}
               onStatusChange={setStatusFilter}
               sortBy={sortBy}
-              onSortChange={(val) => setSortBy(val as any)}
+              onSortChange={setSortBy}
               dateFrom={dateFrom}
               onDateFromChange={setDateFrom}
               dateTo={dateTo}

@@ -88,7 +88,7 @@ function DialogMessage({ message }: { message: Message }) {
 
   // Валидация даты
   const messageDate = new Date(message.createdAt);
-  const isValidDate = !isNaN(messageDate.getTime());
+  const isValidDate = !Number.isNaN(messageDate.getTime());
   const formattedTime = isValidDate
     ? new Intl.DateTimeFormat("ru-RU", {
         hour: "2-digit",

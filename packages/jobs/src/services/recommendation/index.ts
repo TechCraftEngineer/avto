@@ -15,12 +15,7 @@ import { response } from "@qbs-autonaim/db/schema";
 import { sanitizeAiText, sanitizeAiTextArray } from "@qbs-autonaim/lib";
 import { eq } from "drizzle-orm";
 
-import type {
-  RecommendationEntityType,
-  RecommendationGenerationResult,
-  RecommendationInput,
-  RecommendationSaveData,
-} from "../../types/recommendation";
+import type { RecommendationSaveData } from "../../types/recommendation";
 import { createLogger, err, ok, type Result } from "../base";
 
 const logger = createLogger("RecommendationService");
