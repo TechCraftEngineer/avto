@@ -1,3 +1,4 @@
+import { getAIModel } from "@qbs-autonaim/lib";
 import { RankingService } from "@qbs-autonaim/shared";
 import { inngest } from "../../client";
 
@@ -23,8 +24,9 @@ export const recalculateRankingFunction = inngest.createFunction(
 
       try {
         // Создаем экземпляр RankingService с конфигурацией AI агентов
+        const model = getAIModel();
         const rankingService = new RankingService({
-          model: "gpt-4o",
+          model,
         });
 
         // Вычисляем рейтинг
