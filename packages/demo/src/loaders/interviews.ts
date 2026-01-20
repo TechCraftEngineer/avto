@@ -51,7 +51,15 @@ export async function loadInterviewSessions(
 ): Promise<{ sessions: InsertedSession[]; sessionMapping: SessionMapping }> {
   console.log("\n🎤 Загружаем интервью-сессии...");
 
-  const { interviewSession } = await import("@qbs-autonaim/db/schema");
+  const { interviewSession, interviewMessage } = await import(
+    "@qbs-autonaim/db/schema"
+  );
+
+  // Очищаем существующие данные
+  console.log("🗑️  Очищаем существующие интервью-сессии и сообщения...");
+  await db.delete(interviewMessage);
+  await db.delete(interviewSession);
+  console.log("✅ Существующие данные очищены");
 
   const sessionsPath = join(__dirname, "../../data/interview-sessions.json");
   const sessionsData = readJsonSafe<InterviewSessionData[]>(sessionsPath, []);

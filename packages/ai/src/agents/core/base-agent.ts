@@ -5,21 +5,33 @@
 import type { LanguageModel, ToolSet } from "ai";
 import { Output, stepCountIs, ToolLoopAgent } from "ai";
 import type { Langfuse } from "langfuse";
-import { type ZodType, z } from "zod";
+import { z, type ZodType } from "zod";
 import type { AgentType } from "./types";
 
 /**
- * Envelope schema for AI responses
- * Wraps the actual content with metadata about the generation
+ * Схема для валидации полного ответа агента включая метаданные
  */
-const aiResponseEnvelopeSchema = z.object({
-  content: z.string(),
-  metadata: z
+const FullResponseSchema = z.object({
+  output: z.unknown(), // Будет валидироваться отдельно через outputSchema
+  finishReason: z.enum([
+    "stop",
+    "length",
+    "content-filter",
+    "tool-calls",
+    "error",
+    "other",
+    "unknown",
+  ]),
+  model: z
     .object({
-      tokens: z.number().optional(),
-      model: z.string().optional(),
-      finishReason: z.enum(["stop", "length", "error"]),
-      timestamp: z.string().optional(),
+      modelId: z.string().optional(),
+    })
+    .optional(),
+  usage: z
+    .object({
+      promptTokens: z.number().optional(),
+      completionTokens: z.number().optional(),
+      totalTokens: z.number().optional(),
     })
     .optional(),
 });
@@ -30,6 +42,8 @@ export interface AgentConfig {
   langfuse?: Langfuse | undefined;
   traceId?: string;
   tools?: ToolSet;
+  modelProvider?: "openai" | "deepseek" | string;
+  modelName?: string;
 }
 
 /**
@@ -42,6 +56,8 @@ export abstract class BaseAgent<TInput, TOutput> {
   protected readonly langfuse?: Langfuse;
   protected readonly traceId?: string;
   protected readonly outputSchema: ZodType<TOutput>;
+  private readonly modelProvider?: string;
+  private readonly modelName?: string;
 
   constructor(
     name: string,
@@ -55,6 +71,8 @@ export abstract class BaseAgent<TInput, TOutput> {
     this.langfuse = config.langfuse;
     this.traceId = config.traceId;
     this.outputSchema = outputSchema;
+    this.modelProvider = config.modelProvider;
+    this.modelName = config.modelName;
 
     this.agent = new ToolLoopAgent({
       model: config.model,
@@ -88,6 +106,8 @@ export abstract class BaseAgent<TInput, TOutput> {
       input,
       metadata: {
         agentType: this.type,
+        modelProvider: this.modelProvider,
+        modelName: this.modelName,
       },
     });
 
@@ -112,49 +132,95 @@ export abstract class BaseAgent<TInput, TOutput> {
 
       const result = await this.agent.generate({ prompt });
 
-      // Validate envelope structure first
-      const envelopeValidation = aiResponseEnvelopeSchema.safeParse({
-        content: result.output,
-        metadata: {
-          model: (result as { model?: { modelId?: string } }).model?.modelId,
-          finishReason: result.finishReason,
-          timestamp: new Date().toISOString(),
-        },
+      // Детальное логирование структуры result для отладки
+      console.log(`[${this.name}] Raw result structure:`, {
+        hasOutput: !!result.output,
+        outputType: typeof result.output,
+        outputKeys:
+          result.output && typeof result.output === "object"
+            ? Object.keys(result.output)
+            : [],
+        outputSample: JSON.stringify(result.output).substring(0, 1000),
+        finishReason: result.finishReason,
       });
 
-      if (!envelopeValidation.success) {
-        console.error(`[${this.name}] Envelope validation failed:`, {
-          errors: envelopeValidation.error.issues,
-          rawOutput: result.output,
-        });
-        throw new Error(
-          `Не удалось валидировать конверт: ${envelopeValidation.error.message}`,
-        );
+      // AI SDK 6 с Output.object() может возвращать объект с полем content
+      // Извлекаем content перед валидацией, если он есть
+      let outputData: unknown = result.output;
+
+      // Проверяем, есть ли обёртка {content: {...}}
+      if (
+        outputData &&
+        typeof outputData === "object" &&
+        "content" in outputData &&
+        Object.keys(outputData).length === 1
+      ) {
+        // Это обёртка от AI SDK, извлекаем content
+        outputData = (outputData as { content: unknown }).content;
+        console.log(`[${this.name}] Extracted content from AI SDK wrapper`);
       }
 
-      // Extract content from envelope and validate against output schema
-      const envelope = envelopeValidation.data;
+      console.log(`[${this.name}] Extracted output data:`, {
+        wasWrapped: outputData !== result.output,
+        outputDataType: typeof outputData,
+        outputDataKeys:
+          outputData && typeof outputData === "object"
+            ? Object.keys(outputData)
+            : [],
+        outputDataSample: JSON.stringify(outputData).substring(0, 1000),
+      });
 
-      const contentValidation = this.outputSchema.safeParse(envelope.content);
+      // Валидируем извлеченные данные против outputSchema
+      const contentValidation = this.outputSchema.safeParse(outputData);
 
       if (!contentValidation.success) {
-        console.error(`[${this.name}] Content validation failed:`, {
+        console.error(`[${this.name}] Output validation failed:`, {
           errors: contentValidation.error.issues,
-          content: envelope.content,
+          rawOutput: result.output,
+          extractedData: outputData,
+          finishReason: result.finishReason,
         });
         throw new Error(
-          `Не удалось валидировать содержимое: ${contentValidation.error.message}`,
+          `Не удалось валидировать выход агента: ${contentValidation.error.message}`,
         );
       }
 
       const validatedOutput = contentValidation.data;
+
+      // Валидируем полный ответ включая метаданные
+      const fullResponseValidation = FullResponseSchema.safeParse({
+        output: result.output,
+        finishReason: result.finishReason,
+        model: (result as { model?: { modelId?: string } }).model,
+        usage: (result as { usage?: unknown }).usage,
+      });
+
+      if (!fullResponseValidation.success) {
+        console.error(`[${this.name}] Full response validation failed:`, {
+          errors: fullResponseValidation.error.issues,
+          rawResult: {
+            finishReason: result.finishReason,
+            model: (result as { model?: { modelId?: string } }).model,
+            usage: (result as { usage?: unknown }).usage,
+          },
+        });
+        throw new Error(
+          `Не удалось валидировать полный ответ агента: ${fullResponseValidation.error.message}`,
+        );
+      }
+
+      const validatedResponse = fullResponseValidation.data;
 
       span?.end({
         output: validatedOutput,
         metadata: {
           success: true,
           promptLength: prompt.length,
-          envelopeMetadata: envelope.metadata,
+          finishReason: validatedResponse.finishReason,
+          model: validatedResponse.model?.modelId,
+          modelProvider: this.modelProvider,
+          modelName: this.modelName,
+          usage: validatedResponse.usage,
         },
       });
 

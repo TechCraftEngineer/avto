@@ -1,9 +1,11 @@
-import { vacancy, vacancyPublication } from "@qbs-autonaim/db/schema";
+import {
+  platformSourceValues,
+  vacancyPublication,
+} from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../trpc";
-import { platformSourceValues } from "@qbs-autonaim/db/schema";
 
 const addPublicationInputSchema = z.object({
   workspaceId: workspaceIdSchema,
@@ -32,7 +34,10 @@ export const addPublication = protectedProcedure
     // Проверка существования вакансии и принадлежности к workspace
     const existingVacancy = await ctx.db.query.vacancy.findFirst({
       where: (table, { and, eq }) =>
-        and(eq(table.id, input.vacancyId), eq(table.workspaceId, input.workspaceId)),
+        and(
+          eq(table.id, input.vacancyId),
+          eq(table.workspaceId, input.workspaceId),
+        ),
     });
 
     if (!existingVacancy) {

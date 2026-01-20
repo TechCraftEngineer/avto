@@ -108,6 +108,7 @@ export const listAll = protectedProcedure
               analysis: interviewScoring.analysis
                 ? sanitizeHtml(interviewScoring.analysis)
                 : null,
+              botUsageDetected: interviewScoring.botUsageDetected ?? null,
             }
           : null,
       };

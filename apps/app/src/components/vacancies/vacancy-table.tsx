@@ -96,8 +96,8 @@ export function VacancyTable({
         </TableHeader>
         <TableBody>
           {isLoading ? (
-            Array.from({ length: 5 }, (_, i) => i).map((id) => (
-              <TableRow key={`skeleton-${id}`}>
+            Array.from({ length: 5 }).map(() => (
+              <TableRow key={crypto.randomUUID()}>
                 <TableCell>
                   <Skeleton className="h-5 w-[200px]" />
                 </TableCell>
@@ -132,14 +132,14 @@ export function VacancyTable({
               <TableCell colSpan={9} className="h-[500px] p-0">
                 <div className="flex h-full flex-col items-center justify-center gap-6 px-4 py-10">
                   {/* Анимированный список скелетонов */}
-                  <div className="animate-fade-in h-36 w-full max-w-64 overflow-hidden px-4 [mask-image:linear-gradient(transparent,black_10%,black_90%,transparent)]">
+                  <div className="animate-fade-in h-36 w-full max-w-64 overflow-hidden px-4 mask-[linear-gradient(transparent,black_10%,black_90%,transparent)]">
                     <div
-                      className="animate-infinite-scroll-y flex flex-col [animation-duration:10s]"
+                      className="animate-infinite-scroll-y flex flex-col animation-duration-[10s]"
                       style={{ "--scroll": "-50%" } as React.CSSProperties}
                     >
-                      {Array.from({ length: 8 }, (_, i) => (
+                      {Array.from({ length: 8 }).map(() => (
                         <div
-                          key={i}
+                          key={crypto.randomUUID()}
                           className="mt-4 flex items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-sm"
                         >
                           <IconSearch className="size-4 text-muted-foreground" />

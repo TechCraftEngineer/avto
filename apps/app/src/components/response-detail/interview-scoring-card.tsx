@@ -17,12 +17,16 @@ interface InterviewScoringCardProps {
     score: number;
     detailedScore?: number;
     analysis: string | null | undefined;
+    botUsageDetected?: number | null;
   };
 }
 
 export function InterviewScoringCard({
   interviewScoring,
 }: InterviewScoringCardProps) {
+  const botUsage = interviewScoring.botUsageDetected ?? null;
+  const showBotWarning = botUsage !== null && botUsage >= 60;
+
   return (
     <Card>
       <CardHeader>
@@ -67,6 +71,50 @@ export function InterviewScoringCard({
             />
           </div>
         </div>
+
+        {/* Bot Usage Detection */}
+        {botUsage !== null && (
+          <>
+            <Separator />
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs sm:text-sm font-medium">
+                  Вероятность использования AI-бота
+                </span>
+                <span
+                  className={`text-xl sm:text-2xl font-bold ${
+                    botUsage >= 80
+                      ? "text-destructive"
+                      : botUsage >= 60
+                        ? "text-orange-600"
+                        : botUsage >= 40
+                          ? "text-yellow-600"
+                          : "text-green-600"
+                  }`}
+                >
+                  {botUsage}%
+                </span>
+              </div>
+              <Progress
+                value={botUsage}
+                className={`h-2 ${
+                  botUsage >= 80
+                    ? "[&>div]:bg-destructive"
+                    : botUsage >= 60
+                      ? "[&>div]:bg-orange-600"
+                      : botUsage >= 40
+                        ? "[&>div]:bg-yellow-600"
+                        : "[&>div]:bg-green-600"
+                }`}
+              />
+              {showBotWarning && (
+                <p className="text-xs text-orange-600 dark:text-orange-500 mt-2">
+                  ⚠️ Обнаружены признаки использования AI-бота для ответов
+                </p>
+              )}
+            </div>
+          </>
+        )}
 
         <Separator />
 

@@ -10,6 +10,7 @@ export interface WebInterviewContext {
   conversationHistory: Array<{
     sender: "CANDIDATE" | "BOT";
     content: string;
+    timestamp?: Date;
   }>;
   botSettings?: {
     botName?: string;

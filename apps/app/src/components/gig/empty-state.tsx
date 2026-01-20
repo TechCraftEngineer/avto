@@ -28,9 +28,9 @@ export function EmptyState({
               className="animate-infinite-scroll-y flex flex-col animation-duration-[10s]"
               style={{ "--scroll": "-50%" } as React.CSSProperties}
             >
-              {Array.from({ length: 8 }, (_, i) => (
+              {Array.from({ length: 8 }).map(() => (
                 <div
-                  key={i}
+                  key={crypto.randomUUID()}
                   className="mt-4 flex items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-sm"
                 >
                   <Briefcase className="size-4 text-muted-foreground" />

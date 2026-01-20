@@ -90,6 +90,7 @@ export const get = protectedProcedure
               Math.round(sessionInterviewScoring.score / 20),
             detailedScore: sessionInterviewScoring.score,
             analysis: sessionInterviewScoring.analysis,
+            botUsageDetected: sessionInterviewScoring.botUsageDetected,
           }
         : null,
       interviewSession: sessionData,

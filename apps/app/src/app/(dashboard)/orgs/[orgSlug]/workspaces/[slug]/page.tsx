@@ -3,6 +3,7 @@
 import { use } from "react";
 import {
   ActiveVacancies,
+  AIAssistantPanel,
   DashboardStats,
   RecentResponses,
   ResponsesChart,
@@ -22,6 +23,9 @@ export default function WorkspacePage({
         <div className="flex flex-1 flex-col gap-4">
           {/* Статистика - на весь экран */}
           <DashboardStats />
+
+          {/* AI-Ассистент - на весь экран */}
+          <AIAssistantPanel orgSlug={orgSlug} workspaceSlug={workspaceSlug} />
 
           {/* Основной контент - на весь экран */}
           <div className="grid flex-1 gap-4 md:grid-cols-2 @7xl/main:grid-cols-3">

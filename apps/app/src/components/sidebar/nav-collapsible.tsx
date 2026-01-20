@@ -116,7 +116,7 @@ function NavCollapsibleItem({
               "bg-red-500/10 text-red-600 dark:bg-red-500/20 dark:text-red-400",
             item.badgeVariant === "success" &&
               "bg-green-500/10 text-green-600 dark:bg-green-500/20 dark:text-green-400",
-            !item.badgeVariant &&
+            (item.badgeVariant === "default" || !item.badgeVariant) &&
               "bg-sidebar-primary/10 text-sidebar-primary dark:bg-sidebar-primary/20",
           )}
         >

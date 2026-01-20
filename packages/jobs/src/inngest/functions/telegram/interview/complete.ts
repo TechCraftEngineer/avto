@@ -71,12 +71,14 @@ export const completeInterviewFunction = inngest.createFunction(
             score: scoring.detailedScore,
             rating: scoring.score,
             analysis: scoring.analysis,
+            botUsageDetected: scoring.botUsageDetected,
           })
           .onConflictDoUpdate({
             target: interviewScoring.interviewSessionId,
             set: {
               score: sql`excluded.score`,
               analysis: sql`excluded.analysis`,
+              botUsageDetected: sql`excluded.bot_usage_detected`,
             },
           });
 

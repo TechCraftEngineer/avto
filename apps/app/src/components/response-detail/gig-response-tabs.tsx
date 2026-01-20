@@ -17,23 +17,14 @@ import {
   InterviewScoringCard,
   PortfolioTab,
   ProposalTab,
-  ScreeningResultsCard,
 } from "~/components/response-detail";
 import type { ResponseDetail } from "./hooks/use-vacancy-response-flags";
 
-interface VacancyResponseTabsProps {
+interface GigResponseTabsProps {
   response: ResponseDetail;
   defaultTab: string;
-  hasScreening: boolean;
   hasInterviewScoring: boolean;
   hasConversation: boolean;
-  screening: {
-    score: number;
-    detailedScore: number;
-    analysis: string | null;
-    priceAnalysis?: string | null;
-    deliveryAnalysis?: string | null;
-  } | null;
   conversation: {
     id: string;
     status: string;
@@ -48,19 +39,16 @@ interface VacancyResponseTabsProps {
   } | null;
 }
 
-export function VacancyResponseTabs({
+export function GigResponseTabs({
   response,
   defaultTab,
-  hasScreening,
   hasInterviewScoring,
   hasConversation,
-  screening,
   conversation,
-}: VacancyResponseTabsProps) {
+}: GigResponseTabsProps) {
   // Подсчитываем количество видимых вкладок
-  const hasAnalysis = hasScreening || hasInterviewScoring;
   const visibleTabsCount =
-    (hasAnalysis ? 1 : 0) + (hasConversation ? 1 : 0) + 4; // 4 базовые вкладки: Предложение, Опыт, Портфолио, Контакты
+    (hasInterviewScoring ? 1 : 0) + (hasConversation ? 1 : 0) + 4; // 4 базовые вкладки
 
   // Определяем классы grid-cols на основе количества вкладок
   const gridColsClass =
@@ -77,7 +65,7 @@ export function VacancyResponseTabs({
           <TabsList
             className={cn("grid w-full h-auto gap-1 p-1", gridColsClass)}
           >
-            {(hasScreening || hasInterviewScoring) && (
+            {hasInterviewScoring && (
               <TabsTrigger
                 value="analysis"
                 className="min-h-11 sm:min-h-9 text-xs sm:text-sm touch-manipulation"
@@ -122,15 +110,12 @@ export function VacancyResponseTabs({
 
         <CardContent>
           {/* Analysis Tab */}
-          {(hasScreening || hasInterviewScoring) && (
+          {hasInterviewScoring && (
             <TabsContent
               value="analysis"
               className="space-y-3 sm:space-y-4 mt-0"
             >
-              {hasScreening && screening && (
-                <ScreeningResultsCard screening={screening} />
-              )}
-              {hasInterviewScoring && response.interviewScoring && (
+              {response.interviewScoring && (
                 <InterviewScoringCard
                   interviewScoring={response.interviewScoring}
                 />

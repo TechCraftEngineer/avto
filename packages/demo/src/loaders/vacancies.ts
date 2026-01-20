@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { db } from "@qbs-autonaim/db";
 import { vacancy, vacancyPublication } from "@qbs-autonaim/db/schema";
+import { z } from "zod";
 
 import type { PublicationMapping, VacancyMapping } from "../types";
 
@@ -10,15 +11,17 @@ interface InsertedVacancy {
   title: string;
 }
 
-const VALID_PLATFORMS = ["HH", "SUPERJOB", "MANUAL"] as const;
-type ValidPlatform = (typeof VALID_PLATFORMS)[number];
-
-function isValidPlatform(value: unknown): value is ValidPlatform {
-  return (
-    typeof value === "string" &&
-    VALID_PLATFORMS.includes(value as ValidPlatform)
-  );
-}
+/**
+ * Demo-only platform restriction
+ *
+ * VALID_PLATFORMS is intentionally limited to a subset of platformSourceEnum values
+ * for demo data purposes. The full enum includes: MANUAL, HH, AVITO, SUPERJOB, HABR,
+ * KWORK, FL_RU, FREELANCE_RU, WEB_LINK, TELEGRAM.
+ *
+ * Demo data only includes vacancies from these three platforms to keep the dataset
+ * focused and manageable for testing/demonstration purposes.
+ */
+const ValidPlatformSchema = z.enum(["HH", "SUPERJOB", "MANUAL"]);
 
 export async function loadVacancies(): Promise<{
   insertedVacancies: InsertedVacancy[];
@@ -44,16 +47,18 @@ export async function loadVacancies(): Promise<{
       .map((v, index) => {
         const sourceData = vacanciesData[index];
 
-        if (!isValidPlatform(sourceData.source)) {
+        const platformResult = ValidPlatformSchema.safeParse(sourceData.source);
+
+        if (!platformResult.success) {
           console.warn(
-            `⚠️  Пропущена публикация для вакансии "${v.title}": недопустимое значение platform "${sourceData.source}". Допустимые значения: ${VALID_PLATFORMS.join(", ")}`,
+            `⚠️  Пропущена публикация для вакансии "${v.title}": недопустимое значение platform "${sourceData.source}". Допустимые значения для демо: ${ValidPlatformSchema.options.join(", ")}`,
           );
           return null;
         }
 
         return {
           vacancyId: v.id,
-          platform: sourceData.source,
+          platform: platformResult.data,
           externalId: sourceData.externalId,
           url: sourceData.url,
           isActive: true,

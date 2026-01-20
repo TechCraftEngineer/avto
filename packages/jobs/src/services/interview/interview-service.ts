@@ -2,7 +2,11 @@ import { AgentFactory, InterviewOrchestrator } from "@qbs-autonaim/ai";
 import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { interviewSession } from "@qbs-autonaim/db/schema";
-import { getAIModel } from "@qbs-autonaim/lib/ai";
+import {
+  getActualProvider,
+  getAIModel,
+  getAIModelName,
+} from "@qbs-autonaim/lib";
 import { stripHtml } from "string-strip-html";
 import type { InterviewAnalysis } from "../../schemas/interview";
 import { createLogger, INTERVIEW } from "../base";
@@ -43,6 +47,7 @@ interface InterviewContext {
     sender: "user" | "assistant";
     content: string;
     contentType?: "text" | "voice";
+    timestamp?: Date | string;
   }>;
   // Настройки бота
   botSettings?: {
@@ -227,6 +232,7 @@ export async function getInterviewContext(
       contentType: (msg.type === "text" || msg.type === "voice"
         ? msg.type
         : undefined) as "text" | "voice" | undefined,
+      timestamp: msg.createdAt,
     }));
 
   // Получаем response по responseId из session
@@ -424,6 +430,7 @@ export interface InterviewScoringResult {
   score: number; // 1-5 scale
   detailedScore: number; // 0-100 scale
   analysis: string;
+  botUsageDetected: number; // 0-100 scale
 }
 
 /**
@@ -436,7 +443,9 @@ export async function createInterviewScoring(
 
   // Создаем агента
   const model = createAgentModel();
-  const factory = new AgentFactory({ model });
+  const factory = new AgentFactory({
+    model,
+  });
   const agent = factory.createInterviewScoring();
 
   // Проверяем наличие истории диалога
@@ -452,6 +461,7 @@ export async function createInterviewScoring(
       score: INTERVIEW.DEFAULT_FALLBACK_SCORE,
       detailedScore: INTERVIEW.DEFAULT_FALLBACK_DETAILED_SCORE,
       analysis: "Невозможно оценить интервью без истории диалога",
+      botUsageDetected: 0,
     };
   }
 
@@ -484,6 +494,7 @@ export async function createInterviewScoring(
       score: INTERVIEW.DEFAULT_FALLBACK_SCORE,
       detailedScore: INTERVIEW.DEFAULT_FALLBACK_DETAILED_SCORE,
       analysis: "Failed to analyze interview automatically",
+      botUsageDetected: 0,
     };
   }
 
@@ -492,5 +503,6 @@ export async function createInterviewScoring(
     score: result.data.score,
     detailedScore: result.data.detailedScore,
     analysis: result.data.analysis,
+    botUsageDetected: result.data.botUsageDetected,
   };
 }

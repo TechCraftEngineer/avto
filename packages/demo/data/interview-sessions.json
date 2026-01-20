@@ -52,5 +52,155 @@
     "metadata": {},
     "startedAt": "2024-01-25T13:10:00Z",
     "completedAt": "2024-01-25T14:30:00Z"
+  },
+  {
+    "responseId": "hh_candidate_004",
+    "status": "completed",
+    "lastChannel": "telegram",
+    "questionNumber": 5,
+    "totalQuestions": 5,
+    "messageCount": 11,
+    "lastMessageAt": "2024-01-25T17:15:00Z",
+    "metadata": {
+      "telegramUsername": "@maria_frontend",
+      "telegramChatId": "456789123"
+    },
+    "startedAt": "2024-01-25T16:00:00Z",
+    "completedAt": "2024-01-25T17:15:00Z"
+  },
+  {
+    "responseId": "hh_candidate_005",
+    "status": "active",
+    "lastChannel": "web",
+    "questionNumber": 2,
+    "totalQuestions": 6,
+    "messageCount": 5,
+    "lastMessageAt": "2024-01-26T09:30:00Z",
+    "metadata": {},
+    "startedAt": "2024-01-26T09:00:00Z",
+    "completedAt": null
+  },
+  {
+    "responseId": "sj_candidate_002",
+    "status": "completed",
+    "lastChannel": "telegram",
+    "questionNumber": 4,
+    "totalQuestions": 4,
+    "messageCount": 10,
+    "lastMessageAt": "2024-01-26T12:45:00Z",
+    "metadata": {
+      "telegramUsername": "@ivan_backend",
+      "telegramChatId": "789123456"
+    },
+    "startedAt": "2024-01-26T11:30:00Z",
+    "completedAt": "2024-01-26T12:45:00Z"
+  },
+  {
+    "responseId": "hh_candidate_006",
+    "status": "completed",
+    "lastChannel": "web",
+    "questionNumber": 5,
+    "totalQuestions": 5,
+    "messageCount": 14,
+    "lastMessageAt": "2024-01-26T15:20:00Z",
+    "metadata": {},
+    "startedAt": "2024-01-26T14:00:00Z",
+    "completedAt": "2024-01-26T15:20:00Z"
+  },
+  {
+    "responseId": "sj_candidate_003",
+    "status": "active",
+    "lastChannel": "telegram",
+    "questionNumber": 4,
+    "totalQuestions": 5,
+    "messageCount": 9,
+    "lastMessageAt": "2024-01-27T10:15:00Z",
+    "metadata": {
+      "telegramUsername": "@olga_designer",
+      "telegramChatId": "321654987"
+    },
+    "startedAt": "2024-01-27T09:00:00Z",
+    "completedAt": null
+  },
+  {
+    "responseId": "hh_candidate_007",
+    "status": "completed",
+    "lastChannel": "telegram",
+    "questionNumber": 6,
+    "totalQuestions": 6,
+    "messageCount": 16,
+    "lastMessageAt": "2024-01-27T14:30:00Z",
+    "metadata": {
+      "telegramUsername": "@sergey_fullstack",
+      "telegramChatId": "654987321"
+    },
+    "startedAt": "2024-01-27T12:45:00Z",
+    "completedAt": "2024-01-27T14:30:00Z"
+  },
+  {
+    "responseId": "hh_candidate_008",
+    "status": "active",
+    "lastChannel": "web",
+    "questionNumber": 1,
+    "totalQuestions": 5,
+    "messageCount": 3,
+    "lastMessageAt": "2024-01-27T16:00:00Z",
+    "metadata": {},
+    "startedAt": "2024-01-27T15:45:00Z",
+    "completedAt": null
+  },
+  {
+    "responseId": "freelance_writer_001",
+    "status": "completed",
+    "lastChannel": "web",
+    "questionNumber": 5,
+    "totalQuestions": 5,
+    "messageCount": 12,
+    "lastMessageAt": "2024-01-28T11:00:00Z",
+    "metadata": {},
+    "startedAt": "2024-01-28T09:30:00Z",
+    "completedAt": "2024-01-28T11:00:00Z"
+  },
+  {
+    "responseId": "hh_candidate_009",
+    "status": "completed",
+    "lastChannel": "telegram",
+    "questionNumber": 4,
+    "totalQuestions": 4,
+    "messageCount": 9,
+    "lastMessageAt": "2024-01-28T13:45:00Z",
+    "metadata": {
+      "telegramUsername": "@anna_qa",
+      "telegramChatId": "147258369"
+    },
+    "startedAt": "2024-01-28T12:30:00Z",
+    "completedAt": "2024-01-28T13:45:00Z"
+  },
+  {
+    "responseId": "video_producer_001",
+    "status": "active",
+    "lastChannel": "telegram",
+    "questionNumber": 3,
+    "totalQuestions": 6,
+    "messageCount": 7,
+    "lastMessageAt": "2024-01-28T16:30:00Z",
+    "metadata": {
+      "telegramUsername": "@pavel_devops",
+      "telegramChatId": "963852741"
+    },
+    "startedAt": "2024-01-28T15:15:00Z",
+    "completedAt": null
+  },
+  {
+    "responseId": "hh_candidate_010",
+    "status": "completed",
+    "lastChannel": "web",
+    "questionNumber": 5,
+    "totalQuestions": 5,
+    "messageCount": 13,
+    "lastMessageAt": "2024-01-29T10:20:00Z",
+    "metadata": {},
+    "startedAt": "2024-01-29T09:00:00Z",
+    "completedAt": "2024-01-29T10:20:00Z"
   }
 ]

@@ -8,9 +8,9 @@ import {
   type ResponseDetail,
   useVacancyResponseFlags,
 } from "./hooks/use-vacancy-response-flags";
-import { VacancyResponseTabs } from "./vacancy-response-tabs";
+import { GigResponseTabs } from "./gig-response-tabs";
 
-interface ResponseDetailCardProps {
+interface GigResponseDetailCardProps {
   response: ResponseDetail;
   onAccept?: () => void;
   onReject?: () => void;
@@ -20,7 +20,7 @@ interface ResponseDetailCardProps {
   isPolling?: boolean;
 }
 
-export function ResponseDetailCard({
+export function GigResponseDetailCard({
   response,
   onAccept,
   onReject,
@@ -28,12 +28,10 @@ export function ResponseDetailCard({
   onEvaluate,
   isProcessing,
   isPolling,
-}: ResponseDetailCardProps) {
+}: GigResponseDetailCardProps) {
   const {
-    hasScreening,
     hasInterviewScoring,
     hasConversation,
-    screening,
     conversation,
     getDefaultTab,
   } = useVacancyResponseFlags(response);
@@ -76,13 +74,11 @@ export function ResponseDetailCard({
       )}
 
       {/* Main Content Tabs */}
-      <VacancyResponseTabs
+      <GigResponseTabs
         response={response}
         defaultTab={getDefaultTab()}
-        hasScreening={hasScreening}
         hasInterviewScoring={hasInterviewScoring}
         hasConversation={hasConversation}
-        screening={screening}
         conversation={conversation}
       />
     </div>

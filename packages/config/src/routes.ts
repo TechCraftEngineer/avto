@@ -100,4 +100,4 @@ export const paths = {
       usage: (slug: string) => `/orgs/${slug}/settings/usage`,
     },
   },
-};
+} as const;
