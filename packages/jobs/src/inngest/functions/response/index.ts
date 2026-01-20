@@ -2,6 +2,7 @@
  * Response-related Inngest functions
  */
 
+export { generateRecommendationFunction } from "./generate-recommendation";
 export { parseMissingContactsFunction } from "./parse-missing-contacts";
 export { parseNewResumesFunction } from "./parse-new-resumes";
 export { recalculateRankingFunction } from "./recalculate-ranking";
