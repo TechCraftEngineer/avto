@@ -51,6 +51,15 @@ export const screenResponseFunction = inngest.createFunction(
       },
     });
 
+    // Trigger recommendation generation after successful screening
+    await step.sendEvent("trigger-recommendation-generation", {
+      name: "response/recommendation.generate",
+      data: {
+        responseId,
+        entityType: "vacancy",
+      },
+    });
+
     return result;
   },
 );

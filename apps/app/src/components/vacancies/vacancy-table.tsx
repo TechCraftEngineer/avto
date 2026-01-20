@@ -59,12 +59,29 @@ export function VacancyTable({
   onMergeConfirm,
   isMerging,
   hasFilters,
-}: VacancyTableProps) {
+  sortBy,
+  sortOrder,
+  onSortChange,
+}: VacancyTableProps & {
+  sortBy: string;
+  sortOrder: "asc" | "desc";
+  onSortChange: (field: string) => void;
+}) {
+  const handleSort = (field: string) => {
+    onSortChange(field);
+  };
+
+  const renderSortIcon = (field: string) => {
+    if (sortBy !== field) return null;
+    return sortOrder === "asc" ? " ↑" : " ↓";
+  };
+
   return (
     <div className="relative overflow-hidden rounded-xl border bg-card shadow-sm">
       <Table>
         <TableHeader className="bg-muted/30">
           <TableRow className="hover:bg-transparent">
+            {/* Headers... */}
             <TableHead className="w-[300px] font-semibold text-foreground">
               Название
             </TableHead>
@@ -77,8 +94,12 @@ export function VacancyTable({
             <TableHead className="hidden text-right font-semibold text-foreground lg:table-cell">
               Просмотры
             </TableHead>
-            <TableHead className="text-right font-semibold text-foreground">
+            <TableHead
+              className="cursor-pointer text-right font-semibold text-foreground hover:text-primary"
+              onClick={() => handleSort("responses")}
+            >
               Отклики
+              {renderSortIcon("responses")}
             </TableHead>
             <TableHead className="text-right font-semibold text-foreground">
               Новые

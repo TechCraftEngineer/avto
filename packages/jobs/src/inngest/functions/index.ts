@@ -46,6 +46,7 @@ import {
   typingActivityFunction,
 } from "./interview";
 import {
+  generateRecommendationFunction,
   parseMissingContactsFunction,
   parseNewResumesFunction,
   recalculateGigShortlistFunction,
@@ -87,6 +88,7 @@ export const inngestFunctions: InngestFunction.Any[] = [
   updateSingleVacancyFunction,
   updateVacanciesFunction,
   // Response
+  generateRecommendationFunction,
   parseMissingContactsFunction,
   parseNewResumesFunction,
   recalculateRankingFunction,

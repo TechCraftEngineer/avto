@@ -69,6 +69,20 @@ export {
   generateWelcomeMessage,
   sendHHChatMessage,
 } from "./messaging";
+export type {
+  RecommendationEntityType,
+  RecommendationGenerationResult,
+  RecommendationInput,
+  RecommendationSaveData,
+} from "./recommendation";
+// ==================== Recommendation ====================
+export {
+  getResponseDataForRecommendation,
+  parseRecommendationResult,
+  prepareRecommendationPrompt,
+  saveRecommendation,
+  toSaveData,
+} from "./recommendation";
 // ==================== Response ====================
 export {
   // Repository
@@ -115,6 +129,7 @@ export type {
   HHContactType,
   HHPreferredContact,
 } from "./types";
+
 // ==================== Vacancy ====================
 export {
   // Repository
