@@ -127,6 +127,7 @@ export const evaluateGigResponseFunction = inngest.createFunction(
           score: scoring.detailedScore,
           rating: scoring.score,
           analysis: scoring.analysis,
+          botUsageDetected: scoring.botUsageDetected,
         })
         .onConflictDoUpdate({
           target: interviewScoring.interviewSessionId,
@@ -134,6 +135,7 @@ export const evaluateGigResponseFunction = inngest.createFunction(
             score: scoring.detailedScore,
             rating: scoring.score,
             analysis: scoring.analysis,
+            botUsageDetected: scoring.botUsageDetected,
           },
         });
 
@@ -191,6 +193,15 @@ export const evaluateGigResponseFunction = inngest.createFunction(
         status: "EVALUATED",
         profileParsed: !!profileData,
       });
+    });
+
+    // Trigger recommendation generation after successful evaluation
+    await step.sendEvent("trigger-recommendation-generation", {
+      name: "response/recommendation.generate",
+      data: {
+        responseId,
+        entityType: "gig",
+      },
     });
 
     return {

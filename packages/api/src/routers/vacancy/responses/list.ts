@@ -259,6 +259,7 @@ export const list = protectedProcedure
               score: true,
               rating: true,
               analysis: true,
+              botUsageDetected: true,
             },
           })
         : [];
@@ -324,6 +325,7 @@ export const list = protectedProcedure
               analysis: interviewScoring.analysis
                 ? sanitizeHtml(interviewScoring.analysis)
                 : null,
+              botUsageDetected: interviewScoring.botUsageDetected ?? null,
             }
           : null,
         interviewSession: session

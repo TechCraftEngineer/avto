@@ -34,6 +34,10 @@ export const parseMissingContactsDataSchema = z.object({
   vacancyId: z.string().min(1, "Vacancy ID is required"),
 });
 
+export const recommendationGenerateDataSchema = z.object({
+  responseId: z.string().min(1, "Response ID is required"),
+});
+
 /**
  * Type inference
  */
@@ -53,4 +57,7 @@ export type RefreshSingleResumePayload = z.infer<
 >;
 export type ParseMissingContactsPayload = z.infer<
   typeof parseMissingContactsDataSchema
+>;
+export type RecommendationGeneratePayload = z.infer<
+  typeof recommendationGenerateDataSchema
 >;

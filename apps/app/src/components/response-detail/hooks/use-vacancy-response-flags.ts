@@ -137,12 +137,13 @@ export function useVacancyResponseFlags(
       };
     }
   } else {
-    // Для gig используем существующий conversation
-    const gigResponse = response as GigResponseDetail & {
-      conversation?: unknown;
-    };
-    if (hasValidConversation(gigResponse.conversation)) {
-      conversation = gigResponse.conversation;
+    // Для gig также используем interviewSession
+    if (hasValidInterviewSession(response.interviewSession)) {
+      conversation = {
+        id: response.interviewSession.id,
+        status: "completed",
+        messages: response.interviewSession.messages,
+      };
     }
   }
 

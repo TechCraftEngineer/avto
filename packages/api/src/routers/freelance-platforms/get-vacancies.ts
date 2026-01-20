@@ -19,6 +19,10 @@ const getVacanciesInputSchema = z.object({
       "HABR",
     ])
     .optional(),
+  sortBy: z
+    .enum(["createdAt", "title", "views", "responses", "newResponses"])
+    .optional(),
+  sortOrder: z.enum(["asc", "desc"]).optional(),
 });
 
 export const getVacancies = protectedProcedure
@@ -28,14 +32,14 @@ export const getVacancies = protectedProcedure
       ctx.auditLogger,
       ctx.session.user.id,
       ctx.ipAddress,
-      ctx.userAgent,
+      ctx.userAgent
     );
 
     try {
       // Проверка доступа к workspace
       const access = await ctx.workspaceRepository.checkAccess(
         input.workspaceId,
-        ctx.session.user.id,
+        ctx.session.user.id
       );
 
       if (!access) {
@@ -91,14 +95,30 @@ export const getVacancies = protectedProcedure
           responseTable,
           and(
             eq(vacancy.id, responseTable.entityId),
-            eq(responseTable.entityType, "vacancy"),
-          ),
+            eq(responseTable.entityType, "vacancy")
+          )
         )
         .where(and(...conditions));
 
+      // Сортировка
+      const { sortBy = "createdAt", sortOrder = "desc" } = input;
+      const orderFn = sortOrder === "asc" ? sql.asc : desc;
+
+      const orderByMapping: Record<string, any> = {
+        createdAt: vacancy.createdAt,
+        title: vacancy.title,
+        views: vacancy.views,
+        responses: count(responseTable.id),
+        newResponses: vacancy.newResponses,
+      };
+
+      const orderBy = orderByMapping[sortBy] || vacancy.createdAt;
+
       const vacancies = await query
         .groupBy(vacancy.id)
-        .orderBy(desc(vacancy.createdAt));
+        .orderBy(
+          sortOrder === "asc" ? sql`${orderBy} ASC` : sql`${orderBy} DESC`
+        );
 
       return vacancies;
     } catch (error) {

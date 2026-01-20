@@ -17,7 +17,10 @@ export function useVacancyFilters(vacancies: Vacancy[] | undefined) {
   const [searchQuery, setSearchQuery] = useState("");
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [sortBy, setSortBy] = useState<string>("createdAt");
+  const [sortBy, setSortBy] = useState<
+    "createdAt" | "title" | "views" | "responses" | "newResponses"
+  >("createdAt");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [dateFrom, setDateFrom] = useState<string>("");
   const [dateTo, setDateTo] = useState<string>("");
 
@@ -31,7 +34,7 @@ export function useVacancyFilters(vacancies: Vacancy[] | undefined) {
       filtered = filtered.filter(
         (v) =>
           v.title.toLowerCase().includes(query) ||
-          v.region?.toLowerCase().includes(query),
+          v.region?.toLowerCase().includes(query)
       );
     }
 
@@ -56,33 +59,8 @@ export function useVacancyFilters(vacancies: Vacancy[] | undefined) {
       filtered = filtered.filter((v) => new Date(v.createdAt) <= toDate);
     }
 
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case "responses":
-          return (b.totalResponsesCount ?? 0) - (a.totalResponsesCount ?? 0);
-        case "newResponses":
-          return (b.newResponses ?? 0) - (a.newResponses ?? 0);
-        case "views":
-          return (b.views ?? 0) - (a.views ?? 0);
-        case "title":
-          return a.title.localeCompare(b.title);
-        default:
-          return (
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          );
-      }
-    });
-
     return filtered;
-  }, [
-    vacancies,
-    searchQuery,
-    sourceFilter,
-    statusFilter,
-    sortBy,
-    dateFrom,
-    dateTo,
-  ]);
+  }, [vacancies, searchQuery, sourceFilter, statusFilter, dateFrom, dateTo]);
 
   const hasFilters =
     searchQuery ||
@@ -101,6 +79,8 @@ export function useVacancyFilters(vacancies: Vacancy[] | undefined) {
     setStatusFilter,
     sortBy,
     setSortBy,
+    sortOrder,
+    setSortOrder,
     dateFrom,
     setDateFrom,
     dateTo,
