@@ -17,6 +17,20 @@ export interface ProfileData {
   error?: string;
 }
 
+export interface RecommendationData {
+  recommendation:
+    | "HIGHLY_RECOMMENDED"
+    | "RECOMMENDED"
+    | "NEUTRAL"
+    | "NOT_RECOMMENDED";
+  strengths: string[];
+  weaknesses: string[];
+  candidateSummary: string;
+  actionSuggestions: string[];
+  interviewQuestions?: string[];
+  riskFactors?: string[];
+}
+
 export function getProfileData(
   profileData: ProfileData | null | undefined,
   experience: string | null,

@@ -26,13 +26,15 @@ export default function VacanciesPage() {
   const queryClient = useQueryClient();
   const [isUpdating, setIsUpdating] = useState(false);
   const [mergeOpenVacancyId, setMergeOpenVacancyId] = useState<string | null>(
-    null,
+    null
   );
   const [mergeTargetVacancyId, setMergeTargetVacancyId] = useState<string>("");
 
   const { data: vacancies, isLoading } = useQuery({
     ...api.freelancePlatforms.getVacancies.queryOptions({
       workspaceId: workspace?.id ?? "",
+      sortBy,
+      sortOrder,
     }),
     enabled: !!workspace?.id,
   });
@@ -46,6 +48,8 @@ export default function VacanciesPage() {
     setStatusFilter,
     sortBy,
     setSortBy,
+    sortOrder,
+    setSortOrder,
     dateFrom,
     setDateFrom,
     dateTo,
@@ -69,7 +73,7 @@ export default function VacanciesPage() {
       onError: (err) => {
         toast.error(err.message || "Не удалось сдружить вакансии");
       },
-    }),
+    })
   );
 
   const handleUpdate = async () => {
@@ -98,6 +102,15 @@ export default function VacanciesPage() {
       sourceVacancyId: sourceId,
       targetVacancyId: targetId,
     });
+  };
+
+  const handleTableSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(field as any);
+      setSortOrder("desc");
+    }
   };
 
   return (
@@ -149,7 +162,7 @@ export default function VacanciesPage() {
               statusFilter={statusFilter}
               onStatusChange={setStatusFilter}
               sortBy={sortBy}
-              onSortChange={setSortBy}
+              onSortChange={(val) => setSortBy(val as any)}
               dateFrom={dateFrom}
               onDateFromChange={setDateFrom}
               dateTo={dateTo}
@@ -161,12 +174,22 @@ export default function VacanciesPage() {
                 <div className="text-sm text-muted-foreground transition-all animate-in fade-in slide-in-from-left-2">
                   {hasFilters ? (
                     <>
-                      Найдено <span className="font-semibold text-foreground">{filteredAndSortedVacancies.length}</span> из{" "}
-                      <span className="font-semibold text-foreground">{vacancies?.length ?? 0}</span> вакансий
+                      Найдено{" "}
+                      <span className="font-semibold text-foreground">
+                        {filteredAndSortedVacancies.length}
+                      </span>{" "}
+                      из{" "}
+                      <span className="font-semibold text-foreground">
+                        {vacancies?.length ?? 0}
+                      </span>{" "}
+                      вакансий
                     </>
                   ) : (
                     <>
-                      Всего вакансий: <span className="font-semibold text-foreground">{vacancies?.length ?? 0}</span>
+                      Всего вакансий:{" "}
+                      <span className="font-semibold text-foreground">
+                        {vacancies?.length ?? 0}
+                      </span>
                     </>
                   )}
                 </div>
@@ -198,6 +221,9 @@ export default function VacanciesPage() {
             onMergeConfirm={handleMergeConfirm}
             isMerging={mergeVacanciesMutation.isPending}
             hasFilters={hasFilters}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSortChange={handleTableSort}
           />
         </div>
       </div>
