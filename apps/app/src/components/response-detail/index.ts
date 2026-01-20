@@ -1,5 +1,5 @@
 export * from "./constants";
-export * from "./constants";
+export { GigResponseDetailCard } from "./gig-response-detail-card";
 export { GigResponseTabs } from "./gig-response-tabs";
 export {
   isVacancyResponse,
@@ -21,4 +21,4 @@ export {
 } from "./tabs";
 export * from "./types";
 export { ResponseDetailCard } from "./vacancy-response-detail-card";
-export { Tabs, VacancyResponseTabs } from "./vacancy-response-tabs";
+export { VacancyResponseTabs } from "./vacancy-response-tabs";

@@ -65,9 +65,13 @@ export function VacancyTable({
 }: VacancyTableProps & {
   sortBy: string;
   sortOrder: "asc" | "desc";
-  onSortChange: (field: string) => void;
+  onSortChange: (
+    field: "createdAt" | "title" | "views" | "responses" | "newResponses",
+  ) => void;
 }) {
-  const handleSort = (field: string) => {
+  const handleSort = (
+    field: "createdAt" | "title" | "views" | "responses" | "newResponses",
+  ) => {
     onSortChange(field);
   };
 

@@ -169,8 +169,6 @@ export const generateRecommendationFunction = inngest.createFunction(
           if (isTimeout) {
             console.error("⏱️ Таймаут при генерации рекомендации", {
               responseId,
-              screeningId: screening.id,
-              candidateId: candidate.id,
               candidateName: candidate.name,
               entityType: entityData.type,
               entityTitle: entityData.title,
@@ -178,7 +176,7 @@ export const generateRecommendationFunction = inngest.createFunction(
             });
 
             throw new Error(
-              `Таймаут при генерации рекомендации для кандидата ${candidate.name} (${candidate.id}) по ${entityData.type} "${entityData.title}" после ${timeoutMs}ms`,
+              `Таймаут при генерации рекомендации для кандидата ${candidate.name} по ${entityData.type} "${entityData.title}" после ${timeoutMs}ms`,
             );
           }
 
@@ -193,8 +191,6 @@ export const generateRecommendationFunction = inngest.createFunction(
           if (isNetworkError) {
             console.error("🌐 Сетевая ошибка при генерации рекомендации", {
               responseId,
-              screeningId: screening.id,
-              candidateId: candidate.id,
               candidateName: candidate.name,
               entityType: entityData.type,
               entityTitle: entityData.title,
@@ -202,15 +198,13 @@ export const generateRecommendationFunction = inngest.createFunction(
             });
 
             throw new Error(
-              `Сетевая ошибка при генерации рекомендации для кандидата ${candidate.name} (${candidate.id}): ${error instanceof Error ? error.message : String(error)}`,
+              `Сетевая ошибка при генерации рекомендации для кандидата ${candidate.name}: ${error instanceof Error ? error.message : String(error)}`,
             );
           }
 
           // Обрабатываем другие ошибки
           console.error("❌ Ошибка при генерации рекомендации", {
             responseId,
-            screeningId: screening.id,
-            candidateId: candidate.id,
             candidateName: candidate.name,
             entityType: entityData.type,
             entityTitle: entityData.title,
@@ -219,7 +213,7 @@ export const generateRecommendationFunction = inngest.createFunction(
           });
 
           throw new Error(
-            `Не удалось сгенерировать рекомендацию для кандидата ${candidate.name} (${candidate.id}) по ${entityData.type} "${entityData.title}": ${error instanceof Error ? error.message : String(error)}`,
+            `Не удалось сгенерировать рекомендацию для кандидата ${candidate.name} по ${entityData.type} "${entityData.title}": ${error instanceof Error ? error.message : String(error)}`,
           );
         }
       },
