@@ -260,7 +260,9 @@ export const completeInterviewFunction = inngest.createFunction(
         });
 
         if (!responseRecord || responseRecord.entityType !== "gig") {
-          console.log("⚠️ Response не является gig, пропускаем пересчет рейтинга");
+          console.log(
+            "⚠️ Response не является gig, пропускаем пересчет рейтинга",
+          );
           return;
         }
 
@@ -269,7 +271,9 @@ export const completeInterviewFunction = inngest.createFunction(
         });
 
         if (!gig?.workspaceId) {
-          console.warn("⚠️ Не удалось получить workspaceId для пересчета рейтинга");
+          console.warn(
+            "⚠️ Не удалось получить workspaceId для пересчета рейтинга",
+          );
           return;
         }
 

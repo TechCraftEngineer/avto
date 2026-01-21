@@ -6,10 +6,8 @@ import { langfuse, openaiProvider } from "./providers";
 import { getActualProvider, getAIModel, getAIModelName } from "./models";
 import { teeAsyncIterableStream } from "./utils";
 
-export interface StreamTextOptions extends Omit<
-  Parameters<typeof aiStreamText>[0],
-  "model"
-> {
+export interface StreamTextOptions
+  extends Omit<Parameters<typeof aiStreamText>[0], "model"> {
   model?: LanguageModel;
   generationName: string;
   entityId?: string;

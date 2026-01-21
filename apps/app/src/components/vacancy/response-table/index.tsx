@@ -247,7 +247,8 @@ export function ResponseTable({
         {total > 0 && (
           <div className="flex items-center justify-between border-t px-4 py-4">
             <div className="flex-1 text-sm text-muted-foreground whitespace-nowrap">
-              {selectedIds.size} из {total} {getPluralForm(total, "отклика", "откликов", "откликов")} выбрано
+              {selectedIds.size} из {total}{" "}
+              {getPluralForm(total, "отклика", "откликов", "откликов")} выбрано
             </div>
             <div className="flex items-center space-x-2">
               <Pagination

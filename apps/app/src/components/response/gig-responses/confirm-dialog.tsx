@@ -37,9 +37,7 @@ export function ConfirmDialog({
           </DialogTitle>
           <DialogDescription className="text-sm sm:text-base">
             {candidateName && (
-              <span className="font-medium break-words">
-                {candidateName}
-              </span>
+              <span className="font-medium break-words">{candidateName}</span>
             )}
             {action === "accept"
               ? " — вы уверены, что хотите принять этот отклик? Кандидат будет уведомлен."

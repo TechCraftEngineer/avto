@@ -57,7 +57,10 @@ export async function parseArchivedVacancies(
 
   // ЭТАП 2: Сохраняем базовую информацию всех вакансий
   console.log("\n💾 ЭТАП 2: Сохранение базовой информации...");
-  const newVacancyIds = await saveBasicVacancies(archivedVacancies, workspaceId);
+  const newVacancyIds = await saveBasicVacancies(
+    archivedVacancies,
+    workspaceId,
+  );
 
   // ЭТАП 3: Парсим описания для вакансий без описания
   console.log("\n📊 ЭТАП 3: Парсинг описаний вакансий...");
@@ -161,9 +164,13 @@ async function collectVacancies(page: Page): Promise<VacancyData[]> {
  * ЭТАП 1: Собирает список всех архивных вакансий
  */
 async function collectArchivedVacancies(page: Page): Promise<VacancyData[]> {
-  console.log(`📄 Переход на страницу архивных вакансий: ${HH_CONFIG.urls.archivedVacancies}`);
+  console.log(
+    `📄 Переход на страницу архивных вакансий: ${HH_CONFIG.urls.archivedVacancies}`,
+  );
 
-  await page.goto(HH_CONFIG.urls.archivedVacancies, { waitUntil: "networkidle2" });
+  await page.goto(HH_CONFIG.urls.archivedVacancies, {
+    waitUntil: "networkidle2",
+  });
 
   // Пауза после загрузки страницы
   await humanDelay(1500, 3000);

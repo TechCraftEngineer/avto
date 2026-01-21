@@ -447,7 +447,9 @@ export const webCompleteInterviewFunction = inngest.createFunction(
           });
 
           if (!gig?.workspaceId) {
-            console.warn("⚠️ Не удалось получить workspaceId для пересчета рейтинга");
+            console.warn(
+              "⚠️ Не удалось получить workspaceId для пересчета рейтинга",
+            );
             return;
           }
 

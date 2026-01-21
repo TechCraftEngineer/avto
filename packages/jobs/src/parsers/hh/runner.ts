@@ -13,7 +13,11 @@ interface RunHHParserOptions {
 }
 
 export async function runHHParser(options: RunHHParserOptions): Promise<void> {
-  const { workspaceId, skipResponses = false, includeArchived = false } = options;
+  const {
+    workspaceId,
+    skipResponses = false,
+    includeArchived = false,
+  } = options;
 
   console.log("🚀 Запуск HH парсера");
   console.log(`   Workspace: ${workspaceId}`);

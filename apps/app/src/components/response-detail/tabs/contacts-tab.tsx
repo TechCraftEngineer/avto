@@ -4,9 +4,7 @@ import { Separator } from "@qbs-autonaim/ui";
 import { ExternalLink, Mail, MessageSquare, Phone } from "lucide-react";
 import type { RouterOutputs } from "@qbs-autonaim/api";
 
-type GigResponseDetail = NonNullable<
-  RouterOutputs["gig"]["responses"]["get"]
->;
+type GigResponseDetail = NonNullable<RouterOutputs["gig"]["responses"]["get"]>;
 type VacancyResponseDetail = NonNullable<
   RouterOutputs["vacancy"]["responses"]["get"]
 >;

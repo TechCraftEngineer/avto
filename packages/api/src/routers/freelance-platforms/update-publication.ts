@@ -6,7 +6,10 @@ import { TRPCError } from "@trpc/server";
 import { protectedProcedure } from "../../trpc";
 
 // Функция для парсинга идентификатора из URL или ID
-function parseIdentifier(identifier: string): { externalId: string | null; url: string | null } {
+function parseIdentifier(identifier: string): {
+  externalId: string | null;
+  url: string | null;
+} {
   if (!identifier.trim()) {
     return { externalId: null, url: null };
   }
@@ -16,8 +19,8 @@ function parseIdentifier(identifier: string): { externalId: string | null; url: 
     const url = new URL(identifier);
 
     // Для HH.ru извлекаем ID из пути /vacancy/{id}
-    if (url.hostname === 'hh.ru' && url.pathname.startsWith('/vacancy/')) {
-      const vacancyId = url.pathname.split('/vacancy/')[1];
+    if (url.hostname === "hh.ru" && url.pathname.startsWith("/vacancy/")) {
+      const vacancyId = url.pathname.split("/vacancy/")[1];
       if (vacancyId?.match(/^\d+$/)) {
         return { externalId: vacancyId, url: identifier };
       }

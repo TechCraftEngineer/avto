@@ -492,7 +492,6 @@ export function useAIVacancyChat({
     [],
   );
 
-
   return {
     document,
     messages,

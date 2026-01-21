@@ -123,7 +123,9 @@ export function DashboardStats() {
             </CardAction>
           </CardHeader>
           <CardFooter className="flex-col items-start gap-1.5 text-sm">
-            <div className="text-muted-foreground">откликов прошли скрининг</div>
+            <div className="text-muted-foreground">
+              откликов прошли скрининг
+            </div>
           </CardFooter>
         </Card>
 

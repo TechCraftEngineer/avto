@@ -25,7 +25,8 @@ import type {
   VacancyAnalytics,
 } from "./types";
 
-export interface RecruiterOrchestratorFullConfig extends RecruiterOrchestratorConfig {
+export interface RecruiterOrchestratorFullConfig
+  extends RecruiterOrchestratorConfig {
   model: LanguageModel;
   langfuse?: Langfuse | undefined;
 }

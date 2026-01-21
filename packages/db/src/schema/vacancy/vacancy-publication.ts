@@ -10,7 +10,10 @@ import {
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
-import { platformSourceEnum, platformSourceValues } from "../shared/response-enums";
+import {
+  platformSourceEnum,
+  platformSourceValues,
+} from "../shared/response-enums";
 import { vacancy } from "./vacancy";
 
 /**
@@ -20,7 +23,7 @@ export const vacancyPublication = pgTable(
   "vacancy_publications",
   {
     id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`),
-    
+
     // Ссылка на внутреннюю вакансию
     vacancyId: uuid("vacancy_id")
       .notNull()
@@ -28,18 +31,21 @@ export const vacancyPublication = pgTable(
 
     // Платформа (HH, AVITO, и т.д.)
     platform: platformSourceEnum("platform").notNull(),
-    
+
     // ID вакансии на внешней платформе
     externalId: varchar("external_id", { length: 100 }),
-    
+
     // Прямая ссылка на вакансию на платформе
     url: text("url"),
-    
+
     // Статус размещения
     isActive: boolean("is_active").default(true).notNull(),
-    
+
     // Когда последний раз синхронизировали отклики
-    lastSyncedAt: timestamp("last_synced_at", { withTimezone: true, mode: "date" }),
+    lastSyncedAt: timestamp("last_synced_at", {
+      withTimezone: true,
+      mode: "date",
+    }),
 
     createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
       .defaultNow()
@@ -58,11 +64,14 @@ export const vacancyPublication = pgTable(
   }),
 );
 
-export const CreateVacancyPublicationSchema = createInsertSchema(vacancyPublication, {
-  platform: z.enum(platformSourceValues),
-  externalId: z.string().max(100).optional(),
-  url: z.string().url().optional(),
-}).omit({
+export const CreateVacancyPublicationSchema = createInsertSchema(
+  vacancyPublication,
+  {
+    platform: z.enum(platformSourceValues),
+    externalId: z.string().max(100).optional(),
+    url: z.string().url().optional(),
+  },
+).omit({
   id: true,
   createdAt: true,
   updatedAt: true,

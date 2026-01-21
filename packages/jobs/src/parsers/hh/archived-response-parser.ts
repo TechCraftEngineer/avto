@@ -22,7 +22,9 @@ export async function parseArchivedVacancyResponses(
   externalId?: string | null,
   url?: string | null,
 ): Promise<{ syncedResponses: number; newResponses: number }> {
-  console.log(`🚀 Начинаем парсинг откликов для архивной вакансии ${vacancyId}`);
+  console.log(
+    `🚀 Начинаем парсинг откликов для архивной вакансии ${vacancyId}`,
+  );
 
   // Определяем URL для откликов
   let responsesUrl: string;
@@ -40,18 +42,17 @@ export async function parseArchivedVacancyResponses(
   console.log(`📄 URL откликов: ${responsesUrl}`);
 
   console.log("\n📋 ЭТАП 1: Сбор всех откликов и сохранение в базу...");
-  const { responses: allResponses, newCount } = await collectAllArchivedResponses(
-    page,
-    responsesUrl,
-    vacancyId,
-  );
+  const { responses: allResponses, newCount } =
+    await collectAllArchivedResponses(page, responsesUrl, vacancyId);
 
   if (allResponses.length === 0) {
     console.log("⚠️ Не найдено откликов для обработки");
     return { syncedResponses: 0, newResponses: 0 };
   }
 
-  console.log(`✅ Всего обработано откликов: ${allResponses.length} (новых: ${newCount})`);
+  console.log(
+    `✅ Всего обработано откликов: ${allResponses.length} (новых: ${newCount})`,
+  );
 
   console.log("\n🔍 ЭТАП 2: Поиск откликов без детальной информации...");
   const responsesNeedingDetails = await filterResponsesNeedingDetails(
@@ -165,7 +166,9 @@ async function collectAllArchivedResponses(
       'div[data-qa="vacancy-real-responses"] [data-resume-id]',
       (elements: Element[]) => {
         return elements.map((el) => {
-          const link = el.querySelector('a[data-qa*="resume-serp__resume-fullname"]');
+          const link = el.querySelector(
+            'a[data-qa*="resume-serp__resume-fullname"]',
+          );
           const url = link ? link.getAttribute("href") : "";
           const nameEl = el.querySelector(
             'span[data-qa="resume-serp__resume-fullname"]',
@@ -223,7 +226,10 @@ async function collectAllArchivedResponses(
     for (const response of pageResponses) {
       // Логируем ошибки парсинга даты из browser context
       if (response.respondedAtError) {
-        console.error(`❌ Ошибка парсинга даты отклика для резюме ${response.resumeId}:`, response.respondedAtStr);
+        console.error(
+          `❌ Ошибка парсинга даты отклика для резюме ${response.resumeId}:`,
+          response.respondedAtStr,
+        );
       }
 
       if (response.url && response.resumeId) {

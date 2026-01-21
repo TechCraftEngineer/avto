@@ -48,7 +48,9 @@ export async function fetchRefreshVacancyResponsesToken(vacancyId: string) {
 /**
  * Server action для получения токена подписки на Realtime канал синхронизации архивных откликов
  */
-export async function fetchSyncArchivedVacancyResponsesToken(vacancyId: string) {
+export async function fetchSyncArchivedVacancyResponsesToken(
+  vacancyId: string,
+) {
   const token = await getSubscriptionToken(inngest, {
     channel: syncArchivedResponsesChannel(vacancyId),
     topics: ["status"],

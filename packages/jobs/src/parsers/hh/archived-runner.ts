@@ -13,7 +13,7 @@ interface RunHHArchivedVacancyParserOptions {
 }
 
 export async function runHHArchivedVacancyParser(
-  options: RunHHArchivedVacancyParserOptions
+  options: RunHHArchivedVacancyParserOptions,
 ): Promise<{ syncedResponses: number; newResponses: number }> {
   const { workspaceId, vacancyId, externalId, url } = options;
 

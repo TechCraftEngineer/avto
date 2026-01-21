@@ -63,7 +63,8 @@ export const syncArchivedVacancyResponses = protectedProcedure
     if (!publication.externalId && !publication.url) {
       throw new TRPCError({
         code: "BAD_REQUEST",
-        message: "У публикации нет внешнего идентификатора или ссылки для синхронизации",
+        message:
+          "У публикации нет внешнего идентификатора или ссылки для синхронизации",
       });
     }
 

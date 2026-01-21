@@ -2,7 +2,12 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { db } from "@qbs-autonaim/db";
 import { response } from "@qbs-autonaim/db/schema";
-import type { GigMapping, PhotoMapping, PublicationMapping, VacancyMapping } from "../types";
+import type {
+  GigMapping,
+  PhotoMapping,
+  PublicationMapping,
+  VacancyMapping,
+} from "../types";
 
 interface InsertedResponse {
   id: string;

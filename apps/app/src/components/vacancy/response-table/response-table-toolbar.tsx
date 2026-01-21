@@ -120,14 +120,18 @@ export function ResponseTableToolbar({
 
   // Sync archived state
   const [syncArchivedDialogOpen, setSyncArchivedDialogOpen] = useState(false);
-  const [syncArchivedError, setSyncArchivedError] = useState<string | null>(null);
+  const [syncArchivedError, setSyncArchivedError] = useState<string | null>(
+    null,
+  );
   const [syncArchivedStatus, setSyncArchivedStatus] = useState<
     "idle" | "loading" | "success" | "error"
   >("idle");
   const [syncArchivedMessage, setSyncArchivedMessage] = useState<string>("");
-  const [syncArchivedSyncedCount, setSyncArchivedSyncedCount] = useState<number>(0);
+  const [syncArchivedSyncedCount, setSyncArchivedSyncedCount] =
+    useState<number>(0);
   const [syncArchivedNewCount, setSyncArchivedNewCount] = useState<number>(0);
-  const [syncArchivedVacancyTitle, setSyncArchivedVacancyTitle] = useState<string>("");
+  const [syncArchivedVacancyTitle, setSyncArchivedVacancyTitle] =
+    useState<string>("");
   const [syncArchivedSubscriptionActive, setSyncArchivedSubscriptionActive] =
     useState(false);
 
@@ -140,7 +144,8 @@ export function ResponseTableToolbar({
       },
       onError: (error) => {
         setSyncArchivedStatus("error");
-        const errorMessage = error instanceof Error ? error.message : "Неизвестная ошибка";
+        const errorMessage =
+          error instanceof Error ? error.message : "Неизвестная ошибка";
         setSyncArchivedError(errorMessage);
         toast.error(`Ошибка запуска синхронизации: ${errorMessage}`);
       },
@@ -364,7 +369,8 @@ export function ResponseTableToolbar({
   // Sync archived handlers
   const handleSyncArchivedClick = () => {
     if (!workspace) {
-      const errorMessage = "Не удалось запустить синхронизацию: рабочее пространство не найдено";
+      const errorMessage =
+        "Не удалось запустить синхронизацию: рабочее пространство не найдено";
       setSyncArchivedError(errorMessage);
       setSyncArchivedStatus("error");
       toast.error(errorMessage);

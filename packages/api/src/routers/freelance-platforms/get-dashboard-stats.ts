@@ -16,7 +16,16 @@ const getDashboardStatsInputSchema = z.object({
   dateTo: z.coerce.date().optional(),
   status: z.enum(["active", "inactive", "all"]).optional().default("all"),
   platformSource: z
-    .enum(["HH", "AVITO", "SUPERJOB", "HABR", "KWORK", "FL_RU", "FREELANCE_RU", "WEB_LINK"])
+    .enum([
+      "HH",
+      "AVITO",
+      "SUPERJOB",
+      "HABR",
+      "KWORK",
+      "FL_RU",
+      "FREELANCE_RU",
+      "WEB_LINK",
+    ])
     .optional(),
 });
 

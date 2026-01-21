@@ -51,10 +51,11 @@ export const updateFull = protectedProcedure
         customBotInstructions: input.data.customBotInstructions ?? null,
         customScreeningPrompt: input.data.customScreeningPrompt ?? null,
         customInterviewQuestions: input.data.customInterviewQuestions ?? null,
-        customOrganizationalQuestions: input.data.customOrganizationalQuestions ?? null,
+        customOrganizationalQuestions:
+          input.data.customOrganizationalQuestions ?? null,
         source: input.data.source ?? existingVacancy.source,
         externalId: input.data.externalId ?? null,
-        url: input.data.url === "" ? null : input.data.url ?? null,
+        url: input.data.url === "" ? null : (input.data.url ?? null),
         updatedAt: new Date(),
       })
       .where(

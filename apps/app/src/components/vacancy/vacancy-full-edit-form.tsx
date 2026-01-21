@@ -166,7 +166,6 @@ export function VacancyFullEditForm({
               {/* Детали вакансии */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Детали вакансии</h3>
-
               </div>
 
               {/* Настройки источника */}
