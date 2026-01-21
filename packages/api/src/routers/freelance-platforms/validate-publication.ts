@@ -1,11 +1,12 @@
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { vacancyPublication } from "@qbs-autonaim/db/schema";
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure } from "../../trpc";
 
 const validatePublicationInputSchema = z.object({
-  workspaceId: z.string().uuid(),
+  workspaceId: workspaceIdSchema,
   publicationId: z.string().uuid(),
 });
 

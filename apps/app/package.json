@@ -39,7 +39,7 @@
     "date-fns": "4.1.0",
     "lucide-react": "0.562.0",
     "motion": "^12.27.2",
-    "next": "16.1.3",
+    "next": "16.1.4",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-hook-form": "^7.71.1",
