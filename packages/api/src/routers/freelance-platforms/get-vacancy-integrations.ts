@@ -1,4 +1,3 @@
-import { integration, vacancyPublication } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../trpc";
