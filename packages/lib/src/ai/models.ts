@@ -1,6 +1,6 @@
-import { env } from "@qbs-autonaim/config";
-import { type LanguageModel } from "ai";
 import { deepseek } from "@ai-sdk/deepseek";
+import { env } from "@qbs-autonaim/config";
+import type { LanguageModel } from "ai";
 import { DEFAULT_MODEL_DEEPSEEK, DEFAULT_MODEL_OPENAI } from "./constants";
 import { openaiProvider } from "./providers";
 

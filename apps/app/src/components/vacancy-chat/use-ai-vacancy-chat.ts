@@ -35,7 +35,10 @@ interface UseAIVacancyChatReturn {
   selectMultipleReplies: (values: string[]) => Promise<void>;
   clearChat: () => void;
   retry: () => Promise<void>;
-  updateDocumentSection: (section: keyof VacancyDocument, content: string) => void;
+  updateDocumentSection: (
+    section: keyof VacancyDocument,
+    content: string,
+  ) => void;
   setEditingSection: (section: string | null) => void;
 }
 
@@ -488,7 +491,7 @@ export function useAIVacancyChat({
     [],
   );
 
-  const setEditingSection = useCallback((section: string | null) => {
+  const setEditingSection = useCallback((_section: string | null) => {
     // Реализация будет в компоненте AIVacancyChat
   }, []);
 

@@ -1,20 +1,17 @@
+import { deepseek } from "@ai-sdk/deepseek";
+import { env } from "@qbs-autonaim/config";
 import {
   generateObject as aiGenerateObject,
   type GenerateObjectResult,
   type LanguageModel,
-  type ModelMessage,
 } from "ai";
-import { deepseek } from "@ai-sdk/deepseek";
-import { env } from "@qbs-autonaim/config";
-import { z } from "zod";
+import type { z } from "zod";
 import { DEFAULT_MODEL_DEEPSEEK, DEFAULT_MODEL_OPENAI } from "./constants";
-import { langfuse, openaiProvider } from "./providers";
 import { getActualProvider, getAIModel, getAIModelName } from "./models";
+import { langfuse, openaiProvider } from "./providers";
 
-export interface GenerateObjectOptions<T> extends Omit<
-  Parameters<typeof aiGenerateObject>[0],
-  "model" | "schema"
-> {
+export interface GenerateObjectOptions<T>
+  extends Omit<Parameters<typeof aiGenerateObject>[0], "model" | "schema"> {
   model?: LanguageModel;
   schema: z.ZodType<T>;
   generationName: string;

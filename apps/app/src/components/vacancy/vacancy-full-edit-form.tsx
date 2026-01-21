@@ -17,7 +17,6 @@ import {
   FormLabel,
   FormMessage,
   Input,
-  ScrollArea,
   Select,
   SelectContent,
   SelectItem,
@@ -34,7 +33,12 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-type Vacancy = NonNullable<RouterOutputs["vacancy"]["get"]>;
+type Vacancy = NonNullable<RouterOutputs["vacancy"]["get"]> & {
+  requirements?: string | null;
+  responsibilities?: string | null;
+  conditions?: string | null;
+  bonuses?: string | null;
+};
 
 interface VacancyFullEditFormProps {
   vacancy: Vacancy;
@@ -55,10 +59,10 @@ export function VacancyFullEditForm({
     defaultValues: {
       title: vacancy.title,
       description: vacancy.description ?? "",
-      requirements: (vacancy as any).requirements ?? "",
-      responsibilities: (vacancy as any).responsibilities ?? "",
-      conditions: (vacancy as any).conditions ?? "",
-      bonuses: (vacancy as any).bonuses ?? "",
+      requirements: vacancy.requirements ?? "",
+      responsibilities: vacancy.responsibilities ?? "",
+      conditions: vacancy.conditions ?? "",
+      bonuses: vacancy.bonuses ?? "",
       customBotInstructions: vacancy.customBotInstructions ?? "",
       customScreeningPrompt: vacancy.customScreeningPrompt ?? "",
       customInterviewQuestions: vacancy.customInterviewQuestions ?? "",

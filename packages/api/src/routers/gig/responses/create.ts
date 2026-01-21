@@ -5,7 +5,6 @@ import {
   type Response,
   response as responseTable,
 } from "@qbs-autonaim/db/schema";
-import { inngest } from "@qbs-autonaim/jobs/client";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";

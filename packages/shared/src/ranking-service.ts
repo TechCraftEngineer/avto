@@ -11,7 +11,6 @@ import type {
   CandidateInput,
   GigBudget,
   GigRequirements,
-  RankedCandidate,
   RankingResult,
 } from "@qbs-autonaim/ai";
 import { RankingOrchestrator } from "@qbs-autonaim/ai";
