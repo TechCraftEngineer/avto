@@ -5,9 +5,9 @@
  * Публичная процедура - не требует авторизации пользователя.
  */
 
+import { langfuse, openaiProvider } from "@qbs-autonaim/lib/ai";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { openaiProvider, langfuse } from "@qbs-autonaim/lib/ai";
 import { SessionManager } from "../../services/prequalification";
 import { PrequalificationError } from "../../services/prequalification/types";
 import {

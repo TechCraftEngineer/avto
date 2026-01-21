@@ -48,13 +48,13 @@ export async function transcribe(
     throw new Error(`Метаданные должны быть JSON-сериализуемыми: ${error instanceof Error ? error.message : String(error)}`);
   }
 
-  const trace = langfuse.trace({
+  const trace = langfuse?.trace({
     name: generationName,
     userId: entityId,
     metadata,
   });
 
-  const generation = trace.generation({
+  const generation = trace?.generation({
     name: generationName,
     input: "audio data",
     metadata,
@@ -70,23 +70,23 @@ export async function transcribe(
       >,
     });
 
-    generation.end({
+    generation?.end({
       output: result.text,
     });
 
     return result as TranscriptionResult;
   } catch (error) {
-    generation.end({
+    generation?.end({
       statusMessage: error instanceof Error ? error.message : String(error),
     });
     throw error;
   } finally {
     try {
-      await langfuse.flushAsync();
+      await langfuse?.flushAsync();
     } catch (flushError) {
       console.error("Не удалось сохранить трейс Langfuse", {
         generationName,
-        traceId: trace.id,
+        traceId: trace?.id,
         entityId,
         error: flushError,
       });

@@ -38,7 +38,7 @@ export async function generateObject<T>(
   const prompt = aiOptions.prompt || JSON.stringify(aiOptions.messages);
   const modelName = getAIModelName();
 
-  const trace = langfuse.trace({
+  const trace = langfuse?.trace({
     name: generationName,
     userId: entityId,
     metadata: {
@@ -48,7 +48,7 @@ export async function generateObject<T>(
     },
   });
 
-  const generation = trace.generation({
+  const generation = trace?.generation({
     name: generationName,
     model: modelName,
     input: prompt,
@@ -66,17 +66,17 @@ export async function generateObject<T>(
       schema,
     } as unknown as Parameters<typeof aiGenerateObject>[0]);
 
-    generation.end({
+    generation?.end({
       output: result.object,
     });
 
-    trace.update({
+    trace?.update({
       output: result.object,
     });
 
     return result as unknown as GenerateObjectResult<T>;
   } catch (error) {
-    generation.end({
+    generation?.end({
       statusMessage: error instanceof Error ? error.message : String(error),
     });
 
@@ -103,7 +103,7 @@ export async function generateObject<T>(
         error instanceof Error ? error.message : String(error),
       );
 
-      const fallbackGeneration = trace.generation({
+      const fallbackGeneration = trace?.generation({
         name: `${generationName}-fallback`,
         model: fallbackModelName,
         input: prompt,
@@ -122,13 +122,13 @@ export async function generateObject<T>(
           schema,
         } as unknown as Parameters<typeof aiGenerateObject>[0]);
 
-        fallbackGeneration.end({
+        fallbackGeneration?.end({
           output: fallbackResult.object,
         });
 
         return fallbackResult as unknown as GenerateObjectResult<T>;
       } catch (fallbackError) {
-        fallbackGeneration.end({
+        fallbackGeneration?.end({
           statusMessage:
             fallbackError instanceof Error
               ? fallbackError.message
@@ -141,11 +141,11 @@ export async function generateObject<T>(
     throw error;
   } finally {
     try {
-      await langfuse.flushAsync();
+      await langfuse?.flushAsync();
     } catch (flushError) {
       console.error("Не удалось сохранить трейс Langfuse", {
         generationName,
-        traceId: trace.id,
+        traceId: trace?.id,
         entityId,
         error: flushError,
       });

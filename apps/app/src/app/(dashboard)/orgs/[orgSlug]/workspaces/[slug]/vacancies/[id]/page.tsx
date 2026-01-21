@@ -30,7 +30,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { VacancyRequirements } from "~/components/vacancy";
+import { VacancyRequirements, VacancyIntegrationManager } from "~/components/vacancy";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
 import { AddPublicationDialog } from "./_components/add-publication-dialog";
@@ -456,6 +456,11 @@ ${data.interviewLink.url}
             )}
           </CardContent>
         </Card>
+
+        <VacancyIntegrationManager
+          vacancyId={id}
+          workspaceId={workspace?.id ?? ""}
+        />
       </div>
     </div>
   );
