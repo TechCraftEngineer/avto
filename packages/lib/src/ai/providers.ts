@@ -19,16 +19,11 @@ if (
 
 export { langfuse };
 
-// Проверяем переменные окружения OpenAI
-if (!env.OPENAI_API_KEY) {
-  throw new Error(
-    "Отсутствует обязательная переменная окружения OpenAI: OPENAI_API_KEY",
-  );
-}
-
-// Создаём OpenAI провайдер с прокси
+// Создаём OpenAI провайдер с прокси только если есть API ключ
 const proxyBaseUrl = env.AI_PROXY_URL;
-export const openaiProvider = createOpenAI({
-  apiKey: env.OPENAI_API_KEY,
-  baseURL: proxyBaseUrl,
-});
+export const openaiProvider = env.OPENAI_API_KEY
+  ? createOpenAI({
+      apiKey: env.OPENAI_API_KEY,
+      baseURL: proxyBaseUrl,
+    })
+  : null;

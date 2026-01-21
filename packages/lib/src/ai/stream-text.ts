@@ -138,7 +138,7 @@ export function streamText(
       const fallbackModel =
         fallbackProvider === "deepseek"
           ? deepseek(DEFAULT_MODEL_DEEPSEEK)
-          : openaiProvider(DEFAULT_MODEL_OPENAI);
+          : openaiProvider!(DEFAULT_MODEL_OPENAI);
       const fallbackModelName =
         fallbackProvider === "deepseek"
           ? DEFAULT_MODEL_DEEPSEEK

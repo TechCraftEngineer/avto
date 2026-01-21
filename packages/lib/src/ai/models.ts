@@ -9,10 +9,10 @@ import { openaiProvider } from "./providers";
  */
 export function getActualProvider(): "openai" | "deepseek" {
   const provider = env.AI_PROVIDER;
-  if (provider === "openai" && !env.OPENAI_API_KEY && env.DEEPSEEK_API_KEY) {
+  if (provider === "openai" && !openaiProvider && env.DEEPSEEK_API_KEY) {
     return "deepseek";
   }
-  if (provider === "deepseek" && !env.DEEPSEEK_API_KEY && env.OPENAI_API_KEY) {
+  if (provider === "deepseek" && !env.DEEPSEEK_API_KEY && openaiProvider) {
     return "openai";
   }
   return provider;
@@ -27,9 +27,9 @@ export function getAIModel(): LanguageModel {
   switch (provider) {
     case "openai": {
       const model = env.AI_MODEL || DEFAULT_MODEL_OPENAI;
-      if (!env.OPENAI_API_KEY) {
+      if (!openaiProvider) {
         console.warn(
-          "OPENAI_API_KEY не установлен. Переключаюсь на DeepSeek как fallback.",
+          "OpenAI провайдер недоступен (OPENAI_API_KEY не установлен). Переключаюсь на DeepSeek как fallback.",
         );
         // Fallback на DeepSeek
         if (!env.DEEPSEEK_API_KEY) {
@@ -48,7 +48,7 @@ export function getAIModel(): LanguageModel {
           "DEEPSEEK_API_KEY не установлен. Переключаюсь на OpenAI как fallback.",
         );
         // Fallback на OpenAI
-        if (!env.OPENAI_API_KEY) {
+        if (!openaiProvider) {
           throw new Error(
             "Ни DEEPSEEK_API_KEY, ни OPENAI_API_KEY не установлены. Добавьте хотя бы один в .env файл.",
           );
@@ -84,7 +84,7 @@ export function getAIModelName(provider?: string): string {
 export function getFallbackModel(): LanguageModel {
   const actualProvider = getActualProvider();
 
-  if (actualProvider === "deepseek" && env.OPENAI_API_KEY) {
+  if (actualProvider === "deepseek" && openaiProvider) {
     // DeepSeek недоступен, fallback на OpenAI
     console.warn(
       "[AI Client] DeepSeek недоступен, переключаюсь на OpenAI как fallback",

@@ -82,12 +82,13 @@ export function AIVacancyChat({
   });
 
   // Когда настройки компании созданы, автоматически переходим к следующему шагу
+  // biome-ignore lint/correctness/useExhaustiveDependencies: clearChat is stable and should not trigger this effect
   React.useEffect(() => {
     if (botSettings?.companyName && messages.length === 1) {
       // Если есть настройки и только приветственное сообщение - перезагружаем чат
       clearChat();
     }
-  }, [botSettings?.companyName, messages.length, clearChat]);
+  }, [botSettings?.companyName, messages.length]);
 
   // Mutation для сохранения вакансии
   const createVacancyMutation = useMutation(

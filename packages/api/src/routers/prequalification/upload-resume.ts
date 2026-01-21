@@ -5,7 +5,7 @@
  * Публичная процедура - не требует авторизации пользователя.
  */
 
-import { langfuse, openaiProvider } from "@qbs-autonaim/lib/ai";
+import { getAIModel, langfuse } from "@qbs-autonaim/lib/ai";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { SessionManager } from "../../services/prequalification";
@@ -55,7 +55,7 @@ export const uploadResume = publicProcedure
 
     // Initialize resume parser
     const resumeParser = new ResumeParserService({
-      model: openaiProvider("gpt-4o-mini"),
+      model: getAIModel(),
       langfuse,
     });
 
