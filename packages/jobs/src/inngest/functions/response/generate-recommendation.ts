@@ -143,6 +143,9 @@ export const generateRecommendationFunction = inngest.createFunction(
           const result = await generateObject({
             model: openai("gpt-4o-mini"),
             schema: CandidateRecommendationSchema,
+            schemaName: "response",
+            schemaDescription: "Candidate recommendation response",
+            mode: "json",
             prompt: buildCandidateRecommendationPrompt(
               screening,
               candidate,
