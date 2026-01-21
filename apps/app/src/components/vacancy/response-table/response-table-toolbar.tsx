@@ -1,6 +1,7 @@
 import { Button, Input } from "@qbs-autonaim/ui";
 import { Loader2, RefreshCw, Search, Sparkles } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useTRPC } from "~/trpc/react";
 import { useWorkspace } from "~/hooks/use-workspace";
@@ -129,6 +130,22 @@ export function ResponseTableToolbar({
   const [syncArchivedVacancyTitle, setSyncArchivedVacancyTitle] = useState<string>("");
   const [syncArchivedSubscriptionActive, setSyncArchivedSubscriptionActive] =
     useState(false);
+
+  // Sync archived mutation
+  const syncArchivedMutation = useMutation(
+    trpc.freelancePlatforms.syncArchivedVacancyResponses.mutationOptions({
+      onSuccess: () => {
+        setSyncArchivedMessage("Задача запущена, ожидаем выполнения...");
+        toast.success("Синхронизация архивных откликов запущена в фоне");
+      },
+      onError: (error) => {
+        setSyncArchivedStatus("error");
+        const errorMessage = error instanceof Error ? error.message : "Неизвестная ошибка";
+        setSyncArchivedError(errorMessage);
+        toast.error(`Ошибка запуска синхронизации: ${errorMessage}`);
+      },
+    }),
+  );
 
   // Timeout refs для предотвращения утечек памяти
   const screenNewTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -329,7 +346,7 @@ export function ResponseTableToolbar({
   }, [onScreeningDialogClose]);
 
   // Sync archived handlers
-  const handleSyncArchivedClick = async () => {
+  const handleSyncArchivedClick = () => {
     if (!workspace) return;
 
     setSyncArchivedError(null);
@@ -340,20 +357,10 @@ export function ResponseTableToolbar({
     setSyncArchivedStatus("loading");
     setSyncArchivedSubscriptionActive(true);
 
-    try {
-      const result = await trpc.freelancePlatforms.syncArchivedVacancyResponses.mutate({
-        workspaceId: workspace.id,
-        vacancyId,
-      });
-
-      setSyncArchivedMessage("Задача запущена, ожидаем выполнения...");
-      toast.success("Синхронизация архивных откликов запущена в фоне");
-    } catch (error) {
-      setSyncArchivedStatus("error");
-      const errorMessage = error instanceof Error ? error.message : "Неизвестная ошибка";
-      setSyncArchivedError(errorMessage);
-      toast.error(`Ошибка запуска синхронизации: ${errorMessage}`);
-    }
+    syncArchivedMutation.mutate({
+      workspaceId: workspace.id,
+      vacancyId,
+    });
   };
 
   const handleSyncArchivedDialogClose = () => {

@@ -25,6 +25,11 @@ export const collectChatIdsDataSchema = z.object({
   vacancyId: z.string().min(1, "Vacancy ID is required"),
 });
 
+export const syncArchivedVacancyResponsesDataSchema = z.object({
+  vacancyId: z.string().min(1, "Vacancy ID is required"),
+  workspaceId: z.string().min(1, "Workspace ID is required"),
+});
+
 /**
  * Type inference
  */
@@ -41,3 +46,6 @@ export type VacancyResponsesRefreshPayload = z.infer<
   typeof vacancyResponsesRefreshDataSchema
 >;
 export type CollectChatIdsPayload = z.infer<typeof collectChatIdsDataSchema>;
+export type SyncArchivedVacancyResponsesPayload = z.infer<
+  typeof syncArchivedVacancyResponsesDataSchema
+>;

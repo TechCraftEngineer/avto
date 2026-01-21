@@ -29,6 +29,7 @@ import {
   screenNewResponsesDataSchema,
   screenResponsesBatchDataSchema,
   sendFreelanceNotificationDataSchema,
+  syncArchivedVacancyResponsesDataSchema,
   telegramAuthErrorDataSchema,
   telegramUnidentifiedMessageSendDataSchema,
   typingActivityDataSchema,
@@ -47,6 +48,7 @@ export const inngest = new Inngest({
   middleware: [realtimeMiddleware()],
   schemas: new EventSchemas().fromSchema({
     "vacancy/requirements.extract": vacancyRequirementsExtractDataSchema,
+    "vacancy/responses.sync-archived": syncArchivedVacancyResponsesDataSchema,
     "response/screen": responseScreenDataSchema,
     "response/screen.new": screenNewResponsesDataSchema,
     "response/screen.all": screenAllResponsesDataSchema,

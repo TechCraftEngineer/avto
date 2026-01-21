@@ -224,6 +224,7 @@ export function useAIVacancyChat({
   ]);
   const [status, setStatus] = useState<ChatStatus>("idle");
   const [error, setError] = useState<ChatError | null>(null);
+  const [editingSection, setEditingSection] = useState<string | null>(null);
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const lastMessageRef = useRef<string | null>(null);
@@ -497,11 +498,13 @@ export function useAIVacancyChat({
     messages,
     status,
     error,
+    editingSection,
     sendMessage,
     selectQuickReply,
     selectMultipleReplies,
     clearChat,
     retry,
     updateDocumentSection,
+    setEditingSection,
   };
 }
