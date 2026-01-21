@@ -42,14 +42,16 @@ export function SyncArchivedDialog({
             {status === "idle" && (
               <>
                 Будет запущен процесс получения ВСЕХ откликов с HeadHunter для
-                этой вакансии, включая архивные. Это может занять продолжительное
-                время в зависимости от количества откликов.
+                этой вакансии, включая архивные. Это может занять
+                продолжительное время в зависимости от количества откликов.
               </>
             )}
             {status === "loading" && (
               <div className="flex items-center gap-2">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                <span>{message || "Запускаем синхронизацию архивных откликов..."}</span>
+                <span>
+                  {message || "Запускаем синхронизацию архивных откликов..."}
+                </span>
               </div>
             )}
             {status === "success" && (
@@ -58,7 +60,9 @@ export function SyncArchivedDialog({
                   ✓ Синхронизация успешно завершена!
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  {vacancyTitle && <div className="font-medium">{vacancyTitle}</div>}
+                  {vacancyTitle && (
+                    <div className="font-medium">{vacancyTitle}</div>
+                  )}
                   <div>Всего обработано: {syncedCount || 0} откликов</div>
                   <div>Новых добавлено: {newCount || 0} откликов</div>
                 </div>

@@ -96,9 +96,12 @@ export const verifyHHCredentialsChannel = channel(
 
 /**
  * Канал для отслеживания прогресса синхронизации архивных откликов
+ * ENGLISH_IDENTIFIERS_EXCEPTION: Технические идентификаторы канала (syncArchivedResponsesChannel, topic("status"))
+ * и значения статуса (started, processing, completed, error) оставлены на английском языке,
+ * так как они используются для внутренней коммуникации между сервисами
  */
 export const syncArchivedResponsesChannel = channel(
-  (vacancyId: string) => `sync-archived-responses:${vacancyId}`,
+  (vacancyId: string) => `vacancy-responses-sync-archived:${vacancyId}`,
 ).addTopic(
   topic("status").schema(
     z.object({

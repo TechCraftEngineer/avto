@@ -8,6 +8,8 @@ import { inngest } from "../../client";
 /**
  * Inngest функция для синхронизации всех откликов архивной вакансии
  * Парсит все страницы откликов архивной вакансии через Puppeteer в headless режиме
+ * ENGLISH_IDENTIFIERS_EXCEPTION: Технические идентификаторы функции (id, name) и шагов (step.run)
+ * оставлены на английском языке, так как они используются для внутренней коммуникации между сервисами
  */
 export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
   {
@@ -45,6 +47,18 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
           }),
         );
         throw new Error(`Вакансия ${vacancyId} не найдена`);
+      }
+
+      // Проверяем, что вакансия принадлежит указанному рабочему пространству
+      if (vacancyData.workspaceId !== workspaceId) {
+        await publish(
+          syncArchivedResponsesChannel(vacancyId).status({
+            status: "error",
+            message: `Вакансия ${vacancyId} не принадлежит рабочему пространству ${workspaceId}`,
+            vacancyId,
+          }),
+        );
+        throw new Error(`Вакансия ${vacancyId} не принадлежит рабочему пространству ${workspaceId}`);
       }
 
       // Получаем публикацию на HH.ru
