@@ -24,6 +24,7 @@ import {
 import {
   IconBriefcase,
   IconDots,
+  IconEdit,
   IconExternalLink,
   IconHistory,
   IconUsers,
@@ -248,6 +249,19 @@ export function VacancyTableRow({
                   >
                     <IconBriefcase className="mr-2 size-4" />
                     Открыть вакансию
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link
+                    href={paths.workspace.vacancyEdit(
+                      orgSlug,
+                      workspaceSlug,
+                      vacancy.id,
+                    )}
+                    className="cursor-pointer"
+                  >
+                    <IconEdit className="mr-2 size-4" />
+                    Редактировать
                   </Link>
                 </DropdownMenuItem>
                 {safePlatformUrl ? (

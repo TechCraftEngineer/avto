@@ -1,15 +1,15 @@
-import { generateText, output } from "ai";
+import { generateText } from "ai";
 import { z } from "zod";
 
 async function test() {
   const result = await generateText({
     model: {} as any,
-    output: output.object({
-      schema: z.object({
-        foo: z.string(),
-      }),
-    }),
+    output: "object" as any,
+    schema: z.object({
+      foo: z.string(),
+    }) as any,
     prompt: "test",
   });
+  // @ts-ignore
   console.log(result.object.foo);
 }

@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { use } from "react";
-import { VacancyEditForm } from "~/components/vacancy";
+import { VacancyFullEditForm } from "~/components/vacancy";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 import { useTRPC } from "~/trpc/react";
 
@@ -24,8 +24,8 @@ export default function VacancyEditPage({ params }: VacancyEditPageProps) {
     enabled: Boolean(workspaceId),
   });
 
-  const updateDetailsMutation = useMutation(
-    trpc.vacancy.updateDetails.mutationOptions({
+  const updateFullMutation = useMutation(
+    trpc.vacancy.updateFull.mutationOptions({
       onSuccess: () => {
         void queryClient.invalidateQueries({
           queryKey: trpc.vacancy.get.queryKey({
@@ -40,13 +40,10 @@ export default function VacancyEditPage({ params }: VacancyEditPageProps) {
     }),
   );
 
-  const handleSave = async (data: {
-    title: string;
-    description?: string | null;
-  }) => {
+  const handleSave = async (data: any) => {
     if (!workspaceId) return;
 
-    await updateDetailsMutation.mutateAsync({
+    await updateFullMutation.mutateAsync({
       vacancyId: id,
       workspaceId,
       data,
@@ -61,11 +58,8 @@ export default function VacancyEditPage({ params }: VacancyEditPageProps) {
     <div className="flex flex-1 flex-col">
       <div className="@container/main flex flex-1 flex-col gap-2">
         <div className="px-4 py-4 md:px-6 lg:px-8">
-          <VacancyEditForm
-            initialData={{
-              title: vacancy.title,
-              description: vacancy.description,
-            }}
+          <VacancyFullEditForm
+            vacancy={vacancy}
             onSave={handleSave}
           />
         </div>

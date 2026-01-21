@@ -29,11 +29,14 @@ interface UseAIVacancyChatReturn {
   messages: ConversationMessage[];
   status: ChatStatus;
   error: ChatError | null;
+  editingSection: string | null;
   sendMessage: (content: string) => Promise<void>;
   selectQuickReply: (value: string) => void;
   selectMultipleReplies: (values: string[]) => Promise<void>;
   clearChat: () => void;
   retry: () => Promise<void>;
+  updateDocumentSection: (section: keyof VacancyDocument, content: string) => void;
+  setEditingSection: (section: string | null) => void;
 }
 
 function createWelcomeMessage(
@@ -475,15 +478,32 @@ export function useAIVacancyChat({
     setStatus("idle");
   }, [botSettings]);
 
+  const updateDocumentSection = useCallback(
+    (section: keyof VacancyDocument, content: string) => {
+      setDocument((prev) => ({
+        ...prev,
+        [section]: content.trim() || undefined,
+      }));
+    },
+    [],
+  );
+
+  const setEditingSection = useCallback((section: string | null) => {
+    // Реализация будет в компоненте AIVacancyChat
+  }, []);
+
   return {
     document,
     messages,
     status,
     error,
+    editingSection: null, // Будет управляться в компоненте
     sendMessage,
     selectQuickReply,
     selectMultipleReplies,
     clearChat,
     retry,
+    updateDocumentSection,
+    setEditingSection,
   };
 }

@@ -1,7 +1,8 @@
 "use client";
 
-import { Button, ScrollArea } from "@qbs-autonaim/ui";
+import { Button, ScrollArea, Textarea } from "@qbs-autonaim/ui";
 import { FileText, Loader2 } from "lucide-react";
+import { IconEdit } from "@tabler/icons-react";
 import type { VacancyDocument } from "./types";
 import { DocumentSection } from "./document-section";
 
@@ -11,6 +12,9 @@ interface DocumentPreviewProps {
   onSave: () => void;
   isSaving: boolean;
   isGenerating: boolean;
+  editingSection: string | null;
+  onEditSection: (section: string | null) => void;
+  onUpdateSection: (section: keyof VacancyDocument, content: string) => void;
 }
 
 export function DocumentPreview({
@@ -19,6 +23,9 @@ export function DocumentPreview({
   onSave,
   isSaving,
   isGenerating,
+  editingSection,
+  onEditSection,
+  onUpdateSection,
 }: DocumentPreviewProps) {
   const isEmpty =
     !document.title &&
@@ -50,10 +57,31 @@ export function DocumentPreview({
       <ScrollArea className="flex-1" style={{ overscrollBehavior: "contain" }}>
         <article className="space-y-4 p-4 md:space-y-6 md:p-6">
           {document.title && (
-            <header>
-              <h1 className="text-xl font-bold md:text-2xl">
-                {document.title}
+            <header className="group relative">
+              <h1 className="text-xl font-bold md:text-2xl pr-8">
+                {editingSection === "title" ? (
+                  <Textarea
+                    value={document.title}
+                    onChange={(e) => onUpdateSection("title", e.target.value)}
+                    onBlur={() => onEditSection(null)}
+                    className="w-full text-xl font-bold md:text-2xl resize-none border-none p-0 focus:ring-0 bg-transparent"
+                    autoFocus
+                    rows={1}
+                  />
+                ) : (
+                  document.title
+                )}
               </h1>
+              {editingSection !== "title" && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onEditSection("title")}
+                  className="absolute top-0 right-0 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <IconEdit className="h-3 w-3" />
+                </Button>
+              )}
             </header>
           )}
 
@@ -64,6 +92,10 @@ export function DocumentPreview({
                 <DocumentSection
                   title="Описание вакансии"
                   content={document.description}
+                  sectionKey="description"
+                  editingSection={editingSection}
+                  onEditSection={onEditSection}
+                  onUpdateSection={onUpdateSection}
                 />
                 <div className="text-center text-muted-foreground text-lg font-light">
                   —
@@ -76,6 +108,10 @@ export function DocumentPreview({
                 <DocumentSection
                   title="Требования"
                   content={document.requirements}
+                  sectionKey="requirements"
+                  editingSection={editingSection}
+                  onEditSection={onEditSection}
+                  onUpdateSection={onUpdateSection}
                 />
                 <div className="text-center text-muted-foreground text-lg font-light">
                   —
@@ -88,6 +124,10 @@ export function DocumentPreview({
                 <DocumentSection
                   title="Обязанности"
                   content={document.responsibilities}
+                  sectionKey="responsibilities"
+                  editingSection={editingSection}
+                  onEditSection={onEditSection}
+                  onUpdateSection={onUpdateSection}
                 />
                 <div className="text-center text-muted-foreground text-lg font-light">
                   —
@@ -102,6 +142,10 @@ export function DocumentPreview({
                     <DocumentSection
                       title="Условия"
                       content={document.conditions}
+                      sectionKey="conditions"
+                      editingSection={editingSection}
+                      onEditSection={onEditSection}
+                      onUpdateSection={onUpdateSection}
                     />
                     <div className="text-center text-muted-foreground text-lg font-light">
                       —
@@ -116,6 +160,10 @@ export function DocumentPreview({
                       ? "Информация о премиях и мотивационных выплатах будет указана в условиях работы выше."
                       : "Премии и мотивационные выплаты не указаны.")
                   }
+                  sectionKey="bonuses"
+                  editingSection={editingSection}
+                  onEditSection={onEditSection}
+                  onUpdateSection={onUpdateSection}
                 />
               </>
             )}
@@ -133,6 +181,10 @@ export function DocumentPreview({
                 <DocumentSection
                   title="Инструкции для бота"
                   content={document.customBotInstructions}
+                  sectionKey="customBotInstructions"
+                  editingSection={editingSection}
+                  onEditSection={onEditSection}
+                  onUpdateSection={onUpdateSection}
                 />
               )}
 
@@ -140,6 +192,10 @@ export function DocumentPreview({
                 <DocumentSection
                   title="Вопросы для интервью"
                   content={document.customInterviewQuestions}
+                  sectionKey="customInterviewQuestions"
+                  editingSection={editingSection}
+                  onEditSection={onEditSection}
+                  onUpdateSection={onUpdateSection}
                 />
               )}
             </div>

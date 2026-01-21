@@ -14,6 +14,7 @@ import { responsesRouter } from "./responses";
 import { responsesChart } from "./responses-chart";
 import { update } from "./update";
 import { updateDetails } from "./update-details";
+import { updateFull } from "./update-full";
 
 export const vacancyRouter = {
   list,
@@ -26,6 +27,7 @@ export const vacancyRouter = {
   responsesChart,
   update,
   updateDetails,
+  updateFull,
   delete: deleteVacancy,
   improveInstructions,
   chatGenerate,

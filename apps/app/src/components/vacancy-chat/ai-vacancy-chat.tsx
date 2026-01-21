@@ -45,6 +45,7 @@ export function AIVacancyChat({
 }: AIVacancyChatProps) {
   const [inputValue, setInputValue] = useState("");
   const [showSettingsEdit, setShowSettingsEdit] = useState(false);
+  const [editingSection, setEditingSection] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -68,6 +69,7 @@ export function AIVacancyChat({
     selectMultipleReplies,
     clearChat,
     retry,
+    updateDocumentSection,
   } = useAIVacancyChat({
     workspaceId,
     botSettings: botSettings
@@ -366,6 +368,9 @@ export function AIVacancyChat({
           onSave={handleSave}
           isSaving={isSaving}
           isGenerating={isGenerating}
+          editingSection={editingSection}
+          onEditSection={setEditingSection}
+          onUpdateSection={updateDocumentSection}
         />
       </section>
 

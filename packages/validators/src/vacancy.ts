@@ -58,6 +58,74 @@ export const updateVacancySettingsSchema = z.object({
     .nullish(),
 });
 
+export const updateFullVacancySchema = z.object({
+  title: z
+    .string()
+    .min(1, { message: "Название вакансии обязательно" })
+    .max(500, { message: "Название не должно превышать 500 символов" }),
+  description: z
+    .string()
+    .max(50000, { message: "Описание не должно превышать 50000 символов" })
+    .nullish(),
+  requirements: z
+    .string()
+    .max(10000, { message: "Требования не должны превышать 10000 символов" })
+    .nullish(),
+  responsibilities: z
+    .string()
+    .max(10000, { message: "Обязанности не должны превышать 10000 символов" })
+    .nullish(),
+  conditions: z
+    .string()
+    .max(10000, { message: "Условия не должны превышать 10000 символов" })
+    .nullish(),
+  bonuses: z
+    .string()
+    .max(10000, { message: "Премии не должны превышать 10000 символов" })
+    .nullish(),
+  customBotInstructions: z
+    .string()
+    .max(5000, { message: "Инструкции не должны превышать 5000 символов" })
+    .nullish(),
+  customScreeningPrompt: z
+    .string()
+    .max(5000, { message: "Промпт не должен превышать 5000 символов" })
+    .nullish(),
+  customInterviewQuestions: z
+    .string()
+    .max(5000, { message: "Вопросы не должны превышать 5000 символов" })
+    .nullish(),
+  customOrganizationalQuestions: z
+    .string()
+    .max(5000, { message: "Вопросы не должны превышать 5000 символов" })
+    .nullish(),
+  source: z
+    .enum([
+      "MANUAL",
+      "HH",
+      "KWORK",
+      "FL_RU",
+      "FREELANCE_RU",
+      "AVITO",
+      "SUPERJOB",
+      "HABR",
+      "WEB_LINK",
+      "TELEGRAM",
+    ])
+    .nullish(),
+  externalId: z
+    .string()
+    .max(100, { message: "External ID не должен превышать 100 символов" })
+    .nullish(),
+  url: z
+    .string()
+    .url({ message: "Введите корректный URL" })
+    .or(z.literal(""))
+    .nullish(),
+});
+
 export type UpdateVacancySettingsInput = z.infer<
   typeof updateVacancySettingsSchema
 >;
+
+export type UpdateFullVacancyInput = z.infer<typeof updateFullVacancySchema>;
