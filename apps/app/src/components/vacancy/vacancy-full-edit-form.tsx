@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { RouterOutputs } from "@qbs-autonaim/api";
 import {
   Button,
   Card,
@@ -10,6 +11,7 @@ import {
   CardTitle,
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -31,9 +33,8 @@ import { Loader2, Save } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import type { RouterOutputs } from "~/trpc/react";
 
-type Vacancy = RouterOutputs["vacancy"]["get"];
+type Vacancy = NonNullable<RouterOutputs["vacancy"]["get"]>;
 
 interface VacancyFullEditFormProps {
   vacancy: Vacancy;
@@ -61,7 +62,8 @@ export function VacancyFullEditForm({
       customBotInstructions: vacancy.customBotInstructions ?? "",
       customScreeningPrompt: vacancy.customScreeningPrompt ?? "",
       customInterviewQuestions: vacancy.customInterviewQuestions ?? "",
-      customOrganizationalQuestions: vacancy.customOrganizationalQuestions ?? "",
+      customOrganizationalQuestions:
+        vacancy.customOrganizationalQuestions ?? "",
       source: vacancy.source ?? undefined,
       externalId: vacancy.externalId ?? "",
       url: vacancy.url ?? "",
@@ -110,7 +112,8 @@ export function VacancyFullEditForm({
             <CardHeader>
               <CardTitle>Редактирование вакансии</CardTitle>
               <CardDescription>
-                Измените все параметры вакансии. Эти данные будут использоваться в AI-интервью и при анализе откликов.
+                Измените все параметры вакансии. Эти данные будут использоваться
+                в AI-интервью и при анализе откликов.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -152,7 +155,8 @@ export function VacancyFullEditForm({
                       </FormControl>
                       <div className="flex items-center justify-between">
                         <FormDescription>
-                          Подробное описание поможет AI лучше подготовиться к интервью.
+                          Подробное описание поможет AI лучше подготовиться к
+                          интервью.
                         </FormDescription>
                         <span className="text-[10px] font-medium text-muted-foreground tabular-nums">
                           {field.value?.length ?? 0} символов
@@ -268,7 +272,10 @@ export function VacancyFullEditForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Платформа</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value ?? undefined}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Выберите платформу" />
@@ -282,7 +289,9 @@ export function VacancyFullEditForm({
                             <SelectItem value="HABR">Habr</SelectItem>
                             <SelectItem value="KWORK">Kwork</SelectItem>
                             <SelectItem value="FL_RU">FL.ru</SelectItem>
-                            <SelectItem value="FREELANCE_RU">Freelance.ru</SelectItem>
+                            <SelectItem value="FREELANCE_RU">
+                              Freelance.ru
+                            </SelectItem>
                             <SelectItem value="WEB_LINK">Веб-ссылка</SelectItem>
                             <SelectItem value="TELEGRAM">Telegram</SelectItem>
                           </SelectContent>
@@ -341,7 +350,9 @@ export function VacancyFullEditForm({
 
               {/* Настройки AI */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Настройки AI-ассистента</h3>
+                <h3 className="text-lg font-semibold">
+                  Настройки AI-ассистента
+                </h3>
 
                 <FormField
                   control={form.control}

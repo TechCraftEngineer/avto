@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Textarea } from "@qbs-autonaim/ui";
+import { Button, Card, Textarea } from "@qbs-autonaim/ui";
 import { IconCheck, IconEdit, IconX } from "@tabler/icons-react";
 import { useState } from "react";
 import type { VacancyDocument } from "./types";
@@ -20,7 +20,7 @@ export function DocumentSection({
   sectionKey,
   editingSection,
   onEditSection,
-  onUpdateSection
+  onUpdateSection,
 }: DocumentSectionProps) {
   const [editContent, setEditContent] = useState(content);
   const isEditing = editingSection === sectionKey;

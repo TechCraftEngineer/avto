@@ -253,10 +253,11 @@ export function VacancyTableRow({
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link
-                    href={paths.workspace.vacancyEdit(
+                    href={paths.workspace.vacancies(
                       orgSlug,
                       workspaceSlug,
                       vacancy.id,
+                      "edit",
                     )}
                     className="cursor-pointer"
                   >

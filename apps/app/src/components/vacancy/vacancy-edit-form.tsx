@@ -28,7 +28,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 interface VacancyEditFormProps {
-  initialData: {
+  vacancy: {
     title: string;
     description?: string | null;
   };
@@ -37,7 +37,7 @@ interface VacancyEditFormProps {
 }
 
 export function VacancyEditForm({
-  initialData,
+  vacancy,
   onSave,
   onCancel,
 }: VacancyEditFormProps) {
@@ -47,8 +47,8 @@ export function VacancyEditForm({
   const form = useForm<UpdateVacancyDetailsInput>({
     resolver: zodResolver(updateVacancyDetailsSchema),
     defaultValues: {
-      title: initialData.title,
-      description: initialData.description ?? "",
+      title: vacancy.title,
+      description: vacancy.description ?? "",
     },
   });
 
@@ -94,7 +94,8 @@ export function VacancyEditForm({
             <CardHeader>
               <CardTitle>Редактирование вакансии</CardTitle>
               <CardDescription>
-                Измените название и описание вакансии. Эти данные будут использоваться в AI-интервью и при анализе откликов.
+                Измените название и описание вакансии. Эти данные будут
+                использоваться в AI-интервью и при анализе откликов.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -135,7 +136,8 @@ export function VacancyEditForm({
                     </FormControl>
                     <div className="flex items-center justify-between">
                       <FormDescription>
-                        Подробное описание поможет AI лучше подготовиться к интервью.
+                        Подробное описание поможет AI лучше подготовиться к
+                        интервью.
                       </FormDescription>
                       <span className="text-[10px] font-medium text-muted-foreground tabular-nums">
                         {field.value?.length ?? 0} символов
@@ -162,7 +164,7 @@ export function VacancyEditForm({
                 </div>
               )}
             </div>
-            
+
             <div className="flex items-center gap-3">
               {onCancel && (
                 <Button

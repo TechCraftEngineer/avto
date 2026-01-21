@@ -1,5 +1,6 @@
 "use client";
 
+import type { UpdateVacancyDetailsInput } from "@qbs-autonaim/validators";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { use } from "react";
 import { VacancyEditForm } from "~/components/vacancy";
@@ -40,7 +41,7 @@ export default function VacancyEditPage({ params }: VacancyEditPageProps) {
     }),
   );
 
-  const handleSave = async (data: unknown) => {
+  const handleSave = async (data: UpdateVacancyDetailsInput) => {
     if (!workspaceId) return;
 
     await updateFullMutation.mutateAsync({

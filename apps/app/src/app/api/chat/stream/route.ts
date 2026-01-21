@@ -75,6 +75,7 @@ export async function POST(request: Request) {
     let chatContext = "";
     let userMessageText = "";
     let userMessageSaved = false;
+    let currentWorkspaceId: string | null = null;
     if (resolvedChatSessionId) {
       const chat = await db.query.chatSession.findFirst({
         where: eq(chatSession.id, resolvedChatSessionId),
@@ -96,6 +97,7 @@ export async function POST(request: Request) {
 
         if (vac) {
           const workspaceId = vac.workspaceId;
+          currentWorkspaceId = workspaceId;
           if (workspaceId) {
             const member = await db.query.workspaceMember.findFirst({
               where: (wm, { and }) =>
@@ -125,6 +127,7 @@ export async function POST(request: Request) {
 
         if (currentGig) {
           const workspaceId = currentGig.workspaceId;
+          currentWorkspaceId = workspaceId;
           if (workspaceId) {
             const member = await db.query.workspaceMember.findFirst({
               where: (wm, { and }) =>
@@ -198,7 +201,7 @@ ${historyContext}
           generationName: "recruiter-chat-response",
           entityId: resolvedChatSessionId,
           metadata: {
-            workspaceId: session.user.workspaceId,
+            workspaceId: currentWorkspaceId,
             chatSessionId: resolvedChatSessionId,
           },
         });
