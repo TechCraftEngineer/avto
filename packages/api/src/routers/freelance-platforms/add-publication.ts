@@ -21,7 +21,7 @@ function parseIdentifier(identifier: string): {
     const url = new URL(identifier);
 
     // Для HH.ru извлекаем ID из пути /vacancy/{id}
-    if (url.hostname === "hh.ru" && url.pathname.startsWith("/vacancy/")) {
+    if ((url.hostname === 'hh.ru' || url.hostname.endsWith('.hh.ru')) && url.pathname.startsWith("/vacancy/")) {
       const vacancyId = url.pathname.split("/vacancy/")[1];
       if (vacancyId?.match(/^\d+$/)) {
         return { externalId: vacancyId, url: identifier };

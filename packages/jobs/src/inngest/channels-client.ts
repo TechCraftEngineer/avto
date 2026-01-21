@@ -94,4 +94,7 @@ export const verifyHHCredentialsChannel = channel(
   ),
 );
 
-// syncArchivedResponsesChannel imported from ./channels/client
+/**
+ * Канал для отслеживания прогресса синхронизации архивных откликов вакансии
+ */
+export { syncArchivedResponsesChannel } from "./channels/client";
