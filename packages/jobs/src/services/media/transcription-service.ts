@@ -1,7 +1,7 @@
 import {
   openaiProvider,
-  transcribe,
   type TranscriptionResult,
+  transcribe,
 } from "@qbs-autonaim/lib/ai";
 import { createLogger, ok, type Result, tryCatch } from "../base";
 
@@ -20,9 +20,12 @@ export async function transcribeAudio(
     return ok(null);
   }
 
+  // Create a local reference to ensure TypeScript understands the narrowing
+  const provider = openaiProvider;
+
   return tryCatch(async () => {
     const result: TranscriptionResult = await transcribe({
-      model: openaiProvider.transcription("whisper-1"),
+      model: provider.transcription("whisper-1"),
       audio: audioBuffer,
       providerOptions: { openai: { language: "ru" } },
       generationName: "audio-transcription",

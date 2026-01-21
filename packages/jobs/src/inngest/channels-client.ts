@@ -97,14 +97,4 @@ export const verifyHHCredentialsChannel = channel(
 /**
  * Канал для отслеживания прогресса синхронизации архивных откликов вакансии
  */
-export const syncArchivedResponsesChannel = channel(
-  (vacancyId: string) => `vacancy-responses-sync-archived:${vacancyId}`,
-).addTopic(
-  topic("status").schema(
-    z.object({
-      status: z.enum(["started", "processing", "completed", "error"]),
-      message: z.string(),
-      vacancyId: z.string(),
-    }),
-  ),
-);
+export { syncArchivedResponsesChannel } from "./channels/client";
