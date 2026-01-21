@@ -4,7 +4,7 @@ import { vacancyPublication } from "@qbs-autonaim/db/schema";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../trpc";
-import { runHHArchivedVacancyParser } from "../../../jobs/src/parsers/hh/archived-runner";
+import { inngest } from "@qbs-autonaim/jobs/client";
 
 const syncArchivedVacancyResponsesInputSchema = z.object({
   workspaceId: workspaceIdSchema,
@@ -68,27 +68,20 @@ export const syncArchivedVacancyResponses = protectedProcedure
     }
 
     try {
-      // Запускаем парсер для архивной вакансии
-      const result = await runHHArchivedVacancyParser({
-        workspaceId: input.workspaceId,
-        vacancyId: input.vacancyId,
-        externalId: publication.externalId,
-        url: publication.url,
+      // Отправляем событие для запуска синхронизации в фоне
+      await inngest.send({
+        name: "vacancy/responses.sync-archived",
+        data: {
+          vacancyId: input.vacancyId,
+          workspaceId: input.workspaceId,
+        },
       });
-
-      // Обновляем lastSyncedAt для публикации
-      await ctx.db
-        .update(vacancyPublication)
-        .set({
-          lastSyncedAt: new Date(),
-        })
-        .where(eq(vacancyPublication.id, publication.id));
 
       return {
         success: true,
-        message: "Синхронизация откликов с архивной вакансии запущена",
-        syncedResponses: result.syncedResponses,
-        newResponses: result.newResponses,
+        message: "Синхронизация откликов с архивной вакансии запущена в фоне",
+        syncedResponses: 0,
+        newResponses: 0,
         platform: "HH",
         vacancyTitle: vacancy.title,
       };

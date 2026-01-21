@@ -8,6 +8,21 @@ const ROOTS = {
   ACCESS_DENIED: "/access-denied",
 } as const;
 
+export const ROUTE_SEGMENTS = {
+  vacancy: {
+    edit: "edit",
+    detail: "detail",
+    settings: "settings",
+    responses: "responses",
+  },
+  gig: {
+    edit: "edit",
+    detail: "detail",
+    settings: "settings",
+    responses: "responses",
+  },
+} as const;
+
 export const paths = {
   dashboard: {
     root: ROOTS.DASHBOARD,

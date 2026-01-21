@@ -111,7 +111,6 @@ export function streamText(
         }
 
         // Fallback логика обрабатывается в основном catch блоке
-        // Fallback логика обрабатывается в основном catch блоке
         throw streamError;
       }
     })();

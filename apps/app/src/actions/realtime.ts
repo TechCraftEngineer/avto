@@ -5,6 +5,7 @@ import {
   refreshVacancyResponsesChannel,
   screenAllResponsesChannel,
   screenNewResponsesChannel,
+  syncArchivedResponsesChannel,
 } from "@qbs-autonaim/jobs/channels";
 import { inngest } from "@qbs-autonaim/jobs/client";
 
@@ -38,6 +39,18 @@ export async function fetchScreenAllResponsesToken(vacancyId: string) {
 export async function fetchRefreshVacancyResponsesToken(vacancyId: string) {
   const token = await getSubscriptionToken(inngest, {
     channel: refreshVacancyResponsesChannel(vacancyId),
+    topics: ["status"],
+  });
+
+  return token;
+}
+
+/**
+ * Server action для получения токена подписки на Realtime канал синхронизации архивных откликов
+ */
+export async function fetchSyncArchivedVacancyResponsesToken(vacancyId: string) {
+  const token = await getSubscriptionToken(inngest, {
+    channel: syncArchivedResponsesChannel(vacancyId),
     topics: ["status"],
   });
 

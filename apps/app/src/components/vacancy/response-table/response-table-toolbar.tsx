@@ -8,6 +8,7 @@ import {
   fetchRefreshVacancyResponsesToken,
   fetchScreenAllResponsesToken,
   fetchScreenNewResponsesToken,
+  fetchSyncArchivedVacancyResponsesToken,
 } from "~/actions/realtime";
 import {
   ResponseFilters,
@@ -18,6 +19,7 @@ import { RefreshDialog } from "./refresh-dialog";
 import { ScreeningDialog } from "./screening-dialog";
 import { SyncArchivedDialog } from "./sync-archived-dialog";
 import { useRefreshSubscription } from "./use-refresh-subscription";
+import { useSyncArchivedSubscription } from "./use-sync-archived-subscription";
 import type { ResponseStatusFilterUI } from "./use-response-table";
 import {
   type ScreeningProgress,
@@ -125,10 +127,13 @@ export function ResponseTableToolbar({
   const [syncArchivedSyncedCount, setSyncArchivedSyncedCount] = useState<number>(0);
   const [syncArchivedNewCount, setSyncArchivedNewCount] = useState<number>(0);
   const [syncArchivedVacancyTitle, setSyncArchivedVacancyTitle] = useState<string>("");
+  const [syncArchivedSubscriptionActive, setSyncArchivedSubscriptionActive] =
+    useState(false);
 
   // Timeout refs для предотвращения утечек памяти
   const screenNewTimerRef = useRef<NodeJS.Timeout | null>(null);
   const screenAllTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const syncArchivedTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Refresh subscription
   useRefreshSubscription({
@@ -209,6 +214,24 @@ export function ResponseTableToolbar({
         () => handleScreenAllDialogClose(),
         3000,
       );
+    },
+  });
+
+  // Sync archived subscription
+  useSyncArchivedSubscription({
+    vacancyId,
+    enabled: syncArchivedSubscriptionActive,
+    fetchToken: fetchSyncArchivedVacancyResponsesToken,
+    onMessage: setSyncArchivedMessage,
+    onStatusChange: (status, message) => {
+      if (status === "completed") {
+        setSyncArchivedStatus("success");
+        onRefreshComplete();
+      } else {
+        setSyncArchivedStatus("error");
+        setSyncArchivedError(message);
+        onRefreshComplete();
+      }
     },
   });
 
@@ -315,6 +338,7 @@ export function ResponseTableToolbar({
     setSyncArchivedNewCount(0);
     setSyncArchivedVacancyTitle("");
     setSyncArchivedStatus("loading");
+    setSyncArchivedSubscriptionActive(true);
 
     try {
       const result = await trpc.freelancePlatforms.syncArchivedVacancyResponses.mutate({
@@ -322,23 +346,13 @@ export function ResponseTableToolbar({
         vacancyId,
       });
 
-      setSyncArchivedStatus("success");
-      setSyncArchivedMessage("Синхронизация завершена успешно!");
-      setSyncArchivedSyncedCount(result.syncedResponses);
-      setSyncArchivedNewCount(result.newResponses);
-      setSyncArchivedVacancyTitle(result.vacancyTitle);
-
-      // Обновляем таблицу через некоторое время
-      setTimeout(() => {
-        onRefreshComplete();
-      }, 1000);
-
-      toast.success(`Синхронизировано ${result.syncedResponses} откликов, новых: ${result.newResponses}`);
+      setSyncArchivedMessage("Задача запущена, ожидаем выполнения...");
+      toast.success("Синхронизация архивных откликов запущена в фоне");
     } catch (error) {
       setSyncArchivedStatus("error");
       const errorMessage = error instanceof Error ? error.message : "Неизвестная ошибка";
       setSyncArchivedError(errorMessage);
-      toast.error(`Ошибка синхронизации: ${errorMessage}`);
+      toast.error(`Ошибка запуска синхронизации: ${errorMessage}`);
     }
   };
 
@@ -351,6 +365,7 @@ export function ResponseTableToolbar({
       setSyncArchivedNewCount(0);
       setSyncArchivedVacancyTitle("");
       setSyncArchivedStatus("idle");
+      setSyncArchivedSubscriptionActive(false);
     }
   };
 
@@ -362,6 +377,9 @@ export function ResponseTableToolbar({
       }
       if (screenAllTimerRef.current) {
         clearTimeout(screenAllTimerRef.current);
+      }
+      if (syncArchivedTimerRef.current) {
+        clearTimeout(syncArchivedTimerRef.current);
       }
     };
   }, []);

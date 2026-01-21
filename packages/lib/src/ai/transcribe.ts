@@ -41,11 +41,11 @@ export async function transcribe(
     providerOptions,
   } = options;
 
-  // Validate metadata is JSON-serializable
+  // Проверяем, что метаданные можно сериализовать в JSON
   try {
     JSON.stringify(metadata);
   } catch (error) {
-    throw new Error(`Metadata must be JSON-serializable: ${error instanceof Error ? error.message : String(error)}`);
+    throw new Error(`Метаданные должны быть JSON-сериализуемыми: ${error instanceof Error ? error.message : String(error)}`);
   }
 
   const trace = langfuse.trace({

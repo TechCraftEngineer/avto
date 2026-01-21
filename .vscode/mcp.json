@@ -7,8 +7,11 @@
         "-y",
         "@upstash/context7-mcp",
         "--api-key",
-        "ctx7sk-3300007b-e2ac-4596-9695-c9b304ab17d8"
-      ]
+        "${MCP_API_KEY}"
+      ],
+      "env": {
+        "MCP_API_KEY": "${MCP_API_KEY}"
+      }
     },
     "postgres": {
       "type": "stdio",
@@ -26,7 +29,7 @@
       "command": "bunx",
       "args": [
         "@modelcontextprotocol/server-filesystem",
-        "/c/Projects/kwork/selectio"
+        "../../.."
       ]
     }
   },

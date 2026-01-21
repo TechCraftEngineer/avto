@@ -95,7 +95,7 @@ export function VacancyEditForm({
               <CardTitle>Редактирование вакансии</CardTitle>
               <CardDescription>
                 Измените название и описание вакансии. Эти данные будут
-                использоваться в AI-интервью и при анализе откликов.
+                использоваться в ИИ-интервью и при анализе откликов.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -136,7 +136,7 @@ export function VacancyEditForm({
                     </FormControl>
                     <div className="flex items-center justify-between">
                       <FormDescription>
-                        Подробное описание поможет AI лучше подготовиться к
+                        Подробное описание поможет ИИ лучше подготовиться к
                         интервью.
                       </FormDescription>
                       <span className="text-[10px] font-medium text-muted-foreground tabular-nums">

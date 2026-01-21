@@ -108,7 +108,7 @@ export function VacancyFullEditForm({
               <CardTitle>Редактирование вакансии</CardTitle>
               <CardDescription>
                 Измените все параметры вакансии. Эти данные будут использоваться
-                в AI-интервью и при анализе откликов.
+                в ИИ-интервью и при анализе откликов.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -150,7 +150,7 @@ export function VacancyFullEditForm({
                       </FormControl>
                       <div className="flex items-center justify-between">
                         <FormDescription>
-                          Подробное описание поможет AI лучше подготовиться к
+                          Подробное описание поможет ИИ лучше подготовиться к
                           интервью.
                         </FormDescription>
                         <span className="text-[10px] font-medium text-muted-foreground tabular-nums">
@@ -256,10 +256,10 @@ export function VacancyFullEditForm({
                 />
               </div>
 
-              {/* Настройки AI */}
+              {/* Настройки ИИ */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">
-                  Настройки AI-ассистента
+                  Настройки ИИ-ассистента
                 </h3>
 
                 <FormField
@@ -272,7 +272,7 @@ export function VacancyFullEditForm({
                         <Textarea
                           {...field}
                           value={field.value ?? ""}
-                          placeholder="Специфические инструкции для AI-ассистента..."
+                          placeholder="Специфические инструкции для ИИ-ассистента..."
                           className="min-h-[100px] resize-y bg-background leading-relaxed"
                         />
                       </FormControl>
@@ -321,7 +321,7 @@ export function VacancyFullEditForm({
                         />
                       </FormControl>
                       <FormDescription>
-                        Вопросы, которые задаст AI кандидатам.
+                        Вопросы, которые задаст ИИ кандидатам.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>

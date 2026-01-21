@@ -17,6 +17,9 @@ export function teeAsyncIterableStream<T>(
   let sourceDone = false;
   // Mutex для предотвращения одновременного чтения из источника
   let readingPromise: Promise<IteratorResult<T>> | null = null;
+  // Backpressure: promises для каждого буфера, разрешаются когда потребитель читает
+  const bufferWaiters: [(Promise<void> | null), (Promise<void> | null)] = [null, null];
+  const bufferResolvers: [(() => void) | null, (() => void) | null] = [null, null];
 
   async function readFromSource(): Promise<IteratorResult<T>> {
     if (!sourceIterator) {
@@ -32,6 +35,12 @@ export function teeAsyncIterableStream<T>(
         const buffer = buffers[index];
         if (buffer.length > 0) {
           const value = buffer.shift();
+          // Разрешаем waiter для этого буфера, позволяя продюсеру продолжить
+          if (bufferResolvers[index]) {
+            bufferResolvers[index]!();
+            bufferWaiters[index] = null;
+            bufferResolvers[index] = null;
+          }
           return { value, done: false };
         }
 
@@ -50,6 +59,12 @@ export function teeAsyncIterableStream<T>(
             // После завершения чтения проверяем буфер снова
             if (buffer.length > 0) {
               const bufferedValue = buffer.shift();
+              // Разрешаем waiter для этого буфера, позволяя продюсеру продолжить
+              if (bufferResolvers[index]) {
+                bufferResolvers[index]!();
+                bufferWaiters[index] = null;
+                bufferResolvers[index] = null;
+              }
               return { value: bufferedValue, done: false };
             }
             if (sourceDone) {
@@ -75,9 +90,14 @@ export function teeAsyncIterableStream<T>(
             const otherIndex = index === 0 ? 1 : 0;
             const otherBuffer = buffers[otherIndex];
 
-            // Если буфер переполнен, удаляем самое старое значение
+            // Если буфер переполнен, ждём пока потребитель прочитает
             if (otherBuffer.length >= MAX_BUFFER_SIZE) {
-              otherBuffer.shift(); // Удаляем самое старое значение
+              if (!bufferWaiters[otherIndex]) {
+                bufferWaiters[otherIndex] = new Promise<void>((resolve) => {
+                  bufferResolvers[otherIndex] = resolve;
+                });
+              }
+              await bufferWaiters[otherIndex];
             }
 
             otherBuffer.push(result.value);
