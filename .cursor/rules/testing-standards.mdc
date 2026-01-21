@@ -1,5 +1,6 @@
 ---
-alwaysApply: true
+description: Правила End-to-End тестирования с использованием Playwright и Cypress для обеспечения качества приложений
+alwaysApply: false
 globs: ["apps/playwright/**/*"]
 ---
 

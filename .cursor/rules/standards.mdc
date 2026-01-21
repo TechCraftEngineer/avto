@@ -1,5 +1,6 @@
 ---
-alwaysApply: true
+description: Общие стандарты и команды проекта, включая команды сборки, линтеры и workflow
+alwaysApply: false
 ---
 
 # Commands

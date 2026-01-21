@@ -1,5 +1,6 @@
 ---
-alwaysApply: true
+description: Правила разработки React компонентов, включая типизацию, хуки, оптимизацию и лучшие практики
+alwaysApply: false
 globs: ["apps/app/**/*.tsx"]
 ---
 

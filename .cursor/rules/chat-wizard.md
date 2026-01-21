@@ -1,4 +1,6 @@
 ---
+description: Правила работы с чатами и Wizard компонентами, включая архитектуру сообщений и состояние чатов
+alwaysApply: false
 inclusion: fileMatch
 fileMatchPattern: "**/wizard-chat/**/*.{ts,tsx}"
 ---

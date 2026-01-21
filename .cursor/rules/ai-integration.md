@@ -1,4 +1,6 @@
 ---
+description: Правила интеграции и работы с AI сервисами, включая безопасность, валидацию и обработку ошибок
+alwaysApply: false
 inclusion: fileMatch
 fileMatchPattern: "**/*.{ts,tsx}"
 ---

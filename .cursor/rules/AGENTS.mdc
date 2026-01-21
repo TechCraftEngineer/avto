@@ -1,5 +1,6 @@
 ---
-alwaysApply: true
+description: Правила создания доступных, быстрых и привлекательных пользовательских интерфейсов
+alwaysApply: false
 globs: ["apps/app/**/*"]
 ---
 Concise rules for building accessible, fast, delightful UIs Use MUST/SHOULD/NEVER to guide decisions
