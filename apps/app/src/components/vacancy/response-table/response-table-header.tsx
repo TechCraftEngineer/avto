@@ -40,7 +40,9 @@ export function ResponseTableHeader({
             disabled={!hasResponses}
           />
         </TableHead>
-        <TableHead className="font-semibold text-foreground">Кандидат</TableHead>
+        <TableHead className="font-semibold text-foreground">
+          Кандидат
+        </TableHead>
         <TableHead className="font-semibold text-foreground">
           <button
             type="button"
@@ -61,9 +63,15 @@ export function ResponseTableHeader({
             {renderSortIcon("detailedScore")}
           </button>
         </TableHead>
-        <TableHead className="font-semibold text-foreground">Интервью</TableHead>
-        <TableHead className="font-semibold text-foreground">Отбор HR</TableHead>
-        <TableHead className="font-semibold text-foreground">Контакты</TableHead>
+        <TableHead className="font-semibold text-foreground">
+          Интервью
+        </TableHead>
+        <TableHead className="font-semibold text-foreground">
+          Отбор HR
+        </TableHead>
+        <TableHead className="font-semibold text-foreground">
+          Контакты
+        </TableHead>
         <TableHead className="font-semibold text-foreground whitespace-nowrap">
           <button
             type="button"
@@ -74,7 +82,9 @@ export function ResponseTableHeader({
             {renderSortIcon("respondedAt")}
           </button>
         </TableHead>
-        <TableHead className="text-right pr-4 font-semibold text-foreground">Действия</TableHead>
+        <TableHead className="text-right pr-4 font-semibold text-foreground">
+          Действия
+        </TableHead>
       </TableRow>
     </TableHeader>
   );

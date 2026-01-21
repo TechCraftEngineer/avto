@@ -45,7 +45,9 @@ export async function transcribe(
   try {
     JSON.stringify(metadata);
   } catch (error) {
-    throw new Error(`Метаданные должны быть JSON-сериализуемыми: ${error instanceof Error ? error.message : String(error)}`);
+    throw new Error(
+      `Метаданные должны быть JSON-сериализуемыми: ${error instanceof Error ? error.message : String(error)}`,
+    );
   }
 
   const trace = langfuse?.trace({

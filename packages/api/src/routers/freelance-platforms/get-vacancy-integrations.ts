@@ -13,7 +13,10 @@ export const getVacancyIntegrations = protectedProcedure
   .input(getVacancyIntegrationsInputSchema)
   .query(async ({ input, ctx }) => {
     // Проверка доступа к workspace
-    await ctx.workspaceRepository.checkAccess(input.workspaceId, ctx.session.user.id);
+    await ctx.workspaceRepository.checkAccess(
+      input.workspaceId,
+      ctx.session.user.id,
+    );
 
     // Проверка, что вакансия принадлежит workspace
     const vacancy = await ctx.db.query.vacancy.findFirst({

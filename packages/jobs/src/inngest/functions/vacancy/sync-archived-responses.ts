@@ -31,7 +31,9 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
     );
 
     const result = await step.run("sync-archived-responses", async () => {
-      console.log(`🚀 Запуск синхронизации архивных откликов для вакансии ${vacancyId}`);
+      console.log(
+        `🚀 Запуск синхронизации архивных откликов для вакансии ${vacancyId}`,
+      );
 
       // Получаем вакансию
       const vacancyData = await db.query.vacancy.findFirst({
@@ -58,7 +60,9 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
             vacancyId,
           }),
         );
-        throw new Error(`Вакансия ${vacancyId} не принадлежит рабочему пространству ${workspaceId}`);
+        throw new Error(
+          `Вакансия ${vacancyId} не принадлежит рабочему пространству ${workspaceId}`,
+        );
       }
 
       // Получаем публикацию на HH.ru
@@ -90,7 +94,9 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
             vacancyId,
           }),
         );
-        throw new Error("У публикации нет externalId или URL для синхронизации");
+        throw new Error(
+          "У публикации нет externalId или URL для синхронизации",
+        );
       }
 
       try {
@@ -102,12 +108,13 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
           }),
         );
 
-        const { syncedResponses, newResponses } = await runHHArchivedVacancyParser({
-          workspaceId,
-          vacancyId,
-          externalId: publication.externalId,
-          url: publication.url,
-        });
+        const { syncedResponses, newResponses } =
+          await runHHArchivedVacancyParser({
+            workspaceId,
+            vacancyId,
+            externalId: publication.externalId,
+            url: publication.url,
+          });
 
         // Обновляем lastSyncedAt для публикации
         await db
@@ -125,14 +132,16 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
           }),
         );
 
-        console.log(`✅ Архивные отклики для вакансии ${vacancyId} синхронизированы успешно`);
+        console.log(
+          `✅ Архивные отклики для вакансии ${vacancyId} синхронизированы успешно`,
+        );
 
         return {
           success: true,
           vacancyId,
           syncedResponses,
           newResponses,
-          vacancyTitle: vacancyData.title
+          vacancyTitle: vacancyData.title,
         };
       } catch (error) {
         console.error(

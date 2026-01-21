@@ -18,8 +18,14 @@ export function teeAsyncIterableStream<T>(
   // Mutex для предотвращения одновременного чтения из источника
   let readingPromise: Promise<IteratorResult<T>> | null = null;
   // Backpressure: promises для каждого буфера, разрешаются когда потребитель читает
-  const bufferWaiters: [(Promise<void> | null), (Promise<void> | null)] = [null, null];
-  const bufferResolvers: [(() => void) | null, (() => void) | null] = [null, null];
+  const bufferWaiters: [Promise<void> | null, Promise<void> | null] = [
+    null,
+    null,
+  ];
+  const bufferResolvers: [(() => void) | null, (() => void) | null] = [
+    null,
+    null,
+  ];
 
   async function readFromSource(): Promise<IteratorResult<T>> {
     if (!sourceIterator) {

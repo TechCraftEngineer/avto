@@ -15,7 +15,9 @@ export async function transcribeAudio(
   audioBuffer: Buffer,
 ): Promise<Result<string | null>> {
   if (!openaiProvider) {
-    logger.info("Transcription skipped: OpenAI provider not available (OPENAI_API_KEY not set)");
+    logger.info(
+      "Transcription skipped: OpenAI provider not available (OPENAI_API_KEY not set)",
+    );
     return ok(null);
   }
 

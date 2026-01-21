@@ -5,10 +5,8 @@ import { DEFAULT_MODEL_DEEPSEEK, DEFAULT_MODEL_OPENAI } from "./constants";
 import { langfuse, openaiProvider } from "./providers";
 import { getActualProvider, getAIModel, getAIModelName } from "./models";
 
-export interface GenerateTextOptions extends Omit<
-  Parameters<typeof aiGenerateText>[0],
-  "model"
-> {
+export interface GenerateTextOptions
+  extends Omit<Parameters<typeof aiGenerateText>[0], "model"> {
   model?: LanguageModel;
   generationName: string;
   entityId?: string;

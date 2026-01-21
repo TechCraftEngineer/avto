@@ -1,7 +1,12 @@
 import { z } from "zod";
 
 // Общая схема для workspaceId
-export const workspaceIdSchema = z.string().regex(/^ws_[0-9a-fA-F]{32}$/, "Неверный формат идентификатора рабочей области");
+export const workspaceIdSchema = z
+  .string()
+  .regex(
+    /^ws_[0-9a-fA-F]{32}$/,
+    "Неверный формат идентификатора рабочей области",
+  );
 
 // Общая схема для UUIDv7
 export const uuidv7Schema = z.uuidv7();

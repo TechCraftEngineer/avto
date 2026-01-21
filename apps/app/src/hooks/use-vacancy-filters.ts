@@ -34,7 +34,7 @@ export function useVacancyFilters(vacancies: Vacancy[] | undefined) {
       filtered = filtered.filter(
         (v) =>
           v.title.toLowerCase().includes(query) ||
-          v.region?.toLowerCase().includes(query)
+          v.region?.toLowerCase().includes(query),
       );
     }
 

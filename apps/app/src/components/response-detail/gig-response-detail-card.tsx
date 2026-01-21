@@ -29,12 +29,8 @@ export function GigResponseDetailCard({
   isProcessing,
   isPolling,
 }: GigResponseDetailCardProps) {
-  const {
-    hasInterviewScoring,
-    hasConversation,
-    conversation,
-    getDefaultTab,
-  } = useVacancyResponseFlags(response);
+  const { hasInterviewScoring, hasConversation, conversation, getDefaultTab } =
+    useVacancyResponseFlags(response);
 
   // Преобразуем conversation для ResponseHeaderCard
   const mappedConversation = conversation

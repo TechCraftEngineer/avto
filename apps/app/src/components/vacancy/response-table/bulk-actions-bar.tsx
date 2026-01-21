@@ -22,7 +22,9 @@ export function BulkActionsBar({
         <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground shadow-sm">
           {selectedCount}
         </div>
-        <p className="text-sm font-bold text-primary uppercase tracking-wider">Кандидата выбрано</p>
+        <p className="text-sm font-bold text-primary uppercase tracking-wider">
+          Кандидата выбрано
+        </p>
       </div>
       <div className="flex gap-2">
         <Button
@@ -39,9 +41,9 @@ export function BulkActionsBar({
           )}
           Приветствие
         </Button>
-        <Button 
-          onClick={onBulkScreen} 
-          disabled={isProcessing} 
+        <Button
+          onClick={onBulkScreen}
+          disabled={isProcessing}
           size="sm"
           className="h-9 px-4 rounded-full shadow-lg shadow-primary/20 font-bold"
         >

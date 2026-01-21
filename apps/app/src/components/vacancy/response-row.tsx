@@ -164,11 +164,13 @@ export function ResponseRow({
       <TableCell className="whitespace-nowrap">
         <span className="text-sm font-medium text-foreground">
           {response.respondedAt
-            ? new Date(response.respondedAt).toLocaleDateString("ru-RU", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-              }).replace(" г.", "")
+            ? new Date(response.respondedAt)
+                .toLocaleDateString("ru-RU", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })
+                .replace(" г.", "")
             : "—"}
         </span>
       </TableCell>
