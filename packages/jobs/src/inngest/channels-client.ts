@@ -4,7 +4,6 @@
  */
 import { channel, topic } from "@inngest/realtime";
 import { z } from "zod";
-import { syncArchivedResponsesChannel } from "./channels/client";
 
 /**
  * Канал для отслеживания прогресса скрининга новых откликов

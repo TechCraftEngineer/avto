@@ -1,6 +1,4 @@
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { eq } from "@qbs-autonaim/db";
-import { vacancyPublication } from "@qbs-autonaim/db/schema";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../trpc";

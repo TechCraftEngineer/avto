@@ -1,4 +1,3 @@
-import { env } from "@qbs-autonaim/config";
 import {
   openaiProvider,
   transcribe,

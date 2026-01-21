@@ -40,10 +40,10 @@ export function teeAsyncIterableStream<T>(
         // Если есть буферизованные данные для этого итератора, вернуть их
         const buffer = buffers[index];
         if (buffer.length > 0) {
-          const value = buffer.shift()!;
+          const value = buffer.shift() as T;
           // Разрешаем waiter для этого буфера, позволяя продюсеру продолжить
           if (bufferResolvers[index]) {
-            bufferResolvers[index]!();
+            bufferResolvers[index]?.();
             bufferWaiters[index] = null;
             bufferResolvers[index] = null;
           }
@@ -64,10 +64,10 @@ export function teeAsyncIterableStream<T>(
 
             // После завершения чтения проверяем буфер снова
             if (buffer.length > 0) {
-              const bufferedValue = buffer.shift()!;
+              const bufferedValue = buffer.shift() as T;
               // Разрешаем waiter для этого буфера, позволяя продюсеру продолжить
               if (bufferResolvers[index]) {
-                bufferResolvers[index]!();
+                bufferResolvers[index]?.();
                 bufferWaiters[index] = null;
                 bufferResolvers[index] = null;
               }
