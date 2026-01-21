@@ -29,7 +29,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@qbs-autonaim/ui";
-import { IconCheck, IconExternalLink, IconPlus, IconRefresh, IconX } from "@tabler/icons-react";
+import {
+  IconCheck,
+  IconExternalLink,
+  IconPlus,
+  IconRefresh,
+  IconX,
+} from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -38,7 +44,10 @@ import { z } from "zod";
 import { useTRPC } from "~/trpc/react";
 
 // Функция для парсинга идентификатора из URL или ID
-function parseIdentifier(identifier: string): { externalId: string | undefined; url: string | undefined } {
+function parseIdentifier(identifier: string): {
+  externalId: string | undefined;
+  url: string | undefined;
+} {
   if (!identifier.trim()) {
     return { externalId: undefined, url: undefined };
   }
@@ -48,8 +57,8 @@ function parseIdentifier(identifier: string): { externalId: string | undefined; 
     const url = new URL(identifier);
 
     // Для HH.ru извлекаем ID из пути /vacancy/{id}
-    if (url.hostname === 'hh.ru' && url.pathname.startsWith('/vacancy/')) {
-      const vacancyId = url.pathname.split('/vacancy/')[1];
+    if (url.hostname === "hh.ru" && url.pathname.startsWith("/vacancy/")) {
+      const vacancyId = url.pathname.split("/vacancy/")[1];
       if (vacancyId?.match(/^\d+$/)) {
         return { externalId: vacancyId, url: identifier };
       }
@@ -92,7 +101,6 @@ interface VacancyIntegrationManagerProps {
   workspaceId: string;
 }
 
-
 interface Publication {
   id: string;
   vacancyId: string;
@@ -122,7 +130,8 @@ export function VacancyIntegrationManager({
   workspaceId,
 }: VacancyIntegrationManagerProps) {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
-  const [editingPublication, setEditingPublication] = useState<Publication | null>(null);
+  const [editingPublication, setEditingPublication] =
+    useState<Publication | null>(null);
 
   const api = useTRPC();
   const queryClient = useQueryClient();
@@ -264,80 +273,111 @@ export function VacancyIntegrationManager({
 
   // Фильтруем платформы - показываем только те, с которыми есть активные интеграции
   const availablePlatforms = platformSourceValues.filter((platform) =>
-    activeIntegrations.some((integration) => integration.type.toLowerCase() === platform.toLowerCase())
+    activeIntegrations.some(
+      (integration) =>
+        integration.type.toLowerCase() === platform.toLowerCase(),
+    ),
   );
 
   if (isLoading) {
     return (
-      <Card>
+      <Card className="shadow-sm border-border/50">
         <CardHeader>
-          <CardTitle>Интеграции с платформами</CardTitle>
-          <CardDescription>Загрузка...</CardDescription>
+          <CardTitle className="text-xl font-semibold tracking-tight">
+            Интеграции с платформами
+          </CardTitle>
+          <CardDescription className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span className="inline-block size-4 animate-spin rounded-full border-2 border-muted border-r-transparent" />
+            Загрузка...
+          </CardDescription>
         </CardHeader>
       </Card>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle>Интеграции с платформами</CardTitle>
-            <CardDescription>
-              Свяжите вакансию с публикациями на внешних платформах для автоматического сбора откликов
+    <Card className="shadow-sm border-border/50">
+      <CardHeader className="pb-6">
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-1.5">
+            <CardTitle className="text-xl font-semibold tracking-tight">
+              Интеграции с платформами
+            </CardTitle>
+            <CardDescription className="text-sm text-muted-foreground leading-relaxed">
+              Свяжите вакансию с публикациями на внешних платформах для
+              автоматического сбора откликов
             </CardDescription>
           </div>
           {availablePlatforms.length > 0 && (
             <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
               <DialogTrigger asChild>
-                <Button size="sm">
+                <Button
+                  size="sm"
+                  className="shadow-sm hover:shadow-md transition-shadow"
+                >
                   <IconPlus className="mr-2 size-4" />
                   Добавить интеграцию
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Добавить интеграцию</DialogTitle>
-                  <DialogDescription>
+              <DialogContent className="sm:max-w-[480px] shadow-lg border-border/50">
+                <DialogHeader className="space-y-3">
+                  <DialogTitle className="text-lg font-semibold">
+                    Добавить интеграцию
+                  </DialogTitle>
+                  <DialogDescription className="text-sm text-muted-foreground leading-relaxed">
                     Выберите платформу и укажите ID вакансии или ссылку на неё.
                   </DialogDescription>
                 </DialogHeader>
                 <Form {...addPublicationForm}>
                   <form
-                    onSubmit={addPublicationForm.handleSubmit(handleAddPublication)}
-                    className="space-y-4"
+                    onSubmit={addPublicationForm.handleSubmit(
+                      handleAddPublication,
+                    )}
+                    className="space-y-6 pt-4"
                   >
                     <FormField
                       control={addPublicationForm.control}
                       name="platform"
                       render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Платформа</FormLabel>
+                        <FormItem className="space-y-2">
+                          <FormLabel className="text-sm font-medium">
+                            Платформа
+                          </FormLabel>
                           <Select
                             onValueChange={field.onChange}
                             defaultValue={field.value}
                           >
                             <FormControl>
-                              <SelectTrigger>
+                              <SelectTrigger className="shadow-sm">
                                 <SelectValue placeholder="Выберите платформу" />
                               </SelectTrigger>
                             </FormControl>
-                            <SelectContent>
+                            <SelectContent className="shadow-lg">
                               {availablePlatforms.map((platform) => {
-                                const config = SOURCE_CONFIG[platform.toUpperCase()] || {
+                                const config = SOURCE_CONFIG[
+                                  platform.toUpperCase()
+                                ] || {
                                   label: platform,
                                   color: "bg-gray-500",
                                 };
                                 return (
-                                  <SelectItem key={platform} value={platform}>
-                                    {config.label}
+                                  <SelectItem
+                                    key={platform}
+                                    value={platform}
+                                    className="cursor-pointer"
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <div
+                                        className={`size-2 rounded-full ${config.color.split(" ")[0]}`}
+                                      />
+                                      {config.label}
+                                    </div>
                                   </SelectItem>
                                 );
                               })}
                             </SelectContent>
                           </Select>
-                          <FormMessage />
+                          <FormMessage className="text-xs" />
                         </FormItem>
                       )}
                     />
@@ -345,22 +385,26 @@ export function VacancyIntegrationManager({
                       control={addPublicationForm.control}
                       name="identifier"
                       render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>ID вакансии или ссылка</FormLabel>
+                        <FormItem className="space-y-2">
+                          <FormLabel className="text-sm font-medium">
+                            ID вакансии или ссылка
+                          </FormLabel>
                           <FormControl>
                             <Input
                               placeholder="Например: 128580152 или https://hh.ru/vacancy/128580152"
+                              className="shadow-sm"
                               {...field}
                             />
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="text-xs" />
                         </FormItem>
                       )}
                     />
-                    <DialogFooter>
+                    <DialogFooter className="pt-4">
                       <Button
                         type="submit"
                         disabled={addPublicationMutation.isPending}
+                        className="shadow-sm hover:shadow-md transition-shadow"
                       >
                         {addPublicationMutation.isPending && (
                           <span className="mr-2 inline-block size-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite]" />
@@ -377,82 +421,125 @@ export function VacancyIntegrationManager({
       </CardHeader>
       <CardContent>
         {activeIntegrations.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <p>Нет активных интеграций с платформами.</p>
-            <p className="text-sm mt-2">
-              Настройте интеграции в разделе настроек workspace.
+          <div className="text-center py-12 px-4">
+            <div className="mx-auto size-12 rounded-full bg-muted/50 flex items-center justify-center mb-4">
+              <IconX className="size-6 text-muted-foreground" />
+            </div>
+            <h3 className="text-sm font-medium text-foreground mb-2">
+              Нет активных интеграций
+            </h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Настройте интеграции с платформами в разделе настроек workspace,
+              чтобы начать сбор откликов.
             </p>
           </div>
         ) : publications.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <p>Нет связанных публикаций.</p>
-            <p className="text-sm mt-2">
-              Добавьте интеграцию, чтобы начать сбор откликов с платформ.
+          <div className="text-center py-12 px-4">
+            <div className="mx-auto size-12 rounded-full bg-muted/50 flex items-center justify-center mb-4">
+              <IconPlus className="size-6 text-muted-foreground" />
+            </div>
+            <h3 className="text-sm font-medium text-foreground mb-2">
+              Нет связанных публикаций
+            </h3>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+              Добавьте интеграцию, чтобы начать автоматический сбор откликов с
+              платформ.
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {publications.map((publication) => {
-              const config = SOURCE_CONFIG[publication.platform.toUpperCase()] || {
+              const config = SOURCE_CONFIG[
+                publication.platform.toUpperCase()
+              ] || {
                 label: publication.platform,
                 color: "bg-gray-500",
               };
 
               return (
-                <div
+                <Card
                   key={publication.id}
-                  className="flex items-center justify-between p-4 border rounded-lg"
+                  className="shadow-sm border-border/50 hover:shadow-md transition-shadow"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className={`size-3 rounded-full ${config.color.split(" ")[0]}`} />
-                    <div>
-                      <div className="font-medium">{config.label}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {publication.externalId && (
-                          <span>ID: {publication.externalId}</span>
-                        )}
-                        {publication.externalId && publication.url && " • "}
-                        {publication.url && (
-                          <a
-                            href={publication.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 hover:underline"
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`size-3 rounded-full ${config.color.split(" ")[0]} shadow-sm`}
+                          />
+                          <div>
+                            <div className="font-medium text-sm">
+                              {config.label}
+                            </div>
+                            <div className="text-xs text-muted-foreground mt-0.5">
+                              {publication.externalId && (
+                                <span className="font-mono">
+                                  ID: {publication.externalId}
+                                </span>
+                              )}
+                              {publication.externalId && publication.url && (
+                                <span className="mx-2 text-muted-foreground/50">
+                                  •
+                                </span>
+                              )}
+                              {publication.url && (
+                                <a
+                                  href={publication.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 hover:text-foreground transition-colors"
+                                >
+                                  Ссылка
+                                  <IconExternalLink className="size-3" />
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${
+                            publication.isActive
+                              ? "bg-green-50 text-green-700 border border-green-200"
+                              : "bg-red-50 text-red-700 border border-red-200"
+                          }`}
+                        >
+                          {publication.isActive ? (
+                            <IconCheck className="size-3" />
+                          ) : (
+                            <IconX className="size-3" />
+                          )}
+                          {publication.isActive ? "Активна" : "Неактивна"}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              handleValidatePublication(publication.id)
+                            }
+                            disabled={validatePublicationMutation.isPending}
+                            className="size-8 p-0 hover:bg-muted"
+                            aria-label="Проверить интеграцию"
                           >
-                            Ссылка <IconExternalLink className="size-3" />
-                          </a>
-                        )}
+                            <IconRefresh className="size-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEditPublication(publication)}
+                            className="size-8 p-0 hover:bg-muted"
+                            aria-label="Изменить интеграцию"
+                          >
+                            Изменить
+                          </Button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1">
-                      {publication.isActive ? (
-                        <IconCheck className="size-4 text-green-600" />
-                      ) : (
-                        <IconX className="size-4 text-red-600" />
-                      )}
-                      <span className="text-sm">
-                        {publication.isActive ? "Активна" : "Неактивна"}
-                      </span>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleValidatePublication(publication.id)}
-                      disabled={validatePublicationMutation.isPending}
-                    >
-                      <IconRefresh className="size-3" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEditPublication(publication)}
-                    >
-                      Изменить
-                    </Button>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               );
             })}
           </div>
@@ -463,38 +550,46 @@ export function VacancyIntegrationManager({
           open={!!editingPublication}
           onOpenChange={(open) => !open && setEditingPublication(null)}
         >
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Редактировать интеграцию</DialogTitle>
-              <DialogDescription>
+          <DialogContent className="sm:max-w-[480px] shadow-lg border-border/50">
+            <DialogHeader className="space-y-3">
+              <DialogTitle className="text-lg font-semibold">
+                Редактировать интеграцию
+              </DialogTitle>
+              <DialogDescription className="text-sm text-muted-foreground leading-relaxed">
                 Обновите ID вакансии или ссылку на неё.
               </DialogDescription>
             </DialogHeader>
             <Form {...updatePublicationForm}>
               <form
-                onSubmit={updatePublicationForm.handleSubmit(handleUpdatePublication)}
-                className="space-y-4"
+                onSubmit={updatePublicationForm.handleSubmit(
+                  handleUpdatePublication,
+                )}
+                className="space-y-6 pt-4"
               >
                 <FormField
                   control={updatePublicationForm.control}
                   name="identifier"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>ID вакансии или ссылка</FormLabel>
+                    <FormItem className="space-y-2">
+                      <FormLabel className="text-sm font-medium">
+                        ID вакансии или ссылка
+                      </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Например: 128580152 или https://hh.ru/vacancy/128580152"
+                          className="shadow-sm"
                           {...field}
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
-                <DialogFooter>
+                <DialogFooter className="pt-4">
                   <Button
                     type="submit"
                     disabled={updatePublicationMutation.isPending}
+                    className="shadow-sm hover:shadow-md transition-shadow"
                   >
                     {updatePublicationMutation.isPending && (
                       <span className="mr-2 inline-block size-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite]" />
