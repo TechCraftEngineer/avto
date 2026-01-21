@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { use } from "react";
-import { VacancyFullEditForm } from "~/components/vacancy";
+import { VacancyEditForm } from "~/components/vacancy";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 import { useTRPC } from "~/trpc/react";
 
@@ -40,7 +40,7 @@ export default function VacancyEditPage({ params }: VacancyEditPageProps) {
     }),
   );
 
-  const handleSave = async (data: any) => {
+  const handleSave = async (data: unknown) => {
     if (!workspaceId) return;
 
     await updateFullMutation.mutateAsync({
@@ -58,10 +58,7 @@ export default function VacancyEditPage({ params }: VacancyEditPageProps) {
     <div className="flex flex-1 flex-col">
       <div className="@container/main flex flex-1 flex-col gap-2">
         <div className="px-4 py-4 md:px-6 lg:px-8">
-          <VacancyFullEditForm
-            vacancy={vacancy}
-            onSave={handleSave}
-          />
+          <VacancyEditForm vacancy={vacancy} onSave={handleSave} />
         </div>
       </div>
     </div>
