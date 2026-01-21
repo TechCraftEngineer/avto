@@ -18,14 +18,13 @@ import {
   response as responseTable,
   vacancy as vacancyTable,
 } from "@qbs-autonaim/db/schema";
-import { getAIModel, getFallbackModel } from "@qbs-autonaim/lib/ai";
+import { getAIModel, getFallbackModel, streamText } from "@qbs-autonaim/lib/ai";
 import "@qbs-autonaim/lib/instrumentation";
 import {
   createUIMessageStream,
   JsonToSseTransformStream,
   smoothStream,
   stepCountIs,
-  streamText,
 } from "ai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
@@ -222,7 +221,7 @@ async function handler(request: Request) {
             content: userMessageText,
           })
           .returning({ createdAt: interviewMessage.createdAt });
-        
+
         savedMessageTimestamp = savedMessage?.createdAt ?? null;
       }
     }
@@ -367,6 +366,12 @@ async function handler(request: Request) {
               stopWhen: stepCountIs(25), // Allow up to 25 steps for complex tool chains
               experimental_transform: smoothStream({ chunking: "word" }),
               experimental_telemetry: { isEnabled: true }, // Enable Langfuse telemetry for tool calls
+              generationName: "web-interview-response",
+              entityId: sessionId,
+              metadata: {
+                sessionId,
+                isFallback,
+              },
               onFinish: async () => {
                 // End span manually after stream has finished
                 trace.getActiveSpan()?.end();

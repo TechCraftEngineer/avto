@@ -5,10 +5,9 @@
  * Публичная процедура - не требует авторизации пользователя.
  */
 
-import { createOpenAI } from "@ai-sdk/openai";
-import { env } from "@qbs-autonaim/config";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { openaiProvider, langfuse } from "@qbs-autonaim/lib/ai";
 import { SessionManager } from "../../services/prequalification";
 import { PrequalificationError } from "../../services/prequalification/types";
 import {
@@ -54,21 +53,10 @@ export const uploadResume = publicProcedure
       });
     }
 
-    // Validate OpenAI API key is available
-    if (!env.OPENAI_API_KEY) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "OpenAI API key не настроен",
-      });
-    }
-
     // Initialize resume parser
-    const openai = createOpenAI({
-      apiKey: env.OPENAI_API_KEY,
-    });
-
     const resumeParser = new ResumeParserService({
-      model: openai("gpt-4o-mini"),
+      model: openaiProvider("gpt-4o-mini"),
+      langfuse,
     });
 
     // Validate file format

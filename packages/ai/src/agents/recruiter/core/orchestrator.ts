@@ -3,9 +3,9 @@
  * Использует Orchestrator-Worker pattern для координации специализированных агентов
  */
 
-import { env } from "@qbs-autonaim/config";
 import type { LanguageModel } from "ai";
-import { Langfuse } from "langfuse";
+import { langfuse as globalLangfuse } from "@qbs-autonaim/lib/ai";
+import type { Langfuse } from "langfuse";
 import type { AgentConfig } from "../../core/base-agent";
 import { CommunicationAgent } from "../actions/communication";
 import { ContentGeneratorAgent } from "../actions/content-generator";
@@ -25,39 +25,15 @@ import type {
   VacancyAnalytics,
 } from "./types";
 
-export interface RecruiterOrchestratorFullConfig
-  extends RecruiterOrchestratorConfig {
+export interface RecruiterOrchestratorFullConfig extends RecruiterOrchestratorConfig {
   model: LanguageModel;
   langfuse?: Langfuse | undefined;
 }
 
-let globalLangfuse: Langfuse | undefined;
-
 /**
  * Получает или создает singleton инстанс Langfuse
- * Возвращает undefined если ключи не настроены (graceful degradation)
  */
 function getLangfuseInstance(): Langfuse | undefined {
-  if (globalLangfuse === undefined) {
-    const secretKey = env.LANGFUSE_SECRET_KEY;
-    const publicKey = env.LANGFUSE_PUBLIC_KEY;
-    const baseUrl = env.LANGFUSE_BASE_URL;
-
-    if (!secretKey || !publicKey) {
-      console.warn(
-        "[Langfuse] LANGFUSE_SECRET_KEY and LANGFUSE_PUBLIC_KEY are not set. Tracing will be disabled.",
-      );
-      globalLangfuse = undefined;
-      return undefined;
-    }
-
-    globalLangfuse = new Langfuse({
-      secretKey,
-      publicKey,
-      baseUrl,
-    });
-  }
-
   return globalLangfuse;
 }
 

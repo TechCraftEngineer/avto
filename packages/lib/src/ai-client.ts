@@ -2,10 +2,16 @@ import { deepseek } from "@ai-sdk/deepseek";
 import { createOpenAI } from "@ai-sdk/openai";
 import { env } from "@qbs-autonaim/config";
 import type { LanguageModel } from "ai";
-import { generateText as aiGenerateText, streamText as aiStreamText } from "ai";
+import {
+  generateText as aiGenerateText,
+  streamText as aiStreamText,
+  generateObject as aiGenerateObject,
+  experimental_transcribe as aiTranscribe,
+} from "ai";
 import { Langfuse } from "langfuse";
+import { z } from "zod";
 
-const langfuse = new Langfuse({
+export const langfuse = new Langfuse({
   secretKey: env.LANGFUSE_SECRET_KEY,
   publicKey: env.LANGFUSE_PUBLIC_KEY,
   baseUrl: env.LANGFUSE_BASE_URL,
@@ -16,7 +22,7 @@ const DEFAULT_MODEL_DEEPSEEK = "deepseek-chat";
 
 // Создаём OpenAI провайдер с прокси
 const proxyBaseUrl = env.AI_PROXY_URL;
-const openaiProvider = createOpenAI({
+export const openaiProvider = createOpenAI({
   apiKey: env.OPENAI_API_KEY,
   baseURL: proxyBaseUrl,
 });
@@ -242,9 +248,11 @@ export function getFallbackModel(): LanguageModel {
   throw new Error("Ни основная, ни fallback модель не доступны");
 }
 
-interface GenerateTextOptions {
+interface GenerateTextOptions extends Omit<
+  Parameters<typeof aiGenerateText>[0],
+  "model"
+> {
   model?: LanguageModel;
-  prompt: string;
   generationName: string;
   entityId?: string;
   metadata?: Record<string, unknown>;
@@ -255,12 +263,13 @@ export async function generateText(
 ): Promise<Awaited<ReturnType<typeof aiGenerateText>>> {
   const {
     model = getAIModel(),
-    prompt,
     generationName,
     entityId,
     metadata = {},
+    ...aiOptions
   } = options;
 
+  const prompt = aiOptions.prompt || JSON.stringify(aiOptions.messages);
   const modelName = getAIModelName();
 
   const trace = langfuse.trace({
@@ -279,7 +288,7 @@ export async function generateText(
   try {
     const result = await aiGenerateText({
       model,
-      prompt,
+      ...aiOptions,
     });
 
     generation.end({
@@ -329,7 +338,7 @@ export async function generateText(
       try {
         const fallbackResult = await aiGenerateText({
           model: fallbackModel,
-          prompt,
+          ...aiOptions,
         });
 
         fallbackGeneration.end({
@@ -363,12 +372,15 @@ export async function generateText(
   }
 }
 
-interface StreamTextOptions {
+interface StreamTextOptions extends Omit<
+  Parameters<typeof aiStreamText>[0],
+  "model"
+> {
   model?: LanguageModel;
-  prompt: string;
   generationName: string;
   entityId?: string;
   metadata?: Record<string, unknown>;
+  [key: string]: any; // Allow for version-specific options
 }
 
 export function streamText(
@@ -376,12 +388,13 @@ export function streamText(
 ): ReturnType<typeof aiStreamText> {
   const {
     model = getAIModel(),
-    prompt,
     generationName,
     entityId,
     metadata = {},
+    ...aiOptions
   } = options;
 
+  const prompt = aiOptions.prompt || JSON.stringify(aiOptions.messages);
   const modelName = getAIModelName();
 
   const trace = langfuse.trace({
@@ -402,7 +415,7 @@ export function streamText(
   try {
     const result = aiStreamText({
       model,
-      prompt,
+      ...aiOptions,
     });
 
     // Разделяем поток на два независимых клона
@@ -507,7 +520,7 @@ export function streamText(
           try {
             const fallbackResult = aiStreamText({
               model: fallbackModel,
-              prompt,
+              ...aiOptions,
             });
 
             // Разделяем fallback поток на два независимых клона
@@ -639,7 +652,7 @@ export function streamText(
       try {
         const fallbackResult = aiStreamText({
           model: fallbackModel,
-          prompt,
+          ...aiOptions,
         });
 
         // Разделяем fallback поток на два независимых клона
@@ -717,5 +730,196 @@ export function streamText(
     }
 
     throw error;
+  }
+}
+
+interface GenerateObjectOptions<T> extends Omit<
+  Parameters<typeof aiGenerateObject<T>>[0],
+  "model" | "schema"
+> {
+  model?: LanguageModel;
+  schema: z.ZodType<T>;
+  generationName: string;
+  entityId?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export async function generateObject<T>(
+  options: GenerateObjectOptions<T>,
+): Promise<any> {
+  const {
+    model = getAIModel(),
+    schema,
+    generationName,
+    entityId,
+    metadata = {},
+    ...aiOptions
+  } = options;
+
+  const prompt = aiOptions.prompt || JSON.stringify(aiOptions.messages);
+  const modelName = getAIModelName();
+
+  const trace = langfuse.trace({
+    name: generationName,
+    userId: entityId,
+    metadata,
+  });
+
+  const generation = trace.generation({
+    name: generationName,
+    model: modelName,
+    input: prompt,
+    metadata,
+  });
+
+  try {
+    const result = await aiGenerateObject({
+      model,
+      schema,
+      ...aiOptions,
+    });
+
+    generation.end({
+      output: result.object,
+    });
+
+    trace.update({
+      output: result.object,
+    });
+
+    return result;
+  } catch (error) {
+    generation.end({
+      statusMessage: error instanceof Error ? error.message : String(error),
+    });
+
+    // Retry с fallback моделью
+    const actualProvider = getActualProvider();
+    const canFallback =
+      (actualProvider === "openai" && env.DEEPSEEK_API_KEY) ||
+      (actualProvider === "deepseek" && env.OPENAI_API_KEY);
+
+    if (canFallback) {
+      const fallbackProvider =
+        actualProvider === "openai" ? "deepseek" : "openai";
+      const fallbackModel =
+        fallbackProvider === "deepseek"
+          ? deepseek(DEFAULT_MODEL_DEEPSEEK)
+          : openaiProvider(DEFAULT_MODEL_OPENAI);
+      const fallbackModelName =
+        fallbackProvider === "deepseek"
+          ? DEFAULT_MODEL_DEEPSEEK
+          : DEFAULT_MODEL_OPENAI;
+
+      console.warn(
+        `Ошибка ${actualProvider}, повторная попытка с ${fallbackProvider}:`,
+        error instanceof Error ? error.message : String(error),
+      );
+
+      const fallbackGeneration = trace.generation({
+        name: `${generationName}-fallback`,
+        model: fallbackModelName,
+        input: prompt,
+        metadata: { ...metadata, fallback: true },
+      });
+
+      try {
+        const fallbackResult = await aiGenerateObject({
+          model: fallbackModel,
+          schema,
+          ...aiOptions,
+        });
+
+        fallbackGeneration.end({
+          output: fallbackResult.object,
+        });
+
+        return fallbackResult;
+      } catch (fallbackError) {
+        fallbackGeneration.end({
+          statusMessage:
+            fallbackError instanceof Error
+              ? fallbackError.message
+              : String(fallbackError),
+        });
+        throw fallbackError;
+      }
+    }
+
+    throw error;
+  } finally {
+    try {
+      await langfuse.flushAsync();
+    } catch (flushError) {
+      console.error("Не удалось сохранить трейс Langfuse", {
+        generationName,
+        traceId: trace.id,
+        entityId,
+        error: flushError,
+      });
+    }
+  }
+}
+
+interface TranscribeOptions {
+  model?: any;
+  audio: Uint8Array | Buffer;
+  generationName?: string;
+  entityId?: string;
+  metadata?: Record<string, unknown>;
+  providerOptions?: Record<string, any>;
+}
+
+export async function transcribe(options: TranscribeOptions): Promise<any> {
+  const {
+    model,
+    audio,
+    generationName = "transcription",
+    entityId,
+    metadata = {},
+    providerOptions,
+  } = options;
+
+  const trace = langfuse.trace({
+    name: generationName,
+    userId: entityId,
+    metadata,
+  });
+
+  const generation = trace.generation({
+    name: generationName,
+    model: "whisper-1",
+    input: "audio content",
+    metadata,
+  });
+
+  try {
+    const result = await aiTranscribe({
+      model,
+      audio,
+      providerOptions,
+    });
+
+    generation.end({
+      output: result.text,
+    });
+
+    return result;
+  } catch (error) {
+    generation.end({
+      statusMessage: error instanceof Error ? error.message : String(error),
+    });
+    throw error;
+  } finally {
+    try {
+      await langfuse.flushAsync();
+    } catch (flushError) {
+      console.error("Не удалось сохранить трейс Langfuse", {
+        generationName,
+        traceId: trace.id,
+        entityId,
+        error: flushError,
+      });
+    }
   }
 }

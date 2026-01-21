@@ -3,7 +3,7 @@
  */
 
 import type { LanguageModel } from "ai";
-import { generateText } from "ai";
+import { generateText } from "@qbs-autonaim/lib/ai";
 import type { Langfuse } from "langfuse";
 import { z } from "zod";
 import { extractJsonObject } from "../../utils/json-extractor";
@@ -74,6 +74,8 @@ export class WebInterviewOrchestrator {
       const result = await generateText({
         model: this.model,
         prompt,
+        generationName: "web-interview-context-analysis",
+        entityId: this.traceId,
       });
 
       const jsonObject = extractJsonObject(result.text);

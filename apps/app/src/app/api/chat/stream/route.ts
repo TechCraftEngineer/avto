@@ -6,12 +6,11 @@ import {
   gig,
   vacancy,
 } from "@qbs-autonaim/db";
-import { getAIModel } from "@qbs-autonaim/lib/ai";
+import { getAIModel, streamText } from "@qbs-autonaim/lib/ai";
 import {
   createUIMessageStream,
   JsonToSseTransformStream,
   smoothStream,
-  streamText,
 } from "ai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
@@ -196,6 +195,12 @@ ${historyContext}
           model: getAIModel(),
           prompt,
           experimental_transform: smoothStream({ chunking: "word" }),
+          generationName: "recruiter-chat-response",
+          entityId: resolvedChatSessionId,
+          metadata: {
+            workspaceId: session.user.workspaceId,
+            chatSessionId: resolvedChatSessionId,
+          },
         });
 
         result.consumeStream();

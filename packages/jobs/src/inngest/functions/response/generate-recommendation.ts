@@ -1,4 +1,3 @@
-import { openai } from "@ai-sdk/openai";
 import {
   buildCandidateRecommendationPrompt,
   CandidateRecommendationSchema,
@@ -7,7 +6,7 @@ import {
 } from "@qbs-autonaim/ai";
 import { db } from "@qbs-autonaim/db/client";
 import { gig, vacancy } from "@qbs-autonaim/db/schema";
-import { generateObject } from "ai";
+import { generateObject, openaiProvider } from "@qbs-autonaim/lib/ai";
 import { eq } from "drizzle-orm";
 
 import {
@@ -141,7 +140,7 @@ export const generateRecommendationFunction = inngest.createFunction(
 
         try {
           const result = await generateObject({
-            model: openai("gpt-4o-mini"),
+            model: openaiProvider("gpt-4o-mini"),
             schema: CandidateRecommendationSchema,
             schemaName: "response",
             schemaDescription: "Candidate recommendation response",
@@ -150,6 +149,14 @@ export const generateRecommendationFunction = inngest.createFunction(
               candidate,
               entityData,
             ),
+            generationName: "generate-candidate-recommendation",
+            entityId: responseId,
+            metadata: {
+              responseId,
+              candidateName: candidate.name,
+              entityType: entityData.type,
+              entityTitle: entityData.title,
+            },
             abortSignal,
           });
 

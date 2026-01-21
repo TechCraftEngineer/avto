@@ -2,9 +2,9 @@
  * Централизованная фабрика для создания агентов с автоматической передачей langfuse
  */
 
-import { env } from "@qbs-autonaim/config";
 import type { LanguageModel } from "ai";
-import { Langfuse } from "langfuse";
+import { langfuse as globalLangfuse } from "@qbs-autonaim/lib/ai";
+import type { Langfuse } from "langfuse";
 import { BotSummaryAnalyzerAgent } from "../detection/bot-summary-analyzer";
 import { BotUsageDetectorAgent } from "../detection/bot-usage-detector";
 import { ContextAnalyzerAgent } from "../detection/context-analyzer";
@@ -30,34 +30,10 @@ export interface AgentFactoryConfig {
   modelName?: string;
 }
 
-let globalLangfuse: Langfuse | undefined;
-
 /**
  * Получает или создает singleton инстанс Langfuse
- * Возвращает undefined если ключи не настроены (graceful degradation)
  */
 function getLangfuseInstance(): Langfuse | undefined {
-  if (globalLangfuse === undefined) {
-    // Проверяем наличие переменных окружения
-    const secretKey = env.LANGFUSE_SECRET_KEY;
-    const publicKey = env.LANGFUSE_PUBLIC_KEY;
-    const baseUrl = env.LANGFUSE_BASE_URL;
-
-    if (!secretKey || !publicKey) {
-      console.warn(
-        "[Langfuse] LANGFUSE_SECRET_KEY and LANGFUSE_PUBLIC_KEY are not set. Tracing will be disabled.",
-      );
-      globalLangfuse = undefined;
-      return undefined;
-    }
-
-    globalLangfuse = new Langfuse({
-      secretKey,
-      publicKey,
-      baseUrl,
-    });
-  }
-
   return globalLangfuse;
 }
 

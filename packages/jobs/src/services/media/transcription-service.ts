@@ -1,6 +1,5 @@
-import { createOpenAI } from "@ai-sdk/openai";
 import { env } from "@qbs-autonaim/config";
-import { experimental_transcribe as transcribe } from "ai";
+import { openaiProvider, transcribe } from "@qbs-autonaim/lib/ai";
 import { createLogger, ok, type Result, tryCatch } from "../base";
 
 const logger = createLogger("Transcription");
@@ -17,17 +16,11 @@ export async function transcribeAudio(
   }
 
   return tryCatch(async () => {
-    // Use proxy service
-    const proxyBaseUrl =
-      env.AI_PROXY_URL || env.APP_URL || "http://localhost:3000";
-    const openaiProvider = createOpenAI({
-      apiKey: env.OPENAI_API_KEY,
-      baseURL: `${proxyBaseUrl}`,
-    });
     const result = await transcribe({
       model: openaiProvider.transcription("whisper-1"),
       audio: audioBuffer,
       providerOptions: { openai: { language: "ru" } },
+      generationName: "audio-transcription",
     });
 
     logger.info("Audio transcribed successfully");
