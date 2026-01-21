@@ -21,6 +21,7 @@ import {
   type RecommendationAgentOutput,
   type RecommendationStatus,
 } from "./recommendation-agent";
+import { SummaryAgent, type SummaryAgentInput } from "./summary-agent";
 
 /**
  * Входные данные одного кандидата для ранжирования
@@ -133,6 +134,9 @@ export interface RankedCandidate {
     actionable_insights: string[];
   };
 
+  // Краткое резюме от SummaryAgent
+  candidateSummary: string;
+
   // Позиция в рейтинге (1 = лучший)
   rankingPosition: number;
 }
@@ -162,11 +166,13 @@ export class RankingOrchestrator {
   private evaluatorAgent: CandidateEvaluatorAgent;
   private comparisonAgent: ComparisonAgent;
   private recommendationAgent: RecommendationAgent;
+  private summaryAgent: SummaryAgent;
 
   constructor(config: AgentConfig) {
     this.evaluatorAgent = new CandidateEvaluatorAgent(config);
     this.comparisonAgent = new ComparisonAgent(config);
     this.recommendationAgent = new RecommendationAgent(config);
+    this.summaryAgent = new SummaryAgent(config);
   }
 
   /**
@@ -240,9 +246,13 @@ export class RankingOrchestrator {
     // Шаг 4: Сортировка по composite_score и присвоение ranking_position
     const sortedCandidates = this.sortAndAssignPositions(rankedCandidates);
 
+    // Шаг 5: Генерация кратких резюме через AI
+    const candidatesWithSummaries =
+      await this.generateSummaries(sortedCandidates);
+
     return {
-      candidates: sortedCandidates,
-      totalCount: sortedCandidates.length,
+      candidates: candidatesWithSummaries,
+      totalCount: candidatesWithSummaries.length,
       rankedAt: new Date(),
       categoryLeaders: comparisonResults.category_leaders,
     };
@@ -520,7 +530,43 @@ export class RankingOrchestrator {
         ranking_analysis: item.recommendation.ranking_analysis,
         actionable_insights: item.recommendation.actionable_insights,
       },
+      candidateSummary: "", // Будет заполнено в generateSummaries
       rankingPosition: index + 1, // 1-based position
     }));
+  }
+
+  /**
+   * Шаг 5: Генерация кратких резюме через SummaryAgent
+   */
+  private async generateSummaries(
+    rankedCandidates: RankedCandidate[],
+  ): Promise<RankedCandidate[]> {
+    const candidatesWithSummaries = await Promise.all(
+      rankedCandidates.map(async (rankedCandidate) => {
+        const summaryInput: SummaryAgentInput = {
+          candidateName: rankedCandidate.candidate.candidateName,
+          compositeScore: rankedCandidate.scores.compositeScore,
+          recommendation: rankedCandidate.recommendation.status,
+          rankingAnalysis: rankedCandidate.recommendation.ranking_analysis,
+          strengths: rankedCandidate.comparison.strengths,
+          weaknesses: rankedCandidate.comparison.weaknesses,
+        };
+
+        const result = await this.summaryAgent.execute(summaryInput, undefined);
+
+        if (!result.success || !result.data) {
+          throw new Error(
+            `Failed to generate summary for candidate ${rankedCandidate.candidate.id}: ${result.error}`,
+          );
+        }
+
+        return {
+          ...rankedCandidate,
+          candidateSummary: result.data.summary,
+        };
+      }),
+    );
+
+    return candidatesWithSummaries;
   }
 }

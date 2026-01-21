@@ -12,7 +12,7 @@ export interface BaseAgentContext {
     sender: "CANDIDATE" | "BOT";
     content: string;
     contentType?: "TEXT" | "VOICE";
-    timestamp?: Date;
+    timestamp?: Date | string; // Поддержка Date и ISO string для гибкости
   }>;
   candidateName?: string;
   vacancyTitle?: string;
