@@ -30,7 +30,7 @@ const vacancyFormSchema = z.object({
   title: z.string().min(1, "Название обязательно").max(500),
   description: z.string().optional(),
   requirements: z.string().optional(),
-  platformSource: z.enum(["KWORK", "FL_RU", "FREELANCE_RU", "WEB_LINK"]),
+  platformSource: z.enum(["HH", "AVITO", "SUPERJOB", "HABR", "KWORK", "FL_RU", "FREELANCE_RU", "WEB_LINK"]),
   platformUrl: z.string().url("Некорректный URL").optional().or(z.literal("")),
 });
 
@@ -51,7 +51,7 @@ export function VacancyForm({ onSuccess }: VacancyFormProps) {
       title: "",
       description: "",
       requirements: "",
-      platformSource: "KWORK",
+      platformSource: "HH",
       platformUrl: "",
     },
   });
@@ -120,14 +120,17 @@ export function VacancyForm({ onSuccess }: VacancyFormProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Источник</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Выберите источник" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="KWORK">Kwork</SelectItem>
+                  <SelectItem value="HH">HH.ru</SelectItem>
+                  <SelectItem value="AVITO">Avito</SelectItem>
+                  <SelectItem value="SUPERJOB">SuperJob</SelectItem>
+                  <SelectItem value="HABR">Habr Career</SelectItem>
                   <SelectItem value="FL_RU">FL.ru</SelectItem>
                   <SelectItem value="FREELANCE_RU">Freelance.ru</SelectItem>
                   <SelectItem value="WEB_LINK">Веб-ссылка</SelectItem>

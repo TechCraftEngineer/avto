@@ -1,4 +1,4 @@
-﻿import { and, eq } from "@qbs-autonaim/db";
+import { and, eq } from "@qbs-autonaim/db";
 import {
   freelanceImportHistory,
   response as responseTable,
@@ -10,7 +10,7 @@ import { createErrorHandler } from "../../utils/error-handler";
 
 const importBulkResponsesInputSchema = z.object({
   vacancyId: z.uuid(),
-  platformSource: z.enum(["KWORK", "FL_RU", "FREELANCE_RU", "WEB_LINK"]),
+  platformSource: z.enum(["HH", "AVITO", "SUPERJOB", "HABR", "KWORK", "FL_RU", "FREELANCE_RU", "WEB_LINK"]),
   rawText: z.string().min(1),
 });
 

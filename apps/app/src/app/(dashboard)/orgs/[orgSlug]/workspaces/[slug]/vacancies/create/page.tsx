@@ -181,7 +181,9 @@ export default function CreateVacancyPage() {
 
       <div className="flex flex-1 flex-col px-4 py-6 lg:px-6">
         <div className="mx-auto w-full max-w-3xl">
-          <VacancyForm onSuccess={handleManualSuccess} />
+          <div className="rounded-lg bg-card p-6 shadow-sm">
+            <VacancyForm onSuccess={handleManualSuccess} />
+          </div>
         </div>
       </div>
     </div>

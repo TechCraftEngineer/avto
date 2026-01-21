@@ -16,7 +16,7 @@ interface InsertedVacancy {
  *
  * VALID_PLATFORMS is intentionally limited to a subset of platformSourceEnum values
  * for demo data purposes. The full enum includes: MANUAL, HH, AVITO, SUPERJOB, HABR,
- * KWORK, FL_RU, FREELANCE_RU, WEB_LINK, TELEGRAM.
+ * HH, AVITO, SUPERJOB, HABR, FL_RU, FREELANCE_RU, WEB_LINK, TELEGRAM.
  *
  * Demo data only includes vacancies from these three platforms to keep the dataset
  * focused and manageable for testing/demonstration purposes.

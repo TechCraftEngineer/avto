@@ -1,5 +1,9 @@
 import { env } from "@qbs-autonaim/config";
-import { openaiProvider, transcribe } from "@qbs-autonaim/lib/ai";
+import {
+  openaiProvider,
+  transcribe,
+  type TranscriptionResult,
+} from "@qbs-autonaim/lib/ai";
 import { createLogger, ok, type Result, tryCatch } from "../base";
 
 const logger = createLogger("Transcription");
@@ -16,7 +20,7 @@ export async function transcribeAudio(
   }
 
   return tryCatch(async () => {
-    const result = await transcribe({
+    const result: TranscriptionResult = await transcribe({
       model: openaiProvider.transcription("whisper-1"),
       audio: audioBuffer,
       providerOptions: { openai: { language: "ru" } },
