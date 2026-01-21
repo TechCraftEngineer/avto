@@ -20,7 +20,7 @@ export const summaryAgentInputSchema = z.object({
     "NEUTRAL",
     "NOT_RECOMMENDED",
   ]),
-  rankingAnalysis: z.string(),
+  rankingAnalysis: z.string().max(5000),
   strengths: z.array(z.string()),
   weaknesses: z.array(z.string()),
 });
