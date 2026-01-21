@@ -5,6 +5,7 @@ export const HH_CONFIG = {
     login:
       "https://hh.ru/account/login?role=employer&backurl=%2F&hhtmFrom=main&hasSwitcher=true&skipSwitcher=true",
     vacancies: "https://hh.ru/employer/vacancies?hhtmFrom=vacancy",
+    archivedVacancies: "https://hh.ru/employer/vacancies/archived",
     baseUrl: "https://hh.ru",
   },
   userAgent:

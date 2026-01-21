@@ -1,6 +1,9 @@
 import { Button, Input } from "@qbs-autonaim/ui";
 import { Loader2, RefreshCw, Search, Sparkles } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+import { useTRPC } from "~/trpc/react";
+import { useWorkspace } from "~/hooks/use-workspace";
 import {
   fetchRefreshVacancyResponsesToken,
   fetchScreenAllResponsesToken,
@@ -13,6 +16,7 @@ import {
 } from "~/components/response";
 import { RefreshDialog } from "./refresh-dialog";
 import { ScreeningDialog } from "./screening-dialog";
+import { SyncArchivedDialog } from "./sync-archived-dialog";
 import { useRefreshSubscription } from "./use-refresh-subscription";
 import type { ResponseStatusFilterUI } from "./use-response-table";
 import {
@@ -75,6 +79,8 @@ export function ResponseTableToolbar({
   onScreenAll,
   onScreeningDialogClose,
 }: ResponseTableToolbarProps) {
+  const trpc = useTRPC();
+  const { workspace } = useWorkspace();
   // Refresh state
   const [refreshDialogOpen, setRefreshDialogOpen] = useState(false);
   const [refreshError, setRefreshError] = useState<string | null>(null);
@@ -108,6 +114,17 @@ export function ResponseTableToolbar({
     useState<ScreeningProgress | null>(null);
   const [screenAllSubscriptionActive, setScreenAllSubscriptionActive] =
     useState(false);
+
+  // Sync archived state
+  const [syncArchivedDialogOpen, setSyncArchivedDialogOpen] = useState(false);
+  const [syncArchivedError, setSyncArchivedError] = useState<string | null>(null);
+  const [syncArchivedStatus, setSyncArchivedStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
+  const [syncArchivedMessage, setSyncArchivedMessage] = useState<string>("");
+  const [syncArchivedSyncedCount, setSyncArchivedSyncedCount] = useState<number>(0);
+  const [syncArchivedNewCount, setSyncArchivedNewCount] = useState<number>(0);
+  const [syncArchivedVacancyTitle, setSyncArchivedVacancyTitle] = useState<string>("");
 
   // Timeout refs для предотвращения утечек памяти
   const screenNewTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -288,6 +305,55 @@ export function ResponseTableToolbar({
     onScreeningDialogClose();
   }, [onScreeningDialogClose]);
 
+  // Sync archived handlers
+  const handleSyncArchivedClick = async () => {
+    if (!workspace) return;
+
+    setSyncArchivedError(null);
+    setSyncArchivedMessage("");
+    setSyncArchivedSyncedCount(0);
+    setSyncArchivedNewCount(0);
+    setSyncArchivedVacancyTitle("");
+    setSyncArchivedStatus("loading");
+
+    try {
+      const result = await trpc.freelancePlatforms.syncArchivedVacancyResponses.mutate({
+        workspaceId: workspace.id,
+        vacancyId,
+      });
+
+      setSyncArchivedStatus("success");
+      setSyncArchivedMessage("Синхронизация завершена успешно!");
+      setSyncArchivedSyncedCount(result.syncedResponses);
+      setSyncArchivedNewCount(result.newResponses);
+      setSyncArchivedVacancyTitle(result.vacancyTitle);
+
+      // Обновляем таблицу через некоторое время
+      setTimeout(() => {
+        onRefreshComplete();
+      }, 1000);
+
+      toast.success(`Синхронизировано ${result.syncedResponses} откликов, новых: ${result.newResponses}`);
+    } catch (error) {
+      setSyncArchivedStatus("error");
+      const errorMessage = error instanceof Error ? error.message : "Неизвестная ошибка";
+      setSyncArchivedError(errorMessage);
+      toast.error(`Ошибка синхронизации: ${errorMessage}`);
+    }
+  };
+
+  const handleSyncArchivedDialogClose = () => {
+    if (syncArchivedStatus !== "loading") {
+      setSyncArchivedDialogOpen(false);
+      setSyncArchivedError(null);
+      setSyncArchivedMessage("");
+      setSyncArchivedSyncedCount(0);
+      setSyncArchivedNewCount(0);
+      setSyncArchivedVacancyTitle("");
+      setSyncArchivedStatus("idle");
+    }
+  };
+
   // Очистка таймеров при размонтировании компонента
   useEffect(() => {
     return () => {
@@ -339,6 +405,21 @@ export function ResponseTableToolbar({
               <RefreshCw className="h-4 w-4 mr-2" />
             )}
             {isRefreshing ? "Обновление..." : "Синхронизировать"}
+          </Button>
+
+          <Button
+            disabled={syncArchivedStatus === "loading"}
+            variant="outline"
+            size="sm"
+            onClick={() => setSyncArchivedDialogOpen(true)}
+            className="h-9 bg-background/60 border-border/60 border-dashed hover:bg-background/80 transition-colors"
+          >
+            {syncArchivedStatus === "loading" ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <RefreshCw className="h-4 w-4 mr-2" />
+            )}
+            {syncArchivedStatus === "loading" ? "Синхронизация..." : "Архивные"}
           </Button>
 
           <Button
@@ -420,6 +501,23 @@ export function ResponseTableToolbar({
         }}
         onConfirm={handleScreenAllClick}
         onClose={handleScreenAllDialogClose}
+      />
+
+      <SyncArchivedDialog
+        open={syncArchivedDialogOpen}
+        status={syncArchivedStatus}
+        message={syncArchivedMessage}
+        error={syncArchivedError}
+        syncedCount={syncArchivedSyncedCount}
+        newCount={syncArchivedNewCount}
+        vacancyTitle={syncArchivedVacancyTitle}
+        onOpenChange={(open) => {
+          if (!open && syncArchivedStatus !== "loading") {
+            handleSyncArchivedDialogClose();
+          }
+        }}
+        onConfirm={handleSyncArchivedClick}
+        onClose={handleSyncArchivedDialogClose}
       />
     </>
   );

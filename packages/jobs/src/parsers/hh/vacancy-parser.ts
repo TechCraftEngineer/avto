@@ -12,7 +12,7 @@ export async function parseVacancies(
   page: Page,
   workspaceId: string,
 ): Promise<VacancyData[]> {
-  console.log(`🚀 Начинаем парсинг вакансий`);
+  console.log(`🚀 Начинаем парсинг активных вакансий`);
 
   // ЭТАП 1: Собираем список всех активных вакансий
   console.log("\n📋 ЭТАП 1: Сбор списка активных вакансий...");
@@ -33,9 +33,39 @@ export async function parseVacancies(
   console.log("\n📊 ЭТАП 3: Парсинг описаний вакансий...");
   await parseVacancyDescriptions(page, vacancies, newVacancyIds);
 
-  console.log(`\n🎉 Парсинг вакансий завершен!`);
+  console.log(`\n🎉 Парсинг активных вакансий завершен!`);
 
   return vacancies;
+}
+
+export async function parseArchivedVacancies(
+  page: Page,
+  workspaceId: string,
+): Promise<VacancyData[]> {
+  console.log(`🚀 Начинаем парсинг архивных вакансий`);
+
+  // ЭТАП 1: Собираем список всех архивных вакансий
+  console.log("\n📋 ЭТАП 1: Сбор списка архивных вакансий...");
+  const archivedVacancies = await collectArchivedVacancies(page);
+
+  if (archivedVacancies.length === 0) {
+    console.log("⚠️ Не найдено архивных вакансий");
+    return [];
+  }
+
+  console.log(`✅ Найдено архивных вакансий: ${archivedVacancies.length}`);
+
+  // ЭТАП 2: Сохраняем базовую информацию всех вакансий
+  console.log("\n💾 ЭТАП 2: Сохранение базовой информации...");
+  const newVacancyIds = await saveBasicVacancies(archivedVacancies, workspaceId);
+
+  // ЭТАП 3: Парсим описания для вакансий без описания
+  console.log("\n📊 ЭТАП 3: Парсинг описаний вакансий...");
+  await parseVacancyDescriptions(page, archivedVacancies, newVacancyIds);
+
+  console.log(`\n🎉 Парсинг архивных вакансий завершен!`);
+
+  return archivedVacancies;
 }
 
 /**
@@ -55,6 +85,95 @@ async function collectVacancies(page: Page): Promise<VacancyData[]> {
     });
   } catch (_e) {
     console.log("⚠️ Не найдено активных вакансий на странице");
+    return [];
+  }
+
+  // Имитируем просмотр списка вакансий
+  await humanBrowse(page);
+
+  const vacancies = await page.$$eval(
+    'div[data-qa="vacancies-dashboard-vacancy"]',
+    (elements: Element[]) => {
+      return elements.map((el) => {
+        const getText = (selector: string) => {
+          const node = el.querySelector(selector);
+          return node ? node.textContent?.trim() || "" : "";
+        };
+
+        const getAttr = (selector: string, attr: string) => {
+          const node = el.querySelector(selector);
+          return node ? node.getAttribute(attr) : "";
+        };
+
+        const cleanNumber = (text: string) => text.replace(/\D/g, "");
+
+        return {
+          id: el.getAttribute("data-vacancy-id") || "",
+          externalId: el.getAttribute("data-vacancy-id") || "",
+          title: getText('[data-qa="vacancies-dashboard-vacancy-name"]'),
+          url: getAttr('[data-qa="vacancies-dashboard-vacancy-name"]', "href"),
+          views: cleanNumber(
+            getText(
+              '[data-analytics-button-name="employer_vacancies_counter_views"]',
+            ),
+          ),
+          responses: getText(
+            '[data-qa="vacancies-dashboard-vacancy-responses-count-total"]',
+          ),
+          responsesUrl: getAttr(
+            '[data-qa="vacancies-dashboard-vacancy-responses-count-link"]',
+            "href",
+          ),
+          newResponses: getText(
+            '[data-qa="vacancies-dashboard-vacancy-responses-count-new"]',
+          ),
+          resumesInProgress: cleanNumber(
+            getText(
+              '[data-qa="vacancies-dashboard-vacancy-resumes-in-progress-count"]',
+            ),
+          ),
+          suitableResumes: cleanNumber(
+            getText('[data-qa="suitable-resumes-count"]'),
+          ),
+          region: getText('[data-qa="table-flexible-cell-area"]'),
+          description: "",
+          source: "hh" as const,
+        };
+      });
+    },
+  );
+
+  // Нормализуем URL вакансий
+  for (const vacancy of vacancies) {
+    if (vacancy.url) {
+      vacancy.url = vacancy.url.startsWith("http")
+        ? vacancy.url
+        : new URL(vacancy.url, HH_CONFIG.urls.baseUrl).href;
+    } else if (vacancy.externalId) {
+      vacancy.url = `${HH_CONFIG.urls.baseUrl}/vacancy/${vacancy.externalId}`;
+    }
+  }
+
+  return vacancies;
+}
+
+/**
+ * ЭТАП 1: Собирает список всех архивных вакансий
+ */
+async function collectArchivedVacancies(page: Page): Promise<VacancyData[]> {
+  console.log(`📄 Переход на страницу архивных вакансий: ${HH_CONFIG.urls.archivedVacancies}`);
+
+  await page.goto(HH_CONFIG.urls.archivedVacancies, { waitUntil: "networkidle2" });
+
+  // Пауза после загрузки страницы
+  await humanDelay(1500, 3000);
+
+  try {
+    await page.waitForSelector('div[data-qa="vacancies-dashboard-vacancy"]', {
+      timeout: HH_CONFIG.timeouts.selector,
+    });
+  } catch (_e) {
+    console.log("⚠️ Не найдено архивных вакансий на странице");
     return [];
   }
 
