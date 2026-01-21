@@ -11,15 +11,17 @@ import { DEFAULT_MODEL_DEEPSEEK, DEFAULT_MODEL_OPENAI } from "./constants";
 import { langfuse, openaiProvider } from "./providers";
 import { getActualProvider, getAIModel, getAIModelName } from "./models";
 
-export interface GenerateObjectOptions<T> {
+export interface GenerateObjectOptions<T> extends Omit<
+  Parameters<typeof aiGenerateObject>[0],
+  "model" | "schema"
+> {
   model?: LanguageModel;
   schema: z.ZodType<T>;
   generationName: string;
   entityId?: string;
   metadata?: Record<string, unknown>;
-  system?: string;
-  prompt?: string;
-  messages?: Array<ModelMessage>;
+  schemaName?: string;
+  schemaDescription?: string;
 }
 
 export async function generateObject<T>(

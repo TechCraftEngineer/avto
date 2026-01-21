@@ -1,0 +1,3 @@
+$ tsc --noEmit
+src/inngest/functions/response/generate-recommendation.ts(145,13): error TS2353: Object literal may only specify known properties, and 'schemaName' does not exist in type 'GenerateObjectOptions<{ recommendation: "HIGHLY_RECOMMENDED" | "RECOMMENDED" | "NEUTRAL" | "NOT_RECOMMENDED"; strengths: string[]; weaknesses: string[]; candidateSummary: string; actionSuggestions: string[]; interviewQuestions: string[]; riskFactors: string[]; }>'.
+error: script "typecheck" exited with code 1
