@@ -37,6 +37,33 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { useTRPC } from "~/trpc/react";
 
+// Функция для парсинга идентификатора из URL или ID
+function parseIdentifier(identifier: string): { externalId: string | undefined; url: string | undefined } {
+  if (!identifier.trim()) {
+    return { externalId: undefined, url: undefined };
+  }
+
+  // Проверяем, является ли строка URL
+  try {
+    const url = new URL(identifier);
+
+    // Для HH.ru извлекаем ID из пути /vacancy/{id}
+    if (url.hostname === 'hh.ru' && url.pathname.startsWith('/vacancy/')) {
+      const vacancyId = url.pathname.split('/vacancy/')[1];
+      if (vacancyId?.match(/^\d+$/)) {
+        return { externalId: vacancyId, url: identifier };
+      }
+    }
+
+    // Для других платформ можно добавить аналогичную логику
+    // Пока возвращаем как URL без ID
+    return { externalId: undefined, url: identifier };
+  } catch {
+    // Если это не URL, считаем что это ID
+    return { externalId: identifier, url: undefined };
+  }
+}
+
 const SOURCE_CONFIG: Record<string, { label: string; color: string }> = {
   HH: {
     label: "HeadHunter",
@@ -80,13 +107,11 @@ interface Publication {
 
 const addPublicationSchema = z.object({
   platform: z.enum(platformSourceValues),
-  externalId: z.string().max(100).optional(),
-  url: z.string().url("Введите корректный URL").optional().or(z.literal("")),
+  identifier: z.string().max(200).optional().or(z.literal("")),
 });
 
 const updatePublicationSchema = z.object({
-  externalId: z.string().max(100).optional(),
-  url: z.string().url("Введите корректный URL").optional().or(z.literal("")),
+  identifier: z.string().max(200).optional().or(z.literal("")),
 });
 
 type AddPublicationValues = z.infer<typeof addPublicationSchema>;
@@ -114,16 +139,14 @@ export function VacancyIntegrationManager({
     resolver: zodResolver(addPublicationSchema),
     defaultValues: {
       platform: "HH",
-      externalId: "",
-      url: "",
+      identifier: "",
     },
   });
 
   const updatePublicationForm = useForm<UpdatePublicationValues>({
     resolver: zodResolver(updatePublicationSchema),
     defaultValues: {
-      externalId: "",
-      url: "",
+      identifier: "",
     },
   });
 
@@ -198,23 +221,25 @@ export function VacancyIntegrationManager({
   );
 
   const handleAddPublication = (values: AddPublicationValues) => {
+    const parsed = parseIdentifier(values.identifier || "");
     addPublicationMutation.mutate({
       vacancyId,
       workspaceId,
       platform: values.platform,
-      externalId: values.externalId || undefined,
-      url: values.url || undefined,
+      externalId: parsed.externalId,
+      url: parsed.url,
     });
   };
 
   const handleUpdatePublication = (values: UpdatePublicationValues) => {
     if (!editingPublication) return;
 
+    const parsed = parseIdentifier(values.identifier || "");
     updatePublicationMutation.mutate({
       workspaceId,
       publicationId: editingPublication.id,
-      externalId: values.externalId || undefined,
-      url: values.url || undefined,
+      externalId: parsed.externalId,
+      url: parsed.url,
     });
   };
 
@@ -227,9 +252,10 @@ export function VacancyIntegrationManager({
 
   const handleEditPublication = (publication: Publication) => {
     setEditingPublication(publication);
+    // Приоритет: сначала URL, если есть, иначе externalId
+    const identifier = publication.url || publication.externalId || "";
     updatePublicationForm.reset({
-      externalId: publication.externalId || "",
-      url: publication.url || "",
+      identifier,
     });
   };
 
@@ -238,7 +264,7 @@ export function VacancyIntegrationManager({
 
   // Фильтруем платформы - показываем только те, с которыми есть активные интеграции
   const availablePlatforms = platformSourceValues.filter((platform) =>
-    activeIntegrations.some((integration) => integration.type === platform.toLowerCase())
+    activeIntegrations.some((integration) => integration.type.toLowerCase() === platform.toLowerCase())
   );
 
   if (isLoading) {
@@ -274,7 +300,7 @@ export function VacancyIntegrationManager({
                 <DialogHeader>
                   <DialogTitle>Добавить интеграцию</DialogTitle>
                   <DialogDescription>
-                    Выберите платформу и укажите ID или ссылку на вакансию.
+                    Выберите платформу и укажите ID вакансии или ссылку на неё.
                   </DialogDescription>
                 </DialogHeader>
                 <Form {...addPublicationForm}>
@@ -317,25 +343,15 @@ export function VacancyIntegrationManager({
                     />
                     <FormField
                       control={addPublicationForm.control}
-                      name="externalId"
+                      name="identifier"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Внешний ID (необязательно)</FormLabel>
+                          <FormLabel>ID вакансии или ссылка</FormLabel>
                           <FormControl>
-                            <Input placeholder="Например: 12345678…" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={addPublicationForm.control}
-                      name="url"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Ссылка на вакансию (необязательно)</FormLabel>
-                          <FormControl>
-                            <Input placeholder="https://example.com…" {...field} />
+                            <Input
+                              placeholder="Например: 128580152 или https://hh.ru/vacancy/128580152"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -451,7 +467,7 @@ export function VacancyIntegrationManager({
             <DialogHeader>
               <DialogTitle>Редактировать интеграцию</DialogTitle>
               <DialogDescription>
-                Обновите данные интеграции с платформой.
+                Обновите ID вакансии или ссылку на неё.
               </DialogDescription>
             </DialogHeader>
             <Form {...updatePublicationForm}>
@@ -461,25 +477,15 @@ export function VacancyIntegrationManager({
               >
                 <FormField
                   control={updatePublicationForm.control}
-                  name="externalId"
+                  name="identifier"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Внешний ID (необязательно)</FormLabel>
+                      <FormLabel>ID вакансии или ссылка</FormLabel>
                       <FormControl>
-                        <Input placeholder="Например: 12345678…" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={updatePublicationForm.control}
-                  name="url"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Ссылка на вакансию (необязательно)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://example.com…" {...field} />
+                        <Input
+                          placeholder="Например: 128580152 или https://hh.ru/vacancy/128580152"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

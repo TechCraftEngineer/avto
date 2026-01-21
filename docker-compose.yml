@@ -85,6 +85,7 @@ services:
       - NODE_ENV=production
       - PORT=3000
       - HOSTNAME=0.0.0.0
+      - MCP_ROOT_PATH=/srv/mcp
   web:
     restart: always
     build:

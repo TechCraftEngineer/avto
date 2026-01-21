@@ -71,6 +71,12 @@ DEEPSEEK_API_KEY="your-api-key"
 
 # OpenAI API (если AI_PROVIDER=openai)
 OPENAI_API_KEY="your-api-key"
+
+# MCP (Model Context Protocol) - путь к корневой директории для MCP filesystem сервера
+# Определяет, где MCP инструменты могут получать доступ к файлам
+# Для локальной разработки: ./mcp_root (относительно корня проекта)
+# Для контейнеров: /srv/mcp или /app/mcp_root
+MCP_ROOT_PATH="./mcp_root"
 ```
 
 Приложение будет доступно по адресу: http://localhost:3000

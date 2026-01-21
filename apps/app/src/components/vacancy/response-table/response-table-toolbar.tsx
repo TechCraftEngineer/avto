@@ -366,6 +366,7 @@ export function ResponseTableToolbar({
     if (!workspace) {
       const errorMessage = "Не удалось запустить синхронизацию: рабочее пространство не найдено";
       setSyncArchivedError(errorMessage);
+      setSyncArchivedStatus("error");
       toast.error(errorMessage);
       return;
     }
