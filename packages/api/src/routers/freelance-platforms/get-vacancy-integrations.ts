@@ -1,7 +1,7 @@
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../trpc";
-import { TRPCError } from "@trpc/server";
 
 const getVacancyIntegrationsInputSchema = z.object({
   workspaceId: workspaceIdSchema,
@@ -55,14 +55,9 @@ export const getVacancyIntegrations = protectedProcedure
       },
     });
 
-    // Получаем публикации вакансии (с дополнительной проверкой workspace)
+    // Получаем публикации вакансии
     const publications = await ctx.db.query.vacancyPublication.findMany({
-      where: (table, { eq: eqFn, and }) =>
-        and(
-          eqFn(table.vacancyId, input.vacancyId),
-          // Дополнительная проверка через join с vacancy
-          eqFn(table.vacancy.workspaceId, input.workspaceId),
-        ),
+      where: (table, { eq: eqFn }) => eqFn(table.vacancyId, input.vacancyId),
       orderBy: (table, { desc }) => [desc(table.createdAt)],
     });
 
