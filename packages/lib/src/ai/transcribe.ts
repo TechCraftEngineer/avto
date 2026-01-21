@@ -25,7 +25,7 @@ export interface TranscribeOptions {
   audio: Uint8Array | Buffer;
   generationName?: string;
   entityId?: string;
-  metadata?: Record<string, unknown>;
+  metadata?: Record<string, JSONValue>;
   providerOptions?: ProviderOptions;
 }
 
@@ -40,6 +40,13 @@ export async function transcribe(
     metadata = {},
     providerOptions,
   } = options;
+
+  // Validate metadata is JSON-serializable
+  try {
+    JSON.stringify(metadata);
+  } catch (error) {
+    throw new Error(`Metadata must be JSON-serializable: ${error instanceof Error ? error.message : String(error)}`);
+  }
 
   const trace = langfuse.trace({
     name: generationName,

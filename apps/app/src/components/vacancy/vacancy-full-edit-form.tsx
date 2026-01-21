@@ -33,12 +33,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-type Vacancy = NonNullable<RouterOutputs["vacancy"]["get"]> & {
-  requirements?: string | null;
-  responsibilities?: string | null;
-  conditions?: string | null;
-  bonuses?: string | null;
-};
+type Vacancy = NonNullable<RouterOutputs["vacancy"]["get"]>;
 
 interface VacancyFullEditFormProps {
   vacancy: Vacancy;
@@ -59,10 +54,6 @@ export function VacancyFullEditForm({
     defaultValues: {
       title: vacancy.title,
       description: vacancy.description ?? "",
-      requirements: vacancy.requirements ?? "",
-      responsibilities: vacancy.responsibilities ?? "",
-      conditions: vacancy.conditions ?? "",
-      bonuses: vacancy.bonuses ?? "",
       customBotInstructions: vacancy.customBotInstructions ?? "",
       customScreeningPrompt: vacancy.customScreeningPrompt ?? "",
       customInterviewQuestions: vacancy.customInterviewQuestions ?? "",
@@ -176,93 +167,6 @@ export function VacancyFullEditForm({
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Детали вакансии</h3>
 
-                <FormField
-                  control={form.control}
-                  name="requirements"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Требования</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          {...field}
-                          value={field.value ?? ""}
-                          placeholder="Перечислите требования к кандидату..."
-                          className="min-h-[150px] resize-y bg-background leading-relaxed"
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Технические навыки, опыт работы, образование и т.д.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="responsibilities"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Обязанности</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          {...field}
-                          value={field.value ?? ""}
-                          placeholder="Опишите обязанности сотрудника..."
-                          className="min-h-[150px] resize-y bg-background leading-relaxed"
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Основные задачи и ответственность кандидата.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="conditions"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Условия работы</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          {...field}
-                          value={field.value ?? ""}
-                          placeholder="Зарплата, график работы, место работы..."
-                          className="min-h-[100px] resize-y bg-background leading-relaxed"
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Заработная плата, режим работы, локация и т.д.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="bonuses"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Премии и мотивация</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          {...field}
-                          value={field.value ?? ""}
-                          placeholder="Бонусы, премии, социальный пакет..."
-                          className="min-h-[100px] resize-y bg-background leading-relaxed"
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Дополнительные мотивационные факторы.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
               </div>
 
               {/* Настройки источника */}

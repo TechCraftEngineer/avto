@@ -491,22 +491,17 @@ export function useAIVacancyChat({
     [],
   );
 
-  const setEditingSection = useCallback((_section: string | null) => {
-    // Реализация будет в компоненте AIVacancyChat
-  }, []);
 
   return {
     document,
     messages,
     status,
     error,
-    editingSection: null, // Будет управляться в компоненте
     sendMessage,
     selectQuickReply,
     selectMultipleReplies,
     clearChat,
     retry,
     updateDocumentSection,
-    setEditingSection,
   };
 }
