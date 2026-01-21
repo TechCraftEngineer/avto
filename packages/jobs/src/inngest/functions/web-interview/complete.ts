@@ -430,6 +430,45 @@ export const webCompleteInterviewFunction = inngest.createFunction(
             isHighScore: scoring.score >= 85,
           });
         });
+
+        // Запускаем пересчет рейтинга после завершения интервью
+        await step.run("trigger-ranking-recalculation", async () => {
+          const responseRecord = await db.query.response.findFirst({
+            where: (r, { eq }) => eq(r.id, gigResponseId),
+          });
+
+          if (!responseRecord) {
+            console.warn("⚠️ Response не найден для пересчета рейтинга");
+            return;
+          }
+
+          const gig = await db.query.gig.findFirst({
+            where: (g, { eq }) => eq(g.id, responseRecord.entityId),
+          });
+
+          if (!gig?.workspaceId) {
+            console.warn("⚠️ Не удалось получить workspaceId для пересчета рейтинга");
+            return;
+          }
+
+          console.log("🎯 Запуск пересчета рейтинга после интервью", {
+            gigId: gig.id,
+            workspaceId: gig.workspaceId,
+          });
+
+          await inngest.send({
+            name: "gig/ranking.recalculate",
+            data: {
+              gigId: gig.id,
+              workspaceId: gig.workspaceId,
+              triggeredBy: "interview.completed",
+            },
+          });
+
+          console.log("✅ Событие пересчета рейтинга отправлено", {
+            gigId: gig.id,
+          });
+        });
       }
     }
 

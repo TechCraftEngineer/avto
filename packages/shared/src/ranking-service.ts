@@ -235,78 +235,6 @@ export class RankingService {
   }
 
   /**
-   * Генерирует краткое резюме кандидата для шортлиста на основе полного анализа
-   *
-   * @param rankingAnalysis - Полный анализ кандидата
-   * @param recommendation - Рекомендация по кандидату
-   * @param compositeScore - Общий балл кандидата
-   * @returns Краткое резюме (до 500 символов)
-   */
-  private generateCandidateSummary(
-    rankingAnalysis: string,
-    recommendation: string,
-    compositeScore: number,
-  ): string {
-    // Извлекаем ключевые моменты из анализа
-    const analysis = rankingAnalysis.toLowerCase();
-
-    // Определяем основные сильные стороны
-    const strengths: string[] = [];
-    if (analysis.includes("опыт") || analysis.includes("experience")) {
-      strengths.push("Опытный специалист");
-    }
-    if (analysis.includes("навык") || analysis.includes("skill")) {
-      strengths.push("Хорошие навыки");
-    }
-    if (
-      analysis.includes("цена") ||
-      analysis.includes("бюджет") ||
-      analysis.includes("price")
-    ) {
-      strengths.push("Адекватная цена");
-    }
-    if (
-      analysis.includes("срок") ||
-      analysis.includes("время") ||
-      analysis.includes("timeline")
-    ) {
-      strengths.push("Реалистичные сроки");
-    }
-    if (analysis.includes("портфолио") || analysis.includes("portfolio")) {
-      strengths.push("Есть портфолио");
-    }
-
-    // Определяем уровень рекомендаций
-    let recommendationText = "";
-    switch (recommendation) {
-      case "HIGHLY_RECOMMENDED":
-        recommendationText = "Настоятельно рекомендуем";
-        break;
-      case "RECOMMENDED":
-        recommendationText = "Рекомендуем";
-        break;
-      case "NEUTRAL":
-        recommendationText = "Возможный кандидат";
-        break;
-      case "NOT_RECOMMENDED":
-        recommendationText = "Не рекомендуем";
-        break;
-      default:
-        recommendationText = "Требует оценки";
-    }
-
-    // Формируем краткое резюме
-    const scoreText = `${compositeScore}/100 баллов`;
-    const strengthsText =
-      strengths.length > 0 ? ` • ${strengths.slice(0, 2).join(", ")}` : "";
-
-    return `${recommendationText} (${scoreText})${strengthsText}`.substring(
-      0,
-      500,
-    );
-  }
-
-  /**
    * Сохраняет результаты ранжирования в БД
    *
    * @param gigId - ID задания
@@ -339,13 +267,6 @@ export class RankingService {
     await db.transaction(async (tx) => {
       // Обновляем каждого кандидата
       for (const rankedCandidate of result.candidates) {
-        // Генерируем краткое резюме для шортлиста
-        const candidateSummary = this.generateCandidateSummary(
-          rankedCandidate.recommendation.ranking_analysis,
-          rankedCandidate.recommendation.status,
-          rankedCandidate.scores.compositeScore,
-        );
-
         await tx
           .update(response)
           .set({
@@ -356,7 +277,7 @@ export class RankingService {
             experienceScore: rankedCandidate.scores.experienceScore,
             rankingPosition: rankedCandidate.rankingPosition,
             rankingAnalysis: rankedCandidate.recommendation.ranking_analysis,
-            candidateSummary,
+            candidateSummary: rankedCandidate.candidateSummary,
             strengths: rankedCandidate.comparison.strengths,
             weaknesses: rankedCandidate.comparison.weaknesses,
             recommendation: rankedCandidate.recommendation.status,

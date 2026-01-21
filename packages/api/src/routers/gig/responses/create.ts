@@ -135,20 +135,7 @@ export const create = protectedProcedure
       })
       .where(eq(gig.id, input.gigId));
 
-    // Отправляем событие в Inngest для пересчета рейтинга
-    try {
-      await inngest.send({
-        name: "gig/ranking.recalculate",
-        data: {
-          gigId: input.gigId,
-          workspaceId: input.workspaceId,
-          triggeredBy: "response.created",
-        },
-      });
-    } catch (error) {
-      // Логируем ошибку, но не блокируем создание отклика
-      console.error("Ошибка отправки события пересчета рейтинга:", error);
-    }
+    // Рейтинг будет пересчитан автоматически после завершения интервью
 
     return newResponse;
   });

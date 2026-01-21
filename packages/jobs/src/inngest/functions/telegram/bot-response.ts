@@ -45,6 +45,7 @@ export async function generateAndSendBotResponse(params: {
         sender:
           msg.role === "user" ? "CANDIDATE" : ("BOT" as "CANDIDATE" | "BOT"),
         content: msg.content || "",
+        timestamp: msg.timestamp || msg.createdAt,
       })),
     },
     {
@@ -70,6 +71,7 @@ export async function generateAndSendBotResponse(params: {
         msg.type === "voice"
           ? "VOICE"
           : ("TEXT" as "TEXT" | "VOICE" | undefined),
+      timestamp: msg.timestamp || msg.createdAt,
     })),
     resumeData: interviewData
       ? {

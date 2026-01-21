@@ -7,3 +7,4 @@ export * from "./comparison-agent";
 export * from "./prompts";
 export * from "./ranking-orchestrator";
 export * from "./recommendation-agent";
+export * from "./summary-agent";

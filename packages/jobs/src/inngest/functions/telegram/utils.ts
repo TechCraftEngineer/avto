@@ -141,6 +141,7 @@ export async function getChatHistory(chatSessionId: string) {
       msg.type === "voice" && msg.voiceTranscription
         ? msg.voiceTranscription
         : msg.content,
+    timestamp: msg.createdAt, // Добавляем timestamp для совместимости
   }));
 }
 

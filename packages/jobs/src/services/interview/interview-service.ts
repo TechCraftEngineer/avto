@@ -2,7 +2,11 @@ import { AgentFactory, InterviewOrchestrator } from "@qbs-autonaim/ai";
 import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { interviewSession } from "@qbs-autonaim/db/schema";
-import { getAIModel } from "@qbs-autonaim/lib";
+import { getAIModel, getDownloadUrl } from "@qbs-autonaim/lib";
+import {
+  getInterviewSessionMetadata,
+  updateInterviewSessionMetadata,
+} from "@qbs-autonaim/server-utils";
 import { stripHtml } from "string-strip-html";
 import type { InterviewAnalysis } from "../../schemas/interview";
 import { createLogger, INTERVIEW } from "../base";
@@ -43,7 +47,7 @@ interface InterviewContext {
     sender: "user" | "assistant";
     content: string;
     contentType?: "text" | "voice";
-    timestamp?: Date | string;
+    timestamp: Date | string; // Обязательное поле для расчета времени ответа
   }>;
   // Настройки бота
   botSettings?: {
@@ -124,6 +128,7 @@ export async function analyzeAndGenerateNextQuestion(
       contentType: msg.contentType
         ? ((msg.contentType === "text" ? "TEXT" : "VOICE") as "TEXT" | "VOICE")
         : undefined,
+      timestamp: msg.timestamp,
     })),
     botSettings: context.botSettings,
     customBotInstructions: context.customBotInstructions,
@@ -297,7 +302,6 @@ export async function getInterviewContext(
       }
 
       // Получаем медиафайлы для gig
-      const { getDownloadUrl } = await import("@qbs-autonaim/lib/s3");
       const gigId = gig.id;
 
       const mediaRecords = await db.query.gigInterviewMedia.findMany({
@@ -397,9 +401,6 @@ export async function saveQuestionAnswer(
   question: string,
   answer: string,
 ) {
-  const { updateInterviewSessionMetadata, getInterviewSessionMetadata } =
-    await import("@qbs-autonaim/server-utils");
-
   // Получаем текущие метаданные
   const metadata = await getInterviewSessionMetadata(interviewSessionId);
   const questionAnswers = metadata.questionAnswers ?? [];
@@ -473,6 +474,7 @@ export async function createInterviewScoring(
       contentType: msg.contentType
         ? ((msg.contentType === "text" ? "TEXT" : "VOICE") as "TEXT" | "VOICE")
         : undefined,
+      timestamp: msg.timestamp,
     })),
   };
 

@@ -5,7 +5,7 @@
 import type { LanguageModel, ToolSet } from "ai";
 import { Output, stepCountIs, ToolLoopAgent } from "ai";
 import type { Langfuse } from "langfuse";
-import { z, type ZodType } from "zod";
+import { type ZodType, z } from "zod";
 import type { AgentType } from "./types";
 
 /**
@@ -229,8 +229,14 @@ export abstract class BaseAgent<TInput, TOutput> {
         data: validatedOutput,
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Неизвестная ошибка";
+      // Проверяем, является ли это ошибкой таймаута
+      const isTimeout = error instanceof Error && error.name === "AbortError";
+
+      const errorMessage = isTimeout
+        ? "Превышено время ожидания выполнения агента"
+        : error instanceof Error
+          ? error.message
+          : "Неизвестная ошибка";
 
       // Извлекаем детали ошибки API
       const apiError = error as {
@@ -245,6 +251,7 @@ export abstract class BaseAgent<TInput, TOutput> {
       // Логируем детальную информацию об ошибке
       console.error(`[${this.name}] Agent execution failed:`, {
         error: errorMessage,
+        isTimeout,
         stack: error instanceof Error ? error.stack : undefined,
         agentType: this.type,
         // API детали
@@ -267,6 +274,7 @@ export abstract class BaseAgent<TInput, TOutput> {
         metadata: {
           success: false,
           error: errorMessage,
+          isTimeout,
           errorStack: error instanceof Error ? error.stack : undefined,
           statusCode,
           responseBody,
@@ -275,7 +283,7 @@ export abstract class BaseAgent<TInput, TOutput> {
 
       return {
         success: false,
-        error: errorMessage,
+        error: isTimeout ? "TIMEOUT" : errorMessage,
       };
     }
   }

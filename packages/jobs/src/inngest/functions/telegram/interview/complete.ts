@@ -253,6 +253,44 @@ export const completeInterviewFunction = inngest.createFunction(
           });
         }
       });
+
+      await step.run("trigger-ranking-for-gig", async () => {
+        const responseRecord = await db.query.response.findFirst({
+          where: eq(response.id, responseId),
+        });
+
+        if (!responseRecord || responseRecord.entityType !== "gig") {
+          console.log("⚠️ Response не является gig, пропускаем пересчет рейтинга");
+          return;
+        }
+
+        const gig = await db.query.gig.findFirst({
+          where: (g, { eq }) => eq(g.id, responseRecord.entityId),
+        });
+
+        if (!gig?.workspaceId) {
+          console.warn("⚠️ Не удалось получить workspaceId для пересчета рейтинга");
+          return;
+        }
+
+        console.log("🎯 Запуск пересчета рейтинга после интервью (Telegram)", {
+          gigId: gig.id,
+          workspaceId: gig.workspaceId,
+        });
+
+        await inngest.send({
+          name: "gig/ranking.recalculate",
+          data: {
+            gigId: gig.id,
+            workspaceId: gig.workspaceId,
+            triggeredBy: "interview.completed",
+          },
+        });
+
+        console.log("✅ Событие пересчета рейтинга отправлено (Telegram)", {
+          gigId: gig.id,
+        });
+      });
     }
 
     const chatId = await step.run("get-chat-id", async () => {
