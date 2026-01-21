@@ -54,7 +54,7 @@
       "command": "bunx",
       "args": [
         "@modelcontextprotocol/server-filesystem",
-        "c:\\Projects\\kwork\\selectio"
+        "${ENV_FILESYSTEM_ROOT}"
       ],
       "env": {},
       "disabled": false,

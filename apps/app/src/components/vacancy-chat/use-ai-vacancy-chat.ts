@@ -224,6 +224,7 @@ export function useAIVacancyChat({
   ]);
   const [status, setStatus] = useState<ChatStatus>("idle");
   const [error, setError] = useState<ChatError | null>(null);
+  const [editingSection, setEditingSection] = useState<string | null>(null);
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const lastMessageRef = useRef<string | null>(null);
@@ -491,16 +492,13 @@ export function useAIVacancyChat({
     [],
   );
 
-  const setEditingSection = useCallback((_section: string | null) => {
-    // Реализация будет в компоненте AIVacancyChat
-  }, []);
 
   return {
     document,
     messages,
     status,
     error,
-    editingSection: null, // Будет управляться в компоненте
+    editingSection,
     sendMessage,
     selectQuickReply,
     selectMultipleReplies,

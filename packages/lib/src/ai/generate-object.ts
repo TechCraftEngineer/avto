@@ -30,6 +30,8 @@ export async function generateObject<T>(
     generationName,
     entityId,
     metadata = {},
+    schemaName,
+    schemaDescription,
     ...aiOptions
   } = options;
 
@@ -39,14 +41,22 @@ export async function generateObject<T>(
   const trace = langfuse.trace({
     name: generationName,
     userId: entityId,
-    metadata,
+    metadata: {
+      ...metadata,
+      ...(schemaName && { schemaName }),
+      ...(schemaDescription && { schemaDescription }),
+    },
   });
 
   const generation = trace.generation({
     name: generationName,
     model: modelName,
     input: prompt,
-    metadata,
+    metadata: {
+      ...metadata,
+      ...(schemaName && { schemaName }),
+      ...(schemaDescription && { schemaDescription }),
+    },
   });
 
   try {
@@ -97,7 +107,12 @@ export async function generateObject<T>(
         name: `${generationName}-fallback`,
         model: fallbackModelName,
         input: prompt,
-        metadata: { ...metadata, fallback: true },
+        metadata: {
+          ...metadata,
+          fallback: true,
+          ...(schemaName && { schemaName }),
+          ...(schemaDescription && { schemaDescription }),
+        },
       });
 
       try {

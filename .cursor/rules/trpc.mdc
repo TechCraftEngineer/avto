@@ -1,8 +1,7 @@
 ---
-alwaysApply: true
-globs: ["apps/app/**/*.tsx"]
+description: Ты работаешь с UI-кодом, использующим tRPC + TanStack Query.
+alwaysApply: false
 ---
-
 # tRPC + TanStack Query Standards
 
 ## Core Rules

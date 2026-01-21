@@ -67,22 +67,6 @@ export const updateFullVacancySchema = z.object({
     .string()
     .max(50000, { message: "Описание не должно превышать 50000 символов" })
     .nullish(),
-  requirements: z
-    .string()
-    .max(10000, { message: "Требования не должны превышать 10000 символов" })
-    .nullish(),
-  responsibilities: z
-    .string()
-    .max(10000, { message: "Обязанности не должны превышать 10000 символов" })
-    .nullish(),
-  conditions: z
-    .string()
-    .max(10000, { message: "Условия не должны превышать 10000 символов" })
-    .nullish(),
-  bonuses: z
-    .string()
-    .max(10000, { message: "Премии не должны превышать 10000 символов" })
-    .nullish(),
   customBotInstructions: z
     .string()
     .max(5000, { message: "Инструкции не должны превышать 5000 символов" })

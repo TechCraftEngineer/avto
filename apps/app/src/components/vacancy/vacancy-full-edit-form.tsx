@@ -33,12 +33,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-type Vacancy = NonNullable<RouterOutputs["vacancy"]["get"]> & {
-  requirements?: string | null;
-  responsibilities?: string | null;
-  conditions?: string | null;
-  bonuses?: string | null;
-};
+type Vacancy = NonNullable<RouterOutputs["vacancy"]["get"]>;
 
 interface VacancyFullEditFormProps {
   vacancy: Vacancy;
@@ -59,10 +54,6 @@ export function VacancyFullEditForm({
     defaultValues: {
       title: vacancy.title,
       description: vacancy.description ?? "",
-      requirements: vacancy.requirements ?? "",
-      responsibilities: vacancy.responsibilities ?? "",
-      conditions: vacancy.conditions ?? "",
-      bonuses: vacancy.bonuses ?? "",
       customBotInstructions: vacancy.customBotInstructions ?? "",
       customScreeningPrompt: vacancy.customScreeningPrompt ?? "",
       customInterviewQuestions: vacancy.customInterviewQuestions ?? "",
@@ -117,7 +108,7 @@ export function VacancyFullEditForm({
               <CardTitle>Редактирование вакансии</CardTitle>
               <CardDescription>
                 Измените все параметры вакансии. Эти данные будут использоваться
-                в AI-интервью и при анализе откликов.
+                в ИИ-интервью и при анализе откликов.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -159,7 +150,7 @@ export function VacancyFullEditForm({
                       </FormControl>
                       <div className="flex items-center justify-between">
                         <FormDescription>
-                          Подробное описание поможет AI лучше подготовиться к
+                          Подробное описание поможет ИИ лучше подготовиться к
                           интервью.
                         </FormDescription>
                         <span className="text-[10px] font-medium text-muted-foreground tabular-nums">
@@ -176,93 +167,6 @@ export function VacancyFullEditForm({
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Детали вакансии</h3>
 
-                <FormField
-                  control={form.control}
-                  name="requirements"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Требования</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          {...field}
-                          value={field.value ?? ""}
-                          placeholder="Перечислите требования к кандидату..."
-                          className="min-h-[150px] resize-y bg-background leading-relaxed"
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Технические навыки, опыт работы, образование и т.д.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="responsibilities"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Обязанности</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          {...field}
-                          value={field.value ?? ""}
-                          placeholder="Опишите обязанности сотрудника..."
-                          className="min-h-[150px] resize-y bg-background leading-relaxed"
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Основные задачи и ответственность кандидата.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="conditions"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Условия работы</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          {...field}
-                          value={field.value ?? ""}
-                          placeholder="Зарплата, график работы, место работы..."
-                          className="min-h-[100px] resize-y bg-background leading-relaxed"
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Заработная плата, режим работы, локация и т.д.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="bonuses"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Премии и мотивация</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          {...field}
-                          value={field.value ?? ""}
-                          placeholder="Бонусы, премии, социальный пакет..."
-                          className="min-h-[100px] resize-y bg-background leading-relaxed"
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Дополнительные мотивационные факторы.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
               </div>
 
               {/* Настройки источника */}
@@ -352,10 +256,10 @@ export function VacancyFullEditForm({
                 />
               </div>
 
-              {/* Настройки AI */}
+              {/* Настройки ИИ */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">
-                  Настройки AI-ассистента
+                  Настройки ИИ-ассистента
                 </h3>
 
                 <FormField
@@ -368,7 +272,7 @@ export function VacancyFullEditForm({
                         <Textarea
                           {...field}
                           value={field.value ?? ""}
-                          placeholder="Специфические инструкции для AI-ассистента..."
+                          placeholder="Специфические инструкции для ИИ-ассистента..."
                           className="min-h-[100px] resize-y bg-background leading-relaxed"
                         />
                       </FormControl>
@@ -417,7 +321,7 @@ export function VacancyFullEditForm({
                         />
                       </FormControl>
                       <FormDescription>
-                        Вопросы, которые задаст AI кандидатам.
+                        Вопросы, которые задаст ИИ кандидатам.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>

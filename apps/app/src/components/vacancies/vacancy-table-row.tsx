@@ -1,6 +1,6 @@
 "use client";
 
-import { paths } from "@qbs-autonaim/config";
+import { paths, ROUTE_SEGMENTS } from "@qbs-autonaim/config";
 import {
   Badge,
   Button,
@@ -257,7 +257,7 @@ export function VacancyTableRow({
                       orgSlug,
                       workspaceSlug,
                       vacancy.id,
-                      "edit",
+                      ROUTE_SEGMENTS.vacancy.edit,
                     )}
                     className="cursor-pointer"
                   >

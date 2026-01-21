@@ -4,19 +4,21 @@ import { checkAndPerformLogin, loadCookies } from "./auth";
 import { closeBrowserSafely } from "./browser-utils";
 import { HH_CONFIG } from "./config";
 import { parseResponses } from "./response-parser";
-import { parseVacancies } from "./vacancy-parser";
+import { parseVacancies, parseArchivedVacancies } from "./vacancy-parser";
 
 interface RunHHParserOptions {
   workspaceId: string;
   skipResponses?: boolean;
+  includeArchived?: boolean;
 }
 
 export async function runHHParser(options: RunHHParserOptions): Promise<void> {
-  const { workspaceId, skipResponses = false } = options;
+  const { workspaceId, skipResponses = false, includeArchived = false } = options;
 
   console.log("🚀 Запуск HH парсера");
   console.log(`   Workspace: ${workspaceId}`);
   console.log(`   Пропустить отклики: ${skipResponses}`);
+  console.log(`   Включить архивные вакансии: ${includeArchived}`);
 
   const credentials = await getIntegrationCredentials(db, "hh", workspaceId);
   if (!credentials?.email || !credentials?.password) {
@@ -48,7 +50,7 @@ export async function runHHParser(options: RunHHParserOptions): Promise<void> {
     const vacancies = await parseVacancies(page, workspaceId);
 
     if (!skipResponses && vacancies.length > 0) {
-      console.log("\n📨 Парсинг откликов...");
+      console.log("\n📨 Парсинг откликов активных вакансий...");
 
       for (const vacancy of vacancies) {
         if (vacancy.responsesUrl) {
@@ -59,6 +61,29 @@ export async function runHHParser(options: RunHHParserOptions): Promise<void> {
               `❌ Ошибка парсинга откликов для ${vacancy.title}:`,
               error,
             );
+          }
+        }
+      }
+    }
+
+    // Парсинг архивных вакансий, если запрошено
+    if (includeArchived) {
+      console.log("\n📁 Парсинг архивных вакансий...");
+      const archivedVacancies = await parseArchivedVacancies(page, workspaceId);
+
+      if (!skipResponses && archivedVacancies.length > 0) {
+        console.log("\n📨 Парсинг откликов архивных вакансий...");
+
+        for (const vacancy of archivedVacancies) {
+          if (vacancy.responsesUrl) {
+            try {
+              await parseResponses(page, vacancy.responsesUrl, vacancy.id);
+            } catch (error) {
+              console.error(
+                `❌ Ошибка парсинга откликов для архивной вакансии ${vacancy.title}:`,
+                error,
+              );
+            }
           }
         }
       }

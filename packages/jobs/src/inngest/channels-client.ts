@@ -93,3 +93,18 @@ export const verifyHHCredentialsChannel = channel(
     }),
   ),
 );
+
+/**
+ * Канал для отслеживания прогресса синхронизации архивных откликов
+ */
+export const syncArchivedResponsesChannel = channel(
+  (vacancyId: string) => `sync-archived-responses:${vacancyId}`,
+).addTopic(
+  topic("status").schema(
+    z.object({
+      status: z.enum(["started", "processing", "completed", "error"]),
+      message: z.string(),
+      vacancyId: z.string(),
+    }),
+  ),
+);

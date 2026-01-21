@@ -21,6 +21,9 @@
     },
     "./services/buffer": {
       "default": "./src/services/buffer/index.ts"
+    },
+    "./parsers/hh": {
+      "default": "./src/parsers/hh/index.ts"
     }
   },
   "license": "MIT",

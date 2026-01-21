@@ -1,8 +1,7 @@
 ---
-alwaysApply: true
-globs: ["packages/api/**/*"]
+description: Стандарты и правила для tRPC API
+alwaysApply: false
 ---
-
 # Стандарты и правила для tRPC API
 
 ## Принципы организации

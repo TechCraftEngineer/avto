@@ -8,12 +8,18 @@ export function teeAsyncIterableStream<T>(
   AsyncIterable<T> & ReadableStream<T>,
   AsyncIterable<T> & ReadableStream<T>,
 ] {
+  // Максимальный размер буфера для предотвращения неограниченного роста
+  const MAX_BUFFER_SIZE = 100;
+
   // Буферы для каждого итератора - хранят значения, которые ещё не были прочитаны
   const buffers: [T[], T[]] = [[], []];
   let sourceIterator: AsyncIterator<T> | null = null;
   let sourceDone = false;
   // Mutex для предотвращения одновременного чтения из источника
   let readingPromise: Promise<IteratorResult<T>> | null = null;
+  // Backpressure: promises для каждого буфера, разрешаются когда потребитель читает
+  const bufferWaiters: [(Promise<void> | null), (Promise<void> | null)] = [null, null];
+  const bufferResolvers: [(() => void) | null, (() => void) | null] = [null, null];
 
   async function readFromSource(): Promise<IteratorResult<T>> {
     if (!sourceIterator) {
@@ -28,10 +34,14 @@ export function teeAsyncIterableStream<T>(
         // Если есть буферизованные данные для этого итератора, вернуть их
         const buffer = buffers[index];
         if (buffer.length > 0) {
-          const value = buffer.shift();
-          if (value !== undefined) {
-            return { value, done: false };
+          const value = buffer.shift()!;
+          // Разрешаем waiter для этого буфера, позволяя продюсеру продолжить
+          if (bufferResolvers[index]) {
+            bufferResolvers[index]!();
+            bufferWaiters[index] = null;
+            bufferResolvers[index] = null;
           }
+          return { value, done: false };
         }
 
         // Если источник завершен, вернуть done
@@ -47,8 +57,14 @@ export function teeAsyncIterableStream<T>(
             await readingPromise;
 
             // После завершения чтения проверяем буфер снова
-            const bufferedValue = buffer.shift();
-            if (bufferedValue !== undefined) {
+            if (buffer.length > 0) {
+              const bufferedValue = buffer.shift()!;
+              // Разрешаем waiter для этого буфера, позволяя продюсеру продолжить
+              if (bufferResolvers[index]) {
+                bufferResolvers[index]!();
+                bufferWaiters[index] = null;
+                bufferResolvers[index] = null;
+              }
               return { value: bufferedValue, done: false };
             }
             if (sourceDone) {
@@ -70,9 +86,21 @@ export function teeAsyncIterableStream<T>(
               return { value: undefined as unknown as T, done: true };
             }
 
-            // Добавляем значение в буфер другого итератора
+            // Добавляем значение в буфер другого итератора с backpressure
             const otherIndex = index === 0 ? 1 : 0;
-            buffers[otherIndex].push(result.value);
+            const otherBuffer = buffers[otherIndex];
+
+            // Если буфер переполнен, ждём пока потребитель прочитает
+            if (otherBuffer.length >= MAX_BUFFER_SIZE) {
+              if (!bufferWaiters[otherIndex]) {
+                bufferWaiters[otherIndex] = new Promise<void>((resolve) => {
+                  bufferResolvers[otherIndex] = resolve;
+                });
+              }
+              await bufferWaiters[otherIndex];
+            }
+
+            otherBuffer.push(result.value);
 
             // Возвращаем значение текущему итератору
             return { value: result.value, done: false };

@@ -81,6 +81,21 @@ export const refreshVacancyResponsesChannel = channel(
 );
 
 /**
+ * Канал для отслеживания прогресса синхронизации архивных откликов вакансии
+ */
+export const syncArchivedResponsesChannel = channel(
+  (vacancyId: string) => `vacancy-responses-sync-archived:${vacancyId}`,
+).addTopic(
+  topic("status").schema(
+    z.object({
+      status: z.enum(["started", "processing", "completed", "error"]),
+      message: z.string(),
+      vacancyId: z.string(),
+    }),
+  ),
+);
+
+/**
  * Канал для отслеживания прогресса парсинга новых резюме
  */
 export const parseNewResumesChannel = channel(
