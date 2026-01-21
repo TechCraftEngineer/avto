@@ -1,5 +1,6 @@
 ---
-alwaysApply: true
+description: Правила проектирования баз данных, моделирования данных и нормализации для обеспечения целостности данных
+alwaysApply: false
 globs: ["packages/db/**/*"]
 ---
 

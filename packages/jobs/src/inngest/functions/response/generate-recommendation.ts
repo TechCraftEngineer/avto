@@ -6,7 +6,7 @@ import {
 } from "@qbs-autonaim/ai";
 import { db } from "@qbs-autonaim/db/client";
 import { gig, vacancy } from "@qbs-autonaim/db/schema";
-import { generateObject, openaiProvider } from "@qbs-autonaim/lib/ai";
+import { generateObject, getAIModel } from "@qbs-autonaim/lib/ai";
 import { eq } from "drizzle-orm";
 
 import {
@@ -140,7 +140,7 @@ export const generateRecommendationFunction = inngest.createFunction(
 
         try {
           const result = await generateObject({
-            model: openaiProvider("gpt-4o-mini"),
+            model: getAIModel(),
             schema: CandidateRecommendationSchema,
             schemaName: "response",
             schemaDescription: "Candidate recommendation response",

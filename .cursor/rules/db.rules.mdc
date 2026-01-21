@@ -1,5 +1,6 @@
 ---
-alwaysApply: true
+description: Правила администрирования и разработки PostgreSQL баз данных, включая индексы, оптимизацию и лучшие практики
+alwaysApply: false
 globs: ["packages/db/**/*"]
 ---
 

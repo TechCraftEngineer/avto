@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import {
   triggerRefreshVacancyResponses,
@@ -24,7 +24,7 @@ export function useResponseActions(
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 
-  const handleBulkScreen = async () => {
+  const handleBulkScreen = useCallback(async () => {
     if (selectedIds.size === 0) return;
 
     setIsProcessing(true);
@@ -49,9 +49,9 @@ export function useResponseActions(
     } finally {
       setIsProcessing(false);
     }
-  };
+  }, [selectedIds, setSelectedIds, queryClient, trpc.vacancy.responses.list]);
 
-  const handleScreenAll = async () => {
+  const handleScreenAll = useCallback(async () => {
     setIsProcessingAll(true);
 
     try {
@@ -72,9 +72,9 @@ export function useResponseActions(
     } finally {
       setIsProcessingAll(false);
     }
-  };
+  }, [vacancyId, queryClient, trpc.vacancy.responses.list]);
 
-  const handleScreenNew = async () => {
+  const handleScreenNew = useCallback(async () => {
     setIsProcessingNew(true);
 
     try {
@@ -94,17 +94,17 @@ export function useResponseActions(
       toast.error("Произошла ошибка");
       setIsProcessingNew(false);
     }
-  };
+  }, [vacancyId]);
 
-  const handleScreeningDialogClose = () => {
+  const handleScreeningDialogClose = useCallback(() => {
     setIsProcessingNew(false);
     // Обновляем список откликов после закрытия диалога
     void queryClient.invalidateQueries(
       trpc.vacancy.responses.list.pathFilter(),
     );
-  };
+  }, [queryClient, trpc.vacancy.responses.list]);
 
-  const handleRefreshResponses = async () => {
+  const handleRefreshResponses = useCallback(async () => {
     setIsRefreshing(true);
 
     try {
@@ -124,16 +124,16 @@ export function useResponseActions(
       toast.error("Произошла ошибка");
       throw error;
     }
-  };
+  }, [vacancyId]);
 
-  const handleRefreshComplete = () => {
+  const handleRefreshComplete = useCallback(() => {
     setIsRefreshing(false);
     void queryClient.invalidateQueries(
       trpc.vacancy.responses.list.pathFilter(),
     );
-  };
+  }, [queryClient, trpc.vacancy.responses.list]);
 
-  const handleSendWelcomeBatch = async () => {
+  const handleSendWelcomeBatch = useCallback(async () => {
     if (selectedIds.size === 0) return;
 
     setIsSendingWelcome(true);
@@ -161,7 +161,7 @@ export function useResponseActions(
     } finally {
       setIsSendingWelcome(false);
     }
-  };
+  }, [selectedIds, setSelectedIds, queryClient, trpc.vacancy.responses.list]);
 
   return {
     isProcessing,

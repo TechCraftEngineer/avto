@@ -239,7 +239,23 @@ export function ResponseTableToolbar({
     vacancyId,
     enabled: syncArchivedSubscriptionActive,
     fetchToken: fetchSyncArchivedVacancyResponsesToken,
-    onMessage: setSyncArchivedMessage,
+    onMessage: (message) => {
+      setSyncArchivedMessage(message);
+      // Parse message for counts and title
+      if (message.includes("Синхронизация завершена")) {
+        const syncedMatch = message.match(/Обработано:\s*(\d+)/);
+        const newMatch = message.match(/новых:\s*(\d+)/);
+
+        if (syncedMatch) {
+          setSyncArchivedSyncedCount(parseInt(syncedMatch[1], 10));
+        }
+        if (newMatch) {
+          setSyncArchivedNewCount(parseInt(newMatch[1], 10));
+        }
+        // Note: vacancyTitle is not available in the message payload
+        // It would need to be sent separately or fetched from vacancy data
+      }
+    },
     onStatusChange: (status, message) => {
       if (status === "completed") {
         setSyncArchivedStatus("success");
@@ -347,7 +363,12 @@ export function ResponseTableToolbar({
 
   // Sync archived handlers
   const handleSyncArchivedClick = () => {
-    if (!workspace) return;
+    if (!workspace) {
+      const errorMessage = "Не удалось запустить синхронизацию: рабочее пространство не найдено";
+      setSyncArchivedError(errorMessage);
+      toast.error(errorMessage);
+      return;
+    }
 
     setSyncArchivedError(null);
     setSyncArchivedMessage("");

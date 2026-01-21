@@ -104,7 +104,15 @@ function parseResponseDate(dateStr: string): Date | undefined {
     const month = months[monthName];
 
     if (month !== undefined) {
-      return new Date(currentYear, month, day);
+      const parsed = new Date(currentYear, month, day);
+      const now = new Date();
+
+      // Если распарсенная дата находится в будущем, значит это дата прошлого года
+      if (parsed > now) {
+        parsed.setFullYear(parsed.getFullYear() - 1);
+      }
+
+      return parsed;
     }
   }
 
@@ -172,6 +180,7 @@ async function collectAllArchivedResponses(
           }
 
           let respondedAtStr = "";
+          let respondedAtError = false;
           try {
             const dateSpans = el.querySelectorAll("span");
             for (const span of Array.from(dateSpans)) {
@@ -183,7 +192,8 @@ async function collectAllArchivedResponses(
               }
             }
           } catch (error) {
-            console.warn("Не удалось распарсить дату respondedAt:", error);
+            respondedAtError = true;
+            respondedAtStr = `Ошибка парсинга даты: ${error instanceof Error ? error.message : String(error)}`;
           }
 
           return {
@@ -191,6 +201,7 @@ async function collectAllArchivedResponses(
             url: url ? new URL(url, "https://hh.ru").href : "",
             resumeId,
             respondedAtStr,
+            respondedAtError,
           };
         });
       },
@@ -210,6 +221,11 @@ async function collectAllArchivedResponses(
     let pageErrors = 0;
 
     for (const response of pageResponses) {
+      // Логируем ошибки парсинга даты из browser context
+      if (response.respondedAtError) {
+        console.error(`❌ Ошибка парсинга даты отклика для резюме ${response.resumeId}:`, response.respondedAtStr);
+      }
+
       if (response.url && response.resumeId) {
         const respondedAt = parseResponseDate(response.respondedAtStr || "");
 

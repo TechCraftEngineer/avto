@@ -29,8 +29,11 @@
       "command": "bunx",
       "args": [
         "@modelcontextprotocol/server-filesystem",
-        "../../.."
-      ]
+        "${MCP_ROOT_PATH}"
+      ],
+      "env": {
+        "MCP_ROOT_PATH": "${MCP_ROOT_PATH}"
+      }
     }
   },
   "inputs": []

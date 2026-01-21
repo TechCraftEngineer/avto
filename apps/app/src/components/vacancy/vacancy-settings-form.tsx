@@ -1,6 +1,4 @@
 "use client";
-
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Button,
   Card,
@@ -11,18 +9,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
   Separator,
   Textarea,
 } from "@qbs-autonaim/ui";
-import { updateVacancySettingsSchema } from "@qbs-autonaim/validators";
 import {
-  ExternalLink,
   Loader2,
   MessageSquare,
   Save,
@@ -33,9 +23,6 @@ import {
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import type { z } from "zod";
-
-type UpdateVacancySettingsInput = z.infer<typeof updateVacancySettingsSchema>;
 
 interface VacancySettingsFormProps {
   vacancyTitle?: string;
@@ -45,20 +32,13 @@ interface VacancySettingsFormProps {
     customScreeningPrompt?: string | null;
     customInterviewQuestions?: string | null;
     customOrganizationalQuestions?: string | null;
-    source?:
-      | "HH"
-      | "KWORK"
-      | "FL_RU"
-      | "FREELANCE_RU"
-      | "AVITO"
-      | "SUPERJOB"
-      | "HABR"
-      | "WEB_LINK"
-      | null;
-    externalId?: string | null;
-    url?: string | null;
   };
-  onSave: (data: UpdateVacancySettingsInput) => Promise<void>;
+  onSave: (data: {
+    customBotInstructions?: string | null;
+    customScreeningPrompt?: string | null;
+    customInterviewQuestions?: string | null;
+    customOrganizationalQuestions?: string | null;
+  }) => Promise<void>;
   onImprove: (
     fieldType:
       | "customBotInstructions"
@@ -81,17 +61,18 @@ export function VacancySettingsForm({
   const [hasChanges, setHasChanges] = useState(false);
   const [improvingField, setImprovingField] = useState<string | null>(null);
 
-  const form = useForm<UpdateVacancySettingsInput>({
-    resolver: zodResolver(updateVacancySettingsSchema),
+  const form = useForm<{
+    customBotInstructions?: string | null;
+    customScreeningPrompt?: string | null;
+    customInterviewQuestions?: string | null;
+    customOrganizationalQuestions?: string | null;
+  }>({
     defaultValues: {
       customBotInstructions: initialData?.customBotInstructions ?? "",
       customScreeningPrompt: initialData?.customScreeningPrompt ?? "",
       customInterviewQuestions: initialData?.customInterviewQuestions ?? "",
       customOrganizationalQuestions:
         initialData?.customOrganizationalQuestions ?? "",
-      source: initialData?.source ?? null,
-      externalId: initialData?.externalId ?? "",
-      url: initialData?.url ?? "",
     },
   });
 
@@ -114,7 +95,12 @@ export function VacancySettingsForm({
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [hasChanges]);
 
-  const handleSubmit = async (data: UpdateVacancySettingsInput) => {
+  const handleSubmit = async (data: {
+    customBotInstructions?: string | null;
+    customScreeningPrompt?: string | null;
+    customInterviewQuestions?: string | null;
+    customOrganizationalQuestions?: string | null;
+  }) => {
     setIsSaving(true);
     try {
       await onSave(data);
@@ -324,118 +310,6 @@ export function VacancySettingsForm({
                     </FormItem>
                   )}
                 />
-              </div>
-
-              <Separator className="my-8" />
-
-              {/* Привязка к внешней платформе */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <ExternalLink className="size-4 text-muted-foreground" />
-                  <h3 className="text-base font-medium text-foreground">
-                    Привязка к внешней платформе
-                  </h3>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="source"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-sm font-medium">
-                          Платформа
-                        </FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value ?? undefined}
-                        >
-                          <FormControl>
-                            <SelectTrigger aria-label="Выберите платформу">
-                              <SelectValue placeholder="Выберите платформу" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="HH">HeadHunter</SelectItem>
-                            <SelectItem value="KWORK">Kwork</SelectItem>
-                            <SelectItem value="FL_RU">FL.ru</SelectItem>
-                            <SelectItem value="FREELANCE_RU">
-                              Freelance.ru
-                            </SelectItem>
-                            <SelectItem value="AVITO">Avito</SelectItem>
-                            <SelectItem value="SUPERJOB">SuperJob</SelectItem>
-                            <SelectItem value="HABR">Хабр Карьера</SelectItem>
-                            <SelectItem value="WEB_LINK">Веб-ссылка</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormDescription className="text-xs">
-                          Платформа, на которой размещена вакансия
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="externalId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-sm font-medium">
-                          Внешний ID
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            value={field.value ?? ""}
-                            placeholder="Например: 12345678"
-                            aria-label="Внешний ID вакансии"
-                          />
-                        </FormControl>
-                        <FormDescription className="text-xs">
-                          ID вакансии на внешней платформе (опционально)
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <FormField
-                  control={form.control}
-                  name="url"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">
-                        URL вакансии на платформе
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          value={field.value ?? ""}
-                          type="url"
-                          placeholder="https://hh.ru/vacancy/12345678"
-                          aria-label="URL вакансии на платформе"
-                        />
-                      </FormControl>
-                      <FormDescription className="text-xs">
-                        Ссылка на вакансию на фриланс-платформе (опционально)
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Индикатор статуса привязки */}
-                <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/50">
-                  <div
-                    className={`w-2 h-2 rounded-full ${(form.watch("url") as string | null | undefined)?.trim() ? "bg-green-500" : "bg-gray-400"}`}
-                  ></div>
-                  <span className="text-sm text-muted-foreground">
-                    {(form.watch("url") as string | null | undefined)?.trim()
-                      ? "Привязана к внешней платформе"
-                      : "Не привязана к внешней платформе"}
-                  </span>
-                </div>
               </div>
 
               <Separator className="my-8" />

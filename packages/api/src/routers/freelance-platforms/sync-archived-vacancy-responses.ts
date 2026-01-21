@@ -56,14 +56,14 @@ export const syncArchivedVacancyResponses = protectedProcedure
     if (!publication) {
       throw new TRPCError({
         code: "BAD_REQUEST",
-        message: "Вакансия не опубликована на HH.ru",
+        message: "Вакансия не опубликована на HH.ru (HeadHunter)",
       });
     }
 
     if (!publication.externalId && !publication.url) {
       throw new TRPCError({
         code: "BAD_REQUEST",
-        message: "У публикации нет externalId или URL для синхронизации",
+        message: "У публикации нет внешнего идентификатора или ссылки для синхронизации",
       });
     }
 

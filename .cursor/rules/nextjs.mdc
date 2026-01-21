@@ -1,5 +1,6 @@
 ---
-alwaysApply: true
+description: Правила разработки приложений на Next.js App Router, включая компоненты, маршрутизацию и оптимизацию
+alwaysApply: false
 globs: ["apps/app/**/*.tsx"]
 ---
 

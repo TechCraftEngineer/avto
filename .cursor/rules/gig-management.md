@@ -1,4 +1,6 @@
 ---
+description: Правила управления Gig-ами, включая архитектуру состояний, статусы и бизнес-логику
+alwaysApply: false
 inclusion: fileMatch
 fileMatchPattern: "**/gigs/**/*.{ts,tsx}"
 ---

@@ -230,7 +230,7 @@ export const update = protectedProcedure
 
 ```typescript
 // packages/validators/src/workspace.ts
-export const workspaceIdSchema = z.string().uuid();
+export const workspaceIdSchema = z.string().regex(/^ws_[0-9a-fA-F]{32}$/, "Invalid workspace ID format");
 export const workspaceSlugSchema = z.string().min(3).max(50);
 
 // packages/api/src/routers/workspace/get.ts
