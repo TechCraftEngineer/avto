@@ -145,7 +145,6 @@ export const generateRecommendationFunction = inngest.createFunction(
             schema: CandidateRecommendationSchema,
             schemaName: "response",
             schemaDescription: "Candidate recommendation response",
-            mode: "json",
             prompt: buildCandidateRecommendationPrompt(
               screening,
               candidate,
