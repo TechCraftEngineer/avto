@@ -4,6 +4,7 @@
  */
 import { channel, topic } from "@inngest/realtime";
 import { z } from "zod";
+import { syncArchivedResponsesChannel } from "./channels/client";
 
 /**
  * Канал для отслеживания прогресса скрининга новых откликов
@@ -94,20 +95,4 @@ export const verifyHHCredentialsChannel = channel(
   ),
 );
 
-/**
- * Канал для отслеживания прогресса синхронизации архивных откликов
- * ENGLISH_IDENTIFIERS_EXCEPTION: Технические идентификаторы канала (syncArchivedResponsesChannel, topic("status"))
- * и значения статуса (started, processing, completed, error) оставлены на английском языке,
- * так как они используются для внутренней коммуникации между сервисами
- */
-export const syncArchivedResponsesChannel = channel(
-  (vacancyId: string) => `vacancy-responses-sync-archived:${vacancyId}`,
-).addTopic(
-  topic("status").schema(
-    z.object({
-      status: z.enum(["started", "processing", "completed", "error"]),
-      message: z.string(),
-      vacancyId: z.string(),
-    }),
-  ),
-);
+// syncArchivedResponsesChannel imported from ./channels/client

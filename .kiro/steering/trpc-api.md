@@ -230,8 +230,8 @@ export const update = protectedProcedure
 
 ```typescript
 // packages/validators/src/workspace.ts
-export const workspaceIdSchema = z.string().regex(/^ws_[0-9a-fA-F]{32}$/, "Invalid workspace ID format");
-export const workspaceSlugSchema = z.string().min(3).max(50);
+export const workspaceIdSchema = z.string().regex(/^ws_[0-9a-fA-F]{32}$/, "Неверный формат идентификатора рабочей области");
+export const workspaceSlugSchema = z.string().min(3, "Минимальная длина идентификатора рабочей области - 3 символа").max(50, "Максимальная длина идентификатора рабочей области - 50 символов");
 
 // packages/api/src/routers/workspace/get.ts
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
