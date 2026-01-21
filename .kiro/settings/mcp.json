@@ -32,6 +32,38 @@
         "browser_run_code",
         "browser_close"
       ]
+    },
+    "postgres": {
+      "command": "bunx",
+      "args": [
+        "@modelcontextprotocol/server-postgres",
+        "${POSTGRES_URL}"
+      ],
+      "env": {
+        "POSTGRES_URL": "${POSTGRES_URL}"
+      },
+      "disabled": false,
+      "autoApprove": [
+        "query",
+        "list_tables",
+        "describe_table",
+        "list_indexes"
+      ]
+    },
+    "filesystem": {
+      "command": "bunx",
+      "args": [
+        "@modelcontextprotocol/server-filesystem",
+        "c:\\Projects\\kwork\\selectio"
+      ],
+      "env": {},
+      "disabled": false,
+      "autoApprove": [
+        "read_file",
+        "list_dir",
+        "search_files",
+        "get_file_info"
+      ]
     }
   }
 }

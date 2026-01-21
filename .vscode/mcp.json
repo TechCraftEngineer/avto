@@ -9,6 +9,25 @@
         "--api-key",
         "ctx7sk-3300007b-e2ac-4596-9695-c9b304ab17d8"
       ]
+    },
+    "postgres": {
+      "type": "stdio",
+      "command": "bunx",
+      "args": [
+        "@modelcontextprotocol/server-postgres",
+        "${POSTGRES_URL}"
+      ],
+      "env": {
+        "POSTGRES_URL": "${POSTGRES_URL}"
+      }
+    },
+    "filesystem": {
+      "type": "stdio",
+      "command": "bunx",
+      "args": [
+        "@modelcontextprotocol/server-filesystem",
+        "/c/Projects/kwork/selectio"
+      ]
     }
   },
   "inputs": []
