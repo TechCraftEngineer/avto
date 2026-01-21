@@ -193,8 +193,8 @@ export default function QuickstartPage() {
         <ImageWithZoom
           src="/screenshots/quickstart-registration.png"
           alt="Страница регистрации QBS Автонайм"
-          width={400}
-          height={300}
+          width={300}
+          height={200}
           className="rounded-lg"
         />
 

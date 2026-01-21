@@ -34,7 +34,7 @@ export function ImageWithZoom({
             alt={alt}
             width={width}
             height={height}
-            className={className}
+            className={`max-w-full h-auto ${className || ""}`}
           />
         </button>
       </div>
@@ -61,9 +61,9 @@ export function ImageWithZoom({
           <Image
             src={src}
             alt={alt}
-            width={1920}
-            height={1080}
-            className="max-w-[95vw] max-h-[95vh] w-auto h-auto object-contain rounded-lg"
+            width={2048}
+            height={width ? Math.round((2048 * height) / width) : 1080}
+            className="max-w-[95vw] max-h-[95vh] h-auto object-contain rounded-lg"
           />
         </div>
       )}

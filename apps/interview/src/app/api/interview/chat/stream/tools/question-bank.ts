@@ -4,7 +4,8 @@ import {
   getInterviewSessionMetadata,
   updateInterviewSessionMetadata,
 } from "@qbs-autonaim/server-utils";
-import { generateText, tool } from "ai";
+import { generateText } from "@qbs-autonaim/lib/ai";
+import { tool } from "ai";
 import { z } from "zod";
 import type { EntityType, GigLike, LanguageModel, VacancyLike } from "../types";
 
@@ -135,6 +136,14 @@ technical_raw: ${JSON.stringify(techRaw)}
         const result = await generateText({
           model,
           prompt,
+          generationName: "normalize-interview-questions",
+          entityId: sessionId,
+          metadata: {
+            entityType,
+            hasOrgRaw: !!orgRaw,
+            hasTechRaw: !!techRaw,
+            shouldUseLLMNormalization,
+          },
         });
 
         const jsonObject = extractJsonObject(result.text);

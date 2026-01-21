@@ -32,9 +32,9 @@ export function ResponsesTable({
   isProcessing,
 }: ResponsesTableProps) {
   return (
-    <div className="border rounded-lg overflow-hidden">
+    <div className="border rounded-lg overflow-hidden bg-card shadow-sm">
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-muted/30">
           <TableRow>
             <TableHead className="min-w-[200px]">Кандидат</TableHead>
             <TableHead className="min-w-[120px]">Статус</TableHead>
