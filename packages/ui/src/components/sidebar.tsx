@@ -3,7 +3,6 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-import { PanelLeftIcon } from "lucide-react";
 
 import { useIsMobile } from "../hooks/use-mobile";
 import { cn } from ".";
@@ -258,7 +257,7 @@ function SidebarTrigger({
   onClick,
   ...props
 }: React.ComponentProps<typeof Button>) {
-  const { toggleSidebar } = useSidebar();
+  const { toggleSidebar, state } = useSidebar();
 
   return (
     <Button
@@ -273,7 +272,40 @@ function SidebarTrigger({
       }}
       {...props}
     >
-      <PanelLeftIcon />
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={cn(state === "expanded" ? "inline" : "hidden")}
+        aria-hidden="true"
+      >
+        <rect width="18" height="18" x="3" y="3" rx="2" />
+        <path d="M15 3v18" />
+        <path d="m10 15-3-3 3-3" />
+      </svg>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={cn(state === "collapsed" ? "inline" : "hidden")}
+        aria-hidden="true"
+      >
+        <rect width="18" height="18" x="3" y="3" rx="2" />
+        <path d="M9 3v18" />
+        <path d="m14 9 3 3-3 3" />
+      </svg>
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   );
