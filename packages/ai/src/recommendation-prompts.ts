@@ -31,8 +31,8 @@ export const CandidateRecommendationSchema = z.object({
   weaknesses: z.array(z.string()).max(5),
   candidateSummary: z.string().max(500),
   actionSuggestions: z.array(z.string()).min(1).max(3),
-  interviewQuestions: z.array(z.string()).max(3).default([]),
-  riskFactors: z.array(z.string()).max(3).default([]),
+  interviewQuestions: z.array(z.string()).max(3).optional(),
+  riskFactors: z.array(z.string()).max(3).optional(),
 });
 
 export type CandidateRecommendation = z.infer<
@@ -444,13 +444,16 @@ export function formatRecommendationForTelegram(
     message += "\n\n";
   }
 
-  if (recommendation.riskFactors.length > 0) {
+  if (recommendation.riskFactors && recommendation.riskFactors.length > 0) {
     message += `<b>🚨 Риски:</b>\n`;
     message += recommendation.riskFactors.map((r) => `• ${r}`).join("\n");
     message += "\n\n";
   }
 
-  if (recommendation.interviewQuestions.length > 0) {
+  if (
+    recommendation.interviewQuestions &&
+    recommendation.interviewQuestions.length > 0
+  ) {
     message += `<b>❓ Вопросы для интервью:</b>\n`;
     message += recommendation.interviewQuestions
       .map((q) => `• ${q}`)
