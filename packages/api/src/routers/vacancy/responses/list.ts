@@ -19,7 +19,7 @@ import {
 import type {
   HrSelectionStatus,
   ResponseStatus,
-} from "@qbs-autonaim/db/schema/shared/response-enums";
+} from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
@@ -249,9 +249,9 @@ export const list = protectedProcedure
       candidateName: string | null;
       photoFileId: string | null;
       status: ResponseStatus;
-      hrSelectionStatus: HrSelectionStatus;
-      contacts: Record<string, unknown>;
-      experience: string;
+      hrSelectionStatus: HrSelectionStatus | null;
+      contacts: Record<string, unknown> | null;
+      experience: string | null;
       profileUrl: string | null;
       resumeUrl: string | null;
       telegramUsername: string | null;
@@ -260,7 +260,12 @@ export const list = protectedProcedure
       respondedAt: Date | null;
       welcomeSentAt: Date | null;
       createdAt: Date;
-      evaluationReasoning: string | null;
+      evaluationReasoning: {
+        hardSkills?: { score: number; notes: string };
+        softSkills?: { score: number; notes: string };
+        cultureFit?: { score: number; notes: string };
+        salaryAlignment?: { score: number; notes: string };
+      } | null;
       compositeScoreReasoning: string | null;
     }>;
     if (

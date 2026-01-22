@@ -31,7 +31,7 @@
     "build": "tsdown",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "dev": "bun with-env bun run --watch src/inngest/server.ts",
-    "inngest": "npx inngest-cli@latest dev -u http://localhost:8000/api/inngest",
+    "inngest": "npx --ignore-scripts=false inngest-cli@latest dev -u http://localhost:8000/api/inngest",
     "hh:parse": "bun with-env bun run src/hh-response-parser.ts",
     "hh:enrich": "bun with-env bun run src/hh-enrich-responses.ts",
     "format": "prettier --check . --ignore-path ../../.gitignore",
