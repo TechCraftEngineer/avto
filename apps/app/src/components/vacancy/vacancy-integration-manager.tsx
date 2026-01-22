@@ -203,7 +203,7 @@ export function VacancyIntegrationManager({
 
   // Мутация для массовой проверки статусов публикаций
   const checkAllStatusesMutation = useMutation(
-    api.freelancePlatforms.checkAllPublicationStatuses.useMutation({
+    api.freelancePlatforms.checkAllPublicationStatuses.mutationOptions({
       onSuccess: (result: { success: boolean; message: string }) => {
         toast.success(result.message);
       },
@@ -244,9 +244,7 @@ export function VacancyIntegrationManager({
   };
 
   const handleCheckAllPublicationStatuses = () => {
-    checkAllStatusesMutation.mutate({
-      workspaceId,
-    });
+    checkAllStatusesMutation.mutate({ workspaceId });
   };
 
   const handleEditPublication = (publication: Publication) => {

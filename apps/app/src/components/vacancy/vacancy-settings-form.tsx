@@ -115,7 +115,7 @@ export function VacancySettingsForm({
     }
   };
 
-  const handleImprove = async (fieldName: keyof UpdateVacancySettingsInput) => {
+  const handleImprove = async (fieldName: keyof Parameters<typeof onSave>[0]) => {
     // Только текстовые поля можно улучшать
     if (
       fieldName !== "customBotInstructions" &&

@@ -251,10 +251,10 @@ export function ResponseTableToolbar({
         const syncedMatch = message.match(/Обработано:\s*(\d+)/);
         const newMatch = message.match(/новых:\s*(\d+)/);
 
-        if (syncedMatch) {
+        if (syncedMatch?.[1]) {
           setSyncArchivedSyncedCount(parseInt(syncedMatch[1], 10));
         }
-        if (newMatch) {
+        if (newMatch?.[1]) {
           setSyncArchivedNewCount(parseInt(newMatch[1], 10));
         }
         // Note: vacancyTitle is not available in the message payload
