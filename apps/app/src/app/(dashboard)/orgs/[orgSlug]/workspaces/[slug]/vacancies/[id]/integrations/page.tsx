@@ -8,19 +8,13 @@ import {
   CardTitle,
 } from "@qbs-autonaim/ui";
 import { IconBolt, IconFilter, IconMessage } from "@tabler/icons-react";
-import { use } from "react";
+import { useParams } from "next/navigation";
 import { PageHeader } from "~/components/layout";
 import { VacancyIntegrationManager } from "~/components/vacancy";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 
-interface VacancyIntegrationsPageProps {
-  params: Promise<{ orgSlug: string; slug: string; id: string }>;
-}
-
-export default function VacancyIntegrationsPage({
-  params,
-}: VacancyIntegrationsPageProps) {
-  const { id } = use(params);
+export default function VacancyIntegrationsPage() {
+  const { id } = useParams<{ orgSlug: string; slug: string; id: string }>();
   const { workspaceId } = useWorkspaceContext();
 
   return (
@@ -33,10 +27,12 @@ export default function VacancyIntegrationsPage({
       <div className="flex flex-1 flex-col px-4 py-6 lg:px-6">
         <div className="mx-auto w-full max-w-4xl space-y-8">
           {/* Публикации на платформах */}
-          <VacancyIntegrationManager
-            vacancyId={id}
-            workspaceId={workspaceId ?? ""}
-          />
+          {workspaceId && workspaceId !== "" && (
+            <VacancyIntegrationManager
+              vacancyId={id}
+              workspaceId={workspaceId}
+            />
+          )}
 
           {/* Будущие разделы настроек */}
           <Card className="shadow-sm border-border/50">

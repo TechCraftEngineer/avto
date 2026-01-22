@@ -1,10 +1,10 @@
 "use client";
 
 import { Button, ScrollArea, Textarea } from "@qbs-autonaim/ui";
-import { FileText, Loader2 } from "lucide-react";
 import { IconEdit } from "@tabler/icons-react";
-import type { VacancyDocument } from "./types";
+import { FileText, Loader2 } from "lucide-react";
 import { DocumentSection } from "./document-section";
+import type { VacancyDocument } from "./types";
 
 interface DocumentPreviewProps {
   document: VacancyDocument;
@@ -204,7 +204,7 @@ export function DocumentPreview({
       </ScrollArea>
 
       {hasMinimalContent && (
-        <div className="border-t p-3 md:p-4">
+        <div className="sticky bottom-0 border-t bg-background p-3 md:p-4">
           <Button
             onClick={onSave}
             disabled={isSaving || isGenerating}

@@ -77,26 +77,25 @@ export const checkAllPublicationStatusesFunction = inngest.createFunction(
         }),
       );
 
-      // Запускаем параллельные проверки для каждой публикации
-      const checkPromises = filteredPublications.map(async (publication) => {
+      // Запускаем последовательные проверки для каждой публикации
+      const results = [];
+      for (const publication of filteredPublications) {
         console.log(`🔍 Проверяем публикацию ${publication.id} на платформе ${publication.platform}`);
 
         try {
-          // Отправляем событие для проверки конкретной публикации
-          await step.sendEvent({
+          // Отправляем событие для проверки конкретной публикации с детерминистическим stepId
+          const stepId = `check-publication-${publication.id}`;
+          await step.sendEvent(stepId, {
             name: "vacancy/publication.status.check",
             data: { publicationId: publication.id },
           });
 
-          return { publicationId: publication.id, success: true };
+          results.push({ publicationId: publication.id, success: true });
         } catch (error) {
           console.error(`❌ Ошибка при отправке события проверки для публикации ${publication.id}:`, error);
-          return { publicationId: publication.id, success: false, error: String(error) };
+          results.push({ publicationId: publication.id, success: false, error: String(error) });
         }
-      });
-
-      // Ждем завершения всех проверок
-      const results = await Promise.all(checkPromises);
+      }
       const successful = results.filter(r => r.success).length;
       const failed = results.filter(r => !r.success).length;
 

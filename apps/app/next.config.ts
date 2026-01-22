@@ -24,7 +24,7 @@ export default async function createNextConfig(): Promise<NextConfig> {
     typescript: { ignoreBuildErrors: true },
 
     /** External packages for server components */
-    serverExternalPackages: ["better-auth", "ai", "@ai-sdk/react"],
+    serverExternalPackages: ["better-auth", "ai"],
 
     /** Webpack configuration to handle Node.js built-ins */
     webpack: (config, { isServer }) => {

@@ -111,6 +111,7 @@ export function useResponseActions(
         if (!result.success) {
           console.error("Не удалось запустить синхронизацию архивных:", result.error);
           toast.error("Не удалось запустить синхронизацию архивных откликов");
+          setIsSyncingArchived(false);
           return;
         }
 
