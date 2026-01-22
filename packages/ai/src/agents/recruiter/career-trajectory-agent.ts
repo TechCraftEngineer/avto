@@ -153,9 +153,9 @@ ${vacancyInfo}
 ЗАДАЧА:
 Проанализируй карьерную траекторию кандидата и определи:
 1. Тип траектории (growth, stable, decline, jump, role_change)
-2. Оценки по всем критериям (transitionLogic, growthSpeed, stability, experienceQuality, growthPotential)
+2. Оценки по всем критериям (transitionLogicScore, growthSpeedScore, stabilityScore, experienceQualityScore, growthPotentialScore)
 3. Общую оценку карьерной траектории (careerTrajectoryScore)
-4. Детальный анализ с выявлением "скрытых подходящих" индикаторов
+4. Детальный анализ с выявлением "скрытых подходящих" индикаторов (analysis)
 
 Учитывай:
 - Логичность переходов между ролями

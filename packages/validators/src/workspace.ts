@@ -3,8 +3,9 @@ import { z } from "zod";
 // Общая схема для workspaceId
 export const workspaceIdSchema = z
   .string()
-  .regex(
-    /^ws_[0-9a-fA-F]{32}$/,
+  .min(1, "Workspace ID обязателен")
+  .refine(
+    (val) => /^ws_[0-9a-fA-F]{32}$/.test(val) || /^[0-9a-fA-F-]{36}$/.test(val),
     "Неверный формат идентификатора рабочей области",
   );
 

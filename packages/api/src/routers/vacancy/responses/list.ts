@@ -213,34 +213,91 @@ export const list = protectedProcedure
         sortDirection === "asc"
           ? asc(responseTable.respondedAt)
           : desc(responseTable.respondedAt);
+    } else if (
+      sortField === "score" ||
+      sortField === "detailedScore" ||
+      sortField === "potentialScore" ||
+      sortField === "careerTrajectoryScore"
+    ) {
+      // Для сортировки по score полям используем LEFT JOIN с responseScreening
+      const scoreColumn =
+        sortField === "score"
+          ? responseScreening.score
+          : sortField === "detailedScore"
+            ? responseScreening.detailedScore
+            : sortField === "potentialScore"
+              ? responseScreening.potentialScore
+              : responseScreening.careerTrajectoryScore;
+
+      orderByClause =
+        sortDirection === "asc"
+          ? asc(sql`COALESCE(${scoreColumn}, -1)`)
+          : desc(sql`COALESCE(${scoreColumn}, -1)`);
     } else {
       orderByClause = desc(responseTable.createdAt);
     }
 
     // Получаем отфильтрованные данные с пагинацией
-    const responsesRaw = await ctx.db.query.response.findMany({
-      where: whereCondition,
-      orderBy: [orderByClause],
-      limit,
-      offset,
-      columns: {
-        id: true,
-        entityId: true,
-        candidateName: true,
-        photoFileId: true,
-        status: true,
-        hrSelectionStatus: true,
-        contacts: true,
-        experience: true,
-        profileUrl: true,
-        resumeUrl: true,
-        telegramUsername: true,
-        phone: true,
-        respondedAt: true,
-        welcomeSentAt: true,
-        createdAt: true,
-      },
-    });
+    // Используем select с LEFT JOIN для сортировки по score полям
+    let responsesRaw;
+    if (
+      sortField === "score" ||
+      sortField === "detailedScore" ||
+      sortField === "potentialScore" ||
+      sortField === "careerTrajectoryScore"
+    ) {
+      responsesRaw = await ctx.db
+        .select({
+          id: responseTable.id,
+          entityId: responseTable.entityId,
+          candidateName: responseTable.candidateName,
+          photoFileId: responseTable.photoFileId,
+          status: responseTable.status,
+          hrSelectionStatus: responseTable.hrSelectionStatus,
+          contacts: responseTable.contacts,
+          experience: responseTable.experience,
+          profileUrl: responseTable.profileUrl,
+          resumeUrl: responseTable.resumeUrl,
+          telegramUsername: responseTable.telegramUsername,
+          phone: responseTable.phone,
+          respondedAt: responseTable.respondedAt,
+          welcomeSentAt: responseTable.welcomeSentAt,
+          createdAt: responseTable.createdAt,
+        })
+        .from(responseTable)
+        .leftJoin(
+          responseScreening,
+          eq(responseTable.id, responseScreening.responseId)
+        )
+        .where(whereCondition)
+        .orderBy(orderByClause)
+        .limit(limit)
+        .offset(offset);
+    } else {
+      responsesRaw = await ctx.db.query.response.findMany({
+        where: whereCondition,
+        orderBy: [orderByClause],
+        limit,
+        offset,
+        columns: {
+          id: true,
+          entityId: true,
+          candidateName: true,
+          photoFileId: true,
+          status: true,
+          hrSelectionStatus: true,
+          contacts: true,
+          experience: true,
+          profileUrl: true,
+          resumeUrl: true,
+          telegramUsername: true,
+          phone: true,
+          respondedAt: true,
+          welcomeSentAt: true,
+          createdAt: true,
+        },
+      });
+    }
 
     // Query related data separately
     const responseIds = responsesRaw.map((r) => r.id);
@@ -368,33 +425,6 @@ export const list = protectedProcedure
       };
     });
 
-    // Сортировка по score/detailedScore/potentialScore/careerTrajectoryScore в памяти (только для текущей страницы)
-    if (
-      sortField === "score" ||
-      sortField === "detailedScore" ||
-      sortField === "potentialScore" ||
-      sortField === "careerTrajectoryScore"
-    ) {
-      responses = responses.sort((a, b) => {
-        const scoreA =
-          sortField === "score"
-            ? (a.screening?.score ?? -1)
-            : sortField === "detailedScore"
-              ? (a.screening?.detailedScore ?? -1)
-              : sortField === "potentialScore"
-                ? (a.screening?.potentialScore ?? -1)
-                : (a.screening?.careerTrajectoryScore ?? -1);
-        const scoreB =
-          sortField === "score"
-            ? (b.screening?.score ?? -1)
-            : sortField === "detailedScore"
-              ? (b.screening?.detailedScore ?? -1)
-              : sortField === "potentialScore"
-                ? (b.screening?.potentialScore ?? -1)
-                : (b.screening?.careerTrajectoryScore ?? -1);
-        return sortDirection === "asc" ? scoreA - scoreB : scoreB - scoreA;
-      });
-    }
 
     // Получаем общее количество для пагинации
     const totalResult = await ctx.db

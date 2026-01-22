@@ -1,3 +1,6 @@
+-- Create enum type for career trajectory
+CREATE TYPE "career_trajectory_type" AS ENUM ('growth', 'stable', 'decline', 'jump', 'role_change');
+
 -- Add new columns for candidate potential evaluation
 ALTER TABLE "response_screenings" ADD COLUMN "potential_score" integer;
 ALTER TABLE "response_screenings" ADD COLUMN "career_trajectory_score" integer;

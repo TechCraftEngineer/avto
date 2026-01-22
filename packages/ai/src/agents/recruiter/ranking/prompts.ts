@@ -302,9 +302,10 @@ export const CAREER_TRAJECTORY_AGENT_SYSTEM_PROMPT = `Ты — эксперт п
 - score: число 0-100 (или null если данных недостаточно)
 - reasoning: детальное объяснение оценки (2-3 предложения)
 
-Для careerTrajectoryType:
-- type: один из типов (growth, stable, decline, jump, role_change)
-- reasoning: объяснение выбора типа (2-3 предложения)
+Верни следующие поля:
+- careerTrajectoryType: один из типов (growth, stable, decline, jump, role_change)
+- typeReasoning: объяснение выбора типа (2-3 предложения)
+- analysis: детальный анализ с выявлением "скрытых подходящих" индикаторов
 
 ВАЖНО:
 - Анализируй не только соответствие требованиям, но и потенциал кандидата
