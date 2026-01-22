@@ -11,6 +11,7 @@ import {
   AvatarFallback,
   AvatarImage,
   Badge,
+  Button,
   Checkbox,
   TableCell,
   TableRow,
@@ -19,7 +20,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@qbs-autonaim/ui";
-import { Send, User, Sparkles, TrendingUp, UserCheck } from "lucide-react";
+import { Send, User, Sparkles, TrendingUp, UserCheck, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { ResponseActions } from "~/components/response";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
@@ -134,8 +135,8 @@ export function ResponseRow({
                         </p>
                         <ul className="list-disc list-inside space-y-1">
                           {response.screening.hiddenFitIndicators.map(
-                            (indicator, idx) => (
-                              <li key={idx} className="text-xs">
+                            (indicator) => (
+                              <li key={indicator} className="text-xs">
                                 {indicator}
                               </li>
                             ),
@@ -216,8 +217,62 @@ export function ResponseRow({
         )}
       </TableCell>
       <TableCell>
-        <div className="flex items-center min-w-[120px]">
+        <div className="flex items-center min-w-30">
           <ContactInfo contacts={response.contacts} size="sm" />
+        </div>
+      </TableCell>
+      <TableCell>
+        <div className="flex items-center gap-2">
+          {response.resumeUrl ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 px-2 text-xs gap-1 hover:bg-primary/10"
+              onClick={() => response.resumeUrl && window.open(response.resumeUrl, "_blank", "noopener,noreferrer")}
+            >
+              <ExternalLink className="h-3 w-3" />
+              Открыть
+            </Button>
+          ) : (
+            <span className="text-muted-foreground text-xs">—</span>
+          )}
+        </div>
+      </TableCell>
+      <TableCell>
+        <div className="max-w-50 truncate">
+          {response.coverLetter ? (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="text-sm text-muted-foreground cursor-help">
+                    {response.coverLetter.length > 50
+                      ? `${response.coverLetter.substring(0, 50)}...`
+                      : response.coverLetter}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="left" className="max-w-xs">
+                  <p className="text-xs whitespace-pre-wrap">{response.coverLetter}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ) : response.experience ? (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="text-sm text-muted-foreground cursor-help">
+                    {response.experience.length > 50
+                      ? `${response.experience.substring(0, 50)}...`
+                      : response.experience}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="left" className="max-w-xs">
+                  <p className="text-xs whitespace-pre-wrap">{response.experience}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ) : (
+            <span className="text-muted-foreground text-xs">—</span>
+          )}
         </div>
       </TableCell>
       <TableCell className="whitespace-nowrap">

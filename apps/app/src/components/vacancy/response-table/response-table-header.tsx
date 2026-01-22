@@ -33,7 +33,7 @@ export function ResponseTableHeader({
   return (
     <TableHeader>
       <TableRow className="bg-muted/50 hover:bg-muted/50">
-        <TableHead className="w-[40px] pl-4">
+        <TableHead className="w-10 pl-4">
           <Checkbox
             checked={allSelected}
             onCheckedChange={onSelectAll}
@@ -93,6 +93,12 @@ export function ResponseTableHeader({
         </TableHead>
         <TableHead className="font-semibold text-foreground">
           Контакты
+        </TableHead>
+        <TableHead className="font-semibold text-foreground">
+          Резюме
+        </TableHead>
+        <TableHead className="font-semibold text-foreground">
+          Отклик
         </TableHead>
         <TableHead className="font-semibold text-foreground whitespace-nowrap">
           <button
