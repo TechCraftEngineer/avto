@@ -218,6 +218,24 @@ export async function triggerParseMissingContacts(vacancyId: string) {
   }
 }
 
+export async function triggerRefreshAllResumes(vacancyId: string) {
+  try {
+    await inngest.send({
+      name: "response/resume.refresh.all",
+      data: {
+        vacancyId,
+      },
+    });
+    return { success: true as const };
+  } catch (error) {
+    console.error("Не удалось запустить обновление всех резюме:", error);
+    return {
+      success: false as const,
+      error: "Не удалось запустить обновление всех резюме",
+    };
+  }
+}
+
 export async function triggerRefreshSingleResume(responseId: string) {
   try {
     await inngest.send({

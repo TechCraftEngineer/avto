@@ -83,7 +83,6 @@ export const getInterviewQuestions = protectedProcedure
       columns: {
         score: true,
         analysis: true,
-        riskFactors: true,
       },
     });
 
@@ -105,14 +104,12 @@ export const getInterviewQuestions = protectedProcedure
       });
     }
 
-    // Формируем риск-факторы из скрининга
-    const riskFactors = screening?.riskFactors
-      ? (screening.riskFactors as Array<{
-          type: string;
-          description: string;
-          severity: "low" | "medium" | "high";
-        }>)
-      : [];
+    // Формируем риск-факторы из скрининга (пока пустой массив, так как поле не существует в схеме)
+    const riskFactors: Array<{
+      type: string;
+      description: string;
+      severity: "low" | "medium" | "high";
+    }> = [];
 
     // Загружаем настройки компании
     const botSettings = await ctx.db.query.botSettings.findFirst({
@@ -159,7 +156,9 @@ export const getInterviewQuestions = protectedProcedure
       },
       vacancyData: {
         title: vacancy.title,
-        requirements: vacancy.requirements || null,
+        requirements: vacancy.requirements
+          ? JSON.stringify(vacancy.requirements)
+          : null,
         description: vacancy.description || null,
       },
     };

@@ -24,6 +24,7 @@ export {
   inngest,
   inngestFunctions,
   processIncomingMessageFunction,
+  refreshAllResumesChannel,
   refreshVacancyResponsesFunction,
   screenNewResponsesChannel,
   screenResponseFunction,

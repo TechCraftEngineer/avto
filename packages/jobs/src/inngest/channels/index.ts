@@ -7,7 +7,10 @@ export {
   conversationMessagesChannel,
   parseMissingContactsChannel,
   parseNewResumesChannel,
+  refreshAllResumesChannel,
   refreshVacancyResponsesChannel,
   screenAllResponsesChannel,
   screenNewResponsesChannel,
+  syncArchivedResponsesChannel,
+  verifyHHCredentialsChannel,
 } from "./client";

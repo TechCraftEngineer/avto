@@ -2,6 +2,7 @@
 
 import { getSubscriptionToken } from "@inngest/realtime";
 import {
+  refreshAllResumesChannel,
   refreshVacancyResponsesChannel,
   screenAllResponsesChannel,
   screenNewResponsesChannel,
@@ -40,6 +41,18 @@ export async function fetchRefreshVacancyResponsesToken(vacancyId: string) {
   const token = await getSubscriptionToken(inngest, {
     channel: refreshVacancyResponsesChannel(vacancyId),
     topics: ["status"],
+  });
+
+  return token;
+}
+
+/**
+ * Server action для получения токена подписки на Realtime канал обновления всех резюме вакансии
+ */
+export async function fetchRefreshAllResumesToken(vacancyId: string) {
+  const token = await getSubscriptionToken(inngest, {
+    channel: refreshAllResumesChannel(vacancyId),
+    topics: ["progress", "result"],
   });
 
   return token;

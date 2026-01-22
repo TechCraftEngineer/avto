@@ -98,6 +98,7 @@ export function ResponseTable({
     isProcessingAll,
     isProcessingNew,
     isRefreshing,
+    isRefreshingAllResumes,
     isSendingWelcome,
     isSyncingArchived,
     handleBulkScreen,
@@ -107,6 +108,8 @@ export function ResponseTable({
     handleScreeningDialogClose,
     handleRefreshResponses,
     handleRefreshComplete,
+    handleRefreshAllResumes,
+    handleRefreshAllResumesDialogClose,
     handleSendWelcomeBatch,
   } = useResponseActions(vacancyId, selectedIds, setSelectedIds);
 
@@ -226,9 +229,12 @@ export function ResponseTable({
         isRefreshing={isRefreshing}
         isProcessingNew={isProcessingNew}
         isProcessingAll={isProcessingAll}
+        isRefreshingAllResumes={isRefreshingAllResumes}
         isSyncingArchived={isSyncingArchived}
         onRefresh={handleRefreshResponses}
         onRefreshComplete={handleRefreshComplete}
+        onRefreshAllResumes={handleRefreshAllResumes}
+        onRefreshAllResumesDialogClose={handleRefreshAllResumesDialogClose}
         onScreenNew={handleScreenNew}
         onScreenAll={handleScreenAll}
         onSyncArchived={handleSyncArchived}
