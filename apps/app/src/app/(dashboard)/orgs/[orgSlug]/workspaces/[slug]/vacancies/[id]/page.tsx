@@ -32,7 +32,6 @@ import { useState } from "react";
 import { toast } from "sonner";
 import {
   VacancyRequirements,
-  VacancyIntegrationManager,
 } from "~/components/vacancy";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
@@ -158,7 +157,7 @@ ${data.interviewLink.url}
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex items-center justify-center min-h-100">
         <div className="flex flex-col items-center gap-2">
           <div className="size-8 rounded-full border-b-2 border-primary animate-spin" />
           <p className="text-sm text-muted-foreground">Загрузка...</p>
@@ -169,7 +168,7 @@ ${data.interviewLink.url}
 
   if (!data) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
+      <div className="flex flex-col items-center justify-center min-h-100 text-center">
         <IconMessage className="size-12 text-muted-foreground/50 mb-4" />
         <h3 className="text-lg font-semibold">Вакансия не найдена</h3>
         <p className="text-sm text-muted-foreground mt-1">
@@ -460,10 +459,6 @@ ${data.interviewLink.url}
           </CardContent>
         </Card>
 
-        <VacancyIntegrationManager
-          vacancyId={id}
-          workspaceId={workspace?.id ?? ""}
-        />
       </div>
     </div>
   );

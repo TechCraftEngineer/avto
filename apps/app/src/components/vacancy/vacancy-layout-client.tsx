@@ -12,6 +12,7 @@ import {
   IconEdit,
   IconEye,
   IconMessage,
+  IconPlug,
   IconSettings,
 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
@@ -67,6 +68,7 @@ export function VacancyLayoutClient({
     if (pathname.endsWith("/settings")) return "settings";
     if (pathname.endsWith("/responses")) return "responses";
     if (pathname.endsWith("/edit")) return "edit";
+    if (pathname.endsWith("/integrations")) return "integrations";
     return "detail";
   };
 
@@ -139,7 +141,7 @@ export function VacancyLayoutClient({
             <Button
               variant="ghost"
               size="sm"
-              className="min-h-[44px] md:min-h-0"
+              className="min-h-11 md:min-h-0"
               asChild
             >
               <Link href={paths.workspace.vacancies(orgSlug, workspaceSlug)}>
@@ -156,7 +158,7 @@ export function VacancyLayoutClient({
                 <TabsTrigger
                   value="detail"
                   asChild
-                  className="flex-1 sm:flex-initial min-h-[44px] md:min-h-0 gap-2"
+                  className="flex-1 sm:flex-initial min-h-11 md:min-h-0 gap-2"
                 >
                   <Link
                     href={paths.workspace.vacancies(
@@ -173,7 +175,7 @@ export function VacancyLayoutClient({
                 <TabsTrigger
                   value="responses"
                   asChild
-                  className="flex-1 sm:flex-initial min-h-[44px] md:min-h-0 gap-2"
+                  className="flex-1 sm:flex-initial min-h-11 md:min-h-0 gap-2"
                 >
                   <Link
                     href={paths.workspace.vacancies(
@@ -193,7 +195,7 @@ export function VacancyLayoutClient({
                 <TabsTrigger
                   value="edit"
                   asChild
-                  className="flex-1 sm:flex-initial min-h-[44px] md:min-h-0 gap-2"
+                  className="flex-1 sm:flex-initial min-h-11 md:min-h-0 gap-2"
                 >
                   <Link
                     href={paths.workspace.vacancies(
@@ -209,9 +211,27 @@ export function VacancyLayoutClient({
                   </Link>
                 </TabsTrigger>
                 <TabsTrigger
+                  value="integrations"
+                  asChild
+                  className="flex-1 sm:flex-initial min-h-11 md:min-h-0 gap-2"
+                >
+                  <Link
+                    href={paths.workspace.vacancies(
+                      orgSlug,
+                      workspaceSlug,
+                      vacancyId,
+                      "integrations",
+                    )}
+                  >
+                    <IconPlug className="size-4" aria-hidden="true" />
+                    <span className="hidden sm:inline">Интеграции</span>
+                    <span className="sm:hidden">Интегр.</span>
+                  </Link>
+                </TabsTrigger>
+                <TabsTrigger
                   value="settings"
                   asChild
-                  className="flex-1 sm:flex-initial min-h-[44px] md:min-h-0 gap-2"
+                  className="flex-1 sm:flex-initial min-h-11 md:min-h-0 gap-2"
                 >
                   <Link
                     href={paths.workspace.vacancies(
