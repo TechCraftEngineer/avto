@@ -123,9 +123,9 @@ export function FactorBreakdown({
               <h4 className="text-sm font-semibold">Сильные стороны</h4>
             </div>
             <ul className="space-y-1 pl-6">
-              {strengths.map((strength, index) => (
+              {strengths.map((strength, _index) => (
                 <li
-                  key={index}
+                  key={strength}
                   className="text-sm text-muted-foreground leading-relaxed flex items-start gap-2"
                 >
                   <span className="text-green-600 dark:text-green-400 mt-1">
@@ -146,9 +146,9 @@ export function FactorBreakdown({
               <h4 className="text-sm font-semibold">Слабые стороны</h4>
             </div>
             <ul className="space-y-1 pl-6">
-              {weaknesses.map((weakness, index) => (
+              {weaknesses.map((weakness, _index) => (
                 <li
-                  key={index}
+                  key={weakness}
                   className="text-sm text-muted-foreground leading-relaxed flex items-start gap-2"
                 >
                   <span className="text-yellow-600 dark:text-yellow-400 mt-1">
@@ -169,9 +169,9 @@ export function FactorBreakdown({
               <h4 className="text-sm font-semibold">Риски</h4>
             </div>
             <ul className="space-y-1 pl-6">
-              {risks.map((risk, index) => (
+              {risks.map((risk, _index) => (
                 <li
-                  key={index}
+                  key={risk}
                   className="text-sm text-muted-foreground leading-relaxed flex items-start gap-2"
                 >
                   <span className="text-red-600 dark:text-red-400 mt-1">

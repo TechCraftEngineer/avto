@@ -1,4 +1,5 @@
 import type { SQL } from "@qbs-autonaim/db";
+import type { ResponseStatus, HrSelectionStatus } from "@qbs-autonaim/db/schema/shared/response-enums";
 import {
   and,
   asc,
@@ -244,10 +245,10 @@ export const list = protectedProcedure
       entityId: string;
       candidateName: string | null;
       photoFileId: string | null;
-      status: any;
-      hrSelectionStatus: any;
-      contacts: any;
-      experience: any;
+      status: ResponseStatus;
+      hrSelectionStatus: HrSelectionStatus;
+      contacts: Record<string, unknown>;
+      experience: string;
       profileUrl: string | null;
       resumeUrl: string | null;
       telegramUsername: string | null;

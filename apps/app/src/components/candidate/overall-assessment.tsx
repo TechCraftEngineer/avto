@@ -168,9 +168,9 @@ export function OverallAssessment({
                   Сильные стороны
                 </h4>
                 <ul className="space-y-1">
-                  {strengths.map((strength, index) => (
+                  {strengths.map((strength, _index) => (
                     <li
-                      key={index}
+                      key={strength}
                       className="text-sm text-muted-foreground leading-relaxed"
                     >
                       • {strength}
@@ -187,9 +187,9 @@ export function OverallAssessment({
                   Слабые стороны
                 </h4>
                 <ul className="space-y-1">
-                  {weaknesses.map((weakness, index) => (
+                  {weaknesses.map((weakness, _index) => (
                     <li
-                      key={index}
+                      key={weakness}
                       className="text-sm text-muted-foreground leading-relaxed"
                     >
                       • {weakness}

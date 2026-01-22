@@ -20,7 +20,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@qbs-autonaim/ui";
-import { Send, User, Sparkles, TrendingUp, UserCheck, ExternalLink } from "lucide-react";
+import { Send, User, TrendingUp, UserCheck, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { ResponseActions } from "~/components/response";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
