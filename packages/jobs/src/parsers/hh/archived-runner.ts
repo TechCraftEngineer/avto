@@ -1,7 +1,7 @@
 import { db, getIntegrationCredentials } from "@qbs-autonaim/db";
 import puppeteer from "puppeteer";
 import { parseArchivedVacancyResponses } from "./archived-response-parser";
-import { checkAndPerformLogin } from "./auth";
+import { checkAndPerformLogin, loadCookies } from "./auth";
 import { closeBrowserSafely } from "./browser-utils";
 import { HH_CONFIG } from "./config";
 
@@ -35,6 +35,12 @@ export async function runHHArchivedVacancyParser(
 
     await page.setUserAgent(HH_CONFIG.userAgent);
     await page.setViewport({ width: 1920, height: 1080 });
+
+    // Load existing cookies if available
+    const savedCookies = await loadCookies("hh", workspaceId);
+    if (savedCookies && savedCookies.length > 0) {
+      await page.setCookie(...savedCookies);
+    }
 
     // Check authentication and perform login if needed
     await checkAndPerformLogin(
