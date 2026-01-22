@@ -170,7 +170,7 @@ export function OverallAssessment({
                 <ul className="space-y-1">
                   {strengths.map((strength, _index) => (
                     <li
-                      key={`${strength}-${_index}`}
+                      key={strength}
                       className="text-sm text-muted-foreground leading-relaxed"
                     >
                       • {strength}
@@ -189,7 +189,7 @@ export function OverallAssessment({
                 <ul className="space-y-1">
                   {weaknesses.map((weakness, _index) => (
                     <li
-                      key={`${weakness}-${_index}`}
+                      key={weakness}
                       className="text-sm text-muted-foreground leading-relaxed"
                     >
                       • {weakness}

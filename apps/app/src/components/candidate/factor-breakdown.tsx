@@ -125,7 +125,7 @@ export function FactorBreakdown({
             <ul className="space-y-1 pl-6">
               {strengths.map((strength, _index) => (
                 <li
-                  key={`${strength}-${_index}`}
+                  key={strength}
                   className="text-sm text-muted-foreground leading-relaxed flex items-start gap-2"
                 >
                   <span className="text-green-600 dark:text-green-400 mt-1">
@@ -148,7 +148,7 @@ export function FactorBreakdown({
             <ul className="space-y-1 pl-6">
               {weaknesses.map((weakness, _index) => (
                 <li
-                  key={`${weakness}-${_index}`}
+                  key={weakness}
                   className="text-sm text-muted-foreground leading-relaxed flex items-start gap-2"
                 >
                   <span className="text-yellow-600 dark:text-yellow-400 mt-1">
@@ -171,7 +171,7 @@ export function FactorBreakdown({
             <ul className="space-y-1 pl-6">
               {risks.map((risk, _index) => (
                 <li
-                  key={`${risk}-${_index}`}
+                  key={risk}
                   className="text-sm text-muted-foreground leading-relaxed flex items-start gap-2"
                 >
                   <span className="text-red-600 dark:text-red-400 mt-1">
