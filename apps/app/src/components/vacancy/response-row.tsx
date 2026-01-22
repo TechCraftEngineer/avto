@@ -207,7 +207,7 @@ export function ResponseRow({
         </Badge>
       </TableCell>
       <TableCell>
-        {response.priorityScore ? (
+        {response.priorityScore != null ? (
           <div className="flex items-center gap-1">
             <span className="text-sm font-medium">
               {response.priorityScore}
@@ -226,7 +226,7 @@ export function ResponseRow({
         )}
       </TableCell>
       <TableCell>
-        {response.potentialScore ? (
+        {response.potentialScore != null ? (
           <div className="flex items-center gap-1">
             <span className="text-sm font-medium">
               {response.potentialScore}

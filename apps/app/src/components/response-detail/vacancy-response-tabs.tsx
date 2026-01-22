@@ -61,7 +61,31 @@ export function VacancyResponseTabs({
   const hasProposalData = !!(response.coverLetter || response.salaryExpectationsAmount || response.salaryExpectationsComment);
   const hasExperienceData = !!(response.experience || (response.skills && response.skills.length > 0) || response.profileData);
   const hasPortfolioData = !!(response.portfolioLinks?.length || response.portfolioFileId);
-  const hasContactsData = !!(response.email || response.phone || response.telegramUsername || response.profileUrl);
+  const hasContactsData = (() => {
+    // Check existing fields
+    if (response.email || response.phone || response.telegramUsername || response.profileUrl) {
+      return true;
+    }
+
+    // Check response.contacts JSON field
+    if (response.contacts) {
+      try {
+        const contacts = typeof response.contacts === 'string'
+          ? JSON.parse(response.contacts)
+          : response.contacts;
+
+        // Check if contacts object has any non-empty values
+        return Object.values(contacts).some(value =>
+          value !== null && value !== undefined && value !== ''
+        );
+      } catch {
+        // If parsing fails, ignore this check
+        return false;
+      }
+    }
+
+    return false;
+  })();
 
   // Подсчитываем количество видимых вкладок
   const hasAnalysis = hasScreening || hasInterviewScoring;

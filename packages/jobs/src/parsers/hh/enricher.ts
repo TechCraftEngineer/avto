@@ -13,6 +13,7 @@ import {
 import { loadCookies, performLogin, saveCookies } from "./auth";
 import { closeBrowserSafely } from "./browser-utils";
 import { HH_CONFIG } from "./config";
+import { setupBrowser, setupPage } from "./browser-setup";
 import { parseResumeExperience } from "./resume-parser";
 
 puppeteer.use(StealthPlugin());
@@ -20,62 +21,6 @@ puppeteer.use(StealthPlugin());
 // Configure Crawlee storage to use temp directory
 process.env.CRAWLEE_STORAGE_DIR = os.tmpdir();
 
-async function setupBrowser(): Promise<Browser> {
-  return await puppeteer.launch({
-    headless: HH_CONFIG.puppeteer.headless,
-    args: HH_CONFIG.puppeteer.args,
-    ignoreDefaultArgs: HH_CONFIG.puppeteer.ignoreDefaultArgs,
-    slowMo: HH_CONFIG.puppeteer.slowMo,
-  });
-}
-
-async function setupPage(
-  browser: Browser,
-  savedCookies: Parameters<BrowserContext["setCookie"]> | null,
-): Promise<Page> {
-  const page = await browser.newPage();
-
-  // Скрываем признаки автоматизации
-  await page.evaluateOnNewDocument(() => {
-    Object.defineProperty(navigator, "webdriver", {
-      get: () => false,
-    });
-    Object.defineProperty(navigator, "plugins", {
-      get: () => [1, 2, 3, 4, 5],
-    });
-    Object.defineProperty(navigator, "languages", {
-      get: () => ["ru-RU", "ru", "en-US", "en"],
-    });
-    (window as { chrome?: unknown }).chrome = {
-      runtime: {},
-    };
-    const originalQuery = window.navigator.permissions.query;
-    window.navigator.permissions.query = (parameters: PermissionDescriptor) =>
-      parameters.name === "notifications"
-        ? Promise.resolve({
-            state: Notification.permission,
-          } as PermissionStatus)
-        : originalQuery(parameters);
-  });
-
-  // Restore cookies
-  if (savedCookies && savedCookies.length > 0) {
-    console.log("🍪 Восстанавливаем сохраненные куки...");
-    await page.browserContext().setCookie(...savedCookies);
-  }
-
-  await page.setUserAgent({
-    userAgent: HH_CONFIG.userAgent,
-  });
-
-  await page.setViewport({
-    width: 1920,
-    height: 1080,
-    deviceScaleFactor: 1,
-  });
-
-  return page;
-}
 
 async function checkAndPerformLogin(
   page: Page,

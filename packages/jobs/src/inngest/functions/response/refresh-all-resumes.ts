@@ -13,6 +13,7 @@ import {
 import { HH_CONFIG } from "../../../parsers/hh/config";
 import { parseResumeExperience } from "../../../parsers/hh/resume-parser";
 import { extractTelegramUsername } from "../../../services/messaging";
+import { setupBrowser, setupPage } from "../../../parsers/hh/browser-setup";
 import {
   updateResponseDetails,
   uploadCandidatePhoto,
@@ -26,41 +27,6 @@ puppeteer.use(StealthPlugin());
 // Configure Crawlee storage to use temp directory
 process.env.CRAWLEE_STORAGE_DIR = os.tmpdir();
 
-async function setupBrowser(): Promise<Browser> {
-  return await puppeteer.launch({
-    headless: HH_CONFIG.puppeteer.headless,
-    args: HH_CONFIG.puppeteer.args,
-    ignoreDefaultArgs: HH_CONFIG.puppeteer.ignoreDefaultArgs,
-    slowMo: HH_CONFIG.puppeteer.slowMo,
-  });
-}
-
-async function setupPage(
-  browser: Browser,
-  savedCookies: Parameters<Page["setCookie"]> | null,
-): Promise<Page> {
-  const page = await browser.newPage();
-
-  await page.evaluateOnNewDocument(() => {
-    Object.defineProperty(navigator, "webdriver", {
-      get: () => false,
-    });
-    Object.defineProperty(navigator, "plugins", {
-      get: () => [1, 2, 3, 4, 5],
-    });
-  });
-
-  if (savedCookies) {
-    await page.setCookie(...savedCookies);
-  }
-
-  await page.setViewport({ width: 1366, height: 768 });
-  await page.setUserAgent(
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-  );
-
-  return page;
-}
 
 async function checkAndPerformLogin(
   page: Page,
@@ -186,18 +152,13 @@ export const refreshAllResumesFunction = inngest.createFunction(
 
             const experienceData = await parseResumeExperience(
               page,
-              responseItem.resumeUrl ?? "",
+              responseItem.resumeUrl ?? undefined,
               responseItem.candidateName ?? undefined,
             );
 
-            let telegramUsername: string | null = null;
-            if (experienceData.contacts) {
-              telegramUsername = await extractTelegramUsername(
-                experienceData.contacts,
-              );
-              if (telegramUsername) {
-                console.log(`✅ Найден Telegram username: @${telegramUsername}`);
-              }
+            const telegramUsername = experienceData.telegramUsername;
+            if (telegramUsername) {
+              console.log(`✅ Найден Telegram username: @${telegramUsername}`);
             }
 
             let resumePdfFileId: string | null = null;

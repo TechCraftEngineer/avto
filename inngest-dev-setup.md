@@ -2,7 +2,7 @@
 
 ## Проблема
 При запуске `bun run jobs:inngest` возникала ошибка аутентификации:
-```
+```text
 [Inngest] warn - Couldn't unpack register response: SyntaxError: JSON Parse error: Unexpected identifier "Authentication"
 ```
 
@@ -24,7 +24,7 @@ bun run jobs:inngest:dev
 
 ## Доступные команды
 - `bun run jobs:dev` - только Inngest сервер
-- `bun run jobs:inngest` - только Inngest CLI (с переменными окружения)
+- `bun run jobs:inngest` - только Inngest CLI (требует внешних переменных окружения)
 - `bun run jobs:inngest:dev` - оба сервиса одновременно
 
 ## Переменные окружения

@@ -13,6 +13,7 @@ import {
 } from "../../../parsers/hh/auth";
 import { HH_CONFIG } from "../../../parsers/hh/config";
 import { parseResumeExperience } from "../../../parsers/hh/resume-parser";
+import { setupBrowser, setupPage } from "../../../parsers/hh/browser-setup";
 import { extractTelegramUsername } from "../../../services/messaging";
 import {
   updateResponseDetails,
@@ -26,59 +27,6 @@ puppeteer.use(StealthPlugin());
 // Configure Crawlee storage to use temp directory
 process.env.CRAWLEE_STORAGE_DIR = os.tmpdir();
 
-async function setupBrowser(): Promise<Browser> {
-  return await puppeteer.launch({
-    headless: HH_CONFIG.puppeteer.headless,
-    args: HH_CONFIG.puppeteer.args,
-    ignoreDefaultArgs: HH_CONFIG.puppeteer.ignoreDefaultArgs,
-    slowMo: HH_CONFIG.puppeteer.slowMo,
-  });
-}
-
-async function setupPage(
-  browser: Browser,
-  savedCookies: Parameters<Page["setCookie"]> | null,
-): Promise<Page> {
-  const page = await browser.newPage();
-
-  await page.evaluateOnNewDocument(() => {
-    Object.defineProperty(navigator, "webdriver", {
-      get: () => false,
-    });
-    Object.defineProperty(navigator, "plugins", {
-      get: () => [1, 2, 3, 4, 5],
-    });
-    Object.defineProperty(navigator, "languages", {
-      get: () => ["ru-RU", "ru", "en-US", "en"],
-    });
-    (window as { chrome?: unknown }).chrome = {
-      runtime: {},
-    };
-    const originalQuery = window.navigator.permissions.query;
-    window.navigator.permissions.query = (parameters: PermissionDescriptor) =>
-      parameters.name === "notifications"
-        ? Promise.resolve({
-            state: Notification.permission,
-          } as PermissionStatus)
-        : originalQuery(parameters);
-  });
-
-  if (savedCookies && savedCookies.length > 0) {
-    await page.setCookie(...savedCookies);
-  }
-
-  await page.setUserAgent({
-    userAgent: HH_CONFIG.userAgent,
-  });
-
-  await page.setViewport({
-    width: 1920,
-    height: 1080,
-    deviceScaleFactor: 1,
-  });
-
-  return page;
-}
 
 async function checkAndPerformLogin(
   page: Page,
