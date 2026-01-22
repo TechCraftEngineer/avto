@@ -30,12 +30,9 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import {
-  VacancyRequirements,
-} from "~/components/vacancy";
+import { VacancyRequirements } from "~/components/vacancy";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
-import { AddPublicationDialog } from "./_components/add-publication-dialog";
 
 type VacancyDetail = RouterOutputs["freelancePlatforms"]["getVacancyById"];
 type VacancyPublication = NonNullable<
@@ -191,10 +188,6 @@ ${data.interviewLink.url}
     "AVITO",
     "SUPERJOB",
   ].includes(vacancy.source.toUpperCase());
-  const source = SOURCE_CONFIG[vacancy.source.toUpperCase()] || {
-    label: vacancy.source,
-    color: "bg-gray-500/10 text-gray-600 border-gray-200",
-  };
 
   const totalResponses = Object.values(responseStats).reduce(
     (acc, val) => acc + val,
@@ -207,12 +200,6 @@ ${data.interviewLink.url}
       <div className="lg:col-span-2 space-y-6">
         <div className="flex flex-col gap-4">
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="secondary" className="font-medium gap-1.5">
-              <div
-                className={`size-1.5 rounded-full ${source?.color?.split(" ")[0]?.replace("/10", "") ?? "bg-gray-500"}`}
-              />
-              {source.label}
-            </Badge>
             {vacancy.publications?.map((pub: VacancyPublication) => {
               const pubConfig = SOURCE_CONFIG[pub.platform.toUpperCase()] || {
                 label: pub.platform,
@@ -225,7 +212,7 @@ ${data.interviewLink.url}
                   className="font-medium gap-1.5"
                 >
                   <div
-                    className={`size-1.5 rounded-full ${pubConfig?.color?.split(" ")[0]?.replace("/10", "") ?? "bg-gray-500"}`}
+                    className={`size-1.5 rounded-full ${pub.isActive ? "bg-green-500" : "bg-red-500"}`}
                   />
                   {pubConfig.label}
                 </Badge>
@@ -234,10 +221,6 @@ ${data.interviewLink.url}
             <Badge variant={vacancy.isActive ? "default" : "secondary"}>
               {vacancy.isActive ? "Активна" : "Неактивна"}
             </Badge>
-            <AddPublicationDialog
-              vacancyId={id}
-              workspaceId={workspace?.id ?? ""}
-            />
           </div>
 
           <div className="space-y-2">
@@ -458,7 +441,6 @@ ${data.interviewLink.url}
             )}
           </CardContent>
         </Card>
-
       </div>
     </div>
   );
