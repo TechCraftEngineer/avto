@@ -239,7 +239,26 @@ export const list = protectedProcedure
 
     // Получаем отфильтрованные данные с пагинацией
     // Используем select с LEFT JOIN для сортировки по score полям
-    let responsesRaw;
+    let responsesRaw: Array<{
+      id: string;
+      entityId: string;
+      candidateName: string | null;
+      photoFileId: string | null;
+      status: any;
+      hrSelectionStatus: any;
+      contacts: any;
+      experience: any;
+      profileUrl: string | null;
+      resumeUrl: string | null;
+      telegramUsername: string | null;
+      phone: string | null;
+      coverLetter: string | null;
+      respondedAt: Date | null;
+      welcomeSentAt: Date | null;
+      createdAt: Date;
+      evaluationReasoning: string | null;
+      compositeScoreReasoning: string | null;
+    }>;
     if (
       sortField === "score" ||
       sortField === "detailedScore" ||
@@ -271,7 +290,7 @@ export const list = protectedProcedure
         .from(responseTable)
         .leftJoin(
           responseScreening,
-          eq(responseTable.id, responseScreening.responseId)
+          eq(responseTable.id, responseScreening.responseId),
         )
         .where(whereCondition)
         .orderBy(orderByClause)
@@ -378,7 +397,7 @@ export const list = protectedProcedure
     }
 
     // Формируем ответ с количеством сообщений и санитизацией HTML
-    let responses = responsesRaw.map((r) => {
+    const responses = responsesRaw.map((r) => {
       const screening = screenings.find((s) => s.responseId === r.id);
       const interviewScoring = interviewScorings.find(
         (is) => is.responseId === r.id,
@@ -432,7 +451,6 @@ export const list = protectedProcedure
           : null,
       };
     });
-
 
     // Получаем общее количество для пагинации
     const totalResult = await ctx.db
