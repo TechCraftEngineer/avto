@@ -30,7 +30,15 @@ export const list = protectedProcedure
       page: z.number().min(1).default(1),
       limit: z.number().min(1).max(100).default(50),
       sortField: z
-        .enum(["createdAt", "score", "detailedScore", "status", "respondedAt"])
+        .enum([
+          "createdAt",
+          "score",
+          "detailedScore",
+          "potentialScore",
+          "careerTrajectoryScore",
+          "status",
+          "respondedAt",
+        ])
         .optional()
         .nullable()
         .default(null),
@@ -246,6 +254,13 @@ export const list = protectedProcedure
               score: true,
               detailedScore: true,
               analysis: true,
+              potentialScore: true,
+              careerTrajectoryScore: true,
+              careerTrajectoryType: true,
+              hiddenFitIndicators: true,
+              potentialAnalysis: true,
+              careerTrajectoryAnalysis: true,
+              hiddenFitAnalysis: true,
             },
           })
         : [];
@@ -314,6 +329,19 @@ export const list = protectedProcedure
               analysis: screening.analysis
                 ? sanitizeHtml(screening.analysis)
                 : null,
+              potentialScore: screening.potentialScore,
+              careerTrajectoryScore: screening.careerTrajectoryScore,
+              careerTrajectoryType: screening.careerTrajectoryType,
+              hiddenFitIndicators: screening.hiddenFitIndicators,
+              potentialAnalysis: screening.potentialAnalysis
+                ? sanitizeHtml(screening.potentialAnalysis)
+                : null,
+              careerTrajectoryAnalysis: screening.careerTrajectoryAnalysis
+                ? sanitizeHtml(screening.careerTrajectoryAnalysis)
+                : null,
+              hiddenFitAnalysis: screening.hiddenFitAnalysis
+                ? sanitizeHtml(screening.hiddenFitAnalysis)
+                : null,
             }
           : null,
         interviewScoring: interviewScoring
@@ -340,17 +368,30 @@ export const list = protectedProcedure
       };
     });
 
-    // Сортировка по score/detailedScore в памяти (только для текущей страницы)
-    if (sortField === "score" || sortField === "detailedScore") {
+    // Сортировка по score/detailedScore/potentialScore/careerTrajectoryScore в памяти (только для текущей страницы)
+    if (
+      sortField === "score" ||
+      sortField === "detailedScore" ||
+      sortField === "potentialScore" ||
+      sortField === "careerTrajectoryScore"
+    ) {
       responses = responses.sort((a, b) => {
         const scoreA =
           sortField === "score"
             ? (a.screening?.score ?? -1)
-            : (a.screening?.detailedScore ?? -1);
+            : sortField === "detailedScore"
+              ? (a.screening?.detailedScore ?? -1)
+              : sortField === "potentialScore"
+                ? (a.screening?.potentialScore ?? -1)
+                : (a.screening?.careerTrajectoryScore ?? -1);
         const scoreB =
           sortField === "score"
             ? (b.screening?.score ?? -1)
-            : (b.screening?.detailedScore ?? -1);
+            : sortField === "detailedScore"
+              ? (b.screening?.detailedScore ?? -1)
+              : sortField === "potentialScore"
+                ? (b.screening?.potentialScore ?? -1)
+                : (b.screening?.careerTrajectoryScore ?? -1);
         return sortDirection === "asc" ? scoreA - scoreB : scoreB - scoreA;
       });
     }

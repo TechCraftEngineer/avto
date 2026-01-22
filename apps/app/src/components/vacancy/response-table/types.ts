@@ -1,6 +1,8 @@
 export type SortField =
   | "score"
   | "detailedScore"
+  | "potentialScore"
+  | "careerTrajectoryScore"
   | "status"
   | "createdAt"
   | "respondedAt"

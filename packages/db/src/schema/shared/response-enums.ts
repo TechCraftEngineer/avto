@@ -123,3 +123,25 @@ export const recommendationValues = [
 ] as const;
 
 export type Recommendation = (typeof recommendationValues)[number];
+
+/**
+ * Тип карьерной траектории
+ */
+export const careerTrajectoryTypeEnum = pgEnum("career_trajectory_type", [
+  "growth",
+  "stable",
+  "decline",
+  "jump",
+  "role_change",
+]);
+
+export const careerTrajectoryTypeValues = [
+  "growth",
+  "stable",
+  "decline",
+  "jump",
+  "role_change",
+] as const;
+
+export type CareerTrajectoryType =
+  (typeof careerTrajectoryTypeValues)[number];

@@ -21,6 +21,13 @@ interface ScreeningResult {
   detailedScore: number;
   analysis: string;
   resumeLanguage: string;
+  potentialScore?: number;
+  careerTrajectoryScore?: number;
+  careerTrajectoryType?: "growth" | "stable" | "decline" | "jump" | "role_change";
+  hiddenFitIndicators?: string[];
+  potentialAnalysis?: string;
+  careerTrajectoryAnalysis?: string;
+  hiddenFitAnalysis?: string;
 }
 
 /**
@@ -125,6 +132,13 @@ export async function screenResponse(
           score: result.score,
           detailedScore: result.detailedScore,
           analysis: result.analysis,
+          potentialScore: result.potentialScore ?? null,
+          careerTrajectoryScore: result.careerTrajectoryScore ?? null,
+          careerTrajectoryType: result.careerTrajectoryType ?? null,
+          hiddenFitIndicators: result.hiddenFitIndicators ?? null,
+          potentialAnalysis: result.potentialAnalysis ?? null,
+          careerTrajectoryAnalysis: result.careerTrajectoryAnalysis ?? null,
+          hiddenFitAnalysis: result.hiddenFitAnalysis ?? null,
         })
         .where(eq(responseScreening.responseId, responseId));
     } else {
@@ -133,6 +147,13 @@ export async function screenResponse(
         score: result.score,
         detailedScore: result.detailedScore,
         analysis: result.analysis,
+        potentialScore: result.potentialScore ?? null,
+        careerTrajectoryScore: result.careerTrajectoryScore ?? null,
+        careerTrajectoryType: result.careerTrajectoryType ?? null,
+        hiddenFitIndicators: result.hiddenFitIndicators ?? null,
+        potentialAnalysis: result.potentialAnalysis ?? null,
+        careerTrajectoryAnalysis: result.careerTrajectoryAnalysis ?? null,
+        hiddenFitAnalysis: result.hiddenFitAnalysis ?? null,
       });
     }
 

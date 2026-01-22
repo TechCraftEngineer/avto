@@ -64,6 +64,28 @@ export function ResponseTableHeader({
           </button>
         </TableHead>
         <TableHead className="font-semibold text-foreground">
+          <button
+            type="button"
+            onClick={() => onSort("potentialScore")}
+            className="flex items-center gap-1 hover:text-foreground transition-colors"
+            title="Сортировка по потенциалу"
+          >
+            Потенциал
+            {renderSortIcon("potentialScore")}
+          </button>
+        </TableHead>
+        <TableHead className="font-semibold text-foreground">
+          <button
+            type="button"
+            onClick={() => onSort("careerTrajectoryScore")}
+            className="flex items-center gap-1 hover:text-foreground transition-colors"
+            title="Сортировка по карьерной траектории"
+          >
+            Карьера
+            {renderSortIcon("careerTrajectoryScore")}
+          </button>
+        </TableHead>
+        <TableHead className="font-semibold text-foreground">
           Интервью
         </TableHead>
         <TableHead className="font-semibold text-foreground">

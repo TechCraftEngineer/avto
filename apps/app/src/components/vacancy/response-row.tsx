@@ -19,7 +19,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@qbs-autonaim/ui";
-import { Send, User } from "lucide-react";
+import { Send, User, Sparkles, TrendingUp, UserCheck } from "lucide-react";
 import Link from "next/link";
 import { ResponseActions } from "~/components/response";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
@@ -114,6 +114,65 @@ export function ResponseRow({
                   orgSlug={orgSlug}
                   workspaceSlug={workspaceSlug}
                 />
+              )}
+              {response.screening?.hiddenFitIndicators &&
+                response.screening.hiddenFitIndicators.length > 0 && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Badge
+                          variant="secondary"
+                          className="flex items-center gap-1 text-xs"
+                        >
+                          <UserCheck className="h-3 w-3" />
+                          Скрытый подходящий
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent side="right" className="max-w-xs">
+                        <p className="text-xs font-semibold mb-1">
+                          Скрытые индикаторы соответствия:
+                        </p>
+                        <ul className="list-disc list-inside space-y-1">
+                          {response.screening.hiddenFitIndicators.map(
+                            (indicator, idx) => (
+                              <li key={idx} className="text-xs">
+                                {indicator}
+                              </li>
+                            ),
+                          )}
+                        </ul>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+              {response.screening?.careerTrajectoryType && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Badge
+                        variant="outline"
+                        className="flex items-center gap-1 text-xs"
+                      >
+                        <TrendingUp className="h-3 w-3" />
+                        {response.screening.careerTrajectoryType === "growth" &&
+                          "Рост"}
+                        {response.screening.careerTrajectoryType === "stable" &&
+                          "Стабильность"}
+                        {response.screening.careerTrajectoryType === "decline" &&
+                          "Деградация"}
+                        {response.screening.careerTrajectoryType === "jump" &&
+                          "Скачок"}
+                        {response.screening.careerTrajectoryType ===
+                          "role_change" && "Смена роли"}
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent side="right" className="max-w-xs">
+                      <p className="text-xs">
+                        {response.screening.careerTrajectoryAnalysis || ""}
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               )}
             </div>
           </div>
