@@ -32,11 +32,11 @@ export default async function createNextConfig(): Promise<NextConfig> {
         // Mark Node.js built-ins as external to avoid bundling issues
         config.externals = config.externals || [];
         config.externals.push({
-          'node:stream/consumers': 'node:stream/consumers',
-          'node:stream': 'node:stream',
-          'node:crypto': 'node:crypto',
-          'node:fs': 'node:fs',
-          'node:path': 'node:path',
+          "node:stream/consumers": "node:stream/consumers",
+          "node:stream": "node:stream",
+          "node:crypto": "node:crypto",
+          "node:fs": "node:fs",
+          "node:path": "node:path",
         });
       }
 
