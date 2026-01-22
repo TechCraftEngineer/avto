@@ -94,5 +94,3 @@ export const HR_SELECTION_STATUS_DESCRIPTIONS: Record<
 // Re-export types from shared for backward compatibility
 export type { HrSelectionStatus, ResponseStatus };
 
-// Export vacancy-specific types
-export type { VacancyResponseStatus, VacancyHrSelectionStatus };
