@@ -71,6 +71,13 @@
       "when": 1769084558520,
       "tag": "0009_nosy_spot",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1769089160934,
+      "tag": "0010_slimy_tattoo",
+      "breakpoints": true
     }
   ]
 }
