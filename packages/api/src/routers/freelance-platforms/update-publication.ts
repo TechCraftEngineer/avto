@@ -20,7 +20,7 @@ function parseIdentifier(identifier: string): {
 
     // Для HH.ru извлекаем ID из пути /vacancy/{id}
     if (
-      url.hostname.endsWith("hh.ru") &&
+      (url.hostname === "hh.ru" || url.hostname.endsWith(".hh.ru")) &&
       url.pathname.startsWith("/vacancy/")
     ) {
       const vacancyId = url.pathname.split("/vacancy/")[1];

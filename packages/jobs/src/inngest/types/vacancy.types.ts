@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { workspaceIdSchema } from "@qbs-autonaim/validators";
 
 /**
  * Vacancy-related event schemas
@@ -35,7 +36,7 @@ export const checkPublicationStatusDataSchema = z.object({
 });
 
 export const checkAllPublicationStatusesDataSchema = z.object({
-  workspaceId: z.string().uuid().optional(), // Опционально, если не указан - проверяем все workspace
+  workspaceId: workspaceIdSchema.optional(), // Опционально, если не указан - проверяем все workspace
 });
 
 /**
