@@ -357,6 +357,7 @@ ${historyText}
 
   /**
    * Анализирует риск-факторы кандидата
+   * Улучшенный анализ с более глубокой оценкой рисков
    */
   private analyzeRiskFactors(
     candidate: CandidateData,
@@ -367,7 +368,7 @@ ${historyText}
     if (candidate.hrSelectionStatus === "REJECTED") {
       risks.push({
         type: "previous_rejection",
-        description: "Кандидат был ранее отклонен",
+        description: "Кандидат был ранее отклонен по этой вакансии. Рекомендуется уточнить причины предыдущего отказа.",
         severity: "high",
       });
     }
@@ -375,7 +376,7 @@ ${historyText}
     if (candidate.hrSelectionStatus === "NOT_RECOMMENDED") {
       risks.push({
         type: "not_recommended",
-        description: "Кандидат был ранее не рекомендован",
+        description: "Кандидат был ранее не рекомендован. Стоит пересмотреть решение или уточнить причины.",
         severity: "high",
       });
     }
@@ -388,34 +389,47 @@ ${historyText}
     ) {
       risks.push({
         type: "no_contacts",
-        description: "Отсутствуют контактные данные",
+        description: "Отсутствуют контактные данные. Затрудняет коммуникацию с кандидатом.",
         severity: "medium",
       });
     }
 
-    // Проверяем низкий resumeScore
+    // Проверяем низкий resumeScore с более детальным анализом
     if (candidate.resumeScore < 30) {
       risks.push({
         type: "very_low_resume_score",
-        description: "Очень низкая оценка резюме",
+        description: `Очень низкая оценка резюме (${candidate.resumeScore}/100). Возможны существенные несоответствия требованиям вакансии.`,
         severity: "high",
       });
     } else if (candidate.resumeScore < 50) {
       risks.push({
         type: "low_resume_score",
-        description: "Низкая оценка резюме",
+        description: `Низкая оценка резюме (${candidate.resumeScore}/100). Требуется дополнительная проверка соответствия требованиям.`,
         severity: "medium",
       });
     }
 
-    // Проверяем низкий interviewScore
+    // Проверяем низкий interviewScore с контекстом
     if (
       candidate.interviewScore !== undefined &&
       candidate.interviewScore < 50
     ) {
       risks.push({
         type: "low_interview_score",
-        description: "Низкая оценка интервью",
+        description: `Низкая оценка интервью (${candidate.interviewScore}/100). Возможны проблемы с коммуникацией, навыками или мотивацией.`,
+        severity: "medium",
+      });
+    }
+
+    // Проверяем большой разрыв между resumeScore и interviewScore
+    if (
+      candidate.resumeScore >= 60 &&
+      candidate.interviewScore !== undefined &&
+      candidate.interviewScore < candidate.resumeScore - 20
+    ) {
+      risks.push({
+        type: "score_mismatch",
+        description: "Значительный разрыв между оценкой резюме и интервью. Возможно несоответствие заявленных навыков реальным.",
         severity: "medium",
       });
     }
@@ -424,7 +438,7 @@ ${historyText}
     if (candidate.interviewScore === undefined && candidate.status !== "NEW") {
       risks.push({
         type: "no_interview",
-        description: "Интервью не проведено",
+        description: "Интервью не проведено, хотя кандидат прошёл скрининг. Рекомендуется провести интервью для полной оценки.",
         severity: "low",
       });
     }
@@ -433,8 +447,40 @@ ${historyText}
     if (!candidate.experience || candidate.experience.trim() === "") {
       risks.push({
         type: "no_experience_info",
-        description: "Информация об опыте отсутствует",
+        description: "Информация об опыте отсутствует или недостаточна. Затрудняет оценку соответствия вакансии.",
         severity: "low",
+      });
+    } else {
+      // Анализируем длину описания опыта
+      const experienceLength = candidate.experience.trim().length;
+      if (experienceLength < 50) {
+        risks.push({
+          type: "insufficient_experience_info",
+          description: "Описание опыта слишком краткое. Возможно недостаточный опыт или неполная информация.",
+          severity: "low",
+        });
+      }
+    }
+
+    // Проверяем давность обновления данных кандидата
+    const daysSinceUpdate =
+      (Date.now() - candidate.updatedAt.getTime()) / (1000 * 60 * 60 * 24);
+    if (daysSinceUpdate > 30) {
+      risks.push({
+        type: "stale_data",
+        description: `Данные кандидата не обновлялись более ${Math.round(daysSinceUpdate)} дней. Возможно кандидат уже неактивен или нашёл работу.`,
+        severity: "medium",
+      });
+    }
+
+    // Проверяем давность отклика
+    const daysSinceResponse =
+      (Date.now() - candidate.createdAt.getTime()) / (1000 * 60 * 60 * 24);
+    if (daysSinceResponse > 14) {
+      risks.push({
+        type: "old_response",
+        description: `Отклик поступил ${Math.round(daysSinceResponse)} дней назад. Кандидат мог уже найти работу или потерять интерес.`,
+        severity: "medium",
       });
     }
 
@@ -447,7 +493,7 @@ ${historyText}
         if (salary > 500000) {
           risks.push({
             type: "high_salary_expectations",
-            description: `Высокие зарплатные ожидания: ${candidate.salaryExpectations}`,
+            description: `Высокие зарплатные ожидания (${candidate.salaryExpectations}). Возможно несоответствие бюджету вакансии.`,
             severity: "medium",
           });
         }

@@ -1,7 +1,7 @@
 "use client";
 
-import { Separator } from "@qbs-autonaim/ui";
 import type { RouterOutputs } from "@qbs-autonaim/api";
+import { Separator } from "@qbs-autonaim/ui";
 import { formatCurrency } from "../constants";
 
 type GigResponseDetail = NonNullable<RouterOutputs["gig"]["responses"]["get"]>;

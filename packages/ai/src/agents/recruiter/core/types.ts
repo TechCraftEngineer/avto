@@ -13,6 +13,8 @@ export type RecruiterIntent =
   | "GENERATE_CONTENT"
   | "COMMUNICATE"
   | "CONFIGURE_RULES"
+  | "GET_PRIORITY"
+  | "GET_INTERVIEW_QUESTIONS"
   | "GENERAL_QUESTION";
 
 /**
@@ -145,6 +147,7 @@ export interface CandidateResult {
   fitScore: number;
   resumeScore: number;
   interviewScore?: number;
+  priorityScore?: number; // Приоритетный score для просмотра
   whySelected: string;
   availability: {
     status: "immediate" | "2_weeks" | "1_month" | "unknown";
@@ -165,6 +168,28 @@ export interface CandidateResult {
     phone?: string;
     email?: string;
   };
+}
+
+/**
+ * Результат приоритизации кандидатов
+ */
+export interface PriorityResult {
+  responseId: string;
+  priorityScore: number; // 0-100
+  explanation: string;
+  reasons: string[];
+}
+
+/**
+ * Результат генерации вопросов для интервью
+ */
+export interface InterviewQuestionsResult {
+  questions: Array<{
+    question: string;
+    purpose: "risk_clarification" | "skill_verification" | "culture_fit" | "experience_deepening";
+    relatedRisk?: string | null;
+  }>;
+  explanation: string;
 }
 
 /**
@@ -234,6 +259,8 @@ export interface RecruiterOrchestratorOutput {
   recommendations?: Recommendation[];
   candidates?: CandidateResult[];
   analytics?: VacancyAnalytics;
+  priorityResults?: PriorityResult[];
+  interviewQuestions?: InterviewQuestionsResult;
   agentTrace: AgentTraceEntry[];
 }
 

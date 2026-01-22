@@ -2,13 +2,16 @@
 
 import { Card } from "@qbs-autonaim/ui";
 import { useParams } from "next/navigation";
+import { RecruiterAgentChat } from "~/components/recruiter-agent/chat";
 import { ResponseTable } from "~/components/vacancy";
+import { useWorkspace } from "~/hooks/use-workspace";
 
 export default function VacancyResponsesPage() {
   const { slug: workspaceSlug, id } = useParams<{
     slug: string;
     id: string;
   }>();
+  const { workspace } = useWorkspace();
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -29,12 +32,29 @@ export default function VacancyResponsesPage() {
         </div>
       </div>
 
-      <Card className="border-none shadow-xl bg-card/60 backdrop-blur-xl overflow-hidden relative group">
-        <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-transparent opacity-50 group-hover:opacity-100 transition-opacity pointer-events-none" />
-        <div className="p-1 sm:p-6 relative">
-          <ResponseTable vacancyId={id} workspaceSlug={workspaceSlug} />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <Card className="border-none shadow-xl bg-card/60 backdrop-blur-xl overflow-hidden relative group">
+            <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-transparent opacity-50 group-hover:opacity-100 transition-opacity pointer-events-none" />
+            <div className="p-1 sm:p-6 relative">
+              <ResponseTable vacancyId={id} workspaceSlug={workspaceSlug} />
+            </div>
+          </Card>
         </div>
-      </Card>
+
+        <div className="lg:col-span-1">
+          <Card className="border-none shadow-xl bg-card/60 backdrop-blur-xl overflow-hidden h-full">
+            <div className="h-[600px]">
+              <RecruiterAgentChat
+                vacancyId={id}
+                title="AI-ассистент"
+                subtitle="Помогает с приоритетами, вопросами и рисками"
+                placeholder="Кого посмотреть первым? Какие вопросы задать?"
+              />
+            </div>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }

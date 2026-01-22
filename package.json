@@ -18,6 +18,8 @@
     "dev:app": "turbo watch dev -F @qbs-autonaim/app...",
     "dev:all": "concurrently \"bun run tg:dev\" \"bun run jobs:dev\"",
     "jobs:dev": "bun --filter @qbs-autonaim/jobs dev",
+    "jobs:inngest": "bun --filter @qbs-autonaim/jobs inngest",
+    "jobs:inngest:dev": "npx cross-env INNGEST_SIGNING_KEY=dev-key INNGEST_EVENT_KEY=dev-event-key concurrently \"bun run jobs:dev\" \"npx --ignore-scripts=false inngest-cli@latest dev -u http://localhost:8000/api/inngest\"",
     "tg": "bun --filter @qbs-autonaim/tg-client start",
     "tg:dev": "bun --filter @qbs-autonaim/tg-client start:dev",
     "format": "biome format .",
