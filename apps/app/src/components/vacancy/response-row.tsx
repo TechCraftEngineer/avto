@@ -201,6 +201,18 @@ export function ResponseRow({
         )}
       </TableCell>
       <TableCell>
+        {response.screening?.careerTrajectoryScore ? (
+          <div className="flex items-center gap-1">
+            <span className="text-sm font-medium">
+              {response.screening.careerTrajectoryScore}
+            </span>
+            <span className="text-xs text-muted-foreground">/10</span>
+          </div>
+        ) : (
+          <span className="text-muted-foreground text-xs">—</span>
+        )}
+      </TableCell>
+      <TableCell>
         {response.interviewScoring ? (
           <ScreeningHoverCard screening={response.interviewScoring} />
         ) : (
