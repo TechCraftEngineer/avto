@@ -1,5 +1,4 @@
 import type { SQL } from "@qbs-autonaim/db";
-import type { ResponseStatus, HrSelectionStatus } from "@qbs-autonaim/db/schema/shared/response-enums";
 import {
   and,
   asc,
@@ -17,6 +16,10 @@ import {
   response as responseTable,
   vacancy,
 } from "@qbs-autonaim/db/schema";
+import type {
+  HrSelectionStatus,
+  ResponseStatus,
+} from "@qbs-autonaim/db/schema/shared/response-enums";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";

@@ -130,7 +130,7 @@ export const retryBulkImport = protectedProcedure
                 parsed.contactInfo.platformProfile || crypto.randomUUID(),
               candidateName: parsed.freelancerName,
               coverLetter: parsed.responseText,
-              importSource: "MANUAL",
+              importSource: input.platformSource,
               profileUrl: parsed.contactInfo.platformProfile,
               phone: parsed.contactInfo.phone,
               telegramUsername: parsed.contactInfo.telegram,
