@@ -2,6 +2,7 @@ import os from "node:os";
 import { db, getIntegrationCredentials } from "@qbs-autonaim/db";
 import { Log } from "crawlee";
 import puppeteer from "puppeteer-extra";
+import type { Page, Cookie } from "puppeteer";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import { extractTelegramUsername } from "../../services/messaging";
 import {
@@ -82,7 +83,7 @@ export async function runEnricher(workspaceId: string) {
   const browser = await setupBrowser();
 
   try {
-    const page = await setupPage(browser, savedCookies as CookieData[]);
+    const page = await setupPage(browser, savedCookies);
 
     // Проверяем авторизацию
     await checkAndPerformLogin(page, email, password, workspaceId);

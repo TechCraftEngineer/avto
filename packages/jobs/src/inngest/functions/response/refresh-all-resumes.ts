@@ -2,7 +2,9 @@ import os from "node:os";
 import { eq, getIntegrationCredentials } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { response } from "@qbs-autonaim/db/schema";
+import { Log } from "crawlee";
 import puppeteer from "puppeteer-extra";
+import type { Page } from "puppeteer";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import {
   loadCookies,
@@ -30,14 +32,16 @@ async function checkAndPerformLogin(
   email: string,
   password: string,
   workspaceId: string,
-): Promise<void> {
-  const isLoggedIn = await performLogin(page, email, password, workspaceId);
-
-  if (isLoggedIn) {
+): Promise<boolean> {
+  try {
+    const log = new Log();
+    await performLogin(page, log, email, password, workspaceId);
     const cookies = await page.cookies();
-    await saveCookies("hh", workspaceId, cookies);
-  } else {
-    throw new Error("Не удалось войти в аккаунт HH.ru");
+    await saveCookies("hh", cookies, workspaceId);
+    return true;
+  } catch (error) {
+    console.error("Login failed:", error);
+    return false;
   }
 }
 
@@ -140,8 +144,8 @@ export const refreshAllResumesFunction = inngest.createFunction(
 
             await checkAndPerformLogin(
               page,
-              credentials.email,
-              credentials.password,
+              credentials.email!,
+              credentials.password!,
               responsesData.vacancy.workspaceId,
             );
 
@@ -149,8 +153,8 @@ export const refreshAllResumesFunction = inngest.createFunction(
 
             const experienceData = await parseResumeExperience(
               page,
-              responseItem.resumeUrl ?? undefined,
-              responseItem.candidateName ?? undefined,
+              responseItem.resumeUrl ?? "",
+              responseItem.candidateName ?? "",
             );
 
             const telegramUsername = experienceData.telegramUsername;
@@ -187,12 +191,17 @@ export const refreshAllResumesFunction = inngest.createFunction(
             }
 
             // Обновляем данные отклика
-            await updateResponseDetails(responseItem.id, {
+            await updateResponseDetails({
+              vacancyId: responseItem.entityId,
+              resumeId: responseItem.resumeId ?? "",
+              resumeUrl: responseItem.resumeUrl ?? "",
+              candidateName: responseItem.candidateName ?? "",
               experience: experienceData.experience,
+              contacts: experienceData.contacts,
+              phone: experienceData.phone,
               telegramUsername,
               resumePdfFileId,
               photoFileId,
-              lastResumeUpdate: new Date(),
             });
 
             console.log(`✅ Резюме обновлено для кандидата: ${responseItem.candidateName}`);

@@ -1,3 +1,4 @@
+import { db, getIntegrationCredentials } from "@qbs-autonaim/db";
 import {
   ensureAuthenticated,
   navigateWithAuth,
@@ -17,12 +18,16 @@ export async function refreshVacancyResponses(
 ): Promise<{ newCount: number }> {
   console.log(`🔄 Refreshing responses for vacancy ${vacancyId}...`);
 
-  // Setup authenticated browser with universal function
-  const { browser, page, credentials } = await setupAuthenticatedBrowser({
-    workspaceId,
-  });
+  // Get credentials
+  const credentials = await getIntegrationCredentials(db, "hh", workspaceId);
+  if (!credentials?.email || !credentials?.password) {
+    throw new Error("HH credentials не найдены в интеграциях");
+  }
 
   const { email, password } = credentials;
+
+  // Setup authenticated browser with universal function
+  const { browser, page } = await setupAuthenticatedBrowser(workspaceId, email, password);
 
   try {
     // Navigate to login page and check authentication

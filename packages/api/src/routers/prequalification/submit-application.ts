@@ -11,10 +11,12 @@ import {
   response as responseTable,
   vacancy,
 } from "@qbs-autonaim/db/schema";
+import { CandidateRepository } from "@qbs-autonaim/db";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { z } from "zod";
+import { CandidateService } from "../../services/candidate.service";
 import { SessionManager } from "../../services/prequalification";
 import { PrequalificationError } from "../../services/prequalification/types";
 import { publicProcedure } from "../../trpc";
@@ -91,6 +93,19 @@ export const submitApplication = publicProcedure
         );
       }
 
+      // Get workspace to obtain organizationId
+      const workspaceData = await ctx.db.query.workspace.findFirst({
+        where: (ws, { eq }) => eq(ws.id, vacancyData.workspaceId),
+        columns: { organizationId: true },
+      });
+
+      if (!workspaceData) {
+        throw new PrequalificationError(
+          "TENANT_MISMATCH",
+          "Workspace не найден",
+        );
+      }
+
       // Extract candidate info from parsed resume
       const candidateInfo = session.parsedResume?.structured?.personalInfo;
       const evaluation = session.evaluation as {
@@ -119,6 +134,64 @@ export const submitApplication = publicProcedure
           }
         : null;
 
+      // Create or find candidate in database
+      let globalCandidateId: string | null = null;
+      try {
+        const candidateRepository = new CandidateRepository(ctx.db);
+        const candidateService = new CandidateService();
+
+        // Create temporary response object for data extraction
+        const tempResponse: Partial<typeof responseTable.$inferSelect> = {
+          candidateName: candidateInfo?.name ?? null,
+          email: candidateInfo?.email ?? null,
+          phone: candidateInfo?.phone ?? null,
+          telegramUsername: null,
+          profileUrl: null,
+          experience: null,
+          skills: null,
+          importSource: "WEB_LINK",
+          profileData: null,
+          contacts: {
+            email: candidateInfo?.email,
+            phone: candidateInfo?.phone,
+            prequalificationSessionId: session.id,
+            fitScore: session.fitScore,
+            fitDecision: session.fitDecision,
+            aiSummary: evaluation?.aiSummary,
+            strengths: evaluation?.strengths,
+            risks: evaluation?.risks,
+            recommendation: evaluation?.recommendation,
+            contactPreferences: input.contactPreferences,
+          },
+        };
+
+        const candidateData = candidateService.extractCandidateDataFromResponse(
+          tempResponse as typeof responseTable.$inferSelect,
+          workspaceData.organizationId,
+        );
+
+        // Enrich with parsed resume data
+        const enrichedData = session.parsedResume
+          ? candidateService.enrichCandidateFromResume(
+              candidateData,
+              session.parsedResume,
+            )
+          : candidateData;
+
+        const normalizedData = candidateService.normalizeCandidateData(
+          enrichedData,
+        );
+
+        const candidate = await candidateRepository.findOrCreateCandidate(
+          normalizedData,
+        );
+
+        globalCandidateId = candidate.id;
+      } catch (error) {
+        // Log error but don't block response creation
+        console.error("Ошибка при создании/поиске кандидата:", error);
+      }
+
       // Create vacancy response
       // Note: response schema requires candidateId and entityType/entityId
       // For prequalification, we use the session ID as reference
@@ -133,6 +206,7 @@ export const submitApplication = publicProcedure
           coverLetter: input.coverLetter ?? null,
           status: "NEW",
           importSource: "WEB_LINK", // Using existing enum value for web submissions
+          globalCandidateId,
           // Store prequalification metadata in contacts field
           contacts: {
             email: candidateInfo?.email,

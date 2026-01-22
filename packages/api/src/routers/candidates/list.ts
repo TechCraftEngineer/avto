@@ -1,5 +1,6 @@
 import { and, desc, eq, ilike, inArray, lt, or } from "@qbs-autonaim/db";
 import {
+  candidate as candidateTable,
   file as fileTable,
   interviewMessage as interviewMessageTable,
   interviewScoring as interviewScoringTable,
@@ -243,6 +244,34 @@ export const list = protectedProcedure
           })
         : [];
 
+    // Получаем информацию о глобальных кандидатах для всех откликов
+    const globalCandidateIds = responses
+      .map((r) => r.globalCandidateId)
+      .filter((id): id is string => id !== null);
+
+    const globalCandidates =
+      globalCandidateIds.length > 0
+        ? await ctx.db.query.candidate.findMany({
+            where: inArray(candidateTable.id, globalCandidateIds),
+            columns: {
+              id: true,
+              fullName: true,
+              email: true,
+              phone: true,
+              telegramUsername: true,
+              location: true,
+              headline: true,
+              skills: true,
+              experienceYears: true,
+              salaryExpectationsAmount: true,
+            },
+          })
+        : [];
+
+    const globalCandidatesMap = new Map(
+      globalCandidates.map((c) => [c.id, c]),
+    );
+
     const items = responses.map((r) => {
       const vacancyData = vacancies.find((v) => v.id === r.entityId);
       const stage = mapResponseToStage(r.status, r.hrSelectionStatus);
@@ -274,13 +303,18 @@ export const list = protectedProcedure
       const avatarFileId = photoFile?.id ?? null;
       const messageCount = r.id ? (messageCounts.get(r.id) ?? 0) : 0;
 
+      // Получаем информацию о глобальном кандидате, если он связан
+      const globalCandidate = r.globalCandidateId
+        ? globalCandidatesMap.get(r.globalCandidateId)
+        : null;
+
       return {
         id: r.id,
-        name: r.candidateName || "Без имени",
+        name: r.candidateName || globalCandidate?.fullName || "Без имени",
         position: vacancyData?.title || "Неизвестная должность",
         avatarFileId: avatarFileId,
         initials:
-          r.candidateName
+          (r.candidateName || globalCandidate?.fullName)
             ?.split(" ")
             .filter((n: string) => n.length > 0)
             .map((n: string) => n[0])
@@ -288,18 +322,22 @@ export const list = protectedProcedure
             .toUpperCase()
             .slice(0, 2) || "??",
         experience: r.experience || "Не указан",
-        location: "Не указано",
+        location: globalCandidate?.location || "Не указано",
         matchScore,
         stage,
         status: r.status,
         hrSelectionStatus: r.hrSelectionStatus,
         vacancyId: r.entityId,
         vacancyName: vacancyData?.title || "Неизвестная вакансия",
-        salaryExpectation: "Не указано",
-        email: email,
-        phone: r.phone,
-        telegram: telegram,
+        salaryExpectation:
+          r.salaryExpectationsAmount ||
+          globalCandidate?.salaryExpectationsAmount ||
+          "Не указано",
+        email: email || globalCandidate?.email || null,
+        phone: r.phone || globalCandidate?.phone || null,
+        telegram: telegram || globalCandidate?.telegramUsername || null,
         messageCount,
+        globalCandidateId: r.globalCandidateId,
         createdAt: r.createdAt,
         updatedAt: r.updatedAt,
       };

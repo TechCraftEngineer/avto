@@ -1,10 +1,12 @@
 import { and, eq } from "@qbs-autonaim/db";
+import { CandidateRepository } from "@qbs-autonaim/db";
 import {
   freelanceImportHistory,
   response as responseTable,
 } from "@qbs-autonaim/db/schema";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { CandidateService } from "../../services/candidate.service";
 import { protectedProcedure } from "../../trpc";
 
 const importSingleResponseInputSchema = z.object({
@@ -74,6 +76,19 @@ export const importSingleResponse = protectedProcedure
       });
     }
 
+    // Get workspace to obtain organizationId
+    const workspaceData = await ctx.db.query.workspace.findFirst({
+      where: (ws, { eq }) => eq(ws.id, existingVacancy.workspaceId),
+      columns: { organizationId: true },
+    });
+
+    if (!workspaceData) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Workspace не найден",
+      });
+    }
+
     // Проверка дубликатов по platformProfileUrl + vacancyId
     if (input.contactInfo?.platformProfileUrl) {
       const existingResponse = await ctx.db.query.response.findFirst({
@@ -92,6 +107,53 @@ export const importSingleResponse = protectedProcedure
       }
     }
 
+    // Create or find candidate in database
+    let globalCandidateId: string | null = null;
+    try {
+      const candidateRepository = new CandidateRepository(ctx.db);
+      const candidateService = new CandidateService();
+
+      // Create temporary response object for data extraction
+      const tempResponse: Partial<typeof responseTable.$inferSelect> = {
+        candidateName: input.freelancerName ?? null,
+        email: input.contactInfo?.email ?? null,
+        phone: input.contactInfo?.phone ?? null,
+        telegramUsername: input.contactInfo?.telegram ?? null,
+        profileUrl: input.contactInfo?.platformProfileUrl ?? null,
+        platformProfileUrl: input.contactInfo?.platformProfileUrl ?? null,
+        experience: null,
+        skills: null,
+        importSource: input.platformSource,
+        profileData: null,
+        contacts: input.contactInfo
+          ? {
+              email: input.contactInfo.email,
+              phone: input.contactInfo.phone,
+              telegram: input.contactInfo.telegram,
+              platformProfileUrl: input.contactInfo.platformProfileUrl,
+            }
+          : null,
+      };
+
+      const candidateData = candidateService.extractCandidateDataFromResponse(
+        tempResponse as typeof responseTable.$inferSelect,
+        workspaceData.organizationId,
+      );
+
+      const normalizedData = candidateService.normalizeCandidateData(
+        candidateData,
+      );
+
+      const candidate = await candidateRepository.findOrCreateCandidate(
+        normalizedData,
+      );
+
+      globalCandidateId = candidate.id;
+    } catch (error) {
+      // Log error but don't block response creation
+      console.error("Ошибка при создании/поиске кандидата:", error);
+    }
+
     // Создаём запись отклика
     const [createdResponse] = await ctx.db
       .insert(responseTable)
@@ -104,8 +166,10 @@ export const importSingleResponse = protectedProcedure
         coverLetter: input.responseText,
         importSource: input.platformSource,
         profileUrl: input.contactInfo?.platformProfileUrl,
+        platformProfileUrl: input.contactInfo?.platformProfileUrl,
         phone: input.contactInfo?.phone,
         telegramUsername: input.contactInfo?.telegram,
+        globalCandidateId,
         contacts: input.contactInfo
           ? {
               email: input.contactInfo.email,

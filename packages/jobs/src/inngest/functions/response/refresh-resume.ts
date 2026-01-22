@@ -4,6 +4,7 @@ import { db } from "@qbs-autonaim/db/client";
 import { response } from "@qbs-autonaim/db/schema";
 import { Log } from "crawlee";
 import puppeteer from "puppeteer-extra";
+import type { Page } from "puppeteer";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import {
   loadCookies,
@@ -32,24 +33,30 @@ async function checkAndPerformLogin(
   email: string,
   password: string,
   workspaceId: string,
-) {
-  await page.goto(HH_CONFIG.urls.login, {
-    waitUntil: "domcontentloaded",
-    timeout: HH_CONFIG.timeouts.navigation,
-  });
+): Promise<boolean> {
+  try {
+    await page.goto(HH_CONFIG.urls.login, {
+      waitUntil: "domcontentloaded",
+      timeout: HH_CONFIG.timeouts.navigation,
+    });
 
-  await page.waitForNetworkIdle({
-    timeout: HH_CONFIG.timeouts.networkIdle,
-  });
+    await page.waitForNetworkIdle({
+      timeout: HH_CONFIG.timeouts.networkIdle,
+    });
 
-  const loginInput = await page.$('input[type="text"][name="username"]');
-  if (loginInput) {
-    const log = new Log();
-    await performLogin(page, log, email, password, workspaceId);
+    const loginInput = await page.$('input[type="text"][name="username"]');
+    if (loginInput) {
+      const log = new Log();
+      await performLogin(page, log, email, password, workspaceId);
+    }
+
+    const cookies = await page.cookies();
+    await saveCookies("hh", cookies, workspaceId);
+    return true;
+  } catch (error) {
+    console.error("Login failed:", error);
+    return false;
   }
-
-  const cookies = await page.cookies();
-  await saveCookies("hh", cookies, workspaceId);
 }
 
 /**

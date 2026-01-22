@@ -21,13 +21,13 @@ interface ScreeningResult {
   detailedScore: number;
   analysis: string;
   resumeLanguage: string;
-  potentialScore?: number;
-  careerTrajectoryScore?: number;
-  careerTrajectoryType?: "growth" | "stable" | "decline" | "jump" | "role_change";
-  hiddenFitIndicators?: string[];
-  potentialAnalysis?: string;
-  careerTrajectoryAnalysis?: string;
-  hiddenFitAnalysis?: string;
+  potentialScore?: number | null;
+  careerTrajectoryScore?: number | null;
+  careerTrajectoryType?: "growth" | "stable" | "decline" | "jump" | "role_change" | null;
+  hiddenFitIndicators?: string[] | null;
+  potentialAnalysis?: string | null;
+  careerTrajectoryAnalysis?: string | null;
+  hiddenFitAnalysis?: string | null;
 }
 
 /**

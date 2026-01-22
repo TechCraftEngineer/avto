@@ -1,5 +1,6 @@
 import { and, eq } from "@qbs-autonaim/db";
 import {
+  candidate as candidateTable,
   file as fileTable,
   interviewMessage as interviewMessageTable,
   interviewScoring as interviewScoringTable,
@@ -159,6 +160,29 @@ export const getById = protectedProcedure
       resumePdfUrl = await getDownloadUrl(resumePdfFile.key);
     }
 
+    // Получаем информацию о глобальном кандидате, если он связан
+    let globalCandidate = null;
+    if (response.globalCandidateId) {
+      globalCandidate = await ctx.db.query.candidate.findFirst({
+        where: eq(candidateTable.id, response.globalCandidateId),
+        columns: {
+          id: true,
+          fullName: true,
+          email: true,
+          phone: true,
+          telegramUsername: true,
+          location: true,
+          headline: true,
+          skills: true,
+          experienceYears: true,
+          salaryExpectationsAmount: true,
+          resumeUrl: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+    }
+
     return {
       id: response.id,
       name: response.candidateName || "Без имени",
@@ -173,25 +197,46 @@ export const getById = protectedProcedure
           .toUpperCase()
           .slice(0, 2) || "??",
       experience: response.experience || "Не указан",
-      location: "Не указано",
+      location: globalCandidate?.location || "Не указано",
       matchScore,
       resumeScore,
       interviewScore,
       scoreAnalysis: interviewScoring?.analysis ?? undefined,
       screeningAnalysis: screening?.analysis ?? undefined,
       availability: "Не указано",
-      salaryExpectation: response.salaryExpectationsAmount || "Не указано",
+      salaryExpectation:
+        response.salaryExpectationsAmount ||
+        globalCandidate?.salaryExpectationsAmount ||
+        "Не указано",
       stage,
       status: response.status,
       hrSelectionStatus: response.hrSelectionStatus,
       vacancyId: response.entityId,
       vacancyName: vacancyData.title || "Неизвестная вакансия",
-      email: email,
-      phone: contactPhone,
+      email: email || globalCandidate?.email || null,
+      phone: contactPhone || globalCandidate?.phone || null,
       github: github,
-      telegram: telegram,
+      telegram: telegram || globalCandidate?.telegramUsername || null,
       resumePdfUrl,
       messageCount: messageCount,
+      globalCandidateId: response.globalCandidateId,
+      globalCandidate: globalCandidate
+        ? {
+            id: globalCandidate.id,
+            fullName: globalCandidate.fullName,
+            email: globalCandidate.email,
+            phone: globalCandidate.phone,
+            telegramUsername: globalCandidate.telegramUsername,
+            location: globalCandidate.location,
+            headline: globalCandidate.headline,
+            skills: globalCandidate.skills,
+            experienceYears: globalCandidate.experienceYears,
+            salaryExpectationsAmount: globalCandidate.salaryExpectationsAmount,
+            resumeUrl: globalCandidate.resumeUrl,
+            createdAt: globalCandidate.createdAt,
+            updatedAt: globalCandidate.updatedAt,
+          }
+        : null,
       createdAt: response.createdAt,
       updatedAt: response.updatedAt,
     };

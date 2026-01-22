@@ -1,4 +1,5 @@
-﻿import { and, eq, sql } from "@qbs-autonaim/db";
+import { and, eq, sql } from "@qbs-autonaim/db";
+import { CandidateRepository } from "@qbs-autonaim/db";
 import {
   gig,
   importSourceValues,
@@ -8,6 +9,7 @@ import {
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { CandidateService } from "../../../services/candidate.service";
 import { protectedProcedure } from "../../../trpc";
 
 const createResponseSchema = z.object({
@@ -61,6 +63,19 @@ export const create = protectedProcedure
       });
     }
 
+    // Получаем organizationId из workspace
+    const workspaceData = await ctx.db.query.workspace.findFirst({
+      where: (ws, { eq }) => eq(ws.id, input.workspaceId),
+      columns: { organizationId: true },
+    });
+
+    if (!workspaceData) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Workspace не найден",
+      });
+    }
+
     // Проверяем дубликат
     const existingResponse = await ctx.db.query.response.findFirst({
       where: and(
@@ -75,6 +90,51 @@ export const create = protectedProcedure
         code: "CONFLICT",
         message: "Отклик от этого кандидата уже существует",
       });
+    }
+
+    // Создаем или находим кандидата в базе
+    let globalCandidateId: string | null = null;
+    try {
+      const candidateRepository = new CandidateRepository(ctx.db);
+      const candidateService = new CandidateService();
+
+      // Создаем временный объект response для извлечения данных
+      const tempResponse: Partial<Response> = {
+        candidateName: input.candidateName ?? null,
+        email: input.email ?? null,
+        phone: input.phone ?? null,
+        telegramUsername: input.telegramUsername ?? null,
+        profileUrl: input.profileUrl ?? null,
+        experience: input.experience ?? null,
+        skills: input.skills ?? null,
+        importSource: input.importSource,
+        profileData: null,
+        contacts: input.email || input.phone || input.telegramUsername
+          ? {
+              email: input.email,
+              phone: input.phone,
+              telegram: input.telegramUsername,
+            }
+          : null,
+      };
+
+      const candidateData = candidateService.extractCandidateDataFromResponse(
+        tempResponse as Response,
+        workspaceData.organizationId,
+      );
+
+      const normalizedData = candidateService.normalizeCandidateData(
+        candidateData,
+      );
+
+      const candidate = await candidateRepository.findOrCreateCandidate(
+        normalizedData,
+      );
+
+      globalCandidateId = candidate.id;
+    } catch (error) {
+      // Логируем ошибку, но не блокируем создание отклика
+      console.error("Ошибка при создании/поиске кандидата:", error);
     }
 
     let newResponse: Response | undefined;
@@ -99,6 +159,7 @@ export const create = protectedProcedure
           rating: input.rating,
           resumeLanguage: input.resumeLanguage,
           importSource: input.importSource,
+          globalCandidateId,
           respondedAt: new Date(),
         })
         .returning();

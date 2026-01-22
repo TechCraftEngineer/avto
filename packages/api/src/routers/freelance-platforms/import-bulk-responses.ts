@@ -1,9 +1,11 @@
 import { and, eq } from "@qbs-autonaim/db";
+import { CandidateRepository } from "@qbs-autonaim/db";
 import {
   freelanceImportHistory,
   response as responseTable,
 } from "@qbs-autonaim/db/schema";
 import { z } from "zod";
+import { CandidateService } from "../../services/candidate.service";
 import { ResponseParser } from "../../services/response-parser";
 import { protectedProcedure } from "../../trpc";
 import { createErrorHandler } from "../../utils/error-handler";
@@ -67,6 +69,18 @@ export const importBulkResponses = protectedProcedure
         });
       }
 
+      // Get workspace to obtain organizationId
+      const workspaceData = await ctx.db.query.workspace.findFirst({
+        where: (ws, { eq }) => eq(ws.id, existingVacancy.workspaceId),
+        columns: { organizationId: true },
+      });
+
+      if (!workspaceData) {
+        throw await errorHandler.handleNotFoundError("Workspace", {
+          workspaceId: existingVacancy.workspaceId,
+        });
+      }
+
       // Парсим текст
       const parser = new ResponseParser();
       const parsedResponses = parser.parseBulk(input.rawText);
@@ -84,6 +98,10 @@ export const importBulkResponses = protectedProcedure
       const results: ImportResult[] = [];
       let successCount = 0;
       let failureCount = 0;
+
+      // Инициализируем сервисы для работы с кандидатами
+      const candidateRepository = new CandidateRepository(ctx.db);
+      const candidateService = new CandidateService();
 
       // Обрабатываем каждый распарсенный отклик
       for (const parsed of parsedResponses) {
@@ -135,6 +153,49 @@ export const importBulkResponses = protectedProcedure
             continue;
           }
 
+          // Create or find candidate in database
+          let globalCandidateId: string | null = null;
+          try {
+            // Create temporary response object for data extraction
+            const tempResponse: Partial<typeof responseTable.$inferSelect> = {
+              candidateName: parsed.freelancerName ?? null,
+              email: parsed.contactInfo.email ?? null,
+              phone: parsed.contactInfo.phone ?? null,
+              telegramUsername: parsed.contactInfo.telegram ?? null,
+              profileUrl: parsed.contactInfo.platformProfile ?? null,
+              platformProfileUrl: parsed.contactInfo.platformProfile ?? null,
+              experience: null,
+              skills: null,
+              importSource: input.platformSource,
+              profileData: null,
+              contacts: {
+                email: parsed.contactInfo.email,
+                phone: parsed.contactInfo.phone,
+                telegram: parsed.contactInfo.telegram,
+                platformProfileUrl: parsed.contactInfo.platformProfile,
+              },
+            };
+
+            const candidateData =
+              candidateService.extractCandidateDataFromResponse(
+                tempResponse as typeof responseTable.$inferSelect,
+                workspaceData.organizationId,
+              );
+
+            const normalizedData = candidateService.normalizeCandidateData(
+              candidateData,
+            );
+
+            const candidate = await candidateRepository.findOrCreateCandidate(
+              normalizedData,
+            );
+
+            globalCandidateId = candidate.id;
+          } catch (error) {
+            // Log error but don't block response creation
+            console.error("Ошибка при создании/поиске кандидата:", error);
+          }
+
           // Создаём запись отклика
           // platformProfile гарантированно существует после валидации выше
           const [createdResponse] = await ctx.db
@@ -147,8 +208,10 @@ export const importBulkResponses = protectedProcedure
               coverLetter: parsed.responseText,
               importSource: input.platformSource,
               profileUrl: parsed.contactInfo.platformProfile,
+              platformProfileUrl: parsed.contactInfo.platformProfile,
               phone: parsed.contactInfo.phone,
               telegramUsername: parsed.contactInfo.telegram,
+              globalCandidateId,
               contacts: {
                 email: parsed.contactInfo.email,
                 phone: parsed.contactInfo.phone,

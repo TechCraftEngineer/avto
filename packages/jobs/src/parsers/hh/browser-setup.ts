@@ -1,5 +1,6 @@
 import puppeteer, { type Browser, type Page } from "puppeteer";
-import { HH_CONFIG } from "../config";
+import { HH_CONFIG } from "./config";
+import { loadCookies, saveCookies, checkAndPerformLogin } from "./auth";
 
 /**
  * Launches a Puppeteer browser with HH-specific configuration
@@ -71,10 +72,9 @@ export async function setupPage(
  */
 export async function setupAuthenticatedBrowser(
   workspaceId: string,
-): Promise<{ browser: Browser; page: Page; isLoggedIn: boolean }> {
-  const { loadCookies, saveCookies } = await import("./auth");
-  const { checkAndPerformLogin } = await import("./login-checker");
-
+  email: string,
+  password: string,
+): Promise<{ browser: Browser; page: Page; credentials: { email: string; password: string } }> {
   const savedCookies = await loadCookies("hh", workspaceId);
   const browser = await setupBrowser();
 
@@ -82,17 +82,63 @@ export async function setupAuthenticatedBrowser(
     const page = await setupPage(browser, savedCookies as Parameters<Page["setCookie"]> | null);
 
     // Check login status and perform login if needed
-    const isLoggedIn = await checkAndPerformLogin(page, workspaceId);
+    await checkAndPerformLogin(page, email, password, workspaceId);
 
-    if (isLoggedIn) {
-      // Save updated cookies after successful login
-      const cookies = await page.cookies();
-      await saveCookies("hh", cookies, workspaceId);
-    }
+    // Save cookies after login check/attempt
+    const cookies = await page.cookies();
+    await saveCookies("hh", cookies, workspaceId);
 
-    return { browser, page, isLoggedIn };
+    return { browser, page, credentials: { email, password } };
   } catch (error) {
     await browser.close();
     throw error;
   }
+}
+
+/**
+ * Ensures the user is authenticated on the current page
+ */
+export async function ensureAuthenticated(
+  page: Page,
+  email: string,
+  password: string,
+  workspaceId: string,
+): Promise<void> {
+  // Check if we're on the login page
+  const currentUrl = page.url();
+  const isOnLoginPage = currentUrl.includes('/account/login') ||
+                       currentUrl.includes('/login');
+
+  if (isOnLoginPage) {
+    await checkAndPerformLogin(page, email, password, workspaceId);
+  } else {
+    // Check if we need to login by looking for login elements
+    const loginInput = await page.$('input[type="text"][name="username"]');
+    if (loginInput) {
+      await checkAndPerformLogin(page, email, password, workspaceId);
+    }
+  }
+}
+
+/**
+ * Navigates to a URL while ensuring authentication
+ */
+export async function navigateWithAuth(
+  page: Page,
+  url: string,
+  email: string,
+  password: string,
+  workspaceId: string,
+): Promise<void> {
+  await page.goto(url, {
+    waitUntil: "domcontentloaded",
+    timeout: HH_CONFIG.timeouts.navigation,
+  });
+
+  await page.waitForNetworkIdle({
+    timeout: HH_CONFIG.timeouts.networkIdle,
+  });
+
+  // Ensure we're authenticated
+  await ensureAuthenticated(page, email, password, workspaceId);
 }
