@@ -194,8 +194,32 @@ export function ResponseRow({
         </Badge>
       </TableCell>
       <TableCell>
+        {response.priorityScore ? (
+          <div className="flex items-center gap-1">
+            <span className="text-sm font-medium">
+              {response.priorityScore}
+            </span>
+            <span className="text-xs text-muted-foreground">/10</span>
+          </div>
+        ) : (
+          <span className="text-muted-foreground text-xs">—</span>
+        )}
+      </TableCell>
+      <TableCell>
         {response.screening ? (
           <ScreeningHoverCard screening={response.screening} />
+        ) : (
+          <span className="text-muted-foreground text-xs">—</span>
+        )}
+      </TableCell>
+      <TableCell>
+        {response.potentialScore ? (
+          <div className="flex items-center gap-1">
+            <span className="text-sm font-medium">
+              {response.potentialScore}
+            </span>
+            <span className="text-xs text-muted-foreground">/10</span>
+          </div>
         ) : (
           <span className="text-muted-foreground text-xs">—</span>
         )}
@@ -229,7 +253,7 @@ export function ResponseRow({
         )}
       </TableCell>
       <TableCell>
-        <div className="flex items-center min-w-30">
+        <div className="flex items-center min-w-32">
           <ContactInfo contacts={response.contacts} size="sm" />
         </div>
       </TableCell>

@@ -550,7 +550,9 @@ export class RankingOrchestrator {
       }
 
       // Tiebreaker: раньше созданный = лучше (Requirement 8.3)
-      return a.candidate.createdAt.getTime() - b.candidate.createdAt.getTime();
+      const dateA = typeof a.candidate.createdAt === "string" ? new Date(a.candidate.createdAt) : a.candidate.createdAt;
+      const dateB = typeof b.candidate.createdAt === "string" ? new Date(b.candidate.createdAt) : b.candidate.createdAt;
+      return dateA.getTime() - dateB.getTime();
     });
 
     // Присваиваем позиции

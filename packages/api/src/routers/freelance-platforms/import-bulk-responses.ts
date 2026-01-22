@@ -145,7 +145,7 @@ export const importBulkResponses = protectedProcedure
               candidateId: parsed.contactInfo.platformProfile,
               candidateName: parsed.freelancerName,
               coverLetter: parsed.responseText,
-              importSource: "MANUAL",
+              importSource: input.platformSource,
               profileUrl: parsed.contactInfo.platformProfile,
               phone: parsed.contactInfo.phone,
               telegramUsername: parsed.contactInfo.telegram,

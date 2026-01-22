@@ -102,7 +102,7 @@ export const importSingleResponse = protectedProcedure
           input.contactInfo?.platformProfileUrl || crypto.randomUUID(),
         candidateName: input.freelancerName,
         coverLetter: input.responseText,
-        importSource: "MANUAL",
+        importSource: input.platformSource,
         profileUrl: input.contactInfo?.platformProfileUrl,
         phone: input.contactInfo?.phone,
         telegramUsername: input.contactInfo?.telegram,

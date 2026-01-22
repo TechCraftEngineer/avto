@@ -31,8 +31,8 @@
     "@qbs-autonaim/config": "workspace:*",
     "@qbs-autonaim/tsconfig": "workspace:*",
     "@radix-ui/colors": "3.0.0",
-    "@react-email/components": "1.0.4",
-    "@react-email/render": "2.0.1",
+    "@react-email/components": "1.0.6",
+    "@react-email/render": "2.0.4",
     "@tailwindcss/typography": "0.5.19",
     "nodemailer": "^7.0.12",
     "react": "19.2.3",
@@ -50,7 +50,7 @@
     "@types/nodemailer": "^7.0.5",
     "@types/react": "19.2.9",
     "@types/react-dom": "19.2.3",
-    "tsdown": "0.20.0-beta.3",
+    "tsdown": "0.20.0",
     "typescript": "5.9.3"
   }
 }
