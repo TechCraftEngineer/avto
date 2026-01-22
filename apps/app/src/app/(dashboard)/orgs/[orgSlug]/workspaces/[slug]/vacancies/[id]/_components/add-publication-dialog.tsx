@@ -98,8 +98,7 @@ export function AddPublicationDialog({
       vacancyId,
       workspaceId,
       platform: values.platform,
-      externalId: values.externalId || undefined,
-      url: values.url || undefined,
+      identifier: values.externalId || values.url || undefined,
     });
   }
 

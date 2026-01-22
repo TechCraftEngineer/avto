@@ -31,6 +31,7 @@ import {
 } from "@qbs-autonaim/ui";
 import {
   IconCheck,
+  IconClock,
   IconExternalLink,
   IconPlus,
   IconRefresh,
@@ -42,36 +43,6 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useTRPC } from "~/trpc/react";
-
-// Функция для парсинга идентификатора из URL или ID
-function parseIdentifier(identifier: string): {
-  externalId: string | undefined;
-  url: string | undefined;
-} {
-  if (!identifier.trim()) {
-    return { externalId: undefined, url: undefined };
-  }
-
-  // Проверяем, является ли строка URL
-  try {
-    const url = new URL(identifier);
-
-    // Для HH.ru извлекаем ID из пути /vacancy/{id}
-    if (url.hostname === "hh.ru" && url.pathname.startsWith("/vacancy/")) {
-      const vacancyId = url.pathname.split("/vacancy/")[1];
-      if (vacancyId?.match(/^\d+$/)) {
-        return { externalId: vacancyId, url: identifier };
-      }
-    }
-
-    // Для других платформ можно добавить аналогичную логику
-    // Пока возвращаем как URL без ID
-    return { externalId: undefined, url: identifier };
-  } catch {
-    // Если это не URL, считаем что это ID
-    return { externalId: identifier, url: undefined };
-  }
-}
 
 const SOURCE_CONFIG: Record<string, { label: string; color: string }> = {
   HH: {
@@ -109,6 +80,7 @@ interface Publication {
   url: string | null;
   isActive: boolean;
   lastSyncedAt: Date | null;
+  lastCheckedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -229,26 +201,38 @@ export function VacancyIntegrationManager({
     }),
   );
 
+  // Мутация для массовой проверки статусов публикаций
+  const checkAllStatusesMutation = useMutation(
+    api.freelancePlatforms.checkAllPublicationStatuses.mutationOptions({
+      onSuccess: (result: { success: boolean; message: string }) => {
+        toast.success(result.message);
+      },
+      onError: (error: unknown) => {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Не удалось запустить проверку статусов";
+        toast.error(message);
+      },
+    }),
+  );
+
   const handleAddPublication = (values: AddPublicationValues) => {
-    const parsed = parseIdentifier(values.identifier || "");
     addPublicationMutation.mutate({
       vacancyId,
       workspaceId,
       platform: values.platform,
-      externalId: parsed.externalId,
-      url: parsed.url,
+      identifier: values.identifier,
     });
   };
 
   const handleUpdatePublication = (values: UpdatePublicationValues) => {
     if (!editingPublication) return;
 
-    const parsed = parseIdentifier(values.identifier || "");
     updatePublicationMutation.mutate({
       workspaceId,
       publicationId: editingPublication.id,
-      externalId: parsed.externalId,
-      url: parsed.url,
+      identifier: values.identifier || "",
     });
   };
 
@@ -257,6 +241,10 @@ export function VacancyIntegrationManager({
       workspaceId,
       publicationId,
     });
+  };
+
+  const handleCheckAllPublicationStatuses = () => {
+    checkAllStatusesMutation.mutate({ workspaceId });
   };
 
   const handleEditPublication = (publication: Publication) => {
@@ -308,17 +296,18 @@ export function VacancyIntegrationManager({
               автоматического сбора откликов
             </CardDescription>
           </div>
-          {availablePlatforms.length > 0 && (
-            <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
-              <DialogTrigger asChild>
-                <Button
-                  size="sm"
-                  className="shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <IconPlus className="mr-2 size-4" />
-                  Добавить интеграцию
-                </Button>
-              </DialogTrigger>
+          <div className="flex items-center gap-3">
+            {availablePlatforms.length > 0 && (
+              <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button
+                    size="sm"
+                    className="shadow-sm hover:shadow-md transition-shadow"
+                  >
+                    <IconPlus className="mr-2 size-4" />
+                    Добавить интеграцию
+                  </Button>
+                </DialogTrigger>
               <DialogContent className="sm:max-w-[480px] shadow-lg border-border/50">
                 <DialogHeader className="space-y-3">
                   <DialogTitle className="text-lg font-semibold">
@@ -417,6 +406,22 @@ export function VacancyIntegrationManager({
               </DialogContent>
             </Dialog>
           )}
+            {publications.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCheckAllPublicationStatuses}
+                disabled={checkAllStatusesMutation.isPending}
+                className="shadow-sm hover:shadow-md transition-shadow"
+              >
+                {checkAllStatusesMutation.isPending && (
+                  <span className="mr-2 inline-block size-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite]" />
+                )}
+                <IconRefresh className="mr-2 size-4" />
+                Проверить все статусы
+              </Button>
+            )}
+          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -462,24 +467,24 @@ export function VacancyIntegrationManager({
                   className="shadow-sm border-border/50 hover:shadow-md transition-shadow"
                 >
                   <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <div className="flex items-center gap-4 min-w-0 flex-1">
+                        <div className="flex items-center gap-3 shrink-0">
                           <div
                             className={`size-3 rounded-full ${config.color.split(" ")[0]} shadow-sm`}
                           />
-                          <div>
-                            <div className="font-medium text-sm">
+                          <div className="min-w-0">
+                            <div className="font-medium text-sm truncate">
                               {config.label}
                             </div>
-                            <div className="text-xs text-muted-foreground mt-0.5">
+                            <div className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1 flex-wrap">
                               {publication.externalId && (
                                 <span className="font-mono">
                                   ID: {publication.externalId}
                                 </span>
                               )}
                               {publication.externalId && publication.url && (
-                                <span className="mx-2 text-muted-foreground/50">
+                                <span className="text-muted-foreground/50">
                                   •
                                 </span>
                               )}
@@ -498,7 +503,7 @@ export function VacancyIntegrationManager({
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
                         <div
                           className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${
                             publication.isActive
@@ -511,8 +516,26 @@ export function VacancyIntegrationManager({
                           ) : (
                             <IconX className="size-3" />
                           )}
-                          {publication.isActive ? "Активна" : "Неактивна"}
+                          <span className="hidden sm:inline">
+                            {publication.isActive ? "Активна" : "Неактивна"}
+                          </span>
+                          <span className="sm:hidden">
+                            {publication.isActive ? "Акт." : "Неакт."}
+                          </span>
                         </div>
+                        {publication.lastCheckedAt && (
+                          <div className="text-xs text-muted-foreground flex items-center gap-1">
+                            <IconClock className="size-3" />
+                            <span>
+                              Проверено: {new Date(publication.lastCheckedAt).toLocaleString('ru-RU', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </span>
+                          </div>
+                        )}
                         <div className="flex items-center gap-1">
                           <Button
                             variant="ghost"
@@ -521,7 +544,7 @@ export function VacancyIntegrationManager({
                               handleValidatePublication(publication.id)
                             }
                             disabled={validatePublicationMutation.isPending}
-                            className="size-8 p-0 hover:bg-muted"
+                            className="size-8 p-0 hover:bg-muted shrink-0"
                             aria-label="Проверить интеграцию"
                           >
                             <IconRefresh className="size-3.5" />
@@ -530,10 +553,11 @@ export function VacancyIntegrationManager({
                             variant="ghost"
                             size="sm"
                             onClick={() => handleEditPublication(publication)}
-                            className="size-8 p-0 hover:bg-muted"
+                            className="px-3 py-1 h-8 hover:bg-muted shrink-0"
                             aria-label="Изменить интеграцию"
                           >
-                            Изменить
+                            <span className="hidden sm:inline">Изменить</span>
+                            <span className="sm:hidden">✏️</span>
                           </Button>
                         </div>
                       </div>

@@ -1,0 +1,1 @@
+ALTER TABLE "vacancy_publications" ADD COLUMN "last_checked_at" timestamp with time zone;

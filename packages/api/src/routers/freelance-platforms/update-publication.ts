@@ -1,8 +1,8 @@
+import { vacancyPublication } from "@qbs-autonaim/db/schema";
+import { workspaceIdSchema } from "@qbs-autonaim/validators";
+import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { vacancyPublication } from "@qbs-autonaim/db/schema";
-import { TRPCError } from "@trpc/server";
 import { protectedProcedure } from "../../trpc";
 
 // Функция для парсинга идентификатора из URL или ID
@@ -19,7 +19,10 @@ function parseIdentifier(identifier: string): {
     const url = new URL(identifier);
 
     // Для HH.ru извлекаем ID из пути /vacancy/{id}
-    if (url.hostname === "hh.ru" && url.pathname.startsWith("/vacancy/")) {
+    if (
+      url.hostname.endsWith("hh.ru") &&
+      url.pathname.startsWith("/vacancy/")
+    ) {
       const vacancyId = url.pathname.split("/vacancy/")[1];
       if (vacancyId?.match(/^\d+$/)) {
         return { externalId: vacancyId, url: identifier };

@@ -30,6 +30,14 @@ export const syncArchivedVacancyResponsesDataSchema = z.object({
   workspaceId: z.string().min(1, "Workspace ID is required"),
 });
 
+export const checkPublicationStatusDataSchema = z.object({
+  publicationId: z.string().uuid("Publication ID is required"),
+});
+
+export const checkAllPublicationStatusesDataSchema = z.object({
+  workspaceId: z.string().uuid().optional(), // Опционально, если не указан - проверяем все workspace
+});
+
 /**
  * Type inference
  */
@@ -48,4 +56,10 @@ export type VacancyResponsesRefreshPayload = z.infer<
 export type CollectChatIdsPayload = z.infer<typeof collectChatIdsDataSchema>;
 export type SyncArchivedVacancyResponsesPayload = z.infer<
   typeof syncArchivedVacancyResponsesDataSchema
+>;
+export type CheckPublicationStatusPayload = z.infer<
+  typeof checkPublicationStatusDataSchema
+>;
+export type CheckAllPublicationStatusesPayload = z.infer<
+  typeof checkAllPublicationStatusesDataSchema
 >;

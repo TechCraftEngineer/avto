@@ -57,6 +57,13 @@
       "when": 1768841508074,
       "tag": "0007_slippery_wolf_cub",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1769056215205,
+      "tag": "0008_ancient_marvel_zombies",
+      "breakpoints": true
     }
   ]
 }
