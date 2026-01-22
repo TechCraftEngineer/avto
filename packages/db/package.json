@@ -34,7 +34,7 @@
     "set-admin": "bun with-env bun src/scripts/set-admin-role.ts",
     "setup": "bun with-env bun src/scripts/setup-uuid-v7.ts",
     "seed": "bun with-env bun src/seed/preset-domains.ts",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "npx tsc --noEmit",
     "with-env": "bun run --env-file ../../.env"
   },
   "dependencies": {

@@ -2,6 +2,7 @@
 
 import { Card } from "@qbs-autonaim/ui";
 import { useParams } from "next/navigation";
+import { useState } from "react";
 import { RecruiterAgentChat } from "~/components/recruiter-agent/chat";
 import { ResponseTable } from "~/components/vacancy";
 
@@ -10,6 +11,7 @@ export default function VacancyResponsesPage() {
     slug: string;
     id: string;
   }>();
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -30,28 +32,54 @@ export default function VacancyResponsesPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <Card className="border-none shadow-xl bg-card/60 backdrop-blur-xl overflow-hidden relative group">
-            <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-transparent opacity-50 group-hover:opacity-100 transition-opacity pointer-events-none" />
-            <div className="p-1 sm:p-6 relative">
-              <ResponseTable vacancyId={id} workspaceSlug={workspaceSlug} />
-            </div>
-          </Card>
+      <Card className="border-none shadow-xl bg-card/60 backdrop-blur-xl overflow-hidden relative group">
+        <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-transparent opacity-50 group-hover:opacity-100 transition-opacity pointer-events-none" />
+        <div className="p-1 sm:p-6 relative">
+          <ResponseTable vacancyId={id} workspaceSlug={workspaceSlug} />
         </div>
+      </Card>
 
-        <div className="lg:col-span-1">
-          <Card className="border-none shadow-xl bg-card/60 backdrop-blur-xl overflow-hidden h-full">
-            <div className="h-[600px]">
+      {/* Floating Chat */}
+      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
+        {isChatOpen ? (
+          <Card className="border-none shadow-2xl bg-card/95 backdrop-blur-xl overflow-hidden w-[calc(100vw-2rem)] sm:w-80 h-[calc(100vh-8rem)] sm:h-96 animate-in slide-in-from-bottom-4 duration-300">
+            <div className="flex items-center justify-between p-3 border-b">
+              <div>
+                <h3 className="font-semibold text-sm">AI-ассистент</h3>
+                <p className="text-xs text-muted-foreground">Помогает с приоритетами и вопросами</p>
+              </div>
+              <button
+                onClick={() => setIsChatOpen(false)}
+                className="p-1 hover:bg-muted rounded-md transition-colors"
+                aria-label="Свернуть чат"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="h-[calc(100%-4rem)] sm:h-80">
               <RecruiterAgentChat
                 vacancyId={id}
-                title="AI-ассистент"
-                subtitle="Помогает с приоритетами, вопросами и рисками"
+                title=""
+                subtitle=""
                 placeholder="Кого посмотреть первым? Какие вопросы задать?"
               />
             </div>
           </Card>
-        </div>
+        ) : (
+          <button
+            onClick={() => setIsChatOpen(true)}
+            className="group relative p-3 bg-primary text-primary-foreground rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
+            aria-label="Открыть AI-ассистент"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+            <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse" />
+            <div className="absolute inset-0 rounded-full bg-primary/20 scale-0 group-hover:scale-150 transition-transform duration-300" />
+          </button>
+        )}
       </div>
     </div>
   );

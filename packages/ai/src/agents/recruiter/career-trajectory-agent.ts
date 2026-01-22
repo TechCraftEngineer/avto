@@ -6,10 +6,10 @@ import { z } from "zod";
 import { type AgentConfig, BaseAgent } from "../../core/base-agent";
 import { AgentType } from "../../core/types";
 import { CAREER_TRAJECTORY_AGENT_SYSTEM_PROMPT } from "./ranking/prompts";
-
 /**
  * Структурированный опыт работы
  */
+
 const workExperienceSchema = z.object({
   company: z.string(),
   position: z.string(),
