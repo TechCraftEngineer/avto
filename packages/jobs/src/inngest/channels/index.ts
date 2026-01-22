@@ -3,6 +3,7 @@
  */
 
 export {
+  checkPublicationStatusChannel,
   conversationMessagesChannel,
   parseMissingContactsChannel,
   parseNewResumesChannel,

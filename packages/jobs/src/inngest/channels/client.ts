@@ -183,3 +183,19 @@ export const chatSessionMessagesChannel = channel(
     }),
   ),
 );
+
+/**
+ * Канал для отслеживания прогресса проверки статуса публикации
+ */
+export const checkPublicationStatusChannel = channel(
+  (publicationId: string) => `check-publication-status:${publicationId}`,
+).addTopic(
+  topic("status").schema(
+    z.object({
+      status: z.enum(["started", "processing", "completed", "error"]),
+      message: z.string(),
+      publicationId: z.string(),
+      isActive: z.boolean().optional(),
+    }),
+  ),
+);

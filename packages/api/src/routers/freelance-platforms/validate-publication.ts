@@ -103,6 +103,7 @@ export const validatePublication = protectedProcedure
       .update(vacancyPublication)
       .set({
         isActive: isValid,
+        lastCheckedAt: new Date(),
         updatedAt: new Date(),
       })
       .where(eq(vacancyPublication.id, input.publicationId));

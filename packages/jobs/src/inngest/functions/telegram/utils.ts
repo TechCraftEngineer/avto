@@ -9,7 +9,7 @@ import {
 import {
   type BufferedTempMessageData,
   tempMessageBufferService,
-} from "~/services/buffer/temp-message-buffer-service";
+} from "@qbs-autonaim/jobs/services/buffer";
 import { getTempMessageHistory } from "./handlers/unidentified/temp-message-storage";
 import type { BotSettings } from "./types";
 

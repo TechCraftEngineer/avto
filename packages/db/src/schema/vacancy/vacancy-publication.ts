@@ -47,6 +47,12 @@ export const vacancyPublication = pgTable(
       mode: "date",
     }),
 
+    // Когда последний раз проверяли статус публикации на платформе
+    lastCheckedAt: timestamp("last_checked_at", {
+      withTimezone: true,
+      mode: "date",
+    }),
+
     createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
       .defaultNow()
       .notNull(),

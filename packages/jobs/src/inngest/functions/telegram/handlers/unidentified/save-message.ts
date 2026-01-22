@@ -1,7 +1,7 @@
 import { db } from "@qbs-autonaim/db/client";
 import { interviewMessage } from "@qbs-autonaim/db/schema";
 import { removeNullBytes } from "@qbs-autonaim/lib";
-import { tempMessageBufferService } from "~/services/buffer/temp-message-buffer-service";
+import { tempMessageBufferService } from "@qbs-autonaim/jobs/services/buffer";
 import { findDuplicateMessage } from "../../utils";
 
 export async function saveUnidentifiedMessage(params: {

@@ -9,7 +9,7 @@ import { eq } from "drizzle-orm";
 import {
   type BufferedTempMessageData,
   tempMessageBufferService,
-} from "~/services/buffer/temp-message-buffer-service";
+} from "@qbs-autonaim/jobs/services/buffer";
 
 /**
  * Сохраняет временное сообщение для неидентифицированного пользователя

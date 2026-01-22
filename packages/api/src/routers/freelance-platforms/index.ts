@@ -33,6 +33,7 @@ import { syncArchivedVacancyResponses } from "./sync-archived-vacancy-responses"
 import { updateVacancyStatus } from "./update-vacancy-status";
 import { validateInterviewToken } from "./validate-interview-token";
 import { addPublication } from "./add-publication";
+import { checkAllPublicationStatuses } from "./check-all-publication-statuses";
 import { getVacancyIntegrations } from "./get-vacancy-integrations";
 import { updatePublication } from "./update-publication";
 import { validatePublication } from "./validate-publication";
@@ -44,6 +45,7 @@ export const freelancePlatformsRouter = {
   addPublication,
   updatePublication,
   validatePublication,
+  checkAllPublicationStatuses,
   getVacancyIntegrations,
   getVacancyByToken,
   getDashboardStats,
