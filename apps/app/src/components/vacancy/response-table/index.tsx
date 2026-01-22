@@ -223,7 +223,7 @@ export function ResponseTable({
         onScreeningDialogClose={handleScreeningDialogClose}
       />
 
-      <div className="rounded-md border bg-transparent">
+      <div className="rounded-md border bg-muted/40">
         {selectedIds.size > 0 && (
           <BulkActionsBar
             selectedCount={selectedIds.size}
@@ -249,7 +249,7 @@ export function ResponseTable({
         </div>
 
         {total > 0 && (
-          <div className="flex items-center justify-between border-t px-4 py-4">
+          <div className="flex items-center justify-between border-t border-border/50 bg-background/30 backdrop-blur-sm px-4 py-4">
             <div className="flex-1 text-sm text-muted-foreground whitespace-nowrap">
               {selectedIds.size} из {total}{" "}
               {getPluralForm(total, "отклика", "откликов", "откликов")} выбрано
