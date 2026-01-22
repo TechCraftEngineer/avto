@@ -72,6 +72,7 @@ import {
   collectChatIdsFunction,
   extractVacancyRequirementsFunction,
   refreshVacancyResponsesFunction,
+  syncArchivedVacancyResponsesFunction,
   updateSingleVacancyFunction,
   updateVacanciesFunction,
 } from "./vacancy";
@@ -85,6 +86,7 @@ export const inngestFunctions: InngestFunction.Any[] = [
   collectChatIdsFunction,
   extractVacancyRequirementsFunction,
   refreshVacancyResponsesFunction,
+  syncArchivedVacancyResponsesFunction,
   updateSingleVacancyFunction,
   updateVacanciesFunction,
   // Response

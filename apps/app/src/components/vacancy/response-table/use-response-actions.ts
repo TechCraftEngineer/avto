@@ -7,6 +7,7 @@ import {
   triggerScreenNewResponses,
   triggerScreenResponsesBatch,
   triggerSendWelcomeBatch,
+  triggerSyncArchivedVacancyResponses,
 } from "~/actions/trigger";
 import { useTRPC } from "~/trpc/react";
 
@@ -20,6 +21,7 @@ export function useResponseActions(
   const [isProcessingNew, setIsProcessingNew] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isSendingWelcome, setIsSendingWelcome] = useState(false);
+  const [isSyncingArchived, setIsSyncingArchived] = useState(false);
 
   const trpc = useTRPC();
   const queryClient = useQueryClient();
@@ -96,6 +98,34 @@ export function useResponseActions(
     }
   }, [vacancyId]);
 
+  const handleSyncArchived = useCallback(
+    async (workspaceId: string) => {
+      setIsSyncingArchived(true);
+
+      try {
+        const result = await triggerSyncArchivedVacancyResponses(
+          vacancyId,
+          workspaceId,
+        );
+
+        if (!result.success) {
+          console.error("Не удалось запустить синхронизацию архивных:", result.error);
+          toast.error("Не удалось запустить синхронизацию архивных откликов");
+          return;
+        }
+
+        toast.success("Синхронизация архивных откликов запущена");
+
+        // Не сбрасываем isSyncingArchived сразу - это будет сделано после закрытия диалога
+      } catch (error) {
+        console.error("Ошибка запуска синхронизации архивных:", error);
+        toast.error("Произошла ошибка");
+        setIsSyncingArchived(false);
+      }
+    },
+    [vacancyId],
+  );
+
   const handleScreeningDialogClose = useCallback(() => {
     setIsProcessingNew(false);
     // Обновляем список откликов после закрытия диалога
@@ -169,9 +199,11 @@ export function useResponseActions(
     isProcessingNew,
     isRefreshing,
     isSendingWelcome,
+    isSyncingArchived,
     handleBulkScreen,
     handleScreenAll,
     handleScreenNew,
+    handleSyncArchived,
     handleScreeningDialogClose,
     handleRefreshResponses,
     handleRefreshComplete,

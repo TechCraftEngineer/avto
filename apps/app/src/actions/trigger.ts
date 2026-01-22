@@ -129,6 +129,28 @@ export async function triggerRefreshVacancyResponses(vacancyId: string) {
   }
 }
 
+export async function triggerSyncArchivedVacancyResponses(
+  vacancyId: string,
+  workspaceId: string,
+) {
+  try {
+    await inngest.send({
+      name: "vacancy/responses.sync-archived",
+      data: {
+        vacancyId,
+        workspaceId,
+      },
+    });
+    return { success: true as const };
+  } catch (error) {
+    console.error("Не удалось запустить синхронизацию архивных откликов:", error);
+    return {
+      success: false as const,
+      error: "Не удалось запустить синхронизацию архивных откликов",
+    };
+  }
+}
+
 export async function triggerSendWelcomeBatch(responseIds: string[]) {
   try {
     if (responseIds.length === 0) {

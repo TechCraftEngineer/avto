@@ -129,6 +129,9 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
             status: "completed",
             message: `Синхронизация завершена. Обработано: ${syncedResponses}, новых: ${newResponses}`,
             vacancyId,
+            syncedResponses,
+            newResponses,
+            vacancyTitle: vacancyData.title,
           }),
         );
 
@@ -161,16 +164,16 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
     });
 
     // Запускаем сбор chat_id после получения откликов
-    await step.run("trigger-chat-ids-collection", async () => {
-      console.log(`🔄 Запускаем сбор chat_id для вакансии ${vacancyId}`);
-      await inngest.send({
-        name: "vacancy/chat-ids.collect",
-        data: { vacancyId },
-      });
-      console.log(
-        `✅ Событие сбора chat_id отправлено для вакансии ${vacancyId}`,
-      );
-    });
+    // await step.run("trigger-chat-ids-collection", async () => {
+    //   console.log(`🔄 Запускаем сбор chat_id для вакансии ${vacancyId}`);
+    //   await inngest.send({
+    //     name: "vacancy/chat-ids.collect",
+    //     data: { vacancyId },
+    //   });
+    //   console.log(
+    //     `✅ Событие сбора chat_id отправлено для вакансии ${vacancyId}`,
+    //   );
+    // });
 
     return result;
   },

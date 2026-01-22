@@ -91,6 +91,9 @@ export const syncArchivedResponsesChannel = channel(
       status: z.enum(["started", "processing", "completed", "error"]),
       message: z.string(),
       vacancyId: z.string(),
+      syncedResponses: z.number().optional(),
+      newResponses: z.number().optional(),
+      vacancyTitle: z.string().optional(),
     }),
   ),
 );
