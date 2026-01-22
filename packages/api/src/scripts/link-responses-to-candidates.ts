@@ -41,6 +41,97 @@ async function linkResponsesToCandidates(
   try {
     const candidateRepository = new CandidateRepository(db);
     const candidateService = new CandidateService();
+    const processResponse = async (
+      responseItem: typeof responseTable.$inferSelect,
+    ) => {
+      try {
+        // Получаем вакансию для получения workspaceId
+        const vacancyData = await db.query.vacancy.findFirst({
+          where: eq(vacancy.id, responseItem.entityId),
+          columns: { workspaceId: true },
+        });
+
+        if (!vacancyData) {
+          stats.errors.push({
+            responseId: responseItem.id,
+            error: "Вакансия не найдена",
+          });
+          return;
+        }
+
+        // Получаем workspace для получения organizationId
+        const workspaceData = await db.query.workspace.findFirst({
+          where: eq(workspace.id, vacancyData.workspaceId),
+          columns: { organizationId: true },
+        });
+
+        if (!workspaceData) {
+          stats.errors.push({
+            responseId: responseItem.id,
+            error: "Workspace не найден",
+          });
+          return;
+        }
+
+        // Извлекаем данные кандидата из отклика
+        const candidateData =
+          candidateService.extractCandidateDataFromResponse(
+            responseItem,
+            workspaceData.organizationId,
+          );
+
+        const normalizedData = candidateService.normalizeCandidateData(
+          candidateData,
+        );
+
+        if (options.dryRun) {
+          // Для dry-run используем только поиск, без записи в БД
+          const existingCandidate =
+            await candidateRepository.findCandidateByContacts({
+              organizationId: workspaceData.organizationId,
+              email: normalizedData.email ?? null,
+              phone: normalizedData.phone ?? null,
+            });
+
+          if (existingCandidate) {
+            stats.candidatesFound++;
+          } else {
+            stats.candidatesCreated++;
+          }
+
+          stats.responsesLinked++;
+          return;
+        }
+
+        const { candidate, created } =
+          await candidateRepository.findOrCreateCandidate(normalizedData);
+
+        if (created) {
+          stats.candidatesCreated++;
+        } else {
+          stats.candidatesFound++;
+        }
+
+        // Обновляем отклик с globalCandidateId
+        await db
+          .update(responseTable)
+          .set({ globalCandidateId: candidate.id })
+          .where(eq(responseTable.id, responseItem.id));
+
+        stats.responsesLinked++;
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : "Неизвестная ошибка";
+        stats.errors.push({
+          responseId: responseItem.id,
+          error: errorMessage,
+        });
+        console.error(
+          `❌ Ошибка при обработке отклика ${responseItem.id}:`,
+          errorMessage,
+        );
+      }
+    };
 
     // Если указан workspaceId, фильтруем по вакансиям этого workspace
     if (workspaceId && !options.all) {
@@ -73,87 +164,7 @@ async function linkResponsesToCandidates(
 
       // Обрабатываем каждый отклик
       for (const response of responses) {
-        try {
-          // Получаем вакансию для получения workspaceId
-          const vacancyData = await db.query.vacancy.findFirst({
-            where: eq(vacancy.id, response.entityId),
-            columns: { workspaceId: true },
-          });
-
-          if (!vacancyData) {
-            stats.errors.push({
-              responseId: response.id,
-              error: "Вакансия не найдена",
-            });
-            continue;
-          }
-
-          // Получаем workspace для получения organizationId
-          const workspaceData = await db.query.workspace.findFirst({
-            where: eq(workspace.id, vacancyData.workspaceId),
-            columns: { organizationId: true },
-          });
-
-          if (!workspaceData) {
-            stats.errors.push({
-              responseId: response.id,
-              error: "Workspace не найден",
-            });
-            continue;
-          }
-
-          // Извлекаем данные кандидата из отклика
-          const candidateData =
-            candidateService.extractCandidateDataFromResponse(
-              response,
-              workspaceData.organizationId,
-            );
-
-          const normalizedData = candidateService.normalizeCandidateData(
-            candidateData,
-          );
-
-          // Находим или создаем кандидата
-          const existingCandidate =
-            await candidateRepository.findCandidateByContacts({
-              organizationId: workspaceData.organizationId,
-              email: normalizedData.email ?? null,
-              phone: normalizedData.phone ?? null,
-            });
-
-          if (existingCandidate) {
-            stats.candidatesFound++;
-          } else {
-            stats.candidatesCreated++;
-          }
-
-          if (!options.dryRun) {
-            const candidate = await candidateRepository.findOrCreateCandidate(
-              normalizedData,
-            );
-
-            // Обновляем отклик с globalCandidateId
-            await db
-              .update(responseTable)
-              .set({ globalCandidateId: candidate.id })
-              .where(eq(responseTable.id, response.id));
-
-            stats.responsesLinked++;
-          } else {
-            stats.responsesLinked++;
-          }
-        } catch (error) {
-          const errorMessage =
-            error instanceof Error ? error.message : "Неизвестная ошибка";
-          stats.errors.push({
-            responseId: response.id,
-            error: errorMessage,
-          });
-          console.error(
-            `❌ Ошибка при обработке отклика ${response.id}:`,
-            errorMessage,
-          );
-        }
+        await processResponse(response);
       }
     } else {
       // Обрабатываем все отклики
@@ -169,87 +180,7 @@ async function linkResponsesToCandidates(
 
       // Обрабатываем каждый отклик
       for (const response of responses) {
-        try {
-          // Получаем вакансию для получения workspaceId
-          const vacancyData = await db.query.vacancy.findFirst({
-            where: eq(vacancy.id, response.entityId),
-            columns: { workspaceId: true },
-          });
-
-          if (!vacancyData) {
-            stats.errors.push({
-              responseId: response.id,
-              error: "Вакансия не найдена",
-            });
-            continue;
-          }
-
-          // Получаем workspace для получения organizationId
-          const workspaceData = await db.query.workspace.findFirst({
-            where: eq(workspace.id, vacancyData.workspaceId),
-            columns: { organizationId: true },
-          });
-
-          if (!workspaceData) {
-            stats.errors.push({
-              responseId: response.id,
-              error: "Workspace не найден",
-            });
-            continue;
-          }
-
-          // Извлекаем данные кандидата из отклика
-          const candidateData =
-            candidateService.extractCandidateDataFromResponse(
-              response,
-              workspaceData.organizationId,
-            );
-
-          const normalizedData = candidateService.normalizeCandidateData(
-            candidateData,
-          );
-
-          // Находим или создаем кандидата
-          const existingCandidate =
-            await candidateRepository.findCandidateByContacts({
-              organizationId: workspaceData.organizationId,
-              email: normalizedData.email ?? null,
-              phone: normalizedData.phone ?? null,
-            });
-
-          if (existingCandidate) {
-            stats.candidatesFound++;
-          } else {
-            stats.candidatesCreated++;
-          }
-
-          if (!options.dryRun) {
-            const candidate = await candidateRepository.findOrCreateCandidate(
-              normalizedData,
-            );
-
-            // Обновляем отклик с globalCandidateId
-            await db
-              .update(responseTable)
-              .set({ globalCandidateId: candidate.id })
-              .where(eq(responseTable.id, response.id));
-
-            stats.responsesLinked++;
-          } else {
-            stats.responsesLinked++;
-          }
-        } catch (error) {
-          const errorMessage =
-            error instanceof Error ? error.message : "Неизвестная ошибка";
-          stats.errors.push({
-            responseId: response.id,
-            error: errorMessage,
-          });
-          console.error(
-            `❌ Ошибка при обработке отклика ${response.id}:`,
-            errorMessage,
-          );
-        }
+        await processResponse(response);
       }
     }
 

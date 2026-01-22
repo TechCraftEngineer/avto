@@ -248,7 +248,7 @@ export class CandidateRepository {
    */
   async findOrCreateCandidate(
     data: CandidateDataFromResponse,
-  ): Promise<Candidate> {
+  ): Promise<{ candidate: Candidate; created: boolean }> {
     // Ищем существующего кандидата по контактам
     const existing = await this.findCandidateByContacts({
       organizationId: data.organizationId,
@@ -267,10 +267,10 @@ export class CandidateRepository {
           .where(eq(candidate.id, existing.id))
           .returning();
 
-        return updated ?? existing;
+        return { candidate: updated ?? existing, created: false };
       }
 
-      return existing;
+      return { candidate: existing, created: false };
     }
 
     // Не найден - создаем нового
@@ -297,7 +297,7 @@ export class CandidateRepository {
       citizenship: data.citizenship ?? null,
       workFormat: data.workFormat ?? null,
       englishLevel: data.englishLevel ?? null,
-      readyForRelocation: data.readyForRelocation ?? false,
+      readyForRelocation: data.readyForRelocation ?? null,
       tags: data.tags ?? null,
       notes: data.notes ?? null,
     };
@@ -311,7 +311,7 @@ export class CandidateRepository {
       throw new Error("Не удалось создать кандидата");
     }
 
-    return created;
+    return { candidate: created, created: true };
   }
 
   /**

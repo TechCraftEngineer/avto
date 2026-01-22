@@ -1,9 +1,9 @@
 {
   "extends": "@qbs-autonaim/tsconfig/base.json",
   "compilerOptions": {
+    "moduleResolution": "bundler",
     "outDir": "dist",
-    "rootDir": "src",
-    "moduleResolution": "bundler"
+    "rootDir": "src"
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]

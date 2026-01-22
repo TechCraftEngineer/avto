@@ -8,6 +8,7 @@
 
 import {
   prequalificationSession,
+  type Response,
   response as responseTable,
   vacancy,
 } from "@qbs-autonaim/db/schema";
@@ -141,7 +142,7 @@ export const submitApplication = publicProcedure
         const candidateService = new CandidateService();
 
         // Create temporary response object for data extraction
-        const tempResponse: Partial<typeof responseTable.$inferSelect> = {
+        const tempResponse: Partial<Response> = {
           candidateName: candidateInfo?.name ?? null,
           email: candidateInfo?.email ?? null,
           phone: candidateInfo?.phone ?? null,
@@ -166,7 +167,7 @@ export const submitApplication = publicProcedure
         };
 
         const candidateData = candidateService.extractCandidateDataFromResponse(
-          tempResponse as typeof responseTable.$inferSelect,
+          tempResponse,
           workspaceData.organizationId,
         );
 
@@ -182,7 +183,7 @@ export const submitApplication = publicProcedure
           enrichedData,
         );
 
-        const candidate = await candidateRepository.findOrCreateCandidate(
+        const { candidate } = await candidateRepository.findOrCreateCandidate(
           normalizedData,
         );
 

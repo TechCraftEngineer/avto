@@ -330,9 +330,9 @@ export const list = protectedProcedure
         vacancyId: r.entityId,
         vacancyName: vacancyData?.title || "Неизвестная вакансия",
         salaryExpectation:
-          r.salaryExpectationsAmount ||
-          globalCandidate?.salaryExpectationsAmount ||
-          "Не указано",
+          r.salaryExpectationsAmount ??
+          globalCandidate?.salaryExpectationsAmount ??
+          null,
         email: email || globalCandidate?.email || null,
         phone: r.phone || globalCandidate?.phone || null,
         telegram: telegram || globalCandidate?.telegramUsername || null,

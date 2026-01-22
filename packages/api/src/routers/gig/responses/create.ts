@@ -119,7 +119,7 @@ export const create = protectedProcedure
       };
 
       const candidateData = candidateService.extractCandidateDataFromResponse(
-        tempResponse as Response,
+        tempResponse,
         workspaceData.organizationId,
       );
 
@@ -127,7 +127,7 @@ export const create = protectedProcedure
         candidateData,
       );
 
-      const candidate = await candidateRepository.findOrCreateCandidate(
+      const { candidate } = await candidateRepository.findOrCreateCandidate(
         normalizedData,
       );
 

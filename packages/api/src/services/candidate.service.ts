@@ -12,7 +12,7 @@ export class CandidateService {
    * Извлечь данные кандидата из отклика
    */
   extractCandidateDataFromResponse(
-    response: Response,
+    response: Partial<Response>,
     organizationId: string,
   ): CandidateDataFromResponse {
     // Извлекаем контакты из разных мест
@@ -30,7 +30,9 @@ export class CandidateService {
       null;
 
     // Определяем источник
-    const source = this.mapImportSourceToCandidateSource(response.importSource);
+    const source = this.mapImportSourceToCandidateSource(
+      response.importSource ?? null,
+    );
 
     // Парсим ФИО из полного имени
     const nameParts = this.parseFullName(response.candidateName ?? "");
@@ -59,12 +61,12 @@ export class CandidateService {
         : null,
       headline: null, // Можно извлечь из profileData или experience
       resumeUrl,
-      profileData: response.profileData,
+      profileData: response.profileData ?? null,
       skills: response.skills ?? null,
       experienceYears,
       salaryExpectationsAmount: response.salaryExpectationsAmount ?? null,
       source,
-      originalSource: response.importSource || undefined,
+      originalSource: response.importSource ?? undefined,
       location: null, // Можно извлечь из profileData
       birthDate: null,
       gender: null,
@@ -128,7 +130,10 @@ export class CandidateService {
         enriched.location = personalInfo.location;
       }
       if (personalInfo.birthDate && !enriched.birthDate) {
-        enriched.birthDate = new Date(personalInfo.birthDate);
+        const parsedBirthDate = new Date(personalInfo.birthDate);
+        if (!Number.isNaN(parsedBirthDate.getTime())) {
+          enriched.birthDate = parsedBirthDate;
+        }
       }
       if (personalInfo.gender && !enriched.gender) {
         enriched.gender = personalInfo.gender.toLowerCase() as

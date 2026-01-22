@@ -113,6 +113,10 @@ export const refreshAllResumesFunction = inngest.createFunction(
       }
       return creds;
     });
+    const { email, password } = credentials;
+    if (!email || !password) {
+      throw new Error("Не найдены учетные данные для HH.ru");
+    }
 
     // Отправляем уведомление о начале обработки
     await publish(
@@ -142,12 +146,24 @@ export const refreshAllResumesFunction = inngest.createFunction(
             );
             const page = await setupPage(browser, savedCookies);
 
-            await checkAndPerformLogin(
+            const loginSucceeded = await checkAndPerformLogin(
               page,
-              credentials.email!,
-              credentials.password!,
+              email,
+              password,
               responsesData.vacancy.workspaceId,
             );
+
+            if (!loginSucceeded) {
+              console.error("HH login failed", {
+                page,
+                email,
+                password,
+                workspaceId: responsesData.vacancy.workspaceId,
+              });
+              throw new Error(
+                `HH login failed for workspace ${responsesData.vacancy.workspaceId}`,
+              );
+            }
 
             console.log(`📊 Парсинг резюме: ${responseItem.candidateName}`);
 

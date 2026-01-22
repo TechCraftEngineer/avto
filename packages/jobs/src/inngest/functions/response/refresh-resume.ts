@@ -33,7 +33,7 @@ async function checkAndPerformLogin(
   email: string,
   password: string,
   workspaceId: string,
-): Promise<boolean> {
+): Promise<void> {
   try {
     await page.goto(HH_CONFIG.urls.login, {
       waitUntil: "domcontentloaded",
@@ -52,10 +52,9 @@ async function checkAndPerformLogin(
 
     const cookies = await page.cookies();
     await saveCookies("hh", cookies, workspaceId);
-    return true;
   } catch (error) {
-    console.error("Login failed:", error);
-    return false;
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`HH login failed: ${message}`);
   }
 }
 

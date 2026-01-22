@@ -2,6 +2,7 @@ import { and, eq } from "@qbs-autonaim/db";
 import { CandidateRepository } from "@qbs-autonaim/db";
 import {
   freelanceImportHistory,
+  type Response,
   response as responseTable,
 } from "@qbs-autonaim/db/schema";
 import { z } from "zod";
@@ -157,7 +158,7 @@ export const importBulkResponses = protectedProcedure
           let globalCandidateId: string | null = null;
           try {
             // Create temporary response object for data extraction
-            const tempResponse: Partial<typeof responseTable.$inferSelect> = {
+            const tempResponse: Partial<Response> = {
               candidateName: parsed.freelancerName ?? null,
               email: parsed.contactInfo.email ?? null,
               phone: parsed.contactInfo.phone ?? null,
@@ -178,7 +179,7 @@ export const importBulkResponses = protectedProcedure
 
             const candidateData =
               candidateService.extractCandidateDataFromResponse(
-                tempResponse as typeof responseTable.$inferSelect,
+                tempResponse,
                 workspaceData.organizationId,
               );
 
@@ -186,7 +187,7 @@ export const importBulkResponses = protectedProcedure
               candidateData,
             );
 
-            const candidate = await candidateRepository.findOrCreateCandidate(
+            const { candidate } = await candidateRepository.findOrCreateCandidate(
               normalizedData,
             );
 

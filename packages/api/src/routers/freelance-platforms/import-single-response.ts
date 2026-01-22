@@ -2,6 +2,7 @@ import { and, eq } from "@qbs-autonaim/db";
 import { CandidateRepository } from "@qbs-autonaim/db";
 import {
   freelanceImportHistory,
+  type Response,
   response as responseTable,
 } from "@qbs-autonaim/db/schema";
 import { TRPCError } from "@trpc/server";
@@ -114,7 +115,7 @@ export const importSingleResponse = protectedProcedure
       const candidateService = new CandidateService();
 
       // Create temporary response object for data extraction
-      const tempResponse: Partial<typeof responseTable.$inferSelect> = {
+      const tempResponse: Partial<Response> = {
         candidateName: input.freelancerName ?? null,
         email: input.contactInfo?.email ?? null,
         phone: input.contactInfo?.phone ?? null,
@@ -136,7 +137,7 @@ export const importSingleResponse = protectedProcedure
       };
 
       const candidateData = candidateService.extractCandidateDataFromResponse(
-        tempResponse as typeof responseTable.$inferSelect,
+        tempResponse,
         workspaceData.organizationId,
       );
 
@@ -144,7 +145,7 @@ export const importSingleResponse = protectedProcedure
         candidateData,
       );
 
-      const candidate = await candidateRepository.findOrCreateCandidate(
+      const { candidate } = await candidateRepository.findOrCreateCandidate(
         normalizedData,
       );
 
