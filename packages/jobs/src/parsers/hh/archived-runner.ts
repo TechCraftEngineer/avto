@@ -1,9 +1,9 @@
 import { db, getIntegrationCredentials } from "@qbs-autonaim/db";
 import puppeteer from "puppeteer";
+import { parseArchivedVacancyResponses } from "./archived-response-parser";
 import { checkAndPerformLogin } from "./auth";
 import { closeBrowserSafely } from "./browser-utils";
 import { HH_CONFIG } from "./config";
-import { parseArchivedVacancyResponses } from "./archived-response-parser";
 
 interface RunHHArchivedVacancyParserOptions {
   workspaceId: string;

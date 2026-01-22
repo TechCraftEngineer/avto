@@ -292,8 +292,8 @@ export function VacancyIntegrationManager({
   return (
     <Card className="shadow-sm border-border/50">
       <CardHeader className="pb-6">
-        <div className="flex items-start justify-between gap-4">
-          <div className="space-y-1.5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="space-y-1.5 flex-1 min-w-0">
             <CardTitle className="text-xl font-semibold tracking-tight">
               Интеграции с платформами
             </CardTitle>
@@ -302,21 +302,22 @@ export function VacancyIntegrationManager({
               автоматического сбора откликов
             </CardDescription>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             {availablePlatforms.length > 0 && (
               <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
                 <DialogTrigger asChild>
                   <Button
                     size="sm"
-                    className="shadow-sm hover:shadow-md transition-shadow"
+                    className="shadow-sm hover:shadow-md transition-shadow w-full sm:w-auto"
                   >
                     <IconPlus className="mr-2 size-4" />
-                    Добавить интеграцию
+                    <span className="hidden xs:inline">Добавить интеграцию</span>
+                    <span className="xs:hidden">Добавить</span>
                   </Button>
                 </DialogTrigger>
-              <DialogContent className="sm:max-w-[480px] shadow-lg border-border/50">
+              <DialogContent className="max-w-[95vw] w-full sm:max-w-120 shadow-lg border-border/50">
                 <DialogHeader className="space-y-3">
-                  <DialogTitle className="text-lg font-semibold">
+                  <DialogTitle className="text-base sm:text-lg font-semibold">
                     Добавить интеграцию
                   </DialogTitle>
                   <DialogDescription className="text-sm text-muted-foreground leading-relaxed">
@@ -386,8 +387,8 @@ export function VacancyIntegrationManager({
                           </FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="Например: 128580152 или https://hh.ru/vacancy/128580152"
-                              className="shadow-sm"
+                              placeholder="128580152 или ссылка на вакансию"
+                              className="shadow-sm text-base"
                               {...field}
                             />
                           </FormControl>
@@ -418,13 +419,14 @@ export function VacancyIntegrationManager({
                 size="sm"
                 onClick={handleCheckAllPublicationStatuses}
                 disabled={checkAllStatusesMutation.isPending}
-                className="shadow-sm hover:shadow-md transition-shadow"
+                className="shadow-sm hover:shadow-md transition-shadow w-full sm:w-auto"
               >
                 {checkAllStatusesMutation.isPending && (
                   <span className="mr-2 inline-block size-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite]" />
                 )}
                 <IconRefresh className="mr-2 size-4" />
-                Проверить все статусы
+                <span className="hidden xs:inline">Проверить все статусы</span>
+                <span className="xs:hidden">Проверить</span>
               </Button>
             )}
           </div>
@@ -432,27 +434,27 @@ export function VacancyIntegrationManager({
       </CardHeader>
       <CardContent>
         {activeIntegrations.length === 0 ? (
-          <div className="text-center py-12 px-4">
+          <div className="text-center py-8 sm:py-12 px-4">
             <div className="mx-auto size-12 rounded-full bg-muted/50 flex items-center justify-center mb-4">
               <IconX className="size-6 text-muted-foreground" />
             </div>
             <h3 className="text-sm font-medium text-foreground mb-2">
               Нет активных интеграций
             </h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-sm text-muted-foreground leading-relaxed max-w-md mx-auto">
               Настройте интеграции с платформами в разделе настроек workspace,
               чтобы начать сбор откликов.
             </p>
           </div>
         ) : publications.length === 0 ? (
-          <div className="text-center py-12 px-4">
+          <div className="text-center py-8 sm:py-12 px-4">
             <div className="mx-auto size-12 rounded-full bg-muted/50 flex items-center justify-center mb-4">
               <IconPlus className="size-6 text-muted-foreground" />
             </div>
             <h3 className="text-sm font-medium text-foreground mb-2">
               Нет связанных публикаций
             </h3>
-            <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+            <p className="text-sm text-muted-foreground leading-relaxed mb-4 max-w-md mx-auto">
               Добавьте интеграцию, чтобы начать автоматический сбор откликов с
               платформ.
             </p>
@@ -472,9 +474,9 @@ export function VacancyIntegrationManager({
                   key={publication.id}
                   className="shadow-sm border-border/50 hover:shadow-md transition-shadow"
                 >
-                  <CardContent className="p-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                      <div className="flex items-center gap-4 min-w-0 flex-1">
+                  <CardContent className="p-3 sm:p-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
                         <div className="flex items-center gap-3 shrink-0">
                           <div
                             className={`size-3 rounded-full ${config.color.split(" ")[0]} shadow-sm`}
@@ -509,7 +511,7 @@ export function VacancyIntegrationManager({
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
+                      <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 shrink-0">
                         <div
                           className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${
                             publication.isActive
@@ -530,19 +532,29 @@ export function VacancyIntegrationManager({
                           </span>
                         </div>
                         {publication.lastCheckedAt && (
-                          <div className="text-xs text-muted-foreground flex items-center gap-1">
-                            <IconClock className="size-3" />
-                            <span>
-                              Проверено: {new Date(publication.lastCheckedAt).toLocaleString('ru-RU', {
-                                day: '2-digit',
-                                month: '2-digit',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}
+                          <div className="text-xs text-muted-foreground flex items-center gap-1 min-w-0">
+                            <IconClock className="size-3 shrink-0" />
+                            <span className="truncate">
+                              <span className="hidden sm:inline">
+                                Проверено: {new Date(publication.lastCheckedAt).toLocaleString('ru-RU', {
+                                  day: '2-digit',
+                                  month: '2-digit',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </span>
+                              <span className="sm:hidden">
+                                {new Date(publication.lastCheckedAt).toLocaleString('ru-RU', {
+                                  month: '2-digit',
+                                  day: '2-digit',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </span>
                             </span>
                           </div>
                         )}
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 shrink-0">
                           <Button
                             variant="ghost"
                             size="sm"
@@ -559,7 +571,7 @@ export function VacancyIntegrationManager({
                             variant="ghost"
                             size="sm"
                             onClick={() => handleEditPublication(publication)}
-                            className="px-3 py-1 h-8 hover:bg-muted shrink-0"
+                            className="px-2 py-1 h-8 hover:bg-muted shrink-0 text-xs sm:px-3 sm:text-sm"
                             aria-label="Изменить интеграцию"
                           >
                             <span className="hidden sm:inline">Изменить</span>
@@ -580,9 +592,9 @@ export function VacancyIntegrationManager({
           open={!!editingPublication}
           onOpenChange={(open) => !open && setEditingPublication(null)}
         >
-          <DialogContent className="sm:max-w-[480px] shadow-lg border-border/50">
+          <DialogContent className="max-w-[95vw] w-full sm:max-w-120 shadow-lg border-border/50">
             <DialogHeader className="space-y-3">
-              <DialogTitle className="text-lg font-semibold">
+              <DialogTitle className="text-base sm:text-lg font-semibold">
                 Редактировать интеграцию
               </DialogTitle>
               <DialogDescription className="text-sm text-muted-foreground leading-relaxed">
@@ -606,8 +618,8 @@ export function VacancyIntegrationManager({
                       </FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Например: 128580152 или https://hh.ru/vacancy/128580152"
-                          className="shadow-sm"
+                          placeholder="128580152 или ссылка на вакансию"
+                          className="shadow-sm text-base"
                           {...field}
                         />
                       </FormControl>
