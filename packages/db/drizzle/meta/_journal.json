@@ -64,6 +64,13 @@
       "when": 1769056215205,
       "tag": "0008_ancient_marvel_zombies",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1769084558520,
+      "tag": "0009_nosy_spot",
+      "breakpoints": true
     }
   ]
 }
