@@ -1,4 +1,4 @@
-import puppeteer, { Browser, Page } from "puppeteer";
+import puppeteer, { type Browser, type Page } from "puppeteer";
 import { HH_CONFIG } from "../config";
 
 /**
@@ -72,7 +72,7 @@ export async function setupPage(
 export async function setupAuthenticatedBrowser(
   workspaceId: string,
 ): Promise<{ browser: Browser; page: Page; isLoggedIn: boolean }> {
-  const { loadCookies, saveCookies, performLogin } = await import("./auth");
+  const { loadCookies, saveCookies } = await import("./auth");
   const { checkAndPerformLogin } = await import("./login-checker");
 
   const savedCookies = await loadCookies("hh", workspaceId);

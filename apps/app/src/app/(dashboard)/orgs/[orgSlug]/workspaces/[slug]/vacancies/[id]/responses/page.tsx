@@ -4,14 +4,12 @@ import { Card } from "@qbs-autonaim/ui";
 import { useParams } from "next/navigation";
 import { RecruiterAgentChat } from "~/components/recruiter-agent/chat";
 import { ResponseTable } from "~/components/vacancy";
-import { useWorkspace } from "~/hooks/use-workspace";
 
 export default function VacancyResponsesPage() {
   const { slug: workspaceSlug, id } = useParams<{
     slug: string;
     id: string;
   }>();
-  const { workspace } = useWorkspace();
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">

@@ -1,7 +1,6 @@
 import os from "node:os";
 import { db, getIntegrationCredentials } from "@qbs-autonaim/db";
 import { Log } from "crawlee";
-import type { Browser, BrowserContext, CookieData, Page } from "puppeteer";
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import { extractTelegramUsername } from "../../services/messaging";

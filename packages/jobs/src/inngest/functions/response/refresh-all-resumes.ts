@@ -2,7 +2,6 @@ import os from "node:os";
 import { eq, getIntegrationCredentials } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { response } from "@qbs-autonaim/db/schema";
-import type { Browser, Page } from "puppeteer";
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import {
@@ -10,9 +9,7 @@ import {
   performLogin,
   saveCookies,
 } from "../../../parsers/hh/auth";
-import { HH_CONFIG } from "../../../parsers/hh/config";
 import { parseResumeExperience } from "../../../parsers/hh/resume-parser";
-import { extractTelegramUsername } from "../../../services/messaging";
 import { setupBrowser, setupPage } from "../../../parsers/hh/browser-setup";
 import {
   updateResponseDetails,

@@ -11,8 +11,6 @@ import { CommunicationAgent } from "../actions/communication";
 import { ContentGeneratorAgent } from "../actions/content-generator";
 import { VacancyAnalyticsAgent } from "../analytics/vacancy-analytics";
 import { IntentClassifierAgent } from "../classification/intent-classifier";
-import { InterviewQuestionsAgent } from "../interview/interview-questions-agent";
-import { PriorityAgent } from "../priority/priority-agent";
 import { CandidateSearchAgent } from "../search/candidate-search";
 import type { RecruiterStreamEvent as StreamEvent } from "./streaming";
 import type {
@@ -1149,7 +1147,7 @@ ${candidatesList}
   private async handleGetPriority(
     input: RecruiterOrchestratorInput,
     context: RecruiterAgentContext,
-    traceId: string | undefined,
+    _traceId: string | undefined,
     agentTrace: AgentTraceEntry[],
     _actions: ExecutedAction[],
   ): Promise<string> {
@@ -1159,7 +1157,6 @@ ${candidatesList}
       timestamp: new Date(),
     });
 
-    const priorityAgent = new PriorityAgent(this.getAgentConfig(traceId));
 
     // Определяем ID вакансии
     const vacancyId = input.vacancyId || context.currentVacancyId;
@@ -1200,7 +1197,7 @@ ${candidatesList}
   private async handleGetInterviewQuestions(
     input: RecruiterOrchestratorInput,
     context: RecruiterAgentContext,
-    traceId: string | undefined,
+    _traceId: string | undefined,
     agentTrace: AgentTraceEntry[],
     _actions: ExecutedAction[],
   ): Promise<string> {
@@ -1210,9 +1207,6 @@ ${candidatesList}
       timestamp: new Date(),
     });
 
-    const questionsAgent = new InterviewQuestionsAgent(
-      this.getAgentConfig(traceId),
-    );
 
     // Определяем ID вакансии и кандидата
     const vacancyId = input.vacancyId || context.currentVacancyId;
