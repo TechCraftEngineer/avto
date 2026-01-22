@@ -23,6 +23,7 @@ import {
   candidateIdentityColumns,
   coverLetterColumn,
   rankingAnalysisColumns,
+  rankingReasoningColumns,
   rankingScoreColumns,
   responseStatusColumns,
   responseTimestampColumns,
@@ -107,6 +108,9 @@ export const response = pgTable(
 
     // Ranking scores (0-100)
     ...rankingScoreColumns,
+
+    // Ranking reasoning (explainable AI)
+    ...rankingReasoningColumns,
 
     // Ranking analysis
     ...rankingAnalysisColumns,

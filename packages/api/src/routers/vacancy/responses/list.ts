@@ -263,6 +263,9 @@ export const list = protectedProcedure
           respondedAt: responseTable.respondedAt,
           welcomeSentAt: responseTable.welcomeSentAt,
           createdAt: responseTable.createdAt,
+          // Reasoning fields for explainable AI
+          evaluationReasoning: responseTable.evaluationReasoning,
+          compositeScoreReasoning: responseTable.compositeScoreReasoning,
         })
         .from(responseTable)
         .leftJoin(
@@ -295,6 +298,9 @@ export const list = protectedProcedure
           respondedAt: true,
           welcomeSentAt: true,
           createdAt: true,
+          // Reasoning fields for explainable AI
+          evaluationReasoning: true,
+          compositeScoreReasoning: true,
         },
       });
     }

@@ -77,6 +77,25 @@ export const rankingScoreColumns = {
 };
 
 /**
+ * Reasoning for ranking scores (explainable AI)
+ * Объяснения оценок для прозрачности решений AI
+ */
+export const rankingReasoningColumns = {
+  priceScoreReasoning: text("price_score_reasoning"),
+  deliveryScoreReasoning: text("delivery_score_reasoning"),
+  skillsMatchScoreReasoning: text("skills_match_score_reasoning"),
+  experienceScoreReasoning: text("experience_score_reasoning"),
+  compositeScoreReasoning: text("composite_score_reasoning"),
+  // Для вакансий: структурированные объяснения по dimensions
+  evaluationReasoning: jsonb("evaluation_reasoning").$type<{
+    hardSkills?: { score: number; notes: string };
+    softSkills?: { score: number; notes: string };
+    cultureFit?: { score: number; notes: string };
+    salaryAlignment?: { score: number; notes: string };
+  }>(),
+};
+
+/**
  * Ranking position and analysis
  */
 export const rankingAnalysisColumns = {

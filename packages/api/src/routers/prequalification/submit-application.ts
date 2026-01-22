@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Submit Application Procedure
  *
  * Подаёт заявку кандидата после успешной преквалификации.
@@ -98,10 +98,26 @@ export const submitApplication = publicProcedure
         strengths?: string[];
         risks?: string[];
         recommendation?: string;
+        dimensions?: {
+          hardSkills?: { score: number; notes: string };
+          softSkills?: { score: number; notes: string };
+          cultureFit?: { score: number; notes: string };
+          salaryAlignment?: { score: number; notes: string };
+        };
       } | null;
 
       // Generate a unique resume ID for the prequalification response
       const resumeId = `preq_${nanoid(16)}`;
+
+      // Prepare evaluationReasoning from dimensions
+      const evaluationReasoning = evaluation?.dimensions
+        ? {
+            hardSkills: evaluation.dimensions.hardSkills,
+            softSkills: evaluation.dimensions.softSkills,
+            cultureFit: evaluation.dimensions.cultureFit,
+            salaryAlignment: evaluation.dimensions.salaryAlignment,
+          }
+        : null;
 
       // Create vacancy response
       // Note: response schema requires candidateId and entityType/entityId
@@ -129,6 +145,8 @@ export const submitApplication = publicProcedure
             recommendation: evaluation?.recommendation,
             contactPreferences: input.contactPreferences,
           },
+          // Store evaluation reasoning for explainable AI
+          evaluationReasoning,
         })
         .returning();
 

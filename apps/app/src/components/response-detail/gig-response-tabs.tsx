@@ -18,6 +18,12 @@ import {
   PortfolioTab,
   ProposalTab,
 } from "~/components/response-detail";
+import {
+  FactorBreakdown,
+  OverallAssessment,
+  ScoreExplanation,
+} from "~/components/candidate";
+import { Award, Banknote, Briefcase, Clock } from "lucide-react";
 import type { ResponseDetail } from "./hooks/use-vacancy-response-flags";
 
 interface GigResponseTabsProps {
@@ -46,9 +52,20 @@ export function GigResponseTabs({
   hasConversation,
   conversation,
 }: GigResponseTabsProps) {
+  // Проверяем наличие reasoning данных
+  const hasReasoning =
+    response.priceScoreReasoning ||
+    response.deliveryScoreReasoning ||
+    response.skillsMatchScoreReasoning ||
+    response.experienceScoreReasoning ||
+    response.compositeScoreReasoning;
+
   // Подсчитываем количество видимых вкладок
   const visibleTabsCount =
-    (hasInterviewScoring ? 1 : 0) + (hasConversation ? 1 : 0) + 4; // 4 базовые вкладки
+    (hasInterviewScoring ? 1 : 0) +
+    (hasConversation ? 1 : 0) +
+    (hasReasoning ? 1 : 0) +
+    4; // 4 базовые вкладки
 
   // Определяем классы grid-cols на основе количества вкладок
   const gridColsClass =
@@ -71,6 +88,14 @@ export function GigResponseTabs({
                 className="min-h-11 sm:min-h-9 text-xs sm:text-sm touch-manipulation"
               >
                 Анализ
+              </TabsTrigger>
+            )}
+            {hasReasoning && (
+              <TabsTrigger
+                value="explanation"
+                className="min-h-11 sm:min-h-9 text-xs sm:text-sm touch-manipulation"
+              >
+                Объяснение
               </TabsTrigger>
             )}
             {hasConversation && (
@@ -120,6 +145,69 @@ export function GigResponseTabs({
                   interviewScoring={response.interviewScoring}
                 />
               )}
+            </TabsContent>
+          )}
+
+          {/* Explanation Tab */}
+          {hasReasoning && (
+            <TabsContent
+              value="explanation"
+              className="space-y-4 sm:space-y-6 mt-0"
+            >
+              {/* Overall Assessment */}
+              <OverallAssessment
+                compositeScore={response.compositeScore}
+                compositeReasoning={response.compositeScoreReasoning}
+                recommendation={response.recommendation}
+                strengths={response.strengths}
+                weaknesses={response.weaknesses}
+              />
+
+              {/* Factor Breakdown */}
+              <FactorBreakdown
+                experienceScore={response.experienceScore}
+                experienceReasoning={response.experienceScoreReasoning}
+                skillsScore={response.skillsMatchScore}
+                skillsReasoning={response.skillsMatchScoreReasoning}
+                strengths={response.strengths}
+                weaknesses={response.weaknesses}
+              />
+
+              {/* Score Explanations */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {response.priceScore !== null && (
+                  <ScoreExplanation
+                    label="Оценка цены"
+                    score={response.priceScore}
+                    reasoning={response.priceScoreReasoning}
+                    icon={<Banknote className="h-4 w-4" />}
+                  />
+                )}
+                {response.deliveryScore !== null && (
+                  <ScoreExplanation
+                    label="Оценка сроков"
+                    score={response.deliveryScore}
+                    reasoning={response.deliveryScoreReasoning}
+                    icon={<Clock className="h-4 w-4" />}
+                  />
+                )}
+                {response.skillsMatchScore !== null && (
+                  <ScoreExplanation
+                    label="Соответствие навыков"
+                    score={response.skillsMatchScore}
+                    reasoning={response.skillsMatchScoreReasoning}
+                    icon={<Award className="h-4 w-4" />}
+                  />
+                )}
+                {response.experienceScore !== null && (
+                  <ScoreExplanation
+                    label="Оценка опыта"
+                    score={response.experienceScore}
+                    reasoning={response.experienceScoreReasoning}
+                    icon={<Briefcase className="h-4 w-4" />}
+                  />
+                )}
+              </div>
             </TabsContent>
           )}
 

@@ -123,6 +123,15 @@ export interface RankedCandidate {
     compositeScore: number;
   };
 
+  // Объяснения оценок (explainable AI)
+  reasoning: {
+    priceScoreReasoning: string | null;
+    deliveryScoreReasoning: string | null;
+    skillsMatchScoreReasoning: string | null;
+    experienceScoreReasoning: string | null;
+    compositeScoreReasoning: string | null;
+  };
+
   // Результаты сравнения от ComparisonAgent
   comparison: {
     strengths: string[];
@@ -553,6 +562,16 @@ export class RankingOrchestrator {
         skillsMatchScore: item.evaluation.skillsMatchScore.score,
         experienceScore: item.evaluation.experienceScore.score,
         compositeScore: item.evaluation.compositeScore.score ?? 0,
+      },
+      reasoning: {
+        priceScoreReasoning: item.evaluation.priceScore.reasoning ?? null,
+        deliveryScoreReasoning: item.evaluation.deliveryScore.reasoning ?? null,
+        skillsMatchScoreReasoning:
+          item.evaluation.skillsMatchScore.reasoning ?? null,
+        experienceScoreReasoning:
+          item.evaluation.experienceScore.reasoning ?? null,
+        compositeScoreReasoning:
+          item.evaluation.compositeScore.reasoning ?? null,
       },
       comparison: item.comparison,
       recommendation: {

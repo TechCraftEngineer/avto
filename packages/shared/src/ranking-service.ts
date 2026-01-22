@@ -275,6 +275,16 @@ export class RankingService {
             deliveryScore: rankedCandidate.scores.deliveryScore,
             skillsMatchScore: rankedCandidate.scores.skillsMatchScore,
             experienceScore: rankedCandidate.scores.experienceScore,
+            // Reasoning (explainable AI)
+            priceScoreReasoning: rankedCandidate.reasoning.priceScoreReasoning,
+            deliveryScoreReasoning:
+              rankedCandidate.reasoning.deliveryScoreReasoning,
+            skillsMatchScoreReasoning:
+              rankedCandidate.reasoning.skillsMatchScoreReasoning,
+            experienceScoreReasoning:
+              rankedCandidate.reasoning.experienceScoreReasoning,
+            compositeScoreReasoning:
+              rankedCandidate.reasoning.compositeScoreReasoning,
             rankingPosition: rankedCandidate.rankingPosition,
             rankingAnalysis: rankedCandidate.recommendation.ranking_analysis,
             candidateSummary: rankedCandidate.candidateSummary,

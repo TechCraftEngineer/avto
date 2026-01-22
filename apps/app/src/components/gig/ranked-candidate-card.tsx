@@ -217,16 +217,22 @@ export function RankedCandidateCard({
                     </div>
                   </button>
                 </HoverCardTrigger>
-                <HoverCardContent className="w-64" align="start">
-                  <div className="space-y-1">
+                <HoverCardContent className="w-80" align="start">
+                  <div className="space-y-2">
                     <h4 className="text-sm font-semibold">Оценка цены</h4>
-                    <p className="text-xs text-muted-foreground">
-                      Соотношение цена/качество с учетом бюджета и рынка
-                    </p>
                     {candidate.proposedPrice && (
-                      <p className="text-xs font-medium mt-2">
+                      <p className="text-xs font-medium">
                         Предложенная цена:{" "}
                         {formatCurrency(candidate.proposedPrice)}
+                      </p>
+                    )}
+                    {candidate.priceScoreReasoning ? (
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        {candidate.priceScoreReasoning}
+                      </p>
+                    ) : (
+                      <p className="text-xs text-muted-foreground italic">
+                        Объяснение будет доступно после пересчета оценки
                       </p>
                     )}
                   </div>
@@ -251,20 +257,26 @@ export function RankedCandidateCard({
                     </div>
                   </button>
                 </HoverCardTrigger>
-                <HoverCardContent className="w-64" align="start">
-                  <div className="space-y-1">
+                <HoverCardContent className="w-80" align="start">
+                  <div className="space-y-2">
                     <h4 className="text-sm font-semibold">Оценка сроков</h4>
-                    <p className="text-xs text-muted-foreground">
-                      Реалистичность и соответствие дедлайну
-                    </p>
                     {candidate.proposedDeliveryDays && (
-                      <p className="text-xs font-medium mt-2">
+                      <p className="text-xs font-medium">
                         Предложенный срок: {candidate.proposedDeliveryDays}{" "}
                         {candidate.proposedDeliveryDays === 1
                           ? "день"
                           : candidate.proposedDeliveryDays < 5
                             ? "дня"
                             : "дней"}
+                      </p>
+                    )}
+                    {candidate.deliveryScoreReasoning ? (
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        {candidate.deliveryScoreReasoning}
+                      </p>
+                    ) : (
+                      <p className="text-xs text-muted-foreground italic">
+                        Объяснение будет доступно после пересчета оценки
                       </p>
                     )}
                   </div>
@@ -289,14 +301,20 @@ export function RankedCandidateCard({
                     </div>
                   </button>
                 </HoverCardTrigger>
-                <HoverCardContent className="w-64" align="start">
-                  <div className="space-y-1">
+                <HoverCardContent className="w-80" align="start">
+                  <div className="space-y-2">
                     <h4 className="text-sm font-semibold">
                       Соответствие навыков
                     </h4>
-                    <p className="text-xs text-muted-foreground">
-                      Покрытие обязательных и желательных навыков
-                    </p>
+                    {candidate.skillsMatchScoreReasoning ? (
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        {candidate.skillsMatchScoreReasoning}
+                      </p>
+                    ) : (
+                      <p className="text-xs text-muted-foreground italic">
+                        Объяснение будет доступно после пересчета оценки
+                      </p>
+                    )}
                   </div>
                 </HoverCardContent>
               </HoverCard>
@@ -319,12 +337,18 @@ export function RankedCandidateCard({
                     </div>
                   </button>
                 </HoverCardTrigger>
-                <HoverCardContent className="w-64" align="start">
-                  <div className="space-y-1">
+                <HoverCardContent className="w-80" align="start">
+                  <div className="space-y-2">
                     <h4 className="text-sm font-semibold">Оценка опыта</h4>
-                    <p className="text-xs text-muted-foreground">
-                      Релевантность портфолио и похожих проектов
-                    </p>
+                    {candidate.experienceScoreReasoning ? (
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        {candidate.experienceScoreReasoning}
+                      </p>
+                    ) : (
+                      <p className="text-xs text-muted-foreground italic">
+                        Объяснение будет доступно после пересчета оценки
+                      </p>
+                    )}
                   </div>
                 </HoverCardContent>
               </HoverCard>
@@ -363,6 +387,16 @@ export function RankedCandidateCard({
                   ))}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Composite Score Reasoning Preview */}
+          {candidate.compositeScoreReasoning && (
+            <div className="p-3 rounded-lg border-l-4 border-primary/50 bg-muted/30">
+              <h4 className="text-xs font-semibold mb-1">Почему подходит / почему нет</h4>
+              <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed">
+                {candidate.compositeScoreReasoning}
+              </p>
             </div>
           )}
 
