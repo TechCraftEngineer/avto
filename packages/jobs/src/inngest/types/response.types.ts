@@ -30,6 +30,10 @@ export const refreshSingleResumeDataSchema = z.object({
   responseId: z.string().min(1, "Response ID is required"),
 });
 
+export const refreshAllResumesDataSchema = z.object({
+  vacancyId: z.string().min(1, "Vacancy ID is required"),
+});
+
 export const parseMissingContactsDataSchema = z.object({
   vacancyId: z.string().min(1, "Vacancy ID is required"),
 });
@@ -55,6 +59,7 @@ export type ParseNewResumesPayload = z.infer<typeof parseNewResumesDataSchema>;
 export type RefreshSingleResumePayload = z.infer<
   typeof refreshSingleResumeDataSchema
 >;
+export type RefreshAllResumesPayload = z.infer<typeof refreshAllResumesDataSchema>;
 export type ParseMissingContactsPayload = z.infer<
   typeof parseMissingContactsDataSchema
 >;

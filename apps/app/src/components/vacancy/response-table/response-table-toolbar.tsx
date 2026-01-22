@@ -2,8 +2,8 @@ import { Button, Input } from "@qbs-autonaim/ui";
 import { Loader2, RefreshCw, Search, Sparkles } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { useWorkspace } from "~/hooks/use-workspace";
 import {
+  fetchRefreshAllResumesToken,
   fetchRefreshVacancyResponsesToken,
   fetchScreenAllResponsesToken,
   fetchScreenNewResponsesToken,
@@ -14,16 +14,21 @@ import {
   ResponseStatusFilter as ResponseStatusFilterComponent,
   type ScreeningFilter,
 } from "~/components/response";
+import { useWorkspace } from "~/hooks/use-workspace";
 import { RefreshDialog } from "./refresh-dialog";
 import { ScreeningDialog } from "./screening-dialog";
 import { SyncArchivedDialog } from "./sync-archived-dialog";
+import {
+  type RefreshAllResumesProgress,
+  useRefreshAllResumesSubscription,
+} from "./use-refresh-all-resumes-subscription";
 import { useRefreshSubscription } from "./use-refresh-subscription";
-import { useSyncArchivedSubscription } from "./use-sync-archived-subscription";
 import type { ResponseStatusFilterUI } from "./use-response-table";
 import {
   type ScreeningProgress,
   useScreeningSubscription,
 } from "./use-screening-subscription";
+import { useSyncArchivedSubscription } from "./use-sync-archived-subscription";
 
 function getPluralForm(
   n: number,
@@ -55,9 +60,12 @@ interface ResponseTableToolbarProps {
   isRefreshing: boolean;
   isProcessingNew: boolean;
   isProcessingAll: boolean;
+  isRefreshingAllResumes: boolean;
   isSyncingArchived: boolean;
   onRefresh: () => void;
   onRefreshComplete: () => void;
+  onRefreshAllResumes: () => void;
+  onRefreshAllResumesDialogClose: () => void;
   onScreenNew: () => void;
   onScreenAll: () => void;
   onSyncArchived: (workspaceId: string) => void;
@@ -76,9 +84,12 @@ export function ResponseTableToolbar({
   isRefreshing,
   isProcessingNew,
   isProcessingAll,
+  isRefreshingAllResumes,
   isSyncingArchived,
   onRefresh,
   onRefreshComplete,
+  onRefreshAllResumes,
+  onRefreshAllResumesDialogClose,
   onScreenNew,
   onScreenAll,
   onSyncArchived,
@@ -136,11 +147,29 @@ export function ResponseTableToolbar({
   const [syncArchivedSubscriptionActive, setSyncArchivedSubscriptionActive] =
     useState(false);
 
+  // Refresh all resumes state
+  const [refreshAllResumesDialogOpen, setRefreshAllResumesDialogOpen] =
+    useState(false);
+  const [refreshAllResumesError, setRefreshAllResumesError] = useState<
+    string | null
+  >(null);
+  const [refreshAllResumesStatus, setRefreshAllResumesStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
+  const [refreshAllResumesMessage, setRefreshAllResumesMessage] =
+    useState<string>("");
+  const [refreshAllResumesProgress, setRefreshAllResumesProgress] =
+    useState<RefreshAllResumesProgress | null>(null);
+  const [
+    refreshAllResumesSubscriptionActive,
+    setRefreshAllResumesSubscriptionActive,
+  ] = useState(false);
 
   // Timeout refs для предотвращения утечек памяти
   const screenNewTimerRef = useRef<NodeJS.Timeout | null>(null);
   const screenAllTimerRef = useRef<NodeJS.Timeout | null>(null);
   const syncArchivedTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const refreshAllResumesTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Refresh subscription
   useRefreshSubscription({
@@ -262,6 +291,38 @@ export function ResponseTableToolbar({
         setSyncArchivedError(message);
         onRefreshComplete();
       }
+    },
+  });
+
+  // Refresh all resumes subscription
+  useRefreshAllResumesSubscription({
+    vacancyId,
+    enabled: refreshAllResumesSubscriptionActive,
+    fetchToken: fetchRefreshAllResumesToken,
+    onProgress: (message, progress) => {
+      setRefreshAllResumesMessage(message);
+      if (progress) setRefreshAllResumesProgress(progress);
+    },
+    onComplete: (success, progress) => {
+      setRefreshAllResumesProgress(progress);
+      if (success) {
+        setRefreshAllResumesStatus("success");
+        setRefreshAllResumesMessage(
+          `Обновление резюме завершено! Обработано: ${progress.processed} из ${progress.total}`,
+        );
+      } else {
+        setRefreshAllResumesStatus("error");
+        setRefreshAllResumesError("Процесс завершился с ошибками");
+      }
+
+      // Очищаем предыдущий таймер перед установкой нового
+      if (refreshAllResumesTimerRef.current) {
+        clearTimeout(refreshAllResumesTimerRef.current);
+      }
+      refreshAllResumesTimerRef.current = setTimeout(
+        () => handleRefreshAllResumesDialogClose(),
+        3000,
+      );
     },
   });
 
@@ -404,6 +465,40 @@ export function ResponseTableToolbar({
     setSyncArchivedSubscriptionActive(false);
   }, []);
 
+  // Refresh all resumes handlers
+  const handleRefreshAllResumesClick = async () => {
+    setRefreshAllResumesError(null);
+    setRefreshAllResumesMessage("");
+    setRefreshAllResumesProgress(null);
+    setRefreshAllResumesStatus("loading");
+    setRefreshAllResumesSubscriptionActive(true);
+
+    try {
+      await onRefreshAllResumes();
+    } catch (error) {
+      setRefreshAllResumesStatus("error");
+      setRefreshAllResumesError(
+        error instanceof Error ? error.message : "Произошла ошибка",
+      );
+    }
+  };
+
+  const handleRefreshAllResumesDialogClose = useCallback(() => {
+    // Очищаем таймер при закрытии диалога
+    if (refreshAllResumesTimerRef.current) {
+      clearTimeout(refreshAllResumesTimerRef.current);
+      refreshAllResumesTimerRef.current = null;
+    }
+
+    setRefreshAllResumesDialogOpen(false);
+    setRefreshAllResumesError(null);
+    setRefreshAllResumesMessage("");
+    setRefreshAllResumesProgress(null);
+    setRefreshAllResumesStatus("idle");
+    setRefreshAllResumesSubscriptionActive(false);
+    onRefreshAllResumesDialogClose();
+  }, [onRefreshAllResumesDialogClose]);
+
   // Очистка таймеров при размонтировании компонента
   useEffect(() => {
     return () => {
@@ -415,6 +510,9 @@ export function ResponseTableToolbar({
       }
       if (syncArchivedTimerRef.current) {
         clearTimeout(syncArchivedTimerRef.current);
+      }
+      if (refreshAllResumesTimerRef.current) {
+        clearTimeout(refreshAllResumesTimerRef.current);
       }
     };
   }, []);
@@ -473,6 +571,21 @@ export function ResponseTableToolbar({
               <RefreshCw className="h-4 w-4 mr-2" />
             )}
             {isSyncingArchived ? "Синхронизация..." : "Архивные"}
+          </Button>
+
+          <Button
+            disabled={isRefreshingAllResumes}
+            variant="outline"
+            size="sm"
+            onClick={() => setRefreshAllResumesDialogOpen(true)}
+            className="h-9 bg-background/60 border-border/60 border-dashed hover:bg-background/80 transition-colors"
+          >
+            {isRefreshingAllResumes ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <RefreshCw className="h-4 w-4 mr-2" />
+            )}
+            {isRefreshingAllResumes ? "Обновление..." : "Обновить резюме"}
           </Button>
 
           <Button
@@ -571,6 +684,28 @@ export function ResponseTableToolbar({
         }}
         onConfirm={handleSyncArchivedClick}
         onClose={handleSyncArchivedDialogClose}
+      />
+
+      <ScreeningDialog
+        open={refreshAllResumesDialogOpen}
+        title="Обновление резюме у всех откликов"
+        description={`Вы собираетесь запустить обновление резюме для ${totalResponses} ${getPluralForm(
+          totalResponses,
+          "отклика",
+          "откликов",
+          "откликов",
+        )}. Процесс будет выполняться в фоновом режиме, и результаты появятся в таблице автоматически.`}
+        status={refreshAllResumesStatus}
+        message={refreshAllResumesMessage}
+        error={refreshAllResumesError}
+        progress={refreshAllResumesProgress}
+        onOpenChange={(open) => {
+          if (!open && refreshAllResumesStatus !== "loading") {
+            handleRefreshAllResumesDialogClose();
+          }
+        }}
+        onConfirm={handleRefreshAllResumesClick}
+        onClose={handleRefreshAllResumesDialogClose}
       />
     </>
   );

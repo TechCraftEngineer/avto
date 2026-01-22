@@ -129,6 +129,36 @@ export const parseNewResumesChannel = channel(
   );
 
 /**
+ * Канал для отслеживания прогресса обновления всех резюме вакансии
+ */
+export const refreshAllResumesChannel = channel(
+  (vacancyId: string) => `refresh-all-resumes:${vacancyId}`,
+)
+  .addTopic(
+    topic("progress").schema(
+      z.object({
+        vacancyId: z.string(),
+        status: z.enum(["started", "processing", "completed", "error"]),
+        message: z.string(),
+        total: z.number().optional(),
+        processed: z.number().optional(),
+        failed: z.number().optional(),
+      }),
+    ),
+  )
+  .addTopic(
+    topic("result").schema(
+      z.object({
+        vacancyId: z.string(),
+        success: z.boolean(),
+        total: z.number(),
+        processed: z.number(),
+        failed: z.number(),
+      }),
+    ),
+  );
+
+/**
  * Канал для отслеживания прогресса парсинга недостающих контактов
  */
 export const parseMissingContactsChannel = channel(

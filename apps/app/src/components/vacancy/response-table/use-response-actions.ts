@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import {
+  triggerRefreshAllResumes,
   triggerRefreshVacancyResponses,
   triggerScreenAllResponses,
   triggerScreenNewResponses,
@@ -20,6 +21,7 @@ export function useResponseActions(
   const [isProcessingAll, setIsProcessingAll] = useState(false);
   const [isProcessingNew, setIsProcessingNew] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isRefreshingAllResumes, setIsRefreshingAllResumes] = useState(false);
   const [isSendingWelcome, setIsSendingWelcome] = useState(false);
   const [isSyncingArchived, setIsSyncingArchived] = useState(false);
 
@@ -164,6 +166,37 @@ export function useResponseActions(
     );
   }, [queryClient, trpc.vacancy.responses.list]);
 
+  const handleRefreshAllResumes = useCallback(async () => {
+    setIsRefreshingAllResumes(true);
+
+    try {
+      const result = await triggerRefreshAllResumes(vacancyId);
+
+      if (!result.success) {
+        console.error("Не удалось запустить обновление всех резюме:", result.error);
+        toast.error("Не удалось запустить обновление резюме");
+        setIsRefreshingAllResumes(false);
+        return;
+      }
+
+      toast.success("Обновление всех резюме запущено");
+
+      // Не сбрасываем isRefreshingAllResumes сразу - это будет сделано после закрытия диалога
+    } catch (error) {
+      console.error("Ошибка запуска обновления всех резюме:", error);
+      toast.error("Произошла ошибка");
+      setIsRefreshingAllResumes(false);
+    }
+  }, [vacancyId]);
+
+  const handleRefreshAllResumesDialogClose = useCallback(() => {
+    setIsRefreshingAllResumes(false);
+    // Обновляем список откликов после закрытия диалога
+    void queryClient.invalidateQueries(
+      trpc.vacancy.responses.list.pathFilter(),
+    );
+  }, [queryClient, trpc.vacancy.responses.list]);
+
   const handleSendWelcomeBatch = useCallback(async () => {
     if (selectedIds.size === 0) return;
 
@@ -199,6 +232,7 @@ export function useResponseActions(
     isProcessingAll,
     isProcessingNew,
     isRefreshing,
+    isRefreshingAllResumes,
     isSendingWelcome,
     isSyncingArchived,
     handleBulkScreen,
@@ -208,6 +242,8 @@ export function useResponseActions(
     handleScreeningDialogClose,
     handleRefreshResponses,
     handleRefreshComplete,
+    handleRefreshAllResumes,
+    handleRefreshAllResumesDialogClose,
     handleSendWelcomeBatch,
   };
 }
