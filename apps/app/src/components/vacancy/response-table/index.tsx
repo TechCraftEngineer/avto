@@ -195,7 +195,7 @@ export function ResponseTable({
     }
 
     if (responses.length === 0) {
-      return <EmptyState hasResponses={total > 0} colSpan={13} />;
+      return <EmptyState hasResponses={total > 0} colSpan={14} />;
     }
 
     return responses.map((response: ResponseListItem) => (

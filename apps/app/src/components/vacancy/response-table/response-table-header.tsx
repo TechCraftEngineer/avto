@@ -56,6 +56,17 @@ export function ResponseTableHeader({
         <TableHead className="font-semibold text-foreground">
           <button
             type="button"
+            onClick={() => onSort("priorityScore")}
+            className="flex items-center gap-1 hover:text-foreground transition-colors"
+            title="Сортировка по приоритету просмотра"
+          >
+            Приоритет
+            {renderSortIcon("priorityScore")}
+          </button>
+        </TableHead>
+        <TableHead className="font-semibold text-foreground">
+          <button
+            type="button"
             onClick={() => onSort("detailedScore")}
             className="flex items-center gap-1 hover:text-foreground transition-colors"
           >
@@ -84,6 +95,9 @@ export function ResponseTableHeader({
             Карьера
             {renderSortIcon("careerTrajectoryScore")}
           </button>
+        </TableHead>
+        <TableHead className="font-semibold text-foreground">
+          Риски
         </TableHead>
         <TableHead className="font-semibold text-foreground">
           Интервью

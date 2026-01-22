@@ -6,6 +6,10 @@ import {
   HR_SELECTION_STATUS_LABELS,
   RESPONSE_STATUS_LABELS,
 } from "@qbs-autonaim/db/schema";
+import type {
+  VacancyResponseStatus,
+  VacancyHrSelectionStatus,
+} from "@qbs-autonaim/db/schema/vacancy/response-status";
 import {
   Avatar,
   AvatarFallback,
@@ -27,6 +31,7 @@ import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { getAvatarUrl, getInitials } from "~/lib/avatar";
 import { ChatIndicator } from "./chat-indicator";
 import { ContactInfo } from "./contact-info";
+import { PriorityBadge } from "./priority-badge";
 import { ScreenResponseButton } from "./screen-response-button";
 import { ScreeningHoverCard } from "./screening-hover-card";
 
@@ -96,6 +101,12 @@ export function ResponseRow({
               >
                 {response.candidateName || "Без имени"}
               </Link>
+              {response.priorityScore !== undefined && response.priorityScore >= 50 && (
+                <PriorityBadge
+                  priorityScore={response.priorityScore}
+                  className="text-xs"
+                />
+              )}
               {response.welcomeSentAt && (
                 <TooltipProvider>
                   <Tooltip>
@@ -190,7 +201,9 @@ export function ResponseRow({
           }
           className="whitespace-nowrap rounded-md font-normal"
         >
-          {RESPONSE_STATUS_LABELS[response.status]}
+          {(response.status as VacancyResponseStatus) in RESPONSE_STATUS_LABELS
+            ? RESPONSE_STATUS_LABELS[response.status as VacancyResponseStatus]
+            : response.status}
         </Badge>
       </TableCell>
       <TableCell>
@@ -213,6 +226,11 @@ export function ResponseRow({
         )}
       </TableCell>
       <TableCell>
+        {/* Риски будут вычисляться на основе данных скрининга */}
+        {/* Пока оставляем пустым, можно добавить позже через отдельный API */}
+        <span className="text-muted-foreground text-xs">—</span>
+      </TableCell>
+      <TableCell>
         {response.interviewScoring ? (
           <ScreeningHoverCard screening={response.interviewScoring} />
         ) : (
@@ -222,7 +240,9 @@ export function ResponseRow({
       <TableCell>
         {response.hrSelectionStatus ? (
           <Badge variant="outline" className="whitespace-nowrap font-normal">
-            {HR_SELECTION_STATUS_LABELS[response.hrSelectionStatus]}
+            {(response.hrSelectionStatus as VacancyHrSelectionStatus) in HR_SELECTION_STATUS_LABELS
+              ? HR_SELECTION_STATUS_LABELS[response.hrSelectionStatus as VacancyHrSelectionStatus]
+              : response.hrSelectionStatus}
           </Badge>
         ) : (
           <span className="text-muted-foreground text-xs">—</span>

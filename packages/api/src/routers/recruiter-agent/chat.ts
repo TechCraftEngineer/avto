@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Chat procedure для AI-ассистента рекрутера
  *
  * Реализует streaming диалог с агентом через SSE
@@ -34,6 +34,8 @@ const conversationMessageSchema = z.object({
           "GENERATE_CONTENT",
           "COMMUNICATE",
           "CONFIGURE_RULES",
+          "GET_PRIORITY",
+          "GET_INTERVIEW_QUESTIONS",
           "GENERAL_QUESTION",
         ])
         .optional(),
@@ -101,13 +103,13 @@ export const chat = protectedProcedure
     const recruiterbotSettings = mapDBSettingsToRecruiterSettings(
       botSettings
         ? {
-            id: typeof botSettings.id,
-            workspaceId: typeof botSettings.workspaceId,
-            name: typeof botSettings.companyName,
-            website: typeof botSettings.companyWebsite,
-            description: typeof botSettings.companyDescription,
-            botName: typeof botSettings.botName,
-            botRole: typeof botSettings.botRole,
+            id: botSettings.id,
+            workspaceId: botSettings.workspaceId,
+            name: botSettings.companyName,
+            website: botSettings.companyWebsite,
+            description: botSettings.companyDescription,
+            botName: botSettings.botName,
+            botRole: botSettings.botRole,
           }
         : null,
     );

@@ -1,8 +1,10 @@
 export { ChatIndicator } from "./chat-indicator";
 export { ContactInfo } from "./contact-info";
 export { EmptyResponses } from "./empty-responses";
+export { PriorityBadge } from "./priority-badge";
 export { ResponseCards } from "./response-cards";
 export { ResponseTable } from "./response-table";
+export { RiskIndicators } from "./risk-indicators";
 export { ScreeningHoverCard } from "./screening-hover-card";
 export { UpdateVacancyButton } from "./update-vacancy-button";
 export { VacancyAnalytics, VacancyRequirements } from "./vacancy-analytics";

@@ -37,6 +37,7 @@ export const list = protectedProcedure
           "detailedScore",
           "potentialScore",
           "careerTrajectoryScore",
+          "priorityScore",
           "status",
           "respondedAt",
         ])
@@ -214,6 +215,10 @@ export const list = protectedProcedure
         sortDirection === "asc"
           ? asc(responseTable.respondedAt)
           : desc(responseTable.respondedAt);
+    } else if (sortField === "priorityScore") {
+      // Для сортировки по priorityScore используем вычисление на лету
+      // Сортируем после получения данных
+      orderByClause = desc(responseTable.createdAt); // Временная сортировка, будет пересортировано позже
     } else if (
       sortField === "score" ||
       sortField === "detailedScore" ||
@@ -237,6 +242,12 @@ export const list = protectedProcedure
     } else {
       orderByClause = desc(responseTable.createdAt);
     }
+
+    // Вычисляем priorityScore для сортировки (если нужно)
+    const needsPrioritySort = sortField === "priorityScore";
+    
+    // Если нужна сортировка по priorityScore, получаем больше данных для вычисления
+    const fetchLimit = needsPrioritySort ? limit * 3 : limit;
 
     // Получаем отфильтрованные данные с пагинацией
     // Используем select с LEFT JOIN для сортировки по score полям
@@ -295,14 +306,14 @@ export const list = protectedProcedure
         )
         .where(whereCondition)
         .orderBy(orderByClause)
-        .limit(limit)
-        .offset(offset);
+        .limit(needsPrioritySort ? fetchLimit : limit)
+        .offset(needsPrioritySort ? 0 : offset);
     } else {
       responsesRaw = await ctx.db.query.response.findMany({
         where: whereCondition,
         orderBy: [orderByClause],
-        limit,
-        offset,
+        limit: needsPrioritySort ? fetchLimit : limit,
+        offset: needsPrioritySort ? 0 : offset,
         columns: {
           id: true,
           entityId: true,
@@ -397,16 +408,50 @@ export const list = protectedProcedure
       );
     }
 
+    // Вычисляем priorityScore для каждого отклика
+    const calculatePriorityScore = (
+      response: typeof responsesRaw[0],
+      screening: typeof screenings[0] | undefined,
+    ): number => {
+      // Базовый score из fitScore (40%)
+      const fitScore = screening?.score ?? 0;
+      let priorityScore = fitScore * 0.4;
+
+      // Новизна отклика (20%)
+      const now = Date.now();
+      const respondedAt = response.respondedAt?.getTime() ?? response.createdAt.getTime();
+      const hoursSinceResponse = (now - respondedAt) / (1000 * 60 * 60);
+      const freshnessScore = Math.max(0, 100 - hoursSinceResponse * 2); // Убывает на 2 пункта в час
+      priorityScore += freshnessScore * 0.2;
+
+      // Штраф за отсутствие скрининга (20%)
+      const screeningBonus = screening ? 50 : 0;
+      priorityScore += screeningBonus * 0.2;
+
+      // Бонус за статус (20%)
+      let statusBonus = 0;
+      if (response.hrSelectionStatus === "RECOMMENDED" || response.hrSelectionStatus === "INVITE") {
+        statusBonus = 50;
+      } else if (response.status === "EVALUATED") {
+        statusBonus = 30;
+      }
+      priorityScore += statusBonus * 0.2;
+
+      return Math.round(Math.min(100, Math.max(0, priorityScore)));
+    };
+
     // Формируем ответ с количеством сообщений и санитизацией HTML
-    const responses = responsesRaw.map((r) => {
+    const responsesMapped = responsesRaw.map((r) => {
       const screening = screenings.find((s) => s.responseId === r.id);
       const interviewScoring = interviewScorings.find(
         (is) => is.responseId === r.id,
       );
       const session = sessions.find((s) => s.responseId === r.id);
+      const priorityScore = calculatePriorityScore(r, screening);
 
       return {
         ...r,
+        priorityScore,
         screening: screening
           ? {
               score: screening.score,
@@ -452,6 +497,27 @@ export const list = protectedProcedure
           : null,
       };
     });
+
+    // Сортируем по priorityScore если нужно
+    let responses = responsesMapped;
+    if (needsPrioritySort) {
+      responses = [...responsesMapped].sort((a, b) => {
+        const scoreA = a.priorityScore ?? 0;
+        const scoreB = b.priorityScore ?? 0;
+        return sortDirection === "asc" ? scoreA - scoreB : scoreB - scoreA;
+      });
+      // Применяем пагинацию после сортировки
+      const paginatedResponses = responses.slice(offset, offset + limit);
+      // Обновляем total для правильной пагинации
+      const total = responses.length;
+      return {
+        responses: paginatedResponses,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      };
+    }
 
     // Получаем общее количество для пагинации
     const totalResult = await ctx.db
