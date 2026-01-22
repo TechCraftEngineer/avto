@@ -1,8 +1,8 @@
-import { z } from "zod";
+import { inngest } from "@qbs-autonaim/jobs/client";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
+import { z } from "zod";
 import { protectedProcedure } from "../../trpc";
-import { inngest } from "@qbs-autonaim/jobs";
 
 const checkAllPublicationStatusesInputSchema = z.object({
   workspaceId: workspaceIdSchema,
@@ -38,7 +38,10 @@ export const checkAllPublicationStatuses = protectedProcedure
         message: "Запущена массовая проверка статусов публикаций",
       };
     } catch (error) {
-      console.error("Ошибка при запуске массовой проверки статусов публикаций:", error);
+      console.error(
+        "Ошибка при запуске массовой проверки статусов публикаций:",
+        error,
+      );
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Не удалось запустить проверку статусов публикаций",

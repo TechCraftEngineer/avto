@@ -22,6 +22,26 @@ export default async function createNextConfig(): Promise<NextConfig> {
 
     /** We already do linting and typechecking as separate tasks in CI */
     typescript: { ignoreBuildErrors: true },
+
+    /** External packages for server components */
+    serverExternalPackages: ["better-auth", "ai", "@ai-sdk/react"],
+
+    /** Webpack configuration to handle Node.js built-ins */
+    webpack: (config, { isServer }) => {
+      if (isServer) {
+        // Mark Node.js built-ins as external to avoid bundling issues
+        config.externals = config.externals || [];
+        config.externals.push({
+          'node:stream/consumers': 'node:stream/consumers',
+          'node:stream': 'node:stream',
+          'node:crypto': 'node:crypto',
+          'node:fs': 'node:fs',
+          'node:path': 'node:path',
+        });
+      }
+
+      return config;
+    },
   };
 
   return config;
