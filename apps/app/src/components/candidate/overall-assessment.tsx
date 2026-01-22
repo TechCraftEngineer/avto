@@ -8,12 +8,7 @@ import {
   CardTitle,
   Progress,
 } from "@qbs-autonaim/ui";
-import {
-  CheckCircle2,
-  AlertCircle,
-  TrendingUp,
-  XCircle,
-} from "lucide-react";
+import { CheckCircle2, AlertCircle, TrendingUp, XCircle } from "lucide-react";
 
 interface OverallAssessmentProps {
   /** Итоговая оценка */
@@ -134,15 +129,15 @@ export function OverallAssessment({
             />
           </div>
         ) : (
-          <div className="text-sm text-muted-foreground">
-            Оценка недоступна
-          </div>
+          <div className="text-sm text-muted-foreground">Оценка недоступна</div>
         )}
 
         {/* Composite Reasoning */}
         {compositeReasoning ? (
           <div className="rounded-lg border-l-4 border-primary/50 bg-muted/30 p-4">
-            <h4 className="text-sm font-semibold mb-2">Почему подходит / почему нет</h4>
+            <h4 className="text-sm font-semibold mb-2">
+              Почему подходит / почему нет
+            </h4>
             <p className="text-sm leading-relaxed text-foreground">
               {compositeReasoning}
             </p>

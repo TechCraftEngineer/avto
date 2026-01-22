@@ -28,9 +28,15 @@ import type * as React from "react";
 import dynamic from "next/dynamic";
 import { NavSecondary, WorkspaceSwitcher } from "~/components/sidebar";
 
-const NavUser = dynamic(() => import("~/components/sidebar/nav-user").then(mod => ({ default: mod.NavUser })), {
-  ssr: false,
-});
+const NavUser = dynamic(
+  () =>
+    import("~/components/sidebar/nav-user").then((mod) => ({
+      default: mod.NavUser,
+    })),
+  {
+    ssr: false,
+  },
+);
 import {
   NavCollapsible,
   type NavSection,

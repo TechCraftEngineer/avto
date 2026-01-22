@@ -183,13 +183,11 @@ export const importBulkResponses = protectedProcedure
                 workspaceData.organizationId,
               );
 
-            const normalizedData = candidateService.normalizeCandidateData(
-              candidateData,
-            );
+            const normalizedData =
+              candidateService.normalizeCandidateData(candidateData);
 
-            const { candidate } = await candidateRepository.findOrCreateCandidate(
-              normalizedData,
-            );
+            const { candidate } =
+              await candidateRepository.findOrCreateCandidate(normalizedData);
 
             globalCandidateId = candidate.id;
           } catch (error) {

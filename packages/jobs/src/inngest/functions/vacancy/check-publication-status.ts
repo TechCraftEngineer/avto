@@ -153,20 +153,28 @@ async function checkPlatformPublicationStatus(
 /**
  * Validates URL for SSRF protection
  */
-function validateUrlForPlatform(url: string, allowedHostnames: string[]): boolean {
+function validateUrlForPlatform(
+  url: string,
+  allowedHostnames: string[],
+): boolean {
   try {
     const urlObj = new URL(url);
     // Only allow HTTP/HTTPS schemes
-    if (!['http:', 'https:'].includes(urlObj.protocol)) {
-      console.error(`❌ Invalid URL scheme: ${urlObj.protocol} for URL: ${url}`);
+    if (!["http:", "https:"].includes(urlObj.protocol)) {
+      console.error(
+        `❌ Invalid URL scheme: ${urlObj.protocol} for URL: ${url}`,
+      );
       return false;
     }
     // Check hostname against allowlist
-    const isAllowedHostname = allowedHostnames.some(allowed =>
-      urlObj.hostname === allowed || urlObj.hostname.endsWith(`.${allowed}`)
+    const isAllowedHostname = allowedHostnames.some(
+      (allowed) =>
+        urlObj.hostname === allowed || urlObj.hostname.endsWith(`.${allowed}`),
     );
     if (!isAllowedHostname) {
-      console.error(`❌ Invalid hostname: ${urlObj.hostname} not in allowlist ${allowedHostnames.join(', ')} for URL: ${url}`);
+      console.error(
+        `❌ Invalid hostname: ${urlObj.hostname} not in allowlist ${allowedHostnames.join(", ")} for URL: ${url}`,
+      );
       return false;
     }
     return true;
@@ -193,7 +201,7 @@ async function checkHHVacancyStatus(
       vacancyUrl = `https://hh.ru/vacancy/${externalId}`;
     } else if (url) {
       // Validate provided URL to prevent SSRF attacks
-      if (!validateUrlForPlatform(url, ['hh.ru', 'hhcdn.ru'])) {
+      if (!validateUrlForPlatform(url, ["hh.ru", "hhcdn.ru"])) {
         return false;
       }
       vacancyUrl = url;
@@ -243,7 +251,7 @@ async function checkAvitoVacancyStatus(
     if (!url) return false;
 
     // Validate URL to prevent SSRF attacks
-    if (!validateUrlForPlatform(url, ['avito.ru'])) {
+    if (!validateUrlForPlatform(url, ["avito.ru"])) {
       return false;
     }
 
@@ -273,7 +281,7 @@ async function checkSuperJobVacancyStatus(
     if (!url) return false;
 
     // Validate URL to prevent SSRF attacks
-    if (!validateUrlForPlatform(url, ['superjob.ru'])) {
+    if (!validateUrlForPlatform(url, ["superjob.ru"])) {
       return false;
     }
 
@@ -303,7 +311,7 @@ async function checkHabrVacancyStatus(
     if (!url) return false;
 
     // Validate URL to prevent SSRF attacks
-    if (!validateUrlForPlatform(url, ['career.habr.com'])) {
+    if (!validateUrlForPlatform(url, ["career.habr.com"])) {
       return false;
     }
 

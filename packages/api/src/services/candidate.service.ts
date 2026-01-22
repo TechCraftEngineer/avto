@@ -1,6 +1,4 @@
-import type {
-  CandidateDataFromResponse,
-} from "@qbs-autonaim/db";
+import type { CandidateDataFromResponse } from "@qbs-autonaim/db";
 import type { Response, ImportSource, Language } from "@qbs-autonaim/db/schema";
 
 /**
@@ -111,7 +109,10 @@ export class CandidateService {
     const personalInfo = parsedResume.structured?.personalInfo;
     if (personalInfo) {
       // Обновляем имя если есть более полное
-      if (personalInfo.name && personalInfo.name.length > (enriched.fullName?.length ?? 0)) {
+      if (
+        personalInfo.name &&
+        personalInfo.name.length > (enriched.fullName?.length ?? 0)
+      ) {
         const nameParts = this.parseFullName(personalInfo.name);
         enriched.fullName = personalInfo.name;
         enriched.firstName = enriched.firstName ?? nameParts.firstName;
@@ -178,7 +179,8 @@ export class CandidateService {
     const languages = parsedResume.structured?.languages;
     if (languages) {
       const englishLang = languages.find(
-        (lang) => lang.name.toLowerCase().includes("english") ||
+        (lang) =>
+          lang.name.toLowerCase().includes("english") ||
           lang.name.toLowerCase().includes("английский"),
       );
       if (englishLang && !enriched.englishLevel) {
@@ -272,7 +274,10 @@ export class CandidateService {
       };
     }
 
-    const parts = fullName.trim().split(/\s+/).filter((p) => p.length > 0);
+    const parts = fullName
+      .trim()
+      .split(/\s+/)
+      .filter((p) => p.length > 0);
 
     if (parts.length === 0) {
       return {

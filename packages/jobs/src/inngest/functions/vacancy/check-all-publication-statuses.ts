@@ -26,7 +26,9 @@ export const checkAllPublicationStatusesFunction = inngest.createFunction(
     );
 
     const result = await step.run("check-all-publications", async () => {
-      console.log(`🚀 Запуск массовой проверки статусов публикаций для workspace ${workspaceId}`);
+      console.log(
+        `🚀 Запуск массовой проверки статусов публикаций для workspace ${workspaceId}`,
+      );
 
       // Получаем все активные публикации, которые не проверялись более 24 часов
       // или никогда не проверялись
@@ -53,10 +55,12 @@ export const checkAllPublicationStatusesFunction = inngest.createFunction(
 
       // Фильтруем по workspaceId, если указан
       const filteredPublications = workspaceId
-        ? publications.filter(pub => pub.vacancy.workspaceId === workspaceId)
+        ? publications.filter((pub) => pub.vacancy.workspaceId === workspaceId)
         : publications;
 
-      console.log(`📊 Найдено ${filteredPublications.length} публикаций для проверки`);
+      console.log(
+        `📊 Найдено ${filteredPublications.length} публикаций для проверки`,
+      );
 
       if (filteredPublications.length === 0) {
         await publish(
@@ -66,7 +70,11 @@ export const checkAllPublicationStatusesFunction = inngest.createFunction(
             publicationId: "bulk",
           }),
         );
-        return { success: true, totalChecked: 0, message: "Нет публикаций для проверки" };
+        return {
+          success: true,
+          totalChecked: 0,
+          message: "Нет публикаций для проверки",
+        };
       }
 
       await publish(
@@ -80,7 +88,9 @@ export const checkAllPublicationStatusesFunction = inngest.createFunction(
       // Запускаем последовательные проверки для каждой публикации
       const results = [];
       for (const publication of filteredPublications) {
-        console.log(`🔍 Проверяем публикацию ${publication.id} на платформе ${publication.platform}`);
+        console.log(
+          `🔍 Проверяем публикацию ${publication.id} на платформе ${publication.platform}`,
+        );
 
         try {
           // Отправляем событие для проверки конкретной публикации с детерминистическим stepId
@@ -92,12 +102,19 @@ export const checkAllPublicationStatusesFunction = inngest.createFunction(
 
           results.push({ publicationId: publication.id, success: true });
         } catch (error) {
-          console.error(`❌ Ошибка при отправке события проверки для публикации ${publication.id}:`, error);
-          results.push({ publicationId: publication.id, success: false, error: String(error) });
+          console.error(
+            `❌ Ошибка при отправке события проверки для публикации ${publication.id}:`,
+            error,
+          );
+          results.push({
+            publicationId: publication.id,
+            success: false,
+            error: String(error),
+          });
         }
       }
-      const successful = results.filter(r => r.success).length;
-      const failed = results.filter(r => !r.success).length;
+      const successful = results.filter((r) => r.success).length;
+      const failed = results.filter((r) => !r.success).length;
 
       const message = `Проверка завершена: ${successful} успешно, ${failed} ошибок`;
 
@@ -110,7 +127,9 @@ export const checkAllPublicationStatusesFunction = inngest.createFunction(
         }),
       );
 
-      console.log(`✅ Массовая проверка завершена: ${successful}/${filteredPublications.length} успешно`);
+      console.log(
+        `✅ Массовая проверка завершена: ${successful}/${filteredPublications.length} успешно`,
+      );
 
       return {
         success: failed === 0,

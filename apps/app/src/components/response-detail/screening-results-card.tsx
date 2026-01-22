@@ -28,7 +28,13 @@ interface ScreeningData {
   deliveryAnalysis?: string | null;
   potentialScore?: number | null;
   careerTrajectoryScore?: number | null;
-  careerTrajectoryType?: "growth" | "stable" | "decline" | "jump" | "role_change" | null;
+  careerTrajectoryType?:
+    | "growth"
+    | "stable"
+    | "decline"
+    | "jump"
+    | "role_change"
+    | null;
   hiddenFitIndicators?: string[] | null;
   potentialAnalysis?: string | null;
   careerTrajectoryAnalysis?: string | null;
@@ -48,7 +54,8 @@ export function ScreeningResultsCard({ screening }: ScreeningResultsCardProps) {
           Результаты скрининга
         </CardTitle>
         <CardDescription className="text-xs sm:text-sm">
-          Мы отбираем тех, кто реально справится с задачей, а не тех, кто красиво написал резюме
+          Мы отбираем тех, кто реально справится с задачей, а не тех, кто
+          красиво написал резюме
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 sm:space-y-6">
@@ -117,8 +124,10 @@ export function ScreeningResultsCard({ screening }: ScreeningResultsCardProps) {
                   <div className="mt-1">
                     <Badge variant="outline" className="text-xs">
                       {screening.careerTrajectoryType === "growth" && "Рост"}
-                      {screening.careerTrajectoryType === "stable" && "Стабильность"}
-                      {screening.careerTrajectoryType === "decline" && "Деградация"}
+                      {screening.careerTrajectoryType === "stable" &&
+                        "Стабильность"}
+                      {screening.careerTrajectoryType === "decline" &&
+                        "Деградация"}
                       {screening.careerTrajectoryType === "jump" && "Скачок"}
                       {screening.careerTrajectoryType === "role_change" &&
                         "Смена роли"}
@@ -188,7 +197,9 @@ export function ScreeningResultsCard({ screening }: ScreeningResultsCardProps) {
               </h4>
               <div
                 className="text-xs sm:text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none dark:prose-invert"
-                dangerouslySetInnerHTML={{ __html: screening.potentialAnalysis }}
+                dangerouslySetInnerHTML={{
+                  __html: screening.potentialAnalysis,
+                }}
               />
             </div>
           )}
@@ -216,7 +227,9 @@ export function ScreeningResultsCard({ screening }: ScreeningResultsCardProps) {
               </h4>
               <div
                 className="text-xs sm:text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none dark:prose-invert"
-                dangerouslySetInnerHTML={{ __html: screening.hiddenFitAnalysis }}
+                dangerouslySetInnerHTML={{
+                  __html: screening.hiddenFitAnalysis,
+                }}
               />
               {screening.hiddenFitIndicators &&
                 screening.hiddenFitIndicators.length > 0 && (

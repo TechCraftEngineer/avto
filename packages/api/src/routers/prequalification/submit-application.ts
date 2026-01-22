@@ -179,13 +179,11 @@ export const submitApplication = publicProcedure
             )
           : candidateData;
 
-        const normalizedData = candidateService.normalizeCandidateData(
-          enrichedData,
-        );
+        const normalizedData =
+          candidateService.normalizeCandidateData(enrichedData);
 
-        const { candidate } = await candidateRepository.findOrCreateCandidate(
-          normalizedData,
-        );
+        const { candidate } =
+          await candidateRepository.findOrCreateCandidate(normalizedData);
 
         globalCandidateId = candidate.id;
       } catch (error) {

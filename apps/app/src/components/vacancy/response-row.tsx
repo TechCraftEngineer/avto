@@ -101,12 +101,13 @@ export function ResponseRow({
               >
                 {response.candidateName || "Без имени"}
               </Link>
-              {response.priorityScore !== undefined && response.priorityScore >= 50 && (
-                <PriorityBadge
-                  priorityScore={response.priorityScore}
-                  className="text-xs"
-                />
-              )}
+              {response.priorityScore !== undefined &&
+                response.priorityScore >= 50 && (
+                  <PriorityBadge
+                    priorityScore={response.priorityScore}
+                    className="text-xs"
+                  />
+                )}
               {response.welcomeSentAt && (
                 <TooltipProvider>
                   <Tooltip>
@@ -170,8 +171,8 @@ export function ResponseRow({
                           "Рост"}
                         {response.screening.careerTrajectoryType === "stable" &&
                           "Стабильность"}
-                        {response.screening.careerTrajectoryType === "decline" &&
-                          "Деградация"}
+                        {response.screening.careerTrajectoryType ===
+                          "decline" && "Деградация"}
                         {response.screening.careerTrajectoryType === "jump" &&
                           "Скачок"}
                         {response.screening.careerTrajectoryType ===
@@ -264,8 +265,11 @@ export function ResponseRow({
       <TableCell>
         {response.hrSelectionStatus ? (
           <Badge variant="outline" className="whitespace-nowrap font-normal">
-            {(response.hrSelectionStatus as VacancyHrSelectionStatus) in HR_SELECTION_STATUS_LABELS
-              ? HR_SELECTION_STATUS_LABELS[response.hrSelectionStatus as VacancyHrSelectionStatus]
+            {(response.hrSelectionStatus as VacancyHrSelectionStatus) in
+            HR_SELECTION_STATUS_LABELS
+              ? HR_SELECTION_STATUS_LABELS[
+                  response.hrSelectionStatus as VacancyHrSelectionStatus
+                ]
               : response.hrSelectionStatus}
           </Badge>
         ) : (
@@ -284,7 +288,10 @@ export function ResponseRow({
               variant="ghost"
               size="sm"
               className="h-6 px-2 text-xs gap-1 hover:bg-primary/10"
-              onClick={() => response.resumeUrl && window.open(response.resumeUrl, "_blank", "noopener,noreferrer")}
+              onClick={() =>
+                response.resumeUrl &&
+                window.open(response.resumeUrl, "_blank", "noopener,noreferrer")
+              }
             >
               <ExternalLink className="h-3 w-3" />
               Открыть
@@ -307,7 +314,9 @@ export function ResponseRow({
                   </span>
                 </TooltipTrigger>
                 <TooltipContent side="left" className="max-w-xs">
-                  <p className="text-xs whitespace-pre-wrap">{response.coverLetter}</p>
+                  <p className="text-xs whitespace-pre-wrap">
+                    {response.coverLetter}
+                  </p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -322,7 +331,9 @@ export function ResponseRow({
                   </span>
                 </TooltipTrigger>
                 <TooltipContent side="left" className="max-w-xs">
-                  <p className="text-xs whitespace-pre-wrap">{response.experience}</p>
+                  <p className="text-xs whitespace-pre-wrap">
+                    {response.experience}
+                  </p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

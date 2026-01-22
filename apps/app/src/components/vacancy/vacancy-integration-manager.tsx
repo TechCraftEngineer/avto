@@ -311,108 +311,111 @@ export function VacancyIntegrationManager({
                     className="shadow-sm hover:shadow-md transition-shadow w-full sm:w-auto"
                   >
                     <IconPlus className="mr-2 size-4" />
-                    <span className="hidden xs:inline">Добавить интеграцию</span>
+                    <span className="hidden xs:inline">
+                      Добавить интеграцию
+                    </span>
                     <span className="xs:hidden">Добавить</span>
                   </Button>
                 </DialogTrigger>
-              <DialogContent className="max-w-[95vw] w-full sm:max-w-120 shadow-lg border-border/50">
-                <DialogHeader className="space-y-3">
-                  <DialogTitle className="text-base sm:text-lg font-semibold">
-                    Добавить интеграцию
-                  </DialogTitle>
-                  <DialogDescription className="text-sm text-muted-foreground leading-relaxed">
-                    Выберите платформу и укажите ID вакансии или ссылку на неё.
-                  </DialogDescription>
-                </DialogHeader>
-                <Form {...addPublicationForm}>
-                  <form
-                    onSubmit={addPublicationForm.handleSubmit(
-                      handleAddPublication,
-                    )}
-                    className="space-y-6 pt-4"
-                  >
-                    <FormField
-                      control={addPublicationForm.control}
-                      name="platform"
-                      render={({ field }) => (
-                        <FormItem className="space-y-2">
-                          <FormLabel className="text-sm font-medium">
-                            Платформа
-                          </FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger className="shadow-sm">
-                                <SelectValue placeholder="Выберите платформу" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent className="shadow-lg">
-                              {availablePlatforms.map((platform) => {
-                                const config = SOURCE_CONFIG[
-                                  platform.toUpperCase()
-                                ] || {
-                                  label: platform,
-                                  color: "bg-gray-500",
-                                };
-                                return (
-                                  <SelectItem
-                                    key={platform}
-                                    value={platform}
-                                    className="cursor-pointer"
-                                  >
-                                    <div className="flex items-center gap-2">
-                                      <div
-                                        className={`size-2 rounded-full ${config.color.split(" ")[0]}`}
-                                      />
-                                      {config.label}
-                                    </div>
-                                  </SelectItem>
-                                );
-                              })}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage className="text-xs" />
-                        </FormItem>
+                <DialogContent className="max-w-[95vw] w-full sm:max-w-120 shadow-lg border-border/50">
+                  <DialogHeader className="space-y-3">
+                    <DialogTitle className="text-base sm:text-lg font-semibold">
+                      Добавить интеграцию
+                    </DialogTitle>
+                    <DialogDescription className="text-sm text-muted-foreground leading-relaxed">
+                      Выберите платформу и укажите ID вакансии или ссылку на
+                      неё.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <Form {...addPublicationForm}>
+                    <form
+                      onSubmit={addPublicationForm.handleSubmit(
+                        handleAddPublication,
                       )}
-                    />
-                    <FormField
-                      control={addPublicationForm.control}
-                      name="identifier"
-                      render={({ field }) => (
-                        <FormItem className="space-y-2">
-                          <FormLabel className="text-sm font-medium">
-                            ID вакансии или ссылка
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="128580152 или ссылка на вакансию"
-                              className="shadow-sm text-base"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage className="text-xs" />
-                        </FormItem>
-                      )}
-                    />
-                    <DialogFooter className="pt-4">
-                      <Button
-                        type="submit"
-                        disabled={addPublicationMutation.isPending}
-                        className="shadow-sm hover:shadow-md transition-shadow"
-                      >
-                        {addPublicationMutation.isPending && (
-                          <span className="mr-2 inline-block size-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite]" />
+                      className="space-y-6 pt-4"
+                    >
+                      <FormField
+                        control={addPublicationForm.control}
+                        name="platform"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel className="text-sm font-medium">
+                              Платформа
+                            </FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="shadow-sm">
+                                  <SelectValue placeholder="Выберите платформу" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent className="shadow-lg">
+                                {availablePlatforms.map((platform) => {
+                                  const config = SOURCE_CONFIG[
+                                    platform.toUpperCase()
+                                  ] || {
+                                    label: platform,
+                                    color: "bg-gray-500",
+                                  };
+                                  return (
+                                    <SelectItem
+                                      key={platform}
+                                      value={platform}
+                                      className="cursor-pointer"
+                                    >
+                                      <div className="flex items-center gap-2">
+                                        <div
+                                          className={`size-2 rounded-full ${config.color.split(" ")[0]}`}
+                                        />
+                                        {config.label}
+                                      </div>
+                                    </SelectItem>
+                                  );
+                                })}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage className="text-xs" />
+                          </FormItem>
                         )}
-                        Добавить
-                      </Button>
-                    </DialogFooter>
-                  </form>
-                </Form>
-              </DialogContent>
-            </Dialog>
-          )}
+                      />
+                      <FormField
+                        control={addPublicationForm.control}
+                        name="identifier"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel className="text-sm font-medium">
+                              ID вакансии или ссылка
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="128580152 или ссылка на вакансию"
+                                className="shadow-sm text-base"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage className="text-xs" />
+                          </FormItem>
+                        )}
+                      />
+                      <DialogFooter className="pt-4">
+                        <Button
+                          type="submit"
+                          disabled={addPublicationMutation.isPending}
+                          className="shadow-sm hover:shadow-md transition-shadow"
+                        >
+                          {addPublicationMutation.isPending && (
+                            <span className="mr-2 inline-block size-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite]" />
+                          )}
+                          Добавить
+                        </Button>
+                      </DialogFooter>
+                    </form>
+                  </Form>
+                </DialogContent>
+              </Dialog>
+            )}
             {publications.length > 0 && (
               <Button
                 variant="outline"
@@ -536,19 +539,24 @@ export function VacancyIntegrationManager({
                             <IconClock className="size-3 shrink-0" />
                             <span className="truncate">
                               <span className="hidden sm:inline">
-                                Проверено: {new Date(publication.lastCheckedAt).toLocaleString('ru-RU', {
-                                  day: '2-digit',
-                                  month: '2-digit',
-                                  hour: '2-digit',
-                                  minute: '2-digit'
+                                Проверено:{" "}
+                                {new Date(
+                                  publication.lastCheckedAt,
+                                ).toLocaleString("ru-RU", {
+                                  day: "2-digit",
+                                  month: "2-digit",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
                                 })}
                               </span>
                               <span className="sm:hidden">
-                                {new Date(publication.lastCheckedAt).toLocaleString('ru-RU', {
-                                  month: '2-digit',
-                                  day: '2-digit',
-                                  hour: '2-digit',
-                                  minute: '2-digit'
+                                {new Date(
+                                  publication.lastCheckedAt,
+                                ).toLocaleString("ru-RU", {
+                                  month: "2-digit",
+                                  day: "2-digit",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
                                 })}
                               </span>
                             </span>

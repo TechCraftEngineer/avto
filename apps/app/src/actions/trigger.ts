@@ -143,7 +143,10 @@ export async function triggerSyncArchivedVacancyResponses(
     });
     return { success: true as const };
   } catch (error) {
-    console.error("Не удалось запустить синхронизацию архивных откликов:", error);
+    console.error(
+      "Не удалось запустить синхронизацию архивных откликов:",
+      error,
+    );
     return {
       success: false as const,
       error: "Не удалось запустить синхронизацию архивных откликов",

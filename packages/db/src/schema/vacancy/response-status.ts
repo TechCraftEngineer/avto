@@ -85,4 +85,3 @@ export const HR_SELECTION_STATUS_DESCRIPTIONS: Record<
     "Сотрудник проходит адаптацию и введение в должность",
   [HR_SELECTION_STATUS.DONE]: "Процесс завершён",
 };
-

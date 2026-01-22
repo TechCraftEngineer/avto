@@ -97,9 +97,7 @@ export class PriorityAgent extends BaseAgent<
         const screeningInfo = r.screening
           ? `\n   Скрининг: score=${r.screening.score ?? "N/A"}, detailedScore=${r.screening.detailedScore ?? "N/A"}`
           : "\n   Скрининг: не проведен";
-        const statusInfo = r.status
-          ? `\n   Статус: ${r.status}`
-          : "";
+        const statusInfo = r.status ? `\n   Статус: ${r.status}` : "";
         const hrStatusInfo = r.hrSelectionStatus
           ? `\n   HR статус: ${r.hrSelectionStatus}`
           : "";
@@ -158,9 +156,7 @@ ${historyText}
    * Вычисляет приоритетный score на основе данных
    * Используется как fallback или для валидации AI результата
    */
-  calculatePriorityScore(
-    response: PriorityAgentInput["responses"][0],
-  ): number {
+  calculatePriorityScore(response: PriorityAgentInput["responses"][0]): number {
     // Базовый score из fitScore (40%)
     let priorityScore = response.fitScore * 0.4;
 

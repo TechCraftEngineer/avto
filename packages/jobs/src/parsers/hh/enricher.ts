@@ -1,8 +1,8 @@
 import os from "node:os";
 import { db, getIntegrationCredentials } from "@qbs-autonaim/db";
 import { Log } from "crawlee";
+import type { Page } from "puppeteer";
 import puppeteer from "puppeteer-extra";
-import type { Page, Cookie } from "puppeteer";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import { extractTelegramUsername } from "../../services/messaging";
 import {
@@ -11,16 +11,15 @@ import {
   uploadResumePdf,
 } from "../../services/response";
 import { loadCookies, performLogin, saveCookies } from "./auth";
+import { setupBrowser, setupPage } from "./browser-setup";
 import { closeBrowserSafely } from "./browser-utils";
 import { HH_CONFIG } from "./config";
-import { setupBrowser, setupPage } from "./browser-setup";
 import { parseResumeExperience } from "./resume-parser";
 
 puppeteer.use(StealthPlugin());
 
 // Configure Crawlee storage to use temp directory
 process.env.CRAWLEE_STORAGE_DIR = os.tmpdir();
-
 
 async function checkAndPerformLogin(
   page: Page,

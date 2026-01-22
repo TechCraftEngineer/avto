@@ -27,7 +27,11 @@ export async function refreshVacancyResponses(
   const { email, password } = credentials;
 
   // Setup authenticated browser with universal function
-  const { browser, page } = await setupAuthenticatedBrowser(workspaceId, email, password);
+  const { browser, page } = await setupAuthenticatedBrowser(
+    workspaceId,
+    email,
+    password,
+  );
 
   try {
     // Navigate to login page and check authentication

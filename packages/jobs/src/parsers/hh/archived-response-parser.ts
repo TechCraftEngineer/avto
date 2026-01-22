@@ -166,9 +166,7 @@ async function collectAllArchivedResponses(
       'div[data-qa="vacancy-real-responses"] [data-resume-id]',
       (elements: Element[]) => {
         return elements.map((el) => {
-          const link = el.querySelector(
-            'a[data-qa="serp-item__title"]',
-          );
+          const link = el.querySelector('a[data-qa="serp-item__title"]');
           const url = link ? link.getAttribute("href") : "";
           const nameEl = el.querySelector(
             'span[data-qa="resume-serp__resume-fullname"]',

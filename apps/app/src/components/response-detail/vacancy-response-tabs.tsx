@@ -58,25 +58,41 @@ export function VacancyResponseTabs({
   conversation,
 }: VacancyResponseTabsProps) {
   // Проверяем наличие данных в вкладках
-  const hasProposalData = !!(response.coverLetter || response.salaryExpectationsAmount || response.salaryExpectationsComment);
-  const hasExperienceData = !!(response.experience || (response.skills && response.skills.length > 0) || response.profileData);
-  const hasPortfolioData = !!(response.portfolioLinks?.length || response.portfolioFileId);
+  const hasProposalData = !!(
+    response.coverLetter ||
+    response.salaryExpectationsAmount ||
+    response.salaryExpectationsComment
+  );
+  const hasExperienceData = !!(
+    response.experience ||
+    (response.skills && response.skills.length > 0) ||
+    response.profileData
+  );
+  const hasPortfolioData = !!(
+    response.portfolioLinks?.length || response.portfolioFileId
+  );
   const hasContactsData = (() => {
     // Check existing fields
-    if (response.email || response.phone || response.telegramUsername || response.profileUrl) {
+    if (
+      response.email ||
+      response.phone ||
+      response.telegramUsername ||
+      response.profileUrl
+    ) {
       return true;
     }
 
     // Check response.contacts JSON field
     if (response.contacts) {
       try {
-        const contacts = typeof response.contacts === 'string'
-          ? JSON.parse(response.contacts)
-          : response.contacts;
+        const contacts =
+          typeof response.contacts === "string"
+            ? JSON.parse(response.contacts)
+            : response.contacts;
 
         // Check if contacts object has any non-empty values
-        return Object.values(contacts).some(value =>
-          value !== null && value !== undefined && value !== ''
+        return Object.values(contacts).some(
+          (value) => value !== null && value !== undefined && value !== "",
         );
       } catch {
         // If parsing fails, ignore this check
@@ -192,7 +208,10 @@ export function VacancyResponseTabs({
 
           {/* Proposal Tab */}
           {hasProposalData && (
-            <TabsContent value="proposal" className="space-y-3 sm:space-y-4 mt-0">
+            <TabsContent
+              value="proposal"
+              className="space-y-3 sm:space-y-4 mt-0"
+            >
               <ProposalTab response={response} />
             </TabsContent>
           )}
@@ -219,22 +238,28 @@ export function VacancyResponseTabs({
 
           {/* Contacts Tab */}
           {hasContactsData && (
-            <TabsContent value="contacts" className="space-y-3 sm:space-y-4 mt-0">
+            <TabsContent
+              value="contacts"
+              className="space-y-3 sm:space-y-4 mt-0"
+            >
               <ContactsTab response={response} />
             </TabsContent>
           )}
 
           {/* No data message */}
-          {!hasProposalData && !hasExperienceData && !hasPortfolioData && !hasContactsData && (
-            <div className="rounded-lg border border-dashed bg-muted/20 text-center py-12 text-muted-foreground">
-              <div className="text-sm">
-                Для этого отклика не предоставлена дополнительная информация
+          {!hasProposalData &&
+            !hasExperienceData &&
+            !hasPortfolioData &&
+            !hasContactsData && (
+              <div className="rounded-lg border border-dashed bg-muted/20 text-center py-12 text-muted-foreground">
+                <div className="text-sm">
+                  Для этого отклика не предоставлена дополнительная информация
+                </div>
+                <div className="text-xs mt-1 opacity-70">
+                  Можно добавить данные через редактирование отклика
+                </div>
               </div>
-              <div className="text-xs mt-1 opacity-70">
-                Можно добавить данные через редактирование отклика
-              </div>
-            </div>
-          )}
+            )}
         </CardContent>
       </Tabs>
     </Card>

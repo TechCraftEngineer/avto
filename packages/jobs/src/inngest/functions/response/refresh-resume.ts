@@ -27,7 +27,6 @@ puppeteer.use(StealthPlugin());
 // Configure Crawlee storage to use temp directory
 process.env.CRAWLEE_STORAGE_DIR = os.tmpdir();
 
-
 async function checkAndPerformLogin(
   page: Page,
   email: string,

@@ -1,6 +1,12 @@
 "use client";
 
-import { Badge, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@qbs-autonaim/ui";
+import {
+  Badge,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@qbs-autonaim/ui";
 import { AlertTriangle } from "lucide-react";
 
 interface RiskFactor {
@@ -72,7 +78,12 @@ export function RiskIndicators({
         <Tooltip>
           <TooltipTrigger asChild>
             <Badge
-              variant={getSeverityColor(risk.severity) as "destructive" | "default" | "secondary"}
+              variant={
+                getSeverityColor(risk.severity) as
+                  | "destructive"
+                  | "default"
+                  | "secondary"
+              }
               className={`flex items-center gap-1 ${className ?? ""}`}
             >
               <AlertTriangle className="h-3 w-3" />
@@ -97,7 +108,12 @@ export function RiskIndicators({
             className={`flex items-center gap-1 ${className ?? ""}`}
           >
             <AlertTriangle className="h-3 w-3" />
-            {riskFactors.length} {riskFactors.length === 1 ? "риск" : riskFactors.length < 5 ? "риска" : "рисков"}
+            {riskFactors.length}{" "}
+            {riskFactors.length === 1
+              ? "риск"
+              : riskFactors.length < 5
+                ? "риска"
+                : "рисков"}
           </Badge>
         </TooltipTrigger>
         <TooltipContent side="right" className="max-w-xs">
@@ -106,7 +122,9 @@ export function RiskIndicators({
             <ul className="list-disc list-inside space-y-1">
               {displayRisks.map((risk) => (
                 <li key={`${risk.type}-${risk.severity}`} className="text-xs">
-                  <span className="font-medium">{getSeverityLabel(risk.severity)}:</span>{" "}
+                  <span className="font-medium">
+                    {getSeverityLabel(risk.severity)}:
+                  </span>{" "}
                   {risk.description}
                 </li>
               ))}

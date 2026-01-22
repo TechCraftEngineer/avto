@@ -1157,7 +1157,6 @@ ${candidatesList}
       timestamp: new Date(),
     });
 
-
     // Определяем ID вакансии
     const vacancyId = input.vacancyId || context.currentVacancyId;
 
@@ -1206,7 +1205,6 @@ ${candidatesList}
       decision: "executing interview questions generation",
       timestamp: new Date(),
     });
-
 
     // Определяем ID вакансии и кандидата
     const vacancyId = input.vacancyId || context.currentVacancyId;

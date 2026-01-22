@@ -26,7 +26,6 @@ puppeteer.use(StealthPlugin());
 // Configure Crawlee storage to use temp directory
 process.env.CRAWLEE_STORAGE_DIR = os.tmpdir();
 
-
 async function checkAndPerformLogin(
   page: Page,
   email: string,
@@ -70,7 +69,9 @@ export const refreshAllResumesFunction = inngest.createFunction(
     );
 
     const responsesData = await step.run("fetch-responses", async () => {
-      console.log(`🚀 Запуск обновления резюме для всех откликов вакансии: ${vacancyId}`);
+      console.log(
+        `🚀 Запуск обновления резюме для всех откликов вакансии: ${vacancyId}`,
+      );
 
       const responses = await db.query.response.findMany({
         where: eq(response.entityId, vacancyId),
@@ -220,7 +221,9 @@ export const refreshAllResumesFunction = inngest.createFunction(
               photoFileId,
             });
 
-            console.log(`✅ Резюме обновлено для кандидата: ${responseItem.candidateName}`);
+            console.log(
+              `✅ Резюме обновлено для кандидата: ${responseItem.candidateName}`,
+            );
           } finally {
             await browser.close();
           }
@@ -240,7 +243,10 @@ export const refreshAllResumesFunction = inngest.createFunction(
           }),
         );
       } catch (error) {
-        console.error(`❌ Ошибка обработки резюме для отклика ${responseItem.id}:`, error);
+        console.error(
+          `❌ Ошибка обработки резюме для отклика ${responseItem.id}:`,
+          error,
+        );
         failed++;
 
         // Продолжаем обработку остальных откликов
@@ -274,5 +280,5 @@ export const refreshAllResumesFunction = inngest.createFunction(
       processed,
       failed,
     };
-  }
+  },
 );

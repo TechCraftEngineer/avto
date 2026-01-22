@@ -84,7 +84,10 @@ export class CandidateRepository {
 
     // Полное имя - выбираем более полное
     if (newData.fullName) {
-      if (!existing.fullName || newData.fullName.length > existing.fullName.length) {
+      if (
+        !existing.fullName ||
+        newData.fullName.length > existing.fullName.length
+      ) {
         merged.fullName = newData.fullName;
       }
     }
@@ -127,7 +130,10 @@ export class CandidateRepository {
 
     // Profile data - объединяем (если есть новые данные)
     if (newData.profileData) {
-      const existingProfileData = existing.profileData as Record<string, unknown> | null;
+      const existingProfileData = existing.profileData as Record<
+        string,
+        unknown
+      > | null;
       if (existingProfileData) {
         merged.profileData = {
           ...existingProfileData,
@@ -150,7 +156,10 @@ export class CandidateRepository {
     }
 
     // Experience years - берем большее значение
-    if (newData.experienceYears !== null && newData.experienceYears !== undefined) {
+    if (
+      newData.experienceYears !== null &&
+      newData.experienceYears !== undefined
+    ) {
       if (
         existing.experienceYears === null ||
         existing.experienceYears === undefined ||
@@ -216,7 +225,9 @@ export class CandidateRepository {
     // Tags - объединяем уникальные значения
     if (newData.tags && newData.tags.length > 0) {
       const existingTags = existing.tags ?? [];
-      const uniqueTags = Array.from(new Set([...existingTags, ...newData.tags]));
+      const uniqueTags = Array.from(
+        new Set([...existingTags, ...newData.tags]),
+      );
       if (uniqueTags.length > existingTags.length) {
         merged.tags = uniqueTags;
       }
@@ -236,7 +247,17 @@ export class CandidateRepository {
       merged.source = newData.source;
     }
     if (newData.originalSource && !existing.originalSource) {
-      merged.originalSource = newData.originalSource as "MANUAL" | "HH" | "AVITO" | "SUPERJOB" | "HABR" | "KWORK" | "FL_RU" | "FREELANCE_RU" | "WEB_LINK" | "TELEGRAM";
+      merged.originalSource = newData.originalSource as
+        | "MANUAL"
+        | "HH"
+        | "AVITO"
+        | "SUPERJOB"
+        | "HABR"
+        | "KWORK"
+        | "FL_RU"
+        | "FREELANCE_RU"
+        | "WEB_LINK"
+        | "TELEGRAM";
     }
 
     return merged;
@@ -290,7 +311,18 @@ export class CandidateRepository {
       experienceYears: data.experienceYears ?? null,
       salaryExpectationsAmount: data.salaryExpectationsAmount ?? null,
       source: data.source ?? "APPLICANT",
-      originalSource: (data.originalSource as "MANUAL" | "HH" | "AVITO" | "SUPERJOB" | "HABR" | "KWORK" | "FL_RU" | "FREELANCE_RU" | "WEB_LINK" | "TELEGRAM") ?? "MANUAL",
+      originalSource:
+        (data.originalSource as
+          | "MANUAL"
+          | "HH"
+          | "AVITO"
+          | "SUPERJOB"
+          | "HABR"
+          | "KWORK"
+          | "FL_RU"
+          | "FREELANCE_RU"
+          | "WEB_LINK"
+          | "TELEGRAM") ?? "MANUAL",
       location: data.location ?? null,
       birthDate: data.birthDate ?? null,
       gender: data.gender ?? null,
@@ -340,7 +372,10 @@ export class CandidateRepository {
 
     const updateData: Partial<NewCandidate> = {};
 
-    if (data.fullName && data.fullName.length > (existing.fullName?.length ?? 0)) {
+    if (
+      data.fullName &&
+      data.fullName.length > (existing.fullName?.length ?? 0)
+    ) {
       updateData.fullName = data.fullName;
     }
     if (data.firstName && !existing.firstName) {
@@ -372,7 +407,9 @@ export class CandidateRepository {
     }
     if (data.skills && data.skills.length > 0) {
       const existingSkills = existing.skills ?? [];
-      const uniqueSkills = Array.from(new Set([...existingSkills, ...data.skills]));
+      const uniqueSkills = Array.from(
+        new Set([...existingSkills, ...data.skills]),
+      );
       if (uniqueSkills.length > existingSkills.length) {
         updateData.skills = uniqueSkills;
       }

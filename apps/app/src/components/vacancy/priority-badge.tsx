@@ -1,6 +1,12 @@
 "use client";
 
-import { Badge, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@qbs-autonaim/ui";
+import {
+  Badge,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@qbs-autonaim/ui";
 import { Sparkles } from "lucide-react";
 
 interface PriorityBadgeProps {
@@ -32,7 +38,10 @@ export function PriorityBadge({
   const label = isHighPriority ? "Приоритетный" : "Важный";
 
   const content = (
-    <Badge variant={variant} className={`flex items-center gap-1 ${className ?? ""}`}>
+    <Badge
+      variant={variant}
+      className={`flex items-center gap-1 ${className ?? ""}`}
+    >
       <Sparkles className="h-3 w-3" />
       {label}
     </Badge>

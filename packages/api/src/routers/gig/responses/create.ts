@@ -109,13 +109,14 @@ export const create = protectedProcedure
         skills: input.skills ?? null,
         importSource: input.importSource,
         profileData: null,
-        contacts: input.email || input.phone || input.telegramUsername
-          ? {
-              email: input.email,
-              phone: input.phone,
-              telegram: input.telegramUsername,
-            }
-          : null,
+        contacts:
+          input.email || input.phone || input.telegramUsername
+            ? {
+                email: input.email,
+                phone: input.phone,
+                telegram: input.telegramUsername,
+              }
+            : null,
       };
 
       const candidateData = candidateService.extractCandidateDataFromResponse(
@@ -123,13 +124,11 @@ export const create = protectedProcedure
         workspaceData.organizationId,
       );
 
-      const normalizedData = candidateService.normalizeCandidateData(
-        candidateData,
-      );
+      const normalizedData =
+        candidateService.normalizeCandidateData(candidateData);
 
-      const { candidate } = await candidateRepository.findOrCreateCandidate(
-        normalizedData,
-      );
+      const { candidate } =
+        await candidateRepository.findOrCreateCandidate(normalizedData);
 
       globalCandidateId = candidate.id;
     } catch (error) {

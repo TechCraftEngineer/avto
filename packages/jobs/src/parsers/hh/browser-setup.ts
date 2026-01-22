@@ -74,12 +74,19 @@ export async function setupAuthenticatedBrowser(
   workspaceId: string,
   email: string,
   password: string,
-): Promise<{ browser: Browser; page: Page; credentials: { email: string; password: string } }> {
+): Promise<{
+  browser: Browser;
+  page: Page;
+  credentials: { email: string; password: string };
+}> {
   const savedCookies = await loadCookies("hh", workspaceId);
   const browser = await setupBrowser();
 
   try {
-    const page = await setupPage(browser, savedCookies as Parameters<Page["setCookie"]> | null);
+    const page = await setupPage(
+      browser,
+      savedCookies as Parameters<Page["setCookie"]> | null,
+    );
 
     // Check login status and perform login if needed
     await checkAndPerformLogin(page, email, password, workspaceId);
@@ -106,8 +113,8 @@ export async function ensureAuthenticated(
 ): Promise<void> {
   // Check if we're on the login page
   const currentUrl = page.url();
-  const isOnLoginPage = currentUrl.includes('/account/login') ||
-                       currentUrl.includes('/login');
+  const isOnLoginPage =
+    currentUrl.includes("/account/login") || currentUrl.includes("/login");
 
   if (isOnLoginPage) {
     await checkAndPerformLogin(page, email, password, workspaceId);

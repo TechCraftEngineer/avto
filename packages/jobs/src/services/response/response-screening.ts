@@ -23,7 +23,13 @@ interface ScreeningResult {
   resumeLanguage: string;
   potentialScore?: number | null;
   careerTrajectoryScore?: number | null;
-  careerTrajectoryType?: "growth" | "stable" | "decline" | "jump" | "role_change" | null;
+  careerTrajectoryType?:
+    | "growth"
+    | "stable"
+    | "decline"
+    | "jump"
+    | "role_change"
+    | null;
   hiddenFitIndicators?: string[] | null;
   potentialAnalysis?: string | null;
   careerTrajectoryAnalysis?: string | null;

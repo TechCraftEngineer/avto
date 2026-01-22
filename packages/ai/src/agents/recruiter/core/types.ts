@@ -186,7 +186,11 @@ export interface PriorityResult {
 export interface InterviewQuestionsResult {
   questions: Array<{
     question: string;
-    purpose: "risk_clarification" | "skill_verification" | "culture_fit" | "experience_deepening";
+    purpose:
+      | "risk_clarification"
+      | "skill_verification"
+      | "culture_fit"
+      | "experience_deepening";
     relatedRisk?: string | null;
   }>;
   explanation: string;

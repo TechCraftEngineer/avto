@@ -248,7 +248,7 @@ export const list = protectedProcedure
 
     // Вычисляем priorityScore для сортировки (если нужно)
     const needsPrioritySort = sortField === "priorityScore";
-    
+
     // Если нужна сортировка по priorityScore, получаем больше данных для вычисления
     const fetchLimit = needsPrioritySort ? limit * 3 : limit;
 
@@ -418,8 +418,8 @@ export const list = protectedProcedure
 
     // Вычисляем priorityScore для каждого отклика
     const calculatePriorityScore = (
-      response: typeof responsesRaw[0],
-      screening: typeof screenings[0] | undefined,
+      response: (typeof responsesRaw)[0],
+      screening: (typeof screenings)[0] | undefined,
     ): number => {
       // Базовый score из fitScore (40%)
       const fitScore = screening?.score ?? 0;
@@ -427,7 +427,8 @@ export const list = protectedProcedure
 
       // Новизна отклика (20%)
       const now = Date.now();
-      const respondedAt = response.respondedAt?.getTime() ?? response.createdAt.getTime();
+      const respondedAt =
+        response.respondedAt?.getTime() ?? response.createdAt.getTime();
       const hoursSinceResponse = (now - respondedAt) / (1000 * 60 * 60);
       const freshnessScore = Math.max(0, 100 - hoursSinceResponse * 2); // Убывает на 2 пункта в час
       priorityScore += freshnessScore * 0.2;
@@ -438,7 +439,10 @@ export const list = protectedProcedure
 
       // Бонус за статус (20%)
       let statusBonus = 0;
-      if (response.hrSelectionStatus === "RECOMMENDED" || response.hrSelectionStatus === "INVITE") {
+      if (
+        response.hrSelectionStatus === "RECOMMENDED" ||
+        response.hrSelectionStatus === "INVITE"
+      ) {
         statusBonus = 50;
       } else if (response.status === "EVALUATED") {
         statusBonus = 30;

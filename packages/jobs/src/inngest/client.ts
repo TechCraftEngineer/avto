@@ -52,7 +52,8 @@ export const inngest = new Inngest({
   schemas: new EventSchemas().fromSchema({
     "vacancy/requirements.extract": vacancyRequirementsExtractDataSchema,
     "vacancy/responses.sync-archived": syncArchivedVacancyResponsesDataSchema,
-    "vacancy/publications.status.check-all": checkAllPublicationStatusesDataSchema,
+    "vacancy/publications.status.check-all":
+      checkAllPublicationStatusesDataSchema,
     "vacancy/publication.status.check": checkPublicationStatusDataSchema,
     "response/screen": responseScreenDataSchema,
     "response/screen.new": screenNewResponsesDataSchema,

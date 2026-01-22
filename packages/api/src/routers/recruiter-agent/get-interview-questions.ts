@@ -164,18 +164,15 @@ export const getInterviewQuestions = protectedProcedure
     };
 
     // Выполняем генерацию вопросов
-    const result = await questionsAgent.execute(
-      agentInput,
-      {
-        workspaceId,
-        userId: ctx.session.user.id,
-        currentVacancyId: vacancyId,
-        recruiterConversationHistory: [],
-        recruiterCompanySettings: recruiterSettings,
-        recentDecisions: [],
-        conversationHistory: [],
-      },
-    );
+    const result = await questionsAgent.execute(agentInput, {
+      workspaceId,
+      userId: ctx.session.user.id,
+      currentVacancyId: vacancyId,
+      recruiterConversationHistory: [],
+      recruiterCompanySettings: recruiterSettings,
+      recentDecisions: [],
+      conversationHistory: [],
+    });
 
     if (!result.success || !result.data) {
       throw new TRPCError({

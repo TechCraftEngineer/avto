@@ -74,15 +74,13 @@ async function linkResponsesToCandidates(
         }
 
         // Извлекаем данные кандидата из отклика
-        const candidateData =
-          candidateService.extractCandidateDataFromResponse(
-            responseItem,
-            workspaceData.organizationId,
-          );
-
-        const normalizedData = candidateService.normalizeCandidateData(
-          candidateData,
+        const candidateData = candidateService.extractCandidateDataFromResponse(
+          responseItem,
+          workspaceData.organizationId,
         );
+
+        const normalizedData =
+          candidateService.normalizeCandidateData(candidateData);
 
         if (options.dryRun) {
           // Для dry-run используем только поиск, без записи в БД
@@ -155,7 +153,7 @@ async function linkResponsesToCandidates(
             isNull(r.globalCandidateId),
             inArray(r.entityId, vacancyIdList),
           ),
-        });
+      });
 
       stats.totalResponses = responses.length;
       console.log(
@@ -174,9 +172,7 @@ async function linkResponsesToCandidates(
       });
 
       stats.totalResponses = responses.length;
-      console.log(
-        `📊 Найдено ${stats.totalResponses} откликов без кандидата`,
-      );
+      console.log(`📊 Найдено ${stats.totalResponses} откликов без кандидата`);
 
       // Обрабатываем каждый отклик
       for (const response of responses) {
@@ -232,9 +228,7 @@ if (!workspaceId && !all) {
     "  workspaceId  - ID workspace для обработки конкретного workspace",
   );
   console.log("  --all        - Обработать все workspaces");
-  console.log(
-    "  --dry-run    - Режим проверки без применения изменений",
-  );
+  console.log("  --dry-run    - Режим проверки без применения изменений");
   process.exit(1);
 }
 

@@ -27,7 +27,10 @@ interface UseRefreshAllResumesSubscriptionProps {
   vacancyId: string;
   enabled: boolean;
   fetchToken: (vacancyId: string) => Promise<Realtime.Subscribe.Token>;
-  onProgress?: (message: string, progress: RefreshAllResumesProgress | null) => void;
+  onProgress?: (
+    message: string,
+    progress: RefreshAllResumesProgress | null,
+  ) => void;
   onComplete?: (success: boolean, progress: RefreshAllResumesProgress) => void;
 }
 

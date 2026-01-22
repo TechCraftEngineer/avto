@@ -368,7 +368,8 @@ ${historyText}
     if (candidate.hrSelectionStatus === "REJECTED") {
       risks.push({
         type: "previous_rejection",
-        description: "Кандидат был ранее отклонен по этой вакансии. Рекомендуется уточнить причины предыдущего отказа.",
+        description:
+          "Кандидат был ранее отклонен по этой вакансии. Рекомендуется уточнить причины предыдущего отказа.",
         severity: "high",
       });
     }
@@ -376,7 +377,8 @@ ${historyText}
     if (candidate.hrSelectionStatus === "NOT_RECOMMENDED") {
       risks.push({
         type: "not_recommended",
-        description: "Кандидат был ранее не рекомендован. Стоит пересмотреть решение или уточнить причины.",
+        description:
+          "Кандидат был ранее не рекомендован. Стоит пересмотреть решение или уточнить причины.",
         severity: "high",
       });
     }
@@ -389,7 +391,8 @@ ${historyText}
     ) {
       risks.push({
         type: "no_contacts",
-        description: "Отсутствуют контактные данные. Затрудняет коммуникацию с кандидатом.",
+        description:
+          "Отсутствуют контактные данные. Затрудняет коммуникацию с кандидатом.",
         severity: "medium",
       });
     }
@@ -429,7 +432,8 @@ ${historyText}
     ) {
       risks.push({
         type: "score_mismatch",
-        description: "Значительный разрыв между оценкой резюме и интервью. Возможно несоответствие заявленных навыков реальным.",
+        description:
+          "Значительный разрыв между оценкой резюме и интервью. Возможно несоответствие заявленных навыков реальным.",
         severity: "medium",
       });
     }
@@ -438,7 +442,8 @@ ${historyText}
     if (candidate.interviewScore === undefined && candidate.status !== "NEW") {
       risks.push({
         type: "no_interview",
-        description: "Интервью не проведено, хотя кандидат прошёл скрининг. Рекомендуется провести интервью для полной оценки.",
+        description:
+          "Интервью не проведено, хотя кандидат прошёл скрининг. Рекомендуется провести интервью для полной оценки.",
         severity: "low",
       });
     }
@@ -447,7 +452,8 @@ ${historyText}
     if (!candidate.experience || candidate.experience.trim() === "") {
       risks.push({
         type: "no_experience_info",
-        description: "Информация об опыте отсутствует или недостаточна. Затрудняет оценку соответствия вакансии.",
+        description:
+          "Информация об опыте отсутствует или недостаточна. Затрудняет оценку соответствия вакансии.",
         severity: "low",
       });
     } else {
@@ -456,7 +462,8 @@ ${historyText}
       if (experienceLength < 50) {
         risks.push({
           type: "insufficient_experience_info",
-          description: "Описание опыта слишком краткое. Возможно недостаточный опыт или неполная информация.",
+          description:
+            "Описание опыта слишком краткое. Возможно недостаточный опыт или неполная информация.",
           severity: "low",
         });
       }

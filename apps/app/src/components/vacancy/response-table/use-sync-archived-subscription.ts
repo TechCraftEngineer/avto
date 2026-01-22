@@ -44,7 +44,10 @@ export function useSyncArchivedSubscription({
       onStatusChange?.("completed", statusData.message);
     } else if (statusData.status === "error") {
       onStatusChange?.("error", statusData.message);
-    } else if (statusData.status === "started" || statusData.status === "processing") {
+    } else if (
+      statusData.status === "started" ||
+      statusData.status === "processing"
+    ) {
       // Для промежуточных статусов просто обновляем сообщение
       // Статус UI остается "loading" до завершения или ошибки
     }

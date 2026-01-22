@@ -96,9 +96,7 @@ export function ResponseTableHeader({
             {renderSortIcon("careerTrajectoryScore")}
           </button>
         </TableHead>
-        <TableHead className="font-semibold text-foreground">
-          Риски
-        </TableHead>
+        <TableHead className="font-semibold text-foreground">Риски</TableHead>
         <TableHead className="font-semibold text-foreground">
           Интервью
         </TableHead>
@@ -108,12 +106,8 @@ export function ResponseTableHeader({
         <TableHead className="font-semibold text-foreground">
           Контакты
         </TableHead>
-        <TableHead className="font-semibold text-foreground">
-          Резюме
-        </TableHead>
-        <TableHead className="font-semibold text-foreground">
-          Отклик
-        </TableHead>
+        <TableHead className="font-semibold text-foreground">Резюме</TableHead>
+        <TableHead className="font-semibold text-foreground">Отклик</TableHead>
         <TableHead className="font-semibold text-foreground whitespace-nowrap">
           <button
             type="button"

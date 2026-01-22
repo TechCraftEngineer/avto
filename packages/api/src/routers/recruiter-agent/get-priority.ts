@@ -56,10 +56,7 @@ export const getPriority = protectedProcedure
     // Получаем отклики по вакансии
     const responses = await ctx.db.query.response.findMany({
       where: (r, { eq, and }) =>
-        and(
-          eq(r.entityType, "vacancy"),
-          eq(r.entityId, vacancyId),
-        ),
+        and(eq(r.entityType, "vacancy"), eq(r.entityId, vacancyId)),
       limit: limit * 2, // Берём больше для фильтрации
       orderBy: (r, { desc }) => [desc(r.createdAt)],
       columns: {
@@ -91,15 +88,13 @@ export const getPriority = protectedProcedure
       },
     });
 
-    const screeningMap = new Map(
-      screenings.map((s) => [s.responseId, s]),
-    );
+    const screeningMap = new Map(screenings.map((s) => [s.responseId, s]));
 
     // Формируем данные для PriorityAgent
     const responsesForAgent: PriorityAgentInput["responses"] = responses
       .map((r) => {
         const screening = screeningMap.get(r.id);
-        
+
         // Вычисляем fitScore (используем score из скрининга или 0)
         const fitScore = screening?.score ?? 0;
 

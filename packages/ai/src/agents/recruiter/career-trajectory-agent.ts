@@ -51,9 +51,7 @@ export const careerTrajectoryInputSchema = z.object({
   coverLetter: z.string().nullable().optional(),
 });
 
-export type CareerTrajectoryInput = z.infer<
-  typeof careerTrajectoryInputSchema
->;
+export type CareerTrajectoryInput = z.infer<typeof careerTrajectoryInputSchema>;
 
 /**
  * Оценка по критерию
@@ -126,13 +124,17 @@ export class CareerTrajectoryAgent extends BaseAgent<
     } = input;
 
     // Форматируем опыт работы
-    const experienceInfo = this.formatExperience(workExperience, experienceText);
+    const experienceInfo = this.formatExperience(
+      workExperience,
+      experienceText,
+    );
 
     // Форматируем требования вакансии
     const vacancyInfo = this.formatVacancyRequirements(vacancyRequirements);
 
     // Форматируем навыки
-    const skillsInfo = skills && skills.length > 0 ? skills.join(", ") : "Не указаны";
+    const skillsInfo =
+      skills && skills.length > 0 ? skills.join(", ") : "Не указаны";
 
     // Форматируем сопроводительное письмо
     const coverLetterInfo = coverLetter || "Отсутствует";

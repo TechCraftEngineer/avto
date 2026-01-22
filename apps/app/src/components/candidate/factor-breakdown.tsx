@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@qbs-autonaim/ui";
+import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui";
 import {
   AlertCircle,
   Award,
@@ -50,26 +45,24 @@ export function FactorBreakdown({
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Опыт */}
-        {(experienceScore !== undefined ||
-          experienceReasoning) && (
+        {(experienceScore !== undefined || experienceReasoning) && (
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <Briefcase className="h-4 w-4 text-muted-foreground" />
               <h4 className="text-sm font-semibold">Опыт</h4>
-              {experienceScore !== null &&
-                experienceScore !== undefined && (
-                  <span
-                    className={`text-xs font-medium ${
-                      experienceScore >= 70
-                        ? "text-green-600 dark:text-green-400"
-                        : experienceScore >= 50
-                          ? "text-yellow-600 dark:text-yellow-400"
-                          : "text-red-600 dark:text-red-400"
-                    }`}
-                  >
-                    {experienceScore}/100
-                  </span>
-                )}
+              {experienceScore !== null && experienceScore !== undefined && (
+                <span
+                  className={`text-xs font-medium ${
+                    experienceScore >= 70
+                      ? "text-green-600 dark:text-green-400"
+                      : experienceScore >= 50
+                        ? "text-yellow-600 dark:text-yellow-400"
+                        : "text-red-600 dark:text-red-400"
+                  }`}
+                >
+                  {experienceScore}/100
+                </span>
+              )}
             </div>
             {experienceReasoning ? (
               <p className="text-sm text-muted-foreground leading-relaxed pl-6">
@@ -174,9 +167,7 @@ export function FactorBreakdown({
                   key={risk}
                   className="text-sm text-muted-foreground leading-relaxed flex items-start gap-2"
                 >
-                  <span className="text-red-600 dark:text-red-400 mt-1">
-                    •
-                  </span>
+                  <span className="text-red-600 dark:text-red-400 mt-1">•</span>
                   <span>{risk}</span>
                 </li>
               ))}

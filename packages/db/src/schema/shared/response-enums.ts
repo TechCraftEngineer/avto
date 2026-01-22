@@ -143,5 +143,4 @@ export const careerTrajectoryTypeValues = [
   "role_change",
 ] as const;
 
-export type CareerTrajectoryType =
-  (typeof careerTrajectoryTypeValues)[number];
+export type CareerTrajectoryType = (typeof careerTrajectoryTypeValues)[number];

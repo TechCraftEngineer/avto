@@ -268,9 +268,7 @@ export const list = protectedProcedure
           })
         : [];
 
-    const globalCandidatesMap = new Map(
-      globalCandidates.map((c) => [c.id, c]),
-    );
+    const globalCandidatesMap = new Map(globalCandidates.map((c) => [c.id, c]));
 
     const items = responses.map((r) => {
       const vacancyData = vacancies.find((v) => v.id === r.entityId);

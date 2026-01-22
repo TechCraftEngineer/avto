@@ -56,9 +56,7 @@ export function ScoreExplanation({
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">Оценка</span>
-              <span
-                className={`text-lg font-bold ${getScoreColor(score)}`}
-              >
+              <span className={`text-lg font-bold ${getScoreColor(score)}`}>
                 {score}/100
               </span>
             </div>
@@ -69,9 +67,7 @@ export function ScoreExplanation({
             />
           </div>
         ) : (
-          <div className="text-sm text-muted-foreground">
-            Оценка недоступна
-          </div>
+          <div className="text-sm text-muted-foreground">Оценка недоступна</div>
         )}
 
         {/* Reasoning */}

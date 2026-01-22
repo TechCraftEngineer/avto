@@ -393,7 +393,9 @@ export function RankedCandidateCard({
           {/* Composite Score Reasoning Preview */}
           {candidate.compositeScoreReasoning && (
             <div className="p-3 rounded-lg border-l-4 border-primary/50 bg-muted/30">
-              <h4 className="text-xs font-semibold mb-1">Почему подходит / почему нет</h4>
+              <h4 className="text-xs font-semibold mb-1">
+                Почему подходит / почему нет
+              </h4>
               <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed">
                 {candidate.compositeScoreReasoning}
               </p>
