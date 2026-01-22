@@ -1,7 +1,13 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui";
-import { IconBot, IconFilter, IconMessage } from "@tabler/icons-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui";
+import { IconBolt, IconFilter, IconMessage } from "@tabler/icons-react";
 import { use } from "react";
 import { PageHeader } from "~/components/layout";
 import { VacancyIntegrationManager } from "~/components/vacancy";
@@ -46,8 +52,13 @@ export default function VacancyIntegrationsPage({
             <CardContent>
               <div className="text-center py-8 text-muted-foreground/50">
                 <IconMessage className="size-8 mx-auto mb-2" />
-                <p className="text-sm">Настройки каналов коммуникации скоро появятся</p>
-                <p className="text-xs mt-1">Здесь можно будет настроить, как общаться с кандидатами из разных источников</p>
+                <p className="text-sm">
+                  Настройки каналов коммуникации скоро появятся
+                </p>
+                <p className="text-xs mt-1">
+                  Здесь можно будет настроить, как общаться с кандидатами из
+                  разных источников
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -55,7 +66,7 @@ export default function VacancyIntegrationsPage({
           <Card className="shadow-sm border-border/50">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
-                <IconBot className="size-5 text-muted-foreground" />
+                <IconBolt className="size-5 text-muted-foreground" />
                 Автоматические ответы
               </CardTitle>
               <CardDescription className="text-sm text-muted-foreground">
@@ -64,9 +75,11 @@ export default function VacancyIntegrationsPage({
             </CardHeader>
             <CardContent>
               <div className="text-center py-8 text-muted-foreground/50">
-                <IconBot className="size-8 mx-auto mb-2" />
+                <IconBolt className="size-8 mx-auto mb-2" />
                 <p className="text-sm">Автоматические ответы скоро появятся</p>
-                <p className="text-xs mt-1">Шаблоны ответов и автоответы кандидатам</p>
+                <p className="text-xs mt-1">
+                  Шаблоны ответов и автоответы кандидатам
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -85,7 +98,9 @@ export default function VacancyIntegrationsPage({
               <div className="text-center py-8 text-muted-foreground/50">
                 <IconFilter className="size-8 mx-auto mb-2" />
                 <p className="text-sm">Фильтры кандидатов скоро появятся</p>
-                <p className="text-xs mt-1">Автоматический отбор по критериям</p>
+                <p className="text-xs mt-1">
+                  Автоматический отбор по критериям
+                </p>
               </div>
             </CardContent>
           </Card>
