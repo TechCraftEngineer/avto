@@ -25,7 +25,12 @@ import {
 } from "@tabler/icons-react";
 import Link from "next/link";
 import type * as React from "react";
-import { NavSecondary, NavUser, WorkspaceSwitcher } from "~/components/sidebar";
+import dynamic from "next/dynamic";
+import { NavSecondary, WorkspaceSwitcher } from "~/components/sidebar";
+
+const NavUser = dynamic(() => import("~/components/sidebar/nav-user").then(mod => ({ default: mod.NavUser })), {
+  ssr: false,
+});
 import {
   NavCollapsible,
   type NavSection,

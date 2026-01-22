@@ -85,10 +85,15 @@ export function SyncArchivedDialog({
             </>
           )}
           {status === "loading" && (
-            <Button disabled>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Синхронизируется...
-            </Button>
+            <>
+              <Button variant="outline" onClick={onClose}>
+                Отмена
+              </Button>
+              <Button disabled>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Синхронизируется...
+              </Button>
+            </>
           )}
           {status === "success" && <Button onClick={onClose}>Закрыть</Button>}
           {status === "error" && (

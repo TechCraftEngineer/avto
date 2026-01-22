@@ -129,6 +129,9 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
             status: "completed",
             message: `Синхронизация завершена. Обработано: ${syncedResponses}, новых: ${newResponses}`,
             vacancyId,
+            syncedResponses,
+            newResponses,
+            vacancyTitle: vacancyData.title,
           }),
         );
 

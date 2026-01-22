@@ -1,9 +1,7 @@
 import { Button, Input } from "@qbs-autonaim/ui";
 import { Loader2, RefreshCw, Search, Sparkles } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { useTRPC } from "~/trpc/react";
 import { useWorkspace } from "~/hooks/use-workspace";
 import {
   fetchRefreshVacancyResponsesToken,
@@ -57,10 +55,12 @@ interface ResponseTableToolbarProps {
   isRefreshing: boolean;
   isProcessingNew: boolean;
   isProcessingAll: boolean;
+  isSyncingArchived: boolean;
   onRefresh: () => void;
   onRefreshComplete: () => void;
   onScreenNew: () => void;
   onScreenAll: () => void;
+  onSyncArchived: (workspaceId: string) => void;
   onScreeningDialogClose: () => void;
 }
 
@@ -76,13 +76,14 @@ export function ResponseTableToolbar({
   isRefreshing,
   isProcessingNew,
   isProcessingAll,
+  isSyncingArchived,
   onRefresh,
   onRefreshComplete,
   onScreenNew,
   onScreenAll,
+  onSyncArchived,
   onScreeningDialogClose,
 }: ResponseTableToolbarProps) {
-  const trpc = useTRPC();
   const { workspace } = useWorkspace();
   // Refresh state
   const [refreshDialogOpen, setRefreshDialogOpen] = useState(false);
@@ -135,22 +136,6 @@ export function ResponseTableToolbar({
   const [syncArchivedSubscriptionActive, setSyncArchivedSubscriptionActive] =
     useState(false);
 
-  // Sync archived mutation
-  const syncArchivedMutation = useMutation(
-    trpc.freelancePlatforms.syncArchivedVacancyResponses.mutationOptions({
-      onSuccess: () => {
-        setSyncArchivedMessage("Задача запущена, ожидаем выполнения...");
-        toast.success("Синхронизация архивных откликов запущена в фоне");
-      },
-      onError: (error) => {
-        setSyncArchivedStatus("error");
-        const errorMessage =
-          error instanceof Error ? error.message : "Неизвестная ошибка";
-        setSyncArchivedError(errorMessage);
-        toast.error(`Ошибка запуска синхронизации: ${errorMessage}`);
-      },
-    }),
-  );
 
   // Timeout refs для предотвращения утечек памяти
   const screenNewTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -244,27 +229,34 @@ export function ResponseTableToolbar({
     vacancyId,
     enabled: syncArchivedSubscriptionActive,
     fetchToken: fetchSyncArchivedVacancyResponsesToken,
-    onMessage: (message) => {
+    onMessage: (message, data) => {
       setSyncArchivedMessage(message);
-      // Parse message for counts and title
-      if (message.includes("Синхронизация завершена")) {
-        const syncedMatch = message.match(/Обработано:\s*(\d+)/);
-        const newMatch = message.match(/новых:\s*(\d+)/);
-
-        if (syncedMatch?.[1]) {
-          setSyncArchivedSyncedCount(parseInt(syncedMatch[1], 10));
+      // Use data from realtime message if available
+      if (data) {
+        if (data.syncedResponses !== undefined) {
+          setSyncArchivedSyncedCount(data.syncedResponses);
         }
-        if (newMatch?.[1]) {
-          setSyncArchivedNewCount(parseInt(newMatch[1], 10));
+        if (data.newResponses !== undefined) {
+          setSyncArchivedNewCount(data.newResponses);
         }
-        // Note: vacancyTitle is not available in the message payload
-        // It would need to be sent separately or fetched from vacancy data
+        if (data.vacancyTitle) {
+          setSyncArchivedVacancyTitle(data.vacancyTitle);
+        }
       }
     },
     onStatusChange: (status, message) => {
       if (status === "completed") {
         setSyncArchivedStatus("success");
         onRefreshComplete();
+
+        // Очищаем предыдущий таймер перед установкой нового
+        if (syncArchivedTimerRef.current) {
+          clearTimeout(syncArchivedTimerRef.current);
+        }
+        syncArchivedTimerRef.current = setTimeout(
+          () => handleSyncArchivedDialogClose(),
+          3000,
+        );
       } else {
         setSyncArchivedStatus("error");
         setSyncArchivedError(message);
@@ -367,7 +359,7 @@ export function ResponseTableToolbar({
   }, [onScreeningDialogClose]);
 
   // Sync archived handlers
-  const handleSyncArchivedClick = () => {
+  const handleSyncArchivedClick = async () => {
     if (!workspace) {
       const errorMessage =
         "Не удалось запустить синхронизацию: рабочее пространство не найдено";
@@ -385,24 +377,32 @@ export function ResponseTableToolbar({
     setSyncArchivedStatus("loading");
     setSyncArchivedSubscriptionActive(true);
 
-    syncArchivedMutation.mutate({
-      workspaceId: workspace.id,
-      vacancyId,
-    });
-  };
-
-  const handleSyncArchivedDialogClose = () => {
-    if (syncArchivedStatus !== "loading") {
-      setSyncArchivedDialogOpen(false);
-      setSyncArchivedError(null);
-      setSyncArchivedMessage("");
-      setSyncArchivedSyncedCount(0);
-      setSyncArchivedNewCount(0);
-      setSyncArchivedVacancyTitle("");
-      setSyncArchivedStatus("idle");
-      setSyncArchivedSubscriptionActive(false);
+    try {
+      await onSyncArchived(workspace.id);
+    } catch (error) {
+      setSyncArchivedStatus("error");
+      setSyncArchivedError(
+        error instanceof Error ? error.message : "Произошла ошибка",
+      );
     }
   };
+
+  const handleSyncArchivedDialogClose = useCallback(() => {
+    // Очищаем таймер при закрытии диалога
+    if (syncArchivedTimerRef.current) {
+      clearTimeout(syncArchivedTimerRef.current);
+      syncArchivedTimerRef.current = null;
+    }
+
+    setSyncArchivedDialogOpen(false);
+    setSyncArchivedError(null);
+    setSyncArchivedMessage("");
+    setSyncArchivedSyncedCount(0);
+    setSyncArchivedNewCount(0);
+    setSyncArchivedVacancyTitle("");
+    setSyncArchivedStatus("idle");
+    setSyncArchivedSubscriptionActive(false);
+  }, []);
 
   // Очистка таймеров при размонтировании компонента
   useEffect(() => {
@@ -461,18 +461,18 @@ export function ResponseTableToolbar({
           </Button>
 
           <Button
-            disabled={syncArchivedStatus === "loading"}
+            disabled={isSyncingArchived}
             variant="outline"
             size="sm"
             onClick={() => setSyncArchivedDialogOpen(true)}
             className="h-9 bg-background/60 border-border/60 border-dashed hover:bg-background/80 transition-colors"
           >
-            {syncArchivedStatus === "loading" ? (
+            {isSyncingArchived ? (
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
             ) : (
               <RefreshCw className="h-4 w-4 mr-2" />
             )}
-            {syncArchivedStatus === "loading" ? "Синхронизация..." : "Архивные"}
+            {isSyncingArchived ? "Синхронизация..." : "Архивные"}
           </Button>
 
           <Button

@@ -99,9 +99,11 @@ export function ResponseTable({
     isProcessingNew,
     isRefreshing,
     isSendingWelcome,
+    isSyncingArchived,
     handleBulkScreen,
     handleScreenAll,
     handleScreenNew,
+    handleSyncArchived,
     handleScreeningDialogClose,
     handleRefreshResponses,
     handleRefreshComplete,
@@ -212,10 +214,12 @@ export function ResponseTable({
         isRefreshing={isRefreshing}
         isProcessingNew={isProcessingNew}
         isProcessingAll={isProcessingAll}
+        isSyncingArchived={isSyncingArchived}
         onRefresh={handleRefreshResponses}
         onRefreshComplete={handleRefreshComplete}
         onScreenNew={handleScreenNew}
         onScreenAll={handleScreenAll}
+        onSyncArchived={handleSyncArchived}
         onScreeningDialogClose={handleScreeningDialogClose}
       />
 
