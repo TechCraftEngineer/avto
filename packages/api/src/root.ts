@@ -9,6 +9,7 @@ import { funnelRouter } from "./routers/funnel";
 import { gigRouter } from "./routers/gig";
 import { integrationRouter } from "./routers/integration";
 import { interviewScenariosRouter } from "./routers/interview-scenarios";
+import { metaMatchRouter } from "./routers/meta-match";
 import { organizationRouter } from "./routers/organization";
 import { prequalificationRouter } from "./routers/prequalification";
 import { recruiterAgentRouter } from "./routers/recruiter-agent";
@@ -30,6 +31,7 @@ export const appRouter = createTRPCRouter({
   gig: gigRouter,
   integration: integrationRouter,
   interviewScenarios: interviewScenariosRouter,
+  metaMatch: metaMatchRouter,
   company: companyRouter,
   telegram: telegramRouter,
   workspace: workspaceRouter,

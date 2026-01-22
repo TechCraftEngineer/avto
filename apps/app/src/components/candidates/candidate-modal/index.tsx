@@ -286,6 +286,7 @@ export function CandidateModal({
             ) : candidateDetail ? (
               <CandidateInfo
                 candidate={candidateDetail}
+                workspaceId={workspaceId}
                 isLoading={{
                   sendGreeting: isSendingGreeting,
                   invite: isInviting,

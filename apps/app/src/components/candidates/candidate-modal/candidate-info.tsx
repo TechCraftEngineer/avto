@@ -19,9 +19,11 @@ import {
 } from "lucide-react";
 import { MatchScoreCircle } from "../match-score-circle";
 import type { FunnelCandidateDetail } from "../types";
+import { MetaMatchSection } from "./meta-match-section";
 
 interface CandidateInfoProps {
   candidate: FunnelCandidateDetail;
+  workspaceId: string;
   onAction?: (action: string) => void;
   isLoading?: {
     sendGreeting?: boolean;
@@ -33,6 +35,7 @@ interface CandidateInfoProps {
 
 export function CandidateInfo({
   candidate,
+  workspaceId,
   onAction,
   isLoading = {},
 }: CandidateInfoProps) {
@@ -132,6 +135,8 @@ export function CandidateInfo({
           )}
         </div>
       </div>
+
+      <MetaMatchSection candidateId={candidate.id} workspaceId={workspaceId} />
 
       {candidate.screeningAnalysis && (
         <div className="p-4 bg-muted/50 rounded-lg border-l-4 border-blue-500">
