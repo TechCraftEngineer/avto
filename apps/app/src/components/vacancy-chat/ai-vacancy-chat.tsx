@@ -201,7 +201,7 @@ export function AIVacancyChat({
     <main className="flex h-full flex-col gap-0 md:flex-row">
       {/* Chat Section */}
       <section
-        className="flex h-[50vh] w-full flex-col border-b md:h-full md:w-1/2 md:border-b-0 md:border-r lg:w-2/5"
+        className="flex h-[35vh] w-full flex-col border-b md:h-full md:w-1/2 md:border-b-0 md:border-r lg:w-2/5"
         aria-label="Чат с AI-ассистентом"
       >
         {/* Company Settings Preview */}
@@ -351,7 +351,7 @@ export function AIVacancyChat({
 
       {/* Document Preview */}
       <section
-        className="flex h-[50vh] w-full flex-col md:h-full md:w-1/2 lg:w-3/5"
+        className="flex h-[65vh] w-full flex-col md:h-full md:w-1/2 lg:w-3/5"
         aria-label="Документ вакансии"
       >
         <header className="border-b p-3 md:p-4">

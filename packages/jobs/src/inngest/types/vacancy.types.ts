@@ -11,7 +11,7 @@ export const vacancyRequirementsExtractDataSchema = z.object({
 });
 
 export const vacancyUpdateActiveDataSchema = z.object({
-  workspaceId: z.string().min(1, "Workspace ID is required"),
+  workspaceId: workspaceIdSchema,
 });
 
 export const vacancyUpdateSingleDataSchema = z.object({
@@ -28,7 +28,7 @@ export const collectChatIdsDataSchema = z.object({
 
 export const syncArchivedVacancyResponsesDataSchema = z.object({
   vacancyId: z.string().min(1, "Vacancy ID is required"),
-  workspaceId: z.string().min(1, "Workspace ID is required"),
+  workspaceId: workspaceIdSchema,
 });
 
 export const checkPublicationStatusDataSchema = z.object({

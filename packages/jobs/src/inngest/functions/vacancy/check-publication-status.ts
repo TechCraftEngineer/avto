@@ -193,27 +193,10 @@ async function checkHHVacancyStatus(
       vacancyUrl = `https://hh.ru/vacancy/${externalId}`;
     } else if (url) {
       // Validate provided URL to prevent SSRF attacks
-      try {
-        const urlObj = new URL(url);
-        // Only allow HTTP/HTTPS schemes
-        if (!['http:', 'https:'].includes(urlObj.protocol)) {
-          console.error(`❌ Invalid URL scheme: ${urlObj.protocol} for URL: ${url}`);
-          return false;
-        }
-        // Strict allowlist for hostnames
-        const allowedHostnames = ['hh.ru', 'hhcdn.ru'];
-        const isAllowedHostname = allowedHostnames.some(allowed =>
-          urlObj.hostname === allowed || urlObj.hostname.endsWith(`.${allowed}`)
-        );
-        if (!isAllowedHostname) {
-          console.error(`❌ Invalid hostname: ${urlObj.hostname} not in allowlist for URL: ${url}`);
-          return false;
-        }
-        vacancyUrl = url;
-      } catch (error) {
-        console.error(`❌ Invalid URL format: ${url}`, error);
+      if (!validateUrlForPlatform(url, ['hh.ru', 'hhcdn.ru'])) {
         return false;
       }
+      vacancyUrl = url;
     } else {
       return false;
     }
