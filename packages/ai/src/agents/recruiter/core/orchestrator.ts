@@ -11,6 +11,8 @@ import { CommunicationAgent } from "../actions/communication";
 import { ContentGeneratorAgent } from "../actions/content-generator";
 import { VacancyAnalyticsAgent } from "../analytics/vacancy-analytics";
 import { IntentClassifierAgent } from "../classification/intent-classifier";
+import { InterviewQuestionsAgent } from "../interview/interview-questions-agent";
+import { PriorityAgent } from "../priority/priority-agent";
 import { CandidateSearchAgent } from "../search/candidate-search";
 import type { RecruiterStreamEvent as StreamEvent } from "./streaming";
 import type {
@@ -395,6 +397,8 @@ export class RecruiterAgentOrchestrator {
       GENERATE_CONTENT: "Генерация контента",
       COMMUNICATE: "Подготовка сообщения",
       CONFIGURE_RULES: "Настройка правил автоматизации",
+      GET_PRIORITY: "Определение приоритетов кандидатов",
+      GET_INTERVIEW_QUESTIONS: "Генерация вопросов для интервью",
       GENERAL_QUESTION: "Обработка запроса",
     };
     return descriptions[intent] || "Обработка запроса";
@@ -505,6 +509,24 @@ export class RecruiterAgentOrchestrator {
 
       case "CONFIGURE_RULES":
         return this.handleConfigureRules(
+          input,
+          context,
+          traceId,
+          agentTrace,
+          actions,
+        );
+
+      case "GET_PRIORITY":
+        return this.handleGetPriority(
+          input,
+          context,
+          traceId,
+          agentTrace,
+          actions,
+        );
+
+      case "GET_INTERVIEW_QUESTIONS":
+        return this.handleGetInterviewQuestions(
           input,
           context,
           traceId,
@@ -1122,6 +1144,121 @@ ${candidatesList}
   }
 
   /**
+   * Обработчик получения приоритетов кандидатов
+   */
+  private async handleGetPriority(
+    input: RecruiterOrchestratorInput,
+    context: RecruiterAgentContext,
+    traceId: string | undefined,
+    agentTrace: AgentTraceEntry[],
+    _actions: ExecutedAction[],
+  ): Promise<string> {
+    agentTrace.push({
+      agent: "PriorityAgent",
+      decision: "executing priority calculation",
+      timestamp: new Date(),
+    });
+
+    const priorityAgent = new PriorityAgent(this.getAgentConfig(traceId));
+
+    // Определяем ID вакансии
+    const vacancyId = input.vacancyId || context.currentVacancyId;
+
+    if (!vacancyId) {
+      agentTrace.push({
+        agent: "PriorityAgent",
+        decision: "no vacancy ID provided",
+        timestamp: new Date(),
+      });
+
+      return "Для определения приоритетов необходимо указать вакансию. Пожалуйста, выберите вакансию или укажите её в запросе.";
+    }
+
+    // TODO: Получить данные откликов из БД через API
+    // Пока возвращаем сообщение о необходимости интеграции
+    agentTrace.push({
+      agent: "PriorityAgent",
+      decision: "requires DB integration - returning placeholder",
+      timestamp: new Date(),
+    });
+
+    return `Для определения приоритетов просмотра кандидатов мне нужен доступ к списку откликов по вакансии ${vacancyId}. 
+
+Эта функция будет доступна после интеграции с API получения откликов. 
+
+Пока что рекомендую:
+1. Отсортировать отклики по fitScore (от большего к меньшему)
+2. Обратить внимание на свежие отклики (за последние 24 часа)
+3. Приоритезировать кандидатов с проведённым скринингом
+
+Хотите получить список кандидатов для просмотра?`;
+  }
+
+  /**
+   * Обработчик генерации вопросов для интервью
+   */
+  private async handleGetInterviewQuestions(
+    input: RecruiterOrchestratorInput,
+    context: RecruiterAgentContext,
+    traceId: string | undefined,
+    agentTrace: AgentTraceEntry[],
+    _actions: ExecutedAction[],
+  ): Promise<string> {
+    agentTrace.push({
+      agent: "InterviewQuestionsAgent",
+      decision: "executing interview questions generation",
+      timestamp: new Date(),
+    });
+
+    const questionsAgent = new InterviewQuestionsAgent(
+      this.getAgentConfig(traceId),
+    );
+
+    // Определяем ID вакансии и кандидата
+    const vacancyId = input.vacancyId || context.currentVacancyId;
+    const candidateId = input.candidateId || context.candidateId;
+
+    if (!vacancyId) {
+      agentTrace.push({
+        agent: "InterviewQuestionsAgent",
+        decision: "no vacancy ID provided",
+        timestamp: new Date(),
+      });
+
+      return "Для генерации вопросов необходимо указать вакансию. Пожалуйста, выберите вакансию или укажите её в запросе.";
+    }
+
+    if (!candidateId) {
+      agentTrace.push({
+        agent: "InterviewQuestionsAgent",
+        decision: "no candidate ID provided",
+        timestamp: new Date(),
+      });
+
+      return "Для генерации персонализированных вопросов необходимо указать кандидата. Пожалуйста, выберите кандидата из списка откликов или укажите его в запросе.";
+    }
+
+    // TODO: Получить данные кандидата и вакансии из БД через API
+    // Пока возвращаем сообщение о необходимости интеграции
+    agentTrace.push({
+      agent: "InterviewQuestionsAgent",
+      decision: "requires DB integration - returning placeholder",
+      timestamp: new Date(),
+    });
+
+    return `Для генерации персонализированных вопросов для интервью с кандидатом ${candidateId} по вакансии ${vacancyId} мне нужен доступ к данным кандидата и вакансии.
+
+Эта функция будет доступна после интеграции с API. 
+
+Общие рекомендации по вопросам:
+1. **Для уточнения рисков** — задавайте вопросы о выявленных проблемах (доступность, опыт, ожидания)
+2. **Для проверки навыков** — вопросы о конкретных технологиях из требований вакансии
+3. **Для оценки культуры** — вопросы о формате работы, командной работе, мотивации
+
+Хотите получить общий список вопросов для этой вакансии?`;
+  }
+
+  /**
    * Обработчик настройки правил
    * TODO: Будет реализован в задаче 9 (RuleEngine)
    */
@@ -1166,6 +1303,8 @@ ${candidatesList}
 • **Анализом вакансий** — "Почему у нас мало откликов?"
 • **Генерацией контента** — "Напиши описание вакансии"
 • **Коммуникацией** — "Напиши приглашение на интервью"
+• **Приоритетами** — "Кого посмотреть первым?"
+• **Вопросами для интервью** — "Какие вопросы задать кандидату?"
 • **Настройкой правил** — "Создай правило для автоприглашения"
 
 Чем могу помочь?`;

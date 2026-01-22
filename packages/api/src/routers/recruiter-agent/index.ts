@@ -22,6 +22,8 @@ import {
   getRecommendations,
   getUndoableActions,
 } from "./get-recommendations";
+import { getInterviewQuestions } from "./get-interview-questions";
+import { getPriority } from "./get-priority";
 
 export const recruiterAgentRouter = {
   // Chat (streaming)
@@ -37,6 +39,10 @@ export const recruiterAgentRouter = {
   getPendingApprovals,
   getUndoableActions,
   getAuditLog,
+
+  // Priority & Interview Questions
+  getPriority,
+  getInterviewQuestions,
 
   // Rules configuration
   configureRules,

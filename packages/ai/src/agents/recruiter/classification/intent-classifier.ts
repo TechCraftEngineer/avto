@@ -20,6 +20,8 @@ const intentClassifierOutputSchema = z.object({
     "GENERATE_CONTENT",
     "COMMUNICATE",
     "CONFIGURE_RULES",
+    "GET_PRIORITY",
+    "GET_INTERVIEW_QUESTIONS",
     "GENERAL_QUESTION",
   ]),
   confidence: z.number().min(0).max(1),
@@ -29,6 +31,8 @@ const intentClassifierOutputSchema = z.object({
     skills: z.array(z.string()).optional(),
     vacancyId: z.string().optional(),
     messageType: z.string().optional(),
+    candidateId: z.string().optional(),
+    responseId: z.string().optional(),
   }),
 });
 
@@ -74,7 +78,19 @@ export class IntentClassifierAgent extends BaseAgent<
    - "Измени уровень автономности", "Включи автоответы"
    - "Приостанови вакансию при 100 откликах"
 
-6. GENERAL_QUESTION — Общие вопросы:
+6. GET_PRIORITY — Получение приоритетов кандидатов:
+   - "Кого посмотреть первым?", "Покажи приоритетных"
+   - "Кто важнее?", "Какие отклики приоритетные?"
+   - "С чего начать просмотр?", "Ранжируй кандидатов"
+   - Извлекай: vacancyId (если указана конкретная вакансия)
+
+7. GET_INTERVIEW_QUESTIONS — Генерация вопросов для интервью:
+   - "Какие вопросы задать?", "Подготовь вопросы для интервью"
+   - "Что спросить у кандидата?", "Вопросы для собеседования"
+   - "Помоги подготовить интервью", "Какие вопросы уточнить?"
+   - Извлекай: candidateId, responseId (если указан конкретный кандидат)
+
+8. GENERAL_QUESTION — Общие вопросы:
    - Вопросы о системе, помощь, статистика
    - Все что не попадает в другие категории
 
@@ -84,12 +100,16 @@ export class IntentClassifierAgent extends BaseAgent<
 - skills: массив навыков (["Python", "React"])
 - vacancyId: ID вакансии (если упоминается)
 - messageType: тип сообщения для COMMUNICATE
+- candidateId: ID кандидата (для GET_INTERVIEW_QUESTIONS)
+- responseId: ID отклика (для GET_INTERVIEW_QUESTIONS)
 
 ПРИМЕРЫ:
 - "Найди 5 кандидатов, готовых выйти за 2 недели" → SEARCH_CANDIDATES, candidateCount: 5, availability: "2 недели"
 - "Почему у нас мало откликов?" → ANALYZE_VACANCY
 - "Напиши приглашение на интервью" → COMMUNICATE, messageType: "invite"
-- "Создай правило для автоприглашения" → CONFIGURE_RULES`;
+- "Создай правило для автоприглашения" → CONFIGURE_RULES
+- "Кого посмотреть первым?" → GET_PRIORITY
+- "Какие вопросы задать кандидату?" → GET_INTERVIEW_QUESTIONS`;
 
     super(
       "IntentClassifier",

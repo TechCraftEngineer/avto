@@ -3,6 +3,7 @@ export type SortField =
   | "detailedScore"
   | "potentialScore"
   | "careerTrajectoryScore"
+  | "priorityScore"
   | "status"
   | "createdAt"
   | "respondedAt"
