@@ -206,6 +206,12 @@ export function VacancyIntegrationManager({
     api.freelancePlatforms.checkAllPublicationStatuses.mutationOptions({
       onSuccess: (result: { success: boolean; message: string }) => {
         toast.success(result.message);
+        queryClient.invalidateQueries({
+          queryKey: api.freelancePlatforms.getVacancyIntegrations.queryKey({
+            vacancyId,
+            workspaceId,
+          }),
+        });
       },
       onError: (error: unknown) => {
         const message =

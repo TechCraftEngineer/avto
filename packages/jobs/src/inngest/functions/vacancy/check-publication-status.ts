@@ -151,6 +151,32 @@ async function checkPlatformPublicationStatus(
 }
 
 /**
+ * Validates URL for SSRF protection
+ */
+function validateUrlForPlatform(url: string, allowedHostnames: string[]): boolean {
+  try {
+    const urlObj = new URL(url);
+    // Only allow HTTP/HTTPS schemes
+    if (!['http:', 'https:'].includes(urlObj.protocol)) {
+      console.error(`❌ Invalid URL scheme: ${urlObj.protocol} for URL: ${url}`);
+      return false;
+    }
+    // Check hostname against allowlist
+    const isAllowedHostname = allowedHostnames.some(allowed =>
+      urlObj.hostname === allowed || urlObj.hostname.endsWith(`.${allowed}`)
+    );
+    if (!isAllowedHostname) {
+      console.error(`❌ Invalid hostname: ${urlObj.hostname} not in allowlist ${allowedHostnames.join(', ')} for URL: ${url}`);
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error(`❌ Invalid URL format: ${url}`, error);
+    return false;
+  }
+}
+
+/**
  * Проверяет статус вакансии на HH.ru
  */
 async function checkHHVacancyStatus(
@@ -160,7 +186,37 @@ async function checkHHVacancyStatus(
   try {
     if (!externalId && !url) return false;
 
-    const vacancyUrl = url || `https://hh.ru/vacancy/${externalId}`;
+    let vacancyUrl: string;
+
+    // Prefer building URL from externalId for security
+    if (externalId) {
+      vacancyUrl = `https://hh.ru/vacancy/${externalId}`;
+    } else if (url) {
+      // Validate provided URL to prevent SSRF attacks
+      try {
+        const urlObj = new URL(url);
+        // Only allow HTTP/HTTPS schemes
+        if (!['http:', 'https:'].includes(urlObj.protocol)) {
+          console.error(`❌ Invalid URL scheme: ${urlObj.protocol} for URL: ${url}`);
+          return false;
+        }
+        // Strict allowlist for hostnames
+        const allowedHostnames = ['hh.ru', 'hhcdn.ru'];
+        const isAllowedHostname = allowedHostnames.some(allowed =>
+          urlObj.hostname === allowed || urlObj.hostname.endsWith(`.${allowed}`)
+        );
+        if (!isAllowedHostname) {
+          console.error(`❌ Invalid hostname: ${urlObj.hostname} not in allowlist for URL: ${url}`);
+          return false;
+        }
+        vacancyUrl = url;
+      } catch (error) {
+        console.error(`❌ Invalid URL format: ${url}`, error);
+        return false;
+      }
+    } else {
+      return false;
+    }
 
     const response = await fetch(vacancyUrl, {
       method: "HEAD", // Используем HEAD для проверки доступности
@@ -170,13 +226,7 @@ async function checkHHVacancyStatus(
       },
     });
 
-    // Если статус 200, вакансия существует
-    // Если 404 или перенаправление на поиск/главную, вакансия неактивна
-    if (response.status === 200) {
-      return true;
-    }
-
-    // Проверяем, не перенаправляет ли на страницу "вакансия не найдена"
+    // Сначала проверяем перенаправления, так как некоторые редиректы могут возвращать 200
     if (response.redirected) {
       const finalUrl = response.url;
       if (
@@ -185,6 +235,11 @@ async function checkHHVacancyStatus(
       ) {
         return false;
       }
+    }
+
+    // Если статус 200 и не было проблемных перенаправлений, вакансия существует
+    if (response.status === 200) {
+      return true;
     }
 
     return false;
@@ -203,6 +258,11 @@ async function checkAvitoVacancyStatus(
 ): Promise<boolean> {
   try {
     if (!url) return false;
+
+    // Validate URL to prevent SSRF attacks
+    if (!validateUrlForPlatform(url, ['avito.ru'])) {
+      return false;
+    }
 
     const response = await fetch(url, {
       method: "HEAD",
@@ -229,6 +289,11 @@ async function checkSuperJobVacancyStatus(
   try {
     if (!url) return false;
 
+    // Validate URL to prevent SSRF attacks
+    if (!validateUrlForPlatform(url, ['superjob.ru'])) {
+      return false;
+    }
+
     const response = await fetch(url, {
       method: "HEAD",
       headers: {
@@ -253,6 +318,11 @@ async function checkHabrVacancyStatus(
 ): Promise<boolean> {
   try {
     if (!url) return false;
+
+    // Validate URL to prevent SSRF attacks
+    if (!validateUrlForPlatform(url, ['career.habr.com'])) {
+      return false;
+    }
 
     const response = await fetch(url, {
       method: "HEAD",

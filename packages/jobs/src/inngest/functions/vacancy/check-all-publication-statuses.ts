@@ -78,24 +78,22 @@ export const checkAllPublicationStatusesFunction = inngest.createFunction(
       );
 
       // Запускаем параллельные проверки для каждой публикации
-      const checkPromises = filteredPublications.map(publication =>
-        step.run(`check-publication-${publication.id}`, async () => {
-          console.log(`🔍 Проверяем публикацию ${publication.id} на платформе ${publication.platform}`);
+      const checkPromises = filteredPublications.map(async (publication) => {
+        console.log(`🔍 Проверяем публикацию ${publication.id} на платформе ${publication.platform}`);
 
-          try {
-            // Отправляем событие для проверки конкретной публикации
-            await inngest.send({
-              name: "vacancy/publication.status.check",
-              data: { publicationId: publication.id },
-            });
+        try {
+          // Отправляем событие для проверки конкретной публикации
+          await step.sendEvent({
+            name: "vacancy/publication.status.check",
+            data: { publicationId: publication.id },
+          });
 
-            return { publicationId: publication.id, success: true };
-          } catch (error) {
-            console.error(`❌ Ошибка при отправке события проверки для публикации ${publication.id}:`, error);
-            return { publicationId: publication.id, success: false, error: String(error) };
-          }
-        })
-      );
+          return { publicationId: publication.id, success: true };
+        } catch (error) {
+          console.error(`❌ Ошибка при отправке события проверки для публикации ${publication.id}:`, error);
+          return { publicationId: publication.id, success: false, error: String(error) };
+        }
+      });
 
       // Ждем завершения всех проверок
       const results = await Promise.all(checkPromises);
@@ -116,7 +114,7 @@ export const checkAllPublicationStatusesFunction = inngest.createFunction(
       console.log(`✅ Массовая проверка завершена: ${successful}/${filteredPublications.length} успешно`);
 
       return {
-        success: true,
+        success: failed === 0,
         totalChecked: filteredPublications.length,
         successful,
         failed,
