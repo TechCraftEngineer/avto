@@ -1,23 +1,13 @@
 import { paths } from "@qbs-autonaim/config";
 import { SidebarInset, SidebarProvider } from "@qbs-autonaim/ui";
-import dynamic from "next/dynamic";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { getSession } from "~/auth/server";
 import { GettingStartedContainer } from "~/components/getting-started";
+import { SiteHeader } from "~/components/layout";
 import { AppSidebarWrapper } from "~/components/sidebar";
 import { WorkspaceProvider } from "~/contexts/workspace-context";
 import { api } from "~/trpc/server";
-
-const SiteHeader = dynamic(
-  () =>
-    import("~/components/layout/site-header").then((mod) => ({
-      default: mod.SiteHeader,
-    })),
-  {
-    ssr: false,
-  },
-);
 
 export default async function DashboardLayout({
   children,

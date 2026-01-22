@@ -46,17 +46,8 @@ interface SiteHeaderProps {
   children?: React.ReactNode;
 }
 
-export function SiteHeader({ user: initialUser, children }: SiteHeaderProps) {
+export function SiteHeader({ user, children }: SiteHeaderProps) {
   const router = useRouter();
-  const { data: session } = authClient.useSession();
-
-  const user = session?.user
-    ? {
-        name: session.user.name,
-        email: session.user.email,
-        avatar: session.user.image || "",
-      }
-    : initialUser;
 
   const initials = getInitials(user.name);
   const avatarUrl = getAvatarUrl(user.avatar, user.name);
