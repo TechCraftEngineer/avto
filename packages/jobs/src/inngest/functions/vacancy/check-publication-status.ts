@@ -66,7 +66,7 @@ export const checkPublicationStatusFunction = inngest.createFunction(
         const isActive = await checkPlatformPublicationStatus(publication);
 
         // Обновляем статус публикации
-        const [updatedPublication] = await db
+        const [_updatedPublication] = await db
           .update(vacancyPublication)
           .set({
             isActive,

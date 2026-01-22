@@ -424,6 +424,7 @@ export function VacancyIntegrationManager({
               </Button>
             )}
           </div>
+        </div>
       </CardHeader>
       <CardContent>
         {activeIntegrations.length === 0 ? (
