@@ -17,7 +17,7 @@ export function BulkActionsBar({
   onBulkScreen,
 }: BulkActionsBarProps) {
   return (
-    <div className="flex items-center justify-between gap-4 border-b border-primary/10 bg-primary/8 px-6 py-3 transition-all animate-in slide-in-from-top-1">
+    <div className="flex items-center justify-between gap-4 border-b border-primary/20 bg-primary/10 backdrop-blur-sm px-6 py-3 transition-all animate-in slide-in-from-top-1">
       <div className="flex items-center gap-3">
         <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground shadow-sm">
           {selectedCount}
@@ -32,7 +32,7 @@ export function BulkActionsBar({
           disabled={isSendingWelcome}
           size="sm"
           variant="outline"
-          className="h-9 px-4 rounded-full border-primary/20 bg-background/50 hover:bg-background transition-all font-semibold"
+          className="h-9 px-4 rounded-full border-primary/30 bg-background/80 hover:bg-background transition-all font-semibold"
         >
           {isSendingWelcome ? (
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
