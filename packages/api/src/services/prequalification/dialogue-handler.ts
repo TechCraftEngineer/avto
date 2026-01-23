@@ -17,7 +17,7 @@ import {
   response,
   vacancy,
 } from "@qbs-autonaim/db/schema";
-import { and, asc, eq } from "@qbs-autonaim/db";
+import { and, asc, eq } from "drizzle-orm";
 
 import type {
   AIResponse,

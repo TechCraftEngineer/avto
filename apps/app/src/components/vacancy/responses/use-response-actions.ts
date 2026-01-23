@@ -87,6 +87,7 @@ export function useResponseActions(
       if (!result.success) {
         console.error("Не удалось запустить оценку новых:", result.error);
         toast.error("Не удалось запустить оценку откликов");
+        setIsProcessingNew(false);
         return;
       }
 

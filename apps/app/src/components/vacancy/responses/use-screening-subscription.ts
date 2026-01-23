@@ -1,6 +1,22 @@
 import type { Realtime } from "@inngest/realtime";
 import { useInngestSubscription } from "@inngest/realtime/hooks";
 import { useEffect } from "react";
+import { z } from "zod";
+
+const ProgressDataSchema = z.object({
+  status: z.string(),
+  message: z.string(),
+  total: z.number().optional(),
+  processed: z.number().optional(),
+  failed: z.number().optional(),
+});
+
+const ResultDataSchema = z.object({
+  success: z.boolean(),
+  total: z.number(),
+  processed: z.number(),
+  failed: z.number(),
+});
 
 interface ProgressData {
   status: string;
@@ -50,7 +66,10 @@ export function useScreeningSubscription({
     if (data.kind !== "data") return;
 
     if (data.topic === "progress") {
-      const progressData = data.data as ProgressData;
+      const parseResult = ProgressDataSchema.safeParse(data.data);
+      if (!parseResult.success) return;
+
+      const progressData = parseResult.data;
       const progress =
         progressData.total !== undefined
           ? {
@@ -61,7 +80,10 @@ export function useScreeningSubscription({
           : null;
       onProgress?.(progressData.message, progress);
     } else if (data.topic === "result") {
-      const resultData = data.data as ResultData;
+      const parseResult = ResultDataSchema.safeParse(data.data);
+      if (!parseResult.success) return;
+
+      const resultData = parseResult.data;
       const progress = {
         total: resultData.total,
         processed: resultData.processed,

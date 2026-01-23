@@ -57,7 +57,6 @@ export function GigResponseTabs({
     (hasConversation ? 1 : 0) +
     (hasReasoning ? 1 : 0) +
     (hasPricingData ? 1 : 0) +
-    (hasPortfolioData ? 1 : 0) +
     4; // 4 базовые вкладки: proposal, experience, portfolio, contacts
 
   // Определяем классы grid-cols на основе количества вкладок
@@ -110,12 +109,6 @@ export function GigResponseTabs({
               className="min-h-11 sm:min-h-9 text-xs sm:text-sm touch-manipulation"
             >
               Опыт
-            </TabsTrigger>
-            <TabsTrigger
-              value="portfolio"
-              className="min-h-11 sm:min-h-9 text-xs sm:text-sm touch-manipulation"
-            >
-              Портфолио
             </TabsTrigger>
             <TabsTrigger
               value="contacts"
@@ -240,13 +233,6 @@ export function GigResponseTabs({
             <ExperienceTab response={response} />
           </TabsContent>
 
-          {/* Portfolio Tab */}
-          <TabsContent
-            value="portfolio"
-            className="space-y-3 sm:space-y-4 mt-0"
-          >
-            <PortfolioTab response={response} />
-          </TabsContent>
 
           {/* Contacts Tab */}
           <TabsContent value="contacts" className="space-y-3 sm:space-y-4 mt-0">

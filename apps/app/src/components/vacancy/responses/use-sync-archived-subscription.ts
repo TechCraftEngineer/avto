@@ -1,6 +1,16 @@
 import type { Realtime } from "@inngest/realtime";
 import { useInngestSubscription } from "@inngest/realtime/hooks";
 import { useEffect } from "react";
+import { z } from "zod";
+
+const StatusDataSchema = z.object({
+  status: z.enum(["completed", "error", "started", "processing"]),
+  message: z.string(),
+  vacancyId: z.string().optional(),
+  syncedResponses: z.number().optional(),
+  newResponses: z.number().optional(),
+  vacancyTitle: z.string().optional(),
+});
 
 interface StatusData {
   status: string;
@@ -37,7 +47,13 @@ export function useSyncArchivedSubscription({
     const data = subscription.latestData;
     if (data.kind !== "data" || data.topic !== "status") return;
 
-    const statusData = data.data as StatusData;
+    const parseResult = StatusDataSchema.safeParse(data.data);
+    if (!parseResult.success) {
+      onStatusChange?.("error", "invalid realtime payload");
+      return;
+    }
+
+    const statusData = parseResult.data;
     onMessage?.(statusData.message, statusData);
 
     if (statusData.status === "completed") {

@@ -464,6 +464,7 @@ export const list = protectedProcedure
       return {
         ...r,
         experience: r.experience ? sanitizeHtml(r.experience) : null,
+        coverLetter: r.coverLetter ? sanitizeHtml(r.coverLetter) : null,
         priorityScore,
         screening: screening
           ? {

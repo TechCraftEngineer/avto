@@ -105,7 +105,10 @@ export function ResumeCard({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => window.open(response.platformProfileUrl!, '_blank')}
+                onClick={() => {
+                  onViewExternal(response.platformProfileUrl);
+                  window.open(response.platformProfileUrl!, '_blank', 'noopener,noreferrer');
+                }}
                 className="bg-white hover:bg-gray-50"
               >
                 <ExternalLink className="h-4 w-4 mr-2" />

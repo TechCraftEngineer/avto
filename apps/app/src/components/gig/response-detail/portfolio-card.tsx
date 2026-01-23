@@ -36,6 +36,20 @@ export function PortfolioCard({
     return null;
   }
 
+  const getSafeHostname = (link: string): string => {
+    try {
+      return new URL(link).hostname;
+    } catch {
+      // Try with https:// prefix for relative URLs
+      try {
+        return new URL('https://' + link).hostname;
+      } catch {
+        // Fallback to original link or empty string
+        return link || '';
+      }
+    }
+  };
+
   const getFileIcon = (url: string) => {
     const extension = url.split('.').pop()?.toLowerCase();
 
@@ -95,7 +109,7 @@ export function PortfolioCard({
                       Работа #{index + 1}
                     </div>
                     <div className="text-xs text-gray-500 truncate">
-                      {new URL(link).hostname}
+                      {getSafeHostname(link)}
                     </div>
                   </div>
                   <ExternalLink className="h-4 w-4 text-gray-400 flex-shrink-0" />

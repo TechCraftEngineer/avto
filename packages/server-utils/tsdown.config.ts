@@ -9,7 +9,7 @@ export default defineConfig({
       skipLibCheck: true,
       skipDefaultLibCheck: true,
       // Reduce DTS generation overhead
-      noEmitOnError: false,
+      noEmitOnError: true,
       // Speed up compilation
       incremental: false,
       tsBuildInfoFile: undefined,
