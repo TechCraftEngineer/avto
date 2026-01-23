@@ -48,6 +48,14 @@ export default function VacancySettingsPage({
     customScreeningPrompt?: string | null;
     customInterviewQuestions?: string | null;
     customOrganizationalQuestions?: string | null;
+    enabledCommunicationChannels?: {
+      webChat: boolean;
+      telegram: boolean;
+    };
+    welcomeMessageTemplates?: {
+      webChat?: string;
+      telegram?: string;
+    };
   }) => {
     if (!workspaceId) return;
 
@@ -91,11 +99,15 @@ export default function VacancySettingsPage({
       <VacancySettingsForm
         vacancyTitle={vacancy.title}
         vacancyDescription={vacancy.description ?? undefined}
+        vacancyId={id}
+        workspaceId={workspaceId}
         initialData={{
           customBotInstructions: vacancy.customBotInstructions,
           customScreeningPrompt: vacancy.customScreeningPrompt,
           customInterviewQuestions: vacancy.customInterviewQuestions,
           customOrganizationalQuestions: vacancy.customOrganizationalQuestions,
+          enabledCommunicationChannels: vacancy.enabledCommunicationChannels,
+          welcomeMessageTemplates: vacancy.welcomeMessageTemplates,
         }}
         onSave={handleSave}
         onImprove={handleImprove}

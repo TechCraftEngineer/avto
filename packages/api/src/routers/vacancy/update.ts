@@ -1,4 +1,4 @@
-﻿import { and, eq } from "@qbs-autonaim/db";
+import { and, eq } from "@qbs-autonaim/db";
 import { vacancy } from "@qbs-autonaim/db/schema";
 import {
   updateVacancySettingsSchema,
@@ -6,6 +6,7 @@ import {
 } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { CommunicationChannelsAnalytics } from "../../services/analytics/communication-channels";
 import { protectedProcedure } from "../../trpc";
 
 export const update = protectedProcedure
@@ -65,6 +66,12 @@ export const update = protectedProcedure
       patch.customOrganizationalQuestions =
         settings.customOrganizationalQuestions;
     }
+    if (settings.enabledCommunicationChannels !== undefined) {
+      patch.enabledCommunicationChannels = settings.enabledCommunicationChannels;
+    }
+    if (settings.welcomeMessageTemplates !== undefined) {
+      patch.welcomeMessageTemplates = settings.welcomeMessageTemplates;
+    }
     if (settings.source !== undefined) {
       patch.source = settings.source === null ? undefined : settings.source;
     }
@@ -95,6 +102,29 @@ export const update = protectedProcedure
         code: "NOT_FOUND",
         message: "Вакансия не найдена",
       });
+    }
+
+    // Отслеживаем изменения настроек каналов общения
+    if (settings.enabledCommunicationChannels) {
+      try {
+        const analytics = new CommunicationChannelsAnalytics(ctx.db);
+
+        // Отслеживаем каждый канал
+        for (const [channel, enabled] of Object.entries(settings.enabledCommunicationChannels)) {
+          await analytics.trackChannelSelection({
+            workspaceId: input.workspaceId,
+            vacancyId: input.vacancyId,
+            channel: channel as "webChat" | "telegram",
+            enabled: enabled as boolean,
+            metadata: {
+              userId: ctx.session.user.id,
+            },
+          });
+        }
+      } catch (error) {
+        // Не прерываем обновление из-за ошибки аналитики
+        console.error("Failed to track channel selection:", error);
+      }
     }
 
     return result[0];

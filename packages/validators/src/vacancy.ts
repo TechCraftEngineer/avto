@@ -33,6 +33,14 @@ export const updateVacancySettingsSchema = z.object({
     .string()
     .max(5000, { message: "Вопросы не должны превышать 5000 символов" })
     .nullish(),
+  enabledCommunicationChannels: z.object({
+    webChat: z.boolean(),
+    telegram: z.boolean(),
+  }).optional(),
+  welcomeMessageTemplates: z.object({
+    webChat: z.string().max(2000, { message: "Шаблон не должен превышать 2000 символов" }).optional(),
+    telegram: z.string().max(2000, { message: "Шаблон не должен превышать 2000 символов" }).optional(),
+  }).optional(),
   source: z
     .enum([
       "MANUAL",

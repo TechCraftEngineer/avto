@@ -1,7 +1,9 @@
-import { chatEntityTypeEnum, chatSession } from "@qbs-autonaim/db/schema";
+import { chatEntityTypeEnum, chatSession, vacancy } from "@qbs-autonaim/db/schema";
+import { eq } from "@qbs-autonaim/db";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { chatRegistry } from "../../services/chat/registry";
+import { CommunicationChannelsAnalytics } from "../../services/analytics/communication-channels";
 import { protectedProcedure } from "../../trpc";
 
 export const createSession = protectedProcedure
@@ -41,6 +43,32 @@ export const createSession = protectedProcedure
         code: "INTERNAL_SERVER_ERROR",
         message: "Не удалось создать сессию чата",
       });
+    }
+
+    // Отслеживаем начало веб-чата для вакансий
+    if (entityType === "vacancy") {
+      try {
+        // Получаем workspaceId из вакансии
+        const vacancyData = await ctx.db.query.vacancy.findFirst({
+          where: eq(vacancy.id, entityId),
+          columns: { workspaceId: true },
+        });
+
+        if (vacancyData) {
+          const analytics = new CommunicationChannelsAnalytics(ctx.db);
+          await analytics.trackWebChatStart({
+            workspaceId: vacancyData.workspaceId,
+            vacancyId: entityId,
+            sessionId: session.id,
+            metadata: {
+              userId: ctx.session.user.id,
+            },
+          });
+        }
+      } catch (error) {
+        // Не прерываем создание сессии из-за ошибки аналитики
+        console.error("Failed to track web chat start:", error);
+      }
     }
 
     return {

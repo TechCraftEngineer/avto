@@ -1,4 +1,5 @@
 "use client";
+import { useQuery } from "@tanstack/react-query";
 import {
   Button,
   Card,
@@ -23,28 +24,51 @@ import {
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { useWorkspaceContext } from "~/contexts/workspace-context";
+import { useTRPC } from "~/trpc/react";
+import { CommunicationChannelsSettings } from "./communication-channels-settings";
+import { WelcomeMessageTemplates } from "./welcome-message-templates";
 
 interface VacancySettingsFormProps {
   vacancyTitle?: string;
   vacancyDescription?: string;
+  vacancyId?: string;
+  workspaceId?: string;
   initialData?: {
     customBotInstructions?: string | null;
     customScreeningPrompt?: string | null;
     customInterviewQuestions?: string | null;
     customOrganizationalQuestions?: string | null;
+    enabledCommunicationChannels?: {
+      webChat: boolean;
+      telegram: boolean;
+    };
+    welcomeMessageTemplates?: {
+      webChat?: string;
+      telegram?: string;
+    };
   };
   onSave: (data: {
     customBotInstructions?: string | null;
     customScreeningPrompt?: string | null;
     customInterviewQuestions?: string | null;
     customOrganizationalQuestions?: string | null;
+    enabledCommunicationChannels?: {
+      webChat: boolean;
+      telegram: boolean;
+    };
+    welcomeMessageTemplates?: {
+      webChat?: string;
+      telegram?: string;
+    };
   }) => Promise<void>;
   onImprove: (
     fieldType:
       | "customBotInstructions"
       | "customScreeningPrompt"
       | "customInterviewQuestions"
-      | "customOrganizationalQuestions",
+      | "customOrganizationalQuestions"
+      | "welcomeMessageTemplates",
     currentValue: string,
     context?: { vacancyTitle?: string; vacancyDescription?: string },
   ) => Promise<string>;
@@ -53,19 +77,44 @@ interface VacancySettingsFormProps {
 export function VacancySettingsForm({
   vacancyTitle,
   vacancyDescription,
+  vacancyId,
+  workspaceId,
   initialData,
   onSave,
   onImprove,
 }: VacancySettingsFormProps) {
+  const trpc = useTRPC();
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [improvingField, setImprovingField] = useState<string | null>(null);
+
+  // Получаем список интеграций для проверки наличия Telegram
+  const { data: integrations } = useQuery(
+    trpc.integration.list.queryOptions({
+      workspaceId: workspaceId ?? "",
+    }),
+    {
+      enabled: Boolean(workspaceId),
+    },
+  );
+
+  const hasTelegramIntegration = integrations?.some(
+    (integration) => integration.type === "TELEGRAM" && integration.isActive,
+  );
 
   const form = useForm<{
     customBotInstructions?: string | null;
     customScreeningPrompt?: string | null;
     customInterviewQuestions?: string | null;
     customOrganizationalQuestions?: string | null;
+    enabledCommunicationChannels?: {
+      webChat: boolean;
+      telegram: boolean;
+    };
+    welcomeMessageTemplates?: {
+      webChat?: string;
+      telegram?: string;
+    };
   }>({
     defaultValues: {
       customBotInstructions: initialData?.customBotInstructions ?? "",
@@ -73,6 +122,11 @@ export function VacancySettingsForm({
       customInterviewQuestions: initialData?.customInterviewQuestions ?? "",
       customOrganizationalQuestions:
         initialData?.customOrganizationalQuestions ?? "",
+      enabledCommunicationChannels: initialData?.enabledCommunicationChannels ?? {
+        webChat: true,
+        telegram: false,
+      },
+      welcomeMessageTemplates: initialData?.welcomeMessageTemplates ?? {},
     },
   });
 
@@ -100,6 +154,14 @@ export function VacancySettingsForm({
     customScreeningPrompt?: string | null;
     customInterviewQuestions?: string | null;
     customOrganizationalQuestions?: string | null;
+    enabledCommunicationChannels?: {
+      webChat: boolean;
+      telegram: boolean;
+    };
+    welcomeMessageTemplates?: {
+      webChat?: string;
+      telegram?: string;
+    };
   }) => {
     setIsSaving(true);
     try {
@@ -153,6 +215,7 @@ export function VacancySettingsForm({
       setImprovingField(null);
     }
   };
+
 
   return (
     <Form {...form}>
@@ -392,6 +455,22 @@ export function VacancySettingsForm({
               </div>
             </div>
           </Card>
+
+          {/* Настройки каналов общения */}
+          <CommunicationChannelsSettings
+            control={form.control}
+            hasTelegramIntegration={hasTelegramIntegration}
+          />
+
+          {/* Шаблоны приветствия */}
+          <WelcomeMessageTemplates
+            control={form.control}
+            vacancyTitle={vacancyTitle}
+            vacancyDescription={vacancyDescription}
+            vacancyId={vacancyId}
+            workspaceId={workspaceId}
+            improvingField={improvingField}
+          />
 
           {/* Статус и кнопка сохранения */}
           <div className="mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-lg border bg-card p-4">

@@ -8,6 +8,7 @@ import { dashboardStats } from "./dashboard-stats";
 import { deleteVacancy } from "./delete";
 import { get } from "./get";
 import { improveInstructions } from "./improve-instructions";
+import { improveWelcomeTemplates } from "./improve-welcome-templates";
 import { list } from "./list";
 import { listActive } from "./list-active";
 import { responsesRouter } from "./responses";
@@ -30,6 +31,7 @@ export const vacancyRouter = {
   updateFull,
   delete: deleteVacancy,
   improveInstructions,
+  improveWelcomeTemplates,
   chatGenerate,
   responses: responsesRouter,
 } satisfies TRPCRouterRecord;

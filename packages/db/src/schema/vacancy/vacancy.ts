@@ -70,6 +70,21 @@ export const vacancy = pgTable(
     customInterviewQuestions: text("custom_interview_questions"),
     customOrganizationalQuestions: text("custom_organizational_questions"),
 
+    // Настройки каналов общения
+    enabledCommunicationChannels: jsonb("enabled_communication_channels").$type<{
+      webChat: boolean;
+      telegram: boolean;
+    }>().default({
+      webChat: true,
+      telegram: false,
+    }),
+
+    // Шаблоны приветственных сообщений для разных каналов
+    welcomeMessageTemplates: jsonb("welcome_message_templates").$type<{
+      webChat?: string;
+      telegram?: string;
+    }>(),
+
     isActive: boolean("is_active").default(true),
     createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
       .defaultNow()
@@ -109,6 +124,14 @@ export const CreateVacancySchema = createInsertSchema(vacancy, {
   customScreeningPrompt: z.string().max(5000).optional(),
   customInterviewQuestions: z.string().max(5000).optional(),
   customOrganizationalQuestions: z.string().max(5000).optional(),
+  enabledCommunicationChannels: z.object({
+    webChat: z.boolean(),
+    telegram: z.boolean(),
+  }).optional(),
+  welcomeMessageTemplates: z.object({
+    webChat: z.string().max(2000).optional(),
+    telegram: z.string().max(2000).optional(),
+  }).optional(),
 }).omit({
   id: true,
   createdAt: true,
@@ -120,4 +143,12 @@ export const UpdateVacancySettingsSchema = z.object({
   customScreeningPrompt: z.string().max(5000).nullish(),
   customInterviewQuestions: z.string().max(5000).nullish(),
   customOrganizationalQuestions: z.string().max(5000).nullish(),
+  enabledCommunicationChannels: z.object({
+    webChat: z.boolean(),
+    telegram: z.boolean(),
+  }).optional(),
+  welcomeMessageTemplates: z.object({
+    webChat: z.string().max(2000).optional(),
+    telegram: z.string().max(2000).optional(),
+  }).optional(),
 });

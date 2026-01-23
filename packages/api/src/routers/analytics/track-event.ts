@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Track Event Procedure
  *
  * Записывает событие аналитики.
@@ -23,6 +23,9 @@ const trackEventInputSchema = z.object({
     "dialogue_complete",
     "evaluation_complete",
     "application_submit",
+    "web_chat_start",
+    "telegram_chat_start",
+    "communication_channel_selected",
   ]),
   metadata: z.record(z.string(), z.unknown()).optional(),
 });

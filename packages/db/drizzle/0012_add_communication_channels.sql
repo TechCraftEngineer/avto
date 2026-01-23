@@ -1,0 +1,2 @@
+ALTER TABLE "vacancies" ADD COLUMN "enabled_communication_channels" jsonb DEFAULT '{"webChat":true,"telegram":false}'::jsonb;--> statement-breakpoint
+ALTER TABLE "vacancies" ADD COLUMN "welcome_message_templates" jsonb;

@@ -14,6 +14,8 @@ export { VacancyEditForm } from "./editor/vacancy-edit-form";
 export { VacancyEditor } from "./editor/vacancy-editor";
 export { VacancyFullEditForm } from "./editor/vacancy-full-edit-form";
 export { VacancySettingsForm } from "./editor/vacancy-settings-form";
+export { CommunicationChannelsSettings } from "./editor/communication-channels-settings";
+export { WelcomeMessageTemplates } from "./editor/welcome-message-templates";
 // Integration components
 export { ContactInfo } from "./integrations/contact-info";
 export { VacancyIntegrationManager } from "./integrations/vacancy-integration-manager";
