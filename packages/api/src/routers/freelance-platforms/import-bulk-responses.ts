@@ -1,7 +1,6 @@
 import { and, eq } from "@qbs-autonaim/db";
 import {
   freelanceImportHistory,
-  type Response,
   response as responseTable,
 } from "@qbs-autonaim/db/schema";
 import { z } from "zod";

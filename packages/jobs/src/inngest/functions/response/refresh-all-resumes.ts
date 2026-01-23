@@ -2,14 +2,11 @@ import os from "node:os";
 import { eq, getIntegrationCredentials } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { response } from "@qbs-autonaim/db/schema";
-import { Log } from "crawlee";
-import type { Page } from "puppeteer";
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import {
   loadCookies,
   checkAndPerformLogin,
-  saveCookies,
 } from "../../../parsers/hh/auth";
 import { setupBrowser, setupPage } from "../../../parsers/hh/browser-setup";
 import { closeBrowserSafely } from "../../../parsers/hh/browser-utils";

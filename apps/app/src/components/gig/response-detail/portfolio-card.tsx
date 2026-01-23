@@ -187,9 +187,9 @@ export function PortfolioCard({
               <div>
                 <div className="text-sm text-gray-600 mb-2">Навыки:</div>
                 <div className="flex flex-wrap gap-2">
-                  {response.skills.slice(0, 8).map((skill, _index) => (
+                  {response.skills.slice(0, 8).map((skill) => (
                     <Badge
-                      key={`${skill}-${_index}`}
+                      key={skill}
                       variant="outline"
                       className="bg-orange-50 text-orange-700 border-orange-300 text-xs"
                     >

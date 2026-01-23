@@ -5,7 +5,6 @@ import { AlertCircle, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 import { memo, useState } from "react";
 import {
   type RecruiterAgentDocument,
-  type RecruiterAgentStatus,
   useRecruiterAgent,
 } from "~/hooks/use-recruiter-agent";
 import { RecruiterAgentChatInput } from "./recruiter-agent-chat-input";

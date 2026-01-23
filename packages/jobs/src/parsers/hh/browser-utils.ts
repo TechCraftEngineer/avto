@@ -37,7 +37,7 @@ export async function closeBrowserSafely(
         // Force kill the browser process if possible
         try {
           if (browser.process()) {
-            browser.process()!.kill("SIGKILL");
+            browser.process()?.kill("SIGKILL");
           }
         } catch (killError) {
           console.error(

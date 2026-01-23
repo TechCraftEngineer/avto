@@ -1,4 +1,3 @@
-import type { RecruiterIntent } from "~/hooks/use-recruiter-agent";
 
 /**
  * Форматирует намерение для отображения

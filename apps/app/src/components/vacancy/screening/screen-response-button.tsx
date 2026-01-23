@@ -3,7 +3,6 @@
 import { Button } from "@qbs-autonaim/ui";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader2, Sparkles } from "lucide-react";
-import { useEffect, useState } from "react";
 import { triggerScreenResponse } from "~/actions/trigger";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
@@ -62,12 +61,12 @@ export function ScreenResponseButton({
 
     const poll = async () => {
       try {
-        const response = (await queryClient.fetchQuery(
+        const response = await queryClient.fetchQuery(
           trpc.vacancy.responses.get.queryOptions({
             id: responseId,
             workspaceId: workspace?.id ?? "",
           }),
-        )) as any; // TODO: Fix typing
+        );
 
         if (response?.screening) {
           setScreeningResult({
