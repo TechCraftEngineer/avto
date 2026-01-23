@@ -40,7 +40,10 @@ export interface TrackEventInput {
     | "dialogue_message"
     | "dialogue_complete"
     | "evaluation_complete"
-    | "application_submit";
+    | "application_submit"
+    | "web_chat_start"
+    | "telegram_chat_start"
+    | "communication_channel_selected";
   /** Дополнительные метаданные */
   metadata?: Record<string, unknown>;
 }

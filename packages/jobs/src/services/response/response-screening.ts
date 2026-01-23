@@ -79,7 +79,7 @@ export async function screenResponse(
   // If requirements are not found, try to extract them synchronously
   if (!requirements) {
     logger.warn(
-      `Requirements not found for vacancy ${resp.entityId}, attempting to extract synchronously`,
+      `Требования для вакансии ${resp.entityId} не найдены, пытаемся извлечь синхронно`,
     );
 
     // Get vacancy description to extract requirements
@@ -90,7 +90,7 @@ export async function screenResponse(
           description: true,
         },
       });
-    }, "Failed to fetch vacancy description");
+    }, "Не удалось получить описание вакансии");
 
     if (!vacancyData.success || !vacancyData.data?.description?.trim()) {
       return err(

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@qbs-autonaim/ui";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader2, Sparkles } from "lucide-react";
@@ -32,6 +32,18 @@ export function ScreenResponseButton({
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { workspace } = useWorkspace();
+  const mountedRef = useRef(true);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+  }, []);
 
   const handleClick = async () => {
     setIsLoading(true);
@@ -52,58 +64,76 @@ export function ScreenResponseButton({
       await pollScreeningResult();
     } catch (error) {
       console.error("Ошибка при оценке:", error);
-      setIsLoading(false);
+      if (mountedRef.current) {
+        setIsLoading(false);
+      }
     }
   };
 
-  const pollScreeningResult = async () => {
+  const pollScreeningResult = async (): Promise<void> => {
+    if (!workspace?.id) {
+      throw new Error("Workspace ID is required");
+    }
+
     const maxAttempts = 30; // 30 попыток = ~30 секунд
-    let attempts = 0;
 
-    const poll = async () => {
-      try {
-        const response = await queryClient.fetchQuery(
-          trpc.vacancy.responses.get.queryOptions({
-            id: responseId,
-            workspaceId: workspace?.id ?? "",
-          }),
-        );
+    return new Promise((resolve, reject) => {
+      let attempts = 0;
 
-        if (response?.screening) {
-          setScreeningResult({
-            score: response.screening.score,
-            detailedScore: response.screening.detailedScore,
-            analysis: response.screening.analysis || "",
-          });
-          setIsLoading(false);
-          setShowModal(true);
-
-          // Обновляем кэш списка откликов
-          void queryClient.invalidateQueries(
-            trpc.vacancy.responses.list.pathFilter(),
+      const poll = async () => {
+        try {
+          const response = await queryClient.fetchQuery(
+            trpc.vacancy.responses.get.queryOptions({
+              id: responseId,
+              workspaceId: workspace.id,
+            }),
           );
-          return;
-        }
 
-        attempts++;
-        if (attempts < maxAttempts) {
-          setTimeout(poll, 1000); // Проверяем каждую секунду
-        } else {
-          console.error("Скрининг не завершился в течение 30 секунд");
-          setIsLoading(false);
-        }
-      } catch (error) {
-        console.error("Ошибка при получении результата скрининга:", error);
-        attempts++;
-        if (attempts < maxAttempts) {
-          setTimeout(poll, 1000);
-        } else {
-          setIsLoading(false);
-        }
-      }
-    };
+          if (response?.screening) {
+            if (mountedRef.current) {
+              setScreeningResult({
+                score: response.screening.score,
+                detailedScore: response.screening.detailedScore,
+                analysis: response.screening.analysis || "",
+              });
+              setIsLoading(false);
+              setShowModal(true);
 
-    poll();
+              // Обновляем кэш списка откликов
+              void queryClient.invalidateQueries(
+                trpc.vacancy.responses.list.pathFilter(),
+              );
+            }
+            resolve();
+            return;
+          }
+
+          attempts++;
+          if (attempts < maxAttempts) {
+            timeoutRef.current = setTimeout(poll, 1000);
+          } else {
+            const error = new Error("Скрининг не завершился в течение 30 секунд");
+            if (mountedRef.current) {
+              setIsLoading(false);
+            }
+            reject(error);
+          }
+        } catch (error) {
+          console.error("Ошибка при получении результата скрининга:", error);
+          attempts++;
+          if (attempts < maxAttempts) {
+            timeoutRef.current = setTimeout(poll, 1000);
+          } else {
+            if (mountedRef.current) {
+              setIsLoading(false);
+            }
+            reject(error);
+          }
+        }
+      };
+
+      poll();
+    });
   };
 
   const handleModalClose = (open: boolean) => {

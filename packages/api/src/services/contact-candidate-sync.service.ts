@@ -124,7 +124,7 @@ export class ContactCandidateSyncService {
     return {
       candidateId: candidate.id,
       created,
-      updated: !created, // Если не создан, значит обновлен
+      updated: false, // Консервативный подход: обновление не отслеживается
       hasContacts: true,
     };
   }

@@ -15,7 +15,7 @@ import {
   Textarea,
 } from "@qbs-autonaim/ui";
 import { MessageCircle, Wand2 } from "lucide-react";
-import { Control } from "react-hook-form";
+import type { Control } from "react-hook-form";
 import { useTRPC } from "~/trpc/react";
 import { toast } from "sonner";
 import { WelcomeMessagePreview } from "./welcome-message-preview";

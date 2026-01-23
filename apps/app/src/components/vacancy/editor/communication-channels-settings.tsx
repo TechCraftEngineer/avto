@@ -15,7 +15,7 @@ import {
   Switch,
 } from "@qbs-autonaim/ui";
 import { MessageSquare, Send } from "lucide-react";
-import { Control } from "react-hook-form";
+import type { Control } from "react-hook-form";
 
 interface CommunicationChannelsSettingsProps {
   control: Control<{

@@ -2,7 +2,7 @@ import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
 import { fetchSyncArchivedVacancyResponsesToken } from "~/actions/realtime";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useSyncArchivedSubscription } from "./use-sync-archived-subscription";
+import { type StatusData, useSyncArchivedSubscription } from "./use-sync-archived-subscription";
 
 export interface SyncArchivedStateData {
   dialogOpen: boolean;
@@ -65,7 +65,7 @@ export function useSyncArchivedState(
     vacancyId,
     enabled: state.subscriptionActive,
     fetchToken: fetchSyncArchivedVacancyResponsesToken,
-    onMessage: useCallback((message: string, data?: any) => {
+    onMessage: useCallback((message: string, data?: StatusData) => {
       setState((prev) => {
         const newState = { ...prev, message };
         // Use data from realtime message if available

@@ -40,19 +40,23 @@ export function PortfolioCard({
   const normalizeUrl = (url: string): string => {
     try {
       // Try to create URL directly
-      new URL(url);
-      return url;
+      const parsedUrl = new URL(url);
+      if (parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') {
+        return url;
+      }
     } catch {
       // If it fails, try with https:// prefix
       try {
         const normalized = `https://${url}`;
-        new URL(normalized);
-        return normalized;
+        const parsedUrl = new URL(normalized);
+        if (parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') {
+          return normalized;
+        }
       } catch {
-        // If still fails, return as-is but this should be validated
-        return url;
+        // Invalid URL
       }
     }
+    return '';
   };
 
   const getSafeHostname = (link: string): string => {
@@ -113,15 +117,18 @@ export function PortfolioCard({
                   key={link}
                   type="button"
                   className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border hover:bg-gray-100 transition-colors cursor-pointer w-full text-left"
-                  onClick={() =>
-                    window.open(
-                      normalizeUrl(link),
-                      "_blank",
-                      "noopener,noreferrer",
-                    )
-                  }
+                  onClick={() => {
+                    const normalizedUrl = normalizeUrl(link);
+                    if (normalizedUrl) {
+                      window.open(
+                        normalizedUrl,
+                        "_blank",
+                        "noopener,noreferrer",
+                      );
+                    }
+                  }}
                 >
-                  <div className="flex-shrink-0 text-gray-500">
+                  <div className="shrink-0 text-gray-500">
                     {getFileIcon(link)}
                   </div>
                   <div className="min-w-0 flex-1">
@@ -132,7 +139,7 @@ export function PortfolioCard({
                       {getSafeHostname(link)}
                     </div>
                   </div>
-                  <ExternalLink className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                  <ExternalLink className="h-4 w-4 text-gray-400 shrink-0" />
                 </button>
               ))}
 

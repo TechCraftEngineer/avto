@@ -1,9 +1,10 @@
+import type { DbClient } from "@qbs-autonaim/db";
 import { AnalyticsTracker } from "./tracker";
 
 export class CommunicationChannelsAnalytics {
   private analyticsTracker: AnalyticsTracker;
 
-  constructor(db: any) {
+  constructor(db: DbClient) {
     this.analyticsTracker = new AnalyticsTracker(db);
   }
 
@@ -22,7 +23,7 @@ export class CommunicationChannelsAnalytics {
       sessionId: params.sessionId,
       eventType: "web_chat_start",
       metadata: {
-        channel: "web",
+        channel: "webChat",
         ...params.metadata,
       },
     });

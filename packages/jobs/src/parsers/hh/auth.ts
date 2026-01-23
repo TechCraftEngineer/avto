@@ -109,7 +109,7 @@ export async function checkAndPerformLogin(
     if (loginInput) {
       console.log("🔑 Требуется авторизация, выполняем логин...");
       const log = new Log();
-      await performLogin(page, log, email, password, workspaceId);
+      await performLogin(page, log, email, password, workspaceId, false);
       console.log("✅ Логин завершен");
     } else {
       console.log("✅ Уже авторизованы");

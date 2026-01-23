@@ -37,6 +37,10 @@ export function useRefreshAllResumesState(
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleDialogClose = useCallback(() => {
+    if (state.status === "loading") {
+      return;
+    }
+
     // Очищаем таймер при закрытии диалога
     if (timerRef.current) {
       clearTimeout(timerRef.current);
@@ -53,7 +57,7 @@ export function useRefreshAllResumesState(
       subscriptionActive: false,
     }));
     onRefreshAllResumesDialogClose();
-  }, [onRefreshAllResumesDialogClose]);
+  }, [state.status, onRefreshAllResumesDialogClose]);
 
   // Refresh all resumes subscription callbacks
   const handleProgress = useCallback(

@@ -26,6 +26,9 @@ export const analyticsEventTypeEnum = pgEnum(
     "dialogue_complete",
     "evaluation_complete",
     "application_submit",
+    "web_chat_start",
+    "telegram_chat_start",
+    "communication_channel_selected",
   ],
 );
 
@@ -92,6 +95,9 @@ export const CreateAnalyticsEventSchema = createInsertSchema(analyticsEvent, {
     "dialogue_complete",
     "evaluation_complete",
     "application_submit",
+    "web_chat_start",
+    "telegram_chat_start",
+    "communication_channel_selected",
   ]),
   metadata: z.record(z.string(), z.unknown()).optional(),
 }).omit({

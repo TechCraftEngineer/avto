@@ -39,6 +39,7 @@ export function useScreeningState(
   });
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const isRunningRef = useRef(false);
 
   const handleDialogClose = useCallback(() => {
     // Очищаем таймер при закрытии диалога
@@ -99,6 +100,12 @@ export function useScreeningState(
   });
 
   const handleClick = useCallback(async () => {
+    if (isRunningRef.current) {
+      return;
+    }
+
+    isRunningRef.current = true;
+
     setState((prev) => ({
       ...prev,
       error: null,
@@ -116,6 +123,8 @@ export function useScreeningState(
         status: "error",
         error: error instanceof Error ? error.message : "Произошла ошибка",
       }));
+    } finally {
+      isRunningRef.current = false;
     }
   }, [onScreen]);
 

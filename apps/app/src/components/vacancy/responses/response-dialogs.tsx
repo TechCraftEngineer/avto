@@ -48,7 +48,10 @@ export function ResponseDialogs({
         status={refreshState.status}
         message={refreshState.message}
         error={refreshState.error}
-        onOpenChange={refreshState.setDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) refreshState.handleDialogClose();
+          else refreshState.setDialogOpen(true);
+        }}
         onConfirm={refreshState.handleRefreshClick}
         onClose={refreshState.handleDialogClose}
       />
@@ -75,7 +78,7 @@ export function ResponseDialogs({
         title="Оценка всех откликов"
         description={`Вы собираетесь запустить оценку для ${totalResponses} ${getPluralForm(
           totalResponses,
-          "отклика",
+          "отклик",
           "отклика",
           "откликов",
         )}. Процесс будет выполняться в фоновом режиме, и результаты появятся в таблице автоматически.`}
@@ -114,8 +117,8 @@ export function ResponseDialogs({
         title="Обновление резюме у всех откликов"
         description={`Вы собираетесь запустить обновление резюме для ${totalResponses} ${getPluralForm(
           totalResponses,
+          "отклик",
           "отклика",
-          "откликов",
           "откликов",
         )}. Процесс будет выполняться в фоновом режиме, и результаты появятся в таблице автоматически.`}
         status={refreshAllResumesState.status}

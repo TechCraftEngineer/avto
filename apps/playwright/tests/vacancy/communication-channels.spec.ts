@@ -33,9 +33,9 @@ test.describe("Настройки каналов общения вакансий
       await page.getByRole("button", { name: /создать вакансию/i }).click();
 
       // Ждем создания вакансии и переходим на страницу настроек
-      await page.waitForURL(/\/vacancies\/[^\/]+$/);
+      await page.waitForURL(/\/vacancies\/[^/]+$/);
       const url = page.url();
-      const vacancyId = url.split("/").pop();
+      const _vacancyId = url.split("/").pop();
 
       await page.goto(`${url}/settings`);
 
@@ -58,7 +58,7 @@ test.describe("Настройки каналов общения вакансий
       await page.getByLabel(/описание/i).fill("Тестовое описание");
       await page.getByRole("button", { name: /создать вакансию/i }).click();
 
-      await page.waitForURL(/\/vacancies\/[^\/]+$/);
+      await page.waitForURL(/\/vacancies\/[^/]+$/);
       const url = page.url();
       await page.goto(`${url}/settings`);
 
@@ -82,7 +82,7 @@ test.describe("Настройки каналов общения вакансий
       await page.getByLabel(/описание/i).fill("Тестовое описание");
       await page.getByRole("button", { name: /создать вакансию/i }).click();
 
-      await page.waitForURL(/\/vacancies\/[^\/]+$/);
+      await page.waitForURL(/\/vacancies\/[^/]+$/);
       const url = page.url();
       await page.goto(`${url}/settings`);
 
@@ -106,7 +106,7 @@ test.describe("Настройки каналов общения вакансий
       await page.getByLabel(/описание/i).fill("Тестовое описание");
       await page.getByRole("button", { name: /создать вакансию/i }).click();
 
-      await page.waitForURL(/\/vacancies\/[^\/]+$/);
+      await page.waitForURL(/\/vacancies\/[^/]+$/);
       const url = page.url();
       await page.goto(`${url}/settings`);
 
@@ -139,7 +139,7 @@ test.describe("Настройки каналов общения вакансий
       await page.getByLabel(/описание/i).fill("Тестовое описание");
       await page.getByRole("button", { name: /создать вакансию/i }).click();
 
-      await page.waitForURL(/\/vacancies\/[^\/]+$/);
+      await page.waitForURL(/\/vacancies\/[^/]+$/);
       const url = page.url();
       await page.goto(`${url}/settings`);
 
@@ -166,7 +166,7 @@ test.describe("Настройки каналов общения вакансий
       await page.getByLabel(/описание/i).fill("Тестовое описание");
       await page.getByRole("button", { name: /создать вакансию/i }).click();
 
-      await page.waitForURL(/\/vacancies\/[^\/]+$/);
+      await page.waitForURL(/\/vacancies\/[^/]+$/);
       const url = page.url();
       await page.goto(`${url}/settings`);
 
@@ -191,7 +191,7 @@ test.describe("Настройки каналов общения вакансий
       await page.getByLabel(/описание/i).fill("Тестовое описание");
       await page.getByRole("button", { name: /создать вакансию/i }).click();
 
-      await page.waitForURL(/\/vacancies\/[^\/]+$/);
+      await page.waitForURL(/\/vacancies\/[^/]+$/);
       const url = page.url();
       await page.goto(`${url}/settings`);
 
@@ -223,7 +223,7 @@ test.describe("Настройки каналов общения вакансий
       await page.getByLabel(/описание/i).fill("Тестовое описание");
       await page.getByRole("button", { name: /создать вакансию/i }).click();
 
-      await page.waitForURL(/\/vacancies\/[^\/]+$/);
+      await page.waitForURL(/\/vacancies\/[^/]+$/);
       const url = page.url();
       await page.goto(`${url}/settings`);
 

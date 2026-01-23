@@ -109,17 +109,20 @@ export const update = protectedProcedure
       try {
         const analytics = new CommunicationChannelsAnalytics(ctx.db);
 
-        // Отслеживаем каждый канал
+        // Отслеживаем только изменившиеся каналы
         for (const [channel, enabled] of Object.entries(settings.enabledCommunicationChannels)) {
-          await analytics.trackChannelSelection({
-            workspaceId: input.workspaceId,
-            vacancyId: input.vacancyId,
-            channel: channel as "webChat" | "telegram",
-            enabled: enabled as boolean,
-            metadata: {
-              userId: ctx.session.user.id,
-            },
-          });
+          const previousEnabled = existingVacancy.enabledCommunicationChannels?.[channel as keyof typeof existingVacancy.enabledCommunicationChannels] ?? false;
+          if (enabled !== previousEnabled) {
+            await analytics.trackChannelSelection({
+              workspaceId: input.workspaceId,
+              vacancyId: input.vacancyId,
+              channel: channel as "webChat" | "telegram",
+              enabled: enabled as boolean,
+              metadata: {
+                userId: ctx.session.user.id,
+              },
+            });
+          }
         }
       } catch (error) {
         // Не прерываем обновление из-за ошибки аналитики

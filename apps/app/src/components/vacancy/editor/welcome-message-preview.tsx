@@ -58,7 +58,6 @@ export function WelcomeMessagePreview({
   const telegramPreview = renderTemplate(telegramTemplate, "telegram");
 
   return (
-    <>
       <Card className="border-dashed">
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -80,7 +79,7 @@ export function WelcomeMessagePreview({
             </div>
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
               <DialogTrigger asChild>
-                <button className="inline-flex items-center gap-2 rounded-lg border bg-card px-3 py-2 text-sm font-medium text-card-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                <button type="button" className="inline-flex items-center gap-2 rounded-lg border bg-card px-3 py-2 text-sm font-medium text-card-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                   <Eye className="size-4" />
                   Посмотреть превью
                 </button>
@@ -179,6 +178,5 @@ export function WelcomeMessagePreview({
           </div>
         </CardContent>
       </Card>
-    </>
   );
 }
