@@ -1,9 +1,10 @@
 ﻿import {
+  and,
+  eq,
   responseComment,
   response as responseTable,
   vacancy,
 } from "@qbs-autonaim/db";
-import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { protectedProcedure } from "../../trpc";
 

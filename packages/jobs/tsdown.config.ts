@@ -10,6 +10,7 @@ export default defineConfig({
   minify: isProduction,
   external: [
     "@inngest/realtime",
+    "drizzle-orm",
     "react",
     "react-dom",
     "@qbs-autonaim/config",
