@@ -42,7 +42,7 @@
     "sharp": "^0.34.5",
     "tailwindcss": "4.1.18",
     "tailwindcss-animate": "1.0.7",
-    "zod": "4.3.5"
+    "zod": "4.3.6"
   },
   "devDependencies": {
     "@react-email/preview-server": "5.2.5",
@@ -50,7 +50,7 @@
     "@types/nodemailer": "^7.0.5",
     "@types/react": "19.2.9",
     "@types/react-dom": "19.2.3",
-    "tsdown": "0.20.0",
+    "tsdown": "0.20.1",
     "typescript": "5.9.3"
   }
 }

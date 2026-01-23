@@ -136,7 +136,11 @@ export function CandidateInfo({
         </div>
       </div>
 
-      <MetaMatchSection candidateId={candidate.id} workspaceId={workspaceId} />
+      <MetaMatchSection
+        candidateId={candidate.id}
+        workspaceId={workspaceId}
+        candidateData={candidate}
+      />
 
       {candidate.screeningAnalysis && (
         <div className="p-4 bg-muted/50 rounded-lg border-l-4 border-blue-500">

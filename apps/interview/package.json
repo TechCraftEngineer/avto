@@ -38,7 +38,7 @@
     "react-hook-form": "^7.71.1",
     "react-markdown": "^10.1.0",
     "superjson": "2.2.6",
-    "zod": "4.3.5"
+    "zod": "4.3.6"
   },
   "devDependencies": {
     "@qbs-autonaim/tailwind-config": "workspace:*",

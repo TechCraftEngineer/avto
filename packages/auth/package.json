@@ -21,10 +21,10 @@
     "@qbs-autonaim/config": "workspace:*",
     "@qbs-autonaim/db": "workspace:*",
     "better-auth": "1.4.17",
-    "zod": "4.3.5"
+    "zod": "4.3.6"
   },
   "devDependencies": {
-    "@better-auth/cli": "1.4.15",
+    "@better-auth/cli": "1.4.17",
     "@qbs-autonaim/tsconfig": "workspace:*",
     "typescript": "5.9.3"
   }

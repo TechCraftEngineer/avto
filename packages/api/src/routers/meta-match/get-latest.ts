@@ -68,6 +68,25 @@ export const getLatest = protectedProcedure
       orderBy: desc(metaMatchReport.createdAt),
     });
 
+    // Логируем просмотр Meta-Match отчета
+    if (report) {
+      await ctx.auditLogger.logAccess({
+        userId: ctx.session.user.id,
+        workspaceId: input.workspaceId,
+        action: "VIEW",
+        resourceType: "CANDIDATE",
+        resourceId: response.id,
+        metadata: {
+          feature: "meta_match",
+          action: "report_view",
+          algorithmVersion: report.algorithmVersion,
+          reportId: report.id,
+        },
+        ipAddress: ctx.ipAddress,
+        userAgent: ctx.userAgent,
+      });
+    }
+
     return {
       status: getMetaMatchStatus(!!report, !!birthDate),
       birthDate,

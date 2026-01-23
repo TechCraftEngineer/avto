@@ -5,6 +5,22 @@ export type MetaMatchSummaryMetrics = {
   temporalResonance: number;
   conflictRisk: number;
   moneyFlow: number;
+  companySynergy?: number;
+  managerSynergy?: number;
+  teamBalance?: number;
+};
+
+export type TeamMemberProfile = {
+  coreIndex: number;
+  stabilityIndex: number;
+  changeIndex: number;
+  phase: MetaMatchPhase;
+};
+
+export type TeamData = {
+  memberProfiles: TeamMemberProfile[];
+  teamSize: number;
+  dominantProfile: string;
 };
 
 export type MetaMatchSummaryLabels = {
@@ -12,6 +28,9 @@ export type MetaMatchSummaryLabels = {
   temporalResonance: string;
   conflictRisk: string;
   moneyFlow: string;
+  companySynergy?: string;
+  managerSynergy?: string;
+  teamBalance?: string;
 };
 
 export type MetaMatchEvaluation = {
@@ -22,6 +41,7 @@ export type MetaMatchEvaluation = {
   riskFlags: string[];
   disclaimer: string;
   algorithmVersion: string;
+  teamData?: TeamData;
   indices: {
     coreIndex: number;
     stabilityIndex: number;
@@ -46,6 +66,99 @@ const PHASE_WEIGHTS: Record<
   stabilization: { synergy: 1.0, risk: 0.75, money: 0.85 },
   growth: { synergy: 0.9, risk: 0.9, money: 1.0 },
   change: { synergy: 0.75, risk: 1.05, money: 0.85 },
+};
+
+// Расчет синергии между кандидатом и другой сущностью (компания/руководитель)
+const calculateEntitySynergy = (
+  candidateIndices: { coreIndex: number; stabilityIndex: number; changeIndex: number; cycleIndex: number },
+  entityBirthDate: Date,
+  currentDate: Date,
+): number => {
+  const entityDigits = getDateDigits(entityBirthDate);
+  const entityCoreIndex = digitalRoot(entityDigits.reduce((sum, digit) => sum + digit, 0));
+  const entityStabilityIndex = digitalRoot(
+    entityBirthDate.getUTCDate() + (entityBirthDate.getUTCMonth() + 1),
+  );
+  const entityChangeIndex = digitalRoot(sumDigits(entityBirthDate.getUTCFullYear() % 100));
+  const entityCycleIndexRaw =
+    (currentDate.getUTCFullYear() - entityBirthDate.getUTCFullYear()) % 9;
+  const entityCycleIndex = entityCycleIndexRaw < 0 ? entityCycleIndexRaw + 9 : entityCycleIndexRaw;
+
+  // Синергия рассчитывается как гармония между индексами кандидата и сущности
+  // Чем ближе индексы, тем выше синергия
+  const coreHarmony = 10 - Math.abs(candidateIndices.coreIndex - entityCoreIndex);
+  const stabilityHarmony = 10 - Math.abs(candidateIndices.stabilityIndex - entityStabilityIndex);
+  const changeHarmony = 10 - Math.abs(candidateIndices.changeIndex - entityChangeIndex);
+  const cycleHarmony = 10 - Math.min(Math.abs(candidateIndices.cycleIndex - entityCycleIndex), 9);
+
+  // Взвешенная синергия
+  return (coreHarmony * 0.4 + stabilityHarmony * 0.3 + changeHarmony * 0.2 + cycleHarmony * 0.1);
+};
+
+// Анализ баланса команды на основе профилей участников
+const analyzeTeamBalance = (teamProfiles: TeamMemberProfile[]): TeamData => {
+  const phaseCount: Record<MetaMatchPhase, number> = {
+    stabilization: 0,
+    growth: 0,
+    change: 0,
+  };
+
+  teamProfiles.forEach(profile => {
+    phaseCount[profile.phase]++;
+  });
+
+  // Определение доминирующего профиля
+  const dominantPhase = Object.entries(phaseCount).reduce((a, b) =>
+    phaseCount[a[0] as MetaMatchPhase] > phaseCount[b[0] as MetaMatchPhase] ? a : b
+  )[0] as MetaMatchPhase;
+
+  return {
+    memberProfiles: teamProfiles,
+    teamSize: teamProfiles.length,
+    dominantProfile: PHASE_LABELS[dominantPhase],
+  };
+};
+
+// Расчет баланса кандидата с командой
+const calculateTeamBalance = (
+  candidateProfile: TeamMemberProfile,
+  teamData: TeamData,
+): number => {
+  const teamPhaseCount: Record<MetaMatchPhase, number> = {
+    stabilization: 0,
+    growth: 0,
+    change: 0,
+  };
+
+  teamData.memberProfiles.forEach(profile => {
+    teamPhaseCount[profile.phase]++;
+  });
+
+  // Расчет разнообразия фаз в команде (чем равномернее распределение, тем лучше баланс)
+  const totalMembers = teamData.teamSize;
+  const phaseDistribution = Object.values(teamPhaseCount).map(count => count / totalMembers);
+  const diversityScore = 1 - phaseDistribution.reduce((sum, ratio) => sum + Math.pow(ratio - 1/3, 2), 0);
+
+  // Оценка вклада кандидата в баланс команды
+  const candidatePhaseCount = teamPhaseCount[candidateProfile.phase];
+  const candidateRatio = candidatePhaseCount / totalMembers;
+
+  // Кандидат улучшает баланс, если:
+  // 1. Его профиль underrepresented в команде (< 1/3)
+  // 2. Или если команда хорошо сбалансирована
+  let balanceContribution = 0;
+  if (candidateRatio < 0.3) {
+    balanceContribution = 8; // Хорошо балансирует underrepresented профиль
+  } else if (candidateRatio < 0.5) {
+    balanceContribution = 6; // Умеренно улучшает баланс
+  } else if (candidateRatio > 0.7) {
+    balanceContribution = 3; // Может создать дисбаланс
+  } else {
+    balanceContribution = 5; // Нейтральное влияние
+  }
+
+  // Финальный баланс = разнообразие команды * вклад кандидата
+  return diversityScore * balanceContribution * 10;
 };
 
 const DISCLAIMER =
@@ -89,6 +202,7 @@ const buildRecommendations = (
   phase: MetaMatchPhase,
   stabilityIndex: number,
   changeIndex: number,
+  teamBalance?: number,
 ) => {
   const phaseRecommendation: Record<MetaMatchPhase, string> = {
     stabilization:
@@ -108,7 +222,20 @@ const buildRecommendations = (
       "Лучше подойдет динамичная среда с вариативными задачами и короткими циклами.";
   }
 
-  return [phaseRecommendation[phase], taskMode];
+  const recommendations = [phaseRecommendation[phase], taskMode];
+
+  // Добавляем рекомендации по командному балансу
+  if (teamBalance !== undefined) {
+    if (teamBalance >= 7) {
+      recommendations.push("Кандидат хорошо дополнит существующий баланс команды и повысит эффективность работы.");
+    } else if (teamBalance >= 4) {
+      recommendations.push("Кандидат умеренно улучшит командный баланс, рекомендуется мониторинг адаптации.");
+    } else {
+      recommendations.push("Возможно влияние на командную динамику, стоит оценить потенциальные конфликты.");
+    }
+  }
+
+  return recommendations;
 };
 
 const buildNarrative = (
@@ -158,6 +285,11 @@ const buildRiskFlags = (metrics: MetaMatchSummaryMetrics) => {
 export const evaluateMetaMatch = (
   birthDate: Date,
   currentDate = new Date(),
+  options?: {
+    companyBirthDate?: Date;
+    managerBirthDate?: Date;
+    teamData?: TeamMemberProfile[];
+  },
 ): MetaMatchEvaluation => {
   const dateDigits = getDateDigits(birthDate);
   const coreIndex = digitalRoot(dateDigits.reduce((sum, digit) => sum + digit, 0));
@@ -183,6 +315,34 @@ export const evaluateMetaMatch = (
     moneyFlow: clampScore(coreScore * weights.money + cycleScore * 0.15),
   };
 
+  // Расчет расширенных метрик, если предоставлены даты компании/руководителя
+  if (options?.companyBirthDate) {
+    const companySynergy = calculateEntitySynergy(
+      { coreIndex, stabilityIndex, changeIndex, cycleIndex },
+      options.companyBirthDate,
+      currentDate,
+    );
+    summaryMetrics.companySynergy = clampScore(companySynergy);
+  }
+
+  if (options?.managerBirthDate) {
+    const managerSynergy = calculateEntitySynergy(
+      { coreIndex, stabilityIndex, changeIndex, cycleIndex },
+      options.managerBirthDate,
+      currentDate,
+    );
+    summaryMetrics.managerSynergy = clampScore(managerSynergy);
+  }
+
+  // Расчет командного баланса, если предоставлены данные команды
+  let teamData: TeamData | undefined;
+  if (options?.teamData && options.teamData.length > 0) {
+    teamData = analyzeTeamBalance(options.teamData);
+    const candidateProfile = { coreIndex, stabilityIndex, changeIndex, phase };
+    const teamBalanceScore = calculateTeamBalance(candidateProfile, teamData);
+    summaryMetrics.teamBalance = clampScore(teamBalanceScore);
+  }
+
   const summaryLabels = getSummaryLabels(summaryMetrics);
 
   return {
@@ -198,10 +358,11 @@ export const evaluateMetaMatch = (
       },
       summaryMetrics,
     ),
-    recommendations: buildRecommendations(phase, stabilityIndex, changeIndex),
+    recommendations: buildRecommendations(phase, stabilityIndex, changeIndex, summaryMetrics.teamBalance),
     riskFlags: buildRiskFlags(summaryMetrics),
     disclaimer: DISCLAIMER,
     algorithmVersion: ALGORITHM_VERSION,
+    teamData,
     indices: {
       coreIndex,
       stabilityIndex,
@@ -219,6 +380,9 @@ export const getSummaryLabels = (
   temporalResonance: getInterpretation(metrics.temporalResonance),
   conflictRisk: getInterpretation(metrics.conflictRisk),
   moneyFlow: getInterpretation(metrics.moneyFlow),
+  companySynergy: metrics.companySynergy ? getInterpretation(metrics.companySynergy) : undefined,
+  managerSynergy: metrics.managerSynergy ? getInterpretation(metrics.managerSynergy) : undefined,
+  teamBalance: metrics.teamBalance ? getInterpretation(metrics.teamBalance) : undefined,
 });
 
 export const getRiskFlags = (metrics: MetaMatchSummaryMetrics) =>

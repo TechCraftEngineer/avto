@@ -16,6 +16,14 @@ const evaluateCandidateInputSchema = z.object({
   workspaceId: workspaceIdSchema,
   candidateId: uuidv7Schema,
   birthDate: z.coerce.date().optional(),
+  companyBirthDate: z.coerce.date().optional(),
+  managerBirthDate: z.coerce.date().optional(),
+  teamData: z.array(z.object({
+    coreIndex: z.number().int().min(1).max(9),
+    stabilityIndex: z.number().int().min(1).max(9),
+    changeIndex: z.number().int().min(1).max(9),
+    phase: z.enum(["stabilization", "growth", "change"]),
+  })).optional(),
   consentGranted: z.boolean(),
   requestedBy: z.string().min(1).optional(),
 });
@@ -76,7 +84,11 @@ export const evaluateCandidate = protectedProcedure
       });
     }
 
-    const evaluation = evaluateMetaMatch(resolvedBirthDate);
+    const evaluation = evaluateMetaMatch(resolvedBirthDate, new Date(), {
+      companyBirthDate: input.companyBirthDate,
+      managerBirthDate: input.managerBirthDate,
+      teamData: input.teamData,
+    });
     const requestedBy = input.requestedBy ?? ctx.session.user.id;
 
     const [report] = await ctx.db
@@ -84,6 +96,9 @@ export const evaluateCandidate = protectedProcedure
       .values({
         candidateId: response.id,
         birthDate: resolvedBirthDate,
+        companyBirthDate: input.companyBirthDate,
+        managerBirthDate: input.managerBirthDate,
+        teamData: evaluation.teamData,
         summaryMetrics: evaluation.summaryMetrics,
         narrative: evaluation.narrative,
         recommendations: evaluation.recommendations,
@@ -105,6 +120,9 @@ export const evaluateCandidate = protectedProcedure
         consentGranted: input.consentGranted,
         algorithmVersion: evaluation.algorithmVersion,
         reportId: report.id,
+        hasCompanyData: !!input.companyBirthDate,
+        hasManagerData: !!input.managerBirthDate,
+        hasTeamData: !!(input.teamData && input.teamData.length > 0),
       },
       ipAddress: ctx.ipAddress,
       userAgent: ctx.userAgent,

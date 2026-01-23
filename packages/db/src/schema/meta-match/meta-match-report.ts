@@ -22,6 +22,20 @@ export const metaMatchReport = pgTable(
       .references(() => response.id, { onDelete: "cascade" }),
     birthDate: timestamp("birth_date", { withTimezone: true, mode: "date" })
       .notNull(),
+    // Даты для расширенного анализа (опционально)
+    companyBirthDate: timestamp("company_birth_date", { withTimezone: true, mode: "date" }),
+    managerBirthDate: timestamp("manager_birth_date", { withTimezone: true, mode: "date" }),
+    // Данные команды для анализа баланса (опционально)
+    teamData: jsonb("team_data").$type<{
+      memberProfiles: Array<{
+        coreIndex: number;
+        stabilityIndex: number;
+        changeIndex: number;
+        phase: string;
+      }>;
+      teamSize: number;
+      dominantProfile: string;
+    }>(),
     summaryMetrics: jsonb("summary_metrics")
       .$type<MetaMatchSummaryMetrics>()
       .notNull(),
@@ -49,6 +63,11 @@ export const MetaMatchSummaryMetricsSchema = z.object({
   temporalResonance: z.number().int().min(0).max(10),
   conflictRisk: z.number().int().min(0).max(10),
   moneyFlow: z.number().int().min(0).max(10),
+  // Расширенные метрики для анализа компании (опционально)
+  companySynergy: z.number().int().min(0).max(10).optional(),
+  managerSynergy: z.number().int().min(0).max(10).optional(),
+  // Командный баланс (опционально)
+  teamBalance: z.number().int().min(0).max(10).optional(),
 });
 
 export type MetaMatchSummaryMetrics = z.infer<
@@ -58,6 +77,8 @@ export type MetaMatchSummaryMetrics = z.infer<
 export const CreateMetaMatchReportSchema = createInsertSchema(metaMatchReport, {
   candidateId: z.string().uuid(),
   birthDate: z.coerce.date(),
+  companyBirthDate: z.coerce.date().optional(),
+  managerBirthDate: z.coerce.date().optional(),
   summaryMetrics: MetaMatchSummaryMetricsSchema,
   narrative: z.array(z.string().min(1)).min(1),
   recommendations: z.array(z.string().min(1)).min(1),
