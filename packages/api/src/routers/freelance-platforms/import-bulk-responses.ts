@@ -156,7 +156,7 @@ export const importBulkResponses = protectedProcedure
             const candidateSync = new ContactCandidateSyncService(ctx.db);
 
             const syncResult = await candidateSync.syncCandidateFromContacts({
-              name: parsed.freelancerName,
+              name: parsed.freelancerName ?? undefined,
               email: parsed.contactInfo.email ?? undefined,
               phone: parsed.contactInfo.phone ?? undefined,
               telegramUsername: parsed.contactInfo.telegram ?? undefined,
