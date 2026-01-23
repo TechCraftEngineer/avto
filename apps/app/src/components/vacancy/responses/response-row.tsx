@@ -22,10 +22,6 @@ import {
   HoverCardTrigger,
   TableCell,
   TableRow,
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
 } from "@qbs-autonaim/ui";
 import { ExternalLink, Send, TrendingUp, User, UserCheck } from "lucide-react";
 import Link from "next/link";
@@ -123,16 +119,14 @@ export function ResponseRow({
                   />
                 )}
               {response.welcomeSentAt && (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Send className="h-3 w-3 text-muted-foreground opacity-50" />
-                    </TooltipTrigger>
-                    <TooltipContent side="right">
-                      <p className="text-xs">Приветствие отправлено</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <HoverCard>
+                  <HoverCardTrigger asChild>
+                    <Send className="h-3 w-3 text-muted-foreground opacity-50" />
+                  </HoverCardTrigger>
+                  <HoverCardContent side="right">
+                    <p className="text-xs">Приветствие отправлено</p>
+                  </HoverCardContent>
+                </HoverCard>
               )}
               {response.interviewSession && (
                 <ChatIndicator
@@ -144,62 +138,58 @@ export function ResponseRow({
               )}
               {response.screening?.hiddenFitIndicators &&
                 response.screening.hiddenFitIndicators.length > 0 && (
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Badge
-                          variant="secondary"
-                          className="flex items-center gap-1 text-xs"
-                        >
-                          <UserCheck className="h-3 w-3" />
-                          Скрытый подходящий
-                        </Badge>
-                      </TooltipTrigger>
-                      <TooltipContent side="right" className="max-w-xs">
-                        <p className="text-xs font-semibold mb-1">
-                          Скрытые индикаторы соответствия:
-                        </p>
-                        <ul className="list-disc list-inside space-y-1">
-                          {response.screening.hiddenFitIndicators.map(
-                            (indicator) => (
-                              <li key={indicator} className="text-xs">
-                                {indicator}
-                              </li>
-                            ),
-                          )}
-                        </ul>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                )}
-              {response.screening?.careerTrajectoryType && (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
+                  <HoverCard>
+                    <HoverCardTrigger asChild>
                       <Badge
-                        variant="outline"
+                        variant="secondary"
                         className="flex items-center gap-1 text-xs"
                       >
-                        <TrendingUp className="h-3 w-3" />
-                        {response.screening.careerTrajectoryType === "growth" &&
-                          "Рост"}
-                        {response.screening.careerTrajectoryType === "stable" &&
-                          "Стабильность"}
-                        {response.screening.careerTrajectoryType ===
-                          "decline" && "Деградация"}
-                        {response.screening.careerTrajectoryType === "jump" &&
-                          "Скачок"}
-                        {response.screening.careerTrajectoryType ===
-                          "role_change" && "Смена роли"}
+                        <UserCheck className="h-3 w-3" />
+                        Скрытый подходящий
                       </Badge>
-                    </TooltipTrigger>
-                    <TooltipContent side="right" className="max-w-xs">
-                      <p className="text-xs">
-                        {response.screening.careerTrajectoryAnalysis || ""}
+                    </HoverCardTrigger>
+                    <HoverCardContent side="right" className="max-w-xs">
+                      <p className="text-xs font-semibold mb-1">
+                        Скрытые индикаторы соответствия:
                       </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                      <ul className="list-disc list-inside space-y-1">
+                        {response.screening.hiddenFitIndicators.map(
+                          (indicator) => (
+                            <li key={indicator} className="text-xs">
+                              {indicator}
+                            </li>
+                          ),
+                        )}
+                      </ul>
+                    </HoverCardContent>
+                  </HoverCard>
+                )}
+              {response.screening?.careerTrajectoryType && (
+                <HoverCard>
+                  <HoverCardTrigger asChild>
+                    <Badge
+                      variant="outline"
+                      className="flex items-center gap-1 text-xs"
+                    >
+                      <TrendingUp className="h-3 w-3" />
+                      {response.screening.careerTrajectoryType === "growth" &&
+                        "Рост"}
+                      {response.screening.careerTrajectoryType === "stable" &&
+                        "Стабильность"}
+                      {response.screening.careerTrajectoryType ===
+                        "decline" && "Деградация"}
+                      {response.screening.careerTrajectoryType === "jump" &&
+                        "Скачок"}
+                      {response.screening.careerTrajectoryType ===
+                        "role_change" && "Смена роли"}
+                    </Badge>
+                  </HoverCardTrigger>
+                  <HoverCardContent side="right" className="max-w-xs">
+                    <p className="text-xs">
+                      {response.screening.careerTrajectoryAnalysis || ""}
+                    </p>
+                  </HoverCardContent>
+                </HoverCard>
               )}
             </div>
           </div>
