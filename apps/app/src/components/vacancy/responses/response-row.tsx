@@ -185,9 +185,10 @@ export function ResponseRow({
                     </Badge>
                   </HoverCardTrigger>
                   <HoverCardContent side="right" className="max-w-xs">
-                    <p className="text-xs">
-                      {response.screening.careerTrajectoryAnalysis || ""}
-                    </p>
+                    <div
+                      className="text-xs"
+                      dangerouslySetInnerHTML={{ __html: response.screening.careerTrajectoryAnalysis || "" }}
+                    />
                   </HoverCardContent>
                 </HoverCard>
               )}
