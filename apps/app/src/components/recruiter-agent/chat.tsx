@@ -75,8 +75,8 @@ export function RecruiterAgentChat({
   return (
     <div
       className={cn(
-        "flex flex-col",
-        isExpanded ? "h-[600px]" : "h-auto",
+        "flex flex-col border rounded-lg bg-background shadow-sm",
+        isExpanded ? "h-150" : "h-auto min-h-15",
         className,
       )}
     >
@@ -117,6 +117,18 @@ export function RecruiterAgentChat({
             </div>
           </div>
         </header>
+      )}
+
+      {/* Превью последнего сообщения когда чат свернут */}
+      {!isExpanded && history.length > 0 && (
+        <div className="px-4 py-3 border-t bg-muted/30">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Sparkles className="size-4" />
+            <span className="truncate">
+              {history[history.length - 1]?.content || ""}
+            </span>
+          </div>
+        </div>
       )}
 
       {/* Содержимое чата */}
@@ -173,9 +185,15 @@ function RecruiterMessages({
   // Автоскролл при новых сообщениях
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      const scrollElement = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement;
+      if (scrollElement) {
+        scrollElement.scrollTop = scrollElement.scrollHeight;
+      } else {
+        // Fallback для случаев когда ScrollArea не инициализирована
+        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      }
     }
-  }, []);
+  });
 
   if (history.length === 0) {
     return (
@@ -193,17 +211,15 @@ function RecruiterMessages({
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <SuggestionChip
             text="Найди 5 кандидатов, готовых выйти за 2 недели"
-            onClick={() =>
-              sendMessage?.("Найди 5 кандидатов, готовых выйти за 2 недели")
-            }
+            onClick={sendMessage ? () => sendMessage("Найди 5 кандидатов, готовых выйти за 2 недели") : undefined}
           />
           <SuggestionChip
             text="Почему у вакансии мало откликов?"
-            onClick={() => sendMessage?.("Почему у вакансии мало откликов?")}
+            onClick={sendMessage ? () => sendMessage("Почему у вакансии мало откликов?") : undefined}
           />
           <SuggestionChip
             text="Напиши приглашение на интервью"
-            onClick={() => sendMessage?.("Напиши приглашение на интервью")}
+            onClick={sendMessage ? () => sendMessage("Напиши приглашение на интервью") : undefined}
           />
         </div>
       </div>
@@ -231,20 +247,18 @@ function RecruiterMessages({
         {/* Индикатор загрузки */}
         {isStreaming && !currentAction && (
           <div className="flex items-start gap-3">
-            <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-background ring-1 ring-border">
-              <Sparkles className="size-4" />
+            <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 ring-1 ring-primary/20">
+              <Sparkles className="size-4 animate-pulse text-primary" />
             </div>
-            <div className="flex items-center gap-1 py-2 text-muted-foreground text-sm">
-              <span className="animate-pulse">Думаю</span>
-              <span className="inline-flex">
-                <span className="animate-bounce [animation-delay:0ms]">.</span>
-                <span className="animate-bounce [animation-delay:150ms]">
-                  .
-                </span>
-                <span className="animate-bounce [animation-delay:300ms]">
-                  .
-                </span>
+            <div className="flex items-center gap-2 py-2">
+              <span className="text-foreground text-sm font-medium">
+                Думаю
               </span>
+              <div className="flex gap-1">
+                <span className="inline-block size-1 animate-bounce rounded-full bg-muted-foreground [animation-delay:0ms]"></span>
+                <span className="inline-block size-1 animate-bounce rounded-full bg-muted-foreground [animation-delay:150ms]"></span>
+                <span className="inline-block size-1 animate-bounce rounded-full bg-muted-foreground [animation-delay:300ms]"></span>
+              </div>
             </div>
           </div>
         )}
@@ -269,8 +283,7 @@ const RecruiterMessage = memo(function RecruiterMessage({
     >
       <div
         className={cn("flex w-full items-start gap-3", {
-          "justify-end": isUser,
-          "justify-start": !isUser,
+          "flex-row-reverse": isUser,
         })}
       >
         {/* Аватар ассистента */}
@@ -282,16 +295,16 @@ const RecruiterMessage = memo(function RecruiterMessage({
 
         <div
           className={cn("flex flex-col", {
-            "w-full": !isUser,
-            "max-w-[calc(100%-2.5rem)] sm:max-w-[min(fit-content,80%)]": isUser,
+            "items-start": !isUser,
+            "items-end": isUser,
           })}
         >
           <div
             className={cn(
-              "wrap-break-word w-fit rounded-2xl px-3 py-2",
+              "max-w-[85%] sm:max-w-[70%] wrap-break-word rounded-2xl px-4 py-2",
               isUser
                 ? "bg-primary text-primary-foreground"
-                : "bg-transparent px-0 py-0 text-foreground",
+                : "bg-muted text-foreground",
             )}
           >
             <p className="whitespace-pre-wrap text-sm leading-relaxed">
@@ -301,13 +314,13 @@ const RecruiterMessage = memo(function RecruiterMessage({
 
           {/* Метаданные для ассистента */}
           {!isUser && message.metadata?.intent && (
-            <div className="mt-1 flex items-center gap-2 text-muted-foreground text-xs">
-              <span className="rounded bg-muted px-1.5 py-0.5">
+            <div className="mt-2 flex items-center gap-2 text-muted-foreground text-xs">
+              <span className="rounded bg-background px-2 py-1 border">
                 {formatIntent(message.metadata.intent)}
               </span>
               {message.metadata.actions &&
                 message.metadata.actions.length > 0 && (
-                  <span>
+                  <span className="text-muted-foreground">
                     {message.metadata.actions.length} действий выполнено
                   </span>
                 )}
@@ -337,19 +350,19 @@ function ActionProgressIndicator({
 }: ActionProgressIndicatorProps) {
   return (
     <div className="flex items-start gap-3">
-      <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-background ring-1 ring-border">
-        <Loader2 className="size-4 animate-spin" />
+      <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 ring-1 ring-primary/20">
+        <Loader2 className="size-4 animate-spin text-primary" />
       </div>
       <div className="flex-1 py-2">
-        <div className="mb-1 flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">
+        <div className="mb-2 flex items-center justify-between text-sm">
+          <span className="text-foreground font-medium">
             {formatActionType(actionType)}
           </span>
-          <span className="font-medium">{progress}%</span>
+          <span className="text-muted-foreground">{progress}%</span>
         </div>
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+        <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
           <div
-            className="h-full bg-primary transition-all duration-300"
+            className="h-full bg-primary transition-all duration-500 ease-out"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -369,7 +382,8 @@ function SuggestionChip({
     <button
       type="button"
       onClick={onClick}
-      className="rounded-full border bg-background px-3 py-1.5 text-sm transition-colors hover:bg-muted"
+      disabled={!onClick}
+      className="rounded-full border bg-background px-3 py-1.5 text-sm transition-colors hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
     >
       {text}
     </button>
@@ -399,13 +413,13 @@ function RecruiterChatInput({
 
   // Автофокус на десктопе
   useEffect(() => {
-    if (textareaRef.current && window.innerWidth > 768) {
+    if (textareaRef.current && window.innerWidth > 768 && !isLoading) {
       const timer = setTimeout(() => {
         textareaRef.current?.focus();
       }, 100);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [isLoading]);
 
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
@@ -463,7 +477,7 @@ function RecruiterChatInput({
             disabled={isLoading}
             rows={1}
             className={cn(
-              "min-h-[44px] max-h-[200px] w-full grow resize-none",
+              "min-h-11 max-h-50 w-full grow resize-none",
               "border-none bg-transparent p-2 text-base outline-none",
               "placeholder:text-muted-foreground",
               "focus-visible:outline-none focus-visible:ring-0",

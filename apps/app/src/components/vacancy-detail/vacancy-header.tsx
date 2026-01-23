@@ -5,7 +5,6 @@ import {
   IconEye,
   IconMapPin,
 } from "@tabler/icons-react";
-import Link from "next/link";
 import type { VacancyPublication } from "./types";
 import { SOURCE_CONFIG } from "./utils/source-config";
 
