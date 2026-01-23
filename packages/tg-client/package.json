@@ -30,8 +30,6 @@
     "@mtcute/bun": "0.27.6",
     "@mtcute/core": "0.27.6",
     "@mtcute/dispatcher": "0.27.6",
-    "@fuman/utils": "^0.3.1",
-    "@fuman/io": "^0.3.1",
     "@qbs-autonaim/config": "workspace:*",
     "@qbs-autonaim/db": "workspace:*",
     "@qbs-autonaim/lib": "workspace:*",
