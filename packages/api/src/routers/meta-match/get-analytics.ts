@@ -1,6 +1,6 @@
-import { metaMatchReport } from "@qbs-autonaim/db/schema";
+import { metaMatchReport, response, vacancy } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { and, count, gte, sql } from "@qbs-autonaim/db";
+import { and, count, eq, gte, lte, sql } from "@qbs-autonaim/db";
 import { z } from "zod";
 import { protectedProcedure } from "../../trpc";
 import { verifyWorkspaceAccess } from "../../utils/verify-workspace-access";
@@ -25,32 +25,58 @@ export const getAnalytics = protectedProcedure
       dateFilter.push(gte(metaMatchReport.createdAt, input.dateFrom));
     }
     if (input.dateTo) {
-      dateFilter.push(gte(metaMatchReport.createdAt, input.dateTo));
+      dateFilter.push(lte(metaMatchReport.createdAt, input.dateTo));
     }
 
     // Общее количество отчетов
     const [totalReports] = await ctx.db
       .select({ count: count() })
       .from(metaMatchReport)
-      .where(and(...dateFilter));
+      .innerJoin(response, eq(metaMatchReport.candidateId, response.id))
+      .innerJoin(vacancy, eq(response.entityId, vacancy.id))
+      .where(and(eq(vacancy.workspaceId, input.workspaceId), ...dateFilter));
 
     // Количество отчетов с данными компании
     const [reportsWithCompany] = await ctx.db
       .select({ count: count() })
       .from(metaMatchReport)
-      .where(and(sql`${metaMatchReport.companyBirthDate} IS NOT NULL`, ...dateFilter));
+      .innerJoin(response, eq(metaMatchReport.candidateId, response.id))
+      .innerJoin(vacancy, eq(response.entityId, vacancy.id))
+      .where(
+        and(
+          eq(vacancy.workspaceId, input.workspaceId),
+          sql`${metaMatchReport.companyBirthDate} IS NOT NULL`,
+          ...dateFilter,
+        ),
+      );
 
     // Количество отчетов с данными руководителя
     const [reportsWithManager] = await ctx.db
       .select({ count: count() })
       .from(metaMatchReport)
-      .where(and(sql`${metaMatchReport.managerBirthDate} IS NOT NULL`, ...dateFilter));
+      .innerJoin(response, eq(metaMatchReport.candidateId, response.id))
+      .innerJoin(vacancy, eq(response.entityId, vacancy.id))
+      .where(
+        and(
+          eq(vacancy.workspaceId, input.workspaceId),
+          sql`${metaMatchReport.managerBirthDate} IS NOT NULL`,
+          ...dateFilter,
+        ),
+      );
 
     // Количество отчетов с данными команды
     const [reportsWithTeam] = await ctx.db
       .select({ count: count() })
       .from(metaMatchReport)
-      .where(and(sql`${metaMatchReport.teamData} IS NOT NULL`, ...dateFilter));
+      .innerJoin(response, eq(metaMatchReport.candidateId, response.id))
+      .innerJoin(vacancy, eq(response.entityId, vacancy.id))
+      .where(
+        and(
+          eq(vacancy.workspaceId, input.workspaceId),
+          sql`${metaMatchReport.teamData} IS NOT NULL`,
+          ...dateFilter,
+        ),
+      );
 
     // Средние значения метрик
     const [avgMetrics] = await ctx.db
@@ -64,7 +90,9 @@ export const getAnalytics = protectedProcedure
         avgTeamBalance: sql<number>`avg((${metaMatchReport.summaryMetrics}->>'teamBalance')::int)`,
       })
       .from(metaMatchReport)
-      .where(and(...dateFilter));
+      .innerJoin(response, eq(metaMatchReport.candidateId, response.id))
+      .innerJoin(vacancy, eq(response.entityId, vacancy.id))
+      .where(and(eq(vacancy.workspaceId, input.workspaceId), ...dateFilter));
 
     return {
       totalReports: totalReports?.count ?? 0,
@@ -76,9 +104,15 @@ export const getAnalytics = protectedProcedure
         temporalResonance: Math.round(avgMetrics?.avgTemporalResonance ?? 0),
         conflictRisk: Math.round(avgMetrics?.avgConflictRisk ?? 0),
         moneyFlow: Math.round(avgMetrics?.avgMoneyFlow ?? 0),
-        companySynergy: avgMetrics?.avgCompanySynergy ? Math.round(avgMetrics.avgCompanySynergy) : null,
-        managerSynergy: avgMetrics?.avgManagerSynergy ? Math.round(avgMetrics.avgManagerSynergy) : null,
-        teamBalance: avgMetrics?.avgTeamBalance ? Math.round(avgMetrics.avgTeamBalance) : null,
+        companySynergy: avgMetrics?.avgCompanySynergy
+          ? Math.round(avgMetrics.avgCompanySynergy)
+          : null,
+        managerSynergy: avgMetrics?.avgManagerSynergy
+          ? Math.round(avgMetrics.avgManagerSynergy)
+          : null,
+        teamBalance: avgMetrics?.avgTeamBalance
+          ? Math.round(avgMetrics.avgTeamBalance)
+          : null,
       },
     };
   });

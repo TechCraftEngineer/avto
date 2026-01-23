@@ -12,5 +12,10 @@ export default defineConfig({
   dts: true,
   sourcemap: false,
   clean: true,
-  external: [/^@qbs-autonaim\/db/, /^@opentelemetry\//, /^@langfuse\//, "sharp"],
+  external: [
+    /^@qbs-autonaim\/db/,
+    /^@opentelemetry\//,
+    /^@langfuse\//,
+    "sharp",
+  ],
 });

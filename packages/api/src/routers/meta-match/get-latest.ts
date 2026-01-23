@@ -68,6 +68,11 @@ export const getLatest = protectedProcedure
       orderBy: desc(metaMatchReport.createdAt),
     });
 
+    // Prefer report's birthDate if available
+    if (report?.birthDate) {
+      birthDate = report.birthDate;
+    }
+
     // Логируем просмотр Meta-Match отчета
     if (report) {
       await ctx.auditLogger.logAccess({

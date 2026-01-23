@@ -156,10 +156,8 @@ export const refreshAllResumesFunction = inngest.createFunction(
 
             if (!loginSucceeded) {
               console.error("HH login failed", {
-                page,
-                email,
-                password,
                 workspaceId: responsesData.vacancy.workspaceId,
+                email: email ? `${email.split('@')[0]}@***` : undefined,
               });
               throw new Error(
                 `HH login failed for workspace ${responsesData.vacancy.workspaceId}`,

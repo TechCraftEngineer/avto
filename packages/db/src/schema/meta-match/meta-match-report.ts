@@ -20,11 +20,19 @@ export const metaMatchReport = pgTable(
     candidateId: uuid("candidate_id")
       .notNull()
       .references(() => response.id, { onDelete: "cascade" }),
-    birthDate: timestamp("birth_date", { withTimezone: true, mode: "date" })
-      .notNull(),
+    birthDate: timestamp("birth_date", {
+      withTimezone: true,
+      mode: "date",
+    }).notNull(),
     // Даты для расширенного анализа (опционально)
-    companyBirthDate: timestamp("company_birth_date", { withTimezone: true, mode: "date" }),
-    managerBirthDate: timestamp("manager_birth_date", { withTimezone: true, mode: "date" }),
+    companyBirthDate: timestamp("company_birth_date", {
+      withTimezone: true,
+      mode: "date",
+    }),
+    managerBirthDate: timestamp("manager_birth_date", {
+      withTimezone: true,
+      mode: "date",
+    }),
     // Данные команды для анализа баланса (опционально)
     teamData: jsonb("team_data").$type<{
       memberProfiles: Array<{

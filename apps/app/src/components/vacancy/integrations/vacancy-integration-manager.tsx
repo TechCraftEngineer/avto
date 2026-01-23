@@ -344,7 +344,7 @@ export function VacancyIntegrationManager({
                             </FormLabel>
                             <Select
                               onValueChange={field.onChange}
-                              defaultValue={field.value}
+                              value={field.value}
                             >
                               <FormControl>
                                 <SelectTrigger className="shadow-sm">

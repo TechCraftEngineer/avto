@@ -36,7 +36,9 @@ export class CandidateService {
     const nameParts = this.parseFullName(response.candidateName ?? "");
 
     // Парсим опыт работы из строки
-    const experienceYears = this.parseExperienceYears(response.experience ?? null);
+    const experienceYears = this.parseExperienceYears(
+      response.experience ?? null,
+    );
 
     // Определяем resume URL
     // Используем resumeUrl или platformProfileUrl из response

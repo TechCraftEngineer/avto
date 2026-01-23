@@ -21,6 +21,25 @@ interface RiskIndicatorsProps {
 }
 
 /**
+ * Правильное склонение слова "риск" в зависимости от числа
+ */
+function getRiskDeclension(count: number): string {
+  const n = Math.abs(count);
+  const n100 = n % 100;
+  const n10 = n % 10;
+
+  if (n100 >= 11 && n100 <= 14) {
+    return "рисков";
+  } else if (n10 === 1) {
+    return "риск";
+  } else if (n10 >= 2 && n10 <= 4) {
+    return "риска";
+  } else {
+    return "рисков";
+  }
+}
+
+/**
  * Компонент для отображения индикаторов рисков
  * Показывает цветные индикаторы с тултипами
  */
@@ -108,12 +127,7 @@ export function RiskIndicators({
             className={`flex items-center gap-1 ${className ?? ""}`}
           >
             <AlertTriangle className="h-3 w-3" />
-            {riskFactors.length}{" "}
-            {riskFactors.length === 1
-              ? "риск"
-              : riskFactors.length < 5
-                ? "риска"
-                : "рисков"}
+            {riskFactors.length} {getRiskDeclension(riskFactors.length)}
           </Badge>
         </TooltipTrigger>
         <TooltipContent side="right" className="max-w-xs">

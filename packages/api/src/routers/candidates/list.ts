@@ -330,7 +330,7 @@ export const list = protectedProcedure
         salaryExpectation:
           r.salaryExpectationsAmount ??
           globalCandidate?.salaryExpectationsAmount ??
-          null,
+          "Не указано",
         email: email || globalCandidate?.email || null,
         phone: r.phone || globalCandidate?.phone || null,
         telegram: telegram || globalCandidate?.telegramUsername || null,

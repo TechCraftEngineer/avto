@@ -1,5 +1,6 @@
 import {
   candidate as candidateTable,
+  gig,
   metaMatchReport,
   response as responseTable,
   vacancy,
@@ -50,7 +51,7 @@ export const evaluateCandidate = protectedProcedure
 
     const response = await ctx.db.query.response.findFirst({
       where: eq(responseTable.id, input.candidateId),
-      columns: { id: true, entityId: true, globalCandidateId: true },
+      columns: { id: true, entityId: true, entityType: true, globalCandidateId: true },
     });
 
     if (!response) {
@@ -60,12 +61,26 @@ export const evaluateCandidate = protectedProcedure
       });
     }
 
-    const vacancyData = await ctx.db.query.vacancy.findFirst({
-      where: eq(vacancy.id, response.entityId),
-      columns: { id: true, workspaceId: true },
-    });
+    let entityData: { id: string; workspaceId: string } | null = null;
 
-    if (!vacancyData || vacancyData.workspaceId !== input.workspaceId) {
+    if (response.entityType === 'vacancy') {
+      entityData = await ctx.db.query.vacancy.findFirst({
+        where: eq(vacancy.id, response.entityId),
+        columns: { id: true, workspaceId: true },
+      });
+    } else if (response.entityType === 'gig') {
+      entityData = await ctx.db.query.gig.findFirst({
+        where: eq(gig.id, response.entityId),
+        columns: { id: true, workspaceId: true },
+      });
+    } else {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: `Неподдерживаемый тип сущности: ${response.entityType}, entityId: ${response.entityId}`,
+      });
+    }
+
+    if (!entityData || entityData.workspaceId !== input.workspaceId) {
       throw new TRPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому кандидату",
