@@ -15,9 +15,9 @@ import {
   Banknote,
   Clock,
   FileText,
+  Sparkles,
   TrendingUp,
   UserCheck,
-  Sparkles,
 } from "lucide-react";
 
 interface ScreeningData {
@@ -159,9 +159,12 @@ export function ScreeningResultsCard({ screening }: ScreeningResultsCardProps) {
                 <FileText className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
                 Анализ портфолио
               </h4>
-              <p className="text-xs sm:text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed wrap-break-word">
-                {screening.analysis}
-              </p>
+              <div
+                className="text-xs sm:text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none dark:prose-invert"
+                dangerouslySetInnerHTML={{
+                  __html: screening.analysis,
+                }}
+              />
             </div>
           )}
 

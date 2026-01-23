@@ -467,6 +467,8 @@ export function ResponseTableToolbar({
 
   // Refresh all resumes handlers
   const handleRefreshAllResumesClick = async () => {
+    if (refreshAllResumesStatus === "loading") return;
+
     setRefreshAllResumesError(null);
     setRefreshAllResumesMessage("");
     setRefreshAllResumesProgress(null);
@@ -700,7 +702,7 @@ export function ResponseTableToolbar({
         error={refreshAllResumesError}
         progress={refreshAllResumesProgress}
         onOpenChange={(open) => {
-          if (!open && refreshAllResumesStatus !== "loading") {
+          if (!open) {
             handleRefreshAllResumesDialogClose();
           }
         }}
