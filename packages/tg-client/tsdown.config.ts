@@ -13,12 +13,16 @@ export default defineConfig({
   treeshake: true,
   external: [
     "@mtcute/bun",
+    "@mtcute/core",
     "@mtcute/dispatcher",
+    "@fuman/utils",
+    "@fuman/io",
     "@qbs-autonaim/config",
     "@qbs-autonaim/db",
     "@qbs-autonaim/lib",
     "@qbs-autonaim/ai",
     "hono",
+    "long",
     "zod",
   ],
 });
