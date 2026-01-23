@@ -78,6 +78,13 @@
       "when": 1769089160934,
       "tag": "0010_slimy_tattoo",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1769142732944,
+      "tag": "0011_thick_supreme_intelligence",
+      "breakpoints": true
     }
   ]
 }
