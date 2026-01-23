@@ -1,5 +1,6 @@
 import { AuditLoggerService } from "@qbs-autonaim/api";
-import { db } from "@qbs-autonaim/db";
+import { eq } from "@qbs-autonaim/db";
+import { db } from "@qbs-autonaim/db/client";
 import {
   botSettings,
   workspace,
@@ -12,7 +13,6 @@ import {
   truncateText,
 } from "@qbs-autonaim/lib";
 import { streamText } from "@qbs-autonaim/lib/ai";
-import { eq } from "@qbs-autonaim/db";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getSession } from "~/auth/server";

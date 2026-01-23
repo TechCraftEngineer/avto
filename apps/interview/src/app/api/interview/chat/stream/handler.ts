@@ -11,7 +11,8 @@ import { observe, updateActiveTrace } from "@langfuse/tracing";
 import { SpanStatusCode, trace } from "@opentelemetry/api";
 import { WebInterviewOrchestrator } from "@qbs-autonaim/ai";
 import { hasInterviewAccess, validateInterviewToken } from "@qbs-autonaim/api";
-import { db, eq } from "@qbs-autonaim/db";
+import { eq } from "@qbs-autonaim/db";
+import { db } from "@qbs-autonaim/db/client";
 import {
   gig as gigTable,
   interviewMessage,

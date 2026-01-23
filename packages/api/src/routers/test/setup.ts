@@ -1,12 +1,12 @@
 import {
-  db,
+  eq,
   organization,
   organizationMember,
   user,
   workspace,
   workspaceMember,
 } from "@qbs-autonaim/db";
-import { eq } from "@qbs-autonaim/db";
+import { db } from "@qbs-autonaim/db/client";
 import { z } from "zod";
 import { publicProcedure } from "../../trpc";
 

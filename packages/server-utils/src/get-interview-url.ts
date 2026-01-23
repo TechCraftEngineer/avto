@@ -1,5 +1,6 @@
 import { env } from "@qbs-autonaim/config";
-import { db, eq } from "@qbs-autonaim/db";
+import { eq } from "@qbs-autonaim/db";
+import { db } from "@qbs-autonaim/db/client";
 import { customDomain, gig, vacancy, workspace } from "@qbs-autonaim/db/schema";
 
 /**

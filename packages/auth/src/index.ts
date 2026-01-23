@@ -1,4 +1,5 @@
-import { db } from "@qbs-autonaim/db";
+import { eq } from "@qbs-autonaim/db";
+import { db } from "@qbs-autonaim/db/client";
 import { account, session, user, verification } from "@qbs-autonaim/db/schema";
 import type { BetterAuthOptions, BetterAuthPlugin } from "better-auth";
 import { betterAuth } from "better-auth";
@@ -8,7 +9,6 @@ import {
   customSession,
   emailOTP,
 } from "better-auth/plugins";
-import { eq } from "@qbs-autonaim/db";
 
 export function initAuth<
   TExtraPlugins extends BetterAuthPlugin[] = [],

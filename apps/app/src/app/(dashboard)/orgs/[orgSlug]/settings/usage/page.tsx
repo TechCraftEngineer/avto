@@ -1,5 +1,7 @@
 import { paths } from "@qbs-autonaim/config";
-import { db, OrganizationRepository } from "@qbs-autonaim/db";
+import { OrganizationRepository } from "@qbs-autonaim/db";
+import { db } from "@qbs-autonaim/db/client";
+
 import {
   Badge,
   Card,

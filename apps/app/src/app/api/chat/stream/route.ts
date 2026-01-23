@@ -1,11 +1,5 @@
-import {
-  chatMessage,
-  chatSession,
-  db,
-  eq,
-  gig,
-  vacancy,
-} from "@qbs-autonaim/db";
+import { chatMessage, chatSession, eq, gig, vacancy } from "@qbs-autonaim/db";
+import { db } from "@qbs-autonaim/db/client";
 import { getAIModel, streamText } from "@qbs-autonaim/lib/ai";
 import {
   createUIMessageStream,

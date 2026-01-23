@@ -5,7 +5,8 @@
  */
 
 import { hasInterviewAccess, validateInterviewToken } from "@qbs-autonaim/api";
-import { db, eq } from "@qbs-autonaim/db";
+import { eq } from "@qbs-autonaim/db";
+import { db } from "@qbs-autonaim/db/client";
 import { file, interviewMessage } from "@qbs-autonaim/db/schema";
 import { inngest } from "@qbs-autonaim/jobs/client";
 import { uploadFile } from "@qbs-autonaim/lib/s3";

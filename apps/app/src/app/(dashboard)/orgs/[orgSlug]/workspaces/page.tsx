@@ -1,5 +1,6 @@
 import { paths } from "@qbs-autonaim/config";
-import { db, OrganizationRepository } from "@qbs-autonaim/db";
+import { OrganizationRepository } from "@qbs-autonaim/db";
+import { db } from "@qbs-autonaim/db/client";
 import { redirect } from "next/navigation";
 import { getSession } from "~/auth/server";
 import { WorkspaceListClient } from "~/components/workspace/workspace-list-client";
