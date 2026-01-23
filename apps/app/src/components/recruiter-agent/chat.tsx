@@ -185,7 +185,9 @@ function RecruiterMessages({
   // Автоскролл при новых сообщениях
   useEffect(() => {
     if (scrollRef.current) {
-      const scrollElement = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement;
+      const scrollElement = scrollRef.current.querySelector(
+        "[data-radix-scroll-area-viewport]",
+      ) as HTMLElement;
       if (scrollElement) {
         scrollElement.scrollTop = scrollElement.scrollHeight;
       } else {
@@ -211,15 +213,28 @@ function RecruiterMessages({
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <SuggestionChip
             text="Найди 5 кандидатов, готовых выйти за 2 недели"
-            onClick={sendMessage ? () => sendMessage("Найди 5 кандидатов, готовых выйти за 2 недели") : undefined}
+            onClick={
+              sendMessage
+                ? () =>
+                    sendMessage("Найди 5 кандидатов, готовых выйти за 2 недели")
+                : undefined
+            }
           />
           <SuggestionChip
             text="Почему у вакансии мало откликов?"
-            onClick={sendMessage ? () => sendMessage("Почему у вакансии мало откликов?") : undefined}
+            onClick={
+              sendMessage
+                ? () => sendMessage("Почему у вакансии мало откликов?")
+                : undefined
+            }
           />
           <SuggestionChip
             text="Напиши приглашение на интервью"
-            onClick={sendMessage ? () => sendMessage("Напиши приглашение на интервью") : undefined}
+            onClick={
+              sendMessage
+                ? () => sendMessage("Напиши приглашение на интервью")
+                : undefined
+            }
           />
         </div>
       </div>
@@ -251,9 +266,7 @@ function RecruiterMessages({
               <Sparkles className="size-4 animate-pulse text-primary" />
             </div>
             <div className="flex items-center gap-2 py-2">
-              <span className="text-foreground text-sm font-medium">
-                Думаю
-              </span>
+              <span className="text-foreground text-sm font-medium">Думаю</span>
               <div className="flex gap-1">
                 <span className="inline-block size-1 animate-bounce rounded-full bg-muted-foreground [animation-delay:0ms]"></span>
                 <span className="inline-block size-1 animate-bounce rounded-full bg-muted-foreground [animation-delay:150ms]"></span>

@@ -66,7 +66,7 @@ export const evaluateCandidate = protectedProcedure
       });
     }
 
-    let entityData: { id: string; workspaceId: string } | undefined ;
+    let entityData: { id: string; workspaceId: string } | undefined;
 
     if (response.entityType === "vacancy") {
       entityData = await ctx.db.query.vacancy.findFirst({

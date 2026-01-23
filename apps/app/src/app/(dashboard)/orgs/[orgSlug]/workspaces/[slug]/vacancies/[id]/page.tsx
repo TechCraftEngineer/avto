@@ -72,9 +72,7 @@ export default function VacancyDetailPage() {
         <h2 className="text-xl font-semibold text-gray-600 mb-2">
           Загрузка...
         </h2>
-        <p className="text-gray-600">
-          Подождите, пока загрузятся параметры
-        </p>
+        <p className="text-gray-600">Подождите, пока загрузятся параметры</p>
       </div>
     );
   }

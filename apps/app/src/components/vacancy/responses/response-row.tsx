@@ -329,7 +329,10 @@ export function ResponseRow({
                   })()}
                 </span>
               </HoverCardTrigger>
-              <HoverCardContent side="left" className="max-w-sm max-h-64 overflow-y-auto">
+              <HoverCardContent
+                side="left"
+                className="max-w-sm max-h-64 overflow-y-auto"
+              >
                 <div
                   className="text-sm"
                   dangerouslySetInnerHTML={{ __html: response.coverLetter }}
