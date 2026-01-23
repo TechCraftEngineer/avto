@@ -12,7 +12,7 @@ import { stripHtml } from "string-strip-html";
 import { responseScreeningResultSchema } from "../../schemas/response-screening.schema";
 import { extractJsonFromText } from "../../utils/json-extractor";
 import { createLogger, err, type Result, tryCatch } from "../base";
-import { getVacancyRequirements } from "../vacancy";
+import { extractVacancyRequirements, getVacancyRequirements } from "../vacancy";
 
 const logger = createLogger("ResponseScreening");
 
@@ -55,27 +55,52 @@ function parseScreeningResult(text: string): ScreeningResult {
 export async function screenResponse(
   responseId: string,
 ): Promise<Result<ScreeningResult>> {
-  logger.info(`Screening response ${responseId}`);
+  logger.info(`Начинаем скрининг отклика ${responseId}`);
 
   const responseResult = await tryCatch(async () => {
     return await db.query.response.findFirst({
       where: eq(response.id, responseId),
     });
-  }, "Failed to fetch response");
+  }, "Не удалось получить отклик из базы данных");
 
   if (!responseResult.success) {
-    return err(responseResult.error);
+    return err(`Не удалось получить отклик ${responseId}: ${responseResult.error}`);
   }
 
   const resp = responseResult.data;
   if (!resp) {
-    return err(`Response ${responseId} not found`);
+    return err(`Отклик ${responseId} не найден в базе данных`);
   }
 
-  const requirements = await getVacancyRequirements(resp.entityId);
+  let requirements = await getVacancyRequirements(resp.entityId);
 
+  // If requirements are not found, try to extract them synchronously
   if (!requirements) {
-    return err(`Requirements for vacancy ${resp.entityId} not found`);
+    logger.warn(`Requirements not found for vacancy ${resp.entityId}, attempting to extract synchronously`);
+
+    // Get vacancy description to extract requirements
+    const vacancyData = await tryCatch(async () => {
+      return await db.query.vacancy.findFirst({
+        where: eq(vacancy.id, resp.entityId),
+        columns: {
+          description: true,
+        },
+      });
+    }, "Failed to fetch vacancy description");
+
+    if (!vacancyData.success || !vacancyData.data?.description?.trim()) {
+      return err(`Требования для вакансии ${resp.entityId} не найдены и нет описания для извлечения`);
+    }
+
+    // Try to extract requirements synchronously
+    const extractResult = await extractVacancyRequirements(resp.entityId, vacancyData.data.description);
+
+    if (!extractResult.success) {
+      return err(`Не удалось извлечь требования для вакансии ${resp.entityId}: ${extractResult.error}`);
+    }
+
+    requirements = extractResult.data;
+    logger.info(`Requirements extracted synchronously for vacancy ${resp.entityId}`);
   }
 
   // Получаем кастомный промпт из вакансии
