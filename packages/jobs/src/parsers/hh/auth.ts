@@ -62,8 +62,20 @@ export async function performLogin(
     );
   }
 
+  // Проверяем, не остались ли мы на странице логина
+  const currentUrl = page.url();
+  log.info(`🌐 Текущий URL после попытки логина: ${currentUrl}`);
+
+  // Если URL содержит ошибку или мы все еще на странице логина - логин не удался
+  if (
+    currentUrl.includes("/account/login") ||
+    currentUrl.includes("error") ||
+    currentUrl.includes("failed")
+  ) {
+    throw new Error(`Логин не удался. Текущий URL: ${currentUrl}`);
+  }
+
   log.info("✅ Авторизация выполнена!");
-  log.info(`🌐 Текущий URL: ${page.url()}`);
 
   if (saveCookiesAfterLogin) {
     const cookies = await page.browser().cookies();
@@ -94,10 +106,12 @@ export async function checkAndPerformLogin(
 
   const loginInput = await page.$('input[type="text"][name="username"]');
   if (loginInput) {
+    console.log("🔑 Требуется авторизация, выполняем логин...");
     const log = new Log();
     await performLogin(page, log, email, password, workspaceId);
+    console.log("✅ Логин завершен");
   } else {
-    console.log("✅ Успешно авторизованы");
+    console.log("✅ Уже авторизованы");
   }
 
   // Save cookies after successful check/login

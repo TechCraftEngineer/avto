@@ -14,6 +14,7 @@ import {
 import { HH_CONFIG } from "../../../parsers/hh/config";
 import { parseResumeExperience } from "../../../parsers/hh/resume-parser";
 import { setupBrowser, setupPage } from "../../../parsers/hh/browser-setup";
+import { closeBrowserSafely } from "../../../parsers/hh/browser-utils";
 import { extractTelegramUsername } from "../../../services/messaging";
 import {
   updateResponseDetails,
@@ -204,33 +205,7 @@ export const refreshSingleResumeFunction = inngest.createFunction(
           `✅ Резюме обновлено для: ${responseData.candidateName ?? "кандидата"}`,
         );
       } finally {
-        // Properly close browser to avoid resource locks on Windows
-        try {
-          const pages = await browser.pages();
-          // Закрываем каждую страницу по отдельности, игнорируя ошибки
-          await Promise.all(
-            pages.map(async (page) => {
-              try {
-                if (!page.isClosed()) {
-                  await page.close();
-                }
-              } catch {
-                // Игнорируем ошибки закрытия отдельных страниц
-              }
-            }),
-          );
-          await browser.close();
-          // Give Windows time to release file handles
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-        } catch (closeError) {
-          console.warn("⚠️ Ошибка при закрытии браузера:", closeError);
-          // Force kill browser process if normal close fails
-          try {
-            browser.process()?.kill("SIGKILL");
-          } catch {
-            // Ignore if already closed
-          }
-        }
+        await closeBrowserSafely(browser);
       }
     });
 

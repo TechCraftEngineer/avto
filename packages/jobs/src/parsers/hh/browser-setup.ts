@@ -1,11 +1,49 @@
 import puppeteer, { type Browser, type Page } from "puppeteer";
+import fs from "fs/promises";
+import path from "path";
+import os from "os";
+import { checkAndPerformLogin, loadCookies, saveCookies } from "./auth";
 import { HH_CONFIG } from "./config";
-import { loadCookies, saveCookies, checkAndPerformLogin } from "./auth";
+import { closeBrowserSafely } from "./browser-utils";
+
+/**
+ * Cleans up temporary Puppeteer profiles to avoid EBUSY errors on Windows
+ */
+async function cleanupTempProfiles(): Promise<void> {
+  try {
+    const tempDir = os.tmpdir();
+    const files = await fs.readdir(tempDir);
+
+    // Find and remove puppeteer temp profiles
+    const puppeteerProfilePattern = /^puppeteer_dev_chrome_profile-/;
+    const cleanupPromises = files
+      .filter(file => puppeteerProfilePattern.test(file))
+      .map(async (profileDir) => {
+        const profilePath = path.join(tempDir, profileDir);
+        try {
+          // Try to remove the directory recursively
+          await fs.rm(profilePath, { recursive: true, force: true });
+          console.log(`🧹 Очищен временный профиль: ${profileDir}`);
+        } catch (error) {
+          // Ignore cleanup errors - directory might be in use
+          console.warn(`⚠️ Не удалось очистить профиль ${profileDir}:`, error);
+        }
+      });
+
+    await Promise.all(cleanupPromises);
+  } catch (error) {
+    // Ignore cleanup errors during setup
+    console.warn("⚠️ Ошибка при очистке временных профилей:", error);
+  }
+}
 
 /**
  * Launches a Puppeteer browser with HH-specific configuration
  */
 export async function setupBrowser(): Promise<Browser> {
+  // Clean up temp profiles before launching new browser
+  await cleanupTempProfiles();
+
   return await puppeteer.launch({
     headless: HH_CONFIG.puppeteer.headless,
     args: HH_CONFIG.puppeteer.args,
@@ -13,6 +51,7 @@ export async function setupBrowser(): Promise<Browser> {
     slowMo: HH_CONFIG.puppeteer.slowMo,
   });
 }
+
 
 /**
  * Sets up a page with anti-detection measures and cookie restoration
@@ -57,7 +96,10 @@ export async function setupPage(
 
   // Restore cookies if provided
   if (savedCookies && savedCookies.length > 0) {
+    console.log(`🍪 Восстанавливаем ${savedCookies.length} cookies`);
     await page.setCookie(...savedCookies);
+  } else {
+    console.log("🍪 Cookies не найдены, будет выполнен первичный логин");
   }
 
   // Set viewport and user agent
@@ -96,8 +138,8 @@ export async function setupAuthenticatedBrowser(
     await saveCookies("hh", cookies, workspaceId);
 
     return { browser, page, credentials: { email, password } };
-  } catch (error) {
-    await browser.close();
+    } catch (error) {
+    await closeBrowserSafely(browser);
     throw error;
   }
 }

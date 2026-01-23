@@ -6,9 +6,14 @@ import { memo } from "react";
 import type { ConversationMessage } from "~/hooks/use-recruiter-agent";
 import { formatIntent } from "./utils";
 
-const pluralizeDeclension = (count: number, forms: [string, string, string]): string => {
-  const cases = [2, 0, 1, 1, 1, 2];
-  return forms[(count % 100 > 4 && count % 100 < 20) ? 2 : cases[Math.min(count % 10, 5)]];
+const pluralizeDeclension = (
+  count: number,
+  forms: [string, string, string],
+): string => {
+  const cases = [2, 0, 1, 1, 1, 2] as const;
+  const caseIndex = Math.min(count % 10, 5);
+  const index = count % 100 > 4 && count % 100 < 20 ? 2 : cases[caseIndex];
+  return forms[index as 0 | 1 | 2];
 };
 
 interface RecruiterAgentMessageProps {
@@ -65,7 +70,12 @@ const RecruiterAgentMessage = memo(function RecruiterAgentMessage({
               {message.metadata.actions &&
                 message.metadata.actions.length > 0 && (
                   <span className="text-muted-foreground">
-                    {message.metadata.actions.length} {pluralizeDeclension(message.metadata.actions.length, ['действие выполнено', 'действия выполнено', 'действий выполнено'])}
+                    {message.metadata.actions.length}{" "}
+                    {pluralizeDeclension(message.metadata.actions.length, [
+                      "действие выполнено",
+                      "действия выполнено",
+                      "действий выполнено",
+                    ])}
                   </span>
                 )}
             </div>

@@ -3,16 +3,17 @@ import { eq, getIntegrationCredentials } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { response } from "@qbs-autonaim/db/schema";
 import { Log } from "crawlee";
-import puppeteer from "puppeteer-extra";
 import type { Page } from "puppeteer";
+import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import {
   loadCookies,
   performLogin,
   saveCookies,
 } from "../../../parsers/hh/auth";
-import { parseResumeExperience } from "../../../parsers/hh/resume-parser";
 import { setupBrowser, setupPage } from "../../../parsers/hh/browser-setup";
+import { closeBrowserSafely } from "../../../parsers/hh/browser-utils";
+import { parseResumeExperience } from "../../../parsers/hh/resume-parser";
 import {
   updateResponseDetails,
   uploadCandidatePhoto,
@@ -35,8 +36,27 @@ async function checkAndPerformLogin(
   try {
     const log = new Log();
     await performLogin(page, log, email, password, workspaceId);
+
+    // Проверяем успешность логина
+    await new Promise((resolve) => setTimeout(resolve, 2000)); // Ждем завершения редиректа
+
+    const currentUrl = page.url();
+    console.log(`🌐 Текущий URL после логина: ${currentUrl}`);
+
+    // Если мы все еще на странице логина или есть поля ввода - логин не удался
+    const loginInput = await page.$('input[type="text"][name="username"]');
+    const isStillOnLoginPage =
+      currentUrl.includes("/account/login") || !!loginInput;
+
+    if (isStillOnLoginPage) {
+      console.error("❌ Логин не удался - остались на странице логина");
+      return false;
+    }
+
+    // Сохраняем cookies после успешного логина
     const cookies = await page.cookies();
     await saveCookies("hh", cookies, workspaceId);
+    console.log("✅ Логин прошел успешно");
     return true;
   } catch (error) {
     console.error("Login failed:", error);
@@ -147,6 +167,10 @@ export const refreshAllResumesFunction = inngest.createFunction(
             );
             const page = await setupPage(browser, savedCookies);
 
+            console.log(
+              `🔐 Попытка логина для workspace: ${responsesData.vacancy.workspaceId}`,
+            );
+
             const loginSucceeded = await checkAndPerformLogin(
               page,
               email,
@@ -155,11 +179,13 @@ export const refreshAllResumesFunction = inngest.createFunction(
             );
 
             if (!loginSucceeded) {
-              console.error("HH login failed", {
+              console.error("❌ HH login failed", {
                 workspaceId: responsesData.vacancy.workspaceId,
                 maskedEmail: email
                   ? `${email.slice(0, 2)}***@${email.split("@")[1]}`
                   : undefined,
+                responseId: responseItem.id,
+                candidateName: responseItem.candidateName,
               });
               throw new Error(
                 `HH login failed for workspace ${responsesData.vacancy.workspaceId}`,
@@ -225,7 +251,7 @@ export const refreshAllResumesFunction = inngest.createFunction(
               `✅ Резюме обновлено для кандидата: ${responseItem.candidateName}`,
             );
           } finally {
-            await browser.close();
+            await closeBrowserSafely(browser);
           }
         });
 

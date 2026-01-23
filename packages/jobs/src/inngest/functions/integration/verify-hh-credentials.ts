@@ -6,6 +6,7 @@ import type { Browser } from "puppeteer";
 import puppeteer from "puppeteer";
 import { performLogin, saveCookies } from "../../../parsers/hh/auth";
 import { HH_CONFIG } from "../../../parsers/hh/config";
+import { closeBrowserSafely } from "../../../parsers/hh/browser-utils";
 import { verifyHHCredentialsChannel } from "../../channels";
 import { inngest } from "../../client";
 
@@ -61,25 +62,8 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
 
         // Теперь сохраняем cookies (интеграция уже существует)
         await saveCookies("hh", cookies, workspaceId);
-        // Закрываем браузер и ждём завершения процесса
-        try {
-          const pages = await browser.pages();
-          // Закрываем каждую страницу по отдельности, игнорируя ошибки
-          await Promise.all(
-            pages.map(async (page) => {
-              try {
-                if (!page.isClosed()) {
-                  await page.close();
-                }
-              } catch {
-                // Игнорируем ошибки закрытия отдельных страниц
-              }
-            }),
-          );
-          await browser.close();
-        } catch {
-          // Игнорируем ошибки при закрытии
-        }
+        // Закрываем браузер безопасно
+        await closeBrowserSafely(browser);
 
         const successResult = {
           success: true,
@@ -93,24 +77,7 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
         return successResult;
       } catch (error) {
         if (browser) {
-          try {
-            const pages = await browser.pages();
-            // Закрываем каждую страницу по отдельности, игнорируя ошибки
-            await Promise.all(
-              pages.map(async (page) => {
-                try {
-                  if (!page.isClosed()) {
-                    await page.close();
-                  }
-                } catch {
-                  // Игнорируем ошибки закрытия отдельных страниц
-                }
-              }),
-            );
-            await browser.close();
-          } catch {
-            // Игнорируем ошибки при закрытии
-          }
+          await closeBrowserSafely(browser);
         }
 
         const errorMessage =

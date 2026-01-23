@@ -5,6 +5,7 @@ import puppeteer from "puppeteer";
 import { HH_CONFIG } from "../../../parsers/hh/config";
 import { humanBrowse, humanDelay } from "../../../parsers/hh/human-behavior";
 import { updateVacancyDescription } from "../../../services/vacancy";
+import { closeBrowserSafely } from "../../../parsers/hh/browser-utils";
 import { inngest } from "../../client";
 
 /**
@@ -76,32 +77,7 @@ export const updateSingleVacancyFunction = inngest.createFunction(
       } finally {
         // Корректное закрытие браузера для Windows
         if (browser) {
-          try {
-            const pages = await browser.pages();
-            // Закрываем каждую страницу по отдельности, игнорируя ошибки
-            await Promise.all(
-              pages.map(async (page) => {
-                try {
-                  if (!page.isClosed()) {
-                    await page.close();
-                  }
-                } catch {
-                  // Игнорируем ошибки закрытия отдельных страниц
-                }
-              }),
-            );
-            await browser.close();
-            // Даем Windows время освободить файловые дескрипторы
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-          } catch (closeError) {
-            console.warn("⚠️ Ошибка при закрытии браузера:", closeError);
-            // Принудительно убиваем процесс браузера если обычное закрытие не сработало
-            try {
-              browser.process()?.kill("SIGKILL");
-            } catch {
-              // Игнорируем если процесс уже закрыт
-            }
-          }
+          await closeBrowserSafely(browser);
         }
       }
     });

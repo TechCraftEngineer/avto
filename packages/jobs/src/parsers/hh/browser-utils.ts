@@ -1,45 +1,45 @@
 import type { Browser } from "puppeteer";
 
 /**
- * Безопасно закрывает браузер Puppeteer с обработкой ошибок
+ * Безопасно закрывает браузер Puppeteer с механизмом повторных попыток
  *
- * Последовательность действий:
- * 1. Закрывает все открытые страницы (с индивидуальной обработкой ошибок)
- * 2. Закрывает сам браузер
- * 3. Ждет 1 секунду для освобождения файловых дескрипторов (важно для Windows)
- * 4. При ошибке принудительно завершает процесс браузера через SIGKILL
+ * Особенности:
+ * - Механизм повторных попыток при неудаче
+ * - Правильное закрытие всех страниц перед закрытием браузера
+ * - Принудительное завершение процесса при persistent ошибках
+ * - Улучшенная обработка ошибок для Windows (EBUSY issues)
  *
  * @param browser - Экземпляр Puppeteer Browser для закрытия
+ * @param maxRetries - Максимальное количество попыток закрытия (по умолчанию 3)
  */
-export async function closeBrowserSafely(browser: Browser): Promise<void> {
-  try {
-    const pages = await browser.pages();
-
-    // Закрываем каждую страницу по отдельности, игнорируя ошибки
-    await Promise.all(
-      pages.map(async (page) => {
-        try {
-          if (!page.isClosed()) {
-            await page.close();
-          }
-        } catch {
-          // Игнорируем ошибки закрытия отдельных страниц
-        }
-      }),
-    );
-
-    await browser.close();
-
-    // Даем Windows время для освобождения файловых дескрипторов
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-  } catch (closeError) {
-    console.warn("⚠️ Ошибка при закрытии браузера:", closeError);
-
-    // Принудительно завершаем процесс браузера, если обычное закрытие не сработало
+export async function closeBrowserSafely(browser: Browser, maxRetries = 3): Promise<void> {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      browser.process()?.kill("SIGKILL");
-    } catch {
-      // Игнорируем, если процесс уже закрыт
+      // Close all pages first
+      const pages = await browser.pages();
+      await Promise.all(pages.map(page => page.close().catch(() => {})));
+
+      // Close browser
+      await browser.close();
+      console.log("✅ Браузер успешно закрыт");
+      return;
+    } catch (error) {
+      console.warn(`⚠️ Попытка ${attempt}/${maxRetries} закрытия браузера не удалась:`, error);
+
+      if (attempt === maxRetries) {
+        console.error("❌ Не удалось закрыть браузер после всех попыток");
+        // Force kill the browser process if possible
+        try {
+          if (browser.process()) {
+            browser.process()!.kill('SIGKILL');
+          }
+        } catch (killError) {
+          console.error("❌ Не удалось принудительно завершить процесс браузера:", killError);
+        }
+      } else {
+        // Wait before retry
+        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+      }
     }
   }
 }
