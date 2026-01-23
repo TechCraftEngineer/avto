@@ -22,3 +22,9 @@ export {
 export * from "./types";
 export { ResponseDetailCard } from "./vacancy-response-detail-card";
 export { VacancyResponseTabs } from "./vacancy-response-tabs";
+
+// Re-export new separated components for backward compatibility
+export { VacancyResponseDetailCard } from "../vacancy/response-detail";
+export { GigResponseDetailCard as NewGigResponseDetailCard } from "../gig/response-detail";
+export { VacancyResponseTabs as NewVacancyResponseTabs } from "../vacancy/response-detail";
+export { GigResponseTabs as NewGigResponseTabs } from "../gig/response-detail";

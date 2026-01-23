@@ -21,8 +21,7 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import { toast } from "sonner";
-import { GigResponseDetailCard } from "~/components/response-detail";
-import type { ResponseDetail } from "~/components/response-detail/hooks/use-vacancy-response-flags";
+import { GigResponseDetailCard } from "~/components/gig/response-detail";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
 
@@ -91,6 +90,27 @@ export default function GigResponseDetailPage({ params }: PageProps) {
     }),
     enabled: !!workspace?.id,
   });
+
+  // Приводим к GigResponse типу
+  const gigResponse = response ? {
+    ...response,
+    entityType: 'gig' as const,
+    // Гарантируем gig-специфичные поля
+    proposedPrice: response.proposedPrice ?? null,
+    proposedDeliveryDays: response.proposedDeliveryDays ?? null,
+    portfolioLinks: response.portfolioLinks ?? null,
+    portfolioFileId: response.portfolioFileId ?? null,
+    compositeScore: response.compositeScore ?? null,
+    priceScore: response.priceScore ?? null,
+    deliveryScore: response.deliveryScore ?? null,
+    skillsMatchScore: response.skillsMatchScore ?? null,
+    experienceScore: response.experienceScore ?? null,
+    compositeScoreReasoning: response.compositeScoreReasoning ?? null,
+    priceScoreReasoning: response.priceScoreReasoning ?? null,
+    deliveryScoreReasoning: response.deliveryScoreReasoning ?? null,
+    skillsMatchScoreReasoning: response.skillsMatchScoreReasoning ?? null,
+    experienceScoreReasoning: response.experienceScoreReasoning ?? null,
+  } : null;
 
   // Accept mutation
   const acceptMutation = useMutation(
@@ -198,7 +218,7 @@ export default function GigResponseDetailPage({ params }: PageProps) {
 
   // Stop polling when interview scoring appears
   React.useEffect(() => {
-    if (response?.interviewSession && isPolling) {
+    if (gigResponse?.interviewSession && isPolling) {
       if (pollingIntervalRef.current) {
         clearInterval(pollingIntervalRef.current);
         pollingIntervalRef.current = null;
@@ -206,7 +226,7 @@ export default function GigResponseDetailPage({ params }: PageProps) {
       setIsPolling(false);
       toast.success("Оценка кандидата завершена");
     }
-  }, [response?.interviewSession, isPolling]);
+  }, [gigResponse?.interviewSession, isPolling]);
 
   // Evaluate mutation
   const evaluateMutation = useMutation(
@@ -278,7 +298,7 @@ export default function GigResponseDetailPage({ params }: PageProps) {
     return <ResponseDetailSkeleton />;
   }
 
-  if (isError || !response) {
+  if (isError || !gigResponse) {
     return (
       <div className="container mx-auto max-w-2xl py-12 px-4 sm:py-16 sm:px-6">
         <Card>
@@ -324,7 +344,7 @@ export default function GigResponseDetailPage({ params }: PageProps) {
 
       {/* Response Detail */}
       <GigResponseDetailCard
-        response={response as ResponseDetail}
+        response={gigResponse}
         onAccept={handleAccept}
         onReject={handleReject}
         onMessage={handleMessage}
@@ -388,7 +408,7 @@ export default function GigResponseDetailPage({ params }: PageProps) {
             </DialogTitle>
             <DialogDescription className="text-sm sm:text-base break-words">
               Напишите сообщение кандидату{" "}
-              {response.candidateName || response.candidateId}
+              {gigResponse?.candidateName || gigResponse?.candidateId}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">

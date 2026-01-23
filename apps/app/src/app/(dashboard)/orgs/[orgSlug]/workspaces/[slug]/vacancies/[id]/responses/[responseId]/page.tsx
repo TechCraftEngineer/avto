@@ -6,7 +6,7 @@ import { skipToken, useQuery } from "@tanstack/react-query";
 import { ArrowLeft, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ResponseDetailCard } from "~/components/response-detail";
+import { VacancyResponseDetailCard } from "~/components/vacancy/response-detail";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 import { useTRPC } from "~/trpc/react";
 
@@ -73,10 +73,16 @@ export default function VacancyResponseDetailPage() {
   // Явно указываем тип для response после проверки на null
   const response = responseData;
 
-  // Создаём объект с globalCandidate для совместимости с ResponseDetail
-  const responseWithGlobalCandidate = {
+  // Приводим к VacancyResponse типу
+  const vacancyResponse: import("~/components/vacancy/response-detail").VacancyResponse = {
     ...response,
-    globalCandidate: null as null, // TODO: загрузить фактического кандидата при необходимости
+    entityType: 'vacancy',
+    // Гарантируем vacancy-специфичные поля
+    resumeId: response.resumeId ?? null,
+    resumeUrl: response.resumeUrl ?? null,
+    platformProfileUrl: response.platformProfileUrl ?? null,
+    salaryExpectationsAmount: response.salaryExpectationsAmount ?? null,
+    salaryExpectationsComment: response.salaryExpectationsComment ?? null,
   };
 
   return (
@@ -114,7 +120,7 @@ export default function VacancyResponseDetailPage() {
               ) : null}
             </div>
 
-            <ResponseDetailCard response={responseWithGlobalCandidate} />
+            <VacancyResponseDetailCard response={vacancyResponse} />
           </div>
         </div>
       </div>
