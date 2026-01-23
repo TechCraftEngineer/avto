@@ -5,11 +5,11 @@
 import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { chatSession, interviewSession } from "@qbs-autonaim/db/schema";
-import { z } from "zod";
 import type { ConversationMetadata } from "@qbs-autonaim/shared/types";
+import { z } from "zod";
 
 /**
- * Zod схема для валидации ConversationMetadata
+ * Zod схемы для валидации ConversationMetadata
  */
 const QuestionAnswerSchema = z.object({
   question: z.string(),
@@ -79,7 +79,7 @@ const LastBotDetectionResultSchema = z.object({
   timestamp: z.string(),
 });
 
-const ConversationMetadataSchema = z.object({
+export const ConversationMetadataSchema = z.object({
   identifiedBy: z
     .enum(["pin_code", "vacancy_search", "username", "phone", "none"])
     .optional(),
@@ -103,11 +103,6 @@ const ConversationMetadataSchema = z.object({
   totalBotSuspicionScore: z.number().optional(),
   lastBotDetectionResult: LastBotDetectionResultSchema.optional(),
 });
-
-/**
- * Экспортируем схему для использования в других модулях
- */
-export { ConversationMetadataSchema };
 
 /**
  * Безопасно парсит и валидирует метаданные
