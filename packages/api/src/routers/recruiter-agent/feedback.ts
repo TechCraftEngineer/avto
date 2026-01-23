@@ -12,7 +12,7 @@
 import { agentFeedback } from "@qbs-autonaim/db";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
-import { and, count, desc, eq, gte, lte, sql } from "drizzle-orm";
+import { and, count, desc, eq, gte, lte, sql } from "@qbs-autonaim/db";
 import { z } from "zod";
 import { protectedProcedure } from "../../trpc";
 import { checkWorkspaceAccess } from "./middleware";

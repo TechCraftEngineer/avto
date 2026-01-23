@@ -8,7 +8,7 @@ import {
   customSession,
   emailOTP,
 } from "better-auth/plugins";
-import { eq } from "drizzle-orm";
+import { eq } from "@qbs-autonaim/db";
 
 export function initAuth<
   TExtraPlugins extends BetterAuthPlugin[] = [],

@@ -1,6 +1,6 @@
 import type { Page } from "@playwright/test";
 import { db, verification } from "@qbs-autonaim/db";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq } from "@qbs-autonaim/db";
 
 export async function fillEmailPasswordForm(
   page: Page,

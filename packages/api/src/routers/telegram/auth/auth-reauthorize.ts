@@ -1,7 +1,7 @@
 import { telegramSession } from "@qbs-autonaim/db/schema";
 import { tgClientSDK } from "@qbs-autonaim/tg-client/sdk";
 import { TRPCError } from "@trpc/server";
-import { and, eq } from "drizzle-orm";
+import { and, eq } from "@qbs-autonaim/db";
 import { z } from "zod";
 import { protectedProcedure } from "../../../trpc";
 import { handle2FAError, normalizePhone } from "../utils";

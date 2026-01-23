@@ -3,7 +3,7 @@ import {
   chatMessage,
   chatSession,
 } from "@qbs-autonaim/db/schema";
-import { eq } from "drizzle-orm";
+import { eq } from "@qbs-autonaim/db";
 import { z } from "zod";
 import { protectedProcedure } from "../../trpc";
 

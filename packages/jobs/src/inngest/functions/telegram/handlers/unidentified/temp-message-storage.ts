@@ -5,7 +5,7 @@ import {
   tempInterviewMessage,
 } from "@qbs-autonaim/db/schema";
 import { removeNullBytes } from "@qbs-autonaim/lib";
-import { eq } from "drizzle-orm";
+import { eq } from "@qbs-autonaim/db";
 import {
   type BufferedTempMessageData,
   tempMessageBufferService,

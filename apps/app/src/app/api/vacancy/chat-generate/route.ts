@@ -12,7 +12,7 @@ import {
   truncateText,
 } from "@qbs-autonaim/lib";
 import { streamText } from "@qbs-autonaim/lib/ai";
-import { eq } from "drizzle-orm";
+import { eq } from "@qbs-autonaim/db";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getSession } from "~/auth/server";

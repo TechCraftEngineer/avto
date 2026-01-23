@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Analytics Exporter Service
  *
  * Сервис для экспорта данных аналитики в различных форматах.
@@ -7,7 +7,7 @@
 
 import type { DbClient } from "@qbs-autonaim/db";
 import { prequalificationSession, vacancy } from "@qbs-autonaim/db/schema";
-import { and, eq, gte, lte } from "drizzle-orm";
+import { and, eq, gte, lte } from "@qbs-autonaim/db";
 
 import type {
   DateRange,

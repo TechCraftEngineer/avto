@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Get Result Procedure
  *
  * Получает результат преквалификации для кандидата.
@@ -8,7 +8,7 @@
 
 import { prequalificationSession, vacancy } from "@qbs-autonaim/db/schema";
 import { TRPCError } from "@trpc/server";
-import { and, eq } from "drizzle-orm";
+import { and, eq } from "@qbs-autonaim/db";
 import { z } from "zod";
 import { evaluatorService } from "../../services/evaluation/evaluator";
 import { feedbackGeneratorService } from "../../services/evaluation/feedback-generator";

@@ -5,7 +5,7 @@ import {
   user,
   workspace,
 } from "@qbs-autonaim/db";
-import { eq } from "drizzle-orm";
+import { eq } from "@qbs-autonaim/db";
 import { NextResponse } from "next/server";
 import { auth } from "~/auth/server";
 

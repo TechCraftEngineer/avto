@@ -7,7 +7,7 @@
 
 import type { DbClient, WidgetConfig } from "@qbs-autonaim/db";
 import { widgetConfig } from "@qbs-autonaim/db/schema";
-import { eq } from "drizzle-orm";
+import { eq } from "@qbs-autonaim/db";
 
 import type {
   BehaviorConfig,

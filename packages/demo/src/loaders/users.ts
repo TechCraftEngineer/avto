@@ -5,7 +5,7 @@ import {
   user,
   workspaceMember,
 } from "@qbs-autonaim/db/schema";
-import { eq } from "drizzle-orm";
+import { eq } from "@qbs-autonaim/db";
 import type { DemoUserIds } from "../types";
 
 const auth = initAuth({

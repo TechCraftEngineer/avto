@@ -13,7 +13,7 @@ import {
 import { db } from "@qbs-autonaim/db";
 import { response } from "@qbs-autonaim/db/schema";
 import { sanitizeAiText, sanitizeAiTextArray } from "@qbs-autonaim/lib";
-import { eq } from "drizzle-orm";
+import { eq } from "@qbs-autonaim/db";
 
 import type { RecommendationSaveData } from "../../types/recommendation";
 import { createLogger, err, ok, type Result } from "../base";

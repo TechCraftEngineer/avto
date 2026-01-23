@@ -1,4 +1,4 @@
-﻿import {
+import {
   interviewMessage,
   interviewSession,
   response as responseTable,
@@ -7,7 +7,7 @@
 import { getDownloadUrl } from "@qbs-autonaim/lib/s3";
 import { uuidv7Schema, workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
-import { eq } from "drizzle-orm";
+import { eq } from "@qbs-autonaim/db";
 import { z } from "zod";
 import { protectedProcedure } from "../../../trpc";
 import { verifyWorkspaceAccess } from "../utils";

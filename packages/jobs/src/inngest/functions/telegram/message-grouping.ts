@@ -10,7 +10,7 @@
 
 import { db } from "@qbs-autonaim/db/client";
 import { interviewMessage } from "@qbs-autonaim/db/schema";
-import { and, desc, eq, gte } from "drizzle-orm";
+import { and, desc, eq, gte } from "@qbs-autonaim/db";
 import { MESSAGE_GROUPING_CONFIG } from "./message-grouping.config";
 
 const GROUPING_WINDOW_MINUTES = 10;

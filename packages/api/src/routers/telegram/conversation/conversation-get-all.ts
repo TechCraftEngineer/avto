@@ -1,11 +1,11 @@
-﻿import {
+import {
   interviewMessage,
   interviewSession,
   vacancy,
   response as responseTable,
 } from "@qbs-autonaim/db";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { and, desc, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, inArray } from "@qbs-autonaim/db";
 import { z } from "zod";
 import { protectedProcedure } from "../../../trpc";
 import { verifyWorkspaceAccess } from "../utils";

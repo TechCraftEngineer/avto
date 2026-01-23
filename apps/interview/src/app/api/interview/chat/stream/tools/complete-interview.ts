@@ -16,7 +16,7 @@ import {
   updateInterviewSessionMetadata,
 } from "@qbs-autonaim/server-utils";
 import { tool } from "ai";
-import { desc } from "drizzle-orm";
+import { desc } from "@qbs-autonaim/db";
 import { z } from "zod";
 
 export function createCompleteInterviewTool(sessionId: string) {

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Analytics Aggregator Service
  *
  * Сервис для агрегации метрик аналитики преквалификации.
@@ -11,7 +11,7 @@ import {
   prequalificationSession,
   vacancy,
 } from "@qbs-autonaim/db/schema";
-import { and, avg, count, desc, eq, gte, lte, sql } from "drizzle-orm";
+import { and, avg, count, desc, eq, gte, lte, sql } from "@qbs-autonaim/db";
 
 import type {
   AggregationGranularity,

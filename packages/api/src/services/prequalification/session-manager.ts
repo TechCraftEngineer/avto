@@ -17,7 +17,7 @@ import {
   vacancy,
   widgetConfig,
 } from "@qbs-autonaim/db/schema";
-import { and, eq } from "drizzle-orm";
+import { and, eq } from "@qbs-autonaim/db";
 
 import type {
   CreateSessionInput,

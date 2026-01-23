@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq } from "@qbs-autonaim/db";
 import { z } from "zod";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { vacancyPublication } from "@qbs-autonaim/db/schema";

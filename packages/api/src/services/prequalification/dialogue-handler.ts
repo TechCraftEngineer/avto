@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Dialogue Handler for Prequalification Service
  *
  * Обрабатывает сообщения диалога между кандидатом и AI-ассистентом.
@@ -17,7 +17,7 @@ import {
   response,
   vacancy,
 } from "@qbs-autonaim/db/schema";
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq } from "@qbs-autonaim/db";
 
 import type {
   AIResponse,

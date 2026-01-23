@@ -6,7 +6,7 @@ import {
   workspace,
   workspaceMember,
 } from "@qbs-autonaim/db";
-import { eq } from "drizzle-orm";
+import { eq } from "@qbs-autonaim/db";
 import { z } from "zod";
 import { publicProcedure } from "../../trpc";
 

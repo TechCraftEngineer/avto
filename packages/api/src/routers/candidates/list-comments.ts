@@ -1,4 +1,7 @@
 import {
+  and,
+  desc,
+  eq,
   responseComment,
   response as responseTable,
   user,
@@ -6,7 +9,6 @@ import {
 } from "@qbs-autonaim/db";
 import { uuidv7Schema, workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
-import { and, desc, eq } from "@qbs-autonaim/db";
 import { z } from "zod";
 import { protectedProcedure } from "../../trpc";
 
