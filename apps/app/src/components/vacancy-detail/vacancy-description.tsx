@@ -7,22 +7,29 @@ interface VacancyDescriptionProps {
 
 export function VacancyDescription({ description }: VacancyDescriptionProps) {
   return (
-    <Card className="border-l-4 border-l-primary/50 shadow-md overflow-hidden bg-card/50 backdrop-blur-sm">
-      <CardHeader className="bg-muted/50 pb-4 border-b">
-        <CardTitle className="text-lg flex items-center gap-2">
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-lg">
           <IconFileDescription className="size-5 text-primary" />
           Описание вакансии
         </CardTitle>
       </CardHeader>
-      <CardContent className="pt-6">
+      <CardContent>
         {description ? (
-          <div className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+          <div className="text-sm leading-relaxed whitespace-pre-wrap text-muted-foreground">
             {description}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-8 text-muted-foreground/50 gap-2">
-            <IconFileDescription className="size-8" />
-            <span className="text-sm">Описание отсутствует</span>
+          <div className="flex flex-col items-center justify-center py-12 gap-3">
+            <IconFileDescription className="size-12 text-muted-foreground/40" />
+            <div className="text-center space-y-1">
+              <p className="text-sm font-medium text-muted-foreground">
+                Описание отсутствует
+              </p>
+              <p className="text-xs text-muted-foreground/70">
+                Описание вакансии будет отображено здесь
+              </p>
+            </div>
           </div>
         )}
       </CardContent>
