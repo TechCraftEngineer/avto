@@ -1,4 +1,6 @@
-import { db, upsertIntegration } from "@qbs-autonaim/db";
+import { upsertIntegration } from "@qbs-autonaim/db";
+import { db } from "@qbs-autonaim/db/client";
+
 import { Log } from "crawlee";
 import type { Browser } from "puppeteer";
 import puppeteer from "puppeteer";

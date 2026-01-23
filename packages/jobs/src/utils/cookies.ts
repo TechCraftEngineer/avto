@@ -1,8 +1,8 @@
 import {
-  db,
   loadCookiesForIntegration,
   saveCookiesForIntegration,
 } from "@qbs-autonaim/db";
+import { db } from "@qbs-autonaim/db/client";
 import type { Cookie } from "crawlee";
 
 /**

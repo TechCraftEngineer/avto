@@ -1,4 +1,6 @@
-import { db, getIntegrationCredentials } from "@qbs-autonaim/db";
+import { getIntegrationCredentials } from "@qbs-autonaim/db";
+import { db } from "@qbs-autonaim/db/client";
+
 import {
   ensureAuthenticated,
   navigateWithAuth,

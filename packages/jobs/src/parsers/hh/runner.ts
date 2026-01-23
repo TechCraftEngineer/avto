@@ -1,10 +1,11 @@
-import { db, getIntegrationCredentials } from "@qbs-autonaim/db";
+import { getIntegrationCredentials } from "@qbs-autonaim/db";
+import { db } from "@qbs-autonaim/db/client";
 import puppeteer from "puppeteer";
 import { checkAndPerformLogin, loadCookies } from "./auth";
 import { closeBrowserSafely } from "./browser-utils";
 import { HH_CONFIG } from "./config";
 import { parseResponses } from "./response-parser";
-import { parseVacancies, parseArchivedVacancies } from "./vacancy-parser";
+import { parseArchivedVacancies, parseVacancies } from "./vacancy-parser";
 
 interface RunHHParserOptions {
   workspaceId: string;

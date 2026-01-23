@@ -5,7 +5,7 @@ import type { Response } from "@qbs-autonaim/db/schema";
 /**
  * Vacancy отклик - содержит только vacancy-специфичные поля
  */
-export type VacancyResponse = Response & {
+export type VacancyResponse = Omit<Response, 'proposedPrice' | 'proposedDeliveryDays' | 'portfolioLinks' | 'portfolioFileId' | 'compositeScore' | 'priceScore' | 'deliveryScore' | 'skillsMatchScore' | 'experienceScore' | 'compositeScoreReasoning' | 'priceScoreReasoning' | 'deliveryScoreReasoning' | 'skillsMatchScoreReasoning' | 'experienceScoreReasoning'> & {
   entityType: 'vacancy';
   // Гарантированно vacancy-специфичные поля
   resumeId: string | null;
@@ -22,22 +22,6 @@ export type VacancyResponse = Response & {
     priceAnalysis?: string | null;
     deliveryAnalysis?: string | null;
   } | null;
-
-  // Исключаем gig-специфичные поля
-  proposedPrice?: never;
-  proposedDeliveryDays?: never;
-  portfolioLinks?: never;
-  portfolioFileId?: never;
-  compositeScore?: never;
-  priceScore?: never;
-  deliveryScore?: never;
-  skillsMatchScore?: never;
-  experienceScore?: never;
-  compositeScoreReasoning?: never;
-  priceScoreReasoning?: never;
-  deliveryScoreReasoning?: never;
-  skillsMatchScoreReasoning?: never;
-  experienceScoreReasoning?: never;
 };
 
 /**

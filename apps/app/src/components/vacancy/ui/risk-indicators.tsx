@@ -92,6 +92,7 @@ export function RiskIndicators({
   // Если один риск, показываем его напрямую
   if (displayRisks.length === 1) {
     const risk = displayRisks[0];
+    if (!risk) return null;
     return (
       <TooltipProvider>
         <Tooltip>

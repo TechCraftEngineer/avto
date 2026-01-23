@@ -88,16 +88,11 @@ export function MetaMatchSection({
 
   // Автозаполнение DOB из профиля кандидата
   useEffect(() => {
-    if (candidateData?.globalCandidate?.birthDate && !birthDateInput) {
-      setBirthDateInput(
-        formatDateForInput(new Date(candidateData.globalCandidate.birthDate)),
-      );
-      setConsentGranted(true); // Предполагаем согласие, если данные уже есть в профиле
-    } else if (data?.birthDate && !birthDateInput) {
+    if (data?.birthDate && !birthDateInput) {
       setBirthDateInput(formatDateForInput(new Date(data.birthDate)));
     }
   }, [
-    candidateData?.globalCandidate?.birthDate,
+    data?.birthDate,
     data?.birthDate,
     birthDateInput,
   ]);
@@ -561,9 +556,9 @@ export function MetaMatchSection({
           {birthDateError && (
             <p className="text-sm text-destructive">{birthDateError}</p>
           )}
-          {candidateData?.globalCandidate?.birthDate && !birthDateError && (
+          {data?.birthDate && !birthDateError && (
             <p className="text-sm text-muted-foreground">
-              Автозаполнено из профиля кандидата
+              Автозаполнено из мета-матчинга
             </p>
           )}
         </div>

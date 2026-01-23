@@ -159,8 +159,8 @@ export function GigResponseTabs({
                 compositeScore={response.compositeScore}
                 compositeReasoning={response.compositeScoreReasoning}
                 recommendation={response.recommendation}
-                strengths={response.strengths}
-                weaknesses={response.weaknesses}
+                strengths={response.strengths ?? undefined}
+                weaknesses={response.weaknesses ?? undefined}
               />
 
               {/* Factor Breakdown */}
@@ -169,8 +169,8 @@ export function GigResponseTabs({
                 experienceReasoning={response.experienceScoreReasoning}
                 skillsScore={response.skillsMatchScore}
                 skillsReasoning={response.skillsMatchScoreReasoning}
-                strengths={response.strengths}
-                weaknesses={response.weaknesses}
+                strengths={response.strengths ?? undefined}
+                weaknesses={response.weaknesses ?? undefined}
               />
 
               {/* Score Explanations */}

@@ -10,10 +10,10 @@ import {
   type EntityDataForRecommendation,
   type ScreeningDataForRecommendation,
 } from "@qbs-autonaim/ai";
-import { db } from "@qbs-autonaim/db";
+import { eq } from "@qbs-autonaim/db";
+import { db } from "@qbs-autonaim/db/client";
 import { response } from "@qbs-autonaim/db/schema";
 import { sanitizeAiText, sanitizeAiTextArray } from "@qbs-autonaim/lib";
-import { eq } from "@qbs-autonaim/db";
 
 import type { RecommendationSaveData } from "../../types/recommendation";
 import { createLogger, err, ok, type Result } from "../base";

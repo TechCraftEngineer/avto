@@ -1,5 +1,7 @@
 import os from "node:os";
-import { db, getIntegrationCredentials } from "@qbs-autonaim/db";
+import { getIntegrationCredentials } from "@qbs-autonaim/db";
+import { db } from "@qbs-autonaim/db/client";
+
 import { Log } from "crawlee";
 import type { Page } from "puppeteer";
 import puppeteer from "puppeteer-extra";

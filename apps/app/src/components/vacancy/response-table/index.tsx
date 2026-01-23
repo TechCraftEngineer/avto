@@ -13,7 +13,7 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
-import { ResponseRow } from "../response-row";
+import { ResponseRow } from "../responses/response-row";
 import { BulkActionsBar } from "./bulk-actions-bar";
 import { EmptyState } from "./empty-state";
 import { ResponseTableHeader } from "./response-table-header";

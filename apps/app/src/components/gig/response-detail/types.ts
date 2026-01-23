@@ -5,7 +5,7 @@ import type { Response } from "@qbs-autonaim/db/schema";
 /**
  * Gig отклик - содержит только gig-специфичные поля
  */
-export type GigResponse = Response & {
+export type GigResponse = Omit<Response, 'resumeId' | 'resumeUrl' | 'platformProfileUrl' | 'salaryExpectationsAmount' | 'salaryExpectationsComment' | 'screening'> & {
   entityType: 'gig';
   // Гарантированно gig-специфичные поля
   proposedPrice: number | null;
@@ -24,14 +24,6 @@ export type GigResponse = Response & {
   deliveryScoreReasoning: string | null;
   skillsMatchScoreReasoning: string | null;
   experienceScoreReasoning: string | null;
-
-  // Исключаем vacancy-специфичные поля
-  resumeId?: never;
-  resumeUrl?: never;
-  platformProfileUrl?: never;
-  salaryExpectationsAmount?: never;
-  salaryExpectationsComment?: never;
-  screening?: never;
 };
 
 /**

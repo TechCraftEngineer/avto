@@ -1,5 +1,5 @@
+import { db } from "@qbs-autonaim/db/client";
 import {
-  db,
   organization,
   organizationMember,
   user,
