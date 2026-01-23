@@ -104,14 +104,19 @@ export function useGigResponseFlags(
     !!response.experienceScoreReasoning ||
     !!response.compositeScoreReasoning;
 
+  // Проверяем специфичные gig данные
+  const hasPricingData = !!(response.proposedPrice || response.proposedDeliveryDays);
+  const hasPortfolioData = !!(response.portfolioLinks?.length || response.portfolioFileId);
+
   // Определяем дефолтный таб
   const getDefaultTab = () => {
     if (hasConversation) return "dialog";
     if (hasInterviewScoring) return "analysis";
+    if (hasPricingData) return "pricing"; // Приоритет цене для gig
+    if (hasPortfolioData) return "portfolio"; // Приоритет портфолио для gig
     if (hasReasoning) return "explanation";
     if (hasProposal) return "proposal";
     if (hasExperience) return "experience";
-    if (hasPortfolio) return "portfolio";
     if (hasContacts) return "contacts";
     return "proposal";
   };

@@ -1,9 +1,6 @@
 export { alias } from "drizzle-orm/pg-core";
 export * from "drizzle-orm/sql";
 
-// Edge Runtime: Middleware, Edge API Routes, Next.js (HTTP - no native deps)
-export { db as dbEdge } from "./client.edge";
-
 export * from "./repositories/candidate.repository";
 export * from "./repositories/integration";
 export * from "./repositories/organization.repository";

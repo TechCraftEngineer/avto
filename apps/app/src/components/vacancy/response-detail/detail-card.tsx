@@ -2,13 +2,13 @@
 
 import {
   ParsedProfileCard,
-  ResponseHeaderCard,
 } from "~/components/response-detail";
-import { useGigResponseFlags } from "./hooks/use-gig-response-flags";
-import { GigResponseTabs } from "./GigResponseTabs";
-import type { GigResponseDetailCardProps } from "./types";
+import { HeaderCard } from "./header-card";
+import { useVacancyResponseFlags } from "./hooks/use-vacancy-response-flags";
+import { Tabs } from "./tabs";
+import type { VacancyResponseDetailCardProps } from "./types";
 
-export function GigResponseDetailCard({
+export function VacancyResponseDetailCard({
   response,
   onAccept,
   onReject,
@@ -16,9 +16,15 @@ export function GigResponseDetailCard({
   onEvaluate,
   isProcessing,
   isPolling,
-}: GigResponseDetailCardProps) {
-  const { hasInterviewScoring, hasConversation, conversation, getDefaultTab } =
-    useGigResponseFlags(response);
+}: VacancyResponseDetailCardProps) {
+  const {
+    hasScreening,
+    hasInterviewScoring,
+    hasConversation,
+    screening,
+    conversation,
+    getDefaultTab,
+  } = useVacancyResponseFlags(response);
 
   // Преобразуем conversation для ResponseHeaderCard
   const mappedConversation = conversation
@@ -39,11 +45,8 @@ export function GigResponseDetailCard({
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Header Card */}
-      <ResponseHeaderCard
-        response={{
-          ...response,
-          conversation: mappedConversation,
-        }}
+      <HeaderCard
+        response={response}
         onAccept={onAccept}
         onReject={onReject}
         onMessage={onMessage}
@@ -58,11 +61,13 @@ export function GigResponseDetailCard({
       )}
 
       {/* Main Content Tabs */}
-      <GigResponseTabs
+      <Tabs
         response={response}
         defaultTab={getDefaultTab()}
+        hasScreening={hasScreening}
         hasInterviewScoring={hasInterviewScoring}
         hasConversation={hasConversation}
+        screening={screening}
         conversation={conversation}
       />
     </div>

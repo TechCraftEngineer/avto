@@ -2,13 +2,13 @@
 
 import {
   ParsedProfileCard,
-  ResponseHeaderCard,
 } from "~/components/response-detail";
-import { useVacancyResponseFlags } from "./hooks/use-vacancy-response-flags";
-import { VacancyResponseTabs } from "./VacancyResponseTabs";
-import type { VacancyResponseDetailCardProps } from "./types";
+import { HeaderCard } from "./header-card";
+import { useGigResponseFlags } from "./hooks/use-gig-response-flags";
+import { Tabs } from "./tabs";
+import type { GigResponseDetailCardProps } from "./types";
 
-export function VacancyResponseDetailCard({
+export function GigResponseDetailCard({
   response,
   onAccept,
   onReject,
@@ -16,15 +16,9 @@ export function VacancyResponseDetailCard({
   onEvaluate,
   isProcessing,
   isPolling,
-}: VacancyResponseDetailCardProps) {
-  const {
-    hasScreening,
-    hasInterviewScoring,
-    hasConversation,
-    screening,
-    conversation,
-    getDefaultTab,
-  } = useVacancyResponseFlags(response);
+}: GigResponseDetailCardProps) {
+  const { hasInterviewScoring, hasConversation, conversation, getDefaultTab } =
+    useGigResponseFlags(response);
 
   // Преобразуем conversation для ResponseHeaderCard
   const mappedConversation = conversation
@@ -45,11 +39,8 @@ export function VacancyResponseDetailCard({
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Header Card */}
-      <ResponseHeaderCard
-        response={{
-          ...response,
-          conversation: mappedConversation,
-        }}
+      <HeaderCard
+        response={response}
         onAccept={onAccept}
         onReject={onReject}
         onMessage={onMessage}
@@ -64,13 +55,11 @@ export function VacancyResponseDetailCard({
       )}
 
       {/* Main Content Tabs */}
-      <VacancyResponseTabs
+      <Tabs
         response={response}
         defaultTab={getDefaultTab()}
-        hasScreening={hasScreening}
         hasInterviewScoring={hasInterviewScoring}
         hasConversation={hasConversation}
-        screening={screening}
         conversation={conversation}
       />
     </div>

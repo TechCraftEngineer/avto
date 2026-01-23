@@ -22,8 +22,8 @@ import {
 } from "@qbs-autonaim/ui";
 import { Send, User } from "lucide-react";
 import { ResponseActions } from "~/components/response";
-import { ChatIndicator } from "../ui/chat-indicator";
 import { ContactInfo } from "../integrations/contact-info";
+import { ChatIndicator } from "../ui/chat-indicator";
 
 interface ResponseCardsProps {
   responses: RouterOutputs["vacancy"]["responses"]["list"]["responses"];

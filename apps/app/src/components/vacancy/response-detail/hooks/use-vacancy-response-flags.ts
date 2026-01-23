@@ -107,10 +107,16 @@ export function useVacancyResponseFlags(
     response.telegramUsername
   );
 
+  // Проверяем специфичные vacancy данные
+  const hasSalaryData = !!response.salaryExpectationsAmount;
+  const hasResumeData = !!(response.resumeId || response.resumeUrl || response.platformProfileUrl);
+
   // Определяем дефолтный таб
   const getDefaultTab = () => {
     if (hasConversation) return "dialog";
     if (hasScreening || hasInterviewScoring) return "analysis";
+    if (hasSalaryData) return "salary"; // Приоритет зарплате для vacancy
+    if (hasResumeData) return "resume"; // Приоритет резюме для vacancy
     if (hasProposal) return "proposal";
     if (hasExperience) return "experience";
     if (hasPortfolio) return "portfolio";
