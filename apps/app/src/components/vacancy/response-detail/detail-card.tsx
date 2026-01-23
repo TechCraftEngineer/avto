@@ -3,9 +3,9 @@
 import {
   ParsedProfileCard,
 } from "~/components/response-detail";
-import { HeaderCard } from "./header-card";
+import { VacancyResponseHeaderCard } from "./header-card";
 import { useVacancyResponseFlags } from "./hooks/use-vacancy-response-flags";
-import { Tabs } from "./tabs";
+import { VacancyResponseTabs } from "./tabs";
 import type { VacancyResponseDetailCardProps } from "./types";
 
 export function VacancyResponseDetailCard({
@@ -45,7 +45,7 @@ export function VacancyResponseDetailCard({
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Header Card */}
-      <HeaderCard
+      <VacancyResponseHeaderCard
         response={response}
         onAccept={onAccept}
         onReject={onReject}
@@ -61,7 +61,7 @@ export function VacancyResponseDetailCard({
       )}
 
       {/* Main Content Tabs */}
-      <Tabs
+      <VacancyResponseTabs
         response={response}
         defaultTab={getDefaultTab()}
         hasScreening={hasScreening}

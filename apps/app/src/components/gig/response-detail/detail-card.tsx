@@ -3,9 +3,9 @@
 import {
   ParsedProfileCard,
 } from "~/components/response-detail";
-import { HeaderCard } from "./header-card";
+import { GigResponseHeaderCard } from "./header-card";
 import { useGigResponseFlags } from "./hooks/use-gig-response-flags";
-import { Tabs } from "./tabs";
+import { GigResponseTabs } from "./tabs";
 import type { GigResponseDetailCardProps } from "./types";
 
 export function GigResponseDetailCard({
@@ -39,7 +39,7 @@ export function GigResponseDetailCard({
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Header Card */}
-      <HeaderCard
+      <GigResponseHeaderCard
         response={response}
         onAccept={onAccept}
         onReject={onReject}
@@ -55,7 +55,7 @@ export function GigResponseDetailCard({
       )}
 
       {/* Main Content Tabs */}
-      <Tabs
+      <GigResponseTabs
         response={response}
         defaultTab={getDefaultTab()}
         hasInterviewScoring={hasInterviewScoring}
