@@ -77,11 +77,8 @@ export function VacancyResponseHeaderCard({
   isProcessing,
   isPolling,
 }: VacancyResponseHeaderCardProps) {
-  const [isExperienceExpanded, setIsExperienceExpanded] = useState(false);
   const [isSalaryCommentExpanded, setIsSalaryCommentExpanded] = useState(false);
 
-  // Ограничение длины текста для превью
-  const EXPERIENCE_PREVIEW_LENGTH = 150;
   const SALARY_COMMENT_PREVIEW_LENGTH = 100;
 
   return (
@@ -243,66 +240,6 @@ export function VacancyResponseHeaderCard({
                     )}
                   </div>
                 )}
-              </div>
-            </div>
-          )}
-
-          {response.resumeId && (
-            <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
-              <FileText className="h-5 w-5 text-blue-600 shrink-0" />
-              <div>
-                <div className="text-sm font-medium text-blue-800">Резюме</div>
-                <div className="text-sm text-blue-700">
-                  Доступно для просмотра
-                </div>
-              </div>
-            </div>
-          )}
-
-          {response.experience && (
-            <div className="flex items-start gap-2 p-3 bg-purple-50 rounded-lg border border-purple-200">
-              <Briefcase className="h-5 w-5 text-purple-600 shrink-0 mt-0.5" />
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-purple-800">
-                  Опыт работы
-                </div>
-                <div className="text-sm text-purple-700 mt-1">
-                  {response.experience.length > EXPERIENCE_PREVIEW_LENGTH ? (
-                    isExperienceExpanded ? (
-                      <>
-                        {response.experience}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setIsExperienceExpanded(false)}
-                          className="h-6 px-2 py-0 mt-2 text-purple-600 hover:text-purple-800 hover:bg-purple-100"
-                        >
-                          <ChevronUp className="h-3 w-3 mr-1" />
-                          Свернуть
-                        </Button>
-                      </>
-                    ) : (
-                      <>
-                        {response.experience.slice(
-                          0,
-                          EXPERIENCE_PREVIEW_LENGTH,
-                        )}
-                        ...
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setIsExperienceExpanded(true)}
-                          className="h-6 px-2 py-0 mt-2 text-purple-600 hover:text-purple-800 hover:bg-purple-100"
-                        >
-                          <ChevronDown className="h-3 w-3 mr-1" />
-                          Показать больше
-                        </Button>
-                      </>
-                    )
-                  ) : (
-                    response.experience
-                  )}
-                </div>
               </div>
             </div>
           )}

@@ -2,13 +2,13 @@
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
 import { paths } from "@qbs-autonaim/config";
-import {
-  HR_SELECTION_STATUS_LABELS,
-  RESPONSE_STATUS_LABELS,
-} from "@qbs-autonaim/db";
 import type {
   VacancyHrSelectionStatus,
   VacancyResponseStatus,
+} from "@qbs-autonaim/db/schema";
+import {
+  HR_SELECTION_STATUS_LABELS,
+  RESPONSE_STATUS_LABELS,
 } from "@qbs-autonaim/db/schema";
 import {
   Avatar,
@@ -17,6 +17,9 @@ import {
   Badge,
   Button,
   Checkbox,
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
   TableCell,
   TableRow,
   Tooltip,
@@ -29,11 +32,22 @@ import Link from "next/link";
 import { ResponseActions } from "~/components/response";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { getAvatarUrl, getInitials } from "~/lib/avatar";
-import { ChatIndicator } from "../ui/chat-indicator";
 import { ContactInfo } from "../integrations/contact-info";
-import { PriorityBadge } from "../ui/priority-badge";
 import { ScreenResponseButton } from "../screening/screen-response-button";
 import { ScreeningHoverCard } from "../screening/screening-hover-card";
+import { ChatIndicator } from "../ui/chat-indicator";
+import { PriorityBadge } from "../ui/priority-badge";
+
+// Утилита для удаления HTML-тегов из текста
+function stripHtmlTags(html: string): string {
+  if (typeof window === "undefined") {
+    // Server-side: simple regex approach
+    return html.replace(/<[^>]*>/g, "");
+  }
+  // Client-side: use DOM parser for better accuracy
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  return doc.body.textContent || "";
+}
 
 interface ResponseRowProps {
   response: RouterOutputs["vacancy"]["responses"]["list"]["responses"][0];
@@ -304,41 +318,24 @@ export function ResponseRow({
       <TableCell>
         <div className="max-w-50 truncate">
           {response.coverLetter ? (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="text-sm text-muted-foreground cursor-help">
-                    {response.coverLetter.length > 50
-                      ? `${response.coverLetter.substring(0, 50)}...`
-                      : response.coverLetter}
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent side="left" className="max-w-xs">
-                  <div
-                    className="text-xs"
-                    dangerouslySetInnerHTML={{ __html: response.coverLetter }}
-                  />
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          ) : response.experience ? (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="text-sm text-muted-foreground cursor-help">
-                    {response.experience.length > 50
-                      ? `${response.experience.substring(0, 50)}...`
-                      : response.experience}
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent side="left" className="max-w-xs">
-                  <div
-                    className="text-xs"
-                    dangerouslySetInnerHTML={{ __html: response.experience }}
-                  />
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <HoverCard>
+              <HoverCardTrigger asChild>
+                <span className="text-sm text-muted-foreground cursor-help">
+                  {(() => {
+                    const plainText = stripHtmlTags(response.coverLetter);
+                    return plainText.length > 50
+                      ? `${plainText.substring(0, 50)}...`
+                      : plainText;
+                  })()}
+                </span>
+              </HoverCardTrigger>
+              <HoverCardContent side="left" className="max-w-sm max-h-64 overflow-y-auto">
+                <div
+                  className="text-sm"
+                  dangerouslySetInnerHTML={{ __html: response.coverLetter }}
+                />
+              </HoverCardContent>
+            </HoverCard>
           ) : (
             <span className="text-muted-foreground text-xs">—</span>
           )}
