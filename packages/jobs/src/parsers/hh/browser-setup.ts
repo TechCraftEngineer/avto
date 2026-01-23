@@ -17,7 +17,7 @@ async function cleanupTempProfiles(): Promise<void> {
     // Find and remove puppeteer temp profiles
     const puppeteerProfilePattern = /^puppeteer_dev_chrome_profile-/;
     const cleanupPromises = files
-      .filter(file => puppeteerProfilePattern.test(file))
+      .filter((file) => puppeteerProfilePattern.test(file))
       .map(async (profileDir) => {
         const profilePath = path.join(tempDir, profileDir);
         try {
@@ -51,7 +51,6 @@ export async function setupBrowser(): Promise<Browser> {
     slowMo: HH_CONFIG.puppeteer.slowMo,
   });
 }
-
 
 /**
  * Sets up a page with anti-detection measures and cookie restoration
@@ -138,7 +137,7 @@ export async function setupAuthenticatedBrowser(
     await saveCookies("hh", cookies, workspaceId);
 
     return { browser, page, credentials: { email, password } };
-    } catch (error) {
+  } catch (error) {
     await closeBrowserSafely(browser);
     throw error;
   }

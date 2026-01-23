@@ -66,7 +66,9 @@ export class CandidateService {
       experienceYears,
       salaryExpectationsAmount: response.salaryExpectationsAmount ?? null,
       source,
-      originalSource: response.importSource as CandidateDataFromResponse["originalSource"] ?? undefined,
+      originalSource:
+        (response.importSource as CandidateDataFromResponse["originalSource"]) ??
+        undefined,
       location: null, // Можно извлечь из profileData
       birthDate: null,
       gender: null,

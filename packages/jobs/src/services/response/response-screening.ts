@@ -64,7 +64,9 @@ export async function screenResponse(
   }, "Не удалось получить отклик из базы данных");
 
   if (!responseResult.success) {
-    return err(`Не удалось получить отклик ${responseId}: ${responseResult.error}`);
+    return err(
+      `Не удалось получить отклик ${responseId}: ${responseResult.error}`,
+    );
   }
 
   const resp = responseResult.data;
@@ -76,7 +78,9 @@ export async function screenResponse(
 
   // If requirements are not found, try to extract them synchronously
   if (!requirements) {
-    logger.warn(`Requirements not found for vacancy ${resp.entityId}, attempting to extract synchronously`);
+    logger.warn(
+      `Requirements not found for vacancy ${resp.entityId}, attempting to extract synchronously`,
+    );
 
     // Get vacancy description to extract requirements
     const vacancyData = await tryCatch(async () => {
@@ -89,18 +93,27 @@ export async function screenResponse(
     }, "Failed to fetch vacancy description");
 
     if (!vacancyData.success || !vacancyData.data?.description?.trim()) {
-      return err(`Требования для вакансии ${resp.entityId} не найдены и нет описания для извлечения`);
+      return err(
+        `Требования для вакансии ${resp.entityId} не найдены и нет описания для извлечения`,
+      );
     }
 
     // Try to extract requirements synchronously
-    const extractResult = await extractVacancyRequirements(resp.entityId, vacancyData.data.description);
+    const extractResult = await extractVacancyRequirements(
+      resp.entityId,
+      vacancyData.data.description,
+    );
 
     if (!extractResult.success) {
-      return err(`Не удалось извлечь требования для вакансии ${resp.entityId}: ${extractResult.error}`);
+      return err(
+        `Не удалось извлечь требования для вакансии ${resp.entityId}: ${extractResult.error}`,
+      );
     }
 
     requirements = extractResult.data;
-    logger.info(`Requirements extracted synchronously for vacancy ${resp.entityId}`);
+    logger.info(
+      `Requirements extracted synchronously for vacancy ${resp.entityId}`,
+    );
   }
 
   // Получаем кастомный промпт из вакансии

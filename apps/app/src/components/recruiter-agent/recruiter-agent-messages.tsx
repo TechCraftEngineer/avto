@@ -63,7 +63,9 @@ const RecruiterAgentMessages = memo(function RecruiterAgentMessages({
               onClick={
                 sendMessage
                   ? () =>
-                      sendMessage("Найди 5 кандидатов, готовых выйти за 2 недели")
+                      sendMessage(
+                        "Найди 5 кандидатов, готовых выйти за 2 недели",
+                      )
                   : undefined
               }
             />
@@ -109,7 +111,9 @@ const RecruiterAgentMessages = memo(function RecruiterAgentMessages({
                 <Sparkles className="size-4 animate-pulse text-primary" />
               </div>
               <div className="flex items-center gap-2 py-2">
-                <span className="text-sm font-medium text-foreground">Думаю</span>
+                <span className="text-sm font-medium text-foreground">
+                  Думаю
+                </span>
                 <div className="flex gap-1">
                   <span className="inline-block size-1 animate-bounce rounded-full bg-muted-foreground [animation-delay:0ms]"></span>
                   <span className="inline-block size-1 animate-bounce rounded-full bg-muted-foreground [animation-delay:150ms]"></span>

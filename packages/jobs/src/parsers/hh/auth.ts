@@ -92,31 +92,47 @@ export async function checkAndPerformLogin(
   email: string,
   password: string,
   workspaceId: string,
-) {
-  console.log("🔐 Проверка авторизации...");
+): Promise<boolean> {
+  try {
+    console.log("🔐 Проверка авторизации...");
 
-  await page.goto(HH_CONFIG.urls.login, {
-    waitUntil: "domcontentloaded",
-    timeout: HH_CONFIG.timeouts.navigation,
-  });
+    await page.goto(HH_CONFIG.urls.login, {
+      waitUntil: "domcontentloaded",
+      timeout: HH_CONFIG.timeouts.navigation,
+    });
 
-  await page.waitForNetworkIdle({
-    timeout: HH_CONFIG.timeouts.networkIdle,
-  });
+    await page.waitForNetworkIdle({
+      timeout: HH_CONFIG.timeouts.networkIdle,
+    });
 
-  const loginInput = await page.$('input[type="text"][name="username"]');
-  if (loginInput) {
-    console.log("🔑 Требуется авторизация, выполняем логин...");
-    const log = new Log();
-    await performLogin(page, log, email, password, workspaceId);
-    console.log("✅ Логин завершен");
-  } else {
-    console.log("✅ Уже авторизованы");
+    const loginInput = await page.$('input[type="text"][name="username"]');
+    if (loginInput) {
+      console.log("🔑 Требуется авторизация, выполняем логин...");
+      const log = new Log();
+      await performLogin(page, log, email, password, workspaceId);
+      console.log("✅ Логин завершен");
+    } else {
+      console.log("✅ Уже авторизованы");
+    }
+
+    // Проверяем успешность после логина/проверки
+    const currentUrl = page.url();
+    const hasLoginInput = await page.$('input[type="text"][name="username"]');
+
+    if (currentUrl.includes("/account/login") && hasLoginInput) {
+      console.log("❌ Авторизация не удалась - остались на странице логина");
+      return false;
+    }
+
+    // Save cookies after successful check/login
+    const cookies = await page.cookies();
+    await saveCookies("hh", cookies, workspaceId);
+    console.log("✅ Авторизация успешна");
+    return true;
+  } catch (error) {
+    console.error("❌ Ошибка авторизации:", error);
+    return false;
   }
-
-  // Save cookies after successful check/login
-  const cookies = await page.cookies();
-  await saveCookies("hh", cookies, workspaceId);
 }
 
 export { loadCookies, saveCookies };

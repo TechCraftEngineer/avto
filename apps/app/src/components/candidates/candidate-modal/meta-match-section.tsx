@@ -552,11 +552,13 @@ export function MetaMatchSection({
           {birthDateError && (
             <p className="text-sm text-destructive">{birthDateError}</p>
           )}
-          {data?.birthDate && !birthDateError && birthDateInput === formatDateForInput(new Date(data.birthDate)) && (
-            <p className="text-sm text-muted-foreground">
-              Автозаполнено из мета-матчинга
-            </p>
-          )}
+          {data?.birthDate &&
+            !birthDateError &&
+            birthDateInput === formatDateForInput(new Date(data.birthDate)) && (
+              <p className="text-sm text-muted-foreground">
+                Автозаполнено из мета-матчинга
+              </p>
+            )}
         </div>
 
         <div className="grid grid-cols-2 gap-4">

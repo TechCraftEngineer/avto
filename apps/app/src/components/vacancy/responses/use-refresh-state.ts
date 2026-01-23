@@ -29,25 +29,28 @@ export function useRefreshState(
     enabled: state.subscriptionActive,
     fetchToken: fetchRefreshVacancyResponsesToken,
     onMessage: useCallback((message: string) => {
-      setState(prev => ({ ...prev, message }));
+      setState((prev) => ({ ...prev, message }));
     }, []),
-    onStatusChange: useCallback((status, message) => {
-      if (status === "completed") {
-        setState(prev => ({ ...prev, status: "success" }));
-        onRefreshComplete();
-      } else {
-        setState(prev => ({
-          ...prev,
-          status: "error",
-          error: message
-        }));
-        onRefreshComplete();
-      }
-    }, [onRefreshComplete]),
+    onStatusChange: useCallback(
+      (status, message) => {
+        if (status === "completed") {
+          setState((prev) => ({ ...prev, status: "success" }));
+          onRefreshComplete();
+        } else {
+          setState((prev) => ({
+            ...prev,
+            status: "error",
+            error: message,
+          }));
+          onRefreshComplete();
+        }
+      },
+      [onRefreshComplete],
+    ),
   });
 
   const handleRefreshClick = useCallback(async () => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       error: null,
       message: "",
@@ -58,7 +61,7 @@ export function useRefreshState(
     try {
       await onRefresh();
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         status: "error",
         error: error instanceof Error ? error.message : "Произошла ошибка",
@@ -68,7 +71,7 @@ export function useRefreshState(
 
   const handleDialogClose = useCallback(() => {
     if (state.status !== "loading") {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         dialogOpen: false,
         error: null,
@@ -80,7 +83,7 @@ export function useRefreshState(
   }, [state.status]);
 
   const setDialogOpen = useCallback((open: boolean) => {
-    setState(prev => ({ ...prev, dialogOpen: open }));
+    setState((prev) => ({ ...prev, dialogOpen: open }));
   }, []);
 
   return {

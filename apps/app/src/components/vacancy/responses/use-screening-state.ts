@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 import {
   fetchScreenAllResponsesToken,
-  fetchScreenNewResponsesToken
+  fetchScreenNewResponsesToken,
 } from "~/actions/realtime";
 import {
   type ScreeningProgress,
@@ -41,7 +41,7 @@ export function useScreeningState(
       timerRef.current = null;
     }
 
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       dialogOpen: false,
       error: null,
@@ -57,37 +57,43 @@ export function useScreeningState(
   useScreeningSubscription({
     vacancyId,
     enabled: state.subscriptionActive,
-    fetchToken: type === "new" ? fetchScreenNewResponsesToken : fetchScreenAllResponsesToken,
+    fetchToken:
+      type === "new"
+        ? fetchScreenNewResponsesToken
+        : fetchScreenAllResponsesToken,
     onProgress: useCallback((message, progress) => {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         message,
-        progress: progress || null
+        progress: progress || null,
       }));
     }, []),
-    onComplete: useCallback((success, progress) => {
-      setState(prev => ({
-        ...prev,
-        progress,
-        status: success ? "success" : "error",
-        error: success ? null : "Процесс завершился с ошибками",
-        message: success
-          ? `Оценка завершена! Обработано: ${progress.processed} из ${progress.total}`
-          : "Процесс завершился с ошибками",
-      }));
+    onComplete: useCallback(
+      (success, progress) => {
+        setState((prev) => ({
+          ...prev,
+          progress,
+          status: success ? "success" : "error",
+          error: success ? null : "Процесс завершился с ошибками",
+          message: success
+            ? `Оценка завершена! Обработано: ${progress.processed} из ${progress.total}`
+            : "Процесс завершился с ошибками",
+        }));
 
-      // Очищаем предыдущий таймер перед установкой нового
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-      timerRef.current = setTimeout(() => {
-        handleDialogClose();
-      }, 3000);
-    }, [handleDialogClose]),
+        // Очищаем предыдущий таймер перед установкой нового
+        if (timerRef.current) {
+          clearTimeout(timerRef.current);
+        }
+        timerRef.current = setTimeout(() => {
+          handleDialogClose();
+        }, 3000);
+      },
+      [handleDialogClose],
+    ),
   });
 
   const handleClick = useCallback(async () => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       error: null,
       message: "",
@@ -99,7 +105,7 @@ export function useScreeningState(
     try {
       await onScreen();
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         status: "error",
         error: error instanceof Error ? error.message : "Произошла ошибка",
@@ -108,7 +114,7 @@ export function useScreeningState(
   }, [onScreen]);
 
   const setDialogOpen = useCallback((open: boolean) => {
-    setState(prev => ({ ...prev, dialogOpen: open }));
+    setState((prev) => ({ ...prev, dialogOpen: open }));
   }, []);
 
   return {

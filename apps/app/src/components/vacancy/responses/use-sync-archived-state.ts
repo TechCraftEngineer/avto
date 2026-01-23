@@ -41,7 +41,7 @@ export function useSyncArchivedState(
       timerRef.current = null;
     }
 
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       dialogOpen: false,
       error: null,
@@ -60,7 +60,7 @@ export function useSyncArchivedState(
     enabled: state.subscriptionActive,
     fetchToken: fetchSyncArchivedVacancyResponsesToken,
     onMessage: useCallback((message, data) => {
-      setState(prev => {
+      setState((prev) => {
         const newState = { ...prev, message };
         // Use data from realtime message if available
         if (data) {
@@ -77,42 +77,46 @@ export function useSyncArchivedState(
         return newState;
       });
     }, []),
-    onStatusChange: useCallback((status, message) => {
-      if (status === "completed") {
-        setState(prev => ({ ...prev, status: "success" }));
-        onRefreshComplete();
+    onStatusChange: useCallback(
+      (status, message) => {
+        if (status === "completed") {
+          setState((prev) => ({ ...prev, status: "success" }));
+          onRefreshComplete();
 
-        // Очищаем предыдущий таймер перед установкой нового
-        if (timerRef.current) {
-          clearTimeout(timerRef.current);
+          // Очищаем предыдущий таймер перед установкой нового
+          if (timerRef.current) {
+            clearTimeout(timerRef.current);
+          }
+          timerRef.current = setTimeout(() => {
+            handleDialogClose();
+          }, 3000);
+        } else {
+          setState((prev) => ({
+            ...prev,
+            status: "error",
+            error: message,
+          }));
+          onRefreshComplete();
         }
-        timerRef.current = setTimeout(() => {
-          handleDialogClose();
-        }, 3000);
-      } else {
-        setState(prev => ({
-          ...prev,
-          status: "error",
-          error: message
-        }));
-        onRefreshComplete();
-      }
-    }, [onRefreshComplete, handleDialogClose]),
+      },
+      [onRefreshComplete, handleDialogClose],
+    ),
   });
 
   const handleClick = useCallback(async () => {
     if (!workspace) {
-      const errorMessage = "Не удалось запустить синхронизацию: рабочее пространство не найдено";
-      setState(prev => ({
+      const errorMessage =
+        "Не удалось запустить синхронизацию: рабочее пространство не найдено";
+      setState((prev) => ({
         ...prev,
         error: errorMessage,
-        status: "error"
+        status: "error",
       }));
       toast.error(errorMessage);
       return;
     }
 
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       error: null,
       message: "",
@@ -126,7 +130,7 @@ export function useSyncArchivedState(
     try {
       await onSyncArchived(workspace.id);
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         status: "error",
         error: error instanceof Error ? error.message : "Произошла ошибка",
@@ -135,7 +139,7 @@ export function useSyncArchivedState(
   }, [workspace, onSyncArchived]);
 
   const setDialogOpen = useCallback((open: boolean) => {
-    setState(prev => ({ ...prev, dialogOpen: open }));
+    setState((prev) => ({ ...prev, dialogOpen: open }));
   }, []);
 
   return {

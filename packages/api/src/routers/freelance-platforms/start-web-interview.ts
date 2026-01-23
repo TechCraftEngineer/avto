@@ -267,7 +267,10 @@ async function handleVacancyInterview(
   // Создаём кандидата в глобальном пуле талантов
   try {
     const candidateSync = new ContactCandidateSyncService(ctx.db);
-    const contactData = ContactCandidateSyncService.extractContactsFromFreelancerInfo(freelancerInfo);
+    const contactData =
+      ContactCandidateSyncService.extractContactsFromFreelancerInfo(
+        freelancerInfo,
+      );
     const syncResult = await candidateSync.syncCandidateFromContacts({
       ...contactData,
       organizationId: vacancy.workspace.organizationId,
@@ -527,7 +530,10 @@ async function handleGigInterview(
   // Создаём кандидата в глобальном пуле талантов
   try {
     const candidateSync = new ContactCandidateSyncService(ctx.db);
-    const contactData = ContactCandidateSyncService.extractContactsFromFreelancerInfo(freelancerInfo);
+    const contactData =
+      ContactCandidateSyncService.extractContactsFromFreelancerInfo(
+        freelancerInfo,
+      );
     const syncResult = await candidateSync.syncCandidateFromContacts({
       ...contactData,
       organizationId: gig.workspace.organizationId,

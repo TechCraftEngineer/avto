@@ -27,7 +27,8 @@ export function ScreenResponseButton({
 }: ScreenResponseButtonProps) {
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [screeningResult, setScreeningResult] = useState<ScreeningResult | null>(null);
+  const [screeningResult, setScreeningResult] =
+    useState<ScreeningResult | null>(null);
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { workspace } = useWorkspace();
@@ -61,12 +62,12 @@ export function ScreenResponseButton({
 
     const poll = async () => {
       try {
-        const response = await queryClient.fetchQuery(
+        const response = (await queryClient.fetchQuery(
           trpc.vacancy.responses.get.queryOptions({
             id: responseId,
             workspaceId: workspace?.id ?? "",
-          })
-        ) as any; // TODO: Fix typing
+          }),
+        )) as any; // TODO: Fix typing
 
         if (response?.screening) {
           setScreeningResult({

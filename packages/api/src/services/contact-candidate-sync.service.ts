@@ -17,7 +17,17 @@ export interface ContactData {
   platformProfileUrl?: string | null;
   organizationId: string;
   source?: "APPLICANT" | "SOURCING" | "IMPORT" | "MANUAL" | "REFERRAL";
-  originalSource?: "MANUAL" | "HH" | "AVITO" | "SUPERJOB" | "HABR" | "KWORK" | "FL_RU" | "FREELANCE_RU" | "WEB_LINK" | "TELEGRAM";
+  originalSource?:
+    | "MANUAL"
+    | "HH"
+    | "AVITO"
+    | "SUPERJOB"
+    | "HABR"
+    | "KWORK"
+    | "FL_RU"
+    | "FREELANCE_RU"
+    | "WEB_LINK"
+    | "TELEGRAM";
   additionalData?: {
     location?: string;
     experience?: string;
@@ -108,7 +118,8 @@ export class ContactCandidateSyncService {
     }
 
     // Создаем нового кандидата
-    const { candidate, created } = await candidateRepository.findOrCreateCandidate(candidateData);
+    const { candidate, created } =
+      await candidateRepository.findOrCreateCandidate(candidateData);
 
     return {
       candidateId: candidate.id,
@@ -123,9 +134,7 @@ export class ContactCandidateSyncService {
    */
   static hasContactData(contactData: Partial<ContactData>): boolean {
     return Boolean(
-      contactData.email ||
-      contactData.phone ||
-      contactData.telegramUsername
+      contactData.email || contactData.phone || contactData.telegramUsername,
     );
   }
 
@@ -138,7 +147,7 @@ export class ContactCandidateSyncService {
     phone?: string;
     telegram?: string;
     platformProfileUrl?: string;
-  }): Omit<ContactData, 'organizationId'> {
+  }): Omit<ContactData, "organizationId"> {
     return {
       name: freelancerInfo.name,
       email: freelancerInfo.email || null,

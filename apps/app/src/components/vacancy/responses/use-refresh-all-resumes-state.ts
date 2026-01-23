@@ -37,7 +37,7 @@ export function useRefreshAllResumesState(
       timerRef.current = null;
     }
 
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       dialogOpen: false,
       error: null,
@@ -50,33 +50,39 @@ export function useRefreshAllResumesState(
   }, [onRefreshAllResumesDialogClose]);
 
   // Refresh all resumes subscription callbacks
-  const handleProgress = useCallback((message: string, progress: RefreshAllResumesProgress | null) => {
-    setState(prev => ({
-      ...prev,
-      message,
-      progress: progress || null
-    }));
-  }, []);
+  const handleProgress = useCallback(
+    (message: string, progress: RefreshAllResumesProgress | null) => {
+      setState((prev) => ({
+        ...prev,
+        message,
+        progress: progress || null,
+      }));
+    },
+    [],
+  );
 
-  const handleComplete = useCallback((success: boolean, progress: RefreshAllResumesProgress) => {
-    setState(prev => ({
-      ...prev,
-      progress,
-      status: success ? "success" : "error",
-      error: success ? null : "Процесс завершился с ошибками",
-      message: success
-        ? `Обновление резюме завершено! Обработано: ${progress.processed} из ${progress.total}`
-        : "Процесс завершился с ошибками",
-    }));
+  const handleComplete = useCallback(
+    (success: boolean, progress: RefreshAllResumesProgress) => {
+      setState((prev) => ({
+        ...prev,
+        progress,
+        status: success ? "success" : "error",
+        error: success ? null : "Процесс завершился с ошибками",
+        message: success
+          ? `Обновление резюме завершено! Обработано: ${progress.processed} из ${progress.total}`
+          : "Процесс завершился с ошибками",
+      }));
 
-    // Очищаем предыдущий таймер перед установкой нового
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-    }
-    timerRef.current = setTimeout(() => {
-      handleDialogClose();
-    }, 3000);
-  }, [handleDialogClose]);
+      // Очищаем предыдущий таймер перед установкой нового
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+      timerRef.current = setTimeout(() => {
+        handleDialogClose();
+      }, 3000);
+    },
+    [handleDialogClose],
+  );
 
   // Refresh all resumes subscription
   useRefreshAllResumesSubscription({
@@ -90,7 +96,7 @@ export function useRefreshAllResumesState(
   const handleClick = useCallback(async () => {
     if (state.status === "loading") return;
 
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       error: null,
       message: "",
@@ -102,7 +108,7 @@ export function useRefreshAllResumesState(
     try {
       await onRefreshAllResumes();
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         status: "error",
         error: error instanceof Error ? error.message : "Произошла ошибка",
@@ -111,7 +117,7 @@ export function useRefreshAllResumesState(
   }, [state.status, onRefreshAllResumes]);
 
   const setDialogOpen = useCallback((open: boolean) => {
-    setState(prev => ({ ...prev, dialogOpen: open }));
+    setState((prev) => ({ ...prev, dialogOpen: open }));
   }, []);
 
   return {

@@ -113,7 +113,13 @@ export function PortfolioCard({
                   key={link}
                   type="button"
                   className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border hover:bg-gray-100 transition-colors cursor-pointer w-full text-left"
-                  onClick={() => window.open(normalizeUrl(link), "_blank", "noopener,noreferrer")}
+                  onClick={() =>
+                    window.open(
+                      normalizeUrl(link),
+                      "_blank",
+                      "noopener,noreferrer",
+                    )
+                  }
                 >
                   <div className="flex-shrink-0 text-gray-500">
                     {getFileIcon(link)}

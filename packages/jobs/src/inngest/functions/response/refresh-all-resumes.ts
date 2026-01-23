@@ -8,7 +8,7 @@ import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import {
   loadCookies,
-  performLogin,
+  checkAndPerformLogin,
   saveCookies,
 } from "../../../parsers/hh/auth";
 import { setupBrowser, setupPage } from "../../../parsers/hh/browser-setup";
@@ -26,43 +26,6 @@ puppeteer.use(StealthPlugin());
 
 // Configure Crawlee storage to use temp directory
 process.env.CRAWLEE_STORAGE_DIR = os.tmpdir();
-
-async function checkAndPerformLogin(
-  page: Page,
-  email: string,
-  password: string,
-  workspaceId: string,
-): Promise<boolean> {
-  try {
-    const log = new Log();
-    await performLogin(page, log, email, password, workspaceId);
-
-    // Проверяем успешность логина
-    await new Promise((resolve) => setTimeout(resolve, 2000)); // Ждем завершения редиректа
-
-    const currentUrl = page.url();
-    console.log(`🌐 Текущий URL после логина: ${currentUrl}`);
-
-    // Если мы все еще на странице логина или есть поля ввода - логин не удался
-    const loginInput = await page.$('input[type="text"][name="username"]');
-    const isStillOnLoginPage =
-      currentUrl.includes("/account/login") || !!loginInput;
-
-    if (isStillOnLoginPage) {
-      console.error("❌ Логин не удался - остались на странице логина");
-      return false;
-    }
-
-    // Сохраняем cookies после успешного логина
-    const cookies = await page.cookies();
-    await saveCookies("hh", cookies, workspaceId);
-    console.log("✅ Логин прошел успешно");
-    return true;
-  } catch (error) {
-    console.error("Login failed:", error);
-    return false;
-  }
-}
 
 /**
  * Inngest функция для обновления резюме всех откликов вакансии
@@ -168,7 +131,7 @@ export const refreshAllResumesFunction = inngest.createFunction(
             const page = await setupPage(browser, savedCookies);
 
             console.log(
-              `🔐 Попытка логина для workspace: ${responsesData.vacancy.workspaceId}`,
+              `🔐 Проверка/выполнение логина для workspace: ${responsesData.vacancy.workspaceId}`,
             );
 
             const loginSucceeded = await checkAndPerformLogin(

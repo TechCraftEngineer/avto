@@ -57,10 +57,28 @@ export function ResponseTableToolbar({
 }: ResponseTableToolbarProps) {
   // Custom hooks for different operation states
   const refreshState = useRefreshState(vacancyId, onRefresh, onRefreshComplete);
-  const screenNewState = useScreeningState(vacancyId, "new", onScreenNew, onScreeningDialogClose);
-  const screenAllState = useScreeningState(vacancyId, "all", onScreenAll, onScreeningDialogClose);
-  const syncArchivedState = useSyncArchivedState(vacancyId, onSyncArchived, onRefreshComplete);
-  const refreshAllResumesState = useRefreshAllResumesState(vacancyId, onRefreshAllResumes, onRefreshAllResumesDialogClose);
+  const screenNewState = useScreeningState(
+    vacancyId,
+    "new",
+    onScreenNew,
+    onScreeningDialogClose,
+  );
+  const screenAllState = useScreeningState(
+    vacancyId,
+    "all",
+    onScreenAll,
+    onScreeningDialogClose,
+  );
+  const syncArchivedState = useSyncArchivedState(
+    vacancyId,
+    onSyncArchived,
+    onRefreshComplete,
+  );
+  const refreshAllResumesState = useRefreshAllResumesState(
+    vacancyId,
+    onRefreshAllResumes,
+    onRefreshAllResumesDialogClose,
+  );
 
   return (
     <>
@@ -83,7 +101,9 @@ export function ResponseTableToolbar({
           isSyncingArchived={isSyncingArchived}
           onRefreshDialogOpen={() => refreshState.setDialogOpen(true)}
           onSyncArchivedDialogOpen={() => syncArchivedState.setDialogOpen(true)}
-          onRefreshAllResumesDialogOpen={() => refreshAllResumesState.setDialogOpen(true)}
+          onRefreshAllResumesDialogOpen={() =>
+            refreshAllResumesState.setDialogOpen(true)
+          }
           onScreenNewDialogOpen={() => screenNewState.setDialogOpen(true)}
           onScreenAllDialogOpen={() => screenAllState.setDialogOpen(true)}
         />

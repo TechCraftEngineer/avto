@@ -150,9 +150,11 @@ export const submitApplication = publicProcedure
           organizationId: workspaceData.organizationId,
           source: "APPLICANT",
           originalSource: "WEB_LINK",
-          additionalData: session.parsedResume?.structured?.personalInfo ? {
-            location: session.parsedResume.structured.personalInfo.location,
-          } : undefined,
+          additionalData: session.parsedResume?.structured?.personalInfo
+            ? {
+                location: session.parsedResume.structured.personalInfo.location,
+              }
+            : undefined,
         });
 
         if (syncResult.hasContacts) {
@@ -186,17 +188,19 @@ export const submitApplication = publicProcedure
               },
             };
 
-            const candidateData = candidateService.extractCandidateDataFromResponse(
-              tempResponse,
-              workspaceData.organizationId,
-            );
+            const candidateData =
+              candidateService.extractCandidateDataFromResponse(
+                tempResponse,
+                workspaceData.organizationId,
+              );
 
             const enrichedData = candidateService.enrichCandidateFromResume(
               candidateData,
               session.parsedResume,
             );
 
-            const normalizedData = candidateService.normalizeCandidateData(enrichedData);
+            const normalizedData =
+              candidateService.normalizeCandidateData(enrichedData);
 
             // Обновляем кандидата дополнительными данными
             const existingCandidate = await ctx.db.query.candidate.findFirst({
@@ -205,7 +209,10 @@ export const submitApplication = publicProcedure
 
             if (existingCandidate) {
               const candidateRepository = new CandidateRepository(ctx.db);
-              const mergedData = candidateRepository.mergeCandidateData(existingCandidate, normalizedData);
+              const mergedData = candidateRepository.mergeCandidateData(
+                existingCandidate,
+                normalizedData,
+              );
               if (Object.keys(mergedData).length > 0) {
                 await ctx.db
                   .update(candidate)
