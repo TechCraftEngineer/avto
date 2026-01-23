@@ -13,7 +13,7 @@ import {
   IconMessage,
   IconRobot,
 } from "@tabler/icons-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 interface AIInterviewCardProps {
@@ -31,13 +31,22 @@ export function AIInterviewCard({
 }: AIInterviewCardProps) {
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedTemplate, setCopiedTemplate] = useState(false);
+  const copyLinkTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (copyLinkTimeoutRef.current) {
+        clearTimeout(copyLinkTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(interviewLink.url);
       setCopiedLink(true);
       toast.success("Ссылка скопирована");
-      setTimeout(() => setCopiedLink(false), 2000);
+      copyLinkTimeoutRef.current = setTimeout(() => setCopiedLink(false), 2000);
     } catch {
       toast.error("Не удалось скопировать ссылку");
     }

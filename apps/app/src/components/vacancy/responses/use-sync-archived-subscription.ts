@@ -49,7 +49,7 @@ export function useSyncArchivedSubscription({
 
     const parseResult = StatusDataSchema.safeParse(data.data);
     if (!parseResult.success) {
-      onStatusChange?.("error", "invalid realtime payload");
+      onStatusChange?.("error", "недопустимая realtime-полезная нагрузка");
       return;
     }
 

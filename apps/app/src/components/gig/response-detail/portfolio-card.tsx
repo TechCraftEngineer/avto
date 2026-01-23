@@ -37,17 +37,31 @@ export function PortfolioCard({
     return null;
   }
 
+  const normalizeUrl = (url: string): string => {
+    try {
+      // Try to create URL directly
+      new URL(url);
+      return url;
+    } catch {
+      // If it fails, try with https:// prefix
+      try {
+        const normalized = `https://${url}`;
+        new URL(normalized);
+        return normalized;
+      } catch {
+        // If still fails, return as-is but this should be validated
+        return url;
+      }
+    }
+  };
+
   const getSafeHostname = (link: string): string => {
     try {
-      return new URL(link).hostname;
+      const normalizedUrl = normalizeUrl(link);
+      return new URL(normalizedUrl).hostname;
     } catch {
-      // Try with https:// prefix for relative URLs
-      try {
-        return new URL(`https://${link}`).hostname;
-      } catch {
-        // Fallback to original link or empty string
-        return link || "";
-      }
+      // Fallback to original link or empty string
+      return link || "";
     }
   };
 
@@ -99,7 +113,7 @@ export function PortfolioCard({
                   key={link}
                   type="button"
                   className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border hover:bg-gray-100 transition-colors cursor-pointer w-full text-left"
-                  onClick={() => window.open(link, "_blank")}
+                  onClick={() => window.open(normalizeUrl(link), "_blank", "noopener,noreferrer")}
                 >
                   <div className="flex-shrink-0 text-gray-500">
                     {getFileIcon(link)}
@@ -169,7 +183,7 @@ export function PortfolioCard({
                 <div className="flex flex-wrap gap-2">
                   {response.skills.slice(0, 8).map((skill, _index) => (
                     <Badge
-                      key={skill}
+                      key={`${skill}-${_index}`}
                       variant="outline"
                       className="bg-orange-50 text-orange-700 border-orange-300 text-xs"
                     >

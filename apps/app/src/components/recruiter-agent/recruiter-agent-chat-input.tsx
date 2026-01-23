@@ -67,7 +67,9 @@ export function RecruiterAgentChatInput({
       if (isLoading) {
         onStop();
       } else {
-        handleSubmit();
+        handleSubmit().catch((error) => {
+          console.error("Failed to send message:", error);
+        });
       }
     }
   };
@@ -85,7 +87,9 @@ export function RecruiterAgentChatInput({
           if (isLoading) {
             onStop();
           } else {
-            handleSubmit();
+            handleSubmit().catch((error) => {
+              console.error("Failed to send message:", error);
+            });
           }
         }}
       >

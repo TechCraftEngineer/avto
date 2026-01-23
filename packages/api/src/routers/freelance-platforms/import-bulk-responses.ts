@@ -160,7 +160,7 @@ export const importBulkResponses = protectedProcedure
               email: parsed.contactInfo.email ?? undefined,
               phone: parsed.contactInfo.phone ?? undefined,
               telegramUsername: parsed.contactInfo.telegram ?? undefined,
-              platformProfileUrl: parsed.contactInfo.platformProfile ?? undefined,
+              platformProfileUrl: parsed.contactInfo.platformProfile || undefined,
               organizationId: workspaceData.organizationId,
               source: "IMPORT",
               originalSource: input.platformSource,

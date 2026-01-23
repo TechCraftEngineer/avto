@@ -15,7 +15,7 @@ interface ShortlistCandidate {
 }
 
 interface ShortlistCardProps {
-  shortlist: ShortlistCandidate[];
+  shortlist?: ShortlistCandidate[];
   shortlistLoading: boolean;
   orgSlug: string;
   workspaceSlug: string;
@@ -23,7 +23,7 @@ interface ShortlistCardProps {
 }
 
 export function ShortlistCard({
-  shortlist,
+  shortlist = [],
   shortlistLoading,
   orgSlug,
   workspaceSlug,
@@ -72,7 +72,7 @@ export function ShortlistCard({
             ))}
           </div>
         )}
-        {shortlist.length > 5 && (
+        {!shortlistLoading && shortlist.length > 5 && (
           <div className="p-2 border-t">
             <Button variant="ghost" className="w-full text-xs h-8" asChild>
               <Link
