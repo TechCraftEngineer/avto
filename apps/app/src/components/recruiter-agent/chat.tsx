@@ -4,6 +4,8 @@ import { Button, cn, ScrollArea } from "@qbs-autonaim/ui";
 import {
   AlertCircle,
   ArrowUp,
+  ChevronDown,
+  ChevronUp,
   Loader2,
   Sparkles,
   Square,
@@ -54,6 +56,8 @@ export function RecruiterAgentChat({
   onMessage,
   onError,
 }: RecruiterAgentChatProps) {
+  const [isExpanded, setIsExpanded] = useState(true);
+
   const {
     history,
     status,
@@ -69,57 +73,83 @@ export function RecruiterAgentChat({
   });
 
   return (
-    <div className={cn("flex h-full flex-col", className)}>
+    <div
+      className={cn(
+        "flex flex-col",
+        isExpanded ? "h-[600px]" : "h-auto",
+        className,
+      )}
+    >
       {/* Заголовок */}
       {title && (
         <header className="shrink-0 border-b bg-background px-4 py-3">
           <div className="flex items-center justify-between">
-            <div>
+            <div className="flex-1">
               <h1 className="font-semibold text-foreground">{title}</h1>
               {subtitle && (
                 <p className="text-sm text-muted-foreground">{subtitle}</p>
               )}
             </div>
-            {history.length > 0 && (
+            <div className="flex items-center gap-2">
+              {history.length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearHistory}
+                  className="text-muted-foreground"
+                >
+                  Очистить
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={clearHistory}
+                onClick={() => setIsExpanded(!isExpanded)}
                 className="text-muted-foreground"
+                aria-label={isExpanded ? "Свернуть чат" : "Развернуть чат"}
               >
-                Очистить
+                {isExpanded ? (
+                  <ChevronUp className="size-4" />
+                ) : (
+                  <ChevronDown className="size-4" />
+                )}
               </Button>
-            )}
+            </div>
           </div>
         </header>
       )}
 
-      {/* Ошибка */}
-      {error && (
-        <div
-          className="mx-4 mt-4 flex items-center gap-2 rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-          role="alert"
-        >
-          <AlertCircle className="size-4 shrink-0" />
-          <p>{error.message}</p>
-        </div>
+      {/* Содержимое чата */}
+      {isExpanded && (
+        <>
+          {/* Ошибка */}
+          {error && (
+            <div
+              className="mx-4 mt-4 flex items-center gap-2 rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+              role="alert"
+            >
+              <AlertCircle className="size-4 shrink-0" />
+              <p>{error.message}</p>
+            </div>
+          )}
+
+          {/* Сообщения */}
+          <RecruiterMessages
+            history={history}
+            status={status}
+            currentAction={currentAction}
+            sendMessage={sendMessage}
+          />
+
+          {/* Ввод */}
+          <RecruiterChatInput
+            onSendMessage={sendMessage}
+            onStop={stop}
+            status={status}
+            placeholder={placeholder}
+          />
+        </>
       )}
-
-      {/* Сообщения */}
-      <RecruiterMessages
-        history={history}
-        status={status}
-        currentAction={currentAction}
-        sendMessage={sendMessage}
-      />
-
-      {/* Ввод */}
-      <RecruiterChatInput
-        onSendMessage={sendMessage}
-        onStop={stop}
-        status={status}
-        placeholder={placeholder}
-      />
     </div>
   );
 }
@@ -258,7 +288,7 @@ const RecruiterMessage = memo(function RecruiterMessage({
         >
           <div
             className={cn(
-              "break-words w-fit rounded-2xl px-3 py-2",
+              "wrap-break-word w-fit rounded-2xl px-3 py-2",
               isUser
                 ? "bg-primary text-primary-foreground"
                 : "bg-transparent px-0 py-0 text-foreground",

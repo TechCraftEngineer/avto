@@ -1,5 +1,6 @@
 import { TelegramClient } from "@mtcute/bun";
-import { db, getIntegrationCredentials } from "@qbs-autonaim/db";
+import { getIntegrationCredentials } from "@qbs-autonaim/db";
+import { db } from "@qbs-autonaim/db/client";
 import { ExportableStorage } from "./storage";
 
 // Кэш клиентов по workspaceId

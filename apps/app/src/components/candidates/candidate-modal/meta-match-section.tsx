@@ -7,8 +7,15 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { Loader2, Sparkles, TrendingUp, TrendingDown, Minus, Download } from "lucide-react";
-import { useEffect, useMemo, useState, useRef } from "react";
+import {
+  Download,
+  Loader2,
+  Minus,
+  Sparkles,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useTRPC } from "~/trpc/react";
 import type { FunnelCandidateDetail } from "../types";
@@ -37,9 +44,16 @@ const getTrendIcon = (value: number) => {
   return <Minus className="h-3 w-3 text-amber-500" />;
 };
 
-const MetricProgressBar = ({ value, max = 10 }: { value: number; max?: number }) => {
+const MetricProgressBar = ({
+  value,
+  max = 10,
+}: {
+  value: number;
+  max?: number;
+}) => {
   const percentage = (value / max) * 100;
-  const color = value >= 7 ? "bg-emerald-500" : value >= 4 ? "bg-amber-500" : "bg-rose-500";
+  const color =
+    value >= 7 ? "bg-emerald-500" : value >= 4 ? "bg-amber-500" : "bg-rose-500";
 
   return (
     <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
@@ -68,21 +82,25 @@ export function MetaMatchSection({
 
   const { data, isLoading } = useQuery(
     trpc.metaMatch.getLatest.queryOptions(
-      candidateId && workspaceId
-        ? { workspaceId, candidateId }
-        : skipToken,
+      candidateId && workspaceId ? { workspaceId, candidateId } : skipToken,
     ),
   );
 
   // Автозаполнение DOB из профиля кандидата
   useEffect(() => {
     if (candidateData?.globalCandidate?.birthDate && !birthDateInput) {
-      setBirthDateInput(formatDateForInput(new Date(candidateData.globalCandidate.birthDate)));
+      setBirthDateInput(
+        formatDateForInput(new Date(candidateData.globalCandidate.birthDate)),
+      );
       setConsentGranted(true); // Предполагаем согласие, если данные уже есть в профиле
     } else if (data?.birthDate && !birthDateInput) {
       setBirthDateInput(formatDateForInput(new Date(data.birthDate)));
     }
-  }, [candidateData?.globalCandidate?.birthDate, data?.birthDate, birthDateInput]);
+  }, [
+    candidateData?.globalCandidate?.birthDate,
+    data?.birthDate,
+    birthDateInput,
+  ]);
 
   // Валидация даты рождения
   const validateBirthDate = (dateString: string): boolean => {
@@ -97,9 +115,10 @@ export function MetaMatchSection({
     const monthDiff = today.getMonth() - date.getMonth();
 
     // Корректировка возраста если день рождения ещё не наступил в этом году
-    const adjustedAge = monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate())
-      ? age - 1
-      : age;
+    const adjustedAge =
+      monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate())
+        ? age - 1
+        : age;
 
     if (adjustedAge < 16) {
       setBirthDateError("Минимальный возраст для оценки — 16 лет");
@@ -174,9 +193,7 @@ export function MetaMatchSection({
     setIsExporting(true);
     try {
       // Динамический импорт для уменьшения размера бандла
-      const [{ jsPDF }] = await Promise.all([
-        import("jspdf"),
-      ]);
+      const [{ jsPDF }] = await Promise.all([import("jspdf")]);
 
       const pdf = new jsPDF();
       const canvas = document.createElement("canvas");
@@ -197,8 +214,16 @@ export function MetaMatchSection({
 
       ctx.font = "16px Arial";
       ctx.fillText(`Кандидат: ${candidateData?.name || "Неизвестен"}`, 50, 80);
-      ctx.fillText(`Дата рождения: ${new Date(data?.birthDate || "").toLocaleDateString("ru-RU")}`, 50, 100);
-      ctx.fillText(`Дата расчета: ${new Date().toLocaleDateString("ru-RU")}`, 50, 120);
+      ctx.fillText(
+        `Дата рождения: ${new Date(data?.birthDate || "").toLocaleDateString("ru-RU")}`,
+        50,
+        100,
+      );
+      ctx.fillText(
+        `Дата расчета: ${new Date().toLocaleDateString("ru-RU")}`,
+        50,
+        120,
+      );
 
       // Добавляем метрики
       ctx.font = "bold 18px Arial";
@@ -208,12 +233,18 @@ export function MetaMatchSection({
       let yPos = 190;
       const metrics = [
         { label: "Коэффициент синергии", value: summaryMetrics?.synergy },
-        { label: "Темпоральный резонанс", value: summaryMetrics?.temporalResonance },
-        { label: "Риск конфликтных циклов", value: summaryMetrics?.conflictRisk },
+        {
+          label: "Темпоральный резонанс",
+          value: summaryMetrics?.temporalResonance,
+        },
+        {
+          label: "Риск конфликтных циклов",
+          value: summaryMetrics?.conflictRisk,
+        },
         { label: "Прогноз денежного потока", value: summaryMetrics?.moneyFlow },
       ];
 
-      metrics.forEach((metric, index) => {
+      metrics.forEach((metric, _index) => {
         if (metric.value !== undefined) {
           ctx.fillText(`${metric.label}: ${metric.value}/10`, 50, yPos);
           yPos += 25;
@@ -227,15 +258,15 @@ export function MetaMatchSection({
       yPos += 30;
 
       ctx.font = "14px Arial";
-      report.recommendations.forEach((rec, index) => {
+      report.recommendations.forEach((rec, _index) => {
         const words = rec.split(" ");
         let line = "";
-        words.forEach(word => {
-          const testLine = line + word + " ";
+        words.forEach((word) => {
+          const testLine = `${line}${word} `;
           const metrics = ctx.measureText(testLine);
           if (metrics.width > 700 && line !== "") {
             ctx.fillText(line, 50, yPos);
-            line = word + " ";
+            line = `${word} `;
             yPos += 20;
           } else {
             line = testLine;
@@ -250,12 +281,12 @@ export function MetaMatchSection({
       ctx.font = "italic 12px Arial";
       const disclaimerWords = report.disclaimer.split(" ");
       let disclaimerLine = "";
-      disclaimerWords.forEach(word => {
-        const testLine = disclaimerLine + word + " ";
+      disclaimerWords.forEach((word) => {
+        const testLine = `${disclaimerLine}${word} `;
         const metrics = ctx.measureText(testLine);
         if (metrics.width > 700 && disclaimerLine !== "") {
           ctx.fillText(disclaimerLine, 50, yPos);
-          disclaimerLine = word + " ";
+          disclaimerLine = `${word} `;
           yPos += 18;
         } else {
           disclaimerLine = testLine;
@@ -313,7 +344,10 @@ export function MetaMatchSection({
 
     // Добавляем расширенные метрики, если они доступны
     const extendedMetrics = [];
-    if (summaryMetrics.companySynergy !== undefined && summaryLabels.companySynergy) {
+    if (
+      summaryMetrics.companySynergy !== undefined &&
+      summaryLabels.companySynergy
+    ) {
       extendedMetrics.push({
         key: "companySynergy",
         label: "Синергия с компанией",
@@ -321,7 +355,10 @@ export function MetaMatchSection({
         interpretation: summaryLabels.companySynergy,
       });
     }
-    if (summaryMetrics.managerSynergy !== undefined && summaryLabels.managerSynergy) {
+    if (
+      summaryMetrics.managerSynergy !== undefined &&
+      summaryLabels.managerSynergy
+    ) {
       extendedMetrics.push({
         key: "managerSynergy",
         label: "Синергия с руководителем",
@@ -347,7 +384,8 @@ export function MetaMatchSection({
         <div>
           <h3 className="text-sm font-semibold">Meta-Match</h3>
           <p className="text-xs text-muted-foreground">
-            Хронобиологическая совместимость — дополнительный рекомендательный слой
+            Хронобиологическая совместимость — дополнительный рекомендательный
+            слой
           </p>
         </div>
         {report?.algorithmVersion && (
@@ -360,7 +398,10 @@ export function MetaMatchSection({
       {isLoading ? (
         <div className="h-28 bg-muted animate-pulse rounded-lg" />
       ) : report ? (
-        <div ref={reportRef} className="space-y-4 animate-in fade-in-0 slide-in-from-bottom-4 duration-500">
+        <div
+          ref={reportRef}
+          className="space-y-4 animate-in fade-in-0 slide-in-from-bottom-4 duration-500"
+        >
           <div className="grid grid-cols-2 gap-3">
             {metricCards.map((metric) => (
               <div
@@ -405,15 +446,22 @@ export function MetaMatchSection({
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="text-muted-foreground">Размер команды:</span>
-                  <span className="ml-2 font-medium">{report.teamData.teamSize} чел.</span>
+                  <span className="ml-2 font-medium">
+                    {report.teamData.teamSize} чел.
+                  </span>
                 </div>
                 <div>
-                  <span className="text-muted-foreground">Доминирующий профиль:</span>
-                  <span className="ml-2 font-medium">{report.teamData.dominantProfile}</span>
+                  <span className="text-muted-foreground">
+                    Доминирующий профиль:
+                  </span>
+                  <span className="ml-2 font-medium">
+                    {report.teamData.dominantProfile}
+                  </span>
                 </div>
               </div>
               <p className="text-sm text-muted-foreground">
-                Баланс кандидата с командой учитывает разнообразие профилей и способствует гармоничной работе.
+                Баланс кандидата с командой учитывает разнообразие профилей и
+                способствует гармоничной работе.
               </p>
             </div>
           )}
@@ -425,7 +473,11 @@ export function MetaMatchSection({
             </h4>
             <div className="space-y-3 text-sm text-muted-foreground leading-relaxed">
               {report.narrative.map((paragraph, index) => (
-                <p key={paragraph} className="animate-in fade-in-0 slide-in-from-bottom-1 duration-300" style={{ animationDelay: `${300 + index * 100}ms` }}>
+                <p
+                  key={paragraph}
+                  className="animate-in fade-in-0 slide-in-from-bottom-1 duration-300"
+                  style={{ animationDelay: `${300 + index * 100}ms` }}
+                >
                   {paragraph}
                 </p>
               ))}
@@ -439,10 +491,14 @@ export function MetaMatchSection({
             </h4>
             <ul className="text-sm text-muted-foreground space-y-2">
               {report.recommendations.map((item, index) => (
-                  <li key={item} className="flex items-start gap-2 animate-in fade-in-0 slide-in-from-bottom-1 duration-300" style={{ animationDelay: `${400 + index * 100}ms` }}>
-                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 shrink-0" />
-                    {item}
-                  </li>
+                <li
+                  key={item}
+                  className="flex items-start gap-2 animate-in fade-in-0 slide-in-from-bottom-1 duration-300"
+                  style={{ animationDelay: `${400 + index * 100}ms` }}
+                >
+                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 shrink-0" />
+                  {item}
+                </li>
               ))}
             </ul>
           </div>
@@ -455,7 +511,11 @@ export function MetaMatchSection({
               </h4>
               <ul className="text-sm text-muted-foreground space-y-2">
                 {report.riskFlags.map((item, index) => (
-                  <li key={item} className="flex items-start gap-2 animate-in fade-in-0 slide-in-from-bottom-1 duration-300" style={{ animationDelay: `${600 + index * 100}ms` }}>
+                  <li
+                    key={item}
+                    className="flex items-start gap-2 animate-in fade-in-0 slide-in-from-bottom-1 duration-300"
+                    style={{ animationDelay: `${600 + index * 100}ms` }}
+                  >
                     <div className="w-1.5 h-1.5 bg-amber-500 rounded-full mt-2 shrink-0" />
                     {item}
                   </li>
@@ -480,8 +540,8 @@ export function MetaMatchSection({
         </div>
       ) : (
         <div className="rounded-lg border bg-muted/30 p-3 text-sm text-muted-foreground">
-          Нет рассчитанного Meta-Match отчета. Укажите дату рождения и подтвердите
-          согласие, чтобы сформировать прогноз.
+          Нет рассчитанного Meta-Match отчета. Укажите дату рождения и
+          подтвердите согласие, чтобы сформировать прогноз.
         </div>
       )}
 

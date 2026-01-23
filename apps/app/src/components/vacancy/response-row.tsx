@@ -5,11 +5,11 @@ import { paths } from "@qbs-autonaim/config";
 import {
   HR_SELECTION_STATUS_LABELS,
   RESPONSE_STATUS_LABELS,
-} from "@qbs-autonaim/db/schema";
+} from "@qbs-autonaim/db";
 import type {
-  VacancyResponseStatus,
   VacancyHrSelectionStatus,
-} from "@qbs-autonaim/db/schema/vacancy/response-status";
+  VacancyResponseStatus,
+} from "@qbs-autonaim/db/schema";
 import {
   Avatar,
   AvatarFallback,
@@ -24,7 +24,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@qbs-autonaim/ui";
-import { Send, User, TrendingUp, UserCheck, ExternalLink } from "lucide-react";
+import { ExternalLink, Send, TrendingUp, User, UserCheck } from "lucide-react";
 import Link from "next/link";
 import { ResponseActions } from "~/components/response";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
@@ -227,10 +227,10 @@ export function ResponseRow({
         )}
       </TableCell>
       <TableCell>
-        {response.potentialScore != null ? (
+        {response.screening?.potentialScore != null ? (
           <div className="flex items-center gap-1">
             <span className="text-sm font-medium">
-              {response.potentialScore}
+              {response.screening.potentialScore}
             </span>
             <span className="text-xs text-muted-foreground">/10</span>
           </div>
@@ -314,9 +314,10 @@ export function ResponseRow({
                   </span>
                 </TooltipTrigger>
                 <TooltipContent side="left" className="max-w-xs">
-                  <p className="text-xs whitespace-pre-wrap">
-                    {response.coverLetter}
-                  </p>
+                  <div
+                    className="text-xs"
+                    dangerouslySetInnerHTML={{ __html: response.coverLetter }}
+                  />
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -331,9 +332,10 @@ export function ResponseRow({
                   </span>
                 </TooltipTrigger>
                 <TooltipContent side="left" className="max-w-xs">
-                  <p className="text-xs whitespace-pre-wrap">
-                    {response.experience}
-                  </p>
+                  <div
+                    className="text-xs"
+                    dangerouslySetInnerHTML={{ __html: response.experience }}
+                  />
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
