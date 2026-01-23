@@ -18,12 +18,16 @@ const evaluateCandidateInputSchema = z.object({
   birthDate: z.coerce.date().optional(),
   companyBirthDate: z.coerce.date().optional(),
   managerBirthDate: z.coerce.date().optional(),
-  teamData: z.array(z.object({
-    coreIndex: z.number().int().min(1).max(9),
-    stabilityIndex: z.number().int().min(1).max(9),
-    changeIndex: z.number().int().min(1).max(9),
-    phase: z.enum(["stabilization", "growth", "change"]),
-  })).optional(),
+  teamData: z
+    .array(
+      z.object({
+        coreIndex: z.number().int().min(1).max(9),
+        stabilityIndex: z.number().int().min(1).max(9),
+        changeIndex: z.number().int().min(1).max(9),
+        phase: z.enum(["stabilization", "growth", "change"]),
+      }),
+    )
+    .optional(),
   consentGranted: z.boolean(),
   requestedBy: z.string().min(1).optional(),
 });
@@ -108,6 +112,13 @@ export const evaluateCandidate = protectedProcedure
         requestedBy,
       })
       .returning();
+
+    if (!report) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Не удалось создать отчет о мета-матче",
+      });
+    }
 
     await ctx.auditLogger.logAccess({
       userId: ctx.session.user.id,

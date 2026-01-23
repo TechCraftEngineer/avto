@@ -456,7 +456,7 @@ export function MetaMatchSection({
               <ul className="text-sm text-muted-foreground space-y-2">
                 {report.riskFlags.map((item, index) => (
                   <li key={item} className="flex items-start gap-2 animate-in fade-in-0 slide-in-from-bottom-1 duration-300" style={{ animationDelay: `${600 + index * 100}ms` }}>
-                    <div className="w-1.5 h-1.5 bg-amber-500 rounded-full mt-2 flex-shrink-0" />
+                    <div className="w-1.5 h-1.5 bg-amber-500 rounded-full mt-2 shrink-0" />
                     {item}
                   </li>
                 ))}
