@@ -1,28 +1,27 @@
 "use client";
 
 import {
+  Button,
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@qbs-autonaim/ui";
-import { Button, Badge } from "@qbs-autonaim/ui";
 import {
-  FileText,
+  Calendar,
   Download,
   ExternalLink,
-  Calendar,
-  MapPin,
-  Phone,
-  Mail,
+  FileText,
   Globe,
+  Mail,
+  Phone,
 } from "lucide-react";
 import type { VacancyResponse } from "./types";
 
 interface ResumeCardProps {
   response: VacancyResponse;
   onDownload?: () => void;
-  onViewExternal?: () => void;
+  onViewExternal?: (url?: string) => void;
 }
 
 export function ResumeCard({
@@ -56,7 +55,9 @@ export function ResumeCard({
                   Резюме кандидата
                 </div>
                 <div className="text-sm text-blue-700">
-                  {response.resumeUrl ? 'Внешняя ссылка' : 'Загружено в систему'}
+                  {response.resumeUrl
+                    ? "Внешняя ссылка"
+                    : "Загружено в систему"}
                 </div>
               </div>
             </div>
@@ -65,7 +66,9 @@ export function ResumeCard({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={onViewExternal}
+                  onClick={() =>
+                    onViewExternal?.(response.resumeUrl || undefined)
+                  }
                   className="bg-white hover:bg-gray-50"
                 >
                   <ExternalLink className="h-4 w-4 mr-2" />
@@ -106,8 +109,14 @@ export function ResumeCard({
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  onViewExternal(response.platformProfileUrl);
-                  window.open(response.platformProfileUrl!, '_blank', 'noopener,noreferrer');
+                  onViewExternal?.(response.platformProfileUrl || undefined);
+                  if (response.platformProfileUrl) {
+                    window.open(
+                      response.platformProfileUrl,
+                      "_blank",
+                      "noopener,noreferrer",
+                    );
+                  }
                 }}
                 className="bg-white hover:bg-gray-50"
               >
@@ -149,14 +158,16 @@ export function ResumeCard({
         <div className="flex items-center gap-4 pt-3 border-t text-sm text-muted-foreground">
           <div className="flex items-center gap-1">
             <Calendar className="h-4 w-4" />
-            Обновлено: {new Date(response.updatedAt).toLocaleDateString('ru-RU')}
+            Обновлено:{" "}
+            {new Date(response.updatedAt).toLocaleDateString("ru-RU")}
           </div>
-          {response.region && (
+          {/* TODO: Add region field when available from API */}
+          {/* {response.region && (
             <div className="flex items-center gap-1">
               <MapPin className="h-4 w-4" />
               {response.region}
             </div>
-          )}
+          )} */}
         </div>
       </CardContent>
     </Card>

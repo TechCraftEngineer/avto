@@ -1,8 +1,6 @@
 "use client";
 
-import {
-  ParsedProfileCard,
-} from "~/components/response-detail";
+import { ParsedProfileCard } from "~/components/response-detail";
 import { VacancyResponseHeaderCard } from "./header-card";
 import { useVacancyResponseFlags } from "./hooks/use-vacancy-response-flags";
 import { VacancyResponseTabs } from "./tabs";
@@ -27,7 +25,7 @@ export function VacancyResponseDetailCard({
   } = useVacancyResponseFlags(response);
 
   // Преобразуем conversation для ResponseHeaderCard
-  const mappedConversation = conversation
+  const _mappedConversation = conversation
     ? {
         id: conversation.id,
         status: conversation.status,

@@ -92,25 +92,27 @@ export default function GigResponseDetailPage({ params }: PageProps) {
   });
 
   // Приводим к GigResponse типу
-  const gigResponse = response ? {
-    ...response,
-    entityType: 'gig' as const,
-    // Гарантируем gig-специфичные поля
-    proposedPrice: response.proposedPrice ?? null,
-    proposedDeliveryDays: response.proposedDeliveryDays ?? null,
-    portfolioLinks: response.portfolioLinks ?? null,
-    portfolioFileId: response.portfolioFileId ?? null,
-    compositeScore: response.compositeScore ?? null,
-    priceScore: response.priceScore ?? null,
-    deliveryScore: response.deliveryScore ?? null,
-    skillsMatchScore: response.skillsMatchScore ?? null,
-    experienceScore: response.experienceScore ?? null,
-    compositeScoreReasoning: response.compositeScoreReasoning ?? null,
-    priceScoreReasoning: response.priceScoreReasoning ?? null,
-    deliveryScoreReasoning: response.deliveryScoreReasoning ?? null,
-    skillsMatchScoreReasoning: response.skillsMatchScoreReasoning ?? null,
-    experienceScoreReasoning: response.experienceScoreReasoning ?? null,
-  } : null;
+  const gigResponse = response
+    ? {
+        ...response,
+        entityType: "gig" as const,
+        // Гарантируем gig-специфичные поля
+        proposedPrice: response.proposedPrice ?? null,
+        proposedDeliveryDays: response.proposedDeliveryDays ?? null,
+        portfolioLinks: response.portfolioLinks ?? null,
+        portfolioFileId: response.portfolioFileId ?? null,
+        compositeScore: response.compositeScore ?? null,
+        priceScore: response.priceScore ?? null,
+        deliveryScore: response.deliveryScore ?? null,
+        skillsMatchScore: response.skillsMatchScore ?? null,
+        experienceScore: response.experienceScore ?? null,
+        compositeScoreReasoning: response.compositeScoreReasoning ?? null,
+        priceScoreReasoning: response.priceScoreReasoning ?? null,
+        deliveryScoreReasoning: response.deliveryScoreReasoning ?? null,
+        skillsMatchScoreReasoning: response.skillsMatchScoreReasoning ?? null,
+        experienceScoreReasoning: response.experienceScoreReasoning ?? null,
+      }
+    : null;
 
   // Accept mutation
   const acceptMutation = useMutation(

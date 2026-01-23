@@ -105,8 +105,12 @@ export function useGigResponseFlags(
     !!response.compositeScoreReasoning;
 
   // Проверяем специфичные gig данные
-  const hasPricingData = !!(response.proposedPrice || response.proposedDeliveryDays);
-  const hasPortfolioData = !!(response.portfolioLinks?.length || response.portfolioFileId);
+  const hasPricingData = !!(
+    response.proposedPrice || response.proposedDeliveryDays
+  );
+  const hasPortfolioData = !!(
+    response.portfolioLinks?.length || response.portfolioFileId
+  );
 
   // Определяем дефолтный таб
   const getDefaultTab = () => {

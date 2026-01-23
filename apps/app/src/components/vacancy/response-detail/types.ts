@@ -1,28 +1,13 @@
 // Специфичные типы для vacancy откликов
 
-import type { Response } from "@qbs-autonaim/db/schema";
+import type { RouterOutputs } from "@qbs-autonaim/api";
 
 /**
- * Vacancy отклик - содержит только vacancy-специфичные поля
+ * Vacancy отклик - inferred тип из API
  */
-export type VacancyResponse = Omit<Response, 'proposedPrice' | 'proposedDeliveryDays' | 'portfolioLinks' | 'portfolioFileId' | 'compositeScore' | 'priceScore' | 'deliveryScore' | 'skillsMatchScore' | 'experienceScore' | 'compositeScoreReasoning' | 'priceScoreReasoning' | 'deliveryScoreReasoning' | 'skillsMatchScoreReasoning' | 'experienceScoreReasoning'> & {
-  entityType: 'vacancy';
-  // Гарантированно vacancy-специфичные поля
-  resumeId: string | null;
-  resumeUrl: string | null;
-  platformProfileUrl: string | null;
-  salaryExpectationsAmount: number | null;
-  salaryExpectationsComment: string | null;
-
-  // Screening специфично для vacancy
-  screening: {
-    score: number;
-    detailedScore: number;
-    analysis: string | null;
-    priceAnalysis?: string | null;
-    deliveryAnalysis?: string | null;
-  } | null;
-};
+export type VacancyResponse = NonNullable<
+  RouterOutputs["vacancy"]["responses"]["get"]
+>;
 
 /**
  * Пропсы для vacancy response detail card

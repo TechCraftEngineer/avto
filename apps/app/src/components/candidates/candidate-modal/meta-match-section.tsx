@@ -91,11 +91,7 @@ export function MetaMatchSection({
     if (data?.birthDate && !birthDateInput) {
       setBirthDateInput(formatDateForInput(new Date(data.birthDate)));
     }
-  }, [
-    data?.birthDate,
-    data?.birthDate,
-    birthDateInput,
-  ]);
+  }, [data?.birthDate, birthDateInput]);
 
   // Валидация даты рождения
   const validateBirthDate = (dateString: string): boolean => {

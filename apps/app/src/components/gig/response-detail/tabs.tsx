@@ -10,22 +10,21 @@ import {
   TabsList,
   TabsTrigger,
 } from "@qbs-autonaim/ui";
-import {
-  ContactsTab,
-  DialogTab,
-  ExperienceTab,
-  InterviewScoringCard,
-  PortfolioTab,
-  ProposalTab,
-} from "~/components/response-detail";
+import { Award, Banknote, Briefcase, Clock } from "lucide-react";
 import {
   FactorBreakdown,
   OverallAssessment,
   ScoreExplanation,
 } from "~/components/candidate";
-import { PricingCard } from "./pricing-card";
+import {
+  ContactsTab,
+  DialogTab,
+  ExperienceTab,
+  InterviewScoringCard,
+  ProposalTab,
+} from "~/components/response-detail";
 import { PortfolioCard } from "./portfolio-card";
-import { Award, Banknote, Briefcase, Clock } from "lucide-react";
+import { PricingCard } from "./pricing-card";
 import type { GigResponseTabsProps } from "./types";
 
 export function GigResponseTabs({
@@ -161,8 +160,8 @@ export function GigResponseTabs({
                 compositeScore={response.compositeScore}
                 compositeReasoning={response.compositeScoreReasoning}
                 recommendation={response.recommendation}
-                strengths={response.strengths}
-                weaknesses={response.weaknesses}
+                strengths={response.strengths || undefined}
+                weaknesses={response.weaknesses || undefined}
               />
 
               {/* Factor Breakdown */}
@@ -171,8 +170,8 @@ export function GigResponseTabs({
                 experienceReasoning={response.experienceScoreReasoning}
                 skillsScore={response.skillsMatchScore}
                 skillsReasoning={response.skillsMatchScoreReasoning}
-                strengths={response.strengths}
-                weaknesses={response.weaknesses}
+                strengths={response.strengths || undefined}
+                weaknesses={response.weaknesses || undefined}
               />
 
               {/* Score Explanations */}
@@ -232,7 +231,6 @@ export function GigResponseTabs({
           >
             <ExperienceTab response={response} />
           </TabsContent>
-
 
           {/* Contacts Tab */}
           <TabsContent value="contacts" className="space-y-3 sm:space-y-4 mt-0">

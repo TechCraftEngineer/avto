@@ -1,14 +1,12 @@
 "use client";
 
 import {
+  Badge,
+  Button,
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from "@qbs-autonaim/ui";
-import {
-  Badge,
-  Button,
 } from "@qbs-autonaim/ui";
 import {
   Calendar,
@@ -32,25 +30,39 @@ interface GigResponseHeaderCardProps {
 
 const getStatusColor = (status: string) => {
   switch (status) {
-    case 'NEW': return 'bg-blue-100 text-blue-800 border-blue-200';
-    case 'EVALUATED': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-    case 'INTERVIEW': return 'bg-purple-100 text-purple-800 border-purple-200';
-    case 'NEGOTIATION': return 'bg-orange-100 text-orange-800 border-orange-200';
-    case 'COMPLETED': return 'bg-green-100 text-green-800 border-green-200';
-    case 'SKIPPED': return 'bg-gray-100 text-gray-800 border-gray-200';
-    default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    case "NEW":
+      return "bg-blue-100 text-blue-800 border-blue-200";
+    case "EVALUATED":
+      return "bg-yellow-100 text-yellow-800 border-yellow-200";
+    case "INTERVIEW":
+      return "bg-purple-100 text-purple-800 border-purple-200";
+    case "NEGOTIATION":
+      return "bg-orange-100 text-orange-800 border-orange-200";
+    case "COMPLETED":
+      return "bg-green-100 text-green-800 border-green-200";
+    case "SKIPPED":
+      return "bg-gray-100 text-gray-800 border-gray-200";
+    default:
+      return "bg-gray-100 text-gray-800 border-gray-200";
   }
 };
 
 const getStatusLabel = (status: string) => {
   switch (status) {
-    case 'NEW': return 'Новый';
-    case 'EVALUATED': return 'Оценено';
-    case 'INTERVIEW': return 'Собеседование';
-    case 'NEGOTIATION': return 'Переговоры';
-    case 'COMPLETED': return 'Завершено';
-    case 'SKIPPED': return 'Пропущено';
-    default: return status;
+    case "NEW":
+      return "Новый";
+    case "EVALUATED":
+      return "Оценено";
+    case "INTERVIEW":
+      return "Собеседование";
+    case "NEGOTIATION":
+      return "Переговоры";
+    case "COMPLETED":
+      return "Завершено";
+    case "SKIPPED":
+      return "Пропущено";
+    default:
+      return status;
   }
 };
 
@@ -63,7 +75,8 @@ export function GigResponseHeaderCard({
   isProcessing,
   isPolling,
 }: GigResponseHeaderCardProps) {
-  const hasPortfolio = response.portfolioLinks?.length || response.portfolioFileId;
+  const hasPortfolio =
+    response.portfolioLinks?.length || response.portfolioFileId;
   const rating = response.rating ? parseFloat(response.rating) : null;
 
   return (
@@ -77,7 +90,7 @@ export function GigResponseHeaderCard({
             </div>
             <div className="min-w-0 flex-1">
               <CardTitle className="text-lg sm:text-xl truncate">
-                {response.candidateName || 'Исполнитель'}
+                {response.candidateName || "Исполнитель"}
               </CardTitle>
               <div className="flex flex-wrap items-center gap-2 mt-2">
                 <Badge
@@ -87,26 +100,38 @@ export function GigResponseHeaderCard({
                   {getStatusLabel(response.status)}
                 </Badge>
                 {rating && (
-                  <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+                  <Badge
+                    variant="outline"
+                    className="bg-yellow-50 text-yellow-700 border-yellow-200"
+                  >
                     <Star className="h-3 w-3 mr-1 fill-current" />
                     {rating.toFixed(1)}
                   </Badge>
                 )}
                 {hasPortfolio && (
-                  <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+                  <Badge
+                    variant="outline"
+                    className="bg-purple-50 text-purple-700 border-purple-200"
+                  >
                     <FolderOpen className="h-3 w-3 mr-1" />
                     Портфолио
                   </Badge>
                 )}
                 {response.proposedPrice && (
-                  <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200">
+                  <Badge
+                    variant="outline"
+                    className="bg-emerald-50 text-emerald-700 border-emerald-200"
+                  >
                     <DollarSign className="h-3 w-3 mr-1" />
                     {response.proposedPrice.toLocaleString()} ₽
                   </Badge>
                 )}
               </div>
               <div className="text-sm text-muted-foreground mt-1">
-                Предложение от {new Date(response.respondedAt || response.createdAt).toLocaleDateString('ru-RU')}
+                Предложение от{" "}
+                {new Date(
+                  response.respondedAt || response.createdAt,
+                ).toLocaleDateString("ru-RU")}
               </div>
             </div>
           </div>
@@ -176,7 +201,9 @@ export function GigResponseHeaderCard({
             <div className="flex items-center gap-2 p-3 bg-emerald-50 rounded-lg border border-emerald-200">
               <DollarSign className="h-5 w-5 text-emerald-600 shrink-0" />
               <div>
-                <div className="text-sm font-medium text-emerald-800">Ценовое предложение</div>
+                <div className="text-sm font-medium text-emerald-800">
+                  Ценовое предложение
+                </div>
                 {response.proposedPrice && (
                   <div className="text-lg font-semibold text-emerald-900">
                     {response.proposedPrice.toLocaleString()} ₽
@@ -195,13 +222,13 @@ export function GigResponseHeaderCard({
             <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
               <Star className="h-5 w-5 text-blue-600 shrink-0" />
               <div>
-                <div className="text-sm font-medium text-blue-800">Общий рейтинг</div>
+                <div className="text-sm font-medium text-blue-800">
+                  Общий рейтинг
+                </div>
                 <div className="text-lg font-semibold text-blue-900">
                   {response.compositeScore}/100
                 </div>
-                <div className="text-xs text-blue-700">
-                  Композитная оценка
-                </div>
+                <div className="text-xs text-blue-700">Композитная оценка</div>
               </div>
             </div>
           )}
@@ -210,10 +237,12 @@ export function GigResponseHeaderCard({
             <div className="flex items-center gap-2 p-3 bg-purple-50 rounded-lg border border-purple-200">
               <FolderOpen className="h-5 w-5 text-purple-600 shrink-0" />
               <div>
-                <div className="text-sm font-medium text-purple-800">Портфолио</div>
+                <div className="text-sm font-medium text-purple-800">
+                  Портфолио
+                </div>
                 <div className="text-sm text-purple-700">
                   {response.portfolioLinks?.length || 0} работ
-                  {response.portfolioFileId && ' + файл'}
+                  {response.portfolioFileId && " + файл"}
                 </div>
               </div>
             </div>
@@ -223,11 +252,13 @@ export function GigResponseHeaderCard({
             <div className="flex items-center gap-2 p-3 bg-orange-50 rounded-lg border border-orange-200 col-span-1 sm:col-span-2 lg:col-span-3">
               <Calendar className="h-5 w-5 text-orange-600 shrink-0" />
               <div className="min-w-0 flex-1">
-                <div className="text-sm font-medium text-orange-800">Навыки</div>
+                <div className="text-sm font-medium text-orange-800">
+                  Навыки
+                </div>
                 <div className="flex flex-wrap gap-1 mt-1">
-                  {response.skills.slice(0, 5).map((skill, index) => (
+                  {response.skills.slice(0, 5).map((skill, _index) => (
                     <Badge
-                      key={index}
+                      key={skill}
                       variant="outline"
                       className="text-xs bg-orange-100 text-orange-800 border-orange-300"
                     >

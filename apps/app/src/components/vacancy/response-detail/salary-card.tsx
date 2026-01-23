@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@qbs-autonaim/ui";
+import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui";
 import { Badge } from "@qbs-autonaim/ui";
 import { DollarSign, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import type { VacancyResponse } from "./types";
@@ -15,10 +10,7 @@ interface SalaryCardProps {
   marketRate?: number; // Можно передавать рыночную ставку для сравнения
 }
 
-export function SalaryCard({
-  response,
-  marketRate,
-}: SalaryCardProps) {
+export function SalaryCard({ response, marketRate }: SalaryCardProps) {
   const salary = response.salaryExpectationsAmount;
   const comment = response.salaryExpectationsComment;
 
@@ -73,7 +65,7 @@ export function SalaryCard({
       <CardContent className="space-y-4">
         <div className="flex items-baseline gap-2">
           <span className="text-3xl font-bold text-green-600">
-            {salary.toLocaleString('ru-RU')}
+            {salary.toLocaleString("ru-RU")}
           </span>
           <span className="text-lg text-muted-foreground">₽</span>
           {comparison && (
@@ -92,24 +84,24 @@ export function SalaryCard({
             <div className="text-sm font-medium text-gray-700 mb-1">
               Комментарий кандидата
             </div>
-            <div className="text-sm text-gray-600">
-              {comment}
-            </div>
+            <div className="text-sm text-gray-600">{comment}</div>
           </div>
         )}
 
         {marketRate && (
           <div className="grid grid-cols-2 gap-4 pt-2 border-t">
             <div className="text-center">
-              <div className="text-sm text-muted-foreground">Рыночная ставка</div>
+              <div className="text-sm text-muted-foreground">
+                Рыночная ставка
+              </div>
               <div className="text-lg font-semibold">
-                {marketRate.toLocaleString('ru-RU')} ₽
+                {marketRate.toLocaleString("ru-RU")} ₽
               </div>
             </div>
             <div className="text-center">
               <div className="text-sm text-muted-foreground">Ожидания</div>
               <div className="text-lg font-semibold text-green-600">
-                {salary.toLocaleString('ru-RU')} ₽
+                {salary.toLocaleString("ru-RU")} ₽
               </div>
             </div>
           </div>

@@ -1,5 +1,4 @@
-import { OrganizationRepository } from "@qbs-autonaim/db";
-import { db } from "@qbs-autonaim/db/client";
+import { db, OrganizationRepository } from "@qbs-autonaim/db";
 
 import type { OrganizationMember } from "@qbs-autonaim/db/schema";
 import { getSession } from "../auth/server";

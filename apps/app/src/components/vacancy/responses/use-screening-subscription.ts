@@ -18,21 +18,6 @@ const ResultDataSchema = z.object({
   failed: z.number(),
 });
 
-interface ProgressData {
-  status: string;
-  message: string;
-  total?: number;
-  processed?: number;
-  failed?: number;
-}
-
-interface ResultData {
-  success: boolean;
-  total: number;
-  processed: number;
-  failed: number;
-}
-
 export interface ScreeningProgress {
   total: number;
   processed: number;

@@ -74,16 +74,17 @@ export default function VacancyResponseDetailPage() {
   const response = responseData;
 
   // Приводим к VacancyResponse типу
-  const vacancyResponse: import("~/components/vacancy/response-detail").VacancyResponse = {
-    ...response,
-    entityType: 'vacancy',
-    // Гарантируем vacancy-специфичные поля
-    resumeId: response.resumeId ?? null,
-    resumeUrl: response.resumeUrl ?? null,
-    platformProfileUrl: response.platformProfileUrl ?? null,
-    salaryExpectationsAmount: response.salaryExpectationsAmount ?? null,
-    salaryExpectationsComment: response.salaryExpectationsComment ?? null,
-  };
+  const vacancyResponse: import("~/components/vacancy/response-detail").VacancyResponse =
+    {
+      ...response,
+      entityType: "vacancy",
+      // Гарантируем vacancy-специфичные поля
+      resumeId: response.resumeId ?? null,
+      resumeUrl: response.resumeUrl ?? null,
+      platformProfileUrl: response.platformProfileUrl ?? null,
+      salaryExpectationsAmount: response.salaryExpectationsAmount ?? null,
+      salaryExpectationsComment: response.salaryExpectationsComment ?? null,
+    };
 
   return (
     <div className="flex flex-1 flex-col">

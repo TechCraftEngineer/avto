@@ -1,8 +1,6 @@
 "use client";
 
-import {
-  ParsedProfileCard,
-} from "~/components/response-detail";
+import { ParsedProfileCard } from "~/components/response-detail";
 import { GigResponseHeaderCard } from "./header-card";
 import { useGigResponseFlags } from "./hooks/use-gig-response-flags";
 import { GigResponseTabs } from "./tabs";
@@ -21,7 +19,7 @@ export function GigResponseDetailCard({
     useGigResponseFlags(response);
 
   // Преобразуем conversation для ResponseHeaderCard
-  const mappedConversation = conversation
+  const _mappedConversation = conversation
     ? {
         id: conversation.id,
         status: conversation.status,

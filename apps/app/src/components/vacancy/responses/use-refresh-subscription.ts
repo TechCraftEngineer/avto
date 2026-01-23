@@ -9,12 +9,6 @@ const StatusDataSchema = z.object({
   vacancyId: z.string().optional(),
 });
 
-interface StatusData {
-  status: string;
-  message: string;
-  vacancyId?: string;
-}
-
 interface UseRefreshSubscriptionProps {
   vacancyId: string;
   enabled: boolean;

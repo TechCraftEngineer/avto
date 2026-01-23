@@ -109,7 +109,11 @@ export function useVacancyResponseFlags(
 
   // Проверяем специфичные vacancy данные
   const hasSalaryData = !!response.salaryExpectationsAmount;
-  const hasResumeData = !!(response.resumeId || response.resumeUrl || response.platformProfileUrl);
+  const hasResumeData = !!(
+    response.resumeId ||
+    response.resumeUrl ||
+    response.platformProfileUrl
+  );
 
   // Определяем дефолтный таб
   const getDefaultTab = () => {

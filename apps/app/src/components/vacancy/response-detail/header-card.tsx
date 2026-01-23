@@ -7,11 +7,9 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  Skeleton,
 } from "@qbs-autonaim/ui";
 import {
   Briefcase,
-  Calendar,
   ChevronDown,
   ChevronUp,
   DollarSign,
@@ -209,39 +207,37 @@ export function VacancyResponseHeaderCard({
                   <div className="text-xs text-emerald-700 mt-1">
                     {response.salaryExpectationsComment.length >
                     SALARY_COMMENT_PREVIEW_LENGTH ? (
-                      <>
-                        {isSalaryCommentExpanded ? (
-                          <>
-                            {response.salaryExpectationsComment}
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setIsSalaryCommentExpanded(false)}
-                              className="h-5 px-1.5 py-0 mt-1 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-100"
-                            >
-                              <ChevronUp className="h-2.5 w-2.5 mr-1" />
-                              Свернуть
-                            </Button>
-                          </>
-                        ) : (
-                          <>
-                            {response.salaryExpectationsComment.slice(
-                              0,
-                              SALARY_COMMENT_PREVIEW_LENGTH,
-                            )}
-                            ...
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setIsSalaryCommentExpanded(true)}
-                              className="h-5 px-1.5 py-0 mt-1 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-100"
-                            >
-                              <ChevronDown className="h-2.5 w-2.5 mr-1" />
-                              Ещё
-                            </Button>
-                          </>
-                        )}
-                      </>
+                      isSalaryCommentExpanded ? (
+                        <>
+                          {response.salaryExpectationsComment}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setIsSalaryCommentExpanded(false)}
+                            className="h-5 px-1.5 py-0 mt-1 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-100"
+                          >
+                            <ChevronUp className="h-2.5 w-2.5 mr-1" />
+                            Свернуть
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          {response.salaryExpectationsComment.slice(
+                            0,
+                            SALARY_COMMENT_PREVIEW_LENGTH,
+                          )}
+                          ...
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setIsSalaryCommentExpanded(true)}
+                            className="h-5 px-1.5 py-0 mt-1 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-100"
+                          >
+                            <ChevronDown className="h-2.5 w-2.5 mr-1" />
+                            Ещё
+                          </Button>
+                        </>
+                      )
                     ) : (
                       response.salaryExpectationsComment
                     )}
@@ -272,39 +268,37 @@ export function VacancyResponseHeaderCard({
                 </div>
                 <div className="text-sm text-purple-700 mt-1">
                   {response.experience.length > EXPERIENCE_PREVIEW_LENGTH ? (
-                    <>
-                      {isExperienceExpanded ? (
-                        <>
-                          {response.experience}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setIsExperienceExpanded(false)}
-                            className="h-6 px-2 py-0 mt-2 text-purple-600 hover:text-purple-800 hover:bg-purple-100"
-                          >
-                            <ChevronUp className="h-3 w-3 mr-1" />
-                            Свернуть
-                          </Button>
-                        </>
-                      ) : (
-                        <>
-                          {response.experience.slice(
-                            0,
-                            EXPERIENCE_PREVIEW_LENGTH,
-                          )}
-                          ...
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setIsExperienceExpanded(true)}
-                            className="h-6 px-2 py-0 mt-2 text-purple-600 hover:text-purple-800 hover:bg-purple-100"
-                          >
-                            <ChevronDown className="h-3 w-3 mr-1" />
-                            Показать больше
-                          </Button>
-                        </>
-                      )}
-                    </>
+                    isExperienceExpanded ? (
+                      <>
+                        {response.experience}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setIsExperienceExpanded(false)}
+                          className="h-6 px-2 py-0 mt-2 text-purple-600 hover:text-purple-800 hover:bg-purple-100"
+                        >
+                          <ChevronUp className="h-3 w-3 mr-1" />
+                          Свернуть
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        {response.experience.slice(
+                          0,
+                          EXPERIENCE_PREVIEW_LENGTH,
+                        )}
+                        ...
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setIsExperienceExpanded(true)}
+                          className="h-6 px-2 py-0 mt-2 text-purple-600 hover:text-purple-800 hover:bg-purple-100"
+                        >
+                          <ChevronDown className="h-3 w-3 mr-1" />
+                          Показать больше
+                        </Button>
+                      </>
+                    )
                   ) : (
                     response.experience
                   )}

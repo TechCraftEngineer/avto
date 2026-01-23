@@ -51,7 +51,12 @@ export const evaluateCandidate = protectedProcedure
 
     const response = await ctx.db.query.response.findFirst({
       where: eq(responseTable.id, input.candidateId),
-      columns: { id: true, entityId: true, entityType: true, globalCandidateId: true },
+      columns: {
+        id: true,
+        entityId: true,
+        entityType: true,
+        globalCandidateId: true,
+      },
     });
 
     if (!response) {
@@ -61,14 +66,14 @@ export const evaluateCandidate = protectedProcedure
       });
     }
 
-    let entityData: { id: string; workspaceId: string } | undefined = undefined;
+    let entityData: { id: string; workspaceId: string } | undefined ;
 
-    if (response.entityType === 'vacancy') {
+    if (response.entityType === "vacancy") {
       entityData = await ctx.db.query.vacancy.findFirst({
         where: eq(vacancy.id, response.entityId),
         columns: { id: true, workspaceId: true },
       });
-    } else if (response.entityType === 'gig') {
+    } else if (response.entityType === "gig") {
       entityData = await ctx.db.query.gig.findFirst({
         where: eq(gig.id, response.entityId),
         columns: { id: true, workspaceId: true },

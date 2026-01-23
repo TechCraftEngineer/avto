@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@qbs-autonaim/ui";
+import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui";
 import { Badge, Button } from "@qbs-autonaim/ui";
 import {
   DollarSign,
@@ -36,7 +31,8 @@ export function PricingCard({
   }
 
   // Расчет стоимости за день (если есть оба параметра)
-  const pricePerDay = price && deliveryDays ? Math.round(price / deliveryDays) : null;
+  const pricePerDay =
+    price && deliveryDays ? Math.round(price / deliveryDays) : null;
 
   // Моковые данные для сравнения с рынком (в реальном приложении приходили бы из API)
   const marketAveragePrice = 15000; // Средняя цена за подобную работу
@@ -45,7 +41,8 @@ export function PricingCard({
   const getPriceComparison = () => {
     if (!price) return null;
 
-    const difference = ((price - marketAveragePrice) / marketAveragePrice) * 100;
+    const difference =
+      ((price - marketAveragePrice) / marketAveragePrice) * 100;
 
     if (Math.abs(difference) < 10) {
       return {
@@ -127,9 +124,11 @@ export function PricingCard({
           {price && (
             <div className="text-center p-4 bg-emerald-50 rounded-lg border border-emerald-200">
               <div className="text-2xl font-bold text-emerald-600 mb-1">
-                {price.toLocaleString('ru-RU')} ₽
+                {price.toLocaleString("ru-RU")} ₽
               </div>
-              <div className="text-sm text-emerald-700 mb-2">Общая стоимость</div>
+              <div className="text-sm text-emerald-700 mb-2">
+                Общая стоимость
+              </div>
               {priceComparison && (
                 <Badge
                   variant="outline"
@@ -167,7 +166,7 @@ export function PricingCard({
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-lg font-semibold text-purple-900">
-                  {pricePerDay.toLocaleString('ru-RU')} ₽/день
+                  {pricePerDay.toLocaleString("ru-RU")} ₽/день
                 </div>
                 <div className="text-sm text-purple-700">
                   Средняя стоимость работы в день
@@ -181,11 +180,15 @@ export function PricingCard({
         {/* Рыночное сравнение */}
         {(price || deliveryDays) && (
           <div className="p-4 bg-gray-50 rounded-lg border">
-            <h4 className="font-medium text-gray-900 mb-3">Сравнение с рынком</h4>
+            <h4 className="font-medium text-gray-900 mb-3">
+              Сравнение с рынком
+            </h4>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div className="text-center">
                 <div className="text-gray-600">Средняя цена</div>
-                <div className="font-semibold">{marketAveragePrice.toLocaleString('ru-RU')} ₽</div>
+                <div className="font-semibold">
+                  {marketAveragePrice.toLocaleString("ru-RU")} ₽
+                </div>
               </div>
               <div className="text-center">
                 <div className="text-gray-600">Средние сроки</div>
@@ -208,10 +211,7 @@ export function PricingCard({
               </Button>
             )}
             {onAccept && (
-              <Button
-                onClick={onAccept}
-                className="flex-1"
-              >
+              <Button onClick={onAccept} className="flex-1">
                 Принять предложение
               </Button>
             )}

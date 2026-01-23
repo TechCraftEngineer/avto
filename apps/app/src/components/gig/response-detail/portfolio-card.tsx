@@ -1,20 +1,21 @@
 "use client";
 
 import {
+  Badge,
+  Button,
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@qbs-autonaim/ui";
-import { Button, Badge } from "@qbs-autonaim/ui";
 import {
-  FolderOpen,
-  ExternalLink,
   Download,
-  Image as ImageIcon,
+  ExternalLink,
   FileText,
-  Video,
+  FolderOpen,
+  Image as ImageIcon,
   Music,
+  Video,
 } from "lucide-react";
 import type { GigResponse } from "./types";
 
@@ -42,27 +43,27 @@ export function PortfolioCard({
     } catch {
       // Try with https:// prefix for relative URLs
       try {
-        return new URL('https://' + link).hostname;
+        return new URL(`https://${link}`).hostname;
       } catch {
         // Fallback to original link or empty string
-        return link || '';
+        return link || "";
       }
     }
   };
 
   const getFileIcon = (url: string) => {
-    const extension = url.split('.').pop()?.toLowerCase();
+    const extension = url.split(".").pop()?.toLowerCase();
 
-    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension || '')) {
+    if (["jpg", "jpeg", "png", "gif", "webp"].includes(extension || "")) {
       return <ImageIcon className="h-4 w-4" />;
     }
-    if (['mp4', 'avi', 'mov'].includes(extension || '')) {
+    if (["mp4", "avi", "mov"].includes(extension || "")) {
       return <Video className="h-4 w-4" />;
     }
-    if (['mp3', 'wav', 'aac'].includes(extension || '')) {
+    if (["mp3", "wav", "aac"].includes(extension || "")) {
       return <Music className="h-4 w-4" />;
     }
-    if (['pdf', 'doc', 'docx'].includes(extension || '')) {
+    if (["pdf", "doc", "docx"].includes(extension || "")) {
       return <FileText className="h-4 w-4" />;
     }
 
@@ -82,13 +83,11 @@ export function PortfolioCard({
         {portfolioLinks.length > 0 && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h4 className="font-medium text-gray-900">Работы ({portfolioLinks.length})</h4>
+              <h4 className="font-medium text-gray-900">
+                Работы ({portfolioLinks.length})
+              </h4>
               {onViewPortfolio && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={onViewPortfolio}
-                >
+                <Button variant="outline" size="sm" onClick={onViewPortfolio}>
                   Посмотреть все
                 </Button>
               )}
@@ -96,10 +95,11 @@ export function PortfolioCard({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {portfolioLinks.slice(0, 6).map((link, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border hover:bg-gray-100 transition-colors cursor-pointer"
-                  onClick={() => window.open(link, '_blank')}
+                <button
+                  key={link}
+                  type="button"
+                  className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border hover:bg-gray-100 transition-colors cursor-pointer w-full text-left"
+                  onClick={() => window.open(link, "_blank")}
                 >
                   <div className="flex-shrink-0 text-gray-500">
                     {getFileIcon(link)}
@@ -113,7 +113,7 @@ export function PortfolioCard({
                     </div>
                   </div>
                   <ExternalLink className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                </div>
+                </button>
               ))}
 
               {portfolioLinks.length > 6 && (
@@ -167,9 +167,9 @@ export function PortfolioCard({
               <div>
                 <div className="text-sm text-gray-600 mb-2">Навыки:</div>
                 <div className="flex flex-wrap gap-2">
-                  {response.skills.slice(0, 8).map((skill, index) => (
+                  {response.skills.slice(0, 8).map((skill, _index) => (
                     <Badge
-                      key={index}
+                      key={skill}
                       variant="outline"
                       className="bg-orange-50 text-orange-700 border-orange-300 text-xs"
                     >
