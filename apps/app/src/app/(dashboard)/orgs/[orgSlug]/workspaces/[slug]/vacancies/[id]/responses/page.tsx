@@ -42,8 +42,8 @@ export default function VacancyResponsesPage() {
       {/* Floating Chat */}
       <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
         {isChatOpen ? (
-          <Card className="border-none shadow-2xl bg-card/95 backdrop-blur-xl overflow-hidden w-[calc(100vw-2rem)] sm:w-80 h-[calc(100vh-8rem)] sm:h-96 animate-in slide-in-from-bottom-4 duration-300">
-            <div className="flex items-center justify-between p-3 border-b">
+          <Card className="border-none shadow-2xl bg-card/95 backdrop-blur-xl overflow-hidden w-[calc(100vw-2rem)] sm:w-96 h-[calc(100vh-1rem)] sm:h-[44rem] animate-in slide-in-from-bottom-4 duration-300 flex flex-col">
+            <div className="flex items-center justify-between p-3 border-b shrink-0">
               <div>
                 <h3 className="font-semibold text-sm">AI-ассистент</h3>
                 <p className="text-xs text-muted-foreground">
@@ -72,12 +72,13 @@ export default function VacancyResponsesPage() {
                 </svg>
               </button>
             </div>
-            <div className="h-[calc(100%-4rem)] sm:h-80">
+            <div className="flex-1 min-h-0">
               <RecruiterAgentChat
                 vacancyId={id}
                 title=""
                 subtitle=""
                 placeholder="Кого посмотреть первым? Какие вопросы задать?"
+                className="h-full"
               />
             </div>
           </Card>

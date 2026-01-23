@@ -1,12 +1,11 @@
 import { and, eq } from "@qbs-autonaim/db";
-import { CandidateRepository } from "@qbs-autonaim/db";
 import {
   freelanceImportHistory,
   type Response,
   response as responseTable,
 } from "@qbs-autonaim/db/schema";
 import { z } from "zod";
-import { CandidateService } from "../../services/candidate.service";
+import { ContactCandidateSyncService } from "../../services/contact-candidate-sync.service";
 import { ResponseParser } from "../../services/response-parser";
 import { protectedProcedure } from "../../trpc";
 import { createErrorHandler } from "../../utils/error-handler";
@@ -100,9 +99,6 @@ export const importBulkResponses = protectedProcedure
       let successCount = 0;
       let failureCount = 0;
 
-      // Инициализируем сервисы для работы с кандидатами
-      const candidateRepository = new CandidateRepository(ctx.db);
-      const candidateService = new CandidateService();
 
       // Обрабатываем каждый распарсенный отклик
       for (const parsed of parsedResponses) {
@@ -157,42 +153,46 @@ export const importBulkResponses = protectedProcedure
           // Create or find candidate in database
           let globalCandidateId: string | null = null;
           try {
-            // Create temporary response object for data extraction
-            const tempResponse: Partial<Response> = {
-              candidateName: parsed.freelancerName ?? null,
-              email: parsed.contactInfo.email ?? null,
-              phone: parsed.contactInfo.phone ?? null,
-              telegramUsername: parsed.contactInfo.telegram ?? null,
-              profileUrl: parsed.contactInfo.platformProfile ?? null,
-              platformProfileUrl: parsed.contactInfo.platformProfile ?? null,
-              experience: null,
-              skills: null,
-              importSource: input.platformSource,
-              profileData: null,
-              contacts: {
-                email: parsed.contactInfo.email,
-                phone: parsed.contactInfo.phone,
-                telegram: parsed.contactInfo.telegram,
-                platformProfileUrl: parsed.contactInfo.platformProfile,
-              },
-            };
+            const candidateSync = new ContactCandidateSyncService(ctx.db);
 
-            const candidateData =
-              candidateService.extractCandidateDataFromResponse(
-                tempResponse,
-                workspaceData.organizationId,
-              );
+            const syncResult = await candidateSync.syncCandidateFromContacts({
+              name: parsed.freelancerName,
+              email: parsed.contactInfo.email ?? undefined,
+              phone: parsed.contactInfo.phone ?? undefined,
+              telegramUsername: parsed.contactInfo.telegram ?? undefined,
+              platformProfileUrl: parsed.contactInfo.platformProfile ?? undefined,
+              organizationId: workspaceData.organizationId,
+              source: "IMPORT",
+              originalSource: input.platformSource,
+            });
 
-            const normalizedData =
-              candidateService.normalizeCandidateData(candidateData);
+            if (syncResult.hasContacts) {
+              globalCandidateId = syncResult.candidateId;
 
-            const { candidate } =
-              await candidateRepository.findOrCreateCandidate(normalizedData);
-
-            globalCandidateId = candidate.id;
+              // Логируем результат синхронизации
+              if (syncResult.created) {
+                console.log("Создан новый кандидат при импорте:", {
+                  candidateId: globalCandidateId,
+                  freelancerName: parsed.freelancerName,
+                });
+              } else if (syncResult.updated) {
+                console.log("Обновлен существующий кандидат при импорте:", {
+                  candidateId: globalCandidateId,
+                  freelancerName: parsed.freelancerName,
+                });
+              }
+            }
           } catch (error) {
-            // Log error but don't block response creation
-            console.error("Ошибка при создании/поиске кандидата:", error);
+            // Log detailed error information
+            console.error("Ошибка при синхронизации кандидата при импорте:", {
+              freelancerName: parsed.freelancerName,
+              platformProfile: parsed.contactInfo.platformProfile,
+              email: parsed.contactInfo.email,
+              phone: parsed.contactInfo.phone,
+              error: error instanceof Error ? error.message : String(error),
+              stack: error instanceof Error ? error.stack : undefined,
+            });
+            // Continue without candidate - response will still be created
           }
 
           // Создаём запись отклика

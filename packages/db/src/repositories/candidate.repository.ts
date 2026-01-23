@@ -1,16 +1,17 @@
 import { and, eq, or } from "drizzle-orm";
 import type { DbClient } from "../index";
-import type { StoredProfileData } from "../schema/types";
 import {
-  candidate,
   type Candidate,
+  candidate,
   type NewCandidate,
 } from "../schema/candidate/candidate";
+import type { StoredProfileData } from "../schema/types";
 
 export interface CandidateSearchParams {
   organizationId: string;
   email?: string | null;
   phone?: string | null;
+  telegramUsername?: string | null;
 }
 
 export interface CandidateDataFromResponse {
@@ -29,7 +30,17 @@ export interface CandidateDataFromResponse {
   experienceYears?: number | null;
   salaryExpectationsAmount?: number | null;
   source?: "APPLICANT" | "SOURCING" | "IMPORT" | "MANUAL" | "REFERRAL";
-  originalSource?: string;
+  originalSource?:
+    | "MANUAL"
+    | "HH"
+    | "AVITO"
+    | "SUPERJOB"
+    | "HABR"
+    | "KWORK"
+    | "FL_RU"
+    | "FREELANCE_RU"
+    | "WEB_LINK"
+    | "TELEGRAM";
   location?: string | null;
   birthDate?: Date | null;
   gender?: "male" | "female" | "other" | null;
@@ -59,6 +70,11 @@ export class CandidateRepository {
     }
     if (params.phone) {
       contactConditions.push(eq(candidate.phone, params.phone));
+    }
+    if (params.telegramUsername) {
+      contactConditions.push(
+        eq(candidate.telegramUsername, params.telegramUsername),
+      );
     }
 
     if (contactConditions.length === 0) {
@@ -275,6 +291,7 @@ export class CandidateRepository {
       organizationId: data.organizationId,
       email: data.email ?? null,
       phone: data.phone ?? null,
+      telegramUsername: data.telegramUsername ?? null,
     });
 
     if (existing) {
@@ -311,18 +328,7 @@ export class CandidateRepository {
       experienceYears: data.experienceYears ?? null,
       salaryExpectationsAmount: data.salaryExpectationsAmount ?? null,
       source: data.source ?? "APPLICANT",
-      originalSource:
-        (data.originalSource as
-          | "MANUAL"
-          | "HH"
-          | "AVITO"
-          | "SUPERJOB"
-          | "HABR"
-          | "KWORK"
-          | "FL_RU"
-          | "FREELANCE_RU"
-          | "WEB_LINK"
-          | "TELEGRAM") ?? "MANUAL",
+      originalSource: data.originalSource ?? "MANUAL",
       location: data.location ?? null,
       birthDate: data.birthDate ?? null,
       gender: data.gender ?? null,

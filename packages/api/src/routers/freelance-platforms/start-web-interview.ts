@@ -4,6 +4,7 @@ import {
   interviewSession,
   response as responseTable,
 } from "@qbs-autonaim/db/schema";
+import { ContactCandidateSyncService } from "../../services/contact-candidate-sync.service";
 import { inngest } from "@qbs-autonaim/jobs/client";
 import { z } from "zod";
 import { publicProcedure } from "../../trpc";
@@ -263,6 +264,29 @@ async function handleVacancyInterview(
     );
   }
 
+  // Создаём кандидата в глобальном пуле талантов
+  try {
+    const candidateSync = new ContactCandidateSyncService(ctx.db);
+    const contactData = ContactCandidateSyncService.extractContactsFromFreelancerInfo(freelancerInfo);
+    const syncResult = await candidateSync.syncCandidateFromContacts({
+      ...contactData,
+      organizationId: vacancy.workspace.organizationId,
+      source: "APPLICANT",
+      originalSource: "WEB_LINK",
+    });
+
+    if (syncResult.hasContacts) {
+      // Обновляем отклик с ссылкой на кандидата
+      await ctx.db
+        .update(responseTable)
+        .set({ globalCandidateId: syncResult.candidateId })
+        .where(eq(responseTable.id, response.id));
+    }
+  } catch (error) {
+    console.error("Ошибка при создании кандидата в глобальном пуле:", error);
+    // Не прерываем основной поток - отклик уже создан
+  }
+
   // Запускаем парсинг профиля в фоне
   try {
     await inngest.send({
@@ -498,6 +522,29 @@ async function handleGigInterview(
         freelancerName: freelancerInfo.name,
       },
     );
+  }
+
+  // Создаём кандидата в глобальном пуле талантов
+  try {
+    const candidateSync = new ContactCandidateSyncService(ctx.db);
+    const contactData = ContactCandidateSyncService.extractContactsFromFreelancerInfo(freelancerInfo);
+    const syncResult = await candidateSync.syncCandidateFromContacts({
+      ...contactData,
+      organizationId: gig.workspace.organizationId,
+      source: "APPLICANT",
+      originalSource: "WEB_LINK",
+    });
+
+    if (syncResult.hasContacts) {
+      // Обновляем отклик с ссылкой на кандидата
+      await ctx.db
+        .update(responseTable)
+        .set({ globalCandidateId: syncResult.candidateId })
+        .where(eq(responseTable.id, response.id));
+    }
+  } catch (error) {
+    console.error("Ошибка при создании кандидата в глобальном пуле:", error);
+    // Не прерываем основной поток - отклик уже создан
   }
 
   // Запускаем парсинг профиля в фоне

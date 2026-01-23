@@ -13,8 +13,9 @@ import {
   vacancy,
 } from "@qbs-autonaim/db/schema";
 import { CandidateRepository } from "@qbs-autonaim/db";
+import { ContactCandidateSyncService } from "../../services/contact-candidate-sync.service";
 import { TRPCError } from "@trpc/server";
-import { and, eq } from "@qbs-autonaim/db";
+import { and, eq, candidate } from "@qbs-autonaim/db";
 import { nanoid } from "nanoid";
 import { z } from "zod";
 import { CandidateService } from "../../services/candidate.service";
@@ -138,54 +139,82 @@ export const submitApplication = publicProcedure
       // Create or find candidate in database
       let globalCandidateId: string | null = null;
       try {
-        const candidateRepository = new CandidateRepository(ctx.db);
-        const candidateService = new CandidateService();
+        const candidateSync = new ContactCandidateSyncService(ctx.db);
 
-        // Create temporary response object for data extraction
-        const tempResponse: Partial<Response> = {
-          candidateName: candidateInfo?.name ?? null,
-          email: candidateInfo?.email ?? null,
-          phone: candidateInfo?.phone ?? null,
-          telegramUsername: null,
-          profileUrl: null,
-          experience: null,
-          skills: null,
-          importSource: "WEB_LINK",
-          profileData: null,
-          contacts: {
-            email: candidateInfo?.email,
-            phone: candidateInfo?.phone,
-            prequalificationSessionId: session.id,
-            fitScore: session.fitScore,
-            fitDecision: session.fitDecision,
-            aiSummary: evaluation?.aiSummary,
-            strengths: evaluation?.strengths,
-            risks: evaluation?.risks,
-            recommendation: evaluation?.recommendation,
-            contactPreferences: input.contactPreferences,
-          },
-        };
+        // Синхронизируем кандидата с контактными данными
+        const syncResult = await candidateSync.syncCandidateFromContacts({
+          name: candidateInfo?.name,
+          email: candidateInfo?.email || undefined,
+          phone: candidateInfo?.phone || undefined,
+          telegramUsername: undefined,
+          organizationId: workspaceData.organizationId,
+          source: "APPLICANT",
+          originalSource: "WEB_LINK",
+          additionalData: session.parsedResume?.structured?.personalInfo ? {
+            location: session.parsedResume.structured.personalInfo.location,
+          } : undefined,
+        });
 
-        const candidateData = candidateService.extractCandidateDataFromResponse(
-          tempResponse,
-          workspaceData.organizationId,
-        );
+        if (syncResult.hasContacts) {
+          globalCandidateId = syncResult.candidateId;
 
-        // Enrich with parsed resume data
-        const enrichedData = session.parsedResume
-          ? candidateService.enrichCandidateFromResume(
+          // Если есть дополнительные данные из резюме, обновляем кандидата
+          if (session.parsedResume?.structured) {
+            const candidateService = new CandidateService();
+
+            const tempResponse: Partial<Response> = {
+              candidateName: candidateInfo?.name ?? null,
+              email: candidateInfo?.email ?? null,
+              phone: candidateInfo?.phone ?? null,
+              telegramUsername: null,
+              profileUrl: null,
+              experience: null,
+              skills: null,
+              importSource: "WEB_LINK",
+              profileData: null,
+              contacts: {
+                email: candidateInfo?.email,
+                phone: candidateInfo?.phone,
+                prequalificationSessionId: session.id,
+                fitScore: session.fitScore,
+                fitDecision: session.fitDecision,
+                aiSummary: evaluation?.aiSummary,
+                strengths: evaluation?.strengths,
+                risks: evaluation?.risks,
+                recommendation: evaluation?.recommendation,
+                contactPreferences: input.contactPreferences,
+              },
+            };
+
+            const candidateData = candidateService.extractCandidateDataFromResponse(
+              tempResponse,
+              workspaceData.organizationId,
+            );
+
+            const enrichedData = candidateService.enrichCandidateFromResume(
               candidateData,
               session.parsedResume,
-            )
-          : candidateData;
+            );
 
-        const normalizedData =
-          candidateService.normalizeCandidateData(enrichedData);
+            const normalizedData = candidateService.normalizeCandidateData(enrichedData);
 
-        const { candidate } =
-          await candidateRepository.findOrCreateCandidate(normalizedData);
+            // Обновляем кандидата дополнительными данными
+            const existingCandidate = await ctx.db.query.candidate.findFirst({
+              where: eq(candidate.id, globalCandidateId),
+            });
 
-        globalCandidateId = candidate.id;
+            if (existingCandidate) {
+              const candidateRepository = new CandidateRepository(ctx.db);
+              const mergedData = candidateRepository.mergeCandidateData(existingCandidate, normalizedData);
+              if (Object.keys(mergedData).length > 0) {
+                await ctx.db
+                  .update(candidate)
+                  .set(mergedData)
+                  .where(eq(candidate.id, globalCandidateId));
+              }
+            }
+          }
+        }
       } catch (error) {
         // Log error but don't block response creation
         console.error("Ошибка при создании/поиске кандидата:", error);
