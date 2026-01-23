@@ -8,7 +8,7 @@ import {
   useScreeningSubscription,
 } from "./use-screening-subscription";
 
-export interface ScreeningState {
+export interface ScreeningStateData {
   dialogOpen: boolean;
   error: string | null;
   status: "idle" | "loading" | "success" | "error";
@@ -17,13 +17,19 @@ export interface ScreeningState {
   subscriptionActive: boolean;
 }
 
+export interface ScreeningState extends ScreeningStateData {
+  setDialogOpen: (open: boolean) => void;
+  handleClick: () => Promise<void>;
+  handleDialogClose: () => void;
+}
+
 export function useScreeningState(
   vacancyId: string,
   type: "new" | "all",
   onScreen: () => void,
   onScreeningDialogClose: () => void,
 ) {
-  const [state, setState] = useState<ScreeningState>({
+  const [state, setState] = useState<ScreeningStateData>({
     dialogOpen: false,
     error: null,
     status: "idle",
@@ -61,7 +67,7 @@ export function useScreeningState(
       type === "new"
         ? fetchScreenNewResponsesToken
         : fetchScreenAllResponsesToken,
-    onProgress: useCallback((message, progress) => {
+    onProgress: useCallback((message: string, progress: ScreeningProgress | null) => {
       setState((prev) => ({
         ...prev,
         message,
@@ -69,7 +75,7 @@ export function useScreeningState(
       }));
     }, []),
     onComplete: useCallback(
-      (success, progress) => {
+      (success: boolean, progress: ScreeningProgress) => {
         setState((prev) => ({
           ...prev,
           progress,

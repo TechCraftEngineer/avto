@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import { fetchRefreshVacancyResponsesToken } from "~/actions/realtime";
 import { useRefreshSubscription } from "./use-refresh-subscription";
 
-export interface RefreshState {
+export interface RefreshStateData {
   dialogOpen: boolean;
   error: string | null;
   status: "idle" | "loading" | "success" | "error";
@@ -10,12 +10,18 @@ export interface RefreshState {
   subscriptionActive: boolean;
 }
 
+export interface RefreshState extends RefreshStateData {
+  setDialogOpen: (open: boolean) => void;
+  handleRefreshClick: () => Promise<void>;
+  handleDialogClose: () => void;
+}
+
 export function useRefreshState(
   vacancyId: string,
   onRefresh: () => void,
   onRefreshComplete: () => void,
 ) {
-  const [state, setState] = useState<RefreshState>({
+  const [state, setState] = useState<RefreshStateData>({
     dialogOpen: false,
     error: null,
     status: "idle",
@@ -32,7 +38,7 @@ export function useRefreshState(
       setState((prev) => ({ ...prev, message }));
     }, []),
     onStatusChange: useCallback(
-      (status, message) => {
+      (status: string, message: string) => {
         if (status === "completed") {
           setState((prev) => ({ ...prev, status: "success" }));
           onRefreshComplete();

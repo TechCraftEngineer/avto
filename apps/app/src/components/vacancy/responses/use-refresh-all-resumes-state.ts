@@ -5,7 +5,7 @@ import {
   useRefreshAllResumesSubscription,
 } from "./use-refresh-all-resumes-subscription";
 
-export interface RefreshAllResumesState {
+export interface RefreshAllResumesStateData {
   dialogOpen: boolean;
   error: string | null;
   status: "idle" | "loading" | "success" | "error";
@@ -14,12 +14,18 @@ export interface RefreshAllResumesState {
   subscriptionActive: boolean;
 }
 
+export interface RefreshAllResumesState extends RefreshAllResumesStateData {
+  setDialogOpen: (open: boolean) => void;
+  handleClick: () => Promise<void>;
+  handleDialogClose: () => void;
+}
+
 export function useRefreshAllResumesState(
   vacancyId: string,
   onRefreshAllResumes: () => void,
   onRefreshAllResumesDialogClose: () => void,
 ) {
-  const [state, setState] = useState<RefreshAllResumesState>({
+  const [state, setState] = useState<RefreshAllResumesStateData>({
     dialogOpen: false,
     error: null,
     status: "idle",

@@ -4,7 +4,7 @@ import { fetchSyncArchivedVacancyResponsesToken } from "~/actions/realtime";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useSyncArchivedSubscription } from "./use-sync-archived-subscription";
 
-export interface SyncArchivedState {
+export interface SyncArchivedStateData {
   dialogOpen: boolean;
   error: string | null;
   status: "idle" | "loading" | "success" | "error";
@@ -15,13 +15,19 @@ export interface SyncArchivedState {
   subscriptionActive: boolean;
 }
 
+export interface SyncArchivedState extends SyncArchivedStateData {
+  setDialogOpen: (open: boolean) => void;
+  handleClick: () => Promise<void>;
+  handleDialogClose: () => void;
+}
+
 export function useSyncArchivedState(
   vacancyId: string,
   onSyncArchived: (workspaceId: string) => void,
   onRefreshComplete: () => void,
 ) {
   const { workspace } = useWorkspace();
-  const [state, setState] = useState<SyncArchivedState>({
+  const [state, setState] = useState<SyncArchivedStateData>({
     dialogOpen: false,
     error: null,
     status: "idle",
@@ -59,7 +65,7 @@ export function useSyncArchivedState(
     vacancyId,
     enabled: state.subscriptionActive,
     fetchToken: fetchSyncArchivedVacancyResponsesToken,
-    onMessage: useCallback((message, data) => {
+    onMessage: useCallback((message: string, data?: any) => {
       setState((prev) => {
         const newState = { ...prev, message };
         // Use data from realtime message if available
@@ -78,7 +84,7 @@ export function useSyncArchivedState(
       });
     }, []),
     onStatusChange: useCallback(
-      (status, message) => {
+      (status: string, message: string) => {
         if (status === "completed") {
           setState((prev) => ({ ...prev, status: "success" }));
           onRefreshComplete();
