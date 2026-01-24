@@ -1,7 +1,7 @@
 ---
 description: Правила разработки на TypeScript, включая типизацию, стиль кода, безопасность и лучшие практики
 alwaysApply: false
-globs: ["apps/app/**/*.ts"]
+globs: ["{apps,packages}/**/*.ts"]
 ---
 
 1. Именование и стиль кода:

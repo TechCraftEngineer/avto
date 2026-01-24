@@ -37,9 +37,18 @@ function InterviewLandingClient({ token }: { token: string }) {
     trpc.freelancePlatforms.startWebInterview.mutationOptions(),
   );
 
+  const startedRef = React.useRef(false);
+
   // Если кандидат уже известен, автоматически начинаем интервью
   React.useEffect(() => {
-    if (candidateData && data && !isLoadingCandidate) {
+    if (
+      candidateData &&
+      data &&
+      !isLoadingCandidate &&
+      !startInterviewMutation.isPending &&
+      !startedRef.current
+    ) {
+      startedRef.current = true;
       // Автоматически начинаем интервью с данными кандидата
       startInterviewMutation.mutate({
         token,
@@ -52,7 +61,7 @@ function InterviewLandingClient({ token }: { token: string }) {
         },
       });
     }
-  }, [candidateData, data, isLoadingCandidate, token, startInterviewMutation]);
+  }, [candidateData, data, isLoadingCandidate, token]);
 
   // Перенаправляем в чат после успешного начала интервью
   React.useEffect(() => {

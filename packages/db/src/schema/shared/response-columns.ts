@@ -132,3 +132,111 @@ export const responseTimestampColumns = {
 export const coverLetterColumn = {
   coverLetter: text("cover_letter"),
 };
+
+/**
+ * Эмоциональный анализ
+ */
+export const emotionalAnalysisColumns = {
+  emotionalTone: jsonb("emotional_tone").$type<{
+    enthusiasm: number;      // 0-100
+    confidence: number;     // 0-100
+    stressLevel: number;    // 0-100
+    authenticity: number;   // 0-100
+  }>(),
+  sentimentAnalysis: jsonb("sentiment_analysis").$type<{
+    overall: 'positive' | 'neutral' | 'negative';
+    scores: { positive: number; negative: number; neutral: number };
+  }>(),
+};
+
+/**
+ * Карьерная стабильность
+ */
+export const careerStabilityColumns = {
+  careerStability: jsonb("career_stability").$type<{
+    jobTenure: number;      // средняя продолжительность работы (месяцы)
+    growthRate: number;     // скорость роста зарплаты/позиций
+    riskFactors: string[];  // факторы риска (частые увольнения и т.д.)
+    stabilityScore: number; // 0-100
+  }>(),
+};
+
+/**
+ * Предиктивные метрики
+ */
+export const predictiveMetricsColumns = {
+  predictiveMetrics: jsonb("predictive_metrics").$type<{
+    retentionProbability: number;    // вероятность удержания (0-100)
+    performanceScore: number;        // предсказанная производительность (0-100)
+    culturalFitScore: number;        // соответствие культуре (0-100)
+    growthPotential: number;         // потенциал роста (0-100)
+  }>(),
+};
+
+/**
+ * Поведенческий анализ
+ */
+export const behavioralAnalysisColumns = {
+  behavioralPatterns: jsonb("behavioral_patterns").$type<{
+    responseTimePattern: {
+      averageResponseTime: number;   // среднее время ответа (сек)
+      consistency: number;           // consistency в скорости (0-100)
+      aiSuspicionLevel: number;      // уровень подозрения AI (0-100)
+    };
+    engagementMetrics: {
+      messageCount: number;
+      questionDepth: number;         // глубина вопросов
+      followUpRate: number;          // процент follow-up вопросов
+    };
+    communicationStyle: {
+      formality: number;             // формальность (0-100)
+      clarity: number;               // ясность (0-100)
+      persuasiveness: number;        // убедительность (0-100)
+    };
+  }>(),
+};
+
+/**
+ * DEI метрики
+ */
+export const deiMetricsColumns = {
+  deiMetrics: jsonb("dei_metrics").$type<{
+    diversity: {
+      gender: 'male' | 'female' | 'other' | 'unknown';
+      ageGroup: string;
+      ethnicity: string;
+      geography: string;
+    };
+    biasDetection: {
+      detectedBiases: string[];      // выявленные biases
+      fairnessScore: number;         // оценка fairness (0-100)
+      recommendations: string[];     // рекомендации по улучшению
+    };
+  }>(),
+};
+
+/**
+ * Внешние источники
+ */
+export const externalSourcesColumns = {
+  linkedInData: jsonb("linkedin_data").$type<{
+    profileUrl: string;
+    connections: number;
+    endorsements: any[];
+    experience: any[];
+    recommendations: any[];
+  }>(),
+  githubData: jsonb("github_data").$type<{
+    profileUrl: string;
+    repositories: any[];
+    contributions: number;
+    languages: any[];
+    activity: any[];
+  }>(),
+  portfolioAnalysis: jsonb("portfolio_analysis").$type<{
+    quality: number;                 // качество работ (0-100)
+    relevance: number;               // релевантность (0-100)
+    technicalSkills: string[];       // выявленные навыки
+    creativity: number;              // креативность (0-100)
+  }>(),
+};
