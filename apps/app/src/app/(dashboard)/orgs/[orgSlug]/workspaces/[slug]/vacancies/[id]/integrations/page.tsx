@@ -11,6 +11,9 @@ import { IconBolt, IconFilter, IconMessage } from "@tabler/icons-react";
 import { useParams } from "next/navigation";
 import { PageHeader } from "~/components/layout";
 import { VacancyIntegrationManager } from "~/components/vacancy";
+import { CommunicationChannelsIntegration } from "~/components/vacancy/integrations/communication-channels-integration";
+import { AutoResponsesIntegration } from "~/components/vacancy/integrations/auto-responses-integration";
+import { CandidateFiltersIntegration } from "~/components/vacancy/integrations/candidate-filters-integration";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 
 export default function VacancyIntegrationsPage() {
@@ -34,72 +37,29 @@ export default function VacancyIntegrationsPage() {
             />
           )}
 
-          {/* Будущие разделы настроек */}
-          <Card className="shadow-sm border-border/50">
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <IconMessage className="size-5 text-muted-foreground" />
-                Каналы коммуникации
-              </CardTitle>
-              <CardDescription className="text-sm text-muted-foreground">
-                Настройте каналы общения с кандидатами для каждой платформы
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-muted-foreground/50">
-                <IconMessage className="size-8 mx-auto mb-2" />
-                <p className="text-sm">
-                  Настройки каналов коммуникации скоро появятся
-                </p>
-                <p className="text-xs mt-1">
-                  Здесь можно будет настроить, как общаться с кандидатами из
-                  разных источников
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Каналы коммуникации */}
+          {workspaceId && workspaceId !== "" && (
+            <CommunicationChannelsIntegration
+              vacancyId={id}
+              workspaceId={workspaceId}
+            />
+          )}
 
-          <Card className="shadow-sm border-border/50">
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <IconBolt className="size-5 text-muted-foreground" />
-                Автоматические ответы
-              </CardTitle>
-              <CardDescription className="text-sm text-muted-foreground">
-                Настройте автоматические ответы кандидатам на разных этапах
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-muted-foreground/50">
-                <IconBolt className="size-8 mx-auto mb-2" />
-                <p className="text-sm">Автоматические ответы скоро появятся</p>
-                <p className="text-xs mt-1">
-                  Шаблоны ответов и автоответы кандидатам
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+         {/* Автоматические ответы */}
+         {workspaceId && workspaceId !== "" && (
+           <AutoResponsesIntegration
+             vacancyId={id}
+             workspaceId={workspaceId}
+           />
+         )}
 
-          <Card className="shadow-sm border-border/50">
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <IconFilter className="size-5 text-muted-foreground" />
-                Фильтры кандидатов
-              </CardTitle>
-              <CardDescription className="text-sm text-muted-foreground">
-                Настройте фильтры для автоматического отбора кандидатов
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-muted-foreground/50">
-                <IconFilter className="size-8 mx-auto mb-2" />
-                <p className="text-sm">Фильтры кандидатов скоро появятся</p>
-                <p className="text-xs mt-1">
-                  Автоматический отбор по критериям
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+         {/* Фильтры кандидатов */}
+         {workspaceId && workspaceId !== "" && (
+           <CandidateFiltersIntegration
+             vacancyId={id}
+             workspaceId={workspaceId}
+           />
+         )}
         </div>
       </div>
     </div>
