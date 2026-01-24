@@ -19,7 +19,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "zod": "4.3.6"
+    "zod": "4.3.6",
+    "dompurify": "^3.3.1"
   },
   "devDependencies": {
     "@qbs-autonaim/tsconfig": "workspace:*",

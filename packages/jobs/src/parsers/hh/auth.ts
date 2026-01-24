@@ -115,7 +115,7 @@ export async function checkAndPerformLogin(
     } else {
       console.log("✅ Уже авторизованы");
       // Если уже авторизованы, сохраняем cookies один раз
-      const cookies = await page.cookies();
+      const cookies = await page.browser().cookies();
       await saveCookies("hh", cookies, workspaceId);
     }
 

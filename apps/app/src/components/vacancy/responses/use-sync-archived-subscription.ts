@@ -12,7 +12,7 @@ const StatusDataSchema = z.object({
   vacancyTitle: z.string().optional(),
 });
 
-interface StatusData {
+export interface StatusData {
   status: string;
   message: string;
   vacancyId?: string;

@@ -92,6 +92,13 @@
       "when": 1769183700290,
       "tag": "0012_add_communication_channels",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1769251650045,
+      "tag": "0013_flashy_devos",
+      "breakpoints": true
     }
   ]
 }

@@ -69,6 +69,7 @@ export const createTRPCContext = async (opts: {
     userAgent,
     interviewToken,
     inngest,
+    headers: opts.headers,
   };
 };
 /**

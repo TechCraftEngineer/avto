@@ -69,39 +69,6 @@ export default async function createNextConfig(): Promise<NextConfig> {
               key: 'Permissions-Policy',
               value: 'camera=(), microphone=(), geolocation=()',
             },
-            {
-              key: 'Content-Security-Policy',
-              value: [
-                "default-src 'self'",
-                "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-                "style-src 'self' 'unsafe-inline'",
-                "img-src 'self' data: https:",
-                "font-src 'self' data:",
-                "connect-src 'self' https://api.openai.com https://api.deepseek.com",
-                "frame-src 'none'",
-                "object-src 'none'",
-                "base-uri 'self'",
-                "form-action 'self'",
-                "frame-ancestors 'none'",
-              ].join('; '),
-            },
-          ],
-        },
-        {
-          source: '/api/auth/(.*)',
-          headers: [
-            {
-              key: 'X-Rate-Limit-Limit',
-              value: '60',
-            },
-            {
-              key: 'X-Rate-Limit-Remaining',
-              value: '59',
-            },
-            {
-              key: 'X-Rate-Limit-Reset',
-              value: String(Math.floor(Date.now() / 1000) + 60),
-            },
           ],
         },
       ];

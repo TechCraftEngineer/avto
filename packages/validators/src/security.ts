@@ -4,6 +4,7 @@
  */
 
 import { z } from 'zod';
+import DOMPurify from 'dompurify';
 
 /**
  * Common validation patterns
@@ -34,10 +35,10 @@ export const PATTERNS = {
   HTML_TAGS: /<[^>]*>/g,
   
   // SQL injection patterns
-  SQL_INJECTION: /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION|SCRIPT)\b|\b(OR|AND)\s+\d+\s*=\s*\d+|--|;|\/\*|\*\/)/gi,
+  SQL_INJECTION: /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION|SCRIPT)\b|\b(OR|AND)\s+\d+\s*=\s*\d+|--|;|\/\*|\*\/)/i,
   
   // XSS patterns
-  XSS_PATTERNS: /(<script|javascript:|on\w+\s*=|data:text\/html)/gi,
+  XSS_PATTERNS: /(<script|javascript:|on\w+\s*=|data:text\/html)/i,
 } as const;
 
 /**
@@ -55,15 +56,26 @@ export const sanitize = {
    * Escape HTML entities
    */
   escapeHtml: (input: string): string => {
-    const div = document.createElement('div');
-    div.textContent = input;
-    return div.innerHTML;
+    const htmlEscapes: Record<string, string> = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#x27;',
+      '/': '&#x2F;',
+    };
+    
+    return input.replace(/[&<>"'\/]/g, (match) => htmlEscapes[match] || match);
   },
 
   /**
-   * Remove potential SQL injection patterns
+   * Warn about potential SQL injection patterns
+   * @deprecated This function only provides pattern detection and should NOT be used for SQL protection.
+   * Always use parameterized queries (prepared statements) for database operations.
+   * This function is intended for logging/alerting purposes only.
    */
-  sanitizeSql: (input: string): string => {
+  warnSqlPatterns: (input: string): string => {
+    console.warn('SQL pattern detected in input:', input);
     return input.replace(PATTERNS.SQL_INJECTION, '');
   },
 
@@ -130,14 +142,18 @@ export const secureSchemas = {
   // Safe HTML (limited tags allowed)
   safeHtml: z.string()
     .max(5000, 'HTML слишком длинный')
-    .transform(val => {
-      // Allow only safe HTML tags
-      const allowedTags = ['p', 'br', 'strong', 'em', 'u', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
-      return val.replace(/<[^>]*>/g, (match) => {
-        const tagName = match.replace(/<\/?([^\s>]+).*/, '$1').toLowerCase();
-        return allowedTags.includes(tagName) ? match : '';
-      });
-    }),
+    .transform(val => DOMPurify.sanitize(val, {
+      ALLOWED_TAGS: [
+        'p', 'br', 'strong', 'em', 'u', 'i', 'b',
+        'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+        'a', 'span', 'div', 'blockquote', 'code', 'pre'
+      ],
+      ALLOWED_ATTR: ['href', 'title', 'target', 'class'],
+      ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp|data):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
+      ADD_ATTR: ['target'],
+      FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed', 'form', 'input'],
+      FORBID_ATTR: ['onclick', 'onload', 'onerror', 'onmouseover', 'onfocus']
+    })),
 
   // File upload validation
   fileUpload: z.object({
@@ -177,7 +193,7 @@ export const secureSchemas = {
   searchQuery: z.string()
     .min(1, 'Поисковый запрос обязателен')
     .max(200, 'Поисковый запрос слишком длинный')
-    .transform(val => sanitize.sanitizeSql(val))
+    .transform(val => sanitize.warnSqlPatterns(val))
     .transform(val => sanitize.sanitizeXss(val)),
 };
 

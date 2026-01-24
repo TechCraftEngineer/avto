@@ -4,7 +4,7 @@
  */
 
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import type { NextRequest, NextResponse as NextResponseType } from 'next/server';
 
 /**
  * Security configuration
