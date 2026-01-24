@@ -1,4 +1,4 @@
-# V2 Agents (AI SDK 6)
+# AI Agents (AI SDK 6)
 
 Новое поколение агентов на базе AI SDK 6 `ToolLoopAgent`.
 
@@ -12,13 +12,15 @@
 
 ## Доступные агенты
 
-### InterviewerAgentV2
+### Интервью агенты
+
+#### InterviewerAgent
 Проводит интервью с кандидатом.
 
 ```typescript
-import { InterviewerAgentV2 } from "@qbs-autonaim/ai";
+import { InterviewerAgent } from "@qbs-autonaim/ai";
 
-const agent = new InterviewerAgentV2({ model: getAIModel() });
+const agent = new InterviewerAgent({ model: getAIModel() });
 
 const result = await agent.execute({
   currentAnswer: "У меня 5 лет опыта в React",
@@ -28,13 +30,13 @@ const result = await agent.execute({
 }, context);
 ```
 
-### EscalationDetectorAgentV2
+#### EscalationDetectorAgent
 Определяет необходимость эскалации к человеку.
 
 ```typescript
-import { EscalationDetectorAgentV2 } from "@qbs-autonaim/ai";
+import { EscalationDetectorAgent } from "@qbs-autonaim/ai";
 
-const agent = new EscalationDetectorAgentV2({ model: getAIModel() });
+const agent = new EscalationDetectorAgent({ model: getAIModel() });
 
 const result = await agent.execute({
   message: "Хочу поговорить с живым человеком",
@@ -42,13 +44,13 @@ const result = await agent.execute({
 }, context);
 ```
 
-### InterviewCompletionAgentV2
+#### InterviewCompletionAgent
 Генерирует финальное сообщение после интервью.
 
 ```typescript
-import { InterviewCompletionAgentV2 } from "@qbs-autonaim/ai";
+import { InterviewCompletionAgent } from "@qbs-autonaim/ai";
 
-const agent = new InterviewCompletionAgentV2({ model: getAIModel() });
+const agent = new InterviewCompletionAgent({ model: getAIModel() });
 
 const result = await agent.execute({
   questionCount: 5,
@@ -56,13 +58,13 @@ const result = await agent.execute({
 }, context);
 ```
 
-### InterviewOrchestratorV2
-Координирует работу всех агентов.
+#### InterviewOrchestrator
+Координирует работу всех агентов для голосовых интервью.
 
 ```typescript
-import { InterviewOrchestratorV2 } from "@qbs-autonaim/ai";
+import { InterviewOrchestrator } from "@qbs-autonaim/ai";
 
-const orchestrator = new InterviewOrchestratorV2({
+const orchestrator = new InterviewOrchestrator({
   model: getAIModel(),
   maxSteps: 10,
 });
@@ -70,95 +72,173 @@ const orchestrator = new InterviewOrchestratorV2({
 const result = await orchestrator.execute(input, context);
 ```
 
-## Конфигурация
+#### WebInterviewOrchestrator
+Координирует работу всех агентов для WEB интервью со стримингом.
 
 ```typescript
-interface ToolLoopAgentConfig {
-  model: LanguageModel;        // AI модель
-  maxTokens?: number;           // Не используется в ToolLoopAgent
-  maxSteps?: number;            // Максимум шагов (default: 10)
-}
-```
+import { WebInterviewOrchestrator } from "@qbs-autonaim/ai";
 
-## Примеры
-
-### Базовое использование
-
-```typescript
-import { getAIModel } from "@qbs-autonaim/lib";
-import { InterviewerAgentV2 } from "@qbs-autonaim/ai";
-
-const model = getAIModel();
-const agent = new InterviewerAgentV2({ model });
-
-const result = await agent.execute(input, context);
-
-if (result.success) {
-  console.log(result.data.nextQuestion);
-} else {
-  console.error(result.error);
-}
-```
-
-### С оркестратором
-
-```typescript
-import { InterviewOrchestratorV2 } from "@qbs-autonaim/ai";
-
-const orchestrator = new InterviewOrchestratorV2({
+const orchestrator = new WebInterviewOrchestrator({
   model: getAIModel(),
-  maxSteps: 15,
 });
 
 const result = await orchestrator.execute({
-  currentAnswer: "Да, готов начать",
-  currentQuestion: "Готовы к интервью?",
-  previousQA: [],
-  questionNumber: 0,
+  message: "Здравствуйте!",
+  history: [],
 }, context);
+```
 
-if (result.shouldEscalate) {
-  console.log("Эскалация:", result.escalationReason);
-} else if (result.shouldContinue) {
-  console.log("Следующий вопрос:", result.nextQuestion);
+### Рекрутерские агенты
+
+#### IntentClassifierAgent
+Классифицирует намерение пользователя.
+
+```typescript
+import { IntentClassifierAgent } from "@qbs-autonaim/ai";
+
+const agent = new IntentClassifierAgent({ model: getAIModel() });
+
+const result = await agent.execute({
+  message: "Найди кандидатов на позицию frontend разработчика",
+  conversationHistory: [],
+}, context);
+```
+
+#### CandidateSearchAgent
+Ищет кандидатов по заданным критериям.
+
+```typescript
+import { CandidateSearchAgent } from "@qbs-autonaim/ai";
+
+const agent = new CandidateSearchAgent({ model: getAIModel() });
+
+const result = await agent.execute({
+  position: "Frontend Developer",
+  skills: ["React", "TypeScript"],
+  experience: 3,
+}, context);
+```
+
+#### ContentGeneratorAgent
+Генерирует контент вакансий (заголовки, описания, требования).
+
+```typescript
+import { ContentGeneratorAgent } from "@qbs-autonaim/ai";
+
+const agent = new ContentGeneratorAgent({ model: getAIModel() });
+
+const result = await agent.execute({
+  type: "full_vacancy",
+  position: "Frontend Developer",
+  context: {
+    company: "TechCorp",
+    industry: "IT",
+    skills: ["React", "TypeScript", "Next.js"],
+    experience: 3,
+    salaryFrom: 100000,
+    salaryTo: 150000,
+    location: "Москва",
+    remote: true,
+  },
+}, context);
+```
+
+#### CommunicationAgent
+Генерирует персонализированные сообщения для кандидатов.
+
+```typescript
+import { CommunicationAgent } from "@qbs-autonaim/ai";
+
+const agent = new CommunicationAgent({ model: getAIModel() });
+
+const result = await agent.execute({
+  type: "invite",
+  candidate: {
+    id: "123",
+    name: "Иван Иванов",
+    position: "Frontend Developer",
+    experience: 3,
+    skills: ["React", "TypeScript"],
+  },
+  vacancy: {
+    id: "vac123",
+    title: "Frontend Developer",
+    company: "TechCorp",
+  },
+  channel: "email",
+}, context);
+```
+
+## Конфигурация
+
+```typescript
+interface AgentConfig {
+  model: LanguageModel;        // AI модель
+  maxSteps?: number;            // Максимум шагов (default: 25)
+  langfuse?: Langfuse;         // Langfuse для трассировки
+  traceId?: string;            // ID трассировки
+  tools?: ToolSet;             // Инструменты для агентов
 }
 ```
 
-## Advanced Features
+## Фабрика агентов
 
-### Добавление Tools
+Для удобного создания агентов используйте `AgentFactory`:
 
-См. `examples/interviewer-with-tools.ts` для примера агента с инструментами.
+```typescript
+import { AgentFactory } from "@qbs-autonaim/ai";
+import { getAIModel } from "@qbs-autonaim/lib";
 
-### Loop Control
+const factory = new AgentFactory({
+  model: getAIModel(),
+  langfuse: getLangfuseInstance(),
+  maxSteps: 10,
+});
 
-См. `examples/advanced-loop-control.ts` для примеров:
-- Динамическое переключение моделей
-- Кастомные условия остановки
-- Фазовое выполнение
+// Создание интервью агента
+const interviewer = factory.createInterviewer();
 
-## Миграция с V1
-
-См. `MIGRATION_V2.md` в корне пакета.
+// Создание рекрутерского агента
+const intentClassifier = factory.createIntentClassifierAgent();
+```
 
 ## Архитектура
 
 ```
-BaseToolLoopAgent (абстрактный)
-  ├── InterviewerAgentV2
-  ├── EscalationDetectorAgentV2
-  └── InterviewCompletionAgentV2
-
-InterviewOrchestratorV2 (координатор)
+BaseAgent (абстрактный)
+├── Интервью агенты
+│   ├── InterviewerAgent
+│   ├── EscalationDetectorAgent
+│   ├── InterviewCompletionAgent
+│   ├── InterviewOrchestrator
+│   └── WebInterviewOrchestrator
+├── Рекрутерские агенты
+│   ├── IntentClassifierAgent
+│   ├── CandidateSearchAgent
+│   ├── ContentGeneratorAgent
+│   ├── CommunicationAgent
+│   ├── VacancyAnalyticsAgent
+│   ├── PriorityAgent
+│   ├── InterviewQuestionsAgent
+│   ├── CareerTrajectoryAgent
+│   ├── CandidateEvaluatorAgent
+│   ├── ComparisonAgent
+│   ├── RecommendationAgent
+│   └── SummaryAgent
+└── Дополнительные агенты
+    ├── ContextAnalyzerAgent
+    ├── GreetingDetectorAgent
+    ├── ResumeStructurerAgent
+    ├── SalaryExtractionAgent
+    ├── BotUsageDetectorAgent
+    └── BotSummaryAnalyzerAgent
 ```
 
 Каждый агент:
-1. Наследуется от `BaseToolLoopAgent`
+1. Наследуется от `BaseAgent`
 2. Определяет Zod схему для output
 3. Реализует `validate()` и `buildPrompt()`
 4. Автоматически получает structured output через AI SDK
-
-
 ## Структура папок
 
 После рефакторинга агенты организованы по функциональным группам:

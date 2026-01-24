@@ -2,11 +2,11 @@
  * Оркестратор для WEB интервью со стримингом
  */
 
-import { generateText } from "@qbs-autonaim/lib/ai";
 import type { LanguageModel } from "ai";
 import type { Langfuse } from "langfuse";
 import { z } from "zod";
-import { extractJsonObject } from "../../utils/json-extractor";
+import { type AgentConfig, BaseAgent } from "../core/base-agent";
+import { AgentType } from "../core/types";
 import {
   buildContextAnalyzerPrompt,
   buildGigInterviewPrompt,
@@ -26,10 +26,7 @@ export type {
   WebInterviewContext,
 } from "./types";
 
-export interface WebInterviewOrchestratorConfig {
-  model: LanguageModel;
-  langfuse?: Langfuse;
-}
+export interface WebInterviewOrchestratorConfig extends AgentConfig {}
 
 const contextAnalysisSchema = z.object({
   messageType: z.enum([
@@ -44,79 +41,64 @@ const contextAnalysisSchema = z.object({
   escalationReason: z.string().nullable(),
 });
 
-export class WebInterviewOrchestrator {
-  private model: LanguageModel;
-  private langfuse?: Langfuse;
-  private traceId?: string;
+const webInterviewOrchestratorInputSchema = z.object({
+  message: z.string().min(1).max(1000),
+  history: z.array(
+    z.object({
+      sender: z.enum(["CANDIDATE", "BOT"]),
+      content: z.string().min(1).max(1000),
+    }),
+  ),
+});
 
+export interface WebInterviewOrchestratorInput extends z.infer<typeof webInterviewOrchestratorInputSchema> {}
+
+export type WebInterviewOrchestratorOutput = z.infer<typeof contextAnalysisSchema>;
+
+export class WebInterviewOrchestrator extends BaseAgent<
+  WebInterviewOrchestratorInput,
+  WebInterviewOrchestratorOutput
+> {
   constructor(config: WebInterviewOrchestratorConfig) {
-    this.model = config.model;
-    this.langfuse = config.langfuse;
+    const instructions = `Ты — эксперт по анализу контекста сообщений в рамках WEB интервью.
+Твоя задача:
+1. Определить тип последнего сообщения кандидата
+2. Понять, требуется ли ответ от бота
+3. Определить, нужно ли эскалировать к живому рекрутеру
+
+КРИТЕРИИ ОПРЕДЕЛЕНИЯ ТИПА СООБЩЕНИЯ:
+- ANSWER: Кандидат отвечает на вопрос
+- QUESTION: Кандидат задает вопрос
+- ACKNOWLEDGMENT: Кандидат подтверждает понял (например, "ок", "понятно")
+- OFF_TOPIC: Сообщение не по теме интервью
+- CONTINUATION: Кандидат продолжает свой ответ
+
+КРИТЕРИИ ЭСКАЛАЦИИ:
+- Запрос на общение с живым человеком
+- Агрессивное или неадекватное поведение
+- Сложные вопросы о компании/условиях
+- Технические проблемы
+- Жалобы или конфликтные ситуации`;
+
+    super(
+      "WebInterviewOrchestrator",
+      AgentType.ORCHESTRATOR,
+      instructions,
+      contextAnalysisSchema,
+      config,
+      webInterviewOrchestratorInputSchema,
+    );
   }
 
-  setTraceId(traceId: string) {
-    this.traceId = traceId;
+  protected validate(input: WebInterviewOrchestratorInput): boolean {
+    return !!input.message && Array.isArray(input.history);
   }
 
-  async analyzeContext(
-    message: string,
-    history: Array<{ sender: "CANDIDATE" | "BOT"; content: string }>,
-  ): Promise<ContextAnalysisResult> {
-    const prompt = buildContextAnalyzerPrompt(message, history);
-
-    const span = this.langfuse?.span({
-      traceId: this.traceId,
-      name: "context-analysis",
-      input: { message, historyLength: history.length, prompt },
-    });
-
-    try {
-      const result = await generateText({
-        model: this.model,
-        prompt,
-        generationName: "web-interview-context-analysis",
-        entityId: this.traceId,
-      });
-
-      const jsonObject = extractJsonObject(result.text);
-      if (jsonObject) {
-        const parsed = contextAnalysisSchema.safeParse(jsonObject);
-        if (parsed.success) {
-          const output = {
-            ...parsed.data,
-            escalationReason: parsed.data.escalationReason ?? undefined,
-          };
-
-          span?.end({
-            output,
-            metadata: { success: true, rawResponse: result.text },
-          });
-
-          return output;
-        }
-      }
-
-      span?.end({
-        output: { error: "Failed to parse response" },
-        metadata: { success: false, rawResponse: result.text },
-      });
-    } catch (error) {
-      console.error(
-        "[WebInterviewOrchestrator] Context analysis failed:",
-        error,
-      );
-
-      span?.end({
-        output: { error: error instanceof Error ? error.message : "Unknown" },
-        metadata: { success: false },
-      });
-    }
-
-    return {
-      messageType: "ANSWER",
-      requiresResponse: true,
-      shouldEscalate: false,
-    };
+  protected buildPrompt(
+    input: WebInterviewOrchestratorInput,
+    _context: unknown,
+  ): string {
+    return buildContextAnalyzerPrompt(input.message, input.history);
   }
 
   buildVacancyPrompt(

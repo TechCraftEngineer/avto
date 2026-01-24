@@ -56,6 +56,7 @@ export abstract class BaseAgent<TInput, TOutput> {
   protected readonly langfuse?: Langfuse;
   protected readonly traceId?: string;
   protected readonly outputSchema: ZodType<TOutput>;
+  protected readonly inputSchema?: ZodType<TInput>;
   private readonly modelProvider?: string;
   private readonly modelName?: string;
 
@@ -65,12 +66,14 @@ export abstract class BaseAgent<TInput, TOutput> {
     instructions: string,
     outputSchema: ZodType<TOutput>,
     config: AgentConfig,
+    inputSchema?: ZodType<TInput>,
   ) {
     this.name = name;
     this.type = type;
     this.langfuse = config.langfuse;
     this.traceId = config.traceId;
     this.outputSchema = outputSchema;
+    this.inputSchema = inputSchema;
     this.modelProvider = config.modelProvider;
     this.modelName = config.modelName;
 
@@ -85,7 +88,17 @@ export abstract class BaseAgent<TInput, TOutput> {
     });
   }
 
-  protected abstract validate(input: TInput): boolean;
+  protected validate(input: TInput): boolean {
+    if (this.inputSchema) {
+      const validationResult = this.inputSchema.safeParse(input);
+      if (!validationResult.success) {
+        console.error(`[${this.name}] Input validation failed:`, validationResult.error);
+        return false;
+      }
+    }
+    return true;
+  }
+
   protected abstract buildPrompt(input: TInput, context: unknown): string;
 
   async execute(
