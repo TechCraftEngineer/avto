@@ -8,6 +8,15 @@ import { TRPCError } from "@trpc/server";
 import type { TRPCContext } from "../trpc";
 
 /**
+ * Middleware options interface for better type safety
+ */
+interface SecurityAuditMiddlewareOptions {
+  ctx: TRPCContext;
+  next: () => Promise<unknown>;
+  path: string;
+}
+
+/**
  * Security audit middleware factory
  */
 export function createSecurityAuditMiddleware() {
@@ -15,11 +24,7 @@ export function createSecurityAuditMiddleware() {
     ctx,
     next,
     path,
-  }: {
-    ctx: TRPCContext;
-    next: () => Promise<any>;
-    path: string;
-  }) => {
+  }: SecurityAuditMiddlewareOptions) => {
     const startTime = Date.now();
     const userId = ctx.session?.user?.id;
     const ipAddress = ctx.ipAddress;
