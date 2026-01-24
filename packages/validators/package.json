@@ -19,7 +19,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "isomorphic-dompurify": "^2.16.0",
     "zod": "4.3.6"
   },
   "devDependencies": {

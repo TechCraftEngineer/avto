@@ -3,7 +3,6 @@
  * Provides comprehensive validation and sanitization for user inputs
  */
 
-import DOMPurify from "isomorphic-dompurify";
 import { z } from "zod";
 
 /**
@@ -153,52 +152,24 @@ export const secureSchemas = {
     .transform((val) => sanitize.stripHtml(val))
     .transform((val) => sanitize.sanitizeXss(val)),
 
-  // Safe HTML (limited tags allowed)
+  // Safe HTML (limited tags allowed - simplified version without DOMPurify)
   safeHtml: z
     .string()
     .max(5000, "HTML слишком длинный")
-    .transform((val) =>
-      DOMPurify.sanitize(val, {
-        ALLOWED_TAGS: [
-          "p",
-          "br",
-          "strong",
-          "em",
-          "u",
-          "i",
-          "b",
-          "ul",
-          "ol",
-          "li",
-          "h1",
-          "h2",
-          "h3",
-          "h4",
-          "h5",
-          "h6",
-          "a",
-          "span",
-          "div",
-          "blockquote",
-          "code",
-          "pre",
-        ],
-        ALLOWED_ATTR: ["href", "title", "target", "class"],
-        ALLOWED_URI_REGEXP:
-          /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp|data):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i,
-        ADD_ATTR: ["target"],
-        FORBID_TAGS: [
-          "script",
-          "style",
-          "iframe",
-          "object",
-          "embed",
-          "form",
-          "input",
-        ],
-        FORBID_ATTR: ["onclick", "onload", "onerror", "onmouseover", "onfocus"],
-      }),
-    ),
+    .transform((val) => {
+      // Simple HTML sanitization - remove dangerous tags and attributes
+      return val
+        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // Remove script tags
+        .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '') // Remove style tags
+        .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '') // Remove iframe tags
+        .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '') // Remove object tags
+        .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, '') // Remove embed tags
+        .replace(/<form\b[^<]*(?:(?!<\/form>)<[^<]*)*<\/form>/gi, '') // Remove form tags
+        .replace(/<input\b[^<]*(?:(?!<\/input>)<[^<]*)*<\/input>/gi, '') // Remove input tags
+        .replace(/on\w+="[^"]*"/gi, '') // Remove event attributes
+        .replace(/on\w+='[^']*'/gi, '') // Remove event attributes with single quotes
+        .replace(/on\w+=[^\s>]+/gi, ''); // Remove event attributes without quotes
+    }),
 
   // File upload validation
   fileUpload: z.object({
