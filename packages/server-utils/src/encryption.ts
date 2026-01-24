@@ -19,7 +19,7 @@ const ENCRYPTION_CONFIG = {
   ivLength: 16, // 128 bits
   tagLength: 16, // 128 bits
   scryptParams: {
-    N: 32767, // CPU/memory cost parameter
+    N: 32768, // CPU/memory cost parameter
     r: 8, // block size parameter
     p: 1, // parallelization parameter
   },

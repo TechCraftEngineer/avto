@@ -323,12 +323,14 @@ interface InterviewChatProps {
   conversationId: string;
   apiEndpoint?: string;
   className?: string;
+  token?: string;
 }
 
 export function InterviewChat({
   conversationId,
   apiEndpoint = "/api/interview/chat/stream",
   className,
+  token,
 }: InterviewChatProps) {
   const trpc = useTRPC();
   const isInitializedRef = useRef(false);
@@ -393,7 +395,7 @@ export function InterviewChat({
     generateId: generateUUID,
     transport: new DefaultChatTransport({
       api: apiEndpoint,
-      body: { conversationId },
+      body: { conversationId, token },
     }),
     onError: (err) => {
       console.error("[InterviewChat] Error:", err);

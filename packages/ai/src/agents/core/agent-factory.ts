@@ -19,6 +19,19 @@ import { InterviewCompletionAgent } from "../interview/interview-completion";
 import { InterviewScoringAgent } from "../interview/interview-scoring";
 import { InterviewStartAgent } from "../interview/interview-start";
 import { InterviewerAgent } from "../interview/interviewer";
+import { WebInterviewOrchestrator } from "../interview/web-orchestrator";
+import { CareerTrajectoryAgent } from "../recruiter/career-trajectory-agent";
+import { CommunicationAgent } from "../recruiter/actions/communication";
+import { ContentGeneratorAgent } from "../recruiter/actions/content-generator";
+import { VacancyAnalyticsAgent } from "../recruiter/analytics/vacancy-analytics";
+import { IntentClassifierAgent } from "../recruiter/classification/intent-classifier";
+import { InterviewQuestionsAgent } from "../recruiter/interview/interview-questions-agent";
+import { PriorityAgent } from "../recruiter/priority/priority-agent";
+import { CandidateEvaluatorAgent } from "../recruiter/ranking/candidate-evaluator-agent";
+import { ComparisonAgent } from "../recruiter/ranking/comparison-agent";
+import { RecommendationAgent } from "../recruiter/ranking/recommendation-agent";
+import { SummaryAgent } from "../recruiter/ranking/summary-agent";
+import { CandidateSearchAgent } from "../recruiter/search/candidate-search";
 import type { AgentConfig } from "./base-agent";
 
 export interface AgentFactoryConfig {
@@ -96,6 +109,58 @@ export class AgentFactory {
 
   createInterviewer(overrides?: Partial<AgentConfig>) {
     return new InterviewerAgent(this.getAgentConfig(overrides));
+  }
+
+  createWebInterviewOrchestrator(overrides?: Partial<AgentConfig>) {
+    return new WebInterviewOrchestrator(this.getAgentConfig(overrides));
+  }
+
+  createCareerTrajectoryAgent(overrides?: Partial<AgentConfig>) {
+    return new CareerTrajectoryAgent(this.getAgentConfig(overrides));
+  }
+
+  createCommunicationAgent(overrides?: Partial<AgentConfig>) {
+    return new CommunicationAgent(this.getAgentConfig(overrides));
+  }
+
+  createContentGeneratorAgent(overrides?: Partial<AgentConfig>) {
+    return new ContentGeneratorAgent(this.getAgentConfig(overrides));
+  }
+
+  createVacancyAnalyticsAgent(overrides?: Partial<AgentConfig>) {
+    return new VacancyAnalyticsAgent(this.getAgentConfig(overrides));
+  }
+
+  createIntentClassifierAgent(overrides?: Partial<AgentConfig>) {
+    return new IntentClassifierAgent(this.getAgentConfig(overrides));
+  }
+
+  createInterviewQuestionsAgent(overrides?: Partial<AgentConfig>) {
+    return new InterviewQuestionsAgent(this.getAgentConfig(overrides));
+  }
+
+  createPriorityAgent(overrides?: Partial<AgentConfig>) {
+    return new PriorityAgent(this.getAgentConfig(overrides));
+  }
+
+  createCandidateEvaluatorAgent(overrides?: Partial<AgentConfig>) {
+    return new CandidateEvaluatorAgent(this.getAgentConfig(overrides));
+  }
+
+  createComparisonAgent(overrides?: Partial<AgentConfig>) {
+    return new ComparisonAgent(this.getAgentConfig(overrides));
+  }
+
+  createRecommendationAgent(overrides?: Partial<AgentConfig>) {
+    return new RecommendationAgent(this.getAgentConfig(overrides));
+  }
+
+  createSummaryAgent(overrides?: Partial<AgentConfig>) {
+    return new SummaryAgent(this.getAgentConfig(overrides));
+  }
+
+  createCandidateSearchAgent(overrides?: Partial<AgentConfig>) {
+    return new CandidateSearchAgent(this.getAgentConfig(overrides));
   }
 
   createPinHandler(overrides?: Partial<AgentConfig>) {

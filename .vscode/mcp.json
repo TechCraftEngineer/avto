@@ -38,13 +38,13 @@
     "playwright": {
       "type": "stdio",
       "command": "bunx",
-      "args": ["@playwright/mcp@latest"],
+      "args": ["@playwright/mcp@0.0.55"],
       "env": {}
     },
     "puppeteer": {
       "type": "stdio",
       "command": "bunx",
-      "args": ["@puppeteer/mcp-server@latest"],
+      "args": ["@modelcontextprotocol/server-puppeteer@2025.5.12"],
       "env": {}
     }
   },

@@ -87,6 +87,16 @@ export const vacancy = pgTable(
       telegram?: string;
     }>(),
 
+    // Настройки фильтров кандидатов
+    candidateFilters: jsonb("candidate_filters").$type<{
+      autoFilteringEnabled?: boolean;
+      minExperienceYears?: number;
+      requiredSkills?: string[];
+      preferredLocation?: string;
+      excludeKeywords?: string[];
+      minScoreThreshold?: number;
+    }>(),
+
     isActive: boolean("is_active").default(true),
     createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
       .defaultNow()
@@ -138,6 +148,16 @@ export const CreateVacancySchema = createInsertSchema(vacancy, {
       telegram: z.string().max(2000).optional(),
     })
     .optional(),
+  candidateFilters: z
+    .object({
+      autoFilteringEnabled: z.boolean().optional(),
+      minExperienceYears: z.number().min(0).max(20).optional(),
+      requiredSkills: z.array(z.string()).optional(),
+      preferredLocation: z.string().max(100).optional(),
+      excludeKeywords: z.array(z.string()).optional(),
+      minScoreThreshold: z.number().min(0).max(100).optional(),
+    })
+    .optional(),
 }).omit({
   id: true,
   createdAt: true,
@@ -159,6 +179,16 @@ export const UpdateVacancySettingsSchema = z.object({
     .object({
       webChat: z.string().max(2000).optional(),
       telegram: z.string().max(2000).optional(),
+    })
+    .optional(),
+  candidateFilters: z
+    .object({
+      autoFilteringEnabled: z.boolean().optional(),
+      minExperienceYears: z.number().min(0).max(20).optional(),
+      requiredSkills: z.array(z.string()).optional(),
+      preferredLocation: z.string().max(100).optional(),
+      excludeKeywords: z.array(z.string()).optional(),
+      minScoreThreshold: z.number().min(0).max(100).optional(),
     })
     .optional(),
 });

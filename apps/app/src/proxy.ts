@@ -121,7 +121,7 @@ export async function proxy(request: NextRequest) {
         headers: {
           ...Object.fromEntries(response.headers.entries()),
           "Retry-After": String(
-            Math.ceil(rateLimitResult.resetTime - Date.now() / 1000),
+            Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000),
           ),
         },
       });

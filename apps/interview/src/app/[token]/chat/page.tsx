@@ -1,31 +1,20 @@
-import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { InterviewChat } from "~/components/interview-chat";
+import { api } from "~/trpc/server";
+import { WebChatClient } from "~/components/web-chat-client";
 
-interface PageProps {
-  params: Promise<{ token: string }>;
-  searchParams: Promise<{ sessionId?: string }>;
-}
-
-export const metadata: Metadata = {
-  title: "AI Интервью",
-  description: "Чат с AI-ассистентом для прохождения интервью",
-};
-
-export default async function InterviewChatPage({
+export default async function WebChatPage({
   params,
-  searchParams,
-}: PageProps) {
+}: {
+  params: Promise<{ token: string }>;
+}) {
   const { token } = await params;
-  const { sessionId } = await searchParams;
 
-  if (!sessionId) {
-    redirect(`/${token}`);
+  try {
+    const caller = await api();
+    const chatData = await caller.webChat.getByToken({ token });
+
+    return <WebChatClient chatData={chatData} />;
+  } catch (error) {
+    redirect("/");
   }
-
-  return (
-    <main className="flex h-screen flex-col bg-muted/30">
-      <InterviewChat interviewSessionId={sessionId} interviewToken={token} />
-    </main>
-  );
 }
