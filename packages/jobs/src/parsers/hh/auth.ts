@@ -109,10 +109,14 @@ export async function checkAndPerformLogin(
     if (loginInput) {
       console.log("🔑 Требуется авторизация, выполняем логин...");
       const log = new Log();
-      await performLogin(page, log, email, password, workspaceId, false);
+      // performLogin сохранит cookies, если saveCookiesAfterLogin = true
+      await performLogin(page, log, email, password, workspaceId, true);
       console.log("✅ Логин завершен");
     } else {
       console.log("✅ Уже авторизованы");
+      // Если уже авторизованы, сохраняем cookies один раз
+      const cookies = await page.cookies();
+      await saveCookies("hh", cookies, workspaceId);
     }
 
     // Проверяем успешность после логина/проверки
@@ -124,9 +128,6 @@ export async function checkAndPerformLogin(
       return false;
     }
 
-    // Save cookies after successful check/login
-    const cookies = await page.cookies();
-    await saveCookies("hh", cookies, workspaceId);
     console.log("✅ Авторизация успешна");
     return true;
   } catch (error) {

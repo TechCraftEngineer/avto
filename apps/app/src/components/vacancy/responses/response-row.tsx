@@ -23,6 +23,7 @@ import {
   TableCell,
   TableRow,
 } from "@qbs-autonaim/ui";
+import DOMPurify from "dompurify";
 import { ExternalLink, Send, TrendingUp, User, UserCheck } from "lucide-react";
 import Link from "next/link";
 import { ResponseActions } from "~/components/response";
@@ -43,6 +44,32 @@ function stripHtmlTags(html: string): string {
   // Client-side: use DOM parser for better accuracy
   const doc = new DOMParser().parseFromString(html, "text/html");
   return doc.body.textContent || "";
+}
+
+// Утилита для санитизации HTML
+function sanitizeHtml(html: string): string {
+  return DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: [
+      "p",
+      "br",
+      "strong",
+      "em",
+      "u",
+      "ul",
+      "ol",
+      "li",
+      "h1",
+      "h2",
+      "h3",
+      "h4",
+      "h5",
+      "h6",
+      "blockquote",
+      "code",
+      "pre",
+    ],
+    ALLOWED_ATTR: [],
+  });
 }
 
 interface ResponseRowProps {
@@ -121,7 +148,13 @@ export function ResponseRow({
               {response.welcomeSentAt && (
                 <HoverCard>
                   <HoverCardTrigger asChild>
-                    <Send className="h-3 w-3 text-muted-foreground opacity-50" />
+                    <button
+                      type="button"
+                      className="inline-flex items-center"
+                      aria-label="Приветствие отправлено"
+                    >
+                      <Send className="h-3 w-3 text-muted-foreground opacity-50" />
+                    </button>
                   </HoverCardTrigger>
                   <HoverCardContent side="right">
                     <p className="text-xs">Приветствие отправлено</p>
@@ -140,13 +173,19 @@ export function ResponseRow({
                 response.screening.hiddenFitIndicators.length > 0 && (
                   <HoverCard>
                     <HoverCardTrigger asChild>
-                      <Badge
-                        variant="secondary"
-                        className="flex items-center gap-1 text-xs"
+                      <button
+                        type="button"
+                        className="inline-flex items-center"
+                        aria-label="Скрытые индикаторы соответствия"
                       >
-                        <UserCheck className="h-3 w-3" />
-                        Скрытый подходящий
-                      </Badge>
+                        <Badge
+                          variant="secondary"
+                          className="flex items-center gap-1 text-xs"
+                        >
+                          <UserCheck className="h-3 w-3" />
+                          Скрытый подходящий
+                        </Badge>
+                      </button>
                     </HoverCardTrigger>
                     <HoverCardContent side="right" className="max-w-xs">
                       <p className="text-xs font-semibold mb-1">
@@ -187,7 +226,11 @@ export function ResponseRow({
                   <HoverCardContent side="right" className="max-w-xs">
                     <div
                       className="text-xs"
-                      dangerouslySetInnerHTML={{ __html: response.screening.careerTrajectoryAnalysis || "" }}
+                      dangerouslySetInnerHTML={{
+                        __html: sanitizeHtml(
+                          response.screening.careerTrajectoryAnalysis || "",
+                        ),
+                      }}
                     />
                   </HoverCardContent>
                 </HoverCard>
@@ -326,7 +369,9 @@ export function ResponseRow({
               >
                 <div
                   className="text-sm"
-                  dangerouslySetInnerHTML={{ __html: response.coverLetter }}
+                  dangerouslySetInnerHTML={{
+                    __html: sanitizeHtml(response.coverLetter),
+                  }}
                 />
               </HoverCardContent>
             </HoverCard>

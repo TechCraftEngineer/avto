@@ -41,22 +41,28 @@ export function PortfolioCard({
     try {
       // Try to create URL directly
       const parsedUrl = new URL(url);
+      // Only allow http: and https: protocols
       if (parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') {
         return url;
       }
+      // If protocol is not http/https, return empty string (unsafe scheme)
+      return '';
     } catch {
       // If it fails, try with https:// prefix
       try {
         const normalized = `https://${url}`;
         const parsedUrl = new URL(normalized);
+        // Only allow http: and https: protocols
         if (parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') {
           return normalized;
         }
+        // If protocol is not http/https, return empty string (unsafe scheme)
+        return '';
       } catch {
         // Invalid URL
+        return '';
       }
     }
-    return '';
   };
 
   const getSafeHostname = (link: string): string => {

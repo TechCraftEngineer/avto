@@ -77,10 +77,26 @@ export function ScreenResponseButton({
 
     const maxAttempts = 30; // 30 попыток = ~30 секунд
 
+    // Очищаем предыдущий таймер если есть
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+
     return new Promise((resolve, reject) => {
       let attempts = 0;
+      let timeoutId: NodeJS.Timeout | null = null;
 
       const poll = async () => {
+        // Проверяем, не размонтирован ли компонент
+        if (!mountedRef.current) {
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+          }
+          reject(new Error("Component unmounted"));
+          return;
+        }
+
         try {
           const response = await queryClient.fetchQuery(
             trpc.vacancy.responses.get.queryOptions({
@@ -90,6 +106,13 @@ export function ScreenResponseButton({
           );
 
           if (response?.screening) {
+            // Очищаем таймер при успешном завершении
+            if (timeoutId) {
+              clearTimeout(timeoutId);
+              timeoutId = null;
+            }
+            timeoutRef.current = null;
+
             if (mountedRef.current) {
               setScreeningResult({
                 score: response.screening.score,
@@ -110,8 +133,24 @@ export function ScreenResponseButton({
 
           attempts++;
           if (attempts < maxAttempts) {
-            timeoutRef.current = setTimeout(poll, 1000);
+            // Проверяем mounted перед установкой нового таймера
+            if (mountedRef.current) {
+              timeoutId = setTimeout(poll, 1000);
+              timeoutRef.current = timeoutId;
+            } else {
+              if (timeoutId) {
+                clearTimeout(timeoutId);
+              }
+              reject(new Error("Component unmounted"));
+            }
           } else {
+            // Очищаем таймер при достижении максимума попыток
+            if (timeoutId) {
+              clearTimeout(timeoutId);
+              timeoutId = null;
+            }
+            timeoutRef.current = null;
+
             const error = new Error("Скрининг не завершился в течение 30 секунд");
             if (mountedRef.current) {
               setIsLoading(false);
@@ -122,8 +161,24 @@ export function ScreenResponseButton({
           console.error("Ошибка при получении результата скрининга:", error);
           attempts++;
           if (attempts < maxAttempts) {
-            timeoutRef.current = setTimeout(poll, 1000);
+            // Проверяем mounted перед установкой нового таймера
+            if (mountedRef.current) {
+              timeoutId = setTimeout(poll, 1000);
+              timeoutRef.current = timeoutId;
+            } else {
+              if (timeoutId) {
+                clearTimeout(timeoutId);
+              }
+              reject(new Error("Component unmounted"));
+            }
           } else {
+            // Очищаем таймер при достижении максимума попыток
+            if (timeoutId) {
+              clearTimeout(timeoutId);
+              timeoutId = null;
+            }
+            timeoutRef.current = null;
+
             if (mountedRef.current) {
               setIsLoading(false);
             }
@@ -132,6 +187,7 @@ export function ScreenResponseButton({
         }
       };
 
+      // Начинаем опрос
       poll();
     });
   };

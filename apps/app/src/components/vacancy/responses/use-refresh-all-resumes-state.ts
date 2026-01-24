@@ -37,27 +37,33 @@ export function useRefreshAllResumesState(
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleDialogClose = useCallback(() => {
-    if (state.status === "loading") {
-      return;
-    }
+    // Проверяем текущий статус через функциональное обновление
+    setState((prev) => {
+      // Early return если статус loading - не закрываем диалог
+      if (prev.status === "loading") {
+        return prev;
+      }
 
-    // Очищаем таймер при закрытии диалога
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
+      // Очищаем таймер при закрытии диалога
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
 
-    setState((prev) => ({
-      ...prev,
-      dialogOpen: false,
-      error: null,
-      message: "",
-      progress: null,
-      status: "idle",
-      subscriptionActive: false,
-    }));
-    onRefreshAllResumesDialogClose();
-  }, [state.status, onRefreshAllResumesDialogClose]);
+      // Сбрасываем состояние
+      onRefreshAllResumesDialogClose();
+
+      return {
+        ...prev,
+        dialogOpen: false,
+        error: null,
+        message: "",
+        progress: null,
+        status: "idle",
+        subscriptionActive: false,
+      };
+    });
+  }, [onRefreshAllResumesDialogClose]);
 
   // Refresh all resumes subscription callbacks
   const handleProgress = useCallback(

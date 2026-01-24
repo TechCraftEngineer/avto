@@ -112,7 +112,7 @@ export async function screenResponse(
 
     requirements = extractResult.data;
     logger.info(
-      `Requirements extracted synchronously for vacancy ${resp.entityId}`,
+      `Требования извлечены синхронно для вакансии ${resp.entityId}`,
     );
   }
 
@@ -124,7 +124,7 @@ export async function screenResponse(
         customScreeningPrompt: true,
       },
     });
-  }, "Failed to fetch vacancy settings");
+  }, "Не удалось получить настройки вакансии");
 
   const customPrompt = vacancyResult.success
     ? vacancyResult.data?.customScreeningPrompt
@@ -140,7 +140,7 @@ export async function screenResponse(
     customPrompt,
   );
 
-  logger.info("Sending request to AI for screening");
+  logger.info("Отправка запроса к ИИ для скрининга");
 
   const aiResult = await tryCatch(async () => {
     const { text } = await generateText({
@@ -153,13 +153,13 @@ export async function screenResponse(
       },
     });
     return text;
-  }, "AI request failed");
+  }, "Запрос к ИИ не удался");
 
   if (!aiResult.success) {
     return err(aiResult.error);
   }
 
-  logger.info("Received AI response");
+  logger.info("Получен ответ от ИИ");
 
   const saveResult = await tryCatch(async () => {
     const result = parseScreeningResult(aiResult.data);
@@ -211,11 +211,11 @@ export async function screenResponse(
       .where(eq(response.id, responseId));
 
     logger.info(
-      `Screening result saved: score ${result.score}/5 (${result.detailedScore}/100), language: ${result.resumeLanguage}`,
+      `Результат скрининга сохранен: оценка ${result.score}/5 (${result.detailedScore}/100), язык: ${result.resumeLanguage}`,
     );
 
     return result;
-  }, "Failed to save screening result");
+  }, "Не удалось сохранить результат скрининга");
 
   return saveResult;
 }
