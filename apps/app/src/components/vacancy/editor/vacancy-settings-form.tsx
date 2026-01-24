@@ -88,17 +88,16 @@ export function VacancySettingsForm({
   const [improvingField, setImprovingField] = useState<string | null>(null);
 
   // Получаем список интеграций для проверки наличия Telegram
-  const { data: integrations } = useQuery(
-    trpc.integration.list.queryOptions({
-      workspaceId: workspaceId ?? "",
-    }),
-    {
-      enabled: Boolean(workspaceId),
-    },
-  );
+  const integrationQuery = (trpc.integration.list as any).useQuery({
+    workspaceId: workspaceId ?? "",
+  }, {
+    enabled: Boolean(workspaceId),
+  });
+  
+  const { data: integrations } = integrationQuery;
 
   const hasTelegramIntegration = integrations?.some(
-    (integration) => integration.type === "TELEGRAM" && integration.isActive,
+    (integration: any) => integration.type === "TELEGRAM" && integration.isActive,
   );
 
   const form = useForm<{

@@ -71,7 +71,8 @@ export default function VacancySettingsPage({
       | "customBotInstructions"
       | "customScreeningPrompt"
       | "customInterviewQuestions"
-      | "customOrganizationalQuestions",
+      | "customOrganizationalQuestions"
+      | "welcomeMessageTemplates",
     currentValue: string,
     context?: { vacancyTitle?: string; vacancyDescription?: string },
   ): Promise<string> => {
@@ -106,8 +107,8 @@ export default function VacancySettingsPage({
           customScreeningPrompt: vacancy.customScreeningPrompt,
           customInterviewQuestions: vacancy.customInterviewQuestions,
           customOrganizationalQuestions: vacancy.customOrganizationalQuestions,
-          enabledCommunicationChannels: vacancy.enabledCommunicationChannels,
-          welcomeMessageTemplates: vacancy.welcomeMessageTemplates,
+          enabledCommunicationChannels: vacancy.enabledCommunicationChannels ?? undefined,
+          welcomeMessageTemplates: vacancy.welcomeMessageTemplates ?? undefined,
         }}
         onSave={handleSave}
         onImprove={handleImprove}

@@ -12,6 +12,7 @@ const improveInstructionsInputSchema = z.object({
     "customScreeningPrompt",
     "customInterviewQuestions",
     "customOrganizationalQuestions",
+    "welcomeMessageTemplates",
   ]),
   currentValue: z.string(),
   vacancyTitle: z.string().optional(),
@@ -61,6 +62,16 @@ const FIELD_PROMPTS = {
 - Убери размытые формулировки
 - Сохрани количество вопросов (не добавляй новые)
 - НЕ добавляй вопросы, которых не было в оригинале`,
+  },
+  welcomeMessageTemplates: {
+    title: "Шаблоны приветствия",
+    description: "Приветственные сообщения для кандидатов в разных каналах",
+    guidelines: `
+- Улучши формулировки существующего шаблона приветствия
+- Сделай сообщение более дружелюбным и профессиональным
+- Сохрани ключевые элементы из оригинального текста
+- Убедись, что сообщение побуждает к диалогу
+- НЕ меняй канал назначения (webChat/telegram)`,
   },
 };
 

@@ -63,7 +63,7 @@ export function WelcomeMessageTemplates({
   improvingField,
 }: WelcomeMessageTemplatesProps) {
   const trpc = useTRPC();
-  const improveWelcomeTemplateMutation = trpc.vacancy.improveWelcomeTemplates.useMutation();
+  const improveWelcomeTemplateMutation = (trpc.vacancy.improveWelcomeTemplates as any).useMutation();
 
   const handleImprove = async (channel: "webChat" | "telegram") => {
     if (!vacancyId || !workspaceId) return;
