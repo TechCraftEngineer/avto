@@ -35,9 +35,15 @@
     "ui-add": "turbo run ui-add"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.3.11",
+    "@biomejs/biome": "2.3.12",
     "@turbo/gen": "2.7.5",
     "concurrently": "^9.2.1",
+    "diff": "^8.0.3",
+    "esbuild": "^0.27.2",
+    "js-yaml": "^4.1.1",
+    "lodash": "^4.17.23",
+    "lodash-es": "^4.17.23",
+    "tmp": "^0.2.5",
     "turbo": "2.7.5",
     "typescript": "5.9.3"
   },
@@ -46,5 +52,13 @@
     "apps/*",
     "packages/*",
     "tooling/*"
-  ]
+  ],
+  "resolutions": {
+    "lodash": "^4.17.23",
+    "lodash-es": "^4.17.23",
+    "esbuild": "^0.27.2",
+    "js-yaml": "^4.1.1",
+    "diff": "^8.0.3",
+    "tmp": "^0.2.5"
+  }
 }

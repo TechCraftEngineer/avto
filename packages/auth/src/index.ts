@@ -44,7 +44,7 @@ export function initAuth<
     secret: options.secret,
     emailAndPassword: {
       enabled: true,
-      requireEmailVerification: false,
+      requireEmailVerification: true, // Включаем обязательную верификацию email
       sendResetPassword: async ({ user, url }) => {
         if (options.sendEmail) {
           await options.sendEmail({

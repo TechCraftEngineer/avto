@@ -3,6 +3,8 @@ import { getSessionCookie } from "better-auth/cookies";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function proxy(request: NextRequest) {
+  const response = NextResponse.next();
+
   const sessionCookie = getSessionCookie(request);
   const { pathname } = request.nextUrl;
 
@@ -28,7 +30,7 @@ export async function proxy(request: NextRequest) {
   // НЕ редиректим автоматически - пусть auth/layout решает
   // Это предотвращает циклы когда сессия невалидна
 
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {
