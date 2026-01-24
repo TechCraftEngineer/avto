@@ -3,10 +3,8 @@
  * Provides comprehensive validation and sanitization for user inputs
  */
 
-import { createDOMPurify } from "isomorphic-dompurify";
+import DOMPurify from "isomorphic-dompurify";
 import { z } from "zod";
-
-const DOMPurify = createDOMPurify();
 
 /**
  * Common validation patterns
