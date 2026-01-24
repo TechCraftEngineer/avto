@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 import { InterviewLandingForm } from "~/components/interview-landing-form";
 import { useTRPC } from "~/trpc/react";
@@ -13,16 +14,54 @@ interface PageProps {
 function InterviewLandingClient({ token }: { token: string }) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const responseId = searchParams.get("responseId");
 
   const { data, isLoading, error } = useQuery(
     trpc.freelancePlatforms.getInterviewByToken.queryOptions({ token }),
+  );
+
+  // Если есть responseId, загружаем данные кандидата и сразу начинаем интервью
+  const { data: candidateData, isLoading: isLoadingCandidate } = useQuery(
+    responseId && data
+      ? trpc.freelancePlatforms.getCandidateByResponseId.queryOptions({
+          responseId,
+          vacancyId: data.data.id,
+        })
+      : { enabled: false },
   );
 
   const startInterviewMutation = useMutation(
     trpc.freelancePlatforms.startWebInterview.mutationOptions(),
   );
 
-  if (isLoading) {
+  // Если кандидат уже известен, автоматически начинаем интервью
+  React.useEffect(() => {
+    if (candidateData && data && !isLoadingCandidate) {
+      // Автоматически начинаем интервью с данными кандидата
+      startInterviewMutation.mutate({
+        token,
+        freelancerInfo: {
+          name: candidateData.candidateName || "Кандидат",
+          platformProfileUrl: candidateData.platformProfileUrl || "",
+          email: candidateData.email || undefined,
+          phone: candidateData.phone || undefined,
+          telegram: candidateData.telegramUsername || undefined,
+        },
+      });
+    }
+  }, [candidateData, data, isLoadingCandidate, token, startInterviewMutation]);
+
+  // Перенаправляем в чат после успешного начала интервью
+  React.useEffect(() => {
+    if (startInterviewMutation.isSuccess && startInterviewMutation.data) {
+      router.push(`/interview/${token}/chat?sessionId=${startInterviewMutation.data.sessionId}`);
+    }
+  }, [startInterviewMutation.isSuccess, startInterviewMutation.data, router, token]);
+
+  if (isLoading || (responseId && isLoadingCandidate)) {
     return (
       <main className="flex min-h-screen items-center justify-center">
         <div className="flex flex-col items-center gap-3 text-muted-foreground">

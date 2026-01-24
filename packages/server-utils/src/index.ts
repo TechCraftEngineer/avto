@@ -30,6 +30,7 @@ export {
   getInterviewUrl,
   getInterviewUrlFromDb,
   getInterviewUrlFromEntity,
+  getInterviewUrlWithResponseId,
 } from "./get-interview-url";
 
 // Экспорты rate limiting утилит

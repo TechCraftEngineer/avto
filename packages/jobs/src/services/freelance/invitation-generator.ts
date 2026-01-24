@@ -7,7 +7,7 @@ import {
   vacancy,
 } from "@qbs-autonaim/db/schema";
 import { generateText } from "@qbs-autonaim/lib/ai";
-import { getInterviewUrl } from "@qbs-autonaim/server-utils";
+import { getInterviewUrlWithResponseId } from "@qbs-autonaim/server-utils";
 import { createLogger, err, ok, type Result, tryCatch } from "../base";
 
 const logger = createLogger("InvitationGenerator");
@@ -191,8 +191,9 @@ export async function generateFreelanceInvitation(
     return err(`Interview link not found for vacancy ${responseData.entityId}`);
   }
 
-  const interviewUrl = getInterviewUrl(
+  const interviewUrl = getInterviewUrlWithResponseId(
     link.token,
+    responseId,
     vacancyData.workspace.customDomain?.domain ?? null,
   );
 

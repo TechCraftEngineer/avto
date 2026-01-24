@@ -69,6 +69,18 @@ export function getInterviewUrl(
 }
 
 /**
+ * Генерирует полный URL интервью с токеном и responseId
+ */
+export function getInterviewUrlWithResponseId(
+  token: string,
+  responseId: string,
+  workspaceInterviewDomain?: string | null,
+): string {
+  const baseUrl = getInterviewBaseUrl(workspaceInterviewDomain);
+  return `${baseUrl}/${token}?responseId=${responseId}`;
+}
+
+/**
  * Получает домен для интервью по типу entity
  */
 async function getEntityInterviewDomain(
