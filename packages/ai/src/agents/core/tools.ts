@@ -5,6 +5,7 @@
  * и принимать решения на основе данных
  */
 
+import { generateObject } from "@qbs-autonaim/lib/ai";
 import { z } from "zod";
 
 /**
@@ -32,15 +33,7 @@ type Message = z.infer<typeof messageSchema>;
  * Инструмент для получения информации о голосовых сообщениях
  * AI использует это для принятия решений о запросе голосовых
  */
-export const getVoiceMessagesInfo: {
-  description: string;
-  inputSchema: z.ZodObject<{
-    history: z.ZodArray<MessageSchema>;
-  }>;
-  execute: (args: {
-    history: Message[];
-  }) => Promise<{ count: number; hasEnough: boolean; description: string }>;
-} = {
+export const getVoiceMessagesInfo = {
   description:
     "Получает информацию о количестве голосовых сообщений от кандидата в истории диалога",
   inputSchema: z.object({
@@ -118,27 +111,11 @@ export const getConversationContext: {
 /**
  * Инструмент для анализа эмоционального тона текста
  */
-export const analyzeEmotionalTone: {
-  description: string;
-  inputSchema: z.ZodObject<{
-    text: z.ZodString;
-    context: z.ZodEnum<["resume", "application", "interview"]>;
-  }>;
-  execute: (args: {
-    text: string;
-    context: "resume" | "application" | "interview";
-  }) => Promise<{
-    enthusiasm: number;
-    confidence: number;
-    stressLevel: number;
-    authenticity: number;
-    reasoning: string;
-  }>;
-} = {
+export const analyzeEmotionalTone = {
   description: "Анализирует эмоциональный тон текста кандидата",
   inputSchema: z.object({
     text: z.string().describe("Текст для анализа"),
-    context: z.enum(["resume", "application", "interview"]).describe("Контекст текста"),
+    context: z.enum(["resume", "application", "interview"] as const).describe("Контекст текста"),
   }),
   execute: async ({
     text,
@@ -153,51 +130,36 @@ export const analyzeEmotionalTone: {
     authenticity: number;
     reasoning: string;
   }> => {
-    // Простая эвристическая оценка - в реальности здесь будет AI анализ
-    const enthusiasm = Math.min(100, Math.max(0, (text.match(/!/g) || []).length * 10 + (text.match(/\b(готов|рад|интересно|в восторге)\b/gi) || []).length * 15));
-    const confidence = Math.min(100, Math.max(0, (text.match(/\b(уверен|опыт|знаю|умею)\b/gi) || []).length * 20));
-    const stressLevel = Math.min(100, Math.max(0, (text.match(/\b(сложно|проблема|трудно|не уверен)\b/gi) || []).length * 25));
-    const authenticity = Math.min(100, Math.max(0, 100 - (text.match(/\b(идеальный|лучший|топ|профессионал)\b/gi) || []).length * 30));
+    const result = await generateObject({
+      schema: z.object({
+        enthusiasm: z.number().min(0).max(100),
+        confidence: z.number().min(0).max(100),
+        stressLevel: z.number().min(0).max(100),
+        authenticity: z.number().min(0).max(100),
+        reasoning: z.string(),
+      }),
+      prompt: `Проанализируй эмоциональный тон следующего текста кандидата в контексте ${context}:
 
-    return {
-      enthusiasm,
-      confidence,
-      stressLevel,
-      authenticity,
-      reasoning: `Анализ текста в контексте ${context}: выявлен уровень энтузиазма ${enthusiasm}%, уверенности ${confidence}%, стресса ${stressLevel}%, аутентичности ${authenticity}%`,
-    };
+Текст: "${text}"
+
+Оцени по шкале 0-100:
+- enthusiasm (энтузиазм): уровень энтузиазма и позитивного отношения
+- confidence (уверенность): уровень уверенности в себе и своих навыках
+- stressLevel (стресс): уровень стресса или неуверенности
+- authenticity (аутентичность): насколько текст кажется искренним и не шаблонным
+
+Предоставь reasoning с объяснением оценки.`,
+      generationName: "analyze-emotional-tone",
+    });
+
+    return result.object;
   },
 };
 
 /**
  * Инструмент для анализа карьерной стабильности
  */
-export const analyzeCareerStability: {
-  description: string;
-  inputSchema: z.ZodObject<{
-    experience: z.ZodArray<z.ZodObject<{
-      company: z.ZodString;
-      position: z.ZodString;
-      startDate: z.ZodString;
-      endDate: z.ZodString.optional;
-      reasonForLeaving: z.ZodString.optional;
-    }>>;
-  }>;
-  execute: (args: {
-    experience: Array<{
-      company: string;
-      position: string;
-      startDate: string;
-      endDate?: string;
-      reasonForLeaving?: string;
-    }>;
-  }) => Promise<{
-    averageTenure: number;
-    growthRate: number;
-    riskFactors: string[];
-    score: number;
-  }>;
-} = {
+export const analyzeCareerStability = {
   description: "Анализирует карьерную стабильность кандидата на основе опыта работы",
   inputSchema: z.object({
     experience: z.array(z.object({
@@ -224,81 +186,34 @@ export const analyzeCareerStability: {
     riskFactors: string[];
     score: number;
   }> => {
-    if (experience.length === 0) {
-      return {
-        averageTenure: 0,
-        growthRate: 0,
-        riskFactors: ["Нет опыта работы"],
-        score: 0,
-      };
-    }
+    const result = await generateObject({
+      schema: z.object({
+        averageTenure: z.number(),
+        growthRate: z.number().min(0).max(100),
+        riskFactors: z.array(z.string()),
+        score: z.number().min(0).max(100),
+      }),
+      prompt: `Проанализируй карьерную стабильность кандидата на основе его опыта работы:
 
-    // Расчет средней продолжительности работы
-    const tenures = experience.map(exp => {
-      const start = new Date(exp.startDate);
-      const end = exp.endDate ? new Date(exp.endDate) : new Date();
-      return Math.max(0, (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 30)); // месяцы
+Опыт работы:
+${experience.map(exp => `- ${exp.position} в ${exp.company} (${exp.startDate} - ${exp.endDate || 'настоящее время'})${exp.reasonForLeaving ? `, причина ухода: ${exp.reasonForLeaving}` : ''}`).join('\n')}
+
+Оцени:
+- averageTenure: средняя продолжительность работы в месяцах
+- growthRate: скорость карьерного роста (0-100%)
+- riskFactors: массив факторов риска (например, "Частая смена работы", "Увольнения по инициативе работодателя")
+- score: общий балл стабильности (0-100, где 100 - очень стабильный кандидат)`,
+      generationName: "analyze-career-stability",
     });
 
-    const averageTenure = tenures.reduce((sum, tenure) => sum + tenure, 0) / tenures.length;
-
-    // Расчет скорости роста
-    const positions = experience.map(exp => exp.position.toLowerCase());
-    const growthIndicators = positions.filter(pos =>
-      /\b(lead|senior|principal|head|director|manager)\b/.test(pos)
-    ).length;
-    const growthRate = (growthIndicators / experience.length) * 100;
-
-    // Факторы риска
-    const riskFactors: string[] = [];
-    if (averageTenure < 6) riskFactors.push("Частая смена работы");
-    if (experience.some(exp => exp.reasonForLeaving?.toLowerCase().includes("уволен"))) {
-      riskFactors.push("Увольнения по инициативе работодателя");
-    }
-    if (experience.length > 5 && averageTenure < 12) riskFactors.push("Отсутствие долгосрочных проектов");
-
-    // Общий скор
-    let score = 50; // базовый
-    score += Math.min(30, averageTenure * 2); // до +30 за стабильность
-    score += Math.min(20, growthRate); // до +20 за рост
-    score -= riskFactors.length * 15; // -15 за каждый фактор риска
-
-    return {
-      averageTenure: Math.round(averageTenure * 10) / 10,
-      growthRate: Math.round(growthRate),
-      riskFactors,
-      score: Math.max(0, Math.min(100, Math.round(score))),
-    };
+    return result.object;
   },
 };
 
 /**
  * Инструмент для предиктивного моделирования
  */
-export const runPredictiveModel: {
-  description: string;
-  inputSchema: z.ZodObject<{
-    candidateData: z.ZodObject<{
-      experience: z.ZodAny;
-      skills: z.ZodAny;
-      interviewPerformance: z.ZodAny;
-      behavioralData: z.ZodAny;
-    }>;
-  }>;
-  execute: (args: {
-    candidateData: {
-      experience: any;
-      skills: any;
-      interviewPerformance: any;
-      behavioralData: any;
-    };
-  }) => Promise<{
-    retention: number;
-    performance: number;
-    cultureFit: number;
-    growth: number;
-  }>;
-} = {
+export const runPredictiveModel = {
   description: "Предсказывает метрики успеха кандидата на основе комплексных данных",
   inputSchema: z.object({
     candidateData: z.object({
@@ -323,67 +238,36 @@ export const runPredictiveModel: {
     cultureFit: number;
     growth: number;
   }> => {
-    // Простая модель на основе эвристик - в реальности ML модель
-    const experience = candidateData.experience || {};
-    const skills = candidateData.skills || [];
-    const interview = candidateData.interviewPerformance || {};
-    const behavioral = candidateData.behavioralData || {};
+    const result = await generateObject({
+      schema: z.object({
+        retention: z.number().min(0).max(100),
+        performance: z.number().min(0).max(100),
+        cultureFit: z.number().min(0).max(100),
+        growth: z.number().min(0).max(100),
+      }),
+      prompt: `На основе следующих данных о кандидате предскажи метрики его успеха в компании:
 
-    // Retention probability (вероятность удержания)
-    let retention = 60; // базовый
-    if (experience.averageTenure > 24) retention += 20; // стабильные кандидаты
-    if (interview.communication > 70) retention += 10; // хорошая коммуникация
-    if (behavioral.consistency > 80) retention += 10; // consistent поведение
+Опыт работы: ${JSON.stringify(candidateData.experience)}
+Навыки: ${JSON.stringify(candidateData.skills)}
+Производительность на интервью: ${JSON.stringify(candidateData.interviewPerformance)}
+Поведенческие данные: ${JSON.stringify(candidateData.behavioralData)}
 
-    // Performance score (предсказанная производительность)
-    let performance = 65; // базовый
-    performance += Math.min(20, skills.length * 2); // навыки
-    performance += Math.min(15, (interview.technical || 0) / 10); // технические навыки
+Оцени по шкале 0-100:
+- retention: вероятность удержания кандидата в компании
+- performance: ожидаемая производительность
+- cultureFit: соответствие корпоративной культуре
+- growth: потенциал роста и развития`,
+      generationName: "run-predictive-model",
+    });
 
-    // Cultural fit (соответствие культуре)
-    let cultureFit = 70; // базовый
-    if (interview.motivation > 75) cultureFit += 15;
-    if (behavioral.formality > 60 && behavioral.formality < 90) cultureFit += 10; // баланс формальности
-
-    // Growth potential (потенциал роста)
-    let growth = 55; // базовый
-    if (interview.learningAgility > 70) growth += 25;
-    if (experience.growthRate > 30) growth += 20;
-
-    return {
-      retention: Math.max(0, Math.min(100, Math.round(retention))),
-      performance: Math.max(0, Math.min(100, Math.round(performance))),
-      cultureFit: Math.max(0, Math.min(100, Math.round(cultureFit))),
-      growth: Math.max(0, Math.min(100, Math.round(growth))),
-    };
+    return result.object;
   },
 };
 
 /**
  * Инструмент для оценки способности к обучению
  */
-export const assessLearningAgility: {
-  description: string;
-  inputSchema: z.ZodObject<{
-    responses: z.ZodArray<z.ZodObject<{
-      question: z.ZodString;
-      answer: z.ZodString;
-      context: z.ZodString;
-    }>>;
-  }>;
-  execute: (args: {
-    responses: Array<{
-      question: string;
-      answer: string;
-      context: string;
-    }>;
-  }) => Promise<{
-    adaptability: number;
-    curiosity: number;
-    growthMindset: number;
-    score: number;
-  }>;
-} = {
+export const assessLearningAgility = {
   description: "Оценивает способность кандидата к обучению на основе ответов в интервью",
   inputSchema: z.object({
     responses: z.array(z.object({
@@ -406,74 +290,33 @@ export const assessLearningAgility: {
     growthMindset: number;
     score: number;
   }> => {
-    let adaptability = 0;
-    let curiosity = 0;
-    let growthMindset = 0;
+    const result = await generateObject({
+      schema: z.object({
+        adaptability: z.number().min(0).max(100),
+        curiosity: z.number().min(0).max(100),
+        growthMindset: z.number().min(0).max(100),
+        score: z.number().min(0).max(100),
+      }),
+      prompt: `Оцени способность кандидата к обучению на основе следующих ответов в интервью:
 
-    for (const response of responses) {
-      const answer = response.answer.toLowerCase();
+${responses.map(r => `Вопрос: ${r.question}\nОтвет: ${r.answer}\nКонтекст: ${r.context}\n`).join('\n')}
 
-      // Адаптивность: упоминание новых технологий, изменения
-      if (/\b(адаптир|приспособ|измен|новые технологии|обучил)\b/.test(answer)) {
-        adaptability += 20;
-      }
+Оцени по шкале 0-100:
+- adaptability: способность адаптироваться к изменениям и новым технологиям
+- curiosity: уровень любопытства и желания учиться
+- growthMindset: ориентация на рост и развитие
+- score: общий балл способности к обучению`,
+      generationName: "assess-learning-agility",
+    });
 
-      // Любопытство: вопросы, интерес к обучению
-      if (/\b(интерес|хочу узнать|готов изуч|любопыт|вопрос)\b/.test(answer)) {
-        curiosity += 25;
-      }
-
-      // Growth mindset: фокус на развитии, а не на текущих навыках
-      if (/\b(развива|улучш|навык|обучен|развитие)\b/.test(answer)) {
-        growthMindset += 15;
-      }
-      if (/\b(не знаю|могу науч|хочу науч)\b/.test(answer)) {
-        growthMindset += 20;
-      }
-    }
-
-    // Нормализация до 0-100
-    adaptability = Math.min(100, adaptability);
-    curiosity = Math.min(100, curiosity);
-    growthMindset = Math.min(100, growthMindset);
-
-    const score = Math.round((adaptability + curiosity + growthMindset) / 3);
-
-    return {
-      adaptability,
-      curiosity,
-      growthMindset,
-      score,
-    };
+    return result.object;
   },
 };
 
 /**
  * Инструмент для проверки background кандидата
  */
-export const performBackgroundCheck: {
-  description: string;
-  inputSchema: z.ZodObject<{
-    candidateInfo: z.ZodObject<{
-      name: z.ZodString;
-      email: z.ZodString;
-      phone: z.ZodString;
-      previousCompanies: z.ZodArray<z.ZodString>;
-    }>;
-  }>;
-  execute: (args: {
-    candidateInfo: {
-      name: string;
-      email: string;
-      phone: string;
-      previousCompanies: string[];
-    };
-  }) => Promise<{
-    status: string;
-    redFlags: string[];
-    recommendations: string[];
-  }>;
-} = {
+export const performBackgroundCheck = {
   description: "Проверяет background кандидата на предмет рисков",
   inputSchema: z.object({
     candidateInfo: z.object({
@@ -497,47 +340,23 @@ export const performBackgroundCheck: {
     redFlags: string[];
     recommendations: string[];
   }> => {
-    const redFlags: string[] = [];
-    const recommendations: string[] = [];
+    const result = await generateObject({
+      schema: z.object({
+        status: z.string(),
+        redFlags: z.array(z.string()),
+        recommendations: z.array(z.string()),
+      }),
+      prompt: `Проведи background check кандидата на основе следующих данных:
 
-    // Проверка email на валидность
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(candidateInfo.email)) {
-      redFlags.push("Невалидный email адрес");
-    }
+Имя: ${candidateInfo.name}
+Email: ${candidateInfo.email}
+Телефон: ${candidateInfo.phone}
+Предыдущие компании: ${candidateInfo.previousCompanies.join(', ')}
 
-    // Проверка телефона (простая)
-    const phoneRegex = /^\+?[\d\s\-\(\)]{10,}$/;
-    if (!phoneRegex.test(candidateInfo.phone)) {
-      redFlags.push("Подозрительный формат телефона");
-    }
+Проверь на потенциальные риски и проблемы. Определи статус (PASSED или FLAGGED), перечисли redFlags (красные флаги) и дай рекомендации.`,
+      generationName: "perform-background-check",
+    });
 
-    // Проверка компаний (имитация проверки на санкционные списки)
-    const suspiciousCompanies = ["problematic-corp", "bad-company"];
-    const hasSuspiciousCompany = candidateInfo.previousCompanies.some(company =>
-      suspiciousCompanies.some(suspicious =>
-        company.toLowerCase().includes(suspicious)
-      )
-    );
-
-    if (hasSuspiciousCompany) {
-      redFlags.push("Работа в компаниях с негативной репутацией");
-    }
-
-    // Рекомендации
-    if (redFlags.length === 0) {
-      recommendations.push("Background check пройден успешно");
-    } else {
-      recommendations.push("Рекомендуется дополнительная проверка");
-      recommendations.push("Провести reference check с предыдущими работодателями");
-    }
-
-    const status = redFlags.length === 0 ? "PASSED" : "FLAGGED";
-
-    return {
-      status,
-      redFlags,
-      recommendations,
-    };
+    return result.object;
   },
 };

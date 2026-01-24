@@ -65,10 +65,10 @@ export default defineConfig({
     // },
   ],
 
-  webServer: {
-    command: "cd ../app && bun run dev",
-    url: baseURL,
-    reuseExistingServer: true,
-    timeout: 120_000,
-  },
+  // webServer: {
+  //   command: "cd ../app && bun run dev",
+  //   url: baseURL,
+  //   reuseExistingServer: true,
+  //   timeout: 120_000,
+  // },
 });
