@@ -7,14 +7,7 @@ import { logSecurityEvent } from "@qbs-autonaim/server-utils";
 import { TRPCError } from "@trpc/server";
 import type { TRPCContext } from "../trpc";
 
-/**
- * Middleware options interface for better type safety
- */
-interface SecurityAuditMiddlewareOptions {
-  ctx: TRPCContext;
-  next: () => Promise<unknown>;
-  path: string;
-}
+type MiddlewareResult<T> = T;
 
 /**
  * Security audit middleware factory
@@ -23,58 +16,33 @@ export function createSecurityAuditMiddleware() {
   return async ({
     ctx,
     next,
-    path,
-  }: SecurityAuditMiddlewareOptions) => {
+  }: {
+    ctx: TRPCContext;
+    next: () => Promise<MiddlewareResult<unknown>>;
+  }): Promise<any> => {
     const startTime = Date.now();
     const userId = ctx.session?.user?.id;
     const ipAddress = ctx.ipAddress;
     const userAgent = ctx.userAgent;
 
-    // Log access attempt
-    if (
-      path.includes("auth") ||
-      path.includes("signIn") ||
-      path.includes("signUp")
-    ) {
+    // Log general access attempt for authenticated users
+    if (userId) {
       logSecurityEvent.loginSuccess(
-        userId || "anonymous",
+        userId,
         ipAddress,
         userAgent,
-      );
-    }
-
-    // Log data access for sensitive operations
-    if (
-      path.includes("candidate") ||
-      path.includes("vacancy") ||
-      path.includes("workspace")
-    ) {
-      logSecurityEvent.dataAccess(
-        userId || "anonymous",
-        path,
-        "READ",
-        ipAddress,
       );
     }
 
     try {
       const result = await next();
 
-      // Log successful operations
-      if (
-        path.includes("create") ||
-        path.includes("update") ||
-        path.includes("delete")
-      ) {
+      // Log successful operations for authenticated users
+      if (userId) {
         logSecurityEvent.suspiciousActivity(
           {
             type: "data_modification",
-            path,
-            operation: path.includes("create")
-              ? "CREATE"
-              : path.includes("update")
-                ? "UPDATE"
-                : "DELETE",
+            operation: "MODIFY",
             userId,
           },
           ipAddress,
@@ -87,14 +55,13 @@ export function createSecurityAuditMiddleware() {
       // Log security violations
       if (error instanceof TRPCError) {
         if (error.code === "UNAUTHORIZED") {
-          logSecurityEvent.accessDenied(userId || "anonymous", path, ipAddress);
+          logSecurityEvent.accessDenied(userId || "anonymous", "unknown", ipAddress);
         } else if (error.code === "TOO_MANY_REQUESTS") {
-          logSecurityEvent.rateLimitExceeded(ipAddress, userId, path);
+          logSecurityEvent.rateLimitExceeded(ipAddress, userId, "unknown");
         } else if (error.code === "FORBIDDEN") {
           logSecurityEvent.suspiciousActivity(
             {
               error: error.message,
-              path,
               code: error.code,
             },
             ipAddress,
@@ -112,7 +79,6 @@ export function createSecurityAuditMiddleware() {
         logSecurityEvent.suspiciousActivity(
           {
             type: "slow_operation",
-            path,
             executionTime,
           },
           ipAddress,
