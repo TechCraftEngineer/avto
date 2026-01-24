@@ -3,6 +3,7 @@ import { defineConfig } from "tsdown";
 export default defineConfig({
   entry: "src/index.ts",
   format: ["esm"],
+  inlineOnly: false,
   dts: {
     // Optimize DTS generation by reducing complexity
     compilerOptions: {
