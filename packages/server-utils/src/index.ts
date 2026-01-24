@@ -48,3 +48,13 @@ export {
 } from "./security-audit";
 
 export type { SecurityEvent } from "./security-audit";
+
+// Экспорты encryption утилит
+export {
+  encryptSensitiveData,
+  decryptSensitiveData,
+  encryptApiKeys,
+  decryptApiKeys,
+  isEncrypted,
+  getEncryptionKey,
+} from "./encryption";

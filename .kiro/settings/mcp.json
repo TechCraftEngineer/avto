@@ -33,6 +33,19 @@
         "browser_close"
       ]
     },
+    "puppeteer": {
+      "command": "bunx",
+      "args": ["@puppeteer/mcp-server@latest"],
+      "autoApprove": [
+        "puppeteer_navigate",
+        "puppeteer_screenshot",
+        "puppeteer_evaluate",
+        "puppeteer_click",
+        "puppeteer_type",
+        "puppeteer_wait_for",
+        "puppeteer_close"
+      ]
+    },
     "postgres": {
       "command": "bunx",
       "args": [

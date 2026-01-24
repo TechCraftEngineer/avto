@@ -1,5 +1,6 @@
 import { telegramSession } from "@qbs-autonaim/db/schema";
 import { tgClientSDK } from "@qbs-autonaim/tg-client/sdk";
+import { encryptApiKeys, getEncryptionKey } from "@qbs-autonaim/server-utils";
 import { TRPCError } from "@trpc/server";
 import { eq } from "@qbs-autonaim/db";
 import { z } from "zod";
@@ -43,14 +44,23 @@ export const signInRouter = protectedProcedure
       });
 
       const sessionDataObj = JSON.parse(result.sessionData);
+      
+      // Encrypt sensitive data before storing
+      const encryptionKey = getEncryptionKey();
+      const encryptedApiData = await encryptApiKeys({
+        apiId: input.apiId.toString(),
+        apiHash: input.apiHash,
+        sessionData: sessionDataObj,
+      }, encryptionKey);
+      
       const [session] = await ctx.db
         .insert(telegramSession)
         .values({
           workspaceId: input.workspaceId,
-          apiId: input.apiId.toString(),
-          apiHash: input.apiHash,
+          apiId: encryptedApiData.apiId,
+          apiHash: encryptedApiData.apiHash,
           phone,
-          sessionData: sessionDataObj as Record<string, unknown>,
+          sessionData: encryptedApiData.sessionData ? JSON.parse(encryptedApiData.sessionData) : undefined,
           userInfo: {
             id: result.user.id,
             firstName: result.user.firstName,

@@ -11,10 +11,12 @@ import type { Auth } from "@qbs-autonaim/auth";
 import { OrganizationRepository, WorkspaceRepository } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { inngest } from "@qbs-autonaim/jobs/client";
+import { rateLimit, RATE_LIMITS, getClientIP, addAPISecurityHeaders } from "@qbs-autonaim/server-utils";
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError, z } from "zod";
 import { AuditLoggerService } from "./services/audit-logger";
+import { createSecurityAuditMiddleware } from "./middleware/security-audit";
 import { extractTokenFromHeaders } from "./utils/interview-token-validator";
 
 /**
@@ -103,10 +105,60 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
 export const createTRPCRouter = t.router;
 
 /**
- * Middleware for timing procedure execution and adding an articifial delay in development.
- *
- * You can remove this if you don't like it, but it can help catch unwanted waterfalls by simulating
- * network latency that would occur in production but not in local development.
+ * Security audit middleware
+ */
+const securityAuditMiddleware = t.middleware(createSecurityAuditMiddleware());
+
+/**
+ * Security headers middleware
+ */
+const securityHeadersMiddleware = t.middleware(async ({ next }) => {
+  const result = await next();
+  
+  // Note: In tRPC, we can't directly modify response headers here
+  // Security headers are added in the Next.js route handler
+  
+  return result;
+});
+
+/**
+ * Rate limiting middleware for API protection
+ */
+const rateLimitMiddleware = t.middleware(async ({ next, path, ctx }) => {
+  const clientIP = getClientIP({ headers: ctx.headers } as Request);
+  const userId = ctx.session?.user?.id;
+  
+  // Determine rate limit based on endpoint type
+  let rateLimitConfig;
+  if (path.includes('auth') || path.includes('signIn') || path.includes('signUp')) {
+    rateLimitConfig = RATE_LIMITS.auth.signIn;
+  } else if (path.includes('upload') || path.includes('file')) {
+    rateLimitConfig = RATE_LIMITS.api.upload;
+  } else {
+    rateLimitConfig = RATE_LIMITS.api.default;
+  }
+  
+  // Use user ID if available, otherwise use IP
+  const identifier = userId || clientIP;
+  
+  const rateLimitResult = rateLimit(
+    identifier,
+    rateLimitConfig.limit,
+    rateLimitConfig.windowMs
+  );
+  
+  if (!rateLimitResult.success) {
+    throw new TRPCError({
+      code: "TOO_MANY_REQUESTS",
+      message: `Rate limit exceeded. Try again in ${Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000)} seconds.`,
+    });
+  }
+  
+  return next();
+});
+
+/**
+ * Timing middleware with artificial delay in development
  */
 const timingMiddleware = t.middleware(async ({ next, path }) => {
   const start = Date.now();
@@ -132,7 +184,11 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
  * tRPC API. It does not guarantee that a user querying is authorized, but you
  * can still access user session data if they are logged in
  */
-export const publicProcedure = t.procedure.use(timingMiddleware);
+export const publicProcedure = t.procedure
+  .use(timingMiddleware)
+  .use(securityHeadersMiddleware)
+  .use(rateLimitMiddleware)
+  .use(securityAuditMiddleware);
 
 /**
  * Protected (authenticated) procedure
@@ -144,6 +200,9 @@ export const publicProcedure = t.procedure.use(timingMiddleware);
  */
 export const protectedProcedure = t.procedure
   .use(timingMiddleware)
+  .use(securityHeadersMiddleware)
+  .use(rateLimitMiddleware)
+  .use(securityAuditMiddleware)
   .use(({ ctx, next }) => {
     if (!ctx.session?.user) {
       throw new TRPCError({ code: "UNAUTHORIZED" });

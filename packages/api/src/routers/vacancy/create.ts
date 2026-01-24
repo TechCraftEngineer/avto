@@ -1,16 +1,16 @@
 import { vacancy } from "@qbs-autonaim/db/schema";
-import { workspaceIdSchema } from "@qbs-autonaim/validators";
+import { workspaceIdSchema, secureSchemas } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../trpc";
 
 const createVacancySchema = z.object({
   workspaceId: workspaceIdSchema,
-  title: z.string().min(1).max(500),
-  description: z.string().optional(),
-  requirements: z.string().optional(),
-  responsibilities: z.string().optional(),
-  conditions: z.string().optional(),
+  title: secureSchemas.safeText.min(1).max(500),
+  description: secureSchemas.safeText.optional(),
+  requirements: secureSchemas.safeText.optional(),
+  responsibilities: secureSchemas.safeText.optional(),
+  conditions: secureSchemas.safeText.optional(),
 });
 
 export const create = protectedProcedure

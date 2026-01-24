@@ -34,6 +34,18 @@
       "env": {
         "MCP_ROOT_PATH": "${MCP_ROOT_PATH}"
       }
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": "bunx",
+      "args": ["@playwright/mcp@latest"],
+      "env": {}
+    },
+    "puppeteer": {
+      "type": "stdio",
+      "command": "bunx",
+      "args": ["@puppeteer/mcp-server@latest"],
+      "env": {}
     }
   },
   "inputs": []
