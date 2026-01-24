@@ -6,9 +6,9 @@
  * Публичная процедура - не требует авторизации пользователя.
  */
 
+import { and, eq } from "@qbs-autonaim/db";
 import { prequalificationSession, vacancy } from "@qbs-autonaim/db/schema";
 import { TRPCError } from "@trpc/server";
-import { and, eq } from "@qbs-autonaim/db";
 import { z } from "zod";
 import { evaluatorService } from "../../services/evaluation/evaluator";
 import { feedbackGeneratorService } from "../../services/evaluation/feedback-generator";

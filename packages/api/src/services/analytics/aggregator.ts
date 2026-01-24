@@ -6,12 +6,12 @@
  */
 
 import type { DbClient } from "@qbs-autonaim/db";
+import { and, avg, count, desc, eq, gte, lte, sql } from "@qbs-autonaim/db";
 import {
   analyticsEvent,
   prequalificationSession,
   vacancy,
 } from "@qbs-autonaim/db/schema";
-import { and, avg, count, desc, eq, gte, lte, sql } from "@qbs-autonaim/db";
 
 import type {
   AggregationGranularity,

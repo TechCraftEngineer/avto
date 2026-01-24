@@ -6,8 +6,8 @@
  * кандидата (телефон, email, telegram username)
  */
 
-import { CandidateRepository } from "@qbs-autonaim/db";
 import type { DbClient } from "@qbs-autonaim/db";
+import { CandidateRepository } from "@qbs-autonaim/db";
 
 export interface ContactData {
   name?: string;

@@ -55,3 +55,4 @@ dist/
 # tanstack
 .tanstack
 external/**
+qdrant_storage/**

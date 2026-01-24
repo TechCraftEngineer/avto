@@ -3,9 +3,9 @@
  */
 
 import {
+  mapDBSettingsToRecruiterSettings,
   PriorityAgent,
   type PriorityAgentInput,
-  mapDBSettingsToRecruiterSettings,
 } from "@qbs-autonaim/ai";
 import { getAIModel } from "@qbs-autonaim/lib/ai";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";

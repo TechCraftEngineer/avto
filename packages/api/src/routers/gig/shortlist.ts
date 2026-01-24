@@ -1,5 +1,5 @@
-import { GigShortlistGenerator } from "@qbs-autonaim/shared";
 import { inngest } from "@qbs-autonaim/jobs/client";
+import { GigShortlistGenerator } from "@qbs-autonaim/shared";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";

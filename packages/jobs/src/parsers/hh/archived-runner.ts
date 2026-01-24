@@ -1,5 +1,5 @@
-import { db } from "@qbs-autonaim/db/client";
 import { getIntegrationCredentials } from "@qbs-autonaim/db";
+import { db } from "@qbs-autonaim/db/client";
 import puppeteer from "puppeteer";
 import { parseArchivedVacancyResponses } from "./archived-response-parser";
 import { checkAndPerformLogin, loadCookies } from "./auth";

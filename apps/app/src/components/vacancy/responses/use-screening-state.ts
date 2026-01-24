@@ -68,13 +68,16 @@ export function useScreeningState(
       type === "new"
         ? fetchScreenNewResponsesToken
         : fetchScreenAllResponsesToken,
-    onProgress: useCallback((message: string, progress: ScreeningProgress | null) => {
-      setState((prev) => ({
-        ...prev,
-        message,
-        progress: progress || null,
-      }));
-    }, []),
+    onProgress: useCallback(
+      (message: string, progress: ScreeningProgress | null) => {
+        setState((prev) => ({
+          ...prev,
+          message,
+          progress: progress || null,
+        }));
+      },
+      [],
+    ),
     onComplete: useCallback(
       (success: boolean, progress: ScreeningProgress) => {
         setState((prev) => ({

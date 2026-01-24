@@ -1,10 +1,10 @@
-import puppeteer, { type Browser, type Page } from "puppeteer";
 import fs from "node:fs/promises";
-import path from "node:path";
 import os from "node:os";
+import path from "node:path";
+import puppeteer, { type Browser, type Page } from "puppeteer";
 import { checkAndPerformLogin, loadCookies, saveCookies } from "./auth";
-import { HH_CONFIG } from "./config";
 import { closeBrowserSafely } from "./browser-utils";
+import { HH_CONFIG } from "./config";
 
 /**
  * Cleans up temporary Puppeteer profiles to avoid EBUSY errors on Windows

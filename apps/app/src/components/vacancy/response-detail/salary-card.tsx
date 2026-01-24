@@ -1,8 +1,13 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui";
-import { Badge } from "@qbs-autonaim/ui";
-import { DollarSign, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import {
+  Badge,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui";
+import { DollarSign, Minus, TrendingDown, TrendingUp } from "lucide-react";
 import type { VacancyResponse } from "./types";
 
 interface SalaryCardProps {

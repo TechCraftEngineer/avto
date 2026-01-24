@@ -8,7 +8,7 @@ import {
   CardTitle,
   Progress,
 } from "@qbs-autonaim/ui";
-import { CheckCircle2, AlertCircle, TrendingUp, XCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2, TrendingUp, XCircle } from "lucide-react";
 
 interface OverallAssessmentProps {
   /** Итоговая оценка */

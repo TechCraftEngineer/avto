@@ -1,11 +1,13 @@
 import {
+  and,
+  desc,
+  eq,
   interviewMessage,
   interviewSession,
-  vacancy,
   response as responseTable,
+  vacancy,
 } from "@qbs-autonaim/db";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { and, desc, eq } from "@qbs-autonaim/db";
 import { z } from "zod";
 import { protectedProcedure } from "../../../trpc";
 import { verifyWorkspaceAccess } from "../utils";

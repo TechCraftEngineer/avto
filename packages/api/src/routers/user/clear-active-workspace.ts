@@ -1,5 +1,5 @@
-import { user } from "@qbs-autonaim/db/schema";
 import { eq } from "@qbs-autonaim/db";
+import { user } from "@qbs-autonaim/db/schema";
 import { protectedProcedure } from "../../trpc";
 
 export const clearActiveWorkspace = protectedProcedure.mutation(

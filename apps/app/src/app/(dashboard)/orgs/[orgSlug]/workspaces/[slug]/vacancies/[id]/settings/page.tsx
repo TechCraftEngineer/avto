@@ -107,7 +107,8 @@ export default function VacancySettingsPage({
           customScreeningPrompt: vacancy.customScreeningPrompt,
           customInterviewQuestions: vacancy.customInterviewQuestions,
           customOrganizationalQuestions: vacancy.customOrganizationalQuestions,
-          enabledCommunicationChannels: vacancy.enabledCommunicationChannels ?? undefined,
+          enabledCommunicationChannels:
+            vacancy.enabledCommunicationChannels ?? undefined,
           welcomeMessageTemplates: vacancy.welcomeMessageTemplates ?? undefined,
         }}
         onSave={handleSave}

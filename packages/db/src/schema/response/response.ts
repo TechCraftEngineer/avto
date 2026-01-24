@@ -15,7 +15,6 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { candidate } from "../candidate/candidate";
 import { file } from "../file";
-import { vacancyPublication } from "../vacancy/vacancy-publication";
 import {
   candidateContactColumns,
   candidateExperienceColumns,
@@ -34,6 +33,7 @@ import {
   recommendationValues,
   responseStatusValues,
 } from "../shared/response-enums";
+import { vacancyPublication } from "../vacancy/vacancy-publication";
 
 /**
  * Тип сущности для откликов

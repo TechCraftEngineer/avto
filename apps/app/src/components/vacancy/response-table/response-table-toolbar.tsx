@@ -1,3 +1,4 @@
+import type { ScreeningFilter } from "~/components/response";
 import { ResponseActionButtons } from "../responses/response-action-buttons";
 import { ResponseDialogs } from "../responses/response-dialogs";
 import { ResponseSearchFilter } from "../responses/response-search-filter";
@@ -6,7 +7,6 @@ import { useRefreshState } from "../responses/use-refresh-state";
 import { useScreeningState } from "../responses/use-screening-state";
 import { useSyncArchivedState } from "../responses/use-sync-archived-state";
 import type { ResponseStatusFilterUI } from "./use-response-table";
-import type { ScreeningFilter } from "~/components/response";
 
 interface ResponseTableToolbarProps {
   vacancyId: string;

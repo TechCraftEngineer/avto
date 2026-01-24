@@ -1,5 +1,5 @@
-import { z } from "zod";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
+import { z } from "zod";
 
 /**
  * Vacancy-related event schemas

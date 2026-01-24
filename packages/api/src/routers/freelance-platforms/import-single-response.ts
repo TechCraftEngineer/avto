@@ -1,5 +1,4 @@
-import { and, eq } from "@qbs-autonaim/db";
-import { CandidateRepository } from "@qbs-autonaim/db";
+import { and, CandidateRepository, eq } from "@qbs-autonaim/db";
 import {
   freelanceImportHistory,
   type Response,

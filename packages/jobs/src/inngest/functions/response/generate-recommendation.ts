@@ -4,10 +4,10 @@ import {
   type EntityDataForRecommendation,
   formatRecommendationForTelegram,
 } from "@qbs-autonaim/ai";
+import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { gig, vacancy } from "@qbs-autonaim/db/schema";
 import { generateObject, getAIModel } from "@qbs-autonaim/lib/ai";
-import { eq } from "@qbs-autonaim/db";
 
 import {
   getResponseDataForRecommendation,

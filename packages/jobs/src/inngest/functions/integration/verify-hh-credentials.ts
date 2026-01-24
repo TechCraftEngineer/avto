@@ -5,8 +5,8 @@ import { Log } from "crawlee";
 import type { Browser } from "puppeteer";
 import puppeteer from "puppeteer";
 import { performLogin, saveCookies } from "../../../parsers/hh/auth";
-import { HH_CONFIG } from "../../../parsers/hh/config";
 import { closeBrowserSafely } from "../../../parsers/hh/browser-utils";
+import { HH_CONFIG } from "../../../parsers/hh/config";
 import { verifyHHCredentialsChannel } from "../../channels";
 import { inngest } from "../../client";
 

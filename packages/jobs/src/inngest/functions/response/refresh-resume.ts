@@ -3,18 +3,18 @@ import { eq, getIntegrationCredentials } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { response } from "@qbs-autonaim/db/schema";
 import { Log } from "crawlee";
-import puppeteer from "puppeteer-extra";
 import type { Page } from "puppeteer";
+import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import {
   loadCookies,
   performLogin,
   saveCookies,
 } from "../../../parsers/hh/auth";
-import { HH_CONFIG } from "../../../parsers/hh/config";
-import { parseResumeExperience } from "../../../parsers/hh/resume-parser";
 import { setupBrowser, setupPage } from "../../../parsers/hh/browser-setup";
 import { closeBrowserSafely } from "../../../parsers/hh/browser-utils";
+import { HH_CONFIG } from "../../../parsers/hh/config";
+import { parseResumeExperience } from "../../../parsers/hh/resume-parser";
 import { extractTelegramUsername } from "../../../services/messaging";
 import {
   updateResponseDetails,

@@ -1,14 +1,20 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui";
-import { Badge, Button } from "@qbs-autonaim/ui";
 import {
-  DollarSign,
-  Clock,
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui";
+import {
   Calendar,
-  TrendingUp,
-  TrendingDown,
   CheckCircle,
+  Clock,
+  DollarSign,
+  TrendingDown,
+  TrendingUp,
 } from "lucide-react";
 import type { GigResponse } from "./types";
 

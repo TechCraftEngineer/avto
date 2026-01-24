@@ -215,8 +215,8 @@ export function ResponseRow({
                         "Рост"}
                       {response.screening.careerTrajectoryType === "stable" &&
                         "Стабильность"}
-                      {response.screening.careerTrajectoryType ===
-                        "decline" && "Деградация"}
+                      {response.screening.careerTrajectoryType === "decline" &&
+                        "Деградация"}
                       {response.screening.careerTrajectoryType === "jump" &&
                         "Скачок"}
                       {response.screening.careerTrajectoryType ===

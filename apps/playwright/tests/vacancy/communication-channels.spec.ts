@@ -28,7 +28,9 @@ test.describe("Настройки каналов общения вакансий
       await page.goto(`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies`);
 
       await page.getByRole("button", { name: /создать вакансию/i }).click();
-      await page.getByLabel(/название вакансии/i).fill("Тестовая вакансия для каналов общения");
+      await page
+        .getByLabel(/название вакансии/i)
+        .fill("Тестовая вакансия для каналов общения");
       await page.getByLabel(/описание/i).fill("Тестовое описание вакансии");
       await page.getByRole("button", { name: /создать вакансию/i }).click();
 
@@ -54,7 +56,9 @@ test.describe("Настройки каналов общения вакансий
       await page.goto(`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies`);
 
       await page.getByRole("button", { name: /создать вакансию/i }).click();
-      await page.getByLabel(/название вакансии/i).fill("Тестовая вакансия для переключателей");
+      await page
+        .getByLabel(/название вакансии/i)
+        .fill("Тестовая вакансия для переключателей");
       await page.getByLabel(/описание/i).fill("Тестовое описание");
       await page.getByRole("button", { name: /создать вакансию/i }).click();
 
@@ -73,12 +77,16 @@ test.describe("Настройки каналов общения вакансий
       await expect(page.getByLabel(/telegram/i)).not.toBeChecked();
     });
 
-    test("показывает предупреждение при отсутствии Telegram интеграции", async ({ page }) => {
+    test("показывает предупреждение при отсутствии Telegram интеграции", async ({
+      page,
+    }) => {
       // Создаем тестовую вакансию
       await page.goto(`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies`);
 
       await page.getByRole("button", { name: /создать вакансию/i }).click();
-      await page.getByLabel(/название вакансии/i).fill("Тестовая вакансия для Telegram");
+      await page
+        .getByLabel(/название вакансии/i)
+        .fill("Тестовая вакансия для Telegram");
       await page.getByLabel(/описание/i).fill("Тестовое описание");
       await page.getByRole("button", { name: /создать вакансию/i }).click();
 
@@ -102,7 +110,9 @@ test.describe("Настройки каналов общения вакансий
       await page.goto(`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies`);
 
       await page.getByRole("button", { name: /создать вакансию/i }).click();
-      await page.getByLabel(/название вакансии/i).fill("Тестовая вакансия для сохранения");
+      await page
+        .getByLabel(/название вакансии/i)
+        .fill("Тестовая вакансия для сохранения");
       await page.getByLabel(/описание/i).fill("Тестовое описание");
       await page.getByRole("button", { name: /создать вакансию/i }).click();
 
@@ -135,7 +145,9 @@ test.describe("Настройки каналов общения вакансий
       await page.goto(`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies`);
 
       await page.getByRole("button", { name: /создать вакансию/i }).click();
-      await page.getByLabel(/название вакансии/i).fill("Тестовая вакансия для шаблонов");
+      await page
+        .getByLabel(/название вакансии/i)
+        .fill("Тестовая вакансия для шаблонов");
       await page.getByLabel(/описание/i).fill("Тестовое описание");
       await page.getByRole("button", { name: /создать вакансию/i }).click();
 
@@ -148,13 +160,9 @@ test.describe("Настройки каналов общения вакансий
         page.getByRole("heading", { name: /шаблоны приветствия/i }),
       ).toBeVisible();
 
-      await expect(
-        page.getByLabel(/приветствие в веб-чате/i),
-      ).toBeVisible();
+      await expect(page.getByLabel(/приветствие в веб-чате/i)).toBeVisible();
 
-      await expect(
-        page.getByLabel(/приветствие в telegram/i),
-      ).toBeVisible();
+      await expect(page.getByLabel(/приветствие в telegram/i)).toBeVisible();
     });
 
     test("отключает поля при отключенных каналах", async ({ page }) => {
@@ -162,7 +170,9 @@ test.describe("Настройки каналов общения вакансий
       await page.goto(`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies`);
 
       await page.getByRole("button", { name: /создать вакансию/i }).click();
-      await page.getByLabel(/название вакансии/i).fill("Тестовая вакансия для отключения");
+      await page
+        .getByLabel(/название вакансии/i)
+        .fill("Тестовая вакансия для отключения");
       await page.getByLabel(/описание/i).fill("Тестовое описание");
       await page.getByRole("button", { name: /создать вакансию/i }).click();
 
@@ -187,7 +197,9 @@ test.describe("Настройки каналов общения вакансий
       await page.goto(`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies`);
 
       await page.getByRole("button", { name: /создать вакансию/i }).click();
-      await page.getByLabel(/название вакансии/i).fill("Тестовая вакансия для шаблонов сохранения");
+      await page
+        .getByLabel(/название вакансии/i)
+        .fill("Тестовая вакансия для шаблонов сохранения");
       await page.getByLabel(/описание/i).fill("Тестовое описание");
       await page.getByRole("button", { name: /создать вакансию/i }).click();
 
@@ -210,8 +222,12 @@ test.describe("Настройки каналов общения вакансий
 
       // Перезагружаем и проверяем сохранение
       await page.reload();
-      await expect(page.getByLabel(/приветствие в веб-чате/i)).toHaveValue(webChatTemplate);
-      await expect(page.getByLabel(/приветствие в telegram/i)).toHaveValue(telegramTemplate);
+      await expect(page.getByLabel(/приветствие в веб-чате/i)).toHaveValue(
+        webChatTemplate,
+      );
+      await expect(page.getByLabel(/приветствие в telegram/i)).toHaveValue(
+        telegramTemplate,
+      );
     });
 
     test("отображает превью шаблонов", async ({ page }) => {
@@ -219,7 +235,9 @@ test.describe("Настройки каналов общения вакансий
       await page.goto(`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies`);
 
       await page.getByRole("button", { name: /создать вакансию/i }).click();
-      await page.getByLabel(/название вакансии/i).fill("Тестовая вакансия для превью");
+      await page
+        .getByLabel(/название вакансии/i)
+        .fill("Тестовая вакансия для превью");
       await page.getByLabel(/описание/i).fill("Тестовое описание");
       await page.getByRole("button", { name: /создать вакансию/i }).click();
 
@@ -236,7 +254,9 @@ test.describe("Настройки каналов общения вакансий
       await page.getByRole("button", { name: /посмотреть превью/i }).click();
 
       // Проверяем содержимое превью
-      await expect(page.getByText(/превью приветственных сообщений/i)).toBeVisible();
+      await expect(
+        page.getByText(/превью приветственных сообщений/i),
+      ).toBeVisible();
       await expect(page.getByText(/веб-чат/i)).toBeVisible();
       await expect(page.getByText(/telegram/i)).toBeVisible();
     });

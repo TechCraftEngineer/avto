@@ -1,3 +1,4 @@
+import { eq } from "@qbs-autonaim/db";
 import {
   type ChatMessageMetadata,
   chatMessage,
@@ -6,7 +7,6 @@ import {
 import { streamText } from "@qbs-autonaim/lib/ai";
 import type { TRPCRouterRecord } from "@trpc/server";
 import { TRPCError } from "@trpc/server";
-import { eq } from "@qbs-autonaim/db";
 import { z } from "zod";
 import {
   loadCandidatesContext,

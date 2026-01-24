@@ -19,8 +19,6 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import React from "react";
-import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
 import { ConfirmDialog } from "~/components/response/gig-responses/confirm-dialog";
 import { EmptyState } from "~/components/response/gig-responses/empty-state";
 import { MessageDialog } from "~/components/response/gig-responses/message-dialog";
@@ -31,6 +29,8 @@ import { ResponsesTabs } from "~/components/response/gig-responses/responses-tab
 import { useResponseFilters } from "~/components/response/gig-responses/use-response-filters";
 import { useResponseMutations } from "~/components/response/gig-responses/use-response-mutations";
 import { useResponseStats } from "~/components/response/gig-responses/use-response-stats";
+import { useWorkspace } from "~/hooks/use-workspace";
+import { useTRPC } from "~/trpc/react";
 
 interface PageProps {
   params: Promise<{ orgSlug: string; slug: string; gigId: string }>;

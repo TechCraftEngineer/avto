@@ -5,9 +5,14 @@
  * bun run link-responses-to-candidates [workspaceId] [--all] [--dry-run]
  */
 
-import { CandidateRepository } from "@qbs-autonaim/db";
 // biome-ignore lint/correctness/noUnusedImports: These imports are used in Drizzle ORM where clauses
-import { and, eq, inArray, isNull } from "@qbs-autonaim/db";
+import {
+  and,
+  CandidateRepository,
+  eq,
+  inArray,
+  isNull,
+} from "@qbs-autonaim/db";
 import { db, pool } from "@qbs-autonaim/db/client";
 import {
   response as responseTable,

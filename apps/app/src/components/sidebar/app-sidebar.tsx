@@ -23,9 +23,9 @@ import {
   IconSettings,
   IconUsersGroup,
 } from "@tabler/icons-react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import type * as React from "react";
-import dynamic from "next/dynamic";
 import { NavSecondary, WorkspaceSwitcher } from "~/components/sidebar";
 
 const NavUser = dynamic(
@@ -37,6 +37,7 @@ const NavUser = dynamic(
     ssr: false,
   },
 );
+
 import {
   NavCollapsible,
   type NavSection,

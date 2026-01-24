@@ -1,5 +1,4 @@
-import { and, eq, sql } from "@qbs-autonaim/db";
-import { CandidateRepository } from "@qbs-autonaim/db";
+import { and, CandidateRepository, eq, sql } from "@qbs-autonaim/db";
 import {
   gig,
   importSourceValues,

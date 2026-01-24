@@ -28,11 +28,11 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import {
-  RESPONSE_STATUS_CONFIG,
+  formatCurrency,
+  formatDate,
   HR_STATUS_CONFIG,
   IMPORT_SOURCE_LABELS,
-  formatDate,
-  formatCurrency,
+  RESPONSE_STATUS_CONFIG,
 } from "~/lib/shared/response-configs";
 
 type GigResponseListItem = RouterOutputs["gig"]["responses"]["list"][number] & {

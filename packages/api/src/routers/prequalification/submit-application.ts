@@ -6,19 +6,18 @@
  * Публичная процедура - не требует авторизации пользователя.
  */
 
+import { and, CandidateRepository, candidate, eq } from "@qbs-autonaim/db";
 import {
   prequalificationSession,
   type Response,
   response as responseTable,
   vacancy,
 } from "@qbs-autonaim/db/schema";
-import { CandidateRepository } from "@qbs-autonaim/db";
-import { ContactCandidateSyncService } from "../../services/contact-candidate-sync.service";
 import { TRPCError } from "@trpc/server";
-import { and, eq, candidate } from "@qbs-autonaim/db";
 import { nanoid } from "nanoid";
 import { z } from "zod";
 import { CandidateService } from "../../services/candidate.service";
+import { ContactCandidateSyncService } from "../../services/contact-candidate-sync.service";
 import { SessionManager } from "../../services/prequalification";
 import { PrequalificationError } from "../../services/prequalification/types";
 import { publicProcedure } from "../../trpc";

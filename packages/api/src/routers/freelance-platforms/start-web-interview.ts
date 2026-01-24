@@ -4,9 +4,9 @@ import {
   interviewSession,
   response as responseTable,
 } from "@qbs-autonaim/db/schema";
-import { ContactCandidateSyncService } from "../../services/contact-candidate-sync.service";
 import { inngest } from "@qbs-autonaim/jobs/client";
 import { z } from "zod";
+import { ContactCandidateSyncService } from "../../services/contact-candidate-sync.service";
 import { publicProcedure } from "../../trpc";
 import { createErrorHandler } from "../../utils/error-handler";
 

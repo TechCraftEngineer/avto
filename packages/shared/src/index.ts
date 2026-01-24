@@ -5,8 +5,6 @@
  * в пакетах @qbs-autonaim/jobs и @qbs-autonaim/tg-client
  */
 
-// Экспорт ranking service
-export * from "./ranking-service";
 // Экспорт gig shortlist generator
 export type {
   GigContactInfo,
@@ -15,6 +13,8 @@ export type {
   GigShortlistOptions,
 } from "./gig-shortlist-generator";
 export { GigShortlistGenerator } from "./gig-shortlist-generator";
+// Экспорт ranking service
+export * from "./ranking-service";
 // Экспорт всех типов
 export type {
   BufferedMessage,
@@ -27,7 +27,7 @@ export type {
 // Серверные утилиты теперь экспортируются из @qbs-autonaim/server-utils
 // Экспорт клиентских утилит
 export {
-  parsePlatformLink,
   getPlatformTaskUrl,
   type ParsedPlatformLink,
+  parsePlatformLink,
 } from "./utils";

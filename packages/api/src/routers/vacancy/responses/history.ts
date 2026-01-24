@@ -1,7 +1,7 @@
 import { desc, eq } from "@qbs-autonaim/db";
 import {
-  response as responseTable,
   responseHistory,
+  response as responseTable,
   vacancy as vacancyTable,
 } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";

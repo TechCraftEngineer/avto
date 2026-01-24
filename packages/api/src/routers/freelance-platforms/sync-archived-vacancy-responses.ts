@@ -1,8 +1,8 @@
+import { inngest } from "@qbs-autonaim/jobs/client";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../trpc";
-import { inngest } from "@qbs-autonaim/jobs/client";
 
 const syncArchivedVacancyResponsesInputSchema = z.object({
   workspaceId: workspaceIdSchema,

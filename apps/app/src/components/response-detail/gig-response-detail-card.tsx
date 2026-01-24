@@ -4,11 +4,11 @@ import {
   ParsedProfileCard,
   ResponseHeaderCard,
 } from "~/components/response-detail";
+import { GigResponseTabs } from "./gig-response-tabs";
 import {
   type ResponseDetail,
   useVacancyResponseFlags,
 } from "./hooks/use-vacancy-response-flags";
-import { GigResponseTabs } from "./gig-response-tabs";
 
 interface GigResponseDetailCardProps {
   response: ResponseDetail;

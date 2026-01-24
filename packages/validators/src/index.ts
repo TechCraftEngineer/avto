@@ -10,5 +10,3 @@ export * from "./prequalification";
 export * from "./security";
 export * from "./vacancy";
 export * from "./workspace";
-
-

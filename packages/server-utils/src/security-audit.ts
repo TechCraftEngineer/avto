@@ -5,34 +5,34 @@
 
 export enum SecurityEventType {
   // Authentication events
-  LOGIN_SUCCESS = 'LOGIN_SUCCESS',
-  LOGIN_FAILED = 'LOGIN_FAILED',
-  LOGOUT = 'LOGOUT',
-  PASSWORD_CHANGE = 'PASSWORD_CHANGE',
-  PASSWORD_RESET_REQUEST = 'PASSWORD_RESET_REQUEST',
-  PASSWORD_RESET_SUCCESS = 'PASSWORD_RESET_SUCCESS',
-  
+  LOGIN_SUCCESS = "LOGIN_SUCCESS",
+  LOGIN_FAILED = "LOGIN_FAILED",
+  LOGOUT = "LOGOUT",
+  PASSWORD_CHANGE = "PASSWORD_CHANGE",
+  PASSWORD_RESET_REQUEST = "PASSWORD_RESET_REQUEST",
+  PASSWORD_RESET_SUCCESS = "PASSWORD_RESET_SUCCESS",
+
   // Authorization events
-  ACCESS_DENIED = 'ACCESS_DENIED',
-  PRIVILEGE_ESCALATION = 'PRIVILEGE_ESCALATION',
-  ROLE_CHANGE = 'ROLE_CHANGE',
-  
+  ACCESS_DENIED = "ACCESS_DENIED",
+  PRIVILEGE_ESCALATION = "PRIVILEGE_ESCALATION",
+  ROLE_CHANGE = "ROLE_CHANGE",
+
   // Data access events
-  DATA_ACCESS = 'DATA_ACCESS',
-  DATA_MODIFICATION = 'DATA_MODIFICATION',
-  DATA_EXPORT = 'DATA_EXPORT',
-  DATA_DELETION = 'DATA_DELETION',
-  
+  DATA_ACCESS = "DATA_ACCESS",
+  DATA_MODIFICATION = "DATA_MODIFICATION",
+  DATA_EXPORT = "DATA_EXPORT",
+  DATA_DELETION = "DATA_DELETION",
+
   // Security violations
-  RATE_LIMIT_EXCEEDED = 'RATE_LIMIT_EXCEEDED',
-  SUSPICIOUS_ACTIVITY = 'SUSPICIOUS_ACTIVITY',
-  XSS_ATTEMPT = 'XSS_ATTEMPT',
-  SQL_INJECTION_ATTEMPT = 'SQL_INJECTION_ATTEMPT',
-  CSRF_ATTEMPT = 'CSRF_ATTEMPT',
-  
+  RATE_LIMIT_EXCEEDED = "RATE_LIMIT_EXCEEDED",
+  SUSPICIOUS_ACTIVITY = "SUSPICIOUS_ACTIVITY",
+  XSS_ATTEMPT = "XSS_ATTEMPT",
+  SQL_INJECTION_ATTEMPT = "SQL_INJECTION_ATTEMPT",
+  CSRF_ATTEMPT = "CSRF_ATTEMPT",
+
   // System events
-  SECURITY_CONFIG_CHANGE = 'SECURITY_CONFIG_CHANGE',
-  SYSTEM_ERROR = 'SYSTEM_ERROR',
+  SECURITY_CONFIG_CHANGE = "SECURITY_CONFIG_CHANGE",
+  SYSTEM_ERROR = "SYSTEM_ERROR",
 }
 
 export interface SecurityEvent {
@@ -42,9 +42,9 @@ export interface SecurityEvent {
   userAgent?: string;
   resource?: string;
   action?: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
   timestamp: Date;
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  severity: "low" | "medium" | "high" | "critical";
 }
 
 export class SecurityAuditLogger {
@@ -64,7 +64,7 @@ export class SecurityAuditLogger {
   /**
    * Log a security event
    */
-  log(event: Omit<SecurityEvent, 'timestamp'>): void {
+  log(event: Omit<SecurityEvent, "timestamp">): void {
     const securityEvent: SecurityEvent = {
       ...event,
       timestamp: new Date(),
@@ -78,13 +78,13 @@ export class SecurityAuditLogger {
     }
 
     // Log to console in production (can be replaced with external logging service)
-    if (process.env.NODE_ENV === 'production') {
-      console.log('[SECURITY_AUDIT]', JSON.stringify(securityEvent));
+    if (process.env.NODE_ENV === "production") {
+      console.log("[SECURITY_AUDIT]", JSON.stringify(securityEvent));
     }
 
     // For critical events, also log with error level
-    if (securityEvent.severity === 'critical') {
-      console.error('[SECURITY_CRITICAL]', JSON.stringify(securityEvent));
+    if (securityEvent.severity === "critical") {
+      console.error("[SECURITY_CRITICAL]", JSON.stringify(securityEvent));
     }
   }
 
@@ -93,7 +93,7 @@ export class SecurityAuditLogger {
    */
   getEventsByType(type: SecurityEventType, limit = 100): SecurityEvent[] {
     return this.events
-      .filter(event => event.type === type)
+      .filter((event) => event.type === type)
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
       .slice(0, limit);
   }
@@ -103,7 +103,7 @@ export class SecurityAuditLogger {
    */
   getEventsByUser(userId: string, limit = 100): SecurityEvent[] {
     return this.events
-      .filter(event => event.userId === userId)
+      .filter((event) => event.userId === userId)
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
       .slice(0, limit);
   }
@@ -111,9 +111,12 @@ export class SecurityAuditLogger {
   /**
    * Get events by severity
    */
-  getEventsBySeverity(severity: SecurityEvent['severity'], limit = 100): SecurityEvent[] {
+  getEventsBySeverity(
+    severity: SecurityEvent["severity"],
+    limit = 100,
+  ): SecurityEvent[] {
     return this.events
-      .filter(event => event.severity === severity)
+      .filter((event) => event.severity === severity)
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
       .slice(0, limit);
   }
@@ -138,44 +141,57 @@ export class SecurityAuditLogger {
     const now = new Date();
     const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
 
-    const recentEvents = this.events.filter(event => event.timestamp >= oneHourAgo);
+    const recentEvents = this.events.filter(
+      (event) => event.timestamp >= oneHourAgo,
+    );
 
     // Multiple failed logins from same IP
     const failedLoginsByIP = recentEvents
-      .filter(event => event.type === SecurityEventType.LOGIN_FAILED)
-      .reduce((acc, event) => {
-        const ip = event.ip || 'unknown';
-        acc[ip] = (acc[ip] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
+      .filter((event) => event.type === SecurityEventType.LOGIN_FAILED)
+      .reduce(
+        (acc, event) => {
+          const ip = event.ip || "unknown";
+          acc[ip] = (acc[ip] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>,
+      );
 
-    const multipleFailedLogins = recentEvents.filter(event => 
-      event.type === SecurityEventType.LOGIN_FAILED && 
-      (failedLoginsByIP[event.ip || 'unknown'] || 0) >= 5
+    const multipleFailedLogins = recentEvents.filter(
+      (event) =>
+        event.type === SecurityEventType.LOGIN_FAILED &&
+        (failedLoginsByIP[event.ip || "unknown"] || 0) >= 5,
     );
 
     // Rapid data access (more than 100 data access events in 1 hour)
-    const dataAccessEvents = recentEvents.filter(event => 
-      event.type === SecurityEventType.DATA_ACCESS
+    const dataAccessEvents = recentEvents.filter(
+      (event) => event.type === SecurityEventType.DATA_ACCESS,
     );
 
     // Unusual access patterns (access from multiple IPs in short time)
     const userIPs = recentEvents
-      .filter(event => event.userId && event.type === SecurityEventType.LOGIN_SUCCESS)
-      .reduce((acc, event) => {
-        if (!acc[event.userId!]) {
-          acc[event.userId!] = new Set();
-        }
-        if (event.ip) {
-          acc[event.userId!]?.add(event.ip);
-        }
-        return acc;
-      }, {} as Record<string, Set<string>>);
+      .filter(
+        (event) =>
+          event.userId && event.type === SecurityEventType.LOGIN_SUCCESS,
+      )
+      .reduce(
+        (acc, event) => {
+          if (!acc[event.userId as string]) {
+            acc[event.userId as string] = new Set();
+          }
+          if (event.ip) {
+            acc[event.userId as string]?.add(event.ip);
+          }
+          return acc;
+        },
+        {} as Record<string, Set<string>>,
+      );
 
-    const unusualAccessPatterns = recentEvents.filter(event => 
-      event.userId && 
-      userIPs[event.userId] && 
-      (userIPs[event.userId]?.size || 0) > 3
+    const unusualAccessPatterns = recentEvents.filter(
+      (event) =>
+        event.userId &&
+        userIPs[event.userId] &&
+        (userIPs[event.userId]?.size || 0) > 3,
     );
 
     return {
@@ -190,7 +206,7 @@ export class SecurityAuditLogger {
    */
   clearOldEvents(daysToKeep = 30): void {
     const cutoffDate = new Date(Date.now() - daysToKeep * 24 * 60 * 60 * 1000);
-    this.events = this.events.filter(event => event.timestamp >= cutoffDate);
+    this.events = this.events.filter((event) => event.timestamp >= cutoffDate);
   }
 
   /**
@@ -211,24 +227,34 @@ export class SecurityAuditLogger {
     const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
     const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-    const eventsByType = this.events.reduce((acc, event) => {
-      acc[event.type] = (acc[event.type] || 0) + 1;
-      return acc;
-    }, {} as Record<SecurityEventType, number>);
+    const eventsByType = this.events.reduce(
+      (acc, event) => {
+        acc[event.type] = (acc[event.type] || 0) + 1;
+        return acc;
+      },
+      {} as Record<SecurityEventType, number>,
+    );
 
-    const eventsBySeverity = this.events.reduce((acc, event) => {
-      acc[event.severity] = (acc[event.severity] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const eventsBySeverity = this.events.reduce(
+      (acc, event) => {
+        acc[event.severity] = (acc[event.severity] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
 
     return {
       totalEvents: this.events.length,
       eventsByType,
       eventsBySeverity,
       recentActivity: {
-        lastHour: this.events.filter(event => event.timestamp >= oneHourAgo).length,
-        last24Hours: this.events.filter(event => event.timestamp >= oneDayAgo).length,
-        last7Days: this.events.filter(event => event.timestamp >= sevenDaysAgo).length,
+        lastHour: this.events.filter((event) => event.timestamp >= oneHourAgo)
+          .length,
+        last24Hours: this.events.filter((event) => event.timestamp >= oneDayAgo)
+          .length,
+        last7Days: this.events.filter(
+          (event) => event.timestamp >= sevenDaysAgo,
+        ).length,
       },
     };
   }
@@ -247,17 +273,22 @@ export const logSecurityEvent = {
       userId,
       ip,
       userAgent,
-      severity: 'low',
+      severity: "low",
     });
   },
 
-  loginFailed: (email?: string, ip?: string, userAgent?: string, reason?: string) => {
+  loginFailed: (
+    email?: string,
+    ip?: string,
+    userAgent?: string,
+    reason?: string,
+  ) => {
     securityAuditLogger.log({
       type: SecurityEventType.LOGIN_FAILED,
       ip,
       userAgent,
       details: { email, reason },
-      severity: 'medium',
+      severity: "medium",
     });
   },
 
@@ -267,28 +298,37 @@ export const logSecurityEvent = {
       userId,
       ip,
       resource,
-      severity: 'medium',
+      severity: "medium",
     });
   },
 
-  suspiciousActivity: (details: Record<string, any>, ip?: string, userId?: string) => {
+  suspiciousActivity: (
+    details: Record<string, unknown>,
+    ip?: string,
+    userId?: string,
+  ) => {
     securityAuditLogger.log({
       type: SecurityEventType.SUSPICIOUS_ACTIVITY,
       userId,
       ip,
       details,
-      severity: 'high',
+      severity: "high",
     });
   },
 
-  dataAccess: (userId: string, resource: string, action: string, ip?: string) => {
+  dataAccess: (
+    userId: string,
+    resource: string,
+    action: string,
+    ip?: string,
+  ) => {
     securityAuditLogger.log({
       type: SecurityEventType.DATA_ACCESS,
       userId,
       ip,
       resource,
       action,
-      severity: 'low',
+      severity: "low",
     });
   },
 
@@ -298,7 +338,7 @@ export const logSecurityEvent = {
       userId,
       ip,
       resource: endpoint,
-      severity: 'medium',
+      severity: "medium",
     });
   },
 };

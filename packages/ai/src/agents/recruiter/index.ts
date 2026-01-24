@@ -10,14 +10,14 @@ export * from "./analytics";
 export * from "./classification";
 // Config
 export * from "./config";
-// Interview
-export * from "./interview";
-// Priority
-export * from "./priority";
 // Core
 export * from "./core";
 // Interview
 export * from "./interview";
+// Interview
+export * from "./interview";
+// Priority
+export * from "./priority";
 // Priority
 export * from "./priority";
 // Ranking

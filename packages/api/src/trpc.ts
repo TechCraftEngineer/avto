@@ -11,12 +11,16 @@ import type { Auth } from "@qbs-autonaim/auth";
 import { OrganizationRepository, WorkspaceRepository } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { inngest } from "@qbs-autonaim/jobs/client";
-import { rateLimit, RATE_LIMITS, getClientIP, addAPISecurityHeaders } from "@qbs-autonaim/server-utils";
+import {
+  getClientIP,
+  RATE_LIMITS,
+  rateLimit,
+} from "@qbs-autonaim/server-utils";
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError, z } from "zod";
-import { AuditLoggerService } from "./services/audit-logger";
 import { createSecurityAuditMiddleware } from "./middleware/security-audit";
+import { AuditLoggerService } from "./services/audit-logger";
 import { extractTokenFromHeaders } from "./utils/interview-token-validator";
 
 /**
@@ -93,6 +97,11 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
 });
 
 /**
+ * Context type for tRPC
+ */
+export type TRPCContext = Awaited<ReturnType<typeof createTRPCContext>>;
+
+/**
  * 3. ROUTER & PROCEDURE (THE IMPORTANT BIT)
  *
  * These are the pieces you use to build your tRPC API. You should import these
@@ -115,10 +124,10 @@ const securityAuditMiddleware = t.middleware(createSecurityAuditMiddleware());
  */
 const securityHeadersMiddleware = t.middleware(async ({ next }) => {
   const result = await next();
-  
+
   // Note: In tRPC, we can't directly modify response headers here
   // Security headers are added in the Next.js route handler
-  
+
   return result;
 });
 
@@ -128,33 +137,37 @@ const securityHeadersMiddleware = t.middleware(async ({ next }) => {
 const rateLimitMiddleware = t.middleware(async ({ next, path, ctx }) => {
   const clientIP = getClientIP({ headers: ctx.headers } as Request);
   const userId = ctx.session?.user?.id;
-  
+
   // Determine rate limit based on endpoint type
-  let rateLimitConfig;
-  if (path.includes('auth') || path.includes('signIn') || path.includes('signUp')) {
+  let rateLimitConfig: { limit: number; windowMs: number };
+  if (
+    path.includes("auth") ||
+    path.includes("signIn") ||
+    path.includes("signUp")
+  ) {
     rateLimitConfig = RATE_LIMITS.auth.signIn;
-  } else if (path.includes('upload') || path.includes('file')) {
+  } else if (path.includes("upload") || path.includes("file")) {
     rateLimitConfig = RATE_LIMITS.api.upload;
   } else {
     rateLimitConfig = RATE_LIMITS.api.default;
   }
-  
+
   // Use user ID if available, otherwise use IP
   const identifier = userId || clientIP;
-  
+
   const rateLimitResult = rateLimit(
     identifier,
     rateLimitConfig.limit,
-    rateLimitConfig.windowMs
+    rateLimitConfig.windowMs,
   );
-  
+
   if (!rateLimitResult.success) {
     throw new TRPCError({
       code: "TOO_MANY_REQUESTS",
       message: `Rate limit exceeded. Try again in ${Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000)} seconds.`,
     });
   }
-  
+
   return next();
 });
 

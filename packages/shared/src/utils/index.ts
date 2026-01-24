@@ -5,7 +5,7 @@
 
 // Утилиты для работы с фриланс-платформами
 export {
-  parsePlatformLink,
   getPlatformTaskUrl,
   type ParsedPlatformLink,
+  parsePlatformLink,
 } from "./freelance-platform-parser";

@@ -2,12 +2,12 @@
  * Сервис для работы с метаданными conversation
  */
 
-import type { ConversationMetadata } from "@qbs-autonaim/shared";
 import {
   getConversationMetadata,
   getQuestionCount,
   updateConversationMetadata,
 } from "@qbs-autonaim/server-utils";
+import type { ConversationMetadata } from "@qbs-autonaim/shared";
 import { createLogger } from "../base";
 
 const logger = createLogger("ConversationMetadata");

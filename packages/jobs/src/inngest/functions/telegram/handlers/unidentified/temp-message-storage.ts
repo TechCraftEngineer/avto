@@ -1,15 +1,15 @@
+import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import {
   bufferedTempInterviewMessage,
   interviewMessage,
   tempInterviewMessage,
 } from "@qbs-autonaim/db/schema";
-import { removeNullBytes } from "@qbs-autonaim/lib";
-import { eq } from "@qbs-autonaim/db";
 import {
   type BufferedTempMessageData,
   tempMessageBufferService,
 } from "@qbs-autonaim/jobs/services/buffer";
+import { removeNullBytes } from "@qbs-autonaim/lib";
 
 /**
  * Сохраняет временное сообщение для неидентифицированного пользователя

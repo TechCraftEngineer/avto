@@ -1,6 +1,10 @@
 "use client";
 
 import {
+  RESPONSE_STATUS,
+  RESPONSE_STATUS_LABELS,
+} from "@qbs-autonaim/db/schema";
+import {
   Input,
   Select,
   SelectContent,
@@ -8,10 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@qbs-autonaim/ui";
-import {
-  RESPONSE_STATUS,
-  RESPONSE_STATUS_LABELS,
-} from "@qbs-autonaim/db/schema";
 import { Filter, Search } from "lucide-react";
 
 interface ResponsesFiltersProps {

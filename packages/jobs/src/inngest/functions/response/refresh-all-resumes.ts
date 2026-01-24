@@ -4,10 +4,7 @@ import { db } from "@qbs-autonaim/db/client";
 import { response } from "@qbs-autonaim/db/schema";
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
-import {
-  loadCookies,
-  checkAndPerformLogin,
-} from "../../../parsers/hh/auth";
+import { checkAndPerformLogin, loadCookies } from "../../../parsers/hh/auth";
 import { setupBrowser, setupPage } from "../../../parsers/hh/browser-setup";
 import { closeBrowserSafely } from "../../../parsers/hh/browser-utils";
 import { parseResumeExperience } from "../../../parsers/hh/resume-parser";

@@ -10,6 +10,12 @@ import {
   TabsList,
   TabsTrigger,
 } from "@qbs-autonaim/ui";
+import { Award, Banknote, Briefcase, Clock } from "lucide-react";
+import {
+  FactorBreakdown,
+  OverallAssessment,
+  ScoreExplanation,
+} from "~/components/candidate";
 import {
   ContactsTab,
   DialogTab,
@@ -18,12 +24,6 @@ import {
   PortfolioTab,
   ProposalTab,
 } from "~/components/response-detail";
-import {
-  FactorBreakdown,
-  OverallAssessment,
-  ScoreExplanation,
-} from "~/components/candidate";
-import { Award, Banknote, Briefcase, Clock } from "lucide-react";
 import type { ResponseDetail } from "./hooks/use-vacancy-response-flags";
 
 interface GigResponseTabsProps {

@@ -1,10 +1,10 @@
 import { RefreshDialog } from "./refresh-dialog";
 import { ScreeningDialog } from "./screening-dialog";
 import { SyncArchivedDialog } from "./sync-archived-dialog";
+import type { RefreshAllResumesState } from "./use-refresh-all-resumes-state";
 import type { RefreshState } from "./use-refresh-state";
 import type { ScreeningState } from "./use-screening-state";
 import type { SyncArchivedState } from "./use-sync-archived-state";
-import type { RefreshAllResumesState } from "./use-refresh-all-resumes-state";
 
 interface ResponseDialogsProps {
   totalResponses: number;

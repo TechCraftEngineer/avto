@@ -1,7 +1,7 @@
 import { paths } from "@qbs-autonaim/config";
+import { RATE_LIMITS, rateLimit } from "@qbs-autonaim/server-utils";
 import { getSessionCookie } from "better-auth/cookies";
 import { type NextRequest, NextResponse } from "next/server";
-import { rateLimit, RATE_LIMITS } from "@qbs-autonaim/server-utils";
 
 /**
  * Generate cryptographically secure nonce for CSP
@@ -9,7 +9,9 @@ import { rateLimit, RATE_LIMITS } from "@qbs-autonaim/server-utils";
 function generateNonce(): string {
   const array = new Uint8Array(16);
   crypto.getRandomValues(array);
-  return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+  return Array.from(array, (byte) => byte.toString(16).padStart(2, "0")).join(
+    "",
+  );
 }
 
 /**
@@ -29,22 +31,22 @@ function buildCSPWithNonce(nonce: string): string {
     "form-action 'self'",
     "frame-ancestors 'none'",
   ];
-  
-  return directives.join('; ');
+
+  return directives.join("; ");
 }
 
 export async function proxy(request: NextRequest) {
   const response = NextResponse.next();
-  
+
   // Generate nonce for this request
   const nonce = generateNonce();
-  
+
   // Build and set CSP with nonce
   const csp = buildCSPWithNonce(nonce);
-  response.headers.set('Content-Security-Policy', csp);
-  
+  response.headers.set("Content-Security-Policy", csp);
+
   // Add nonce to response headers for client components
-  response.headers.set('x-nonce', nonce);
+  response.headers.set("x-nonce", nonce);
 
   const sessionCookie = getSessionCookie(request);
   const { pathname } = request.nextUrl;
@@ -72,38 +74,55 @@ export async function proxy(request: NextRequest) {
   // Это предотвращает циклы когда сессия невалидна
 
   // Apply security headers
-  response.headers.set('X-Content-Type-Options', 'nosniff');
-  response.headers.set('X-Frame-Options', 'DENY');
-  response.headers.set('X-XSS-Protection', '1; mode=block');
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
-  
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("X-Frame-Options", "DENY");
+  response.headers.set("X-XSS-Protection", "1; mode=block");
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  response.headers.set(
+    "Permissions-Policy",
+    "camera=(), microphone=(), geolocation=()",
+  );
+
   // Apply rate limiting for API routes
-  if (request.nextUrl.pathname.startsWith('/api/')) {
-    const clientIP = request.headers.get('x-forwarded-for') || 
-                     request.headers.get('x-real-ip') || 
-                     'unknown';
-    
+  if (request.nextUrl.pathname.startsWith("/api/")) {
+    const clientIP =
+      request.headers.get("x-forwarded-for") ||
+      request.headers.get("x-real-ip") ||
+      "unknown";
+
     // Different rate limits for different endpoints
-    let rateLimitConfig: { limit: number; windowMs: number } = RATE_LIMITS.api.default;
-    if (request.nextUrl.pathname.startsWith('/api/auth/')) {
+    let rateLimitConfig: { limit: number; windowMs: number } =
+      RATE_LIMITS.api.default;
+    if (request.nextUrl.pathname.startsWith("/api/auth/")) {
       rateLimitConfig = RATE_LIMITS.auth.signIn;
     }
-    
-    const rateLimitResult = rateLimit(clientIP, rateLimitConfig.limit, rateLimitConfig.windowMs);
-    
+
+    const rateLimitResult = rateLimit(
+      clientIP,
+      rateLimitConfig.limit,
+      rateLimitConfig.windowMs,
+    );
+
     // Set rate limit headers
-    response.headers.set('X-Rate-Limit-Limit', String(rateLimitConfig.limit));
-    response.headers.set('X-Rate-Limit-Remaining', String(rateLimitResult.remaining));
-    response.headers.set('X-Rate-Limit-Reset', String(rateLimitResult.resetTime));
-    
+    response.headers.set("X-Rate-Limit-Limit", String(rateLimitConfig.limit));
+    response.headers.set(
+      "X-Rate-Limit-Remaining",
+      String(rateLimitResult.remaining),
+    );
+    response.headers.set(
+      "X-Rate-Limit-Reset",
+      String(rateLimitResult.resetTime),
+    );
+
     // Return 429 if rate limit exceeded
     if (!rateLimitResult.success) {
-      return new NextResponse('Too Many Requests', {
+      return new NextResponse("Too Many Requests", {
         status: 429,
         headers: {
           ...Object.fromEntries(response.headers.entries()),
-          'Retry-After': String(Math.ceil((rateLimitResult.resetTime - Date.now() / 1000))),
+          "Retry-After": String(
+            Math.ceil(rateLimitResult.resetTime - Date.now() / 1000),
+          ),
         },
       });
     }

@@ -1,5 +1,5 @@
 import type { CandidateDataFromResponse } from "@qbs-autonaim/db";
-import type { Response, ImportSource, Language } from "@qbs-autonaim/db/schema";
+import type { ImportSource, Language, Response } from "@qbs-autonaim/db/schema";
 
 /**
  * Сервис для работы с данными кандидатов

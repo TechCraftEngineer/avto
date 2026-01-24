@@ -2,8 +2,8 @@ import { and, eq, sql } from "@qbs-autonaim/db";
 import {
   gig,
   gigHrSelectionStatusValues,
-  response as responseTable,
   responseStatusValues,
+  response as responseTable,
 } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";

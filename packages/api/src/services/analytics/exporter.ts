@@ -6,8 +6,8 @@
  */
 
 import type { DbClient } from "@qbs-autonaim/db";
-import { prequalificationSession, vacancy } from "@qbs-autonaim/db/schema";
 import { and, eq, gte, lte } from "@qbs-autonaim/db";
+import { prequalificationSession, vacancy } from "@qbs-autonaim/db/schema";
 
 import type {
   DateRange,

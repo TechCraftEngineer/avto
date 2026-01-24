@@ -1,5 +1,8 @@
-import { gig, gigTypeValues } from "@qbs-autonaim/db/schema";
-import { platformSourceValues } from "@qbs-autonaim/db/schema";
+import {
+  gig,
+  gigTypeValues,
+  platformSourceValues,
+} from "@qbs-autonaim/db/schema";
 import { parsePlatformLink } from "@qbs-autonaim/shared/utils";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";

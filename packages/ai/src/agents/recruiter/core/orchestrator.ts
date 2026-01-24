@@ -3,8 +3,8 @@
  * Использует Orchestrator-Worker pattern для координации специализированных агентов
  */
 
-import type { LanguageModel } from "ai";
 import { langfuse as globalLangfuse } from "@qbs-autonaim/lib/ai";
+import type { LanguageModel } from "ai";
 import type { Langfuse } from "langfuse";
 import type { AgentConfig } from "../../core/base-agent";
 import { CommunicationAgent } from "../actions/communication";

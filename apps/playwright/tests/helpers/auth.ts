@@ -1,6 +1,5 @@
 import type { Page } from "@playwright/test";
-import { db, verification } from "@qbs-autonaim/db";
-import { desc, eq } from "@qbs-autonaim/db";
+import { db, desc, eq, verification } from "@qbs-autonaim/db";
 
 export async function fillEmailPasswordForm(
   page: Page,

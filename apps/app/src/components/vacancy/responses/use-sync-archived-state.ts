@@ -2,7 +2,10 @@ import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
 import { fetchSyncArchivedVacancyResponsesToken } from "~/actions/realtime";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { type StatusData, useSyncArchivedSubscription } from "./use-sync-archived-subscription";
+import {
+  type StatusData,
+  useSyncArchivedSubscription,
+} from "./use-sync-archived-subscription";
 
 export interface SyncArchivedStateData {
   dialogOpen: boolean;

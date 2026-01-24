@@ -19,8 +19,8 @@ import {
   ProposalTab,
   ScreeningResultsCard,
 } from "~/components/response-detail";
-import { SalaryCard } from "./salary-card";
 import { ResumeCard } from "./resume-card";
+import { SalaryCard } from "./salary-card";
 import type { VacancyResponseTabsProps } from "./types";
 
 export function VacancyResponseTabs({

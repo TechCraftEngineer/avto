@@ -6,8 +6,8 @@
  */
 
 import type { DbClient, WidgetConfig } from "@qbs-autonaim/db";
-import { widgetConfig } from "@qbs-autonaim/db/schema";
 import { eq } from "@qbs-autonaim/db";
+import { widgetConfig } from "@qbs-autonaim/db/schema";
 
 import type {
   BehaviorConfig,

@@ -1,13 +1,5 @@
 // ==================== Inngest ====================
 
-export type {
-  BufferedMessage,
-  BufferValue,
-  ConversationMetadata,
-  MessageBufferService,
-  QuestionAnswer,
-} from "@qbs-autonaim/shared";
-
 // Re-export from server-utils package
 export {
   getChatSessionMetadata,
@@ -19,6 +11,13 @@ export {
   updateConversationMetadata,
   updateInterviewSessionMetadata,
 } from "@qbs-autonaim/server-utils";
+export type {
+  BufferedMessage,
+  BufferValue,
+  ConversationMetadata,
+  MessageBufferService,
+  QuestionAnswer,
+} from "@qbs-autonaim/shared";
 export {
   extractVacancyRequirementsFunction,
   inngest,

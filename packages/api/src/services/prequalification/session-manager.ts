@@ -12,12 +12,12 @@ import type {
   ParsedResume,
   PrequalificationSession,
 } from "@qbs-autonaim/db";
+import { and, eq } from "@qbs-autonaim/db";
 import {
   prequalificationSession,
   vacancy,
   widgetConfig,
 } from "@qbs-autonaim/db/schema";
-import { and, eq } from "@qbs-autonaim/db";
 
 import type {
   CreateSessionInput,

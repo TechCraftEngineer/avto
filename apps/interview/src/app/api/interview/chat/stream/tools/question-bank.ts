@@ -1,10 +1,10 @@
 import { createHash } from "node:crypto";
 import { extractJsonObject } from "@qbs-autonaim/ai";
+import { generateText } from "@qbs-autonaim/lib/ai";
 import {
   getInterviewSessionMetadata,
   updateInterviewSessionMetadata,
 } from "@qbs-autonaim/server-utils";
-import { generateText } from "@qbs-autonaim/lib/ai";
 import { tool } from "ai";
 import { z } from "zod";
 import type { EntityType, GigLike, LanguageModel, VacancyLike } from "../types";

@@ -1,11 +1,11 @@
-import { db } from "@qbs-autonaim/db/client";
 import {
+  eq,
   organization,
   organizationMember,
   user,
   workspace,
 } from "@qbs-autonaim/db";
-import { eq } from "@qbs-autonaim/db";
+import { db } from "@qbs-autonaim/db/client";
 import { NextResponse } from "next/server";
 import { auth } from "~/auth/server";
 

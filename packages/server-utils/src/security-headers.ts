@@ -3,8 +3,8 @@
  * Adds various security headers to prevent common attacks
  */
 
-import { NextResponse } from 'next/server';
-import type { NextRequest, NextResponse as NextResponseType } from 'next/server';
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 /**
  * Security configuration
@@ -18,7 +18,11 @@ const SECURITY_CONFIG = {
       styleSrc: ["'self'", "'unsafe-inline'"], // Required for Tailwind
       imgSrc: ["'self'", "data:", "https:"],
       fontSrc: ["'self'", "data:"],
-      connectSrc: ["'self'", "https://api.openai.com", "https://api.deepseek.com"],
+      connectSrc: [
+        "'self'",
+        "https://api.openai.com",
+        "https://api.deepseek.com",
+      ],
       frameSrc: ["'none'"],
       objectSrc: ["'none'"],
       baseUri: ["'self'"],
@@ -29,12 +33,12 @@ const SECURITY_CONFIG = {
   },
   // Other security headers
   headers: {
-    'X-Content-Type-Options': 'nosniff',
-    'X-Frame-Options': 'DENY',
-    'X-XSS-Protection': '1; mode=block',
-    'Referrer-Policy': 'strict-origin-when-cross-origin',
-    'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
-    'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "X-XSS-Protection": "1; mode=block",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
   },
 };
 
@@ -43,13 +47,13 @@ const SECURITY_CONFIG = {
  */
 function generateCSPHeader(): string {
   const { directives } = SECURITY_CONFIG.csp;
-  
+
   return Object.entries(directives)
     .map(([key, values]) => {
-      const directive = key.replace(/([A-Z])/g, '-$1').toLowerCase();
-      return `${directive} ${values.join(' ')}`;
+      const directive = key.replace(/([A-Z])/g, "-$1").toLowerCase();
+      return `${directive} ${values.join(" ")}`;
     })
-    .join('; ');
+    .join("; ");
 }
 
 /**
@@ -57,25 +61,25 @@ function generateCSPHeader(): string {
  */
 export function addSecurityHeaders(response: NextResponse): NextResponse {
   // Add Content Security Policy
-  response.headers.set('Content-Security-Policy', generateCSPHeader());
-  
+  response.headers.set("Content-Security-Policy", generateCSPHeader());
+
   // Add other security headers
   Object.entries(SECURITY_CONFIG.headers).forEach(([key, value]) => {
     response.headers.set(key, value);
   });
-  
+
   return response;
 }
 
 /**
  * Security middleware for Next.js middleware
  */
-export function securityMiddleware(request: NextRequest): NextResponse {
+export function securityMiddleware(_request: NextRequest): NextResponse {
   const response = NextResponse.next();
-  
+
   // Add security headers
   addSecurityHeaders(response);
-  
+
   return response;
 }
 
@@ -84,14 +88,15 @@ export function securityMiddleware(request: NextRequest): NextResponse {
  */
 export function addAPISecurityHeaders(response: Response): Response {
   // API-specific CSP (more restrictive)
-  const apiCSP = "default-src 'self'; script-src 'none'; style-src 'none'; img-src 'none'; font-src 'none'; connect-src 'self'";
-  response.headers.set('Content-Security-Policy', apiCSP);
-  
+  const apiCSP =
+    "default-src 'self'; script-src 'none'; style-src 'none'; img-src 'none'; font-src 'none'; connect-src 'self'";
+  response.headers.set("Content-Security-Policy", apiCSP);
+
   // API-specific headers
-  response.headers.set('X-Content-Type-Options', 'nosniff');
-  response.headers.set('X-Frame-Options', 'DENY');
-  response.headers.set('X-XSS-Protection', '1; mode=block');
-  response.headers.set('Referrer-Policy', 'no-referrer');
-  
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("X-Frame-Options", "DENY");
+  response.headers.set("X-XSS-Protection", "1; mode=block");
+  response.headers.set("Referrer-Policy", "no-referrer");
+
   return response;
 }

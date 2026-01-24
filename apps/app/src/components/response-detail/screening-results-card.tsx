@@ -242,7 +242,9 @@ export function ScreeningResultsCard({ screening }: ScreeningResultsCardProps) {
               <div
                 className="text-xs sm:text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none dark:prose-invert"
                 dangerouslySetInnerHTML={{
-                  __html: sanitizeHtml(screening.careerTrajectoryAnalysis || ""),
+                  __html: sanitizeHtml(
+                    screening.careerTrajectoryAnalysis || "",
+                  ),
                 }}
               />
             </div>

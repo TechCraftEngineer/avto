@@ -23,7 +23,7 @@ const rateLimitStore: RateLimitStore = {};
 export function rateLimit(
   identifier: string,
   limit: number,
-  windowMs: number
+  windowMs: number,
 ): { success: boolean; remaining: number; resetTime: number } {
   const now = Date.now();
   const key = identifier;
@@ -92,13 +92,13 @@ export const RATE_LIMITS = {
  * Get client IP address from request
  */
 export function getClientIP(request: Request): string {
-  const forwarded = request.headers.get('x-forwarded-for');
-  const realIP = request.headers.get('x-real-ip');
-  
+  const forwarded = request.headers.get("x-forwarded-for");
+  const realIP = request.headers.get("x-real-ip");
+
   if (forwarded) {
     const trimmedForwarded = forwarded.trim();
     if (trimmedForwarded) {
-      const ips = trimmedForwarded.split(',');
+      const ips = trimmedForwarded.split(",");
       if (ips.length > 0 && ips[0]) {
         const firstIP = ips[0].trim();
         if (firstIP) {
@@ -107,12 +107,12 @@ export function getClientIP(request: Request): string {
       }
     }
   }
-  
-  if (realIP && realIP.trim()) {
+
+  if (realIP?.trim()) {
     return realIP.trim();
   }
-  
-  return 'unknown';
+
+  return "unknown";
 }
 
 /**
@@ -122,12 +122,14 @@ export function getClientIP(request: Request): string {
 export function cleanupExpiredRecords(): void {
   const now = Date.now();
   const keysToDelete: string[] = [];
-  
+
   for (const [key, record] of Object.entries(rateLimitStore)) {
     if (now > record.resetTime) {
       keysToDelete.push(key);
     }
   }
-  
-  keysToDelete.forEach(key => delete rateLimitStore[key]);
+
+  for (const key of keysToDelete) {
+    delete rateLimitStore[key];
+  }
 }

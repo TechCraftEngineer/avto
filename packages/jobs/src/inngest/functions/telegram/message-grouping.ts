@@ -8,9 +8,9 @@
  * Ждем 10 минут после последнего сообщения кандидата, затем обрабатываем всю группу.
  */
 
+import { and, desc, eq, gte } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { interviewMessage } from "@qbs-autonaim/db/schema";
-import { and, desc, eq, gte } from "@qbs-autonaim/db";
 import { MESSAGE_GROUPING_CONFIG } from "./message-grouping.config";
 
 const GROUPING_WINDOW_MINUTES = 10;

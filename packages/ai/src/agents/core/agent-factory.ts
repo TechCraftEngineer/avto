@@ -2,8 +2,8 @@
  * Централизованная фабрика для создания агентов с автоматической передачей langfuse
  */
 
-import type { LanguageModel } from "ai";
 import { langfuse as globalLangfuse } from "@qbs-autonaim/lib/ai";
+import type { LanguageModel } from "ai";
 import type { Langfuse } from "langfuse";
 import { BotSummaryAnalyzerAgent } from "../detection/bot-summary-analyzer";
 import { BotUsageDetectorAgent } from "../detection/bot-usage-detector";

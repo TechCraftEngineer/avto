@@ -67,7 +67,8 @@ export const update = protectedProcedure
         settings.customOrganizationalQuestions;
     }
     if (settings.enabledCommunicationChannels !== undefined) {
-      patch.enabledCommunicationChannels = settings.enabledCommunicationChannels;
+      patch.enabledCommunicationChannels =
+        settings.enabledCommunicationChannels;
     }
     if (settings.welcomeMessageTemplates !== undefined) {
       patch.welcomeMessageTemplates = settings.welcomeMessageTemplates;
@@ -110,8 +111,13 @@ export const update = protectedProcedure
         const analytics = new CommunicationChannelsAnalytics(ctx.db);
 
         // Отслеживаем только изменившиеся каналы
-        for (const [channel, enabled] of Object.entries(settings.enabledCommunicationChannels)) {
-          const previousEnabled = existingVacancy.enabledCommunicationChannels?.[channel as keyof typeof existingVacancy.enabledCommunicationChannels] ?? false;
+        for (const [channel, enabled] of Object.entries(
+          settings.enabledCommunicationChannels,
+        )) {
+          const previousEnabled =
+            existingVacancy.enabledCommunicationChannels?.[
+              channel as keyof typeof existingVacancy.enabledCommunicationChannels
+            ] ?? false;
           if (enabled !== previousEnabled) {
             await analytics.trackChannelSelection({
               workspaceId: input.workspaceId,

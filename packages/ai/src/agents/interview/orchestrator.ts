@@ -3,8 +3,8 @@
  * Использует Orchestrator-Worker pattern из AI SDK workflows
  */
 
-import type { LanguageModel } from "ai";
 import { langfuse as globalLangfuse } from "@qbs-autonaim/lib/ai";
+import type { LanguageModel } from "ai";
 import type { Langfuse } from "langfuse";
 import { AgentFactory } from "../core/agent-factory";
 import type { BaseAgentContext } from "../core/types";

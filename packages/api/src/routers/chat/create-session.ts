@@ -1,9 +1,13 @@
-import { chatEntityTypeEnum, chatSession, vacancy } from "@qbs-autonaim/db/schema";
 import { eq } from "@qbs-autonaim/db";
+import {
+  chatEntityTypeEnum,
+  chatSession,
+  vacancy,
+} from "@qbs-autonaim/db/schema";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { chatRegistry } from "../../services/chat/registry";
 import { CommunicationChannelsAnalytics } from "../../services/analytics/communication-channels";
+import { chatRegistry } from "../../services/chat/registry";
 import { protectedProcedure } from "../../trpc";
 
 export const createSession = protectedProcedure

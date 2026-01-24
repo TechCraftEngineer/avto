@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import { Button } from "@qbs-autonaim/ui";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader2, Sparkles } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { triggerScreenResponse } from "~/actions/trigger";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
@@ -151,7 +151,9 @@ export function ScreenResponseButton({
             }
             timeoutRef.current = null;
 
-            const error = new Error("Скрининг не завершился в течение 30 секунд");
+            const error = new Error(
+              "Скрининг не завершился в течение 30 секунд",
+            );
             if (mountedRef.current) {
               setIsLoading(false);
             }

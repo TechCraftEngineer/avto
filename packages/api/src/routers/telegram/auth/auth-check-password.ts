@@ -1,7 +1,7 @@
+import { eq } from "@qbs-autonaim/db";
 import { telegramSession } from "@qbs-autonaim/db/schema";
 import { tgClientSDK } from "@qbs-autonaim/tg-client/sdk";
 import { TRPCError } from "@trpc/server";
-import { eq } from "@qbs-autonaim/db";
 import { z } from "zod";
 import { protectedProcedure } from "../../../trpc";
 import { normalizePhone } from "../utils";

@@ -1,10 +1,10 @@
+import { eq } from "@qbs-autonaim/db";
 import { botSettings as botSettingsTable } from "@qbs-autonaim/db/schema";
 import {
   updateBotSettingsSchema,
   workspaceIdSchema,
 } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
-import { eq } from "@qbs-autonaim/db";
 import { z } from "zod";
 import { protectedProcedure } from "../../trpc";
 

@@ -16,8 +16,8 @@ import {
 } from "@qbs-autonaim/ui";
 import { MessageCircle, Wand2 } from "lucide-react";
 import type { Control } from "react-hook-form";
-import { useTRPC } from "~/trpc/react";
 import { toast } from "sonner";
+import { useTRPC } from "~/trpc/react";
 import { WelcomeMessagePreview } from "./welcome-message-preview";
 
 interface WelcomeMessageTemplatesProps {
@@ -63,7 +63,8 @@ export function WelcomeMessageTemplates({
   improvingField,
 }: WelcomeMessageTemplatesProps) {
   const trpc = useTRPC();
-  const improveWelcomeTemplateMutation = (trpc.vacancy.improveWelcomeTemplates as any).useMutation();
+  const improveWelcomeTemplateMutation =
+    trpc.vacancy.improveWelcomeTemplates.useMutation();
 
   const handleImprove = async (channel: "webChat" | "telegram") => {
     if (!vacancyId || !workspaceId) return;
@@ -74,7 +75,9 @@ export function WelcomeMessageTemplates({
     if (!currentValue.trim()) {
       // Если поле пустое, используем шаблон по умолчанию
       const defaultTemplate =
-        channel === "webChat" ? DEFAULT_WEB_CHAT_TEMPLATE : DEFAULT_TELEGRAM_TEMPLATE;
+        channel === "webChat"
+          ? DEFAULT_WEB_CHAT_TEMPLATE
+          : DEFAULT_TELEGRAM_TEMPLATE;
 
       // Устанавливаем шаблон по умолчанию
       control._formValues.welcomeMessageTemplates = {
@@ -109,11 +112,17 @@ export function WelcomeMessageTemplates({
   };
 
   const isChannelEnabled = (channel: "webChat" | "telegram") => {
-    return control._getWatch(`enabledCommunicationChannels.${channel}`) ?? (channel === "webChat");
+    return (
+      control._getWatch(`enabledCommunicationChannels.${channel}`) ??
+      channel === "webChat"
+    );
   };
 
   const isImproving = (channel: "webChat" | "telegram") => {
-    return improvingField === `welcomeMessageTemplates.${channel}` || improveWelcomeTemplateMutation.isPending;
+    return (
+      improvingField === `welcomeMessageTemplates.${channel}` ||
+      improveWelcomeTemplateMutation.isPending
+    );
   };
 
   return (
@@ -180,7 +189,8 @@ export function WelcomeMessageTemplates({
               </FormControl>
               <FormDescription className="text-xs">
                 Это сообщение увидит кандидат при первом обращении в веб-чат.
-                Используйте переменную {"{{vacancyTitle}}"} для названия вакансии.
+                Используйте переменную {"{{vacancyTitle}}"} для названия
+                вакансии.
               </FormDescription>
               <FormMessage />
               <div className="flex items-center justify-between pt-1">
@@ -241,7 +251,8 @@ export function WelcomeMessageTemplates({
               </FormControl>
               <FormDescription className="text-xs">
                 Это сообщение получит кандидат при начале диалога в Telegram.
-                Используйте переменную {"{{vacancyTitle}}"} для названия вакансии.
+                Используйте переменную {"{{vacancyTitle}}"} для названия
+                вакансии.
               </FormDescription>
               <FormMessage />
               <div className="flex items-center justify-between pt-1">
@@ -265,7 +276,9 @@ export function WelcomeMessageTemplates({
         <WelcomeMessagePreview
           vacancyTitle={vacancyTitle}
           webChatTemplate={control._getWatch("welcomeMessageTemplates.webChat")}
-          telegramTemplate={control._getWatch("welcomeMessageTemplates.telegram")}
+          telegramTemplate={control._getWatch(
+            "welcomeMessageTemplates.telegram",
+          )}
         />
       </div>
     </Card>

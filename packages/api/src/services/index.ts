@@ -1,3 +1,11 @@
+// GigShortlistGenerator перенесен в @qbs-autonaim/shared
+export type {
+  GigContactInfo,
+  GigShortlist,
+  GigShortlistCandidate,
+  GigShortlistOptions,
+} from "@qbs-autonaim/shared";
+export { GigShortlistGenerator } from "@qbs-autonaim/shared";
 export type {
   AggregationGranularity,
   AnalyticsErrorCode,
@@ -90,14 +98,6 @@ export type {
   ShortlistOptions,
 } from "./shortlist-generator";
 export { ShortlistGenerator } from "./shortlist-generator";
-// GigShortlistGenerator перенесен в @qbs-autonaim/shared
-export type {
-  GigContactInfo,
-  GigShortlist,
-  GigShortlistCandidate,
-  GigShortlistOptions,
-} from "@qbs-autonaim/shared";
-export { GigShortlistGenerator } from "@qbs-autonaim/shared";
 export type {
   BehaviorConfig,
   BrandingConfig,

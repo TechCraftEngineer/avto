@@ -5,9 +5,9 @@
  * compositeScore и рекомендаций AI
  */
 
+import { and, eq, gte, isNotNull } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { response } from "@qbs-autonaim/db/schema";
-import { eq, and, gte, isNotNull } from "@qbs-autonaim/db";
 
 /**
  * Контактная информация кандидата

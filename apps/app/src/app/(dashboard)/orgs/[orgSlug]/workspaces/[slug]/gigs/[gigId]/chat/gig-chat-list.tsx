@@ -8,8 +8,8 @@ import { ArrowLeft, Plus } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
 import { useWorkspaceParams } from "~/hooks/use-workspace-params";
+import { useTRPC } from "~/trpc/react";
 
 interface GigChatListProps {
   gigId: string;

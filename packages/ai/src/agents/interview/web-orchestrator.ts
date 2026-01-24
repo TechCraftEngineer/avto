@@ -2,8 +2,8 @@
  * Оркестратор для WEB интервью со стримингом
  */
 
-import type { LanguageModel } from "ai";
 import { generateText } from "@qbs-autonaim/lib/ai";
+import type { LanguageModel } from "ai";
 import type { Langfuse } from "langfuse";
 import { z } from "zod";
 import { extractJsonObject } from "../../utils/json-extractor";

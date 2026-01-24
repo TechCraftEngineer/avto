@@ -1,6 +1,6 @@
 import { db } from "@qbs-autonaim/db/client";
-import { inngest } from "../../client";
 import { checkPublicationStatusChannel } from "../../channels/client";
+import { inngest } from "../../client";
 
 /**
  * Inngest функция для массовой проверки статуса всех публикаций вакансий

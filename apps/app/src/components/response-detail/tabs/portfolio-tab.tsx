@@ -1,17 +1,16 @@
 "use client";
 
+import type { RouterOutputs } from "@qbs-autonaim/api";
 import { Button } from "@qbs-autonaim/ui";
+import { skipToken, useQuery } from "@tanstack/react-query";
 import {
+  Download,
   ExternalLink,
   FileText,
   Image as ImageIcon,
-  Download,
 } from "lucide-react";
-import type { RouterOutputs } from "@qbs-autonaim/api";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
-import { useQuery } from "@tanstack/react-query";
-import { skipToken } from "@tanstack/react-query";
 
 type GigResponseDetail = NonNullable<RouterOutputs["gig"]["responses"]["get"]>;
 type VacancyResponseDetail = NonNullable<

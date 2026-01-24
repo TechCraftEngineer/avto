@@ -111,9 +111,7 @@ export async function screenResponse(
     }
 
     requirements = extractResult.data;
-    logger.info(
-      `Требования извлечены синхронно для вакансии ${resp.entityId}`,
-    );
+    logger.info(`Требования извлечены синхронно для вакансии ${resp.entityId}`);
   }
 
   // Получаем кастомный промпт из вакансии

@@ -1,6 +1,6 @@
+import { and, eq } from "@qbs-autonaim/db";
 import { telegramSession } from "@qbs-autonaim/db/schema";
 import { TRPCError } from "@trpc/server";
-import { and, eq } from "@qbs-autonaim/db";
 import { z } from "zod";
 import { protectedProcedure } from "../../../trpc";
 

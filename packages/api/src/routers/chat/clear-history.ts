@@ -1,9 +1,9 @@
+import { eq } from "@qbs-autonaim/db";
 import {
   chatEntityTypeEnum,
   chatMessage,
   chatSession,
 } from "@qbs-autonaim/db/schema";
-import { eq } from "@qbs-autonaim/db";
 import { z } from "zod";
 import { protectedProcedure } from "../../trpc";
 

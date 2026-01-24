@@ -1,6 +1,6 @@
+import type * as schema from "@qbs-autonaim/db/schema";
 import type { LanguageModel } from "ai";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
-import type * as schema from "@qbs-autonaim/db/schema";
 
 export type { LanguageModel };
 

@@ -5,12 +5,12 @@ import {
   ArrowRight,
   Calendar,
   CheckCircle,
-  TrendingUp,
   FileText,
   Image,
   Mail,
   MessageSquare,
   Phone,
+  TrendingUp,
   User,
 } from "lucide-react";
 import { useTRPC } from "~/trpc/react";

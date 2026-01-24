@@ -2,10 +2,10 @@ import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { vacancy } from "@qbs-autonaim/db/schema";
 import puppeteer from "puppeteer";
+import { closeBrowserSafely } from "../../../parsers/hh/browser-utils";
 import { HH_CONFIG } from "../../../parsers/hh/config";
 import { humanBrowse, humanDelay } from "../../../parsers/hh/human-behavior";
 import { updateVacancyDescription } from "../../../services/vacancy";
-import { closeBrowserSafely } from "../../../parsers/hh/browser-utils";
 import { inngest } from "../../client";
 
 /**

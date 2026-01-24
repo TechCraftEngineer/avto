@@ -1,8 +1,8 @@
 import { eq } from "@qbs-autonaim/db";
-import { z } from "zod";
-import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { vacancyPublication } from "@qbs-autonaim/db/schema";
+import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
+import { z } from "zod";
 import { protectedProcedure } from "../../trpc";
 
 const validatePublicationInputSchema = z.object({

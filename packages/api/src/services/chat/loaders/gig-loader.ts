@@ -4,13 +4,14 @@
  */
 
 import {
+  and,
+  eq,
   gig,
   interviewScoring,
   response,
   responseScreening,
 } from "@qbs-autonaim/db";
 import type { db } from "@qbs-autonaim/db/client";
-import { and, eq } from "@qbs-autonaim/db";
 import type { ChatContext, ContextLoader } from "../types";
 
 interface CandidateData {

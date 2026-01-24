@@ -1,5 +1,4 @@
 "use client";
-import { useQuery } from "@tanstack/react-query";
 import {
   Button,
   Card,
@@ -88,16 +87,20 @@ export function VacancySettingsForm({
   const [improvingField, setImprovingField] = useState<string | null>(null);
 
   // Получаем список интеграций для проверки наличия Telegram
-  const integrationQuery = (trpc.integration.list as any).useQuery({
-    workspaceId: workspaceId ?? "",
-  }, {
-    enabled: Boolean(workspaceId),
-  });
-  
+  const integrationQuery = trpc.integration.list.useQuery(
+    {
+      workspaceId: workspaceId ?? "",
+    },
+    {
+      enabled: Boolean(workspaceId),
+    },
+  );
+
   const { data: integrations } = integrationQuery;
 
   const hasTelegramIntegration = integrations?.some(
-    (integration: any) => integration.type === "TELEGRAM" && integration.isActive,
+    (integration: { type: string; isActive: boolean }) =>
+      integration.type === "TELEGRAM" && integration.isActive,
   );
 
   const form = useForm<{
@@ -120,10 +123,11 @@ export function VacancySettingsForm({
       customInterviewQuestions: initialData?.customInterviewQuestions ?? "",
       customOrganizationalQuestions:
         initialData?.customOrganizationalQuestions ?? "",
-      enabledCommunicationChannels: initialData?.enabledCommunicationChannels ?? {
-        webChat: true,
-        telegram: false,
-      },
+      enabledCommunicationChannels:
+        initialData?.enabledCommunicationChannels ?? {
+          webChat: true,
+          telegram: false,
+        },
       welcomeMessageTemplates: initialData?.welcomeMessageTemplates ?? {},
     },
   });
@@ -213,7 +217,6 @@ export function VacancySettingsForm({
       setImprovingField(null);
     }
   };
-
 
   return (
     <Form {...form}>

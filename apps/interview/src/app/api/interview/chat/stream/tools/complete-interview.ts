@@ -3,7 +3,7 @@
  * Вызывает inngest событие для создания скоринга и обновления статусов
  */
 
-import { eq } from "@qbs-autonaim/db";
+import { desc, eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import {
   interviewMessage,
@@ -16,7 +16,6 @@ import {
   updateInterviewSessionMetadata,
 } from "@qbs-autonaim/server-utils";
 import { tool } from "ai";
-import { desc } from "@qbs-autonaim/db";
 import { z } from "zod";
 
 export function createCompleteInterviewTool(sessionId: string) {

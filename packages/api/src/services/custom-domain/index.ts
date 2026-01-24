@@ -6,8 +6,8 @@
  */
 
 import type { CustomDomain, DbClient } from "@qbs-autonaim/db";
-import { customDomain } from "@qbs-autonaim/db/schema";
 import { and, eq, ne } from "@qbs-autonaim/db";
+import { customDomain } from "@qbs-autonaim/db/schema";
 
 import {
   canAttemptVerification,

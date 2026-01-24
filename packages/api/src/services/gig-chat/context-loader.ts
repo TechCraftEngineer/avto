@@ -5,13 +5,14 @@
  */
 
 import {
+  and,
+  eq,
   gig,
-  response as responseTable,
-  responseScreening,
   interviewScoring,
+  responseScreening,
+  response as responseTable,
 } from "@qbs-autonaim/db";
 import type { db } from "@qbs-autonaim/db/client";
-import { and, eq } from "@qbs-autonaim/db";
 
 /**
  * Контекст gig задания

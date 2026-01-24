@@ -1,8 +1,8 @@
 ﻿import { and, eq } from "@qbs-autonaim/db";
 import {
   gig,
-  response as responseTable,
   interviewSession,
+  response as responseTable,
 } from "@qbs-autonaim/db/schema";
 import { inngest } from "@qbs-autonaim/jobs/client";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";

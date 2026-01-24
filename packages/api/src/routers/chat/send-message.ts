@@ -1,3 +1,4 @@
+import { eq } from "@qbs-autonaim/db";
 import {
   type ChatMessageMetadata,
   chatEntityTypeEnum,
@@ -6,7 +7,6 @@ import {
 } from "@qbs-autonaim/db/schema";
 import { streamText } from "@qbs-autonaim/lib/ai";
 import { TRPCError } from "@trpc/server";
-import { eq } from "@qbs-autonaim/db";
 import { z } from "zod";
 import { buildChatPrompt } from "../../services/chat/prompt-builder";
 import { chatRateLimiter } from "../../services/chat/rate-limiter";
