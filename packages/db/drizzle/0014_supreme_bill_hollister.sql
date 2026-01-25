@@ -1,1 +1,0 @@
-ALTER TABLE "vacancies" ADD COLUMN "candidate_filters" jsonb;
