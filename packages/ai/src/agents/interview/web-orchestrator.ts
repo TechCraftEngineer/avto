@@ -2,8 +2,6 @@
  * Оркестратор для WEB интервью со стримингом
  */
 
-import type { LanguageModel } from "ai";
-import type { Langfuse } from "langfuse";
 import { z } from "zod";
 import { type AgentConfig, BaseAgent } from "../core/base-agent";
 import { AgentType } from "../core/types";
@@ -13,7 +11,6 @@ import {
   buildVacancyInterviewPrompt,
 } from "./prompts";
 import type {
-  ContextAnalysisResult,
   GigData,
   InterviewVacancyData,
   WebInterviewContext,

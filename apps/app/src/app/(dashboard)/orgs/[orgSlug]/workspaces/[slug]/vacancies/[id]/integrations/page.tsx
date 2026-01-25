@@ -1,12 +1,5 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@qbs-autonaim/ui";
 import { useParams } from "next/navigation";
 import { PageHeader } from "~/components/layout";
 import { VacancyIntegrationManager } from "~/components/vacancy";

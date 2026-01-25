@@ -17,7 +17,7 @@ function InterviewLandingClient({ token }: { token: string }) {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const responseId = searchParams.get("responseId");
+  const _responseId = searchParams.get("responseId");
 
   const { data, isLoading, error } = useQuery(
     trpc.freelancePlatforms.getInterviewByToken.queryOptions({ token }),

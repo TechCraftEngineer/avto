@@ -2,16 +2,13 @@
 
 import { paths } from "@qbs-autonaim/config";
 import { Button, Skeleton } from "@qbs-autonaim/ui";
-import { useMutation, useQuery, useQueryClient, skipToken } from "@tanstack/react-query";
+import { useQuery, skipToken } from "@tanstack/react-query";
 import { ArrowLeft, MessageSquare } from "lucide-react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
-import { toast } from "sonner";
+import { useParams } from "next/navigation";
 import { VacancyResponseDetailCard } from "~/components/vacancy/response-detail/detail-card";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 import { useTRPC } from "~/trpc/react";
-import { triggerScreenResponse, triggerSendWelcome } from "~/actions/trigger";
 
 export default function VacancyResponseDetailPage() {
   const {

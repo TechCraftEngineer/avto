@@ -19,7 +19,7 @@ export function createSecurityAuditMiddleware() {
   }: {
     ctx: TRPCContext;
     next: () => Promise<MiddlewareResult<unknown>>;
-  }): Promise<any> => {
+  }): Promise<MiddlewareResult<unknown>> => {
     const startTime = Date.now();
     const userId = ctx.session?.user?.id;
     const ipAddress = ctx.ipAddress;
