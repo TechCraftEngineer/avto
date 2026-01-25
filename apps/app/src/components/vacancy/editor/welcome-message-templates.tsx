@@ -16,6 +16,7 @@ import {
 } from "@qbs-autonaim/ui";
 import { MessageCircle, Wand2 } from "lucide-react";
 import type { Control } from "react-hook-form";
+import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useTRPC } from "~/trpc/react";
 import { WelcomeMessagePreview } from "./welcome-message-preview";
@@ -63,8 +64,9 @@ export function WelcomeMessageTemplates({
   improvingField,
 }: WelcomeMessageTemplatesProps) {
   const trpc = useTRPC();
-  const improveWelcomeTemplateMutation =
-    trpc.vacancy.improveWelcomeTemplates.useMutation();
+  const improveWelcomeTemplateMutation = useMutation(
+    trpc.vacancy.improveWelcomeTemplates.mutationOptions(),
+  );
 
   const handleImprove = async (channel: "webChat" | "telegram") => {
     if (!vacancyId || !workspaceId) return;

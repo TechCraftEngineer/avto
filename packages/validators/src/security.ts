@@ -4,8 +4,7 @@
  */
 
 import { z } from "zod";
-import DOMPurify from "dompurify";
-import { JSDOM } from "jsdom";
+import sanitizeHtml from "sanitize-html";
 
 /**
  * Common validation patterns
@@ -159,15 +158,10 @@ export const secureSchemas = {
     .string()
     .max(5000, "HTML слишком длинный")
     .transform((val) => {
-      // Initialize DOMPurify with JSDOM for server-side sanitization
-      const window = new JSDOM("").window;
-      const purify = DOMPurify(window);
-      
       // Sanitize HTML with strict rules
-      return purify.sanitize(val, {
-        USE_PROFILES: { html: true },
-        ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 's', 'ol', 'ul', 'li', 'blockquote', 'code'],
-        ALLOWED_ATTR: []
+      return sanitizeHtml(val, {
+        allowedTags: ['p', 'br', 'strong', 'em', 'u', 's', 'ol', 'ul', 'li', 'blockquote', 'code'],
+        allowedAttributes: {}
       });
     }),
 

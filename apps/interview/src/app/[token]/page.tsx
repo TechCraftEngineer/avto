@@ -23,45 +23,9 @@ function InterviewLandingClient({ token }: { token: string }) {
     trpc.freelancePlatforms.getInterviewByToken.queryOptions({ token }),
   );
 
-  // Если есть responseId, загружаем данные кандидата и сразу начинаем интервью
-  const { data: candidateData, isLoading: isLoadingCandidate } = useQuery(
-    responseId && data
-      ? trpc.freelancePlatforms.getCandidateByResponseId.queryOptions({
-          responseId,
-          vacancyId: data.data.id,
-        })
-      : { enabled: false },
-  );
-
   const startInterviewMutation = useMutation(
     trpc.freelancePlatforms.startWebInterview.mutationOptions(),
   );
-
-  const startedRef = React.useRef(false);
-
-  // Если кандидат уже известен, автоматически начинаем интервью
-  React.useEffect(() => {
-    if (
-      candidateData &&
-      data &&
-      !isLoadingCandidate &&
-      !startInterviewMutation.isPending &&
-      !startedRef.current
-    ) {
-      startedRef.current = true;
-      // Автоматически начинаем интервью с данными кандидата
-      startInterviewMutation.mutate({
-        token,
-        freelancerInfo: {
-          name: candidateData.candidateName || "Кандидат",
-          platformProfileUrl: candidateData.platformProfileUrl || "",
-          email: candidateData.email || undefined,
-          phone: candidateData.phone || undefined,
-          telegram: candidateData.telegramUsername || undefined,
-        },
-      });
-    }
-  }, [candidateData, data, isLoadingCandidate, token]);
 
   // Перенаправляем в чат после успешного начала интервью
   React.useEffect(() => {
@@ -70,7 +34,7 @@ function InterviewLandingClient({ token }: { token: string }) {
     }
   }, [startInterviewMutation.isSuccess, startInterviewMutation.data, router, token]);
 
-  if (isLoading || (responseId && isLoadingCandidate)) {
+  if (isLoading) {
     return (
       <main className="flex min-h-screen items-center justify-center">
         <div className="flex flex-col items-center gap-3 text-muted-foreground">

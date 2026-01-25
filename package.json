@@ -7,6 +7,10 @@
   },
   "scripts": {
     "build": "turbo run build",
+    "build:app": "turbo run build --filter=@qbs-autonaim/app...",
+    "build:web": "turbo run build --filter=@qbs-autonaim/web...",
+    "build:tg": "turbo run build --filter=@qbs-autonaim/tg-client...",
+    "build:jobs": "turbo run build --filter=@qbs-autonaim/jobs...",
     "clean": "git clean -xdf node_modules",
     "clean:workspaces": "turbo run clean",
     "auth:generate": "bun --filter @qbs-autonaim/auth generate",
@@ -43,6 +47,7 @@
     "js-yaml": "^4.1.1",
     "lodash": "^4.17.23",
     "lodash-es": "^4.17.23",
+    "sanitize-html": "^2.17.0",
     "tmp": "^0.2.5",
     "turbo": "2.7.5",
     "typescript": "5.9.3"

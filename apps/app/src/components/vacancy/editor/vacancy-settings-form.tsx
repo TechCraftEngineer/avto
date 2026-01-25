@@ -21,6 +21,7 @@ import {
   Wand2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useTRPC } from "~/trpc/react";
@@ -87,13 +88,15 @@ export function VacancySettingsForm({
   const [improvingField, setImprovingField] = useState<string | null>(null);
 
   // Получаем список интеграций для проверки наличия Telegram
-  const integrationQuery = trpc.integration.list.useQuery(
-    {
-      workspaceId: workspaceId ?? "",
-    },
-    {
-      enabled: Boolean(workspaceId),
-    },
+  const integrationQuery = useQuery(
+    trpc.integration.list.queryOptions(
+      {
+        workspaceId: workspaceId ?? "",
+      },
+      {
+        enabled: Boolean(workspaceId),
+      },
+    ),
   );
 
   const { data: integrations } = integrationQuery;

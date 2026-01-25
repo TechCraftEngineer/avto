@@ -270,26 +270,34 @@ async function handler(request: Request) {
     const isFirstResponse = existingUserMessageCount === 0;
 
     // Анализируем контекст сообщения (для эскалации и типа)
-    const contextAnalysis = await orchestrator.analyzeContext(
-      userMessageText,
-      conversationHistory,
+    const contextAnalysis = await orchestrator.execute(
+      {
+        message: userMessageText,
+        history: conversationHistory,
+      },
+      null,
     );
 
-    // Если нужна эскалация — возвращаем специальный ответ
-    if (contextAnalysis.shouldEscalate) {
-      console.warn("[Interview Stream] Escalation triggered:", {
-        conversationId: sessionId,
-        reason: contextAnalysis.escalationReason,
-      });
-      // TODO: можно добавить логику эскалации
-    }
+    // Проверяем успешность анализа
+    if (!contextAnalysis.success || !contextAnalysis.data) {
+      console.error("[Interview Stream] Context analysis failed:", contextAnalysis.error);
+    } else {
+      // Если нужна эскалация — возвращаем специальный ответ
+      if (contextAnalysis.data.shouldEscalate) {
+        console.warn("[Interview Stream] Escalation triggered:", {
+          conversationId: sessionId,
+          reason: contextAnalysis.data.escalationReason,
+        });
+        // TODO: можно добавить логику эскалации
+      }
 
-    // Если простое подтверждение — не отвечаем
-    if (
-      contextAnalysis.messageType === "ACKNOWLEDGMENT" &&
-      !contextAnalysis.requiresResponse
-    ) {
-      return NextResponse.json({ acknowledged: true });
+      // Если простое подтверждение — не отвечаем
+      if (
+        contextAnalysis.data.messageType === "ACKNOWLEDGMENT" &&
+        !contextAnalysis.data.requiresResponse
+      ) {
+        return NextResponse.json({ acknowledged: true });
+      }
     }
 
     // Формируем контекст для оркестратора
