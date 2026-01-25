@@ -1,6 +1,6 @@
 "use client";
 
-import DOMPurify from "dompurify";
+import sanitizeHtml from "sanitize-html";
 
 interface SafeHtmlProps {
   html: string;
@@ -9,8 +9,8 @@ interface SafeHtmlProps {
 
 export function SafeHtml({ html, className }: SafeHtmlProps) {
   // Sanitize HTML to prevent XSS attacks
-  const sanitizedHtml = DOMPurify.sanitize(html, {
-    ALLOWED_TAGS: [
+  const sanitizedHtml = sanitizeHtml(html, {
+    allowedTags: [
       "p",
       "br",
       "strong",
@@ -34,20 +34,16 @@ export function SafeHtml({ html, className }: SafeHtmlProps) {
       "code",
       "pre",
     ],
-    ALLOWED_ATTR: ["href", "title", "target", "class"],
-    ALLOWED_URI_REGEXP:
-      /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp|data):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i,
-    ADD_ATTR: ["target"],
-    FORBID_TAGS: [
-      "script",
-      "style",
-      "iframe",
-      "object",
-      "embed",
-      "form",
-      "input",
-    ],
-    FORBID_ATTR: ["onclick", "onload", "onerror", "onmouseover", "onfocus"],
+    allowedAttributes: {
+      "a": ["href", "title", "target", "class"],
+      "span": ["class"],
+      "div": ["class"],
+      "code": ["class"],
+      "pre": ["class"],
+    },
+    allowedIframeHostnames: [],
+    allowedSchemes: ["http", "https", "mailto", "tel", "callto", "cid", "xmpp", "data"],
+    allowedSchemesAppliedToAttributes: ["href", "src", "cite"],
   });
 
   return (

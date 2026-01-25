@@ -23,7 +23,7 @@ import {
   TableCell,
   TableRow,
 } from "@qbs-autonaim/ui";
-import DOMPurify from "dompurify";
+import sanitizeHtml from "sanitize-html";
 import { ExternalLink, Send, TrendingUp, User, UserCheck } from "lucide-react";
 import Link from "next/link";
 import { ResponseActions } from "~/components/response";
@@ -47,9 +47,9 @@ function stripHtmlTags(html: string): string {
 }
 
 // Утилита для санитизации HTML
-function sanitizeHtml(html: string): string {
-  return DOMPurify.sanitize(html, {
-    ALLOWED_TAGS: [
+function sanitizeHtmlFn(html: string): string {
+  return sanitizeHtml(html, {
+    allowedTags: [
       "p",
       "br",
       "strong",
@@ -68,7 +68,7 @@ function sanitizeHtml(html: string): string {
       "code",
       "pre",
     ],
-    ALLOWED_ATTR: [],
+    allowedAttributes: {},
   });
 }
 
@@ -227,7 +227,7 @@ export function ResponseRow({
                     <div
                       className="text-xs"
                       dangerouslySetInnerHTML={{
-                        __html: sanitizeHtml(
+                        __html: sanitizeHtmlFn(
                           response.screening.careerTrajectoryAnalysis || "",
                         ),
                       }}
@@ -370,7 +370,7 @@ export function ResponseRow({
                 <div
                   className="text-sm"
                   dangerouslySetInnerHTML={{
-                    __html: sanitizeHtml(response.coverLetter),
+                    __html: sanitizeHtmlFn(response.coverLetter),
                   }}
                 />
               </HoverCardContent>
