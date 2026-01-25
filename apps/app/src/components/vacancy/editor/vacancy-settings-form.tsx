@@ -33,6 +33,7 @@ interface VacancySettingsFormProps {
   vacancyDescription?: string;
   vacancyId?: string;
   workspaceId?: string;
+  interviewUrl?: string; // URL для прохождения интервью
   initialData?: {
     customBotInstructions?: string | null;
     customScreeningPrompt?: string | null;
@@ -78,6 +79,7 @@ export function VacancySettingsForm({
   vacancyDescription,
   vacancyId,
   workspaceId,
+  interviewUrl,
   initialData,
   onSave,
   onImprove,
@@ -473,6 +475,7 @@ export function VacancySettingsForm({
             vacancyDescription={vacancyDescription}
             vacancyId={vacancyId}
             workspaceId={workspaceId}
+            interviewUrl={interviewUrl}
             improvingField={improvingField}
           />
 

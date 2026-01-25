@@ -36,16 +36,20 @@ interface WelcomeMessageTemplatesProps {
   vacancyDescription?: string;
   vacancyId?: string;
   workspaceId?: string;
+  interviewUrl?: string; // URL для прохождения интервью
   improvingField?: string | null;
 }
 
 const DEFAULT_WEB_CHAT_TEMPLATE = `Здравствуйте! 👋
 
-Спасибо, что откликнулись на вакансию "{{vacancyTitle}}".
+Благодарим за интерес к вакансии "{{vacancyTitle}}".
 
-Я помогу вам пройти первичное собеседование и ответить на ваши вопросы. Расскажите, пожалуйста, немного о себе и вашем опыте работы.
+Мы предлагаем вам пройти короткое онлайн-интервью прямо сейчас. Это займет всего несколько минут и поможет нам лучше узнать о вашем опыте.
 
-Что вас интересует в этой позиции?`;
+Для начала интервью перейдите по ссылке:
+{{interviewUrl}}
+
+Готовы начать? 😊`;
 
 const DEFAULT_TELEGRAM_TEMPLATE = `Здравствуйте! 👋
 
@@ -61,6 +65,7 @@ export function WelcomeMessageTemplates({
   vacancyDescription,
   vacancyId,
   workspaceId,
+  interviewUrl,
   improvingField,
 }: WelcomeMessageTemplatesProps) {
   const trpc = useTRPC();
@@ -76,10 +81,18 @@ export function WelcomeMessageTemplates({
 
     if (!currentValue.trim()) {
       // Если поле пустое, используем шаблон по умолчанию
-      const defaultTemplate =
+      let defaultTemplate =
         channel === "webChat"
           ? DEFAULT_WEB_CHAT_TEMPLATE
           : DEFAULT_TELEGRAM_TEMPLATE;
+
+      // Заменяем плейсхолдеры в шаблоне по умолчанию
+      if (vacancyTitle) {
+        defaultTemplate = defaultTemplate.replace(/{{vacancyTitle}}/g, vacancyTitle);
+      }
+      if (interviewUrl) {
+        defaultTemplate = defaultTemplate.replace(/{{interviewUrl}}/g, interviewUrl);
+      }
 
       // Устанавливаем шаблон по умолчанию
       control._formValues.welcomeMessageTemplates = {
@@ -98,6 +111,7 @@ export function WelcomeMessageTemplates({
         currentValue,
         vacancyTitle,
         vacancyDescription,
+        interviewUrl,
       });
 
       // Обновляем значение в форме
@@ -190,9 +204,9 @@ export function WelcomeMessageTemplates({
                 </div>
               </FormControl>
               <FormDescription className="text-xs">
-                Это сообщение увидит кандидат при первом обращении в веб-чат.
-                Используйте переменную {"{{vacancyTitle}}"} для названия
-                вакансии.
+                Первое сообщение, которое увидит кандидат при открытии веб-чата
+                для прохождения интервью. Используйте переменную {"{"}
+                {"{vacancyTitle}}"} для названия вакансии.
               </FormDescription>
               <FormMessage />
               <div className="flex items-center justify-between pt-1">
@@ -277,6 +291,7 @@ export function WelcomeMessageTemplates({
       <div className="mt-6">
         <WelcomeMessagePreview
           vacancyTitle={vacancyTitle}
+          interviewUrl={interviewUrl}
           webChatTemplate={control._getWatch("welcomeMessageTemplates.webChat")}
           telegramTemplate={control._getWatch(
             "welcomeMessageTemplates.telegram",

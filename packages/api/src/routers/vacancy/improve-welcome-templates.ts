@@ -11,6 +11,7 @@ const improveWelcomeTemplatesInputSchema = z.object({
   currentValue: z.string(),
   vacancyTitle: z.string().optional(),
   vacancyDescription: z.string().optional(),
+  interviewUrl: z.string().optional(), // URL для прохождения интервью
 });
 
 const CHANNEL_PROMPTS = {
@@ -22,11 +23,13 @@ const CHANNEL_PROMPTS = {
       "Веб-чат на сайте - это первый контакт кандидата с компанией через онлайн-форму",
     guidelines: `
 - Создай дружелюбное и профессиональное приветствие
-- Представь себя как AI-помощника по собеседованиям
 - Упомяни название вакансии ({{vacancyTitle}})
-- Побуди кандидата рассказать о себе и своем опыте
-- Задай открытый вопрос для начала диалога
-- Подчеркни готовность помочь и ответить на вопросы`,
+- ОБЯЗАТЕЛЬНО включи ссылку на интервью ({{interviewUrl}}) с призывом перейти по ней
+- Объясни, что интервью можно пройти онлайн в удобное время
+- Подчеркни, что это займет всего несколько минут
+- Используй дружелюбный тон, чтобы не отпугнуть кандидата
+- Добавь эмодзи для создания позитивной атмосферы
+- Сделай призыв к действию понятным и простым`,
   },
   telegram: {
     title: "Приветственное сообщение в Telegram",
@@ -49,6 +52,7 @@ function buildWelcomeTemplatePrompt(
   currentValue: string,
   vacancyTitle?: string,
   vacancyDescription?: string,
+  interviewUrl?: string,
 ): string {
   const channelConfig = CHANNEL_PROMPTS[channel];
 
@@ -60,6 +64,16 @@ ${vacancyDescription ? `Описание: ${vacancyDescription}` : ""}
 `
     : "";
 
+  const interviewUrlSection = interviewUrl
+    ? `
+ССЫЛКА НА ИНТЕРВЬЮ:
+${interviewUrl}
+
+ВАЖНО: Для веб-чата ОБЯЗАТЕЛЬНО включи эту ссылку в сообщение с призывом перейти по ней.
+Используй переменную {{interviewUrl}} в тексте сообщения.
+`
+    : "";
+
   return `Ты — эксперт по созданию приветственных сообщений для HR-ботов и чатов.
 
 ЗАДАЧА: Создай или улучши приветственное сообщение для ${channelConfig.title}.
@@ -67,6 +81,7 @@ ${vacancyDescription ? `Описание: ${vacancyDescription}` : ""}
 НАЗНАЧЕНИЕ: ${channelConfig.description}
 КОНТЕКСТ: ${channelConfig.context}
 ${contextSection}
+${interviewUrlSection}
 
 ${currentValue ? `ТЕКУЩИЙ ТЕКСТ:\n${currentValue}\n\n` : ""}РЕКОМЕНДАЦИИ:
 ${channelConfig.guidelines}
@@ -74,6 +89,7 @@ ${channelConfig.guidelines}
 ТРЕБОВАНИЯ:
 - Максимум 2000 символов
 - Используй переменную {{vacancyTitle}} для названия вакансии
+${interviewUrl ? "- Используй переменную {{interviewUrl}} для ссылки на интервью" : ""}
 - Будь дружелюбным и профессиональным
 - Поощряй кандидата к активному участию в разговоре
 - Сделай сообщение естественным и неформальным
@@ -122,6 +138,7 @@ export const improveWelcomeTemplates = protectedProcedure
       currentValue,
       vacancyTitle,
       vacancyDescription,
+      input.interviewUrl,
     );
 
     try {

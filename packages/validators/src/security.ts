@@ -153,7 +153,6 @@ export const secureSchemas = {
     .transform((val) => sanitize.stripHtml(val))
     .transform((val) => sanitize.sanitizeXss(val)),
 
-  // Safe HTML sanitization using DOMPurify
   safeHtml: z
     .string()
     .max(5000, "HTML слишком длинный")

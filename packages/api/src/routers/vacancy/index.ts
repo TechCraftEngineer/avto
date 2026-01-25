@@ -7,6 +7,7 @@ import { createFromChat } from "./create-from-chat";
 import { dashboardStats } from "./dashboard-stats";
 import { deleteVacancy } from "./delete";
 import { get } from "./get";
+import { getInterviewLink } from "./get-interview-link";
 import { improveInstructions } from "./improve-instructions";
 import { improveWelcomeTemplates } from "./improve-welcome-templates";
 import { list } from "./list";
@@ -21,6 +22,7 @@ export const vacancyRouter = {
   list,
   listActive,
   get,
+  getInterviewLink,
   create,
   createFromChat,
   analytics,

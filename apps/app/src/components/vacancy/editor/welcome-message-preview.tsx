@@ -18,17 +18,21 @@ import { useState } from "react";
 
 interface WelcomeMessagePreviewProps {
   vacancyTitle?: string;
+  interviewUrl?: string;
   webChatTemplate?: string;
   telegramTemplate?: string;
 }
 
 const DEFAULT_WEB_CHAT_TEMPLATE = `Здравствуйте! 👋
 
-Спасибо, что откликнулись на вакансию "{{vacancyTitle}}".
+Благодарим за интерес к вакансии "{{vacancyTitle}}".
 
-Я помогу вам пройти первичное собеседование и ответить на ваши вопросы. Расскажите, пожалуйста, немного о себе и вашем опыте работы.
+Мы предлагаем вам пройти короткое онлайн-интервью прямо сейчас. Это займет всего несколько минут и поможет нам лучше узнать о вашем опыте.
 
-Что вас интересует в этой позиции?`;
+Для начала интервью перейдите по ссылке:
+{{interviewUrl}}
+
+Готовы начать? 😊`;
 
 const DEFAULT_TELEGRAM_TEMPLATE = `Здравствуйте! 👋
 
@@ -40,6 +44,7 @@ const DEFAULT_TELEGRAM_TEMPLATE = `Здравствуйте! 👋
 
 export function WelcomeMessagePreview({
   vacancyTitle,
+  interviewUrl,
   webChatTemplate,
   telegramTemplate,
 }: WelcomeMessagePreviewProps) {
@@ -57,10 +62,15 @@ export function WelcomeMessagePreview({
           : DEFAULT_TELEGRAM_TEMPLATE;
     }
 
-    return template.replace(
-      /\{\{vacancyTitle\}\}/g,
-      vacancyTitle || "[Название вакансии]",
-    );
+    return template
+      .replace(
+        /\{\{vacancyTitle\}\}/g,
+        vacancyTitle || "[Название вакансии]",
+      )
+      .replace(
+        /\{\{interviewUrl\}\}/g,
+        interviewUrl || "[Ссылка на веб-чат интервью]",
+      );
   };
 
   const webChatPreview = renderTemplate(webChatTemplate, "webChat");
@@ -155,6 +165,12 @@ export function WelcomeMessagePreview({
                         {"{{vacancyTitle}}"}
                       </code>{" "}
                       - Название вакансии
+                    </li>
+                    <li>
+                      <code className="bg-blue-100 dark:bg-blue-900 px-1 py-0.5 rounded text-xs">
+                        {"{{interviewUrl}}"}
+                      </code>{" "}
+                      - Ссылка на веб-чат для прохождения интервью
                     </li>
                     <li>
                       Переменные автоматически заменяются при отправке сообщения

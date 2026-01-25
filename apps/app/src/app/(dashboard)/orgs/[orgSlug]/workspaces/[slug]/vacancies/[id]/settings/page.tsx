@@ -26,6 +26,15 @@ export default function VacancySettingsPage({
     enabled: Boolean(workspaceId),
   });
 
+  // Получаем ссылку на интервью для вакансии
+  const { data: interviewLink } = useQuery({
+    ...trpc.vacancy.getInterviewLink.queryOptions({
+      vacancyId: id,
+      workspaceId: workspaceId ?? "",
+    }),
+    enabled: Boolean(workspaceId),
+  });
+
   const updateSettingsMutation = useMutation(
     trpc.vacancy.update.mutationOptions({
       onSuccess: () => {
@@ -102,6 +111,7 @@ export default function VacancySettingsPage({
         vacancyDescription={vacancy.description ?? undefined}
         vacancyId={id}
         workspaceId={workspaceId}
+        interviewUrl={interviewLink?.url}
         initialData={{
           customBotInstructions: vacancy.customBotInstructions,
           customScreeningPrompt: vacancy.customScreeningPrompt,
