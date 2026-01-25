@@ -217,20 +217,60 @@ export const runPredictiveModel = {
   description: "Предсказывает метрики успеха кандидата на основе комплексных данных",
   inputSchema: z.object({
     candidateData: z.object({
-      experience: z.any(),
-      skills: z.any(),
-      interviewPerformance: z.any(),
-      behavioralData: z.any(),
+      experience: z.array(z.object({
+        company: z.string(),
+        position: z.string(),
+        startDate: z.string(),
+        endDate: z.string().optional(),
+        reasonForLeaving: z.string().optional(),
+      })),
+      skills: z.array(z.object({
+        name: z.string(),
+        level: z.number().min(0).max(100).optional(),
+        category: z.string().optional(),
+      })),
+      interviewPerformance: z.object({
+        technicalScore: z.number().min(0).max(100).optional(),
+        communicationScore: z.number().min(0).max(100).optional(),
+        problemSolvingScore: z.number().min(0).max(100).optional(),
+        overallScore: z.number().min(0).max(100).optional(),
+      }),
+      behavioralData: z.object({
+        adaptability: z.number().min(0).max(100).optional(),
+        teamwork: z.number().min(0).max(100).optional(),
+        leadership: z.number().min(0).max(100).optional(),
+        initiative: z.number().min(0).max(100).optional(),
+      }),
     }).describe("Комплексные данные о кандидате"),
   }),
   execute: async ({
     candidateData,
   }: {
     candidateData: {
-      experience: any;
-      skills: any;
-      interviewPerformance: any;
-      behavioralData: any;
+      experience: Array<{
+        company: string;
+        position: string;
+        startDate: string;
+        endDate?: string;
+        reasonForLeaving?: string;
+      }>;
+      skills: Array<{
+        name: string;
+        level?: number;
+        category?: string;
+      }>;
+      interviewPerformance: {
+        technicalScore?: number;
+        communicationScore?: number;
+        problemSolvingScore?: number;
+        overallScore?: number;
+      };
+      behavioralData: {
+        adaptability?: number;
+        teamwork?: number;
+        leadership?: number;
+        initiative?: number;
+      };
     };
   }): Promise<{
     retention: number;
@@ -340,6 +380,14 @@ export const performBackgroundCheck = {
     redFlags: string[];
     recommendations: string[];
   }> => {
+    // Redact PII before sending to AI
+    const redactedCandidateInfo = {
+      ...candidateInfo,
+      name: "<NAME_REDACTED>",
+      email: "<EMAIL_REDACTED>",
+      phone: "<PHONE_REDACTED>",
+    };
+
     const result = await generateObject({
       schema: z.object({
         status: z.string(),
@@ -348,10 +396,10 @@ export const performBackgroundCheck = {
       }),
       prompt: `Проведи background check кандидата на основе следующих данных:
 
-Имя: ${candidateInfo.name}
-Email: ${candidateInfo.email}
-Телефон: ${candidateInfo.phone}
-Предыдущие компании: ${candidateInfo.previousCompanies.join(', ')}
+Имя: ${redactedCandidateInfo.name}
+Email: ${redactedCandidateInfo.email}
+Телефон: ${redactedCandidateInfo.phone}
+Предыдущие компании: ${redactedCandidateInfo.previousCompanies.join(', ')}
 
 Проверь на потенциальные риски и проблемы. Определи статус (PASSED или FLAGGED), перечисли redFlags (красные флаги) и дай рекомендации.`,
       generationName: "perform-background-check",

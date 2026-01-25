@@ -201,11 +201,11 @@ export const behavioralAnalysisColumns = {
  */
 export const deiMetricsColumns = {
   deiMetrics: jsonb("dei_metrics").$type<{
+    consentGiven: boolean;          // Явное согласие кандидата на обработку данных
+    consentTimestamp: string;       // Время предоставления согласия
+    purpose: string;                // Цель обработки данных
     diversity: {
-      gender: 'male' | 'female' | 'other' | 'unknown';
-      ageGroup: string;
-      ethnicity: string;
-      geography: string;
+      geography: string;            // География оставлена как нечувствительная информация
     };
     biasDetection: {
       detectedBiases: string[];      // выявленные biases
@@ -222,16 +222,41 @@ export const externalSourcesColumns = {
   linkedInData: jsonb("linkedin_data").$type<{
     profileUrl: string;
     connections: number;
-    endorsements: any[];
-    experience: any[];
-    recommendations: any[];
+    endorsements: Array<{
+      skill: string;
+      count: number;
+    }>;
+    experience: Array<{
+      company: string;
+      position: string;
+      startDate: string;
+      endDate?: string;
+    }>;
+    recommendations: Array<{
+      author: string;
+      text: string;
+      date?: string;
+    }>;
   }>(),
   githubData: jsonb("github_data").$type<{
     profileUrl: string;
-    repositories: any[];
+    repositories: Array<{
+      name: string;
+      url: string;
+      description?: string;
+      stars: number;
+      forks: number;
+    }>;
     contributions: number;
-    languages: any[];
-    activity: any[];
+    languages: Array<{
+      name: string;
+      percentage: number;
+    }>;
+    activity: Array<{
+      type: string;
+      date: string;
+      description?: string;
+    }>;
   }>(),
   portfolioAnalysis: jsonb("portfolio_analysis").$type<{
     quality: number;                 // качество работ (0-100)

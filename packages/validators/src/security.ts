@@ -4,6 +4,8 @@
  */
 
 import { z } from "zod";
+import DOMPurify from "dompurify";
+import { JSDOM } from "jsdom";
 
 /**
  * Common validation patterns
@@ -152,23 +154,21 @@ export const secureSchemas = {
     .transform((val) => sanitize.stripHtml(val))
     .transform((val) => sanitize.sanitizeXss(val)),
 
-  // Safe HTML (limited tags allowed - simplified version without DOMPurify)
+  // Safe HTML sanitization using DOMPurify
   safeHtml: z
     .string()
     .max(5000, "HTML слишком длинный")
     .transform((val) => {
-      // Simple HTML sanitization - remove dangerous tags and attributes
-      return val
-        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // Remove script tags
-        .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '') // Remove style tags
-        .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '') // Remove iframe tags
-        .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '') // Remove object tags
-        .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, '') // Remove embed tags
-        .replace(/<form\b[^<]*(?:(?!<\/form>)<[^<]*)*<\/form>/gi, '') // Remove form tags
-        .replace(/<input\b[^<]*(?:(?!<\/input>)<[^<]*)*<\/input>/gi, '') // Remove input tags
-        .replace(/on\w+="[^"]*"/gi, '') // Remove event attributes
-        .replace(/on\w+='[^']*'/gi, '') // Remove event attributes with single quotes
-        .replace(/on\w+=[^\s>]+/gi, ''); // Remove event attributes without quotes
+      // Initialize DOMPurify with JSDOM for server-side sanitization
+      const window = new JSDOM("").window;
+      const purify = DOMPurify(window);
+      
+      // Sanitize HTML with strict rules
+      return purify.sanitize(val, {
+        USE_PROFILES: { html: true },
+        ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 's', 'ol', 'ul', 'li', 'blockquote', 'code'],
+        ALLOWED_ATTR: []
+      });
     }),
 
   // File upload validation
