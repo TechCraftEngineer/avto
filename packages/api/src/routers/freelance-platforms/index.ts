@@ -8,7 +8,6 @@ import { deleteVacancy } from "./delete-vacancy";
 import { exportAnalytics } from "./export-analytics";
 import { generateInterviewLink } from "./generate-interview-link";
 import { getAnalytics } from "./get-analytics";
-import { getCandidateByResponseId } from "./get-candidate-by-response-id";
 import { getChatHistory } from "./get-chat-history";
 import { getDashboardStats } from "./get-dashboard-stats";
 import { getInterviewByToken } from "./get-interview-by-token";
@@ -55,7 +54,6 @@ export const freelancePlatformsRouter = {
   deleteVacancy,
   mergeVacancies,
   generateInterviewLink,
-  getCandidateByResponseId,
   getInterviewByToken,
   getInterviewLink,
   validateInterviewToken,

@@ -72,8 +72,7 @@ export type { GigInterviewLink } from "./gig-interview-link-generator";
 export { GigInterviewLinkGenerator } from "./gig-interview-link-generator";
 export type { InterviewLink } from "./interview-link-generator";
 export { InterviewLinkGenerator } from "./interview-link-generator";
-export type { WebChatLink } from "./web-chat-link-generator";
-export { WebChatLinkGenerator } from "./web-chat-link-generator";
+
 export type {
   ContactInfo,
   ParsedResponse,
