@@ -19,7 +19,6 @@ import { userRouter } from "./routers/user";
 import { vacancyRouter } from "./routers/vacancy";
 import { widgetConfigRouter } from "./routers/widget-config";
 import { workspaceRouter } from "./routers/workspace";
-import { webChatRouter } from "./routers/web-chat";
 import { registerChatEntities } from "./services/chat/register-entities";
 import { createTRPCRouter } from "./trpc";
 
@@ -47,7 +46,6 @@ export const appRouter = createTRPCRouter({
   recruiterAgent: recruiterAgentRouter,
   customDomain: customDomainRouter,
   chat: chatRouter,
-  webChat: webChatRouter,
   ...(process.env.NODE_ENV !== "production" && { test: testRouter }),
 });
 

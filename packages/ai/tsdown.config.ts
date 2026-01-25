@@ -9,4 +9,6 @@ export default defineConfig({
   inlineOnly: false,
   treeshake: true,
   outDir: "dist",
+  external: ["xhr-sync-worker.js", "canvas", "utf-8-validate"],
+  noExternal: ["@qbs-autonaim/*"],
 });
