@@ -18,12 +18,18 @@ const logger = createLogger("CandidateWelcome");
 /**
  * Generates personalized welcome message for candidate (for Telegram)
  */
-export async function generateWelcomeMessage(
-  responseId: string,
-): Promise<Result<string>> {
-  logger.info(`Generating welcome message for response ${responseId}`);
+type EntityData = { type: "gig"; data: typeof gig.$inferSelect } | { type: "vacancy"; data: typeof vacancy.$inferSelect };
 
-  const dataResult = await tryCatch(async () => {
+type ResponseData = typeof response.$inferSelect & { entity: EntityData };
+
+async function fetchWelcomeMessageData(responseId: string): Promise<Result<{
+  responseData: ResponseData;
+  screening: typeof responseScreening.$inferSelect | undefined;
+  bot: typeof botSettings.$inferSelect | undefined;
+}>> {
+  logger.info(`Fetching data for welcome message ${responseId}`);
+
+  return await tryCatch(async () => {
     const responseRecord = await db.query.response.findFirst({
       where: eq(response.id, responseId),
     });
@@ -32,33 +38,31 @@ export async function generateWelcomeMessage(
       throw new Error(`Response ${responseId} not found`);
     }
 
-    let entityData: { type: "gig"; data: typeof gig.$inferSelect } | { type: "vacancy"; data: typeof vacancy.$inferSelect };
+    let entityData: EntityData;
     let workspaceId: string;
 
     if (responseRecord.entityType === "gig") {
-      // Получаем gig данные
-      const gig = await db.query.gig.findFirst({
+      const gigRecord = await db.query.gig.findFirst({
         where: (g, { eq }) => eq(g.id, responseRecord.entityId),
       });
 
-      if (!gig) {
+      if (!gigRecord) {
         throw new Error(`Gig not found for response ${responseId}`);
       }
 
-      entityData = { type: "gig" as const, data: gig };
-      workspaceId = gig.workspaceId;
+      entityData = { type: "gig" as const, data: gigRecord };
+      workspaceId = gigRecord.workspaceId;
     } else {
-      // Получаем vacancy данные
-      const vacancy = await db.query.vacancy.findFirst({
+      const vacancyRecord = await db.query.vacancy.findFirst({
         where: (v, { eq }) => eq(v.id, responseRecord.entityId),
       });
 
-      if (!vacancy) {
+      if (!vacancyRecord) {
         throw new Error(`Vacancy not found for response ${responseId}`);
       }
 
-      entityData = { type: "vacancy" as const, data: vacancy };
-      workspaceId = vacancy.workspaceId;
+      entityData = { type: "vacancy" as const, data: vacancyRecord };
+      workspaceId = vacancyRecord.workspaceId;
     }
 
     const screening = await db.query.responseScreening.findFirst({
@@ -69,19 +73,17 @@ export async function generateWelcomeMessage(
       where: eq(botSettings.workspaceId, workspaceId),
     });
 
-    // Bot settings are optional - we can generate message without them
     return { responseData: { ...responseRecord, entity: entityData }, screening, bot };
   }, "Failed to fetch data for welcome message");
+}
 
-  if (!dataResult.success) {
-    return err(dataResult.error);
-  }
-
-  const { responseData, bot } = dataResult.data;
-
+async function generateAIWelcomeMessage(
+  responseData: ResponseData,
+  bot: typeof botSettings.$inferSelect | undefined,
+): Promise<Result<string>> {
   logger.info("Generating welcome message with WelcomeAgent");
 
-  const aiResult = await tryCatch(async () => {
+  return await tryCatch(async () => {
     const model = getAIModel();
     const factory = new AgentFactory({ model });
     const welcomeAgent = factory.createWelcome();
@@ -110,14 +112,10 @@ export async function generateWelcomeMessage(
 
     return result.data.welcomeMessage;
   }, "AI request failed");
+}
 
-  if (!aiResult.success) {
-    return err(aiResult.error);
-  }
-
-  logger.info("Welcome message generated");
-
-  let finalMessage = aiResult.data.trim();
+async function addEntityLink(message: string, responseData: ResponseData): Promise<string> {
+  let finalMessage = message.trim();
 
   // Add entity link
   if (responseData.entity.type === "vacancy") {
@@ -128,9 +126,33 @@ export async function generateWelcomeMessage(
       where: (w, { eq }) => eq(w.id, responseData.entity.data.workspaceId),
     });
     if (workspace) {
-      finalMessage += `\n\n🔗 Ссылка на отклик: ${process.env.NEXT_PUBLIC_APP_URL}/orgs/${workspace.slug}/workspaces/${workspace.slug}/gigs/${responseData.entity.data.id}/responses/${responseId}`;
+      finalMessage += `\n\n🔗 Ссылка на отклик: ${process.env.NEXT_PUBLIC_APP_URL}/orgs/${workspace.slug}/workspaces/${workspace.slug}/gigs/${responseData.entity.data.id}/responses/${responseData.id}`;
     }
   }
+
+  return finalMessage;
+}
+
+export async function generateWelcomeMessage(
+  responseId: string,
+): Promise<Result<string>> {
+  logger.info(`Generating welcome message for response ${responseId}`);
+
+  const dataResult = await fetchWelcomeMessageData(responseId);
+  if (!dataResult.success) {
+    return err(dataResult.error);
+  }
+
+  const { responseData, bot } = dataResult.data;
+
+  const aiResult = await generateAIWelcomeMessage(responseData, bot);
+  if (!aiResult.success) {
+    return err(aiResult.error);
+  }
+
+  logger.info("Welcome message generated");
+
+  const finalMessage = await addEntityLink(aiResult.data, responseData);
 
   return { success: true, data: finalMessage };
 }

@@ -154,7 +154,7 @@ export function GigResponseHeaderCard({
                 Связаться
               </Button>
             )}
-            {onSendGreeting && (
+            {onSendGreeting && response.status === "NEW" && (
               <Button
                 variant="outline"
                 size="sm"
@@ -170,7 +170,7 @@ export function GigResponseHeaderCard({
                 {isSendingGreeting ? "Отправка…" : "Отправить приветствие"}
               </Button>
             )}
-            {onEvaluate && (
+            {onEvaluate && (response.status === "NEW" || response.status === "EVALUATED") && (
               <Button
                 variant="outline"
                 size="sm"
@@ -187,7 +187,7 @@ export function GigResponseHeaderCard({
               </Button>
             )}
             <div className="flex gap-2">
-              {onReject && (
+              {onReject && (response.status === "NEW" || response.status === "EVALUATED") && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -198,7 +198,7 @@ export function GigResponseHeaderCard({
                   Отклонить
                 </Button>
               )}
-              {onAccept && (
+              {onAccept && (response.status === "NEW" || response.status === "EVALUATED") && (
                 <Button
                   variant="default"
                   size="sm"
