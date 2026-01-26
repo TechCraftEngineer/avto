@@ -10,6 +10,7 @@ import {
 } from "@qbs-autonaim/db/schema";
 import { generateText } from "@qbs-autonaim/lib";
 import { getAIModel } from "@qbs-autonaim/lib/ai";
+import { getInterviewBaseUrl } from "@qbs-autonaim/server-utils";
 import { stripHtml } from "string-strip-html";
 import { createLogger, err, type Result, tryCatch } from "../base";
 
@@ -18,15 +19,20 @@ const logger = createLogger("CandidateWelcome");
 /**
  * Generates personalized welcome message for candidate (for Telegram)
  */
-type EntityData = { type: "gig"; data: typeof gig.$inferSelect } | { type: "vacancy"; data: typeof vacancy.$inferSelect };
+type EntityData =
+  | { type: "gig"; data: typeof gig.$inferSelect }
+  | { type: "vacancy"; data: typeof vacancy.$inferSelect };
 
 type ResponseData = typeof response.$inferSelect & { entity: EntityData };
 
-async function fetchWelcomeMessageData(responseId: string): Promise<Result<{
-  responseData: ResponseData;
-  screening: typeof responseScreening.$inferSelect | undefined;
-  bot: typeof botSettings.$inferSelect | undefined;
-}>> {
+async function fetchWelcomeMessageData(responseId: string): Promise<
+  Result<{
+    responseData: ResponseData;
+    screening: typeof responseScreening.$inferSelect | undefined;
+    bot: typeof botSettings.$inferSelect | undefined;
+    webChatUrl?: string;
+  }>
+> {
   logger.info(`Fetching data for welcome message ${responseId}`);
 
   return await tryCatch(async () => {
@@ -73,7 +79,44 @@ async function fetchWelcomeMessageData(responseId: string): Promise<Result<{
       where: eq(botSettings.workspaceId, workspaceId),
     });
 
-    return { responseData: { ...responseRecord, entity: entityData }, screening, bot };
+    // Получаем URL веб-чата из домена vacancy
+    let webChatUrl: string | undefined;
+    if (
+      entityData.type === "vacancy" &&
+      entityData.data.customDomainId &&
+      entityData.data.customDomainId !== null
+    ) {
+      // Ищем кастомный домен для vacancy
+      const customDomain = await db.query.customDomain.findFirst({
+        where: (domain, { eq, and }) =>
+          and(
+            eq(domain.id, entityData.data.customDomainId),
+            eq(domain.type, "interview"),
+            eq(domain.isVerified, true),
+          ),
+      });
+
+      if (customDomain) {
+        webChatUrl = `https://${customDomain.domain}`;
+      }
+    }
+
+    // Если нет кастомного домена, используем дефолтный URL
+    if (!webChatUrl) {
+      try {
+        webChatUrl = getInterviewBaseUrl();
+      } catch {
+        // Если не настроен NEXT_PUBLIC_INTERVIEW_URL, оставляем undefined
+        webChatUrl = undefined;
+      }
+    }
+
+    return {
+      responseData: { ...responseRecord, entity: entityData },
+      screening,
+      bot,
+      webChatUrl,
+    };
   }, "Failed to fetch data for welcome message");
 }
 
@@ -81,6 +124,7 @@ async function generateAIWelcomeMessage(
   responseData: ResponseData,
   bot: typeof botSettings.$inferSelect | undefined,
   channel: string,
+  webChatUrl?: string,
 ): Promise<Result<string>> {
   logger.info("Generating welcome message with WelcomeAgent");
 
@@ -89,9 +133,10 @@ async function generateAIWelcomeMessage(
     const factory = new AgentFactory({ model });
     const welcomeAgent = factory.createWelcome();
 
-    const entityTitle = responseData.entity.type === "gig"
-      ? responseData.entity.data.title
-      : responseData.entity.data.title;
+    const entityTitle =
+      responseData.entity.type === "gig"
+        ? responseData.entity.data.title
+        : responseData.entity.data.title;
 
     const result = await welcomeAgent.execute(
       {
@@ -99,6 +144,7 @@ async function generateAIWelcomeMessage(
         vacancyTitle: entityTitle || undefined,
         candidateName: responseData.candidateName ?? undefined,
         companyDescription: bot?.companyDescription || undefined,
+        webChatUrl: webChatUrl,
         type: responseData.entity.type,
         channel,
       },
@@ -117,7 +163,10 @@ async function generateAIWelcomeMessage(
   }, "AI request failed");
 }
 
-async function addEntityLink(message: string, responseData: ResponseData): Promise<string> {
+async function addEntityLink(
+  message: string,
+  responseData: ResponseData,
+): Promise<string> {
   let finalMessage = message.trim();
 
   // Add entity link
@@ -147,9 +196,14 @@ export async function generateWelcomeMessage(
     return err(dataResult.error);
   }
 
-  const { responseData, bot } = dataResult.data;
+  const { responseData, bot, webChatUrl } = dataResult.data;
 
-  const aiResult = await generateAIWelcomeMessage(responseData, bot, channel);
+  const aiResult = await generateAIWelcomeMessage(
+    responseData,
+    bot,
+    channel,
+    webChatUrl,
+  );
   if (!aiResult.success) {
     return err(aiResult.error);
   }

@@ -12,6 +12,7 @@ export interface WelcomeInput {
   gigTitle?: string;
   companyName?: string;
   companyDescription?: string | null;
+  webChatUrl?: string;
   type: 'vacancy' | 'gig';
   channel: string;
 }
@@ -40,6 +41,7 @@ export class WelcomeAgent extends BaseAgent<WelcomeInput, WelcomeOutput> {
 - Используй 1-2 эмодзи для теплоты
 - Сообщение должно быть коротким (2-3 предложения)
 - Пригласи к интервью через указанный канал
+- Если предоставлена ссылка на веб-чат, обязательно включи ее в сообщение
 
 КАНАЛЫ:
 Канал может быть любым: Telegram, веб-чат, чат на hh.ru, канал, или любое другое удобное место. Адаптируй приглашение к указанному каналу естественно.
@@ -75,7 +77,7 @@ export class WelcomeAgent extends BaseAgent<WelcomeInput, WelcomeOutput> {
     input: WelcomeInput,
     _context: BaseAgentContext,
   ): string {
-    const { candidateName, vacancyTitle, gigTitle, companyName, companyDescription, type, channel } = input;
+    const { candidateName, vacancyTitle, gigTitle, companyName, companyDescription, webChatUrl, type, channel } = input;
 
     const positionText = type === 'vacancy'
       ? (vacancyTitle ? `Вакансия: ${vacancyTitle}` : "Вакансия не указана")
@@ -89,6 +91,7 @@ ${positionText}
 ${companyName ? `Компания: ${companyName}` : ""}
 ${channelText}
 ${companyDescription ? `\nОписание компании:\n${companyDescription}` : ""}
+${webChatUrl ? `\nСсылка на веб-чат: ${webChatUrl}` : ""}
 
 Создай приветственное сообщение для кандидата, приглашая к интервью через указанный канал.
 
