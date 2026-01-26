@@ -47,6 +47,7 @@
         "@qbs-autonaim/auth": "workspace:*",
         "@qbs-autonaim/db": "workspace:*",
         "@qbs-autonaim/emails": "workspace:*",
+        "@qbs-autonaim/jobs": "workspace:*",
         "@qbs-autonaim/ui": "workspace:*",
         "@qbs-autonaim/validators": "workspace:*",
         "@sindresorhus/slugify": "3.0.0",
@@ -435,7 +436,6 @@
         "@qbs-autonaim/ai": "workspace:*",
         "@qbs-autonaim/config": "workspace:*",
         "@qbs-autonaim/db": "workspace:*",
-        "@qbs-autonaim/server-utils": "workspace:*",
         "random-word-slugs": "^0.1.7",
         "zod": "4.3.6",
       },
@@ -3769,8 +3769,6 @@
 
     "@opentelemetry/instrumentation-pg/@types/pg": ["@types/pg@8.15.6", "", { "dependencies": { "@types/node": "*", "pg-protocol": "*", "pg-types": "^2.2.0" } }, "sha512-NoaMtzhxOrubeL/7UZuNTrejB4MPAJ0RpxZqXQf2qXuVlTPuG6Y8p4u9dKRaue4yjmC7ZhzVO2/Yyyn25znrPQ=="],
 
-    "@qbs-autonaim/jobs/@inngest/realtime": ["@inngest/realtime@github:kodermax/inngest-js#aebe4b3", { "dependencies": { "@standard-schema/spec": "^1.0.0", "debug": "^4.3.4", "zod": "^3.25.0" }, "peerDependencies": { "inngest": "^3.49.1", "react": ">=18.0.0", "zod": "^3.25.0 || ^4.0.0" } }, "kodermax-inngest-js-aebe4b3"],
-
     "@qbs-autonaim/jobs/axios": ["axios@1.13.3", "", { "dependencies": { "follow-redirects": "^1.15.6", "form-data": "^4.0.4", "proxy-from-env": "^1.1.0" } }, "sha512-ERT8kdX7DZjtUm7IitEyV7InTHAF42iJuMArIiDIV5YtPanJkgw4hw5Dyg9fh0mihdWNn1GKaeIWErfe56UQ1g=="],
 
     "@qbs-autonaim/tailwind-config/@types/node": ["@types/node@25.0.8", "", { "dependencies": { "undici-types": "~7.16.0" } }, "sha512-powIePYMmC3ibL0UJ2i2s0WIbq6cg6UyVFQxSCpaPxxzAaziRfimGivjdF943sSGV6RADVbk0Nvlm5P/FB44Zg=="],
@@ -4100,8 +4098,6 @@
     "@mtcute/markdown-parser/@mtcute/core/@fuman/utils": ["@fuman/utils@0.0.19", "", {}, "sha512-4qVrZ9AjKYztLJsNr1Tp7kL48b22dvVLN1iVW+Me8ZSQ0ILN0qknoxjsczVPReF7+GDWgknNxR2l6ggrA4SZyw=="],
 
     "@neondatabase/serverless/@types/pg/pg-types": ["pg-types@4.1.0", "", { "dependencies": { "pg-int8": "1.0.1", "pg-numeric": "1.0.2", "postgres-array": "~3.0.1", "postgres-bytea": "~3.0.0", "postgres-date": "~2.1.0", "postgres-interval": "^3.0.0", "postgres-range": "^1.1.1" } }, "sha512-o2XFanIMy/3+mThw69O8d4n1E5zsLhdO+OPqswezu7Z5ekP4hYDqlDjlmOpYMbzY2Br0ufCwJLdDIXeNVwcWFg=="],
-
-    "@qbs-autonaim/jobs/@inngest/realtime/zod": ["zod@3.25.76", "", {}, "sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ=="],
 
     "@react-email/preview-server/next/@next/env": ["@next/env@16.0.10", "", {}, "sha512-8tuaQkyDVgeONQ1MeT9Mkk8pQmZapMKFh5B+OrFUlG3rVmYTXcXlBetBgTurKXGaIZvkoqRT9JL5K3phXcgang=="],
 
