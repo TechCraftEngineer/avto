@@ -90,7 +90,7 @@ async function fetchWelcomeMessageData(responseId: string): Promise<
       const customDomain = await db.query.customDomain.findFirst({
         where: (domain, { eq, and }) =>
           and(
-            eq(domain.id, entityData.data.customDomainId),
+            eq(domain.id, entityData.data.customDomainId as string),
             eq(domain.type, "interview"),
             eq(domain.isVerified, true),
           ),
