@@ -11,7 +11,7 @@ export interface WelcomeInput {
   vacancyTitle?: string;
   gigTitle?: string;
   companyName?: string;
-  customWelcomeMessage?: string | null;
+  companyDescription?: string | null;
   type: 'vacancy' | 'gig';
   channel: string;
 }
@@ -75,7 +75,7 @@ export class WelcomeAgent extends BaseAgent<WelcomeInput, WelcomeOutput> {
     input: WelcomeInput,
     _context: BaseAgentContext,
   ): string {
-    const { candidateName, vacancyTitle, gigTitle, companyName, customWelcomeMessage, type, channel } = input;
+    const { candidateName, vacancyTitle, gigTitle, companyName, companyDescription, type, channel } = input;
 
     const positionText = type === 'vacancy'
       ? (vacancyTitle ? `Вакансия: ${vacancyTitle}` : "Вакансия не указана")
@@ -88,7 +88,7 @@ ${candidateName ? `Имя кандидата: ${candidateName} (использу
 ${positionText}
 ${companyName ? `Компания: ${companyName}` : ""}
 ${channelText}
-${customWelcomeMessage ? `\nКастомное сообщение от работодателя:\n${customWelcomeMessage}` : ""}
+${companyDescription ? `\nОписание компании:\n${companyDescription}` : ""}
 
 Создай приветственное сообщение для кандидата, приглашая к интервью через указанный канал.
 

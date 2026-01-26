@@ -98,7 +98,7 @@ async function generateAIWelcomeMessage(
         companyName: bot?.companyName || "",
         vacancyTitle: entityTitle || undefined,
         candidateName: responseData.candidateName ?? undefined,
-        customWelcomeMessage: bot?.companyDescription || undefined,
+        companyDescription: bot?.companyDescription || undefined,
         type: responseData.entity.type,
         channel,
       },
