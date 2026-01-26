@@ -1,11 +1,16 @@
 // GigShortlistGenerator перенесен в @qbs-autonaim/shared
+// InterviewLinkGenerator moved to @qbs-autonaim/shared
 export type {
   GigContactInfo,
   GigShortlist,
   GigShortlistCandidate,
   GigShortlistOptions,
+  InterviewLink,
 } from "@qbs-autonaim/shared";
-export { GigShortlistGenerator } from "@qbs-autonaim/shared";
+export {
+  GigShortlistGenerator,
+  InterviewLinkGenerator,
+} from "@qbs-autonaim/shared";
 export type {
   AggregationGranularity,
   AnalyticsErrorCode,
@@ -70,8 +75,6 @@ export {
 } from "./evaluation";
 export type { GigInterviewLink } from "./gig-interview-link-generator";
 export { GigInterviewLinkGenerator } from "./gig-interview-link-generator";
-export type { InterviewLink } from "./interview-link-generator";
-export { InterviewLinkGenerator } from "./interview-link-generator";
 
 export type {
   ContactInfo,

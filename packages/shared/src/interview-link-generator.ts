@@ -8,8 +8,7 @@
 import { and, eq, sql } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { interviewLink, vacancy } from "@qbs-autonaim/db/schema";
-import { getInterviewBaseUrl } from "@qbs-autonaim/server-utils";
-import { generateSlug } from "../utils/slug-generator";
+import { generateSlug, getInterviewBaseUrl } from "./utils";
 
 /**
  * Интерфейс ссылки на интервью
@@ -43,7 +42,10 @@ export class InterviewLinkGenerator {
   /**
    * Получает кастомный домен для вакансии или основной домен workspace или дефолтный URL
    */
-  private async getBaseUrlForVacancy(vacancyId: string, workspaceId?: string): Promise<string> {
+  private async getBaseUrlForVacancy(
+    vacancyId: string,
+    workspaceId?: string,
+  ): Promise<string> {
     // Сначала проверяем, есть ли у вакансии свой кастомный домен
     const foundVacancy = await db.query.vacancy.findFirst({
       where: eq(vacancy.id, vacancyId),
@@ -59,11 +61,13 @@ export class InterviewLinkGenerator {
             eq(domain.type, "interview"),
             eq(domain.isVerified, true),
           ];
-          
+
           if (workspaceId !== undefined) {
-            conditions.push(sql`${domain.workspaceId} = ${workspaceId} or ${domain.isPreset} = ${true}`);
+            conditions.push(
+              sql`${domain.workspaceId} = ${workspaceId} or ${domain.isPreset} = ${true}`,
+            );
           }
-          
+
           return and(...conditions);
         },
       });

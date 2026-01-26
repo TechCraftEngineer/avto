@@ -13,6 +13,9 @@ export type {
   GigShortlistOptions,
 } from "./gig-shortlist-generator";
 export { GigShortlistGenerator } from "./gig-shortlist-generator";
+// Экспорт interview link generator
+export type { InterviewLink } from "./interview-link-generator";
+export { InterviewLinkGenerator } from "./interview-link-generator";
 // Экспорт ranking service
 export * from "./ranking-service";
 // Экспорт всех типов

@@ -9,3 +9,7 @@ export {
   type ParsedPlatformLink,
   parsePlatformLink,
 } from "./freelance-platform-parser";
+// URL для интервью
+export { getInterviewBaseUrl } from "./get-interview-url";
+// Генерация slug
+export { generateSlug } from "./slug-generator";

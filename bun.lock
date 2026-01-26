@@ -435,6 +435,8 @@
         "@qbs-autonaim/ai": "workspace:*",
         "@qbs-autonaim/config": "workspace:*",
         "@qbs-autonaim/db": "workspace:*",
+        "@qbs-autonaim/server-utils": "workspace:*",
+        "random-word-slugs": "^0.1.7",
         "zod": "4.3.6",
       },
       "devDependencies": {

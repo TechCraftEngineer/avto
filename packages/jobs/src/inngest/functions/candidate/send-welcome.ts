@@ -1,4 +1,3 @@
-import { InterviewLinkGenerator } from "@qbs-autonaim/api/services";
 import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import {
@@ -8,6 +7,7 @@ import {
   telegramSession,
 } from "@qbs-autonaim/db/schema";
 import { logResponseEvent, removeNullBytes } from "@qbs-autonaim/lib";
+import { InterviewLinkGenerator } from "@qbs-autonaim/shared";
 import { tgClientSDK } from "@qbs-autonaim/tg-client/sdk";
 import {
   generateTelegramInviteMessage,
