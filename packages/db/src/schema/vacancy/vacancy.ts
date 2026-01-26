@@ -81,6 +81,9 @@ export const vacancy = pgTable(
         telegram: false,
       }),
 
+    // Кастомный домен для веб-чата (ID кастомного домена)
+    customDomainId: text("custom_domain_id"),
+
     // Шаблоны приветственных сообщений для разных каналов
     welcomeMessageTemplates: jsonb("welcome_message_templates").$type<{
       webChat?: string;
@@ -191,4 +194,5 @@ export const UpdateVacancySettingsSchema = z.object({
       minScoreThreshold: z.number().min(0).max(100).optional(),
     })
     .optional(),
+  customDomainId: z.string().nullable().optional(), // ID кастомного домена для веб-чата
 });

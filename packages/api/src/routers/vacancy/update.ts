@@ -85,6 +85,9 @@ export const update = protectedProcedure
       patch.url =
         settings.url === null || settings.url === "" ? null : settings.url;
     }
+    if (settings.customDomainId !== undefined) {
+      patch.customDomainId = settings.customDomainId;
+    }
 
     const result = await ctx.db
       .update(vacancy)

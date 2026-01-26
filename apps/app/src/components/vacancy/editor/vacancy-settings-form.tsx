@@ -27,6 +27,7 @@ import { toast } from "sonner";
 import { useTRPC } from "~/trpc/react";
 import { CommunicationChannelsSettings } from "./communication-channels-settings";
 import { WelcomeMessageTemplates } from "./welcome-message-templates";
+import { CustomDomainSelect } from "~/components/gig/custom-domain-select";
 
 interface VacancySettingsFormProps {
   vacancyTitle?: string;
@@ -47,6 +48,7 @@ interface VacancySettingsFormProps {
       webChat?: string;
       telegram?: string;
     };
+    customDomainId?: string | null;
   };
   onSave: (data: {
     customBotInstructions?: string | null;
@@ -61,6 +63,7 @@ interface VacancySettingsFormProps {
       webChat?: string;
       telegram?: string;
     };
+    customDomainId?: string | null;
   }) => Promise<void>;
   onImprove: (
     fieldType:
@@ -121,6 +124,7 @@ export function VacancySettingsForm({
       webChat?: string;
       telegram?: string;
     };
+    customDomainId?: string | null;
   }>({
     defaultValues: {
       customBotInstructions: initialData?.customBotInstructions ?? "",
@@ -134,6 +138,7 @@ export function VacancySettingsForm({
           telegram: false,
         },
       welcomeMessageTemplates: initialData?.welcomeMessageTemplates ?? {},
+      customDomainId: initialData?.customDomainId ?? null,
     },
   });
 
@@ -467,6 +472,33 @@ export function VacancySettingsForm({
             control={form.control}
             hasTelegramIntegration={hasTelegramIntegration}
           />
+
+          {/* Кастомный домен для веб-чата */}
+          {workspaceId && (
+            <Card className="p-6">
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="rounded-xl bg-linear-to-br from-purple-500/20 to-purple-600/10 p-3">
+                    <Settings className="size-6 text-purple-600" aria-hidden="true" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-medium text-foreground">
+                      Кастомный домен для веб-чата
+                    </h3>
+                    <p className="text-muted-foreground">
+                      Выберите домен, через который будет доступен веб-чат для этой вакансии
+                    </p>
+                  </div>
+                </div>
+                <Separator className="my-4" />
+                <CustomDomainSelect
+                  workspaceId={workspaceId}
+                  value={form.watch("customDomainId")}
+                  onChange={(value) => form.setValue("customDomainId", value)}
+                />
+              </div>
+            </Card>
+          )}
 
           {/* Шаблоны приветствия */}
           <WelcomeMessageTemplates

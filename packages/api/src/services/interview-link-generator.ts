@@ -7,7 +7,7 @@
 
 import { and, eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
-import { interviewLink } from "@qbs-autonaim/db/schema";
+import { interviewLink, vacancy, customDomain } from "@qbs-autonaim/db/schema";
 import { getInterviewBaseUrl } from "@qbs-autonaim/server-utils";
 import { generateSlug } from "../utils/slug-generator";
 
@@ -41,27 +41,60 @@ export class InterviewLinkGenerator {
   }
 
   /**
-   * Получает основной кастомный домен workspace для интервью или дефолтный URL
+   * Получает кастомный домен для вакансии или основной домен workspace или дефолтный URL
    */
-  private async getBaseUrlForWorkspace(workspaceId?: string): Promise<string> {
-    if (!workspaceId) {
-      return this.baseUrl;
-    }
-
-    const primaryDomain = await db.query.customDomain.findFirst({
-      where: (domain, { eq, and }) =>
-        and(
-          eq(domain.workspaceId, workspaceId),
-          eq(domain.type, "interview"),
-          eq(domain.isPrimary, true),
-          eq(domain.isVerified, true),
-        ),
+  private async getBaseUrlForVacancy(vacancyId: string, workspaceId?: string): Promise<string> {
+    // Сначала проверяем, есть ли у вакансии свой кастомный домен
+    const foundVacancy = await db.query.vacancy.findFirst({
+      where: eq(vacancy.id, vacancyId),
+      columns: { customDomainId: true },
     });
 
-    if (primaryDomain) {
-      return `https://${primaryDomain.domain}`;
+    if (foundVacancy?.customDomainId && foundVacancy.customDomainId !== null) {
+      // Проверяем, что кастомный домен существует и верен
+      const foundCustomDomain = await db.query.customDomain.findFirst({
+        where: (domain, { eq, and }) => {
+          const conditions = [
+            eq(domain.id, foundVacancy.customDomainId as string),
+            eq(domain.type, "interview"),
+            eq(domain.isVerified, true),
+          ];
+          
+          if (workspaceId) {
+            conditions.push(
+              domain.workspaceId 
+                ? eq(domain.workspaceId, workspaceId) 
+                : eq(domain.isPreset, true)
+            );
+          }
+          
+          return and(...conditions);
+        },
+      });
+
+      if (foundCustomDomain) {
+        return `https://${foundCustomDomain.domain}`;
+      }
     }
 
+    // Если нет вакансии или кастомного домена не найден, используем основной домен workspace
+    if (workspaceId) {
+      const primaryDomain = await db.query.customDomain.findFirst({
+        where: (domain, { eq, and }) =>
+          and(
+            eq(domain.workspaceId, workspaceId),
+            eq(domain.type, "interview"),
+            eq(domain.isPrimary, true),
+            eq(domain.isVerified, true),
+          ),
+      });
+
+      if (primaryDomain) {
+        return `https://${primaryDomain.domain}`;
+      }
+    }
+
+    // В последнем случае используем дефолтный URL
     return this.baseUrl;
   }
 
@@ -188,7 +221,7 @@ export class InterviewLinkGenerator {
     link: typeof interviewLink.$inferSelect,
     workspaceId?: string,
   ): Promise<InterviewLink> {
-    const baseUrl = await this.getBaseUrlForWorkspace(workspaceId);
+    const baseUrl = await this.getBaseUrlForVacancy(link.entityId, workspaceId);
 
     return {
       id: link.id,
