@@ -18,23 +18,21 @@ function generateNonce(): string {
  * Build CSP with nonce for script execution
  */
 function buildCSPWithNonce(nonce: string): string {
-  // In development, use less restrictive CSP
   const isDevelopment = process.env.NODE_ENV === 'development';
 
   const directives = [
     "default-src 'self'",
     isDevelopment
-      ? `script-src 'nonce-${nonce}' 'self' 'unsafe-inline' 'unsafe-eval' https:`
-      : `script-src 'nonce-${nonce}' 'self' https:`,
+      ? `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-eval'`
+      : `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
     "style-src 'self' 'unsafe-inline'", // Keep unsafe-inline for styles (Tailwind CSS)
-    "img-src 'self' data: https:",
-    "font-src 'self' data:",
-    "connect-src 'self' https://api.openai.com https://api.deepseek.com",
-    "frame-src 'none'",
+    "img-src 'self' blob: data:",
+    "font-src 'self'",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
     "frame-ancestors 'none'",
+    "upgrade-insecure-requests",
   ];
 
   return directives.join("; ");

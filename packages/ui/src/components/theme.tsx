@@ -135,6 +135,7 @@ export function ThemeProvider({ children }: React.PropsWithChildren) {
         toggleMode,
       }}
     >
+      {/* Next.js автоматически применит nonce к этому скрипту */}
       <script
         dangerouslySetInnerHTML={{ __html: themeDetectorScript }}
         suppressHydrationWarning
