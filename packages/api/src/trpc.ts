@@ -123,16 +123,13 @@ const securityAudit = t.middleware(async ({ ctx, next }) => {
   const ipAddress = ctx.ipAddress;
   const userAgent = ctx.userAgent;
 
-  // Log general access attempt for authenticated users
-  if (userId) {
-    logSecurityEvent.loginSuccess(userId, ipAddress, userAgent);
-  }
+  // Note: Removed logging of every authenticated request to avoid noise
 
   try {
     const result = await next();
 
-    // Log successful operations for authenticated users
-    if (userId) {
+    // Log successful mutation operations for authenticated users
+    if (userId && (ctx as any).type === "mutation") {
       logSecurityEvent.suspiciousActivity(
         {
           type: "data_modification",

@@ -73,7 +73,7 @@ export const createVacancy = protectedProcedure
 
       // Генерируем ссылку на интервью
       const linkGenerator = new InterviewLinkGenerator();
-      const interviewLink = await linkGenerator.generateLink(createdVacancy.id);
+      const interviewLink = await linkGenerator.getOrCreateInterviewLink(createdVacancy.id);
 
       return {
         vacancy: createdVacancy,

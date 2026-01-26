@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { use } from "react";
+import { use, useEffect, useState } from "react";
 import { VacancySettingsForm } from "~/components/vacancy";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 import { useTRPC } from "~/trpc/react";
@@ -17,6 +17,7 @@ export default function VacancySettingsPage({
   const trpc = useTRPC();
   const { workspaceId } = useWorkspaceContext();
   const queryClient = useQueryClient();
+  const [interviewLink, setInterviewLink] = useState<any>(null);
 
   const { data: vacancy } = useQuery({
     ...trpc.vacancy.get.queryOptions({
@@ -27,13 +28,23 @@ export default function VacancySettingsPage({
   });
 
   // Получаем ссылку на интервью для вакансии
-  const { data: interviewLink } = useQuery({
-    ...trpc.vacancy.getInterviewLink.queryOptions({
-      vacancyId: id,
-      workspaceId: workspaceId ?? "",
-    }),
-    enabled: Boolean(workspaceId),
-  });
+  const getInterviewLinkMutation = useMutation(
+    trpc.vacancy.getInterviewLink.mutationOptions({
+      onSuccess: (data) => {
+        setInterviewLink(data);
+      },
+    })
+  );
+
+  // Получаем ссылку на интервью при загрузке вакансии
+  useEffect(() => {
+    if (vacancy && workspaceId && !interviewLink) {
+      getInterviewLinkMutation.mutate({
+        vacancyId: id,
+        workspaceId,
+      });
+    }
+  }, [vacancy, workspaceId, id, interviewLink, getInterviewLinkMutation]);
 
   const updateSettingsMutation = useMutation(
     trpc.vacancy.update.mutationOptions({

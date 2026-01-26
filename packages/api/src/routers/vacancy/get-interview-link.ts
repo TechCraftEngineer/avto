@@ -14,7 +14,7 @@ const getInterviewLinkInputSchema = z.object({
  */
 export const getInterviewLink = protectedProcedure
   .input(getInterviewLinkInputSchema)
-  .query(async ({ input, ctx }) => {
+  .mutation(async ({ input, ctx }) => {
     // Проверка доступа к workspace
     const access = await ctx.workspaceRepository.checkAccess(
       input.workspaceId,
@@ -46,7 +46,7 @@ export const getInterviewLink = protectedProcedure
 
     // Генерируем или получаем существующую ссылку на интервью
     const linkGenerator = new InterviewLinkGenerator();
-    const interviewLink = await linkGenerator.generateLink(
+    const interviewLink = await linkGenerator.getOrCreateInterviewLink(
       input.vacancyId,
       input.workspaceId,
     );

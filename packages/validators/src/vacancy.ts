@@ -74,7 +74,7 @@ export const updateVacancySettingsSchema = z.object({
     .url({ message: "Введите корректный URL" })
     .or(z.literal(""))
     .nullish(),
-  customDomainId: z.string().nullish(),
+  customDomainId: z.string().uuid().nullish(),
 });
 
 export const updateFullVacancySchema = z.object({

@@ -86,7 +86,9 @@ export const update = protectedProcedure
         settings.url === null || settings.url === "" ? null : settings.url;
     }
     if (settings.customDomainId !== undefined) {
-      patch.customDomainId = settings.customDomainId;
+      // Преобразуем пустую строку в null
+      patch.customDomainId =
+        settings.customDomainId === null || settings.customDomainId === "" ? null : settings.customDomainId;
     }
 
     const result = await ctx.db
