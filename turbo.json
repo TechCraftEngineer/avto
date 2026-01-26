@@ -13,7 +13,6 @@
         ".next/**",
         "!.next/cache/**"
       ],
-      "outputLogs": "hash-only",
       "env": ["NODE_ENV"]
     },
     "dev": {

@@ -13,13 +13,13 @@ import { db } from "@qbs-autonaim/db/client";
 import { inngest } from "@qbs-autonaim/jobs/client";
 import {
   getClientIP,
+  logSecurityEvent,
   RATE_LIMITS,
   rateLimit,
 } from "@qbs-autonaim/server-utils";
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError, z } from "zod";
-import { createSecurityAuditMiddleware } from "./middleware/security-audit";
 import { AuditLoggerService } from "./services/audit-logger";
 import { extractTokenFromHeaders } from "./utils/interview-token-validator";
 
@@ -117,7 +117,74 @@ export const createTRPCRouter = t.router;
 /**
  * Security audit middleware
  */
-const securityAuditMiddleware = t.middleware(createSecurityAuditMiddleware());
+const securityAudit = t.middleware(async ({ ctx, next }) => {
+  const startTime = Date.now();
+  const userId = ctx.session?.user?.id;
+  const ipAddress = ctx.ipAddress;
+  const userAgent = ctx.userAgent;
+
+  // Log general access attempt for authenticated users
+  if (userId) {
+    logSecurityEvent.loginSuccess(userId, ipAddress, userAgent);
+  }
+
+  try {
+    const result = await next();
+
+    // Log successful operations for authenticated users
+    if (userId) {
+      logSecurityEvent.suspiciousActivity(
+        {
+          type: "data_modification",
+          operation: "MODIFY",
+          userId,
+        },
+        ipAddress,
+        userId,
+      );
+    }
+
+    return result;
+  } catch (error) {
+    // Log security violations
+    if (error instanceof TRPCError) {
+      if (error.code === "UNAUTHORIZED") {
+        logSecurityEvent.accessDenied(
+          userId || "anonymous",
+          "unknown",
+          ipAddress,
+        );
+      } else if (error.code === "TOO_MANY_REQUESTS") {
+        logSecurityEvent.rateLimitExceeded(ipAddress, userId, "unknown");
+      } else if (error.code === "FORBIDDEN") {
+        logSecurityEvent.suspiciousActivity(
+          {
+            error: error.message,
+            code: error.code,
+          },
+          ipAddress,
+          userId,
+        );
+      }
+    }
+
+    throw error;
+  } finally {
+    // Log execution time for performance monitoring
+    const executionTime = Date.now() - startTime;
+    if (executionTime > 5000) {
+      // Log slow operations
+      logSecurityEvent.suspiciousActivity(
+        {
+          type: "slow_operation",
+          executionTime,
+        },
+        ipAddress,
+        userId,
+      );
+    }
+  }
+});
 
 /**
  * Security headers middleware
@@ -202,7 +269,7 @@ export const publicProcedure = t.procedure
   .use(timingMiddleware)
   .use(securityHeadersMiddleware)
   .use(rateLimitMiddleware)
-  .use(securityAuditMiddleware);
+  .use(securityAudit);
 
 /**
  * Protected (authenticated) procedure
@@ -216,7 +283,7 @@ export const protectedProcedure = t.procedure
   .use(timingMiddleware)
   .use(securityHeadersMiddleware)
   .use(rateLimitMiddleware)
-  .use(securityAuditMiddleware)
+  .use(securityAudit)
   .use(({ ctx, next }) => {
     if (!ctx.session?.user) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
