@@ -35,14 +35,26 @@ export function SafeHtml({ html, className }: SafeHtmlProps) {
       "pre",
     ],
     allowedAttributes: {
-      "a": ["href", "title", "target", "class"],
+      "a": ["href", "title", "target", "rel", "class"],
       "span": ["class"],
       "div": ["class"],
       "code": ["class"],
       "pre": ["class"],
     },
+    transformTags: {
+      "a": (tagName, attribs) => {
+        if (attribs.target === "_blank") {
+          const existingRel = attribs.rel || "";
+          const relParts = existingRel.split(" ").filter(Boolean);
+          if (!relParts.includes("noopener")) relParts.push("noopener");
+          if (!relParts.includes("noreferrer")) relParts.push("noreferrer");
+          attribs.rel = relParts.join(" ");
+        }
+        return { tagName, attribs };
+      },
+    },
     allowedIframeHostnames: [],
-    allowedSchemes: ["http", "https", "mailto", "tel", "callto", "cid", "xmpp", "data"],
+    allowedSchemes: ["http", "https", "mailto", "tel", "callto", "cid", "xmpp"],
     allowedSchemesAppliedToAttributes: ["href", "src", "cite"],
   });
 

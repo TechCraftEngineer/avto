@@ -18,7 +18,11 @@ import {
 import { inngest } from "../../client";
 
 /**
- * Inngest функция для отправки приветственного сообщения кандидату в Telegram по username
+ * Inngest функция для отправки приветственного сообщения кандидату
+ * Маршрутизирует отправку по источнику отклика:
+ * - HH: отправляет в HH.ru
+ * - TELEGRAM: отправляет в Telegram
+ * - Другие: пропускает
  */
 export const sendCandidateWelcomeFunction = inngest.createFunction(
   {
@@ -85,26 +89,17 @@ export const sendCandidateWelcomeFunction = inngest.createFunction(
       },
     );
 
-    const result = await step.run("send-telegram-message", async () => {
-      console.log("📤 Отправка сообщения пользователю", {
+    const result = await step.run("send-welcome-message", async () => {
+      console.log("📤 Отправка приветственного сообщения", {
         responseId,
+        importSource: responseData.importSource,
         username,
         phone,
       });
 
       try {
-        // Получаем активную сессию для workspace
         const workspaceId = responseData.vacancy.workspaceId;
-        const session = await db.query.telegramSession.findFirst({
-          where: eq(telegramSession.workspaceId, workspaceId),
-          orderBy: (sessions, { desc }) => [desc(sessions.lastUsedAt)],
-        });
-
-        if (!session) {
-          throw new Error(
-            `Нет активной Telegram сессии для workspace ${workspaceId}`,
-          );
-        }
+        const importSource = responseData.importSource || "MANUAL";
 
         let sendResult: {
           success: boolean;
@@ -115,152 +110,146 @@ export const sendCandidateWelcomeFunction = inngest.createFunction(
           sentMessage: string;
         } | null = null;
 
-        // Пытаемся отправить по username, если он есть
-        if (username) {
-          console.log(`📨 Попытка отправки по username: @${username}`);
-          try {
-            const tgResult = await tgClientSDK.sendMessageByUsername({
-              workspaceId,
-              username,
-              text: welcomeMessage,
-            });
+        // Маршрутизация по источнику отклика
+        if (importSource === "HH") {
+          // Отправляем только в HH.ru
+          console.log(`📧 Отправка приветствия в HH.ru (источник: ${importSource})`);
 
-            if (tgResult) {
-              console.log("✅ Сообщение отправлено по username", {
-                responseId,
-                username,
-                chatId: tgResult.chatId,
-              });
-
-              // Обновляем lastUsedAt
-              await db
-                .update(telegramSession)
-                .set({ lastUsedAt: new Date() })
-                .where(eq(telegramSession.id, session.id));
-
-              sendResult = {
-                ...tgResult,
-                channel: "TELEGRAM" as const,
-                sentMessage: welcomeMessage,
-              };
-              return sendResult;
-            }
-          } catch (error) {
-            console.log(
-              `⚠️ Не удалось отправить по username: ${error instanceof Error ? error.message : "Unknown error"}`,
-            );
+          // Проверяем наличие chatId для HH
+          if (!responseData.chatId) {
+            console.log(`⚠️ chatId не найден для HH отклика ${responseId}, пропускаем отправку`);
+            throw new Error(`chatId не найден для HH отклика, невозможно отправить приветствие`);
           }
-        }
 
-        // Если username не сработал или его нет, пробуем по телефону
-        if (phone) {
-          console.log(`📞 Попытка отправки по номеру телефона: ${phone}`);
-          try {
-            const tgResult = await tgClientSDK.sendMessageByPhone({
-              workspaceId,
-              phone,
-              text: welcomeMessage,
-              firstName: responseData.candidateName || undefined,
-            });
-
-            if (tgResult) {
-              console.log("✅ Сообщение отправлено по номеру телефона", {
-                responseId,
-                phone,
-                chatId: tgResult.chatId,
-              });
-
-              // Обновляем lastUsedAt
-              await db
-                .update(telegramSession)
-                .set({ lastUsedAt: new Date() })
-                .where(eq(telegramSession.id, session.id));
-
-              sendResult = {
-                ...tgResult,
-                channel: "TELEGRAM" as const,
-                sentMessage: welcomeMessage,
-              };
-              return sendResult;
-            }
-          } catch (error) {
-            console.log(
-              `⚠️ Не удалось отправить по телефону: ${error instanceof Error ? error.message : "Unknown error"}`,
-            );
-          }
-        }
-
-        // Если Telegram не сработал, пробуем hh.ru
-        if (!sendResult) {
-          console.log(`📧 Попытка отправки через hh.ru`);
-
-          // Generate PIN code first
-          const pinCodeResult = await generateTelegramInvite({
-            responseId,
-            botUsername: "", // Not needed anymore
-          });
-
-          const inviteMessageResult =
-            await generateTelegramInviteMessage(responseId);
-
-          let messageWithInvite = inviteMessageResult.success
+          const inviteMessageResult = await generateTelegramInviteMessage(responseId);
+          const messageWithInvite = inviteMessageResult.success
             ? inviteMessageResult.data
             : welcomeMessage;
 
-          // Get telegram username from session userInfo
-          const userInfo = session.userInfo as { username?: string } | null;
-          const telegramUsername =
-            userInfo?.username || env.TELEGRAM_BOT_USERNAME;
-
-          if (telegramUsername && pinCodeResult.success) {
-            messageWithInvite = `${messageWithInvite}\n\n📱 Напишите мне в Telegram @${telegramUsername}`;
-          }
-
           const hhResult = await sendHHChatMessage({
-            workspaceId: responseData.vacancy.workspaceId,
+            workspaceId,
             responseId,
             text: messageWithInvite,
           });
 
           if (hhResult.success) {
-            console.log(`✅ Сообщение отправлено через hh.ru`);
-
-            // Обновляем статус отправки приветствия
-            await db
-              .update(response)
-              .set({
-                welcomeSentAt: new Date(),
-              })
-              .where(eq(response.id, responseId));
-
+            console.log(`✅ Приветствие отправлено в HH.ru`);
             sendResult = {
               success: true,
               messageId: "",
-              chatId: responseData.chatId || "",
+              chatId: responseData.chatId,
               channel: "HH" as const,
               sentMessage: messageWithInvite,
             };
-            return sendResult;
+          } else {
+            console.error(`❌ Не удалось отправить в HH.ru: ${hhResult.error}`);
+            throw new Error(`Не удалось отправить приветствие в HH.ru: ${hhResult.error}`);
           }
 
-          console.error(
-            `❌ Не удалось отправить через hh.ru: ${hhResult.error}`,
-          );
+        } else if (importSource === "TELEGRAM") {
+          // Отправляем только в Telegram
+          console.log(`📱 Отправка приветствия в Telegram (источник: ${importSource})`);
+
+          // Получаем активную сессию для workspace
+          const session = await db.query.telegramSession.findFirst({
+            where: eq(telegramSession.workspaceId, workspaceId),
+            orderBy: (sessions, { desc }) => [desc(sessions.lastUsedAt)],
+          });
+
+          if (!session) {
+            throw new Error(`Нет активной Telegram сессии для workspace ${workspaceId}`);
+          }
+
+          // Пытаемся отправить по username
+          if (username) {
+            console.log(`📨 Попытка отправки по username: @${username}`);
+            try {
+              const tgResult = await tgClientSDK.sendMessageByUsername({
+                workspaceId,
+                username,
+                text: welcomeMessage,
+              });
+
+              if (tgResult) {
+                console.log("✅ Приветствие отправлено по username", {
+                  responseId,
+                  username,
+                  chatId: tgResult.chatId,
+                });
+
+                await db
+                  .update(telegramSession)
+                  .set({ lastUsedAt: new Date() })
+                  .where(eq(telegramSession.id, session.id));
+
+                sendResult = {
+                  ...tgResult,
+                  channel: "TELEGRAM" as const,
+                  sentMessage: welcomeMessage,
+                };
+              }
+            } catch (error) {
+              console.log(`⚠️ Не удалось отправить по username: ${error instanceof Error ? error.message : "Unknown error"}`);
+            }
+          }
+
+          // Если username не сработал, пробуем по телефону
+          if (!sendResult && phone) {
+            console.log(`📞 Попытка отправки по номеру телефона: ${phone}`);
+            try {
+              const tgResult = await tgClientSDK.sendMessageByPhone({
+                workspaceId,
+                phone,
+                text: welcomeMessage,
+                firstName: responseData.candidateName || undefined,
+              });
+
+              if (tgResult) {
+                console.log("✅ Приветствие отправлено по номеру телефона", {
+                  responseId,
+                  phone,
+                  chatId: tgResult.chatId,
+                });
+
+                await db
+                  .update(telegramSession)
+                  .set({ lastUsedAt: new Date() })
+                  .where(eq(telegramSession.id, session.id));
+
+                sendResult = {
+                  ...tgResult,
+                  channel: "TELEGRAM" as const,
+                  sentMessage: welcomeMessage,
+                };
+              }
+            } catch (error) {
+              console.log(`⚠️ Не удалось отправить по телефону: ${error instanceof Error ? error.message : "Unknown error"}`);
+            }
+          }
+
+          if (!sendResult) {
+            throw new Error(
+              username && phone
+                ? `Не удалось отправить приветствие ни по username (@${username}), ни по телефону (${phone})`
+                : username
+                  ? `Не удалось отправить приветствие по username (@${username}), телефон не указан`
+                  : phone
+                    ? `Username не указан, не удалось отправить по телефону (${phone})`
+                    : "Не указаны ни username, ни телефон для отправки приветствия"
+            );
+          }
+
+        } else {
+          // Для других источников (WEB_LINK, MANUAL, etc.) отправляем в Telegram или пропускаем
+          console.log(`📋 Пропуск отправки приветствия (источник: ${importSource}) - не поддерживается`);
+          throw new Error(`Отправка приветствия не поддерживается для источника: ${importSource}`);
         }
 
-        // Если ничего не сработало
-        throw new Error(
-          username && phone
-            ? `Не удалось отправить сообщение ни по username (@${username}), ни по телефону (${phone})`
-            : username
-              ? `Не удалось отправить сообщение по username (@${username}), телефон не указан`
-              : phone
-                ? `Username не указан, не удалось отправить по телефону (${phone})`
-                : "Не указаны ни username, ни телефон",
-        );
+        return sendResult;
       } catch (error) {
-        console.error("❌ Ошибка отправки сообщения в Telegram", {
+        console.error("❌ Ошибка отправки приветственного сообщения", {
           responseId,
+          importSource: responseData.importSource,
           username,
           phone,
           error,

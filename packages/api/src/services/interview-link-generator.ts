@@ -5,7 +5,7 @@
  * валидирует токены и управляет активностью ссылок.
  */
 
-import { and, eq } from "@qbs-autonaim/db";
+import { and, eq, or } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { interviewLink, vacancy, customDomain } from "@qbs-autonaim/db/schema";
 import { getInterviewBaseUrl } from "@qbs-autonaim/server-utils";
@@ -62,9 +62,10 @@ export class InterviewLinkGenerator {
           
           if (workspaceId) {
             conditions.push(
-              domain.workspaceId 
-                ? eq(domain.workspaceId, workspaceId) 
-                : eq(domain.isPreset, true)
+              or(
+                eq(domain.workspaceId, workspaceId),
+                eq(domain.isPreset, true)
+              )!
             );
           }
           
@@ -124,14 +125,13 @@ export class InterviewLinkGenerator {
   }
 
   /**
-   * Генерирует уникальную ссылку на интервью для вакансии
+   * Получает или создает ссылку на интервью для вакансии
    *
    * @param vacancyId - ID вакансии
    * @param workspaceId - ID workspace (опционально, для кастомного домена)
-   * @returns Созданная ссылка на интервью
-   * @throws Error если ссылка для вакансии уже существует
+   * @returns Ссылка на интервью
    */
-  async generateLink(
+  async getOrCreateInterviewLink(
     vacancyId: string,
     workspaceId?: string,
   ): Promise<InterviewLink> {

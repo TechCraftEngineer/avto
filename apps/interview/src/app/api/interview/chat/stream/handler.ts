@@ -275,29 +275,30 @@ async function handler(request: Request) {
         message: userMessageText,
         history: conversationHistory,
       },
-      null,
+      { conversationHistory },
     );
 
     // Проверяем успешность анализа
     if (!contextAnalysis.success || !contextAnalysis.data) {
       console.error("[Interview Stream] Context analysis failed:", contextAnalysis.error);
-    } else {
-      // Если нужна эскалация — возвращаем специальный ответ
-      if (contextAnalysis.data.shouldEscalate) {
-        console.warn("[Interview Stream] Escalation triggered:", {
-          conversationId: sessionId,
-          reason: contextAnalysis.data.escalationReason,
-        });
-        // TODO: можно добавить логику эскалации
-      }
+      return NextResponse.json({ acknowledged: false, error: 'context analysis failed' });
+    }
 
-      // Если простое подтверждение — не отвечаем
-      if (
-        contextAnalysis.data.messageType === "ACKNOWLEDGMENT" &&
-        !contextAnalysis.data.requiresResponse
-      ) {
-        return NextResponse.json({ acknowledged: true });
-      }
+    // Если нужна эскалация — возвращаем специальный ответ
+    if (contextAnalysis.data.shouldEscalate) {
+      console.warn("[Interview Stream] Escalation triggered:", {
+        conversationId: sessionId,
+        reason: contextAnalysis.data.escalationReason,
+      });
+      // TODO: можно добавить логику эскалации
+    }
+
+    // Если простое подтверждение — не отвечаем
+    if (
+      contextAnalysis.data.messageType === "ACKNOWLEDGMENT" &&
+      !contextAnalysis.data.requiresResponse
+    ) {
+      return NextResponse.json({ acknowledged: true });
     }
 
     // Формируем контекст для оркестратора

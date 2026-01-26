@@ -21,7 +21,7 @@ import {
   Wand2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { skipToken, useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useTRPC } from "~/trpc/react";
@@ -494,7 +494,7 @@ export function VacancySettingsForm({
                 <CustomDomainSelect
                   workspaceId={workspaceId}
                   value={form.watch("customDomainId")}
-                  onChange={(value) => form.setValue("customDomainId", value)}
+                  onChange={(value) => form.setValue("customDomainId", value, { shouldDirty: true })}
                 />
               </div>
             </Card>
