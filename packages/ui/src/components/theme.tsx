@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "./dropdown-menu";
 
+
 const ThemeModeSchema = z.enum(["light", "dark", "auto"]);
 
 const themeKey = "theme-mode";
@@ -72,11 +73,12 @@ const getNextTheme = (current: ThemeMode): ThemeMode => {
   return themes[(themes.indexOf(current) + 1) % themes.length]!;
 };
 
+// Create theme detector as external script URL to avoid CSP issues
 export const themeDetectorScript = (() => {
   function themeFn() {
-    const isValidTheme = (theme: string): theme is ThemeMode => {
-      const validThemes = ["light", "dark", "auto"] as const;
-      return validThemes.includes(theme as ThemeMode);
+    const isValidTheme = (theme: string): boolean => {
+      const validThemes = ["light", "dark", "auto"];
+      return validThemes.includes(theme);
     };
 
     const storedTheme = localStorage.getItem("theme-mode") ?? "auto";
@@ -92,7 +94,7 @@ export const themeDetectorScript = (() => {
       document.documentElement.classList.add(validTheme);
     }
   }
-  return `(${themeFn.toString()})();`;
+  return `data:text/javascript;charset=utf-8,(${encodeURIComponent(themeFn.toString())})();`;
 })();
 
 interface ThemeContextProps {
@@ -125,6 +127,7 @@ export function ThemeProvider({ children }: React.PropsWithChildren) {
     setTheme(getNextTheme(themeMode));
   };
 
+
   return (
     <ThemeContext
       value={{
@@ -135,7 +138,7 @@ export function ThemeProvider({ children }: React.PropsWithChildren) {
       }}
     >
       <script
-        dangerouslySetInnerHTML={{ __html: themeDetectorScript }}
+        src={themeDetectorScript}
         suppressHydrationWarning
       />
       {children}

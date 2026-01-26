@@ -1,8 +1,7 @@
 import { APP_CONFIG } from "@qbs-autonaim/config";
-import { cn, ThemeProvider, Toaster } from "@qbs-autonaim/ui";
 import type { Metadata, Viewport } from "next";
+import { ClientLayout } from "~/components/client-layout";
 import { env } from "~/env";
-import { TRPCReactProvider } from "~/trpc/react";
 
 import "~/app/styles.css";
 
@@ -32,15 +31,8 @@ export const viewport: Viewport = {
 export default function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="ru" suppressHydrationWarning>
-      <body
-        className={cn(
-          "bg-background text-foreground min-h-screen font-sans antialiased",
-        )}
-      >
-        <ThemeProvider>
-          <TRPCReactProvider>{props.children}</TRPCReactProvider>
-          <Toaster />
-        </ThemeProvider>
+      <body className="bg-background text-foreground min-h-screen font-sans antialiased">
+        <ClientLayout>{props.children}</ClientLayout>
       </body>
     </html>
   );

@@ -20,7 +20,7 @@ function generateNonce(): string {
 function buildCSPWithNonce(nonce: string): string {
   const directives = [
     "default-src 'self'",
-    `script-src 'nonce-${nonce}' 'strict-dynamic' https:`,
+    `script-src 'nonce-${nonce}' 'strict-dynamic' https: data:`,
     "style-src 'self' 'unsafe-inline'", // Keep unsafe-inline for styles (Tailwind CSS)
     "img-src 'self' data: https:",
     "font-src 'self' data:",
