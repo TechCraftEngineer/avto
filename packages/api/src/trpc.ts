@@ -117,11 +117,11 @@ export const createTRPCRouter = t.router;
 /**
  * Security audit middleware
  */
-const securityAudit = t.middleware(async ({ ctx, next }) => {
+const securityAudit = t.middleware(async ({ ctx, type, next }) => {
   const startTime = Date.now();
   const userId = ctx.session?.user?.id;
   const ipAddress = ctx.ipAddress;
-  const userAgent = ctx.userAgent;
+  const _userAgent = ctx.userAgent;
 
   // Note: Removed logging of every authenticated request to avoid noise
 
@@ -129,7 +129,7 @@ const securityAudit = t.middleware(async ({ ctx, next }) => {
     const result = await next();
 
     // Log successful mutation operations for authenticated users
-    if (userId && (ctx as any).type === "mutation") {
+    if (userId && type === "mutation") {
       logSecurityEvent.suspiciousActivity(
         {
           type: "data_modification",

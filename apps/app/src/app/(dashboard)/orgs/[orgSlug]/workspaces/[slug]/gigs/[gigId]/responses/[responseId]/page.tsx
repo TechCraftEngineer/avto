@@ -22,6 +22,7 @@ import Link from "next/link";
 import React from "react";
 import { toast } from "sonner";
 import { GigResponseDetailCard } from "~/components/gig/response-detail/detail-card";
+import { triggerSendWelcome } from "~/actions/trigger";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
 
@@ -76,6 +77,7 @@ export default function GigResponseDetailPage({ params }: PageProps) {
     action: "accept" | "reject";
   }>({ open: false, action: "accept" });
   const [isPolling, setIsPolling] = React.useState(false);
+  const [isSendingGreeting, setIsSendingGreeting] = React.useState(false);
   const pollingIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
 
   // Fetch response details
@@ -255,6 +257,25 @@ export default function GigResponseDetailPage({ params }: PageProps) {
     setMessageDialog(true);
   };
 
+  const handleSendGreeting = async () => {
+    if (!workspace?.id) return;
+
+    setIsSendingGreeting(true);
+    try {
+      const result = await triggerSendWelcome(responseId);
+      if (!result.success) {
+        toast.error("Не удалось отправить приветствие");
+        return;
+      }
+      toast.success("Приветствие отправлено");
+    } catch (error) {
+      console.error("Ошибка отправки приветствия:", error);
+      toast.error("Ошибка отправки приветствия");
+    } finally {
+      setIsSendingGreeting(false);
+    }
+  };
+
   const handleEvaluate = () => {
     if (!workspace?.id) return;
 
@@ -350,9 +371,11 @@ export default function GigResponseDetailPage({ params }: PageProps) {
         onAccept={handleAccept}
         onReject={handleReject}
         onMessage={handleMessage}
+        onSendGreeting={handleSendGreeting}
         onEvaluate={handleEvaluate}
         isProcessing={isProcessing}
         isPolling={isPolling}
+        isSendingGreeting={isSendingGreeting}
       />
 
       {/* Confirm Dialog */}

@@ -5,9 +5,9 @@
  * валидирует токены и управляет активностью ссылок.
  */
 
-import { and, eq, or } from "@qbs-autonaim/db";
+import { and, eq, sql } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
-import { interviewLink, vacancy, customDomain } from "@qbs-autonaim/db/schema";
+import { interviewLink, vacancy } from "@qbs-autonaim/db/schema";
 import { getInterviewBaseUrl } from "@qbs-autonaim/server-utils";
 import { generateSlug } from "../utils/slug-generator";
 
@@ -60,13 +60,8 @@ export class InterviewLinkGenerator {
             eq(domain.isVerified, true),
           ];
           
-          if (workspaceId) {
-            conditions.push(
-              or(
-                eq(domain.workspaceId, workspaceId),
-                eq(domain.isPreset, true)
-              )!
-            );
+          if (workspaceId !== undefined) {
+            conditions.push(sql`${domain.workspaceId} = ${workspaceId} or ${domain.isPreset} = ${true}`);
           }
           
           return and(...conditions);

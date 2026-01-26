@@ -10,6 +10,16 @@ interface VacancySettingsPageProps {
   params: Promise<{ workspaceSlug: string; id: string }>;
 }
 
+type InterviewLink = {
+  id: string;
+  vacancyId: string;
+  token: string;
+  url: string;
+  isActive: boolean;
+  createdAt: Date;
+  expiresAt: Date | null;
+};
+
 export default function VacancySettingsPage({
   params,
 }: VacancySettingsPageProps) {
@@ -17,7 +27,7 @@ export default function VacancySettingsPage({
   const trpc = useTRPC();
   const { workspaceId } = useWorkspaceContext();
   const queryClient = useQueryClient();
-  const [interviewLink, setInterviewLink] = useState<any>(null);
+  const [interviewLink, setInterviewLink] = useState<InterviewLink | null>(null);
 
   const { data: vacancy } = useQuery({
     ...trpc.vacancy.get.queryOptions({
@@ -38,13 +48,13 @@ export default function VacancySettingsPage({
 
   // Получаем ссылку на интервью при загрузке вакансии
   useEffect(() => {
-    if (vacancy && workspaceId && !interviewLink) {
+    if (vacancy && workspaceId && !interviewLink && !getInterviewLinkMutation.isPending && !getInterviewLinkMutation.isSuccess) {
       getInterviewLinkMutation.mutate({
         vacancyId: id,
         workspaceId,
       });
     }
-  }, [vacancy, workspaceId, id, interviewLink, getInterviewLinkMutation]);
+  }, [vacancy, workspaceId, id, interviewLink, getInterviewLinkMutation.isPending, getInterviewLinkMutation.isSuccess, getInterviewLinkMutation.mutate]);
 
   const updateSettingsMutation = useMutation(
     trpc.vacancy.update.mutationOptions({

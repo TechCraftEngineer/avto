@@ -1,4 +1,3 @@
-import { env } from "@qbs-autonaim/config";
 import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import {
@@ -10,7 +9,6 @@ import {
 import { logResponseEvent, removeNullBytes } from "@qbs-autonaim/lib";
 import { tgClientSDK } from "@qbs-autonaim/tg-client/sdk";
 import {
-  generateTelegramInvite,
   generateTelegramInviteMessage,
   generateWelcomeMessage,
   sendHHChatMessage,
@@ -242,7 +240,7 @@ export const sendCandidateWelcomeFunction = inngest.createFunction(
         } else {
           // Для других источников (WEB_LINK, MANUAL, etc.) отправляем в Telegram или пропускаем
           console.log(`📋 Пропуск отправки приветствия (источник: ${importSource}) - не поддерживается`);
-          throw new Error(`Отправка приветствия не поддерживается для источника: ${importSource}`);
+          return null;
         }
 
         return sendResult;

@@ -23,9 +23,11 @@ interface GigResponseHeaderCardProps {
   onAccept?: () => void;
   onReject?: () => void;
   onMessage?: () => void;
+  onSendGreeting?: () => void;
   onEvaluate?: () => void;
   isProcessing?: boolean;
   isPolling?: boolean;
+  isSendingGreeting?: boolean;
 }
 
 const getStatusColor = (status: string) => {
@@ -71,9 +73,11 @@ export function GigResponseHeaderCard({
   onAccept,
   onReject,
   onMessage,
+  onSendGreeting,
   onEvaluate,
   isProcessing,
   isPolling,
+  isSendingGreeting,
 }: GigResponseHeaderCardProps) {
   const hasPortfolio =
     response.portfolioLinks?.length || response.portfolioFileId;
@@ -148,6 +152,22 @@ export function GigResponseHeaderCard({
               >
                 <MessageSquare className="h-4 w-4 mr-2" />
                 Связаться
+              </Button>
+            )}
+            {onSendGreeting && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onSendGreeting}
+                disabled={isProcessing || isSendingGreeting}
+                className="min-h-[36px]"
+              >
+                {isSendingGreeting ? (
+                  <div className="h-4 w-4 mr-2 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                ) : (
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                )}
+                {isSendingGreeting ? "Отправка…" : "Отправить приветствие"}
               </Button>
             )}
             {onEvaluate && (

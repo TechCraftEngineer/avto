@@ -15,9 +15,11 @@ export interface GigResponseDetailCardProps {
   onAccept?: () => void;
   onReject?: () => void;
   onMessage?: () => void;
+  onSendGreeting?: () => void;
   onEvaluate?: () => void;
   isProcessing?: boolean;
   isPolling?: boolean;
+  isSendingGreeting?: boolean;
 }
 
 /**

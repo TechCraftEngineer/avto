@@ -21,7 +21,7 @@ import {
   Wand2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { skipToken, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useTRPC } from "~/trpc/react";

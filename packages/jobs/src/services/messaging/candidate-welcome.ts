@@ -3,8 +3,10 @@ import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import {
   botSettings,
+  type gig,
   response,
   responseScreening,
+  type vacancy,
 } from "@qbs-autonaim/db/schema";
 import { generateText } from "@qbs-autonaim/lib";
 import { getAIModel } from "@qbs-autonaim/lib/ai";
@@ -30,13 +32,33 @@ export async function generateWelcomeMessage(
       throw new Error(`Response ${responseId} not found`);
     }
 
-    // Получаем vacancy отдельно через entityId
-    const vacancy = await db.query.vacancy.findFirst({
-      where: (v, { eq }) => eq(v.id, responseRecord.entityId),
-    });
+    let entityData: { type: "gig"; data: typeof gig.$inferSelect } | { type: "vacancy"; data: typeof vacancy.$inferSelect };
+    let workspaceId: string;
 
-    if (!vacancy) {
-      throw new Error(`Vacancy not found for response ${responseId}`);
+    if (responseRecord.entityType === "gig") {
+      // Получаем gig данные
+      const gig = await db.query.gig.findFirst({
+        where: (g, { eq }) => eq(g.id, responseRecord.entityId),
+      });
+
+      if (!gig) {
+        throw new Error(`Gig not found for response ${responseId}`);
+      }
+
+      entityData = { type: "gig" as const, data: gig };
+      workspaceId = gig.workspaceId;
+    } else {
+      // Получаем vacancy данные
+      const vacancy = await db.query.vacancy.findFirst({
+        where: (v, { eq }) => eq(v.id, responseRecord.entityId),
+      });
+
+      if (!vacancy) {
+        throw new Error(`Vacancy not found for response ${responseId}`);
+      }
+
+      entityData = { type: "vacancy" as const, data: vacancy };
+      workspaceId = vacancy.workspaceId;
     }
 
     const screening = await db.query.responseScreening.findFirst({
@@ -44,11 +66,11 @@ export async function generateWelcomeMessage(
     });
 
     const bot = await db.query.botSettings.findFirst({
-      where: eq(botSettings.workspaceId, vacancy.workspaceId),
+      where: eq(botSettings.workspaceId, workspaceId),
     });
 
     // Bot settings are optional - we can generate message without them
-    return { responseData: { ...responseRecord, vacancy }, screening, bot };
+    return { responseData: { ...responseRecord, entity: entityData }, screening, bot };
   }, "Failed to fetch data for welcome message");
 
   if (!dataResult.success) {
@@ -64,17 +86,21 @@ export async function generateWelcomeMessage(
     const factory = new AgentFactory({ model });
     const welcomeAgent = factory.createWelcome();
 
+    const entityTitle = responseData.entity.type === "gig"
+      ? responseData.entity.data.title
+      : responseData.entity.data.title;
+
     const result = await welcomeAgent.execute(
       {
         companyName: bot?.companyName || "",
-        vacancyTitle: responseData.vacancy?.title || undefined,
+        vacancyTitle: entityTitle || undefined,
         candidateName: responseData.candidateName ?? undefined,
         customWelcomeMessage: bot?.companyDescription || undefined,
       },
       {
         conversationHistory: [],
         candidateName: responseData.candidateName ?? undefined,
-        vacancyTitle: responseData.vacancy?.title || undefined,
+        vacancyTitle: entityTitle || undefined,
       },
     );
 
@@ -93,9 +119,17 @@ export async function generateWelcomeMessage(
 
   let finalMessage = aiResult.data.trim();
 
-  // Add vacancy link
-  if (responseData.vacancy) {
-    finalMessage += `\n\n🔗 Ссылка на вакансию: https://hh.ru/vacancy/${responseData.vacancy.id}`;
+  // Add entity link
+  if (responseData.entity.type === "vacancy") {
+    finalMessage += `\n\n🔗 Ссылка на вакансию: https://hh.ru/vacancy/${responseData.entity.data.id}`;
+  } else if (responseData.entity.type === "gig") {
+    // Для gig добавляем ссылку на страницу отклика
+    const workspace = await db.query.workspace.findFirst({
+      where: (w, { eq }) => eq(w.id, responseData.entity.data.workspaceId),
+    });
+    if (workspace) {
+      finalMessage += `\n\n🔗 Ссылка на отклик: ${process.env.NEXT_PUBLIC_APP_URL}/orgs/${workspace.slug}/workspaces/${workspace.slug}/gigs/${responseData.entity.data.id}/responses/${responseId}`;
+    }
   }
 
   return { success: true, data: finalMessage };
