@@ -80,6 +80,7 @@ export const sendCandidateWelcomeBatchFunction = inngest.createFunction(
               where: (v, { eq }) => eq(v.id, responseItem.entityId),
               columns: {
                 workspaceId: true,
+                enabledCommunicationChannels: true,
               },
             });
 
@@ -101,8 +102,15 @@ export const sendCandidateWelcomeBatchFunction = inngest.createFunction(
               );
             }
 
+            // Определяем канал на основе настроек вакансии
+            const enabledChannels = vacancy.enabledCommunicationChannels || {
+              webChat: true,
+              telegram: false,
+            };
+            const channel = enabledChannels.telegram ? "telegram" : "web-chat";
+
             // Генерируем приветственное сообщение
-            const welcomeResult = await generateWelcomeMessage(responseItem.id);
+            const welcomeResult = await generateWelcomeMessage(responseItem.id, channel);
             if (!welcomeResult.success) {
               throw new Error(welcomeResult.error);
             }

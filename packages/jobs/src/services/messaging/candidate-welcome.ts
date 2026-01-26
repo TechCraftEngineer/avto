@@ -80,6 +80,7 @@ async function fetchWelcomeMessageData(responseId: string): Promise<Result<{
 async function generateAIWelcomeMessage(
   responseData: ResponseData,
   bot: typeof botSettings.$inferSelect | undefined,
+  channel: string,
 ): Promise<Result<string>> {
   logger.info("Generating welcome message with WelcomeAgent");
 
@@ -98,6 +99,8 @@ async function generateAIWelcomeMessage(
         vacancyTitle: entityTitle || undefined,
         candidateName: responseData.candidateName ?? undefined,
         customWelcomeMessage: bot?.companyDescription || undefined,
+        type: responseData.entity.type,
+        channel,
       },
       {
         conversationHistory: [],
@@ -135,6 +138,7 @@ async function addEntityLink(message: string, responseData: ResponseData): Promi
 
 export async function generateWelcomeMessage(
   responseId: string,
+  channel: string,
 ): Promise<Result<string>> {
   logger.info(`Generating welcome message for response ${responseId}`);
 
@@ -145,7 +149,7 @@ export async function generateWelcomeMessage(
 
   const { responseData, bot } = dataResult.data;
 
-  const aiResult = await generateAIWelcomeMessage(responseData, bot);
+  const aiResult = await generateAIWelcomeMessage(responseData, bot, channel);
   if (!aiResult.success) {
     return err(aiResult.error);
   }

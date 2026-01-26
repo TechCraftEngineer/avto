@@ -65,7 +65,14 @@ export const sendCandidateWelcomeFunction = inngest.createFunction(
         });
 
         try {
-          const result = await generateWelcomeMessage(responseId);
+          // Определяем канал на основе настроек вакансии
+          const enabledChannels = responseData.vacancy.enabledCommunicationChannels || {
+            webChat: true,
+            telegram: false,
+          };
+          const channel = enabledChannels.telegram ? "telegram" : "web-chat";
+
+          const result = await generateWelcomeMessage(responseId, channel);
 
           if (!result.success) {
             throw new Error(result.error);
