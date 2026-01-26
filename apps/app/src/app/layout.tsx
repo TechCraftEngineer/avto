@@ -1,6 +1,7 @@
 import { APP_CONFIG } from "@qbs-autonaim/config";
 import type { Metadata, Viewport } from "next";
 import { ClientLayout } from "~/components/client-layout";
+import { NonceProvider } from "~/components/nonce-script";
 import { env } from "~/env";
 
 import "~/app/styles.css";
@@ -32,7 +33,9 @@ export default function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="ru" suppressHydrationWarning>
       <body className="bg-background text-foreground min-h-screen font-sans antialiased">
-        <ClientLayout>{props.children}</ClientLayout>
+        <NonceProvider>
+          <ClientLayout>{props.children}</ClientLayout>
+        </NonceProvider>
       </body>
     </html>
   );

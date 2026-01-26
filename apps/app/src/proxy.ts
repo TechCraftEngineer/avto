@@ -18,9 +18,14 @@ function generateNonce(): string {
  * Build CSP with nonce for script execution
  */
 function buildCSPWithNonce(nonce: string): string {
+  // In development, use less restrictive CSP
+  const isDevelopment = process.env.NODE_ENV === 'development';
+
   const directives = [
     "default-src 'self'",
-    `script-src 'nonce-${nonce}' 'strict-dynamic' https: data:`,
+    isDevelopment
+      ? `script-src 'nonce-${nonce}' 'self' 'unsafe-inline' 'unsafe-eval' https:`
+      : `script-src 'nonce-${nonce}' 'self' https:`,
     "style-src 'self' 'unsafe-inline'", // Keep unsafe-inline for styles (Tailwind CSS)
     "img-src 'self' data: https:",
     "font-src 'self' data:",
@@ -36,17 +41,24 @@ function buildCSPWithNonce(nonce: string): string {
 }
 
 export async function proxy(request: NextRequest) {
-  const response = NextResponse.next();
-
   // Generate nonce for this request
   const nonce = generateNonce();
 
-  // Build and set CSP with nonce
+  // Build CSP with nonce
   const csp = buildCSPWithNonce(nonce);
+
+  // Create request headers with nonce
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-nonce', nonce);
+
+  // Create response with modified request headers
+  const response = NextResponse.next({
+    request: { headers: requestHeaders }
+  });
+
+  // Set CSP header on response
   response.headers.set("Content-Security-Policy", csp);
 
-  // Add nonce to response headers for client components
-  response.headers.set("x-nonce", nonce);
 
   const sessionCookie = getSessionCookie(request);
   const { pathname } = request.nextUrl;
@@ -133,13 +145,12 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public files (public folder)
-     */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    {
+      source: '/((?!api|_next/static|_next/image|favicon.ico).*)',
+      missing: [
+        { type: 'header', key: 'next-router-prefetch' },
+        { type: 'header', key: 'purpose', value: 'prefetch' }
+      ]
+    }
   ],
 };

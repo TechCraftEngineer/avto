@@ -73,7 +73,6 @@ const getNextTheme = (current: ThemeMode): ThemeMode => {
   return themes[(themes.indexOf(current) + 1) % themes.length]!;
 };
 
-// Create theme detector as external script URL to avoid CSP issues
 export const themeDetectorScript = (() => {
   function themeFn() {
     const isValidTheme = (theme: string): boolean => {
@@ -94,7 +93,7 @@ export const themeDetectorScript = (() => {
       document.documentElement.classList.add(validTheme);
     }
   }
-  return `data:text/javascript;charset=utf-8,(${encodeURIComponent(themeFn.toString())})();`;
+  return `(${themeFn.toString()})();`;
 })();
 
 interface ThemeContextProps {
@@ -127,7 +126,6 @@ export function ThemeProvider({ children }: React.PropsWithChildren) {
     setTheme(getNextTheme(themeMode));
   };
 
-
   return (
     <ThemeContext
       value={{
@@ -138,7 +136,7 @@ export function ThemeProvider({ children }: React.PropsWithChildren) {
       }}
     >
       <script
-        src={themeDetectorScript}
+        dangerouslySetInnerHTML={{ __html: themeDetectorScript }}
         suppressHydrationWarning
       />
       {children}
