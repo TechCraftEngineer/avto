@@ -1,3 +1,4 @@
+import { sanitizeHtmlFunction } from "~/lib/sanitize-html";
 import { Brain, MessageSquare, Sparkles } from "lucide-react";
 
 const features = [
@@ -48,7 +49,9 @@ export function FeaturesSection() {
             </h3>
             <p
               className="mt-2 text-muted-foreground"
-              dangerouslySetInnerHTML={{ __html: feature.description }}
+              dangerouslySetInnerHTML={{
+                __html: sanitizeHtmlFunction(feature.description),
+              }}
             />
           </div>
         ))}

@@ -4,6 +4,7 @@ import { Badge, Button, Skeleton } from "@qbs-autonaim/ui";
 import { IconArrowLeft, IconEdit, IconExternalLink } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
+import { sanitizeHtmlFunction } from "~/lib/sanitize-html";
 import { use } from "react";
 import { PageHeader } from "~/components/layout";
 import {
@@ -185,7 +186,7 @@ export default function VacancyDetailPage({ params }: VacancyDetailPageProps) {
                 <div
                   className="prose prose-sm max-w-none dark:prose-invert text-sm leading-relaxed text-muted-foreground [&_p]:mb-3 [&_p]:leading-relaxed"
                   dangerouslySetInnerHTML={{
-                    __html: vacancy.description,
+                    __html: sanitizeHtmlFunction(vacancy.description || ""),
                   }}
                 />
               </div>

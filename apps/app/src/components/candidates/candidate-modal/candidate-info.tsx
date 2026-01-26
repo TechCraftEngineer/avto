@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge, Button } from "@qbs-autonaim/ui";
+import { sanitizeHtmlFunction } from "~/lib/sanitize-html";
 import {
   Calendar,
   CheckCircle,
@@ -147,7 +148,9 @@ export function CandidateInfo({
           <h3 className="text-sm font-medium mb-2">Анализ резюме</h3>
           <div
             className="text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none dark:prose-invert"
-            dangerouslySetInnerHTML={{ __html: candidate.screeningAnalysis }}
+            dangerouslySetInnerHTML={{
+              __html: sanitizeHtmlFunction(candidate.screeningAnalysis || ""),
+            }}
           />
         </div>
       )}
@@ -157,7 +160,9 @@ export function CandidateInfo({
           <h3 className="text-sm font-medium mb-2">Анализ интервью</h3>
           <div
             className="text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none dark:prose-invert"
-            dangerouslySetInnerHTML={{ __html: candidate.scoreAnalysis }}
+            dangerouslySetInnerHTML={{
+              __html: sanitizeHtmlFunction(candidate.scoreAnalysis || ""),
+            }}
           />
         </div>
       )}

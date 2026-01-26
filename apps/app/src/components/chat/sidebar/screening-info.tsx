@@ -1,5 +1,7 @@
 "use client";
 
+import { sanitizeHtmlFunction } from "~/lib/sanitize-html";
+
 interface ScreeningInfoProps {
   score: number | null;
   detailedScore?: number | null;
@@ -40,7 +42,9 @@ export function ScreeningInfo({
             <p className="text-xs text-muted-foreground mb-1">Анализ</p>
             <div
               className="text-sm prose prose-sm max-w-none"
-              dangerouslySetInnerHTML={{ __html: analysis }}
+              dangerouslySetInnerHTML={{
+                __html: sanitizeHtmlFunction(analysis || ""),
+              }}
             />
           </div>
         )}
