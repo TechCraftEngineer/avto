@@ -1,3 +1,4 @@
+import { InterviewLinkGenerator } from "@qbs-autonaim/api/services";
 import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import {
@@ -17,10 +18,11 @@ import { inngest } from "../../client";
 
 /**
  * Inngest функция для отправки приветственного сообщения кандидату
- * Маршрутизирует отправку по источнику отклика:
- * - HH: отправляет в HH.ru
- * - TELEGRAM: отправляет в Telegram
- * - Другие: пропускает
+ * Маршрутизирует отправку по настройкам каналов общения вакансии:
+ * - HH: отправляет в HH.ru (независимо от настроек)
+ * - telegram: true в настройках - отправляет приветствие в Telegram
+ * - webChat: true в настройках - отправляет приглашение с ссылкой на веб-интервью в Telegram
+ * - Нет включенных каналов: пропускает отправку
  */
 export const sendCandidateWelcomeFunction = inngest.createFunction(
   {
@@ -108,18 +110,32 @@ export const sendCandidateWelcomeFunction = inngest.createFunction(
           sentMessage: string;
         } | null = null;
 
-        // Маршрутизация по источнику отклика
+        // Получаем настройки каналов общения из вакансии
+        const enabledChannels = responseData.vacancy
+          .enabledCommunicationChannels || {
+          webChat: true,
+          telegram: false,
+        };
+
+        // Маршрутизация по настройкам вакансии
         if (importSource === "HH") {
           // Отправляем только в HH.ru
-          console.log(`📧 Отправка приветствия в HH.ru (источник: ${importSource})`);
+          console.log(
+            `📧 Отправка приветствия в HH.ru (источник: ${importSource})`,
+          );
 
           // Проверяем наличие chatId для HH
           if (!responseData.chatId) {
-            console.log(`⚠️ chatId не найден для HH отклика ${responseId}, пропускаем отправку`);
-            throw new Error(`chatId не найден для HH отклика, невозможно отправить приветствие`);
+            console.log(
+              `⚠️ chatId не найден для HH отклика ${responseId}, пропускаем отправку`,
+            );
+            throw new Error(
+              `chatId не найден для HH отклика, невозможно отправить приветствие`,
+            );
           }
 
-          const inviteMessageResult = await generateTelegramInviteMessage(responseId);
+          const inviteMessageResult =
+            await generateTelegramInviteMessage(responseId);
           const messageWithInvite = inviteMessageResult.success
             ? inviteMessageResult.data
             : welcomeMessage;
@@ -141,12 +157,15 @@ export const sendCandidateWelcomeFunction = inngest.createFunction(
             };
           } else {
             console.error(`❌ Не удалось отправить в HH.ru: ${hhResult.error}`);
-            throw new Error(`Не удалось отправить приветствие в HH.ru: ${hhResult.error}`);
+            throw new Error(
+              `Не удалось отправить приветствие в HH.ru: ${hhResult.error}`,
+            );
           }
-
-        } else if (importSource === "TELEGRAM") {
-          // Отправляем только в Telegram
-          console.log(`📱 Отправка приветствия в Telegram (источник: ${importSource})`);
+        } else if (enabledChannels.telegram) {
+          // Отправляем приветствие в Telegram
+          console.log(
+            `📱 Отправка приветствия в Telegram (канал включен в настройках вакансии)`,
+          );
 
           // Получаем активную сессию для workspace
           const session = await db.query.telegramSession.findFirst({
@@ -155,7 +174,9 @@ export const sendCandidateWelcomeFunction = inngest.createFunction(
           });
 
           if (!session) {
-            throw new Error(`Нет активной Telegram сессии для workspace ${workspaceId}`);
+            throw new Error(
+              `Нет активной Telegram сессии для workspace ${workspaceId}`,
+            );
           }
 
           // Пытаемся отправить по username
@@ -187,7 +208,9 @@ export const sendCandidateWelcomeFunction = inngest.createFunction(
                 };
               }
             } catch (error) {
-              console.log(`⚠️ Не удалось отправить по username: ${error instanceof Error ? error.message : "Unknown error"}`);
+              console.log(
+                `⚠️ Не удалось отправить по username: ${error instanceof Error ? error.message : "Unknown error"}`,
+              );
             }
           }
 
@@ -221,7 +244,9 @@ export const sendCandidateWelcomeFunction = inngest.createFunction(
                 };
               }
             } catch (error) {
-              console.log(`⚠️ Не удалось отправить по телефону: ${error instanceof Error ? error.message : "Unknown error"}`);
+              console.log(
+                `⚠️ Не удалось отправить по телефону: ${error instanceof Error ? error.message : "Unknown error"}`,
+              );
             }
           }
 
@@ -233,13 +258,142 @@ export const sendCandidateWelcomeFunction = inngest.createFunction(
                   ? `Не удалось отправить приветствие по username (@${username}), телефон не указан`
                   : phone
                     ? `Username не указан, не удалось отправить по телефону (${phone})`
-                    : "Не указаны ни username, ни телефон для отправки приветствия"
+                    : "Не указаны ни username, ни телефон для отправки приветствия",
+            );
+          }
+        } else if (enabledChannels.webChat) {
+          // Отправляем приглашение в веб-чат через Telegram
+          console.log(
+            `🌐 Отправка приглашения в веб-чат через Telegram (канал включен в настройках вакансии)`,
+          );
+
+          // Получаем активную сессию для workspace
+          const session = await db.query.telegramSession.findFirst({
+            where: eq(telegramSession.workspaceId, workspaceId),
+            orderBy: (sessions, { desc }) => [desc(sessions.lastUsedAt)],
+          });
+
+          if (!session) {
+            throw new Error(
+              `Нет активной Telegram сессии для workspace ${workspaceId}`,
             );
           }
 
+          // Генерируем ссылку на интервью
+          const linkGenerator = new InterviewLinkGenerator();
+          const interviewLink = await linkGenerator.getOrCreateInterviewLink(
+            responseData.vacancy.id,
+            workspaceId,
+          );
+
+          // Создаем сообщение с приглашением
+          const webChatInviteMessage = [
+            "Здравствуйте!",
+            "",
+            `Спасибо за отклик на вакансию "${responseData.vacancy.title}".`,
+            "",
+            "Для продолжения пройдите интервью с AI-ассистентом:",
+            interviewLink.url,
+            "",
+            "Интервью займет 5-10 минут.",
+          ].join("\n");
+
+          // Пытаемся отправить по username
+          if (username) {
+            console.log(
+              `📨 Попытка отправки приглашения по username: @${username}`,
+            );
+            try {
+              const tgResult = await tgClientSDK.sendMessageByUsername({
+                workspaceId,
+                username,
+                text: webChatInviteMessage,
+              });
+
+              if (tgResult) {
+                console.log("✅ Приглашение в веб-чат отправлено по username", {
+                  responseId,
+                  username,
+                  chatId: tgResult.chatId,
+                  interviewUrl: interviewLink.url,
+                });
+
+                await db
+                  .update(telegramSession)
+                  .set({ lastUsedAt: new Date() })
+                  .where(eq(telegramSession.id, session.id));
+
+                sendResult = {
+                  ...tgResult,
+                  channel: "TELEGRAM" as const,
+                  sentMessage: webChatInviteMessage,
+                };
+              }
+            } catch (error) {
+              console.log(
+                `⚠️ Не удалось отправить приглашение по username: ${error instanceof Error ? error.message : "Unknown error"}`,
+              );
+            }
+          }
+
+          // Если username не сработал, пробуем по телефону
+          if (!sendResult && phone) {
+            console.log(
+              `📞 Попытка отправки приглашения по номеру телефона: ${phone}`,
+            );
+            try {
+              const tgResult = await tgClientSDK.sendMessageByPhone({
+                workspaceId,
+                phone,
+                text: webChatInviteMessage,
+                firstName: responseData.candidateName || undefined,
+              });
+
+              if (tgResult) {
+                console.log(
+                  "✅ Приглашение в веб-чат отправлено по номеру телефона",
+                  {
+                    responseId,
+                    phone,
+                    chatId: tgResult.chatId,
+                    interviewUrl: interviewLink.url,
+                  },
+                );
+
+                await db
+                  .update(telegramSession)
+                  .set({ lastUsedAt: new Date() })
+                  .where(eq(telegramSession.id, session.id));
+
+                sendResult = {
+                  ...tgResult,
+                  channel: "TELEGRAM" as const,
+                  sentMessage: webChatInviteMessage,
+                };
+              }
+            } catch (error) {
+              console.log(
+                `⚠️ Не удалось отправить приглашение по телефону: ${error instanceof Error ? error.message : "Unknown error"}`,
+              );
+            }
+          }
+
+          if (!sendResult) {
+            throw new Error(
+              username && phone
+                ? `Не удалось отправить приглашение в веб-чат ни по username (@${username}), ни по телефону (${phone})`
+                : username
+                  ? `Не удалось отправить приглашение в веб-чат по username (@${username}), телефон не указан`
+                  : phone
+                    ? `Username не указан, не удалось отправить приглашение по телефону (${phone})`
+                    : "Не указаны ни username, ни телефон для отправки приглашения в веб-чат",
+            );
+          }
         } else {
-          // Для других источников (WEB_LINK, MANUAL, etc.) отправляем в Telegram или пропускаем
-          console.log(`📋 Пропуск отправки приветствия (источник: ${importSource}) - не поддерживается`);
+          // Нет включенных каналов общения
+          console.log(
+            `📋 Нет включенных каналов общения для вакансии ${responseData.vacancy.id}`,
+          );
           return null;
         }
 
