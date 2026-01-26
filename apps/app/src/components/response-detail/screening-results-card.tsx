@@ -186,7 +186,7 @@ export function ScreeningResultsCard({ screening }: ScreeningResultsCardProps) {
                 Анализ портфолио
               </h4>
               <div
-                className="text-xs sm:text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none dark:prose-invert"
+                className="text-xs sm:text-sm leading-relaxed prose prose-sm max-w-none dark:prose-invert"
                 dangerouslySetInnerHTML={{
                   __html: sanitizeHtmlFunction(screening.analysis || ""),
                 }}
@@ -200,7 +200,7 @@ export function ScreeningResultsCard({ screening }: ScreeningResultsCardProps) {
                 <Banknote className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
                 Анализ цены
               </h4>
-              <p className="text-xs sm:text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed wrap-break-word">
+              <p className="text-xs sm:text-sm text-foreground whitespace-pre-wrap leading-relaxed wrap-break-word">
                 {screening.priceAnalysis}
               </p>
             </div>
@@ -212,7 +212,7 @@ export function ScreeningResultsCard({ screening }: ScreeningResultsCardProps) {
                 <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
                 Анализ сроков
               </h4>
-              <p className="text-xs sm:text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed wrap-break-word">
+              <p className="text-xs sm:text-sm text-foreground whitespace-pre-wrap leading-relaxed wrap-break-word">
                 {screening.deliveryAnalysis}
               </p>
             </div>
@@ -225,7 +225,7 @@ export function ScreeningResultsCard({ screening }: ScreeningResultsCardProps) {
                 Анализ потенциала
               </h4>
               <div
-                className="text-xs sm:text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none dark:prose-invert"
+                className="text-xs sm:text-sm leading-relaxed prose prose-sm max-w-none dark:prose-invert"
                 dangerouslySetInnerHTML={{
                   __html: sanitizeHtmlFunction(screening.potentialAnalysis || ""),
                 }}
@@ -240,7 +240,7 @@ export function ScreeningResultsCard({ screening }: ScreeningResultsCardProps) {
                 Анализ карьерной траектории
               </h4>
               <div
-                className="text-xs sm:text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none dark:prose-invert"
+                className="text-xs sm:text-sm leading-relaxed prose prose-sm max-w-none dark:prose-invert"
                 dangerouslySetInnerHTML={{
                   __html: sanitizeHtmlFunction(
                     screening.careerTrajectoryAnalysis || "",
@@ -257,7 +257,7 @@ export function ScreeningResultsCard({ screening }: ScreeningResultsCardProps) {
                 Скрытые индикаторы соответствия
               </h4>
               <div
-                className="text-xs sm:text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none dark:prose-invert"
+                className="text-xs sm:text-sm leading-relaxed prose prose-sm max-w-none dark:prose-invert"
                 dangerouslySetInnerHTML={{
                   __html: sanitizeHtmlFunction(screening.hiddenFitAnalysis || ""),
                 }}
