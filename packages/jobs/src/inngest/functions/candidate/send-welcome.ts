@@ -221,6 +221,7 @@ const sendWebChatInvite = async (
   });
 
   if (!session) {
+    console.log(`⚠️ Нет активной Telegram сессии для workspace ${workspaceId}, пропускаем отправку приглашения в веб-чат`);
     throw new Error(`Нет активной Telegram сессии для workspace ${workspaceId}`);
   }
 
@@ -476,35 +477,65 @@ export const sendCandidateWelcomeFunction = inngest.createFunction(
         return sendHHWelcome(responseData, welcomeMessage);
       });
     } else if (enabledChannels.telegram) {
-      // Отправляем приветствие в Telegram
-      const welcomeMessage = await step.run("generate-welcome-message", async () => {
-        console.log("🤖 Генерация приветственного сообщения для Telegram", {
-          responseId,
-          username,
+      // Проверяем наличие Telegram сессии перед отправкой приветствия
+      const hasTelegramSession = await step.run("check-telegram-session", async () => {
+        const session = await db.query.telegramSession.findFirst({
+          where: eq(telegramSession.workspaceId, responseData.vacancy.workspaceId),
+          orderBy: (sessions, { desc }) => [desc(sessions.lastUsedAt)],
         });
-
-        const result = await generateWelcomeMessage(responseId, "telegram");
-
-        if (!result.success) {
-          throw new Error(result.error);
-        }
-
-        console.log("✅ Сообщение сгенерировано", {
-          responseId,
-          messageLength: result.data.length,
-        });
-
-        return result.data;
+        return !!session;
       });
 
-      sendResult = await step.run("send-telegram-welcome", async () => {
-        return sendTelegramWelcome(responseData, username, phone, welcomeMessage);
-      });
+      if (hasTelegramSession) {
+        // Отправляем приветствие в Telegram
+        const welcomeMessage = await step.run("generate-welcome-message", async () => {
+          console.log("🤖 Генерация приветственного сообщения для Telegram", {
+            responseId,
+            username,
+          });
+
+          const result = await generateWelcomeMessage(responseId, "telegram");
+
+          if (!result.success) {
+            throw new Error(result.error);
+          }
+
+          console.log("✅ Сообщение сгенерировано", {
+            responseId,
+            messageLength: result.data.length,
+          });
+
+          return result.data;
+        });
+
+        sendResult = await step.run("send-telegram-welcome", async () => {
+          return sendTelegramWelcome(responseData, username, phone, welcomeMessage);
+        });
+      } else {
+        // Нет Telegram сессии, пропускаем отправку
+        console.log(`⚠️ Пропускаем отправку приветствия в Telegram для workspace ${responseData.vacancy.workspaceId} - нет активной Telegram сессии`);
+        return { success: false, error: "No Telegram session available for telegram channel" };
+      }
     } else if (enabledChannels.webChat) {
-      // Отправляем приглашение в веб-чат через Telegram
-      sendResult = await step.run("send-webchat-invite", async () => {
-        return sendWebChatInvite(responseData, username, phone);
+      // Проверяем наличие Telegram сессии перед отправкой приглашения в веб-чат
+      const hasTelegramSession = await step.run("check-telegram-session", async () => {
+        const session = await db.query.telegramSession.findFirst({
+          where: eq(telegramSession.workspaceId, responseData.vacancy.workspaceId),
+          orderBy: (sessions, { desc }) => [desc(sessions.lastUsedAt)],
+        });
+        return !!session;
       });
+
+      if (hasTelegramSession) {
+        // Отправляем приглашение в веб-чат через Telegram
+        sendResult = await step.run("send-webchat-invite", async () => {
+          return sendWebChatInvite(responseData, username, phone);
+        });
+      } else {
+        // Нет Telegram сессии, пропускаем отправку
+        console.log(`⚠️ Пропускаем отправку приглашения в веб-чат для workspace ${responseData.vacancy.workspaceId} - нет активной Telegram сессии`);
+        return { success: false, error: "No Telegram session available for webChat" };
+      }
     } else {
       // Нет включенных каналов общения
       console.log(`📋 Нет включенных каналов общения для вакансии ${responseData.vacancy.id}`);
