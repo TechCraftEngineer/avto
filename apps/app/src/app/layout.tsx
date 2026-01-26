@@ -1,7 +1,6 @@
 import { APP_CONFIG } from "@qbs-autonaim/config";
 import type { Metadata, Viewport } from "next";
 import { ClientLayout } from "~/components/client-layout";
-import { connection } from "next/server";
 import { env } from "~/env";
 
 import "~/app/styles.css";
@@ -29,10 +28,7 @@ export const viewport: Viewport = {
   ],
 };
 
-export default async function RootLayout(props: { children: React.ReactNode }) {
-  // Force dynamic rendering for CSP nonce support
-  await connection();
-
+export default function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="ru" suppressHydrationWarning>
       <body className="bg-background text-foreground min-h-screen font-sans antialiased">

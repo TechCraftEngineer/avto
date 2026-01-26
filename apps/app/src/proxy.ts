@@ -3,59 +3,11 @@ import { RATE_LIMITS, rateLimit } from "@qbs-autonaim/server-utils";
 import { getSessionCookie } from "better-auth/cookies";
 import { type NextRequest, NextResponse } from "next/server";
 
-/**
- * Generate cryptographically secure nonce for CSP
- */
-function generateNonce(): string {
-  const array = new Uint8Array(16);
-  crypto.getRandomValues(array);
-  return Array.from(array, (byte) => byte.toString(16).padStart(2, "0")).join(
-    "",
-  );
-}
-
-/**
- * Build CSP with nonce for script execution
- */
-function buildCSPWithNonce(nonce: string): string {
-  const isDevelopment = process.env.NODE_ENV === 'development';
-
-  const directives = [
-    "default-src 'self'",
-    isDevelopment
-      ? `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-eval'`
-      : `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
-    "style-src 'self' 'unsafe-inline'", // Keep unsafe-inline for styles (Tailwind CSS)
-    "img-src 'self' blob: data:",
-    "font-src 'self'",
-    "object-src 'none'",
-    "base-uri 'self'",
-    "form-action 'self'",
-    "frame-ancestors 'none'",
-    "upgrade-insecure-requests",
-  ];
-
-  return directives.join("; ");
-}
+// CSP functions temporarily disabled
 
 export async function proxy(request: NextRequest) {
-  // Generate nonce for this request
-  const nonce = generateNonce();
-
-  // Build CSP with nonce
-  const csp = buildCSPWithNonce(nonce);
-
-  // Create request headers with nonce
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set('x-nonce', nonce);
-
-  // Create response with modified request headers
-  const response = NextResponse.next({
-    request: { headers: requestHeaders }
-  });
-
-  // Set CSP header on response
-  response.headers.set("Content-Security-Policy", csp);
+  // CSP temporarily disabled
+  const response = NextResponse.next();
 
 
   const sessionCookie = getSessionCookie(request);
@@ -143,12 +95,13 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    {
-      source: '/((?!api|_next/static|_next/image|favicon.ico).*)',
-      missing: [
-        { type: 'header', key: 'next-router-prefetch' },
-        { type: 'header', key: 'purpose', value: 'prefetch' }
-      ]
-    }
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    "/((?!api|_next/static|_next/image|favicon.ico).*)",
   ],
 };
