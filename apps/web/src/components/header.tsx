@@ -108,11 +108,15 @@ export function Header() {
         }`}
       />
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6 relative">
-        <Link href="/" className="flex items-center gap-2.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-foreground">
-            <span className="text-lg font-bold text-background">Q</span>
-          </div>
-          <span className="text-lg font-semibold text-foreground">QBS</span>
+        <Link href="/" className="flex items-center">
+          <span className="text-lg font-semibold text-foreground">
+            <span className="text-muted-foreground font-medium tracking-wide">
+              QBS
+            </span>{" "}
+            <span className="bg-gradient-to-r from-primary via-primary/90 to-primary/80 bg-clip-text text-transparent font-bold">
+              Автонайм
+            </span>
+          </span>
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex" ref={dropdownRef}>

@@ -6,13 +6,14 @@ import {
   type gig,
   response,
   responseScreening,
+  telegramSession,
   type vacancy,
 } from "@qbs-autonaim/db/schema";
 import { generateText } from "@qbs-autonaim/lib";
 import { getAIModel } from "@qbs-autonaim/lib/ai";
 import { getInterviewBaseUrl } from "@qbs-autonaim/server-utils";
 import { stripHtml } from "string-strip-html";
-import { createLogger, err, type Result, tryCatch } from "../base";
+import { createLogger, err, ok, type Result, tryCatch } from "../base";
 
 const logger = createLogger("CandidateWelcome");
 
@@ -218,6 +219,133 @@ export async function generateWelcomeMessage(
 /**
  * Generates personalized invite message for HH.ru (with Telegram invitation and PIN code)
  */
+export async function generateHHInviteMessage(
+  responseId: string,
+): Promise<Result<string>> {
+  logger.info(`Generating HH invite message for response ${responseId}`);
+
+  const dataResult = await tryCatch(async () => {
+    const responseRecord = await db.query.response.findFirst({
+      where: eq(response.id, responseId),
+    });
+
+    if (!responseRecord) {
+      throw new Error(`Response ${responseId} not found`);
+    }
+
+    // Получаем vacancy отдельно через entityId
+    const vacancy = await db.query.vacancy.findFirst({
+      where: (v, { eq }) => eq(v.id, responseRecord.entityId),
+    });
+
+    if (!vacancy) {
+      throw new Error(`Vacancy not found for response ${responseId}`);
+    }
+
+    const screening = await db.query.responseScreening.findFirst({
+      where: eq(responseScreening.responseId, responseId),
+    });
+
+    const bot = await db.query.botSettings.findFirst({
+      where: eq(botSettings.workspaceId, vacancy.workspaceId),
+    });
+
+    // Получаем настройки каналов общения
+    const enabledChannels = vacancy.enabledCommunicationChannels || {
+      webChat: true,
+      telegram: false,
+    };
+
+    // Проверяем наличие Telegram сессии
+    const hasTelegramSession = await db.query.telegramSession.findFirst({
+      where: eq(telegramSession.workspaceId, vacancy.workspaceId),
+      orderBy: (sessions, { desc }) => [desc(sessions.lastUsedAt)],
+    });
+
+    // Bot settings are optional - we can generate message without them
+    return {
+      responseData: { ...responseRecord, vacancy },
+      screening,
+      bot,
+      enabledChannels,
+      hasTelegramSession: !!hasTelegramSession,
+    };
+  }, "Failed to fetch data for HH invite message");
+
+  if (!dataResult.success) {
+    return err(dataResult.error);
+  }
+
+  const { responseData, screening, bot, enabledChannels, hasTelegramSession } =
+    dataResult.data;
+
+  // Формируем список доступных каналов для продолжения интервью
+  const availableChannels: string[] = [];
+
+  // Веб-чат всегда доступен
+  if (enabledChannels.webChat) {
+    availableChannels.push("веб-чат");
+  }
+
+  // Telegram доступен только если есть сессия
+  if (enabledChannels.telegram && hasTelegramSession) {
+    availableChannels.push("Telegram");
+  }
+
+  // HH.ru чат всегда доступен как опция
+  availableChannels.push("продолжить интервью в этом чате HH.ru");
+
+  const prompt = `Ты HR-ассистент компании. Создай приветственное сообщение кандидату в чате HH.ru.
+
+Компания: ${bot?.companyName || "Компания"}
+${bot?.companyDescription ? `Описание компании: ${bot?.companyDescription}` : ""}
+${bot?.companyWebsite ? `Сайт: ${bot?.companyWebsite}` : ""}
+
+Вакансия: ${responseData.vacancy?.title || "Вакансия"}
+${responseData.vacancy?.description ? `Описание вакансии: ${stripHtml(responseData.vacancy.description).result.substring(0, 200)}` : ""}
+
+Кандидат: ${responseData.candidateName || "Кандидат"}
+${screening?.score ? `Оценка резюме: ${screening.score}/10` : ""}
+${screening?.analysis ? `Анализ резюме: ${screening.analysis}` : ""}
+
+Доступные каналы для продолжения интервью: ${availableChannels.join(", ")}
+
+Создай краткое приветственное сообщение (не более 500 символов), которое:
+1. Приветствует кандидата
+2. Кратко рассказывает о вакансии
+3. Предлагает варианты продолжения интервью через доступные каналы
+4. Призывает к действию
+
+Сообщение должно быть дружелюбным и профессиональным.`;
+
+  logger.info("Sending request to AI for HH invite message generation");
+
+  const aiResult = await tryCatch(async () => {
+    const { text } = await generateText({
+      prompt,
+      generationName: "hh-invite",
+      entityId: responseId,
+      metadata: {
+        responseId,
+        entityId: responseData.entityId,
+        candidateName: responseData.candidateName ?? undefined,
+        availableChannels,
+      },
+    });
+    return text;
+  }, "AI request failed");
+
+  if (!aiResult.success) {
+    return err(aiResult.error);
+  }
+
+  logger.info("HH invite message generated");
+
+  const finalMessage = aiResult.data.trim();
+
+  return ok(finalMessage);
+}
+
 export async function generateTelegramInviteMessage(
   responseId: string,
 ): Promise<Result<string>> {

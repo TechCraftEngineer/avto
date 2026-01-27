@@ -53,6 +53,7 @@ export {
   findResponseByPinCode,
   // Screening
   formatResumeForScreening,
+  generateHHInviteMessage,
   generateTelegramInvite,
   generateTelegramInviteMessage,
   generateWelcomeMessage,

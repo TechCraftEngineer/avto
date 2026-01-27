@@ -64,11 +64,15 @@ export function Footer() {
       <div className="container mx-auto px-4 py-16">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-6">
           <div className="lg:col-span-2">
-            <Link href="/" className="inline-flex items-center gap-2.5">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-foreground">
-                <span className="text-lg font-bold text-background">Q</span>
-              </div>
-              <span className="text-lg font-semibold text-foreground">QBS</span>
+            <Link href="/" className="inline-flex items-center">
+              <span className="text-lg font-semibold text-foreground">
+                <span className="text-muted-foreground font-medium tracking-wide">
+                  QBS
+                </span>{" "}
+                <span className="bg-gradient-to-r from-primary via-primary/90 to-primary/80 bg-clip-text text-transparent font-bold">
+                  Автонайм
+                </span>
+              </span>
             </Link>
             <p className="mt-4 max-w-xs text-sm text-muted-foreground leading-relaxed">
               AI-платформа для автоматизации найма. От отклика до интервью — без участия рекрутера.
