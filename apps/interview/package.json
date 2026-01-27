@@ -14,7 +14,7 @@
     "with-env": "bun run --env-file ../../.env"
   },
   "dependencies": {
-    "@ai-sdk/react": "3.0.52",
+    "@ai-sdk/react": "3.0.57",
     "@hookform/resolvers": "^5.2.2",
     "@qbs-autonaim/api": "workspace:*",
     "@qbs-autonaim/auth": "workspace:*",
