@@ -373,10 +373,10 @@ export function MetaMatchSection({
     <section className="space-y-3">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h3 className="text-sm font-semibold">Meta-Match</h3>
+          <h3 className="text-sm font-semibold">Мета-совместимость</h3>
           <p className="text-xs text-muted-foreground">
-            Хронобиологическая совместимость — дополнительный рекомендательный
-            слой
+            Индекс соответствия рабочему ритму вакансии — дополнительный
+            рекомендательный слой
           </p>
         </div>
         {report?.algorithmVersion && (

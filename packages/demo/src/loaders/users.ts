@@ -39,6 +39,15 @@ export async function createDemoUsers(): Promise<DemoUserIds> {
       });
 
       if (!recruiterUser) throw new Error("Failed to create recruiter user");
+
+      // Устанавливаем email как подтвержденный для демо пользователя
+      await db
+        .update(user)
+        .set({
+          emailVerified: true,
+        })
+        .where(eq(user.id, recruiterUser.id));
+
       console.log(`✅ Рекрутер создан: recruiter@demo.qbs.ru (Владелец)`);
     } else {
       console.log(`ℹ️  Рекрутер уже существует: recruiter@demo.qbs.ru`);
@@ -89,6 +98,15 @@ export async function createDemoUsers(): Promise<DemoUserIds> {
       });
 
       if (!managerUser) throw new Error("Failed to create manager user");
+
+      // Устанавливаем email как подтвержденный для демо пользователя
+      await db
+        .update(user)
+        .set({
+          emailVerified: true,
+        })
+        .where(eq(user.id, managerUser.id));
+
       console.log(`✅ Менеджер создан: manager@demo.qbs.ru (Администратор)`);
     } else {
       console.log(`ℹ️  Менеджер уже существует: manager@demo.qbs.ru`);
@@ -139,6 +157,15 @@ export async function createDemoUsers(): Promise<DemoUserIds> {
       });
 
       if (!clientUser) throw new Error("Failed to create client user");
+
+      // Устанавливаем email как подтвержденный для демо пользователя
+      await db
+        .update(user)
+        .set({
+          emailVerified: true,
+        })
+        .where(eq(user.id, clientUser.id));
+
       console.log(`✅ Клиент создан: client@demo.qbs.ru (Участник)`);
     } else {
       console.log(`ℹ️  Клиент уже существует: client@demo.qbs.ru`);
