@@ -1,7 +1,7 @@
 "use client";
 
 import { APP_CONFIG } from "@qbs-autonaim/config";
-import { Check, Copy, Sparkles, User, Lock } from "lucide-react";
+import { Check, Copy, Lock, Sparkles, User } from "lucide-react";
 import { useState } from "react";
 
 export function DemoBanner() {
@@ -25,7 +25,7 @@ export function DemoBanner() {
     {
       field: "email",
       label: "Email",
-      value: "recruiter@demo.qbs.com",
+      value: "recruiter@demo.qbs.ru",
       icon: User,
     },
     {

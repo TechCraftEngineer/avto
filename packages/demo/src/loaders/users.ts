@@ -22,26 +22,26 @@ export async function createDemoUsers(): Promise<DemoUserIds> {
   try {
     // User 1: Recruiter (Owner)
     let recruiterUser = await db.query.user.findFirst({
-      where: eq(user.email, "recruiter@demo.qbs.com"),
+      where: eq(user.email, "recruiter@demo.qbs.ru"),
     });
 
     if (!recruiterUser) {
       await auth.api.signUpEmail({
         body: {
-          email: "recruiter@demo.qbs.com",
+          email: "recruiter@demo.qbs.ru",
           password: "demo123456",
           name: "Рекрутер Демо",
         },
       });
 
       recruiterUser = await db.query.user.findFirst({
-        where: eq(user.email, "recruiter@demo.qbs.com"),
+        where: eq(user.email, "recruiter@demo.qbs.ru"),
       });
 
       if (!recruiterUser) throw new Error("Failed to create recruiter user");
-      console.log(`✅ Рекрутер создан: recruiter@demo.qbs.com (Владелец)`);
+      console.log(`✅ Рекрутер создан: recruiter@demo.qbs.ru (Владелец)`);
     } else {
-      console.log(`ℹ️  Рекрутер уже существует: recruiter@demo.qbs.com`);
+      console.log(`ℹ️  Рекрутер уже существует: recruiter@demo.qbs.ru`);
     }
 
     await db
@@ -72,26 +72,26 @@ export async function createDemoUsers(): Promise<DemoUserIds> {
 
     // User 2: Manager (Admin)
     let managerUser = await db.query.user.findFirst({
-      where: eq(user.email, "manager@demo.qbs.com"),
+      where: eq(user.email, "manager@demo.qbs.ru"),
     });
 
     if (!managerUser) {
       await auth.api.signUpEmail({
         body: {
-          email: "manager@demo.qbs.com",
+          email: "manager@demo.qbs.ru",
           password: "demo123456",
           name: "Менеджер Демо",
         },
       });
 
       managerUser = await db.query.user.findFirst({
-        where: eq(user.email, "manager@demo.qbs.com"),
+        where: eq(user.email, "manager@demo.qbs.ru"),
       });
 
       if (!managerUser) throw new Error("Failed to create manager user");
-      console.log(`✅ Менеджер создан: manager@demo.qbs.com (Администратор)`);
+      console.log(`✅ Менеджер создан: manager@demo.qbs.ru (Администратор)`);
     } else {
-      console.log(`ℹ️  Менеджер уже существует: manager@demo.qbs.com`);
+      console.log(`ℹ️  Менеджер уже существует: manager@demo.qbs.ru`);
     }
 
     await db
@@ -122,26 +122,26 @@ export async function createDemoUsers(): Promise<DemoUserIds> {
 
     // User 3: Client (Member)
     let clientUser = await db.query.user.findFirst({
-      where: eq(user.email, "client@demo.qbs.com"),
+      where: eq(user.email, "client@demo.qbs.ru"),
     });
 
     if (!clientUser) {
       await auth.api.signUpEmail({
         body: {
-          email: "client@demo.qbs.com",
+          email: "client@demo.qbs.ru",
           password: "demo123456",
           name: "Клиент Демо",
         },
       });
 
       clientUser = await db.query.user.findFirst({
-        where: eq(user.email, "client@demo.qbs.com"),
+        where: eq(user.email, "client@demo.qbs.ru"),
       });
 
       if (!clientUser) throw new Error("Failed to create client user");
-      console.log(`✅ Клиент создан: client@demo.qbs.com (Участник)`);
+      console.log(`✅ Клиент создан: client@demo.qbs.ru (Участник)`);
     } else {
-      console.log(`ℹ️  Клиент уже существует: client@demo.qbs.com`);
+      console.log(`ℹ️  Клиент уже существует: client@demo.qbs.ru`);
     }
 
     await db
