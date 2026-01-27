@@ -31,7 +31,7 @@
     "@trpc/tanstack-react-query": "^11.8.1",
     "ai": "^6.0.50",
     "lucide-react": "^0.563.0",
-    "motion": "^12.29.0",
+    "motion": "^12.29.2",
     "next": "16.1.5",
     "react": "19.2.3",
     "react-dom": "19.2.3",
