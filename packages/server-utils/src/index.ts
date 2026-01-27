@@ -37,6 +37,7 @@ export {
 export {
   cleanupExpiredRecords,
   getClientIP,
+  getRateLimitStats,
   RATE_LIMITS,
   rateLimit,
 } from "./rate-limiter";

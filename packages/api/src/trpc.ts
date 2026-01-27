@@ -196,39 +196,68 @@ const securityHeadersMiddleware = t.middleware(async ({ next }) => {
 });
 
 /**
- * Rate limiting middleware for API protection
+ * Rate limiting middleware for API protection с умным определением типа запроса
  */
-const rateLimitMiddleware = t.middleware(async ({ next, path, ctx }) => {
+const rateLimitMiddleware = t.middleware(async ({ next, path, ctx, type }) => {
   const clientIP = getClientIP({ headers: ctx.headers } as Request);
   const userId = ctx.session?.user?.id;
 
-  // Determine rate limit based on endpoint type
-  let rateLimitConfig: { limit: number; windowMs: number };
+  // Определяем конфигурацию rate limit на основе типа endpoint и операции
+  let rateLimitConfig: {
+    limit: number;
+    windowMs: number;
+    burstLimit?: number;
+    burstWindowMs?: number;
+    weight?: number;
+  };
+
+  // Auth endpoints - самые строгие лимиты
   if (
     path.includes("auth") ||
     path.includes("signIn") ||
     path.includes("signUp")
   ) {
     rateLimitConfig = RATE_LIMITS.auth.signIn;
-  } else if (path.includes("upload") || path.includes("file")) {
+  }
+  // Upload endpoints - строгие лимиты с большим весом
+  else if (path.includes("upload") || path.includes("file")) {
     rateLimitConfig = RATE_LIMITS.api.upload;
+  }
+  // Sensitive operations
+  else if (
+    path.includes("password") ||
+    path.includes("delete") ||
+    path.includes("remove")
+  ) {
+    rateLimitConfig = RATE_LIMITS.sensitive.profileUpdate;
+  }
+  // Query vs Mutation - разные лимиты
+  else if (type === "query") {
+    rateLimitConfig = RATE_LIMITS.api.query;
+  } else if (type === "mutation") {
+    rateLimitConfig = RATE_LIMITS.api.mutation;
   } else {
     rateLimitConfig = RATE_LIMITS.api.default;
   }
 
-  // Use user ID if available, otherwise use IP
+  // Используем user ID если доступен, иначе IP
   const identifier = userId || clientIP;
 
   const rateLimitResult = rateLimit(
     identifier,
     rateLimitConfig.limit,
     rateLimitConfig.windowMs,
+    {
+      weight: rateLimitConfig.weight,
+      burstLimit: rateLimitConfig.burstLimit,
+      burstWindowMs: rateLimitConfig.burstWindowMs,
+    },
   );
 
   if (!rateLimitResult.success) {
     throw new TRPCError({
       code: "TOO_MANY_REQUESTS",
-      message: `Rate limit exceeded. Try again in ${Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000)} seconds.`,
+      message: `Превышен лимит запросов. Попробуйте через ${Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000)} секунд.`,
     });
   }
 

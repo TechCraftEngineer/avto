@@ -3,65 +3,107 @@
  * Prevents brute force attacks and abuse
  */
 
+interface RateLimitRecord {
+  count: number;
+  resetTime: number;
+  timestamps: number[]; // История запросов для анализа паттернов
+  burstCount: number; // Счетчик для burst detection
+  lastBurstReset: number;
+}
+
 interface RateLimitStore {
-  [key: string]: {
-    count: number;
-    resetTime: number;
-  };
+  [key: string]: RateLimitRecord;
 }
 
 // In-memory store (in production, use Redis or similar)
 const rateLimitStore: RateLimitStore = {};
 
 /**
- * Rate limiting middleware
+ * Умная система rate limiting с учетом паттернов использования
  * @param identifier - Unique identifier (IP address, user ID, etc.)
  * @param limit - Maximum number of requests
  * @param windowMs - Time window in milliseconds
+ * @param options - Дополнительные опции
  * @returns Object with success status and remaining requests
  */
 export function rateLimit(
   identifier: string,
   limit: number,
   windowMs: number,
+  options?: {
+    weight?: number; // Вес запроса (mutation = 2, query = 1)
+    burstLimit?: number; // Лимит для burst detection
+    burstWindowMs?: number; // Окно для burst detection (по умолчанию 10 секунд)
+  },
 ): { success: boolean; remaining: number; resetTime: number } {
   const now = Date.now();
   const key = identifier;
-  const record = rateLimitStore[key];
+  const weight = options?.weight ?? 1;
+  const burstLimit = options?.burstLimit ?? Math.ceil(limit / 10); // 10% от основного лимита
+  const burstWindowMs = options?.burstWindowMs ?? 10000; // 10 секунд
 
   // Clean up expired records
+  const record = rateLimitStore[key];
   if (record && now > record.resetTime) {
     delete rateLimitStore[key];
   }
 
-  // Check if user has exceeded limit
-  const currentRecord = rateLimitStore[key];
-  if (currentRecord) {
-    if (currentRecord.count >= limit) {
-      return {
-        success: false,
-        remaining: 0,
-        resetTime: currentRecord.resetTime,
-      };
-    }
-    currentRecord.count++;
+  // Получаем или создаем запись
+  const currentRecord = rateLimitStore[key] ?? {
+    count: 0,
+    resetTime: now + windowMs,
+    timestamps: [],
+    burstCount: 0,
+    lastBurstReset: now,
+  };
+
+  // Сбрасываем burst счетчик если прошло окно
+  if (now - currentRecord.lastBurstReset > burstWindowMs) {
+    currentRecord.burstCount = 0;
+    currentRecord.lastBurstReset = now;
+  }
+
+  // Очищаем старые timestamps (старше окна)
+  currentRecord.timestamps = currentRecord.timestamps.filter(
+    (ts) => now - ts < windowMs,
+  );
+
+  // Проверяем burst - слишком много запросов за короткое время
+  const recentRequests = currentRecord.timestamps.filter(
+    (ts) => now - ts < burstWindowMs,
+  ).length;
+
+  if (recentRequests >= burstLimit) {
+    // Burst detected - блокируем
+    rateLimitStore[key] = currentRecord;
     return {
-      success: true,
-      remaining: limit - currentRecord.count,
+      success: false,
+      remaining: 0,
+      resetTime: currentRecord.lastBurstReset + burstWindowMs,
+    };
+  }
+
+  // Проверяем основной лимит с учетом веса
+  const weightedCount = currentRecord.count + weight;
+  if (weightedCount > limit) {
+    rateLimitStore[key] = currentRecord;
+    return {
+      success: false,
+      remaining: 0,
       resetTime: currentRecord.resetTime,
     };
   }
 
-  // Create new record
-  rateLimitStore[key] = {
-    count: 1,
-    resetTime: now + windowMs,
-  };
+  // Обновляем запись
+  currentRecord.count = weightedCount;
+  currentRecord.burstCount++;
+  currentRecord.timestamps.push(now);
+  rateLimitStore[key] = currentRecord;
 
   return {
     success: true,
-    remaining: limit - 1,
-    resetTime: now + windowMs,
+    remaining: Math.max(0, limit - weightedCount),
+    resetTime: currentRecord.resetTime,
   };
 }
 
@@ -71,20 +113,81 @@ export function rateLimit(
 export const RATE_LIMITS = {
   // Authentication endpoints - stricter limits
   auth: {
-    signIn: { limit: 5, windowMs: 15 * 60 * 1000 }, // 5 attempts per 15 minutes
-    signUp: { limit: 3, windowMs: 60 * 60 * 1000 }, // 3 attempts per hour
-    resetPassword: { limit: 3, windowMs: 60 * 60 * 1000 }, // 3 attempts per hour
-    emailVerification: { limit: 5, windowMs: 60 * 60 * 1000 }, // 5 attempts per hour
+    signIn: {
+      limit: 5,
+      windowMs: 15 * 60 * 1000,
+      burstLimit: 3,
+      burstWindowMs: 30000,
+    }, // 5 attempts per 15 min, max 3 за 30 сек
+    signUp: {
+      limit: 3,
+      windowMs: 60 * 60 * 1000,
+      burstLimit: 2,
+      burstWindowMs: 60000,
+    }, // 3 attempts per hour, max 2 за минуту
+    resetPassword: {
+      limit: 3,
+      windowMs: 60 * 60 * 1000,
+      burstLimit: 2,
+      burstWindowMs: 60000,
+    },
+    emailVerification: {
+      limit: 5,
+      windowMs: 60 * 60 * 1000,
+      burstLimit: 3,
+      burstWindowMs: 60000,
+    },
   },
   // General API endpoints
   api: {
-    default: { limit: 100, windowMs: 15 * 60 * 1000 }, // 100 requests per 15 minutes
-    upload: { limit: 10, windowMs: 60 * 60 * 1000 }, // 10 uploads per hour
+    // Query endpoints - более мягкие лимиты
+    query: {
+      limit: 300,
+      windowMs: 15 * 60 * 1000,
+      burstLimit: 30,
+      burstWindowMs: 10000,
+      weight: 1,
+    }, // 300 запросов за 15 мин, max 30 за 10 сек
+    // Mutation endpoints - строже
+    mutation: {
+      limit: 100,
+      windowMs: 15 * 60 * 1000,
+      burstLimit: 10,
+      burstWindowMs: 10000,
+      weight: 2,
+    }, // 100 запросов за 15 мин (вес 2), max 10 за 10 сек
+    // Default - средние значения
+    default: {
+      limit: 200,
+      windowMs: 15 * 60 * 1000,
+      burstLimit: 20,
+      burstWindowMs: 10000,
+      weight: 1,
+    },
+    upload: {
+      limit: 10,
+      windowMs: 60 * 60 * 1000,
+      burstLimit: 3,
+      burstWindowMs: 60000,
+      weight: 5,
+    }, // 10 uploads per hour, вес 5
   },
   // Sensitive operations
   sensitive: {
-    profileUpdate: { limit: 10, windowMs: 60 * 60 * 1000 }, // 10 updates per hour
-    passwordChange: { limit: 3, windowMs: 60 * 60 * 1000 }, // 3 changes per hour
+    profileUpdate: {
+      limit: 10,
+      windowMs: 60 * 60 * 1000,
+      burstLimit: 3,
+      burstWindowMs: 60000,
+      weight: 2,
+    },
+    passwordChange: {
+      limit: 3,
+      windowMs: 60 * 60 * 1000,
+      burstLimit: 2,
+      burstWindowMs: 120000,
+      weight: 3,
+    },
   },
 } as const;
 
@@ -132,4 +235,31 @@ export function cleanupExpiredRecords(): void {
   for (const key of keysToDelete) {
     delete rateLimitStore[key];
   }
+}
+
+/**
+ * Получить статистику rate limiting для мониторинга
+ */
+export function getRateLimitStats(): {
+  totalRecords: number;
+  activeRecords: number;
+  expiredRecords: number;
+} {
+  const now = Date.now();
+  let activeRecords = 0;
+  let expiredRecords = 0;
+
+  for (const record of Object.values(rateLimitStore)) {
+    if (now > record.resetTime) {
+      expiredRecords++;
+    } else {
+      activeRecords++;
+    }
+  }
+
+  return {
+    totalRecords: Object.keys(rateLimitStore).length,
+    activeRecords,
+    expiredRecords,
+  };
 }
