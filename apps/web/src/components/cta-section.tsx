@@ -48,7 +48,7 @@ export function CTASection() {
             <ArrowRight className="ml-2 h-4 w-4" />
           </a>
           <a
-            href={`${env.NEXT_PUBLIC_APP_URL}`}
+            href={env.NEXT_PUBLIC_DEMO_URL}
             className="flex h-11 items-center justify-center rounded-lg border border-white/20 bg-white/10 px-6 text-center text-sm font-medium text-white backdrop-blur-sm transition-all hover:bg-white/20 hover:ring-2 hover:ring-white/10"
           >
             Получить демо

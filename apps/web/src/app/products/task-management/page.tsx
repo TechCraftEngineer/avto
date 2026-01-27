@@ -5,6 +5,7 @@ import { Button } from "@qbs-autonaim/ui"
 import { Kanban, ArrowRight, Globe, Bell, Filter, Calendar, BarChart3, Link2, Users, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { ProductNavigation } from "@/components/product-navigation" // Added import for ProductNavigation
+import { env } from "@/env"
 
 export const metadata: Metadata = {
   title: "Управление задачами | QBS Автонайм",
@@ -100,8 +101,10 @@ export default function TaskManagementPage() {
                 Подключить платформы
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-              <Button size="lg" variant="outline">
-                Посмотреть демо
+              <Button size="lg" variant="outline" asChild>
+                <a href={env.NEXT_PUBLIC_DEMO_URL} target="_blank" rel="noopener noreferrer">
+                  Посмотреть демо
+                </a>
               </Button>
             </div>
 

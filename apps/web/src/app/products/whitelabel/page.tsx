@@ -5,6 +5,7 @@ import { Button } from "@qbs-autonaim/ui"
 import { Globe, ArrowRight, Palette, CheckCircle2, Sparkles, Settings, Shield, Zap, Crown, Code } from "lucide-react"
 import Link from "next/link"
 import { ProductNavigation } from "@/components/product-navigation"
+import { env } from "@/env"
 
 export const metadata: Metadata = {
   title: "Собственный брендинг | QBS Автонайм",
@@ -117,8 +118,10 @@ export default function WhiteLabelPage() {
                 Попробовать бесплатно
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-              <Button size="lg" variant="outline">
-                Посмотреть демо
+              <Button size="lg" variant="outline" asChild>
+                <a href={env.NEXT_PUBLIC_DEMO_URL} target="_blank" rel="noopener noreferrer">
+                  Посмотреть демо
+                </a>
               </Button>
             </div>
 

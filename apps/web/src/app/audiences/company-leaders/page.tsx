@@ -15,6 +15,7 @@ import {
   Sparkles,
 } from "lucide-react"
 import Link from "next/link"
+import { env } from "@/env"
 
 export const metadata: Metadata = {
   title: "Для руководителей компаний | QBS Автонайм",
@@ -151,9 +152,11 @@ export default function CompanyLeadersPage() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-              <Button size="lg">
-                Запросить демо
-                <ArrowRight className="ml-2 h-4 w-4" />
+              <Button size="lg" asChild>
+                <a href={env.NEXT_PUBLIC_DEMO_URL} target="_blank" rel="noopener noreferrer">
+                  Запросить демо
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </a>
               </Button>
               <Button size="lg" variant="outline">
                 Рассчитать ROI
@@ -264,9 +267,11 @@ export default function CompanyLeadersPage() {
               Запросите персональную демонстрацию и расчёт ROI для вашей компании
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button size="lg">
-                Запросить демо
-                <ArrowRight className="ml-2 h-4 w-4" />
+              <Button size="lg" asChild>
+                <a href={env.NEXT_PUBLIC_DEMO_URL} target="_blank" rel="noopener noreferrer">
+                  Запросить демо
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </a>
               </Button>
               <Link href="/#pricing">
                 <Button size="lg" variant="outline">

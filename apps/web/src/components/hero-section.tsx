@@ -351,9 +351,12 @@ export function HeroSection() {
               <Button
                 size="lg"
                 variant="outline"
+                asChild
                 className="min-w-[200px] h-12 text-base font-semibold border-2 bg-transparent"
               >
-                Посмотреть демо
+                <a href={env.NEXT_PUBLIC_DEMO_URL} target="_blank" rel="noopener noreferrer">
+                  Посмотреть демо
+                </a>
               </Button>
             </motion.div>
           </div>
