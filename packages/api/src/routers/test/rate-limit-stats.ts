@@ -1,4 +1,5 @@
 import { getRateLimitStats } from "@qbs-autonaim/server-utils";
+import { TRPCError } from "@trpc/server";
 import { publicProcedure } from "../../trpc";
 
 /**
@@ -6,9 +7,10 @@ import { publicProcedure } from "../../trpc";
  */
 export const rateLimitStats = publicProcedure.query(async () => {
   if (process.env.NODE_ENV === "production") {
-    return {
-      error: "Доступно только в dev режиме",
-    };
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Доступно только в dev режиме",
+    });
   }
 
   const stats = getRateLimitStats();

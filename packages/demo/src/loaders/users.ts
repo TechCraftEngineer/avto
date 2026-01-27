@@ -53,6 +53,12 @@ export async function createDemoUsers(): Promise<DemoUserIds> {
       console.log(`ℹ️  Рекрутер уже существует: recruiter@demo.qbs.ru`);
     }
 
+    // Гарантируем что emailVerified установлен для существующих пользователей
+    await db
+      .update(user)
+      .set({ emailVerified: true })
+      .where(eq(user.id, recruiterUser.id));
+
     await db
       .insert(organizationMember)
       .values({
@@ -112,6 +118,12 @@ export async function createDemoUsers(): Promise<DemoUserIds> {
       console.log(`ℹ️  Менеджер уже существует: manager@demo.qbs.ru`);
     }
 
+    // Гарантируем что emailVerified установлен для существующих пользователей
+    await db
+      .update(user)
+      .set({ emailVerified: true })
+      .where(eq(user.id, managerUser.id));
+
     await db
       .insert(organizationMember)
       .values({
@@ -170,6 +182,12 @@ export async function createDemoUsers(): Promise<DemoUserIds> {
     } else {
       console.log(`ℹ️  Клиент уже существует: client@demo.qbs.ru`);
     }
+
+    // Гарантируем что emailVerified установлен для существующих пользователей
+    await db
+      .update(user)
+      .set({ emailVerified: true })
+      .where(eq(user.id, clientUser.id));
 
     await db
       .insert(organizationMember)

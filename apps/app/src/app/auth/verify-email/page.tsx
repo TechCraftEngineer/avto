@@ -1,5 +1,5 @@
 import { APP_CONFIG } from "@qbs-autonaim/config";
-import { GalleryVerticalEnd, Mail, AlertCircle } from "lucide-react";
+import { AlertCircle, GalleryVerticalEnd, Mail } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { EmailVerificationForm } from "~/components/auth/email-verification-form";
@@ -10,13 +10,23 @@ export const metadata: Metadata = {
 };
 
 interface VerifyEmailPageProps {
-  searchParams: Promise<{ email?: string }>;
+  searchParams: Promise<{ email?: string | string[] }>;
 }
 
 export default async function VerifyEmailPage({
   searchParams,
 }: VerifyEmailPageProps) {
-  const { email } = await searchParams;
+  const params = await searchParams;
+
+  // Нормализуем email: если массив - берем первый элемент, обрезаем пробелы, пустую строку в undefined
+  let email: string | undefined;
+  if (params.email) {
+    const rawEmail = Array.isArray(params.email)
+      ? params.email[0]
+      : params.email;
+    const trimmedEmail = rawEmail?.trim();
+    email = trimmedEmail && trimmedEmail.length > 0 ? trimmedEmail : undefined;
+  }
 
   return (
     <div className="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">

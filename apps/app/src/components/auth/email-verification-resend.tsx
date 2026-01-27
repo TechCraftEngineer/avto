@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@qbs-autonaim/ui";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { authClient } from "~/auth/client";
 import { translateAuthError } from "~/lib/auth-error-messages";
@@ -27,6 +27,17 @@ export function EmailVerificationResend({
 }: EmailVerificationResendProps) {
   const [loading, setLoading] = useState(false);
   const [cooldown, setCooldown] = useState(0);
+  const resendIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Очистка интервала при размонтировании
+  useEffect(() => {
+    return () => {
+      if (resendIntervalRef.current) {
+        clearInterval(resendIntervalRef.current);
+        resendIntervalRef.current = null;
+      }
+    };
+  }, []);
 
   const handleResend = async () => {
     setLoading(true);
@@ -43,12 +54,20 @@ export function EmailVerificationResend({
 
       toast.success("Письмо с подтверждением отправлено! Проверьте почту.");
 
+      // Очищаем предыдущий интервал если есть
+      if (resendIntervalRef.current) {
+        clearInterval(resendIntervalRef.current);
+      }
+
       // Устанавливаем кулдаун 60 секунд
       setCooldown(60);
-      const interval = setInterval(() => {
+      resendIntervalRef.current = setInterval(() => {
         setCooldown((prev) => {
           if (prev <= 1) {
-            clearInterval(interval);
+            if (resendIntervalRef.current) {
+              clearInterval(resendIntervalRef.current);
+              resendIntervalRef.current = null;
+            }
             return 0;
           }
           return prev - 1;

@@ -3,16 +3,30 @@ import { RATE_LIMITS, rateLimit } from "@qbs-autonaim/server-utils";
 import { getSessionCookie } from "better-auth/cookies";
 import { type NextRequest, NextResponse } from "next/server";
 
-// TODO: Re-enable CSP headers after resolving conflicts with external scripts
-// Issue: #CSP-123 - CSP disabled due to conflicts with third-party integrations
-// Target: Q2 2025 - Restore CSP with proper nonce/script-src configuration
-// See: https://github.com/qbs-autonaim/project/issues/CSP-123
-console.warn("CSP headers are temporarily disabled - see TODO above for tracking");
+const ENABLE_CSP = process.env.ENABLE_CSP === "true";
+const CSP_REPORT_ONLY = process.env.CSP_REPORT_ONLY === "true";
 
 export async function proxy(request: NextRequest) {
-  // CSP temporarily disabled - see TODO above
   const response = NextResponse.next();
 
+  // Настройка CSP на основе переменных окружения
+  if (ENABLE_CSP || CSP_REPORT_ONLY) {
+    const cspDirectives = [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // TODO: заменить на nonce-based
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: https:",
+      "font-src 'self' data:",
+      "connect-src 'self'",
+      "frame-ancestors 'none'",
+    ].join("; ");
+
+    const headerName = CSP_REPORT_ONLY
+      ? "Content-Security-Policy-Report-Only"
+      : "Content-Security-Policy";
+
+    response.headers.set(headerName, cspDirectives);
+  }
 
   const sessionCookie = getSessionCookie(request);
   const { pathname } = request.nextUrl;
@@ -56,6 +70,19 @@ export async function proxy(request: NextRequest) {
       request.headers.get("x-real-ip") ||
       "unknown";
 
+    // Исключаем streaming endpoints и webhooks из rate limiting или применяем более высокие лимиты
+    const isStreamEndpoint =
+      request.nextUrl.pathname.startsWith("/api/vacancy/chat-generate") ||
+      request.nextUrl.pathname.startsWith("/api/chat/stream");
+
+    const isWebhook = request.nextUrl.pathname.startsWith("/api/webhook/");
+    const isHealthCheck = request.nextUrl.pathname === "/api/health";
+
+    // Пропускаем rate limiting для специальных endpoints
+    if (isStreamEndpoint || isWebhook || isHealthCheck) {
+      return response;
+    }
+
     // Different rate limits for different endpoints
     let rateLimitConfig: { limit: number; windowMs: number } =
       RATE_LIMITS.api.default;
@@ -87,7 +114,10 @@ export async function proxy(request: NextRequest) {
         headers: {
           ...Object.fromEntries(response.headers.entries()),
           "Retry-After": String(
-            Math.max(0, Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000)),
+            Math.max(
+              0,
+              Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000),
+            ),
           ),
         },
       });

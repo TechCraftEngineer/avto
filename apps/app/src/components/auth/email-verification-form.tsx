@@ -2,9 +2,10 @@
 
 import { paths } from "@qbs-autonaim/config";
 import { Button } from "@qbs-autonaim/ui";
-import { Mail, Loader2, CheckCircle } from "lucide-react";
+import { loginFormSchema } from "@qbs-autonaim/validators/login";
+import { CheckCircle, Loader2, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { authClient } from "~/auth/client";
 import { translateAuthError } from "~/lib/auth-error-messages";
@@ -18,10 +19,30 @@ export function EmailVerificationForm({ email }: EmailVerificationFormProps) {
   const [loading, setLoading] = useState(false);
   const [cooldown, setCooldown] = useState(0);
   const [resent, setResent] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Очистка интервала при размонтировании
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, []);
 
   const handleResend = async () => {
     if (!email) {
-      toast.error("Email не указан. Вернитесь на страницу входа и попробуйте снова.");
+      toast.error(
+        "Email не указан. Вернитесь на страницу входа и попробуйте снова.",
+      );
+      return;
+    }
+
+    // Валидация email перед отправкой
+    const validation = loginFormSchema.shape.email.safeParse(email);
+    if (!validation.success) {
+      toast.error("Некорректный email адрес");
       return;
     }
 
@@ -40,12 +61,20 @@ export function EmailVerificationForm({ email }: EmailVerificationFormProps) {
       setResent(true);
       toast.success("Письмо с подтверждением отправлено! Проверьте почту.");
 
+      // Очищаем предыдущий интервал если есть
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+
       // Устанавливаем кулдаун 60 секунд
       setCooldown(60);
-      const interval = setInterval(() => {
+      intervalRef.current = setInterval(() => {
         setCooldown((prev) => {
           if (prev <= 1) {
-            clearInterval(interval);
+            if (intervalRef.current) {
+              clearInterval(intervalRef.current);
+              intervalRef.current = null;
+            }
             return 0;
           }
           return prev - 1;
