@@ -1,6 +1,3 @@
-import { eq } from "@qbs-autonaim/db";
-import { db } from "@qbs-autonaim/db/client";
-import { telegramSession } from "@qbs-autonaim/db/schema";
 import { generateWelcomeMessage } from "../../../../services/messaging";
 import { inngest } from "../../../client";
 import { fetchResponseData } from "./data-fetchers";
@@ -18,6 +15,7 @@ import type { SendResult } from "./types";
  * - HH: всегда отправляет в HH.ru с информацией о доступных каналах продолжения интервью
  *   (Telegram, веб-чат или продолжение в HH.ru чате - зависит от настроек вакансии)
  * - Другие источники: отправляет в настроенные каналы общения вакансии
+ *   (Telegram и веб-чат требуют активной Telegram сессии для отправки сообщений)
  */
 export const sendCandidateWelcomeFunction = inngest.createFunction(
   {
@@ -76,134 +74,73 @@ export const sendCandidateWelcomeFunction = inngest.createFunction(
         return sendHHWelcome(responseData, welcomeMessage);
       });
     } else {
-      // Для откликов из других источников используем текущую логику маршрутизации
+      // Для откликов из других источников используем настроенные каналы общения вакансии
       if (enabledChannels.telegram) {
-        // Проверяем наличие Telegram сессии перед отправкой приветствия
-        const hasTelegramSession = await step.run(
-          "check-telegram-session",
+        // Отправляем приветствие в Telegram
+        const welcomeMessage = await step.run(
+          "generate-welcome-message",
           async () => {
-            const session = await db.query.telegramSession.findFirst({
-              where: eq(
-                telegramSession.workspaceId,
-                responseData.vacancy.workspaceId,
-              ),
-              orderBy: (sessions, { desc }) => [desc(sessions.lastUsedAt)],
+            console.log("🤖 Генерация приветственного сообщения для Telegram", {
+              responseId,
+              username,
             });
-            return !!session;
+
+            const result = await generateWelcomeMessage(responseId, "telegram");
+
+            if (!result.success) {
+              throw new Error(result.error);
+            }
+
+            console.log("✅ Сообщение сгенерировано", {
+              responseId,
+              messageLength: result.data.length,
+            });
+
+            return result.data;
           },
         );
 
-        if (hasTelegramSession) {
-          // Отправляем приветствие в Telegram
-          const welcomeMessage = await step.run(
-            "generate-welcome-message",
-            async () => {
-              console.log(
-                "🤖 Генерация приветственного сообщения для Telegram",
-                {
-                  responseId,
-                  username,
-                },
-              );
-
-              const result = await generateWelcomeMessage(
-                responseId,
-                "telegram",
-              );
-
-              if (!result.success) {
-                throw new Error(result.error);
-              }
-
-              console.log("✅ Сообщение сгенерировано", {
-                responseId,
-                messageLength: result.data.length,
-              });
-
-              return result.data;
-            },
+        sendResult = await step.run("send-telegram-welcome", async () => {
+          return sendTelegramWelcome(
+            responseData,
+            username,
+            phone,
+            welcomeMessage,
           );
-
-          sendResult = await step.run("send-telegram-welcome", async () => {
-            return sendTelegramWelcome(
-              responseData,
-              username,
-              phone,
-              welcomeMessage,
-            );
-          });
-        } else {
-          // Нет Telegram сессии, пропускаем отправку
-          console.log(
-            `⚠️ Пропускаем отправку приветствия в Telegram для workspace ${responseData.vacancy.workspaceId} - нет активной Telegram сессии`,
-          );
-          return {
-            success: false,
-            error: "No Telegram session available for telegram channel",
-          };
-        }
+        });
       } else if (enabledChannels.webChat) {
-        // Проверяем наличие Telegram сессии перед отправкой приглашения в веб-чат
-        const hasTelegramSession = await step.run(
-          "check-telegram-session",
+        // Отправляем приглашение в веб-чат через Telegram
+        const webChatMessage = await step.run(
+          "generate-webchat-message",
           async () => {
-            const session = await db.query.telegramSession.findFirst({
-              where: eq(
-                telegramSession.workspaceId,
-                responseData.vacancy.workspaceId,
-              ),
-              orderBy: (sessions, { desc }) => [desc(sessions.lastUsedAt)],
+            console.log("🤖 Генерация приветственного сообщения для веб-чата", {
+              responseId,
+              username,
             });
-            return !!session;
+
+            const result = await generateWelcomeMessage(responseId, "web");
+
+            if (!result.success) {
+              throw new Error(result.error);
+            }
+
+            console.log("✅ Сообщение сгенерировано", {
+              responseId,
+              messageLength: result.data.length,
+            });
+
+            return result.data;
           },
         );
 
-        if (hasTelegramSession) {
-          // Отправляем приглашение в веб-чат через Telegram
-          const webChatMessage = await step.run(
-            "generate-webchat-message",
-            async () => {
-              console.log(
-                "🤖 Генерация приветственного сообщения для веб-чата",
-                {
-                  responseId,
-                  username,
-                },
-              );
-
-              const result = await generateWelcomeMessage(responseId, "web");
-
-              if (!result.success) {
-                throw new Error(result.error);
-              }
-
-              console.log("✅ Сообщение сгенерировано", {
-                responseId,
-                messageLength: result.data.length,
-              });
-
-              return result.data;
-            },
+        sendResult = await step.run("send-webchat-invite", async () => {
+          return sendWebChatInvite(
+            responseData,
+            username,
+            phone,
+            webChatMessage,
           );
-
-          sendResult = await step.run("send-webchat-invite", async () => {
-            return sendWebChatInvite(
-              responseData,
-              username,
-              phone,
-              webChatMessage,
-            );
-          });
-        } else {
-          // Нет Telegram сессии, пропускаем отправку
-          console.log(
-            `⚠️ Пропускаем отправку приглашения в веб-чат для workspace ${responseData.vacancy.workspaceId} - нет активной Telegram сессии`,
-          );
-          return {
-            success: false,
-            error: "No Telegram session available for webChat",
-          };
-        }
+        });
       } else {
         // Нет включенных каналов общения
         console.log(
