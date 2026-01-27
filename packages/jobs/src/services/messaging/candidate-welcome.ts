@@ -167,8 +167,15 @@ async function generateAIWelcomeMessage(
 async function addEntityLink(
   message: string,
   responseData: ResponseData,
+  channel?: string,
 ): Promise<string> {
   let finalMessage = message.trim();
+
+  // Для канала "hh-webchat-invite" не добавляем ссылки на вакансию,
+  // так как сообщение отправляется в HH.ru чат, где контекст уже понятен
+  if (channel === "hh-webchat-invite") {
+    return finalMessage;
+  }
 
   // Add entity link
   if (responseData.entity.type === "vacancy") {
@@ -181,13 +188,8 @@ async function addEntityLink(
     }
     // Skip adding link if no external URL/ID is available
   } else if (responseData.entity.type === "gig") {
-    // Для gig добавляем ссылку на страницу отклика
-    const workspace = await db.query.workspace.findFirst({
-      where: (w, { eq }) => eq(w.id, responseData.entity.data.workspaceId),
-    });
-    if (workspace) {
-      finalMessage += `\n\n🔗 Ссылка на отклик: ${process.env.NEXT_PUBLIC_APP_URL}/orgs/${workspace.slug}/workspaces/${workspace.slug}/gigs/${responseData.entity.data.id}/responses/${responseData.id}`;
-    }
+    // Для gig не добавляем ссылку на страницу отклика - это внутренняя ссылка
+    // Кандидат получит ссылку на веб-чат отдельно
   }
 
   return finalMessage;
@@ -218,7 +220,7 @@ export async function generateWelcomeMessage(
 
   logger.info("Welcome message generated");
 
-  const finalMessage = await addEntityLink(aiResult.data, responseData);
+  const finalMessage = await addEntityLink(aiResult.data, responseData, channel);
 
   return { success: true, data: finalMessage };
 }

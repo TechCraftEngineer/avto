@@ -68,6 +68,9 @@ export class WelcomeAgent extends BaseAgent<WelcomeInput, WelcomeOutput> {
 
   protected validate(input: WelcomeInput): boolean {
     // Проверяем, что для vacancy есть vacancyTitle, для gig - gigTitle
+    // Исключение: для канала "hh-webchat-invite" vacancyTitle не требуется,
+    // так как сообщение отправляется в HH.ru чат, где контекст уже понятен
+    if (input.channel === 'hh-webchat-invite') return true;
     if (input.type === 'vacancy' && !input.vacancyTitle) return false;
     if (input.type === 'gig' && !input.gigTitle) return false;
     return true;
@@ -79,9 +82,15 @@ export class WelcomeAgent extends BaseAgent<WelcomeInput, WelcomeOutput> {
   ): string {
     const { candidateName, vacancyTitle, gigTitle, companyName, companyDescription, webChatUrl, type, channel } = input;
 
-    const positionText = type === 'vacancy'
-      ? (vacancyTitle ? `Вакансия: ${vacancyTitle}` : "Вакансия не указана")
-      : (gigTitle ? `Gig: ${gigTitle}` : "Gig не указан");
+    // Для канала "hh-webchat-invite" не указываем название вакансии и ссылку,
+    // так как сообщение отправляется в HH.ru чат, где контекст уже понятен
+    const isHHWebChatInvite = channel === 'hh-webchat-invite';
+
+    const positionText = isHHWebChatInvite
+      ? ""
+      : (type === 'vacancy'
+          ? (vacancyTitle ? `Вакансия: ${vacancyTitle}` : "Вакансия не указана")
+          : (gigTitle ? `Gig: ${gigTitle}` : "Gig не указан"));
 
     const channelText = `Канал для интервью: ${channel}`;
 

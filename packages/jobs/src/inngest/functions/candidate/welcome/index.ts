@@ -1,5 +1,6 @@
 import { generateWelcomeMessage } from "../../../../services/messaging";
 import { inngest } from "../../../client";
+import { InterviewLinkGenerator } from "@qbs-autonaim/shared";
 import { fetchResponseData } from "./data-fetchers";
 import {
   sendHHWelcome,
@@ -86,8 +87,18 @@ export const sendCandidateWelcomeFunction = inngest.createFunction(
     }
 
     // Attempt WebChat if enabled
+    // Для откликов из HH.ru: генерируем приглашение с уникальной ссылкой и отправляем в HH.ru чат
     if (enabledChannels.webChat) {
       try {
+        // Генерируем уникальную ссылку на веб-чат для этого отклика
+        const interviewLink = await step.run("generate-interview-link", async () => {
+          const linkGenerator = new InterviewLinkGenerator();
+          return linkGenerator.getOrCreateInterviewLink(
+            responseData.vacancy.id,
+            responseData.vacancy.workspaceId,
+          );
+        });
+
         const webChatMessage = await step.run(
           "generate-webchat-message",
           async () => {
@@ -97,31 +108,48 @@ export const sendCandidateWelcomeFunction = inngest.createFunction(
               source: responseData.importSource,
             });
 
-            const result = await generateWelcomeMessage(responseId, "web");
+            // Для откликов из HH.ru используем специальный канал без указания вакансии
+            // так как сообщение отправляется в HH.ru чат, где контекст уже понятен
+            const channel = responseData.importSource === "HH"
+              ? "hh-webchat-invite"
+              : "web";
+
+            const result = await generateWelcomeMessage(responseId, channel);
 
             if (!result.success) {
               throw new Error(result.error);
             }
 
+            // Добавляем уникальную ссылку на веб-чат в сообщение
+            const messageWithLink = `${result.data}\n\n🔗 Перейти в веб-чат: ${interviewLink.url}`;
+
             console.log("✅ Сообщение сгенерировано", {
               responseId,
-              messageLength: result.data.length,
+              messageLength: messageWithLink.length,
             });
 
-            return result.data;
+            return messageWithLink;
           },
         );
 
-        const webChatResult = await step.run("send-webchat-invite", async () => {
-          return sendWebChatInvite(
-            responseData,
-            username,
-            phone,
-            webChatMessage,
-          );
-        });
-
-        sendResults.push(webChatResult);
+        // Для откликов из HH.ru отправляем приглашение в HH.ru чат
+        if (responseData.importSource === "HH") {
+          const hhResult = await step.run("send-hh-webchat-invite", async () => {
+            return sendHHWelcome(responseData, webChatMessage);
+          });
+          sendResults.push(hhResult);
+        } else {
+          // Для других источников создаем ссылку на веб-чат
+          const webChatResult = await step.run("send-webchat-invite", async () => {
+            return sendWebChatInvite(
+              responseData,
+              username,
+              phone,
+              webChatMessage,
+            );
+          });
+          sendResults.push(webChatResult);
+        }
       } catch (error) {
         const errorMessage = `WebChat invite failed: ${error instanceof Error ? error.message : "Unknown error"}`;
         console.log(`⚠️ ${errorMessage}`);

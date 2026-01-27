@@ -84,6 +84,11 @@ export function translateAuthError(errorMessage: string | undefined): string {
     return "Сервис временно недоступен";
   }
 
+  // Ошибки email верификации
+  if (message.includes("email not verified")) {
+    return "Email не подтвержден. Проверьте почту и перейдите по ссылке подтверждения";
+  }
+
   // Ошибки сессии
   if (message.includes("session expired")) {
     return "Сессия истекла. Войдите снова";
