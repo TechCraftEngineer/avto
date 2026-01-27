@@ -34,6 +34,9 @@
     "set-admin": "bun with-env bun src/scripts/set-admin-role.ts",
     "setup": "bun with-env bun src/scripts/setup-uuid-v7.ts",
     "seed": "bun with-env bun src/seed/preset-domains.ts",
+    "update-counters": "bun with-env bun src/scripts/update-vacancy-counters.ts",
+    "update-counter": "bun with-env bun src/scripts/update-vacancy-counter-by-id.ts",
+    "check-vacancy": "bun with-env bun src/scripts/check-vacancy-data.ts",
     "typecheck": "npx tsc --noEmit",
     "with-env": "bun run --env-file ../../.env"
   },
