@@ -196,3 +196,6 @@ export const UpdateVacancySettingsSchema = z.object({
     .optional(),
   customDomainId: z.string().nullable().optional(), // ID кастомного домена для веб-чата
 });
+
+export type Vacancy = typeof vacancy.$inferSelect;
+export type NewVacancy = typeof vacancy.$inferInsert;
