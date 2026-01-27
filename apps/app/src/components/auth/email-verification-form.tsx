@@ -2,7 +2,7 @@
 
 import { paths } from "@qbs-autonaim/config";
 import { Button } from "@qbs-autonaim/ui";
-import { loginFormSchema } from "@qbs-autonaim/validators/login";
+import { loginFormSchema } from "@qbs-autonaim/validators";
 import { CheckCircle, Loader2, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
