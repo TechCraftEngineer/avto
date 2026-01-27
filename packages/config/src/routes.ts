@@ -35,6 +35,7 @@ export const paths = {
     otp: `${ROOTS.AUTH}/otp`,
     forgotPassword: `${ROOTS.AUTH}/forgot-password`,
     resetPassword: `${ROOTS.AUTH}/reset-password`,
+    verifyEmail: `${ROOTS.AUTH}/verify-email`,
   },
   account: {
     root: ROOTS.ACCOUNT,
