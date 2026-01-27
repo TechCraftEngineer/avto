@@ -177,21 +177,15 @@ export function VacancyTableRow({
         >
           <IconUsers className="size-4" />
           {vacancy.totalResponsesCount ?? 0}
-        </Link>
-      </TableCell>
-      <TableCell className="text-right">
-        {vacancy.newResponses && vacancy.newResponses > 0 ? (
-          <div className="flex justify-end">
+          {vacancy.newResponses && vacancy.newResponses > 0 && (
             <Badge
               variant="default"
-              className="bg-green-600 hover:bg-green-700 shadow-sm animate-in fade-in zoom-in duration-300"
+              className="bg-green-600 hover:bg-green-700 shadow-sm animate-in fade-in zoom-in duration-300 ml-1"
             >
               +{vacancy.newResponses}
             </Badge>
-          </div>
-        ) : (
-          <span className="text-muted-foreground/50">—</span>
-        )}
+          )}
+        </Link>
       </TableCell>
       <TableCell className="text-right tabular-nums hidden md:table-cell text-muted-foreground">
         {vacancy.resumesInProgress ?? "—"}

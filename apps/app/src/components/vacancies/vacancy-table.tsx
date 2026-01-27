@@ -117,9 +117,6 @@ export function VacancyTable({
                 {renderSortIcon("responses")}
               </button>
             </TableHead>
-            <TableHead className="text-right font-semibold text-foreground">
-              Новые
-            </TableHead>
             <TableHead className="hidden text-right font-semibold text-foreground md:table-cell">
               В&nbsp;работе
             </TableHead>
@@ -150,9 +147,6 @@ export function VacancyTable({
                 <TableCell>
                   <Skeleton className="h-5 w-[40px] ml-auto" />
                 </TableCell>
-                <TableCell>
-                  <Skeleton className="h-6 w-[40px] ml-auto" />
-                </TableCell>
                 <TableCell className="hidden md:table-cell">
                   <Skeleton className="h-5 w-[40px] ml-auto" />
                 </TableCell>
@@ -166,7 +160,7 @@ export function VacancyTable({
             ))
           ) : vacancies.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={9} className="h-[500px] p-0">
+              <TableCell colSpan={8} className="h-[500px] p-0">
                 <div className="flex h-full flex-col items-center justify-center gap-6 px-4 py-10">
                   {/* Анимированный список скелетонов */}
                   <div className="animate-fade-in h-36 w-full max-w-64 overflow-hidden px-4 mask-[linear-gradient(transparent,black_10%,black_90%,transparent)]">
