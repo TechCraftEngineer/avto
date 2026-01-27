@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@qbs-autonaim/db": "workspace:*",
-    "axios": "^1.13.2"
+    "axios": "^1.13.3"
   },
   "devDependencies": {
     "typescript": "5.9.3"
