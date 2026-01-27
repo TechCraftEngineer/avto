@@ -9,6 +9,21 @@ import { logResponseEvent, removeNullBytes } from "@qbs-autonaim/lib";
 import type { CommunicationChannel } from "./types";
 
 /**
+ * Maps CommunicationChannel to InterviewChannel
+ */
+const mapChannel = (channel: CommunicationChannel): "web" | "telegram" | "whatsapp" | "max" => {
+  switch (channel) {
+    case "TELEGRAM":
+      return "telegram";
+    case "WEB_CHAT":
+      return "web";
+    case "HH":
+    default:
+      return "web"; // HH and other channels default to web
+  }
+};
+
+/**
  * Сохраняет или обновляет interviewSession
  */
 export const saveInterviewSession = async (
@@ -18,47 +33,40 @@ export const saveInterviewSession = async (
   sentMessage: string,
   username: string | undefined,
 ) => {
-  // Проверяем, есть ли уже interviewSession для этого response
+  const mappedChannel = mapChannel(channel);
+
+  // Get existing session to preserve questionAnswers
   const existing = await db.query.interviewSession.findFirst({
     where: eq(interviewSession.responseId, responseId),
   });
 
-  if (existing) {
-    // Получаем существующие метаданные
-    const existingMetadata = existing.metadata || {};
+  const existingQuestionAnswers = existing?.metadata?.questionAnswers || [];
 
-    // Объединяем с новыми данными
-    const updatedMetadata = {
-      ...existingMetadata,
-      telegramUsername: username,
-      telegramChatId: chatId,
-      questionAnswers: existingMetadata.questionAnswers || [],
-    };
-
-    // Обновляем существующую interviewSession
-    await db
-      .update(interviewSession)
-      .set({
-        status: "active",
-        lastChannel: channel === "TELEGRAM" ? "telegram" : "web",
-        metadata: updatedMetadata,
-      })
-      .where(eq(interviewSession.id, existing.id));
-  } else {
-    // Создаем новую interviewSession
-    const newMetadata = {
-      telegramUsername: username,
-      telegramChatId: chatId,
-      questionAnswers: [],
-    };
-
-    await db.insert(interviewSession).values({
+  // Use upsert to handle concurrent calls safely
+  await db
+    .insert(interviewSession)
+    .values({
       responseId: responseId,
       status: "active",
-      lastChannel: channel === "TELEGRAM" ? "telegram" : "web",
-      metadata: newMetadata,
+      lastChannel: mappedChannel,
+      metadata: {
+        telegramUsername: username,
+        telegramChatId: chatId,
+        questionAnswers: existingQuestionAnswers,
+      },
+    })
+    .onConflictDoUpdate({
+      target: interviewSession.responseId,
+      set: {
+        status: "active",
+        lastChannel: mappedChannel,
+        metadata: {
+          telegramUsername: username,
+          telegramChatId: chatId,
+          questionAnswers: existingQuestionAnswers,
+        },
+      },
     });
-  }
 
   const session = await db.query.interviewSession.findFirst({
     where: eq(interviewSession.responseId, responseId),
@@ -68,15 +76,19 @@ export const saveInterviewSession = async (
     throw new Error("Failed to create/update interviewSession");
   }
 
-  // Сохраняем приветственное сообщение
-  await db.insert(interviewMessage).values({
-    sessionId: session.id,
-    role: "assistant",
-    type: "text",
-    channel: channel === "TELEGRAM" ? "telegram" : "web",
-    content: removeNullBytes(sentMessage),
-    externalId: "",
-  });
+  // Сохраняем приветственное сообщение (idempotent)
+  const externalId = `welcome:${session.id}:${mappedChannel}`;
+  await db
+    .insert(interviewMessage)
+    .values({
+      sessionId: session.id,
+      role: "assistant",
+      type: "text",
+      channel: mappedChannel as "web" | "telegram" | "whatsapp" | "max",
+      content: removeNullBytes(sentMessage),
+      externalId,
+    })
+    .onConflictDoNothing(); // Make it idempotent
 
   return session;
 };

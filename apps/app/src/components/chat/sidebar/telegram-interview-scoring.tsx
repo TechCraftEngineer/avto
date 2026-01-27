@@ -1,7 +1,7 @@
 "use client";
 
 import { Progress } from "@qbs-autonaim/ui";
-import { sanitizeHtmlFunction } from "~/lib/sanitize-html";
+import { sanitizeHtmlFunction } from "@qbs-autonaim/shared/client";
 import { Star } from "lucide-react";
 
 interface TelegramInterviewScoringProps {

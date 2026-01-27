@@ -172,7 +172,14 @@ async function addEntityLink(
 
   // Add entity link
   if (responseData.entity.type === "vacancy") {
-    finalMessage += `\n\n🔗 Ссылка на вакансию: https://hh.ru/vacancy/${responseData.entity.data.id}`;
+    // Prefer external URL or externalId for vacancy links
+    const vacancyData = responseData.entity.data;
+    if (vacancyData.url) {
+      finalMessage += `\n\n🔗 Ссылка на вакансию: ${vacancyData.url}`;
+    } else if (vacancyData.externalId) {
+      finalMessage += `\n\n🔗 Ссылка на вакансию: https://hh.ru/vacancy/${vacancyData.externalId}`;
+    }
+    // Skip adding link if no external URL/ID is available
   } else if (responseData.entity.type === "gig") {
     // Для gig добавляем ссылку на страницу отклика
     const workspace = await db.query.workspace.findFirst({

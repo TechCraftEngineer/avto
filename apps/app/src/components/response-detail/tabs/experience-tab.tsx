@@ -3,7 +3,7 @@
 import type { RouterOutputs } from "@qbs-autonaim/api";
 import { Badge, Button, Separator } from "@qbs-autonaim/ui";
 import { Award, ExternalLink } from "lucide-react";
-import { sanitizeHtmlFunction } from "~/lib/sanitize-html";
+import { sanitizeHtmlFunction } from "@qbs-autonaim/shared/client";
 import { getProfileData } from "../types";
 
 type GigResponseDetail = NonNullable<RouterOutputs["gig"]["responses"]["get"]>;

@@ -1,4 +1,4 @@
-import { sanitizeHtmlFunction } from "~/lib/sanitize-html";
+import { sanitizeHtmlFunction } from "@qbs-autonaim/shared/client";
 import { Brain, MessageSquare, Sparkles } from "lucide-react";
 
 const features = [

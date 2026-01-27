@@ -16,7 +16,21 @@ export type SendMessageResponse = {
 /**
  * Данные отклика с вакансией
  */
-export type ResponseWithVacancy = any;
+export type ResponseWithVacancy = {
+  id: string;
+  candidateId: string;
+  candidateName: string | null;
+  chatId: string | null;
+  vacancy: {
+    id: string;
+    workspaceId: string;
+    enabledCommunicationChannels: {
+      webChat: boolean;
+      telegram: boolean;
+    } | null;
+  };
+  importSource: string | null;
+};
 
 /**
  * Результат отправки сообщения

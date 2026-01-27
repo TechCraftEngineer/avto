@@ -48,13 +48,13 @@ export default function VacancySettingsPage({
 
   // Получаем ссылку на интервью при загрузке вакансии
   useEffect(() => {
-    if (vacancy && workspaceId && !interviewLink && !getInterviewLinkMutation.isPending && !getInterviewLinkMutation.isSuccess) {
+    if (vacancy && workspaceId && !interviewLink && getInterviewLinkMutation.isIdle) {
       getInterviewLinkMutation.mutate({
         vacancyId: id,
         workspaceId,
       });
     }
-  }, [vacancy, workspaceId, id, interviewLink, getInterviewLinkMutation.isPending, getInterviewLinkMutation.isSuccess, getInterviewLinkMutation.mutate]);
+  }, [vacancy, workspaceId, id, interviewLink, getInterviewLinkMutation.isIdle, getInterviewLinkMutation.mutate]);
 
   const updateSettingsMutation = useMutation(
     trpc.vacancy.update.mutationOptions({

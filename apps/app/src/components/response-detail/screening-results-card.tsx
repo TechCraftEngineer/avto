@@ -10,7 +10,7 @@ import {
   Progress,
   Separator,
 } from "@qbs-autonaim/ui";
-import sanitizeHtml from "sanitize-html";
+import { sanitizeHtmlFunction } from "@qbs-autonaim/shared/client";
 import {
   Award,
   Banknote,
@@ -44,31 +44,6 @@ interface ScreeningData {
 
 interface ScreeningResultsCardProps {
   screening: ScreeningData;
-}
-
-function sanitizeHtmlFunction(html: string): string {
-  return sanitizeHtml(html, {
-    allowedTags: [
-      "p",
-      "br",
-      "strong",
-      "em",
-      "u",
-      "ul",
-      "ol",
-      "li",
-      "h1",
-      "h2",
-      "h3",
-      "h4",
-      "h5",
-      "h6",
-      "blockquote",
-      "code",
-      "pre",
-    ],
-    allowedAttributes: {},
-  });
 }
 
 export function ScreeningResultsCard({ screening }: ScreeningResultsCardProps) {

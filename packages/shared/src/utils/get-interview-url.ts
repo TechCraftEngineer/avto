@@ -7,9 +7,9 @@ import { env } from "@qbs-autonaim/config";
 export function getInterviewBaseUrl(
   workspaceInterviewDomain?: string | null,
 ): string {
-  if (workspaceInterviewDomain) {
+  if (workspaceInterviewDomain && workspaceInterviewDomain.trim() !== "") {
     // Убираем trailing slash если есть
-    return workspaceInterviewDomain.replace(/\/$/, "");
+    return workspaceInterviewDomain.trim().replace(/\/$/, "");
   }
 
   const interviewUrl = env.NEXT_PUBLIC_INTERVIEW_URL;

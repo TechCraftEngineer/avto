@@ -1,4 +1,4 @@
-import { eq } from "@qbs-autonaim/db";
+import { and, eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { telegramSession } from "@qbs-autonaim/db/schema";
 import { InterviewLinkGenerator } from "@qbs-autonaim/shared";
@@ -14,6 +14,14 @@ import type {
   SendMessageResponse,
   SendResult,
 } from "./types";
+
+/**
+ * Маскирует PII данные для логирования
+ */
+const maskPII = (value: string): string => {
+  if (!value || value.length <= 2) return "*".repeat(value.length);
+  return value[0] + "*".repeat(value.length - 2) + value[value.length - 1];
+};
 
 /**
  * Отправляет сообщение в HH.ru
@@ -77,7 +85,10 @@ export const sendTelegramWelcome = async (
 
   // Получаем активную сессию для workspace
   const session = await db.query.telegramSession.findFirst({
-    where: eq(telegramSession.workspaceId, workspaceId),
+    where: and(
+      eq(telegramSession.workspaceId, workspaceId),
+      eq(telegramSession.isActive, true)
+    ),
     orderBy: (sessions, { desc }) => [desc(sessions.lastUsedAt)],
   });
 
@@ -91,7 +102,7 @@ export const sendTelegramWelcome = async (
 
   // Пытаемся отправить по username
   if (username) {
-    console.log(`📨 Попытка отправки по username: @${username}`);
+    console.log(`📨 Попытка отправки по username: @${maskPII(username)}`);
     try {
       const tgResult = await tgClientSDK.sendMessageByUsername({
         workspaceId,
@@ -102,7 +113,7 @@ export const sendTelegramWelcome = async (
       if (tgResult) {
         console.log("✅ Приветствие отправлено по username", {
           responseId: responseData.id,
-          username,
+          username: maskPII(username),
           chatId: tgResult.chatId,
         });
 
@@ -122,7 +133,7 @@ export const sendTelegramWelcome = async (
 
   // Если username не сработал, пробуем по телефону
   if (!sendResult && phone) {
-    console.log(`📞 Попытка отправки по номеру телефона: ${phone}`);
+    console.log(`📞 Попытка отправки по номеру телефона: ${maskPII(phone)}`);
     try {
       const tgResult = await tgClientSDK.sendMessageByPhone({
         workspaceId,
@@ -134,7 +145,7 @@ export const sendTelegramWelcome = async (
       if (tgResult) {
         console.log("✅ Приветствие отправлено по номеру телефона", {
           responseId: responseData.id,
-          phone,
+          phone: maskPII(phone),
           chatId: tgResult.chatId,
         });
 
@@ -155,11 +166,11 @@ export const sendTelegramWelcome = async (
   if (!sendResult) {
     throw new Error(
       username && phone
-        ? `Не удалось отправить приветствие ни по username (@${username}), ни по телефону (${phone})`
+        ? `Не удалось отправить приветствие ни по username (@${maskPII(username)}), ни по телефону (${maskPII(phone)})`
         : username
-          ? `Не удалось отправить приветствие по username (@${username}), телефон не указан`
+          ? `Не удалось отправить приветствие по username (@${maskPII(username)}), телефон не указан`
           : phone
-            ? `Username не указан, не удалось отправить по телефону (${phone})`
+            ? `Username не указан, не удалось отправить по телефону (${maskPII(phone)})`
             : "Не указаны ни username, ни телефон для отправки приветствия",
     );
   }

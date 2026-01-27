@@ -4,7 +4,7 @@ import { Badge, Button, Skeleton } from "@qbs-autonaim/ui";
 import { IconArrowLeft, IconEdit, IconExternalLink } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { sanitizeHtmlFunction } from "~/lib/sanitize-html";
+import { sanitizeHtmlFunction } from "@qbs-autonaim/shared/client";
 import { use } from "react";
 import { PageHeader } from "~/components/layout";
 import {

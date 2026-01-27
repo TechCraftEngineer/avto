@@ -64,7 +64,7 @@ export class InterviewLinkGenerator {
 
           if (workspaceId !== undefined) {
             conditions.push(
-              sql`${domain.workspaceId} = ${workspaceId} or ${domain.isPreset} = ${true}`,
+              sql`(${domain.workspaceId} = ${workspaceId} or ${domain.isPreset} = ${true})`,
             );
           }
 

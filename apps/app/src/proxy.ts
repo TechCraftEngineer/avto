@@ -3,10 +3,14 @@ import { RATE_LIMITS, rateLimit } from "@qbs-autonaim/server-utils";
 import { getSessionCookie } from "better-auth/cookies";
 import { type NextRequest, NextResponse } from "next/server";
 
-// CSP functions temporarily disabled
+// TODO: Re-enable CSP headers after resolving conflicts with external scripts
+// Issue: #CSP-123 - CSP disabled due to conflicts with third-party integrations
+// Target: Q2 2025 - Restore CSP with proper nonce/script-src configuration
+// See: https://github.com/qbs-autonaim/project/issues/CSP-123
+console.warn("CSP headers are temporarily disabled - see TODO above for tracking");
 
 export async function proxy(request: NextRequest) {
-  // CSP temporarily disabled
+  // CSP temporarily disabled - see TODO above
   const response = NextResponse.next();
 
 
@@ -97,11 +101,10 @@ export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
-     * - api (API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      */
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+    "/((?!_next/static|_next/image|favicon.ico).*)",
   ],
 };

@@ -28,9 +28,12 @@ export type {
 } from "./types";
 
 // Серверные утилиты теперь экспортируются из @qbs-autonaim/server-utils
-// Экспорт клиентских утилит
+// Экспорт клиентских утилит (для обратной совместимости - используйте @qbs-autonaim/shared/client)
 export {
   getPlatformTaskUrl,
   type ParsedPlatformLink,
   parsePlatformLink,
 } from "./utils";
+
+// Примечание: sanitizeHtmlFunction теперь доступен через @qbs-autonaim/shared/client
+// для использования в браузере без Node.js зависимостей

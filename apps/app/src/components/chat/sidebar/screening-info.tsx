@@ -1,6 +1,6 @@
 "use client";
 
-import { sanitizeHtmlFunction } from "~/lib/sanitize-html";
+import { sanitizeHtmlFunction } from "@qbs-autonaim/shared/client";
 
 interface ScreeningInfoProps {
   score: number | null;
