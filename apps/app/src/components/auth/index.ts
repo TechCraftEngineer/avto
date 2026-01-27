@@ -1,3 +1,4 @@
+export { DemoBanner } from "./demo-banner";
 export { EmailPasswordForm } from "./email-password-form";
 export { ForgotPasswordForm } from "./forgot-password-form";
 export { LoginForm } from "./login-form";

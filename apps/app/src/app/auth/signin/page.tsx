@@ -1,7 +1,7 @@
 import { APP_CONFIG } from "@qbs-autonaim/config";
 import { GalleryVerticalEnd } from "lucide-react";
 import type { Metadata } from "next";
-import { UnifiedAuthForm } from "~/components/auth";
+import { DemoBanner, UnifiedAuthForm } from "~/components/auth";
 
 export const metadata: Metadata = {
   title: "Вход",
@@ -22,6 +22,7 @@ export default function LoginPage() {
           {APP_CONFIG.name}
         </a>
         <UnifiedAuthForm mode="signin" />
+        <DemoBanner />
       </div>
     </div>
   );

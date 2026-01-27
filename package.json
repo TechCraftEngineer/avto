@@ -39,7 +39,7 @@
     "ui-add": "turbo run ui-add"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.3.12",
+    "@biomejs/biome": "2.3.13",
     "@turbo/gen": "2.7.6",
     "concurrently": "^9.2.1",
     "diff": "^8.0.3",

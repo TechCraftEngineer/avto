@@ -8,7 +8,7 @@ RUN npm install -g bun
 # Set working directory
 WORKDIR /app
 # Install turbo globally
-RUN npm install -g turbo@2.7.5
+RUN npm install -g turbo@2.7.6
 COPY . .
 
 # Generate a partial monorepo with a pruned lockfile for a target workspace.
@@ -34,10 +34,12 @@ ARG POSTGRES_URL
 ARG NEXT_PUBLIC_APP_URL
 ARG NEXT_PUBLIC_APP_NAME
 ARG NEXT_PUBLIC_INTERVIEW_URL
+ARG NEXT_PUBLIC_IS_DEMO
 ENV POSTGRES_URL=$POSTGRES_URL
 ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 ENV NEXT_PUBLIC_APP_NAME=$NEXT_PUBLIC_APP_NAME
 ENV NEXT_PUBLIC_INTERVIEW_URL=$NEXT_PUBLIC_INTERVIEW_URL
+ENV NEXT_PUBLIC_IS_DEMO=$NEXT_PUBLIC_IS_DEMO
 ENV CI=true
 RUN bun turbo run build --filter=@qbs-autonaim/app
 
