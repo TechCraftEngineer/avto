@@ -117,13 +117,18 @@ export const createTRPCRouter = t.router;
 /**
  * Security audit middleware
  */
-const securityAudit = t.middleware(async ({ ctx, type, next }) => {
+const securityAudit = t.middleware(async ({ ctx, type, path, next }) => {
   const startTime = Date.now();
   const userId = ctx.session?.user?.id;
   const ipAddress = ctx.ipAddress;
   const _userAgent = ctx.userAgent;
 
-  // Note: Removed logging of every authenticated request to avoid noise
+  // В dev режиме логируем информацию о запросе
+  if (process.env.NODE_ENV === "development") {
+    console.log(
+      `[Security Audit] ${type.toUpperCase()} ${path} | IP: ${ipAddress || "unknown"} | User: ${userId || "anonymous"}`,
+    );
+  }
 
   try {
     const result = await next();
@@ -146,14 +151,21 @@ const securityAudit = t.middleware(async ({ ctx, type, next }) => {
     // Log security violations
     if (error instanceof TRPCError) {
       if (error.code === "UNAUTHORIZED") {
+        console.warn(
+          `[Security] UNAUTHORIZED access attempt | IP: ${ipAddress || "unknown"} | Path: ${path}`,
+        );
         logSecurityEvent.accessDenied(
           userId || "anonymous",
           "unknown",
           ipAddress,
         );
       } else if (error.code === "TOO_MANY_REQUESTS") {
+        // Уже логируется в rateLimitMiddleware
         logSecurityEvent.rateLimitExceeded(ipAddress, userId, "unknown");
       } else if (error.code === "FORBIDDEN") {
+        console.warn(
+          `[Security] FORBIDDEN access | IP: ${ipAddress || "unknown"} | User: ${userId || "anonymous"} | Path: ${path}`,
+        );
         logSecurityEvent.suspiciousActivity(
           {
             error: error.message,
@@ -171,6 +183,9 @@ const securityAudit = t.middleware(async ({ ctx, type, next }) => {
     const executionTime = Date.now() - startTime;
     if (executionTime > 5000) {
       // Log slow operations
+      console.warn(
+        `[Performance] Slow operation detected: ${path} took ${executionTime}ms | IP: ${ipAddress || "unknown"}`,
+      );
       logSecurityEvent.suspiciousActivity(
         {
           type: "slow_operation",
@@ -201,6 +216,13 @@ const securityHeadersMiddleware = t.middleware(async ({ next }) => {
 const rateLimitMiddleware = t.middleware(async ({ next, path, ctx, type }) => {
   const clientIP = getClientIP({ headers: ctx.headers } as Request);
   const userId = ctx.session?.user?.id;
+
+  // Логируем IP для отладки (только в dev или первые несколько запросов)
+  if (process.env.NODE_ENV === "development") {
+    console.log(
+      `[Rate Limit] IP: ${clientIP}, User: ${userId || "anonymous"}, Type: ${type}, Path: ${path}`,
+    );
+  }
 
   // Определяем конфигурацию rate limit на основе типа endpoint и операции
   let rateLimitConfig: {
@@ -255,6 +277,11 @@ const rateLimitMiddleware = t.middleware(async ({ next, path, ctx, type }) => {
   );
 
   if (!rateLimitResult.success) {
+    // Логируем блокировку с IP
+    console.warn(
+      `[Rate Limit BLOCKED] IP: ${clientIP}, User: ${userId || "anonymous"}, Path: ${path}, Reset in: ${Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000)}s`,
+    );
+
     throw new TRPCError({
       code: "TOO_MANY_REQUESTS",
       message: `Превышен лимит запросов. Попробуйте через ${Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000)} секунд.`,

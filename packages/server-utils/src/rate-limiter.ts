@@ -197,6 +197,33 @@ export const RATE_LIMITS = {
 export function getClientIP(request: Request): string {
   const forwarded = request.headers.get("x-forwarded-for");
   const realIP = request.headers.get("x-real-ip");
+  const cfConnectingIP = request.headers.get("cf-connecting-ip"); // Cloudflare
+  const trueClientIP = request.headers.get("true-client-ip"); // Cloudflare Enterprise
+  const xClientIP = request.headers.get("x-client-ip");
+
+  // В dev режиме логируем все заголовки для отладки
+  if (process.env.NODE_ENV === "development") {
+    const ipHeaders = {
+      "x-forwarded-for": forwarded,
+      "x-real-ip": realIP,
+      "cf-connecting-ip": cfConnectingIP,
+      "true-client-ip": trueClientIP,
+      "x-client-ip": xClientIP,
+    };
+    const hasAnyIP = Object.values(ipHeaders).some((v) => v);
+    if (hasAnyIP) {
+      console.log("[IP Detection] Headers:", ipHeaders);
+    }
+  }
+
+  // Приоритет: Cloudflare > x-forwarded-for > x-real-ip > x-client-ip
+  if (cfConnectingIP?.trim()) {
+    return cfConnectingIP.trim();
+  }
+
+  if (trueClientIP?.trim()) {
+    return trueClientIP.trim();
+  }
 
   if (forwarded) {
     const trimmedForwarded = forwarded.trim();
@@ -213,6 +240,10 @@ export function getClientIP(request: Request): string {
 
   if (realIP?.trim()) {
     return realIP.trim();
+  }
+
+  if (xClientIP?.trim()) {
+    return xClientIP.trim();
   }
 
   return "unknown";
