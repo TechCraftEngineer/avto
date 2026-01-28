@@ -13,7 +13,6 @@ import {
   MessageSquare,
   Phone,
   UserCheck,
-  UserX,
   XCircle,
 } from "lucide-react";
 import { useWorkspace } from "~/hooks/use-workspace";
@@ -75,8 +74,11 @@ export function TimelineTab({ responseId }: TimelineTabProps) {
   if (isLoading) {
     return (
       <div className="space-y-3">
-        {[...Array(5)].map((_, i) => (
-          <div key={i} className="flex gap-3 animate-pulse">
+        {Array.from({ length: 5 }, (_, index) => (
+          <div
+            key={`timeline-skeleton-${index}-${Date.now()}`}
+            className="flex gap-3 animate-pulse"
+          >
             <div className="w-8 h-8 rounded-full bg-muted" />
             <div className="flex-1 space-y-2">
               <div className="h-4 bg-muted rounded w-1/3" />
@@ -103,7 +105,7 @@ export function TimelineTab({ responseId }: TimelineTabProps) {
         {/* Вертикальная линия */}
         <div className="absolute left-4 top-0 bottom-0 w-px bg-border" />
 
-        {history.map((event, index) => {
+        {history.map((event) => {
           const Icon =
             EVENT_ICONS[event.eventType as keyof typeof EVENT_ICONS] || Clock;
           const label =

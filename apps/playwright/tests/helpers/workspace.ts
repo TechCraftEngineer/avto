@@ -93,7 +93,7 @@ export async function getWorkspaceSlugsFromUrl(
   const url = page.url();
   const match = url.match(/\/orgs\/([^/]+)\/workspaces\/([^/]+)/);
 
-  if (match && match[1] && match[2]) {
+  if (match?.[1] && match[2]) {
     return {
       orgSlug: match[1],
       workspaceSlug: match[2],

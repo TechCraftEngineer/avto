@@ -4,7 +4,7 @@ import { Badge, Progress, ScrollArea } from "@qbs-autonaim/ui";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
-import { Award, TrendingDown, TrendingUp, Users } from "lucide-react";
+import { TrendingDown, Users } from "lucide-react";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
 
@@ -33,8 +33,11 @@ export function ComparisonTab({
   if (isLoading) {
     return (
       <div className="space-y-4">
-        {[...Array(5)].map((_, i) => (
-          <div key={i} className="p-4 border rounded-lg animate-pulse">
+        {Array.from({ length: 5 }, (_, index) => (
+          <div
+            key={`skeleton-${index}-${Date.now()}`}
+            className="p-4 border rounded-lg animate-pulse"
+          >
             <div className="h-4 bg-muted rounded w-1/3 mb-2" />
             <div className="h-3 bg-muted rounded w-1/2" />
           </div>

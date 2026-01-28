@@ -79,7 +79,7 @@ async function updateVacancyCounters() {
       }
     }
 
-    console.log("\n" + "=".repeat(50));
+    console.log(`\n${"=".repeat(50)}`);
     console.log(`✅ Обновлено вакансий: ${updatedCount}`);
     if (errorCount > 0) {
       console.log(`❌ Ошибок: ${errorCount}`);

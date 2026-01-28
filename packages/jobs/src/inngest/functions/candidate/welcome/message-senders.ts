@@ -5,11 +5,9 @@ import { InterviewLinkGenerator } from "@qbs-autonaim/shared";
 import { tgClientSDK } from "@qbs-autonaim/tg-client/sdk";
 import {
   generateHHInviteMessage,
-  generateTelegramInviteMessage,
   sendHHChatMessage,
 } from "../../../../services/messaging";
 import type {
-  CommunicationChannel,
   ResponseWithVacancy,
   SendMessageResponse,
   SendResult,
@@ -87,7 +85,7 @@ export const sendTelegramWelcome = async (
   const session = await db.query.telegramSession.findFirst({
     where: and(
       eq(telegramSession.workspaceId, workspaceId),
-      eq(telegramSession.isActive, true)
+      eq(telegramSession.isActive, true),
     ),
     orderBy: (sessions, { desc }) => [desc(sessions.lastUsedAt)],
   });
@@ -187,9 +185,9 @@ export const sendTelegramWelcome = async (
  */
 export const sendWebChatInvite = async (
   responseData: ResponseWithVacancy,
-  username: string | undefined,
-  phone: string | undefined,
-  message: string,
+  _username: string | undefined,
+  _phone: string | undefined,
+  _message: string,
 ): Promise<SendResult> => {
   console.log(
     `🌐 Создание приглашения в веб-чат (работает независимо от Telegram)`,

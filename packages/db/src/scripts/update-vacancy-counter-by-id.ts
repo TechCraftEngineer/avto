@@ -32,8 +32,6 @@ async function updateVacancyCounter(id: string) {
       process.exit(1);
     }
 
-    const vacancyData = vac[0];
-
     // Подсчитываем отклики
     const counters = await db
       .select({

@@ -11,13 +11,12 @@ import type { CommunicationChannel } from "./types";
 /**
  * Maps CommunicationChannel to InterviewChannel
  */
-const mapChannel = (channel: CommunicationChannel): "web" | "telegram" | "whatsapp" | "max" => {
+const mapChannel = (
+  channel: CommunicationChannel,
+): "web" | "telegram" | "whatsapp" | "max" => {
   switch (channel) {
     case "TELEGRAM":
       return "telegram";
-    case "WEB_CHAT":
-      return "web";
-    case "HH":
     default:
       return "web"; // HH and other channels default to web
   }

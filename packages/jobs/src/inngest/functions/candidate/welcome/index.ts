@@ -1,6 +1,6 @@
+import { InterviewLinkGenerator } from "@qbs-autonaim/shared";
 import { generateWelcomeMessage } from "../../../../services/messaging";
 import { inngest } from "../../../client";
-import { InterviewLinkGenerator } from "@qbs-autonaim/shared";
 import { fetchResponseData } from "./data-fetchers";
 import {
   sendHHWelcome,
@@ -69,14 +69,17 @@ export const sendCandidateWelcomeFunction = inngest.createFunction(
           },
         );
 
-        const telegramResult = await step.run("send-telegram-welcome", async () => {
-          return sendTelegramWelcome(
-            responseData,
-            username,
-            phone,
-            welcomeMessage,
-          );
-        });
+        const telegramResult = await step.run(
+          "send-telegram-welcome",
+          async () => {
+            return sendTelegramWelcome(
+              responseData,
+              username,
+              phone,
+              welcomeMessage,
+            );
+          },
+        );
 
         sendResults.push(telegramResult);
       } catch (error) {
@@ -91,13 +94,16 @@ export const sendCandidateWelcomeFunction = inngest.createFunction(
     if (enabledChannels.webChat) {
       try {
         // Генерируем уникальную ссылку на веб-чат для этого отклика
-        const interviewLink = await step.run("generate-interview-link", async () => {
-          const linkGenerator = new InterviewLinkGenerator();
-          return linkGenerator.getOrCreateInterviewLink(
-            responseData.vacancy.id,
-            responseData.vacancy.workspaceId,
-          );
-        });
+        const interviewLink = await step.run(
+          "generate-interview-link",
+          async () => {
+            const linkGenerator = new InterviewLinkGenerator();
+            return linkGenerator.getOrCreateInterviewLink(
+              responseData.vacancy.id,
+              responseData.vacancy.workspaceId,
+            );
+          },
+        );
 
         const webChatMessage = await step.run(
           "generate-webchat-message",
@@ -110,9 +116,8 @@ export const sendCandidateWelcomeFunction = inngest.createFunction(
 
             // Для откликов из HH.ru используем специальный канал без указания вакансии
             // так как сообщение отправляется в HH.ru чат, где контекст уже понятен
-            const channel = responseData.importSource === "HH"
-              ? "hh-webchat-invite"
-              : "web";
+            const channel =
+              responseData.importSource === "HH" ? "hh-webchat-invite" : "web";
 
             const result = await generateWelcomeMessage(responseId, channel);
 
@@ -134,20 +139,26 @@ export const sendCandidateWelcomeFunction = inngest.createFunction(
 
         // Для откликов из HH.ru отправляем приглашение в HH.ru чат
         if (responseData.importSource === "HH") {
-          const hhResult = await step.run("send-hh-webchat-invite", async () => {
-            return sendHHWelcome(responseData, webChatMessage);
-          });
+          const hhResult = await step.run(
+            "send-hh-webchat-invite",
+            async () => {
+              return sendHHWelcome(responseData, webChatMessage);
+            },
+          );
           sendResults.push(hhResult);
         } else {
           // Для других источников создаем ссылку на веб-чат
-          const webChatResult = await step.run("send-webchat-invite", async () => {
-            return sendWebChatInvite(
-              responseData,
-              username,
-              phone,
-              webChatMessage,
-            );
-          });
+          const webChatResult = await step.run(
+            "send-webchat-invite",
+            async () => {
+              return sendWebChatInvite(
+                responseData,
+                username,
+                phone,
+                webChatMessage,
+              );
+            },
+          );
           sendResults.push(webChatResult);
         }
       } catch (error) {
@@ -209,7 +220,7 @@ export const sendCandidateWelcomeFunction = inngest.createFunction(
     // If we have any successful sends, process them
     if (sendResults.length > 0) {
       // Use the first successful result for session management
-      const firstSuccessfulResult = sendResults[0]!; // We know sendResults.length > 0
+      const firstSuccessfulResult = sendResults[0] as SendResult; // We know sendResults.length > 0
 
       await step.run("save-interview-session", async () => {
         return saveInterviewSession(

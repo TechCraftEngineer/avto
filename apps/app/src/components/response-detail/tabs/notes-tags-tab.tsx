@@ -176,9 +176,9 @@ export function NotesTagsTab({ responseId }: NotesTagsTabProps) {
         {/* Список тегов */}
         {tagsLoading ? (
           <div className="flex gap-2 flex-wrap">
-            {[...Array(3)].map((_, i) => (
+            {Array.from({ length: 3 }, (_, index) => (
               <div
-                key={i}
+                key={`tag-skeleton-${index}-${Date.now()}`}
                 className="h-6 w-20 bg-muted rounded-full animate-pulse"
               />
             ))}
@@ -193,6 +193,7 @@ export function NotesTagsTab({ responseId }: NotesTagsTabProps) {
               >
                 {tag.tag}
                 <button
+                  type="button"
                   onClick={() => handleRemoveTag(tag.tag)}
                   className="ml-1 hover:bg-destructive/20 rounded-full p-0.5"
                   disabled={removeTagMutation.isPending}
@@ -249,8 +250,11 @@ export function NotesTagsTab({ responseId }: NotesTagsTabProps) {
         {/* Список комментариев */}
         {commentsLoading ? (
           <div className="space-y-3">
-            {[...Array(2)].map((_, i) => (
-              <div key={i} className="p-4 border rounded-lg animate-pulse">
+            {Array.from({ length: 2 }, (_, index) => (
+              <div
+                key={`comment-skeleton-${index}-${Date.now()}`}
+                className="p-4 border rounded-lg animate-pulse"
+              >
                 <div className="h-4 bg-muted rounded w-1/3 mb-2" />
                 <div className="h-3 bg-muted rounded w-full" />
               </div>
@@ -264,10 +268,13 @@ export function NotesTagsTab({ responseId }: NotesTagsTabProps) {
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <div className="flex items-center gap-2">
                       {comment.authorAvatar && (
-                        <img
-                          src={comment.authorAvatar}
-                          alt={comment.author}
-                          className="w-6 h-6 rounded-full"
+                        <div
+                          className="w-6 h-6 rounded-full bg-cover bg-center"
+                          style={{
+                            backgroundImage: `url(${comment.authorAvatar})`,
+                          }}
+                          role="img"
+                          aria-label={comment.author}
                         />
                       )}
                       <span className="text-sm font-medium">
