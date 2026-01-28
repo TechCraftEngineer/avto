@@ -1,5 +1,9 @@
 import { expect, test } from "@playwright/test";
-import { fillEmailPasswordForm, submitSignUpForm } from "../helpers/auth";
+import {
+  fillEmailPasswordForm,
+  safeClickByRole,
+  submitSignUpForm,
+} from "../helpers/auth";
 
 test.describe("Регистрация", () => {
   test.beforeEach(async ({ page }) => {
@@ -20,14 +24,14 @@ test.describe("Регистрация", () => {
       "active",
     );
 
-    await page.getByRole("tab", { name: "Код на email" }).click();
+    await safeClickByRole(page, "tab", { name: "Код на email" });
     await expect(
       page.getByRole("tab", { name: "Код на email" }),
     ).toHaveAttribute("data-state", "active");
   });
 
   test("валидация email", async ({ page }) => {
-    await page.getByRole("tab", { name: "Пароль" }).click();
+    await safeClickByRole(page, "tab", { name: "Пароль" });
 
     const emailInput = page.getByRole("textbox", { name: "Email" });
     await emailInput.fill("invalid");
@@ -63,7 +67,7 @@ test.describe("Регистрация", () => {
   });
 
   test("переход на страницу входа", async ({ page }) => {
-    await page.getByRole("link", { name: "Войти" }).click();
+    await safeClickByRole(page, "link", { name: "Войти" });
     await expect(page).toHaveURL("/auth/signin");
   });
 
@@ -76,14 +80,14 @@ test.describe("Регистрация", () => {
   });
 
   test("проверка autocomplete для нового пароля", async ({ page }) => {
-    await page.getByRole("tab", { name: "Пароль" }).click();
+    await safeClickByRole(page, "tab", { name: "Пароль" });
 
     const passwordInput = page.getByRole("textbox", { name: "Пароль" });
     await expect(passwordInput).toHaveAttribute("autocomplete", "new-password");
   });
 
   test("проверка доступности - навигация клавиатурой", async ({ page }) => {
-    await page.getByRole("tab", { name: "Пароль" }).click();
+    await safeClickByRole(page, "tab", { name: "Пароль" });
 
     // Проверяем, что все элементы доступны для фокуса
     const emailInput = page.getByRole("textbox", { name: "Email" });
@@ -109,12 +113,12 @@ test.describe("Регистрация", () => {
   });
 
   test("отправка OTP через email при регистрации", async ({ page }) => {
-    await page.getByRole("tab", { name: "Код на email" }).click();
+    await safeClickByRole(page, "tab", { name: "Код на email" });
     await page
       .getByRole("textbox", { name: "Email" })
       .fill("newuser@example.com");
 
-    await page.getByRole("button", { name: "Отправить код" }).click();
+    await safeClickByRole(page, "button", { name: "Отправить код" });
 
     await expect(
       page.getByRole("button", { name: "Отправка кода…" }),
@@ -122,21 +126,21 @@ test.describe("Регистрация", () => {
   });
 
   test("проверка spellcheck отключен для email", async ({ page }) => {
-    await page.getByRole("tab", { name: "Пароль" }).click();
+    await safeClickByRole(page, "tab", { name: "Пароль" });
 
     const emailInput = page.getByRole("textbox", { name: "Email" });
     await expect(emailInput).toHaveAttribute("spellcheck", "false");
   });
 
   test("проверка placeholder для email", async ({ page }) => {
-    await page.getByRole("tab", { name: "Пароль" }).click();
+    await safeClickByRole(page, "tab", { name: "Пароль" });
 
     const emailInput = page.getByRole("textbox", { name: "Email" });
     await expect(emailInput).toHaveAttribute("placeholder", "m@example.com");
   });
 
   test("проверка типа input для email", async ({ page }) => {
-    await page.getByRole("tab", { name: "Пароль" }).click();
+    await safeClickByRole(page, "tab", { name: "Пароль" });
 
     const emailInput = page.getByRole("textbox", { name: "Email" });
     await expect(emailInput).toHaveAttribute("type", "email");

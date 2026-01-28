@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { safeClickByRole } from "../helpers/auth";
 
 test.describe("Доступность форм авторизации", () => {
   test("signin - проверка семантики", async ({ page }) => {
@@ -25,7 +26,7 @@ test.describe("Доступность форм авторизации", () => {
 
   test("все интерактивные элементы доступны через Tab", async ({ page }) => {
     await page.goto("/auth/signin");
-    await page.getByRole("tab", { name: "Пароль" }).click();
+    await safeClickByRole(page, "tab", { name: "Пароль" });
 
     const focusableElements = [
       page.getByRole("button", { name: "Продолжить с Google" }),
@@ -45,7 +46,7 @@ test.describe("Доступность форм авторизации", () => {
 
   test("форма имеет правильные aria-атрибуты", async ({ page }) => {
     await page.goto("/auth/signin");
-    await page.getByRole("tab", { name: "Пароль" }).click();
+    await safeClickByRole(page, "tab", { name: "Пароль" });
 
     const emailInput = page.getByRole("textbox", { name: "Email" });
 
@@ -56,9 +57,9 @@ test.describe("Доступность форм авторизации", () => {
 
   test("ошибки валидации связаны с полями", async ({ page }) => {
     await page.goto("/auth/signin");
-    await page.getByRole("tab", { name: "Пароль" }).click();
+    await safeClickByRole(page, "tab", { name: "Пароль" });
 
-    await page.getByRole("button", { name: "Войти" }).click();
+    await safeClickByRole(page, "button", { name: "Войти" });
 
     const errorMessage = page.getByText("Неверный email адрес");
     await expect(errorMessage).toBeVisible();
@@ -80,7 +81,7 @@ test.describe("Доступность форм авторизации", () => {
 
   test("ссылки имеют описательный текст", async ({ page }) => {
     await page.goto("/auth/signin");
-    await page.getByRole("tab", { name: "Пароль" }).click();
+    await safeClickByRole(page, "tab", { name: "Пароль" });
 
     const links = [
       page.getByRole("link", { name: "Забыли пароль?" }),
@@ -127,7 +128,7 @@ test.describe("Доступность форм авторизации", () => {
 
   test("форма доступна для скринридеров", async ({ page }) => {
     await page.goto("/auth/signin");
-    await page.getByRole("tab", { name: "Пароль" }).click();
+    await safeClickByRole(page, "tab", { name: "Пароль" });
 
     const form = page.locator("form");
     await expect(form).toBeVisible();

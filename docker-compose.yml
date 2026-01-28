@@ -26,7 +26,7 @@ services:
     image: inbucket/inbucket:latest
     container_name: inbucket
     ports:
-      - 9000:9000
+      - 19000:9000
       - 2500:2500
     environment:
       - INBUCKET_WEB_ADDR=0.0.0.0:9000

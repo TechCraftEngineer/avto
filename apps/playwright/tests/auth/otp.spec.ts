@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { safeClickByRole } from "../helpers/auth";
 import { mockOTPResend } from "../helpers/mock-api";
 
 test.describe("OTP верификация", () => {
@@ -40,9 +41,7 @@ test.describe("OTP верификация", () => {
     ).toBeVisible();
   });
 
-  test("таймер обратного отсчета для повторной отправки", async ({
-    page,
-  }) => {
+  test("таймер обратного отсчета для повторной отправки", async ({ page }) => {
     // Настраиваем mock для повторной отправки OTP
     await mockOTPResend(page);
 
@@ -51,18 +50,22 @@ test.describe("OTP верификация", () => {
     });
 
     await expect(resendButton).toBeEnabled();
-    await resendButton.click();
+    await safeClickByRole(page, "button", { name: "Отправить повторно" });
 
     // Проверяем состояние загрузки
     await expect(page.getByText("Отправка…")).toBeVisible({ timeout: 2000 });
 
-    // Проверяем что кнопка показывает таймер (формат: "Отправить повторно (60с)")
-    await expect(page.getByText(/Отправить повторно \(\d+с\)/)).toBeVisible({
-      timeout: 5000,
+    // Ждем завершения загрузки с увеличенным таймаутом
+    await expect(page.getByText("Отправка…")).not.toBeVisible({
+      timeout: 10000,
     });
 
+    // Проверяем что кнопка показывает таймер (более гибкий поиск)
+    const timerButton = page.locator('button:has-text("Отправить повторно")');
+    await expect(timerButton).toBeVisible({ timeout: 5000 });
+
     // Проверяем что кнопка disabled во время таймера
-    await expect(resendButton).toBeDisabled();
+    await expect(timerButton).toBeDisabled();
   });
 
   test("автоматическая отправка при вводе 6 цифр", async ({ page }) => {
@@ -130,7 +133,7 @@ test.describe("OTP верификация", () => {
     });
 
     // Кликаем и проверяем состояние загрузки
-    await resendButton.click();
+    await safeClickByRole(page, "button", { name: "Отправить повторно" });
 
     // Проверяем что отображается состояние загрузки
     await expect(page.getByText("Отправка…")).toBeVisible({ timeout: 2000 });

@@ -70,5 +70,14 @@ export default defineConfig({
     url: baseURL,
     reuseExistingServer: true,
     timeout: 120_000,
+    env: {
+      // Отключаем Next.js dev overlay для тестов
+      __NEXT_DISABLE_OVERLAY: "1",
+      NEXT_DISABLE_OVERLAY: "1",
+      NODE_ENV: "test",
+      // Дополнительные переменные для отключения overlay
+      __NEXT_DISABLE_ERROR_OVERLAY: "1",
+      __NEXT_DISABLE_BUILD_ACTIVITY_INDICATOR: "1",
+    },
   },
 });
