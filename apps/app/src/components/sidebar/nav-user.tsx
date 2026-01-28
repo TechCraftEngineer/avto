@@ -24,7 +24,7 @@ import {
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { authClient } from "~/auth/client";
+import { authClient, signOut } from "~/auth/client";
 import { getAvatarUrl, getInitials } from "~/lib/avatar";
 
 export function NavUser({
@@ -53,7 +53,7 @@ export function NavUser({
   const avatarUrl = getAvatarUrl(user.avatar, user.name);
 
   const handleLogout = async () => {
-    await authClient.signOut({
+    await signOut({
       fetchOptions: {
         onSuccess: () => {
           router.push(paths.auth.signin);

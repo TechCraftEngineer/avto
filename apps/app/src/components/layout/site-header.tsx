@@ -34,7 +34,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { authClient } from "~/auth/client";
+import { signOut } from "~/auth/client";
 import { getAvatarUrl, getInitials } from "~/lib/avatar";
 
 interface SiteHeaderProps {
@@ -53,7 +53,7 @@ export function SiteHeader({ user, children }: SiteHeaderProps) {
   const avatarUrl = getAvatarUrl(user.avatar, user.name);
 
   const handleLogout = async () => {
-    await authClient.signOut({
+    await signOut({
       fetchOptions: {
         onSuccess: () => {
           router.push(paths.auth.signin);
