@@ -10,7 +10,6 @@ import { vacancyPublication } from "../vacancy/vacancy-publication";
 import { response } from "./response";
 import { responseComment } from "./response-comment";
 import { responseHistory } from "./response-history";
-import { responseInvitation } from "./response-invitation";
 import { responseScreening } from "./response-screening";
 import { responseTag } from "./response-tag";
 
@@ -56,7 +55,6 @@ export const responseRelations = relations(response, ({ one, many }) => ({
     references: [interviewScoring.responseId],
   }),
   interviewSessions: many(interviewSession),
-  invitations: many(responseInvitation),
   comments: many(responseComment),
   history: many(responseHistory),
   tags: many(responseTag),
@@ -67,16 +65,6 @@ export const responseScreeningRelations = relations(
   ({ one }) => ({
     response: one(response, {
       fields: [responseScreening.responseId],
-      references: [response.id],
-    }),
-  }),
-);
-
-export const responseInvitationRelations = relations(
-  responseInvitation,
-  ({ one }) => ({
-    response: one(response, {
-      fields: [responseInvitation.responseId],
       references: [response.id],
     }),
   }),

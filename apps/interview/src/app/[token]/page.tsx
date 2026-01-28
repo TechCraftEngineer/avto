@@ -30,9 +30,27 @@ function InterviewLandingClient({ token }: { token: string }) {
   // Перенаправляем в чат после успешного начала интервью
   React.useEffect(() => {
     if (startInterviewMutation.isSuccess && startInterviewMutation.data) {
-      router.push(`/interview/${token}/chat?sessionId=${startInterviewMutation.data.sessionId}`);
+      router.push(
+        `/interview/${token}/chat?sessionId=${startInterviewMutation.data.sessionId}`,
+      );
     }
-  }, [startInterviewMutation.isSuccess, startInterviewMutation.data, router, token]);
+  }, [
+    startInterviewMutation.isSuccess,
+    startInterviewMutation.data,
+    router,
+    token,
+  ]);
+
+  // Автоматический переход в чат если есть активная сессия
+  React.useEffect(() => {
+    if (
+      data?.type === "direct_response" &&
+      data.hasActiveSession &&
+      data.sessionId
+    ) {
+      router.push(`/interview/${token}/chat?sessionId=${data.sessionId}`);
+    }
+  }, [data, router, token]);
 
   if (isLoading) {
     return (
@@ -67,7 +85,9 @@ function InterviewLandingClient({ token }: { token: string }) {
   const subtitle =
     data.type === "vacancy"
       ? "Ответьте на несколько вопросов о себе"
-      : "Опишите ваше решение задания";
+      : data.type === "gig"
+        ? "Опишите ваше решение задания"
+        : "Продолжите интервью";
 
   const handleSubmit = async (formData: {
     name: string;
@@ -78,6 +98,24 @@ function InterviewLandingClient({ token }: { token: string }) {
       freelancerInfo: formData,
     });
     return { interviewSessionId: result.sessionId };
+  };
+
+  const handleContinueInterview = async () => {
+    // Для direct_response без активной сессии - создаем новую сессию
+    if (
+      data?.type === "direct_response" &&
+      !data.hasActiveSession &&
+      data.responseId
+    ) {
+      const result = await startInterviewMutation.mutateAsync({
+        token,
+        freelancerInfo: {
+          name: "Продолжение интервью", // Можно улучшить, взяв из response
+          platformProfileUrl: "https://continue.interview", // Заглушка
+        },
+      });
+      return { interviewSessionId: result.sessionId };
+    }
   };
 
   const handleCheckDuplicate = async (
@@ -157,16 +195,39 @@ function InterviewLandingClient({ token }: { token: string }) {
 
         {/* Form Card */}
         <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <InterviewLandingForm
-            token={token}
-            entityId={data.data.id}
-            entityType={data.type}
-            platformSource={data.data.source}
-            onSubmit={handleSubmit}
-            onCheckDuplicate={
-              data.type === "vacancy" ? handleCheckDuplicate : undefined
-            }
-          />
+          {data.type === "direct_response" ? (
+            <div className="space-y-4">
+              <p className="text-gray-600">
+                У вас есть незавершенное интервью. Хотите продолжить?
+              </p>
+              <button
+                onClick={handleContinueInterview}
+                disabled={startInterviewMutation.isPending}
+                className="mt-2 flex w-full min-h-[44px] items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {startInterviewMutation.isPending && (
+                  <Loader2
+                    className="h-4 w-4 animate-spin"
+                    aria-hidden="true"
+                  />
+                )}
+                {startInterviewMutation.isPending
+                  ? "Загрузка…"
+                  : "Продолжить интервью"}
+              </button>
+            </div>
+          ) : (
+            <InterviewLandingForm
+              token={token}
+              entityId={data.data.id}
+              entityType={data.type}
+              platformSource={data.data.source}
+              onSubmit={handleSubmit}
+              onCheckDuplicate={
+                data.type === "vacancy" ? handleCheckDuplicate : undefined
+              }
+            />
+          )}
         </div>
 
         {/* Footer */}

@@ -72,6 +72,69 @@ export const getInterviewByToken = publicProcedure
       };
     }
 
+    // Обработка индивидуальной ссылки на отклик
+    if (link.entityType === "response") {
+      // Получаем отклик с связанной сессией интервью
+      const foundResponse = await ctx.db.query.response.findFirst({
+        where: (r, { eq }) => eq(r.id, link.entityId),
+        with: {
+          interviewSession: {
+            where: (s, { eq }) => eq(s.status, "active"),
+            limit: 1,
+          },
+        },
+      });
+
+      if (!foundResponse) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Отклик не найден",
+        });
+      }
+
+      // Проверяем, что вакансия/гиг все еще активны
+      if (foundResponse.entityType === "vacancy") {
+        const vacancy = await ctx.db.query.vacancy.findFirst({
+          where: (v, { eq }) => eq(v.id, foundResponse.entityId),
+        });
+        if (!vacancy?.isActive) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Вакансия закрыта",
+          });
+        }
+      } else if (foundResponse.entityType === "gig") {
+        const gig = await ctx.db.query.gig.findFirst({
+          where: (g, { eq }) => eq(g.id, foundResponse.entityId),
+        });
+        if (!gig?.isActive) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Задание закрыто",
+          });
+        }
+      }
+
+      const activeSession = foundResponse.interviewSession?.[0];
+
+      return {
+        type: "direct_response" as const,
+        responseId: foundResponse.id,
+        sessionId: activeSession?.id,
+        hasActiveSession: !!activeSession,
+        interviewLink: {
+          id: link.id,
+          token: link.token,
+        },
+        data: {
+          id: foundResponse.entityId,
+          title:
+            foundResponse.entityType === "vacancy" ? "Вакансия" : "Задание", // Можно улучшить, добавив получение названия
+          source: "direct_link",
+        },
+      };
+    }
+
     // Обработка vacancy (по умолчанию)
     const foundVacancy = await ctx.db.query.vacancy.findFirst({
       where: (v, { eq }) => eq(v.id, link.entityId),

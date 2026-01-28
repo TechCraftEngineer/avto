@@ -113,6 +113,13 @@
       "when": 1769593124596,
       "tag": "0017_hesitant_titanium_man",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1769607167463,
+      "tag": "0018_spotty_wasp",
+      "breakpoints": true
     }
   ]
 }

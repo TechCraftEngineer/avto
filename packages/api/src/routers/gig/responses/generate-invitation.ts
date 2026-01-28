@@ -1,23 +1,17 @@
 import { and, eq } from "@qbs-autonaim/db";
-import {
-  gig,
-  interviewLink,
-  responseInvitation,
-  response as responseTable,
-} from "@qbs-autonaim/db/schema";
+import { gig, response as responseTable } from "@qbs-autonaim/db/schema";
 import { getInterviewUrlFromEntity } from "@qbs-autonaim/server-utils";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../trpc";
-import { generateSlug } from "../../../utils/slug-generator";
 
-function generateInvitationText(
-  _candidateName: string | null,
+function generateGigInvitationText(
+  candidateName: string | null,
   gigTitle: string,
   interviewUrl: string,
 ): string {
-  // Простой краткий шаблон
+  // Простой краткий шаблон для gig
   const lines = [
     "Здравствуйте!",
     "",
@@ -79,20 +73,6 @@ export const generateInvitation = protectedProcedure
         code: "FORBIDDEN",
         message: "Нет доступа к этому отклику",
       });
-    }
-
-    // Проверяем, есть ли уже приглашение
-    const existingInvitation = await ctx.db.query.responseInvitation.findFirst({
-      where: eq(responseInvitation.responseId, input.responseId),
-    });
-
-    if (existingInvitation) {
-      return {
-        id: existingInvitation.id,
-        invitationText: existingInvitation.invitationText,
-        interviewUrl: existingInvitation.interviewUrl,
-        createdAt: existingInvitation.createdAt,
-      };
     }
 
     // Получаем или создаём ссылку на интервью для гига
@@ -165,40 +145,28 @@ export const generateInvitation = protectedProcedure
       }
     }
 
-    const interviewUrl = await getInterviewUrlFromEntity(
-      link.token,
-      "gig",
-      existingGig.id,
+    // Создаем индивидуальную ссылку на интервью для этого отклика
+    const { InterviewLinkGenerator } = await import(
+      "@qbs-autonaim/interview-link-generator"
+    );
+    const linkGenerator = new InterviewLinkGenerator();
+    const interviewLink = await linkGenerator.getOrCreateResponseInterviewLink(
+      input.responseId,
+      input.workspaceId,
     );
 
+    const interviewUrl = interviewLink.url;
+
     // Генерируем текст приглашения
-    const invitationText = generateInvitationText(
+    const invitationText = generateGigInvitationText(
       response.candidateName,
       existingGig.title,
       interviewUrl,
     );
 
-    // Сохраняем приглашение
-    const [invitation] = await ctx.db
-      .insert(responseInvitation)
-      .values({
-        responseId: input.responseId,
-        invitationText,
-        interviewUrl,
-      })
-      .returning();
-
-    if (!invitation) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Не удалось сохранить приглашение",
-      });
-    }
-
     return {
-      id: invitation.id,
-      invitationText: invitation.invitationText,
-      interviewUrl: invitation.interviewUrl,
-      createdAt: invitation.createdAt,
+      invitationText,
+      interviewUrl,
+      createdAt: new Date(),
     };
   });

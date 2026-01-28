@@ -1,11 +1,6 @@
 import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
-import {
-  response,
-  responseInvitation,
-  responseScreening,
-  vacancy,
-} from "@qbs-autonaim/db/schema";
+import { response, responseScreening, vacancy } from "@qbs-autonaim/db/schema";
 import { generateText } from "@qbs-autonaim/lib/ai";
 import { getInterviewUrlWithResponseId } from "@qbs-autonaim/server-utils";
 import { createLogger, err, ok, type Result, tryCatch } from "../base";
@@ -16,7 +11,6 @@ const logger = createLogger("InvitationGenerator");
 const MIN_SCORE_THRESHOLD = 60;
 
 interface InvitationResult {
-  invitationId: string;
   invitationText: string;
   interviewUrl: string;
   score: number;
@@ -124,21 +118,6 @@ export async function generateFreelanceInvitation(
     return ok(null);
   }
 
-  // Проверяем, не было ли уже отправлено приглашение
-  const existingInvitation = await db.query.responseInvitation.findFirst({
-    where: eq(responseInvitation.responseId, responseId),
-  });
-
-  if (existingInvitation) {
-    logger.info(`Invitation already exists for response ${responseId}`);
-    return ok({
-      invitationId: existingInvitation.id,
-      invitationText: existingInvitation.invitationText ?? "",
-      interviewUrl: existingInvitation.interviewUrl ?? "",
-      score: responseData.screening.score,
-    });
-  }
-
   // Получаем вакансию с workspace и customDomain
   const vacancyResult = await tryCatch(async () => {
     return await db.query.vacancy.findFirst({
@@ -170,32 +149,24 @@ export async function generateFreelanceInvitation(
     return err(`Vacancy ${responseData.entityId} not found`);
   }
 
-  // Получаем ссылку на интервью
+  // Создаем индивидуальную ссылку на интервью для этого отклика
   const interviewLinkResult = await tryCatch(async () => {
-    return await db.query.interviewLink.findFirst({
-      where: (link, { eq, and }) =>
-        and(
-          eq(link.entityType, "vacancy"),
-          eq(link.entityId, responseData.entityId),
-          eq(link.isActive, true),
-        ),
-    });
-  }, "Failed to fetch interview link");
+    const { InterviewLinkGenerator } = await import(
+      "@qbs-autonaim/interview-link-generator"
+    );
+    const linkGenerator = new InterviewLinkGenerator();
+    return await linkGenerator.getOrCreateResponseInterviewLink(
+      responseId,
+      vacancyData.workspaceId,
+    );
+  }, "Failed to create response interview link");
 
   if (!interviewLinkResult.success) {
     return err(interviewLinkResult.error);
   }
 
   const link = interviewLinkResult.data;
-  if (!link) {
-    return err(`Interview link not found for vacancy ${responseData.entityId}`);
-  }
-
-  const interviewUrl = getInterviewUrlWithResponseId(
-    link.token,
-    responseId,
-    vacancyData.workspace.customDomain?.domain ?? null,
-  );
+  const interviewUrl = link.url;
 
   // Генерируем текст приглашения
   logger.info("Generating invitation text with AI");
@@ -220,30 +191,10 @@ export async function generateFreelanceInvitation(
     return err(textResult.error);
   }
 
-  // Сохраняем приглашение
-  const saveResult = await tryCatch(async () => {
-    const [invitation] = await db
-      .insert(responseInvitation)
-      .values({
-        responseId,
-        invitationText: textResult.data,
-        interviewUrl,
-      })
-      .returning();
-
-    if (!invitation) {
-      throw new Error("Failed to create invitation");
-    }
-
-    logger.info(`Invitation saved with ID ${invitation.id}`);
-
-    return {
-      invitationId: invitation.id,
-      invitationText: invitation.invitationText ?? "",
-      interviewUrl: invitation.interviewUrl ?? "",
-      score: responseData.screening?.score ?? 0,
-    };
-  }, "Failed to save invitation");
-
-  return saveResult;
+  // Возвращаем результат без сохранения в БД
+  return ok({
+    invitationText: textResult.data,
+    interviewUrl,
+    score: screeningScore,
+  });
 }

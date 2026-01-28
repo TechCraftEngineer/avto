@@ -17,7 +17,7 @@ import { z } from "zod";
  */
 export const interviewLinkEntityTypeEnum = pgEnum(
   "interview_link_entity_type",
-  ["gig", "vacancy", "project"],
+  ["gig", "vacancy", "project", "response"],
 );
 
 /**
@@ -57,7 +57,7 @@ export const interviewLink = pgTable(
 );
 
 export const CreateInterviewLinkSchema = createInsertSchema(interviewLink, {
-  entityType: z.enum(["gig", "vacancy", "project"]),
+  entityType: z.enum(["gig", "vacancy", "project", "response"]),
   entityId: z.string().uuid(),
   token: z.string().max(100),
   isActive: z.boolean().default(true),

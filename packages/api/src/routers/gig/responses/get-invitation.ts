@@ -1,13 +1,30 @@
-﻿import { and, eq } from "@qbs-autonaim/db";
-import {
-  gig,
-  responseInvitation,
-  response as responseTable,
-} from "@qbs-autonaim/db/schema";
+import { and, eq } from "@qbs-autonaim/db";
+import { gig, response as responseTable } from "@qbs-autonaim/db/schema";
+import { getInterviewUrlFromEntity } from "@qbs-autonaim/server-utils";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../trpc";
+
+function generateGigInvitationText(
+  candidateName: string | null,
+  gigTitle: string,
+  interviewUrl: string,
+): string {
+  // Простой краткий шаблон для gig
+  const lines = [
+    "Здравствуйте!",
+    "",
+    `Спасибо за отклик на задание "${gigTitle}".`,
+    "",
+    "Для продолжения пройдите короткое интервью с AI-ассистентом (5-10 минут):",
+    interviewUrl,
+    "",
+    "После интервью мы свяжемся с вами.",
+  ];
+
+  return lines.join("\n");
+}
 
 export const getInvitation = protectedProcedure
   .input(
@@ -58,19 +75,23 @@ export const getInvitation = protectedProcedure
       });
     }
 
-    // Получаем приглашение
-    const invitation = await ctx.db.query.responseInvitation.findFirst({
-      where: eq(responseInvitation.responseId, input.responseId),
-    });
+    // Генерируем URL интервью на лету
+    const interviewUrl = await getInterviewUrlFromEntity(
+      response.id, // Используем responseId как токен для индивидуальной ссылки
+      "gig",
+      existingGig.id,
+    );
 
-    if (!invitation) {
-      return null;
-    }
+    // Генерируем текст приглашения на лету
+    const invitationText = generateGigInvitationText(
+      response.candidateName,
+      existingGig.title,
+      interviewUrl,
+    );
 
     return {
-      id: invitation.id,
-      invitationText: invitation.invitationText,
-      interviewUrl: invitation.interviewUrl,
-      createdAt: invitation.createdAt,
+      invitationText,
+      interviewUrl,
+      createdAt: new Date(), // Фиктивное время создания
     };
   });

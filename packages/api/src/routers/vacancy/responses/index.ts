@@ -7,6 +7,7 @@ import { getCount } from "./get-count";
 import { getHistory } from "./history";
 import { list } from "./list";
 import { listAll } from "./list-all";
+import { listAllWorkspace } from "./list-all-workspace";
 import { listRecent } from "./list-recent";
 import { listTags } from "./list-tags";
 import { listTop } from "./list-top";
@@ -17,6 +18,7 @@ import { sendWelcome } from "./send-welcome";
 export const responsesRouter = {
   list,
   listAll,
+  listAllWorkspace,
   listRecent,
   listTop,
   get,

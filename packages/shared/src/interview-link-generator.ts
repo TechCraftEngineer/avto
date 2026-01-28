@@ -170,6 +170,52 @@ export class InterviewLinkGenerator {
   }
 
   /**
+   * Получает или создает индивидуальную ссылку на интервью для конкретного отклика
+   *
+   * @param responseId - ID отклика
+   * @param workspaceId - ID workspace (опционально, для кастомного домена)
+   * @returns Индивидуальная ссылка на интервью
+   */
+  async getOrCreateResponseInterviewLink(
+    responseId: string,
+    workspaceId?: string,
+  ): Promise<InterviewLink> {
+    // Проверяем, существует ли уже активная ссылка для этого отклика
+    const existingLink = await db.query.interviewLink.findFirst({
+      where: and(
+        eq(interviewLink.entityType, "response"),
+        eq(interviewLink.entityId, responseId),
+        eq(interviewLink.isActive, true),
+      ),
+    });
+
+    if (existingLink) {
+      // Возвращаем существующую ссылку вместо создания новой
+      return this.mapToInterviewLink(existingLink, workspaceId);
+    }
+
+    // Генерируем уникальный токен
+    const token = await this.generateUniqueToken();
+
+    // Создаем запись в БД
+    const [created] = await db
+      .insert(interviewLink)
+      .values({
+        entityType: "response",
+        entityId: responseId,
+        token,
+        isActive: true,
+      })
+      .returning();
+
+    if (!created) {
+      throw new Error("Failed to create response interview link");
+    }
+
+    return this.mapToInterviewLink(created, workspaceId);
+  }
+
+  /**
    * Валидирует токен ссылки на интервью
    *
    * @param token - Токен для валидации

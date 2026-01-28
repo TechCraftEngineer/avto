@@ -36,23 +36,10 @@ export function ResponseInvitationButton({
   const queryClient = useQueryClient();
   const { workspace } = useWorkspace();
 
-  const { data: invitation, isLoading: isLoadingInvitation } = useQuery({
-    ...trpc.gig.responses.getInvitation.queryOptions({
-      responseId,
-      workspaceId: workspace?.id ?? "",
-    }),
-    enabled: !!workspace?.id && open,
-  });
-
   const { mutate: generateInvitation, isPending: isGenerating } = useMutation(
     trpc.gig.responses.generateInvitation.mutationOptions({
-      onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: trpc.gig.responses.getInvitation.queryKey({
-            responseId,
-            workspaceId: workspace?.id ?? "",
-          }),
-        });
+      onSuccess: (data) => {
+        setInvitationData(data);
         toast.success("Приглашение сгенерировано");
       },
       onError: (error) => {
@@ -61,22 +48,42 @@ export function ResponseInvitationButton({
     }),
   );
 
+  const [invitationData, setInvitationData] = useState<{
+    invitationText: string;
+    interviewUrl: string;
+    createdAt: Date;
+  } | null>(null);
+
   const handleGenerate = useCallback(() => {
     if (!workspace?.id) return;
     generateInvitation({ responseId, workspaceId: workspace.id });
   }, [generateInvitation, responseId, workspace?.id]);
 
+  // Автоматически генерируем приглашение при открытии диалога
+  React.useEffect(() => {
+    if (open && !invitationData && !isGenerating && workspace?.id) {
+      generateInvitation({ responseId, workspaceId: workspace.id });
+    }
+  }, [
+    open,
+    invitationData,
+    isGenerating,
+    workspace?.id,
+    generateInvitation,
+    responseId,
+  ]);
+
   const handleCopy = useCallback(async () => {
-    if (!invitation?.invitationText) return;
+    if (!invitationData?.invitationText) return;
     try {
-      await navigator.clipboard.writeText(invitation.invitationText);
+      await navigator.clipboard.writeText(invitationData.invitationText);
       setCopied(true);
       toast.success("Приглашение скопировано");
       setTimeout(() => setCopied(false), 2000);
     } catch {
       toast.error("Не удалось скопировать");
     }
-  }, [invitation?.invitationText]);
+  }, [invitationData?.invitationText]);
 
   return (
     <>
@@ -103,18 +110,18 @@ export function ResponseInvitationButton({
           </DialogHeader>
 
           <div className="space-y-4">
-            {isLoadingInvitation ? (
+            {isGenerating ? (
               <div className="flex items-center justify-center py-8">
                 <IconLoader2
                   className="size-6 animate-spin text-muted-foreground"
                   aria-hidden="true"
                 />
-                <span className="sr-only">Загрузка…</span>
+                <span className="sr-only">Генерация приглашения…</span>
               </div>
-            ) : invitation ? (
+            ) : invitationData ? (
               <>
                 <Textarea
-                  value={invitation.invitationText ?? ""}
+                  value={invitationData.invitationText}
                   readOnly
                   rows={10}
                   className="resize-none font-mono text-sm"
@@ -122,7 +129,7 @@ export function ResponseInvitationButton({
                 />
 
                 <div className="text-xs text-muted-foreground">
-                  Ссылка на интервью: {invitation.interviewUrl}
+                  Ссылка на интервью: {invitationData.interviewUrl}
                 </div>
 
                 <Button
@@ -147,35 +154,8 @@ export function ResponseInvitationButton({
             ) : (
               <div className="space-y-4">
                 <p className="text-sm text-muted-foreground">
-                  Нажмите кнопку ниже, чтобы сгенерировать персонализированное
-                  приглашение с ссылкой на интервью. Текст можно будет
-                  скопировать и отправить кандидату через kwork.ru.
+                  Приглашение генерируется автоматически. Пожалуйста, подождите…
                 </p>
-
-                <Button
-                  onClick={handleGenerate}
-                  disabled={isGenerating}
-                  className="w-full min-h-[44px]"
-                  aria-label="Сгенерировать приглашение"
-                >
-                  {isGenerating ? (
-                    <>
-                      <IconLoader2
-                        className="size-4 mr-2 animate-spin"
-                        aria-hidden="true"
-                      />
-                      Генерация…
-                    </>
-                  ) : (
-                    <>
-                      <IconMessagePlus
-                        className="size-4 mr-2"
-                        aria-hidden="true"
-                      />
-                      Сгенерировать приглашение
-                    </>
-                  )}
-                </Button>
               </div>
             )}
           </div>
