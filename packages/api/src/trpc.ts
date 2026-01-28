@@ -213,7 +213,7 @@ const securityHeadersMiddleware = t.middleware(async ({ next }) => {
 /**
  * Rate limiting middleware for API protection с умным определением типа запроса
  */
-const rateLimitMiddleware = t.middleware(async ({ next, path, ctx, type }) => {
+const _rateLimitMiddleware = t.middleware(async ({ next, path, ctx, type }) => {
   const clientIP = getClientIP({ headers: ctx.headers } as Request);
   const userId = ctx.session?.user?.id;
 
