@@ -78,7 +78,7 @@ export const getInterviewByToken = publicProcedure
       const foundResponse = await ctx.db.query.response.findFirst({
         where: (r, { eq }) => eq(r.id, link.entityId),
         with: {
-          interviewSession: {
+          interviewSessions: {
             where: (s, { eq }) => eq(s.status, "active"),
             limit: 1,
           },
@@ -115,7 +115,7 @@ export const getInterviewByToken = publicProcedure
         }
       }
 
-      const activeSession = foundResponse.interviewSession?.[0];
+      const activeSession = foundResponse.interviewSessions?.[0];
 
       return {
         type: "direct_response" as const,
