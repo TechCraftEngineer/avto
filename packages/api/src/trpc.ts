@@ -321,7 +321,7 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
 export const publicProcedure = t.procedure
   .use(timingMiddleware)
   .use(securityHeadersMiddleware)
-  .use(rateLimitMiddleware)
+  // .use(rateLimitMiddleware) // Временно отключен
   .use(securityAudit);
 
 /**
@@ -335,7 +335,7 @@ export const publicProcedure = t.procedure
 export const protectedProcedure = t.procedure
   .use(timingMiddleware)
   .use(securityHeadersMiddleware)
-  .use(rateLimitMiddleware)
+  // .use(rateLimitMiddleware) // Временно отключен
   .use(securityAudit)
   .use(({ ctx, next }) => {
     if (!ctx.session?.user) {
