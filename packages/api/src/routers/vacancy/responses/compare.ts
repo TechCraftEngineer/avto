@@ -1,4 +1,4 @@
-import { desc, eq, sql } from "@qbs-autonaim/db";
+import { and, desc, eq, sql } from "@qbs-autonaim/db";
 import {
   response as responseTable,
   vacancy as vacancyTable,

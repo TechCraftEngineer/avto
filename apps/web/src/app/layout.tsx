@@ -1,6 +1,17 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
+import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
+
+const geistSans = Geist({ 
+  subsets: ["latin", "cyrillic"],
+  variable: "--font-geist-sans",
+})
+
+const geistMono = Geist_Mono({ 
+  subsets: ["latin", "cyrillic"],
+  variable: "--font-geist-mono",
+})
 
 
 export const metadata: Metadata = {
@@ -91,7 +102,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="ru">
+    <html lang="ru" className={`${geistSans.variable} ${geistMono.variable}`}>
       <head>
         <script
           type="application/ld+json"
@@ -118,7 +129,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`font-sans antialiased`}>
+      <body className={`${geistSans.className} antialiased`}>
         {children}
       </body>
     </html>
