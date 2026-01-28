@@ -142,7 +142,7 @@ export const RATE_LIMITS = {
   api: {
     // Query endpoints - более мягкие лимиты
     query: {
-      limit: 300,
+      limit: 3000,
       windowMs: 15 * 60 * 1000,
       burstLimit: 30,
       burstWindowMs: 10000,
