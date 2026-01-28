@@ -150,7 +150,7 @@ export const RATE_LIMITS = {
     }, // 300 запросов за 15 мин, max 30 за 10 сек
     // Mutation endpoints - строже
     mutation: {
-      limit: 100,
+      limit: 1000,
       windowMs: 15 * 60 * 1000,
       burstLimit: 10,
       burstWindowMs: 10000,
@@ -158,7 +158,7 @@ export const RATE_LIMITS = {
     }, // 100 запросов за 15 мин (вес 2), max 10 за 10 сек
     // Default - средние значения
     default: {
-      limit: 200,
+      limit: 2000,
       windowMs: 15 * 60 * 1000,
       burstLimit: 20,
       burstWindowMs: 10000,
