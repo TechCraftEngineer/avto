@@ -1,6 +1,5 @@
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
-import { FeaturesSection } from "@/components/features-section"
+import { Header, Footer } from "@/components/layout"
+import { FeaturesSection } from "@/components/sections"
 import { Button } from "@qbs-autonaim/ui"
 import { ArrowRight, CheckCircle2, Sparkles, Zap } from "lucide-react"
 import Link from "next/link"

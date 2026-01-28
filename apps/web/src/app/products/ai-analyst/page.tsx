@@ -1,6 +1,5 @@
 import type { Metadata } from "next"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
+import { Header, Footer } from "@/components/layout"
 import { Button } from "@qbs-autonaim/ui"
 import {
   Brain,
@@ -18,7 +17,7 @@ import {
   CheckCircle2,
 } from "lucide-react"
 import Link from "next/link"
-import { ProductNavigation } from "@/components/product-navigation"
+import { ProductNavigation } from "@/components/layout"
 
 export const metadata: Metadata = {
   title: "AI-Аналитик с памятью | QBS Автонайм",

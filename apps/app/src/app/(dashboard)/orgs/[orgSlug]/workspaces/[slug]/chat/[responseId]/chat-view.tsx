@@ -56,7 +56,7 @@ export function ChatView({ conversationId }: { conversationId: string }) {
   });
 
   const { data: companyData } = useQuery({
-    ...trpc.company.get.queryOptions({
+    ...trpc.bot.get.queryOptions({
       workspaceId: workspaceId ?? "",
     }),
     enabled: Boolean(workspaceId),

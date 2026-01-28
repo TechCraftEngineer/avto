@@ -1,6 +1,5 @@
 import type { Metadata } from "next"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
+import { Header, Footer } from "@/components/layout"
 import { Button } from "@qbs-autonaim/ui"
 import {
   Bot,
@@ -16,7 +15,7 @@ import {
   Sparkles,
 } from "lucide-react"
 import Link from "next/link"
-import { ProductNavigation } from "@/components/product-navigation" // Import ProductNavigation component
+import { ProductNavigation } from "@/components/layout" // Import ProductNavigation component
 import { env } from "@/env"
 
 export const metadata: Metadata = {

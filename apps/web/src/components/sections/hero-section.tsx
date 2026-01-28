@@ -34,7 +34,7 @@ function CandidateFlowVisualization() {
     const interval = setInterval(() => {
       const randomCandidate = candidateNames[Math.floor(Math.random() * candidateNames.length)]
       if (!randomCandidate) return
-      
+
       const score = Math.floor(Math.random() * 40) + 60 // 60-100
       const approved = score >= 75
 
@@ -368,7 +368,7 @@ export function HeroSection() {
             transition={{ duration: 1, delay: 0.4 }}
             className="relative"
           >
-            {/* 
+            {/*
               VIDEO PLACEHOLDER: Обзор платформы QBS
               Файл: /videos/qbs-platform-overview-demo.mp4
               Что записать:
@@ -399,7 +399,7 @@ export function HeroSection() {
                 </div>
               </div>
             </div>
-            
+
             {/* Fallback: Keep animation for now */}
             <div className="relative mt-4 opacity-50">
               <CandidateFlowVisualization />

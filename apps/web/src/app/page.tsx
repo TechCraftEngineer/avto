@@ -1,17 +1,18 @@
-import { Header } from "@/components/header"
-import { HeroSection } from "@/components/hero-section"
-import { SocialProof } from "@/components/social-proof"
-import { ValuePropositionSection } from "@/components/value-proposition-section"
-import { HowItWorks } from "@/components/how-it-works"
-import { TargetAudienceSection } from "@/components/target-audience-section"
-import { FeaturesSection } from "@/components/features-section"
-import { ROICalculator } from "@/components/roi-calculator"
-import { TestimonialsSection } from "@/components/testimonials-section"
-import { PricingSection } from "@/components/pricing-section"
-import { FAQSection } from "@/components/faq-section"
-import { CTASection } from "@/components/cta-section"
-import { Footer } from "@/components/footer"
-import { RAGIntelligenceSection } from "@/components/rag-intelligence-section"
+import { Header, Footer } from "@/components/layout"
+import {
+  HeroSection,
+  FeaturesSection,
+  SocialProof,
+  ValuePropositionSection,
+  HowItWorks,
+  TargetAudienceSection,
+  TestimonialsSection,
+  PricingSection,
+  FAQSection,
+  CTASection,
+  RAGIntelligenceSection
+} from "@/components/sections"
+import { ROICalculator } from "@/components/interactive"
 
 export default function Home() {
   return (

@@ -136,7 +136,7 @@ export function ValuePropositionSection() {
               <div className="relative">
                 <div className="absolute -inset-4 bg-gradient-to-r from-primary/10 via-violet-500/10 to-accent/10 rounded-3xl blur-2xl" />
                 <div className="relative bg-muted/50 border border-border rounded-xl overflow-hidden">
-                  {/* 
+                  {/*
                     PLACEHOLDER: Dashboard - Обработка кандидатов в реальном времени
                     Файл: /screenshots/app-dashboard-recent-activity-1920x1080.png
                     Что заскринить: Dashboard → Recent Activity / Candidates Feed

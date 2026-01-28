@@ -2,8 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Button } from "@qbs-autonaim/ui"
 import { Search, MessageCircle, HelpCircle, Mail, Send, Phone } from "lucide-react"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
+import { Header, Footer } from "@/components/layout"
 
 export const metadata: Metadata = {
   title: "Часто задаваемые вопросы | QBS Автонайм",

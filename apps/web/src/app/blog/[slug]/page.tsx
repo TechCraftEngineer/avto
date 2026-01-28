@@ -1,8 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
+import { Header, Footer } from "@/components/layout"
 import { ArrowLeft, Twitter, Linkedin, LinkIcon } from "lucide-react"
 import { Button } from "@qbs-autonaim/ui"
 

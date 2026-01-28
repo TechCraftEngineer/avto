@@ -21,6 +21,7 @@ import {
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@qbs-autonaim/ui"
+import { ScreenshotPreview } from "../ui/screenshot-preview"
 
 const features = [
   {
@@ -281,22 +282,10 @@ export function FeaturesSection() {
 
 function ScreeningDemo() {
   return (
-    <div className="relative h-72 overflow-hidden sm:h-[290px]">
-      <div className="size-full [mask-image:linear-gradient(90deg,black_80%,transparent)]">
-        <div className="size-full [mask-image:linear-gradient(black_70%,transparent)]">
-          <div className="relative h-full w-[120%]">
-            <img
-              alt="AI-скрининг кандидата"
-              loading="lazy"
-              decoding="async"
-              className="blur-0 rounded-xl border-l border-t border-border object-cover object-left-top"
-              src="/screenshots/app-ai-screening-candidate-card-1920x1080.png"
-              style={{ position: "absolute", height: "100%", width: "100%", inset: 0 }}
-            />
-          </div>
-        </div>
-      </div>
-    </div>
+    <ScreenshotPreview
+      src="/screenshots/app-ai-screening-candidate-card-1920x1080.png"
+      alt="AI-скрининг кандидата"
+    />
   )
 }
 
@@ -447,43 +436,19 @@ function PrequalificationDemo() {
 
 function AnalyticsDemo() {
   return (
-    <div className="relative h-72 overflow-hidden sm:h-[290px]">
-      <div className="size-full [mask-image:linear-gradient(90deg,black_80%,transparent)]">
-        <div className="size-full [mask-image:linear-gradient(black_70%,transparent)]">
-          <div className="relative h-full w-[120%]">
-            <img
-              alt="Аналитика воронки найма"
-              loading="lazy"
-              decoding="async"
-              className="blur-0 rounded-xl border-l border-t border-border object-cover object-left-top"
-              src="/screenshots/app-analytics-funnel-dashboard-1920x1080.png"
-              style={{ position: "absolute", height: "100%", width: "100%", inset: 0 }}
-            />
-          </div>
-        </div>
-      </div>
-    </div>
+    <ScreenshotPreview
+      src="/screenshots/app-analytics-funnel-dashboard-1920x1080.png"
+      alt="Аналитика воронки найма"
+    />
   )
 }
 
 function IntegrationsDemo() {
   return (
-    <div className="relative h-72 overflow-hidden sm:h-[290px]">
-      <div className="size-full [mask-image:linear-gradient(90deg,black_80%,transparent)]">
-        <div className="size-full [mask-image:linear-gradient(black_70%,transparent)]">
-          <div className="relative h-full w-[120%]">
-            <img
-              alt="Интеграции с сервисами"
-              loading="lazy"
-              decoding="async"
-              className="blur-0 rounded-xl border-l border-t border-border object-cover object-left-top"
-              src="/screenshots/app-integrations-settings-1920x1080.png"
-              style={{ position: "absolute", height: "100%", width: "100%", inset: 0 }}
-            />
-          </div>
-        </div>
-      </div>
-    </div>
+    <ScreenshotPreview
+      src="/screenshots/app-integrations-settings-1920x1080.png"
+      alt="Интеграции с сервисами"
+    />
   )
 }
 

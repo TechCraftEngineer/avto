@@ -172,8 +172,8 @@ export function RAGIntelligenceSection() {
               className="relative"
             >
               <div className="absolute -inset-4 bg-gradient-to-br from-violet-500/10 via-transparent to-amber-500/10 blur-2xl rounded-3xl" />
-              
-              {/* 
+
+              {/*
                 VIDEO PLACEHOLDER: AI-Аналитик отвечает на вопросы
                 Файл: /videos/qbs-ai-analyst-demo.mp4
                 Что записать:
@@ -204,7 +204,7 @@ export function RAGIntelligenceSection() {
                   </div>
                 </div>
               </div>
-              
+
               {/* Fallback: Keep interactive chat demo */}
               <div className="relative rounded-2xl border border-border bg-card shadow-2xl overflow-hidden opacity-50">
                 {/* Chat header */}

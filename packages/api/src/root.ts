@@ -1,7 +1,7 @@
 import { analyticsRouter } from "./routers/analytics";
 import { candidatesRouter } from "./routers/candidates";
 import { chatRouter } from "./routers/chat";
-import { companyRouter } from "./routers/company";
+import { botRouter } from "./routers/company";
 import { customDomainRouter } from "./routers/custom-domain";
 import { filesRouter } from "./routers/files";
 import { freelancePlatformsRouter } from "./routers/freelance-platforms";
@@ -32,7 +32,7 @@ export const appRouter = createTRPCRouter({
   integration: integrationRouter,
   interviewScenarios: interviewScenariosRouter,
   metaMatch: metaMatchRouter,
-  company: companyRouter,
+  bot: botRouter,
   telegram: telegramRouter,
   workspace: workspaceRouter,
   organization: organizationRouter,

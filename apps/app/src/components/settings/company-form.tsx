@@ -85,9 +85,9 @@ export function CompanyForm({
   });
 
   const updateCompany = useMutation(
-    trpc.company.updatePartial.mutationOptions({
+    trpc.bot.updatePartial.mutationOptions({
       onSuccess: async () => {
-        await queryClient.invalidateQueries(trpc.company.pathFilter());
+        await queryClient.invalidateQueries(trpc.bot.pathFilter());
       },
       onError: (err) => {
         toast.error(err.message || "Не удалось сохранить");

@@ -1,6 +1,5 @@
 import type { Metadata } from "next"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
+import { Header, Footer } from "@/components/layout"
 import { BlogCategoryNav } from "@/components/blog/blog-category-nav"
 import { BlogCard } from "@/components/blog/blog-card"
 

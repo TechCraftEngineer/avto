@@ -170,8 +170,8 @@ export function VoiceInterviewSection() {
           {/* Main demo - conditional rendering based on selected platform */}
           <div className="relative mx-auto max-w-4xl">
             <div className="absolute -inset-4 bg-gradient-to-r from-primary/10 via-violet-500/10 to-accent/10 blur-3xl rounded-3xl" />
-            
-            {/* 
+
+            {/*
               VIDEO PLACEHOLDER: Голосовое интервью в действии
               Файл: /videos/qbs-voice-interview-demo.mp4
               Что записать:
@@ -202,7 +202,7 @@ export function VoiceInterviewSection() {
                 </div>
               </div>
             </div>
-            
+
             {/* Fallback: Keep interactive demos */}
             <div className="opacity-50">
               {selectedPlatform === "telegram" ? <TelegramAppDemo /> : <WebChatDemo />}

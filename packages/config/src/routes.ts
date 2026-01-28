@@ -90,8 +90,8 @@ export const paths = {
     settings: {
       root: (orgSlug: string, slug: string) =>
         `/orgs/${orgSlug}/workspaces/${slug}/settings`,
-      company: (orgSlug: string, slug: string) =>
-        `/orgs/${orgSlug}/workspaces/${slug}/settings/company`,
+      bot: (orgSlug: string, slug: string) =>
+        `/orgs/${orgSlug}/workspaces/${slug}/settings/bot`,
       integrations: (orgSlug: string, slug: string) =>
         `/orgs/${orgSlug}/workspaces/${slug}/settings/integrations`,
       members: (orgSlug: string, slug: string) =>

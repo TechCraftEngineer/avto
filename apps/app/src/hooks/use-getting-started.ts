@@ -19,9 +19,9 @@ export function useGettingStarted() {
   const queryClient = useQueryClient();
   const { workspace } = useWorkspaces();
 
-  // Получаем настройки компании
-  const { data: companySettings, isLoading: isLoadingCompany } = useQuery({
-    ...trpc.company.get.queryOptions({ workspaceId: workspace?.id ?? "" }),
+  // Получаем настройки бота
+  const { data: botSettings, isLoading: isLoadingBot } = useQuery({
+    ...trpc.bot.get.queryOptions({ workspaceId: workspace?.id ?? "" }),
     enabled: !!workspace?.id,
   });
 
@@ -47,10 +47,10 @@ export function useGettingStarted() {
 
   // Мутация для обновления статуса онбординга
   const updateOnboardingMutation = useMutation(
-    trpc.company.updateOnboarding.mutationOptions({
+    trpc.bot.updateOnboarding.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: trpc.company.get.queryKey({
+          queryKey: trpc.bot.get.queryKey({
             workspaceId: workspace?.id ?? "",
           }),
         });
@@ -76,7 +76,7 @@ export function useGettingStarted() {
   };
 
   const isLoading =
-    isLoadingCompany ||
+    isLoadingBot ||
     isLoadingVacancies ||
     isLoadingIntegrations ||
     isLoadingSessions;
@@ -84,16 +84,16 @@ export function useGettingStarted() {
   // Определяем шаги онбординга
   const steps: GettingStartedStep[] = [
     {
-      id: "company-setup",
-      title: "Настроить компанию",
+      id: "bot-setup",
+      title: "Настроить бота",
       description: "Добавьте название, описание и настройки бота",
-      href: paths.workspace.settings.company(
+      href: paths.workspace.settings.bot(
         workspace?.organizationSlug || "",
         workspace?.slug || "",
       ),
       completed: !!(
-        companySettings?.companyName &&
-        companySettings.companyName !== "Моя компания"
+        botSettings?.companyName &&
+        botSettings.companyName !== "Моя компания"
       ),
     },
     {
@@ -140,7 +140,7 @@ export function useGettingStarted() {
   const shouldShowWidget =
     !isLoading &&
     workspace?.id &&
-    !companySettings && // Remove dismissedGettingStarted check since it doesn't exist in schema
+    !botSettings && // Remove dismissedGettingStarted check since it doesn't exist in schema
     !isLocallyDismissed() &&
     progressPercentage < 100;
 
