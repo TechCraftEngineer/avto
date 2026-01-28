@@ -107,11 +107,11 @@ export function ValuePropositionSection() {
             viewport={{ once: true }}
             className="bg-card border border-border rounded-2xl p-8 md:p-10"
           >
-            <div className="grid md:grid-cols-2 gap-8 items-center">
-              <div>
-                <h3 className="text-xl font-semibold text-foreground mb-2">Всё в одном месте</h3>
-                <p className="text-muted-foreground mb-6">Единый дашборд для управления всеми этапами найма</p>
-                <ul className="space-y-4">
+            <div className="space-y-8">
+              <div className="max-w-3xl mx-auto text-center">
+                <h3 className="text-2xl font-semibold text-foreground mb-3">Всё в одном месте</h3>
+                <p className="text-muted-foreground mb-8">Единый дашборд для управления всеми этапами найма</p>
+                <ul className="grid sm:grid-cols-2 gap-4 text-left">
                   {[
                     "Автоматический скрининг резюме за секунды",
                     "AI-интервью в Telegram 24/7",
@@ -133,8 +133,14 @@ export function ValuePropositionSection() {
                 </ul>
               </div>
 
-              {/* Live demo card */}
-              <div className="relative">
+              {/* Live demo card - full width below text */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                viewport={{ once: true }}
+                className="relative"
+              >
                 <div className="absolute -inset-4 bg-gradient-to-r from-primary/10 via-violet-500/10 to-accent/10 rounded-3xl blur-2xl" />
                 <div className="relative bg-muted/50 border border-border rounded-xl overflow-hidden">
                   <ScreenshotPreview
@@ -143,7 +149,7 @@ export function ValuePropositionSection() {
                     height="aspect-video"
                   />
                 </div>
-              </div>
+              </motion.div>
             </div>
           </motion.div>
 
