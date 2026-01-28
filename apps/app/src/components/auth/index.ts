@@ -1,5 +1,6 @@
 export { DemoBanner } from "./demo-banner";
 export { EmailPasswordForm } from "./email-password-form";
+export { EmailVerificationBanner } from "./email-verification-banner";
 export { EmailVerificationForm } from "./email-verification-form";
 export { EmailVerificationResend } from "./email-verification-resend";
 export { ForgotPasswordForm } from "./forgot-password-form";

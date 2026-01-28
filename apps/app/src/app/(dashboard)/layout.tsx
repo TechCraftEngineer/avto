@@ -3,6 +3,7 @@ import { SidebarInset, SidebarProvider } from "@qbs-autonaim/ui";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { getSession } from "~/auth/server";
+import { EmailVerificationBanner } from "~/components/auth";
 import { GettingStartedContainer } from "~/components/getting-started";
 import { SiteHeader } from "~/components/layout";
 import { AppSidebarWrapper } from "~/components/sidebar";
@@ -75,6 +76,7 @@ export default async function DashboardLayout({
           />
           <div className="bg-muted/40 flex flex-1 flex-col">
             <div className="@container/main p-[var(--content-padding)] xl:group-data-[theme-content-layout=centered]/layout:container xl:group-data-[theme-content-layout=centered]/layout:mx-auto">
+              <EmailVerificationBanner session={session} />
               {children}
             </div>
           </div>

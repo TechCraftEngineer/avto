@@ -56,7 +56,7 @@ export default async function VerifyEmailPage({
               </h1>
               <p className="text-muted-foreground text-sm">
                 Для продолжения работы необходимо подтвердить ваш email адрес.
-                Проверьте почту и перейдите по ссылке в письме.
+                Мы отправим вам код подтверждения на почту.
               </p>
             </div>
 
@@ -75,8 +75,7 @@ export default async function VerifyEmailPage({
 
             <div className="text-muted-foreground text-xs">
               <p>
-                Не получили письмо? Проверьте папку "Спам" или нажмите кнопку
-                выше для повторной отправки.
+                Не получили код? Проверьте папку "Спам" или запросите новый код.
               </p>
             </div>
 

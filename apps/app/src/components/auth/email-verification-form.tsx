@@ -1,7 +1,13 @@
 "use client";
 
 import { paths } from "@qbs-autonaim/config";
-import { Button } from "@qbs-autonaim/ui";
+import {
+  Button,
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+  Label,
+} from "@qbs-autonaim/ui";
 import { loginFormSchema } from "@qbs-autonaim/validators";
 import { CheckCircle, Loader2, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -17,8 +23,11 @@ interface EmailVerificationFormProps {
 export function EmailVerificationForm({ email }: EmailVerificationFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [verifying, setVerifying] = useState(false);
   const [cooldown, setCooldown] = useState(0);
   const [resent, setResent] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const [showOtpInput, setShowOtpInput] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Очистка интервала при размонтировании
@@ -31,7 +40,7 @@ export function EmailVerificationForm({ email }: EmailVerificationFormProps) {
     };
   }, []);
 
-  const handleResend = async () => {
+  const handleSendOtp = async () => {
     if (!email) {
       toast.error(
         "Email не указан. Вернитесь на страницу входа и попробуйте снова.",
@@ -59,7 +68,8 @@ export function EmailVerificationForm({ email }: EmailVerificationFormProps) {
       }
 
       setResent(true);
-      toast.success("Письмо с подтверждением отправлено! Проверьте почту.");
+      setShowOtpInput(true);
+      toast.success("Код подтверждения отправлен на ваш email!");
 
       // Очищаем предыдущий интервал если есть
       if (intervalRef.current) {
@@ -82,9 +92,49 @@ export function EmailVerificationForm({ email }: EmailVerificationFormProps) {
       }, 1000);
     } catch (error) {
       console.error(error);
-      toast.error("Не удалось отправить письмо. Попробуйте снова.");
+      toast.error("Не удалось отправить код. Попробуйте снова.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!email) {
+      toast.error("Email не указан");
+      return;
+    }
+
+    if (!otpCode || otpCode.length < 6) {
+      toast.error("Введите корректный код из 6 цифр");
+      return;
+    }
+
+    setVerifying(true);
+    try {
+      const { error } = await authClient.emailOtp.verifyEmail({
+        email,
+        otp: otpCode,
+      });
+
+      if (error) {
+        toast.error(translateAuthError(error.message));
+        return;
+      }
+
+      toast.success("Email успешно подтвержден!");
+
+      // Сбрасываем флаг dismissed баннера
+      localStorage.removeItem("email-verification-dismissed");
+
+      // Перенаправляем на главную страницу
+      setTimeout(() => {
+        router.push(paths.dashboard.root);
+      }, 1000);
+    } catch (error) {
+      console.error(error);
+      toast.error("Не удалось подтвердить код. Попробуйте снова.");
+    } finally {
+      setVerifying(false);
     }
   };
 
@@ -92,22 +142,71 @@ export function EmailVerificationForm({ email }: EmailVerificationFormProps) {
     router.push(paths.auth.signin);
   };
 
-  const isDisabled = loading || cooldown > 0 || !email;
+  const isSendDisabled = loading || cooldown > 0 || !email;
 
   return (
     <div className="w-full space-y-4">
       {resent && (
         <div className="bg-green-50 text-green-700 flex items-center gap-2 rounded-lg p-3 text-sm">
           <CheckCircle className="size-4" />
-          <span>Письмо успешно отправлено!</span>
+          <span>Код успешно отправлен!</span>
+        </div>
+      )}
+
+      {showOtpInput && (
+        <div className="space-y-3">
+          <div className="space-y-2">
+            <Label htmlFor="otp-code" className="text-center block">
+              Код подтверждения
+            </Label>
+            <div className="flex justify-center">
+              <InputOTP
+                maxLength={6}
+                value={otpCode}
+                onChange={setOtpCode}
+                disabled={verifying}
+              >
+                <InputOTPGroup>
+                  <InputOTPSlot index={0} />
+                  <InputOTPSlot index={1} />
+                  <InputOTPSlot index={2} />
+                  <InputOTPSlot index={3} />
+                  <InputOTPSlot index={4} />
+                  <InputOTPSlot index={5} />
+                </InputOTPGroup>
+              </InputOTP>
+            </div>
+            <p className="text-muted-foreground text-center text-xs">
+              Введите код из письма, отправленного на {email}
+            </p>
+          </div>
+
+          <Button
+            onClick={handleVerifyOtp}
+            disabled={verifying || otpCode.length !== 6}
+            className="w-full"
+            variant="default"
+          >
+            {verifying ? (
+              <>
+                <Loader2 className="mr-2 size-4 animate-spin" />
+                Проверка кода...
+              </>
+            ) : (
+              <>
+                <CheckCircle className="mr-2 size-4" />
+                Подтвердить email
+              </>
+            )}
+          </Button>
         </div>
       )}
 
       <Button
-        onClick={handleResend}
-        disabled={isDisabled}
+        onClick={handleSendOtp}
+        disabled={isSendDisabled}
         className="w-full"
-        variant="default"
+        variant={showOtpInput ? "outline" : "default"}
       >
         {loading ? (
           <>
@@ -122,7 +221,7 @@ export function EmailVerificationForm({ email }: EmailVerificationFormProps) {
         ) : (
           <>
             <Mail className="mr-2 size-4" />
-            Отправить письмо повторно
+            {showOtpInput ? "Отправить код повторно" : "Отправить код на email"}
           </>
         )}
       </Button>
@@ -131,7 +230,7 @@ export function EmailVerificationForm({ email }: EmailVerificationFormProps) {
         onClick={handleBackToLogin}
         variant="outline"
         className="w-full"
-        disabled={loading}
+        disabled={loading || verifying}
       >
         Вернуться ко входу
       </Button>

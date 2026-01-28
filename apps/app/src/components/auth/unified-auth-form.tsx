@@ -88,13 +88,6 @@ export function UnifiedAuthForm({
           password: data.password,
         });
         if (error) {
-          const errorMessage = (error.message ?? "").toLowerCase();
-          // Проверяем, является ли ошибка неподтвержденным email
-          if (errorMessage.includes("email not verified") || errorMessage.includes("email не подтвержден")) {
-            // Перенаправляем на страницу верификации email
-            router.push(`${paths.auth.verifyEmail}?email=${encodeURIComponent(data.email)}`);
-            return;
-          }
           toast.error(translateAuthError(error.message));
           return;
         }
