@@ -1,9 +1,9 @@
 "use client";
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
+import { sanitizeHtmlFunction } from "@qbs-autonaim/shared/client";
 import { Badge, Button, Separator } from "@qbs-autonaim/ui";
 import { Award, ExternalLink } from "lucide-react";
-import { sanitizeHtmlFunction } from "@qbs-autonaim/shared/client";
 import { getProfileData } from "../types";
 
 type GigResponseDetail = NonNullable<RouterOutputs["gig"]["responses"]["get"]>;
@@ -197,7 +197,7 @@ export function ExperienceTab({ response }: ExperienceTabProps) {
             <div className="space-y-2">
               <h4 className="text-xs sm:text-sm font-semibold">Опыт работы</h4>
               <p
-                className="text-xs sm:text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed break-words"
+                className="text-xs sm:text-sm text-foreground whitespace-pre-wrap leading-relaxed break-words"
                 dangerouslySetInnerHTML={{
                   __html: sanitizeHtmlFunction(experienceData.text || ""),
                 }}
@@ -208,7 +208,6 @@ export function ExperienceTab({ response }: ExperienceTabProps) {
 
         return null;
       })()}
-
       {response.skills && response.skills.length > 0 && (
         <>
           <Separator />
@@ -228,7 +227,6 @@ export function ExperienceTab({ response }: ExperienceTabProps) {
           </div>
         </>
       )}
-
       {!response.experience &&
         (!response.skills || response.skills.length === 0) && (
           <div className="rounded-lg border border-dashed bg-muted/20 text-center py-8 text-muted-foreground">

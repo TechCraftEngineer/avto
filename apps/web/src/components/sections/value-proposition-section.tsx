@@ -3,6 +3,7 @@
 import { Zap, TrendingUp, Users, CheckCircle2, Clock, ArrowRight } from "lucide-react"
 import { motion } from "framer-motion"
 import Link from "next/link"
+import { ScreenshotPreview } from "@/components/ui/screenshot-preview"
 
 export function ValuePropositionSection() {
   return (
@@ -136,27 +137,11 @@ export function ValuePropositionSection() {
               <div className="relative">
                 <div className="absolute -inset-4 bg-gradient-to-r from-primary/10 via-violet-500/10 to-accent/10 rounded-3xl blur-2xl" />
                 <div className="relative bg-muted/50 border border-border rounded-xl overflow-hidden">
-                  {/*
-                    PLACEHOLDER: Dashboard - Обработка кандидатов в реальном времени
-                    Файл: /screenshots/app-dashboard-recent-activity-1920x1080.png
-                    Что заскринить: Dashboard → Recent Activity / Candidates Feed
-                    Должно быть видно:
-                    - Список последних кандидатов
-                    - Их статусы (Приглашён, Проходит скрининг, Интервью завершено)
-                    - Временные метки
-                    Разрешение: 1920x1080
-                  */}
-                  <div className="relative aspect-video bg-muted/50 flex items-center justify-center">
-                    <div className="text-center space-y-3 p-8">
-                      <Clock className="h-16 w-16 text-primary mx-auto opacity-50" />
-                      <div className="text-sm font-medium text-muted-foreground">
-                        Скриншот: Dashboard - Recent Activity
-                      </div>
-                      <div className="text-xs text-muted-foreground/70 max-w-xs">
-                        app-dashboard-recent-activity-1920x1080.png
-                      </div>
-                    </div>
-                  </div>
+                  <ScreenshotPreview
+                    src="/screenshots/app-dashboard-recent-activity-1920x1080.png"
+                    alt="Dashboard - Обработка кандидатов в реальном времени"
+                    height="aspect-video"
+                  />
                 </div>
               </div>
             </div>

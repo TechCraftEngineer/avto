@@ -93,7 +93,6 @@ export function PortfolioTab({ response }: PortfolioTabProps) {
           </div>
         </div>
       )}
-
       {response.portfolioFileId && (
         <div className="space-y-3">
           <h4 className="text-xs sm:text-sm font-semibold">Файл портфолио</h4>
@@ -127,7 +126,6 @@ export function PortfolioTab({ response }: PortfolioTabProps) {
           </Button>
         </div>
       )}
-
       {response.photoFileId && (
         <div className="space-y-3">
           <h4 className="text-xs sm:text-sm font-semibold">Фото</h4>
@@ -143,7 +141,6 @@ export function PortfolioTab({ response }: PortfolioTabProps) {
           </Button>
         </div>
       )}
-
       {!response.portfolioLinks?.length &&
         !response.portfolioFileId &&
         !response.photoFileId && (
