@@ -20,7 +20,24 @@ try {
 
     const failedTests: string[] = [];
 
-    function processSpecs(specs: unknown[]) {
+    interface Test {
+      status: string;
+    }
+
+    interface Spec {
+      file?: string;
+      line?: number;
+      title?: string;
+      tests?: Test[];
+      specs?: Spec[];
+    }
+
+    interface Suite {
+      specs?: Spec[];
+      suites?: Suite[];
+    }
+
+    function processSpecs(specs: Spec[]) {
       for (const spec of specs) {
         if (spec.tests) {
           for (const test of spec.tests) {
@@ -38,7 +55,7 @@ try {
       }
     }
 
-    function processSuites(suites: unknown[]) {
+    function processSuites(suites: Suite[]) {
       for (const suite of suites) {
         if (suite.specs) {
           processSpecs(suite.specs);

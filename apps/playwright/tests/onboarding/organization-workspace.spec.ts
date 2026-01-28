@@ -143,11 +143,9 @@ test.describe("Онбординг: создание организации и в
     ).toBeVisible({ timeout: 10000 });
   });
 
-  test.skip("показывает ошибку при дублировании slug организации", async ({
+  test("показывает ошибку при дублировании slug организации", async ({
     page,
   }) => {
-    // TODO: Требует возможности создания второй организации после завершения онбординга
-    // Текущая реализация не позволяет вернуться на /onboarding после создания первой организации
     const orgName = `Duplicate Org ${Date.now()}`;
     const orgSlug = `duplicate-org-${Date.now()}`;
 
@@ -158,10 +156,39 @@ test.describe("Онбординг: создание организации и в
     await page.getByRole("textbox", { name: "Slug организации" }).fill(orgSlug);
     await page.getByRole("button", { name: "Создать организацию" }).click();
 
-    // Ждем успешного создания
+    // Ждем успешного создания первой организации
     await expect(
       page.getByRole("heading", { name: "Создайте воркспейс" }),
     ).toBeVisible({ timeout: 10000 });
+
+    // Создаем воркспейс чтобы завершить онбординг
+    await page
+      .getByRole("textbox", { name: "Название воркспейса" })
+      .fill(`Workspace ${Date.now()}`);
+    await page
+      .getByRole("textbox", { name: "Slug воркспейса" })
+      .fill(`workspace-${Date.now()}`);
+    await page.getByRole("button", { name: "Создать воркспейс" }).click();
+
+    // Ждем редиректа на дашборд
+    await page.waitForURL(/\/orgs\/[^/]+\/workspaces\/[^/]+/, {
+      timeout: 10000,
+    });
+
+    // Переходим на страницу создания новой организации через настройки
+    await page.goto("/orgs/new");
+
+    // Пытаемся создать организацию с тем же slug
+    await page
+      .getByRole("textbox", { name: "Название организации" })
+      .fill(`${orgName} 2`);
+    await page.getByRole("textbox", { name: "Slug организации" }).fill(orgSlug);
+    await page.getByRole("button", { name: "Создать организацию" }).click();
+
+    // Проверяем что отображается ошибка о дублировании slug
+    await expect(
+      page.getByText(/уже существует|занят|duplicate/i),
+    ).toBeVisible({ timeout: 5000 });
   });
 
   test("переходит к созданию воркспейса после создания организации", async ({
@@ -323,7 +350,10 @@ test.describe("Онбординг: создание организации и в
     // Ищем кнопку пропуска (может быть "Пропустить" или "Skip")
     const skipButton = page.getByRole("button", { name: /пропустить|skip/i });
 
-    if (await skipButton.isVisible()) {
+    // Проверяем наличие кнопки пропуска
+    const isSkipVisible = await skipButton.isVisible().catch(() => false);
+
+    if (isSkipVisible) {
       await skipButton.click();
 
       // Проверяем редирект на страницу организации
@@ -331,8 +361,19 @@ test.describe("Онбординг: создание организации и в
         timeout: 10000,
       });
     } else {
-      // Если кнопки пропуска нет, тест пропускаем
-      test.skip();
+      // Если кнопки пропуска нет, создаем воркспейс и проверяем редирект
+      await page
+        .getByRole("textbox", { name: "Название воркспейса" })
+        .fill(`Skip Test Workspace ${Date.now()}`);
+      await page
+        .getByRole("textbox", { name: "Slug воркспейса" })
+        .fill(`skip-test-ws-${Date.now()}`);
+      await page.getByRole("button", { name: "Создать воркспейс" }).click();
+
+      // Проверяем редирект на дашборд воркспейса
+      await page.waitForURL(/\/orgs\/[^/]+\/workspaces\/[^/]+/, {
+        timeout: 10000,
+      });
     }
   });
 

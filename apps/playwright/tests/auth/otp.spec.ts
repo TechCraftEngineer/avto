@@ -40,11 +40,10 @@ test.describe("OTP верификация", () => {
     ).toBeVisible();
   });
 
-  test.skip("таймер обратного отсчета для повторной отправки", async ({
+  test("таймер обратного отсчета для повторной отправки", async ({
     page,
   }) => {
-    // TODO: Требует настройки реального API endpoint для mock
-    // Mock не перехватывает запрос, нужно уточнить endpoint
+    // Настраиваем mock для повторной отправки OTP
     await mockOTPResend(page);
 
     const resendButton = page.getByRole("button", {
@@ -54,10 +53,15 @@ test.describe("OTP верификация", () => {
     await expect(resendButton).toBeEnabled();
     await resendButton.click();
 
+    // Проверяем состояние загрузки
     await expect(page.getByText("Отправка…")).toBeVisible({ timeout: 2000 });
+
+    // Проверяем что кнопка показывает таймер (формат: "Отправить повторно (60с)")
     await expect(page.getByText(/Отправить повторно \(\d+с\)/)).toBeVisible({
       timeout: 5000,
     });
+
+    // Проверяем что кнопка disabled во время таймера
     await expect(resendButton).toBeDisabled();
   });
 
@@ -115,18 +119,26 @@ test.describe("OTP верификация", () => {
     ).toBeVisible();
   });
 
-  test.skip("кнопка повторной отправки показывает состояние загрузки", async ({
+  test("кнопка повторной отправки показывает состояние загрузки", async ({
     page,
   }) => {
-    // TODO: Требует настройки реального API endpoint для mock
+    // Настраиваем mock для повторной отправки OTP
     await mockOTPResend(page);
 
     const resendButton = page.getByRole("button", {
       name: "Отправить повторно",
     });
+
+    // Кликаем и проверяем состояние загрузки
     await resendButton.click();
 
+    // Проверяем что отображается состояние загрузки
     await expect(page.getByText("Отправка…")).toBeVisible({ timeout: 2000 });
+
+    // Ждем завершения запроса
+    await expect(page.getByText(/Отправить повторно/)).toBeVisible({
+      timeout: 5000,
+    });
   });
 
   test("проверка размера полей ввода на мобильных", async ({ page }) => {
