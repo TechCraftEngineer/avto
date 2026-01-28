@@ -65,6 +65,32 @@ export function VacancyAnalytics({
   const isGrowingTopScore = topScorePercentage >= 15;
   const isGoodAvgScore = avgScore >= 3.0;
 
+  // Если нет откликов вообще - показываем красивое пустое состояние
+  if (totalResponses === 0) {
+    return (
+      <Card className="border-dashed">
+        <CardHeader className="text-center py-12">
+          <div className="flex justify-center mb-4">
+            <div className="relative">
+              <div className="absolute inset-0 bg-primary/10 rounded-full blur-2xl" />
+              <div className="relative bg-linear-to-br from-primary/20 to-primary/5 rounded-full p-6">
+                <IconTrendingUp className="h-12 w-12 text-primary" />
+              </div>
+            </div>
+          </div>
+          <CardTitle className="text-xl mb-2">
+            Аналитика появится после первых откликов
+          </CardTitle>
+          <CardDescription className="text-base max-w-md mx-auto">
+            Здесь будет отображаться статистика по обработке откликов, скорингу
+            кандидатов и средним баллам. Данные обновляются автоматически после
+            обработки откликов AI-системой
+          </CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
+
   return (
     <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 *:data-[slot=card]:bg-linear-to-t *:data-[slot=card]:shadow-xs @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
       <Card className="@container/card">
@@ -230,6 +256,47 @@ export function VacancyRequirements({
   }
 
   const data = requirements as VacancyRequirementsData;
+
+  // Проверяем, есть ли хоть какие-то данные
+  const hasAnyData =
+    data.summary ||
+    data.job_title ||
+    (data.languages && data.languages.length > 0) ||
+    (data.tech_stack && data.tech_stack.length > 0) ||
+    data.location_type ||
+    data.experience_years ||
+    (data.nice_to_have_skills && data.nice_to_have_skills.length > 0) ||
+    (data.keywords_for_matching && data.keywords_for_matching.length > 0) ||
+    (data.mandatory_requirements && data.mandatory_requirements.length > 0);
+
+  if (!hasAnyData) {
+    return (
+      <div className="rounded-xl border border-dashed bg-card/50 backdrop-blur-sm p-6 shadow-md">
+        <div className="text-center py-8 space-y-4">
+          <div className="flex justify-center">
+            <div className="relative">
+              <div className="absolute inset-0 bg-primary/10 rounded-full blur-2xl" />
+              <div className="relative bg-linear-to-br from-primary/20 to-primary/5 rounded-full p-6">
+                <Badge className="h-12 w-12 flex items-center justify-center text-lg">
+                  AI
+                </Badge>
+              </div>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold text-foreground">
+              Требования не сгенерированы
+            </h3>
+            <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
+              AI-анализ требований к вакансии будет доступен после обработки
+              описания вакансии. Система автоматически извлечет ключевые
+              требования, технологии и навыки
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="rounded-xl border bg-card/50 backdrop-blur-sm p-6 shadow-md space-y-8">

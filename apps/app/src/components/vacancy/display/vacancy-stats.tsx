@@ -14,6 +14,38 @@ export function VacancyStats({
   newResponses,
   resumesInProgress,
 }: VacancyStatsProps) {
+  // Проверяем, есть ли хоть какие-то данные
+  const hasAnyData =
+    (views ?? 0) > 0 ||
+    (responses ?? 0) > 0 ||
+    (newResponses ?? 0) > 0 ||
+    (resumesInProgress ?? 0) > 0;
+
+  // Если нет никаких данных - показываем красивое пустое состояние
+  if (!hasAnyData) {
+    return (
+      <Card className="border-dashed col-span-full">
+        <CardHeader className="text-center py-8">
+          <div className="flex justify-center mb-3">
+            <div className="relative">
+              <div className="absolute inset-0 bg-primary/10 rounded-full blur-xl" />
+              <div className="relative bg-linear-to-br from-primary/20 to-primary/5 rounded-full p-4">
+                <Eye className="h-8 w-8 text-primary" />
+              </div>
+            </div>
+          </div>
+          <CardTitle className="text-lg mb-1">
+            Статистика пока недоступна
+          </CardTitle>
+          <CardDescription className="text-sm">
+            Данные о просмотрах и откликах появятся после публикации вакансии на
+            платформе
+          </CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
+
   return (
     <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-2 gap-4 *:data-[slot=card]:bg-linear-to-t *:data-[slot=card]:shadow-xs md:grid-cols-4">
       <Card className="@container/card">

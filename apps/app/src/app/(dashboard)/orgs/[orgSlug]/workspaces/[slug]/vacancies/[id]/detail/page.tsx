@@ -1,10 +1,10 @@
 "use client";
 
+import { sanitizeHtmlFunction } from "@qbs-autonaim/shared/client";
 import { Badge, Button, Skeleton } from "@qbs-autonaim/ui";
 import { IconArrowLeft, IconEdit, IconExternalLink } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { sanitizeHtmlFunction } from "@qbs-autonaim/shared/client";
 import { use } from "react";
 import { PageHeader } from "~/components/layout";
 import {
@@ -180,7 +180,7 @@ export default function VacancyDetailPage({ params }: VacancyDetailPageProps) {
               resumesInProgress={vacancy.resumesInProgress}
             />
 
-            {vacancy.description && (
+            {vacancy.description ? (
               <div className="space-y-3 pt-4 border-t">
                 <h2 className="text-lg font-semibold">Описание вакансии</h2>
                 <div
@@ -189,6 +189,25 @@ export default function VacancyDetailPage({ params }: VacancyDetailPageProps) {
                     __html: sanitizeHtmlFunction(vacancy.description || ""),
                   }}
                 />
+              </div>
+            ) : (
+              <div className="pt-4 border-t">
+                <div className="text-center py-8 space-y-3">
+                  <div className="flex justify-center">
+                    <div className="bg-muted/50 rounded-full p-4">
+                      <IconEdit className="size-6 text-muted-foreground" />
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <h3 className="text-sm font-medium text-foreground">
+                      Описание не добавлено
+                    </h3>
+                    <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+                      Добавьте описание вакансии, чтобы кандидаты могли лучше
+                      понять требования и условия работы
+                    </p>
+                  </div>
+                </div>
               </div>
             )}
           </div>
