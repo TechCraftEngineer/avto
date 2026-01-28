@@ -1,0 +1,104 @@
+import { and, desc, eq, inArray, sql } from "@qbs-autonaim/db";
+import {
+  response as responseTable,
+  vacancy as vacancyTable,
+} from "@qbs-autonaim/db/schema";
+import { workspaceIdSchema } from "@qbs-autonaim/validators";
+import { TRPCError } from "@trpc/server";
+import { z } from "zod";
+import { protectedProcedure } from "../../../trpc";
+
+export const compare = protectedProcedure
+  .input(
+    z.object({
+      vacancyId: z.string().uuid(),
+      workspaceId: workspaceIdSchema,
+      limit: z.number().min(1).max(50).default(10),
+    }),
+  )
+  .query(async ({ ctx, input }) => {
+    const access = await ctx.workspaceRepository.checkAccess(
+      input.workspaceId,
+      ctx.session.user.id,
+    );
+
+    if (!access) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "Нет доступа к этому workspace",
+      });
+    }
+
+    const vacancy = await ctx.db.query.vacancy.findFirst({
+      where: eq(vacancyTable.id, input.vacancyId),
+      columns: { workspaceId: true },
+    });
+
+    if (!vacancy) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Вакансия не найдена",
+      });
+    }
+
+    if (vacancy.workspaceId !== input.workspaceId) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "Нет доступа к этой вакансии",
+      });
+    }
+
+    // Получаем топ откликов по compositeScore
+    const topResponses = await ctx.db
+      .select({
+        id: responseTable.id,
+        candidateName: responseTable.candidateName,
+        compositeScore: responseTable.compositeScore,
+        skillsMatchScore: responseTable.skillsMatchScore,
+        experienceScore: responseTable.experienceScore,
+        salaryExpectationsAmount: responseTable.salaryExpectationsAmount,
+        experience: responseTable.experience,
+        skills: responseTable.skills,
+        status: responseTable.status,
+        hrSelectionStatus: responseTable.hrSelectionStatus,
+        createdAt: responseTable.createdAt,
+        rankingPosition: responseTable.rankingPosition,
+      })
+      .from(responseTable)
+      .where(
+        and(
+          eq(responseTable.entityType, "vacancy"),
+          eq(responseTable.entityId, input.vacancyId),
+          sql`${responseTable.compositeScore} IS NOT NULL`,
+        ),
+      )
+      .orderBy(desc(responseTable.compositeScore))
+      .limit(input.limit);
+
+    // Вычисляем статистику
+    const stats = await ctx.db
+      .select({
+        avgScore: sql<number>`AVG(${responseTable.compositeScore})`,
+        maxScore: sql<number>`MAX(${responseTable.compositeScore})`,
+        minScore: sql<number>`MIN(${responseTable.compositeScore})`,
+        totalCount: sql<number>`COUNT(*)`,
+      })
+      .from(responseTable)
+      .where(
+        and(
+          eq(responseTable.entityType, "vacancy"),
+          eq(responseTable.entityId, input.vacancyId),
+          sql`${responseTable.compositeScore} IS NOT NULL`,
+        ),
+      );
+
+    return {
+      responses: topResponses,
+      stats: stats[0] ?? {
+        avgScore: 0,
+        maxScore: 0,
+        minScore: 0,
+        totalCount: 0,
+      },
+    };
+  });

@@ -22,11 +22,14 @@ export { RecommendationCard } from "./recommendation-card";
 export { ResponseHeaderCard } from "./response-header-card";
 export { ScreeningResultsCard } from "./screening-results-card";
 export {
+  ComparisonTab,
   ContactsTab,
   DialogTab,
   ExperienceTab,
+  NotesTagsTab,
   PortfolioTab,
   ProposalTab,
+  TimelineTab,
 } from "./tabs";
 export * from "./types";
 export { ResponseDetailCard } from "./vacancy-response-detail-card";

@@ -12,6 +12,7 @@ import { responseComment } from "./response-comment";
 import { responseHistory } from "./response-history";
 import { responseInvitation } from "./response-invitation";
 import { responseScreening } from "./response-screening";
+import { responseTag } from "./response-tag";
 
 export const responseRelations = relations(response, ({ one, many }) => ({
   globalCandidate: one(candidate, {
@@ -58,6 +59,7 @@ export const responseRelations = relations(response, ({ one, many }) => ({
   invitations: many(responseInvitation),
   comments: many(responseComment),
   history: many(responseHistory),
+  tags: many(responseTag),
 }));
 
 export const responseScreeningRelations = relations(
@@ -107,3 +109,10 @@ export const responseHistoryRelations = relations(
     }),
   }),
 );
+
+export const responseTagRelations = relations(responseTag, ({ one }) => ({
+  response: one(response, {
+    fields: [responseTag.responseId],
+    references: [response.id],
+  }),
+}));

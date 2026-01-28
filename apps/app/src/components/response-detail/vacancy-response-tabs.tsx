@@ -11,13 +11,16 @@ import {
   TabsTrigger,
 } from "@qbs-autonaim/ui";
 import {
+  ComparisonTab,
   ContactsTab,
   DialogTab,
   ExperienceTab,
   InterviewScoringCard,
+  NotesTagsTab,
   PortfolioTab,
   ProposalTab,
   ScreeningResultsCard,
+  TimelineTab,
 } from "~/components/response-detail";
 import type { ResponseDetail } from "./hooks/use-vacancy-response-flags";
 
@@ -111,17 +114,16 @@ export function VacancyResponseTabs({
     (hasProposalData ? 1 : 0) +
     (hasExperienceData ? 1 : 0) +
     (hasPortfolioData ? 1 : 0) +
-    (hasContactsData ? 1 : 0);
+    (hasContactsData ? 1 : 0) +
+    3; // +3 для новых вкладок (timeline, comparison, notes)
 
   // Определяем классы grid-cols на основе количества вкладок
   const gridColsClass =
-    {
-      2: "grid-cols-2",
-      3: "grid-cols-3",
-      4: "grid-cols-2 sm:grid-cols-4",
-      5: "grid-cols-3 sm:grid-cols-5",
-      6: "grid-cols-3 sm:grid-cols-6",
-    }[visibleTabsCount] ?? "grid-cols-3 sm:grid-cols-6";
+    visibleTabsCount <= 4
+      ? "grid-cols-2 sm:grid-cols-4"
+      : visibleTabsCount <= 6
+        ? "grid-cols-3 sm:grid-cols-6"
+        : "grid-cols-3 sm:grid-cols-5 lg:grid-cols-9";
 
   return (
     <Card>
@@ -178,6 +180,24 @@ export function VacancyResponseTabs({
                 Контакты
               </TabsTrigger>
             )}
+            <TabsTrigger
+              value="timeline"
+              className="min-h-11 sm:min-h-9 text-xs sm:text-sm touch-manipulation"
+            >
+              История
+            </TabsTrigger>
+            <TabsTrigger
+              value="comparison"
+              className="min-h-11 sm:min-h-9 text-xs sm:text-sm touch-manipulation"
+            >
+              Сравнение
+            </TabsTrigger>
+            <TabsTrigger
+              value="notes"
+              className="min-h-11 sm:min-h-9 text-xs sm:text-sm touch-manipulation"
+            >
+              Заметки
+            </TabsTrigger>
           </TabsList>
         </CardHeader>
 
@@ -245,6 +265,28 @@ export function VacancyResponseTabs({
               <ContactsTab response={response} />
             </TabsContent>
           )}
+
+          {/* Timeline Tab */}
+          <TabsContent value="timeline" className="space-y-3 sm:space-y-4 mt-0">
+            <TimelineTab responseId={response.id} />
+          </TabsContent>
+
+          {/* Comparison Tab */}
+          <TabsContent
+            value="comparison"
+            className="space-y-3 sm:space-y-4 mt-0"
+          >
+            <ComparisonTab
+              responseId={response.id}
+              vacancyId={response.entityId}
+              currentScore={response.compositeScore}
+            />
+          </TabsContent>
+
+          {/* Notes & Tags Tab */}
+          <TabsContent value="notes" className="space-y-3 sm:space-y-4 mt-0">
+            <NotesTagsTab responseId={response.id} />
+          </TabsContent>
 
           {/* No data message */}
           {!hasProposalData &&

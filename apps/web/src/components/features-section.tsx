@@ -281,26 +281,18 @@ export function FeaturesSection() {
 
 function ScreeningDemo() {
   return (
-    <div className="rounded-2xl border border-border bg-card shadow-xl overflow-hidden">
-      {/* 
-        PLACEHOLDER: AI-скрининг кандидата
-        Файл: /screenshots/app-ai-screening-candidate-card-1920x1080.png
-        Что заскринить: Dashboard → Candidates List → Candidate Detail
-        Должно быть видно:
-        - Профиль кандидата с фото/аватаром
-        - AI-рейтинг (процент соответствия)
-        - Прогресс-бары по навыкам (Hard skills, Soft skills, Соответствие вакансии)
-        - AI-рекомендация внизу
-        Разрешение: 1920x1080
-      */}
-      <div className="relative aspect-video bg-muted/50 flex items-center justify-center">
-        <div className="text-center space-y-3 p-8">
-          <Brain className="h-16 w-16 text-violet-500 mx-auto opacity-50" />
-          <div className="text-sm font-medium text-muted-foreground">
-            Скриншот: AI-скрининг кандидата
-          </div>
-          <div className="text-xs text-muted-foreground/70 max-w-xs">
-            app-ai-screening-candidate-card-1920x1080.png
+    <div className="relative h-72 overflow-hidden sm:h-[290px]">
+      <div className="size-full [mask-image:linear-gradient(90deg,black_80%,transparent)]">
+        <div className="size-full [mask-image:linear-gradient(black_70%,transparent)]">
+          <div className="relative h-full w-[120%]">
+            <img
+              alt="AI-скрининг кандидата"
+              loading="lazy"
+              decoding="async"
+              className="blur-0 rounded-xl border-l border-t border-border object-cover object-left-top"
+              src="/screenshots/app-ai-screening-candidate-card-1920x1080.png"
+              style={{ position: "absolute", height: "100%", width: "100%", inset: 0 }}
+            />
           </div>
         </div>
       </div>
@@ -455,25 +447,18 @@ function PrequalificationDemo() {
 
 function AnalyticsDemo() {
   return (
-    <div className="rounded-2xl border border-border bg-card shadow-xl overflow-hidden">
-      {/* 
-        PLACEHOLDER: Аналитика воронки найма
-        Файл: /screenshots/app-analytics-funnel-dashboard-1920x1080.png
-        Что заскринить: Dashboard → Analytics / Funnel View
-        Должно быть видно:
-        - Воронка найма (Отклики → Скрининг → Интервью → Офферы)
-        - Графики конверсии
-        - Статистика (конверсия %, время найма, средний срок)
-        Разрешение: 1920x1080
-      */}
-      <div className="relative aspect-video bg-muted/50 flex items-center justify-center">
-        <div className="text-center space-y-3 p-8">
-          <BarChart3 className="h-16 w-16 text-emerald-500 mx-auto opacity-50" />
-          <div className="text-sm font-medium text-muted-foreground">
-            Скриншот: Аналитика воронки найма
-          </div>
-          <div className="text-xs text-muted-foreground/70 max-w-xs">
-            app-analytics-funnel-dashboard-1920x1080.png
+    <div className="relative h-72 overflow-hidden sm:h-[290px]">
+      <div className="size-full [mask-image:linear-gradient(90deg,black_80%,transparent)]">
+        <div className="size-full [mask-image:linear-gradient(black_70%,transparent)]">
+          <div className="relative h-full w-[120%]">
+            <img
+              alt="Аналитика воронки найма"
+              loading="lazy"
+              decoding="async"
+              className="blur-0 rounded-xl border-l border-t border-border object-cover object-left-top"
+              src="/screenshots/app-analytics-funnel-dashboard-1920x1080.png"
+              style={{ position: "absolute", height: "100%", width: "100%", inset: 0 }}
+            />
           </div>
         </div>
       </div>
@@ -483,25 +468,18 @@ function AnalyticsDemo() {
 
 function IntegrationsDemo() {
   return (
-    <div className="rounded-2xl border border-border bg-card shadow-xl overflow-hidden">
-      {/* 
-        PLACEHOLDER: Интеграции с сервисами
-        Файл: /screenshots/app-integrations-settings-1920x1080.png
-        Что заскринить: Settings → Integrations
-        Должно быть видно:
-        - Список подключенных сервисов (hh.ru, SuperJob, Telegram, и т.д.)
-        - Статусы подключения (активно/неактивно)
-        - Время последней синхронизации
-        Разрешение: 1920x1080
-      */}
-      <div className="relative aspect-video bg-muted/50 flex items-center justify-center">
-        <div className="text-center space-y-3 p-8">
-          <Link2 className="h-16 w-16 text-blue-500 mx-auto opacity-50" />
-          <div className="text-sm font-medium text-muted-foreground">
-            Скриншот: Интеграции с сервисами
-          </div>
-          <div className="text-xs text-muted-foreground/70 max-w-xs">
-            app-integrations-settings-1920x1080.png
+    <div className="relative h-72 overflow-hidden sm:h-[290px]">
+      <div className="size-full [mask-image:linear-gradient(90deg,black_80%,transparent)]">
+        <div className="size-full [mask-image:linear-gradient(black_70%,transparent)]">
+          <div className="relative h-full w-[120%]">
+            <img
+              alt="Интеграции с сервисами"
+              loading="lazy"
+              decoding="async"
+              className="blur-0 rounded-xl border-l border-t border-border object-cover object-left-top"
+              src="/screenshots/app-integrations-settings-1920x1080.png"
+              style={{ position: "absolute", height: "100%", width: "100%", inset: 0 }}
+            />
           </div>
         </div>
       </div>
