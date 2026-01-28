@@ -1,15 +1,11 @@
+import { db, eq, like, or } from "@qbs-autonaim/db";
 import {
-  account,
-  db,
-  eq,
-  like,
-  or,
   organization,
   organizationMember,
   user,
   workspace,
   workspaceMember,
-} from "@qbs-autonaim/db";
+} from "@qbs-autonaim/db/schema";
 
 /**
  * Утилита для очистки тестового пользователя и всех связанных данных
@@ -57,10 +53,7 @@ export async function cleanupTestUser(email: string): Promise<void> {
     }
   }
 
-  // 3. Удаляем аккаунты пользователя
-  await db.delete(account).where(eq(account.userId, foundUser.id));
-
-  // 4. Удаляем самого пользователя
+  // 3. Удаляем самого пользователя
   await db.delete(user).where(eq(user.id, foundUser.id));
 }
 
@@ -106,9 +99,6 @@ export async function cleanupAllTestData(): Promise<void> {
     await db
       .delete(workspaceMember)
       .where(eq(workspaceMember.userId, testUser.id));
-
-    // Удаляем аккаунты пользователя
-    await db.delete(account).where(eq(account.userId, testUser.id));
 
     // Удаляем пользователя
     await db.delete(user).where(eq(user.id, testUser.id));

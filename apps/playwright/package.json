@@ -1,7 +1,6 @@
 {
   "name": "@qbs-autonaim/playwright",
   "private": true,
-  "type": "module",
   "scripts": {
     "lint": "biome lint .",
     "test": "bun with-env playwright test",

@@ -1,16 +1,12 @@
+import { db, eq, sql } from "@qbs-autonaim/db";
 import {
-  account,
-  db,
-  eq,
   organization,
   organizationMember,
   user,
   workspace,
   workspaceMember,
-} from "@qbs-autonaim/db";
+} from "@qbs-autonaim/db/schema";
 import { TRPCError } from "@trpc/server";
-import { hash } from "bcryptjs";
-import { generateId } from "lucia";
 import { z } from "zod";
 import { publicProcedure } from "../../trpc";
 import { cleanupTestUser } from "./utils";
@@ -37,7 +33,7 @@ export const setup = publicProcedure
       });
     }
 
-    const { email, password, name, orgName, workspaceName } = input;
+    const { email, name, orgName, workspaceName } = input;
 
     try {
       // Проверяем, что пользователь не существует
@@ -50,82 +46,86 @@ export const setup = publicProcedure
         await cleanupTestUser(email);
       }
 
-      // Создаем пользователя
-      const userId = generateId(15);
-      const hashedPassword = await hash(password, 12);
+      // Создаем пользователя с генерацией ID через SQL функцию
+      const [createdUser] = await db
+        .insert(user)
+        .values({
+          id: sql`uuid_generate_v7()`,
+          email,
+          name: name || "Test User",
+          emailVerified: true,
+        })
+        .returning();
 
-      await db.insert(user).values({
-        id: userId,
-        email,
-        name: name || "Test User",
-        emailVerified: true,
-      });
+      if (!createdUser) {
+        throw new Error("Не удалось создать пользователя");
+      }
 
-      // Создаем аккаунт с паролем
-      await db.insert(account).values({
-        id: generateId(15),
-        userId,
-        type: "credentials",
-        provider: "credentials",
-        providerAccountId: userId,
-        password: hashedPassword,
-      });
-
-      // Создаем организацию
-      const orgId = generateId(15);
+      // Создаем организацию (ID генерируется автоматически)
       const orgSlug = (orgName || `test-org-${Date.now()}`)
         .toLowerCase()
         .replace(/\s+/g, "-");
 
-      await db.insert(organization).values({
-        id: orgId,
-        name: orgName || "Test Organization",
-        slug: orgSlug,
-      });
+      const [createdOrg] = await db
+        .insert(organization)
+        .values({
+          name: orgName || "Test Organization",
+          slug: orgSlug,
+        })
+        .returning();
 
-      // Создаем воркспейс
-      const workspaceId = generateId(15);
+      if (!createdOrg) {
+        throw new Error("Не удалось создать организацию");
+      }
+
+      // Создаем воркспейс (ID генерируется автоматически)
       const workspaceSlug = (workspaceName || `test-workspace-${Date.now()}`)
         .toLowerCase()
         .replace(/\s+/g, "-");
 
-      await db.insert(workspace).values({
-        id: workspaceId,
-        name: workspaceName || "Test Workspace",
-        slug: workspaceSlug,
-        organizationId: orgId,
-      });
+      const [createdWorkspace] = await db
+        .insert(workspace)
+        .values({
+          name: workspaceName || "Test Workspace",
+          slug: workspaceSlug,
+          organizationId: createdOrg.id,
+        })
+        .returning();
+
+      if (!createdWorkspace) {
+        throw new Error("Не удалось создать воркспейс");
+      }
 
       // Добавляем пользователя в организацию и воркспейс
       await db.insert(organizationMember).values({
-        userId,
-        organizationId: orgId,
+        userId: createdUser.id,
+        organizationId: createdOrg.id,
         role: "owner",
       });
 
       await db.insert(workspaceMember).values({
-        userId,
-        workspaceId,
+        userId: createdUser.id,
+        workspaceId: createdWorkspace.id,
         role: "owner",
       });
 
       return {
         user: {
-          id: userId,
-          email,
-          name: name || "Test User",
+          id: createdUser.id,
+          email: createdUser.email,
+          name: createdUser.name,
         },
         organization: {
-          id: orgId,
-          name: orgName || "Test Organization",
-          slug: orgSlug,
+          id: createdOrg.id,
+          name: createdOrg.name,
+          slug: createdOrg.slug,
         },
         workspace: {
-          id: workspaceId,
-          name: workspaceName || "Test Workspace",
-          slug: workspaceSlug,
+          id: createdWorkspace.id,
+          name: createdWorkspace.name,
+          slug: createdWorkspace.slug,
         },
-        dashboardUrl: `/orgs/${orgSlug}/workspaces/${workspaceSlug}`,
+        dashboardUrl: `/orgs/${createdOrg.slug}/workspaces/${createdWorkspace.slug}`,
       };
     } catch (error) {
       throw new TRPCError({
