@@ -12,9 +12,9 @@ import {
   Calendar,
   CheckCircle,
   Clock,
-  DollarSign,
   TrendingDown,
   TrendingUp,
+  Wallet,
 } from "lucide-react";
 import type { GigResponse } from "./types";
 
@@ -120,7 +120,7 @@ export function PricingCard({
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2">
-          <DollarSign className="h-5 w-5" />
+          <Wallet className="h-5 w-5" />
           Ценовое предложение
         </CardTitle>
       </CardHeader>

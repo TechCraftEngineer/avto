@@ -12,10 +12,10 @@ import {
   Briefcase,
   ChevronDown,
   ChevronUp,
-  DollarSign,
   FileText,
   MessageSquare,
   User,
+  Wallet,
 } from "lucide-react";
 import { useState } from "react";
 import type { VacancyResponse } from "./types";
@@ -115,7 +115,7 @@ export function VacancyResponseHeaderCard({
                     variant="outline"
                     className="bg-emerald-50 text-emerald-700 border-emerald-200"
                   >
-                    <DollarSign className="h-3 w-3 mr-1" />
+                    <Wallet className="h-3 w-3 mr-1" />
                     {response.salaryExpectationsAmount.toLocaleString()} ₽
                   </Badge>
                 )}
@@ -192,7 +192,7 @@ export function VacancyResponseHeaderCard({
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
           {response.salaryExpectationsAmount && (
             <div className="flex items-start gap-2 p-3 bg-emerald-50 rounded-lg border border-emerald-200">
-              <DollarSign className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
+              <Wallet className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium text-emerald-800">
                   Зарплатные ожидания

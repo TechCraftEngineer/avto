@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui";
-import { Calendar, DollarSign, Target, Timer } from "lucide-react";
+import { Calendar, Target, Timer, Wallet } from "lucide-react";
 import { memo } from "react";
 import { formatBudget, formatDate } from "./gig-detail-utils";
 
@@ -29,7 +29,7 @@ const ProjectDetails = memo(function ProjectDetails({
       <CardContent className="space-y-4">
         {(budgetMin || budgetMax) && (
           <div className="flex items-start gap-3 p-4 rounded-lg bg-card border hover:bg-accent/50 transition-colors">
-            <DollarSign
+            <Wallet
               className="h-5 w-5 text-green-600 mt-0.5 shrink-0"
               aria-hidden="true"
             />

@@ -10,11 +10,11 @@ import {
 } from "@qbs-autonaim/ui";
 import {
   Calendar,
-  DollarSign,
   FolderOpen,
   MessageSquare,
   Star,
   User,
+  Wallet,
 } from "lucide-react";
 import type { GigResponse } from "./types";
 
@@ -126,7 +126,7 @@ export function GigResponseHeaderCard({
                     variant="outline"
                     className="bg-emerald-50 text-emerald-700 border-emerald-200"
                   >
-                    <DollarSign className="h-3 w-3 mr-1" />
+                    <Wallet className="h-3 w-3 mr-1" />
                     {response.proposedPrice.toLocaleString()} ₽
                   </Badge>
                 )}
@@ -170,45 +170,51 @@ export function GigResponseHeaderCard({
                 {isSendingGreeting ? "Отправка…" : "Отправить приветствие"}
               </Button>
             )}
-            {onEvaluate && (response.status === "NEW" || response.status === "EVALUATED") && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onEvaluate}
-                disabled={isProcessing || isPolling}
-                className="min-h-[36px]"
-              >
-                {isPolling ? (
-                  <div className="h-4 w-4 mr-2 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                ) : (
-                  <Star className="h-4 w-4 mr-2" />
-                )}
-                Оценить
-              </Button>
-            )}
-            <div className="flex gap-2">
-              {onReject && (response.status === "NEW" || response.status === "EVALUATED") && (
+            {onEvaluate &&
+              (response.status === "NEW" ||
+                response.status === "EVALUATED") && (
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={onReject}
-                  disabled={isProcessing}
-                  className="min-h-[36px] text-red-600 hover:text-red-700 hover:bg-red-50"
-                >
-                  Отклонить
-                </Button>
-              )}
-              {onAccept && (response.status === "NEW" || response.status === "EVALUATED") && (
-                <Button
-                  variant="default"
-                  size="sm"
-                  onClick={onAccept}
-                  disabled={isProcessing}
+                  onClick={onEvaluate}
+                  disabled={isProcessing || isPolling}
                   className="min-h-[36px]"
                 >
-                  Выбрать
+                  {isPolling ? (
+                    <div className="h-4 w-4 mr-2 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  ) : (
+                    <Star className="h-4 w-4 mr-2" />
+                  )}
+                  Оценить
                 </Button>
               )}
+            <div className="flex gap-2">
+              {onReject &&
+                (response.status === "NEW" ||
+                  response.status === "EVALUATED") && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={onReject}
+                    disabled={isProcessing}
+                    className="min-h-[36px] text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    Отклонить
+                  </Button>
+                )}
+              {onAccept &&
+                (response.status === "NEW" ||
+                  response.status === "EVALUATED") && (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={onAccept}
+                    disabled={isProcessing}
+                    className="min-h-[36px]"
+                  >
+                    Выбрать
+                  </Button>
+                )}
             </div>
           </div>
         </div>
@@ -219,7 +225,7 @@ export function GigResponseHeaderCard({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {(response.proposedPrice || response.proposedDeliveryDays) && (
             <div className="flex items-center gap-2 p-3 bg-emerald-50 rounded-lg border border-emerald-200">
-              <DollarSign className="h-5 w-5 text-emerald-600 shrink-0" />
+              <Wallet className="h-5 w-5 text-emerald-600 shrink-0" />
               <div>
                 <div className="text-sm font-medium text-emerald-800">
                   Ценовое предложение

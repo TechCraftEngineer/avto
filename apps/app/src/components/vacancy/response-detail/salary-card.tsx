@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@qbs-autonaim/ui";
-import { DollarSign, Minus, TrendingDown, TrendingUp } from "lucide-react";
+import { Minus, TrendingDown, TrendingUp, Wallet } from "lucide-react";
 import type { VacancyResponse } from "./types";
 
 interface SalaryCardProps {
@@ -63,7 +63,7 @@ export function SalaryCard({ response, marketRate }: SalaryCardProps) {
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2">
-          <DollarSign className="h-5 w-5" />
+          <Wallet className="h-5 w-5" />
           Зарплатные ожидания
         </CardTitle>
       </CardHeader>
