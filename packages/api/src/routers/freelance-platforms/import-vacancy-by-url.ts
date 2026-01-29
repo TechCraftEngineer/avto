@@ -2,6 +2,7 @@ import { ImportByUrlSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../trpc";
+import { verifyWorkspaceAccess } from "../../utils/verify-workspace-access";
 
 /**
  * Импорт вакансии по URL
@@ -18,28 +19,11 @@ export const importVacancyByUrl = protectedProcedure
     const { workspaceId, url } = input;
 
     // Проверка доступа к workspace
-    const workspace = await ctx.db.workspace.findFirst({
-      where: {
-        id: workspaceId,
-        OR: [
-          { ownerId: ctx.session.user.id },
-          {
-            members: {
-              some: {
-                userId: ctx.session.user.id,
-              },
-            },
-          },
-        ],
-      },
-    });
-
-    if (!workspace) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к рабочему пространству",
-      });
-    }
+    await verifyWorkspaceAccess(
+      ctx.workspaceRepository,
+      workspaceId,
+      ctx.session.user.id,
+    );
 
     // Генерируем уникальный ID для отслеживания запроса
     const requestId = crypto.randomUUID();

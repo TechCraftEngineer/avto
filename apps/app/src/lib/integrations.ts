@@ -22,9 +22,6 @@ export const AVAILABLE_INTEGRATIONS = [
       "Подключите свой аккаунт HeadHunter для автоматического поиска и отклика на подходящие вакансии. Система будет анализировать вакансии и отправлять отклики от вашего имени.",
     fields: ["email", "password"],
     category: "job-search" as const,
-    requiresTelegram: true,
-    telegramUsage:
-      "Telegram используется для получения уведомлений о новых вакансиях и откликах",
   },
 ] as const;
 
