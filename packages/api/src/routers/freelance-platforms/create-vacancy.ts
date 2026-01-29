@@ -57,6 +57,7 @@ export const createVacancy = protectedProcedure
           description: input.description,
           source: input.platformSource,
           url: input.platformUrl,
+          createdBy: ctx.session.user.id,
           isActive: true,
         })
         .returning();
@@ -73,7 +74,9 @@ export const createVacancy = protectedProcedure
 
       // Генерируем ссылку на интервью
       const linkGenerator = new InterviewLinkGenerator();
-      const interviewLink = await linkGenerator.getOrCreateInterviewLink(createdVacancy.id);
+      const interviewLink = await linkGenerator.getOrCreateInterviewLink(
+        createdVacancy.id,
+      );
 
       return {
         vacancy: createdVacancy,

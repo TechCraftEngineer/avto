@@ -59,6 +59,7 @@ export const create = protectedProcedure
         title: input.title,
         description: fullDescription || null,
         source: "MANUAL",
+        createdBy: ctx.session.user.id,
         isActive: true,
       })
       .returning();

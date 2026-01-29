@@ -1,6 +1,5 @@
+import { db, eq } from "@qbs-autonaim/db";
 import {
-  db,
-  eq,
   organization,
   organizationMember,
   user,

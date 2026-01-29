@@ -1,7 +1,7 @@
 import {
   extractExternalIdFromUrl,
   ImportByUrlSchema,
-} from "@qbs-autonaim/validators/vacancy-import";
+} from "@qbs-autonaim/validators";
 import { importSingleVacancy } from "../../../parsers/hh";
 import { importVacancyByUrlChannel } from "../../channels/client";
 import { inngest } from "../../client";

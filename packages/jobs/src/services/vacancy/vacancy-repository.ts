@@ -25,6 +25,7 @@ interface VacancyDbData {
   region: string;
   description: string;
   isActive: boolean;
+  createdBy: string;
 }
 
 function mapVacancySource(source: VacancyData["source"]): PlatformSource {
@@ -52,6 +53,7 @@ function mapVacancySource(source: VacancyData["source"]): PlatformSource {
 function mapVacancyData(
   vacancyData: VacancyData,
   workspaceId: string,
+  createdBy: string,
   description?: string,
 ): VacancyDbData {
   const source = mapVacancySource(vacancyData.source);
@@ -71,6 +73,7 @@ function mapVacancyData(
     region: vacancyData.region || "",
     description: description ?? vacancyData.description ?? "",
     isActive: true,
+    createdBy,
   };
 }
 
@@ -130,13 +133,33 @@ export async function getVacanciesWithoutDescription() {
 /**
  * Сохраняет базовую информацию о вакансии (без описания)
  * Возвращает true если вакансия была создана впервые
+ *
+ * @param vacancyData - данные вакансии
+ * @param workspaceId - ID workspace
+ * @param createdBy - ID пользователя, создавшего вакансию (опционально, будет получен владелец workspace)
  */
 export async function saveBasicVacancy(
   vacancyData: VacancyData,
   workspaceId: string,
+  createdBy?: string,
 ): Promise<Result<{ vacancyId: string; isNew: boolean }>> {
   return tryCatch(async () => {
-    const dataToSave = mapVacancyData(vacancyData, workspaceId, "");
+    // Если createdBy не передан, получаем владельца workspace
+    let userId = createdBy;
+    if (!userId) {
+      const workspaceOwner = await db.query.workspaceMember.findFirst({
+        where: (table, { and, eq }) =>
+          and(eq(table.workspaceId, workspaceId), eq(table.role, "owner")),
+      });
+
+      if (!workspaceOwner) {
+        throw new Error(`Не найден владелец workspace ${workspaceId}`);
+      }
+
+      userId = workspaceOwner.userId;
+    }
+
+    const dataToSave = mapVacancyData(vacancyData, workspaceId, userId, "");
 
     const existingVacancy = await db.query.vacancy.findFirst({
       where: (table, { and, eq }) =>
@@ -209,13 +232,33 @@ export async function updateVacancyDescription(
 
 /**
  * Сохраняет или обновляет полные данные вакансии
+ *
+ * @param vacancyData - данные вакансии
+ * @param workspaceId - ID workspace
+ * @param createdBy - ID пользователя, создавшего вакансию (опционально, будет получен владелец workspace)
  */
 export async function saveVacancyToDb(
   vacancyData: VacancyData,
   workspaceId: string,
+  createdBy?: string,
 ): Promise<Result<void>> {
   return tryCatch(async () => {
-    const dataToSave = mapVacancyData(vacancyData, workspaceId);
+    // Если createdBy не передан, получаем владельца workspace
+    let userId = createdBy;
+    if (!userId) {
+      const workspaceOwner = await db.query.workspaceMember.findFirst({
+        where: (table, { and, eq }) =>
+          and(eq(table.workspaceId, workspaceId), eq(table.role, "owner")),
+      });
+
+      if (!workspaceOwner) {
+        throw new Error(`Не найден владелец workspace ${workspaceId}`);
+      }
+
+      userId = workspaceOwner.userId;
+    }
+
+    const dataToSave = mapVacancyData(vacancyData, workspaceId, userId);
 
     const existingVacancy = await db.query.vacancy.findFirst({
       where: (table, { and, eq }) =>
