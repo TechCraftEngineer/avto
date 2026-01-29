@@ -35,7 +35,10 @@ export async function safeClickByRole(
   role: string,
   options?: { name?: string; timeout?: number },
 ) {
-  const locator = page.getByRole(role as any, { name: options?.name });
+  const locator = page.getByRole(
+    role as "button" | "link" | "textbox" | "tab",
+    { name: options?.name },
+  );
 
   try {
     // Сначала пробуем обычный клик

@@ -15,7 +15,7 @@ import {
   IconLoader2,
   IconMessagePlus,
 } from "@tabler/icons-react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useWorkspace } from "~/hooks/use-workspace";
@@ -33,7 +33,6 @@ export function ResponseInvitationButton({
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const trpc = useTRPC();
-  const queryClient = useQueryClient();
   const { workspace } = useWorkspace();
 
   const { mutate: generateInvitation, isPending: isGenerating } = useMutation(
@@ -53,11 +52,6 @@ export function ResponseInvitationButton({
     interviewUrl: string;
     createdAt: Date;
   } | null>(null);
-
-  const handleGenerate = useCallback(() => {
-    if (!workspace?.id) return;
-    generateInvitation({ responseId, workspaceId: workspace.id });
-  }, [generateInvitation, responseId, workspace?.id]);
 
   // Автоматически генерируем приглашение при открытии диалога
   useEffect(() => {
