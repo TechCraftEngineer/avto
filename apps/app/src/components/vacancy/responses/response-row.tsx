@@ -23,9 +23,9 @@ import {
   TableCell,
   TableRow,
 } from "@qbs-autonaim/ui";
-import sanitizeHtml from "sanitize-html";
 import { ExternalLink, Send, TrendingUp, User, UserCheck } from "lucide-react";
 import Link from "next/link";
+import sanitizeHtml from "sanitize-html";
 import { ResponseActions } from "~/components/response";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { getAvatarUrl, getInitials } from "~/lib/avatar";
@@ -250,7 +250,7 @@ export function ResponseRow({
           }
           className="whitespace-nowrap rounded-md font-normal"
         >
-          {(response.status as VacancyResponseStatus) in RESPONSE_STATUS_LABELS
+          {Object.hasOwn(RESPONSE_STATUS_LABELS, response.status)
             ? RESPONSE_STATUS_LABELS[response.status as VacancyResponseStatus]
             : response.status}
         </Badge>
@@ -313,8 +313,10 @@ export function ResponseRow({
       <TableCell>
         {response.hrSelectionStatus ? (
           <Badge variant="outline" className="whitespace-nowrap font-normal">
-            {(response.hrSelectionStatus as VacancyHrSelectionStatus) in
-            HR_SELECTION_STATUS_LABELS
+            {Object.hasOwn(
+              HR_SELECTION_STATUS_LABELS,
+              response.hrSelectionStatus,
+            )
               ? HR_SELECTION_STATUS_LABELS[
                   response.hrSelectionStatus as VacancyHrSelectionStatus
                 ]
