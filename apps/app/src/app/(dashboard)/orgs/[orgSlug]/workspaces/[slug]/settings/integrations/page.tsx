@@ -80,17 +80,17 @@ export default function IntegrationsPage() {
       <div className="space-y-1">
         <h2 className="text-2xl font-semibold tracking-tight">Интеграции</h2>
         <p className="text-sm text-muted-foreground">
-          Управляйте интеграциями с внешними сервисами для автоматизации работы
+          Управляйте интеграциями для проведения интервью и поиска кандидатов
         </p>
       </div>
 
       <Alert>
         <AlertCircle className="h-4 w-4" />
         <AlertDescription className="text-sm">
-          <strong>Как это работает:</strong> Подключите Telegram для получения
-          уведомлений, затем настройте интеграции с платформами поиска работы.
-          Система будет автоматически искать подходящие вакансии и отправлять
-          отклики от вашего имени.
+          <strong>Как это работает:</strong> Подключите Telegram для проведения
+          интервью с кандидатами, затем настройте интеграции с платформами
+          поиска работы. Система будет автоматически искать подходящих
+          кандидатов и организовывать интервью через Telegram.
         </AlertDescription>
       </Alert>
 

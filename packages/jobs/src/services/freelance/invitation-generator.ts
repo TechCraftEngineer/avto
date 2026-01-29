@@ -150,9 +150,7 @@ export async function generateFreelanceInvitation(
 
   // Создаем индивидуальную ссылку на интервью для этого отклика
   const interviewLinkResult = await tryCatch(async () => {
-    const { InterviewLinkGenerator } = await import(
-      "@qbs-autonaim/interview-link-generator"
-    );
+    const { InterviewLinkGenerator } = await import("@qbs-autonaim/shared");
     const linkGenerator = new InterviewLinkGenerator();
     return await linkGenerator.getOrCreateResponseInterviewLink(
       responseId,
