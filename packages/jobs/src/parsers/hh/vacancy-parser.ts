@@ -418,3 +418,74 @@ async function parseVacancyDetails(page: Page, url: string): Promise<string> {
     return "";
   }
 }
+
+/**
+ * Парсит одну вакансию по её externalId
+ */
+export async function parseSingleVacancy(
+  page: Page,
+  externalId: string,
+  workspaceId: string,
+): Promise<{ vacancyId: string; isNew: boolean }> {
+  const url = `${HH_CONFIG.urls.baseUrl}/vacancy/${externalId}`;
+
+  console.log(`📄 Парсинг вакансии: ${url}`);
+
+  // Получаем описание вакансии
+  const description = await parseVacancyDetails(page, url);
+
+  if (!description) {
+    throw new Error("Не удалось получить описание вакансии");
+  }
+
+  // Получаем заголовок вакансии
+  await page.goto(url, { waitUntil: "networkidle2" });
+  await humanDelay(1000, 2500);
+
+  const title = await page
+    .$eval('[data-qa="vacancy-title"]', (el) => el.textContent?.trim() || "")
+    .catch(() => "");
+
+  if (!title) {
+    throw new Error("Не удалось получить название вакансии");
+  }
+
+  // Создаем объект вакансии
+  const vacancyData: VacancyData = {
+    id: externalId,
+    externalId,
+    title,
+    url,
+    description,
+    source: "hh" as const,
+    views: "0",
+    responses: "0",
+    newResponses: "0",
+    resumesInProgress: "0",
+    suitableResumes: "0",
+    region: "",
+    responsesUrl: "",
+  };
+
+  // Сохраняем вакансию
+  const result = await saveBasicVacancy(vacancyData, workspaceId);
+
+  if (!result.success) {
+    throw new Error(result.error || "Ошибка сохранения вакансии");
+  }
+
+  const { vacancyId, isNew } = result.data;
+
+  // Обновляем описание
+  const updateResult = await updateVacancyDescription(
+    vacancyId,
+    description,
+    isNew,
+  );
+
+  if (!updateResult.success) {
+    throw new Error(updateResult.error || "Ошибка обновления описания");
+  }
+
+  return { vacancyId, isNew };
+}

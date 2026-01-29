@@ -5,6 +5,9 @@
 export {
   checkPublicationStatusChannel,
   conversationMessagesChannel,
+  importArchivedVacanciesChannel,
+  importNewVacanciesChannel,
+  importVacancyByUrlChannel,
   parseMissingContactsChannel,
   parseNewResumesChannel,
   refreshAllResumesChannel,

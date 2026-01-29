@@ -247,3 +247,99 @@ export const verifyHHCredentialsChannel = channel(
     }),
   ),
 );
+
+/**
+ * Канал для отслеживания прогресса импорта новых вакансий
+ */
+export const importNewVacanciesChannel = channel(
+  (workspaceId: string) => `import-new-vacancies:${workspaceId}`,
+)
+  .addTopic(
+    topic("progress").schema(
+      z.object({
+        workspaceId: z.string(),
+        status: z.enum(["started", "processing", "completed", "error"]),
+        message: z.string(),
+        total: z.number().optional(),
+        processed: z.number().optional(),
+        failed: z.number().optional(),
+      }),
+    ),
+  )
+  .addTopic(
+    topic("result").schema(
+      z.object({
+        workspaceId: z.string(),
+        success: z.boolean(),
+        imported: z.number(),
+        updated: z.number(),
+        failed: z.number(),
+      }),
+    ),
+  );
+
+/**
+ * Канал для отслеживания прогресса импорта архивных вакансий
+ */
+export const importArchivedVacanciesChannel = channel(
+  (workspaceId: string) => `import-archived-vacancies:${workspaceId}`,
+)
+  .addTopic(
+    topic("progress").schema(
+      z.object({
+        workspaceId: z.string(),
+        status: z.enum(["started", "processing", "completed", "error"]),
+        message: z.string(),
+        total: z.number().optional(),
+        processed: z.number().optional(),
+        failed: z.number().optional(),
+      }),
+    ),
+  )
+  .addTopic(
+    topic("result").schema(
+      z.object({
+        workspaceId: z.string(),
+        success: z.boolean(),
+        imported: z.number(),
+        updated: z.number(),
+        failed: z.number(),
+      }),
+    ),
+  );
+
+/**
+ * Канал для отслеживания прогресса импорта вакансии по ссылке
+ */
+export const importVacancyByUrlChannel = channel(
+  (workspaceId: string, requestId: string) =>
+    `import-vacancy-by-url:${workspaceId}:${requestId}`,
+)
+  .addTopic(
+    topic("progress").schema(
+      z.object({
+        workspaceId: z.string(),
+        requestId: z.string(),
+        status: z.enum([
+          "started",
+          "validating",
+          "fetching",
+          "saving",
+          "completed",
+          "error",
+        ]),
+        message: z.string(),
+      }),
+    ),
+  )
+  .addTopic(
+    topic("result").schema(
+      z.object({
+        workspaceId: z.string(),
+        requestId: z.string(),
+        success: z.boolean(),
+        vacancyId: z.string().optional(),
+        error: z.string().optional(),
+      }),
+    ),
+  );

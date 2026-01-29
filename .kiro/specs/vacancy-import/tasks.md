@@ -6,7 +6,7 @@
 
 ## Задачи
 
-- [ ] 1. Создать Inngest каналы для отслеживания прогресса импорта
+- [x] 1. Создать Inngest каналы для отслеживания прогресса импорта
   - Добавить определения каналов в `packages/jobs/src/inngest/channels/client.ts`
   - Создать канал `importNewVacanciesChannel` с топиками progress и result
   - Создать канал `importArchivedVacanciesChannel` с топиками progress и result
@@ -19,7 +19,7 @@
   - **Property 5: Получение токена подписки для всех операций**
   - **Validates: Requirements 4.1**
 
-- [ ] 2. Создать Server Actions для управления импортом
+- [x] 2. Создать Server Actions для управления импортом
   - Создать файл `apps/app/src/actions/vacancy-import.ts`
   - Реализовать `fetchImportNewVacanciesToken(workspaceId: string)`
   - Реализовать `fetchImportArchivedVacanciesToken(workspaceId: string)`
@@ -40,7 +40,7 @@
   - Тест валидации входных параметров
   - _Requirements: 1.1, 2.1, 3.2_
 
-- [ ] 3. Создать схемы валидации для импорта
+- [x] 3. Создать схемы валидации для импорта
   - Создать файл `packages/validators/src/vacancy-import.ts`
   - Создать `ImportByUrlSchema` с валидацией URL hh.ru
   - Создать функцию `extractExternalIdFromUrl(url: string)`
@@ -53,7 +53,7 @@
   - **Property 10: Валидация типов данных**
   - **Validates: Requirements 6.1, 6.2, 6.3, 6.4**
 
-- [ ] 4. Расширить парсер HH для импорта одной вакансии
+- [x] 4. Расширить парсер HH для импорта одной вакансии
   - Добавить функцию `importSingleVacancy` в `packages/jobs/src/parsers/hh/runner.ts`
   - Добавить функцию `parseSingleVacancy` в `packages/jobs/src/parsers/hh/vacancy-parser.ts`
   - Реализовать получение данных вакансии по externalId
@@ -70,7 +70,7 @@
   - **Property 2: Сохранение всех полей вакансии**
   - **Validates: Requirements 1.4, 2.4**
 
-- [ ] 5. Создать Inngest функцию для импорта новых вакансий
+- [x] 5. Создать Inngest функцию для импорта новых вакансий
   - Создать файл `packages/jobs/src/inngest/functions/vacancy/import-new.ts`
   - Реализовать `importNewVacanciesFunction`
   - Настроить concurrency: 1 для предотвращения конфликтов
@@ -88,7 +88,7 @@
   - **Property 3: Корректный подсчёт результатов импорта**
   - **Validates: Requirements 1.5, 2.5, 5.5, 8.5**
 
-- [ ] 6. Создать Inngest функцию для импорта архивных вакансий
+- [x] 6. Создать Inngest функцию для импорта архивных вакансий
   - Создать файл `packages/jobs/src/inngest/functions/vacancy/import-archived.ts`
   - Реализовать `importArchivedVacanciesFunction`
   - Настроить concurrency: 1
@@ -102,7 +102,7 @@
   - **Property 1: Сохранение всех импортированных вакансий**
   - **Validates: Requirements 1.3, 2.3, 3.4, 7.2**
 
-- [ ] 7. Создать Inngest функцию для импорта по ссылке
+- [x] 7. Создать Inngest функцию для импорта по ссылке
   - Создать файл `packages/jobs/src/inngest/functions/vacancy/import-by-url.ts`
   - Реализовать `importVacancyByUrlFunction`
   - Настроить concurrency: 5 для параллельной обработки
@@ -123,14 +123,14 @@
   - Тест ошибки невалидного URL
   - _Requirements: 5.1, 5.2, 3.5_
 
-- [ ] 8. Зарегистрировать Inngest функции
+- [x] 8. Зарегистрировать Inngest функции
   - Добавить импорты в `packages/jobs/src/inngest/functions/index.ts`
   - Экспортировать `importNewVacanciesFunction`
   - Экспортировать `importArchivedVacanciesFunction`
   - Экспортировать `importVacancyByUrlFunction`
   - _Requirements: 1.1, 2.1, 3.2_
 
-- [ ] 9. Создать UI компонент для раздела импорта
+- [x] 9. Создать UI компонент для раздела импорта
   - Создать файл `apps/app/src/components/vacancy/import-section.tsx`
   - Реализовать три кнопки: "Загрузить активные вакансии", "Загрузить архивные вакансии", "Добавить вакансию по ссылке"
   - Использовать понятные названия без технических терминов
@@ -145,7 +145,7 @@
   - Тест валидации ввода URL
   - _Requirements: 9.1, 9.2_
 
-- [ ] 10. Создать UI компонент для отображения прогресса
+- [x] 10. Создать UI компонент для отображения прогресса
   - Создать файл `apps/app/src/components/vacancy/import-progress.tsx`
   - Реализовать подключение к Inngest Realtime каналу
   - Отображать прогресс-бар с процентом выполнения
@@ -178,7 +178,7 @@
   - Проверять успешность подключения
   - **Validates: Requirements 4.2**
 
-- [ ] 13. Checkpoint - Проверка работоспособности
+- [x] 13. Checkpoint - Проверка работоспособности
   - Убедиться, что все тесты проходят
   - Проверить работу импорта в dev окружении
   - Проверить отображение прогресса в UI
