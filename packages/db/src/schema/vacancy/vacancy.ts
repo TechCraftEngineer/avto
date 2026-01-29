@@ -56,7 +56,7 @@ export const vacancy = pgTable(
     // Пользователь, создавший вакансию (для аудита)
     createdBy: text("created_by")
       .notNull()
-      .references(() => user.id, { onDelete: "set null" }),
+      .references(() => user.id, { onDelete: "restrict" }),
 
     title: varchar("title", { length: 500 }).notNull(),
     url: text("url"),

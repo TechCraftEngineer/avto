@@ -9,12 +9,28 @@ import {
 } from "@qbs-autonaim/ui";
 import { ExternalLink, MessageSquare, MoreVertical } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { z } from "zod";
 
 interface InterviewResponseActionsProps {
   token: string;
   sessionId?: string;
   resumeUrl?: string | null;
 }
+
+const safeUrlSchema = z
+  .string()
+  .url()
+  .refine(
+    (url) => {
+      try {
+        const parsed = new URL(url);
+        return parsed.protocol === "http:" || parsed.protocol === "https:";
+      } catch {
+        return false;
+      }
+    },
+    { message: "URL должен использовать протокол HTTP или HTTPS" },
+  );
 
 export function InterviewResponseActions({
   token,
@@ -30,9 +46,15 @@ export function InterviewResponseActions({
   };
 
   const handleOpenResume = () => {
-    if (resumeUrl) {
-      window.open(resumeUrl, "_blank", "noopener,noreferrer");
+    if (!resumeUrl) return;
+
+    const validation = safeUrlSchema.safeParse(resumeUrl);
+    if (!validation.success) {
+      console.error("Небезопасный URL:", validation.error);
+      return;
     }
+
+    window.open(resumeUrl, "_blank", "noopener,noreferrer");
   };
 
   return (
