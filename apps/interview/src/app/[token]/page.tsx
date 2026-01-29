@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 import { InterviewLandingForm } from "~/components/interview-landing-form";
+import { InterviewResponseActions } from "~/components/interview-response-actions";
 import { useTRPC } from "~/trpc/react";
 
 interface PageProps {
@@ -16,6 +17,9 @@ function InterviewLandingClient({ token }: { token: string }) {
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [createdResponseId, setCreatedResponseId] = React.useState<
+    string | null
+  >(null);
 
   const _responseId = searchParams.get("responseId");
 
@@ -97,6 +101,12 @@ function InterviewLandingClient({ token }: { token: string }) {
       token,
       freelancerInfo: formData,
     });
+
+    // Сохраняем responseId для отображения кнопок действий
+    if (result.responseId) {
+      setCreatedResponseId(result.responseId);
+    }
+
     return { interviewSessionId: result.sessionId };
   };
 
@@ -187,9 +197,23 @@ function InterviewLandingClient({ token }: { token: string }) {
 
         {/* Title */}
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
-            {data.data.title}
-          </h1>
+          <div className="flex items-center justify-center gap-2">
+            <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
+              {data.data.title}
+            </h1>
+            {(data.type === "direct_response" && data.sessionId) ||
+            (createdResponseId && startInterviewMutation.data?.sessionId) ? (
+              <InterviewResponseActions
+                token={token}
+                sessionId={
+                  data.type === "direct_response"
+                    ? data.sessionId
+                    : startInterviewMutation.data?.sessionId
+                }
+                resumeUrl={null}
+              />
+            ) : null}
+          </div>
           <p className="mt-2 text-sm text-gray-500">{subtitle}</p>
         </div>
 
@@ -201,6 +225,7 @@ function InterviewLandingClient({ token }: { token: string }) {
                 У вас есть незавершенное интервью. Хотите продолжить?
               </p>
               <button
+                type="button"
                 onClick={handleContinueInterview}
                 disabled={startInterviewMutation.isPending}
                 className="mt-2 flex w-full min-h-[44px] items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
