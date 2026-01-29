@@ -14,10 +14,26 @@ export const metadata: Metadata = generatePageSEO("workspaces", {
 
 export default function WorkspacesPage() {
   const tocItems = [
-    { id: "what-is-workspace", title: "Что такое воркспейс", level: 2 },
-    { id: "create-workspace", title: "Создание воркспейса", level: 2 },
-    { id: "workspace-settings", title: "Настройки воркспейса", level: 2 },
-    { id: "workspace-members", title: "Участники воркспейса", level: 2 },
+    {
+      id: "what-is-workspace",
+      title: "Что такое рабочее пространство",
+      level: 2,
+    },
+    {
+      id: "create-workspace",
+      title: "Создание рабочего пространства",
+      level: 2,
+    },
+    {
+      id: "workspace-settings",
+      title: "Настройки рабочего пространства",
+      level: 2,
+    },
+    {
+      id: "workspace-members",
+      title: "Участники рабочего пространства",
+      level: 2,
+    },
     { id: "use-cases", title: "Примеры использования", level: 2 },
     { id: "real-examples", title: "Реальные примеры настройки", level: 2 },
   ];
@@ -29,7 +45,7 @@ export default function WorkspacesPage() {
           items={[
             { title: "Документация", href: "/docs" },
             { title: "Организации", href: "/organizations" },
-            { title: "Воркспейсы" },
+            { title: "Рабочие пространства" },
           ]}
         />
 
@@ -38,13 +54,13 @@ export default function WorkspacesPage() {
         </div>
 
         <h1 className="text-3xl font-bold tracking-tight text-foreground mb-4">
-          Воркспейсы
+          Рабочие пространства
         </h1>
 
         <p className="text-lg">
           Воркспейс — это изолированное пространство внутри организации для
-          работы с вакансиями и кандидатами. Используйте воркспейсы для
-          разделения команд, проектов или направлений найма.
+          работы с вакансиями и кандидатами. Используйте рабочее пространствоы
+          для разделения команд, проектов или направлений найма.
         </p>
 
         <DocsMobileToc items={tocItems} />
@@ -53,13 +69,14 @@ export default function WorkspacesPage() {
           id="what-is-workspace"
           className="text-xl font-semibold tracking-tight text-foreground mt-10 mb-4 scroll-mt-20"
         >
-          Что такое воркспейс
+          Что такое рабочее пространство
         </h2>
 
         <p className="mb-4">
           Воркспейс позволяет организовать работу отдельной команды или проекта
-          с собственными вакансиями, кандидатами и настройками. Каждый воркспейс
-          имеет свой набор участников с определенными правами доступа.
+          с собственными вакансиями, кандидатами и настройками. Каждый рабочее
+          пространство имеет свой набор участников с определенными правами
+          доступа.
         </p>
 
         <div className="my-6 space-y-3">
@@ -78,24 +95,26 @@ export default function WorkspacesPage() {
         </div>
 
         <DocsCallout type="info" title="Структура">
-          Организация может содержать несколько воркспейсов. На бесплатном
-          тарифе доступен 1 воркспейс, на платных — неограниченно.
+          Организация может содержать несколько рабочее пространствоов. На
+          бесплатном тарифе доступен 1 рабочее пространство, на платных —
+          неограниченно.
         </DocsCallout>
 
         <h2
           id="create-workspace"
           className="text-xl font-semibold tracking-tight text-foreground mt-10 mb-4 scroll-mt-20"
         >
-          Создание воркспейса
+          Создание рабочее пространствоа
         </h2>
 
         <p className="mb-4">
-          Создать новый воркспейс может владелец или администратор организации.
+          Создать новый рабочее пространство может владелец или администратор
+          организации.
         </p>
 
         <ol className="space-y-3 mb-6">
           <li>1. Откройте меню организации в левом верхнем углу</li>
-          <li>2. Нажмите «Создать воркспейс»</li>
+          <li>2. Нажмите «Создать рабочее пространство»</li>
           <li>3. Заполните название и slug (используется в URL)</li>
           <li>4. Добавьте описание (опционально)</li>
           <li>5. Нажмите «Создать»</li>
@@ -103,11 +122,11 @@ export default function WorkspacesPage() {
 
         <div className="my-6 rounded-lg border-2 border-dashed border-border bg-muted/30 p-8 text-center">
           <p className="text-sm font-medium text-muted-foreground mb-2">
-            📸 Скриншот: Создание воркспейса
+            📸 Скриншот: Создание рабочее пространствоа
           </p>
           <p className="text-xs text-muted-foreground">
-            Показать форму создания воркспейса с полями: Название, Slug,
-            Описание
+            Показать форму создания рабочее пространствоа с полями: Название,
+            Slug, Описание
           </p>
           <p className="text-xs text-muted-foreground mt-1">
             Путь: /orgs/[orgSlug]/workspaces/new
@@ -115,20 +134,21 @@ export default function WorkspacesPage() {
         </div>
 
         <DocsCallout type="tip" title="Совет">
-          Используйте понятные названия воркспейсов: «IT-отдел», «Продажи»,
-          «Маркетинг» или по проектам: «Проект А», «Летняя стажировка 2026».
+          Используйте понятные названия рабочее пространствоов: «IT-отдел»,
+          «Продажи», «Маркетинг» или по проектам: «Проект А», «Летняя стажировка
+          2026».
         </DocsCallout>
 
         <h2
           id="workspace-settings"
           className="text-xl font-semibold tracking-tight text-foreground mt-10 mb-4 scroll-mt-20"
         >
-          Настройки воркспейса
+          Настройки рабочее пространствоа
         </h2>
 
         <p className="mb-4">
-          Каждый воркспейс имеет собственные настройки, которые не влияют на
-          другие воркспейсы организации.
+          Каждый рабочее пространство имеет собственные настройки, которые не
+          влияют на другие рабочее пространствоы организации.
         </p>
 
         <div className="space-y-4">
@@ -141,7 +161,7 @@ export default function WorkspacesPage() {
               </li>
               <li>
                 <strong className="text-foreground">Описание:</strong> Краткая
-                информация о назначении воркспейса
+                информация о назначении рабочее пространствоа
               </li>
               <li>
                 <strong className="text-foreground">Видимость:</strong>{" "}
@@ -195,35 +215,38 @@ export default function WorkspacesPage() {
           id="workspace-members"
           className="text-xl font-semibold tracking-tight text-foreground mt-10 mb-4 scroll-mt-20"
         >
-          Участники воркспейса
+          Участники рабочее пространствоа
         </h2>
 
         <p className="mb-4">
-          Управляйте доступом к воркспейсу, добавляя участников из организации.
+          Управляйте доступом к рабочее пространствоу, добавляя участников из
+          организации.
         </p>
 
         <div className="my-6 rounded-lg border-2 border-dashed border-border bg-muted/30 p-8 text-center">
           <p className="text-sm font-medium text-muted-foreground mb-2">
-            📸 Скриншот: Участники воркспейса
+            📸 Скриншот: Участники рабочее пространствоа
           </p>
           <p className="text-xs text-muted-foreground">
-            Показать список участников воркспейса с ролями
+            Показать список участников рабочее пространствоа с ролями
           </p>
           <p className="text-xs text-muted-foreground mt-1">
             Путь: /orgs/[orgSlug]/workspaces/[slug]/settings/members
           </p>
         </div>
 
-        <h3 className="text-lg font-semibold mb-3">Роли в воркспейсе</h3>
+        <h3 className="text-lg font-semibold mb-3">
+          Роли в рабочее пространствое
+        </h3>
 
         <div className="space-y-4 mb-6">
           <div className="border border-border rounded-lg p-4">
             <h4 className="text-base font-semibold mb-2">Менеджер (Manager)</h4>
             <p className="text-sm text-muted-foreground mb-2">
-              Полный доступ к воркспейсу
+              Полный доступ к рабочее пространствоу
             </p>
             <ul className="space-y-1 text-sm">
-              <li>• Управление настройками воркспейса</li>
+              <li>• Управление настройками рабочее пространствоа</li>
               <li>• Добавление и удаление участников</li>
               <li>• Создание и редактирование вакансий</li>
               <li>• Доступ ко всей аналитике</li>
@@ -268,15 +291,15 @@ export default function WorkspacesPage() {
         </h2>
 
         <p className="mb-4">
-          Воркспейсы можно организовать по-разному в зависимости от структуры
-          компании:
+          Рабочие пространства можно организовать по-разному в зависимости от
+          структуры компании:
         </p>
 
         <div className="space-y-4">
           <div className="border border-border rounded-lg p-4">
             <h3 className="text-base font-semibold mb-2">По отделам</h3>
             <p className="text-sm text-muted-foreground mb-2">
-              Каждый отдел имеет свой воркспейс
+              Каждый отдел имеет свой рабочее пространство
             </p>
             <ul className="space-y-1 text-sm">
               <li>• «IT-отдел» — найм разработчиков, тестировщиков, DevOps</li>
@@ -288,7 +311,7 @@ export default function WorkspacesPage() {
           <div className="border border-border rounded-lg p-4">
             <h3 className="text-base font-semibold mb-2">По проектам</h3>
             <p className="text-sm text-muted-foreground mb-2">
-              Временные воркспейсы для конкретных проектов
+              Временные рабочее пространствоы для конкретных проектов
             </p>
             <ul className="space-y-1 text-sm">
               <li>• «Запуск нового продукта» — найм команды для стартапа</li>
@@ -323,19 +346,21 @@ export default function WorkspacesPage() {
         </div>
 
         <DocsCallout type="tip" title="Рекомендация">
-          Начните с одного воркспейса и создавайте новые по мере роста команды.
-          Слишком много воркспейсов может усложнить управление.
+          Начните с одного рабочее пространствоа и создавайте новые по мере
+          роста команды. Слишком много рабочее пространствоов может усложнить
+          управление.
         </DocsCallout>
 
         <h2
           id="real-examples"
           className="text-xl font-semibold tracking-tight text-foreground mt-10 mb-4 scroll-mt-20"
         >
-          Реальные примеры настройки воркспейсов
+          Реальные примеры настройки рабочее пространствоов
         </h2>
 
         <p className="mb-4">
-          Посмотрите, как разные компании организуют воркспейсы под свои задачи:
+          Посмотрите, как разные компании организуют рабочее пространствоы под
+          свои задачи:
         </p>
 
         <div className="space-y-6">
@@ -365,8 +390,8 @@ export default function WorkspacesPage() {
               </p>
               <p>
                 <strong className="text-foreground">Решение:</strong> Один
-                воркспейс для всех вакансий, основатель сам управляет наймом
-                через AI-скрининг
+                рабочее пространство для всех вакансий, основатель сам управляет
+                наймом через AI-скрининг
               </p>
               <p>
                 <strong className="text-foreground">Результат:</strong> Закрыли
@@ -409,8 +434,8 @@ export default function WorkspacesPage() {
               </p>
               <p>
                 <strong className="text-foreground">Решение:</strong> Каждый
-                тимлид управляет своим воркспейсом, настраивает AI под специфику
-                стека
+                тимлид управляет своим рабочее пространствоом, настраивает AI
+                под специфику стека
               </p>
               <p>
                 <strong className="text-foreground">Результат:</strong> Точность
@@ -452,8 +477,9 @@ export default function WorkspacesPage() {
                 найм продавцов в разных городах с учетом региональной специфики
               </p>
               <p>
-                <strong className="text-foreground">Решение:</strong> Воркспейсы
-                по регионам, региональные HR-менеджеры работают независимо
+                <strong className="text-foreground">Решение:</strong> Рабочие
+                пространства по регионам, региональные HR-менеджеры работают
+                независимо
               </p>
               <p>
                 <strong className="text-foreground">Результат:</strong>{" "}
@@ -499,8 +525,8 @@ export default function WorkspacesPage() {
               </p>
               <p>
                 <strong className="text-foreground">Решение:</strong> Отдельный
-                воркспейс на клиента, клиенты получают доступ только к своему
-                воркспейсу
+                рабочее пространство на клиента, клиенты получают доступ только
+                к своему рабочее пространствоу
               </p>
               <p>
                 <strong className="text-foreground">Результат:</strong>{" "}
@@ -545,7 +571,8 @@ export default function WorkspacesPage() {
               </p>
               <p>
                 <strong className="text-foreground">Решение:</strong> Одна
-                организация, воркспейсы по компаниям, общая база кандидатов
+                организация, рабочее пространствоы по компаниям, общая база
+                кандидатов
               </p>
               <p>
                 <strong className="text-foreground">Результат:</strong> Экономия
@@ -586,8 +613,8 @@ export default function WorkspacesPage() {
               </p>
               <p>
                 <strong className="text-foreground">Решение:</strong> Временные
-                воркспейсы под каждое мероприятие, архивирование после
-                завершения
+                рабочее пространствоы под каждое мероприятие, архивирование
+                после завершения
               </p>
               <p>
                 <strong className="text-foreground">Результат:</strong> Наняли
@@ -628,8 +655,9 @@ export default function WorkspacesPage() {
                 поток кандидатов для быстрой замены специалистов у клиентов
               </p>
               <p>
-                <strong className="text-foreground">Решение:</strong> Воркспейсы
-                по специализациям, постоянный скрининг входящих резюме
+                <strong className="text-foreground">Решение:</strong> Рабочие
+                пространства по специализациям, постоянный скрининг входящих
+                резюме
               </p>
               <p>
                 <strong className="text-foreground">Результат:</strong> База

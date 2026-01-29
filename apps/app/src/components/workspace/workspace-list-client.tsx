@@ -23,7 +23,7 @@ export function WorkspaceListClient({
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
-  // Фильтрация workspaces по поисковому запросу
+  // Фильтрация рабочих пространств по поисковому запросу
   const filteredWorkspaces = initialWorkspaces.filter((workspace) => {
     const query = searchQuery.toLowerCase();
     return (
@@ -39,15 +39,15 @@ export function WorkspaceListClient({
     <div className="container mx-auto py-8">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Воркспейсы</h1>
+          <h1 className="text-3xl font-bold">Рабочие пространства</h1>
           <p className="text-muted-foreground mt-2">
-            Управляйте воркспейсами вашей организации
+            Управляйте рабочими пространствами вашей организации
           </p>
         </div>
         {canCreateWorkspace && (
           <Button onClick={() => setIsCreateDialogOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
-            Создать воркспейс
+            Создать рабочее пространство
           </Button>
         )}
       </div>
@@ -68,13 +68,13 @@ export function WorkspaceListClient({
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
           <p className="text-muted-foreground mb-4 text-center">
             {searchQuery
-              ? "Воркспейсы не найдены"
-              : "У вас пока нет воркспейсов"}
+              ? "Рабочие пространства не найдены"
+              : "У вас пока нет рабочих пространств"}
           </p>
           {canCreateWorkspace && !searchQuery && (
             <Button onClick={() => setIsCreateDialogOpen(true)}>
               <Plus className="mr-2 h-4 w-4" />
-              Создать первый воркспейс
+              Создать первое рабочее пространство
             </Button>
           )}
         </div>

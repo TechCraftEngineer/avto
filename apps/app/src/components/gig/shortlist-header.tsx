@@ -36,7 +36,7 @@ export function ShortlistHeader({
         </div>
         <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
           <Star className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
-          Шортлист кандидатов
+          Финалисты
         </h1>
         <p className="text-sm text-muted-foreground">
           Топ-кандидаты на основе AI-анализа и ранжирования

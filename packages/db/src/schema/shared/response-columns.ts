@@ -101,7 +101,7 @@ export const rankingReasoningColumns = {
 export const rankingAnalysisColumns = {
   rankingPosition: integer("ranking_position"),
   rankingAnalysis: text("ranking_analysis"),
-  candidateSummary: text("candidate_summary"), // Краткое резюме для шортлиста
+  candidateSummary: text("candidate_summary"), // Краткое резюме для финалистов
   strengths: jsonb("strengths").$type<string[]>(),
   weaknesses: jsonb("weaknesses").$type<string[]>(),
   recommendation: recommendationEnum("recommendation"),
@@ -138,13 +138,13 @@ export const coverLetterColumn = {
  */
 export const emotionalAnalysisColumns = {
   emotionalTone: jsonb("emotional_tone").$type<{
-    enthusiasm: number;      // 0-100
-    confidence: number;     // 0-100
-    stressLevel: number;    // 0-100
-    authenticity: number;   // 0-100
+    enthusiasm: number; // 0-100
+    confidence: number; // 0-100
+    stressLevel: number; // 0-100
+    authenticity: number; // 0-100
   }>(),
   sentimentAnalysis: jsonb("sentiment_analysis").$type<{
-    overall: 'positive' | 'neutral' | 'negative';
+    overall: "positive" | "neutral" | "negative";
     scores: { positive: number; negative: number; neutral: number };
   }>(),
 };
@@ -154,9 +154,9 @@ export const emotionalAnalysisColumns = {
  */
 export const careerStabilityColumns = {
   careerStability: jsonb("career_stability").$type<{
-    jobTenure: number;      // средняя продолжительность работы (месяцы)
-    growthRate: number;     // скорость роста зарплаты/позиций
-    riskFactors: string[];  // факторы риска (частые увольнения и т.д.)
+    jobTenure: number; // средняя продолжительность работы (месяцы)
+    growthRate: number; // скорость роста зарплаты/позиций
+    riskFactors: string[]; // факторы риска (частые увольнения и т.д.)
     stabilityScore: number; // 0-100
   }>(),
 };
@@ -166,10 +166,10 @@ export const careerStabilityColumns = {
  */
 export const predictiveMetricsColumns = {
   predictiveMetrics: jsonb("predictive_metrics").$type<{
-    retentionProbability: number;    // вероятность удержания (0-100)
-    performanceScore: number;        // предсказанная производительность (0-100)
-    culturalFitScore: number;        // соответствие культуре (0-100)
-    growthPotential: number;         // потенциал роста (0-100)
+    retentionProbability: number; // вероятность удержания (0-100)
+    performanceScore: number; // предсказанная производительность (0-100)
+    culturalFitScore: number; // соответствие культуре (0-100)
+    growthPotential: number; // потенциал роста (0-100)
   }>(),
 };
 
@@ -179,19 +179,19 @@ export const predictiveMetricsColumns = {
 export const behavioralAnalysisColumns = {
   behavioralPatterns: jsonb("behavioral_patterns").$type<{
     responseTimePattern: {
-      averageResponseTime: number;   // среднее время ответа (сек)
-      consistency: number;           // consistency в скорости (0-100)
-      aiSuspicionLevel: number;      // уровень подозрения AI (0-100)
+      averageResponseTime: number; // среднее время ответа (сек)
+      consistency: number; // consistency в скорости (0-100)
+      aiSuspicionLevel: number; // уровень подозрения AI (0-100)
     };
     engagementMetrics: {
       messageCount: number;
-      questionDepth: number;         // глубина вопросов
-      followUpRate: number;          // процент follow-up вопросов
+      questionDepth: number; // глубина вопросов
+      followUpRate: number; // процент follow-up вопросов
     };
     communicationStyle: {
-      formality: number;             // формальность (0-100)
-      clarity: number;               // ясность (0-100)
-      persuasiveness: number;        // убедительность (0-100)
+      formality: number; // формальность (0-100)
+      clarity: number; // ясность (0-100)
+      persuasiveness: number; // убедительность (0-100)
     };
   }>(),
 };
@@ -201,16 +201,16 @@ export const behavioralAnalysisColumns = {
  */
 export const deiMetricsColumns = {
   deiMetrics: jsonb("dei_metrics").$type<{
-    consentGiven: boolean;          // Явное согласие кандидата на обработку данных
-    consentTimestamp: string;       // Время предоставления согласия
-    purpose: string;                // Цель обработки данных
+    consentGiven: boolean; // Явное согласие кандидата на обработку данных
+    consentTimestamp: string; // Время предоставления согласия
+    purpose: string; // Цель обработки данных
     diversity: {
-      geography: string;            // География оставлена как нечувствительная информация
+      geography: string; // География оставлена как нечувствительная информация
     };
     biasDetection: {
-      detectedBiases: string[];      // выявленные biases
-      fairnessScore: number;         // оценка fairness (0-100)
-      recommendations: string[];     // рекомендации по улучшению
+      detectedBiases: string[]; // выявленные biases
+      fairnessScore: number; // оценка fairness (0-100)
+      recommendations: string[]; // рекомендации по улучшению
     };
   }>(),
 };
@@ -259,9 +259,9 @@ export const externalSourcesColumns = {
     }>;
   }>(),
   portfolioAnalysis: jsonb("portfolio_analysis").$type<{
-    quality: number;                 // качество работ (0-100)
-    relevance: number;               // релевантность (0-100)
-    technicalSkills: string[];       // выявленные навыки
-    creativity: number;              // креативность (0-100)
+    quality: number; // качество работ (0-100)
+    relevance: number; // релевантность (0-100)
+    technicalSkills: string[]; // выявленные навыки
+    creativity: number; // креативность (0-100)
   }>(),
 };
