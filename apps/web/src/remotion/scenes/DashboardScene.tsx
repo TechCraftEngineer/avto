@@ -86,14 +86,15 @@ export const DashboardScene: React.FC<SceneProps> = ({ frame }) => {
           { label: "Собеседований", value: "23", subtext: "на этой неделе", color: "#f59e0b", icon: "🎯" },
           { label: "Закрыто вакансий", value: "8", subtext: "за январь", color: "#8b5cf6", icon: "✅" },
         ].map((card, i) => {
+          const delay = cardsDelay[i] ?? 0;
           const cardOpacity = interpolate(
             frame,
-            [cardsDelay[i] * 3, cardsDelay[i] * 3 + 15],
+            [delay * 3, delay * 3 + 15],
             [0, 1]
           );
           const cardY = interpolate(
             frame,
-            [cardsDelay[i] * 3, cardsDelay[i] * 3 + 15],
+            [delay * 3, delay * 3 + 15],
             [40, 0]
           );
 

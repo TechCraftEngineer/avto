@@ -2,7 +2,6 @@ import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { response, responseScreening, vacancy } from "@qbs-autonaim/db/schema";
 import { generateText } from "@qbs-autonaim/lib/ai";
-import { getInterviewUrlWithResponseId } from "@qbs-autonaim/server-utils";
 import { createLogger, err, ok, type Result, tryCatch } from "../base";
 
 const logger = createLogger("InvitationGenerator");

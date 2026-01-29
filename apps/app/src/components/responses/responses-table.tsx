@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Button,
   Skeleton,
   Table,
   TableBody,
@@ -11,7 +10,6 @@ import {
   TableRow,
 } from "@qbs-autonaim/ui";
 import { IconInbox, IconSearch } from "@tabler/icons-react";
-import Link from "next/link";
 import { ResponsesTableRow } from "./responses-table-row";
 
 interface Response {

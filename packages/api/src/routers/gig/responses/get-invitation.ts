@@ -7,7 +7,7 @@ import { z } from "zod";
 import { protectedProcedure } from "../../../trpc";
 
 function generateGigInvitationText(
-  candidateName: string | null,
+  _candidateName: string | null,
   gigTitle: string,
   interviewUrl: string,
 ): string {

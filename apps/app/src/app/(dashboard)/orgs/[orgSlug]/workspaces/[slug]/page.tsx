@@ -3,11 +3,10 @@
 import { use } from "react";
 import {
   ActiveVacancies,
-  AIAssistantPanel,
   DashboardStats,
+  PendingActions,
+  QuickActions,
   RecentResponses,
-  ResponsesChart,
-  TopResponses,
 } from "~/components/dashboard";
 
 export default function WorkspacePage({
@@ -18,29 +17,23 @@ export default function WorkspacePage({
   const { orgSlug, slug: workspaceSlug } = use(params);
 
   return (
-    <div className="flex flex-1 flex-col">
-      <div className="@container/main flex flex-1 flex-col gap-4">
-        <div className="flex flex-1 flex-col gap-4">
-          {/* Статистика - на весь экран */}
-          <DashboardStats />
+    <div className="flex flex-1 flex-col gap-4">
+      {/* Компактная статистика */}
+      <DashboardStats />
 
-          {/* AI-Ассистент - на весь экран */}
-          <AIAssistantPanel orgSlug={orgSlug} workspaceSlug={workspaceSlug} />
+      {/* Быстрые действия */}
+      <QuickActions orgSlug={orgSlug} workspaceSlug={workspaceSlug} />
 
-          {/* Основной контент - на весь экран */}
-          <div className="grid flex-1 gap-4 md:grid-cols-2 @7xl/main:grid-cols-3">
-            <RecentResponses orgSlug={orgSlug} workspaceSlug={workspaceSlug} />
-            <ActiveVacancies orgSlug={orgSlug} workspaceSlug={workspaceSlug} />
-            <TopResponses
-              orgSlug={orgSlug}
-              workspaceSlug={workspaceSlug}
-              className="md:col-span-2 @7xl/main:col-span-1"
-            />
-          </div>
+      {/* Основной контент */}
+      <div className="grid flex-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {/* Требуют внимания */}
+        <PendingActions orgSlug={orgSlug} workspaceSlug={workspaceSlug} />
 
-          {/* График - на весь экран */}
-          <ResponsesChart />
-        </div>
+        {/* Последние отклики */}
+        <RecentResponses orgSlug={orgSlug} workspaceSlug={workspaceSlug} />
+
+        {/* Активные вакансии */}
+        <ActiveVacancies orgSlug={orgSlug} workspaceSlug={workspaceSlug} />
       </div>
     </div>
   );

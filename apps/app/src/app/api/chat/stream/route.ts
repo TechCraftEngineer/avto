@@ -191,7 +191,6 @@ ${historyContext}
         const result = streamText({
           model: getAIModel(),
           prompt,
-          experimental_transform: smoothStream({ chunking: "word" }),
           generationName: "recruiter-chat-response",
           entityId: resolvedChatSessionId,
           metadata: {

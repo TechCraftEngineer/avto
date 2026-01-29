@@ -67,12 +67,12 @@ export default function IntegrationsPage() {
     (acc, integration) => {
       const category = integration.category;
       if (!acc[category]) {
-        acc[category] = [];
+        acc[category] = [] as Array<typeof integration>;
       }
-      acc[category].push(integration);
+      acc[category]?.push(integration);
       return acc;
     },
-    {} as Record<string, typeof AVAILABLE_INTEGRATIONS>,
+    {} as Record<string, Array<(typeof AVAILABLE_INTEGRATIONS)[number]>>,
   );
 
   return (

@@ -45,11 +45,11 @@ test.describe("OTP верификация", () => {
     // Настраиваем mock для повторной отправки OTP
     await mockOTPResend(page);
 
-    const resendButton = page.getByRole("button", {
+    const _resendButton = page.getByRole("button", {
       name: "Отправить повторно",
     });
 
-    await expect(resendButton).toBeEnabled();
+    await expect(_resendButton).toBeEnabled();
     await safeClickByRole(page, "button", { name: "Отправить повторно" });
 
     // Проверяем состояние загрузки
@@ -128,7 +128,7 @@ test.describe("OTP верификация", () => {
     // Настраиваем mock для повторной отправки OTP
     await mockOTPResend(page);
 
-    const resendButton = page.getByRole("button", {
+    const _resendButton = page.getByRole("button", {
       name: "Отправить повторно",
     });
 
