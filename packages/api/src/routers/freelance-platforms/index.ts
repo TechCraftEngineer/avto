@@ -1,42 +1,50 @@
 import type { TRPCRouterRecord } from "@trpc/server";
-import { addPublication } from "./add-publication";
-import { checkAllPublicationStatuses } from "./check-all-publication-statuses";
-import { checkDuplicateResponse } from "./check-duplicate-response";
-import { checkInterviewAccess } from "./check-interview-access";
-import { createVacancy } from "./create-vacancy";
-import { deleteVacancy } from "./delete-vacancy";
-import { exportAnalytics } from "./export-analytics";
-import { generateInterviewLink } from "./generate-interview-link";
-import { getAnalytics } from "./get-analytics";
-import { getChatHistory } from "./get-chat-history";
-import { getDashboardStats } from "./get-dashboard-stats";
-import { getInterviewByToken } from "./get-interview-by-token";
-import { getInterviewContext } from "./get-interview-context";
-import { getInterviewLink } from "./get-interview-link";
-import { getNewMessages } from "./get-new-messages";
-import { getShortlist } from "./get-shortlist";
-import { getVacancies } from "./get-vacancies";
-import { getVacancyById } from "./get-vacancy-by-id";
-import { getVacancyByToken } from "./get-vacancy-by-token";
-import { getVacancyIntegrations } from "./get-vacancy-integrations";
-import { getWebInterviewStatus } from "./get-web-interview-status";
-import { importBulkResponses } from "./import-bulk-responses";
-import { importSingleResponse } from "./import-single-response";
-import { importVacancyByUrl } from "./import-vacancy-by-url";
-import { mergeVacancies } from "./merge-vacancies";
-import { previewBulkImport } from "./preview-bulk-import";
-import { retryAnalysis } from "./retry-analysis";
-import { retryBulkImport } from "./retry-bulk-import";
-import { sendChatMessage } from "./send-chat-message";
-import { startInterview } from "./start-interview";
-import { startWebInterview } from "./start-web-interview";
-import { syncArchivedVacancyResponses } from "./sync-archived-vacancy-responses";
-// import { subscribeToChatMessages } from "./subscribe-to-chat-messages";
-import { syncGigResponses } from "./sync-gig-responses";
-import { updatePublication } from "./update-publication";
-import { updateVacancyStatus } from "./update-vacancy-status";
-import { validateInterviewToken } from "./validate-interview-token";
-import { validatePublication } from "./validate-publication";
+// Analytics
+import { getAnalytics } from "./analytics/get-analytics";
+import { getDashboardStats } from "./analytics/get-dashboard-stats";
+// Chat
+import { getChatHistory } from "./chat/get-chat-history";
+import { getNewMessages } from "./chat/get-new-messages";
+import { sendChatMessage } from "./chat/send-chat-message";
+// Import/Export
+import { exportAnalytics } from "./import-export/export-analytics";
+import { importBulkResponses } from "./import-export/import-bulk-responses";
+import { importSingleResponse } from "./import-export/import-single-response";
+import { importVacancyByUrl } from "./import-export/import-vacancy-by-url";
+import { previewBulkImport } from "./import-export/preview-bulk-import";
+import { retryBulkImport } from "./import-export/retry-bulk-import";
+// Interviews
+import { checkInterviewAccess } from "./interviews/check-interview-access";
+import { generateInterviewLink } from "./interviews/generate-interview-link";
+import { getInterviewByToken } from "./interviews/get-interview-by-token";
+import { getInterviewContext } from "./interviews/get-interview-context";
+import { getInterviewLink } from "./interviews/get-interview-link";
+import { getWebInterviewStatus } from "./interviews/get-web-interview-status";
+import { startInterview } from "./interviews/start-interview";
+import { startWebInterview } from "./interviews/start-web-interview";
+import { validateInterviewToken } from "./interviews/validate-interview-token";
+// Publications
+import { addPublication } from "./publications/add-publication";
+import { checkAllPublicationStatuses } from "./publications/check-all-publication-statuses";
+import { updatePublication } from "./publications/update-publication";
+import { validatePublication } from "./publications/validate-publication";
+// Vacancies
+import { createVacancy } from "./vacancies/create-vacancy";
+import { deleteVacancy } from "./vacancies/delete-vacancy";
+import { getVacancies } from "./vacancies/get-vacancies";
+import { getVacancyById } from "./vacancies/get-vacancy-by-id";
+import { getVacancyByToken } from "./vacancies/get-vacancy-by-token";
+import { getVacancyIntegrations } from "./vacancies/get-vacancy-integrations";
+import { mergeVacancies } from "./vacancies/merge-vacancies";
+import { updateVacancyStatus } from "./vacancies/update-vacancy-status";
+// import { subscribeToChatMessages } from "./chat/subscribe-to-chat-messages";
+
+// Other
+import { checkDuplicateResponse } from "./other/check-duplicate-response";
+import { getShortlist } from "./other/get-shortlist";
+import { retryAnalysis } from "./other/retry-analysis";
+import { syncArchivedVacancyResponses } from "./other/sync-archived-vacancy-responses";
+import { syncGigResponses } from "./other/sync-gig-responses";
 
 export const freelancePlatformsRouter = {
   createVacancy,
