@@ -4,7 +4,7 @@ import { Badge, Progress, ScrollArea } from "@qbs-autonaim/ui";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
-import { TrendingDown, Users } from "lucide-react";
+import { Award, TrendingDown, Users } from "lucide-react";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
 

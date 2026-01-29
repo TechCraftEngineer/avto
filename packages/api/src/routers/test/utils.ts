@@ -59,13 +59,27 @@ export async function cleanupTestUser(email: string): Promise<void> {
 
 /**
  * Утилита для очистки всех тестовых данных
+ * ВНИМАНИЕ: Работает только в test/development окружении
  */
 export async function cleanupAllTestData(): Promise<void> {
-  // Удаляем все тестовые организации (по префиксу или паттерну)
+  // Защита от случайного запуска в production
+  if (
+    process.env.NODE_ENV === "production" &&
+    !process.env.FORCE_TEST_CLEANUP
+  ) {
+    throw new Error(
+      "cleanupAllTestData не может быть запущена в production окружении. " +
+        "Установите FORCE_TEST_CLEANUP=true если действительно необходимо.",
+    );
+  }
+
+  // Используем строгие префиксы для тестовых данных
+  // Удаляем только организации с явными тестовыми префиксами
   const testOrgs = await db.query.organization.findMany({
     where: or(
-      like(organization.name, "%Test%"),
-      like(organization.slug, "test-%"),
+      like(organization.slug, "e2e-test-%"),
+      like(organization.slug, "ci-test-%"),
+      like(organization.slug, "playwright-test-%"),
     ),
   });
 
@@ -82,12 +96,12 @@ export async function cleanupAllTestData(): Promise<void> {
     await db.delete(organization).where(eq(organization.id, org.id));
   }
 
-  // Удаляем тестовых пользователей
+  // Удаляем только пользователей с явными тестовыми email-адресами
   const testUsers = await db.query.user.findMany({
     where: or(
-      like(user.email, "%test%"),
-      like(user.email, "%example.com%"),
-      like(user.name, "%Test%"),
+      like(user.email, "e2e-test-%"),
+      like(user.email, "ci-test-%"),
+      like(user.email, "playwright-test-%"),
     ),
   });
 

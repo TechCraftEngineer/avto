@@ -16,6 +16,7 @@ import {
   DialogTab,
   ExperienceTab,
   InterviewScoringCard,
+  isVacancyResponse,
   NotesTagsTab,
   PortfolioTab,
   ProposalTab,
@@ -108,6 +109,7 @@ export function VacancyResponseTabs({
 
   // Подсчитываем количество видимых вкладок
   const hasAnalysis = hasScreening || hasInterviewScoring;
+  const isVacancy = isVacancyResponse(response);
   const visibleTabsCount =
     (hasAnalysis ? 1 : 0) +
     (hasConversation ? 1 : 0) +
@@ -115,7 +117,8 @@ export function VacancyResponseTabs({
     (hasExperienceData ? 1 : 0) +
     (hasPortfolioData ? 1 : 0) +
     (hasContactsData ? 1 : 0) +
-    3; // +3 для новых вкладок (timeline, comparison, notes)
+    2 + // timeline и notes всегда видны
+    (isVacancy ? 1 : 0); // comparison только для vacancy
 
   // Определяем классы grid-cols на основе количества вкладок
   const gridColsClass =
@@ -186,12 +189,14 @@ export function VacancyResponseTabs({
             >
               История
             </TabsTrigger>
-            <TabsTrigger
-              value="comparison"
-              className="min-h-11 sm:min-h-9 text-xs sm:text-sm touch-manipulation"
-            >
-              Сравнение
-            </TabsTrigger>
+            {isVacancyResponse(response) && (
+              <TabsTrigger
+                value="comparison"
+                className="min-h-11 sm:min-h-9 text-xs sm:text-sm touch-manipulation"
+              >
+                Сравнение
+              </TabsTrigger>
+            )}
             <TabsTrigger
               value="notes"
               className="min-h-11 sm:min-h-9 text-xs sm:text-sm touch-manipulation"
@@ -271,17 +276,19 @@ export function VacancyResponseTabs({
             <TimelineTab responseId={response.id} />
           </TabsContent>
 
-          {/* Comparison Tab */}
-          <TabsContent
-            value="comparison"
-            className="space-y-3 sm:space-y-4 mt-0"
-          >
-            <ComparisonTab
-              responseId={response.id}
-              vacancyId={response.entityId}
-              currentScore={response.compositeScore}
-            />
-          </TabsContent>
+          {/* Comparison Tab - только для vacancy откликов */}
+          {isVacancyResponse(response) && (
+            <TabsContent
+              value="comparison"
+              className="space-y-3 sm:space-y-4 mt-0"
+            >
+              <ComparisonTab
+                responseId={response.id}
+                vacancyId={response.entityId}
+                currentScore={response.compositeScore}
+              />
+            </TabsContent>
+          )}
 
           {/* Notes & Tags Tab */}
           <TabsContent value="notes" className="space-y-3 sm:space-y-4 mt-0">

@@ -78,7 +78,7 @@ export const setup = publicProcedure
         throw new Error("Не удалось создать организацию");
       }
 
-      // Создаем воркспейс (ID генерируется автоматически)
+      // Создаем воркспейс (ID генерируется автоматически через workspace_id_generate())
       const workspaceSlug = (workspaceName || `test-workspace-${Date.now()}`)
         .toLowerCase()
         .replace(/\s+/g, "-");

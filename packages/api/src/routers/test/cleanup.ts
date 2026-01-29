@@ -48,6 +48,12 @@ export const cleanup = publicProcedure
         message: "Необходимо указать email пользователя или флаг all=true",
       });
     } catch (error) {
+      // Если это уже TRPCError, пробрасываем его как есть
+      if (error instanceof TRPCError) {
+        throw error;
+      }
+
+      // Иначе оборачиваем в INTERNAL_SERVER_ERROR
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Ошибка при очистке тестовых данных",

@@ -16,7 +16,7 @@ import {
   IconMessagePlus,
 } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
@@ -60,7 +60,7 @@ export function ResponseInvitationButton({
   }, [generateInvitation, responseId, workspace?.id]);
 
   // Автоматически генерируем приглашение при открытии диалога
-  React.useEffect(() => {
+  useEffect(() => {
     if (open && !invitationData && !isGenerating && workspace?.id) {
       generateInvitation({ responseId, workspaceId: workspace.id });
     }
