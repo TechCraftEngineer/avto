@@ -30,11 +30,6 @@ export default function IntegrationsPage() {
     enabled: !!workspaceId,
   });
 
-  const { data: telegramSessions } = useQuery({
-    ...api.telegram.getSessions.queryOptions({ workspaceId }),
-    enabled: !!workspaceId,
-  });
-
   const handleCreate = (type: string) => {
     setSelectedType(type);
     setIsEditing(false);
@@ -62,7 +57,6 @@ export default function IntegrationsPage() {
     );
   }
 
-  const hasTelegramSession = telegramSessions && telegramSessions.length > 0;
   const integrationsByCategory = AVAILABLE_INTEGRATIONS.reduce(
     (acc, integration) => {
       const category = integration.category;
@@ -97,7 +91,6 @@ export default function IntegrationsPage() {
       <div className="space-y-8">
         {/* Секция коммуникации (Telegram) */}
         <IntegrationCategorySection
-          categoryId={INTEGRATION_CATEGORIES.COMMUNICATION.id}
           name={INTEGRATION_CATEGORIES.COMMUNICATION.name}
           description={INTEGRATION_CATEGORIES.COMMUNICATION.description}
           icon={INTEGRATION_CATEGORIES.COMMUNICATION.icon}
@@ -109,11 +102,9 @@ export default function IntegrationsPage() {
 
         {/* Секция поиска работы */}
         <IntegrationCategorySection
-          categoryId={INTEGRATION_CATEGORIES.JOB_SEARCH.id}
           name={INTEGRATION_CATEGORIES.JOB_SEARCH.name}
           description={INTEGRATION_CATEGORIES.JOB_SEARCH.description}
           icon={INTEGRATION_CATEGORIES.JOB_SEARCH.icon}
-          showTelegramInfo={!hasTelegramSession}
         >
           {integrationsByCategory["job-search"]?.map((availableIntegration) => {
             const existingIntegration = integrations?.find(

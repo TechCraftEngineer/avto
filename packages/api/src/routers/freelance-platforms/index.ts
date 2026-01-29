@@ -22,6 +22,7 @@ import { getVacancyIntegrations } from "./get-vacancy-integrations";
 import { getWebInterviewStatus } from "./get-web-interview-status";
 import { importBulkResponses } from "./import-bulk-responses";
 import { importSingleResponse } from "./import-single-response";
+import { importVacancyByUrl } from "./import-vacancy-by-url";
 import { mergeVacancies } from "./merge-vacancies";
 import { previewBulkImport } from "./preview-bulk-import";
 import { retryAnalysis } from "./retry-analysis";
@@ -64,6 +65,7 @@ export const freelancePlatformsRouter = {
   // Manual import endpoints
   importSingleResponse,
   importBulkResponses,
+  importVacancyByUrl,
   previewBulkImport,
   retryAnalysis,
   retryBulkImport,

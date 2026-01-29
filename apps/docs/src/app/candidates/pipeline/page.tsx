@@ -194,7 +194,7 @@ export default function PipelinePage() {
             <strong className="font-semibold text-foreground">
               По источнику
             </strong>{" "}
-            — HeadHunter, Kwork и др.
+            — HeadHunter, Avito и др.
           </li>
           <li>
             <strong className="font-semibold text-foreground">По дате</strong> —

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@qbs-autonaim/ui";
-import { IconPlus, IconRefresh } from "@tabler/icons-react";
+import { IconDownload, IconPlus, IconRefresh } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";
@@ -119,7 +119,7 @@ export default function VacanciesPage() {
       <PageHeader
         title="Вакансии"
         description="Управление вашими вакансиями и откликами на фриланс-платформах"
-        tooltipContent="Вы можете импортировать вакансии из HH, Kwork и других площадок. Система будет автоматически отслеживать новые отклики и синхронизировать статусы."
+        tooltipContent="Вы можете импортировать вакансии из HH, Avito и других площадок. Система будет автоматически отслеживать новые отклики и синхронизировать статусы."
       >
         <div className="flex items-center gap-3">
           <Button
@@ -132,6 +132,18 @@ export default function VacanciesPage() {
               className={`size-4 ${isUpdating ? "animate-spin" : ""}`}
             />
             {isUpdating ? "Обновление…" : "Синхронизировать"}
+          </Button>
+          <Button
+            asChild
+            variant="outline"
+            className="h-9 gap-2 shadow-sm active:scale-95"
+          >
+            <Link
+              href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies/import`}
+            >
+              <IconDownload className="size-4" />
+              <span>Импорт</span>
+            </Link>
           </Button>
           <Button asChild className="h-9 gap-2 shadow-sm active:scale-95">
             <Link
