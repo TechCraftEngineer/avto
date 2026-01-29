@@ -68,11 +68,11 @@ export function CreateWorkspaceDialog({
   const createMutation = useMutation(
     trpc.organization.createWorkspace.mutationOptions({
       onSuccess: async (workspace) => {
-        toast.success("Воркспейс создан", {
-          description: `Воркспейс "${workspace.name}" успешно создан`,
+        toast.success("Рабочее пространство создано", {
+          description: `Рабочее пространство "${workspace.name}" успешно создано`,
         });
 
-        // Инвалидируем кеш воркспейсов и организаций
+        // Инвалидируем кеш рабочих пространств и организаций
         await queryClient.invalidateQueries(trpc.workspace.list.pathFilter());
         await queryClient.invalidateQueries(
           trpc.organization.list.pathFilter(),
@@ -80,7 +80,7 @@ export function CreateWorkspaceDialog({
 
         onOpenChange(false);
         form.reset();
-        // Перенаправляем на страницу нового воркспейса
+        // Перенаправляем на страницу нового рабочего пространства
         router.push(
           paths.workspace.root(organizationSlug, workspace?.slug ?? ""),
         );
@@ -95,10 +95,11 @@ export function CreateWorkspaceDialog({
           error.message.includes("CONFLICT")
         ) {
           form.setError("slug", {
-            message: "Воркспейс с таким slug уже существует в этой организации",
+            message:
+              "Рабочее пространство с таким slug уже существует в этой организации",
           });
         } else {
-          toast.error("Ошибка при создании воркспейса", {
+          toast.error("Ошибка при создании рабочего пространства", {
             description: error.message,
           });
         }
@@ -136,7 +137,9 @@ export function CreateWorkspaceDialog({
           <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-primary/10">
             <Building2 className="size-6 text-primary" />
           </div>
-          <DialogTitle className="text-2xl">Создать воркспейс</DialogTitle>
+          <DialogTitle className="text-2xl">
+            Создать рабочее пространство
+          </DialogTitle>
           <DialogDescription>
             Создайте новое рабочее пространство для вашей команды
           </DialogDescription>
@@ -152,7 +155,7 @@ export function CreateWorkspaceDialog({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Название воркспейса</FormLabel>
+                  <FormLabel>Название рабочего пространства</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Моя компания"
@@ -171,7 +174,7 @@ export function CreateWorkspaceDialog({
               render={({ field }) => (
                 <FormItem>
                   <div className="flex items-center gap-1.5">
-                    <FormLabel>Slug воркспейса</FormLabel>
+                    <FormLabel>Slug рабочего пространства</FormLabel>
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -180,9 +183,9 @@ export function CreateWorkspaceDialog({
                         <TooltipContent className="max-w-xs">
                           <p>
                             Slug — это уникальный идентификатор для URL.
-                            Например, для воркспейса "Основной проект" slug
-                            может быть "osnovnoy-proekt". Используется только
-                            латиница, цифры и дефисы.
+                            Например, для рабочего пространства "Основной
+                            проект" slug может быть "osnovnoy-proekt".
+                            Используется только латиница, цифры и дефисы.
                           </p>
                         </TooltipContent>
                       </Tooltip>
@@ -206,7 +209,8 @@ export function CreateWorkspaceDialog({
                     </div>
                   </FormControl>
                   <FormDescription>
-                    Вы сможете изменить это позже в настройках воркспейса.
+                    Вы сможете изменить это позже в настройках рабочего
+                    пространства.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -221,7 +225,7 @@ export function CreateWorkspaceDialog({
                   <FormLabel>Описание (опционально)</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Краткое описание воркспейса..."
+                      placeholder="Краткое описание рабочего пространства..."
                       className="resize-none"
                       rows={3}
                       {...field}
@@ -265,7 +269,9 @@ export function CreateWorkspaceDialog({
                 className="flex-1"
                 disabled={createMutation.isPending}
               >
-                {createMutation.isPending ? "Создание…" : "Создать воркспейс"}
+                {createMutation.isPending
+                  ? "Создание…"
+                  : "Создать рабочее пространство"}
               </Button>
             </div>
           </form>

@@ -219,7 +219,7 @@ export const CreateResponseSchema = createInsertSchema(response, {
   experienceScore: z.number().int().min(0).max(100).optional(),
   rankingPosition: z.number().int().positive().optional(),
   rankingAnalysis: z.string().optional(),
-  candidateSummary: z.string().max(500).optional(), // Краткое резюме для шортлиста
+  candidateSummary: z.string().max(500).optional(), // Краткое резюме для финалистов
   strengths: z.array(z.string()).optional(),
   weaknesses: z.array(z.string()).optional(),
   recommendation: z.enum(recommendationValues).optional(),

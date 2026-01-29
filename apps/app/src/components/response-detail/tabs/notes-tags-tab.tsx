@@ -8,7 +8,12 @@ import {
   Separator,
   Textarea,
 } from "@qbs-autonaim/ui";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  skipToken,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
 import { MessageSquare, Plus, Send, Tag as TagIcon, X } from "lucide-react";
@@ -32,24 +37,29 @@ export function NotesTagsTab({ responseId }: NotesTagsTabProps) {
 
   // Загрузка тегов
   const { data: tags, isLoading: tagsLoading } = useQuery(
-    trpc.vacancy.responses.listTags.queryOptions({
-      responseId,
-      workspaceId: workspace.id,
-    }),
+    workspace?.id
+      ? trpc.vacancy.responses.listTags.queryOptions({
+          responseId,
+          workspaceId: workspace.id,
+        })
+      : skipToken,
   );
 
   // Загрузка комментариев
   const { data: comments, isLoading: commentsLoading } = useQuery(
-    trpc.candidates.listComments.queryOptions({
-      candidateId: responseId,
-      workspaceId: workspace.id,
-    }),
+    workspace?.id
+      ? trpc.candidates.listComments.queryOptions({
+          candidateId: responseId,
+          workspaceId: workspace.id,
+        })
+      : skipToken,
   );
 
   // Добавление тега
   const addTagMutation = useMutation(
     trpc.vacancy.responses.addTag.mutationOptions({
       onSuccess: () => {
+        if (!workspace?.id) return;
         queryClient.invalidateQueries({
           queryKey: trpc.vacancy.responses.listTags.queryKey({
             responseId,
@@ -57,12 +67,11 @@ export function NotesTagsTab({ responseId }: NotesTagsTabProps) {
           }),
         });
         setNewTag("");
-        toast({ title: "Тег добавлен" });
+        toast({ description: "Тег добавлен" });
       },
       onError: (error) => {
         toast({
-          title: "Ошибка",
-          description: error.message,
+          description: "Ошибка: " + error.message,
           variant: "destructive",
         });
       },
@@ -73,18 +82,18 @@ export function NotesTagsTab({ responseId }: NotesTagsTabProps) {
   const removeTagMutation = useMutation(
     trpc.vacancy.responses.removeTag.mutationOptions({
       onSuccess: () => {
+        if (!workspace?.id) return;
         queryClient.invalidateQueries({
           queryKey: trpc.vacancy.responses.listTags.queryKey({
             responseId,
             workspaceId: workspace.id,
           }),
         });
-        toast({ title: "Тег удален" });
+        toast({ description: "Тег удален" });
       },
       onError: (error) => {
         toast({
-          title: "Ошибка",
-          description: error.message,
+          description: "Ошибка: " + error.message,
           variant: "destructive",
         });
       },
@@ -95,6 +104,7 @@ export function NotesTagsTab({ responseId }: NotesTagsTabProps) {
   const addCommentMutation = useMutation(
     trpc.candidates.addComment.mutationOptions({
       onSuccess: () => {
+        if (!workspace?.id) return;
         queryClient.invalidateQueries({
           queryKey: trpc.candidates.listComments.queryKey({
             candidateId: responseId,
@@ -102,12 +112,11 @@ export function NotesTagsTab({ responseId }: NotesTagsTabProps) {
           }),
         });
         setNewComment("");
-        toast({ title: "Комментарий добавлен" });
+        toast({ description: "Комментарий добавлен" });
       },
       onError: (error) => {
         toast({
-          title: "Ошибка",
-          description: error.message,
+          description: "Ошибка: " + error.message,
           variant: "destructive",
         });
       },
@@ -115,7 +124,7 @@ export function NotesTagsTab({ responseId }: NotesTagsTabProps) {
   );
 
   const handleAddTag = () => {
-    if (!newTag.trim()) return;
+    if (!newTag.trim() || !workspace?.id) return;
     addTagMutation.mutate({
       responseId,
       tag: newTag.trim(),
@@ -124,6 +133,7 @@ export function NotesTagsTab({ responseId }: NotesTagsTabProps) {
   };
 
   const handleRemoveTag = (tag: string) => {
+    if (!workspace?.id) return;
     removeTagMutation.mutate({
       responseId,
       tag,
@@ -132,7 +142,7 @@ export function NotesTagsTab({ responseId }: NotesTagsTabProps) {
   };
 
   const handleAddComment = () => {
-    if (!newComment.trim()) return;
+    if (!newComment.trim() || !workspace?.id) return;
     addCommentMutation.mutate({
       candidateId: responseId,
       content: newComment.trim(),

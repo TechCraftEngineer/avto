@@ -1,7 +1,7 @@
 "use client";
 
 import { ScrollArea } from "@qbs-autonaim/ui";
-import { useQuery } from "@tanstack/react-query";
+import { skipToken, useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
 import {
@@ -65,10 +65,12 @@ export function TimelineTab({ responseId }: TimelineTabProps) {
   const trpc = useTRPC();
 
   const { data: history, isLoading } = useQuery(
-    trpc.vacancy.responses.history.queryOptions({
-      responseId,
-      workspaceId: workspace.id,
-    }),
+    workspace?.id
+      ? trpc.vacancy.responses.history.queryOptions({
+          responseId,
+          workspaceId: workspace.id,
+        })
+      : skipToken,
   );
 
   if (isLoading) {
@@ -146,7 +148,7 @@ export function TimelineTab({ responseId }: TimelineTabProps) {
                         <span className="text-muted-foreground">
                           Было:{" "}
                           <span className="font-mono">
-                            {JSON.stringify(event.oldValue)}
+                            {String(JSON.stringify(event.oldValue))}
                           </span>
                         </span>
                       </div>
@@ -155,7 +157,7 @@ export function TimelineTab({ responseId }: TimelineTabProps) {
                         <span className="text-muted-foreground">
                           Стало:{" "}
                           <span className="font-mono">
-                            {JSON.stringify(event.newValue)}
+                            {String(JSON.stringify(event.newValue))}
                           </span>
                         </span>
                       </div>

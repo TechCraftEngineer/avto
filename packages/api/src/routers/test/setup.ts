@@ -1,5 +1,7 @@
 import { db, eq, sql } from "@qbs-autonaim/db";
 import {
+  db,
+  eq,
   organization,
   organizationMember,
   user,
@@ -25,7 +27,7 @@ export const setup = publicProcedure
       workspaceName: z.string().optional(),
     }),
   )
-  .mutation(async ({ input }) => {
+  .mutation(async ({ input, ctx }) => {
     if (!isTestMode) {
       throw new TRPCError({
         code: "FORBIDDEN",
@@ -33,7 +35,14 @@ export const setup = publicProcedure
       });
     }
 
-    const { email, name, orgName, workspaceName } = input;
+    if (!ctx.authApi) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Auth API недоступен",
+      });
+    }
+
+    const { email, password, name, orgName, workspaceName } = input;
 
     try {
       // Проверяем, что пользователь не существует
@@ -46,27 +55,43 @@ export const setup = publicProcedure
         await cleanupTestUser(email);
       }
 
-      // Создаем пользователя с генерацией ID через SQL функцию
-      const [createdUser] = await db
-        .insert(user)
-        .values({
-          id: sql`uuid_generate_v7()`,
+      // Создаем пользователя через better-auth
+      const signUpResult = await ctx.authApi.signUpEmail({
+        body: {
           email,
-          name: name || "Test User",
-          emailVerified: true,
-        })
-        .returning();
+          password,
+          name: name ?? email.split("@")[0] ?? "Test User",
+        },
+      });
 
-      if (!createdUser) {
-        throw new Error("Не удалось создать пользователя");
+      if (!signUpResult) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Не удалось создать пользователя",
+        });
       }
 
-      // Создаем организацию (ID генерируется автоматически)
-      const orgSlug = (orgName || `test-org-${Date.now()}`)
+      // Получаем созданного пользователя
+      const userRecord = await db.query.user.findFirst({
+        where: eq(user.email, email),
+      });
+
+      if (!userRecord) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Пользователь не найден после создания",
+        });
+      }
+
+      const userId = userRecord.id;
+
+      // Создаем организацию
+      const timestamp = Date.now();
+      const orgSlug = (orgName || `test-org-${timestamp}`)
         .toLowerCase()
         .replace(/\s+/g, "-");
 
-      const [createdOrg] = await db
+      const orgResult = await db
         .insert(organization)
         .values({
           name: orgName || "Test Organization",
@@ -74,58 +99,67 @@ export const setup = publicProcedure
         })
         .returning();
 
-      if (!createdOrg) {
-        throw new Error("Не удалось создать организацию");
+      const org = orgResult[0];
+      if (!org) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Не удалось создать организацию",
+        });
       }
 
-      // Создаем воркспейс (ID генерируется автоматически через workspace_id_generate())
-      const workspaceSlug = (workspaceName || `test-workspace-${Date.now()}`)
+      // Добавляем пользователя в организацию как владельца
+      await db.insert(organizationMember).values({
+        organizationId: org.id,
+        userId,
+        role: "owner",
+      });
+
+      // Создаем воркспейс
+      const workspaceSlug = (workspaceName || `test-workspace-${timestamp}`)
         .toLowerCase()
         .replace(/\s+/g, "-");
 
-      const [createdWorkspace] = await db
+      const wsResult = await db
         .insert(workspace)
         .values({
           name: workspaceName || "Test Workspace",
           slug: workspaceSlug,
-          organizationId: createdOrg.id,
+          organizationId: org.id,
         })
         .returning();
 
-      if (!createdWorkspace) {
-        throw new Error("Не удалось создать воркспейс");
+      const ws = wsResult[0];
+      if (!ws) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Не удалось создать воркспейс",
+        });
       }
 
-      // Добавляем пользователя в организацию и воркспейс
-      await db.insert(organizationMember).values({
-        userId: createdUser.id,
-        organizationId: createdOrg.id,
-        role: "owner",
-      });
-
+      // Добавляем пользователя в воркспейс как владельца
       await db.insert(workspaceMember).values({
-        userId: createdUser.id,
-        workspaceId: createdWorkspace.id,
+        userId,
+        workspaceId: ws.id,
         role: "owner",
       });
 
       return {
         user: {
-          id: createdUser.id,
-          email: createdUser.email,
-          name: createdUser.name,
+          id: userId,
+          email: userRecord.email,
+          name: userRecord.name,
         },
         organization: {
-          id: createdOrg.id,
-          name: createdOrg.name,
-          slug: createdOrg.slug,
+          id: org.id,
+          name: org.name,
+          slug: org.slug,
         },
         workspace: {
-          id: createdWorkspace.id,
-          name: createdWorkspace.name,
-          slug: createdWorkspace.slug,
+          id: ws.id,
+          name: ws.name,
+          slug: ws.slug,
         },
-        dashboardUrl: `/orgs/${createdOrg.slug}/workspaces/${createdWorkspace.slug}`,
+        dashboardUrl: `/orgs/${org.slug}/workspaces/${ws.slug}`,
       };
     } catch (error) {
       throw new TRPCError({

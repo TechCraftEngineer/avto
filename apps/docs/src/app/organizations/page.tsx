@@ -43,7 +43,7 @@ export default function OrganizationsPage() {
 
         <p className="text-lg">
           Организация — это основная единица управления в QBS Автонайм. Она
-          объединяет команду, воркспейсы, вакансии и настройки биллинга.
+          объединяет команду, пространства, вакансии и настройки биллинга.
         </p>
 
         <DocsMobileToc items={tocItems} />
@@ -57,12 +57,12 @@ export default function OrganizationsPage() {
 
         <p className="mb-4">
           Организация представляет вашу компанию в системе. Внутри организации
-          вы можете создавать несколько воркспейсов для разных команд или
+          вы можете создавать несколько пространств для разных команд или
           проектов, приглашать сотрудников и управлять доступом.
         </p>
 
         <DocsCallout type="info" title="Структура">
-          Организация → Воркспейсы → Вакансии → Кандидаты
+          Организация → Пространства → Вакансии → Кандидаты
         </DocsCallout>
 
         <div className="my-6 space-y-3">
@@ -72,10 +72,10 @@ export default function OrganizationsPage() {
             </h3>
             <ul className="space-y-2 text-sm">
               <li>• Централизованное управление командой и правами доступа</li>
-              <li>• Создание нескольких воркспейсов для разных отделов</li>
+              <li>• Создание нескольких пространств для разных отделов</li>
               <li>• Единый биллинг для всей организации</li>
               <li>• Общие настройки интеграций и шаблонов</li>
-              <li>• Аналитика по всем воркспейсам</li>
+              <li>• Аналитика по всем пространствам</li>
             </ul>
           </div>
         </div>
@@ -148,7 +148,7 @@ export default function OrganizationsPage() {
 
         <p className="mb-4">
           Приглашайте коллег в организацию и управляйте их доступом к
-          воркспейсам и функциям.
+          пространствам и функциям.
         </p>
 
         <div className="my-6 rounded-lg border-2 border-dashed border-border bg-muted/30 p-8 text-center">
@@ -197,7 +197,7 @@ export default function OrganizationsPage() {
               <li>• Управление биллингом и подпиской</li>
               <li>• Удаление организации</li>
               <li>• Управление всеми участниками</li>
-              <li>• Доступ ко всем воркспейсам</li>
+              <li>• Доступ ко всем пространствам</li>
             </ul>
           </div>
 
@@ -210,7 +210,7 @@ export default function OrganizationsPage() {
             </p>
             <ul className="space-y-1 text-sm">
               <li>• Приглашение и удаление участников</li>
-              <li>• Создание и настройка воркспейсов</li>
+              <li>• Создание и настройка пространств</li>
               <li>• Управление интеграциями</li>
               <li>• Просмотр аналитики</li>
             </ul>
@@ -219,10 +219,10 @@ export default function OrganizationsPage() {
           <div className="border border-border rounded-lg p-4">
             <h3 className="text-base font-semibold mb-2">Участник (Member)</h3>
             <p className="text-sm text-muted-foreground mb-2">
-              Доступ только к назначенным воркспейсам
+              Доступ только к назначенным пространствам
             </p>
             <ul className="space-y-1 text-sm">
-              <li>• Работа с вакансиями в своих воркспейсах</li>
+              <li>• Работа с вакансиями в своих пространствах</li>
               <li>• Просмотр и оценка кандидатов</li>
               <li>• Использование AI-инструментов</li>
               <li>• Нет доступа к настройкам организации</li>

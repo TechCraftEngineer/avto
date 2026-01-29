@@ -8,7 +8,7 @@ export default function GigPage() {
     { id: "overview", title: "Что такое Gig-задания", level: 2 },
     { id: "creation", title: "Создание задания", level: 2 },
     { id: "responses", title: "Управление откликами", level: 2 },
-    { id: "shortlist", title: "Шорт-лист кандидатов", level: 2 },
+    { id: "shortlist", title: "Финалисты", level: 2 },
     { id: "interview", title: "AI-интервью", level: 2 },
   ];
 
@@ -260,7 +260,7 @@ export default function GigPage() {
           id="shortlist"
           className="text-xl font-semibold tracking-tight text-foreground mt-10 mb-4 scroll-mt-20"
         >
-          Шорт-лист кандидатов
+          Финалисты
         </h2>
 
         <p>

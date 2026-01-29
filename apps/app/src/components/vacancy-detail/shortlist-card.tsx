@@ -34,7 +34,7 @@ export function ShortlistCard({
       <CardHeader className="pb-3">
         <CardTitle className="text-sm font-semibold flex items-center gap-2">
           <IconUsers className="size-4 text-muted-foreground" />
-          Шортлист
+          Финалисты
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
@@ -44,7 +44,7 @@ export function ShortlistCard({
           </div>
         ) : shortlist.length === 0 ? (
           <div className="p-6 text-center text-xs text-muted-foreground">
-            Шортлист пуст
+            Финалисты пуст
           </div>
         ) : (
           <div className="divide-y border-t">

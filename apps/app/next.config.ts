@@ -23,11 +23,6 @@ export default async function createNextConfig(): Promise<NextConfig> {
     /** We already do linting and typechecking as separate tasks in CI */
     typescript: { ignoreBuildErrors: true },
 
-    /** Disable dev overlay for tests */
-    devIndicators: {
-      buildActivity: false,
-    },
-
     /** Disable overlay in test environment */
     ...(process.env.NODE_ENV === "test" && {
       compiler: {

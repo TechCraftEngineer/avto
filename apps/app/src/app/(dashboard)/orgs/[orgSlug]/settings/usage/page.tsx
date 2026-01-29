@@ -66,11 +66,11 @@ export default async function OrganizationUsagePage({
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <MetricCard
-          title="Воркспейсы"
+          title="Пространства"
           value={stats.workspaces.current}
           limit={stats.workspaces.limit}
           icon={IconBriefcase}
-          description="активных воркспейсов"
+          description="активных пространств"
         />
         <MetricCard
           title="Участники"
@@ -98,7 +98,7 @@ export default async function OrganizationUsagePage({
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList>
           <TabsTrigger value="overview">Обзор</TabsTrigger>
-          <TabsTrigger value="workspaces">Воркспейсы</TabsTrigger>
+          <TabsTrigger value="workspaces">Пространства</TabsTrigger>
           <TabsTrigger value="activity">Активность</TabsTrigger>
         </TabsList>
 
@@ -112,10 +112,10 @@ export default async function OrganizationUsagePage({
             </CardHeader>
             <CardContent className="space-y-6">
               <ResourceItem
-                label="Воркспейсы"
+                label="Пространства"
                 current={stats.workspaces.current}
                 limit={stats.workspaces.limit}
-                description="Количество созданных воркспейсов"
+                description="Количество созданных пространств"
               />
               <ResourceItem
                 label="Участники команды"
@@ -148,9 +148,9 @@ export default async function OrganizationUsagePage({
         <TabsContent value="workspaces" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Воркспейсы</CardTitle>
+              <CardTitle>Пространства</CardTitle>
               <CardDescription>
-                Список всех воркспейсов организации
+                Список всех пространств организации
               </CardDescription>
             </CardHeader>
             <CardContent>

@@ -37,6 +37,7 @@ interface IntegrationCardProps {
   onEdit: () => void;
   workspaceId: string;
   userRole?: string;
+  showDetailedDescription?: boolean;
 }
 
 export function IntegrationCard({
@@ -46,6 +47,7 @@ export function IntegrationCard({
   onEdit,
   workspaceId,
   userRole,
+  showDetailedDescription = false,
 }: IntegrationCardProps) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
@@ -112,7 +114,10 @@ export function IntegrationCard({
               )}
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground">
-              {availableIntegration.description}
+              {showDetailedDescription &&
+              availableIntegration.detailedDescription
+                ? availableIntegration.detailedDescription
+                : availableIntegration.description}
             </p>
             {integration?.email && (
               <p className="text-xs text-muted-foreground truncate">

@@ -38,14 +38,12 @@ export const generateFreelanceInvitationFunction = inngest.createFunction(
 
         console.log("✅ Приглашение сгенерировано", {
           responseId,
-          invitationId: result.invitationId,
           score: result.score,
         });
 
         return {
           success: true,
           responseId,
-          invitationId: result.invitationId,
           score: result.score,
         };
       } catch (error) {

@@ -80,7 +80,7 @@ interface NameFieldProps {
 function NameField({ value, onChange }: NameFieldProps) {
   return (
     <div className="space-y-2">
-      <Label htmlFor="workspace-name">Название воркспейса</Label>
+      <Label htmlFor="workspace-name">Название пространства</Label>
       <Input
         id="workspace-name"
         name="workspace-name"
@@ -108,7 +108,7 @@ function SlugField({ organizationSlug, value, onChange }: SlugFieldProps) {
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-1.5">
-        <Label htmlFor="workspace-slug">Адрес воркспейса</Label>
+        <Label htmlFor="workspace-slug">Адрес пространства</Label>
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -123,8 +123,8 @@ function SlugField({ organizationSlug, value, onChange }: SlugFieldProps) {
             <TooltipContent className="max-w-xs">
               <p>
                 Адрес — это уникальный идентификатор для URL. Например, для
-                воркспейса "Основной проект" адрес может быть "osnovnoy-proekt".
-                Используется только латиница, цифры и дефисы.
+                пространства "Основной проект" адрес может быть
+                "osnovnoy-proekt". Используется только латиница, цифры и дефисы.
               </p>
             </TooltipContent>
           </Tooltip>
@@ -150,7 +150,7 @@ function SlugField({ organizationSlug, value, onChange }: SlugFieldProps) {
         />
       </div>
       <p className="text-muted-foreground text-xs">
-        Вы сможете изменить это позже в настройках воркспейса.
+        Вы сможете изменить это позже в настройках пространства.
       </p>
     </div>
   );
@@ -168,7 +168,7 @@ function DescriptionField({ value, onChange }: DescriptionFieldProps) {
       <Textarea
         id="workspace-description"
         name="workspace-description"
-        placeholder="Краткое описание воркспейса…"
+        placeholder="Краткое описание пространства…"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         rows={3}
@@ -200,7 +200,7 @@ function FormActions({ isPending, onSkip }: FormActionsProps) {
         {isPending && (
           <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />
         )}
-        Создать воркспейс
+        Создать пространство
       </Button>
     </div>
   );
@@ -221,9 +221,9 @@ export function WorkspaceForm({
   return (
     <>
       <FormHeader
-        title="Создайте воркспейс"
+        title="Создайте пространство"
         description="Настройте общее пространство для управления проектами с вашей командой."
-        tooltipContent="Что такое рабочее пространство? Воркспейс — это изолированная среда внутри организации для работы над конкретным проектом или направлением. В каждом воркспейсе могут быть свои участники, настройки и данные."
+        tooltipContent="Что такое рабочее пространство? Это изолированная среда внутри организации для работы над конкретным проектом или направлением. В каждом пространстве могут быть свои участники, настройки и данные."
       />
 
       <form
