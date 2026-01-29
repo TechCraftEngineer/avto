@@ -25,7 +25,7 @@ export const docsConfig: DocsConfig = {
       title: "Управление",
       items: [
         { title: "Организации", href: "/organizations" },
-        { title: "Воркспейсы", href: "/organizations/workspaces" },
+        { title: "Рабочие пространства", href: "/organizations/workspaces" },
       ],
     },
     {

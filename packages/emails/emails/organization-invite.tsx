@@ -76,7 +76,7 @@ export default function OrganizationInviteEmail({
 
             <Text className="text-[14px] leading-[24px] text-black">
               Присоединившись к организации, вы получите доступ ко всем
-              воркспейсам и ресурсам организации в соответствии с вашей ролью.
+              пространствам и ресурсам организации в соответствии с вашей ролью.
             </Text>
 
             <Section className="mb-[32px] mt-[32px] text-center">

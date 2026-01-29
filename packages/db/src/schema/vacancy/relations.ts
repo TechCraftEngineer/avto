@@ -11,6 +11,16 @@ export const vacancyRelations = relations(vacancy, ({ one, many }) => ({
     fields: [vacancy.workspaceId],
     references: [workspace.id],
   }),
+  owner: one(user, {
+    fields: [vacancy.ownerId],
+    references: [user.id],
+    relationName: "vacancyOwner",
+  }),
+  createdByUser: one(user, {
+    fields: [vacancy.createdBy],
+    references: [user.id],
+    relationName: "vacancyCreator",
+  }),
   responses: many(response),
   publications: many(vacancyPublication),
 }));

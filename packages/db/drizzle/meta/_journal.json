@@ -120,6 +120,13 @@
       "when": 1769607167463,
       "tag": "0018_spotty_wasp",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1769690764161,
+      "tag": "0019_thick_rick_jones",
+      "breakpoints": true
     }
   ]
 }

@@ -13,6 +13,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { user } from "../auth/user";
 import {
   platformSourceEnum,
   platformSourceValues,
@@ -46,6 +47,17 @@ export const vacancy = pgTable(
     workspaceId: text("workspace_id")
       .notNull()
       .references(() => workspace.id, { onDelete: "cascade" }),
+
+    // Ответственный рекрутер за вакансию
+    ownerId: text("owner_id").references(() => user.id, {
+      onDelete: "set null",
+    }),
+
+    // Пользователь, создавший вакансию (для аудита)
+    createdBy: text("created_by")
+      .notNull()
+      .references(() => user.id, { onDelete: "set null" }),
+
     title: varchar("title", { length: 500 }).notNull(),
     url: text("url"),
     views: integer("views").default(0),
@@ -199,3 +211,29 @@ export const UpdateVacancySettingsSchema = z.object({
 
 export type Vacancy = typeof vacancy.$inferSelect;
 export type NewVacancy = typeof vacancy.$inferInsert;
+
+// Тип для вакансии с информацией об owner
+export type VacancyWithOwner = Vacancy & {
+  owner: {
+    id: string;
+    name: string;
+    email: string;
+    image: string | null;
+  } | null;
+};
+
+// Тип для вакансии с полной информацией (owner + creator)
+export type VacancyWithDetails = Vacancy & {
+  owner: {
+    id: string;
+    name: string;
+    email: string;
+    image: string | null;
+  } | null;
+  createdByUser: {
+    id: string;
+    name: string;
+    email: string;
+    image: string | null;
+  };
+};
