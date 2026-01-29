@@ -7,13 +7,37 @@ import {
   importVacancyByUrlChannel,
 } from "@qbs-autonaim/jobs/channels";
 import { inngest } from "@qbs-autonaim/jobs/client";
+import { z } from "zod";
+
+const workspaceIdSchema = z.object({
+  workspaceId: z.string().min(1, "ID рабочей области обязателен"),
+});
+
+const importByUrlSchema = z.object({
+  url: z
+    .string()
+    .url("Введите корректную ссылку")
+    .refine(
+      (url) => url.includes("hh.ru/vacancy/"),
+      "Ссылка должна быть на вакансию с hh.ru",
+    ),
+});
 
 /**
  * Server action для получения токена подписки на канал импорта новых вакансий
  */
 export async function fetchImportNewVacanciesToken(workspaceId: string) {
+  const validationResult = workspaceIdSchema.safeParse({ workspaceId });
+
+  if (!validationResult.success) {
+    const errors = validationResult.error.issues
+      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+      .join(", ");
+    throw new Error(`Ошибка валидации: ${errors}`);
+  }
+
   const token = await getSubscriptionToken(inngest, {
-    channel: importNewVacanciesChannel(workspaceId),
+    channel: importNewVacanciesChannel(validationResult.data.workspaceId),
     topics: ["progress", "result"],
   });
 
@@ -24,8 +48,17 @@ export async function fetchImportNewVacanciesToken(workspaceId: string) {
  * Server action для получения токена подписки на канал импорта архивных вакансий
  */
 export async function fetchImportArchivedVacanciesToken(workspaceId: string) {
+  const validationResult = workspaceIdSchema.safeParse({ workspaceId });
+
+  if (!validationResult.success) {
+    const errors = validationResult.error.issues
+      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+      .join(", ");
+    throw new Error(`Ошибка валидации: ${errors}`);
+  }
+
   const token = await getSubscriptionToken(inngest, {
-    channel: importArchivedVacanciesChannel(workspaceId),
+    channel: importArchivedVacanciesChannel(validationResult.data.workspaceId),
     topics: ["progress", "result"],
   });
 
@@ -51,10 +84,19 @@ export async function fetchImportVacancyByUrlToken(
  * Server action для запуска импорта новых вакансий
  */
 export async function triggerImportNewVacancies(workspaceId: string) {
+  const validationResult = workspaceIdSchema.safeParse({ workspaceId });
+
+  if (!validationResult.success) {
+    const errors = validationResult.error.issues
+      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+      .join(", ");
+    throw new Error(`Ошибка валидации: ${errors}`);
+  }
+
   await inngest.send({
     name: "vacancy/import.new",
     data: {
-      workspaceId,
+      workspaceId: validationResult.data.workspaceId,
     },
   });
 }
@@ -63,10 +105,19 @@ export async function triggerImportNewVacancies(workspaceId: string) {
  * Server action для запуска импорта архивных вакансий
  */
 export async function triggerImportArchivedVacancies(workspaceId: string) {
+  const validationResult = workspaceIdSchema.safeParse({ workspaceId });
+
+  if (!validationResult.success) {
+    const errors = validationResult.error.issues
+      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+      .join(", ");
+    throw new Error(`Ошибка валидации: ${errors}`);
+  }
+
   await inngest.send({
     name: "vacancy/import.archived",
     data: {
-      workspaceId,
+      workspaceId: validationResult.data.workspaceId,
     },
   });
 }
@@ -78,13 +129,31 @@ export async function triggerImportVacancyByUrl(
   workspaceId: string,
   url: string,
 ) {
+  const workspaceValidation = workspaceIdSchema.safeParse({ workspaceId });
+
+  if (!workspaceValidation.success) {
+    const errors = workspaceValidation.error.issues
+      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+      .join(", ");
+    throw new Error(`Ошибка валидации: ${errors}`);
+  }
+
+  const urlValidation = importByUrlSchema.safeParse({ url });
+
+  if (!urlValidation.success) {
+    const errors = urlValidation.error.issues
+      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+      .join(", ");
+    throw new Error(`Ошибка валидации: ${errors}`);
+  }
+
   const requestId = crypto.randomUUID();
 
   await inngest.send({
     name: "vacancy/import.by-url",
     data: {
-      workspaceId,
-      url,
+      workspaceId: workspaceValidation.data.workspaceId,
+      url: urlValidation.data.url,
       requestId,
     },
   });

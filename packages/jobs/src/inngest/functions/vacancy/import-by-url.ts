@@ -50,7 +50,7 @@ export const importVacancyByUrlFunction = inngest.createFunction(
 
         if (!validationResult.success) {
           const errorMessage =
-            validationResult.error.errors[0]?.message ||
+            validationResult.error.issues[0]?.message ||
             "Введите корректную ссылку на вакансию с hh.ru";
 
           await publish(
@@ -71,7 +71,12 @@ export const importVacancyByUrlFunction = inngest.createFunction(
             }),
           );
 
-          throw new Error(errorMessage);
+          return {
+            success: false,
+            workspaceId,
+            requestId,
+            error: errorMessage,
+          };
         }
 
         // Извлечение externalId
@@ -79,25 +84,6 @@ export const importVacancyByUrlFunction = inngest.createFunction(
 
         if (!externalId) {
           const errorMessage = "Не удалось извлечь ID вакансии из ссылки";
-
-          await publish(
-            importVacancyByUrlChannel(workspaceId, requestId).progress({
-              workspaceId,
-              requestId,
-              status: "error",
-              message: errorMessage,
-            }),
-          );
-
-          await publish(
-            importVacancyByUrlChannel(workspaceId, requestId).result({
-              workspaceId,
-              requestId,
-              success: false,
-              error: errorMessage,
-            }),
-          );
-
           throw new Error(errorMessage);
         }
 

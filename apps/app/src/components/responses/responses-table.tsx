@@ -121,7 +121,7 @@ export function ResponsesTable({
         <TableBody>
           {isLoading ? (
             Array.from({ length: 10 }).map((_, index) => (
-              <TableRow key={`skeleton-row-${index}`}>
+              <TableRow key={`skeleton-row-${Date.now()}-${index}`}>
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <Skeleton className="size-10 rounded-full" />
@@ -156,7 +156,7 @@ export function ResponsesTable({
                     >
                       {Array.from({ length: 8 }).map((_, index) => (
                         <div
-                          key={`skeleton-${index}`}
+                          key={`skeleton-empty-${Date.now()}-${index}`}
                           className="mt-4 flex items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-sm"
                         >
                           <IconSearch className="size-4 text-muted-foreground" />

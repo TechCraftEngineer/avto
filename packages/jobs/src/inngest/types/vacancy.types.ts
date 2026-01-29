@@ -39,6 +39,20 @@ export const checkAllPublicationStatusesDataSchema = z.object({
   workspaceId: workspaceIdSchema.optional(), // Опционально, если не указан - проверяем все workspace
 });
 
+export const vacancyImportNewDataSchema = z.object({
+  workspaceId: z.string().min(1, "ID рабочей области обязателен"),
+});
+
+export const vacancyImportArchivedDataSchema = z.object({
+  workspaceId: z.string().min(1, "ID рабочей области обязателен"),
+});
+
+export const vacancyImportByUrlDataSchema = z.object({
+  workspaceId: z.string().min(1, "ID рабочей области обязателен"),
+  url: z.string().url("Некорректная ссылка"),
+  requestId: z.string().min(1, "ID запроса обязателен"),
+});
+
 /**
  * Type inference
  */
@@ -63,4 +77,13 @@ export type CheckPublicationStatusPayload = z.infer<
 >;
 export type CheckAllPublicationStatusesPayload = z.infer<
   typeof checkAllPublicationStatusesDataSchema
+>;
+export type VacancyImportNewPayload = z.infer<
+  typeof vacancyImportNewDataSchema
+>;
+export type VacancyImportArchivedPayload = z.infer<
+  typeof vacancyImportArchivedDataSchema
+>;
+export type VacancyImportByUrlPayload = z.infer<
+  typeof vacancyImportByUrlDataSchema
 >;

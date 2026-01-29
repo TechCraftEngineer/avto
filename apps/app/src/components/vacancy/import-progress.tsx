@@ -1,5 +1,6 @@
 "use client";
 
+import type { Realtime } from "@inngest/realtime";
 import { useInngestSubscription } from "@inngest/realtime/hooks";
 import {
   Alert,
@@ -10,12 +11,20 @@ import {
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { useEffect } from "react";
 
+export interface ImportProgressResult {
+  success: boolean;
+  imported: number;
+  updated: number;
+  failed: number;
+  error?: string;
+}
+
 interface ImportProgressProps {
   type: "new" | "archived" | "by-url";
   workspaceId: string;
   requestId?: string;
-  token: unknown;
-  onComplete: (result?: unknown) => void;
+  token: Realtime.Subscribe.Token;
+  onComplete: (result?: ImportProgressResult) => void;
 }
 
 export function ImportProgress({
@@ -34,8 +43,10 @@ export function ImportProgress({
   const isCompleted = latestMessage?.topic === "result";
   const progressData =
     latestMessage?.topic === "progress" ? latestMessage.data : null;
-  const resultData =
-    latestMessage?.topic === "result" ? latestMessage.data : null;
+  const resultData: ImportProgressResult | null =
+    latestMessage?.topic === "result"
+      ? (latestMessage.data as ImportProgressResult)
+      : null;
 
   // Вычисляем прогресс для массового импорта
   const progress =

@@ -1,11 +1,7 @@
 import { chatMessage, chatSession, eq, gig, vacancy } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { getAIModel, streamText } from "@qbs-autonaim/lib/ai";
-import {
-  createUIMessageStream,
-  JsonToSseTransformStream,
-  smoothStream,
-} from "ai";
+import { createUIMessageStream, JsonToSseTransformStream } from "ai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getSession } from "~/auth/server";

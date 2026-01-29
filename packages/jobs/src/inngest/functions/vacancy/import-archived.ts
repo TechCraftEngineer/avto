@@ -1,6 +1,14 @@
+import { z } from "zod";
 import { runHHParser } from "../../../parsers/hh";
 import { importArchivedVacanciesChannel } from "../../channels/client";
 import { inngest } from "../../client";
+
+/**
+ * Схема валидации входных данных для импорта архивных вакансий
+ */
+const ImportArchivedVacanciesEventSchema = z.object({
+  workspaceId: z.string().min(1, "ID рабочего пространства обязателен"),
+});
 
 /**
  * Inngest функция для импорта архивных вакансий из HH.ru
@@ -15,7 +23,20 @@ export const importArchivedVacanciesFunction = inngest.createFunction(
   },
   { event: "vacancy/import.archived" },
   async ({ event, step, publish }) => {
-    const { workspaceId } = event.data;
+    // Валидация входных данных
+    const validationResult = ImportArchivedVacanciesEventSchema.safeParse(
+      event.data,
+    );
+
+    if (!validationResult.success) {
+      const errorMessage =
+        validationResult.error.issues[0]?.message ||
+        "Некорректные данные запроса";
+      console.error("❌ Ошибка валидации входных данных:", errorMessage);
+      throw new Error(errorMessage);
+    }
+
+    const { workspaceId } = validationResult.data;
 
     await publish(
       importArchivedVacanciesChannel(workspaceId).progress({
@@ -40,7 +61,7 @@ export const importArchivedVacanciesFunction = inngest.createFunction(
         );
 
         // Запускаем парсер HH для получения архивных вакансий
-        await runHHParser({
+        const parserResult = await runHHParser({
           workspaceId,
           skipResponses: true,
           includeArchived: true,
@@ -58,9 +79,9 @@ export const importArchivedVacanciesFunction = inngest.createFunction(
           importArchivedVacanciesChannel(workspaceId).result({
             workspaceId,
             success: true,
-            imported: 0, // TODO: получить реальное количество из парсера
-            updated: 0,
-            failed: 0,
+            imported: parserResult.imported,
+            updated: parserResult.updated,
+            failed: parserResult.failed,
           }),
         );
 

@@ -8,10 +8,17 @@ import type { VacancyData } from "../types";
 import { HH_CONFIG } from "./config";
 import { humanBrowse, humanDelay, randomDelay } from "./human-behavior";
 
+interface ParseResult {
+  vacancies: VacancyData[];
+  imported: number;
+  updated: number;
+  failed: number;
+}
+
 export async function parseVacancies(
   page: Page,
   workspaceId: string,
-): Promise<VacancyData[]> {
+): Promise<ParseResult> {
   console.log(`🚀 Начинаем парсинг активных вакансий`);
 
   // ЭТАП 1: Собираем список всех активных вакансий
@@ -20,28 +27,40 @@ export async function parseVacancies(
 
   if (vacancies.length === 0) {
     console.log("⚠️ Не найдено активных вакансий");
-    return [];
+    return { vacancies: [], imported: 0, updated: 0, failed: 0 };
   }
 
   console.log(`✅ Найдено активных вакансий: ${vacancies.length}`);
 
   // ЭТАП 2: Сохраняем базовую информацию всех вакансий
   console.log("\n💾 ЭТАП 2: Сохранение базовой информации...");
-  const newVacancyIds = await saveBasicVacancies(vacancies, workspaceId);
+  const { newVacancyIds, savedCount, errorCount } = await saveBasicVacancies(
+    vacancies,
+    workspaceId,
+  );
 
   // ЭТАП 3: Парсим описания для вакансий без описания
   console.log("\n📊 ЭТАП 3: Парсинг описаний вакансий...");
-  await parseVacancyDescriptions(page, vacancies, newVacancyIds);
+  const descriptionStats = await parseVacancyDescriptions(
+    page,
+    vacancies,
+    newVacancyIds,
+  );
 
   console.log(`\n🎉 Парсинг активных вакансий завершен!`);
 
-  return vacancies;
+  return {
+    vacancies,
+    imported: newVacancyIds.size,
+    updated: savedCount - newVacancyIds.size,
+    failed: errorCount + descriptionStats.errorCount,
+  };
 }
 
 export async function parseArchivedVacancies(
   page: Page,
   workspaceId: string,
-): Promise<VacancyData[]> {
+): Promise<ParseResult> {
   console.log(`🚀 Начинаем парсинг архивных вакансий`);
 
   // ЭТАП 1: Собираем список всех архивных вакансий
@@ -50,25 +69,34 @@ export async function parseArchivedVacancies(
 
   if (archivedVacancies.length === 0) {
     console.log("⚠️ Не найдено архивных вакансий");
-    return [];
+    return { vacancies: [], imported: 0, updated: 0, failed: 0 };
   }
 
   console.log(`✅ Найдено архивных вакансий: ${archivedVacancies.length}`);
 
   // ЭТАП 2: Сохраняем базовую информацию всех вакансий
   console.log("\n💾 ЭТАП 2: Сохранение базовой информации...");
-  const newVacancyIds = await saveBasicVacancies(
+  const { newVacancyIds, savedCount, errorCount } = await saveBasicVacancies(
     archivedVacancies,
     workspaceId,
   );
 
   // ЭТАП 3: Парсим описания для вакансий без описания
   console.log("\n📊 ЭТАП 3: Парсинг описаний вакансий...");
-  await parseVacancyDescriptions(page, archivedVacancies, newVacancyIds);
+  const descriptionStats = await parseVacancyDescriptions(
+    page,
+    archivedVacancies,
+    newVacancyIds,
+  );
 
   console.log(`\n🎉 Парсинг архивных вакансий завершен!`);
 
-  return archivedVacancies;
+  return {
+    vacancies: archivedVacancies,
+    imported: newVacancyIds.size,
+    updated: savedCount - newVacancyIds.size,
+    failed: errorCount + descriptionStats.errorCount,
+  };
 }
 
 /**
@@ -255,12 +283,16 @@ async function collectArchivedVacancies(page: Page): Promise<VacancyData[]> {
 
 /**
  * ЭТАП 2: Сохраняет базовую информацию всех вакансий
- * Возвращает Set с ID новых вакансий
+ * Возвращает Set с ID новых вакансий и статистику
  */
 async function saveBasicVacancies(
   vacancies: VacancyData[],
   workspaceId: string,
-): Promise<Set<string>> {
+): Promise<{
+  newVacancyIds: Set<string>;
+  savedCount: number;
+  errorCount: number;
+}> {
   let savedCount = 0;
   let errorCount = 0;
   const newVacancyIds = new Set<string>();
@@ -290,7 +322,7 @@ async function saveBasicVacancies(
     `✅ Базовая информация: успешно ${savedCount}, ошибок ${errorCount}, новых ${newVacancyIds.size}`,
   );
 
-  return newVacancyIds;
+  return { newVacancyIds, savedCount, errorCount };
 }
 
 /**
@@ -300,7 +332,7 @@ async function parseVacancyDescriptions(
   page: Page,
   vacancies: VacancyData[],
   newVacancyIds: Set<string>,
-): Promise<void> {
+): Promise<{ parsedCount: number; skippedCount: number; errorCount: number }> {
   let parsedCount = 0;
   let skippedCount = 0;
   let errorCount = 0;
@@ -344,7 +376,10 @@ async function parseVacancyDescriptions(
         await new Promise((resolve) => setTimeout(resolve, delay));
       }
 
-      const description = await parseVacancyDetails(page, vacancy.url);
+      const { description, title } = await parseVacancyDetails(
+        page,
+        vacancy.url,
+      );
 
       if (description) {
         const updateResult = await updateVacancyDescription(
@@ -355,6 +390,7 @@ async function parseVacancyDescriptions(
 
         if (updateResult.success) {
           vacancy.description = description;
+          vacancy.title = title || vacancy.title;
           parsedCount++;
           console.log(
             `✅ Описание ${i + 1}/${vacancies.length} обработано успешно${isNewVacancy ? " (запущена генерация требований)" : ""}`,
@@ -387,12 +423,17 @@ async function parseVacancyDescriptions(
   console.log(
     `✅ Итого описания: успешно ${parsedCount}, пропущено ${skippedCount}, ошибок ${errorCount}`,
   );
+
+  return { parsedCount, skippedCount, errorCount };
 }
 
 /**
- * Парсит детальную страницу вакансии и извлекает описание
+ * Парсит детальную страницу вакансии и извлекает описание и заголовок
  */
-async function parseVacancyDetails(page: Page, url: string): Promise<string> {
+async function parseVacancyDetails(
+  page: Page,
+  url: string,
+): Promise<{ description: string; title: string }> {
   console.log(`📄 Переход на детальную страницу: ${url}`);
   await page.goto(url, { waitUntil: "networkidle2" });
 
@@ -407,15 +448,24 @@ async function parseVacancyDetails(page: Page, url: string): Promise<string> {
     // Имитируем чтение описания вакансии
     await humanBrowse(page);
 
+    // Получаем описание
     const htmlContent = await page.$eval(
       ".vacancy-section",
       (el) => (el as HTMLElement).innerHTML,
     );
 
-    return htmlContent.trim();
+    // Получаем заголовок
+    const title = await page
+      .$eval('[data-qa="vacancy-title"]', (el) => el.textContent?.trim() || "")
+      .catch(() => "");
+
+    return {
+      description: htmlContent.trim(),
+      title,
+    };
   } catch (_e) {
     console.log("⚠️ Не удалось получить описание вакансии.");
-    return "";
+    return { description: "", title: "" };
   }
 }
 
@@ -431,20 +481,12 @@ export async function parseSingleVacancy(
 
   console.log(`📄 Парсинг вакансии: ${url}`);
 
-  // Получаем описание вакансии
-  const description = await parseVacancyDetails(page, url);
+  // Получаем описание и заголовок вакансии за один переход
+  const { description, title } = await parseVacancyDetails(page, url);
 
   if (!description) {
     throw new Error("Не удалось получить описание вакансии");
   }
-
-  // Получаем заголовок вакансии
-  await page.goto(url, { waitUntil: "networkidle2" });
-  await humanDelay(1000, 2500);
-
-  const title = await page
-    .$eval('[data-qa="vacancy-title"]', (el) => el.textContent?.trim() || "")
-    .catch(() => "");
 
   if (!title) {
     throw new Error("Не удалось получить название вакансии");

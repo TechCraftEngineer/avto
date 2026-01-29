@@ -260,9 +260,9 @@ export const importNewVacanciesChannel = channel(
         workspaceId: z.string(),
         status: z.enum(["started", "processing", "completed", "error"]),
         message: z.string(),
-        total: z.number().optional(),
-        processed: z.number().optional(),
-        failed: z.number().optional(),
+        total: z.number().int().nonnegative().optional(),
+        processed: z.number().int().nonnegative().optional(),
+        failed: z.number().int().nonnegative().optional(),
       }),
     ),
   )
@@ -271,9 +271,9 @@ export const importNewVacanciesChannel = channel(
       z.object({
         workspaceId: z.string(),
         success: z.boolean(),
-        imported: z.number(),
-        updated: z.number(),
-        failed: z.number(),
+        imported: z.number().int().nonnegative(),
+        updated: z.number().int().nonnegative(),
+        failed: z.number().int().nonnegative(),
       }),
     ),
   );
@@ -290,9 +290,9 @@ export const importArchivedVacanciesChannel = channel(
         workspaceId: z.string(),
         status: z.enum(["started", "processing", "completed", "error"]),
         message: z.string(),
-        total: z.number().optional(),
-        processed: z.number().optional(),
-        failed: z.number().optional(),
+        total: z.number().int().nonnegative().optional(),
+        processed: z.number().int().nonnegative().optional(),
+        failed: z.number().int().nonnegative().optional(),
       }),
     ),
   )
@@ -301,9 +301,9 @@ export const importArchivedVacanciesChannel = channel(
       z.object({
         workspaceId: z.string(),
         success: z.boolean(),
-        imported: z.number(),
-        updated: z.number(),
-        failed: z.number(),
+        imported: z.number().int().nonnegative(),
+        updated: z.number().int().nonnegative(),
+        failed: z.number().int().nonnegative(),
       }),
     ),
   );

@@ -71,7 +71,7 @@ export function NotesTagsTab({ responseId }: NotesTagsTabProps) {
       },
       onError: (error) => {
         toast({
-          description: "Ошибка: " + error.message,
+          description: `Ошибка: ${error.message}`,
           variant: "destructive",
         });
       },
@@ -93,7 +93,7 @@ export function NotesTagsTab({ responseId }: NotesTagsTabProps) {
       },
       onError: (error) => {
         toast({
-          description: "Ошибка: " + error.message,
+          description: `Ошибка: ${error.message}`,
           variant: "destructive",
         });
       },
@@ -116,7 +116,7 @@ export function NotesTagsTab({ responseId }: NotesTagsTabProps) {
       },
       onError: (error) => {
         toast({
-          description: "Ошибка: " + error.message,
+          description: `Ошибка: ${error.message}`,
           variant: "destructive",
         });
       },
@@ -186,7 +186,7 @@ export function NotesTagsTab({ responseId }: NotesTagsTabProps) {
         {/* Список тегов */}
         {tagsLoading ? (
           <div className="flex gap-2 flex-wrap">
-            {Array.from({ length: 3 }, (_, index) => (
+            {Array.from({ length: 3 }).map((_, index) => (
               <div
                 key={`tag-skeleton-${index}-${Date.now()}`}
                 className="h-6 w-20 bg-muted rounded-full animate-pulse"
@@ -260,7 +260,7 @@ export function NotesTagsTab({ responseId }: NotesTagsTabProps) {
         {/* Список комментариев */}
         {commentsLoading ? (
           <div className="space-y-3">
-            {Array.from({ length: 2 }, (_, index) => (
+            {Array.from({ length: 2 }).map((_, index) => (
               <div
                 key={`comment-skeleton-${index}-${Date.now()}`}
                 className="p-4 border rounded-lg animate-pulse"

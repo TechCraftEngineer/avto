@@ -1,6 +1,60 @@
+import { z } from "zod";
 import { runHHParser } from "../../../parsers/hh";
 import { importNewVacanciesChannel } from "../../channels/client";
 import { inngest } from "../../client";
+
+/**
+ * Схема валидации входных данных для импорта новых вакансий
+ */
+const ImportNewVacanciesEventSchema = z.object({
+  workspaceId: z.string().min(1, "ID рабочего пространства обязателен"),
+});
+
+/**
+ * Маппинг технических ошибок в понятные пользователю сообщения
+ */
+function mapErrorToUserMessage(error: unknown): string {
+  if (error instanceof Error) {
+    const message = error.message;
+
+    // Ошибки авторизации
+    if (
+      message.includes("Не найдены учетные данные") ||
+      message.includes("credentials")
+    ) {
+      return "Не настроены учетные данные для HeadHunter";
+    }
+
+    if (message.includes("Логин не удался") || message.includes("Login")) {
+      return "Не удалось войти в HeadHunter. Проверьте учетные данные";
+    }
+
+    // Ошибки сети
+    if (
+      message.includes("timeout") ||
+      message.includes("ETIMEDOUT") ||
+      message.includes("ECONNREFUSED")
+    ) {
+      return "Не удалось подключиться к HeadHunter. Попробуйте позже";
+    }
+
+    if (message.includes("network") || message.includes("fetch")) {
+      return "Ошибка сети. Проверьте подключение к интернету";
+    }
+
+    // Ошибки парсинга
+    if (message.includes("parse") || message.includes("selector")) {
+      return "Не удалось получить данные с HeadHunter. Возможно, изменился формат страницы";
+    }
+
+    // Общая ошибка с сохранением оригинального сообщения если оно понятное
+    if (message.length < 100 && !message.includes("Error:")) {
+      return message;
+    }
+  }
+
+  return "Не удалось подключиться к источнику вакансий";
+}
 
 /**
  * Inngest функция для импорта новых вакансий из HH.ru
@@ -15,7 +69,20 @@ export const importNewVacanciesFunction = inngest.createFunction(
   },
   { event: "vacancy/import.new" },
   async ({ event, step, publish }) => {
-    const { workspaceId } = event.data;
+    // Валидация входных данных
+    const validationResult = ImportNewVacanciesEventSchema.safeParse(
+      event.data,
+    );
+
+    if (!validationResult.success) {
+      const errorMessage =
+        validationResult.error.issues[0]?.message ||
+        "Некорректные данные запроса";
+      console.error("❌ Ошибка валидации входных данных:", errorMessage);
+      throw new Error(errorMessage);
+    }
+
+    const { workspaceId } = validationResult.data;
 
     await publish(
       importNewVacanciesChannel(workspaceId).progress({
@@ -40,7 +107,7 @@ export const importNewVacanciesFunction = inngest.createFunction(
         );
 
         // Запускаем парсер HH для получения активных вакансий
-        await runHHParser({
+        const parserResult = await runHHParser({
           workspaceId,
           skipResponses: true,
           includeArchived: false,
@@ -58,9 +125,9 @@ export const importNewVacanciesFunction = inngest.createFunction(
           importNewVacanciesChannel(workspaceId).result({
             workspaceId,
             success: true,
-            imported: 0, // TODO: получить реальное количество из парсера
-            updated: 0,
-            failed: 0,
+            imported: parserResult.imported,
+            updated: parserResult.updated,
+            failed: parserResult.failed,
           }),
         );
 
@@ -75,16 +142,22 @@ export const importNewVacanciesFunction = inngest.createFunction(
           error,
         );
 
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : "Не удалось подключиться к источнику вакансий";
+        // Логируем оригинальную ошибку для отладки
+        if (error instanceof Error) {
+          console.error("Детали ошибки:", {
+            message: error.message,
+            stack: error.stack,
+          });
+        }
+
+        // Маппим ошибку в понятное пользователю сообщение
+        const userMessage = mapErrorToUserMessage(error);
 
         await publish(
           importNewVacanciesChannel(workspaceId).progress({
             workspaceId,
             status: "error",
-            message: errorMessage,
+            message: userMessage,
           }),
         );
 

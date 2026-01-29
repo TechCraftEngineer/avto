@@ -17,7 +17,15 @@ interface RunHHParserOptions {
   includeArchived?: boolean;
 }
 
-export async function runHHParser(options: RunHHParserOptions): Promise<void> {
+interface ParserResult {
+  imported: number;
+  updated: number;
+  failed: number;
+}
+
+export async function runHHParser(
+  options: RunHHParserOptions,
+): Promise<ParserResult> {
   const {
     workspaceId,
     skipResponses = false,
@@ -49,19 +57,30 @@ export async function runHHParser(options: RunHHParserOptions): Promise<void> {
     }
 
     // Check authentication and perform login if needed
-    await checkAndPerformLogin(
+    const loggedIn = await checkAndPerformLogin(
       page,
       credentials.email,
       credentials.password,
       workspaceId,
     );
 
-    const vacancies = await parseVacancies(page, workspaceId);
+    if (!loggedIn) {
+      throw new Error("Не удалось войти в систему HeadHunter");
+    }
 
-    if (!skipResponses && vacancies.length > 0) {
+    let totalImported = 0;
+    let totalUpdated = 0;
+    let totalFailed = 0;
+
+    const vacanciesResult = await parseVacancies(page, workspaceId);
+    totalImported += vacanciesResult.imported;
+    totalUpdated += vacanciesResult.updated;
+    totalFailed += vacanciesResult.failed;
+
+    if (!skipResponses && vacanciesResult.vacancies.length > 0) {
       console.log("\n📨 Парсинг откликов активных вакансий...");
 
-      for (const vacancy of vacancies) {
+      for (const vacancy of vacanciesResult.vacancies) {
         if (vacancy.responsesUrl) {
           try {
             await parseResponses(page, vacancy.responsesUrl, vacancy.id);
@@ -78,12 +97,15 @@ export async function runHHParser(options: RunHHParserOptions): Promise<void> {
     // Парсинг архивных вакансий, если запрошено
     if (includeArchived) {
       console.log("\n📁 Парсинг архивных вакансий...");
-      const archivedVacancies = await parseArchivedVacancies(page, workspaceId);
+      const archivedResult = await parseArchivedVacancies(page, workspaceId);
+      totalImported += archivedResult.imported;
+      totalUpdated += archivedResult.updated;
+      totalFailed += archivedResult.failed;
 
-      if (!skipResponses && archivedVacancies.length > 0) {
+      if (!skipResponses && archivedResult.vacancies.length > 0) {
         console.log("\n📨 Парсинг откликов архивных вакансий...");
 
-        for (const vacancy of archivedVacancies) {
+        for (const vacancy of archivedResult.vacancies) {
           if (vacancy.responsesUrl) {
             try {
               await parseResponses(page, vacancy.responsesUrl, vacancy.id);
@@ -99,6 +121,15 @@ export async function runHHParser(options: RunHHParserOptions): Promise<void> {
     }
 
     console.log("✅ Парсинг завершен успешно");
+    console.log(
+      `📊 Статистика: импортировано ${totalImported}, обновлено ${totalUpdated}, ошибок ${totalFailed}`,
+    );
+
+    return {
+      imported: totalImported,
+      updated: totalUpdated,
+      failed: totalFailed,
+    };
   } catch (error) {
     console.error("❌ Ошибка при парсинге:", error);
     throw error;
@@ -136,12 +167,16 @@ export async function importSingleVacancy(
     }
 
     // Check authentication and perform login if needed
-    await checkAndPerformLogin(
+    const loggedIn = await checkAndPerformLogin(
       page,
       credentials.email,
       credentials.password,
       workspaceId,
     );
+
+    if (!loggedIn) {
+      throw new Error("Не удалось войти в систему HeadHunter");
+    }
 
     const result = await parseSingleVacancy(page, externalId, workspaceId);
 

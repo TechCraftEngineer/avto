@@ -16,6 +16,7 @@ import {
   Input,
   Label,
 } from "@qbs-autonaim/ui";
+import { ImportByUrlSchema } from "@qbs-autonaim/validators/vacancy-import";
 import { Download, Link as LinkIcon } from "lucide-react";
 import { useState } from "react";
 import {
@@ -36,10 +37,13 @@ export function VacancyImportSection() {
   const [urlError, setUrlError] = useState("");
 
   // Progress tracking states
-  const [newVacanciesToken, setNewVacanciesToken] = useState<unknown>(null);
-  const [archivedVacanciesToken, setArchivedVacanciesToken] =
-    useState<unknown>(null);
-  const [byUrlToken, setByUrlToken] = useState<unknown>(null);
+  const [newVacanciesToken, setNewVacanciesToken] = useState<string | null>(
+    null,
+  );
+  const [archivedVacanciesToken, setArchivedVacanciesToken] = useState<
+    string | null
+  >(null);
+  const [byUrlToken, setByUrlToken] = useState<string | null>(null);
   const [byUrlRequestId, setByUrlRequestId] = useState<string | null>(null);
 
   const [isImportingNew, setIsImportingNew] = useState(false);
@@ -56,6 +60,7 @@ export function VacancyImportSection() {
       await triggerImportNewVacancies(workspace.id);
     } catch (error) {
       console.error("Ошибка запуска импорта:", error);
+      setNewVacanciesToken(null);
       setIsImportingNew(false);
     }
   };
@@ -70,6 +75,7 @@ export function VacancyImportSection() {
       await triggerImportArchivedVacancies(workspace.id);
     } catch (error) {
       console.error("Ошибка запуска импорта:", error);
+      setArchivedVacanciesToken(null);
       setIsImportingArchived(false);
     }
   };
@@ -77,14 +83,14 @@ export function VacancyImportSection() {
   const handleImportByUrl = async () => {
     if (!workspace?.id) return;
 
-    // Валидация URL
-    if (!vacancyUrl.trim()) {
-      setUrlError("Введите ссылку на вакансию");
-      return;
-    }
+    // Валидация URL через Zod схему
+    const validationResult = ImportByUrlSchema.safeParse({ url: vacancyUrl });
 
-    if (!vacancyUrl.includes("hh.ru/vacancy/")) {
-      setUrlError("Ссылка должна быть на вакансию с hh.ru");
+    if (!validationResult.success) {
+      const errorMessage =
+        validationResult.error.issues[0]?.message ||
+        "Введите корректную ссылку на вакансию";
+      setUrlError(errorMessage);
       return;
     }
 
