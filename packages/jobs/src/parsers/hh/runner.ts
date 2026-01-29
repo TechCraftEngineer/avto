@@ -5,7 +5,11 @@ import { checkAndPerformLogin, loadCookies } from "./auth";
 import { closeBrowserSafely } from "./browser-utils";
 import { HH_CONFIG } from "./config";
 import { parseResponses } from "./response-parser";
-import { parseArchivedVacancies, parseVacancies } from "./vacancy-parser";
+import {
+  parseArchivedVacancies,
+  parseSingleVacancy,
+  parseVacancies,
+} from "./vacancy-parser";
 
 interface RunHHParserOptions {
   workspaceId: string;
@@ -97,6 +101,57 @@ export async function runHHParser(options: RunHHParserOptions): Promise<void> {
     console.log("✅ Парсинг завершен успешно");
   } catch (error) {
     console.error("❌ Ошибка при парсинге:", error);
+    throw error;
+  } finally {
+    await closeBrowserSafely(browser);
+  }
+}
+
+/**
+ * Импортирует одну вакансию по её externalId
+ */
+export async function importSingleVacancy(
+  workspaceId: string,
+  externalId: string,
+): Promise<{ vacancyId: string; isNew: boolean }> {
+  console.log(`🚀 Импорт вакансии ${externalId}`);
+
+  const credentials = await getIntegrationCredentials(db, "hh", workspaceId);
+  if (!credentials?.email || !credentials?.password) {
+    throw new Error("Не найдены учетные данные для HH.ru");
+  }
+
+  const browser = await puppeteer.launch(HH_CONFIG.puppeteer);
+
+  try {
+    const page = await browser.newPage();
+
+    await page.setUserAgent(HH_CONFIG.userAgent);
+    await page.setViewport({ width: 1920, height: 1080 });
+
+    // Load existing cookies if available
+    const savedCookies = await loadCookies("hh", workspaceId);
+    if (savedCookies && savedCookies.length > 0) {
+      await page.setCookie(...savedCookies);
+    }
+
+    // Check authentication and perform login if needed
+    await checkAndPerformLogin(
+      page,
+      credentials.email,
+      credentials.password,
+      workspaceId,
+    );
+
+    const result = await parseSingleVacancy(page, externalId, workspaceId);
+
+    console.log(
+      `✅ Вакансия ${result.isNew ? "импортирована" : "обновлена"}: ${result.vacancyId}`,
+    );
+
+    return result;
+  } catch (error) {
+    console.error("❌ Ошибка при импорте вакансии:", error);
     throw error;
   } finally {
     await closeBrowserSafely(browser);

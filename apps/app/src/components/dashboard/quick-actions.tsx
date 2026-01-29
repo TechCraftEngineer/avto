@@ -22,7 +22,7 @@ export function QuickActions({ orgSlug, workspaceSlug }: QuickActionsProps) {
     {
       icon: Plus,
       label: "Создать вакансию",
-      href: paths.workspace.vacancyCreate(orgSlug, workspaceSlug),
+      href: paths.workspace.createVacancy(orgSlug, workspaceSlug),
       variant: "default" as const,
     },
     {

@@ -33,7 +33,12 @@ export function PendingActions({
   const { workspace } = useWorkspace();
 
   // Получаем необработанные отклики
-  const { data: pendingResponses = [], isLoading } = useQuery({
+  const {
+    data: pendingResponses = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     ...trpc.vacancy.responses.listRecent.queryOptions({
       workspaceId: workspace?.id ?? "",
     }),
@@ -68,6 +73,31 @@ export function PendingActions({
                 </div>
               ),
             )}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Card className="@container/card">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <AlertCircle className="h-5 w-5 text-red-500" />
+            Требуют внимания
+          </CardTitle>
+          <CardDescription>Ошибка загрузки откликов</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col items-center justify-center py-8 text-center">
+            <AlertCircle className="h-12 w-12 text-red-500/50 mb-3" />
+            <p className="text-sm text-muted-foreground">
+              Не удалось загрузить отклики
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              {error?.message || "Произошла ошибка при загрузке данных"}
+            </p>
           </div>
         </CardContent>
       </Card>

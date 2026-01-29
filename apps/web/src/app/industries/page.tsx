@@ -136,11 +136,11 @@ export default function IndustriesPage() {
                         ))}
                       </div>
 
-                      <Button asChild variant="outline" className="w-full group-hover:bg-foreground group-hover:text-background transition-colors bg-transparent">
-                        <Link href={industry.href}>
+                      <Button variant="outline" className="w-full group-hover:bg-foreground group-hover:text-background transition-colors bg-transparent pointer-events-none">
+                        <span>
                           Подробнее
-                          <ArrowRight className="ml-2 h-4 w-4" />
-                        </Link>
+                          <ArrowRight className="ml-2 h-4 w-4 inline" />
+                        </span>
                       </Button>
                     </CardContent>
 
