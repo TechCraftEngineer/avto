@@ -1,25 +1,49 @@
-export { CandidateComparison } from "./candidate-comparison";
-export { DeleteGigDialog } from "./delete-gig-dialog";
-export { EmptyState } from "./empty-state";
-export { GigCard } from "./gig-card";
-export { GigListItem } from "./gig-list-item";
-export { GigsFilters } from "./gigs-filters";
-export { GigsList } from "./gigs-list";
-export { GigsStats } from "./gigs-stats";
-export { RankedCandidateCard } from "./ranked-candidate-card";
-export { RankingList } from "./ranking-list";
+// AI Chat components
+export { GigAiChatPanel } from "./ai-chat";
+export { ChatInput } from "./ai-chat";
+export { ChatMessageList } from "./ai-chat";
+export { QuickReplies } from "./ai-chat";
+export { TypingIndicator } from "./ai-chat";
 
-export { ResponseInvitationButton } from "./response-invitation-button";
-export { ResponseListCard } from "./response-list-card";
-export { ShortlistCandidateCard } from "./shortlist-candidate-card";
+// Candidates components
+export { CandidateComparison } from "./candidates";
+export { RankedCandidateCard } from "./candidates";
+export { RankingList } from "./candidates";
+export { ResponseInvitationButton } from "./candidates";
+export { ResponseListCard } from "./candidates";
+
+// Filters components
+export { CustomDomainSelect } from "./filters";
+export { GigsFilters, type DisplayMode, gigTypeLabels } from "./filters";
+export { useGigsFilters, type Gig, type GigsFilters as GigsFiltersType, type GigsStats } from "./filters";
+
+// Gig management components
+export { DeleteGigDialog } from "./gig-management";
+export { EmptyState } from "./gig-management";
+export { GigCard } from "./gig-management";
+export { GigListItem } from "./gig-management";
+export { GigsList } from "./gig-management";
+export { GigsStats } from "./gig-management";
+
+// Interview components
+export { GigInterviewSettings } from "./interview";
+export { InterviewMediaUpload } from "./interview";
+
+// Response detail components
+export * from "./response-detail";
+
+// Shortlist components
+export { ShortlistCandidateCard } from "./shortlist";
 export {
   getRecommendationLabel,
   MIN_SCORE_OPTIONS,
-} from "./shortlist-constants";
-export { ShortlistError } from "./shortlist-error";
-export { ShortlistFilters } from "./shortlist-filters";
-export { ShortlistHeader } from "./shortlist-header";
-export { ShortlistList } from "./shortlist-list";
-export { ShortlistLoading } from "./shortlist-loading";
-export { ShortlistStats } from "./shortlist-stats";
-export { useGigsFilters } from "./use-gigs-filters";
+} from "./shortlist";
+export { ShortlistError } from "./shortlist";
+export { ShortlistFilters } from "./shortlist";
+export { ShortlistHeader } from "./shortlist";
+export { ShortlistList } from "./shortlist";
+export { ShortlistLoading } from "./shortlist";
+export { ShortlistStats } from "./shortlist";
+
+// Templates components
+export { GigInvitationTemplate } from "./templates";

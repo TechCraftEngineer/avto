@@ -1,20 +1,12 @@
 import type { TRPCRouterRecord } from "@trpc/server";
 
-import { aiChatRouter } from "./ai-chat";
-import { chatGenerate } from "./chat-generate";
-import { create } from "./create";
-import { deleteGig } from "./delete";
-import { generateInterviewLink } from "./generate-interview-link";
-import { generateInvitationTemplate } from "./generate-invitation-template";
-import { get } from "./get";
-import { getInterviewLink } from "./get-interview-link";
-import { list } from "./list";
-import { listActive } from "./list-active";
+import { aiChatRouter, chatGenerate } from "./chat";
+import { create, deleteGig, get, list, listActive, update } from "./crud";
+import { generateInterviewLink, getInterviewLink } from "./interview";
 import { gigResponsesRouter } from "./responses";
 import { getGigShortlist, recalculateGigShortlist } from "./shortlist";
-import { syncAllResponseCounts } from "./sync-all-response-counts";
-import { syncResponseCounts } from "./sync-response-counts";
-import { update } from "./update";
+import { syncAllResponseCounts, syncResponseCounts } from "./sync";
+import { generateInvitationTemplate } from "./templates";
 
 export const gigRouter = {
   list,
