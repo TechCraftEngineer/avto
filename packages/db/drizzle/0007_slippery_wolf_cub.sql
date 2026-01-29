@@ -1,2 +1,0 @@
-ALTER TABLE "interview_scorings" ADD COLUMN "bot_usage_detected" integer;--> statement-breakpoint
-ALTER TABLE "interview_scorings" ADD CONSTRAINT "interview_scoring_bot_usage_check" CHECK ("interview_scorings"."bot_usage_detected" IS NULL OR "interview_scorings"."bot_usage_detected" BETWEEN 0 AND 100);

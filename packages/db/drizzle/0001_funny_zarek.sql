@@ -1,1 +1,0 @@
-ALTER TABLE "chat_sessions" ADD CONSTRAINT "chat_session_entity_user_unique" UNIQUE("entity_type","entity_id","user_id");
