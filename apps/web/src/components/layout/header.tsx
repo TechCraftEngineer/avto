@@ -19,10 +19,16 @@ import {
   Users,
   Phone,
   Brain,
+  ShoppingCart,
+  Landmark,
+  Pill,
+  Factory,
+  ArrowRight,
 } from "lucide-react"
 import { env } from "@/env"
 
-type DropdownType = "product" | "resources" | "company" | null
+type DropdownType = "product" | "resources" | "company" | "industries" | null
+
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -273,6 +279,124 @@ export function Header() {
                         AI на вашем домене с вашим стилем
                       </div>
                     </div>
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+          {/* Industries Dropdown */}
+          <div className="relative" onMouseEnter={() => handleMouseEnter("industries")} onMouseLeave={handleMouseLeave}>
+            <button
+              onClick={() => toggleDropdown("industries")}
+              className={`flex items-center gap-1 px-3 py-2 text-sm font-medium transition-colors rounded-lg ${
+                activeDropdown === "industries"
+                  ? "text-foreground bg-muted"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+              }`}
+            >
+              Отрасли
+              <ChevronDown
+                className={`h-4 w-4 transition-transform ${activeDropdown === "industries" ? "rotate-180" : ""}`}
+              />
+            </button>
+
+            {activeDropdown === "industries" && (
+              <div
+                className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-[400px] rounded-2xl border border-border bg-card p-3 shadow-xl animate-in fade-in-0 zoom-in-95 duration-200"
+                onMouseEnter={() => handleMouseEnter("industries")}
+                onMouseLeave={handleMouseLeave}
+              >
+                <Link
+                  href="/industries/pharma"
+                  className="flex items-center gap-3 rounded-lg p-3 transition-all hover:bg-muted/70 hover:shadow-sm"
+                  onClick={() => {
+                    setActiveDropdown(null)
+                    setClickedDropdown(null)
+                  }}
+                >
+                  <div className="shrink-0 h-10 w-10 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
+                    <Pill className="size-5 text-white" />
+                  </div>
+                  <div className="text-left">
+                    <div className="text-sm font-medium text-foreground">Фармацевтика</div>
+                    <div className="text-xs text-muted-foreground">GxP комплаенс и проверка лицензий</div>
+                  </div>
+                </Link>
+                <Link
+                  href="/industries/hr-agencies"
+                  className="flex items-center gap-3 rounded-lg p-3 transition-all hover:bg-muted/70 hover:shadow-sm"
+                  onClick={() => {
+                    setActiveDropdown(null)
+                    setClickedDropdown(null)
+                  }}
+                >
+                  <div className="shrink-0 h-10 w-10 rounded-lg bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center">
+                    <Users className="size-5 text-white" />
+                  </div>
+                  <div className="text-left">
+                    <div className="text-sm font-medium text-foreground">Кадровые агентства</div>
+                    <div className="text-xs text-muted-foreground">Мультипроектность и white-label</div>
+                  </div>
+                </Link>
+                <Link
+                  href="/industries/fintech"
+                  className="flex items-center gap-3 rounded-lg p-3 transition-all hover:bg-muted/70 hover:shadow-sm"
+                  onClick={() => {
+                    setActiveDropdown(null)
+                    setClickedDropdown(null)
+                  }}
+                >
+                  <div className="shrink-0 h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                    <Landmark className="size-5 text-white" />
+                  </div>
+                  <div className="text-left">
+                    <div className="text-sm font-medium text-foreground">Финтех и банки</div>
+                    <div className="text-xs text-muted-foreground">Проверка благонадежности, требования ЦБ</div>
+                  </div>
+                </Link>
+                <Link
+                  href="/industries/retail"
+                  className="flex items-center gap-3 rounded-lg p-3 transition-all hover:bg-muted/70 hover:shadow-sm"
+                  onClick={() => {
+                    setActiveDropdown(null)
+                    setClickedDropdown(null)
+                  }}
+                >
+                  <div className="shrink-0 h-10 w-10 rounded-lg bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
+                    <ShoppingCart className="size-5 text-white" />
+                  </div>
+                  <div className="text-left">
+                    <div className="text-sm font-medium text-foreground">Ритейл и e-commerce</div>
+                    <div className="text-xs text-muted-foreground">Сезонный и массовый найм</div>
+                  </div>
+                </Link>
+                <Link
+                  href="/industries/manufacturing"
+                  className="flex items-center gap-3 rounded-lg p-3 transition-all hover:bg-muted/70 hover:shadow-sm"
+                  onClick={() => {
+                    setActiveDropdown(null)
+                    setClickedDropdown(null)
+                  }}
+                >
+                  <div className="shrink-0 h-10 w-10 rounded-lg bg-gradient-to-br from-slate-500 to-gray-500 flex items-center justify-center">
+                    <Factory className="size-5 text-white" />
+                  </div>
+                  <div className="text-left">
+                    <div className="text-sm font-medium text-foreground">Производство</div>
+                    <div className="text-xs text-muted-foreground">Проверка допусков и сертификатов</div>
+                  </div>
+                </Link>
+                <div className="mt-2 pt-2 border-t border-border">
+                  <Link
+                    href="/industries"
+                    className="flex items-center justify-between rounded-lg p-3 transition-all hover:bg-muted/70 text-sm font-medium text-foreground"
+                    onClick={() => {
+                      setActiveDropdown(null)
+                      setClickedDropdown(null)
+                    }}
+                  >
+                    Все отрасли
+                    <ArrowRight className="h-4 w-4" />
                   </Link>
                 </div>
               </div>

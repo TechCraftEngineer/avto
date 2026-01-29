@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "@qbs-autonaim/tsconfig": "workspace:*",
-    "@types/node": "25.0.10",
+    "@types/node": "25.1.0",
     "@types/react": "19.2.10",
     "typescript": "5.9.3"
   }
