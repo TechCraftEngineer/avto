@@ -252,5 +252,5 @@ npm start
 ## 🤝 Поддержка
 
 Если у вас есть вопросы или предложения, свяжитесь с нами:
-- Email: support@qbs-autonaim.ru
-- Website: https://qbs-autonaim.ru
+- Email: support@avtonaim.qbs.ru
+- Website: https://avtonaim.qbs.ru

@@ -288,7 +288,7 @@ export default function KnowledgeBasePage() {
           </p>
           <div className="mt-3">
             <a
-              href="mailto:content@qbs-autonaim.ru"
+              href="mailto:content@avtonaim.qbs.ru"
               className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
             >
               ✍️ Предложить статью

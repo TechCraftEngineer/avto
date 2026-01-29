@@ -1,0 +1,25 @@
+# Robots.txt для QBS Автонайм
+# https://avtonaim.qbs.ru
+
+# Разрешаем всем поисковым роботам индексировать сайт
+User-agent: *
+Allow: /
+
+# Запрещаем индексацию служебных страниц
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/
+Disallow: /*.json$
+
+# Специальные правила для Яндекса
+User-agent: Yandex
+Allow: /
+Crawl-delay: 1
+
+# Специальные правила для Google
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+# Карта сайта
+Sitemap: https://avtonaim.qbs.ru/sitemap.xml

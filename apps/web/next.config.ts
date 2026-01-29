@@ -14,6 +14,52 @@ export default async function createNextConfig(): Promise<NextConfig> {
     transpilePackages: ["@qbs-autonaim/ui"],
     /** We already do linting and typechecking as separate tasks in CI */
     typescript: { ignoreBuildErrors: true },
+
+    /** SEO оптимизация */
+    compress: true,
+    poweredByHeader: false,
+
+    /** Заголовки для безопасности и SEO */
+    async headers() {
+      return [
+        {
+          source: "/:path*",
+          headers: [
+            {
+              key: "X-DNS-Prefetch-Control",
+              value: "on",
+            },
+            {
+              key: "X-Frame-Options",
+              value: "SAMEORIGIN",
+            },
+            {
+              key: "X-Content-Type-Options",
+              value: "nosniff",
+            },
+            {
+              key: "Referrer-Policy",
+              value: "origin-when-cross-origin",
+            },
+            {
+              key: "Permissions-Policy",
+              value: "camera=(), microphone=(), geolocation=()",
+            },
+          ],
+        },
+      ];
+    },
+
+    /** Редиректы для SEO */
+    async redirects() {
+      return [
+        {
+          source: "/home",
+          destination: "/",
+          permanent: true,
+        },
+      ];
+    },
   };
 
   return config;

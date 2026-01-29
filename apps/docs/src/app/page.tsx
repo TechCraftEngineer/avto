@@ -217,7 +217,7 @@ export default function DocsIntroductionPage() {
           <DocsCard
             title="Блог и кейсы"
             description="Статьи, гайды и кейсы по современному рекрутингу и HR-автоматизации"
-            href="https://qbs-autonaim.ru/blog"
+            href="https://avtonaim.qbs.ru/blog"
             icon={<FileText className="h-5 w-5" />}
           />
           <DocsCard

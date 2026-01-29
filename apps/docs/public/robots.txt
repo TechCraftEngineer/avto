@@ -1,5 +1,5 @@
 # Robots.txt for QBS Автонайм Documentation
-# https://docs.qbs-autonaim.ru/robots.txt
+# https://docs.avtonaim.qbs.ru/robots.txt
 
 User-agent: *
 Allow: /
@@ -26,8 +26,8 @@ Allow: /
 # Yandex-specific settings for Russian market
 User-agent: Yandex
 Allow: /
-Host: https://docs.qbs-autonaim.ru
-Sitemap: https://docs.qbs-autonaim.ru/sitemap.xml
+Host: https://docs.avtonaim.qbs.ru
+Sitemap: https://docs.avtonaim.qbs.ru/sitemap.xml
 
 # Crawl delay for respectful crawling
 Crawl-delay: 1

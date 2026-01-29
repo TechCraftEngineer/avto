@@ -79,7 +79,7 @@ export function DocsHeader() {
             className="hidden md:inline-flex"
             asChild
           >
-            <Link href="https://app.qbs-autonaim.ru" target="_blank">
+            <Link href="https://app.avtonaim.qbs.ru" target="_blank">
               Войти
             </Link>
           </Button>

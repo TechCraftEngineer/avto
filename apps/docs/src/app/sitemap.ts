@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://docs.qbs-autonaim.ru";
+  const baseUrl = "https://docs.avtonaim.qbs.ru";
 
   // Static pages
   const staticPages = [

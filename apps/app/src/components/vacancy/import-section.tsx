@@ -1,6 +1,10 @@
 "use client";
 
+import type { Realtime } from "@inngest/realtime";
 import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
   Button,
   Card,
   CardContent,
@@ -16,8 +20,15 @@ import {
   Input,
   Label,
 } from "@qbs-autonaim/ui";
-import { ImportByUrlSchema } from "@qbs-autonaim/validators/vacancy-import";
-import { Download, Link as LinkIcon } from "lucide-react";
+import { ImportByUrlSchema } from "@qbs-autonaim/validators";
+import { useQuery } from "@tanstack/react-query";
+import {
+  AlertCircle,
+  Download,
+  Link as LinkIcon,
+  Settings,
+} from "lucide-react";
+import NextLink from "next/link";
 import { useState } from "react";
 import {
   fetchImportArchivedVacanciesToken,
@@ -28,22 +39,39 @@ import {
   triggerImportVacancyByUrl,
 } from "~/actions/vacancy-import";
 import { useWorkspace } from "~/hooks/use-workspace";
+import { useWorkspaceParams } from "~/hooks/use-workspace-params";
+import { useTRPC } from "~/trpc/react";
 import { ImportProgress } from "./import-progress";
 
 export function VacancyImportSection() {
   const { workspace } = useWorkspace();
+  const { orgSlug, slug: workspaceSlug } = useWorkspaceParams();
+  const trpc = useTRPC();
   const [isUrlDialogOpen, setIsUrlDialogOpen] = useState(false);
   const [vacancyUrl, setVacancyUrl] = useState("");
   const [urlError, setUrlError] = useState("");
 
+  // Получаем список интеграций
+  const { data: integrations, isLoading: isLoadingIntegrations } = useQuery(
+    trpc.integration.list.queryOptions({
+      workspaceId: workspace?.id ?? "",
+    }),
+  );
+
+  // Проверяем наличие активной интеграции с HH
+  const hhIntegration = integrations?.find(
+    (int) => int.type === "hh" && int.isActive,
+  );
+  const hasActiveHHIntegration = !!hhIntegration;
+
   // Progress tracking states
-  const [newVacanciesToken, setNewVacanciesToken] = useState<string | null>(
+  const [newVacanciesToken, setNewVacanciesToken] =
+    useState<Realtime.Subscribe.Token | null>(null);
+  const [archivedVacanciesToken, setArchivedVacanciesToken] =
+    useState<Realtime.Subscribe.Token | null>(null);
+  const [byUrlToken, setByUrlToken] = useState<Realtime.Subscribe.Token | null>(
     null,
   );
-  const [archivedVacanciesToken, setArchivedVacanciesToken] = useState<
-    string | null
-  >(null);
-  const [byUrlToken, setByUrlToken] = useState<string | null>(null);
   const [byUrlRequestId, setByUrlRequestId] = useState<string | null>(null);
 
   const [isImportingNew, setIsImportingNew] = useState(false);
@@ -130,6 +158,41 @@ export function VacancyImportSection() {
     setByUrlToken(null);
     setByUrlRequestId(null);
   };
+
+  // Показываем предупреждение, если нет активной интеграции
+  if (!isLoadingIntegrations && !hasActiveHHIntegration) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Импорт вакансий</CardTitle>
+          <CardDescription>
+            Загрузите вакансии из HeadHunter в систему
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Интеграция с HeadHunter не настроена</AlertTitle>
+            <AlertDescription className="mt-2 space-y-3">
+              <p>
+                Для импорта вакансий необходимо настроить интеграцию с
+                HeadHunter. Это позволит системе автоматически загружать
+                вакансии и отслеживать отклики.
+              </p>
+              <Button asChild variant="outline" size="sm">
+                <NextLink
+                  href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/settings/integrations`}
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  Настроить интеграцию
+                </NextLink>
+              </Button>
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <>

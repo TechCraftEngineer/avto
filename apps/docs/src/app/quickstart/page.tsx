@@ -323,7 +323,7 @@ export default function QuickstartPage() {
 
         <DocsCallout type="info" title="Нужна помощь?">
           Если у вас возникли вопросы, обратитесь в нашу службу поддержки через
-          чат в личном кабинете или напишите на support@qbs-autonaim.ru
+          чат в личном кабинете или напишите на support@avtonaim.qbs.ru
         </DocsCallout>
 
         <div className="my-8">

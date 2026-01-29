@@ -40,14 +40,14 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL("https://docs.qbs-autonaim.ru"),
+  metadataBase: new URL("https://docs.avtonaim.qbs.ru"),
   alternates: {
     canonical: "/",
   },
   openGraph: {
     type: "website",
     locale: "ru_RU",
-    url: "https://docs.qbs-autonaim.ru",
+    url: "https://docs.avtonaim.qbs.ru",
     title: "Документация QBS Автонайм — AI для автоматизации рекрутинга",
     description:
       "Полная документация AI-платформы для автоматизации найма персонала в России. Интеграция с HH.ru, SuperJob, Telegram. Экономьте до 80% времени на подборе кандидатов.",
@@ -116,12 +116,12 @@ export default function RootLayout({
     "@graph": [
       {
         "@type": "Organization",
-        "@id": "https://qbs-autonaim.ru/#organization",
+        "@id": "https://avtonaim.qbs.ru/#organization",
         name: "QBS Автонайм",
-        url: "https://qbs-autonaim.ru",
+        url: "https://avtonaim.qbs.ru",
         logo: {
           "@type": "ImageObject",
-          url: "https://qbs-autonaim.ru/logo.png",
+          url: "https://avtonaim.qbs.ru/logo.png",
           width: 512,
           height: 512,
         },
@@ -132,7 +132,7 @@ export default function RootLayout({
           "@type": "ContactPoint",
           telephone: "+7-XXX-XXX-XX-XX",
           contactType: "customer service",
-          email: "support@qbs-autonaim.ru",
+          email: "support@avtonaim.qbs.ru",
         },
         sameAs: [
           "https://t.me/qbs_autonaim",
@@ -141,7 +141,7 @@ export default function RootLayout({
       },
       {
         "@type": "SoftwareApplication",
-        "@id": "https://qbs-autonaim.ru/#software",
+        "@id": "https://avtonaim.qbs.ru/#software",
         name: "QBS Автонайм",
         applicationCategory: "BusinessApplication",
         operatingSystem: "Web",
@@ -159,21 +159,21 @@ export default function RootLayout({
           "Аналитика найма",
           "Корпоративные интеграции",
         ],
-        screenshot: "https://qbs-autonaim.ru/screenshot.png",
+        screenshot: "https://avtonaim.qbs.ru/screenshot.png",
         author: {
-          "@id": "https://qbs-autonaim.ru/#organization",
+          "@id": "https://avtonaim.qbs.ru/#organization",
         },
       },
       {
         "@type": "WebSite",
-        "@id": "https://docs.qbs-autonaim.ru/#website",
-        url: "https://docs.qbs-autonaim.ru",
+        "@id": "https://docs.avtonaim.qbs.ru/#website",
+        url: "https://docs.avtonaim.qbs.ru",
         name: "Документация QBS Автонайм",
         description:
           "Полная документация AI-платформы для автоматизации рекрутинга",
         inLanguage: "ru-RU",
         publisher: {
-          "@id": "https://qbs-autonaim.ru/#organization",
+          "@id": "https://avtonaim.qbs.ru/#organization",
         },
       },
     ],
