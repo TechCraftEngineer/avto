@@ -1,13 +1,18 @@
 "use client";
 
-import { Skeleton } from "@qbs-autonaim/ui";
+import { Alert, AlertDescription, Separator, Skeleton } from "@qbs-autonaim/ui";
 import { useQuery } from "@tanstack/react-query";
+import { AlertCircle } from "lucide-react";
 import { useState } from "react";
 import { IntegrationCard } from "~/components/settings/integration-card";
+import { IntegrationCategorySection } from "~/components/settings/integration-category-section";
 import { IntegrationDialog } from "~/components/settings/integration-dialog";
 import { TelegramSessionsCard } from "~/components/settings/telegram-sessions-card";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { AVAILABLE_INTEGRATIONS } from "~/lib/integrations";
+import {
+  AVAILABLE_INTEGRATIONS,
+  INTEGRATION_CATEGORIES,
+} from "~/lib/integrations";
 import { useTRPC } from "~/trpc/react";
 
 export default function IntegrationsPage() {
@@ -22,6 +27,11 @@ export default function IntegrationsPage() {
 
   const { data: integrations, isLoading } = useQuery({
     ...api.integration.list.queryOptions({ workspaceId }),
+    enabled: !!workspaceId,
+  });
+
+  const { data: telegramSessions } = useQuery({
+    ...api.telegram.getSessions.queryOptions({ workspaceId }),
     enabled: !!workspaceId,
   });
 
@@ -52,35 +62,78 @@ export default function IntegrationsPage() {
     );
   }
 
+  const hasTelegramSession = telegramSessions && telegramSessions.length > 0;
+  const integrationsByCategory = AVAILABLE_INTEGRATIONS.reduce(
+    (acc, integration) => {
+      const category = integration.category;
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(integration);
+      return acc;
+    },
+    {} as Record<string, typeof AVAILABLE_INTEGRATIONS>,
+  );
+
   return (
     <>
       <div className="space-y-1">
         <h2 className="text-2xl font-semibold tracking-tight">Интеграции</h2>
         <p className="text-sm text-muted-foreground">
-          Управляйте интеграциями с внешними сервисами
+          Управляйте интеграциями с внешними сервисами для автоматизации работы
         </p>
       </div>
 
-      {workspaceId && <TelegramSessionsCard workspaceId={workspaceId} />}
+      <Alert>
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription className="text-sm">
+          <strong>Как это работает:</strong> Подключите Telegram для получения
+          уведомлений, затем настройте интеграции с платформами поиска работы.
+          Система будет автоматически искать подходящие вакансии и отправлять
+          отклики от вашего имени.
+        </AlertDescription>
+      </Alert>
 
-      <div className="grid gap-4">
-        {AVAILABLE_INTEGRATIONS.map((availableIntegration) => {
-          const existingIntegration = integrations?.find(
-            (i) => i.type === availableIntegration.type,
-          );
+      <div className="space-y-8">
+        {/* Секция коммуникации (Telegram) */}
+        <IntegrationCategorySection
+          categoryId={INTEGRATION_CATEGORIES.COMMUNICATION.id}
+          name={INTEGRATION_CATEGORIES.COMMUNICATION.name}
+          description={INTEGRATION_CATEGORIES.COMMUNICATION.description}
+          icon={INTEGRATION_CATEGORIES.COMMUNICATION.icon}
+        >
+          {workspaceId && <TelegramSessionsCard workspaceId={workspaceId} />}
+        </IntegrationCategorySection>
 
-          return (
-            <IntegrationCard
-              key={availableIntegration.type}
-              availableIntegration={availableIntegration}
-              integration={existingIntegration}
-              onCreate={() => handleCreate(availableIntegration.type)}
-              onEdit={() => handleEdit(availableIntegration.type)}
-              workspaceId={workspaceId}
-              userRole={userRole}
-            />
-          );
-        })}
+        <Separator />
+
+        {/* Секция поиска работы */}
+        <IntegrationCategorySection
+          categoryId={INTEGRATION_CATEGORIES.JOB_SEARCH.id}
+          name={INTEGRATION_CATEGORIES.JOB_SEARCH.name}
+          description={INTEGRATION_CATEGORIES.JOB_SEARCH.description}
+          icon={INTEGRATION_CATEGORIES.JOB_SEARCH.icon}
+          showTelegramInfo={!hasTelegramSession}
+        >
+          {integrationsByCategory["job-search"]?.map((availableIntegration) => {
+            const existingIntegration = integrations?.find(
+              (i) => i.type === availableIntegration.type,
+            );
+
+            return (
+              <IntegrationCard
+                key={availableIntegration.type}
+                availableIntegration={availableIntegration}
+                integration={existingIntegration}
+                onCreate={() => handleCreate(availableIntegration.type)}
+                onEdit={() => handleEdit(availableIntegration.type)}
+                workspaceId={workspaceId}
+                userRole={userRole}
+                showDetailedDescription
+              />
+            );
+          })}
+        </IntegrationCategorySection>
       </div>
 
       <IntegrationDialog
