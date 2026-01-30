@@ -36,7 +36,6 @@ import {
   fetchImportArchivedVacanciesToken,
   fetchImportNewVacanciesToken,
   fetchImportVacancyByUrlToken,
-  triggerImportArchivedVacancies,
   triggerImportNewVacancies,
   triggerImportSelectedArchivedVacancies,
   triggerImportVacancyByUrl,

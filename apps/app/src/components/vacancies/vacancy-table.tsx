@@ -86,17 +86,14 @@ export function VacancyTable({
         <TableHeader className="bg-muted/30">
           <TableRow className="hover:bg-transparent">
             {/* Headers... */}
-            <TableHead className="w-[300px] font-semibold text-foreground">
-              Название
+            <TableHead className="w-[280px] font-semibold text-foreground">
+              Название вакансии
             </TableHead>
             <TableHead className="font-semibold text-foreground">
-              Источник
+              Площадка
             </TableHead>
             <TableHead className="hidden font-semibold text-foreground md:table-cell">
               Регион
-            </TableHead>
-            <TableHead className="hidden text-right font-semibold text-foreground lg:table-cell">
-              Просмотры
             </TableHead>
             <TableHead
               className="text-right font-semibold text-foreground"
@@ -112,13 +109,39 @@ export function VacancyTable({
                 type="button"
                 onClick={() => handleSort("responses")}
                 className="inline-flex items-center gap-1 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                title="Общее количество откликов на вакансию"
               >
-                Отклики
+                Всего откликов
                 {renderSortIcon("responses")}
               </button>
             </TableHead>
+            <TableHead
+              className="text-right font-semibold text-foreground"
+              aria-sort={
+                sortBy === "newResponses"
+                  ? sortOrder === "asc"
+                    ? "ascending"
+                    : "descending"
+                  : "none"
+              }
+            >
+              <button
+                type="button"
+                onClick={() => handleSort("newResponses")}
+                className="inline-flex items-center gap-1 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                title="Новые отклики, требующие внимания"
+              >
+                Новые
+                {renderSortIcon("newResponses")}
+              </button>
+            </TableHead>
             <TableHead className="hidden text-right font-semibold text-foreground md:table-cell">
-              В&nbsp;работе
+              <span title="Кандидаты в процессе рассмотрения">В обработке</span>
+            </TableHead>
+            <TableHead className="hidden text-right font-semibold text-foreground lg:table-cell">
+              <span title="Количество просмотров вакансии на площадке">
+                Просмотры
+              </span>
             </TableHead>
             <TableHead className="font-semibold text-foreground">
               Статус
@@ -133,22 +156,34 @@ export function VacancyTable({
             Array.from({ length: 5 }).map(() => (
               <TableRow key={crypto.randomUUID()}>
                 <TableCell>
-                  <Skeleton className="h-5 w-[200px]" />
+                  <div className="flex flex-col gap-2">
+                    <Skeleton className="h-5 w-[220px]" />
+                    <Skeleton className="h-4 w-[120px]" />
+                  </div>
                 </TableCell>
                 <TableCell>
-                  <Skeleton className="h-6 w-[100px]" />
+                  <Skeleton className="h-6 w-[100px] rounded-full" />
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
                   <Skeleton className="h-5 w-[80px]" />
                 </TableCell>
-                <TableCell className="hidden lg:table-cell">
-                  <Skeleton className="h-5 w-[40px] ml-auto" />
+                <TableCell>
+                  <div className="flex flex-col items-end gap-1">
+                    <Skeleton className="h-5 w-[40px]" />
+                    <Skeleton className="h-3 w-[60px]" />
+                  </div>
                 </TableCell>
                 <TableCell>
-                  <Skeleton className="h-5 w-[40px] ml-auto" />
+                  <Skeleton className="h-6 w-[50px] ml-auto rounded-full" />
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
-                  <Skeleton className="h-5 w-[40px] ml-auto" />
+                  <div className="flex flex-col items-end gap-1">
+                    <Skeleton className="h-5 w-[30px]" />
+                    <Skeleton className="h-3 w-[40px]" />
+                  </div>
+                </TableCell>
+                <TableCell className="hidden lg:table-cell">
+                  <Skeleton className="h-5 w-[50px] ml-auto" />
                 </TableCell>
                 <TableCell>
                   <Skeleton className="h-6 w-[80px]" />

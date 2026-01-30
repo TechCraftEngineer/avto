@@ -10,6 +10,7 @@ import { triggerUpdateVacancies } from "~/actions/trigger";
 import { PageHeader } from "~/components/layout";
 import {
   VacancyFilters,
+  VacancyInsights,
   VacancyStats,
   VacancyTable,
 } from "~/components/vacancies";
@@ -164,6 +165,21 @@ export default function VacanciesPage() {
           newResponses={stats.newResponses}
           isLoading={isLoading}
         />
+
+        {/* Умные подсказки для рекрутера */}
+        {!isLoading && vacancies && vacancies.length > 0 && (
+          <VacancyInsights
+            totalVacancies={stats.totalVacancies}
+            activeVacancies={stats.activeVacancies}
+            totalResponses={stats.totalResponses}
+            newResponses={stats.newResponses}
+            avgResponsesPerVacancy={
+              stats.activeVacancies > 0
+                ? Math.round(stats.totalResponses / stats.activeVacancies)
+                : 0
+            }
+          />
+        )}
 
         <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-4">

@@ -1,5 +1,8 @@
 export { VacancyFilters } from "./vacancy-filters";
 export { VacancyForm } from "./vacancy-form";
+export { VacancyHelpTooltip } from "./vacancy-help-tooltip";
+export { VacancyInsights } from "./vacancy-insights";
+export { VacancyPerformanceBadge } from "./vacancy-performance-badge";
 export { VacancyStats } from "./vacancy-stats";
 export { VacancyTable } from "./vacancy-table";
 export { VacancyTableRow } from "./vacancy-table-row";

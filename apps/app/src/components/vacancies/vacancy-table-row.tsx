@@ -27,9 +27,9 @@ import {
   IconEdit,
   IconExternalLink,
   IconHistory,
-  IconUsers,
 } from "@tabler/icons-react";
 import Link from "next/link";
+import { VacancyPerformanceBadge } from "./vacancy-performance-badge";
 
 /**
  * Валидирует и санитизирует URL, разрешая только http и https схемы
@@ -133,24 +133,56 @@ export function VacancyTableRow({
   // Валидируем и санитизируем URL платформы
   const safePlatformUrl = sanitizeUrl(vacancy.platformUrl);
 
+  // Вычисляем конверсию просмотров в отклики
+  const conversionRate =
+    vacancy.views && vacancy.views > 0 && vacancy.totalResponsesCount
+      ? ((vacancy.totalResponsesCount / vacancy.views) * 100).toFixed(1)
+      : null;
+
+  // Определяем приоритет вакансии для рекрутера
+  const needsAttention = vacancy.newResponses && vacancy.newResponses > 0;
+
   return (
-    <TableRow className="group transition-colors hover:bg-muted/50">
-      <TableCell className="max-w-[300px]">
-        <div className="flex flex-col gap-0.5">
-          <Link
-            href={paths.workspace.vacancies(orgSlug, workspaceSlug, vacancy.id)}
-            className="font-semibold text-foreground hover:text-primary transition-colors line-clamp-1"
-          >
-            {vacancy.title}
-          </Link>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground md:hidden">
-            <span>{source.label}</span>
-            {vacancy.region && (
-              <>
-                <span>•</span>
-                <span>{vacancy.region}</span>
-              </>
+    <TableRow
+      className={`group transition-colors hover:bg-muted/50 ${
+        needsAttention ? "bg-green-50/50 dark:bg-green-950/10" : ""
+      }`}
+    >
+      <TableCell className="max-w-[280px]">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-start gap-2">
+            <Link
+              href={paths.workspace.vacancies(
+                orgSlug,
+                workspaceSlug,
+                vacancy.id,
+              )}
+              className="font-semibold text-foreground hover:text-primary transition-colors line-clamp-2 leading-snug"
+            >
+              {vacancy.title}
+            </Link>
+            {needsAttention && (
+              <div
+                className="size-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] animate-pulse shrink-0 mt-1.5"
+                title="Есть новые отклики"
+              />
             )}
+          </div>
+          <div className="flex items-center gap-2">
+            <VacancyPerformanceBadge
+              views={vacancy.views}
+              responses={vacancy.totalResponsesCount}
+              className="text-[10px] px-1.5 py-0"
+            />
+            <div className="flex items-center gap-2 text-xs text-muted-foreground md:hidden">
+              <span>{source.label}</span>
+              {vacancy.region && (
+                <>
+                  <span>•</span>
+                  <span>{vacancy.region}</span>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </TableCell>
@@ -167,28 +199,54 @@ export function VacancyTableRow({
           {vacancy.region || "—"}
         </span>
       </TableCell>
-      <TableCell className="text-right tabular-nums hidden lg:table-cell text-muted-foreground">
-        {vacancy.views?.toLocaleString() ?? 0}
-      </TableCell>
       <TableCell className="text-right tabular-nums">
         <Link
           href={paths.workspace.vacancies(orgSlug, workspaceSlug, vacancy.id)}
-          className="inline-flex items-center gap-1.5 font-semibold text-primary hover:underline group-hover:bg-primary/5 px-2 py-1 rounded-md transition-all"
+          className="inline-flex items-center justify-end gap-1.5 font-semibold text-foreground hover:text-primary transition-colors"
         >
-          <IconUsers className="size-4" />
           {vacancy.totalResponsesCount ?? 0}
-          {vacancy.newResponses && vacancy.newResponses > 0 && (
+        </Link>
+        {conversionRate && (
+          <div className="text-xs text-muted-foreground mt-0.5">
+            {conversionRate}% конверсия
+          </div>
+        )}
+      </TableCell>
+      <TableCell className="text-right tabular-nums">
+        {vacancy.newResponses && vacancy.newResponses > 0 ? (
+          <Link
+            href={paths.workspace.vacancies(orgSlug, workspaceSlug, vacancy.id)}
+            className="inline-flex items-center justify-end gap-1.5"
+          >
             <Badge
               variant="default"
-              className="bg-green-600 hover:bg-green-700 shadow-sm animate-in fade-in zoom-in duration-300 ml-1"
+              className="bg-green-600 hover:bg-green-700 shadow-sm font-semibold tabular-nums"
             >
               +{vacancy.newResponses}
             </Badge>
-          )}
-        </Link>
+          </Link>
+        ) : (
+          <span className="text-muted-foreground">—</span>
+        )}
       </TableCell>
-      <TableCell className="text-right tabular-nums hidden md:table-cell text-muted-foreground">
-        {vacancy.resumesInProgress ?? "—"}
+      <TableCell className="text-right tabular-nums hidden md:table-cell">
+        {vacancy.resumesInProgress && vacancy.resumesInProgress > 0 ? (
+          <div className="flex flex-col items-end gap-0.5">
+            <span className="font-medium text-foreground">
+              {vacancy.resumesInProgress}
+            </span>
+            {vacancy.totalResponsesCount && vacancy.totalResponsesCount > 0 && (
+              <span className="text-xs text-muted-foreground">
+                из {vacancy.totalResponsesCount}
+              </span>
+            )}
+          </div>
+        ) : (
+          <span className="text-muted-foreground">—</span>
+        )}
+      </TableCell>
+      <TableCell className="text-right tabular-nums hidden lg:table-cell text-muted-foreground">
+        {vacancy.views?.toLocaleString() ?? "—"}
       </TableCell>
       <TableCell>
         <div className="flex items-center gap-2">
@@ -200,7 +258,7 @@ export function VacancyTableRow({
             }`}
           />
           <span className="text-sm font-medium">
-            {vacancy.isActive ? "Активна" : "Неактивна"}
+            {vacancy.isActive ? "Активна" : "Закрыта"}
           </span>
         </div>
       </TableCell>
