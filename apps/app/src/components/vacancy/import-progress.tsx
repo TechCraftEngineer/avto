@@ -8,7 +8,8 @@ import {
   Progress,
 } from "@qbs-autonaim/ui";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
-import { useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
+import { fetchImportVacanciesToken } from "~/actions/realtime";
 
 export interface ImportProgressResult {
   success: boolean;
@@ -31,22 +32,18 @@ export function ImportProgress({
   runId,
   onComplete,
 }: ImportProgressProps) {
+  // Отслеживаем, был ли уже вызван onComplete
+  const completedRef = useRef(false);
+
+  // Мемоизируем функцию получения токена, чтобы избежать множественных подключений
+  const refreshToken = useCallback(
+    () => fetchImportVacanciesToken(workspaceId, runId, type),
+    [workspaceId, runId, type],
+  );
+
   // Подписываемся на выполнение функции через Realtime API
   const { data, error } = useInngestSubscription({
-    refreshToken: async () => {
-      // Получаем токен для конкретного runId
-      const response = await fetch("/api/inngest/realtime-token", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ workspaceId, runId, type }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Не удалось получить токен подписки");
-      }
-
-      return response.json();
-    },
+    refreshToken,
     enabled: true,
   });
 
@@ -66,9 +63,10 @@ export function ImportProgress({
       ? Math.round(((progressData.processed || 0) / progressData.total) * 100)
       : 0;
 
-  // Вызываем onComplete при завершении, но не скрываем компонент
+  // Вызываем onComplete при завершении только один раз
   useEffect(() => {
-    if (isCompleted && resultData) {
+    if (isCompleted && resultData && !completedRef.current) {
+      completedRef.current = true;
       onComplete(resultData);
     }
   }, [isCompleted, resultData, onComplete]);

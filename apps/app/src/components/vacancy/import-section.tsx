@@ -28,7 +28,7 @@ import {
   Settings,
 } from "lucide-react";
 import NextLink from "next/link";
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   fetchArchivedVacanciesList,
   triggerImportNewVacancies,
@@ -45,6 +45,10 @@ export function VacancyImportSection() {
   const { workspace } = useWorkspace();
   const { orgSlug, slug: workspaceSlug } = useWorkspaceParams();
   const trpc = useTRPC();
+
+  // Мемоизируем workspaceId, чтобы избежать ререндеров дочерних компонентов
+  const workspaceId = useMemo(() => workspace?.id ?? "", [workspace?.id]);
+
   const [isUrlDialogOpen, setIsUrlDialogOpen] = useState(false);
   const [isConfirmNewDialogOpen, setIsConfirmNewDialogOpen] = useState(false);
   const [isConfirmArchivedDialogOpen, setIsConfirmArchivedDialogOpen] =
@@ -60,9 +64,9 @@ export function VacancyImportSection() {
   // Получаем список интеграций
   const { data: integrations, isLoading: isLoadingIntegrations } = useQuery({
     ...trpc.integration.list.queryOptions({
-      workspaceId: workspace?.id ?? "",
+      workspaceId,
     }),
-    enabled: !!workspace?.id,
+    enabled: !!workspaceId,
   });
 
   // Проверяем наличие активной интеграции с HH
@@ -85,13 +89,13 @@ export function VacancyImportSection() {
   const [isImportingByUrl, setIsImportingByUrl] = useState(false);
 
   const handleImportNew = async () => {
-    if (!workspace?.id) return;
+    if (!workspaceId) return;
 
     setIsConfirmNewDialogOpen(false);
 
     try {
       setIsImportingNew(true);
-      const runId = await triggerImportNewVacancies(workspace.id);
+      const runId = await triggerImportNewVacancies(workspaceId);
       setNewVacanciesRunId(runId);
     } catch (error) {
       console.error("Ошибка запуска импорта:", error);
@@ -101,7 +105,7 @@ export function VacancyImportSection() {
   };
 
   const handleImportArchived = async () => {
-    if (!workspace?.id) return;
+    if (!workspaceId) return;
 
     setIsConfirmArchivedDialogOpen(false);
 
@@ -109,7 +113,7 @@ export function VacancyImportSection() {
       setIsSelectingArchivedVacancies(true);
 
       // Запускаем получение списка вакансий
-      const requestId = await fetchArchivedVacanciesList(workspace.id);
+      const requestId = await fetchArchivedVacanciesList(workspaceId);
       setArchivedListRequestId(requestId);
     } catch (error) {
       console.error("Ошибка получения списка архивных вакансий:", error);
@@ -119,7 +123,7 @@ export function VacancyImportSection() {
   };
 
   const handleArchivedVacanciesSelected = async (selectedIds: string[]) => {
-    if (!workspace?.id) return;
+    if (!workspaceId) return;
 
     setIsSelectingArchivedVacancies(false);
     setArchivedListRequestId(null);
@@ -127,7 +131,7 @@ export function VacancyImportSection() {
     try {
       setIsImportingArchived(true);
       const runId = await triggerImportSelectedArchivedVacancies(
-        workspace.id,
+        workspaceId,
         selectedIds,
       );
       setArchivedVacanciesRunId(runId);
@@ -144,7 +148,7 @@ export function VacancyImportSection() {
   };
 
   const handleImportByUrl = async () => {
-    if (!workspace?.id) return;
+    if (!workspaceId) return;
 
     // Валидация URL через Zod схему
     const validationResult = ImportByUrlSchema.safeParse({ url: vacancyUrl });
@@ -162,7 +166,7 @@ export function VacancyImportSection() {
       setIsUrlDialogOpen(false);
       setUrlError("");
 
-      const runId = await triggerImportVacancyByUrl(workspace.id, vacancyUrl);
+      const runId = await triggerImportVacancyByUrl(workspaceId, vacancyUrl);
       setByUrlRunId(runId);
 
       setVacancyUrl("");
@@ -172,23 +176,44 @@ export function VacancyImportSection() {
     }
   };
 
-  const handleNewVacanciesComplete = () => {
+  const handleNewVacanciesComplete = useCallback(() => {
     setIsImportingNew(false);
     setNewVacanciesRunId(null);
-  };
+  }, []);
 
-  const handleArchivedVacanciesComplete = () => {
+  const handleArchivedVacanciesComplete = useCallback(() => {
     setIsImportingArchived(false);
     setArchivedVacanciesRunId(null);
-  };
+  }, []);
 
-  const handleByUrlComplete = () => {
+  const handleByUrlComplete = useCallback(() => {
     setIsImportingByUrl(false);
     setByUrlRunId(null);
-  };
+  }, []);
+
+  // Показываем скелетон во время загрузки
+  if (isLoadingIntegrations || !workspaceId) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Импорт вакансий</CardTitle>
+          <CardDescription>
+            Загрузите вакансии из HeadHunter в систему
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex flex-wrap gap-3">
+            <div className="h-9 w-[240px] bg-muted animate-pulse rounded-md" />
+            <div className="h-9 w-[240px] bg-muted animate-pulse rounded-md" />
+            <div className="h-9 w-[240px] bg-muted animate-pulse rounded-md" />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   // Показываем предупреждение, если нет активной интеграции
-  if (!isLoadingIntegrations && !hasActiveHHIntegration) {
+  if (!hasActiveHHIntegration) {
     return (
       <Card>
         <CardHeader>
@@ -237,7 +262,7 @@ export function VacancyImportSection() {
               variant="default"
               size="sm"
               onClick={() => setIsConfirmNewDialogOpen(true)}
-              disabled={isImportingNew || !workspace?.id}
+              disabled={isImportingNew || !workspaceId}
             >
               <Download className="h-4 w-4 mr-2" />
               Загрузить активные вакансии
@@ -250,7 +275,7 @@ export function VacancyImportSection() {
               disabled={
                 isImportingArchived ||
                 isSelectingArchivedVacancies ||
-                !workspace?.id
+                !workspaceId
               }
             >
               <Download className="h-4 w-4 mr-2" />
@@ -261,7 +286,7 @@ export function VacancyImportSection() {
               variant="outline"
               size="sm"
               onClick={() => setIsUrlDialogOpen(true)}
-              disabled={isImportingByUrl || !workspace?.id}
+              disabled={isImportingByUrl || !workspaceId}
             >
               <LinkIcon className="h-4 w-4 mr-2" />
               Добавить вакансию по ссылке
@@ -271,9 +296,9 @@ export function VacancyImportSection() {
           {/* Selector for archived vacancies */}
           {isSelectingArchivedVacancies &&
             archivedListRequestId &&
-            workspace?.id && (
+            workspaceId && (
               <ArchivedVacanciesSelector
-                workspaceId={workspace.id}
+                workspaceId={workspaceId}
                 requestId={archivedListRequestId}
                 onSelect={handleArchivedVacanciesSelected}
                 onCancel={handleArchivedVacanciesCancel}
@@ -281,28 +306,28 @@ export function VacancyImportSection() {
             )}
 
           {/* Progress indicators */}
-          {isImportingNew && newVacanciesRunId && workspace?.id && (
+          {isImportingNew && newVacanciesRunId && workspaceId && (
             <ImportProgress
               type="new"
-              workspaceId={workspace.id}
+              workspaceId={workspaceId}
               runId={newVacanciesRunId}
               onComplete={handleNewVacanciesComplete}
             />
           )}
 
-          {isImportingArchived && archivedVacanciesRunId && workspace?.id && (
+          {isImportingArchived && archivedVacanciesRunId && workspaceId && (
             <ImportProgress
               type="archived"
-              workspaceId={workspace.id}
+              workspaceId={workspaceId}
               runId={archivedVacanciesRunId}
               onComplete={handleArchivedVacanciesComplete}
             />
           )}
 
-          {isImportingByUrl && byUrlRunId && workspace?.id && (
+          {isImportingByUrl && byUrlRunId && workspaceId && (
             <ImportProgress
               type="by-url"
-              workspaceId={workspace.id}
+              workspaceId={workspaceId}
               runId={byUrlRunId}
               onComplete={handleByUrlComplete}
             />

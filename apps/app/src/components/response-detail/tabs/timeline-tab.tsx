@@ -13,7 +13,6 @@ import {
   MessageSquare,
   Phone,
   UserCheck,
-  XCircle,
 } from "lucide-react";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
@@ -141,6 +140,7 @@ export function TimelineTab({ responseId }: TimelineTabProps) {
                   )}
 
                   {/* Отображение изменений */}
+
                   <ValueChangeDisplay
                     oldValue={event.oldValue}
                     newValue={event.newValue}

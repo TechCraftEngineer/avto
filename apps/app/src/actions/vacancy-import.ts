@@ -254,6 +254,4 @@ export async function triggerImportVacancyByUrl(
   }
 
   return ids[0];
-
-  return requestId;
 }

@@ -2,6 +2,10 @@
 
 import { getSubscriptionToken } from "@inngest/realtime";
 import {
+  fetchArchivedListChannel,
+  importArchivedVacanciesChannel,
+  importNewVacanciesChannel,
+  importVacancyByUrlChannel,
   refreshAllResumesChannel,
   refreshVacancyResponsesChannel,
   screenAllResponsesChannel,
@@ -79,6 +83,44 @@ export async function fetchTelegramMessagesToken(conversationId: string) {
   const token = await getSubscriptionToken(inngest, {
     channel: `telegram-messages-${conversationId}`,
     topics: ["message"],
+  });
+
+  return token;
+}
+
+/**
+ * Server action для получения токена подписки на Realtime канал получения списка архивных вакансий
+ */
+export async function fetchArchivedVacanciesListToken(
+  workspaceId: string,
+  requestId: string,
+) {
+  const token = await getSubscriptionToken(inngest, {
+    channel: fetchArchivedListChannel(workspaceId, requestId),
+    topics: ["result"],
+  });
+
+  return token;
+}
+
+/**
+ * Server action для получения токена подписки на Realtime канал импорта вакансий
+ */
+export async function fetchImportVacanciesToken(
+  workspaceId: string,
+  runId: string,
+  type: "new" | "archived" | "by-url",
+) {
+  const channelFn =
+    type === "new"
+      ? importNewVacanciesChannel(workspaceId)
+      : type === "archived"
+        ? importArchivedVacanciesChannel(workspaceId)
+        : importVacancyByUrlChannel(workspaceId, runId);
+
+  const token = await getSubscriptionToken(inngest, {
+    channel: channelFn,
+    topics: ["progress", "result"],
   });
 
   return token;

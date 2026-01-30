@@ -1,11 +1,19 @@
 import { CheckCircle2, XCircle } from "lucide-react";
 
+type JsonValue =
+  | string
+  | number
+  | boolean
+  | null
+  | JsonValue[]
+  | { [key: string]: JsonValue };
+
 interface ValueChangeDisplayProps {
-  oldValue: unknown;
-  newValue: unknown;
+  oldValue: JsonValue | null | undefined;
+  newValue: JsonValue | null | undefined;
 }
 
-function formatValue(value: unknown): string {
+function formatValue(value: JsonValue | null | undefined): string {
   if (value === null || value === undefined) {
     return "";
   }

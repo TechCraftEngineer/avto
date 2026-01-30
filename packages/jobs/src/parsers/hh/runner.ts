@@ -146,7 +146,6 @@ export async function fetchArchivedVacanciesList(workspaceId: string): Promise<
     externalId: string;
     title: string;
     responses: string;
-    views: string;
     region: string;
   }>
 > {
@@ -212,8 +211,6 @@ export async function fetchArchivedVacanciesList(workspaceId: string): Promise<
             return node ? node.textContent?.trim() || "" : "";
           };
 
-          const cleanNumber = (text: string) => text.replace(/\D/g, "");
-
           // Извлекаем ID вакансии из data-vacancy-id или из data-qa атрибута
           let externalId = el.getAttribute("data-vacancy-id") || "";
 
@@ -238,14 +235,12 @@ export async function fetchArchivedVacanciesList(workspaceId: string): Promise<
               '[data-qa^="vacancies-dashboard-vacancy--archive-name"]',
             ),
             responses: getText(
-              '[data-qa="vacancies-dashboard-vacancy-responses-count-total"]',
+              '[data-qa="archived-vacancy-topics-count-text"]',
             ),
-            views: cleanNumber(
-              getText(
-                '[data-analytics-button-name="employer_vacancies_counter_views"]',
-              ),
+
+            region: getText(
+              '[data-qa="table-flexible-cell-archiveVacancyArea"]',
             ),
-            region: getText('[data-qa="table-flexible-cell-area"]'),
           };
         });
       },

@@ -10,7 +10,8 @@ import {
   ScrollArea,
 } from "@qbs-autonaim/ui";
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
+import { fetchArchivedVacanciesListToken } from "~/actions/realtime";
 
 interface ArchivedVacancy {
   id: string;
@@ -33,26 +34,15 @@ export function ArchivedVacanciesSelector({
 }: ArchivedVacanciesSelectorProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
+  // Мемоизируем функцию получения токена
+  const refreshToken = useCallback(
+    () => fetchArchivedVacanciesListToken(workspaceId, requestId),
+    [workspaceId, requestId],
+  );
+
   // Подписываемся на выполнение функции через Realtime API
   const { data, error } = useInngestSubscription({
-    refreshToken: async () => {
-      // Получаем токен для конкретного requestId
-      const response = await fetch("/api/inngest/realtime-token", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          workspaceId,
-          requestId,
-          type: "fetch-archived-list",
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Не удалось получить токен подписки");
-      }
-
-      return response.json();
-    },
+    refreshToken,
     enabled: true,
   });
 
