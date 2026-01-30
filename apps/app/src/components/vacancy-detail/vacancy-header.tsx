@@ -1,6 +1,7 @@
-import { Badge, Button } from "@qbs-autonaim/ui";
+import { Badge, Button, Card } from "@qbs-autonaim/ui";
 import {
   IconCalendar,
+  IconClock,
   IconExternalLink,
   IconEye,
   IconMapPin,
@@ -20,69 +21,149 @@ interface VacancyHeaderProps {
   };
 }
 
+/**
+ * Заголовок вакансии с ключевой информацией
+ * Показывает статус, площадки публикации и основные метрики
+ */
 export function VacancyHeader({ vacancy }: VacancyHeaderProps) {
-  return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-2">
-        {vacancy.publications?.map((pub: VacancyPublication) => {
-          const pubConfig = SOURCE_CONFIG[pub.platform.toUpperCase()] || {
-            label: pub.platform,
-            color: "bg-gray-500",
-          };
-          return (
-            <Badge
-              key={pub.id}
-              variant="secondary"
-              className="font-medium gap-1.5"
-            >
-              <div
-                className={`size-1.5 rounded-full ${pub.isActive ? "bg-green-500" : "bg-red-500"}`}
-              />
-              {pubConfig.label}
-            </Badge>
-          );
-        })}
-        <Badge variant={vacancy.isActive ? "default" : "secondary"}>
-          {vacancy.isActive ? "Активна" : "Неактивна"}
-        </Badge>
-      </div>
+  const daysActive = Math.floor(
+    (Date.now() - new Date(vacancy.createdAt).getTime()) /
+      (1000 * 60 * 60 * 24),
+  );
 
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">{vacancy.title}</h1>
-        <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-          {vacancy.region && (
-            <div className="flex items-center gap-1.5">
-              <IconMapPin className="size-4" />
-              <span>{vacancy.region}</span>
+  const activePublications =
+    vacancy.publications?.filter((p) => p.isActive) ?? [];
+  const inactivePublications =
+    vacancy.publications?.filter((p) => !p.isActive) ?? [];
+
+  return (
+    <Card className="p-6">
+      <div className="flex flex-col gap-5">
+        {/* Статус и площадки */}
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge
+            variant={vacancy.isActive ? "default" : "secondary"}
+            className="text-xs font-semibold px-3 py-1"
+          >
+            {vacancy.isActive ? "✓ Активна" : "⏸ Неактивна"}
+          </Badge>
+
+          {activePublications.length > 0 && (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground font-medium">
+                Опубликовано:
+              </span>
+              {activePublications.map((pub: VacancyPublication) => {
+                const pubConfig = SOURCE_CONFIG[pub.platform.toUpperCase()] || {
+                  label: pub.platform,
+                  color: "bg-gray-500",
+                };
+                return (
+                  <Badge
+                    key={pub.id}
+                    variant="outline"
+                    className="font-medium gap-1.5 border-green-200 bg-green-50 text-green-700"
+                  >
+                    <div className="size-1.5 rounded-full bg-green-500" />
+                    {pubConfig.label}
+                  </Badge>
+                );
+              })}
             </div>
           )}
-          <div className="flex items-center gap-1.5">
-            <IconCalendar className="size-4" />
-            <span>
-              {new Date(vacancy.createdAt).toLocaleDateString("ru-RU", {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-              })}
-            </span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <IconEye className="size-4" />
-            <span>{vacancy.views ?? 0} просмотров</span>
-          </div>
-        </div>
-      </div>
 
-      {vacancy.url && (
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="h-8 gap-2" asChild>
-            <a href={vacancy.url} target="_blank" rel="noopener noreferrer">
-              <IconExternalLink className="size-3.5" />
-              Перейти к оригиналу
-            </a>
-          </Button>
+          {inactivePublications.length > 0 && (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground font-medium">
+                Снято:
+              </span>
+              {inactivePublications.map((pub: VacancyPublication) => {
+                const pubConfig = SOURCE_CONFIG[pub.platform.toUpperCase()] || {
+                  label: pub.platform,
+                  color: "bg-gray-500",
+                };
+                return (
+                  <Badge
+                    key={pub.id}
+                    variant="outline"
+                    className="font-medium gap-1.5 border-gray-200 bg-gray-50 text-gray-600"
+                  >
+                    <div className="size-1.5 rounded-full bg-gray-400" />
+                    {pubConfig.label}
+                  </Badge>
+                );
+              })}
+            </div>
+          )}
         </div>
-      )}
-    </div>
+
+        {/* Название вакансии */}
+        <div className="space-y-3">
+          <h1 className="text-3xl font-bold tracking-tight leading-tight">
+            {vacancy.title}
+          </h1>
+
+          {/* Метрики и информация */}
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+            {vacancy.region && (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <IconMapPin className="size-4 text-primary" />
+                <span className="font-medium">{vacancy.region}</span>
+              </div>
+            )}
+
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <IconCalendar className="size-4 text-primary" />
+              <span className="font-medium">
+                Создана{" "}
+                {new Date(vacancy.createdAt).toLocaleDateString("ru-RU", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <IconClock className="size-4 text-primary" />
+              <span className="font-medium">
+                {daysActive === 0
+                  ? "Сегодня"
+                  : `${daysActive} ${daysActive === 1 ? "день" : daysActive < 5 ? "дня" : "дней"} активна`}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <IconEye className="size-4 text-primary" />
+              <span className="font-medium">
+                {vacancy.views ?? 0}{" "}
+                {(vacancy.views ?? 0) === 1
+                  ? "просмотр"
+                  : (vacancy.views ?? 0) < 5
+                    ? "просмотра"
+                    : "просмотров"}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Действия */}
+        {vacancy.url && (
+          <div className="flex gap-2 pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-9 gap-2 font-medium"
+              asChild
+            >
+              <a href={vacancy.url} target="_blank" rel="noopener noreferrer">
+                <IconExternalLink className="size-4" />
+                Открыть оригинал на площадке
+              </a>
+            </Button>
+          </div>
+        )}
+      </div>
+    </Card>
   );
 }

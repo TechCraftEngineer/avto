@@ -12,6 +12,7 @@ import {
   ShortlistCard,
   VacancyDescription,
   VacancyHeader,
+  VacancyInsightsCard,
   VacancyNotFound,
   VacancySkeleton,
 } from "~/components/vacancy-detail";
@@ -81,7 +82,6 @@ export default function VacancyDetailPage() {
     return <VacancyNotFound orgSlug={orgSlug} workspaceSlug={workspaceSlug} />;
   }
 
-  // Если мы здесь, значит data существует (проверка выше гарантирует это)
   const { vacancy, responseStats, interviewLink } = data;
   const isFreelancePlatform = [
     "KWORK",
@@ -96,9 +96,17 @@ export default function VacancyDetailPage() {
     0,
   );
 
+  const daysActive = Math.floor(
+    (Date.now() - new Date(vacancy.createdAt).getTime()) /
+      (1000 * 60 * 60 * 24),
+  );
+
+  const hasPublications =
+    vacancy.publications && vacancy.publications.length > 0;
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in fade-in duration-500">
-      {/* ЛЕВАЯ КОЛОНКА */}
+      {/* ЛЕВАЯ КОЛОНКА - Основная информация */}
       <div className="lg:col-span-2 space-y-6">
         <VacancyHeader vacancy={vacancy} />
         <VacancyDescription description={vacancy.description} />
@@ -108,19 +116,21 @@ export default function VacancyDetailPage() {
         )}
       </div>
 
-      {/* ПРАВАЯ КОЛОНКА */}
+      {/* ПРАВАЯ КОЛОНКА - Действия и статистика */}
       <div className="space-y-6">
+        {/* Кнопка импорта откликов */}
         {isFreelancePlatform && (
-          <Button asChild className="w-full h-10 gap-2">
+          <Button asChild className="w-full h-11 gap-2 font-semibold shadow-sm">
             <Link
               href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies/${id}/import`}
             >
               <IconUpload className="size-4" />
-              Импорт откликов
+              Импортировать отклики
             </Link>
           </Button>
         )}
 
+        {/* AI-интервью */}
         {interviewLink && (
           <AIInterviewCard
             interviewLink={interviewLink}
@@ -129,11 +139,22 @@ export default function VacancyDetailPage() {
           />
         )}
 
+        {/* Аналитика и рекомендации */}
+        <VacancyInsightsCard
+          totalResponses={totalResponses}
+          daysActive={daysActive}
+          views={vacancy.views ?? 0}
+          isActive={vacancy.isActive ?? false}
+          hasPublications={hasPublications}
+        />
+
+        {/* Статистика откликов */}
         <ResponseStatsCard
           responseStats={responseStats}
           totalResponses={totalResponses}
         />
 
+        {/* Лучшие кандидаты */}
         <ShortlistCard
           shortlist={shortlist}
           shortlistLoading={shortlistLoading}
