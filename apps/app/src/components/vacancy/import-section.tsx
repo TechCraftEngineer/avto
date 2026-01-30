@@ -48,6 +48,9 @@ export function VacancyImportSection() {
   const { orgSlug, slug: workspaceSlug } = useWorkspaceParams();
   const trpc = useTRPC();
   const [isUrlDialogOpen, setIsUrlDialogOpen] = useState(false);
+  const [isConfirmNewDialogOpen, setIsConfirmNewDialogOpen] = useState(false);
+  const [isConfirmArchivedDialogOpen, setIsConfirmArchivedDialogOpen] =
+    useState(false);
   const [vacancyUrl, setVacancyUrl] = useState("");
   const [urlError, setUrlError] = useState("");
 
@@ -82,6 +85,8 @@ export function VacancyImportSection() {
   const handleImportNew = async () => {
     if (!workspace?.id) return;
 
+    setIsConfirmNewDialogOpen(false);
+
     try {
       setIsImportingNew(true);
       const token = await fetchImportNewVacanciesToken(workspace.id);
@@ -96,6 +101,8 @@ export function VacancyImportSection() {
 
   const handleImportArchived = async () => {
     if (!workspace?.id) return;
+
+    setIsConfirmArchivedDialogOpen(false);
 
     try {
       setIsImportingArchived(true);
@@ -209,7 +216,7 @@ export function VacancyImportSection() {
             <Button
               variant="default"
               size="sm"
-              onClick={handleImportNew}
+              onClick={() => setIsConfirmNewDialogOpen(true)}
               disabled={isImportingNew || !workspace?.id}
             >
               <Download className="h-4 w-4 mr-2" />
@@ -219,7 +226,7 @@ export function VacancyImportSection() {
             <Button
               variant="outline"
               size="sm"
-              onClick={handleImportArchived}
+              onClick={() => setIsConfirmArchivedDialogOpen(true)}
               disabled={isImportingArchived || !workspace?.id}
             >
               <Download className="h-4 w-4 mr-2" />
@@ -270,6 +277,78 @@ export function VacancyImportSection() {
             )}
         </CardContent>
       </Card>
+
+      {/* Confirm New Vacancies Dialog */}
+      <Dialog
+        open={isConfirmNewDialogOpen}
+        onOpenChange={setIsConfirmNewDialogOpen}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Подтверждение импорта</DialogTitle>
+            <DialogDescription>
+              Вы уверены, что хотите запустить импорт активных вакансий?
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-2 py-4">
+            <p className="text-sm text-muted-foreground">
+              Эта операция может занять продолжительное время и загрузить
+              большое количество данных из HeadHunter.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Рекомендуется запускать импорт только при необходимости обновления
+              списка вакансий.
+            </p>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsConfirmNewDialogOpen(false)}
+            >
+              Отмена
+            </Button>
+            <Button onClick={handleImportNew}>Запустить импорт</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirm Archived Vacancies Dialog */}
+      <Dialog
+        open={isConfirmArchivedDialogOpen}
+        onOpenChange={setIsConfirmArchivedDialogOpen}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Подтверждение импорта</DialogTitle>
+            <DialogDescription>
+              Вы уверены, что хотите запустить импорт архивных вакансий?
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-2 py-4">
+            <p className="text-sm text-muted-foreground">
+              Эта операция может занять продолжительное время и загрузить
+              большое количество данных из HeadHunter.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Архивные вакансии обычно импортируются один раз для исторических
+              данных.
+            </p>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsConfirmArchivedDialogOpen(false)}
+            >
+              Отмена
+            </Button>
+            <Button onClick={handleImportArchived}>Запустить импорт</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* URL Input Dialog */}
       <Dialog open={isUrlDialogOpen} onOpenChange={setIsUrlDialogOpen}>

@@ -54,14 +54,10 @@ export function ImportProgress({
       ? Math.round(((progressData.processed || 0) / progressData.total) * 100)
       : 0;
 
-  // Автоматически вызываем onComplete при завершении
+  // Вызываем onComplete при завершении, но не скрываем компонент
   useEffect(() => {
     if (isCompleted && resultData) {
-      const timer = setTimeout(() => {
-        onComplete(resultData);
-      }, 3000);
-
-      return () => clearTimeout(timer);
+      onComplete(resultData);
     }
   }, [isCompleted, resultData, onComplete]);
 
@@ -136,17 +132,17 @@ export function ImportProgress({
       <div className="flex items-start gap-3">
         {isCompleted ? (
           resultData?.success ? (
-            <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5" />
+            <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
           ) : (
-            <XCircle className="h-5 w-5 mt-0.5" />
+            <XCircle className="h-5 w-5 mt-0.5 flex-shrink-0" />
           )
         ) : (
-          <Loader2 className="h-5 w-5 animate-spin mt-0.5" />
+          <Loader2 className="h-5 w-5 animate-spin mt-0.5 flex-shrink-0" />
         )}
 
-        <div className="flex-1 space-y-2 min-w-0">
+        <div className="flex-1 space-y-2 overflow-hidden">
           <AlertTitle>{getTitle()}</AlertTitle>
-          <AlertDescription className="wrap-break-word">
+          <AlertDescription className="whitespace-pre-wrap break-words overflow-auto max-h-[200px]">
             {getStatusMessage()}
           </AlertDescription>
 
@@ -200,12 +196,6 @@ export function ImportProgress({
                 )}
               </div>
             )}
-
-          {isCompleted && (
-            <p className="text-xs text-muted-foreground pt-1">
-              Закроется автоматически через 3 секунды
-            </p>
-          )}
         </div>
       </div>
     </Alert>
