@@ -5,7 +5,6 @@ import { messageBufferService } from "@qbs-autonaim/jobs/services/buffer";
 import type { BufferedMessage } from "@qbs-autonaim/shared";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
 import { createErrorHandler } from "../../../utils/error-handler";
 import { withInterviewAccess } from "../../../utils/interview-access-middleware";
 

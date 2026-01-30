@@ -122,11 +122,11 @@ export default function IntegrationsPage() {
             .filter(Boolean)
             .map((item) => (
               <IntegrationCard
-                key={item!.availableIntegration.type}
-                availableIntegration={item!.availableIntegration}
-                integration={item!.integration}
-                onCreate={() => handleCreate(item!.availableIntegration.type)}
-                onEdit={() => handleEdit(item!.availableIntegration.type)}
+                key={item?.availableIntegration.type}
+                availableIntegration={item?.availableIntegration}
+                integration={item?.integration}
+                onCreate={() => handleCreate(item?.availableIntegration.type)}
+                onEdit={() => handleEdit(item?.availableIntegration.type)}
                 workspaceId={workspaceId}
                 userRole={userRole}
                 showDetailedDescription

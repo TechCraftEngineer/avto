@@ -120,31 +120,33 @@ export function ResponsesTable({
         </TableHeader>
         <TableBody>
           {isLoading ? (
-            Array.from({ length: 10 }).map((_, index) => (
-              <TableRow key={`skeleton-row-${index}`}>
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <Skeleton className="size-10 rounded-full" />
-                    <Skeleton className="h-5 w-[150px]" />
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Skeleton className="h-6 w-[60px]" />
-                </TableCell>
-                <TableCell>
-                  <Skeleton className="h-6 w-[60px]" />
-                </TableCell>
-                <TableCell>
-                  <Skeleton className="h-6 w-[80px]" />
-                </TableCell>
-                <TableCell>
-                  <Skeleton className="h-5 w-[100px]" />
-                </TableCell>
-                <TableCell className="text-right">
-                  <Skeleton className="ml-auto h-8 w-8 rounded-full" />
-                </TableCell>
-              </TableRow>
-            ))
+            Array.from({ length: 10 }, (_, index) => `skeleton-${index}`).map(
+              (skeletonId) => (
+                <TableRow key={skeletonId}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="size-10 rounded-full" />
+                      <Skeleton className="h-5 w-[150px]" />
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-6 w-[60px]" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-6 w-[60px]" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-6 w-[80px]" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-5 w-[100px]" />
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Skeleton className="ml-auto h-8 w-8 rounded-full" />
+                  </TableCell>
+                </TableRow>
+              ),
+            )
           ) : responses.length === 0 ? (
             <TableRow>
               <TableCell colSpan={6} className="h-[500px] p-0">

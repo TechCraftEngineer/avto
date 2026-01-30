@@ -52,9 +52,11 @@ describe("DraftRepository - Фоновая очистка", () => {
         updatedAt: oldDate,
       };
 
-      (mockDb.query.vacancyDraft.findMany as any).mockResolvedValue([
-        expiredDraft,
-      ]);
+      (
+        mockDb.query.vacancyDraft.findMany as unknown as ReturnType<
+          typeof vi.fn
+        >
+      ).mockResolvedValue([expiredDraft]);
 
       const result = await repository.findExpired(7);
 
@@ -63,7 +65,11 @@ describe("DraftRepository - Фоновая очистка", () => {
     });
 
     it("должен вернуть пустой массив, если нет устаревших черновиков", async () => {
-      (mockDb.query.vacancyDraft.findMany as any).mockResolvedValue([]);
+      (
+        mockDb.query.vacancyDraft.findMany as unknown as ReturnType<
+          typeof vi.fn
+        >
+      ).mockResolvedValue([]);
 
       const result = await repository.findExpired(7);
 
@@ -75,7 +81,11 @@ describe("DraftRepository - Фоновая очистка", () => {
       const expectedDate = new Date();
       expectedDate.setDate(expectedDate.getDate() - daysOld);
 
-      (mockDb.query.vacancyDraft.findMany as any).mockResolvedValue([]);
+      (
+        mockDb.query.vacancyDraft.findMany as unknown as ReturnType<
+          typeof vi.fn
+        >
+      ).mockResolvedValue([]);
 
       await repository.findExpired(daysOld);
 
@@ -95,7 +105,7 @@ describe("DraftRepository - Фоновая очистка", () => {
         { ...mockDraft, id: "draft-3", updatedAt: oldDate },
       ];
 
-      (mockDb.delete as any).mockReturnValue({
+      (mockDb.delete as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
         where: vi.fn().mockReturnValue({
           returning: vi.fn().mockResolvedValue(expiredDrafts),
         }),
@@ -108,7 +118,7 @@ describe("DraftRepository - Фоновая очистка", () => {
     });
 
     it("должен вернуть 0, если нет черновиков для удаления", async () => {
-      (mockDb.delete as any).mockReturnValue({
+      (mockDb.delete as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
         where: vi.fn().mockReturnValue({
           returning: vi.fn().mockResolvedValue([]),
         }),
@@ -122,7 +132,7 @@ describe("DraftRepository - Фоновая очистка", () => {
     it("должен удалять черновики старше указанного количества дней", async () => {
       const daysOld = 14; // 14 дней
 
-      (mockDb.delete as any).mockReturnValue({
+      (mockDb.delete as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
         where: vi.fn().mockReturnValue({
           returning: vi.fn().mockResolvedValue([mockDraft]),
         }),

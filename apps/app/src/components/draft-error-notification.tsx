@@ -84,9 +84,6 @@ export function DraftErrorNotification({
           icon: "🔒",
         };
 
-      case DraftErrorType.DATABASE:
-      case DraftErrorType.VALIDATION:
-      case DraftErrorType.UNKNOWN:
       default:
         return {
           bgColor: "bg-red-50",

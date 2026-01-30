@@ -31,6 +31,7 @@ export interface DraftErrorInfo {
  * Класс для обработки ошибок черновиков на клиенте
  */
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
+// biome-ignore lint/complexity/noStaticOnlyClass: Архитектурное решение проекта
 export class DraftErrorHandler {
   /**
    * Обработать ошибку и вернуть информацию для UI
@@ -189,7 +190,6 @@ export class DraftErrorHandler {
       case DraftErrorType.CORRUPTED:
         return "Не удалось загрузить черновик. Начните создание заново";
 
-      case DraftErrorType.UNKNOWN:
       default:
         return "Произошла непредвиденная ошибка";
     }
@@ -201,6 +201,7 @@ export class DraftErrorHandler {
  * Используется при недоступности сервера (graceful degradation)
  */
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
+// biome-ignore lint/complexity/noStaticOnlyClass: Архитектурное решение проекта
 export class LocalDraftStorage {
   private static readonly STORAGE_KEY = "draft_backup";
 
