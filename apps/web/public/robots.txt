@@ -15,11 +15,19 @@ Disallow: /*.json$
 User-agent: Yandex
 Allow: /
 Crawl-delay: 1
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/
+Disallow: /*.json$
 
 # Специальные правила для Google
 User-agent: Googlebot
 Allow: /
 Crawl-delay: 1
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/
+Disallow: /*.json$
 
 # Карта сайта
 Sitemap: https://avtonaim.qbs.ru/sitemap.xml

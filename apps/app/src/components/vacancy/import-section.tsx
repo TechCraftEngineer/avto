@@ -56,6 +56,9 @@ export function VacancyImportSection() {
     trpc.integration.list.queryOptions({
       workspaceId: workspace?.id ?? "",
     }),
+    {
+      enabled: !!workspace?.id,
+    },
   );
 
   // Проверяем наличие активной интеграции с HH

@@ -16,12 +16,19 @@ export default function ImportVacancyPage() {
         title="Импорт вакансий"
         description="Загрузите вакансии с HeadHunter для автоматического отслеживания откликов"
       >
-        <Button asChild variant="outline" className="h-9 gap-2">
-          <Link href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies`}>
+        {orgSlug && workspaceSlug ? (
+          <Button asChild variant="outline" className="h-9 gap-2">
+            <Link href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies`}>
+              <IconArrowLeft className="size-4" />
+              <span>Назад</span>
+            </Link>
+          </Button>
+        ) : (
+          <Button disabled variant="outline" className="h-9 gap-2">
             <IconArrowLeft className="size-4" />
             <span>Назад</span>
-          </Link>
-        </Button>
+          </Button>
+        )}
       </PageHeader>
 
       <div className="@container/main mx-auto flex w-full max-w-[1000px] flex-1 flex-col gap-6 px-4 py-6 md:px-6">

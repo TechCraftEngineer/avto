@@ -121,7 +121,7 @@ export function ResponsesTable({
         <TableBody>
           {isLoading ? (
             Array.from({ length: 10 }).map((_, index) => (
-              <TableRow key={`skeleton-row-${Date.now()}-${index}`}>
+              <TableRow key={`skeleton-row-${index}`}>
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <Skeleton className="size-10 rounded-full" />

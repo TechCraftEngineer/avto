@@ -21,7 +21,7 @@
   "dependencies": {
     "@qbs-autonaim/config": "workspace:*",
     "@qbs-autonaim/lib": "workspace:*",
-    "ai": "6.0.57",
+    "ai": "6.0.62",
     "langfuse": "3.38.6",
     "p-limit": "^7.2.0",
     "string-strip-html": "^13.5.3",
@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "@qbs-autonaim/tsconfig": "workspace:*",
-    "@types/node": "^25.0.0",
+    "@types/node": "^25.1.0",
     "tsdown": "0.20.1",
     "typescript": "5.9.3"
   }

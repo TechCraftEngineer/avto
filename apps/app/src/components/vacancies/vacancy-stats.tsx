@@ -20,6 +20,20 @@ import {
   IconUsers,
 } from "@tabler/icons-react";
 
+const RESPONSE_QUALITY_CLASSES = {
+  green: { text: "text-green-600", bg: "bg-green-500/10" },
+  blue: { text: "text-blue-600", bg: "bg-blue-500/10" },
+  orange: { text: "text-orange-600", bg: "bg-orange-500/10" },
+  red: { text: "text-red-600", bg: "bg-red-500/10" },
+};
+
+const TIME_QUALITY_CLASSES = {
+  green: { text: "text-green-600", bg: "bg-green-500/10" },
+  blue: { text: "text-blue-600", bg: "bg-blue-500/10" },
+  orange: { text: "text-orange-600", bg: "bg-orange-500/10" },
+  red: { text: "text-red-600", bg: "bg-red-500/10" },
+};
+
 interface VacancyStatsProps {
   totalVacancies: number;
   activeVacancies: number;
@@ -43,7 +57,7 @@ export function VacancyStats({
 }: VacancyStatsProps) {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 gap-4 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 @xl/main:grid-cols-2 @5xl/main:grid-cols-3">
         {Array.from({ length: 6 }, (_, index) => `skeleton-${index}`).map(
           (key) => (
             <Card key={key} className="animate-pulse border-none bg-muted/20">
@@ -138,15 +152,15 @@ export function VacancyStats({
       value: avgResponsesPerVacancy,
       description: `${responseQuality.label} активность`,
       icon: IconChartBar,
-      color: `text-${responseQuality.color}-600`,
-      bg: `bg-${responseQuality.color}-500/10`,
+      color: RESPONSE_QUALITY_CLASSES[responseQuality.color].text,
+      bg: RESPONSE_QUALITY_CLASSES[responseQuality.color].bg,
       tooltip: "Среднее количество откликов на одну активную вакансию",
       action: (
         <Badge
           variant="outline"
           className={cn(
             "border-none px-1.5",
-            `bg-${responseQuality.color}-500/10 text-${responseQuality.color}-700`,
+            `${RESPONSE_QUALITY_CLASSES[responseQuality.color].bg} text-${responseQuality.color}-700`,
           )}
         >
           {responseQuality.label}
@@ -178,8 +192,8 @@ export function VacancyStats({
             value: avgTimeToClose,
             description: `${timeQuality?.label || "Среднее"} время`,
             icon: IconClock,
-            color: `text-${timeQuality?.color || "blue"}-600`,
-            bg: `bg-${timeQuality?.color || "blue"}-500/10`,
+            color: TIME_QUALITY_CLASSES[timeQuality?.color || "blue"].text,
+            bg: TIME_QUALITY_CLASSES[timeQuality?.color || "blue"].bg,
             tooltip: "Среднее время от публикации до закрытия вакансии",
             suffix: "дн.",
             action: timeQuality && (
@@ -187,7 +201,7 @@ export function VacancyStats({
                 variant="outline"
                 className={cn(
                   "border-none px-1.5",
-                  `bg-${timeQuality.color}-500/10 text-${timeQuality.color}-700`,
+                  `${TIME_QUALITY_CLASSES[timeQuality.color].bg} text-${timeQuality.color}-700`,
                 )}
               >
                 {timeQuality.label}

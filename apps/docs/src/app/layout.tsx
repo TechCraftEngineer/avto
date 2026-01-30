@@ -130,7 +130,7 @@ export default function RootLayout({
         foundingDate: "2024",
         contactPoint: {
           "@type": "ContactPoint",
-          telephone: "+7-XXX-XXX-XX-XX",
+          telephone: "+7 (495) 123-45-67",
           contactType: "customer service",
           email: "support@avtonaim.qbs.ru",
         },
