@@ -293,10 +293,11 @@ export function VacancyImportSection() {
             </Button>
           </div>
 
-          {/* Selector for archived vacancies */}
+          {/* Selector for archived vacancies - показываем только если не идет импорт */}
           {isSelectingArchivedVacancies &&
             archivedListRequestId &&
-            workspaceId && (
+            workspaceId &&
+            !isImportingArchived && (
               <ArchivedVacanciesSelector
                 workspaceId={workspaceId}
                 requestId={archivedListRequestId}

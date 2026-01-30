@@ -31,7 +31,7 @@ import {
   HR_STATUS_CONFIG,
   IMPORT_SOURCE_LABELS,
   STATUS_CONFIG,
-} from "./constants";
+} from "../utils/constants";
 
 type GigResponseDetail = RouterOutputs["gig"]["responses"]["get"];
 type VacancyResponseDetail = RouterOutputs["vacancy"]["responses"]["get"];

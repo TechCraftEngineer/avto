@@ -83,31 +83,31 @@ interface VacancyTableRowProps {
 const SOURCE_CONFIG: Record<string, { label: string; color: string }> = {
   HH: {
     label: "HeadHunter",
-    color: "bg-red-500/10 text-red-600 border-red-200",
+    color: "bg-indigo-500/10 text-indigo-700 border-indigo-200/50",
   },
   KWORK: {
     label: "Kwork",
-    color: "bg-green-500/10 text-green-600 border-green-200",
+    color: "bg-emerald-500/10 text-emerald-700 border-emerald-200/50",
   },
   FL_RU: {
     label: "FL.ru",
-    color: "bg-blue-500/10 text-blue-600 border-blue-200",
+    color: "bg-blue-500/10 text-blue-700 border-blue-200/50",
   },
   FREELANCE_RU: {
     label: "Freelance.ru",
-    color: "bg-orange-500/10 text-orange-600 border-orange-200",
+    color: "bg-amber-500/10 text-amber-700 border-amber-200/50",
   },
   AVITO: {
     label: "Avito",
-    color: "bg-purple-500/10 text-purple-600 border-purple-200",
+    color: "bg-violet-500/10 text-violet-700 border-violet-200/50",
   },
   SUPERJOB: {
     label: "SuperJob",
-    color: "bg-sky-500/10 text-sky-600 border-sky-200",
+    color: "bg-cyan-500/10 text-cyan-700 border-cyan-200/50",
   },
   HABR: {
     label: "Хабр Карьера",
-    color: "bg-zinc-500/10 text-zinc-600 border-zinc-200",
+    color: "bg-slate-500/10 text-slate-700 border-slate-200/50",
   },
 };
 

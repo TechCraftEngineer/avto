@@ -7,8 +7,8 @@ import {
   CardTitle,
 } from "@qbs-autonaim/ui";
 import { Award } from "lucide-react";
-import { SafeHtml } from "./safe-html";
-import { getScoreBadgeVariant } from "./utils";
+import { SafeHtml } from "~/components/safe-html";
+import { getScoreBadgeVariant } from "../utils";
 
 interface ScreeningCardProps {
   screening: {

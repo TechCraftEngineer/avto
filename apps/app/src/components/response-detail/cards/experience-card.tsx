@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui";
 import { Briefcase } from "lucide-react";
-import { SafeHtml } from "./safe-html";
+import { SafeHtml } from "~/components/safe-html";
 
 interface ExperienceCardProps {
   experience: string;

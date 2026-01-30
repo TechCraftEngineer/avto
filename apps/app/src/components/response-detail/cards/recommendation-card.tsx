@@ -21,7 +21,7 @@ import {
   ThumbsUp,
   XCircle,
 } from "lucide-react";
-import type { RecommendationData } from "./types";
+import type { RecommendationData } from "../utils/types";
 
 interface RecommendationCardProps {
   recommendation: RecommendationData;

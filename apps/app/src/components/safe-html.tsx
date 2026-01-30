@@ -35,14 +35,14 @@ export function SafeHtml({ html, className }: SafeHtmlProps) {
       "pre",
     ],
     allowedAttributes: {
-      "a": ["href", "title", "target", "rel", "class"],
-      "span": ["class"],
-      "div": ["class"],
-      "code": ["class"],
-      "pre": ["class"],
+      a: ["href", "title", "target", "rel", "class"],
+      span: ["class"],
+      div: ["class"],
+      code: ["class"],
+      pre: ["class"],
     },
     transformTags: {
-      "a": (tagName, attribs) => {
+      a: (tagName, attribs) => {
         if (attribs.target === "_blank") {
           const existingRel = attribs.rel || "";
           const relParts = existingRel.split(" ").filter(Boolean);
