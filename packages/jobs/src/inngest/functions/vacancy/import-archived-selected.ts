@@ -45,7 +45,9 @@ export const importSelectedArchivedVacanciesFunction = inngest.createFunction(
             vacancyIds,
           );
 
-          // Обрабатываем результаты и отправляем прогресс
+          // Обрабатываем результаты и отправляем прогресс батчами
+          const BATCH_SIZE = 5; // Отправляем обновление каждые 5 вакансий
+
           for (let i = 0; i < results.length; i++) {
             const result = results[i];
             if (!result) continue;
@@ -60,20 +62,21 @@ export const importSelectedArchivedVacanciesFunction = inngest.createFunction(
               failed++;
             }
 
-            // Отправляем прогресс после каждой обработанной вакансии
-            await publish(
-              importArchivedVacanciesChannel(workspaceId).progress({
-                workspaceId,
-                status: "processing",
-                message: `Обработано ${i + 1} из ${vacancyIds.length}`,
-                total: vacancyIds.length,
-                processed: i + 1,
-              }),
-            );
+            // Отправляем прогресс только для батчей или последней вакансии
+            const isLastItem = i === results.length - 1;
+            const isBatchBoundary = (i + 1) % BATCH_SIZE === 0;
 
-            // Небольшая задержка для отображения прогресса
-            if (i < results.length - 1) {
-              await new Promise((resolve) => setTimeout(resolve, 500));
+            if (isBatchBoundary || isLastItem) {
+              await publish(
+                importArchivedVacanciesChannel(workspaceId).progress({
+                  workspaceId,
+                  status: "processing",
+                  message: `Обработано ${i + 1} из ${vacancyIds.length}`,
+                  total: vacancyIds.length,
+                  processed: i + 1,
+                  failed,
+                }),
+              );
             }
           }
 

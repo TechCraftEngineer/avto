@@ -1,7 +1,6 @@
 import {
   Alert,
   AlertDescription,
-  AlertTitle,
   Card,
   CardContent,
   CardHeader,
@@ -219,7 +218,7 @@ export function ResponsesAnalyticsPanel({
                 Рекомендации:
               </span>
             </div>
-            {insights.map((insight, index) => {
+            {insights.map((insight) => {
               const Icon = insight.icon;
               const alertClass =
                 insight.type === "success"
@@ -229,7 +228,7 @@ export function ResponsesAnalyticsPanel({
                     : "border-blue-200 bg-blue-50 text-blue-900";
 
               return (
-                <Alert key={index} className={`${alertClass} py-2`}>
+                <Alert key={insight.message} className={`${alertClass} py-2`}>
                   <Icon className="size-4" />
                   <AlertDescription className="text-xs leading-relaxed">
                     {insight.message}
