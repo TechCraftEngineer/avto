@@ -142,7 +142,7 @@ export function ImportProgress({
 
         <div className="flex-1 space-y-2 overflow-hidden">
           <AlertTitle>{getTitle()}</AlertTitle>
-          <AlertDescription className="whitespace-pre-wrap wrap-break-word overflow-auto max-h-[200px]">
+          <AlertDescription className="whitespace-pre-wrap break-words overflow-auto max-h-[200px]">
             {getStatusMessage()}
           </AlertDescription>
 

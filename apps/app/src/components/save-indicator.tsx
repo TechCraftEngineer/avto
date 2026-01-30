@@ -7,25 +7,28 @@ import type { SaveStatus } from "~/hooks/use-draft-persistence";
  * Форматирует количество минут в русскоязычную строку с правильным склонением
  */
 function formatMinutesAgo(minutes: number): string {
-  if (minutes < 1) return "только что";
+  // Нормализуем входное значение: приводим к неотрицательному целому числу
+  const normalizedMinutes = Math.max(0, Math.floor(minutes));
+
+  if (normalizedMinutes < 1) return "только что";
 
   // Правила склонения для русского языка
-  const lastDigit = minutes % 10;
-  const lastTwoDigits = minutes % 100;
+  const lastDigit = normalizedMinutes % 10;
+  const lastTwoDigits = normalizedMinutes % 100;
 
   if (lastTwoDigits >= 11 && lastTwoDigits <= 19) {
-    return `${minutes} минут назад`;
+    return `${normalizedMinutes} минут назад`;
   }
 
   if (lastDigit === 1) {
-    return `${minutes} минуту назад`;
+    return `${normalizedMinutes} минуту назад`;
   }
 
   if (lastDigit >= 2 && lastDigit <= 4) {
-    return `${minutes} минуты назад`;
+    return `${normalizedMinutes} минуты назад`;
   }
 
-  return `${minutes} минут назад`;
+  return `${normalizedMinutes} минут назад`;
 }
 
 /**

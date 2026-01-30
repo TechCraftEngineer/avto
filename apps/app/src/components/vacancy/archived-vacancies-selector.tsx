@@ -22,13 +22,13 @@ interface ArchivedVacancy {
 }
 
 interface ArchivedVacanciesSelectorProps {
-  token: Realtime.Subscribe.Token;
+  fetchToken: () => Promise<Realtime.Subscribe.Token>;
   onSelect: (selectedIds: string[]) => void;
   onCancel: () => void;
 }
 
 export function ArchivedVacanciesSelector({
-  token,
+  fetchToken,
   onSelect,
   onCancel,
 }: ArchivedVacanciesSelectorProps) {
@@ -36,7 +36,7 @@ export function ArchivedVacanciesSelector({
 
   // Подписываемся на канал Realtime
   const { data, error } = useInngestSubscription({
-    refreshToken: async () => token,
+    refreshToken: fetchToken,
     enabled: true,
   });
 

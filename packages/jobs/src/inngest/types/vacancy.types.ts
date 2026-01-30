@@ -47,6 +47,13 @@ export const vacancyImportArchivedDataSchema = z.object({
   workspaceId: z.string().min(1, "ID рабочей области обязателен"),
 });
 
+export const vacancyImportArchivedSelectedDataSchema = z.object({
+  workspaceId: z.string().min(1, "ID рабочего пространства обязателен"),
+  vacancyIds: z
+    .array(z.string())
+    .min(1, "Необходимо выбрать хотя бы одну вакансию"),
+});
+
 export const vacancyImportByUrlDataSchema = z.object({
   workspaceId: z.string().min(1, "ID рабочей области обязателен"),
   url: z.string().url("Некорректная ссылка"),
@@ -83,6 +90,9 @@ export type VacancyImportNewPayload = z.infer<
 >;
 export type VacancyImportArchivedPayload = z.infer<
   typeof vacancyImportArchivedDataSchema
+>;
+export type VacancyImportArchivedSelectedPayload = z.infer<
+  typeof vacancyImportArchivedSelectedDataSchema
 >;
 export type VacancyImportByUrlPayload = z.infer<
   typeof vacancyImportByUrlDataSchema

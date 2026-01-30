@@ -1,17 +1,6 @@
-import { z } from "zod";
-import { importSingleVacancy } from "../../../parsers/hh";
+import { importMultipleVacancies } from "../../../parsers/hh";
 import { importArchivedVacanciesChannel } from "../../channels/client";
 import { inngest } from "../../client";
-
-/**
- * Схема валидации входных данных для импорта выбранных архивных вакансий
- */
-const ImportSelectedArchivedVacanciesEventSchema = z.object({
-  workspaceId: z.string().min(1, "ID рабочего пространства обязателен"),
-  vacancyIds: z
-    .array(z.string())
-    .min(1, "Необходимо выбрать хотя бы одну вакансию"),
-});
 
 /**
  * Inngest функция для импорта выбранных архивных вакансий из HH.ru
@@ -25,19 +14,7 @@ export const importSelectedArchivedVacanciesFunction = inngest.createFunction(
   },
   { event: "vacancy/import.archived-selected" },
   async ({ event, step, publish }) => {
-    // Валидация входных данных
-    const validationResult =
-      ImportSelectedArchivedVacanciesEventSchema.safeParse(event.data);
-
-    if (!validationResult.success) {
-      const errorMessage =
-        validationResult.error.issues[0]?.message ||
-        "Некорректные данные запроса";
-      console.error("❌ Ошибка валидации входных данных:", errorMessage);
-      throw new Error(errorMessage);
-    }
-
-    const { workspaceId, vacancyIds } = validationResult.data;
+    const { workspaceId, vacancyIds } = event.data;
 
     await publish(
       importArchivedVacanciesChannel(workspaceId).progress({
@@ -61,47 +38,42 @@ export const importSelectedArchivedVacanciesFunction = inngest.createFunction(
         let failed = 0;
 
         try {
-          // Импортируем каждую выбранную вакансию
-          for (let i = 0; i < vacancyIds.length; i++) {
-            const vacancyId = vacancyIds[i];
-            if (!vacancyId) continue;
+          // Используем оптимизированную функцию пакетного импорта
+          // Она переиспользует один браузер и сеанс аутентификации для всех вакансий
+          const results = await importMultipleVacancies(
+            workspaceId,
+            vacancyIds,
+          );
 
-            try {
-              await publish(
-                importArchivedVacanciesChannel(workspaceId).progress({
-                  workspaceId,
-                  status: "processing",
-                  message: `Импорт вакансии ${i + 1} из ${vacancyIds.length}`,
-                  total: vacancyIds.length,
-                  processed: i,
-                }),
-              );
+          // Обрабатываем результаты и отправляем прогресс
+          for (let i = 0; i < results.length; i++) {
+            const result = results[i];
+            if (!result) continue;
 
-              const { isNew } = await importSingleVacancy(
-                workspaceId,
-                vacancyId,
-              );
-
-              if (isNew) {
+            if (result.success) {
+              if (result.isNew) {
                 imported++;
               } else {
                 updated++;
               }
-
-              console.log(
-                `✅ Вакансия ${i + 1}/${vacancyIds.length} импортирована (${isNew ? "новая" : "обновлена"})`,
-              );
-            } catch (error) {
+            } else {
               failed++;
-              console.error(
-                `❌ Ошибка импорта вакансии ${vacancyId}:`,
-                error instanceof Error ? error.message : String(error),
-              );
             }
 
-            // Небольшая задержка между вакансиями
-            if (i < vacancyIds.length - 1) {
-              await new Promise((resolve) => setTimeout(resolve, 2000));
+            // Отправляем прогресс после каждой обработанной вакансии
+            await publish(
+              importArchivedVacanciesChannel(workspaceId).progress({
+                workspaceId,
+                status: "processing",
+                message: `Обработано ${i + 1} из ${vacancyIds.length}`,
+                total: vacancyIds.length,
+                processed: i + 1,
+              }),
+            );
+
+            // Небольшая задержка для отображения прогресса
+            if (i < results.length - 1) {
+              await new Promise((resolve) => setTimeout(resolve, 500));
             }
           }
 

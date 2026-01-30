@@ -316,3 +316,100 @@ export async function importSingleVacancy(
     await closeBrowserSafely(browser);
   }
 }
+
+/**
+ * Импортирует несколько вакансий за один сеанс браузера
+ * Оптимизировано для пакетного импорта - переиспользует браузер и аутентификацию
+ */
+export async function importMultipleVacancies(
+  workspaceId: string,
+  externalIds: string[],
+): Promise<
+  Array<{
+    externalId: string;
+    vacancyId?: string;
+    isNew?: boolean;
+    success: boolean;
+    error?: string;
+  }>
+> {
+  console.log(`🚀 Пакетный импорт ${externalIds.length} вакансий`);
+
+  const credentials = await getIntegrationCredentials(db, "hh", workspaceId);
+  if (!credentials?.email || !credentials?.password) {
+    throw new Error("Не найдены учетные данные для HH.ru");
+  }
+
+  const browser = await puppeteer.launch(HH_CONFIG.puppeteer);
+  const results: Array<{
+    externalId: string;
+    vacancyId?: string;
+    isNew?: boolean;
+    success: boolean;
+    error?: string;
+  }> = [];
+
+  try {
+    const page = await browser.newPage();
+
+    await page.setUserAgent(HH_CONFIG.userAgent);
+    await page.setViewport({ width: 1920, height: 1080 });
+
+    // Load existing cookies if available
+    const savedCookies = await loadCookies("hh", workspaceId);
+    if (savedCookies && savedCookies.length > 0) {
+      await page.setCookie(...savedCookies);
+    }
+
+    // Check authentication and perform login if needed
+    const loggedIn = await checkAndPerformLogin(
+      page,
+      credentials.email,
+      credentials.password,
+      workspaceId,
+    );
+
+    if (!loggedIn) {
+      throw new Error("Не удалось войти в систему HeadHunter");
+    }
+
+    // Импортируем каждую вакансию, переиспользуя страницу
+    for (const externalId of externalIds) {
+      try {
+        const result = await parseSingleVacancy(page, externalId, workspaceId);
+        results.push({
+          externalId,
+          vacancyId: result.vacancyId,
+          isNew: result.isNew,
+          success: true,
+        });
+        console.log(
+          `✅ Вакансия ${result.isNew ? "импортирована" : "обновлена"}: ${result.vacancyId}`,
+        );
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+        results.push({
+          externalId,
+          success: false,
+          error: errorMessage,
+        });
+        console.error(
+          `❌ Ошибка импорта вакансии ${externalId}:`,
+          errorMessage,
+        );
+      }
+    }
+
+    console.log(
+      `✅ Пакетный импорт завершён: ${results.filter((r) => r.success).length}/${externalIds.length} успешно`,
+    );
+
+    return results;
+  } catch (error) {
+    console.error("❌ Критическая ошибка при пакетном импорте:", error);
+    throw error;
+  } finally {
+    await closeBrowserSafely(browser);
+  }
+}

@@ -27,8 +27,9 @@ export class DraftRepository {
   }
 
   /**
-   * Создать новый черновик
+   * Создать новый черновик или обновить существующий (upsert)
    * Автоматически сериализует данные в JSONB
+   * Использует onConflict для атомарности операции
    */
   async create(data: {
     userId: string;
@@ -69,6 +70,13 @@ export class DraftRepository {
     const [created] = await this.db
       .insert(vacancyDraft)
       .values(newDraft)
+      .onConflictDoUpdate({
+        target: vacancyDraft.userId,
+        set: {
+          draftData,
+          updatedAt: new Date(),
+        },
+      })
       .returning();
 
     if (!created) {
@@ -121,13 +129,15 @@ export class DraftRepository {
       ? {
           ...existingData.vacancyData,
           ...data.vacancyData,
-          salary:
-            data.vacancyData.salary || existingData.vacancyData.salary
-              ? {
+          // Проверяем явное наличие поля salary, а не его значение
+          salary: Object.hasOwn(data.vacancyData, "salary")
+            ? data.vacancyData.salary === undefined
+              ? undefined
+              : {
                   ...existingData.vacancyData.salary,
                   ...data.vacancyData.salary,
                 }
-              : undefined,
+            : existingData.vacancyData.salary,
         }
       : existingData.vacancyData;
 
