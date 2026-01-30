@@ -6,6 +6,7 @@ import {
   RESPONSE_STATUS_LABELS,
   type ResponseStatus,
 } from "@qbs-autonaim/db/schema";
+import { getInitials } from "@qbs-autonaim/shared/utils";
 import {
   Avatar,
   AvatarFallback,
@@ -20,7 +21,7 @@ import {
 } from "@qbs-autonaim/ui";
 import { Award, Briefcase, Calendar, Phone, Send } from "lucide-react";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
-import { getAvatarUrl, getInitials } from "~/lib/avatar";
+import { getAvatarUrl } from "~/lib/avatar";
 import { ResumeActions } from "../actions/resume-actions";
 import { getScoreColor } from "../utils";
 

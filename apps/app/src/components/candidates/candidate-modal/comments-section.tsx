@@ -1,5 +1,6 @@
 "use client";
 
+import { getInitials } from "@qbs-autonaim/shared/utils";
 import {
   Avatar,
   AvatarFallback,
@@ -13,7 +14,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Lock, Send } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { getAvatarUrl, getInitials } from "~/lib/avatar";
+import { getAvatarUrl } from "~/lib/avatar";
 import { useTRPC } from "~/trpc/react";
 
 interface CommentsSectionProps {

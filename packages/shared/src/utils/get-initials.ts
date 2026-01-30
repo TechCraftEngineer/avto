@@ -20,5 +20,6 @@ export function getInitials(name: string): string {
   }
 
   // Если только одно слово, берём первые 2 символа
-  return name.slice(0, 2).toUpperCase();
+  const trimmed = name.trim();
+  return trimmed.slice(0, 2).toUpperCase();
 }

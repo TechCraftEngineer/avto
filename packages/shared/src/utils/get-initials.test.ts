@@ -15,6 +15,7 @@ describe("getInitials", () => {
   it("должен обрабатывать имена с несколькими пробелами", () => {
     expect(getInitials("Иван   Петров")).toBe("ИП");
     expect(getInitials("  John  Doe  ")).toBe("JD");
+    expect(getInitials("  Alice  ")).toBe("AL");
   });
 
   it("должен обрабатывать имена с тремя и более словами", () => {

@@ -1,6 +1,7 @@
 "use client";
 
 import { paths } from "@qbs-autonaim/config";
+import { getInitials } from "@qbs-autonaim/shared/utils";
 import {
   Avatar,
   AvatarFallback,
@@ -25,7 +26,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authClient, signOut } from "~/auth/client";
-import { getAvatarUrl, getInitials } from "~/lib/avatar";
+import { getAvatarUrl } from "~/lib/avatar";
 
 export function NavUser({
   user: initialUser,

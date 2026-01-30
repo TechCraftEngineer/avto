@@ -1,6 +1,7 @@
 import { importMultipleVacancies } from "../../../parsers/hh";
 import { importArchivedVacanciesChannel } from "../../channels/client";
 import { inngest } from "../../client";
+import { importArchivedSelectedEventSchema } from "./import-archived-selected.schema";
 
 /**
  * Inngest функция для импорта выбранных архивных вакансий из HH.ru
@@ -14,7 +15,20 @@ export const importSelectedArchivedVacanciesFunction = inngest.createFunction(
   },
   { event: "vacancy/import.archived-selected" },
   async ({ event, step, publish }) => {
-    const { workspaceId, vacancyIds } = event.data;
+    // Валидация входных данных
+    const parseResult = importArchivedSelectedEventSchema.safeParse(event.data);
+
+    if (!parseResult.success) {
+      console.error(
+        "❌ Ошибка валидации данных события:",
+        parseResult.error.format(),
+      );
+      throw new Error(
+        `Некорректные данные события: ${parseResult.error.message}`,
+      );
+    }
+
+    const { workspaceId, vacancyIds } = parseResult.data;
 
     await publish(
       importArchivedVacanciesChannel(workspaceId).progress({

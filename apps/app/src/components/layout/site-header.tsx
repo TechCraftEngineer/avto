@@ -1,6 +1,7 @@
 "use client";
 
 import { paths } from "@qbs-autonaim/config";
+import { getInitials } from "@qbs-autonaim/shared/utils";
 import {
   Avatar,
   AvatarFallback,
@@ -35,7 +36,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { signOut } from "~/auth/client";
-import { getAvatarUrl, getInitials } from "~/lib/avatar";
+import { getAvatarUrl } from "~/lib/avatar";
 
 interface SiteHeaderProps {
   user: {

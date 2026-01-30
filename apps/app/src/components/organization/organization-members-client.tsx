@@ -1,5 +1,6 @@
 "use client";
 
+import { getInitials } from "@qbs-autonaim/shared/utils";
 import {
   Avatar,
   AvatarFallback,
@@ -25,7 +26,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { PageHeader } from "~/components/layout";
 import { InviteMemberDialog } from "~/components/organization";
-import { getAvatarUrl, getInitials } from "~/lib/avatar";
+import { getAvatarUrl } from "~/lib/avatar";
 import { useTRPC } from "~/trpc/react";
 
 type MemberRole = "owner" | "admin" | "member";

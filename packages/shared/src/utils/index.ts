@@ -13,6 +13,8 @@ export {
 export { getInitials } from "./get-initials";
 // URL для интервью
 export { getInterviewBaseUrl } from "./get-interview-url";
+// Русская плюрализация
+export { pluralize } from "./pluralize";
 // Генерация slug
 export { generateSlug } from "./slug-generator";
 // Примечание: sanitizeHtmlFunction теперь экспортируется из @qbs-autonaim/shared/client

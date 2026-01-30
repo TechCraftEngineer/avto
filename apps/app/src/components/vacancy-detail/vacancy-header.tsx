@@ -1,3 +1,4 @@
+import { pluralize } from "@qbs-autonaim/shared/utils";
 import { Badge, Button, Card } from "@qbs-autonaim/ui";
 import {
   IconCalendar,
@@ -129,7 +130,7 @@ export function VacancyHeader({ vacancy }: VacancyHeaderProps) {
               <span className="font-medium">
                 {daysActive === 0
                   ? "Сегодня"
-                  : `${daysActive} ${daysActive === 1 ? "день" : daysActive < 5 ? "дня" : "дней"} активна`}
+                  : `${daysActive} ${pluralize(daysActive, "день", "дня", "дней")} активна`}
               </span>
             </div>
 
@@ -137,11 +138,12 @@ export function VacancyHeader({ vacancy }: VacancyHeaderProps) {
               <IconEye className="size-4 text-primary" />
               <span className="font-medium">
                 {vacancy.views ?? 0}{" "}
-                {(vacancy.views ?? 0) === 1
-                  ? "просмотр"
-                  : (vacancy.views ?? 0) < 5
-                    ? "просмотра"
-                    : "просмотров"}
+                {pluralize(
+                  vacancy.views ?? 0,
+                  "просмотр",
+                  "просмотра",
+                  "просмотров",
+                )}
               </span>
             </div>
           </div>

@@ -10,6 +10,7 @@ import {
   HR_SELECTION_STATUS_LABELS,
   RESPONSE_STATUS_LABELS,
 } from "@qbs-autonaim/db/schema";
+import { getInitials } from "@qbs-autonaim/shared/utils";
 import {
   Avatar,
   AvatarFallback,
@@ -28,7 +29,7 @@ import Link from "next/link";
 import sanitizeHtml from "sanitize-html";
 import { ResponseActions } from "~/components/response";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
-import { getAvatarUrl, getInitials } from "~/lib/avatar";
+import { getAvatarUrl } from "~/lib/avatar";
 import { ContactInfo } from "../integrations/contact-info";
 import { ScreenResponseButton } from "../screening/screen-response-button";
 import { ScreeningHoverCard } from "../screening/screening-hover-card";

@@ -1,5 +1,6 @@
 "use client";
 
+import { getInitials } from "@qbs-autonaim/shared/utils";
 import {
   Avatar,
   AvatarFallback,
@@ -31,7 +32,7 @@ import { toast } from "sonner";
 import { useInviteLinkModal } from "~/components/settings/modals/invite-link-modal";
 import { useInviteMemberModal } from "~/components/settings/modals/invite-member-modal";
 import { useMemberActionsMenu } from "~/components/settings/modals/member-actions-menu";
-import { getAvatarUrl, getInitials } from "~/lib/avatar";
+import { getAvatarUrl } from "~/lib/avatar";
 import { useTRPC } from "~/trpc/react";
 
 type MemberRole = "owner" | "admin" | "member";

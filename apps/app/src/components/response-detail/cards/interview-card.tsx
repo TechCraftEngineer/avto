@@ -1,3 +1,4 @@
+import { getInitials } from "@qbs-autonaim/shared/utils";
 import {
   Avatar,
   AvatarFallback,
@@ -12,7 +13,7 @@ import {
 } from "@qbs-autonaim/ui";
 import { MessageSquare } from "lucide-react";
 import { SafeHtml } from "~/components/safe-html";
-import { getAvatarUrl, getInitials } from "~/lib/avatar";
+import { getAvatarUrl } from "~/lib/avatar";
 import { VoicePlayer } from "../actions/voice-player";
 import { getScoreBadgeVariant } from "../utils";
 

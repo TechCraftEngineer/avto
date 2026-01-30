@@ -153,8 +153,8 @@ export function VacancyTable({
         </TableHeader>
         <TableBody>
           {isLoading ? (
-            Array.from({ length: 5 }).map(() => (
-              <TableRow key={crypto.randomUUID()}>
+            Array.from({ length: 5 }).map((_, index) => (
+              <TableRow key={`skeleton-${index}`}>
                 <TableCell>
                   <div className="flex flex-col gap-2">
                     <Skeleton className="h-5 w-[220px]" />
@@ -203,9 +203,9 @@ export function VacancyTable({
                       className="animate-infinite-scroll-y flex flex-col animation-duration-[10s]"
                       style={{ "--scroll": "-50%" } as React.CSSProperties}
                     >
-                      {Array.from({ length: 8 }).map(() => (
+                      {Array.from({ length: 8 }).map((_, index) => (
                         <div
-                          key={crypto.randomUUID()}
+                          key={`empty-skeleton-${index}`}
                           className="mt-4 flex items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-sm"
                         >
                           <IconSearch className="size-4 text-muted-foreground" />

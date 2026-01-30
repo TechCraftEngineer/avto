@@ -2,6 +2,7 @@
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
 import type { Candidate } from "@qbs-autonaim/db/schema";
+import { getInitials } from "@qbs-autonaim/shared/utils";
 import {
   Avatar,
   AvatarFallback,
@@ -25,7 +26,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
-import { getAvatarUrl, getInitials } from "~/lib/avatar";
+import { getAvatarUrl } from "~/lib/avatar";
 import {
   formatDate,
   HR_STATUS_CONFIG,

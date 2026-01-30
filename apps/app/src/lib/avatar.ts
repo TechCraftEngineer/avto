@@ -17,22 +17,3 @@ export function getAvatarUrl(
 
   return `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(name)}&scale=50`;
 }
-
-/**
- * Генерирует инициалы из имени
- *
- * @param name - Полное имя
- * @returns Инициалы (до 2 символов)
- */
-export function getInitials(name: string): string {
-  return (
-    name
-      .trim()
-      .split(" ")
-      .filter((n) => n.length > 0)
-      .slice(0, 2)
-      .map((n) => n.charAt(0))
-      .join("")
-      .toUpperCase() || ""
-  );
-}
