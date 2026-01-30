@@ -1,6 +1,5 @@
 "use client";
 
-import type { Realtime } from "@inngest/realtime";
 import { useInngestSubscription } from "@inngest/realtime/hooks";
 import {
   Alert,
@@ -22,19 +21,32 @@ export interface ImportProgressResult {
 interface ImportProgressProps {
   type: "new" | "archived" | "by-url";
   workspaceId: string;
-  requestId?: string;
-  token: Realtime.Subscribe.Token;
+  runId: string;
   onComplete: (result?: ImportProgressResult) => void;
 }
 
 export function ImportProgress({
   type,
-  token,
+  workspaceId,
+  runId,
   onComplete,
 }: ImportProgressProps) {
-  // Подписываемся на канал Realtime
+  // Подписываемся на выполнение функции через Realtime API
   const { data, error } = useInngestSubscription({
-    refreshToken: async () => token,
+    refreshToken: async () => {
+      // Получаем токен для конкретного runId
+      const response = await fetch("/api/inngest/realtime-token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workspaceId, runId, type }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Не удалось получить токен подписки");
+      }
+
+      return response.json();
+    },
     enabled: true,
   });
 
@@ -142,7 +154,7 @@ export function ImportProgress({
 
         <div className="flex-1 space-y-2 overflow-hidden">
           <AlertTitle>{getTitle()}</AlertTitle>
-          <AlertDescription className="whitespace-pre-wrap break-words overflow-auto max-h-[200px]">
+          <AlertDescription className="whitespace-pre-wrap wrap-break-word overflow-auto max-h-[200px]">
             {getStatusMessage()}
           </AlertDescription>
 

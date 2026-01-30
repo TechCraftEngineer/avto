@@ -1,6 +1,5 @@
 "use client";
 
-import type { Realtime } from "@inngest/realtime";
 import { useInngestSubscription } from "@inngest/realtime/hooks";
 import {
   Alert,
@@ -14,29 +13,46 @@ import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { useState } from "react";
 
 interface ArchivedVacancy {
-  externalId: string;
+  id: string;
   title: string;
-  responses: string;
-  views: string;
-  region: string;
+  archivedAt?: string;
 }
 
 interface ArchivedVacanciesSelectorProps {
-  fetchToken: () => Promise<Realtime.Subscribe.Token>;
+  workspaceId: string;
+  requestId: string;
   onSelect: (selectedIds: string[]) => void;
   onCancel: () => void;
 }
 
 export function ArchivedVacanciesSelector({
-  fetchToken,
+  workspaceId,
+  requestId,
   onSelect,
   onCancel,
 }: ArchivedVacanciesSelectorProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
-  // Подписываемся на канал Realtime
+  // Подписываемся на выполнение функции через Realtime API
   const { data, error } = useInngestSubscription({
-    refreshToken: fetchToken,
+    refreshToken: async () => {
+      // Получаем токен для конкретного requestId
+      const response = await fetch("/api/inngest/realtime-token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          workspaceId,
+          requestId,
+          type: "fetch-archived-list",
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Не удалось получить токен подписки");
+      }
+
+      return response.json();
+    },
     enabled: true,
   });
 
@@ -50,13 +66,13 @@ export function ArchivedVacanciesSelector({
       ? (latestMessage.data.vacancies as ArchivedVacancy[])
       : [];
 
-  const toggleVacancy = (externalId: string) => {
+  const toggleVacancy = (id: string) => {
     setSelectedIds((prev) => {
       const newSet = new Set(prev);
-      if (newSet.has(externalId)) {
-        newSet.delete(externalId);
+      if (newSet.has(id)) {
+        newSet.delete(id);
       } else {
-        newSet.add(externalId);
+        newSet.add(id);
       }
       return newSet;
     });
@@ -66,7 +82,7 @@ export function ArchivedVacanciesSelector({
     if (selectedIds.size === vacancies.length) {
       setSelectedIds(new Set());
     } else {
-      setSelectedIds(new Set(vacancies.map((v) => v.externalId)));
+      setSelectedIds(new Set(vacancies.map((v) => v.id)));
     }
   };
 
@@ -130,27 +146,26 @@ export function ArchivedVacanciesSelector({
         <div className="space-y-3">
           {vacancies.map((vacancy) => (
             <div
-              key={vacancy.externalId}
+              key={vacancy.id}
               className="flex items-start space-x-3 rounded-lg border p-3 hover:bg-accent/50 transition-colors"
             >
               <Checkbox
-                id={vacancy.externalId}
-                checked={selectedIds.has(vacancy.externalId)}
-                onCheckedChange={() => toggleVacancy(vacancy.externalId)}
+                id={vacancy.id}
+                checked={selectedIds.has(vacancy.id)}
+                onCheckedChange={() => toggleVacancy(vacancy.id)}
                 className="mt-1"
               />
               <label
-                htmlFor={vacancy.externalId}
+                htmlFor={vacancy.id}
                 className="flex-1 cursor-pointer space-y-1"
               >
                 <div className="font-medium leading-none">{vacancy.title}</div>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  {vacancy.region && <span>{vacancy.region}</span>}
-                  {vacancy.responses && (
-                    <span>Откликов: {vacancy.responses}</span>
-                  )}
-                  {vacancy.views && <span>Просмотров: {vacancy.views}</span>}
-                </div>
+                {vacancy.archivedAt && (
+                  <div className="text-sm text-muted-foreground">
+                    Архивирована:{" "}
+                    {new Date(vacancy.archivedAt).toLocaleDateString("ru-RU")}
+                  </div>
+                )}
               </label>
             </div>
           ))}

@@ -1,6 +1,5 @@
 "use client";
 
-import type { Realtime } from "@inngest/realtime";
 import {
   Alert,
   AlertDescription,
@@ -32,10 +31,6 @@ import NextLink from "next/link";
 import { useState } from "react";
 import {
   fetchArchivedVacanciesList,
-  fetchArchivedVacanciesListToken,
-  fetchImportArchivedVacanciesToken,
-  fetchImportNewVacanciesToken,
-  fetchImportVacancyByUrlToken,
   triggerImportNewVacancies,
   triggerImportSelectedArchivedVacancies,
   triggerImportVacancyByUrl,
@@ -56,8 +51,6 @@ export function VacancyImportSection() {
     useState(false);
   const [isSelectingArchivedVacancies, setIsSelectingArchivedVacancies] =
     useState(false);
-  const [archivedListToken, setArchivedListToken] =
-    useState<Realtime.Subscribe.Token | null>(null);
   const [archivedListRequestId, setArchivedListRequestId] = useState<
     string | null
   >(null);
@@ -78,15 +71,14 @@ export function VacancyImportSection() {
   );
   const hasActiveHHIntegration = !!hhIntegration;
 
-  // Progress tracking states
-  const [newVacanciesToken, setNewVacanciesToken] =
-    useState<Realtime.Subscribe.Token | null>(null);
-  const [archivedVacanciesToken, setArchivedVacanciesToken] =
-    useState<Realtime.Subscribe.Token | null>(null);
-  const [byUrlToken, setByUrlToken] = useState<Realtime.Subscribe.Token | null>(
+  // Progress tracking states - теперь храним только run IDs
+  const [newVacanciesRunId, setNewVacanciesRunId] = useState<string | null>(
     null,
   );
-  const [byUrlRequestId, setByUrlRequestId] = useState<string | null>(null);
+  const [archivedVacanciesRunId, setArchivedVacanciesRunId] = useState<
+    string | null
+  >(null);
+  const [byUrlRunId, setByUrlRunId] = useState<string | null>(null);
 
   const [isImportingNew, setIsImportingNew] = useState(false);
   const [isImportingArchived, setIsImportingArchived] = useState(false);
@@ -99,12 +91,11 @@ export function VacancyImportSection() {
 
     try {
       setIsImportingNew(true);
-      const token = await fetchImportNewVacanciesToken(workspace.id);
-      setNewVacanciesToken(token);
-      await triggerImportNewVacancies(workspace.id);
+      const runId = await triggerImportNewVacancies(workspace.id);
+      setNewVacanciesRunId(runId);
     } catch (error) {
       console.error("Ошибка запуска импорта:", error);
-      setNewVacanciesToken(null);
+      setNewVacanciesRunId(null);
       setIsImportingNew(false);
     }
   };
@@ -120,16 +111,9 @@ export function VacancyImportSection() {
       // Запускаем получение списка вакансий
       const requestId = await fetchArchivedVacanciesList(workspace.id);
       setArchivedListRequestId(requestId);
-
-      const token = await fetchArchivedVacanciesListToken(
-        workspace.id,
-        requestId,
-      );
-      setArchivedListToken(token);
     } catch (error) {
       console.error("Ошибка получения списка архивных вакансий:", error);
       setIsSelectingArchivedVacancies(false);
-      setArchivedListToken(null);
       setArchivedListRequestId(null);
     }
   };
@@ -138,24 +122,24 @@ export function VacancyImportSection() {
     if (!workspace?.id) return;
 
     setIsSelectingArchivedVacancies(false);
-    setArchivedListToken(null);
     setArchivedListRequestId(null);
 
     try {
       setIsImportingArchived(true);
-      const token = await fetchImportArchivedVacanciesToken(workspace.id);
-      setArchivedVacanciesToken(token);
-      await triggerImportSelectedArchivedVacancies(workspace.id, selectedIds);
+      const runId = await triggerImportSelectedArchivedVacancies(
+        workspace.id,
+        selectedIds,
+      );
+      setArchivedVacanciesRunId(runId);
     } catch (error) {
       console.error("Ошибка запуска импорта:", error);
-      setArchivedVacanciesToken(null);
+      setArchivedVacanciesRunId(null);
       setIsImportingArchived(false);
     }
   };
 
   const handleArchivedVacanciesCancel = () => {
     setIsSelectingArchivedVacancies(false);
-    setArchivedListToken(null);
     setArchivedListRequestId(null);
   };
 
@@ -178,14 +162,8 @@ export function VacancyImportSection() {
       setIsUrlDialogOpen(false);
       setUrlError("");
 
-      const requestId = await triggerImportVacancyByUrl(
-        workspace.id,
-        vacancyUrl,
-      );
-      setByUrlRequestId(requestId);
-
-      const token = await fetchImportVacancyByUrlToken(workspace.id, requestId);
-      setByUrlToken(token);
+      const runId = await triggerImportVacancyByUrl(workspace.id, vacancyUrl);
+      setByUrlRunId(runId);
 
       setVacancyUrl("");
     } catch (error) {
@@ -196,18 +174,17 @@ export function VacancyImportSection() {
 
   const handleNewVacanciesComplete = () => {
     setIsImportingNew(false);
-    setNewVacanciesToken(null);
+    setNewVacanciesRunId(null);
   };
 
   const handleArchivedVacanciesComplete = () => {
     setIsImportingArchived(false);
-    setArchivedVacanciesToken(null);
+    setArchivedVacanciesRunId(null);
   };
 
   const handleByUrlComplete = () => {
     setIsImportingByUrl(false);
-    setByUrlToken(null);
-    setByUrlRequestId(null);
+    setByUrlRunId(null);
   };
 
   // Показываем предупреждение, если нет активной интеграции
@@ -293,46 +270,43 @@ export function VacancyImportSection() {
 
           {/* Selector for archived vacancies */}
           {isSelectingArchivedVacancies &&
-            archivedListToken &&
-            archivedListRequestId && (
+            archivedListRequestId &&
+            workspace?.id && (
               <ArchivedVacanciesSelector
-                token={archivedListToken}
+                workspaceId={workspace.id}
+                requestId={archivedListRequestId}
                 onSelect={handleArchivedVacanciesSelected}
                 onCancel={handleArchivedVacanciesCancel}
               />
             )}
 
           {/* Progress indicators */}
-          {isImportingNew && newVacanciesToken && workspace?.id && (
+          {isImportingNew && newVacanciesRunId && workspace?.id && (
             <ImportProgress
               type="new"
               workspaceId={workspace.id}
-              token={newVacanciesToken}
+              runId={newVacanciesRunId}
               onComplete={handleNewVacanciesComplete}
             />
           )}
 
-          {isImportingArchived && archivedVacanciesToken && workspace?.id && (
+          {isImportingArchived && archivedVacanciesRunId && workspace?.id && (
             <ImportProgress
               type="archived"
               workspaceId={workspace.id}
-              token={archivedVacanciesToken}
+              runId={archivedVacanciesRunId}
               onComplete={handleArchivedVacanciesComplete}
             />
           )}
 
-          {isImportingByUrl &&
-            byUrlToken &&
-            byUrlRequestId &&
-            workspace?.id && (
-              <ImportProgress
-                type="by-url"
-                workspaceId={workspace.id}
-                requestId={byUrlRequestId}
-                token={byUrlToken}
-                onComplete={handleByUrlComplete}
-              />
-            )}
+          {isImportingByUrl && byUrlRunId && workspace?.id && (
+            <ImportProgress
+              type="by-url"
+              workspaceId={workspace.id}
+              runId={byUrlRunId}
+              onComplete={handleByUrlComplete}
+            />
+          )}
         </CardContent>
       </Card>
 

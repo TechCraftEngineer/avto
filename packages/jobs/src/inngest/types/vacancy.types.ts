@@ -60,6 +60,11 @@ export const vacancyImportByUrlDataSchema = z.object({
   requestId: z.string().min(1, "ID запроса обязателен"),
 });
 
+export const vacancyFetchArchivedListDataSchema = z.object({
+  workspaceId: z.string().min(1, "ID рабочего пространства обязателен"),
+  requestId: z.string().min(1, "ID запроса обязателен"),
+});
+
 /**
  * Type inference
  */
@@ -96,4 +101,7 @@ export type VacancyImportArchivedSelectedPayload = z.infer<
 >;
 export type VacancyImportByUrlPayload = z.infer<
   typeof vacancyImportByUrlDataSchema
+>;
+export type VacancyFetchArchivedListPayload = z.infer<
+  typeof vacancyFetchArchivedListDataSchema
 >;

@@ -62,7 +62,13 @@ export const fetchArchivedListFunction = inngest.createFunction(
         );
 
         // Получаем список архивных вакансий
-        const vacancies = await fetchArchivedVacanciesList(workspaceId);
+        const rawVacancies = await fetchArchivedVacanciesList(workspaceId);
+
+        // Преобразуем данные в формат, ожидаемый каналом
+        const vacancies = rawVacancies.map((v) => ({
+          id: v.externalId,
+          title: v.title,
+        }));
 
         await publish(
           fetchArchivedListChannel(workspaceId, requestId).result({
