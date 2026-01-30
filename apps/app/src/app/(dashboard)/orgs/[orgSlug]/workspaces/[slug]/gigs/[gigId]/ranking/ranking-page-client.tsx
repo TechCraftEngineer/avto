@@ -31,8 +31,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { CandidateComparison } from "~/components/gig/candidate-comparison";
-import { RankingList } from "~/components/gig/ranking-list";
+import { CandidateComparison, RankingList } from "~/components/gig";
 import { useTRPC } from "~/trpc/react";
 
 interface RankingPageClientProps {

@@ -22,7 +22,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { CustomDomainSelect } from "~/components/gig/custom-domain-select";
+import { CustomDomainSelect } from "~/components/gig";
 import { useTRPC } from "~/trpc/react";
 import { DeleteWorkspaceDialog } from "./delete-workspace-dialog";
 

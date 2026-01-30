@@ -106,24 +106,28 @@ export default function IntegrationsPage() {
           description={INTEGRATION_CATEGORIES.JOB_SEARCH.description}
           icon={INTEGRATION_CATEGORIES.JOB_SEARCH.icon}
         >
-          {integrationsByCategory["job-search"]?.map((availableIntegration) => {
-            const existingIntegration = integrations?.find(
-              (i) => i.type === availableIntegration.type,
-            );
-
-            return (
-              <IntegrationCard
-                key={availableIntegration.type}
-                availableIntegration={availableIntegration}
-                integration={existingIntegration}
-                onCreate={() => handleCreate(availableIntegration.type)}
-                onEdit={() => handleEdit(availableIntegration.type)}
-                workspaceId={workspaceId}
-                userRole={userRole}
-                showDetailedDescription
-              />
-            );
-          })}
+          {integrationsByCategory["job-search"]
+            ?.filter((availableIntegration) => {
+              // Скрываем интеграции, которые уже подключены
+              const existingIntegration = integrations?.find(
+                (i) => i.type === availableIntegration.type,
+              );
+              return !existingIntegration;
+            })
+            .map((availableIntegration) => {
+              return (
+                <IntegrationCard
+                  key={availableIntegration.type}
+                  availableIntegration={availableIntegration}
+                  integration={undefined}
+                  onCreate={() => handleCreate(availableIntegration.type)}
+                  onEdit={() => handleEdit(availableIntegration.type)}
+                  workspaceId={workspaceId}
+                  userRole={userRole}
+                  showDetailedDescription
+                />
+              );
+            })}
         </IntegrationCategorySection>
       </div>
 

@@ -12,6 +12,7 @@ import {
   Separator,
   Textarea,
 } from "@qbs-autonaim/ui";
+import { useQuery } from "@tanstack/react-query";
 import {
   Loader2,
   MessageSquare,
@@ -21,13 +22,12 @@ import {
   Wand2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { CustomDomainSelect } from "~/components/gig";
 import { useTRPC } from "~/trpc/react";
 import { CommunicationChannelsSettings } from "./communication-channels-settings";
 import { WelcomeMessageTemplates } from "./welcome-message-templates";
-import { CustomDomainSelect } from "~/components/gig/custom-domain-select";
 
 interface VacancySettingsFormProps {
   vacancyTitle?: string;
@@ -479,14 +479,18 @@ export function VacancySettingsForm({
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <div className="rounded-xl bg-linear-to-br from-purple-500/20 to-purple-600/10 p-3">
-                    <Settings className="size-6 text-purple-600" aria-hidden="true" />
+                    <Settings
+                      className="size-6 text-purple-600"
+                      aria-hidden="true"
+                    />
                   </div>
                   <div>
                     <h3 className="text-base font-medium text-foreground">
                       Кастомный домен для веб-чата
                     </h3>
                     <p className="text-muted-foreground">
-                      Выберите домен, через который будет доступен веб-чат для этой вакансии
+                      Выберите домен, через который будет доступен веб-чат для
+                      этой вакансии
                     </p>
                   </div>
                 </div>
@@ -494,7 +498,11 @@ export function VacancySettingsForm({
                 <CustomDomainSelect
                   workspaceId={workspaceId}
                   value={form.watch("customDomainId")}
-                  onChange={(value) => form.setValue("customDomainId", value, { shouldDirty: true })}
+                  onChange={(value) =>
+                    form.setValue("customDomainId", value, {
+                      shouldDirty: true,
+                    })
+                  }
                 />
               </div>
             </Card>
