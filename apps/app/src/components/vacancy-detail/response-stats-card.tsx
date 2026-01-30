@@ -91,7 +91,7 @@ export function ResponseStatsCard({
             })}
 
             {/* Подсказка для рекрутера */}
-            {sortedStats.length > 1 && (
+            {sortedStats.length > 1 && sortedStats[0] && (
               <div className="pt-2 mt-2 border-t">
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   <span className="font-semibold text-foreground">Совет:</span>{" "}

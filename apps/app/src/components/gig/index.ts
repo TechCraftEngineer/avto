@@ -2,7 +2,7 @@
 export {
   ChatInput,
   ChatMessageList,
-  GigAiChatPanel,
+  GigAIChatPanel,
   QuickReplies,
   TypingIndicator,
 } from "./ai-chat";

@@ -1,5 +1,6 @@
 "use client";
 
+import { getInitials } from "@qbs-autonaim/shared/utils";
 import {
   Avatar,
   AvatarFallback,
@@ -119,15 +120,6 @@ export function ResponsesTableRow({
     );
   };
 
-  const getInitials = (name: string | null) => {
-    if (!name) return "?";
-    const parts = name.trim().split(" ");
-    if (parts.length >= 2 && parts[0] && parts[1]) {
-      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-    }
-    return name.substring(0, 2).toUpperCase();
-  };
-
   const formatDate = (date: Date | null) => {
     if (!date) return "—";
     return formatDistanceToNow(new Date(date), {
@@ -142,7 +134,7 @@ export function ResponsesTableRow({
         <div className="flex items-center gap-3">
           <Avatar className="size-10">
             <AvatarFallback className="bg-primary/10 text-sm font-medium text-primary">
-              {getInitials(response.candidateName)}
+              {getInitials(response.candidateName || "")}
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-col">

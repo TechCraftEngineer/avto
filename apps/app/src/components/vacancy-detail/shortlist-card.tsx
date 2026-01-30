@@ -1,3 +1,4 @@
+import { getInitials } from "@qbs-autonaim/shared/utils";
 import {
   Avatar,
   AvatarFallback,
@@ -35,15 +36,6 @@ export function ShortlistCard({
   workspaceSlug,
   vacancyId,
 }: ShortlistCardProps) {
-  // Функция для получения инициалов из имени
-  const getInitials = (name: string) => {
-    const parts = name.trim().split(/\s+/);
-    if (parts.length >= 2) {
-      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-    }
-    return name.slice(0, 2).toUpperCase();
-  };
-
   // Функция для получения цвета медали
   const getMedalColor = (index: number) => {
     switch (index) {

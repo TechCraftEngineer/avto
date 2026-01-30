@@ -9,6 +9,8 @@ export {
   type ParsedPlatformLink,
   parsePlatformLink,
 } from "./freelance-platform-parser";
+// Получение инициалов из имени
+export { getInitials } from "./get-initials";
 // URL для интервью
 export { getInterviewBaseUrl } from "./get-interview-url";
 // Генерация slug

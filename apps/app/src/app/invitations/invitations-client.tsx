@@ -1,6 +1,7 @@
 "use client";
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
+import { getInitials } from "@qbs-autonaim/shared/utils";
 import {
   Avatar,
   AvatarFallback,
@@ -109,7 +110,7 @@ export function InvitationsClient({ invites }: { invites: Invite[] }) {
                       alt={invite.workspace.name}
                     />
                     <AvatarFallback>
-                      {invite.workspace.name.slice(0, 2).toUpperCase()}
+                      {getInitials(invite.workspace.name)}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1">

@@ -1,7 +1,7 @@
 "use client";
 
 import { Badge, Progress, ScrollArea } from "@qbs-autonaim/ui";
-import { skipToken, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
 import { Award, TrendingDown, Users } from "lucide-react";
@@ -22,15 +22,14 @@ export function ComparisonTab({
   const { workspace } = useWorkspace();
   const trpc = useTRPC();
 
-  const { data, isLoading } = useQuery(
-    workspace?.id
-      ? trpc.vacancy.responses.compare.queryOptions({
-          vacancyId,
-          workspaceId: workspace.id,
-          limit: 10,
-        })
-      : skipToken,
-  );
+  const { data, isLoading } = useQuery({
+    ...trpc.vacancy.responses.compare.queryOptions({
+      vacancyId,
+      workspaceId: workspace?.id ?? "",
+      limit: 10,
+    }),
+    enabled: !!workspace?.id,
+  });
 
   if (isLoading) {
     return (

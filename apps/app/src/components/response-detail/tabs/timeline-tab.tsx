@@ -1,7 +1,7 @@
 "use client";
 
 import { ScrollArea } from "@qbs-autonaim/ui";
-import { skipToken, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
 import {
@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
+import { ValueChangeDisplay } from "./value-change-display";
 
 interface TimelineTabProps {
   responseId: string;
@@ -64,14 +65,13 @@ export function TimelineTab({ responseId }: TimelineTabProps) {
   const { workspace } = useWorkspace();
   const trpc = useTRPC();
 
-  const { data: history, isLoading } = useQuery(
-    workspace?.id
-      ? trpc.vacancy.responses.history.queryOptions({
-          responseId,
-          workspaceId: workspace.id,
-        })
-      : skipToken,
-  );
+  const { data: history, isLoading } = useQuery({
+    ...trpc.vacancy.responses.history.queryOptions({
+      responseId,
+      workspaceId: workspace?.id ?? "",
+    }),
+    enabled: !!workspace?.id,
+  });
 
   if (isLoading) {
     return (
@@ -141,28 +141,10 @@ export function TimelineTab({ responseId }: TimelineTabProps) {
                   )}
 
                   {/* Отображение изменений */}
-                  {event.oldValue && event.newValue && (
-                    <div className="mt-2 space-y-1">
-                      <div className="flex items-center gap-2 text-xs">
-                        <XCircle className="h-3 w-3 text-destructive" />
-                        <span className="text-muted-foreground">
-                          Было:{" "}
-                          <span className="font-mono">
-                            {String(JSON.stringify(event.oldValue))}
-                          </span>
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs">
-                        <CheckCircle2 className="h-3 w-3 text-green-500" />
-                        <span className="text-muted-foreground">
-                          Стало:{" "}
-                          <span className="font-mono">
-                            {String(JSON.stringify(event.newValue))}
-                          </span>
-                        </span>
-                      </div>
-                    </div>
-                  )}
+                  <ValueChangeDisplay
+                    oldValue={event.oldValue}
+                    newValue={event.newValue}
+                  />
 
                   {/* Метаданные */}
                   {event.metadata && (

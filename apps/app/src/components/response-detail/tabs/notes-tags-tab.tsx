@@ -8,12 +8,7 @@ import {
   Separator,
   Textarea,
 } from "@qbs-autonaim/ui";
-import {
-  skipToken,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
 import { MessageSquare, Plus, Send, Tag as TagIcon, X } from "lucide-react";
@@ -36,24 +31,22 @@ export function NotesTagsTab({ responseId }: NotesTagsTabProps) {
   const [isPrivate, setIsPrivate] = useState(true);
 
   // Загрузка тегов
-  const { data: tags, isLoading: tagsLoading } = useQuery(
-    workspace?.id
-      ? trpc.vacancy.responses.listTags.queryOptions({
-          responseId,
-          workspaceId: workspace.id,
-        })
-      : skipToken,
-  );
+  const { data: tags, isLoading: tagsLoading } = useQuery({
+    ...trpc.vacancy.responses.listTags.queryOptions({
+      responseId,
+      workspaceId: workspace?.id ?? "",
+    }),
+    enabled: !!workspace?.id,
+  });
 
   // Загрузка комментариев
-  const { data: comments, isLoading: commentsLoading } = useQuery(
-    workspace?.id
-      ? trpc.candidates.listComments.queryOptions({
-          candidateId: responseId,
-          workspaceId: workspace.id,
-        })
-      : skipToken,
-  );
+  const { data: comments, isLoading: commentsLoading } = useQuery({
+    ...trpc.candidates.listComments.queryOptions({
+      candidateId: responseId,
+      workspaceId: workspace?.id ?? "",
+    }),
+    enabled: !!workspace?.id,
+  });
 
   // Добавление тега
   const addTagMutation = useMutation(
@@ -67,13 +60,10 @@ export function NotesTagsTab({ responseId }: NotesTagsTabProps) {
           }),
         });
         setNewTag("");
-        toast({ description: "Тег добавлен" });
+        toast("Тег добавлен");
       },
       onError: (error) => {
-        toast({
-          description: `Ошибка: ${error.message}`,
-          variant: "destructive",
-        });
+        toast.error(`Ошибка: ${error.message}`);
       },
     }),
   );
@@ -89,13 +79,10 @@ export function NotesTagsTab({ responseId }: NotesTagsTabProps) {
             workspaceId: workspace.id,
           }),
         });
-        toast({ description: "Тег удален" });
+        toast("Тег удален");
       },
       onError: (error) => {
-        toast({
-          description: `Ошибка: ${error.message}`,
-          variant: "destructive",
-        });
+        toast.error(`Ошибка: ${error.message}`);
       },
     }),
   );
@@ -112,13 +99,10 @@ export function NotesTagsTab({ responseId }: NotesTagsTabProps) {
           }),
         });
         setNewComment("");
-        toast({ description: "Комментарий добавлен" });
+        toast("Комментарий добавлен");
       },
       onError: (error) => {
-        toast({
-          description: `Ошибка: ${error.message}`,
-          variant: "destructive",
-        });
+        toast.error(`Ошибка: ${error.message}`);
       },
     }),
   );
