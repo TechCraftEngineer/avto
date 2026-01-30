@@ -345,3 +345,40 @@ export const importVacancyByUrlChannel = channel(
       }),
     ),
   );
+
+/**
+ * Канал для отслеживания прогресса получения списка архивных вакансий
+ */
+export const fetchArchivedListChannel = channel(
+  (workspaceId: string, requestId: string) =>
+    `fetch-archived-list:${workspaceId}:${requestId}`,
+)
+  .addTopic(
+    topic("progress").schema(
+      z.object({
+        workspaceId: z.string(),
+        requestId: z.string(),
+        status: z.enum(["started", "processing", "completed", "error"]),
+        message: z.string(),
+      }),
+    ),
+  )
+  .addTopic(
+    topic("result").schema(
+      z.object({
+        workspaceId: z.string(),
+        requestId: z.string(),
+        success: z.boolean(),
+        vacancies: z
+          .array(
+            z.object({
+              id: z.string(),
+              title: z.string(),
+              archivedAt: z.string().optional(),
+            }),
+          )
+          .optional(),
+        error: z.string().optional(),
+      }),
+    ),
+  );

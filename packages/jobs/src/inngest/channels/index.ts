@@ -5,6 +5,7 @@
 export {
   checkPublicationStatusChannel,
   conversationMessagesChannel,
+  fetchArchivedListChannel,
   importArchivedVacanciesChannel,
   importNewVacanciesChannel,
   importVacancyByUrlChannel,

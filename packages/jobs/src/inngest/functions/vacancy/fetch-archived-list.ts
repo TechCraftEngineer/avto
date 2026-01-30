@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { fetchArchivedVacanciesList } from "../../../parsers/hh";
+import { fetchArchivedListChannel } from "../../channels/client";
 import { inngest } from "../../client";
 
 /**
@@ -35,20 +36,15 @@ export const fetchArchivedListFunction = inngest.createFunction(
     }
 
     const { workspaceId, requestId } = validationResult.data;
-    const channelName = `vacancy/fetch-archived-list/${workspaceId}/${requestId}`;
 
-    await publish({
-      name: channelName,
-      data: {
-        topic: "progress",
-        data: {
-          workspaceId,
-          requestId,
-          status: "started",
-          message: "Подключаемся к HeadHunter",
-        },
-      },
-    });
+    await publish(
+      fetchArchivedListChannel(workspaceId, requestId).progress({
+        workspaceId,
+        requestId,
+        status: "started",
+        message: "Подключаемся к HeadHunter",
+      }),
+    );
 
     const result = await step.run("fetch-archived-list", async () => {
       console.log(
@@ -56,34 +52,26 @@ export const fetchArchivedListFunction = inngest.createFunction(
       );
 
       try {
-        await publish({
-          name: channelName,
-          data: {
-            topic: "progress",
-            data: {
-              workspaceId,
-              requestId,
-              status: "processing",
-              message: "Загружаем список архивных вакансий",
-            },
-          },
-        });
+        await publish(
+          fetchArchivedListChannel(workspaceId, requestId).progress({
+            workspaceId,
+            requestId,
+            status: "processing",
+            message: "Загружаем список архивных вакансий",
+          }),
+        );
 
         // Получаем список архивных вакансий
         const vacancies = await fetchArchivedVacanciesList(workspaceId);
 
-        await publish({
-          name: channelName,
-          data: {
-            topic: "result",
-            data: {
-              workspaceId,
-              requestId,
-              success: true,
-              vacancies,
-            },
-          },
-        });
+        await publish(
+          fetchArchivedListChannel(workspaceId, requestId).result({
+            workspaceId,
+            requestId,
+            success: true,
+            vacancies,
+          }),
+        );
 
         console.log(
           `✅ Получено ${vacancies.length} архивных вакансий для workspace ${workspaceId}`,
@@ -101,18 +89,14 @@ export const fetchArchivedListFunction = inngest.createFunction(
             ? error.message
             : "Не удалось получить список вакансий";
 
-        await publish({
-          name: channelName,
-          data: {
-            topic: "result",
-            data: {
-              workspaceId,
-              requestId,
-              success: false,
-              error: errorMessage,
-            },
-          },
-        });
+        await publish(
+          fetchArchivedListChannel(workspaceId, requestId).result({
+            workspaceId,
+            requestId,
+            success: false,
+            error: errorMessage,
+          }),
+        );
 
         throw error;
       }

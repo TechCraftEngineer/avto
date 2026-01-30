@@ -2,6 +2,7 @@
 
 import { getSubscriptionToken } from "@inngest/realtime";
 import {
+  fetchArchivedListChannel,
   importArchivedVacanciesChannel,
   importNewVacanciesChannel,
   importVacancyByUrlChannel,
@@ -135,7 +136,7 @@ export async function fetchArchivedVacanciesListToken(
   requestId: string,
 ) {
   const token = await getSubscriptionToken(inngest, {
-    channel: `vacancy/fetch-archived-list/${workspaceId}/${requestId}`,
+    channel: fetchArchivedListChannel(workspaceId, requestId),
     topics: ["progress", "result"],
   });
 
