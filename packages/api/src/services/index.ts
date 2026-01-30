@@ -56,6 +56,8 @@ export {
   MIN_VERIFICATION_INTERVAL_MS,
   SSL_RENEWAL_WARNING_DAYS,
 } from "./custom-domain";
+export type { CreateDraftInput, UpdateDraftInput } from "./draft.service";
+export { DraftService } from "./draft.service";
 export type {
   DialogueMessage,
   DimensionScore,
@@ -75,7 +77,6 @@ export {
 } from "./evaluation";
 export type { GigInterviewLink } from "./gig-interview-link-generator";
 export { GigInterviewLinkGenerator } from "./gig-interview-link-generator";
-
 export type {
   ContactInfo,
   ParsedResponse,

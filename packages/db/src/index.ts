@@ -2,6 +2,7 @@ export { alias } from "drizzle-orm/pg-core";
 export * from "drizzle-orm/sql";
 export { db } from "./client";
 export * from "./repositories/candidate.repository";
+export { DraftRepository } from "./repositories/draft.repository";
 export * from "./repositories/integration";
 export * from "./repositories/organization.repository";
 export * from "./repositories/response.repository";

@@ -40,6 +40,14 @@ interface UseAIVacancyChatReturn {
     content: string,
   ) => void;
   setEditingSection: (section: string | null) => void;
+  restoreState: (
+    conversationHistory: Array<{
+      role: "user" | "assistant";
+      content: string;
+      timestamp: Date;
+    }>,
+    vacancyData: VacancyDocument,
+  ) => void;
 }
 
 function createWelcomeMessage(
@@ -492,6 +500,35 @@ export function useAIVacancyChat({
     [],
   );
 
+  const restoreState = useCallback(
+    (
+      conversationHistory: Array<{
+        role: "user" | "assistant";
+        content: string;
+        timestamp: Date;
+      }>,
+      vacancyData: VacancyDocument,
+    ) => {
+      // Восстанавливаем документ
+      setDocument(vacancyData);
+
+      // Восстанавливаем историю сообщений
+      const restoredMessages: ConversationMessage[] = conversationHistory.map(
+        (msg, index) => ({
+          id: `restored-${index}`,
+          role: msg.role,
+          content: msg.content,
+          timestamp: new Date(msg.timestamp),
+        }),
+      );
+
+      setMessages(restoredMessages);
+      setStatus("idle");
+      setError(null);
+    },
+    [],
+  );
+
   return {
     document,
     messages,
@@ -505,5 +542,6 @@ export function useAIVacancyChat({
     retry,
     updateDocumentSection,
     setEditingSection,
+    restoreState,
   };
 }

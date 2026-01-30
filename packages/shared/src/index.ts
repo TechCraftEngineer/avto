@@ -18,6 +18,8 @@ export type { InterviewLink } from "./interview-link-generator";
 export { InterviewLinkGenerator } from "./interview-link-generator";
 // Экспорт ranking service
 export * from "./ranking-service";
+// Экспорт схем
+export * from "./schemas";
 // Экспорт всех типов
 export type {
   BufferedMessage,

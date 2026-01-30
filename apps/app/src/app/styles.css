@@ -217,4 +217,29 @@
   .p-\[--content-padding\] {
     padding: var(--content-padding);
   }
+
+  /* Стили для индикатора сохранения черновика */
+  .save-indicator {
+    @apply flex items-center gap-1.5 text-xs text-muted-foreground;
+  }
+
+  .save-indicator .status-icon {
+    @apply h-2 w-2 rounded-full;
+  }
+
+  .save-indicator .status-icon.status-saving {
+    @apply bg-blue-500 animate-pulse;
+  }
+
+  .save-indicator .status-icon.status-saved {
+    @apply bg-green-500;
+  }
+
+  .save-indicator .status-icon.status-error {
+    @apply bg-red-500;
+  }
+
+  .save-indicator .status-text {
+    @apply font-medium;
+  }
 }

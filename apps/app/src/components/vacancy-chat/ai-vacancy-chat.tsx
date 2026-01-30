@@ -26,6 +26,9 @@ import {
 import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { RestorePrompt } from "~/components/restore-prompt";
+import { SaveIndicator } from "~/components/save-indicator";
+import { useDraftPersistence } from "~/hooks/use-draft-persistence";
 import { useTRPC } from "~/trpc/react";
 import { ChatMessage } from "./chat-message";
 import { DocumentPreview } from "./document-preview";
@@ -70,6 +73,7 @@ export function AIVacancyChat({
     clearChat,
     retry,
     updateDocumentSection,
+    restoreState,
   } = useAIVacancyChat({
     workspaceId,
     botSettings: botSettings
@@ -80,6 +84,72 @@ export function AIVacancyChat({
         }
       : null,
   });
+
+  // Интеграция системы черновиков
+  const {
+    saveDraft,
+    restoreDraft,
+    startNew,
+    clearDraft,
+    saveStatus,
+    lastSavedAt,
+    showRestorePrompt,
+  } = useDraftPersistence({
+    onRestore: (draft) => {
+      // Восстанавливаем состояние AI-бота из черновика
+      if (draft.conversationHistory && draft.vacancyData) {
+        // Преобразуем VacancyData обратно в VacancyDocument
+        const vacancyDocument = {
+          title: draft.vacancyData.title,
+          description: draft.vacancyData.description,
+          requirements: draft.vacancyData.requirements?.[0],
+          responsibilities: undefined,
+          conditions: draft.vacancyData.conditions?.[0],
+          bonuses: undefined,
+          customBotInstructions: undefined,
+          customScreeningPrompt: undefined,
+          customInterviewQuestions: undefined,
+          customOrganizationalQuestions: undefined,
+        };
+
+        restoreState(draft.conversationHistory, vacancyDocument);
+      }
+    },
+  });
+
+  // Автоматическое сохранение при изменениях в документе или сообщениях
+  useEffect(() => {
+    // Не сохраняем, если нет данных или идет генерация
+    if (
+      status === "streaming" ||
+      status === "loading" ||
+      (!document.title && messages.length <= 1)
+    ) {
+      return;
+    }
+
+    // Преобразуем VacancyDocument в VacancyData для сохранения
+    const vacancyData = {
+      title: document.title,
+      description: document.description,
+      requirements: document.requirements ? [document.requirements] : undefined,
+      conditions: document.conditions ? [document.conditions] : undefined,
+      salary: undefined, // Пока не используется в текущей версии
+    };
+
+    // Сохраняем состояние чата
+    saveDraft({
+      conversationHistory: messages
+        .filter((m) => m.id !== "welcome")
+        .map((m) => ({
+          role: m.role,
+          content: m.content,
+          timestamp: m.timestamp,
+        })),
+      vacancyData,
+      currentStep: document.title ? "editing" : "initial",
+    });
+  }, [document, messages, status, saveDraft]);
 
   // Когда настройки компании созданы, автоматически переходим к следующему шагу
   // biome-ignore lint/correctness/useExhaustiveDependencies: clearChat is stable and should not trigger this effect
@@ -93,7 +163,10 @@ export function AIVacancyChat({
   // Mutation для сохранения вакансии
   const createVacancyMutation = useMutation(
     trpc.vacancy.createFromChat.mutationOptions({
-      onSuccess: (vacancy) => {
+      onSuccess: async (vacancy) => {
+        // Удаляем черновик после успешного создания вакансии
+        await clearDraft();
+
         toast.success("Вакансия создана", {
           description: "Вакансия успешно сохранена",
         });
@@ -198,292 +271,315 @@ export function AIVacancyChat({
   const lastMessage = messages[messages.length - 1];
 
   return (
-    <main className="flex h-full flex-col gap-0 md:flex-row">
-      {/* Chat Section */}
-      <section
-        className="flex h-[35vh] w-full flex-col border-b md:h-full md:w-1/2 md:border-b-0 md:border-r lg:w-2/5"
-        aria-label="Чат с AI-ассистентом"
-      >
-        {/* Company Settings Preview */}
-        {botSettings && (
-          <div className="border-b bg-muted/30 px-3 py-2 md:px-4 md:py-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="flex h-5 w-5 items-center justify-center rounded bg-primary/10">
-                  <Bot className="h-3 w-3 text-primary" />
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-xs font-medium text-muted-foreground">
-                    {botSettings.botName} • {botSettings.companyName}
-                  </span>
-                  {botSettings.companyWebsite && (
-                    <span className="text-xs text-muted-foreground">
-                      {botSettings.companyWebsite}
+    <>
+      {/* Prompt восстановления черновика */}
+      <RestorePrompt
+        open={showRestorePrompt}
+        onOpenChange={(open) => {
+          if (!open) {
+            // Если закрыли без выбора, считаем это как "начать заново"
+            startNew();
+          }
+        }}
+        onRestore={restoreDraft}
+        onStartNew={startNew}
+      />
+
+      <main className="flex h-full flex-col gap-0 md:flex-row">
+        {/* Chat Section */}
+        <section
+          className="flex h-[35vh] w-full flex-col border-b md:h-full md:w-1/2 md:border-b-0 md:border-r lg:w-2/5"
+          aria-label="Чат с AI-ассистентом"
+        >
+          {/* Company Settings Preview */}
+          {botSettings && (
+            <div className="border-b bg-muted/30 px-3 py-2 md:px-4 md:py-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-5 w-5 items-center justify-center rounded bg-primary/10">
+                    <Bot className="h-3 w-3 text-primary" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-xs font-medium text-muted-foreground">
+                      {botSettings.botName} • {botSettings.companyName}
                     </span>
+                    {botSettings.companyWebsite && (
+                      <span className="text-xs text-muted-foreground">
+                        {botSettings.companyWebsite}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    // Показываем диалог редактирования настроек
+                    setShowSettingsEdit(true);
+                  }}
+                  className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
+                  title="Редактировать настройки компании"
+                >
+                  <FileText className="h-3 w-3" />
+                </Button>
+              </div>
+            </div>
+          )}
+          <header className="flex items-center justify-between border-b p-3 md:p-4">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" aria-hidden="true" />
+              <div>
+                <h2 className="text-base font-semibold md:text-lg">
+                  AI-ассистент
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  Создание вакансии
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {/* Индикатор сохранения */}
+              <SaveIndicator status={saveStatus} lastSavedAt={lastSavedAt} />
+
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={clearChat}
+                disabled={isGenerating}
+                className="h-8 w-8"
+                aria-label="Начать заново"
+              >
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            </div>
+          </header>
+
+          {/* Messages */}
+          <ScrollArea
+            className="min-h-0 flex-1"
+            ref={scrollAreaRef}
+            style={{ overscrollBehavior: "contain" }}
+          >
+            <div
+              className="space-y-3 p-3 md:space-y-4 md:p-4"
+              role="log"
+              aria-live="polite"
+            >
+              {messages.map((msg) => (
+                <ChatMessage
+                  key={msg.id}
+                  message={msg}
+                  onQuickReplySelect={selectQuickReply}
+                  onMultiSelectSubmit={selectMultipleReplies}
+                  isLatest={msg.id === lastMessage?.id}
+                  disabled={isGenerating}
+                />
+              ))}
+
+              {isGenerating && !lastMessage?.isStreaming && <TypingIndicator />}
+            </div>
+          </ScrollArea>
+
+          {/* Error */}
+          {error && (
+            <div className="border-t bg-destructive/10 p-3" role="alert">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="h-4 w-4 shrink-0 text-destructive" />
+                <div className="flex-1 space-y-2">
+                  <p className="text-xs font-medium text-destructive">
+                    {error.message}
+                  </p>
+                  {error.retryable && (
+                    <Button onClick={retry} size="sm" variant="outline">
+                      Повторить
+                    </Button>
                   )}
                 </div>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  // Показываем диалог редактирования настроек
-                  setShowSettingsEdit(true);
-                }}
-                className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
-                title="Редактировать настройки компании"
-              >
-                <FileText className="h-3 w-3" />
-              </Button>
             </div>
-          </div>
-        )}
-        <header className="flex items-center justify-between border-b p-3 md:p-4">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" aria-hidden="true" />
-            <div>
-              <h2 className="text-base font-semibold md:text-lg">
-                AI-ассистент
-              </h2>
-              <p className="text-xs text-muted-foreground">Создание вакансии</p>
-            </div>
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={clearChat}
-            disabled={isGenerating}
-            className="h-8 w-8"
-            aria-label="Начать заново"
-          >
-            <RefreshCw className="h-4 w-4" />
-          </Button>
-        </header>
+          )}
 
-        {/* Messages */}
-        <ScrollArea
-          className="min-h-0 flex-1"
-          ref={scrollAreaRef}
-          style={{ overscrollBehavior: "contain" }}
-        >
-          <div
-            className="space-y-3 p-3 md:space-y-4 md:p-4"
-            role="log"
-            aria-live="polite"
-          >
-            {messages.map((msg) => (
-              <ChatMessage
-                key={msg.id}
-                message={msg}
-                onQuickReplySelect={selectQuickReply}
-                onMultiSelectSubmit={selectMultipleReplies}
-                isLatest={msg.id === lastMessage?.id}
-                disabled={isGenerating}
-              />
-            ))}
-
-            {isGenerating && !lastMessage?.isStreaming && <TypingIndicator />}
-          </div>
-        </ScrollArea>
-
-        {/* Error */}
-        {error && (
-          <div className="border-t bg-destructive/10 p-3" role="alert">
-            <div className="flex items-start gap-2">
-              <AlertCircle className="h-4 w-4 shrink-0 text-destructive" />
-              <div className="flex-1 space-y-2">
-                <p className="text-xs font-medium text-destructive">
-                  {error.message}
-                </p>
-                {error.retryable && (
-                  <Button onClick={retry} size="sm" variant="outline">
-                    Повторить
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Input */}
-        <div className="border-t bg-background p-3 md:p-4">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSend();
-            }}
-          >
-            <div className="relative">
-              <Textarea
-                ref={textareaRef}
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Опишите вакансию или выберите вариант выше…"
-                disabled={isGenerating}
-                className="min-h-[60px] resize-none pr-12 text-base md:min-h-[80px]"
-                style={{ fontSize: "16px", touchAction: "manipulation" }}
-                autoComplete="off"
-                name="vacancy-message"
-                aria-label="Сообщение"
-              />
-              <Button
-                type="submit"
-                disabled={isGenerating || !inputValue.trim()}
-                size="icon"
-                className="absolute bottom-2 right-2 h-8 w-8 rounded-full transition-all hover:scale-105 active:scale-95 md:h-9 md:w-9"
-                style={{ touchAction: "manipulation" }}
-                aria-label={isGenerating ? "Генерация…" : "Отправить"}
-              >
-                {isGenerating ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Send className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-            <p className="mt-1.5 text-xs text-muted-foreground">
-              Enter — отправить, Shift&nbsp;+&nbsp;Enter — новая строка
-            </p>
-          </form>
-        </div>
-      </section>
-
-      {/* Document Preview */}
-      <section
-        className="flex h-[65vh] w-full flex-col md:h-full md:w-1/2 lg:w-3/5"
-        aria-label="Документ вакансии"
-      >
-        <header className="border-b p-3 md:p-4">
-          <h2 className="text-base font-semibold md:text-lg">
-            Документ вакансии
-          </h2>
-          <p className="text-xs text-muted-foreground md:text-sm">
-            Обновляется в&nbsp;реальном времени
-          </p>
-        </header>
-
-        <DocumentPreview
-          document={document}
-          hasMinimalContent={hasMinimalContent}
-          onSave={handleSave}
-          isSaving={isSaving}
-          isGenerating={isGenerating}
-          editingSection={editingSection}
-          onEditSection={setEditingSection}
-          onUpdateSection={updateDocumentSection}
-        />
-      </section>
-
-      {/* Company Settings Edit Dialog */}
-      <Dialog open={showSettingsEdit} onOpenChange={setShowSettingsEdit}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Настройки компании</DialogTitle>
-            <DialogDescription>
-              Настройте параметры бота-рекрутера для вашей компании
-            </DialogDescription>
-          </DialogHeader>
-
-          {botSettings && (
+          {/* Input */}
+          <div className="border-t bg-background p-3 md:p-4">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                const formData = new FormData(e.target as HTMLFormElement);
-                const data = {
-                  companyName: formData.get("companyName") as string,
-                  companyDescription:
-                    (formData.get("companyDescription") as string) || undefined,
-                  companyWebsite:
-                    (formData.get("companyWebsite") as string) || undefined,
-                  botName: formData.get("botName") as string,
-                  botRole: formData.get("botRole") as string,
-                };
-
-                updateSettingsMutation.mutate({
-                  workspaceId,
-                  data,
-                });
+                handleSend();
               }}
-              className="space-y-4"
             >
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="companyName">Название компании</Label>
-                  <Input
-                    id="companyName"
-                    name="companyName"
-                    defaultValue={botSettings.companyName}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="botName">Имя бота</Label>
-                  <Input
-                    id="botName"
-                    name="botName"
-                    defaultValue={botSettings.botName}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="companyDescription">Описание компании</Label>
+              <div className="relative">
                 <Textarea
-                  id="companyDescription"
-                  name="companyDescription"
-                  defaultValue={botSettings.companyDescription || ""}
-                  placeholder="Расскажите о деятельности компании..."
-                  rows={3}
+                  ref={textareaRef}
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Опишите вакансию или выберите вариант выше…"
+                  disabled={isGenerating}
+                  className="min-h-[60px] resize-none pr-12 text-base md:min-h-[80px]"
+                  style={{ fontSize: "16px", touchAction: "manipulation" }}
+                  autoComplete="off"
+                  name="vacancy-message"
+                  aria-label="Сообщение"
                 />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="companyWebsite">Сайт компании</Label>
-                  <Input
-                    id="companyWebsite"
-                    name="companyWebsite"
-                    type="url"
-                    defaultValue={botSettings.companyWebsite || ""}
-                    placeholder="https://example.com"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="botRole">Роль бота</Label>
-                  <Input
-                    id="botRole"
-                    name="botRole"
-                    defaultValue={botSettings.botRole}
-                    placeholder="HR-менеджер"
-                    required
-                  />
-                </div>
-              </div>
-
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setShowSettingsEdit(false)}
-                  disabled={updateSettingsMutation.isPending}
-                >
-                  Отмена
-                </Button>
                 <Button
                   type="submit"
-                  disabled={updateSettingsMutation.isPending}
+                  disabled={isGenerating || !inputValue.trim()}
+                  size="icon"
+                  className="absolute bottom-2 right-2 h-8 w-8 rounded-full transition-all hover:scale-105 active:scale-95 md:h-9 md:w-9"
+                  style={{ touchAction: "manipulation" }}
+                  aria-label={isGenerating ? "Генерация…" : "Отправить"}
                 >
-                  {updateSettingsMutation.isPending
-                    ? "Сохранение..."
-                    : "Сохранить"}
+                  {isGenerating ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4" />
+                  )}
                 </Button>
-              </DialogFooter>
+              </div>
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                Enter — отправить, Shift&nbsp;+&nbsp;Enter — новая строка
+              </p>
             </form>
-          )}
-        </DialogContent>
-      </Dialog>
-    </main>
+          </div>
+        </section>
+
+        {/* Document Preview */}
+        <section
+          className="flex h-[65vh] w-full flex-col md:h-full md:w-1/2 lg:w-3/5"
+          aria-label="Документ вакансии"
+        >
+          <header className="border-b p-3 md:p-4">
+            <h2 className="text-base font-semibold md:text-lg">
+              Документ вакансии
+            </h2>
+            <p className="text-xs text-muted-foreground md:text-sm">
+              Обновляется в&nbsp;реальном времени
+            </p>
+          </header>
+
+          <DocumentPreview
+            document={document}
+            hasMinimalContent={hasMinimalContent}
+            onSave={handleSave}
+            isSaving={isSaving}
+            isGenerating={isGenerating}
+            editingSection={editingSection}
+            onEditSection={setEditingSection}
+            onUpdateSection={updateDocumentSection}
+          />
+        </section>
+
+        {/* Company Settings Edit Dialog */}
+        <Dialog open={showSettingsEdit} onOpenChange={setShowSettingsEdit}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Настройки компании</DialogTitle>
+              <DialogDescription>
+                Настройте параметры бота-рекрутера для вашей компании
+              </DialogDescription>
+            </DialogHeader>
+
+            {botSettings && (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const formData = new FormData(e.target as HTMLFormElement);
+                  const data = {
+                    companyName: formData.get("companyName") as string,
+                    companyDescription:
+                      (formData.get("companyDescription") as string) ||
+                      undefined,
+                    companyWebsite:
+                      (formData.get("companyWebsite") as string) || undefined,
+                    botName: formData.get("botName") as string,
+                    botRole: formData.get("botRole") as string,
+                  };
+
+                  updateSettingsMutation.mutate({
+                    workspaceId,
+                    data,
+                  });
+                }}
+                className="space-y-4"
+              >
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="companyName">Название компании</Label>
+                    <Input
+                      id="companyName"
+                      name="companyName"
+                      defaultValue={botSettings.companyName}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="botName">Имя бота</Label>
+                    <Input
+                      id="botName"
+                      name="botName"
+                      defaultValue={botSettings.botName}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="companyDescription">Описание компании</Label>
+                  <Textarea
+                    id="companyDescription"
+                    name="companyDescription"
+                    defaultValue={botSettings.companyDescription || ""}
+                    placeholder="Расскажите о деятельности компании..."
+                    rows={3}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="companyWebsite">Сайт компании</Label>
+                    <Input
+                      id="companyWebsite"
+                      name="companyWebsite"
+                      type="url"
+                      defaultValue={botSettings.companyWebsite || ""}
+                      placeholder="https://example.com"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="botRole">Роль бота</Label>
+                    <Input
+                      id="botRole"
+                      name="botRole"
+                      defaultValue={botSettings.botRole}
+                      placeholder="HR-менеджер"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <DialogFooter>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowSettingsEdit(false)}
+                    disabled={updateSettingsMutation.isPending}
+                  >
+                    Отмена
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={updateSettingsMutation.isPending}
+                  >
+                    {updateSettingsMutation.isPending
+                      ? "Сохранение..."
+                      : "Сохранить"}
+                  </Button>
+                </DialogFooter>
+              </form>
+            )}
+          </DialogContent>
+        </Dialog>
+      </main>
+    </>
   );
 }

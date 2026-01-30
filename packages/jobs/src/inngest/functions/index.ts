@@ -5,6 +5,9 @@
 // Candidate functions
 export * from "./candidate";
 
+// Draft functions
+export * from "./draft";
+
 // Freelance functions
 export * from "./freelance";
 
@@ -32,6 +35,7 @@ import {
   sendCandidateWelcomeFunction,
   sendOfferFunction,
 } from "./candidate";
+import { cleanupExpiredDraftsFunction } from "./draft";
 import {
   analyzeFreelanceResponseFunction,
   generateFreelanceInvitationFunction,
@@ -112,6 +116,8 @@ export const inngestFunctions: InngestFunction.Any[] = [
   sendCandidateWelcomeBatchFunction,
   sendCandidateWelcomeFunction,
   sendOfferFunction,
+  // Draft
+  cleanupExpiredDraftsFunction,
   // Freelance
   analyzeFreelanceResponseFunction,
   generateFreelanceInvitationFunction,
