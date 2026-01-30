@@ -4,6 +4,9 @@ import type { CreateDraftInput, UpdateDraftInput } from "@qbs-autonaim/shared";
 import type { ErrorHandler } from "../utils/error-handler";
 import { ErrorCategory, ErrorSeverity } from "../utils/error-handler";
 
+// Реэкспорт типов для использования в других модулях
+export type { CreateDraftInput, UpdateDraftInput } from "@qbs-autonaim/shared";
+
 /**
  * Сервис бизнес-логики для работы с черновиками вакансий
  * Обеспечивает автоматическое сохранение прогресса создания вакансии через AI-бота

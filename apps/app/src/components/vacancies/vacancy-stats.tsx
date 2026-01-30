@@ -19,7 +19,10 @@ import {
   IconUsers,
 } from "@tabler/icons-react";
 
-const RESPONSE_QUALITY_CLASSES = {
+const RESPONSE_QUALITY_CLASSES: Record<
+  string,
+  { text: string; bg: string; badge: string }
+> = {
   green: {
     text: "text-green-600",
     bg: "bg-green-500/10",
@@ -34,7 +37,10 @@ const RESPONSE_QUALITY_CLASSES = {
   red: { text: "text-red-600", bg: "bg-red-500/10", badge: "text-red-700" },
 };
 
-const TIME_QUALITY_CLASSES = {
+const TIME_QUALITY_CLASSES: Record<
+  string,
+  { text: string; bg: string; badge: string }
+> = {
   green: {
     text: "text-green-600",
     bg: "bg-green-500/10",
@@ -167,15 +173,18 @@ export function VacancyStats({
       value: avgResponsesPerVacancy,
       description: `${responseQuality.label} активность`,
       icon: IconChartBar,
-      color: RESPONSE_QUALITY_CLASSES[responseQuality.color].text,
-      bg: RESPONSE_QUALITY_CLASSES[responseQuality.color].bg,
+      color:
+        RESPONSE_QUALITY_CLASSES[responseQuality.color]?.text ??
+        "text-blue-600",
+      bg:
+        RESPONSE_QUALITY_CLASSES[responseQuality.color]?.bg ?? "bg-blue-500/10",
       tooltip: "Среднее количество откликов на одну активную вакансию",
       action: (
         <Badge
           variant="outline"
           className={cn(
             "border-none px-1.5",
-            `${RESPONSE_QUALITY_CLASSES[responseQuality.color].bg} ${RESPONSE_QUALITY_CLASSES[responseQuality.color].badge}`,
+            `${RESPONSE_QUALITY_CLASSES[responseQuality.color]?.bg ?? "bg-blue-500/10"} ${RESPONSE_QUALITY_CLASSES[responseQuality.color]?.badge ?? "text-blue-700"}`,
           )}
         >
           {responseQuality.label}
@@ -207,8 +216,12 @@ export function VacancyStats({
             value: avgTimeToClose,
             description: `${timeQuality?.label || "Среднее"} время`,
             icon: IconClock,
-            color: TIME_QUALITY_CLASSES[timeQuality?.color || "blue"].text,
-            bg: TIME_QUALITY_CLASSES[timeQuality?.color || "blue"].bg,
+            color:
+              TIME_QUALITY_CLASSES[timeQuality?.color || "blue"]?.text ??
+              "text-blue-600",
+            bg:
+              TIME_QUALITY_CLASSES[timeQuality?.color || "blue"]?.bg ??
+              "bg-blue-500/10",
             tooltip: "Среднее время от публикации до закрытия вакансии",
             suffix: "дн.",
             action: timeQuality && (
@@ -216,7 +229,7 @@ export function VacancyStats({
                 variant="outline"
                 className={cn(
                   "border-none px-1.5",
-                  `${TIME_QUALITY_CLASSES[timeQuality.color].bg} ${TIME_QUALITY_CLASSES[timeQuality.color].badge}`,
+                  `${TIME_QUALITY_CLASSES[timeQuality.color]?.bg ?? "bg-blue-500/10"} ${TIME_QUALITY_CLASSES[timeQuality.color]?.badge ?? "text-blue-700"}`,
                 )}
               >
                 {timeQuality.label}
