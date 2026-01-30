@@ -4,8 +4,8 @@
  * Проверяет интеграцию между SessionManager и ResumeParser
  */
 
+import { describe, expect, it } from "bun:test";
 import type { ParsedResume } from "@qbs-autonaim/db";
-import { describe, expect, it } from "vitest";
 
 import type { CreateSessionInput } from "./types";
 

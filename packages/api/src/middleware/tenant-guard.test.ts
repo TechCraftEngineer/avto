@@ -14,9 +14,9 @@
  * tenant data isolation security.
  */
 
+import { describe, expect, it } from "bun:test";
 import type { DbClient, WorkspaceRepository } from "@qbs-autonaim/db";
 import * as fc from "fast-check";
-import { describe, expect, it } from "vitest";
 import type { AuditLogger } from "../services/audit-logger";
 import {
   TenantGuard,

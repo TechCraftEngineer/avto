@@ -15,6 +15,11 @@
       ],
       "env": ["NODE_ENV"]
     },
+    "test": {
+      "dependsOn": ["^build"],
+      "outputs": [],
+      "cache": false
+    },
     "dev": {
       "dependsOn": ["^dev"],
       "cache": false,

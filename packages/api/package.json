@@ -21,8 +21,8 @@
     "lint": "biome lint .",
     "check": "biome check .",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "test": "bun test",
+    "test:watch": "bun test --watch",
     "sync-gig-counts": "bun run --env-file ../../.env src/scripts/sync-gig-response-counts.ts"
   },
   "dependencies": {
@@ -44,7 +44,6 @@
     "@types/sanitize-html": "^2.16.0",
     "fast-check": "^4.5.3",
     "tsdown": "0.20.1",
-    "typescript": "5.9.3",
-    "vitest": "^4.0.18"
+    "typescript": "5.9.3"
   }
 }

@@ -7,7 +7,7 @@
  * - filtering and pagination work correctly
  */
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "bun:test";
 import { z } from "zod";
 
 describe("Ranking API Endpoints", () => {

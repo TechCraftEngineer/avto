@@ -9,8 +9,8 @@
  * security and compliance requirements.
  */
 
+import { describe, expect, it } from "bun:test";
 import * as fc from "fast-check";
-import { describe, expect, it } from "vitest";
 
 import {
   isValidStatusTransition,

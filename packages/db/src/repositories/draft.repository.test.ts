@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, mock } from "bun:test";
 import type { DbClient, VacancyDraft } from "../index";
 import { DraftRepository } from "./draft.repository";
 
@@ -32,10 +32,10 @@ describe("DraftRepository - Фоновая очистка", () => {
     mockDb = {
       query: {
         vacancyDraft: {
-          findMany: vi.fn(),
+          findMany: mock(),
         },
       },
-      delete: vi.fn(),
+      delete: mock(),
     } as unknown as DbClient;
 
     repository = new DraftRepository(mockDb);
@@ -53,9 +53,7 @@ describe("DraftRepository - Фоновая очистка", () => {
       };
 
       (
-        mockDb.query.vacancyDraft.findMany as unknown as ReturnType<
-          typeof vi.fn
-        >
+        mockDb.query.vacancyDraft.findMany as unknown as ReturnType<typeof mock>
       ).mockResolvedValue([expiredDraft]);
 
       const result = await repository.findExpired(7);
@@ -66,9 +64,7 @@ describe("DraftRepository - Фоновая очистка", () => {
 
     it("должен вернуть пустой массив, если нет устаревших черновиков", async () => {
       (
-        mockDb.query.vacancyDraft.findMany as unknown as ReturnType<
-          typeof vi.fn
-        >
+        mockDb.query.vacancyDraft.findMany as unknown as ReturnType<typeof mock>
       ).mockResolvedValue([]);
 
       const result = await repository.findExpired(7);
@@ -82,9 +78,7 @@ describe("DraftRepository - Фоновая очистка", () => {
       expectedDate.setDate(expectedDate.getDate() - daysOld);
 
       (
-        mockDb.query.vacancyDraft.findMany as unknown as ReturnType<
-          typeof vi.fn
-        >
+        mockDb.query.vacancyDraft.findMany as unknown as ReturnType<typeof mock>
       ).mockResolvedValue([]);
 
       await repository.findExpired(daysOld);
@@ -105,9 +99,9 @@ describe("DraftRepository - Фоновая очистка", () => {
         { ...mockDraft, id: "draft-3", updatedAt: oldDate },
       ];
 
-      (mockDb.delete as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-        where: vi.fn().mockReturnValue({
-          returning: vi.fn().mockResolvedValue(expiredDrafts),
+      (mockDb.delete as unknown as ReturnType<typeof mock>).mockReturnValue({
+        where: mock().mockReturnValue({
+          returning: mock().mockResolvedValue(expiredDrafts),
         }),
       });
 
@@ -118,9 +112,9 @@ describe("DraftRepository - Фоновая очистка", () => {
     });
 
     it("должен вернуть 0, если нет черновиков для удаления", async () => {
-      (mockDb.delete as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-        where: vi.fn().mockReturnValue({
-          returning: vi.fn().mockResolvedValue([]),
+      (mockDb.delete as unknown as ReturnType<typeof mock>).mockReturnValue({
+        where: mock().mockReturnValue({
+          returning: mock().mockResolvedValue([]),
         }),
       });
 
@@ -132,9 +126,9 @@ describe("DraftRepository - Фоновая очистка", () => {
     it("должен удалять черновики старше указанного количества дней", async () => {
       const daysOld = 14; // 14 дней
 
-      (mockDb.delete as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-        where: vi.fn().mockReturnValue({
-          returning: vi.fn().mockResolvedValue([mockDraft]),
+      (mockDb.delete as unknown as ReturnType<typeof mock>).mockReturnValue({
+        where: mock().mockReturnValue({
+          returning: mock().mockResolvedValue([mockDraft]),
         }),
       });
 
