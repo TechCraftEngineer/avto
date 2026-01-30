@@ -1,17 +1,12 @@
-import { and, desc, eq } from "@qbs-autonaim/db";
+import { and, eq } from "@qbs-autonaim/db";
 import { vacancy } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../../trpc";
 
-export const listActive = protectedProcedure
-  .input(
-    z.object({
-      workspaceId: workspaceIdSchema,
-      limit: z.number().min(1).max(100).default(5),
-    }),
-  )
+export const get = protectedProcedure
+  .input(z.object({ id: z.string(), workspaceId: workspaceIdSchema }))
   .query(async ({ ctx, input }) => {
     // Проверка доступа к workspace
     const access = await ctx.workspaceRepository.checkAccess(
@@ -26,12 +21,13 @@ export const listActive = protectedProcedure
       });
     }
 
-    return ctx.db.query.vacancy.findMany({
+    return ctx.db.query.vacancy.findFirst({
       where: and(
+        eq(vacancy.id, input.id),
         eq(vacancy.workspaceId, input.workspaceId),
-        eq(vacancy.isActive, true),
       ),
-      orderBy: [desc(vacancy.createdAt)],
-      limit: input.limit,
+      with: {
+        publications: true,
+      },
     });
   });

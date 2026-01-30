@@ -2,7 +2,7 @@ import { vacancy } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../../trpc";
 
 const createVacancyFromChatSchema = z.object({
   workspaceId: workspaceIdSchema,

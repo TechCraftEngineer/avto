@@ -2,7 +2,7 @@ import { generateText } from "@qbs-autonaim/lib/ai";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../../trpc";
 
 const improveInstructionsInputSchema = z.object({
   vacancyId: z.string(),
@@ -112,7 +112,7 @@ ${field.guidelines}
 - Для списков вопросов: каждый вопрос с новой строки, нумерованный
 - Максимум 5000 символов
 
-ВАЖНО: 
+ВАЖНО:
 - Верни ТОЛЬКО улучшенный текст, без пояснений, комментариев или вводных фраз
 - Количество пунктов/вопросов должно остаться таким же, как в оригинале`;
 }

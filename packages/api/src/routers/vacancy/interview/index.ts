@@ -1,0 +1,1 @@
+export { getInterviewLink } from "./get-interview-link";

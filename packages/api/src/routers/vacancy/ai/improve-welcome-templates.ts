@@ -2,7 +2,7 @@ import { generateText } from "@qbs-autonaim/lib/ai";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../../trpc";
 
 const improveWelcomeTemplatesInputSchema = z.object({
   vacancyId: z.string(),

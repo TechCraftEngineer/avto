@@ -1,16 +1,15 @@
-﻿import { and, count, eq, gte, sql } from "@qbs-autonaim/db";
+import { and, count, eq, gte, isNull, sql } from "@qbs-autonaim/db";
 import {
   responseScreening,
   response as responseTable,
-  vacancy,
 } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../../trpc";
 
-export const analytics = protectedProcedure
-  .input(z.object({ vacancyId: z.string(), workspaceId: workspaceIdSchema }))
+export const dashboardStats = protectedProcedure
+  .input(z.object({ workspaceId: workspaceIdSchema }))
   .query(async ({ ctx, input }) => {
     // Проверка доступа к workspace
     const access = await ctx.workspaceRepository.checkAccess(
@@ -25,34 +24,44 @@ export const analytics = protectedProcedure
       });
     }
 
-    // Проверка принадлежности вакансии к workspace
-    const vacancyCheck = await ctx.db.query.vacancy.findFirst({
-      where: and(
-        eq(vacancy.id, input.vacancyId),
-        eq(vacancy.workspaceId, input.workspaceId),
-      ),
+    const userVacancies = await ctx.db.query.vacancy.findMany({
+      where: (vacancy, { eq }) => eq(vacancy.workspaceId, input.workspaceId),
+      orderBy: (vacancy, { desc }) => [desc(vacancy.createdAt)],
     });
 
-    if (!vacancyCheck) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "Вакансия не найдена",
-      });
+    const vacancyIds = userVacancies.map((v) => v.id);
+
+    if (vacancyIds.length === 0) {
+      return {
+        totalVacancies: 0,
+        activeVacancies: 0,
+        totalResponses: 0,
+        processedResponses: 0,
+        highScoreResponses: 0,
+        topScoreResponses: 0,
+        avgScore: 0,
+        newResponses: 0,
+      };
     }
-    // Получаем общее количество откликов
+
+    const totalVacancies = userVacancies.length;
+    const activeVacancies = userVacancies.filter((v) => v.isActive).length;
+
     const totalResponsesResult = await ctx.db
       .select({ count: count() })
       .from(responseTable)
       .where(
         and(
           eq(responseTable.entityType, "vacancy"),
-          eq(responseTable.entityId, input.vacancyId),
+          sql`${responseTable.entityId} IN (${sql.join(
+            vacancyIds.map((id) => sql`${id}`),
+            sql`, `,
+          )})`,
         ),
       );
 
     const totalResponses = totalResponsesResult[0]?.count ?? 0;
 
-    // Получаем количество обработанных откликов (с скринингом)
     const processedResponsesResult = await ctx.db
       .select({ count: count() })
       .from(responseTable)
@@ -63,13 +72,15 @@ export const analytics = protectedProcedure
       .where(
         and(
           eq(responseTable.entityType, "vacancy"),
-          eq(responseTable.entityId, input.vacancyId),
+          sql`${responseTable.entityId} IN (${sql.join(
+            vacancyIds.map((id) => sql`${id}`),
+            sql`, `,
+          )})`,
         ),
       );
 
     const processedResponses = processedResponsesResult[0]?.count ?? 0;
 
-    // Получаем количество кандидатов со скорингом >= 3
     const highScoreResponsesResult = await ctx.db
       .select({ count: count() })
       .from(responseTable)
@@ -80,14 +91,16 @@ export const analytics = protectedProcedure
       .where(
         and(
           eq(responseTable.entityType, "vacancy"),
-          eq(responseTable.entityId, input.vacancyId),
+          sql`${responseTable.entityId} IN (${sql.join(
+            vacancyIds.map((id) => sql`${id}`),
+            sql`, `,
+          )})`,
           gte(responseScreening.score, 3),
         ),
       );
 
     const highScoreResponses = highScoreResponsesResult[0]?.count ?? 0;
 
-    // Получаем количество кандидатов со скорингом >= 4
     const topScoreResponsesResult = await ctx.db
       .select({ count: count() })
       .from(responseTable)
@@ -98,14 +111,16 @@ export const analytics = protectedProcedure
       .where(
         and(
           eq(responseTable.entityType, "vacancy"),
-          eq(responseTable.entityId, input.vacancyId),
+          sql`${responseTable.entityId} IN (${sql.join(
+            vacancyIds.map((id) => sql`${id}`),
+            sql`, `,
+          )})`,
           gte(responseScreening.score, 4),
         ),
       );
 
     const topScoreResponses = topScoreResponsesResult[0]?.count ?? 0;
 
-    // Получаем средний скоринг
     const avgScoreResult = await ctx.db
       .select({
         avg: sql<number>`COALESCE(AVG(${responseScreening.score}), 0)`,
@@ -118,17 +133,43 @@ export const analytics = protectedProcedure
       .where(
         and(
           eq(responseTable.entityType, "vacancy"),
-          eq(responseTable.entityId, input.vacancyId),
+          sql`${responseTable.entityId} IN (${sql.join(
+            vacancyIds.map((id) => sql`${id}`),
+            sql`, `,
+          )})`,
         ),
       );
 
     const avgScore = avgScoreResult[0]?.avg ?? 0;
 
+    const newResponsesResult = await ctx.db
+      .select({ count: count() })
+      .from(responseTable)
+      .leftJoin(
+        responseScreening,
+        eq(responseTable.id, responseScreening.responseId),
+      )
+      .where(
+        and(
+          eq(responseTable.entityType, "vacancy"),
+          sql`${responseTable.entityId} IN (${sql.join(
+            vacancyIds.map((id) => sql`${id}`),
+            sql`, `,
+          )})`,
+          isNull(responseScreening.id),
+        ),
+      );
+
+    const newResponses = newResponsesResult[0]?.count ?? 0;
+
     return {
+      totalVacancies,
+      activeVacancies,
       totalResponses,
       processedResponses,
-      highScoreResponses, // >= 3
-      topScoreResponses, // >= 4
-      avgScore: Math.round(avgScore * 10) / 10, // Округляем до 1 знака
+      highScoreResponses,
+      topScoreResponses,
+      avgScore: Math.round(avgScore * 10) / 10,
+      newResponses,
     };
   });

@@ -1,22 +1,28 @@
 import type { TRPCRouterRecord } from "@trpc/server";
 
-import { analytics } from "./analytics";
-import { chatGenerate } from "./chat-generate";
-import { create } from "./create";
-import { createFromChat } from "./create-from-chat";
-import { dashboardStats } from "./dashboard-stats";
-import { deleteVacancy } from "./delete";
-import { get } from "./get";
-import { getInterviewLink } from "./get-interview-link";
-import { improveInstructions } from "./improve-instructions";
-import { improveWelcomeTemplates } from "./improve-welcome-templates";
-import { list } from "./list";
-import { listActive } from "./list-active";
+import {
+  analytics,
+  dashboardStats,
+  responsesChart,
+} from "./analytics";
+import {
+  chatGenerate,
+  improveInstructions,
+  improveWelcomeTemplates,
+} from "./ai";
+import {
+  create,
+  get,
+  list,
+  listActive,
+  update,
+  updateDetails,
+  updateFull,
+  deleteVacancy,
+} from "./crud";
+import { getInterviewLink } from "./interview";
 import { responsesRouter } from "./responses";
-import { responsesChart } from "./responses-chart";
-import { update } from "./update";
-import { updateDetails } from "./update-details";
-import { updateFull } from "./update-full";
+import { createFromChat } from "./special";
 
 export const vacancyRouter = {
   list,
