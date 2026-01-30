@@ -116,6 +116,7 @@ export const importArchivedVacanciesFunction = inngest.createFunction(
             imported: 0,
             updated: 0,
             failed: 0,
+            error: errorMessage,
           }),
         );
 

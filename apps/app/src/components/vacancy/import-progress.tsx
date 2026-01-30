@@ -109,10 +109,19 @@ export function ImportProgress({
         if (total === 0) {
           return "Новых вакансий не найдено";
         }
-        return `Загружено ${total} ${total === 1 ? "вакансия" : "вакансий"}`;
+
+        const parts: string[] = [];
+        if (resultData.imported > 0) {
+          parts.push(`${resultData.imported} новых`);
+        }
+        if (resultData.updated > 0) {
+          parts.push(`${resultData.updated} обновлено`);
+        }
+
+        return `Загружено: ${parts.join(", ")}`;
       }
 
-      return "Не удалось импортировать вакансии";
+      return resultData.error || "Не удалось импортировать вакансии";
     }
 
     return "";
@@ -135,9 +144,11 @@ export function ImportProgress({
           <Loader2 className="h-5 w-5 animate-spin mt-0.5" />
         )}
 
-        <div className="flex-1 space-y-2">
+        <div className="flex-1 space-y-2 min-w-0">
           <AlertTitle>{getTitle()}</AlertTitle>
-          <AlertDescription>{getStatusMessage()}</AlertDescription>
+          <AlertDescription className="wrap-break-word">
+            {getStatusMessage()}
+          </AlertDescription>
 
           {/* Прогресс-бар для массового импорта */}
           {progressData?.total &&
@@ -155,34 +166,40 @@ export function ImportProgress({
             )}
 
           {/* Результаты для массового импорта */}
-          {resultData?.success && type !== "by-url" && (
-            <div className="grid grid-cols-3 gap-2 pt-2 text-sm">
-              {resultData.imported > 0 && (
-                <div className="text-center">
-                  <div className="font-bold text-green-600">
-                    {resultData.imported}
+          {resultData &&
+            type !== "by-url" &&
+            (resultData.imported > 0 ||
+              resultData.updated > 0 ||
+              resultData.failed > 0) && (
+              <div className="grid grid-cols-3 gap-2 pt-2 text-sm">
+                {resultData.imported > 0 && (
+                  <div className="text-center">
+                    <div className="font-bold text-green-600">
+                      {resultData.imported}
+                    </div>
+                    <div className="text-xs text-muted-foreground">Новых</div>
                   </div>
-                  <div className="text-xs text-muted-foreground">Новых</div>
-                </div>
-              )}
-              {resultData.updated > 0 && (
-                <div className="text-center">
-                  <div className="font-bold text-blue-600">
-                    {resultData.updated}
+                )}
+                {resultData.updated > 0 && (
+                  <div className="text-center">
+                    <div className="font-bold text-blue-600">
+                      {resultData.updated}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      Обновлено
+                    </div>
                   </div>
-                  <div className="text-xs text-muted-foreground">Обновлено</div>
-                </div>
-              )}
-              {resultData.failed > 0 && (
-                <div className="text-center">
-                  <div className="font-bold text-destructive">
-                    {resultData.failed}
+                )}
+                {resultData.failed > 0 && (
+                  <div className="text-center">
+                    <div className="font-bold text-destructive">
+                      {resultData.failed}
+                    </div>
+                    <div className="text-xs text-muted-foreground">Ошибок</div>
                   </div>
-                  <div className="text-xs text-muted-foreground">Ошибок</div>
-                </div>
-              )}
-            </div>
-          )}
+                )}
+              </div>
+            )}
 
           {isCompleted && (
             <p className="text-xs text-muted-foreground pt-1">

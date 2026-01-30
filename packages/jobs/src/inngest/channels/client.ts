@@ -274,6 +274,7 @@ export const importNewVacanciesChannel = channel(
         imported: z.number().int().nonnegative(),
         updated: z.number().int().nonnegative(),
         failed: z.number().int().nonnegative(),
+        error: z.string().optional(),
       }),
     ),
   );
@@ -304,6 +305,7 @@ export const importArchivedVacanciesChannel = channel(
         imported: z.number().int().nonnegative(),
         updated: z.number().int().nonnegative(),
         failed: z.number().int().nonnegative(),
+        error: z.string().optional(),
       }),
     ),
   );
