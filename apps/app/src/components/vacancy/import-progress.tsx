@@ -132,17 +132,17 @@ export function ImportProgress({
       <div className="flex items-start gap-3">
         {isCompleted ? (
           resultData?.success ? (
-            <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+            <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
           ) : (
-            <XCircle className="h-5 w-5 mt-0.5 flex-shrink-0" />
+            <XCircle className="h-5 w-5 mt-0.5 shrink-0" />
           )
         ) : (
-          <Loader2 className="h-5 w-5 animate-spin mt-0.5 flex-shrink-0" />
+          <Loader2 className="h-5 w-5 animate-spin mt-0.5 shrink-0" />
         )}
 
         <div className="flex-1 space-y-2 overflow-hidden">
           <AlertTitle>{getTitle()}</AlertTitle>
-          <AlertDescription className="whitespace-pre-wrap break-words overflow-auto max-h-[200px]">
+          <AlertDescription className="whitespace-pre-wrap wrap-break-word overflow-auto max-h-[200px]">
             {getStatusMessage()}
           </AlertDescription>
 

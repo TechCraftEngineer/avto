@@ -139,6 +139,130 @@ export async function runHHParser(
 }
 
 /**
+ * Получает список архивных вакансий без полного импорта
+ */
+export async function fetchArchivedVacanciesList(workspaceId: string): Promise<
+  Array<{
+    externalId: string;
+    title: string;
+    responses: string;
+    views: string;
+    region: string;
+  }>
+> {
+  console.log(`🚀 Получение списка архивных вакансий`);
+
+  const credentials = await getIntegrationCredentials(db, "hh", workspaceId);
+  if (!credentials?.email || !credentials?.password) {
+    throw new Error("Не найдены учетные данные для HH.ru");
+  }
+
+  const browser = await puppeteer.launch(HH_CONFIG.puppeteer);
+
+  try {
+    const page = await browser.newPage();
+
+    await page.setUserAgent(HH_CONFIG.userAgent);
+    await page.setViewport({ width: 1920, height: 1080 });
+
+    // Load existing cookies if available
+    const savedCookies = await loadCookies("hh", workspaceId);
+    if (savedCookies && savedCookies.length > 0) {
+      await page.setCookie(...savedCookies);
+    }
+
+    // Check authentication and perform login if needed
+    const loggedIn = await checkAndPerformLogin(
+      page,
+      credentials.email,
+      credentials.password,
+      workspaceId,
+    );
+
+    if (!loggedIn) {
+      throw new Error("Не удалось войти в систему HeadHunter");
+    }
+
+    // Переходим на страницу архивных вакансий
+    await page.goto("https://hh.ru/employer/vacancies/archived", {
+      waitUntil: "networkidle2",
+    });
+
+    // Ждем загрузки списка вакансий
+    try {
+      await page.waitForSelector(
+        'div[data-qa^="vacancies-dashboard-vacancy"]',
+        {
+          timeout: 10000,
+        },
+      );
+    } catch (_e) {
+      // Нет архивных вакансий
+      console.log("⚠️ Архивные вакансии не найдены");
+      return [];
+    }
+
+    // Получаем список вакансий
+    const vacancies = await page.$$eval(
+      'div[data-qa^="vacancies-dashboard-vacancy"]',
+      (elements: Element[]) => {
+        return elements.map((el) => {
+          const getText = (selector: string) => {
+            const node = el.querySelector(selector);
+            return node ? node.textContent?.trim() || "" : "";
+          };
+
+          const cleanNumber = (text: string) => text.replace(/\D/g, "");
+
+          // Извлекаем ID вакансии из data-vacancy-id или из data-qa атрибута
+          let externalId = el.getAttribute("data-vacancy-id") || "";
+
+          if (!externalId) {
+            // Ищем элемент с data-qa, содержащим ID вакансии
+            const nameElement = el.querySelector(
+              '[data-qa^="vacancies-dashboard-vacancy--archive-name_"]',
+            );
+            if (nameElement) {
+              const dataQa = nameElement.getAttribute("data-qa") || "";
+              // Извлекаем ID из строки типа "vacancies-dashboard-vacancy--archive-name_128580152"
+              const match = dataQa.match(/_(\d+)$/);
+              if (match?.[1]) {
+                externalId = match[1];
+              }
+            }
+          }
+
+          return {
+            externalId,
+            title: getText(
+              '[data-qa^="vacancies-dashboard-vacancy--archive-name"]',
+            ),
+            responses: getText(
+              '[data-qa="vacancies-dashboard-vacancy-responses-count-total"]',
+            ),
+            views: cleanNumber(
+              getText(
+                '[data-analytics-button-name="employer_vacancies_counter_views"]',
+              ),
+            ),
+            region: getText('[data-qa="table-flexible-cell-area"]'),
+          };
+        });
+      },
+    );
+
+    console.log(`✅ Получено ${vacancies.length} архивных вакансий`);
+
+    return vacancies;
+  } catch (error) {
+    console.error("❌ Ошибка при получении списка архивных вакансий:", error);
+    throw error;
+  } finally {
+    await closeBrowserSafely(browser);
+  }
+}
+
+/**
  * Импортирует одну вакансию по её externalId
  */
 export async function importSingleVacancy(

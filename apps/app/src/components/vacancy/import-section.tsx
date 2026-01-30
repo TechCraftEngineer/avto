@@ -31,16 +31,20 @@ import {
 import NextLink from "next/link";
 import { useState } from "react";
 import {
+  fetchArchivedVacanciesList,
+  fetchArchivedVacanciesListToken,
   fetchImportArchivedVacanciesToken,
   fetchImportNewVacanciesToken,
   fetchImportVacancyByUrlToken,
   triggerImportArchivedVacancies,
   triggerImportNewVacancies,
+  triggerImportSelectedArchivedVacancies,
   triggerImportVacancyByUrl,
 } from "~/actions/vacancy-import";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useWorkspaceParams } from "~/hooks/use-workspace-params";
 import { useTRPC } from "~/trpc/react";
+import { ArchivedVacanciesSelector } from "./archived-vacancies-selector";
 import { ImportProgress } from "./import-progress";
 
 export function VacancyImportSection() {
@@ -51,6 +55,13 @@ export function VacancyImportSection() {
   const [isConfirmNewDialogOpen, setIsConfirmNewDialogOpen] = useState(false);
   const [isConfirmArchivedDialogOpen, setIsConfirmArchivedDialogOpen] =
     useState(false);
+  const [isSelectingArchivedVacancies, setIsSelectingArchivedVacancies] =
+    useState(false);
+  const [archivedListToken, setArchivedListToken] =
+    useState<Realtime.Subscribe.Token | null>(null);
+  const [archivedListRequestId, setArchivedListRequestId] = useState<
+    string | null
+  >(null);
   const [vacancyUrl, setVacancyUrl] = useState("");
   const [urlError, setUrlError] = useState("");
 
@@ -105,15 +116,48 @@ export function VacancyImportSection() {
     setIsConfirmArchivedDialogOpen(false);
 
     try {
+      setIsSelectingArchivedVacancies(true);
+
+      // Запускаем получение списка вакансий
+      const requestId = await fetchArchivedVacanciesList(workspace.id);
+      setArchivedListRequestId(requestId);
+
+      const token = await fetchArchivedVacanciesListToken(
+        workspace.id,
+        requestId,
+      );
+      setArchivedListToken(token);
+    } catch (error) {
+      console.error("Ошибка получения списка архивных вакансий:", error);
+      setIsSelectingArchivedVacancies(false);
+      setArchivedListToken(null);
+      setArchivedListRequestId(null);
+    }
+  };
+
+  const handleArchivedVacanciesSelected = async (selectedIds: string[]) => {
+    if (!workspace?.id) return;
+
+    setIsSelectingArchivedVacancies(false);
+    setArchivedListToken(null);
+    setArchivedListRequestId(null);
+
+    try {
       setIsImportingArchived(true);
       const token = await fetchImportArchivedVacanciesToken(workspace.id);
       setArchivedVacanciesToken(token);
-      await triggerImportArchivedVacancies(workspace.id);
+      await triggerImportSelectedArchivedVacancies(workspace.id, selectedIds);
     } catch (error) {
       console.error("Ошибка запуска импорта:", error);
       setArchivedVacanciesToken(null);
       setIsImportingArchived(false);
     }
+  };
+
+  const handleArchivedVacanciesCancel = () => {
+    setIsSelectingArchivedVacancies(false);
+    setArchivedListToken(null);
+    setArchivedListRequestId(null);
   };
 
   const handleImportByUrl = async () => {
@@ -227,7 +271,11 @@ export function VacancyImportSection() {
               variant="outline"
               size="sm"
               onClick={() => setIsConfirmArchivedDialogOpen(true)}
-              disabled={isImportingArchived || !workspace?.id}
+              disabled={
+                isImportingArchived ||
+                isSelectingArchivedVacancies ||
+                !workspace?.id
+              }
             >
               <Download className="h-4 w-4 mr-2" />
               Загрузить архивные вакансии
@@ -243,6 +291,17 @@ export function VacancyImportSection() {
               Добавить вакансию по ссылке
             </Button>
           </div>
+
+          {/* Selector for archived vacancies */}
+          {isSelectingArchivedVacancies &&
+            archivedListToken &&
+            archivedListRequestId && (
+              <ArchivedVacanciesSelector
+                token={archivedListToken}
+                onSelect={handleArchivedVacanciesSelected}
+                onCancel={handleArchivedVacanciesCancel}
+              />
+            )}
 
           {/* Progress indicators */}
           {isImportingNew && newVacanciesToken && workspace?.id && (
@@ -321,20 +380,19 @@ export function VacancyImportSection() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Подтверждение импорта</DialogTitle>
+            <DialogTitle>Выбор архивных вакансий</DialogTitle>
             <DialogDescription>
-              Вы уверены, что хотите запустить импорт архивных вакансий?
+              Сейчас будет загружен список архивных вакансий для выбора
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-2 py-4">
             <p className="text-sm text-muted-foreground">
-              Эта операция может занять продолжительное время и загрузить
-              большое количество данных из HeadHunter.
+              Система загрузит список ваших архивных вакансий с HeadHunter, и вы
+              сможете выбрать, какие из них импортировать.
             </p>
             <p className="text-sm text-muted-foreground">
-              Архивные вакансии обычно импортируются один раз для исторических
-              данных.
+              Это позволит избежать загрузки ненужных данных и сэкономит время.
             </p>
           </div>
 
@@ -345,7 +403,7 @@ export function VacancyImportSection() {
             >
               Отмена
             </Button>
-            <Button onClick={handleImportArchived}>Запустить импорт</Button>
+            <Button onClick={handleImportArchived}>Продолжить</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -102,6 +102,82 @@ export async function triggerImportNewVacancies(workspaceId: string) {
 }
 
 /**
+ * Server action для получения списка архивных вакансий для предпросмотра
+ */
+export async function fetchArchivedVacanciesList(workspaceId: string) {
+  const validationResult = workspaceIdSchema.safeParse({ workspaceId });
+
+  if (!validationResult.success) {
+    const errors = validationResult.error.issues
+      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+      .join(", ");
+    throw new Error(`Ошибка валидации: ${errors}`);
+  }
+
+  const requestId = crypto.randomUUID();
+
+  await inngest.send({
+    name: "vacancy/fetch-archived-list",
+    data: {
+      workspaceId: validationResult.data.workspaceId,
+      requestId,
+    },
+  });
+
+  return requestId;
+}
+
+/**
+ * Server action для получения токена подписки на канал получения списка архивных вакансий
+ */
+export async function fetchArchivedVacanciesListToken(
+  workspaceId: string,
+  requestId: string,
+) {
+  const token = await getSubscriptionToken(inngest, {
+    channel: `vacancy/fetch-archived-list/${workspaceId}/${requestId}`,
+    topics: ["progress", "result"],
+  });
+
+  return token;
+}
+
+const selectedVacanciesSchema = z.object({
+  workspaceId: z.string().min(1, "ID рабочей области обязателен"),
+  vacancyIds: z
+    .array(z.string())
+    .min(1, "Выберите хотя бы одну вакансию для импорта"),
+});
+
+/**
+ * Server action для запуска импорта выбранных архивных вакансий
+ */
+export async function triggerImportSelectedArchivedVacancies(
+  workspaceId: string,
+  vacancyIds: string[],
+) {
+  const validationResult = selectedVacanciesSchema.safeParse({
+    workspaceId,
+    vacancyIds,
+  });
+
+  if (!validationResult.success) {
+    const errors = validationResult.error.issues
+      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+      .join(", ");
+    throw new Error(`Ошибка валидации: ${errors}`);
+  }
+
+  await inngest.send({
+    name: "vacancy/import.archived-selected",
+    data: {
+      workspaceId: validationResult.data.workspaceId,
+      vacancyIds: validationResult.data.vacancyIds,
+    },
+  });
+}
+
+/**
  * Server action для запуска импорта архивных вакансий
  */
 export async function triggerImportArchivedVacancies(workspaceId: string) {
