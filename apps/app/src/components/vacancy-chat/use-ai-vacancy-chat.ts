@@ -513,20 +513,26 @@ export function useAIVacancyChat({
       setDocument(vacancyData);
 
       // Восстанавливаем историю сообщений
-      const restoredMessages: ConversationMessage[] = conversationHistory.map(
-        (msg, index) => ({
-          id: `restored-${index}`,
-          role: msg.role,
-          content: msg.content,
-          timestamp: new Date(msg.timestamp),
-        }),
-      );
+      if (conversationHistory.length === 0) {
+        // Если история пуста, показываем приветственное сообщение
+        setMessages([createWelcomeMessage(botSettings)]);
+      } else {
+        const restoredMessages: ConversationMessage[] = conversationHistory.map(
+          (msg, index) => ({
+            id: `restored-${index}`,
+            role: msg.role,
+            content: msg.content,
+            timestamp: new Date(msg.timestamp),
+          }),
+        );
 
-      setMessages(restoredMessages);
+        setMessages(restoredMessages);
+      }
+
       setStatus("idle");
       setError(null);
     },
-    [],
+    [botSettings],
   );
 
   return {

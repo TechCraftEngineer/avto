@@ -1,6 +1,9 @@
 import { DraftRepository, db } from "@qbs-autonaim/db";
 import { inngest } from "../../client";
 
+// Константа для настройки периода хранения черновиков
+const EXPIRED_DAYS = 7;
+
 /**
  * Inngest функция для фоновой очистки устаревших черновиков
  * Удаляет черновики старше 7 дней
@@ -13,7 +16,7 @@ export const cleanupExpiredDraftsFunction = inngest.createFunction(
     name: "Очистка устаревших черновиков",
     retries: 3,
   },
-  { cron: "0 2 * * *" }, // Запуск каждый день в 2:00 ночи
+  { cron: "TZ=Europe/Moscow 0 2 * * *" }, // Запуск каждый день в 2:00 ночи по московскому времени
   async ({ step }) => {
     return await step.run("cleanup-drafts", async () => {
       console.log("🧹 Запуск очистки устаревших черновиков");
@@ -21,8 +24,8 @@ export const cleanupExpiredDraftsFunction = inngest.createFunction(
       try {
         const repo = new DraftRepository(db);
 
-        // Удалить черновики старше 7 дней
-        const deletedCount = await repo.deleteExpired(7);
+        // Удалить черновики старше EXPIRED_DAYS дней
+        const deletedCount = await repo.deleteExpired(EXPIRED_DAYS);
 
         console.log(
           `✅ Очистка завершена. Удалено черновиков: ${deletedCount}`,

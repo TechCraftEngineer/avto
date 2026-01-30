@@ -38,8 +38,10 @@ export const vacancyDraft = pgTable(
     id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`),
 
     // Пользователь, которому принадлежит черновик
+    // Уникальный индекс обеспечивает только один черновик на пользователя
     userId: text("user_id")
       .notNull()
+      .unique()
       .references(() => user.id, { onDelete: "cascade" }),
 
     // Данные черновика в формате JSONB

@@ -1,53 +1,8 @@
 import type { DbClient, VacancyDraft } from "@qbs-autonaim/db";
 import { DraftRepository } from "@qbs-autonaim/db";
+import type { CreateDraftInput, UpdateDraftInput } from "@qbs-autonaim/shared";
 import type { ErrorHandler } from "../utils/error-handler";
 import { ErrorCategory, ErrorSeverity } from "../utils/error-handler";
-
-/**
- * Входные данные для создания черновика
- */
-export interface CreateDraftInput {
-  conversationHistory: Array<{
-    role: "user" | "assistant";
-    content: string;
-    timestamp: Date;
-  }>;
-  vacancyData: {
-    title?: string;
-    description?: string;
-    requirements?: string[];
-    conditions?: string[];
-    salary?: {
-      min?: number;
-      max?: number;
-      currency?: string;
-    };
-  };
-  currentStep: string;
-}
-
-/**
- * Входные данные для обновления черновика
- */
-export interface UpdateDraftInput {
-  conversationHistory?: Array<{
-    role: "user" | "assistant";
-    content: string;
-    timestamp: Date;
-  }>;
-  vacancyData?: {
-    title?: string;
-    description?: string;
-    requirements?: string[];
-    conditions?: string[];
-    salary?: {
-      min?: number;
-      max?: number;
-      currency?: string;
-    };
-  };
-  currentStep?: string;
-}
 
 /**
  * Сервис бизнес-логики для работы с черновиками вакансий
@@ -221,11 +176,25 @@ export class DraftService {
    * Требование 5.3: Очистка черновика после создания вакансии
    */
   async deleteDraft(userId: string): Promise<void> {
-    const repo = new DraftRepository(this.db);
-    const draft = await repo.findByUserId(userId);
+    try {
+      const repo = new DraftRepository(this.db);
+      const draft = await repo.findByUserId(userId);
 
-    if (draft) {
-      await repo.delete(draft.id);
+      if (draft) {
+        await repo.delete(draft.id);
+      }
+    } catch (error) {
+      if (this.errorHandler) {
+        await this.errorHandler.handleError({
+          category: ErrorCategory.DATABASE,
+          severity: ErrorSeverity.MEDIUM,
+          message: `Ошибка при удалении черновика: ${(error as Error).message}`,
+          userMessage: "Не удалось удалить черновик",
+          context: { userId },
+          originalError: error as Error,
+        });
+      }
+      throw error;
     }
   }
 

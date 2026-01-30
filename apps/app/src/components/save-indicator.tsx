@@ -1,7 +1,32 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { SaveStatus } from "~/hooks/use-draft-persistence";
+
+/**
+ * Форматирует количество минут в русскоязычную строку с правильным склонением
+ */
+function formatMinutesAgo(minutes: number): string {
+  if (minutes < 1) return "только что";
+
+  // Правила склонения для русского языка
+  const lastDigit = minutes % 10;
+  const lastTwoDigits = minutes % 100;
+
+  if (lastTwoDigits >= 11 && lastTwoDigits <= 19) {
+    return `${minutes} минут назад`;
+  }
+
+  if (lastDigit === 1) {
+    return `${minutes} минуту назад`;
+  }
+
+  if (lastDigit >= 2 && lastDigit <= 4) {
+    return `${minutes} минуты назад`;
+  }
+
+  return `${minutes} минут назад`;
+}
 
 /**
  * Свойства компонента SaveIndicator
@@ -55,18 +80,31 @@ export function SaveIndicator({ status, lastSavedAt }: SaveIndicatorProps) {
 
   /**
    * Форматированное время последнего сохранения
+   * Обновляется каждые 30 секунд
    */
-  const timeText = useMemo(() => {
-    if (!lastSavedAt) return "";
+  const [timeText, setTimeText] = useState<string>("");
 
-    const now = new Date();
-    const diffMs = now.getTime() - lastSavedAt.getTime();
-    const diffMinutes = Math.floor(diffMs / 60000);
+  useEffect(() => {
+    const updateTimeText = () => {
+      if (!lastSavedAt) {
+        setTimeText("");
+        return;
+      }
 
-    if (diffMinutes < 1) return "только что";
-    if (diffMinutes === 1) return "1 минуту назад";
-    if (diffMinutes < 5) return `${diffMinutes} минуты назад`;
-    return `${diffMinutes} минут назад`;
+      const now = new Date();
+      const diffMs = now.getTime() - lastSavedAt.getTime();
+      const diffMinutes = Math.floor(diffMs / 60000);
+
+      setTimeText(formatMinutesAgo(diffMinutes));
+    };
+
+    // Обновить сразу
+    updateTimeText();
+
+    // Обновлять каждые 30 секунд
+    const interval = setInterval(updateTimeText, 30000);
+
+    return () => clearInterval(interval);
   }, [lastSavedAt]);
 
   /**

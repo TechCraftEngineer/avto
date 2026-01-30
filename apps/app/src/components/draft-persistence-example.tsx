@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useDraftPersistence } from "~/hooks/use-draft-persistence";
 import {
   DraftErrorNotification,
@@ -33,6 +34,10 @@ export function DraftPersistenceExample() {
       // Здесь восстановить состояние AI-бота
     },
   });
+
+  const [draftErrorVisible, setDraftErrorVisible] = useState(true);
+  const [localStorageWarningVisible, setLocalStorageWarningVisible] =
+    useState(true);
 
   return (
     <div className="p-4">
@@ -85,22 +90,20 @@ export function DraftPersistenceExample() {
       </div>
 
       {/* Уведомление об ошибке */}
-      <DraftErrorNotification
-        errorInfo={errorInfo}
-        onRetry={retrySave}
-        onStartNew={() => void startNew()}
-        onClose={() => {
-          /* Закрыть уведомление */
-        }}
-      />
+      {draftErrorVisible && (
+        <DraftErrorNotification
+          errorInfo={errorInfo}
+          onRetry={retrySave}
+          onStartNew={() => void startNew()}
+          onClose={() => setDraftErrorVisible(false)}
+        />
+      )}
 
       {/* Предупреждение о локальном хранилище */}
-      {useLocalStorage && (
+      {useLocalStorage && localStorageWarningVisible && (
         <LocalStorageWarning
           onSync={() => void syncLocalData()}
-          onClose={() => {
-            /* Закрыть предупреждение */
-          }}
+          onClose={() => setLocalStorageWarningVisible(false)}
         />
       )}
 

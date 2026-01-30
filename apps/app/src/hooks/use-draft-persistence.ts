@@ -339,6 +339,8 @@ export function useDraftPersistence(options: UseDraftPersistenceOptions = {}) {
         console.log("Локальные данные успешно синхронизированы с сервером");
       } catch (error) {
         console.error("Ошибка синхронизации локальных данных:", error);
+        const errorDetails = DraftErrorHandler.handle(error);
+        setErrorInfo(errorDetails);
       }
     }
   }, [userId, useLocalStorage, updateMutation, createMutation]);

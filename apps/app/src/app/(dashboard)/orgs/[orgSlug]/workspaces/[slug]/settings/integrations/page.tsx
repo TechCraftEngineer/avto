@@ -106,9 +106,36 @@ export default function IntegrationsPage() {
           description={INTEGRATION_CATEGORIES.JOB_SEARCH.description}
           icon={INTEGRATION_CATEGORIES.JOB_SEARCH.icon}
         >
+          {/* Подключенные интеграции */}
+          {integrationsByCategory["job-search"]
+            ?.map((availableIntegration) => {
+              const connectedIntegration = integrations?.find(
+                (i) => i.type === availableIntegration.type,
+              );
+              return connectedIntegration
+                ? {
+                    availableIntegration,
+                    integration: connectedIntegration,
+                  }
+                : null;
+            })
+            .filter(Boolean)
+            .map((item) => (
+              <IntegrationCard
+                key={item!.availableIntegration.type}
+                availableIntegration={item!.availableIntegration}
+                integration={item!.integration}
+                onCreate={() => handleCreate(item!.availableIntegration.type)}
+                onEdit={() => handleEdit(item!.availableIntegration.type)}
+                workspaceId={workspaceId}
+                userRole={userRole}
+                showDetailedDescription
+              />
+            ))}
+
+          {/* Доступные для подключения интеграции */}
           {integrationsByCategory["job-search"]
             ?.filter((availableIntegration) => {
-              // Скрываем интеграции, которые уже подключены
               const existingIntegration = integrations?.find(
                 (i) => i.type === availableIntegration.type,
               );

@@ -21,7 +21,7 @@ import {
   Label,
 } from "@qbs-autonaim/ui";
 import { ImportByUrlSchema } from "@qbs-autonaim/validators";
-import { useQuery } from "@tanstack/react-query";
+import { skipToken, useQuery } from "@tanstack/react-query";
 import {
   AlertCircle,
   Download,
@@ -53,12 +53,11 @@ export function VacancyImportSection() {
 
   // Получаем список интеграций
   const { data: integrations, isLoading: isLoadingIntegrations } = useQuery(
-    trpc.integration.list.queryOptions({
-      workspaceId: workspace?.id ?? "",
-    }),
-    {
-      enabled: !!workspace?.id,
-    },
+    workspace?.id
+      ? trpc.integration.list.queryOptions({
+          workspaceId: workspace.id,
+        })
+      : skipToken,
   );
 
   // Проверяем наличие активной интеграции с HH

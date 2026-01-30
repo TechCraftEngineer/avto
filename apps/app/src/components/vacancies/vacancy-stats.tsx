@@ -4,7 +4,6 @@ import {
   Badge,
   Card,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
   cn,
@@ -21,17 +20,33 @@ import {
 } from "@tabler/icons-react";
 
 const RESPONSE_QUALITY_CLASSES = {
-  green: { text: "text-green-600", bg: "bg-green-500/10" },
-  blue: { text: "text-blue-600", bg: "bg-blue-500/10" },
-  orange: { text: "text-orange-600", bg: "bg-orange-500/10" },
-  red: { text: "text-red-600", bg: "bg-red-500/10" },
+  green: {
+    text: "text-green-600",
+    bg: "bg-green-500/10",
+    badge: "text-green-700",
+  },
+  blue: { text: "text-blue-600", bg: "bg-blue-500/10", badge: "text-blue-700" },
+  orange: {
+    text: "text-orange-600",
+    bg: "bg-orange-500/10",
+    badge: "text-orange-700",
+  },
+  red: { text: "text-red-600", bg: "bg-red-500/10", badge: "text-red-700" },
 };
 
 const TIME_QUALITY_CLASSES = {
-  green: { text: "text-green-600", bg: "bg-green-500/10" },
-  blue: { text: "text-blue-600", bg: "bg-blue-500/10" },
-  orange: { text: "text-orange-600", bg: "bg-orange-500/10" },
-  red: { text: "text-red-600", bg: "bg-red-500/10" },
+  green: {
+    text: "text-green-600",
+    bg: "bg-green-500/10",
+    badge: "text-green-700",
+  },
+  blue: { text: "text-blue-600", bg: "bg-blue-500/10", badge: "text-blue-700" },
+  orange: {
+    text: "text-orange-600",
+    bg: "bg-orange-500/10",
+    badge: "text-orange-700",
+  },
+  red: { text: "text-red-600", bg: "bg-red-500/10", badge: "text-red-700" },
 };
 
 interface VacancyStatsProps {
@@ -57,11 +72,11 @@ export function VacancyStats({
 }: VacancyStatsProps) {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 gap-4 @xl/main:grid-cols-2 @5xl/main:grid-cols-3">
+      <div className="grid grid-cols-2 gap-3 @xl/main:grid-cols-3 @5xl/main:grid-cols-6">
         {Array.from({ length: 6 }, (_, index) => `skeleton-${index}`).map(
           (key) => (
             <Card key={key} className="animate-pulse border-none bg-muted/20">
-              <CardHeader className="h-[120px]" />
+              <CardHeader className="h-[100px]" />
             </Card>
           ),
         )}
@@ -160,7 +175,7 @@ export function VacancyStats({
           variant="outline"
           className={cn(
             "border-none px-1.5",
-            `${RESPONSE_QUALITY_CLASSES[responseQuality.color].bg} text-${responseQuality.color}-700`,
+            `${RESPONSE_QUALITY_CLASSES[responseQuality.color].bg} ${RESPONSE_QUALITY_CLASSES[responseQuality.color].badge}`,
           )}
         >
           {responseQuality.label}
@@ -201,7 +216,7 @@ export function VacancyStats({
                 variant="outline"
                 className={cn(
                   "border-none px-1.5",
-                  `${TIME_QUALITY_CLASSES[timeQuality.color].bg} text-${timeQuality.color}-700`,
+                  `${TIME_QUALITY_CLASSES[timeQuality.color].bg} ${TIME_QUALITY_CLASSES[timeQuality.color].badge}`,
                 )}
               >
                 {timeQuality.label}
@@ -251,7 +266,7 @@ export function VacancyStats({
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-4 @xl/main:grid-cols-2 @5xl/main:grid-cols-3">
+    <div className="grid grid-cols-2 gap-3 @xl/main:grid-cols-3 @5xl/main:grid-cols-6">
       {stats.map((stat) => (
         <Card
           key={stat.title}
@@ -260,30 +275,34 @@ export function VacancyStats({
         >
           <div
             className={cn(
-              "absolute right-0 top-0 -mr-4 -mt-4 size-24 transform rounded-full opacity-10 transition-transform group-hover:scale-110",
+              "absolute right-0 top-0 -mr-3 -mt-3 size-16 transform rounded-full opacity-10 transition-transform group-hover:scale-110",
               stat.bg,
             )}
           />
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <stat.icon className={cn("size-5", stat.color)} />
-              {stat.action}
+          <CardHeader className="p-4 pb-3">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex-1 min-w-0">
+                <CardDescription className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70 mb-1.5 truncate">
+                  {stat.title}
+                </CardDescription>
+                <CardTitle className="text-2xl font-bold tracking-tight">
+                  {stat.value.toLocaleString()}
+                  {stat.suffix && (
+                    <span className="ml-0.5 text-sm text-muted-foreground">
+                      {stat.suffix}
+                    </span>
+                  )}
+                </CardTitle>
+                <p className="text-xs text-muted-foreground mt-1 truncate">
+                  {stat.description}
+                </p>
+              </div>
+              <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+                <stat.icon className={cn("size-4", stat.color)} />
+                {stat.action}
+              </div>
             </div>
-            <CardTitle className="mt-4 text-3xl font-bold tracking-tight">
-              {stat.value.toLocaleString()}
-              {stat.suffix && (
-                <span className="ml-1 text-lg text-muted-foreground">
-                  {stat.suffix}
-                </span>
-              )}
-            </CardTitle>
-            <CardDescription className="text-xs font-medium uppercase tracking-wider text-muted-foreground/70">
-              {stat.title}
-            </CardDescription>
           </CardHeader>
-          <CardFooter>
-            <p className="text-sm text-muted-foreground">{stat.description}</p>
-          </CardFooter>
         </Card>
       ))}
     </div>

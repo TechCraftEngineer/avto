@@ -116,6 +116,21 @@ export class DraftRepository {
     // Десериализация существующих данных
     const existingData = existing.draftData as DraftData;
 
+    // Глубокое слияние для вложенных объектов (особенно salary)
+    const mergedVacancyData = data.vacancyData
+      ? {
+          ...existingData.vacancyData,
+          ...data.vacancyData,
+          salary:
+            data.vacancyData.salary || existingData.vacancyData.salary
+              ? {
+                  ...existingData.vacancyData.salary,
+                  ...data.vacancyData.salary,
+                }
+              : undefined,
+        }
+      : existingData.vacancyData;
+
     // Объединение данных
     const updatedData: DraftData = {
       conversationHistory: data.conversationHistory
@@ -125,9 +140,7 @@ export class DraftRepository {
             timestamp: msg.timestamp.toISOString(),
           }))
         : existingData.conversationHistory,
-      vacancyData: data.vacancyData
-        ? { ...existingData.vacancyData, ...data.vacancyData }
-        : existingData.vacancyData,
+      vacancyData: mergedVacancyData,
       currentStep: data.currentStep ?? existingData.currentStep,
     };
 
