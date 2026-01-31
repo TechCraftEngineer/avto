@@ -143,17 +143,6 @@ export function TimelineTab({ responseId }: TimelineTabProps) {
                     oldValue={event.oldValue as JsonValue}
                     newValue={event.newValue as JsonValue}
                   />
-
-                  {event.metadata && (
-                    <div className="mt-2 text-xs text-muted-foreground">
-                      {typeof event.metadata === "object" &&
-                        Object.entries(event.metadata).map(([key, value]) => (
-                          <div key={key}>
-                            {key}: {JSON.stringify(value)}
-                          </div>
-                        ))}
-                    </div>
-                  )}
                 </div>
               </div>
             </div>

@@ -17,22 +17,24 @@ export function EmptyState({ hasResponses, colSpan }: EmptyStateProps) {
               className="animate-infinite-scroll-y flex flex-col animation-duration-[10s]"
               style={{ "--scroll": "-50%" } as React.CSSProperties}
             >
-              {Array.from({ length: 8 }).map((_, index) => (
-                <div
-                  key={`empty-skeleton-${index}`}
-                  className="mt-4 flex items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-sm"
-                >
-                  {hasResponses ? (
-                    <Filter className="size-4 text-muted-foreground" />
-                  ) : (
-                    <Inbox className="size-4 text-muted-foreground" />
-                  )}
-                  <div className="h-2.5 w-24 min-w-0 rounded-sm bg-muted" />
-                  <div className="hidden grow items-center justify-end gap-1.5 text-muted-foreground xs:flex">
-                    <div className="size-3.5 rounded-full bg-muted" />
+              {Array.from({ length: 8 }, (_, i) => `empty-skeleton-${i}`).map(
+                (key) => (
+                  <div
+                    key={key}
+                    className="mt-4 flex items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-sm"
+                  >
+                    {hasResponses ? (
+                      <Filter className="size-4 text-muted-foreground" />
+                    ) : (
+                      <Inbox className="size-4 text-muted-foreground" />
+                    )}
+                    <div className="h-2.5 w-24 min-w-0 rounded-sm bg-muted" />
+                    <div className="hidden grow items-center justify-end gap-1.5 text-muted-foreground xs:flex">
+                      <div className="size-3.5 rounded-full bg-muted" />
+                    </div>
                   </div>
-                </div>
-              ))}
+                ),
+              )}
             </div>
           </div>
 

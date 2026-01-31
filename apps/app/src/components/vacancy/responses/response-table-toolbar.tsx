@@ -19,8 +19,6 @@ interface ResponseTableToolbarProps {
   onSearchChange: (value: string) => void;
   isRefreshing: boolean;
   isProcessingNew: boolean;
-  isProcessingAll: boolean;
-  isRefreshingAllResumes: boolean;
   isSyncingArchived: boolean;
   onRefresh: () => void;
   onRefreshComplete: () => void;
@@ -43,8 +41,6 @@ export function ResponseTableToolbar({
   onSearchChange,
   isRefreshing,
   isProcessingNew,
-  isProcessingAll,
-  isRefreshingAllResumes,
   isSyncingArchived,
   onRefresh,
   onRefreshComplete,
@@ -93,19 +89,12 @@ export function ResponseTableToolbar({
         />
 
         <ResponseActionButtons
-          totalResponses={totalResponses}
           isRefreshing={isRefreshing}
           isProcessingNew={isProcessingNew}
-          isProcessingAll={isProcessingAll}
-          isRefreshingAllResumes={isRefreshingAllResumes}
           isSyncingArchived={isSyncingArchived}
           onRefreshDialogOpen={() => refreshState.setDialogOpen(true)}
           onSyncArchivedDialogOpen={() => syncArchivedState.setDialogOpen(true)}
-          onRefreshAllResumesDialogOpen={() =>
-            refreshAllResumesState.setDialogOpen(true)
-          }
           onScreenNewDialogOpen={() => screenNewState.setDialogOpen(true)}
-          onScreenAllDialogOpen={() => screenAllState.setDialogOpen(true)}
         />
       </div>
 
