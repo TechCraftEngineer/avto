@@ -32,6 +32,7 @@ import { Loader2, Save } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { TiptapEditor } from "~/components/editor";
 import { VacancyRequirementsEditor } from "./vacancy-requirements-editor";
 
 type Vacancy = NonNullable<RouterOutputs["vacancy"]["get"]>;
@@ -143,17 +144,16 @@ export function VacancyFullEditForm({
                     <FormItem>
                       <FormLabel>Описание вакансии</FormLabel>
                       <FormControl>
-                        <Textarea
-                          {...field}
-                          value={field.value ?? ""}
+                        <TiptapEditor
+                          content={field.value ?? ""}
+                          onChange={field.onChange}
                           placeholder="Опишите вакансию подробно..."
-                          className="min-h-[200px] resize-y bg-background leading-relaxed"
                         />
                       </FormControl>
                       <div className="flex items-center justify-between">
                         <FormDescription>
                           Подробное описание поможет ИИ лучше подготовиться к
-                          интервью.
+                          интервью. Поддерживается форматирование текста.
                         </FormDescription>
                         <span className="text-[10px] font-medium text-muted-foreground tabular-nums">
                           {field.value?.length ?? 0} символов
