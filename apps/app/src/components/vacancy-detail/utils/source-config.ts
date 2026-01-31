@@ -7,10 +7,6 @@ export const SOURCE_CONFIG: Record<string, { label: string; color: string }> = {
     label: "HeadHunter (API)",
     color: "bg-red-500/10 text-red-600 border-red-200",
   },
-  KWORK: {
-    label: "Kwork",
-    color: "bg-green-500/10 text-green-600 border-green-200",
-  },
   FL_RU: {
     label: "FL.ru",
     color: "bg-blue-500/10 text-blue-600 border-blue-200",

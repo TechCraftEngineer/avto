@@ -1,7 +1,6 @@
 import { parseFlVacancies } from "./fl";
 import type { RawFreelanceVacancy } from "./freelance";
 import { FREELANCE_SOURCES, type FreelanceSource } from "./freelance/types";
-import { parseKworkVacancies } from "./kwork";
 import type { VacancyData } from "./types";
 
 /**
@@ -11,7 +10,6 @@ export const VACANCY_SOURCES = [
   "hh",
   "avito",
   "superjob",
-  "kwork",
   "fl",
   "freelance",
 ] as const;
@@ -29,8 +27,6 @@ export async function parseVacanciesBySource(
   rawData: RawFreelanceVacancy[],
 ): Promise<VacancyData[]> {
   switch (source) {
-    case "kwork":
-      return parseKworkVacancies(rawData);
     case "fl":
       return parseFlVacancies(rawData);
     case "freelance":

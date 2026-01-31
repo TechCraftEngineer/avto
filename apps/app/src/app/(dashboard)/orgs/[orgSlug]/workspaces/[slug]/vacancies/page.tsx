@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { triggerUpdateVacancies } from "~/actions/trigger";
 import { PageHeader } from "~/components/layout";
 import {
+  DeleteVacancyDialog,
   VacancyFilters,
   VacancyInsights,
   VacancyStats,
@@ -30,6 +31,11 @@ export default function VacanciesPage() {
     null,
   );
   const [mergeTargetVacancyId, setMergeTargetVacancyId] = useState<string>("");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [vacancyToDelete, setVacancyToDelete] = useState<{
+    id: string;
+    title: string;
+  } | null>(null);
   const [sortBy, setSortBy] = useState<
     "createdAt" | "title" | "views" | "responses" | "newResponses"
   >("createdAt");
@@ -76,6 +82,22 @@ export default function VacanciesPage() {
     }),
   );
 
+  const deleteVacancyMutation = useMutation(
+    trpc.freelancePlatforms.deleteVacancy.mutationOptions({
+      onSuccess: async () => {
+        toast.success("Вакансия успешно удалена");
+        setDeleteDialogOpen(false);
+        setVacancyToDelete(null);
+        await queryClient.invalidateQueries({
+          queryKey: trpc.freelancePlatforms.getVacancies.queryKey(),
+        });
+      },
+      onError: (error) => {
+        toast.error(error.message || "Не удалось удалить вакансию");
+      },
+    }),
+  );
+
   const handleUpdate = async () => {
     if (!workspace?.id) {
       toast.error("Рабочее пространство не найдено");
@@ -101,6 +123,20 @@ export default function VacanciesPage() {
       workspaceId: workspace.id,
       sourceVacancyId: sourceId,
       targetVacancyId: targetId,
+    });
+  };
+
+  const handleDeleteOpen = (vacancyId: string, vacancyTitle: string) => {
+    setVacancyToDelete({ id: vacancyId, title: vacancyTitle });
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = (option: "anonymize" | "delete") => {
+    if (!workspace?.id || !vacancyToDelete) return;
+    deleteVacancyMutation.mutate({
+      workspaceId: workspace.id,
+      vacancyId: vacancyToDelete.id,
+      dataCleanupOption: option,
     });
   };
 
@@ -262,9 +298,18 @@ export default function VacanciesPage() {
             sortBy={sortBy}
             sortOrder={sortOrder}
             onSortChange={handleTableSort}
+            onDeleteOpen={handleDeleteOpen}
           />
         </div>
       </div>
+
+      <DeleteVacancyDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDeleteConfirm}
+        vacancyTitle={vacancyToDelete?.title ?? ""}
+        isLoading={deleteVacancyMutation.isPending}
+      />
     </div>
   );
 }

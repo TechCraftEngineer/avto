@@ -84,7 +84,6 @@ export default function VacancyDetailPage() {
 
   const { vacancy, responseStats, interviewLink } = data;
   const isFreelancePlatform = [
-    "KWORK",
     "FL_RU",
     "FREELANCE_RU",
     "AVITO",

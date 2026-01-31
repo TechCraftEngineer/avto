@@ -1,3 +1,4 @@
+export { DeleteVacancyDialog } from "./delete-vacancy-dialog";
 export { VacancyFilters } from "./vacancy-filters";
 export { VacancyForm } from "./vacancy-form";
 export { VacancyHelpTooltip } from "./vacancy-help-tooltip";

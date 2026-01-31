@@ -20,6 +20,10 @@ import {
   SelectValue,
   TableCell,
   TableRow,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
 } from "@qbs-autonaim/ui";
 import {
   IconBriefcase,
@@ -27,6 +31,7 @@ import {
   IconEdit,
   IconExternalLink,
   IconHistory,
+  IconTrash,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { VacancyPerformanceBadge } from "./vacancy-performance-badge";
@@ -78,16 +83,13 @@ interface VacancyTableRowProps {
   onMergeTargetChange: (vacancyId: string) => void;
   onMergeConfirm: (sourceId: string, targetId: string) => void;
   isMerging: boolean;
+  onDeleteOpen: (vacancyId: string, vacancyTitle: string) => void;
 }
 
 const SOURCE_CONFIG: Record<string, { label: string; color: string }> = {
   HH: {
     label: "HeadHunter",
     color: "bg-indigo-500/10 text-indigo-700 border-indigo-200/50",
-  },
-  KWORK: {
-    label: "Kwork",
-    color: "bg-emerald-500/10 text-emerald-700 border-emerald-200/50",
   },
   FL_RU: {
     label: "FL.ru",
@@ -124,6 +126,7 @@ export function VacancyTableRow({
   onMergeTargetChange,
   onMergeConfirm,
   isMerging,
+  onDeleteOpen,
 }: VacancyTableRowProps) {
   const source = SOURCE_CONFIG[vacancy.source] || {
     label: vacancy.source,
@@ -151,16 +154,27 @@ export function VacancyTableRow({
       <TableCell className="max-w-[280px]">
         <div className="flex flex-col gap-1">
           <div className="flex items-start gap-2">
-            <Link
-              href={paths.workspace.vacancies(
-                orgSlug,
-                workspaceSlug,
-                vacancy.id,
-              )}
-              className="font-semibold text-foreground hover:text-primary transition-colors line-clamp-2 leading-snug"
-            >
-              {vacancy.title}
-            </Link>
+            <Tooltip delayDuration={300}>
+              <TooltipTrigger asChild>
+                <Link
+                  href={paths.workspace.vacancies(
+                    orgSlug,
+                    workspaceSlug,
+                    vacancy.id,
+                  )}
+                  className="font-semibold text-foreground hover:text-primary transition-colors line-clamp-2 leading-snug"
+                >
+                  {vacancy.title}
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent
+                side="top"
+                align="start"
+                className="max-w-[400px] text-sm"
+              >
+                {vacancy.title}
+              </TooltipContent>
+            </Tooltip>
             {needsAttention && (
               <div
                 className="size-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] animate-pulse shrink-0 mt-1.5"
@@ -340,6 +354,14 @@ export function VacancyTableRow({
                   onSelect={() => onMergeOpen(vacancy.id)}
                 >
                   Сдружить с другой…
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-destructive focus:text-destructive"
+                  onSelect={() => onDeleteOpen(vacancy.id, vacancy.title)}
+                >
+                  <IconTrash className="mr-2 size-4" />
+                  Удалить вакансию
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

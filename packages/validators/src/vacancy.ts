@@ -55,7 +55,6 @@ export const updateVacancySettingsSchema = z.object({
     .enum([
       "MANUAL",
       "HH",
-      "KWORK",
       "FL_RU",
       "FREELANCE_RU",
       "AVITO",
@@ -127,7 +126,6 @@ export const updateFullVacancySchema = z.object({
     .enum([
       "MANUAL",
       "HH",
-      "KWORK",
       "FL_RU",
       "FREELANCE_RU",
       "AVITO",

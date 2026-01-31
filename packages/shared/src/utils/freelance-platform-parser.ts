@@ -7,15 +7,6 @@ export interface ParsedPlatformLink {
 }
 
 const PLATFORM_PATTERNS = {
-  KWORK: {
-    pattern: /^https?:\/\/(?:www\.)?kwork\.ru\/projects\/(\d+)(?:\/.*)?$/,
-    extractId: (url: string): string | null => {
-      const match = url.match(
-        /^https?:\/\/(?:www\.)?kwork\.ru\/projects\/(\d+)(?:\/.*)?$/,
-      );
-      return match ? (match[1] ?? null) : null;
-    },
-  },
   FL_RU: {
     pattern: /^https?:\/\/(?:www\.)?fl\.ru\/projects\/(\d+)(?:\/.*)?$/,
     extractId: (url: string): string | null => {
@@ -101,7 +92,6 @@ export function getPlatformTaskUrl(
   if (!externalId) return null;
 
   const urlTemplates: Partial<Record<PlatformSource, string>> = {
-    KWORK: `https://kwork.ru/projects/${externalId}`,
     FL_RU: `https://fl.ru/projects/${externalId}`,
     FREELANCE_RU: `https://freelance.ru/project/${externalId}`,
     HABR: `https://freelance.habr.com/tasks/${externalId}`,

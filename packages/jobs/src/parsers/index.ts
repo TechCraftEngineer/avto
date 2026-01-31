@@ -13,7 +13,6 @@ export * from "./fl";
 export * from "./freelance";
 // HH парсер
 export * from "./hh";
-export * from "./kwork";
 // Парсер профилей фрилансеров
 export {
   formatProfileDataForStorage,

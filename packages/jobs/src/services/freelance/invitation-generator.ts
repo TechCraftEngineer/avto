@@ -94,7 +94,6 @@ export async function generateFreelanceInvitation(
 
   // Проверяем, что это фриланс-отклик
   if (
-    responseData.importSource !== "KWORK" &&
     responseData.importSource !== "FL_RU" &&
     responseData.importSource !== "FREELANCE_RU"
   ) {

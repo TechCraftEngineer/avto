@@ -207,7 +207,6 @@ export function VacancyFullEditForm({
                             <SelectItem value="AVITO">Avito</SelectItem>
                             <SelectItem value="SUPERJOB">SuperJob</SelectItem>
                             <SelectItem value="HABR">Habr</SelectItem>
-                            <SelectItem value="KWORK">Kwork</SelectItem>
                             <SelectItem value="FL_RU">FL.ru</SelectItem>
                             <SelectItem value="FREELANCE_RU">
                               Freelance.ru

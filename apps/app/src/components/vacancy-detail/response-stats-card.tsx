@@ -95,8 +95,7 @@ export function ResponseStatsCard({
               <div className="pt-2 mt-2 border-t">
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   <span className="font-semibold text-foreground">Совет:</span>{" "}
-                  {sortedStats[0][0] === "KWORK" ||
-                  sortedStats[0][0] === "FL_RU"
+                  {sortedStats[0][0] === "FL_RU"
                     ? "Фриланс-площадки дают больше откликов. Рассмотрите увеличение бюджета на этих платформах."
                     : "Сосредоточьтесь на площадках с наибольшим количеством откликов для лучших результатов."}
                 </p>

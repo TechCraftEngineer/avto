@@ -71,7 +71,6 @@ export default function ImportResponsesPage() {
 
   const vacancy = vacancyData?.vacancy;
   const platformSource = vacancy?.source as
-    | "KWORK"
     | "FL_RU"
     | "FREELANCE_RU"
     | "WEB_LINK"
@@ -254,8 +253,8 @@ export default function ImportResponsesPage() {
             onChange={(e) => setRawText(e.target.value)}
             placeholder={
               mode === "bulk"
-                ? "Пример:\n\nИван Иванов\nemail: ivan@example.com\nТелефон: +7 999 123-45-67\nПрофиль: https://kwork.ru/user/ivan123\n\nОпыт работы 5 лет...\n\n---\n\nМария Петрова\nemail: maria@example.com..."
-                : "Пример:\n\nИван Иванов\nemail: ivan@example.com\nТелефон: +7 999 123-45-67\nПрофиль: https://kwork.ru/user/ivan123\n\nОпыт работы 5 лет..."
+                ? "Пример:\n\nИван Иванов\nemail: ivan@example.com\nТелефон: +7 999 123-45-67\nПрофиль: https://fl.ru/users/ivan123\n\nОпыт работы 5 лет...\n\n---\n\nМария Петрова\nemail: maria@example.com..."
+                : "Пример:\n\nИван Иванов\nemail: ivan@example.com\nТелефон: +7 999 123-45-67\nПрофиль: https://fl.ru/users/ivan123\n\nОпыт работы 5 лет..."
             }
             className="min-h-[200px] font-mono text-sm"
             aria-label="Текст откликов"
@@ -434,7 +433,7 @@ export default function ImportResponsesPage() {
                             e.target.value,
                           )
                         }
-                        placeholder="https://kwork.ru/user/username"
+                        placeholder="https://fl.ru/users/username"
                         className="min-h-[44px] md:min-h-0"
                       />
                     </div>

@@ -11,7 +11,6 @@ const getVacanciesInputSchema = z.object({
   source: z
     .enum([
       "HH",
-      "KWORK",
       "FL_RU",
       "FREELANCE_RU",
       "WEB_LINK",

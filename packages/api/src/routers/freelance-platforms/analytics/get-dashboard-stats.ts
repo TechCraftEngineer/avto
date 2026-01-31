@@ -21,7 +21,6 @@ const getDashboardStatsInputSchema = z.object({
       "AVITO",
       "SUPERJOB",
       "HABR",
-      "KWORK",
       "FL_RU",
       "FREELANCE_RU",
       "WEB_LINK",

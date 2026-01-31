@@ -15,7 +15,6 @@ const SOURCE_LABELS: Record<string, string> = {
   hh: "hh.ru",
   avito: "Avito",
   superjob: "SuperJob",
-  kwork: "Kwork",
   fl: "FL.ru",
   freelance: "Freelance.ru",
 };

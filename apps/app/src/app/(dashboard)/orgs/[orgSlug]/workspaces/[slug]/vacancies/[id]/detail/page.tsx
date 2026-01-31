@@ -88,19 +88,17 @@ export default function VacancyDetailPage({ params }: VacancyDetailPageProps) {
   const sourceLabel =
     vacancy.source === "HH"
       ? "HeadHunter"
-      : vacancy.source === "KWORK"
-        ? "Kwork"
-        : vacancy.source === "FL_RU"
-          ? "FL.ru"
-          : vacancy.source === "FREELANCE_RU"
-            ? "Freelance.ru"
-            : vacancy.source === "AVITO"
-              ? "Avito"
-              : vacancy.source === "SUPERJOB"
-                ? "SuperJob"
-                : vacancy.source === "HABR"
-                  ? "Хабр Карьера"
-                  : vacancy.source;
+      : vacancy.source === "FL_RU"
+        ? "FL.ru"
+        : vacancy.source === "FREELANCE_RU"
+          ? "Freelance.ru"
+          : vacancy.source === "AVITO"
+            ? "Avito"
+            : vacancy.source === "SUPERJOB"
+              ? "SuperJob"
+              : vacancy.source === "HABR"
+                ? "Хабр Карьера"
+                : vacancy.source;
 
   return (
     <div className="flex flex-1 flex-col">

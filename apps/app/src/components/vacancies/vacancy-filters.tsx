@@ -98,7 +98,6 @@ export function VacancyFilters({
             <SelectContent>
               <SelectItem value="all">Все источники</SelectItem>
               <SelectItem value="HH">HeadHunter</SelectItem>
-              <SelectItem value="KWORK">Kwork</SelectItem>
               <SelectItem value="FL_RU">FL.ru</SelectItem>
               <SelectItem value="FREELANCE_RU">Freelance.ru</SelectItem>
               <SelectItem value="AVITO">Avito</SelectItem>

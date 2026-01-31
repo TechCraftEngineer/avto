@@ -36,8 +36,6 @@ function mapVacancySource(source: VacancyData["source"]): PlatformSource {
       return "AVITO";
     case "superjob":
       return "SUPERJOB";
-    case "kwork":
-      return "KWORK";
     case "fl":
       return "FL_RU";
     case "freelance":

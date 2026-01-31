@@ -42,6 +42,7 @@ interface VacancyTableProps {
   onMergeConfirm: (sourceId: string, targetId: string) => void;
   isMerging: boolean;
   hasFilters: boolean;
+  onDeleteOpen: (vacancyId: string, vacancyTitle: string) => void;
 }
 
 export function VacancyTable({
@@ -62,6 +63,7 @@ export function VacancyTable({
   sortBy,
   sortOrder,
   onSortChange,
+  onDeleteOpen,
 }: VacancyTableProps & {
   sortBy: string;
   sortOrder: "asc" | "desc";
@@ -274,6 +276,7 @@ export function VacancyTable({
                 onMergeTargetChange={onMergeTargetChange}
                 onMergeConfirm={onMergeConfirm}
                 isMerging={isMerging}
+                onDeleteOpen={onDeleteOpen}
               />
             ))
           )}

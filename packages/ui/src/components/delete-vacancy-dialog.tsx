@@ -122,7 +122,7 @@ export function DeleteVacancyDialog({
           <AlertDialogAction
             onClick={handleConfirm}
             disabled={isLoading}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            className="bg-destructive hover:bg-destructive/90"
           >
             {isLoading ? "Удаление…" : "Удалить вакансию"}
           </AlertDialogAction>
