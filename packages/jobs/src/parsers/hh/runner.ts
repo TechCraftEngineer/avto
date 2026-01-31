@@ -81,9 +81,14 @@ export async function runHHParser(
       console.log("\n📨 Парсинг откликов активных вакансий...");
 
       for (const vacancy of vacanciesResult.vacancies) {
-        if (vacancy.responsesUrl) {
+        if (vacancy.responsesUrl && vacancy.externalId) {
           try {
-            await parseResponses(page, vacancy.responsesUrl, vacancy.id);
+            await parseResponses(
+              page,
+              vacancy.responsesUrl,
+              vacancy.externalId,
+              vacancy.id,
+            );
           } catch (error) {
             console.error(
               `❌ Ошибка парсинга откликов для ${vacancy.title}:`,
@@ -106,9 +111,14 @@ export async function runHHParser(
         console.log("\n📨 Парсинг откликов архивных вакансий...");
 
         for (const vacancy of archivedResult.vacancies) {
-          if (vacancy.responsesUrl) {
+          if (vacancy.responsesUrl && vacancy.externalId) {
             try {
-              await parseResponses(page, vacancy.responsesUrl, vacancy.id);
+              await parseResponses(
+                page,
+                vacancy.responsesUrl,
+                vacancy.externalId,
+                vacancy.id,
+              );
             } catch (error) {
               console.error(
                 `❌ Ошибка парсинга откликов для архивной вакансии ${vacancy.title}:`,
@@ -147,6 +157,7 @@ export async function fetchArchivedVacanciesList(workspaceId: string): Promise<
     title: string;
     responses: string;
     region: string;
+    archivedAt: string;
   }>
 > {
   console.log(`🚀 Получение списка архивных вакансий`);
@@ -237,9 +248,11 @@ export async function fetchArchivedVacanciesList(workspaceId: string): Promise<
             responses: getText(
               '[data-qa="archived-vacancy-topics-count-text"]',
             ),
-
             region: getText(
               '[data-qa="table-flexible-cell-archiveVacancyArea"]',
+            ),
+            archivedAt: getText(
+              '[data-qa="table-flexible-cell-archiveVacancyArchivationTime"]',
             ),
           };
         });

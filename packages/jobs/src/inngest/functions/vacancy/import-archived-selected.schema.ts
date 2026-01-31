@@ -8,6 +8,16 @@ export const importArchivedSelectedEventSchema = z.object({
   vacancyIds: z
     .array(z.string().min(1, "ID вакансии не может быть пустым"))
     .min(1, "Необходимо указать хотя бы одну вакансию для импорта"),
+  vacancies: z
+    .array(
+      z.object({
+        id: z.string(),
+        title: z.string(),
+        region: z.string().optional(),
+        archivedAt: z.string().optional(),
+      }),
+    )
+    .optional(),
 });
 
 export type ImportArchivedSelectedEvent = z.infer<

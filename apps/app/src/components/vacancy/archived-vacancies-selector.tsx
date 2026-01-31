@@ -26,6 +26,7 @@ import { fetchArchivedVacanciesListToken } from "~/actions/realtime";
 interface ArchivedVacancy {
   id: string;
   title: string;
+  region?: string;
   archivedAt?: string;
   isImported?: boolean; // Флаг, что вакансия уже загружена
 }
@@ -33,7 +34,15 @@ interface ArchivedVacancy {
 interface ArchivedVacanciesSelectorProps {
   workspaceId: string;
   requestId: string;
-  onSelect: (selectedIds: string[]) => void;
+  onSelect: (
+    selectedIds: string[],
+    vacancies: Array<{
+      id: string;
+      title: string;
+      region?: string;
+      archivedAt?: string;
+    }>,
+  ) => void;
   onCancel: () => void;
 }
 
@@ -155,7 +164,15 @@ export function ArchivedVacanciesSelector({
     filteredAndSortedVacancies.every((v) => selectedIds.has(v.id));
 
   const handleConfirm = () => {
-    onSelect(Array.from(selectedIds));
+    const selectedVacancies = vacancies
+      .filter((v) => selectedIds.has(v.id))
+      .map((v) => ({
+        id: v.id,
+        title: v.title,
+        region: v.region,
+        archivedAt: v.archivedAt,
+      }));
+    onSelect(Array.from(selectedIds), selectedVacancies);
   };
 
   if (error) {
@@ -356,19 +373,23 @@ export function ArchivedVacanciesSelector({
                         </Badge>
                       )}
                     </div>
-                    {vacancy.archivedAt && (
-                      <div className="text-xs text-muted-foreground">
-                        Архивирована:{" "}
-                        {new Date(vacancy.archivedAt).toLocaleDateString(
-                          "ru-RU",
-                          {
-                            day: "numeric",
-                            month: "long",
-                            year: "numeric",
-                          },
-                        )}
-                      </div>
-                    )}
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                      {vacancy.region && <span>{vacancy.region}</span>}
+                      {vacancy.region && vacancy.archivedAt && <span>•</span>}
+                      {vacancy.archivedAt && (
+                        <span>
+                          Архивирована:{" "}
+                          {new Date(vacancy.archivedAt).toLocaleDateString(
+                            "ru-RU",
+                            {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                            },
+                          )}
+                        </span>
+                      )}
+                    </div>
                   </label>
                 </div>
               ))}

@@ -28,7 +28,11 @@ export const importSelectedArchivedVacanciesFunction = inngest.createFunction(
       );
     }
 
-    const { workspaceId, vacancyIds } = parseResult.data;
+    const {
+      workspaceId,
+      vacancyIds,
+      vacancies: vacanciesData,
+    } = parseResult.data;
 
     await publish(
       importArchivedVacanciesChannel(workspaceId).progress({
@@ -51,12 +55,22 @@ export const importSelectedArchivedVacanciesFunction = inngest.createFunction(
         let updated = 0;
         let failed = 0;
 
+        // Создаем мапу для быстрого доступа к данным вакансий
+        const vacanciesMap = new Map(
+          vacanciesData?.map((v) => [v.id, v]) || [],
+        );
+
         // Создаем массив для отслеживания прогресса по каждой вакансии
-        const vacancyProgress = vacancyIds.map((id) => ({
-          id,
-          title: "", // Будет заполнено при обработке
-          status: "pending" as const,
-        }));
+        const vacancyProgress = vacancyIds.map((id) => {
+          const vacancyData = vacanciesMap.get(id);
+          return {
+            id,
+            title: vacancyData?.title || "",
+            region: vacancyData?.region,
+            archivedAt: vacancyData?.archivedAt,
+            status: "pending" as const,
+          };
+        });
 
         try {
           // Используем оптимизированную функцию пакетного импорта
@@ -77,9 +91,15 @@ export const importSelectedArchivedVacanciesFunction = inngest.createFunction(
             const currentVacancyId = vacancyIds[i];
             if (!currentVacancyId) continue;
 
+            const existingData = vacancyProgress[i];
             vacancyProgress[i] = {
               id: currentVacancyId,
-              title: result.title || `Вакансия ${currentVacancyId}`,
+              title:
+                result.title ||
+                existingData?.title ||
+                `Вакансия ${currentVacancyId}`,
+              region: existingData?.region,
+              archivedAt: existingData?.archivedAt,
               status: "processing",
             };
 

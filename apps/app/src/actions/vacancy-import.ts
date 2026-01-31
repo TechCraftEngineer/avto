@@ -164,6 +164,12 @@ const selectedVacanciesSchema = z.object({
 export async function triggerImportSelectedArchivedVacancies(
   workspaceId: string,
   vacancyIds: string[],
+  vacancies?: Array<{
+    id: string;
+    title: string;
+    region?: string;
+    archivedAt?: string;
+  }>,
 ): Promise<string> {
   const validationResult = selectedVacanciesSchema.safeParse({
     workspaceId,
@@ -182,6 +188,7 @@ export async function triggerImportSelectedArchivedVacancies(
     data: {
       workspaceId: validationResult.data.workspaceId,
       vacancyIds: validationResult.data.vacancyIds,
+      vacancies,
     },
   });
 

@@ -31,6 +31,8 @@ export interface ImportProgressResult {
 export interface VacancyProgressItem {
   id: string;
   title: string;
+  region?: string;
+  archivedAt?: string;
   status: "pending" | "processing" | "success" | "failed";
   error?: string;
 }
@@ -311,6 +313,26 @@ export function ImportProgress({
                           >
                             {vacancy.title}
                           </div>
+                          {(vacancy.region || vacancy.archivedAt) && (
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                              {vacancy.region && <span>{vacancy.region}</span>}
+                              {vacancy.region && vacancy.archivedAt && (
+                                <span>•</span>
+                              )}
+                              {vacancy.archivedAt && (
+                                <span>
+                                  Архивирована:{" "}
+                                  {new Date(
+                                    vacancy.archivedAt,
+                                  ).toLocaleDateString("ru-RU", {
+                                    day: "numeric",
+                                    month: "long",
+                                    year: "numeric",
+                                  })}
+                                </span>
+                              )}
+                            </div>
+                          )}
                           {vacancy.error && (
                             <div className="text-xs text-destructive mt-0.5">
                               {vacancy.error}

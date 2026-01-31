@@ -98,6 +98,8 @@ export const fetchArchivedListFunction = inngest.createFunction(
           .map((v) => ({
             id: v.externalId,
             title: v.title,
+            region: v.region,
+            archivedAt: v.archivedAt,
             isImported: existingExternalIds.has(v.externalId),
           }));
 

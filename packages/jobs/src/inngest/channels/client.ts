@@ -320,6 +320,8 @@ export const importArchivedVacanciesChannel = channel(
             z.object({
               id: z.string(),
               title: z.string(),
+              region: z.string().optional(),
+              archivedAt: z.string().optional(),
               status: z.enum(["pending", "processing", "success", "failed"]),
               error: z.string().optional(),
             }),
@@ -405,6 +407,7 @@ export const fetchArchivedListChannel = channel(
             z.object({
               id: z.string(),
               title: z.string(),
+              region: z.string().optional(),
               archivedAt: z.string().optional(),
               isImported: z.boolean().optional(),
             }),

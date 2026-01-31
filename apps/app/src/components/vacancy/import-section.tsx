@@ -122,7 +122,15 @@ export function VacancyImportSection() {
     }
   };
 
-  const handleArchivedVacanciesSelected = async (selectedIds: string[]) => {
+  const handleArchivedVacanciesSelected = async (
+    selectedIds: string[],
+    vacancies: Array<{
+      id: string;
+      title: string;
+      region?: string;
+      archivedAt?: string;
+    }>,
+  ) => {
     if (!workspaceId) return;
 
     setIsSelectingArchivedVacancies(false);
@@ -133,6 +141,7 @@ export function VacancyImportSection() {
       const runId = await triggerImportSelectedArchivedVacancies(
         workspaceId,
         selectedIds,
+        vacancies,
       );
       setArchivedVacanciesRunId(runId);
     } catch (error) {
