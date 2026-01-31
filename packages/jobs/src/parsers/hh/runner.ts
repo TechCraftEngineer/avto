@@ -11,6 +11,16 @@ import {
   parseVacancies,
 } from "./vacancy-parser";
 
+/**
+ * Преобразует дату из формата "12.12.24" в ISO формат
+ */
+function parseArchivedDate(dateStr: string): string {
+  const [day, month, year] = dateStr.split(".");
+  // Предполагаем, что год в формате YY (24 = 2024)
+  const fullYear = `20${year}`;
+  return new Date(`${fullYear}-${month}-${day}`).toISOString();
+}
+
 interface RunHHParserOptions {
   workspaceId: string;
   skipResponses?: boolean;
@@ -214,7 +224,7 @@ export async function fetchArchivedVacanciesList(workspaceId: string): Promise<
 
     // Получаем список вакансий
     const vacancies = await page.$$eval(
-      'div[data-qa^="vacancies-dashboard-vacancy"]',
+      'div[data-qa^="vacancy-archive_"]',
       (elements: Element[]) => {
         return elements.map((el) => {
           const getText = (selector: string) => {
@@ -222,23 +232,11 @@ export async function fetchArchivedVacanciesList(workspaceId: string): Promise<
             return node ? node.textContent?.trim() || "" : "";
           };
 
-          // Извлекаем ID вакансии из data-vacancy-id или из data-qa атрибута
-          let externalId = el.getAttribute("data-vacancy-id") || "";
-
-          if (!externalId) {
-            // Ищем элемент с data-qa, содержащим ID вакансии
-            const nameElement = el.querySelector(
-              '[data-qa^="vacancies-dashboard-vacancy--archive-name_"]',
-            );
-            if (nameElement) {
-              const dataQa = nameElement.getAttribute("data-qa") || "";
-              // Извлекаем ID из строки типа "vacancies-dashboard-vacancy--archive-name_128580152"
-              const match = dataQa.match(/_(\d+)$/);
-              if (match?.[1]) {
-                externalId = match[1];
-              }
-            }
-          }
+          // Извлекаем ID вакансии из data-qa атрибута строки
+          const dataQa = el.getAttribute("data-qa") || "";
+          // Извлекаем ID из строки типа "vacancy-archive_128580152"
+          const match = dataQa.match(/vacancy-archive_(\d+)$/);
+          const externalId = match?.[1] || "";
 
           return {
             externalId,
@@ -261,7 +259,13 @@ export async function fetchArchivedVacanciesList(workspaceId: string): Promise<
 
     console.log(`✅ Получено ${vacancies.length} архивных вакансий`);
 
-    return vacancies;
+    // Преобразуем даты в ISO формат
+    const vacanciesWithParsedDates = vacancies.map((v) => ({
+      ...v,
+      archivedAt: v.archivedAt ? parseArchivedDate(v.archivedAt) : "",
+    }));
+
+    return vacanciesWithParsedDates;
   } catch (error) {
     console.error("❌ Ошибка при получении списка архивных вакансий:", error);
     throw error;

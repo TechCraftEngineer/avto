@@ -17,7 +17,7 @@ import {
   Loader2,
   XCircle,
 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { fetchImportVacanciesToken } from "~/actions/realtime";
 
 export interface ImportProgressResult {
@@ -77,7 +77,28 @@ export function ImportProgress({
       : null;
 
   // Получаем детальный прогресс по вакансиям (если есть)
-  const vacancyProgress: VacancyProgressItem[] = progressData?.vacancies || [];
+  const rawVacancyProgress: VacancyProgressItem[] =
+    progressData?.vacancies || [];
+
+  // Сортируем вакансии по дате архивации (свежие сначала)
+  const vacancyProgress = useMemo(() => {
+    const sorted = [...rawVacancyProgress];
+    sorted.sort((a, b) => {
+      // Если есть даты архивации, сортируем по ним (свежие сначала)
+      if (a.archivedAt && b.archivedAt) {
+        return (
+          new Date(b.archivedAt).getTime() - new Date(a.archivedAt).getTime()
+        );
+      }
+      // Вакансии с датой идут первыми
+      if (a.archivedAt && !b.archivedAt) return -1;
+      if (!a.archivedAt && b.archivedAt) return 1;
+      // Если дат нет, сохраняем исходный порядок
+      return 0;
+    });
+    return sorted;
+  }, [rawVacancyProgress]);
+
   const currentVacancy = progressData?.currentVacancy as
     | { id: string; title: string }
     | undefined;

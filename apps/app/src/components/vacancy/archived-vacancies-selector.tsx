@@ -55,7 +55,7 @@ export function ArchivedVacanciesSelector({
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
   const [filterTab, setFilterTab] = useState<"all" | "new" | "imported">("all");
-  const [sortBy, setSortBy] = useState<"name" | "date">("name");
+  const [sortBy, setSortBy] = useState<"name" | "date">("date");
 
   // Мемоизируем функцию получения токена
   const refreshToken = useCallback(
