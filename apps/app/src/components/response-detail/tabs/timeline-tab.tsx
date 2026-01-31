@@ -140,11 +140,10 @@ export function TimelineTab({ responseId }: TimelineTabProps) {
                   )}
 
                   <ValueChangeDisplay
-                    oldValue={event.oldValue}
-                    newValue={event.newValue}
+                    oldValue={event.oldValue as JsonValue}
+                    newValue={event.newValue as JsonValue}
                   />
 
-                  {/* Метаданные */}
                   {event.metadata && (
                     <div className="mt-2 text-xs text-muted-foreground">
                       {typeof event.metadata === "object" &&

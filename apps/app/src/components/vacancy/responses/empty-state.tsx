@@ -9,43 +9,53 @@ interface EmptyStateProps {
 export function EmptyState({ hasResponses, colSpan }: EmptyStateProps) {
   return (
     <TableRow>
-      <TableCell colSpan={colSpan} className="h-[400px]">
-        <div className="flex items-center justify-center">
-          <div className="text-center space-y-4 max-w-md">
-            <div className="flex justify-center">
-              <div className="relative">
-                <div className="absolute inset-0 bg-primary/10 rounded-full blur-2xl" />
-                <div className="relative bg-linear-to-br from-primary/20 to-primary/5 rounded-full p-6">
+      <TableCell colSpan={colSpan} className="h-[500px] p-0">
+        <div className="flex h-full flex-col items-center justify-center gap-6 px-4 py-10">
+          {/* Анимированный список скелетонов */}
+          <div className="animate-fade-in h-36 w-full max-w-64 overflow-hidden px-4 mask-[linear-gradient(transparent,black_10%,black_90%,transparent)]">
+            <div
+              className="animate-infinite-scroll-y flex flex-col animation-duration-[10s]"
+              style={{ "--scroll": "-50%" } as React.CSSProperties}
+            >
+              {Array.from({ length: 8 }).map((_, index) => (
+                <div
+                  key={`empty-skeleton-${index}`}
+                  className="mt-4 flex items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-sm"
+                >
                   {hasResponses ? (
-                    <Filter className="h-12 w-12 text-primary" />
+                    <Filter className="size-4 text-muted-foreground" />
                   ) : (
-                    <Inbox className="h-12 w-12 text-primary" />
+                    <Inbox className="size-4 text-muted-foreground" />
                   )}
+                  <div className="h-2.5 w-24 min-w-0 rounded-sm bg-muted" />
+                  <div className="hidden grow items-center justify-end gap-1.5 text-muted-foreground xs:flex">
+                    <div className="size-3.5 rounded-full bg-muted" />
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
-
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold text-foreground">
-                {hasResponses
-                  ? "Нет откликов по выбранному фильтру"
-                  : "Пока нет откликов"}
-              </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {hasResponses
-                  ? "Попробуйте изменить параметры фильтрации или сбросить все фильтры, чтобы увидеть больше результатов"
-                  : "Отклики появятся здесь после того, как кандидаты начнут откликаться на вашу вакансию. Убедитесь, что вакансия опубликована и активна"}
-              </p>
-            </div>
-
-            {hasResponses && (
-              <div className="pt-2">
-                <p className="text-xs text-muted-foreground/80">
-                  💡 Совет: используйте поиск или измените статус фильтра
-                </p>
-              </div>
-            )}
           </div>
+
+          {/* Текстовое содержимое */}
+          <div className="max-w-sm text-pretty text-center">
+            <span className="text-base font-medium text-foreground">
+              {hasResponses
+                ? "Нет откликов по выбранному фильтру"
+                : "Пока нет откликов"}
+            </span>
+            <div className="mt-2 text-pretty text-sm text-muted-foreground">
+              {hasResponses
+                ? "Попробуйте изменить параметры фильтрации или сбросить все фильтры, чтобы увидеть больше результатов"
+                : "Отклики появятся здесь после того, как кандидаты начнут откликаться на вашу вакансию. Убедитесь, что вакансия опубликована и активна"}
+            </div>
+          </div>
+
+          {/* Подсказка для фильтров */}
+          {hasResponses && (
+            <div className="text-xs text-muted-foreground/80">
+              💡 Совет: используйте поиск или измените статус фильтра
+            </div>
+          )}
         </div>
       </TableCell>
     </TableRow>
