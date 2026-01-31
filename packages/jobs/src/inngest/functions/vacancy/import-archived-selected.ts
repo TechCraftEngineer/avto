@@ -51,6 +51,13 @@ export const importSelectedArchivedVacanciesFunction = inngest.createFunction(
         let updated = 0;
         let failed = 0;
 
+        // Создаем массив для отслеживания прогресса по каждой вакансии
+        const vacancyProgress = vacancyIds.map((id) => ({
+          id,
+          title: "", // Будет заполнено при обработке
+          status: "pending" as const,
+        }));
+
         try {
           // Используем оптимизированную функцию пакетного импорта
           // Она переиспользует один браузер и сеанс аутентификации для всех вакансий
@@ -66,14 +73,49 @@ export const importSelectedArchivedVacanciesFunction = inngest.createFunction(
             const result = results[i];
             if (!result) continue;
 
+            // Обновляем прогресс текущей вакансии
+            const currentVacancyId = vacancyIds[i];
+            if (!currentVacancyId) continue;
+
+            vacancyProgress[i] = {
+              id: currentVacancyId,
+              title: result.title || `Вакансия ${currentVacancyId}`,
+              status: "processing",
+            };
+
+            // Отправляем прогресс с текущей вакансией
+            await publish(
+              importArchivedVacanciesChannel(workspaceId).progress({
+                workspaceId,
+                status: "processing",
+                message: `Обрабатывается: ${result.title || currentVacancyId}`,
+                total: vacancyIds.length,
+                processed: i,
+                failed,
+                currentVacancy: {
+                  id: currentVacancyId,
+                  title: result.title || `Вакансия ${currentVacancyId}`,
+                },
+                vacancies: [...vacancyProgress],
+              }),
+            );
+
             if (result.success) {
               if (result.isNew) {
                 imported++;
               } else {
                 updated++;
               }
+              const progressItem = vacancyProgress[i];
+              if (progressItem) {
+                progressItem.status = "success";
+              }
             } else {
               failed++;
+              const progressItem = vacancyProgress[i];
+              if (progressItem) {
+                progressItem.status = "failed";
+              }
             }
 
             // Отправляем прогресс только для батчей или последней вакансии
@@ -89,6 +131,7 @@ export const importSelectedArchivedVacanciesFunction = inngest.createFunction(
                   total: vacancyIds.length,
                   processed: i + 1,
                   failed,
+                  vacancies: [...vacancyProgress],
                 }),
               );
             }
@@ -101,6 +144,7 @@ export const importSelectedArchivedVacanciesFunction = inngest.createFunction(
               message: "Импорт завершён",
               total: vacancyIds.length,
               processed: vacancyIds.length,
+              vacancies: [...vacancyProgress],
             }),
           );
 

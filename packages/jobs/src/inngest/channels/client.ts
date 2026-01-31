@@ -309,6 +309,22 @@ export const importArchivedVacanciesChannel = channel(
         total: z.number().int().nonnegative().optional(),
         processed: z.number().int().nonnegative().optional(),
         failed: z.number().int().nonnegative().optional(),
+        currentVacancy: z
+          .object({
+            id: z.string(),
+            title: z.string(),
+          })
+          .optional(),
+        vacancies: z
+          .array(
+            z.object({
+              id: z.string(),
+              title: z.string(),
+              status: z.enum(["pending", "processing", "success", "failed"]),
+              error: z.string().optional(),
+            }),
+          )
+          .optional(),
       }),
     ),
   )
@@ -390,6 +406,7 @@ export const fetchArchivedListChannel = channel(
               id: z.string(),
               title: z.string(),
               archivedAt: z.string().optional(),
+              isImported: z.boolean().optional(),
             }),
           )
           .optional(),

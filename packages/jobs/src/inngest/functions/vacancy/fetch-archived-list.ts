@@ -1,3 +1,6 @@
+import { db } from "@qbs-autonaim/db/client";
+import { vacancy } from "@qbs-autonaim/db/schema";
+import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { fetchArchivedVacanciesList } from "../../../parsers/hh";
 import { fetchArchivedListChannel } from "../../channels/client";
@@ -64,12 +67,38 @@ export const fetchArchivedListFunction = inngest.createFunction(
         // Получаем список архивных вакансий
         const rawVacancies = await fetchArchivedVacanciesList(workspaceId);
 
-        // Преобразуем данные в формат, ожидаемый каналом, фильтруем пустые externalId
+        // Получаем список externalId для проверки в базе
+        const validExternalIds = rawVacancies
+          .filter((v) => v.externalId)
+          .map((v) => v.externalId);
+
+        // Проверяем, какие вакансии уже загружены в базу
+        const existingVacancies =
+          validExternalIds.length > 0
+            ? await db
+                .select({ externalId: vacancy.externalId })
+                .from(vacancy)
+                .where(
+                  and(
+                    eq(vacancy.workspaceId, workspaceId),
+                    eq(vacancy.source, "HH"),
+                  ),
+                )
+            : [];
+
+        const existingExternalIds = new Set(
+          existingVacancies
+            .map((v) => v.externalId)
+            .filter((id): id is string => id !== null),
+        );
+
+        // Преобразуем данные в формат, ожидаемый каналом, добавляем флаг isImported
         const vacancies = rawVacancies
           .filter((v) => v.externalId)
           .map((v) => ({
             id: v.externalId,
             title: v.title,
+            isImported: existingExternalIds.has(v.externalId),
           }));
 
         await publish(

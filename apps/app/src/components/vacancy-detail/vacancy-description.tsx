@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui";
 import { IconFileDescription } from "@tabler/icons-react";
 
-import DOMPurify from "isomorphic-dompurify";
+import sanitizeHtml from "sanitize-html";
 
 interface VacancyDescriptionProps {
   description?: string | null;
@@ -17,7 +17,13 @@ export function VacancyDescription({ description }: VacancyDescriptionProps) {
   const readingTime = Math.ceil(wordCount / 200);
 
   const sanitizedDescription = description
-    ? DOMPurify.sanitize(description)
+    ? sanitizeHtml(description, {
+        allowedTags: sanitizeHtml.defaults.allowedTags.concat(["img"]),
+        allowedAttributes: {
+          ...sanitizeHtml.defaults.allowedAttributes,
+          "*": ["class", "style"],
+        },
+      })
     : null;
 
   return (

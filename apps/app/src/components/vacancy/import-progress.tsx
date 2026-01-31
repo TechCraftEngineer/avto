@@ -5,10 +5,19 @@ import {
   Alert,
   AlertDescription,
   AlertTitle,
+  Badge,
+  Button,
   Progress,
+  ScrollArea,
 } from "@qbs-autonaim/ui";
-import { CheckCircle2, Loader2, XCircle } from "lucide-react";
-import { useCallback, useEffect, useRef } from "react";
+import {
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Loader2,
+  XCircle,
+} from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { fetchImportVacanciesToken } from "~/actions/realtime";
 
 export interface ImportProgressResult {
@@ -16,6 +25,13 @@ export interface ImportProgressResult {
   imported: number;
   updated: number;
   failed: number;
+  error?: string;
+}
+
+export interface VacancyProgressItem {
+  id: string;
+  title: string;
+  status: "pending" | "processing" | "success" | "failed";
   error?: string;
 }
 
@@ -34,6 +50,7 @@ export function ImportProgress({
 }: ImportProgressProps) {
   // Отслеживаем, был ли уже вызван onComplete
   const completedRef = useRef(false);
+  const [isDetailsExpanded, setIsDetailsExpanded] = useState(true);
 
   // Мемоизируем функцию получения токена, чтобы избежать множественных подключений
   const refreshToken = useCallback(
@@ -57,6 +74,12 @@ export function ImportProgress({
       ? (latestMessage.data as ImportProgressResult)
       : null;
 
+  // Получаем детальный прогресс по вакансиям (если есть)
+  const vacancyProgress: VacancyProgressItem[] = progressData?.vacancies || [];
+  const currentVacancy = progressData?.currentVacancy as
+    | { id: string; title: string }
+    | undefined;
+
   // Вычисляем прогресс для массового импорта
   const progress =
     progressData?.total && progressData.total > 0
@@ -67,7 +90,13 @@ export function ImportProgress({
   useEffect(() => {
     if (isCompleted && resultData && !completedRef.current) {
       completedRef.current = true;
-      onComplete(resultData);
+
+      // Небольшая задержка для показа финального состояния
+      const timer = setTimeout(() => {
+        onComplete(resultData);
+      }, 1500);
+
+      return () => clearTimeout(timer);
     }
   }, [isCompleted, resultData, onComplete]);
 
@@ -138,29 +167,78 @@ export function ImportProgress({
       variant={
         error || (resultData && !resultData.success) ? "destructive" : "default"
       }
+      className="relative overflow-hidden"
     >
-      <div className="flex items-start gap-3">
+      {/* Анимированный фон для успешного завершения */}
+      {isCompleted && resultData?.success && (
+        <div className="absolute inset-0 bg-gradient-to-r from-green-50 to-emerald-50 animate-in fade-in duration-500" />
+      )}
+
+      <div className="relative flex items-start gap-3">
         {isCompleted ? (
           resultData?.success ? (
-            <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+            <div className="relative">
+              <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 shrink-0 animate-in zoom-in duration-300" />
+              <div className="absolute inset-0 animate-ping">
+                <CheckCircle2 className="h-5 w-5 text-green-600 opacity-75" />
+              </div>
+            </div>
           ) : (
-            <XCircle className="h-5 w-5 mt-0.5 shrink-0" />
+            <XCircle className="h-5 w-5 mt-0.5 shrink-0 animate-in zoom-in duration-300" />
           )
         ) : (
           <Loader2 className="h-5 w-5 animate-spin mt-0.5 shrink-0" />
         )}
 
-        <div className="flex-1 space-y-2 overflow-hidden">
-          <AlertTitle>{getTitle()}</AlertTitle>
-          <AlertDescription className="whitespace-pre-wrap wrap-break-word overflow-auto max-h-[200px]">
-            {getStatusMessage()}
-          </AlertDescription>
+        <div className="flex-1 space-y-3 overflow-hidden">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex-1">
+              <AlertTitle className="flex items-center gap-2">
+                {getTitle()}
+                {isCompleted && resultData?.success && (
+                  <Badge
+                    variant="secondary"
+                    className="bg-green-100 text-green-700"
+                  >
+                    Готово
+                  </Badge>
+                )}
+              </AlertTitle>
+              <AlertDescription className="mt-1.5 whitespace-pre-wrap wrap-break-word">
+                {getStatusMessage()}
+              </AlertDescription>
+            </div>
+
+            {/* Кнопка сворачивания деталей */}
+            {type === "archived" &&
+              vacancyProgress.length > 0 &&
+              !isCompleted && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsDetailsExpanded(!isDetailsExpanded)}
+                  className="shrink-0"
+                >
+                  {isDetailsExpanded ? (
+                    <>
+                      <ChevronUp className="h-4 w-4 mr-1" />
+                      Свернуть
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="h-4 w-4 mr-1" />
+                      Развернуть
+                    </>
+                  )}
+                </Button>
+              )}
+          </div>
 
           {/* Прогресс-бар для массового импорта */}
           {progressData?.total &&
             progressData.total > 0 &&
             type !== "by-url" && (
-              <div className="space-y-1">
+              <div className="space-y-2">
                 <Progress value={progress} className="h-2" />
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
                   <span>
@@ -168,6 +246,81 @@ export function ImportProgress({
                   </span>
                   <span>{progress}%</span>
                 </div>
+
+                {/* Текущая обрабатываемая вакансия */}
+                {currentVacancy && (
+                  <div className="text-xs text-muted-foreground pt-1 border-t">
+                    <span className="font-medium">Обрабатывается:</span>{" "}
+                    {currentVacancy.title}
+                  </div>
+                )}
+              </div>
+            )}
+
+          {/* Детальный список вакансий для архивного импорта */}
+          {type === "archived" &&
+            vacancyProgress.length > 0 &&
+            !isCompleted &&
+            isDetailsExpanded && (
+              <div className="space-y-2 pt-2 border-t animate-in slide-in-from-top duration-300">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm font-medium">
+                    Прогресс по вакансиям:
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {
+                      vacancyProgress.filter((v) => v.status === "success")
+                        .length
+                    }{" "}
+                    / {vacancyProgress.length} завершено
+                  </div>
+                </div>
+                <ScrollArea className="h-[200px] rounded-md border bg-background/50">
+                  <div className="p-3 space-y-2">
+                    {vacancyProgress.map((vacancy, index) => (
+                      <div
+                        key={vacancy.id}
+                        className={`flex items-start gap-2 text-sm p-2 rounded transition-all ${
+                          vacancy.status === "processing"
+                            ? "bg-blue-50 border border-blue-200"
+                            : ""
+                        }`}
+                        style={{
+                          animationDelay: `${index * 50}ms`,
+                        }}
+                      >
+                        {vacancy.status === "pending" && (
+                          <div className="h-4 w-4 rounded-full border-2 border-muted mt-0.5 shrink-0" />
+                        )}
+                        {vacancy.status === "processing" && (
+                          <Loader2 className="h-4 w-4 animate-spin text-blue-600 mt-0.5 shrink-0" />
+                        )}
+                        {vacancy.status === "success" && (
+                          <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 shrink-0 animate-in zoom-in duration-200" />
+                        )}
+                        {vacancy.status === "failed" && (
+                          <XCircle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div
+                            className={`truncate ${
+                              vacancy.status === "processing"
+                                ? "font-medium text-blue-900"
+                                : ""
+                            }`}
+                          >
+                            {vacancy.title}
+                          </div>
+                          {vacancy.error && (
+                            <div className="text-xs text-destructive mt-0.5">
+                              {vacancy.error}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
               </div>
             )}
 
