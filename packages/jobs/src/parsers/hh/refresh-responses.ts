@@ -1,5 +1,6 @@
-import { getIntegrationCredentials } from "@qbs-autonaim/db";
+import { eq, getIntegrationCredentials } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
+import { vacancy } from "@qbs-autonaim/db/schema";
 
 import type { ProgressCallback } from "../types";
 import {
@@ -21,6 +22,19 @@ export async function refreshVacancyResponses(
   onProgress?: ProgressCallback,
 ): Promise<{ newCount: number; totalResponses: number }> {
   console.log(`🔄 Refreshing responses for vacancy ${vacancyId}...`);
+
+  // Get vacancy to retrieve externalId
+  const vacancyData = await db.query.vacancy.findFirst({
+    where: eq(vacancy.id, vacancyId),
+  });
+
+  if (!vacancyData) {
+    throw new Error(`Вакансия ${vacancyId} не найдена`);
+  }
+
+  if (!vacancyData.externalId) {
+    throw new Error(`У вакансии ${vacancyId} отсутствует externalId`);
+  }
 
   // Get credentials
   const credentials = await getIntegrationCredentials(db, "hh", workspaceId);
@@ -53,7 +67,7 @@ export async function refreshVacancyResponses(
     await ensureAuthenticated(page, email, password, workspaceId);
 
     // Navigate to responses page with auth check
-    const responsesUrl = `https://hh.ru/employer/vacancyresponses?vacancyId=${vacancyId}&order=DATE`;
+    const responsesUrl = `https://hh.ru/employer/vacancyresponses?vacancyId=${vacancyData.externalId}&order=DATE`;
     await navigateWithAuth(page, responsesUrl, email, password, workspaceId);
 
     // Parse responses
@@ -61,6 +75,7 @@ export async function refreshVacancyResponses(
     const result = await parseResponses(
       page,
       responsesUrl,
+      vacancyData.externalId,
       vacancyId,
       onProgress,
     );

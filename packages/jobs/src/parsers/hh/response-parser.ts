@@ -19,6 +19,7 @@ interface ResponseWithId extends ResponseData {
 export async function parseResponses(
   page: Page,
   url: string,
+  externalVacancyId: string,
   vacancyId: string,
   onProgress?: ProgressCallback,
 ): Promise<{
@@ -27,7 +28,8 @@ export async function parseResponses(
   totalResponses: number;
 }> {
   const urlObj = new URL(url, HH_CONFIG.urls.baseUrl);
-  const urlVacancyId = urlObj.searchParams.get("vacancyId") || vacancyId;
+  const urlVacancyId =
+    urlObj.searchParams.get("vacancyId") || externalVacancyId;
 
   console.log(`🚀 Начинаем парсинг откликов для вакансии ${urlVacancyId}`);
 
@@ -114,7 +116,7 @@ function parseResponseDate(dateStr: string): Date | undefined {
 
 async function collectAndSaveResponses(
   page: Page,
-  vacancyId: string,
+  externalVacancyId: string,
   vacancyIdForSave: string,
   onProgress?: ProgressCallback,
 ): Promise<{ responses: ResponseWithId[]; newCount: number }> {
@@ -126,8 +128,8 @@ async function collectAndSaveResponses(
   while (true) {
     const pageUrl =
       currentPage === 0
-        ? `https://hh.ru/employer/vacancyresponses?vacancyId=${vacancyId}&order=DATE`
-        : `https://hh.ru/employer/vacancyresponses?vacancyId=${vacancyId}&page=${currentPage}&order=DATE`;
+        ? `https://hh.ru/employer/vacancyresponses?vacancyId=${externalVacancyId}&order=DATE`
+        : `https://hh.ru/employer/vacancyresponses?vacancyId=${externalVacancyId}&page=${currentPage}&order=DATE`;
 
     console.log(`📄 Страница ${currentPage}: ${pageUrl}`);
 
