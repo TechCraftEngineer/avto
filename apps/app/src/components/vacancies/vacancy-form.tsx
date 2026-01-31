@@ -23,6 +23,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { TiptapEditor } from "~/components/editor";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
 
@@ -203,10 +204,10 @@ export function VacancyForm({ onSuccess }: VacancyFormProps) {
             <FormItem>
               <FormLabel>Описание</FormLabel>
               <FormControl>
-                <Textarea
+                <TiptapEditor
+                  content={field.value}
+                  onChange={field.onChange}
                   placeholder="Подробное описание вакансии…"
-                  className="min-h-[120px] resize-y"
-                  {...field}
                 />
               </FormControl>
               <FormDescription>
