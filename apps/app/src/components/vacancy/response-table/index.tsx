@@ -95,10 +95,8 @@ export function ResponseTable({
 
   const {
     isProcessing,
-    isProcessingAll,
     isProcessingNew,
     isRefreshing,
-    isRefreshingAllResumes,
     isSendingWelcome,
     isSyncingArchived,
     handleBulkScreen,
@@ -228,8 +226,6 @@ export function ResponseTable({
         onSearchChange={handleSearchChange}
         isRefreshing={isRefreshing}
         isProcessingNew={isProcessingNew}
-        isProcessingAll={isProcessingAll}
-        isRefreshingAllResumes={isRefreshingAllResumes}
         isSyncingArchived={isSyncingArchived}
         onRefresh={handleRefreshResponses}
         onRefreshComplete={handleRefreshComplete}
