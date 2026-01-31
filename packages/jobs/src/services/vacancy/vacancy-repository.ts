@@ -85,13 +85,14 @@ async function createVacancyPublication(
   platform: PlatformSource,
   externalId?: string,
   url?: string,
+  isActive = true,
 ): Promise<void> {
   await db.insert(vacancyPublication).values({
     vacancyId,
     platform,
     externalId: externalId || undefined,
     url: url || undefined,
-    isActive: true,
+    isActive,
   });
 
   logger.info(
@@ -107,6 +108,7 @@ async function upsertVacancyPublication(
   platform: PlatformSource,
   externalId?: string,
   url?: string,
+  isActive = true,
 ): Promise<void> {
   // Проверяем, существует ли публикация
   const existingPublication = await db.query.vacancyPublication.findFirst({
@@ -121,7 +123,7 @@ async function upsertVacancyPublication(
       .set({
         externalId: externalId || undefined,
         url: url || undefined,
-        isActive: true,
+        isActive,
       })
       .where(eq(vacancyPublication.id, existingPublication.id));
 
@@ -130,7 +132,13 @@ async function upsertVacancyPublication(
     );
   } else {
     // Создаём новую публикацию
-    await createVacancyPublication(vacancyId, platform, externalId, url);
+    await createVacancyPublication(
+      vacancyId,
+      platform,
+      externalId,
+      url,
+      isActive,
+    );
   }
 }
 
@@ -245,6 +253,7 @@ export async function saveBasicVacancy(
         dataToSave.source,
         dataToSave.externalId,
         dataToSave.url,
+        dataToSave.isActive,
       );
 
       logger.info(`Базовая информация создана: ${vacancyData.title}`);
@@ -262,6 +271,7 @@ export async function saveBasicVacancy(
       dataToSave.source,
       dataToSave.externalId,
       dataToSave.url,
+      dataToSave.isActive,
     );
 
     logger.info(`Базовая информация обновлена: ${vacancyData.title}`);
@@ -363,6 +373,7 @@ export async function saveVacancyToDb(
         dataToSave.source,
         dataToSave.externalId,
         dataToSave.url,
+        dataToSave.isActive,
       );
 
       logger.info(`Вакансия создана: ${vacancyData.title}`);
@@ -379,6 +390,7 @@ export async function saveVacancyToDb(
         dataToSave.source,
         dataToSave.externalId,
         dataToSave.url,
+        dataToSave.isActive,
       );
 
       logger.info(`Вакансия обновлена: ${vacancyData.title}`);

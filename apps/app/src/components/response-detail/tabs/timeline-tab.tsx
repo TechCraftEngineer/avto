@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
-import { type JsonValue, ValueChangeDisplay } from "./value-change-display";
+import { ValueChangeDisplay } from "./value-change-display";
 
 interface TimelineTabProps {
   responseId: string;
@@ -140,8 +140,8 @@ export function TimelineTab({ responseId }: TimelineTabProps) {
                   )}
 
                   <ValueChangeDisplay
-                    oldValue={event.oldValue as JsonValue}
-                    newValue={event.newValue as JsonValue}
+                    oldValue={event.oldValue}
+                    newValue={event.newValue}
                   />
                 </div>
               </div>

@@ -153,6 +153,7 @@ export default function VacanciesPage() {
             variant="outline"
             className="h-9 items-center gap-2 px-3 font-medium transition-all hover:bg-muted active:scale-95 sm:px-4"
             title="Получить новые отклики со всех подключенных платформ"
+            aria-label={isUpdating ? "Обновление откликов" : "Обновить отклики"}
           >
             <IconRefresh
               className={`size-4 ${isUpdating ? "animate-spin" : ""}`}

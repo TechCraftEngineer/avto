@@ -53,7 +53,11 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
   >("all");
 
   // Получаем отклики для всего workspace
-  const { data: responsesData, isLoading } = useQuery({
+  const {
+    data: responsesData,
+    isLoading,
+    refetch,
+  } = useQuery({
     ...trpc.vacancy.responses.listAllWorkspace.queryOptions({
       workspaceId: workspace?.id ?? "",
       page,
@@ -63,6 +67,7 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
       screeningFilter,
       statusFilter: statusFilter.length > 0 ? statusFilter : undefined,
       search: search.trim() || undefined,
+      priority: priorityFilter === "all" ? undefined : priorityFilter,
     }),
     enabled: Boolean(workspace?.id),
   });
@@ -100,8 +105,23 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
     }
   };
 
-  const handleRefresh = () => {
-    toast.success("Данные обновлены");
+  const handleRefresh = async () => {
+    try {
+      await refetch();
+      toast.success("Данные обновлены");
+    } catch (error) {
+      toast.error("Не удалось обновить данные");
+    }
+  };
+
+  const escapeCsvField = (
+    value: string | number | null | undefined,
+  ): string => {
+    const str = String(value ?? "");
+    const needsQuotes =
+      str.includes(",") || str.includes('"') || str.includes("\n");
+    const escaped = str.replace(/"/g, '""').replace(/\r\n|\r|\n/g, "\n");
+    return needsQuotes ? `"${escaped}"` : escaped;
   };
 
   const handleExport = () => {
@@ -114,13 +134,15 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
       ["Кандидат", "Оценка", "Приоритет", "Статус", "Дата отклика"].join(","),
       ...responsesData.responses.map((r) =>
         [
-          r.candidateName || "Без имени",
-          r.screening?.score || "—",
-          r.priorityScore || "—",
-          r.status,
-          r.respondedAt
-            ? new Date(r.respondedAt).toLocaleDateString("ru-RU")
-            : "—",
+          escapeCsvField(r.candidateName || "Без имени"),
+          escapeCsvField(r.screening?.score ?? "—"),
+          escapeCsvField(r.priorityScore ?? "—"),
+          escapeCsvField(r.status),
+          escapeCsvField(
+            r.respondedAt
+              ? new Date(r.respondedAt).toLocaleDateString("ru-RU")
+              : "—",
+          ),
         ].join(","),
       ),
     ].join("\n");
@@ -128,11 +150,17 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
     const blob = new Blob([`\uFEFF${csvContent}`], {
       type: "text/csv;charset=utf-8;",
     });
+    const objectUrl = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
+    link.href = objectUrl;
     const today = new Date().toISOString().split("T")[0];
     link.download = `отклики_${today}.csv`;
     link.click();
+
+    setTimeout(() => {
+      URL.revokeObjectURL(objectUrl);
+    }, 100);
+
     toast.success("Данные экспортированы");
   };
 

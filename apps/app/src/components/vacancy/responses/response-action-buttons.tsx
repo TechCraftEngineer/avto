@@ -50,6 +50,7 @@ export function ResponseActionButtons({
               variant="outline"
               size="sm"
               className="h-9 bg-background/60 border-border/60 hover:bg-background/80 transition-colors rounded-l-none px-2"
+              aria-label="Открыть дополнительные действия"
             >
               <ChevronDown className="h-4 w-4" />
             </Button>

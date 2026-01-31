@@ -44,7 +44,7 @@ export async function fetchScreenAllResponsesToken(vacancyId: string) {
 export async function fetchRefreshVacancyResponsesToken(vacancyId: string) {
   const token = await getSubscriptionToken(inngest, {
     channel: refreshVacancyResponsesChannel(vacancyId),
-    topics: ["status"],
+    topics: ["progress", "result"],
   });
 
   return token;

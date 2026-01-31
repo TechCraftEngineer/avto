@@ -1,6 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui";
 import { IconFileDescription } from "@tabler/icons-react";
 
+import DOMPurify from "isomorphic-dompurify";
+
 interface VacancyDescriptionProps {
   description?: string | null;
 }
@@ -13,6 +15,10 @@ export function VacancyDescription({ description }: VacancyDescriptionProps) {
   // Подсчет примерного времени чтения (200 слов в минуту)
   const wordCount = description?.split(/\s+/).length ?? 0;
   const readingTime = Math.ceil(wordCount / 200);
+
+  const sanitizedDescription = description
+    ? DOMPurify.sanitize(description)
+    : null;
 
   return (
     <Card>
@@ -30,11 +36,11 @@ export function VacancyDescription({ description }: VacancyDescriptionProps) {
         </div>
       </CardHeader>
       <CardContent>
-        {description ? (
+        {sanitizedDescription ? (
           <div className="prose prose-sm max-w-none">
             <div
               className="text-sm leading-relaxed text-foreground/90"
-              dangerouslySetInnerHTML={{ __html: description }}
+              dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
             />
           </div>
         ) : (

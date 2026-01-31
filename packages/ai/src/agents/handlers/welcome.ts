@@ -91,19 +91,21 @@ export class WelcomeAgent extends BaseAgent<WelcomeInput, WelcomeOutput> {
       channel,
     } = input;
 
-    // Для канала "hh-webchat-invite" не указываем название вакансии и ссылку,
+    // Для канала "hh-webchat-invite" указываем минимальный контекст,
     // так как сообщение отправляется в HH.ru чат, где контекст уже понятен
     const isHHWebChatInvite = channel === "hh-webchat-invite";
 
     const positionText = isHHWebChatInvite
-      ? ""
+      ? type === "vacancy"
+        ? "Вакансия"
+        : "Гиг"
       : type === "vacancy"
         ? vacancyTitle
           ? `Вакансия: ${vacancyTitle}`
           : "Вакансия не указана"
         : gigTitle
-          ? `Gig: ${gigTitle}`
-          : "Gig не указан";
+          ? `Гиг: ${gigTitle}`
+          : "Гиг не указан";
 
     const channelText = `Канал для интервью: ${channel}`;
 

@@ -54,7 +54,6 @@ export function useRefreshState(
     }));
   }, []);
 
-  // Refresh subscription
   useRefreshSubscription({
     vacancyId,
     enabled: state.subscriptionActive,

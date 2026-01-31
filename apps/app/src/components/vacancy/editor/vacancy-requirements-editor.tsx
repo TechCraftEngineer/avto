@@ -312,6 +312,7 @@ function ArrayFieldEditor({
           size="icon"
           onClick={handleAdd}
           disabled={!inputValue.trim()}
+          aria-label="Добавить требование"
         >
           <Plus className="h-4 w-4" />
         </Button>
@@ -328,6 +329,7 @@ function ArrayFieldEditor({
                 type="button"
                 onClick={() => onRemove(index)}
                 className="ml-1 hover:text-destructive transition-colors"
+                aria-label={`Удалить требование ${index + 1}`}
               >
                 <X className="h-3 w-3" />
               </button>
@@ -390,6 +392,7 @@ function LanguageFieldEditor({
           size="icon"
           onClick={handleAdd}
           disabled={!language.trim() || !level}
+          aria-label="Добавить язык"
         >
           <Plus className="h-4 w-4" />
         </Button>
@@ -408,6 +411,7 @@ function LanguageFieldEditor({
                 type="button"
                 onClick={() => onRemove(index)}
                 className="hover:text-destructive transition-colors"
+                aria-label={`Удалить язык ${lang.language}`}
               >
                 <X className="h-4 w-4" />
               </button>
