@@ -32,6 +32,7 @@ import { Loader2, Save } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { VacancyRequirementsEditor } from "./vacancy-requirements-editor";
 
 type Vacancy = NonNullable<RouterOutputs["vacancy"]["get"]>;
 
@@ -54,6 +55,7 @@ export function VacancyFullEditForm({
     defaultValues: {
       title: vacancy.title,
       description: vacancy.description ?? "",
+      requirements: vacancy.requirements ?? undefined,
       customBotInstructions: vacancy.customBotInstructions ?? "",
       customScreeningPrompt: vacancy.customScreeningPrompt ?? "",
       customInterviewQuestions: vacancy.customInterviewQuestions ?? "",
@@ -162,12 +164,23 @@ export function VacancyFullEditForm({
                   )}
                 />
               </div>
+            </CardContent>
+          </Card>
 
-              {/* Детали вакансии */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Детали вакансии</h3>
-              </div>
+          {/* Требования к кандидату */}
+          <VacancyRequirementsEditor
+            form={form}
+            requirements={vacancy.requirements}
+          />
 
+          <Card>
+            <CardHeader>
+              <CardTitle>Дополнительные настройки</CardTitle>
+              <CardDescription>
+                Источник вакансии и настройки ИИ-ассистента
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
               {/* Настройки источника */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Источник вакансии</h3>

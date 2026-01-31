@@ -122,17 +122,16 @@ export default function VacanciesPage() {
         description="Управление вашими вакансиями и откликами на фриланс-платформах"
         tooltipContent="Вы можете импортировать вакансии из HH, Avito и других площадок. Система будет автоматически отслеживать новые отклики и синхронизировать статусы."
       >
-        <div className="flex items-center gap-3">
-          <Button
-            onClick={handleUpdate}
-            disabled={isUpdating || isLoading}
-            variant="outline"
-            className="hidden h-9 items-center gap-2 px-4 font-medium transition-all hover:bg-muted active:scale-95 sm:flex"
-          >
-            <IconRefresh
-              className={`size-4 ${isUpdating ? "animate-spin" : ""}`}
-            />
-            {isUpdating ? "Обновление…" : "Синхронизировать"}
+        <div className="flex items-center gap-2">
+          <Button asChild className="h-9 gap-2 shadow-sm active:scale-95">
+            <Link
+              href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies/create`}
+              title="Создать новую вакансию вручную"
+            >
+              <IconPlus className="size-4" />
+              <span className="hidden sm:inline">Создать вакансию</span>
+              <span className="sm:hidden">Создать</span>
+            </Link>
           </Button>
           <Button
             asChild
@@ -141,18 +140,27 @@ export default function VacanciesPage() {
           >
             <Link
               href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies/import`}
+              title="Импортировать вакансии с HH.ru, Avito и других платформ"
             >
               <IconDownload className="size-4" />
-              <span>Импорт</span>
+              <span className="hidden sm:inline">Добавить с HH/Avito</span>
+              <span className="sm:hidden">Импорт</span>
             </Link>
           </Button>
-          <Button asChild className="h-9 gap-2 shadow-sm active:scale-95">
-            <Link
-              href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies/create`}
-            >
-              <IconPlus className="size-4" />
-              <span>Создать вакансию</span>
-            </Link>
+          <Button
+            onClick={handleUpdate}
+            disabled={isUpdating || isLoading}
+            variant="outline"
+            className="h-9 items-center gap-2 px-3 font-medium transition-all hover:bg-muted active:scale-95 sm:px-4"
+            title="Получить новые отклики со всех подключенных платформ"
+          >
+            <IconRefresh
+              className={`size-4 ${isUpdating ? "animate-spin" : ""}`}
+            />
+            <span className="hidden sm:inline">
+              {isUpdating ? "Обновление…" : "Обновить отклики"}
+            </span>
+            <span className="sm:hidden">{isUpdating ? "…" : "Обновить"}</span>
           </Button>
         </div>
       </PageHeader>

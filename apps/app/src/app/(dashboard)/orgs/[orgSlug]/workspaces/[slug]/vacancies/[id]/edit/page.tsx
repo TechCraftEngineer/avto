@@ -3,7 +3,7 @@
 import type { UpdateFullVacancyInput } from "@qbs-autonaim/validators";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { use } from "react";
-import { VacancyEditForm } from "~/components/vacancy";
+import { VacancyFullEditForm } from "~/components/vacancy";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 import { useTRPC } from "~/trpc/react";
 
@@ -59,7 +59,7 @@ export default function VacancyEditPage({ params }: VacancyEditPageProps) {
     <div className="flex flex-1 flex-col">
       <div className="@container/main flex flex-1 flex-col gap-2">
         <div className="px-4 py-4 md:px-6 lg:px-8">
-          <VacancyEditForm vacancy={vacancy} onSave={handleSave} />
+          <VacancyFullEditForm vacancy={vacancy} onSave={handleSave} />
         </div>
       </div>
     </div>
