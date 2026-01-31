@@ -5,14 +5,17 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  Progress,
 } from "@qbs-autonaim/ui";
 import { Loader2 } from "lucide-react";
+import type { RefreshProgress } from "./use-refresh-subscription";
 
 interface RefreshDialogProps {
   open: boolean;
   status: "idle" | "loading" | "success" | "error";
   message: string;
   error: string | null;
+  progress: RefreshProgress | null;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
   onClose: () => void;
@@ -23,6 +26,7 @@ export function RefreshDialog({
   status,
   message,
   error,
+  progress,
   onOpenChange,
   onConfirm,
   onClose,
@@ -41,9 +45,20 @@ export function RefreshDialog({
               </>
             )}
             {status === "loading" && (
-              <div className="flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <span>{message || "Запускаем получение откликов..."}</span>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>{message || "Запускаем получение откликов..."}</span>
+                </div>
+                {progress && (
+                  <div className="space-y-2">
+                    <div className="text-sm text-muted-foreground">
+                      Страница: {progress.currentPage + 1} • Новых:{" "}
+                      {progress.totalSaved} • Пропущено: {progress.totalSkipped}
+                    </div>
+                    <Progress value={undefined} className="h-2" />
+                  </div>
+                )}
               </div>
             )}
             {status === "success" && (

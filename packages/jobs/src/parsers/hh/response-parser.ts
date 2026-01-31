@@ -6,7 +6,7 @@ import {
   uploadCandidatePhoto,
   uploadResumePdf,
 } from "../../services/response";
-import type { ResponseData } from "../types";
+import type { ProgressCallback, ResponseData } from "../types";
 import { HH_CONFIG } from "./config";
 import { humanScroll } from "./human-behavior";
 import { parseResumeExperience } from "./resume-parser";
@@ -20,7 +20,12 @@ export async function parseResponses(
   page: Page,
   url: string,
   vacancyId: string,
-): Promise<{ responses: ResponseData[]; newCount: number }> {
+  onProgress?: ProgressCallback,
+): Promise<{
+  responses: ResponseData[];
+  newCount: number;
+  totalResponses: number;
+}> {
   const urlObj = new URL(url, HH_CONFIG.urls.baseUrl);
   const urlVacancyId = urlObj.searchParams.get("vacancyId") || vacancyId;
 
@@ -31,11 +36,12 @@ export async function parseResponses(
     page,
     urlVacancyId,
     vacancyId,
+    onProgress,
   );
 
   if (allResponses.length === 0) {
     console.log("⚠️ Не найдено откликов для обработки");
-    return { responses: [], newCount: 0 };
+    return { responses: [], newCount: 0, totalResponses: 0 };
   }
 
   console.log(`✅ Всего обработано откликов: ${allResponses.length}`);
@@ -52,7 +58,11 @@ export async function parseResponses(
 
   if (responsesNeedingDetails.length === 0) {
     console.log("ℹ️ Все отклики уже имеют детальную информацию");
-    return { responses: allResponses, newCount };
+    return {
+      responses: allResponses,
+      newCount,
+      totalResponses: allResponses.length,
+    };
   }
 
   console.log("\n📊 ЭТАП 3: Парсинг детальной информации резюме...");
@@ -62,7 +72,11 @@ export async function parseResponses(
     `\n🎉 Парсинг завершен! Обработано откликов: ${responsesNeedingDetails.length}`,
   );
 
-  return { responses: allResponses, newCount };
+  return {
+    responses: allResponses,
+    newCount,
+    totalResponses: allResponses.length,
+  };
 }
 
 function parseResponseDate(dateStr: string): Date | undefined {
@@ -102,6 +116,7 @@ async function collectAndSaveResponses(
   page: Page,
   vacancyId: string,
   vacancyIdForSave: string,
+  onProgress?: ProgressCallback,
 ): Promise<{ responses: ResponseWithId[]; newCount: number }> {
   const allResponses: ResponseWithId[] = [];
   let currentPage = 0;
@@ -115,6 +130,14 @@ async function collectAndSaveResponses(
         : `https://hh.ru/employer/vacancyresponses?vacancyId=${vacancyId}&page=${currentPage}&order=DATE`;
 
     console.log(`📄 Страница ${currentPage}: ${pageUrl}`);
+
+    // Отправляем прогресс перед загрузкой страницы
+    await onProgress?.({
+      currentPage,
+      totalSaved,
+      totalSkipped,
+      message: `Обработка страницы ${currentPage + 1}...`,
+    });
 
     try {
       await page.goto(pageUrl, { waitUntil: "networkidle2", timeout: 30000 });

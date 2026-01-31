@@ -48,6 +48,7 @@ export function ResponseDialogs({
         status={refreshState.status}
         message={refreshState.message}
         error={refreshState.error}
+        progress={refreshState.progress}
         onOpenChange={(open) => {
           if (!open) {
             refreshState.handleDialogClose();

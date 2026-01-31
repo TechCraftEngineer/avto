@@ -1,6 +1,7 @@
 import { getIntegrationCredentials } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 
+import type { ProgressCallback } from "../types";
 import {
   ensureAuthenticated,
   navigateWithAuth,
@@ -17,7 +18,8 @@ import { parseResponses } from "./response-parser";
 export async function refreshVacancyResponses(
   vacancyId: string,
   workspaceId: string,
-): Promise<{ newCount: number }> {
+  onProgress?: ProgressCallback,
+): Promise<{ newCount: number; totalResponses: number }> {
   console.log(`🔄 Refreshing responses for vacancy ${vacancyId}...`);
 
   // Get credentials
@@ -56,10 +58,16 @@ export async function refreshVacancyResponses(
 
     // Parse responses
     console.log(`📋 Parsing responses for vacancy ${vacancyId}...`);
-    const result = await parseResponses(page, responsesUrl, vacancyId);
+    const result = await parseResponses(
+      page,
+      responsesUrl,
+      vacancyId,
+      onProgress,
+    );
 
     console.log(`✅ Responses for vacancy ${vacancyId} updated successfully`);
     console.log(`📊 New responses: ${result.newCount}`);
+    console.log(`📊 Total responses: ${result.totalResponses}`);
 
     await new Promise((resolve) =>
       setTimeout(resolve, HH_CONFIG.delays.afterParsing),
@@ -67,7 +75,10 @@ export async function refreshVacancyResponses(
 
     console.log("\n✨ Response refresh completed!");
 
-    return { newCount: result.newCount };
+    return {
+      newCount: result.newCount,
+      totalResponses: result.totalResponses,
+    };
   } catch (error) {
     console.error("❌ Error refreshing responses:", error);
     throw error;

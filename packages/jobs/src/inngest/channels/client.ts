@@ -70,15 +70,30 @@ export const screenAllResponsesChannel = channel(
  */
 export const refreshVacancyResponsesChannel = channel(
   (vacancyId: string) => `vacancy-responses-refresh:${vacancyId}`,
-).addTopic(
-  topic("status").schema(
-    z.object({
-      status: z.enum(["started", "processing", "completed", "error"]),
-      message: z.string(),
-      vacancyId: z.string(),
-    }),
-  ),
-);
+)
+  .addTopic(
+    topic("progress").schema(
+      z.object({
+        vacancyId: z.string(),
+        status: z.enum(["started", "processing", "completed", "error"]),
+        message: z.string(),
+        currentPage: z.number().optional(),
+        totalSaved: z.number().optional(),
+        totalSkipped: z.number().optional(),
+      }),
+    ),
+  )
+  .addTopic(
+    topic("result").schema(
+      z.object({
+        vacancyId: z.string(),
+        success: z.boolean(),
+        newCount: z.number(),
+        totalResponses: z.number(),
+        error: z.string().optional(),
+      }),
+    ),
+  );
 
 /**
  * Канал для отслеживания прогресса синхронизации архивных откликов вакансии

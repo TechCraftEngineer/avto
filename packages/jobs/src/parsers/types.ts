@@ -42,3 +42,12 @@ export interface SaveResponseData {
   resumePdfFileId?: string | null;
   photoFileId?: string | null;
 }
+
+export interface ProgressData {
+  currentPage: number;
+  totalSaved: number;
+  totalSkipped: number;
+  message: string;
+}
+
+export type ProgressCallback = (progress: ProgressData) => void | Promise<void>;

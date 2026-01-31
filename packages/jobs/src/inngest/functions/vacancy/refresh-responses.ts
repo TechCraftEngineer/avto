@@ -21,10 +21,10 @@ export const refreshVacancyResponsesFunction = inngest.createFunction(
     const { vacancyId } = event.data;
 
     await publish(
-      refreshVacancyResponsesChannel(vacancyId).status({
+      refreshVacancyResponsesChannel(vacancyId).progress({
+        vacancyId,
         status: "started",
         message: "Начинаем обновление откликов",
-        vacancyId,
       }),
     );
 
@@ -37,10 +37,10 @@ export const refreshVacancyResponsesFunction = inngest.createFunction(
 
       if (!vacancyData) {
         await publish(
-          refreshVacancyResponsesChannel(vacancyId).status({
+          refreshVacancyResponsesChannel(vacancyId).progress({
+            vacancyId,
             status: "error",
             message: `Вакансия ${vacancyId} не найдена`,
-            vacancyId,
           }),
         );
         throw new Error(`Вакансия ${vacancyId} не найдена`);
@@ -48,43 +48,56 @@ export const refreshVacancyResponsesFunction = inngest.createFunction(
 
       try {
         await publish(
-          refreshVacancyResponsesChannel(vacancyId).status({
+          refreshVacancyResponsesChannel(vacancyId).progress({
+            vacancyId,
             status: "processing",
             message: "Получаем отклики с HeadHunter",
-            vacancyId,
           }),
         );
 
-        const { newCount } = await refreshVacancyResponses(
+        const { newCount, totalResponses } = await refreshVacancyResponses(
           vacancyId,
           vacancyData.workspaceId,
+          async (progressData) => {
+            // Публикуем прогресс в realtime канал
+            await publish(
+              refreshVacancyResponsesChannel(vacancyId).progress({
+                vacancyId,
+                status: "processing",
+                message: progressData.message,
+                currentPage: progressData.currentPage,
+                totalSaved: progressData.totalSaved,
+                totalSkipped: progressData.totalSkipped,
+              }),
+            );
+          },
         );
 
         await publish(
-          refreshVacancyResponsesChannel(vacancyId).status({
-            status: "completed",
-            message:
-              newCount > 0
-                ? `Отклики успешно обновлены. Новых откликов: ${newCount}`
-                : "Отклики успешно обновлены. Новых откликов нет",
+          refreshVacancyResponsesChannel(vacancyId).result({
             vacancyId,
+            success: true,
+            newCount,
+            totalResponses,
           }),
         );
 
         console.log(`✅ Отклики для вакансии ${vacancyId} обновлены успешно`);
 
-        return { success: true, vacancyId, newCount };
+        return { success: true, vacancyId, newCount, totalResponses };
       } catch (error) {
         console.error(
           `❌ Ошибка при обновлении откликов вакансии ${vacancyId}:`,
           error,
         );
         await publish(
-          refreshVacancyResponsesChannel(vacancyId).status({
-            status: "error",
-            message:
-              error instanceof Error ? error.message : "Неизвестная ошибка",
+          refreshVacancyResponsesChannel(vacancyId).result({
             vacancyId,
+            success: false,
+            newCount: 0,
+            totalResponses: 0,
+            error:
+              error instanceof Error ? error.message : "Неизвестная ошибка",
           }),
         );
         throw error;

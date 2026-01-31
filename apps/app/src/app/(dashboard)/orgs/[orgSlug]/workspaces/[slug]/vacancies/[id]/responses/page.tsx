@@ -24,12 +24,6 @@ export default function VacancyResponsesPage() {
             Управление и интеллектуальный анализ кандидатов для вашей вакансии
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="size-2 rounded-full bg-green-500 animate-pulse" />
-          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-            Обновления в реальном времени
-          </span>
-        </div>
       </div>
 
       <Card className="border-none shadow-xl bg-card/60 backdrop-blur-xl overflow-hidden relative group">
