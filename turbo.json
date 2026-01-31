@@ -57,6 +57,9 @@
     "ui-add": {
       "cache": false,
       "interactive": true
+    },
+     "deps:update": {
+      "cache": false
     }
   },
   "globalEnv": [
