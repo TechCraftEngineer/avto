@@ -32,9 +32,10 @@ export function VacancyDescription({ description }: VacancyDescriptionProps) {
       <CardContent>
         {description ? (
           <div className="prose prose-sm max-w-none">
-            <div className="text-sm leading-relaxed whitespace-pre-wrap text-foreground/90">
-              {description}
-            </div>
+            <div
+              className="text-sm leading-relaxed text-foreground/90"
+              dangerouslySetInnerHTML={{ __html: description }}
+            />
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-12 gap-3">

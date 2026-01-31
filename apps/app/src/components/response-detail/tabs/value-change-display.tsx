@@ -1,6 +1,6 @@
 import { CheckCircle2, XCircle } from "lucide-react";
 
-type JsonValue =
+export type JsonValue =
   | string
   | number
   | boolean

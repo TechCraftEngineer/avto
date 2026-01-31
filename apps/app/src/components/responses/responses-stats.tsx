@@ -8,8 +8,13 @@ import {
   CardHeader,
   CardTitle,
   cn,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
 } from "@qbs-autonaim/ui";
 import {
+  IconInfoCircle,
   IconMessageCircle,
   IconSparkles,
   IconStar,
@@ -45,14 +50,15 @@ export function ResponsesStats({
     );
   }
 
-  const evaluatedPercentage =
-    totalResponses > 0
-      ? Math.round((evaluatedResponses / totalResponses) * 100)
-      : 0;
-
   const highScorePercentage =
     evaluatedResponses > 0
       ? Math.round((highScoreResponses / evaluatedResponses) * 100)
+      : 0;
+
+  const pendingReview = totalResponses - evaluatedResponses;
+  const conversionRate =
+    totalResponses > 0
+      ? Math.round((interviewResponses / totalResponses) * 100)
       : 0;
 
   const stats = [
@@ -60,30 +66,36 @@ export function ResponsesStats({
       title: "Всего откликов",
       value: totalResponses,
       description: "на все вакансии",
+      tooltip: "Общее количество откликов от кандидатов на ваши вакансии",
       icon: IconMessageCircle,
       color: "text-blue-600",
       bg: "bg-blue-500/10",
     },
     {
-      title: "Оценено",
-      value: evaluatedResponses,
-      description: `${evaluatedPercentage}% от всех`,
+      title: "Требуют проверки",
+      value: pendingReview,
+      description: `${totalResponses - evaluatedResponses} не оценено`,
+      tooltip:
+        "Отклики, которые ещё не прошли автоматическую оценку. Рекомендуем начать с них",
       icon: IconSparkles,
-      color: "text-purple-600",
-      bg: "bg-purple-500/10",
-      action: evaluatedPercentage > 0 && (
+      color: "text-orange-600",
+      bg: "bg-orange-500/10",
+      highlight: pendingReview > 0,
+      action: pendingReview > 0 && (
         <Badge
           variant="outline"
-          className="border-none bg-purple-500/10 text-purple-700 px-1.5"
+          className="border-none bg-orange-500/10 text-orange-700 px-1.5 animate-pulse"
         >
-          {evaluatedPercentage}%
+          Новые
         </Badge>
       ),
     },
     {
-      title: "Высокий балл",
+      title: "Перспективные",
       value: highScoreResponses,
-      description: `${highScorePercentage}% оценённых`,
+      description: `${highScorePercentage}% от оценённых`,
+      tooltip:
+        "Кандидаты с высокой оценкой (4+ балла). Приоритетные для рассмотрения",
       icon: IconStar,
       color: "text-amber-600",
       bg: "bg-amber-500/10",
@@ -97,45 +109,77 @@ export function ResponsesStats({
       ),
     },
     {
-      title: "На интервью",
+      title: "На собеседовании",
       value: interviewResponses,
-      description: "активных собеседований",
+      description: `конверсия ${conversionRate}%`,
+      tooltip:
+        "Кандидаты, которые проходят или прошли интервью. Показывает эффективность отбора",
       icon: IconUserCheck,
       color: "text-green-600",
       bg: "bg-green-500/10",
+      action: conversionRate > 0 && (
+        <Badge
+          variant="outline"
+          className="border-none bg-green-500/10 text-green-700 px-1.5"
+        >
+          {conversionRate}%
+        </Badge>
+      ),
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-4 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
-      {stats.map((stat) => (
-        <Card
-          key={stat.title}
-          className="group relative overflow-hidden border-none bg-card shadow-sm transition-all hover:shadow-md"
-        >
-          <div
+    <TooltipProvider>
+      <div className="grid grid-cols-1 gap-4 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
+        {stats.map((stat) => (
+          <Card
+            key={stat.title}
             className={cn(
-              "absolute right-0 top-0 -mr-4 -mt-4 size-24 transform rounded-full opacity-10 transition-transform group-hover:scale-110",
-              stat.bg,
+              "group relative overflow-hidden border-none bg-card shadow-sm transition-all hover:shadow-md",
+              stat.highlight && "ring-2 ring-orange-500/20",
             )}
-          />
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <stat.icon className={cn("size-5", stat.color)} />
-              {stat.action}
-            </div>
-            <CardTitle className="mt-4 text-3xl font-bold tracking-tight">
-              {stat.value.toLocaleString()}
-            </CardTitle>
-            <CardDescription className="text-xs font-medium uppercase tracking-wider text-muted-foreground/70">
-              {stat.title}
-            </CardDescription>
-          </CardHeader>
-          <CardFooter>
-            <p className="text-sm text-muted-foreground">{stat.description}</p>
-          </CardFooter>
-        </Card>
-      ))}
-    </div>
+          >
+            <div
+              className={cn(
+                "absolute right-0 top-0 -mr-4 -mt-4 size-24 transform rounded-full opacity-10 transition-transform group-hover:scale-110",
+                stat.bg,
+              )}
+            />
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <stat.icon className={cn("size-5", stat.color)} />
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        className="text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+                      >
+                        <IconInfoCircle className="size-4" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p className="text-sm">{stat.tooltip}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                {stat.action}
+              </div>
+              <CardTitle className="mt-4 text-3xl font-bold tracking-tight">
+                {stat.value.toLocaleString()}
+              </CardTitle>
+              <CardDescription className="text-xs font-medium uppercase tracking-wider text-muted-foreground/70">
+                {stat.title}
+              </CardDescription>
+            </CardHeader>
+            <CardFooter>
+              <p className="text-sm text-muted-foreground">
+                {stat.description}
+              </p>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
+    </TooltipProvider>
   );
 }
