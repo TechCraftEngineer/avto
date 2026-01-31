@@ -1,7 +1,7 @@
 "use client";
 
-import { Badge, Button } from "@qbs-autonaim/ui";
 import { sanitizeHtmlFunction } from "@qbs-autonaim/shared/client";
+import { Badge, Button } from "@qbs-autonaim/ui";
 import {
   Calendar,
   CheckCircle,

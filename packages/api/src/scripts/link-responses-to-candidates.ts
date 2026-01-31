@@ -5,11 +5,7 @@
  * bun run link-responses-to-candidates [workspaceId] [--all] [--dry-run]
  */
 
-
-import {
-  CandidateRepository,
-  eq,
-} from "@qbs-autonaim/db";
+import { CandidateRepository, eq } from "@qbs-autonaim/db";
 import { db, pool } from "@qbs-autonaim/db/client";
 import {
   response as responseTable,

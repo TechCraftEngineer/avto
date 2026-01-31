@@ -27,7 +27,9 @@ export default function VacancySettingsPage({
   const trpc = useTRPC();
   const { workspaceId } = useWorkspaceContext();
   const queryClient = useQueryClient();
-  const [interviewLink, setInterviewLink] = useState<InterviewLink | null>(null);
+  const [interviewLink, setInterviewLink] = useState<InterviewLink | null>(
+    null,
+  );
 
   const { data: vacancy } = useQuery({
     ...trpc.vacancy.get.queryOptions({
@@ -43,18 +45,30 @@ export default function VacancySettingsPage({
       onSuccess: (data) => {
         setInterviewLink(data);
       },
-    })
+    }),
   );
 
   // Получаем ссылку на интервью при загрузке вакансии
   useEffect(() => {
-    if (vacancy && workspaceId && !interviewLink && getInterviewLinkMutation.isIdle) {
+    if (
+      vacancy &&
+      workspaceId &&
+      !interviewLink &&
+      getInterviewLinkMutation.isIdle
+    ) {
       getInterviewLinkMutation.mutate({
         vacancyId: id,
         workspaceId,
       });
     }
-  }, [vacancy, workspaceId, id, interviewLink, getInterviewLinkMutation.isIdle, getInterviewLinkMutation.mutate]);
+  }, [
+    vacancy,
+    workspaceId,
+    id,
+    interviewLink,
+    getInterviewLinkMutation.isIdle,
+    getInterviewLinkMutation.mutate,
+  ]);
 
   const updateSettingsMutation = useMutation(
     trpc.vacancy.update.mutationOptions({

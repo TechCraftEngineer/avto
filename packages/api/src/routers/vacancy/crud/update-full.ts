@@ -48,7 +48,7 @@ export const updateFull = protectedProcedure
       .set({
         title: input.data.title,
         description: input.data.description ?? null,
-        requirements: input.data.requirements ?? null,
+        requirements: input.data.requirements ?? undefined,
         customBotInstructions: input.data.customBotInstructions ?? null,
         customScreeningPrompt: input.data.customScreeningPrompt ?? null,
         customInterviewQuestions: input.data.customInterviewQuestions ?? null,

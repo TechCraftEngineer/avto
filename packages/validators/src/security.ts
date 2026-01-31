@@ -3,8 +3,8 @@
  * Provides comprehensive validation and sanitization for user inputs
  */
 
-import { z } from "zod";
 import sanitizeHtml from "sanitize-html";
+import { z } from "zod";
 
 /**
  * Common validation patterns
@@ -159,8 +159,20 @@ export const secureSchemas = {
     .transform((val) => {
       // Sanitize HTML with strict rules
       return sanitizeHtml(val, {
-        allowedTags: ['p', 'br', 'strong', 'em', 'u', 's', 'ol', 'ul', 'li', 'blockquote', 'code'],
-        allowedAttributes: {}
+        allowedTags: [
+          "p",
+          "br",
+          "strong",
+          "em",
+          "u",
+          "s",
+          "ol",
+          "ul",
+          "li",
+          "blockquote",
+          "code",
+        ],
+        allowedAttributes: {},
       });
     }),
 

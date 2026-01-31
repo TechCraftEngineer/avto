@@ -280,8 +280,14 @@ async function handler(request: Request) {
 
     // Проверяем успешность анализа
     if (!contextAnalysis.success || !contextAnalysis.data) {
-      console.error("[Interview Stream] Context analysis failed:", contextAnalysis.error);
-      return NextResponse.json({ acknowledged: false, error: 'context analysis failed' });
+      console.error(
+        "[Interview Stream] Context analysis failed:",
+        contextAnalysis.error,
+      );
+      return NextResponse.json({
+        acknowledged: false,
+        error: "context analysis failed",
+      });
     }
 
     // Если нужна эскалация — возвращаем специальный ответ

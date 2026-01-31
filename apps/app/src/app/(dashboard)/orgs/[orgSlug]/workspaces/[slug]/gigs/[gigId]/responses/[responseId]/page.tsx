@@ -21,8 +21,8 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import { toast } from "sonner";
-import { GigResponseDetailCard } from "~/components/gig/response-detail/detail-card";
 import { triggerSendWelcome } from "~/actions/trigger";
+import { GigResponseDetailCard } from "~/components/gig/response-detail/detail-card";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
 

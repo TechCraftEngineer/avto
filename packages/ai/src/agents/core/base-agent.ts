@@ -92,7 +92,10 @@ export abstract class BaseAgent<TInput, TOutput> {
     if (this.inputSchema) {
       const validationResult = this.inputSchema.safeParse(input);
       if (!validationResult.success) {
-        console.error(`[${this.name}] Input validation failed:`, validationResult.error);
+        console.error(
+          `[${this.name}] Input validation failed:`,
+          validationResult.error,
+        );
         return false;
       }
     }

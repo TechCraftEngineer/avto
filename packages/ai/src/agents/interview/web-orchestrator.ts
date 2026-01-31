@@ -48,9 +48,12 @@ const webInterviewOrchestratorInputSchema = z.object({
   ),
 });
 
-export interface WebInterviewOrchestratorInput extends z.infer<typeof webInterviewOrchestratorInputSchema> {}
+export interface WebInterviewOrchestratorInput
+  extends z.infer<typeof webInterviewOrchestratorInputSchema> {}
 
-export type WebInterviewOrchestratorOutput = z.infer<typeof contextAnalysisSchema>;
+export type WebInterviewOrchestratorOutput = z.infer<
+  typeof contextAnalysisSchema
+>;
 
 export class WebInterviewOrchestrator extends BaseAgent<
   WebInterviewOrchestratorInput,

@@ -63,10 +63,7 @@ export function WelcomeMessagePreview({
     }
 
     return template
-      .replace(
-        /\{\{vacancyTitle\}\}/g,
-        vacancyTitle || "[Название вакансии]",
-      )
+      .replace(/\{\{vacancyTitle\}\}/g, vacancyTitle || "[Название вакансии]")
       .replace(
         /\{\{interviewUrl\}\}/g,
         interviewUrl || "[Ссылка на веб-чат интервью]",

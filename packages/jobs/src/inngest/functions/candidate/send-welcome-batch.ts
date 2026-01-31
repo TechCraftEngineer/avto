@@ -110,7 +110,10 @@ export const sendCandidateWelcomeBatchFunction = inngest.createFunction(
             const channel = enabledChannels.telegram ? "telegram" : "web-chat";
 
             // Генерируем приветственное сообщение
-            const welcomeResult = await generateWelcomeMessage(responseItem.id, channel);
+            const welcomeResult = await generateWelcomeMessage(
+              responseItem.id,
+              channel,
+            );
             if (!welcomeResult.success) {
               throw new Error(welcomeResult.error);
             }

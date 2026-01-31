@@ -220,7 +220,11 @@ export async function generateWelcomeMessage(
 
   logger.info("Welcome message generated");
 
-  const finalMessage = await addEntityLink(aiResult.data, responseData, channel);
+  const finalMessage = await addEntityLink(
+    aiResult.data,
+    responseData,
+    channel,
+  );
 
   return { success: true, data: finalMessage };
 }

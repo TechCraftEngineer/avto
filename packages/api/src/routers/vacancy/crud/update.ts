@@ -88,7 +88,9 @@ export const update = protectedProcedure
     if (settings.customDomainId !== undefined) {
       // Преобразуем пустую строку в null
       patch.customDomainId =
-        settings.customDomainId === null || settings.customDomainId === "" ? null : settings.customDomainId;
+        settings.customDomainId === null || settings.customDomainId === ""
+          ? null
+          : settings.customDomainId;
     }
 
     const result = await ctx.db

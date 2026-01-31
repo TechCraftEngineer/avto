@@ -1,24 +1,19 @@
 import type { TRPCRouterRecord } from "@trpc/server";
-
-import {
-  analytics,
-  dashboardStats,
-  responsesChart,
-} from "./analytics";
 import {
   chatGenerate,
   improveInstructions,
   improveWelcomeTemplates,
 } from "./ai";
+import { analytics, dashboardStats, responsesChart } from "./analytics";
 import {
   create,
+  deleteVacancy,
   get,
   list,
   listActive,
   update,
   updateDetails,
   updateFull,
-  deleteVacancy,
 } from "./crud";
 import { getInterviewLink } from "./interview";
 import { responsesRouter } from "./responses";

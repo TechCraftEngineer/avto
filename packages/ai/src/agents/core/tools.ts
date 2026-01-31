@@ -115,7 +115,9 @@ export const analyzeEmotionalTone = {
   description: "Анализирует эмоциональный тон текста кандидата",
   inputSchema: z.object({
     text: z.string().describe("Текст для анализа"),
-    context: z.enum(["resume", "application", "interview"] as const).describe("Контекст текста"),
+    context: z
+      .enum(["resume", "application", "interview"] as const)
+      .describe("Контекст текста"),
   }),
   execute: async ({
     text,
@@ -160,15 +162,20 @@ export const analyzeEmotionalTone = {
  * Инструмент для анализа карьерной стабильности
  */
 export const analyzeCareerStability = {
-  description: "Анализирует карьерную стабильность кандидата на основе опыта работы",
+  description:
+    "Анализирует карьерную стабильность кандидата на основе опыта работы",
   inputSchema: z.object({
-    experience: z.array(z.object({
-      company: z.string(),
-      position: z.string(),
-      startDate: z.string(),
-      endDate: z.string().optional(),
-      reasonForLeaving: z.string().optional(),
-    })).describe("Опыт работы кандидата"),
+    experience: z
+      .array(
+        z.object({
+          company: z.string(),
+          position: z.string(),
+          startDate: z.string(),
+          endDate: z.string().optional(),
+          reasonForLeaving: z.string().optional(),
+        }),
+      )
+      .describe("Опыт работы кандидата"),
   }),
   execute: async ({
     experience,
@@ -196,7 +203,7 @@ export const analyzeCareerStability = {
       prompt: `Проанализируй карьерную стабильность кандидата на основе его опыта работы:
 
 Опыт работы:
-${experience.map(exp => `- ${exp.position} в ${exp.company} (${exp.startDate} - ${exp.endDate || 'настоящее время'})${exp.reasonForLeaving ? `, причина ухода: ${exp.reasonForLeaving}` : ''}`).join('\n')}
+${experience.map((exp) => `- ${exp.position} в ${exp.company} (${exp.startDate} - ${exp.endDate || "настоящее время"})${exp.reasonForLeaving ? `, причина ухода: ${exp.reasonForLeaving}` : ""}`).join("\n")}
 
 Оцени:
 - averageTenure: средняя продолжительность работы в месяцах
@@ -214,34 +221,41 @@ ${experience.map(exp => `- ${exp.position} в ${exp.company} (${exp.startDate} -
  * Инструмент для предиктивного моделирования
  */
 export const runPredictiveModel = {
-  description: "Предсказывает метрики успеха кандидата на основе комплексных данных",
+  description:
+    "Предсказывает метрики успеха кандидата на основе комплексных данных",
   inputSchema: z.object({
-    candidateData: z.object({
-      experience: z.array(z.object({
-        company: z.string(),
-        position: z.string(),
-        startDate: z.string(),
-        endDate: z.string().optional(),
-        reasonForLeaving: z.string().optional(),
-      })),
-      skills: z.array(z.object({
-        name: z.string(),
-        level: z.number().min(0).max(100).optional(),
-        category: z.string().optional(),
-      })),
-      interviewPerformance: z.object({
-        technicalScore: z.number().min(0).max(100).optional(),
-        communicationScore: z.number().min(0).max(100).optional(),
-        problemSolvingScore: z.number().min(0).max(100).optional(),
-        overallScore: z.number().min(0).max(100).optional(),
-      }),
-      behavioralData: z.object({
-        adaptability: z.number().min(0).max(100).optional(),
-        teamwork: z.number().min(0).max(100).optional(),
-        leadership: z.number().min(0).max(100).optional(),
-        initiative: z.number().min(0).max(100).optional(),
-      }),
-    }).describe("Комплексные данные о кандидате"),
+    candidateData: z
+      .object({
+        experience: z.array(
+          z.object({
+            company: z.string(),
+            position: z.string(),
+            startDate: z.string(),
+            endDate: z.string().optional(),
+            reasonForLeaving: z.string().optional(),
+          }),
+        ),
+        skills: z.array(
+          z.object({
+            name: z.string(),
+            level: z.number().min(0).max(100).optional(),
+            category: z.string().optional(),
+          }),
+        ),
+        interviewPerformance: z.object({
+          technicalScore: z.number().min(0).max(100).optional(),
+          communicationScore: z.number().min(0).max(100).optional(),
+          problemSolvingScore: z.number().min(0).max(100).optional(),
+          overallScore: z.number().min(0).max(100).optional(),
+        }),
+        behavioralData: z.object({
+          adaptability: z.number().min(0).max(100).optional(),
+          teamwork: z.number().min(0).max(100).optional(),
+          leadership: z.number().min(0).max(100).optional(),
+          initiative: z.number().min(0).max(100).optional(),
+        }),
+      })
+      .describe("Комплексные данные о кандидате"),
   }),
   execute: async ({
     candidateData,
@@ -308,13 +322,18 @@ export const runPredictiveModel = {
  * Инструмент для оценки способности к обучению
  */
 export const assessLearningAgility = {
-  description: "Оценивает способность кандидата к обучению на основе ответов в интервью",
+  description:
+    "Оценивает способность кандидата к обучению на основе ответов в интервью",
   inputSchema: z.object({
-    responses: z.array(z.object({
-      question: z.string(),
-      answer: z.string(),
-      context: z.string(),
-    })).describe("Ответы кандидата на вопросы интервью"),
+    responses: z
+      .array(
+        z.object({
+          question: z.string(),
+          answer: z.string(),
+          context: z.string(),
+        }),
+      )
+      .describe("Ответы кандидата на вопросы интервью"),
   }),
   execute: async ({
     responses,
@@ -339,7 +358,7 @@ export const assessLearningAgility = {
       }),
       prompt: `Оцени способность кандидата к обучению на основе следующих ответов в интервью:
 
-${responses.map(r => `Вопрос: ${r.question}\nОтвет: ${r.answer}\nКонтекст: ${r.context}\n`).join('\n')}
+${responses.map((r) => `Вопрос: ${r.question}\nОтвет: ${r.answer}\nКонтекст: ${r.context}\n`).join("\n")}
 
 Оцени по шкале 0-100:
 - adaptability: способность адаптироваться к изменениям и новым технологиям
@@ -359,12 +378,14 @@ ${responses.map(r => `Вопрос: ${r.question}\nОтвет: ${r.answer}\nКо
 export const performBackgroundCheck = {
   description: "Проверяет background кандидата на предмет рисков",
   inputSchema: z.object({
-    candidateInfo: z.object({
-      name: z.string(),
-      email: z.string(),
-      phone: z.string(),
-      previousCompanies: z.array(z.string()),
-    }).describe("Информация о кандидате для проверки"),
+    candidateInfo: z
+      .object({
+        name: z.string(),
+        email: z.string(),
+        phone: z.string(),
+        previousCompanies: z.array(z.string()),
+      })
+      .describe("Информация о кандидате для проверки"),
   }),
   execute: async ({
     candidateInfo,
@@ -399,7 +420,7 @@ export const performBackgroundCheck = {
 Имя: ${redactedCandidateInfo.name}
 Email: ${redactedCandidateInfo.email}
 Телефон: ${redactedCandidateInfo.phone}
-Предыдущие компании: ${redactedCandidateInfo.previousCompanies.join(', ')}
+Предыдущие компании: ${redactedCandidateInfo.previousCompanies.join(", ")}
 
 Проверь на потенциальные риски и проблемы. Определи статус (PASSED или FLAGGED), перечисли redFlags (красные флаги) и дай рекомендации.`,
       generationName: "perform-background-check",

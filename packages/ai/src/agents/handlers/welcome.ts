@@ -13,7 +13,7 @@ export interface WelcomeInput {
   companyName?: string;
   companyDescription?: string | null;
   webChatUrl?: string;
-  type: 'vacancy' | 'gig';
+  type: "vacancy" | "gig";
   channel: string;
 }
 
@@ -70,9 +70,9 @@ export class WelcomeAgent extends BaseAgent<WelcomeInput, WelcomeOutput> {
     // Проверяем, что для vacancy есть vacancyTitle, для gig - gigTitle
     // Исключение: для канала "hh-webchat-invite" vacancyTitle не требуется,
     // так как сообщение отправляется в HH.ru чат, где контекст уже понятен
-    if (input.channel === 'hh-webchat-invite') return true;
-    if (input.type === 'vacancy' && !input.vacancyTitle) return false;
-    if (input.type === 'gig' && !input.gigTitle) return false;
+    if (input.channel === "hh-webchat-invite") return true;
+    if (input.type === "vacancy" && !input.vacancyTitle) return false;
+    if (input.type === "gig" && !input.gigTitle) return false;
     return true;
   }
 
@@ -80,17 +80,30 @@ export class WelcomeAgent extends BaseAgent<WelcomeInput, WelcomeOutput> {
     input: WelcomeInput,
     _context: BaseAgentContext,
   ): string {
-    const { candidateName, vacancyTitle, gigTitle, companyName, companyDescription, webChatUrl, type, channel } = input;
+    const {
+      candidateName,
+      vacancyTitle,
+      gigTitle,
+      companyName,
+      companyDescription,
+      webChatUrl,
+      type,
+      channel,
+    } = input;
 
     // Для канала "hh-webchat-invite" не указываем название вакансии и ссылку,
     // так как сообщение отправляется в HH.ru чат, где контекст уже понятен
-    const isHHWebChatInvite = channel === 'hh-webchat-invite';
+    const isHHWebChatInvite = channel === "hh-webchat-invite";
 
     const positionText = isHHWebChatInvite
       ? ""
-      : (type === 'vacancy'
-          ? (vacancyTitle ? `Вакансия: ${vacancyTitle}` : "Вакансия не указана")
-          : (gigTitle ? `Gig: ${gigTitle}` : "Gig не указан"));
+      : type === "vacancy"
+        ? vacancyTitle
+          ? `Вакансия: ${vacancyTitle}`
+          : "Вакансия не указана"
+        : gigTitle
+          ? `Gig: ${gigTitle}`
+          : "Gig не указан";
 
     const channelText = `Канал для интервью: ${channel}`;
 

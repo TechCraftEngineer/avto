@@ -23,10 +23,8 @@ import React from "react";
 import type { UseFormReturn } from "react-hook-form";
 
 interface VacancyRequirementsEditorProps {
-  form: UseFormReturn<{
-    requirements?: VacancyRequirements | null;
-  }>;
-  requirements: VacancyRequirements | null;
+  form: UseFormReturn<any>;
+  requirements: VacancyRequirements | null | undefined;
 }
 
 type ArrayFieldKey =
@@ -39,7 +37,9 @@ export function VacancyRequirementsEditor({
   form,
   requirements,
 }: VacancyRequirementsEditorProps) {
-  const currentRequirements = form.watch("requirements") ||
+  const currentRequirements = (form.watch("requirements") as
+    | VacancyRequirements
+    | undefined) ||
     requirements || {
       job_title: "",
       summary: "",

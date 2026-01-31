@@ -6,7 +6,9 @@ import type { ResponseWithVacancy } from "./types";
 /**
  * Получает данные отклика и связанной вакансии
  */
-export const fetchResponseData = async (responseId: string): Promise<ResponseWithVacancy> => {
+export const fetchResponseData = async (
+  responseId: string,
+): Promise<ResponseWithVacancy> => {
   const result = await db.query.response.findFirst({
     where: eq(response.id, responseId),
   });

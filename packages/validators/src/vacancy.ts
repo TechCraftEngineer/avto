@@ -77,7 +77,7 @@ export const updateVacancySettingsSchema = z.object({
   customDomainId: z.string().uuid().or(z.literal("")).nullish(),
 });
 
-const vacancyRequirementsSchema = z.object({
+export const vacancyRequirementsSchema = z.object({
   job_title: z.string(),
   summary: z.string(),
   mandatory_requirements: z.array(z.string()),
@@ -106,7 +106,7 @@ export const updateFullVacancySchema = z.object({
     .string()
     .max(50000, { message: "Описание не должно превышать 50000 символов" })
     .nullish(),
-  requirements: vacancyRequirementsSchema.nullish(),
+  requirements: vacancyRequirementsSchema.optional(),
   customBotInstructions: z
     .string()
     .max(5000, { message: "Инструкции не должны превышать 5000 символов" })

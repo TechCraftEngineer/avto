@@ -14,9 +14,9 @@ import {
   FormMessage,
   Textarea,
 } from "@qbs-autonaim/ui";
+import { useMutation } from "@tanstack/react-query";
 import { MessageCircle, Wand2 } from "lucide-react";
 import type { Control } from "react-hook-form";
-import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useTRPC } from "~/trpc/react";
 import { WelcomeMessagePreview } from "./welcome-message-preview";
@@ -88,10 +88,16 @@ export function WelcomeMessageTemplates({
 
       // Заменяем плейсхолдеры в шаблоне по умолчанию
       if (vacancyTitle) {
-        defaultTemplate = defaultTemplate.replace(/{{vacancyTitle}}/g, vacancyTitle);
+        defaultTemplate = defaultTemplate.replace(
+          /{{vacancyTitle}}/g,
+          vacancyTitle,
+        );
       }
       if (interviewUrl) {
-        defaultTemplate = defaultTemplate.replace(/{{interviewUrl}}/g, interviewUrl);
+        defaultTemplate = defaultTemplate.replace(
+          /{{interviewUrl}}/g,
+          interviewUrl,
+        );
       }
 
       // Устанавливаем шаблон по умолчанию

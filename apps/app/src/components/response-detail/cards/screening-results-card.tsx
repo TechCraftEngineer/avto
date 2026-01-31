@@ -1,5 +1,6 @@
 "use client";
 
+import { sanitizeHtmlFunction } from "@qbs-autonaim/shared/client";
 import {
   Badge,
   Card,
@@ -10,7 +11,6 @@ import {
   Progress,
   Separator,
 } from "@qbs-autonaim/ui";
-import { sanitizeHtmlFunction } from "@qbs-autonaim/shared/client";
 import {
   Award,
   Banknote,
@@ -202,7 +202,9 @@ export function ScreeningResultsCard({ screening }: ScreeningResultsCardProps) {
               <div
                 className="text-xs sm:text-sm leading-relaxed prose prose-sm max-w-none dark:prose-invert"
                 dangerouslySetInnerHTML={{
-                  __html: sanitizeHtmlFunction(screening.potentialAnalysis || ""),
+                  __html: sanitizeHtmlFunction(
+                    screening.potentialAnalysis || "",
+                  ),
                 }}
               />
             </div>
@@ -234,7 +236,9 @@ export function ScreeningResultsCard({ screening }: ScreeningResultsCardProps) {
               <div
                 className="text-xs sm:text-sm leading-relaxed prose prose-sm max-w-none dark:prose-invert"
                 dangerouslySetInnerHTML={{
-                  __html: sanitizeHtmlFunction(screening.hiddenFitAnalysis || ""),
+                  __html: sanitizeHtmlFunction(
+                    screening.hiddenFitAnalysis || "",
+                  ),
                 }}
               />
               {screening.hiddenFitIndicators &&

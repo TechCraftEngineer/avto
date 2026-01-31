@@ -30,10 +30,10 @@ export function sanitizeHtmlFunction(html: string): string {
       "div",
     ],
     allowedAttributes: {
-      "span": ["class"],
-      "div": ["class"],
-      "code": ["class"],
-      "pre": ["class"],
+      span: ["class"],
+      div: ["class"],
+      code: ["class"],
+      pre: ["class"],
     },
   });
 }

@@ -18,7 +18,9 @@ export default function ImportVacancyPage() {
       >
         {orgSlug && workspaceSlug ? (
           <Button asChild variant="outline" className="h-9 gap-2">
-            <Link href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies`}>
+            <Link
+              href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies`}
+            >
               <IconArrowLeft className="size-4" />
               <span>Назад</span>
             </Link>

@@ -186,9 +186,9 @@ test.describe("Онбординг: создание организации и в
     await page.getByRole("button", { name: "Создать организацию" }).click();
 
     // Проверяем что отображается ошибка о дублировании slug
-    await expect(
-      page.getByText(/уже существует|занят|duplicate/i),
-    ).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/уже существует|занят|duplicate/i)).toBeVisible(
+      { timeout: 5000 },
+    );
   });
 
   test("переходит к созданию воркспейса после создания организации", async ({

@@ -76,9 +76,14 @@ export function EmailPasswordForm({
         if (error) {
           const errorMessage = (error.message ?? "").toLowerCase();
           // Проверяем, является ли ошибка неподтвержденным email
-          if (errorMessage.includes("email not verified") || errorMessage.includes("email не подтвержден")) {
+          if (
+            errorMessage.includes("email not verified") ||
+            errorMessage.includes("email не подтвержден")
+          ) {
             // Перенаправляем на страницу верификации email
-            router.push(`${paths.auth.verifyEmail}?email=${encodeURIComponent(data.email)}`);
+            router.push(
+              `${paths.auth.verifyEmail}?email=${encodeURIComponent(data.email)}`,
+            );
             return;
           }
           toast.error(translateAuthError(error.message));
