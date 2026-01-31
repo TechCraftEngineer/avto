@@ -67,7 +67,7 @@
       "command": "bunx",
       "args": [
         "@modelcontextprotocol/server-filesystem",
-        "C:\\Projects\\BotCraftMaster\\selectio"
+        "C:\\Projects\\kwork\\selectio"
       ],
       "env": {},
       "disabled": false,

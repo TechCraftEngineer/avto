@@ -92,6 +92,10 @@ export const collectChatIdsFunction = inngest.createFunction(
         throw new Error(`Вакансия ${vacancyId} не найдена`);
       }
 
+      if (!vacancyData.externalId) {
+        throw new Error(`У вакансии ${vacancyId} отсутствует externalId`);
+      }
+
       // Получаем интеграцию HH
       const hhIntegration = await db.query.integration.findFirst({
         where: (fields, { and }) =>
@@ -127,7 +131,7 @@ export const collectChatIdsFunction = inngest.createFunction(
           "https://chatik.hh.ru/chatik/api/chats",
           {
             params: {
-              vacancyIds: vacancyId,
+              vacancyIds: vacancyData.externalId,
               filterUnread: false,
               do_not_track_session_events: true,
               page: currentPage,
