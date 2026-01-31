@@ -1,7 +1,7 @@
 import { eq, isNull, or } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import type { PlatformSource } from "@qbs-autonaim/db/schema";
-import { vacancy } from "@qbs-autonaim/db/schema";
+import { vacancy, vacancyPublication } from "@qbs-autonaim/db/schema";
 import type { VacancyData } from "../../parsers/types";
 import { createLogger, type Result, tryCatch } from "../base";
 import { triggerVacancyRequirementsExtraction } from "../triggers";
@@ -72,9 +72,66 @@ function mapVacancyData(
     suitableResumes: Number.parseInt(vacancyData.suitableResumes, 10) || 0,
     region: vacancyData.region || "",
     description: description ?? vacancyData.description ?? "",
-    isActive: true,
+    isActive: vacancyData.isActive ?? true, // По умолчанию активна, если не указано иное
     createdBy,
   };
+}
+
+/**
+ * Создаёт запись публикации вакансии на платформе
+ */
+async function createVacancyPublication(
+  vacancyId: string,
+  platform: PlatformSource,
+  externalId?: string,
+  url?: string,
+): Promise<void> {
+  await db.insert(vacancyPublication).values({
+    vacancyId,
+    platform,
+    externalId: externalId || undefined,
+    url: url || undefined,
+    isActive: true,
+  });
+
+  logger.info(
+    `Создана публикация для вакансии ${vacancyId} на платформе ${platform}`,
+  );
+}
+
+/**
+ * Обновляет или создаёт запись публикации вакансии на платформе
+ */
+async function upsertVacancyPublication(
+  vacancyId: string,
+  platform: PlatformSource,
+  externalId?: string,
+  url?: string,
+): Promise<void> {
+  // Проверяем, существует ли публикация
+  const existingPublication = await db.query.vacancyPublication.findFirst({
+    where: (table, { and, eq }) =>
+      and(eq(table.vacancyId, vacancyId), eq(table.platform, platform)),
+  });
+
+  if (existingPublication) {
+    // Обновляем существующую публикацию
+    await db
+      .update(vacancyPublication)
+      .set({
+        externalId: externalId || undefined,
+        url: url || undefined,
+        isActive: true,
+      })
+      .where(eq(vacancyPublication.id, existingPublication.id));
+
+    logger.info(
+      `Обновлена публикация для вакансии ${vacancyId} на платформе ${platform}`,
+    );
+  } else {
+    // Создаём новую публикацию
+    await createVacancyPublication(vacancyId, platform, externalId, url);
+  }
 }
 
 /**
@@ -182,6 +239,14 @@ export async function saveBasicVacancy(
         throw new Error("Не удалось вставить вакансию");
       }
 
+      // Создаём запись в vacancy_publications для связи с платформой
+      await createVacancyPublication(
+        inserted.id,
+        dataToSave.source,
+        dataToSave.externalId,
+        dataToSave.url,
+      );
+
       logger.info(`Базовая информация создана: ${vacancyData.title}`);
       return { vacancyId: inserted.id, isNew: true };
     }
@@ -190,6 +255,14 @@ export async function saveBasicVacancy(
       .update(vacancy)
       .set(dataToSave)
       .where(eq(vacancy.id, existingVacancy.id));
+
+    // Обновляем или создаём публикацию для существующей вакансии
+    await upsertVacancyPublication(
+      existingVacancy.id,
+      dataToSave.source,
+      dataToSave.externalId,
+      dataToSave.url,
+    );
 
     logger.info(`Базовая информация обновлена: ${vacancyData.title}`);
     return { vacancyId: existingVacancy.id, isNew };
@@ -283,6 +356,15 @@ export async function saveVacancyToDb(
       }
 
       savedVacancyId = inserted.id;
+
+      // Создаём запись в vacancy_publications для связи с платформой
+      await createVacancyPublication(
+        savedVacancyId,
+        dataToSave.source,
+        dataToSave.externalId,
+        dataToSave.url,
+      );
+
       logger.info(`Вакансия создана: ${vacancyData.title}`);
     } else {
       await db
@@ -290,6 +372,15 @@ export async function saveVacancyToDb(
         .set(dataToSave)
         .where(eq(vacancy.id, existingVacancy.id));
       savedVacancyId = existingVacancy.id;
+
+      // Обновляем или создаём публикацию для существующей вакансии
+      await upsertVacancyPublication(
+        savedVacancyId,
+        dataToSave.source,
+        dataToSave.externalId,
+        dataToSave.url,
+      );
+
       logger.info(`Вакансия обновлена: ${vacancyData.title}`);
     }
 

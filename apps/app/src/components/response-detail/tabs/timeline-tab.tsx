@@ -139,11 +139,9 @@ export function TimelineTab({ responseId }: TimelineTabProps) {
                     </p>
                   )}
 
-                  {/* Отображение изменений */}
-
                   <ValueChangeDisplay
-                    oldValue={event.oldValue as JsonValue}
-                    newValue={event.newValue as JsonValue}
+                    oldValue={event.oldValue}
+                    newValue={event.newValue}
                   />
 
                   {/* Метаданные */}

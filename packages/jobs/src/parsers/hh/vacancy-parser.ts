@@ -267,18 +267,21 @@ async function collectArchivedVacancies(page: Page): Promise<VacancyData[]> {
     },
   );
 
-  // Нормализуем URL вакансий
+  // Нормализуем URL вакансий и устанавливаем статус неактивности
   for (const vacancy of vacancies) {
+    // Устанавливаем статус неактивности для архивных вакансий
+    (vacancy as VacancyData).isActive = false;
+
     if (vacancy.url) {
       vacancy.url = vacancy.url.startsWith("http")
         ? vacancy.url
-        : new URL(vacancy.url, HH_CONFIG.urls.baseUrl).href;
+        : new URL(vacancy.url, HH_CONFIG.urls.archivedVacancies).href;
     } else if (vacancy.externalId) {
       vacancy.url = `${HH_CONFIG.urls.baseUrl}/vacancy/${vacancy.externalId}`;
     }
   }
 
-  return vacancies;
+  return vacancies as VacancyData[];
 }
 
 /**
@@ -476,6 +479,7 @@ export async function parseSingleVacancy(
   page: Page,
   externalId: string,
   workspaceId: string,
+  isArchived = false, // Флаг для архивных вакансий
 ): Promise<{ vacancyId: string; isNew: boolean }> {
   const url = `${HH_CONFIG.urls.baseUrl}/vacancy/${externalId}`;
 
@@ -507,6 +511,7 @@ export async function parseSingleVacancy(
     suitableResumes: "0",
     region: "",
     responsesUrl: "",
+    isActive: !isArchived, // Архивные вакансии неактивны
   };
 
   // Сохраняем вакансию

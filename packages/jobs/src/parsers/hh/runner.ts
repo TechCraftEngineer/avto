@@ -319,6 +319,7 @@ export async function importSingleVacancy(
 export async function importMultipleVacancies(
   workspaceId: string,
   externalIds: string[],
+  isArchived = true, // По умолчанию true, так как эта функция используется для архивных вакансий
 ): Promise<
   Array<{
     externalId: string;
@@ -328,7 +329,9 @@ export async function importMultipleVacancies(
     error?: string;
   }>
 > {
-  console.log(`🚀 Пакетный импорт ${externalIds.length} вакансий`);
+  console.log(
+    `🚀 Пакетный импорт ${externalIds.length} ${isArchived ? "архивных" : "активных"} вакансий`,
+  );
 
   const credentials = await getIntegrationCredentials(db, "hh", workspaceId);
   if (!credentials?.email || !credentials?.password) {
@@ -371,7 +374,12 @@ export async function importMultipleVacancies(
     // Импортируем каждую вакансию, переиспользуя страницу
     for (const externalId of externalIds) {
       try {
-        const result = await parseSingleVacancy(page, externalId, workspaceId);
+        const result = await parseSingleVacancy(
+          page,
+          externalId,
+          workspaceId,
+          isArchived,
+        );
         results.push({
           externalId,
           vacancyId: result.vacancyId,

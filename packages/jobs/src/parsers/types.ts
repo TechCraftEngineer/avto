@@ -12,6 +12,7 @@ export interface VacancyData {
   suitableResumes: string;
   region?: string; // Опционально: не все источники предоставляют географический регион (например, фриланс-платформы)
   description: string;
+  isActive?: boolean; // Статус активности вакансии (false для архивных)
 }
 
 export interface ResponseData {
