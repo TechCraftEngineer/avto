@@ -84,7 +84,7 @@ export const importSelectedArchivedVacanciesFunction = inngest.createFunction(
     }));
 
     await publish(
-      importArchivedVacanciesChannel(workspaceId, runId).progress({
+      importArchivedVacanciesChannel(workspaceId).progress({
         workspaceId,
         status: "started",
         message: "Начинаем импорт выбранных архивных вакансий",
@@ -135,7 +135,7 @@ export const importSelectedArchivedVacanciesFunction = inngest.createFunction(
               // Отправляем обновленный прогресс
               const nextVacancy = vacancyList[index + 1];
               await publish(
-                importArchivedVacanciesChannel(workspaceId, runId).progress({
+                importArchivedVacanciesChannel(workspaceId).progress({
                   workspaceId,
                   status: "processing",
                   message: `Обработано ${index + 1} из ${vacancyList.length} вакансий`,
@@ -155,7 +155,7 @@ export const importSelectedArchivedVacanciesFunction = inngest.createFunction(
           );
 
           await publish(
-            importArchivedVacanciesChannel(workspaceId, runId).progress({
+            importArchivedVacanciesChannel(workspaceId).progress({
               workspaceId,
               status: "completed",
               message: "Импорт завершён",
@@ -167,7 +167,7 @@ export const importSelectedArchivedVacanciesFunction = inngest.createFunction(
           );
 
           await publish(
-            importArchivedVacanciesChannel(workspaceId, runId).result({
+            importArchivedVacanciesChannel(workspaceId).result({
               workspaceId,
               success: true,
               imported: vacanciesWithProgress.imported,
@@ -205,7 +205,7 @@ export const importSelectedArchivedVacanciesFunction = inngest.createFunction(
               : "Не удалось подключиться к источнику вакансий";
 
           await publish(
-            importArchivedVacanciesChannel(workspaceId, runId).progress({
+            importArchivedVacanciesChannel(workspaceId).progress({
               workspaceId,
               status: "error",
               message: errorMessage,
@@ -213,7 +213,7 @@ export const importSelectedArchivedVacanciesFunction = inngest.createFunction(
           );
 
           await publish(
-            importArchivedVacanciesChannel(workspaceId, runId).result({
+            importArchivedVacanciesChannel(workspaceId).result({
               workspaceId,
               success: false,
               imported: 0,

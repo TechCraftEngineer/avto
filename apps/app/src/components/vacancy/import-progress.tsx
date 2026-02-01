@@ -41,14 +41,12 @@ export interface VacancyProgressItem {
 interface ImportProgressProps {
   type: "new" | "archived" | "by-url";
   workspaceId: string;
-  runId: string;
   onComplete: (result?: ImportProgressResult) => void;
 }
 
 export function ImportProgress({
   type,
   workspaceId,
-  runId,
   onComplete,
 }: ImportProgressProps) {
   // Отслеживаем, был ли уже вызван onComplete
@@ -57,8 +55,8 @@ export function ImportProgress({
 
   // Мемоизируем функцию получения токена, чтобы избежать множественных подключений
   const refreshToken = useCallback(
-    () => fetchImportVacanciesToken(workspaceId, runId, type),
-    [workspaceId, runId, type],
+    () => fetchImportVacanciesToken(workspaceId, type),
+    [workspaceId, type],
   );
 
   // Подписываемся на выполнение функции через Realtime API
@@ -152,16 +150,13 @@ export function ImportProgress({
       return resultData?.success ? "Импорт завершён" : "Ошибка импорта";
     }
 
-    switch (type) {
-      case "new":
-        return "Импорт активных вакансий";
-      case "archived":
-        return "Импорт архивных вакансий";
-      case "by-url":
-        return "Импорт вакансии";
-      default:
-        return "Импорт вакансий";
+    if (type === "new") {
+      return "Импорт активных вакансий";
     }
+    if (type === "archived") {
+      return "Импорт архивных вакансий";
+    }
+    return "Импорт вакансии по ссылке";
   };
 
   // Получаем описание статуса
@@ -179,12 +174,6 @@ export function ImportProgress({
     }
 
     if (resultData) {
-      if (type === "by-url") {
-        return resultData.success
-          ? "Вакансия успешно импортирована"
-          : resultData.error || "Не удалось импортировать вакансию";
-      }
-
       if (resultData.success) {
         const total = resultData.imported + resultData.updated;
         if (total === 0) {
@@ -281,7 +270,7 @@ export function ImportProgress({
           </div>
 
           {/* Прогресс-бар для массового импорта */}
-          {progressTotal && progressTotal > 0 && type !== "by-url" && (
+          {progressTotal && progressTotal > 0 && (
             <div className="space-y-2">
               <Progress value={progress} className="h-2" />
               <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -392,7 +381,6 @@ export function ImportProgress({
 
           {/* Результаты для массового импорта */}
           {resultData &&
-            type !== "by-url" &&
             (resultData.imported > 0 ||
               resultData.updated > 0 ||
               resultData.failed > 0) && (

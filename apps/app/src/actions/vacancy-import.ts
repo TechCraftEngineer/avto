@@ -86,7 +86,7 @@ export async function fetchImportVacancyByUrlToken(
  */
 export async function triggerImportNewVacancies(
   workspaceId: string,
-): Promise<string> {
+): Promise<void> {
   const validationResult = workspaceIdSchema.safeParse({ workspaceId });
 
   if (!validationResult.success) {
@@ -96,18 +96,12 @@ export async function triggerImportNewVacancies(
     throw new Error(`Ошибка валидации: ${errors}`);
   }
 
-  const { ids } = await inngest.send({
+  await inngest.send({
     name: "vacancy/import.new",
     data: {
       workspaceId: validationResult.data.workspaceId,
     },
   });
-
-  if (!ids[0]) {
-    throw new Error("Не удалось запустить импорт");
-  }
-
-  return ids[0];
 }
 
 /**
@@ -172,7 +166,7 @@ export async function triggerImportSelectedArchivedVacancies(
     workLocation?: string;
     archivedAt?: string;
   }>,
-): Promise<string> {
+): Promise<void> {
   const validationResult = selectedVacanciesSchema.safeParse({
     workspaceId,
     vacancyIds,
@@ -185,7 +179,7 @@ export async function triggerImportSelectedArchivedVacancies(
     throw new Error(`Ошибка валидации: ${errors}`);
   }
 
-  const { ids } = await inngest.send({
+  await inngest.send({
     name: "vacancy/import.archived-selected",
     data: {
       workspaceId: validationResult.data.workspaceId,
@@ -193,12 +187,6 @@ export async function triggerImportSelectedArchivedVacancies(
       vacancies,
     },
   });
-
-  if (!ids[0]) {
-    throw new Error("Не удалось запустить импорт");
-  }
-
-  return ids[0];
 }
 
 /**
@@ -228,7 +216,7 @@ export async function triggerImportArchivedVacancies(workspaceId: string) {
 export async function triggerImportVacancyByUrl(
   workspaceId: string,
   url: string,
-): Promise<string> {
+): Promise<void> {
   const workspaceValidation = workspaceIdSchema.safeParse({ workspaceId });
 
   if (!workspaceValidation.success) {
@@ -249,7 +237,7 @@ export async function triggerImportVacancyByUrl(
 
   const requestId = crypto.randomUUID();
 
-  const { ids } = await inngest.send({
+  await inngest.send({
     name: "vacancy/import.by-url",
     data: {
       workspaceId: workspaceValidation.data.workspaceId,
@@ -257,10 +245,4 @@ export async function triggerImportVacancyByUrl(
       requestId,
     },
   });
-
-  if (!ids[0]) {
-    throw new Error("Не удалось запустить импорт");
-  }
-
-  return ids[0];
 }

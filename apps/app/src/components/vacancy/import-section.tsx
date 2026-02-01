@@ -75,15 +75,7 @@ export function VacancyImportSection() {
   );
   const hasActiveHHIntegration = !!hhIntegration;
 
-  // Progress tracking states - теперь храним только run IDs
-  const [newVacanciesRunId, setNewVacanciesRunId] = useState<string | null>(
-    null,
-  );
-  const [archivedVacanciesRunId, setArchivedVacanciesRunId] = useState<
-    string | null
-  >(null);
-  const [byUrlRunId, setByUrlRunId] = useState<string | null>(null);
-
+  // Progress tracking states
   const [isImportingNew, setIsImportingNew] = useState(false);
   const [isImportingArchived, setIsImportingArchived] = useState(false);
   const [isImportingByUrl, setIsImportingByUrl] = useState(false);
@@ -95,11 +87,9 @@ export function VacancyImportSection() {
 
     try {
       setIsImportingNew(true);
-      const runId = await triggerImportNewVacancies(workspaceId);
-      setNewVacanciesRunId(runId);
+      await triggerImportNewVacancies(workspaceId);
     } catch (error) {
       console.error("Ошибка запуска импорта:", error);
-      setNewVacanciesRunId(null);
       setIsImportingNew(false);
     }
   };
@@ -150,15 +140,13 @@ export function VacancyImportSection() {
         url: `https://hh.ru/vacancy/${v.id}`,
       }));
 
-      const runId = await triggerImportSelectedArchivedVacancies(
+      await triggerImportSelectedArchivedVacancies(
         workspaceId,
         selectedIds,
         vacanciesWithUrls,
       );
-      setArchivedVacanciesRunId(runId);
     } catch (error) {
       console.error("Ошибка запуска импорта:", error);
-      setArchivedVacanciesRunId(null);
       setIsImportingArchived(false);
     }
   };
@@ -187,8 +175,7 @@ export function VacancyImportSection() {
       setIsUrlDialogOpen(false);
       setUrlError("");
 
-      const runId = await triggerImportVacancyByUrl(workspaceId, vacancyUrl);
-      setByUrlRunId(runId);
+      await triggerImportVacancyByUrl(workspaceId, vacancyUrl);
 
       setVacancyUrl("");
     } catch (error) {
@@ -199,17 +186,14 @@ export function VacancyImportSection() {
 
   const handleNewVacanciesComplete = useCallback(() => {
     setIsImportingNew(false);
-    setNewVacanciesRunId(null);
   }, []);
 
   const handleArchivedVacanciesComplete = useCallback(() => {
     setIsImportingArchived(false);
-    setArchivedVacanciesRunId(null);
   }, []);
 
   const handleByUrlComplete = useCallback(() => {
     setIsImportingByUrl(false);
-    setByUrlRunId(null);
   }, []);
 
   // Показываем скелетон во время загрузки
@@ -328,29 +312,26 @@ export function VacancyImportSection() {
             )}
 
           {/* Progress indicators */}
-          {isImportingNew && newVacanciesRunId && workspaceId && (
+          {isImportingNew && workspaceId && (
             <ImportProgress
               type="new"
               workspaceId={workspaceId}
-              runId={newVacanciesRunId}
               onComplete={handleNewVacanciesComplete}
             />
           )}
 
-          {isImportingArchived && archivedVacanciesRunId && workspaceId && (
+          {isImportingArchived && workspaceId && (
             <ImportProgress
               type="archived"
               workspaceId={workspaceId}
-              runId={archivedVacanciesRunId}
               onComplete={handleArchivedVacanciesComplete}
             />
           )}
 
-          {isImportingByUrl && byUrlRunId && workspaceId && (
+          {isImportingByUrl && workspaceId && (
             <ImportProgress
               type="by-url"
               workspaceId={workspaceId}
-              runId={byUrlRunId}
               onComplete={handleByUrlComplete}
             />
           )}

@@ -89,7 +89,11 @@ export const importArchivedVacanciesFunction = inngest.createFunction(
         // Импортируем вакансии с прогрессом
         const vacanciesWithProgress = await importMultipleVacancies(
           workspaceId,
-          vacancies.map((v) => ({ url: v.url, date: v.archivedAt || "" })),
+          vacancies.map((v) => ({
+            url: v.url,
+            date: v.archivedAt || "",
+            region: v.region,
+          })),
           async (index, success, error) => {
             // Обновляем статус текущей вакансии
             const currentVacancy = vacancies[index];

@@ -18,13 +18,13 @@ export const screenResponsesBatchFunction = inngest.createFunction(
     },
   },
   { event: "response/screen.batch" },
-  async ({ events, step, publish, runId }) => {
+  async ({ events, step, publish }) => {
     console.log(`🚀 Запуск batch оценки для ${events.length} событий`);
 
     // Собираем все responseIds из всех событий
     const allResponseIds = events.flatMap((evt) => evt.data.responseIds);
     const workspaceId = events[0]?.data.workspaceId;
-    const batchId = runId;
+    const batchId = crypto.randomUUID();
 
     console.log(`📋 Всего откликов для оценки: ${allResponseIds.length}`);
 
@@ -36,9 +36,10 @@ export const screenResponsesBatchFunction = inngest.createFunction(
           id: true,
         },
         with: {
-          candidate: {
+          globalCandidate: {
             columns: {
-              name: true,
+              firstName: true,
+              lastName: true,
             },
           },
         },
@@ -83,8 +84,10 @@ export const screenResponsesBatchFunction = inngest.createFunction(
             try {
               console.log(`🎯 Скрининг отклика: ${responseItem.id}`);
 
-              const candidateName =
-                responseItem.candidate?.name || "Кандидат без имени";
+              const candidateName = responseItem.globalCandidate
+                ? `${responseItem.globalCandidate.firstName || ""} ${responseItem.globalCandidate.lastName || ""}`.trim() ||
+                  "Кандидат без имени"
+                : "Кандидат без имени";
 
               // Публикуем начало обработки отклика
               if (workspaceId) {
@@ -118,13 +121,16 @@ export const screenResponsesBatchFunction = inngest.createFunction(
 
                 // Обновляем общий прогресс
                 const nextCandidate = responses[index + 1];
+                const nextCandidateName = nextCandidate?.globalCandidate
+                  ? `${nextCandidate.globalCandidate.firstName || ""} ${nextCandidate.globalCandidate.lastName || ""}`.trim()
+                  : undefined;
                 await publish(
                   screenBatchChannel(workspaceId, batchId)["batch-progress"]({
                     batchId,
                     total: responses.length,
                     processed: processedCount,
                     failed: failedCount,
-                    currentCandidate: nextCandidate?.candidate?.name,
+                    currentCandidate: nextCandidateName,
                   }),
                 );
               }
@@ -146,8 +152,10 @@ export const screenResponsesBatchFunction = inngest.createFunction(
                 error,
               );
 
-              const candidateName =
-                responseItem.candidate?.name || "Кандидат без имени";
+              const candidateName = responseItem.globalCandidate
+                ? `${responseItem.globalCandidate.firstName || ""} ${responseItem.globalCandidate.lastName || ""}`.trim() ||
+                  "Кандидат без имени"
+                : "Кандидат без имени";
               const errorMessage =
                 error instanceof Error ? error.message : "Неизвестная ошибка";
 

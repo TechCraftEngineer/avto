@@ -1,5 +1,22 @@
 import type { Page } from "puppeteer";
+import sanitizeHtml from "sanitize-html";
 import type { VacancyData } from "~/parsers/types";
+
+/**
+ * Очищает HTML от class и style атрибутов, оставляя структуру тегов
+ */
+function cleanHtmlAttributes(html: string): string {
+  return sanitizeHtml(html, {
+    allowedTags: sanitizeHtml.defaults.allowedTags.concat([
+      "span",
+      "div",
+      "section",
+      "article",
+    ]),
+    allowedAttributes: {}, // Убираем все атрибуты, включая class и style
+    allowedStyles: {}, // Убираем все inline стили
+  });
+}
 
 /**
  * Извлекает данные одной вакансии
@@ -32,7 +49,7 @@ export async function extractSingleVacancy(
       const workLocation = workLocationElement?.textContent?.trim() || "";
 
       const descriptionElement = document.querySelector(
-        '[class="vacancy-description"]',
+        '[data-qa="vacancy-description"]',
       );
       const description = descriptionElement?.innerHTML?.trim() || "";
 
@@ -67,7 +84,7 @@ export async function extractSingleVacancy(
       suitableResumes: "0",
       region: region || "",
       workLocation: vacancyData.workLocation,
-      description: vacancyData.description,
+      description: cleanHtmlAttributes(vacancyData.description),
       isActive: !isArchived,
     };
 

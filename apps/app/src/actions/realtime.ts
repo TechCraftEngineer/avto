@@ -112,15 +112,14 @@ export async function fetchArchivedVacanciesListToken(
  */
 export async function fetchImportVacanciesToken(
   workspaceId: string,
-  runId: string,
   type: "new" | "archived" | "by-url",
 ) {
   const channelFn =
     type === "new"
       ? importNewVacanciesChannel(workspaceId)
       : type === "archived"
-        ? importArchivedVacanciesChannel(workspaceId, runId)
-        : importVacancyByUrlChannel(workspaceId, runId);
+        ? importArchivedVacanciesChannel(workspaceId)
+        : importNewVacanciesChannel(workspaceId); // by-url использует тот же канал что и new
 
   const token = await getSubscriptionToken(inngest, {
     channel: channelFn,
