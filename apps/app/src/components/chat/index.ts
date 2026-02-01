@@ -18,6 +18,7 @@ export { DataStreamProvider } from './components/data-stream-provider';
 export { Index } from './components/index';
 export { InterviewChat } from './components/interview-chat';
 export { InterviewContextCard } from './components/interview-context-card';
+export { MessageModal } from './components/message-modal';
 export { QuickReplies } from './components/quick-replies';
 export { ResumePdfLink } from './components/resume-pdf-link';
 export { ScreeningInfo } from './components/screening-info';
@@ -27,5 +28,7 @@ export { TelegramInterviewScoring } from './components/telegram-interview-scorin
 export { ThinkingIndicator } from './components/thinking-indicator';
 export { TypingIndicator } from './components/typing-indicator';
 export { UniversalChatPanel } from './components/universal-chat-panel';
+export { VacancyChat } from './components/vacancy-chat';
+export { VacancyChatInterface } from './components/vacancy-chat-interface';
 export { VacancyInfo } from './components/vacancy-info';
 export { VoicePlayer } from './components/voice-player';

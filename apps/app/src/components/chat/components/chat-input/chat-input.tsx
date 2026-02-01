@@ -1,58 +1,30 @@
 "use client";
 
-import { Button, Textarea } from "@qbs-autonaim/ui";
-import { Send } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 interface ChatInputProps {
-  onSend?: (message: string) => void;
-  onSendMessage?: (message: string) => void;
+  onSendMessage: (message: string) => void;
   disabled: boolean;
-  placeholder?: string;
+  isProcessing: boolean;
 }
 
-/**
- * ChatInput - Text input with auto-resize and keyboard shortcuts
- * Requirements: 8.7
- * Subtask 7.3: Textarea with auto-resize, Enter to send, Shift+Enter for newline
- */
 export function ChatInput({
-  onSend,
   onSendMessage,
   disabled,
-  placeholder = "Введите сообщение…",
+  isProcessing,
 }: ChatInputProps) {
-  const handleSend = onSend ?? onSendMessage;
   const [message, setMessage] = useState("");
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  // Auto-resize textarea
-  useEffect(() => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-
-    // Reset height to auto to get the correct scrollHeight
-    textarea.style.height = "auto";
-    // Set height to scrollHeight (content height)
-    textarea.style.height = `${textarea.scrollHeight}px`;
-  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const trimmedMessage = message.trim();
-    if (!trimmedMessage || disabled || !handleSend) return;
+    if (!message.trim() || disabled) return;
 
-    handleSend(trimmedMessage);
+    onSendMessage(message);
     setMessage("");
-
-    // Reset textarea height after sending
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // Enter sends message, Shift+Enter adds newline (Requirement 8.7)
+    // Enter отправляет сообщение, Shift+Enter добавляет новую строку
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e);
@@ -60,38 +32,51 @@ export function ChatInput({
   };
 
   return (
-    <div className="border-t bg-white p-4">
-      <form onSubmit={handleSubmit} aria-label="Форма отправки сообщения">
-        <div className="relative flex gap-2">
-          <Textarea
-            ref={textareaRef}
+    <div className="border-t border-gray-200 bg-white px-4 py-4">
+      <form onSubmit={handleSubmit} className="mx-auto max-w-4xl">
+        <div className="flex gap-2">
+          <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder={disabled ? "Ожидайте ответа…" : placeholder}
+            placeholder={
+              disabled
+                ? isProcessing
+                  ? "Ожидайте ответа…"
+                  : "Интервью завершено"
+                : "Введите ваш ответ…"
+            }
             disabled={disabled}
             rows={1}
-            className="min-h-[48px] max-h-[200px] resize-none pr-12 text-base"
+            className="flex-1 resize-none rounded-lg border border-gray-300 px-4 py-3 text-base shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-500"
             style={{
-              fontSize: "16px", // Prevent zoom on iOS
+              minHeight: "48px",
+              maxHeight: "200px",
               touchAction: "manipulation",
             }}
             aria-label="Введите ваше сообщение"
             autoComplete="off"
           />
-          <Button
+          <button
             type="submit"
             disabled={disabled || !message.trim()}
-            size="icon"
-            className="h-12 w-12 shrink-0 transition-all duration-200 hover:scale-105 active:scale-95 disabled:scale-100"
+            className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-300"
             style={{ touchAction: "manipulation" }}
-            aria-label={disabled ? "Отправка…" : "Отправить сообщение"}
+            aria-label="Отправить сообщение"
           >
-            <Send className="h-5 w-5" aria-hidden="true" />
-          </Button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="h-5 w-5"
+              aria-hidden="true"
+            >
+              <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
+            </svg>
+          </button>
         </div>
-        <p className="mt-2 text-xs text-muted-foreground">
-          Enter для отправки, Shift&nbsp;+&nbsp;Enter для новой строки
+        <p className="mt-2 text-xs text-gray-500">
+          Нажмите Enter для отправки, Shift+Enter для новой строки
         </p>
       </form>
     </div>

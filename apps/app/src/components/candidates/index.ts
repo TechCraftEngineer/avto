@@ -1,5 +1,6 @@
 // candidates domain exports
 export { ActivityTimeline } from './components/activity-timeline';
+export { Candidate } from './components/candidate';
 export { CandidateInfo } from './components/candidate-info';
 export { ChatSection } from './components/chat-section';
 export { CommentsSection } from './components/comments-section';

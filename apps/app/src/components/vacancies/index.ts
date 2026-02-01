@@ -1,5 +1,10 @@
 // vacancies domain exports
+export { ArchivedVacanciesSelector } from './components/archived-vacancies-selector';
 export { DeleteVacancyDialog } from './components/delete-vacancy-dialog';
+export { ImportSection } from './components/import-section';
+export { Index } from './components/index';
+export { VacancyCreator } from './components/vacancy-creator';
+export { VacancyDetail } from './components/vacancy-detail';
 export { VacancyFilters } from './components/vacancy-filters';
 export { VacancyForm } from './components/vacancy-form';
 export { VacancyHelpTooltip } from './components/vacancy-help-tooltip';
