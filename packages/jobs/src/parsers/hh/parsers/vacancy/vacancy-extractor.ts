@@ -8,6 +8,7 @@ export async function extractSingleVacancy(
   page: Page,
   _url: string,
   isArchived = false,
+  region?: string,
 ): Promise<VacancyData | null> {
   try {
     const vacancyData = await page.$eval("body", () => {
@@ -30,10 +31,6 @@ export async function extractSingleVacancy(
       );
       const workLocation = workLocationElement?.textContent?.trim() || "";
 
-      // Регион размещения вакансии (может быть в других местах страницы)
-      // Пока используем ту же локацию, но можно расширить парсинг
-      const region = workLocation;
-
       const descriptionElement = document.querySelector(
         '[data-qa="vacancy-description"]',
       );
@@ -48,7 +45,6 @@ export async function extractSingleVacancy(
         company,
         salary,
         workLocation,
-        region,
         description,
         externalId,
         status: "active" as const,
@@ -69,7 +65,8 @@ export async function extractSingleVacancy(
       newResponses: "0",
       resumesInProgress: "0",
       suitableResumes: "0",
-      region: vacancyData.region,
+      // Используем регион из списка вакансий, если передан, иначе берем workLocation
+      region: region || vacancyData.workLocation,
       workLocation: vacancyData.workLocation,
       description: vacancyData.description,
       isActive: !isArchived,

@@ -96,7 +96,7 @@ export function VacancyTable({
               Площадка
             </TableHead>
             <TableHead className="hidden font-semibold text-foreground md:table-cell">
-              Локация работы
+              Регион
             </TableHead>
             <TableHead
               className="text-right font-semibold text-foreground"

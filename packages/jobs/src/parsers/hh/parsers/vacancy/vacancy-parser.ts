@@ -1,6 +1,6 @@
 import type { Page } from "puppeteer";
-import type { VacancyData } from "~/parsers/types";
 import { z } from "zod";
+import type { VacancyData } from "~/parsers/types";
 import { saveBasicVacancy } from "~/services/vacancy";
 import { HH_CONFIG } from "../../core/config/config";
 import { humanDelay } from "../../utils/human-behavior";
@@ -121,7 +121,10 @@ export async function parseSingleVacancy(
   const validationResult = InputSchema.safeParse({ url, workspaceId });
 
   if (!validationResult.success) {
-    console.error("❌ Ошибка валидации входных параметров parseSingleVacancy:", validationResult.error.issues);
+    console.error(
+      "❌ Ошибка валидации входных параметров parseSingleVacancy:",
+      validationResult.error.issues,
+    );
     return { vacancy: null, success: false };
   }
 
@@ -154,14 +157,14 @@ export async function parseSingleVacancy(
       isArchived = isArchivedOnPage;
     }
 
-    const vacancyData = await extractSingleVacancy(page, url, isArchived);
+    const vacancyData = await extractSingleVacancy(
+      page,
+      url,
+      isArchived,
+      region,
+    );
 
     if (vacancyData) {
-      // Если регион передан явно (из списка), используем его
-      if (region) {
-        vacancyData.region = region;
-      }
-
       const saved = await saveBasicVacancy(vacancyData, workspaceId);
       if (saved.success) {
         const isNew = saved.data.isNew;

@@ -285,13 +285,26 @@ export async function saveBasicVacancy(
 export async function updateVacancyDescription(
   vacancyId: string,
   description: string,
+  workLocation?: string | null,
+  region?: string | null,
   isNewVacancy = false,
 ): Promise<Result<void>> {
   return tryCatch(async () => {
-    await db
-      .update(vacancy)
-      .set({ description })
-      .where(eq(vacancy.id, vacancyId));
+    const updateData: {
+      description: string;
+      workLocation?: string;
+      region?: string;
+    } = { description };
+
+    if (workLocation) {
+      updateData.workLocation = workLocation;
+    }
+
+    if (region) {
+      updateData.region = region;
+    }
+
+    await db.update(vacancy).set(updateData).where(eq(vacancy.id, vacancyId));
 
     logger.info(
       `Описание ${isNewVacancy ? "добавлено для новой вакансии" : "обновлено"}: ${vacancyId}`,

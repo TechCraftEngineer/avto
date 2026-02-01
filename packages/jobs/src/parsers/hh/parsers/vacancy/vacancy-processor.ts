@@ -94,9 +94,15 @@ export async function parseVacancyDescriptions(
         );
 
         const description = await extractVacancyDescription(page);
+        const workLocation = await extractVacancyWorkLocation(page);
 
         if (description) {
-          await updateVacancyDescription(vacancy.externalId, description);
+          await updateVacancyDescription(
+            vacancy.externalId,
+            description,
+            workLocation,
+            vacancy.region, // Используем регион из списка вакансий
+          );
           successCount++;
           console.log(`✅ Описание сохранено для: ${vacancy.title}`);
         }
@@ -135,6 +141,25 @@ async function extractVacancyDescription(page: Page): Promise<string | null> {
     return description;
   } catch (error) {
     console.error("❌ Ошибка извлечения описания вакансии:", error);
+    return null;
+  }
+}
+
+/**
+ * Извлекает локацию работы со страницы вакансии
+ */
+async function extractVacancyWorkLocation(page: Page): Promise<string | null> {
+  try {
+    const workLocation = await page.$eval(
+      '[data-qa="vacancy-view-location"]',
+      (element) => {
+        return element.textContent?.trim() || null;
+      },
+    );
+
+    return workLocation;
+  } catch (error) {
+    console.error("❌ Ошибка извлечения локации работы:", error);
     return null;
   }
 }
