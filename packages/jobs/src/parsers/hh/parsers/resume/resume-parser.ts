@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { Page } from "puppeteer";
-import { extractTelegramUsername } from "~/services/messaging";
 import type { ResumeExperience } from "~/parsers/types";
+import { extractTelegramUsername } from "~/services/messaging";
 import { HH_CONFIG } from "../../core/config/config";
 
 /**
@@ -106,10 +106,15 @@ async function downloadResumeFile(
       return null;
     }
 
-    console.log(`✅ ${fileType.toUpperCase()} файл скачан (${buffer.length} байт)`);
+    console.log(
+      `✅ ${fileType.toUpperCase()} файл скачан (${buffer.length} байт)`,
+    );
     return buffer;
   } catch (error) {
-    console.error(`❌ Ошибка скачивания ${fileType.toUpperCase()} файла:`, error);
+    console.error(
+      `❌ Ошибка скачивания ${fileType.toUpperCase()} файла:`,
+      error,
+    );
     return null;
   }
 }
@@ -134,7 +139,11 @@ async function downloadCandidatePhoto(
 
     const photoUrl = await photoElement.evaluate((img) => img.src);
 
-    if (!photoUrl || photoUrl.includes("placeholder") || photoUrl.includes("no-photo")) {
+    if (
+      !photoUrl ||
+      photoUrl.includes("placeholder") ||
+      photoUrl.includes("no-photo")
+    ) {
       console.log("⚠️ Фото кандидата является placeholder");
       return null;
     }
@@ -223,7 +232,9 @@ export async function parseResumeExperience(
 
     // Скачиваем PDF версию резюме
     if (resumeUrl) {
-      result.pdfBuffer = await downloadResumeFile(page, resumeUrl, "pdf", candidateName);
+      result.pdfBuffer =
+        (await downloadResumeFile(page, resumeUrl, "pdf", candidateName)) ||
+        undefined;
     }
 
     // Скачиваем фото кандидата
@@ -236,66 +247,98 @@ export async function parseResumeExperience(
     }
 
     // Парсим контакты
-    const contactsData = await page.$eval('[data-qa="resume-contacts"]', (element) => {
-      const emailElement = element.querySelector('[data-qa="resume-contact-email"]');
-      const phoneElement = element.querySelector('[data-qa="resume-contact-phone"]');
-      const telegramElement = element.querySelector('[data-qa*="telegram"]');
-      const linkedinElement = element.querySelector('[data-qa*="linkedin"]');
-      const githubElement = element.querySelector('[data-qa*="github"]');
-      const portfolioElement = element.querySelector('[data-qa*="portfolio"]');
+    const contactsData = await page
+      .$eval('[data-qa="resume-contacts"]', (element) => {
+        const emailElement = element.querySelector(
+          '[data-qa="resume-contact-email"]',
+        );
+        const phoneElement = element.querySelector(
+          '[data-qa="resume-contact-phone"]',
+        );
+        const telegramElement = element.querySelector('[data-qa*="telegram"]');
+        const linkedinElement = element.querySelector('[data-qa*="linkedin"]');
+        const githubElement = element.querySelector('[data-qa*="github"]');
+        const portfolioElement = element.querySelector(
+          '[data-qa*="portfolio"]',
+        );
 
-      return {
-        email: emailElement?.textContent?.trim(),
-        phone: phoneElement?.textContent?.trim(),
-        telegram: telegramElement?.textContent?.trim(),
-        linkedin: linkedinElement?.textContent?.trim(),
-        github: githubElement?.textContent?.trim(),
-        portfolio: portfolioElement?.textContent?.trim(),
-      };
-    }).catch(() => ({}));
+        return {
+          email: emailElement?.textContent?.trim(),
+          phone: phoneElement?.textContent?.trim(),
+          telegram: telegramElement?.textContent?.trim(),
+          linkedin: linkedinElement?.textContent?.trim(),
+          github: githubElement?.textContent?.trim(),
+          portfolio: portfolioElement?.textContent?.trim(),
+        };
+      })
+      .catch(() => ({}));
 
     result.contacts = contactsData;
 
     // Извлекаем Telegram username
-    if (contactsData.telegram) {
+    if ("telegram" in contactsData && contactsData.telegram) {
       const telegramUsername = extractTelegramUsername(contactsData.telegram);
       if (telegramUsername) {
-        result.contacts.telegram = telegramUsername;
+        result.contacts = {
+          ...result.contacts,
+          telegram: telegramUsername,
+        };
       }
     }
 
-    result.phone = contactsData.phone;
+    result.phone = "phone" in contactsData ? contactsData.phone : undefined;
 
     // Парсим опыт работы
-    const experienceData = await page.$$eval(
-      '[data-qa="resume-block-experience"] [data-qa="resume-block-item"]',
-      (elements) => {
-        return elements.map((element) => {
-          const positionElement = element.querySelector('[data-qa="resume-block-experience-position"]');
-          const position = positionElement?.textContent?.trim() || '';
+    const experienceData = await page
+      .$$eval(
+        '[data-qa="resume-block-experience"] [data-qa="resume-block-item"]',
+        (elements) => {
+          return elements.map((element) => {
+            const positionElement = element.querySelector(
+              '[data-qa="resume-block-experience-position"]',
+            );
+            const position = positionElement?.textContent?.trim() || "";
 
-          const companyElement = element.querySelector('[data-qa="resume-block-experience-company"]');
-          const company = companyElement?.textContent?.trim() || '';
+            const companyElement = element.querySelector(
+              '[data-qa="resume-block-experience-company"]',
+            );
+            const company = companyElement?.textContent?.trim() || "";
 
-          const periodElement = element.querySelector('[data-qa="resume-block-experience-dates"]');
-          const period = periodElement?.textContent?.trim() || '';
+            const periodElement = element.querySelector(
+              '[data-qa="resume-block-experience-dates"]',
+            );
+            const period = periodElement?.textContent?.trim() || "";
 
-          const descriptionElement = element.querySelector('[data-qa="resume-block-experience-description"]');
-          const description = descriptionElement?.textContent?.trim() || '';
+            const descriptionElement = element.querySelector(
+              '[data-qa="resume-block-experience-description"]',
+            );
+            const description = descriptionElement?.textContent?.trim() || "";
 
-          return {
-            position,
-            company,
-            period,
-            description,
-          };
-        });
-      },
-    ).catch(() => []);
+            return {
+              position,
+              company,
+              period,
+              description,
+            };
+          });
+        },
+      )
+      .catch(() => []);
 
-    result.experience = experienceData;
+    // Convert experience data to ResumeExperience format
+    result.experience = experienceData.map((exp) => ({
+      experience: JSON.stringify(exp),
+      contacts: null,
+      phone: null,
+      telegramUsername: null,
+      pdfBuffer: null,
+      photoBuffer: null,
+      photoMimeType: null,
+    }));
 
-    console.log(`✅ Опыт работы распарсен: ${result.experience.length} записей`);
+    console.log(
+      `✅ Опыт работы распарсен: ${result.experience.length} записей`,
+    );
   } catch (error) {
     console.error("❌ Ошибка парсинга опыта работы:", error);
   }

@@ -107,19 +107,25 @@ export const importVacancyByUrlFunction = inngest.createFunction(
           }),
         );
 
-        const { vacancyId, isNew } = await importSingleVacancy(
+        const result = await importSingleVacancy(
           workspaceId,
-          externalId,
+          `https://hh.ru/vacancy/${externalId}`,
         );
+
+        if (!result.success || !result.vacancy) {
+          throw new Error("Не удалось импортировать вакансию");
+        }
 
         await publish(
           importVacancyByUrlChannel(workspaceId, requestId).progress({
             workspaceId,
             requestId,
             status: "completed",
-            message: isNew ? "Вакансия импортирована" : "Вакансия обновлена",
+            message: "Вакансия импортирована",
           }),
         );
+
+        const vacancyId = result.vacancy.id;
 
         await publish(
           importVacancyByUrlChannel(workspaceId, requestId).result({
@@ -134,7 +140,7 @@ export const importVacancyByUrlFunction = inngest.createFunction(
           `✅ Импорт вакансии ${vacancyId} для workspace ${workspaceId} завершён`,
         );
 
-        return { success: true, workspaceId, vacancyId, isNew };
+        return { success: true, workspaceId, vacancyId, isNew: true };
       } catch (error) {
         console.error(
           `❌ Ошибка при импорте вакансии для workspace ${workspaceId}:`,

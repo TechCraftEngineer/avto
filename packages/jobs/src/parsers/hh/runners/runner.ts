@@ -292,7 +292,7 @@ export async function importSingleVacancy(
 
     return {
       success: result.success,
-      vacancy: result.vacancy,
+      vacancy: result.vacancy || undefined,
     };
   } finally {
     await closeBrowserSafely(browser);

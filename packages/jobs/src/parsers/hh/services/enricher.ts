@@ -11,7 +11,7 @@ import {
   updateResponseDetails,
   uploadResumePdf,
 } from "~/services/response";
-import { performLogin, } from "../core/auth/auth";
+import { performLogin } from "../core/auth/auth";
 import { setupBrowser, setupPage } from "../core/browser/browser-setup";
 import { closeBrowserSafely } from "../core/browser/browser-utils";
 import { HH_CONFIG } from "../core/config/config";
@@ -53,7 +53,7 @@ async function checkAndPerformLogin(
 // Main enricher function
 export async function enrichHHResponses(
   workspaceId: string,
-  limit?: number,
+  _limit?: number,
 ): Promise<{
   enriched: number;
   errors: number;
@@ -67,24 +67,34 @@ export async function enrichHHResponses(
   }
 
   // Get responses that need enrichment
-  const responsesToEnrich = await getResponsesWithoutDetails(
-    workspaceId,
-    limit || 50,
-  );
+  const responsesResult = await getResponsesWithoutDetails();
+
+  if (!responsesResult.success) {
+    throw new Error(responsesResult.error);
+  }
+
+  const responsesToEnrich = responsesResult.data;
 
   if (responsesToEnrich.length === 0) {
     console.log("ℹ️ Нет откликов, требующих обогащения");
     return { enriched: 0, errors: 0, total: 0 };
   }
 
-  console.log(`📋 Найдено откликов для обогащения: ${responsesToEnrich.length}`);
+  console.log(
+    `📋 Найдено откликов для обогащения: ${responsesToEnrich.length}`,
+  );
 
   const browser = await setupBrowser();
 
   try {
     const page = await setupPage(browser, null);
 
-    await checkAndPerformLogin(page, credentials.email, credentials.password, workspaceId);
+    await checkAndPerformLogin(
+      page,
+      credentials.email,
+      credentials.password,
+      workspaceId,
+    );
 
     let enriched = 0;
     let errors = 0;
@@ -92,8 +102,17 @@ export async function enrichHHResponses(
     for (let i = 0; i < responsesToEnrich.length; i++) {
       const response = responsesToEnrich[i];
 
+      if (!response || !response.resumeUrl || !response.resumeId) {
+        console.warn(
+          `⚠️ Пропускаем отклик ${i + 1}: отсутствуют необходимые данные`,
+        );
+        continue;
+      }
+
       try {
-        console.log(`🔍 Обогащение отклика ${i + 1}/${responsesToEnrich.length}: ${response.candidateName}`);
+        console.log(
+          `🔍 Обогащение отклика ${i + 1}/${responsesToEnrich.length}: ${response.candidateName}`,
+        );
 
         // Navigate to resume page
         await page.goto(response.resumeUrl, {
@@ -106,7 +125,11 @@ export async function enrichHHResponses(
         });
 
         // Parse resume experience
-        const experienceData = await parseResumeExperience(page, response.resumeUrl, response.candidateName);
+        const experienceData = await parseResumeExperience(
+          page,
+          response.resumeUrl,
+          response.candidateName || "",
+        );
 
         // Download and upload PDF if available
         let resumePdfFileId: string | null = null;
@@ -122,32 +145,39 @@ export async function enrichHHResponses(
 
         // Update response with enriched data
         const updateResult = await updateResponseDetails({
-          vacancyId: response.vacancyId,
+          vacancyId: response.entityId,
           resumeId: response.resumeId,
           resumeUrl: response.resumeUrl,
-          candidateName: response.candidateName,
-          experience: experienceData.experience,
+          candidateName: response.candidateName || "",
+          experience: JSON.stringify(experienceData.experience),
           contacts: experienceData.contacts,
-          phone: experienceData.phone,
+          phone: experienceData.phone ?? null,
           resumePdfFileId,
         });
 
         if (!updateResult.success) {
-          throw new Error(`Failed to update response details: ${updateResult.error}`);
+          throw new Error(
+            `Failed to update response details: ${updateResult.error}`,
+          );
         }
 
         enriched++;
         console.log(`✅ Отклик обогащен: ${response.candidateName}`);
       } catch (error) {
         errors++;
-        console.error(`❌ Ошибка обогащения отклика ${response.candidateName}:`, error);
+        console.error(
+          `❌ Ошибка обогащения отклика ${response.candidateName}:`,
+          error,
+        );
       }
 
       // Small delay between processing responses
       await new Promise((resolve) => setTimeout(resolve, 2000));
     }
 
-    console.log(`🎉 Обогащение завершено: ${enriched} успешно, ${errors} ошибок`);
+    console.log(
+      `🎉 Обогащение завершено: ${enriched} успешно, ${errors} ошибок`,
+    );
 
     return {
       enriched,

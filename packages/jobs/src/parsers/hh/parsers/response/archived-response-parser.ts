@@ -9,9 +9,17 @@ import {
   parseResponseDetails,
 } from "./response-utils";
 
-interface ResponseWithId extends ResponseData {
+interface ResponseWithId {
+  name: string;
+  url: string;
   resumeId: string;
+  resumeUrl?: string;
+  externalId?: string;
   respondedAt?: Date;
+  status?: string;
+  coverLetter?: string;
+  vacancyId?: string;
+  candidateId?: string;
 }
 
 export async function parseArchivedVacancyResponses(
@@ -53,8 +61,13 @@ export async function parseArchivedVacancyResponses(
   );
 
   console.log("\n🔍 ЭТАП 2: Поиск откликов без детальной информации...");
+  // Convert ResponseWithId[] to ResponseData[] by converting Date to string
+  const responsesAsData: ResponseData[] = allResponses.map((r) => ({
+    ...r,
+    respondedAt: r.respondedAt?.toISOString(),
+  }));
   const responsesNeedingDetails = await filterResponsesNeedingDetails(
-    allResponses,
+    responsesAsData,
     vacancyId,
   );
 

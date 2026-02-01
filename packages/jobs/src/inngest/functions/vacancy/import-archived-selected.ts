@@ -61,110 +61,71 @@ export const importSelectedArchivedVacanciesFunction = inngest.createFunction(
         );
 
         // Создаем массив для отслеживания прогресса по каждой вакансии
-        const vacancyProgress = vacancyIds.map((id) => {
+        const vacancyProgress: Array<{
+          id: string;
+          title: string;
+          region?: string;
+          archivedAt?: string;
+          status: "pending" | "success" | "failed";
+        }> = vacancyIds.map((id) => {
           const vacancyData = vacanciesMap.get(id);
           return {
             id,
             title: vacancyData?.title || "",
             region: vacancyData?.region,
             archivedAt: vacancyData?.archivedAt,
-            status: "pending" as const,
+            status: "pending",
           };
         });
 
         try {
+          // Преобразуем vacancyIds в формат { url, date }
+          const vacanciesForImport = vacancyIds
+            .map((id) => {
+              const vacancyData = vacanciesMap.get(id);
+              if (!vacancyData) return null;
+
+              // Формируем URL из externalId
+              const url = `https://hh.ru/vacancy/${id}`;
+              const date = vacancyData.archivedAt || new Date().toISOString();
+
+              return { url, date };
+            })
+            .filter((v): v is { url: string; date: string } => v !== null);
+
           // Используем оптимизированную функцию пакетного импорта
-          // Она переиспользует один браузер и сеанс аутентификации для всех вакансий
-          const results = await importMultipleVacancies(
+          const importResult = await importMultipleVacancies(
             workspaceId,
-            vacancyIds,
+            vacanciesForImport,
           );
 
-          // Обрабатываем результаты и отправляем прогресс батчами
-          const BATCH_SIZE = 5; // Отправляем обновление каждые 5 вакансий
+          imported = importResult.imported;
+          updated = importResult.updated;
+          failed = importResult.failed;
 
-          for (let i = 0; i < results.length; i++) {
-            const result = results[i];
-            if (!result) continue;
+          // Обновляем статусы вакансий
+          for (let i = 0; i < vacancyProgress.length; i++) {
+            const progressItem = vacancyProgress[i];
+            if (!progressItem) continue;
 
-            // Обновляем прогресс текущей вакансии
-            const currentVacancyId = vacancyIds[i];
-            if (!currentVacancyId) continue;
-
-            const existingData = vacancyProgress[i];
-            vacancyProgress[i] = {
-              id: currentVacancyId,
-              title:
-                result.title ||
-                existingData?.title ||
-                `Вакансия ${currentVacancyId}`,
-              region: existingData?.region,
-              archivedAt: existingData?.archivedAt,
-              status: "processing",
-            };
-
-            // Отправляем прогресс с текущей вакансией
-            await publish(
-              importArchivedVacanciesChannel(workspaceId).progress({
-                workspaceId,
-                status: "processing",
-                message: `Обрабатывается: ${result.title || currentVacancyId}`,
-                total: vacancyIds.length,
-                processed: i,
-                failed,
-                currentVacancy: {
-                  id: currentVacancyId,
-                  title: result.title || `Вакансия ${currentVacancyId}`,
-                },
-                vacancies: [...vacancyProgress],
-              }),
-            );
-
-            if (result.success) {
-              if (result.isNew) {
-                imported++;
-              } else {
-                updated++;
-              }
-              const progressItem = vacancyProgress[i];
-              if (progressItem) {
-                progressItem.status = "success";
-              }
+            // Определяем статус на основе результатов
+            if (i < imported + updated) {
+              progressItem.status = "success";
             } else {
-              failed++;
-              const progressItem = vacancyProgress[i];
-              if (progressItem) {
-                progressItem.status = "failed";
-              }
-            }
-
-            // Отправляем прогресс только для батчей или последней вакансии
-            const isLastItem = i === results.length - 1;
-            const isBatchBoundary = (i + 1) % BATCH_SIZE === 0;
-
-            if (isBatchBoundary || isLastItem) {
-              await publish(
-                importArchivedVacanciesChannel(workspaceId).progress({
-                  workspaceId,
-                  status: "processing",
-                  message: `Обработано ${i + 1} из ${vacancyIds.length}`,
-                  total: vacancyIds.length,
-                  processed: i + 1,
-                  failed,
-                  vacancies: [...vacancyProgress],
-                }),
-              );
+              progressItem.status = "failed";
             }
           }
 
+          // Отправляем финальный прогресс
           await publish(
             importArchivedVacanciesChannel(workspaceId).progress({
               workspaceId,
               status: "completed",
-              message: "Импорт завершён",
+              message: `Импорт завершен: ${imported} импортировано, ${updated} обновлено, ${failed} ошибок`,
               total: vacancyIds.length,
               processed: vacancyIds.length,
-              vacancies: [...vacancyProgress],
+              failed,
+              vacancies: vacancyProgress,
             }),
           );
 

@@ -1,10 +1,10 @@
 import type { Page } from "puppeteer";
+import type { VacancyData } from "~/parsers/types";
 import {
   hasVacancyDescription,
   saveBasicVacancy,
   updateVacancyDescription,
 } from "~/services/vacancy";
-import type { VacancyData } from "~/parsers/types";
 import { HH_CONFIG } from "../../core/config/config";
 import { humanDelay } from "../../utils/human-behavior";
 
@@ -14,12 +14,21 @@ import { humanDelay } from "../../utils/human-behavior";
 export async function saveBasicVacancies(
   vacancies: VacancyData[],
   workspaceId: string,
-): Promise<{ newVacancyIds: Set<string>; savedCount: number; errorCount: number }> {
+): Promise<{
+  newVacancyIds: Set<string>;
+  savedCount: number;
+  errorCount: number;
+}> {
   const newVacancyIds = new Set<string>();
   let savedCount = 0;
   let errorCount = 0;
 
   for (const vacancy of vacancies) {
+    if (!vacancy.externalId) {
+      console.warn(`⚠️ Пропускаем вакансию без externalId: ${vacancy.title}`);
+      continue;
+    }
+
     try {
       const saved = await saveBasicVacancy(vacancy, workspaceId);
       if (saved) {
@@ -27,7 +36,10 @@ export async function saveBasicVacancies(
         newVacancyIds.add(vacancy.externalId);
       }
     } catch (error) {
-      console.error(`❌ Ошибка сохранения вакансии ${vacancy.externalId}:`, error);
+      console.error(
+        `❌ Ошибка сохранения вакансии ${vacancy.externalId}:`,
+        error,
+      );
       errorCount++;
     }
 
@@ -52,7 +64,12 @@ export async function parseVacancyDescriptions(
 
   for (const vacancy of vacancies) {
     // Парсим описание только для новых вакансий
-    if (!newVacancyIds.has(vacancy.externalId)) {
+    if (!vacancy.externalId || !newVacancyIds.has(vacancy.externalId)) {
+      continue;
+    }
+
+    if (!vacancy.url) {
+      console.warn(`⚠️ Пропускаем вакансию без URL: ${vacancy.title}`);
       continue;
     }
 
@@ -71,7 +88,10 @@ export async function parseVacancyDescriptions(
           timeout: HH_CONFIG.timeouts.networkIdle,
         });
 
-        await humanDelay(HH_CONFIG.delays.readingPage.min, HH_CONFIG.delays.readingPage.max);
+        await humanDelay(
+          HH_CONFIG.delays.readingPage.min,
+          HH_CONFIG.delays.readingPage.max,
+        );
 
         const description = await extractVacancyDescription(page);
 
@@ -82,12 +102,18 @@ export async function parseVacancyDescriptions(
         }
       }
     } catch (error) {
-      console.error(`❌ Ошибка парсинга описания для ${vacancy.externalId}:`, error);
+      console.error(
+        `❌ Ошибка парсинга описания для ${vacancy.externalId}:`,
+        error,
+      );
       errorCount++;
     }
 
     // Задержка между обработкой вакансий
-    await humanDelay(HH_CONFIG.delays.betweenResumes.min, HH_CONFIG.delays.betweenResumes.max);
+    await humanDelay(
+      HH_CONFIG.delays.betweenResumes.min,
+      HH_CONFIG.delays.betweenResumes.max,
+    );
   }
 
   console.log(`📊 Описаний обработано: ${successCount}, ошибок: ${errorCount}`);
@@ -99,13 +125,16 @@ export async function parseVacancyDescriptions(
  */
 async function extractVacancyDescription(page: Page): Promise<string | null> {
   try {
-    const description = await page.$eval('[data-qa="vacancy-description"]', (element) => {
-      return element.textContent?.trim() || null;
-    });
+    const description = await page.$eval(
+      '[data-qa="vacancy-description"]',
+      (element) => {
+        return element.textContent?.trim() || null;
+      },
+    );
 
     return description;
   } catch (error) {
-    console.error('❌ Ошибка извлечения описания вакансии:', error);
+    console.error("❌ Ошибка извлечения описания вакансии:", error);
     return null;
   }
 }

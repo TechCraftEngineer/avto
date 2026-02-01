@@ -18,6 +18,14 @@ export interface VacancyData {
 export interface ResponseData {
   name: string;
   url: string;
+  resumeId?: string;
+  resumeUrl?: string;
+  externalId?: string;
+  respondedAt?: string;
+  status?: string;
+  coverLetter?: string;
+  vacancyId?: string;
+  candidateId?: string;
 }
 
 export interface ResumeExperience {

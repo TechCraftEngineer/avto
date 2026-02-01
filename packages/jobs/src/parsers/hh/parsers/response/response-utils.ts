@@ -1,19 +1,22 @@
 import type { Page } from "puppeteer";
 import type { ResponseData } from "~/parsers/types";
-import {
-  hasDetailedInfo,
-  updateResponseDetails,
-  uploadCandidatePhoto,
-  uploadResumePdf,
-} from "~/services/response";
+import { hasDetailedInfo, updateResponseDetails } from "~/services/response";
 import { HH_CONFIG } from "../../core/config/config";
 import { parseResponseDate } from "../../utils/date-utils";
 import { humanScroll } from "../../utils/human-behavior";
 import { parseResumeExperience } from "../resume/resume-parser";
 
-interface ResponseWithId extends ResponseData {
+interface ResponseWithId {
+  name: string;
+  url: string;
   resumeId: string;
+  resumeUrl?: string;
+  externalId?: string;
   respondedAt?: Date;
+  status?: string;
+  coverLetter?: string;
+  vacancyId?: string;
+  candidateId?: string;
 }
 
 /**
@@ -26,6 +29,8 @@ export async function filterResponsesNeedingDetails(
   const responsesNeedingDetails: ResponseWithId[] = [];
 
   for (const response of responses) {
+    if (!response.resumeId) continue;
+
     try {
       const needsDetails = !(await hasDetailedInfo(
         response.resumeId,
@@ -61,6 +66,10 @@ export async function parseResponseDetails(
 
   for (let i = 0; i < responses.length; i++) {
     const response = responses[i];
+    if (!response || !response.resumeUrl) {
+      console.warn(`⚠️ Пропускаем отклик ${i + 1}: отсутствуют данные`);
+      continue;
+    }
 
     try {
       console.log(
@@ -80,23 +89,28 @@ export async function parseResponseDetails(
       // Имитируем чтение страницы
       await humanScroll(page);
 
-      // Парсим детальную информацию
-      const details = await extractResumeDetails(page);
-
-      // Парсим опыт работы
-      const experience = await parseResumeExperience(page);
+      // Парсим детальную информацию резюме
+      const experienceData = await parseResumeExperience(
+        page,
+        response.resumeUrl,
+        response.name,
+      );
 
       // Обновляем информацию в базе
-      await updateResponseDetails(response.resumeId, vacancyId, {
-        ...details,
-        experience,
-        respondedAt: response.respondedAt,
+      await updateResponseDetails({
+        vacancyId: response.vacancyId || vacancyId,
+        resumeId: response.resumeId,
+        resumeUrl: response.resumeUrl,
+        candidateName: response.name,
+        experience: JSON.stringify(experienceData.experience),
+        contacts: experienceData.contacts,
+        phone: experienceData.phone ?? null,
       });
 
       console.log(`✅ Детали сохранены для: ${response.name}`);
     } catch (error) {
       console.error(
-        `❌ Ошибка парсинга деталей для ${response.externalId}:`,
+        `❌ Ошибка парсинга деталей для ${response.externalId || response.resumeId}:`,
         error,
       );
     }
@@ -110,7 +124,7 @@ export async function parseResponseDetails(
 /**
  * Извлекает детальную информацию из резюме
  */
-async function extractResumeDetails(page: Page): Promise<{
+async function _extractResumeDetails(page: Page): Promise<{
   email?: string;
   phone?: string;
   telegram?: string;
@@ -156,22 +170,22 @@ async function extractResumeDetails(page: Page): Promise<{
     // Извлекаем фото кандидата
     const photoElement = await page.$('[data-qa="resume-photo"] img');
     if (photoElement) {
-      const photoUrl = await photoElement.evaluate((img) => img.src);
+      const photoUrl = await photoElement.evaluate(
+        (img: HTMLImageElement) => img.src,
+      );
       if (photoUrl) {
         details.photoUrl = photoUrl;
-        // Скачиваем и загружаем фото
-        await uploadCandidatePhoto(details.resumeId, photoUrl);
       }
     }
 
     // Ищем ссылку на PDF версию резюме
     const pdfLink = await page.$('[data-qa="resume-pdf-link"]');
     if (pdfLink) {
-      const pdfUrl = await pdfLink.evaluate((a) => a.href);
+      const pdfUrl = await pdfLink.evaluate(
+        (a) => (a as HTMLAnchorElement).href,
+      );
       if (pdfUrl) {
         details.resumePdfUrl = pdfUrl;
-        // Скачиваем и загружаем PDF
-        await uploadResumePdf(details.resumeId, pdfUrl);
       }
     }
   } catch (error) {

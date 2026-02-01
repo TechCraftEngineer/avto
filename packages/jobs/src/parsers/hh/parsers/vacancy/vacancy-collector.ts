@@ -9,7 +9,7 @@ import { humanDelay } from "../../utils/human-behavior";
 export async function collectVacanciesFromUrl(
   page: Page,
   url: string,
-  vacancyType: 'active' | 'archived'
+  vacancyType: "active" | "archived",
 ): Promise<VacancyData[]> {
   const vacancies: VacancyData[] = [];
 
@@ -24,7 +24,10 @@ export async function collectVacanciesFromUrl(
       timeout: HH_CONFIG.timeouts.networkIdle,
     });
 
-    await humanDelay(HH_CONFIG.delays.readingPage.min, HH_CONFIG.delays.readingPage.max);
+    await humanDelay(
+      HH_CONFIG.delays.readingPage.min,
+      HH_CONFIG.delays.readingPage.max,
+    );
 
     // Ждем загрузки вакансий
     await page.waitForSelector('[data-qa="vacancy-serp__vacancy"]', {
@@ -35,67 +38,116 @@ export async function collectVacanciesFromUrl(
     let hasNextPage = true;
     let pageNum = 0;
 
-    while (hasNextPage && pageNum < 50) { // Ограничение на 50 страниц для безопасности
-      console.log(`📄 Парсим страницу ${pageNum + 1} ${vacancyType === 'active' ? 'активных' : 'архивных'} вакансий...`);
+    while (hasNextPage && pageNum < 50) {
+      // Ограничение на 50 страниц для безопасности
+      console.log(
+        `📄 Парсим страницу ${pageNum + 1} ${vacancyType === "active" ? "активных" : "архивных"} вакансий...`,
+      );
 
       // Собираем вакансии с текущей страницы
-      const pageVacancies = await page.$$eval('[data-qa="vacancy-serp__vacancy"]', (elements) => {
-        return elements.map((element) => {
-          const titleElement = element.querySelector('[data-qa="vacancy-serp__vacancy-title"]');
-          const title = titleElement?.textContent?.trim() || '';
+      const pageVacancies = await page.$$eval(
+        '[data-qa="vacancy-serp__vacancy"]',
+        (elements) => {
+          return elements.map((element) => {
+            const titleElement = element.querySelector(
+              '[data-qa="vacancy-serp__vacancy-title"]',
+            );
+            const title = titleElement?.textContent?.trim() || "";
 
-          const urlElement = element.querySelector('[data-qa="vacancy-serp__vacancy-title"]') as HTMLAnchorElement;
-          const url = urlElement?.href || '';
+            const urlElement = element.querySelector(
+              '[data-qa="vacancy-serp__vacancy-title"]',
+            ) as HTMLAnchorElement;
+            const url = urlElement?.href || "";
 
-          const companyElement = element.querySelector('[data-qa="vacancy-serp__vacancy-employer"]');
-          const company = companyElement?.textContent?.trim() || '';
+            const companyElement = element.querySelector(
+              '[data-qa="vacancy-serp__vacancy-employer"]',
+            );
+            const company = companyElement?.textContent?.trim() || "";
 
-          const salaryElement = element.querySelector('[data-qa="vacancy-serp__vacancy-compensation"]');
-          const salary = salaryElement?.textContent?.trim() || '';
+            const salaryElement = element.querySelector(
+              '[data-qa="vacancy-serp__vacancy-compensation"]',
+            );
+            const salary = salaryElement?.textContent?.trim() || "";
 
-          const locationElement = element.querySelector('[data-qa="vacancy-serp__vacancy-address"]');
-          const location = locationElement?.textContent?.trim() || '';
+            const locationElement = element.querySelector(
+              '[data-qa="vacancy-serp__vacancy-address"]',
+            );
+            const location = locationElement?.textContent?.trim() || "";
 
-          const dateElement = element.querySelector('[data-qa="vacancy-serp__vacancy-date"]');
-          const date = dateElement?.textContent?.trim() || '';
+            const dateElement = element.querySelector(
+              '[data-qa="vacancy-serp__vacancy-date"]',
+            );
+            const date = dateElement?.textContent?.trim() || "";
 
-          const idMatch = url.match(/\/vacancy\/(\d+)/);
-          const externalId = idMatch ? idMatch[1] : '';
+            const idMatch = url.match(/\/vacancy\/(\d+)/);
+            const externalId = idMatch ? idMatch[1] : "";
 
-          return {
-            title,
-            url,
-            company,
-            salary,
-            location,
-            date,
-            externalId,
-            status: vacancyType as 'active' | 'archived',
-          };
-        });
-      });
+            return {
+              title,
+              url,
+              company,
+              salary,
+              location,
+              date,
+              externalId,
+              status: vacancyType as "active" | "archived",
+            };
+          });
+        },
+      );
 
-      vacancies.push(...pageVacancies);
-      console.log(`📋 Найдено вакансий на странице ${pageNum + 1}: ${pageVacancies.length}`);
+      // Convert to VacancyData format with all required fields
+      const convertedVacancies: VacancyData[] = pageVacancies.map((v) => ({
+        id: v.externalId || "",
+        externalId: v.externalId,
+        source: "hh" as const,
+        title: v.title,
+        url: v.url,
+        views: "0",
+        responses: "0",
+        responsesUrl: null,
+        newResponses: "0",
+        resumesInProgress: "0",
+        suitableResumes: "0",
+        region: v.location,
+        description: "",
+        isActive: v.status === "active",
+      }));
+
+      vacancies.push(...convertedVacancies);
+      console.log(
+        `📋 Найдено вакансий на странице ${pageNum + 1}: ${pageVacancies.length}`,
+      );
 
       // Проверяем, есть ли следующая страница
       const nextButton = await page.$('[data-qa="pager-next"]');
       if (nextButton) {
-        await humanDelay(HH_CONFIG.delays.scrollDelay.min, HH_CONFIG.delays.scrollDelay.max);
+        await humanDelay(
+          HH_CONFIG.delays.scrollDelay.min,
+          HH_CONFIG.delays.scrollDelay.max,
+        );
         await nextButton.click();
         await page.waitForNetworkIdle({
           timeout: HH_CONFIG.timeouts.networkIdle,
         });
-        await humanDelay(HH_CONFIG.delays.readingPage.min, HH_CONFIG.delays.readingPage.max);
+        await humanDelay(
+          HH_CONFIG.delays.readingPage.min,
+          HH_CONFIG.delays.readingPage.max,
+        );
         pageNum++;
       } else {
         hasNextPage = false;
       }
     }
 
-    console.log(`📊 Всего собрано ${vacancyType === 'active' ? 'активных' : 'архивных'} вакансий: ${vacancies.length}`);
+    console.log(
+      `📊 Всего собрано ${vacancyType === "active" ? "активных" : "архивных"} вакансий: ${vacancies.length}`,
+    );
   } catch (error) {
-    console.error(`❌ Ошибка при сборе ${vacancyType === 'active' ? 'активных' : 'архивных'} вакансий:`, error);
+    console.error(
+      `❌ Ошибка при сборе ${vacancyType === "active" ? "активных" : "архивных"} вакансий:`,
+      error,
+    );
   }
 
   return vacancies;
@@ -105,12 +157,18 @@ export async function collectVacanciesFromUrl(
  * Собирает список активных вакансий с главной страницы работодателя
  */
 export async function collectVacancies(page: Page): Promise<VacancyData[]> {
-  return collectVacanciesFromUrl(page, HH_CONFIG.urls.vacancies, 'active');
+  return collectVacanciesFromUrl(page, HH_CONFIG.urls.vacancies, "active");
 }
 
 /**
  * Собирает список архивных вакансий
  */
-export async function collectArchivedVacancies(page: Page): Promise<VacancyData[]> {
-  return collectVacanciesFromUrl(page, HH_CONFIG.urls.archivedVacancies, 'archived');
+export async function collectArchivedVacancies(
+  page: Page,
+): Promise<VacancyData[]> {
+  return collectVacanciesFromUrl(
+    page,
+    HH_CONFIG.urls.archivedVacancies,
+    "archived",
+  );
 }

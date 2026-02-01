@@ -96,11 +96,11 @@ export const fetchArchivedListFunction = inngest.createFunction(
         const vacancies = rawVacancies
           .filter((v) => v.externalId)
           .map((v) => ({
-            id: v.externalId!,
+            id: v.externalId ?? "",
             title: v.title || "",
             region: v.region,
             archivedAt: v.archivedAt,
-            isImported: existingExternalIds.has(v.externalId!),
+            isImported: existingExternalIds.has(v.externalId ?? ""),
           }));
 
         await publish(

@@ -1,9 +1,7 @@
 import type { Page } from "puppeteer";
-import {
-  saveBasicResponse,
-} from "~/services/response";
-import { HH_CONFIG } from "../../core/config/config";
 import type { ProgressCallback, ResponseData } from "~/parsers/types";
+import { saveBasicResponse } from "~/services/response";
+import { HH_CONFIG } from "../../core/config/config";
 import {
   filterResponsesNeedingDetails,
   parseResponseDetails,
@@ -161,17 +159,34 @@ async function collectAndSaveResponses(
         try {
           response.vacancyId = dbVacancyId;
 
-          const saved = await saveBasicResponse(response);
-          if (saved) {
-            responses.push(response);
+          const saved = await saveBasicResponse(
+            dbVacancyId,
+            response.resumeId || "",
+            response.resumeUrl,
+            response.name,
+            response.respondedAt ? new Date(response.respondedAt) : undefined,
+          );
+
+          const responseData: ResponseData = {
+            ...response,
+            url: response.resumeUrl,
+          };
+
+          if (saved.success && saved.data) {
+            responses.push(responseData);
             newCount++;
           } else {
-            responses.push(response); // Добавляем даже если не новый
+            responses.push(responseData); // Добавляем даже если не новый
           }
 
           processedCount++;
           if (onProgress && processedCount % 10 === 0) {
-            onProgress(processedCount);
+            onProgress({
+              currentPage: pageNum + 1,
+              totalSaved: newCount,
+              totalSkipped: processedCount - newCount,
+              message: `Обработано откликов: ${processedCount}`,
+            });
           }
         } catch (error) {
           console.error(
