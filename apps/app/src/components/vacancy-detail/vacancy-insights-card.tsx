@@ -112,7 +112,7 @@ export function VacancyInsightsCard({
   }
 
   // Анализ: новая вакансия без активности
-  if (daysActive <= 2 && totalResponses === 0 && views < 10) {
+  if (daysActive <= 2 && totalResponses === 0 && views < 10 && isActive) {
     insights.push({
       type: "info",
       title: "Вакансия только создана",

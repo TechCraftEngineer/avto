@@ -32,7 +32,7 @@ export async function extractSingleVacancy(
       const workLocation = workLocationElement?.textContent?.trim() || "";
 
       const descriptionElement = document.querySelector(
-        '[data-qa="vacancy-description"]',
+        '[class="vacancy-description"]',
       );
       const description = descriptionElement?.textContent?.trim() || "";
 

@@ -114,7 +114,7 @@ export async function parseSingleVacancy(
 ): Promise<{ vacancy: VacancyData | null; success: boolean; isNew?: boolean }> {
   // Input validation
   const InputSchema = z.object({
-    url: z.string().url("Некорректный URL вакансии"),
+    url: z.url("Некорректный URL вакансии"),
     workspaceId: z.string().min(1, "workspaceId не может быть пустым"),
   });
 

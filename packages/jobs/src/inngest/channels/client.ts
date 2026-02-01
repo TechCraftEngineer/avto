@@ -298,7 +298,10 @@ export const importNewVacanciesChannel = channel(
  * Канал для отслеживания прогресса импорта архивных вакансий
  */
 export const importArchivedVacanciesChannel = channel(
-  (workspaceId: string) => `import-archived-vacancies:${workspaceId}`,
+  (workspaceId: string, runId?: string) =>
+    runId
+      ? `import-archived-vacancies:${workspaceId}:${runId}`
+      : `import-archived-vacancies:${workspaceId}`,
 )
   .addTopic(
     topic("progress").schema(

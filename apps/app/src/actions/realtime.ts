@@ -115,7 +115,7 @@ export async function fetchImportVacanciesToken(
     type === "new"
       ? importNewVacanciesChannel(workspaceId)
       : type === "archived"
-        ? importArchivedVacanciesChannel(workspaceId)
+        ? importArchivedVacanciesChannel(workspaceId, runId)
         : importVacancyByUrlChannel(workspaceId, runId);
 
   const token = await getSubscriptionToken(inngest, {
