@@ -1,10 +1,8 @@
-export { DemoBanner } from "./demo-banner";
-export { EmailPasswordForm } from "./email-password-form";
-export { EmailVerificationBanner } from "./email-verification-banner";
-export { EmailVerificationForm } from "./email-verification-form";
-export { EmailVerificationResend } from "./email-verification-resend";
-export { ForgotPasswordForm } from "./forgot-password-form";
-export { LoginForm } from "./login-form";
-export { OTPForm } from "./otp-form";
-export { ResetPasswordForm } from "./reset-password-form";
-export { UnifiedAuthForm } from "./unified-auth-form";
+// auth domain exports
+export { DemoBanner } from './components/demo-banner';
+export { EmailPasswordForm } from './components/email-password-form';
+export { EmailVerificationBanner } from './components/email-verification-banner';
+export { EmailVerificationForm } from './components/email-verification-form';
+export { EmailVerificationResend } from './components/email-verification-resend';
+export { LoginForm } from './components/login-form';
+export { UnifiedAuthForm } from './components/unified-auth-form';

@@ -1,0 +1,46 @@
+{
+  "totalFiles": 430,
+  "totalDirs": 13,
+  "categories": {
+    "auth": 11,
+    "dashboard": 12,
+    "workspace": 10,
+    "organization": 7,
+    "vacancies": 11,
+    "gigs": 47,
+    "candidates": 29,
+    "responses": 20,
+    "chat": 30,
+    "settings": 14,
+    "ui": 10,
+    "layout": 4,
+    "other": 5
+  },
+  "generatedAt": "2026-02-01T15:30:00.000Z",
+  "componentsDir": "apps/app/src/components",
+  "migrationReady": true,
+  "phase1": {
+    "ui": 10,
+    "layout": 4,
+    "auth": 11,
+    "total": 25
+  },
+  "phase2": {
+    "dashboard": 12,
+    "workspace": 10,
+    "organization": 7,
+    "total": 29
+  },
+  "phase3": {
+    "vacancies": 11,
+    "gigs": 47,
+    "candidates": 29,
+    "total": 87
+  },
+  "phase4": {
+    "responses": 20,
+    "chat": 30,
+    "settings": 14,
+    "total": 64
+  }
+}
