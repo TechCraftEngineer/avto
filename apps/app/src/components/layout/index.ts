@@ -9,5 +9,7 @@ export { NavMain } from './components/nav-main';
 export { NavQuickActions } from './components/nav-quick-actions';
 export { NavSecondary } from './components/nav-secondary';
 export { NavUser } from './components/nav-user';
+export { PageHeader } from './components/page-header';
+export { SiteHeader } from './components/site-header';
 export { UseSidebarStats } from './components/use-sidebar-stats';
 export { WorkspaceSwitcher } from './components/workspace-switcher';
