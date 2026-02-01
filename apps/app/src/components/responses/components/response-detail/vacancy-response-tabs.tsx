@@ -23,7 +23,7 @@ import {
   ScreeningResultsCard,
   TimelineTab,
 } from "~/components/response-detail";
-import type { ResponseDetail } from "./hooks/use-vacancy-response-flags";
+import type { ResponseDetail } from "~/components/response-detail/hooks/use-vacancy-response-flags";
 
 interface VacancyResponseTabsProps {
   response: ResponseDetail;

@@ -35,10 +35,10 @@ export function BatchScreeningProgress({
   const prevCompletedRef = useRef(false);
 
   useEffect(() => {
-    if (completed && onComplete && !prevCompletedRef.current) {
+    if (completed !== null && onComplete && !prevCompletedRef.current) {
       onComplete();
     }
-    prevCompletedRef.current = completed;
+    prevCompletedRef.current = completed !== null;
   }, [completed, onComplete]);
 
   const progressPercent = progress
