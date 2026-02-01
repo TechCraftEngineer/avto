@@ -1,4 +1,4 @@
-import type { ScreeningFilter } from "~/components/response";
+import type { ScreeningFilter } from "~/components/responses";
 import { ResponseActionButtons } from "../responses/response-action-buttons";
 import { ResponseDialogs } from "../responses/response-dialogs";
 import { ResponseSearchFilter } from "../responses/response-search-filter";

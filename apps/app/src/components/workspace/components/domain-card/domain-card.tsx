@@ -26,8 +26,8 @@ import {
 import { useState } from "react";
 import { toast } from "sonner";
 import { useTRPC } from "~/trpc/react";
-import { DeleteDomainDialog } from "./delete-domain-dialog";
-import { DnsInstructionsDialog } from "./dns-instructions-dialog";
+import { DeleteDomainDialog } from "../delete-domain-dialog";
+import { DnsInstructionsDialog } from "../dns-instructions-dialog";
 
 interface DomainCardProps {
   domain: CustomDomain;

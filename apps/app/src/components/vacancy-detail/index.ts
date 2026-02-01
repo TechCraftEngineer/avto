@@ -1,2 +1,3 @@
 // vacancy-detail domain exports
-export { SourceConfig } from './utils/source-config';
+export { SOURCE_CONFIG as SourceConfig } from './utils/source-config';
+export { VacancySkeleton } from '~/components/vacancies/components/vacancy-detail';

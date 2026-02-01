@@ -1,7 +1,6 @@
-export { DetailCard } from './detail-card';
-export { HeaderCard } from './header-card';
-export { UseVacancyResponseFlags } from './hooks/use-vacancy-response-flags';
+export { VacancyResponseDetailCard as DetailCard } from './detail-card';
+export { VacancyResponseHeaderCard as HeaderCard } from './header-card';
+export { useVacancyResponseFlags } from './hooks/use-vacancy-response-flags';
 export { ResumeCard } from './resume-card';
 export { SalaryCard } from './salary-card';
-export { Tabs } from './tabs';
-export { Types } from './types';
+export { VacancyResponseTabs as Tabs } from './tabs';

@@ -4,7 +4,7 @@ import {
   ResponseFilters,
   ResponseStatusFilter as ResponseStatusFilterComponent,
   type ScreeningFilter,
-} from "~/components/response";
+} from "~/components/responses";
 import type { ResponseStatusFilterUI } from "./use-response-table";
 
 interface ResponseSearchFilterProps {

@@ -3,6 +3,8 @@
  * Оптимизация производительности компонентов
  */
 
+"use client";
+
 import React from "react";
 
 export const PERFORMANCE_CONFIG = {

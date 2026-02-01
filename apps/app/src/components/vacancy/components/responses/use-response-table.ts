@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { ScreeningFilter } from "~/components/response";
+import type { ScreeningFilter } from "~/components/responses";
 import { useDebounce } from "~/hooks/use-debounce";
 import type { SortDirection, SortField } from "./types";
 

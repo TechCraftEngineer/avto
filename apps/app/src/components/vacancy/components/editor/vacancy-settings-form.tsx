@@ -24,7 +24,7 @@ import {
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { CustomDomainSelect } from "~/components/gig";
+import { CustomDomainSelect } from "~/components/gigs";
 import { useTRPC } from "~/trpc/react";
 import { CommunicationChannelsSettings } from "./communication-channels-settings";
 import { WelcomeMessageTemplates } from "./welcome-message-templates";
@@ -498,7 +498,7 @@ export function VacancySettingsForm({
                 <CustomDomainSelect
                   workspaceId={workspaceId}
                   value={form.watch("customDomainId")}
-                  onChange={(value) =>
+                  onChange={(value: string | null) =>
                     form.setValue("customDomainId", value, {
                       shouldDirty: true,
                     })

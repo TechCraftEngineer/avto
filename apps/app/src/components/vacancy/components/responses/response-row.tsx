@@ -27,7 +27,7 @@ import {
 import { ExternalLink, Send, TrendingUp, User, UserCheck } from "lucide-react";
 import Link from "next/link";
 import sanitizeHtml from "sanitize-html";
-import { ResponseActions } from "~/components/response";
+import { ResponseActions } from "~/components/responses";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { getAvatarUrl } from "~/lib/avatar";
 import { ContactInfo } from "../integrations/contact-info";

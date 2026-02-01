@@ -1,11 +1,11 @@
 // vacancy domain exports
-export { Display } from './components/display';
-export { Editor } from './components/editor';
-export { Import } from './components/import';
-export { Index } from './components/index';
-export { Integrations } from './components/integrations';
-export { ResponseDetail } from './components/response-detail';
-export { ResponseTable } from './components/response-table';
-export { Responses } from './components/responses';
-export { Screening } from './components/screening';
-export { Ui } from './components/ui';
+export { UpdateVacancyButton } from "./components/editor/update-vacancy-button";
+export { VacancyAnalytics } from "./components/display/vacancy-analytics";
+// Re-export specific components for convenience
+export { VacancyStats } from "./components/display";
+export { VacancyEditor } from "./components/editor/vacancy-editor";
+export { ImportArchivedProgress } from "./components/import/import-archived-progress";
+export { ImportByUrlProgress } from "./components/import/import-by-url-progress";
+export { ImportNewProgress } from "./components/import/import-new-progress";
+export { VacancyIntegrationManager } from "./components/integrations/vacancy-integration-manager";
+export { VacancyAIChatPanel } from "./components/ui/vacancy-ai-chat-panel";

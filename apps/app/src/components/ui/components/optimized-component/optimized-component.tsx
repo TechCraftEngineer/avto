@@ -3,6 +3,8 @@
  * Применяет Vercel React Best Practices автоматически
  */
 
+"use client";
+
 import React from 'react';
 import { cn } from '@/lib/utils';
 

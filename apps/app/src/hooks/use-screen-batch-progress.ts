@@ -66,7 +66,7 @@ export function useScreenBatchProgress(
       // Обновляем кэш конкретного отклика
       if (scored.status === "completed") {
         queryClient.invalidateQueries({
-          queryKey: trpc.responses.getById.queryKey({ id: scored.responseId }),
+          queryKey: trpc.vacancy.responses.get.queryKey({ id: scored.responseId }),
         });
       }
     } else if (topic === "batch-progress") {
@@ -77,7 +77,7 @@ export function useScreenBatchProgress(
 
       // Инвалидируем список откликов после завершения
       queryClient.invalidateQueries({
-        queryKey: trpc.responses.queryKey(),
+        queryKey: trpc.vacancy.responses.list.queryKey(),
       });
     }
   }, [latestData, queryClient, trpc]);

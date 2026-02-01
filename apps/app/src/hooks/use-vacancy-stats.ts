@@ -35,7 +35,7 @@ export function useVacancyStats(vacancyId: string | undefined) {
 
     // Обновляем кэш конкретной вакансии
     queryClient.setQueryData(
-      trpc.vacancies.getById.queryKey({ id: vacancyId }),
+      trpc.vacancy.get.queryKey({ id: vacancyId }),
       (oldData: any) => {
         if (!oldData) return oldData;
         return {
@@ -47,7 +47,7 @@ export function useVacancyStats(vacancyId: string | undefined) {
 
     // Инвалидируем список вакансий для обновления таблицы
     queryClient.invalidateQueries({
-      queryKey: trpc.vacancies.list.queryKey(),
+      queryKey: trpc.vacancy.list.queryKey(),
     });
   }, [latestData, vacancyId, queryClient, trpc]);
 

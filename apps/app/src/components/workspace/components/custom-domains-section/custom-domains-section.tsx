@@ -5,8 +5,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useTRPC } from "~/trpc/react";
-import { AddDomainDialog } from "./add-domain-dialog";
-import { DomainCard } from "./domain-card";
+import { AddDomainDialog } from "../add-domain-dialog";
+import { DomainCard } from "../domain-card";
 
 interface CustomDomainsSectionProps {
   workspaceId: string;

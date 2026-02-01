@@ -4,8 +4,8 @@ import type { OrganizationRole, Workspace } from "@qbs-autonaim/db";
 import { Button, Input } from "@qbs-autonaim/ui";
 import { Plus, Search } from "lucide-react";
 import { useState } from "react";
-import { CreateWorkspaceDialog } from "./create-workspace-dialog";
-import { WorkspaceCard } from "./workspace-card";
+import { CreateWorkspaceDialog } from "../create-workspace-dialog";
+import { WorkspaceCard } from "../workspace-card";
 
 interface WorkspaceListClientProps {
   organizationId: string;
