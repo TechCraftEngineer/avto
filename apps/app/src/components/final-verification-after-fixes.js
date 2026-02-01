@@ -61,7 +61,7 @@ domainsToCheck.forEach(domain => {
   const cleanStatus = isClean ? 'ЧИСТЫЙ' : 'ТРЕБУЕТ ВНИМАНИЯ';
   const wasFixed = fixedDomains.includes(domain) ? ' (ИСПРАВЛЕН)' : '';
 
-  console.log(`${status} ${domain.padEnd(15)}: ${componentCount.toString().padStart(2)} компонентов (${cleanStatus})${wasFixed}`);
+  console.log(`${status} ${domain.padEnd(15)}: ${componentsCount.toString().padStart(2)} компонентов (${cleanStatus})${wasFixed}`);
 
   if (isClean) {
     cleanDomains++;
