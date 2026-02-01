@@ -23,8 +23,14 @@
     "./services/buffer": {
       "default": "./src/services/buffer/index.ts"
     },
-    "./parsers/hh": {
-      "default": "./src/parsers/hh/index.ts"
+    "./services/response": {
+      "default": "./src/services/response/index.ts"
+    },
+    "./services/vacancy": {
+      "default": "./src/services/vacancy/index.ts"
+    },
+    "./services/messaging": {
+      "default": "./src/services/messaging/index.ts"
     }
   },
   "license": "MIT",
@@ -50,20 +56,16 @@
     "@qbs-autonaim/emails": "workspace:*",
     "@qbs-autonaim/lib": "workspace:*",
     "@qbs-autonaim/ai": "workspace:*",
+    "@qbs-autonaim/jobs-parsers": "workspace:*",
     "@qbs-autonaim/server-utils": "workspace:*",
     "@qbs-autonaim/shared": "workspace:*",
     "@qbs-autonaim/tg-client": "workspace:*",
     "@t3-oss/env-core": "0.13.10",
     "ai": "6.0.67",
     "axios": "1.13.4",
-    "crawlee": "3.15.3",
     "inngest": "3.50.0",
     "langfuse": "3.38.6",
-    "puppeteer": "24.36.1",
-    "puppeteer-extra": "3.3.6",
-    "puppeteer-extra-plugin-stealth": "2.11.2",
     "sharp": "0.34.5",
-    "string-strip-html": "13.5.3",
     "zod": "4.3.6"
   },
   "devDependencies": {

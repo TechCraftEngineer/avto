@@ -265,9 +265,9 @@ export function ImportArchivedProgress({
           (resultData.imported > 0 ||
             resultData.updated > 0 ||
             resultData.failed > 0) && (
-            <div className="grid grid-cols-3 gap-4 p-4 rounded-lg border bg-muted/50">
+            <div className="flex flex-wrap gap-4 p-4 rounded-lg border bg-muted/50">
               {resultData.imported > 0 && (
-                <div className="text-center space-y-1">
+                <div className="flex-1 min-w-[100px] text-center space-y-1">
                   <p className="text-2xl font-bold text-green-600">
                     {resultData.imported}
                   </p>
@@ -275,7 +275,7 @@ export function ImportArchivedProgress({
                 </div>
               )}
               {resultData.updated > 0 && (
-                <div className="text-center space-y-1">
+                <div className="flex-1 min-w-[100px] text-center space-y-1">
                   <p className="text-2xl font-bold text-blue-600">
                     {resultData.updated}
                   </p>
@@ -283,7 +283,7 @@ export function ImportArchivedProgress({
                 </div>
               )}
               {resultData.failed > 0 && (
-                <div className="text-center space-y-1">
+                <div className="flex-1 min-w-[100px] text-center space-y-1">
                   <p className="text-2xl font-bold text-destructive">
                     {resultData.failed}
                   </p>

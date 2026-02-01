@@ -2,24 +2,23 @@
  * Centralized export for all Inngest functions
  */
 
+// Integration functions
+export {
+  refreshAllResumesFunction,
+  refreshSingleResumeFunction,
+  updateSingleVacancyFunction,
+  verifyHHCredentialsFunction,
+} from "@qbs-autonaim/jobs-parsers";
 // Candidate functions
 export * from "./candidate";
-
 // Draft functions
 export * from "./draft";
-
 // Freelance functions
 export * from "./freelance";
-
 // Gig functions
 export * from "./gig";
-
-// Integration functions
-export * from "./integration";
-
 // Interview functions
 export * from "./interview";
-
 // Response functions
 export * from "./response";
 // Telegram functions
@@ -29,6 +28,12 @@ export * from "./vacancy";
 // Web Interview functions
 export * from "./web-interview";
 
+import {
+  refreshAllResumesFunction,
+  refreshSingleResumeFunction,
+  updateSingleVacancyFunction,
+  verifyHHCredentialsFunction,
+} from "@qbs-autonaim/jobs-parsers";
 import type { InngestFunction } from "inngest";
 import {
   sendCandidateWelcomeBatchFunction,
@@ -43,7 +48,6 @@ import {
   sendFreelanceNotificationFunction,
 } from "./freelance";
 import { evaluateGigResponseFunction, syncGigResponses } from "./gig";
-import { verifyHHCredentialsFunction } from "./integration";
 import {
   bufferDebounceFunction,
   bufferFlushFunction,
@@ -55,8 +59,6 @@ import {
   parseNewResumesFunction,
   recalculateGigShortlistFunction,
   recalculateRankingFunction,
-  refreshAllResumesFunction,
-  refreshSingleResumeFunction,
   screenAllResponsesFunction,
   screenNewResponsesFunction,
   screenResponseFunction,
@@ -83,7 +85,6 @@ import {
   importVacancyByUrlFunction,
   refreshVacancyResponsesFunction,
   syncArchivedVacancyResponsesFunction,
-  updateSingleVacancyFunction,
   updateVacanciesFunction,
 } from "./vacancy";
 import {
