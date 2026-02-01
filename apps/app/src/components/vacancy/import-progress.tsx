@@ -109,9 +109,12 @@ export function ImportProgress({
       ? Math.round(((progressData.processed || 0) / progressData.total) * 100)
       : 0;
 
-  // Вызываем onComplete при завершении только один раз
+  // Вызываем onComplete при завершении или ошибке только один раз
   useEffect(() => {
-    if (isCompleted && resultData && !completedRef.current) {
+    if (completedRef.current) return;
+
+    // Завершение с результатом
+    if (isCompleted && resultData) {
       completedRef.current = true;
 
       // Небольшая задержка для показа финального состояния
@@ -121,7 +124,24 @@ export function ImportProgress({
 
       return () => clearTimeout(timer);
     }
-  }, [isCompleted, resultData, onComplete]);
+
+    // Ошибка подключения
+    if (error) {
+      completedRef.current = true;
+
+      const timer = setTimeout(() => {
+        onComplete({
+          success: false,
+          imported: 0,
+          updated: 0,
+          failed: 0,
+          error: "Ошибка подключения к серверу",
+        });
+      }, 1500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isCompleted, resultData, error, onComplete]);
 
   // Получаем заголовок в зависимости от типа
   const getTitle = () => {

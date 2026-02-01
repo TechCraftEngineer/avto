@@ -1,10 +1,8 @@
 import { getIntegrationCredentials } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
-import puppeteer from "puppeteer";
-import { parseArchivedVacancyResponses } from "./archived-response-parser";
-import { checkAndPerformLogin, loadCookies } from "./auth";
-import { closeBrowserSafely } from "./browser-utils";
-import { HH_CONFIG } from "./config";
+import { parseArchivedVacancyResponses } from "../parsers/response/archived-response-parser";
+import { setupPageWithAuth } from "../core/browser/browser-setup";
+import { closeBrowserSafely } from "../core/browser/browser-utils";
 
 interface RunHHArchivedVacancyParserOptions {
   workspaceId: string;
@@ -29,27 +27,13 @@ export async function runHHArchivedVacancyParser(
     throw new Error("Не найдены учетные данные для HH.ru");
   }
 
-  const browser = await puppeteer.launch(HH_CONFIG.puppeteer);
+  const { browser, page } = await setupPageWithAuth(
+    workspaceId,
+    credentials.email,
+    credentials.password,
+  );
 
   try {
-    const page = await browser.newPage();
-
-    await page.setUserAgent(HH_CONFIG.userAgent);
-    await page.setViewport({ width: 1920, height: 1080 });
-
-    // Load existing cookies if available
-    const savedCookies = await loadCookies("hh", workspaceId);
-    if (savedCookies && savedCookies.length > 0) {
-      await page.setCookie(...savedCookies);
-    }
-
-    // Check authentication and perform login if needed
-    await checkAndPerformLogin(
-      page,
-      credentials.email,
-      credentials.password,
-      workspaceId,
-    );
 
     // Парсим отклики для конкретной архивной вакансии
     const result = await parseArchivedVacancyResponses(

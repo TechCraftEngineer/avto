@@ -1,8 +1,8 @@
-export { runHHArchivedVacancyParser } from "./archived-runner";
-export { refreshVacancyResponses } from "./refresh-responses";
+export { runHHArchivedVacancyParser } from "./runners/archived-runner";
+export { refreshVacancyResponses } from "./runners/refresh-responses";
 export {
   fetchArchivedVacanciesList,
   importMultipleVacancies,
   importSingleVacancy,
   runHHParser,
-} from "./runner";
+} from "./runners/runner";

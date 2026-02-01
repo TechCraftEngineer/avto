@@ -1,7 +1,7 @@
 import puppeteer from "puppeteer";
-import { closeBrowserSafely } from "./browser-utils";
-import { HH_CONFIG } from "./config";
-import { humanBrowse, humanDelay } from "./human-behavior";
+import { closeBrowserSafely } from "../../core/browser/browser-utils";
+import { HH_CONFIG } from "../../core/config/config";
+import { humanBrowse, humanDelay } from "../../utils/human-behavior";
 
 /**
  * Парсит описание вакансии с HH.ru по URL

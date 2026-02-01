@@ -1,10 +1,10 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import puppeteer, { type Browser, type Page } from "puppeteer";
-import { checkAndPerformLogin, loadCookies, saveCookies } from "./auth";
+import puppeteer, { type Browser, type CookieData, type Page } from "puppeteer";
+import { checkAndPerformLogin, loadCookies, saveCookies } from "../auth/auth";
+import { HH_CONFIG } from "../config/config";
 import { closeBrowserSafely } from "./browser-utils";
-import { HH_CONFIG } from "./config";
 
 /**
  * Cleans up temporary Puppeteer profiles to avoid EBUSY errors on Windows
@@ -57,7 +57,7 @@ export async function setupBrowser(): Promise<Browser> {
  */
 export async function setupPage(
   browser: Browser,
-  savedCookies: Parameters<Page["setCookie"]> | null,
+  savedCookies: CookieData[] | null,
 ): Promise<Page> {
   const page = await browser.newPage();
 
@@ -95,8 +95,14 @@ export async function setupPage(
 
   // Restore cookies if provided
   if (savedCookies && savedCookies.length > 0) {
-    console.log(`🍪 Восстанавливаем ${savedCookies.length} cookies`);
-    await page.setCookie(...savedCookies);
+    // Фильтруем cookies с обязательным domain для browserContext
+    const validCookies = savedCookies.filter((cookie) => cookie.domain);
+    if (validCookies.length > 0) {
+      console.log(`🍪 Восстанавливаем ${validCookies.length} cookies`);
+      await page.browserContext().setCookie(...(validCookies as CookieData[]));
+    } else {
+      console.log("🍪 Cookies не найдены, будет выполнен первичный логин");
+    }
   } else {
     console.log("🍪 Cookies не найдены, будет выполнен первичный логин");
   }
@@ -124,16 +130,13 @@ export async function setupAuthenticatedBrowser(
   const browser = await setupBrowser();
 
   try {
-    const page = await setupPage(
-      browser,
-      savedCookies as Parameters<Page["setCookie"]> | null,
-    );
+    const page = await setupPage(browser, savedCookies as CookieData[] | null);
 
     // Check login status and perform login if needed
     await checkAndPerformLogin(page, email, password, workspaceId);
 
     // Save cookies after login check/attempt
-    const cookies = await page.cookies();
+    const cookies = await page.browserContext().cookies();
     await saveCookies("hh", cookies, workspaceId);
 
     return { browser, page, credentials: { email, password } };
@@ -146,47 +149,40 @@ export async function setupAuthenticatedBrowser(
 /**
  * Ensures the user is authenticated on the current page
  */
-export async function ensureAuthenticated(
-  page: Page,
+
+/**
+ * Sets up a fully configured browser page with authentication
+ */
+export async function setupPageWithAuth(
+  workspaceId: string,
   email: string,
   password: string,
-  workspaceId: string,
-): Promise<void> {
-  // Check if we're on the login page
-  const currentUrl = page.url();
-  const isOnLoginPage =
-    currentUrl.includes("/account/login") || currentUrl.includes("/login");
+): Promise<{ browser: Browser; page: Page }> {
+  const browser = await setupBrowser();
 
-  if (isOnLoginPage) {
-    await checkAndPerformLogin(page, email, password, workspaceId);
-  } else {
-    // Check if we need to login by looking for login elements
-    const loginInput = await page.$('input[type="text"][name="username"]');
-    if (loginInput) {
-      await checkAndPerformLogin(page, email, password, workspaceId);
+  try {
+    const page = await browser.newPage();
+
+    await page.setUserAgent(HH_CONFIG.userAgent);
+    await page.setViewport({ width: 1920, height: 1080 });
+
+    // Load existing cookies if available
+    const savedCookies = await loadCookies("hh", workspaceId);
+    if (savedCookies && savedCookies.length > 0) {
+      await page.setCookie(...savedCookies);
     }
+
+    // Check authentication and perform login if needed
+    const loggedIn = await checkAndPerformLogin(page, email, password, workspaceId);
+
+    if (!loggedIn) {
+      throw new Error("Не удалось войти в систему HeadHunter");
+    }
+
+    return { browser, page };
+  } catch (error) {
+    await closeBrowserSafely(browser);
+    throw error;
   }
 }
 
-/**
- * Navigates to a URL while ensuring authentication
- */
-export async function navigateWithAuth(
-  page: Page,
-  url: string,
-  email: string,
-  password: string,
-  workspaceId: string,
-): Promise<void> {
-  await page.goto(url, {
-    waitUntil: "domcontentloaded",
-    timeout: HH_CONFIG.timeouts.navigation,
-  });
-
-  await page.waitForNetworkIdle({
-    timeout: HH_CONFIG.timeouts.networkIdle,
-  });
-
-  // Ensure we're authenticated
-  await ensureAuthenticated(page, email, password, workspaceId);
-}

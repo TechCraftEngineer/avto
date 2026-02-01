@@ -2,15 +2,15 @@ import { eq, getIntegrationCredentials } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { vacancy } from "@qbs-autonaim/db/schema";
 
-import type { ProgressCallback } from "../types";
+import type { ProgressCallback } from "../../types";
+import { setupAuthenticatedBrowser } from "../core/browser/browser-setup";
 import {
   ensureAuthenticated,
   navigateWithAuth,
-  setupAuthenticatedBrowser,
-} from "./browser-setup";
-import { closeBrowserSafely } from "./browser-utils";
-import { HH_CONFIG } from "./config";
-import { parseResponses } from "./response-parser";
+} from "../core/browser/browser-navigation";
+import { closeBrowserSafely } from "../core/browser/browser-utils";
+import { HH_CONFIG } from "../core/config/config";
+import { parseResponses } from "../parsers/response/response-parser";
 
 /**
  * Parse only new responses for a specific vacancy

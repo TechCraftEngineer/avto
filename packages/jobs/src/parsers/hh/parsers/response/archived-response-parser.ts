@@ -1,15 +1,12 @@
 import type { Page } from "puppeteer";
 import {
-  hasDetailedInfo,
   saveBasicResponse,
   updateResponseDetails,
-  uploadCandidatePhoto,
-  uploadResumePdf,
-} from "../../services/response";
-import type { ResponseData } from "../types";
-import { HH_CONFIG } from "./config";
-import { humanScroll } from "./human-behavior";
-import { parseResumeExperience } from "./resume-parser";
+} from "../../../services/response";
+import type { ResponseData } from "../../types";
+import { HH_CONFIG } from "../../core/config/config";
+import { parseResponseDate } from "../../utils/date-utils";
+import { filterResponsesNeedingDetails, parseResponseDetails } from "./response-utils";
 
 interface ResponseWithId extends ResponseData {
   resumeId: string;
@@ -79,46 +76,6 @@ export async function parseArchivedVacancyResponses(
   return { syncedResponses: allResponses.length, newResponses: newCount };
 }
 
-function parseResponseDate(dateStr: string): Date | undefined {
-  if (!dateStr) return undefined;
-
-  const currentYear = new Date().getFullYear();
-  const months: Record<string, number> = {
-    января: 0,
-    февраля: 1,
-    марта: 2,
-    апреля: 3,
-    мая: 4,
-    июня: 5,
-    июля: 6,
-    августа: 7,
-    сентября: 8,
-    октября: 9,
-    ноября: 10,
-    декабря: 11,
-  };
-
-  const match = dateStr.match(/(\d+)\s+(\S+)/);
-  if (match) {
-    const day = Number.parseInt(match[1] || "1", 10);
-    const monthName = match[2]?.toLowerCase() || "";
-    const month = months[monthName];
-
-    if (month !== undefined) {
-      const parsed = new Date(currentYear, month, day);
-      const now = new Date();
-
-      // Если распарсенная дата находится в будущем, значит это дата прошлого года
-      if (parsed > now) {
-        parsed.setFullYear(parsed.getFullYear() - 1);
-      }
-
-      return parsed;
-    }
-  }
-
-  return undefined;
-}
 
 async function collectAllArchivedResponses(
   page: Page,
@@ -307,137 +264,3 @@ async function collectAllArchivedResponses(
   return { responses: allResponses, newCount: totalSaved };
 }
 
-async function filterResponsesNeedingDetails(
-  responses: ResponseWithId[],
-  vacancyId: string,
-): Promise<ResponseWithId[]> {
-  const responsesNeedingDetails: ResponseWithId[] = [];
-
-  for (let i = 0; i < responses.length; i++) {
-    const response = responses[i];
-    if (!response) continue;
-
-    try {
-      const result = await hasDetailedInfo(vacancyId, response.resumeId);
-
-      if (!result.success) {
-        console.error(
-          `❌ Ошибка проверки деталей для ${response.name}:`,
-          result.error,
-        );
-        responsesNeedingDetails.push(response);
-        continue;
-      }
-
-      if (!result.data) {
-        responsesNeedingDetails.push(response);
-        console.log(
-          `Требуется парсинг ${i + 1}/${responses.length}: ${response.name}`,
-        );
-      } else {
-        console.log(
-          `✅ Детали есть ${i + 1}/${responses.length}: ${response.name}`,
-        );
-      }
-    } catch (error) {
-      console.error(`❌ Ошибка проверки деталей для ${response.name}:`, error);
-      responsesNeedingDetails.push(response);
-    }
-  }
-
-  return responsesNeedingDetails;
-}
-
-async function parseResponseDetails(
-  page: Page,
-  responses: ResponseWithId[],
-  vacancyId: string,
-): Promise<void> {
-  let successCount = 0;
-  let errorCount = 0;
-
-  for (let i = 0; i < responses.length; i++) {
-    const response = responses[i];
-    if (!response) continue;
-
-    try {
-      console.log(
-        `\n📊 Парсинг резюме ${i + 1}/${responses.length}: ${response.name}`,
-      );
-
-      const experienceData = await parseResumeExperience(
-        page,
-        response.url,
-        response.name,
-      );
-      let resumePdfFileId: string | null = null;
-      if (experienceData.pdfBuffer) {
-        const uploadResult = await uploadResumePdf(
-          experienceData.pdfBuffer,
-          response.resumeId,
-        );
-        if (uploadResult.success) {
-          resumePdfFileId = uploadResult.data;
-        }
-      }
-
-      let photoFileId: string | null = null;
-
-      if (experienceData.photoBuffer && experienceData.photoMimeType) {
-        console.log(
-          `📸 Загрузка фото кандидата в S3 (размер: ${experienceData.photoBuffer.length} байт, тип: ${experienceData.photoMimeType})`,
-        );
-        const uploadResult = await uploadCandidatePhoto(
-          experienceData.photoBuffer,
-          response.resumeId,
-          experienceData.photoMimeType,
-        );
-        if (uploadResult.success) {
-          photoFileId = uploadResult.data;
-          console.log(`✅ Фото загружено в S3, file ID: ${photoFileId}`);
-        } else {
-          console.log(`⚠️ Ошибка загрузки фото в S3: ${uploadResult.error}`);
-        }
-      } else {
-        console.log(
-          `⚠️ Фото не будет загружено: photoBuffer=${!!experienceData.photoBuffer}, photoMimeType=${!!experienceData.photoMimeType}`,
-        );
-      }
-
-      const updateResult = await updateResponseDetails({
-        vacancyId,
-        resumeId: response.resumeId,
-        resumeUrl: response.url,
-        candidateName: response.name,
-        experience: experienceData.experience,
-        contacts: experienceData.contacts,
-        phone: experienceData.phone,
-        resumePdfFileId,
-        photoFileId,
-      });
-
-      if (!updateResult.success) {
-        throw new Error(
-          `Failed to update response details: ${updateResult.error}`,
-        );
-      }
-
-      successCount++;
-      console.log(`✅ Резюме ${i + 1}/${responses.length} обработано успешно`);
-    } catch (error) {
-      errorCount++;
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-      console.error(
-        `❌ Ошибка парсинга резюме ${response.name}:`,
-        errorMessage,
-      );
-
-      console.log(`⏭️ Переход к следующему резюме...`);
-    }
-  }
-
-  console.log(
-    `\n📊 Итого парсинг резюме: успешно ${successCount}, ошибок ${errorCount}`,
-  );
-}

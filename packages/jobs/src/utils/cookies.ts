@@ -3,14 +3,14 @@ import {
   saveCookiesForIntegration,
 } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
-import type { Cookie } from "crawlee";
+import type { CookieData } from "puppeteer";
 
 /**
  * Сохраняет cookies в базу данных
  */
 export async function saveCookies(
   integrationType: string,
-  cookies: Cookie[],
+  cookies: CookieData[],
   workspaceId: string,
 ): Promise<void> {
   try {
@@ -28,7 +28,7 @@ export async function saveCookies(
 export async function loadCookies(
   integrationType: string,
   workspaceId: string,
-): Promise<Cookie[] | null> {
+): Promise<CookieData[] | null> {
   try {
     const cookies = await loadCookiesForIntegration(
       db,
@@ -36,15 +36,29 @@ export async function loadCookies(
       workspaceId,
     );
     if (cookies) {
-      console.log(
-        `✓ Загружено ${cookies.length} cookies для ${integrationType}`,
+      // Фильтруем cookies с обязательным domain для puppeteer
+      const validCookies = cookies.filter(
+        (cookie): cookie is CookieData =>
+          typeof cookie.domain === "string" && cookie.domain.length > 0,
       );
-    } else {
+
+      if (validCookies.length > 0) {
+        console.log(
+          `✓ Загружено ${validCookies.length} cookies для ${integrationType}`,
+        );
+        return validCookies;
+      }
+
       console.log(
         `Cookies не найдены для ${integrationType}, требуется авторизация`,
       );
+      return null;
     }
-    return cookies;
+
+    console.log(
+      `Cookies не найдены для ${integrationType}, требуется авторизация`,
+    );
+    return null;
   } catch (error) {
     console.error("Ошибка при загрузке cookies:", error);
     return null;

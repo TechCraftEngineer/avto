@@ -136,6 +136,10 @@ export function VacancyImportSection() {
     setIsSelectingArchivedVacancies(false);
     setArchivedListRequestId(null);
 
+    if (selectedIds.length === 0) {
+      return;
+    }
+
     try {
       setIsImportingArchived(true);
       const runId = await triggerImportSelectedArchivedVacancies(
