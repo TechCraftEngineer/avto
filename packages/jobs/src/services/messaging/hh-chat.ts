@@ -3,8 +3,8 @@ import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 
 import { integration } from "@qbs-autonaim/db/schema";
+import { HH_CONFIG } from "@qbs-autonaim/jobs-parsers";
 import axios from "axios";
-import { HH_CONFIG } from "../../parsers/hh/core/config/config";
 import { createLogger, err, ok, type Result, tryCatch } from "../base";
 
 const logger = createLogger("HHChat");

@@ -1,5 +1,5 @@
+import { importMultipleVacancies } from "@qbs-autonaim/jobs-parsers";
 import { z } from "zod";
-import { importMultipleVacancies } from "../../../parsers/hh";
 import {
   importArchivedVacanciesChannel,
   workspaceNotificationsChannel,

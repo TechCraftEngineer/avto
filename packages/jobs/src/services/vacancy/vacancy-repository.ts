@@ -2,7 +2,7 @@ import { eq, isNull, or } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import type { PlatformSource } from "@qbs-autonaim/db/schema";
 import { vacancy, vacancyPublication } from "@qbs-autonaim/db/schema";
-import type { VacancyData } from "../../parsers/types";
+import type { VacancyData } from "@qbs-autonaim/jobs-parsers";
 import { createLogger, type Result, tryCatch } from "../base";
 import { triggerVacancyRequirementsExtraction } from "../triggers";
 

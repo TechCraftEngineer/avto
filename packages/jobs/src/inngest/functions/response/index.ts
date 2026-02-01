@@ -7,8 +7,6 @@ export { parseMissingContactsFunction } from "./parse-missing-contacts";
 export { parseNewResumesFunction } from "./parse-new-resumes";
 export { recalculateGigShortlistFunction } from "./recalculate-gig-shortlist";
 export { recalculateRankingFunction } from "./recalculate-ranking";
-export { refreshAllResumesFunction } from "./refresh-all-resumes";
-export { refreshSingleResumeFunction } from "./refresh-resume";
 export { screenResponseFunction } from "./screen";
 export { screenAllResponsesFunction } from "./screen-all";
 export { screenResponsesBatchFunction } from "./screen-batch";

@@ -5,7 +5,7 @@ import {
   type ProfileData,
   parseFreelancerProfile,
   type StoredProfileData,
-} from "../../../parsers/profile-parser";
+} from "@qbs-autonaim/jobs-parsers";
 import {
   createInterviewScoring,
   getInterviewContext,

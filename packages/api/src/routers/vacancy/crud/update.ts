@@ -73,18 +73,6 @@ export const update = protectedProcedure
     if (settings.welcomeMessageTemplates !== undefined) {
       patch.welcomeMessageTemplates = settings.welcomeMessageTemplates;
     }
-    if (settings.source !== undefined) {
-      patch.source = settings.source === null ? undefined : settings.source;
-    }
-    if (settings.externalId !== undefined) {
-      patch.externalId =
-        settings.externalId === null ? null : settings.externalId;
-    }
-    if (settings.url !== undefined) {
-      // Преобразуем пустую строку в null
-      patch.url =
-        settings.url === null || settings.url === "" ? null : settings.url;
-    }
     if (settings.customDomainId !== undefined) {
       // Преобразуем пустую строку в null
       patch.customDomainId =

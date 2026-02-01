@@ -1,11 +1,11 @@
-import { runHHParser } from "@qbs-autonaim/jobs-parsers";
-import { z } from "zod";
 import {
   importNewVacanciesChannel,
   workspaceNotificationsChannel,
   workspaceStatsChannel,
-} from "../../channels/client";
-import { inngest } from "../../client";
+} from "@qbs-autonaim/jobs/channels";
+import { inngest } from "@qbs-autonaim/jobs/client";
+import { runHHParser } from "@qbs-autonaim/jobs-parsers";
+import { z } from "zod";
 
 /**
  * Схема валидации входных данных для импорта новых вакансий

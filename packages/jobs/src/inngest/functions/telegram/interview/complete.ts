@@ -7,12 +7,12 @@ import {
   interviewSession,
   response,
 } from "@qbs-autonaim/db/schema";
-import { getAIModel, logResponseEvent } from "@qbs-autonaim/lib";
 import {
   formatProfileDataForStorage,
   parseFreelancerProfile,
   type StoredProfileData,
-} from "../../../../parsers/profile-parser";
+} from "@qbs-autonaim/jobs-parsers";
+import { getAIModel, logResponseEvent } from "@qbs-autonaim/lib";
 import {
   createInterviewScoring,
   getInterviewContext,

@@ -1,10 +1,10 @@
 import { db } from "@qbs-autonaim/db/client";
 import { vacancy } from "@qbs-autonaim/db/schema";
+import { fetchArchivedListChannel } from "@qbs-autonaim/jobs/channels";
+import { inngest } from "@qbs-autonaim/jobs/client";
 import { fetchArchivedVacanciesList } from "@qbs-autonaim/jobs-parsers";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
-import { fetchArchivedListChannel } from "../../channels/client";
-import { inngest } from "../../client";
 
 /**
  * Схема валидации входных данных для получения списка архивных вакансий

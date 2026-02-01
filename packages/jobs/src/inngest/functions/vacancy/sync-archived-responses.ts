@@ -1,7 +1,7 @@
 import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { vacancy, vacancyPublication } from "@qbs-autonaim/db/schema";
-import { runHHArchivedVacancyParser } from "../../../parsers/hh";
+import { runHHArchivedVacancyParser } from "@qbs-autonaim/jobs-parsers";
 import { syncArchivedResponsesChannel } from "../../channels/client";
 import { inngest } from "../../client";
 

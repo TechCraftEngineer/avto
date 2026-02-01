@@ -4,7 +4,8 @@ import { response } from "@qbs-autonaim/db/schema";
 import {
   formatProfileDataForStorage,
   parseFreelancerProfile,
-} from "../../../parsers/profile-parser";
+  type StoredProfileData,
+} from "@qbs-autonaim/jobs-parsers";
 import { inngest } from "../../client";
 
 /**

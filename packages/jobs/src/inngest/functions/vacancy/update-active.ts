@@ -1,4 +1,4 @@
-import { runHHParser } from "../../../parsers/hh";
+import { runHHParser } from "@qbs-autonaim/jobs-parsers";
 import { inngest } from "../../client";
 
 /**

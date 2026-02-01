@@ -1,7 +1,7 @@
 import { inArray } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { response } from "@qbs-autonaim/db/schema";
-import { enrichHHResponses } from "../../../parsers/hh/services/enricher";
+import { enrichHHResponses } from "@qbs-autonaim/jobs-parsers";
 import { parseNewResumesChannel } from "../../channels/client";
 import { inngest } from "../../client";
 

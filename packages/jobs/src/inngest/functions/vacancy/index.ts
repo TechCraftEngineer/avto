@@ -14,4 +14,3 @@ export { importNewVacanciesFunction } from "./import-new";
 export { refreshVacancyResponsesFunction } from "./refresh-responses";
 export { syncArchivedVacancyResponsesFunction } from "./sync-archived-responses";
 export { updateVacanciesFunction } from "./update-active";
-export { updateSingleVacancyFunction } from "./update-single";

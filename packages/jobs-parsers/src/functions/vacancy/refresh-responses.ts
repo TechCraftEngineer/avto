@@ -1,12 +1,12 @@
 import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { vacancy } from "@qbs-autonaim/db/schema";
-import { refreshVacancyResponses } from "@qbs-autonaim/jobs-parsers";
 import {
   refreshVacancyResponsesChannel,
   vacancyStatsChannel,
-} from "../../channels/client";
-import { inngest } from "../../client";
+} from "@qbs-autonaim/jobs/channels";
+import { inngest } from "@qbs-autonaim/jobs/client";
+import { refreshVacancyResponses } from "@qbs-autonaim/jobs-parsers";
 
 /**
  * Inngest функция для обновления откликов конкретной вакансии

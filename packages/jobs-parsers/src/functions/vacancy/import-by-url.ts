@@ -1,10 +1,10 @@
+import { importVacancyByUrlChannel } from "@qbs-autonaim/jobs/channels";
+import { inngest } from "@qbs-autonaim/jobs/client";
 import { importSingleVacancy } from "@qbs-autonaim/jobs-parsers";
 import {
   extractExternalIdFromUrl,
   ImportByUrlSchema,
 } from "@qbs-autonaim/validators";
-import { importVacancyByUrlChannel } from "../../channels/client";
-import { inngest } from "../../client";
 
 /**
  * Inngest функция для импорта вакансии по ссылке

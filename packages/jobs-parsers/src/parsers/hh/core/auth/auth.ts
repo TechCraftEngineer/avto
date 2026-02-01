@@ -1,6 +1,6 @@
 import { Log } from "crawlee";
 import type { Page } from "puppeteer";
-import { loadCookies, saveCookies } from "../../utils/cookies";
+import { loadCookies, saveCookies } from "../../../../utils/cookies";
 import { HH_CONFIG } from "../config/config";
 
 export async function performLogin(
