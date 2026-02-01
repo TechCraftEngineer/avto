@@ -53,7 +53,6 @@ function mapVacancyData(
   vacancyData: VacancyData,
   workspaceId: string,
   createdBy: string,
-  description?: string,
 ): VacancyDbData {
   const source = mapVacancySource(vacancyData.source);
   const externalId = vacancyData.externalId ?? vacancyData.id;
@@ -71,7 +70,7 @@ function mapVacancyData(
     suitableResumes: Number.parseInt(vacancyData.suitableResumes, 10) || 0,
     region: vacancyData.region || "",
     workLocation: vacancyData.workLocation || "",
-    description: description ?? vacancyData.description ?? "",
+    description: vacancyData.description ?? "",
     isActive: vacancyData.isActive ?? true, // По умолчанию активна, если не указано иное
     createdBy,
   };
@@ -224,7 +223,7 @@ export async function saveBasicVacancy(
       userId = workspaceOwner.userId;
     }
 
-    const dataToSave = mapVacancyData(vacancyData, workspaceId, userId, "");
+    const dataToSave = mapVacancyData(vacancyData, workspaceId, userId);
 
     const existingVacancy = await db.query.vacancy.findFirst({
       where: (table, { and, eq }) =>

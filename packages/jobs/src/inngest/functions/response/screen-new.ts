@@ -2,7 +2,10 @@ import { and, eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { response, responseScreening } from "@qbs-autonaim/db/schema";
 import { screenResponse, unwrap } from "~/services/response";
-import { screenNewResponsesChannel } from "../../channels/client";
+import {
+  screenNewResponsesChannel,
+  workspaceNotificationsChannel,
+} from "../../channels/client";
 import { inngest } from "../../client";
 
 /**
@@ -152,6 +155,22 @@ export const screenNewResponsesFunction = inngest.createFunction(
         failed,
       }),
     );
+
+    // Отправляем уведомление о завершении задачи
+    if (successful > 0) {
+      await publish(
+        workspaceNotificationsChannel(responses[0]?.entityId ?? vacancyId)[
+          "task-completed"
+        ]({
+          workspaceId: responses[0]?.entityId ?? vacancyId,
+          taskType: "screening",
+          taskId: vacancyId,
+          success: true,
+          message: `Оценено ${successful} новых откликов`,
+          timestamp: new Date().toISOString(),
+        }),
+      );
+    }
 
     return {
       success: true,

@@ -34,7 +34,7 @@ export async function extractSingleVacancy(
       const descriptionElement = document.querySelector(
         '[class="vacancy-description"]',
       );
-      const description = descriptionElement?.textContent?.trim() || "";
+      const description = descriptionElement?.innerHTML?.trim() || "";
 
       const idMatch = window.location.href.match(/\/vacancy\/(\d+)/);
       const externalId = idMatch ? idMatch[1] : "";
@@ -65,8 +65,7 @@ export async function extractSingleVacancy(
       newResponses: "0",
       resumesInProgress: "0",
       suitableResumes: "0",
-      // Используем регион из списка вакансий, если передан, иначе берем workLocation
-      region: region || vacancyData.workLocation,
+      region: region || "",
       workLocation: vacancyData.workLocation,
       description: vacancyData.description,
       isActive: !isArchived,

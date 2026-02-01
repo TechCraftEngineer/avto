@@ -1,6 +1,9 @@
 import { z } from "zod";
 import { importMultipleVacancies } from "../../../parsers/hh";
-import { importArchivedVacanciesChannel } from "../../channels/client";
+import {
+  importArchivedVacanciesChannel,
+  workspaceNotificationsChannel,
+} from "../../channels/client";
 import { inngest } from "../../client";
 
 /**
@@ -146,6 +149,18 @@ export const importArchivedVacanciesFunction = inngest.createFunction(
             imported: vacanciesWithProgress.imported,
             updated: vacanciesWithProgress.updated,
             failed: vacanciesWithProgress.failed,
+          }),
+        );
+
+        // Отправляем уведомление о завершении
+        await publish(
+          workspaceNotificationsChannel(workspaceId)["task-completed"]({
+            workspaceId,
+            taskType: "import",
+            taskId: workspaceId,
+            success: true,
+            message: `Импортировано ${vacanciesWithProgress.imported} архивных вакансий`,
+            timestamp: new Date().toISOString(),
           }),
         );
 

@@ -62,13 +62,13 @@ export function ImportProgress({
   );
 
   // Подписываемся на выполнение функции через Realtime API
-  const { data, error } = useInngestSubscription({
+  const { data, error, latestData } = useInngestSubscription({
     refreshToken,
     enabled: true,
   });
 
   // Получаем последнее сообщение
-  const latestMessage = data[data.length - 1];
+  const latestMessage = latestData ?? data[data.length - 1];
   const isCompleted = latestMessage?.topic === "result";
   const progressData =
     latestMessage?.topic === "progress" ? latestMessage.data : null;
@@ -217,7 +217,7 @@ export function ImportProgress({
     >
       {/* Анимированный фон для успешного завершения */}
       {isCompleted && resultData?.success && (
-        <div className="absolute inset-0 bg-gradient-to-r from-green-50 to-emerald-50 animate-in fade-in duration-500" />
+        <div className="absolute inset-0 bg-linear-to-r from-green-50 to-emerald-50 animate-in fade-in duration-500" />
       )}
 
       <div className="relative flex items-start gap-3">

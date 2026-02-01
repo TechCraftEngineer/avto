@@ -163,7 +163,7 @@ export async function parseSingleVacancy(
       isArchived,
       region,
     );
-
+    console.log(vacancyData);
     if (vacancyData) {
       const saved = await saveBasicVacancy(vacancyData, workspaceId);
       if (saved.success) {

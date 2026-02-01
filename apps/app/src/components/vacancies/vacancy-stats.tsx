@@ -299,7 +299,7 @@ export function VacancyStats({
                   {stat.title}
                 </CardDescription>
                 <CardTitle className="text-2xl font-bold tracking-tight">
-                  {stat.value.toLocaleString()}
+                  {stat.value?.toLocaleString() ?? 0}
                   {stat.suffix && (
                     <span className="ml-0.5 text-sm text-muted-foreground">
                       {stat.suffix}
