@@ -5,7 +5,7 @@ import { useDraftPersistence } from "~/hooks/use-draft-persistence";
 import {
   DraftErrorNotification,
   LocalStorageWarning,
-} from "./draft-error-notification";
+} from "../draft-error-notification";
 
 /**
  * Пример использования системы сохранения черновиков

@@ -1,1 +1,1 @@
-export { PerformanceConfig } from './performance-config';
+export { PERFORMANCE_CONFIG as PerformanceConfig } from './performance-config';

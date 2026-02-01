@@ -13,7 +13,7 @@ import {
 import { IconPlus, IconSearch } from "@tabler/icons-react";
 import Link from "next/link";
 import { env } from "~/env";
-import { VacancyTableRow } from "./vacancy-table-row";
+import { VacancyTableRow } from "../vacancy-table-row";
 
 interface Vacancy {
   id: string;

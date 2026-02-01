@@ -1,7 +1,7 @@
 "use client";
 
 import { PageHeader } from "~/components/layout";
-import { VacancyCreatorContainer } from "~/components/vacancy-creator";
+import { VacancyCreatorContainer } from "~/components/vacancies/components/vacancy-creator/vacancy-creator-container";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useWorkspaceParams } from "~/hooks/use-workspace-params";
 

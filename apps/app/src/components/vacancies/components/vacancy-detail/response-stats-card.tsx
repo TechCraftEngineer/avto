@@ -7,7 +7,7 @@ import {
   Progress,
 } from "@qbs-autonaim/ui";
 import { IconChartBar, IconInbox, IconTrendingUp } from "@tabler/icons-react";
-import { SOURCE_CONFIG } from "./utils/source-config";
+import { SourceConfig as SOURCE_CONFIG } from "~/components/vacancy-detail";
 
 interface ResponseStatsCardProps {
   responseStats: Record<string, number>;

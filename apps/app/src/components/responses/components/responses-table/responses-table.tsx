@@ -15,7 +15,7 @@ import {
   IconSparkles,
   IconStar,
 } from "@tabler/icons-react";
-import { ResponsesTableRow } from "./responses-table-row";
+import { ResponsesTableRow } from "../responses-table-row";
 
 interface Response {
   id: string;

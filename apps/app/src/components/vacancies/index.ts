@@ -1,8 +1,8 @@
 // vacancies domain exports
 export { ArchivedVacanciesSelector } from './components/archived-vacancies-selector/archived-vacancies-selector';
 export { DeleteVacancyDialog } from './components/delete-vacancy-dialog/delete-vacancy-dialog';
-export { ImportSection } from './components/import-section/import-section';
-export { VacancyCreator } from './components/vacancy-creator/vacancy-creator';
+export { VacancyImportSection as ImportSection } from './components/import-section/import-section';
+export { VacancyCreatorContainer as VacancyCreator } from './components/vacancy-creator/vacancy-creator-container';
 export { VacancyFilters } from './components/vacancy-filters/vacancy-filters';
 export { VacancyForm } from './components/vacancy-form/vacancy-form';
 export { VacancyHelpTooltip } from './components/vacancy-help-tooltip/vacancy-help-tooltip';

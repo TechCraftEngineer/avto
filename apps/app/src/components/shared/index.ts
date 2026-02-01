@@ -1,2 +1,2 @@
 // shared domain exports
-export { PerformanceConfig } from './components/performance-config';
+export { PerformanceConfig } from './components';

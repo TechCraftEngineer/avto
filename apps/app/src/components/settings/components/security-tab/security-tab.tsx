@@ -20,7 +20,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { authClient } from "~/auth/client";
 import { useTRPC } from "~/trpc/react";
-import { DeleteAccountDialog } from "./delete-account-dialog";
+import { DeleteAccountDialog } from "../delete-account-dialog";
 
 interface SecurityTabProps {
   user: RouterOutputs["user"]["me"];

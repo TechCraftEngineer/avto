@@ -1,6 +1,6 @@
 "use client";
 
-import { AIVacancyChat } from "~/components/vacancy-chat";
+import { AIVacancyChat } from "~/components/chat/components/vacancy-chat/ai-vacancy-chat";
 
 interface VacancyCreatorContainerProps {
   workspaceId: string;

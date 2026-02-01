@@ -33,7 +33,7 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import Link from "next/link";
-import { VacancyPerformanceBadge } from "./vacancy-performance-badge";
+import { VacancyPerformanceBadge } from "../vacancy-performance-badge";
 
 /**
  * Валидирует и санитизирует URL, разрешая только http и https схемы
