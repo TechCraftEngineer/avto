@@ -1,1 +1,0 @@
-// Vacancy display components

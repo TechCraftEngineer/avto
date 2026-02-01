@@ -1,0 +1,1 @@
+export { GigInvitationTemplate } from './gig-invitation-template';
