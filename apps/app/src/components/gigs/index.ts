@@ -1,1 +1,25 @@
 // gigs domain exports
+export { CandidateComparison } from './components/candidate-comparison';
+export { CustomDomainSelect } from './components/custom-domain-select';
+export { DeleteGigDialog } from './components/delete-gig-dialog';
+export { EmptyState } from './components/empty-state';
+export { GigCard } from './components/gig-card';
+export { GigInterviewSettings } from './components/gig-interview-settings';
+export { GigListItem } from './components/gig-list-item';
+export { GigsFilters } from './components/gigs-filters';
+export { GigsList } from './components/gigs-list';
+export { GigsStats } from './components/gigs-stats';
+export { Index } from './components/index';
+export { InterviewMediaUpload } from './components/interview-media-upload';
+export { RankedCandidateCard } from './components/ranked-candidate-card';
+export { RankingList } from './components/ranking-list';
+export { ResponseInvitationButton } from './components/response-invitation-button';
+export { ResponseListCard } from './components/response-list-card';
+export { ShortlistCandidateCard } from './components/shortlist-candidate-card';
+export { ShortlistConstants } from './components/shortlist-constants';
+export { ShortlistError } from './components/shortlist-error';
+export { ShortlistFilters } from './components/shortlist-filters';
+export { ShortlistHeader } from './components/shortlist-header';
+export { ShortlistList } from './components/shortlist-list';
+export { ShortlistLoading } from './components/shortlist-loading';
+export { ShortlistStats } from './components/shortlist-stats';
