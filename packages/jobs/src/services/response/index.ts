@@ -2,6 +2,8 @@
 
 // Re-export base utilities for convenience
 export { unwrap } from "../base";
+// Re-export shared functions
+export { hasDetailedInfo, updateResponseDetails } from "@qbs-autonaim/jobs-shared";
 // Contacts extraction
 export {
   extractContactsFromResponse,
@@ -12,10 +14,8 @@ export {
   getResponseById,
   getResponseByResumeId,
   getResponsesWithoutDetails,
-  hasDetailedInfo,
   saveBasicResponse,
   saveResponseToDb,
-  updateResponseDetails,
   updateResponseStatus,
   uploadCandidatePhoto,
   uploadResumePdf,

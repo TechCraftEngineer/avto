@@ -1,3 +1,6 @@
+import { eq } from "@qbs-autonaim/db";
+import { db } from "@qbs-autonaim/db/client";
+import { vacancy } from "@qbs-autonaim/db/schema";
 import { runHHParser } from "@qbs-autonaim/jobs-parsers";
 import { z } from "zod";
 import {
@@ -149,11 +152,17 @@ export const importNewVacanciesFunction = inngest.createFunction(
 
         // Обновляем статистику workspace
         if (parserResult.imported > 0 || parserResult.updated > 0) {
+          // Получаем реальные totals из базы данных
+          const [totalCountResult, activeCountResult] = await Promise.all([
+            db.$count(vacancy, eq(vacancy.workspaceId, workspaceId)),
+            db.$count(vacancy, eq(vacancy.workspaceId, workspaceId), eq(vacancy.isActive, true)),
+          ]);
+
           await publish(
             workspaceStatsChannel(workspaceId)["vacancies-updated"]({
               workspaceId,
-              totalVacancies: parserResult.imported + parserResult.updated,
-              activeVacancies: parserResult.imported + parserResult.updated,
+              totalVacancies: totalCountResult,
+              activeVacancies: activeCountResult,
               updatedAt: new Date().toISOString(),
             }),
           );

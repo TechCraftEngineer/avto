@@ -47,6 +47,13 @@ export function useScreenBatchProgress(
     enabled: Boolean(workspaceId && batchId),
   });
 
+  // Reset state when workspaceId or batchId change
+  useEffect(() => {
+    setScoredResponses([]);
+    setProgress(null);
+    setCompleted(null);
+  }, [workspaceId, batchId]);
+
   useEffect(() => {
     if (!latestData) return;
 

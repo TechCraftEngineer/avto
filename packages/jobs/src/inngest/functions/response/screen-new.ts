@@ -1,6 +1,6 @@
 import { and, eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
-import { response, responseScreening } from "@qbs-autonaim/db/schema";
+import { response, responseScreening, vacancy } from "@qbs-autonaim/db/schema";
 import { screenResponse, unwrap } from "~/services/response";
 import {
   screenNewResponsesChannel,
@@ -158,18 +158,28 @@ export const screenNewResponsesFunction = inngest.createFunction(
 
     // Отправляем уведомление о завершении задачи
     if (successful > 0) {
-      await publish(
-        workspaceNotificationsChannel(responses[0]?.entityId ?? vacancyId)[
-          "task-completed"
-        ]({
-          workspaceId: responses[0]?.entityId ?? vacancyId,
-          taskType: "screening",
-          taskId: vacancyId,
-          success: true,
-          message: `Оценено ${successful} новых откликов`,
-          timestamp: new Date().toISOString(),
-        }),
-      );
+      // Получаем workspaceId вакансии для уведомления
+      const vacancyData = await db.query.vacancy.findFirst({
+        where: eq(vacancy.id, vacancyId),
+        columns: {
+          workspaceId: true,
+        },
+      });
+
+      if (vacancyData?.workspaceId) {
+        await publish(
+          workspaceNotificationsChannel(vacancyData.workspaceId)[
+            "task-completed"
+          ]({
+            workspaceId: vacancyData.workspaceId,
+            taskType: "screening",
+            taskId: vacancyId,
+            success: true,
+            message: `Оценено ${successful} новых откликов`,
+            timestamp: new Date().toISOString(),
+          }),
+        );
+      }
     }
 
     return {

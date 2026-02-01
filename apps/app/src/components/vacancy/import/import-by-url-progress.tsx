@@ -33,7 +33,7 @@ export function ImportByUrlProgress({
   });
 
   const latestMessage = data[data.length - 1];
-  const isCompleted = latestMessage?.topic === "result";
+  const isCompleted = latestMessage?.topic === "result" || Boolean(error);
   const progressData =
     latestMessage?.topic === "progress" ? latestMessage.data : null;
   const resultData =

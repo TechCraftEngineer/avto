@@ -114,13 +114,13 @@ export const getVacancies = protectedProcedure
         readonly title: typeof vacancy.title;
         readonly views: typeof vacancy.views;
         readonly responses: SQL<number>;
-        readonly newResponses: typeof vacancy.newResponses;
+        readonly newResponses: SQL<number>;
       } = {
         createdAt: vacancy.createdAt,
         title: vacancy.title,
         views: vacancy.views,
         responses: count(responseTable.id),
-        newResponses: vacancy.newResponses,
+        newResponses: sql<number>`COUNT(CASE WHEN ${responseTable.status} = 'NEW' THEN 1 END)`,
       } as const;
 
       const orderBy = orderByMapping[sortBy] || vacancy.createdAt;

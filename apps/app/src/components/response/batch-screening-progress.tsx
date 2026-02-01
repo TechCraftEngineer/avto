@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import {
   Badge,
   Card,
@@ -31,10 +32,14 @@ export function BatchScreeningProgress({
   const { scoredResponses, progress, completed, isProcessing } =
     useScreenBatchProgress(workspaceId, batchId);
 
-  // Вызываем callback при завершении
-  if (completed && onComplete) {
-    onComplete();
-  }
+  const prevCompletedRef = useRef(false);
+
+  useEffect(() => {
+    if (completed && onComplete && !prevCompletedRef.current) {
+      onComplete();
+    }
+    prevCompletedRef.current = completed;
+  }, [completed, onComplete]);
 
   const progressPercent = progress
     ? Math.round((progress.processed / progress.total) * 100)

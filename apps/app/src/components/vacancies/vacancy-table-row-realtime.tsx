@@ -106,7 +106,7 @@ export function VacancyTableRowRealtime({
       </TableCell>
 
       <TableCell className="text-right">
-        <Button variant="ghost" size="icon">
+        <Button variant="ghost" size="icon" aria-label="Открыть действия вакансии">
           <IconDots className="size-4" />
         </Button>
       </TableCell>

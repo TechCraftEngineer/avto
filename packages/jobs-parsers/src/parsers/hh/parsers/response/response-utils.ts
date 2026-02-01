@@ -1,7 +1,7 @@
 import {
   hasDetailedInfo,
   updateResponseDetails,
-} from "@qbs-autonaim/jobs/services/response";
+} from "@qbs-autonaim/jobs-shared";
 import type { Page } from "puppeteer";
 import { HH_CONFIG } from "../../core/config/config";
 import type { ResponseData } from "../../types";

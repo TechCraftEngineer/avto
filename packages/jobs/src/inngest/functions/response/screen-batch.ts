@@ -21,10 +21,17 @@ export const screenResponsesBatchFunction = inngest.createFunction(
   async ({ events, step, publish }) => {
     console.log(`🚀 Запуск batch оценки для ${events.length} событий`);
 
+    // Validate single workspace per batch
+    const workspaceIds = [...new Set(events.map(e => e.data.workspaceId))];
+    if (workspaceIds.length > 1) {
+      throw new Error(`Пакетная обработка может выполняться только в рамках одного рабочего пространства. Найдены пространства: ${workspaceIds.join(', ')}`);
+    }
+
+    const workspaceId = workspaceIds[0];
+    const batchId = crypto.randomUUID();
+
     // Собираем все responseIds из всех событий
     const allResponseIds = events.flatMap((evt) => evt.data.responseIds);
-    const workspaceId = events[0]?.data.workspaceId;
-    const batchId = crypto.randomUUID();
 
     console.log(`📋 Всего откликов для оценки: ${allResponseIds.length}`);
 
@@ -194,8 +201,6 @@ export const screenResponsesBatchFunction = inngest.createFunction(
       }),
     );
 
-    const successful = results.filter((r) => r.status === "fulfilled").length;
-    const failed = results.filter((r) => r.status === "rejected").length;
     const duration = Math.floor((Date.now() - startTime) / 1000);
 
     // Публикуем завершение batch обработки
@@ -204,22 +209,22 @@ export const screenResponsesBatchFunction = inngest.createFunction(
         screenBatchChannel(workspaceId, batchId)["batch-completed"]({
           batchId,
           total: responses.length,
-          processed: successful,
-          failed,
+          processed: processedCount,
+          failed: failedCount,
           duration,
         }),
       );
     }
 
     console.log(
-      `✅ Завершено: успешно ${successful}, ошибок ${failed} из ${responses.length}`,
+      `✅ Завершено: успешно ${processedCount}, ошибок ${failedCount} из ${responses.length}`,
     );
 
     return {
       success: true,
       total: responses.length,
-      processed: successful,
-      failed,
+      processed: processedCount,
+      failed: failedCount,
     };
   },
 );

@@ -281,7 +281,7 @@ export async function parseResumeExperience(
 
     // Извлекаем Telegram username
     if ("telegram" in contactsData && contactsData.telegram) {
-      const telegramUsername = extractTelegramUsername(contactsData.telegram);
+      const telegramUsername = await extractTelegramUsername(contactsData.telegram);
       if (telegramUsername) {
         result.contacts = {
           ...result.contacts,

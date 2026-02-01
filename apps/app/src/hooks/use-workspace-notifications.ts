@@ -3,16 +3,19 @@
 import { useInngestSubscription } from "@inngest/realtime/hooks";
 import { useEffect } from "react";
 import { toast } from "sonner";
+import { z } from "zod";
 import { fetchWorkspaceNotificationsToken } from "~/actions/realtime";
 
-interface NotificationData {
-  workspaceId: string;
-  type?: "hh-auth-failed" | "telegram-auth-failed" | "api-error" | "rate-limit";
-  taskType?: "import" | "screening" | "resume-parsing" | "sync" | "update";
-  message: string;
-  severity?: "error" | "warning" | "info";
-  success?: boolean;
-}
+const NotificationSchema = z.object({
+  workspaceId: z.string(),
+  type: z.enum(["hh-auth-failed", "telegram-auth-failed", "api-error", "rate-limit"]).optional(),
+  taskType: z.enum(["import", "screening", "resume-parsing", "sync", "update"]).optional(),
+  message: z.string(),
+  severity: z.enum(["error", "warning", "info"]).optional(),
+  success: z.boolean().optional(),
+});
+
+type NotificationData = z.infer<typeof NotificationSchema>;
 
 /**
  * Хук для realtime уведомлений workspace
@@ -27,7 +30,10 @@ export function useWorkspaceNotifications(workspaceId: string | undefined) {
   useEffect(() => {
     if (!latestData) return;
 
-    const data = latestData.data as NotificationData;
+    const parsed = NotificationSchema.safeParse(latestData.data);
+    if (!parsed.success) return;
+
+    const data = parsed.data;
     const topic = latestData.topic;
 
     if (topic === "integration-error") {

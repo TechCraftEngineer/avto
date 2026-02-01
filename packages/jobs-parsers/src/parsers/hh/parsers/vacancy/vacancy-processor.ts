@@ -98,7 +98,7 @@ export async function parseVacancyDescriptions(
 
         if (description) {
           await updateVacancyDescription(
-            vacancy.externalId,
+            vacancy.id,
             description,
             workLocation,
             vacancy.region, // Используем регион из списка вакансий

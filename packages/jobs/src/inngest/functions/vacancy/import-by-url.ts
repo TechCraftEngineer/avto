@@ -140,7 +140,7 @@ export const importVacancyByUrlFunction = inngest.createFunction(
           `✅ Импорт вакансии ${vacancyId} для workspace ${workspaceId} завершён`,
         );
 
-        return { success: true, workspaceId, vacancyId, isNew: result.isNew };
+        return { success: true, workspaceId, vacancyId, isNew: result.isNew ?? false };
       } catch (error) {
         console.error(
           `❌ Ошибка при импорте вакансии для workspace ${workspaceId}:`,

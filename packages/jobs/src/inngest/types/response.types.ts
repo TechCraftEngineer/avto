@@ -17,10 +17,10 @@ export const screenAllResponsesDataSchema = z.object({
 });
 
 export const screenResponsesBatchDataSchema = z.object({
-  workspaceId: z.string().min(1, "Workspace ID is required"),
+  workspaceId: z.string().min(1, "Идентификатор рабочей области обязателен"),
   responseIds: z
     .array(z.string())
-    .min(1, "At least one response ID is required"),
+    .min(1, "Требуется хотя бы один идентификатор отклика"),
 });
 
 export const parseNewResumesDataSchema = z.object({

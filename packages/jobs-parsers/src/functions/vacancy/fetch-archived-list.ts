@@ -20,8 +20,8 @@ const FetchArchivedListEventSchema = z.object({
  */
 export const fetchArchivedListFunction = inngest.createFunction(
   {
-    id: "fetch-archived-vacancies-list",
-    name: "Получение списка архивных вакансий",
+    id: "fetch-archived-vacancies-list-parsers",
+    name: "Получение списка архивных вакансий (parsers)",
     retries: 0,
     concurrency: 5,
   },

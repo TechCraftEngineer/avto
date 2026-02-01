@@ -57,6 +57,7 @@
     "@qbs-autonaim/lib": "workspace:*",
     "@qbs-autonaim/ai": "workspace:*",
     "@qbs-autonaim/jobs-parsers": "workspace:*",
+    "@qbs-autonaim/jobs-shared": "workspace:*",
     "@qbs-autonaim/server-utils": "workspace:*",
     "@qbs-autonaim/shared": "workspace:*",
     "@qbs-autonaim/tg-client": "workspace:*",
