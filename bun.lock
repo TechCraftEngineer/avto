@@ -369,6 +369,7 @@
         "@qbs-autonaim/db": "workspace:*",
         "@qbs-autonaim/emails": "workspace:*",
         "@qbs-autonaim/jobs-parsers": "workspace:*",
+        "@qbs-autonaim/jobs-shared": "workspace:*",
         "@qbs-autonaim/lib": "workspace:*",
         "@qbs-autonaim/server-utils": "workspace:*",
         "@qbs-autonaim/shared": "workspace:*",
@@ -396,6 +397,7 @@
       "version": "0.1.0",
       "dependencies": {
         "@qbs-autonaim/db": "workspace:*",
+        "@qbs-autonaim/jobs-shared": "workspace:*",
         "@qbs-autonaim/lib": "workspace:*",
         "@qbs-autonaim/server-utils": "workspace:*",
         "@qbs-autonaim/shared": "workspace:*",
@@ -406,6 +408,23 @@
         "sanitize-html": "^2.17.0",
         "string-strip-html": "13.5.3",
         "zod": "4.3.6",
+      },
+      "devDependencies": {
+        "@qbs-autonaim/tsconfig": "workspace:*",
+        "@types/bun": "1.3.8",
+        "@types/node": "25.1.0",
+        "tsdown": "0.20.1",
+        "typescript": "5.9.3",
+      },
+    },
+    "packages/jobs-shared": {
+      "name": "@qbs-autonaim/jobs-shared",
+      "version": "0.1.0",
+      "dependencies": {
+        "@qbs-autonaim/db": "workspace:*",
+        "@qbs-autonaim/lib": "workspace:*",
+        "@qbs-autonaim/server-utils": "workspace:*",
+        "@qbs-autonaim/shared": "workspace:*",
       },
       "devDependencies": {
         "@qbs-autonaim/tsconfig": "workspace:*",
@@ -1336,6 +1355,8 @@
     "@qbs-autonaim/jobs": ["@qbs-autonaim/jobs@workspace:packages/jobs"],
 
     "@qbs-autonaim/jobs-parsers": ["@qbs-autonaim/jobs-parsers@workspace:packages/jobs-parsers"],
+
+    "@qbs-autonaim/jobs-shared": ["@qbs-autonaim/jobs-shared@workspace:packages/jobs-shared"],
 
     "@qbs-autonaim/lib": ["@qbs-autonaim/lib@workspace:packages/lib"],
 
