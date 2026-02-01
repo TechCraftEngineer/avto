@@ -1,4 +1,4 @@
-import { extractVacancyRequirements, unwrap } from "../../../services/vacancy";
+import { extractVacancyRequirements, unwrap } from "~/services/vacancy";
 import { inngest } from "../../client";
 
 /**

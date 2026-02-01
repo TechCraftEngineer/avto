@@ -125,8 +125,8 @@ export function ResponsesTable({
         </TableHeader>
         <TableBody>
           {isLoading ? (
-            Array.from({ length: 10 }).map((_, index) => (
-              <TableRow key={`skeleton-${index}`}>
+            Array.from({ length: 10 }, (_, i) => i).map((id) => (
+              <TableRow key={`skeleton-${id}`}>
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <Skeleton className="size-10 rounded-full" />
@@ -161,9 +161,9 @@ export function ResponsesTable({
                           className="animate-infinite-scroll-y flex flex-col animation-duration-[10s]"
                           style={{ "--scroll": "-50%" } as React.CSSProperties}
                         >
-                          {Array.from({ length: 8 }).map((_, index) => (
+                          {Array.from({ length: 8 }, (_, i) => i).map((id) => (
                             <div
-                              key={`skeleton-empty-${index}`}
+                              key={`skeleton-empty-${id}`}
                               className="mt-4 flex items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-sm"
                             >
                               <IconSearch className="size-4 text-muted-foreground" />

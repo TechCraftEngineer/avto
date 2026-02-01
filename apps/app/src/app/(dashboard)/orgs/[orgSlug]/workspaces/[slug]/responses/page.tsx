@@ -109,7 +109,7 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
     try {
       await refetch();
       toast.success("Данные обновлены");
-    } catch (error) {
+    } catch (_error) {
       toast.error("Не удалось обновить данные");
     }
   };

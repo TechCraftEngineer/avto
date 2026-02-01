@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { Page } from "puppeteer";
-import { extractTelegramUsername } from "../../../services/messaging";
-import type { ResumeExperience } from "../../types";
+import { extractTelegramUsername } from "~/services/messaging";
+import type { ResumeExperience } from "~/parsers/types";
 import { HH_CONFIG } from "../../core/config/config";
 
 /**

@@ -4,9 +4,9 @@ import { db } from "@qbs-autonaim/db/client";
 import { Log } from "crawlee";
 import type { Browser } from "puppeteer";
 import puppeteer from "puppeteer";
-import { performLogin, saveCookies } from "../../../parsers/hh/auth";
-import { closeBrowserSafely } from "../../../parsers/hh/browser-utils";
-import { HH_CONFIG } from "../../../parsers/hh/config";
+import { performLogin, saveCookies } from "../../../parsers/hh/core/auth/auth";
+import { closeBrowserSafely } from "../../../parsers/hh/core/browser/browser-utils";
+import { HH_CONFIG } from "../../../parsers/hh/core/config/config";
 import { verifyHHCredentialsChannel } from "../../channels";
 import { inngest } from "../../client";
 

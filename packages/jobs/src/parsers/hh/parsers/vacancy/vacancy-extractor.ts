@@ -1,12 +1,10 @@
 import type { Page } from "puppeteer";
-import type { VacancyData } from "../../types";
-import { HH_CONFIG } from "../../core/config/config";
-import { humanDelay } from "../../utils/human-behavior";
+import type { VacancyData } from "~/parsers/types";
 
 /**
  * Извлекает данные одной вакансии
  */
-export async function extractSingleVacancy(page: Page, url: string): Promise<VacancyData | null> {
+export async function extractSingleVacancy(page: Page, _url: string): Promise<VacancyData | null> {
   try {
     const vacancyData = await page.$eval('body', () => {
       const titleElement = document.querySelector('[data-qa="vacancy-title"]');

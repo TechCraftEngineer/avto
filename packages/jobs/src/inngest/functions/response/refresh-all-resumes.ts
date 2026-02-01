@@ -4,15 +4,21 @@ import { db } from "@qbs-autonaim/db/client";
 import { response } from "@qbs-autonaim/db/schema";
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
-import { checkAndPerformLogin, loadCookies } from "../../../parsers/hh/auth";
-import { setupBrowser, setupPage } from "../../../parsers/hh/browser-setup";
-import { closeBrowserSafely } from "../../../parsers/hh/browser-utils";
-import { parseResumeExperience } from "../../../parsers/hh/resume-parser";
 import {
   updateResponseDetails,
   uploadCandidatePhoto,
   uploadResumePdf,
-} from "../../../services/response";
+} from "~/services/response";
+import {
+  checkAndPerformLogin,
+  loadCookies,
+} from "../../../parsers/hh/core/auth/auth";
+import {
+  setupBrowser,
+  setupPage,
+} from "../../../parsers/hh/core/browser/browser-setup";
+import { closeBrowserSafely } from "../../../parsers/hh/core/browser/browser-utils";
+import { parseResumeExperience } from "../../../parsers/hh/parsers/resume/resume-parser";
 import { refreshAllResumesChannel } from "../../channels/client";
 import { inngest } from "../../client";
 
@@ -157,7 +163,7 @@ export const refreshAllResumesFunction = inngest.createFunction(
               responseItem.candidateName ?? "",
             );
 
-            const telegramUsername = experienceData.telegramUsername;
+            const telegramUsername = experienceData.contacts?.telegram;
             if (telegramUsername) {
               console.log(`✅ Найден Telegram username: @${telegramUsername}`);
             }
@@ -196,9 +202,9 @@ export const refreshAllResumesFunction = inngest.createFunction(
               resumeId: responseItem.resumeId ?? "",
               resumeUrl: responseItem.resumeUrl ?? "",
               candidateName: responseItem.candidateName ?? "",
-              experience: experienceData.experience,
+              experience: JSON.stringify(experienceData.experience),
               contacts: experienceData.contacts,
-              phone: experienceData.phone,
+              phone: experienceData.phone ?? null,
               telegramUsername,
               resumePdfFileId,
               photoFileId,

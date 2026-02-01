@@ -3,8 +3,8 @@ import {
   hasVacancyDescription,
   saveBasicVacancy,
   updateVacancyDescription,
-} from "../../../services/vacancy";
-import type { VacancyData } from "../../types";
+} from "~/services/vacancy";
+import type { VacancyData } from "~/parsers/types";
 import { HH_CONFIG } from "../../core/config/config";
 import { humanDelay } from "../../utils/human-behavior";
 

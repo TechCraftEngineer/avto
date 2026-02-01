@@ -1,4 +1,4 @@
-import type { BotSettings } from "../../types";
+import type { BotSettings } from "~/inngest/functions/telegram/types";
 
 export async function handleUnidentifiedMedia(params: {
   chatId: string;

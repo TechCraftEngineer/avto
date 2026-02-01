@@ -1,12 +1,13 @@
 import type { Page } from "puppeteer";
-import {
-  saveBasicResponse,
-  updateResponseDetails,
-} from "../../../services/response";
-import type { ResponseData } from "../../types";
+import type { ResponseData } from "~/parsers/types";
+import { saveBasicResponse } from "~/services/response";
 import { HH_CONFIG } from "../../core/config/config";
 import { parseResponseDate } from "../../utils/date-utils";
-import { filterResponsesNeedingDetails, parseResponseDetails } from "./response-utils";
+import { humanScroll } from "../../utils/human-behavior";
+import {
+  filterResponsesNeedingDetails,
+  parseResponseDetails,
+} from "./response-utils";
 
 interface ResponseWithId extends ResponseData {
   resumeId: string;
@@ -75,7 +76,6 @@ export async function parseArchivedVacancyResponses(
 
   return { syncedResponses: allResponses.length, newResponses: newCount };
 }
-
 
 async function collectAllArchivedResponses(
   page: Page,
@@ -263,4 +263,3 @@ async function collectAllArchivedResponses(
 
   return { responses: allResponses, newCount: totalSaved };
 }
-

@@ -1,6 +1,6 @@
 import type { Page } from "puppeteer";
-import { saveBasicVacancy } from "../../../services/vacancy";
-import type { VacancyData } from "../../types";
+import { saveBasicVacancy } from "~/services/vacancy";
+import type { VacancyData } from "~/parsers/types";
 import { HH_CONFIG } from "../../core/config/config";
 import { humanDelay } from "../../utils/human-behavior";
 import { collectVacancies, collectArchivedVacancies } from "./vacancy-collector";

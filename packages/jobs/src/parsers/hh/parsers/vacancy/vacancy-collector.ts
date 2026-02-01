@@ -1,5 +1,5 @@
 import type { Page } from "puppeteer";
-import type { VacancyData } from "../../types";
+import type { VacancyData } from "~/parsers/types";
 import { HH_CONFIG } from "../../core/config/config";
 import { humanDelay } from "../../utils/human-behavior";
 

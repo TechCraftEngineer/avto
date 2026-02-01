@@ -12,6 +12,7 @@ export const VACANCY_SOURCES = [
   "superjob",
   "fl",
   "freelance",
+  "kwork",
 ] as const;
 
 /**

@@ -1,7 +1,7 @@
 import { inArray } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { response } from "@qbs-autonaim/db/schema";
-import { runEnricher } from "../../../parsers/hh/enricher";
+import { enrichHHResponses } from "../../../parsers/hh/services/enricher";
 import { parseNewResumesChannel } from "../../channels/client";
 import { inngest } from "../../client";
 
@@ -122,7 +122,7 @@ export const parseNewResumesFunction = inngest.createFunction(
         throw new Error("workspaceId не найден");
       }
 
-      await runEnricher(vacancy.workspaceId);
+      await enrichHHResponses(vacancy.workspaceId);
 
       // Отправляем финальный статус для каждой вакансии
       for (const vacancyId of vacancyIds) {

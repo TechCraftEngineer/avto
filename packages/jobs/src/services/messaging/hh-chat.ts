@@ -4,7 +4,7 @@ import { db } from "@qbs-autonaim/db/client";
 
 import { integration } from "@qbs-autonaim/db/schema";
 import axios from "axios";
-import { HH_CONFIG } from "../../parsers/hh/config";
+import { HH_CONFIG } from "../../parsers/hh/core/config/config";
 import { createLogger, err, ok, type Result, tryCatch } from "../base";
 
 const logger = createLogger("HHChat");

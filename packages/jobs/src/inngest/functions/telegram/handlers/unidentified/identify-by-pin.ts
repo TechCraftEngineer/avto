@@ -3,8 +3,8 @@ import {
   identifyByPinCode,
   saveMessage,
 } from "@qbs-autonaim/lib";
+import type { BotSettings } from "~/inngest/functions/telegram/types";
 import { generateAndSendBotResponse } from "../../bot-response";
-import type { BotSettings } from "../../types";
 import { migrateTempMessages } from "./temp-message-storage";
 
 /**

@@ -23,7 +23,10 @@ import React from "react";
 import type { UseFormReturn } from "react-hook-form";
 
 interface VacancyRequirementsEditorProps {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<{
+    requirements?: VacancyRequirements | null;
+    [key: string]: unknown;
+  }>;
   requirements: VacancyRequirements | null | undefined;
 }
 
@@ -319,9 +322,9 @@ function ArrayFieldEditor({
       </div>
       {items.length > 0 && (
         <div className="flex flex-wrap gap-2">
-          {items.map((item, index) => (
+          {items.map((item) => (
             <div
-              key={`${item}-${index}`}
+              key={item}
               className="flex items-center gap-1 bg-secondary text-secondary-foreground px-3 py-1.5 rounded-md text-sm"
             >
               <span>{item}</span>

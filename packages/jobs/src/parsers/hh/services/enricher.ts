@@ -6,13 +6,12 @@ import { Log } from "crawlee";
 import type { Page } from "puppeteer";
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
-import { extractTelegramUsername } from "../../../services/messaging";
 import {
   getResponsesWithoutDetails,
   updateResponseDetails,
   uploadResumePdf,
-} from "../../../services/response";
-import { loadCookies, performLogin, saveCookies } from "../core/auth/auth";
+} from "~/services/response";
+import { performLogin, } from "../core/auth/auth";
 import { setupBrowser, setupPage } from "../core/browser/browser-setup";
 import { closeBrowserSafely } from "../core/browser/browser-utils";
 import { HH_CONFIG } from "../core/config/config";

@@ -32,7 +32,12 @@ export function parseResponseDate(dateStr: string): Date | undefined {
     if (timeMatch) {
       const [, hours, minutes] = timeMatch;
       const date = new Date();
-      date.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      date.setHours(
+        parseInt(hours || "0", 10),
+        parseInt(minutes || "0", 10),
+        0,
+        0,
+      );
       return date;
     }
   } else if (dateStr.includes("вчера")) {
@@ -41,24 +46,31 @@ export function parseResponseDate(dateStr: string): Date | undefined {
       const [, hours, minutes] = timeMatch;
       const date = new Date();
       date.setDate(date.getDate() - 1);
-      date.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      date.setHours(
+        parseInt(hours || "0", 10),
+        parseInt(minutes || "0", 10),
+        0,
+        0,
+      );
       return date;
     }
   }
 
   // Формат: "5 февраля в 09:45" или "5 февраля 2023 в 09:45"
-  const timeMatch = dateStr.match(/(\d{1,2})\s+(\w+)\s*(?:(\d{4}))?\s*(?:в\s+(\d{1,2}):(\d{2}))?/);
+  const timeMatch = dateStr.match(
+    /(\d{1,2})\s+(\w+)\s*(?:(\d{4}))?\s*(?:в\s+(\d{1,2}):(\d{2}))?/,
+  );
   if (timeMatch) {
     const [, day, monthName, year, hours, minutes] = timeMatch;
-    const month = months[monthName.toLowerCase()];
+    const month = months[monthName?.toLowerCase() || ""];
 
-    if (month !== undefined) {
-      const targetYear = year ? parseInt(year) : currentYear;
-      const date = new Date(targetYear, month, parseInt(day));
+    if (month !== undefined && day) {
+      const targetYear = year ? parseInt(year, 10) : currentYear;
+      const date = new Date(targetYear, month, parseInt(day, 10));
 
       // Если указано время, устанавливаем его
       if (hours && minutes) {
-        date.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+        date.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
       }
 
       // Для архивных вакансий: если дата в будущем, значит это прошлого года
@@ -74,10 +86,10 @@ export function parseResponseDate(dateStr: string): Date | undefined {
   const simpleMatch = dateStr.match(/(\d+)\s+(\S+)/);
   if (simpleMatch) {
     const [, day, monthName] = simpleMatch;
-    const month = months[monthName.toLowerCase()];
+    const month = months[monthName?.toLowerCase() || ""];
 
-    if (month !== undefined) {
-      const parsed = new Date(currentYear, month, parseInt(day));
+    if (month !== undefined && day) {
+      const parsed = new Date(currentYear, month, parseInt(day, 10));
       const now = new Date();
 
       // Если распарсенная дата находится в будущем, значит это дата прошлого года

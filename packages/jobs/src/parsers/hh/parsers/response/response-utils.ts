@@ -1,15 +1,15 @@
 import type { Page } from "puppeteer";
+import type { ResponseData } from "~/parsers/types";
 import {
   hasDetailedInfo,
   updateResponseDetails,
   uploadCandidatePhoto,
   uploadResumePdf,
-} from "../../../services/response";
-import type { ResponseData } from "../../types";
+} from "~/services/response";
 import { HH_CONFIG } from "../../core/config/config";
+import { parseResponseDate } from "../../utils/date-utils";
 import { humanScroll } from "../../utils/human-behavior";
 import { parseResumeExperience } from "../resume/resume-parser";
-import { parseResponseDate } from "../../utils/date-utils";
 
 interface ResponseWithId extends ResponseData {
   resumeId: string;
@@ -27,16 +27,22 @@ export async function filterResponsesNeedingDetails(
 
   for (const response of responses) {
     try {
-      const needsDetails = !(await hasDetailedInfo(response.resumeId, vacancyId));
+      const needsDetails = !(await hasDetailedInfo(
+        response.resumeId,
+        vacancyId,
+      ));
       if (needsDetails) {
         responsesNeedingDetails.push({
           ...response,
           resumeId: response.resumeId,
-          respondedAt: parseResponseDate(response.respondedAt || ''),
+          respondedAt: parseResponseDate(response.respondedAt || ""),
         });
       }
     } catch (error) {
-      console.error(`❌ Ошибка проверки деталей для отклика ${response.externalId}:`, error);
+      console.error(
+        `❌ Ошибка проверки деталей для отклика ${response.externalId}:`,
+        error,
+      );
     }
   }
 
@@ -57,7 +63,9 @@ export async function parseResponseDetails(
     const response = responses[i];
 
     try {
-      console.log(`📄 Парсим детали для отклика ${i + 1}/${responses.length}: ${response.name}`);
+      console.log(
+        `📄 Парсим детали для отклика ${i + 1}/${responses.length}: ${response.name}`,
+      );
 
       // Переходим на страницу резюме
       await page.goto(response.resumeUrl, {
@@ -79,19 +87,18 @@ export async function parseResponseDetails(
       const experience = await parseResumeExperience(page);
 
       // Обновляем информацию в базе
-      await updateResponseDetails(
-        response.resumeId,
-        vacancyId,
-        {
-          ...details,
-          experience,
-          respondedAt: response.respondedAt,
-        },
-      );
+      await updateResponseDetails(response.resumeId, vacancyId, {
+        ...details,
+        experience,
+        respondedAt: response.respondedAt,
+      });
 
       console.log(`✅ Детали сохранены для: ${response.name}`);
     } catch (error) {
-      console.error(`❌ Ошибка парсинга деталей для ${response.externalId}:`, error);
+      console.error(
+        `❌ Ошибка парсинга деталей для ${response.externalId}:`,
+        error,
+      );
     }
 
     // Задержка между обработкой откликов
@@ -113,27 +120,36 @@ async function extractResumeDetails(page: Page): Promise<{
   photoUrl?: string;
   resumePdfUrl?: string;
 }> {
-  const details: any = {};
+  const details: Record<string, unknown> = {};
 
   try {
     // Извлекаем контакты
-    const contacts = await page.$eval('[data-qa="resume-contacts"]', (element) => {
-      const emailElement = element.querySelector('[data-qa="resume-contact-email"]');
-      const phoneElement = element.querySelector('[data-qa="resume-contact-phone"]');
-      const telegramElement = element.querySelector('[data-qa*="telegram"]');
-      const linkedinElement = element.querySelector('[data-qa*="linkedin"]');
-      const githubElement = element.querySelector('[data-qa*="github"]');
-      const portfolioElement = element.querySelector('[data-qa*="portfolio"]');
+    const contacts = await page.$eval(
+      '[data-qa="resume-contacts"]',
+      (element) => {
+        const emailElement = element.querySelector(
+          '[data-qa="resume-contact-email"]',
+        );
+        const phoneElement = element.querySelector(
+          '[data-qa="resume-contact-phone"]',
+        );
+        const telegramElement = element.querySelector('[data-qa*="telegram"]');
+        const linkedinElement = element.querySelector('[data-qa*="linkedin"]');
+        const githubElement = element.querySelector('[data-qa*="github"]');
+        const portfolioElement = element.querySelector(
+          '[data-qa*="portfolio"]',
+        );
 
-      return {
-        email: emailElement?.textContent?.trim(),
-        phone: phoneElement?.textContent?.trim(),
-        telegram: telegramElement?.textContent?.trim(),
-        linkedin: linkedinElement?.textContent?.trim(),
-        github: githubElement?.textContent?.trim(),
-        portfolio: portfolioElement?.textContent?.trim(),
-      };
-    });
+        return {
+          email: emailElement?.textContent?.trim(),
+          phone: phoneElement?.textContent?.trim(),
+          telegram: telegramElement?.textContent?.trim(),
+          linkedin: linkedinElement?.textContent?.trim(),
+          github: githubElement?.textContent?.trim(),
+          portfolio: portfolioElement?.textContent?.trim(),
+        };
+      },
+    );
 
     Object.assign(details, contacts);
 

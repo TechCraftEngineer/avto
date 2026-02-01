@@ -22,7 +22,6 @@ import {
   TableRow,
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "@qbs-autonaim/ui";
 import {

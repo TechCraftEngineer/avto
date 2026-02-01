@@ -1,22 +1,13 @@
 import type { Page } from "puppeteer";
 import {
-  hasDetailedInfo,
   saveBasicResponse,
-  updateResponseDetails,
-  uploadCandidatePhoto,
-  uploadResumePdf,
-} from "../../../services/response";
-import type { ProgressCallback, ResponseData } from "../../types";
+} from "~/services/response";
 import { HH_CONFIG } from "../../core/config/config";
-import { humanScroll } from "../../utils/human-behavior";
-import { parseResumeExperience } from "../resume/resume-parser";
-import { parseResponseDate } from "../../utils/date-utils";
-import { filterResponsesNeedingDetails, parseResponseDetails } from "./response-utils";
-
-interface ResponseWithId extends ResponseData {
-  resumeId: string;
-  respondedAt?: Date;
-}
+import type { ProgressCallback, ResponseData } from "~/parsers/types";
+import {
+  filterResponsesNeedingDetails,
+  parseResponseDetails,
+} from "./response-utils";
 
 export async function parseResponses(
   page: Page,
@@ -83,7 +74,6 @@ export async function parseResponses(
   };
 }
 
-
 async function collectAndSaveResponses(
   page: Page,
   vacancyId: string,
@@ -114,7 +104,8 @@ async function collectAndSaveResponses(
     let hasNextPage = true;
     let pageNum = 0;
 
-    while (hasNextPage && pageNum < 100) { // Ограничение на 100 страниц
+    while (hasNextPage && pageNum < 100) {
+      // Ограничение на 100 страниц
       console.log(`📄 Парсим страницу ${pageNum + 1} откликов...`);
 
       // Собираем отклики с текущей страницы
@@ -122,23 +113,33 @@ async function collectAndSaveResponses(
         '[data-qa="responses-list"] [data-qa*="response"]',
         (elements) => {
           return elements.map((element, index) => {
-            const nameElement = element.querySelector('[data-qa="response-candidate-name"]');
-            const name = nameElement?.textContent?.trim() || '';
+            const nameElement = element.querySelector(
+              '[data-qa="response-candidate-name"]',
+            );
+            const name = nameElement?.textContent?.trim() || "";
 
-            const resumeLink = element.querySelector('[data-qa="response-candidate-link"]') as HTMLAnchorElement;
-            const resumeUrl = resumeLink?.href || '';
+            const resumeLink = element.querySelector(
+              '[data-qa="response-candidate-link"]',
+            ) as HTMLAnchorElement;
+            const resumeUrl = resumeLink?.href || "";
 
-            const statusElement = element.querySelector('[data-qa*="response-status"]');
-            const status = statusElement?.textContent?.trim() || '';
+            const statusElement = element.querySelector(
+              '[data-qa*="response-status"]',
+            );
+            const status = statusElement?.textContent?.trim() || "";
 
-            const dateElement = element.querySelector('[data-qa="response-date"]');
-            const date = dateElement?.textContent?.trim() || '';
+            const dateElement = element.querySelector(
+              '[data-qa="response-date"]',
+            );
+            const date = dateElement?.textContent?.trim() || "";
 
-            const coverLetterElement = element.querySelector('[data-qa="response-cover-letter"]');
-            const coverLetter = coverLetterElement?.textContent?.trim() || '';
+            const coverLetterElement = element.querySelector(
+              '[data-qa="response-cover-letter"]',
+            );
+            const coverLetter = coverLetterElement?.textContent?.trim() || "";
 
             const resumeIdMatch = resumeUrl.match(/\/resume\/([a-f0-9]+)/);
-            const resumeId = resumeIdMatch ? resumeIdMatch[1] : '';
+            const resumeId = resumeIdMatch ? resumeIdMatch[1] : "";
 
             return {
               name,
@@ -147,8 +148,8 @@ async function collectAndSaveResponses(
               status,
               respondedAt: date,
               coverLetter,
-              vacancyId: '', // Будет заполнено позже
-              candidateId: '', // Будет заполнено позже
+              vacancyId: "", // Будет заполнено позже
+              candidateId: "", // Будет заполнено позже
               externalId: `${vacancyId}_${resumeId}_${index}`, // Уникальный ID для каждого отклика
             };
           });
@@ -173,11 +174,16 @@ async function collectAndSaveResponses(
             onProgress(processedCount);
           }
         } catch (error) {
-          console.error(`❌ Ошибка сохранения отклика ${response.externalId}:`, error);
+          console.error(
+            `❌ Ошибка сохранения отклика ${response.externalId}:`,
+            error,
+          );
         }
       }
 
-      console.log(`📋 Откликов на странице ${pageNum + 1}: ${pageResponses.length}`);
+      console.log(
+        `📋 Откликов на странице ${pageNum + 1}: ${pageResponses.length}`,
+      );
 
       // Проверяем, есть ли следующая страница
       const nextButton = await page.$('[data-qa="pager-next"]');
@@ -199,5 +205,3 @@ async function collectAndSaveResponses(
 
   return { responses, newCount };
 }
-
-

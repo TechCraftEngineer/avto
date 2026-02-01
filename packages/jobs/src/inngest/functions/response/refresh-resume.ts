@@ -6,21 +6,24 @@ import { Log } from "crawlee";
 import type { Page } from "puppeteer";
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
-import {
-  loadCookies,
-  performLogin,
-  saveCookies,
-} from "../../../parsers/hh/auth";
-import { setupBrowser, setupPage } from "../../../parsers/hh/browser-setup";
-import { closeBrowserSafely } from "../../../parsers/hh/browser-utils";
-import { HH_CONFIG } from "../../../parsers/hh/config";
-import { parseResumeExperience } from "../../../parsers/hh/resume-parser";
-import { extractTelegramUsername } from "../../../services/messaging";
+import { extractTelegramUsername } from "~/services/messaging";
 import {
   updateResponseDetails,
   uploadCandidatePhoto,
   uploadResumePdf,
-} from "../../../services/response";
+} from "~/services/response";
+import {
+  loadCookies,
+  performLogin,
+  saveCookies,
+} from "../../../parsers/hh/core/auth/auth";
+import {
+  setupBrowser,
+  setupPage,
+} from "../../../parsers/hh/core/browser/browser-setup";
+import { closeBrowserSafely } from "../../../parsers/hh/core/browser/browser-utils";
+import { HH_CONFIG } from "../../../parsers/hh/core/config/config";
+import { parseResumeExperience } from "../../../parsers/hh/parsers/resume/resume-parser";
 import { inngest } from "../../client";
 
 puppeteer.use(StealthPlugin());
@@ -187,9 +190,9 @@ export const refreshSingleResumeFunction = inngest.createFunction(
           resumeId: responseData.resumeId ?? "",
           resumeUrl: responseData.resumeUrl ?? "",
           candidateName: responseData.candidateName ?? "",
-          experience: experienceData.experience || "",
+          experience: JSON.stringify(experienceData.experience || []),
           contacts: experienceData.contacts,
-          phone: experienceData.phone,
+          phone: experienceData.phone ?? null,
           telegramUsername,
           resumePdfFileId,
           photoFileId,

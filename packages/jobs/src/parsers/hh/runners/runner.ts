@@ -1,7 +1,9 @@
 import { getIntegrationCredentials } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
+import type { VacancyData } from "~/parsers/types";
 import { setupPageWithAuth } from "../core/browser/browser-setup";
 import { closeBrowserSafely } from "../core/browser/browser-utils";
+import { HH_CONFIG } from "../core/config/config";
 import { parseResponses } from "../parsers/response/response-parser";
 import {
   parseArchivedVacancies,
@@ -57,7 +59,6 @@ export async function runHHParser(
   );
 
   try {
-
     let totalImported = 0;
     let totalUpdated = 0;
     let totalFailed = 0;
@@ -80,7 +81,10 @@ export async function runHHParser(
               vacancy.id || "",
             );
           } catch (error) {
-            console.error(`❌ Ошибка парсинга откликов вакансии ${vacancy.externalId}:`, error);
+            console.error(
+              `❌ Ошибка парсинга откликов вакансии ${vacancy.externalId}:`,
+              error,
+            );
             totalFailed++;
           }
         }
@@ -108,7 +112,10 @@ export async function runHHParser(
                 vacancy.id || "",
               );
             } catch (error) {
-              console.error(`❌ Ошибка парсинга откликов архивной вакансии ${vacancy.externalId}:`, error);
+              console.error(
+                `❌ Ошибка парсинга откликов архивной вакансии ${vacancy.externalId}:`,
+                error,
+              );
               totalFailed++;
             }
           }
@@ -131,9 +138,16 @@ export async function runHHParser(
   }
 }
 
-export async function fetchArchivedVacanciesList(
-  workspaceId: string,
-): Promise<{ url: string; date: string }[]> {
+export async function fetchArchivedVacanciesList(workspaceId: string): Promise<
+  {
+    url: string;
+    date: string;
+    externalId?: string;
+    title?: string;
+    region?: string;
+    archivedAt?: string;
+  }[]
+> {
   console.log("📋 Получение списка архивных вакансий");
 
   const credentials = await getIntegrationCredentials(db, "hh", workspaceId);
@@ -148,7 +162,6 @@ export async function fetchArchivedVacanciesList(
   );
 
   try {
-
     await page.goto(HH_CONFIG.urls.archivedVacancies, {
       waitUntil: "domcontentloaded",
       timeout: HH_CONFIG.timeouts.navigation,
@@ -166,16 +179,30 @@ export async function fetchArchivedVacanciesList(
       '[data-qa="vacancy-serp__vacancy"]',
       (elements) => {
         return elements.map((element) => {
-          const titleElement = element.querySelector('[data-qa="vacancy-serp__vacancy-title"]');
-          const title = titleElement?.textContent?.trim() || '';
+          const titleElement = element.querySelector(
+            '[data-qa="vacancy-serp__vacancy-title"]',
+          );
+          const title = titleElement?.textContent?.trim() || "";
 
-          const urlElement = element.querySelector('[data-qa="vacancy-serp__vacancy-title"]') as HTMLAnchorElement;
-          const url = urlElement?.href || '';
+          const urlElement = element.querySelector(
+            '[data-qa="vacancy-serp__vacancy-title"]',
+          ) as HTMLAnchorElement;
+          const url = urlElement?.href || "";
 
-          const dateElement = element.querySelector('[data-qa="vacancy-serp__vacancy-date"]');
-          const date = dateElement?.textContent?.trim() || '';
+          const dateElement = element.querySelector(
+            '[data-qa="vacancy-serp__vacancy-date"]',
+          );
+          const date = dateElement?.textContent?.trim() || "";
 
-          return { title, url, date };
+          const regionElement = element.querySelector(
+            '[data-qa="vacancy-serp__vacancy-address"]',
+          );
+          const region = regionElement?.textContent?.trim();
+
+          // Извлекаем externalId из URL
+          const externalId = url.match(/\/vacancy\/(\d+)/)?.[1];
+
+          return { title, url, date, region, externalId };
         });
       },
     );
@@ -185,6 +212,10 @@ export async function fetchArchivedVacanciesList(
     return archivedVacancies.map((vacancy) => ({
       url: vacancy.url,
       date: parseArchivedDate(vacancy.date),
+      externalId: vacancy.externalId,
+      title: vacancy.title,
+      region: vacancy.region,
+      archivedAt: parseArchivedDate(vacancy.date),
     }));
   } finally {
     await closeBrowserSafely(browser);
@@ -209,9 +240,8 @@ export async function importMultipleVacancies(
   );
 
   try {
-
     let imported = 0;
-    let updated = 0;
+    const updated = 0;
     let failed = 0;
 
     for (const vacancy of vacancies) {
@@ -230,7 +260,9 @@ export async function importMultipleVacancies(
       }
     }
 
-    console.log(`✅ Импорт завершен: ${imported} импортировано, ${failed} ошибок`);
+    console.log(
+      `✅ Импорт завершен: ${imported} импортировано, ${failed} ошибок`,
+    );
 
     return { imported, updated, failed };
   } finally {
@@ -241,7 +273,7 @@ export async function importMultipleVacancies(
 export async function importSingleVacancy(
   workspaceId: string,
   url: string,
-): Promise<{ success: boolean; vacancy?: any }> {
+): Promise<{ success: boolean; vacancy?: VacancyData }> {
   console.log(`🔍 Импорт отдельной вакансии: ${url}`);
 
   const credentials = await getIntegrationCredentials(db, "hh", workspaceId);
@@ -256,7 +288,6 @@ export async function importSingleVacancy(
   );
 
   try {
-
     const result = await parseSingleVacancy(page, url, workspaceId);
 
     return {

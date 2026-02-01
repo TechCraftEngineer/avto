@@ -2,7 +2,7 @@ import { eq, getIntegrationCredentials } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { vacancy } from "@qbs-autonaim/db/schema";
 
-import type { ProgressCallback } from "../../types";
+import type { ProgressCallback } from "~/parsers/types";
 import { setupAuthenticatedBrowser } from "../core/browser/browser-setup";
 import {
   ensureAuthenticated,

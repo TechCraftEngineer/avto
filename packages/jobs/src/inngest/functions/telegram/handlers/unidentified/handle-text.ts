@@ -1,7 +1,7 @@
 import { AgentFactory } from "@qbs-autonaim/ai";
 import { getAIModel } from "@qbs-autonaim/lib/ai";
+import type { BotSettings } from "~/inngest/functions/telegram/types";
 import { generateAndSendBotResponse } from "../../bot-response";
-import type { BotSettings } from "../../types";
 import {
   createOrUpdateTempChatSession,
   extractPinCode,
