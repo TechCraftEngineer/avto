@@ -1,11 +1,17 @@
 import type { Page } from "puppeteer";
-import { saveBasicVacancy } from "~/services/vacancy";
 import type { VacancyData } from "~/parsers/types";
+import { saveBasicVacancy } from "~/services/vacancy";
 import { HH_CONFIG } from "../../core/config/config";
 import { humanDelay } from "../../utils/human-behavior";
-import { collectVacancies, collectArchivedVacancies } from "./vacancy-collector";
-import { saveBasicVacancies, parseVacancyDescriptions } from "./vacancy-processor";
+import {
+  collectArchivedVacancies,
+  collectVacancies,
+} from "./vacancy-collector";
 import { extractSingleVacancy } from "./vacancy-extractor";
+import {
+  parseVacancyDescriptions,
+  saveBasicVacancies,
+} from "./vacancy-processor";
 
 interface ParseResult {
   vacancies: VacancyData[];
@@ -115,7 +121,10 @@ export async function parseSingleVacancy(
       timeout: HH_CONFIG.timeouts.networkIdle,
     });
 
-    await humanDelay(HH_CONFIG.delays.readingPage.min, HH_CONFIG.delays.readingPage.max);
+    await humanDelay(
+      HH_CONFIG.delays.readingPage.min,
+      HH_CONFIG.delays.readingPage.max,
+    );
 
     const vacancyData = await extractSingleVacancy(page, url);
 

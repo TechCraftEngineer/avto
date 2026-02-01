@@ -23,6 +23,7 @@ interface VacancyDbData {
   resumesInProgress: number;
   suitableResumes: number;
   region: string;
+  workLocation: string;
   description: string;
   isActive: boolean;
   createdBy: string;
@@ -69,6 +70,7 @@ function mapVacancyData(
     resumesInProgress: Number.parseInt(vacancyData.resumesInProgress, 10) || 0,
     suitableResumes: Number.parseInt(vacancyData.suitableResumes, 10) || 0,
     region: vacancyData.region || "",
+    workLocation: vacancyData.workLocation || "",
     description: description ?? vacancyData.description ?? "",
     isActive: vacancyData.isActive ?? true, // По умолчанию активна, если не указано иное
     createdBy,

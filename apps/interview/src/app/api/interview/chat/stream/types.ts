@@ -38,6 +38,7 @@ export type VacancyLike = {
   title?: string | null;
   description?: string | null;
   region?: string | null;
+  workLocation?: string | null;
   customBotInstructions?: string | null;
   customScreeningPrompt?: string | null;
   customOrganizationalQuestions?: string | null;

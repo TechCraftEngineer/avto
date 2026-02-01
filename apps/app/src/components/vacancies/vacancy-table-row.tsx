@@ -61,6 +61,7 @@ interface Vacancy {
   title: string;
   source: string;
   region: string | null;
+  workLocation: string | null;
   views: number | null;
   totalResponsesCount: number | null;
   newResponses: number | null;
@@ -189,10 +190,10 @@ export function VacancyTableRow({
             />
             <div className="flex items-center gap-2 text-xs text-muted-foreground md:hidden">
               <span>{source.label}</span>
-              {vacancy.region && (
+              {vacancy.workLocation && (
                 <>
                   <span>•</span>
-                  <span>{vacancy.region}</span>
+                  <span>{vacancy.workLocation}</span>
                 </>
               )}
             </div>
@@ -209,7 +210,7 @@ export function VacancyTableRow({
       </TableCell>
       <TableCell className="hidden md:table-cell text-muted-foreground">
         <span className="truncate block max-w-[150px]">
-          {vacancy.region || "—"}
+          {vacancy.workLocation || "—"}
         </span>
       </TableCell>
       <TableCell className="text-right tabular-nums">

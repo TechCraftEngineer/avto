@@ -47,6 +47,7 @@ export function createGetInterviewSettingsTool(
           title: vacancy.title ?? null,
           description: vacancy.description ?? null,
           region: vacancy.region ?? null,
+          workLocation: vacancy.workLocation ?? null,
           customBotInstructions: vacancy.customBotInstructions ?? null,
           customScreeningPrompt: vacancy.customScreeningPrompt ?? null,
           customOrganizationalQuestions:

@@ -5,6 +5,7 @@ interface Vacancy {
   title: string;
   source: string;
   region: string | null;
+  workLocation: string | null;
   views: number | null;
   totalResponsesCount: number | null;
   newResponses: number | null;

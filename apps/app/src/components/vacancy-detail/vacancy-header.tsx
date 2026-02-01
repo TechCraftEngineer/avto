@@ -14,6 +14,7 @@ interface VacancyHeaderProps {
   vacancy: {
     title: string;
     region?: string | null;
+    workLocation?: string | null;
     createdAt: Date;
     views?: number | null;
     url?: string | null;
@@ -106,10 +107,10 @@ export function VacancyHeader({ vacancy }: VacancyHeaderProps) {
 
           {/* Метрики и информация */}
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
-            {vacancy.region && (
+            {vacancy.workLocation && (
               <div className="flex items-center gap-2 text-muted-foreground">
                 <IconMapPin className="size-4 text-primary" />
-                <span className="font-medium">{vacancy.region}</span>
+                <span className="font-medium">{vacancy.workLocation}</span>
               </div>
             )}
 

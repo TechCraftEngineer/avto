@@ -27,6 +27,7 @@ interface ArchivedVacancy {
   id: string;
   title: string;
   region?: string;
+  workLocation?: string;
   archivedAt?: string;
   isImported?: boolean; // Флаг, что вакансия уже загружена
 }
@@ -40,6 +41,7 @@ interface ArchivedVacanciesSelectorProps {
       id: string;
       title: string;
       region?: string;
+      workLocation?: string;
       archivedAt?: string;
     }>,
   ) => void;
@@ -377,8 +379,12 @@ export function ArchivedVacanciesSelector({
                       )}
                     </div>
                     <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                      {vacancy.region && <span>{vacancy.region}</span>}
-                      {vacancy.region && vacancy.archivedAt && <span>•</span>}
+                      {vacancy.workLocation && (
+                        <span>{vacancy.workLocation}</span>
+                      )}
+                      {vacancy.workLocation && vacancy.archivedAt && (
+                        <span>•</span>
+                      )}
                       {vacancy.archivedAt && (
                         <span>
                           Архивирована:{" "}

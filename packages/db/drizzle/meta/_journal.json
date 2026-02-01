@@ -8,6 +8,13 @@
       "when": 1769696740493,
       "tag": "0000_medical_nicolaos",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1769937185543,
+      "tag": "0001_ancient_solo",
+      "breakpoints": true
     }
   ]
 }

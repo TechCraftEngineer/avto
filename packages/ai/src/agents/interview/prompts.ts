@@ -102,7 +102,7 @@ export function buildVacancyInterviewPrompt(
 Кандидат: ${context.candidateName || "не указано"}
 Вакансия: ${vacancy.title || "не указана"}
 Описание: ${vacancy.description || "не указано"}
-Регион: ${vacancy.region || "не указан"}
+Локация работы: ${vacancy.workLocation || "не указана"}
 
 ${BASE_RULES}
 

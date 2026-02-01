@@ -128,6 +128,7 @@ export function VacancyImportSection() {
       id: string;
       title: string;
       region?: string;
+      workLocation?: string;
       archivedAt?: string;
     }>,
   ) => {
@@ -142,10 +143,17 @@ export function VacancyImportSection() {
 
     try {
       setIsImportingArchived(true);
+
+      // Добавляем URL к каждой вакансии
+      const vacanciesWithUrls = vacancies.map((v) => ({
+        ...v,
+        url: `https://hh.ru/vacancy/${v.id}`,
+      }));
+
       const runId = await triggerImportSelectedArchivedVacancies(
         workspaceId,
         selectedIds,
-        vacancies,
+        vacanciesWithUrls,
       );
       setArchivedVacanciesRunId(runId);
     } catch (error) {

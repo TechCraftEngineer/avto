@@ -23,10 +23,15 @@ export async function extractSingleVacancy(
       );
       const salary = salaryElement?.textContent?.trim() || "";
 
-      const locationElement = document.querySelector(
+      // Локация работы (где фактически нужно работать)
+      const workLocationElement = document.querySelector(
         '[data-qa="vacancy-view-location"]',
       );
-      const location = locationElement?.textContent?.trim() || "";
+      const workLocation = workLocationElement?.textContent?.trim() || "";
+
+      // Регион размещения вакансии (может быть в других местах страницы)
+      // Пока используем ту же локацию, но можно расширить парсинг
+      const region = workLocation;
 
       const descriptionElement = document.querySelector(
         '[data-qa="vacancy-description"]',
@@ -41,7 +46,8 @@ export async function extractSingleVacancy(
         url: window.location.href,
         company,
         salary,
-        location,
+        workLocation,
+        region,
         description,
         externalId,
         status: "active" as const,
@@ -62,7 +68,8 @@ export async function extractSingleVacancy(
       newResponses: "0",
       resumesInProgress: "0",
       suitableResumes: "0",
-      region: vacancyData.location,
+      region: vacancyData.region,
+      workLocation: vacancyData.workLocation,
       description: vacancyData.description,
       isActive: true,
     };

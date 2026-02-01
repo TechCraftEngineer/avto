@@ -51,6 +51,7 @@ export class VacancyContextLoader implements ContextLoader {
         description: true,
         requirements: true,
         region: true,
+        workLocation: true,
         customBotInstructions: true,
       },
     });
@@ -185,6 +186,7 @@ export class VacancyContextLoader implements ContextLoader {
         description: vacancyData.description,
         requirements: vacancyData.requirements,
         region: vacancyData.region,
+        workLocation: vacancyData.workLocation,
         customBotInstructions: vacancyData.customBotInstructions,
       },
       relatedContext: {

@@ -26,6 +26,7 @@ export interface InterviewVacancyData {
   title: string | null;
   description: string | null;
   region: string | null;
+  workLocation: string | null;
   customBotInstructions: string | null;
   customOrganizationalQuestions: string | null;
   customInterviewQuestions: string | null;

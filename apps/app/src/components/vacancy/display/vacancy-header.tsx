@@ -32,6 +32,7 @@ interface VacancyHeaderProps {
   workspaceId: string;
   title: string;
   region: string | null;
+  workLocation: string | null;
   url: string | null;
   isActive: boolean | null;
   orgSlug: string;

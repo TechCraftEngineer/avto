@@ -167,7 +167,9 @@ export async function triggerImportSelectedArchivedVacancies(
   vacancies?: Array<{
     id: string;
     title: string;
+    url: string;
     region?: string;
+    workLocation?: string;
     archivedAt?: string;
   }>,
 ): Promise<string> {

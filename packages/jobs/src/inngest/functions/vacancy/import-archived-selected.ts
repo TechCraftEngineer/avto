@@ -1,14 +1,36 @@
+import { z } from "zod";
 import { importMultipleVacancies } from "../../../parsers/hh";
 import { importArchivedVacanciesChannel } from "../../channels/client";
 import { inngest } from "../../client";
-import { importArchivedSelectedEventSchema } from "./import-archived-selected.schema";
+
+/**
+ * Схема валидации входных данных для импорта выбранных архивных вакансий
+ */
+const ImportArchivedSelectedEventSchema = z.object({
+  workspaceId: z.string().min(1, "ID рабочего пространства обязателен"),
+  vacancyIds: z
+    .array(z.string())
+    .min(1, "Необходимо выбрать хотя бы одну вакансию"),
+  vacancies: z
+    .array(
+      z.object({
+        id: z.string(),
+        title: z.string(),
+        url: z.string(),
+        region: z.string().optional(),
+        archivedAt: z.string().optional(),
+      }),
+    )
+    .optional(),
+});
 
 /**
  * Inngest функция для импорта выбранных архивных вакансий из HH.ru
+ * Парсит только указанные вакансии с детальным прогрессом
  */
 export const importSelectedArchivedVacanciesFunction = inngest.createFunction(
   {
-    id: "import-selected-archived-vacancies",
+    id: "import-archived-selected-vacancies",
     name: "Импорт выбранных архивных вакансий",
     retries: 0,
     concurrency: 1,
@@ -16,114 +38,126 @@ export const importSelectedArchivedVacanciesFunction = inngest.createFunction(
   { event: "vacancy/import.archived-selected" },
   async ({ event, step, publish }) => {
     // Валидация входных данных
-    const parseResult = importArchivedSelectedEventSchema.safeParse(event.data);
+    const validationResult = ImportArchivedSelectedEventSchema.safeParse(
+      event.data,
+    );
 
-    if (!parseResult.success) {
-      console.error(
-        "❌ Ошибка валидации данных события:",
-        parseResult.error.format(),
-      );
-      throw new Error(
-        `Некорректные данные события: ${parseResult.error.message}`,
-      );
+    if (!validationResult.success) {
+      const errorMessage =
+        validationResult.error.issues[0]?.message ||
+        "Некорректные данные запроса";
+      console.error("❌ Ошибка валидации входных данных:", errorMessage);
+      throw new Error(errorMessage);
     }
 
-    const {
-      workspaceId,
-      vacancyIds,
-      vacancies: vacanciesData,
-    } = parseResult.data;
+    const { workspaceId, vacancyIds, vacancies } = validationResult.data;
+
+    // Если не передан массив vacancies, создаем базовый из vacancyIds
+    const vacancyList =
+      vacancies ||
+      vacancyIds.map((id) => ({
+        id,
+        title: `Вакансия ${id}`,
+        url: `https://hh.ru/vacancy/${id}`,
+        region: undefined,
+        archivedAt: undefined,
+      }));
+
+    // Инициализируем массив прогресса для всех вакансий
+    const vacancyProgress: Array<{
+      id: string;
+      title: string;
+      region?: string;
+      workLocation?: string;
+      archivedAt?: string;
+      status: "pending" | "processing" | "success" | "failed";
+      error?: string;
+    }> = vacancyList.map((v) => ({
+      id: v.id,
+      title: v.title,
+      region: v.region,
+      archivedAt: v.archivedAt,
+      status: "pending",
+    }));
 
     await publish(
       importArchivedVacanciesChannel(workspaceId).progress({
         workspaceId,
         status: "started",
         message: "Начинаем импорт выбранных архивных вакансий",
-        total: vacancyIds.length,
+        total: vacancyList.length,
         processed: 0,
+        vacancies: vacancyProgress,
       }),
     );
 
     const result = await step.run(
-      "import-selected-archived-vacancies",
+      "import-archived-selected-vacancies",
       async () => {
         console.log(
-          `🚀 Запуск импорта ${vacancyIds.length} выбранных архивных вакансий для workspace ${workspaceId}`,
+          `🚀 Запуск импорта ${vacancyList.length} выбранных архивных вакансий для workspace ${workspaceId}`,
         );
-
-        let imported = 0;
-        let updated = 0;
-        let failed = 0;
-
-        // Создаем мапу для быстрого доступа к данным вакансий
-        const vacanciesMap = new Map(
-          vacanciesData?.map((v) => [v.id, v]) || [],
-        );
-
-        // Создаем массив для отслеживания прогресса по каждой вакансии
-        const vacancyProgress: Array<{
-          id: string;
-          title: string;
-          region?: string;
-          archivedAt?: string;
-          status: "pending" | "success" | "failed";
-        }> = vacancyIds.map((id) => {
-          const vacancyData = vacanciesMap.get(id);
-          return {
-            id,
-            title: vacancyData?.title || "",
-            region: vacancyData?.region,
-            archivedAt: vacancyData?.archivedAt,
-            status: "pending",
-          };
-        });
 
         try {
-          // Преобразуем vacancyIds в формат { url, date }
-          const vacanciesForImport = vacancyIds
-            .map((id) => {
-              const vacancyData = vacanciesMap.get(id);
-              if (!vacancyData) return null;
+          let failed = 0;
 
-              // Формируем URL из externalId
-              const url = `https://hh.ru/vacancy/${id}`;
-              const date = vacancyData.archivedAt || new Date().toISOString();
+          // Формируем список вакансий для импорта с URL из данных
+          const vacanciesWithUrls = vacancyList.map((v) => ({
+            url: v.url,
+            date: v.archivedAt || "",
+          }));
 
-              return { url, date };
-            })
-            .filter((v): v is { url: string; date: string } => v !== null);
-
-          // Используем оптимизированную функцию пакетного импорта
-          const importResult = await importMultipleVacancies(
+          // Импортируем вакансии с прогрессом
+          const vacanciesWithProgress = await importMultipleVacancies(
             workspaceId,
-            vacanciesForImport,
+            vacanciesWithUrls,
+            async (index, success, error) => {
+              // Обновляем статус текущей вакансии
+              const currentVacancy = vacancyList[index];
+              if (!currentVacancy) return;
+
+              vacancyProgress[index] = {
+                id: currentVacancy.id,
+                title: currentVacancy.title,
+                region: currentVacancy.region,
+                archivedAt: currentVacancy.archivedAt,
+                status: success ? "success" : "failed",
+                error,
+              };
+
+              if (!success) {
+                failed++;
+              }
+
+              // Отправляем обновленный прогресс
+              const nextVacancy = vacancyList[index + 1];
+              await publish(
+                importArchivedVacanciesChannel(workspaceId).progress({
+                  workspaceId,
+                  status: "processing",
+                  message: `Обработано ${index + 1} из ${vacancyList.length} вакансий`,
+                  total: vacancyList.length,
+                  processed: index + 1,
+                  failed,
+                  currentVacancy: nextVacancy
+                    ? {
+                        id: nextVacancy.id,
+                        title: nextVacancy.title,
+                      }
+                    : undefined,
+                  vacancies: [...vacancyProgress],
+                }),
+              );
+            },
           );
 
-          imported = importResult.imported;
-          updated = importResult.updated;
-          failed = importResult.failed;
-
-          // Обновляем статусы вакансий
-          for (let i = 0; i < vacancyProgress.length; i++) {
-            const progressItem = vacancyProgress[i];
-            if (!progressItem) continue;
-
-            // Определяем статус на основе результатов
-            if (i < imported + updated) {
-              progressItem.status = "success";
-            } else {
-              progressItem.status = "failed";
-            }
-          }
-
-          // Отправляем финальный прогресс
           await publish(
             importArchivedVacanciesChannel(workspaceId).progress({
               workspaceId,
               status: "completed",
-              message: `Импорт завершен: ${imported} импортировано, ${updated} обновлено, ${failed} ошибок`,
-              total: vacancyIds.length,
-              processed: vacancyIds.length,
+              message: "Импорт завершён",
+              total: vacancyList.length,
+              processed: vacancyList.length,
               failed,
               vacancies: vacancyProgress,
             }),
@@ -133,17 +167,17 @@ export const importSelectedArchivedVacanciesFunction = inngest.createFunction(
             importArchivedVacanciesChannel(workspaceId).result({
               workspaceId,
               success: true,
-              imported,
-              updated,
-              failed,
+              imported: vacanciesWithProgress.imported,
+              updated: vacanciesWithProgress.updated,
+              failed: vacanciesWithProgress.failed,
             }),
           );
 
           console.log(
-            `✅ Импорт выбранных архивных вакансий для workspace ${workspaceId} завершён: ${imported} новых, ${updated} обновлено, ${failed} ошибок`,
+            `✅ Импорт выбранных архивных вакансий для workspace ${workspaceId} завершён`,
           );
 
-          return { success: true, workspaceId, imported, updated, failed };
+          return { success: true, workspaceId };
         } catch (error) {
           console.error(
             `❌ Ошибка при импорте выбранных архивных вакансий для workspace ${workspaceId}:`,
@@ -153,7 +187,7 @@ export const importSelectedArchivedVacanciesFunction = inngest.createFunction(
           const errorMessage =
             error instanceof Error
               ? error.message
-              : "Не удалось импортировать вакансии";
+              : "Не удалось подключиться к источнику вакансий";
 
           await publish(
             importArchivedVacanciesChannel(workspaceId).progress({
@@ -167,9 +201,9 @@ export const importSelectedArchivedVacanciesFunction = inngest.createFunction(
             importArchivedVacanciesChannel(workspaceId).result({
               workspaceId,
               success: false,
-              imported,
-              updated,
-              failed,
+              imported: 0,
+              updated: 0,
+              failed: 0,
               error: errorMessage,
             }),
           );

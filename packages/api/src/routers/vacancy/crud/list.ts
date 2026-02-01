@@ -33,6 +33,7 @@ export const list = protectedProcedure
         resumesInProgress: vacancy.resumesInProgress,
         suitableResumes: vacancy.suitableResumes,
         region: vacancy.region,
+        workLocation: vacancy.workLocation,
         description: vacancy.description,
         requirements: vacancy.requirements,
         source: vacancy.source,

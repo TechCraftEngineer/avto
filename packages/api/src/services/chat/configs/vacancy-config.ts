@@ -10,6 +10,7 @@ interface VacancyMainContext {
   description: string | null;
   requirements: unknown;
   region: string | null;
+  workLocation: string | null;
   customBotInstructions: string | null;
 }
 

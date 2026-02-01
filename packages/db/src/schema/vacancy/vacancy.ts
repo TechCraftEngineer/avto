@@ -66,6 +66,7 @@ export const vacancy = pgTable(
     resumesInProgress: integer("resumes_in_progress").default(0),
     suitableResumes: integer("suitable_resumes").default(0),
     region: varchar("region", { length: 200 }),
+    workLocation: varchar("work_location", { length: 200 }),
     description: text("description"),
     requirements: jsonb("requirements").$type<VacancyRequirements>(),
 
