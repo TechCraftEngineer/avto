@@ -1,2 +1,2 @@
 // vacancy-detail domain exports
-export * from './utils/source-config';
+export { SourceConfig } from './utils/source-config';

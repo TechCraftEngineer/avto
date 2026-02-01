@@ -1,7 +1,7 @@
 // Response repository operations
 
 // Re-export base utilities for convenience
-export { unwrap } from "../base";
+export { unwrap } from "../base/index";
 // Re-export shared functions
 export { hasDetailedInfo, updateResponseDetails } from "@qbs-autonaim/jobs-shared";
 // Contacts extraction

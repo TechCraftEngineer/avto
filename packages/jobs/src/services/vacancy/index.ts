@@ -1,7 +1,7 @@
 // Vacancy repository operations
 
 // Re-export base utilities for convenience
-export { unwrap } from "../base";
+export { unwrap } from "../base/index";
 export {
   checkVacancyExists,
   getVacanciesWithoutDescription,
