@@ -20,6 +20,7 @@
   "dependencies": {
     "@qbs-autonaim/db": "workspace:*",
     "@qbs-autonaim/lib": "workspace:*",
+    "@qbs-autonaim/server-utils": "workspace:*",
     "@qbs-autonaim/shared": "workspace:*",
     "crawlee": "3.15.3",
     "puppeteer": "24.36.1",
