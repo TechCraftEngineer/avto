@@ -1,7 +1,7 @@
 import { and, eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { response } from "@qbs-autonaim/db/schema";
-import { createLogger, type Result, tryCatch } from "@qbs-autonaim/jobs";
+import { createLogger, type Result, tryCatch } from "@qbs-autonaim/lib";
 import type { SaveResponseData } from "@qbs-autonaim/jobs-parsers";
 import { logResponseEvent } from "@qbs-autonaim/lib";
 
