@@ -32,6 +32,7 @@ export type {
   ProgressCallback,
   ResponseData,
   ResumeExperience,
+  SaveResponseData,
   VacancyData,
 } from "./parsers/types";
 // Экспорт утилит

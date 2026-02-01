@@ -3,8 +3,8 @@ import {
   workspaceNotificationsChannel,
 } from "@qbs-autonaim/jobs/channels";
 import { inngest } from "@qbs-autonaim/jobs/client";
-import { importMultipleVacancies } from "@qbs-autonaim/jobs-parsers";
 import { z } from "zod";
+import { importMultipleVacancies } from "../../parsers/hh";
 
 /**
  * Схема валидации входных данных для импорта архивных вакансий

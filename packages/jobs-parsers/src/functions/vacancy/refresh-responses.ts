@@ -6,7 +6,7 @@ import {
   vacancyStatsChannel,
 } from "@qbs-autonaim/jobs/channels";
 import { inngest } from "@qbs-autonaim/jobs/client";
-import { refreshVacancyResponses } from "@qbs-autonaim/jobs-parsers";
+import { refreshVacancyResponses } from "../../parsers/hh";
 
 /**
  * Inngest функция для обновления откликов конкретной вакансии
