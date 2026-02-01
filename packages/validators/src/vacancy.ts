@@ -51,28 +51,6 @@ export const updateVacancySettingsSchema = z.object({
         .optional(),
     })
     .optional(),
-  source: z
-    .enum([
-      "MANUAL",
-      "HH",
-      "FL_RU",
-      "FREELANCE_RU",
-      "AVITO",
-      "SUPERJOB",
-      "HABR",
-      "WEB_LINK",
-      "TELEGRAM",
-    ])
-    .nullish(),
-  externalId: z
-    .string()
-    .max(100, { message: "External ID не должен превышать 100 символов" })
-    .nullish(),
-  url: z
-    .string()
-    .url({ message: "Введите корректный URL" })
-    .or(z.literal(""))
-    .nullish(),
   customDomainId: z.string().uuid().or(z.literal("")).nullish(),
 });
 
@@ -106,22 +84,6 @@ export const updateFullVacancySchema = z.object({
     .max(50000, { message: "Описание не должно превышать 50000 символов" })
     .nullish(),
   requirements: vacancyRequirementsSchema.optional(),
-  customBotInstructions: z
-    .string()
-    .max(5000, { message: "Инструкции не должны превышать 5000 символов" })
-    .nullish(),
-  customScreeningPrompt: z
-    .string()
-    .max(5000, { message: "Промпт не должен превышать 5000 символов" })
-    .nullish(),
-  customInterviewQuestions: z
-    .string()
-    .max(5000, { message: "Вопросы не должны превышать 5000 символов" })
-    .nullish(),
-  customOrganizationalQuestions: z
-    .string()
-    .max(5000, { message: "Вопросы не должны превышать 5000 символов" })
-    .nullish(),
   source: z
     .enum([
       "MANUAL",
@@ -131,13 +93,14 @@ export const updateFullVacancySchema = z.object({
       "AVITO",
       "SUPERJOB",
       "HABR",
+      "KWORK",
       "WEB_LINK",
       "TELEGRAM",
     ])
     .nullish(),
   externalId: z
     .string()
-    .max(100, { message: "External ID не должен превышать 100 символов" })
+    .max(100, { message: "Внешний ID не должен превышать 100 символов" })
     .nullish(),
   url: z
     .string()

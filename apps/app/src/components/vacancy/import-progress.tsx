@@ -78,7 +78,7 @@ export function ImportProgress({
 
   // Получаем детальный прогресс по вакансиям (если есть)
   const rawVacancyProgress: VacancyProgressItem[] =
-    progressData?.vacancies || [];
+    (progressData as { vacancies?: VacancyProgressItem[] })?.vacancies || [];
 
   // Сортируем вакансии по дате архивации (свежие сначала)
   const vacancyProgress = useMemo(() => {
@@ -99,14 +99,16 @@ export function ImportProgress({
     return sorted;
   }, [rawVacancyProgress]);
 
-  const currentVacancy = progressData?.currentVacancy as
-    | { id: string; title: string }
-    | undefined;
+  const currentVacancy = (
+    progressData as { currentVacancy?: { id: string; title: string } }
+  )?.currentVacancy;
 
   // Вычисляем прогресс для массового импорта
+  const progressTotal = (progressData as { total?: number })?.total;
+  const progressProcessed = (progressData as { processed?: number })?.processed;
   const progress =
-    progressData?.total && progressData.total > 0
-      ? Math.round(((progressData.processed || 0) / progressData.total) * 100)
+    progressTotal && progressTotal > 0
+      ? Math.round(((progressProcessed || 0) / progressTotal) * 100)
       : 0;
 
   // Вызываем onComplete при завершении или ошибке только один раз
@@ -278,27 +280,25 @@ export function ImportProgress({
           </div>
 
           {/* Прогресс-бар для массового импорта */}
-          {progressData?.total &&
-            progressData.total > 0 &&
-            type !== "by-url" && (
-              <div className="space-y-2">
-                <Progress value={progress} className="h-2" />
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>
-                    {progressData.processed || 0} / {progressData.total}
-                  </span>
-                  <span>{progress}%</span>
-                </div>
-
-                {/* Текущая обрабатываемая вакансия */}
-                {currentVacancy && (
-                  <div className="text-xs text-muted-foreground pt-1 border-t">
-                    <span className="font-medium">Обрабатывается:</span>{" "}
-                    {currentVacancy.title}
-                  </div>
-                )}
+          {progressTotal && progressTotal > 0 && type !== "by-url" && (
+            <div className="space-y-2">
+              <Progress value={progress} className="h-2" />
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>
+                  {progressProcessed || 0} / {progressTotal}
+                </span>
+                <span>{progress}%</span>
               </div>
-            )}
+
+              {/* Текущая обрабатываемая вакансия */}
+              {currentVacancy && (
+                <div className="text-xs text-muted-foreground pt-1 border-t">
+                  <span className="font-medium">Обрабатывается:</span>{" "}
+                  {currentVacancy.title}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Детальный список вакансий для архивного импорта */}
           {type === "archived" &&

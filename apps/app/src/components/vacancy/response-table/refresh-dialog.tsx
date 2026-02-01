@@ -56,7 +56,14 @@ export function RefreshDialog({
                       Страница: {progress.currentPage + 1} • Новых:{" "}
                       {progress.totalSaved} • Пропущено: {progress.totalSkipped}
                     </div>
-                    <Progress value={progress.percent ?? 0} className="h-2" />
+                    <Progress
+                      value={
+                        ((progress.currentPage + 1) /
+                          (progress.currentPage + 1)) *
+                        100
+                      }
+                      className="h-2"
+                    />
                   </div>
                 )}
               </div>

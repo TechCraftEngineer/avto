@@ -49,11 +49,6 @@ export const updateFull = protectedProcedure
         title: input.data.title,
         description: input.data.description ?? null,
         requirements: input.data.requirements ?? undefined,
-        customBotInstructions: input.data.customBotInstructions ?? null,
-        customScreeningPrompt: input.data.customScreeningPrompt ?? null,
-        customInterviewQuestions: input.data.customInterviewQuestions ?? null,
-        customOrganizationalQuestions:
-          input.data.customOrganizationalQuestions ?? null,
         source: input.data.source ?? existingVacancy.source,
         externalId: input.data.externalId ?? null,
         url: input.data.url === "" ? null : (input.data.url ?? null),

@@ -22,7 +22,6 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Textarea,
 } from "@qbs-autonaim/ui";
 import {
   type UpdateFullVacancyInput,
@@ -57,11 +56,6 @@ export function VacancyFullEditForm({
       title: vacancy.title,
       description: vacancy.description ?? "",
       requirements: vacancy.requirements ?? undefined,
-      customBotInstructions: vacancy.customBotInstructions ?? "",
-      customScreeningPrompt: vacancy.customScreeningPrompt ?? "",
-      customInterviewQuestions: vacancy.customInterviewQuestions ?? "",
-      customOrganizationalQuestions:
-        vacancy.customOrganizationalQuestions ?? "",
       source: vacancy.source ?? undefined,
       externalId: vacancy.externalId ?? "",
       url: vacancy.url ?? "",
@@ -175,91 +169,63 @@ export function VacancyFullEditForm({
 
           <Card>
             <CardHeader>
-              <CardTitle>Дополнительные настройки</CardTitle>
+              <CardTitle>Источник вакансии</CardTitle>
               <CardDescription>
-                Источник вакансии и настройки ИИ-ассистента
+                Информация о платформе и ссылке на оригинальную вакансию
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Настройки источника */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Источник вакансии</h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="source"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Платформа</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value ?? undefined}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Выберите платформу" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="MANUAL">Ручная</SelectItem>
-                            <SelectItem value="HH">HeadHunter</SelectItem>
-                            <SelectItem value="AVITO">Avito</SelectItem>
-                            <SelectItem value="SUPERJOB">SuperJob</SelectItem>
-                            <SelectItem value="HABR">Habr</SelectItem>
-                            <SelectItem value="FL_RU">FL.ru</SelectItem>
-                            <SelectItem value="FREELANCE_RU">
-                              Freelance.ru
-                            </SelectItem>
-                            <SelectItem value="WEB_LINK">Веб-ссылка</SelectItem>
-                            <SelectItem value="TELEGRAM">Telegram</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="externalId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Внешний ID</FormLabel>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="source"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Платформа</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value ?? undefined}
+                      >
                         <FormControl>
-                          <Input
-                            {...field}
-                            value={field.value ?? ""}
-                            placeholder="ID на платформе"
-                            className="bg-background"
-                          />
+                          <SelectTrigger>
+                            <SelectValue placeholder="Выберите платформу" />
+                          </SelectTrigger>
                         </FormControl>
-                        <FormDescription>
-                          ID вакансии на внешней платформе (опционально)
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                        <SelectContent>
+                          <SelectItem value="MANUAL">Ручная</SelectItem>
+                          <SelectItem value="HH">HeadHunter</SelectItem>
+                          <SelectItem value="AVITO">Avito</SelectItem>
+                          <SelectItem value="SUPERJOB">SuperJob</SelectItem>
+                          <SelectItem value="HABR">Habr</SelectItem>
+                          <SelectItem value="FL_RU">FL.ru</SelectItem>
+                          <SelectItem value="FREELANCE_RU">
+                            Freelance.ru
+                          </SelectItem>
+                          <SelectItem value="WEB_LINK">Веб-ссылка</SelectItem>
+                          <SelectItem value="TELEGRAM">Telegram</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                   control={form.control}
-                  name="url"
+                  name="externalId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Ссылка на вакансию</FormLabel>
+                      <FormLabel>Внешний ID</FormLabel>
                       <FormControl>
                         <Input
                           {...field}
                           value={field.value ?? ""}
-                          type="url"
-                          placeholder="https://example.com/vacancy/123"
+                          placeholder="ID на платформе"
                           className="bg-background"
                         />
                       </FormControl>
                       <FormDescription>
-                        Ссылка на оригинальную вакансию (опционально)
+                        ID вакансии на внешней платформе (опционально)
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -267,99 +233,74 @@ export function VacancyFullEditForm({
                 />
               </div>
 
-              {/* Настройки ИИ */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">
-                  Настройки ИИ-ассистента
-                </h3>
+              <FormField
+                control={form.control}
+                name="url"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Ссылка на вакансию</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        value={field.value ?? ""}
+                        type="url"
+                        placeholder="https://example.com/vacancy/123"
+                        className="bg-background"
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Ссылка на оригинальную вакансию (опционально)
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
 
-                <FormField
-                  control={form.control}
-                  name="customBotInstructions"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Инструкции для бота</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          {...field}
-                          value={field.value ?? ""}
-                          placeholder="Специфические инструкции для ИИ-ассистента..."
-                          className="min-h-[100px] resize-y bg-background leading-relaxed"
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Как бот должен общаться с кандидатами.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="customScreeningPrompt"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Промпт для скрининга</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          {...field}
-                          value={field.value ?? ""}
-                          placeholder="Инструкции для первичной оценки кандидатов..."
-                          className="min-h-[100px] resize-y bg-background leading-relaxed"
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Как оценивать кандидатов на первом этапе.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="customInterviewQuestions"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Вопросы для интервью</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          {...field}
-                          value={field.value ?? ""}
-                          placeholder="Список вопросов для интервью..."
-                          className="min-h-[100px] resize-y bg-background leading-relaxed"
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Вопросы, которые задаст ИИ кандидатам.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="customOrganizationalQuestions"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Организационные вопросы</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          {...field}
-                          value={field.value ?? ""}
-                          placeholder="Вопросы про команду, процессы, ожидания..."
-                          className="min-h-[100px] resize-y bg-background leading-relaxed"
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Вопросы о команде и рабочем процессе.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+          {/* Информация о настройках ИИ */}
+          <Card className="border-primary/20 bg-primary/5">
+            <CardContent className="pt-6">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <h3 className="text-base font-semibold mb-2">
+                    Настройки ИИ-ассистента
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Настройте поведение бота, вопросы для интервью, каналы
+                    коммуникации и приветственные сообщения для этой вакансии.
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      const currentPath = window.location.pathname;
+                      const settingsPath = currentPath.replace(
+                        "/edit",
+                        "/settings",
+                      );
+                      window.location.href = settingsPath;
+                    }}
+                    className="gap-2"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                    Перейти к настройкам ИИ
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>

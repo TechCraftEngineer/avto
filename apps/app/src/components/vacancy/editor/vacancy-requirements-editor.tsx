@@ -23,10 +23,8 @@ import React from "react";
 import type { UseFormReturn } from "react-hook-form";
 
 interface VacancyRequirementsEditorProps {
-  form: UseFormReturn<{
-    requirements?: VacancyRequirements | null;
-    [key: string]: unknown;
-  }>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  form: UseFormReturn<any>;
   requirements: VacancyRequirements | null | undefined;
 }
 
@@ -40,9 +38,9 @@ export function VacancyRequirementsEditor({
   form,
   requirements,
 }: VacancyRequirementsEditorProps) {
-  const currentRequirements = (form.watch("requirements") as
-    | VacancyRequirements
-    | undefined) ||
+  const currentRequirements: VacancyRequirements = (form.watch(
+    "requirements",
+  ) as VacancyRequirements | undefined) ||
     requirements || {
       job_title: "",
       summary: "",
@@ -322,7 +320,7 @@ function ArrayFieldEditor({
       </div>
       {items.length > 0 && (
         <div className="flex flex-wrap gap-2">
-          {items.map((item) => (
+          {items.map((item, itemIndex) => (
             <div
               key={item}
               className="flex items-center gap-1 bg-secondary text-secondary-foreground px-3 py-1.5 rounded-md text-sm"
@@ -330,9 +328,9 @@ function ArrayFieldEditor({
               <span>{item}</span>
               <button
                 type="button"
-                onClick={() => onRemove(index)}
+                onClick={() => onRemove(itemIndex)}
                 className="ml-1 hover:text-destructive transition-colors"
-                aria-label={`Удалить требование ${index + 1}`}
+                aria-label={`Удалить требование ${itemIndex + 1}`}
               >
                 <X className="h-3 w-3" />
               </button>

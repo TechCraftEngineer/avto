@@ -67,7 +67,6 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
       screeningFilter,
       statusFilter: statusFilter.length > 0 ? statusFilter : undefined,
       search: search.trim() || undefined,
-      priority: priorityFilter === "all" ? undefined : priorityFilter,
     }),
     enabled: Boolean(workspace?.id),
   });
