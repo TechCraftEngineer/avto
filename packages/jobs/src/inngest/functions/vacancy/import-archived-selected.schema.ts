@@ -15,6 +15,8 @@ export const importArchivedSelectedEventSchema = z.object({
         title: z.string(),
         region: z.string().optional(),
         archivedAt: z.string().optional(),
+        url: z.string().optional(),
+        workLocation: z.string().optional(),
       }),
     )
     .optional(),

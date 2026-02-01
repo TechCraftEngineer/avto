@@ -21,7 +21,7 @@ export function VacancyDescription({ description }: VacancyDescriptionProps) {
         allowedTags: sanitizeHtml.defaults.allowedTags.concat(["img"]),
         allowedAttributes: {
           ...sanitizeHtml.defaults.allowedAttributes,
-          "*": ["class", "style"],
+          "*": ["class"],
         },
       })
     : null;

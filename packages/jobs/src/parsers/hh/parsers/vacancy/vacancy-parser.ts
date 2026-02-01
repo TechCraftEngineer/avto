@@ -1,5 +1,6 @@
 import type { Page } from "puppeteer";
 import type { VacancyData } from "~/parsers/types";
+import { z } from "zod";
 import { saveBasicVacancy } from "~/services/vacancy";
 import { HH_CONFIG } from "../../core/config/config";
 import { humanDelay } from "../../utils/human-behavior";
@@ -110,7 +111,20 @@ export async function parseSingleVacancy(
   workspaceId: string,
   isArchived = false,
   region?: string,
-): Promise<{ vacancy: VacancyData | null; success: boolean }> {
+): Promise<{ vacancy: VacancyData | null; success: boolean; isNew?: boolean }> {
+  // Input validation
+  const InputSchema = z.object({
+    url: z.string().url("Некорректный URL вакансии"),
+    workspaceId: z.string().min(1, "workspaceId не может быть пустым"),
+  });
+
+  const validationResult = InputSchema.safeParse({ url, workspaceId });
+
+  if (!validationResult.success) {
+    console.error("❌ Ошибка валидации входных параметров parseSingleVacancy:", validationResult.error.issues);
+    return { vacancy: null, success: false };
+  }
+
   console.log(`🔍 Начинаем парсинг отдельной вакансии: ${url}`);
 
   try {
@@ -149,9 +163,10 @@ export async function parseSingleVacancy(
       }
 
       const saved = await saveBasicVacancy(vacancyData, workspaceId);
-      if (saved) {
+      if (saved.success) {
+        const isNew = saved.data.isNew;
         console.log(`✅ Вакансия сохранена: ${vacancyData.title}`);
-        return { vacancy: vacancyData, success: true };
+        return { vacancy: vacancyData, success: true, isNew };
       }
     }
 

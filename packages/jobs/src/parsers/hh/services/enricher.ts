@@ -109,6 +109,14 @@ export async function enrichHHResponses(
         continue;
       }
 
+      // Skip non-vacancy responses since updateResponseDetails expects vacancyId
+      if (response.entityType !== "vacancy") {
+        console.warn(
+          `⚠️ Пропускаем отклик ${i + 1}: тип сущности ${response.entityType}, ожидается vacancy`,
+        );
+        continue;
+      }
+
       try {
         console.log(
           `🔍 Обогащение отклика ${i + 1}/${responsesToEnrich.length}: ${response.candidateName}`,

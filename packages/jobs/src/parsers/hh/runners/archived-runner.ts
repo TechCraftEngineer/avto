@@ -11,10 +11,40 @@ import { parseSingleVacancy } from "../parsers/vacancy/vacancy-parser";
  * Преобразует дату из формата "12.12.24" в ISO формат
  */
 function parseArchivedDate(dateStr: string): string {
-  const [day, month, year] = dateStr.split(".");
-  // Предполагаем, что год в формате YY (24 = 2024)
+  // Input validation
+  if (!dateStr || typeof dateStr !== 'string') {
+    return '';
+  }
+
+  // Check if it matches DD.MM.YY format
+  const dateRegex = /^\d{1,2}\.\d{1,2}\.\d{2}$/;
+  if (!dateRegex.test(dateStr)) {
+    return '';
+  }
+
+  const parts = dateStr.split(".");
+  const day = parts[0];
+  const month = parts[1];
+  const year = parts[2];
+
+  if (!day || !month || !year) {
+    return '';
+  }
+
+  // Pad day and month to two digits
+  const paddedDay = day.padStart(2, '0');
+  const paddedMonth = month.padStart(2, '0');
+
+  // Build full year (assuming YY format, 24 = 2024)
   const fullYear = `20${year}`;
-  return new Date(`${fullYear}-${month}-${day}`).toISOString();
+
+  // Construct date and validate
+  const date = new Date(`${fullYear}-${paddedMonth}-${paddedDay}`);
+  if (isNaN(date.getTime())) {
+    return '';
+  }
+
+  return date.toISOString();
 }
 
 interface RunHHArchivedVacancyParserOptions {
@@ -226,7 +256,7 @@ export async function importMultipleVacancies(
 export async function importSingleVacancy(
   workspaceId: string,
   url: string,
-): Promise<{ success: boolean; vacancy?: VacancyData }> {
+): Promise<{ success: boolean; vacancy?: VacancyData; isNew?: boolean }> {
   console.log(`🔍 Импорт отдельной вакансии: ${url}`);
 
   const credentials = await getIntegrationCredentials(db, "hh", workspaceId);
@@ -246,6 +276,7 @@ export async function importSingleVacancy(
     return {
       success: result.success,
       vacancy: result.vacancy || undefined,
+      isNew: result.isNew,
     };
   } finally {
     await closeBrowserSafely(browser);

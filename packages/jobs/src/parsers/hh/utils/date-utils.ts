@@ -58,7 +58,7 @@ export function parseResponseDate(dateStr: string): Date | undefined {
 
   // Формат: "5 февраля в 09:45" или "5 февраля 2023 в 09:45"
   const timeMatch = dateStr.match(
-    /(\d{1,2})\s+(\w+)\s*(?:(\d{4}))?\s*(?:в\s+(\d{1,2}):(\d{2}))?/,
+    /(\d{1,2})\s+([а-яё]+)\s*(?:(\d{4}))?\s*(?:в\s+(\d{1,2}):(\d{2}))?/iu,
   );
   if (timeMatch) {
     const [, day, monthName, year, hours, minutes] = timeMatch;

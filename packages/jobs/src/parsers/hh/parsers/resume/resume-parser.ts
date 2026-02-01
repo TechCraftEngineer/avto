@@ -4,6 +4,10 @@ import type { ResumeExperience } from "~/parsers/types";
 import { extractTelegramUsername } from "~/services/messaging";
 import { HH_CONFIG } from "../../core/config/config";
 
+interface ResumeExperienceItem {
+  experience: string;
+}
+
 /**
  * Проверяет, является ли буфер PDF файлом по magic bytes
  */
@@ -193,7 +197,7 @@ export async function parseResumeExperience(
   resumeUrl?: string,
   candidateName?: string,
 ): Promise<{
-  experience: ResumeExperience[];
+  experience: ResumeExperienceItem[];
   contacts: {
     email?: string;
     phone?: string;
@@ -208,7 +212,7 @@ export async function parseResumeExperience(
   photoMimeType?: string;
 }> {
   const result = {
-    experience: [] as ResumeExperience[],
+    experience: [] as ResumeExperienceItem[],
     contacts: {},
     phone: undefined as string | undefined,
     pdfBuffer: undefined as Buffer | undefined,
@@ -325,15 +329,9 @@ export async function parseResumeExperience(
       )
       .catch(() => []);
 
-    // Convert experience data to ResumeExperience format
+    // Convert experience data to ResumeExperienceItem format
     result.experience = experienceData.map((exp) => ({
       experience: JSON.stringify(exp),
-      contacts: null,
-      phone: null,
-      telegramUsername: null,
-      pdfBuffer: null,
-      photoBuffer: null,
-      photoMimeType: null,
     }));
 
     console.log(

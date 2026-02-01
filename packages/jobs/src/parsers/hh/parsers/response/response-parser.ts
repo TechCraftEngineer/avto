@@ -1,11 +1,13 @@
 import type { Page } from "puppeteer";
 import type { ProgressCallback, ResponseData } from "~/parsers/types";
+import { z } from "zod";
 import { saveBasicResponse } from "~/services/response";
 import { HH_CONFIG } from "../../core/config/config";
 import {
   filterResponsesNeedingDetails,
   parseResponseDetails,
 } from "./response-utils";
+import { parseResponseDate } from "../../utils/date-utils";
 
 export async function parseResponses(
   page: Page,
@@ -18,6 +20,24 @@ export async function parseResponses(
   newCount: number;
   totalResponses: number;
 }> {
+  // Input validation
+  const InputSchema = z.object({
+    url: z.string().url("Некорректный URL"),
+    externalVacancyId: z.string().min(1, "externalVacancyId не может быть пустым"),
+    vacancyId: z.string().min(1, "vacancyId не может быть пустым"),
+  });
+
+  const validationResult = InputSchema.safeParse({
+    url,
+    externalVacancyId,
+    vacancyId,
+  });
+
+  if (!validationResult.success) {
+    console.error("❌ Ошибка валидации входных параметров:", validationResult.error.issues);
+    throw new Error(`Некорректные входные параметры: ${validationResult.error.issues.map(i => i.message).join(", ")}`);
+  }
+
   const urlObj = new URL(url, HH_CONFIG.urls.baseUrl);
   const urlVacancyId =
     urlObj.searchParams.get("vacancyId") || externalVacancyId;
@@ -164,7 +184,7 @@ async function collectAndSaveResponses(
             response.resumeId || "",
             response.resumeUrl,
             response.name,
-            response.respondedAt ? new Date(response.respondedAt) : undefined,
+            parseResponseDate(response.respondedAt),
           );
 
           const responseData: ResponseData = {

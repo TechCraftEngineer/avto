@@ -379,12 +379,13 @@ export function ArchivedVacanciesSelector({
                       )}
                     </div>
                     <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                      {vacancy.region && <span>{vacancy.region}</span>}
+                      {vacancy.region && vacancy.workLocation && <span>•</span>}
                       {vacancy.workLocation && (
                         <span>{vacancy.workLocation}</span>
                       )}
-                      {vacancy.workLocation && vacancy.archivedAt && (
-                        <span>•</span>
-                      )}
+                      {(vacancy.region || vacancy.workLocation) &&
+                        vacancy.archivedAt && <span>•</span>}
                       {vacancy.archivedAt && (
                         <span>
                           Архивирована:{" "}

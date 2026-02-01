@@ -9,6 +9,7 @@ export default defineConfig({
   sourcemap: false,
   clean: true,
   minify: isProduction,
+  tsconfig: "tsconfig.json",
   external: [
     "@inngest/realtime",
     "drizzle-orm",

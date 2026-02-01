@@ -158,25 +158,24 @@ export async function setupPageWithAuth(
   email: string,
   password: string,
 ): Promise<{ browser: Browser; page: Page }> {
+  const savedCookies = await loadCookies("hh", workspaceId);
   const browser = await setupBrowser();
 
   try {
-    const page = await browser.newPage();
-
-    await page.setUserAgent(HH_CONFIG.userAgent);
-    await page.setViewport({ width: 1920, height: 1080 });
-
-    // Load existing cookies if available
-    const savedCookies = await loadCookies("hh", workspaceId);
-    if (savedCookies && savedCookies.length > 0) {
-      await page.setCookie(...savedCookies);
-    }
+    const page = await setupPage(browser, savedCookies as CookieData[] | null);
 
     // Check authentication and perform login if needed
     const loggedIn = await checkAndPerformLogin(page, email, password, workspaceId);
 
     if (!loggedIn) {
       throw new Error("Не удалось войти в систему HeadHunter");
+    }
+
+    // Save cookies after successful login
+    const cookies = await page.browserContext().cookies();
+    const filteredCookies = cookies.filter((cookie) => cookie.domain);
+    if (filteredCookies.length > 0) {
+      await saveCookies("hh", filteredCookies, workspaceId);
     }
 
     return { browser, page };
