@@ -1,10 +1,12 @@
-export { ActiveVacancies } from "./active-vacancies";
-export { AIAssistantPanel } from "./ai-assistant-panel";
-export { ChartAreaInteractive } from "./chart-area-interactive";
-export { DashboardStats } from "./dashboard-stats";
-export { PendingActions } from "./pending-actions";
-export { QuickActions } from "./quick-actions";
-export { RecentResponses } from "./recent-responses";
-export { ResponsesChart } from "./responses-chart";
-export { SectionCards } from "./section-cards";
-export { TopResponses } from "./top-responses";
+// dashboard domain exports
+export { ActiveVacancies } from './components/active-vacancies';
+export { AiAssistantPanel } from './components/ai-assistant-panel';
+export { ChartAreaInteractive } from './components/chart-area-interactive';
+export { DashboardStats } from './components/dashboard-stats';
+export { PendingActions } from './components/pending-actions';
+export { QuickActions } from './components/quick-actions';
+export { RecentChats } from './components/recent-chats';
+export { RecentResponses } from './components/recent-responses';
+export { ResponsesChart } from './components/responses-chart';
+export { SectionCards } from './components/section-cards';
+export { TopResponses } from './components/top-responses';
