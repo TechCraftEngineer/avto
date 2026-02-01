@@ -7,6 +7,7 @@ import type { VacancyData } from "~/parsers/types";
 export async function extractSingleVacancy(
   page: Page,
   _url: string,
+  isArchived = false,
 ): Promise<VacancyData | null> {
   try {
     const vacancyData = await page.$eval("body", () => {
@@ -71,7 +72,7 @@ export async function extractSingleVacancy(
       region: vacancyData.region,
       workLocation: vacancyData.workLocation,
       description: vacancyData.description,
-      isActive: true,
+      isActive: !isArchived,
     };
 
     return fullVacancyData;

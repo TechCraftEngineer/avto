@@ -108,6 +108,8 @@ export async function parseSingleVacancy(
   page: Page,
   url: string,
   workspaceId: string,
+  isArchived = false,
+  region?: string,
 ): Promise<{ vacancy: VacancyData | null; success: boolean }> {
   console.log(`🔍 Начинаем парсинг отдельной вакансии: ${url}`);
 
@@ -126,9 +128,26 @@ export async function parseSingleVacancy(
       HH_CONFIG.delays.readingPage.max,
     );
 
-    const vacancyData = await extractSingleVacancy(page, url);
+    // Если статус не передан явно, определяем его по странице
+    if (!isArchived) {
+      // Проверяем, есть ли на странице индикатор архивной вакансии
+      const isArchivedOnPage = await page.evaluate(() => {
+        const archivedElement = document.querySelector(
+          '[data-qa="vacancy-info-archived"]',
+        );
+        return !!archivedElement;
+      });
+      isArchived = isArchivedOnPage;
+    }
+
+    const vacancyData = await extractSingleVacancy(page, url, isArchived);
 
     if (vacancyData) {
+      // Если регион передан явно (из списка), используем его
+      if (region) {
+        vacancyData.region = region;
+      }
+
       const saved = await saveBasicVacancy(vacancyData, workspaceId);
       if (saved) {
         console.log(`✅ Вакансия сохранена: ${vacancyData.title}`);

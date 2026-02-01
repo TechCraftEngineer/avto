@@ -156,7 +156,7 @@ export async function fetchArchivedVacanciesList(workspaceId: string): Promise<
 
 export async function importMultipleVacancies(
   workspaceId: string,
-  vacancies: { url: string; date: string }[],
+  vacancies: { url: string; date: string; region?: string }[],
   onProgress?: (
     index: number,
     success: boolean,
@@ -189,7 +189,13 @@ export async function importMultipleVacancies(
         console.log(
           `📄 Импорт вакансии ${i + 1}/${vacancies.length}: ${vacancy.url}`,
         );
-        const result = await parseSingleVacancy(page, vacancy.url, workspaceId);
+        const result = await parseSingleVacancy(
+          page,
+          vacancy.url,
+          workspaceId,
+          true,
+          vacancy.region,
+        );
 
         if (result.success) {
           imported++;
