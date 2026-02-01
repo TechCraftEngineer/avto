@@ -26,6 +26,7 @@ interface Vacancy {
   newResponses: number | null;
   resumesInProgress: number | null;
   isActive: boolean | null;
+  platformUrl?: string | null;
 }
 
 interface VacancyTableProps {

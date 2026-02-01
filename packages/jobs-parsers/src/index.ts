@@ -1,5 +1,15 @@
 // Экспорт парсеров
 
+export { verifyHHCredentialsFunction } from "./functions/integration/verify-hh-credentials";
+// Экспорт Inngest функций
+export { refreshAllResumesFunction } from "./functions/response/refresh-all-resumes";
+export { refreshSingleResumeFunction } from "./functions/response/refresh-resume";
+export { fetchArchivedListFunction } from "./functions/vacancy/fetch-archived-list";
+export { importArchivedVacanciesFunction } from "./functions/vacancy/import-archived";
+export { importVacancyByUrlFunction } from "./functions/vacancy/import-by-url";
+export { importNewVacanciesFunction } from "./functions/vacancy/import-new";
+export { refreshVacancyResponsesFunction } from "./functions/vacancy/refresh-responses";
+export { updateSingleVacancyFunction } from "./functions/vacancy/update-single";
 export {
   enrichHHResponses,
   fetchArchivedVacanciesList,

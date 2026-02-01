@@ -69,7 +69,10 @@ export const getVacancies = protectedProcedure
           url: vacancy.url,
           views: vacancy.views,
           responses: vacancy.responses,
-          newResponses: vacancy.newResponses,
+          newResponses:
+            sql<number>`COUNT(CASE WHEN ${responseTable.status} = 'NEW' THEN 1 END)`.as(
+              "newResponses",
+            ),
           resumesInProgress: vacancy.resumesInProgress,
           suitableResumes: vacancy.suitableResumes,
           region: vacancy.region,
@@ -85,6 +88,7 @@ export const getVacancies = protectedProcedure
           isActive: vacancy.isActive,
           createdAt: vacancy.createdAt,
           updatedAt: vacancy.updatedAt,
+          platformUrl: vacancy.url,
           // Статистика по источникам откликов
           hhApiCount: sql<number>`COUNT(CASE WHEN ${responseTable.importSource} = 'HH' THEN 1 END)`,
           freelanceManualCount: sql<number>`COUNT(CASE WHEN ${responseTable.importSource} = 'MANUAL' THEN 1 END)`,
