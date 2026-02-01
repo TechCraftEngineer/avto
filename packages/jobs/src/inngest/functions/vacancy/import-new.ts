@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { runHHParser } from "../../../parsers/hh";
-import { importNewVacanciesChannel } from "../../channels/client";
+import {
+  importNewVacanciesChannel,
+  workspaceNotificationsChannel,
+  workspaceStatsChannel,
+} from "../../channels/client";
 import { inngest } from "../../client";
 
 /**
@@ -131,6 +135,30 @@ export const importNewVacanciesFunction = inngest.createFunction(
           }),
         );
 
+        // Отправляем realtime уведомление о завершении
+        await publish(
+          workspaceNotificationsChannel(workspaceId)["task-completed"]({
+            workspaceId,
+            taskType: "import",
+            taskId: workspaceId,
+            success: true,
+            message: `Импортировано ${parserResult.imported} новых вакансий, обновлено ${parserResult.updated}`,
+            timestamp: new Date().toISOString(),
+          }),
+        );
+
+        // Обновляем статистику workspace
+        if (parserResult.imported > 0 || parserResult.updated > 0) {
+          await publish(
+            workspaceStatsChannel(workspaceId)["vacancies-updated"]({
+              workspaceId,
+              totalVacancies: parserResult.imported + parserResult.updated,
+              activeVacancies: parserResult.imported + parserResult.updated,
+              updatedAt: new Date().toISOString(),
+            }),
+          );
+        }
+
         console.log(
           `✅ Импорт новых вакансий для workspace ${workspaceId} завершён`,
         );
@@ -169,6 +197,18 @@ export const importNewVacanciesFunction = inngest.createFunction(
             updated: 0,
             failed: 0,
             error: userMessage,
+          }),
+        );
+
+        // Отправляем realtime уведомление об ошибке
+        await publish(
+          workspaceNotificationsChannel(workspaceId)["task-completed"]({
+            workspaceId,
+            taskType: "import",
+            taskId: workspaceId,
+            success: false,
+            message: userMessage,
+            timestamp: new Date().toISOString(),
           }),
         );
 

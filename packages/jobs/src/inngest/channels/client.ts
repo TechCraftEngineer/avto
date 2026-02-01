@@ -420,3 +420,147 @@ export const fetchArchivedListChannel = channel(
       }),
     ),
   );
+
+/**
+ * Канал для realtime обновлений статистики вакансии
+ * Используется для мгновенного обновления метрик без перезагрузки страницы
+ */
+export const vacancyStatsChannel = channel(
+  (vacancyId: string) => `vacancy-stats:${vacancyId}`,
+)
+  .addTopic(
+    topic("stats-updated").schema(
+      z.object({
+        vacancyId: z.string(),
+        views: z.number().int().nonnegative().optional(),
+        totalResponsesCount: z.number().int().nonnegative().optional(),
+        newResponses: z.number().int().nonnegative().optional(),
+        resumesInProgress: z.number().int().nonnegative().optional(),
+        isActive: z.boolean().optional(),
+        updatedAt: z.string(),
+      }),
+    ),
+  )
+  .addTopic(
+    topic("responses-updated").schema(
+      z.object({
+        vacancyId: z.string(),
+        newResponsesCount: z.number().int().nonnegative(),
+        totalResponsesCount: z.number().int().nonnegative(),
+        updatedAt: z.string(),
+      }),
+    ),
+  );
+
+/**
+ * Канал для realtime обновлений статистики workspace
+ * Используется для обновления общих метрик рабочего пространства
+ */
+export const workspaceStatsChannel = channel(
+  (workspaceId: string) => `workspace-stats:${workspaceId}`,
+)
+  .addTopic(
+    topic("vacancies-updated").schema(
+      z.object({
+        workspaceId: z.string(),
+        totalVacancies: z.number().int().nonnegative(),
+        activeVacancies: z.number().int().nonnegative(),
+        updatedAt: z.string(),
+      }),
+    ),
+  )
+  .addTopic(
+    topic("responses-updated").schema(
+      z.object({
+        workspaceId: z.string(),
+        totalResponses: z.number().int().nonnegative(),
+        newResponses: z.number().int().nonnegative(),
+        updatedAt: z.string(),
+      }),
+    ),
+  );
+
+/**
+ * Канал для realtime уведомлений workspace
+ * Используется для мгновенных уведомлений об ошибках и важных событиях
+ */
+export const workspaceNotificationsChannel = channel(
+  (workspaceId: string) => `workspace-notifications:${workspaceId}`,
+)
+  .addTopic(
+    topic("integration-error").schema(
+      z.object({
+        workspaceId: z.string(),
+        type: z.enum([
+          "hh-auth-failed",
+          "telegram-auth-failed",
+          "api-error",
+          "rate-limit",
+        ]),
+        message: z.string(),
+        severity: z.enum(["error", "warning", "info"]),
+        timestamp: z.string(),
+      }),
+    ),
+  )
+  .addTopic(
+    topic("task-completed").schema(
+      z.object({
+        workspaceId: z.string(),
+        taskType: z.enum([
+          "import",
+          "screening",
+          "resume-parsing",
+          "sync",
+          "update",
+        ]),
+        taskId: z.string(),
+        success: z.boolean(),
+        message: z.string(),
+        timestamp: z.string(),
+      }),
+    ),
+  );
+
+/**
+ * Канал для batch операций скрининга
+ * Показывает детальный прогресс оценки каждого отклика
+ */
+export const screenBatchChannel = channel(
+  (workspaceId: string, batchId: string) =>
+    `screen-batch:${workspaceId}:${batchId}`,
+)
+  .addTopic(
+    topic("response-scored").schema(
+      z.object({
+        batchId: z.string(),
+        responseId: z.string(),
+        candidateName: z.string(),
+        score: z.number().min(0).max(100),
+        status: z.enum(["processing", "completed", "failed"]),
+        error: z.string().optional(),
+      }),
+    ),
+  )
+  .addTopic(
+    topic("batch-progress").schema(
+      z.object({
+        batchId: z.string(),
+        total: z.number().int().nonnegative(),
+        processed: z.number().int().nonnegative(),
+        failed: z.number().int().nonnegative(),
+        currentCandidate: z.string().optional(),
+      }),
+    ),
+  )
+  .addTopic(
+    topic("batch-completed").schema(
+      z.object({
+        batchId: z.string(),
+        total: z.number().int().nonnegative(),
+        processed: z.number().int().nonnegative(),
+        failed: z.number().int().nonnegative(),
+        duration: z.number().int().nonnegative(),
+      }),
+    ),
+  );

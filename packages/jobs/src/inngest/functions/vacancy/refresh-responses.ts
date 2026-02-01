@@ -2,7 +2,10 @@ import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { vacancy } from "@qbs-autonaim/db/schema";
 import { refreshVacancyResponses } from "../../../parsers/hh";
-import { refreshVacancyResponsesChannel } from "../../channels/client";
+import {
+  refreshVacancyResponsesChannel,
+  vacancyStatsChannel,
+} from "../../channels/client";
 import { inngest } from "../../client";
 
 /**
@@ -79,6 +82,16 @@ export const refreshVacancyResponsesFunction = inngest.createFunction(
             success: true,
             newCount,
             totalResponses,
+          }),
+        );
+
+        // Публикуем обновление статистики вакансии
+        await publish(
+          vacancyStatsChannel(vacancyId)["responses-updated"]({
+            vacancyId,
+            newResponsesCount: newCount,
+            totalResponsesCount: totalResponses,
+            updatedAt: new Date().toISOString(),
           }),
         );
 

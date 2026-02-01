@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Alert,
   AlertDescription,
@@ -14,8 +16,10 @@ import {
   IconChartLine,
   IconTrendingUp,
 } from "@tabler/icons-react";
+import { useVacancyStats } from "~/hooks/use-vacancy-stats";
 
 interface VacancyInsightsCardProps {
+  vacancyId: string;
   totalResponses: number;
   daysActive: number;
   views: number;
@@ -33,14 +37,24 @@ interface Insight {
 /**
  * Карточка с аналитикой и рекомендациями для рекрутера
  * Анализирует эффективность вакансии и даёт практические советы
+ * Поддерживает realtime обновления статистики
  */
 export function VacancyInsightsCard({
-  totalResponses,
+  vacancyId,
+  totalResponses: initialTotalResponses,
   daysActive,
-  views,
-  isActive,
+  views: initialViews,
+  isActive: initialIsActive,
   hasPublications,
 }: VacancyInsightsCardProps) {
+  // Подключаем realtime обновления статистики
+  const { stats } = useVacancyStats(vacancyId);
+
+  // Используем realtime данные если доступны, иначе начальные значения
+  const totalResponses = stats?.totalResponsesCount ?? initialTotalResponses;
+  const views = stats?.views ?? initialViews;
+  const isActive = stats?.isActive ?? initialIsActive;
+
   const insights: Insight[] = [];
 
   // Средняя конверсия: 1 отклик на 10-20 просмотров считается нормой

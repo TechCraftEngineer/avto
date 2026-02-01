@@ -14,7 +14,11 @@ export {
   refreshAllResumesChannel,
   refreshVacancyResponsesChannel,
   screenAllResponsesChannel,
+  screenBatchChannel,
   screenNewResponsesChannel,
   syncArchivedResponsesChannel,
+  vacancyStatsChannel,
   verifyHHCredentialsChannel,
+  workspaceNotificationsChannel,
+  workspaceStatsChannel,
 } from "./client";

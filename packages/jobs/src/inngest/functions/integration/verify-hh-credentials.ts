@@ -7,7 +7,10 @@ import puppeteer from "puppeteer";
 import { performLogin, saveCookies } from "../../../parsers/hh/core/auth/auth";
 import { closeBrowserSafely } from "../../../parsers/hh/core/browser/browser-utils";
 import { HH_CONFIG } from "../../../parsers/hh/core/config/config";
-import { verifyHHCredentialsChannel } from "../../channels";
+import {
+  verifyHHCredentialsChannel,
+  workspaceNotificationsChannel,
+} from "../../channels";
 import { inngest } from "../../client";
 
 export const verifyHHCredentialsFunction = inngest.createFunction(
@@ -98,6 +101,17 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
             verifyHHCredentialsChannel(workspaceId).result(errorResult),
           );
 
+          // Отправляем realtime уведомление об ошибке авторизации
+          await publish(
+            workspaceNotificationsChannel(workspaceId)["integration-error"]({
+              workspaceId,
+              type: "hh-auth-failed",
+              message: "Не удалось авторизоваться на HeadHunter",
+              severity: "error",
+              timestamp: new Date().toISOString(),
+            }),
+          );
+
           return errorResult;
         }
 
@@ -109,6 +123,17 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
 
         await publish(
           verifyHHCredentialsChannel(workspaceId).result(unknownErrorResult),
+        );
+
+        // Отправляем realtime уведомление об общей ошибке
+        await publish(
+          workspaceNotificationsChannel(workspaceId)["integration-error"]({
+            workspaceId,
+            type: "api-error",
+            message: `Ошибка при проверке учётных данных: ${errorMessage}`,
+            severity: "error",
+            timestamp: new Date().toISOString(),
+          }),
         );
 
         throw error;

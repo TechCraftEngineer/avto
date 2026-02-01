@@ -9,8 +9,12 @@ import {
   refreshAllResumesChannel,
   refreshVacancyResponsesChannel,
   screenAllResponsesChannel,
+  screenBatchChannel,
   screenNewResponsesChannel,
   syncArchivedResponsesChannel,
+  vacancyStatsChannel,
+  workspaceNotificationsChannel,
+  workspaceStatsChannel,
 } from "@qbs-autonaim/jobs/channels";
 import { inngest } from "@qbs-autonaim/jobs/client";
 
@@ -121,6 +125,57 @@ export async function fetchImportVacanciesToken(
   const token = await getSubscriptionToken(inngest, {
     channel: channelFn,
     topics: ["progress", "result"],
+  });
+
+  return token;
+}
+
+/**
+ * Server action для получения токена подписки на Realtime канал статистики вакансии
+ */
+export async function fetchVacancyStatsToken(vacancyId: string) {
+  const token = await getSubscriptionToken(inngest, {
+    channel: vacancyStatsChannel(vacancyId),
+    topics: ["stats-updated", "responses-updated"],
+  });
+
+  return token;
+}
+
+/**
+ * Server action для получения токена подписки на Realtime канал статистики workspace
+ */
+export async function fetchWorkspaceStatsToken(workspaceId: string) {
+  const token = await getSubscriptionToken(inngest, {
+    channel: workspaceStatsChannel(workspaceId),
+    topics: ["vacancies-updated", "responses-updated"],
+  });
+
+  return token;
+}
+
+/**
+ * Server action для получения токена подписки на Realtime канал уведомлений workspace
+ */
+export async function fetchWorkspaceNotificationsToken(workspaceId: string) {
+  const token = await getSubscriptionToken(inngest, {
+    channel: workspaceNotificationsChannel(workspaceId),
+    topics: ["integration-error", "task-completed"],
+  });
+
+  return token;
+}
+
+/**
+ * Server action для получения токена подписки на Realtime канал batch скрининга
+ */
+export async function fetchScreenBatchToken(
+  workspaceId: string,
+  batchId: string,
+) {
+  const token = await getSubscriptionToken(inngest, {
+    channel: screenBatchChannel(workspaceId, batchId),
+    topics: ["response-scored", "batch-progress", "batch-completed"],
   });
 
   return token;
