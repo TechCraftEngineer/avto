@@ -171,36 +171,37 @@ export async function fetchArchivedVacanciesList(workspaceId: string): Promise<
       timeout: HH_CONFIG.timeouts.networkIdle,
     });
 
-    await page.waitForSelector('[data-qa="vacancy-serp__vacancy"]', {
+    await page.waitForSelector('div[class="vacancy-dashboard-archive"]', {
       timeout: HH_CONFIG.timeouts.selector,
     });
 
     const archivedVacancies = await page.$$eval(
-      '[data-qa="vacancy-serp__vacancy"]',
+      'div[data-qa^="vacancy-archive_"]',
       (elements) => {
         return elements.map((element) => {
+          // Извлекаем externalId из data-qa атрибута (например, "vacancy-archive_128580152")
+          const dataQa = element.getAttribute("data-qa") || "";
+          const externalId = dataQa.match(/vacancy-archive_(\d+)/)?.[1];
+
           const titleElement = element.querySelector(
-            '[data-qa="vacancy-serp__vacancy-title"]',
+            'span[data-qa^="vacancies-dashboard-vacancy--archive-name_"][data-qa$="-text"]',
           );
           const title = titleElement?.textContent?.trim() || "";
 
           const urlElement = element.querySelector(
-            '[data-qa="vacancy-serp__vacancy-title"]',
+            'a[data-qa^="vacancies-dashboard-vacancy--archive-name_"]',
           ) as HTMLAnchorElement;
           const url = urlElement?.href || "";
 
           const dateElement = element.querySelector(
-            '[data-qa="vacancy-serp__vacancy-date"]',
+            'div[data-qa="table-flexible-cell-archiveVacancyArchivationTime"]',
           );
           const date = dateElement?.textContent?.trim() || "";
 
           const regionElement = element.querySelector(
-            '[data-qa="vacancy-serp__vacancy-address"]',
+            'div[data-qa="table-flexible-cell-archiveVacancyArea"]',
           );
           const region = regionElement?.textContent?.trim();
-
-          // Извлекаем externalId из URL
-          const externalId = url.match(/\/vacancy\/(\d+)/)?.[1];
 
           return { title, url, date, region, externalId };
         });

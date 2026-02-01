@@ -204,8 +204,11 @@ export function ArchivedVacanciesSelector({
       <Alert>
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>Архивные вакансии не найдены</AlertTitle>
-        <AlertDescription>
-          У вас нет архивных вакансий на HeadHunter.
+        <AlertDescription className="space-y-3">
+          <p>У вас нет архивных вакансий на HeadHunter.</p>
+          <Button variant="outline" size="sm" onClick={onCancel}>
+            Закрыть
+          </Button>
         </AlertDescription>
       </Alert>
     );
