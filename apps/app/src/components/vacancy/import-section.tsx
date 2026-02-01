@@ -39,7 +39,9 @@ import { useWorkspace } from "~/hooks/use-workspace";
 import { useWorkspaceParams } from "~/hooks/use-workspace-params";
 import { useTRPC } from "~/trpc/react";
 import { ArchivedVacanciesSelector } from "./archived-vacancies-selector";
-import { ImportProgress } from "./import-progress";
+import { ImportArchivedProgress } from "./import/import-archived-progress";
+import { ImportByUrlProgress } from "./import/import-by-url-progress";
+import { ImportNewProgress } from "./import/import-new-progress";
 
 export function VacancyImportSection() {
   const { workspace } = useWorkspace();
@@ -79,6 +81,7 @@ export function VacancyImportSection() {
   const [isImportingNew, setIsImportingNew] = useState(false);
   const [isImportingArchived, setIsImportingArchived] = useState(false);
   const [isImportingByUrl, setIsImportingByUrl] = useState(false);
+  const [byUrlRequestId, setByUrlRequestId] = useState<string | null>(null);
 
   const handleImportNew = async () => {
     if (!workspaceId) return;
@@ -171,16 +174,19 @@ export function VacancyImportSection() {
     }
 
     try {
+      const requestId = crypto.randomUUID();
+      setByUrlRequestId(requestId);
       setIsImportingByUrl(true);
       setIsUrlDialogOpen(false);
       setUrlError("");
 
-      await triggerImportVacancyByUrl(workspaceId, vacancyUrl);
+      await triggerImportVacancyByUrl(workspaceId, vacancyUrl, requestId);
 
       setVacancyUrl("");
     } catch (error) {
       console.error("Ошибка запуска импорта:", error);
       setIsImportingByUrl(false);
+      setByUrlRequestId(null);
     }
   };
 
@@ -194,6 +200,7 @@ export function VacancyImportSection() {
 
   const handleByUrlComplete = useCallback(() => {
     setIsImportingByUrl(false);
+    setByUrlRequestId(null);
   }, []);
 
   // Показываем скелетон во время загрузки
@@ -313,25 +320,23 @@ export function VacancyImportSection() {
 
           {/* Progress indicators */}
           {isImportingNew && workspaceId && (
-            <ImportProgress
-              type="new"
+            <ImportNewProgress
               workspaceId={workspaceId}
               onComplete={handleNewVacanciesComplete}
             />
           )}
 
           {isImportingArchived && workspaceId && (
-            <ImportProgress
-              type="archived"
+            <ImportArchivedProgress
               workspaceId={workspaceId}
               onComplete={handleArchivedVacanciesComplete}
             />
           )}
 
-          {isImportingByUrl && workspaceId && (
-            <ImportProgress
-              type="by-url"
+          {isImportingByUrl && byUrlRequestId && workspaceId && (
+            <ImportByUrlProgress
               workspaceId={workspaceId}
+              requestId={byUrlRequestId}
               onComplete={handleByUrlComplete}
             />
           )}

@@ -216,6 +216,7 @@ export async function triggerImportArchivedVacancies(workspaceId: string) {
 export async function triggerImportVacancyByUrl(
   workspaceId: string,
   url: string,
+  requestId: string,
 ): Promise<void> {
   const workspaceValidation = workspaceIdSchema.safeParse({ workspaceId });
 
@@ -234,8 +235,6 @@ export async function triggerImportVacancyByUrl(
       .join(", ");
     throw new Error(`Ошибка валидации: ${errors}`);
   }
-
-  const requestId = crypto.randomUUID();
 
   await inngest.send({
     name: "vacancy/import.by-url",
