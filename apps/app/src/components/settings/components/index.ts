@@ -10,3 +10,6 @@ export { IntegrationCategorySection } from "./integration-category-section";
 export { IntegrationDialog } from "./integration-dialog";
 export { SecurityTab } from "./security-tab";
 export { SettingsSidebar } from "./settings-sidebar";
+export { TelegramSessionsCard } from "./telegram-sessions-card";
+export { WorkspaceForm } from "./workspace-form";
+export { WorkspaceMembersClient } from "./workspace-members-client";

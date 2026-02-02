@@ -91,7 +91,8 @@ import {
   webSendQuestionFunction,
 } from "./web-interview";
 
-export const inngestFunctions = [
+// biome-ignore lint/suspicious/noExplicitAny: Complex Inngest function types exceed TypeScript serialization limits
+export const inngestFunctions: any[] = [
   // Vacancy
   collectChatIdsFunction,
   extractVacancyRequirementsFunction,
