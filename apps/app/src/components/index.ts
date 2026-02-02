@@ -7,8 +7,7 @@ export { EmailVerificationForm } from "./auth/components/email-verification-form
 // Candidates Components - candidate management
 export * from "./candidates";
 // Chat Components
-export { ChatMessage } from "./chat/components/chat-message";
-export { UniversalChatPanel } from "./chat/components/universal-chat-panel";
+export * from "./chat";
 // Dashboard Components - dashboard and analytics
 export * from "./dashboard";
 // Funnel Components - hiring funnel management
@@ -40,4 +39,4 @@ export { SafeHtml } from "./ui/components/safe-html";
 export { SaveIndicator } from "./ui/components/save-indicator";
 // Vacancy Components
 export { ResponseTable } from "./vacancy";
-export { ResponseDetailCard } from "./vacancy/components/response-detail/detail-card";
+export { DetailCard as ResponseDetailCard } from "./vacancy/components/response-detail";

@@ -3,11 +3,10 @@
 import { cn } from "@qbs-autonaim/ui";
 import { AlertCircle, Wifi, WifiOff } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { AIChatInput, AIMessages } from "~/components";
 import { useAIChatStream } from "~/hooks/use-ai-chat-stream";
 import type { AIChatMessage } from "~/types/ai-chat";
 import { convertLegacyMessage } from "~/types/ai-chat";
-import { AIChatInput } from "./ai-chat-input";
-import { AIMessages } from "./ai-messages";
 
 interface LegacyMessage {
   id: string;

@@ -2,7 +2,7 @@
 import { useDroppable } from "@dnd-kit/core";
 import { cn } from "@qbs-autonaim/ui";
 import { Users } from "lucide-react";
-import { CandidateKanbanItem } from "./candidate-kanban-item";
+import { CandidateKanbanItem } from "~/components";
 import type { FunnelCandidate } from "./types";
 
 interface CandidateKanbanColumnProps {

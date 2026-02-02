@@ -2,17 +2,18 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
+import {
+  CandidatesTable,
+  PipelineBoardView,
+  PipelineToolbar,
+  PipelineViewSwitcher,
+} from "~/components";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 import { useTRPC } from "~/trpc/react";
-import { CandidateModal } from "./candidate-modal";
-import { CandidatesTable } from "./candidates-table";
 import { useCandidateFilters } from "./hooks/use-candidate-filters";
 import { useStagePagination } from "./hooks/use-stage-pagination";
 import { useStageQueries } from "./hooks/use-stage-queries";
 import { useStageUpdate } from "./hooks/use-stage-update";
-import { PipelineBoardView } from "./pipeline-board-view";
-import { PipelineToolbar } from "./pipeline-toolbar";
-import { PipelineViewSwitcher } from "./pipeline-view-switcher";
 import type { FunnelCandidate, FunnelStage } from "./types";
 
 export function CandidatePipeline() {
@@ -154,13 +155,6 @@ export function CandidatePipeline() {
           </div>
         )}
       </div>
-
-      <CandidateModal
-        candidate={selectedCandidate}
-        open={isModalOpen}
-        onOpenChange={setIsModalOpen}
-        workspaceId={workspaceId ?? ""}
-      />
     </div>
   );
 }

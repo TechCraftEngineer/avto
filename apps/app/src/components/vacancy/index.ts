@@ -1,6 +1,5 @@
 // vacancy domain exports - re-export specific components
 
-export { UpdateVacancyButton } from "./components/display/update-vacancy-button";
 export { VacancyAnalytics } from "./components/display/vacancy-analytics";
 export { VacancyStats } from "./components/display/vacancy-stats";
 export { VacancyFullEditForm } from "./components/editor/vacancy-full-edit-form";

@@ -12,11 +12,13 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { AlertCircle, RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import {
+  ChatInput,
+  ChatMessageList,
+  QuickReplies,
+  TypingIndicator,
+} from "~/components";
 import { useTRPC } from "~/trpc/react";
-import { ChatInput } from "./chat-input";
-import { ChatMessageList } from "./chat-message-list";
-import { QuickReplies } from "./quick-replies";
-import { TypingIndicator } from "./typing-indicator";
 
 interface UniversalChatPanelProps {
   entityType: "gig" | "vacancy" | "project" | "team";

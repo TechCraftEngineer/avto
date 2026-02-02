@@ -7,7 +7,6 @@ import type {
   ConversationMessage,
   RecruiterAgentStatus,
 } from "~/hooks/use-recruiter-agent";
-import { ActionProgressIndicator } from "./action-progress-indicator";
 import { RecruiterAgentMessage } from "./recruiter-agent-message";
 import { SuggestionChip } from "./suggestion-chip";
 
@@ -95,14 +94,6 @@ const RecruiterAgentMessages = memo(function RecruiterAgentMessages({
               message={message}
             />
           ))}
-
-          {/* Индикатор текущего действия */}
-          {currentAction && (
-            <ActionProgressIndicator
-              actionType={currentAction.type}
-              progress={currentAction.progress}
-            />
-          )}
 
           {/* Индикатор загрузки */}
           {isStreaming && !currentAction && (

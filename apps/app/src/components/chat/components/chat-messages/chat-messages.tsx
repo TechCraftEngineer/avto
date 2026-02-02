@@ -2,7 +2,7 @@ import { ScrollArea } from "@qbs-autonaim/ui";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 import { useEffect, useMemo, useRef } from "react";
-import { ChatMessage } from "./chat-message";
+import { ChatMessage } from "~/components";
 
 interface Message {
   id: string;

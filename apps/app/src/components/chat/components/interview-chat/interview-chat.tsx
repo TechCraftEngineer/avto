@@ -9,10 +9,10 @@ import { motion } from "motion/react";
 import { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import Markdown from "react-markdown";
 import { toast } from "sonner";
+import { AIChatInput } from "~/components";
 import { useScrollToBottom } from "~/hooks/use-scroll-to-bottom";
 import { useTRPC } from "~/trpc/react";
 import type { ChatStatus } from "~/types/ai-chat";
-import { AIChatInput } from "./ai-chat-input";
 import { InterviewContextCard } from "./interview-context-card";
 
 // Типы для сообщений

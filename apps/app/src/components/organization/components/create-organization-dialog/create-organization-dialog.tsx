@@ -32,7 +32,6 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 import { useTRPC } from "~/trpc/react";
-import { CreateWorkspaceDialog } from "../workspace/create-workspace-dialog";
 
 type CreateOrganizationFormValues = z.infer<typeof createOrganizationSchema>;
 
@@ -47,11 +46,6 @@ export function CreateOrganizationDialog({
 }: CreateOrganizationDialogProps) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
-  const [createdOrganization, setCreatedOrganization] = useState<{
-    id: string;
-    slug: string;
-  } | null>(null);
-  const [showWorkspaceDialog, setShowWorkspaceDialog] = useState(false);
 
   // Извлекаем домен из URL
   const appDomain = new URL(APP_CONFIG.url).host;
@@ -270,15 +264,6 @@ export function CreateOrganizationDialog({
           </Form>
         </DialogContent>
       </Dialog>
-
-      {createdOrganization && (
-        <CreateWorkspaceDialog
-          organizationId={createdOrganization.id}
-          organizationSlug={createdOrganization.slug}
-          open={showWorkspaceDialog}
-          onOpenChange={setShowWorkspaceDialog}
-        />
-      )}
     </>
   );
 }
