@@ -1,1 +1,1 @@
-export { GigDetailProjectDetails } from './gig-detail-project-details';
+export { ProjectDetails as GigDetailProjectDetails } from "./gig-detail-project-details";

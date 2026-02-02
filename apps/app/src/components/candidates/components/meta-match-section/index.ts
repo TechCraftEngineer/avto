@@ -1,1 +1,1 @@
-export { MetaMatchSection } from './meta-match-section';
+export { MetaMatchSection } from "./meta-match-section";

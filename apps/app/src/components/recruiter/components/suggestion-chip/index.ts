@@ -1,1 +1,1 @@
-export { SuggestionChip } from './suggestion-chip';
+export { SuggestionChip } from "./suggestion-chip";

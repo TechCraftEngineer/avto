@@ -10,8 +10,8 @@ import {
 } from "@qbs-autonaim/ui";
 import { Bot, MessageSquare, TrendingUp, Users } from "lucide-react";
 import { useState } from "react";
+import { UniversalChatPanel } from "~/components/chat";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { UniversalChatPanel } from "../chat/universal-chat-panel";
 
 interface AIAssistantPanelProps {
   orgSlug: string;

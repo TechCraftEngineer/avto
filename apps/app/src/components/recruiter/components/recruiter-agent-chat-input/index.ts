@@ -1,1 +1,1 @@
-export { RecruiterAgentChatInput } from './recruiter-agent-chat-input';
+export { RecruiterAgentChatInput } from "./recruiter-agent-chat-input";

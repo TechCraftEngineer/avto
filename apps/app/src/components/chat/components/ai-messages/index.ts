@@ -1,1 +1,1 @@
-export { AiMessages } from './ai-messages';
+export { AIMessages, AIMessages as AiMessages } from "./ai-messages";

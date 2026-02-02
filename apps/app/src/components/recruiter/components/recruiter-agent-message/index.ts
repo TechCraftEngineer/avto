@@ -1,1 +1,1 @@
-export { RecruiterAgentMessage } from './recruiter-agent-message';
+export { RecruiterAgentMessage } from "./recruiter-agent-message";

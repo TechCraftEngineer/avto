@@ -1,1 +1,1 @@
-export { DataStreamProvider } from './data-stream-provider';
+export { DataStreamProvider, useDataStream } from "./data-stream-provider";

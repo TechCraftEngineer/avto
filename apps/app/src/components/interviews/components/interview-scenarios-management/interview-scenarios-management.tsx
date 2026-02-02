@@ -3,8 +3,8 @@
 import { Button } from "@qbs-autonaim/ui";
 import { IconPlus } from "@tabler/icons-react";
 import { useState } from "react";
-import { InterviewScenarioForm } from "./interview-scenario-form";
-import { InterviewScenariosList } from "./interview-scenarios-list";
+import { InterviewScenarioForm } from "../interview-scenario-form";
+import { InterviewScenariosList } from "../interview-scenarios-list";
 
 interface InterviewScenariosManagementProps {
   orgSlug: string;

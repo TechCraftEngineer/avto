@@ -7,8 +7,8 @@ import type {
   ConversationMessage,
   RecruiterAgentStatus,
 } from "~/hooks/use-recruiter-agent";
-import { RecruiterAgentMessage } from "./recruiter-agent-message";
-import { SuggestionChip } from "./suggestion-chip";
+import { RecruiterAgentMessage } from "../recruiter-agent-message";
+import { SuggestionChip } from "../suggestion-chip";
 
 interface RecruiterAgentMessagesProps {
   history: ConversationMessage[];

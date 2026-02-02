@@ -5,8 +5,8 @@ import { Button, Card, CardContent } from "@qbs-autonaim/ui";
 import { Briefcase, MessageSquare, Plus, Users } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { UniversalChatPanel } from "~/components/chat";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { UniversalChatPanel } from "../chat/universal-chat-panel";
 
 interface QuickActionsProps {
   orgSlug: string;

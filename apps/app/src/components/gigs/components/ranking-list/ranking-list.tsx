@@ -8,7 +8,7 @@ import {
   Separator,
 } from "@qbs-autonaim/ui";
 import { Award, Trophy } from "lucide-react";
-import { RankedCandidateCard } from "./ranked-candidate-card";
+import { RankedCandidateCard } from "../ranked-candidate-card";
 
 type RankedCandidate =
   RouterOutputs["gig"]["responses"]["ranked"]["candidates"][number];

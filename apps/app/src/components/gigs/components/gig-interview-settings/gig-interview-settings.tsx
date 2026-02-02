@@ -18,7 +18,7 @@ import { toast } from "sonner";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
 import { CustomDomainSelect } from "../filters/custom-domain-select";
-import { InterviewMediaUpload } from "./interview-media-upload";
+import { InterviewMediaUpload } from "../interview-media-upload";
 
 interface GigInterviewSettingsProps {
   gigId: string;

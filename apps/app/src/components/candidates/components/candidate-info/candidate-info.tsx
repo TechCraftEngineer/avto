@@ -19,8 +19,8 @@ import {
   XCircle,
 } from "lucide-react";
 import { MatchScoreCircle } from "../match-score-circle";
+import { MetaMatchSection } from "../meta-match-section";
 import type { FunnelCandidateDetail } from "../types";
-import { MetaMatchSection } from "./meta-match-section";
 
 interface CandidateInfoProps {
   candidate: FunnelCandidateDetail;

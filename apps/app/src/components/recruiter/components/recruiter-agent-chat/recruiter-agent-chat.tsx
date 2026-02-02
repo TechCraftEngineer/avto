@@ -7,8 +7,8 @@ import {
   type RecruiterAgentDocument,
   useRecruiterAgent,
 } from "~/hooks/use-recruiter-agent";
-import { RecruiterAgentChatInput } from "./recruiter-agent-chat-input";
-import { RecruiterAgentMessages } from "./recruiter-agent-messages";
+import { RecruiterAgentChatInput } from "../recruiter-agent-chat-input";
+import { RecruiterAgentMessages } from "../recruiter-agent-messages";
 
 interface RecruiterAgentChatProps {
   vacancyId?: string;

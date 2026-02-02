@@ -1,1 +1,1 @@
-export { InterviewScenariosList } from './interview-scenarios-list';
+export { InterviewScenariosList } from "./interview-scenarios-list";

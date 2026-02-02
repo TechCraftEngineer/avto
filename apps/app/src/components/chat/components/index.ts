@@ -1,8 +1,7 @@
 // components for chat
-export { AiChat } from "./ai-chat";
-export { AiChatInput } from "./ai-chat-input";
-export { AiMessage } from "./ai-message";
-export { AIMessages, AiMessages } from "./ai-messages";
+export { AIChatInput, AiChatInput } from "./ai-chat-input";
+export { AIMessage, AiMessage } from "./ai-message";
+export { AIMessages, AIMessages, AiMessages, AiMessages } from "./ai-messages";
 export { CandidateInfo } from "./candidate-info";
 export { ChatContainer } from "./chat-container";
 export { ChatError } from "./chat-error";
@@ -14,7 +13,7 @@ export { ChatMessageList } from "./chat-message-list";
 export { ChatMessages } from "./chat-messages";
 export { ChatPreviewCard } from "./chat-preview-card";
 export { ChatSidebar } from "./chat-sidebar";
-export { DataStreamProvider } from "./data-stream-provider";
+export { DataStreamProvider, useDataStream } from "./data-stream-provider";
 export * from "./index/index";
 export { InterviewChat } from "./interview-chat";
 export { InterviewContextCard } from "./interview-context-card";

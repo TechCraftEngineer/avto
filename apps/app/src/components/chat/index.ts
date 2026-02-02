@@ -1,7 +1,8 @@
 // chat domain exports
 export {
+  AIChatInput,
+  AIMessage,
   AIMessages,
-  AiChat,
   AiChatInput,
   AiMessage,
   AiMessages,
@@ -17,7 +18,6 @@ export {
   ChatPreviewCard,
   ChatSidebar,
   DataStreamProvider,
-  Index,
   InterviewChat,
   InterviewContextCard,
   MessageModal,
@@ -30,6 +30,7 @@ export {
   ThinkingIndicator,
   TypingIndicator,
   UniversalChatPanel,
+  useDataStream,
   VacancyChat,
   VacancyChatInterface,
   VacancyInfo,

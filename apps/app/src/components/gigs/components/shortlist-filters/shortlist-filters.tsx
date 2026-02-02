@@ -13,7 +13,7 @@ import {
   Switch,
 } from "@qbs-autonaim/ui";
 import { CheckCircle2, Filter } from "lucide-react";
-import { MIN_SCORE_OPTIONS } from "./shortlist-constants";
+import { MIN_SCORE_OPTIONS } from "../shortlist-constants";
 
 interface ShortlistFiltersProps {
   selectedMinScore: string;

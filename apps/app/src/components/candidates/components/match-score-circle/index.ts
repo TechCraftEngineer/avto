@@ -1,1 +1,1 @@
-export { MatchScoreCircle } from './match-score-circle';
+export { MatchScoreCircle } from "./match-score-circle";

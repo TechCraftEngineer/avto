@@ -1,1 +1,4 @@
-export { AiAssistantPanel } from './ai-assistant-panel';
+export {
+  AIAssistantPanel,
+  AIAssistantPanel as AiAssistantPanel,
+} from "./ai-assistant-panel";

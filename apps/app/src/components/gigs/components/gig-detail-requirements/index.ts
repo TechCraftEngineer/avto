@@ -1,1 +1,4 @@
-export { GigDetailRequirements } from './gig-detail-requirements';
+export {
+  GigRequirements as GigDetailRequirements,
+  GigRequirements,
+} from "./gig-detail-requirements";

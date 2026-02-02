@@ -1,1 +1,1 @@
-export { AiChatInput } from './ai-chat-input';
+export { AIChatInput, AIChatInput as AiChatInput } from "./ai-chat-input";

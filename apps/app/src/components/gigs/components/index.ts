@@ -7,7 +7,10 @@ export { GigCard } from "./gig-card";
 export { GigDetailActions } from "./gig-detail-actions";
 export { GigDetailHeader } from "./gig-detail-header";
 export { GigDetailProjectDetails } from "./gig-detail-project-details";
-export { GigDetailRequirements } from "./gig-detail-requirements";
+export {
+  GigDetailRequirements,
+  GigRequirements,
+} from "./gig-detail-requirements";
 export {
   GigDetailSkeleton,
   GigError,

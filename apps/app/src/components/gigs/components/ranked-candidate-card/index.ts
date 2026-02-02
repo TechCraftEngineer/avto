@@ -1,1 +1,1 @@
-export { RankedCandidateCard } from './ranked-candidate-card';
+export { RankedCandidateCard } from "./ranked-candidate-card";

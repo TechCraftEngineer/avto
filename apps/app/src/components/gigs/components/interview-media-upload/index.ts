@@ -1,1 +1,1 @@
-export { InterviewMediaUpload } from './interview-media-upload';
+export { InterviewMediaUpload } from "./interview-media-upload";

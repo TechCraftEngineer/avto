@@ -1,1 +1,1 @@
-export { ShortlistCandidateCard } from './shortlist-candidate-card';
+export { ShortlistCandidateCard } from "./shortlist-candidate-card";

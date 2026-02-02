@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@qbs-autonaim/ui";
 import { MapPin } from "lucide-react";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { getAvatarUrl } from "~/lib/avatar";
-import { MatchScoreCircle } from "./match-score-circle";
+import { MatchScoreCircle } from "../match-score-circle";
 import type { FunnelCandidate } from "./types";
 
 interface CandidateCardProps {

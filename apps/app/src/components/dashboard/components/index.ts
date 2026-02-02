@@ -1,6 +1,6 @@
 // components for dashboard
 export { ActiveVacancies } from "./active-vacancies";
-export { AiAssistantPanel } from "./ai-assistant-panel";
+export { AIAssistantPanel, AiAssistantPanel } from "./ai-assistant-panel";
 export { ChartAreaInteractive } from "./chart-area-interactive";
 export { DashboardStats } from "./dashboard-stats";
 export { PendingActions } from "./pending-actions";
