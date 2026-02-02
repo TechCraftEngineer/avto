@@ -26,8 +26,7 @@ import {
 import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { RestorePrompt } from "~/components/restore-prompt";
-import { SaveIndicator } from "~/components/save-indicator";
+import { RestorePrompt, SaveIndicator } from "~/components";
 import { useDraftPersistence } from "~/hooks/use-draft-persistence";
 import { useTRPC } from "~/trpc/react";
 import { ChatMessage } from "./chat-message";

@@ -22,11 +22,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
-import { GigInterviewSettings, GigInvitationTemplate } from "~/components/gig";
-import { GigDetailActions } from "~/components/gig-detail/gig-detail-actions";
-import { GigDetailHeader } from "~/components/gig-detail/gig-detail-header";
-import { ProjectDetails } from "~/components/gig-detail/gig-detail-project-details";
-import { GigRequirements } from "~/components/gig-detail/gig-detail-requirements";
+import {
+  GigDetailActions,
+  GigDetailHeader,
+  GigDetailProjectDetails,
+  GigDetailRequirements,
+  GigInterviewSettings,
+  GigInvitationTemplate,
+} from "~/components";
 import { GigDetailSkeleton, GigError, GigNotFound } from "~/components/gigs";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
@@ -193,7 +196,7 @@ export function GigDetailClient({
         </div>
 
         <aside className="space-y-6" aria-label="Дополнительная информация">
-          <ProjectDetails
+          <GigDetailProjectDetails
             budgetMin={gig.budgetMin}
             budgetMax={gig.budgetMax}
             estimatedDuration={gig.estimatedDuration}

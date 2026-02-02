@@ -10,7 +10,7 @@ import {
   Separator,
 } from "@qbs-autonaim/ui";
 import { MessageSquare } from "lucide-react";
-import { SafeHtml } from "~/components/safe-html";
+import { SafeHtml } from "~/components";
 
 interface InterviewScoringCardProps {
   interviewScoring: {

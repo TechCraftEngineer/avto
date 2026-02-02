@@ -22,7 +22,7 @@ import Link from "next/link";
 import React from "react";
 import { toast } from "sonner";
 import { triggerSendWelcome } from "~/actions/trigger";
-import { GigResponseDetailCard } from "~/components/gig/response-detail/detail-card";
+import { GigResponseDetailCard } from "~/components";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
 

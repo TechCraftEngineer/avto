@@ -1,7 +1,7 @@
 "use client";
 
 import type { RefObject } from "react";
-import { ChatMessage } from "~/components/chat-message";
+import { ChatMessage } from "~/components";
 
 interface Message {
   id: string;
