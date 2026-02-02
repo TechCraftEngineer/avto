@@ -4,7 +4,7 @@ import { cn, ScrollArea } from "@qbs-autonaim/ui";
 import { format, isToday, isYesterday } from "date-fns";
 import { ru } from "date-fns/locale";
 import { useEffect, useRef, useState } from "react";
-import type { ChatMessageProps } from "../../types/chat";
+import type { ChatMessageProps } from "~/types/chat";
 import { ChatHeader } from "./chat-header";
 import { ChatInput } from "./chat-input";
 import { ChatMessage } from "./chat-message";

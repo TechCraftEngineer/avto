@@ -6,7 +6,7 @@ import { skipToken, useQuery } from "@tanstack/react-query";
 import { ArrowLeft, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ResponseDetailCard as VacancyResponseDetailCard } from "~/components/vacancy";
+import { ResponseDetailCard } from "~/components/vacancy";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 import { useTRPC } from "~/trpc/react";
 
@@ -70,22 +70,6 @@ export default function VacancyResponseDetailPage() {
     );
   }
 
-  // Явно указываем тип для response после проверки на null
-  const response = responseData;
-
-  // Приводим к VacancyResponse типу
-  const vacancyResponse: import("~/components/vacancy/response-detail").VacancyResponse =
-    {
-      ...response,
-      entityType: "vacancy",
-      // Гарантируем vacancy-специфичные поля
-      resumeId: response.resumeId ?? null,
-      resumeUrl: response.resumeUrl ?? null,
-      platformProfileUrl: response.platformProfileUrl ?? null,
-      salaryExpectationsAmount: response.salaryExpectationsAmount ?? null,
-      salaryExpectationsComment: response.salaryExpectationsComment ?? null,
-    };
-
   return (
     <div className="flex flex-1 flex-col">
       <div className="@container/main flex flex-1 flex-col">
@@ -105,13 +89,13 @@ export default function VacancyResponseDetailPage() {
                   Назад к вакансии
                 </Link>
               </Button>
-              {response.interviewSession ? (
+              {responseData.interviewSession ? (
                 <Button variant="default" size="sm" asChild>
                   <Link
                     href={paths.workspace.chat(
                       orgSlug,
                       workspaceSlug,
-                      response.candidateId,
+                      responseData.candidateId,
                     )}
                   >
                     <MessageSquare className="mr-2 h-4 w-4" />
@@ -121,7 +105,7 @@ export default function VacancyResponseDetailPage() {
               ) : null}
             </div>
 
-            <VacancyResponseDetailCard response={vacancyResponse} />
+            <ResponseDetailCard response={responseData} />
           </div>
         </div>
       </div>

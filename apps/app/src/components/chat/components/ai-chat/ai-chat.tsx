@@ -4,8 +4,8 @@ import { cn } from "@qbs-autonaim/ui";
 import { AlertCircle } from "lucide-react";
 import { useAIChat } from "~/hooks/use-ai-chat";
 import type { AIChatMessage } from "~/types/ai-chat";
-import { AIChatInput } from "./ai-chat-input";
-import { AIMessages } from "./ai-messages";
+import { AIChatInput } from "../ai-chat-input/ai-chat-input";
+import { AIMessages } from "../ai-messages/ai-messages";
 
 interface AIChatProps {
   /** API endpoint для отправки сообщений */

@@ -1,9 +1,8 @@
 import { Skeleton } from "@qbs-autonaim/ui";
 import { EmptyState } from "../empty-state";
-import type { DisplayMode } from "../filters/gigs-filters";
-import type { Gig } from "../filters/use-gigs-filters";
 import { GigCard } from "../gig-card";
 import { GigListItem } from "../gig-list-item";
+import type { DisplayMode, Gig } from "../gigs-filters";
 
 interface GigsListProps {
   gigs: Gig[] | undefined;

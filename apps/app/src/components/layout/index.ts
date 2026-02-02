@@ -3,7 +3,6 @@ export {
   AppSidebar,
   AppSidebarWrapper,
   ClientLayout,
-  Index,
   NavCollapsible,
   NavDocuments,
   NavMain,
@@ -12,6 +11,6 @@ export {
   NavUser,
   PageHeader,
   SiteHeader,
-  UseSidebarStats,
+  useSidebarStats,
   WorkspaceSwitcher,
 } from "./components";

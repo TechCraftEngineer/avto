@@ -10,5 +10,5 @@ export { NavSecondary } from "./nav-secondary";
 export { NavUser } from "./nav-user";
 export { PageHeader } from "./page-header";
 export { SiteHeader } from "./site-header";
-export { UseSidebarStats } from "./use-sidebar-stats";
+export { useSidebarStats } from "./use-sidebar-stats";
 export { WorkspaceSwitcher } from "./workspace-switcher";

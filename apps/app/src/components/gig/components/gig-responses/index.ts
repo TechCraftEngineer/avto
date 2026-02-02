@@ -3,7 +3,6 @@ export { EmptyState } from "./empty-state";
 export { MessageDialog } from "./message-dialog";
 export { ResponseHeader } from "./response-header";
 export * from "./response-helpers";
-export { ResponseHelpers } from "./response-helpers";
 export { ResponseRow } from "./response-row";
 export { ResponsesFilters } from "./responses-filters";
 export { ResponsesTable } from "./responses-table";

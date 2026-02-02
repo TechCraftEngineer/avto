@@ -1,6 +1,6 @@
 import { Skeleton } from "@qbs-autonaim/ui";
 
-import type { GigsStats as GigsStatsType } from "../filters/use-gigs-filters";
+import type { GigsStats as GigsStatsType } from "../gigs-filters";
 
 interface GigsStatsProps {
   stats: GigsStatsType;

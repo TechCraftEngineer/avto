@@ -2,7 +2,7 @@
 export { AIChatInput, AiChatInput } from "./ai-chat-input";
 export { AIMessage, AiMessage } from "./ai-message";
 export { AIMessages, AiMessages } from "./ai-messages";
-export { CandidateInfo } from "./candidate-info";
+export { CandidateInfo as ChatCandidateInfo } from "./candidate-info";
 export { ChatContainer } from "./chat-container";
 export { ChatError } from "./chat-error";
 export { ChatHeader } from "./chat-header";

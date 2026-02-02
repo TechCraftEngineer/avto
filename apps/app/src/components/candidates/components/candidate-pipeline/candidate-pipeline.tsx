@@ -49,8 +49,9 @@ export function CandidatePipeline() {
 
   const handleDragEnd = useCallback(
     (candidateId: string, newStage: FunnelStage) => {
+      if (!workspaceId) return;
       updateStageMutation.mutate({
-        workspaceId: workspaceId ?? "",
+        workspaceId,
         candidateId,
         stage: newStage,
       });
@@ -67,11 +68,16 @@ export function CandidatePipeline() {
 
   const allCandidates = useMemo(() => {
     const all: FunnelCandidate[] = [];
-    stageQueries.forEach((sq) => {
-      if (sq.query.data?.items) {
-        all.push(...sq.query.data.items);
-      }
-    });
+    stageQueries.forEach(
+      (sq: {
+        stage: FunnelStage;
+        query: { data?: { items: FunnelCandidate[] } };
+      }) => {
+        if (sq.query.data?.items) {
+          all.push(...sq.query.data.items);
+        }
+      },
+    );
     return all;
   }, [stageQueries]);
 
@@ -89,15 +95,26 @@ export function CandidatePipeline() {
       REJECTED: { items: [], hasMore: false, total: 0 },
     };
 
-    stageQueries.forEach((sq) => {
-      if (sq.query.data) {
-        result[sq.stage] = {
-          items: sq.query.data.items,
-          hasMore: !!sq.query.data.nextCursor,
-          total: sq.query.data.total ?? sq.query.data.items.length,
+    stageQueries.forEach(
+      (sq: {
+        stage: FunnelStage;
+        query: {
+          data?: {
+            items: FunnelCandidate[];
+            nextCursor?: string | null;
+            total?: number;
+          };
         };
-      }
-    });
+      }) => {
+        if (sq.query.data) {
+          result[sq.stage] = {
+            items: sq.query.data.items,
+            hasMore: !!sq.query.data.nextCursor,
+            total: sq.query.data.total ?? sq.query.data.items.length,
+          };
+        }
+      },
+    );
 
     return result;
   }, [stageQueries]);
@@ -109,7 +126,9 @@ export function CandidatePipeline() {
     );
   }, [candidatesByStage]);
 
-  const isLoading = stageQueries.some((sq) => sq.query.isLoading);
+  const isLoading = stageQueries.some(
+    (sq: { query: { isLoading: boolean } }) => sq.query.isLoading,
+  );
 
   const handleCardClick = useCallback((candidate: FunnelCandidate) => {
     setSelectedCandidate(candidate);
@@ -119,7 +138,7 @@ export function CandidatePipeline() {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       <PipelineToolbar
-        selectedVacancy={selectedVacancy}
+        selectedVacancy={selectedVacancy ?? ""}
         onVacancyChange={setSelectedVacancy}
         searchText={searchText}
         onSearchChange={setSearchText}
