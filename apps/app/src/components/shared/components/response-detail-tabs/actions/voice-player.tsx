@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui";
+import Button from "@qbs-autonaim/ui/button";
 import { Pause, Play } from "lucide-react";
 import { useRef, useState } from "react";
 
@@ -97,3 +97,4 @@ export function VoicePlayer({ url, duration }: VoicePlayerProps) {
     </div>
   );
 }
+

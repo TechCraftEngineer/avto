@@ -1,6 +1,9 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui";
+import Card from "@qbs-autonaim/ui/card";
+import CardContent from "@qbs-autonaim/ui/cardcontent";
+import CardHeader from "@qbs-autonaim/ui/cardheader";
+import CardTitle from "@qbs-autonaim/ui/cardtitle";
 import {
   Clock,
   TrendingDown,
@@ -90,3 +93,4 @@ export function StatusStatsCards({ analytics }: StatusStatsCardsProps) {
     </div>
   );
 }
+

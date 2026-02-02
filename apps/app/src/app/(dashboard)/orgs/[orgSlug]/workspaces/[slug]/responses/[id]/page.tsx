@@ -1,7 +1,8 @@
 "use client";
 
 import { paths } from "@qbs-autonaim/config";
-import { Button, Skeleton } from "@qbs-autonaim/ui";
+import Button from "@qbs-autonaim/ui/button";
+import Skeleton from "@qbs-autonaim/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, MessageSquare } from "lucide-react";
 import Link from "next/link";
@@ -102,3 +103,4 @@ export default function ResponseDetailPage({
     </div>
   );
 }
+

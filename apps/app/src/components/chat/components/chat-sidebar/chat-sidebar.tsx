@@ -1,4 +1,4 @@
-import { ScrollArea } from "@qbs-autonaim/ui";
+import ScrollArea from "@qbs-autonaim/ui/scrollarea";
 import { CandidateInfo } from "./candidate-info";
 import { ResumePdfLink } from "./resume-pdf-link";
 import { ScreeningInfo } from "./screening-info";
@@ -80,3 +80,4 @@ export function ChatSidebar({
     </div>
   );
 }
+

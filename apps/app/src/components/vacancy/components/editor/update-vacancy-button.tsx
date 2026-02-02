@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui";
+import Button from "@qbs-autonaim/ui/button";
 import { RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -43,3 +43,4 @@ export function UpdateVacancyButton({ vacancyId }: UpdateVacancyButtonProps) {
     </Button>
   );
 }
+

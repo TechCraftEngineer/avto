@@ -1,7 +1,7 @@
 "use client";
 
 import { env as baseEnv } from "@qbs-autonaim/config";
-import { Skeleton } from "@qbs-autonaim/ui";
+import Skeleton from "@qbs-autonaim/ui/skeleton";
 import { WorkspaceForm } from "~/components";
 import { useWorkspace } from "~/hooks/use-workspace";
 
@@ -37,3 +37,4 @@ export default function SettingsPage() {
     />
   );
 }
+

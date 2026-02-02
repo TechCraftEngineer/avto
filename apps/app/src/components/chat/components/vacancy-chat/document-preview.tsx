@@ -1,6 +1,8 @@
 "use client";
 
-import { Button, ScrollArea, Textarea } from "@qbs-autonaim/ui";
+import Button from "@qbs-autonaim/ui/button";
+import ScrollArea from "@qbs-autonaim/ui/scrollarea";
+import Textarea from "@qbs-autonaim/ui/textarea";
 import { IconEdit } from "@tabler/icons-react";
 import { FileText, Loader2 } from "lucide-react";
 import { DocumentSection } from "./document-section";
@@ -228,3 +230,4 @@ export function DocumentPreview({
     </div>
   );
 }
+

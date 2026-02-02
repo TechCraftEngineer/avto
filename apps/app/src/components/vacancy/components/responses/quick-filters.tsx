@@ -1,4 +1,5 @@
-import { Badge, Button } from "@qbs-autonaim/ui";
+import Badge from "@qbs-autonaim/ui/badge";
+import Button from "@qbs-autonaim/ui/button";
 import {
   IconCheck,
   IconClock,
@@ -137,3 +138,4 @@ export function QuickFilters({
     </div>
   );
 }
+

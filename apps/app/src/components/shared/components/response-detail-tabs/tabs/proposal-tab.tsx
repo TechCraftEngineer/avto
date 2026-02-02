@@ -1,7 +1,7 @@
 "use client";
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
-import { Separator } from "@qbs-autonaim/ui";
+import Separator from "@qbs-autonaim/ui/separator";
 import { formatCurrency } from "../../../utils/constants";
 
 type GigResponseDetail = NonNullable<RouterOutputs["gig"]["responses"]["get"]>;
@@ -77,3 +77,4 @@ export function ProposalTab({ response }: ProposalTabProps) {
     </div>
   );
 }
+

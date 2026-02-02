@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui";
+import Button from "@qbs-autonaim/ui/button";
 import {
   IconFile,
   IconFileTypePdf,
@@ -259,3 +259,4 @@ export function InterviewMediaUpload({
     </div>
   );
 }
+

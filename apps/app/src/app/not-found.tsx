@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui";
+import Button from "@qbs-autonaim/ui/button";
 import { ArrowLeft, FileQuestion, Home } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -61,3 +61,4 @@ export default function NotFoundPage() {
     </div>
   );
 }
+

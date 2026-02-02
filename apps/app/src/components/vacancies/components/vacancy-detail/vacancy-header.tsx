@@ -1,5 +1,7 @@
 import { pluralize } from "@qbs-autonaim/shared/utils";
-import { Badge, Button, Card } from "@qbs-autonaim/ui";
+import Badge from "@qbs-autonaim/ui/badge";
+import Button from "@qbs-autonaim/ui/button";
+import Card from "@qbs-autonaim/ui/card";
 import {
   IconCalendar,
   IconClock,
@@ -170,3 +172,4 @@ export function VacancyHeader({ vacancy }: VacancyHeaderProps) {
     </Card>
   );
 }
+

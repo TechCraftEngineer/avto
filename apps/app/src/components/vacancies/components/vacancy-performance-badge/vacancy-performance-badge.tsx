@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge } from "@qbs-autonaim/ui";
+import Badge from "@qbs-autonaim/ui/badge";
 import {
   IconMinus,
   IconTrendingDown,
@@ -68,3 +68,4 @@ export function VacancyPerformanceBadge({
     </Badge>
   );
 }
+

@@ -1,4 +1,5 @@
-import { Card, CardContent } from "@qbs-autonaim/ui";
+import Card from "@qbs-autonaim/ui/card";
+import CardContent from "@qbs-autonaim/ui/cardcontent";
 import { Inbox } from "lucide-react";
 
 export function EmptyResponses() {
@@ -35,3 +36,4 @@ export function EmptyResponses() {
     </Card>
   );
 }
+

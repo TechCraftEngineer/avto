@@ -1,7 +1,9 @@
 "use client";
 
 import { sanitizeHtmlFunction } from "@qbs-autonaim/shared/client";
-import { Badge, Button, Skeleton } from "@qbs-autonaim/ui";
+import Badge from "@qbs-autonaim/ui/badge";
+import Button from "@qbs-autonaim/ui/button";
+import Skeleton from "@qbs-autonaim/ui/skeleton";
 import { IconArrowLeft, IconEdit, IconExternalLink } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
@@ -220,3 +222,4 @@ export default function VacancyDetailPage({ params }: VacancyDetailPageProps) {
     </div>
   );
 }
+

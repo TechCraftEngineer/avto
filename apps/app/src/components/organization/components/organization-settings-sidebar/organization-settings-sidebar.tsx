@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@qbs-autonaim/ui";
+import cn from "@qbs-autonaim/ui/cn";
 import { AlertTriangle, Settings, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -55,3 +55,4 @@ export function OrganizationSettingsSidebar({ orgSlug }: { orgSlug: string }) {
     </nav>
   );
 }
+

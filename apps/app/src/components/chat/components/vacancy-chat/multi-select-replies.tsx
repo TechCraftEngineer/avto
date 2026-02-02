@@ -1,6 +1,7 @@
 "use client";
 
-import { Button, cn } from "@qbs-autonaim/ui";
+import Button from "@qbs-autonaim/ui/button";
+import cn from "@qbs-autonaim/ui/cn";
 import { Check } from "lucide-react";
 import { useState } from "react";
 import type { QuickReply } from "./types";
@@ -87,3 +88,4 @@ export function MultiSelectReplies({
     </div>
   );
 }
+

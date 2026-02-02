@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@qbs-autonaim/ui";
+import cn from "@qbs-autonaim/ui/cn";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 import { Bot, User } from "lucide-react";
@@ -54,3 +54,4 @@ export function VacancyChatMessage({
     </article>
   );
 }
+

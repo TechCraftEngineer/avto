@@ -1,6 +1,7 @@
 "use client";
 
-import { Button, Skeleton } from "@qbs-autonaim/ui";
+import Button from "@qbs-autonaim/ui/button";
+import Skeleton from "@qbs-autonaim/ui/skeleton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
@@ -192,3 +193,4 @@ export function GigChatList({ gigId }: GigChatListProps) {
     </div>
   );
 }
+

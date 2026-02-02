@@ -1,6 +1,7 @@
 "use client";
 
-import { Button, Textarea } from "@qbs-autonaim/ui";
+import Button from "@qbs-autonaim/ui/button";
+import Textarea from "@qbs-autonaim/ui/textarea";
 import { Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -94,3 +95,4 @@ export function ChatInput({
     </div>
   );
 }
+

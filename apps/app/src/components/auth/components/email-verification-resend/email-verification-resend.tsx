@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui";
+import Button from "@qbs-autonaim/ui/button";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { authClient } from "~/auth/client";
@@ -99,3 +99,4 @@ export function EmailVerificationResend({
     </Button>
   );
 }
+

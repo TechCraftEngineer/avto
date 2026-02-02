@@ -1,5 +1,5 @@
 import { paths } from "@qbs-autonaim/config";
-import { Button } from "@qbs-autonaim/ui";
+import Button from "@qbs-autonaim/ui/button";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSession } from "~/auth/server";
@@ -191,3 +191,4 @@ export default async function InvitePage({
     );
   }
 }
+

@@ -1,6 +1,7 @@
 "use client";
 
-import { cn, ScrollArea } from "@qbs-autonaim/ui";
+import cn from "@qbs-autonaim/ui/cn";
+import ScrollArea from "@qbs-autonaim/ui/scrollarea";
 import { format, isToday, isYesterday } from "date-fns";
 import { ru } from "date-fns/locale";
 import { useEffect, useRef, useState } from "react";
@@ -147,3 +148,4 @@ export function ChatContainer({
     </div>
   );
 }
+

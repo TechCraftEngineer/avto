@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui";
+import Button from "@qbs-autonaim/ui/button";
 
 interface QuickRepliesProps {
   replies: string[];
@@ -33,3 +33,4 @@ export function QuickReplies({
     </div>
   );
 }
+

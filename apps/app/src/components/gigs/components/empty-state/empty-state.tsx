@@ -1,4 +1,6 @@
-import { Button, Card, CardContent } from "@qbs-autonaim/ui";
+import Button from "@qbs-autonaim/ui/button";
+import Card from "@qbs-autonaim/ui/card";
+import CardContent from "@qbs-autonaim/ui/cardcontent";
 import { Briefcase, Plus } from "lucide-react";
 import Link from "next/link";
 import { env } from "~/env";
@@ -80,3 +82,4 @@ export function EmptyState({
     </Card>
   );
 }
+

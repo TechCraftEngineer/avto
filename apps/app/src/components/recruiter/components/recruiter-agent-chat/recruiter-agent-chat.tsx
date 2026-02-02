@@ -1,6 +1,7 @@
 "use client";
 
-import { Button, cn } from "@qbs-autonaim/ui";
+import Button from "@qbs-autonaim/ui/button";
+import cn from "@qbs-autonaim/ui/cn";
 import { AlertCircle, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 import { memo, useState } from "react";
 import {
@@ -152,3 +153,4 @@ const RecruiterAgentChat = memo(function RecruiterAgentChat({
 RecruiterAgentChat.displayName = "RecruiterAgentChat";
 
 export { RecruiterAgentChat };
+

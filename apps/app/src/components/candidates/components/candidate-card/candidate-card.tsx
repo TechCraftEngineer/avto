@@ -1,6 +1,8 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@qbs-autonaim/ui";
+import Avatar from "@qbs-autonaim/ui/avatar";
+import AvatarFallback from "@qbs-autonaim/ui/avatarfallback";
+import AvatarImage from "@qbs-autonaim/ui/avatarimage";
 import { MapPin } from "lucide-react";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { getAvatarUrl } from "~/lib/avatar";
@@ -56,3 +58,4 @@ export function CandidateCard({ candidate, onClick }: CandidateCardProps) {
     </button>
   );
 }
+

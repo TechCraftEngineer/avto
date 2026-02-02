@@ -1,6 +1,7 @@
 "use client";
 
-import { Button, cn } from "@qbs-autonaim/ui";
+import Button from "@qbs-autonaim/ui/button";
+import cn from "@qbs-autonaim/ui/cn";
 import { ArrowUp, Square } from "lucide-react";
 import {
   type ChangeEvent,
@@ -157,3 +158,4 @@ export function RecruiterAgentChatInput({
     </div>
   );
 }
+

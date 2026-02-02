@@ -1,6 +1,6 @@
 "use client";
 
-import { Skeleton } from "@qbs-autonaim/ui";
+import Skeleton from "@qbs-autonaim/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { BotSettingsForm } from "~/components";
 import { useWorkspace } from "~/hooks/use-workspace";
@@ -44,3 +44,4 @@ export default function SettingsBotPage() {
     />
   );
 }
+

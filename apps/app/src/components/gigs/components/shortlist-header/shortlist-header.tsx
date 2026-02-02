@@ -1,4 +1,4 @@
-import { Button } from "@qbs-autonaim/ui";
+import Button from "@qbs-autonaim/ui/button";
 import { ArrowLeft, Download, RefreshCw, Star } from "lucide-react";
 import Link from "next/link";
 
@@ -71,3 +71,4 @@ export function ShortlistHeader({
     </div>
   );
 }
+

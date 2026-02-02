@@ -5,7 +5,7 @@
 
 "use client";
 
-import { cn } from "@qbs-autonaim/ui";
+import cn from "@qbs-autonaim/ui/cn";
 import React from "react";
 
 // Types for optimization
@@ -242,3 +242,4 @@ function VirtualizedList<T>({
 
 // Export utilities
 export type { OptimizedComponentProps };
+

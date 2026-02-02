@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@qbs-autonaim/ui";
+import cn from "@qbs-autonaim/ui/cn";
 import { ChevronDown, Sparkles } from "lucide-react";
 import { memo, useState } from "react";
 import {
@@ -218,3 +218,4 @@ export const AIMessage = memo(PureAIMessage, (prevProps, nextProps) => {
     return false;
   return true;
 });
+

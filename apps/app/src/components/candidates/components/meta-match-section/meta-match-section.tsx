@@ -1,6 +1,10 @@
 "use client";
 
-import { Badge, Button, Checkbox, Input, Label } from "@qbs-autonaim/ui";
+import Badge from "@qbs-autonaim/ui/badge";
+import Button from "@qbs-autonaim/ui/button";
+import Checkbox from "@qbs-autonaim/ui/checkbox";
+import Input from "@qbs-autonaim/ui/input";
+import Label from "@qbs-autonaim/ui/label";
 import {
   skipToken,
   useMutation,
@@ -644,3 +648,4 @@ export function MetaMatchSection({
     </section>
   );
 }
+

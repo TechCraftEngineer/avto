@@ -1,6 +1,9 @@
 "use client";
 
-import { Badge, Button, TableCell, TableRow } from "@qbs-autonaim/ui";
+import Badge from "@qbs-autonaim/ui/badge";
+import Button from "@qbs-autonaim/ui/button";
+import TableCell from "@qbs-autonaim/ui/tablecell";
+import TableRow from "@qbs-autonaim/ui/tablerow";
 import { Check, MessageSquare, X } from "lucide-react";
 import Link from "next/link";
 import {
@@ -105,3 +108,4 @@ export function ResponseRow({
     </TableRow>
   );
 }
+

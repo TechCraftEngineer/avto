@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui";
+import Button from "@qbs-autonaim/ui/button";
 import { IconPlus } from "@tabler/icons-react";
 import { useState } from "react";
 import { InterviewScenarioForm } from "../interview-scenario-form";
@@ -61,3 +61,4 @@ export function InterviewScenariosManagement({
     </div>
   );
 }
+

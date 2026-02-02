@@ -1,4 +1,4 @@
-import { Button } from "@qbs-autonaim/ui";
+import Button from "@qbs-autonaim/ui/button";
 
 interface WelcomeScreenProps {
   onGetStarted: () => void;
@@ -40,3 +40,4 @@ export function WelcomeScreen({ onGetStarted }: WelcomeScreenProps) {
     </div>
   );
 }
+

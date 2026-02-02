@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@qbs-autonaim/ui";
+import cn from "@qbs-autonaim/ui/cn";
 import { AlertCircle } from "lucide-react";
 import { useAIChat } from "~/hooks/use-ai-chat";
 import type { AIChatMessage } from "~/types/ai-chat";
@@ -116,3 +116,4 @@ export function AIChat({
     </div>
   );
 }
+

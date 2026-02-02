@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@qbs-autonaim/ui";
+import cn from "@qbs-autonaim/ui/cn";
 import { Bot, User } from "lucide-react";
 import { useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
@@ -175,3 +175,4 @@ function ChatMessageItem({ message }: { message: ChatMessage }) {
     </article>
   );
 }
+

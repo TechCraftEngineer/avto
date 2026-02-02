@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui";
+import Button from "@qbs-autonaim/ui/button";
 import { ArrowLeft, BarChart3 } from "lucide-react";
 import { useState } from "react";
 import { FunnelAnalytics } from "../funnel-analytics";
@@ -51,3 +51,4 @@ export function HiringFunnelView() {
     </div>
   );
 }
+

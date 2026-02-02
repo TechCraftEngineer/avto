@@ -1,4 +1,4 @@
-import { Button } from "@qbs-autonaim/ui";
+import Button from "@qbs-autonaim/ui/button";
 import { IconMessage } from "@tabler/icons-react";
 import Link from "next/link";
 
@@ -26,3 +26,4 @@ export function VacancyNotFound({
     </div>
   );
 }
+

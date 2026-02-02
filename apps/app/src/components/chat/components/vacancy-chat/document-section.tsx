@@ -1,6 +1,8 @@
 "use client";
 
-import { Button, Card, Textarea } from "@qbs-autonaim/ui";
+import Button from "@qbs-autonaim/ui/button";
+import Card from "@qbs-autonaim/ui/card";
+import Textarea from "@qbs-autonaim/ui/textarea";
 import { IconCheck, IconEdit, IconX } from "@tabler/icons-react";
 import { useState } from "react";
 import type { VacancyDocument } from "./types";
@@ -101,3 +103,4 @@ export function DocumentSection({
     </Card>
   );
 }
+

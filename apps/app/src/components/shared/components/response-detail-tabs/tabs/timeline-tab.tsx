@@ -1,6 +1,6 @@
 "use client";
 
-import { ScrollArea } from "@qbs-autonaim/ui";
+import ScrollArea from "@qbs-autonaim/ui/scrollarea";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
@@ -153,3 +153,4 @@ export function TimelineTab({ responseId }: TimelineTabProps) {
     </ScrollArea>
   );
 }
+

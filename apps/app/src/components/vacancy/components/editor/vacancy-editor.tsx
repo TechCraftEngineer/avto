@@ -1,6 +1,10 @@
 "use client";
 
-import { Button, Input, Label, Separator, Textarea } from "@qbs-autonaim/ui";
+import Button from "@qbs-autonaim/ui/button";
+import Input from "@qbs-autonaim/ui/input";
+import Label from "@qbs-autonaim/ui/label";
+import Separator from "@qbs-autonaim/ui/separator";
+import Textarea from "@qbs-autonaim/ui/textarea";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
 
@@ -282,3 +286,4 @@ export function VacancyEditor({
     </div>
   );
 }
+

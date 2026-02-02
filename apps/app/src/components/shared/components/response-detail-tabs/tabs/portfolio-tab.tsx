@@ -1,7 +1,7 @@
 "use client";
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
-import { Button } from "@qbs-autonaim/ui";
+import Button from "@qbs-autonaim/ui/button";
 import { skipToken, useQuery } from "@tanstack/react-query";
 import {
   Download,
@@ -152,3 +152,4 @@ export function PortfolioTab({ response }: PortfolioTabProps) {
     </div>
   );
 }
+

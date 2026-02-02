@@ -1,14 +1,48 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui";
+import Button from "@qbs-autonaim/ui/Button";
 import { IconArrowLeft, IconEdit, IconSparkles } from "@tabler/icons-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { PageHeader } from "~/components/layout";
-import { VacancyForm } from "~/components/vacancies/vacancy-form";
-import { AIVacancyChat } from "~/components/chat/components/vacancy-chat/ai-vacancy-chat";
+import dynamic from "next/dynamic";
+
+const VacancyForm = dynamic(() => import("~/components/vacancies/vacancy-form"), {
+  ssr: false,
+  loading: () => (
+    <div className="rounded-lg bg-card p-6 shadow-sm animate-pulse">
+      <div className="space-y-4">
+        <div className="h-6 bg-muted rounded w-1/4" />
+        <div className="h-10 bg-muted rounded" />
+        <div className="h-32 bg-muted rounded" />
+        <div className="h-10 bg-muted rounded w-1/3" />
+      </div>
+    </div>
+  )
+});
+import dynamic from "next/dynamic";
+
+const AIVacancyChat = dynamic(() => import("~/components/chat/components/vacancy-chat/ai-vacancy-chat"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-[calc(100vh-4rem)] flex-col">
+      <div className="border-b bg-background px-4 py-3 md:px-6">
+        <div className="animate-pulse">
+          <div className="h-6 bg-muted rounded w-64 mb-2" />
+          <div className="h-4 bg-muted rounded w-96" />
+        </div>
+      </div>
+      <div className="flex-1 flex items-center justify-center">
+        <div className="animate-pulse">
+          <div className="h-8 bg-muted rounded w-32 mb-4" />
+          <div className="h-4 bg-muted rounded w-48" />
+        </div>
+      </div>
+    </div>
+  )
+});
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useWorkspaceParams } from "~/hooks/use-workspace-params";
 

@@ -2,7 +2,10 @@
 
 import { paths } from "@qbs-autonaim/config";
 import type { Workspace } from "@qbs-autonaim/db";
-import { Avatar, AvatarFallback, AvatarImage, Card } from "@qbs-autonaim/ui";
+import Avatar from "@qbs-autonaim/ui/avatar";
+import AvatarFallback from "@qbs-autonaim/ui/avatarfallback";
+import AvatarImage from "@qbs-autonaim/ui/avatarimage";
+import Card from "@qbs-autonaim/ui/card";
 import { Building2, ExternalLink } from "lucide-react";
 import Link from "next/link";
 
@@ -57,3 +60,4 @@ export function WorkspaceCard({
     </Link>
   );
 }
+

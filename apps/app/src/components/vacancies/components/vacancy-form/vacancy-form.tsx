@@ -23,7 +23,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { TiptapEditor } from "~/components/editor";
+import dynamic from "next/dynamic";
+
+const TiptapEditor = dynamic(() => import("~/components/editor"), {
+  ssr: false,
+  loading: () => <div className="min-h-[200px] animate-pulse bg-muted rounded" />
+});
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
 

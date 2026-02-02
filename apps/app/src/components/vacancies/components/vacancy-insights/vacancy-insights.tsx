@@ -1,6 +1,8 @@
 "use client";
 
-import { Alert, AlertDescription, AlertTitle } from "@qbs-autonaim/ui";
+import Alert from "@qbs-autonaim/ui/alert";
+import AlertDescription from "@qbs-autonaim/ui/alertdescription";
+import AlertTitle from "@qbs-autonaim/ui/alerttitle";
 import {
   IconAlertCircle,
   IconAlertTriangle,
@@ -135,3 +137,4 @@ export function VacancyInsights({
     </div>
   );
 }
+

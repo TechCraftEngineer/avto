@@ -1,4 +1,4 @@
-import { Skeleton } from "@qbs-autonaim/ui";
+import Skeleton from "@qbs-autonaim/ui/skeleton";
 
 import type { GigsStats as GigsStatsType } from "../gigs-filters";
 
@@ -37,3 +37,4 @@ export function GigsStats({ stats, isLoading }: GigsStatsProps) {
     </div>
   );
 }
+

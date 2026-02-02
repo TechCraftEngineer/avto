@@ -1,6 +1,6 @@
 "use client";
 
-import { Skeleton } from "@qbs-autonaim/ui";
+import Skeleton from "@qbs-autonaim/ui/skeleton";
 import { CustomDomainsSection } from "~/components/workspace";
 import { useWorkspace } from "~/hooks/use-workspace";
 
@@ -50,3 +50,4 @@ export default function WorkspaceDomainsPage() {
 
   return <CustomDomainsSection workspaceId={workspace.id} />;
 }
+

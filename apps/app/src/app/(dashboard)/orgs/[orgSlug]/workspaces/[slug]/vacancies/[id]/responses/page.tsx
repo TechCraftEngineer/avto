@@ -1,6 +1,6 @@
 "use client";
 
-import { Card } from "@qbs-autonaim/ui";
+import Card from "@qbs-autonaim/ui/card";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { RecruiterAgentChat } from "~/components";
@@ -105,3 +105,4 @@ export default function VacancyResponsesPage() {
     </div>
   );
 }
+

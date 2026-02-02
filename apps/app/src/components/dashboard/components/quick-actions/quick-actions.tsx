@@ -1,7 +1,8 @@
 "use client";
 
 import { paths } from "@qbs-autonaim/config";
-import { Button, Card, CardContent } from "@qbs-autonaim/ui";
+import Button from "@qbs-autonaim/ui/button";
+import { Card, CardContent } from "@qbs-autonaim/ui/card";
 import { Briefcase, MessageSquare, Plus, Users } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -88,3 +89,4 @@ export function QuickActions({ orgSlug, workspaceSlug }: QuickActionsProps) {
     </>
   );
 }
+

@@ -1,6 +1,7 @@
 "use client";
 
-import { Button, cn } from "@qbs-autonaim/ui";
+import Button from "@qbs-autonaim/ui/button";
+import cn from "@qbs-autonaim/ui/cn";
 import { Bot, User } from "lucide-react";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
@@ -219,3 +220,4 @@ export function ChatMessage({
     </article>
   );
 }
+

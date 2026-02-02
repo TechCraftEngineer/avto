@@ -1,7 +1,7 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import { cn } from "@qbs-autonaim/ui";
+import cn from "@qbs-autonaim/ui/cn";
 import { useQuery } from "@tanstack/react-query";
 import { DefaultChatTransport } from "ai";
 import { AlertCircle, ArrowDown, Loader2, Sparkles } from "lucide-react";
@@ -667,3 +667,4 @@ export function InterviewChat({
     </div>
   );
 }
+

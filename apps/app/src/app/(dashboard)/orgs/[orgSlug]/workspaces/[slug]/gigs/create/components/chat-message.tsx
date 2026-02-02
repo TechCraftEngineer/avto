@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@qbs-autonaim/ui";
+import cn from "@qbs-autonaim/ui/cn";
 import { Bot, User } from "lucide-react";
 import { QuickReplies } from "./quick-replies";
 import type { ChatMessage as ChatMessageType } from "./types";
@@ -72,3 +72,4 @@ export function TypingIndicator() {
     </div>
   );
 }
+

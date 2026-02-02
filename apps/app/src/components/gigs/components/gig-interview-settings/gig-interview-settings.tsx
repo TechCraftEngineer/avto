@@ -18,7 +18,18 @@ import { toast } from "sonner";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
 import { CustomDomainSelect } from "../custom-domain-select";
-import { InterviewMediaUpload } from "../interview-media-upload";
+import dynamic from "next/dynamic";
+
+const InterviewMediaUpload = dynamic(() => import("../interview-media-upload"), {
+  ssr: false,
+  loading: () => (
+    <div className="space-y-4 p-6">
+      <div className="h-8 bg-muted rounded animate-pulse" />
+      <div className="h-32 bg-muted rounded animate-pulse" />
+      <div className="h-10 bg-muted rounded animate-pulse" />
+    </div>
+  )
+});
 
 interface GigInterviewSettingsProps {
   gigId: string;

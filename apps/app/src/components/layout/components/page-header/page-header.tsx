@@ -1,4 +1,4 @@
-import { InfoTooltip } from "@qbs-autonaim/ui";
+import InfoTooltip from "@qbs-autonaim/ui/infotooltip";
 
 interface PageHeaderProps {
   title: string;
@@ -28,3 +28,4 @@ export function PageHeader({
     </div>
   );
 }
+

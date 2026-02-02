@@ -1,7 +1,7 @@
 "use client";
 
 import { paths } from "@qbs-autonaim/config";
-import { Button } from "@qbs-autonaim/ui";
+import Button from "@qbs-autonaim/ui/button";
 import { ShieldAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { authClient } from "~/auth/client";
@@ -49,3 +49,4 @@ export default function AccessDeniedPage() {
     </div>
   );
 }
+

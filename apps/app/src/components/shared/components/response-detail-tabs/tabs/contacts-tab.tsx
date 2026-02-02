@@ -1,7 +1,7 @@
 "use client";
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
-import { Separator } from "@qbs-autonaim/ui";
+import Separator from "@qbs-autonaim/ui/separator";
 import { ExternalLink, Mail, MessageSquare, Phone } from "lucide-react";
 
 type GigResponseDetail = NonNullable<RouterOutputs["gig"]["responses"]["get"]>;
@@ -124,3 +124,4 @@ export function ContactsTab({ response }: ContactsTabProps) {
     </div>
   );
 }
+

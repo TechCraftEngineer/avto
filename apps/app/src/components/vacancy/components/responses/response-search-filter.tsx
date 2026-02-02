@@ -1,4 +1,4 @@
-import { Input } from "@qbs-autonaim/ui";
+import Input from "@qbs-autonaim/ui/input";
 import { Search } from "lucide-react";
 import { ResponseFilters } from "./response-filters";
 import { ResponseStatusFilter } from "./response-status-filter";
@@ -46,3 +46,4 @@ export function ResponseSearchFilter({
     </div>
   );
 }
+

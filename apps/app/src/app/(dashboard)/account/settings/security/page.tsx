@@ -1,6 +1,6 @@
 "use client";
 
-import { Skeleton } from "@qbs-autonaim/ui";
+import Skeleton from "@qbs-autonaim/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { SecurityTab } from "~/components";
 import { useTRPC } from "~/trpc/react";
@@ -19,3 +19,4 @@ export default function SecuritySettingsPage() {
 
   return <SecurityTab user={user} />;
 }
+

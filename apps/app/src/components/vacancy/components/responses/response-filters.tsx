@@ -1,4 +1,4 @@
-import { Button } from "@qbs-autonaim/ui";
+import Button from "@qbs-autonaim/ui/button";
 import type { ScreeningFilter } from "./types";
 
 interface ResponseFiltersProps {
@@ -34,3 +34,4 @@ export function ResponseFilters({
     </div>
   );
 }
+

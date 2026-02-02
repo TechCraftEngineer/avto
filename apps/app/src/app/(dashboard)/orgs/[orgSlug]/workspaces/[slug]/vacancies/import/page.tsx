@@ -1,6 +1,7 @@
 "use client";
 
-import { Button, Card } from "@qbs-autonaim/ui";
+import Button from "@qbs-autonaim/ui/button";
+import Card from "@qbs-autonaim/ui/card";
 import { IconArrowLeft } from "@tabler/icons-react";
 import Link from "next/link";
 import { PageHeader } from "~/components/layout";
@@ -104,3 +105,4 @@ export default function ImportVacancyPage() {
     </div>
   );
 }
+

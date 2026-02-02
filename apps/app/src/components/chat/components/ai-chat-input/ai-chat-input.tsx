@@ -1,6 +1,7 @@
 "use client";
 
-import { Button, cn } from "@qbs-autonaim/ui";
+import Button from "@qbs-autonaim/ui/button";
+import cn from "@qbs-autonaim/ui/cn";
 import {
   ArrowUp,
   FileText,
@@ -448,3 +449,4 @@ function PureAIChatInput({
 }
 
 export const AIChatInput = memo(PureAIChatInput);
+

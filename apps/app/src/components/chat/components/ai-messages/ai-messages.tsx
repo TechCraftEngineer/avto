@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@qbs-autonaim/ui";
+import cn from "@qbs-autonaim/ui/cn";
 import { ArrowDown } from "lucide-react";
 import { memo } from "react";
 import { useChatMessages } from "~/hooks/use-chat-messages";
@@ -81,3 +81,4 @@ export const AIMessages = memo(PureAIMessages, (prevProps, nextProps) => {
     return false;
   return true;
 });
+

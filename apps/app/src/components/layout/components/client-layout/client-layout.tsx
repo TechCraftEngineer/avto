@@ -1,6 +1,7 @@
 "use client";
 
-import { ThemeProvider, Toaster } from "@qbs-autonaim/ui";
+import ThemeProvider from "@qbs-autonaim/ui/themeprovider";
+import Toaster from "@qbs-autonaim/ui/toaster";
 import { TRPCReactProvider } from "~/trpc/react";
 
 export function ClientLayout({ children }: { children: React.ReactNode }) {
@@ -11,3 +12,4 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
     </ThemeProvider>
   );
 }
+
