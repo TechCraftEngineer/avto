@@ -1,8 +1,8 @@
 "use client";
 
-import Badge from "@qbs-autonaim/ui/badge";
-import Button from "@qbs-autonaim/ui/button";
-import DeleteVacancyDialog from "@qbs-autonaim/ui/deletevacancydialog";
+import { Badge } from "@qbs-autonaim/ui/badge";
+import { Button } from "@qbs-autonaim/ui/button";
+import { DeleteVacancyDialog } from "@qbs-autonaim/ui/deletevacancydialog";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ExternalLink, MapPin, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";

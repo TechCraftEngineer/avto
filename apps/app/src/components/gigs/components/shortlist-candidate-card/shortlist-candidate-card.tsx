@@ -1,11 +1,11 @@
 "use client";
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
-import Badge from "@qbs-autonaim/ui/badge";
-import Button from "@qbs-autonaim/ui/button";
-import Card from "@qbs-autonaim/ui/card";
-import CardContent from "@qbs-autonaim/ui/cardcontent";
-import CardHeader from "@qbs-autonaim/ui/cardheader";
+import { Badge } from "@qbs-autonaim/ui/badge";
+import { Button } from "@qbs-autonaim/ui/button";
+import { Card } from "@qbs-autonaim/ui/card";
+import { CardContent } from "@qbs-autonaim/ui/cardcontent";
+import { CardHeader } from "@qbs-autonaim/ui/cardheader";
 import {
   AlertCircle,
   Banknote,

@@ -1,6 +1,6 @@
 "use client";
 
-import Button from "@qbs-autonaim/ui/button";
+import { Button } from "@qbs-autonaim/ui/button";
 import { IconDownload, IconPlus } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";

@@ -1,6 +1,6 @@
 import { paths } from "@qbs-autonaim/config";
-import SidebarInset from "@qbs-autonaim/ui/sidebarinset";
-import SidebarProvider from "@qbs-autonaim/ui/sidebarprovider";
+import { SidebarInset } from "@qbs-autonaim/ui/sidebarinset";
+import { SidebarProvider } from "@qbs-autonaim/ui/sidebarprovider";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { getSession } from "~/auth/server";

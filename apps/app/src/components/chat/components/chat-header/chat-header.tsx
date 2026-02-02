@@ -1,5 +1,5 @@
-import Avatar from "@qbs-autonaim/ui/avatar";
-import AvatarFallback from "@qbs-autonaim/ui/avatarfallback";
+import { Avatar } from "@qbs-autonaim/ui/avatar";
+import { AvatarFallback } from "@qbs-autonaim/ui/avatarfallback";
 import { User } from "lucide-react";
 
 interface ChatHeaderProps {

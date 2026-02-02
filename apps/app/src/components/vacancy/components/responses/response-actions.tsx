@@ -1,6 +1,6 @@
 "use client";
 
-import Button from "@qbs-autonaim/ui/button";
+import { Button } from "@qbs-autonaim/ui/button";
 import { MessageSquare, Phone, Send } from "lucide-react";
 
 interface ResponseActionsProps {

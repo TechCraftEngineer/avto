@@ -1,6 +1,6 @@
 "use client";
 
-import ScrollArea from "@qbs-autonaim/ui/scrollarea";
+import { ScrollArea } from "@qbs-autonaim/ui/scrollarea";
 import { Sparkles } from "lucide-react";
 import { memo, useEffect, useRef } from "react";
 import type {

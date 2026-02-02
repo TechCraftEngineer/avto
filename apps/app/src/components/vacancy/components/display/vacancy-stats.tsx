@@ -1,7 +1,7 @@
-import Card from "@qbs-autonaim/ui/card";
-import CardDescription from "@qbs-autonaim/ui/carddescription";
-import CardHeader from "@qbs-autonaim/ui/cardheader";
-import CardTitle from "@qbs-autonaim/ui/cardtitle";
+import { Card } from "@qbs-autonaim/ui/card";
+import { CardDescription } from "@qbs-autonaim/ui/carddescription";
+import { CardHeader } from "@qbs-autonaim/ui/cardheader";
+import { CardTitle } from "@qbs-autonaim/ui/cardtitle";
 import { Eye, FileText, Inbox, Loader } from "lucide-react";
 
 interface VacancyStatsProps {

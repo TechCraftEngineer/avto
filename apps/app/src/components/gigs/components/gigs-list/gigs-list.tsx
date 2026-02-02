@@ -1,4 +1,4 @@
-import Skeleton from "@qbs-autonaim/ui/skeleton";
+import { Skeleton } from "@qbs-autonaim/ui/skeleton";
 import { EmptyState } from "../empty-state";
 import { GigCard } from "../gig-card";
 import { GigListItem } from "../gig-list-item";

@@ -1,6 +1,6 @@
 "use client";
 
-import ThemeProvider from "@qbs-autonaim/ui/themeprovider";
+import { ThemeProvider } from "@qbs-autonaim/ui/themeprovider";
 import Toaster from "@qbs-autonaim/ui/toaster";
 import { TRPCReactProvider } from "~/trpc/react";
 

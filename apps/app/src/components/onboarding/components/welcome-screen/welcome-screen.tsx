@@ -1,4 +1,4 @@
-import Button from "@qbs-autonaim/ui/button";
+import { Button } from "@qbs-autonaim/ui/button";
 
 interface WelcomeScreenProps {
   onGetStarted: () => void;

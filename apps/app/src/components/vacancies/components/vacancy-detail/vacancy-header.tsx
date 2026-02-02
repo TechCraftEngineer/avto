@@ -1,7 +1,7 @@
 import { pluralize } from "@qbs-autonaim/shared/utils";
-import Badge from "@qbs-autonaim/ui/badge";
-import Button from "@qbs-autonaim/ui/button";
-import Card from "@qbs-autonaim/ui/card";
+import { Badge } from "@qbs-autonaim/ui/badge";
+import { Button } from "@qbs-autonaim/ui/button";
+import { Card } from "@qbs-autonaim/ui/card";
 import {
   IconCalendar,
   IconClock,

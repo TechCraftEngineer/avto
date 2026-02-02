@@ -1,7 +1,7 @@
-import Card from "@qbs-autonaim/ui/Card";
-import CardDescription from "@qbs-autonaim/ui/CardDescription";
-import CardHeader from "@qbs-autonaim/ui/CardHeader";
-import CardTitle from "@qbs-autonaim/ui/CardTitle";
+import { Card } from "@qbs-autonaim/ui/Card";
+import { CardDescription } from "@qbs-autonaim/ui/CardDescription";
+import { CardHeader } from "@qbs-autonaim/ui/CardHeader";
+import { CardTitle } from "@qbs-autonaim/ui/CardTitle";
 import { CheckCircle, FileText, Inbox, Sparkles } from "lucide-react";
 
 interface ResponsesStatsProps {

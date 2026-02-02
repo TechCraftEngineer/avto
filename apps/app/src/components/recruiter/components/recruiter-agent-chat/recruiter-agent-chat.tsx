@@ -1,6 +1,6 @@
 "use client";
 
-import Button from "@qbs-autonaim/ui/button";
+import { Button } from "@qbs-autonaim/ui/button";
 import cn from "@qbs-autonaim/ui/cn";
 import { AlertCircle, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 import { memo, useState } from "react";

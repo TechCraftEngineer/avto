@@ -2,10 +2,10 @@
 
 import { useInngestSubscription } from "@inngest/realtime/hooks";
 import { paths } from "@qbs-autonaim/config";
-import Button from "@qbs-autonaim/ui/button";
-import Sheet from "@qbs-autonaim/ui/sheet";
-import SheetContent from "@qbs-autonaim/ui/sheetcontent";
-import SheetTrigger from "@qbs-autonaim/ui/sheettrigger";
+import { Button } from "@qbs-autonaim/ui/button";
+import { Sheet } from "@qbs-autonaim/ui/sheet";
+import { SheetContent } from "@qbs-autonaim/ui/sheetcontent";
+import { SheetTrigger } from "@qbs-autonaim/ui/sheettrigger";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Info } from "lucide-react";
 import Link from "next/link";

@@ -1,8 +1,8 @@
 "use client";
 
-import Tabs from "@qbs-autonaim/ui/tabs";
-import TabsList from "@qbs-autonaim/ui/tabslist";
-import TabsTrigger from "@qbs-autonaim/ui/tabstrigger";
+import { Tabs } from "@qbs-autonaim/ui/tabs";
+import { TabsList } from "@qbs-autonaim/ui/tabslist";
+import { TabsTrigger } from "@qbs-autonaim/ui/tabstrigger";
 import type React from "react";
 
 interface ResponsesTabsProps {

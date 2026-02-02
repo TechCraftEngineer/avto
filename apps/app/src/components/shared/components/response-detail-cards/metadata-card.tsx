@@ -1,10 +1,10 @@
 "use client";
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
-import Card from "@qbs-autonaim/ui/card";
-import CardContent from "@qbs-autonaim/ui/cardcontent";
-import CardHeader from "@qbs-autonaim/ui/cardheader";
-import CardTitle from "@qbs-autonaim/ui/cardtitle";
+import { Card } from "@qbs-autonaim/ui/card";
+import { CardContent } from "@qbs-autonaim/ui/cardcontent";
+import { CardHeader } from "@qbs-autonaim/ui/cardheader";
+import { CardTitle } from "@qbs-autonaim/ui/cardtitle";
 import { formatDate } from "../../utils/constants";
 
 type GigResponseDetail = RouterOutputs["gig"]["responses"]["get"];

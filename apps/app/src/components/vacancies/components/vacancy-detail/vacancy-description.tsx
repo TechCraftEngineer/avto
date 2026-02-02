@@ -1,7 +1,7 @@
-import Card from "@qbs-autonaim/ui/card";
-import CardContent from "@qbs-autonaim/ui/cardcontent";
-import CardHeader from "@qbs-autonaim/ui/cardheader";
-import CardTitle from "@qbs-autonaim/ui/cardtitle";
+import { Card } from "@qbs-autonaim/ui/card";
+import { CardContent } from "@qbs-autonaim/ui/cardcontent";
+import { CardHeader } from "@qbs-autonaim/ui/cardheader";
+import { CardTitle } from "@qbs-autonaim/ui/cardtitle";
 import { IconFileDescription } from "@tabler/icons-react";
 
 import sanitizeHtml from "sanitize-html";

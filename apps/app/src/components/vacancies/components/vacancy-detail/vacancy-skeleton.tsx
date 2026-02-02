@@ -1,6 +1,6 @@
-import Card from "@qbs-autonaim/ui/card";
-import CardContent from "@qbs-autonaim/ui/cardcontent";
-import CardHeader from "@qbs-autonaim/ui/cardheader";
+import { Card } from "@qbs-autonaim/ui/card";
+import { CardContent } from "@qbs-autonaim/ui/cardcontent";
+import { CardHeader } from "@qbs-autonaim/ui/cardheader";
 
 export function VacancySkeleton() {
   return (

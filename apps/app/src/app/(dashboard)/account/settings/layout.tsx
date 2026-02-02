@@ -1,8 +1,8 @@
 "use client";
 
-import Tabs from "@qbs-autonaim/ui/tabs";
-import TabsList from "@qbs-autonaim/ui/tabslist";
-import TabsTrigger from "@qbs-autonaim/ui/tabstrigger";
+import { Tabs } from "@qbs-autonaim/ui/tabs";
+import { TabsList } from "@qbs-autonaim/ui/tabslist";
+import { TabsTrigger } from "@qbs-autonaim/ui/tabstrigger";
 import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { PageHeader } from "~/components/layout";

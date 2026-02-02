@@ -1,9 +1,9 @@
 "use client";
 
-import Alert from "@qbs-autonaim/ui/alert";
-import AlertDescription from "@qbs-autonaim/ui/alertdescription";
-import Separator from "@qbs-autonaim/ui/separator";
-import Skeleton from "@qbs-autonaim/ui/skeleton";
+import { Alert } from "@qbs-autonaim/ui/alert";
+import { AlertDescription } from "@qbs-autonaim/ui/alertdescription";
+import { Separator } from "@qbs-autonaim/ui/separator";
+import { Skeleton } from "@qbs-autonaim/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle } from "lucide-react";
 import { useState } from "react";

@@ -1,8 +1,8 @@
 "use client";
 
-import Alert from "@qbs-autonaim/ui/alert";
-import AlertDescription from "@qbs-autonaim/ui/alertdescription";
-import AlertTitle from "@qbs-autonaim/ui/alerttitle";
+import { Alert } from "@qbs-autonaim/ui/alert";
+import { AlertDescription } from "@qbs-autonaim/ui/alertdescription";
+import { AlertTitle } from "@qbs-autonaim/ui/alerttitle";
 import {
   IconAlertCircle,
   IconAlertTriangle,

@@ -1,5 +1,5 @@
-import Button from "@qbs-autonaim/ui/button";
-import Separator from "@qbs-autonaim/ui/separator";
+import { Button } from "@qbs-autonaim/ui/button";
+import { Separator } from "@qbs-autonaim/ui/separator";
 import { Download, ExternalLink } from "lucide-react";
 import Link from "next/link";
 

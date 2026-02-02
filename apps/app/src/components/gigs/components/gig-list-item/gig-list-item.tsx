@@ -1,4 +1,4 @@
-import Badge from "@qbs-autonaim/ui/Badge";
+import { Badge } from "@qbs-autonaim/ui/Badge";
 import { MessageSquare } from "lucide-react";
 import Link from "next/link";
 
