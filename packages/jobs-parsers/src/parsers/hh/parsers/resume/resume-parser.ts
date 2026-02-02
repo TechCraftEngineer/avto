@@ -2,7 +2,6 @@ import { extractTelegramUsername } from "@qbs-autonaim/jobs/services/messaging";
 import axios from "axios";
 import type { Page } from "puppeteer";
 import { HH_CONFIG } from "../../core/config/config";
-import type { ResumeExperience } from "../../types";
 
 interface ResumeExperienceItem {
   experience: string;
@@ -281,7 +280,9 @@ export async function parseResumeExperience(
 
     // Извлекаем Telegram username
     if ("telegram" in contactsData && contactsData.telegram) {
-      const telegramUsername = await extractTelegramUsername(contactsData.telegram);
+      const telegramUsername = await extractTelegramUsername(
+        contactsData.telegram,
+      );
       if (telegramUsername) {
         result.contacts = {
           ...result.contacts,

@@ -22,9 +22,11 @@ export const screenResponsesBatchFunction = inngest.createFunction(
     console.log(`🚀 Запуск batch оценки для ${events.length} событий`);
 
     // Validate single workspace per batch
-    const workspaceIds = [...new Set(events.map(e => e.data.workspaceId))];
+    const workspaceIds = [...new Set(events.map((e) => e.data.workspaceId))];
     if (workspaceIds.length > 1) {
-      throw new Error(`Пакетная обработка может выполняться только в рамках одного рабочего пространства. Найдены пространства: ${workspaceIds.join(', ')}`);
+      throw new Error(
+        `Пакетная обработка может выполняться только в рамках одного рабочего пространства. Найдены пространства: ${workspaceIds.join(", ")}`,
+      );
     }
 
     const workspaceId = workspaceIds[0];
@@ -83,7 +85,7 @@ export const screenResponsesBatchFunction = inngest.createFunction(
     let failedCount = 0;
 
     // Обрабатываем каждый отклик
-    const results = await Promise.allSettled(
+    const _results = await Promise.allSettled(
       responses.map(async (responseItem, index) => {
         return await step.run(
           `screen-response-${responseItem.id}`,

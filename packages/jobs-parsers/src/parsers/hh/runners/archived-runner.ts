@@ -40,7 +40,7 @@ function parseArchivedDate(dateStr: string): string {
 
   // Construct date and validate
   const date = new Date(`${fullYear}-${paddedMonth}-${paddedDay}`);
-  if (isNaN(date.getTime())) {
+  if (Number.isNaN(date.getTime())) {
     return "";
   }
 

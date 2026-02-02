@@ -19,15 +19,16 @@ const NotificationSchema = z.object({
   success: z.boolean().optional(),
 });
 
-type NotificationData = z.infer<typeof NotificationSchema>;
-
 /**
  * Хук для realtime уведомлений workspace
  * Автоматически показывает toast уведомления при получении событий
  */
 export function useWorkspaceNotifications(workspaceId: string | undefined) {
   const { latestData, state } = useInngestSubscription({
-    refreshToken: () => fetchWorkspaceNotificationsToken(workspaceId!),
+    refreshToken: () => {
+      if (!workspaceId) throw new Error("workspaceId is required");
+      return fetchWorkspaceNotificationsToken(workspaceId);
+    },
     enabled: Boolean(workspaceId),
   });
 

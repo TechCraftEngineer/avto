@@ -73,9 +73,11 @@ export async function loadComponent<T>(
 /**
  * Утилита для создания lazy компонентов с error boundary
  */
-export function createLazyComponent<T extends React.ComponentType<any>>(
-  importFn: () => Promise<{ default: T }>,
-  fallback?: React.ComponentType<any>,
+export function createLazyComponent<
+  P extends Record<string, unknown> = Record<string, unknown>,
+>(
+  importFn: () => Promise<{ default: React.ComponentType<P> }>,
+  fallback?: React.ComponentType<Record<string, unknown>>,
 ) {
   return React.lazy(() => loadComponent(importFn, fallback));
 }
@@ -95,13 +97,13 @@ export function useServerCache<T>(
 /**
  * Утилита для оптимизации re-renders
  */
-export function useStableCallback<T extends (...args: any[]) => any>(
+export function useStableCallback<T extends (...args: never[]) => unknown>(
   callback: T,
 ): T {
   const callbackRef = React.useRef(callback);
   callbackRef.current = callback;
 
-  return React.useCallback((...args: any[]) => {
+  return React.useCallback((...args: Parameters<T>) => {
     return callbackRef.current(...args);
   }, []) as T;
 }

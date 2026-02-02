@@ -43,7 +43,12 @@ export function useScreenBatchProgress(
   const [completed, setCompleted] = useState<BatchCompleted | null>(null);
 
   const { data, latestData, state } = useInngestSubscription({
-    refreshToken: () => fetchScreenBatchToken(workspaceId!, batchId!),
+    refreshToken: () => {
+      if (!workspaceId || !batchId) {
+        throw new Error("workspaceId and batchId are required");
+      }
+      return fetchScreenBatchToken(workspaceId, batchId);
+    },
     enabled: Boolean(workspaceId && batchId),
   });
 

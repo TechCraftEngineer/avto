@@ -23,7 +23,10 @@ export function useVacancyStats(vacancyId: string | undefined) {
   const queryClient = useQueryClient();
 
   const { latestData, state, error } = useInngestSubscription({
-    refreshToken: () => fetchVacancyStatsToken(vacancyId!),
+    refreshToken: () => {
+      if (!vacancyId) throw new Error("vacancyId is required");
+      return fetchVacancyStatsToken(vacancyId);
+    },
     enabled: Boolean(vacancyId),
   });
 
@@ -36,10 +39,10 @@ export function useVacancyStats(vacancyId: string | undefined) {
     // Обновляем кэш конкретной вакансии
     queryClient.setQueryData(
       trpc.vacancy.get.queryKey({ id: vacancyId }),
-      (oldData: any) => {
+      (oldData: unknown) => {
         if (!oldData) return oldData;
         return {
-          ...oldData,
+          ...(oldData as Record<string, unknown>),
           ...data,
         };
       },

@@ -122,7 +122,7 @@ export const OptimizedComponent = React.memo<OptimizedComponentProps>(
 OptimizedComponent.displayName = "OptimizedComponent";
 
 // Hook for stable callbacks
-export function useStableCallback<T extends (...args: any[]) => any>(
+export function useStableCallback<T extends (...args: never[]) => unknown>(
   callback: T,
 ): T {
   const callbackRef = React.useRef(callback);
@@ -144,6 +144,7 @@ export function useStableValue<T>(value: T): T {
 export function OptimizedList<T>({
   items,
   renderItem,
+  keyExtractor,
   className,
   virtualize = false,
   itemHeight = 50,
@@ -151,6 +152,7 @@ export function OptimizedList<T>({
 }: {
   items: T[];
   renderItem: (item: T, index: number) => React.ReactNode;
+  keyExtractor: (item: T, index: number) => string | number;
   className?: string;
   virtualize?: boolean;
   itemHeight?: number;
@@ -163,6 +165,7 @@ export function OptimizedList<T>({
         itemHeight={itemHeight}
         containerHeight={containerHeight}
         renderItem={renderItem}
+        keyExtractor={keyExtractor}
         className={className}
       />
     );
@@ -171,7 +174,9 @@ export function OptimizedList<T>({
   return (
     <div className={cn("optimized-list", className)}>
       {items.map((item, index) => (
-        <React.Fragment key={index}>{renderItem(item, index)}</React.Fragment>
+        <React.Fragment key={keyExtractor(item, index)}>
+          {renderItem(item, index)}
+        </React.Fragment>
       ))}
     </div>
   );
@@ -181,12 +186,14 @@ export function OptimizedList<T>({
 function VirtualizedList<T>({
   items,
   renderItem,
+  keyExtractor,
   itemHeight,
   containerHeight,
   className,
 }: {
   items: T[];
   renderItem: (item: T, index: number) => React.ReactNode;
+  keyExtractor: (item: T, index: number) => string | number;
   itemHeight: number;
   containerHeight: number;
   className?: string;
@@ -219,9 +226,14 @@ function VirtualizedList<T>({
             right: 0,
           }}
         >
-          {visibleItems.map((item, index) =>
-            renderItem(item, startIndex + index),
-          )}
+          {visibleItems.map((item, index) => {
+            const actualIndex = startIndex + index;
+            return (
+              <React.Fragment key={keyExtractor(item, actualIndex)}>
+                {renderItem(item, actualIndex)}
+              </React.Fragment>
+            );
+          })}
         </div>
       </div>
     </div>
