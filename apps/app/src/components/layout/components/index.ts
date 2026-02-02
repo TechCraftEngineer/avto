@@ -2,7 +2,7 @@
 export { AppSidebar } from "./app-sidebar";
 export { AppSidebarWrapper } from "./app-sidebar-wrapper";
 export { ClientLayout } from "./client-layout";
-export { Index } from "./index";
+export * from "./index/index";
 export { NavCollapsible } from "./nav-collapsible";
 export { NavDocuments } from "./nav-documents";
 export { NavMain } from "./nav-main";

@@ -3,7 +3,7 @@ export { ActionProgressIndicator } from "./action-progress-indicator";
 export { AnalyticsPanel } from "./analytics-panel";
 export { CandidateCard } from "./candidate-card";
 export { Chat } from "./chat";
-export { Index } from "./index";
+export * from "./index/index";
 export { RecruiterAgentChat } from "./recruiter-agent-chat";
 export { RecruiterAgentChatInput } from "./recruiter-agent-chat-input";
 export { RecruiterAgentMessage } from "./recruiter-agent-message";

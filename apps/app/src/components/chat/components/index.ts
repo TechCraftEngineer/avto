@@ -15,7 +15,7 @@ export { ChatMessages } from "./chat-messages";
 export { ChatPreviewCard } from "./chat-preview-card";
 export { ChatSidebar } from "./chat-sidebar";
 export { DataStreamProvider } from "./data-stream-provider";
-export { Index } from "./index";
+export * from "./index/index";
 export { InterviewChat } from "./interview-chat";
 export { InterviewContextCard } from "./interview-context-card";
 export { MessageModal } from "./message-modal";
