@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@qbs-autonaim/ui/button";
-import cn from "@qbs-autonaim/ui/cn";
+import { cn } from "@qbs-autonaim/ui";
 import { Bot, User } from "lucide-react";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";

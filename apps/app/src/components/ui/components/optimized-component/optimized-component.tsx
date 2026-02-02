@@ -5,7 +5,7 @@
 
 "use client";
 
-import cn from "@qbs-autonaim/ui/cn";
+import { cn } from "@qbs-autonaim/ui";
 import React from "react";
 
 // Types for optimization

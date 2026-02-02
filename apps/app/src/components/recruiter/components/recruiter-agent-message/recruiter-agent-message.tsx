@@ -1,6 +1,6 @@
 "use client";
 
-import cn from "@qbs-autonaim/ui/cn";
+import { cn } from "@qbs-autonaim/ui";
 import { Sparkles, User } from "lucide-react";
 import { memo } from "react";
 import type { ConversationMessage } from "~/hooks/use-recruiter-agent";

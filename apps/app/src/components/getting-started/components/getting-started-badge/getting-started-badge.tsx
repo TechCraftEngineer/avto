@@ -1,6 +1,6 @@
 "use client";
 
-import cn from "@qbs-autonaim/ui/cn";
+import { cn } from "@qbs-autonaim/ui";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { useGettingStarted } from "~/hooks/use-getting-started";

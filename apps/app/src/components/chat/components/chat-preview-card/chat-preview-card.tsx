@@ -4,7 +4,7 @@ import { paths } from "@qbs-autonaim/config";
 import { Badge } from "@qbs-autonaim/ui/badge";
 import { Button } from "@qbs-autonaim/ui/button";
 import { Card } from "@qbs-autonaim/ui/card";
-import cn from "@qbs-autonaim/ui/cn";
+import { cn } from "@qbs-autonaim/ui";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 import { Clock, MessageCircle } from "lucide-react";

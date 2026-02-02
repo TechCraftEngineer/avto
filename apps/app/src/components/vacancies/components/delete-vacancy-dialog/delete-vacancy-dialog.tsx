@@ -1,6 +1,6 @@
 "use client";
 
-import DeleteVacancyDialog as UIDeleteVacancyDialog from "@qbs-autonaim/ui/deletevacancydialog as uideletevacancydialog";
+import { DeleteVacancyDialog as UIDeleteVacancyDialog } from "@qbs-autonaim/ui/delete-vacancy-dialog";
 
 interface DeleteVacancyDialogProps {
   open: boolean;

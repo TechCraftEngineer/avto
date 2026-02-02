@@ -1,6 +1,6 @@
 "use client";
 import { useDroppable } from "@dnd-kit/core";
-import cn from "@qbs-autonaim/ui/cn";
+import { cn } from "@qbs-autonaim/ui";
 import { Users } from "lucide-react";
 import { CandidateKanbanItem } from "~/components";
 import type { FunnelCandidate } from "../../types/types";

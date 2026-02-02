@@ -1,6 +1,6 @@
 "use client";
 
-import cn from "@qbs-autonaim/ui/cn";
+import { cn } from "@qbs-autonaim/ui";
 
 interface MatchScoreCircleProps {
   score: number;

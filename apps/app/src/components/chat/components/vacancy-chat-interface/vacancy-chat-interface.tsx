@@ -2,8 +2,8 @@
 
 import { Button } from "@qbs-autonaim/ui/button";
 import { Card } from "@qbs-autonaim/ui/card";
-import cn from "@qbs-autonaim/ui/cn";
-import { ScrollArea } from "@qbs-autonaim/ui/scrollarea";
+import { cn } from "@qbs-autonaim/ui";
+import { ScrollArea } from "@qbs-autonaim/ui/scroll-area";
 import { Textarea } from "@qbs-autonaim/ui/textarea";
 import { useMutation } from "@tanstack/react-query";
 import { AlertCircle, Bot, FileText, Loader2, Send, User } from "lucide-react";

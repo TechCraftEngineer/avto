@@ -1,7 +1,6 @@
 "use client";
 
-import { Alert } from "@qbs-autonaim/ui/alert";
-import { AlertDescription } from "@qbs-autonaim/ui/alertdescription";
+import { Alert, AlertDescription } from "@qbs-autonaim/ui/alert";
 import { Separator } from "@qbs-autonaim/ui/separator";
 import { Skeleton } from "@qbs-autonaim/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";

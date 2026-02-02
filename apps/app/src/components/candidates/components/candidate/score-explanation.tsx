@@ -1,8 +1,6 @@
 "use client";
 
-import { Card } from "@qbs-autonaim/ui/card";
-import { CardContent } from "@qbs-autonaim/ui/cardcontent";
-import { CardHeader } from "@qbs-autonaim/ui/cardheader";
+import { Card, CardContent, CardHeader } from "@qbs-autonaim/ui/card";
 import { Progress } from "@qbs-autonaim/ui/progress";
 import { AlertCircle, Info } from "lucide-react";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import cn from "@qbs-autonaim/ui/cn";
+import { cn } from "@qbs-autonaim/ui";
 import { ArrowDown } from "lucide-react";
 import { memo } from "react";
 import { useChatMessages } from "~/hooks/use-chat-messages";

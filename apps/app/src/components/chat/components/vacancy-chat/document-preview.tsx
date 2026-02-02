@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@qbs-autonaim/ui/button";
-import { ScrollArea } from "@qbs-autonaim/ui/scrollarea";
+import { ScrollArea } from "@qbs-autonaim/ui/scroll-area";
 import { Textarea } from "@qbs-autonaim/ui/textarea";
 import { IconEdit } from "@tabler/icons-react";
 import { FileText, Loader2 } from "lucide-react";

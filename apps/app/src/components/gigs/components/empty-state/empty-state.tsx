@@ -1,6 +1,5 @@
 import { Button } from "@qbs-autonaim/ui/button";
-import { Card } from "@qbs-autonaim/ui/card";
-import { CardContent } from "@qbs-autonaim/ui/cardcontent";
+import { Card, CardContent } from "@qbs-autonaim/ui/card";
 import { Briefcase, Plus } from "lucide-react";
 import Link from "next/link";
 import { env } from "~/env";

@@ -1,7 +1,4 @@
-import { Card } from "@qbs-autonaim/ui/card";
-import { CardContent } from "@qbs-autonaim/ui/cardcontent";
-import { CardHeader } from "@qbs-autonaim/ui/cardheader";
-import { CardTitle } from "@qbs-autonaim/ui/cardtitle";
+import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui/card";
 import { Calendar, Target, Timer, Wallet } from "lucide-react";
 import { memo } from "react";
 import { formatBudget, formatDate } from "../gig-detail-utils";
