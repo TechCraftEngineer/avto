@@ -1,6 +1,6 @@
 import { Tabs, TabsList, TabsTrigger } from "@qbs-autonaim/ui";
 import { LayoutGrid, List } from "lucide-react";
-import { pluralizeCandidate } from "./constants";
+import { pluralizeCandidate } from "../constants";
 
 interface PipelineViewSwitcherProps {
   activeView: "board" | "table";

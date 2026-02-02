@@ -1,11 +1,11 @@
 "use client";
 
 import { ParsedProfileCard } from "~/components/response-detail";
+import { VacancyResponseTabs } from "~/components/responses/components/response-detail";
 import {
   type ResponseDetail,
   useVacancyResponseFlags,
-} from "../hooks/use-vacancy-response-flags";
-import { VacancyResponseTabs } from "../vacancy-response-tabs";
+} from "../../hooks/use-vacancy-response-flags";
 import { ResponseHeaderCard } from "./response-header-card";
 
 interface ResponseDetailCardProps {

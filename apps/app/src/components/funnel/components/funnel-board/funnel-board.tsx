@@ -1,4 +1,4 @@
-import { CandidatePipeline } from "../candidates";
+import { CandidatePipeline } from "~/components/candidates";
 
 export function FunnelBoard() {
   return <CandidatePipeline />;

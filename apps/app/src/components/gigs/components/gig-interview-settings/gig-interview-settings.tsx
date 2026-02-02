@@ -17,7 +17,7 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
-import { CustomDomainSelect } from "../filters/custom-domain-select";
+import { CustomDomainSelect } from "../custom-domain-select";
 import { InterviewMediaUpload } from "../interview-media-upload";
 
 interface GigInterviewSettingsProps {

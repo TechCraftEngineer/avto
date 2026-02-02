@@ -1,7 +1,7 @@
 // components for chat
 export { AIChatInput, AiChatInput } from "./ai-chat-input";
 export { AIMessage, AiMessage } from "./ai-message";
-export { AIMessages, AIMessages, AiMessages, AiMessages } from "./ai-messages";
+export { AIMessages, AiMessages } from "./ai-messages";
 export { CandidateInfo } from "./candidate-info";
 export { ChatContainer } from "./chat-container";
 export { ChatError } from "./chat-error";

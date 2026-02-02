@@ -1,1 +1,1 @@
-export { DeleteWorkspaceDialog } from './delete-workspace-dialog';
+export { DeleteWorkspaceDialog } from "./delete-workspace-dialog";

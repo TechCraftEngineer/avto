@@ -21,7 +21,7 @@ import {
   Trash2,
 } from "lucide-react";
 import Link from "next/link";
-import { formatDate, getGigTypeLabel } from "./gig-detail-utils";
+import { formatDate, getGigTypeLabel } from "../gig-detail-utils";
 
 interface GigDetailHeaderProps {
   gig: {

@@ -1,1 +1,1 @@
-export { CustomDomainSelect } from './custom-domain-select';
+export { CustomDomainSelect } from "./custom-domain-select";

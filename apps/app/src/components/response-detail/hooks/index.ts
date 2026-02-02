@@ -1,1 +1,1 @@
-export * from './use-vacancy-response-flags';
+export * from "./use-vacancy-response-flags";

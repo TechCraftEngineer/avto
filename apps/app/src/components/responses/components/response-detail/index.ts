@@ -1,1 +1,1 @@
-export { VacancyResponseTabs } from './vacancy-response-tabs';
+export { VacancyResponseTabs } from "./vacancy-response-tabs";

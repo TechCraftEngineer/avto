@@ -23,7 +23,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useTRPC } from "~/trpc/react";
-import { DeleteWorkspaceDialog } from "./delete-workspace-dialog";
+import { DeleteWorkspaceDialog } from "./components/delete-workspace-dialog";
 
 const workspaceFormSchema = z.object({
   name: z
