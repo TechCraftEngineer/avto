@@ -13,4 +13,3 @@ interface DeleteVacancyDialogProps {
 export function DeleteVacancyDialog(props: DeleteVacancyDialogProps) {
   return <UIDeleteVacancyDialog {...props} />;
 }
-

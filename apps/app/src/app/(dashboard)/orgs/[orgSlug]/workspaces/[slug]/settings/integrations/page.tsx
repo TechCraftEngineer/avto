@@ -10,8 +10,8 @@ import {
   IntegrationCard,
   IntegrationCategorySection,
   IntegrationDialog,
+  TelegramSessionsCard,
 } from "~/components";
-import { TelegramSessionsCard } from "~/components";
 import { useWorkspace } from "~/hooks/use-workspace";
 import {
   AVAILABLE_INTEGRATIONS,
@@ -171,4 +171,3 @@ export default function IntegrationsPage() {
     </>
   );
 }
-

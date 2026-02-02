@@ -1,6 +1,11 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/card";
 import { CandidateCard } from "~/components/candidates";
 import type { FunnelCandidate } from "~/components/candidates/types/types";
 
@@ -58,4 +63,3 @@ export function FunnelColumn({
     </div>
   );
 }
-

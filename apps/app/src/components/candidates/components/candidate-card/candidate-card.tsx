@@ -56,4 +56,3 @@ export function CandidateCard({ candidate, onClick }: CandidateCardProps) {
     </button>
   );
 }
-

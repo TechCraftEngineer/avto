@@ -28,4 +28,3 @@ export function EmptyState({ hasFilters }: EmptyStateProps) {
     </Card>
   );
 }
-

@@ -129,4 +129,3 @@ export function InterviewContextCard({ context }: InterviewContextCardProps) {
     </Card>
   );
 }
-
