@@ -1,1 +1,1 @@
-export { VacancyPerformanceBadge } from './vacancy-performance-badge';
+export { VacancyPerformanceBadge } from "./vacancy-performance-badge";

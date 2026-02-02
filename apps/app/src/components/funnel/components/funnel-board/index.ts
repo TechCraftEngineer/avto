@@ -1,1 +1,1 @@
-export { FunnelBoard } from './funnel-board';
+export { FunnelBoard } from "./funnel-board";

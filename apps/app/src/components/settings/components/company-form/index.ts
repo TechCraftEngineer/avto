@@ -1,1 +1,1 @@
-export { CompanyForm } from './company-form';
+export { CompanyForm } from "./company-form";

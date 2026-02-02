@@ -1,1 +1,1 @@
-export { ResponseHeader } from './response-header';
+export { ResponseHeader } from "./response-header";

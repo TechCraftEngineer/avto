@@ -1,1 +1,1 @@
-export { DeleteVacancyDialog } from './delete-vacancy-dialog';
+export { DeleteVacancyDialog } from "./delete-vacancy-dialog";

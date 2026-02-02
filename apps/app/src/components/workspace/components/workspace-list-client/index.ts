@@ -1,1 +1,1 @@
-export { WorkspaceListClient } from './workspace-list-client';
+export { WorkspaceListClient } from "./workspace-list-client";

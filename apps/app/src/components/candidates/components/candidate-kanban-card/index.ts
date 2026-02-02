@@ -1,1 +1,1 @@
-export { CandidateKanbanCard } from './candidate-kanban-card';
+export { CandidateKanbanCard } from "./candidate-kanban-card";

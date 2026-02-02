@@ -1,1 +1,1 @@
-export { OrganizationGeneralForm } from './organization-general-form';
+export { OrganizationGeneralForm } from "./organization-general-form";

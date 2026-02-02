@@ -1,1 +1,1 @@
-export { AddPublicationDialog } from './add-publication-dialog';
+export { AddPublicationDialog } from "./add-publication-dialog";

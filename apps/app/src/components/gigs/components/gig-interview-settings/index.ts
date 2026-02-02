@@ -1,1 +1,1 @@
-export { GigInterviewSettings } from './gig-interview-settings';
+export { GigInterviewSettings } from "./gig-interview-settings";

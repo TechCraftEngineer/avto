@@ -1,1 +1,1 @@
-export { DnsInstructionsDialog } from './dns-instructions-dialog';
+export { DnsInstructionsDialog } from "./dns-instructions-dialog";

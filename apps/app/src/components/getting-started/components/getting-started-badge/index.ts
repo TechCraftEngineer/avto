@@ -1,1 +1,1 @@
-export { GettingStartedBadge } from './getting-started-badge';
+export { GettingStartedBadge } from "./getting-started-badge";

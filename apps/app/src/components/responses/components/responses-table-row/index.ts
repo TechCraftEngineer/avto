@@ -1,1 +1,1 @@
-export { ResponsesTableRow } from './responses-table-row';
+export { ResponsesTableRow } from "./responses-table-row";

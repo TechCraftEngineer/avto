@@ -1,1 +1,1 @@
-export { CustomDomainsSection } from './custom-domains-section';
+export { CustomDomainsSection } from "./custom-domains-section";

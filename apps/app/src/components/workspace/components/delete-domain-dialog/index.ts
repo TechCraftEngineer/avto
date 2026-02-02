@@ -1,1 +1,1 @@
-export { DeleteDomainDialog } from './delete-domain-dialog';
+export { DeleteDomainDialog } from "./delete-domain-dialog";

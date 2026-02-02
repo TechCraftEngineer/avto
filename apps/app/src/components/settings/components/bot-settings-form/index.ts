@@ -1,1 +1,1 @@
-export { BotSettingsForm } from './bot-settings-form';
+export { BotSettingsForm } from "./bot-settings-form";

@@ -1,1 +1,1 @@
-export { VacancyHelpTooltip } from './vacancy-help-tooltip';
+export { VacancyHelpTooltip } from "./vacancy-help-tooltip";

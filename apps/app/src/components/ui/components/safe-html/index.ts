@@ -1,1 +1,1 @@
-export { SafeHtml } from './safe-html';
+export { SafeHtml } from "./safe-html";

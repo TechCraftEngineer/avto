@@ -1,1 +1,1 @@
-export { OptimizedComponent } from './optimized-component';
+export { OptimizedComponent } from "./optimized-component";

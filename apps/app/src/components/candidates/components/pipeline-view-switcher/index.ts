@@ -1,1 +1,1 @@
-export { PipelineViewSwitcher } from './pipeline-view-switcher';
+export { PipelineViewSwitcher } from "./pipeline-view-switcher";

@@ -7,8 +7,8 @@ import {
   IconEye,
   IconMapPin,
 } from "@tabler/icons-react";
-import type { VacancyPublication } from "./types";
 import { SourceConfig as SOURCE_CONFIG } from "~/components/vacancy-detail";
+import type { VacancyPublication } from "./types";
 
 interface VacancyHeaderProps {
   vacancy: {

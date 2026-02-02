@@ -1,1 +1,1 @@
-export { ScreeningInfo } from './screening-info';
+export { ScreeningInfo } from "./screening-info";

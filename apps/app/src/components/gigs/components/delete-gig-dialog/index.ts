@@ -1,1 +1,1 @@
-export { DeleteGigDialog } from './delete-gig-dialog';
+export { DeleteGigDialog } from "./delete-gig-dialog";

@@ -1,1 +1,1 @@
-export { CandidateColumn } from './candidate-column';
+export { CandidateColumn } from "./candidate-column";

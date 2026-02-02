@@ -1,1 +1,1 @@
-export { EmailPasswordForm } from './email-password-form';
+export { EmailPasswordForm } from "./email-password-form";

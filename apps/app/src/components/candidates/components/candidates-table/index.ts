@@ -1,1 +1,1 @@
-export { CandidatesTable } from './candidates-table';
+export { CandidatesTable } from "./candidates-table";

@@ -1,1 +1,1 @@
-export { ResponsesChart } from './responses-chart';
+export { ResponsesChart } from "./responses-chart";

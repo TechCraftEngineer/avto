@@ -1,1 +1,1 @@
-export { ResponsesTable } from './responses-table';
+export { ResponsesTable } from "./responses-table";

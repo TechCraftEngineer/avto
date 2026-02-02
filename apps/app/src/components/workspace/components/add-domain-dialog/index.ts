@@ -1,1 +1,1 @@
-export { AddDomainDialog } from './add-domain-dialog';
+export { AddDomainDialog } from "./add-domain-dialog";

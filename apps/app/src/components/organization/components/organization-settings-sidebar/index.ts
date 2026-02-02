@@ -1,1 +1,1 @@
-export { OrganizationSettingsSidebar } from './organization-settings-sidebar';
+export { OrganizationSettingsSidebar } from "./organization-settings-sidebar";

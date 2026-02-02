@@ -1,1 +1,1 @@
-export { CandidatePipeline } from './candidate-pipeline';
+export { CandidatePipeline } from "./candidate-pipeline";

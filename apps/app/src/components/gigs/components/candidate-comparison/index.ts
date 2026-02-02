@@ -1,1 +1,1 @@
-export { CandidateComparison } from './candidate-comparison';
+export { CandidateComparison } from "./candidate-comparison";

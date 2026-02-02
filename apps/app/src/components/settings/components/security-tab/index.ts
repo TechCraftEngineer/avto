@@ -1,1 +1,1 @@
-export { SecurityTab } from './security-tab';
+export { SecurityTab } from "./security-tab";

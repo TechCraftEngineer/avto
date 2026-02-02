@@ -35,13 +35,13 @@ import {
   triggerImportSelectedArchivedVacancies,
   triggerImportVacancyByUrl,
 } from "~/actions/vacancy-import";
+import { ImportArchivedProgress } from "~/components/vacancy/components/import/import-archived-progress";
+import { ImportByUrlProgress } from "~/components/vacancy/components/import/import-by-url-progress";
+import { ImportNewProgress } from "~/components/vacancy/components/import/import-new-progress";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useWorkspaceParams } from "~/hooks/use-workspace-params";
 import { useTRPC } from "~/trpc/react";
 import { ArchivedVacanciesSelector } from "../archived-vacancies-selector";
-import { ImportArchivedProgress } from "~/components/vacancy/components/import/import-archived-progress";
-import { ImportByUrlProgress } from "~/components/vacancy/components/import/import-by-url-progress";
-import { ImportNewProgress } from "~/components/vacancy/components/import/import-new-progress";
 
 export function VacancyImportSection() {
   const { workspace } = useWorkspace();

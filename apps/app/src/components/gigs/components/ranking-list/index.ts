@@ -1,1 +1,1 @@
-export { RankingList } from './ranking-list';
+export { RankingList } from "./ranking-list";

@@ -1,1 +1,1 @@
-export { CandidateKanbanColumn } from './candidate-kanban-column';
+export { CandidateKanbanColumn } from "./candidate-kanban-column";

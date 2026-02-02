@@ -1,1 +1,1 @@
-export { VacancyChatInterface } from './vacancy-chat-interface';
+export { VacancyChatInterface } from "./vacancy-chat-interface";

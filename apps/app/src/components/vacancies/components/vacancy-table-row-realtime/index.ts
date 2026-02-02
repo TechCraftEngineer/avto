@@ -1,1 +1,1 @@
-export { VacancyTableRowRealtime } from './vacancy-table-row-realtime';
+export { VacancyTableRowRealtime } from "./vacancy-table-row-realtime";

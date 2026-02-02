@@ -1,1 +1,1 @@
-export { StreamingChat } from './streaming-chat';
+export { StreamingChat } from "./streaming-chat";

@@ -1,1 +1,1 @@
-export { OrganizationMembersClient } from './organization-members-client';
+export { OrganizationMembersClient } from "./organization-members-client";

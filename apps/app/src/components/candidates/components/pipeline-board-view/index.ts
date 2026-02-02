@@ -1,1 +1,1 @@
-export { PipelineBoardView } from './pipeline-board-view';
+export { PipelineBoardView } from "./pipeline-board-view";

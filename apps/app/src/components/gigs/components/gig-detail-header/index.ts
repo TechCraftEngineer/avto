@@ -1,1 +1,1 @@
-export { GigDetailHeader } from './gig-detail-header';
+export { GigDetailHeader } from "./gig-detail-header";

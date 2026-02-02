@@ -1,1 +1,1 @@
-export { QuickReplies } from './quick-replies';
+export { QuickReplies } from "./quick-replies";

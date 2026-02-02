@@ -52,7 +52,7 @@ export function useScreenBatchProgress(
     setScoredResponses([]);
     setProgress(null);
     setCompleted(null);
-  }, [workspaceId, batchId]);
+  }, []);
 
   useEffect(() => {
     if (!latestData) return;
@@ -66,7 +66,9 @@ export function useScreenBatchProgress(
       // Обновляем кэш конкретного отклика
       if (scored.status === "completed") {
         queryClient.invalidateQueries({
-          queryKey: trpc.vacancy.responses.get.queryKey({ id: scored.responseId }),
+          queryKey: trpc.vacancy.responses.get.queryKey({
+            id: scored.responseId,
+          }),
         });
       }
     } else if (topic === "batch-progress") {

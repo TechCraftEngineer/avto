@@ -1,1 +1,1 @@
-export { RestorePrompt } from './restore-prompt';
+export { RestorePrompt } from "./restore-prompt";

@@ -1,1 +1,1 @@
-export { VacancyTableRow } from './vacancy-table-row';
+export { VacancyTableRow } from "./vacancy-table-row";

@@ -1,1 +1,1 @@
-export { UniversalChatPanel } from './universal-chat-panel';
+export { UniversalChatPanel } from "./universal-chat-panel";

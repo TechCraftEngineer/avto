@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import {
   Badge,
   Card,
@@ -12,6 +11,7 @@ import {
   ScrollArea,
 } from "@qbs-autonaim/ui";
 import { IconCheck, IconClock, IconLoader2, IconX } from "@tabler/icons-react";
+import { useEffect, useRef } from "react";
 import { useScreenBatchProgress } from "~/hooks/use-screen-batch-progress";
 
 interface BatchScreeningProgressProps {

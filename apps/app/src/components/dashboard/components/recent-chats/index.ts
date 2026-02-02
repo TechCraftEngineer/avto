@@ -1,1 +1,1 @@
-export { RecentChats } from './recent-chats';
+export { RecentChats } from "./recent-chats";

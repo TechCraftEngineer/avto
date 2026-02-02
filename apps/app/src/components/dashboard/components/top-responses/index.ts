@@ -1,1 +1,1 @@
-export { TopResponses } from './top-responses';
+export { TopResponses } from "./top-responses";

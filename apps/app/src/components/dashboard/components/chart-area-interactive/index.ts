@@ -1,1 +1,1 @@
-export { ChartAreaInteractive } from './chart-area-interactive';
+export { ChartAreaInteractive } from "./chart-area-interactive";

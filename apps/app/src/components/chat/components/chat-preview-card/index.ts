@@ -1,1 +1,1 @@
-export { ChatPreviewCard } from './chat-preview-card';
+export { ChatPreviewCard } from "./chat-preview-card";

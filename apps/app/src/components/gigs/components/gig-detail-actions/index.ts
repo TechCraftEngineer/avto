@@ -1,1 +1,1 @@
-export { GigDetailActions } from './gig-detail-actions';
+export { GigDetailActions } from "./gig-detail-actions";

@@ -1,1 +1,1 @@
-export { NavSecondary } from './nav-secondary';
+export { NavSecondary } from "./nav-secondary";

@@ -1,1 +1,1 @@
-export { UseGigsFilters } from './use-gigs-filters';
+export { UseGigsFilters } from "./use-gigs-filters";

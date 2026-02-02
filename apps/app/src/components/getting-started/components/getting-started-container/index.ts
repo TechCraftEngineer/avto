@@ -1,1 +1,1 @@
-export { GettingStartedContainer } from './getting-started-container';
+export { GettingStartedContainer } from "./getting-started-container";

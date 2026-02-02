@@ -1,1 +1,1 @@
-export { ArchivedVacanciesSelector } from './archived-vacancies-selector';
+export { ArchivedVacanciesSelector } from "./archived-vacancies-selector";

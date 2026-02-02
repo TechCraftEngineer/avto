@@ -1,1 +1,1 @@
-export { TelegramInterviewScoring } from './telegram-interview-scoring';
+export { TelegramInterviewScoring } from "./telegram-interview-scoring";

@@ -1,1 +1,1 @@
-export { VacancyStats } from './vacancy-stats';
+export { VacancyStats } from "./vacancy-stats";

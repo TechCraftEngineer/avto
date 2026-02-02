@@ -21,9 +21,9 @@ export function CandidatePipeline() {
   const trpc = useTRPC();
 
   const [activeView, setActiveView] = useState<"board" | "table">("board");
-  const [selectedCandidate, setSelectedCandidate] =
+  const [_selectedCandidate, setSelectedCandidate] =
     useState<FunnelCandidate | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [_isModalOpen, setIsModalOpen] = useState(false);
 
   const {
     selectedVacancy,

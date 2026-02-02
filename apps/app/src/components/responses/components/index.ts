@@ -5,7 +5,6 @@ export { EmptyState } from "./gig-responses/empty-state";
 export { MessageDialog } from "./gig-responses/message-dialog";
 export { ResponseHeader } from "./gig-responses/response-header";
 export { ResponseRow } from "./gig-responses/response-row";
-export * from "./index/index";
 export { ResponseActions } from "./response/response-actions";
 export {
   ResponseFilters,

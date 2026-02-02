@@ -1,1 +1,1 @@
-export { EmailVerificationResend } from './email-verification-resend';
+export { EmailVerificationResend } from "./email-verification-resend";

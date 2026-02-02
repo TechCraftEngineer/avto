@@ -1,1 +1,1 @@
-export { WorkspaceNotificationsProvider } from './workspace-notifications-provider';
+export { WorkspaceNotificationsProvider } from "./workspace-notifications-provider";

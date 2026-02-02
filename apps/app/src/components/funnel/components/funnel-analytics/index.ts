@@ -1,1 +1,1 @@
-export { FunnelAnalytics } from './funnel-analytics';
+export { FunnelAnalytics } from "./funnel-analytics";

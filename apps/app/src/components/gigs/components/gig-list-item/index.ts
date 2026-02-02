@@ -1,1 +1,1 @@
-export { GigListItem } from './gig-list-item';
+export { GigListItem } from "./gig-list-item";

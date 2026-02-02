@@ -1,1 +1,1 @@
-export { ActivityTimeline } from './activity-timeline';
+export { ActivityTimeline } from "./activity-timeline";

@@ -1,1 +1,1 @@
-export { DeleteOrganizationDialog } from './delete-organization-dialog';
+export { DeleteOrganizationDialog } from "./delete-organization-dialog";

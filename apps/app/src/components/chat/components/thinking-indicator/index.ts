@@ -1,1 +1,1 @@
-export { ThinkingIndicator } from './thinking-indicator';
+export { ThinkingIndicator } from "./thinking-indicator";

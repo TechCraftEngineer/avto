@@ -1,1 +1,1 @@
-export { ResponseListCard } from './response-list-card';
+export { ResponseListCard } from "./response-list-card";

@@ -1,1 +1,1 @@
-export { ResumePdfLink } from './resume-pdf-link';
+export { ResumePdfLink } from "./resume-pdf-link";

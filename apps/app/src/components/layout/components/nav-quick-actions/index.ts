@@ -1,1 +1,1 @@
-export { NavQuickActions } from './nav-quick-actions';
+export { NavQuickActions } from "./nav-quick-actions";

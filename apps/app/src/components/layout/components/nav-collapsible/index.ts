@@ -1,1 +1,1 @@
-export { NavCollapsible } from './nav-collapsible';
+export { NavCollapsible } from "./nav-collapsible";

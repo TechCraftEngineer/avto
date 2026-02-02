@@ -1,1 +1,1 @@
-export { GeneralTab } from './general-tab';
+export { GeneralTab } from "./general-tab";

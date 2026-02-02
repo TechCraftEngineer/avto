@@ -1,1 +1,1 @@
-export { UnifiedAuthForm } from './unified-auth-form';
+export { UnifiedAuthForm } from "./unified-auth-form";

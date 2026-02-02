@@ -1,1 +1,1 @@
-export { ActiveVacancies } from './active-vacancies';
+export { ActiveVacancies } from "./active-vacancies";

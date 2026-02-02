@@ -1,1 +1,1 @@
-export { DomainCard } from './domain-card';
+export { DomainCard } from "./domain-card";

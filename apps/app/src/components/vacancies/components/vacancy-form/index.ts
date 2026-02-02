@@ -1,1 +1,1 @@
-export { VacancyForm } from './vacancy-form';
+export { VacancyForm } from "./vacancy-form";

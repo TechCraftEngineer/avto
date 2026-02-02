@@ -1,1 +1,1 @@
-export { IntegrationCategorySection } from './integration-category-section';
+export { IntegrationCategorySection } from "./integration-category-section";

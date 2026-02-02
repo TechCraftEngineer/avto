@@ -8,8 +8,12 @@ import { fetchWorkspaceNotificationsToken } from "~/actions/realtime";
 
 const NotificationSchema = z.object({
   workspaceId: z.string(),
-  type: z.enum(["hh-auth-failed", "telegram-auth-failed", "api-error", "rate-limit"]).optional(),
-  taskType: z.enum(["import", "screening", "resume-parsing", "sync", "update"]).optional(),
+  type: z
+    .enum(["hh-auth-failed", "telegram-auth-failed", "api-error", "rate-limit"])
+    .optional(),
+  taskType: z
+    .enum(["import", "screening", "resume-parsing", "sync", "update"])
+    .optional(),
   message: z.string(),
   severity: z.enum(["error", "warning", "info"]).optional(),
   success: z.boolean().optional(),

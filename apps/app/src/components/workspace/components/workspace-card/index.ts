@@ -1,1 +1,1 @@
-export { WorkspaceCard } from './workspace-card';
+export { WorkspaceCard } from "./workspace-card";

@@ -1,1 +1,1 @@
-export { IntegrationDialog } from './integration-dialog';
+export { IntegrationDialog } from "./integration-dialog";

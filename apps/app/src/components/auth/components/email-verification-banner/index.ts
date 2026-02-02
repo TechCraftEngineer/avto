@@ -1,1 +1,1 @@
-export { EmailVerificationBanner } from './email-verification-banner';
+export { EmailVerificationBanner } from "./email-verification-banner";

@@ -1,1 +1,1 @@
-export { FunnelColumn } from './funnel-column';
+export { FunnelColumn } from "./funnel-column";

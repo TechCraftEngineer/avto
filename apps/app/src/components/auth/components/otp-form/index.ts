@@ -1,1 +1,1 @@
-export { OtpForm } from './otp-form';
+export { OtpForm } from "./otp-form";

@@ -1,1 +1,1 @@
-export { OnboardingBackground } from './onboarding-background';
+export { OnboardingBackground } from "./onboarding-background";

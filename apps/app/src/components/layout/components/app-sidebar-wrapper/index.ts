@@ -1,1 +1,1 @@
-export { AppSidebarWrapper } from './app-sidebar-wrapper';
+export { AppSidebarWrapper } from "./app-sidebar-wrapper";

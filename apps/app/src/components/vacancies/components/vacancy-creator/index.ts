@@ -1,1 +1,1 @@
-export { VacancyDocumentPreview } from './vacancy-document-preview';
+export { VacancyDocumentPreview } from "./vacancy-document-preview";

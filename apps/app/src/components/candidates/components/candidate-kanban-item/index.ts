@@ -1,1 +1,1 @@
-export { CandidateKanbanItem } from './candidate-kanban-item';
+export { CandidateKanbanItem } from "./candidate-kanban-item";

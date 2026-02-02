@@ -1,1 +1,1 @@
-export { GigsStats } from './gigs-stats';
+export { GigsStats } from "./gigs-stats";

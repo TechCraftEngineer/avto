@@ -1,1 +1,1 @@
-export { InterviewChat } from './interview-chat';
+export { InterviewChat } from "./interview-chat";

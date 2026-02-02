@@ -1,1 +1,1 @@
-export { ActionProgressIndicator } from './action-progress-indicator';
+export { ActionProgressIndicator } from "./action-progress-indicator";

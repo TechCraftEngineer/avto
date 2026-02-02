@@ -1,1 +1,1 @@
-export { GigCard } from './gig-card';
+export { GigCard } from "./gig-card";

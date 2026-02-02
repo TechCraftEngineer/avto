@@ -1,1 +1,1 @@
-export { InterviewScenariosManagement } from './interview-scenarios-management';
+export { InterviewScenariosManagement } from "./interview-scenarios-management";

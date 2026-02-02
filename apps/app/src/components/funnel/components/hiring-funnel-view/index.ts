@@ -1,1 +1,1 @@
-export { HiringFunnelView } from './hiring-funnel-view';
+export { HiringFunnelView } from "./hiring-funnel-view";

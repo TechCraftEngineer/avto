@@ -1,1 +1,1 @@
-export { CreateOrganizationDialog } from './create-organization-dialog';
+export { CreateOrganizationDialog } from "./create-organization-dialog";
