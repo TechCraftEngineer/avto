@@ -22,7 +22,6 @@ const VacancyForm = dynamic(() => import("~/components/vacancies/vacancy-form"),
     </div>
   )
 });
-import dynamic from "next/dynamic";
 
 const AIVacancyChat = dynamic(() => import("~/components/chat/components/vacancy-chat/ai-vacancy-chat"), {
   ssr: false,

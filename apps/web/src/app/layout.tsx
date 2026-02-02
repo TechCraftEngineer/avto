@@ -1,6 +1,7 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
+import { YandexMetrika } from "@/components/yandex-metrika"
 import "./globals.css"
 
 const geistSans = Geist({ 
@@ -130,6 +131,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${geistSans.className} antialiased`}>
+        <YandexMetrika />
         {children}
       </body>
     </html>

@@ -20,7 +20,7 @@ import {
   Palette,
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Button } from "@qbs-autonaim/ui"
+import Button from "@qbs-autonaim/ui/button"
 import { ScreenshotPreview } from "../ui/screenshot-preview"
 
 const features = [

@@ -1,6 +1,6 @@
 import { Header, Footer } from "@/components/layout"
 import { FeaturesSection } from "@/components/sections"
-import { Button } from "@qbs-autonaim/ui"
+import Button from "@qbs-autonaim/ui/button"
 import { ArrowRight, CheckCircle2, Sparkles, Zap } from "lucide-react"
 import Link from "next/link"
 
