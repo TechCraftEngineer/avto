@@ -3,7 +3,7 @@ import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 
 import { integration } from "@qbs-autonaim/db/schema";
-import { HH_CONFIG } from "@qbs-autonaim/jobs-parsers";
+import { HH_USER_AGENT } from "@qbs-autonaim/jobs-shared";
 import axios from "axios";
 import { createLogger, err, ok, type Result, tryCatch } from "../base";
 
@@ -102,7 +102,7 @@ export async function sendHHChatMessage(
       },
       {
         headers: {
-          "User-Agent": HH_CONFIG.userAgent,
+          "User-Agent": HH_USER_AGENT,
           Accept: "application/json, text/plain, */*",
           "Accept-Language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
           "Content-Type": "application/json",
