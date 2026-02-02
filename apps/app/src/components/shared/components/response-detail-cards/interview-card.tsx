@@ -12,10 +12,10 @@ import {
   Separator,
 } from "@qbs-autonaim/ui";
 import { MessageSquare } from "lucide-react";
-import { SafeHtml } from "~/components/safe-html";
+import { SafeHtml } from "~/components";
 import { getAvatarUrl } from "~/lib/avatar";
-import { VoicePlayer } from "../actions/voice-player";
-import { getScoreBadgeVariant } from "../utils";
+import { getScoreBadgeVariant } from "../../utils";
+import { VoicePlayer } from "../response-detail-tabs/actions/voice-player";
 
 interface Message {
   id: string;

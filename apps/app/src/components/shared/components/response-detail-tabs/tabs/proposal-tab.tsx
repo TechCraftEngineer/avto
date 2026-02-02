@@ -2,7 +2,7 @@
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
 import { Separator } from "@qbs-autonaim/ui";
-import { formatCurrency } from "../../utils/constants";
+import { formatCurrency } from "../../../utils/constants";
 
 type GigResponseDetail = NonNullable<RouterOutputs["gig"]["responses"]["get"]>;
 type VacancyResponseDetail = NonNullable<

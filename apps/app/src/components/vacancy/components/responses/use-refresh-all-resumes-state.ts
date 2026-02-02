@@ -1,3 +1,5 @@
+"use client";
+
 import { useCallback, useRef, useState } from "react";
 import { fetchRefreshAllResumesToken } from "~/actions/realtime";
 import {

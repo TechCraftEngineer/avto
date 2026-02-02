@@ -25,17 +25,17 @@ export { PageHeader } from "./layout/components/page-header";
 export * from "./organization";
 // Recruiter Components
 export { RecruiterAgentChat } from "./recruiter";
-// Response Detail Components
-export type { ScreeningFilter } from "./vacancy";
-
-// Response Components
-export { ResponseActions } from "./vacancy";
 // Settings Components
 export * from "./settings";
+// Shared Components
+export { ParsedProfileCard } from "./shared";
 export { RestorePrompt } from "./ui/components/restore-prompt";
 // UI Components
 export { SafeHtml } from "./ui/components/safe-html";
 export { SaveIndicator } from "./ui/components/save-indicator";
+// Response Detail Components
+export type { ScreeningFilter } from "./vacancy";
+// Response Components
 // Vacancy Components
-export { ResponseTable } from "./vacancy";
+export { ResponseActions, ResponseTable } from "./vacancy";
 export { DetailCard as ResponseDetailCard } from "./vacancy/components/response-detail";

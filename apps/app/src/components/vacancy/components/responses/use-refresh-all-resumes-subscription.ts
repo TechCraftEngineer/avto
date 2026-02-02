@@ -1,3 +1,5 @@
+"use client";
+
 import type { Realtime } from "@inngest/realtime";
 import { useInngestSubscription } from "@inngest/realtime/hooks";
 import { useEffect } from "react";

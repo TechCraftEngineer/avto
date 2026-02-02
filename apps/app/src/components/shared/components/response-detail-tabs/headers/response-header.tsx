@@ -22,8 +22,8 @@ import {
 import { Award, Briefcase, Calendar, Phone, Send } from "lucide-react";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { getAvatarUrl } from "~/lib/avatar";
+import { getScoreColor } from "../../../utils";
 import { ResumeActions } from "../actions/resume-actions";
-import { getScoreColor } from "../utils";
 
 interface ResponseHeaderProps {
   response: {

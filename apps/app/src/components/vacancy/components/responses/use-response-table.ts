@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import type { ScreeningFilter } from "~/components";
 import { useDebounce } from "~/hooks/use-debounce";

@@ -1,3 +1,5 @@
+"use client";
+
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
 import { fetchSyncArchivedVacancyResponsesToken } from "~/actions/realtime";
