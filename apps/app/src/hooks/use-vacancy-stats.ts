@@ -1,6 +1,7 @@
 "use client";
 
 import { useInngestSubscription } from "@inngest/realtime/hooks";
+import type { RouterOutputs } from "@qbs-autonaim/api";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { fetchVacancyStatsToken } from "~/actions/realtime";
@@ -14,14 +15,7 @@ interface VacancyStats {
   isActive?: boolean;
 }
 
-interface VacancyQueryData {
-  views?: number;
-  totalResponsesCount?: number;
-  newResponses?: number;
-  resumesInProgress?: number;
-  isActive?: boolean;
-  [key: string]: unknown;
-}
+type VacancyQueryData = RouterOutputs["vacancy"]["get"];
 
 /**
  * Хук для realtime обновлений статистики вакансии

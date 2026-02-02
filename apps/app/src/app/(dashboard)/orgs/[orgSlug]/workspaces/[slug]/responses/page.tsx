@@ -296,7 +296,6 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
             orgSlug={orgSlug}
             workspaceSlug={workspaceSlug}
             sortField={sortField}
-            sortDirection={sortDirection}
             onSortChange={handleSort}
             hasFilters={
               search.trim() !== "" ||
