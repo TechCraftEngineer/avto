@@ -2,7 +2,7 @@ import { APP_CONFIG } from "@qbs-autonaim/config";
 import { AlertCircle, GalleryVerticalEnd, Mail } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { EmailVerificationForm } from "~/components/auth/email-verification-form";
+import { EmailVerificationForm } from "~/components/auth";
 
 export const metadata: Metadata = {
   title: "Подтверждение email",

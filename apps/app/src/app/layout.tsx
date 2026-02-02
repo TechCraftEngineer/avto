@@ -1,6 +1,6 @@
 import { APP_CONFIG } from "@qbs-autonaim/config";
 import type { Metadata, Viewport } from "next";
-import { ClientLayout } from "~/components/client-layout";
+import { ClientLayout } from "~/components";
 import { env } from "~/env";
 
 import "~/app/styles.css";

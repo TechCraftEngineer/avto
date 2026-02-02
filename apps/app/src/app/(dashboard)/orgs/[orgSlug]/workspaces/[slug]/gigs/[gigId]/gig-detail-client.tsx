@@ -26,11 +26,12 @@ import {
   GigDetailActions,
   GigDetailHeader,
   GigDetailProjectDetails,
-  GigDetailRequirements,
+  GigDetailSkeleton,
+  GigError,
   GigInterviewSettings,
   GigInvitationTemplate,
+  GigNotFound,
 } from "~/components";
-import { GigDetailSkeleton, GigError, GigNotFound } from "~/components/gigs";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
 

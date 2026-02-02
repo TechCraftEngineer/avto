@@ -24,7 +24,7 @@ import {
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { CustomDomainSelect } from "~/components/gigs";
+import { CustomDomainSelect } from "~/components";
 import { useTRPC } from "~/trpc/react";
 import { CommunicationChannelsSettings } from "./communication-channels-settings";
 import { WelcomeMessageTemplates } from "./welcome-message-templates";

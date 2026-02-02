@@ -4,7 +4,6 @@ import { useInngestSubscription } from "@inngest/realtime/hooks";
 import {
   Button,
   Card,
-  CardContent,
   CardDescription,
   CardFooter,
   CardHeader,

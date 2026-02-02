@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
+import { SettingsSidebar } from "~/components";
 import { PageHeader } from "~/components/layout";
-import { SettingsSidebar } from "~/components/settings/settings-sidebar";
 
 export default async function SettingsLayout({
   children,

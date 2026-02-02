@@ -84,8 +84,8 @@ export function createLazyComponent<T extends React.ComponentType<any>>(
  * Хук для server-side deduplication
  */
 export function useServerCache<T>(
-  key: string,
-  fetcher: () => Promise<T>,
+  _key: string,
+  _fetcher: () => Promise<T>,
 ): T | null {
   // Server-side cache implementation
   // This would use React.cache() in server components

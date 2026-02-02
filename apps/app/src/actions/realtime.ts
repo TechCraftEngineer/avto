@@ -5,7 +5,6 @@ import {
   fetchArchivedListChannel,
   importArchivedVacanciesChannel,
   importNewVacanciesChannel,
-  importVacancyByUrlChannel,
   refreshAllResumesChannel,
   refreshVacancyResponsesChannel,
   screenAllResponsesChannel,

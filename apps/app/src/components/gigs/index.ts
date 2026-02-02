@@ -6,8 +6,8 @@ export { EmptyState } from "./components/empty-state";
 export { GigCard } from "./components/gig-card";
 export { GigDetailActions } from "./components/gig-detail-actions";
 export { GigDetailHeader } from "./components/gig-detail-header";
-export { GigDetailProjectDetails } from "./components/gig-detail-project-details";
-export { GigDetailRequirements } from "./components/gig-detail-requirements";
+export { GigDetailProjectDetails } from "./components/gig-detail-project-details/index";
+export { GigDetailRequirements } from "./components/gig-detail-requirements/index";
 export {
   GigDetailSkeleton,
   GigError,
@@ -21,6 +21,7 @@ export {
 } from "./components/gig-detail-utils";
 export { GigInterviewSettings } from "./components/gig-interview-settings";
 export { GigListItem } from "./components/gig-list-item";
+export { GigRequirements } from "./components/gig-requirements";
 export { GigsFilters } from "./components/gigs-filters";
 export { GigsList } from "./components/gigs-list";
 export { GigsStats } from "./components/gigs-stats";

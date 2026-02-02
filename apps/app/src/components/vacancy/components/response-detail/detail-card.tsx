@@ -1,6 +1,6 @@
 "use client";
 
-import { ParsedProfileCard } from "~/components/response-detail";
+import { ParsedProfileCard } from "~/components";
 import { VacancyResponseHeaderCard } from "./header-card";
 import { useVacancyResponseFlags } from "./hooks/use-vacancy-response-flags";
 import { VacancyResponseTabs } from "./tabs";

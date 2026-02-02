@@ -1,4 +1,4 @@
-import { InterviewScenariosManagement } from "~/components/interview-scenarios/interview-scenarios-management";
+import { InterviewScenariosManagement } from "~/components";
 
 interface PageProps {
   params: Promise<{ orgSlug: string; slug: string }>;

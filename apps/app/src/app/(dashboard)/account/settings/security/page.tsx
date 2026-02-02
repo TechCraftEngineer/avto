@@ -2,7 +2,7 @@
 
 import { Skeleton } from "@qbs-autonaim/ui";
 import { useQuery } from "@tanstack/react-query";
-import { SecurityTab } from "~/components/settings/security-tab";
+import { SecurityTab } from "~/components";
 import { useTRPC } from "~/trpc/react";
 
 export default function SecuritySettingsPage() {

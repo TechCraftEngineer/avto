@@ -3,7 +3,7 @@
 import { Card } from "@qbs-autonaim/ui";
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import { RecruiterAgentChat } from "~/components/recruiter-agent/chat";
+import { RecruiterAgentChat } from "~/components";
 import { ResponseTable } from "~/components/vacancy";
 
 export default function VacancyResponsesPage() {

@@ -4,9 +4,11 @@ import { Alert, AlertDescription, Separator, Skeleton } from "@qbs-autonaim/ui";
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle } from "lucide-react";
 import { useState } from "react";
-import { IntegrationCard } from "~/components/settings/integration-card";
-import { IntegrationCategorySection } from "~/components/settings/integration-category-section";
-import { IntegrationDialog } from "~/components/settings/integration-dialog";
+import {
+  IntegrationCard,
+  IntegrationCategorySection,
+  IntegrationDialog,
+} from "~/components";
 import { TelegramSessionsCard } from "~/components/settings/telegram-sessions-card";
 import { useWorkspace } from "~/hooks/use-workspace";
 import {

@@ -2,7 +2,7 @@
 
 import { Skeleton } from "@qbs-autonaim/ui";
 import { useQuery } from "@tanstack/react-query";
-import { GeneralTab } from "~/components/settings/general-tab";
+import { GeneralTab } from "~/components";
 import { useTRPC } from "~/trpc/react";
 
 export default function AccountSettingsPage() {

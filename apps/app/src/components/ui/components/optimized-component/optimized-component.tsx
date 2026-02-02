@@ -5,8 +5,8 @@
 
 "use client";
 
-import React from 'react';
-import { cn } from '@qbs-autonaim/ui';
+import { cn } from "@qbs-autonaim/ui";
+import React from "react";
 
 // Types for optimization
 interface OptimizedComponentProps {
@@ -26,7 +26,7 @@ interface OptimizedComponentProps {
   clientOnly?: boolean;
 
   // Performance hints
-  priority?: 'high' | 'normal' | 'low';
+  priority?: "high" | "normal" | "low";
 }
 
 // HOC for component optimization
@@ -36,7 +36,7 @@ export function withOptimization<P extends object>(
     memo?: boolean;
     lazy?: boolean;
     displayName?: string;
-  } = {}
+  } = {},
 ) {
   const { memo = true, lazy = false, displayName } = options;
 
@@ -55,7 +55,7 @@ export function withOptimization<P extends object>(
   // Apply lazy loading
   if (lazy) {
     const LazyComponent = React.lazy(() =>
-      Promise.resolve({ default: OptimizedComponent })
+      Promise.resolve({ default: OptimizedComponent }),
     );
 
     return function LazyOptimizedComponent(props: P) {
@@ -71,57 +71,59 @@ export function withOptimization<P extends object>(
 }
 
 // Optimized base component
-export const OptimizedComponent = React.memo<OptimizedComponentProps>(({
-  children,
-  className,
-  lazy = false,
-  preload = false,
-  memo = true,
-  stable = false,
-  serverOnly = false,
-  clientOnly = false,
-  priority = 'normal',
-  ...props
-}) => {
-  // Preload logic
-  React.useEffect(() => {
-    if (preload && typeof window !== 'undefined') {
-      // Preload resources if needed
-    }
-  }, [preload]);
+export const OptimizedComponent = React.memo<OptimizedComponentProps>(
+  ({
+    children,
+    className,
+    lazy = false,
+    preload = false,
+    memo = true,
+    stable = false,
+    serverOnly = false,
+    clientOnly = false,
+    priority = "normal",
+    ...props
+  }) => {
+    // Preload logic
+    React.useEffect(() => {
+      if (preload && typeof window !== "undefined") {
+        // Preload resources if needed
+      }
+    }, [preload]);
 
-  // Priority-based rendering
-  const priorityClass = {
-    high: 'optimize-priority-high',
-    normal: 'optimize-priority-normal',
-    low: 'optimize-priority-low'
-  }[priority];
+    // Priority-based rendering
+    const priorityClass = {
+      high: "optimize-priority-high",
+      normal: "optimize-priority-normal",
+      low: "optimize-priority-low",
+    }[priority];
 
-  return (
-    <div
-      className={cn(
-        'optimized-component',
-        priorityClass,
-        {
-          'server-only': serverOnly,
-          'client-only': clientOnly,
-          'lazy-loaded': lazy,
-          'stable-render': stable
-        },
-        className
-      )}
-      {...props}
-    >
-      {children}
-    </div>
-  );
-});
+    return (
+      <div
+        className={cn(
+          "optimized-component",
+          priorityClass,
+          {
+            "server-only": serverOnly,
+            "client-only": clientOnly,
+            "lazy-loaded": lazy,
+            "stable-render": stable,
+          },
+          className,
+        )}
+        {...props}
+      >
+        {children}
+      </div>
+    );
+  },
+);
 
-OptimizedComponent.displayName = 'OptimizedComponent';
+OptimizedComponent.displayName = "OptimizedComponent";
 
 // Hook for stable callbacks
 export function useStableCallback<T extends (...args: any[]) => any>(
-  callback: T
+  callback: T,
 ): T {
   const callbackRef = React.useRef(callback);
   callbackRef.current = callback;
@@ -145,7 +147,7 @@ export function OptimizedList<T>({
   className,
   virtualize = false,
   itemHeight = 50,
-  containerHeight = 400
+  containerHeight = 400,
 }: {
   items: T[];
   renderItem: (item: T, index: number) => React.ReactNode;
@@ -167,11 +169,9 @@ export function OptimizedList<T>({
   }
 
   return (
-    <div className={cn('optimized-list', className)}>
+    <div className={cn("optimized-list", className)}>
       {items.map((item, index) => (
-        <React.Fragment key={index}>
-          {renderItem(item, index)}
-        </React.Fragment>
+        <React.Fragment key={index}>{renderItem(item, index)}</React.Fragment>
       ))}
     </div>
   );
@@ -183,7 +183,7 @@ function VirtualizedList<T>({
   renderItem,
   itemHeight,
   containerHeight,
-  className
+  className,
 }: {
   items: T[];
   renderItem: (item: T, index: number) => React.ReactNode;
@@ -201,26 +201,26 @@ function VirtualizedList<T>({
 
   return (
     <div
-      className={cn('virtualized-list', className)}
+      className={cn("virtualized-list", className)}
       style={{
         height: containerHeight,
-        overflow: 'auto',
-        position: 'relative'
+        overflow: "auto",
+        position: "relative",
       }}
       onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}
     >
-      <div style={{ height: items.length * itemHeight, position: 'relative' }}>
+      <div style={{ height: items.length * itemHeight, position: "relative" }}>
         <div
           style={{
             transform: `translateY(${startIndex * itemHeight}px)`,
-            position: 'absolute',
+            position: "absolute",
             top: 0,
             left: 0,
-            right: 0
+            right: 0,
           }}
         >
           {visibleItems.map((item, index) =>
-            renderItem(item, startIndex + index)
+            renderItem(item, startIndex + index),
           )}
         </div>
       </div>
@@ -229,6 +229,4 @@ function VirtualizedList<T>({
 }
 
 // Export utilities
-export {
-  type OptimizedComponentProps
-};
+export type { OptimizedComponentProps };

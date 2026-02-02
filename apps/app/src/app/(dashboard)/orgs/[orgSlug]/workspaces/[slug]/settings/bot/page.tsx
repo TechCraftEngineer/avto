@@ -2,7 +2,7 @@
 
 import { Skeleton } from "@qbs-autonaim/ui";
 import { useQuery } from "@tanstack/react-query";
-import { BotSettingsForm } from "~/components/settings/bot-settings-form";
+import { BotSettingsForm } from "~/components";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
 

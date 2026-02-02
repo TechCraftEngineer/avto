@@ -1,6 +1,10 @@
 // settings domain exports
 
-export { WorkspaceForm } from "../onboarding/components/workspace-form";
+// Additional exports for backward compatibility
+export {
+  WorkspaceForm,
+  WorkspaceForm as default,
+} from "../onboarding/components/workspace-form";
 export { AccountForm } from "./components/account-form";
 export { BotSettingsForm } from "./components/bot-settings-form";
 export { CompanyForm } from "./components/company-form";

@@ -21,7 +21,7 @@ import {
   TooltipTrigger,
 } from "@qbs-autonaim/ui";
 import { Send, User } from "lucide-react";
-import { ResponseActions } from "~/components/responses";
+import { ResponseActions } from "~/components";
 import { ContactInfo } from "../integrations/contact-info";
 import { ChatIndicator } from "../ui/chat-indicator";
 
