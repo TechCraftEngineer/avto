@@ -44,20 +44,10 @@ export function ResponseDialogs({
   return (
     <>
       <RefreshDialog
-        open={refreshState.dialogOpen}
-        status={refreshState.status}
-        message={refreshState.message}
-        error={refreshState.error}
-        progress={refreshState.progress}
-        onOpenChange={(open) => {
-          if (!open) {
-            refreshState.handleDialogClose();
-          } else {
-            refreshState.setDialogOpen(true);
-          }
-        }}
-        onConfirm={refreshState.handleRefreshClick}
+        vacancyId={refreshState.vacancyId}
+        isOpen={refreshState.dialogOpen}
         onClose={refreshState.handleDialogClose}
+        onConfirm={refreshState.handleRefreshClick}
       />
 
       <ScreeningDialog
@@ -100,20 +90,10 @@ export function ResponseDialogs({
       />
 
       <SyncArchivedDialog
-        open={syncArchivedState.dialogOpen}
-        status={syncArchivedState.status}
-        message={syncArchivedState.message}
-        error={syncArchivedState.error}
-        syncedCount={syncArchivedState.syncedCount}
-        newCount={syncArchivedState.newCount}
-        vacancyTitle={syncArchivedState.vacancyTitle}
-        onOpenChange={(open) => {
-          if (!open && syncArchivedState.status !== "loading") {
-            syncArchivedState.handleDialogClose();
-          }
-        }}
-        onConfirm={syncArchivedState.handleClick}
+        vacancyId={syncArchivedState.vacancyId}
+        isOpen={syncArchivedState.dialogOpen}
         onClose={syncArchivedState.handleDialogClose}
+        onConfirm={syncArchivedState.handleClick}
       />
 
       <ScreeningDialog

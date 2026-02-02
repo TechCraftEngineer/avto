@@ -51,19 +51,17 @@ interface RunHHArchivedVacancyParserOptions {
   workspaceId: string;
   vacancyId: string;
   externalId?: string | null;
-  url?: string | null;
 }
 
 export async function runHHArchivedVacancyParser(
   options: RunHHArchivedVacancyParserOptions,
 ): Promise<{ syncedResponses: number; newResponses: number }> {
-  const { workspaceId, vacancyId, externalId, url } = options;
+  const { workspaceId, vacancyId, externalId } = options;
 
   console.log("🚀 Запуск HH парсера для архивной вакансии");
   console.log(`   Workspace: ${workspaceId}`);
   console.log(`   Vacancy: ${vacancyId}`);
   console.log(`   External ID: ${externalId}`);
-  console.log(`   URL: ${url}`);
 
   const credentials = await getIntegrationCredentials(db, "hh", workspaceId);
   if (!credentials?.email || !credentials?.password) {
@@ -82,7 +80,6 @@ export async function runHHArchivedVacancyParser(
       page,
       vacancyId,
       externalId,
-      url,
     );
 
     console.log("✅ Парсинг архивной вакансии завершен успешно");

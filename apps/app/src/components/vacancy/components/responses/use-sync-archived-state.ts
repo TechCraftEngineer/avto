@@ -10,6 +10,7 @@ import {
 } from "./use-sync-archived-subscription";
 
 export interface SyncArchivedStateData {
+  vacancyId: string;
   dialogOpen: boolean;
   error: string | null;
   status: "idle" | "loading" | "success" | "error";
@@ -33,6 +34,7 @@ export function useSyncArchivedState(
 ) {
   const { workspace } = useWorkspace();
   const [state, setState] = useState<SyncArchivedStateData>({
+    vacancyId,
     dialogOpen: false,
     error: null,
     status: "idle",

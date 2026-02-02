@@ -26,24 +26,17 @@ export async function parseArchivedVacancyResponses(
   page: Page,
   vacancyId: string,
   externalId?: string | null,
-  url?: string | null,
 ): Promise<{ syncedResponses: number; newResponses: number }> {
   console.log(
     `🚀 Начинаем парсинг откликов для архивной вакансии ${vacancyId}`,
   );
 
-  // Определяем URL для откликов
-  let responsesUrl: string;
-
-  if (url) {
-    // Если есть прямая ссылка, используем её
-    responsesUrl = url;
-  } else if (externalId) {
-    // Строим URL из externalId
-    responsesUrl = `${HH_CONFIG.urls.baseUrl}/employer/vacancyresponses?vacancyId=${externalId}`;
-  } else {
-    throw new Error("Не указан externalId или URL для вакансии");
+  // Строим стандартный URL для откликов
+  if (!externalId) {
+    throw new Error("Не указан externalId для вакансии");
   }
+
+  const responsesUrl = `${HH_CONFIG.urls.baseUrl}/employer/vacancyresponses?vacancyId=${externalId}`;
 
   console.log(`📄 URL откликов: ${responsesUrl}`);
 

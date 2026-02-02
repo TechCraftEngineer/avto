@@ -1,4 +1,4 @@
-import { and, eq } from "@qbs-autonaim/db";
+import { and, eq, inArray } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { response, responseScreening, vacancy } from "@qbs-autonaim/db/schema";
 import { screenResponse, unwrap } from "~/services/response";
@@ -46,16 +46,20 @@ export const screenNewResponsesFunction = inngest.createFunction(
         },
       });
 
+      // Если нет откликов, возвращаем пустой массив
+      if (allResponses.length === 0) {
+        return [];
+      }
+
       // Получаем ID откликов, у которых уже есть скрининг
-      const screenedResponseIds = await db
-        .select({ responseId: responseScreening.responseId })
-        .from(responseScreening)
-        .where(
-          eq(
-            responseScreening.responseId,
-            allResponses.map((r) => r.id)[0] ?? "",
-          ),
-        );
+      const responseIds = allResponses.map((r) => r.id);
+      const screenedResponseIds = await db.query.responseScreening.findMany({
+        where: (screening, { inArray }) =>
+          inArray(screening.responseId, responseIds),
+        columns: {
+          responseId: true,
+        },
+      });
 
       const screenedIds = new Set(screenedResponseIds.map((s) => s.responseId));
 

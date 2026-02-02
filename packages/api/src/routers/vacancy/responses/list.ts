@@ -73,6 +73,16 @@ export const list = protectedProcedure
     } = input;
     const offset = (page - 1) * limit;
 
+    console.log("[vacancy.responses.list] Input:", {
+      workspaceId,
+      vacancyId,
+      page,
+      limit,
+      screeningFilter,
+      statusFilter,
+      search,
+    });
+
     // Проверка доступа к workspace
     const access = await ctx.workspaceRepository.checkAccess(
       workspaceId,
@@ -100,6 +110,8 @@ export const list = protectedProcedure
         message: "Вакансия не найдена",
       });
     }
+
+    console.log("[vacancy.responses.list] Vacancy found:", vacancyCheck.id);
 
     // Получаем ID откликов с учётом фильтра по скринингу
     let filteredResponseIds: string[] | null = null;
@@ -174,8 +186,18 @@ export const list = protectedProcedure
       eq(responseTable.entityType, "vacancy"),
       eq(responseTable.entityId, vacancyId),
     ];
+
+    console.log("[vacancy.responses.list] Base conditions:", {
+      entityType: "vacancy",
+      entityId: vacancyId,
+      filteredResponseIds: filteredResponseIds?.length ?? "null",
+    });
+
     if (filteredResponseIds !== null) {
       if (filteredResponseIds.length === 0) {
+        console.log(
+          "[vacancy.responses.list] No responses match screening filter",
+        );
         return {
           responses: [],
           total: 0,
@@ -540,6 +562,14 @@ export const list = protectedProcedure
       .where(whereCondition);
 
     const total = Number(totalResult[0]?.count ?? 0);
+
+    console.log("[vacancy.responses.list] Query result:", {
+      responsesCount: responses.length,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    });
 
     return {
       responses,

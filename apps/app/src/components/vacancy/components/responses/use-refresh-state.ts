@@ -8,6 +8,7 @@ import {
 } from "./use-refresh-subscription";
 
 export interface RefreshStateData {
+  vacancyId: string;
   dialogOpen: boolean;
   error: string | null;
   status: "idle" | "loading" | "success" | "error";
@@ -28,6 +29,7 @@ export function useRefreshState(
   onRefreshComplete: () => void,
 ) {
   const [state, setState] = useState<RefreshStateData>({
+    vacancyId,
     dialogOpen: false,
     error: null,
     status: "idle",

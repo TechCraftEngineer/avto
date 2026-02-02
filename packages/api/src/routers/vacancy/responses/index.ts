@@ -2,6 +2,7 @@ import type { TRPCRouterRecord } from "@trpc/server";
 
 import { addTag } from "./add-tag";
 import { compare } from "./compare";
+import { debugList } from "./debug-list";
 import { get } from "./get";
 import { getCount } from "./get-count";
 import { getHistory } from "./history";
@@ -30,4 +31,5 @@ export const responsesRouter = {
   addTag,
   listTags,
   removeTag,
+  debugList, // Временный debug endpoint
 } satisfies TRPCRouterRecord;
