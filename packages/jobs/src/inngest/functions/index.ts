@@ -34,7 +34,6 @@ import {
   updateSingleVacancyFunction,
   verifyHHCredentialsFunction,
 } from "@qbs-autonaim/jobs-parsers";
-import type { InngestFunction } from "inngest";
 import {
   sendCandidateWelcomeBatchFunction,
   sendCandidateWelcomeFunction,
@@ -92,7 +91,7 @@ import {
   webSendQuestionFunction,
 } from "./web-interview";
 
-export const inngestFunctions: any[] = [
+export const inngestFunctions = [
   // Vacancy
   collectChatIdsFunction,
   extractVacancyRequirementsFunction,

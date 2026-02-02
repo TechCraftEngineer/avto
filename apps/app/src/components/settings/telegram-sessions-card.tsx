@@ -3,7 +3,6 @@
 import { Badge, Button, Card, IntegrationIcon } from "@qbs-autonaim/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, Plus, Trash2, XCircle } from "lucide-react";
-import { useState } from "react";
 import { toast } from "sonner";
 import { useTRPC } from "~/trpc/react";
 

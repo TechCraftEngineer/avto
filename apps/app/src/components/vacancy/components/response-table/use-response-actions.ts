@@ -243,7 +243,6 @@ export function useResponseActions(
     }
   }, [
     selectedIds,
-    workspaceId,
     setSelectedIds,
     queryClient,
     trpc.vacancy.responses.list,

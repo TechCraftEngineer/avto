@@ -62,8 +62,8 @@ export function ResponsesTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {/* biome-ignore lint/suspicious/noArrayIndexKey: static skeleton rows */}
             {[...Array(5)].map((_, i) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton rows
               <TableRow key={`skeleton-row-${i}`}>
                 <TableCell>
                   <Skeleton className="h-5 w-32" />

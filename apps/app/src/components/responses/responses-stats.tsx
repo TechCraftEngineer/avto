@@ -19,8 +19,8 @@ export function ResponsesStats({
   if (isLoading) {
     return (
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        {/* biome-ignore lint/suspicious/noArrayIndexKey: static skeleton items */}
         {[...Array(4)].map((_, i) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton items
           <Card key={`skeleton-${i}`} className="animate-pulse">
             <CardHeader>
               <div className="h-4 w-20 bg-muted rounded mb-2" />
