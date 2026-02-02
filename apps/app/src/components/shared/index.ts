@@ -1,20 +1,6 @@
 // shared domain exports
 export { PerformanceConfig } from "./components";
 export {
-  ComparisonTab,
-  ContactsTab,
-  DialogTab,
-  ExperienceTab,
-  NotesTagsTab,
-  PortfolioTab,
-  ProposalTab,
-  TimelineTab,
-  ValueChangeDisplay,
-  ResumeActions,
-  VoicePlayer,
-  ResponseHeader,
-} from "./components/response-detail-tabs";
-export {
   ExperienceCard,
   InterviewCard,
   InterviewScoringCard,
@@ -25,3 +11,17 @@ export {
   ScreeningCard,
   ScreeningResultsCard,
 } from "./components/response-detail-cards";
+export {
+  ComparisonTab,
+  ContactsTab,
+  DialogTab,
+  ExperienceTab,
+  NotesTagsTab,
+  PortfolioTab,
+  ProposalTab,
+  ResponseHeader,
+  ResumeActions,
+  TimelineTab,
+  ValueChangeDisplay,
+  VoicePlayer,
+} from "./components/response-detail-tabs";

@@ -18,8 +18,6 @@ export {
   ShortlistStats,
 } from "../gigs";
 export { useGigsFilters } from "./components/filters/use-gigs-filters";
-export { GigResponseDetailCard } from "./components/response-detail/detail-card";
-export { GigInvitationTemplate } from "./components/templates/gig-invitation-template";
 export {
   ConfirmDialog,
   EmptyState,
@@ -34,3 +32,5 @@ export {
   useResponseMutations,
   useResponseStats,
 } from "./components/gig-responses";
+export { GigResponseDetailCard } from "./components/response-detail/detail-card";
+export { GigInvitationTemplate } from "./components/templates/gig-invitation-template";

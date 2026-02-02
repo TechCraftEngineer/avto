@@ -1,1 +1,6 @@
-export type ScreeningFilter = "all" | "evaluated" | "not-evaluated" | "high-score" | "low-score";
+export type ScreeningFilter =
+  | "all"
+  | "evaluated"
+  | "not-evaluated"
+  | "high-score"
+  | "low-score";

@@ -12,9 +12,9 @@ interface ResponseActionsProps {
 }
 
 export function ResponseActions({
-  responseId,
-  resumeUrl,
-  candidateName,
+  responseId: _responseId,
+  resumeUrl: _resumeUrl,
+  candidateName: _candidateName,
   telegramUsername,
   phone,
 }: ResponseActionsProps) {
