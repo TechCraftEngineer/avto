@@ -11,10 +11,10 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { useState } from "react";
-import { CandidateKanbanCard } from "./candidate-kanban-card";
-import { CandidateKanbanColumn } from "./candidate-kanban-column";
-import { STAGES } from "./constants";
-import type { FunnelCandidate, FunnelStage } from "./types";
+import { CandidateKanbanCard } from "../candidate-kanban-card";
+import { CandidateKanbanColumn } from "../candidate-kanban-column";
+import { STAGES } from "../constants";
+import type { FunnelCandidate, FunnelStage } from "../types";
 
 interface PipelineBoardViewProps {
   candidatesByStage: Record<

@@ -13,7 +13,7 @@ export {
   GigError,
   GigNotFound,
 } from "./components/gig-detail-skeleton";
-export { GigStats as GigDetailStats } from "./components/gig-detail-stats";
+export { GigDetailStats } from "./components/gig-detail-stats";
 export {
   formatBudget,
   formatDate,
@@ -21,7 +21,6 @@ export {
 } from "./components/gig-detail-utils";
 export { GigInterviewSettings } from "./components/gig-interview-settings";
 export { GigListItem } from "./components/gig-list-item";
-export { GigRequirements } from "./components/gig-requirements";
 export { GigsFilters } from "./components/gigs-filters";
 export { GigsList } from "./components/gigs-list";
 export { GigsStats } from "./components/gigs-stats";

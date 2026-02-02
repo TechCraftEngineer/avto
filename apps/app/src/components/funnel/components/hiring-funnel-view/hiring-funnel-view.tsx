@@ -3,8 +3,8 @@
 import { Button } from "@qbs-autonaim/ui";
 import { ArrowLeft, BarChart3 } from "lucide-react";
 import { useState } from "react";
-import { FunnelAnalytics } from "./funnel-analytics";
-import { FunnelBoard } from "./funnel-board";
+import { FunnelAnalytics } from "../funnel-analytics";
+import { FunnelBoard } from "../funnel-board";
 
 export function HiringFunnelView() {
   const [currentView, setCurrentView] = useState<"board" | "analytics">(

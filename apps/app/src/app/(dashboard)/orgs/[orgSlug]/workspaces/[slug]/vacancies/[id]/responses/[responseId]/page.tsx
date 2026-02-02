@@ -6,7 +6,7 @@ import { skipToken, useQuery } from "@tanstack/react-query";
 import { ArrowLeft, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ResponseDetailCard } from "~/components/vacancy";
+import { ResponseDetailCard as VacancyResponseDetailCard } from "~/components/vacancy";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 import { useTRPC } from "~/trpc/react";
 
@@ -121,7 +121,7 @@ export default function VacancyResponseDetailPage() {
               ) : null}
             </div>
 
-            <ResponseDetailCard response={vacancyResponse} />
+            <VacancyResponseDetailCard response={vacancyResponse} />
           </div>
         </div>
       </div>

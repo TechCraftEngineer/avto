@@ -6,6 +6,7 @@ export { ParsedProfileCard } from "./components/cards/parsed-profile-card";
 export { ResponseHeaderCard } from "./components/cards/response-header-card";
 export { ScreeningResultsCard } from "./components/cards/screening-results-card";
 export { ResponseDetailCard } from "./components/cards/vacancy-response-detail-card";
+export { GigResponseTabs } from "./components/gig-response-tabs";
 export { ComparisonTab } from "./components/tabs/comparison-tab";
 export { ContactsTab } from "./components/tabs/contacts-tab";
 export { DialogTab } from "./components/tabs/dialog-tab";

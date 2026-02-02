@@ -15,17 +15,35 @@ import {
   FactorBreakdown,
   OverallAssessment,
   ScoreExplanation,
-} from "~/components";
+} from "~/components/candidates/components/candidate";
 import {
   ContactsTab,
   DialogTab,
   ExperienceTab,
   InterviewScoringCard,
+  PortfolioTab,
   ProposalTab,
 } from "~/components/response-detail";
-import { PortfolioCard } from "./portfolio-card";
-import { PricingCard } from "./pricing-card";
-import type { GigResponseTabsProps } from "./types";
+import type { ResponseDetail } from "~/components/response-detail/hooks/use-vacancy-response-flags";
+
+interface GigResponseTabsProps {
+  response: ResponseDetail;
+  defaultTab: string;
+  hasInterviewScoring: boolean;
+  hasConversation: boolean;
+  conversation: {
+    id: string;
+    status: string;
+    messages: Array<{
+      id: string;
+      role: "user" | "assistant" | "system";
+      content: string | null;
+      type: "text" | "voice" | "file" | "event";
+      voiceTranscription: string | null;
+      createdAt: Date;
+    }>;
+  } | null;
+}
 
 export function GigResponseTabs({
   response,
@@ -42,21 +60,12 @@ export function GigResponseTabs({
     response.experienceScoreReasoning ||
     response.compositeScoreReasoning;
 
-  // Проверяем специфичные gig данные
-  const hasPricingData = !!(
-    response.proposedPrice || response.proposedDeliveryDays
-  );
-  const hasPortfolioData = !!(
-    response.portfolioLinks?.length || response.portfolioFileId
-  );
-
   // Подсчитываем количество видимых вкладок
   const visibleTabsCount =
     (hasInterviewScoring ? 1 : 0) +
     (hasConversation ? 1 : 0) +
     (hasReasoning ? 1 : 0) +
-    (hasPricingData ? 1 : 0) +
-    4; // 4 базовые вкладки: proposal, experience, portfolio, contacts
+    4; // 4 базовые вкладки
 
   // Определяем классы grid-cols на основе количества вкладок
   const gridColsClass =
@@ -110,27 +119,17 @@ export function GigResponseTabs({
               Опыт
             </TabsTrigger>
             <TabsTrigger
+              value="portfolio"
+              className="min-h-11 sm:min-h-9 text-xs sm:text-sm touch-manipulation"
+            >
+              Портфолио
+            </TabsTrigger>
+            <TabsTrigger
               value="contacts"
               className="min-h-11 sm:min-h-9 text-xs sm:text-sm touch-manipulation"
             >
               Контакты
             </TabsTrigger>
-            {hasPricingData && (
-              <TabsTrigger
-                value="pricing"
-                className="min-h-11 sm:min-h-9 text-xs sm:text-sm touch-manipulation"
-              >
-                Цена
-              </TabsTrigger>
-            )}
-            {hasPortfolioData && (
-              <TabsTrigger
-                value="portfolio"
-                className="min-h-11 sm:min-h-9 text-xs sm:text-sm touch-manipulation"
-              >
-                Портфолио
-              </TabsTrigger>
-            )}
           </TabsList>
         </CardHeader>
 
@@ -160,8 +159,8 @@ export function GigResponseTabs({
                 compositeScore={response.compositeScore}
                 compositeReasoning={response.compositeScoreReasoning}
                 recommendation={response.recommendation}
-                strengths={response.strengths || undefined}
-                weaknesses={response.weaknesses || undefined}
+                strengths={response.strengths ?? undefined}
+                weaknesses={response.weaknesses ?? undefined}
               />
 
               {/* Factor Breakdown */}
@@ -170,8 +169,8 @@ export function GigResponseTabs({
                 experienceReasoning={response.experienceScoreReasoning}
                 skillsScore={response.skillsMatchScore}
                 skillsReasoning={response.skillsMatchScoreReasoning}
-                strengths={response.strengths || undefined}
-                weaknesses={response.weaknesses || undefined}
+                strengths={response.strengths ?? undefined}
+                weaknesses={response.weaknesses ?? undefined}
               />
 
               {/* Score Explanations */}
@@ -232,30 +231,18 @@ export function GigResponseTabs({
             <ExperienceTab response={response} />
           </TabsContent>
 
+          {/* Portfolio Tab */}
+          <TabsContent
+            value="portfolio"
+            className="space-y-3 sm:space-y-4 mt-0"
+          >
+            <PortfolioTab response={response} />
+          </TabsContent>
+
           {/* Contacts Tab */}
           <TabsContent value="contacts" className="space-y-3 sm:space-y-4 mt-0">
             <ContactsTab response={response} />
           </TabsContent>
-
-          {/* Pricing Tab */}
-          {hasPricingData && (
-            <TabsContent
-              value="pricing"
-              className="space-y-3 sm:space-y-4 mt-0"
-            >
-              <PricingCard response={response} />
-            </TabsContent>
-          )}
-
-          {/* Portfolio Tab */}
-          {hasPortfolioData && (
-            <TabsContent
-              value="portfolio"
-              className="space-y-3 sm:space-y-4 mt-0"
-            >
-              <PortfolioCard response={response} />
-            </TabsContent>
-          )}
         </CardContent>
       </Tabs>
     </Card>

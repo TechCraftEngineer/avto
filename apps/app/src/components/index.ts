@@ -9,6 +9,8 @@ export * from "./candidates";
 // Chat Components
 export { ChatMessage } from "./chat/components/chat-message";
 export { UniversalChatPanel } from "./chat/components/universal-chat-panel";
+// Dashboard Components - dashboard and analytics
+export * from "./dashboard";
 // Funnel Components - hiring funnel management
 export * from "./funnel";
 export { GigResponseDetailCard } from "./gig/components/response-detail/detail-card";
@@ -20,6 +22,8 @@ export { InterviewScenariosManagement } from "./interviews/components/interview-
 // Layout Components
 export { ClientLayout } from "./layout/components/client-layout";
 export { PageHeader } from "./layout/components/page-header";
+// Organization Components - organization management
+export * from "./organization";
 // Recruiter Components
 export { RecruiterAgentChat } from "./recruiter";
 // Response Detail Components
