@@ -14,8 +14,8 @@ import {
   VacancyStats,
   VacancyTable,
 } from "~/components/vacancies";
+import { useVacanciesStats } from "~/hooks/use-vacancies-stats";
 import { useVacancyFilters } from "~/hooks/use-vacancy-filters";
-import { useVacancyStats } from "~/hooks/use-vacancy-stats";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useWorkspaceParams } from "~/hooks/use-workspace-params";
 import { useTRPC } from "~/trpc/react";
@@ -62,7 +62,7 @@ export default function VacanciesPage() {
     hasFilters,
   } = useVacancyFilters(vacancies);
 
-  const stats = useVacancyStats(vacancies);
+  const stats = useVacanciesStats(vacancies);
 
   const mergeVacanciesMutation = useMutation(
     trpc.freelancePlatforms.mergeVacancies.mutationOptions({

@@ -15,8 +15,8 @@ import {
   Separator,
 } from "@qbs-autonaim/ui";
 import { Briefcase, Search, SlidersHorizontal, UserPlus } from "lucide-react";
+import type { FunnelStage } from "../../types/types";
 import { STAGES } from "../constants";
-import type { FunnelStage } from "./types";
 
 interface PipelineToolbarProps {
   selectedVacancy: string;

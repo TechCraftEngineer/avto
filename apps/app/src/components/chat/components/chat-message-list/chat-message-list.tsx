@@ -14,7 +14,7 @@ interface Message {
 interface ChatMessageListProps {
   messages: Message[];
   isLoading: boolean;
-  messagesEndRef: RefObject<HTMLDivElement | null>;
+  messagesEndRef?: RefObject<HTMLDivElement | null>;
 }
 
 export function ChatMessageList({

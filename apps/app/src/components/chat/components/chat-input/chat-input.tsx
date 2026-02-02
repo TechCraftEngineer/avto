@@ -3,24 +3,31 @@
 import { useState } from "react";
 
 interface ChatInputProps {
-  onSendMessage: (message: string) => void;
+  onSendMessage?: (message: string) => void;
+  onSend?: (message: string) => Promise<void> | void;
   disabled: boolean;
-  isProcessing: boolean;
+  isProcessing?: boolean;
+  placeholder?: string;
 }
 
 export function ChatInput({
   onSendMessage,
+  onSend,
   disabled,
-  isProcessing,
+  isProcessing = false,
+  placeholder = "Введите ваш ответ…",
 }: ChatInputProps) {
   const [message, setMessage] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!message.trim() || disabled) return;
 
-    onSendMessage(message);
-    setMessage("");
+    const handler = onSend ?? onSendMessage;
+    if (handler) {
+      await handler(message);
+      setMessage("");
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -44,7 +51,7 @@ export function ChatInput({
                 ? isProcessing
                   ? "Ожидайте ответа…"
                   : "Интервью завершено"
-                : "Введите ваш ответ…"
+                : placeholder
             }
             disabled={disabled}
             rows={1}

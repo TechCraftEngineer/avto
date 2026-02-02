@@ -1,4 +1,4 @@
-import type { FunnelStage } from "./types";
+import type { FunnelStage } from "../types/types";
 
 export const STAGES: { id: FunnelStage; title: string; color: string }[] = [
   { id: "SCREENING_DONE", title: "Скрининг выполнен", color: "bg-blue-500" },

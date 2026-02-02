@@ -17,6 +17,7 @@ export {
   GigInterviewSettings,
   GigListItem,
   GigNotFound,
+  GigRequirements,
   GigsFilters,
   GigsList,
   GigsStats,

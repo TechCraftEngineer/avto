@@ -1,0 +1,136 @@
+$ turbo run typecheck
+• turbo 2.8.1
+• Packages in scope: @qbs-autonaim/ai, @qbs-autonaim/ai-proxy, @qbs-autonaim/api, @qbs-autonaim/app, @qbs-autonaim/auth, @qbs-autonaim/config, @qbs-autonaim/db, @qbs-autonaim/demo, @qbs-autonaim/docs, @qbs-autonaim/document-processor, @qbs-autonaim/emails, @qbs-autonaim/github, @qbs-autonaim/interview, @qbs-autonaim/jobs, @qbs-autonaim/jobs-parsers, @qbs-autonaim/jobs-shared, @qbs-autonaim/lib, @qbs-autonaim/playwright, @qbs-autonaim/server-utils, @qbs-autonaim/shared, @qbs-autonaim/tailwind-config, @qbs-autonaim/tg-client, @qbs-autonaim/tsconfig, @qbs-autonaim/ui, @qbs-autonaim/validators, @qbs-autonaim/web
+• Running typecheck in 26 packages
+• Remote caching disabled
+@qbs-autonaim/config:typecheck: cache hit, replaying logs dbc5fc2c1ab2f729
+@qbs-autonaim/config:typecheck: $ tsc --noEmit
+@qbs-autonaim/web:typecheck: cache hit, replaying logs 74e9f83761e86b19
+@qbs-autonaim/web:typecheck: $ tsc --noEmit
+@qbs-autonaim/server-utils:typecheck: cache hit, replaying logs e28544ac433c62dd
+@qbs-autonaim/server-utils:typecheck: [?25l[2J[m[35m[2m[H$[m[1m[2m[1Ctsc --noEmit
+@qbs-autonaim/server-utils:typecheck: ]0;C:\Users\user\.bun\bin\bun.exe[?25h[22m
+@qbs-autonaim/db:typecheck: cache hit, replaying logs c2433c2a2ed5cec2
+@qbs-autonaim/db:typecheck: $ bun x tsc --noEmit
+@qbs-autonaim/api:typecheck: cache hit, replaying logs a9b6590445e83f16
+@qbs-autonaim/ai:typecheck: cache hit, replaying logs 5346815b8877e132
+@qbs-autonaim/api:typecheck: $ tsc --noEmit
+@qbs-autonaim/ai:typecheck: [?25l[2J[m[35m[2m[H$[m[1m[2m[1Ctsc --noEmit
+@qbs-autonaim/ai:typecheck: ]0;C:\Users\user\.bun\bin\bun.exe[?25h[22m
+@qbs-autonaim/jobs-parsers:typecheck: cache hit, replaying logs 8f5378b34770a66f
+@qbs-autonaim/jobs-parsers:typecheck: [?25l[2J[m[35m[2m[H$[m[1m[2m[1Ctsc --noEmit
+@qbs-autonaim/jobs-parsers:typecheck: ]0;C:\Users\user\.bun\bin\bun.exe[?25h[22m
+@qbs-autonaim/tg-client:typecheck: cache hit, replaying logs fcef680ce8153218
+@qbs-autonaim/jobs-shared:typecheck: cache hit, replaying logs cb59acf6a37e055c
+@qbs-autonaim/tg-client:typecheck: [?25l[2J[m[35m[2m[H$[m[1m[2m[1Ctsc --noEmit
+@qbs-autonaim/tg-client:typecheck: ]0;C:\Users\user\.bun\bin\bun.exe[?25h[22m
+@qbs-autonaim/jobs-shared:typecheck: [?25l[2J[m[35m[2m[H$[m[1m[2m[1Ctsc --noEmit
+@qbs-autonaim/jobs-shared:typecheck: ]0;C:\Users\user\.bun\bin\bun.exe[?25h[22m
+@qbs-autonaim/interview:typecheck: cache hit, replaying logs 2133b8df8fbc31bd
+@qbs-autonaim/interview:typecheck: $ tsc --noEmit
+@qbs-autonaim/jobs:typecheck: cache hit, replaying logs 4cd8c15be9028c6f
+@qbs-autonaim/jobs:typecheck: [?25l[2J[m[35m[2m[H$[m[1m[2m[1Ctsc --noEmit
+@qbs-autonaim/jobs:typecheck: ]0;C:\Users\user\.bun\bin\bun.exe[?25h[22m
+@qbs-autonaim/ai-proxy:typecheck: cache hit, replaying logs cc486c58424ef341
+@qbs-autonaim/ai-proxy:typecheck: $ tsc --noEmit
+@qbs-autonaim/shared:typecheck: cache hit, replaying logs 4a917e10a553c0ac
+@qbs-autonaim/shared:typecheck: [?25l[2J[m[35m[2m[H$[m[1m[2m[1Ctsc --noEmit
+@qbs-autonaim/shared:typecheck: ]0;C:\Users\user\.bun\bin\bun.exe[?25h[22m
+@qbs-autonaim/auth:typecheck: cache hit, replaying logs 03cdc68a31390fbd
+@qbs-autonaim/auth:typecheck: $ tsc --noEmit
+@qbs-autonaim/document-processor:typecheck: cache hit, replaying logs f2251e75bd3ff8f7
+@qbs-autonaim/document-processor:typecheck: $ tsc --noEmit
+@qbs-autonaim/app:typecheck: cache miss, executing 9bb10f7bc711dcf6
+@qbs-autonaim/lib:typecheck: cache hit, replaying logs 8ef56afd7821f865
+@qbs-autonaim/validators:typecheck: cache hit, replaying logs f545b35ef6efa478
+@qbs-autonaim/lib:typecheck: [?25l[2J[m[35m[2m[H$[m[1m[2m[1Ctsc --noEmit
+@qbs-autonaim/lib:typecheck: ]0;C:\Users\user\.bun\bin\bun.exe[?25h[22m
+@qbs-autonaim/validators:typecheck: $ tsc --noEmit
+@qbs-autonaim/ui:typecheck: cache hit, replaying logs a373dd413980d02a
+@qbs-autonaim/ui:typecheck: $ tsc --noEmit
+@qbs-autonaim/app:typecheck: $ tsc --noEmit
+@qbs-autonaim/app:typecheck: src/app/(dashboard)/orgs/[orgSlug]/workspaces/[slug]/gigs/[gigId]/chat/gig-chat-view.tsx(238,13): error TS2322: Type '{ id: string; role: "user" | "assistant"; content: string; createdAt: Date; }[]' is not assignable to type 'Message[]'.
+@qbs-autonaim/app:typecheck:   Type '{ id: string; role: "user" | "assistant"; content: string; createdAt: Date; }' is missing the following properties from type 'Message': sender, contentType
+@qbs-autonaim/app:typecheck: src/app/(dashboard)/orgs/[orgSlug]/workspaces/[slug]/vacancies/[id]/page.tsx(142,10): error TS2741: Property 'vacancyId' is missing in type '{ totalResponses: number; daysActive: number; views: number; isActive: boolean; hasPublications: boolean; }' but required in type 'VacancyInsightsCardProps'.
+@qbs-autonaim/app:typecheck: src/app/(dashboard)/orgs/[orgSlug]/workspaces/[slug]/vacancies/[id]/responses/[responseId]/page.tsx(77,33): error TS2307: Cannot find module '~/components/vacancy/response-detail' or its corresponding type declarations.
+@qbs-autonaim/app:typecheck: src/components/candidates/components/candidate-pipeline/candidate-pipeline.tsx(41,40): error TS2554: Expected 0 arguments, but got 1.
+@qbs-autonaim/app:typecheck: src/components/candidates/components/candidate-pipeline/candidate-pipeline.tsx(48,46): error TS2554: Expected 0 arguments, but got 1.
+@qbs-autonaim/app:typecheck: src/components/candidates/components/candidate-pipeline/candidate-pipeline.tsx(52,34): error TS2554: Expected 0 arguments, but got 1.
+@qbs-autonaim/app:typecheck: src/components/candidates/components/candidate-pipeline/candidate-pipeline.tsx(70,18): error TS2339: Property 'forEach' does not exist on type '{}'.
+@qbs-autonaim/app:typecheck: src/components/candidates/components/candidate-pipeline/candidate-pipeline.tsx(70,27): error TS7006: Parameter 'sq' implicitly has an 'any' type.
+@qbs-autonaim/app:typecheck: src/components/candidates/components/candidate-pipeline/candidate-pipeline.tsx(92,18): error TS2339: Property 'forEach' does not exist on type '{}'.
+@qbs-autonaim/app:typecheck: src/components/candidates/components/candidate-pipeline/candidate-pipeline.tsx(92,27): error TS7006: Parameter 'sq' implicitly has an 'any' type.
+@qbs-autonaim/app:typecheck: src/components/candidates/components/candidate-pipeline/candidate-pipeline.tsx(94,9): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type 'Record<FunnelStage, { items: { id: string; name: string; position: string; avatarFileId: string | null; initials: string; experience: string; location: string; matchScore: number; stage: string; ... 11 more ...; updatedAt: Date; }[]; hasMore: boolean; total: number; }>'.
+@qbs-autonaim/app:typecheck: src/components/candidates/components/candidate-pipeline/candidate-pipeline.tsx(112,34): error TS2339: Property 'some' does not exist on type '{}'.
+@qbs-autonaim/app:typecheck: src/components/candidates/components/candidate-pipeline/candidate-pipeline.tsx(112,40): error TS7006: Parameter 'sq' implicitly has an 'any' type.
+@qbs-autonaim/app:typecheck: src/components/candidates/components/candidate-pipeline/candidate-pipeline.tsx(122,9): error TS2322: Type 'string | null' is not assignable to type 'string'.
+@qbs-autonaim/app:typecheck:   Type 'null' is not assignable to type 'string'.
+@qbs-autonaim/app:typecheck: src/components/candidates/components/candidate-pipeline/candidate-pipeline.tsx(146,13): error TS2740: Type '{}' is missing the following properties from type '{ stage: FunnelStage; query: { isLoading: boolean; isFetching: boolean; }; }[]': length, pop, push, concat, and 29 more.
+@qbs-autonaim/app:typecheck: src/components/candidates/components/candidate-pipeline/hooks/use-candidate-filters.ts(9,9): error TS7034: Variable 'filterStages' implicitly has type 'any[]' in some locations where its type cannot be determined.
+@qbs-autonaim/app:typecheck: src/components/candidates/components/candidate-pipeline/hooks/use-candidate-filters.ts(19,5): error TS7005: Variable 'filterStages' implicitly has an 'any[]' type.
+@qbs-autonaim/app:typecheck: src/components/candidates/components/index/index.tsx(5,10): error TS2305: Module '"../candidate-modal"' has no exported member 'CandidateModal'.
+@qbs-autonaim/app:typecheck: src/components/chat/components/ai-chat/ai-chat.tsx(7,29): error TS2307: Cannot find module './ai-chat-input' or its corresponding type declarations.
+@qbs-autonaim/app:typecheck: src/components/chat/components/ai-chat/ai-chat.tsx(8,28): error TS2307: Cannot find module './ai-messages' or its corresponding type declarations.
+@qbs-autonaim/app:typecheck: src/components/chat/components/chat-container/chat-container.tsx(7,39): error TS2307: Cannot find module '../../types/chat' or its corresponding type declarations.
+@qbs-autonaim/app:typecheck: src/components/chat/components/chat-container/chat-container.tsx(123,20): error TS18046: 'msgs' is of type 'unknown'.
+@qbs-autonaim/app:typecheck: src/components/chat/components/chat-container/chat-container.tsx(123,30): error TS7006: Parameter 'message' implicitly has an 'any' type.
+@qbs-autonaim/app:typecheck: src/components/chat/components/chat-container/chat-container.tsx(138,11): error TS2322: Type '{ onSendMessage: (message: string) => Promise<void>; disabled: boolean; placeholder: string; }' is not assignable to type 'IntrinsicAttributes & ChatInputProps'.
+@qbs-autonaim/app:typecheck:   Property 'placeholder' does not exist on type 'IntrinsicAttributes & ChatInputProps'.
+@qbs-autonaim/app:typecheck: src/components/chat/components/chat-messages/chat-messages.tsx(81,19): error TS2322: Type '{ key: string; id: string; sender: "CANDIDATE" | "BOT" | "ADMIN"; contentType: string; content: string; createdAt: Date; candidateName: string | null; companyName: string | null | undefined; ... 4 more ...; isTranscribing: boolean; }' is not assignable to type 'IntrinsicAttributes & ChatMessageProps'.
+@qbs-autonaim/app:typecheck:   Property 'id' does not exist on type 'IntrinsicAttributes & ChatMessageProps'.
+@qbs-autonaim/app:typecheck: src/components/chat/components/universal-chat-panel/universal-chat-panel.tsx(239,15): error TS2322: Type 'ChatMessage[]' is not assignable to type 'Message[]'.
+@qbs-autonaim/app:typecheck:   Type 'ChatMessage' is missing the following properties from type 'Message': sender, contentType
+@qbs-autonaim/app:typecheck: src/components/funnel/components/funnel-column/funnel-column.tsx(5,38): error TS2307: Cannot find module '~/components/candidates/components/candidate-pipeline/types' or its corresponding type declarations.
+@qbs-autonaim/app:typecheck: src/components/gig/components/ai-chat/index.ts(3,10): error TS2724: '"./gig-ai-chat-panel"' has no exported member named 'GigAiChatPanel'. Did you mean 'GigAIChatPanel'?
+@qbs-autonaim/app:typecheck: src/components/gig/components/filters/index.ts(1,10): error TS2724: '"./use-gigs-filters"' has no exported member named 'UseGigsFilters'. Did you mean 'useGigsFilters'?
+@qbs-autonaim/app:typecheck: src/components/gig/components/gig-responses/index.ts(6,10): error TS2305: Module '"./response-helpers"' has no exported member 'ResponseHelpers'.
+@qbs-autonaim/app:typecheck: src/components/gig/components/index.ts(3,10): error TS2724: '"./ai-chat/gig-ai-chat-panel"' has no exported member named 'GigAiChatPanel'. Did you mean 'GigAIChatPanel'?
+@qbs-autonaim/app:typecheck: src/components/gig/components/response-detail/index.ts(1,10): error TS2305: Module '"./detail-card"' has no exported member 'DetailCard'.
+@qbs-autonaim/app:typecheck: src/components/gig/components/response-detail/index.ts(2,10): error TS2305: Module '"./header-card"' has no exported member 'HeaderCard'.
+@qbs-autonaim/app:typecheck: src/components/gig/components/response-detail/index.ts(3,10): error TS2724: '"./hooks/use-gig-response-flags"' has no exported member named 'UseGigResponseFlags'. Did you mean 'useGigResponseFlags'?
+@qbs-autonaim/app:typecheck: src/components/gig/components/response-detail/index.ts(6,10): error TS2459: Module '"./tabs"' declares 'Tabs' locally, but it is not exported.
+@qbs-autonaim/app:typecheck: src/components/gig/components/response-detail/index.ts(7,10): error TS2305: Module '"./types"' has no exported member 'Types'.
+@qbs-autonaim/app:typecheck: src/components/gigs/components/gigs-list/gigs-list.tsx(3,34): error TS2307: Cannot find module '../filters/gigs-filters' or its corresponding type declarations.
+@qbs-autonaim/app:typecheck: src/components/gigs/components/gigs-list/gigs-list.tsx(4,26): error TS2307: Cannot find module '../filters/use-gigs-filters' or its corresponding type declarations.
+@qbs-autonaim/app:typecheck: src/components/gigs/components/gigs-stats/gigs-stats.tsx(3,49): error TS2307: Cannot find module '../filters/use-gigs-filters' or its corresponding type declarations.
+@qbs-autonaim/app:typecheck: src/components/index.ts(10,1): error TS2308: Module "./candidates" has already exported a member named 'CandidateInfo'. Consider explicitly re-exporting to resolve the ambiguity.
+@qbs-autonaim/app:typecheck: src/components/layout/components/index.ts(13,10): error TS2724: '"./use-sidebar-stats"' has no exported member named 'UseSidebarStats'. Did you mean 'useSidebarStats'?
+@qbs-autonaim/app:typecheck: src/components/layout/index.ts(6,3): error TS2305: Module '"./components"' has no exported member 'Index'.
+@qbs-autonaim/app:typecheck: src/components/organization/components/create-organization-dialog/create-organization-dialog.tsx(76,9): error TS2304: Cannot find name 'setCreatedOrganization'.
+@qbs-autonaim/app:typecheck: src/components/organization/components/create-organization-dialog/create-organization-dialog.tsx(80,9): error TS2304: Cannot find name 'setShowWorkspaceDialog'.
+@qbs-autonaim/app:typecheck: src/components/recruiter/components/analytics-panel/index.ts(1,10): error TS2305: Module '"./analytics-panel"' has no exported member 'AnalyticsPanel'.
+@qbs-autonaim/app:typecheck: src/components/recruiter/components/candidate-card/index.ts(1,10): error TS2305: Module '"./candidate-card"' has no exported member 'CandidateCard'.
+@qbs-autonaim/app:typecheck: src/components/recruiter/components/chat/index.ts(1,10): error TS2305: Module '"./chat"' has no exported member 'Chat'.
+@qbs-autonaim/app:typecheck: src/components/recruiter/components/index.ts(11,10): error TS2305: Module '"./utils"' has no exported member 'Utils'.
+@qbs-autonaim/app:typecheck: src/components/recruiter/index.ts(7,3): error TS2305: Module '"./components"' has no exported member 'Index'.
+@qbs-autonaim/app:typecheck: src/components/responses/responses-table.tsx(151,92): error TS2339: Property 'vacancyId' does not exist on type '{ experience: string | null; coverLetter: string | null; priorityScore: number; screening: { score: number; detailedScore: number; analysis: string | null; potentialScore: number | null; ... 5 more ...; hiddenFitAnalysis: string | null; } | null; ... 17 more ...; compositeScoreReasoning: string | null; }'.
+@qbs-autonaim/app:typecheck: src/components/responses/responses-table.tsx(159,92): error TS2339: Property 'vacancyId' does not exist on type '{ experience: string | null; coverLetter: string | null; priorityScore: number; screening: { score: number; detailedScore: number; analysis: string | null; potentialScore: number | null; ... 5 more ...; hiddenFitAnalysis: string | null; } | null; ... 17 more ...; compositeScoreReasoning: string | null; }'.
+@qbs-autonaim/app:typecheck: src/components/responses/responses-table.tsx(162,29): error TS2339: Property 'vacancy' does not exist on type '{ experience: string | null; coverLetter: string | null; priorityScore: number; screening: { score: number; detailedScore: number; analysis: string | null; potentialScore: number | null; ... 5 more ...; hiddenFitAnalysis: string | null; } | null; ... 17 more ...; compositeScoreReasoning: string | null; }'.
+@qbs-autonaim/app:typecheck: src/components/settings/telegram-sessions-card.tsx(9,10): error TS2305: Module '"./telegram-auth"' has no exported member 'TelegramAuthDialog'.
+@qbs-autonaim/app:typecheck: src/components/settings/workspace-form.tsx(120,9): error TS2353: Object literal may only specify known properties, and 'interviewDomain' does not exist in type '{ name?: string | undefined; slug?: string | undefined; description?: string | undefined; website?: string | undefined; logo?: string | null | undefined; customDomainId?: string | null | undefined; }'.
+@qbs-autonaim/app:typecheck: src/components/shared/components/response-detail-cards/parsed-profile-card.tsx(5,34): error TS2307: Cannot find module '../utils/types' or its corresponding type declarations.
+@qbs-autonaim/app:typecheck: src/components/shared/components/response-detail-cards/recommendation-card.tsx(24,41): error TS2307: Cannot find module '../utils/types' or its corresponding type declarations.
+@qbs-autonaim/app:typecheck: src/components/shared/components/response-detail-cards/recommendation-card.tsx(70,3): error TS2322: Type 'RecommendationConfig | undefined' is not assignable to type 'RecommendationConfig'.
+@qbs-autonaim/app:typecheck:   Type 'undefined' is not assignable to type 'RecommendationConfig'.
+@qbs-autonaim/app:typecheck: src/components/shared/components/response-detail-cards/recommendation-card.tsx(107,48): error TS7006: Parameter 'strength' implicitly has an 'any' type.
+@qbs-autonaim/app:typecheck: src/components/shared/components/response-detail-cards/recommendation-card.tsx(131,49): error TS7006: Parameter 'weakness' implicitly has an 'any' type.
+@qbs-autonaim/app:typecheck: src/components/shared/components/response-detail-cards/recommendation-card.tsx(156,52): error TS7006: Parameter 'risk' implicitly has an 'any' type.
+@qbs-autonaim/app:typecheck: src/components/shared/components/response-detail-cards/recommendation-card.tsx(181,59): error TS7006: Parameter 'question' implicitly has an 'any' type.
+@qbs-autonaim/app:typecheck: src/components/shared/components/response-detail-cards/recommendation-card.tsx(203,52): error TS7006: Parameter 'action' implicitly has an 'any' type.
+@qbs-autonaim/app:typecheck: src/components/shared/components/response-detail-cards/response-header-card.tsx(79,35): error TS2339: Property 'icon' does not exist on type '{ label: string; variant: "default" | "secondary" | "outline" | "destructive"; }'.
+@qbs-autonaim/app:typecheck: src/components/sidebar/index.ts(6,8): error TS2305: Module '"../layout/components/nav-collapsible"' has no exported member 'NavSection'.
+@qbs-autonaim/app:typecheck: src/components/sidebar/nav-collapsible.ts(4,8): error TS2305: Module '"../layout/components/nav-collapsible"' has no exported member 'NavSection'.
+@qbs-autonaim/app:typecheck: src/hooks/use-vacancy-stats.ts(42,7): error TS2345: Argument of type '(oldData: unknown) => unknown' is not assignable to parameter of type 'Updater<{ source: "MANUAL" | "HH" | "AVITO" | "SUPERJOB" | "HABR" | "KWORK" | "FL_RU" | "FREELANCE_RU" | "WEB_LINK" | "TELEGRAM"; title: string; id: string; region: string | null; url: string | null; ... 24 more ...; publications: { ...; }[]; } | undefined, { ...; } | undefined>'.
+@qbs-autonaim/app:typecheck:   Type '(oldData: unknown) => unknown' is not assignable to type '(input: { source: "MANUAL" | "HH" | "AVITO" | "SUPERJOB" | "HABR" | "KWORK" | "FL_RU" | "FREELANCE_RU" | "WEB_LINK" | "TELEGRAM"; title: string; id: string; region: string | null; url: string | null; ... 24 more ...; publications: { ...; }[]; } | undefined) => { ...; } | undefined'.
+@qbs-autonaim/app:typecheck:     Type 'unknown' is not assignable to type '{ source: "MANUAL" | "HH" | "AVITO" | "SUPERJOB" | "HABR" | "KWORK" | "FL_RU" | "FREELANCE_RU" | "WEB_LINK" | "TELEGRAM"; title: string; id: string; region: string | null; url: string | null; ... 24 more ...; publications: { ...; }[]; } | undefined'.
+@qbs-autonaim/app:typecheck: error: script "typecheck" exited with code 1
+@qbs-autonaim/app:typecheck: ERROR: command finished with error: command (C:\Projects\kwork\selectio\apps\app) C:\Users\user\.bun\bin\bun.exe run typecheck exited (1)
+@qbs-autonaim/app#typecheck: command (C:\Projects\kwork\selectio\apps\app) C:\Users\user\.bun\bin\bun.exe run typecheck exited (1)
+
+ Tasks:    18 successful, 19 total
+Cached:    18 cached, 19 total
+  Time:    9.409s 
+Failed:    @qbs-autonaim/app#typecheck
+
+ ERROR  run failed: command  exited (1)
+error: script "typecheck" exited with code 1

@@ -31,6 +31,7 @@ import {
   GigInterviewSettings,
   GigInvitationTemplate,
   GigNotFound,
+  GigRequirements,
 } from "~/components";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";

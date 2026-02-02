@@ -1,10 +1,5 @@
-// Реэкспорт компонентов для страницы responses
-export {
-  ResponseTable as ResponsesTable,
-  VacancyStats as ResponsesStats,
-} from "../vacancy";
+// Компоненты для страницы responses
 
-// Заглушка для фильтров - можно реализовать позже
-export function ResponsesFilters() {
-  return null;
-}
+export { ResponsesFilters } from "./responses-filters";
+export { ResponsesStats } from "./responses-stats";
+export { ResponsesTable } from "./responses-table";

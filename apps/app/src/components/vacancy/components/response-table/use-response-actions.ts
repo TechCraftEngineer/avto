@@ -14,6 +14,7 @@ import { useTRPC } from "~/trpc/react";
 
 export function useResponseActions(
   vacancyId: string,
+  workspaceId: string,
   selectedIds: Set<string>,
   setSelectedIds: (ids: Set<string>) => void,
 ) {
@@ -34,7 +35,10 @@ export function useResponseActions(
     setIsProcessing(true);
 
     try {
-      const result = await triggerScreenResponsesBatch(Array.from(selectedIds));
+      const result = await triggerScreenResponsesBatch(
+        Array.from(selectedIds),
+        workspaceId,
+      );
 
       if (!result.success) {
         console.error("Не удалось запустить пакетную оценку:", result.error);

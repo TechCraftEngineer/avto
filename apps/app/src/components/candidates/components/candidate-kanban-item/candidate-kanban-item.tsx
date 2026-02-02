@@ -3,7 +3,7 @@
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { CandidateKanbanCard } from "~/components";
-import type { FunnelCandidate } from "./types";
+import type { FunnelCandidate } from "../../types/types";
 
 interface CandidateKanbanItemProps {
   candidate: FunnelCandidate;

@@ -49,7 +49,10 @@ export async function triggerScreenAllResponses(vacancyId: string) {
   }
 }
 
-export async function triggerScreenResponsesBatch(responseIds: string[]) {
+export async function triggerScreenResponsesBatch(
+  responseIds: string[],
+  workspaceId: string,
+) {
   try {
     if (responseIds.length === 0) {
       return {
@@ -61,6 +64,7 @@ export async function triggerScreenResponsesBatch(responseIds: string[]) {
     await inngest.send({
       name: "response/screen.batch",
       data: {
+        workspaceId,
         responseIds,
       },
     });

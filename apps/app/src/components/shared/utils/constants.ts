@@ -1,4 +1,7 @@
-import type { HrStatus, ResponseStatus } from "@qbs-autonaim/db/schema";
+import type {
+  HrSelectionStatus,
+  ResponseStatus,
+} from "@qbs-autonaim/db/schema";
 
 export function formatDate(date: Date | string | null | undefined): string {
   if (!date) return "—";
@@ -38,23 +41,29 @@ export const STATUS_CONFIG: Record<
   NEW: { label: "Новый", variant: "default" },
   EVALUATED: { label: "Оценен", variant: "secondary" },
   INTERVIEW: { label: "Интервью", variant: "outline" },
+  NEGOTIATION: { label: "Переговоры", variant: "outline" },
   COMPLETED: { label: "Завершен", variant: "secondary" },
   SKIPPED: { label: "Пропущен", variant: "destructive" },
 };
 
 export const HR_STATUS_CONFIG: Record<
-  HrStatus,
+  HrSelectionStatus,
   {
     label: string;
     variant: "default" | "secondary" | "outline" | "destructive";
   }
 > = {
-  NEW: { label: "Новый", variant: "default" },
-  SCREENING: { label: "Скрининг", variant: "secondary" },
-  INTERVIEW: { label: "Интервью", variant: "outline" },
-  OFFER: { label: "Оффер", variant: "secondary" },
-  HIRED: { label: "Нанят", variant: "default" },
+  INVITE: { label: "Приглашение", variant: "default" },
+  RECOMMENDED: { label: "Рекомендован", variant: "secondary" },
+  NOT_RECOMMENDED: { label: "Не рекомендован", variant: "destructive" },
   REJECTED: { label: "Отклонен", variant: "destructive" },
+  SELECTED: { label: "Выбран", variant: "secondary" },
+  OFFER: { label: "Оффер", variant: "secondary" },
+  SECURITY_PASSED: { label: "СБ пройдена", variant: "secondary" },
+  CONTRACT_SENT: { label: "Договор отправлен", variant: "outline" },
+  IN_PROGRESS: { label: "В процессе", variant: "outline" },
+  ONBOARDING: { label: "Онбординг", variant: "default" },
+  DONE: { label: "Завершен", variant: "default" },
 };
 
 export const IMPORT_SOURCE_LABELS: Record<string, string> = {

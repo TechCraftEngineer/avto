@@ -8,6 +8,19 @@ export interface ProfileData {
   education?: string | null;
   skills?: string[] | null;
   summary?: string | null;
+  platform?: string | null;
+  username?: string | null;
+  profileUrl?: string | null;
+  aboutMe?: string | null;
+  statistics?: {
+    rating?: number;
+    ordersCompleted?: number;
+    reviewsReceived?: number;
+    successRate?: number;
+    onTimeRate?: number;
+    repeatOrdersRate?: number;
+    buyerLevel?: string;
+  } | null;
 }
 
 export interface RecommendationData {
@@ -18,8 +31,55 @@ export interface RecommendationData {
   recommendation: "hire" | "maybe" | "pass";
 }
 
-export function getProfileData(data: unknown): ProfileData | null {
-  if (!data || typeof data !== "object") return null;
+export interface ParsedProfileData {
+  isJson: boolean;
+  data: ProfileData | null;
+  text: string | null;
+}
 
-  return data as ProfileData;
+export function getProfileData(
+  profileData: unknown,
+  fallbackExperience?: string | null,
+): ParsedProfileData {
+  // Пытаемся распарсить JSON из profileData
+  if (profileData && typeof profileData === "string") {
+    try {
+      const parsed = JSON.parse(profileData) as ProfileData;
+      return {
+        isJson: true,
+        data: parsed,
+        text: null,
+      };
+    } catch {
+      // Не JSON, используем как текст
+      return {
+        isJson: false,
+        data: null,
+        text: profileData,
+      };
+    }
+  }
+
+  if (profileData && typeof profileData === "object") {
+    return {
+      isJson: true,
+      data: profileData as ProfileData,
+      text: null,
+    };
+  }
+
+  // Используем fallback experience как текст
+  if (fallbackExperience) {
+    return {
+      isJson: false,
+      data: null,
+      text: fallbackExperience,
+    };
+  }
+
+  return {
+    isJson: false,
+    data: null,
+    text: null,
+  };
 }

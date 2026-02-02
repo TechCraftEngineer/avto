@@ -109,7 +109,12 @@ export function ResponseTable({
     handleRefreshAllResumes,
     handleRefreshAllResumesDialogClose,
     handleSendWelcomeBatch,
-  } = useResponseActions(vacancyId, selectedIds, setSelectedIds);
+  } = useResponseActions(
+    vacancyId,
+    workspace?.id ?? "",
+    selectedIds,
+    setSelectedIds,
+  );
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: reset selection when filters change
   useEffect(() => {

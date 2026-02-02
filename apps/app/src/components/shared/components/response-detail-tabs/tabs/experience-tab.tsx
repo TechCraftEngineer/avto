@@ -76,7 +76,7 @@ export function ExperienceTab({ response }: ExperienceTabProps) {
                   <Separator />
                   <div className="space-y-2">
                     <h4 className="text-xs sm:text-sm font-semibold">О себе</h4>
-                    <p className="text-xs sm:text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed break-words">
+                    <p className="text-xs sm:text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed wrap-break-word">
                       {profile.aboutMe}
                     </p>
                   </div>
@@ -90,7 +90,7 @@ export function ExperienceTab({ response }: ExperienceTabProps) {
                   <div className="space-y-3">
                     <h4 className="text-xs sm:text-sm font-semibold">Навыки</h4>
                     <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                      {profile.skills.map((skill) => (
+                      {profile.skills.map((skill: string) => (
                         <Badge
                           key={skill}
                           variant="secondary"
@@ -197,7 +197,7 @@ export function ExperienceTab({ response }: ExperienceTabProps) {
             <div className="space-y-2">
               <h4 className="text-xs sm:text-sm font-semibold">Опыт работы</h4>
               <p
-                className="text-xs sm:text-sm text-foreground whitespace-pre-wrap leading-relaxed break-words"
+                className="text-xs sm:text-sm text-foreground whitespace-pre-wrap leading-relaxed wrap-break-word"
                 dangerouslySetInnerHTML={{
                   __html: sanitizeHtmlFunction(experienceData.text || ""),
                 }}
@@ -214,7 +214,7 @@ export function ExperienceTab({ response }: ExperienceTabProps) {
           <div className="space-y-3">
             <h4 className="text-xs sm:text-sm font-semibold">Навыки</h4>
             <div className="flex flex-wrap gap-1.5 sm:gap-2">
-              {response.skills.map((skill) => (
+              {response.skills.map((skill: string) => (
                 <Badge
                   key={skill}
                   variant="secondary"

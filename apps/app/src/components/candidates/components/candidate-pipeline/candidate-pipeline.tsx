@@ -10,11 +10,11 @@ import {
 } from "~/components";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 import { useTRPC } from "~/trpc/react";
+import type { FunnelCandidate, FunnelStage } from "../../types/types";
 import { useCandidateFilters } from "./hooks/use-candidate-filters";
 import { useStagePagination } from "./hooks/use-stage-pagination";
 import { useStageQueries } from "./hooks/use-stage-queries";
 import { useStageUpdate } from "./hooks/use-stage-update";
-import type { FunnelCandidate, FunnelStage } from "./types";
 
 export function CandidatePipeline() {
   const { workspaceId } = useWorkspaceContext();

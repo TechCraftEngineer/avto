@@ -245,7 +245,11 @@ export function ChatView({ conversationId }: { conversationId: string }) {
         </div>
 
         <div className="shrink-0">
-          <ChatInput onSendMessage={handleSendMessage} disabled={isSending} />
+          <ChatInput
+            onSendMessage={handleSendMessage}
+            disabled={isSending}
+            isProcessing={isSending}
+          />
         </div>
       </div>
 

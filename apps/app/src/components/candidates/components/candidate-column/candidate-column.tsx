@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui";
 import { CandidateCard } from "~/components";
-import type { FunnelCandidate } from "./types";
+import type { FunnelCandidate } from "../../types/types";
 
 interface CandidateColumnProps {
   title: string;

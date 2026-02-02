@@ -24,8 +24,8 @@ import {
 import { useMemo, useState } from "react";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { getAvatarUrl } from "~/lib/avatar";
+import type { FunnelCandidate, FunnelStage } from "../../types/types";
 import { STAGE_COLORS, STAGE_LABELS } from "../types";
-import type { FunnelCandidate, FunnelStage } from "./types";
 
 function CandidateRow({
   candidate,
