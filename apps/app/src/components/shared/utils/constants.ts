@@ -2,6 +2,14 @@ import type {
   HrSelectionStatus,
   ResponseStatus,
 } from "@qbs-autonaim/db/schema";
+import type { LucideIcon } from "lucide-react";
+import {
+  CheckCircle2,
+  Eye,
+  FileText,
+  MessageSquare,
+  XCircle,
+} from "lucide-react";
 
 export function formatDate(date: Date | string | null | undefined): string {
   if (!date) return "—";
@@ -36,14 +44,15 @@ export const STATUS_CONFIG: Record<
   {
     label: string;
     variant: "default" | "secondary" | "outline" | "destructive";
+    icon?: LucideIcon;
   }
 > = {
-  NEW: { label: "Новый", variant: "default" },
-  EVALUATED: { label: "Оценен", variant: "secondary" },
-  INTERVIEW: { label: "Интервью", variant: "outline" },
-  NEGOTIATION: { label: "Переговоры", variant: "outline" },
-  COMPLETED: { label: "Завершен", variant: "secondary" },
-  SKIPPED: { label: "Пропущен", variant: "destructive" },
+  NEW: { label: "Новый", variant: "default", icon: FileText },
+  EVALUATED: { label: "Оценен", variant: "secondary", icon: Eye },
+  INTERVIEW: { label: "Интервью", variant: "outline", icon: MessageSquare },
+  NEGOTIATION: { label: "Переговоры", variant: "outline", icon: MessageSquare },
+  COMPLETED: { label: "Завершен", variant: "secondary", icon: CheckCircle2 },
+  SKIPPED: { label: "Пропущен", variant: "destructive", icon: XCircle },
 };
 
 export const HR_STATUS_CONFIG: Record<

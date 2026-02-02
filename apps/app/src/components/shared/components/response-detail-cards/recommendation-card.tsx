@@ -65,6 +65,24 @@ function getRecommendationConfig(
       icon: XCircle,
       label: "Не рекомендуется",
     },
+    hire: {
+      variant: "default",
+      color: "text-green-600 dark:text-green-400",
+      icon: CheckCircle,
+      label: "Нанять",
+    },
+    maybe: {
+      variant: "secondary",
+      color: "text-yellow-600 dark:text-yellow-400",
+      icon: HelpCircle,
+      label: "Возможно",
+    },
+    pass: {
+      variant: "destructive",
+      color: "text-red-600 dark:text-red-400",
+      icon: XCircle,
+      label: "Отклонить",
+    },
   };
 
   return configs[level];
@@ -110,7 +128,7 @@ export function RecommendationCard({
                     className="flex items-start gap-2 text-xs sm:text-sm text-muted-foreground"
                   >
                     <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-green-600 dark:text-green-400 shrink-0 mt-0.5" />
-                    <span className="break-words">{strength}</span>
+                    <span className="wrap-break-word">{strength}</span>
                   </li>
                 ))}
               </ul>
@@ -120,7 +138,7 @@ export function RecommendationCard({
         )}
 
         {/* Слабые стороны */}
-        {recommendation.weaknesses.length > 0 && (
+        {recommendation.weaknesses && recommendation.weaknesses.length > 0 && (
           <>
             <div className="space-y-2">
               <h4 className="text-xs sm:text-sm font-semibold flex items-center gap-2">
@@ -134,7 +152,7 @@ export function RecommendationCard({
                     className="flex items-start gap-2 text-xs sm:text-sm text-muted-foreground"
                   >
                     <AlertTriangle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-yellow-600 dark:text-yellow-400 shrink-0 mt-0.5" />
-                    <span className="break-words">{weakness}</span>
+                    <span className="wrap-break-word">{weakness}</span>
                   </li>
                 ))}
               </ul>
@@ -155,11 +173,13 @@ export function RecommendationCard({
                 <ul className="space-y-1.5 sm:space-y-2">
                   {recommendation.riskFactors.map((risk) => (
                     <li
-                      key={risk}
+                      key={risk.description}
                       className="flex items-start gap-2 text-xs sm:text-sm text-muted-foreground"
                     >
                       <AlertOctagon className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
-                      <span className="break-words">{risk}</span>
+                      <span className="wrap-break-word">
+                        {risk.description}
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -184,7 +204,7 @@ export function RecommendationCard({
                       className="flex items-start gap-2 text-xs sm:text-sm text-muted-foreground"
                     >
                       <HelpCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary shrink-0 mt-0.5" />
-                      <span className="break-words">{question}</span>
+                      <span className="wrap-break-word">{question}</span>
                     </li>
                   ))}
                 </ul>
@@ -200,15 +220,15 @@ export function RecommendationCard({
             Рекомендуемые действия
           </h4>
           <ol className="space-y-1.5 sm:space-y-2">
-            {recommendation.actionSuggestions.map((action) => (
+            {recommendation.actionSuggestions?.map((action, index) => (
               <li
                 key={action}
                 className="flex items-start gap-2 text-xs sm:text-sm text-muted-foreground"
               >
-                <span className="shrink-0 font-medium text-primary">
-                  {recommendation.actionSuggestions.indexOf(action) + 1}.
+                <span className="font-medium text-primary shrink-0">
+                  {index + 1}.
                 </span>
-                <span className="break-words">{action}</span>
+                <span className="wrap-break-word">{action}</span>
               </li>
             ))}
           </ol>

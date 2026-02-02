@@ -1,1 +1,5 @@
-export { NavCollapsible } from "./nav-collapsible";
+export {
+  NavCollapsible,
+  type NavItem,
+  type NavSection,
+} from "./nav-collapsible";

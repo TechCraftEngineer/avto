@@ -14,6 +14,15 @@ interface VacancyStats {
   isActive?: boolean;
 }
 
+interface VacancyQueryData {
+  views?: number;
+  totalResponsesCount?: number;
+  newResponses?: number;
+  resumesInProgress?: number;
+  isActive?: boolean;
+  [key: string]: unknown;
+}
+
 /**
  * Хук для realtime обновлений статистики вакансии
  * Автоматически обновляет кэш TanStack Query при получении новых данных
@@ -39,10 +48,10 @@ export function useVacancyStats(vacancyId: string | undefined) {
     // Обновляем кэш конкретной вакансии
     queryClient.setQueryData(
       trpc.vacancy.get.queryKey({ id: vacancyId }),
-      (oldData: unknown) => {
+      (oldData: VacancyQueryData | undefined) => {
         if (!oldData) return oldData;
         return {
-          ...(oldData as Record<string, unknown>),
+          ...oldData,
           ...data,
         };
       },

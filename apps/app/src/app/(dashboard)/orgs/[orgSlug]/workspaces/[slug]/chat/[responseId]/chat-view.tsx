@@ -25,8 +25,8 @@ export function ChatView({ conversationId }: { conversationId: string }) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { orgSlug, slug: workspaceSlug } = useWorkspaceParams();
-  const { workspaceId, workspace } = useWorkspaceContext();
-  const [transcribingMessageId, setTranscribingMessageId] = useState<
+  const { workspaceId } = useWorkspaceContext();
+  const [_transcribingMessageId, setTranscribingMessageId] = useState<
     string | null
   >(null);
   const [toastId, setToastId] = useState<string | number | null>(null);
@@ -57,7 +57,7 @@ export function ChatView({ conversationId }: { conversationId: string }) {
     staleTime: 60000,
   });
 
-  const { data: companyData } = useQuery({
+  const { data: _companyData } = useQuery({
     ...trpc.bot.get.queryOptions({
       workspaceId: workspaceId ?? "",
     }),
@@ -159,7 +159,7 @@ export function ChatView({ conversationId }: { conversationId: string }) {
     });
   };
 
-  const handleTranscribe = (messageId: string, fileId: string) => {
+  const _handleTranscribe = (messageId: string, fileId: string) => {
     setTranscribingMessageId(messageId);
     const id = toast.loading("Запуск транскрибации...");
     setToastId(id);
@@ -237,10 +237,6 @@ export function ChatView({ conversationId }: { conversationId: string }) {
                   voiceTranscription: msg.voiceTranscription,
                 }) as const,
             )}
-            candidateName={null}
-            companyName={companyData?.companyName ?? workspace?.name ?? ""}
-            onTranscribe={handleTranscribe}
-            transcribingMessageId={transcribingMessageId}
           />
         </div>
 

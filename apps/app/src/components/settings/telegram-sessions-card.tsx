@@ -6,12 +6,10 @@ import { CheckCircle2, Plus, Trash2, XCircle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useTRPC } from "~/trpc/react";
-import { TelegramAuthDialog } from "./telegram-auth";
 
 export function TelegramSessionsCard({ workspaceId }: { workspaceId: string }) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
-  const [dialogOpen, setDialogOpen] = useState(false);
 
   const { data: sessions, isLoading } = useQuery(
     trpc.telegram.getSessions.queryOptions({ workspaceId }),
@@ -126,7 +124,9 @@ export function TelegramSessionsCard({ workspaceId }: { workspaceId: string }) {
             <div className="flex gap-2 sm:shrink-0">
               <Button
                 size="sm"
-                onClick={() => setDialogOpen(true)}
+                onClick={() =>
+                  toast.info("Функция подключения Telegram в разработке")
+                }
                 className="w-full sm:w-auto"
               >
                 <Plus className="h-4 w-4 mr-2" />
@@ -136,12 +136,6 @@ export function TelegramSessionsCard({ workspaceId }: { workspaceId: string }) {
           </div>
         </Card>
       )}
-
-      <TelegramAuthDialog
-        open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
-        workspaceId={workspaceId}
-      />
     </>
   );
 }

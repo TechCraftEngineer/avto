@@ -24,7 +24,6 @@ interface ResponsesTableProps {
   orgSlug: string;
   workspaceSlug: string;
   sortField: string | null;
-  sortDirection: "asc" | "desc";
   onSortChange: (
     field:
       | "createdAt"
@@ -45,7 +44,6 @@ export function ResponsesTable({
   orgSlug,
   workspaceSlug,
   sortField,
-  sortDirection,
   onSortChange,
   hasFilters,
 }: ResponsesTableProps) {
@@ -64,8 +62,9 @@ export function ResponsesTable({
             </TableRow>
           </TableHeader>
           <TableBody>
+            {/* biome-ignore lint/suspicious/noArrayIndexKey: static skeleton rows */}
             {[...Array(5)].map((_, i) => (
-              <TableRow key={i}>
+              <TableRow key={`skeleton-row-${i}`}>
                 <TableCell>
                   <Skeleton className="h-5 w-32" />
                 </TableCell>

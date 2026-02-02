@@ -137,6 +137,10 @@ export function GigChatView({ gigId, sessionId }: GigChatViewProps) {
         role: m.role,
         content: getMessageText(m),
         createdAt: m.createdAt,
+        sender: (m.role === "assistant" ? "BOT" : "CANDIDATE") as
+          | "BOT"
+          | "CANDIDATE",
+        contentType: "TEXT" as const,
       }));
   }, [streamMessages]);
 

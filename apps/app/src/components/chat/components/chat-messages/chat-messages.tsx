@@ -19,19 +19,9 @@ interface Message {
 
 interface ChatMessagesProps {
   messages: Message[];
-  candidateName: string | null;
-  companyName?: string | null;
-  onTranscribe?: (messageId: string, fileId: string) => void;
-  transcribingMessageId?: string | null;
 }
 
-export function ChatMessages({
-  messages,
-  candidateName,
-  companyName,
-  onTranscribe,
-  transcribingMessageId,
-}: ChatMessagesProps) {
+export function ChatMessages({ messages }: ChatMessagesProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: auto-scroll on new messages
@@ -78,18 +68,13 @@ export function ChatMessages({
               {msgs.map((msg) => (
                 <ChatMessage
                   key={msg.id}
-                  id={msg.id}
-                  sender={msg.sender}
-                  contentType={msg.contentType}
-                  content={msg.content}
-                  createdAt={msg.createdAt}
-                  candidateName={candidateName}
-                  companyName={companyName}
-                  fileUrl={msg.fileUrl}
-                  fileId={msg.fileId}
-                  voiceTranscription={msg.voiceTranscription}
-                  onTranscribe={onTranscribe}
-                  isTranscribing={transcribingMessageId === msg.id}
+                  message={{
+                    id: msg.id,
+                    sender: msg.sender,
+                    contentType: msg.contentType as "TEXT" | "VOICE",
+                    content: msg.content,
+                    createdAt: msg.createdAt,
+                  }}
                 />
               ))}
             </div>

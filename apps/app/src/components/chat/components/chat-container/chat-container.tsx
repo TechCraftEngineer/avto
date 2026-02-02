@@ -56,12 +56,12 @@ export function ChatContainer({
 
   // Group messages by date
   const groupedMessages = messages.reduce(
-    (groups, message) => {
-      const date = format(message.createdAt, "yyyy-MM-dd");
+    (groups, msg) => {
+      const date = format(msg.createdAt, "yyyy-MM-dd");
       if (!groups[date]) {
         groups[date] = [];
       }
-      groups[date].push(message);
+      groups[date].push(msg);
       return groups;
     },
     {} as Record<string, ChatMessageProps[]>,
@@ -82,7 +82,7 @@ export function ChatContainer({
       )}
     >
       {/* Header */}
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <ChatHeader
           candidateName={candidateName}
           candidateEmail={candidateEmail}
@@ -120,8 +120,14 @@ export function ChatContainer({
                   </div>
 
                   {/* Messages */}
-                  {msgs.map((message) => (
-                    <ChatMessage key={message.id} {...message} />
+                  {msgs.map((msg) => (
+                    <ChatMessage
+                      key={msg.id}
+                      message={{
+                        ...msg,
+                        contentType: msg.contentType as "TEXT" | "VOICE",
+                      }}
+                    />
                   ))}
                 </div>
               ))
@@ -131,11 +137,11 @@ export function ChatContainer({
       </div>
 
       {/* Input */}
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <ChatInput
           onSendMessage={handleSendMessage}
           disabled={isSending || isLoading}
-          placeholder="Сообщение"
+          isProcessing={isSending || isLoading}
         />
       </div>
     </div>

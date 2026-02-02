@@ -25,14 +25,6 @@ interface ResponsesFiltersProps {
       "all" | "evaluated" | "not-evaluated" | "high-score" | "low-score"
     >
   >;
-  statusFilter: Array<
-    "NEW" | "EVALUATED" | "INTERVIEW" | "COMPLETED" | "SKIPPED"
-  >;
-  onStatusFilterChange: Dispatch<
-    SetStateAction<
-      Array<"NEW" | "EVALUATED" | "INTERVIEW" | "COMPLETED" | "SKIPPED">
-    >
-  >;
   sortField: string | null;
   onSortFieldChange: (field: string | null) => void;
 }
@@ -42,8 +34,6 @@ export function ResponsesFilters({
   onSearchChange,
   screeningFilter,
   onScreeningFilterChange,
-  statusFilter,
-  onStatusFilterChange,
   sortField,
   onSortFieldChange,
 }: ResponsesFiltersProps) {

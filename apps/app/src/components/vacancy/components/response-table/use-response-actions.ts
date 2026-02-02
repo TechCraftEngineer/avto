@@ -57,7 +57,13 @@ export function useResponseActions(
     } finally {
       setIsProcessing(false);
     }
-  }, [selectedIds, setSelectedIds, queryClient, trpc.vacancy.responses.list]);
+  }, [
+    selectedIds,
+    workspaceId,
+    setSelectedIds,
+    queryClient,
+    trpc.vacancy.responses.list,
+  ]);
 
   const handleScreenAll = useCallback(async () => {
     setIsProcessingAll(true);
@@ -235,7 +241,13 @@ export function useResponseActions(
     } finally {
       setIsSendingWelcome(false);
     }
-  }, [selectedIds, setSelectedIds, queryClient, trpc.vacancy.responses.list]);
+  }, [
+    selectedIds,
+    workspaceId,
+    setSelectedIds,
+    queryClient,
+    trpc.vacancy.responses.list,
+  ]);
 
   return {
     isProcessing,

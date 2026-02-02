@@ -76,7 +76,7 @@ export function ResponseHeaderCard({
   isPolling,
 }: ResponseHeaderCardProps) {
   const statusConfig = STATUS_CONFIG[response.status];
-  const StatusIcon = statusConfig.icon;
+  const StatusIcon = statusConfig?.icon;
 
   // Получаем URL аватарки из файла
   const photoUrl = useAvatarUrl(
@@ -115,7 +115,7 @@ export function ResponseHeaderCard({
             </Avatar>
 
             <div className="flex-1 min-w-0">
-              <CardTitle className="text-lg sm:text-2xl mb-1.5 sm:mb-2 break-words">
+              <CardTitle className="text-lg sm:text-2xl mb-1.5 sm:mb-2 wrap-break-word">
                 {candidateName}
               </CardTitle>
 
@@ -155,7 +155,9 @@ export function ResponseHeaderCard({
                 variant={statusConfig.variant}
                 className="gap-1 sm:gap-1.5 text-xs sm:text-sm"
               >
-                <StatusIcon className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                {StatusIcon && (
+                  <StatusIcon className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                )}
                 {statusConfig.label}
               </Badge>
 

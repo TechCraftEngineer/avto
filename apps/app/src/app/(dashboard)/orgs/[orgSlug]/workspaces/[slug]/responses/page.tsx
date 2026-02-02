@@ -260,8 +260,6 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
             onSearchChange={setSearch}
             screeningFilter={screeningFilter}
             onScreeningFilterChange={setScreeningFilter}
-            statusFilter={statusFilter}
-            onStatusFilterChange={setStatusFilter}
             sortField={sortField}
             onSortFieldChange={(field) => {
               if (field === null || field === "createdAt") {

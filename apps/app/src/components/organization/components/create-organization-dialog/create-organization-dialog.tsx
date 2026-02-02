@@ -27,6 +27,7 @@ import { createOrganizationSchema } from "@qbs-autonaim/validators";
 import slugify from "@sindresorhus/slugify";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Building2, HelpCircle } from "lucide-react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
@@ -45,6 +46,11 @@ export function CreateOrganizationDialog({
 }: CreateOrganizationDialogProps) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
+  const [_createdOrganization, setCreatedOrganization] = useState<{
+    id: string;
+    slug: string;
+  } | null>(null);
+  const [_showWorkspaceDialog, setShowWorkspaceDialog] = useState(false);
 
   // Извлекаем домен из URL
   const appDomain = new URL(APP_CONFIG.url).host;

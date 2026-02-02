@@ -36,6 +36,8 @@ interface ChatMessage {
   content: string;
   quickReplies?: string[];
   createdAt: Date;
+  sender: "BOT" | "CANDIDATE";
+  contentType: "TEXT";
 }
 
 export function UniversalChatPanel({
@@ -65,7 +67,18 @@ export function UniversalChatPanel({
 
   useEffect(() => {
     if (historyQuery.data?.messages) {
-      setMessages(historyQuery.data.messages as ChatMessage[]);
+      const mappedMessages = historyQuery.data.messages.map((msg) => ({
+        id: msg.id,
+        role: msg.role as "user" | "assistant",
+        content: msg.content ?? "",
+        quickReplies: undefined,
+        createdAt: msg.createdAt,
+        sender: (msg.role === "assistant" ? "BOT" : "CANDIDATE") as
+          | "BOT"
+          | "CANDIDATE",
+        contentType: "TEXT" as const,
+      }));
+      setMessages(mappedMessages);
     }
   }, [historyQuery.data]);
 
@@ -77,6 +90,8 @@ export function UniversalChatPanel({
           role: "user",
           content: variables.message,
           createdAt: new Date(),
+          sender: "CANDIDATE",
+          contentType: "TEXT",
         };
         setMessages((prev) => [...prev, userMessage]);
         setIsLoading(true);
@@ -90,6 +105,8 @@ export function UniversalChatPanel({
           content: data.message,
           quickReplies: data.quickReplies,
           createdAt: new Date(),
+          sender: "BOT",
+          contentType: "TEXT",
         };
         setMessages((prev) => [...prev, aiMessage]);
         setIsLoading(false);
