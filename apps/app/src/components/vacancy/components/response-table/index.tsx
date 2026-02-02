@@ -143,7 +143,7 @@ export function ResponseTable({
   const renderTableContent = () => {
     if (isLoading || (isFetching && !isLoading)) {
       // Показываем скелетон во время загрузки
-      const skeletonRows = [];
+      const skeletonRows: React.ReactElement[] = [];
       for (let i = 0; i < 5; i++) {
         skeletonRows.push(
           <TableRow key={`skeleton-${vacancyId}-${currentPage}-${i}`}>

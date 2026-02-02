@@ -1,5 +1,6 @@
 // vacancy domain exports
 export {
+  ResponseActions,
   ResponseDetailCard,
   ResponseTable,
   UpdateVacancyButton,
@@ -11,3 +12,4 @@ export {
   VacancySettingsForm,
   VacancyStats,
 } from "./components";
+export type { ScreeningFilter } from "./components/responses";

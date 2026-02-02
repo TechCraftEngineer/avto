@@ -3,4 +3,4 @@
 // ============================================================================
 
 // Re-export types from various domains
-export type { ScreeningFilter } from "./responses";
+export type { ScreeningFilter } from "./vacancy";

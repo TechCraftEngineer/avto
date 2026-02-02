@@ -3,8 +3,8 @@ import { Search } from "lucide-react";
 import {
   ResponseFilters,
   ResponseStatusFilter as ResponseStatusFilterComponent,
-  type ScreeningFilter,
-} from "~/components/responses";
+} from "./index";
+import type { ScreeningFilter } from "./types";
 import type { ResponseStatusFilterUI } from "./use-response-table";
 
 interface ResponseSearchFilterProps {

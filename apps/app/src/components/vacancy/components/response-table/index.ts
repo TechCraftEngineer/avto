@@ -1,5 +1,6 @@
 export { BulkActionsBar } from "./bulk-actions-bar";
 export { EmptyState } from "./empty-state";
+export { ResponseTable } from "./index";
 export { RefreshDialog } from "./refresh-dialog";
 export { ResponseTableHeader } from "./response-table-header";
 export { ResponseTableToolbar } from "./response-table-toolbar";

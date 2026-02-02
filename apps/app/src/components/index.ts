@@ -26,11 +26,10 @@ export * from "./organization";
 // Recruiter Components
 export { RecruiterAgentChat } from "./recruiter";
 // Response Detail Components
-export { ParsedProfileCard } from "./response-detail/components/cards/parsed-profile-card";
-export type { ScreeningFilter } from "./responses";
+export type { ScreeningFilter } from "./vacancy";
 
 // Response Components
-export { ResponseActions } from "./responses";
+export { ResponseActions } from "./vacancy";
 // Settings Components
 export * from "./settings";
 export { RestorePrompt } from "./ui/components/restore-prompt";

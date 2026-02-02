@@ -1,5 +1,5 @@
+// Shared response detail cards
 export { ExperienceCard } from "./experience-card";
-export { GigResponseDetailCard } from "./gig-response-detail-card";
 export { InterviewCard } from "./interview-card";
 export { InterviewScoringCard } from "./interview-scoring-card";
 export { MetadataCard } from "./metadata-card";
@@ -8,4 +8,3 @@ export { RecommendationCard } from "./recommendation-card";
 export { ResponseHeaderCard } from "./response-header-card";
 export { ScreeningCard } from "./screening-card";
 export { ScreeningResultsCard } from "./screening-results-card";
-export { VacancyResponseDetailCard } from "./vacancy-response-detail-card";

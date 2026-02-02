@@ -22,7 +22,7 @@ import {
   ExperienceTab,
   InterviewScoringCard,
   ProposalTab,
-} from "~/components/response-detail";
+} from "~/components/shared";
 import { PortfolioCard } from "./portfolio-card";
 import { PricingCard } from "./pricing-card";
 import type { GigResponseTabsProps } from "./types";

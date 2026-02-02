@@ -19,16 +19,18 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import React from "react";
-import { ConfirmDialog } from "~/components/response/gig-responses/confirm-dialog";
-import { EmptyState } from "~/components/response/gig-responses/empty-state";
-import { MessageDialog } from "~/components/response/gig-responses/message-dialog";
-import { ResponseHeader } from "~/components/response/gig-responses/response-header";
-import { ResponsesFilters } from "~/components/response/gig-responses/responses-filters";
-import { ResponsesTable } from "~/components/response/gig-responses/responses-table";
-import { ResponsesTabs } from "~/components/response/gig-responses/responses-tabs";
-import { useResponseFilters } from "~/components/response/gig-responses/use-response-filters";
-import { useResponseMutations } from "~/components/response/gig-responses/use-response-mutations";
-import { useResponseStats } from "~/components/response/gig-responses/use-response-stats";
+import {
+  ConfirmDialog,
+  EmptyState,
+  MessageDialog,
+  ResponseHeader,
+  ResponsesFilters,
+  ResponsesTable,
+  ResponsesTabs,
+  useResponseFilters,
+  useResponseMutations,
+  useResponseStats,
+} from "~/components/gig/components/gig-responses";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
 

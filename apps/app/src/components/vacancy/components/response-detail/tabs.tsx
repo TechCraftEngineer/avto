@@ -18,7 +18,7 @@ import {
   PortfolioTab,
   ProposalTab,
   ScreeningResultsCard,
-} from "~/components/response-detail";
+} from "~/components/shared";
 import { ResumeCard } from "./resume-card";
 import { SalaryCard } from "./salary-card";
 import type { VacancyResponseTabsProps } from "./types";
