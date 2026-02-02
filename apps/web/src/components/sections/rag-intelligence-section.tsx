@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Brain, Database, Search, FileText, Users, TrendingUp, Sparkles, Send, CheckCircle2, Play } from "lucide-react"
-import Button from "@qbs-autonaim/ui/button"
+import { Button } from "@qbs-autonaim/ui/button"
 
 const sampleQuestions = [
   "Сколько кандидатов на позицию Python Developer?",

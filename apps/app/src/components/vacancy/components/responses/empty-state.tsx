@@ -1,5 +1,4 @@
-import { TableCell } from "@qbs-autonaim/ui/tablecell";
-import { TableRow } from "@qbs-autonaim/ui/tablerow";
+import { TableCell, TableRow } from "@qbs-autonaim/ui/table";
 import { Filter, Inbox } from "lucide-react";
 
 interface EmptyStateProps {

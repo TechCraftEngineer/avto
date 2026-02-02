@@ -13,8 +13,8 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import type { Metadata } from "next"
-import Badge from "@qbs-autonaim/ui/badge"
-import Button from "@qbs-autonaim/ui/button"
+import { Badge } from "@qbs-autonaim/ui/badge"
+import { Button } from "@qbs-autonaim/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/card"
 import { Footer, Header } from "~/components/layout"
 

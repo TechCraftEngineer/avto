@@ -1,9 +1,6 @@
 "use client";
 
-import { Card } from "@qbs-autonaim/ui/card";
-import { CardContent } from "@qbs-autonaim/ui/cardcontent";
-import { CardHeader } from "@qbs-autonaim/ui/cardheader";
-import { CardTitle } from "@qbs-autonaim/ui/cardtitle";
+import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui/card";
 import { CheckCircle2 } from "lucide-react";
 import type { ProfileData } from "~/components/shared/utils/types";
 

@@ -1,4 +1,4 @@
-import Button from "@qbs-autonaim/ui/button";
+import { Button } from "@qbs-autonaim/ui/button";
 import { FileQuestion, Home, Search } from "lucide-react";
 import Link from "next/link";
 

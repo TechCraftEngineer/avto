@@ -1,6 +1,6 @@
 "use client";
 
-import Badge from "@qbs-autonaim/ui/badge";
+import { Badge } from "@qbs-autonaim/ui/badge";
 import { Card, CardContent } from "@qbs-autonaim/ui/card";
 import { Briefcase, Calendar, Clock } from "lucide-react";
 

@@ -1,7 +1,5 @@
 import { Checkbox } from "@qbs-autonaim/ui/checkbox";
-import { TableHead } from "@qbs-autonaim/ui/tablehead";
-import { TableHeader } from "@qbs-autonaim/ui/tableheader";
-import { TableRow } from "@qbs-autonaim/ui/tablerow";
+import { TableHead, TableHeader, TableRow } from "@qbs-autonaim/ui/table";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import type { SortDirection, SortField } from "./types";
 

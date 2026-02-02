@@ -1,6 +1,6 @@
 "use client";
 
-import Button from "@qbs-autonaim/ui/button";
+import { Button } from "@qbs-autonaim/ui/button";
 import { cn } from "@qbs-autonaim/ui";
 import { Menu, Moon, Sun, X } from "lucide-react";
 import Link from "next/link";

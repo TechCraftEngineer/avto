@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import { Header, Footer } from "@/components/layout"
-import Button from "@qbs-autonaim/ui/button"
+import { Button } from "@qbs-autonaim/ui/button"
 import {
   Clock,
   ArrowRight,

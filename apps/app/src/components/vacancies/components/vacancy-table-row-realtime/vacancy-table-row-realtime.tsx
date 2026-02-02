@@ -2,8 +2,7 @@
 
 import { Badge } from "@qbs-autonaim/ui/badge";
 import { Button } from "@qbs-autonaim/ui/button";
-import { TableCell } from "@qbs-autonaim/ui/tablecell";
-import { TableRow } from "@qbs-autonaim/ui/tablerow";
+import { TableCell, TableRow } from "@qbs-autonaim/ui/table";
 import { IconDots } from "@tabler/icons-react";
 import Link from "next/link";
 import { useVacancyStats } from "~/hooks/use-vacancy-stats";
