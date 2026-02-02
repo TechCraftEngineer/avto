@@ -6,7 +6,7 @@ export {
   AiChatInput,
   AiMessage,
   AiMessages,
-  CandidateInfo,
+  ChatCandidateInfo,
   ChatContainer,
   ChatError,
   ChatHeader,

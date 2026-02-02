@@ -1,12 +1,11 @@
 // components for gig
 
-export { GigAiChatPanel } from "./ai-chat/gig-ai-chat-panel";
+export { GigAIChatPanel } from "./ai-chat/gig-ai-chat-panel";
 export {
   ConfirmDialog,
   EmptyState,
   MessageDialog,
   ResponseHeader,
-  ResponseHelpers,
   ResponseRow,
   ResponsesFilters,
   ResponsesTable,

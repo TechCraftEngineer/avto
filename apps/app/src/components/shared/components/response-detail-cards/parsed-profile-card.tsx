@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui";
 import { CheckCircle2 } from "lucide-react";
-import type { ProfileData } from "../utils/types";
+import type { ProfileData } from "~/components/shared/utils/types";
 
 interface ParsedProfileCardProps {
   profileData: ProfileData;

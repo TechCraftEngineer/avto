@@ -148,7 +148,7 @@ export function ResponsesTable({
             <TableRow key={response.id}>
               <TableCell>
                 <Link
-                  href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies/${response.vacancyId}/responses/${response.id}`}
+                  href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies/${response.entityId}/responses/${response.id}`}
                   className="font-medium hover:underline"
                 >
                   {response.candidateName || "Без имени"}
@@ -156,10 +156,10 @@ export function ResponsesTable({
               </TableCell>
               <TableCell>
                 <Link
-                  href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies/${response.vacancyId}`}
+                  href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies/${response.entityId}`}
                   className="text-sm text-muted-foreground hover:underline"
                 >
-                  {response.vacancy?.title || "—"}
+                  Вакансия
                 </Link>
               </TableCell>
               <TableCell>
