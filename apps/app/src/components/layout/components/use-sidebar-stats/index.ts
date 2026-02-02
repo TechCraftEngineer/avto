@@ -1,1 +1,1 @@
-export { UseSidebarStats } from './use-sidebar-stats';
+export { useSidebarStats } from "./use-sidebar-stats";

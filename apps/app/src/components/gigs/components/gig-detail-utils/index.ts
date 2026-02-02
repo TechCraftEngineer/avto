@@ -1,1 +1,1 @@
-export { GigDetailUtils } from './gig-detail-utils';
+export { formatBudget, formatDate, getGigTypeLabel } from "./gig-detail-utils";

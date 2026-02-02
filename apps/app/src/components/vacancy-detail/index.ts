@@ -1,3 +1,13 @@
 // vacancy-detail domain exports
-export { SOURCE_CONFIG as SourceConfig } from './utils/source-config';
-export { VacancySkeleton } from '~/components/vacancies/components/vacancy-detail';
+
+export {
+  AIInterviewCard,
+  ResponseStatsCard,
+  ShortlistCard,
+  VacancyDescription,
+  VacancyHeader,
+  VacancyInsightsCard,
+  VacancyNotFound,
+  VacancySkeleton,
+} from "~/components/vacancies/components/vacancy-detail";
+export { SOURCE_CONFIG as SourceConfig } from "./utils/source-config";

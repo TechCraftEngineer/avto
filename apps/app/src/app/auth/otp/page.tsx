@@ -1,7 +1,7 @@
 import { APP_CONFIG } from "@qbs-autonaim/config";
 import { GalleryVerticalEnd } from "lucide-react";
 import type { Metadata } from "next";
-import { OTPForm } from "~/components/auth";
+import { OtpForm } from "~/components/auth";
 
 export const metadata: Metadata = {
   title: "Подтверждение кода",
@@ -21,7 +21,7 @@ export default function OTPPage() {
           </div>
           {APP_CONFIG.name}
         </a>
-        <OTPForm />
+        <OtpForm />
       </div>
     </div>
   );

@@ -9,12 +9,14 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { fetchTelegramMessagesToken } from "~/actions/realtime";
-import { ChatError } from "~/components/chat/chat-error";
-import { ChatHeader } from "~/components/chat/chat-header";
-import { ChatInput } from "~/components/chat/chat-input";
-import { ChatLoading } from "~/components/chat/chat-loading";
-import { ChatMessages } from "~/components/chat/chat-messages";
-import { ChatSidebar } from "~/components/chat/sidebar/chat-sidebar";
+import {
+  ChatError,
+  ChatHeader,
+  ChatInput,
+  ChatLoading,
+  ChatMessages,
+  ChatSidebar,
+} from "~/components/chat";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 import { useWorkspaceParams } from "~/hooks/use-workspace-params";
 import { useTRPC } from "~/trpc/react";

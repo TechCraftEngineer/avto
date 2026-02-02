@@ -4,7 +4,7 @@ import {
   workspaceStatsChannel,
 } from "@qbs-autonaim/jobs/channels";
 import { inngest } from "@qbs-autonaim/jobs/client";
-import { runHHParser } from "@qbs-autonaim/jobs-parsers";
+import { runHHParser } from "../../parsers/hh";
 import { z } from "zod";
 
 /**

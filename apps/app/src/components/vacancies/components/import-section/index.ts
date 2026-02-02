@@ -1,1 +1,4 @@
-export { VacancyImportSection as ImportSection } from './import-section';
+export {
+  VacancyImportSection,
+  VacancyImportSection as ImportSection,
+} from "./import-section";

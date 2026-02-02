@@ -2,7 +2,7 @@ import { db } from "@qbs-autonaim/db/client";
 import { vacancy } from "@qbs-autonaim/db/schema";
 import { fetchArchivedListChannel } from "@qbs-autonaim/jobs/channels";
 import { inngest } from "@qbs-autonaim/jobs/client";
-import { fetchArchivedVacanciesList } from "@qbs-autonaim/jobs-parsers";
+import { fetchArchivedVacanciesList } from "../../parsers/hh";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 

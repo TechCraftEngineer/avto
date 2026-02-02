@@ -1,1 +1,1 @@
-export { GigDetailStats } from './gig-detail-stats';
+export { GigStats as GigDetailStats } from "./gig-detail-stats";

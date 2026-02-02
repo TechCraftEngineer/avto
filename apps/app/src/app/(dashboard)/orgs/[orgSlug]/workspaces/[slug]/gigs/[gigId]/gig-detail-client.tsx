@@ -27,11 +27,7 @@ import { GigDetailActions } from "~/components/gig-detail/gig-detail-actions";
 import { GigDetailHeader } from "~/components/gig-detail/gig-detail-header";
 import { ProjectDetails } from "~/components/gig-detail/gig-detail-project-details";
 import { GigRequirements } from "~/components/gig-detail/gig-detail-requirements";
-import {
-  GigDetailSkeleton,
-  GigError,
-  GigNotFound,
-} from "~/components/gig-detail/gig-detail-skeleton";
+import { GigDetailSkeleton, GigError, GigNotFound } from "~/components/gigs";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
 

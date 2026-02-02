@@ -1,12 +1,15 @@
-// gig domain exports
+// gig domain exports - re-export specific hooks and components
 
 // Re-export from gigs domain (for backward compatibility)
 export {
+  CandidateComparison,
   DeleteGigDialog,
+  GigInterviewSettings,
   GigsFilters,
   GigsList,
   GigsStats,
   getRecommendationLabel,
+  RankingList,
   ShortlistError,
   ShortlistFilters,
   ShortlistHeader,
@@ -14,9 +17,5 @@ export {
   ShortlistLoading,
   ShortlistStats,
 } from "../gigs";
-export { AiChat } from "./components/ai-chat";
-export { Filters } from "./components/filters";
-// Re-export specific hooks for convenience
 export { useGigsFilters } from "./components/filters/use-gigs-filters";
-export { ResponseDetail } from "./components/response-detail";
-export { Templates } from "./components/templates";
+export { GigInvitationTemplate } from "./components/templates/gig-invitation-template";

@@ -1,1 +1,5 @@
-export { GigDetailSkeleton } from './gig-detail-skeleton';
+export {
+  GigDetailSkeleton,
+  GigError,
+  GigNotFound,
+} from "./gig-detail-skeleton";
