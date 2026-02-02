@@ -4,7 +4,7 @@ import { Button, Card } from "@qbs-autonaim/ui";
 import { IconArrowLeft } from "@tabler/icons-react";
 import Link from "next/link";
 import { PageHeader } from "~/components/layout";
-import { VacancyImportSection } from "~/components/vacancy/import-section";
+import { ImportSection } from "~/components/vacancies";
 import { useWorkspaceParams } from "~/hooks/use-workspace-params";
 
 export default function ImportVacancyPage() {
@@ -34,7 +34,7 @@ export default function ImportVacancyPage() {
       </PageHeader>
 
       <div className="@container/main mx-auto flex w-full max-w-[1000px] flex-1 flex-col gap-6 px-4 py-6 md:px-6">
-        <VacancyImportSection />
+        <ImportSection />
 
         <Card className="border-blue-200 bg-blue-50/50 p-4 dark:border-blue-900 dark:bg-blue-950/20">
           <h3 className="mb-2 font-semibold text-blue-900 dark:text-blue-100">

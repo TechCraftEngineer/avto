@@ -18,5 +18,5 @@ export {
   SecurityTab,
   SettingsSidebar,
 } from "./components";
-export { TelegramSessionsCard } from "./telegram-sessions-card";
-export { WorkspaceMembersClient } from "./workspace-members-client";
+export { TelegramSessionsCard } from "./components/telegram-sessions-card";
+export { WorkspaceMembersClient } from "./components/workspace-members-client";

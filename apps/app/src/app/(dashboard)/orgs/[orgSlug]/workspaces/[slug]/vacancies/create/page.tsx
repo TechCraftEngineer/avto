@@ -8,7 +8,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { PageHeader } from "~/components/layout";
 import { VacancyForm } from "~/components/vacancies/vacancy-form";
-import { AIVacancyChat } from "~/components/vacancy-chat/ai-vacancy-chat";
+import { AIVacancyChat } from "~/components/chat/components/vacancy-chat/ai-vacancy-chat";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useWorkspaceParams } from "~/hooks/use-workspace-params";
 

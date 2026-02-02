@@ -9,7 +9,7 @@ import {
   IntegrationCategorySection,
   IntegrationDialog,
 } from "~/components";
-import { TelegramSessionsCard } from "~/components/settings/telegram-sessions-card";
+import { TelegramSessionsCard } from "~/components";
 import { useWorkspace } from "~/hooks/use-workspace";
 import {
   AVAILABLE_INTEGRATIONS,
