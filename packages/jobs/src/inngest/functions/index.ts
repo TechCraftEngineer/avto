@@ -92,7 +92,7 @@ import {
   webSendQuestionFunction,
 } from "./web-interview";
 
-export const inngestFunctions: InngestFunction.Any[] = [
+export const inngestFunctions: any[] = [
   // Vacancy
   collectChatIdsFunction,
   extractVacancyRequirementsFunction,

@@ -3,8 +3,8 @@ import {
   updateResponseDetails,
 } from "@qbs-autonaim/jobs-shared";
 import type { Page } from "puppeteer";
+import type { ResponseData } from "../../../types";
 import { HH_CONFIG } from "../../core/config/config";
-import type { ResponseData } from "../../types";
 import { parseResponseDate } from "../../utils/date-utils";
 import { humanScroll } from "../../utils/human-behavior";
 import { parseResumeExperience } from "../resume/resume-parser";

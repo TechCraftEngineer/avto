@@ -1,8 +1,8 @@
 import { saveBasicResponse } from "@qbs-autonaim/jobs/services/response";
 import type { Page } from "puppeteer";
 import { z } from "zod";
+import type { ProgressCallback, ResponseData } from "../../../types";
 import { HH_CONFIG } from "../../core/config/config";
-import type { ProgressCallback, ResponseData } from "../../types";
 import { parseResponseDate } from "../../utils/date-utils";
 import {
   filterResponsesNeedingDetails,

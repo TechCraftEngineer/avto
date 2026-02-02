@@ -1,4 +1,4 @@
-import { eq } from "@qbs-autonaim/db";
+import { and, eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { vacancy } from "@qbs-autonaim/db/schema";
 import { runHHParser } from "@qbs-autonaim/jobs-parsers";
@@ -155,7 +155,13 @@ export const importNewVacanciesFunction = inngest.createFunction(
           // Получаем реальные totals из базы данных
           const [totalCountResult, activeCountResult] = await Promise.all([
             db.$count(vacancy, eq(vacancy.workspaceId, workspaceId)),
-            db.$count(vacancy, eq(vacancy.workspaceId, workspaceId), eq(vacancy.isActive, true)),
+            db.$count(
+              vacancy,
+              and(
+                eq(vacancy.workspaceId, workspaceId),
+                eq(vacancy.isActive, true),
+              ),
+            ),
           ]);
 
           await publish(

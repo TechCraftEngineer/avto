@@ -14,6 +14,7 @@ export {
   getResponsesWithoutDetails,
   saveBasicResponse,
   saveResponseToDb,
+  updateResponseDetails,
   updateResponseStatus,
   uploadCandidatePhoto,
   uploadResumePdf,

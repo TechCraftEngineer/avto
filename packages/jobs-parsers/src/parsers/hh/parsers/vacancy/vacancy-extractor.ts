@@ -1,6 +1,6 @@
 import type { Page } from "puppeteer";
 import sanitizeHtml from "sanitize-html";
-import type { VacancyData } from "../../types";
+import type { VacancyData } from "../../../types";
 
 /**
  * Очищает HTML от class и style атрибутов, оставляя структуру тегов

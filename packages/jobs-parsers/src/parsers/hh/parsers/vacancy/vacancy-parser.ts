@@ -1,8 +1,8 @@
 import { saveBasicVacancy } from "@qbs-autonaim/jobs/services/vacancy";
 import type { Page } from "puppeteer";
 import { z } from "zod";
+import type { VacancyData } from "../../../types";
 import { HH_CONFIG } from "../../core/config/config";
-import type { VacancyData } from "../../types";
 import { humanDelay } from "../../utils/human-behavior";
 import {
   collectArchivedVacancies,

@@ -1,12 +1,11 @@
 "use client";
 
 import { Button } from "@qbs-autonaim/ui";
-import { IconDownload, IconPlus, IconRefresh } from "@tabler/icons-react";
+import { IconDownload, IconPlus } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
-import { triggerUpdateVacancies } from "~/actions/trigger";
 import { PageHeader } from "~/components/layout";
 import {
   DeleteVacancyDialog,
@@ -26,7 +25,6 @@ export default function VacanciesPage() {
   const trpc = useTRPC();
   const { workspace } = useWorkspace();
   const queryClient = useQueryClient();
-  const [isUpdating, setIsUpdating] = useState(false);
   const [mergeOpenVacancyId, setMergeOpenVacancyId] = useState<string | null>(
     null,
   );
@@ -98,25 +96,6 @@ export default function VacanciesPage() {
     }),
   );
 
-  const handleUpdate = async () => {
-    if (!workspace?.id) {
-      toast.error("Рабочее пространство не найдено");
-      return;
-    }
-
-    setIsUpdating(true);
-    try {
-      const result = await triggerUpdateVacancies(workspace.id);
-      if (result.success) {
-        toast.success("Запущена синхронизация с источниками");
-      } else {
-        toast.error("Ошибка при запуске обновления");
-      }
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
   const handleMergeConfirm = (sourceId: string, targetId: string) => {
     if (!workspace?.id) return;
     mergeVacanciesMutation.mutate({
@@ -182,22 +161,6 @@ export default function VacanciesPage() {
               <span className="hidden sm:inline">Добавить с HH/Avito</span>
               <span className="sm:hidden">Импорт</span>
             </Link>
-          </Button>
-          <Button
-            onClick={handleUpdate}
-            disabled={isUpdating || isLoading}
-            variant="outline"
-            className="h-9 items-center gap-2 px-3 font-medium transition-all hover:bg-muted active:scale-95 sm:px-4"
-            title="Получить новые отклики со всех подключенных платформ"
-            aria-label={isUpdating ? "Обновление откликов" : "Обновить отклики"}
-          >
-            <IconRefresh
-              className={`size-4 ${isUpdating ? "animate-spin" : ""}`}
-            />
-            <span className="hidden sm:inline">
-              {isUpdating ? "Обновление…" : "Обновить отклики"}
-            </span>
-            <span className="sm:hidden">{isUpdating ? "…" : "Обновить"}</span>
           </Button>
         </div>
       </PageHeader>
@@ -266,12 +229,6 @@ export default function VacanciesPage() {
                       </span>
                     </>
                   )}
-                </div>
-              )}
-              {isUpdating && (
-                <div className="flex items-center gap-2 text-sm font-medium text-primary animate-pulse">
-                  <IconRefresh className="size-3.5 animate-spin" />
-                  Обновление данных...
                 </div>
               )}
             </div>

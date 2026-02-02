@@ -4,8 +4,8 @@ import {
   updateVacancyDescription,
 } from "@qbs-autonaim/jobs/services/vacancy";
 import type { Page } from "puppeteer";
+import type { VacancyData } from "../../../types";
 import { HH_CONFIG } from "../../core/config/config";
-import type { VacancyData } from "../../types";
 import { humanDelay } from "../../utils/human-behavior";
 
 /**
