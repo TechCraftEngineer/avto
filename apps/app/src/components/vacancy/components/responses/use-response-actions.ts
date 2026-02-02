@@ -177,6 +177,7 @@ export function useResponseActions(
 
   const handleRefreshComplete = useCallback(() => {
     setIsRefreshing(false);
+    setIsSyncingArchived(false);
     void queryClient.invalidateQueries(
       trpc.vacancy.responses.list.pathFilter(),
     );

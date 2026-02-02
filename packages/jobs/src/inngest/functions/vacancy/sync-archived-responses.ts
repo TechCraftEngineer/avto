@@ -68,11 +68,7 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
       // Получаем публикацию на HH.ru
       const publication = await db.query.vacancyPublication.findFirst({
         where: (pub, { and, eq }) =>
-          and(
-            eq(pub.vacancyId, vacancyId),
-            eq(pub.platform, "HH"),
-            eq(pub.isActive, true),
-          ),
+          and(eq(pub.vacancyId, vacancyId), eq(pub.platform, "HH")),
       });
 
       if (!publication) {

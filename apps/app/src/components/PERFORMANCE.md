@@ -495,14 +495,64 @@ function SearchResults() {
 ### 1. React DevTools Profiler
 Используйте React DevTools для анализа re-renders и производительности компонентов.
 
-### 2. Lighthouse
-Регулярно проверяйте показатели производительности с помощью Lighthouse. 
+### 2. React Query DevTools
+```typescript
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
-### 3. Bundle Analyzer
-Анализируйте размер бандла с помощью `@next/bundle-analyzer`.
+function App() {
+  return (
+    <>
+      <YourApp />
+      <ReactQueryDevtools initialIsOpen={false} />
+    </>
+  );
+}
+```
+
+### 3. Lighthouse
+Регулярно проверяйте показатели производительности с помощью Lighthouse:
+- First Contentful Paint (FCP) < 1.8s
+- Largest Contentful Paint (LCP) < 2.5s
+- Cumulative Layout Shift (CLS) < 0.1
+- Time to Interactive (TTI) < 3.8s
+
+### 4. Bundle Analyzer
+Анализируйте размер бандла с помощью `@next/bundle-analyzer`:
+
+```bash
+ANALYZE=true bun run build
+```
+
+### 5. Performance API
+```typescript
+// Измерение времени выполнения
+performance.mark('start-operation');
+// ... операция
+performance.mark('end-operation');
+performance.measure('operation', 'start-operation', 'end-operation');
+
+const measure = performance.getEntriesByName('operation')[0];
+console.log(`Операция заняла ${measure.duration}ms`);
+```
+
+## Чеклист перед релизом
+
+- [ ] Проверить размер бандла (< 200KB для первой загрузки)
+- [ ] Lighthouse Score > 90
+- [ ] Нет лишних re-renders (React DevTools Profiler)
+- [ ] Виртуализация для списков > 100 элементов
+- [ ] Оптимизированы изображения (WebP, правильные размеры)
+- [ ] Настроены staleTime/gcTime для React Query
+- [ ] Prefetch для критичных данных
+- [ ] Suspense boundaries для асинхронных компонентов
+- [ ] Проверено на медленном 3G (Chrome DevTools)
+- [ ] Проверено на слабом CPU (6x slowdown в DevTools)
 
 ## Ссылки
 
 - [Vercel React Best Practices](https://github.com/vercel/react-best-practices)
 - [Next.js Performance](https://nextjs.org/docs/advanced-features/measuring-performance)
 - [React Compiler](https://react.dev/learn/react-compiler)
+- [TanStack Query Performance](https://tanstack.com/query/latest/docs/react/guides/performance)
+- [TanStack Virtual](https://tanstack.com/virtual/latest)
+- [Web Vitals](https://web.dev/vitals/)

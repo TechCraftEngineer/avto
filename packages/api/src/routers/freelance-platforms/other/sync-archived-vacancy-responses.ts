@@ -44,11 +44,7 @@ export const syncArchivedVacancyResponses = protectedProcedure
     // Получаем публикацию на HH.ru для этой вакансии
     const publication = await ctx.db.query.vacancyPublication.findFirst({
       where: (pub, { and, eq }) =>
-        and(
-          eq(pub.vacancyId, input.vacancyId),
-          eq(pub.platform, "HH"),
-          eq(pub.isActive, true),
-        ),
+        and(eq(pub.vacancyId, input.vacancyId), eq(pub.platform, "HH")),
     });
 
     if (!publication) {
