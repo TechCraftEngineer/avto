@@ -14,9 +14,13 @@
  * - auth/       - Authentication services
  */
 
+// Re-export from jobs-shared
+export {
+  hasDetailedInfo,
+  updateResponseDetails,
+} from "@qbs-autonaim/jobs-shared";
 // ==================== Auth ====================
 export { checkHHCredentials } from "./auth";
-
 // ==================== Base Utilities ====================
 export {
   // Logger
@@ -36,10 +40,8 @@ export {
   unwrap,
   unwrapOr,
 } from "./base";
-
 // ==================== Freelance ====================
 export { generateFreelanceInvitation } from "./freelance";
-
 // ==================== Interview ====================
 export {
   addQuestionAnswer,
@@ -94,12 +96,10 @@ export {
   getResponseById,
   getResponseByResumeId,
   getResponsesWithoutDetails,
-  hasDetailedInfo,
   saveBasicResponse,
   saveResponseToDb,
   // Screening
   screenResponse,
-  updateResponseDetails,
   updateResponseStatus,
   uploadResumePdf,
 } from "./response";

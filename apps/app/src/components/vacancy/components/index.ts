@@ -10,4 +10,4 @@ export { VacancyFullEditForm } from "./editor/vacancy-full-edit-form";
 export { VacancySettingsForm } from "./editor/vacancy-settings-form";
 export { VacancyIntegrationManager } from "./integrations/vacancy-integration-manager";
 export { ResponseDetailCard } from "./response-detail";
-export { ResponseTable } from "./response-table";
+export { ResponseTable } from "./responses";

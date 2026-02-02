@@ -5,6 +5,7 @@
   "scripts": {
     "build": "bun with-env next build",
     "clean": "git clean -xdf .cache .next .turbo node_modules",
+    "cycle": "bunx madge --circular --extensions ts,tsx src",
     "dev": "bun with-env next dev",
     "format": "biome format .",
     "lint": "biome lint .",

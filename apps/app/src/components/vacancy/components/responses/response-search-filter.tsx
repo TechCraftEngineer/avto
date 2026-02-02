@@ -1,9 +1,7 @@
 import { Input } from "@qbs-autonaim/ui";
 import { Search } from "lucide-react";
-import {
-  ResponseFilters,
-  ResponseStatusFilter as ResponseStatusFilterComponent,
-} from "./index";
+import { ResponseFilters } from "./response-filters";
+import { ResponseStatusFilter } from "./response-status-filter";
 import type { ScreeningFilter } from "./types";
 import type { ResponseStatusFilterUI } from "./use-response-table";
 
@@ -40,7 +38,7 @@ export function ResponseSearchFilter({
           selectedFilter={screeningFilter}
           onFilterChange={onFilterChange}
         />
-        <ResponseStatusFilterComponent
+        <ResponseStatusFilter
           selectedStatuses={statusFilter}
           onStatusChange={onStatusFilterChange}
         />
