@@ -1,1 +1,1 @@
-export { AnalyticsPanel } from "./analytics-panel";
+export { VacancyAnalyticsPanel as AnalyticsPanel } from "./analytics-panel";

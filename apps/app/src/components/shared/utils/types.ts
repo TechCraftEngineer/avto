@@ -28,7 +28,19 @@ export interface RecommendationData {
   reasoning: string;
   strengths: string[];
   concerns: string[];
-  recommendation: "hire" | "maybe" | "pass";
+  recommendation:
+    | "hire"
+    | "maybe"
+    | "pass"
+    | "HIGHLY_RECOMMENDED"
+    | "RECOMMENDED"
+    | "NEUTRAL"
+    | "NOT_RECOMMENDED";
+  candidateSummary?: string;
+  weaknesses?: string[];
+  riskFactors?: Array<{ severity: string; description: string }>;
+  interviewQuestions?: string[];
+  actionSuggestions?: string[];
 }
 
 export interface ParsedProfileData {

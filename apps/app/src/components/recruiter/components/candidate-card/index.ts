@@ -1,1 +1,1 @@
-export { CandidateCard } from "./candidate-card";
+export { CandidateResultCard as CandidateCard } from "./candidate-card";

@@ -8,4 +8,3 @@ export { RecruiterAgentChatInput } from "./recruiter-agent-chat-input";
 export { RecruiterAgentMessage } from "./recruiter-agent-message";
 export { RecruiterAgentMessages } from "./recruiter-agent-messages";
 export { SuggestionChip } from "./suggestion-chip";
-export { Utils } from "./utils";
