@@ -35,10 +35,8 @@ export async function filterResponsesNeedingDetails(
     if (!response.resumeId) continue;
 
     try {
-      const needsDetails = !(await hasDetailedInfo(
-        response.resumeId,
-        vacancyId,
-      ));
+      const result = await hasDetailedInfo(vacancyId, response.resumeId);
+      const needsDetails = !result.data;
       if (needsDetails) {
         responsesNeedingDetails.push({
           ...response,
