@@ -93,6 +93,36 @@ export async function saveBasicResponse(
   respondedAt?: Date,
 ): Promise<Result<boolean>> {
   return tryCatch(async () => {
+    // Проверяем, существует ли отклик с таким resumeId для любой вакансии
+    const existingResponse = await db.query.response.findFirst({
+      where: and(
+        eq(response.entityType, "vacancy"),
+        eq(response.candidateId, resumeId),
+      ),
+    });
+
+    // Если отклик существует, но с другим entity_id, обновляем его
+    if (existingResponse && existingResponse.entityId !== entityId) {
+      logger.info(
+        `Updating entity_id for ${candidateName}: ${existingResponse.entityId} -> ${entityId}`,
+      );
+
+      await db
+        .update(response)
+        .set({ entityId })
+        .where(eq(response.id, existingResponse.id));
+
+      await logResponseEvent({
+        db,
+        responseId: existingResponse.id,
+        eventType: "CREATED",
+        oldValue: existingResponse.entityId,
+        newValue: entityId,
+      });
+
+      return false; // Не новый, но обновлен
+    }
+
     const [inserted] = await db
       .insert(response)
       .values({
