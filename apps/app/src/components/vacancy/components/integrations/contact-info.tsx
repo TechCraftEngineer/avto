@@ -59,6 +59,12 @@ export function ContactInfo({ contacts, size = "md" }: ContactInfoProps) {
     <div className="flex flex-col gap-1.5">
       {allContacts.map(({ contact, contactType }, index) => {
         const displayValue = contact.formatted || contact.raw;
+
+        // Пропускаем контакты без значения
+        if (!displayValue) {
+          return null;
+        }
+
         const isPhone =
           contactType === "phone" ||
           contact.type === "cell" ||

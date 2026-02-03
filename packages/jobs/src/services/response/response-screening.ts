@@ -1,4 +1,8 @@
-import { buildResponseScreeningPrompt } from "@qbs-autonaim/ai";
+import {
+  ResponseScreeningAgent,
+  type ResponseScreeningInput,
+  type ResponseScreeningOutput,
+} from "@qbs-autonaim/ai";
 import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import {
@@ -7,50 +11,17 @@ import {
   responseScreening,
   vacancy,
 } from "@qbs-autonaim/db/schema";
-import { generateText } from "@qbs-autonaim/lib/ai";
-import { stripHtml } from "string-strip-html";
-import { responseScreeningResultSchema } from "../../schemas/response-screening.schema";
-import { extractJsonFromText } from "../../utils/json-extractor";
+import { getAIModel } from "@qbs-autonaim/lib/ai";
 import { createLogger, err, type Result, tryCatch } from "../base";
 import { extractVacancyRequirements, getVacancyRequirements } from "../vacancy";
 
 const logger = createLogger("ResponseScreening");
 
-interface ScreeningResult {
-  score: number;
-  detailedScore: number;
-  analysis: string;
-  resumeLanguage: string;
-  potentialScore?: number | null;
-  careerTrajectoryScore?: number | null;
-  careerTrajectoryType?:
-    | "growth"
-    | "stable"
-    | "decline"
-    | "jump"
-    | "role_change"
-    | null;
-  hiddenFitIndicators?: string[] | null;
-  potentialAnalysis?: string | null;
-  careerTrajectoryAnalysis?: string | null;
-  hiddenFitAnalysis?: string | null;
-}
+// Используем тип из агента
+type ScreeningResult = ResponseScreeningOutput;
 
 /**
- * Parses AI screening result
- */
-function parseScreeningResult(text: string): ScreeningResult {
-  const extracted = extractJsonFromText(text);
-
-  if (!extracted) {
-    throw new Error("JSON не найден в ответе ИИ");
-  }
-
-  return responseScreeningResultSchema.parse(extracted);
-}
-
-/**
- * Screens response and generates evaluation
+ * Screens response and generates evaluation using AI agent
  */
 export async function screenResponse(
   responseId: string,
@@ -128,40 +99,42 @@ export async function screenResponse(
     ? vacancyResult.data?.customScreeningPrompt
     : null;
 
-  const prompt = buildResponseScreeningPrompt(
-    {
+  // Подготавливаем входные данные для агента
+  const agentInput: ResponseScreeningInput = {
+    candidate: {
       candidateName: resp.candidateName || null,
-      experience: resp.experience ? stripHtml(resp.experience).result : null,
       coverLetter: resp.coverLetter || null,
+      profileData: resp.profileData || null,
     },
     requirements,
     customPrompt,
-  );
+  };
 
-  logger.info("Отправка запроса к ИИ для скрининга");
+  logger.info("Запуск агента скрининга");
 
-  const aiResult = await tryCatch(async () => {
-    const { text } = await generateText({
-      prompt,
-      generationName: "screen-response",
-      entityId: responseId,
-      metadata: {
-        responseId,
-        vacancyId: resp.entityId,
-      },
-    });
-    return text;
-  }, "Запрос к ИИ не удался");
+  // Создаем и запускаем агента с моделью по умолчанию
+  const agent = new ResponseScreeningAgent({
+    model: getAIModel(),
+  });
 
-  if (!aiResult.success) {
-    return err(aiResult.error);
+  // Агент возвращает свой формат результата
+  const agentResult = await agent.execute(agentInput, {
+    entityId: responseId,
+    metadata: {
+      responseId,
+      vacancyId: resp.entityId,
+    },
+  });
+
+  if (!agentResult.success || !agentResult.data) {
+    return err(agentResult.error || "Агент не вернул данные");
   }
 
-  logger.info("Получен ответ от ИИ");
+  logger.info("Получен результат от агента скрининга");
+
+  const screeningResult = agentResult.data;
 
   const saveResult = await tryCatch(async () => {
-    const result = parseScreeningResult(aiResult.data);
-
     // Check if screening record exists
     const existingScreening = await db.query.responseScreening.findFirst({
       where: eq(responseScreening.responseId, responseId),
@@ -171,31 +144,33 @@ export async function screenResponse(
       await db
         .update(responseScreening)
         .set({
-          score: result.score,
-          detailedScore: result.detailedScore,
-          analysis: result.analysis,
-          potentialScore: result.potentialScore ?? null,
-          careerTrajectoryScore: result.careerTrajectoryScore ?? null,
-          careerTrajectoryType: result.careerTrajectoryType ?? null,
-          hiddenFitIndicators: result.hiddenFitIndicators ?? null,
-          potentialAnalysis: result.potentialAnalysis ?? null,
-          careerTrajectoryAnalysis: result.careerTrajectoryAnalysis ?? null,
-          hiddenFitAnalysis: result.hiddenFitAnalysis ?? null,
+          score: screeningResult.score,
+          detailedScore: screeningResult.detailedScore,
+          analysis: screeningResult.analysis,
+          potentialScore: screeningResult.potentialScore ?? null,
+          careerTrajectoryScore: screeningResult.careerTrajectoryScore ?? null,
+          careerTrajectoryType: screeningResult.careerTrajectoryType ?? null,
+          hiddenFitIndicators: screeningResult.hiddenFitIndicators ?? null,
+          potentialAnalysis: screeningResult.potentialAnalysis ?? null,
+          careerTrajectoryAnalysis:
+            screeningResult.careerTrajectoryAnalysis ?? null,
+          hiddenFitAnalysis: screeningResult.hiddenFitAnalysis ?? null,
         })
         .where(eq(responseScreening.responseId, responseId));
     } else {
       await db.insert(responseScreening).values({
         responseId,
-        score: result.score,
-        detailedScore: result.detailedScore,
-        analysis: result.analysis,
-        potentialScore: result.potentialScore ?? null,
-        careerTrajectoryScore: result.careerTrajectoryScore ?? null,
-        careerTrajectoryType: result.careerTrajectoryType ?? null,
-        hiddenFitIndicators: result.hiddenFitIndicators ?? null,
-        potentialAnalysis: result.potentialAnalysis ?? null,
-        careerTrajectoryAnalysis: result.careerTrajectoryAnalysis ?? null,
-        hiddenFitAnalysis: result.hiddenFitAnalysis ?? null,
+        score: screeningResult.score,
+        detailedScore: screeningResult.detailedScore,
+        analysis: screeningResult.analysis,
+        potentialScore: screeningResult.potentialScore ?? null,
+        careerTrajectoryScore: screeningResult.careerTrajectoryScore ?? null,
+        careerTrajectoryType: screeningResult.careerTrajectoryType ?? null,
+        hiddenFitIndicators: screeningResult.hiddenFitIndicators ?? null,
+        potentialAnalysis: screeningResult.potentialAnalysis ?? null,
+        careerTrajectoryAnalysis:
+          screeningResult.careerTrajectoryAnalysis ?? null,
+        hiddenFitAnalysis: screeningResult.hiddenFitAnalysis ?? null,
       });
     }
 
@@ -204,15 +179,15 @@ export async function screenResponse(
       .update(response)
       .set({
         status: RESPONSE_STATUS.EVALUATED,
-        resumeLanguage: result.resumeLanguage,
+        resumeLanguage: screeningResult.resumeLanguage,
       })
       .where(eq(response.id, responseId));
 
     logger.info(
-      `Результат скрининга сохранен: оценка ${result.score}/5 (${result.detailedScore}/100), язык: ${result.resumeLanguage}`,
+      `Результат скрининга сохранен: оценка ${screeningResult.score}/5 (${screeningResult.detailedScore}/100), язык: ${screeningResult.resumeLanguage}`,
     );
 
-    return result;
+    return screeningResult;
   }, "Не удалось сохранить результат скрининга");
 
   return saveResult;

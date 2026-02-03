@@ -116,10 +116,25 @@ export abstract class BaseAgent<TInput, TOutput> {
       return { success: false, error: "Некорректные входные данные" };
     }
 
+    const prompt = this.buildPrompt(input, context);
+
+    // Логируем длину промпта и его содержимое для отладки
+    console.log(`[${this.name}] Executing agent:`, {
+      promptLength: prompt.length,
+      estimatedTokens: Math.ceil(prompt.length / 4),
+      promptPreview:
+        prompt.substring(0, 500) + (prompt.length > 500 ? "..." : ""),
+    });
+
     const span = this.langfuse?.span({
       traceId: this.traceId,
       name: this.name,
-      input,
+      input: {
+        rawInput: input,
+        compiledPrompt: prompt,
+        promptLength: prompt.length,
+        estimatedTokens: Math.ceil(prompt.length / 4),
+      },
       metadata: {
         agentType: this.type,
         modelProvider: this.modelProvider,
@@ -128,24 +143,6 @@ export abstract class BaseAgent<TInput, TOutput> {
     });
 
     try {
-      const prompt = this.buildPrompt(input, context);
-
-      // Логируем длину промпта и его содержимое для отладки
-      console.log(`[${this.name}] Executing agent:`, {
-        promptLength: prompt.length,
-        estimatedTokens: Math.ceil(prompt.length / 4),
-        promptPreview:
-          prompt.substring(0, 500) + (prompt.length > 500 ? "..." : ""),
-      });
-
-      // Логируем скомпилированный prompt в Langfuse
-      span?.update({
-        input: {
-          rawInput: input,
-          compiledPrompt: prompt,
-        },
-      });
-
       const result = await this.agent.generate({ prompt });
 
       // Детальное логирование структуры result для отладки
@@ -228,10 +225,15 @@ export abstract class BaseAgent<TInput, TOutput> {
       const validatedResponse = fullResponseValidation.data;
 
       span?.end({
-        output: validatedOutput,
+        output: {
+          result: validatedOutput,
+          finishReason: validatedResponse.finishReason,
+        },
         metadata: {
           success: true,
+          agentType: this.type,
           promptLength: prompt.length,
+          estimatedTokens: Math.ceil(prompt.length / 4),
           finishReason: validatedResponse.finishReason,
           model: validatedResponse.model?.modelId,
           modelProvider: this.modelProvider,
@@ -286,14 +288,29 @@ export abstract class BaseAgent<TInput, TOutput> {
       });
 
       span?.end({
-        output: { error: errorMessage },
+        output: {
+          error: errorMessage,
+          errorDetails:
+            error instanceof Error
+              ? {
+                  name: error.name,
+                  message: error.message,
+                }
+              : undefined,
+        },
         metadata: {
           success: false,
+          agentType: this.type,
+          modelProvider: this.modelProvider,
+          modelName: this.modelName,
           error: errorMessage,
           isTimeout,
           errorStack: error instanceof Error ? error.stack : undefined,
           statusCode,
-          responseBody,
+          requestId,
+          responseBody: responseBody
+            ? JSON.stringify(responseBody).substring(0, 1000)
+            : undefined,
         },
       });
 
