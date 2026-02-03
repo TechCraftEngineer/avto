@@ -1,6 +1,5 @@
 import { paths } from "@qbs-autonaim/config";
-import { SidebarInset } from "@qbs-autonaim/ui/sidebar";
-import { SidebarProvider } from "@qbs-autonaim/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "@qbs-autonaim/ui/sidebar";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { getSession } from "~/auth/server";
@@ -89,4 +88,3 @@ export default async function DashboardLayout({
     </WorkspaceProvider>
   );
 }
-

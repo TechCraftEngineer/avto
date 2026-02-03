@@ -120,7 +120,6 @@ export const importSingleResponse = protectedProcedure
         telegramUsername: input.contactInfo?.telegram ?? null,
         profileUrl: input.contactInfo?.platformProfileUrl ?? null,
         platformProfileUrl: input.contactInfo?.platformProfileUrl ?? null,
-        experience: null,
         skills: null,
         importSource: input.platformSource,
         profileData: null,

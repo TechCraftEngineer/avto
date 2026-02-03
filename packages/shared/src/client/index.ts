@@ -1,15 +1,3 @@
-/**
- * Client-safe exports from @qbs-autonaim/shared
- * These utilities can be used in browser environments without Node.js dependencies
- */
-
-export type {
-  GigContactInfo,
-  GigShortlist,
-  GigShortlistCandidate,
-  GigShortlistOptions,
-} from "../gig-shortlist-generator";
-export type { InterviewLink } from "../interview-link-generator";
 // Типы - безопасны для клиента
 export type {
   BufferedMessage,

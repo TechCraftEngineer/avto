@@ -39,7 +39,6 @@ interface CandidateData {
 
   proposedDeliveryDays: number | null;
   coverLetter: string | null;
-  experience: string | null;
   skills: string[] | null;
   rating: string | null;
   status: string;
@@ -191,10 +190,6 @@ function formatCandidate(candidate: CandidateData): string {
 
   if (candidate.skills && candidate.skills.length > 0) {
     parts.push(`- **Навыки:** ${candidate.skills.join(", ")}`);
-  }
-
-  if (candidate.experience) {
-    parts.push(`- **Опыт:** ${candidate.experience}`);
   }
 
   if (candidate.coverLetter) {

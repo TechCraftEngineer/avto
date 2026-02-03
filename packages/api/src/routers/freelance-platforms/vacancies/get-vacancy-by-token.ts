@@ -1,6 +1,6 @@
+import { InterviewLinkGenerator } from "@qbs-autonaim/shared/server";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { InterviewLinkGenerator } from "../../../services";
 import { publicProcedure } from "../../../trpc";
 
 const getVacancyByTokenInputSchema = z.object({

@@ -20,7 +20,6 @@ interface CandidateData {
   candidateName: string | null;
   salaryExpectationsAmount: string | null;
   coverLetter: string | null;
-  experience: string | null;
   profileUrl: string | null;
   status: string;
   hrSelectionStatus: string | null;
@@ -113,10 +112,6 @@ function formatCandidate(candidate: CandidateData): string {
 
   if (candidate.weaknesses && candidate.weaknesses.length > 0) {
     parts.push(`- **Слабые стороны:** ${candidate.weaknesses.join(", ")}`);
-  }
-
-  if (candidate.experience) {
-    parts.push(`- **Опыт:** ${candidate.experience}`);
   }
 
   if (candidate.coverLetter) {

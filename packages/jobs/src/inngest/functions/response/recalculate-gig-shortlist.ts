@@ -1,4 +1,4 @@
-import { GigShortlistGenerator } from "@qbs-autonaim/shared";
+import { GigShortlistGenerator } from "@qbs-autonaim/shared/server";
 import { inngest } from "../../client";
 
 /**

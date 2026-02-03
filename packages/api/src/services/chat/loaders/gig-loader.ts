@@ -22,7 +22,6 @@ interface CandidateData {
 
   proposedDeliveryDays: number | null;
   coverLetter: string | null;
-  experience: string | null;
   skills: string[] | null;
   rating: string | null;
   status: string;
@@ -78,7 +77,6 @@ export class GigContextLoader implements ContextLoader {
 
         proposedDeliveryDays: true,
         coverLetter: true,
-        experience: true,
         skills: true,
         rating: true,
         status: true,
@@ -163,7 +161,6 @@ export class GigContextLoader implements ContextLoader {
 
         proposedDeliveryDays: resp.proposedDeliveryDays,
         coverLetter: resp.coverLetter,
-        experience: resp.experience,
         skills: resp.skills,
         rating: resp.rating,
         status: resp.status,

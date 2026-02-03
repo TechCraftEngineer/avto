@@ -1,4 +1,4 @@
-import { InterviewLinkGenerator } from "@qbs-autonaim/shared";
+import { InterviewLinkGenerator } from "@qbs-autonaim/shared/server";
 import { generateWelcomeMessage } from "../../../../services/messaging";
 import { inngest } from "../../../client";
 import { fetchResponseData } from "./data-fetchers";

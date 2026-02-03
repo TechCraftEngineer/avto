@@ -65,7 +65,6 @@ export const getInterviewQuestions = protectedProcedure
       columns: {
         id: true,
         candidateName: true,
-        experience: true,
         coverLetter: true,
         resumeUrl: true,
       },
@@ -145,7 +144,7 @@ export const getInterviewQuestions = protectedProcedure
       vacancyId,
       candidateData: {
         resume: response.resumeUrl || null,
-        experience: formatExperienceText(response.profileData) || null,
+        experience: null, // TODO: извлекать из profileData если нужно
         coverLetter: response.coverLetter || null,
         riskFactors,
         screening: screening

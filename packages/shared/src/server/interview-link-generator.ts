@@ -8,7 +8,7 @@
 import { and, eq, sql } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { interviewLink, vacancy } from "@qbs-autonaim/db/schema";
-import { generateSlug, getInterviewBaseUrl } from "./utils";
+import { generateSlug, getInterviewBaseUrl } from "../utils";
 
 /**
  * Интерфейс ссылки на интервью

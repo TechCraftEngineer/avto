@@ -18,7 +18,6 @@ export const update = protectedProcedure
 
       proposedDeliveryDays: z.number().int().positive().nullish(),
       coverLetter: z.string().nullish(),
-      experience: z.string().nullish(),
       resumeLanguage: z.string().max(10).nullish(),
     }),
   )

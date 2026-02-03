@@ -57,7 +57,6 @@ export const compare = protectedProcedure
         skillsMatchScore: responseTable.skillsMatchScore,
         experienceScore: responseTable.experienceScore,
         salaryExpectationsAmount: responseTable.salaryExpectationsAmount,
-        experience: responseTable.experience,
         skills: responseTable.skills,
         status: responseTable.status,
         hrSelectionStatus: responseTable.hrSelectionStatus,

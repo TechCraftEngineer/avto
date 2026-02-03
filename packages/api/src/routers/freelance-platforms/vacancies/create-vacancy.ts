@@ -1,8 +1,8 @@
 import { vacancy } from "@qbs-autonaim/db/schema";
+import { InterviewLinkGenerator } from "@qbs-autonaim/shared/server";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { InterviewLinkGenerator } from "../../../services";
 import { protectedProcedure } from "../../../trpc";
 import { createErrorHandler } from "../../../utils/error-handler";
 

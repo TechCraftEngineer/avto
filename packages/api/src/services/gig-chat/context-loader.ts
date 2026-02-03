@@ -56,7 +56,6 @@ export interface CandidateContext {
 
   proposedDeliveryDays: number | null;
   coverLetter: string | null;
-  experience: string | null;
   skills: string[] | null;
   rating: string | null;
   status: string;
@@ -156,7 +155,6 @@ export async function loadCandidatesContext(
 
       proposedDeliveryDays: true,
       coverLetter: true,
-      experience: true,
       skills: true,
       rating: true,
       status: true,
@@ -244,7 +242,6 @@ export async function loadCandidatesContext(
 
       proposedDeliveryDays: response.proposedDeliveryDays,
       coverLetter: response.coverLetter,
-      experience: formatExperienceText(response.profileData),
       skills: response.skills,
       rating: response.rating,
       status: response.status,

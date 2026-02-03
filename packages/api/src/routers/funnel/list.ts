@@ -106,7 +106,7 @@ export const list = protectedProcedure
             .join("")
             .toUpperCase()
             .slice(0, 2) || "??",
-        experience: r.experience || "Не указан",
+        experience: "Не указан", // TODO: извлекать из profileData
         location: "Не указано",
         skills: [],
         matchScore: screening?.detailedScore || 0,

@@ -1,6 +1,6 @@
 import { and, eq } from "@qbs-autonaim/db";
 import { gig, response as responseTable } from "@qbs-autonaim/db/schema";
-import { InterviewLinkGenerator } from "@qbs-autonaim/shared";
+import { InterviewLinkGenerator } from "@qbs-autonaim/shared/server";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";

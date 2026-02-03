@@ -169,7 +169,6 @@ export const submitApplication = publicProcedure
               phone: candidateInfo?.phone ?? null,
               telegramUsername: null,
               profileUrl: null,
-              experience: null,
               skills: null,
               importSource: "WEB_LINK",
               profileData: null,

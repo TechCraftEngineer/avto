@@ -1,7 +1,7 @@
 import { and, eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { telegramSession } from "@qbs-autonaim/db/schema";
-import { InterviewLinkGenerator } from "@qbs-autonaim/shared";
+import { InterviewLinkGenerator } from "@qbs-autonaim/shared/server";
 import { tgClientSDK } from "@qbs-autonaim/tg-client/sdk";
 import {
   generateHHInviteMessage,

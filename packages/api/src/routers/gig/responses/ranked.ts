@@ -1,5 +1,5 @@
 ﻿import { getAIModel } from "@qbs-autonaim/lib/ai";
-import { RankingService } from "@qbs-autonaim/shared";
+import { RankingService } from "@qbs-autonaim/shared/server";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";

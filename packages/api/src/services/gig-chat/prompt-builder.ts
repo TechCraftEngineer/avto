@@ -174,11 +174,6 @@ function formatCandidate(candidate: CandidateContext): string {
     parts.push(`- **Навыки:** ${candidate.skills.join(", ")}`);
   }
 
-  // Опыт
-  if (candidate.experience) {
-    parts.push(`- **Опыт:** ${candidate.experience}`);
-  }
-
   // Сопроводительное письмо (сокращенное)
   if (candidate.coverLetter) {
     const shortLetter =

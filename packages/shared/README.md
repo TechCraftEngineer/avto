@@ -1,70 +1,70 @@
 # @qbs-autonaim/shared
 
-Общий пакет для типов и утилит, используемых в `@qbs-autonaim/jobs` и `@qbs-autonaim/tg-client`.
-
-## Назначение
-
-Этот пакет был создан для устранения циклической зависимости между пакетами `jobs` и `tg-client`. Он содержит общие типы и утилиты, которые используются обоими пакетами.
+Общие типы, утилиты и сервисы для проекта.
 
 ## Структура
 
 ```
-packages/shared/
-├── src/
-│   ├── types/           # Общие типы
-│   │   ├── buffer.ts    # Типы для буферизации сообщений
-│   │   └── conversation.ts  # Типы для метаданных conversation
-│   ├── utils/           # Общие утилиты
-│   │   └── conversation.ts  # Утилиты для работы с conversation
-│   └── index.ts         # Главный экспорт
-├── package.json
-└── tsconfig.json
+src/
+├── index.ts              # Клиентские экспорты (безопасно для фронта)
+├── server/               # Серверные сервисы (только для бэкенда)
+│   ├── index.ts
+│   ├── gig-shortlist-generator.ts
+│   ├── interview-link-generator.ts
+│   └── ranking-service.ts
+├── client/               # Клиентские утилиты
+├── schemas/              # Zod схемы
+├── types/                # TypeScript типы
+└── utils/                # Общие утилиты
 ```
-
-## Экспорты
-
-### Типы
-
-- `BufferedMessage` - Представляет одно буферизованное сообщение
-- `BufferValue` - Представляет значение буфера для конкретного шага интервью
-- `MessageBufferService` - Интерфейс сервиса буферизации сообщений
-- `ConversationMetadata` - Метаданные conversation
-- `QuestionAnswer` - Представляет пару вопрос-ответ в интервью
-
-### Утилиты
-
-- `getConversationMetadata(conversationId)` - Получает метаданные conversation
-- `updateConversationMetadata(conversationId, updates)` - Обновляет метаданные conversation
-- `getQuestionCount(conversationId)` - Получает количество заданных вопросов
 
 ## Использование
 
+### На клиенте (фронтенд)
+
 ```typescript
-import {
-  type ConversationMetadata,
-  type MessageBufferService,
-  getConversationMetadata,
-  getQuestionCount,
+// ✅ Безопасно - только типы и клиентские утилиты
+import { 
+  parsePlatformLink, 
+  formatExperienceText,
+  type GigShortlistCandidate 
 } from "@qbs-autonaim/shared";
-
-// Получить метаданные
-const metadata = await getConversationMetadata("conversation-id");
-
-// Получить количество вопросов
-const count = await getQuestionCount("conversation-id");
 ```
 
-## Граф зависимостей
+### На сервере (бэкенд)
 
+```typescript
+// ✅ Серверные сервисы с доступом к БД
+import { 
+  GigShortlistGenerator,
+  InterviewLinkGenerator,
+  RankingService 
+} from "@qbs-autonaim/shared/server";
+
+// ✅ Типы доступны из основного экспорта
+import type { 
+  GigShortlist,
+  InterviewLink 
+} from "@qbs-autonaim/shared";
 ```
-shared (базовый пакет)
-  ↑
-  ├── tg-client (зависит только от shared)
-  ↑
-  └── jobs (зависит от shared и tg-client)
-```
 
-## Зависимости
+## ⚠️ Важно
 
-- `@qbs-autonaim/db` - Для работы с базой данных
-- `zod` - Для валидации данных
+- **НЕ импортируйте** `@qbs-autonaim/shared/server` на клиенте - это приведет к ошибкам сборки
+- Серверные сервисы содержат зависимости от `@qbs-autonaim/db` и не могут работать в браузере
+- Типы безопасны для использования везде
+
+## Экспорты
+
+### Основной экспорт (`@qbs-autonaim/shared`)
+
+- Схемы валидации (Zod)
+- TypeScript типы
+- Клиентские утилиты
+- Типы серверных сервисов (только типы!)
+
+### Серверный экспорт (`@qbs-autonaim/shared/server`)
+
+- `GigShortlistGenerator` - генерация шортлиста кандидатов
+- `InterviewLinkGenerator` - управление ссылками на интервью
+- `RankingService` - ранжирование кандидатов с AI

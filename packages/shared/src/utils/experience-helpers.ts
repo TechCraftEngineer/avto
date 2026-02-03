@@ -27,7 +27,7 @@ interface ProfileData {
  * Извлекает опыт работы из profileData
  */
 export function getExperienceFromProfile(
-  profileData: ProfileData | Record<string, unknown> | null | undefined,
+  profileData: unknown,
 ): ExperienceItem[] {
   if (!profileData || typeof profileData !== "object") return [];
 
@@ -40,9 +40,7 @@ export function getExperienceFromProfile(
 /**
  * Форматирует опыт работы в текстовую строку для отображения
  */
-export function formatExperienceText(
-  profileData: ProfileData | Record<string, unknown> | null | undefined,
-): string {
+export function formatExperienceText(profileData: unknown): string {
   const experience = getExperienceFromProfile(profileData);
   if (experience.length === 0) return "";
 
@@ -64,9 +62,7 @@ export function formatExperienceText(
 /**
  * Проверяет, есть ли опыт работы в profileData
  */
-export function hasExperience(
-  profileData: ProfileData | Record<string, unknown> | null | undefined,
-): boolean {
+export function hasExperience(profileData: unknown): boolean {
   return getExperienceFromProfile(profileData).length > 0;
 }
 
@@ -74,7 +70,7 @@ export function hasExperience(
  * Получает краткое описание опыта (первые N символов)
  */
 export function getExperienceSummary(
-  profileData: ProfileData | Record<string, unknown> | null | undefined,
+  profileData: unknown,
   maxLength = 120,
 ): string {
   const text = formatExperienceText(profileData);

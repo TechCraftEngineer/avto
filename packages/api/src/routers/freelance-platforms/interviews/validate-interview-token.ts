@@ -1,5 +1,5 @@
+import { InterviewLinkGenerator } from "@qbs-autonaim/shared/server";
 import { z } from "zod";
-import { InterviewLinkGenerator } from "../../../services";
 import { publicProcedure } from "../../../trpc";
 import { createErrorHandler } from "../../../utils/error-handler";
 

@@ -1,16 +1,3 @@
-// GigShortlistGenerator перенесен в @qbs-autonaim/shared
-// InterviewLinkGenerator moved to @qbs-autonaim/shared
-export type {
-  GigContactInfo,
-  GigShortlist,
-  GigShortlistCandidate,
-  GigShortlistOptions,
-  InterviewLink,
-} from "@qbs-autonaim/shared";
-export {
-  GigShortlistGenerator,
-  InterviewLinkGenerator,
-} from "@qbs-autonaim/shared";
 export type {
   AggregationGranularity,
   AnalyticsErrorCode,

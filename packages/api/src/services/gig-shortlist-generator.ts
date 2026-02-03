@@ -124,7 +124,6 @@ export class GigShortlistGenerator {
         // Дополнительная информация
         coverLetter: true,
         skills: true,
-        experience: true,
         createdAt: true,
       },
     });
@@ -168,9 +167,6 @@ export class GigShortlistGenerator {
         coverLetter: response.coverLetter ?? undefined,
         portfolioLinks: (response.portfolioLinks as string[]) ?? undefined,
         skills: (response.skills as string[]) ?? undefined,
-        profileData: response.profileData as
-          | Record<string, unknown>
-          | undefined,
         createdAt: response.createdAt,
       }),
     );

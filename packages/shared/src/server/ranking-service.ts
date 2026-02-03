@@ -18,7 +18,7 @@ import { and, desc, eq, gte, sql } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { gig, response } from "@qbs-autonaim/db/schema";
 import { z } from "zod";
-import { formatExperienceText } from "./utils/experience-helpers";
+import { formatExperienceText } from "../utils/experience-helpers";
 
 /**
  * Фильтры для получения ранжированных кандидатов

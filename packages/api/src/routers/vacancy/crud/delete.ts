@@ -58,7 +58,6 @@ export const deleteVacancy = protectedProcedure
               coverLetter: "Данные анонимизированы",
               profileUrl: null,
               resumePdfFileId: null,
-              experience: null,
               salaryExpectationsAmount: null,
             })
             .where(

@@ -20,7 +20,6 @@ interface CandidateData {
   candidateName: string | null;
   salaryExpectationsAmount: number | null;
   coverLetter: string | null;
-  experience: string | null;
   profileUrl: string | null;
   status: string;
   hrSelectionStatus: string | null;
@@ -72,7 +71,6 @@ export class VacancyContextLoader implements ContextLoader {
         candidateName: true,
         salaryExpectationsAmount: true,
         coverLetter: true,
-        experience: true,
         profileUrl: true,
         status: true,
         hrSelectionStatus: true,
@@ -154,7 +152,6 @@ export class VacancyContextLoader implements ContextLoader {
         candidateName: resp.candidateName,
         salaryExpectationsAmount: resp.salaryExpectationsAmount,
         coverLetter: resp.coverLetter,
-        experience: resp.experience,
         profileUrl: resp.profileUrl,
         status: resp.status,
         hrSelectionStatus: resp.hrSelectionStatus,

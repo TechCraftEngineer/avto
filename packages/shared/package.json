@@ -4,22 +4,16 @@
   "private": true,
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
     },
-    "./client": {
-      "types": "./dist/client/index.d.ts",
-      "default": "./src/client/index.ts"
-    },
-    "./types": {
-      "types": "./dist/types/index.d.ts",
-      "default": "./src/types/index.ts"
-    },
-    "./utils": {
-      "types": "./dist/utils/index.d.ts",
-      "default": "./src/utils/index.ts"
+    "./server": {
+      "types": "./dist/server/index.d.mts",
+      "import": "./dist/server/index.mjs"
     }
   },
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
   "license": "MIT",
   "scripts": {
     "build": "tsdown",

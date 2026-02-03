@@ -1,26 +1,17 @@
 /**
  * Главный экспорт пакета @qbs-autonaim/shared
  *
- * Предоставляет общие типы и утилиты для использования
- * в пакетах @qbs-autonaim/jobs и @qbs-autonaim/tg-client
+ * ⚠️ ВНИМАНИЕ: Этот модуль безопасен для использования на клиенте
+ * Серверные сервисы с БД импортируйте из @qbs-autonaim/shared/server
  */
 
-// Экспорт gig shortlist generator
-export type {
-  GigContactInfo,
-  GigShortlist,
-  GigShortlistCandidate,
-  GigShortlistOptions,
-} from "./gig-shortlist-generator";
-export { GigShortlistGenerator } from "./gig-shortlist-generator";
-// Экспорт interview link generator
-export type { InterviewLink } from "./interview-link-generator";
-export { InterviewLinkGenerator } from "./interview-link-generator";
-// Экспорт ranking service
-export * from "./ranking-service";
-// Экспорт схем
+// Экспорт схем (безопасно для клиента)
 export * from "./schemas";
-// Экспорт всех типов
+export type { InterviewLink } from "./server/interview-link-generator";
+export type {
+  GetRankedCandidatesFilters,
+  RankingServiceError,
+} from "./server/ranking-service";
 export type {
   BufferedMessage,
   BufferValue,
@@ -28,15 +19,11 @@ export type {
   MessageBufferService,
   QuestionAnswer,
 } from "./types";
-
-// Серверные утилиты теперь экспортируются из @qbs-autonaim/server-utils
-// Экспорт клиентских утилит (для обратной совместимости - используйте @qbs-autonaim/shared/client)
+// Экспорт клиентских утилит
 export {
+  getInitials,
   getPlatformTaskUrl,
   type ParsedPlatformLink,
   parsePlatformLink,
 } from "./utils";
 export * from "./utils/experience-helpers";
-
-// Примечание: sanitizeHtmlFunction теперь доступен через @qbs-autonaim/shared/client
-// для использования в браузере без Node.js зависимостей

@@ -10,7 +10,7 @@ import {
   HR_SELECTION_STATUS_LABELS,
   RESPONSE_STATUS_LABELS,
 } from "@qbs-autonaim/db/schema";
-import { getInitials } from "@qbs-autonaim/shared/utils";
+import { getInitials } from "@qbs-autonaim/shared";
 import {
   Avatar,
   AvatarFallback,

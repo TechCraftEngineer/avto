@@ -197,7 +197,7 @@ export const getById = protectedProcedure
           .join("")
           .toUpperCase()
           .slice(0, 2) || "??",
-      experience: formatExperienceText(response.profileData) || "Не указан",
+      experience: formatExperienceText(response.profileData) || "Не указан", // Из profileData
       location: globalCandidate?.location || "Не указано",
       matchScore,
       resumeScore,

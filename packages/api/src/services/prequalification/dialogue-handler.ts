@@ -203,7 +203,6 @@ export class DialogueHandler {
         candidateId: `preq_${prequalSessionId}`,
         candidateName: candidateName || "Кандидат",
         status: "NEW",
-        experience: "",
         contacts: null,
         phone: null,
       })

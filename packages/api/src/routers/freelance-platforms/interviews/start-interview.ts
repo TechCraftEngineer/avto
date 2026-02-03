@@ -1,8 +1,8 @@
 import { and, eq } from "@qbs-autonaim/db";
 import { response as responseTable } from "@qbs-autonaim/db/schema";
+import { InterviewLinkGenerator } from "@qbs-autonaim/shared/server";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { InterviewLinkGenerator } from "../../../services";
 import { publicProcedure } from "../../../trpc";
 
 const platformProfileUrlSchema = z

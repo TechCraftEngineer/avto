@@ -315,14 +315,17 @@ export class CandidateService {
   /**
    * Вычисление опыта работы из profileData
    */
-  private calculateExperienceYears(
-    profileData: Record<string, unknown> | null,
-  ): number | null {
-    if (!profileData?.experience) {
+  private calculateExperienceYears(profileData: unknown): number | null {
+    if (
+      !profileData ||
+      typeof profileData !== "object" ||
+      !("experience" in profileData)
+    ) {
       return null;
     }
 
-    const experience = profileData.experience as Array<{
+    const experience = (profileData as Record<string, unknown>)
+      .experience as Array<{
       experience?: {
         period?: string;
       };

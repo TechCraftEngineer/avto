@@ -257,7 +257,6 @@ export const listAllWorkspace = protectedProcedure
       status: ResponseStatus;
       hrSelectionStatus: HrSelectionStatus | null;
       contacts: Record<string, unknown> | null;
-      experience: string | null;
       profileUrl: string | null;
       resumeUrl: string | null;
       telegramUsername: string | null;
@@ -290,7 +289,6 @@ export const listAllWorkspace = protectedProcedure
           status: responseTable.status,
           hrSelectionStatus: responseTable.hrSelectionStatus,
           contacts: responseTable.contacts,
-          experience: responseTable.experience,
           profileUrl: responseTable.profileUrl,
           resumeUrl: responseTable.resumeUrl,
           telegramUsername: responseTable.telegramUsername,
@@ -325,7 +323,6 @@ export const listAllWorkspace = protectedProcedure
           status: true,
           hrSelectionStatus: true,
           contacts: true,
-          experience: true,
           profileUrl: true,
           resumeUrl: true,
           telegramUsername: true,
@@ -449,7 +446,6 @@ export const listAllWorkspace = protectedProcedure
 
       return {
         ...r,
-        experience: r.experience ? sanitizeHtml(r.experience) : null,
         coverLetter: r.coverLetter ? sanitizeHtml(r.coverLetter) : null,
         priorityScore,
         screening: screening
