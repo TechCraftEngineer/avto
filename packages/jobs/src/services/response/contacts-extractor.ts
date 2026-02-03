@@ -2,7 +2,6 @@ import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { response } from "@qbs-autonaim/db/schema";
 import { createLogger, err, ok, type Result, tryCatch } from "../base";
-import { extractTelegramUsername } from "../messaging/telegram-username";
 import type { HHContacts } from "../types";
 
 const logger = createLogger("ContactsExtractor");
@@ -63,19 +62,11 @@ export async function extractContactsFromResponse(
   }
 
   const contacts = resp.contacts as HHContacts;
-  let telegramUsername: string | null = resp.telegramUsername;
+  const telegramUsername: string | null = resp.telegramUsername;
   let phone: string | null = resp.phone;
 
-  // Extract telegram username if not present
-  if (!telegramUsername) {
-    logger.info("Extracting Telegram username from contacts...");
-    telegramUsername = await extractTelegramUsername(contacts);
-    if (telegramUsername) {
-      logger.info("Telegram username found and extracted");
-    } else {
-      logger.info("Telegram username not found in contacts");
-    }
-  }
+  // Telegram username extraction is now handled by resume-enrichment service
+  // which uses the general LLM extractor
 
   // Extract phone if not present
   if (!phone) {

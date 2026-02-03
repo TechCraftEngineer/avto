@@ -8,4 +8,3 @@ export {
   findResponseByPinCode,
   generateTelegramInvite,
 } from "./telegram-invite";
-export { extractTelegramUsername } from "./telegram-username";

@@ -62,16 +62,10 @@ const scoringPrompt = buildInterviewScoringPrompt(scoringContext);
 ### Промпты для кандидатов
 
 ```typescript
-import { 
-  buildCandidateWelcomePrompt,
-  buildTelegramUsernameExtractionPrompt 
-} from "@qbs-autonaim/ai";
+import { buildTelegramInvitePrompt } from "@qbs-autonaim/ai";
 
-// Приветственное сообщение
-const welcomePrompt = buildCandidateWelcomePrompt(welcomeContext);
-
-// Извлечение Telegram username
-const extractPrompt = buildTelegramUsernameExtractionPrompt(contactsJson);
+// Приглашение в Telegram
+const invitePrompt = buildTelegramInvitePrompt(welcomeContext);
 ```
 
 ### Шаблоны промптов

@@ -47,7 +47,6 @@ export {
   extractContactsFromResponse,
   extractContactsFromResponses,
   // Messaging
-  extractTelegramUsername,
   extractVacancyRequirements,
   findResponseByPinCode,
   // Screening
