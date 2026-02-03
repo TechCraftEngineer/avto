@@ -93,42 +93,6 @@ export function ResponseTable({
     placeholderData: keepPreviousData,
   });
 
-  // Debug logging
-  useEffect(() => {
-    if (workspace?.id) {
-      console.log("[ResponseTable] Query params:", {
-        workspaceId: workspace.id,
-        vacancyId,
-        page: currentPage,
-        limit: ITEMS_PER_PAGE,
-        sortField,
-        sortDirection,
-        screeningFilter,
-        statusFilter: apiStatusFilter,
-        search: debouncedSearch,
-        enabled: !!workspace?.id,
-      });
-      console.log("[ResponseTable] Query result:", {
-        isLoading,
-        isFetching,
-        responsesCount: data?.responses?.length ?? 0,
-        total: data?.total ?? 0,
-      });
-    }
-  }, [
-    workspace?.id,
-    vacancyId,
-    currentPage,
-    sortField,
-    sortDirection,
-    screeningFilter,
-    apiStatusFilter,
-    debouncedSearch,
-    isLoading,
-    isFetching,
-    data,
-  ]);
-
   const {
     isProcessing,
     isProcessingNew,

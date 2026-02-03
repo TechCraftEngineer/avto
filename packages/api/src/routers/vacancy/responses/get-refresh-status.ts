@@ -4,8 +4,17 @@ import { protectedProcedure } from "../../../trpc";
 /**
  * Получить статус задания обновления откликов вакансии
  * Использует Inngest REST API v1:
- * 1. GET /v1/events - получить последние события vacancy/responses.refresh
- * 2. GET /v1/events/{eventId}/runs - получить запуски для найденного события
+ * 1. GET /v1/events - получить последние события, связанные с откликами
+ * 2. GET /v1/events/{eventId}/runs - получить запуски для найденных событий
+ *
+ * Отслеживаемые события:
+ * - vacancy/responses.refresh - обновление откликов
+ * - vacancy/responses.sync-archived - синхронизация архивных откликов
+ * - response/resume.parse-new - парсинг новых резюме
+ * - response/contacts.parse-missing - парсинг недостающих контактов
+ * - response/screen.new - скрининг новых откликов
+ * - response/screen.all - скрининг всех откликов
+ * - response/screen.batch - batch скрининг откликов
  */
 export const getRefreshStatus = protectedProcedure
   .input(
@@ -33,106 +42,115 @@ export const getRefreshStatus = protectedProcedure
         };
       }
 
-      // Шаг 1: Получаем последние события vacancy/responses.refresh
-      const eventsUrl = `${inngestBaseUrl}/v1/events?name=vacancy/responses.refresh`;
+      // События, связанные с обработкой откликов
+      const responseEventNames = [
+        "vacancy/responses.refresh",
+        "vacancy/responses.sync-archived",
+        "response/resume.parse-new",
+        "response/contacts.parse-missing",
+        "response/screen.new",
+        "response/screen.all",
+        "response/screen.batch",
+      ];
 
-      console.log(
-        `Получение событий для вакансии ${vacancyId}, URL: ${eventsUrl}`,
-      );
+      // Проверяем каждое событие
+      for (const eventName of responseEventNames) {
+        const eventsUrl = `${inngestBaseUrl}/v1/events?name=${eventName}`;
 
-      const eventsResponse = await fetch(eventsUrl, {
-        headers: {
-          Authorization: `Bearer ${inngestSigningKey}`,
-          "Content-Type": "application/json",
-        },
-      });
+        console.log(`Проверка события ${eventName} для вакансии ${vacancyId}`);
 
-      if (!eventsResponse.ok) {
-        console.error(
-          `Ошибка при запросе событий Inngest (${eventsResponse.status}):`,
-          eventsResponse.statusText,
-        );
-        return {
-          isRunning: false,
-          status: null,
-          message: null,
+        const eventsResponse = await fetch(eventsUrl, {
+          headers: {
+            Authorization: `Bearer ${inngestSigningKey}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!eventsResponse.ok) {
+          console.error(
+            `Ошибка при запросе событий ${eventName} (${eventsResponse.status}):`,
+            eventsResponse.statusText,
+          );
+          continue;
+        }
+
+        const eventsData = (await eventsResponse.json()) as {
+          data: Array<{
+            id: string;
+            name: string;
+            ts: number;
+            data: {
+              vacancyId?: string;
+            };
+          }>;
         };
-      }
 
-      const eventsData = (await eventsResponse.json()) as {
-        data: Array<{
-          id: string;
-          name: string;
-          ts: number;
-          data: {
-            vacancyId?: string;
+        // Находим событие для нашей вакансии
+        const vacancyEvent = eventsData.data?.find(
+          (event) => event.data?.vacancyId === vacancyId,
+        );
+
+        if (!vacancyEvent) {
+          continue;
+        }
+
+        // Получаем запуски для найденного события
+        const runsUrl = `${inngestBaseUrl}/v1/events/${vacancyEvent.id}/runs`;
+
+        console.log(
+          `Получение запусков для события ${eventName} (${vacancyEvent.id})`,
+        );
+
+        const runsResponse = await fetch(runsUrl, {
+          headers: {
+            Authorization: `Bearer ${inngestSigningKey}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!runsResponse.ok) {
+          console.error(
+            `Ошибка при запросе запусков ${eventName} (${runsResponse.status}):`,
+            runsResponse.statusText,
+          );
+          continue;
+        }
+
+        const runsData = (await runsResponse.json()) as {
+          data: Array<{
+            run_id: string;
+            status: "Running" | "Completed" | "Failed" | "Cancelled" | "Queued";
+            function_id: string;
+            run_started_at: string;
+            ended_at?: string;
+          }>;
+        };
+
+        // Проверяем есть ли активные запуски
+        const activeRun = runsData.data?.find(
+          (run) => run.status === "Running" || run.status === "Queued",
+        );
+
+        if (activeRun) {
+          console.log(
+            `Найден активный запуск для события ${eventName}, вакансия ${vacancyId}`,
+          );
+
+          return {
+            isRunning: true,
+            status: "processing" as const,
+            message: "Обновление откликов выполняется…",
           };
-        }>;
-      };
-
-      // Находим событие для нашей вакансии
-      const vacancyEvent = eventsData.data?.find(
-        (event) => event.data?.vacancyId === vacancyId,
-      );
-
-      if (!vacancyEvent) {
-        // Нет событий для этой вакансии
-        return {
-          isRunning: false,
-          status: null,
-          message: null,
-        };
+        }
       }
 
-      // Шаг 2: Получаем запуски для найденного события
-      const runsUrl = `${inngestBaseUrl}/v1/events/${vacancyEvent.id}/runs`;
-
-      console.log(
-        `Получение запусков для события ${vacancyEvent.id}, URL: ${runsUrl}`,
-      );
-
-      const runsResponse = await fetch(runsUrl, {
-        headers: {
-          Authorization: `Bearer ${inngestSigningKey}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!runsResponse.ok) {
-        console.error(
-          `Ошибка при запросе запусков Inngest (${runsResponse.status}):`,
-          runsResponse.statusText,
-        );
-        return {
-          isRunning: false,
-          status: null,
-          message: null,
-        };
-      }
-
-      const runs = (await runsResponse.json()) as Array<{
-        run_id: string;
-        status: "Running" | "Completed" | "Failed" | "Cancelled" | "Queued";
-        function_id: string;
-        run_started_at: string;
-        ended_at?: string;
-      }>;
-
-      // Проверяем есть ли активные запуски
-      const activeRun = runs.find(
-        (run) => run.status === "Running" || run.status === "Queued",
-      );
-
-      const isRunning = !!activeRun;
-
-      console.log(
-        `Статус задания для вакансии ${vacancyId}: ${isRunning ? "выполняется" : "завершено"}`,
-      );
+      // Не найдено активных запусков
+      console.log(`Нет активных запусков для вакансии ${vacancyId}`);
 
       return {
-        isRunning,
-        status: isRunning ? ("processing" as const) : null,
-        message: isRunning ? "Обновление откликов выполняется…" : null,
+        isRunning: false,
+        status: null,
+        message: null,
       };
     } catch (error) {
       console.error("Ошибка при проверке статуса задания:", error);
