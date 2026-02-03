@@ -9,6 +9,7 @@ import {
   uploadCandidatePhoto,
   uploadResumePdf,
 } from "@qbs-autonaim/jobs/services/response";
+import { getResponsesLimit } from "@qbs-autonaim/jobs-shared/utils/plan-limits";
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import {
@@ -71,7 +72,7 @@ export const refreshAllResumesFunction = inngest.createFunction(
         throw new Error(`Отклики для вакансии ${vacancyId} не найдены`);
       }
 
-      // Получаем vacancy отдельно
+      // Получаем vacancy и workspace отдельно
       const vacancy = await db.query.vacancy.findFirst({
         where: (v, { eq }) => eq(v.id, vacancyId),
         columns: {
@@ -83,7 +84,30 @@ export const refreshAllResumesFunction = inngest.createFunction(
         throw new Error(`WorkspaceId не найден для вакансии ${vacancyId}`);
       }
 
-      return { responses, vacancy };
+      // Получаем план workspace
+      const workspaceData = await db.query.workspace.findFirst({
+        where: (w, { eq }) => eq(w.id, vacancy.workspaceId),
+        columns: {
+          plan: true,
+        },
+      });
+
+      // Получаем лимит из тарифного плана
+      const responsesLimit = workspaceData?.plan
+        ? getResponsesLimit(workspaceData.plan)
+        : 0;
+
+      if (responsesLimit > 0) {
+        console.log(
+          `⚙️ Установлен лимит для тарифа "${workspaceData?.plan}": ${responsesLimit} откликов`,
+        );
+      }
+
+      // Применяем лимит к выборке
+      const limitedResponses =
+        responsesLimit > 0 ? responses.slice(0, responsesLimit) : responses;
+
+      return { responses: limitedResponses, vacancy };
     });
 
     const credentials = await step.run("get-credentials", async () => {

@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import {
   boolean,
   index,
+  pgEnum,
   pgTable,
   text,
   timestamp,
@@ -10,6 +11,15 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 import { organization } from "../organization/organization";
+
+// Тарифные планы
+export const workspacePlanEnum = pgEnum("workspace_plan", [
+  "free",
+  "pro",
+  "enterprise",
+]);
+
+export type WorkspacePlan = "free" | "pro" | "enterprise";
 
 export const workspace = pgTable(
   "workspaces",
@@ -31,6 +41,9 @@ export const workspace = pgTable(
 
     // Уникальный slug для URL (уникален в рамках организации)
     slug: text("slug").notNull(),
+
+    // Тарифный план
+    plan: workspacePlanEnum("plan").default("free").notNull(),
 
     // Описание компании
     description: text("description"),

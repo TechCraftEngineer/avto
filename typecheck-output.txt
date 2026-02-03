@@ -1,5 +1,5 @@
 $ turbo run typecheck
-• turbo 2.8.1
+• turbo 2.8.2
 • Packages in scope: @qbs-autonaim/ai, @qbs-autonaim/ai-proxy, @qbs-autonaim/api, @qbs-autonaim/app, @qbs-autonaim/auth, @qbs-autonaim/config, @qbs-autonaim/db, @qbs-autonaim/demo, @qbs-autonaim/docs, @qbs-autonaim/document-processor, @qbs-autonaim/emails, @qbs-autonaim/github, @qbs-autonaim/interview, @qbs-autonaim/jobs, @qbs-autonaim/jobs-parsers, @qbs-autonaim/jobs-shared, @qbs-autonaim/lib, @qbs-autonaim/playwright, @qbs-autonaim/server-utils, @qbs-autonaim/shared, @qbs-autonaim/tailwind-config, @qbs-autonaim/tg-client, @qbs-autonaim/tsconfig, @qbs-autonaim/ui, @qbs-autonaim/validators, @qbs-autonaim/web
 • Running typecheck in 26 packages
 • Remote caching disabled

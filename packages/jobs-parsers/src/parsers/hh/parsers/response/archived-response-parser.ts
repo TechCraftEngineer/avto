@@ -1,4 +1,5 @@
 import { saveBasicResponse } from "@qbs-autonaim/jobs/services/response";
+import { getResponsesLimit } from "@qbs-autonaim/jobs-shared/utils/plan-limits";
 import type { Page } from "puppeteer";
 import type { ResponseData } from "../../../types";
 import { HH_CONFIG } from "../../core/config/config";
@@ -26,6 +27,7 @@ export async function parseArchivedVacancyResponses(
   page: Page,
   vacancyId: string,
   externalId?: string | null,
+  workspacePlan?: "free" | "pro" | "enterprise",
 ): Promise<{ syncedResponses: number; newResponses: number }> {
   console.log(
     `🚀 Начинаем парсинг откликов для архивной вакансии ${vacancyId}`,
@@ -42,7 +44,12 @@ export async function parseArchivedVacancyResponses(
 
   console.log("\n📋 ЭТАП 1: Сбор всех откликов и сохранение в базу...");
   const { responses: allResponses, newCount } =
-    await collectAllArchivedResponses(page, responsesUrl, vacancyId);
+    await collectAllArchivedResponses(
+      page,
+      responsesUrl,
+      vacancyId,
+      workspacePlan,
+    );
 
   if (allResponses.length === 0) {
     console.log("⚠️ Не найдено откликов для обработки");
@@ -87,13 +94,33 @@ async function collectAllArchivedResponses(
   page: Page,
   responsesUrl: string,
   vacancyIdForSave: string,
+  workspacePlan?: "free" | "pro" | "enterprise",
 ): Promise<{ responses: ResponseWithId[]; newCount: number }> {
   const allResponses: ResponseWithId[] = [];
   let currentPage = 0;
   let totalSaved = 0;
   let totalSkipped = 0;
 
+  // Получаем лимит из тарифного плана
+  const responsesLimit = workspacePlan ? getResponsesLimit(workspacePlan) : 0;
+  const hasLimit = responsesLimit > 0;
+
+  if (hasLimit) {
+    console.log(
+      `⚙️ Установлен лимит для тарифа "${workspacePlan}": ${responsesLimit} откликов`,
+    );
+  }
+
+  const hasLimit = responsesLimit > 0;
+
   while (true) {
+    // Проверяем лимит перед загрузкой следующей страницы
+    if (hasLimit && allResponses.length >= responsesLimit) {
+      console.log(
+        `⏹️ Достигнут лимит загрузки откликов (${responsesLimit}), останавливаем парсинг`,
+      );
+      break;
+    }
     const pageUrl =
       currentPage === 0
         ? `${responsesUrl}&order=DATE`
@@ -185,6 +212,14 @@ async function collectAllArchivedResponses(
     let pageErrors = 0;
 
     for (const response of pageResponses) {
+      // Проверяем лимит перед обработкой каждого отклика
+      if (hasLimit && allResponses.length >= responsesLimit) {
+        console.log(
+          `⏹️ Достигнут лимит загрузки откликов (${responsesLimit}), останавливаем обработку страницы`,
+        );
+        break;
+      }
+
       // Логируем ошибки парсинга даты из browser context
       if (response.respondedAtError) {
         console.error(
@@ -242,6 +277,14 @@ async function collectAllArchivedResponses(
     console.log(
       `💾 Страница ${currentPage}: сохранено ${pageSaved}, пропущено ${pageSkipped}${pageErrors > 0 ? `, ошибок ${pageErrors}` : ""}`,
     );
+
+    // Проверяем лимит после обработки страницы
+    if (hasLimit && allResponses.length >= responsesLimit) {
+      console.log(
+        `⏹️ Достигнут лимит загрузки откликов (${responsesLimit}), останавливаем парсинг`,
+      );
+      break;
+    }
 
     // Если на странице не было ни одного нового отклика, останавливаем парсинг
     if (pageSaved === 0 && pageSkipped > 0) {

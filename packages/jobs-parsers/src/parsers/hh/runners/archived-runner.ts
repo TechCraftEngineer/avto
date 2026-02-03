@@ -63,6 +63,14 @@ export async function runHHArchivedVacancyParser(
   console.log(`   Vacancy: ${vacancyId}`);
   console.log(`   External ID: ${externalId}`);
 
+  // Получаем план workspace
+  const workspaceData = await db.query.workspace.findFirst({
+    where: (w, { eq }) => eq(w.id, workspaceId),
+    columns: {
+      plan: true,
+    },
+  });
+
   const credentials = await getIntegrationCredentials(db, "hh", workspaceId);
   if (!credentials?.email || !credentials?.password) {
     throw new Error("Не найдены учетные данные для HH.ru");
@@ -80,6 +88,7 @@ export async function runHHArchivedVacancyParser(
       page,
       vacancyId,
       externalId,
+      workspaceData?.plan,
     );
 
     console.log("✅ Парсинг архивной вакансии завершен успешно");
