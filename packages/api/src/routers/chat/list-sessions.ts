@@ -6,11 +6,25 @@ import { protectedProcedure } from "../../trpc";
 
 export const listSessions = protectedProcedure
   .input(
-    z.object({
-      entityType: z.enum(chatEntityTypeEnum.enumValues),
-      entityId: z.string().uuid(),
-      limit: z.number().min(1).max(50).default(20),
-    }),
+    z
+      .object({
+        entityType: z.enum(chatEntityTypeEnum.enumValues),
+        entityId: z.string(),
+        limit: z.number().min(1).max(50).default(20),
+      })
+      .refine(
+        (v) => {
+          // Для gig и vacancy требуется UUID
+          if (["gig", "vacancy"].includes(v.entityType)) {
+            return z.string().uuid().safeParse(v.entityId).success;
+          }
+          return true;
+        },
+        {
+          message: "entityId должен быть UUID для типов gig и vacancy",
+          path: ["entityId"],
+        },
+      ),
   )
   .query(async ({ input, ctx }) => {
     const { entityType, entityId, limit } = input;

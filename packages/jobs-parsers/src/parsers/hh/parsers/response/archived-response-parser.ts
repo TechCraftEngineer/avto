@@ -1,5 +1,5 @@
 import { saveBasicResponse } from "@qbs-autonaim/jobs/services/response";
-import { getResponsesLimit } from "@qbs-autonaim/jobs-shared/utils/plan-limits";
+import { getResponsesLimit } from "@qbs-autonaim/jobs-shared";
 import type { Page } from "puppeteer";
 import type { ResponseData } from "../../../types";
 import { HH_CONFIG } from "../../core/config/config";
@@ -110,8 +110,6 @@ async function collectAllArchivedResponses(
       `⚙️ Установлен лимит для тарифа "${workspacePlan}": ${responsesLimit} откликов`,
     );
   }
-
-  const hasLimit = responsesLimit > 0;
 
   while (true) {
     // Проверяем лимит перед загрузкой следующей страницы

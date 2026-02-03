@@ -12,11 +12,25 @@ import { protectedProcedure } from "../../trpc";
 
 export const createSession = protectedProcedure
   .input(
-    z.object({
-      entityType: z.enum(chatEntityTypeEnum.enumValues),
-      entityId: z.string().uuid(),
-      title: z.string().min(1).max(500).optional(),
-    }),
+    z
+      .object({
+        entityType: z.enum(chatEntityTypeEnum.enumValues),
+        entityId: z.string(),
+        title: z.string().min(1).max(500).optional(),
+      })
+      .refine(
+        (v) => {
+          // Для gig и vacancy требуется UUID
+          if (["gig", "vacancy"].includes(v.entityType)) {
+            return z.string().uuid().safeParse(v.entityId).success;
+          }
+          return true;
+        },
+        {
+          message: "entityId должен быть UUID для типов gig и vacancy",
+          path: ["entityId"],
+        },
+      ),
   )
   .mutation(async ({ input, ctx }) => {
     const { entityType, entityId, title } = input;

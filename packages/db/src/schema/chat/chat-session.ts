@@ -41,7 +41,7 @@ export const chatSession = pgTable(
 
     // Полиморфная связь
     entityType: chatEntityTypeEnum("entity_type").notNull(),
-    entityId: uuid("entity_id").notNull(), // ID вакансии, гига, проекта
+    entityId: text("entity_id").notNull(), // ID вакансии, гига, проекта (UUID или кастомный ID)
 
     // Пользователь (для персональных AI-чатов)
     userId: text("user_id"),

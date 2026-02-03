@@ -13,8 +13,25 @@ export const clearHistory = protectedProcedure
       .object({
         sessionId: z.string().uuid().optional(),
         entityType: z.enum(chatEntityTypeEnum.enumValues).optional(),
-        entityId: z.string().uuid().optional(),
+        entityId: z.string().optional(),
       })
+      .refine(
+        (v) => {
+          // Для gig и vacancy требуется UUID
+          if (
+            v.entityId &&
+            v.entityType &&
+            ["gig", "vacancy"].includes(v.entityType)
+          ) {
+            return z.string().uuid().safeParse(v.entityId).success;
+          }
+          return true;
+        },
+        {
+          message: "entityId должен быть UUID для типов gig и vacancy",
+          path: ["entityId"],
+        },
+      )
       .refine(
         (v) =>
           Boolean(v.sessionId) ||

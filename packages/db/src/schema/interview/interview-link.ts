@@ -4,6 +4,7 @@ import {
   index,
   pgEnum,
   pgTable,
+  text,
   timestamp,
   unique,
   uuid,
@@ -31,7 +32,7 @@ export const interviewLink = pgTable(
 
     // Полиморфная связь с сущностью
     entityType: interviewLinkEntityTypeEnum("entity_type").notNull(),
-    entityId: uuid("entity_id").notNull(),
+    entityId: text("entity_id").notNull(), // ID сущности (UUID или кастомный ID)
 
     // Токен ссылки (уникальный идентификатор для URL)
     token: varchar("token", { length: 100 }).notNull().unique(),
@@ -58,7 +59,7 @@ export const interviewLink = pgTable(
 
 export const CreateInterviewLinkSchema = createInsertSchema(interviewLink, {
   entityType: z.enum(["gig", "vacancy", "project", "response"]),
-  entityId: z.string().uuid(),
+  entityId: z.string(), // Может быть UUID или кастомный ID
   token: z.string().max(100),
   isActive: z.boolean().default(true),
   expiresAt: z.coerce.date().optional(),

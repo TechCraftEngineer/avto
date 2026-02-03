@@ -64,37 +64,35 @@ export default function VacanciesPage() {
 
   const stats = useVacanciesStats(vacancies);
 
-  const mergeVacanciesMutation = useMutation(
-    trpc.freelancePlatforms.mergeVacancies.mutationOptions({
-      onSuccess: async () => {
-        toast.success("Вакансии успешно объединены");
-        setMergeOpenVacancyId(null);
-        setMergeTargetVacancyId("");
-        await queryClient.invalidateQueries({
-          queryKey: trpc.freelancePlatforms.getVacancies.queryKey(),
-        });
-      },
-      onError: (error) => {
-        toast.error(error.message || "Не удалось объединить вакансии");
-      },
-    }),
-  );
+  const mergeVacanciesMutation = useMutation({
+    ...trpc.freelancePlatforms.mergeVacancies.mutationOptions(),
+    onSuccess: async () => {
+      toast.success("Вакансии успешно объединены");
+      setMergeOpenVacancyId(null);
+      setMergeTargetVacancyId("");
+      await queryClient.invalidateQueries({
+        queryKey: trpc.freelancePlatforms.getVacancies.queryKey(),
+      });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Не удалось объединить вакансии");
+    },
+  });
 
-  const deleteVacancyMutation = useMutation(
-    trpc.freelancePlatforms.deleteVacancy.mutationOptions({
-      onSuccess: async () => {
-        toast.success("Вакансия успешно удалена");
-        setDeleteDialogOpen(false);
-        setVacancyToDelete(null);
-        await queryClient.invalidateQueries({
-          queryKey: trpc.freelancePlatforms.getVacancies.queryKey(),
-        });
-      },
-      onError: (error) => {
-        toast.error(error.message || "Не удалось удалить вакансию");
-      },
-    }),
-  );
+  const deleteVacancyMutation = useMutation({
+    ...trpc.freelancePlatforms.deleteVacancy.mutationOptions(),
+    onSuccess: async () => {
+      toast.success("Вакансия успешно удалена");
+      setDeleteDialogOpen(false);
+      setVacancyToDelete(null);
+      await queryClient.invalidateQueries({
+        queryKey: trpc.freelancePlatforms.getVacancies.queryKey(),
+      });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Не удалось удалить вакансию");
+    },
+  });
 
   const handleMergeConfirm = (sourceId: string, targetId: string) => {
     if (!workspace?.id) return;
@@ -110,12 +108,11 @@ export default function VacanciesPage() {
     setDeleteDialogOpen(true);
   };
 
-  const handleDeleteConfirm = (option: "anonymize" | "delete") => {
+  const handleDeleteConfirm = () => {
     if (!workspace?.id || !vacancyToDelete) return;
     deleteVacancyMutation.mutate({
       workspaceId: workspace.id,
       vacancyId: vacancyToDelete.id,
-      dataCleanupOption: option,
     });
   };
 
@@ -270,4 +267,3 @@ export default function VacanciesPage() {
     </div>
   );
 }
-
