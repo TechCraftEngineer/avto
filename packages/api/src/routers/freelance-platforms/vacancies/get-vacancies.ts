@@ -70,7 +70,7 @@ export const getVacancies = protectedProcedure
           views: vacancy.views,
           responses: vacancy.responses,
           newResponses:
-            sql<number>`COUNT(CASE WHEN ${responseTable.status} = 'NEW' THEN 1 END)`.as(
+            sql<number>`CAST(COUNT(CASE WHEN ${responseTable.status} = 'NEW' THEN 1 END) AS INTEGER)`.as(
               "newResponses",
             ),
           resumesInProgress: vacancy.resumesInProgress,
@@ -90,9 +90,9 @@ export const getVacancies = protectedProcedure
           updatedAt: vacancy.updatedAt,
           platformUrl: vacancy.url,
           // Статистика по источникам откликов
-          hhApiCount: sql<number>`COUNT(CASE WHEN ${responseTable.importSource} = 'HH' THEN 1 END)`,
-          freelanceManualCount: sql<number>`COUNT(CASE WHEN ${responseTable.importSource} = 'MANUAL' THEN 1 END)`,
-          freelanceLinkCount: sql<number>`COUNT(CASE WHEN ${responseTable.importSource} = 'WEB_LINK' THEN 1 END)`,
+          hhApiCount: sql<number>`CAST(COUNT(CASE WHEN ${responseTable.importSource} = 'HH' THEN 1 END) AS INTEGER)`,
+          freelanceManualCount: sql<number>`CAST(COUNT(CASE WHEN ${responseTable.importSource} = 'MANUAL' THEN 1 END) AS INTEGER)`,
+          freelanceLinkCount: sql<number>`CAST(COUNT(CASE WHEN ${responseTable.importSource} = 'WEB_LINK' THEN 1 END) AS INTEGER)`,
           totalResponsesCount: count(responseTable.id),
         })
         .from(vacancy)
@@ -120,7 +120,7 @@ export const getVacancies = protectedProcedure
         title: vacancy.title,
         views: vacancy.views,
         responses: count(responseTable.id),
-        newResponses: sql<number>`COUNT(CASE WHEN ${responseTable.status} = 'NEW' THEN 1 END)`,
+        newResponses: sql<number>`CAST(COUNT(CASE WHEN ${responseTable.status} = 'NEW' THEN 1 END) AS INTEGER)`,
       } as const;
 
       const orderBy = orderByMapping[sortBy] || vacancy.createdAt;

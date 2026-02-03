@@ -50,6 +50,14 @@ export async function runHHParser(
     let totalUpdated = 0;
     let totalFailed = 0;
 
+    // Получаем план workspace
+    const workspaceData = await db.query.workspace.findFirst({
+      where: (w, { eq }) => eq(w.id, workspaceId),
+      columns: {
+        plan: true,
+      },
+    });
+
     const vacanciesResult = await parseVacancies(page, workspaceId);
     totalImported += vacanciesResult.imported;
     totalUpdated += vacanciesResult.updated;
@@ -66,6 +74,8 @@ export async function runHHParser(
               vacancy.responsesUrl,
               vacancy.externalId,
               vacancy.id || "",
+              undefined,
+              workspaceData?.plan,
             );
           } catch (error) {
             console.error(
@@ -97,6 +107,8 @@ export async function runHHParser(
                 vacancy.responsesUrl,
                 vacancy.externalId,
                 vacancy.id || "",
+                undefined,
+                workspaceData?.plan,
               );
             } catch (error) {
               console.error(

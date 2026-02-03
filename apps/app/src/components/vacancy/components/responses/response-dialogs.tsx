@@ -1,14 +1,11 @@
-import { RefreshStatusIndicator } from "../../refresh-status-indicator";
 import { ScreeningDialog } from "./screening-dialog";
 import type { RefreshAllResumesState } from "./use-refresh-all-resumes-state";
 import type { ScreeningState } from "./use-screening-state";
-import type { SyncArchivedState } from "./use-sync-archived-state";
 
 interface ResponseDialogsProps {
   totalResponses: number;
   screenNewState: ScreeningState;
   screenAllState: ScreeningState;
-  syncArchivedState: SyncArchivedState;
   refreshAllResumesState: RefreshAllResumesState;
 }
 
@@ -34,7 +31,6 @@ export function ResponseDialogs({
   totalResponses,
   screenNewState,
   screenAllState,
-  syncArchivedState,
   refreshAllResumesState,
 }: ResponseDialogsProps) {
   return (
@@ -76,14 +72,6 @@ export function ResponseDialogs({
         }}
         onConfirm={screenAllState.handleClick}
         onClose={screenAllState.handleDialogClose}
-      />
-
-      <RefreshStatusIndicator
-        vacancyId={syncArchivedState.vacancyId}
-        mode="archived"
-        showConfirmation={syncArchivedState.dialogOpen}
-        onConfirmationClose={syncArchivedState.handleDialogClose}
-        onConfirm={syncArchivedState.handleClick}
       />
 
       <ScreeningDialog

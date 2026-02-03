@@ -1,3 +1,5 @@
+"use client";
+import { useEffect } from "react";
 import type { ScreeningFilter } from "~/components";
 import { ResponseActionButtons } from "./response-action-buttons";
 import { ResponseDialogs } from "./response-dialogs";
@@ -29,6 +31,8 @@ interface ResponseTableToolbarProps {
   onSyncArchived: (workspaceId: string) => void;
   onScreeningDialogClose: () => void;
   onRefreshDialogOpen?: () => void;
+  onArchivedDialogOpen?: () => void;
+  onSetArchivedHandler?: (handler: () => void) => void;
 }
 
 export function ResponseTableToolbar({
@@ -52,6 +56,8 @@ export function ResponseTableToolbar({
   onSyncArchived,
   onScreeningDialogClose,
   onRefreshDialogOpen,
+  onArchivedDialogOpen,
+  onSetArchivedHandler,
 }: ResponseTableToolbarProps) {
   // Custom hooks for different operation states
   const refreshState = useRefreshState(vacancyId, onRefresh, onRefreshComplete);
@@ -72,6 +78,14 @@ export function ResponseTableToolbar({
     onSyncArchived,
     onRefreshComplete,
   );
+
+  // Передаем обработчик наверх для использования в RefreshStatusIndicator
+  useEffect(() => {
+    if (onSetArchivedHandler) {
+      onSetArchivedHandler(syncArchivedState.handleClick);
+    }
+  }, [onSetArchivedHandler, syncArchivedState.handleClick]);
+
   const refreshAllResumesState = useRefreshAllResumesState(
     vacancyId,
     onRefreshAllResumes,
@@ -97,7 +111,10 @@ export function ResponseTableToolbar({
           onRefreshDialogOpen={
             onRefreshDialogOpen || (() => refreshState.setDialogOpen(true))
           }
-          onSyncArchivedDialogOpen={() => syncArchivedState.setDialogOpen(true)}
+          onSyncArchivedDialogOpen={
+            onArchivedDialogOpen ||
+            (() => syncArchivedState.setDialogOpen(true))
+          }
           onScreenNewDialogOpen={() => screenNewState.setDialogOpen(true)}
         />
       </div>
@@ -106,7 +123,6 @@ export function ResponseTableToolbar({
         totalResponses={totalResponses}
         screenNewState={screenNewState}
         screenAllState={screenAllState}
-        syncArchivedState={syncArchivedState}
         refreshAllResumesState={refreshAllResumesState}
       />
     </>

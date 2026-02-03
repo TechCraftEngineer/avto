@@ -15,6 +15,11 @@ export default function VacancyResponsesPage() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [showRefreshConfirmation, setShowRefreshConfirmation] = useState(false);
   const [handleRefresh, setHandleRefresh] = useState<(() => void) | null>(null);
+  const [showArchivedConfirmation, setShowArchivedConfirmation] =
+    useState(false);
+  const [handleArchivedSync, setHandleArchivedSync] = useState<
+    (() => void) | null
+  >(null);
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -29,13 +34,23 @@ export default function VacancyResponsesPage() {
         </div>
       </div>
 
-      {/* Индикатор статуса обновления откликов */}
-      <RefreshStatusIndicator
-        vacancyId={id}
-        showConfirmation={showRefreshConfirmation}
-        onConfirmationClose={() => setShowRefreshConfirmation(false)}
-        onConfirm={handleRefresh || undefined}
-      />
+      {/* Индикаторы статуса обновления откликов */}
+      <div className="space-y-2">
+        <RefreshStatusIndicator
+          vacancyId={id}
+          mode="refresh"
+          showConfirmation={showRefreshConfirmation}
+          onConfirmationClose={() => setShowRefreshConfirmation(false)}
+          onConfirm={handleRefresh || undefined}
+        />
+        <RefreshStatusIndicator
+          vacancyId={id}
+          mode="archived"
+          showConfirmation={showArchivedConfirmation}
+          onConfirmationClose={() => setShowArchivedConfirmation(false)}
+          onConfirm={handleArchivedSync || undefined}
+        />
+      </div>
 
       <Card className="border-none shadow-xl bg-card/60 backdrop-blur-xl overflow-hidden relative group">
         <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-transparent opacity-50 group-hover:opacity-100 transition-opacity pointer-events-none" />
@@ -45,6 +60,10 @@ export default function VacancyResponsesPage() {
             workspaceSlug={workspaceSlug}
             onRefreshDialogOpen={() => setShowRefreshConfirmation(true)}
             onSetRefreshHandler={(handler) => setHandleRefresh(() => handler)}
+            onArchivedDialogOpen={() => setShowArchivedConfirmation(true)}
+            onSetArchivedHandler={(handler) =>
+              setHandleArchivedSync(() => handler)
+            }
           />
         </div>
       </Card>

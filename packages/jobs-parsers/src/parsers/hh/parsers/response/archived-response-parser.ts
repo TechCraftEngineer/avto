@@ -119,6 +119,15 @@ async function collectAllArchivedResponses(
       );
       break;
     }
+
+    // Если лимит исчерпан и мы уже загрузили первую страницу, останавливаемся
+    if (hasLimit && currentPage > 0 && allResponses.length >= responsesLimit) {
+      console.log(
+        `⏹️ Лимит исчерпан (${responsesLimit}), загружена только первая страница`,
+      );
+      break;
+    }
+
     const pageUrl =
       currentPage === 0
         ? `${responsesUrl}&order=DATE`
@@ -280,6 +289,19 @@ async function collectAllArchivedResponses(
     if (hasLimit && allResponses.length >= responsesLimit) {
       console.log(
         `⏹️ Достигнут лимит загрузки откликов (${responsesLimit}), останавливаем парсинг`,
+      );
+      break;
+    }
+
+    // Если лимит установлен и мы загрузили первую страницу, останавливаемся
+    // (не нужно ходить по всем страницам, если лимит уже исчерпан)
+    if (
+      hasLimit &&
+      currentPage === 0 &&
+      allResponses.length >= responsesLimit
+    ) {
+      console.log(
+        `⏹️ Лимит исчерпан после первой страницы (${responsesLimit}), останавливаем парсинг`,
       );
       break;
     }

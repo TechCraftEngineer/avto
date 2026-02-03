@@ -27,6 +27,8 @@ interface ResponseTableProps {
   accessToken?: string;
   onRefreshDialogOpen?: () => void;
   onSetRefreshHandler?: (handler: () => void) => void;
+  onArchivedDialogOpen?: () => void;
+  onSetArchivedHandler?: (handler: () => void) => void;
 }
 
 const ITEMS_PER_PAGE = 25;
@@ -59,6 +61,8 @@ export function ResponseTable({
   accessToken,
   onRefreshDialogOpen,
   onSetRefreshHandler,
+  onArchivedDialogOpen,
+  onSetArchivedHandler,
 }: ResponseTableProps) {
   const trpc = useTRPC();
   const { workspace, orgSlug } = useWorkspace();
@@ -254,6 +258,8 @@ export function ResponseTable({
         onSyncArchived={handleSyncArchived}
         onScreeningDialogClose={handleScreeningDialogClose}
         onRefreshDialogOpen={onRefreshDialogOpen}
+        onArchivedDialogOpen={onArchivedDialogOpen}
+        onSetArchivedHandler={onSetArchivedHandler}
       />
 
       <div className="rounded-md border bg-transparent">

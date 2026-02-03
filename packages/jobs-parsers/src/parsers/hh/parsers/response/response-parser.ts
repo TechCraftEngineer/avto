@@ -1,4 +1,5 @@
 import { saveBasicResponse } from "@qbs-autonaim/jobs/services/response";
+import { getResponsesLimit } from "@qbs-autonaim/jobs-shared";
 import type { Page } from "puppeteer";
 import { z } from "zod";
 import type { ProgressCallback, ResponseData } from "../../../types";
@@ -15,6 +16,7 @@ export async function parseResponses(
   externalVacancyId: string,
   vacancyId: string,
   onProgress?: ProgressCallback,
+  workspacePlan?: "free" | "pro" | "enterprise",
 ): Promise<{
   responses: ResponseData[];
   newCount: number;
@@ -57,6 +59,7 @@ export async function parseResponses(
     urlVacancyId,
     vacancyId,
     onProgress,
+    workspacePlan,
   );
 
   if (allResponses.length === 0) {
@@ -104,10 +107,21 @@ async function collectAndSaveResponses(
   vacancyId: string,
   dbVacancyId: string,
   onProgress?: ProgressCallback,
+  workspacePlan?: "free" | "pro" | "enterprise",
 ): Promise<{ responses: ResponseData[]; newCount: number }> {
   const responses: ResponseData[] = [];
   let processedCount = 0;
   let newCount = 0;
+
+  // Получаем лимит из тарифного плана
+  const responsesLimit = workspacePlan ? getResponsesLimit(workspacePlan) : 0;
+  const hasLimit = responsesLimit > 0;
+
+  if (hasLimit) {
+    console.log(
+      `⚙️ Установлен лимит для тарифа "${workspacePlan}": ${responsesLimit} откликов`,
+    );
+  }
 
   try {
     console.log(`📄 Переход на страницу откликов вакансии ${vacancyId}`);
@@ -131,6 +145,23 @@ async function collectAndSaveResponses(
 
     while (hasNextPage && pageNum < 100) {
       // Ограничение на 100 страниц
+
+      // Проверяем лимит перед загрузкой следующей страницы
+      if (hasLimit && responses.length >= responsesLimit) {
+        console.log(
+          `⏹️ Достигнут лимит загрузки откликов (${responsesLimit}), останавливаем парсинг`,
+        );
+        break;
+      }
+
+      // Если лимит установлен и мы загрузили первую страницу, останавливаемся
+      if (hasLimit && pageNum > 0 && responses.length >= responsesLimit) {
+        console.log(
+          `⏹️ Лимит исчерпан (${responsesLimit}), загружена только первая страница`,
+        );
+        break;
+      }
+
       console.log(`📄 Парсим страницу ${pageNum + 1} откликов...`);
 
       // Собираем отклики с текущей страницы
@@ -183,6 +214,14 @@ async function collectAndSaveResponses(
 
       // Сохраняем каждый отклик
       for (const response of pageResponses) {
+        // Проверяем лимит перед обработкой каждого отклика
+        if (hasLimit && responses.length >= responsesLimit) {
+          console.log(
+            `⏹️ Достигнут лимит загрузки откликов (${responsesLimit}), останавливаем обработку страницы`,
+          );
+          break;
+        }
+
         try {
           response.vacancyId = dbVacancyId;
 
@@ -226,6 +265,22 @@ async function collectAndSaveResponses(
       console.log(
         `📋 Откликов на странице ${pageNum + 1}: ${pageResponses.length}`,
       );
+
+      // Проверяем лимит после обработки страницы
+      if (hasLimit && responses.length >= responsesLimit) {
+        console.log(
+          `⏹️ Достигнут лимит загрузки откликов (${responsesLimit}), останавливаем парсинг`,
+        );
+        break;
+      }
+
+      // Если лимит установлен и мы загрузили первую страницу, останавливаемся
+      if (hasLimit && pageNum === 0 && responses.length >= responsesLimit) {
+        console.log(
+          `⏹️ Лимит исчерпан после первой страницы (${responsesLimit}), останавливаем парсинг`,
+        );
+        break;
+      }
 
       // Проверяем, есть ли следующая страница
       const nextButton = await page.$('[data-qa="pager-next"]');

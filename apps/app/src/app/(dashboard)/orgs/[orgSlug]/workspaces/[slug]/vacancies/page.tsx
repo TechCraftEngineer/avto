@@ -63,7 +63,6 @@ export default function VacanciesPage() {
   } = useVacancyFilters(vacancies);
 
   const stats = useVacanciesStats(vacancies);
-
   const mergeVacanciesMutation = useMutation({
     ...trpc.freelancePlatforms.mergeVacancies.mutationOptions(),
     onSuccess: async () => {

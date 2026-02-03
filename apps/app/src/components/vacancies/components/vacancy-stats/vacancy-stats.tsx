@@ -277,7 +277,7 @@ export function VacancyStats({
         ]
       : []),
   ];
-
+  console.log(stats);
   return (
     <div className="grid grid-cols-2 gap-3 @xl/main:grid-cols-3 @5xl/main:grid-cols-6">
       {stats.map((stat) => (
@@ -300,7 +300,7 @@ export function VacancyStats({
                 </CardDescription>
                 <CardTitle className="text-2xl font-bold tracking-tight">
                   {stat.value?.toLocaleString() ?? 0}
-                  {stat.suffix && (
+                  {stat.suffix && stat.value && stat.value > 0 && (
                     <span className="ml-0.5 text-sm text-muted-foreground">
                       {stat.suffix}
                     </span>
