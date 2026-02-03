@@ -4,9 +4,19 @@ import { Filter, Inbox } from "lucide-react";
 interface EmptyStateProps {
   hasResponses: boolean;
   colSpan: number;
+  isLoading?: boolean;
 }
 
-export function EmptyState({ hasResponses, colSpan }: EmptyStateProps) {
+export function EmptyState({
+  hasResponses,
+  colSpan,
+  isLoading = false,
+}: EmptyStateProps) {
+  // Не показываем пустое состояние во время загрузки
+  if (isLoading) {
+    return null;
+  }
+
   return (
     <TableRow>
       <TableCell colSpan={colSpan} className="h-[500px] p-0">
@@ -63,4 +73,3 @@ export function EmptyState({ hasResponses, colSpan }: EmptyStateProps) {
     </TableRow>
   );
 }
-

@@ -175,6 +175,31 @@ export function SyncArchivedDialog({
                       <p className="text-sm text-muted-foreground">
                         {statusData.message}
                       </p>
+
+                      {(statusData.syncedResponses !== undefined ||
+                        statusData.newResponses !== undefined) && (
+                        <div className="rounded-lg border bg-blue-50 dark:bg-blue-950/20 p-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="text-center">
+                              <div className="text-2xl font-bold text-foreground">
+                                {statusData.syncedResponses || 0}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                Обработано
+                              </div>
+                            </div>
+                            <div className="text-center">
+                              <div className="text-2xl font-bold text-blue-600">
+                                {statusData.newResponses || 0}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                Новых добавлено
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
                       <div className="rounded-lg border bg-muted/50 p-3">
                         <p className="text-xs text-muted-foreground text-center">
                           Получаем данные с HeadHunter…
