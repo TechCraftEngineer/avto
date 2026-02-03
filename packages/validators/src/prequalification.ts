@@ -496,6 +496,8 @@ export const personalInfoSchema = z.object({
   name: z.string().max(200).optional(),
   email: z.email().optional(),
   phone: z.string().max(50).optional(),
+  telegram: z.string().max(100).optional(),
+  whatsapp: z.string().max(50).optional(),
   location: z.string().max(200).optional(),
 });
 

@@ -48,5 +48,6 @@ export interface HHContacts {
 export interface ExtractedContacts {
   phone: string | null;
   email: string | null;
-  telegramUsername: string | null;
+  telegram: string | null;
+  whatsapp: string | null;
 }

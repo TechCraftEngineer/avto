@@ -1,4 +1,7 @@
+import { ResumeStructurerAgent } from "@qbs-autonaim/ai";
 import type { HHContacts } from "@qbs-autonaim/jobs";
+import { getAIModel } from "@qbs-autonaim/lib/ai";
+import type { WorkExperience } from "@qbs-autonaim/validators";
 import axios from "axios";
 import type { Page } from "puppeteer";
 import { HH_CONFIG } from "../../core/config/config";
@@ -22,30 +25,15 @@ function isPdfBuffer(buffer: Buffer): boolean {
 }
 
 /**
- * Проверяет, является ли буфер текстовым файлом
+ * Скачивает текстовую версию резюме с HH.ru
  */
-function isTextBuffer(buffer: Buffer): boolean {
-  if (buffer.length === 0) return false;
-  // Проверяем что это текст (UTF-8)
-  try {
-    const text = buffer.toString("utf-8");
-    return text.length > 0 && !text.includes("\ufffd");
-  } catch {
-    return false;
-  }
-}
-
-/**
- * Скачивает файл резюме с HH.ru (PDF или TXT)
- */
-async function downloadResumeFile(
+async function downloadResumeText(
   page: Page,
   resumeUrl: string,
-  fileType: "pdf" | "txt",
   candidateName?: string,
-): Promise<Buffer | null> {
+): Promise<string | null> {
   try {
-    console.log(`📥 Скачивание ${fileType.toUpperCase()} резюме...`);
+    console.log("📥 Скачивание текстовой версии резюме...");
 
     const urlMatch = resumeUrl.match(/\/resume\/([a-f0-9]+)/);
     const vacancyIdMatch = resumeUrl.match(/vacancyId=(\d+)/);
@@ -57,11 +45,83 @@ async function downloadResumeFile(
 
     const resumeHash = urlMatch[1];
     const vacancyId = vacancyIdMatch?.[1] || "";
-
-    // Используем переданное имя кандидата или fallback
     const fileName = candidateName || "resume";
 
-    const fileUrl = `https://hh.ru/resume_converter/${encodeURIComponent(fileName)}.${fileType}?hash=${resumeHash}${vacancyId ? `&vacancyId=${vacancyId}` : ""}&type=${fileType}&hhtmSource=resume&hhtmFrom=employer_vacancy_responses`;
+    const fileUrl = `https://hh.ru/resume_converter/${encodeURIComponent(fileName)}.txt?hash=${resumeHash}${vacancyId ? `&vacancyId=${vacancyId}` : ""}&type=txt&hhtmSource=resume&hhtmFrom=employer_vacancy_responses`;
+
+    console.log(`📄 URL: ${fileUrl}`);
+
+    const cookies = await page.browserContext().cookies();
+    const cookieString = cookies
+      .map((cookie) => `${cookie.name}=${cookie.value}`)
+      .join("; ");
+
+    const response = await axios.get(fileUrl, {
+      headers: {
+        Accept: "text/plain,text/html,*/*",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Accept-Language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+        Cookie: cookieString,
+        Host: "hh.ru",
+        Pragma: "no-cache",
+        Referer: resumeUrl,
+        "Sec-Ch-Ua":
+          '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+        "Sec-Ch-Ua-Mobile": "?0",
+        "Sec-Ch-Ua-Platform": '"Windows"',
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "same-origin",
+        "Sec-Fetch-User": "?1",
+        "Upgrade-Insecure-Requests": "1",
+        "User-Agent": HH_CONFIG.userAgent,
+      },
+      responseType: "text",
+      timeout: 30000,
+      maxRedirects: 5,
+    });
+
+    const text = response.data;
+
+    if (!text || typeof text !== "string" || text.length === 0) {
+      console.log("⚠️ Скачанный файл пустой");
+      return null;
+    }
+
+    console.log(`✅ Текст резюме скачан (${text.length} символов)`);
+    return text;
+  } catch (error) {
+    console.error("❌ Ошибка скачивания текста резюме:", error);
+    return null;
+  }
+}
+
+/**
+ * Скачивает PDF версию резюме с HH.ru
+ */
+async function downloadResumePdf(
+  page: Page,
+  resumeUrl: string,
+  candidateName?: string,
+): Promise<Buffer | null> {
+  try {
+    console.log("📥 Скачивание PDF резюме...");
+
+    const urlMatch = resumeUrl.match(/\/resume\/([a-f0-9]+)/);
+    const vacancyIdMatch = resumeUrl.match(/vacancyId=(\d+)/);
+
+    if (!urlMatch?.[1]) {
+      console.log("⚠️ Не удалось извлечь hash резюме из URL");
+      return null;
+    }
+
+    const resumeHash = urlMatch[1];
+    const vacancyId = vacancyIdMatch?.[1] || "";
+    const fileName = candidateName || "resume";
+
+    const fileUrl = `https://hh.ru/resume_converter/${encodeURIComponent(fileName)}.pdf?hash=${resumeHash}${vacancyId ? `&vacancyId=${vacancyId}` : ""}&type=pdf&hhtmSource=resume&hhtmFrom=employer_vacancy_responses`;
 
     console.log(`📄 URL: ${fileUrl}`);
 
@@ -100,25 +160,15 @@ async function downloadResumeFile(
 
     const buffer = Buffer.from(response.data);
 
-    if (fileType === "pdf" && !isPdfBuffer(buffer)) {
+    if (!isPdfBuffer(buffer)) {
       console.log("⚠️ Скачанный файл не является PDF");
       return null;
     }
 
-    if (fileType === "txt" && !isTextBuffer(buffer)) {
-      console.log("⚠️ Скачанный файл не является текстовым");
-      return null;
-    }
-
-    console.log(
-      `✅ ${fileType.toUpperCase()} файл скачан (${buffer.length} байт)`,
-    );
+    console.log(`✅ PDF файл скачан (${buffer.length} байт)`);
     return buffer;
   } catch (error) {
-    console.error(
-      `❌ Ошибка скачивания ${fileType.toUpperCase()} файла:`,
-      error,
-    );
+    console.error("❌ Ошибка скачивания PDF файла:", error);
     return null;
   }
 }
@@ -190,40 +240,7 @@ async function downloadCandidatePhoto(
 }
 
 /**
- * Извлекает телефон из объекта contacts
- */
-function extractPhone(contacts: HHContacts | null): string | null {
-  if (!contacts?.phone || !Array.isArray(contacts.phone)) {
-    return null;
-  }
-
-  const firstPhone = contacts.phone[0];
-  return firstPhone?.formatted || firstPhone?.raw || null;
-}
-
-/**
- * Извлекает email из объекта contacts
- */
-function extractEmail(contacts: HHContacts | null): string | null {
-  if (!contacts?.email) {
-    return null;
-  }
-
-  // email может быть строкой или массивом объектов
-  if (typeof contacts.email === "string") {
-    return contacts.email;
-  }
-
-  if (Array.isArray(contacts.email) && contacts.email.length > 0) {
-    const firstEmail = contacts.email[0];
-    return firstEmail?.email || null;
-  }
-
-  return null;
-}
-
-/**
- * Парсит полные данные резюме: опыт работы, контакты, дату рождения, PDF и фото
+ * Парсит данные резюме через LLM из текстовой версии
  */
 export async function parseResumeData(
   page: Page,
@@ -251,79 +268,126 @@ export async function parseResumeData(
   };
 
   try {
-    // Если передан URL, переходим на страницу резюме
-    if (resumeUrl) {
-      console.log(`🌐 Переход на страницу резюме: ${resumeUrl}`);
-      await page.goto(resumeUrl, {
-        waitUntil: "domcontentloaded",
-        timeout: HH_CONFIG.timeouts.navigation,
-      });
+    if (!resumeUrl) {
+      console.log("⚠️ URL резюме не передан");
+      return result;
+    }
 
-      await page.waitForNetworkIdle({
-        timeout: HH_CONFIG.timeouts.networkIdle,
-      });
+    console.log(`🌐 Переход на страницу резюме: ${resumeUrl}`);
+    await page.goto(resumeUrl, {
+      waitUntil: "domcontentloaded",
+      timeout: HH_CONFIG.timeouts.navigation,
+    });
+
+    await page.waitForNetworkIdle({
+      timeout: HH_CONFIG.timeouts.networkIdle,
+    });
+
+    // Скачиваем текстовую версию резюме
+    const resumeText = await downloadResumeText(page, resumeUrl, candidateName);
+
+    if (!resumeText) {
+      console.log("⚠️ Не удалось скачать текст резюме");
+      return result;
+    }
+
+    // Используем LLM для извлечения структурированных данных
+    console.log("🤖 Извлечение данных через LLM...");
+
+    const structurer = new ResumeStructurerAgent({
+      model: getAIModel(),
+    });
+
+    const structuredResult = await structurer.execute(
+      { rawText: resumeText },
+      {},
+    );
+
+    if (!structuredResult.success || !structuredResult.data) {
+      console.log("⚠️ LLM не смог извлечь данные из резюме");
+      return result;
+    }
+
+    const structuredData = structuredResult.data;
+    console.log("✅ Данные извлечены через LLM");
+
+    // Преобразуем данные в нужный формат
+    if (structuredData.personalInfo) {
+      const { email, phone, telegram, whatsapp } = structuredData.personalInfo;
+
+      // Формируем contacts в формате HH
+      const contacts: HHContacts = {};
+
+      if (phone) {
+        contacts.phone = [{ formatted: phone }];
+        result.phone = phone;
+        console.log(`✅ Найден телефон: ${phone}`);
+      }
+
+      if (email) {
+        contacts.email = [{ email }];
+        result.email = email;
+        console.log(`✅ Найден email: ${email}`);
+      }
+
+      // Добавляем Telegram и WhatsApp в preferred контакты
+      const preferredContacts: Array<{
+        type: { id: string; name: string };
+        value?: string;
+      }> = [];
+
+      if (telegram) {
+        preferredContacts.push({
+          type: { id: "telegram", name: "Telegram" },
+          value: telegram.startsWith("@") ? telegram.slice(1) : telegram,
+        });
+        console.log(`✅ Найден Telegram: ${telegram}`);
+      }
+
+      if (whatsapp) {
+        preferredContacts.push({
+          type: { id: "whatsapp", name: "WhatsApp" },
+          value: whatsapp,
+        });
+        console.log(`✅ Найден WhatsApp: ${whatsapp}`);
+      }
+
+      if (preferredContacts.length > 0) {
+        contacts.preferred = preferredContacts;
+      }
+
+      if (Object.keys(contacts).length > 0) {
+        result.contacts = contacts;
+      }
+    }
+
+    // Преобразуем опыт работы
+    if (structuredData.experience && structuredData.experience.length > 0) {
+      result.experience = structuredData.experience.map(
+        (exp: WorkExperience) => ({
+          experience: JSON.stringify({
+            company: exp.company,
+            position: exp.position,
+            period: `${exp.startDate} - ${exp.endDate || "настоящее время"}`,
+            description: exp.description,
+          }),
+        }),
+      );
+      console.log(`✅ Опыт работы: ${result.experience.length} записей`);
     }
 
     // Скачиваем PDF версию резюме
-    if (resumeUrl) {
-      result.pdfBuffer =
-        (await downloadResumeFile(page, resumeUrl, "pdf", candidateName)) ||
-        undefined;
-    }
+    result.pdfBuffer =
+      (await downloadResumePdf(page, resumeUrl, candidateName)) || undefined;
 
     // Скачиваем фото кандидата
-    if (resumeUrl) {
-      const photoData = await downloadCandidatePhoto(page, resumeUrl);
-      if (photoData) {
-        result.photoBuffer = photoData.buffer;
-        result.photoMimeType = photoData.mimeType;
-      }
+    const photoData = await downloadCandidatePhoto(page, resumeUrl);
+    if (photoData) {
+      result.photoBuffer = photoData.buffer;
+      result.photoMimeType = photoData.mimeType;
     }
 
-    // Парсим контакты - получаем полный объект contacts из HH.ru
-    const contactsData = await page
-      .evaluate(() => {
-        // Ищем скрипт с данными резюме
-        const scripts = Array.from(document.querySelectorAll("script"));
-        for (const script of scripts) {
-          const content = script.textContent || "";
-          if (content.includes('"contacts"')) {
-            try {
-              // Пытаемся найти JSON с контактами
-              const match = content.match(
-                /resume["\s]*:[^{]*({[\s\S]*?})\s*[,}]/,
-              );
-              if (match?.[1]) {
-                const resumeData = JSON.parse(match[1]);
-                if (resumeData.contacts) {
-                  return resumeData.contacts;
-                }
-              }
-            } catch (_e) {
-              // Игнорируем ошибки парсинга
-            }
-          }
-        }
-        return null;
-      })
-      .catch(() => null);
-
-    result.contacts = contactsData;
-
-    // Извлекаем телефон из contacts
-    if (contactsData) {
-      result.phone = extractPhone(contactsData) || undefined;
-      result.email = extractEmail(contactsData) || undefined;
-
-      if (result.phone) {
-        console.log(`✅ Телефон извлечен: ${result.phone}`);
-      }
-      if (result.email) {
-        console.log(`✅ Email извлечен: ${result.email}`);
-      }
-    }
-
-    // Парсим дату рождения
+    // Пытаемся извлечь дату рождения из DOM (если есть на странице)
     const birthDateString = await page
       .$eval('[data-qa="resume-personal-birthday"]', (element) => {
         return element.textContent?.trim();
@@ -335,58 +399,12 @@ export async function parseResumeData(
       result.birthDate = parsedDate;
       if (parsedDate) {
         console.log(
-          `✅ Дата рождения распарсена: ${birthDateString} -> ${parsedDate.toISOString()}`,
+          `✅ Дата рождения: ${birthDateString} -> ${parsedDate.toISOString()}`,
         );
       }
     }
-
-    // Парсим опыт работы
-    const experienceData = await page
-      .$$eval(
-        '[data-qa="resume-block-experience"] [data-qa="resume-block-item"]',
-        (elements) => {
-          return elements.map((element) => {
-            const positionElement = element.querySelector(
-              '[data-qa="resume-block-experience-position"]',
-            );
-            const position = positionElement?.textContent?.trim() || "";
-
-            const companyElement = element.querySelector(
-              '[data-qa="resume-block-experience-company"]',
-            );
-            const company = companyElement?.textContent?.trim() || "";
-
-            const periodElement = element.querySelector(
-              '[data-qa="resume-block-experience-dates"]',
-            );
-            const period = periodElement?.textContent?.trim() || "";
-
-            const descriptionElement = element.querySelector(
-              '[data-qa="resume-block-experience-description"]',
-            );
-            const description = descriptionElement?.textContent?.trim() || "";
-
-            return {
-              position,
-              company,
-              period,
-              description,
-            };
-          });
-        },
-      )
-      .catch(() => []);
-
-    // Convert experience data to ResumeExperienceItem format
-    result.experience = experienceData.map((exp) => ({
-      experience: JSON.stringify(exp),
-    }));
-
-    console.log(
-      `✅ Опыт работы распарсен: ${result.experience.length} записей`,
-    );
   } catch (error) {
-    console.error("❌ Ошибка парсинга опыта работы:", error);
+    console.error("❌ Ошибка парсинга резюме:", error);
   }
 
   return result;
