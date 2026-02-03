@@ -5,14 +5,24 @@
  * Серверные сервисы с БД импортируйте из @qbs-autonaim/shared/server
  */
 
+// Клиентские утилиты
 export { sanitizeHtmlFunction } from "./client";
-// Экспорт схем (безопасно для клиента)
-export * from "./schemas";
-export type { InterviewLink } from "./server/interview-link-generator";
-export type {
-  GetRankedCandidatesFilters,
-  RankingServiceError,
-} from "./server/ranking-service";
+
+// Схемы (безопасно для клиента)
+export {
+  type CreateDraftInput,
+  CreateDraftInputSchema,
+  type Draft,
+  DraftSchema,
+  type Message,
+  MessageSchema,
+  type UpdateDraftInput,
+  UpdateDraftInputSchema,
+  type VacancyData,
+  VacancyDataSchema,
+} from "./schemas/draft";
+
+// Типы
 export type {
   BufferedMessage,
   BufferValue,
@@ -20,11 +30,19 @@ export type {
   MessageBufferService,
   QuestionAnswer,
 } from "./types";
-// Экспорт клиентских утилит
+
+// Утилиты
 export {
   getInitials,
   getPlatformTaskUrl,
   type ParsedPlatformLink,
   parsePlatformLink,
 } from "./utils";
-export * from "./utils/experience-helpers";
+
+// Утилиты для работы с опытом
+export {
+  formatExperienceText,
+  getExperienceFromProfile,
+  getExperienceSummary,
+  hasExperience,
+} from "./utils/experience-helpers";

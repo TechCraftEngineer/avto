@@ -6,7 +6,7 @@ import {
   RESPONSE_STATUS_LABELS,
   type ResponseStatus,
 } from "@qbs-autonaim/db/schema";
-import { getInitials } from "@qbs-autonaim/shared/utils";
+import { getInitials } from "@qbs-autonaim/shared";
 import {
   Avatar,
   AvatarFallback,

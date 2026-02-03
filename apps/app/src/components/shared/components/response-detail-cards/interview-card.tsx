@@ -1,4 +1,4 @@
-import { getInitials } from "@qbs-autonaim/shared/utils";
+import { getInitials } from "@qbs-autonaim/shared";
 import {
   Avatar,
   AvatarFallback,

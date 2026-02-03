@@ -1,7 +1,7 @@
 "use client";
 
 import { paths } from "@qbs-autonaim/config";
-import { getInitials } from "@qbs-autonaim/shared/utils";
+import { getInitials } from "@qbs-autonaim/shared";
 import {
   Avatar,
   AvatarFallback,

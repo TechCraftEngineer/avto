@@ -2,6 +2,7 @@
   "name": "@qbs-autonaim/shared",
   "version": "0.1.0",
   "private": true,
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./dist/index.d.mts",
@@ -10,6 +11,14 @@
     "./server": {
       "types": "./dist/server/index.d.mts",
       "import": "./dist/server/index.mjs"
+    },
+    "./schemas": {
+      "types": "./dist/schemas/index.d.mts",
+      "import": "./dist/schemas/index.mjs"
+    },
+    "./utils": {
+      "types": "./dist/utils/index.d.mts",
+      "import": "./dist/utils/index.mjs"
     }
   },
   "main": "./dist/index.mjs",
