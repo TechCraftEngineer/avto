@@ -189,6 +189,7 @@ export async function updateResponseDetails(
         photoFileId: responseData.photoFileId,
         globalCandidateId: responseData.globalCandidateId,
         birthDate: responseData.birthDate,
+        profileData: responseData.profileData as Record<string, unknown> | null,
       })
       .where(eq(response.resumeId, responseData.resumeId));
 

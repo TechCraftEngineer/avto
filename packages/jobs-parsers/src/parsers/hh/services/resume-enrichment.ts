@@ -224,7 +224,7 @@ export async function enrichResumeData(
       photoFileId,
       globalCandidateId,
       birthDate: resumeData.birthDate ?? null,
-      profileData: profileDataForResponse as unknown,
+      profileData: profileDataForResponse,
       skills: resumeData.structuredData?.skills || null,
     });
 
