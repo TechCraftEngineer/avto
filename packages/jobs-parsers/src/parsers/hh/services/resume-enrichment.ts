@@ -104,6 +104,22 @@ export async function enrichResumeData(
       console.log(`✅ Найден email: ${email}`);
     }
 
+    // Подготавливаем profileData для кандидата
+    const profileData = resumeData.structuredData
+      ? {
+          experience: resumeData.experience || [],
+          education: resumeData.structuredData.education,
+          languages: resumeData.structuredData.languages,
+          summary: resumeData.structuredData.summary,
+          parsedAt: new Date().toISOString(),
+        }
+      : resumeData.experience
+        ? {
+            experience: resumeData.experience,
+            parsedAt: new Date().toISOString(),
+          }
+        : undefined;
+
     // Create or update global candidate if we have contact info
     let globalCandidateId: string | null = input.globalCandidateId ?? null;
 
@@ -121,22 +137,6 @@ export async function enrichResumeData(
 
         if (vacancy?.workspace?.organizationId) {
           const candidateRepository = new CandidateRepository(db);
-
-          // Подготавливаем profileData для кандидата
-          const profileData = resumeData.structuredData
-            ? {
-                experience: resumeData.experience || [],
-                education: resumeData.structuredData.education,
-                languages: resumeData.structuredData.languages,
-                summary: resumeData.structuredData.summary,
-                parsedAt: new Date().toISOString(),
-              }
-            : resumeData.experience
-              ? {
-                  experience: resumeData.experience,
-                  parsedAt: new Date().toISOString(),
-                }
-              : undefined;
 
           // Рассчитываем опыт работы в годах
           let experienceYears: number | undefined;
