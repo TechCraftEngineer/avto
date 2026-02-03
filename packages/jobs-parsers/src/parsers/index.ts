@@ -23,7 +23,6 @@ export {
 export type {
   ResponseData,
   ResumeExperience,
-  SaveResponseData,
   VacancyData,
 } from "./types";
 // Утилиты безопасности URL

@@ -6,6 +6,7 @@ import {
   importArchivedVacanciesChannel,
   importNewVacanciesChannel,
   refreshAllResumesChannel,
+  refreshSingleResumeChannel,
   refreshVacancyResponsesChannel,
   screenAllResponsesChannel,
   screenBatchChannel,
@@ -59,6 +60,18 @@ export async function fetchRefreshVacancyResponsesToken(vacancyId: string) {
 export async function fetchRefreshAllResumesToken(vacancyId: string) {
   const token = await getSubscriptionToken(inngest, {
     channel: refreshAllResumesChannel(vacancyId),
+    topics: ["progress", "result"],
+  });
+
+  return token;
+}
+
+/**
+ * Server action для получения токена подписки на Realtime канал обновления одного резюме
+ */
+export async function fetchRefreshSingleResumeToken(responseId: string) {
+  const token = await getSubscriptionToken(inngest, {
+    channel: refreshSingleResumeChannel(responseId),
     topics: ["progress", "result"],
   });
 

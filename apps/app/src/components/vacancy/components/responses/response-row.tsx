@@ -26,52 +26,13 @@ import {
 } from "@qbs-autonaim/ui";
 import { ExternalLink, Send, TrendingUp, User, UserCheck } from "lucide-react";
 import Link from "next/link";
-import sanitizeHtml from "sanitize-html";
 import { ResponseActions } from "~/components";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { getAvatarUrl } from "~/lib/avatar";
 import { ContactInfo } from "../integrations/contact-info";
-import { ScreenResponseButton } from "../screening/screen-response-button";
 import { ScreeningHoverCard } from "../screening/screening-hover-card";
 import { ChatIndicator } from "../ui/chat-indicator";
 import { PriorityBadge } from "../ui/priority-badge";
-
-// Утилита для удаления HTML-тегов из текста
-function stripHtmlTags(html: string): string {
-  if (typeof window === "undefined") {
-    // Server-side: simple regex approach
-    return html.replace(/<[^>]*>/g, "");
-  }
-  // Client-side: use DOM parser for better accuracy
-  const doc = new DOMParser().parseFromString(html, "text/html");
-  return doc.body.textContent || "";
-}
-
-// Утилита для санитизации HTML
-function sanitizeHtmlFn(html: string): string {
-  return sanitizeHtml(html, {
-    allowedTags: [
-      "p",
-      "br",
-      "strong",
-      "em",
-      "u",
-      "ul",
-      "ol",
-      "li",
-      "h1",
-      "h2",
-      "h3",
-      "h4",
-      "h5",
-      "h6",
-      "blockquote",
-      "code",
-      "pre",
-    ],
-    allowedAttributes: {},
-  });
-}
 
 interface ResponseRowProps {
   response: RouterOutputs["vacancy"]["responses"]["list"]["responses"][0];
@@ -223,14 +184,9 @@ export function ResponseRow({
                     </Badge>
                   </HoverCardTrigger>
                   <HoverCardContent side="right" className="max-w-xs">
-                    <div
-                      className="text-xs"
-                      dangerouslySetInnerHTML={{
-                        __html: sanitizeHtmlFn(
-                          response.screening.careerTrajectoryAnalysis || "",
-                        ),
-                      }}
-                    />
+                    <p className="text-xs">
+                      {response.screening.careerTrajectoryAnalysis || ""}
+                    </p>
                   </HoverCardContent>
                 </HoverCard>
               )}
@@ -356,24 +312,18 @@ export function ResponseRow({
             <HoverCard>
               <HoverCardTrigger asChild>
                 <span className="text-sm text-muted-foreground cursor-help">
-                  {(() => {
-                    const plainText = stripHtmlTags(response.coverLetter);
-                    return plainText.length > 50
-                      ? `${plainText.substring(0, 50)}...`
-                      : plainText;
-                  })()}
+                  {response.coverLetter.length > 50
+                    ? `${response.coverLetter.substring(0, 50)}...`
+                    : response.coverLetter}
                 </span>
               </HoverCardTrigger>
               <HoverCardContent
                 side="left"
                 className="max-w-sm max-h-64 overflow-y-auto"
               >
-                <div
-                  className="text-sm"
-                  dangerouslySetInnerHTML={{
-                    __html: sanitizeHtmlFn(response.coverLetter),
-                  }}
-                />
+                <p className="text-sm whitespace-pre-wrap">
+                  {response.coverLetter}
+                </p>
               </HoverCardContent>
             </HoverCard>
           ) : (
@@ -396,24 +346,14 @@ export function ResponseRow({
       </TableCell>
       <TableCell className="pr-4 text-right">
         <div className="flex items-center justify-end gap-2 px-1">
-          <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
-            {response.status === "NEW" && (
-              <ScreenResponseButton
-                responseId={response.id}
-                candidateName={response.candidateName || undefined}
-              />
-            )}
+          <div className="opacity-0 group-hover:opacity-100 transition-opacity">
             <ResponseActions
               responseId={response.id}
               resumeUrl={response.resumeUrl}
-              candidateName={response.candidateName}
               telegramUsername={response.telegramUsername}
               phone={response.phone}
               welcomeSentAt={response.welcomeSentAt}
-              onRefreshResume={async () => {
-                // TODO: Реализовать обновление резюме
-                console.log("Обновление резюме для отклика:", response.id);
-              }}
+              status={response.status}
               onSendWelcome={async () => {
                 // TODO: Реализовать отправку приветствия
                 console.log("Отправка приветствия для отклика:", response.id);

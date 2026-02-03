@@ -12,6 +12,7 @@ export {
   parseMissingContactsChannel,
   parseNewResumesChannel,
   refreshAllResumesChannel,
+  refreshSingleResumeChannel,
   refreshVacancyResponsesChannel,
   screenAllResponsesChannel,
   screenBatchChannel,

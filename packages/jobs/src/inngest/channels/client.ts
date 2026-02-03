@@ -174,6 +174,31 @@ export const refreshAllResumesChannel = channel(
   );
 
 /**
+ * Канал для отслеживания прогресса обновления одного резюме
+ */
+export const refreshSingleResumeChannel = channel(
+  (responseId: string) => `refresh-single-resume:${responseId}`,
+)
+  .addTopic(
+    topic("progress").schema(
+      z.object({
+        responseId: z.string(),
+        status: z.enum(["started", "processing", "completed", "error"]),
+        message: z.string(),
+      }),
+    ),
+  )
+  .addTopic(
+    topic("result").schema(
+      z.object({
+        responseId: z.string(),
+        success: z.boolean(),
+        error: z.string().optional(),
+      }),
+    ),
+  );
+
+/**
  * Канал для отслеживания прогресса парсинга недостающих контактов
  */
 export const parseMissingContactsChannel = channel(

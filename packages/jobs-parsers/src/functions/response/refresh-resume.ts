@@ -2,6 +2,7 @@ import os from "node:os";
 import { eq, getIntegrationCredentials } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { response } from "@qbs-autonaim/db/schema";
+import { refreshSingleResumeChannel } from "@qbs-autonaim/jobs/channels";
 import { inngest } from "@qbs-autonaim/jobs/client";
 import { Log } from "crawlee";
 import type { Page } from "puppeteer";
@@ -64,8 +65,17 @@ export const refreshSingleResumeFunction = inngest.createFunction(
     name: "Refresh Single Resume",
   },
   { event: "response/resume.refresh" },
-  async ({ event, step }) => {
+  async ({ event, step, publish }) => {
     const { responseId } = event.data;
+
+    // Отправляем уведомление о начале
+    await publish(
+      refreshSingleResumeChannel(responseId).progress({
+        responseId,
+        status: "started",
+        message: "Начинаем обновление резюме",
+      }),
+    );
 
     const responseData = await step.run("fetch-response", async () => {
       console.log(`🚀 Запуск обновления резюме для отклика: ${responseId}`);
@@ -112,47 +122,80 @@ export const refreshSingleResumeFunction = inngest.createFunction(
       return { email: creds.email, password: creds.password };
     });
 
-    await step.run("parse-resume", async () => {
-      const savedCookies = await loadCookies(
-        "hh",
-        responseData.vacancy.workspaceId,
-      );
-      const browser = await setupBrowser();
+    // Отправляем уведомление о начале обработки
+    await publish(
+      refreshSingleResumeChannel(responseId).progress({
+        responseId,
+        status: "processing",
+        message: `Обновление резюме ${responseData.candidateName || "кандидата"}`,
+      }),
+    );
 
-      try {
-        const page = await setupPage(browser, savedCookies);
-        await checkAndPerformLogin(
-          page,
-          credentials.email,
-          credentials.password,
+    try {
+      await step.run("parse-resume", async () => {
+        const savedCookies = await loadCookies(
+          "hh",
           responseData.vacancy.workspaceId,
         );
+        const browser = await setupBrowser();
 
-        console.log(`📊 Парсинг резюме: ${responseData.candidateName}`);
+        try {
+          const page = await setupPage(browser, savedCookies);
+          await checkAndPerformLogin(
+            page,
+            credentials.email,
+            credentials.password,
+            responseData.vacancy.workspaceId,
+          );
 
-        const result = await enrichResumeData({
-          page,
-          entityId: responseData.entityId,
-          resumeId: responseData.resumeId ?? "",
-          resumeUrl: responseData.resumeUrl ?? "",
-          candidateName: responseData.candidateName ?? "",
-        });
+          console.log(`📊 Парсинг резюме: ${responseData.candidateName}`);
 
-        if (!result.success) {
-          throw new Error(`Ошибка обогащения резюме: ${result.error}`);
+          const result = await enrichResumeData({
+            page,
+            entityId: responseData.entityId,
+            resumeId: responseData.resumeId ?? "",
+            resumeUrl: responseData.resumeUrl ?? "",
+            candidateName: responseData.candidateName ?? "",
+          });
+
+          if (!result.success) {
+            throw new Error(`Ошибка обогащения резюме: ${result.error}`);
+          }
+
+          console.log(
+            `✅ Резюме обновлено для: ${responseData.candidateName ?? "кандидата"}`,
+          );
+        } finally {
+          await closeBrowserSafely(browser);
         }
+      });
 
-        console.log(
-          `✅ Резюме обновлено для: ${responseData.candidateName ?? "кандидата"}`,
-        );
-      } finally {
-        await closeBrowserSafely(browser);
-      }
-    });
+      // Отправляем успешный результат
+      await publish(
+        refreshSingleResumeChannel(responseId).result({
+          responseId,
+          success: true,
+        }),
+      );
 
-    return {
-      success: true,
-      responseId,
-    };
+      return {
+        success: true,
+        responseId,
+      };
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Неизвестная ошибка";
+
+      // Отправляем ошибку
+      await publish(
+        refreshSingleResumeChannel(responseId).result({
+          responseId,
+          success: false,
+          error: errorMessage,
+        }),
+      );
+
+      throw error;
+    }
   },
 );

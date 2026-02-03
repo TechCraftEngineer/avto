@@ -8,58 +8,117 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@qbs-autonaim/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@qbs-autonaim/ui/tooltip";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   ExternalLink,
+  Loader2,
   MessageSquare,
   MoreVertical,
   Phone,
   RefreshCw,
   Send,
+  Sparkles,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import {
+  triggerRefreshSingleResume,
+  triggerScreenResponse,
+} from "~/actions/trigger";
+import { useTRPC } from "~/trpc/react";
+import { useRefreshSingleResume } from "./use-refresh-single-resume";
 
 interface ResponseActionsProps {
   responseId: string;
   resumeUrl?: string | null;
-  candidateName?: string | null;
   telegramUsername?: string | null;
   phone?: string | null;
   welcomeSentAt?: Date | null;
-  onRefreshResume?: () => Promise<void>;
+  status?: string;
   onSendWelcome?: () => Promise<void>;
 }
 
 export function ResponseActions({
-  responseId: _responseId,
+  responseId,
   resumeUrl,
-  candidateName,
   telegramUsername,
   phone,
   welcomeSentAt,
-  onRefreshResume,
+  status,
   onSendWelcome,
 }: ResponseActionsProps) {
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [isSendingWelcome, setIsSendingWelcome] = useState(false);
+  const [isScreening, setIsScreening] = useState(false);
+  const [refreshEnabled, setRefreshEnabled] = useState(false);
+  const queryClient = useQueryClient();
+  const trpc = useTRPC();
+
+  const { progress, result, isRefreshing, reset } = useRefreshSingleResume({
+    responseId,
+    enabled: refreshEnabled,
+  });
+
+  // Обрабатываем результат обновления
+  useEffect(() => {
+    if (!result) return;
+
+    if (result.success) {
+      toast.success("Резюме успешно обновлено");
+      void queryClient.invalidateQueries(
+        trpc.vacancy.responses.list.pathFilter(),
+      );
+    } else {
+      toast.error(result.error || "Не удалось обновить резюме");
+    }
+
+    const timer = setTimeout(() => {
+      reset();
+      setRefreshEnabled(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [result, reset, queryClient, trpc]);
 
   const handleRefreshResume = async () => {
-    if (!onRefreshResume) return;
-    setIsRefreshing(true);
     try {
-      await onRefreshResume();
-      toast.success("Резюме успешно обновлено");
+      const triggerResult = await triggerRefreshSingleResume(responseId);
+
+      if (!triggerResult.success) {
+        toast.error("Не удалось запустить обновление резюме");
+        return;
+      }
+
+      toast.success("Обновление резюме запущено");
+      setRefreshEnabled(true);
     } catch (error) {
-      toast.error("Не удалось обновить резюме");
-      console.error("Ошибка обновления резюме:", error);
+      toast.error("Не удалось запустить обновление резюме");
+      console.error("Ошибка запуска обновления резюме:", error);
+    }
+  };
+
+  const handleScreenResponse = async () => {
+    setIsScreening(true);
+    try {
+      const triggerResult = await triggerScreenResponse(responseId);
+
+      if (!triggerResult.success) {
+        toast.error("Не удалось запустить оценку");
+        return;
+      }
+
+      toast.success("Оценка запущена");
+
+      // Обновляем список через некоторое время
+      setTimeout(() => {
+        void queryClient.invalidateQueries(
+          trpc.vacancy.responses.list.pathFilter(),
+        );
+      }, 2000);
+    } catch (error) {
+      toast.error("Не удалось запустить оценку");
+      console.error("Ошибка запуска оценки:", error);
     } finally {
-      setIsRefreshing(false);
+      setIsScreening(false);
     }
   };
 
@@ -77,106 +136,91 @@ export function ResponseActions({
     }
   };
 
+  const isLoading = isRefreshing || isScreening || isSendingWelcome;
+
   return (
-    <TooltipProvider delayDuration={300}>
-      <div className="flex items-center gap-1">
-        {/* Обновить резюме с HH.ru */}
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 w-8 p-0"
+          disabled={isLoading}
+          aria-label="Действия с откликом"
+        >
+          {isLoading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <MoreVertical className="h-4 w-4" />
+          )}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56">
+        {/* Оценить кандидата */}
+        {status === "NEW" && (
+          <>
+            <DropdownMenuItem
+              onClick={handleScreenResponse}
+              disabled={isScreening}
+            >
+              {isScreening ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Sparkles className="h-4 w-4 mr-2" />
+              )}
+              {isScreening ? "Оценка…" : "Оценить кандидата"}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
+
+        {/* Обновить резюме */}
         {resumeUrl && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-950 dark:hover:text-blue-400"
-                onClick={handleRefreshResume}
-                disabled={isRefreshing}
-                aria-label="Обновить резюме с HH.ru"
-              >
-                <RefreshCw
-                  className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
-                />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="top" className="max-w-xs">
-              <p className="text-xs font-medium">Обновить резюме с HH.ru</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Загрузить актуальную версию резюме
-              </p>
-            </TooltipContent>
-          </Tooltip>
+          <DropdownMenuItem
+            onClick={handleRefreshResume}
+            disabled={isRefreshing}
+          >
+            <RefreshCw
+              className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`}
+            />
+            {isRefreshing
+              ? progress?.message || "Обновление…"
+              : "Обновить резюме с HH.ru"}
+          </DropdownMenuItem>
         )}
 
         {/* Отправить приветствие */}
         {!welcomeSentAt && (telegramUsername || phone) && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0 hover:bg-green-50 hover:text-green-600 dark:hover:bg-green-950 dark:hover:text-green-400"
-                onClick={handleSendWelcome}
-                disabled={isSendingWelcome}
-                aria-label={`Отправить приветствие ${telegramUsername ? "в Telegram" : "по телефону"}`}
-              >
-                <Send className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="top" className="max-w-xs">
-              <p className="text-xs font-medium">
-                Отправить приветствие{" "}
-                {telegramUsername ? "в Telegram" : "по телефону"}
-              </p>
-              {candidateName && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  Кандидат: {candidateName}
-                </p>
-              )}
-              {telegramUsername && (
-                <p className="text-xs text-muted-foreground">
-                  @{telegramUsername}
-                </p>
-              )}
-              {phone && !telegramUsername && (
-                <p className="text-xs text-muted-foreground">{phone}</p>
-              )}
-            </TooltipContent>
-          </Tooltip>
+          <DropdownMenuItem
+            onClick={handleSendWelcome}
+            disabled={isSendingWelcome}
+          >
+            <Send className="h-4 w-4 mr-2" />
+            Отправить приветствие{" "}
+            {telegramUsername ? "в Telegram" : "по телефону"}
+          </DropdownMenuItem>
         )}
 
-        {/* Дополнительные действия */}
-        <DropdownMenu>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 w-8 p-0"
-                  aria-label="Дополнительные действия"
-                >
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-            </TooltipTrigger>
-            <TooltipContent side="top">
-              <p className="text-xs">Дополнительные действия</p>
-            </TooltipContent>
-          </Tooltip>
-          <DropdownMenuContent align="end" className="w-56">
-            {resumeUrl && (
-              <>
-                <DropdownMenuItem
-                  onClick={() =>
-                    window.open(resumeUrl, "_blank", "noopener,noreferrer")
-                  }
-                >
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Открыть резюме на HH.ru
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-              </>
-            )}
+        {(resumeUrl || (!welcomeSentAt && (telegramUsername || phone))) && (
+          <DropdownMenuSeparator />
+        )}
 
+        {/* Открыть резюме */}
+        {resumeUrl && (
+          <DropdownMenuItem
+            onClick={() =>
+              window.open(resumeUrl, "_blank", "noopener,noreferrer")
+            }
+          >
+            <ExternalLink className="h-4 w-4 mr-2" />
+            Открыть резюме на HH.ru
+          </DropdownMenuItem>
+        )}
+
+        {/* Контакты */}
+        {(telegramUsername || phone) && (
+          <>
+            {resumeUrl && <DropdownMenuSeparator />}
             {telegramUsername && (
               <DropdownMenuItem
                 onClick={() =>
@@ -198,16 +242,17 @@ export function ResponseActions({
                 Позвонить: {phone}
               </DropdownMenuItem>
             )}
+          </>
+        )}
 
-            {(telegramUsername || phone) && <DropdownMenuSeparator />}
+        <DropdownMenuSeparator />
 
-            <DropdownMenuItem disabled>
-              <MessageSquare className="h-4 w-4 mr-2" />
-              Отправить сообщение
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    </TooltipProvider>
+        {/* Отправить сообщение (будущая функция) */}
+        <DropdownMenuItem disabled>
+          <MessageSquare className="h-4 w-4 mr-2" />
+          Отправить сообщение
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
