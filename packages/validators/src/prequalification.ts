@@ -499,6 +499,7 @@ export const personalInfoSchema = z.object({
   telegram: z.string().max(100).optional(),
   whatsapp: z.string().max(50).optional(),
   location: z.string().max(200).optional(),
+  birthDate: z.string().optional(),
 });
 
 export type PersonalInfo = z.infer<typeof personalInfoSchema>;

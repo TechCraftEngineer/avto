@@ -87,6 +87,7 @@ export async function enrichHHResponses(
           resumeUrl: response.resumeUrl,
           candidateName: response.candidateName || "",
           globalCandidateId: response.globalCandidateId,
+          traceId: `enrich-${response.resumeId}`, // Генерируем traceId на основе resumeId
         });
 
         if (result.success) {

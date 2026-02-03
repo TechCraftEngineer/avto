@@ -94,6 +94,7 @@ export async function parseResponseDetails(
         page,
         response.resumeUrl,
         response.name,
+        undefined, // traceId не доступен в этом контексте
       );
 
       // Обновляем информацию в базе

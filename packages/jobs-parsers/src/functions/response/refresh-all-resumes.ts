@@ -185,6 +185,7 @@ export const refreshAllResumesFunction = inngest.createFunction(
               page,
               responseItem.resumeUrl ?? "",
               responseItem.candidateName ?? "",
+              undefined, // traceId не доступен в этом контексте
             );
 
             // Telegram username extraction is now handled by resume-enrichment service

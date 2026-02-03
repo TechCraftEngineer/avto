@@ -6,7 +6,6 @@ import {
   uploadResumePdf,
 } from "@qbs-autonaim/jobs/services/response";
 import type { Page } from "puppeteer";
-import { HH_CONFIG } from "../core/config/config";
 import { parseResumeData } from "../parsers/resume/resume-parser";
 
 export interface EnrichmentInput {
@@ -16,6 +15,7 @@ export interface EnrichmentInput {
   resumeUrl: string;
   candidateName: string;
   globalCandidateId?: string | null;
+  traceId?: string;
 }
 
 export interface EnrichmentResult {
@@ -40,6 +40,7 @@ export async function enrichResumeData(
       input.page,
       input.resumeUrl,
       input.candidateName,
+      input.traceId,
     );
 
     // Upload PDF if available

@@ -65,7 +65,7 @@ export const refreshSingleResumeFunction = inngest.createFunction(
     name: "Refresh Single Resume",
   },
   { event: "response/resume.refresh" },
-  async ({ event, step, publish }) => {
+  async ({ event, step, publish, runId }) => {
     const { responseId } = event.data;
 
     // Отправляем уведомление о начале
@@ -156,6 +156,7 @@ export const refreshSingleResumeFunction = inngest.createFunction(
             resumeId: responseData.resumeId ?? "",
             resumeUrl: responseData.resumeUrl ?? "",
             candidateName: responseData.candidateName ?? "",
+            traceId: runId, // Используем runId из Inngest как traceId для Langfuse
           });
 
           if (!result.success) {
