@@ -17,5 +17,3 @@ export { getInterviewBaseUrl } from "./get-interview-url";
 export { pluralize } from "./pluralize";
 // Генерация slug
 export { generateSlug } from "./slug-generator";
-// Примечание: sanitizeHtmlFunction теперь экспортируется из @qbs-autonaim/shared/client
-// для использования в браузере без Node.js зависимостей

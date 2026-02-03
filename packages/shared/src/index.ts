@@ -37,6 +37,7 @@ export {
   getPlatformTaskUrl,
   type ParsedPlatformLink,
   parsePlatformLink,
+  pluralize,
 } from "./utils";
 
 // Утилиты для работы с опытом

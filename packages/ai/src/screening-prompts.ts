@@ -27,6 +27,7 @@ export interface ResponseData {
   candidateName: string | null;
   experience: string | null;
   coverLetter?: string | null;
+  profileData?: unknown;
 }
 
 /**

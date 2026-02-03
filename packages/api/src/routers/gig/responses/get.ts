@@ -83,6 +83,19 @@ export const get = protectedProcedure
 
     return {
       ...response,
+      experience: response.profileData
+        ? typeof response.profileData === "string"
+          ? (() => {
+              try {
+                const parsed = JSON.parse(response.profileData);
+                return parsed.experience ?? null;
+              } catch {
+                return null;
+              }
+            })()
+          : ((response.profileData as { experience?: string }).experience ??
+            null)
+        : null,
       interviewScoring: sessionInterviewScoring
         ? {
             score:

@@ -127,6 +127,19 @@ export const get = protectedProcedure
       ...response,
       workspaceId: vacancy.workspaceId,
       resumePdfUrl,
+      experience: response.profileData
+        ? typeof response.profileData === "string"
+          ? (() => {
+              try {
+                const parsed = JSON.parse(response.profileData);
+                return parsed.experience ?? null;
+              } catch {
+                return null;
+              }
+            })()
+          : ((response.profileData as { experience?: string }).experience ??
+            null)
+        : null,
       screening: screening
         ? ({
             ...screening,

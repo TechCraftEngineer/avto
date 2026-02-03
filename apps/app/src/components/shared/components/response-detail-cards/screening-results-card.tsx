@@ -1,6 +1,6 @@
 "use client";
 
-import { sanitizeHtmlFunction } from "@qbs-autonaim/shared/client";
+import { sanitizeHtmlFunction } from "@qbs-autonaim/shared";
 import {
   Badge,
   Card,

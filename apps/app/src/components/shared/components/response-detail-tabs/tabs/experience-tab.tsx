@@ -1,7 +1,7 @@
 "use client";
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
-import { sanitizeHtmlFunction } from "@qbs-autonaim/shared/client";
+import { sanitizeHtmlFunction } from "@qbs-autonaim/shared";
 import { Badge } from "@qbs-autonaim/ui/badge";
 import { Button } from "@qbs-autonaim/ui/button";
 import { Separator } from "@qbs-autonaim/ui/separator";
@@ -241,4 +241,3 @@ export function ExperienceTab({ response }: ExperienceTabProps) {
     </div>
   );
 }
-

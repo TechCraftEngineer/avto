@@ -1,6 +1,6 @@
 "use client";
 
-import { sanitizeHtmlFunction } from "@qbs-autonaim/shared/client";
+import { sanitizeHtmlFunction } from "@qbs-autonaim/shared";
 import { Badge } from "@qbs-autonaim/ui/badge";
 import { Button } from "@qbs-autonaim/ui/button";
 import { Skeleton } from "@qbs-autonaim/ui/skeleton";
@@ -222,4 +222,3 @@ export default function VacancyDetailPage({ params }: VacancyDetailPageProps) {
     </div>
   );
 }
-

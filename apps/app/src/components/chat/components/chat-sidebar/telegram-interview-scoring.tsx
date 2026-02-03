@@ -1,6 +1,6 @@
 "use client";
 
-import { sanitizeHtmlFunction } from "@qbs-autonaim/shared/client";
+import { sanitizeHtmlFunction } from "@qbs-autonaim/shared";
 import { Progress } from "@qbs-autonaim/ui/progress";
 import { Star } from "lucide-react";
 
@@ -84,4 +84,3 @@ export function TelegramInterviewScoring({
     </div>
   );
 }
-
