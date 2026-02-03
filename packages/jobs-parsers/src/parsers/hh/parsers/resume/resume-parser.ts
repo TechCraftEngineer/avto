@@ -1,7 +1,7 @@
 import { AgentFactory } from "@qbs-autonaim/ai";
 import type { HHContacts } from "@qbs-autonaim/jobs";
 import { parseBirthDate } from "@qbs-autonaim/lib";
-import { getAIModel, langfuse } from "@qbs-autonaim/lib/ai";
+import { getAIModel } from "@qbs-autonaim/lib/ai";
 import type { WorkExperience } from "@qbs-autonaim/validators";
 import type { Page } from "puppeteer";
 import { HH_CONFIG } from "../../core/config/config";
@@ -18,7 +18,6 @@ export async function parseResumeData(
   page: Page,
   resumeUrl?: string,
   candidateName?: string,
-  traceId?: string,
 ): Promise<{
   experience: ResumeExperienceItem[];
   contacts: HHContacts | null;
@@ -28,8 +27,48 @@ export async function parseResumeData(
   pdfBuffer?: Buffer;
   photoBuffer?: Buffer;
   photoMimeType?: string;
+  // Полные структурированные данные из LLM
+  structuredData?: {
+    education?: Array<{
+      institution: string;
+      degree?: string;
+      field?: string;
+      startDate?: string;
+      endDate?: string;
+    }>;
+    languages?: Array<{
+      name: string;
+      level: string;
+    }>;
+    skills?: string[];
+    summary?: string;
+  };
 }> {
-  const result = {
+  const result: {
+    experience: ResumeExperienceItem[];
+    contacts: HHContacts | null;
+    phone?: string;
+    email?: string;
+    birthDate?: Date | null;
+    pdfBuffer?: Buffer;
+    photoBuffer?: Buffer;
+    photoMimeType?: string;
+    structuredData?: {
+      education?: Array<{
+        institution: string;
+        degree?: string;
+        field?: string;
+        startDate?: string;
+        endDate?: string;
+      }>;
+      languages?: Array<{
+        name: string;
+        level: string;
+      }>;
+      skills?: string[];
+      summary?: string;
+    };
+  } = {
     experience: [] as ResumeExperienceItem[],
     contacts: null as HHContacts | null,
     phone: undefined as string | undefined,
@@ -38,6 +77,7 @@ export async function parseResumeData(
     pdfBuffer: undefined as Buffer | undefined,
     photoBuffer: undefined as Buffer | undefined,
     photoMimeType: undefined as string | undefined,
+    structuredData: undefined,
   };
 
   try {
@@ -75,8 +115,6 @@ export async function parseResumeData(
 
     const factory = new AgentFactory({
       model: getAIModel(),
-      langfuse: langfuse,
-      traceId: traceId,
     });
 
     const structurer = factory.createResumeStructurer();
@@ -171,6 +209,27 @@ export async function parseResumeData(
         }),
       );
       console.log(`✅ Опыт работы: ${result.experience.length} записей`);
+    }
+
+    // Сохраняем полные структурированные данные для profileData
+    result.structuredData = {
+      education: structuredData.education,
+      languages: structuredData.languages?.map((lang) => ({
+        name: lang.name,
+        level: lang.level || "Базовый",
+      })),
+      skills: structuredData.skills,
+      summary: structuredData.summary,
+    };
+
+    if (structuredData.education && structuredData.education.length > 0) {
+      console.log(`✅ Образование: ${structuredData.education.length} записей`);
+    }
+    if (structuredData.languages && structuredData.languages.length > 0) {
+      console.log(`✅ Языки: ${structuredData.languages.length} записей`);
+    }
+    if (structuredData.skills && structuredData.skills.length > 0) {
+      console.log(`✅ Навыки: ${structuredData.skills.length} записей`);
     }
 
     // Скачиваем PDF версию резюме

@@ -40,7 +40,6 @@ export async function enrichResumeData(
       input.page,
       input.resumeUrl,
       input.candidateName,
-      input.traceId,
     );
 
     // Upload PDF if available
@@ -123,6 +122,48 @@ export async function enrichResumeData(
         if (vacancy?.workspace?.organizationId) {
           const candidateRepository = new CandidateRepository(db);
 
+          // Подготавливаем profileData для кандидата
+          const profileData = resumeData.structuredData
+            ? {
+                experience: resumeData.structuredData.education,
+                education: resumeData.structuredData.education,
+                languages: resumeData.structuredData.languages,
+                summary: resumeData.structuredData.summary,
+                parsedAt: new Date().toISOString(),
+              }
+            : undefined;
+
+          // Рассчитываем опыт работы в годах
+          let experienceYears: number | undefined;
+          if (resumeData.experience && resumeData.experience.length > 0) {
+            // Простой подсчет: берем самую раннюю дату начала и самую позднюю дату окончания
+            const now = new Date();
+            let earliestStart: Date | null = null;
+
+            for (const exp of resumeData.experience) {
+              if (exp.experience?.period) {
+                const match = exp.experience.period.match(/(\d{4})-(\d{2})/);
+                if (match?.[1] && match[2]) {
+                  const startDate = new Date(
+                    parseInt(match[1], 10),
+                    parseInt(match[2], 10) - 1,
+                  );
+                  if (!earliestStart || startDate < earliestStart) {
+                    earliestStart = startDate;
+                  }
+                }
+              }
+            }
+
+            if (earliestStart) {
+              const diffMs = now.getTime() - earliestStart.getTime();
+              experienceYears = Math.floor(
+                diffMs / (1000 * 60 * 60 * 24 * 365.25),
+              );
+              console.log(`✅ Рассчитан опыт работы: ${experienceYears} лет`);
+            }
+          }
+
           const { candidate, created } =
             await candidateRepository.findOrCreateCandidate({
               organizationId: vacancy.workspace.organizationId,
@@ -133,6 +174,10 @@ export async function enrichResumeData(
               resumeUrl: input.resumeUrl || null,
               source: "APPLICANT",
               originalSource: "HH",
+              profileData: profileData,
+              skills: resumeData.structuredData?.skills || null,
+              experienceYears: experienceYears,
+              birthDate: resumeData.birthDate || null,
             });
 
           globalCandidateId = candidate.id;
@@ -153,6 +198,17 @@ export async function enrichResumeData(
       }
     }
 
+    // Подготавливаем profileData для response (те же данные что и для candidate)
+    const profileDataForResponse = resumeData.structuredData
+      ? {
+          experience: resumeData.structuredData.education,
+          education: resumeData.structuredData.education,
+          languages: resumeData.structuredData.languages,
+          summary: resumeData.structuredData.summary,
+          parsedAt: new Date().toISOString(),
+        }
+      : undefined;
+
     // Update response with enriched data
     const updateResult = await updateResponseDetails({
       vacancyId: input.entityId,
@@ -168,6 +224,8 @@ export async function enrichResumeData(
       photoFileId,
       globalCandidateId,
       birthDate: resumeData.birthDate ?? null,
+      profileData: profileDataForResponse as unknown,
+      skills: resumeData.structuredData?.skills || null,
     });
 
     if (!updateResult.success) {

@@ -57,6 +57,8 @@ export async function updateResponseDetails(
         resumePdfFileId: responseData.resumePdfFileId,
         photoFileId: responseData.photoFileId,
         birthDate: responseData.birthDate,
+        profileData: responseData.profileData as Record<string, unknown> | null,
+        skills: responseData.skills,
       })
       .where(eq(response.resumeId, responseData.resumeId));
 

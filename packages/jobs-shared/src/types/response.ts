@@ -12,4 +12,6 @@ export interface SaveResponseData {
   photoFileId?: string | null;
   globalCandidateId?: string | null;
   birthDate?: Date | null;
+  profileData?: unknown;
+  skills?: string[] | null;
 }
