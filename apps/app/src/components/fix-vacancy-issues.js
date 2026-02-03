@@ -4,8 +4,8 @@
  * Исправление проблем с vacancy доменами
  */
 
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 
 const COMPONENTS_DIR = path.resolve(process.cwd());
 
@@ -70,7 +70,7 @@ if (fs.existsSync(responseDetailDir)) {
       })
       .join("\n");
 
-    fs.writeFileSync(path.join(targetPath, "index.ts"), exports + "\n");
+    fs.writeFileSync(path.join(targetPath, "index.ts"), `${exports}\n`);
   }
 
   console.log(

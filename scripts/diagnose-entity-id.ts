@@ -1,6 +1,6 @@
 import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
-import { response, vacancy } from "@qbs-autonaim/db/schema";
+import { response } from "@qbs-autonaim/db/schema";
 
 /**
  * Скрипт для диагностики проблем с entity_id в таблице responses

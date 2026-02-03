@@ -1,6 +1,6 @@
 import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
-import { response, vacancy, vacancyPublication } from "@qbs-autonaim/db/schema";
+import { response, vacancy } from "@qbs-autonaim/db/schema";
 
 /**
  * Скрипт для поиска информации об удаленной вакансии

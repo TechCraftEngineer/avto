@@ -144,80 +144,77 @@ export function ScreeningProgressDialog({
             </>
           )}
 
-          {resultData && (
-            <>
-              {hasNoResponses ? (
-                <div className="space-y-4 rounded-lg border bg-gradient-to-br from-blue-50 to-sky-50 dark:from-blue-950/20 dark:to-sky-950/20 p-6">
-                  <div className="flex flex-col items-center gap-3 text-center">
-                    <div className="rounded-full bg-blue-100 dark:bg-blue-900/30 p-3">
-                      <CheckCircle2 className="h-8 w-8 text-blue-600" />
+          {resultData &&
+            (hasNoResponses ? (
+              <div className="space-y-4 rounded-lg border bg-gradient-to-br from-blue-50 to-sky-50 dark:from-blue-950/20 dark:to-sky-950/20 p-6">
+                <div className="flex flex-col items-center gap-3 text-center">
+                  <div className="rounded-full bg-blue-100 dark:bg-blue-900/30 p-3">
+                    <CheckCircle2 className="h-8 w-8 text-blue-600" />
+                  </div>
+                  <div>
+                    <div className="text-lg font-semibold text-foreground mb-1">
+                      Новых откликов не найдено
                     </div>
-                    <div>
-                      <div className="text-lg font-semibold text-foreground mb-1">
-                        Новых откликов не найдено
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        Все отклики по этой вакансии уже были обработаны ранее
-                      </div>
+                    <div className="text-sm text-muted-foreground">
+                      Все отклики по этой вакансии уже были обработаны ранее
                     </div>
                   </div>
-
-                  <p className="text-xs text-center text-muted-foreground pt-2 border-t">
-                    Закроется автоматически через 2 секунды
-                  </p>
                 </div>
-              ) : (
-                <div className="space-y-4 rounded-lg border bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 p-4">
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-foreground">
-                        {resultData.total}
-                      </div>
-                      <div className="text-xs text-muted-foreground">Всего</div>
+
+                <p className="text-xs text-center text-muted-foreground pt-2 border-t">
+                  Закроется автоматически через 2 секунды
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4 rounded-lg border bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 p-4">
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-foreground">
+                      {resultData.total}
                     </div>
+                    <div className="text-xs text-muted-foreground">Всего</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600">
+                      {resultData.processed}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      Успешно
+                    </div>
+                  </div>
+                  {resultData.failed > 0 && (
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-green-600">
-                        {resultData.processed}
+                      <div className="text-2xl font-bold text-destructive">
+                        {resultData.failed}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        Успешно
-                      </div>
-                    </div>
-                    {resultData.failed > 0 && (
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-destructive">
-                          {resultData.failed}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          Ошибок
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {resultData.total > 0 && (
-                    <div className="pt-2 border-t">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">
-                          Успешность:
-                        </span>
-                        <span className="font-medium text-green-600">
-                          {Math.round(
-                            (resultData.processed / resultData.total) * 100,
-                          )}
-                          %
-                        </span>
+                        Ошибок
                       </div>
                     </div>
                   )}
-
-                  <p className="text-xs text-center text-muted-foreground pt-2">
-                    Закроется автоматически через 3 секунды
-                  </p>
                 </div>
-              )}
-            </>
-          )}
+
+                {resultData.total > 0 && (
+                  <div className="pt-2 border-t">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">
+                        Успешность:
+                      </span>
+                      <span className="font-medium text-green-600">
+                        {Math.round(
+                          (resultData.processed / resultData.total) * 100,
+                        )}
+                        %
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                <p className="text-xs text-center text-muted-foreground pt-2">
+                  Закроется автоматически через 3 секунды
+                </p>
+              </div>
+            ))}
         </div>
       </DialogContent>
     </Dialog>

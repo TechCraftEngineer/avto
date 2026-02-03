@@ -217,48 +217,45 @@ export function RefreshDialog({
                 </>
               )}
 
-              {latestResult && (
-                <>
-                  {latestResult.success ? (
-                    <div className="space-y-4 rounded-lg border bg-linear-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 p-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-foreground">
-                            {latestResult.totalResponses || 0}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            Всего откликов
-                          </div>
+              {latestResult &&
+                (latestResult.success ? (
+                  <div className="space-y-4 rounded-lg border bg-linear-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 p-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-foreground">
+                          {latestResult.totalResponses || 0}
                         </div>
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-green-600">
-                            {latestResult.newCount || 0}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            Новых добавлено
-                          </div>
+                        <div className="text-xs text-muted-foreground">
+                          Всего откликов
                         </div>
                       </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-green-600">
+                          {latestResult.newCount || 0}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          Новых добавлено
+                        </div>
+                      </div>
+                    </div>
 
-                      <p className="text-xs text-center text-muted-foreground pt-2 border-t">
-                        Закроется автоматически через 3 секунды
-                      </p>
+                    <p className="text-xs text-center text-muted-foreground pt-2 border-t">
+                      Закроется автоматически через 3 секунды
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3 rounded-lg border border-destructive/50 bg-destructive/10 p-4">
+                    <div className="flex items-center gap-2 text-destructive">
+                      <XCircle className="h-5 w-5 shrink-0" />
+                      <span className="font-medium">
+                        Не удалось получить отклики
+                      </span>
                     </div>
-                  ) : (
-                    <div className="space-y-3 rounded-lg border border-destructive/50 bg-destructive/10 p-4">
-                      <div className="flex items-center gap-2 text-destructive">
-                        <XCircle className="h-5 w-5 shrink-0" />
-                        <span className="font-medium">
-                          Не удалось получить отклики
-                        </span>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        {latestResult.error || "Произошла неизвестная ошибка"}
-                      </p>
-                    </div>
-                  )}
-                </>
-              )}
+                    <p className="text-sm text-muted-foreground">
+                      {latestResult.error || "Произошла неизвестная ошибка"}
+                    </p>
+                  </div>
+                ))}
             </>
           )}
         </div>
