@@ -178,9 +178,9 @@ export function parseDateFromInput(
   const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (!match) return null;
 
-  const year = parseInt(match[1]!, 10);
-  const month = parseInt(match[2]!, 10) - 1; // Месяцы с 0
-  const day = parseInt(match[3]!, 10);
+  const year = parseInt(match[1] ?? "", 10);
+  const month = parseInt(match[2] ?? "", 10) - 1; // Месяцы с 0
+  const day = parseInt(match[3] ?? "", 10);
 
   return createUTCDate(year, month, day);
 }

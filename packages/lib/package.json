@@ -23,6 +23,10 @@
     "./instrumentation": {
       "types": "./dist/instrumentation.d.mts",
       "default": "./dist/instrumentation.mjs"
+    },
+    "./utils": {
+      "types": "./dist/utils.d.mts",
+      "default": "./dist/utils.mjs"
     }
   },
   "main": "./dist/index.mjs",

@@ -1,5 +1,4 @@
 import type { HHContacts } from "@qbs-autonaim/jobs";
-import { extractTelegramUsername } from "@qbs-autonaim/jobs/services/messaging";
 import axios from "axios";
 import type { Page } from "puppeteer";
 import { HH_CONFIG } from "../../core/config/config";
@@ -294,7 +293,7 @@ export async function parseResumeData(
               const match = content.match(
                 /resume["\s]*:[^{]*({[\s\S]*?})\s*[,}]/,
               );
-              if (match && match[1]) {
+              if (match?.[1]) {
                 const resumeData = JSON.parse(match[1]);
                 if (resumeData.contacts) {
                   return resumeData.contacts;

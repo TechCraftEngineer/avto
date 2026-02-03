@@ -1,6 +1,9 @@
 "use client";
 
-import { formatDateForInput, parseDateFromInput } from "@qbs-autonaim/lib";
+import {
+  formatDateForInput,
+  parseDateFromInput,
+} from "@qbs-autonaim/lib/utils";
 import { Badge } from "@qbs-autonaim/ui/badge";
 import { Button } from "@qbs-autonaim/ui/button";
 import { Checkbox } from "@qbs-autonaim/ui/checkbox";
