@@ -1,7 +1,7 @@
 import { and, eq, isNull, or } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { file, RESPONSE_STATUS, response } from "@qbs-autonaim/db/schema";
-import type { SaveResponseData } from "@qbs-autonaim/jobs-parsers";
+import type { SaveResponseData } from "@qbs-autonaim/jobs-shared";
 import { logResponseEvent, uploadFile } from "@qbs-autonaim/lib";
 import {
   createLogger,

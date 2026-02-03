@@ -24,7 +24,6 @@ import { useResponseTable } from "./use-response-table";
 interface ResponseTableProps {
   vacancyId: string;
   workspaceSlug: string;
-  accessToken?: string;
   onRefreshDialogOpen?: () => void;
   onSetRefreshHandler?: (handler: () => void) => void;
   onArchivedDialogOpen?: () => void;
@@ -58,7 +57,6 @@ type ResponseListItem = ResponsesListData["responses"][0];
 export function ResponseTable({
   vacancyId,
   workspaceSlug,
-  accessToken,
   onRefreshDialogOpen,
   onSetRefreshHandler,
   onArchivedDialogOpen,
@@ -227,7 +225,6 @@ export function ResponseTable({
         orgSlug={orgSlug ?? ""}
         response={response}
         workspaceSlug={workspaceSlug}
-        accessToken={accessToken}
         isSelected={selectedIds.has(response.id)}
         onSelect={handleSelectOne}
         vacancyId={vacancyId}

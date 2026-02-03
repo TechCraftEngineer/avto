@@ -17,7 +17,6 @@ interface ScreeningResult {
 
 interface ScreenResponseButtonProps {
   responseId: string;
-  accessToken: string | undefined;
   candidateName?: string;
 }
 
@@ -211,13 +210,14 @@ export function ScreenResponseButton({
         size="sm"
         onClick={handleClick}
         disabled={isLoading}
+        className="gap-1.5 hover:bg-purple-50 hover:text-purple-600 hover:border-purple-300 dark:hover:bg-purple-950 dark:hover:text-purple-400 dark:hover:border-purple-800"
       >
         {isLoading ? (
-          <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+          <Loader2 className="h-4 w-4 animate-spin" />
         ) : (
-          <Sparkles className="h-4 w-4 mr-1" />
+          <Sparkles className="h-4 w-4" />
         )}
-        {isLoading ? "Оценка..." : "Оценить"}
+        {isLoading ? "Оценка…" : "Оценить"}
       </Button>
 
       <ScreeningResultModal
@@ -229,4 +229,3 @@ export function ScreenResponseButton({
     </>
   );
 }
-

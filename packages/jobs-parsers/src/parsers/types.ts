@@ -39,22 +39,6 @@ export interface ResumeExperience {
   photoMimeType: string | null;
 }
 
-export interface SaveResponseData {
-  vacancyId: string;
-  resumeId: string;
-  resumeUrl: string;
-  candidateName: string;
-  experience: string;
-  contacts: unknown;
-  phone: string | null;
-  email?: string | null;
-  telegramUsername?: string | null;
-  resumePdfFileId?: string | null;
-  photoFileId?: string | null;
-  globalCandidateId?: string | null;
-  birthDate?: Date | null;
-}
-
 export interface ProgressData {
   currentPage: number;
   totalSaved: number;

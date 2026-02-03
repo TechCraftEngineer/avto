@@ -4,6 +4,9 @@
 export { HH_USER_AGENT } from "./constants/hh";
 export { hasDetailedInfo, updateResponseDetails } from "./services/response";
 
+// Types
+export type { SaveResponseData } from "./types/response";
+
 // Utils
 export {
   getPlanName,

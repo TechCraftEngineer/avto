@@ -77,7 +77,6 @@ interface ResponseRowProps {
   response: RouterOutputs["vacancy"]["responses"]["list"]["responses"][0];
   orgSlug: string;
   workspaceSlug: string;
-  accessToken: string | undefined;
   isSelected?: boolean;
   onSelect?: (id: string) => void;
   vacancyId?: string;
@@ -87,7 +86,6 @@ export function ResponseRow({
   response,
   orgSlug,
   workspaceSlug,
-  accessToken,
   isSelected = false,
   onSelect,
   vacancyId,
@@ -399,10 +397,9 @@ export function ResponseRow({
       <TableCell className="pr-4 text-right">
         <div className="flex items-center justify-end gap-2 px-1">
           <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
-            {response.status === "NEW" && accessToken && (
+            {response.status === "NEW" && (
               <ScreenResponseButton
                 responseId={response.id}
-                accessToken={accessToken}
                 candidateName={response.candidateName || undefined}
               />
             )}
@@ -412,6 +409,15 @@ export function ResponseRow({
               candidateName={response.candidateName}
               telegramUsername={response.telegramUsername}
               phone={response.phone}
+              welcomeSentAt={response.welcomeSentAt}
+              onRefreshResume={async () => {
+                // TODO: Реализовать обновление резюме
+                console.log("Обновление резюме для отклика:", response.id);
+              }}
+              onSendWelcome={async () => {
+                // TODO: Реализовать отправку приветствия
+                console.log("Отправка приветствия для отклика:", response.id);
+              }}
             />
           </div>
         </div>
