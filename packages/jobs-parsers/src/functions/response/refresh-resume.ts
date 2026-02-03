@@ -24,7 +24,7 @@ import {
 } from "../../parsers/hh/core/browser/browser-setup";
 import { closeBrowserSafely } from "../../parsers/hh/core/browser/browser-utils";
 import { HH_CONFIG } from "../../parsers/hh/core/config/config";
-import { parseResumeExperience } from "../../parsers/hh/parsers/resume/resume-parser";
+import { parseResumeData } from "../../parsers/hh/parsers/resume/resume-parser";
 
 puppeteer.use(StealthPlugin());
 
@@ -136,7 +136,7 @@ export const refreshSingleResumeFunction = inngest.createFunction(
 
         console.log(`📊 Парсинг резюме: ${responseData.candidateName}`);
 
-        const experienceData = await parseResumeExperience(
+        const experienceData = await parseResumeData(
           page,
           responseData.resumeUrl ?? "",
           responseData.candidateName ?? undefined,

@@ -226,8 +226,6 @@ export default function CreateGigPage({ params }: PageProps) {
         conversationHistory: [],
       });
 
-      console.log("[gig-create] Received result from AI:", result);
-
       if (!isMountedRef.current) return;
 
       const doc = result.document;
@@ -354,8 +352,6 @@ export default function CreateGigPage({ params }: PageProps) {
           .slice(-10)
           .map(({ role, content }) => ({ role, content })), // Последние 10 сообщений
       });
-
-      console.log("[gig-create] Chat message result:", result);
 
       if (!isMountedRef.current) return;
 

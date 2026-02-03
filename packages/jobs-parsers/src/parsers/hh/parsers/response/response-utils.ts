@@ -7,7 +7,7 @@ import type { ResponseData } from "../../../types";
 import { HH_CONFIG } from "../../core/config/config";
 import { parseResponseDate } from "../../utils/date-utils";
 import { humanScroll } from "../../utils/human-behavior";
-import { parseResumeExperience } from "../resume/resume-parser";
+import { parseResumeData } from "../resume/resume-parser";
 
 interface ResponseWithId {
   name: string;
@@ -90,7 +90,7 @@ export async function parseResponseDetails(
       await humanScroll(page);
 
       // Парсим детальную информацию резюме
-      const experienceData = await parseResumeExperience(
+      const experienceData = await parseResumeData(
         page,
         response.resumeUrl,
         response.name,

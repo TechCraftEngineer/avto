@@ -1,5 +1,5 @@
 import { useInngestSubscription } from "@inngest/realtime/hooks";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   fetchRefreshVacancyResponsesToken,
   fetchSyncArchivedVacancyResponsesToken,
@@ -34,15 +34,26 @@ export function useRefreshSubscription({
 
   const isArchivedMode = mode === "archived";
 
+  // Мемоизируем функции получения токенов
+  const getRefreshToken = useCallback(
+    () => fetchRefreshVacancyResponsesToken(vacancyId),
+    [vacancyId],
+  );
+
+  const getArchivedToken = useCallback(
+    () => fetchSyncArchivedVacancyResponsesToken(vacancyId),
+    [vacancyId],
+  );
+
   // Подписываемся на канал Realtime для обычного обновления
   const { data: refreshData, error: refreshError } = useInngestSubscription({
-    refreshToken: () => fetchRefreshVacancyResponsesToken(vacancyId),
+    refreshToken: getRefreshToken,
     enabled: !isArchivedMode,
   });
 
   // Подписываемся на канал Realtime для архивной синхронизации
   const { data: archivedData, error: archivedError } = useInngestSubscription({
-    refreshToken: () => fetchSyncArchivedVacancyResponsesToken(vacancyId),
+    refreshToken: getArchivedToken,
     enabled: isArchivedMode,
   });
 

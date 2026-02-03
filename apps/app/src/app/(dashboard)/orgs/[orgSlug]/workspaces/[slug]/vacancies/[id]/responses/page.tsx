@@ -2,7 +2,7 @@
 
 import { Card } from "@qbs-autonaim/ui/card";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { RecruiterAgentChat } from "~/components";
 import { ResponseTable } from "~/components/vacancy/components";
 import { RefreshStatusIndicator } from "~/components/vacancy/refresh-status-indicator";
@@ -14,12 +14,30 @@ export default function VacancyResponsesPage() {
   }>();
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [showRefreshConfirmation, setShowRefreshConfirmation] = useState(false);
-  const [handleRefresh, setHandleRefresh] = useState<(() => void) | null>(null);
   const [showArchivedConfirmation, setShowArchivedConfirmation] =
     useState(false);
-  const [handleArchivedSync, setHandleArchivedSync] = useState<
-    (() => void) | null
-  >(null);
+
+  // Используем ref вместо state для хранения обработчиков
+  const handleRefreshRef = useRef<(() => void) | null>(null);
+  const handleArchivedSyncRef = useRef<(() => void) | null>(null);
+
+  // Мемоизируем обработчики для предотвращения бесконечных циклов
+  const onSetRefreshHandler = useCallback((handler: () => void) => {
+    handleRefreshRef.current = handler;
+  }, []);
+
+  const onSetArchivedHandler = useCallback((handler: () => void) => {
+    handleArchivedSyncRef.current = handler;
+  }, []);
+
+  // Обертки для вызова обработчиков из ref
+  const handleRefreshConfirm = useCallback(() => {
+    handleRefreshRef.current?.();
+  }, []);
+
+  const handleArchivedConfirm = useCallback(() => {
+    handleArchivedSyncRef.current?.();
+  }, []);
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -41,14 +59,14 @@ export default function VacancyResponsesPage() {
           mode="refresh"
           showConfirmation={showRefreshConfirmation}
           onConfirmationClose={() => setShowRefreshConfirmation(false)}
-          onConfirm={handleRefresh || undefined}
+          onConfirm={handleRefreshConfirm}
         />
         <RefreshStatusIndicator
           vacancyId={id}
           mode="archived"
           showConfirmation={showArchivedConfirmation}
           onConfirmationClose={() => setShowArchivedConfirmation(false)}
-          onConfirm={handleArchivedSync || undefined}
+          onConfirm={handleArchivedConfirm}
         />
       </div>
 
@@ -59,11 +77,9 @@ export default function VacancyResponsesPage() {
             vacancyId={id}
             workspaceSlug={workspaceSlug}
             onRefreshDialogOpen={() => setShowRefreshConfirmation(true)}
-            onSetRefreshHandler={(handler) => setHandleRefresh(() => handler)}
+            onSetRefreshHandler={onSetRefreshHandler}
             onArchivedDialogOpen={() => setShowArchivedConfirmation(true)}
-            onSetArchivedHandler={(handler) =>
-              setHandleArchivedSync(() => handler)
-            }
+            onSetArchivedHandler={onSetArchivedHandler}
           />
         </div>
       </Card>

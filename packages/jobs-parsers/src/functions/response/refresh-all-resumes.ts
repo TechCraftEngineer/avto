@@ -9,7 +9,7 @@ import {
   uploadCandidatePhoto,
   uploadResumePdf,
 } from "@qbs-autonaim/jobs/services/response";
-import { getResponsesLimit } from "@qbs-autonaim/jobs-shared/utils/plan-limits";
+import { getResponsesLimit } from "@qbs-autonaim/jobs-shared";
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import {
@@ -21,7 +21,7 @@ import {
   setupPage,
 } from "../../parsers/hh/core/browser/browser-setup";
 import { closeBrowserSafely } from "../../parsers/hh/core/browser/browser-utils";
-import { parseResumeExperience } from "../../parsers/hh/parsers/resume/resume-parser";
+import { parseResumeData } from "../../parsers/hh/parsers/resume/resume-parser";
 
 puppeteer.use(StealthPlugin());
 
@@ -181,7 +181,7 @@ export const refreshAllResumesFunction = inngest.createFunction(
 
             console.log(`📊 Парсинг резюме: ${responseItem.candidateName}`);
 
-            const experienceData = await parseResumeExperience(
+            const experienceData = await parseResumeData(
               page,
               responseItem.resumeUrl ?? "",
               responseItem.candidateName ?? "",

@@ -1,6 +1,7 @@
-import { and, eq } from "@qbs-autonaim/db";
+import { and, desc, eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { integration, response, vacancy } from "@qbs-autonaim/db/schema";
+import { getResponsesLimit } from "@qbs-autonaim/jobs-shared";
 import axios from "axios";
 import { inngest } from "../../client";
 
@@ -83,9 +84,12 @@ export const collectChatIdsFunction = inngest.createFunction(
     const result = await step.run("collect-chat-ids", async () => {
       console.log(`🚀 Начинаем сбор chat_id для вакансии ${vacancyId}`);
 
-      // Получаем вакансию
+      // Получаем вакансию с workspace для доступа к тарифному плану
       const vacancyData = await db.query.vacancy.findFirst({
         where: eq(vacancy.id, vacancyId),
+        with: {
+          workspace: true,
+        },
       });
 
       if (!vacancyData) {
@@ -183,13 +187,38 @@ export const collectChatIdsFunction = inngest.createFunction(
 
       console.log(`📊 Всего получено чатов: ${allChats.length}`);
 
-      // Получаем все отклики для вакансии
-      const responses = await db.query.response.findMany({
-        where: and(
-          eq(response.entityType, "vacancy"),
-          eq(response.entityId, vacancyId),
-        ),
-      });
+      // Получаем лимит откликов для тарифного плана workspace
+      const workspacePlan = vacancyData.workspace?.plan || "free";
+      const responsesLimit = getResponsesLimit(workspacePlan);
+      const hasLimit = responsesLimit > 0;
+
+      if (hasLimit) {
+        console.log(
+          `⚙️ Установлен лимит для тарифа "${workspacePlan}": ${responsesLimit} откликов`,
+        );
+      }
+
+      // Получаем отклики для вакансии с учетом лимита
+      // Сортируем по дате отклика (новые первыми), чтобы взять самые свежие
+      const baseQuery = db
+        .select()
+        .from(response)
+        .where(
+          and(
+            eq(response.entityType, "vacancy"),
+            eq(response.entityId, vacancyId),
+          ),
+        )
+        .orderBy(desc(response.respondedAt));
+
+      // Применяем лимит, если он установлен
+      const responses = hasLimit
+        ? await baseQuery.limit(responsesLimit)
+        : await baseQuery;
+
+      console.log(
+        `📋 Обрабатываем ${responses.length} откликов${hasLimit ? ` (лимит: ${responsesLimit})` : ""}`,
+      );
 
       let updatedCount = 0;
 

@@ -9,48 +9,17 @@ import {
   updateResponseDetails,
   uploadResumePdf,
 } from "@qbs-autonaim/jobs/services/response";
-import { Log } from "crawlee";
-import type { Page } from "puppeteer";
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
-import { performLogin } from "../core/auth/auth";
-import { setupBrowser, setupPage } from "../core/browser/browser-setup";
+import { setupPageWithAuth } from "../core/browser/browser-setup";
 import { closeBrowserSafely } from "../core/browser/browser-utils";
 import { HH_CONFIG } from "../core/config/config";
-import { parseResumeExperience } from "../parsers/resume/resume-parser";
+import { parseResumeData } from "../parsers/resume/resume-parser";
 
 puppeteer.use(StealthPlugin());
 
 // Configure Crawlee storage to use temp directory
 process.env.CRAWLEE_STORAGE_DIR = os.tmpdir();
-
-async function checkAndPerformLogin(
-  page: Page,
-  email: string,
-  password: string,
-  workspaceId: string,
-) {
-  console.log("🔐 Проверка авторизации...");
-
-  await page.goto(HH_CONFIG.urls.login, {
-    waitUntil: "domcontentloaded",
-    timeout: HH_CONFIG.timeouts.navigation,
-  });
-
-  await page.waitForNetworkIdle({
-    timeout: HH_CONFIG.timeouts.networkIdle,
-  });
-
-  const loginInput = await page.$('input[type="text"][name="username"]');
-  if (loginInput) {
-    // Create a simple logger wrapper that implements the Log interface
-    const log = new Log();
-
-    await performLogin(page, log, email, password, workspaceId);
-  } else {
-    console.log("✅ Успешно авторизованы");
-  }
-}
 
 // Main enricher function
 export async function enrichHHResponses(
@@ -86,18 +55,13 @@ export async function enrichHHResponses(
     `📋 Найдено откликов для обогащения: ${responsesToEnrich.length}`,
   );
 
-  const browser = await setupBrowser();
+  const { browser, page } = await setupPageWithAuth(
+    workspaceId,
+    credentials.email,
+    credentials.password,
+  );
 
   try {
-    const page = await setupPage(browser, null);
-
-    await checkAndPerformLogin(
-      page,
-      credentials.email,
-      credentials.password,
-      workspaceId,
-    );
-
     let enriched = 0;
     let errors = 0;
 
@@ -135,7 +99,7 @@ export async function enrichHHResponses(
         });
 
         // Parse resume experience
-        const experienceData = await parseResumeExperience(
+        const experienceData = await parseResumeData(
           page,
           response.resumeUrl,
           response.candidateName || "",

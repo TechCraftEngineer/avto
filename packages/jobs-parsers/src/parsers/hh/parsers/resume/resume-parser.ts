@@ -190,9 +190,9 @@ async function downloadCandidatePhoto(
 }
 
 /**
- * Парсит опыт работы из резюме
+ * Парсит полные данные резюме: опыт работы, контакты, дату рождения, PDF и фото
  */
-export async function parseResumeExperience(
+export async function parseResumeData(
   page: Page,
   resumeUrl?: string,
   candidateName?: string,
