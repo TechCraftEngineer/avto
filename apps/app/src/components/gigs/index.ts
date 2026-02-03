@@ -38,5 +38,4 @@ export {
   ShortlistStats,
 } from "./components";
 
-// Re-export utils
 export { getRecommendationLabel } from "./utils";

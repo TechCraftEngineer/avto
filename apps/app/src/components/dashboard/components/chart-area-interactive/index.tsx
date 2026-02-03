@@ -3,7 +3,8 @@
 import dynamic from "next/dynamic";
 
 export const ChartAreaInteractive = dynamic(
-  () => import("./chart-area-interactive"),
+  () =>
+    import("./chart-area-interactive").then((mod) => mod.ChartAreaInteractive),
   {
     ssr: false,
     loading: () => (
@@ -11,5 +12,5 @@ export const ChartAreaInteractive = dynamic(
         <div className="text-muted-foreground">Загрузка графика...</div>
       </div>
     ),
-  }
+  },
 );

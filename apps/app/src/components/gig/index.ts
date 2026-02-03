@@ -1,6 +1,4 @@
-// gig domain exports - re-export specific hooks and components
-
-// Re-export from gigs domain (for backward compatibility)
+// gig domain exports
 export {
   CandidateComparison,
   DeleteGigDialog,

@@ -1,6 +1,6 @@
-import { and, eq, inArray } from "@qbs-autonaim/db";
+import { and, eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
-import { response, responseScreening, vacancy } from "@qbs-autonaim/db/schema";
+import { response, vacancy } from "@qbs-autonaim/db/schema";
 import { screenResponse, unwrap } from "~/services/response";
 import {
   screenNewResponsesChannel,

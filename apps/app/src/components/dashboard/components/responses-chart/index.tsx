@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 
 export const ResponsesChart = dynamic(
-  () => import("./responses-chart"),
+  () => import("./responses-chart").then((mod) => mod.ResponsesChart),
   {
     ssr: false,
     loading: () => (
@@ -11,5 +11,5 @@ export const ResponsesChart = dynamic(
         <div className="text-muted-foreground">Загрузка статистики...</div>
       </div>
     ),
-  }
+  },
 );

@@ -13,23 +13,27 @@ import {
 } from "@qbs-autonaim/ui";
 import { IconDeviceFloppy, IconLoader2 } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
 import { CustomDomainSelect } from "../custom-domain-select";
-import dynamic from "next/dynamic";
 
-const InterviewMediaUpload = dynamic(() => import("../interview-media-upload"), {
-  ssr: false,
-  loading: () => (
-    <div className="space-y-4 p-6">
-      <div className="h-8 bg-muted rounded animate-pulse" />
-      <div className="h-32 bg-muted rounded animate-pulse" />
-      <div className="h-10 bg-muted rounded animate-pulse" />
-    </div>
-  )
-});
+const InterviewMediaUpload = dynamic(
+  () =>
+    import("../interview-media-upload").then((mod) => mod.InterviewMediaUpload),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="space-y-4 p-6">
+        <div className="h-8 bg-muted rounded animate-pulse" />
+        <div className="h-32 bg-muted rounded animate-pulse" />
+        <div className="h-10 bg-muted rounded animate-pulse" />
+      </div>
+    ),
+  },
+);
 
 interface GigInterviewSettingsProps {
   gigId: string;

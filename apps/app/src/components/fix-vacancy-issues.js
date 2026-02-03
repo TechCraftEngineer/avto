@@ -12,6 +12,10 @@ const COMPONENTS_DIR = path.resolve(process.cwd());
 console.log("🔧 ИСПРАВЛЕНИЕ ПРОБЛЕМ С VACANCY ДОМЕНАМИ\n");
 
 // Функция для конвертации kebab-case в PascalCase
+/**
+ * @param {string} str
+ * @returns {string}
+ */
 function kebabToPascal(str) {
   return str
     .split("-")

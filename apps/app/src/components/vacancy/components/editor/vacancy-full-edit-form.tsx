@@ -28,15 +28,21 @@ import {
   updateFullVacancySchema,
 } from "@qbs-autonaim/validators";
 import { Loader2, Save } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import dynamic from "next/dynamic";
 
-const TiptapEditor = dynamic(() => import("~/components/editor"), {
-  ssr: false,
-  loading: () => <div className="min-h-[200px] animate-pulse bg-muted rounded" />
-});
+const TiptapEditor = dynamic(
+  () => import("~/components/editor").then((mod) => mod.TiptapEditor),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="min-h-[200px] animate-pulse bg-muted rounded" />
+    ),
+  },
+);
+
 import { VacancyRequirementsEditor } from "./vacancy-requirements-editor";
 
 type Vacancy = NonNullable<RouterOutputs["vacancy"]["get"]>;

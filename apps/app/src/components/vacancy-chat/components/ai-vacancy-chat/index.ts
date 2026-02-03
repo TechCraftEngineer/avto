@@ -1,1 +1,1 @@
-export { AiVacancyChat } from './ai-vacancy-chat';
+export { AIVacancyChat } from "../../../chat/components/vacancy-chat/ai-vacancy-chat";
