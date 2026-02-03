@@ -5,9 +5,6 @@
  * Серверные сервисы с БД импортируйте из @qbs-autonaim/shared/server
  */
 
-// Клиентские утилиты
-export { sanitizeHtmlFunction } from "./client";
-
 // Схемы (безопасно для клиента)
 export {
   type CreateDraftInput,

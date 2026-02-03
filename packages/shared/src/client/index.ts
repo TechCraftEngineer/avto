@@ -14,7 +14,5 @@ export {
 } from "../utils/freelance-platform-parser";
 // URL для интервью - безопасен для клиента (только базовый URL)
 export { getInterviewBaseUrl } from "../utils/get-interview-url";
-// Санитизация HTML - безопасна для клиента
-export { sanitizeHtmlFunction } from "../utils/sanitize-html";
 // Генерация slug - безопасна для клиента
 export { generateSlug } from "../utils/slug-generator";

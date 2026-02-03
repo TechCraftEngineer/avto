@@ -1,6 +1,5 @@
 "use client";
 
-import { sanitizeHtmlFunction } from "@qbs-autonaim/shared";
 import {
   Badge,
   Card,
@@ -20,6 +19,7 @@ import {
   TrendingUp,
   UserCheck,
 } from "lucide-react";
+import { sanitizeHtmlFunction } from "~/lib/sanitize-html";
 
 interface ScreeningData {
   score: number;

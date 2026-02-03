@@ -1,5 +1,5 @@
-import { sanitizeHtmlFunction } from "@qbs-autonaim/shared";
 import { Brain, MessageSquare, Sparkles } from "lucide-react";
+import { sanitizeHtmlFunction } from "~/lib/sanitize-html";
 
 const features = [
   {

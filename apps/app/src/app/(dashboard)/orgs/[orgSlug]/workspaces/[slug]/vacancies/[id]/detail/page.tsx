@@ -1,6 +1,5 @@
 "use client";
 
-import { sanitizeHtmlFunction } from "@qbs-autonaim/shared";
 import { Badge } from "@qbs-autonaim/ui/badge";
 import { Button } from "@qbs-autonaim/ui/button";
 import { Skeleton } from "@qbs-autonaim/ui/skeleton";
@@ -16,6 +15,7 @@ import {
   VacancyStats,
 } from "~/components/vacancy/components";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
+import { sanitizeHtmlFunction } from "~/lib/sanitize-html";
 import { useTRPC } from "~/trpc/react";
 
 interface VacancyDetailPageProps {

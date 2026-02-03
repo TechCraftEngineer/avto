@@ -1,11 +1,11 @@
 "use client";
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
-import { sanitizeHtmlFunction } from "@qbs-autonaim/shared";
 import { Badge } from "@qbs-autonaim/ui/badge";
 import { Button } from "@qbs-autonaim/ui/button";
 import { Separator } from "@qbs-autonaim/ui/separator";
 import { Award, ExternalLink } from "lucide-react";
+import { sanitizeHtmlFunction } from "~/lib/sanitize-html";
 import { getProfileData } from "../../../utils/types";
 
 type GigResponseDetail = NonNullable<RouterOutputs["gig"]["responses"]["get"]>;

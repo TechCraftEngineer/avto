@@ -1,6 +1,5 @@
 "use client";
 
-import { sanitizeHtmlFunction } from "@qbs-autonaim/shared";
 import { Badge } from "@qbs-autonaim/ui/badge";
 import { Button } from "@qbs-autonaim/ui/button";
 import {
@@ -19,6 +18,7 @@ import {
   Sparkles,
   XCircle,
 } from "lucide-react";
+import { sanitizeHtmlFunction } from "~/lib/sanitize-html";
 import { MatchScoreCircle } from "../match-score-circle";
 import { MetaMatchSection } from "../meta-match-section";
 import type { FunnelCandidateDetail } from "../types";
