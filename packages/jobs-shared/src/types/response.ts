@@ -3,7 +3,6 @@ export interface SaveResponseData {
   resumeId: string;
   resumeUrl: string;
   candidateName: string;
-  experience: string;
   contacts: unknown;
   phone: string | null;
   email?: string | null;

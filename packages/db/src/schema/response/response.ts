@@ -205,7 +205,6 @@ export const CreateResponseSchema = createInsertSchema(response, {
   salaryExpectationsComment: z.string().max(200).optional(),
   // Common
   coverLetter: z.string().optional(),
-  experience: z.string().optional(),
   skills: z.array(z.string()).optional(),
   rating: z.string().max(20).optional(),
   status: z.enum(responseStatusValues).default("NEW"),

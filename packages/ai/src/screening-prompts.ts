@@ -2,6 +2,7 @@
  * Промпты для скрининга откликов и резюме
  */
 
+import { formatExperienceText } from "@qbs-autonaim/shared";
 import { extractFirstName } from "./utils/name-extractor";
 
 export interface VacancyRequirements {
@@ -64,7 +65,7 @@ ${requirements.nice_to_have_skills.map((s) => `- ${s}`).join("\n")}
 Имя: ${extractFirstName(response.candidateName)}
 
 Опыт работы:
-${response.experience || "Не указан"}
+${formatExperienceText(response.profileData) || "Не указан"}
 ${response.coverLetter ? `\nСопроводительное письмо:\n${response.coverLetter}` : ""}
 
 ЗАДАЧА:

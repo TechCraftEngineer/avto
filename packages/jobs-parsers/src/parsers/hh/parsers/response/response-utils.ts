@@ -90,11 +90,27 @@ export async function parseResponseDetails(
       await humanScroll(page);
 
       // Парсим детальную информацию резюме
-      const experienceData = await parseResumeData(
+      const resumeData = await parseResumeData(
         page,
         response.resumeUrl,
         response.name,
       );
+
+      // Подготавливаем profileData
+      const profileData = resumeData.structuredData
+        ? {
+            experience: resumeData.experience || [],
+            education: resumeData.structuredData.education,
+            languages: resumeData.structuredData.languages,
+            summary: resumeData.structuredData.summary,
+            parsedAt: new Date().toISOString(),
+          }
+        : resumeData.experience
+          ? {
+              experience: resumeData.experience,
+              parsedAt: new Date().toISOString(),
+            }
+          : undefined;
 
       // Обновляем информацию в базе
       await updateResponseDetails({
@@ -102,10 +118,11 @@ export async function parseResponseDetails(
         resumeId: response.resumeId,
         resumeUrl: response.resumeUrl,
         candidateName: response.name,
-        experience: JSON.stringify(experienceData.experience),
-        contacts: experienceData.contacts,
-        phone: experienceData.phone ?? null,
-        birthDate: experienceData.birthDate ?? null,
+        contacts: resumeData.contacts,
+        phone: resumeData.phone ?? null,
+        birthDate: resumeData.birthDate ?? null,
+        profileData: profileData,
+        skills: resumeData.structuredData?.skills || null,
       });
 
       console.log(`✅ Детали сохранены для: ${response.name}`);

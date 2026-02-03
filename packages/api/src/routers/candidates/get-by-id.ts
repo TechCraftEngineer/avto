@@ -10,6 +10,7 @@ import {
   vacancy,
 } from "@qbs-autonaim/db/schema";
 import { getDownloadUrl } from "@qbs-autonaim/lib/s3";
+import { formatExperienceText } from "@qbs-autonaim/shared";
 import { uuidv7Schema, workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
@@ -196,7 +197,7 @@ export const getById = protectedProcedure
           .join("")
           .toUpperCase()
           .slice(0, 2) || "??",
-      experience: response.experience || "Не указан",
+      experience: formatExperienceText(response.profileData) || "Не указан",
       location: globalCandidate?.location || "Не указано",
       matchScore,
       resumeScore,

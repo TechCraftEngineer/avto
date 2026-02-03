@@ -13,6 +13,7 @@ import {
   response as responseTable,
 } from "@qbs-autonaim/db";
 import type { db } from "@qbs-autonaim/db/client";
+import { formatExperienceText } from "@qbs-autonaim/shared";
 
 /**
  * Контекст gig задания
@@ -243,7 +244,7 @@ export async function loadCandidatesContext(
 
       proposedDeliveryDays: response.proposedDeliveryDays,
       coverLetter: response.coverLetter,
-      experience: response.experience,
+      experience: formatExperienceText(response.profileData),
       skills: response.skills,
       rating: response.rating,
       status: response.status,

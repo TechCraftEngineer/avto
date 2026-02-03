@@ -36,6 +36,7 @@ export {
   type ParsedPlatformLink,
   parsePlatformLink,
 } from "./utils";
+export * from "./utils/experience-helpers";
 
 // Примечание: sanitizeHtmlFunction теперь доступен через @qbs-autonaim/shared/client
 // для использования в браузере без Node.js зависимостей

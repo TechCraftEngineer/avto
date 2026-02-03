@@ -18,6 +18,7 @@ import { and, desc, eq, gte, sql } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { gig, response } from "@qbs-autonaim/db/schema";
 import { z } from "zod";
+import { formatExperienceText } from "./utils/experience-helpers";
 
 /**
  * Фильтры для получения ранжированных кандидатов
@@ -91,10 +92,9 @@ export class RankingService {
         id: true,
         candidateName: true,
         proposedPrice: true,
-
         proposedDeliveryDays: true,
         coverLetter: true,
-        experience: true,
+        profileData: true,
         skills: true,
         portfolioLinks: true,
         rating: true,
@@ -115,10 +115,11 @@ export class RankingService {
       id: c.id,
       candidateName: c.candidateName,
       proposedPrice: c.proposedPrice,
-
       proposedDeliveryDays: c.proposedDeliveryDays,
       coverLetter: c.coverLetter,
-      experience: c.experience,
+      experience: formatExperienceText(
+        c.profileData as Record<string, unknown> | null,
+      ),
       skills: c.skills as string[] | null | undefined,
       portfolioLinks: c.portfolioLinks as string[] | null | undefined,
       rating: c.rating,

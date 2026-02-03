@@ -76,7 +76,7 @@ export async function hasDetailedInfo(
 export async function getResponsesWithoutDetails() {
   return tryCatch(async () => {
     return await db.query.response.findMany({
-      where: or(isNull(response.experience), eq(response.experience, "")),
+      where: isNull(response.profileData),
     });
   }, "Failed to get responses without details");
 }

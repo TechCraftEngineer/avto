@@ -8,6 +8,7 @@ import {
   mapDBSettingsToRecruiterSettings,
 } from "@qbs-autonaim/ai";
 import { getAIModel } from "@qbs-autonaim/lib/ai";
+import { formatExperienceText } from "@qbs-autonaim/shared";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
@@ -144,7 +145,7 @@ export const getInterviewQuestions = protectedProcedure
       vacancyId,
       candidateData: {
         resume: response.resumeUrl || null,
-        experience: response.experience || null,
+        experience: formatExperienceText(response.profileData) || null,
         coverLetter: response.coverLetter || null,
         riskFactors,
         screening: screening

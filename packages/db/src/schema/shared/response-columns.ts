@@ -51,7 +51,6 @@ export const candidateFileColumns = {
  * Опыт и навыки кандидата
  */
 export const candidateExperienceColumns = {
-  experience: text("experience"),
   profileData: jsonb("profile_data").$type<StoredProfileData>(),
   skills: jsonb("skills").$type<string[]>(),
   rating: varchar("rating", { length: 20 }),

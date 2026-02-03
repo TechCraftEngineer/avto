@@ -9,6 +9,7 @@ export * from "./repositories/response.repository";
 export { WorkspaceRepository } from "./repositories/workspace.repository";
 export * from "./schema";
 export * from "./utils/encryption";
+export * from "./utils/profile-data-helpers";
 
 // Тип для db клиента - поддерживает оба типа
 export type DbClient = typeof import("./client").db;

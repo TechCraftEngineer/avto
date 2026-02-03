@@ -36,9 +36,9 @@ export class CandidateService {
     // Парсим ФИО из полного имени
     const nameParts = this.parseFullName(response.candidateName ?? "");
 
-    // Парсим опыт работы из строки
-    const experienceYears = this.parseExperienceYears(
-      response.experience ?? null,
+    // Извлекаем опыт работы из profileData
+    const experienceYears = this.calculateExperienceYears(
+      response.profileData ?? null,
     );
 
     // Определяем resume URL
@@ -313,7 +313,55 @@ export class CandidateService {
   }
 
   /**
-   * Парсинг опыта работы из строки
+   * Вычисление опыта работы из profileData
+   */
+  private calculateExperienceYears(
+    profileData: Record<string, unknown> | null,
+  ): number | null {
+    if (!profileData?.experience) {
+      return null;
+    }
+
+    const experience = profileData.experience as Array<{
+      experience?: {
+        period?: string;
+      };
+    }>;
+
+    if (!Array.isArray(experience) || experience.length === 0) {
+      return null;
+    }
+
+    const now = new Date();
+    let earliestStart: Date | null = null;
+
+    for (const exp of experience) {
+      if (exp.experience?.period) {
+        // Парсим период в формате "YYYY-MM"
+        const match = exp.experience.period.match(/(\d{4})-(\d{2})/);
+        if (match?.[1] && match[2]) {
+          const startDate = new Date(
+            parseInt(match[1], 10),
+            parseInt(match[2], 10) - 1,
+          );
+          if (!earliestStart || startDate < earliestStart) {
+            earliestStart = startDate;
+          }
+        }
+      }
+    }
+
+    if (earliestStart) {
+      const diffMs = now.getTime() - earliestStart.getTime();
+      const years = Math.floor(diffMs / (1000 * 60 * 60 * 24 * 365.25));
+      return years >= 0 && years <= 50 ? years : null;
+    }
+
+    return null;
+  }
+
+  /**
+   * Парсинг опыта работы из строки (legacy, для обратной совместимости)
    * Ищет паттерны типа "5 лет", "3 года", "2+ years" и т.д.
    */
   private parseExperienceYears(experience: string | null): number | null {

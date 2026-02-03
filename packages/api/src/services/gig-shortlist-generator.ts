@@ -168,7 +168,9 @@ export class GigShortlistGenerator {
         coverLetter: response.coverLetter ?? undefined,
         portfolioLinks: (response.portfolioLinks as string[]) ?? undefined,
         skills: (response.skills as string[]) ?? undefined,
-        experience: response.experience ?? undefined,
+        profileData: response.profileData as
+          | Record<string, unknown>
+          | undefined,
         createdAt: response.createdAt,
       }),
     );

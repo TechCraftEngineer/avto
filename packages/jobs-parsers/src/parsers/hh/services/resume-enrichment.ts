@@ -125,13 +125,18 @@ export async function enrichResumeData(
           // Подготавливаем profileData для кандидата
           const profileData = resumeData.structuredData
             ? {
-                experience: resumeData.structuredData.education,
+                experience: resumeData.experience || [],
                 education: resumeData.structuredData.education,
                 languages: resumeData.structuredData.languages,
                 summary: resumeData.structuredData.summary,
                 parsedAt: new Date().toISOString(),
               }
-            : undefined;
+            : resumeData.experience
+              ? {
+                  experience: resumeData.experience,
+                  parsedAt: new Date().toISOString(),
+                }
+              : undefined;
 
           // Рассчитываем опыт работы в годах
           let experienceYears: number | undefined;
@@ -198,24 +203,12 @@ export async function enrichResumeData(
       }
     }
 
-    // Подготавливаем profileData для response (те же данные что и для candidate)
-    const profileDataForResponse = resumeData.structuredData
-      ? {
-          experience: resumeData.structuredData.education,
-          education: resumeData.structuredData.education,
-          languages: resumeData.structuredData.languages,
-          summary: resumeData.structuredData.summary,
-          parsedAt: new Date().toISOString(),
-        }
-      : undefined;
-
     // Update response with enriched data
     const updateResult = await updateResponseDetails({
       vacancyId: input.entityId,
       resumeId: input.resumeId,
       resumeUrl: input.resumeUrl,
       candidateName: input.candidateName,
-      experience: JSON.stringify(resumeData.experience || []),
       contacts: resumeData.contacts,
       phone: phone,
       email: email,
@@ -224,7 +217,7 @@ export async function enrichResumeData(
       photoFileId,
       globalCandidateId,
       birthDate: resumeData.birthDate ?? null,
-      profileData: profileDataForResponse,
+      profileData: profileData,
       skills: resumeData.structuredData?.skills || null,
     });
 

@@ -59,7 +59,7 @@ export interface GigShortlistCandidate {
   coverLetter?: string;
   portfolioLinks?: string[];
   skills?: string[];
-  experience?: string;
+  profileData?: Record<string, unknown>;
   createdAt: Date;
 }
 
@@ -171,7 +171,9 @@ export class GigShortlistGenerator {
         coverLetter: response.coverLetter ?? undefined,
         portfolioLinks: (response.portfolioLinks as string[]) ?? undefined,
         skills: (response.skills as string[]) ?? undefined,
-        experience: response.experience ?? undefined,
+        profileData: response.profileData as
+          | Record<string, unknown>
+          | undefined,
         createdAt: response.createdAt,
       }),
     );

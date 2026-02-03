@@ -181,7 +181,7 @@ export const refreshAllResumesFunction = inngest.createFunction(
 
             console.log(`📊 Парсинг резюме: ${responseItem.candidateName}`);
 
-            const experienceData = await parseResumeData(
+            const resumeData = await parseResumeData(
               page,
               responseItem.resumeUrl ?? "",
               responseItem.candidateName ?? "",
@@ -192,9 +192,9 @@ export const refreshAllResumesFunction = inngest.createFunction(
             const telegramUsername: string | null = null;
 
             let resumePdfFileId: string | null = null;
-            if (experienceData.pdfBuffer) {
+            if (resumeData.pdfBuffer) {
               const result = await uploadResumePdf(
-                experienceData.pdfBuffer,
+                resumeData.pdfBuffer,
                 responseItem.resumeId ?? "",
               );
               if (result.success) {
@@ -203,15 +203,15 @@ export const refreshAllResumesFunction = inngest.createFunction(
             }
 
             let photoFileId: string | null = null;
-            if (experienceData.photoBuffer && experienceData.photoMimeType) {
+            if (resumeData.photoBuffer && resumeData.photoMimeType) {
               console.log(
                 `📸 Загрузка фото кандидата в S3 (размер: ${
-                  experienceData.photoBuffer.length
+                  resumeData.photoBuffer.length
                 })`,
               );
               const result = await uploadCandidatePhoto(
-                experienceData.photoBuffer,
-                experienceData.photoMimeType,
+                resumeData.photoBuffer,
+                resumeData.photoMimeType,
                 responseItem.id,
               );
               if (result.success) {
@@ -219,19 +219,36 @@ export const refreshAllResumesFunction = inngest.createFunction(
               }
             }
 
+            // Подготавливаем profileData
+            const profileData = resumeData.structuredData
+              ? {
+                  experience: resumeData.experience || [],
+                  education: resumeData.structuredData.education,
+                  languages: resumeData.structuredData.languages,
+                  summary: resumeData.structuredData.summary,
+                  parsedAt: new Date().toISOString(),
+                }
+              : resumeData.experience
+                ? {
+                    experience: resumeData.experience,
+                    parsedAt: new Date().toISOString(),
+                  }
+                : undefined;
+
             // Обновляем данные отклика
             await updateResponseDetails({
               vacancyId: responseItem.entityId,
               resumeId: responseItem.resumeId ?? "",
               resumeUrl: responseItem.resumeUrl ?? "",
               candidateName: responseItem.candidateName ?? "",
-              experience: JSON.stringify(experienceData.experience),
-              contacts: experienceData.contacts,
-              phone: experienceData.phone ?? null,
+              contacts: resumeData.contacts,
+              phone: resumeData.phone ?? null,
               telegramUsername,
               resumePdfFileId,
               photoFileId,
-              birthDate: experienceData.birthDate ?? null,
+              birthDate: resumeData.birthDate ?? null,
+              profileData: profileData,
+              skills: resumeData.structuredData?.skills || null,
             });
 
             console.log(

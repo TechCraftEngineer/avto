@@ -4,6 +4,7 @@ import { interviewMessage } from "@qbs-autonaim/db/schema";
 import { tempMessageBufferService } from "@qbs-autonaim/jobs/services/buffer";
 import type { getInterviewStartData } from "@qbs-autonaim/lib";
 import { getAIModel } from "@qbs-autonaim/lib/ai";
+import { formatExperienceText } from "@qbs-autonaim/shared";
 import { inngest } from "../../client";
 import type { BotSettings, PromptStage } from "./types";
 import { getChatHistory } from "./utils";
@@ -75,7 +76,9 @@ export async function generateAndSendBotResponse(params: {
     })),
     resumeData: interviewData
       ? {
-          experience: interviewData.response.experience ?? undefined,
+          experience:
+            formatExperienceText(interviewData.response.profileData) ??
+            undefined,
           coverLetter: interviewData.response.coverLetter ?? undefined,
           language: interviewData.response.resumeLanguage ?? undefined,
         }
