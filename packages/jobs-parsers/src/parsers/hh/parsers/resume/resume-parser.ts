@@ -1,3 +1,4 @@
+import type { HHContacts } from "@qbs-autonaim/jobs";
 import { extractTelegramUsername } from "@qbs-autonaim/jobs/services/messaging";
 import axios from "axios";
 import type { Page } from "puppeteer";
@@ -190,6 +191,39 @@ async function downloadCandidatePhoto(
 }
 
 /**
+ * Извлекает телефон из объекта contacts
+ */
+function extractPhone(contacts: HHContacts | null): string | null {
+  if (!contacts?.phone || !Array.isArray(contacts.phone)) {
+    return null;
+  }
+
+  const firstPhone = contacts.phone[0];
+  return firstPhone?.formatted || firstPhone?.raw || null;
+}
+
+/**
+ * Извлекает email из объекта contacts
+ */
+function extractEmail(contacts: HHContacts | null): string | null {
+  if (!contacts?.email) {
+    return null;
+  }
+
+  // email может быть строкой или массивом объектов
+  if (typeof contacts.email === "string") {
+    return contacts.email;
+  }
+
+  if (Array.isArray(contacts.email) && contacts.email.length > 0) {
+    const firstEmail = contacts.email[0];
+    return firstEmail?.email || null;
+  }
+
+  return null;
+}
+
+/**
  * Парсит полные данные резюме: опыт работы, контакты, дату рождения, PDF и фото
  */
 export async function parseResumeData(
@@ -198,15 +232,9 @@ export async function parseResumeData(
   candidateName?: string,
 ): Promise<{
   experience: ResumeExperienceItem[];
-  contacts: {
-    email?: string;
-    phone?: string;
-    telegram?: string;
-    linkedin?: string;
-    github?: string;
-    portfolio?: string;
-  };
+  contacts: HHContacts | null;
   phone?: string;
+  email?: string;
   birthDate?: Date | null;
   pdfBuffer?: Buffer;
   photoBuffer?: Buffer;
@@ -214,8 +242,9 @@ export async function parseResumeData(
 }> {
   const result = {
     experience: [] as ResumeExperienceItem[],
-    contacts: {},
+    contacts: null as HHContacts | null,
     phone: undefined as string | undefined,
+    email: undefined as string | undefined,
     birthDate: undefined as Date | null | undefined,
     pdfBuffer: undefined as Buffer | undefined,
     photoBuffer: undefined as Buffer | undefined,
@@ -252,49 +281,48 @@ export async function parseResumeData(
       }
     }
 
-    // Парсим контакты
+    // Парсим контакты - получаем полный объект contacts из HH.ru
     const contactsData = await page
-      .$eval('[data-qa="resume-contacts"]', (element) => {
-        const emailElement = element.querySelector(
-          '[data-qa="resume-contact-email"]',
-        );
-        const phoneElement = element.querySelector(
-          '[data-qa="resume-contact-phone"]',
-        );
-        const telegramElement = element.querySelector('[data-qa*="telegram"]');
-        const linkedinElement = element.querySelector('[data-qa*="linkedin"]');
-        const githubElement = element.querySelector('[data-qa*="github"]');
-        const portfolioElement = element.querySelector(
-          '[data-qa*="portfolio"]',
-        );
-
-        return {
-          email: emailElement?.textContent?.trim(),
-          phone: phoneElement?.textContent?.trim(),
-          telegram: telegramElement?.textContent?.trim(),
-          linkedin: linkedinElement?.textContent?.trim(),
-          github: githubElement?.textContent?.trim(),
-          portfolio: portfolioElement?.textContent?.trim(),
-        };
+      .evaluate(() => {
+        // Ищем скрипт с данными резюме
+        const scripts = Array.from(document.querySelectorAll("script"));
+        for (const script of scripts) {
+          const content = script.textContent || "";
+          if (content.includes('"contacts"')) {
+            try {
+              // Пытаемся найти JSON с контактами
+              const match = content.match(
+                /resume["\s]*:[^{]*({[\s\S]*?})\s*[,}]/,
+              );
+              if (match && match[1]) {
+                const resumeData = JSON.parse(match[1]);
+                if (resumeData.contacts) {
+                  return resumeData.contacts;
+                }
+              }
+            } catch (_e) {
+              // Игнорируем ошибки парсинга
+            }
+          }
+        }
+        return null;
       })
-      .catch(() => ({}));
+      .catch(() => null);
 
     result.contacts = contactsData;
 
-    // Извлекаем Telegram username
-    if ("telegram" in contactsData && contactsData.telegram) {
-      const telegramUsername = await extractTelegramUsername(
-        contactsData.telegram,
-      );
-      if (telegramUsername) {
-        result.contacts = {
-          ...result.contacts,
-          telegram: telegramUsername,
-        };
+    // Извлекаем телефон из contacts
+    if (contactsData) {
+      result.phone = extractPhone(contactsData) || undefined;
+      result.email = extractEmail(contactsData) || undefined;
+
+      if (result.phone) {
+        console.log(`✅ Телефон извлечен: ${result.phone}`);
+      }
+      if (result.email) {
+        console.log(`✅ Email извлечен: ${result.email}`);
       }
     }
-
-    result.phone = "phone" in contactsData ? contactsData.phone : undefined;
 
     // Парсим дату рождения
     const birthDateString = await page

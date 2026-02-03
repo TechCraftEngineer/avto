@@ -34,10 +34,7 @@ export function ImportArchivedProgress({
   const lastMessage = data[data.length - 1];
 
   // Простое определение состояния
-  const isCompleted =
-    lastMessage?.topic === "result" ||
-    (lastMessage?.topic === "status" &&
-      lastMessage.data?.status === "completed");
+  const isCompleted = lastMessage?.topic === "result";
 
   const isError = error || lastMessage?.data?.error;
   const isSuccess = isCompleted && !isError;
@@ -50,7 +47,6 @@ export function ImportArchivedProgress({
 
   // Результаты
   const result = lastMessage?.topic === "result" ? lastMessage.data : null;
-  const status = lastMessage?.topic === "status" ? lastMessage.data : null;
 
   // Автозакрытие при завершении
   useEffect(() => {
@@ -67,14 +63,6 @@ export function ImportArchivedProgress({
     if (!lastMessage) return "Подключение...";
 
     if (progress?.message) return progress.message;
-
-    if (status?.status === "completed") {
-      const synced = status.syncedResponses || 0;
-      const newCount = status.newResponses || 0;
-      return synced > 0
-        ? `Синхронизировано: ${synced} откликов (новых: ${newCount})`
-        : "Новых откликов не найдено";
-    }
 
     if (result) {
       if (result.error) return result.error;

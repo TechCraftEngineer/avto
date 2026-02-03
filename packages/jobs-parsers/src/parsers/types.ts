@@ -47,6 +47,7 @@ export interface SaveResponseData {
   experience: string;
   contacts: unknown;
   phone: string | null;
+  email?: string | null;
   telegramUsername?: string | null;
   resumePdfFileId?: string | null;
   photoFileId?: string | null;

@@ -7,6 +7,7 @@ type EventType =
   | "TELEGRAM_USERNAME_ADDED"
   | "CHAT_ID_ADDED"
   | "PHONE_ADDED"
+  | "EMAIL_ADDED"
   | "RESUME_UPDATED"
   | "PHOTO_ADDED"
   | "WELCOME_SENT"

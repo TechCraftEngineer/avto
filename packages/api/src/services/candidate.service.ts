@@ -1,5 +1,6 @@
 import type { CandidateDataFromResponse } from "@qbs-autonaim/db";
 import type { ImportSource, Language, Response } from "@qbs-autonaim/db/schema";
+import { parseBirthDate } from "@qbs-autonaim/lib";
 
 /**
  * Сервис для работы с данными кандидатов
@@ -133,10 +134,8 @@ export class CandidateService {
         enriched.location = personalInfo.location;
       }
       if (personalInfo.birthDate && !enriched.birthDate) {
-        const parsedBirthDate = new Date(personalInfo.birthDate);
-        if (!Number.isNaN(parsedBirthDate.getTime())) {
-          enriched.birthDate = parsedBirthDate;
-        }
+        // Используем утилиту для безопасного парсинга даты в UTC
+        enriched.birthDate = parseBirthDate(personalInfo.birthDate);
       }
       if (personalInfo.gender && !enriched.gender) {
         enriched.gender = personalInfo.gender.toLowerCase() as

@@ -1,5 +1,6 @@
 "use client";
 
+import { formatDateForInput, parseDateFromInput } from "@qbs-autonaim/lib";
 import { Badge } from "@qbs-autonaim/ui/badge";
 import { Button } from "@qbs-autonaim/ui/button";
 import { Checkbox } from "@qbs-autonaim/ui/checkbox";
@@ -29,8 +30,6 @@ interface MetaMatchSectionProps {
   workspaceId: string;
   candidateData?: FunnelCandidateDetail;
 }
-
-const formatDateForInput = (value: Date) => value.toISOString().slice(0, 10);
 
 const interpretLabelStyle = (label: string) => {
   if (label === "высокий") {
@@ -160,12 +159,23 @@ export function MetaMatchSection({
       return;
     }
 
+    // Парсим дату в UTC для отправки на сервер
+    const parsedBirthDate = parseDateFromInput(birthDateInput);
+    if (!parsedBirthDate) {
+      toast.error("Некорректная дата рождения");
+      return;
+    }
+
     evaluate({
       workspaceId,
       candidateId,
-      birthDate: birthDateInput,
-      companyBirthDate: companyBirthDateInput || undefined,
-      managerBirthDate: managerBirthDateInput || undefined,
+      birthDate: parsedBirthDate.toISOString(),
+      companyBirthDate: companyBirthDateInput
+        ? parseDateFromInput(companyBirthDateInput)?.toISOString()
+        : undefined,
+      managerBirthDate: managerBirthDateInput
+        ? parseDateFromInput(managerBirthDateInput)?.toISOString()
+        : undefined,
       consentGranted,
     });
   };
@@ -210,7 +220,7 @@ export function MetaMatchSection({
       ctx.font = "16px Arial";
       ctx.fillText(`Кандидат: ${candidateData?.name || "Неизвестен"}`, 50, 80);
       ctx.fillText(
-        `Дата рождения: ${new Date(data?.birthDate || "").toLocaleDateString("ru-RU")}`,
+        `Дата рождения: ${data?.birthDate ? new Date(data.birthDate).toLocaleDateString("ru-RU", { timeZone: "UTC" }) : "Не указана"}`,
         50,
         100,
       );
@@ -648,4 +658,3 @@ export function MetaMatchSection({
     </section>
   );
 }
-

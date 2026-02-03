@@ -1,3 +1,5 @@
+import { createUTCDate } from "@qbs-autonaim/lib";
+
 /**
  * Парсит русскую дату в формат Date
  * Пример входных данных: "24 сентября 1987", "24 сентября 1987"
@@ -43,10 +45,10 @@ export function parseRussianBirthDate(dateString: string): Date | null {
       return null;
     }
 
-    const date = new Date(year, month, day);
+    // Используем утилиту для создания даты в UTC
+    const date = createUTCDate(year, month, day);
 
-    // Проверяем валидность даты
-    if (Number.isNaN(date.getTime())) {
+    if (!date) {
       console.warn(`Невалидная дата: ${dateString}`);
       return null;
     }

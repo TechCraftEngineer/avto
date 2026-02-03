@@ -183,6 +183,7 @@ export async function updateResponseDetails(
         experience: responseData.experience,
         contacts: responseData.contacts as Record<string, unknown> | null,
         phone: responseData.phone,
+        email: responseData.email,
         telegramUsername: responseData.telegramUsername,
         resumePdfFileId: responseData.resumePdfFileId,
         photoFileId: responseData.photoFileId,
@@ -206,6 +207,14 @@ export async function updateResponseDetails(
           responseId: current.id,
           eventType: "PHONE_ADDED",
           newValue: responseData.phone,
+        });
+      }
+      if (responseData.email && !current.email) {
+        await logResponseEvent({
+          db,
+          responseId: current.id,
+          eventType: "EMAIL_ADDED",
+          newValue: responseData.email,
         });
       }
       if (responseData.photoFileId && !current.photoFileId) {

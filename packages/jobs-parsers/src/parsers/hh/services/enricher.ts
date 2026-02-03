@@ -1,20 +1,12 @@
 import os from "node:os";
-import {
-  CandidateRepository,
-  getIntegrationCredentials,
-} from "@qbs-autonaim/db";
+import { getIntegrationCredentials } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
-import {
-  getResponsesWithoutDetails,
-  updateResponseDetails,
-  uploadResumePdf,
-} from "@qbs-autonaim/jobs/services/response";
+import { getResponsesWithoutDetails } from "@qbs-autonaim/jobs/services/response";
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import { setupPageWithAuth } from "../core/browser/browser-setup";
 import { closeBrowserSafely } from "../core/browser/browser-utils";
-import { HH_CONFIG } from "../core/config/config";
-import { parseResumeData } from "../parsers/resume/resume-parser";
+import { enrichResumeData } from "./resume-enrichment";
 
 puppeteer.use(StealthPlugin());
 
@@ -88,110 +80,20 @@ export async function enrichHHResponses(
           `🔍 Обогащение отклика ${i + 1}/${responsesToEnrich.length}: ${response.candidateName}`,
         );
 
-        // Navigate to resume page
-        await page.goto(response.resumeUrl, {
-          waitUntil: "domcontentloaded",
-          timeout: HH_CONFIG.timeouts.navigation,
-        });
-
-        await page.waitForNetworkIdle({
-          timeout: HH_CONFIG.timeouts.networkIdle,
-        });
-
-        // Parse resume experience
-        const experienceData = await parseResumeData(
+        const result = await enrichResumeData({
           page,
-          response.resumeUrl,
-          response.candidateName || "",
-        );
-
-        // Download and upload PDF if available
-        let resumePdfFileId: string | null = null;
-        if (experienceData.pdfBuffer) {
-          const uploadResult = await uploadResumePdf(
-            experienceData.pdfBuffer,
-            response.resumeId,
-          );
-          if (uploadResult.success) {
-            resumePdfFileId = uploadResult.data;
-          }
-        }
-
-        // Create or update global candidate if we have contact info
-        let globalCandidateId: string | null = response.globalCandidateId;
-
-        if (
-          !globalCandidateId &&
-          (experienceData.contacts?.email ||
-            experienceData.phone ||
-            experienceData.contacts?.telegram)
-        ) {
-          try {
-            // Get workspace to obtain organizationId
-            const vacancy = await db.query.vacancy.findFirst({
-              where: (v, { eq }) => eq(v.id, response.entityId),
-              with: {
-                workspace: {
-                  columns: { organizationId: true },
-                },
-              },
-            });
-
-            if (vacancy?.workspace?.organizationId) {
-              const candidateRepository = new CandidateRepository(db);
-
-              const { candidate, created } =
-                await candidateRepository.findOrCreateCandidate({
-                  organizationId: vacancy.workspace.organizationId,
-                  fullName: response.candidateName || "Без имени",
-                  email: experienceData.contacts?.email || null,
-                  phone: experienceData.phone || null,
-                  telegramUsername: experienceData.contacts?.telegram || null,
-                  resumeUrl: response.resumeUrl || null,
-                  source: "APPLICANT",
-                  originalSource: "HH",
-                });
-
-              globalCandidateId = candidate.id;
-
-              if (created) {
-                console.log(
-                  `✅ Создан глобальный кандидат при обогащении: ${candidate.id}`,
-                );
-              } else {
-                console.log(
-                  `ℹ️ Найден существующий глобальный кандидат: ${candidate.id}`,
-                );
-              }
-            }
-          } catch (error) {
-            console.error(`⚠️ Ошибка создания глобального кандидата:`, error);
-            // Продолжаем без кандидата
-          }
-        }
-
-        // Update response with enriched data
-        const updateResult = await updateResponseDetails({
-          vacancyId: response.entityId,
+          entityId: response.entityId,
           resumeId: response.resumeId,
           resumeUrl: response.resumeUrl,
           candidateName: response.candidateName || "",
-          experience: JSON.stringify(experienceData.experience),
-          contacts: experienceData.contacts,
-          phone: experienceData.phone ?? null,
-          resumePdfFileId,
-          globalCandidateId,
-          birthDate: experienceData.birthDate ?? null,
+          globalCandidateId: response.globalCandidateId,
         });
 
-        if (!updateResult.success) {
-          throw new Error(
-            `Failed to update response details: ${updateResult.error}`,
-          );
+        if (result.success) {
+          enriched++;
+        } else {
+          errors++;
         }
-
-        enriched++;
-        console.log(`✅ Отклик обогащен: ${response.candidateName}`);
       } catch (error) {
         errors++;
         console.error(

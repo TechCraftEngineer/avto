@@ -3,12 +3,6 @@ import { eq, getIntegrationCredentials } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { response } from "@qbs-autonaim/db/schema";
 import { inngest } from "@qbs-autonaim/jobs/client";
-import { extractTelegramUsername } from "@qbs-autonaim/jobs/services/messaging";
-import {
-  updateResponseDetails,
-  uploadCandidatePhoto,
-  uploadResumePdf,
-} from "@qbs-autonaim/jobs/services/response";
 import { Log } from "crawlee";
 import type { Page } from "puppeteer";
 import puppeteer from "puppeteer-extra";
@@ -24,7 +18,7 @@ import {
 } from "../../parsers/hh/core/browser/browser-setup";
 import { closeBrowserSafely } from "../../parsers/hh/core/browser/browser-utils";
 import { HH_CONFIG } from "../../parsers/hh/core/config/config";
-import { parseResumeData } from "../../parsers/hh/parsers/resume/resume-parser";
+import { enrichResumeData } from "../../parsers/hh/services/resume-enrichment";
 
 puppeteer.use(StealthPlugin());
 
@@ -136,73 +130,16 @@ export const refreshSingleResumeFunction = inngest.createFunction(
 
         console.log(`📊 Парсинг резюме: ${responseData.candidateName}`);
 
-        const experienceData = await parseResumeData(
+        const result = await enrichResumeData({
           page,
-          responseData.resumeUrl ?? "",
-          responseData.candidateName ?? undefined,
-        );
-
-        let telegramUsername: string | null = null;
-        if (experienceData.contacts) {
-          telegramUsername = await extractTelegramUsername(
-            experienceData.contacts,
-          );
-          if (telegramUsername) {
-            console.log(`✅ Найден Telegram username: @${telegramUsername}`);
-          }
-        }
-
-        let resumePdfFileId: string | null = null;
-        if (experienceData.pdfBuffer) {
-          const result = await uploadResumePdf(
-            experienceData.pdfBuffer,
-            responseData.resumeId ?? "",
-          );
-          if (result.success) {
-            resumePdfFileId = result.data;
-          }
-        }
-
-        let photoFileId: string | null = null;
-        if (experienceData.photoBuffer && experienceData.photoMimeType) {
-          console.log(
-            `📸 Загрузка фото кандидата в S3 (размер: ${experienceData.photoBuffer.length} байт, тип: ${experienceData.photoMimeType})`,
-          );
-          const uploadResult = await uploadCandidatePhoto(
-            experienceData.photoBuffer,
-            responseData.resumeId ?? "",
-            experienceData.photoMimeType,
-          );
-          if (uploadResult.success) {
-            photoFileId = uploadResult.data;
-            console.log(`✅ Фото загружено в S3, file ID: ${photoFileId}`);
-          } else {
-            console.log(`⚠️ Ошибка загрузки фото в S3: ${uploadResult.error}`);
-          }
-        } else {
-          console.log(
-            `⚠️ Фото не будет загружено: photoBuffer=${!!experienceData.photoBuffer}, photoMimeType=${!!experienceData.photoMimeType}`,
-          );
-        }
-
-        const updateResult = await updateResponseDetails({
-          vacancyId: responseData.entityId,
+          entityId: responseData.entityId,
           resumeId: responseData.resumeId ?? "",
           resumeUrl: responseData.resumeUrl ?? "",
           candidateName: responseData.candidateName ?? "",
-          experience: JSON.stringify(experienceData.experience || []),
-          contacts: experienceData.contacts,
-          phone: experienceData.phone ?? null,
-          telegramUsername,
-          resumePdfFileId,
-          photoFileId,
-          birthDate: experienceData.birthDate ?? null,
         });
 
-        if (!updateResult.success) {
-          throw new Error(
-            `Failed to update response details: ${updateResult.error}`,
-          );
+        if (!result.success) {
+          throw new Error(`Ошибка обогащения резюме: ${result.error}`);
         }
 
         console.log(
