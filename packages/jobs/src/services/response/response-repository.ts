@@ -187,6 +187,7 @@ export async function updateResponseDetails(
         resumePdfFileId: responseData.resumePdfFileId,
         photoFileId: responseData.photoFileId,
         globalCandidateId: responseData.globalCandidateId,
+        birthDate: responseData.birthDate,
       })
       .where(eq(response.resumeId, responseData.resumeId));
 

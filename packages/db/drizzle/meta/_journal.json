@@ -15,6 +15,13 @@
       "when": 1769937185543,
       "tag": "0001_ancient_solo",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1770111990147,
+      "tag": "0002_quick_namora",
+      "breakpoints": true
     }
   ]
 }

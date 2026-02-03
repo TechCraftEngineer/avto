@@ -2,6 +2,7 @@ import { extractTelegramUsername } from "@qbs-autonaim/jobs/services/messaging";
 import axios from "axios";
 import type { Page } from "puppeteer";
 import { HH_CONFIG } from "../../core/config/config";
+import { parseRussianBirthDate } from "./date-parser";
 
 interface ResumeExperienceItem {
   experience: string;
@@ -206,6 +207,7 @@ export async function parseResumeExperience(
     portfolio?: string;
   };
   phone?: string;
+  birthDate?: Date | null;
   pdfBuffer?: Buffer;
   photoBuffer?: Buffer;
   photoMimeType?: string;
@@ -214,6 +216,7 @@ export async function parseResumeExperience(
     experience: [] as ResumeExperienceItem[],
     contacts: {},
     phone: undefined as string | undefined,
+    birthDate: undefined as Date | null | undefined,
     pdfBuffer: undefined as Buffer | undefined,
     photoBuffer: undefined as Buffer | undefined,
     photoMimeType: undefined as string | undefined,
@@ -292,6 +295,23 @@ export async function parseResumeExperience(
     }
 
     result.phone = "phone" in contactsData ? contactsData.phone : undefined;
+
+    // Парсим дату рождения
+    const birthDateString = await page
+      .$eval('[data-qa="resume-personal-birthday"]', (element) => {
+        return element.textContent?.trim();
+      })
+      .catch(() => undefined);
+
+    if (birthDateString) {
+      const parsedDate = parseRussianBirthDate(birthDateString);
+      result.birthDate = parsedDate;
+      if (parsedDate) {
+        console.log(
+          `✅ Дата рождения распарсена: ${birthDateString} -> ${parsedDate.toISOString()}`,
+        );
+      }
+    }
 
     // Парсим опыт работы
     const experienceData = await page

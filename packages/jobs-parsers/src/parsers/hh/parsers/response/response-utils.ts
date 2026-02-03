@@ -105,6 +105,7 @@ export async function parseResponseDetails(
         experience: JSON.stringify(experienceData.experience),
         contacts: experienceData.contacts,
         phone: experienceData.phone ?? null,
+        birthDate: experienceData.birthDate ?? null,
       });
 
       console.log(`✅ Детали сохранены для: ${response.name}`);

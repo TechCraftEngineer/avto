@@ -208,6 +208,7 @@ export const refreshAllResumesFunction = inngest.createFunction(
               telegramUsername,
               resumePdfFileId,
               photoFileId,
+              birthDate: experienceData.birthDate ?? null,
             });
 
             console.log(

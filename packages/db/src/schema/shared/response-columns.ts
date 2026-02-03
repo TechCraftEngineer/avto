@@ -22,6 +22,7 @@ import {
 export const candidateIdentityColumns = {
   candidateName: varchar("candidate_name", { length: 500 }),
   profileUrl: text("profile_url"),
+  birthDate: timestamp("birth_date", { withTimezone: true, mode: "date" }),
 };
 
 /**

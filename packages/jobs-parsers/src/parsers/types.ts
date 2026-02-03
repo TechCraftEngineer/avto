@@ -51,6 +51,7 @@ export interface SaveResponseData {
   resumePdfFileId?: string | null;
   photoFileId?: string | null;
   globalCandidateId?: string | null;
+  birthDate?: Date | null;
 }
 
 export interface ProgressData {

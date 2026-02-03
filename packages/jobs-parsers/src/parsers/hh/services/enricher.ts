@@ -217,6 +217,7 @@ export async function enrichHHResponses(
           phone: experienceData.phone ?? null,
           resumePdfFileId,
           globalCandidateId,
+          birthDate: experienceData.birthDate ?? null,
         });
 
         if (!updateResult.success) {

@@ -196,6 +196,7 @@ export const refreshSingleResumeFunction = inngest.createFunction(
           telegramUsername,
           resumePdfFileId,
           photoFileId,
+          birthDate: experienceData.birthDate ?? null,
         });
 
         if (!updateResult.success) {
