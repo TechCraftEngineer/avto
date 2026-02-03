@@ -4,12 +4,12 @@ import {
   Card,
   CardContent,
   CardHeader,
-  cn,
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "@qbs-autonaim/ui";
+import { skipToken, useQuery } from "@tanstack/react-query";
 import {
   ContactsTab,
   DialogTab,
@@ -19,6 +19,7 @@ import {
   ProposalTab,
   ScreeningResultsCard,
 } from "~/components/shared/components/response-detail-tabs";
+import { useTRPC } from "~/trpc/react";
 import { ResumeCard } from "./resume-card";
 import { SalaryCard } from "./salary-card";
 import type { VacancyResponseTabsProps } from "./types";
@@ -32,6 +33,20 @@ export function VacancyResponseTabs({
   screening,
   conversation,
 }: VacancyResponseTabsProps) {
+  const trpc = useTRPC();
+
+  // Получаем presigned URL для PDF резюме
+  const { data: resumePdfData } = useQuery(
+    trpc.files.getFileUrl.queryOptions(
+      response.resumePdfFileId && response.workspaceId
+        ? {
+            workspaceId: response.workspaceId,
+            fileId: response.resumePdfFileId,
+          }
+        : skipToken,
+    ),
+  );
+
   return (
     <Card>
       <Tabs defaultValue={defaultTab} className="w-full">
@@ -150,7 +165,15 @@ export function VacancyResponseTabs({
 
           {/* Resume Tab */}
           <TabsContent value="resume" className="space-y-3 sm:space-y-4 mt-0">
-            <ResumeCard response={response} />
+            <ResumeCard
+              response={response}
+              resumePdfUrl={resumePdfData?.url}
+              onViewExternal={(url) => {
+                if (url) {
+                  window.open(url, "_blank", "noopener,noreferrer");
+                }
+              }}
+            />
           </TabsContent>
         </CardContent>
       </Tabs>

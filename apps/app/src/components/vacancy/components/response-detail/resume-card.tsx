@@ -20,13 +20,13 @@ import type { VacancyResponse } from "./types";
 
 interface ResumeCardProps {
   response: VacancyResponse;
-  onDownload?: () => void;
+  resumePdfUrl?: string | null;
   onViewExternal?: (url?: string) => void;
 }
 
 export function ResumeCard({
   response,
-  onDownload,
+  resumePdfUrl,
   onViewExternal,
 }: ResumeCardProps) {
   const hasResume = response.resumeId || response.resumeUrl;
@@ -75,15 +75,22 @@ export function ResumeCard({
                   Открыть
                 </Button>
               )}
-              {response.resumePdfFileId && onDownload && (
+              {resumePdfUrl && (
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={onDownload}
+                  asChild
                   className="bg-white hover:bg-gray-50"
                 >
-                  <Download className="h-4 w-4 mr-2" />
-                  Скачать PDF
+                  <a
+                    href={resumePdfUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    download
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Скачать PDF
+                  </a>
                 </Button>
               )}
             </div>

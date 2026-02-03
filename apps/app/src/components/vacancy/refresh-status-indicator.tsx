@@ -3,8 +3,10 @@
 import { useInngestSubscription } from "@inngest/realtime/hooks";
 import { cn } from "@qbs-autonaim/ui";
 import { Card } from "@qbs-autonaim/ui/card";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { fetchRefreshVacancyResponsesToken } from "~/actions/realtime";
+import { useTRPC } from "~/trpc/react";
 
 interface RefreshStatusIndicatorProps {
   vacancyId: string;
@@ -38,46 +40,81 @@ export function RefreshStatusIndicator({
   const [autoCloseTimer, setAutoCloseTimer] = useState<NodeJS.Timeout | null>(
     null,
   );
+  const [currentProgress, setCurrentProgress] = useState<ProgressData | null>(
+    null,
+  );
+  const [currentResult, setCurrentResult] = useState<ResultData | null>(null);
 
-  // Подписываемся на канал Realtime
-  const { data, error } = useInngestSubscription({
-    refreshToken: () => fetchRefreshVacancyResponsesToken(vacancyId),
-    enabled: true,
-  });
+  const trpc = useTRPC();
 
-  // Получаем последнее сообщение
-  const latestMessage = data[data.length - 1];
-  const progressData =
-    latestMessage?.topic === "progress"
-      ? (latestMessage.data as ProgressData)
-      : null;
-  const resultData =
-    latestMessage?.topic === "result"
-      ? (latestMessage.data as ResultData)
-      : null;
+  // Проверяем статус при монтировании - для пользователей, которые зашли после запуска задания
+  const { data: initialStatus } = useQuery(
+    trpc.vacancy.responses.getRefreshStatus.queryOptions({ vacancyId }),
+  );
 
-  // Показываем индикатор при получении данных
+  // Устанавливаем начальный статус если задание уже запущено
   useEffect(() => {
-    if (progressData || resultData) {
+    if (
+      initialStatus?.isRunning &&
+      initialStatus.status &&
+      initialStatus.message
+    ) {
+      setCurrentProgress({
+        vacancyId,
+        status: initialStatus.status,
+        message: initialStatus.message,
+      });
       setIsVisible(true);
     }
-  }, [progressData, resultData]);
+  }, [initialStatus, vacancyId]);
 
-  // Автоматически скрываем после завершения
+  // Подписываемся на канал Realtime - все пользователи получат обновления
+  const { data, error } = useInngestSubscription({
+    refreshToken: () => fetchRefreshVacancyResponsesToken(vacancyId),
+  });
+  // Обрабатываем все сообщения из канала
   useEffect(() => {
-    if (resultData) {
-      const timer = setTimeout(() => {
-        setIsVisible(false);
-      }, 10000);
-      setAutoCloseTimer(timer);
-    }
+    if (data.length === 0) return;
 
+    // Проходим по всем сообщениям и обновляем состояние
+    for (const message of data) {
+      if (message.topic === "progress") {
+        const progressData = message.data as ProgressData;
+        setCurrentProgress(progressData);
+        setCurrentResult(null); // Очищаем результат при новом прогрессе
+        setIsVisible(true);
+
+        // Очищаем таймер автозакрытия если он был
+        setAutoCloseTimer((prev) => {
+          if (prev) {
+            clearTimeout(prev);
+          }
+          return null;
+        });
+      } else if (message.topic === "result") {
+        const resultData = message.data as ResultData;
+        setCurrentResult(resultData);
+        setIsVisible(true);
+
+        // Запускаем таймер автозакрытия
+        const timer = setTimeout(() => {
+          setIsVisible(false);
+          setCurrentProgress(null);
+          setCurrentResult(null);
+        }, 10000);
+        setAutoCloseTimer(timer);
+      }
+    }
+  }, [data]);
+
+  // Очищаем таймер при размонтировании
+  useEffect(() => {
     return () => {
       if (autoCloseTimer) {
         clearTimeout(autoCloseTimer);
       }
     };
-  }, [resultData, autoCloseTimer]);
+  }, [autoCloseTimer]);
 
   if (!isVisible) {
     return null;
@@ -101,6 +138,16 @@ export function RefreshStatusIndicator({
   const getStatusIcon = (status?: ProgressStatus) => {
     switch (status) {
       case "started":
+        return (
+          <svg
+            className="w-4 h-4 animate-pulse"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+            aria-hidden="true"
+          >
+            <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" />
+          </svg>
+        );
       case "processing":
         return (
           <svg
@@ -160,7 +207,7 @@ export function RefreshStatusIndicator({
   };
 
   const currentStatus =
-    progressData?.status || (resultData ? "completed" : undefined);
+    currentProgress?.status || (currentResult ? "completed" : undefined);
 
   return (
     <Card
@@ -187,29 +234,31 @@ export function RefreshStatusIndicator({
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between gap-2 mb-1">
               <h4 className="text-sm font-semibold">
-                {progressData?.status === "started" && "Запуск обновления"}
-                {progressData?.status === "processing" && "Получение откликов"}
-                {progressData?.status === "completed" && "Обновление завершено"}
-                {progressData?.status === "error" && "Ошибка обновления"}
-                {resultData && "Обновление завершено"}
+                {currentProgress?.status === "started" && "Задание в очереди"}
+                {currentProgress?.status === "processing" &&
+                  "Получение откликов"}
+                {currentProgress?.status === "completed" &&
+                  "Обновление завершено"}
+                {currentProgress?.status === "error" && "Ошибка обновления"}
+                {currentResult && "Обновление завершено"}
               </h4>
-              {progressData?.currentPage && (
+              {currentProgress?.currentPage && (
                 <span className="text-xs text-muted-foreground shrink-0">
-                  Страница&nbsp;{progressData.currentPage}
+                  Страница&nbsp;{currentProgress.currentPage}
                 </span>
               )}
             </div>
 
-            {progressData && (
+            {currentProgress && (
               <>
                 <p className="text-xs text-muted-foreground mb-2">
-                  {progressData.message}
+                  {currentProgress.message}
                 </p>
 
-                {(progressData.totalSaved !== undefined ||
-                  progressData.totalSkipped !== undefined) && (
+                {(currentProgress.totalSaved !== undefined ||
+                  currentProgress.totalSkipped !== undefined) && (
                   <div className="flex gap-4 text-xs">
-                    {progressData.totalSaved !== undefined && (
+                    {currentProgress.totalSaved !== undefined && (
                       <div className="flex items-center gap-1">
                         <span
                           className="text-green-600 dark:text-green-400"
@@ -218,11 +267,11 @@ export function RefreshStatusIndicator({
                           ✓
                         </span>
                         <span className="text-muted-foreground">
-                          Сохранено: {progressData.totalSaved}
+                          Сохранено: {currentProgress.totalSaved}
                         </span>
                       </div>
                     )}
-                    {progressData.totalSkipped !== undefined && (
+                    {currentProgress.totalSkipped !== undefined && (
                       <div className="flex items-center gap-1">
                         <span
                           className="text-yellow-600 dark:text-yellow-400"
@@ -231,7 +280,7 @@ export function RefreshStatusIndicator({
                           ⊘
                         </span>
                         <span className="text-muted-foreground">
-                          Пропущено: {progressData.totalSkipped}
+                          Пропущено: {currentProgress.totalSkipped}
                         </span>
                       </div>
                     )}
@@ -240,21 +289,21 @@ export function RefreshStatusIndicator({
               </>
             )}
 
-            {resultData && (
+            {currentResult && (
               <div className="mt-3 pt-3 border-t">
-                {resultData.success ? (
+                {currentResult.success ? (
                   <div className="flex items-center gap-2 text-sm">
                     <span className="text-green-600 dark:text-green-400 font-medium">
                       Успешно!
                     </span>
                     <span className="text-muted-foreground">
-                      Новых: {resultData.newCount} • Всего:{" "}
-                      {resultData.totalResponses}
+                      Новых: {currentResult.newCount} • Всего:{" "}
+                      {currentResult.totalResponses}
                     </span>
                   </div>
                 ) : (
                   <div className="text-sm text-red-600 dark:text-red-400">
-                    {resultData.error || "Произошла ошибка"}
+                    {currentResult.error || "Произошла ошибка"}
                   </div>
                 )}
               </div>
@@ -271,6 +320,8 @@ export function RefreshStatusIndicator({
             type="button"
             onClick={() => {
               setIsVisible(false);
+              setCurrentProgress(null);
+              setCurrentResult(null);
               if (autoCloseTimer) {
                 clearTimeout(autoCloseTimer);
                 setAutoCloseTimer(null);

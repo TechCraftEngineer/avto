@@ -77,7 +77,7 @@ export function ResponseTable({
     handleSelectOne,
   } = useResponseTable();
 
-  const { data, isLoading, isFetching } = useQuery({
+  const { data, isLoading, isFetching, isFetched } = useQuery({
     ...trpc.vacancy.responses.list.queryOptions({
       workspaceId: workspace?.id ?? "",
       vacancyId,
@@ -182,8 +182,8 @@ export function ResponseTable({
 
   // Рендерим скелетон для строк таблицы при загрузке
   const renderTableContent = () => {
-    if (isLoading || (isFetching && !isLoading)) {
-      // Показываем скелетон во время загрузки
+    // Показываем скелетоны во время любой загрузки
+    if (isLoading || isFetching) {
       const skeletonRows = [];
       for (let i = 0; i < 5; i++) {
         skeletonRows.push(
@@ -236,16 +236,12 @@ export function ResponseTable({
       return skeletonRows;
     }
 
-    if (responses.length === 0) {
-      return (
-        <EmptyState
-          hasResponses={total > 0}
-          colSpan={14}
-          isLoading={isLoading}
-        />
-      );
+    // После загрузки: если нет откликов - показываем пустое состояние
+    if (responses.length === 0 && isFetched) {
+      return <EmptyState hasResponses={total > 0} colSpan={14} />;
     }
 
+    // Показываем отклики
     return responses.map((response: ResponseListItem) => (
       <ResponseRow
         key={response.id}

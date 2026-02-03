@@ -27,7 +27,7 @@ export const refreshVacancyResponsesFunction = inngest.createFunction(
       refreshVacancyResponsesChannel(vacancyId).progress({
         vacancyId,
         status: "started",
-        message: "Начинаем обновление откликов",
+        message: "Начинаем обработку откликов…",
       }),
     );
 

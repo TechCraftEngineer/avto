@@ -114,12 +114,14 @@ export async function triggerUpdateVacancies(workspaceId: string) {
 
 export async function triggerRefreshVacancyResponses(vacancyId: string) {
   try {
+    // Отправляем событие в Inngest для запуска задания
     await inngest.send({
       name: "vacancy/responses.refresh",
       data: {
         vacancyId: vacancyId,
       },
     });
+
     return { success: true as const };
   } catch (error) {
     console.error("Не удалось запустить обновление откликов вакансии:", error);

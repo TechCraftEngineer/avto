@@ -125,6 +125,7 @@ export const get = protectedProcedure
 
     return {
       ...response,
+      workspaceId: vacancy.workspaceId,
       resumePdfUrl,
       screening: screening
         ? ({

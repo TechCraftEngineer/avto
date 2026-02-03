@@ -60,6 +60,13 @@ export {
   saveQuestionAnswer,
   updateConversationMetadata,
 } from "./interview";
+// ==================== Job Status Tracker ====================
+export {
+  clearJobStatus,
+  getActiveJobs,
+  getJobStatus,
+  setJobStatus,
+} from "./job-status-tracker";
 // ==================== Media ====================
 export { transcribeAudio } from "./media";
 // ==================== Messaging ====================
