@@ -52,6 +52,7 @@ export async function updateResponseDetails(
         experience: responseData.experience,
         contacts: responseData.contacts as Record<string, unknown> | null,
         phone: responseData.phone,
+        email: responseData.email,
         telegramUsername: responseData.telegramUsername,
         resumePdfFileId: responseData.resumePdfFileId,
         photoFileId: responseData.photoFileId,
@@ -60,6 +61,17 @@ export async function updateResponseDetails(
       .where(eq(response.resumeId, responseData.resumeId));
 
     if (current) {
+      if (responseData.email && !current.email) {
+        await logResponseEvent({
+          db,
+          responseId: current.id,
+          eventType: "EMAIL_ADDED",
+          metadata: {
+            email: responseData.email,
+          },
+        });
+      }
+
       if (responseData.telegramUsername && !current.telegramUsername) {
         await logResponseEvent({
           db,

@@ -23,6 +23,7 @@
     "@qbs-autonaim/lib": "workspace:*",
     "@qbs-autonaim/server-utils": "workspace:*",
     "@qbs-autonaim/shared": "workspace:*",
+    "cheerio": "^1.2.0",
     "crawlee": "3.15.3",
     "puppeteer": "24.36.1",
     "puppeteer-extra": "3.3.6",

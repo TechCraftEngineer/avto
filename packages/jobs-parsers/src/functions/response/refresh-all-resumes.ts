@@ -4,7 +4,6 @@ import { db } from "@qbs-autonaim/db/client";
 import { response } from "@qbs-autonaim/db/schema";
 import { refreshAllResumesChannel } from "@qbs-autonaim/jobs/channels";
 import { inngest } from "@qbs-autonaim/jobs/client";
-import { extractTelegramUsername } from "@qbs-autonaim/jobs/services/messaging";
 import {
   updateResponseDetails,
   uploadCandidatePhoto,
@@ -188,18 +187,9 @@ export const refreshAllResumesFunction = inngest.createFunction(
               responseItem.candidateName ?? "",
             );
 
-            // Извлекаем Telegram username из contacts
-            let telegramUsername: string | null = null;
-            if (experienceData.contacts) {
-              telegramUsername = await extractTelegramUsername(
-                experienceData.contacts,
-              );
-              if (telegramUsername) {
-                console.log(
-                  `✅ Найден Telegram username: @${telegramUsername}`,
-                );
-              }
-            }
+            // Telegram username extraction is now handled by resume-enrichment service
+            // which uses the general LLM extractor
+            const telegramUsername: string | null = null;
 
             let resumePdfFileId: string | null = null;
             if (experienceData.pdfBuffer) {

@@ -1,6 +1,5 @@
 import { CandidateRepository } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
-import { extractTelegramUsername } from "@qbs-autonaim/jobs/services/messaging";
 import {
   updateResponseDetails,
   uploadCandidatePhoto,
@@ -36,17 +35,7 @@ export async function enrichResumeData(
   try {
     console.log(`🔍 Обогащение резюме: ${input.candidateName}`);
 
-    // Navigate to resume page
-    await input.page.goto(input.resumeUrl, {
-      waitUntil: "domcontentloaded",
-      timeout: HH_CONFIG.timeouts.navigation,
-    });
-
-    await input.page.waitForNetworkIdle({
-      timeout: HH_CONFIG.timeouts.networkIdle,
-    });
-
-    // Parse resume data
+    // Parse resume data (downloads text version internally)
     const resumeData = await parseResumeData(
       input.page,
       input.resumeUrl,
@@ -84,14 +73,25 @@ export async function enrichResumeData(
       }
     }
 
-    // Extract Telegram username
+    // Extract Telegram and WhatsApp from contacts
     let telegramUsername: string | null = null;
-    if (resumeData.contacts) {
-      telegramUsername = await extractTelegramUsername(resumeData.contacts);
-      if (telegramUsername) {
-        console.log(`✅ Найден Telegram username: @${telegramUsername}`);
+
+    if (resumeData.contacts?.preferred) {
+      for (const contact of resumeData.contacts.preferred) {
+        if (contact.type.id === "telegram" && contact.value) {
+          telegramUsername = contact.value;
+          console.log(`✅ Найден Telegram username: @${telegramUsername}`);
+        }
+        if (contact.type.id === "whatsapp" && contact.value) {
+          console.log(
+            `✅ Найден WhatsApp: ${contact.value} (сохранен в contacts)`,
+          );
+        }
       }
     }
+
+    // Telegram username is now extracted by the general LLM extractor
+    // No fallback needed as the main extraction is more reliable
 
     // Use extracted phone and email from parseResumeData
     const phone = resumeData.phone || null;
