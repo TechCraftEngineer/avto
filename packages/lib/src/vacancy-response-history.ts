@@ -14,7 +14,11 @@ type EventType =
   | "COMMENT_ADDED"
   | "SALARY_UPDATED"
   | "CONTACT_INFO_UPDATED"
-  | "CREATED";
+  | "CREATED"
+  | "SCREENING_COMPLETED"
+  | "INTERVIEW_STARTED"
+  | "INTERVIEW_COMPLETED"
+  | "CANDIDATE_LINKED";
 
 interface LogEventParams {
   db: typeof dbType;

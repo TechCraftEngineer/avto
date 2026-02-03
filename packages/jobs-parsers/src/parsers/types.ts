@@ -50,6 +50,7 @@ export interface SaveResponseData {
   telegramUsername?: string | null;
   resumePdfFileId?: string | null;
   photoFileId?: string | null;
+  globalCandidateId?: string | null;
 }
 
 export interface ProgressData {

@@ -92,6 +92,17 @@ export function ImportArchivedProgress({
     }
   }, [isCompleted, error]);
 
+  // Отдельный эффект для вызова onComplete, чтобы избежать циклов
+  useEffect(() => {
+    if (completedRef.current && isCompleted && resultData) {
+      // Небольшая задержка, чтобы пользователь увидел результат
+      const timer = setTimeout(() => {
+        // onComplete вызывается только один раз благодаря completedRef
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isCompleted, resultData]);
+
   const getStatusMessage = () => {
     if (error) return "Ошибка подключения к серверу";
     if (!progressData && !resultData) return "Подключение...";

@@ -31,6 +31,7 @@ export const responseEventTypeEnum = pgEnum("response_event_type", [
   "SCREENING_COMPLETED",
   "INTERVIEW_STARTED",
   "INTERVIEW_COMPLETED",
+  "CANDIDATE_LINKED",
 ]);
 
 /**
@@ -81,6 +82,7 @@ export const responseEventTypeValues = [
   "SCREENING_COMPLETED",
   "INTERVIEW_STARTED",
   "INTERVIEW_COMPLETED",
+  "CANDIDATE_LINKED",
 ] as const;
 
 export const CreateResponseHistorySchema = createInsertSchema(responseHistory, {

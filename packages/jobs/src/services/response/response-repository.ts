@@ -186,6 +186,7 @@ export async function updateResponseDetails(
         telegramUsername: responseData.telegramUsername,
         resumePdfFileId: responseData.resumePdfFileId,
         photoFileId: responseData.photoFileId,
+        globalCandidateId: responseData.globalCandidateId,
       })
       .where(eq(response.resumeId, responseData.resumeId));
 
@@ -226,6 +227,14 @@ export async function updateResponseDetails(
           responseId: current.id,
           eventType: "CONTACT_INFO_UPDATED",
           newValue: responseData.contacts,
+        });
+      }
+      if (responseData.globalCandidateId && !current.globalCandidateId) {
+        await logResponseEvent({
+          db,
+          responseId: current.id,
+          eventType: "CANDIDATE_LINKED",
+          newValue: responseData.globalCandidateId,
         });
       }
     }

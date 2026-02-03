@@ -1,5 +1,8 @@
 import os from "node:os";
-import { getIntegrationCredentials } from "@qbs-autonaim/db";
+import {
+  CandidateRepository,
+  getIntegrationCredentials,
+} from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import {
   getResponsesWithoutDetails,
@@ -150,6 +153,59 @@ export async function enrichHHResponses(
           }
         }
 
+        // Create or update global candidate if we have contact info
+        let globalCandidateId: string | null = response.globalCandidateId;
+
+        if (
+          !globalCandidateId &&
+          (experienceData.contacts?.email ||
+            experienceData.phone ||
+            experienceData.contacts?.telegram)
+        ) {
+          try {
+            // Get workspace to obtain organizationId
+            const vacancy = await db.query.vacancy.findFirst({
+              where: (v, { eq }) => eq(v.id, response.entityId),
+              with: {
+                workspace: {
+                  columns: { organizationId: true },
+                },
+              },
+            });
+
+            if (vacancy?.workspace?.organizationId) {
+              const candidateRepository = new CandidateRepository(db);
+
+              const { candidate, created } =
+                await candidateRepository.findOrCreateCandidate({
+                  organizationId: vacancy.workspace.organizationId,
+                  fullName: response.candidateName || "Без имени",
+                  email: experienceData.contacts?.email || null,
+                  phone: experienceData.phone || null,
+                  telegramUsername: experienceData.contacts?.telegram || null,
+                  resumeUrl: response.resumeUrl || null,
+                  source: "APPLICANT",
+                  originalSource: "HH",
+                });
+
+              globalCandidateId = candidate.id;
+
+              if (created) {
+                console.log(
+                  `✅ Создан глобальный кандидат при обогащении: ${candidate.id}`,
+                );
+              } else {
+                console.log(
+                  `ℹ️ Найден существующий глобальный кандидат: ${candidate.id}`,
+                );
+              }
+            }
+          } catch (error) {
+            console.error(`⚠️ Ошибка создания глобального кандидата:`, error);
+            // Продолжаем без кандидата
+          }
+        }
+
         // Update response with enriched data
         const updateResult = await updateResponseDetails({
           vacancyId: response.entityId,
@@ -160,6 +216,7 @@ export async function enrichHHResponses(
           contacts: experienceData.contacts,
           phone: experienceData.phone ?? null,
           resumePdfFileId,
+          globalCandidateId,
         });
 
         if (!updateResult.success) {
@@ -177,9 +234,6 @@ export async function enrichHHResponses(
           error,
         );
       }
-
-      // Small delay between processing responses
-      await new Promise((resolve) => setTimeout(resolve, 2000));
     }
 
     console.log(
