@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 import { RecruiterAgentChat } from "~/components";
 import { ResponseTable } from "~/components/vacancy/components";
+import { RefreshStatusIndicator } from "~/components/vacancy/refresh-status-indicator";
 
 export default function VacancyResponsesPage() {
   const { slug: workspaceSlug, id } = useParams<{
@@ -25,6 +26,9 @@ export default function VacancyResponsesPage() {
           </p>
         </div>
       </div>
+
+      {/* Индикатор статуса обновления откликов */}
+      <RefreshStatusIndicator vacancyId={id} />
 
       <Card className="border-none shadow-xl bg-card/60 backdrop-blur-xl overflow-hidden relative group">
         <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-transparent opacity-50 group-hover:opacity-100 transition-opacity pointer-events-none" />
@@ -105,4 +109,3 @@ export default function VacancyResponsesPage() {
     </div>
   );
 }
-

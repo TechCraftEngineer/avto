@@ -16,6 +16,7 @@ import {
   updateFull,
 } from "./crud";
 import { getInterviewLink } from "./interview";
+import { refreshStatus } from "./refresh-status";
 import { responsesRouter } from "./responses";
 import { createFromChat } from "./special";
 
@@ -24,6 +25,7 @@ export const vacancyRouter = {
   listActive,
   get,
   getInterviewLink,
+  refreshStatus,
   create,
   createFromChat,
   analytics,

@@ -57,11 +57,12 @@ export function ImportArchivedProgress({
   const resultData =
     latestMessage?.topic === "result" ? latestMessage.data : null;
 
-  const rawVacancyProgress: VacancyProgressItem[] =
-    progressData?.vacancies || [];
-
   const vacancyProgress = useMemo(() => {
+    const rawVacancyProgress: VacancyProgressItem[] =
+      progressData?.vacancies || [];
+
     if (!rawVacancyProgress.length) return [];
+
     const sorted = [...rawVacancyProgress];
     sorted.sort((a, b) => {
       if (a.archivedAt && b.archivedAt) {
@@ -74,7 +75,7 @@ export function ImportArchivedProgress({
       return 0;
     });
     return sorted;
-  }, [rawVacancyProgress]);
+  }, [progressData?.vacancies]);
 
   const currentVacancy = progressData?.currentVacancy;
   const progressTotal = progressData?.total;
