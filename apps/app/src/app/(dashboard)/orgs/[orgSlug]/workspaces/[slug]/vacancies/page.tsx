@@ -13,7 +13,7 @@ import {
   VacancyInsights,
   VacancyStats,
   VacancyTable,
-} from "~/components/vacancies";
+} from "~/components/vacancies/components";
 import { useVacanciesStats } from "~/hooks/use-vacancies-stats";
 import { useVacancyFilters } from "~/hooks/use-vacancy-filters";
 import { useWorkspace } from "~/hooks/use-workspace";

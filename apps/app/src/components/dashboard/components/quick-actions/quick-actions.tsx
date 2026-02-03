@@ -6,7 +6,7 @@ import { Card, CardContent } from "@qbs-autonaim/ui/card";
 import { Briefcase, MessageSquare, Plus, Users } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { UniversalChatPanel } from "~/components/chat";
+import { UniversalChatPanel } from "~/components/chat/components";
 import { useWorkspace } from "~/hooks/use-workspace";
 
 interface QuickActionsProps {

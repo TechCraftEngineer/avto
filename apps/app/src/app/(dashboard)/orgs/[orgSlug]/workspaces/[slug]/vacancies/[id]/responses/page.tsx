@@ -4,7 +4,7 @@ import { Card } from "@qbs-autonaim/ui/card";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { RecruiterAgentChat } from "~/components";
-import { ResponseTable } from "~/components/vacancy";
+import { ResponseTable } from "~/components/vacancy/components";
 
 export default function VacancyResponsesPage() {
   const { slug: workspaceSlug, id } = useParams<{

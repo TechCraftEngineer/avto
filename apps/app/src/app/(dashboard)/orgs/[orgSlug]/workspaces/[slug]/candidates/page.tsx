@@ -1,5 +1,5 @@
-import { CandidatePipeline } from "~/components/candidates";
-import { PageHeader } from "~/components/layout";
+import { CandidatePipeline } from "~/components/candidates/components";
+import { PageHeader } from "~/components/layout/components";
 
 export default function CandidatesPage() {
   return (

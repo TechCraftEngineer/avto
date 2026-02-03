@@ -109,7 +109,6 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
             workspaceId,
             vacancyId,
             externalId: publication.externalId,
-            url: publication.url,
           });
 
         // Обновляем lastSyncedAt для публикации

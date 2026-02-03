@@ -5,7 +5,7 @@ import { Card } from "@qbs-autonaim/ui/card";
 import { IconArrowLeft } from "@tabler/icons-react";
 import Link from "next/link";
 import { PageHeader } from "~/components/layout";
-import { ImportSection } from "~/components/vacancies";
+import { VacancyImportSection as ImportSection } from "~/components/vacancies/components";
 import { useWorkspaceParams } from "~/hooks/use-workspace-params";
 
 export default function ImportVacancyPage() {

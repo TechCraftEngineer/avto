@@ -7,7 +7,7 @@ import { getSession } from "~/auth/server";
 
 const organizationRepository = new OrganizationRepository(db);
 
-import { OrganizationMembersClient } from "~/components/organization";
+import { OrganizationMembersClient } from "~/components/organization/components";
 
 export default async function OrganizationMembersPage({
   params,

@@ -1,7 +1,7 @@
 import { SidebarInset } from "@qbs-autonaim/ui/sidebar";
 import type { ReactNode } from "react";
 import { getSession } from "~/auth/server";
-import { OrganizationSettingsAppSidebar } from "~/components/organization";
+import { OrganizationSettingsAppSidebar } from "~/components/organization/components";
 
 export default async function OrganizationSettingsLayout({
   children,

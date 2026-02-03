@@ -1,4 +1,3 @@
-// Re-export from layout
 export {
   NavCollapsible,
   type NavSection,

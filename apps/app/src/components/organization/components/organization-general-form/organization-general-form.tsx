@@ -30,7 +30,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { DeleteOrganizationDialog } from "~/components/organization";
+import { DeleteOrganizationDialog } from "~/components/organization/components";
 import { useTRPC } from "~/trpc/react";
 
 type OrganizationFormValues = UpdateOrganizationInput;

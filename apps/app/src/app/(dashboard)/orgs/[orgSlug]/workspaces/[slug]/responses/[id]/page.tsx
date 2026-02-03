@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { use } from "react";
-import { ResponseDetailCard } from "~/components/vacancy";
+import { ResponseDetailCard } from "~/components/vacancy/components";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 import { useTRPC } from "~/trpc/react";
 

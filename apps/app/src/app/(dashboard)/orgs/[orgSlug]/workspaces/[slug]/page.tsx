@@ -7,7 +7,7 @@ import {
   PendingActions,
   QuickActions,
   RecentResponses,
-} from "~/components/dashboard";
+} from "~/components/dashboard/components";
 
 export default function WorkspacePage({
   params,

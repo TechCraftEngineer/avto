@@ -189,6 +189,6 @@ export { SafeHtml } from "./ui/components/safe-html";
 export { SaveIndicator } from "./ui/components/save-indicator";
 
 // Vacancy Components
-export { ResponseActions, ResponseTable } from "./vacancy";
+export { ResponseActions, ResponseTable } from "./vacancy/components";
 export { DetailCard as ResponseDetailCard } from "./vacancy/components/response-detail";
-export type { ScreeningFilter } from "./vacancy";
+export type { ScreeningFilter } from "./vacancy/components/responses";

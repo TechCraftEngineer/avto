@@ -6,7 +6,7 @@ import { AlertTriangle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { DeleteOrganizationDialog } from "~/components/organization";
+import { DeleteOrganizationDialog } from "~/components/organization/components";
 import { useTRPC } from "~/trpc/react";
 
 interface DangerZoneSectionProps {

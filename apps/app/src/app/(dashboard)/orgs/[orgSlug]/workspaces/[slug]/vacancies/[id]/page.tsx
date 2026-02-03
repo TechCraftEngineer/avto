@@ -5,7 +5,7 @@ import { IconUpload } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { VacancyRequirements } from "~/components/vacancy";
+import { VacancyRequirements } from "~/components/vacancy/components";
 import {
   AIInterviewCard,
   ResponseStatsCard,

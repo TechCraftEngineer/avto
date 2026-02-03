@@ -5,7 +5,7 @@ import { db } from "@qbs-autonaim/db/client";
 import { redirect } from "next/navigation";
 import { getSession } from "~/auth/server";
 import { PageHeader } from "~/components/layout";
-import { OrganizationGeneralForm } from "~/components/organization";
+import { OrganizationGeneralForm } from "~/components/organization/components";
 
 const organizationRepository = new OrganizationRepository(db);
 

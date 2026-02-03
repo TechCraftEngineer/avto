@@ -18,7 +18,7 @@ import {
   ChatLoading,
   ChatMessages,
   ChatSidebar,
-} from "~/components/chat";
+} from "~/components/chat/components";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 import { useWorkspaceParams } from "~/hooks/use-workspace-params";
 import { useTRPC } from "~/trpc/react";

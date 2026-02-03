@@ -1,4 +1,4 @@
-import { FunnelAnalytics } from "~/components/funnel";
+import { FunnelAnalytics } from "~/components/funnel/components";
 import { PageHeader } from "~/components/layout";
 
 export default function FunnelPage() {

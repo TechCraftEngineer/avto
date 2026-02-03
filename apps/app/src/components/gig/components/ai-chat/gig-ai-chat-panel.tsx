@@ -1,6 +1,6 @@
 "use client";
 
-import { UniversalChatPanel } from "~/components/chat";
+import { UniversalChatPanel } from "~/components/chat/components";
 
 interface GigAIChatPanelProps {
   gigId: string;

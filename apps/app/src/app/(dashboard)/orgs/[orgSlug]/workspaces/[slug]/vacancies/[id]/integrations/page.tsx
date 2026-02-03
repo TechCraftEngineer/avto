@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { PageHeader } from "~/components/layout";
-import { VacancyIntegrationManager } from "~/components/vacancy";
+import { VacancyIntegrationManager } from "~/components/vacancy/components";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 
 export default function VacancyIntegrationsPage() {

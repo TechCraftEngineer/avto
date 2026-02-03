@@ -125,11 +125,6 @@ const vacancyIndexPath = path.join(vacancyPath, "index.ts");
 if (fs.existsSync(vacancyIndexPath)) {
   let content = fs.readFileSync(vacancyIndexPath, "utf8");
 
-  // Добавляем новый компонент import-section
-  if (!content.includes("ImportSection")) {
-    content += "export { ImportSection } from './components/import-section';\n";
-  }
-
   // Добавляем новый компонент response-detail-old
   if (!content.includes("ResponseDetailOld")) {
     content +=

@@ -14,7 +14,7 @@ import {
   VacancyAnalytics,
   VacancyRequirements,
   VacancyStats,
-} from "~/components/vacancy";
+} from "~/components/vacancy/components";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 import { useTRPC } from "~/trpc/react";
 

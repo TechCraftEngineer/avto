@@ -3,7 +3,7 @@
 import type { UpdateFullVacancyInput } from "@qbs-autonaim/validators";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { use } from "react";
-import { VacancyFullEditForm } from "~/components/vacancy";
+import { VacancyFullEditForm } from "~/components/vacancy/components";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 import { useTRPC } from "~/trpc/react";
 

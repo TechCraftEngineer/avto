@@ -1,6 +1,6 @@
 "use client";
 
-import { ParsedProfileCard } from "~/components/shared";
+import { ParsedProfileCard } from "~/components/shared/components/response-detail-cards";
 import { GigResponseHeaderCard } from "./header-card";
 import { useGigResponseFlags } from "./hooks/use-gig-response-flags";
 import { GigResponseTabs } from "./tabs";

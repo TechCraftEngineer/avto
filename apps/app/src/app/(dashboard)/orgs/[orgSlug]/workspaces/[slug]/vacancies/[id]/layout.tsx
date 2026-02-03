@@ -1,4 +1,4 @@
-import { VacancyLayoutClient } from "~/components/vacancy";
+import { VacancyLayoutClient } from "~/components/vacancy/components";
 
 interface VacancyLayoutProps {
   children: React.ReactNode;

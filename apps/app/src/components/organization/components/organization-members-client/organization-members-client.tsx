@@ -25,7 +25,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { PageHeader } from "~/components/layout";
-import { InviteMemberDialog } from "~/components/organization";
+import { InviteMemberDialog } from "~/components/organization/components";
 import { getAvatarUrl } from "~/lib/avatar";
 import { useTRPC } from "~/trpc/react";
 
