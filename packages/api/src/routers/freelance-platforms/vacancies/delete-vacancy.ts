@@ -1,5 +1,5 @@
-import { eq } from "@qbs-autonaim/db";
-import { vacancy } from "@qbs-autonaim/db/schema";
+import { and, eq } from "@qbs-autonaim/db";
+import { response, vacancy } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../../trpc";
@@ -59,7 +59,17 @@ export const deleteVacancy = protectedProcedure
         userAgent: ctx.userAgent,
       });
 
-      // Удаляем вакансию (каскадное удаление удалит и отклики)
+      // Удаляем отклики вакансии (полиморфная связь не поддерживает CASCADE)
+      await ctx.db
+        .delete(response)
+        .where(
+          and(
+            eq(response.entityType, "vacancy"),
+            eq(response.entityId, input.vacancyId),
+          ),
+        );
+
+      // Удаляем вакансию
       await ctx.db.delete(vacancy).where(eq(vacancy.id, input.vacancyId));
 
       return {

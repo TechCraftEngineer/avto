@@ -91,15 +91,28 @@ export const deleteVacancy = protectedProcedure
       }
     }
 
-    // Полное удаление вакансии (каскадное удаление удалит и отклики)
-    await ctx.db
-      .delete(vacancy)
-      .where(
-        and(
-          eq(vacancy.id, input.vacancyId),
-          eq(vacancy.workspaceId, input.workspaceId),
-        ),
-      );
+    // Полное удаление вакансии
+    await ctx.db.transaction(async (tx) => {
+      // Удаляем отклики вакансии (полиморфная связь не поддерживает CASCADE)
+      await tx
+        .delete(responseTable)
+        .where(
+          and(
+            eq(responseTable.entityType, "vacancy"),
+            eq(responseTable.entityId, input.vacancyId),
+          ),
+        );
+
+      // Удаляем вакансию
+      await tx
+        .delete(vacancy)
+        .where(
+          and(
+            eq(vacancy.id, input.vacancyId),
+            eq(vacancy.workspaceId, input.workspaceId),
+          ),
+        );
+    });
 
     return {
       success: true,

@@ -13,6 +13,8 @@ export default function VacancyResponsesPage() {
     id: string;
   }>();
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [showRefreshConfirmation, setShowRefreshConfirmation] = useState(false);
+  const [handleRefresh, setHandleRefresh] = useState<(() => void) | null>(null);
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -28,12 +30,22 @@ export default function VacancyResponsesPage() {
       </div>
 
       {/* Индикатор статуса обновления откликов */}
-      <RefreshStatusIndicator vacancyId={id} />
+      <RefreshStatusIndicator
+        vacancyId={id}
+        showConfirmation={showRefreshConfirmation}
+        onConfirmationClose={() => setShowRefreshConfirmation(false)}
+        onConfirm={handleRefresh || undefined}
+      />
 
       <Card className="border-none shadow-xl bg-card/60 backdrop-blur-xl overflow-hidden relative group">
         <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-transparent opacity-50 group-hover:opacity-100 transition-opacity pointer-events-none" />
         <div className="p-1 sm:p-6 relative">
-          <ResponseTable vacancyId={id} workspaceSlug={workspaceSlug} />
+          <ResponseTable
+            vacancyId={id}
+            workspaceSlug={workspaceSlug}
+            onRefreshDialogOpen={() => setShowRefreshConfirmation(true)}
+            onSetRefreshHandler={(handler) => setHandleRefresh(() => handler)}
+          />
         </div>
       </Card>
 

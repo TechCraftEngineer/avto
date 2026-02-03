@@ -25,6 +25,8 @@ interface ResponseTableProps {
   vacancyId: string;
   workspaceSlug: string;
   accessToken?: string;
+  onRefreshDialogOpen?: () => void;
+  onSetRefreshHandler?: (handler: () => void) => void;
 }
 
 const ITEMS_PER_PAGE = 25;
@@ -55,6 +57,8 @@ export function ResponseTable({
   vacancyId,
   workspaceSlug,
   accessToken,
+  onRefreshDialogOpen,
+  onSetRefreshHandler,
 }: ResponseTableProps) {
   const trpc = useTRPC();
   const { workspace, orgSlug } = useWorkspace();
@@ -127,6 +131,13 @@ export function ResponseTable({
     statusFilter,
     debouncedSearch,
   ]);
+
+  // Передаем обработчик обновления в родительский компонент
+  useEffect(() => {
+    if (onSetRefreshHandler) {
+      onSetRefreshHandler(handleRefreshResponses);
+    }
+  }, [onSetRefreshHandler, handleRefreshResponses]);
 
   const responses = data?.responses ?? [];
   const total = data?.total ?? 0;
@@ -242,6 +253,7 @@ export function ResponseTable({
         onScreenAll={handleScreenAll}
         onSyncArchived={handleSyncArchived}
         onScreeningDialogClose={handleScreeningDialogClose}
+        onRefreshDialogOpen={onRefreshDialogOpen}
       />
 
       <div className="rounded-md border bg-transparent">

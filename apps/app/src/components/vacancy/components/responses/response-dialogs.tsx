@@ -1,14 +1,11 @@
-import { RefreshDialog } from "./refresh-dialog";
+import { RefreshStatusIndicator } from "../../refresh-status-indicator";
 import { ScreeningDialog } from "./screening-dialog";
-import { SyncArchivedDialog } from "./sync-archived-dialog";
 import type { RefreshAllResumesState } from "./use-refresh-all-resumes-state";
-import type { RefreshState } from "./use-refresh-state";
 import type { ScreeningState } from "./use-screening-state";
 import type { SyncArchivedState } from "./use-sync-archived-state";
 
 interface ResponseDialogsProps {
   totalResponses: number;
-  refreshState: RefreshState;
   screenNewState: ScreeningState;
   screenAllState: ScreeningState;
   syncArchivedState: SyncArchivedState;
@@ -35,7 +32,6 @@ function getPluralForm(
 
 export function ResponseDialogs({
   totalResponses,
-  refreshState,
   screenNewState,
   screenAllState,
   syncArchivedState,
@@ -43,13 +39,6 @@ export function ResponseDialogs({
 }: ResponseDialogsProps) {
   return (
     <>
-      <RefreshDialog
-        vacancyId={refreshState.vacancyId}
-        isOpen={refreshState.dialogOpen}
-        onClose={refreshState.handleDialogClose}
-        onConfirm={refreshState.handleRefreshClick}
-      />
-
       <ScreeningDialog
         open={screenNewState.dialogOpen}
         title="Оценка новых откликов"
@@ -89,10 +78,11 @@ export function ResponseDialogs({
         onClose={screenAllState.handleDialogClose}
       />
 
-      <SyncArchivedDialog
+      <RefreshStatusIndicator
         vacancyId={syncArchivedState.vacancyId}
-        isOpen={syncArchivedState.dialogOpen}
-        onClose={syncArchivedState.handleDialogClose}
+        mode="archived"
+        showConfirmation={syncArchivedState.dialogOpen}
+        onConfirmationClose={syncArchivedState.handleDialogClose}
         onConfirm={syncArchivedState.handleClick}
       />
 

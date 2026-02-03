@@ -15,7 +15,6 @@ export { ResponseTableHeader } from "./response-table-header";
 export { ResponseTableToolbar } from "./response-table-toolbar";
 export { ResponsesAnalyticsPanel } from "./responses-analytics-panel";
 export { ScreeningDialog } from "./screening-dialog";
-export { SyncArchivedDialog } from "./sync-archived-dialog";
 export type { ScreeningFilter } from "./types";
 export { useRefreshAllResumesState } from "./use-refresh-all-resumes-state";
 export { useRefreshAllResumesSubscription } from "./use-refresh-all-resumes-subscription";

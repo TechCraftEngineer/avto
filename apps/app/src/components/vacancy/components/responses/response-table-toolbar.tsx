@@ -28,6 +28,7 @@ interface ResponseTableToolbarProps {
   onScreenAll: () => void;
   onSyncArchived: (workspaceId: string) => void;
   onScreeningDialogClose: () => void;
+  onRefreshDialogOpen?: () => void;
 }
 
 export function ResponseTableToolbar({
@@ -50,6 +51,7 @@ export function ResponseTableToolbar({
   onScreenAll,
   onSyncArchived,
   onScreeningDialogClose,
+  onRefreshDialogOpen,
 }: ResponseTableToolbarProps) {
   // Custom hooks for different operation states
   const refreshState = useRefreshState(vacancyId, onRefresh, onRefreshComplete);
@@ -92,7 +94,9 @@ export function ResponseTableToolbar({
           isRefreshing={isRefreshing}
           isProcessingNew={isProcessingNew}
           isSyncingArchived={isSyncingArchived}
-          onRefreshDialogOpen={() => refreshState.setDialogOpen(true)}
+          onRefreshDialogOpen={
+            onRefreshDialogOpen || (() => refreshState.setDialogOpen(true))
+          }
           onSyncArchivedDialogOpen={() => syncArchivedState.setDialogOpen(true)}
           onScreenNewDialogOpen={() => screenNewState.setDialogOpen(true)}
         />
@@ -100,7 +104,6 @@ export function ResponseTableToolbar({
 
       <ResponseDialogs
         totalResponses={totalResponses}
-        refreshState={refreshState}
         screenNewState={screenNewState}
         screenAllState={screenAllState}
         syncArchivedState={syncArchivedState}
