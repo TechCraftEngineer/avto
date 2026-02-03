@@ -14,6 +14,8 @@ export * from "./config";
 export * from "./core";
 // Interview
 export * from "./interview";
+// Numerology
+export * from "./numerology";
 // Priority
 export * from "./priority";
 // Ranking

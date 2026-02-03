@@ -5,6 +5,12 @@
  * Серверные сервисы с БД импортируйте из @qbs-autonaim/shared/server
  */
 
+// Константы для психометрического анализа
+export {
+  formatPsychotype,
+  getCompatibilityLevel,
+  PSYCHOMETRIC_LABELS,
+} from "./constants/psychometric-labels";
 // Схемы (безопасно для клиента)
 export {
   type CreateDraftInput,
@@ -18,7 +24,6 @@ export {
   type VacancyData,
   VacancyDataSchema,
 } from "./schemas/draft";
-
 // Типы
 export type {
   BufferedMessage,
@@ -27,7 +32,6 @@ export type {
   MessageBufferService,
   QuestionAnswer,
 } from "./types";
-
 // Утилиты
 export {
   getInitials,
@@ -36,7 +40,6 @@ export {
   parsePlatformLink,
   pluralize,
 } from "./utils";
-
 // Утилиты для работы с опытом
 export {
   formatExperienceText,

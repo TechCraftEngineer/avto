@@ -47,6 +47,23 @@ export const responseScreening = pgTable(
     careerTrajectoryAnalysis: text("career_trajectory_analysis"),
     hiddenFitAnalysis: text("hidden_fit_analysis"),
 
+    // Психометрический анализ личности (на основе даты рождения)
+    psychometricScore: integer("psychometric_score"), // 0-100 - оценка совместимости личностных характеристик
+    psychometricAnalysis: jsonb("psychometric_analysis").$type<{
+      lifePathNumber: number; // Базовый психотип личности
+      destinyNumber?: number | null; // Профессиональная направленность
+      soulUrgeNumber?: number | null; // Внутренняя мотивация
+      compatibilityScore: number; // Общая оценка совместимости
+      roleCompatibility: { score: number; analysis: string }; // Соответствие роли
+      companyCompatibility: { score: number; analysis: string }; // Соответствие культуре компании
+      teamCompatibility: { score: number; analysis: string }; // Совместимость с командой
+      strengths: string[]; // Сильные стороны личности
+      challenges: string[]; // Потенциальные сложности
+      recommendations: string[]; // Рекомендации по адаптации
+      summary: string; // Общий психологический профиль
+      favorablePeriods?: Array<{ period: string; description: string }>; // Оптимальные периоды для начала работы
+    }>(),
+
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -66,6 +83,9 @@ export const responseScreening = pgTable(
     index("response_screening_career_trajectory_type_idx").on(
       table.careerTrajectoryType,
     ),
+    index("response_screening_psychometric_score_idx").on(
+      table.psychometricScore,
+    ),
     check(
       "response_screening_score_check",
       sql`${table.score} BETWEEN 0 AND 5`,
@@ -81,6 +101,10 @@ export const responseScreening = pgTable(
     check(
       "response_screening_career_trajectory_score_check",
       sql`${table.careerTrajectoryScore} IS NULL OR ${table.careerTrajectoryScore} BETWEEN 0 AND 100`,
+    ),
+    check(
+      "response_screening_psychometric_score_check",
+      sql`${table.psychometricScore} IS NULL OR ${table.psychometricScore} BETWEEN 0 AND 100`,
     ),
   ],
 );
@@ -105,6 +129,39 @@ export const CreateResponseScreeningSchema = createInsertSchema(
     potentialAnalysis: z.string().optional(),
     careerTrajectoryAnalysis: z.string().optional(),
     hiddenFitAnalysis: z.string().optional(),
+    psychometricScore: z.number().int().min(0).max(100).optional(),
+    psychometricAnalysis: z
+      .object({
+        lifePathNumber: z.number(),
+        destinyNumber: z.number().optional(),
+        soulUrgeNumber: z.number().optional(),
+        compatibilityScore: z.number(),
+        roleCompatibility: z.object({
+          score: z.number(),
+          analysis: z.string(),
+        }),
+        companyCompatibility: z.object({
+          score: z.number(),
+          analysis: z.string(),
+        }),
+        teamCompatibility: z.object({
+          score: z.number(),
+          analysis: z.string(),
+        }),
+        strengths: z.array(z.string()),
+        challenges: z.array(z.string()),
+        recommendations: z.array(z.string()),
+        summary: z.string(),
+        favorablePeriods: z
+          .array(
+            z.object({
+              period: z.string(),
+              description: z.string(),
+            }),
+          )
+          .optional(),
+      })
+      .optional(),
   },
 ).omit({
   id: true,
