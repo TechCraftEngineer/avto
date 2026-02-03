@@ -5,6 +5,7 @@
  * Серверные сервисы с БД импортируйте из @qbs-autonaim/shared/server
  */
 
+export { sanitizeHtmlFunction } from "./client";
 // Экспорт схем (безопасно для клиента)
 export * from "./schemas";
 export type { InterviewLink } from "./server/interview-link-generator";

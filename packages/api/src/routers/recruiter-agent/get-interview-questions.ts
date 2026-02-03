@@ -67,6 +67,7 @@ export const getInterviewQuestions = protectedProcedure
         candidateName: true,
         coverLetter: true,
         resumeUrl: true,
+        profileData: true,
       },
     });
 
@@ -144,7 +145,7 @@ export const getInterviewQuestions = protectedProcedure
       vacancyId,
       candidateData: {
         resume: response.resumeUrl || null,
-        experience: null, // TODO: извлекать из profileData если нужно
+        experience: formatExperienceText(response.profileData) || null,
         coverLetter: response.coverLetter || null,
         riskFactors,
         screening: screening

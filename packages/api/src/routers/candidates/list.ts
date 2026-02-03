@@ -9,6 +9,7 @@ import {
   response as responseTable,
   vacancy,
 } from "@qbs-autonaim/db/schema";
+import { formatExperienceText } from "@qbs-autonaim/shared";
 import { uuidv7Schema, workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
@@ -319,7 +320,7 @@ export const list = protectedProcedure
             .join("")
             .toUpperCase()
             .slice(0, 2) || "??",
-        experience: "Не указан", // TODO: извлекать из profileData
+        experience: formatExperienceText(r.profileData) || "Не указан",
         location: globalCandidate?.location || "Не указано",
         matchScore,
         stage,
