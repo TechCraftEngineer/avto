@@ -2,17 +2,41 @@
  * Агент для генерации рекомендаций по кандидатам на вакансии
  */
 
-import { generateObject } from "ai";
 import { z } from "zod";
+import type { AgentConfig } from "../../core/base-agent";
 import { BaseAgent } from "../../core/base-agent";
+import { AgentType } from "../../core/types";
+
+/**
+ * Системный промпт для агента рекомендаций
+ */
+const VACANCY_RECOMMENDATION_SYSTEM_PROMPT = `Ты — эксперт HR-аналитик. На основе результатов скрининга формируешь детальные рекомендации по кандидатам на вакансии.
+
+Твоя задача:
+1. Проанализировать результаты скрининга кандидата
+2. Оценить соответствие требованиям вакансии
+3. Выявить сильные и слабые стороны
+4. Сформировать рекомендацию и предложить конкретные действия
+
+Критерии оценки:
+- HIGHLY_RECOMMENDED: detailedScore >= 80, отличное соответствие всем ключевым требованиям
+- RECOMMENDED: detailedScore >= 60, хорошее соответствие с незначительными пробелами
+- NEUTRAL: detailedScore >= 40, среднее соответствие, требуется дополнительная оценка
+- NOT_RECOMMENDED: detailedScore < 40, критические несоответствия
+
+Важно:
+- Фокусируйся на конкретных фактах из резюме и скрининга
+- Будь объективным и справедливым
+- Предлагай конструктивные действия
+- Учитывай потенциал кандидата, а не только текущий опыт`;
 
 /**
  * Схема для данных вакансии (для рекомендаций)
  */
 export const VacancyRecommendationVacancyDataSchema = z.object({
-  title: z.string(),
+  title: z.string().min(1, "Название вакансии обязательно"),
   description: z.string().optional(),
-  requirements: z.array(z.string()).optional(),
+  requirements: z.array(z.string()).default([]),
 });
 
 export type VacancyRecommendationVacancyData = z.infer<
@@ -23,11 +47,11 @@ export type VacancyRecommendationVacancyData = z.infer<
  * Схема для данных кандидата (vacancy-специфичная)
  */
 export const VacancyRecommendationCandidateDataSchema = z.object({
-  name: z.string().nullable(),
-  experience: z.string().nullable(),
-  skills: z.array(z.string()).nullable().optional(),
-  coverLetter: z.string().nullable().optional(),
-  salaryExpectations: z.number().positive().nullable().optional(),
+  name: z.string().nullable().default(null),
+  experience: z.string().nullable().default(null),
+  skills: z.array(z.string()).nullable().default(null),
+  coverLetter: z.string().nullable().default(null),
+  salaryExpectations: z.number().positive().nullable().default(null),
 });
 
 export type VacancyRecommendationCandidateData = z.infer<
@@ -38,12 +62,18 @@ export type VacancyRecommendationCandidateData = z.infer<
  * Схема для данных скрининга (для рекомендаций)
  */
 export const VacancyRecommendationScreeningDataSchema = z.object({
-  score: z.number().min(0).max(5),
-  detailedScore: z.number().min(0).max(100),
-  analysis: z.string(),
+  score: z
+    .number()
+    .min(0, "Оценка не может быть отрицательной")
+    .max(5, "Максимальная оценка 5"),
+  detailedScore: z
+    .number()
+    .min(0, "Детальная оценка не может быть отрицательной")
+    .max(100, "Максимальная детальная оценка 100"),
+  analysis: z.string().min(1, "Анализ обязателен"),
   matchPercentage: z.number().min(0).max(100).optional(),
-  strengths: z.array(z.string()).optional(),
-  weaknesses: z.array(z.string()).optional(),
+  strengths: z.array(z.string()).default([]),
+  weaknesses: z.array(z.string()).default([]),
   summary: z.string().optional(),
 });
 
@@ -61,12 +91,30 @@ export const VacancyRecommendationOutputSchema = z.object({
     "NEUTRAL",
     "NOT_RECOMMENDED",
   ]),
-  strengths: z.array(z.string()).min(1).max(5),
-  weaknesses: z.array(z.string()).max(5),
-  candidateSummary: z.string().max(500),
-  actionSuggestions: z.array(z.string()).min(1).max(3),
-  interviewQuestions: z.array(z.string()).max(3).default([]),
-  riskFactors: z.array(z.string()).max(3).default([]),
+  strengths: z
+    .array(z.string().min(1, "Сильная сторона не может быть пустой"))
+    .min(1, "Необходимо указать хотя бы одну сильную сторону")
+    .max(5, "Максимум 5 сильных сторон"),
+  weaknesses: z
+    .array(z.string().min(1, "Слабая сторона не может быть пустой"))
+    .max(5, "Максимум 5 слабых сторон")
+    .default([]),
+  candidateSummary: z
+    .string()
+    .min(10, "Резюме кандидата слишком короткое")
+    .max(500, "Резюме кандидата не должно превышать 500 символов"),
+  actionSuggestions: z
+    .array(z.string().min(1, "Рекомендация не может быть пустой"))
+    .min(1, "Необходимо указать хотя бы одну рекомендацию")
+    .max(3, "Максимум 3 рекомендации"),
+  interviewQuestions: z
+    .array(z.string().min(1, "Вопрос не может быть пустым"))
+    .max(3, "Максимум 3 вопроса")
+    .default([]),
+  riskFactors: z
+    .array(z.string().min(1, "Фактор риска не может быть пустым"))
+    .max(3, "Максимум 3 фактора риска")
+    .default([]),
 });
 
 export type VacancyRecommendationOutput = z.infer<
@@ -76,11 +124,15 @@ export type VacancyRecommendationOutput = z.infer<
 /**
  * Входные данные для генерации рекомендации
  */
-export interface VacancyRecommendationInput {
-  vacancy: VacancyRecommendationVacancyData;
-  candidate: VacancyRecommendationCandidateData;
-  screening: VacancyRecommendationScreeningData;
-}
+export const VacancyRecommendationInputSchema = z.object({
+  vacancy: VacancyRecommendationVacancyDataSchema,
+  candidate: VacancyRecommendationCandidateDataSchema,
+  screening: VacancyRecommendationScreeningDataSchema,
+});
+
+export type VacancyRecommendationInput = z.infer<
+  typeof VacancyRecommendationInputSchema
+>;
 
 /**
  * Агент для генерации рекомендаций по кандидатам на вакансии
@@ -89,59 +141,74 @@ export class VacancyRecommendationAgent extends BaseAgent<
   VacancyRecommendationInput,
   VacancyRecommendationOutput
 > {
-  protected agentName = "vacancy-recommendation";
-  private config: { model: any };
-
-  constructor(
-    name: string,
-    type: any,
-    instructions: string,
-    outputSchema: any,
-    config: any,
-  ) {
-    super(name, type, instructions, outputSchema, config);
-    this.config = config;
+  constructor(config: AgentConfig) {
+    super(
+      "VacancyRecommendation",
+      AgentType.EVALUATOR,
+      VACANCY_RECOMMENDATION_SYSTEM_PROMPT,
+      VacancyRecommendationOutputSchema,
+      config,
+      VacancyRecommendationInputSchema,
+    );
   }
 
   protected buildPrompt(
     input: VacancyRecommendationInput,
-    context: unknown,
+    _context: unknown,
   ): string {
-    return this.buildRecommendationPrompt(input);
-  }
-
-  /**
-   * Построение промпта для генерации рекомендации
-   */
-  private buildRecommendationPrompt(input: VacancyRecommendationInput): string {
     const { vacancy, candidate, screening } = input;
 
-    const candidatePriceInfo = candidate.salaryExpectations
+    const candidateName = candidate.name || "Имя не указано";
+    const candidateExperience = candidate.experience || "Не указан";
+    const candidateSkills = candidate.skills?.length
+      ? `Навыки: ${candidate.skills.join(", ")}`
+      : "";
+    const candidateCoverLetter = candidate.coverLetter
+      ? `Сопроводительное письмо: ${candidate.coverLetter}`
+      : "";
+    const candidateSalary = candidate.salaryExpectations
       ? `Зарплатные ожидания: ${candidate.salaryExpectations}`
+      : "";
+
+    const vacancyDescription = vacancy.description
+      ? `Описание: ${vacancy.description}`
+      : "";
+    const vacancyRequirements = vacancy.requirements.length
+      ? `Требования:\n${vacancy.requirements.map((r) => `- ${r}`).join("\n")}`
+      : "";
+
+    const screeningMatchPercentage = screening.matchPercentage
+      ? `- Процент соответствия: ${screening.matchPercentage}%`
+      : "";
+    const screeningStrengths = screening.strengths.length
+      ? `- Сильные стороны: ${screening.strengths.join(", ")}`
+      : "";
+    const screeningWeaknesses = screening.weaknesses.length
+      ? `- Слабые стороны: ${screening.weaknesses.join(", ")}`
       : "";
 
     return `Ты — эксперт HR-аналитик. На основе результатов скрининга сформируй детальную рекомендацию по кандидату на вакансию.
 
 ВАКАНСИЯ: ${vacancy.title}
-${vacancy.description ? `Описание: ${vacancy.description}` : ""}
-${vacancy.requirements?.length ? `Требования:\n${vacancy.requirements.map((r) => `- ${r}`).join("\n")}` : ""}
+${vacancyDescription}
+${vacancyRequirements}
 
-КАНДИДАТ: ${candidate.name || "Имя не указано"}
+КАНДИДАТ: ${candidateName}
 
 Опыт работы:
-${candidate.experience || "Не указан"}
+${candidateExperience}
 
-${candidate.skills?.length ? `Навыки: ${candidate.skills.join(", ")}` : ""}
-${candidate.coverLetter ? `Сопроводительное письмо: ${candidate.coverLetter}` : ""}
-${candidatePriceInfo}
+${candidateSkills}
+${candidateCoverLetter}
+${candidateSalary}
 
 РЕЗУЛЬТАТЫ СКРИНИНГА:
 - Общая оценка: ${screening.score}/5
 - Детальная оценка: ${screening.detailedScore}/100
-${screening.matchPercentage ? `- Процент соответствия: ${screening.matchPercentage}%` : ""}
+${screeningMatchPercentage}
 - Анализ: ${screening.analysis}
-${screening.strengths?.length ? `- Сильные стороны: ${screening.strengths.join(", ")}` : ""}
-${screening.weaknesses?.length ? `- Слабые стороны: ${screening.weaknesses.join(", ")}` : ""}
+${screeningStrengths}
+${screeningWeaknesses}
 
 ЗАДАЧА:
 Сформируй рекомендацию по кандидату на вакансию.
@@ -170,38 +237,5 @@ ${screening.weaknesses?.length ? `- Слабые стороны: ${screening.wea
 - actionSuggestions: 1-3 конкретных действия (пригласить на интервью, запросить портфолио, отклонить и т.д.)
 - interviewQuestions: 0-3 вопроса для уточнения на интервью (опционально)
 - riskFactors: 0-3 потенциальных риска при найме (опционально)`;
-  }
-
-  /**
-   * Выполнение генерации рекомендации
-   */
-  async execute(
-    input: VacancyRecommendationInput,
-    context: unknown = {},
-  ): Promise<{
-    success: boolean;
-    data?: VacancyRecommendationOutput;
-    error?: string;
-  }> {
-    try {
-      const prompt = this.buildRecommendationPrompt(input);
-
-      const result = await generateObject({
-        model: this.config.model,
-        schema: VacancyRecommendationOutputSchema,
-        prompt,
-        abortSignal: AbortSignal.timeout(60_000),
-      });
-
-      return {
-        success: true,
-        data: result.object,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : "Неизвестная ошибка",
-      };
-    }
   }
 }

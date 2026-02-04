@@ -29,16 +29,10 @@ import { NumerologyAgent } from "../recruiter/numerology/numerology-agent";
 import { PriorityAgent } from "../recruiter/priority/priority-agent";
 import { CandidateEvaluatorAgent } from "../recruiter/ranking/candidate-evaluator-agent";
 import { ComparisonAgent } from "../recruiter/ranking/comparison-agent";
-import {
-  GigRecommendationAgent,
-  GigRecommendationOutputSchema,
-} from "../recruiter/ranking/gig-recommendation-agent";
+import { GigRecommendationAgent } from "../recruiter/ranking/gig-recommendation-agent";
 import { RecommendationAgent } from "../recruiter/ranking/recommendation-agent";
 import { SummaryAgent } from "../recruiter/ranking/summary-agent";
-import {
-  VacancyRecommendationAgent,
-  VacancyRecommendationOutputSchema,
-} from "../recruiter/ranking/vacancy-recommendation-agent";
+import { VacancyRecommendationAgent } from "../recruiter/ranking/vacancy-recommendation-agent";
 import { ResponseScreeningAgent } from "../recruiter/screening/response-screening-agent";
 import { CandidateSearchAgent } from "../recruiter/search/candidate-search";
 import type { AgentConfig } from "./base-agent";
@@ -186,25 +180,11 @@ export class AgentFactory {
   }
 
   createVacancyRecommendation(overrides?: Partial<AgentConfig>) {
-    const config = this.getAgentConfig(overrides);
-    return new VacancyRecommendationAgent(
-      "vacancy-recommendation",
-      "ranking",
-      "Генерация рекомендаций по кандидатам на вакансии",
-      VacancyRecommendationOutputSchema,
-      config,
-    );
+    return new VacancyRecommendationAgent(this.getAgentConfig(overrides));
   }
 
   createGigRecommendation(overrides?: Partial<AgentConfig>) {
-    const config = this.getAgentConfig(overrides);
-    return new GigRecommendationAgent(
-      "gig-recommendation",
-      "ranking",
-      "Генерация рекомендаций по исполнителям на задания",
-      GigRecommendationOutputSchema,
-      config,
-    );
+    return new GigRecommendationAgent(this.getAgentConfig(overrides));
   }
 
   createResponseScreening(overrides?: Partial<AgentConfig>) {

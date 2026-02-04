@@ -2,17 +2,42 @@
  * Агент для генерации рекомендаций по исполнителям на задания (gig)
  */
 
-import { generateObject } from "ai";
 import { z } from "zod";
+import type { AgentConfig } from "../../core/base-agent";
 import { BaseAgent } from "../../core/base-agent";
+import { AgentType } from "../../core/types";
+
+/**
+ * Системный промпт для агента рекомендаций по заданиям
+ */
+const GIG_RECOMMENDATION_SYSTEM_PROMPT = `Ты — эксперт по оценке исполнителей для фриланс-заданий. На основе результатов скрининга формируешь детальные рекомендации по исполнителям.
+
+Твоя задача:
+1. Проанализировать результаты скрининга исполнителя
+2. Оценить соответствие требованиям задания
+3. Оценить адекватность предложенной цены и сроков
+4. Выявить сильные и слабые стороны
+5. Сформировать рекомендацию и предложить конкретные действия
+
+Критерии оценки:
+- HIGHLY_RECOMMENDED: detailedScore >= 80, отличное соответствие, адекватная цена и сроки
+- RECOMMENDED: detailedScore >= 60, хорошее соответствие с незначительными замечаниями
+- NEUTRAL: detailedScore >= 40, среднее соответствие, требуется дополнительное обсуждение
+- NOT_RECOMMENDED: detailedScore < 40, критические несоответствия или неадекватные условия
+
+Важно:
+- Фокусируйся на конкретных фактах из опыта и скрининга
+- Будь объективным и справедливым
+- Оцени реалистичность предложенных цены и сроков
+- Предлагай конструктивные действия`;
 
 /**
  * Схема для данных задания (gig) (для рекомендаций)
  */
 export const GigRecommendationGigDataSchema = z.object({
-  title: z.string(),
+  title: z.string().min(1, "Название задания обязательно"),
   description: z.string().optional(),
-  requirements: z.array(z.string()).optional(),
+  requirements: z.array(z.string()).default([]),
   budget: z
     .object({
       min: z.number().positive().optional(),
@@ -31,12 +56,12 @@ export type GigRecommendationGigData = z.infer<
  * Схема для данных исполнителя (gig-специфичная)
  */
 export const GigRecommendationCandidateDataSchema = z.object({
-  name: z.string().nullable(),
-  experience: z.string().nullable(),
-  skills: z.array(z.string()).nullable().optional(),
-  coverLetter: z.string().nullable().optional(),
-  proposedPrice: z.number().positive().nullable().optional(),
-  proposedDeliveryDays: z.number().positive().int().nullable().optional(),
+  name: z.string().nullable().default(null),
+  experience: z.string().nullable().default(null),
+  skills: z.array(z.string()).nullable().default(null),
+  coverLetter: z.string().nullable().default(null),
+  proposedPrice: z.number().positive().nullable().default(null),
+  proposedDeliveryDays: z.number().positive().int().nullable().default(null),
 });
 
 export type GigRecommendationCandidateData = z.infer<
@@ -47,12 +72,18 @@ export type GigRecommendationCandidateData = z.infer<
  * Схема для данных скрининга (для рекомендаций)
  */
 export const GigRecommendationScreeningDataSchema = z.object({
-  score: z.number().min(0).max(5),
-  detailedScore: z.number().min(0).max(100),
-  analysis: z.string(),
+  score: z
+    .number()
+    .min(0, "Оценка не может быть отрицательной")
+    .max(5, "Максимальная оценка 5"),
+  detailedScore: z
+    .number()
+    .min(0, "Детальная оценка не может быть отрицательной")
+    .max(100, "Максимальная детальная оценка 100"),
+  analysis: z.string().min(1, "Анализ обязателен"),
   matchPercentage: z.number().min(0).max(100).optional(),
-  strengths: z.array(z.string()).optional(),
-  weaknesses: z.array(z.string()).optional(),
+  strengths: z.array(z.string()).default([]),
+  weaknesses: z.array(z.string()).default([]),
   summary: z.string().optional(),
 });
 
@@ -70,12 +101,30 @@ export const GigRecommendationOutputSchema = z.object({
     "NEUTRAL",
     "NOT_RECOMMENDED",
   ]),
-  strengths: z.array(z.string()).min(1).max(5),
-  weaknesses: z.array(z.string()).max(5),
-  candidateSummary: z.string().max(500),
-  actionSuggestions: z.array(z.string()).min(1).max(3),
-  interviewQuestions: z.array(z.string()).max(3).default([]),
-  riskFactors: z.array(z.string()).max(3).default([]),
+  strengths: z
+    .array(z.string().min(1, "Сильная сторона не может быть пустой"))
+    .min(1, "Необходимо указать хотя бы одну сильную сторону")
+    .max(5, "Максимум 5 сильных сторон"),
+  weaknesses: z
+    .array(z.string().min(1, "Слабая сторона не может быть пустой"))
+    .max(5, "Максимум 5 слабых сторон")
+    .default([]),
+  candidateSummary: z
+    .string()
+    .min(10, "Резюме исполнителя слишком короткое")
+    .max(500, "Резюме исполнителя не должно превышать 500 символов"),
+  actionSuggestions: z
+    .array(z.string().min(1, "Рекомендация не может быть пустой"))
+    .min(1, "Необходимо указать хотя бы одну рекомендацию")
+    .max(3, "Максимум 3 рекомендации"),
+  interviewQuestions: z
+    .array(z.string().min(1, "Вопрос не может быть пустым"))
+    .max(3, "Максимум 3 вопроса")
+    .default([]),
+  riskFactors: z
+    .array(z.string().min(1, "Фактор риска не может быть пустым"))
+    .max(3, "Максимум 3 фактора риска")
+    .default([]),
   budgetAssessment: z
     .object({
       isReasonable: z.boolean(),
@@ -97,11 +146,15 @@ export type GigRecommendationOutput = z.infer<
 /**
  * Входные данные для генерации рекомендации
  */
-export interface GigRecommendationInput {
-  gig: GigRecommendationGigData;
-  candidate: GigRecommendationCandidateData;
-  screening: GigRecommendationScreeningData;
-}
+export const GigRecommendationInputSchema = z.object({
+  gig: GigRecommendationGigDataSchema,
+  candidate: GigRecommendationCandidateDataSchema,
+  screening: GigRecommendationScreeningDataSchema,
+});
+
+export type GigRecommendationInput = z.infer<
+  typeof GigRecommendationInputSchema
+>;
 
 /**
  * Агент для генерации рекомендаций по исполнителям на задания
@@ -110,70 +163,87 @@ export class GigRecommendationAgent extends BaseAgent<
   GigRecommendationInput,
   GigRecommendationOutput
 > {
-  protected agentName = "gig-recommendation";
-  private config: { model: any };
-
-  constructor(
-    name: string,
-    type: any,
-    instructions: string,
-    outputSchema: any,
-    config: any,
-  ) {
-    super(name, type, instructions, outputSchema, config);
-    this.config = config;
+  constructor(config: AgentConfig) {
+    super(
+      "GigRecommendation",
+      AgentType.EVALUATOR,
+      GIG_RECOMMENDATION_SYSTEM_PROMPT,
+      GigRecommendationOutputSchema,
+      config,
+      GigRecommendationInputSchema,
+    );
   }
 
   protected buildPrompt(
     input: GigRecommendationInput,
-    context: unknown,
+    _context: unknown,
   ): string {
-    return this.buildRecommendationPrompt(input);
-  }
-
-  /**
-   * Построение промпта для генерации рекомендации
-   */
-  private buildRecommendationPrompt(input: GigRecommendationInput): string {
     const { gig, candidate, screening } = input;
 
-    const budgetInfo =
-      gig.budget?.min || gig.budget?.max
-        ? `Бюджет: ${gig.budget.min || "не указан"} - ${gig.budget.max || "не указан"}`
-        : "";
-
-    const candidatePriceInfo = candidate.proposedPrice
+    const candidateName = candidate.name || "Имя не указано";
+    const candidateExperience = candidate.experience || "Не указан";
+    const candidateSkills = candidate.skills?.length
+      ? `Навыки: ${candidate.skills.join(", ")}`
+      : "";
+    const candidateCoverLetter = candidate.coverLetter
+      ? `Сопроводительное письмо: ${candidate.coverLetter}`
+      : "";
+    const candidatePrice = candidate.proposedPrice
       ? `Предложенная цена: ${candidate.proposedPrice}`
       : "";
 
-    const deliveryInfo = `
-Срок выполнения (требуемый): ${gig.deliveryDays || "не указан"} дней
-Срок выполнения (предложенный): ${candidate.proposedDeliveryDays || "не указан"} дней`;
+    const gigDescription = gig.description
+      ? `Описание: ${gig.description}`
+      : "";
+    const gigRequirements = gig.requirements.length
+      ? `Требования:\n${gig.requirements.map((r) => `- ${r}`).join("\n")}`
+      : "";
+    const gigBudget =
+      gig.budget?.min || gig.budget?.max
+        ? `Бюджет: ${gig.budget.min || "не указан"} - ${gig.budget.max || "не указан"}`
+        : "";
+    const gigDelivery = gig.deliveryDays
+      ? `Срок выполнения (требуемый): ${gig.deliveryDays} дней`
+      : "";
+    const candidateDelivery = candidate.proposedDeliveryDays
+      ? `Срок выполнения (предложенный): ${candidate.proposedDeliveryDays} дней`
+      : "";
+
+    const screeningMatchPercentage = screening.matchPercentage
+      ? `- Процент соответствия: ${screening.matchPercentage}%`
+      : "";
+    const screeningStrengths = screening.strengths.length
+      ? `- Сильные стороны: ${screening.strengths.join(", ")}`
+      : "";
+    const screeningWeaknesses = screening.weaknesses.length
+      ? `- Слабые стороны: ${screening.weaknesses.join(", ")}`
+      : "";
 
     return `Ты — эксперт по оценке исполнителей для фриланс-заданий. На основе результатов скрининга сформируй детальную рекомендацию по исполнителю.
 
 ЗАДАНИЕ: ${gig.title}
-${gig.description ? `Описание: ${gig.description}` : ""}
-${gig.requirements?.length ? `Требования:\n${gig.requirements.map((r) => `- ${r}`).join("\n")}` : ""}
-${budgetInfo}
-${deliveryInfo}
+${gigDescription}
+${gigRequirements}
+${gigBudget}
+${gigDelivery}
 
-ИСПОЛНИТЕЛЬ: ${candidate.name || "Имя не указано"}
+ИСПОЛНИТЕЛЬ: ${candidateName}
 
 Опыт работы:
-${candidate.experience || "Не указан"}
+${candidateExperience}
 
-${candidate.skills?.length ? `Навыки: ${candidate.skills.join(", ")}` : ""}
-${candidate.coverLetter ? `Сопроводительное письмо: ${candidate.coverLetter}` : ""}
-${candidatePriceInfo}
+${candidateSkills}
+${candidateCoverLetter}
+${candidatePrice}
+${candidateDelivery}
 
 РЕЗУЛЬТАТЫ СКРИНИНГА:
 - Общая оценка: ${screening.score}/5
 - Детальная оценка: ${screening.detailedScore}/100
-${screening.matchPercentage ? `- Процент соответствия: ${screening.matchPercentage}%` : ""}
+${screeningMatchPercentage}
 - Анализ: ${screening.analysis}
-${screening.strengths?.length ? `- Сильные стороны: ${screening.strengths.join(", ")}` : ""}
-${screening.weaknesses?.length ? `- Слабые стороны: ${screening.weaknesses.join(", ")}` : ""}
+${screeningStrengths}
+${screeningWeaknesses}
 
 ЗАДАЧА:
 Сформируй рекомендацию по исполнителю для задания. Обрати особое внимание на:
@@ -216,38 +286,5 @@ ${screening.weaknesses?.length ? `- Слабые стороны: ${screening.wea
 - riskFactors: 0-3 потенциальных риска при работе с исполнителем (опционально)
 - budgetAssessment: оценка адекватности предложенной цены (опционально)
 - deliveryAssessment: оценка реалистичности сроков (опционально)`;
-  }
-
-  /**
-   * Выполнение генерации рекомендации
-   */
-  async execute(
-    input: GigRecommendationInput,
-    context: unknown = {},
-  ): Promise<{
-    success: boolean;
-    data?: GigRecommendationOutput;
-    error?: string;
-  }> {
-    try {
-      const prompt = this.buildRecommendationPrompt(input);
-
-      const result = await generateObject({
-        model: this.config.model,
-        schema: GigRecommendationOutputSchema,
-        prompt,
-        abortSignal: AbortSignal.timeout(60_000),
-      });
-
-      return {
-        success: true,
-        data: result.object,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : "Неизвестная ошибка",
-      };
-    }
   }
 }

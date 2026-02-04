@@ -32,10 +32,6 @@ export const generateVacancyRecommendationFunction = inngest.createFunction(
       responseId: string;
     };
 
-    console.log("🎯 Генерация рекомендации по кандидату на вакансию", {
-      responseId,
-    });
-
     // Получаем данные для генерации рекомендации
     const responseData = await step.run("get-response-data", async () => {
       const result = await getResponseDataForRecommendation(responseId);
@@ -59,8 +55,7 @@ export const generateVacancyRecommendationFunction = inngest.createFunction(
         throw new Error(`Вакансия не найдена: ${resp.entityId}`);
       }
 
-      const requirements =
-        vac.requirements?.mandatory_requirements ?? undefined;
+      const requirements = vac.requirements?.mandatory_requirements ?? [];
 
       const vacancyInput: VacancyRecommendationVacancyData = {
         title: vac.title,
@@ -78,9 +73,9 @@ export const generateVacancyRecommendationFunction = inngest.createFunction(
       const candidateInput: VacancyRecommendationCandidateData = {
         name: candidate.name,
         experience: candidate.experience,
-        skills: candidate.skills ?? undefined,
-        coverLetter: candidate.coverLetter ?? undefined,
-        salaryExpectations: candidate.salaryExpectations ?? undefined,
+        skills: candidate.skills ?? null,
+        coverLetter: candidate.coverLetter ?? null,
+        salaryExpectations: candidate.salaryExpectations ?? null,
       };
 
       return candidateInput;
@@ -95,8 +90,8 @@ export const generateVacancyRecommendationFunction = inngest.createFunction(
         detailedScore: screening.detailedScore,
         analysis: screening.analysis,
         matchPercentage: screening.matchPercentage ?? undefined,
-        strengths: screening.strengths ?? undefined,
-        weaknesses: screening.weaknesses ?? undefined,
+        strengths: screening.strengths ? screening.strengths : [],
+        weaknesses: screening.weaknesses ? screening.weaknesses : [],
         summary: screening.summary ?? undefined,
       };
 
@@ -121,7 +116,6 @@ export const generateVacancyRecommendationFunction = inngest.createFunction(
             candidate: candidateData,
             screening: screeningData,
           };
-
           const result = await agent.execute(input, {});
 
           if (!result.success || !result.data) {
