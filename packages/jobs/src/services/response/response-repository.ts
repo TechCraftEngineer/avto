@@ -66,7 +66,7 @@ export async function hasDetailedInfo(
     });
 
     if (!responseRecord) return false;
-    return !!(responseRecord.experience || responseRecord.contacts);
+    return !!(responseRecord.profileData || responseRecord.contacts);
   }, "Failed to check detailed info");
 }
 
@@ -134,7 +134,6 @@ export async function saveBasicResponse(
         candidateName,
         status: RESPONSE_STATUS.NEW,
         importSource: "HH",
-        experience: "",
         contacts: null,
         phone: null,
         respondedAt,
@@ -180,7 +179,6 @@ export async function updateResponseDetails(
     await db
       .update(response)
       .set({
-        experience: responseData.experience,
         contacts: responseData.contacts as Record<string, unknown> | null,
         phone: responseData.phone,
         email: responseData.email,
@@ -412,7 +410,6 @@ export async function saveResponseToDb(
         candidateName: responseData.candidateName,
         status: RESPONSE_STATUS.NEW,
         importSource: "HH",
-        experience: responseData.experience,
         contacts: responseData.contacts as Record<string, unknown> | null,
         phone: responseData.phone,
       })

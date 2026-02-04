@@ -315,18 +315,6 @@ export function ShortlistCandidateCard({
           </div>
         )}
 
-        {/* Experience */}
-        {candidate.experience && (
-          <div className="mb-4">
-            <div className="text-xs font-medium mb-2 text-muted-foreground">
-              Опыт работы
-            </div>
-            <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
-              {candidate.experience}
-            </p>
-          </div>
-        )}
-
         {/* Contact Info */}
         <div className="flex flex-wrap items-center gap-3 text-xs">
           {candidate.contactInfo.email && (

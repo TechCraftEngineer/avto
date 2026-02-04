@@ -96,34 +96,7 @@ export function ResponseCards({
                 </Badge>
               )}
             </div>
-            {(() => {
-              const experienceText = formatExperienceText(response.profileData);
-              return experienceText ? (
-                <div>
-                  <h4 className="text-sm font-medium mb-1">Опыт работы</h4>
-                  <HoverCard>
-                    <HoverCardTrigger asChild>
-                      <button
-                        type="button"
-                        className="text-left text-sm text-muted-foreground hover:underline cursor-pointer"
-                      >
-                        {experienceText.length > 120
-                          ? `${experienceText.slice(0, 120)}...`
-                          : experienceText}
-                      </button>
-                    </HoverCardTrigger>
-                    <HoverCardContent className="w-80">
-                      <div className="space-y-2">
-                        <h4 className="text-sm font-semibold">Опыт работы</h4>
-                        <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                          {experienceText}
-                        </p>
-                      </div>
-                    </HoverCardContent>
-                  </HoverCard>
-                </div>
-              ) : null;
-            })()}
+            {/* Опыт работы временно скрыт, так как profileData не включен в список откликов */}
             {response.contacts && typeof response.contacts === "object" ? (
               <div>
                 <h4 className="text-sm font-medium mb-2">Контакты</h4>
@@ -134,7 +107,6 @@ export function ResponseCards({
               <ResponseActions
                 responseId={response.id}
                 resumeUrl={response.resumeUrl}
-                candidateName={response.candidateName}
                 telegramUsername={response.telegramUsername}
                 phone={response.phone}
               />

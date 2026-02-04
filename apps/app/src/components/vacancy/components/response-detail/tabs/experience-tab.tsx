@@ -118,7 +118,7 @@ export function VacancyExperienceTab({ response }: VacancyExperienceTabProps) {
                       {Array.isArray(profile.education) ? (
                         <div className="space-y-3">
                           {profile.education.map((item, index) => {
-                            const edu = item.education || item;
+                            const edu = item;
                             const key =
                               edu.institution && edu.degree
                                 ? `${edu.institution}-${edu.degree}-${index}`

@@ -15,7 +15,7 @@ import {
 interface DeleteVacancyDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm: () => void;
+  onConfirm: (option: "anonymize" | "delete") => void;
   vacancyTitle: string;
   isLoading?: boolean;
 }
@@ -42,7 +42,7 @@ export function DeleteVacancyDialog({
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isLoading}>Отмена</AlertDialogCancel>
           <AlertDialogAction
-            onClick={onConfirm}
+            onClick={() => onConfirm("delete")}
             disabled={isLoading}
             className="bg-destructive hover:bg-destructive/90"
           >

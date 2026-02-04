@@ -164,6 +164,9 @@ export function streamText(
 
     if (availableFallbacks.length > 0) {
       const fallback = availableFallbacks[0];
+      if (!fallback) {
+        throw error;
+      }
 
       console.warn(
         `Ошибка ${actualProvider} при создании стрима, повторная попытка с ${fallback.provider}:`,

@@ -107,19 +107,17 @@ export const generateVacancyRecommendationFunction = inngest.createFunction(
     // Подготавливаем данные интервью (если есть)
     const interviewData = await step.run(
       "prepare-interview-data",
-      async ():
-        | Promise<{
-            score: number;
-            rating: number;
-            analysis: string;
-            botUsageDetected: boolean;
-          }>
-        | Promise<undefined> => {
+      async (): Promise<{
+        score: number;
+        rating: number;
+        analysis: string;
+        botUsageDetected: boolean;
+      } | null> => {
         const { interview } = responseData;
 
         if (!interview) {
           console.log("⚠️ Интервью не проводилось, рекомендация будет неполной");
-          return undefined;
+          return null;
         }
 
         return {
@@ -148,7 +146,7 @@ export const generateVacancyRecommendationFunction = inngest.createFunction(
             vacancy: vacancyData,
             candidate: candidateData,
             screening: screeningData,
-            interview: interviewData,
+            interview: interviewData ?? undefined,
           };
           const result = await agent.execute(input, {});
 

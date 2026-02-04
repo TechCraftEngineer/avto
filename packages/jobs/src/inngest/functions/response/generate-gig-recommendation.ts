@@ -59,7 +59,7 @@ export const generateGigRecommendationFunction = inngest.createFunction(
         throw new Error(`Задание не найдено: ${resp.entityId}`);
       }
 
-      const requirements = gigRecord.requirements?.required_skills ?? undefined;
+      const requirements = gigRecord.requirements?.required_skills ?? [];
 
       const budget =
         gigRecord.budgetMin || gigRecord.budgetMax
@@ -96,10 +96,10 @@ export const generateGigRecommendationFunction = inngest.createFunction(
       const candidateInput: GigRecommendationCandidateData = {
         name: candidate.name,
         experience: candidate.experience,
-        skills: candidate.skills ?? undefined,
-        coverLetter: candidate.coverLetter ?? undefined,
-        proposedPrice: candidate.proposedPrice ?? undefined,
-        proposedDeliveryDays: candidate.proposedDeliveryDays ?? undefined,
+        skills: candidate.skills ?? null,
+        coverLetter: candidate.coverLetter ?? null,
+        proposedPrice: candidate.proposedPrice ?? null,
+        proposedDeliveryDays: candidate.proposedDeliveryDays ?? null,
       };
 
       return candidateInput;
@@ -114,8 +114,8 @@ export const generateGigRecommendationFunction = inngest.createFunction(
         detailedScore: screening.detailedScore,
         analysis: screening.analysis,
         matchPercentage: screening.matchPercentage ?? undefined,
-        strengths: screening.strengths ?? undefined,
-        weaknesses: screening.weaknesses ?? undefined,
+        strengths: screening.strengths ?? [],
+        weaknesses: screening.weaknesses ?? [],
         summary: screening.summary ?? undefined,
       };
 

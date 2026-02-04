@@ -106,7 +106,7 @@ export async function getResponseDataForRecommendation(
     const responseData = await db.query.response.findFirst({
       where: eq(response.id, responseId),
       with: {
-        interviewSession: {
+        interviewSessions: {
           with: {
             scoring: true,
           },
@@ -130,7 +130,7 @@ export async function getResponseDataForRecommendation(
 
     const candidate: CandidateDataForRecommendation = {
       name: responseData.candidateName,
-      experience: responseData.experience,
+      experience: null, // Опыт теперь хранится в profileData
       skills: responseData.skills,
       coverLetter: responseData.coverLetter,
       salaryExpectations: responseData.salaryExpectationsAmount,
@@ -148,14 +148,21 @@ export async function getResponseDataForRecommendation(
         }
       | undefined;
 
-    if (responseData.interviewSession?.scoring) {
-      const scoring = responseData.interviewSession.scoring;
-      interview = {
-        score: scoring.score,
-        rating: scoring.rating,
-        analysis: scoring.analysis,
-        botUsageDetected: scoring.botUsageDetected,
-      };
+    if (responseData.interviewSessions?.[0]?.scoring) {
+      const scoring = responseData.interviewSessions[0].scoring;
+      if (
+        scoring.score !== null &&
+        scoring.rating !== null &&
+        scoring.analysis !== null &&
+        scoring.botUsageDetected !== null
+      ) {
+        interview = {
+          score: scoring.score,
+          rating: scoring.rating,
+          analysis: scoring.analysis,
+          botUsageDetected: scoring.botUsageDetected === 1,
+        };
+      }
     }
 
     return ok({ response: responseData, screening, candidate, interview });
