@@ -1,9 +1,12 @@
 import { Loader2, XCircle } from "lucide-react";
+import { AnalyzeProgressContent } from "./analyze-progress-content";
 import { ArchivedStatusContent } from "./archived-status-content";
 import { RefreshProgressContent } from "./refresh-progress-content";
 import { RefreshResultContent } from "./refresh-result-content";
 import { StatusIcon } from "./status-icon";
 import type {
+  AnalyzeCompletedData,
+  AnalyzeProgressData,
   ArchivedStatusData,
   ProgressData,
   ResultData,
@@ -15,6 +18,8 @@ interface ProgressViewProps {
   currentProgress: ProgressData | null;
   currentResult: ResultData | null;
   archivedStatus: ArchivedStatusData | null;
+  analyzeProgress: AnalyzeProgressData | null;
+  analyzeCompleted: AnalyzeCompletedData | null;
   error: Error | null;
   onClose: () => void;
 }
@@ -24,16 +29,27 @@ export function ProgressView({
   currentProgress,
   currentResult,
   archivedStatus,
+  analyzeProgress,
+  analyzeCompleted,
   error,
   onClose,
 }: ProgressViewProps) {
   const isArchivedMode = mode === "archived";
+  const isAnalyzeMode = mode === "analyze";
   const currentStatus = isArchivedMode
     ? archivedStatus?.status
-    : currentProgress?.status || (currentResult ? "completed" : undefined);
+    : isAnalyzeMode
+      ? analyzeCompleted
+        ? "completed"
+        : analyzeProgress
+          ? "processing"
+          : undefined
+      : currentProgress?.status || (currentResult ? "completed" : undefined);
   const isCompleted = isArchivedMode
     ? archivedStatus?.status === "completed"
-    : currentResult?.success === true;
+    : isAnalyzeMode
+      ? !!analyzeCompleted
+      : currentResult?.success === true;
 
   return (
     <div className="flex items-start gap-3">
@@ -52,6 +68,12 @@ export function ProgressView({
                 {archivedStatus?.status === "completed" &&
                   "Синхронизация завершена"}
               </>
+            ) : isAnalyzeMode ? (
+              <>
+                {!analyzeProgress && !analyzeCompleted && "Подключение…"}
+                {analyzeProgress && "Анализ откликов"}
+                {analyzeCompleted && "Анализ завершен"}
+              </>
             ) : (
               <>
                 {!currentProgress && !currentResult && "Подключение…"}
@@ -63,29 +85,43 @@ export function ProgressView({
               </>
             )}
           </h4>
-          {!isArchivedMode && currentProgress?.currentPage !== undefined && (
-            <span className="text-xs text-muted-foreground shrink-0">
-              Страница&nbsp;{currentProgress.currentPage + 1}
-            </span>
-          )}
+          {!isArchivedMode &&
+            !isAnalyzeMode &&
+            currentProgress?.currentPage !== undefined && (
+              <span className="text-xs text-muted-foreground shrink-0">
+                Страница&nbsp;{currentProgress.currentPage + 1}
+              </span>
+            )}
         </div>
 
-        {!currentProgress && !currentResult && !archivedStatus && !error && (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Loader2 className="h-3 w-3 animate-spin" />
-            <span>Подключение к серверу…</span>
-          </div>
-        )}
+        {!currentProgress &&
+          !currentResult &&
+          !archivedStatus &&
+          !analyzeProgress &&
+          !analyzeCompleted &&
+          !error && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Loader2 className="h-3 w-3 animate-spin" />
+              <span>Подключение к серверу…</span>
+            </div>
+          )}
 
         {isArchivedMode && archivedStatus && (
           <ArchivedStatusContent status={archivedStatus} />
         )}
 
-        {!isArchivedMode && currentProgress && (
+        {isAnalyzeMode && (
+          <AnalyzeProgressContent
+            progress={analyzeProgress}
+            completed={analyzeCompleted}
+          />
+        )}
+
+        {!isArchivedMode && !isAnalyzeMode && currentProgress && (
           <RefreshProgressContent progress={currentProgress} />
         )}
 
-        {!isArchivedMode && currentResult && (
+        {!isArchivedMode && !isAnalyzeMode && currentResult && (
           <RefreshResultContent result={currentResult} />
         )}
 

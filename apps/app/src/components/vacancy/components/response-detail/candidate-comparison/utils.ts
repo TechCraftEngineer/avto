@@ -1,9 +1,11 @@
-import type { VacancyResponse } from "../types";
+import type { VacancyResponse, VacancyResponseFromList } from "../types";
 
 /**
  * Расчет соответствия кандидата требованиям вакансии
  */
-export function calculateMatchScore(response: VacancyResponse): number {
+export function calculateMatchScore(
+  response: VacancyResponse | VacancyResponseFromList,
+): number {
   let score = 0;
   if (response.profileData && !response.profileData.error) score += 30;
   if (response.resumeId) score += 20;
@@ -18,7 +20,9 @@ export function calculateMatchScore(response: VacancyResponse): number {
 /**
  * Расчет времени отклика
  */
-export function calculateResponseTime(response: VacancyResponse): string {
+export function calculateResponseTime(
+  response: VacancyResponse | VacancyResponseFromList,
+): string {
   const now = new Date();
   const respondedAt = response.respondedAt || response.createdAt;
   const diffMs = now.getTime() - new Date(respondedAt).getTime();
@@ -32,7 +36,9 @@ export function calculateResponseTime(response: VacancyResponse): string {
 /**
  * Расчет последней активности
  */
-export function calculateLastActivity(response: VacancyResponse): string {
+export function calculateLastActivity(
+  response: VacancyResponse | VacancyResponseFromList,
+): string {
   const respondedAt = response.respondedAt || response.createdAt;
   const now = new Date();
   const diffMs = now.getTime() - new Date(respondedAt).getTime();
@@ -47,7 +53,9 @@ export function calculateLastActivity(response: VacancyResponse): string {
 /**
  * Получение опыта из профиля
  */
-export function getExperienceFromProfile(response: VacancyResponse): string {
+export function getExperienceFromProfile(
+  response: VacancyResponse | VacancyResponseFromList,
+): string {
   if (response.profileData && !response.profileData.error) {
     const profile = response.profileData;
     if (profile.experience) {

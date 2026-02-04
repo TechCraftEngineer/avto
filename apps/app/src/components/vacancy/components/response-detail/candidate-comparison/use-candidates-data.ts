@@ -38,13 +38,13 @@ export function useCandidatesData({ vacancyId }: UseCandidatesDataProps) {
     return responsesData.responses.map((response: VacancyResponseFromList) => ({
       id: response.id,
       name: response.candidateName || "Без имени",
-      matchScore: calculateMatchScore(response as any),
+      matchScore: calculateMatchScore(response),
       salary: response.salaryExpectationsAmount,
-      experience: getExperienceFromProfile(response as any),
+      experience: getExperienceFromProfile(response),
       skills: response.skills || [],
-      responseTime: calculateResponseTime(response as any),
+      responseTime: calculateResponseTime(response),
       status: response.status,
-      lastActivity: calculateLastActivity(response as any),
+      lastActivity: calculateLastActivity(response),
     }));
   }, [responsesData]);
 

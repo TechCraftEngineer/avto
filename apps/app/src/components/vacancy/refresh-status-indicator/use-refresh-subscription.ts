@@ -2,9 +2,12 @@ import { useInngestSubscription } from "@inngest/realtime/hooks";
 import { useCallback, useEffect, useState } from "react";
 import {
   fetchRefreshVacancyResponsesToken,
+  fetchScreenBatchToken,
   fetchSyncArchivedVacancyResponsesToken,
 } from "~/actions/realtime";
 import type {
+  AnalyzeCompletedData,
+  AnalyzeProgressData,
   ArchivedStatusData,
   ProgressData,
   ResultData,
@@ -15,12 +18,16 @@ interface UseRefreshSubscriptionProps {
   vacancyId: string;
   mode: SyncMode;
   onVisibilityChange: (visible: boolean) => void;
+  batchId?: string;
+  workspaceId?: string;
 }
 
 export function useRefreshSubscription({
   vacancyId,
   mode,
   onVisibilityChange,
+  batchId,
+  workspaceId,
 }: UseRefreshSubscriptionProps) {
   const [currentProgress, setCurrentProgress] = useState<ProgressData | null>(
     null,
@@ -28,11 +35,16 @@ export function useRefreshSubscription({
   const [currentResult, setCurrentResult] = useState<ResultData | null>(null);
   const [archivedStatus, setArchivedStatus] =
     useState<ArchivedStatusData | null>(null);
+  const [analyzeProgress, setAnalyzeProgress] =
+    useState<AnalyzeProgressData | null>(null);
+  const [analyzeCompleted, setAnalyzeCompleted] =
+    useState<AnalyzeCompletedData | null>(null);
   const [autoCloseTimer, setAutoCloseTimer] = useState<NodeJS.Timeout | null>(
     null,
   );
 
   const isArchivedMode = mode === "archived";
+  const isAnalyzeMode = mode === "analyze";
 
   // Мемоизируем функции получения токенов
   const getRefreshToken = useCallback(
@@ -45,10 +57,17 @@ export function useRefreshSubscription({
     [vacancyId],
   );
 
+  const getAnalyzeToken = useCallback(() => {
+    if (!batchId || !workspaceId) {
+      throw new Error("batchId и workspaceId обязательны для режима analyze");
+    }
+    return fetchScreenBatchToken(workspaceId, batchId);
+  }, [batchId, workspaceId]);
+
   // Подписываемся на канал Realtime для обычного обновления
   const { data: refreshData, error: refreshError } = useInngestSubscription({
     refreshToken: getRefreshToken,
-    enabled: !isArchivedMode,
+    enabled: !isArchivedMode && !isAnalyzeMode,
   });
 
   // Подписываемся на канал Realtime для архивной синхронизации
@@ -57,8 +76,22 @@ export function useRefreshSubscription({
     enabled: isArchivedMode,
   });
 
-  const data = isArchivedMode ? archivedData : refreshData;
-  const error = isArchivedMode ? archivedError : refreshError;
+  // Подписываемся на канал Realtime для анализа откликов
+  const { data: analyzeData, error: analyzeError } = useInngestSubscription({
+    refreshToken: getAnalyzeToken,
+    enabled: isAnalyzeMode && !!batchId && !!workspaceId,
+  });
+
+  const data = isArchivedMode
+    ? archivedData
+    : isAnalyzeMode
+      ? analyzeData
+      : refreshData;
+  const error = isArchivedMode
+    ? archivedError
+    : isAnalyzeMode
+      ? analyzeError
+      : refreshError;
 
   // Обрабатываем все сообщения из канала
   useEffect(() => {
@@ -84,7 +117,32 @@ export function useRefreshSubscription({
             return null;
           });
         }
-      } else if (!isArchivedMode) {
+      } else if (isAnalyzeMode) {
+        if (message.topic === "batch-progress") {
+          const progressData = message.data as AnalyzeProgressData;
+          setAnalyzeProgress(progressData);
+          setAnalyzeCompleted(null);
+          onVisibilityChange(true);
+
+          setAutoCloseTimer((prev) => {
+            if (prev) {
+              clearTimeout(prev);
+            }
+            return null;
+          });
+        } else if (message.topic === "batch-completed") {
+          const completedData = message.data as AnalyzeCompletedData;
+          setAnalyzeCompleted(completedData);
+          onVisibilityChange(true);
+
+          const timer = setTimeout(() => {
+            onVisibilityChange(false);
+            setAnalyzeProgress(null);
+            setAnalyzeCompleted(null);
+          }, 5000);
+          setAutoCloseTimer(timer);
+        }
+      } else if (!isArchivedMode && !isAnalyzeMode) {
         if (message.topic === "progress") {
           const progressData = message.data as ProgressData;
           setCurrentProgress(progressData);
@@ -111,7 +169,7 @@ export function useRefreshSubscription({
         }
       }
     }
-  }, [data, isArchivedMode, onVisibilityChange]);
+  }, [data, isArchivedMode, isAnalyzeMode, onVisibilityChange]);
 
   // Очищаем таймер при размонтировании
   useEffect(() => {
@@ -126,6 +184,8 @@ export function useRefreshSubscription({
     currentProgress,
     currentResult,
     archivedStatus,
+    analyzeProgress,
+    analyzeCompleted,
     error,
     clearAutoCloseTimer: () => {
       if (autoCloseTimer) {

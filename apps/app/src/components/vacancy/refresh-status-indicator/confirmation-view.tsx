@@ -1,19 +1,28 @@
 import { Button } from "@qbs-autonaim/ui";
-import { AlertCircle, Archive, Download, XCircle } from "lucide-react";
+import {
+  AlertCircle,
+  Archive,
+  Download,
+  Sparkles,
+  XCircle,
+} from "lucide-react";
 import type { SyncMode } from "./types";
 
 interface ConfirmationViewProps {
   mode: SyncMode;
   onClose: () => void;
   onConfirm: () => void;
+  totalResponses?: number;
 }
 
 export function ConfirmationView({
   mode,
   onClose,
   onConfirm,
+  totalResponses,
 }: ConfirmationViewProps) {
   const isArchivedMode = mode === "archived";
+  const isAnalyzeMode = mode === "analyze";
 
   return (
     <div className="space-y-4">
@@ -21,6 +30,8 @@ export function ConfirmationView({
         <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 shrink-0">
           {isArchivedMode ? (
             <Archive className="h-4 w-4" />
+          ) : isAnalyzeMode ? (
+            <Sparkles className="h-4 w-4" />
           ) : (
             <Download className="h-4 w-4" />
           )}
@@ -29,12 +40,16 @@ export function ConfirmationView({
           <h4 className="text-sm font-semibold mb-1">
             {isArchivedMode
               ? "Синхронизация архивных откликов"
-              : "Получение новых откликов"}
+              : isAnalyzeMode
+                ? "Анализ откликов"
+                : "Получение новых откликов"}
           </h4>
           <p className="text-xs text-muted-foreground mb-3">
             {isArchivedMode
               ? "Получение всех откликов с HeadHunter, включая архивные"
-              : "Получение новых откликов с HeadHunter"}
+              : isAnalyzeMode
+                ? `Автоматический анализ ${totalResponses ? `${totalResponses} откликов` : "выбранных откликов"} с помощью ИИ`
+                : "Получение новых откликов с HeadHunter"}
           </p>
         </div>
         <button
@@ -62,6 +77,13 @@ export function ConfirmationView({
                   <li>Процесс может занять несколько минут</li>
                   <li>Вы можете закрыть окно — процесс продолжится</li>
                 </>
+              ) : isAnalyzeMode ? (
+                <>
+                  <li>ИИ проанализирует каждый отклик</li>
+                  <li>Оценит соответствие требованиям вакансии</li>
+                  <li>Выставит оценку и рекомендацию</li>
+                  <li>Вы можете закрыть окно — процесс продолжится</li>
+                </>
               ) : (
                 <>
                   <li>Получение новых откликов с HeadHunter</li>
@@ -82,10 +104,16 @@ export function ConfirmationView({
         <Button size="sm" onClick={onConfirm}>
           {isArchivedMode ? (
             <Archive className="h-4 w-4 mr-2" />
+          ) : isAnalyzeMode ? (
+            <Sparkles className="h-4 w-4 mr-2" />
           ) : (
             <Download className="h-4 w-4 mr-2" />
           )}
-          {isArchivedMode ? "Начать синхронизацию" : "Получить отклики"}
+          {isArchivedMode
+            ? "Начать синхронизацию"
+            : isAnalyzeMode
+              ? "Начать анализ"
+              : "Получить отклики"}
         </Button>
       </div>
     </div>

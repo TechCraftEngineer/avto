@@ -16,7 +16,6 @@ import {
   AvatarFallback,
   AvatarImage,
   Badge,
-  Button,
   Checkbox,
   HoverCard,
   HoverCardContent,
@@ -24,12 +23,11 @@ import {
   TableCell,
   TableRow,
 } from "@qbs-autonaim/ui";
-import { ExternalLink, Send, TrendingUp, User, UserCheck } from "lucide-react";
+import { Send, TrendingUp, User, UserCheck } from "lucide-react";
 import Link from "next/link";
 import { ResponseActions } from "~/components";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { getAvatarUrl } from "~/lib/avatar";
-import { ContactInfo } from "../integrations/contact-info";
 import { ScreeningHoverCard } from "../screening/screening-hover-card";
 import { ChatIndicator } from "../ui/chat-indicator";
 import { PriorityBadge } from "../ui/priority-badge";
@@ -260,6 +258,34 @@ export function ResponseRow({
         <span className="text-muted-foreground text-xs">—</span>
       </TableCell>
       <TableCell>
+        {response.salaryExpectationsAmount ? (
+          <span className="text-sm font-medium">
+            {new Intl.NumberFormat("ru-RU").format(
+              response.salaryExpectationsAmount,
+            )}{" "}
+            ₽
+          </span>
+        ) : (
+          <span className="text-muted-foreground text-xs">—</span>
+        )}
+      </TableCell>
+      <TableCell>
+        {/* Навыки - можно добавить позже */}
+        <span className="text-muted-foreground text-xs">—</span>
+      </TableCell>
+      <TableCell>
+        {response.screening?.compositeScore != null ? (
+          <div className="flex items-center gap-1">
+            <span className="text-sm font-medium">
+              {response.screening.compositeScore}
+            </span>
+            <span className="text-xs text-muted-foreground">/10</span>
+          </div>
+        ) : (
+          <span className="text-muted-foreground text-xs">—</span>
+        )}
+      </TableCell>
+      <TableCell>
         {response.interviewScoring ? (
           <ScreeningHoverCard screening={response.interviewScoring} />
         ) : (
@@ -281,31 +307,6 @@ export function ResponseRow({
         ) : (
           <span className="text-muted-foreground text-xs">—</span>
         )}
-      </TableCell>
-      <TableCell>
-        <div className="flex items-center min-w-32">
-          <ContactInfo contacts={response.contacts} size="sm" />
-        </div>
-      </TableCell>
-      <TableCell>
-        <div className="flex items-center gap-2">
-          {response.resumeUrl ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-6 px-2 text-xs gap-1 hover:bg-primary/10"
-              onClick={() =>
-                response.resumeUrl &&
-                window.open(response.resumeUrl, "_blank", "noopener,noreferrer")
-              }
-            >
-              <ExternalLink className="h-3 w-3" />
-              Открыть
-            </Button>
-          ) : (
-            <span className="text-muted-foreground text-xs">—</span>
-          )}
-        </div>
       </TableCell>
       <TableCell>
         <div className="max-w-50 truncate">

@@ -4,6 +4,7 @@ import { cn } from "@qbs-autonaim/ui";
 import { Card } from "@qbs-autonaim/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
+import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
 import { ConfirmationView } from "./confirmation-view";
 import { ProgressView } from "./progress-view";
@@ -17,12 +18,15 @@ export function RefreshStatusIndicator({
   onConfirmationClose,
   onConfirm,
   mode = "refresh",
+  batchId,
+  totalResponses,
 }: RefreshStatusIndicatorProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [internalShowConfirmation, setInternalShowConfirmation] =
     useState(false);
 
   const trpc = useTRPC();
+  const { workspace } = useWorkspace();
   const showConfirmation = externalShowConfirmation ?? internalShowConfirmation;
 
   const handleVisibilityChange = useCallback((visible: boolean) => {
@@ -33,12 +37,16 @@ export function RefreshStatusIndicator({
     currentProgress,
     currentResult,
     archivedStatus,
+    analyzeProgress,
+    analyzeCompleted,
     error,
     clearAutoCloseTimer,
   } = useRefreshSubscription({
     vacancyId,
     mode,
     onVisibilityChange: handleVisibilityChange,
+    batchId,
+    workspaceId: workspace?.id,
   });
 
   const handleStartRefresh = () => {
@@ -93,6 +101,7 @@ export function RefreshStatusIndicator({
             mode={mode}
             onClose={handleClose}
             onConfirm={handleStartRefresh}
+            totalResponses={totalResponses}
           />
         ) : (
           <ProgressView
@@ -100,6 +109,8 @@ export function RefreshStatusIndicator({
             currentProgress={currentProgress}
             currentResult={currentResult}
             archivedStatus={archivedStatus}
+            analyzeProgress={analyzeProgress}
+            analyzeCompleted={analyzeCompleted}
             error={error}
             onClose={handleClose}
           />

@@ -1,4 +1,4 @@
-export type SyncMode = "refresh" | "archived";
+export type SyncMode = "refresh" | "archived" | "analyze";
 export type ProgressStatus = "started" | "processing" | "completed" | "error";
 
 export interface ProgressData {
@@ -27,6 +27,28 @@ export interface ArchivedStatusData {
   vacancyTitle?: string;
 }
 
+export interface AnalyzeProgressData {
+  batchId: string;
+  total: number;
+  processed: number;
+  successful: number;
+  failed: number;
+}
+
+export interface AnalyzeResponseData {
+  batchId: string;
+  responseId: string;
+  success: boolean;
+  error?: string;
+}
+
+export interface AnalyzeCompletedData {
+  batchId: string;
+  total: number;
+  successful: number;
+  failed: number;
+}
+
 export interface RefreshStatusIndicatorProps {
   vacancyId: string;
   className?: string;
@@ -34,4 +56,6 @@ export interface RefreshStatusIndicatorProps {
   onConfirmationClose?: () => void;
   onConfirm?: () => void;
   mode?: SyncMode;
+  batchId?: string;
+  totalResponses?: number;
 }

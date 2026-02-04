@@ -4,7 +4,6 @@ import type { ScreeningFilter } from "~/components";
 import { ResponseActionButtons } from "./response-action-buttons";
 import { ResponseDialogs } from "./response-dialogs";
 import { ResponseSearchFilter } from "./response-search-filter";
-import { useRefreshAllResumesState } from "./use-refresh-all-resumes-state";
 import { useRefreshState } from "./use-refresh-state";
 import type { ResponseStatusFilterUI } from "./use-response-table";
 import { useScreeningState } from "./use-screening-state";
@@ -24,8 +23,6 @@ interface ResponseTableToolbarProps {
   isSyncingArchived: boolean;
   onRefresh: () => void;
   onRefreshComplete: () => void;
-  onRefreshAllResumes: () => void;
-  onRefreshAllResumesDialogClose: () => void;
   onScreenNew: () => void;
   onScreenAll: () => void;
   onSyncArchived: (workspaceId: string) => void;
@@ -49,8 +46,6 @@ export function ResponseTableToolbar({
   isSyncingArchived,
   onRefresh,
   onRefreshComplete,
-  onRefreshAllResumes,
-  onRefreshAllResumesDialogClose,
   onScreenNew,
   onScreenAll,
   onSyncArchived,
@@ -86,12 +81,6 @@ export function ResponseTableToolbar({
     }
   }, [onSetArchivedHandler, syncArchivedState.handleClick]);
 
-  const refreshAllResumesState = useRefreshAllResumesState(
-    vacancyId,
-    onRefreshAllResumes,
-    onRefreshAllResumesDialogClose,
-  );
-
   return (
     <>
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between px-1 mb-4">
@@ -123,7 +112,6 @@ export function ResponseTableToolbar({
         totalResponses={totalResponses}
         screenNewState={screenNewState}
         screenAllState={screenAllState}
-        refreshAllResumesState={refreshAllResumesState}
       />
     </>
   );

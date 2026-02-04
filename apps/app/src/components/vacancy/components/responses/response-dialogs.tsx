@@ -1,12 +1,10 @@
 import { ScreeningDialog } from "./screening-dialog";
-import type { RefreshAllResumesState } from "./use-refresh-all-resumes-state";
 import type { ScreeningState } from "./use-screening-state";
 
 interface ResponseDialogsProps {
   totalResponses: number;
   screenNewState: ScreeningState;
   screenAllState: ScreeningState;
-  refreshAllResumesState: RefreshAllResumesState;
 }
 
 function getPluralForm(
@@ -31,7 +29,6 @@ export function ResponseDialogs({
   totalResponses,
   screenNewState,
   screenAllState,
-  refreshAllResumesState,
 }: ResponseDialogsProps) {
   return (
     <>
@@ -72,28 +69,6 @@ export function ResponseDialogs({
         }}
         onConfirm={screenAllState.handleClick}
         onClose={screenAllState.handleDialogClose}
-      />
-
-      <ScreeningDialog
-        open={refreshAllResumesState.dialogOpen}
-        title="Обновление резюме у всех откликов"
-        description={`Вы собираетесь запустить обновление резюме для ${totalResponses} ${getPluralForm(
-          totalResponses,
-          "отклик",
-          "отклика",
-          "откликов",
-        )}. Процесс будет выполняться в фоновом режиме, и результаты появятся в таблице автоматически.`}
-        status={refreshAllResumesState.status}
-        message={refreshAllResumesState.message}
-        error={refreshAllResumesState.error}
-        progress={refreshAllResumesState.progress}
-        onOpenChange={(open) => {
-          if (!open) {
-            refreshAllResumesState.handleDialogClose();
-          }
-        }}
-        onConfirm={refreshAllResumesState.handleClick}
-        onClose={refreshAllResumesState.handleDialogClose}
       />
     </>
   );

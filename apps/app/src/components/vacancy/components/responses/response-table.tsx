@@ -112,8 +112,6 @@ export function ResponseTable({
     handleScreeningDialogClose,
     handleRefreshResponses,
     handleRefreshComplete,
-    handleRefreshAllResumes,
-    handleRefreshAllResumesDialogClose,
     handleSendWelcomeBatch,
   } = useResponseActions(
     vacancyId,
@@ -224,7 +222,7 @@ export function ResponseTable({
 
     // После загрузки: если нет откликов - показываем пустое состояние
     if (responses.length === 0 && isFetched) {
-      return <EmptyState hasResponses={total > 0} colSpan={17} />;
+      return <EmptyState hasResponses={total > 0} colSpan={16} />;
     }
 
     // Показываем отклики
@@ -257,8 +255,6 @@ export function ResponseTable({
         isSyncingArchived={isSyncingArchived}
         onRefresh={handleRefreshResponses}
         onRefreshComplete={handleRefreshComplete}
-        onRefreshAllResumes={handleRefreshAllResumes}
-        onRefreshAllResumesDialogClose={handleRefreshAllResumesDialogClose}
         onScreenNew={handleScreenNew}
         onScreenAll={handleScreenAll}
         onSyncArchived={handleSyncArchived}
