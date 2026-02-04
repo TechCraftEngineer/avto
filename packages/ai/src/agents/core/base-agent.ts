@@ -57,6 +57,7 @@ export abstract class BaseAgent<TInput, TOutput> {
   protected readonly traceId?: string;
   protected readonly outputSchema: ZodType<TOutput>;
   protected readonly inputSchema?: ZodType<TInput>;
+  protected readonly instructions: string;
   private readonly modelProvider?: string;
   private readonly modelName?: string;
 
@@ -70,6 +71,7 @@ export abstract class BaseAgent<TInput, TOutput> {
   ) {
     this.name = name;
     this.type = type;
+    this.instructions = instructions;
     this.langfuse = config.langfuse;
     this.traceId = config.traceId;
     this.outputSchema = outputSchema;
@@ -109,25 +111,15 @@ export abstract class BaseAgent<TInput, TOutput> {
     context: unknown,
   ): Promise<{ success: boolean; data?: TOutput; error?: string }> {
     if (!this.validate(input)) {
-      console.error(`[${this.name}] Validation failed for input:`, {
-        inputKeys: Object.keys(input as object),
-        inputSample: JSON.stringify(input).substring(0, 500),
-      });
+      console.error(`[${this.name}] Validation failed for input`);
       return { success: false, error: "Некорректные входные данные" };
     }
 
     const prompt = this.buildPrompt(input, context);
 
-    // Логируем длину промпта и его содержимое для отладки
-    console.log(`[${this.name}] Executing agent:`, {
-      agentType: this.type,
-      modelProvider: this.modelProvider,
-      modelName: this.modelName,
-      promptLength: prompt.length,
-      estimatedTokens: Math.ceil(prompt.length / 4),
-      promptPreview:
-        prompt.substring(0, 500) + (prompt.length > 500 ? "..." : ""),
-    });
+    // Логируем что уходит в агента
+    console.log(`\n[${this.name}] 📋 Системные инструкции:`, this.instructions);
+    console.log(`\n[${this.name}] 💬 Пользовательский промпт:`, prompt);
 
     // Создаем или получаем trace, затем создаем span
     let span: ReturnType<NonNullable<typeof this.langfuse>["span"]> | undefined;
@@ -146,14 +138,17 @@ export abstract class BaseAgent<TInput, TOutput> {
           input: {
             rawInput: input,
             compiledPrompt: prompt,
-            promptLength: prompt.length,
-            estimatedTokens: Math.ceil(prompt.length / 4),
           },
           metadata: {
             agentType: this.type,
             modelProvider: this.modelProvider,
             modelName: this.modelName,
             model: `${this.modelProvider}/${this.modelName}`,
+            instructions: this.instructions,
+            outputSchema: JSON.stringify(this.outputSchema._def, null, 2),
+            inputSchema: this.inputSchema
+              ? JSON.stringify(this.inputSchema._def, null, 2)
+              : undefined,
           },
         });
       } catch (error) {
@@ -164,20 +159,7 @@ export abstract class BaseAgent<TInput, TOutput> {
     try {
       const result = await this.agent.generate({ prompt });
 
-      // Детальное логирование структуры result для отладки
-      console.log(`[${this.name}] Raw result structure:`, {
-        hasOutput: !!result.output,
-        outputType: typeof result.output,
-        outputKeys:
-          result.output && typeof result.output === "object"
-            ? Object.keys(result.output)
-            : [],
-        outputSample: JSON.stringify(result.output).substring(0, 1000),
-        finishReason: result.finishReason,
-      });
-
       // AI SDK 6 с Output.object() может возвращать объект с полем content
-      // Извлекаем content перед валидацией, если он есть
       let outputData: unknown = result.output;
 
       // Проверяем, есть ли обёртка {content: {...}}
@@ -187,20 +169,8 @@ export abstract class BaseAgent<TInput, TOutput> {
         "content" in outputData &&
         Object.keys(outputData).length === 1
       ) {
-        // Это обёртка от AI SDK, извлекаем content
         outputData = (outputData as { content: unknown }).content;
-        console.log(`[${this.name}] Extracted content from AI SDK wrapper`);
       }
-
-      console.log(`[${this.name}] Extracted output data:`, {
-        wasWrapped: outputData !== result.output,
-        outputDataType: typeof outputData,
-        outputDataKeys:
-          outputData && typeof outputData === "object"
-            ? Object.keys(outputData)
-            : [],
-        outputDataSample: JSON.stringify(outputData).substring(0, 1000),
-      });
 
       // Валидируем извлеченные данные против outputSchema
       const contentValidation = this.outputSchema.safeParse(outputData);
@@ -208,9 +178,6 @@ export abstract class BaseAgent<TInput, TOutput> {
       if (!contentValidation.success) {
         console.error(`[${this.name}] Output validation failed:`, {
           errors: contentValidation.error.issues,
-          rawOutput: result.output,
-          extractedData: outputData,
-          finishReason: result.finishReason,
         });
         throw new Error(
           `Не удалось валидировать выход агента: ${contentValidation.error.message}`,
@@ -228,14 +195,7 @@ export abstract class BaseAgent<TInput, TOutput> {
       });
 
       if (!fullResponseValidation.success) {
-        console.error(`[${this.name}] Full response validation failed:`, {
-          errors: fullResponseValidation.error.issues,
-          rawResult: {
-            finishReason: result.finishReason,
-            model: (result as { model?: { modelId?: string } }).model,
-            usage: (result as { usage?: unknown }).usage,
-          },
-        });
+        console.error(`[${this.name}] Full response validation failed`);
         throw new Error(
           `Не удалось валидировать полный ответ агента: ${fullResponseValidation.error.message}`,
         );
@@ -251,8 +211,6 @@ export abstract class BaseAgent<TInput, TOutput> {
         metadata: {
           success: true,
           agentType: this.type,
-          promptLength: prompt.length,
-          estimatedTokens: Math.ceil(prompt.length / 4),
           finishReason: validatedResponse.finishReason,
           model: validatedResponse.model?.modelId,
           modelProvider: this.modelProvider,
@@ -266,7 +224,6 @@ export abstract class BaseAgent<TInput, TOutput> {
         data: validatedOutput,
       };
     } catch (error) {
-      // Проверяем, является ли это ошибкой таймаута
       const isTimeout = error instanceof Error && error.name === "AbortError";
 
       const errorMessage = isTimeout
@@ -275,47 +232,22 @@ export abstract class BaseAgent<TInput, TOutput> {
           ? error.message
           : "Неизвестная ошибка";
 
-      // Извлекаем детали ошибки API
       const apiError = error as {
         responseBody?: unknown;
         statusCode?: number;
         requestId?: string;
       };
-      const responseBody = apiError?.responseBody;
-      const statusCode = apiError?.statusCode;
-      const requestId = apiError?.requestId;
 
-      // Логируем детальную информацию об ошибке
       console.error(`[${this.name}] Agent execution failed:`, {
         error: errorMessage,
         isTimeout,
-        stack: error instanceof Error ? error.stack : undefined,
-        agentType: this.type,
-        // API детали
-        statusCode,
-        requestId,
-        responseBody: responseBody ? JSON.stringify(responseBody) : undefined,
-        // Добавляем детали ошибки для отладки
-        errorDetails:
-          error instanceof Error
-            ? {
-                name: error.name,
-                message: error.message,
-                cause: error.cause,
-              }
-            : error,
+        statusCode: apiError?.statusCode,
+        requestId: apiError?.requestId,
       });
 
       span?.end({
         output: {
           error: errorMessage,
-          errorDetails:
-            error instanceof Error
-              ? {
-                  name: error.name,
-                  message: error.message,
-                }
-              : undefined,
         },
         metadata: {
           success: false,
@@ -324,12 +256,8 @@ export abstract class BaseAgent<TInput, TOutput> {
           modelName: this.modelName,
           error: errorMessage,
           isTimeout,
-          errorStack: error instanceof Error ? error.stack : undefined,
-          statusCode,
-          requestId,
-          responseBody: responseBody
-            ? JSON.stringify(responseBody).substring(0, 1000)
-            : undefined,
+          statusCode: apiError?.statusCode,
+          requestId: apiError?.requestId,
         },
       });
 
