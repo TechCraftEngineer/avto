@@ -22,5 +22,7 @@ export { getInitials } from "./get-initials";
 export { getInterviewBaseUrl } from "./get-interview-url";
 // Русская плюрализация
 export { pluralize } from "./pluralize";
+// Форматирование событий откликов
+export { getResponseEventTitle } from "./response-event-formatter";
 // Генерация slug
 export { generateSlug } from "./slug-generator";

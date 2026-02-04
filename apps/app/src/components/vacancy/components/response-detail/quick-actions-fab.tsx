@@ -7,7 +7,6 @@ import {
   Download,
   GitCompare,
   Mail,
-  MessageSquare,
   MoreHorizontal,
   Phone,
   Star,
@@ -17,15 +16,9 @@ import type { VacancyResponse } from "./types";
 
 interface QuickActionsFabProps {
   response: VacancyResponse;
-  onMessage?: () => void;
-  onEvaluate?: () => void;
 }
 
-export function QuickActionsFab({
-  response,
-  onMessage,
-  onEvaluate,
-}: QuickActionsFabProps) {
+export function QuickActionsFab({ response }: QuickActionsFabProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const actions = [

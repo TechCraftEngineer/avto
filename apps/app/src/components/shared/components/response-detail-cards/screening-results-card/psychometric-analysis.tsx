@@ -88,9 +88,9 @@ export function PsychometricAnalysis({ analysis }: PsychometricAnalysisProps) {
             Сильные стороны личности
           </h4>
           <div className="flex flex-wrap gap-2">
-            {analysis.strengths.map((strength, index) => (
+            {analysis.strengths.map((strength) => (
               <Badge
-                key={index}
+                key={strength}
                 variant="secondary"
                 className="text-xs whitespace-normal"
               >
@@ -113,9 +113,9 @@ export function PsychometricAnalysis({ analysis }: PsychometricAnalysisProps) {
             Потенциальные сложности
           </h4>
           <div className="flex flex-wrap gap-2">
-            {analysis.challenges.map((challenge, index) => (
+            {analysis.challenges.map((challenge) => (
               <Badge
-                key={index}
+                key={challenge}
                 variant="outline"
                 className="text-xs border-orange-200 whitespace-normal"
               >
@@ -138,12 +138,12 @@ export function PsychometricAnalysis({ analysis }: PsychometricAnalysisProps) {
             Рекомендации по адаптации
           </h4>
           <ul className="space-y-1">
-            {analysis.recommendations.map((recommendation, index) => (
+            {analysis.recommendations.map((recommendation) => (
               <li
-                key={index}
+                key={recommendation}
                 className="text-sm text-muted-foreground flex items-start gap-2"
               >
-                <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-2 flex-shrink-0" />
+                <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-2 shrink-0" />
                 <span
                   dangerouslySetInnerHTML={{
                     __html: sanitizeHtmlFunction(recommendation),
@@ -177,9 +177,9 @@ export function PsychometricAnalysis({ analysis }: PsychometricAnalysisProps) {
             Оптимальные периоды для начала работы
           </h4>
           <div className="grid gap-2 sm:grid-cols-2">
-            {analysis.favorablePeriods.map((period, index) => (
+            {analysis.favorablePeriods.map((period) => (
               <div
-                key={index}
+                key={period.period}
                 className="p-3 bg-green-50 border border-green-100 rounded-lg"
               >
                 <div className="font-medium text-sm text-green-800 mb-1">

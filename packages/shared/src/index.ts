@@ -36,6 +36,7 @@ export type {
 export {
   getInitials,
   getPlatformTaskUrl,
+  getResponseEventTitle,
   type ParsedPlatformLink,
   parsePlatformLink,
   pluralize,

@@ -4,26 +4,11 @@ import {
   response as responseTable,
   vacancy as vacancyTable,
 } from "@qbs-autonaim/db/schema";
+import { getResponseEventTitle } from "@qbs-autonaim/shared";
 import { uuidv7Schema, workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../trpc";
-
-const EVENT_TYPE_DESCRIPTIONS: Record<string, string> = {
-  STATUS_CHANGED: "Статус изменен",
-  HR_STATUS_CHANGED: "HR статус изменен",
-  TELEGRAM_USERNAME_ADDED: "Добавлен Telegram username",
-  CHAT_ID_ADDED: "Добавлен Chat ID",
-  PHONE_ADDED: "Добавлен телефон",
-  RESUME_UPDATED: "Резюме обновлено",
-  PHOTO_ADDED: "Добавлено фото",
-  WELCOME_SENT: "Отправлено приветствие",
-  OFFER_SENT: "Отправлено предложение",
-  COMMENT_ADDED: "Добавлен комментарий",
-  SALARY_UPDATED: "Обновлена зарплата",
-  CONTACT_INFO_UPDATED: "Обновлена контактная информация",
-  CREATED: "Создан",
-};
 
 export const listActivities = protectedProcedure
   .input(
@@ -83,17 +68,13 @@ export const listActivities = protectedProcedure
 
     // Форматируем активности
     return activities.map((activity) => {
-      let description =
-        EVENT_TYPE_DESCRIPTIONS[activity.eventType] || activity.eventType;
+      // Используем универсальную функцию для получения описания
+      let description = getResponseEventTitle(
+        activity.eventType,
+        activity.newValue,
+      );
 
-      // Добавляем детали для некоторых типов событий
-      if (activity.eventType === "STATUS_CHANGED" && activity.newValue) {
-        const newStatus = (activity.newValue as { status?: string }).status;
-        if (newStatus) {
-          description = `Статус изменен на "${newStatus}"`;
-        }
-      }
-
+      // Добавляем детали для комментариев
       if (activity.eventType === "COMMENT_ADDED" && activity.metadata) {
         const comment = (activity.metadata as { comment?: string }).comment;
         if (comment) {

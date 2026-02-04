@@ -5,7 +5,6 @@ import {
   HR_SELECTION_STATUS_LABELS,
   RESPONSE_STATUS_LABELS,
 } from "@qbs-autonaim/db/schema";
-import { formatExperienceText } from "@qbs-autonaim/shared/utils";
 import {
   Badge,
   Card,
@@ -13,9 +12,6 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
   Tooltip,
   TooltipContent,
   TooltipProvider,

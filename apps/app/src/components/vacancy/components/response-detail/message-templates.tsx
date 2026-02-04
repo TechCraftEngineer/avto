@@ -16,7 +16,6 @@ import {
   Copy,
   Mail,
   MessageSquare,
-  Phone,
   Star,
 } from "lucide-react";
 import { useState } from "react";

@@ -1,4 +1,4 @@
-import { formatPhone } from "@qbs-autonaim/shared";
+import { formatPhone } from "@qbs-autonaim/validators";
 
 interface PhoneDisplayProps {
   phone: string | null | undefined;

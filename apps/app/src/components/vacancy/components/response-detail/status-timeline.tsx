@@ -1,5 +1,6 @@
 "use client";
 
+import { getResponseEventTitle } from "@qbs-autonaim/shared";
 import { Badge } from "@qbs-autonaim/ui/badge";
 import {
   Card,
@@ -9,7 +10,6 @@ import {
 } from "@qbs-autonaim/ui/card";
 import { skipToken, useQuery } from "@tanstack/react-query";
 import {
-  AlertCircle,
   Briefcase,
   Calendar,
   CheckCircle2,
@@ -19,7 +19,6 @@ import {
   MessageSquare,
   Phone,
   User,
-  XCircle,
 } from "lucide-react";
 import { useState } from "react";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
@@ -39,7 +38,7 @@ interface TimelineEvent {
   timestamp: Date;
   icon: React.ElementType;
   color: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export function StatusTimeline({ response }: StatusTimelineProps) {
@@ -116,40 +115,6 @@ export function StatusTimeline({ response }: StatusTimelineProps) {
     }
   };
 
-  // Функция для получения заголовка события
-  const getEventTitle = (eventType: string, oldValue?: any, newValue?: any) => {
-    switch (eventType) {
-      case "CREATED":
-        return "Отклик создан";
-      case "STATUS_CHANGED":
-        return `Статус изменен на ${newValue || "неизвестный"}`;
-      case "HR_STATUS_CHANGED":
-        return `HR статус изменен на ${newValue || "неизвестный"}`;
-      case "WELCOME_SENT":
-        return "Приветственное сообщение отправлено";
-      case "OFFER_SENT":
-        return "Предложение отправлено";
-      case "SCREENING_COMPLETED":
-        return "Скрининг завершен";
-      case "INTERVIEW_STARTED":
-        return "Собеседование начато";
-      case "INTERVIEW_COMPLETED":
-        return "Собеседование завершено";
-      case "RESUME_UPDATED":
-        return "Резюме обновлено";
-      case "PHONE_ADDED":
-        return "Телефон добавлен";
-      case "EMAIL_ADDED":
-        return "Email добавлен";
-      case "COMMENT_ADDED":
-        return "Комментарий добавлен";
-      case "SALARY_UPDATED":
-        return "Зарплата обновлена";
-      default:
-        return eventType.replace(/_/g, " ").toLowerCase();
-    }
-  };
-
   // Преобразуем данные истории в TimelineEvent
   const events: TimelineEvent[] = historyData
     ? historyData.map((event) => ({
@@ -165,7 +130,7 @@ export function StatusTimeline({ response }: StatusTimelineProps) {
                   event.eventType.toLowerCase().includes("evaluation")
                 ? ("evaluation" as const)
                 : ("note" as const),
-        title: getEventTitle(event.eventType, event.oldValue, event.newValue),
+        title: getResponseEventTitle(event.eventType, event.newValue),
         description: `Изменение: ${event.oldValue || "—"} → ${event.newValue || "—"}`,
         timestamp: event.createdAt,
         icon: getEventIcon(event.eventType),
@@ -320,6 +285,7 @@ export function StatusTimeline({ response }: StatusTimelineProps) {
         {events.length > 3 && (
           <div className="pt-2 border-t">
             <button
+              type="button"
               onClick={() => setIsExpanded(!isExpanded)}
               className="text-sm text-primary hover:underline"
             >
@@ -353,8 +319,7 @@ export function StatusTimeline({ response }: StatusTimelineProps) {
           <div className="text-center">
             <div className="text-lg font-bold text-orange-600">
               {Math.floor(
-                (new Date().getTime() -
-                  (response.respondedAt?.getTime() || Date.now())) /
+                (Date.now() - (response.respondedAt?.getTime() || Date.now())) /
                   (1000 * 60 * 60 * 24),
               )}
             </div>

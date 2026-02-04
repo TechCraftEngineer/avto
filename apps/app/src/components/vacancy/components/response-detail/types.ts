@@ -27,7 +27,7 @@ export type VacancyResponseFromList = NonNullable<
 export interface VacancyResponseDetailCardProps {
   response: VacancyResponse;
   vacancy?: Vacancy;
-  allResponses?: any[];
+  allResponses?: VacancyResponseFromList[];
   onAccept?: () => void;
   onReject?: () => void;
   onMessage?: () => void;

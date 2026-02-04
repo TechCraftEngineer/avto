@@ -34,7 +34,6 @@ interface ResponseActionsProps {
   telegramUsername?: string | null;
   phone?: string | null;
   welcomeSentAt?: Date | null;
-  status?: string;
   onSendWelcome?: () => Promise<void>;
 }
 
@@ -44,7 +43,6 @@ export function ResponseActions({
   telegramUsername,
   phone,
   welcomeSentAt,
-  status,
   onSendWelcome,
 }: ResponseActionsProps) {
   const [isSendingWelcome, setIsSendingWelcome] = useState(false);
@@ -156,20 +154,15 @@ export function ResponseActions({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-
-            <DropdownMenuItem
-              onClick={handleScreenResponse}
-              disabled={isScreening}
-            >
-              {isScreening ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <Sparkles className="h-4 w-4 mr-2" />
-              )}
-              {isScreening ? "Оценка…" : "Оценить кандидата"}
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-     
+        <DropdownMenuItem onClick={handleScreenResponse} disabled={isScreening}>
+          {isScreening ? (
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+          ) : (
+            <Sparkles className="h-4 w-4 mr-2" />
+          )}
+          {isScreening ? "Оценка…" : "Оценить кандидата"}
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
 
         {/* Обновить резюме */}
         {resumeUrl && (

@@ -186,9 +186,10 @@ export function ExportCandidateModal({ response }: ExportCandidateModalProps) {
               {exportFormats.map((format) => {
                 const Icon = format.icon;
                 return (
-                  <div
+                  <button
+                    type="button"
                     key={format.id}
-                    className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                    className={`p-4 border rounded-lg cursor-pointer transition-colors text-left ${
                       selectedFormat === format.id
                         ? "border-blue-500 bg-blue-50 dark:bg-blue-950"
                         : "border-gray-200 hover:border-gray-300"
@@ -209,7 +210,7 @@ export function ExportCandidateModal({ response }: ExportCandidateModalProps) {
                         Выбран
                       </Badge>
                     )}
-                  </div>
+                  </button>
                 );
               })}
             </div>
@@ -225,9 +226,10 @@ export function ExportCandidateModal({ response }: ExportCandidateModalProps) {
                 const Icon = section.icon;
                 const isSelected = selectedSections.includes(section.id);
                 return (
-                  <div
+                  <button
+                    type="button"
                     key={section.id}
-                    className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                    className={`p-3 border rounded-lg cursor-pointer transition-colors text-left ${
                       isSelected
                         ? "border-blue-500 bg-blue-50 dark:bg-blue-950"
                         : "border-gray-200 hover:border-gray-300"
@@ -250,7 +252,7 @@ export function ExportCandidateModal({ response }: ExportCandidateModalProps) {
                         </p>
                       </div>
                     </div>
-                  </div>
+                  </button>
                 );
               })}
             </div>
