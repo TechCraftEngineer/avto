@@ -123,13 +123,13 @@ export function ResponseRow({
               )}
               {response.interviewSession &&
                 response.interviewSession.messageCount > 0 && (
-                <ChatIndicator
-                  messageCount={response.interviewSession.messageCount}
-                  conversationId={response.interviewSession.id}
-                  orgSlug={orgSlug}
-                  workspaceSlug={workspaceSlug}
-                />
-              )}
+                  <ChatIndicator
+                    messageCount={response.interviewSession.messageCount}
+                    conversationId={response.interviewSession.id}
+                    orgSlug={orgSlug}
+                    workspaceSlug={workspaceSlug}
+                  />
+                )}
               {response.screening?.hiddenFitIndicators &&
                 response.screening.hiddenFitIndicators.length > 0 && (
                   <HoverCard>
@@ -354,7 +354,6 @@ export function ResponseRow({
               telegramUsername={response.telegramUsername}
               phone={response.phone}
               welcomeSentAt={response.welcomeSentAt}
-              status={response.status}
               onSendWelcome={async () => {
                 // TODO: Реализовать отправку приветствия
                 console.log("Отправка приветствия для отклика:", response.id);

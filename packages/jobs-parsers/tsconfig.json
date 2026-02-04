@@ -2,15 +2,15 @@
   "extends": "@qbs-autonaim/tsconfig/base.json",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src",
     "baseUrl": ".",
     "paths": {
-      "~/*": ["src/*"]
+      "~/*": ["src/*", "../jobs/src/*"],
+      "@qbs-autonaim/jobs/*": ["../jobs/src/*"]
     },
     "lib": ["ES2022"],
     "types": ["bun-types"],
     "skipLibCheck": true
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist", "../jobs/**/*"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.spec.ts", "**/*.test.ts"]
 }

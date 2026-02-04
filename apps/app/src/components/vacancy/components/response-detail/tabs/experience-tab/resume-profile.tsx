@@ -4,11 +4,11 @@ import { sanitizeHtmlFunction } from "~/lib/sanitize-html";
 
 interface ResumeProfileProps {
   profile: {
-    summary?: string;
+    summary?: string | null;
     experience?: unknown;
     education?: unknown;
-    skills?: string[];
-    location?: string;
+    skills?: string[] | null;
+    location?: string | null;
   };
 }
 

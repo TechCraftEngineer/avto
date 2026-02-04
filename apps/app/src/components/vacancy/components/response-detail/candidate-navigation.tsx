@@ -4,24 +4,38 @@ import { Badge } from "@qbs-autonaim/ui/badge";
 import { Button } from "@qbs-autonaim/ui/button";
 import { ArrowUpDown, ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { useEffect, useState } from "react";
-import type { VacancyResponse } from "./types";
+import type { VacancyResponse, VacancyResponseFromList } from "./types";
 
 interface CandidateNavigationProps {
   currentResponse: VacancyResponse;
-  allResponses: VacancyResponse[];
+  allResponses: VacancyResponse[] | VacancyResponseFromList[];
   onNavigate: (responseId: string) => void;
 }
 
 // Функция расчета соответствия (дублируется из header-card, потом можно вынести)
-function calculateMatchScore(response: VacancyResponse): number {
+function calculateMatchScore(
+  response: VacancyResponse | VacancyResponseFromList,
+): number {
   let score = 0;
-  if (response.profileData && !response.profileData.error) score += 30;
-  if (response.resumeId) score += 20;
-  if (response.salaryExpectationsAmount) score += 15;
-  if (response.email || response.phone || response.telegramUsername)
+  if (
+    "profileData" in response &&
+    response.profileData &&
+    !response.profileData.error
+  )
+    score += 30;
+  if ("resumeId" in response && response.resumeId) score += 20;
+  if (
+    "salaryExpectationsAmount" in response &&
+    response.salaryExpectationsAmount
+  )
     score += 15;
-  if (response.skills?.length) score += 10;
-  if (response.coverLetter) score += 10;
+  const hasContact =
+    ("email" in response && response.email) ||
+    ("phone" in response && response.phone) ||
+    ("telegramUsername" in response && response.telegramUsername);
+  if (hasContact) score += 15;
+  if ("skills" in response && response.skills?.length) score += 10;
+  if ("coverLetter" in response && response.coverLetter) score += 10;
   return Math.min(score, 100);
 }
 
@@ -48,7 +62,10 @@ export function CandidateNavigation({
     }
   };
 
-  const handleCardClick = (response: VacancyResponse, index: number) => {
+  const handleCardClick = (
+    response: VacancyResponse | VacancyResponseFromList,
+    index: number,
+  ) => {
     if (response && response.id !== currentResponse.id) {
       onNavigate(response.id);
       setCurrentIndex(index);
@@ -88,7 +105,7 @@ export function CandidateNavigation({
   };
 
   return (
-    <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+    <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 border-b">
       <div className="flex items-center justify-between p-4">
         {/* Навигация */}
         <div className="flex items-center gap-2">
@@ -126,9 +143,10 @@ export function CandidateNavigation({
         <div className="flex items-center gap-3">
           {/* Предыдущий кандидат */}
           {currentIndex > 0 &&
-            allResponses[currentIndex - 1] &&
             (() => {
               const prevResponse = allResponses[currentIndex - 1];
+              if (!prevResponse) return null;
+
               return (
                 <button
                   type="button"
@@ -168,9 +186,10 @@ export function CandidateNavigation({
 
           {/* Следующий кандидат */}
           {currentIndex < allResponses.length - 1 &&
-            allResponses[currentIndex + 1] &&
             (() => {
               const nextResponse = allResponses[currentIndex + 1];
+              if (!nextResponse) return null;
+
               return (
                 <button
                   type="button"

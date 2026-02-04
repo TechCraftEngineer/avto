@@ -263,16 +263,17 @@ export function StatusTimeline({ response }: StatusTimelineProps) {
                   {/* Additional metadata */}
                   {event.metadata && (
                     <div className="mt-2 flex flex-wrap gap-2">
-                      {event.metadata.score && (
+                      {typeof event.metadata.score === "number" && (
                         <Badge variant="secondary" className="text-xs">
                           Оценка: {event.metadata.score}%
                         </Badge>
                       )}
-                      {event.metadata.date && event.metadata.time && (
-                        <Badge variant="outline" className="text-xs">
-                          {event.metadata.date} в {event.metadata.time}
-                        </Badge>
-                      )}
+                      {typeof event.metadata.date === "string" &&
+                        typeof event.metadata.time === "string" && (
+                          <Badge variant="outline" className="text-xs">
+                            {event.metadata.date} в {event.metadata.time}
+                          </Badge>
+                        )}
                     </div>
                   )}
                 </div>

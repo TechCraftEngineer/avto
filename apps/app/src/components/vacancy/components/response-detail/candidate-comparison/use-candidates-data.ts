@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
+import type { VacancyResponseFromList } from "../types";
 import type { CandidateMetrics } from "./types";
 import {
   calculateLastActivity,
@@ -34,16 +35,16 @@ export function useCandidatesData({ vacancyId }: UseCandidatesDataProps) {
   const candidates = useMemo<CandidateMetrics[]>(() => {
     if (!responsesData?.responses) return [];
 
-    return responsesData.responses.map((response) => ({
+    return responsesData.responses.map((response: VacancyResponseFromList) => ({
       id: response.id,
       name: response.candidateName || "Без имени",
-      matchScore: calculateMatchScore(response),
+      matchScore: calculateMatchScore(response as any),
       salary: response.salaryExpectationsAmount,
-      experience: getExperienceFromProfile(response),
+      experience: getExperienceFromProfile(response as any),
       skills: response.skills || [],
-      responseTime: calculateResponseTime(response),
+      responseTime: calculateResponseTime(response as any),
       status: response.status,
-      lastActivity: calculateLastActivity(response),
+      lastActivity: calculateLastActivity(response as any),
     }));
   }, [responsesData]);
 

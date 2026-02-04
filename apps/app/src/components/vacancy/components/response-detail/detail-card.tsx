@@ -110,11 +110,7 @@ export function VacancyResponseDetailCard({
       />
 
       {/* Быстрые действия FAB */}
-      <QuickActionsFab
-        response={response}
-        onMessage={onMessage}
-        onEvaluate={onEvaluate}
-      />
+      <QuickActionsFab response={response} />
     </div>
   );
 }
