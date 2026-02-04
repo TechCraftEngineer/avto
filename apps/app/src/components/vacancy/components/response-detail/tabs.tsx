@@ -9,18 +9,15 @@ import {
   TabsList,
   TabsTrigger,
 } from "@qbs-autonaim/ui";
-import { skipToken, useQuery } from "@tanstack/react-query";
 import {
   ContactsTab,
   DialogTab,
   ExperienceTab,
   InterviewScoringCard,
   PortfolioTab,
-  ProposalTab,
   ScreeningResultsCard,
+  VacancyProposalTab,
 } from "~/components/shared/components/response-detail-tabs";
-import { useTRPC } from "~/trpc/react";
-import { ResumeCard } from "./resume-card";
 import { SalaryCard } from "./salary-card";
 import type { VacancyResponseTabsProps } from "./types";
 
@@ -33,25 +30,11 @@ export function VacancyResponseTabs({
   screening,
   conversation,
 }: VacancyResponseTabsProps) {
-  const trpc = useTRPC();
-
-  // Получаем presigned URL для PDF резюме
-  const { data: resumePdfData } = useQuery(
-    trpc.files.getFileUrl.queryOptions(
-      response.resumePdfFileId && response.workspaceId
-        ? {
-            workspaceId: response.workspaceId,
-            fileId: response.resumePdfFileId,
-          }
-        : skipToken,
-    ),
-  );
-
   return (
     <Card>
       <Tabs defaultValue={defaultTab} className="w-full">
         <CardHeader className="pb-3">
-          <TabsList className="grid w-full h-auto gap-1 p-1 grid-cols-4 sm:grid-cols-8">
+          <TabsList className="grid w-full h-auto gap-1 p-1 grid-cols-4 sm:grid-cols-7">
             <TabsTrigger
               value="analysis"
               className="min-h-11 sm:min-h-9 text-xs sm:text-sm touch-manipulation"
@@ -94,12 +77,6 @@ export function VacancyResponseTabs({
             >
               Зарплата
             </TabsTrigger>
-            <TabsTrigger
-              value="resume"
-              className="min-h-11 sm:min-h-9 text-xs sm:text-sm touch-manipulation"
-            >
-              Резюме
-            </TabsTrigger>
           </TabsList>
         </CardHeader>
 
@@ -134,7 +111,7 @@ export function VacancyResponseTabs({
 
           {/* Proposal Tab */}
           <TabsContent value="proposal" className="space-y-3 sm:space-y-4 mt-0">
-            <ProposalTab response={response} />
+            <VacancyProposalTab response={response} />
           </TabsContent>
 
           {/* Experience Tab */}
@@ -161,19 +138,6 @@ export function VacancyResponseTabs({
           {/* Salary Tab */}
           <TabsContent value="salary" className="space-y-3 sm:space-y-4 mt-0">
             <SalaryCard response={response} />
-          </TabsContent>
-
-          {/* Resume Tab */}
-          <TabsContent value="resume" className="space-y-3 sm:space-y-4 mt-0">
-            <ResumeCard
-              response={response}
-              resumePdfUrl={resumePdfData?.url}
-              onViewExternal={(url) => {
-                if (url) {
-                  window.open(url, "_blank", "noopener,noreferrer");
-                }
-              }}
-            />
           </TabsContent>
         </CardContent>
       </Tabs>

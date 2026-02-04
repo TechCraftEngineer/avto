@@ -8,47 +8,59 @@ import { closeBrowserSafely } from "./browser-utils";
 
 /**
  * Cleans up temporary Puppeteer profiles to avoid EBUSY errors on Windows
+ * Safe for concurrent execution - ignores errors from profiles in use
  */
 async function cleanupTempProfiles(): Promise<void> {
   try {
     const tempDir = os.tmpdir();
     const files = await fs.readdir(tempDir);
 
-    // Find and remove puppeteer temp profiles
+    // Find puppeteer temp profiles
     const puppeteerProfilePattern = /^puppeteer_dev_chrome_profile-/;
-    const cleanupPromises = files
-      .filter((file) => puppeteerProfilePattern.test(file))
-      .map(async (profileDir) => {
-        const profilePath = path.join(tempDir, profileDir);
-        try {
-          // Try to remove the directory recursively
-          await fs.rm(profilePath, { recursive: true, force: true });
-          console.log(`🧹 Очищен временный профиль: ${profileDir}`);
-        } catch (error) {
-          // Ignore cleanup errors - directory might be in use
-          console.warn(`⚠️ Не удалось очистить профиль ${profileDir}:`, error);
-        }
-      });
+    const profileDirs = files.filter((file) =>
+      puppeteerProfilePattern.test(file),
+    );
 
-    await Promise.all(cleanupPromises);
-  } catch (error) {
-    // Ignore cleanup errors during setup
-    console.warn("⚠️ Ошибка при очистке временных профилей:", error);
+    // Clean up profiles sequentially to avoid race conditions
+    for (const profileDir of profileDirs) {
+      const profilePath = path.join(tempDir, profileDir);
+      try {
+        // Check if directory exists before attempting removal
+        const stats = await fs.stat(profilePath);
+        if (stats.isDirectory()) {
+          await fs.rm(profilePath, {
+            recursive: true,
+            force: true,
+            maxRetries: 0,
+          });
+          console.log(`🧹 Очищен временный профиль: ${profileDir}`);
+        }
+      } catch (_error) {
+        // Silently ignore - profile might be in use by another process
+        // This is expected during parallel execution
+      }
+    }
+  } catch (_error) {
+    // Ignore cleanup errors during setup - not critical
   }
 }
 
 /**
  * Launches a Puppeteer browser with HH-specific configuration
+ * Safe for concurrent execution - each browser gets isolated profile
  */
 export async function setupBrowser(): Promise<Browser> {
-  // Clean up temp profiles before launching new browser
+  // Clean up old temp profiles (safe for parallel execution)
   await cleanupTempProfiles();
 
+  // Launch browser with isolated temporary profile
+  // Each instance gets unique profile, enabling parallel execution
   return await puppeteer.launch({
     headless: HH_CONFIG.puppeteer.headless,
     args: HH_CONFIG.puppeteer.args,
     ignoreDefaultArgs: HH_CONFIG.puppeteer.ignoreDefaultArgs,
     slowMo: HH_CONFIG.puppeteer.slowMo,
+    // userDataDir is undefined - Puppeteer creates unique temp profile per instance
   });
 }
 
@@ -165,7 +177,12 @@ export async function setupPageWithAuth(
     const page = await setupPage(browser, savedCookies as CookieData[] | null);
 
     // Check authentication and perform login if needed
-    const loggedIn = await checkAndPerformLogin(page, email, password, workspaceId);
+    const loggedIn = await checkAndPerformLogin(
+      page,
+      email,
+      password,
+      workspaceId,
+    );
 
     if (!loggedIn) {
       throw new Error("Не удалось войти в систему HeadHunter");
@@ -184,4 +201,3 @@ export async function setupPageWithAuth(
     throw error;
   }
 }
-

@@ -20,8 +20,8 @@ import {
   ContactsTab,
   DialogTab,
   ExperienceTab,
+  GigProposalTab,
   InterviewScoringCard,
-  ProposalTab,
 } from "~/components/shared/components/response-detail-tabs";
 import { PortfolioCard } from "./portfolio-card";
 import { PricingCard } from "./pricing-card";
@@ -221,7 +221,7 @@ export function GigResponseTabs({
 
           {/* Proposal Tab */}
           <TabsContent value="proposal" className="space-y-3 sm:space-y-4 mt-0">
-            <ProposalTab response={response} />
+            <GigProposalTab response={response} />
           </TabsContent>
 
           {/* Experience Tab */}

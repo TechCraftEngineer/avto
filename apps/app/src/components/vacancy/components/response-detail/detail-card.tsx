@@ -1,6 +1,8 @@
 "use client";
 
+import { skipToken, useQuery } from "@tanstack/react-query";
 import { ParsedProfileCard } from "~/components";
+import { useTRPC } from "~/trpc/react";
 import { VacancyResponseHeaderCard } from "./header-card";
 import { useVacancyResponseFlags } from "./hooks/use-vacancy-response-flags";
 import { VacancyResponseTabs } from "./tabs";
@@ -15,6 +17,7 @@ export function VacancyResponseDetailCard({
   isProcessing,
   isPolling,
 }: VacancyResponseDetailCardProps) {
+  const trpc = useTRPC();
   const {
     hasScreening,
     hasInterviewScoring,
@@ -23,6 +26,18 @@ export function VacancyResponseDetailCard({
     conversation,
     getDefaultTab,
   } = useVacancyResponseFlags(response);
+
+  // Получаем presigned URL для PDF резюме
+  const { data: resumePdfData } = useQuery(
+    trpc.files.getFileUrl.queryOptions(
+      response.resumePdfFileId && response.workspaceId
+        ? {
+            workspaceId: response.workspaceId,
+            fileId: response.resumePdfFileId,
+          }
+        : skipToken,
+    ),
+  );
 
   // Преобразуем conversation для ResponseHeaderCard
   const _mappedConversation = conversation
@@ -45,6 +60,7 @@ export function VacancyResponseDetailCard({
       {/* Header Card */}
       <VacancyResponseHeaderCard
         response={response}
+        resumePdfUrl={resumePdfData?.url}
         onAccept={onAccept}
         onReject={onReject}
         onMessage={onMessage}

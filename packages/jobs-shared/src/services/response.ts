@@ -46,6 +46,12 @@ export async function updateResponseDetails(
       where: eq(response.resumeId, responseData.resumeId),
     });
 
+    if (!current) {
+      throw new Error(
+        `Response not found for resumeId: ${responseData.resumeId}`,
+      );
+    }
+
     await db
       .update(response)
       .set({

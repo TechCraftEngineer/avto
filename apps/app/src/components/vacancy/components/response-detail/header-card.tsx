@@ -12,7 +12,10 @@ import {
   Briefcase,
   ChevronDown,
   ChevronUp,
+  Download,
+  ExternalLink,
   FileText,
+  Globe,
   MessageSquare,
   User,
   Wallet,
@@ -22,6 +25,7 @@ import type { VacancyResponse } from "./types";
 
 interface VacancyResponseHeaderCardProps {
   response: VacancyResponse;
+  resumePdfUrl?: string | null;
   onAccept?: () => void;
   onReject?: () => void;
   onMessage?: () => void;
@@ -70,6 +74,7 @@ const getStatusLabel = (status: string) => {
 
 export function VacancyResponseHeaderCard({
   response,
+  resumePdfUrl,
   onAccept,
   onReject,
   onMessage,
@@ -80,6 +85,8 @@ export function VacancyResponseHeaderCard({
   const [isSalaryCommentExpanded, setIsSalaryCommentExpanded] = useState(false);
 
   const SALARY_COMMENT_PREVIEW_LENGTH = 100;
+  const hasResume = response.resumeId || response.resumeUrl;
+  const hasProfile = response.platformProfileUrl;
 
   return (
     <Card>
@@ -190,6 +197,90 @@ export function VacancyResponseHeaderCard({
       {/* Key Info Summary */}
       <CardContent className="pt-0">
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
+          {/* Resume Actions */}
+          {hasResume && (
+            <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <FileText className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium text-blue-800">
+                  Резюме кандидата
+                </div>
+                <div className="text-xs text-blue-700 mt-0.5">
+                  {response.resumeUrl
+                    ? "Внешняя ссылка"
+                    : "Загружено в систему"}
+                </div>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {response.resumeUrl && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      asChild
+                      className="h-7 text-xs bg-white hover:bg-blue-50"
+                    >
+                      <a
+                        href={response.resumeUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <ExternalLink className="h-3 w-3 mr-1" />
+                        Открыть
+                      </a>
+                    </Button>
+                  )}
+                  {resumePdfUrl && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      asChild
+                      className="h-7 text-xs bg-white hover:bg-blue-50"
+                    >
+                      <a
+                        href={resumePdfUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        download
+                      >
+                        <Download className="h-3 w-3 mr-1" />
+                        PDF
+                      </a>
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Platform Profile */}
+          {hasProfile && (
+            <div className="flex items-start gap-2 p-3 bg-purple-50 rounded-lg border border-purple-200">
+              <Globe className="h-5 w-5 text-purple-600 shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium text-purple-800">
+                  Профиль на платформе
+                </div>
+                <div className="text-xs text-purple-700 mt-0.5 truncate">
+                  {response.platformProfileUrl}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  asChild
+                  className="h-7 text-xs bg-white hover:bg-purple-50 mt-2"
+                >
+                  <a
+                    href={response.platformProfileUrl || "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <ExternalLink className="h-3 w-3 mr-1" />
+                    Перейти
+                  </a>
+                </Button>
+              </div>
+            </div>
+          )}
+
           {response.salaryExpectationsAmount && (
             <div className="flex items-start gap-2 p-3 bg-emerald-50 rounded-lg border border-emerald-200">
               <Wallet className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
