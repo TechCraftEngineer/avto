@@ -3,8 +3,8 @@ import type {
   VacancyRecommendationInput,
   VacancyRecommendationScreeningData,
   VacancyRecommendationVacancyData,
-} from "@qbs-autonaim/ai/agents";
-import { AgentFactory } from "@qbs-autonaim/ai/agents";
+} from "@qbs-autonaim/ai";
+import { AgentFactory } from "@qbs-autonaim/ai";
 import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { vacancy } from "@qbs-autonaim/db/schema";
