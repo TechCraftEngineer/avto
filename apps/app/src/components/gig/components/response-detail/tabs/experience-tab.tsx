@@ -234,9 +234,13 @@ export function GigExperienceTab({ response }: GigExperienceTabProps) {
                         <div className="space-y-3">
                           {profile.experience.map((item, index) => {
                             const exp = item.experience || item;
+                            const key =
+                              exp.company && exp.position
+                                ? `${exp.company}-${exp.position}-${index}`
+                                : `exp-${index}`;
                             return (
                               <div
-                                key={index}
+                                key={key}
                                 className="p-3 rounded-lg border space-y-1.5"
                               >
                                 {exp.position && (

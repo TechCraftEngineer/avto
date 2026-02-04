@@ -9,7 +9,6 @@ export {
   importArchivedVacanciesChannel,
   importNewVacanciesChannel,
   importVacancyByUrlChannel,
-  parseMissingContactsChannel,
   parseNewResumesChannel,
   refreshAllResumesChannel,
   refreshSingleResumeChannel,

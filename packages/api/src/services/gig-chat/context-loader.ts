@@ -13,7 +13,6 @@ import {
   response as responseTable,
 } from "@qbs-autonaim/db";
 import type { db } from "@qbs-autonaim/db/client";
-import { formatExperienceText } from "@qbs-autonaim/shared";
 
 /**
  * Контекст gig задания

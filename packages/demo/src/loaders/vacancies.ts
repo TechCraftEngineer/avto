@@ -64,13 +64,10 @@ export async function loadVacancies(): Promise<{
       .filter((pub): pub is NonNullable<typeof pub> => pub !== null);
 
     if (publications.length > 0) {
-      const insertedPublications = await db
-        .insert(vacancyPublication)
-        .values(publications)
-        .returning({
-          id: vacancyPublication.id,
-          vacancyId: vacancyPublication.vacancyId,
-        });
+      await db.insert(vacancyPublication).values(publications).returning({
+        id: vacancyPublication.id,
+        vacancyId: vacancyPublication.vacancyId,
+      });
       console.log(`🔗 Создано ${publications.length} публикаций для вакансий`);
     }
   }

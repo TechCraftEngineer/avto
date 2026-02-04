@@ -62,20 +62,15 @@ export const screenResponseFunction = inngest.createFunction(
       return resp.entityType;
     });
 
-    // Trigger recommendation generation after successful screening
-    const eventName =
-      entityType === "vacancy"
-        ? "response/vacancy-recommendation.generate"
-        : entityType === "gig"
-          ? "response/gig-recommendation.generate"
-          : "response/recommendation.generate";
-
-    await step.sendEvent("trigger-recommendation-generation", {
-      name: eventName,
-      data: {
+    // Рекомендация будет сгенерирована после интервью
+    // когда будут доступны все данные для полной оценки
+    console.log(
+      "✅ Скрининг завершен, ожидаем интервью для финальной рекомендации",
+      {
         responseId,
+        entityType,
       },
-    });
+    );
 
     return result;
   },

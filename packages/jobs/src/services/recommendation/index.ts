@@ -85,6 +85,7 @@ export async function saveRecommendation(
 
 /**
  * Получает данные отклика для генерации рекомендации
+ * Включает данные интервью, если оно было пройдено
  */
 export async function getResponseDataForRecommendation(
   responseId: string,
@@ -93,11 +94,24 @@ export async function getResponseDataForRecommendation(
     response: typeof response.$inferSelect;
     screening: ScreeningDataForRecommendation;
     candidate: CandidateDataForRecommendation;
+    interview?: {
+      score: number;
+      rating: number;
+      analysis: string;
+      botUsageDetected: boolean;
+    };
   }>
 > {
   try {
     const responseData = await db.query.response.findFirst({
       where: eq(response.id, responseId),
+      with: {
+        interviewSession: {
+          with: {
+            scoring: true,
+          },
+        },
+      },
     });
 
     if (!responseData) {
@@ -124,7 +138,27 @@ export async function getResponseDataForRecommendation(
       proposedDeliveryDays: responseData.proposedDeliveryDays,
     };
 
-    return ok({ response: responseData, screening, candidate });
+    // Добавляем данные интервью, если оно было пройдено
+    let interview:
+      | {
+          score: number;
+          rating: number;
+          analysis: string;
+          botUsageDetected: boolean;
+        }
+      | undefined;
+
+    if (responseData.interviewSession?.scoring) {
+      const scoring = responseData.interviewSession.scoring;
+      interview = {
+        score: scoring.score,
+        rating: scoring.rating,
+        analysis: scoring.analysis,
+        botUsageDetected: scoring.botUsageDetected,
+      };
+    }
+
+    return ok({ response: responseData, screening, candidate, interview });
   } catch (error) {
     logger.error("Failed to get response data", { error, responseId });
     return err(

@@ -2,9 +2,8 @@
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
 import { Badge } from "@qbs-autonaim/ui/badge";
-import { Button } from "@qbs-autonaim/ui/button";
 import { Separator } from "@qbs-autonaim/ui/separator";
-import { Award, ExternalLink } from "lucide-react";
+import { Award } from "lucide-react";
 import { getProfileData } from "~/components/shared/utils/types";
 import { sanitizeHtmlFunction } from "~/lib/sanitize-html";
 
@@ -59,9 +58,13 @@ export function VacancyExperienceTab({ response }: VacancyExperienceTabProps) {
                         <div className="space-y-3">
                           {profile.experience.map((item, index) => {
                             const exp = item.experience || item;
+                            const key =
+                              exp.company && exp.position
+                                ? `${exp.company}-${exp.position}-${index}`
+                                : `exp-${index}`;
                             return (
                               <div
-                                key={index}
+                                key={key}
                                 className="p-3 rounded-lg border space-y-1.5"
                               >
                                 {exp.position && (
@@ -114,33 +117,40 @@ export function VacancyExperienceTab({ response }: VacancyExperienceTabProps) {
                       </h4>
                       {Array.isArray(profile.education) ? (
                         <div className="space-y-3">
-                          {profile.education.map((item, index) => (
-                            <div
-                              key={index}
-                              className="p-3 rounded-lg border space-y-1.5"
-                            >
-                              {item.degree && (
-                                <div className="font-medium text-xs sm:text-sm">
-                                  {item.degree}
-                                </div>
-                              )}
-                              {item.institution && (
-                                <div className="text-xs sm:text-sm text-muted-foreground">
-                                  {item.institution}
-                                </div>
-                              )}
-                              {item.period && (
-                                <div className="text-xs text-muted-foreground">
-                                  {item.period}
-                                </div>
-                              )}
-                              {item.specialization && (
-                                <div className="text-xs sm:text-sm text-foreground mt-1">
-                                  {item.specialization}
-                                </div>
-                              )}
-                            </div>
-                          ))}
+                          {profile.education.map((item, index) => {
+                            const edu = item.education || item;
+                            const key =
+                              edu.institution && edu.degree
+                                ? `${edu.institution}-${edu.degree}-${index}`
+                                : `edu-${index}`;
+                            return (
+                              <div
+                                key={key}
+                                className="p-3 rounded-lg border space-y-1.5"
+                              >
+                                {item.degree && (
+                                  <div className="font-medium text-xs sm:text-sm">
+                                    {item.degree}
+                                  </div>
+                                )}
+                                {item.institution && (
+                                  <div className="text-xs sm:text-sm text-muted-foreground">
+                                    {item.institution}
+                                  </div>
+                                )}
+                                {item.period && (
+                                  <div className="text-xs text-muted-foreground">
+                                    {item.period}
+                                  </div>
+                                )}
+                                {item.specialization && (
+                                  <div className="text-xs sm:text-sm text-foreground mt-1">
+                                    {item.specialization}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
                       ) : (
                         <div

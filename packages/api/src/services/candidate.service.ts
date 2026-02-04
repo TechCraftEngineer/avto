@@ -364,35 +364,6 @@ export class CandidateService {
   }
 
   /**
-   * Парсинг опыта работы из строки (legacy, для обратной совместимости)
-   * Ищет паттерны типа "5 лет", "3 года", "2+ years" и т.д.
-   */
-  private parseExperienceYears(experience: string | null): number | null {
-    if (!experience) {
-      return null;
-    }
-
-    // Паттерны для поиска лет опыта
-    const patterns = [
-      /(\d+)\s*(?:лет|года|год|years?|yrs?)/i,
-      /(\d+)\+/i, // "5+" означает минимум 5 лет
-      /(\d+)\s*(?:year|yr)/i,
-    ];
-
-    for (const pattern of patterns) {
-      const match = experience.match(pattern);
-      if (match?.[1]) {
-        const years = parseInt(match[1], 10);
-        if (!Number.isNaN(years) && years >= 0 && years <= 50) {
-          return years;
-        }
-      }
-    }
-
-    return null;
-  }
-
-  /**
    * Маппинг источника импорта на источник кандидата
    */
   private mapImportSourceToCandidateSource(

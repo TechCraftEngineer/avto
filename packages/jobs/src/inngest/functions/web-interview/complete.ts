@@ -471,6 +471,59 @@ export const webCompleteInterviewFunction = inngest.createFunction(
             gigId: gig.id,
           });
         });
+
+        // Генерируем рекомендацию после интервью
+        await step.run("trigger-gig-recommendation", async () => {
+          console.log("🎯 Запуск генерации рекомендации после интервью (Web)", {
+            gigResponseId,
+          });
+
+          await inngest.send({
+            name: "response/gig-recommendation.generate",
+            data: {
+              responseId: gigResponseId,
+            },
+          });
+
+          console.log("✅ Событие генерации рекомендации отправлено (Web)", {
+            gigResponseId,
+          });
+        });
+      }
+
+      // Генерируем рекомендацию для vacancy после интервью
+      if (responseId) {
+        await step.run("trigger-vacancy-recommendation", async () => {
+          const responseRecord = await db.query.response.findFirst({
+            where: (r, { eq }) => eq(r.id, responseId),
+          });
+
+          if (!responseRecord) {
+            console.warn("⚠️ Response не найден для генерации рекомендации");
+            return;
+          }
+
+          const eventName =
+            responseRecord.entityType === "vacancy"
+              ? "response/vacancy-recommendation.generate"
+              : "response/recommendation.generate";
+
+          console.log("🎯 Запуск генерации рекомендации после интервью (Web)", {
+            responseId,
+            entityType: responseRecord.entityType,
+          });
+
+          await inngest.send({
+            name: eventName,
+            data: {
+              responseId,
+            },
+          });
+
+          console.log("✅ Событие генерации рекомендации отправлено (Web)", {
+            responseId,
+          });
+        });
       }
     }
 

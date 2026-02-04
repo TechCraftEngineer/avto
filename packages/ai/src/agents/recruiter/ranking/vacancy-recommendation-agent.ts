@@ -82,6 +82,28 @@ export type VacancyRecommendationScreeningData = z.infer<
 >;
 
 /**
+ * Схема для данных интервью (опционально)
+ */
+export const VacancyRecommendationInterviewDataSchema = z
+  .object({
+    score: z
+      .number()
+      .min(0, "Оценка интервью не может быть отрицательной")
+      .max(100, "Максимальная оценка интервью 100"),
+    rating: z
+      .number()
+      .min(0, "Рейтинг не может быть отрицательным")
+      .max(5, "Максимальный рейтинг 5"),
+    analysis: z.string().min(1, "Анализ интервью обязателен"),
+    botUsageDetected: z.boolean(),
+  })
+  .optional();
+
+export type VacancyRecommendationInterviewData = z.infer<
+  typeof VacancyRecommendationInterviewDataSchema
+>;
+
+/**
  * Схема результата рекомендации для вакансии
  */
 export const VacancyRecommendationOutputSchema = z.object({
@@ -128,6 +150,7 @@ export const VacancyRecommendationInputSchema = z.object({
   vacancy: VacancyRecommendationVacancyDataSchema,
   candidate: VacancyRecommendationCandidateDataSchema,
   screening: VacancyRecommendationScreeningDataSchema,
+  interview: VacancyRecommendationInterviewDataSchema,
 });
 
 export type VacancyRecommendationInput = z.infer<
@@ -156,7 +179,7 @@ export class VacancyRecommendationAgent extends BaseAgent<
     input: VacancyRecommendationInput,
     _context: unknown,
   ): string {
-    const { vacancy, candidate, screening } = input;
+    const { vacancy, candidate, screening, interview } = input;
 
     const candidateName = candidate.name || "Имя не указано";
     const candidateExperience = candidate.experience || "Не указан";
@@ -187,7 +210,22 @@ export class VacancyRecommendationAgent extends BaseAgent<
       ? `- Слабые стороны: ${screening.weaknesses.join(", ")}`
       : "";
 
-    return `Ты — эксперт HR-аналитик. На основе результатов скрининга сформируй детальную рекомендацию по кандидату на вакансию.
+    // Формируем секцию интервью, если оно было пройдено
+    const interviewSection = interview
+      ? `
+РЕЗУЛЬТАТЫ ИНТЕРВЬЮ:
+- Оценка интервью: ${interview.score}/100
+- Рейтинг: ${interview.rating}/5
+- Анализ: ${interview.analysis}
+- Обнаружено использование ботов: ${interview.botUsageDetected ? "ДА ⚠️" : "НЕТ"}
+${interview.botUsageDetected ? "\n⚠️ КРИТИЧНО: Кандидат использовал AI-бота для ответов на интервью. Это серьезный риск." : ""}
+`
+      : `
+ИНТЕРВЬЮ: Не проводилось
+⚠️ Рекомендация основана только на скрининге резюме. Для полной оценки требуется интервью.
+`;
+
+    return `Ты — эксперт HR-аналитик. На основе результатов скрининга${interview ? " и интервью" : ""} сформируй детальную рекомендацию по кандидату на вакансию.
 
 ВАКАНСИЯ: ${vacancy.title}
 ${vacancyDescription}
@@ -209,15 +247,31 @@ ${screeningMatchPercentage}
 - Анализ: ${screening.analysis}
 ${screeningStrengths}
 ${screeningWeaknesses}
+${interviewSection}
 
 ЗАДАЧА:
-Сформируй рекомендацию по кандидату на вакансию.
+Сформируй рекомендацию по кандидату на вакансию${interview ? ", учитывая результаты интервью" : ""}.
 
 КРИТЕРИИ ОЦЕНКИ:
+${
+  interview
+    ? `
+- HIGHLY_RECOMMENDED: interviewScore >= 80 И detailedScore >= 70, отличное соответствие и успешное интервью
+- RECOMMENDED: interviewScore >= 60 И detailedScore >= 50, хорошее соответствие
+- NEUTRAL: interviewScore >= 40 ИЛИ detailedScore >= 40, требуется дополнительная оценка
+- NOT_RECOMMENDED: interviewScore < 40 ИЛИ detailedScore < 40 ИЛИ botUsageDetected === true
+
+⚠️ ВАЖНО: Если обнаружено использование ботов (botUsageDetected === true), рекомендация ДОЛЖНА быть NOT_RECOMMENDED независимо от других оценок.
+`
+    : `
 - HIGHLY_RECOMMENDED: detailedScore >= 80, отличное соответствие всем ключевым требованиям
 - RECOMMENDED: detailedScore >= 60, хорошее соответствие с незначительными пробелами
 - NEUTRAL: detailedScore >= 40, среднее соответствие, требуется дополнительная оценка
 - NOT_RECOMMENDED: detailedScore < 40, критические несоответствия
+
+⚠️ ВНИМАНИЕ: Интервью не проводилось. Рекомендация основана только на скрининге резюме.
+`
+}
 
 ФОРМАТ ОТВЕТА (только JSON):
 {
@@ -231,11 +285,11 @@ ${screeningWeaknesses}
 }
 
 ВАЖНО:
-- strengths: 1-5 пунктов, конкретные преимущества кандидата
-- weaknesses: 0-5 пунктов, конкретные недостатки или пробелы
+- strengths: 1-5 пунктов, конкретные преимущества кандидата${interview ? " (учитывай результаты интервью)" : ""}
+- weaknesses: 0-5 пунктов, конкретные недостатки или пробелы${interview ? " (включая проблемы, выявленные на интервью)" : ""}
 - candidateSummary: краткое, информативное резюме для быстрого принятия решения
-- actionSuggestions: 1-3 конкретных действия (пригласить на интервью, запросить портфолио, отклонить и т.д.)
-- interviewQuestions: 0-3 вопроса для уточнения на интервью (опционально)
-- riskFactors: 0-3 потенциальных риска при найме (опционально)`;
+- actionSuggestions: 1-3 конкретных действия (${interview ? "принять решение о найме, провести финальное интервью, отклонить" : "пригласить на интервью, запросить портфолио, отклонить"})
+- interviewQuestions: ${interview ? "0-3 вопроса для финального интервью (если требуется)" : "0-3 вопроса для первого интервью"}
+- riskFactors: 0-3 потенциальных риска при найме${interview?.botUsageDetected ? " (ОБЯЗАТЕЛЬНО укажи использование ботов как критический риск)" : ""}`;
   }
 }

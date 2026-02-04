@@ -99,7 +99,7 @@ export async function generateText(
     }
 
     if (availableFallbacks.length > 0) {
-      const fallback = availableFallbacks[0]!;
+      const fallback = availableFallbacks[0];
 
       console.warn(
         `Ошибка ${actualProvider}, повторная попытка с ${fallback.provider}:`,

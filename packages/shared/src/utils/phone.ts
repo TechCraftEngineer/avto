@@ -3,11 +3,7 @@
  * Использует libphonenumber-js для надёжной обработки международных номеров
  */
 
-import {
-  type CountryCode,
-  formatNumber,
-  parsePhoneNumber,
-} from "libphonenumber-js";
+import { type CountryCode, parsePhoneNumber } from "libphonenumber-js";
 
 /**
  * Нормализует телефон к формату хранения E.164 (только цифры с кодом страны)
@@ -25,7 +21,7 @@ export function normalizePhone(
     // Пробуем распарсить с указанной страной по умолчанию
     const phoneNumber = parsePhoneNumber(phone, defaultCountry);
 
-    if (phoneNumber && phoneNumber.isValid()) {
+    if (phoneNumber?.isValid()) {
       // Возвращаем в формате E.164 без знака +
       return phoneNumber.number.slice(1);
     }
@@ -33,7 +29,7 @@ export function normalizePhone(
     // Если не удалось распарсить, пробуем без страны
     try {
       const phoneNumber = parsePhoneNumber(phone);
-      if (phoneNumber && phoneNumber.isValid()) {
+      if (phoneNumber?.isValid()) {
         return phoneNumber.number.slice(1);
       }
     } catch {
@@ -76,7 +72,7 @@ export function formatPhone(
 
     const phoneNumber = parsePhoneNumber(phoneWithPlus, defaultCountry);
 
-    if (phoneNumber && phoneNumber.isValid()) {
+    if (phoneNumber?.isValid()) {
       // Форматируем в международный формат
       return phoneNumber.formatInternational();
     }
@@ -86,7 +82,7 @@ export function formatPhone(
       const phoneWithPlus = phone.startsWith("+") ? phone : `+${phone}`;
       const phoneNumber = parsePhoneNumber(phoneWithPlus);
 
-      if (phoneNumber && phoneNumber.isValid()) {
+      if (phoneNumber?.isValid()) {
         return phoneNumber.formatInternational();
       }
     } catch {
@@ -111,7 +107,7 @@ export function formatPhoneNational(
     const phoneWithPlus = phone.startsWith("+") ? phone : `+${phone}`;
     const phoneNumber = parsePhoneNumber(phoneWithPlus, defaultCountry);
 
-    if (phoneNumber && phoneNumber.isValid()) {
+    if (phoneNumber?.isValid()) {
       return phoneNumber.formatNational();
     }
   } catch {
@@ -154,7 +150,7 @@ export function getPhoneCountry(
     const phoneWithPlus = phone.startsWith("+") ? phone : `+${phone}`;
     const phoneNumber = parsePhoneNumber(phoneWithPlus, defaultCountry);
 
-    if (phoneNumber && phoneNumber.isValid()) {
+    if (phoneNumber?.isValid()) {
       return phoneNumber.country ?? null;
     }
   } catch {
@@ -175,7 +171,7 @@ export function getPhoneType(
     const phoneWithPlus = phone.startsWith("+") ? phone : `+${phone}`;
     const phoneNumber = parsePhoneNumber(phoneWithPlus, defaultCountry);
 
-    if (phoneNumber && phoneNumber.isValid()) {
+    if (phoneNumber?.isValid()) {
       return phoneNumber.getType() ?? null;
     }
   } catch {

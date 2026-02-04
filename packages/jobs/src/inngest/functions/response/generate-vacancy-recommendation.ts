@@ -32,13 +32,19 @@ export const generateVacancyRecommendationFunction = inngest.createFunction(
       responseId: string;
     };
 
-    // Получаем данные для генерации рекомендации
+    // Получаем данные для генерации рекомендации (включая интервью)
     const responseData = await step.run("get-response-data", async () => {
       const result = await getResponseDataForRecommendation(responseId);
 
       if (!result.success) {
         throw new Error(`Данные для рекомендации не найдены: ${result.error}`);
       }
+
+      console.log("📊 Данные для рекомендации получены", {
+        responseId,
+        hasInterview: !!result.data.interview,
+        interviewScore: result.data.interview?.score,
+      });
 
       return result.data;
     });
@@ -98,6 +104,33 @@ export const generateVacancyRecommendationFunction = inngest.createFunction(
       return screeningInput;
     });
 
+    // Подготавливаем данные интервью (если есть)
+    const interviewData = await step.run(
+      "prepare-interview-data",
+      async ():
+        | Promise<{
+            score: number;
+            rating: number;
+            analysis: string;
+            botUsageDetected: boolean;
+          }>
+        | Promise<undefined> => {
+        const { interview } = responseData;
+
+        if (!interview) {
+          console.log("⚠️ Интервью не проводилось, рекомендация будет неполной");
+          return undefined;
+        }
+
+        return {
+          score: interview.score,
+          rating: interview.rating,
+          analysis: interview.analysis,
+          botUsageDetected: interview.botUsageDetected,
+        };
+      },
+    );
+
     // Генерируем рекомендацию через агент
     const recommendation = await step.run(
       "generate-recommendation",
@@ -115,6 +148,7 @@ export const generateVacancyRecommendationFunction = inngest.createFunction(
             vacancy: vacancyData,
             candidate: candidateData,
             screening: screeningData,
+            interview: interviewData,
           };
           const result = await agent.execute(input, {});
 

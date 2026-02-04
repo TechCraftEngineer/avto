@@ -254,6 +254,41 @@ export const completeInterviewFunction = inngest.createFunction(
         }
       });
 
+      await step.run("trigger-recommendation-generation", async () => {
+        const responseRecord = await db.query.response.findFirst({
+          where: eq(response.id, responseId),
+        });
+
+        if (!responseRecord) {
+          console.warn("⚠️ Response не найден для генерации рекомендации");
+          return;
+        }
+
+        // Генерируем рекомендацию после интервью, когда есть полные данные
+        const eventName =
+          responseRecord.entityType === "vacancy"
+            ? "response/vacancy-recommendation.generate"
+            : responseRecord.entityType === "gig"
+              ? "response/gig-recommendation.generate"
+              : "response/recommendation.generate";
+
+        console.log("🎯 Запуск генерации рекомендации после интервью", {
+          responseId,
+          entityType: responseRecord.entityType,
+        });
+
+        await inngest.send({
+          name: eventName,
+          data: {
+            responseId,
+          },
+        });
+
+        console.log("✅ Событие генерации рекомендации отправлено", {
+          responseId,
+        });
+      });
+
       await step.run("trigger-ranking-for-gig", async () => {
         const responseRecord = await db.query.response.findFirst({
           where: eq(response.id, responseId),

@@ -1,4 +1,4 @@
-import { and, eq, isNull, or } from "@qbs-autonaim/db";
+import { and, eq, isNull } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { file, RESPONSE_STATUS, response } from "@qbs-autonaim/db/schema";
 import type { SaveResponseData } from "@qbs-autonaim/jobs-shared";
