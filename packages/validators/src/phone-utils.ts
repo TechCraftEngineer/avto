@@ -3,7 +3,7 @@
  * Использует libphonenumber-js для надёжной обработки международных номеров
  */
 
-import { type CountryCode, parsePhoneNumber } from "libphonenumber-js";
+import { type CountryCode, parsePhoneNumberWithError } from "libphonenumber-js";
 
 /**
  * Нормализует телефон к формату хранения E.164 (только цифры с кодом страны)
@@ -19,7 +19,7 @@ export function normalizePhone(
 ): string {
   try {
     // Пробуем распарсить с указанной страной по умолчанию
-    const phoneNumber = parsePhoneNumber(phone, defaultCountry);
+    const phoneNumber = parsePhoneNumberWithError(phone, defaultCountry);
 
     if (phoneNumber?.isValid()) {
       // Возвращаем в формате E.164 без знака +
@@ -28,7 +28,7 @@ export function normalizePhone(
   } catch {
     // Если не удалось распарсить, пробуем без страны
     try {
-      const phoneNumber = parsePhoneNumber(phone);
+      const phoneNumber = parsePhoneNumberWithError(phone);
       if (phoneNumber?.isValid()) {
         return phoneNumber.number.slice(1);
       }
@@ -70,7 +70,10 @@ export function formatPhone(
     // Добавляем + если его нет
     const phoneWithPlus = phone.startsWith("+") ? phone : `+${phone}`;
 
-    const phoneNumber = parsePhoneNumber(phoneWithPlus, defaultCountry);
+    const phoneNumber = parsePhoneNumberWithError(
+      phoneWithPlus,
+      defaultCountry,
+    );
 
     if (phoneNumber?.isValid()) {
       // Форматируем в международный формат
@@ -80,7 +83,7 @@ export function formatPhone(
     // Fallback: пробуем без страны
     try {
       const phoneWithPlus = phone.startsWith("+") ? phone : `+${phone}`;
-      const phoneNumber = parsePhoneNumber(phoneWithPlus);
+      const phoneNumber = parsePhoneNumberWithError(phoneWithPlus);
 
       if (phoneNumber?.isValid()) {
         return phoneNumber.formatInternational();
@@ -105,7 +108,10 @@ export function formatPhoneNational(
 ): string {
   try {
     const phoneWithPlus = phone.startsWith("+") ? phone : `+${phone}`;
-    const phoneNumber = parsePhoneNumber(phoneWithPlus, defaultCountry);
+    const phoneNumber = parsePhoneNumberWithError(
+      phoneWithPlus,
+      defaultCountry,
+    );
 
     if (phoneNumber?.isValid()) {
       return phoneNumber.formatNational();
@@ -125,7 +131,7 @@ export function isValidPhone(
   defaultCountry: CountryCode = "RU",
 ): boolean {
   try {
-    const phoneNumber = parsePhoneNumber(phone, defaultCountry);
+    const phoneNumber = parsePhoneNumberWithError(phone, defaultCountry);
     return phoneNumber ? phoneNumber.isValid() : false;
   } catch {
     return false;
@@ -148,7 +154,10 @@ export function getPhoneCountry(
 ): CountryCode | null {
   try {
     const phoneWithPlus = phone.startsWith("+") ? phone : `+${phone}`;
-    const phoneNumber = parsePhoneNumber(phoneWithPlus, defaultCountry);
+    const phoneNumber = parsePhoneNumberWithError(
+      phoneWithPlus,
+      defaultCountry,
+    );
 
     if (phoneNumber?.isValid()) {
       return phoneNumber.country ?? null;
@@ -169,7 +178,10 @@ export function getPhoneType(
 ): string | null {
   try {
     const phoneWithPlus = phone.startsWith("+") ? phone : `+${phone}`;
-    const phoneNumber = parsePhoneNumber(phoneWithPlus, defaultCountry);
+    const phoneNumber = parsePhoneNumberWithError(
+      phoneWithPlus,
+      defaultCountry,
+    );
 
     if (phoneNumber?.isValid()) {
       return phoneNumber.getType() ?? null;
