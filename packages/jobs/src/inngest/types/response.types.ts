@@ -43,6 +43,14 @@ export const recommendationGenerateDataSchema = z.object({
   responseId: z.string().min(1, "Требуется идентификатор ответа"),
 });
 
+export const vacancyRecommendationGenerateDataSchema = z.object({
+  responseId: z.string().min(1, "Требуется идентификатор ответа"),
+});
+
+export const gigRecommendationGenerateDataSchema = z.object({
+  responseId: z.string().min(1, "Требуется идентификатор ответа"),
+});
+
 /**
  * Type inference
  */
@@ -68,4 +76,10 @@ export type ParseMissingContactsPayload = z.infer<
 >;
 export type RecommendationGeneratePayload = z.infer<
   typeof recommendationGenerateDataSchema
+>;
+export type VacancyRecommendationGeneratePayload = z.infer<
+  typeof vacancyRecommendationGenerateDataSchema
+>;
+export type GigRecommendationGeneratePayload = z.infer<
+  typeof gigRecommendationGenerateDataSchema
 >;

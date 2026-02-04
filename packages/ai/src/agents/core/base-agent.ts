@@ -4,7 +4,6 @@
 
 import type { LanguageModel, ToolSet } from "ai";
 import { Output, stepCountIs, ToolLoopAgent } from "ai";
-import type { Langfuse } from "langfuse";
 import { type ZodType, z } from "zod";
 import type { AgentType } from "./types";
 
@@ -39,7 +38,6 @@ const FullResponseSchema = z.object({
 export interface AgentConfig {
   model: LanguageModel;
   maxSteps?: number;
-  langfuse?: Langfuse | undefined;
   traceId?: string;
   tools?: ToolSet;
   modelProvider?: "openai" | "deepseek" | "openrouter" | string;
@@ -53,7 +51,6 @@ export abstract class BaseAgent<TInput, TOutput> {
   protected readonly name: string;
   protected readonly type: AgentType;
   protected readonly agent: ToolLoopAgent;
-  protected readonly langfuse?: Langfuse;
   protected readonly traceId?: string;
   protected readonly outputSchema: ZodType<TOutput>;
   protected readonly inputSchema?: ZodType<TInput>;
@@ -72,7 +69,6 @@ export abstract class BaseAgent<TInput, TOutput> {
     this.name = name;
     this.type = type;
     this.instructions = instructions;
-    this.langfuse = config.langfuse;
     this.traceId = config.traceId;
     this.outputSchema = outputSchema;
     this.inputSchema = inputSchema;
@@ -116,45 +112,6 @@ export abstract class BaseAgent<TInput, TOutput> {
     }
 
     const prompt = this.buildPrompt(input, context);
-
-    // Логируем что уходит в агента
-    console.log(`\n[${this.name}] 📋 Системные инструкции:`, this.instructions);
-    console.log(`\n[${this.name}] 💬 Пользовательский промпт:`, prompt);
-
-    // Создаем или получаем trace, затем создаем span
-    let span: ReturnType<NonNullable<typeof this.langfuse>["span"]> | undefined;
-
-    if (this.langfuse && this.traceId) {
-      try {
-        // Получаем trace по ID или создаем новый
-        const trace = this.langfuse.trace({
-          id: this.traceId,
-          name: "agent-execution",
-        });
-
-        // Создаем span внутри trace
-        span = trace.span({
-          name: this.name,
-          input: {
-            rawInput: input,
-            compiledPrompt: prompt,
-          },
-          metadata: {
-            agentType: this.type,
-            modelProvider: this.modelProvider,
-            modelName: this.modelName,
-            model: `${this.modelProvider}/${this.modelName}`,
-            instructions: this.instructions,
-            outputSchema: JSON.stringify(this.outputSchema._def, null, 2),
-            inputSchema: this.inputSchema
-              ? JSON.stringify(this.inputSchema._def, null, 2)
-              : undefined,
-          },
-        });
-      } catch (error) {
-        console.warn(`[${this.name}] Failed to create Langfuse span:`, error);
-      }
-    }
 
     try {
       const result = await this.agent.generate({ prompt });
@@ -203,22 +160,6 @@ export abstract class BaseAgent<TInput, TOutput> {
 
       const validatedResponse = fullResponseValidation.data;
 
-      span?.end({
-        output: {
-          result: validatedOutput,
-          finishReason: validatedResponse.finishReason,
-        },
-        metadata: {
-          success: true,
-          agentType: this.type,
-          finishReason: validatedResponse.finishReason,
-          model: validatedResponse.model?.modelId,
-          modelProvider: this.modelProvider,
-          modelName: this.modelName,
-          usage: validatedResponse.usage,
-        },
-      });
-
       return {
         success: true,
         data: validatedOutput,
@@ -243,22 +184,6 @@ export abstract class BaseAgent<TInput, TOutput> {
         isTimeout,
         statusCode: apiError?.statusCode,
         requestId: apiError?.requestId,
-      });
-
-      span?.end({
-        output: {
-          error: errorMessage,
-        },
-        metadata: {
-          success: false,
-          agentType: this.type,
-          modelProvider: this.modelProvider,
-          modelName: this.modelName,
-          error: errorMessage,
-          isTimeout,
-          statusCode: apiError?.statusCode,
-          requestId: apiError?.requestId,
-        },
       });
 
       return {

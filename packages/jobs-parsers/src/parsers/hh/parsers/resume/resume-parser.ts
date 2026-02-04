@@ -2,6 +2,7 @@ import { AgentFactory } from "@qbs-autonaim/ai";
 import type { HHContacts } from "@qbs-autonaim/jobs";
 import { parseBirthDate } from "@qbs-autonaim/lib";
 import { getAIModel } from "@qbs-autonaim/lib/ai";
+import { formatPhone, normalizePhone } from "@qbs-autonaim/shared";
 import type { WorkExperience } from "@qbs-autonaim/validators";
 import type { Page } from "puppeteer";
 import { HH_CONFIG } from "../../core/config/config";
@@ -141,9 +142,18 @@ export async function parseResumeData(
       const contacts: HHContacts = {};
 
       if (phone) {
-        contacts.phone = [{ formatted: phone }];
-        result.phone = phone;
-        console.log(`✅ Найден телефон: ${phone}`);
+        // Нормализуем и форматируем телефон
+        const normalizedPhone = normalizePhone(phone);
+        const formattedPhone = formatPhone(normalizedPhone);
+
+        contacts.phone = [
+          {
+            raw: normalizedPhone,
+            formatted: formattedPhone,
+          },
+        ];
+        result.phone = normalizedPhone;
+        console.log(`✅ Найден телефон: ${phone} -> ${formattedPhone}`);
       }
 
       if (email) {

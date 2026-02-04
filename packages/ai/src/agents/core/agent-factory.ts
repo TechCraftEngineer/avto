@@ -1,14 +1,9 @@
 /**
- * Централизованная фабрика для создания агентов с автоматической передачей langfuse
+ * Централизованная фабрика для создания агентов с автоматической конфигурацией
  */
 
-import {
-  getActualProvider,
-  getAIModelName,
-  langfuse as globalLangfuse,
-} from "@qbs-autonaim/lib/ai";
+import { getActualProvider, getAIModelName } from "@qbs-autonaim/lib/ai";
 import type { LanguageModel } from "ai";
-import type { Langfuse } from "langfuse";
 import { BotSummaryAnalyzerAgent } from "../detection/bot-summary-analyzer";
 import { BotUsageDetectorAgent } from "../detection/bot-usage-detector";
 import { ContextAnalyzerAgent } from "../detection/context-analyzer";
@@ -33,14 +28,21 @@ import { InterviewQuestionsAgent } from "../recruiter/interview/interview-questi
 import { PriorityAgent } from "../recruiter/priority/priority-agent";
 import { CandidateEvaluatorAgent } from "../recruiter/ranking/candidate-evaluator-agent";
 import { ComparisonAgent } from "../recruiter/ranking/comparison-agent";
+import {
+  GigRecommendationAgent,
+  GigRecommendationSchema,
+} from "../recruiter/ranking/gig-recommendation-agent";
 import { RecommendationAgent } from "../recruiter/ranking/recommendation-agent";
 import { SummaryAgent } from "../recruiter/ranking/summary-agent";
+import {
+  VacancyRecommendationAgent,
+  VacancyRecommendationSchema,
+} from "../recruiter/ranking/vacancy-recommendation-agent";
 import { CandidateSearchAgent } from "../recruiter/search/candidate-search";
 import type { AgentConfig } from "./base-agent";
 
 export interface AgentFactoryConfig {
   model: LanguageModel;
-  langfuse?: Langfuse | undefined;
   traceId?: string;
   maxSteps?: number;
   modelProvider?: "openai" | "deepseek" | "openrouter" | string;
@@ -48,25 +50,15 @@ export interface AgentFactoryConfig {
 }
 
 /**
- * Получает или создает singleton инстанс Langfuse
- */
-function getLangfuseInstance(): Langfuse | undefined {
-  return globalLangfuse;
-}
-
-/**
  * Фабрика для создания агентов с централизованной конфигурацией
  */
 export class AgentFactory {
   private config: AgentFactoryConfig;
-  private langfuse: Langfuse | undefined;
   private modelProvider?: string;
   private modelName?: string;
 
   constructor(config: AgentFactoryConfig) {
     this.config = config;
-    // Используем переданный langfuse или создаем глобальный singleton
-    this.langfuse = config.langfuse ?? getLangfuseInstance();
     // Автоматически определяем провайдер и модель, если не переданы явно
     this.modelProvider = config.modelProvider ?? getActualProvider();
     this.modelName = config.modelName ?? getAIModelName(this.modelProvider);
@@ -75,7 +67,6 @@ export class AgentFactory {
   private getAgentConfig(overrides?: Partial<AgentConfig>): AgentConfig {
     return {
       model: this.config.model,
-      langfuse: this.langfuse,
       traceId: this.config.traceId,
       maxSteps: this.config.maxSteps,
       modelProvider: this.modelProvider,
@@ -190,5 +181,27 @@ export class AgentFactory {
 
   createBotSummaryAnalyzer(overrides?: Partial<AgentConfig>) {
     return new BotSummaryAnalyzerAgent(this.getAgentConfig(overrides));
+  }
+
+  createVacancyRecommendation(overrides?: Partial<AgentConfig>) {
+    const config = this.getAgentConfig(overrides);
+    return new VacancyRecommendationAgent(
+      "vacancy-recommendation",
+      "ranking",
+      "Генерация рекомендаций по кандидатам на вакансии",
+      VacancyRecommendationSchema,
+      config,
+    );
+  }
+
+  createGigRecommendation(overrides?: Partial<AgentConfig>) {
+    const config = this.getAgentConfig(overrides);
+    return new GigRecommendationAgent(
+      "gig-recommendation",
+      "ranking",
+      "Генерация рекомендаций по исполнителям на задания",
+      GigRecommendationSchema,
+      config,
+    );
   }
 }

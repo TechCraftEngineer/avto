@@ -197,10 +197,9 @@ export const evaluateGigResponseFunction = inngest.createFunction(
 
     // Trigger recommendation generation after successful evaluation
     await step.sendEvent("trigger-recommendation-generation", {
-      name: "response/recommendation.generate",
+      name: "response/gig-recommendation.generate",
       data: {
         responseId,
-        entityType: "gig",
       },
     });
 

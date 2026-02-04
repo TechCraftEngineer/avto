@@ -86,7 +86,6 @@ export class InterviewOrchestrator {
     // Инициализация агентов через фабрику
     const factory = new AgentFactory({
       model: this.model,
-      langfuse: this.langfuse,
       traceId,
       maxSteps: this.maxSteps,
     });

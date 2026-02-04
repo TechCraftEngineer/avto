@@ -1,3 +1,6 @@
+import { eq } from "@qbs-autonaim/db";
+import { db } from "@qbs-autonaim/db/client";
+import { response } from "@qbs-autonaim/db/schema";
 import { screenResponse, unwrap } from "~/services/response";
 import { inngest } from "../../client";
 
@@ -43,20 +46,34 @@ export const screenResponseFunction = inngest.createFunction(
       }
     });
 
-    // Trigger invitation generation after successful screening
-    await step.sendEvent("trigger-invitation-generation", {
-      name: "freelance/invitation.generate",
-      data: {
-        responseId,
-      },
+    // Получаем тип entity для выбора правильного события
+    const entityType = await step.run("get-entity-type", async () => {
+      const resp = await db.query.response.findFirst({
+        where: eq(response.id, responseId),
+        columns: {
+          entityType: true,
+        },
+      });
+
+      if (!resp) {
+        throw new Error(`Response не найден: ${responseId}`);
+      }
+
+      return resp.entityType;
     });
 
     // Trigger recommendation generation after successful screening
+    const eventName =
+      entityType === "vacancy"
+        ? "response/vacancy-recommendation.generate"
+        : entityType === "gig"
+          ? "response/gig-recommendation.generate"
+          : "response/recommendation.generate";
+
     await step.sendEvent("trigger-recommendation-generation", {
-      name: "response/recommendation.generate",
+      name: eventName,
       data: {
         responseId,
-        entityType: "vacancy",
       },
     });
 

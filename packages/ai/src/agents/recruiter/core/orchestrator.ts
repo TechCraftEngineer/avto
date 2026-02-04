@@ -1340,7 +1340,6 @@ ${candidatesList}
   private getAgentConfig(traceId?: string): AgentConfig {
     return {
       model: this.model,
-      langfuse: this.langfuse,
       traceId,
       maxSteps: this.maxSteps,
     };

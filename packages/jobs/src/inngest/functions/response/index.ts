@@ -2,7 +2,9 @@
  * Response-related Inngest functions
  */
 
+export { generateGigRecommendationFunction } from "./generate-gig-recommendation";
 export { generateRecommendationFunction } from "./generate-recommendation";
+export { generateVacancyRecommendationFunction } from "./generate-vacancy-recommendation";
 export { parseMissingContactsFunction } from "./parse-missing-contacts";
 export { parseNewResumesFunction } from "./parse-new-resumes";
 export { recalculateGigShortlistFunction } from "./recalculate-gig-shortlist";

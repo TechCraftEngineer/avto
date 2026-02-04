@@ -53,7 +53,9 @@ import {
   typingActivityFunction,
 } from "./interview";
 import {
+  generateGigRecommendationFunction,
   generateRecommendationFunction,
+  generateVacancyRecommendationFunction,
   parseMissingContactsFunction,
   parseNewResumesFunction,
   recalculateGigShortlistFunction,
@@ -107,6 +109,8 @@ export const inngestFunctions: any[] = [
   updateVacanciesFunction,
   // Response
   generateRecommendationFunction,
+  generateVacancyRecommendationFunction,
+  generateGigRecommendationFunction,
   parseMissingContactsFunction,
   parseNewResumesFunction,
   recalculateRankingFunction,

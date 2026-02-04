@@ -238,30 +238,6 @@ export const generateRecommendationFunction = inngest.createFunction(
       });
     });
 
-    // Отправляем рекомендацию в Telegram (если есть chatId)
-    // Используем уже загруженные данные из responseData
-    if (responseData.response.chatId) {
-      const { candidate } = responseData;
-      const formattedMessage = formatRecommendationForTelegram(
-        recommendation,
-        candidate.name,
-        entityData.title,
-      );
-
-      await step.sendEvent("send-recommendation-telegram", {
-        name: "telegram/message.send",
-        data: {
-          chatId: responseData.response.chatId,
-          content: formattedMessage,
-        },
-      });
-
-      console.log("📤 Рекомендация отправлена в Telegram", {
-        responseId,
-        chatId: responseData.response.chatId,
-      });
-    }
-
     return {
       success: true,
       responseId,

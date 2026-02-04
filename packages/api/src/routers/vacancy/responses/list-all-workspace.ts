@@ -24,6 +24,7 @@ import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../trpc";
+import { formatContacts } from "../../utils/format-contacts";
 import { sanitizeHtml } from "../../utils/sanitize-html";
 
 export const listAllWorkspace = protectedProcedure
@@ -446,6 +447,7 @@ export const listAllWorkspace = protectedProcedure
 
       return {
         ...r,
+        contacts: formatContacts(r.contacts),
         coverLetter: r.coverLetter ? sanitizeHtml(r.coverLetter) : null,
         priorityScore,
         screening: screening
