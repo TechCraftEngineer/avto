@@ -11,14 +11,6 @@ export async function getParseResumesToken() {
   return token;
 }
 
-export async function getParseMissingContactsToken() {
-  const token = await getSubscriptionToken(inngest, {
-    channel: "parse-missing-contacts",
-    topics: ["status"],
-  });
-  return token;
-}
-
 export async function triggerScreenResponse(responseId: string) {
   try {
     await inngest.send({
@@ -200,25 +192,6 @@ export async function triggerParseNewResumes(vacancyId: string) {
     return { success: true as const };
   } catch (error) {
     console.error("Не удалось запустить парсинг новых резюме:", error);
-    return {
-      success: false as const,
-      error:
-        error instanceof Error ? error.message : "Не удалось запустить парсинг",
-    };
-  }
-}
-
-export async function triggerParseMissingContacts(vacancyId: string) {
-  try {
-    await inngest.send({
-      name: "response/contacts.parse-missing",
-      data: {
-        vacancyId,
-      },
-    });
-    return { success: true as const };
-  } catch (error) {
-    console.error("Не удалось запустить парсинг недостающих контактов:", error);
     return {
       success: false as const,
       error:

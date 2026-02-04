@@ -83,6 +83,16 @@ export abstract class BaseAgent<TInput, TOutput> {
         schema: outputSchema,
       }),
       stopWhen: stepCountIs(config.maxSteps || 25),
+      experimental_telemetry: {
+        isEnabled: true,
+        functionId: this.name,
+        metadata: {
+          agentType: this.type,
+          ...(this.modelProvider && { modelProvider: this.modelProvider }),
+          ...(this.modelName && { modelName: this.modelName }),
+          ...(this.traceId && { traceId: this.traceId }),
+        },
+      },
     });
   }
 
@@ -157,8 +167,6 @@ export abstract class BaseAgent<TInput, TOutput> {
           `Не удалось валидировать полный ответ агента: ${fullResponseValidation.error.message}`,
         );
       }
-
-      const validatedResponse = fullResponseValidation.data;
 
       return {
         success: true,

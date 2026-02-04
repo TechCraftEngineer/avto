@@ -2,11 +2,6 @@
 
 // Re-export base utilities for convenience
 export { unwrap } from "../base/index";
-// Contacts extraction
-export {
-  extractContactsFromResponse,
-  extractContactsFromResponses,
-} from "./contacts-extractor";
 export {
   checkResponseExists,
   getResponseById,

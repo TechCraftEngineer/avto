@@ -199,36 +199,6 @@ export const refreshSingleResumeChannel = channel(
   );
 
 /**
- * Канал для отслеживания прогресса парсинга недостающих контактов
- */
-export const parseMissingContactsChannel = channel(
-  (vacancyId: string) => `parse-missing-contacts:${vacancyId}`,
-)
-  .addTopic(
-    topic("progress").schema(
-      z.object({
-        vacancyId: z.string(),
-        status: z.enum(["started", "processing", "completed", "error"]),
-        message: z.string(),
-        total: z.number().optional(),
-        processed: z.number().optional(),
-        failed: z.number().optional(),
-      }),
-    ),
-  )
-  .addTopic(
-    topic("result").schema(
-      z.object({
-        vacancyId: z.string(),
-        success: z.boolean(),
-        total: z.number(),
-        processed: z.number(),
-        failed: z.number(),
-      }),
-    ),
-  );
-
-/**
  * Канал для отслеживания новых сообщений в Telegram чате
  */
 export const conversationMessagesChannel = channel(

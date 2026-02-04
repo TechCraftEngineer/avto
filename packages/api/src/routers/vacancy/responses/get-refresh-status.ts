@@ -11,7 +11,6 @@ import { protectedProcedure } from "../../../trpc";
  * - vacancy/responses.refresh - обновление откликов
  * - vacancy/responses.sync-archived - синхронизация архивных откликов
  * - response/resume.parse-new - парсинг новых резюме
- * - response/contacts.parse-missing - парсинг недостающих контактов
  * - response/screen.new - скрининг новых откликов
  * - response/screen.all - скрининг всех откликов
  * - response/screen.batch - batch скрининг откликов
@@ -47,7 +46,6 @@ export const getRefreshStatus = protectedProcedure
         "vacancy/responses.refresh",
         "vacancy/responses.sync-archived",
         "response/resume.parse-new",
-        "response/contacts.parse-missing",
         "response/screen.new",
         "response/screen.all",
         "response/screen.batch",

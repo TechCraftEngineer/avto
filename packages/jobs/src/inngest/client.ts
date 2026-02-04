@@ -23,7 +23,6 @@ import {
   interviewSendQuestionDataSchema,
   messageBufferedDataSchema,
   parseFreelanceProfileDataSchema,
-  parseMissingContactsDataSchema,
   parseNewResumesDataSchema,
   recommendationGenerateDataSchema,
   refreshAllResumesDataSchema,
@@ -74,7 +73,6 @@ export const inngest = new Inngest({
     "response/resume.parse-new": parseNewResumesDataSchema,
     "response/resume.refresh": refreshSingleResumeDataSchema,
     "response/resume.refresh.all": refreshAllResumesDataSchema,
-    "response/contacts.parse-missing": parseMissingContactsDataSchema,
     "response/recommendation.generate": recommendationGenerateDataSchema,
     "response/vacancy-recommendation.generate":
       vacancyRecommendationGenerateDataSchema,

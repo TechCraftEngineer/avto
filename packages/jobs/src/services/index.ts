@@ -90,9 +90,6 @@ export {
 export {
   // Repository
   checkResponseExists,
-  // Contacts
-  extractContactsFromResponse,
-  extractContactsFromResponses,
   getResponseById,
   getResponseByResumeId,
   getResponsesWithoutDetails,

@@ -44,8 +44,6 @@ export {
   createInterviewScoring,
   createLogger,
   err,
-  extractContactsFromResponse,
-  extractContactsFromResponses,
   // Messaging
   extractVacancyRequirements,
   findResponseByPinCode,
