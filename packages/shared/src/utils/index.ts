@@ -3,6 +3,13 @@
  * Этот пакет содержит только чистые утилиты, которые могут работать в браузере
  */
 
+// Утилиты для работы с опытом работы
+export {
+  formatExperienceText,
+  getExperienceFromProfile,
+  getExperienceSummary,
+  hasExperience,
+} from "./experience-helpers";
 // Утилиты для работы с фриланс-платформами
 export {
   getPlatformTaskUrl,

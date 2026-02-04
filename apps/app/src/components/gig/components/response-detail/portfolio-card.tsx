@@ -1,5 +1,6 @@
 "use client";
 
+import { formatExperienceText } from "@qbs-autonaim/shared/utils";
 import {
   Badge,
   Button,
@@ -192,45 +193,48 @@ export function PortfolioCard({
         )}
 
         {/* Skills & Experience Summary */}
-        {(response.skills?.length || response.experience) && (
-          <div className="space-y-3 pt-4 border-t">
-            <h4 className="font-medium text-gray-900">Компетенции</h4>
+        {(() => {
+          const experienceText = formatExperienceText(response.profileData);
+          return response.skills?.length || experienceText ? (
+            <div className="space-y-3 pt-4 border-t">
+              <h4 className="font-medium text-gray-900">Компетенции</h4>
 
-            {response.skills && response.skills.length > 0 && (
-              <div>
-                <div className="text-sm text-gray-600 mb-2">Навыки:</div>
-                <div className="flex flex-wrap gap-2">
-                  {response.skills.slice(0, 8).map((skill) => (
-                    <Badge
-                      key={skill}
-                      variant="outline"
-                      className="bg-orange-50 text-orange-700 border-orange-300 text-xs"
-                    >
-                      {skill}
-                    </Badge>
-                  ))}
-                  {response.skills.length > 8 && (
-                    <Badge
-                      variant="outline"
-                      className="bg-gray-50 text-gray-600 border-gray-300 text-xs"
-                    >
-                      +{response.skills.length - 8}
-                    </Badge>
-                  )}
+              {response.skills && response.skills.length > 0 && (
+                <div>
+                  <div className="text-sm text-gray-600 mb-2">Навыки:</div>
+                  <div className="flex flex-wrap gap-2">
+                    {response.skills.slice(0, 8).map((skill) => (
+                      <Badge
+                        key={skill}
+                        variant="outline"
+                        className="bg-orange-50 text-orange-700 border-orange-300 text-xs"
+                      >
+                        {skill}
+                      </Badge>
+                    ))}
+                    {response.skills.length > 8 && (
+                      <Badge
+                        variant="outline"
+                        className="bg-gray-50 text-gray-600 border-gray-300 text-xs"
+                      >
+                        +{response.skills.length - 8}
+                      </Badge>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {response.experience && (
-              <div>
-                <div className="text-sm text-gray-600 mb-2">Опыт работы:</div>
-                <div className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg border">
-                  {response.experience}
+              {experienceText && (
+                <div>
+                  <div className="text-sm text-gray-600 mb-2">Опыт работы:</div>
+                  <div className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg border">
+                    {experienceText}
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-        )}
+              )}
+            </div>
+          ) : null;
+        })()}
 
         <div className="text-xs text-muted-foreground text-center pt-2">
           Ознакомьтесь с работами перед принятием решения

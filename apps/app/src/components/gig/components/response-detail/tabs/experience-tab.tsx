@@ -5,23 +5,17 @@ import { Badge } from "@qbs-autonaim/ui/badge";
 import { Button } from "@qbs-autonaim/ui/button";
 import { Separator } from "@qbs-autonaim/ui/separator";
 import { Award, ExternalLink } from "lucide-react";
+import { getProfileData } from "~/components/shared/utils/types";
 import { sanitizeHtmlFunction } from "~/lib/sanitize-html";
-import { getProfileData } from "../../../utils/types";
 
 type GigResponseDetail = NonNullable<RouterOutputs["gig"]["responses"]["get"]>;
-type VacancyResponseDetail = NonNullable<
-  RouterOutputs["vacancy"]["responses"]["get"]
->;
 
-interface ExperienceTabProps {
-  response: GigResponseDetail | VacancyResponseDetail;
+interface GigExperienceTabProps {
+  response: GigResponseDetail;
 }
 
-export function ExperienceTab({ response }: ExperienceTabProps) {
-  const experienceData = getProfileData(
-    response.profileData,
-    response.experience,
-  );
+export function GigExperienceTab({ response }: GigExperienceTabProps) {
+  const experienceData = getProfileData(response.profileData, null);
 
   return (
     <div className="space-y-3 sm:space-y-4 mt-0">
@@ -29,16 +23,11 @@ export function ExperienceTab({ response }: ExperienceTabProps) {
         if (experienceData.isJson && experienceData.data) {
           const profile = experienceData.data;
 
-          // Проверяем, это данные фрилансера или резюме
+          // Проверяем, это данные фрилансера
           const isFreelancerProfile = !!(
             profile.platform ||
             profile.username ||
             profile.statistics
-          );
-          const isResumeProfile = !!(
-            profile.experience ||
-            profile.education ||
-            profile.summary
           );
 
           if (isFreelancerProfile) {
@@ -211,6 +200,13 @@ export function ExperienceTab({ response }: ExperienceTabProps) {
             );
           }
 
+          // Если это резюме (для гигов тоже может быть)
+          const isResumeProfile = !!(
+            profile.experience ||
+            profile.education ||
+            profile.summary
+          );
+
           if (isResumeProfile) {
             return (
               <>
@@ -234,38 +230,51 @@ export function ExperienceTab({ response }: ExperienceTabProps) {
                       <h4 className="text-xs sm:text-sm font-semibold">
                         Опыт работы
                       </h4>
-                      <div
-                        className="text-xs sm:text-sm text-foreground whitespace-pre-wrap leading-relaxed wrap-break-word"
-                        dangerouslySetInnerHTML={{
-                          __html: sanitizeHtmlFunction(
-                            typeof profile.experience === "string"
-                              ? profile.experience
-                              : String(profile.experience),
-                          ),
-                        }}
-                      />
-                    </div>
-                  </>
-                )}
-
-                {/* Образование */}
-                {profile.education && (
-                  <>
-                    <Separator />
-                    <div className="space-y-2">
-                      <h4 className="text-xs sm:text-sm font-semibold">
-                        Образование
-                      </h4>
-                      <div
-                        className="text-xs sm:text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed wrap-break-word"
-                        dangerouslySetInnerHTML={{
-                          __html: sanitizeHtmlFunction(
-                            typeof profile.education === "string"
-                              ? profile.education
-                              : String(profile.education),
-                          ),
-                        }}
-                      />
+                      {Array.isArray(profile.experience) ? (
+                        <div className="space-y-3">
+                          {profile.experience.map((item, index) => {
+                            const exp = item.experience || item;
+                            return (
+                              <div
+                                key={index}
+                                className="p-3 rounded-lg border space-y-1.5"
+                              >
+                                {exp.position && (
+                                  <div className="font-medium text-xs sm:text-sm">
+                                    {exp.position}
+                                  </div>
+                                )}
+                                {exp.company && (
+                                  <div className="text-xs sm:text-sm text-muted-foreground">
+                                    {exp.company}
+                                  </div>
+                                )}
+                                {exp.period && (
+                                  <div className="text-xs text-muted-foreground">
+                                    {exp.period}
+                                  </div>
+                                )}
+                                {exp.description && (
+                                  <div className="text-xs sm:text-sm text-foreground whitespace-pre-wrap leading-relaxed wrap-break-word mt-2">
+                                    {exp.description}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div
+                          className="text-xs sm:text-sm text-foreground whitespace-pre-wrap leading-relaxed wrap-break-word"
+                          dangerouslySetInnerHTML={{
+                            __html: sanitizeHtmlFunction(
+                              typeof profile.experience === "string"
+                                ? profile.experience
+                                : String(profile.experience),
+                            ),
+                          }}
+                        />
+                      )}
                     </div>
                   </>
                 )}
@@ -289,21 +298,6 @@ export function ExperienceTab({ response }: ExperienceTabProps) {
                           </Badge>
                         ))}
                       </div>
-                    </div>
-                  </>
-                )}
-
-                {/* Локация */}
-                {profile.location && (
-                  <>
-                    <Separator />
-                    <div className="flex items-center justify-between p-2 rounded-lg border gap-2">
-                      <span className="text-xs sm:text-sm font-medium">
-                        Местоположение
-                      </span>
-                      <span className="text-xs sm:text-sm text-muted-foreground">
-                        {profile.location}
-                      </span>
                     </div>
                   </>
                 )}
@@ -348,10 +342,9 @@ export function ExperienceTab({ response }: ExperienceTabProps) {
           </div>
         </>
       )}
-      {!response.experience &&
-        (!response.skills || response.skills.length === 0) &&
-        !experienceData.isJson &&
-        !experienceData.text && (
+      {!experienceData.isJson &&
+        !experienceData.text &&
+        (!response.skills || response.skills.length === 0) && (
           <div className="rounded-lg border border-dashed bg-muted/20 text-center py-8 text-muted-foreground">
             <Award className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-3 opacity-50" />
             <p className="text-xs sm:text-sm">

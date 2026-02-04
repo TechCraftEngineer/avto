@@ -1,3 +1,4 @@
+import { hasExperience as checkExperience } from "@qbs-autonaim/shared/utils";
 import type { VacancyResponse } from "../types";
 
 // Type guard для проверки структуры interviewSession
@@ -96,7 +97,7 @@ export function useVacancyResponseFlags(
   );
 
   const hasExperience = !!(
-    response.experience ||
+    checkExperience(response.profileData) ||
     response.skills?.length ||
     response.profileData
   );

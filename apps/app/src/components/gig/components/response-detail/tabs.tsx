@@ -19,12 +19,12 @@ import {
 import {
   ContactsTab,
   DialogTab,
-  ExperienceTab,
   GigProposalTab,
   InterviewScoringCard,
 } from "~/components/shared/components/response-detail-tabs";
 import { PortfolioCard } from "./portfolio-card";
 import { PricingCard } from "./pricing-card";
+import { GigExperienceTab } from "./tabs/experience-tab";
 import type { GigResponseTabsProps } from "./types";
 
 export function GigResponseTabs({
@@ -229,7 +229,7 @@ export function GigResponseTabs({
             value="experience"
             className="space-y-3 sm:space-y-4 mt-0"
           >
-            <ExperienceTab response={response} />
+            <GigExperienceTab response={response} />
           </TabsContent>
 
           {/* Contacts Tab */}

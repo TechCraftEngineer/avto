@@ -3,6 +3,7 @@
 import type { RouterOutputs } from "@qbs-autonaim/api";
 import type { Candidate } from "@qbs-autonaim/db/schema";
 import { getInitials } from "@qbs-autonaim/shared";
+import { hasExperience as checkExperience } from "@qbs-autonaim/shared/utils";
 import {
   Avatar,
   AvatarFallback,
@@ -91,7 +92,7 @@ export function ResponseHeaderCard({
 
   // Проверяем, есть ли данные для оценки (портфолио, опыт, профиль)
   const hasEvaluationData =
-    !!response.experience ||
+    checkExperience(response.profileData) ||
     !!response.profileData ||
     (!!response.portfolioLinks && response.portfolioLinks.length > 0) ||
     !!response.portfolioFileId ||

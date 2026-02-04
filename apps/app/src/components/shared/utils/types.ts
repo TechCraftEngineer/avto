@@ -1,11 +1,31 @@
+export interface ExperienceItem {
+  company?: string;
+  position?: string;
+  period?: string;
+  description?: string;
+  experience?: {
+    company?: string;
+    position?: string;
+    period?: string;
+    description?: string;
+  };
+}
+
+export interface EducationItem {
+  institution?: string;
+  degree?: string;
+  period?: string;
+  specialization?: string;
+}
+
 export interface ProfileData {
   error?: string | null;
   name?: string | null;
   email?: string | null;
   phone?: string | null;
   location?: string | null;
-  experience?: string | null;
-  education?: string | null;
+  experience?: ExperienceItem[] | string | null;
+  education?: EducationItem[] | string | null;
   skills?: string[] | null;
   summary?: string | null;
   platform?: string | null;

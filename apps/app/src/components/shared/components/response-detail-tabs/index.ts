@@ -9,7 +9,6 @@ export { ResponseHeader } from "./headers/response-header";
 export { ComparisonTab } from "./tabs/comparison-tab";
 export { ContactsTab } from "./tabs/contacts-tab";
 export { DialogTab } from "./tabs/dialog-tab";
-export { ExperienceTab } from "./tabs/experience-tab";
 export { GigProposalTab } from "./tabs/gig-proposal-tab";
 export { NotesTagsTab } from "./tabs/notes-tags-tab";
 export { PortfolioTab } from "./tabs/portfolio-tab";

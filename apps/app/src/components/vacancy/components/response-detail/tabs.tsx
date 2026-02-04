@@ -12,13 +12,13 @@ import {
 import {
   ContactsTab,
   DialogTab,
-  ExperienceTab,
   InterviewScoringCard,
   PortfolioTab,
   ScreeningResultsCard,
   VacancyProposalTab,
 } from "~/components/shared/components/response-detail-tabs";
 import { SalaryCard } from "./salary-card";
+import { VacancyExperienceTab } from "./tabs/experience-tab";
 import type { VacancyResponseTabsProps } from "./types";
 
 export function VacancyResponseTabs({
@@ -119,7 +119,7 @@ export function VacancyResponseTabs({
             value="experience"
             className="space-y-3 sm:space-y-4 mt-0"
           >
-            <ExperienceTab response={response} />
+            <VacancyExperienceTab response={response} />
           </TabsContent>
 
           {/* Portfolio Tab */}

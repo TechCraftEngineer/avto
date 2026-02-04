@@ -5,6 +5,7 @@ import {
   HR_SELECTION_STATUS_LABELS,
   RESPONSE_STATUS_LABELS,
 } from "@qbs-autonaim/db/schema";
+import { formatExperienceText } from "@qbs-autonaim/shared/utils";
 import {
   Badge,
   Card,
@@ -95,31 +96,34 @@ export function ResponseCards({
                 </Badge>
               )}
             </div>
-            {response.experience && (
-              <div>
-                <h4 className="text-sm font-medium mb-1">Опыт работы</h4>
-                <HoverCard>
-                  <HoverCardTrigger asChild>
-                    <button
-                      type="button"
-                      className="text-left text-sm text-muted-foreground hover:underline cursor-pointer"
-                    >
-                      {response.experience.length > 120
-                        ? `${response.experience.slice(0, 120)}...`
-                        : response.experience}
-                    </button>
-                  </HoverCardTrigger>
-                  <HoverCardContent className="w-80">
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-semibold">Опыт работы</h4>
-                      <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                        {response.experience}
-                      </p>
-                    </div>
-                  </HoverCardContent>
-                </HoverCard>
-              </div>
-            )}
+            {(() => {
+              const experienceText = formatExperienceText(response.profileData);
+              return experienceText ? (
+                <div>
+                  <h4 className="text-sm font-medium mb-1">Опыт работы</h4>
+                  <HoverCard>
+                    <HoverCardTrigger asChild>
+                      <button
+                        type="button"
+                        className="text-left text-sm text-muted-foreground hover:underline cursor-pointer"
+                      >
+                        {experienceText.length > 120
+                          ? `${experienceText.slice(0, 120)}...`
+                          : experienceText}
+                      </button>
+                    </HoverCardTrigger>
+                    <HoverCardContent className="w-80">
+                      <div className="space-y-2">
+                        <h4 className="text-sm font-semibold">Опыт работы</h4>
+                        <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                          {experienceText}
+                        </p>
+                      </div>
+                    </HoverCardContent>
+                  </HoverCard>
+                </div>
+              ) : null;
+            })()}
             {response.contacts && typeof response.contacts === "object" ? (
               <div>
                 <h4 className="text-sm font-medium mb-2">Контакты</h4>

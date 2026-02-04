@@ -1,3 +1,4 @@
+import { hasExperience as checkExperience } from "@qbs-autonaim/shared/utils";
 import type { GigResponse } from "../types";
 
 // Type guard для проверки структуры interviewSession
@@ -85,7 +86,7 @@ export function useGigResponseFlags(
   );
 
   const hasExperience = !!(
-    response.experience ||
+    checkExperience(response.profileData) ||
     response.skills?.length ||
     response.profileData
   );
