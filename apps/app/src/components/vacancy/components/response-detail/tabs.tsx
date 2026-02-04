@@ -10,14 +10,13 @@ import {
   TabsTrigger,
 } from "@qbs-autonaim/ui";
 import {
-  ContactsTab,
   DialogTab,
   InterviewScoringCard,
-  PortfolioTab,
   ScreeningResultsCard,
   VacancyProposalTab,
 } from "~/components/shared/components/response-detail-tabs";
 import { SalaryCard } from "./salary-card";
+import { VacancyContactsTab } from "./tabs/contacts-tab";
 import { VacancyExperienceTab } from "./tabs/experience-tab";
 import type { VacancyResponseTabsProps } from "./types";
 
@@ -34,7 +33,7 @@ export function VacancyResponseTabs({
     <Card>
       <Tabs defaultValue={defaultTab} className="w-full">
         <CardHeader className="pb-3">
-          <TabsList className="grid w-full h-auto gap-1 p-1 grid-cols-4 sm:grid-cols-7">
+          <TabsList className="grid w-full h-auto gap-1 p-1 grid-cols-3 sm:grid-cols-6">
             <TabsTrigger
               value="analysis"
               className="min-h-11 sm:min-h-9 text-xs sm:text-sm touch-manipulation"
@@ -58,12 +57,6 @@ export function VacancyResponseTabs({
               className="min-h-11 sm:min-h-9 text-xs sm:text-sm touch-manipulation"
             >
               Опыт
-            </TabsTrigger>
-            <TabsTrigger
-              value="portfolio"
-              className="min-h-11 sm:min-h-9 text-xs sm:text-sm touch-manipulation"
-            >
-              Портфолио
             </TabsTrigger>
             <TabsTrigger
               value="contacts"
@@ -122,17 +115,9 @@ export function VacancyResponseTabs({
             <VacancyExperienceTab response={response} />
           </TabsContent>
 
-          {/* Portfolio Tab */}
-          <TabsContent
-            value="portfolio"
-            className="space-y-3 sm:space-y-4 mt-0"
-          >
-            <PortfolioTab response={response} />
-          </TabsContent>
-
           {/* Contacts Tab */}
           <TabsContent value="contacts" className="space-y-3 sm:space-y-4 mt-0">
-            <ContactsTab response={response} />
+            <VacancyContactsTab response={response} />
           </TabsContent>
 
           {/* Salary Tab */}

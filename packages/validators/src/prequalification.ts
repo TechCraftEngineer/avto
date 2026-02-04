@@ -14,7 +14,7 @@ const hexColorSchema = z.string().regex(/^#[0-9A-Fa-f]{6}$/, {
 /**
  * URL validation with optional null
  */
-const optionalUrlSchema = z.url({ message: "Неверный формат URL" }).nullish();
+const optionalUrlSchema = z.url({ error: "Неверный формат URL" }).nullish();
 
 /**
  * Session status enum
@@ -97,7 +97,7 @@ export type ResumeFileType = z.infer<typeof resumeFileTypeSchema>;
  */
 export const createSessionInputSchema = z.object({
   workspaceId: z.string().min(1, { message: "ID workspace обязателен" }),
-  vacancyId: z.uuid({ message: "Неверный формат ID вакансии" }),
+  vacancyId: z.uuid({ error: "Неверный формат ID вакансии" }),
   candidateConsent: z.boolean().refine((val) => val === true, {
     message: "Необходимо согласие на обработку данных",
   }),
@@ -112,7 +112,7 @@ export type CreateSessionInput = z.infer<typeof createSessionInputSchema>;
  * Get session input validation
  */
 export const getSessionInputSchema = z.object({
-  sessionId: z.uuid({ message: "Неверный формат ID сессии" }),
+  sessionId: z.uuid({ error: "Неверный формат ID сессии" }),
 });
 
 export type GetSessionInput = z.infer<typeof getSessionInputSchema>;
@@ -125,7 +125,7 @@ export type GetSessionInput = z.infer<typeof getSessionInputSchema>;
  * Upload resume input validation
  */
 export const uploadResumeInputSchema = z.object({
-  sessionId: z.uuid({ message: "Неверный формат ID сессии" }),
+  sessionId: z.uuid({ error: "Неверный формат ID сессии" }),
   fileType: resumeFileTypeSchema,
   filename: z
     .string()
@@ -143,7 +143,7 @@ export type UploadResumeInput = z.infer<typeof uploadResumeInputSchema>;
  * Send message input validation
  */
 export const sendMessageInputSchema = z.object({
-  sessionId: z.uuid({ message: "Неверный формат ID сессии" }),
+  sessionId: z.uuid({ error: "Неверный формат ID сессии" }),
   message: z
     .string()
     .min(1, { message: "Сообщение не может быть пустым" })
@@ -160,7 +160,7 @@ export type SendMessageInput = z.infer<typeof sendMessageInputSchema>;
  * Get result input validation
  */
 export const getResultInputSchema = z.object({
-  sessionId: z.uuid({ message: "Неверный формат ID сессии" }),
+  sessionId: z.uuid({ error: "Неверный формат ID сессии" }),
 });
 
 export type GetResultInput = z.infer<typeof getResultInputSchema>;
@@ -169,7 +169,7 @@ export type GetResultInput = z.infer<typeof getResultInputSchema>;
  * Submit application input validation
  */
 export const submitApplicationInputSchema = z.object({
-  sessionId: z.uuid({ message: "Неверный формат ID сессии" }),
+  sessionId: z.uuid({ error: "Неверный формат ID сессии" }),
 });
 
 export type SubmitApplicationInput = z.infer<
@@ -328,7 +328,7 @@ export type RegisterDomainInput = z.infer<typeof registerDomainInputSchema>;
  * Verify domain input validation
  */
 export const verifyDomainInputSchema = z.object({
-  domainId: z.uuid({ message: "Неверный формат ID домена" }),
+  domainId: z.uuid({ error: "Неверный формат ID домена" }),
 });
 
 export type VerifyDomainInput = z.infer<typeof verifyDomainInputSchema>;
@@ -337,7 +337,7 @@ export type VerifyDomainInput = z.infer<typeof verifyDomainInputSchema>;
  * Get domain status input validation
  */
 export const getDomainStatusInputSchema = z.object({
-  domainId: z.uuid({ message: "Неверный формат ID домена" }),
+  domainId: z.uuid({ error: "Неверный формат ID домена" }),
 });
 
 export type GetDomainStatusInput = z.infer<typeof getDomainStatusInputSchema>;
@@ -346,7 +346,7 @@ export type GetDomainStatusInput = z.infer<typeof getDomainStatusInputSchema>;
  * Delete domain input validation
  */
 export const deleteDomainInputSchema = z.object({
-  domainId: z.uuid({ message: "Неверный формат ID домена" }),
+  domainId: z.uuid({ error: "Неверный формат ID домена" }),
 });
 
 export type DeleteDomainInput = z.infer<typeof deleteDomainInputSchema>;
@@ -409,7 +409,7 @@ export type GetDashboardInput = z.infer<typeof getDashboardInputSchema>;
  * Get vacancy analytics input validation
  */
 export const getVacancyAnalyticsInputSchema = z.object({
-  vacancyId: z.uuid({ message: "Неверный формат ID вакансии" }),
+  vacancyId: z.uuid({ error: "Неверный формат ID вакансии" }),
   period: dateRangeSchema.optional(),
 });
 
@@ -440,8 +440,8 @@ export type ExportDataInput = z.infer<typeof exportDataInputSchema>;
  */
 export const trackEventInputSchema = z.object({
   workspaceId: z.string().min(1, { message: "ID workspace обязателен" }),
-  vacancyId: z.uuid({ message: "Неверный формат ID вакансии" }).optional(),
-  sessionId: z.uuid({ message: "Неверный формат ID сессии" }).optional(),
+  vacancyId: z.uuid({ error: "Неверный формат ID вакансии" }).optional(),
+  sessionId: z.uuid({ error: "Неверный формат ID сессии" }).optional(),
   eventType: analyticsEventTypeSchema,
   metadata: z.record(z.string(), z.unknown()).optional(),
 });

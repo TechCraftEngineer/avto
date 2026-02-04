@@ -13,11 +13,8 @@ export {
 } from "./components/response-detail-cards";
 export {
   ComparisonTab,
-  ContactsTab,
   DialogTab,
-  ExperienceTab,
   NotesTagsTab,
-  PortfolioTab,
   ProposalTab,
   ResponseHeader,
   ResumeActions,

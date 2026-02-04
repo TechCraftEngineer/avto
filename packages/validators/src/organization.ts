@@ -21,7 +21,7 @@ export const createOrganizationSchema = z.object({
     .max(500, "Описание не может быть длиннее 500 символов")
     .optional(),
   website: z
-    .union([z.literal(""), z.string().url({ message: "Некорректный URL" })])
+    .union([z.literal(""), z.url({ error: "Некорректный URL" })])
     .optional(),
   logo: z
     .union([
@@ -56,7 +56,7 @@ export const updateOrganizationSchema = z.object({
     .max(500, "Описание не может быть длиннее 500 символов")
     .optional(),
   website: z
-    .union([z.literal(""), z.string().url({ message: "Некорректный URL" })])
+    .union([z.literal(""), z.url({ error: "Некорректный URL" })])
     .optional(),
   logo: z
     .union([
@@ -74,7 +74,7 @@ export const updateOrganizationSchema = z.object({
 
 // Схемы для приглашений в организацию
 export const inviteToOrganizationSchema = z.object({
-  email: z.email({ message: "Некорректный email" }),
+  email: z.email({ error: "Некорректный email" }),
   role: z.enum(["owner", "admin", "member"], {
     message: "Роль должна быть owner, admin или member",
   }),

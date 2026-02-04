@@ -10,7 +10,7 @@ export const workspaceIdSchema = z
   );
 
 // Общая схема для UUIDv7
-export const uuidv7Schema = z.uuidv7();
+export const uuidv7Schema = z.uuid();
 
 export const createWorkspaceSchema = z.object({
   name: z.string().min(1, "Название обязательно").max(100),
@@ -56,7 +56,7 @@ export const updateWorkspaceSchema = z.object({
       z.null(),
     ])
     .optional(),
-  customDomainId: z.string().uuid().nullish(),
+  customDomainId: z.uuid().nullish(),
 });
 
 export const addUserToWorkspaceSchema = z.object({
@@ -75,8 +75,7 @@ export const updateBotSettingsSchema = z.object({
   companyName: z.string().min(1, "Название компании обязательно").max(100),
   companyDescription: z.string().max(1000).optional(),
   companyWebsite: z
-    .string()
-    .url({ message: "Некорректный URL" })
+    .url({ error: "Некорректный URL" })
     .optional()
     .or(z.literal("")),
   botName: z.string().min(1, "Имя бота обязательно").max(50),
