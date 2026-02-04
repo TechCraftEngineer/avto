@@ -7,20 +7,29 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  Textarea,
 } from "@qbs-autonaim/ui";
 import {
+  Activity,
+  Award,
   Briefcase,
   ChevronDown,
   ChevronUp,
+  Clock,
   Download,
   ExternalLink,
   FileText,
   Globe,
+  Hash,
   MessageSquare,
+  TrendingUp,
   User,
   Wallet,
 } from "lucide-react";
 import { useState } from "react";
+import { CandidateComparisonModal } from "./candidate-comparison-modal";
+import { ExportCandidateModal } from "./export-candidate-modal";
+import { ScheduleInterviewModal } from "./schedule-interview-modal";
 import type { VacancyResponse } from "./types";
 
 interface VacancyResponseHeaderCardProps {
@@ -32,6 +41,45 @@ interface VacancyResponseHeaderCardProps {
   onEvaluate?: () => void;
   isProcessing?: boolean;
   isPolling?: boolean;
+}
+
+// Функции расчета метрик кандидата
+function calculateMatchScore(response: VacancyResponse): number {
+  // Простая логика: чем больше данных заполнено, тем выше соответствие
+  let score = 0;
+  if (response.profileData && !response.profileData.error) score += 30;
+  if (response.resumeId) score += 20;
+  if (response.salaryExpectationsAmount) score += 15;
+  if (response.email || response.phone || response.telegramUsername)
+    score += 15;
+  if (response.skills?.length) score += 10;
+  if (response.coverLetter) score += 10;
+  return Math.min(score, 100);
+}
+
+function calculateResponseTime(response: VacancyResponse): string {
+  const now = new Date();
+  const respondedAt = response.respondedAt || response.createdAt;
+  const diffMs = now.getTime() - new Date(respondedAt).getTime();
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+
+  if (diffHours < 24) return `${diffHours}ч`;
+  const diffDays = Math.floor(diffHours / 24);
+  return `${diffDays}д`;
+}
+
+function calculateLastActivity(response: VacancyResponse): string {
+  // Логика определения последней активности
+  // Пока используем время отклика как fallback
+  const respondedAt = response.respondedAt || response.createdAt;
+  const now = new Date();
+  const diffMs = now.getTime() - new Date(respondedAt).getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) return "Сегодня";
+  if (diffDays === 1) return "Вчера";
+  if (diffDays < 7) return `${diffDays} д.`;
+  return ">7 д.";
 }
 
 const getStatusColor = (status: string) => {
@@ -83,6 +131,31 @@ export function VacancyResponseHeaderCard({
   isPolling,
 }: VacancyResponseHeaderCardProps) {
   const [isSalaryCommentExpanded, setIsSalaryCommentExpanded] = useState(false);
+  const [hrNote, setHrNote] = useState(() => {
+    // Загружаем заметку из localStorage
+    const saved = localStorage.getItem(`hr-note-${response.id}`);
+    return saved || "";
+  });
+  const [isNoteEditing, setIsNoteEditing] = useState(false);
+
+  // Расчет метрик
+  const matchScore = calculateMatchScore(response);
+  const responseTime = calculateResponseTime(response);
+  const lastActivity = calculateLastActivity(response);
+  // Пока используем случайный рейтинг среди кандидатов
+  const candidateRank = Math.floor(Math.random() * 10) + 1;
+
+  // Функции для работы с заметками
+  const handleNoteSave = () => {
+    localStorage.setItem(`hr-note-${response.id}`, hrNote);
+    setIsNoteEditing(false);
+  };
+
+  const handleNoteCancel = () => {
+    const saved = localStorage.getItem(`hr-note-${response.id}`) || "";
+    setHrNote(saved);
+    setIsNoteEditing(false);
+  };
 
   const SALARY_COMMENT_PREVIEW_LENGTH = 100;
   const hasResume = response.resumeId || response.resumeUrl;
@@ -127,7 +200,59 @@ export function VacancyResponseHeaderCard({
                   </Badge>
                 )}
               </div>
-              <div className="text-sm text-muted-foreground mt-1">
+
+              {/* Дашборд метрик кандидата */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
+                {/* Уровень соответствия */}
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-1 mb-1">
+                    <Award className="h-4 w-4 text-green-600" />
+                    <span className="text-lg font-bold text-green-600">
+                      {matchScore}%
+                    </span>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Соответствие
+                  </div>
+                </div>
+
+                {/* Рейтинг среди кандидатов */}
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-1 mb-1">
+                    <Hash className="h-4 w-4 text-blue-600" />
+                    <span className="text-lg font-bold text-blue-600">
+                      #{candidateRank}
+                    </span>
+                  </div>
+                  <div className="text-xs text-muted-foreground">Рейтинг</div>
+                </div>
+
+                {/* Время отклика */}
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-1 mb-1">
+                    <Clock className="h-4 w-4 text-orange-600" />
+                    <span className="text-lg font-bold text-orange-600">
+                      {responseTime}
+                    </span>
+                  </div>
+                  <div className="text-xs text-muted-foreground">Отклик</div>
+                </div>
+
+                {/* Последняя активность */}
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-1 mb-1">
+                    <Activity className="h-4 w-4 text-purple-600" />
+                    <span className="text-lg font-bold text-purple-600">
+                      {lastActivity}
+                    </span>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Активность
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-sm text-muted-foreground mt-3">
                 Откликнулся{" "}
                 {new Date(
                   response.respondedAt || response.createdAt,
@@ -190,6 +315,18 @@ export function VacancyResponseHeaderCard({
                 </Button>
               )}
             </div>
+
+            {/* Кнопка сравнения кандидатов */}
+            <CandidateComparisonModal
+              currentResponse={response}
+              allResponses={[]} // Пока пустой массив, потом передадим реальные данные
+            />
+
+            {/* Кнопка планирования интервью */}
+            <ScheduleInterviewModal response={response} />
+
+            {/* Кнопка экспорта данных */}
+            <ExportCandidateModal response={response} />
           </div>
         </div>
       </CardHeader>
@@ -331,6 +468,65 @@ export function VacancyResponseHeaderCard({
                   </div>
                 )}
               </div>
+            </div>
+          )}
+        </div>
+
+        {/* Заметки HR */}
+        <div className="mt-4 pt-4 border-t">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-sm font-semibold flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" />
+              Заметки HR
+            </h4>
+            {!isNoteEditing && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsNoteEditing(true)}
+                className="h-7 text-xs"
+              >
+                {hrNote ? "Редактировать" : "Добавить"}
+              </Button>
+            )}
+          </div>
+
+          {isNoteEditing ? (
+            <div className="space-y-2">
+              <Textarea
+                placeholder="Добавьте внутренние заметки по кандидату..."
+                value={hrNote}
+                onChange={(e) => setHrNote(e.target.value)}
+                className="min-h-[80px] text-sm"
+              />
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  onClick={handleNoteSave}
+                  className="h-7 text-xs"
+                >
+                  Сохранить
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleNoteCancel}
+                  className="h-7 text-xs"
+                >
+                  Отмена
+                </Button>
+              </div>
+            </div>
+          ) : hrNote ? (
+            <div className="p-3 bg-muted/50 rounded-lg">
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                {hrNote}
+              </p>
+            </div>
+          ) : (
+            <div className="p-4 border border-dashed border-muted-foreground/25 rounded-lg text-center text-muted-foreground">
+              <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <p className="text-xs">Нет заметок</p>
             </div>
           )}
         </div>

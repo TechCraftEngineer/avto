@@ -37,6 +37,32 @@ export default function VacancyResponseDetailPage() {
     ),
   );
 
+  // Получаем данные вакансии для требований
+  const { data: vacancyData } = useQuery(
+    trpc.vacancy.get.queryOptions(
+      workspaceId && vacancyId
+        ? {
+            id: vacancyId,
+            workspaceId,
+          }
+        : skipToken,
+    ),
+  );
+
+  // Получаем список всех откликов вакансии для навигации
+  const { data: allResponsesData } = useQuery(
+    trpc.vacancy.responses.list.queryOptions(
+      workspaceId && vacancyId
+        ? {
+            workspaceId,
+            vacancyId,
+            page: 1,
+            limit: 100, // Получаем все отклики для навигации
+          }
+        : skipToken,
+    ),
+  );
+
   if (!workspaceId) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center">
@@ -106,11 +132,14 @@ export default function VacancyResponseDetailPage() {
               ) : null}
             </div>
 
-            <ResponseDetailCard response={responseData} />
+            <ResponseDetailCard
+              response={responseData}
+              vacancy={vacancyData}
+              allResponses={(allResponsesData?.responses || []) as any}
+            />
           </div>
         </div>
       </div>
     </div>
   );
 }
-

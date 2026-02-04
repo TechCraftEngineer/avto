@@ -15,12 +15,14 @@ import {
   ScreeningResultsCard,
   VacancyProposalTab,
 } from "~/components/shared/components/response-detail-tabs";
+import { MessageTemplates } from "./message-templates";
 import { VacancyContactsTab } from "./tabs/contacts-tab";
-import { VacancyExperienceTab } from "./tabs/experience-tab";
+import { VacancyExperienceTab } from "./tabs/experience-tab/index";
 import type { VacancyResponseTabsProps } from "./types";
 
 export function VacancyResponseTabs({
   response,
+  vacancy,
   defaultTab,
   hasScreening,
   hasInterviewScoring,
@@ -32,7 +34,7 @@ export function VacancyResponseTabs({
     <Card>
       <Tabs defaultValue={defaultTab} className="w-full">
         <CardHeader className="pb-3">
-          <TabsList className="grid w-full h-auto gap-1 p-1 grid-cols-3 sm:grid-cols-5">
+          <TabsList className="grid w-full h-auto gap-1 p-1 grid-cols-3 sm:grid-cols-6">
             <TabsTrigger
               value="analysis"
               className="min-h-11 sm:min-h-9 text-xs sm:text-sm touch-manipulation"
@@ -44,6 +46,12 @@ export function VacancyResponseTabs({
               className="min-h-11 sm:min-h-9 text-xs sm:text-sm touch-manipulation"
             >
               Диалог
+            </TabsTrigger>
+            <TabsTrigger
+              value="templates"
+              className="min-h-11 sm:min-h-9 text-xs sm:text-sm touch-manipulation"
+            >
+              Шаблоны
             </TabsTrigger>
             <TabsTrigger
               value="proposal"
@@ -95,6 +103,14 @@ export function VacancyResponseTabs({
             )}
           </TabsContent>
 
+          {/* Templates Tab */}
+          <TabsContent
+            value="templates"
+            className="space-y-3 sm:space-y-4 mt-0"
+          >
+            <MessageTemplates response={response} />
+          </TabsContent>
+
           {/* Proposal Tab */}
           <TabsContent value="proposal" className="space-y-3 sm:space-y-4 mt-0">
             <VacancyProposalTab response={response} />
@@ -105,7 +121,10 @@ export function VacancyResponseTabs({
             value="experience"
             className="space-y-3 sm:space-y-4 mt-0"
           >
-            <VacancyExperienceTab response={response} />
+            <VacancyExperienceTab
+              response={response}
+              vacancyRequirements={vacancy?.requirements || undefined}
+            />
           </TabsContent>
 
           {/* Contacts Tab */}

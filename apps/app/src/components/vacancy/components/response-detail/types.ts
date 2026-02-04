@@ -10,10 +10,24 @@ export type VacancyResponse = NonNullable<
 >;
 
 /**
+ * Vacancy - inferred тип из API
+ */
+export type Vacancy = NonNullable<RouterOutputs["vacancy"]["get"]>;
+
+/**
+ * Vacancy Response from list - inferred тип из API list
+ */
+export type VacancyResponseFromList = NonNullable<
+  RouterOutputs["vacancy"]["responses"]["list"]
+>["responses"][0];
+
+/**
  * Пропсы для vacancy response detail card
  */
 export interface VacancyResponseDetailCardProps {
   response: VacancyResponse;
+  vacancy?: Vacancy;
+  allResponses?: any[];
   onAccept?: () => void;
   onReject?: () => void;
   onMessage?: () => void;
@@ -27,6 +41,7 @@ export interface VacancyResponseDetailCardProps {
  */
 export interface VacancyResponseTabsProps {
   response: VacancyResponse;
+  vacancy?: Vacancy;
   defaultTab: string;
   hasScreening: boolean;
   hasInterviewScoring: boolean;

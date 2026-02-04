@@ -156,9 +156,7 @@ export function ResponseActions({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        {/* Оценить кандидата */}
-        {status === "NEW" && (
-          <>
+
             <DropdownMenuItem
               onClick={handleScreenResponse}
               disabled={isScreening}
@@ -171,8 +169,7 @@ export function ResponseActions({
               {isScreening ? "Оценка…" : "Оценить кандидата"}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-          </>
-        )}
+     
 
         {/* Обновить резюме */}
         {resumeUrl && (

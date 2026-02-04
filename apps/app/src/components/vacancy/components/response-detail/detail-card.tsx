@@ -3,13 +3,18 @@
 import { skipToken, useQuery } from "@tanstack/react-query";
 import { ParsedProfileCard } from "~/components";
 import { useTRPC } from "~/trpc/react";
+import { CandidateNavigation } from "./candidate-navigation";
 import { VacancyResponseHeaderCard } from "./header-card";
 import { useVacancyResponseFlags } from "./hooks/use-vacancy-response-flags";
+import { QuickActionsFab } from "./quick-actions-fab";
+import { StatusTimeline } from "./status-timeline";
 import { VacancyResponseTabs } from "./tabs";
 import type { VacancyResponseDetailCardProps } from "./types";
 
 export function VacancyResponseDetailCard({
   response,
+  vacancy,
+  allResponses,
   onAccept,
   onReject,
   onMessage,
@@ -57,6 +62,21 @@ export function VacancyResponseDetailCard({
 
   return (
     <div className="space-y-4 sm:space-y-6">
+      {/* Navigation between candidates */}
+      <CandidateNavigation
+        currentResponse={response}
+        allResponses={allResponses || []}
+        onNavigate={(responseId) => {
+          // Реализовать навигацию между кандидатами
+          const currentUrl = window.location.href;
+          const newUrl = currentUrl.replace(
+            /\/responses\/[^/]+$/,
+            `/responses/${responseId}`,
+          );
+          window.location.href = newUrl;
+        }}
+      />
+
       {/* Header Card */}
       <VacancyResponseHeaderCard
         response={response}
@@ -74,15 +94,26 @@ export function VacancyResponseDetailCard({
         <ParsedProfileCard profileData={response.profileData} />
       )}
 
+      {/* Status Timeline */}
+      <StatusTimeline response={response} />
+
       {/* Main Content Tabs */}
       <VacancyResponseTabs
         response={response}
+        vacancy={vacancy}
         defaultTab={getDefaultTab()}
         hasScreening={hasScreening}
         hasInterviewScoring={hasInterviewScoring}
         hasConversation={hasConversation}
         screening={screening}
         conversation={conversation}
+      />
+
+      {/* Быстрые действия FAB */}
+      <QuickActionsFab
+        response={response}
+        onMessage={onMessage}
+        onEvaluate={onEvaluate}
       />
     </div>
   );

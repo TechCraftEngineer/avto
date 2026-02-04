@@ -2,9 +2,14 @@ import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "@qbs-autonaim/ui";
 import { formatPhone } from "@qbs-autonaim/validators";
-import { Mail, Phone } from "lucide-react";
+import { Mail, Phone, Copy, PhoneCall } from "lucide-react";
+import { toast } from "sonner";
 
 interface Contact {
   raw?: string;
@@ -41,6 +46,24 @@ export function ContactInfo({ contacts, size = "md" }: ContactInfoProps) {
   const contactsData = contacts as ContactsData;
   const allContacts: Array<{ contact: Contact; contactType: string }> = [];
 
+  // Функция для копирования в буфер обмена
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success("Скопировано в буфер обмена");
+    } catch (error) {
+      console.error("Ошибка копирования:", error);
+      toast.error("Не удалось скопировать");
+    }
+  };
+
+  // Функция для звонка
+  const makeCall = (phone: string) => {
+    // Убираем все символы кроме цифр и +
+    const cleanPhone = phone.replace(/[^\d+]/g, "");
+    window.location.href = `tel:${cleanPhone}`;
+  };
+
   // Collect all contacts from different types
   Object.entries(contactsData).forEach(([key, items]) => {
     if (Array.isArray(items)) {
@@ -49,12 +72,6 @@ export function ContactInfo({ contacts, size = "md" }: ContactInfoProps) {
       });
     }
   });
-
-  // Debug: логируем структуру данных
-  if (process.env.NODE_ENV === "development") {
-    console.log("ContactInfo contacts:", contactsData);
-    console.log("ContactInfo allContacts:", allContacts);
-  }
 
   if (allContacts.length === 0) {
     return <span className="text-sm text-muted-foreground">Не указаны</span>;
@@ -104,46 +121,70 @@ export function ContactInfo({ contacts, size = "md" }: ContactInfoProps) {
           ? `${contact.comment?.slice(0, maxCommentLength)}…`
           : contact.comment;
 
-        const fullContent = hasComment
-          ? `${displayValue}\n\n${contact.comment}`
-          : displayValue;
-
         return (
           <div
             key={`${contactType}-${contact.raw || contact.formatted || contact.email}-${index}`}
             className="flex flex-col gap-0.5"
           >
-            <HoverCard>
-              <HoverCardTrigger asChild>
-                <div
-                  className={`flex items-center gap-1.5 ${textSize} cursor-pointer`}
-                >
-                  {isPhone ? (
+            {isPhone ? (
+              // Для телефонов - DropdownMenu с опциями
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    className={`flex items-center gap-1.5 ${textSize} text-foreground font-medium hover:underline text-left`}
+                  >
                     <Phone
                       className={`${iconSize} text-muted-foreground shrink-0`}
                     />
-                  ) : (
+                    <span>{truncatedValue}</span>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  <DropdownMenuItem
+                    onClick={() => makeCall(displayValue)}
+                    className="cursor-pointer"
+                  >
+                    <PhoneCall className="mr-2 h-4 w-4" />
+                    <span>Позвонить</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => copyToClipboard(displayValue)}
+                    className="cursor-pointer"
+                  >
+                    <Copy className="mr-2 h-4 w-4" />
+                    <span>Скопировать</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              // Для email - HoverCard с возможностью копирования
+              <HoverCard>
+                <HoverCardTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={() => copyToClipboard(displayValue)}
+                    className={`flex items-center gap-1.5 ${textSize} text-foreground font-medium hover:underline text-left`}
+                  >
                     <Mail
                       className={`${iconSize} text-muted-foreground shrink-0`}
                     />
-                  )}
-                  <button
-                    type="button"
-                    className="text-foreground font-medium text-left hover:underline"
-                  >
-                    {truncatedValue}
+                    <span>{truncatedValue}</span>
                   </button>
-                </div>
-              </HoverCardTrigger>
-              <HoverCardContent className="w-80">
-                <div className="space-y-2">
-                  <h4 className="text-sm font-semibold">Контакт</h4>
-                  <p className="text-sm text-muted-foreground break-all whitespace-pre-wrap">
-                    {fullContent}
-                  </p>
-                </div>
-              </HoverCardContent>
-            </HoverCard>
+                </HoverCardTrigger>
+                <HoverCardContent className="w-80">
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-semibold">Email</h4>
+                    <p className="text-sm text-muted-foreground break-all">
+                      {displayValue}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Нажмите, чтобы скопировать
+                    </p>
+                  </div>
+                </HoverCardContent>
+              </HoverCard>
+            )}
             {hasComment && (
               <span className={`${textSize} text-muted-foreground ml-5`}>
                 {truncatedComment}
