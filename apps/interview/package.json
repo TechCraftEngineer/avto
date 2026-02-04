@@ -14,8 +14,9 @@
     "with-env": "bun run --env-file ../../.env"
   },
   "dependencies": {
-    "@ai-sdk/react": "3.0.69",
+    "@ai-sdk/react": "3.0.71",
     "@hookform/resolvers": "^5.2.2",
+    "@opentelemetry/api": "^1.9.0",
     "@qbs-autonaim/api": "workspace:*",
     "@qbs-autonaim/auth": "workspace:*",
     "@qbs-autonaim/config": "workspace:*",
@@ -29,7 +30,7 @@
     "@trpc/client": "11.9.0",
     "@trpc/server": "11.9.0",
     "@trpc/tanstack-react-query": "^11.9.0",
-    "ai": "6.0.67",
+    "ai": "6.0.69",
     "lucide-react": "^0.563.0",
     "motion": "^12.29.2",
     "next": "16.1.6",

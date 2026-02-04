@@ -25,6 +25,7 @@ import { VacancyAnalyticsAgent } from "../recruiter/analytics/vacancy-analytics"
 import { CareerTrajectoryAgent } from "../recruiter/career-trajectory-agent";
 import { IntentClassifierAgent } from "../recruiter/classification/intent-classifier";
 import { InterviewQuestionsAgent } from "../recruiter/interview/interview-questions-agent";
+import { NumerologyAgent } from "../recruiter/numerology/numerology-agent";
 import { PriorityAgent } from "../recruiter/priority/priority-agent";
 import { CandidateEvaluatorAgent } from "../recruiter/ranking/candidate-evaluator-agent";
 import { ComparisonAgent } from "../recruiter/ranking/comparison-agent";
@@ -38,6 +39,7 @@ import {
   VacancyRecommendationAgent,
   VacancyRecommendationOutputSchema,
 } from "../recruiter/ranking/vacancy-recommendation-agent";
+import { ResponseScreeningAgent } from "../recruiter/screening/response-screening-agent";
 import { CandidateSearchAgent } from "../recruiter/search/candidate-search";
 import type { AgentConfig } from "./base-agent";
 
@@ -203,5 +205,13 @@ export class AgentFactory {
       GigRecommendationOutputSchema,
       config,
     );
+  }
+
+  createResponseScreening(overrides?: Partial<AgentConfig>) {
+    return new ResponseScreeningAgent(this.getAgentConfig(overrides));
+  }
+
+  createNumerology(overrides?: Partial<AgentConfig>) {
+    return new NumerologyAgent(this.getAgentConfig(overrides));
   }
 }

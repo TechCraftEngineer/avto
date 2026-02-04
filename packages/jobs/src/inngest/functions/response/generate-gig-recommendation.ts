@@ -4,7 +4,7 @@ import type {
   GigRecommendationInput,
   GigRecommendationScreeningData,
 } from "@qbs-autonaim/ai";
-import { AgentFactory } from "@qbs-autonaim/ai";
+import { AgentFactory, flushTelemetry } from "@qbs-autonaim/ai";
 import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { gig } from "@qbs-autonaim/db/schema";
@@ -219,6 +219,9 @@ export const generateGigRecommendationFunction = inngest.createFunction(
         responseId,
       });
     });
+
+    // Отправляем все трейсы в Langfuse
+    await flushTelemetry();
 
     return {
       success: true,

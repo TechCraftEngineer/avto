@@ -1,7 +1,6 @@
 import {
-  NumerologyAgent,
+  AgentFactory,
   type NumerologyInput,
-  ResponseScreeningAgent,
   type ResponseScreeningInput,
   type ResponseScreeningOutput,
 } from "@qbs-autonaim/ai";
@@ -114,12 +113,14 @@ export async function screenResponse(
 
   logger.info("Запуск агента скрининга");
 
-  // Создаем и запускаем агента с моделью по умолчанию
-  const agent = new ResponseScreeningAgent({
+  // Создаем фабрику агентов
+  const factory = new AgentFactory({
     model: getAIModel(),
+    traceId: responseId,
   });
 
-  // Агент возвращает свой формат результата
+  const agent = factory.createResponseScreening();
+
   const agentResult = await agent.execute(agentInput, {
     entityId: responseId,
     metadata: {
@@ -193,9 +194,7 @@ export async function screenResponse(
           };
 
           // Создаем и запускаем агента психометрического анализа
-          const numerologyAgent = new NumerologyAgent({
-            model: getAIModel(),
-          });
+          const numerologyAgent = factory.createNumerology();
 
           const numerologyResult = await numerologyAgent.execute(
             numerologyInput,

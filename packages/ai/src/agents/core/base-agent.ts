@@ -5,6 +5,7 @@
 import type { LanguageModel, ToolSet } from "ai";
 import { Output, stepCountIs, ToolLoopAgent } from "ai";
 import { type ZodType, z } from "zod";
+import { initializeTelemetry } from "../../telemetry";
 import type { AgentType } from "./types";
 
 /**
@@ -66,6 +67,9 @@ export abstract class BaseAgent<TInput, TOutput> {
     config: AgentConfig,
     inputSchema?: ZodType<TInput>,
   ) {
+    // Инициализируем телеметрию при создании первого агента
+    initializeTelemetry();
+
     this.name = name;
     this.type = type;
     this.instructions = instructions;
@@ -124,7 +128,9 @@ export abstract class BaseAgent<TInput, TOutput> {
     const prompt = this.buildPrompt(input, context);
 
     try {
-      const result = await this.agent.generate({ prompt });
+      const result = await this.agent.generate({
+        prompt,
+      });
 
       // AI SDK 6 с Output.object() может возвращать объект с полем content
       let outputData: unknown = result.output;
