@@ -4,7 +4,7 @@ import { db } from "@qbs-autonaim/db";
 import { vacancy, vacancyPublication } from "@qbs-autonaim/db/schema";
 import { z } from "zod";
 
-import type { PublicationMapping, VacancyMapping } from "../types";
+import type { VacancyMapping } from "../types";
 
 interface InsertedVacancy {
   id: string;
@@ -26,7 +26,6 @@ const ValidPlatformSchema = z.enum(["HH", "SUPERJOB", "MANUAL"]);
 export async function loadVacancies(): Promise<{
   insertedVacancies: InsertedVacancy[];
   vacancyMapping: VacancyMapping;
-  publicationMapping: PublicationMapping;
 }> {
   console.log("\n📝 Загружаем вакансии...");
 
@@ -39,8 +38,6 @@ export async function loadVacancies(): Promise<{
     .insert(vacancy)
     .values(vacanciesData)
     .returning({ id: vacancy.id, title: vacancy.title });
-
-  const publicationMapping: PublicationMapping = {};
 
   if (insertedVacancies.length > 0) {
     const publications = insertedVacancies
@@ -75,12 +72,6 @@ export async function loadVacancies(): Promise<{
           vacancyId: vacancyPublication.vacancyId,
         });
       console.log(`🔗 Создано ${publications.length} публикаций для вакансий`);
-
-      for (const pub of insertedPublications) {
-        if (pub.vacancyId) {
-          publicationMapping[pub.vacancyId] = pub.id;
-        }
-      }
     }
   }
 
@@ -114,5 +105,5 @@ export async function loadVacancies(): Promise<{
       insertedVacancies[9]?.id || "";
   }
 
-  return { insertedVacancies, vacancyMapping, publicationMapping };
+  return { insertedVacancies, vacancyMapping };
 }

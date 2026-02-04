@@ -50,6 +50,13 @@
       "when": 1770152861149,
       "tag": "0006_fixed_maelstrom",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1770180733510,
+      "tag": "0007_regular_lockjaw",
+      "breakpoints": true
     }
   ]
 }

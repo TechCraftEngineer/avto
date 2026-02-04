@@ -35,7 +35,3 @@ export interface GigMapping {
 export interface ResponseMapping {
   [candidateId: string]: string;
 }
-
-export interface PublicationMapping {
-  [vacancyId: string]: string;
-}

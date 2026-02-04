@@ -138,8 +138,8 @@ export async function screenResponse(
 
   const saveResult = await tryCatch(async () => {
     // Проверяем наличие даты рождения для психометрического анализа личности
-    const psychometricScore: number | null = null;
-    const psychometricAnalysis: {
+    let psychometricScore: number | null = null;
+    let psychometricAnalysis: {
       lifePathNumber: number;
       destinyNumber?: number | null;
       soulUrgeNumber?: number | null;

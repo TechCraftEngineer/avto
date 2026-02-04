@@ -2,12 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { db } from "@qbs-autonaim/db";
 import { response } from "@qbs-autonaim/db/schema";
-import type {
-  GigMapping,
-  PhotoMapping,
-  PublicationMapping,
-  VacancyMapping,
-} from "../types";
+import type { GigMapping, PhotoMapping, VacancyMapping } from "../types";
 
 interface InsertedResponse {
   id: string;
@@ -26,7 +21,6 @@ interface ResponseData {
 
 export async function loadVacancyResponses(
   vacancyMapping: VacancyMapping,
-  publicationMapping: PublicationMapping,
   photoMapping: PhotoMapping,
   fallbackVacancyId: string,
 ): Promise<InsertedResponse[]> {
@@ -45,7 +39,6 @@ export async function loadVacancyResponses(
       ...resp,
       entityType: "vacancy" as const,
       entityId,
-      publicationId: publicationMapping[entityId] || null,
       photoFileId: photoMapping[resp.candidateId] || null,
       respondedAt: resp.respondedAt ? new Date(resp.respondedAt) : null,
       rankedAt: resp.rankedAt ? new Date(resp.rankedAt) : null,

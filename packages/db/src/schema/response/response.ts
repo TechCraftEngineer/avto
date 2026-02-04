@@ -33,7 +33,6 @@ import {
   recommendationValues,
   responseStatusValues,
 } from "../shared/response-enums";
-import { vacancyPublication } from "../vacancy/vacancy-publication";
 
 /**
  * Тип сущности для откликов
@@ -56,10 +55,6 @@ export const response = pgTable(
     // Полиморфная связь с сущностью (gig, vacancy, project)
     entityType: responseEntityTypeEnum("entity_type").notNull(),
     entityId: uuid("entity_id").notNull(),
-    publicationId: uuid("publication_id").references(
-      () => vacancyPublication.id,
-      { onDelete: "set null" },
-    ),
 
     // Связь с глобальным профилем кандидата (Global Talent Pool)
     globalCandidateId: uuid("global_candidate_id").references(

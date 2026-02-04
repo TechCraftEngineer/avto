@@ -126,6 +126,7 @@ export class GigShortlistGenerator {
         // Дополнительная информация
         coverLetter: true,
         skills: true,
+        profileData: true,
         createdAt: true,
       },
     });

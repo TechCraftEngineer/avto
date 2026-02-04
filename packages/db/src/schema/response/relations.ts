@@ -6,7 +6,6 @@ import { gig } from "../gig/gig";
 import { interviewSession } from "../interview/interview-session";
 import { interviewScoring } from "../interview/scoring";
 import { vacancy } from "../vacancy/vacancy";
-import { vacancyPublication } from "../vacancy/vacancy-publication";
 import { response } from "./response";
 import { responseComment } from "./response-comment";
 import { responseHistory } from "./response-history";
@@ -26,10 +25,6 @@ export const responseRelations = relations(response, ({ one, many }) => ({
   vacancy: one(vacancy, {
     fields: [response.entityId],
     references: [vacancy.id],
-  }),
-  publication: one(vacancyPublication, {
-    fields: [response.publicationId],
-    references: [vacancyPublication.id],
   }),
   portfolioFile: one(file, {
     fields: [response.portfolioFileId],
