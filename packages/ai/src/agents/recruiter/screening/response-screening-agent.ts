@@ -120,8 +120,7 @@ ${requirements.nice_to_have_skills.map((s) => `- ${s}`).join("\n")}
 РЕЗЮМЕ КАНДИДАТА:
 Имя: ${this.extractFirstName(candidate.candidateName)}
 
-Опыт работы:
-${this.formatExperience(candidate) || "Не указан"}
+${this.formatProfileData(candidate.profileData)}
 ${candidate.coverLetter ? `\nСопроводительное письмо:\n${candidate.coverLetter}` : ""}
 
 ЗАДАЧА:
@@ -201,42 +200,131 @@ ${candidate.coverLetter ? `\nСопроводительное письмо:\n${c
     return parts[0] || "Не указано";
   }
 
-  private formatExperience(
-    candidate: ResponseScreeningInput["candidate"],
-  ): string | null {
-    // Если есть profileData, извлекаем из него опыт
-    if (candidate.profileData && typeof candidate.profileData === "object") {
-      const data = candidate.profileData as Record<string, unknown>;
+  private formatProfileData(profileData: unknown): string {
+    if (!profileData || typeof profileData !== "object") {
+      return "Опыт работы:\nНе указан";
+    }
 
-      // Проверяем наличие experience в profileData
-      if (Array.isArray(data.experience)) {
-        return data.experience
-          .map((exp: unknown) => {
-            if (typeof exp === "object" && exp !== null) {
-              const e = exp as Record<string, unknown>;
-              const parts: string[] = [];
+    const data = profileData as Record<string, unknown>;
+    const sections: string[] = [];
 
-              if (e.position) parts.push(String(e.position));
-              if (e.company) parts.push(`в ${e.company}`);
-              if (e.period) parts.push(`(${e.period})`);
-              if (e.description) parts.push(`\n${e.description}`);
+    // Краткая информация
+    const summary = this.formatSummary(data);
+    if (summary) {
+      sections.push(`Краткая информация:\n${summary}`);
+    }
 
-              return parts.join(" ");
-            }
-            return String(exp);
-          })
-          .join("\n\n");
-      }
+    // Опыт работы
+    const experience = this.formatExperience(data);
+    if (experience) {
+      sections.push(`Опыт работы:\n${experience}`);
+    } else {
+      sections.push("Опыт работы:\nНе указан");
+    }
 
-      // Если есть summary, используем его
-      if (data.summary && typeof data.summary === "string") {
-        return data.summary;
-      }
+    // Образование
+    const education = this.formatEducation(data);
+    if (education) {
+      sections.push(`Образование:\n${education}`);
+    }
 
-      // Для фрилансеров: aboutMe
-      if (data.aboutMe && typeof data.aboutMe === "string") {
-        return data.aboutMe;
-      }
+    // Языки
+    const languages = this.formatLanguages(data);
+    if (languages) {
+      sections.push(`Языки кандидата:\n${languages}`);
+    }
+
+    return sections.join("\n\n");
+  }
+
+  private formatSummary(data: Record<string, unknown>): string | null {
+    if (data.summary && typeof data.summary === "string") {
+      return data.summary;
+    }
+    if (data.aboutMe && typeof data.aboutMe === "string") {
+      return data.aboutMe;
+    }
+    return null;
+  }
+
+  private formatEducation(data: Record<string, unknown>): string | null {
+    if (!Array.isArray(data.education)) return null;
+
+    return data.education
+      .map((edu: unknown) => {
+        if (typeof edu === "object" && edu !== null) {
+          const e = edu as Record<string, unknown>;
+          const parts: string[] = [];
+
+          if (e.degree) parts.push(String(e.degree));
+          if (e.field) parts.push(String(e.field));
+          if (e.institution) parts.push(`— ${e.institution}`);
+
+          const period: string[] = [];
+          if (e.startDate) period.push(String(e.startDate));
+          if (e.endDate) period.push(String(e.endDate));
+          if (period.length > 0) parts.push(`(${period.join(" - ")})`);
+
+          return parts.join(" ");
+        }
+        return String(edu);
+      })
+      .join("\n");
+  }
+
+  private formatLanguages(data: Record<string, unknown>): string | null {
+    if (!Array.isArray(data.languages)) return null;
+
+    return data.languages
+      .map((lang: unknown) => {
+        if (typeof lang === "object" && lang !== null) {
+          const l = lang as Record<string, unknown>;
+          if (l.name && l.level) {
+            return `${l.name}: ${l.level}`;
+          }
+          if (l.name) return String(l.name);
+        }
+        return String(lang);
+      })
+      .join(", ");
+  }
+
+  private formatExperience(data: Record<string, unknown>): string | null {
+    // Проверяем наличие experience в profileData
+    if (Array.isArray(data.experience)) {
+      return data.experience
+        .map((exp: unknown) => {
+          if (typeof exp === "object" && exp !== null) {
+            const expObj = exp as Record<string, unknown>;
+
+            // Поддержка вложенной структуры {experience: {...}}
+            const e =
+              expObj.experience && typeof expObj.experience === "object"
+                ? (expObj.experience as Record<string, unknown>)
+                : expObj;
+
+            const parts: string[] = [];
+
+            if (e.position) parts.push(String(e.position));
+            if (e.company) parts.push(`в ${e.company}`);
+            if (e.period) parts.push(`(${e.period})`);
+            if (e.description) parts.push(`\n${e.description}`);
+
+            return parts.join(" ");
+          }
+          return String(exp);
+        })
+        .join("\n\n");
+    }
+
+    // Если есть summary, используем его
+    if (data.summary && typeof data.summary === "string") {
+      return data.summary;
+    }
+
+    // Для фрилансеров: aboutMe
+    if (data.aboutMe && typeof data.aboutMe === "string") {
+      return data.aboutMe;
     }
 
     return null;

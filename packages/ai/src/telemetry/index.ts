@@ -11,11 +11,42 @@
 
 import { LangfuseSpanProcessor } from "@langfuse/otel";
 import { NodeSDK } from "@opentelemetry/sdk-node";
+import type { ReadableSpan } from "@opentelemetry/sdk-trace-base";
 import { env } from "@qbs-autonaim/config";
 import { Langfuse } from "langfuse";
 
 let langfuseClient: Langfuse | null = null;
 let otelSdk: NodeSDK | null = null;
+
+/**
+ * Фильтрующий SpanProcessor, который пропускает только спаны, связанные с AI
+ * Отфильтровывает события inngest.execution, оставляя только общение с ботом
+ */
+class FilteredLangfuseSpanProcessor extends LangfuseSpanProcessor {
+  onEnd(span: ReadableSpan): void {
+    const spanName = span.name;
+    const attributes = span.attributes;
+
+    // Пропускаем только спаны, связанные с AI SDK
+    // Фильтруем по имени спана или атрибутам
+    const isAISpan =
+      spanName.includes("ai.") || // AI SDK спаны начинаются с "ai."
+      spanName.includes("generate") || // Вызовы генерации
+      spanName.includes("agent") || // Агенты
+      attributes["ai.operationId"] !== undefined || // AI SDK операции
+      attributes["ai.model.id"] !== undefined || // Модели AI
+      attributes["ai.prompt"] !== undefined || // Промпты
+      attributes["gen_ai.system"] !== undefined; // OpenTelemetry semantic conventions для AI
+
+    // Пропускаем inngest.execution и другие не-AI спаны
+    if (!isAISpan && (spanName.includes("inngest") || spanName === "step")) {
+      return;
+    }
+
+    // Передаем только AI-спаны в Langfuse
+    super.onEnd(span);
+  }
+}
 
 /**
  * Получает или создает клиент Langfuse
@@ -46,15 +77,15 @@ export function initializeTelemetry(): void {
   // Инициализируем клиент Langfuse
   getLangfuseClient();
 
-  // Инициализируем OpenTelemetry SDK с LangfuseSpanProcessor
+  // Инициализируем OpenTelemetry SDK с фильтрующим LangfuseSpanProcessor
   if (!otelSdk) {
     otelSdk = new NodeSDK({
-      spanProcessors: [new LangfuseSpanProcessor()],
+      spanProcessors: [new FilteredLangfuseSpanProcessor()],
     });
 
     otelSdk.start();
     console.log(
-      "[Telemetry] OpenTelemetry SDK с LangfuseSpanProcessor запущен",
+      "[Telemetry] OpenTelemetry SDK с фильтрующим LangfuseSpanProcessor запущен (только AI-спаны)",
     );
   }
 }
