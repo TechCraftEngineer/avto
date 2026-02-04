@@ -45,6 +45,7 @@
     "@aws-sdk/s3-request-presigner": "3.980.0",
     "@langfuse/otel": "4.5.1",
     "@langfuse/tracing": "4.5.1",
+    "@openrouter/ai-sdk-provider": "^2.1.1",
     "@opentelemetry/sdk-node": "^0.211.0",
     "@qbs-autonaim/config": "workspace:*",
     "ai": "6.0.67",

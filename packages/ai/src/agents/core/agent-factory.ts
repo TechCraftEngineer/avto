@@ -39,7 +39,7 @@ export interface AgentFactoryConfig {
   langfuse?: Langfuse | undefined;
   traceId?: string;
   maxSteps?: number;
-  modelProvider?: "openai" | "deepseek" | string;
+  modelProvider?: "openai" | "deepseek" | "openrouter" | string;
   modelName?: string;
 }
 

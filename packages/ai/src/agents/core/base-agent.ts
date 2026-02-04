@@ -42,7 +42,7 @@ export interface AgentConfig {
   langfuse?: Langfuse | undefined;
   traceId?: string;
   tools?: ToolSet;
-  modelProvider?: "openai" | "deepseek" | string;
+  modelProvider?: "openai" | "deepseek" | "openrouter" | string;
   modelName?: string;
 }
 

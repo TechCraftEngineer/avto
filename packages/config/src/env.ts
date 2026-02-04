@@ -34,10 +34,13 @@ export const env = createEnv({
     AWS_S3_BUCKET: z.string().default("acme-bucket"),
 
     // AI Services
-    AI_PROVIDER: z.enum(["openai", "deepseek"]).default("deepseek"),
+    AI_PROVIDER: z
+      .enum(["openai", "deepseek", "openrouter"])
+      .default("deepseek"),
     AI_MODEL: z.string().optional(),
     OPENAI_API_KEY: z.string().min(1).optional(),
     DEEPSEEK_API_KEY: z.string().min(1).optional(),
+    OPENROUTER_API_KEY: z.string().min(1).optional(),
     LANGFUSE_SECRET_KEY: z.string().min(1).optional(),
     LANGFUSE_PUBLIC_KEY: z.string().min(1).optional(),
     LANGFUSE_BASE_URL: z.url().optional(),
@@ -154,6 +157,7 @@ export const env = createEnv({
     AI_MODEL: process.env.AI_MODEL,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     DEEPSEEK_API_KEY: process.env.DEEPSEEK_API_KEY,
+    OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
     LANGFUSE_SECRET_KEY: process.env.LANGFUSE_SECRET_KEY,
     LANGFUSE_PUBLIC_KEY: process.env.LANGFUSE_PUBLIC_KEY,
     LANGFUSE_BASE_URL: process.env.LANGFUSE_BASE_URL,

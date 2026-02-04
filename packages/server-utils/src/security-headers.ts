@@ -22,6 +22,7 @@ const SECURITY_CONFIG = {
         "'self'",
         "https://api.openai.com",
         "https://api.deepseek.com",
+        "https://openrouter.ai",
       ],
       frameSrc: ["'none'"],
       objectSrc: ["'none'"],

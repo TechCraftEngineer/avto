@@ -15,7 +15,6 @@ import {
   ScreeningResultsCard,
   VacancyProposalTab,
 } from "~/components/shared/components/response-detail-tabs";
-import { SalaryCard } from "./salary-card";
 import { VacancyContactsTab } from "./tabs/contacts-tab";
 import { VacancyExperienceTab } from "./tabs/experience-tab";
 import type { VacancyResponseTabsProps } from "./types";
@@ -33,7 +32,7 @@ export function VacancyResponseTabs({
     <Card>
       <Tabs defaultValue={defaultTab} className="w-full">
         <CardHeader className="pb-3">
-          <TabsList className="grid w-full h-auto gap-1 p-1 grid-cols-3 sm:grid-cols-6">
+          <TabsList className="grid w-full h-auto gap-1 p-1 grid-cols-3 sm:grid-cols-5">
             <TabsTrigger
               value="analysis"
               className="min-h-11 sm:min-h-9 text-xs sm:text-sm touch-manipulation"
@@ -63,12 +62,6 @@ export function VacancyResponseTabs({
               className="min-h-11 sm:min-h-9 text-xs sm:text-sm touch-manipulation"
             >
               Контакты
-            </TabsTrigger>
-            <TabsTrigger
-              value="salary"
-              className="min-h-11 sm:min-h-9 text-xs sm:text-sm touch-manipulation"
-            >
-              Зарплата
             </TabsTrigger>
           </TabsList>
         </CardHeader>
@@ -118,11 +111,6 @@ export function VacancyResponseTabs({
           {/* Contacts Tab */}
           <TabsContent value="contacts" className="space-y-3 sm:space-y-4 mt-0">
             <VacancyContactsTab response={response} />
-          </TabsContent>
-
-          {/* Salary Tab */}
-          <TabsContent value="salary" className="space-y-3 sm:space-y-4 mt-0">
-            <SalaryCard response={response} />
           </TabsContent>
         </CardContent>
       </Tabs>

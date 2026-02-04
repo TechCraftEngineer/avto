@@ -1,9 +1,13 @@
 import { deepseek } from "@ai-sdk/deepseek";
 import { env } from "@qbs-autonaim/config";
 import { streamText as aiStreamText, type LanguageModel } from "ai";
-import { DEFAULT_MODEL_DEEPSEEK, DEFAULT_MODEL_OPENAI } from "./constants";
+import {
+  DEFAULT_MODEL_DEEPSEEK,
+  DEFAULT_MODEL_OPENAI,
+  DEFAULT_MODEL_OPENROUTER,
+} from "./constants";
 import { getActualProvider, getAIModel, getAIModelName } from "./models";
-import { langfuse, openaiProvider } from "./providers";
+import { langfuse, openaiProvider, openrouterProvider } from "./providers";
 import { teeAsyncIterableStream } from "./utils";
 
 export interface StreamTextOptions
@@ -126,30 +130,49 @@ export function streamText(
 
     // Retry с fallback моделью
     const actualProvider = getActualProvider();
-    const canFallback =
-      (actualProvider === "openai" && env.DEEPSEEK_API_KEY) ||
-      (actualProvider === "deepseek" && env.OPENAI_API_KEY);
 
-    if (canFallback) {
-      const fallbackProvider =
-        actualProvider === "openai" ? "deepseek" : "openai";
-      const fallbackModel =
-        fallbackProvider === "deepseek"
-          ? deepseek(DEFAULT_MODEL_DEEPSEEK)
-          : openaiProvider?.(DEFAULT_MODEL_OPENAI);
-      const fallbackModelName =
-        fallbackProvider === "deepseek"
-          ? DEFAULT_MODEL_DEEPSEEK
-          : DEFAULT_MODEL_OPENAI;
+    // Определяем доступные fallback провайдеры
+    const availableFallbacks: Array<{
+      provider: "openai" | "deepseek" | "openrouter";
+      model: LanguageModel;
+      modelName: string;
+    }> = [];
+
+    if (actualProvider !== "openai" && openaiProvider) {
+      availableFallbacks.push({
+        provider: "openai",
+        model: openaiProvider(DEFAULT_MODEL_OPENAI),
+        modelName: DEFAULT_MODEL_OPENAI,
+      });
+    }
+
+    if (actualProvider !== "deepseek" && env.DEEPSEEK_API_KEY) {
+      availableFallbacks.push({
+        provider: "deepseek",
+        model: deepseek(DEFAULT_MODEL_DEEPSEEK),
+        modelName: DEFAULT_MODEL_DEEPSEEK,
+      });
+    }
+
+    if (actualProvider !== "openrouter" && openrouterProvider) {
+      availableFallbacks.push({
+        provider: "openrouter",
+        model: openrouterProvider(DEFAULT_MODEL_OPENROUTER),
+        modelName: DEFAULT_MODEL_OPENROUTER,
+      });
+    }
+
+    if (availableFallbacks.length > 0) {
+      const fallback = availableFallbacks[0]!;
 
       console.warn(
-        `Ошибка ${actualProvider} при создании стрима, повторная попытка с ${fallbackProvider}:`,
+        `Ошибка ${actualProvider} при создании стрима, повторная попытка с ${fallback.provider}:`,
         error instanceof Error ? error.message : String(error),
       );
 
       const fallbackGeneration = trace?.generation({
         name: `${generationName}-fallback`,
-        model: fallbackModelName,
+        model: fallback.modelName,
         input: prompt,
         metadata: { ...metadata, fallback: true },
       });
@@ -157,7 +180,7 @@ export function streamText(
       try {
         const fallbackResult = aiStreamText({
           ...(aiOptions as unknown as Record<string, unknown>),
-          model: fallbackModel,
+          model: fallback.model,
         } as unknown as Parameters<typeof aiStreamText>[0]);
 
         // Разделяем fallback поток на два независимых клона
