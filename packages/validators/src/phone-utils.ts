@@ -56,7 +56,7 @@ export function normalizePhone(
   return digits;
 }
 
-/**
+  /**
  * Форматирует телефон для отображения пользователю в международном формате
  * @example formatPhone('79534633945') // '+7 953 463-39-45'
  * @example formatPhone('380501234567') // '+380 50 123 4567'

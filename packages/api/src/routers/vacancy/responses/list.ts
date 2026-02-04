@@ -16,6 +16,7 @@ import type {
 } from "@qbs-autonaim/db/schema";
 import {
   interviewMessage,
+  responseComment,
   responseScreening,
   response as responseTable,
   vacancy,
@@ -42,6 +43,8 @@ export const list = protectedProcedure
           "potentialScore",
           "careerTrajectoryScore",
           "priorityScore",
+          "salaryExpectationsAmount",
+          "compositeScore",
           "status",
           "respondedAt",
         ])
@@ -249,7 +252,9 @@ export const list = protectedProcedure
       sortField === "score" ||
       sortField === "detailedScore" ||
       sortField === "potentialScore" ||
-      sortField === "careerTrajectoryScore"
+      sortField === "careerTrajectoryScore" ||
+      sortField === "salaryExpectationsAmount" ||
+      sortField === "compositeScore"
     ) {
       // Для сортировки по score полям используем LEFT JOIN с responseScreening
       const scoreColumn =
@@ -259,7 +264,11 @@ export const list = protectedProcedure
             ? responseScreening.detailedScore
             : sortField === "potentialScore"
               ? responseScreening.potentialScore
-              : responseScreening.careerTrajectoryScore;
+              : sortField === "careerTrajectoryScore"
+                ? responseScreening.careerTrajectoryScore
+                : sortField === "salaryExpectationsAmount"
+                  ? responseTable.salaryExpectationsAmount
+                  : responseTable.compositeScore;
 
       orderByClause =
         sortDirection === "asc"
@@ -293,6 +302,14 @@ export const list = protectedProcedure
       respondedAt: Date | null;
       welcomeSentAt: Date | null;
       createdAt: Date;
+      // New fields for enhanced table
+      salaryExpectationsAmount: number | null;
+      salaryExpectationsComment: string | null;
+      skills: string[] | null;
+      compositeScore: number | null;
+      rating: string | null;
+      strengths: string[] | null;
+      weaknesses: string[] | null;
       evaluationReasoning: {
         hardSkills?: { score: number; notes: string };
         softSkills?: { score: number; notes: string };
@@ -324,6 +341,14 @@ export const list = protectedProcedure
           respondedAt: responseTable.respondedAt,
           welcomeSentAt: responseTable.welcomeSentAt,
           createdAt: responseTable.createdAt,
+          // New fields for enhanced table
+          salaryExpectationsAmount: responseTable.salaryExpectationsAmount,
+          salaryExpectationsComment: responseTable.salaryExpectationsComment,
+          skills: responseTable.skills,
+          compositeScore: responseTable.compositeScore,
+          rating: responseTable.rating,
+          strengths: responseTable.strengths,
+          weaknesses: responseTable.weaknesses,
           // Reasoning fields for explainable AI
           evaluationReasoning: responseTable.evaluationReasoning,
           compositeScoreReasoning: responseTable.compositeScoreReasoning,
@@ -359,6 +384,14 @@ export const list = protectedProcedure
           respondedAt: true,
           welcomeSentAt: true,
           createdAt: true,
+          // New fields for enhanced table
+          salaryExpectationsAmount: true,
+          salaryExpectationsComment: true,
+          skills: true,
+          compositeScore: true,
+          rating: true,
+          strengths: true,
+          weaknesses: true,
           // Reasoning fields for explainable AI
           evaluationReasoning: true,
           compositeScoreReasoning: true,
@@ -433,6 +466,23 @@ export const list = protectedProcedure
 
       messageCountsMap = new Map(
         messageCounts.map((mc) => [mc.sessionId, mc.count]),
+      );
+    }
+
+    // Получаем количество комментариев для каждого отклика
+    let commentCountsMap = new Map<string, number>();
+    if (responseIds.length > 0) {
+      const commentCounts = await ctx.db
+        .select({
+          responseId: responseComment.responseId,
+          count: sql<number>`count(*)::int`,
+        })
+        .from(responseComment)
+        .where(inArray(responseComment.responseId, responseIds))
+        .groupBy(responseComment.responseId);
+
+      commentCountsMap = new Map(
+        commentCounts.map((cc) => [cc.responseId, cc.count]),
       );
     }
 
@@ -529,6 +579,7 @@ export const list = protectedProcedure
               messageCount: messageCountsMap.get(session.id) || 0,
             }
           : null,
+        commentCount: commentCountsMap.get(r.id) || 0,
       };
     });
 

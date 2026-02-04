@@ -121,7 +121,8 @@ export function ResponseRow({
                   </HoverCardContent>
                 </HoverCard>
               )}
-              {response.interviewSession && (
+              {response.interviewSession &&
+                response.interviewSession.messageCount > 0 && (
                 <ChatIndicator
                   messageCount={response.interviewSession.messageCount}
                   conversationId={response.interviewSession.id}

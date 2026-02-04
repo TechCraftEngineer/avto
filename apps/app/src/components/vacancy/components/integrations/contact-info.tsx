@@ -3,10 +3,11 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@qbs-autonaim/ui";
+import { formatPhone } from "@qbs-autonaim/validators";
 import { Mail, Phone } from "lucide-react";
 
 interface Contact {
-  raw: string;
+  raw?: string;
   city?: string;
   type?: string;
   number?: string;
@@ -15,6 +16,7 @@ interface Contact {
   verified?: boolean;
   formatted?: string;
   needVerification?: boolean;
+  email?: string;
 }
 
 interface ContactsData {
@@ -48,6 +50,12 @@ export function ContactInfo({ contacts, size = "md" }: ContactInfoProps) {
     }
   });
 
+  // Debug: логируем структуру данных
+  if (process.env.NODE_ENV === "development") {
+    console.log("ContactInfo contacts:", contactsData);
+    console.log("ContactInfo allContacts:", allContacts);
+  }
+
   if (allContacts.length === 0) {
     return <span className="text-sm text-muted-foreground">Не указаны</span>;
   }
@@ -58,27 +66,42 @@ export function ContactInfo({ contacts, size = "md" }: ContactInfoProps) {
   return (
     <div className="flex flex-col gap-1.5">
       {allContacts.map(({ contact, contactType }, index) => {
-        const displayValue = contact.formatted || contact.raw;
+        const isPhone =
+          contactType === "phone" ||
+          contact.type === "cell" ||
+          contact.type === "phone";
+
+        // Для телефонов всегда пытаемся отформатировать
+        let displayValue = contact.formatted || contact.raw;
+        if (isPhone) {
+          // Используем raw если есть, иначе formatted
+          const phoneToFormat = contact.raw || contact.formatted;
+          if (phoneToFormat) {
+            try {
+              displayValue = formatPhone(phoneToFormat);
+            } catch (error) {
+              // Если не удалось отформатировать, используем исходное значение
+              console.warn("Ошибка форматирования телефона:", phoneToFormat, error);
+              displayValue = phoneToFormat;
+            }
+          }
+        }
 
         // Пропускаем контакты без значения
         if (!displayValue) {
           return null;
         }
 
-        const isPhone =
-          contactType === "phone" ||
-          contact.type === "cell" ||
-          contact.type === "phone";
         const isTruncated = displayValue.length > maxLength;
         const truncatedValue = isTruncated
-          ? `${displayValue.slice(0, maxLength)}...`
+          ? `${displayValue.slice(0, maxLength)}…`
           : displayValue;
 
         const hasComment = contact.comment && contact.comment.length > 0;
         const isCommentTruncated =
           hasComment && (contact.comment?.length ?? 0) > maxCommentLength;
         const truncatedComment = isCommentTruncated
-          ? `${contact.comment?.slice(0, maxCommentLength)}...`
+          ? `${contact.comment?.slice(0, maxCommentLength)}…`
           : contact.comment;
 
         const fullContent = hasComment
@@ -87,7 +110,7 @@ export function ContactInfo({ contacts, size = "md" }: ContactInfoProps) {
 
         return (
           <div
-            key={`${contactType}-${contact.raw}-${index}`}
+            key={`${contactType}-${contact.raw || contact.formatted || contact.email}-${index}`}
             className="flex flex-col gap-0.5"
           >
             <HoverCard>

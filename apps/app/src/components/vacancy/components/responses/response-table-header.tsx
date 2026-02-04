@@ -99,6 +99,29 @@ export function ResponseTableHeader({
         </TableHead>
         <TableHead className="font-semibold text-foreground">Риски</TableHead>
         <TableHead className="font-semibold text-foreground">
+          <button
+            type="button"
+            onClick={() => onSort("salaryExpectationsAmount")}
+            className="flex items-center gap-1 hover:text-foreground transition-colors"
+            title="Сортировка по зарплатным ожиданиям"
+          >
+            Зарплата
+            {renderSortIcon("salaryExpectationsAmount")}
+          </button>
+        </TableHead>
+        <TableHead className="font-semibold text-foreground">Навыки</TableHead>
+        <TableHead className="font-semibold text-foreground">
+          <button
+            type="button"
+            onClick={() => onSort("compositeScore")}
+            className="flex items-center gap-1 hover:text-foreground transition-colors"
+            title="Сортировка по общей оценке"
+          >
+            Оценка
+            {renderSortIcon("compositeScore")}
+          </button>
+        </TableHead>
+        <TableHead className="font-semibold text-foreground">
           Интервью
         </TableHead>
         <TableHead className="font-semibold text-foreground">
@@ -126,4 +149,3 @@ export function ResponseTableHeader({
     </TableHeader>
   );
 }
-

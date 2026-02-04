@@ -34,12 +34,8 @@ export function formatContacts(
     // Для телефонов добавляем форматирование
     if (key === "phone") {
       result.phone = items.map((contact) => {
-        // Если formatted уже есть, используем его
-        if (contact.formatted) {
-          return contact;
-        }
-
-        // Если есть raw, форматируем его
+        // Если есть raw, всегда форматируем его (даже если formatted уже есть)
+        // Это гарантирует консистентное форматирование
         if (contact.raw) {
           try {
             const formatted = formatPhone(contact.raw);
@@ -47,10 +43,22 @@ export function formatContacts(
               ...contact,
               formatted,
             };
-          } catch {
-            // Если не удалось отформатировать, возвращаем как есть
-            return contact;
+          } catch (error) {
+            // Если не удалось отформатировать, используем raw как formatted
+            console.warn(
+              `Не удалось отформатировать телефон: ${contact.raw}`,
+              error,
+            );
+            return {
+              ...contact,
+              formatted: contact.formatted || contact.raw,
+            };
           }
+        }
+
+        // Если нет raw, но есть formatted, используем его
+        if (contact.formatted) {
+          return contact;
         }
 
         return contact;

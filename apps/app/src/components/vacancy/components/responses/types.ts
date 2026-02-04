@@ -11,6 +11,8 @@ export type SortField =
   | "detailedScore"
   | "potentialScore"
   | "careerTrajectoryScore"
+  | "salaryExpectationsAmount"
+  | "compositeScore"
   | "respondedAt"
   | null;
 
