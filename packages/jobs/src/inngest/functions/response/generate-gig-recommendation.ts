@@ -1,8 +1,8 @@
 import type {
-  GigCandidateData,
-  GigData,
+  GigRecommendationCandidateData,
+  GigRecommendationGigData,
   GigRecommendationInput,
-  ScreeningData,
+  GigRecommendationScreeningData,
 } from "@qbs-autonaim/ai/agents";
 import { AgentFactory } from "@qbs-autonaim/ai/agents";
 import { eq } from "@qbs-autonaim/db";
@@ -78,7 +78,7 @@ export const generateGigRecommendationFunction = inngest.createFunction(
       const validDeliveryDays =
         deliveryDays && deliveryDays > 0 ? deliveryDays : undefined;
 
-      const gigInput: GigData = {
+      const gigInput: GigRecommendationGigData = {
         title: gigRecord.title,
         description: gigRecord.description ?? undefined,
         requirements,
@@ -93,7 +93,7 @@ export const generateGigRecommendationFunction = inngest.createFunction(
     const candidateData = await step.run("prepare-candidate-data", async () => {
       const { candidate } = responseData;
 
-      const candidateInput: GigCandidateData = {
+      const candidateInput: GigRecommendationCandidateData = {
         name: candidate.name,
         experience: candidate.experience,
         skills: candidate.skills ?? undefined,
@@ -109,7 +109,7 @@ export const generateGigRecommendationFunction = inngest.createFunction(
     const screeningData = await step.run("prepare-screening-data", async () => {
       const { screening } = responseData;
 
-      const screeningInput: ScreeningData = {
+      const screeningInput: GigRecommendationScreeningData = {
         score: screening.score,
         detailedScore: screening.detailedScore,
         analysis: screening.analysis,

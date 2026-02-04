@@ -7,9 +7,9 @@ import { z } from "zod";
 import { BaseAgent } from "../../core/base-agent";
 
 /**
- * Схема для данных задания (gig)
+ * Схема для данных задания (gig) (для рекомендаций)
  */
-export const GigDataSchema = z.object({
+export const GigRecommendationGigDataSchema = z.object({
   title: z.string(),
   description: z.string().optional(),
   requirements: z.array(z.string()).optional(),
@@ -23,12 +23,14 @@ export const GigDataSchema = z.object({
   deliveryDays: z.number().positive().int().nullable().optional(),
 });
 
-export type GigData = z.infer<typeof GigDataSchema>;
+export type GigRecommendationGigData = z.infer<
+  typeof GigRecommendationGigDataSchema
+>;
 
 /**
  * Схема для данных исполнителя (gig-специфичная)
  */
-export const GigCandidateDataSchema = z.object({
+export const GigRecommendationCandidateDataSchema = z.object({
   name: z.string().nullable(),
   experience: z.string().nullable(),
   skills: z.array(z.string()).nullable().optional(),
@@ -37,12 +39,14 @@ export const GigCandidateDataSchema = z.object({
   proposedDeliveryDays: z.number().positive().int().nullable().optional(),
 });
 
-export type GigCandidateData = z.infer<typeof GigCandidateDataSchema>;
+export type GigRecommendationCandidateData = z.infer<
+  typeof GigRecommendationCandidateDataSchema
+>;
 
 /**
- * Схема для данных скрининга
+ * Схема для данных скрининга (для рекомендаций)
  */
-export const ScreeningDataSchema = z.object({
+export const GigRecommendationScreeningDataSchema = z.object({
   score: z.number().min(0).max(5),
   detailedScore: z.number().min(0).max(100),
   analysis: z.string(),
@@ -52,12 +56,14 @@ export const ScreeningDataSchema = z.object({
   summary: z.string().optional(),
 });
 
-export type ScreeningData = z.infer<typeof ScreeningDataSchema>;
+export type GigRecommendationScreeningData = z.infer<
+  typeof GigRecommendationScreeningDataSchema
+>;
 
 /**
  * Схема результата рекомендации для задания
  */
-export const GigRecommendationSchema = z.object({
+export const GigRecommendationOutputSchema = z.object({
   recommendation: z.enum([
     "HIGHLY_RECOMMENDED",
     "RECOMMENDED",
@@ -84,15 +90,17 @@ export const GigRecommendationSchema = z.object({
     .optional(),
 });
 
-export type GigRecommendation = z.infer<typeof GigRecommendationSchema>;
+export type GigRecommendationOutput = z.infer<
+  typeof GigRecommendationOutputSchema
+>;
 
 /**
  * Входные данные для генерации рекомендации
  */
 export interface GigRecommendationInput {
-  gig: GigData;
-  candidate: GigCandidateData;
-  screening: ScreeningData;
+  gig: GigRecommendationGigData;
+  candidate: GigRecommendationCandidateData;
+  screening: GigRecommendationScreeningData;
 }
 
 /**
@@ -100,7 +108,7 @@ export interface GigRecommendationInput {
  */
 export class GigRecommendationAgent extends BaseAgent<
   GigRecommendationInput,
-  GigRecommendation
+  GigRecommendationOutput
 > {
   protected agentName = "gig-recommendation";
   private config: { model: any };
@@ -216,13 +224,17 @@ ${screening.weaknesses?.length ? `- Слабые стороны: ${screening.wea
   async execute(
     input: GigRecommendationInput,
     context: unknown = {},
-  ): Promise<{ success: boolean; data?: GigRecommendation; error?: string }> {
+  ): Promise<{
+    success: boolean;
+    data?: GigRecommendationOutput;
+    error?: string;
+  }> {
     try {
       const prompt = this.buildRecommendationPrompt(input);
 
       const result = await generateObject({
         model: this.config.model,
-        schema: GigRecommendationSchema,
+        schema: GigRecommendationOutputSchema,
         prompt,
         abortSignal: AbortSignal.timeout(60_000),
       });

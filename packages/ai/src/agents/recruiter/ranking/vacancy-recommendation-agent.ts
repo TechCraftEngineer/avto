@@ -7,20 +7,22 @@ import { z } from "zod";
 import { BaseAgent } from "../../core/base-agent";
 
 /**
- * Схема для данных вакансии
+ * Схема для данных вакансии (для рекомендаций)
  */
-export const VacancyDataSchema = z.object({
+export const VacancyRecommendationVacancyDataSchema = z.object({
   title: z.string(),
   description: z.string().optional(),
   requirements: z.array(z.string()).optional(),
 });
 
-export type VacancyData = z.infer<typeof VacancyDataSchema>;
+export type VacancyRecommendationVacancyData = z.infer<
+  typeof VacancyRecommendationVacancyDataSchema
+>;
 
 /**
  * Схема для данных кандидата (vacancy-специфичная)
  */
-export const VacancyCandidateDataSchema = z.object({
+export const VacancyRecommendationCandidateDataSchema = z.object({
   name: z.string().nullable(),
   experience: z.string().nullable(),
   skills: z.array(z.string()).nullable().optional(),
@@ -28,12 +30,14 @@ export const VacancyCandidateDataSchema = z.object({
   salaryExpectations: z.number().positive().nullable().optional(),
 });
 
-export type VacancyCandidateData = z.infer<typeof VacancyCandidateDataSchema>;
+export type VacancyRecommendationCandidateData = z.infer<
+  typeof VacancyRecommendationCandidateDataSchema
+>;
 
 /**
- * Схема для данных скрининга
+ * Схема для данных скрининга (для рекомендаций)
  */
-export const ScreeningDataSchema = z.object({
+export const VacancyRecommendationScreeningDataSchema = z.object({
   score: z.number().min(0).max(5),
   detailedScore: z.number().min(0).max(100),
   analysis: z.string(),
@@ -43,12 +47,14 @@ export const ScreeningDataSchema = z.object({
   summary: z.string().optional(),
 });
 
-export type ScreeningData = z.infer<typeof ScreeningDataSchema>;
+export type VacancyRecommendationScreeningData = z.infer<
+  typeof VacancyRecommendationScreeningDataSchema
+>;
 
 /**
  * Схема результата рекомендации для вакансии
  */
-export const VacancyRecommendationSchema = z.object({
+export const VacancyRecommendationOutputSchema = z.object({
   recommendation: z.enum([
     "HIGHLY_RECOMMENDED",
     "RECOMMENDED",
@@ -63,15 +69,17 @@ export const VacancyRecommendationSchema = z.object({
   riskFactors: z.array(z.string()).max(3).default([]),
 });
 
-export type VacancyRecommendation = z.infer<typeof VacancyRecommendationSchema>;
+export type VacancyRecommendationOutput = z.infer<
+  typeof VacancyRecommendationOutputSchema
+>;
 
 /**
  * Входные данные для генерации рекомендации
  */
 export interface VacancyRecommendationInput {
-  vacancy: VacancyData;
-  candidate: VacancyCandidateData;
-  screening: ScreeningData;
+  vacancy: VacancyRecommendationVacancyData;
+  candidate: VacancyRecommendationCandidateData;
+  screening: VacancyRecommendationScreeningData;
 }
 
 /**
@@ -79,7 +87,7 @@ export interface VacancyRecommendationInput {
  */
 export class VacancyRecommendationAgent extends BaseAgent<
   VacancyRecommendationInput,
-  VacancyRecommendation
+  VacancyRecommendationOutput
 > {
   protected agentName = "vacancy-recommendation";
   private config: { model: any };
@@ -172,7 +180,7 @@ ${screening.weaknesses?.length ? `- Слабые стороны: ${screening.wea
     context: unknown = {},
   ): Promise<{
     success: boolean;
-    data?: VacancyRecommendation;
+    data?: VacancyRecommendationOutput;
     error?: string;
   }> {
     try {
@@ -180,7 +188,7 @@ ${screening.weaknesses?.length ? `- Слабые стороны: ${screening.wea
 
       const result = await generateObject({
         model: this.config.model,
-        schema: VacancyRecommendationSchema,
+        schema: VacancyRecommendationOutputSchema,
         prompt,
         abortSignal: AbortSignal.timeout(60_000),
       });

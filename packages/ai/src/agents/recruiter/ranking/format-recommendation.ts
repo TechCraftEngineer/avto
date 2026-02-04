@@ -2,14 +2,14 @@
  * Утилиты для форматирования рекомендаций для отображения
  */
 
-import type { GigRecommendation } from "./gig-recommendation-agent";
-import type { VacancyRecommendation } from "./vacancy-recommendation-agent";
+import type { GigRecommendationOutput } from "./gig-recommendation-agent";
+import type { VacancyRecommendationOutput } from "./vacancy-recommendation-agent";
 
 /**
  * Форматирование рекомендации по вакансии для Telegram
  */
 export function formatVacancyRecommendationForTelegram(
-  recommendation: VacancyRecommendation,
+  recommendation: VacancyRecommendationOutput,
   candidateName: string | null,
   vacancyTitle: string,
 ): string {
@@ -72,7 +72,7 @@ export function formatVacancyRecommendationForTelegram(
  * Форматирование рекомендации по заданию для Telegram
  */
 export function formatGigRecommendationForTelegram(
-  recommendation: GigRecommendation,
+  recommendation: GigRecommendationOutput,
   candidateName: string | null,
   gigTitle: string,
 ): string {

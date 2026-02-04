@@ -698,7 +698,6 @@ export class ResumeParserService {
   ): Promise<{ structured: StructuredResume; confidence: number }> {
     const factory = new AgentFactory({
       model: this.model,
-      langfuse: this.langfuse,
     });
 
     const agent = factory.createResumeStructurer();

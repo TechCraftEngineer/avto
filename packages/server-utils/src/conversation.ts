@@ -5,7 +5,7 @@
 import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { chatSession, interviewSession } from "@qbs-autonaim/db/schema";
-import type { ConversationMetadata } from "@qbs-autonaim/shared/types";
+import type { ConversationMetadata } from "@qbs-autonaim/shared";
 import { z } from "zod";
 
 /**

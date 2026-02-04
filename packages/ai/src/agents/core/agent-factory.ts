@@ -30,13 +30,13 @@ import { CandidateEvaluatorAgent } from "../recruiter/ranking/candidate-evaluato
 import { ComparisonAgent } from "../recruiter/ranking/comparison-agent";
 import {
   GigRecommendationAgent,
-  GigRecommendationSchema,
+  GigRecommendationOutputSchema,
 } from "../recruiter/ranking/gig-recommendation-agent";
 import { RecommendationAgent } from "../recruiter/ranking/recommendation-agent";
 import { SummaryAgent } from "../recruiter/ranking/summary-agent";
 import {
   VacancyRecommendationAgent,
-  VacancyRecommendationSchema,
+  VacancyRecommendationOutputSchema,
 } from "../recruiter/ranking/vacancy-recommendation-agent";
 import { CandidateSearchAgent } from "../recruiter/search/candidate-search";
 import type { AgentConfig } from "./base-agent";
@@ -189,7 +189,7 @@ export class AgentFactory {
       "vacancy-recommendation",
       "ranking",
       "Генерация рекомендаций по кандидатам на вакансии",
-      VacancyRecommendationSchema,
+      VacancyRecommendationOutputSchema,
       config,
     );
   }
@@ -200,7 +200,7 @@ export class AgentFactory {
       "gig-recommendation",
       "ranking",
       "Генерация рекомендаций по исполнителям на задания",
-      GigRecommendationSchema,
+      GigRecommendationOutputSchema,
       config,
     );
   }

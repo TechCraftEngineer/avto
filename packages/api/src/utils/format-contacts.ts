@@ -1,12 +1,12 @@
 import { formatPhone } from "@qbs-autonaim/shared";
 
-interface Contact {
+export interface Contact {
   raw?: string;
   formatted?: string;
   [key: string]: unknown;
 }
 
-interface ContactsData {
+export interface ContactsData {
   phone?: Contact[];
   email?: Contact[];
   [key: string]: Contact[] | undefined;

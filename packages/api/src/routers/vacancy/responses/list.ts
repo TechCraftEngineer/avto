@@ -24,7 +24,7 @@ import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../trpc";
-import { formatContacts } from "../../utils/format-contacts";
+import { formatContacts } from "../../../utils/format-contacts";
 import { sanitizeHtml } from "../../utils/sanitize-html";
 
 export const list = protectedProcedure

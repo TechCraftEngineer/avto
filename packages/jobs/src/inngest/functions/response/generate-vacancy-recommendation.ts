@@ -1,8 +1,8 @@
 import type {
-  ScreeningData,
-  VacancyCandidateData,
-  VacancyData,
+  VacancyRecommendationCandidateData,
   VacancyRecommendationInput,
+  VacancyRecommendationScreeningData,
+  VacancyRecommendationVacancyData,
 } from "@qbs-autonaim/ai/agents";
 import { AgentFactory } from "@qbs-autonaim/ai/agents";
 import { eq } from "@qbs-autonaim/db";
@@ -62,7 +62,7 @@ export const generateVacancyRecommendationFunction = inngest.createFunction(
       const requirements =
         vac.requirements?.mandatory_requirements ?? undefined;
 
-      const vacancyInput: VacancyData = {
+      const vacancyInput: VacancyRecommendationVacancyData = {
         title: vac.title,
         description: vac.description ?? undefined,
         requirements,
@@ -75,7 +75,7 @@ export const generateVacancyRecommendationFunction = inngest.createFunction(
     const candidateData = await step.run("prepare-candidate-data", async () => {
       const { candidate } = responseData;
 
-      const candidateInput: VacancyCandidateData = {
+      const candidateInput: VacancyRecommendationCandidateData = {
         name: candidate.name,
         experience: candidate.experience,
         skills: candidate.skills ?? undefined,
@@ -90,7 +90,7 @@ export const generateVacancyRecommendationFunction = inngest.createFunction(
     const screeningData = await step.run("prepare-screening-data", async () => {
       const { screening } = responseData;
 
-      const screeningInput: ScreeningData = {
+      const screeningInput: VacancyRecommendationScreeningData = {
         score: screening.score,
         detailedScore: screening.detailedScore,
         analysis: screening.analysis,
