@@ -2,7 +2,11 @@
  * Централизованная фабрика для создания агентов с автоматической передачей langfuse
  */
 
-import { langfuse as globalLangfuse } from "@qbs-autonaim/lib/ai";
+import {
+  getActualProvider,
+  getAIModelName,
+  langfuse as globalLangfuse,
+} from "@qbs-autonaim/lib/ai";
 import type { LanguageModel } from "ai";
 import type { Langfuse } from "langfuse";
 import { BotSummaryAnalyzerAgent } from "../detection/bot-summary-analyzer";
@@ -63,8 +67,9 @@ export class AgentFactory {
     this.config = config;
     // Используем переданный langfuse или создаем глобальный singleton
     this.langfuse = config.langfuse ?? getLangfuseInstance();
-    this.modelProvider = config.modelProvider;
-    this.modelName = config.modelName;
+    // Автоматически определяем провайдер и модель, если не переданы явно
+    this.modelProvider = config.modelProvider ?? getActualProvider();
+    this.modelName = config.modelName ?? getAIModelName(this.modelProvider);
   }
 
   private getAgentConfig(overrides?: Partial<AgentConfig>): AgentConfig {

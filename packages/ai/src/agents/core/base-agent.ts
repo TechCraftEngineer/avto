@@ -120,27 +120,46 @@ export abstract class BaseAgent<TInput, TOutput> {
 
     // Логируем длину промпта и его содержимое для отладки
     console.log(`[${this.name}] Executing agent:`, {
+      agentType: this.type,
+      modelProvider: this.modelProvider,
+      modelName: this.modelName,
       promptLength: prompt.length,
       estimatedTokens: Math.ceil(prompt.length / 4),
       promptPreview:
         prompt.substring(0, 500) + (prompt.length > 500 ? "..." : ""),
     });
 
-    const span = this.langfuse?.span({
-      traceId: this.traceId,
-      name: this.name,
-      input: {
-        rawInput: input,
-        compiledPrompt: prompt,
-        promptLength: prompt.length,
-        estimatedTokens: Math.ceil(prompt.length / 4),
-      },
-      metadata: {
-        agentType: this.type,
-        modelProvider: this.modelProvider,
-        modelName: this.modelName,
-      },
-    });
+    // Создаем или получаем trace, затем создаем span
+    let span: ReturnType<NonNullable<typeof this.langfuse>["span"]> | undefined;
+
+    if (this.langfuse && this.traceId) {
+      try {
+        // Получаем trace по ID или создаем новый
+        const trace = this.langfuse.trace({
+          id: this.traceId,
+          name: "agent-execution",
+        });
+
+        // Создаем span внутри trace
+        span = trace.span({
+          name: this.name,
+          input: {
+            rawInput: input,
+            compiledPrompt: prompt,
+            promptLength: prompt.length,
+            estimatedTokens: Math.ceil(prompt.length / 4),
+          },
+          metadata: {
+            agentType: this.type,
+            modelProvider: this.modelProvider,
+            modelName: this.modelName,
+            model: `${this.modelProvider}/${this.modelName}`,
+          },
+        });
+      } catch (error) {
+        console.warn(`[${this.name}] Failed to create Langfuse span:`, error);
+      }
+    }
 
     try {
       const result = await this.agent.generate({ prompt });
