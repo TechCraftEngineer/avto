@@ -5,6 +5,7 @@ import {
   response as responseTable,
 } from "@qbs-autonaim/db/schema";
 import { inngest } from "@qbs-autonaim/jobs/client";
+import { phoneSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { ContactCandidateSyncService } from "../../../services/contact-candidate-sync.service";
 import { publicProcedure } from "../../../trpc";
@@ -42,7 +43,7 @@ const startWebInterviewInputSchema = z.object({
     name: z.string().min(1, "Имя обязательно").max(500),
     email: z.email("Некорректный email").optional(),
     platformProfileUrl: platformProfileUrlSchema,
-    phone: z.string().max(50).optional(),
+    phone: phoneSchema,
     telegram: z.string().max(100).optional(),
   }),
 });

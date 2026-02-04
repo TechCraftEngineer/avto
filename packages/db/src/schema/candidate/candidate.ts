@@ -1,3 +1,4 @@
+import { phoneSchema } from "@qbs-autonaim/validators";
 import { sql } from "drizzle-orm";
 import {
   boolean,
@@ -173,7 +174,7 @@ export const CreateCandidateSchema = createInsertSchema(candidate, {
   lastName: z.string().max(100).optional(),
   middleName: z.string().max(100).optional(),
   email: z.string().email().optional().or(z.literal("")),
-  phone: z.string().max(50).optional(),
+  phone: phoneSchema,
   birthDate: z.coerce.date().optional(),
   citizenship: z.string().max(100).optional(),
   location: z.string().max(200).optional(),

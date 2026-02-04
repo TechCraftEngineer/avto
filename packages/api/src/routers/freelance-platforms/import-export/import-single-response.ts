@@ -4,6 +4,7 @@ import {
   type Response,
   response as responseTable,
 } from "@qbs-autonaim/db/schema";
+import { phoneSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { CandidateService } from "../../../services/candidate.service";
@@ -24,7 +25,7 @@ const importSingleResponseInputSchema = z.object({
   contactInfo: z
     .object({
       email: z.email().optional(),
-      phone: z.string().max(50).optional(),
+      phone: phoneSchema,
       telegram: z.string().max(100).optional(),
       platformProfileUrl: z.string().optional(),
     })

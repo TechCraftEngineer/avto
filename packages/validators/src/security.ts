@@ -5,6 +5,7 @@
 
 import sanitizeHtml from "sanitize-html";
 import { z } from "zod";
+import { phoneRequiredSchema } from "./phone";
 
 /**
  * Common validation patterns
@@ -137,8 +138,9 @@ export const secureSchemas = {
       "Имя пользователя может содержать только буквы, цифры, подчеркивания и дефисы",
     ),
 
-  // Phone validation
-  phone: z.string().regex(PATTERNS.PHONE, "Некорректный формат телефона"),
+  // Phone validation - использует libphonenumber-js для валидации
+  // Используем готовую схему из phone.ts
+  phone: phoneRequiredSchema,
 
   // URL validation
   url: z

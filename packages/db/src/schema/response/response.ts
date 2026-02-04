@@ -1,3 +1,4 @@
+import { phoneSchema } from "@qbs-autonaim/validators";
 import { sql } from "drizzle-orm";
 import {
   check,
@@ -184,7 +185,7 @@ export const CreateResponseSchema = createInsertSchema(response, {
   profileUrl: z.string().url().optional(),
   telegramUsername: z.string().max(100).optional(),
   chatId: z.string().max(100).optional(),
-  phone: z.string().max(50).optional(),
+  phone: phoneSchema,
   email: z.string().email().max(255).optional(),
   resumeLanguage: z.string().max(10).default("ru").optional(),
   telegramPinCode: z.string().length(4).optional(),

@@ -196,34 +196,29 @@ export function VacancyResponseHeaderCard({
 
       {/* Key Info Summary */}
       <CardContent className="pt-0">
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
           {/* Resume Actions */}
           {hasResume && (
-            <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
-              <FileText className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
+            <div className="flex items-start gap-3 p-4 bg-muted/30 rounded-lg border hover:bg-muted/50 transition-colors">
+              <div className="p-2 bg-background rounded-md border">
+                <FileText className="h-4 w-4 text-muted-foreground" />
+              </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-blue-800">
-                  Резюме кандидата
-                </div>
-                <div className="text-xs text-blue-700 mt-0.5">
-                  {response.resumeUrl
-                    ? "Внешняя ссылка"
-                    : "Загружено в систему"}
-                </div>
-                <div className="flex flex-wrap gap-2 mt-2">
+                <div className="text-sm font-medium mb-3">Резюме кандидата</div>
+                <div className="flex flex-wrap gap-2">
                   {response.resumeUrl && (
                     <Button
                       variant="outline"
                       size="sm"
                       asChild
-                      className="h-7 text-xs bg-white hover:bg-blue-50"
+                      className="h-8 text-xs"
                     >
                       <a
                         href={response.resumeUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <ExternalLink className="h-3 w-3 mr-1" />
+                        <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
                         Открыть
                       </a>
                     </Button>
@@ -233,7 +228,7 @@ export function VacancyResponseHeaderCard({
                       variant="outline"
                       size="sm"
                       asChild
-                      className="h-7 text-xs bg-white hover:bg-blue-50"
+                      className="h-8 text-xs"
                     >
                       <a
                         href={resumePdfUrl}
@@ -241,7 +236,7 @@ export function VacancyResponseHeaderCard({
                         rel="noopener noreferrer"
                         download
                       >
-                        <Download className="h-3 w-3 mr-1" />
+                        <Download className="h-3.5 w-3.5 mr-1.5" />
                         PDF
                       </a>
                     </Button>
@@ -253,27 +248,29 @@ export function VacancyResponseHeaderCard({
 
           {/* Platform Profile */}
           {hasProfile && (
-            <div className="flex items-start gap-2 p-3 bg-purple-50 rounded-lg border border-purple-200">
-              <Globe className="h-5 w-5 text-purple-600 shrink-0 mt-0.5" />
+            <div className="flex items-start gap-3 p-4 bg-muted/30 rounded-lg border hover:bg-muted/50 transition-colors">
+              <div className="p-2 bg-background rounded-md border">
+                <Globe className="h-4 w-4 text-muted-foreground" />
+              </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-purple-800">
+                <div className="text-sm font-medium mb-1">
                   Профиль на платформе
                 </div>
-                <div className="text-xs text-purple-700 mt-0.5 truncate">
+                <div className="text-xs text-muted-foreground mb-3 truncate">
                   {response.platformProfileUrl}
                 </div>
                 <Button
                   variant="outline"
                   size="sm"
                   asChild
-                  className="h-7 text-xs bg-white hover:bg-purple-50 mt-2"
+                  className="h-8 text-xs"
                 >
                   <a
                     href={response.platformProfileUrl || "#"}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <ExternalLink className="h-3 w-3 mr-1" />
+                    <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
                     Перейти
                   </a>
                 </Button>
@@ -282,17 +279,19 @@ export function VacancyResponseHeaderCard({
           )}
 
           {response.salaryExpectationsAmount && (
-            <div className="flex items-start gap-2 p-3 bg-emerald-50 rounded-lg border border-emerald-200">
-              <Wallet className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
+            <div className="flex items-start gap-3 p-4 bg-muted/30 rounded-lg border hover:bg-muted/50 transition-colors">
+              <div className="p-2 bg-background rounded-md border">
+                <Wallet className="h-4 w-4 text-muted-foreground" />
+              </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-emerald-800">
+                <div className="text-sm font-medium mb-1">
                   Зарплатные ожидания
                 </div>
-                <div className="text-lg font-semibold text-emerald-900">
-                  {response.salaryExpectationsAmount.toLocaleString()} ₽
+                <div className="text-xl font-semibold mb-2 font-mono tabular-nums">
+                  {response.salaryExpectationsAmount.toLocaleString()}&nbsp;₽
                 </div>
                 {response.salaryExpectationsComment && (
-                  <div className="text-xs text-emerald-700 mt-1">
+                  <div className="text-xs text-muted-foreground">
                     {response.salaryExpectationsComment.length >
                     SALARY_COMMENT_PREVIEW_LENGTH ? (
                       isSalaryCommentExpanded ? (
@@ -302,9 +301,9 @@ export function VacancyResponseHeaderCard({
                             variant="ghost"
                             size="sm"
                             onClick={() => setIsSalaryCommentExpanded(false)}
-                            className="h-5 px-1.5 py-0 mt-1 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-100"
+                            className="h-6 px-2 py-0 mt-2 text-xs"
                           >
-                            <ChevronUp className="h-2.5 w-2.5 mr-1" />
+                            <ChevronUp className="h-3 w-3 mr-1" />
                             Свернуть
                           </Button>
                         </>
@@ -314,14 +313,14 @@ export function VacancyResponseHeaderCard({
                             0,
                             SALARY_COMMENT_PREVIEW_LENGTH,
                           )}
-                          ...
+                          …
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => setIsSalaryCommentExpanded(true)}
-                            className="h-5 px-1.5 py-0 mt-1 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-100"
+                            className="h-6 px-2 py-0 mt-2 text-xs"
                           >
-                            <ChevronDown className="h-2.5 w-2.5 mr-1" />
+                            <ChevronDown className="h-3 w-3 mr-1" />
                             Ещё
                           </Button>
                         </>

@@ -47,3 +47,13 @@ export {
   getExperienceSummary,
   hasExperience,
 } from "./utils/experience-helpers";
+// Утилиты для работы с телефонами
+export {
+  formatPhone,
+  formatPhoneNational,
+  getPhoneCountry,
+  getPhoneType,
+  isValidPhone,
+  isValidRussianPhone,
+  normalizePhone,
+} from "./utils/phone";

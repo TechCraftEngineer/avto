@@ -1,6 +1,9 @@
 ﻿import { and, eq } from "@qbs-autonaim/db";
 import { gig, response as responseTable } from "@qbs-autonaim/db/schema";
-import { workspaceIdSchema } from "@qbs-autonaim/validators";
+import {
+  phoneNullishSchema,
+  workspaceIdSchema,
+} from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../trpc";
@@ -12,7 +15,7 @@ export const update = protectedProcedure
       workspaceId: workspaceIdSchema,
       candidateName: z.string().max(500).nullish(),
       telegramUsername: z.string().max(100).nullish(),
-      phone: z.string().max(50).nullish(),
+      phone: phoneNullishSchema,
       email: z.email().max(255).nullish(),
       proposedPrice: z.number().int().positive().nullish(),
 

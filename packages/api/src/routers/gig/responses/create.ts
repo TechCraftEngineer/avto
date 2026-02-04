@@ -5,7 +5,7 @@ import {
   type Response,
   response as responseTable,
 } from "@qbs-autonaim/db/schema";
-import { workspaceIdSchema } from "@qbs-autonaim/validators";
+import { phoneSchema, workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { CandidateService } from "../../../services/candidate.service";
@@ -18,7 +18,7 @@ const createResponseSchema = z.object({
   candidateName: z.string().max(500).optional(),
   profileUrl: z.url().optional(),
   telegramUsername: z.string().max(100).optional(),
-  phone: z.string().max(50).optional(),
+  phone: phoneSchema,
   email: z.email().max(255).optional(),
   proposedPrice: z.number().int().positive().optional(),
 

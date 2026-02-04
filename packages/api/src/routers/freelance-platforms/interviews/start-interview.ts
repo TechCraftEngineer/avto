@@ -1,6 +1,7 @@
 import { and, eq } from "@qbs-autonaim/db";
 import { response as responseTable } from "@qbs-autonaim/db/schema";
 import { InterviewLinkGenerator } from "@qbs-autonaim/shared/server";
+import { phoneSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { publicProcedure } from "../../../trpc";
@@ -19,7 +20,7 @@ const startInterviewInputSchema = z.object({
     name: z.string().min(1, "Имя обязательно").max(500),
     email: z.email("Некорректный email"),
     platformProfileUrl: platformProfileUrlSchema,
-    phone: z.string().max(50).optional(),
+    phone: phoneSchema,
     telegram: z.string().max(100).optional(),
   }),
 });

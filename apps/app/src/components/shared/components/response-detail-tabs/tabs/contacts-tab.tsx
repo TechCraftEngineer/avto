@@ -92,19 +92,26 @@ export function ContactsTab({ response }: ContactsTabProps) {
               Дополнительные контакты
             </h4>
             <div className="space-y-2">
-              {Object.entries(response.contacts).map(([key, value]) => (
-                <div
-                  key={key}
-                  className="flex items-center justify-between p-2 rounded-lg border gap-2"
-                >
-                  <span className="text-xs sm:text-sm font-medium capitalize break-words">
-                    {key}
-                  </span>
-                  <span className="text-xs sm:text-sm text-muted-foreground break-all text-right">
-                    {String(value)}
-                  </span>
-                </div>
-              ))}
+              {Object.entries(response.contacts).map(([key, value]) => {
+                const displayValue =
+                  typeof value === "object" && value !== null
+                    ? JSON.stringify(value)
+                    : String(value);
+
+                return (
+                  <div
+                    key={key}
+                    className="flex items-center justify-between p-2 rounded-lg border gap-2"
+                  >
+                    <span className="text-xs sm:text-sm font-medium capitalize wrap-break-word">
+                      {key}
+                    </span>
+                    <span className="text-xs sm:text-sm text-muted-foreground break-all text-right">
+                      {displayValue}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </>
@@ -124,4 +131,3 @@ export function ContactsTab({ response }: ContactsTabProps) {
     </div>
   );
 }
-
