@@ -2,8 +2,8 @@
  * Хелперы для валидации телефонов в Zod схемах
  */
 
-import { normalizePhone } from "@qbs-autonaim/shared";
 import { z } from "zod";
+import { normalizePhone } from "./phone-utils";
 
 /**
  * Трансформер для нормализации телефона в Zod схемах (optional)

@@ -1,4 +1,4 @@
-import { normalizePhone as normalizePhoneShared } from "@qbs-autonaim/shared";
+import { normalizePhone as normalizePhoneShared } from "@qbs-autonaim/validators";
 import type { Context } from "hono";
 import type { ZodType } from "zod";
 

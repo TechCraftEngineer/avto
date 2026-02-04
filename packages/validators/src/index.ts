@@ -7,6 +7,7 @@ export * from "./login";
 export * from "./organization";
 export * from "./otp";
 export * from "./phone";
+export * from "./phone-utils";
 export * from "./prequalification";
 export * from "./security";
 export * from "./vacancy";

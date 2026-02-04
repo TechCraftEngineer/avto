@@ -34,7 +34,6 @@
     "@qbs-autonaim/config": "workspace:*",
     "@qbs-autonaim/db": "workspace:*",
     "isomorphic-dompurify": "^2.35.0",
-    "libphonenumber-js": "^1.12.36",
     "random-word-slugs": "^0.1.7",
     "zod": "4.3.6"
   },

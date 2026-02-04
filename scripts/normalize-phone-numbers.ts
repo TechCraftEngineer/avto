@@ -6,7 +6,7 @@
 import { eq, isNotNull } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { candidate, response } from "@qbs-autonaim/db/schema";
-import { normalizePhone } from "@qbs-autonaim/shared";
+import { normalizePhone } from "@qbs-autonaim/validators";
 
 async function normalizeResponsePhones() {
   console.log("🔄 Нормализация телефонов в таблице responses...");
