@@ -33,7 +33,7 @@ export async function filterResponsesNeedingDetails(
 
     try {
       const result = await hasDetailedInfo(vacancyId, response.resumeId);
-      if (result.success && result.data) {
+      if (result.success && result.data === false) {
         responsesNeedingDetails.push({
           ...response,
           resumeId: response.resumeId,
@@ -60,7 +60,7 @@ export async function parseResponseDetails(
   vacancyId: string,
 ): Promise<void> {
   console.log(`🔍 Начинаем парсинг деталей для ${responses.length} откликов`);
-
+  console.log(responses);
   for (let i = 0; i < responses.length; i++) {
     const response = responses[i];
     if (!response || !response.resumeUrl) {

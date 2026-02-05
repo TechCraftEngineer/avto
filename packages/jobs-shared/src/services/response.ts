@@ -20,7 +20,6 @@ export async function hasDetailedInfo(
         eq(response.resumeId, resumeId),
       ),
     });
-
     if (!responseRecord) return false;
     return !!(responseRecord.profileData || responseRecord.contacts);
   }, "Failed to check detailed info");

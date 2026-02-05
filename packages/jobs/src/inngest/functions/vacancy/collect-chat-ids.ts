@@ -267,18 +267,6 @@ export const collectChatIdsFunction = inngest.createFunction(
       return { success: true, updatedCount };
     });
 
-    // Запускаем парсинг резюме для откликов без детальной информации
-    await step.run("trigger-resume-parsing", async () => {
-      console.log(`🔄 Запускаем парсинг резюме для вакансии ${vacancyId}`);
-      await inngest.send({
-        name: "response/resume.parse-new",
-        data: { vacancyId },
-      });
-      console.log(
-        `✅ Событие парсинга резюме отправлено для вакансии ${vacancyId}`,
-      );
-    });
-
     return result;
   },
 );

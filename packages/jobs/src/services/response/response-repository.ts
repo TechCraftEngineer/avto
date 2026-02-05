@@ -51,26 +51,6 @@ export async function getResponseByResumeId(resumeId: string) {
 }
 
 /**
- * Checks if response has detailed info (experience or contacts)
- */
-export async function hasDetailedInfo(
-  entityId: string,
-  resumeId: string,
-): Promise<Result<boolean>> {
-  return tryCatch(async () => {
-    const responseRecord = await db.query.response.findFirst({
-      where: and(
-        eq(response.entityId, entityId),
-        eq(response.resumeId, resumeId),
-      ),
-    });
-
-    if (!responseRecord) return false;
-    return !!(responseRecord.profileData || responseRecord.contacts);
-  }, "Failed to check detailed info");
-}
-
-/**
  * Gets all responses without detailed info
  */
 export async function getResponsesWithoutDetails() {
