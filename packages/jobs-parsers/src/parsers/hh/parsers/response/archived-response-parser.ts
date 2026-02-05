@@ -28,6 +28,11 @@ export async function parseArchivedVacancyResponses(
   vacancyId: string,
   externalId?: string | null,
   workspacePlan?: "free" | "pro" | "enterprise",
+  onProgress?: (
+    processed: number,
+    newCount: number,
+    currentName?: string,
+  ) => Promise<void>,
 ): Promise<{ syncedResponses: number; newResponses: number }> {
   console.log(
     `🚀 Начинаем парсинг откликов для архивной вакансии ${vacancyId}`,
@@ -49,6 +54,7 @@ export async function parseArchivedVacancyResponses(
       responsesUrl,
       vacancyId,
       workspacePlan,
+      onProgress,
     );
 
   if (allResponses.length === 0) {
@@ -95,6 +101,11 @@ async function collectAllArchivedResponses(
   responsesUrl: string,
   vacancyIdForSave: string,
   workspacePlan?: "free" | "pro" | "enterprise",
+  onProgress?: (
+    processed: number,
+    newCount: number,
+    currentName?: string,
+  ) => Promise<void>,
 ): Promise<{ responses: ResponseWithId[]; newCount: number }> {
   const allResponses: ResponseWithId[] = [];
   let currentPage = 0;
@@ -263,6 +274,12 @@ async function collectAllArchivedResponses(
             );
           } else if (result.data) {
             pageSaved++;
+            // Отправляем прогресс с именем кандидата
+            await onProgress?.(
+              allResponses.length,
+              totalSaved + pageSaved,
+              response.name,
+            );
           } else {
             pageSkipped++;
           }

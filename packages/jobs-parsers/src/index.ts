@@ -15,6 +15,7 @@ export {
   fetchArchivedVacanciesList,
   importMultipleVacancies,
   importSingleVacancy,
+  type RunHHArchivedVacancyParserOptions,
   refreshVacancyResponses,
   runHHArchivedVacancyParser,
   runHHParser,

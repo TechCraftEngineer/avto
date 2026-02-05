@@ -2,6 +2,7 @@ export {
   fetchArchivedVacanciesList,
   importMultipleVacancies,
   importSingleVacancy,
+  type RunHHArchivedVacancyParserOptions,
   runHHArchivedVacancyParser,
 } from "./runners/archived-runner";
 export { refreshVacancyResponses } from "./runners/refresh-responses";

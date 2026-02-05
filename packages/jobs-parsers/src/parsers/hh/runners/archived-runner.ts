@@ -47,16 +47,21 @@ function parseArchivedDate(dateStr: string): string {
   return date.toISOString();
 }
 
-interface RunHHArchivedVacancyParserOptions {
+export interface RunHHArchivedVacancyParserOptions {
   workspaceId: string;
   vacancyId: string;
   externalId?: string | null;
+  onProgress?: (
+    processed: number,
+    newCount: number,
+    currentName?: string,
+  ) => Promise<void>;
 }
 
 export async function runHHArchivedVacancyParser(
   options: RunHHArchivedVacancyParserOptions,
 ): Promise<{ syncedResponses: number; newResponses: number }> {
-  const { workspaceId, vacancyId, externalId } = options;
+  const { workspaceId, vacancyId, externalId, onProgress } = options;
 
   console.log("🚀 Запуск HH парсера для архивной вакансии");
   console.log(`   Workspace: ${workspaceId}`);
@@ -89,6 +94,7 @@ export async function runHHArchivedVacancyParser(
       vacancyId,
       externalId,
       workspaceData?.plan,
+      onProgress,
     );
 
     console.log("✅ Парсинг архивной вакансии завершен успешно");

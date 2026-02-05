@@ -99,16 +99,36 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
         await publish(
           syncArchivedResponsesChannel(vacancyId).status({
             status: "processing",
-            message: "Получаем все отклики с HeadHunter (архивные)",
+            message: "Подключение к HeadHunter...",
             vacancyId,
           }),
         );
+
+        // Создаем callback для промежуточных статусов
+        const onProgress = async (
+          processed: number,
+          newCount: number,
+          currentName?: string,
+        ) => {
+          const message = currentName
+            ? `Обработано откликов: ${processed} (новых: ${newCount}). Обрабатывается: ${currentName}`
+            : `Обработано откликов: ${processed} (новых: ${newCount})`;
+
+          await publish(
+            syncArchivedResponsesChannel(vacancyId).status({
+              status: "processing",
+              message,
+              vacancyId,
+            }),
+          );
+        };
 
         const { syncedResponses, newResponses } =
           await runHHArchivedVacancyParser({
             workspaceId,
             vacancyId,
             externalId: publication.externalId,
+            onProgress,
           });
 
         // Обновляем lastSyncedAt для публикации
