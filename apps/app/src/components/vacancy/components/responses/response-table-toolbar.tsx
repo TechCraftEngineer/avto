@@ -1,6 +1,8 @@
 "use client";
 import { useEffect } from "react";
 import type { ScreeningFilter } from "~/components";
+import type { ColumnId } from "./types";
+import { ColumnVisibilityToggle } from "./column-visibility-toggle";
 import { ResponseActionButtons } from "./response-action-buttons";
 import { ResponseSearchFilter } from "./response-search-filter";
 import { useRefreshState } from "./use-refresh-state";
@@ -30,6 +32,9 @@ interface ResponseTableToolbarProps {
   onSetArchivedHandler?: (handler: () => void) => void;
   onScreenNewDialogOpen?: () => void;
   onSetScreenNewHandler?: (handler: () => void) => void;
+  visibleColumns: Set<ColumnId>;
+  onToggleColumn: (columnId: ColumnId) => void;
+  onResetColumns: () => void;
 }
 
 export function ResponseTableToolbar({
@@ -52,6 +57,9 @@ export function ResponseTableToolbar({
   onSetArchivedHandler,
   onScreenNewDialogOpen,
   onSetScreenNewHandler,
+  visibleColumns,
+  onToggleColumn,
+  onResetColumns,
 }: ResponseTableToolbarProps) {
   // Custom hooks for different operation states
   const refreshState = useRefreshState(vacancyId, onRefresh, onRefreshComplete);
@@ -92,16 +100,24 @@ export function ResponseTableToolbar({
         onStatusFilterChange={onStatusFilterChange}
       />
 
-      <ResponseActionButtons
-        isRefreshing={isRefreshing}
-        isSyncingArchived={isSyncingArchived}
-        onRefreshDialogOpen={
-          onRefreshDialogOpen || (() => refreshState.setDialogOpen(true))
-        }
-        onSyncArchivedDialogOpen={
-          onArchivedDialogOpen || (() => syncArchivedState.setDialogOpen(true))
-        }
-      />
+      <div className="flex items-center gap-2">
+        <ColumnVisibilityToggle
+          visibleColumns={visibleColumns}
+          onToggleColumn={onToggleColumn}
+          onResetColumns={onResetColumns}
+        />
+        <ResponseActionButtons
+          isRefreshing={isRefreshing}
+          isSyncingArchived={isSyncingArchived}
+          onRefreshDialogOpen={
+            onRefreshDialogOpen || (() => refreshState.setDialogOpen(true))
+          }
+          onSyncArchivedDialogOpen={
+            onArchivedDialogOpen ||
+            (() => syncArchivedState.setDialogOpen(true))
+          }
+        />
+      </div>
     </div>
   );
 }

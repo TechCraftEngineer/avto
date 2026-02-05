@@ -20,6 +20,7 @@ import { ResponseTableHeader } from "./response-table-header";
 import { ResponseTableToolbar } from "./response-table-toolbar";
 import { useResponseActions } from "./use-response-actions";
 import { useResponseTable } from "./use-response-table";
+import { useColumnVisibility } from "./use-column-visibility";
 
 interface ResponseTableProps {
   vacancyId: string;
@@ -86,6 +87,14 @@ export function ResponseTable({
     handleSearchChange,
     handleSelectOne,
   } = useResponseTable();
+
+  const {
+    visibleColumns,
+    isHydrated,
+    toggleColumn,
+    resetColumns,
+    isColumnVisible,
+  } = useColumnVisibility();
 
   const { data, isLoading, isFetching, isFetched } = useQuery({
     ...trpc.vacancy.responses.list.queryOptions({
@@ -160,8 +169,8 @@ export function ResponseTable({
 
   // Рендерим скелетон для строк таблицы при загрузке
   const renderTableContent = () => {
-    // Показываем скелетоны во время любой загрузки
-    if (isLoading || isFetching) {
+    // Показываем скелетоны во время любой загрузки или пока не загружены настройки
+    if (isLoading || isFetching || !isHydrated) {
       const skeletonRows = [];
       for (let i = 0; i < 5; i++) {
         skeletonRows.push(
@@ -169,51 +178,79 @@ export function ResponseTable({
             <TableCell>
               <Skeleton className="h-5 w-5" />
             </TableCell>
-            <TableCell>
-              <div className="space-y-2">
-                <Skeleton className="h-5 w-48" />
+            {isColumnVisible("candidate") && (
+              <TableCell>
+                <div className="space-y-2">
+                  <Skeleton className="h-5 w-48" />
+                  <Skeleton className="h-4 w-32" />
+                </div>
+              </TableCell>
+            )}
+            {isColumnVisible("status") && (
+              <TableCell>
+                <Skeleton className="h-6 w-20" />
+              </TableCell>
+            )}
+            {isColumnVisible("priority") && (
+              <TableCell>
+                <Skeleton className="h-6 w-16" />
+              </TableCell>
+            )}
+            {isColumnVisible("screening") && (
+              <TableCell>
+                <Skeleton className="h-6 w-16" />
+              </TableCell>
+            )}
+            {isColumnVisible("potential") && (
+              <TableCell>
+                <Skeleton className="h-6 w-16" />
+              </TableCell>
+            )}
+            {isColumnVisible("career") && (
+              <TableCell>
+                <Skeleton className="h-6 w-16" />
+              </TableCell>
+            )}
+            {isColumnVisible("risks") && (
+              <TableCell>
+                <Skeleton className="h-6 w-16" />
+              </TableCell>
+            )}
+            {isColumnVisible("salary") && (
+              <TableCell>
+                <Skeleton className="h-6 w-24" />
+              </TableCell>
+            )}
+            {isColumnVisible("skills") && (
+              <TableCell>
+                <Skeleton className="h-6 w-20" />
+              </TableCell>
+            )}
+            {isColumnVisible("score") && (
+              <TableCell>
+                <Skeleton className="h-6 w-16" />
+              </TableCell>
+            )}
+            {isColumnVisible("interview") && (
+              <TableCell>
+                <Skeleton className="h-4 w-24" />
+              </TableCell>
+            )}
+            {isColumnVisible("hrSelection") && (
+              <TableCell>
+                <Skeleton className="h-4 w-24" />
+              </TableCell>
+            )}
+            {isColumnVisible("coverLetter") && (
+              <TableCell>
+                <Skeleton className="h-6 w-16" />
+              </TableCell>
+            )}
+            {isColumnVisible("date") && (
+              <TableCell>
                 <Skeleton className="h-4 w-32" />
-              </div>
-            </TableCell>
-            <TableCell>
-              <Skeleton className="h-6 w-20" />
-            </TableCell>
-            <TableCell>
-              <Skeleton className="h-6 w-16" />
-            </TableCell>
-            <TableCell>
-              <Skeleton className="h-6 w-16" />
-            </TableCell>
-            <TableCell>
-              <Skeleton className="h-6 w-16" />
-            </TableCell>
-            <TableCell>
-              <Skeleton className="h-6 w-16" />
-            </TableCell>
-            <TableCell>
-              <Skeleton className="h-6 w-16" />
-            </TableCell>
-            <TableCell>
-              <Skeleton className="h-6 w-24" />
-            </TableCell>
-            <TableCell>
-              <Skeleton className="h-6 w-20" />
-            </TableCell>
-            <TableCell>
-              <Skeleton className="h-6 w-16" />
-            </TableCell>
-            <TableCell>
-              <Skeleton className="h-4 w-24" />
-            </TableCell>
-            <TableCell>
-              <Skeleton className="h-4 w-24" />
-            </TableCell>
-            <TableCell>
-              <Skeleton className="h-6 w-16" />
-            </TableCell>
-            <TableCell>
-              <Skeleton className="h-4 w-32" />
-            </TableCell>
+              </TableCell>
+            )}
             <TableCell>
               <Skeleton className="h-8 w-24" />
             </TableCell>
@@ -224,8 +261,10 @@ export function ResponseTable({
     }
 
     // После загрузки: если нет откликов - показываем пустое состояние
+    const visibleColumnCount =
+      [...visibleColumns].filter((col) => isColumnVisible(col)).length + 2; // +2 для чекбокса и действий
     if (responses.length === 0 && isFetched) {
-      return <EmptyState hasResponses={total > 0} colSpan={16} />;
+      return <EmptyState hasResponses={total > 0} colSpan={visibleColumnCount} />;
     }
 
     // Показываем отклики
@@ -239,6 +278,7 @@ export function ResponseTable({
         isSelected={selectedIds.has(response.id)}
         onSelect={handleSelectOne}
         vacancyId={vacancyId}
+        isColumnVisible={isColumnVisible}
       />
     ));
   };
@@ -267,6 +307,9 @@ export function ResponseTable({
         onSetArchivedHandler={onSetArchivedHandler}
         onScreenNewDialogOpen={onScreenNewDialogOpen}
         onSetScreenNewHandler={onSetScreenNewHandler}
+        visibleColumns={visibleColumns}
+        onToggleColumn={toggleColumn}
+        onResetColumns={resetColumns}
       />
 
       <div className="rounded-md border bg-transparent">
@@ -289,6 +332,7 @@ export function ResponseTable({
               sortField={sortField}
               sortDirection={sortDirection}
               onSort={handleSort}
+              isColumnVisible={isColumnVisible}
             />
             <TableBody>{renderTableContent()}</TableBody>
           </Table>

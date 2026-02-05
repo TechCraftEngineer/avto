@@ -54,13 +54,6 @@ export function ExportCandidateModal({ response }: ExportCandidateModalProps) {
       icon: FileSpreadsheet,
       color: "text-green-600",
     },
-    {
-      id: "json",
-      name: "JSON данные",
-      description: "Для интеграции с другими системами",
-      icon: FileJson,
-      color: "text-blue-600",
-    },
   ];
 
   const availableSections = [
