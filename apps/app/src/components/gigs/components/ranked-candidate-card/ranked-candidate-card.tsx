@@ -165,16 +165,19 @@ export function RankedCandidateCard({
                 </div>
 
                 {/* Composite Score */}
-                {candidate.screening?.overallScore !== null && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <span className="text-muted-foreground">Общая оценка:</span>
-                    <span
-                      className={`font-bold ${getScoreColor(candidate.screening?.overallScore)}`}
-                    >
-                      {candidate.screening?.overallScore}/100
-                    </span>
-                  </div>
-                )}
+                {candidate.screening?.overallScore !== null &&
+                  candidate.screening?.overallScore !== undefined && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="text-muted-foreground">
+                        Общая оценка:
+                      </span>
+                      <span
+                        className={`font-bold ${getScoreColor(candidate.screening.overallScore)}`}
+                      >
+                        {candidate.screening.overallScore}/100
+                      </span>
+                    </div>
+                  )}
               </div>
             </div>
 
@@ -193,17 +196,18 @@ export function RankedCandidateCard({
 
         <CardContent className="space-y-3">
           {/* Composite Score Progress Bar */}
-          {candidate.screening?.overallScore !== null && (
-            <div className="space-y-1.5">
-              <Progress
-                value={candidate.screening?.overallScore}
-                className="h-2"
-                indicatorClassName={getProgressColor(
-                  candidate.screening?.overallScore,
-                )}
-              />
-            </div>
-          )}
+          {candidate.screening?.overallScore !== null &&
+            candidate.screening?.overallScore !== undefined && (
+              <div className="space-y-1.5">
+                <Progress
+                  value={candidate.screening.overallScore}
+                  className="h-2"
+                  indicatorClassName={getProgressColor(
+                    candidate.screening.overallScore,
+                  )}
+                />
+              </div>
+            )}
 
           {/* Score Breakdown */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">

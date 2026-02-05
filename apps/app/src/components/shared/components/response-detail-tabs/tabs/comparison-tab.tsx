@@ -82,9 +82,7 @@ export function ComparisonTab({
           <div className="p-4 rounded-lg border bg-card">
             <div className="text-xs text-muted-foreground mb-1">Ваш балл</div>
             <div className="text-2xl font-bold">
-              {currentScore ??
-                currentResponseData?.screening?.overallScore ??
-                "—"}
+              {currentScore ?? currentResponseData?.overallScore ?? "—"}
             </div>
             <div className="text-xs text-muted-foreground mt-1">из 100</div>
           </div>
@@ -130,7 +128,7 @@ export function ComparisonTab({
           <div className="space-y-3">
             {data.responses.map((response, index) => {
               const isCurrentResponse = response.id === responseId;
-              const score = response.screening?.overallScore ?? 0;
+              const score = response.overallScore ?? 0;
 
               return (
                 <div

@@ -114,9 +114,9 @@ export function ScreenResponseButton({
 
             if (mountedRef.current) {
               setScreeningResult({
-                score: response.screening.overallScore,
-                detailedScore: response.screening.overallScore,
-                analysis: response.screening.overallAnalysis || "",
+                score: response.screening.score,
+                detailedScore: response.screening.detailedScore,
+                analysis: response.screening.analysis || "",
               });
               setIsLoading(false);
               setShowModal(true);

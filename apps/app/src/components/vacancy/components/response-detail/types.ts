@@ -22,6 +22,11 @@ export type VacancyResponseFromList = NonNullable<
 >["responses"][0];
 
 /**
+ * Маппированный тип screening из API (для обратной совместимости)
+ */
+export type MappedScreening = NonNullable<VacancyResponse["screening"]>;
+
+/**
  * Пропсы для vacancy response detail card
  */
 export interface VacancyResponseDetailCardProps {
@@ -46,13 +51,7 @@ export interface VacancyResponseTabsProps {
   hasScreening: boolean;
   hasInterviewScoring: boolean;
   hasConversation: boolean;
-  screening: {
-    score: number;
-    detailedScore: number;
-    analysis: string | null;
-    priceAnalysis?: string | null;
-    deliveryAnalysis?: string | null;
-  } | null;
+  screening: MappedScreening | null;
   conversation: {
     id: string;
     status: string;

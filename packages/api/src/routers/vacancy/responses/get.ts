@@ -12,6 +12,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../trpc";
 import { sanitizeHtml } from "../../utils/sanitize-html";
+import { mapScreeningToOutput } from "./mappers/screening-mapper";
 
 export const get = protectedProcedure
   .input(z.object({ id: z.string(), workspaceId: workspaceIdSchema }))
@@ -127,14 +128,7 @@ export const get = protectedProcedure
       ...response,
       workspaceId: vacancy.workspaceId,
       resumePdfUrl,
-      screening: screening
-        ? ({
-            ...screening,
-            analysis: screening.overallAnalysis
-              ? sanitizeHtml(screening.overallAnalysis)
-              : null,
-          } as typeof screening)
-        : null,
+      screening: screening ? mapScreeningToOutput(screening) : null,
       interviewScoring: directInterviewScoring
         ? ({
             score:
