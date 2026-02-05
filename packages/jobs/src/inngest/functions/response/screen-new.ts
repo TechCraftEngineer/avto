@@ -103,47 +103,70 @@ export const screenNewResponsesFunction = inngest.createFunction(
       }),
     );
 
-    // Обрабатываем каждый отклик
-    const results = await Promise.allSettled(
-      responses.map(async (resp) => {
-        return await step.run(`screen-response-${resp.id}`, async () => {
-          try {
-            console.log(`🎯 Скрининг отклика: ${resp.id}`);
+    // Обрабатываем каждый отклик последовательно с прогрессом
+    const results: Array<{
+      responseId: string;
+      vacancyId: string;
+      success: boolean;
+      score?: number;
+      error?: string;
+    }> = [];
 
-            const resultWrapper = await screenResponse(resp.id);
-            const result = unwrap(resultWrapper);
+    let processedCount = 0;
+    let failedCount = 0;
 
-            console.log(`✅ Скрининг завершен: ${resp.id}`, {
-              score: result.detailedScore,
-            });
+    for (const resp of responses) {
+      const result = await step.run(`screen-response-${resp.id}`, async () => {
+        try {
+          console.log(`🎯 Скрининг отклика: ${resp.id}`);
 
-            return {
-              responseId: resp.id,
-              vacancyId: resp.entityId,
-              success: true,
-              score: result.detailedScore,
-            };
-          } catch (error) {
-            console.error(`❌ Ошибка скрининга для ${resp.id}:`, error);
-            return {
-              responseId: resp.id,
-              vacancyId: resp.entityId,
-              success: false,
-              error: error instanceof Error ? error.message : "Unknown error",
-            };
-          }
-        });
-      }),
-    );
+          const resultWrapper = await screenResponse(resp.id);
+          const screenResult = unwrap(resultWrapper);
 
-    const successful = results.filter(
-      (r) => r.status === "fulfilled" && r.value.success,
-    ).length;
-    const failed = results.filter(
-      (r) =>
-        r.status === "rejected" ||
-        (r.status === "fulfilled" && !r.value.success),
-    ).length;
+          console.log(`✅ Скрининг завершен: ${resp.id}`, {
+            score: screenResult.detailedScore,
+          });
+
+          return {
+            responseId: resp.id,
+            vacancyId: resp.entityId,
+            success: true,
+            score: screenResult.detailedScore,
+          };
+        } catch (error) {
+          console.error(`❌ Ошибка скрининга для ${resp.id}:`, error);
+          return {
+            responseId: resp.id,
+            vacancyId: resp.entityId,
+            success: false,
+            error: error instanceof Error ? error.message : "Unknown error",
+          };
+        }
+      });
+
+      results.push(result);
+
+      if (result.success) {
+        processedCount++;
+      } else {
+        failedCount++;
+      }
+
+      // Публикуем прогресс после каждого обработанного отклика
+      await publish(
+        screenNewResponsesChannel(vacancyId).progress({
+          vacancyId,
+          status: "processing",
+          message: `Оценено откликов: ${processedCount + failedCount} из ${responses.length}`,
+          total: responses.length,
+          processed: processedCount,
+          failed: failedCount,
+        }),
+      );
+    }
+
+    const successful = processedCount;
+    const failed = failedCount;
 
     console.log(
       `✅ Завершено: успешно ${successful}, ошибок ${failed} из ${responses.length}`,

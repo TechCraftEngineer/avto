@@ -16,13 +16,10 @@ export default function VacancyResponsesPage() {
   const [showRefreshConfirmation, setShowRefreshConfirmation] = useState(false);
   const [showArchivedConfirmation, setShowArchivedConfirmation] =
     useState(false);
-  const [showScreeningConfirmation, setShowScreeningConfirmation] =
-    useState(false);
 
   // Используем ref вместо state для хранения обработчиков
   const handleRefreshRef = useRef<(() => void) | null>(null);
   const handleArchivedSyncRef = useRef<(() => void) | null>(null);
-  const handleScreenNewRef = useRef<(() => void) | null>(null);
 
   // Мемоизируем обработчики для предотвращения бесконечных циклов
   const onSetRefreshHandler = useCallback((handler: () => void) => {
@@ -33,10 +30,6 @@ export default function VacancyResponsesPage() {
     handleArchivedSyncRef.current = handler;
   }, []);
 
-  const onSetScreenNewHandler = useCallback((handler: () => void) => {
-    handleScreenNewRef.current = handler;
-  }, []);
-
   // Обертки для вызова обработчиков из ref
   const handleRefreshConfirm = useCallback(() => {
     handleRefreshRef.current?.();
@@ -44,10 +37,6 @@ export default function VacancyResponsesPage() {
 
   const handleArchivedConfirm = useCallback(() => {
     handleArchivedSyncRef.current?.();
-  }, []);
-
-  const handleScreenNewConfirm = useCallback(() => {
-    handleScreenNewRef.current?.();
   }, []);
 
   return (
@@ -79,13 +68,6 @@ export default function VacancyResponsesPage() {
           onConfirmationClose={() => setShowArchivedConfirmation(false)}
           onConfirm={handleArchivedConfirm}
         />
-        <RefreshStatusIndicator
-          vacancyId={id}
-          mode="screening"
-          showConfirmation={showScreeningConfirmation}
-          onConfirmationClose={() => setShowScreeningConfirmation(false)}
-          onConfirm={handleScreenNewConfirm}
-        />
       </div>
 
       <Card className="border-none shadow-xl bg-card/60 backdrop-blur-xl overflow-hidden relative group">
@@ -98,8 +80,6 @@ export default function VacancyResponsesPage() {
             onSetRefreshHandler={onSetRefreshHandler}
             onArchivedDialogOpen={() => setShowArchivedConfirmation(true)}
             onSetArchivedHandler={onSetArchivedHandler}
-            onScreenNewDialogOpen={() => setShowScreeningConfirmation(true)}
-            onSetScreenNewHandler={onSetScreenNewHandler}
           />
         </div>
       </Card>

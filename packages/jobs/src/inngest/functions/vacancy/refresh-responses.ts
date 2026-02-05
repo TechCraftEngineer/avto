@@ -129,6 +129,20 @@ export const refreshVacancyResponsesFunction = inngest.createFunction(
       );
     });
 
+    // Запускаем оценку новых откликов
+    await step.run("trigger-screening", async () => {
+      console.log(
+        `🎯 Запускаем оценку новых откликов для вакансии ${vacancyId}`,
+      );
+      await inngest.send({
+        name: "response/screen.new",
+        data: { vacancyId },
+      });
+      console.log(
+        `✅ Событие оценки откликов отправлено для вакансии ${vacancyId}`,
+      );
+    });
+
     return result;
   },
 );
