@@ -87,7 +87,19 @@ export async function parseArchivedVacancyResponses(
   }
 
   console.log("\n📊 ЭТАП 3: Парсинг детальной информации резюме...");
-  await parseResponseDetails(page, responsesNeedingDetails, vacancyId);
+  await parseResponseDetails(
+    page,
+    responsesNeedingDetails,
+    vacancyId,
+    async (processed, total, currentName) => {
+      // Передаем прогресс дальше, добавляя к уже обработанным откликам из этапа 1
+      await onProgress?.(
+        allResponses.length + processed,
+        allResponses.length + total,
+        currentName,
+      );
+    },
+  );
 
   console.log(
     `\n🎉 Парсинг завершен! Обработано откликов: ${responsesNeedingDetails.length}`,

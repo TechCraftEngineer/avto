@@ -59,8 +59,15 @@ export async function parseResponseDetails(
   page: Page,
   responses: ResponseWithId[],
   vacancyId: string,
+  onProgress?: (
+    processed: number,
+    total: number,
+    currentName?: string,
+  ) => Promise<void>,
 ): Promise<void> {
   console.log(`🔍 Начинаем парсинг деталей для ${responses.length} откликов`);
+
+  const total = responses.length;
 
   for (let i = 0; i < responses.length; i++) {
     const response = responses[i];
@@ -73,6 +80,9 @@ export async function parseResponseDetails(
       console.log(
         `📄 Парсим детали для отклика ${i + 1}/${responses.length}: ${response.name}`,
       );
+
+      // Отправляем прогресс перед началом обработки
+      await onProgress?.(i + 1, total, response.name);
 
       // Переходим на страницу резюме
       await page.goto(response.resumeUrl, {
