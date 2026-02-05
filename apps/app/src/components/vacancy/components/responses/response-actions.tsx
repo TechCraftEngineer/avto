@@ -26,6 +26,8 @@ import { useRefreshSingleResume } from "./use-refresh-single-resume";
 
 interface ResponseActionsProps {
   responseId: string;
+  candidateName?: string;
+  workspaceId?: string;
   resumeUrl?: string | null;
   telegramUsername?: string | null;
   phone?: string | null;
@@ -35,6 +37,8 @@ interface ResponseActionsProps {
 
 export function ResponseActions({
   responseId,
+  candidateName,
+  workspaceId,
   resumeUrl,
   telegramUsername,
   phone,

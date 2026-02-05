@@ -5,7 +5,7 @@ export { ResponseActionButtons } from "./response-action-buttons";
 export { ResponseActions } from "./response-actions";
 export { ResponseCards } from "./response-cards";
 export { ResponseFilters } from "./response-filters";
-export { ResponseRow } from "./response-row";
+export { ResponseRow } from "./response-row/index";
 export { ResponseSearchFilter } from "./response-search-filter";
 export { ResponseStatusFilter } from "./response-status-filter";
 export { ResponseTable } from "./response-table";
