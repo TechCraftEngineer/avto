@@ -286,15 +286,17 @@ async function collectAllArchivedResponses(
             );
           } else if (result.data) {
             pageSaved++;
-            // Отправляем прогресс с именем кандидата
-            await onProgress?.(
-              allResponses.length,
-              totalSaved + pageSaved,
-              response.name,
-            );
           } else {
             pageSkipped++;
           }
+
+          // Отправляем прогресс после обработки каждого отклика
+          // processed = всего обработано, newCount = только новых
+          await onProgress?.(
+            allResponses.length,
+            totalSaved + pageSaved,
+            response.name,
+          );
         } catch (error) {
           pageErrors++;
           console.error(

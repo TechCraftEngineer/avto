@@ -21,41 +21,72 @@ import { getFilteredResponseIds } from "./utils/screening-filters";
 import { getOrderByClause, needsScoreJoin } from "./utils/sorting";
 import { buildWhereConditions } from "./utils/where-conditions";
 
+/** Множитель лимита для клиентской сортировки по priorityScore */
+const PRIORITY_SORT_LIMIT_MULTIPLIER = 3;
+
+const sortFieldSchema = z
+  .enum([
+    "createdAt",
+    "score",
+    "detailedScore",
+    "potentialScore",
+    "careerTrajectoryScore",
+    "priorityScore",
+    "salaryExpectationsAmount",
+    "compositeScore",
+    "status",
+    "respondedAt",
+  ])
+  .nullable()
+  .default(null);
+
+const statusFilterSchema = z
+  .array(z.enum(["NEW", "EVALUATED", "INTERVIEW", "COMPLETED", "SKIPPED"]))
+  .optional();
+
+const listInputSchema = z.object({
+  workspaceId: workspaceIdSchema,
+  vacancyId: z.string().min(1),
+  page: z.number().int().min(1).default(1),
+  limit: z.number().int().min(1).max(100).default(50),
+  sortField: sortFieldSchema,
+  sortDirection: z.enum(["asc", "desc"]).default("desc"),
+  screeningFilter: z
+    .enum(["all", "evaluated", "not-evaluated", "high-score", "low-score"])
+    .default("all"),
+  statusFilter: statusFilterSchema,
+  search: z.string().max(200).optional(),
+});
+
+/** Формирует пустой ответ пагинации */
+function emptyPaginatedResponse(page: number, limit: number) {
+  return {
+    responses: [] as ReturnType<typeof mapResponsesToOutput>,
+    total: 0,
+    page,
+    limit,
+    totalPages: 0,
+  };
+}
+
+/** Формирует ответ пагинации */
+function paginatedResponse(
+  responses: ReturnType<typeof mapResponsesToOutput>,
+  total: number,
+  page: number,
+  limit: number,
+) {
+  return {
+    responses,
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  };
+}
+
 export const list = protectedProcedure
-  .input(
-    z.object({
-      workspaceId: workspaceIdSchema,
-      vacancyId: z.string(),
-      page: z.number().min(1).default(1),
-      limit: z.number().min(1).max(100).default(50),
-      sortField: z
-        .enum([
-          "createdAt",
-          "score",
-          "detailedScore",
-          "potentialScore",
-          "careerTrajectoryScore",
-          "priorityScore",
-          "salaryExpectationsAmount",
-          "compositeScore",
-          "status",
-          "respondedAt",
-        ])
-        .optional()
-        .nullable()
-        .default(null),
-      sortDirection: z.enum(["asc", "desc"]).default("desc"),
-      screeningFilter: z
-        .enum(["all", "evaluated", "not-evaluated", "high-score", "low-score"])
-        .default("all"),
-      statusFilter: z
-        .array(
-          z.enum(["NEW", "EVALUATED", "INTERVIEW", "COMPLETED", "SKIPPED"]),
-        )
-        .optional(),
-      search: z.string().optional(),
-    }),
-  )
+  .input(listInputSchema)
   .query(async ({ ctx, input }) => {
     const {
       workspaceId,
@@ -70,7 +101,7 @@ export const list = protectedProcedure
     } = input;
     const offset = (page - 1) * limit;
 
-    // Проверка доступа к workspace
+    // 1. Проверка доступа к workspace
     const access = await ctx.workspaceRepository.checkAccess(
       workspaceId,
       ctx.session.user.id,
@@ -83,41 +114,32 @@ export const list = protectedProcedure
       });
     }
 
-    // Проверка принадлежности вакансии к workspace
-    const vacancyCheck = await ctx.db.query.vacancy.findFirst({
+    // 2. Проверка принадлежности вакансии к workspace
+    const vacancyExists = await ctx.db.query.vacancy.findFirst({
       where: (v, { and, eq }) =>
         and(eq(v.id, vacancyId), eq(v.workspaceId, workspaceId)),
+      columns: { id: true },
     });
 
-    if (!vacancyCheck) {
+    if (!vacancyExists) {
       throw new TRPCError({
         code: "NOT_FOUND",
         message: "Вакансия не найдена",
       });
     }
 
-    // Получаем ID откликов с учётом фильтра по скринингу
+    // 3. Получаем ID откликов с учётом фильтра по скринингу
     const filteredResponseIds = await getFilteredResponseIds(
       ctx.db,
       vacancyId,
       screeningFilter,
     );
 
-    // Если фильтр вернул пустой массив, возвращаем пустой результат
     if (filteredResponseIds !== null && filteredResponseIds.length === 0) {
-      console.log(
-        "[vacancy.responses.list] No responses match screening filter",
-      );
-      return {
-        responses: [],
-        total: 0,
-        page,
-        limit,
-        totalPages: 0,
-      };
+      return emptyPaginatedResponse(page, limit);
     }
 
-    // Строим условия WHERE
+    // 4. Строим условия WHERE
     const whereCondition = buildWhereConditions(
       vacancyId,
       filteredResponseIds,
@@ -125,13 +147,15 @@ export const list = protectedProcedure
       statusFilter,
     );
 
-    // Определяем сортировку
+    // 5. Определяем параметры выборки
     const orderByClause = getOrderByClause(sortField, sortDirection);
     const needsPrioritySort = sortField === "priorityScore";
-    const fetchLimit = needsPrioritySort ? limit * 3 : limit;
+    const fetchLimit = needsPrioritySort
+      ? limit * PRIORITY_SORT_LIMIT_MULTIPLIER
+      : limit;
     const fetchOffset = needsPrioritySort ? 0 : offset;
 
-    // Получаем отфильтрованные данные с пагинацией
+    // 6. Получаем отфильтрованные данные с пагинацией
     const responsesRaw = needsScoreJoin(sortField)
       ? await fetchResponsesWithScoreJoin(
           ctx.db,
@@ -148,17 +172,24 @@ export const list = protectedProcedure
           fetchOffset,
         );
 
-    // Получаем ID откликов и уникальные globalCandidateId
-    const responseIds = responsesRaw.map((r: { id: string }) => r.id);
-    const globalCandidateIds = Array.from(
-      new Set(
-        responsesRaw
-          .map((r: { globalCandidateId: string | null }) => r.globalCandidateId)
-          .filter((id: string | null): id is string => id !== null),
-      ),
-    ) as string[];
+    if (responsesRaw.length === 0) {
+      return emptyPaginatedResponse(page, limit);
+    }
 
-    // Загружаем связанные данные
+    // 7. Извлекаем ID для загрузки связанных данных
+    const responseIds: string[] = [];
+    const globalCandidateIdSet = new Set<string>();
+
+    for (const r of responsesRaw) {
+      responseIds.push(r.id);
+      if (r.globalCandidateId) {
+        globalCandidateIdSet.add(r.globalCandidateId);
+      }
+    }
+
+    const globalCandidateIds = Array.from(globalCandidateIdSet);
+
+    // 8. Загружаем связанные данные параллельно
     const [globalCandidates, screenings, interviewScorings, sessions] =
       await Promise.all([
         fetchGlobalCandidates(ctx.db, globalCandidateIds),
@@ -167,45 +198,42 @@ export const list = protectedProcedure
         fetchInterviewSessions(ctx.db, responseIds),
       ]);
 
-    // Получаем количество сообщений и комментариев
-    const sessionIds = sessions.map((s: { id: string }) => s.id);
+    // 9. Загружаем счётчики сообщений и комментариев параллельно
+    const sessionIds = sessions.map((s) => s.id);
     const [messageCountsMap, commentCountsMap] = await Promise.all([
       fetchMessageCounts(ctx.db, sessionIds),
       fetchCommentCounts(ctx.db, responseIds),
     ]);
 
-    // Формируем ответ с маппингом данных
+    // 10. Формируем ответ с маппингом данных
     const responsesMapped = mapResponsesToOutput(
       responsesRaw,
       screenings,
       interviewScorings,
       sessions,
       globalCandidates,
-      messageCountsMap as Map<string, number>,
-      commentCountsMap as Map<string, number>,
+      messageCountsMap,
+      commentCountsMap,
     );
 
-    // Сортируем по priorityScore если нужно
+    // 11. Клиентская сортировка по priorityScore (вычисляемое поле)
     if (needsPrioritySort) {
-      const sortedResponses = [...responsesMapped].sort((a, b) => {
+      responsesMapped.sort((a, b) => {
         const scoreA = a.priorityScore ?? 0;
         const scoreB = b.priorityScore ?? 0;
         return sortDirection === "asc" ? scoreA - scoreB : scoreB - scoreA;
       });
 
-      const paginatedResponses = sortedResponses.slice(offset, offset + limit);
-      const total = sortedResponses.length;
-
-      return {
-        responses: paginatedResponses,
-        total,
+      const paginatedSlice = responsesMapped.slice(offset, offset + limit);
+      return paginatedResponse(
+        paginatedSlice,
+        responsesMapped.length,
         page,
         limit,
-        totalPages: Math.ceil(total / limit),
-      };
+      );
     }
 
-    // Получаем общее количество для пагинации
+    // 12. Получаем общее количество для пагинации
     const totalResult = await ctx.db
       .select({ count: sql<number>`count(*)` })
       .from(responseTable)
@@ -213,11 +241,5 @@ export const list = protectedProcedure
 
     const total = Number(totalResult[0]?.count ?? 0);
 
-    return {
-      responses: responsesMapped,
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    };
+    return paginatedResponse(responsesMapped, total, page, limit);
   });

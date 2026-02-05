@@ -250,12 +250,11 @@ export function ResponseRow({
           <div className="opacity-0 group-hover:opacity-100 transition-opacity">
             <ResponseActions
               responseId={response.id}
-              candidateName={candidateName}
-              workspaceId={workspaceId}
               resumeUrl={response.resumeUrl}
               telegramUsername={response.telegramUsername}
               phone={response.phone}
               welcomeSentAt={response.welcomeSentAt}
+              importSource={response.importSource}
               onSendWelcome={async () => {
                 console.log("Отправка приветствия для отклика:", response.id);
               }}

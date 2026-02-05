@@ -104,10 +104,10 @@ export function ResponseCards({
             <div className="pt-2 border-t">
               <ResponseActions
                 responseId={response.id}
-                workspaceId={workspaceId}
                 resumeUrl={response.resumeUrl}
                 telegramUsername={response.telegramUsername}
                 phone={response.phone}
+                importSource={response.importSource}
               />
             </div>
           </CardContent>

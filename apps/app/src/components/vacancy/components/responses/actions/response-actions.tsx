@@ -26,23 +26,21 @@ import { useRefreshSingleResume } from "../hooks/use-refresh-single-resume";
 
 interface ResponseActionsProps {
   responseId: string;
-  candidateName?: string;
-  workspaceId?: string;
   resumeUrl?: string | null;
   telegramUsername?: string | null;
   phone?: string | null;
   welcomeSentAt?: Date | null;
+  importSource?: string | null;
   onSendWelcome?: () => Promise<void>;
 }
 
 export function ResponseActions({
   responseId,
-  candidateName,
-  workspaceId,
   resumeUrl,
   telegramUsername,
   phone,
   welcomeSentAt,
+  importSource,
   onSendWelcome,
 }: ResponseActionsProps) {
   const [isSendingWelcome, setIsSendingWelcome] = useState(false);
@@ -142,19 +140,18 @@ export function ResponseActions({
           </DropdownMenuItem>
         )}
 
-        {/* Отправить приветствие */}
-        {!welcomeSentAt && (telegramUsername || phone) && (
+        {/* Отправить приветствие - только для откликов с HH.ru */}
+        {!welcomeSentAt && importSource === "HH" && (
           <DropdownMenuItem
             onClick={handleSendWelcome}
             disabled={isSendingWelcome}
           >
             <Send className="h-4 w-4 mr-2" />
-            Отправить приветствие{" "}
-            {telegramUsername ? "в Telegram" : "по телефону"}
+            Отправить приветствие в чат HH.ru
           </DropdownMenuItem>
         )}
 
-        {(resumeUrl || (!welcomeSentAt && (telegramUsername || phone))) && (
+        {(resumeUrl || (!welcomeSentAt && importSource === "HH")) && (
           <DropdownMenuSeparator />
         )}
 

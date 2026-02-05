@@ -143,6 +143,17 @@ export const refreshVacancyResponsesFunction = inngest.createFunction(
       );
     });
 
+    // Финальная публикация прогресса после всех шагов
+    await step.run("publish-final-progress", async () => {
+      await publish(
+        refreshVacancyResponsesChannel(vacancyId).progress({
+          vacancyId,
+          status: "completed",
+          message: "Обработка откликов завершена, запущена оценка кандидатов",
+        }),
+      );
+    });
+
     return result;
   },
 );

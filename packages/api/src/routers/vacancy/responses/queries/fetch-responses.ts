@@ -29,6 +29,7 @@ export const responseColumns = {
   salaryExpectationsComment: true,
   skills: true,
   rating: true,
+  importSource: true,
 } as const;
 
 export async function fetchResponsesWithScoreJoin(
@@ -63,6 +64,7 @@ export async function fetchResponsesWithScoreJoin(
       salaryExpectationsComment: responseTable.salaryExpectationsComment,
       skills: responseTable.skills,
       rating: responseTable.rating,
+      importSource: responseTable.importSource,
     })
     .from(responseTable)
     .leftJoin(
