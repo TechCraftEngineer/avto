@@ -236,8 +236,8 @@ export async function screenResponse(
       await db
         .update(responseScreening)
         .set({
-          overallScore: screeningResult.overallScore,
-          overallAnalysis: screeningResult.overallAnalysis,
+          overallScore: screeningResult.detailedScore,
+          overallAnalysis: screeningResult.analysis,
           skillsMatchScore: screeningResult.skillsMatchScore ?? null,
           experienceScore: screeningResult.experienceScore ?? null,
           potentialScore: screeningResult.potentialScore ?? null,
@@ -260,8 +260,8 @@ export async function screenResponse(
     } else {
       await db.insert(responseScreening).values({
         responseId,
-        overallScore: screeningResult.overallScore,
-        overallAnalysis: screeningResult.overallAnalysis,
+        overallScore: screeningResult.detailedScore,
+        overallAnalysis: screeningResult.analysis,
         skillsMatchScore: screeningResult.skillsMatchScore ?? null,
         experienceScore: screeningResult.experienceScore ?? null,
         potentialScore: screeningResult.potentialScore ?? null,
@@ -291,7 +291,7 @@ export async function screenResponse(
       .where(eq(response.id, responseId));
 
     logger.info(
-      `Результат скрининга сохранен: оценка ${screeningResult.overallScore}/100, язык: ${screeningResult.resumeLanguage}${psychometricScore ? `, психометрия: ${psychometricScore}/100` : ""}`,
+      `Результат скрининга сохранен: оценка ${screeningResult.detailedScore}/100, язык: ${screeningResult.resumeLanguage}${psychometricScore ? `, психометрия: ${psychometricScore}/100` : ""}`,
     );
 
     return screeningResult;

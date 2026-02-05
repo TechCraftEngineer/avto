@@ -34,12 +34,15 @@ export type ResponseScreeningInput = z.infer<
  * Выходные данные скрининга отклика
  */
 export const responseScreeningOutputSchema = z.object({
-  // Основная оценка (0-100)
-  overallScore: z.number().int().min(0).max(100),
+  // Основные оценки
+  score: z.number().int().min(0).max(5), // Оценка от 1 до 5
+  detailedScore: z.number().int().min(0).max(100), // Детальная оценка 0-100
   resumeLanguage: z.string(),
+  analysis: z.string(), // Общий анализ
 
-  // Общий анализ
-  overallAnalysis: z.string(),
+  // Устаревшие поля (для обратной совместимости)
+  overallScore: z.number().int().min(0).max(100).optional(),
+  overallAnalysis: z.string().optional(),
 
   // Детальные оценки по критериям
   skillsMatchScore: z.number().int().min(0).max(100).nullable().optional(),

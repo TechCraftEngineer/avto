@@ -23,7 +23,7 @@
     "@opentelemetry/sdk-node": "^0.211.0",
     "@qbs-autonaim/config": "workspace:*",
     "@qbs-autonaim/lib": "workspace:*",
-    "ai": "6.0.70",
+    "ai": "6.0.71",
     "langfuse": "3.38.6",
     "p-limit": "^7.2.0",
     "string-strip-html": "^13.5.3",
@@ -32,7 +32,7 @@
   },
   "devDependencies": {
     "@qbs-autonaim/tsconfig": "workspace:*",
-    "@types/node": "^25.2.0",
+    "@types/node": "^25.2.1",
     "tsdown": "0.20.3",
     "typescript": "5.9.3"
   }

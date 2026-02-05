@@ -57,8 +57,8 @@ export const analyzeFreelanceResponseFunction = inngest.createFunction(
 
         console.log("✅ Анализ завершен", {
           responseId,
-          score: result.overallScore,
-          detailedScore: result.overallScore,
+          score: result.detailedScore,
+          detailedScore: result.detailedScore,
           attempt: attempt + 1,
         });
 

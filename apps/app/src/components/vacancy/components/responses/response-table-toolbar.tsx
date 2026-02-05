@@ -18,7 +18,6 @@ interface ResponseTableToolbarProps {
   search: string;
   onSearchChange: (value: string) => void;
   isRefreshing: boolean;
-  isProcessingNew: boolean;
   isSyncingArchived: boolean;
   onRefresh: () => void;
   onRefreshComplete: () => void;
@@ -42,7 +41,6 @@ export function ResponseTableToolbar({
   search,
   onSearchChange,
   isRefreshing,
-  isProcessingNew,
   isSyncingArchived,
   onRefresh,
   onRefreshComplete,
@@ -96,16 +94,12 @@ export function ResponseTableToolbar({
 
       <ResponseActionButtons
         isRefreshing={isRefreshing}
-        isProcessingNew={isProcessingNew}
         isSyncingArchived={isSyncingArchived}
         onRefreshDialogOpen={
           onRefreshDialogOpen || (() => refreshState.setDialogOpen(true))
         }
         onSyncArchivedDialogOpen={
           onArchivedDialogOpen || (() => syncArchivedState.setDialogOpen(true))
-        }
-        onScreenNewDialogOpen={
-          onScreenNewDialogOpen || (() => screenNewState.handleClick())
         }
       />
     </div>

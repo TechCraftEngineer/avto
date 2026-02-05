@@ -114,14 +114,14 @@ export const screenNewResponsesFunction = inngest.createFunction(
             const result = unwrap(resultWrapper);
 
             console.log(`✅ Скрининг завершен: ${resp.id}`, {
-              score: result.overallScore,
+              score: result.detailedScore,
             });
 
             return {
               responseId: resp.id,
               vacancyId: resp.entityId,
               success: true,
-              score: result.overallScore,
+              score: result.detailedScore,
             };
           } catch (error) {
             console.error(`❌ Ошибка скрининга для ${resp.id}:`, error);

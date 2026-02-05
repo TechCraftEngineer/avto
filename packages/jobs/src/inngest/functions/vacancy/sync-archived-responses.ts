@@ -1,7 +1,10 @@
 import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { vacancy, vacancyPublication } from "@qbs-autonaim/db/schema";
-import { runHHArchivedVacancyParser } from "@qbs-autonaim/jobs-parsers";
+import {
+  type RunHHArchivedVacancyParserOptions,
+  runHHArchivedVacancyParser,
+} from "@qbs-autonaim/jobs-parsers";
 import { syncArchivedResponsesChannel } from "../../channels/client";
 import { inngest } from "../../client";
 
@@ -105,23 +108,20 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
         );
 
         // Создаем callback для промежуточных статусов
-        const onProgress = async (
-          processed: number,
-          newCount: number,
-          currentName?: string,
-        ) => {
-          const message = currentName
-            ? `Обработано откликов: ${processed} (новых: ${newCount}). Обрабатывается: ${currentName}`
-            : `Обработано откликов: ${processed} (новых: ${newCount})`;
+        const onProgress: RunHHArchivedVacancyParserOptions["onProgress"] =
+          async (processed: number, newCount: number, currentName?: string) => {
+            const message = currentName
+              ? `Обработано откликов: ${processed} (новых: ${newCount}). Обрабатывается: ${currentName}`
+              : `Обработано откликов: ${processed} (новых: ${newCount})`;
 
-          await publish(
-            syncArchivedResponsesChannel(vacancyId).status({
-              status: "processing",
-              message,
-              vacancyId,
-            }),
-          );
-        };
+            await publish(
+              syncArchivedResponsesChannel(vacancyId).status({
+                status: "processing",
+                message,
+                vacancyId,
+              }),
+            );
+          };
 
         const { syncedResponses, newResponses } =
           await runHHArchivedVacancyParser({

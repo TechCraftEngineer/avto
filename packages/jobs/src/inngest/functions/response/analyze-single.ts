@@ -98,12 +98,12 @@ export const analyzeSingleResponseFunction = inngest.createFunction(
         const screeningResult = unwrap(resultWrapper);
 
         console.log(`✅ Скрининг завершен: ${responseId}`, {
-          score: screeningResult.overallScore,
+          score: screeningResult.detailedScore,
         });
 
         return {
           success: true as const,
-          overallScore: screeningResult.overallScore,
+          overallScore: screeningResult.detailedScore,
         };
       } catch (error) {
         console.error(`❌ Ошибка скрининга для ${responseId}:`, error);

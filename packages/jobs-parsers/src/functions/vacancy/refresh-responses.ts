@@ -11,6 +11,7 @@ import { refreshVacancyResponses } from "../../parsers/hh";
 /**
  * Inngest функция для обновления откликов конкретной вакансии
  * Парсит только отклики указанной вакансии через Puppeteer в headless режиме
+ * После импорта автоматически запускает скрининг новых откликов
  */
 export const refreshVacancyResponsesFunction = inngest.createFunction(
   {
@@ -128,6 +129,29 @@ export const refreshVacancyResponsesFunction = inngest.createFunction(
         `✅ Событие сбора chat_id отправлено для вакансии ${vacancyId}`,
       );
     });
+
+    // Автоматически запускаем скрининг новых откликов
+    if (result.success && result.newCount > 0) {
+      await step.run("trigger-auto-screening", async () => {
+        console.log(
+          `🎯 Запускаем автоматический скрининг ${result.newCount} новых откликов для вакансии ${vacancyId}`,
+        );
+        await inngest.send({
+          name: "response/screen.new",
+          data: {
+            vacancyId,
+            workspaceId: (
+              await db.query.vacancy.findFirst({
+                where: eq(vacancy.id, vacancyId),
+              })
+            )?.workspaceId,
+          },
+        });
+        console.log(
+          `✅ Автоматический скрининг запущен для вакансии ${vacancyId}`,
+        );
+      });
+    }
 
     return result;
   },

@@ -5,24 +5,20 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@qbs-autonaim/ui";
-import { ChevronDown, Loader2, RefreshCw, Sparkles } from "lucide-react";
+import { ChevronDown, Loader2, RefreshCw } from "lucide-react";
 
 interface ResponseActionButtonsProps {
   isRefreshing: boolean;
-  isProcessingNew: boolean;
   isSyncingArchived: boolean;
   onRefreshDialogOpen: () => void;
   onSyncArchivedDialogOpen: () => void;
-  onScreenNewDialogOpen: () => void;
 }
 
 export function ResponseActionButtons({
   isRefreshing,
-  isProcessingNew,
   isSyncingArchived,
   onRefreshDialogOpen,
   onSyncArchivedDialogOpen,
-  onScreenNewDialogOpen,
 }: ResponseActionButtonsProps) {
   const isAnyRefreshing = isRefreshing || isSyncingArchived;
 
@@ -73,21 +69,6 @@ export function ResponseActionButtons({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-
-      <Button
-        disabled={isProcessingNew}
-        variant="default"
-        size="sm"
-        onClick={onScreenNewDialogOpen}
-        className="h-9 shadow-sm hover:shadow transition-shadow"
-      >
-        {isProcessingNew ? (
-          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-        ) : (
-          <Sparkles className="h-4 w-4 mr-2" />
-        )}
-        {isProcessingNew ? "Анализ..." : "Проанализировать"}
-      </Button>
     </div>
   );
 }

@@ -17,7 +17,6 @@ import {
   Phone,
   RefreshCw,
   Send,
-  Sparkles,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -32,7 +31,6 @@ interface ResponseActionsProps {
   phone?: string | null;
   welcomeSentAt?: Date | null;
   onSendWelcome?: () => Promise<void>;
-  onAnalyzeClick?: () => void;
 }
 
 export function ResponseActions({
@@ -42,7 +40,6 @@ export function ResponseActions({
   phone,
   welcomeSentAt,
   onSendWelcome,
-  onAnalyzeClick,
 }: ResponseActionsProps) {
   const [isSendingWelcome, setIsSendingWelcome] = useState(false);
   const [refreshEnabled, setRefreshEnabled] = useState(false);
@@ -126,12 +123,6 @@ export function ResponseActions({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuItem onClick={onAnalyzeClick}>
-          <Sparkles className="h-4 w-4 mr-2" />
-          Проанализировать отклик
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-
         {/* Обновить резюме */}
         {resumeUrl && (
           <DropdownMenuItem

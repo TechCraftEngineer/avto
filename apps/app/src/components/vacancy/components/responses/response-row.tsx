@@ -54,7 +54,6 @@ interface ResponseRowProps {
   isSelected?: boolean;
   onSelect?: (id: string) => void;
   vacancyId?: string;
-  onAnalyzeClick?: (responseId: string, candidateName: string) => void;
 }
 
 export function ResponseRow({
@@ -65,7 +64,6 @@ export function ResponseRow({
   isSelected = false,
   onSelect,
   vacancyId,
-  onAnalyzeClick,
 }: ResponseRowProps) {
   const photoUrl = useAvatarUrl(response.photoFileId);
   const candidateName = response.candidateName || "Кандидат";
@@ -553,9 +551,6 @@ export function ResponseRow({
                 // TODO: Реализовать отправку приветствия
                 console.log("Отправка приветствия для отклика:", response.id);
               }}
-              onAnalyzeClick={() =>
-                onAnalyzeClick?.(response.id, candidateName)
-              }
             />
           </div>
         </div>

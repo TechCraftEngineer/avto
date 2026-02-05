@@ -123,7 +123,7 @@ export const screenResponsesBatchFunction = inngest.createFunction(
                     batchId,
                     responseId: responseItem.id,
                     candidateName,
-                    score: result.overallScore,
+                    score: result.detailedScore,
                     status: "completed",
                   }),
                 );
@@ -145,13 +145,13 @@ export const screenResponsesBatchFunction = inngest.createFunction(
               }
 
               console.log(`✅ Скрининг завершен: ${responseItem.id}`, {
-                score: result.overallScore,
+                score: result.detailedScore,
               });
 
               return {
                 responseId: responseItem.id,
                 success: true,
-                score: result.overallScore,
+                score: result.detailedScore,
               };
             } catch (error) {
               failedCount++;

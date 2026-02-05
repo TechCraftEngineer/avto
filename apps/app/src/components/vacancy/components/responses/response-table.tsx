@@ -105,7 +105,6 @@ export function ResponseTable({
 
   const {
     isProcessing,
-    isProcessingNew,
     isRefreshing,
     isSendingWelcome,
     isSyncingArchived,
@@ -256,7 +255,6 @@ export function ResponseTable({
         search={searchInput}
         onSearchChange={handleSearchChange}
         isRefreshing={isRefreshing}
-        isProcessingNew={isProcessingNew}
         isSyncingArchived={isSyncingArchived}
         onRefresh={handleRefreshResponses}
         onRefreshComplete={handleRefreshComplete}
