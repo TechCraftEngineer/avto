@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import {
   fetchRefreshVacancyResponsesToken,
   fetchScreenBatchToken,
+  fetchScreenNewResponsesToken,
   fetchSyncArchivedVacancyResponsesToken,
 } from "~/actions/realtime";
 import { useTRPC } from "~/trpc/react";
@@ -69,12 +70,11 @@ export function useRefreshSubscription({
       const isMatchingMode =
         (isArchivedMode &&
           initialStatus.eventType === "vacancy/responses.sync-archived") ||
-        (!isArchivedMode &&
-          !isAnalyzeMode &&
-          !isScreeningMode &&
+        (mode === "refresh" &&
           initialStatus.eventType === "vacancy/responses.refresh") ||
-        ((isAnalyzeMode || isScreeningMode) &&
-          initialStatus.eventType === "response/screen.batch");
+        (isScreeningMode &&
+          initialStatus.eventType === "response/screen.new") ||
+        (isAnalyzeMode && initialStatus.eventType === "response/screen.batch");
 
       if (!isMatchingMode) {
         // Задание не соответствует текущему режиму, не показываем компонент
@@ -90,7 +90,10 @@ export function useRefreshSubscription({
           message: initialStatus.message,
           vacancyId,
         });
-      } else if (initialStatus.eventType === "vacancy/responses.refresh") {
+      } else if (
+        initialStatus.eventType === "vacancy/responses.refresh" ||
+        initialStatus.eventType === "response/screen.new"
+      ) {
         setCurrentProgress({
           status: "processing",
           message: initialStatus.message,
@@ -111,6 +114,7 @@ export function useRefreshSubscription({
     isArchivedMode,
     isAnalyzeMode,
     isScreeningMode,
+    mode,
   ]);
 
   // Мемоизируем функции получения токенов
@@ -124,6 +128,11 @@ export function useRefreshSubscription({
     [vacancyId],
   );
 
+  const getScreeningToken = useCallback(
+    () => fetchScreenNewResponsesToken(vacancyId),
+    [vacancyId],
+  );
+
   const getAnalyzeToken = useCallback(() => {
     if (!batchId || !workspaceId) {
       throw new Error("batchId и workspaceId обязательны для режима analyze");
@@ -134,7 +143,7 @@ export function useRefreshSubscription({
   // Подписываемся на канал Realtime для обычного обновления
   const { data: refreshData, error: refreshError } = useInngestSubscription({
     refreshToken: getRefreshToken,
-    enabled: !isArchivedMode && !isAnalyzeMode && !isScreeningMode,
+    enabled: mode === "refresh",
   });
 
   // Подписываемся на канал Realtime для архивной синхронизации
@@ -142,6 +151,14 @@ export function useRefreshSubscription({
     refreshToken: getArchivedToken,
     enabled: isArchivedMode,
   });
+
+  // Подписываемся на канал Realtime для скрининга новых откликов
+  const { data: screeningData, error: screeningError } = useInngestSubscription(
+    {
+      refreshToken: getScreeningToken,
+      enabled: isScreeningMode,
+    },
+  );
 
   // Логирование для диагностики
   useEffect(() => {
@@ -154,24 +171,44 @@ export function useRefreshSubscription({
         console.error("[Archived Sync] Ошибка подписки:", archivedError);
       }
     }
-  }, [isArchivedMode, archivedData.length, archivedError]);
+    if (isScreeningMode) {
+      console.log(
+        "[Screening] Подписка активна, данных:",
+        screeningData.length,
+      );
+      if (screeningError) {
+        console.error("[Screening] Ошибка подписки:", screeningError);
+      }
+    }
+  }, [
+    isArchivedMode,
+    archivedData.length,
+    archivedError,
+    isScreeningMode,
+    screeningData.length,
+    screeningError,
+  ]);
 
-  // Подписываемся на канал Realtime для анализа/скрининга откликов
+  // Подписываемся на канал Realtime для анализа откликов (batch)
   const { data: analyzeData, error: analyzeError } = useInngestSubscription({
     refreshToken: getAnalyzeToken,
-    enabled: (isAnalyzeMode || isScreeningMode) && !!batchId && !!workspaceId,
+    enabled: isAnalyzeMode && !!batchId && !!workspaceId,
   });
 
   const data = isArchivedMode
     ? archivedData
-    : isAnalyzeMode || isScreeningMode
-      ? analyzeData
-      : refreshData;
+    : isScreeningMode
+      ? screeningData
+      : isAnalyzeMode
+        ? analyzeData
+        : refreshData;
   const error = isArchivedMode
     ? archivedError
-    : isAnalyzeMode || isScreeningMode
-      ? analyzeError
-      : refreshError;
+    : isScreeningMode
+      ? screeningError
+      : isAnalyzeMode
+        ? analyzeError
+        : refreshError;
 
   // Показываем индикатор сразу при подключении к активному заданию
   useEffect(() => {
@@ -199,9 +236,6 @@ export function useRefreshSubscription({
           queryClient.invalidateQueries({
             queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
           });
-          queryClient.invalidateQueries({
-            queryKey: trpc.vacancy.responses.getCount.queryKey({ vacancyId }),
-          });
         }
 
         if (statusData.status === "completed") {
@@ -218,7 +252,7 @@ export function useRefreshSubscription({
             return null;
           });
         }
-      } else if (isAnalyzeMode || isScreeningMode) {
+      } else if (isAnalyzeMode) {
         if (message.topic === "batch-progress") {
           const progressData = message.data as AnalyzeProgressData;
           setAnalyzeProgress(progressData);
@@ -265,7 +299,8 @@ export function useRefreshSubscription({
           }, 5000);
           setAutoCloseTimer(timer);
         }
-      } else if (!isArchivedMode && !isAnalyzeMode) {
+      } else if (mode === "refresh" || isScreeningMode) {
+        // Обработка для refresh и screening (используют одинаковую структуру событий)
         if (message.topic === "progress") {
           const progressData = message.data as ProgressData;
           setCurrentProgress(progressData);
@@ -275,9 +310,6 @@ export function useRefreshSubscription({
           // Инвалидируем кэш откликов при обработке
           queryClient.invalidateQueries({
             queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
-          });
-          queryClient.invalidateQueries({
-            queryKey: trpc.vacancy.responses.getCount.queryKey({ vacancyId }),
           });
 
           setAutoCloseTimer((prev) => {
@@ -295,9 +327,6 @@ export function useRefreshSubscription({
           queryClient.invalidateQueries({
             queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
           });
-          queryClient.invalidateQueries({
-            queryKey: trpc.vacancy.responses.getCount.queryKey({ vacancyId }),
-          });
 
           const timer = setTimeout(() => {
             onVisibilityChange(false);
@@ -313,7 +342,11 @@ export function useRefreshSubscription({
     isArchivedMode,
     isAnalyzeMode,
     isScreeningMode,
+    mode,
     onVisibilityChange,
+    queryClient,
+    trpc.vacancy.responses.list,
+    vacancyId,
   ]);
 
   // Очищаем таймер при размонтировании

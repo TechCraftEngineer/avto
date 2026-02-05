@@ -33,15 +33,15 @@ const prompt = buildVacancyRequirementsExtractionPrompt(
 
 ```typescript
 import { 
-  buildResponseScreeningPrompt,
-  buildFullResumeScreeningPrompt 
+  buildFullResumeScreeningPrompt,
+  formatResumeForScreening 
 } from "@qbs-autonaim/ai";
-
-// Скрининг отклика
-const prompt = buildResponseScreeningPrompt(responseData, requirements);
 
 // Скрининг резюме
 const resumePrompt = buildFullResumeScreeningPrompt(requirements, resumeData);
+
+// Форматирование резюме
+const formattedResume = formatResumeForScreening(resumeData);
 ```
 
 ### Промпты для интервью
@@ -86,7 +86,7 @@ const prompt = formatPrompt(template, {
 - `user-prompts.ts` - пользовательские промпты и запросы
 - `templates.ts` - шаблоны и утилиты для работы с промптами
 - `vacancy-prompts.ts` - промпты для работы с вакансиями
-- `screening-prompts.ts` - промпты для скрининга откликов и резюме
+- `screening-prompts.ts` - промпты для скрининга резюме
 - `interview-prompts.ts` - промпты для проведения интервью
 - `candidate-prompts.ts` - промпты для коммуникации с кандидатами
 
