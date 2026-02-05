@@ -134,7 +134,6 @@ ${requirements.nice_to_have_skills.map((s) => `- ${s}`).join("\n")}
 Языки: ${requirements.languages.map((l) => `${l.language} (${l.level})`).join(", ")}
 
 РЕЗЮМЕ КАНДИДАТА:
-Имя: ${this.extractFirstName(candidate.candidateName)}
 
 ${this.formatProfileData(candidate.profileData)}
 ${candidate.coverLetter ? `\nСопроводительное письмо:\n${candidate.coverLetter}` : ""}
@@ -210,12 +209,6 @@ ${candidate.coverLetter ? `\nСопроводительное письмо:\n${c
 - Анализируй карьерную логику: рост, деградация, скачки, смена ролей
 - Помни: "Мы отбираем тех, кто реально справится с задачей, а не тех, кто красиво написал резюме"
 - Все текстовые поля должны быть в формате HTML с тегами: <p>, <strong>, <ul>/<li>, <br>`;
-  }
-
-  private extractFirstName(fullName: string | null): string {
-    if (!fullName) return "Не указано";
-    const parts = fullName.trim().split(/\s+/);
-    return parts[0] || "Не указано";
   }
 
   private formatProfileData(profileData: unknown): string {
