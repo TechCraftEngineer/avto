@@ -1,3 +1,5 @@
+"use client";
+
 import { useInngestSubscription } from "@inngest/realtime/hooks";
 import { useCallback, useEffect, useState } from "react";
 import { fetchRefreshSingleResumeToken } from "~/actions/realtime";

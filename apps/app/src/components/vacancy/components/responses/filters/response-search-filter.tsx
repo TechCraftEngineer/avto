@@ -1,9 +1,9 @@
 import { Input } from "@qbs-autonaim/ui/input";
 import { Search } from "lucide-react";
-import { ResponseFilters } from "../filters/response-filters";
-import { ResponseStatusFilter } from "./response-status-filter";
-import type { ScreeningFilter } from "../types";
 import type { ResponseStatusFilterUI } from "../hooks/use-response-table";
+import type { ScreeningFilter } from "../types";
+import { ResponseFilters } from "./response-filters";
+import { ResponseStatusFilter } from "./response-status-filter";
 
 interface ResponseSearchFilterProps {
   search: string;
@@ -46,4 +46,3 @@ export function ResponseSearchFilter({
     </div>
   );
 }
-

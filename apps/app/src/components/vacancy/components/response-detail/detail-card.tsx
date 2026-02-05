@@ -72,9 +72,6 @@ export function VacancyResponseDetailCard({
         isPolling={isPolling}
       />
 
-      {/* Status Timeline */}
-      <StatusTimeline response={response} />
-
       {/* Main Content Tabs */}
       <VacancyResponseTabs
         response={response}
@@ -86,6 +83,9 @@ export function VacancyResponseDetailCard({
         screening={screening}
         conversation={conversation}
       />
+
+      {/* Status Timeline */}
+      <StatusTimeline response={response} />
 
       {/* Быстрые действия FAB */}
       <QuickActionsFab response={response} />
