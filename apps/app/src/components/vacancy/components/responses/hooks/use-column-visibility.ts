@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import type { ColumnId } from "./types";
+import type { ColumnId } from "../types";
 
 const STORAGE_KEY = "vacancy-responses-column-visibility";
 const REQUIRED_COLUMN: ColumnId = "candidate";

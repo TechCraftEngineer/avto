@@ -1,14 +1,14 @@
 "use client";
 import { useEffect } from "react";
 import type { ScreeningFilter } from "~/components";
-import { ColumnVisibilityToggle } from "./column-visibility-toggle";
-import { ResponseActionButtons } from "./response-action-buttons";
-import { ResponseSearchFilter } from "./response-search-filter";
-import type { ColumnId } from "./types";
-import { useRefreshState } from "./use-refresh-state";
-import type { ResponseStatusFilterUI } from "./use-response-table";
-import { useScreeningState } from "./use-screening-state";
-import { useSyncArchivedState } from "./use-sync-archived-state";
+import { ColumnVisibilityToggle } from "../ui/column-visibility-toggle";
+import { ResponseActionButtons } from "../actions/response-action-buttons";
+import { ResponseSearchFilter } from "../filters/response-search-filter";
+import type { ColumnId } from "../types";
+import { useRefreshState } from "../hooks/use-refresh-state";
+import type { ResponseStatusFilterUI } from "../hooks/use-response-table";
+import { useScreeningState } from "../hooks/use-screening-state";
+import { useSyncArchivedState } from "../hooks/use-sync-archived-state";
 
 interface ResponseTableToolbarProps {
   vacancyId: string;

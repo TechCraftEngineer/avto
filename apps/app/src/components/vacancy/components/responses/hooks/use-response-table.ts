@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { ScreeningFilter } from "~/components";
 import { useDebounce } from "~/hooks/use-debounce";
-import type { SortDirection, SortField } from "./types";
+import type { SortDirection, SortField } from "../types";
 
 export type ResponseStatusFilter =
   | "NEW"

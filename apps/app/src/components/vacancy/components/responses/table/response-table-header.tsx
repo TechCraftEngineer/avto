@@ -4,7 +4,7 @@ import { TableHead, TableHeader, TableRow } from "@qbs-autonaim/ui/table";
 import { memo } from "react";
 import { SortableHeaderCell } from "./sortable-header-cell";
 import { StaticHeaderCell } from "./static-header-cell";
-import type { ColumnId, SortDirection, SortField } from "./types";
+import type { ColumnId, SortDirection, SortField } from "../types";
 
 interface ResponseTableHeaderProps {
   readonly allSelected: boolean;

@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from "@qbs-autonaim/ui";
 import { Loader2 } from "lucide-react";
-import type { ScreeningProgress } from "./use-screening-subscription";
+import type { ScreeningProgress } from "../hooks/use-screening-subscription";
 
 interface ScreeningDialogProps {
   open: boolean;

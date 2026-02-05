@@ -22,7 +22,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { triggerRefreshSingleResume } from "~/actions/trigger";
 import { useTRPC } from "~/trpc/react";
-import { useRefreshSingleResume } from "./use-refresh-single-resume";
+import { useRefreshSingleResume } from "../hooks/use-refresh-single-resume";
 
 interface ResponseActionsProps {
   responseId: string;

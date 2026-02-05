@@ -13,14 +13,14 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
-import { BulkActionsBar } from "./bulk-actions-bar";
-import { EmptyState } from "./empty-state";
-import { ResponseRow } from "./response-row";
+import { BulkActionsBar } from "../actions/bulk-actions-bar";
+import { EmptyState } from "../ui/empty-state";
+import { ResponseRow } from "../response-row";
 import { ResponseTableHeader } from "./response-table-header";
 import { ResponseTableToolbar } from "./response-table-toolbar";
-import { useResponseActions } from "./use-response-actions";
-import { useResponseTable } from "./use-response-table";
-import { useColumnVisibility } from "./use-column-visibility";
+import { useResponseActions } from "../hooks/use-response-actions";
+import { useResponseTable } from "../hooks/use-response-table";
+import { useColumnVisibility } from "../hooks/use-column-visibility";
 
 interface ResponseTableProps {
   vacancyId: string;

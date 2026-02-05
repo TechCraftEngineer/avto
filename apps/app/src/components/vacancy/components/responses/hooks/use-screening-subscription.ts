@@ -20,30 +20,27 @@ const ResultDataSchema = z.object({
   failed: z.number(),
 });
 
-export interface RefreshAllResumesProgress {
+export interface ScreeningProgress {
   total: number;
   processed: number;
   failed: number;
 }
 
-interface UseRefreshAllResumesSubscriptionProps {
+interface UseScreeningSubscriptionProps {
   vacancyId: string;
   enabled: boolean;
   fetchToken: (vacancyId: string) => Promise<Realtime.Subscribe.Token>;
-  onProgress?: (
-    message: string,
-    progress: RefreshAllResumesProgress | null,
-  ) => void;
-  onComplete?: (success: boolean, progress: RefreshAllResumesProgress) => void;
+  onProgress?: (message: string, progress: ScreeningProgress | null) => void;
+  onComplete?: (success: boolean, progress: ScreeningProgress) => void;
 }
 
-export function useRefreshAllResumesSubscription({
+export function useScreeningSubscription({
   vacancyId,
   enabled,
   fetchToken,
   onProgress,
   onComplete,
-}: UseRefreshAllResumesSubscriptionProps) {
+}: UseScreeningSubscriptionProps) {
   const subscription = useInngestSubscription({
     refreshToken: () => fetchToken(vacancyId),
     enabled,

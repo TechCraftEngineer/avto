@@ -11,7 +11,7 @@ import {
 } from "@qbs-autonaim/ui/dropdown-menu";
 import { IconColumns3 } from "@tabler/icons-react";
 import { useMemo } from "react";
-import type { ColumnId } from "./types";
+import type { ColumnId } from "../types";
 
 interface ColumnVisibilityToggleProps {
   readonly visibleColumns: ReadonlySet<ColumnId>;

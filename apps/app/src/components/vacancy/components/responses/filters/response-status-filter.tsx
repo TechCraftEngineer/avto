@@ -6,7 +6,7 @@ import {
   PopoverTrigger,
 } from "@qbs-autonaim/ui";
 import { IconCheck, IconFilter } from "@tabler/icons-react";
-import type { ResponseStatusFilterUI } from "./use-response-table";
+import type { ResponseStatusFilterUI } from "../hooks/use-response-table";
 
 interface ResponseStatusFilterProps {
   selectedStatuses: ResponseStatusFilterUI[];

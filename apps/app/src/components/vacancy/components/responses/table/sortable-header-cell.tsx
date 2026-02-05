@@ -1,7 +1,7 @@
 import { TableHead } from "@qbs-autonaim/ui/table";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import { memo } from "react";
-import type { SortDirection, SortField } from "./types";
+import type { SortDirection, SortField } from "../types";
 
 interface SortableHeaderCellProps {
   readonly field: SortField;
