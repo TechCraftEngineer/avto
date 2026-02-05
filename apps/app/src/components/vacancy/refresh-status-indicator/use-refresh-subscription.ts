@@ -131,7 +131,19 @@ export function useRefreshSubscription({
             return null;
           });
         } else if (message.topic === "batch-completed") {
-          const completedData = message.data as AnalyzeCompletedData;
+          const data = message.data as {
+            batchId: string;
+            total: number;
+            processed: number;
+            failed: number;
+            duration: number;
+          };
+          const completedData: AnalyzeCompletedData = {
+            batchId: data.batchId,
+            total: data.total,
+            successful: data.total - data.failed,
+            failed: data.failed,
+          };
           setAnalyzeCompleted(completedData);
           onVisibilityChange(true);
 

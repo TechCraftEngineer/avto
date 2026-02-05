@@ -2,7 +2,7 @@ import {
   getInterviewStartData,
   identifyByPinCode,
   saveMessage,
-} from "@qbs-autonaim/lib";
+} from "@qbs-autonaim/lib/server";
 import type { BotSettings } from "~/inngest/functions/telegram/types";
 import { generateAndSendBotResponse } from "../../bot-response";
 import { migrateTempMessages } from "./temp-message-storage";

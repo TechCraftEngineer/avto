@@ -5,7 +5,8 @@ import {
   interviewSession,
   response,
 } from "@qbs-autonaim/db/schema";
-import { logResponseEvent, removeNullBytes } from "@qbs-autonaim/lib";
+import { removeNullBytes } from "@qbs-autonaim/lib";
+import { logResponseEvent } from "@qbs-autonaim/lib/server";
 import { tgClientSDK } from "@qbs-autonaim/tg-client/sdk";
 import { inngest } from "../../client";
 

@@ -36,7 +36,11 @@ export function ImportArchivedProgress({
   // Простое определение состояния
   const isCompleted = lastMessage?.topic === "result";
 
-  const isError = error || lastMessage?.data?.error;
+  const isError =
+    error ||
+    (lastMessage?.topic === "result" &&
+      "error" in lastMessage.data &&
+      lastMessage.data.error);
   const isSuccess = isCompleted && !isError;
 
   // Данные прогресса

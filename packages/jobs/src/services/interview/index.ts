@@ -4,7 +4,7 @@ export {
   identifyByPinCode,
   identifyByVacancy,
   saveMessage,
-} from "@qbs-autonaim/lib";
+} from "@qbs-autonaim/lib/server";
 export {
   addQuestionAnswer,
   getConversationMetadata,

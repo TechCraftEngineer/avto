@@ -2,7 +2,7 @@
  * Обёртка для validatePinCode для использования в оркестраторе интервью
  */
 
-import { validatePinCode } from "@qbs-autonaim/lib";
+import { validatePinCode } from "@qbs-autonaim/lib/server";
 
 /**
  * Создаёт функцию валидации пин-кода для конкретного workspace

@@ -12,7 +12,8 @@ import {
   parseFreelancerProfile,
   type StoredProfileData,
 } from "@qbs-autonaim/jobs-parsers";
-import { getAIModel, logResponseEvent } from "@qbs-autonaim/lib";
+import { getAIModel } from "@qbs-autonaim/lib";
+import { logResponseEvent } from "@qbs-autonaim/lib/server";
 import {
   createInterviewScoring,
   getInterviewContext,
