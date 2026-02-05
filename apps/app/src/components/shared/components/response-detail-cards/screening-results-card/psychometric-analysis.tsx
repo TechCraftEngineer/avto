@@ -1,4 +1,4 @@
-import { Badge } from "@qbs-autonaim/ui";
+import { Badge, InfoTooltip } from "@qbs-autonaim/ui";
 import {
   AlertCircle,
   Brain,
@@ -35,6 +35,7 @@ export function PsychometricAnalysis({ analysis }: PsychometricAnalysisProps) {
       <h3 className="text-lg font-semibold flex items-center gap-2">
         <Brain className="h-5 w-5 text-purple-600" />
         Психологический профиль кандидата
+        <InfoTooltip content="Анализ личностных качеств и совместимости кандидата с вакансией на основе психометрических данных. Помогает оценить потенциал адаптации и эффективность работы в команде." />
       </h3>
 
       {/* Общая совместимость */}
