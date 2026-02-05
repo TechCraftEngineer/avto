@@ -1,7 +1,6 @@
 export { BulkActionsBar } from "./bulk-actions-bar";
 export { EmptyState } from "./empty-state";
 export { QuickFilters } from "./quick-filters";
-export { RefreshDialog } from "./refresh-dialog";
 export { ResponseActionButtons } from "./response-action-buttons";
 export { ResponseActions } from "./response-actions";
 export { ResponseCards } from "./response-cards";

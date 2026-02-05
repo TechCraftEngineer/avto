@@ -182,7 +182,13 @@ export function useRefreshSubscription({
         }
       }
     }
-  }, [data, isArchivedMode, isAnalyzeMode, onVisibilityChange]);
+  }, [
+    data,
+    isArchivedMode,
+    isAnalyzeMode,
+    isScreeningMode,
+    onVisibilityChange,
+  ]);
 
   // Очищаем таймер при размонтировании
   useEffect(() => {
