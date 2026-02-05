@@ -1,49 +1,81 @@
 "use client";
 
+import type {
+  VacancyHrSelectionStatus,
+  VacancyResponseStatus,
+} from "@qbs-autonaim/db/schema";
+import {
+  HR_SELECTION_STATUS_LABELS,
+  RESPONSE_STATUS_LABELS,
+} from "@qbs-autonaim/db/schema";
 import { Button } from "@qbs-autonaim/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@qbs-autonaim/ui/dropdown-menu";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
+  Ban,
+  Brain,
+  Check,
+  ClipboardCopy,
   ExternalLink,
   Loader2,
+  Mail,
   MessageSquare,
   MoreVertical,
   Phone,
   RefreshCw,
   Send,
+  UserCheck,
+  UserX,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { triggerRefreshSingleResume } from "~/actions/trigger";
+import {
+  triggerAnalyzeSingleResponse,
+  triggerRefreshSingleResume,
+  triggerSendWelcome,
+} from "~/actions/trigger";
 import { useTRPC } from "~/trpc/react";
 import { useRefreshSingleResume } from "../hooks/use-refresh-single-resume";
 
 interface ResponseActionsProps {
   responseId: string;
+  workspaceId: string;
   resumeUrl?: string | null;
   telegramUsername?: string | null;
   phone?: string | null;
+  email?: string | null;
   welcomeSentAt?: Date | null;
   importSource?: string | null;
-  onSendWelcome?: () => Promise<void>;
+  status?: string | null;
+  hrSelectionStatus?: string | null;
+  hasScreening?: boolean;
+  candidateName?: string | null;
 }
 
 export function ResponseActions({
   responseId,
+  workspaceId,
   resumeUrl,
   telegramUsername,
   phone,
+  email,
   welcomeSentAt,
   importSource,
-  onSendWelcome,
+  status,
+  hrSelectionStatus,
+  hasScreening,
+  candidateName,
 }: ResponseActionsProps) {
-  const [isSendingWelcome, setIsSendingWelcome] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [refreshEnabled, setRefreshEnabled] = useState(false);
   const queryClient = useQueryClient();
   const trpc = useTRPC();
@@ -53,7 +85,37 @@ export function ResponseActions({
     enabled: refreshEnabled,
   });
 
-  // Обрабатываем результат обновления
+  // Мутация для приглашения кандидата
+  const inviteMutation = useMutation(
+    trpc.candidates.inviteCandidate.mutationOptions({
+      onSuccess: () => {
+        toast.success("Кандидат приглашён на собеседование");
+        void queryClient.invalidateQueries({
+          queryKey: trpc.vacancy.responses.list.queryKey(),
+        });
+      },
+      onError: (error) => {
+        toast.error(error.message || "Не удалось пригласить кандидата");
+      },
+    }),
+  );
+
+  // Мутация для отклонения кандидата
+  const rejectMutation = useMutation(
+    trpc.candidates.rejectCandidate.mutationOptions({
+      onSuccess: () => {
+        toast.success("Кандидат отклонён");
+        void queryClient.invalidateQueries({
+          queryKey: trpc.vacancy.responses.list.queryKey(),
+        });
+      },
+      onError: (error) => {
+        toast.error(error.message || "Не удалось отклонить кандидата");
+      },
+    }),
+  );
+
+  // Обрабатываем результат обновления резюме
   useEffect(() => {
     if (!result) return;
 
@@ -74,6 +136,25 @@ export function ResponseActions({
     return () => clearTimeout(timer);
   }, [result, reset, queryClient, trpc]);
 
+  const handleAnalyze = async () => {
+    setIsAnalyzing(true);
+    try {
+      const analyzeResult = await triggerAnalyzeSingleResponse(
+        responseId,
+        workspaceId,
+      );
+      if (analyzeResult.success) {
+        toast.success("AI-оценка запущена");
+      } else {
+        toast.error("Не удалось запустить оценку");
+      }
+    } catch {
+      toast.error("Не удалось запустить оценку");
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
   const handleRefreshResume = async () => {
     try {
       const triggerResult = await triggerRefreshSingleResume(responseId);
@@ -85,27 +166,67 @@ export function ResponseActions({
 
       toast.success("Обновление резюме запущено");
       setRefreshEnabled(true);
-    } catch (error) {
+    } catch {
       toast.error("Не удалось запустить обновление резюме");
-      console.error("Ошибка запуска обновления резюме:", error);
     }
   };
 
   const handleSendWelcome = async () => {
-    if (!onSendWelcome) return;
-    setIsSendingWelcome(true);
     try {
-      await onSendWelcome();
-      toast.success("Приветствие отправлено");
-    } catch (error) {
+      const welcomeResult = await triggerSendWelcome(
+        responseId,
+        telegramUsername,
+        phone,
+      );
+      if (welcomeResult.success) {
+        toast.success("Приветствие отправлено");
+        void queryClient.invalidateQueries({
+          queryKey: trpc.vacancy.responses.list.queryKey(),
+        });
+      } else {
+        toast.error("Не удалось отправить приветствие");
+      }
+    } catch {
       toast.error("Не удалось отправить приветствие");
-      console.error("Ошибка отправки приветствия:", error);
-    } finally {
-      setIsSendingWelcome(false);
     }
   };
 
-  const isLoading = isRefreshing || isSendingWelcome;
+  const handleInvite = () => {
+    inviteMutation.mutate({
+      candidateId: responseId,
+      workspaceId,
+    });
+  };
+
+  const handleReject = () => {
+    rejectMutation.mutate({
+      candidateId: responseId,
+      workspaceId,
+    });
+  };
+
+  const handleCopyContacts = () => {
+    const parts: string[] = [];
+    if (candidateName) parts.push(candidateName);
+    if (phone) parts.push(`Тел: ${phone}`);
+    if (email) parts.push(`Email: ${email}`);
+    if (telegramUsername) parts.push(`Telegram: @${telegramUsername}`);
+
+    const text = parts.join("\n");
+    void navigator.clipboard.writeText(text).then(() => {
+      toast.success("Контакты скопированы");
+    });
+  };
+
+  const isLoading =
+    isRefreshing ||
+    isAnalyzing ||
+    inviteMutation.isPending ||
+    rejectMutation.isPending;
+
+  const hasContacts = !!(telegramUsername || phone || email);
+  const isRejected = hrSelectionStatus === "REJECTED";
+  const isInvited = hrSelectionStatus === "INVITE";
 
   return (
     <DropdownMenu>
@@ -124,84 +245,123 @@ export function ResponseActions({
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        {/* Обновить резюме */}
-        {resumeUrl && (
+      <DropdownMenuContent align="end" className="w-64">
+        {/* Группа 1: Быстрая оценка */}
+        <DropdownMenuItem onClick={handleAnalyze} disabled={isAnalyzing}>
+          <Brain
+            className={`h-4 w-4 mr-2 ${isAnalyzing ? "animate-pulse" : ""}`}
+          />
+          {isAnalyzing
+            ? "Оценка запущена…"
+            : hasScreening
+              ? "Переоценить AI"
+              : "Оценить AI"}
+        </DropdownMenuItem>
+
+        {!isInvited && !isRejected && (
           <DropdownMenuItem
-            onClick={handleRefreshResume}
-            disabled={isRefreshing}
+            onClick={handleInvite}
+            disabled={inviteMutation.isPending}
           >
-            <RefreshCw
-              className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`}
-            />
-            {isRefreshing
-              ? progress?.message || "Обновление…"
-              : "Обновить резюме с HH.ru"}
+            <UserCheck className="h-4 w-4 mr-2" />
+            {inviteMutation.isPending
+              ? "Приглашение…"
+              : "Пригласить на собеседование"}
           </DropdownMenuItem>
         )}
 
-        {/* Отправить приветствие - только для откликов с HH.ru */}
-        {!welcomeSentAt && importSource === "HH" && (
+        {!isRejected && (
           <DropdownMenuItem
-            onClick={handleSendWelcome}
-            disabled={isSendingWelcome}
+            onClick={handleReject}
+            disabled={rejectMutation.isPending}
+            className="text-destructive focus:text-destructive"
           >
-            <Send className="h-4 w-4 mr-2" />
-            Отправить приветствие в чат HH.ru
+            <UserX className="h-4 w-4 mr-2" />
+            {rejectMutation.isPending ? "Отклонение…" : "Отклонить"}
           </DropdownMenuItem>
-        )}
-
-        {(resumeUrl || (!welcomeSentAt && importSource === "HH")) && (
-          <DropdownMenuSeparator />
-        )}
-
-        {/* Открыть резюме */}
-        {resumeUrl && (
-          <DropdownMenuItem
-            onClick={() =>
-              window.open(resumeUrl, "_blank", "noopener,noreferrer")
-            }
-          >
-            <ExternalLink className="h-4 w-4 mr-2" />
-            Открыть резюме на HH.ru
-          </DropdownMenuItem>
-        )}
-
-        {/* Контакты */}
-        {(telegramUsername || phone) && (
-          <>
-            {resumeUrl && <DropdownMenuSeparator />}
-            {telegramUsername && (
-              <DropdownMenuItem
-                onClick={() =>
-                  window.open(
-                    `https://t.me/${telegramUsername}`,
-                    "_blank",
-                    "noopener,noreferrer",
-                  )
-                }
-              >
-                <Send className="h-4 w-4 mr-2" />
-                Написать в Telegram
-              </DropdownMenuItem>
-            )}
-
-            {phone && (
-              <DropdownMenuItem onClick={() => window.open(`tel:${phone}`)}>
-                <Phone className="h-4 w-4 mr-2" />
-                Позвонить: {phone}
-              </DropdownMenuItem>
-            )}
-          </>
         )}
 
         <DropdownMenuSeparator />
 
-        {/* Отправить сообщение (будущая функция) */}
-        <DropdownMenuItem disabled>
-          <MessageSquare className="h-4 w-4 mr-2" />
-          Отправить сообщение
-        </DropdownMenuItem>
+        {/* Группа 2: Коммуникация */}
+        {!welcomeSentAt && importSource === "HH" && (
+          <DropdownMenuItem onClick={handleSendWelcome}>
+            <Send className="h-4 w-4 mr-2" />
+            Отправить приветствие HH.ru
+          </DropdownMenuItem>
+        )}
+
+        {email && (
+          <DropdownMenuItem
+            onClick={() =>
+              window.open(
+                `mailto:${email}`,
+                "_blank",
+                "noopener,noreferrer",
+              )
+            }
+          >
+            <Mail className="h-4 w-4 mr-2" />
+            Написать на email
+          </DropdownMenuItem>
+        )}
+
+        {telegramUsername && (
+          <DropdownMenuItem
+            onClick={() =>
+              window.open(
+                `https://t.me/${telegramUsername}`,
+                "_blank",
+                "noopener,noreferrer",
+              )
+            }
+          >
+            <Send className="h-4 w-4 mr-2" />
+            Написать в Telegram
+          </DropdownMenuItem>
+        )}
+
+        {phone && (
+          <DropdownMenuItem onClick={() => window.open(`tel:${phone}`)}>
+            <Phone className="h-4 w-4 mr-2" />
+            Позвонить: {phone}
+          </DropdownMenuItem>
+        )}
+
+        {hasContacts && (
+          <DropdownMenuItem onClick={handleCopyContacts}>
+            <ClipboardCopy className="h-4 w-4 mr-2" />
+            Скопировать контакты
+          </DropdownMenuItem>
+        )}
+
+        <DropdownMenuSeparator />
+
+        {/* Группа 3: Резюме */}
+        {resumeUrl && (
+          <>
+            <DropdownMenuItem
+              onClick={handleRefreshResume}
+              disabled={isRefreshing}
+            >
+              <RefreshCw
+                className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`}
+              />
+              {isRefreshing
+                ? progress?.message || "Обновление…"
+                : "Обновить резюме с HH.ru"}
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              onClick={() =>
+                window.open(resumeUrl, "_blank", "noopener,noreferrer")
+              }
+            >
+              <ExternalLink className="h-4 w-4 mr-2" />
+              Открыть резюме на HH.ru
+            </DropdownMenuItem>
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
