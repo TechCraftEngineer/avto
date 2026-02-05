@@ -72,3 +72,30 @@ export function getStatusLabel(status: string): string {
       return status;
   }
 }
+
+export function getImportSourceLabel(importSource: string): string {
+  switch (importSource) {
+    case "HH":
+      return "HeadHunter";
+    case "SUPERJOB":
+      return "SuperJob";
+    case "AVITO":
+      return "Авито";
+    case "HABR":
+      return "Habr";
+    case "KWORK":
+      return "Kwork";
+    case "FL_RU":
+      return "FL.ru";
+    case "FREELANCE_RU":
+      return "Freelance.ru";
+    case "WEB_LINK":
+      return "Веб-ссылка";
+    case "TELEGRAM":
+      return "Telegram";
+    case "MANUAL":
+      return "Вручную";
+    default:
+      return importSource;
+  }
+}

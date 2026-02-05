@@ -1,5 +1,12 @@
 import { calculateAge, formatBirthDate } from "@qbs-autonaim/lib";
-import { Badge, CardTitle } from "@qbs-autonaim/ui";
+import { getInitials } from "@qbs-autonaim/shared";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  Badge,
+  CardTitle,
+} from "@qbs-autonaim/ui";
 import {
   Cake,
   Calendar,
@@ -10,8 +17,14 @@ import {
   User,
   Wallet,
 } from "lucide-react";
+import { useAvatarUrl } from "~/hooks/use-avatar-url";
+import { getAvatarUrl } from "~/lib/avatar";
 import { CandidateMetrics } from "./candidate-metrics";
-import { getStatusColor, getStatusLabel } from "./header-card-utils";
+import {
+  getImportSourceLabel,
+  getStatusColor,
+  getStatusLabel,
+} from "./header-card-utils";
 import type { VacancyResponse } from "./types";
 
 interface CandidateInfoProps {
@@ -29,6 +42,11 @@ export function CandidateInfo({
   responseTime,
   lastActivity,
 }: CandidateInfoProps) {
+  const photoUrl = useAvatarUrl(response.photoFileId);
+  const candidateName = response.candidateName || "Кандидат";
+  const avatarUrl = getAvatarUrl(photoUrl, candidateName);
+  const initials = getInitials(candidateName);
+
   const age = response.birthDate ? calculateAge(response.birthDate) : null;
   const birthDateFormatted = response.birthDate
     ? formatBirthDate(response.birthDate)
@@ -38,9 +56,12 @@ export function CandidateInfo({
 
   return (
     <div className="flex items-start gap-3 sm:gap-4 min-w-0 flex-1">
-      <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center shrink-0">
-        <User className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
-      </div>
+      <Avatar className="h-12 w-12 sm:h-16 sm:w-16 border-2 shrink-0">
+        <AvatarImage src={avatarUrl} alt={candidateName} />
+        <AvatarFallback className="text-sm sm:text-lg font-medium bg-muted text-muted-foreground">
+          {initials || <User className="h-5 w-5 sm:h-7 sm:w-7" />}
+        </AvatarFallback>
+      </Avatar>
       <div className="min-w-0 flex-1">
         <CardTitle className="text-lg sm:text-xl truncate">
           {response.candidateName || "Кандидат"}
@@ -96,6 +117,14 @@ export function CandidateInfo({
           <Badge variant="outline" className={getStatusColor(response.status)}>
             {getStatusLabel(response.status)}
           </Badge>
+          {response.importSource && response.importSource !== "MANUAL" && (
+            <Badge
+              variant="outline"
+              className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-800"
+            >
+              {getImportSourceLabel(response.importSource)}
+            </Badge>
+          )}
           {response.resumeId && (
             <Badge
               variant="outline"
