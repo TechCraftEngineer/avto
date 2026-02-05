@@ -1,13 +1,10 @@
-import {
-  hasDetailedInfo,
-  updateResponseDetails,
-} from "@qbs-autonaim/jobs-shared";
+import { hasDetailedInfo } from "@qbs-autonaim/jobs-shared";
 import type { Page } from "puppeteer";
 import type { ResponseData } from "../../../types";
 import { HH_CONFIG } from "../../core/config/config";
+import { enrichResumeData } from "../../services/resume-enrichment";
 import { parseResponseDate } from "../../utils/date-utils";
 import { humanScroll } from "../../utils/human-behavior";
-import { parseResumeData } from "../resume/resume-parser";
 
 interface ResponseWithId {
   name: string;
@@ -89,126 +86,34 @@ export async function parseResponseDetails(
       // Имитируем чтение страницы
       await humanScroll(page);
 
-      // Парсим детальную информацию резюме
-      const resumeData = await parseResumeData(
+      // Используем функцию обогащения резюме, которая:
+      // - парсит все данные резюме
+      // - загружает PDF и фото в S3
+      // - извлекает контакты (email, phone, telegram, whatsapp)
+      // - создает/обновляет глобального кандидата
+      // - сохраняет все данные в базу
+      const result = await enrichResumeData({
         page,
-        response.resumeUrl,
-        response.name,
-      );
-
-      // Подготавливаем profileData
-      const profileData = resumeData.structuredData
-        ? {
-            experience: resumeData.experience || [],
-            education: resumeData.structuredData.education,
-            languages: resumeData.structuredData.languages,
-            summary: resumeData.structuredData.summary,
-            parsedAt: new Date().toISOString(),
-          }
-        : resumeData.experience
-          ? {
-              experience: resumeData.experience,
-              parsedAt: new Date().toISOString(),
-            }
-          : undefined;
-
-      // Обновляем информацию в базе
-      await updateResponseDetails({
-        vacancyId: response.vacancyId || vacancyId,
+        entityId: response.vacancyId || vacancyId,
         resumeId: response.resumeId,
         resumeUrl: response.resumeUrl,
         candidateName: response.name,
-        contacts: resumeData.contacts,
-        phone: resumeData.phone ?? null,
-        birthDate: resumeData.birthDate ?? null,
-        profileData: profileData,
-        skills: resumeData.structuredData?.skills || null,
+        globalCandidateId: response.candidateId || null,
+        traceId: `archived-${response.resumeId}`,
       });
 
-      console.log(`✅ Детали сохранены для: ${response.name}`);
+      if (result.success) {
+        console.log(`✅ Детали обогащены для: ${response.name}`);
+      } else {
+        console.error(
+          `❌ Ошибка обогащения для ${response.name}: ${result.error}`,
+        );
+      }
     } catch (error) {
       console.error(
         `❌ Ошибка парсинга деталей для ${response.externalId || response.resumeId}:`,
         error,
       );
     }
-
-    // Задержка между обработкой откликов
-    const delay = Math.random() * 3000 + 2000; // 2-5 секунд
-    await new Promise((resolve) => setTimeout(resolve, delay));
   }
-}
-
-/**
- * Извлекает детальную информацию из резюме
- */
-async function _extractResumeDetails(page: Page): Promise<{
-  email?: string;
-  phone?: string;
-  telegram?: string;
-  linkedin?: string;
-  github?: string;
-  portfolio?: string;
-  photoUrl?: string;
-  resumePdfUrl?: string;
-}> {
-  const details: Record<string, unknown> = {};
-
-  try {
-    // Извлекаем контакты
-    const contacts = await page.$eval(
-      '[data-qa="resume-contacts"]',
-      (element) => {
-        const emailElement = element.querySelector(
-          '[data-qa="resume-contact-email"]',
-        );
-        const phoneElement = element.querySelector(
-          '[data-qa="resume-contact-phone"]',
-        );
-        const telegramElement = element.querySelector('[data-qa*="telegram"]');
-        const linkedinElement = element.querySelector('[data-qa*="linkedin"]');
-        const githubElement = element.querySelector('[data-qa*="github"]');
-        const portfolioElement = element.querySelector(
-          '[data-qa*="portfolio"]',
-        );
-
-        return {
-          email: emailElement?.textContent?.trim(),
-          phone: phoneElement?.textContent?.trim(),
-          telegram: telegramElement?.textContent?.trim(),
-          linkedin: linkedinElement?.textContent?.trim(),
-          github: githubElement?.textContent?.trim(),
-          portfolio: portfolioElement?.textContent?.trim(),
-        };
-      },
-    );
-
-    Object.assign(details, contacts);
-
-    // Извлекаем фото кандидата
-    const photoElement = await page.$('[data-qa="resume-photo"] img');
-    if (photoElement) {
-      const photoUrl = await photoElement.evaluate(
-        (img: HTMLImageElement) => img.src,
-      );
-      if (photoUrl) {
-        details.photoUrl = photoUrl;
-      }
-    }
-
-    // Ищем ссылку на PDF версию резюме
-    const pdfLink = await page.$('[data-qa="resume-pdf-link"]');
-    if (pdfLink) {
-      const pdfUrl = await pdfLink.evaluate(
-        (a) => (a as HTMLAnchorElement).href,
-      );
-      if (pdfUrl) {
-        details.resumePdfUrl = pdfUrl;
-      }
-    }
-  } catch (error) {
-    console.error("❌ Ошибка извлечения деталей резюме:", error);
-  }
-
-  return details;
 }

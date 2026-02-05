@@ -2,6 +2,7 @@
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
 import type { Candidate } from "@qbs-autonaim/db/schema";
+import { calculateAge, formatBirthDate } from "@qbs-autonaim/lib";
 import { getInitials } from "@qbs-autonaim/shared";
 import { hasExperience as checkExperience } from "@qbs-autonaim/shared/utils";
 import {
@@ -17,11 +18,15 @@ import {
   Separator,
 } from "@qbs-autonaim/ui";
 import {
+  Cake,
   Calendar,
   CheckCircle2,
   ExternalLink,
   Loader2,
+  Mail,
+  MapPin,
   MessageSquare,
+  Phone,
   Star,
   User,
   XCircle,
@@ -103,6 +108,18 @@ export function ResponseHeaderCard({
   // 2. Нет результатов оценки
   const canEvaluate = hasConversation || hasEvaluationData;
 
+  // Вычисляем возраст и форматируем дату рождения
+  const birthDate = "birthDate" in response ? response.birthDate : null;
+  const age = birthDate ? calculateAge(birthDate) : null;
+  const birthDateFormatted = birthDate ? formatBirthDate(birthDate) : null;
+
+  // Получаем локацию
+  const location = response.globalCandidate?.location ?? null;
+
+  // Получаем контакты
+  const phone = "phone" in response ? response.phone : null;
+  const email = "email" in response ? response.email : null;
+
   return (
     <Card>
       <CardHeader>
@@ -120,10 +137,59 @@ export function ResponseHeaderCard({
                 {candidateName}
               </CardTitle>
 
+              {/* Основная информация о кандидате */}
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-muted-foreground mb-2">
+                {age !== null && (
+                  <div className="flex items-center gap-1.5">
+                    <Cake className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                    <span className="whitespace-nowrap">
+                      {age} {age === 1 ? "год" : age < 5 ? "года" : "лет"}
+                    </span>
+                  </div>
+                )}
+
+                {birthDateFormatted && (
+                  <div className="flex items-center gap-1.5">
+                    <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                    <span className="whitespace-nowrap">
+                      {birthDateFormatted}
+                    </span>
+                  </div>
+                )}
+
+                {location && (
+                  <div className="flex items-center gap-1.5">
+                    <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                    <span className="truncate max-w-[200px]">{location}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Контактная информация */}
+              {(phone || email) && (
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-muted-foreground mb-2">
+                  {phone && (
+                    <div className="flex items-center gap-1.5">
+                      <Phone className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                      <span className="whitespace-nowrap">{phone}</span>
+                    </div>
+                  )}
+
+                  {email && (
+                    <div className="flex items-center gap-1.5">
+                      <Mail className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                      <span className="truncate max-w-[250px]">{email}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Дополнительная информация */}
               <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-muted-foreground">
                 <div className="flex items-center gap-1.5">
                   <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
                   <span className="whitespace-nowrap">
+                    Откликнулся{" "}
                     {formatDate(response.respondedAt || response.createdAt)}
                   </span>
                 </div>

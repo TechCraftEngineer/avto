@@ -7,6 +7,7 @@ export default defineConfig({
     s3: "src/s3.ts",
     image: "src/image.ts",
     instrumentation: "src/instrumentation.ts",
+    server: "src/server/index.ts",
     utils: "src/utils/index.ts",
   },
   format: ["esm", "cjs"],

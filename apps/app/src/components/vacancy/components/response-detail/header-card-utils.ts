@@ -3,7 +3,7 @@ import type { VacancyResponse } from "./types";
 export function calculateMatchScore(response: VacancyResponse): number {
   let score = 0;
   if (response.profileData && !response.profileData.error) score += 30;
-  if (response.resumeId) score += 20;
+  if (response.resumeUrl) score += 20;
   if (response.salaryExpectationsAmount) score += 15;
   if (response.email || response.phone || response.telegramUsername)
     score += 15;

@@ -1,5 +1,15 @@
+import { calculateAge, formatBirthDate } from "@qbs-autonaim/lib";
 import { Badge, CardTitle } from "@qbs-autonaim/ui";
-import { FileText, User, Wallet } from "lucide-react";
+import {
+  Cake,
+  Calendar,
+  FileText,
+  Mail,
+  MapPin,
+  Phone,
+  User,
+  Wallet,
+} from "lucide-react";
 import { CandidateMetrics } from "./candidate-metrics";
 import { getStatusColor, getStatusLabel } from "./header-card-utils";
 import type { VacancyResponse } from "./types";
@@ -19,23 +29,77 @@ export function CandidateInfo({
   responseTime,
   lastActivity,
 }: CandidateInfoProps) {
+  const age = response.birthDate ? calculateAge(response.birthDate) : null;
+  const birthDateFormatted = response.birthDate
+    ? formatBirthDate(response.birthDate)
+    : null;
+  // В детальном просмотре нет globalCandidate, только globalCandidateId
+  const location = null;
+
   return (
     <div className="flex items-start gap-3 sm:gap-4 min-w-0 flex-1">
-      <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shrink-0">
+      <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center shrink-0">
         <User className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
       </div>
       <div className="min-w-0 flex-1">
         <CardTitle className="text-lg sm:text-xl truncate">
           {response.candidateName || "Кандидат"}
         </CardTitle>
-        <div className="flex flex-wrap items-center gap-2 mt-2">
+
+        {/* Основная информация о кандидате */}
+        <div className="flex flex-wrap items-center gap-2 mt-2 text-sm text-muted-foreground">
+          {age !== null && (
+            <div className="flex items-center gap-1.5">
+              <Cake className="h-3.5 w-3.5 shrink-0" />
+              <span>
+                {age} {age === 1 ? "год" : age < 5 ? "года" : "лет"}
+              </span>
+            </div>
+          )}
+
+          {birthDateFormatted && (
+            <div className="flex items-center gap-1.5">
+              <Calendar className="h-3.5 w-3.5 shrink-0" />
+              <span>{birthDateFormatted}</span>
+            </div>
+          )}
+
+          {location && (
+            <div className="flex items-center gap-1.5">
+              <MapPin className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate max-w-[200px]">{location}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Контактная информация */}
+        {(response.phone || response.email) && (
+          <div className="flex flex-wrap items-center gap-3 mt-2 text-sm text-muted-foreground">
+            {response.phone && (
+              <div className="flex items-center gap-1.5">
+                <Phone className="h-3.5 w-3.5 shrink-0" />
+                <span>{response.phone}</span>
+              </div>
+            )}
+
+            {response.email && (
+              <div className="flex items-center gap-1.5">
+                <Mail className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate max-w-[250px]">{response.email}</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Бейджи со статусами и дополнительной информацией */}
+        <div className="flex flex-wrap items-center gap-2 mt-3">
           <Badge variant="outline" className={getStatusColor(response.status)}>
             {getStatusLabel(response.status)}
           </Badge>
           {response.resumeId && (
             <Badge
               variant="outline"
-              className="bg-green-50 text-green-700 border-green-200"
+              className="bg-green-50 text-green-700 border-green-200 dark:bg-green-950/30 dark:text-green-400 dark:border-green-800"
             >
               <FileText className="h-3 w-3 mr-1" />
               Есть резюме
@@ -44,7 +108,7 @@ export function CandidateInfo({
           {response.salaryExpectationsAmount && (
             <Badge
               variant="outline"
-              className="bg-emerald-50 text-emerald-700 border-emerald-200"
+              className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800"
             >
               <Wallet className="h-3 w-3 mr-1" />
               {response.salaryExpectationsAmount.toLocaleString()}&nbsp;₽

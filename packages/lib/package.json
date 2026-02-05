@@ -24,6 +24,10 @@
       "types": "./dist/instrumentation.d.mts",
       "default": "./dist/instrumentation.mjs"
     },
+    "./server": {
+      "types": "./dist/server.d.mts",
+      "default": "./dist/server.mjs"
+    },
     "./utils": {
       "types": "./dist/utils.d.mts",
       "default": "./dist/utils.mjs"
@@ -41,14 +45,14 @@
   "dependencies": {
     "@ai-sdk/deepseek": "2.0.17",
     "@ai-sdk/openai": "3.0.25",
-    "@aws-sdk/client-s3": "3.980.0",
-    "@aws-sdk/s3-request-presigner": "3.980.0",
+    "@aws-sdk/client-s3": "3.983.0",
+    "@aws-sdk/s3-request-presigner": "3.983.0",
     "@langfuse/otel": "4.5.1",
     "@langfuse/tracing": "4.5.1",
     "@openrouter/ai-sdk-provider": "^2.1.1",
     "@opentelemetry/sdk-node": "^0.211.0",
     "@qbs-autonaim/config": "workspace:*",
-    "ai": "6.0.69",
+    "ai": "6.0.70",
     "langfuse": "3.38.6",
     "sharp": "0.34.5",
     "zod": "4.3.6"
@@ -56,7 +60,7 @@
   "devDependencies": {
     "@qbs-autonaim/tsconfig": "workspace:*",
     "@types/node": "25.2.0",
-    "tsdown": "0.20.1",
+    "tsdown": "0.20.2",
     "typescript": "5.9.3"
   }
 }

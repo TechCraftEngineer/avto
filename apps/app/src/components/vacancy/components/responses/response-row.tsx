@@ -10,6 +10,7 @@ import {
   HR_SELECTION_STATUS_LABELS,
   RESPONSE_STATUS_LABELS,
 } from "@qbs-autonaim/db/schema";
+import { calculateAge } from "@qbs-autonaim/lib";
 import { getInitials } from "@qbs-autonaim/shared";
 import {
   Avatar,
@@ -23,7 +24,16 @@ import {
   TableCell,
   TableRow,
 } from "@qbs-autonaim/ui";
-import { Send, TrendingUp, User, UserCheck } from "lucide-react";
+import {
+  Cake,
+  Mail,
+  MapPin,
+  Phone,
+  Send,
+  TrendingUp,
+  User,
+  UserCheck,
+} from "lucide-react";
 import Link from "next/link";
 import { ResponseActions } from "~/components";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
@@ -53,6 +63,12 @@ export function ResponseRow({
   const candidateName = response.candidateName || "Кандидат";
   const avatarUrl = getAvatarUrl(photoUrl, candidateName);
   const initials = getInitials(candidateName);
+
+  // Вычисляем возраст
+  const age = response.birthDate ? calculateAge(response.birthDate) : null;
+
+  // Получаем локацию
+  const location = response.globalCandidate?.location || null;
 
   return (
     <TableRow className="group">
@@ -190,6 +206,66 @@ export function ResponseRow({
                 </HoverCard>
               )}
             </div>
+            {/* Дополнительная информация о кандидате */}
+            <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+              {age !== null && (
+                <HoverCard>
+                  <HoverCardTrigger asChild>
+                    <div className="flex items-center gap-1 cursor-help">
+                      <Cake className="h-3 w-3 shrink-0" />
+                      <span>
+                        {age} {age === 1 ? "год" : age < 5 ? "года" : "лет"}
+                      </span>
+                    </div>
+                  </HoverCardTrigger>
+                  <HoverCardContent side="right" className="w-auto">
+                    <p className="text-xs">
+                      Дата рождения:{" "}
+                      {response.birthDate
+                        ? new Date(response.birthDate).toLocaleDateString(
+                            "ru-RU",
+                            {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                            },
+                          )
+                        : "—"}
+                    </p>
+                  </HoverCardContent>
+                </HoverCard>
+              )}
+              {location && (
+                <div className="flex items-center gap-1">
+                  <MapPin className="h-3 w-3 shrink-0" />
+                  <span className="truncate max-w-[120px]">{location}</span>
+                </div>
+              )}
+              {response.phone && (
+                <HoverCard>
+                  <HoverCardTrigger asChild>
+                    <div className="flex items-center gap-1 cursor-help">
+                      <Phone className="h-3 w-3 shrink-0" />
+                    </div>
+                  </HoverCardTrigger>
+                  <HoverCardContent side="right" className="w-auto">
+                    <p className="text-xs">{response.phone}</p>
+                  </HoverCardContent>
+                </HoverCard>
+              )}
+              {response.email && (
+                <HoverCard>
+                  <HoverCardTrigger asChild>
+                    <div className="flex items-center gap-1 cursor-help">
+                      <Mail className="h-3 w-3 shrink-0" />
+                    </div>
+                  </HoverCardTrigger>
+                  <HoverCardContent side="right" className="w-auto">
+                    <p className="text-xs break-all">{response.email}</p>
+                  </HoverCardContent>
+                </HoverCard>
+              )}
+            </div>
           </div>
         </div>
       </TableCell>
@@ -274,12 +350,12 @@ export function ResponseRow({
         <span className="text-muted-foreground text-xs">—</span>
       </TableCell>
       <TableCell>
-        {response.screening?.compositeScore != null ? (
+        {response.compositeScore != null ? (
           <div className="flex items-center gap-1">
             <span className="text-sm font-medium">
-              {response.screening.compositeScore}
+              {response.compositeScore}
             </span>
-            <span className="text-xs text-muted-foreground">/10</span>
+            <span className="text-xs text-muted-foreground">/100</span>
           </div>
         ) : (
           <span className="text-muted-foreground text-xs">—</span>
