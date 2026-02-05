@@ -1,4 +1,4 @@
-import { eq } from "@qbs-autonaim/db";
+import { eq, logResponseEvent } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import {
   interviewMessage,
@@ -6,7 +6,6 @@ import {
   response,
 } from "@qbs-autonaim/db/schema";
 import { removeNullBytes } from "@qbs-autonaim/lib";
-import { logResponseEvent } from "@qbs-autonaim/lib/server";
 import { tgClientSDK } from "@qbs-autonaim/tg-client/sdk";
 import { inngest } from "../../client";
 

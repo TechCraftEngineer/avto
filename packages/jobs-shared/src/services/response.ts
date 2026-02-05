@@ -1,8 +1,7 @@
-import { and, eq } from "@qbs-autonaim/db";
+import { and, eq, logResponseEvent } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { response } from "@qbs-autonaim/db/schema";
 import { createLogger, type Result, tryCatch } from "@qbs-autonaim/lib";
-import { logResponseEvent } from "@qbs-autonaim/lib/server";
 import type { SaveResponseData } from "../types/response";
 
 const logger = createLogger("SharedResponseService");

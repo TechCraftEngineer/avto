@@ -1,4 +1,4 @@
-import { getAIModel } from "@qbs-autonaim/lib";
+import { getAIModel } from "@qbs-autonaim/lib/ai";
 import { RankingService } from "@qbs-autonaim/shared/server";
 import { inngest } from "../../client";
 

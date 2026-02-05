@@ -1,5 +1,5 @@
 import { AgentFactory } from "@qbs-autonaim/ai";
-import { and, desc, eq, sql } from "@qbs-autonaim/db";
+import { and, desc, eq, logResponseEvent, sql } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import {
   interviewMessage,
@@ -12,8 +12,7 @@ import {
   parseFreelancerProfile,
   type StoredProfileData,
 } from "@qbs-autonaim/jobs-parsers";
-import { getAIModel } from "@qbs-autonaim/lib";
-import { logResponseEvent } from "@qbs-autonaim/lib/server";
+import { getAIModel } from "@qbs-autonaim/lib/ai";
 import {
   createInterviewScoring,
   getInterviewContext,

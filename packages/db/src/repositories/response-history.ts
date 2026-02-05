@@ -1,8 +1,5 @@
-import type { db as dbType } from "@qbs-autonaim/db/client";
-import {
-  type ResponseEventType,
-  responseHistory,
-} from "@qbs-autonaim/db/schema";
+import type { db as dbType } from "../client";
+import { type ResponseEventType, responseHistory } from "../schema";
 
 interface LogEventParams {
   db: typeof dbType;

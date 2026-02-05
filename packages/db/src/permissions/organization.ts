@@ -1,4 +1,4 @@
-import type { OrganizationRole } from "@qbs-autonaim/db/schema";
+import type { OrganizationRole } from "../schema";
 
 /**
  * Проверяет, может ли пользователь управлять организацией (изменять настройки, удалять)

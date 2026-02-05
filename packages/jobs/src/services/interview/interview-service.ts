@@ -2,7 +2,8 @@ import { AgentFactory, InterviewOrchestrator } from "@qbs-autonaim/ai";
 import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { interviewSession } from "@qbs-autonaim/db/schema";
-import { getAIModel, getDownloadUrl } from "@qbs-autonaim/lib";
+import { getAIModel } from "@qbs-autonaim/lib/ai";
+import { getDownloadUrl } from "@qbs-autonaim/lib/s3";
 import {
   getInterviewSessionMetadata,
   updateInterviewSessionMetadata,

@@ -9,8 +9,7 @@ import {
   telegramSession,
   type vacancy,
 } from "@qbs-autonaim/db/schema";
-import { generateText } from "@qbs-autonaim/lib";
-import { getAIModel } from "@qbs-autonaim/lib/ai";
+import { generateText, getAIModel } from "@qbs-autonaim/lib/ai";
 import { getInterviewBaseUrl } from "@qbs-autonaim/server-utils";
 import { stripHtml } from "string-strip-html";
 import { createLogger, err, ok, type Result, tryCatch } from "../base";

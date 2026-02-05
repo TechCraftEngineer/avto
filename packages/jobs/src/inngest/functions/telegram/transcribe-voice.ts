@@ -1,7 +1,7 @@
 import { eq, file, interviewMessage } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { RESPONSE_STATUS, response } from "@qbs-autonaim/db/schema";
-import { getDownloadUrl } from "@qbs-autonaim/lib";
+import { getDownloadUrl } from "@qbs-autonaim/lib/s3";
 import { transcribeAudio } from "../../../services/media";
 import { inngest } from "../../client";
 import {
