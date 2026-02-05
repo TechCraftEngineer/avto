@@ -1,6 +1,7 @@
 import {
   loadCookiesForIntegration,
   saveCookiesForIntegration,
+  type Cookie,
 } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import type { CookieData } from "puppeteer";
@@ -14,7 +15,18 @@ export async function saveCookies(
   workspaceId: string,
 ): Promise<void> {
   try {
-    await saveCookiesForIntegration(db, integrationType, cookies, workspaceId);
+    // Преобразуем CookieData в Cookie, обеспечивая совместимость типов
+    const dbCookies: Cookie[] = cookies.map((cookie) => ({
+      name: cookie.name,
+      value: cookie.value,
+      domain: cookie.domain,
+      path: cookie.path,
+      expires: cookie.expires,
+      httpOnly: cookie.httpOnly,
+      secure: cookie.secure,
+      sameSite: cookie.sameSite as Cookie["sameSite"],
+    }));
+    await saveCookiesForIntegration(db, integrationType, dbCookies, workspaceId);
     console.log(`✓ Cookies сохранены для интеграции ${integrationType}`);
   } catch (error) {
     console.error("Ошибка при сохранении cookies:", error);
@@ -36,11 +48,22 @@ export async function loadCookies(
       workspaceId,
     );
     if (cookies) {
-      // Фильтруем cookies с обязательным domain для puppeteer
-      const validCookies = cookies.filter(
-        (cookie): cookie is CookieData =>
-          typeof cookie.domain === "string" && cookie.domain.length > 0,
-      );
+      // Фильтруем cookies с обязательным domain для puppeteer и преобразуем в CookieData
+      const validCookies: CookieData[] = cookies
+        .filter(
+          (cookie): cookie is Cookie & { domain: string } =>
+            typeof cookie.domain === "string" && cookie.domain.length > 0,
+        )
+        .map((cookie) => ({
+          name: cookie.name,
+          value: cookie.value,
+          domain: cookie.domain,
+          path: cookie.path,
+          expires: cookie.expires,
+          httpOnly: cookie.httpOnly,
+          secure: cookie.secure,
+          sameSite: cookie.sameSite as CookieData["sameSite"],
+        }));
 
       if (validCookies.length > 0) {
         console.log(

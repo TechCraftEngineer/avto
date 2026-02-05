@@ -11,7 +11,7 @@ export interface Cookie {
   expires?: number;
   httpOnly?: boolean;
   secure?: boolean;
-  sameSite?: "Strict" | "Lax" | "None";
+  sameSite?: "Strict" | "Lax" | "None" | "Default";
 }
 
 /**

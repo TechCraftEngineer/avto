@@ -236,7 +236,10 @@ export class RankingService {
     });
 
     // Применяем limit после фильтрации
-    const paginatedCandidates = filteredCandidates.slice(0, filters.limit);
+    const paginatedCandidates = filteredCandidates.slice(
+      0,
+      filters.limit,
+    ) as RankedCandidate[];
 
     // Получаем общее количество с учетом фильтров
     const allCandidates = await db.query.response.findMany({
