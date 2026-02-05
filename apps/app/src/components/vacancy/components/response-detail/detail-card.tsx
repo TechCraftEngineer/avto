@@ -1,7 +1,6 @@
 "use client";
 
 import { skipToken, useQuery } from "@tanstack/react-query";
-import { ParsedProfileCard } from "~/components";
 import { useTRPC } from "~/trpc/react";
 import { CandidateNavigation } from "./candidate-navigation";
 import { VacancyResponseHeaderCard } from "./header-card";
@@ -88,11 +87,6 @@ export function VacancyResponseDetailCard({
         isProcessing={isProcessing}
         isPolling={isPolling}
       />
-
-      {/* Parsed Profile Info */}
-      {response.profileData && !response.profileData.error && (
-        <ParsedProfileCard profileData={response.profileData} />
-      )}
 
       {/* Status Timeline */}
       <StatusTimeline response={response} />
