@@ -11,7 +11,6 @@ import {
 } from "./use-screening-subscription";
 
 export interface ScreeningStateData {
-  dialogOpen: boolean;
   error: string | null;
   status: "idle" | "loading" | "success" | "error";
   message: string;
@@ -20,19 +19,16 @@ export interface ScreeningStateData {
 }
 
 export interface ScreeningState extends ScreeningStateData {
-  setDialogOpen: (open: boolean) => void;
   handleClick: () => Promise<void>;
-  handleDialogClose: () => void;
 }
 
 export function useScreeningState(
   vacancyId: string,
   type: "new" | "all",
   onScreen: () => void,
-  onScreeningDialogClose: () => void,
+  onComplete: () => void,
 ) {
   const [state, setState] = useState<ScreeningStateData>({
-    dialogOpen: false,
     error: null,
     status: "idle",
     message: "",
@@ -40,27 +36,7 @@ export function useScreeningState(
     subscriptionActive: false,
   });
 
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
   const isRunningRef = useRef(false);
-
-  const handleDialogClose = useCallback(() => {
-    // Очищаем таймер при закрытии диалога
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
-
-    setState((prev) => ({
-      ...prev,
-      dialogOpen: false,
-      error: null,
-      message: "",
-      progress: null,
-      status: "idle",
-      subscriptionActive: false,
-    }));
-    onScreeningDialogClose();
-  }, [onScreeningDialogClose]);
 
   // Screening subscription
   useScreeningSubscription({
@@ -90,17 +66,12 @@ export function useScreeningState(
           message: success
             ? `Оценка завершена! Обработано: ${progress.processed} из ${progress.total}`
             : "Процесс завершился с ошибками",
+          subscriptionActive: false,
         }));
 
-        // Очищаем предыдущий таймер перед установкой нового
-        if (timerRef.current) {
-          clearTimeout(timerRef.current);
-        }
-        timerRef.current = setTimeout(() => {
-          handleDialogClose();
-        }, 3000);
+        onComplete();
       },
-      [handleDialogClose],
+      [onComplete],
     ),
   });
 
@@ -127,20 +98,16 @@ export function useScreeningState(
         ...prev,
         status: "error",
         error: error instanceof Error ? error.message : "Произошла ошибка",
+        subscriptionActive: false,
       }));
+      onComplete();
     } finally {
       isRunningRef.current = false;
     }
-  }, [onScreen]);
-
-  const setDialogOpen = useCallback((open: boolean) => {
-    setState((prev) => ({ ...prev, dialogOpen: open }));
-  }, []);
+  }, [onScreen, onComplete]);
 
   return {
     ...state,
     handleClick,
-    handleDialogClose,
-    setDialogOpen,
   };
 }

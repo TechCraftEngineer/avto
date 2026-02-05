@@ -96,7 +96,7 @@ export function CandidateComparisonModal({
           Сравнить кандидатов
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-[95vw] w-full max-h-[90vh] overflow-hidden flex flex-col p-0">
+      <DialogContent className="min-w-fit max-w-[95vw] w-full max-h-[90vh] overflow-hidden flex flex-col p-0">
         <DialogHeader className="px-6 pt-6 pb-4 border-b">
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-2 text-xl">

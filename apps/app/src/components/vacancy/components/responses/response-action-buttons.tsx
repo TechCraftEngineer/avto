@@ -13,7 +13,7 @@ interface ResponseActionButtonsProps {
   isSyncingArchived: boolean;
   onRefreshDialogOpen: () => void;
   onSyncArchivedDialogOpen: () => void;
-  onScreenNewDialogOpen: () => void;
+  onScreenNew: () => void;
 }
 
 export function ResponseActionButtons({
@@ -22,7 +22,7 @@ export function ResponseActionButtons({
   isSyncingArchived,
   onRefreshDialogOpen,
   onSyncArchivedDialogOpen,
-  onScreenNewDialogOpen,
+  onScreenNew,
 }: ResponseActionButtonsProps) {
   const isAnyRefreshing = isRefreshing || isSyncingArchived;
 
@@ -78,7 +78,7 @@ export function ResponseActionButtons({
         disabled={isProcessingNew}
         variant="default"
         size="sm"
-        onClick={onScreenNewDialogOpen}
+        onClick={onScreenNew}
         className="h-9 shadow-sm hover:shadow transition-shadow"
       >
         {isProcessingNew ? (

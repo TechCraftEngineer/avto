@@ -2,7 +2,6 @@
 import { useEffect } from "react";
 import type { ScreeningFilter } from "~/components";
 import { ResponseActionButtons } from "./response-action-buttons";
-import { ResponseDialogs } from "./response-dialogs";
 import { ResponseSearchFilter } from "./response-search-filter";
 import { useRefreshState } from "./use-refresh-state";
 import type { ResponseStatusFilterUI } from "./use-response-table";
@@ -26,7 +25,7 @@ interface ResponseTableToolbarProps {
   onScreenNew: () => void;
   onScreenAll: () => void;
   onSyncArchived: (workspaceId: string) => void;
-  onScreeningDialogClose: () => void;
+  onScreeningComplete: () => void;
   onRefreshDialogOpen?: () => void;
   onArchivedDialogOpen?: () => void;
   onSetArchivedHandler?: (handler: () => void) => void;
@@ -34,7 +33,6 @@ interface ResponseTableToolbarProps {
 
 export function ResponseTableToolbar({
   vacancyId,
-  totalResponses,
   screeningFilter,
   onFilterChange,
   statusFilter,
@@ -47,9 +45,8 @@ export function ResponseTableToolbar({
   onRefresh,
   onRefreshComplete,
   onScreenNew,
-  onScreenAll,
   onSyncArchived,
-  onScreeningDialogClose,
+  onScreeningComplete,
   onRefreshDialogOpen,
   onArchivedDialogOpen,
   onSetArchivedHandler,
@@ -60,13 +57,7 @@ export function ResponseTableToolbar({
     vacancyId,
     "new",
     onScreenNew,
-    onScreeningDialogClose,
-  );
-  const screenAllState = useScreeningState(
-    vacancyId,
-    "all",
-    onScreenAll,
-    onScreeningDialogClose,
+    onScreeningComplete,
   );
   const syncArchivedState = useSyncArchivedState(
     vacancyId,
@@ -82,37 +73,28 @@ export function ResponseTableToolbar({
   }, [onSetArchivedHandler, syncArchivedState.handleClick]);
 
   return (
-    <>
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between px-1 mb-4">
-        <ResponseSearchFilter
-          search={search}
-          onSearchChange={onSearchChange}
-          screeningFilter={screeningFilter}
-          onFilterChange={onFilterChange}
-          statusFilter={statusFilter}
-          onStatusFilterChange={onStatusFilterChange}
-        />
-
-        <ResponseActionButtons
-          isRefreshing={isRefreshing}
-          isProcessingNew={isProcessingNew}
-          isSyncingArchived={isSyncingArchived}
-          onRefreshDialogOpen={
-            onRefreshDialogOpen || (() => refreshState.setDialogOpen(true))
-          }
-          onSyncArchivedDialogOpen={
-            onArchivedDialogOpen ||
-            (() => syncArchivedState.setDialogOpen(true))
-          }
-          onScreenNewDialogOpen={() => screenNewState.setDialogOpen(true)}
-        />
-      </div>
-
-      <ResponseDialogs
-        totalResponses={totalResponses}
-        screenNewState={screenNewState}
-        screenAllState={screenAllState}
+    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between px-1 mb-4">
+      <ResponseSearchFilter
+        search={search}
+        onSearchChange={onSearchChange}
+        screeningFilter={screeningFilter}
+        onFilterChange={onFilterChange}
+        statusFilter={statusFilter}
+        onStatusFilterChange={onStatusFilterChange}
       />
-    </>
+
+      <ResponseActionButtons
+        isRefreshing={isRefreshing}
+        isProcessingNew={isProcessingNew}
+        isSyncingArchived={isSyncingArchived}
+        onRefreshDialogOpen={
+          onRefreshDialogOpen || (() => refreshState.setDialogOpen(true))
+        }
+        onSyncArchivedDialogOpen={
+          onArchivedDialogOpen || (() => syncArchivedState.setDialogOpen(true))
+        }
+        onScreenNew={screenNewState.handleClick}
+      />
+    </div>
   );
 }

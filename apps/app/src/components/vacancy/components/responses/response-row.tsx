@@ -24,8 +24,11 @@ import {
   TableCell,
   TableRow,
 } from "@qbs-autonaim/ui";
+import { formatPhone } from "@qbs-autonaim/validators";
 import {
   Cake,
+  Check,
+  Copy,
   Mail,
   MapPin,
   Phone,
@@ -35,6 +38,7 @@ import {
   UserCheck,
 } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 import { ResponseActions } from "~/components";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { getAvatarUrl } from "~/lib/avatar";
@@ -64,11 +68,43 @@ export function ResponseRow({
   const avatarUrl = getAvatarUrl(photoUrl, candidateName);
   const initials = getInitials(candidateName);
 
+  const [copiedPhone, setCopiedPhone] = useState(false);
+  const [copiedEmail, setCopiedEmail] = useState(false);
+
   // Вычисляем возраст
   const age = response.birthDate ? calculateAge(response.birthDate) : null;
 
   // Получаем локацию
   const location = response.globalCandidate?.location || null;
+
+  const handleCopyPhone = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (response.phone) {
+      await navigator.clipboard.writeText(response.phone);
+      setCopiedPhone(true);
+      setTimeout(() => setCopiedPhone(false), 2000);
+    }
+  };
+
+  const handleCopyEmail = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (response.email) {
+      await navigator.clipboard.writeText(response.email);
+      setCopiedEmail(true);
+      setTimeout(() => setCopiedEmail(false), 2000);
+    }
+  };
+
+  // Форматируем телефон для отображения
+  const formattedPhone = response.phone
+    ? (() => {
+        try {
+          return formatPhone(response.phone);
+        } catch {
+          return response.phone;
+        }
+      })()
+    : null;
 
   return (
     <TableRow className="group">
@@ -84,12 +120,30 @@ export function ResponseRow({
       </TableCell>
       <TableCell>
         <div className="flex items-center gap-3">
-          <Avatar className="h-9 w-9 border shrink-0">
-            <AvatarImage src={avatarUrl} alt={candidateName} />
-            <AvatarFallback className="text-xs font-medium bg-muted text-muted-foreground">
-              {initials || <User className="h-4 w-4" />}
-            </AvatarFallback>
-          </Avatar>
+          <HoverCard openDelay={200} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <button
+                type="button"
+                className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-transform hover:scale-105"
+                aria-label={`Фото ${candidateName}`}
+              >
+                <Avatar className="h-9 w-9 border shrink-0">
+                  <AvatarImage src={avatarUrl} alt={candidateName} />
+                  <AvatarFallback className="text-xs font-medium bg-muted text-muted-foreground">
+                    {initials || <User className="h-4 w-4" />}
+                  </AvatarFallback>
+                </Avatar>
+              </button>
+            </HoverCardTrigger>
+            <HoverCardContent side="right" className="w-auto p-2">
+              <Avatar className="h-32 w-32 border-2">
+                <AvatarImage src={avatarUrl} alt={candidateName} />
+                <AvatarFallback className="text-4xl font-medium bg-muted text-muted-foreground">
+                  {initials || <User className="h-12 w-12" />}
+                </AvatarFallback>
+              </Avatar>
+            </HoverCardContent>
+          </HoverCard>
           <div className="flex flex-col min-w-0">
             <div className="flex items-center gap-2">
               <Link
@@ -248,8 +302,37 @@ export function ResponseRow({
                       <Phone className="h-3 w-3 shrink-0" />
                     </div>
                   </HoverCardTrigger>
-                  <HoverCardContent side="right" className="w-auto">
-                    <p className="text-xs">{response.phone}</p>
+                  <HoverCardContent side="right" className="w-auto p-3">
+                    <div className="flex items-center gap-3">
+                      <a
+                        href={`tel:${response.phone}`}
+                        className="text-sm font-medium hover:underline transition-colors font-mono"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {formattedPhone}
+                      </a>
+                      <button
+                        type="button"
+                        onClick={handleCopyPhone}
+                        className={`
+                          p-1.5 rounded-md transition-all duration-200
+                          ${
+                            copiedPhone
+                              ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                              : "hover:bg-accent text-muted-foreground hover:text-foreground"
+                          }
+                        `}
+                        aria-label={
+                          copiedPhone ? "Скопировано" : "Скопировать телефон"
+                        }
+                      >
+                        {copiedPhone ? (
+                          <Check className="h-3.5 w-3.5" />
+                        ) : (
+                          <Copy className="h-3.5 w-3.5" />
+                        )}
+                      </button>
+                    </div>
                   </HoverCardContent>
                 </HoverCard>
               )}
@@ -260,8 +343,37 @@ export function ResponseRow({
                       <Mail className="h-3 w-3 shrink-0" />
                     </div>
                   </HoverCardTrigger>
-                  <HoverCardContent side="right" className="w-auto">
-                    <p className="text-xs break-all">{response.email}</p>
+                  <HoverCardContent side="right" className="w-auto p-3">
+                    <div className="flex items-center gap-3">
+                      <a
+                        href={`mailto:${response.email}`}
+                        className="text-sm font-medium hover:underline break-all transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {response.email}
+                      </a>
+                      <button
+                        type="button"
+                        onClick={handleCopyEmail}
+                        className={`
+                          p-1.5 rounded-md transition-all duration-200 shrink-0
+                          ${
+                            copiedEmail
+                              ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                              : "hover:bg-accent text-muted-foreground hover:text-foreground"
+                          }
+                        `}
+                        aria-label={
+                          copiedEmail ? "Скопировано" : "Скопировать email"
+                        }
+                      >
+                        {copiedEmail ? (
+                          <Check className="h-3.5 w-3.5" />
+                        ) : (
+                          <Copy className="h-3.5 w-3.5" />
+                        )}
+                      </button>
+                    </div>
                   </HoverCardContent>
                 </HoverCard>
               )}

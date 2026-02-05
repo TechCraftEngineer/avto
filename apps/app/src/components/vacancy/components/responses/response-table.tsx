@@ -258,7 +258,7 @@ export function ResponseTable({
         onScreenNew={handleScreenNew}
         onScreenAll={handleScreenAll}
         onSyncArchived={handleSyncArchived}
-        onScreeningDialogClose={handleScreeningDialogClose}
+        onScreeningComplete={handleScreeningDialogClose}
         onRefreshDialogOpen={onRefreshDialogOpen}
         onArchivedDialogOpen={onArchivedDialogOpen}
         onSetArchivedHandler={onSetArchivedHandler}
