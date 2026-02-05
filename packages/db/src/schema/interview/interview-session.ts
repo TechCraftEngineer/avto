@@ -59,33 +59,6 @@ export const interviewSession = pgTable(
   "interview_sessions",
   {
     id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`),
-
-    // FK на универсальную таблицу откликов
-    responseId: uuid("response_id")
-      .notNull()
-      .unique()
-      .references(() => response.id, { onDelete: "cascade" }),
-
-    // Статус и канал
-    status: interviewStatusEnum("status").default("pending").notNull(),
-    lastChannel: interviewChannelEnum("last_channel"), // Последний активный канал
-
-    // Прогресс интервью
-    questionNumber: integer("question_number").default(0).notNull(),
-    totalQuestions: integer("total_questions"), // Планируемое кол-во вопросов
-
-    // Счётчики
-    messageCount: integer("message_count").default(0).notNull(),
-    lastMessageAt: timestamp("last_message_at", {
-      withTimezone: true,
-      mode: "date",
-    }),
-
-    // Метаданные
-    metadata: jsonb("metadata").$type<InterviewSessionMetadata>(),
-
-    // Timestamps
-    startedAt: timestamp("started_at", { withTimezone: true, mode: "date" }),
     completedAt: timestamp("completed_at", {
       withTimezone: true,
       mode: "date",
@@ -93,6 +66,21 @@ export const interviewSession = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
       .defaultNow()
       .notNull(),
+    lastChannel: interviewChannelEnum("last_channel"),
+    lastMessageAt: timestamp("last_message_at", {
+      withTimezone: true,
+      mode: "date",
+    }),
+    messageCount: integer("message_count").default(0).notNull(),
+    metadata: jsonb("metadata").$type<InterviewSessionMetadata>(),
+    questionNumber: integer("question_number").default(0).notNull(),
+    responseId: uuid("response_id")
+      .notNull()
+      .unique()
+      .references(() => response.id, { onDelete: "cascade" }),
+    startedAt: timestamp("started_at", { withTimezone: true, mode: "date" }),
+    status: interviewStatusEnum("status").default("pending").notNull(),
+    totalQuestions: integer("total_questions"),
     updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
       .defaultNow()
       .$onUpdate(() => new Date())

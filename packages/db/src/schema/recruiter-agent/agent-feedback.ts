@@ -45,44 +45,23 @@ export const agentFeedback = pgTable(
   "agent_feedback",
   {
     id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`),
-
-    // Workspace для tenant isolation (с FK)
-    workspaceId: text("workspace_id")
-      .notNull()
-      .references(() => workspace.id, { onDelete: "cascade" }),
-
-    // Пользователь, оставивший feedback (с FK)
-    userId: text("user_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
-
-    // ID действия агента (опционально)
     actionId: uuid("action_id"),
-
-    // ID рекомендации (опционально)
-    recommendationId: uuid("recommendation_id"),
-
-    // Тип обратной связи
-    feedbackType: feedbackTypeEnum("feedback_type").notNull(),
-
-    // Оригинальная рекомендация агента
-    originalRecommendation: text("original_recommendation"),
-
-    // Действие пользователя (что сделал вместо рекомендации)
-    userAction: text("user_action"),
-
-    // Причина отклонения/модификации
-    reason: text("reason"),
-
-    // Рейтинг (1-5)
-    rating: integer("rating"),
-
-    // Дополнительные метаданные
-    metadata: jsonb("metadata").$type<Record<string, unknown>>(),
-
     createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
       .defaultNow()
       .notNull(),
+    feedbackType: feedbackTypeEnum("feedback_type").notNull(),
+    metadata: jsonb("metadata").$type<Record<string, unknown>>(),
+    originalRecommendation: text("original_recommendation"),
+    rating: integer("rating"),
+    reason: text("reason"),
+    recommendationId: uuid("recommendation_id"),
+    userAction: text("user_action"),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
   },
   (table) => [
     // Индекс по workspace для tenant isolation

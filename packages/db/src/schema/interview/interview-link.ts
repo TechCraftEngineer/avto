@@ -29,23 +29,14 @@ export const interviewLink = pgTable(
   "interview_links",
   {
     id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`),
-
-    // Полиморфная связь с сущностью
-    entityType: interviewLinkEntityTypeEnum("entity_type").notNull(),
-    entityId: text("entity_id").notNull(), // ID сущности (UUID или кастомный ID)
-
-    // Токен ссылки (уникальный идентификатор для URL)
-    token: varchar("token", { length: 100 }).notNull().unique(),
-
-    // Активна ли ссылка
-    isActive: boolean("is_active").default(true).notNull(),
-
-    // Дата истечения (опционально)
-    expiresAt: timestamp("expires_at", { withTimezone: true, mode: "date" }),
-
     createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
       .defaultNow()
       .notNull(),
+    entityId: text("entity_id").notNull(),
+    entityType: interviewLinkEntityTypeEnum("entity_type").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true, mode: "date" }),
+    isActive: boolean("is_active").default(true).notNull(),
+    token: varchar("token", { length: 100 }).notNull().unique(),
   },
   (table) => [
     // Уникальность: одна активная ссылка на сущность

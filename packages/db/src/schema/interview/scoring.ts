@@ -22,27 +22,20 @@ export const interviewScoring = pgTable(
   "interview_scorings",
   {
     id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`),
-
-    // FK на сессию интервью
+    analysis: text("analysis"),
+    botUsageDetected: integer("bot_usage_detected"),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .defaultNow()
+      .notNull(),
     interviewSessionId: uuid("interview_session_id")
       .notNull()
       .unique()
       .references(() => interviewSession.id, { onDelete: "cascade" }),
-
-    // FK на отклик (для удобства запросов)
+    rating: integer("rating"),
     responseId: uuid("response_id").references(() => response.id, {
       onDelete: "cascade",
     }),
-
-    // Оценки (унифицированная шкала 0-100)
-    score: integer("score").notNull(), // Основной скоринг 0-100
-    rating: integer("rating"), // Звездный рейтинг 0-5 (удобно для UI)
-    analysis: text("analysis"), // Анализ на основе интервью
-    botUsageDetected: integer("bot_usage_detected"), // 0-100: вероятность использования бота для ответов
-
-    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
-      .defaultNow()
-      .notNull(),
+    score: integer("score").notNull(),
   },
   (table) => [
     index("interview_scoring_session_idx").on(table.interviewSessionId),

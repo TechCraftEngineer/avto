@@ -5,18 +5,18 @@ export const session = pgTable(
   "sessions",
   {
     id: text("id").primaryKey(),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .defaultNow()
+      .notNull(),
     expiresAt: timestamp("expires_at", {
       withTimezone: true,
       mode: "date",
     }).notNull(),
+    ipAddress: text("ip_address"),
     token: text("token").notNull().unique(),
-    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
-      .defaultNow()
-      .notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
       .$onUpdate(() => new Date())
       .notNull(),
-    ipAddress: text("ip_address"),
     userAgent: text("user_agent"),
     userId: text("user_id")
       .notNull()

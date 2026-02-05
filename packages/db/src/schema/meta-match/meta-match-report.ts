@@ -17,23 +17,35 @@ export const metaMatchReport = pgTable(
   "meta_match_reports",
   {
     id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`),
-    candidateId: uuid("candidate_id")
-      .notNull()
-      .references(() => response.id, { onDelete: "cascade" }),
+    algorithmVersion: text("algorithm_version").notNull(),
     birthDate: timestamp("birth_date", {
       withTimezone: true,
       mode: "date",
     }).notNull(),
-    // Даты для расширенного анализа (опционально)
+    candidateId: uuid("candidate_id")
+      .notNull()
+      .references(() => response.id, { onDelete: "cascade" }),
     companyBirthDate: timestamp("company_birth_date", {
       withTimezone: true,
       mode: "date",
     }),
+    consentGranted: boolean("consent_granted").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .defaultNow()
+      .notNull(),
+    disclaimer: text("disclaimer").notNull(),
     managerBirthDate: timestamp("manager_birth_date", {
       withTimezone: true,
       mode: "date",
     }),
-    // Данные команды для анализа баланса (опционально)
+    narrative: jsonb("narrative").$type<string[]>().notNull(),
+    recommendations: jsonb("recommendations").$type<string[]>().notNull(),
+    requestedBy: text("requested_by")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    summaryMetrics: jsonb("summary_metrics")
+      .$type<MetaMatchSummaryMetrics>()
+      .notNull(),
     teamData: jsonb("team_data").$type<{
       memberProfiles: Array<{
         coreIndex: number;
@@ -44,20 +56,6 @@ export const metaMatchReport = pgTable(
       teamSize: number;
       dominantProfile: string;
     }>(),
-    summaryMetrics: jsonb("summary_metrics")
-      .$type<MetaMatchSummaryMetrics>()
-      .notNull(),
-    narrative: jsonb("narrative").$type<string[]>().notNull(),
-    recommendations: jsonb("recommendations").$type<string[]>().notNull(),
-    disclaimer: text("disclaimer").notNull(),
-    algorithmVersion: text("algorithm_version").notNull(),
-    consentGranted: boolean("consent_granted").notNull(),
-    requestedBy: text("requested_by")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
-    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
-      .defaultNow()
-      .notNull(),
   },
   (table) => ({
     candidateIdx: index("meta_match_candidate_idx").on(table.candidateId),

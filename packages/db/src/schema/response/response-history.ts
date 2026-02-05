@@ -42,17 +42,17 @@ export const responseHistory = pgTable(
   "response_history",
   {
     id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`),
-    responseId: uuid("response_id")
-      .notNull()
-      .references(() => response.id, { onDelete: "cascade" }),
-    eventType: responseEventTypeEnum("event_type").notNull(),
-    userId: text("user_id").references(() => user.id, { onDelete: "set null" }),
-    oldValue: jsonb("old_value"),
-    newValue: jsonb("new_value"),
-    metadata: jsonb("metadata"),
     createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
       .defaultNow()
       .notNull(),
+    eventType: responseEventTypeEnum("event_type").notNull(),
+    metadata: jsonb("metadata"),
+    newValue: jsonb("new_value"),
+    oldValue: jsonb("old_value"),
+    responseId: uuid("response_id")
+      .notNull()
+      .references(() => response.id, { onDelete: "cascade" }),
+    userId: text("user_id").references(() => user.id, { onDelete: "set null" }),
   },
   (table) => [
     index("response_history_response_idx").on(table.responseId),

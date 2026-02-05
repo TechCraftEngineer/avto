@@ -14,30 +14,33 @@ export const telegramSession = pgTable(
   "telegram_sessions",
   {
     id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`),
-
-    // Workspace к которому принадлежит сессия
-    // Один workspace - один Telegram аккаунт
-    workspaceId: text("workspace_id")
-      .notNull()
-      .unique()
-      .references(() => workspace.id, { onDelete: "cascade" }),
-
-    // API ID и Hash приложения
-    apiId: text("api_id").notNull(),
     apiHash: text("api_hash").notNull(),
-
-    // Номер телефона
+    apiId: text("api_id").notNull(),
+    authError: text("auth_error"),
+    authErrorAt: timestamp("auth_error_at", {
+      withTimezone: true,
+      mode: "date",
+    }),
+    authErrorNotifiedAt: timestamp("auth_error_notified_at", {
+      withTimezone: true,
+      mode: "date",
+    }),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .defaultNow()
+      .notNull(),
+    isActive: boolean("is_active").default(true).notNull(),
+    lastUsedAt: timestamp("last_used_at", { withTimezone: true, mode: "date" }),
     phone: text("phone").notNull(),
-
-    // Сериализованная сессия MTCute
     sessionData: jsonb("session_data").notNull().$type<{
       authKey?: string;
       dcId?: number;
       userId?: string;
       [key: string]: unknown;
     }>(),
-
-    // Информация о пользователе
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
     userInfo: jsonb("user_info").$type<{
       id?: string;
       firstName?: string;
@@ -45,35 +48,10 @@ export const telegramSession = pgTable(
       username?: string;
       phone?: string;
     }>(),
-
-    // Активна ли сессия
-    isActive: boolean("is_active").default(true).notNull(),
-
-    // Ошибка авторизации (если сессия стала невалидной)
-    authError: text("auth_error"),
-
-    // Когда произошла ошибка авторизации
-    authErrorAt: timestamp("auth_error_at", {
-      withTimezone: true,
-      mode: "date",
-    }),
-
-    // Когда было отправлено уведомление об ошибке
-    authErrorNotifiedAt: timestamp("auth_error_notified_at", {
-      withTimezone: true,
-      mode: "date",
-    }),
-
-    // Дата последнего использования
-    lastUsedAt: timestamp("last_used_at", { withTimezone: true, mode: "date" }),
-
-    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
-      .defaultNow()
-      .$onUpdate(() => new Date())
-      .notNull(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .unique()
+      .references(() => workspace.id, { onDelete: "cascade" }),
   },
   (table) => ({
     workspaceIdx: index("telegram_session_workspace_idx").on(table.workspaceId),

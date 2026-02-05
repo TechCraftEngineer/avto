@@ -17,22 +17,19 @@ export const workspaceMember = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    workspaceId: text("workspace_id")
-      .notNull()
-      .references(() => workspace.id, { onDelete: "cascade" }),
-
-    // Роль пользователя в workspace
-    role: text("role", { enum: workspaceMemberRoleEnum })
-      .default("member")
-      .notNull(),
-
     createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
       .defaultNow()
+      .notNull(),
+    role: text("role", { enum: workspaceMemberRoleEnum })
+      .default("member")
       .notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
       .defaultNow()
       .$onUpdate(() => new Date())
       .notNull(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
   },
   (table) => ({
     pk: primaryKey({ columns: [table.userId, table.workspaceId] }),

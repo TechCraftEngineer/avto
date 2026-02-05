@@ -7,15 +7,13 @@ export type UserRole = (typeof userRoleEnum)[number];
 
 export const user = pgTable("users", {
   id: text("id").primaryKey(),
-  name: text("name").notNull(),
+  bio: text("bio"),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+    .defaultNow()
+    .notNull(),
   email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified").default(false).notNull(),
   image: text("image"),
-  username: text("username"),
-  bio: text("bio"),
-  role: text("role", { enum: userRoleEnum }).default("user").notNull(),
-
-  // Последняя активная организация и воркспейс
   lastActiveOrganizationId: text("last_active_organization_id").references(
     () => organization.id,
     { onDelete: "set null" },
@@ -24,12 +22,11 @@ export const user = pgTable("users", {
     () => workspace.id,
     { onDelete: "set null" },
   ),
-
-  createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
-    .defaultNow()
-    .notNull(),
+  name: text("name").notNull(),
+  role: text("role", { enum: userRoleEnum }).default("user").notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
     .defaultNow()
     .$onUpdate(() => new Date())
     .notNull(),
+  username: text("username"),
 });

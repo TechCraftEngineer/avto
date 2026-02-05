@@ -19,13 +19,13 @@ export const responseTag = pgTable(
   "response_tags",
   {
     id: uuid("id").default(sql`uuid_generate_v7()`).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .defaultNow()
+      .notNull(),
     responseId: uuid("response_id")
       .notNull()
       .references(() => response.id, { onDelete: "cascade" }),
     tag: varchar("tag", { length: 50 }).notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
-      .defaultNow()
-      .notNull(),
   },
   (table) => [
     primaryKey({ columns: [table.responseId, table.tag] }),

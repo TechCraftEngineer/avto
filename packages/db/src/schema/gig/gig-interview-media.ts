@@ -17,15 +17,15 @@ import { gig } from "./gig";
 export const gigInterviewMedia = pgTable(
   "gig_interview_media",
   {
-    gigId: uuid("gig_id")
-      .notNull()
-      .references(() => gig.id, { onDelete: "cascade" }),
-    fileId: uuid("file_id")
-      .notNull()
-      .references(() => file.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
       .defaultNow()
       .notNull(),
+    fileId: uuid("file_id")
+      .notNull()
+      .references(() => file.id, { onDelete: "cascade" }),
+    gigId: uuid("gig_id")
+      .notNull()
+      .references(() => gig.id, { onDelete: "cascade" }),
   },
   (table) => ({
     pk: primaryKey({ columns: [table.gigId, table.fileId] }),

@@ -38,37 +38,24 @@ export const chatSession = pgTable(
   "chat_sessions",
   {
     id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`),
-
-    // Полиморфная связь
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .defaultNow()
+      .notNull(),
+    entityId: text("entity_id").notNull(),
     entityType: chatEntityTypeEnum("entity_type").notNull(),
-    entityId: text("entity_id").notNull(), // ID вакансии, гига, проекта (UUID или кастомный ID)
-
-    // Пользователь (для персональных AI-чатов)
-    userId: text("user_id"),
-
-    // Заголовок чата
-    title: varchar("title", { length: 500 }),
-
-    // Статус
-    status: chatStatusEnum("status").default("active").notNull(),
-
-    // Счётчики
-    messageCount: integer("message_count").default(0).notNull(),
     lastMessageAt: timestamp("last_message_at", {
       withTimezone: true,
       mode: "date",
     }),
-
-    // Метаданные
+    messageCount: integer("message_count").default(0).notNull(),
     metadata: jsonb("metadata").$type<Record<string, unknown>>(),
-
-    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
-      .defaultNow()
-      .notNull(),
+    status: chatStatusEnum("status").default("active").notNull(),
+    title: varchar("title", { length: 500 }),
     updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
       .defaultNow()
       .$onUpdate(() => new Date())
       .notNull(),
+    userId: text("user_id"),
   },
   (table) => ({
     entityTypeIdx: index("chat_session_entity_type_idx").on(table.entityType),

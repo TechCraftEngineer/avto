@@ -18,15 +18,15 @@ export const file = pgTable(
   "files",
   {
     id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`),
-    provider: fileProviderEnum("provider").default("S3").notNull(),
-    key: text("key").notNull(),
-    fileName: varchar("file_name", { length: 500 }).notNull(),
-    mimeType: varchar("mime_type", { length: 100 }).notNull(),
-    fileSize: varchar("file_size", { length: 50 }),
-    metadata: jsonb("metadata").$type<Record<string, unknown>>(),
     createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
       .defaultNow()
       .notNull(),
+    fileName: varchar("file_name", { length: 500 }).notNull(),
+    fileSize: varchar("file_size", { length: 50 }),
+    key: text("key").notNull(),
+    metadata: jsonb("metadata").$type<Record<string, unknown>>(),
+    mimeType: varchar("mime_type", { length: 100 }).notNull(),
+    provider: fileProviderEnum("provider").default("S3").notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
       .defaultNow()
       .$onUpdate(() => new Date())

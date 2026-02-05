@@ -43,34 +43,17 @@ export const auditLog = pgTable(
   "audit_logs",
   {
     id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`),
-
-    // Пользователь, выполнивший действие
-    userId: text("user_id").notNull(),
-
-    // Workspace для tenant isolation (опционально для обратной совместимости)
-    workspaceId: text("workspace_id"),
-
-    // Действие
     action: auditActionEnum("action").notNull(),
-
-    // Тип ресурса
-    resourceType: auditResourceTypeEnum("resource_type").notNull(),
-
-    // ID ресурса
-    resourceId: text("resource_id").notNull(),
-
-    // Дополнительные метаданные (опционально)
-    metadata: jsonb("metadata").$type<Record<string, unknown>>(),
-
-    // IP адрес пользователя (опционально)
-    ipAddress: varchar("ip_address", { length: 45 }),
-
-    // User agent (опционально)
-    userAgent: text("user_agent"),
-
     createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
       .defaultNow()
       .notNull(),
+    ipAddress: varchar("ip_address", { length: 45 }),
+    metadata: jsonb("metadata").$type<Record<string, unknown>>(),
+    resourceId: text("resource_id").notNull(),
+    resourceType: auditResourceTypeEnum("resource_type").notNull(),
+    userAgent: text("user_agent"),
+    userId: text("user_id").notNull(),
+    workspaceId: text("workspace_id"),
   },
   (table) => ({
     userIdx: index("audit_log_user_idx").on(table.userId),

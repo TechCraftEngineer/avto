@@ -6,22 +6,11 @@ export const botSettings = pgTable(
   "bot_settings",
   {
     id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`),
-
-    // Связь с workspace
-    workspaceId: text("workspace_id")
-      .notNull()
-      .references(() => workspace.id, { onDelete: "cascade" })
-      .unique(),
-
-    // Настройки бота
     botName: text("bot_name").default("Дмитрий").notNull(),
     botRole: text("bot_role").default("рекрутер").notNull(),
-
-    // Информация о компании (для контекста бота)
+    companyDescription: text("company_description"),
     companyName: text("company_name").notNull(),
     companyWebsite: text("company_website"),
-    companyDescription: text("company_description"),
-
     createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
       .defaultNow()
       .notNull(),
@@ -29,6 +18,10 @@ export const botSettings = pgTable(
       .defaultNow()
       .$onUpdate(() => new Date())
       .notNull(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" })
+      .unique(),
   },
   (table) => ({
     workspaceIdx: index("bot_settings_workspace_idx").on(table.workspaceId),

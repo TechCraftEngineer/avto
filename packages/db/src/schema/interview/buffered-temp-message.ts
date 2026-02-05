@@ -23,19 +23,19 @@ export const bufferedTempInterviewMessage = pgTable(
   "buffered_temp_interview_messages",
   {
     id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`),
-    messageId: varchar("message_id", { length: 100 }).notNull(),
-    tempSessionId: varchar("temp_session_id", {
-      length: 100,
-    }).notNull(),
     chatId: varchar("chat_id", { length: 100 }).notNull(),
-    sender: tempMessageSenderEnum("sender").notNull(),
+    content: text("content").notNull(),
     contentType: tempMessageContentTypeEnum("content_type")
       .default("TEXT")
       .notNull(),
-    content: text("content").notNull(),
-    externalMessageId: varchar("external_message_id", { length: 100 }),
-    timestamp: timestamp("timestamp").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
+    externalMessageId: varchar("external_message_id", { length: 100 }),
+    messageId: varchar("message_id", { length: 100 }).notNull(),
+    sender: tempMessageSenderEnum("sender").notNull(),
+    tempSessionId: varchar("temp_session_id", {
+      length: 100,
+    }).notNull(),
+    timestamp: timestamp("timestamp").notNull(),
   },
   (table) => ({
     sessionIdx: index("buffered_temp_interview_message_session_idx").on(

@@ -21,22 +21,22 @@ export const bufferedMessage = pgTable(
   "buffered_messages",
   {
     id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`),
-    messageId: varchar("message_id", { length: 100 }).notNull(),
+    content: varchar("content", { length: 10000 }).notNull(),
+    contentType: varchar("content_type", { length: 20 }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    flushId: varchar("flush_id", { length: 100 }),
     interviewSessionId: uuid("interview_session_id")
       .notNull()
       .references(() => interviewSession.id, {
         onDelete: "cascade",
       }),
-    userId: varchar("user_id", { length: 100 }).notNull(),
     interviewStep: integer("interview_step").notNull(),
-    content: varchar("content", { length: 10000 }).notNull(),
-    contentType: varchar("content_type", { length: 20 }).notNull(),
+    messageId: varchar("message_id", { length: 100 }).notNull(),
     questionContext: varchar("question_context", { length: 1000 }),
     timestamp: bigint("timestamp", { mode: "number" }).notNull(),
-    flushId: varchar("flush_id", { length: 100 }),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    userId: varchar("user_id", { length: 100 }).notNull(),
   },
   (table) => ({
     interviewSessionStepIdx: index(

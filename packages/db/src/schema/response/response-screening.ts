@@ -25,49 +25,25 @@ export const responseScreening = pgTable(
   "response_screenings",
   {
     id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`),
-
-    responseId: uuid("response_id")
-      .notNull()
-      .unique()
-      .references(() => response.id, { onDelete: "cascade" }),
-
-    // === ОСНОВНЫЕ ОЦЕНКИ (0-100) ===
-    overallScore: integer("overall_score").notNull(), // Общая оценка (бывший composite_score)
-    skillsMatchScore: integer("skills_match_score"), // Соответствие навыков
-    experienceScore: integer("experience_score"), // Оценка опыта
-    priceScore: integer("price_score"), // Оценка цены/зарплаты
-    deliveryScore: integer("delivery_score"), // Оценка сроков (для gig)
-
-    // === ДОПОЛНИТЕЛЬНЫЕ ОЦЕНКИ ===
-    potentialScore: integer("potential_score"), // Потенциал роста
-    careerTrajectoryScore: integer("career_trajectory_score"), // Карьерная траектория
-    psychometricScore: integer("psychometric_score"), // Психометрическая совместимость
-
-    // === ДЕТАЛЬНЫЕ АНАЛИЗЫ ===
-    overallAnalysis: text("overall_analysis"), // Общий анализ (бывший composite_score_reasoning)
-    skillsAnalysis: text("skills_analysis"), // Анализ навыков
-    experienceAnalysis: text("experience_analysis"), // Анализ опыта
-    priceAnalysis: text("price_analysis"), // Анализ цены
-    deliveryAnalysis: text("delivery_analysis"), // Анализ сроков
-    potentialAnalysis: text("potential_analysis"), // Анализ потенциала
-    careerTrajectoryAnalysis: text("career_trajectory_analysis"), // Анализ карьеры
-    hiddenFitAnalysis: text("hidden_fit_analysis"), // Скрытые индикаторы соответствия
-
-    // === СТРУКТУРИРОВАННЫЕ ДАННЫЕ ===
-    strengths: jsonb("strengths").$type<string[]>(), // Сильные стороны
-    weaknesses: jsonb("weaknesses").$type<string[]>(), // Слабые стороны
-    hiddenFitIndicators: jsonb("hidden_fit_indicators").$type<string[]>(), // Скрытые индикаторы
-
-    // === РЕКОМЕНДАЦИЯ И РАНЖИРОВАНИЕ ===
-    recommendation: recommendationEnum("recommendation"), // Уровень рекомендации
-    rankingPosition: integer("ranking_position"), // Позиция в рейтинге
-    rankingAnalysis: text("ranking_analysis"), // Анализ ранжирования
-    candidateSummary: text("candidate_summary"), // Краткое резюме (1-2 предложения)
-
-    // === ТИПЫ И КАТЕГОРИИ ===
+    candidateSummary: text("candidate_summary"),
+    careerTrajectoryAnalysis: text("career_trajectory_analysis"),
+    careerTrajectoryScore: integer("career_trajectory_score"),
     careerTrajectoryType: careerTrajectoryTypeEnum("career_trajectory_type"),
-
-    // === ПСИХОМЕТРИЧЕСКИЙ АНАЛИЗ ===
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    deliveryAnalysis: text("delivery_analysis"),
+    deliveryScore: integer("delivery_score"),
+    experienceAnalysis: text("experience_analysis"),
+    experienceScore: integer("experience_score"),
+    hiddenFitAnalysis: text("hidden_fit_analysis"),
+    hiddenFitIndicators: jsonb("hidden_fit_indicators").$type<string[]>(),
+    overallAnalysis: text("overall_analysis"),
+    overallScore: integer("overall_score").notNull(),
+    potentialAnalysis: text("potential_analysis"),
+    potentialScore: integer("potential_score"),
+    priceAnalysis: text("price_analysis"),
+    priceScore: integer("price_score"),
     psychometricAnalysis: jsonb("psychometric_analysis").$type<{
       lifePathNumber: number;
       destinyNumber?: number | null;
@@ -82,16 +58,23 @@ export const responseScreening = pgTable(
       summary: string;
       favorablePeriods?: Array<{ period: string; description: string }>;
     }>(),
-
-    // === ВРЕМЕННЫЕ МЕТКИ ===
-    screenedAt: timestamp("screened_at", { withTimezone: true }), // Когда проведен скрининг
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    psychometricScore: integer("psychometric_score"),
+    rankingAnalysis: text("ranking_analysis"),
+    rankingPosition: integer("ranking_position"),
+    recommendation: recommendationEnum("recommendation"),
+    responseId: uuid("response_id")
+      .notNull()
+      .unique()
+      .references(() => response.id, { onDelete: "cascade" }),
+    screenedAt: timestamp("screened_at", { withTimezone: true }),
+    skillsAnalysis: text("skills_analysis"),
+    skillsMatchScore: integer("skills_match_score"),
+    strengths: jsonb("strengths").$type<string[]>(),
     updatedAt: timestamp("updated_at", { withTimezone: true })
       .defaultNow()
       .$onUpdate(() => new Date())
       .notNull(),
+    weaknesses: jsonb("weaknesses").$type<string[]>(),
   },
   (table) => [
     // Индексы для поиска

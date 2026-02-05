@@ -39,30 +39,19 @@ export const chatMessage = pgTable(
   "chat_messages",
   {
     id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`),
-    sessionId: uuid("session_id")
-      .notNull()
-      .references(() => chatSession.id, { onDelete: "cascade" }),
-
-    // Отправитель
-    userId: text("user_id").notNull(), // Clerk user ID
-    role: chatMessageRoleEnum("role").notNull(),
-    type: chatMessageTypeEnum("type").default("text").notNull(),
-
-    // Контент
     content: text("content"),
-
-    // Quick replies для AI чатов
-    quickReplies: jsonb("quick_replies").$type<string[]>(),
-
-    // Файлы
-    fileId: uuid("file_id").references(() => file.id, { onDelete: "set null" }),
-
-    // Метаданные
-    metadata: jsonb("metadata").$type<ChatMessageMetadata>(),
-
     createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
       .defaultNow()
       .notNull(),
+    fileId: uuid("file_id").references(() => file.id, { onDelete: "set null" }),
+    metadata: jsonb("metadata").$type<ChatMessageMetadata>(),
+    quickReplies: jsonb("quick_replies").$type<string[]>(),
+    role: chatMessageRoleEnum("role").notNull(),
+    sessionId: uuid("session_id")
+      .notNull()
+      .references(() => chatSession.id, { onDelete: "cascade" }),
+    type: chatMessageTypeEnum("type").default("text").notNull(),
+    userId: text("user_id").notNull(),
   },
   (table) => ({
     sessionIdx: index("chat_message_session_idx").on(table.sessionId),

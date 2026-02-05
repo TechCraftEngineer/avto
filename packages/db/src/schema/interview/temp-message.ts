@@ -30,18 +30,17 @@ export const tempInterviewMessage = pgTable(
   "temp_interview_messages",
   {
     id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`),
-    // Временный ID формата temp_{chatId}
-    tempSessionId: varchar("temp_session_id", {
-      length: 100,
-    }).notNull(),
     chatId: varchar("chat_id", { length: 100 }).notNull(),
-    sender: tempMessageSenderEnum("sender").notNull(),
+    content: text("content").notNull(),
     contentType: tempMessageContentTypeEnum("content_type")
       .default("TEXT")
       .notNull(),
-    content: text("content").notNull(),
-    externalMessageId: varchar("external_message_id", { length: 100 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
+    externalMessageId: varchar("external_message_id", { length: 100 }),
+    sender: tempMessageSenderEnum("sender").notNull(),
+    tempSessionId: varchar("temp_session_id", {
+      length: 100,
+    }).notNull(),
   },
   (table) => ({
     tempSessionIdx: index("temp_interview_message_session_idx").on(

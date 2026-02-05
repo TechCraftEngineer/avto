@@ -20,17 +20,17 @@ export const responseComment = pgTable(
   "response_comments",
   {
     id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`),
-    responseId: uuid("response_id")
-      .notNull()
-      .references(() => response.id, { onDelete: "cascade" }),
     authorId: text("author_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     content: text("content").notNull(),
-    isPrivate: boolean("is_private").default(true).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
       .defaultNow()
       .notNull(),
+    isPrivate: boolean("is_private").default(true).notNull(),
+    responseId: uuid("response_id")
+      .notNull()
+      .references(() => response.id, { onDelete: "cascade" }),
     updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
       .defaultNow()
       .$onUpdate(() => new Date())
