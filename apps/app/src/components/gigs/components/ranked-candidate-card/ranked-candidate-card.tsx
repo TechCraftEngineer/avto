@@ -101,12 +101,15 @@ export function RankedCandidateCard({
   showRank = true,
 }: RankedCandidateCardProps) {
   const recommendationConfig = candidate.screening?.recommendation
-    ? RECOMMENDATION_CONFIG[candidate.screening?.recommendation]
+    ? RECOMMENDATION_CONFIG[
+        candidate.screening.recommendation as keyof typeof RECOMMENDATION_CONFIG
+      ]
     : null;
   const RecommendationIcon = recommendationConfig?.icon;
 
   const isTopThree =
-    candidate.screening?.rankingPosition && candidate.screening?.rankingPosition <= 3;
+    candidate.screening?.rankingPosition &&
+    candidate.screening?.rankingPosition <= 3;
 
   const handleAction = (e: React.MouseEvent, action: () => void) => {
     e.preventDefault();
@@ -195,7 +198,9 @@ export function RankedCandidateCard({
               <Progress
                 value={candidate.screening?.overallScore}
                 className="h-2"
-                indicatorClassName={getProgressColor(candidate.screening?.overallScore)}
+                indicatorClassName={getProgressColor(
+                  candidate.screening?.overallScore,
+                )}
               />
             </div>
           )}
@@ -213,7 +218,9 @@ export function RankedCandidateCard({
                     <Banknote className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                     <div className="min-w-0 flex-1">
                       <div className="text-muted-foreground">Цена</div>
-                      <div className="font-medium">{candidate.screening?.priceScore}</div>
+                      <div className="font-medium">
+                        {candidate.screening?.priceScore}
+                      </div>
                     </div>
                   </button>
                 </HoverCardTrigger>
@@ -226,9 +233,9 @@ export function RankedCandidateCard({
                         {formatCurrency(candidate.proposedPrice)}
                       </p>
                     )}
-                    {candidate.screening?.priceScoreReasoning ? (
+                    {candidate.screening?.priceAnalysis ? (
                       <p className="text-xs text-muted-foreground leading-relaxed">
-                        {candidate.screening?.priceScoreReasoning}
+                        {candidate.screening?.priceAnalysis}
                       </p>
                     ) : (
                       <p className="text-xs text-muted-foreground italic">
@@ -270,9 +277,9 @@ export function RankedCandidateCard({
                             : "дней"}
                       </p>
                     )}
-                    {candidate.screening?.deliveryScoreReasoning ? (
+                    {candidate.screening?.deliveryAnalysis ? (
                       <p className="text-xs text-muted-foreground leading-relaxed">
-                        {candidate.screening?.deliveryScoreReasoning}
+                        {candidate.screening?.deliveryAnalysis}
                       </p>
                     ) : (
                       <p className="text-xs text-muted-foreground italic">
@@ -306,9 +313,9 @@ export function RankedCandidateCard({
                     <h4 className="text-sm font-semibold">
                       Соответствие навыков
                     </h4>
-                    {candidate.screening?.skillsMatchScoreReasoning ? (
+                    {candidate.screening?.skillsAnalysis ? (
                       <p className="text-xs text-muted-foreground leading-relaxed">
-                        {candidate.screening?.skillsMatchScoreReasoning}
+                        {candidate.screening?.skillsAnalysis}
                       </p>
                     ) : (
                       <p className="text-xs text-muted-foreground italic">
@@ -340,9 +347,9 @@ export function RankedCandidateCard({
                 <HoverCardContent className="w-80" align="start">
                   <div className="space-y-2">
                     <h4 className="text-sm font-semibold">Оценка опыта</h4>
-                    {candidate.screening?.experienceScoreReasoning ? (
+                    {candidate.screening?.experienceAnalysis ? (
                       <p className="text-xs text-muted-foreground leading-relaxed">
-                        {candidate.screening?.experienceScoreReasoning}
+                        {candidate.screening?.experienceAnalysis}
                       </p>
                     ) : (
                       <p className="text-xs text-muted-foreground italic">
@@ -356,48 +363,51 @@ export function RankedCandidateCard({
           </div>
 
           {/* Strengths and Weaknesses */}
-          {(candidate.screening?.strengths?.length || candidate.screening?.weaknesses?.length) && (
+          {(candidate.screening?.strengths?.length ||
+            candidate.screening?.weaknesses?.length) && (
             <div className="space-y-2">
-              {candidate.screening?.strengths && candidate.screening?.strengths.length > 0 && (
-                <div className="flex flex-wrap gap-1.5">
-                  {candidate.screening?.strengths.map((strength) => (
-                    <Badge
-                      key={strength}
-                      variant="secondary"
-                      className="text-xs bg-green-50 text-green-700 border-green-200 dark:bg-green-950/30 dark:text-green-400 dark:border-green-800"
-                    >
-                      <CheckCircle2 className="h-3 w-3" />
-                      {strength}
-                    </Badge>
-                  ))}
-                </div>
-              )}
+              {candidate.screening?.strengths &&
+                candidate.screening?.strengths.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {candidate.screening?.strengths.map((strength: string) => (
+                      <Badge
+                        key={strength}
+                        variant="secondary"
+                        className="text-xs bg-green-50 text-green-700 border-green-200 dark:bg-green-950/30 dark:text-green-400 dark:border-green-800"
+                      >
+                        <CheckCircle2 className="h-3 w-3" />
+                        {strength}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
 
-              {candidate.screening?.weaknesses && candidate.screening?.weaknesses.length > 0 && (
-                <div className="flex flex-wrap gap-1.5">
-                  {candidate.screening?.weaknesses.map((weakness) => (
-                    <Badge
-                      key={weakness}
-                      variant="outline"
-                      className="text-xs bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-950/30 dark:text-yellow-400 dark:border-yellow-800"
-                    >
-                      <AlertCircle className="h-3 w-3" />
-                      {weakness}
-                    </Badge>
-                  ))}
-                </div>
-              )}
+              {candidate.screening?.weaknesses &&
+                candidate.screening?.weaknesses.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {candidate.screening?.weaknesses.map((weakness: string) => (
+                      <Badge
+                        key={weakness}
+                        variant="outline"
+                        className="text-xs bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-950/30 dark:text-yellow-400 dark:border-yellow-800"
+                      >
+                        <AlertCircle className="h-3 w-3" />
+                        {weakness}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
             </div>
           )}
 
           {/* Composite Score Reasoning Preview */}
-          {candidate.screening?.overallScoreReasoning && (
+          {candidate.screening?.overallAnalysis && (
             <div className="p-3 rounded-lg border-l-4 border-primary/50 bg-muted/30">
               <h4 className="text-xs font-semibold mb-1">
                 Почему подходит / почему нет
               </h4>
               <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed">
-                {candidate.screening?.overallScoreReasoning}
+                {candidate.screening?.overallAnalysis}
               </p>
             </div>
           )}

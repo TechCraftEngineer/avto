@@ -214,7 +214,7 @@ export function RankingPageClient({
                     candidates.filter(
                       (
                         c: RouterOutputs["gig"]["responses"]["ranked"]["candidates"][number],
-                      ) => c.recommendation === "HIGHLY_RECOMMENDED",
+                      ) => c.screening?.recommendation === "HIGHLY_RECOMMENDED",
                     ).length
                   }
                 </p>
@@ -226,7 +226,7 @@ export function RankingPageClient({
                     candidates.filter(
                       (
                         c: RouterOutputs["gig"]["responses"]["ranked"]["candidates"][number],
-                      ) => c.recommendation === "RECOMMENDED",
+                      ) => c.screening?.recommendation === "RECOMMENDED",
                     ).length
                   }
                 </p>
@@ -240,7 +240,7 @@ export function RankingPageClient({
                           (
                             sum: number,
                             c: RouterOutputs["gig"]["responses"]["ranked"]["candidates"][number],
-                          ) => sum + (c.compositeScore ?? 0),
+                          ) => sum + (c.screening?.overallScore ?? 0),
                           0,
                         ) / candidates.length,
                       )

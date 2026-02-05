@@ -37,6 +37,7 @@ export const get = protectedProcedure
       ),
       with: {
         globalCandidate: true,
+        screening: true,
       },
     });
 

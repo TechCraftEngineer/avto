@@ -5,9 +5,9 @@
  * compositeScore и рекомендаций AI
  */
 
-import { and, eq, gte, isNotNull } from "@qbs-autonaim/db";
+import { and, eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
-import { response } from "@qbs-autonaim/db/schema";
+import { response, responseScreening } from "@qbs-autonaim/db/schema";
 
 /**
  * Контактная информация кандидата
@@ -92,14 +92,9 @@ export class GigShortlistGenerator {
       prioritizeBudgetFit = false,
     } = options;
 
-    // Получаем все ранжированные отклики для gig
+    // Получаем все ранжированные отклики для gig с данными скрининга
     const responses = await db.query.response.findMany({
-      where: and(
-        eq(response.entityType, "gig"),
-        eq(response.entityId, gigId),
-        gte(response.compositeScore, minScore),
-        isNotNull(response.compositeScore),
-      ),
+      where: and(eq(response.entityType, "gig"), eq(response.entityId, gigId)),
       columns: {
         id: true,
         candidateName: true,
@@ -111,36 +106,32 @@ export class GigShortlistGenerator {
         proposedPrice: true,
         proposedDeliveryDays: true,
         portfolioLinks: true,
-        // Оценки
-        compositeScore: true,
-        priceScore: true,
-        deliveryScore: true,
-        skillsMatchScore: true,
-        experienceScore: true,
-        // Анализ
-        recommendation: true,
-        rankingAnalysis: true,
-        candidateSummary: true,
-        strengths: true,
-        weaknesses: true,
         // Дополнительная информация
         coverLetter: true,
         skills: true,
         profileData: true,
         createdAt: true,
       },
+      with: {
+        screening: true,
+      },
     });
 
+    // Фильтруем по minScore на уровне приложения
+    const responsesWithScore = responses.filter(
+      (r) => r.screening && r.screening.overallScore >= minScore,
+    );
+
     // Фильтруем по рекомендациям если нужно
-    let filteredResponses = responses;
+    let filteredResponses = responsesWithScore;
     if (includeOnlyHighlyRecommended) {
-      filteredResponses = responses.filter(
-        (r) => r.recommendation === "HIGHLY_RECOMMENDED",
+      filteredResponses = responsesWithScore.filter(
+        (r) => r.screening?.recommendation === "HIGHLY_RECOMMENDED",
       );
     } else {
       // Исключаем NOT_RECOMMENDED
-      filteredResponses = responses.filter(
-        (r) => r.recommendation !== "NOT_RECOMMENDED",
+      filteredResponses = responsesWithScore.filter(
+        (r) => r.screening?.recommendation !== "NOT_RECOMMENDED",
       );
     }
 
@@ -157,17 +148,19 @@ export class GigShortlistGenerator {
         },
         proposedPrice: response.proposedPrice ?? undefined,
         proposedDeliveryDays: response.proposedDeliveryDays ?? undefined,
-        compositeScore: response.compositeScore ?? 0,
-        priceScore: response.priceScore ?? undefined,
-        deliveryScore: response.deliveryScore ?? undefined,
-        skillsMatchScore: response.skillsMatchScore ?? undefined,
-        experienceScore: response.experienceScore ?? undefined,
+        compositeScore: response.screening?.overallScore ?? 0,
+        priceScore: response.screening?.priceScore ?? undefined,
+        deliveryScore: response.screening?.deliveryScore ?? undefined,
+        skillsMatchScore: response.screening?.skillsMatchScore ?? undefined,
+        experienceScore: response.screening?.experienceScore ?? undefined,
         recommendation:
-          response.recommendation as GigShortlistCandidate["recommendation"],
-        rankingAnalysis: response.rankingAnalysis ?? undefined,
-        candidateSummary: response.candidateSummary ?? undefined,
-        strengths: response.strengths ?? [],
-        weaknesses: response.weaknesses ?? [],
+          (response.screening
+            ?.recommendation as GigShortlistCandidate["recommendation"]) ??
+          "NEUTRAL",
+        rankingAnalysis: response.screening?.rankingAnalysis ?? undefined,
+        candidateSummary: response.screening?.candidateSummary ?? undefined,
+        strengths: response.screening?.strengths ?? [],
+        weaknesses: response.screening?.weaknesses ?? [],
         coverLetter: response.coverLetter ?? undefined,
         portfolioLinks: (response.portfolioLinks as string[]) ?? undefined,
         skills: (response.skills as string[]) ?? undefined,

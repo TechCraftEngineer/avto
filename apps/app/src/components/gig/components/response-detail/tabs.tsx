@@ -36,11 +36,11 @@ export function GigResponseTabs({
 }: GigResponseTabsProps) {
   // Проверяем наличие reasoning данных
   const hasReasoning =
-    response.screening?.priceScoreReasoning ||
-    response.screening?.deliveryScoreReasoning ||
-    response.screening?.skillsMatchScoreReasoning ||
-    response.screening?.experienceScoreReasoning ||
-    response.screening?.overallScoreReasoning;
+    response.screening?.priceAnalysis ||
+    response.screening?.deliveryAnalysis ||
+    response.screening?.skillsAnalysis ||
+    response.screening?.experienceAnalysis ||
+    response.screening?.overallAnalysis;
 
   // Проверяем специфичные gig данные
   const hasPricingData = !!(
@@ -158,7 +158,7 @@ export function GigResponseTabs({
               {/* Overall Assessment */}
               <OverallAssessment
                 compositeScore={response.screening?.overallScore}
-                compositeReasoning={response.screening?.overallScoreReasoning}
+                compositeReasoning={response.screening?.overallAnalysis}
                 recommendation={response.screening?.recommendation}
                 strengths={response.screening?.strengths || undefined}
                 weaknesses={response.screening?.weaknesses || undefined}
@@ -167,9 +167,9 @@ export function GigResponseTabs({
               {/* Factor Breakdown */}
               <FactorBreakdown
                 experienceScore={response.screening?.experienceScore}
-                experienceReasoning={response.screening?.experienceScoreReasoning}
+                experienceReasoning={response.screening?.experienceAnalysis}
                 skillsScore={response.screening?.skillsMatchScore}
-                skillsReasoning={response.screening?.skillsMatchScoreReasoning}
+                skillsReasoning={response.screening?.skillsAnalysis}
                 strengths={response.screening?.strengths || undefined}
                 weaknesses={response.screening?.weaknesses || undefined}
               />
@@ -180,7 +180,7 @@ export function GigResponseTabs({
                   <ScoreExplanation
                     label="Оценка цены"
                     score={response.screening?.priceScore}
-                    reasoning={response.screening?.priceScoreReasoning}
+                    reasoning={response.screening?.priceAnalysis}
                     icon={<Banknote className="h-4 w-4" />}
                   />
                 )}
@@ -188,7 +188,7 @@ export function GigResponseTabs({
                   <ScoreExplanation
                     label="Оценка сроков"
                     score={response.screening?.deliveryScore}
-                    reasoning={response.screening?.deliveryScoreReasoning}
+                    reasoning={response.screening?.deliveryAnalysis}
                     icon={<Clock className="h-4 w-4" />}
                   />
                 )}
@@ -196,7 +196,7 @@ export function GigResponseTabs({
                   <ScoreExplanation
                     label="Соответствие навыков"
                     score={response.screening?.skillsMatchScore}
-                    reasoning={response.screening?.skillsMatchScoreReasoning}
+                    reasoning={response.screening?.skillsAnalysis}
                     icon={<Award className="h-4 w-4" />}
                   />
                 )}
@@ -204,7 +204,7 @@ export function GigResponseTabs({
                   <ScoreExplanation
                     label="Оценка опыта"
                     score={response.screening?.experienceScore}
-                    reasoning={response.screening?.experienceScoreReasoning}
+                    reasoning={response.screening?.experienceAnalysis}
                     icon={<Briefcase className="h-4 w-4" />}
                   />
                 )}

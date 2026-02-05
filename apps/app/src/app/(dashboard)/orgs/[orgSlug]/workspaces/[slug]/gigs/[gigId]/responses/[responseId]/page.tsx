@@ -103,16 +103,17 @@ export default function GigResponseDetailPage({ params }: PageProps) {
         proposedDeliveryDays: response.proposedDeliveryDays ?? null,
         portfolioLinks: response.portfolioLinks ?? null,
         portfolioFileId: response.portfolioFileId ?? null,
-        compositeScore: response.compositeScore ?? null,
-        priceScore: response.priceScore ?? null,
-        deliveryScore: response.deliveryScore ?? null,
-        skillsMatchScore: response.skillsMatchScore ?? null,
-        experienceScore: response.experienceScore ?? null,
-        compositeScoreReasoning: response.compositeScoreReasoning ?? null,
-        priceScoreReasoning: response.priceScoreReasoning ?? null,
-        deliveryScoreReasoning: response.deliveryScoreReasoning ?? null,
-        skillsMatchScoreReasoning: response.skillsMatchScoreReasoning ?? null,
-        experienceScoreReasoning: response.experienceScoreReasoning ?? null,
+        compositeScore: response.screening?.overallScore ?? null,
+        priceScore: response.screening?.priceScore ?? null,
+        deliveryScore: response.screening?.deliveryScore ?? null,
+        skillsMatchScore: response.screening?.skillsMatchScore ?? null,
+        experienceScore: response.screening?.experienceScore ?? null,
+        compositeScoreReasoning: response.screening?.overallAnalysis ?? null,
+        priceScoreReasoning: response.screening?.priceAnalysis ?? null,
+        deliveryScoreReasoning: response.screening?.deliveryAnalysis ?? null,
+        skillsMatchScoreReasoning: response.screening?.skillsAnalysis ?? null,
+        experienceScoreReasoning:
+          response.screening?.experienceAnalysis ?? null,
       }
     : null;
 

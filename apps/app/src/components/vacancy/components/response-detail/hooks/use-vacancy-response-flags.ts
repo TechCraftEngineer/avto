@@ -30,13 +30,7 @@ interface UseVacancyResponseFlagsResult {
   hasPortfolio: boolean;
   hasExperience: boolean;
   hasContacts: boolean;
-  screening: {
-    score: number;
-    detailedScore: number;
-    analysis: string | null;
-    priceAnalysis?: string | null;
-    deliveryAnalysis?: string | null;
-  } | null;
+  screening: VacancyResponse["screening"];
   conversation: {
     id: string;
     status: string;

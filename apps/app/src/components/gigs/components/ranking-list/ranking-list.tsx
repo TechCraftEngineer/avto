@@ -61,10 +61,10 @@ export function RankingList({
 
   // Разделяем кандидатов на топ-3 и остальных
   const topThree = candidates.filter(
-    (c) => c.rankingPosition && c.rankingPosition <= 3,
+    (c) => c.screening?.rankingPosition && c.screening.rankingPosition <= 3,
   );
   const others = candidates.filter(
-    (c) => !c.rankingPosition || c.rankingPosition > 3,
+    (c) => !c.screening?.rankingPosition || c.screening.rankingPosition > 3,
   );
 
   return (

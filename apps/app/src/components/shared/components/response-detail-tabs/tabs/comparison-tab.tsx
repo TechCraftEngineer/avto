@@ -82,7 +82,9 @@ export function ComparisonTab({
           <div className="p-4 rounded-lg border bg-card">
             <div className="text-xs text-muted-foreground mb-1">Ваш балл</div>
             <div className="text-2xl font-bold">
-              {currentScore ?? currentResponseData?.compositeScore ?? "—"}
+              {currentScore ??
+                currentResponseData?.screening?.overallScore ??
+                "—"}
             </div>
             <div className="text-xs text-muted-foreground mt-1">из 100</div>
           </div>
@@ -184,19 +186,19 @@ export function ComparisonTab({
 
                   {/* Детальные оценки */}
                   <div className="grid grid-cols-2 gap-2 text-xs">
-                    {response.screening?.skillsMatchScore !== null && (
+                    {response.skillsMatchScore !== null && (
                       <div className="flex items-center justify-between">
                         <span className="text-muted-foreground">Навыки:</span>
                         <span className="font-medium">
-                          {response.screening?.skillsMatchScore}
+                          {response.skillsMatchScore}
                         </span>
                       </div>
                     )}
-                    {response.screening?.experienceScore !== null && (
+                    {response.experienceScore !== null && (
                       <div className="flex items-center justify-between">
                         <span className="text-muted-foreground">Опыт:</span>
                         <span className="font-medium">
-                          {response.screening?.experienceScore}
+                          {response.experienceScore}
                         </span>
                       </div>
                     )}
@@ -241,13 +243,15 @@ export function ComparisonTab({
                 <span className="text-sm font-medium flex items-center gap-1">
                   <TrendingDown className="h-4 w-4 text-destructive" />
                   {(
-                    (data.responses[0].compositeScore ?? 0) -
-                    (currentResponseData.compositeScore ?? 0)
+                    (data.responses[0].overallScore ?? 0) -
+                    (currentResponseData.overallScore ?? 0)
                   ).toFixed(1)}
                 </span>
               </div>
               {currentResponseData.skillsMatchScore !== null &&
-                data.responses[0].skillsMatchScore !== null && (
+                currentResponseData.skillsMatchScore !== undefined &&
+                data.responses[0].skillsMatchScore !== null &&
+                data.responses[0].skillsMatchScore !== undefined && (
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">
                       Навыки:
@@ -278,4 +282,3 @@ export function ComparisonTab({
     </ScrollArea>
   );
 }
-

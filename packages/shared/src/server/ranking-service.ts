@@ -14,9 +14,9 @@ import type {
   RankingResult,
 } from "@qbs-autonaim/ai";
 import { RankingOrchestrator } from "@qbs-autonaim/ai";
-import { and, desc, eq, gte, sql } from "@qbs-autonaim/db";
+import { and, desc, eq, sql } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
-import { gig, response } from "@qbs-autonaim/db/schema";
+import { gig, response, responseScreening } from "@qbs-autonaim/db/schema";
 import { z } from "zod";
 import { formatExperienceText } from "../utils/experience-helpers";
 
@@ -35,6 +35,13 @@ export const getRankedCandidatesFiltersSchema = z.object({
 export type GetRankedCandidatesFilters = z.infer<
   typeof getRankedCandidatesFiltersSchema
 >;
+
+/**
+ * Тип для ранжированного кандидата с данными скрининга
+ */
+export type RankedCandidate = typeof response.$inferSelect & {
+  screening: typeof responseScreening.$inferSelect | null;
+};
 
 export class RankingServiceError extends Error {
   constructor(
@@ -170,7 +177,7 @@ export class RankingService {
     workspaceId: string,
     filters: GetRankedCandidatesFilters = { limit: 50, offset: 0 },
   ): Promise<{
-    candidates: Array<typeof response.$inferSelect>;
+    candidates: RankedCandidate[];
     totalCount: number;
     rankedAt: Date | null;
   }> {
@@ -184,54 +191,99 @@ export class RankingService {
       throw new RankingServiceError("Задание не найдено", "NOT_FOUND");
     }
 
-    // Строим условия фильтрации
-    const conditions = [
+    // Строим условия фильтрации для response
+    const responseConditions = [
       eq(response.entityType, "gig"),
       eq(response.entityId, gigId),
     ];
 
-    if (filters.minScore !== undefined) {
-      conditions.push(gte(response.compositeScore, filters.minScore));
-    }
-
-    if (filters.recommendation) {
-      conditions.push(eq(response.recommendation, filters.recommendation));
-    }
-
-    // Получаем кандидатов с пагинацией
+    // Получаем кандидатов с screening и применяем фильтры
     const candidates = await db.query.response.findMany({
-      where: and(...conditions),
-      orderBy: [desc(response.compositeScore), desc(response.rankingPosition)],
-      limit: filters.limit,
+      where: and(...responseConditions),
+      with: {
+        screening: true,
+      },
+      orderBy: [desc(response.createdAt)],
+      limit: filters.limit * 2, // Берем больше для фильтрации
       offset: filters.offset,
     });
 
-    // Получаем общее количество
-    const [countResult] = await db
-      .select({ count: sql<number>`count(*)::int` })
-      .from(response)
-      .where(and(...conditions));
+    // Фильтруем по minScore и recommendation на уровне приложения
+    let filteredCandidates = candidates;
 
-    const totalCount = countResult?.count ?? 0;
+    if (filters.minScore !== undefined) {
+      filteredCandidates = filteredCandidates.filter(
+        (c) => (c.screening?.overallScore ?? 0) >= filters.minScore!,
+      );
+    }
 
-    // Получаем дату последнего ранжирования
+    if (filters.recommendation) {
+      filteredCandidates = filteredCandidates.filter(
+        (c) => c.screening?.recommendation === filters.recommendation,
+      );
+    }
+
+    // Сортируем по overallScore и rankingPosition
+    filteredCandidates.sort((a, b) => {
+      const scoreA = a.screening?.overallScore ?? 0;
+      const scoreB = b.screening?.overallScore ?? 0;
+      if (scoreA !== scoreB) return scoreB - scoreA;
+
+      const posA = a.screening?.rankingPosition ?? Number.MAX_SAFE_INTEGER;
+      const posB = b.screening?.rankingPosition ?? Number.MAX_SAFE_INTEGER;
+      return posA - posB;
+    });
+
+    // Применяем limit после фильтрации
+    const paginatedCandidates = filteredCandidates.slice(0, filters.limit);
+
+    // Получаем общее количество с учетом фильтров
+    const allCandidates = await db.query.response.findMany({
+      where: and(...responseConditions),
+      with: {
+        screening: true,
+      },
+    });
+
+    let totalCount = allCandidates.length;
+
+    if (filters.minScore !== undefined || filters.recommendation) {
+      let filtered = allCandidates;
+
+      if (filters.minScore !== undefined) {
+        filtered = filtered.filter(
+          (c) => (c.screening?.overallScore ?? 0) >= filters.minScore!,
+        );
+      }
+
+      if (filters.recommendation) {
+        filtered = filtered.filter(
+          (c) => c.screening?.recommendation === filters.recommendation,
+        );
+      }
+
+      totalCount = filtered.length;
+    }
+
+    // Получаем дату последнего ранжирования из screening
     const [latestRanked] = await db
-      .select({ rankedAt: response.rankedAt })
-      .from(response)
+      .select({ screenedAt: responseScreening.screenedAt })
+      .from(responseScreening)
+      .innerJoin(response, eq(responseScreening.responseId, response.id))
       .where(
         and(
           eq(response.entityType, "gig"),
           eq(response.entityId, gigId),
-          sql`${response.rankedAt} IS NOT NULL`,
+          sql`${responseScreening.screenedAt} IS NOT NULL`,
         ),
       )
-      .orderBy(desc(response.rankedAt))
+      .orderBy(desc(responseScreening.screenedAt))
       .limit(1);
 
     return {
-      candidates,
+      candidates: paginatedCandidates,
       totalCount,
-      rankedAt: latestRanked?.rankedAt ?? null,
+      rankedAt: latestRanked?.screenedAt ?? null,
     };
   }
 
@@ -268,33 +320,67 @@ export class RankingService {
     await db.transaction(async (tx) => {
       // Обновляем каждого кандидата
       for (const rankedCandidate of result.candidates) {
-        await tx
-          .update(response)
-          .set({
-            compositeScore: rankedCandidate.scores.compositeScore,
+        // Проверяем существование screening записи
+        const existingScreening = await tx.query.responseScreening.findFirst({
+          where: eq(responseScreening.responseId, rankedCandidate.candidate.id),
+        });
+
+        if (existingScreening) {
+          // Обновляем существующую запись
+          await tx
+            .update(responseScreening)
+            .set({
+              overallScore: rankedCandidate.scores.compositeScore,
+              priceScore: rankedCandidate.scores.priceScore,
+              deliveryScore: rankedCandidate.scores.deliveryScore,
+              skillsMatchScore: rankedCandidate.scores.skillsMatchScore,
+              experienceScore: rankedCandidate.scores.experienceScore,
+              // Анализы
+              priceAnalysis: rankedCandidate.reasoning.priceScoreReasoning,
+              deliveryAnalysis:
+                rankedCandidate.reasoning.deliveryScoreReasoning,
+              skillsAnalysis:
+                rankedCandidate.reasoning.skillsMatchScoreReasoning,
+              experienceAnalysis:
+                rankedCandidate.reasoning.experienceScoreReasoning,
+              overallAnalysis:
+                rankedCandidate.reasoning.compositeScoreReasoning,
+              rankingPosition: rankedCandidate.rankingPosition,
+              rankingAnalysis: rankedCandidate.recommendation.ranking_analysis,
+              candidateSummary: rankedCandidate.candidateSummary,
+              strengths: rankedCandidate.comparison.strengths,
+              weaknesses: rankedCandidate.comparison.weaknesses,
+              recommendation: rankedCandidate.recommendation.status,
+              screenedAt: result.rankedAt,
+            })
+            .where(
+              eq(responseScreening.responseId, rankedCandidate.candidate.id),
+            );
+        } else {
+          // Создаем новую запись
+          await tx.insert(responseScreening).values({
+            responseId: rankedCandidate.candidate.id,
+            overallScore: rankedCandidate.scores.compositeScore,
             priceScore: rankedCandidate.scores.priceScore,
             deliveryScore: rankedCandidate.scores.deliveryScore,
             skillsMatchScore: rankedCandidate.scores.skillsMatchScore,
             experienceScore: rankedCandidate.scores.experienceScore,
-            // Reasoning (explainable AI)
-            priceScoreReasoning: rankedCandidate.reasoning.priceScoreReasoning,
-            deliveryScoreReasoning:
-              rankedCandidate.reasoning.deliveryScoreReasoning,
-            skillsMatchScoreReasoning:
-              rankedCandidate.reasoning.skillsMatchScoreReasoning,
-            experienceScoreReasoning:
+            // Анализы
+            priceAnalysis: rankedCandidate.reasoning.priceScoreReasoning,
+            deliveryAnalysis: rankedCandidate.reasoning.deliveryScoreReasoning,
+            skillsAnalysis: rankedCandidate.reasoning.skillsMatchScoreReasoning,
+            experienceAnalysis:
               rankedCandidate.reasoning.experienceScoreReasoning,
-            compositeScoreReasoning:
-              rankedCandidate.reasoning.compositeScoreReasoning,
+            overallAnalysis: rankedCandidate.reasoning.compositeScoreReasoning,
             rankingPosition: rankedCandidate.rankingPosition,
             rankingAnalysis: rankedCandidate.recommendation.ranking_analysis,
             candidateSummary: rankedCandidate.candidateSummary,
             strengths: rankedCandidate.comparison.strengths,
             weaknesses: rankedCandidate.comparison.weaknesses,
             recommendation: rankedCandidate.recommendation.status,
-            rankedAt: result.rankedAt,
-          })
-          .where(eq(response.id, rankedCandidate.candidate.id));
+            screenedAt: result.rankedAt,
+          });
+        }
       }
     });
   }

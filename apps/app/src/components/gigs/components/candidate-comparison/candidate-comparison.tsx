@@ -33,7 +33,7 @@ interface CandidateComparisonProps {
 }
 
 const SCORE_CATEGORIES = [
-  { key: "compositeScore", label: "Общая оценка", icon: Award },
+  { key: "overallScore", label: "Общая оценка", icon: Award },
   { key: "priceScore", label: "Цена", icon: Banknote },
   { key: "deliveryScore", label: "Срок", icon: Clock },
   { key: "skillsMatchScore", label: "Навыки", icon: Award },
@@ -134,15 +134,17 @@ export function CandidateComparison({
               {SCORE_CATEGORIES.map((category) => {
                 const Icon = category.icon;
                 const hasAnyScore = comparisonCandidates.some(
-                  (c) => c[category.key] !== null,
+                  (c) =>
+                    c.screening?.[category.key] !== null &&
+                    c.screening?.[category.key] !== undefined,
                 );
 
                 if (!hasAnyScore) return null;
 
                 // Find the highest score for highlighting
                 const scores = comparisonCandidates
-                  .map((c) => c[category.key])
-                  .filter((s): s is number => s !== null);
+                  .map((c) => c.screening?.[category.key])
+                  .filter((s): s is number => s !== null && s !== undefined);
                 const maxScore = scores.length > 0 ? Math.max(...scores) : 0;
 
                 return (
@@ -163,8 +165,11 @@ export function CandidateComparison({
 
                       {/* Scores */}
                       {comparisonCandidates.map((candidate) => {
-                        const score = candidate[category.key];
-                        const isHighest = score === maxScore && score !== null;
+                        const score = candidate.screening?.[category.key];
+                        const isHighest =
+                          score === maxScore &&
+                          score !== null &&
+                          score !== undefined;
 
                         return (
                           <div
@@ -175,7 +180,7 @@ export function CandidateComparison({
                                 : "bg-background"
                             }`}
                           >
-                            {score !== null ? (
+                            {score !== null && score !== undefined ? (
                               <div className="space-y-2">
                                 <div className="flex items-center justify-between">
                                   <span
@@ -285,17 +290,20 @@ export function CandidateComparison({
                     key={candidate.id}
                     className="p-3 rounded-lg border bg-background"
                   >
-                    {candidate.screening?.strengths && candidate.screening?.strengths.length > 0 ? (
+                    {candidate.screening?.strengths &&
+                    candidate.screening?.strengths.length > 0 ? (
                       <div className="flex flex-wrap gap-1.5">
-                        {candidate.screening?.strengths.map((strength) => (
-                          <Badge
-                            key={strength}
-                            variant="secondary"
-                            className="text-xs bg-green-50 text-green-700 border-green-200 dark:bg-green-950/30 dark:text-green-400 dark:border-green-800"
-                          >
-                            {strength}
-                          </Badge>
-                        ))}
+                        {candidate.screening?.strengths.map(
+                          (strength: string) => (
+                            <Badge
+                              key={strength}
+                              variant="secondary"
+                              className="text-xs bg-green-50 text-green-700 border-green-200 dark:bg-green-950/30 dark:text-green-400 dark:border-green-800"
+                            >
+                              {strength}
+                            </Badge>
+                          ),
+                        )}
                       </div>
                     ) : (
                       <span className="text-xs text-muted-foreground">
@@ -322,17 +330,20 @@ export function CandidateComparison({
                     key={candidate.id}
                     className="p-3 rounded-lg border bg-background"
                   >
-                    {candidate.screening?.weaknesses && candidate.screening?.weaknesses.length > 0 ? (
+                    {candidate.screening?.weaknesses &&
+                    candidate.screening?.weaknesses.length > 0 ? (
                       <div className="flex flex-wrap gap-1.5">
-                        {candidate.screening?.weaknesses.map((weakness) => (
-                          <Badge
-                            key={weakness}
-                            variant="outline"
-                            className="text-xs bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-950/30 dark:text-yellow-400 dark:border-yellow-800"
-                          >
-                            {weakness}
-                          </Badge>
-                        ))}
+                        {candidate.screening?.weaknesses.map(
+                          (weakness: string) => (
+                            <Badge
+                              key={weakness}
+                              variant="outline"
+                              className="text-xs bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-950/30 dark:text-yellow-400 dark:border-yellow-800"
+                            >
+                              {weakness}
+                            </Badge>
+                          ),
+                        )}
                       </div>
                     ) : (
                       <span className="text-xs text-muted-foreground">
