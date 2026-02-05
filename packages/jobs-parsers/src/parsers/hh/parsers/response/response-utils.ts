@@ -37,6 +37,7 @@ export async function filterResponsesNeedingDetails(
         responsesNeedingDetails.push({
           ...response,
           resumeId: response.resumeId,
+          resumeUrl: response.url, // Переименовываем url в resumeUrl
           respondedAt: parseResponseDate(response.respondedAt || ""),
         });
       }
@@ -60,7 +61,7 @@ export async function parseResponseDetails(
   vacancyId: string,
 ): Promise<void> {
   console.log(`🔍 Начинаем парсинг деталей для ${responses.length} откликов`);
-  console.log(responses);
+
   for (let i = 0; i < responses.length; i++) {
     const response = responses[i];
     if (!response || !response.resumeUrl) {
