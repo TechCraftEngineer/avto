@@ -26,12 +26,14 @@ interface ResponseCardsProps {
   responses: RouterOutputs["vacancy"]["responses"]["list"]["responses"];
   orgSlug: string;
   workspaceSlug: string;
+  workspaceId: string;
 }
 
 export function ResponseCards({
   responses,
   orgSlug,
   workspaceSlug,
+  workspaceId,
 }: ResponseCardsProps) {
   return (
     <div className="grid gap-4 md:hidden">
@@ -102,6 +104,7 @@ export function ResponseCards({
             <div className="pt-2 border-t">
               <ResponseActions
                 responseId={response.id}
+                workspaceId={workspaceId}
                 resumeUrl={response.resumeUrl}
                 telegramUsername={response.telegramUsername}
                 phone={response.phone}

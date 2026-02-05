@@ -102,13 +102,13 @@ export const analyzeSingleResponseFunction = inngest.createFunction(
         });
 
         return {
-          success: true,
+          success: true as const,
           score: screeningResult.score,
         };
       } catch (error) {
         console.error(`❌ Ошибка скрининга для ${responseId}:`, error);
         return {
-          success: false,
+          success: false as const,
           error: error instanceof Error ? error.message : "Неизвестная ошибка",
         };
       }
@@ -116,12 +116,21 @@ export const analyzeSingleResponseFunction = inngest.createFunction(
 
     // Отправляем финальный результат
     await publish(
-      analyzeResponseChannel(responseId).result({
-        responseId,
-        success: result.success,
-        score: result.score,
-        error: result.error,
-      }),
+      analyzeResponseChannel(responseId).result(
+        result.success
+          ? {
+              responseId,
+              success: true as const,
+              score: result.score,
+              error: undefined,
+            }
+          : {
+              responseId,
+              success: false as const,
+              score: undefined,
+              error: result.error,
+            },
+      ),
     );
 
     // Отправляем уведомление о завершении задачи
