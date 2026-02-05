@@ -1,11 +1,13 @@
 import type {
   HrSelectionStatus,
+  ResponseScreening,
   ResponseStatus,
   StoredProfileData,
 } from "@qbs-autonaim/db/schema";
 import { formatContacts } from "../../../../utils/format-contacts";
 import { sanitizeHtml } from "../../../utils/sanitize-html";
 import { calculatePriorityScore } from "../utils/priority-score";
+import { mapScreeningToOutput } from "./screening-mapper";
 
 export function mapResponsesToOutput(
   responsesRaw: Array<{
@@ -31,26 +33,9 @@ export function mapResponsesToOutput(
     salaryExpectationsAmount: number | null;
     salaryExpectationsComment: string | null;
     skills: string[] | null;
-    compositeScore: number | null;
     rating: string | null;
-    strengths: string[] | null;
-    weaknesses: string[] | null;
-    evaluationReasoning: Record<string, unknown> | null;
-    compositeScoreReasoning: string | null;
   }>,
-  screenings: Array<{
-    responseId: string;
-    score: number;
-    detailedScore: number | null;
-    analysis: string | null;
-    potentialScore: number | null;
-    careerTrajectoryScore: number | null;
-    careerTrajectoryType: string | null;
-    hiddenFitIndicators: string[] | null;
-    potentialAnalysis: string | null;
-    careerTrajectoryAnalysis: string | null;
-    hiddenFitAnalysis: string | null;
-  }>,
+  screenings: Array<ResponseScreening>,
   interviewScorings: Array<{
     responseId: string | null;
     score: number;
@@ -73,7 +58,7 @@ export function mapResponsesToOutput(
   commentCountsMap: Map<string, number>,
 ) {
   return responsesRaw.map((r) => {
-    const screening = screenings.find((s) => s.responseId === r.id);
+    const screening = screenings.find((s) => s.responseId === r.id) ?? null;
     const interviewScoring = interviewScorings.find(
       (is) => is.responseId === r.id,
     );
@@ -89,28 +74,8 @@ export function mapResponsesToOutput(
       coverLetter: r.coverLetter ? sanitizeHtml(r.coverLetter) : null,
       globalCandidate: globalCandidate ?? null,
       priorityScore,
-      screening: screening
-        ? {
-            score: screening.score,
-            detailedScore: screening.detailedScore,
-            analysis: screening.analysis
-              ? sanitizeHtml(screening.analysis)
-              : null,
-            potentialScore: screening.potentialScore,
-            careerTrajectoryScore: screening.careerTrajectoryScore,
-            careerTrajectoryType: screening.careerTrajectoryType,
-            hiddenFitIndicators: screening.hiddenFitIndicators,
-            potentialAnalysis: screening.potentialAnalysis
-              ? sanitizeHtml(screening.potentialAnalysis)
-              : null,
-            careerTrajectoryAnalysis: screening.careerTrajectoryAnalysis
-              ? sanitizeHtml(screening.careerTrajectoryAnalysis)
-              : null,
-            hiddenFitAnalysis: screening.hiddenFitAnalysis
-              ? sanitizeHtml(screening.hiddenFitAnalysis)
-              : null,
-          }
-        : null,
+      // Используем новый маппер для скрининга
+      screening: mapScreeningToOutput(screening),
       interviewScoring: interviewScoring
         ? {
             score:

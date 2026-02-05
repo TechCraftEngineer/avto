@@ -1,6 +1,6 @@
 import { and, count, eq, sql } from "drizzle-orm";
 import { db } from "../client";
-import { response, vacancy } from "../schema";
+import { response, responseScreening, vacancy } from "../schema";
 
 /**
  * Скрипт для обновления счетчиков откликов в вакансиях
@@ -35,9 +35,13 @@ async function updateVacancyCounters() {
             total: count(),
             new: sql<number>`COUNT(*) FILTER (WHERE ${response.status} = 'NEW')`,
             inProgress: sql<number>`COUNT(*) FILTER (WHERE ${response.hrSelectionStatus} = 'IN_PROGRESS')`,
-            suitable: sql<number>`COUNT(*) FILTER (WHERE ${response.recommendation} = 'HIGHLY_RECOMMENDED' OR ${response.recommendation} = 'RECOMMENDED')`,
+            suitable: sql<number>`COUNT(*) FILTER (WHERE ${responseScreening.recommendation} = 'HIGHLY_RECOMMENDED' OR ${responseScreening.recommendation} = 'RECOMMENDED')`,
           })
           .from(response)
+          .leftJoin(
+            responseScreening,
+            eq(response.id, responseScreening.responseId),
+          )
           .where(
             and(
               eq(response.entityType, "vacancy"),

@@ -1,5 +1,6 @@
 import type {
   HrSelectionStatus,
+  ResponseScreening,
   ResponseStatus,
 } from "@qbs-autonaim/db/schema";
 
@@ -10,16 +11,12 @@ interface ResponseForPriority {
   createdAt: Date;
 }
 
-interface ScreeningForPriority {
-  score: number;
-}
-
 export function calculatePriorityScore(
   response: ResponseForPriority,
-  screening: ScreeningForPriority | undefined,
+  screening: ResponseScreening | null,
 ): number {
   // Базовый score из fitScore (40%)
-  const fitScore = screening?.score ?? 0;
+  const fitScore = screening?.overallScore ?? 0;
   let priorityScore = fitScore * 0.4;
 
   // Новизна отклика (20%)

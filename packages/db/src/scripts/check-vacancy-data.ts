@@ -1,6 +1,6 @@
 import { and, count, eq, sql } from "drizzle-orm";
 import { db } from "../client";
-import { response, vacancy } from "../schema";
+import { response, responseScreening, vacancy } from "../schema";
 
 const vacancyId = process.argv[2] || "019bffe5-658d-750b-9432-3a996ba92948";
 
@@ -39,9 +39,10 @@ async function checkVacancyData() {
       total: count(),
       new: sql<number>`COUNT(*) FILTER (WHERE ${response.status} = 'NEW')`,
       inProgress: sql<number>`COUNT(*) FILTER (WHERE ${response.hrSelectionStatus} = 'IN_PROGRESS')`,
-      suitable: sql<number>`COUNT(*) FILTER (WHERE ${response.recommendation} = 'HIGHLY_RECOMMENDED' OR ${response.recommendation} = 'RECOMMENDED')`,
+      suitable: sql<number>`COUNT(*) FILTER (WHERE ${responseScreening.recommendation} = 'HIGHLY_RECOMMENDED' OR ${responseScreening.recommendation} = 'RECOMMENDED')`,
     })
     .from(response)
+    .leftJoin(responseScreening, eq(response.id, responseScreening.responseId))
     .where(
       and(eq(response.entityType, "vacancy"), eq(response.entityId, vacancyId)),
     );
@@ -75,9 +76,10 @@ async function checkVacancyData() {
       candidateName: response.candidateName,
       status: response.status,
       hrSelectionStatus: response.hrSelectionStatus,
-      recommendation: response.recommendation,
+      recommendation: responseScreening.recommendation,
     })
     .from(response)
+    .leftJoin(responseScreening, eq(response.id, responseScreening.responseId))
     .where(
       and(eq(response.entityType, "vacancy"), eq(response.entityId, vacancyId)),
     );
