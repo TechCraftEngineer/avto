@@ -64,17 +64,17 @@ export function ResponsesAnalyticsPanel({
     });
   }
 
-  if (averageScore >= 7) {
+  if (averageScore >= 70) {
     insights.push({
       type: "success" as const,
       icon: IconTrendingUp,
-      message: `Средний балл откликов ${averageScore.toFixed(1)}/10 — отличный показатель качества`,
+      message: `Средний балл откликов ${averageScore.toFixed(0)}/100 — отличный показатель качества`,
     });
-  } else if (averageScore < 5 && totalResponses > 10) {
+  } else if (averageScore < 50 && totalResponses > 10) {
     insights.push({
       type: "warning" as const,
       icon: IconAlertCircle,
-      message: `Средний балл откликов ${averageScore.toFixed(1)}/10 — возможно, стоит пересмотреть требования вакансии`,
+      message: `Средний балл откликов ${averageScore.toFixed(0)}/100 — возможно, стоит пересмотреть требования вакансии`,
     });
   }
 
@@ -161,7 +161,7 @@ export function ResponsesAnalyticsPanel({
             <div className={`text-3xl font-bold ${getStatTextColor("top")}`}>
               {topCandidates}
             </div>
-            <p className="text-xs text-green-600 mt-1">Приоритет ≥ 8</p>
+            <p className="text-xs text-green-600 mt-1">Приоритет ≥ 80</p>
           </div>
 
           {/* В работе */}
@@ -252,7 +252,7 @@ export function ResponsesAnalyticsPanel({
               <div>
                 <span className="text-muted-foreground">Средний балл:</span>
                 <span className="ml-2 font-semibold text-foreground">
-                  {averageScore.toFixed(1)}/10
+                  {averageScore.toFixed(0)}/100
                 </span>
               </div>
             </div>

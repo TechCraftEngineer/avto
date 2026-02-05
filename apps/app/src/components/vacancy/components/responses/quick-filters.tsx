@@ -54,7 +54,7 @@ export function QuickFilters({
       icon: IconStar,
       count: counts?.top,
       variant: "default" as const,
-      description: "Приоритет ≥ 8",
+      description: "Приоритет ≥ 80",
     },
     {
       id: "new" as const,
@@ -78,7 +78,7 @@ export function QuickFilters({
       icon: IconCheck,
       count: counts?.suitable,
       variant: "outline" as const,
-      description: "Общий балл ≥ 7",
+      description: "Общий балл ≥ 70",
     },
     {
       id: "unsuitable" as const,
@@ -86,7 +86,7 @@ export function QuickFilters({
       icon: IconX,
       count: counts?.unsuitable,
       variant: "outline" as const,
-      description: "Общий балл < 5",
+      description: "Общий балл < 50",
     },
     {
       id: "with-contacts" as const,
@@ -138,4 +138,3 @@ export function QuickFilters({
     </div>
   );
 }
-
