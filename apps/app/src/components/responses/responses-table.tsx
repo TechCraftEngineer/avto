@@ -12,6 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@qbs-autonaim/ui";
+import { InfoTooltip } from "@qbs-autonaim/ui/info-tooltip";
 import { ArrowUpDown } from "lucide-react";
 import Link from "next/link";
 
@@ -129,16 +130,25 @@ export function ResponsesTable({
             <TableHead>Кандидат</TableHead>
             <TableHead>Вакансия</TableHead>
             <TableHead>
-              <SortButton field="score">Оценка</SortButton>
+              <div className="flex items-center gap-1.5">
+                <SortButton field="score">Оценка</SortButton>
+                <InfoTooltip content="Оценка соответствия кандидата требованиям вакансии на основе автоматического скрининга. Чем выше оценка, тем лучше кандидат подходит под требования." />
+              </div>
             </TableHead>
             <TableHead>
-              <SortButton field="priorityScore">Приоритет</SortButton>
+              <div className="flex items-center gap-1.5">
+                <SortButton field="priorityScore">Приоритет</SortButton>
+                <InfoTooltip content="Приоритет обработки отклика (0-100). Учитывает соответствие требованиям (40%), свежесть отклика (20%), наличие скрининга (20%) и статус обработки (20%). Высокий приоритет означает, что отклик требует первоочередного внимания." />
+              </div>
             </TableHead>
             <TableHead>
               <SortButton field="status">Статус</SortButton>
             </TableHead>
             <TableHead>
-              <SortButton field="respondedAt">Дата</SortButton>
+              <div className="flex items-center gap-1.5">
+                <SortButton field="respondedAt">Дата</SortButton>
+                <InfoTooltip content="Дата и время, когда кандидат откликнулся на вакансию." />
+              </div>
             </TableHead>
           </TableRow>
         </TableHeader>
