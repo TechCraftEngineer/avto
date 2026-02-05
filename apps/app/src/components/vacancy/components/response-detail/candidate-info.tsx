@@ -7,19 +7,11 @@ import {
   Badge,
   CardTitle,
 } from "@qbs-autonaim/ui";
-import {
-  Cake,
-  Calendar,
-  FileText,
-  Mail,
-  MapPin,
-  Phone,
-  User,
-  Wallet,
-} from "lucide-react";
+import { Cake, Calendar, FileText, MapPin, User, Wallet } from "lucide-react";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { getAvatarUrl } from "~/lib/avatar";
 import { CandidateMetrics } from "./candidate-metrics";
+import { ContactItem } from "./contact-item";
 import {
   getImportSourceLabel,
   getStatusColor,
@@ -95,19 +87,13 @@ export function CandidateInfo({
 
         {/* Контактная информация */}
         {(response.phone || response.email) && (
-          <div className="flex flex-wrap items-center gap-3 mt-2 text-sm text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-3 mt-2">
             {response.phone && (
-              <div className="flex items-center gap-1.5">
-                <Phone className="h-3.5 w-3.5 shrink-0" />
-                <span>{response.phone}</span>
-              </div>
+              <ContactItem type="phone" value={response.phone} />
             )}
 
             {response.email && (
-              <div className="flex items-center gap-1.5">
-                <Mail className="h-3.5 w-3.5 shrink-0" />
-                <span className="truncate max-w-[250px]">{response.email}</span>
-              </div>
+              <ContactItem type="email" value={response.email} />
             )}
           </div>
         )}

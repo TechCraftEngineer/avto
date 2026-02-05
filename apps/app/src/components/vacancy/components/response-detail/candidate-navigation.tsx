@@ -2,8 +2,9 @@
 
 import { Badge } from "@qbs-autonaim/ui/badge";
 import { Button } from "@qbs-autonaim/ui/button";
-import { ArrowUpDown, ChevronLeft, ChevronRight, Eye } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { useEffect, useState } from "react";
+import { getStatusLabel } from "./header-card-utils";
 import type { VacancyResponse, VacancyResponseFromList } from "./types";
 
 interface CandidateNavigationProps {
@@ -170,7 +171,7 @@ export function CandidateNavigation({
                         variant="outline"
                         className={`text-xs ${getStatusColor(prevResponse.status || "NEW")}`}
                       >
-                        {prevResponse.status || "NEW"}
+                        {getStatusLabel(prevResponse.status || "NEW")}
                       </Badge>
                       <span
                         className={`text-xs font-bold ${getMatchScoreColor(calculateMatchScore(prevResponse))}`}
@@ -219,7 +220,7 @@ export function CandidateNavigation({
                         variant="outline"
                         className={`text-xs ${getStatusColor(nextResponse.status || "NEW")}`}
                       >
-                        {nextResponse.status || "NEW"}
+                        {getStatusLabel(nextResponse.status || "NEW")}
                       </Badge>
                     </div>
                   </div>
@@ -227,12 +228,6 @@ export function CandidateNavigation({
               );
             })()}
         </div>
-
-        {/* Кнопка сортировки */}
-        <Button variant="outline" size="sm" className="gap-2">
-          <ArrowUpDown className="h-4 w-4" />
-          Сортировать
-        </Button>
       </div>
     </div>
   );
