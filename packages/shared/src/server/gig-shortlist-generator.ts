@@ -7,7 +7,7 @@
 
 import { and, eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
-import { response, responseScreening } from "@qbs-autonaim/db/schema";
+import { response } from "@qbs-autonaim/db/schema";
 
 /**
  * Контактная информация кандидата

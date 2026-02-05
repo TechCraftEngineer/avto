@@ -1,11 +1,4 @@
-import {
-  integer,
-  jsonb,
-  text,
-  timestamp,
-  uuid,
-  varchar,
-} from "drizzle-orm/pg-core";
+import { jsonb, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 import { file } from "../file";
 import type { StoredProfileData } from "../types";
 import {

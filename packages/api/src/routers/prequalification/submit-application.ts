@@ -126,7 +126,7 @@ export const submitApplication = publicProcedure
       const resumeId = `preq_${nanoid(16)}`;
 
       // Prepare evaluationReasoning from dimensions
-      const evaluationReasoning = evaluation?.dimensions
+      const _evaluationReasoning = evaluation?.dimensions
         ? {
             hardSkills: evaluation.dimensions.hardSkills,
             softSkills: evaluation.dimensions.softSkills,

@@ -212,8 +212,9 @@ export class RankingService {
     let filteredCandidates = candidates;
 
     if (filters.minScore !== undefined) {
+      const minScore = filters.minScore;
       filteredCandidates = filteredCandidates.filter(
-        (c) => (c.screening?.overallScore ?? 0) >= filters.minScore!,
+        (c) => (c.screening?.overallScore ?? 0) >= minScore,
       );
     }
 
@@ -251,8 +252,9 @@ export class RankingService {
       let filtered = allCandidates;
 
       if (filters.minScore !== undefined) {
+        const minScore = filters.minScore;
         filtered = filtered.filter(
-          (c) => (c.screening?.overallScore ?? 0) >= filters.minScore!,
+          (c) => (c.screening?.overallScore ?? 0) >= minScore,
         );
       }
 
