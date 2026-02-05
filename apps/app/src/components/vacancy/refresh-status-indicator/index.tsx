@@ -3,7 +3,7 @@
 import { cn } from "@qbs-autonaim/ui";
 import { Card } from "@qbs-autonaim/ui/card";
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
 import { ConfirmationView } from "./confirmation-view";
@@ -29,6 +29,11 @@ export function RefreshStatusIndicator({
   const { workspace } = useWorkspace();
   const showConfirmation = externalShowConfirmation ?? internalShowConfirmation;
 
+  // Проверяем статус при монтировании для всех режимов
+  const { data: initialStatus } = useQuery(
+    trpc.vacancy.responses.getRefreshStatus.queryOptions({ vacancyId }),
+  );
+
   const handleVisibilityChange = useCallback((visible: boolean) => {
     setIsVisible(visible);
   }, []);
@@ -40,6 +45,7 @@ export function RefreshStatusIndicator({
     analyzeProgress,
     analyzeCompleted,
     error,
+    isConnecting,
     clearAutoCloseTimer,
   } = useRefreshSubscription({
     vacancyId,
@@ -47,6 +53,7 @@ export function RefreshStatusIndicator({
     onVisibilityChange: handleVisibilityChange,
     batchId,
     workspaceId: workspace?.id,
+    initialStatus: initialStatus ?? null,
   });
 
   const handleStartRefresh = () => {
@@ -62,24 +69,6 @@ export function RefreshStatusIndicator({
     clearAutoCloseTimer();
     onConfirmationClose?.();
   };
-
-  // Проверяем статус при монтировании (только для режима refresh)
-  const { data: initialStatus } = useQuery(
-    trpc.vacancy.responses.getRefreshStatus.queryOptions({ vacancyId }),
-  );
-
-  // Устанавливаем начальный статус если задание уже запущено
-  useEffect(() => {
-    if (
-      mode === "refresh" &&
-      initialStatus?.isRunning &&
-      initialStatus.status &&
-      initialStatus.message
-    ) {
-      setIsVisible(true);
-      setInternalShowConfirmation(false);
-    }
-  }, [initialStatus, mode]);
 
   if (!isVisible && !showConfirmation) {
     return null;
@@ -112,6 +101,7 @@ export function RefreshStatusIndicator({
             analyzeProgress={analyzeProgress}
             analyzeCompleted={analyzeCompleted}
             error={error}
+            isConnecting={isConnecting}
             onClose={handleClose}
           />
         )}

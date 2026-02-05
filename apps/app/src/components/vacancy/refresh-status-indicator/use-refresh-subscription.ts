@@ -1,10 +1,12 @@
 import { useInngestSubscription } from "@inngest/realtime/hooks";
+import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
 import {
   fetchRefreshVacancyResponsesToken,
   fetchScreenBatchToken,
   fetchSyncArchivedVacancyResponsesToken,
 } from "~/actions/realtime";
+import { useTRPC } from "~/trpc/react";
 import type {
   AnalyzeCompletedData,
   AnalyzeProgressData,
@@ -20,6 +22,12 @@ interface UseRefreshSubscriptionProps {
   onVisibilityChange: (visible: boolean) => void;
   batchId?: string;
   workspaceId?: string;
+  initialStatus?: {
+    isRunning: boolean;
+    status: string | null;
+    message: string | null;
+    eventType: string | null;
+  } | null;
 }
 
 export function useRefreshSubscription({
@@ -28,6 +36,7 @@ export function useRefreshSubscription({
   onVisibilityChange,
   batchId,
   workspaceId,
+  initialStatus,
 }: UseRefreshSubscriptionProps) {
   const [currentProgress, setCurrentProgress] = useState<ProgressData | null>(
     null,
@@ -42,10 +51,67 @@ export function useRefreshSubscription({
   const [autoCloseTimer, setAutoCloseTimer] = useState<NodeJS.Timeout | null>(
     null,
   );
+  const [isConnecting, setIsConnecting] = useState(true);
+
+  const queryClient = useQueryClient();
+  const trpc = useTRPC();
 
   const isArchivedMode = mode === "archived";
   const isAnalyzeMode = mode === "analyze";
   const isScreeningMode = mode === "screening";
+
+  // Устанавливаем начальное состояние из REST API
+  useEffect(() => {
+    if (initialStatus?.isRunning && initialStatus.message) {
+      setIsConnecting(false);
+
+      // Проверяем соответствие типа события текущему режиму
+      const isMatchingMode =
+        (isArchivedMode &&
+          initialStatus.eventType === "vacancy/responses.sync-archived") ||
+        (!isArchivedMode &&
+          !isAnalyzeMode &&
+          !isScreeningMode &&
+          initialStatus.eventType === "vacancy/responses.refresh") ||
+        ((isAnalyzeMode || isScreeningMode) &&
+          initialStatus.eventType === "response/screen.batch");
+
+      if (!isMatchingMode) {
+        // Задание не соответствует текущему режиму, не показываем компонент
+        return;
+      }
+
+      onVisibilityChange(true);
+
+      // Определяем режим по типу события
+      if (initialStatus.eventType === "vacancy/responses.sync-archived") {
+        setArchivedStatus({
+          status: "processing",
+          message: initialStatus.message,
+          vacancyId,
+        });
+      } else if (initialStatus.eventType === "vacancy/responses.refresh") {
+        setCurrentProgress({
+          status: "processing",
+          message: initialStatus.message,
+          vacancyId,
+        });
+      }
+    } else {
+      // Нет активного задания, скрываем индикатор подключения через таймаут
+      const timeout = setTimeout(() => {
+        setIsConnecting(false);
+      }, 2000);
+      return () => clearTimeout(timeout);
+    }
+  }, [
+    initialStatus,
+    vacancyId,
+    onVisibilityChange,
+    isArchivedMode,
+    isAnalyzeMode,
+    isScreeningMode,
+  ]);
 
   // Мемоизируем функции получения токенов
   const getRefreshToken = useCallback(
@@ -77,6 +143,19 @@ export function useRefreshSubscription({
     enabled: isArchivedMode,
   });
 
+  // Логирование для диагностики
+  useEffect(() => {
+    if (isArchivedMode) {
+      console.log(
+        "[Archived Sync] Подписка активна, данных:",
+        archivedData.length,
+      );
+      if (archivedError) {
+        console.error("[Archived Sync] Ошибка подписки:", archivedError);
+      }
+    }
+  }, [isArchivedMode, archivedData.length, archivedError]);
+
   // Подписываемся на канал Realtime для анализа/скрининга откликов
   const { data: analyzeData, error: analyzeError } = useInngestSubscription({
     refreshToken: getAnalyzeToken,
@@ -94,6 +173,14 @@ export function useRefreshSubscription({
       ? analyzeError
       : refreshError;
 
+  // Показываем индикатор сразу при подключении к активному заданию
+  useEffect(() => {
+    if (data.length > 0) {
+      setIsConnecting(false);
+      onVisibilityChange(true);
+    }
+  }, [data.length, onVisibilityChange]);
+
   // Обрабатываем все сообщения из канала
   useEffect(() => {
     if (data.length === 0) return;
@@ -103,6 +190,19 @@ export function useRefreshSubscription({
         const statusData = message.data as ArchivedStatusData;
         setArchivedStatus(statusData);
         onVisibilityChange(true);
+
+        // Инвалидируем кэш откликов при обработке
+        if (
+          statusData.status === "processing" ||
+          statusData.status === "completed"
+        ) {
+          queryClient.invalidateQueries({
+            queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+          });
+          queryClient.invalidateQueries({
+            queryKey: trpc.vacancy.responses.getCount.queryKey({ vacancyId }),
+          });
+        }
 
         if (statusData.status === "completed") {
           const timer = setTimeout(() => {
@@ -124,6 +224,11 @@ export function useRefreshSubscription({
           setAnalyzeProgress(progressData);
           setAnalyzeCompleted(null);
           onVisibilityChange(true);
+
+          // Инвалидируем кэш откликов при обработке каждого отклика
+          queryClient.invalidateQueries({
+            queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+          });
 
           setAutoCloseTimer((prev) => {
             if (prev) {
@@ -148,6 +253,11 @@ export function useRefreshSubscription({
           setAnalyzeCompleted(completedData);
           onVisibilityChange(true);
 
+          // Финальная инвалидация при завершении batch
+          queryClient.invalidateQueries({
+            queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+          });
+
           const timer = setTimeout(() => {
             onVisibilityChange(false);
             setAnalyzeProgress(null);
@@ -162,6 +272,14 @@ export function useRefreshSubscription({
           setCurrentResult(null);
           onVisibilityChange(true);
 
+          // Инвалидируем кэш откликов при обработке
+          queryClient.invalidateQueries({
+            queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+          });
+          queryClient.invalidateQueries({
+            queryKey: trpc.vacancy.responses.getCount.queryKey({ vacancyId }),
+          });
+
           setAutoCloseTimer((prev) => {
             if (prev) {
               clearTimeout(prev);
@@ -172,6 +290,14 @@ export function useRefreshSubscription({
           const resultData = message.data as ResultData;
           setCurrentResult(resultData);
           onVisibilityChange(true);
+
+          // Финальная инвалидация при завершении
+          queryClient.invalidateQueries({
+            queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+          });
+          queryClient.invalidateQueries({
+            queryKey: trpc.vacancy.responses.getCount.queryKey({ vacancyId }),
+          });
 
           const timer = setTimeout(() => {
             onVisibilityChange(false);
@@ -206,6 +332,7 @@ export function useRefreshSubscription({
     analyzeProgress,
     analyzeCompleted,
     error,
+    isConnecting,
     clearAutoCloseTimer: () => {
       if (autoCloseTimer) {
         clearTimeout(autoCloseTimer);

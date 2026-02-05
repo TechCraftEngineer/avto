@@ -38,6 +38,7 @@ export const getRefreshStatus = protectedProcedure
           isRunning: false,
           status: null,
           message: null,
+          eventType: null,
         };
       }
 
@@ -134,10 +135,23 @@ export const getRefreshStatus = protectedProcedure
             `Найден активный запуск для события ${eventName}, вакансия ${vacancyId}`,
           );
 
+          // Определяем сообщение в зависимости от типа события
+          let message = "Обновление откликов выполняется…";
+          if (eventName === "vacancy/responses.sync-archived") {
+            message = "Синхронизация архивных откликов выполняется…";
+          } else if (eventName === "response/screen.new") {
+            message = "Скрининг новых откликов выполняется…";
+          } else if (eventName === "response/screen.all") {
+            message = "Скрининг всех откликов выполняется…";
+          } else if (eventName === "response/resume.parse-new") {
+            message = "Парсинг новых резюме выполняется…";
+          }
+
           return {
             isRunning: true,
             status: "processing" as const,
-            message: "Обновление откликов выполняется…",
+            message,
+            eventType: eventName,
           };
         }
       }
@@ -149,6 +163,7 @@ export const getRefreshStatus = protectedProcedure
         isRunning: false,
         status: null,
         message: null,
+        eventType: null,
       };
     } catch (error) {
       console.error("Ошибка при проверке статуса задания:", error);
@@ -156,6 +171,7 @@ export const getRefreshStatus = protectedProcedure
         isRunning: false,
         status: null,
         message: null,
+        eventType: null,
       };
     }
   });

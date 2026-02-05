@@ -21,6 +21,7 @@ interface ProgressViewProps {
   analyzeProgress: AnalyzeProgressData | null;
   analyzeCompleted: AnalyzeCompletedData | null;
   error: Error | null;
+  isConnecting: boolean;
   onClose: () => void;
 }
 
@@ -32,6 +33,7 @@ export function ProgressView({
   analyzeProgress,
   analyzeCompleted,
   error,
+  isConnecting,
   onClose,
 }: ProgressViewProps) {
   const isArchivedMode = mode === "archived";
@@ -103,7 +105,8 @@ export function ProgressView({
           !archivedStatus &&
           !analyzeProgress &&
           !analyzeCompleted &&
-          !error && (
+          !error &&
+          isConnecting && (
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Loader2 className="h-3 w-3 animate-spin" />
               <span>Подключение к серверу…</span>
