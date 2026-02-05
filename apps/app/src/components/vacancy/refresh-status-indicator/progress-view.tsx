@@ -36,9 +36,10 @@ export function ProgressView({
 }: ProgressViewProps) {
   const isArchivedMode = mode === "archived";
   const isAnalyzeMode = mode === "analyze";
+  const isScreeningMode = mode === "screening";
   const currentStatus = isArchivedMode
     ? archivedStatus?.status
-    : isAnalyzeMode
+    : isAnalyzeMode || isScreeningMode
       ? analyzeCompleted
         ? "completed"
         : analyzeProgress
@@ -47,7 +48,7 @@ export function ProgressView({
       : currentProgress?.status || (currentResult ? "completed" : undefined);
   const isCompleted = isArchivedMode
     ? archivedStatus?.status === "completed"
-    : isAnalyzeMode
+    : isAnalyzeMode || isScreeningMode
       ? !!analyzeCompleted
       : currentResult?.success === true;
 
@@ -68,11 +69,13 @@ export function ProgressView({
                 {archivedStatus?.status === "completed" &&
                   "Синхронизация завершена"}
               </>
-            ) : isAnalyzeMode ? (
+            ) : isAnalyzeMode || isScreeningMode ? (
               <>
                 {!analyzeProgress && !analyzeCompleted && "Подключение…"}
-                {analyzeProgress && "Анализ откликов"}
-                {analyzeCompleted && "Анализ завершен"}
+                {analyzeProgress &&
+                  (isScreeningMode ? "Скрининг откликов" : "Анализ откликов")}
+                {analyzeCompleted &&
+                  (isScreeningMode ? "Скрининг завершен" : "Анализ завершен")}
               </>
             ) : (
               <>
@@ -87,6 +90,7 @@ export function ProgressView({
           </h4>
           {!isArchivedMode &&
             !isAnalyzeMode &&
+            !isScreeningMode &&
             currentProgress?.currentPage !== undefined && (
               <span className="text-xs text-muted-foreground shrink-0">
                 Страница&nbsp;{currentProgress.currentPage + 1}
@@ -110,20 +114,24 @@ export function ProgressView({
           <ArchivedStatusContent status={archivedStatus} />
         )}
 
-        {isAnalyzeMode && (
+        {(isAnalyzeMode || isScreeningMode) && (
           <AnalyzeProgressContent
             progress={analyzeProgress}
             completed={analyzeCompleted}
           />
         )}
 
-        {!isArchivedMode && !isAnalyzeMode && currentProgress && (
-          <RefreshProgressContent progress={currentProgress} />
-        )}
+        {!isArchivedMode &&
+          !isAnalyzeMode &&
+          !isScreeningMode &&
+          currentProgress && (
+            <RefreshProgressContent progress={currentProgress} />
+          )}
 
-        {!isArchivedMode && !isAnalyzeMode && currentResult && (
-          <RefreshResultContent result={currentResult} />
-        )}
+        {!isArchivedMode &&
+          !isAnalyzeMode &&
+          !isScreeningMode &&
+          currentResult && <RefreshResultContent result={currentResult} />}
 
         {error && (
           <div className="flex items-center gap-2 text-destructive rounded-lg border border-destructive/50 bg-destructive/10 p-2 mt-2">

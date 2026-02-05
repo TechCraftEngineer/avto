@@ -45,6 +45,7 @@ export function useRefreshSubscription({
 
   const isArchivedMode = mode === "archived";
   const isAnalyzeMode = mode === "analyze";
+  const isScreeningMode = mode === "screening";
 
   // Мемоизируем функции получения токенов
   const getRefreshToken = useCallback(
@@ -67,7 +68,7 @@ export function useRefreshSubscription({
   // Подписываемся на канал Realtime для обычного обновления
   const { data: refreshData, error: refreshError } = useInngestSubscription({
     refreshToken: getRefreshToken,
-    enabled: !isArchivedMode && !isAnalyzeMode,
+    enabled: !isArchivedMode && !isAnalyzeMode && !isScreeningMode,
   });
 
   // Подписываемся на канал Realtime для архивной синхронизации
@@ -76,20 +77,20 @@ export function useRefreshSubscription({
     enabled: isArchivedMode,
   });
 
-  // Подписываемся на канал Realtime для анализа откликов
+  // Подписываемся на канал Realtime для анализа/скрининга откликов
   const { data: analyzeData, error: analyzeError } = useInngestSubscription({
     refreshToken: getAnalyzeToken,
-    enabled: isAnalyzeMode && !!batchId && !!workspaceId,
+    enabled: (isAnalyzeMode || isScreeningMode) && !!batchId && !!workspaceId,
   });
 
   const data = isArchivedMode
     ? archivedData
-    : isAnalyzeMode
+    : isAnalyzeMode || isScreeningMode
       ? analyzeData
       : refreshData;
   const error = isArchivedMode
     ? archivedError
-    : isAnalyzeMode
+    : isAnalyzeMode || isScreeningMode
       ? analyzeError
       : refreshError;
 
@@ -117,7 +118,7 @@ export function useRefreshSubscription({
             return null;
           });
         }
-      } else if (isAnalyzeMode) {
+      } else if (isAnalyzeMode || isScreeningMode) {
         if (message.topic === "batch-progress") {
           const progressData = message.data as AnalyzeProgressData;
           setAnalyzeProgress(progressData);

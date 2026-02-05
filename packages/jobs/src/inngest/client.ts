@@ -3,6 +3,7 @@ import { realtimeMiddleware } from "@inngest/realtime/middleware";
 import { EventSchemas, Inngest } from "inngest";
 import {
   analyzeFreelanceResponseDataSchema,
+  analyzeSingleResponseDataSchema,
   bufferFlushDataSchema,
   candidateOfferSendDataSchema,
   candidateWelcomeBatchDataSchema,
@@ -69,6 +70,7 @@ export const inngest = new Inngest({
     "response/screen": responseScreenDataSchema,
     "response/screen.new": screenNewResponsesDataSchema,
     "response/screen.all": screenAllResponsesDataSchema,
+    "response/analyze.single": analyzeSingleResponseDataSchema,
     "response/screen.batch": screenResponsesBatchDataSchema,
     "response/resume.parse-new": parseNewResumesDataSchema,
     "response/resume.refresh": refreshSingleResumeDataSchema,

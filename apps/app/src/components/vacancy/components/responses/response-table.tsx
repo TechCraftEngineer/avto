@@ -28,6 +28,8 @@ interface ResponseTableProps {
   onSetRefreshHandler?: (handler: () => void) => void;
   onArchivedDialogOpen?: () => void;
   onSetArchivedHandler?: (handler: () => void) => void;
+  onScreenNewDialogOpen?: () => void;
+  onSetScreenNewHandler?: (handler: () => void) => void;
 }
 
 const ITEMS_PER_PAGE = 25;
@@ -61,6 +63,8 @@ export function ResponseTable({
   onSetRefreshHandler,
   onArchivedDialogOpen,
   onSetArchivedHandler,
+  onScreenNewDialogOpen,
+  onSetScreenNewHandler,
 }: ResponseTableProps) {
   const trpc = useTRPC();
   const { workspace, orgSlug } = useWorkspace();
@@ -232,6 +236,7 @@ export function ResponseTable({
         orgSlug={orgSlug ?? ""}
         response={response}
         workspaceSlug={workspaceSlug}
+        workspaceId={workspace?.id ?? ""}
         isSelected={selectedIds.has(response.id)}
         onSelect={handleSelectOne}
         vacancyId={vacancyId}
@@ -262,6 +267,8 @@ export function ResponseTable({
         onRefreshDialogOpen={onRefreshDialogOpen}
         onArchivedDialogOpen={onArchivedDialogOpen}
         onSetArchivedHandler={onSetArchivedHandler}
+        onScreenNewDialogOpen={onScreenNewDialogOpen}
+        onSetScreenNewHandler={onSetScreenNewHandler}
       />
 
       <div className="rounded-md border bg-transparent">

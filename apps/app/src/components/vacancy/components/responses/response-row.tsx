@@ -50,18 +50,22 @@ interface ResponseRowProps {
   response: RouterOutputs["vacancy"]["responses"]["list"]["responses"][0];
   orgSlug: string;
   workspaceSlug: string;
+  workspaceId: string;
   isSelected?: boolean;
   onSelect?: (id: string) => void;
   vacancyId?: string;
+  onAnalyzeClick?: (responseId: string, candidateName: string) => void;
 }
 
 export function ResponseRow({
   response,
   orgSlug,
   workspaceSlug,
+  workspaceId,
   isSelected = false,
   onSelect,
   vacancyId,
+  onAnalyzeClick,
 }: ResponseRowProps) {
   const photoUrl = useAvatarUrl(response.photoFileId);
   const candidateName = response.candidateName || "Кандидат";
@@ -539,6 +543,8 @@ export function ResponseRow({
           <div className="opacity-0 group-hover:opacity-100 transition-opacity">
             <ResponseActions
               responseId={response.id}
+              candidateName={candidateName}
+              workspaceId={workspaceId}
               resumeUrl={response.resumeUrl}
               telegramUsername={response.telegramUsername}
               phone={response.phone}
@@ -547,6 +553,9 @@ export function ResponseRow({
                 // TODO: Реализовать отправку приветствия
                 console.log("Отправка приветствия для отклика:", response.id);
               }}
+              onAnalyzeClick={() =>
+                onAnalyzeClick?.(response.id, candidateName)
+              }
             />
           </div>
         </div>

@@ -1,4 +1,4 @@
-export type SyncMode = "refresh" | "archived" | "analyze";
+export type SyncMode = "refresh" | "archived" | "analyze" | "screening";
 export type ProgressStatus = "started" | "processing" | "completed" | "error";
 
 export interface ProgressData {

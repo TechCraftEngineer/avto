@@ -2,6 +2,7 @@
 
 import { getSubscriptionToken } from "@inngest/realtime";
 import {
+  analyzeResponseChannel,
   fetchArchivedListChannel,
   importArchivedVacanciesChannel,
   importNewVacanciesChannel,
@@ -24,6 +25,18 @@ import { inngest } from "@qbs-autonaim/jobs/client";
 export async function fetchScreenNewResponsesToken(vacancyId: string) {
   const token = await getSubscriptionToken(inngest, {
     channel: screenNewResponsesChannel(vacancyId),
+    topics: ["progress", "result"],
+  });
+
+  return token;
+}
+
+/**
+ * Server action для получения токена подписки на Realtime канал анализа одного отклика
+ */
+export async function fetchAnalyzeResponseToken(responseId: string) {
+  const token = await getSubscriptionToken(inngest, {
+    channel: analyzeResponseChannel(responseId),
     topics: ["progress", "result"],
   });
 

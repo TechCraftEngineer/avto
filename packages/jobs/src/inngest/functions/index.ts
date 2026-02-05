@@ -53,6 +53,7 @@ import {
   typingActivityFunction,
 } from "./interview";
 import {
+  analyzeSingleResponseFunction,
   generateGigRecommendationFunction,
   generateRecommendationFunction,
   generateVacancyRecommendationFunction,
@@ -106,6 +107,7 @@ export const inngestFunctions: any[] = [
   updateSingleVacancyFunction,
   updateVacanciesFunction,
   // Response
+  analyzeSingleResponseFunction,
   generateRecommendationFunction,
   generateVacancyRecommendationFunction,
   generateGigRecommendationFunction,

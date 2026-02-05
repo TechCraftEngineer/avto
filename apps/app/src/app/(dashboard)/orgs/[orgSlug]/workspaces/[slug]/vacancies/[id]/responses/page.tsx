@@ -16,10 +16,13 @@ export default function VacancyResponsesPage() {
   const [showRefreshConfirmation, setShowRefreshConfirmation] = useState(false);
   const [showArchivedConfirmation, setShowArchivedConfirmation] =
     useState(false);
+  const [showScreeningConfirmation, setShowScreeningConfirmation] =
+    useState(false);
 
   // Используем ref вместо state для хранения обработчиков
   const handleRefreshRef = useRef<(() => void) | null>(null);
   const handleArchivedSyncRef = useRef<(() => void) | null>(null);
+  const handleScreenNewRef = useRef<(() => void) | null>(null);
 
   // Мемоизируем обработчики для предотвращения бесконечных циклов
   const onSetRefreshHandler = useCallback((handler: () => void) => {
@@ -30,6 +33,10 @@ export default function VacancyResponsesPage() {
     handleArchivedSyncRef.current = handler;
   }, []);
 
+  const onSetScreenNewHandler = useCallback((handler: () => void) => {
+    handleScreenNewRef.current = handler;
+  }, []);
+
   // Обертки для вызова обработчиков из ref
   const handleRefreshConfirm = useCallback(() => {
     handleRefreshRef.current?.();
@@ -37,6 +44,10 @@ export default function VacancyResponsesPage() {
 
   const handleArchivedConfirm = useCallback(() => {
     handleArchivedSyncRef.current?.();
+  }, []);
+
+  const handleScreenNewConfirm = useCallback(() => {
+    handleScreenNewRef.current?.();
   }, []);
 
   return (
@@ -68,6 +79,13 @@ export default function VacancyResponsesPage() {
           onConfirmationClose={() => setShowArchivedConfirmation(false)}
           onConfirm={handleArchivedConfirm}
         />
+        <RefreshStatusIndicator
+          vacancyId={id}
+          mode="screening"
+          showConfirmation={showScreeningConfirmation}
+          onConfirmationClose={() => setShowScreeningConfirmation(false)}
+          onConfirm={handleScreenNewConfirm}
+        />
       </div>
 
       <Card className="border-none shadow-xl bg-card/60 backdrop-blur-xl overflow-hidden relative group">
@@ -80,6 +98,8 @@ export default function VacancyResponsesPage() {
             onSetRefreshHandler={onSetRefreshHandler}
             onArchivedDialogOpen={() => setShowArchivedConfirmation(true)}
             onSetArchivedHandler={onSetArchivedHandler}
+            onScreenNewDialogOpen={() => setShowScreeningConfirmation(true)}
+            onSetScreenNewHandler={onSetScreenNewHandler}
           />
         </div>
       </Card>
@@ -87,7 +107,7 @@ export default function VacancyResponsesPage() {
       {/* Floating Chat */}
       <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
         {isChatOpen ? (
-          <Card className="border-none shadow-2xl bg-card/95 backdrop-blur-xl overflow-hidden w-[calc(100vw-2rem)] sm:w-96 h-[calc(100vh-1rem)] sm:h-[44rem] animate-in slide-in-from-bottom-4 duration-300 flex flex-col">
+          <Card className="border-none shadow-2xl bg-card/95 backdrop-blur-xl overflow-hidden w-[calc(100vw-2rem)] sm:w-96 h-[calc(100vh-1rem)] sm:h-176 animate-in slide-in-from-bottom-4 duration-300 flex flex-col">
             <div className="flex items-center justify-between p-3 border-b shrink-0">
               <div>
                 <h3 className="font-semibold text-sm">AI-ассистент</h3>

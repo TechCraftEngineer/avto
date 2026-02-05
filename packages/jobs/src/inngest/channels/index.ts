@@ -3,6 +3,7 @@
  */
 
 export {
+  analyzeResponseChannel,
   checkPublicationStatusChannel,
   conversationMessagesChannel,
   fetchArchivedListChannel,

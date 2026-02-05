@@ -21,32 +21,34 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import {
-  triggerRefreshSingleResume,
-  triggerScreenResponse,
-} from "~/actions/trigger";
+import { triggerRefreshSingleResume } from "~/actions/trigger";
 import { useTRPC } from "~/trpc/react";
 import { useRefreshSingleResume } from "./use-refresh-single-resume";
 
 interface ResponseActionsProps {
   responseId: string;
+  candidateName?: string;
+  workspaceId: string;
   resumeUrl?: string | null;
   telegramUsername?: string | null;
   phone?: string | null;
   welcomeSentAt?: Date | null;
   onSendWelcome?: () => Promise<void>;
+  onAnalyzeClick?: () => void;
 }
 
 export function ResponseActions({
   responseId,
+  candidateName = "Кандидат",
+  workspaceId,
   resumeUrl,
   telegramUsername,
   phone,
   welcomeSentAt,
   onSendWelcome,
+  onAnalyzeClick,
 }: ResponseActionsProps) {
   const [isSendingWelcome, setIsSendingWelcome] = useState(false);
-  const [isScreening, setIsScreening] = useState(false);
   const [refreshEnabled, setRefreshEnabled] = useState(false);
   const queryClient = useQueryClient();
   const trpc = useTRPC();
@@ -62,9 +64,9 @@ export function ResponseActions({
 
     if (result.success) {
       toast.success("Резюме успешно обновлено");
-      void queryClient.invalidateQueries(
-        trpc.vacancy.responses.list.pathFilter(),
-      );
+      void queryClient.invalidateQueries({
+        queryKey: trpc.vacancy.responses.list.queryKey(),
+      });
     } else {
       toast.error(result.error || "Не удалось обновить резюме");
     }
@@ -94,32 +96,6 @@ export function ResponseActions({
     }
   };
 
-  const handleScreenResponse = async () => {
-    setIsScreening(true);
-    try {
-      const triggerResult = await triggerScreenResponse(responseId);
-
-      if (!triggerResult.success) {
-        toast.error("Не удалось запустить оценку");
-        return;
-      }
-
-      toast.success("Оценка запущена");
-
-      // Обновляем список через некоторое время
-      setTimeout(() => {
-        void queryClient.invalidateQueries(
-          trpc.vacancy.responses.list.pathFilter(),
-        );
-      }, 2000);
-    } catch (error) {
-      toast.error("Не удалось запустить оценку");
-      console.error("Ошибка запуска оценки:", error);
-    } finally {
-      setIsScreening(false);
-    }
-  };
-
   const handleSendWelcome = async () => {
     if (!onSendWelcome) return;
     setIsSendingWelcome(true);
@@ -134,7 +110,7 @@ export function ResponseActions({
     }
   };
 
-  const isLoading = isRefreshing || isScreening || isSendingWelcome;
+  const isLoading = isRefreshing || isSendingWelcome;
 
   return (
     <DropdownMenu>
@@ -154,13 +130,9 @@ export function ResponseActions({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuItem onClick={handleScreenResponse} disabled={isScreening}>
-          {isScreening ? (
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-          ) : (
-            <Sparkles className="h-4 w-4 mr-2" />
-          )}
-          {isScreening ? "Оценка…" : "Оценить кандидата"}
+        <DropdownMenuItem onClick={onAnalyzeClick}>
+          <Sparkles className="h-4 w-4 mr-2" />
+          Проанализировать отклик
         </DropdownMenuItem>
         <DropdownMenuSeparator />
 

@@ -23,6 +23,7 @@ export function ConfirmationView({
 }: ConfirmationViewProps) {
   const isArchivedMode = mode === "archived";
   const isAnalyzeMode = mode === "analyze";
+  const isScreeningMode = mode === "screening";
 
   return (
     <div className="space-y-4">
@@ -30,7 +31,7 @@ export function ConfirmationView({
         <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 shrink-0">
           {isArchivedMode ? (
             <Archive className="h-4 w-4" />
-          ) : isAnalyzeMode ? (
+          ) : isAnalyzeMode || isScreeningMode ? (
             <Sparkles className="h-4 w-4" />
           ) : (
             <Download className="h-4 w-4" />
@@ -42,14 +43,18 @@ export function ConfirmationView({
               ? "Синхронизация архивных откликов"
               : isAnalyzeMode
                 ? "Анализ откликов"
-                : "Получение новых откликов"}
+                : isScreeningMode
+                  ? "Скрининг новых откликов"
+                  : "Получение новых откликов"}
           </h4>
           <p className="text-xs text-muted-foreground mb-3">
             {isArchivedMode
               ? "Получение всех откликов с HeadHunter, включая архивные"
               : isAnalyzeMode
                 ? `Автоматический анализ ${totalResponses ? `${totalResponses} откликов` : "выбранных откликов"} с помощью ИИ`
-                : "Получение новых откликов с HeadHunter"}
+                : isScreeningMode
+                  ? "Автоматический скрининг новых откликов с помощью ИИ"
+                  : "Получение новых откликов с HeadHunter"}
           </p>
         </div>
         <button
@@ -84,6 +89,13 @@ export function ConfirmationView({
                   <li>Выставит оценку и рекомендацию</li>
                   <li>Вы можете закрыть окно — процесс продолжится</li>
                 </>
+              ) : isScreeningMode ? (
+                <>
+                  <li>ИИ проанализирует новые отклики</li>
+                  <li>Оценит соответствие требованиям вакансии</li>
+                  <li>Выставит оценку и рекомендацию</li>
+                  <li>Вы можете закрыть окно — процесс продолжится</li>
+                </>
               ) : (
                 <>
                   <li>Получение новых откликов с HeadHunter</li>
@@ -104,7 +116,7 @@ export function ConfirmationView({
         <Button size="sm" onClick={onConfirm}>
           {isArchivedMode ? (
             <Archive className="h-4 w-4 mr-2" />
-          ) : isAnalyzeMode ? (
+          ) : isAnalyzeMode || isScreeningMode ? (
             <Sparkles className="h-4 w-4 mr-2" />
           ) : (
             <Download className="h-4 w-4 mr-2" />
@@ -113,7 +125,9 @@ export function ConfirmationView({
             ? "Начать синхронизацию"
             : isAnalyzeMode
               ? "Начать анализ"
-              : "Получить отклики"}
+              : isScreeningMode
+                ? "Начать скрининг"
+                : "Получить отклики"}
         </Button>
       </div>
     </div>

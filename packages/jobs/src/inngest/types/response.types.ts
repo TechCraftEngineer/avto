@@ -16,6 +16,10 @@ export const screenAllResponsesDataSchema = z.object({
   vacancyId: z.string().min(1, "Vacancy ID is required"),
 });
 
+export const analyzeSingleResponseDataSchema = z.object({
+  responseId: z.string().min(1, "Response ID is required"),
+});
+
 export const screenResponsesBatchDataSchema = z.object({
   workspaceId: z.string().min(1, "Идентификатор рабочей области обязателен"),
   responseIds: z
@@ -60,6 +64,9 @@ export type ScreenNewResponsesPayload = z.infer<
 >;
 export type ScreenAllResponsesPayload = z.infer<
   typeof screenAllResponsesDataSchema
+>;
+export type AnalyzeSingleResponsePayload = z.infer<
+  typeof analyzeSingleResponseDataSchema
 >;
 export type ScreenResponsesBatchPayload = z.infer<
   typeof screenResponsesBatchDataSchema

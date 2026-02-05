@@ -29,6 +29,8 @@ interface ResponseTableToolbarProps {
   onRefreshDialogOpen?: () => void;
   onArchivedDialogOpen?: () => void;
   onSetArchivedHandler?: (handler: () => void) => void;
+  onScreenNewDialogOpen?: () => void;
+  onSetScreenNewHandler?: (handler: () => void) => void;
 }
 
 export function ResponseTableToolbar({
@@ -50,6 +52,8 @@ export function ResponseTableToolbar({
   onRefreshDialogOpen,
   onArchivedDialogOpen,
   onSetArchivedHandler,
+  onScreenNewDialogOpen,
+  onSetScreenNewHandler,
 }: ResponseTableToolbarProps) {
   // Custom hooks for different operation states
   const refreshState = useRefreshState(vacancyId, onRefresh, onRefreshComplete);
@@ -72,6 +76,13 @@ export function ResponseTableToolbar({
     }
   }, [onSetArchivedHandler, syncArchivedState.handleClick]);
 
+  // Передаем обработчик скрининга наверх
+  useEffect(() => {
+    if (onSetScreenNewHandler) {
+      onSetScreenNewHandler(screenNewState.handleClick);
+    }
+  }, [onSetScreenNewHandler, screenNewState.handleClick]);
+
   return (
     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between px-1 mb-4">
       <ResponseSearchFilter
@@ -93,7 +104,9 @@ export function ResponseTableToolbar({
         onSyncArchivedDialogOpen={
           onArchivedDialogOpen || (() => syncArchivedState.setDialogOpen(true))
         }
-        onScreenNew={screenNewState.handleClick}
+        onScreenNewDialogOpen={
+          onScreenNewDialogOpen || (() => screenNewState.handleClick())
+        }
       />
     </div>
   );

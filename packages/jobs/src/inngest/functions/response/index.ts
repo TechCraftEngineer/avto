@@ -2,6 +2,7 @@
  * Response-related Inngest functions
  */
 
+export { analyzeSingleResponseFunction } from "./analyze-single";
 export { generateGigRecommendationFunction } from "./generate-gig-recommendation";
 export { generateRecommendationFunction } from "./generate-recommendation";
 export { generateVacancyRecommendationFunction } from "./generate-vacancy-recommendation";

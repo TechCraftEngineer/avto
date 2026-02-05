@@ -236,6 +236,28 @@ export async function triggerRefreshSingleResume(responseId: string) {
   }
 }
 
+export async function triggerAnalyzeSingleResponse(
+  responseId: string,
+  workspaceId: string,
+) {
+  try {
+    await inngest.send({
+      name: "response/analyze.single",
+      data: {
+        responseId,
+        workspaceId,
+      },
+    });
+    return { success: true as const };
+  } catch (error) {
+    console.error("Не удалось запустить анализ отклика:", error);
+    return {
+      success: false as const,
+      error: "Не удалось запустить анализ",
+    };
+  }
+}
+
 export async function triggerSendWelcome(
   responseId: string,
   username?: string | null,
