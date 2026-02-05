@@ -43,7 +43,7 @@
     "@qbs-autonaim/tsconfig": "workspace:*",
     "@types/sanitize-html": "^2.16.0",
     "fast-check": "^4.5.3",
-    "tsdown": "0.20.2",
+    "tsdown": "0.20.3",
     "typescript": "5.9.3"
   }
 }
