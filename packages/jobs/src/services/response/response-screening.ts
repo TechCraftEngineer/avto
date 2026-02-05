@@ -232,27 +232,38 @@ export async function screenResponse(
       where: eq(responseScreening.responseId, responseId),
     });
 
+    // Приводим результат к типу с опциональными полями для обратной совместимости
+    const result = screeningResult as ResponseScreeningOutput & {
+      skillsMatchScore?: number | null;
+      experienceScore?: number | null;
+      skillsAnalysis?: string | null;
+      experienceAnalysis?: string | null;
+      strengths?: string[] | null;
+      weaknesses?: string[] | null;
+      recommendation?: "HIGHLY_RECOMMENDED" | "RECOMMENDED" | "NEUTRAL" | "NOT_RECOMMENDED" | null;
+    };
+
     if (existingScreening) {
       await db
         .update(responseScreening)
         .set({
-          overallScore: screeningResult.detailedScore,
-          overallAnalysis: screeningResult.analysis,
-          skillsMatchScore: screeningResult.skillsMatchScore ?? null,
-          experienceScore: screeningResult.experienceScore ?? null,
-          potentialScore: screeningResult.potentialScore ?? null,
-          careerTrajectoryScore: screeningResult.careerTrajectoryScore ?? null,
-          careerTrajectoryType: screeningResult.careerTrajectoryType ?? null,
-          hiddenFitIndicators: screeningResult.hiddenFitIndicators ?? null,
-          skillsAnalysis: screeningResult.skillsAnalysis ?? null,
-          experienceAnalysis: screeningResult.experienceAnalysis ?? null,
-          potentialAnalysis: screeningResult.potentialAnalysis ?? null,
+          overallScore: result.detailedScore,
+          overallAnalysis: result.analysis,
+          skillsMatchScore: result.skillsMatchScore ?? null,
+          experienceScore: result.experienceScore ?? null,
+          potentialScore: result.potentialScore ?? null,
+          careerTrajectoryScore: result.careerTrajectoryScore ?? null,
+          careerTrajectoryType: result.careerTrajectoryType ?? null,
+          hiddenFitIndicators: result.hiddenFitIndicators ?? null,
+          skillsAnalysis: result.skillsAnalysis ?? null,
+          experienceAnalysis: result.experienceAnalysis ?? null,
+          potentialAnalysis: result.potentialAnalysis ?? null,
           careerTrajectoryAnalysis:
-            screeningResult.careerTrajectoryAnalysis ?? null,
-          hiddenFitAnalysis: screeningResult.hiddenFitAnalysis ?? null,
-          strengths: screeningResult.strengths ?? null,
-          weaknesses: screeningResult.weaknesses ?? null,
-          recommendation: screeningResult.recommendation ?? null,
+            result.careerTrajectoryAnalysis ?? null,
+          hiddenFitAnalysis: result.hiddenFitAnalysis ?? null,
+          strengths: result.strengths ?? null,
+          weaknesses: result.weaknesses ?? null,
+          recommendation: result.recommendation ?? null,
           psychometricScore,
           psychometricAnalysis,
         })
@@ -260,22 +271,22 @@ export async function screenResponse(
     } else {
       await db.insert(responseScreening).values({
         responseId,
-        overallScore: screeningResult.detailedScore,
-        overallAnalysis: screeningResult.analysis,
-        skillsMatchScore: screeningResult.skillsMatchScore ?? null,
-        experienceScore: screeningResult.experienceScore ?? null,
-        potentialScore: screeningResult.potentialScore ?? null,
-        careerTrajectoryScore: screeningResult.careerTrajectoryScore ?? null,
-        careerTrajectoryType: screeningResult.careerTrajectoryType ?? null,
-        hiddenFitIndicators: screeningResult.hiddenFitIndicators ?? null,
-        skillsAnalysis: screeningResult.skillsAnalysis ?? null,
-        experienceAnalysis: screeningResult.experienceAnalysis ?? null,
-        potentialAnalysis: screeningResult.potentialAnalysis ?? null,
-        careerTrajectoryAnalysis: screeningResult.careerTrajectoryAnalysis ?? null,
-        hiddenFitAnalysis: screeningResult.hiddenFitAnalysis ?? null,
-        strengths: screeningResult.strengths ?? null,
-        weaknesses: screeningResult.weaknesses ?? null,
-        recommendation: screeningResult.recommendation ?? null,
+        overallScore: result.detailedScore,
+        overallAnalysis: result.analysis,
+        skillsMatchScore: result.skillsMatchScore ?? null,
+        experienceScore: result.experienceScore ?? null,
+        potentialScore: result.potentialScore ?? null,
+        careerTrajectoryScore: result.careerTrajectoryScore ?? null,
+        careerTrajectoryType: result.careerTrajectoryType ?? null,
+        hiddenFitIndicators: result.hiddenFitIndicators ?? null,
+        skillsAnalysis: result.skillsAnalysis ?? null,
+        experienceAnalysis: result.experienceAnalysis ?? null,
+        potentialAnalysis: result.potentialAnalysis ?? null,
+        careerTrajectoryAnalysis: result.careerTrajectoryAnalysis ?? null,
+        hiddenFitAnalysis: result.hiddenFitAnalysis ?? null,
+        strengths: result.strengths ?? null,
+        weaknesses: result.weaknesses ?? null,
+        recommendation: result.recommendation ?? null,
         psychometricScore,
         psychometricAnalysis,
       });

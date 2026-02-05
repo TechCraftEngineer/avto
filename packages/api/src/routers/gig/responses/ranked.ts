@@ -1,8 +1,5 @@
 ﻿import { getAIModel } from "@qbs-autonaim/lib/ai";
-import {
-  type RankedCandidate,
-  RankingService,
-} from "@qbs-autonaim/shared/server";
+import { RankingService } from "@qbs-autonaim/shared/server";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
@@ -31,47 +28,38 @@ export const ranked = protectedProcedure
       offset: z.number().int().min(0).default(0),
     }),
   )
-  .query(
-    async ({
-      ctx,
-      input,
-    }): Promise<{
-      candidates: RankedCandidate[];
-      totalCount: number;
-      rankedAt: Date | null;
-    }> => {
-      // Проверка доступа к workspace
-      const access = await ctx.workspaceRepository.checkAccess(
-        input.workspaceId,
-        ctx.session.user.id,
-      );
+  .query(async ({ ctx, input }) => {
+    // Проверка доступа к workspace
+    const access = await ctx.workspaceRepository.checkAccess(
+      input.workspaceId,
+      ctx.session.user.id,
+    );
 
-      if (!access) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Нет доступа к этому workspace",
-        });
-      }
-
-      // Создаем RankingService с AI конфигурацией
-      const model = getAIModel();
-      const rankingService = new RankingService({
-        model,
-        maxSteps: 5,
+    if (!access) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "Нет доступа к этому workspace",
       });
+    }
 
-      // Получаем ранжированных кандидатов из БД
-      const result = await rankingService.getRankedCandidates(
-        input.gigId,
-        input.workspaceId,
-        {
-          minScore: input.minScore,
-          recommendation: input.recommendation,
-          limit: input.limit,
-          offset: input.offset,
-        },
-      );
+    // Создаем RankingService с AI конфигурацией
+    const model = getAIModel();
+    const rankingService = new RankingService({
+      model,
+      maxSteps: 5,
+    });
 
-      return result;
-    },
-  );
+    // Получаем ранжированных кандидатов из БД
+    const result = await rankingService.getRankedCandidates(
+      input.gigId,
+      input.workspaceId,
+      {
+        minScore: input.minScore,
+        recommendation: input.recommendation,
+        limit: input.limit,
+        offset: input.offset,
+      },
+    );
+
+    return result;
+  });
