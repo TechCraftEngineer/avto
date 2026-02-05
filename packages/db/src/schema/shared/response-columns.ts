@@ -11,7 +11,6 @@ import type { StoredProfileData } from "../types";
 import {
   hrSelectionStatusEnum,
   importSourceEnum,
-  recommendationEnum,
   responseStatusEnum,
 } from "./response-enums";
 
@@ -66,46 +65,12 @@ export const responseStatusColumns = {
 };
 
 /**
- * Ranking scores (0-100)
+ * DEPRECATED: Эти поля перенесены в response_screenings
+ * Оставлены только для обратной совместимости во время миграции
+ * TODO: Удалить после завершения миграции
  */
-export const rankingScoreColumns = {
-  compositeScore: integer("composite_score"),
-  priceScore: integer("price_score"),
-  deliveryScore: integer("delivery_score"),
-  skillsMatchScore: integer("skills_match_score"),
-  experienceScore: integer("experience_score"),
-};
-
-/**
- * Reasoning for ranking scores (explainable AI)
- * Объяснения оценок для прозрачности решений AI
- */
-export const rankingReasoningColumns = {
-  priceScoreReasoning: text("price_score_reasoning"),
-  deliveryScoreReasoning: text("delivery_score_reasoning"),
-  skillsMatchScoreReasoning: text("skills_match_score_reasoning"),
-  experienceScoreReasoning: text("experience_score_reasoning"),
-  compositeScoreReasoning: text("composite_score_reasoning"),
-  // Для вакансий: структурированные объяснения по dimensions
-  evaluationReasoning: jsonb("evaluation_reasoning").$type<{
-    hardSkills?: { score: number; notes: string };
-    softSkills?: { score: number; notes: string };
-    cultureFit?: { score: number; notes: string };
-    salaryAlignment?: { score: number; notes: string };
-  }>(),
-};
-
-/**
- * Ranking position and analysis
- */
-export const rankingAnalysisColumns = {
-  rankingPosition: integer("ranking_position"),
-  rankingAnalysis: text("ranking_analysis"),
-  candidateSummary: text("candidate_summary"), // Краткое резюме для финалистов
-  strengths: jsonb("strengths").$type<string[]>(),
-  weaknesses: jsonb("weaknesses").$type<string[]>(),
-  recommendation: recommendationEnum("recommendation"),
-  rankedAt: timestamp("ranked_at", { withTimezone: true, mode: "date" }),
+export const deprecatedRankingColumns = {
+  // Эти поля больше не используются - см. response_screenings
 };
 
 /**

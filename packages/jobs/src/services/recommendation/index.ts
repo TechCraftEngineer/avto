@@ -12,7 +12,7 @@ import {
 } from "@qbs-autonaim/ai";
 import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
-import { response } from "@qbs-autonaim/db/schema";
+import { response, responseScreening } from "@qbs-autonaim/db/schema";
 import { sanitizeAiText, sanitizeAiTextArray } from "@qbs-autonaim/lib";
 
 import type { RecommendationSaveData } from "../../types/recommendation";
@@ -52,23 +52,24 @@ export function parseRecommendationResult(
 }
 
 /**
- * Сохраняет рекомендацию в БД (обновляет response)
+ * Сохраняет рекомендацию в БД (обновляет response_screening)
  */
 export async function saveRecommendation(
   data: RecommendationSaveData,
 ): Promise<Result<void>> {
   try {
+    // Сохраняем в response_screenings
     await db
-      .update(response)
+      .update(responseScreening)
       .set({
         recommendation: data.recommendation,
         strengths: data.strengths,
         weaknesses: data.weaknesses,
         candidateSummary: data.candidateSummary,
         rankingAnalysis: data.rankingAnalysis,
-        rankedAt: new Date(),
+        screenedAt: new Date(),
       })
-      .where(eq(response.id, data.responseId));
+      .where(eq(responseScreening.responseId, data.responseId));
 
     logger.info(`Recommendation saved for response ${data.responseId}`);
     return ok(undefined);
@@ -106,6 +107,7 @@ export async function getResponseDataForRecommendation(
     const responseData = await db.query.response.findFirst({
       where: eq(response.id, responseId),
       with: {
+        screening: true,
         interviewSessions: {
           with: {
             scoring: true,
@@ -118,14 +120,19 @@ export async function getResponseDataForRecommendation(
       return err(`Response ${responseId} not found`);
     }
 
+    // Получаем данные из screening
+    const screeningData = responseData.screening;
+
     const screening: ScreeningDataForRecommendation = {
-      score: Math.round((responseData.compositeScore ?? 0) / 20), // 0-100 -> 0-5
-      detailedScore: responseData.compositeScore ?? 0,
-      analysis: responseData.rankingAnalysis ?? "",
-      matchPercentage: responseData.skillsMatchScore ?? undefined,
-      strengths: responseData.strengths ?? undefined,
-      weaknesses: responseData.weaknesses ?? undefined,
-      summary: responseData.candidateSummary ?? undefined,
+      score: screeningData?.overallScore
+        ? Math.round(screeningData.overallScore / 20) // 0-100 -> 0-5
+        : 0,
+      detailedScore: screeningData?.overallScore ?? 0,
+      analysis: screeningData?.rankingAnalysis ?? "",
+      matchPercentage: screeningData?.skillsMatchScore ?? undefined,
+      strengths: screeningData?.strengths ?? undefined,
+      weaknesses: screeningData?.weaknesses ?? undefined,
+      summary: screeningData?.candidateSummary ?? undefined,
     };
 
     const candidate: CandidateDataForRecommendation = {

@@ -11,11 +11,15 @@ import {
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
-import { careerTrajectoryTypeEnum } from "../shared/response-enums";
+import {
+  careerTrajectoryTypeEnum,
+  recommendationEnum,
+} from "../shared/response-enums";
 import { response } from "./response";
 
 /**
  * Результаты скрининга откликов
+ * Содержит ВСЕ оценки и анализы кандидата
  */
 export const responseScreening = pgTable(
   "response_screenings",
@@ -27,43 +31,60 @@ export const responseScreening = pgTable(
       .unique()
       .references(() => response.id, { onDelete: "cascade" }),
 
-    // Оценки
-    score: integer("score").notNull(), // 0-5
-    detailedScore: integer("detailed_score").notNull(), // 0-100
+    // === ОСНОВНЫЕ ОЦЕНКИ (0-100) ===
+    overallScore: integer("overall_score").notNull(), // Общая оценка (бывший composite_score)
+    skillsMatchScore: integer("skills_match_score"), // Соответствие навыков
+    experienceScore: integer("experience_score"), // Оценка опыта
+    priceScore: integer("price_score"), // Оценка цены/зарплаты
+    deliveryScore: integer("delivery_score"), // Оценка сроков (для gig)
 
-    // Новые метрики оценки потенциала
-    potentialScore: integer("potential_score"), // 0-100
-    careerTrajectoryScore: integer("career_trajectory_score"), // 0-100
+    // === ДОПОЛНИТЕЛЬНЫЕ ОЦЕНКИ ===
+    potentialScore: integer("potential_score"), // Потенциал роста
+    careerTrajectoryScore: integer("career_trajectory_score"), // Карьерная траектория
+    psychometricScore: integer("psychometric_score"), // Психометрическая совместимость
+
+    // === ДЕТАЛЬНЫЕ АНАЛИЗЫ ===
+    overallAnalysis: text("overall_analysis"), // Общий анализ (бывший composite_score_reasoning)
+    skillsAnalysis: text("skills_analysis"), // Анализ навыков
+    experienceAnalysis: text("experience_analysis"), // Анализ опыта
+    priceAnalysis: text("price_analysis"), // Анализ цены
+    deliveryAnalysis: text("delivery_analysis"), // Анализ сроков
+    potentialAnalysis: text("potential_analysis"), // Анализ потенциала
+    careerTrajectoryAnalysis: text("career_trajectory_analysis"), // Анализ карьеры
+    hiddenFitAnalysis: text("hidden_fit_analysis"), // Скрытые индикаторы соответствия
+
+    // === СТРУКТУРИРОВАННЫЕ ДАННЫЕ ===
+    strengths: jsonb("strengths").$type<string[]>(), // Сильные стороны
+    weaknesses: jsonb("weaknesses").$type<string[]>(), // Слабые стороны
+    hiddenFitIndicators: jsonb("hidden_fit_indicators").$type<string[]>(), // Скрытые индикаторы
+
+    // === РЕКОМЕНДАЦИЯ И РАНЖИРОВАНИЕ ===
+    recommendation: recommendationEnum("recommendation"), // Уровень рекомендации
+    rankingPosition: integer("ranking_position"), // Позиция в рейтинге
+    rankingAnalysis: text("ranking_analysis"), // Анализ ранжирования
+    candidateSummary: text("candidate_summary"), // Краткое резюме (1-2 предложения)
+
+    // === ТИПЫ И КАТЕГОРИИ ===
     careerTrajectoryType: careerTrajectoryTypeEnum("career_trajectory_type"),
-    hiddenFitIndicators: jsonb("hidden_fit_indicators").$type<string[]>(),
 
-    // Анализ
-    analysis: text("analysis"),
-    priceAnalysis: text("price_analysis"),
-    deliveryAnalysis: text("delivery_analysis"),
-    skillsAnalysis: text("skills_analysis"),
-    experienceAnalysis: text("experience_analysis"),
-    potentialAnalysis: text("potential_analysis"),
-    careerTrajectoryAnalysis: text("career_trajectory_analysis"),
-    hiddenFitAnalysis: text("hidden_fit_analysis"),
-
-    // Психометрический анализ личности (на основе даты рождения)
-    psychometricScore: integer("psychometric_score"), // 0-100 - оценка совместимости личностных характеристик
+    // === ПСИХОМЕТРИЧЕСКИЙ АНАЛИЗ ===
     psychometricAnalysis: jsonb("psychometric_analysis").$type<{
-      lifePathNumber: number; // Базовый психотип личности
-      destinyNumber?: number | null; // Профессиональная направленность
-      soulUrgeNumber?: number | null; // Внутренняя мотивация
-      compatibilityScore: number; // Общая оценка совместимости
-      roleCompatibility: { score: number; analysis: string }; // Соответствие роли
-      companyCompatibility: { score: number; analysis: string }; // Соответствие культуре компании
-      teamCompatibility: { score: number; analysis: string }; // Совместимость с командой
-      strengths: string[]; // Сильные стороны личности
-      challenges: string[]; // Потенциальные сложности
-      recommendations: string[]; // Рекомендации по адаптации
-      summary: string; // Общий психологический профиль
-      favorablePeriods?: Array<{ period: string; description: string }>; // Оптимальные периоды для начала работы
+      lifePathNumber: number;
+      destinyNumber?: number | null;
+      soulUrgeNumber?: number | null;
+      compatibilityScore: number;
+      roleCompatibility: { score: number; analysis: string };
+      companyCompatibility: { score: number; analysis: string };
+      teamCompatibility: { score: number; analysis: string };
+      strengths: string[];
+      challenges: string[];
+      recommendations: string[];
+      summary: string;
+      favorablePeriods?: Array<{ period: string; description: string }>;
     }>(),
 
+    // === ВРЕМЕННЫЕ МЕТКИ ===
+    screenedAt: timestamp("screened_at", { withTimezone: true }), // Когда проведен скрининг
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -73,26 +94,48 @@ export const responseScreening = pgTable(
       .notNull(),
   },
   (table) => [
+    // Индексы для поиска
     index("response_screening_response_idx").on(table.responseId),
-    index("response_screening_score_idx").on(table.score),
-    index("response_screening_detailed_score_idx").on(table.detailedScore),
+
+    // Индексы для сортировки по оценкам
+    index("response_screening_overall_score_idx").on(table.overallScore),
+    index("response_screening_skills_score_idx").on(table.skillsMatchScore),
+    index("response_screening_experience_score_idx").on(table.experienceScore),
     index("response_screening_potential_score_idx").on(table.potentialScore),
     index("response_screening_career_trajectory_score_idx").on(
       table.careerTrajectoryScore,
     ),
-    index("response_screening_career_trajectory_type_idx").on(
-      table.careerTrajectoryType,
-    ),
     index("response_screening_psychometric_score_idx").on(
       table.psychometricScore,
     ),
+
+    // Индексы для фильтрации
+    index("response_screening_recommendation_idx").on(table.recommendation),
+    index("response_screening_ranking_position_idx").on(table.rankingPosition),
+    index("response_screening_career_trajectory_type_idx").on(
+      table.careerTrajectoryType,
+    ),
+
+    // CHECK constraints для оценок (0-100)
     check(
-      "response_screening_score_check",
-      sql`${table.score} BETWEEN 0 AND 5`,
+      "response_screening_overall_score_check",
+      sql`${table.overallScore} BETWEEN 0 AND 100`,
     ),
     check(
-      "response_screening_detailed_score_check",
-      sql`${table.detailedScore} BETWEEN 0 AND 100`,
+      "response_screening_skills_score_check",
+      sql`${table.skillsMatchScore} IS NULL OR ${table.skillsMatchScore} BETWEEN 0 AND 100`,
+    ),
+    check(
+      "response_screening_experience_score_check",
+      sql`${table.experienceScore} IS NULL OR ${table.experienceScore} BETWEEN 0 AND 100`,
+    ),
+    check(
+      "response_screening_price_score_check",
+      sql`${table.priceScore} IS NULL OR ${table.priceScore} BETWEEN 0 AND 100`,
+    ),
+    check(
+      "response_screening_delivery_score_check",
+      sql`${table.deliveryScore} IS NULL OR ${table.deliveryScore} BETWEEN 0 AND 100`,
     ),
     check(
       "response_screening_potential_score_check",
@@ -113,23 +156,34 @@ export const CreateResponseScreeningSchema = createInsertSchema(
   responseScreening,
   {
     responseId: z.string().uuid(),
-    score: z.number().int().min(0).max(5),
-    detailedScore: z.number().int().min(0).max(100),
+    overallScore: z.number().int().min(0).max(100),
+    skillsMatchScore: z.number().int().min(0).max(100).optional(),
+    experienceScore: z.number().int().min(0).max(100).optional(),
+    priceScore: z.number().int().min(0).max(100).optional(),
+    deliveryScore: z.number().int().min(0).max(100).optional(),
     potentialScore: z.number().int().min(0).max(100).optional(),
     careerTrajectoryScore: z.number().int().min(0).max(100).optional(),
+    psychometricScore: z.number().int().min(0).max(100).optional(),
     careerTrajectoryType: z
       .enum(["growth", "stable", "decline", "jump", "role_change"])
       .optional(),
+    recommendation: z
+      .enum(["HIGHLY_RECOMMENDED", "RECOMMENDED", "NEUTRAL", "NOT_RECOMMENDED"])
+      .optional(),
+    rankingPosition: z.number().int().positive().optional(),
     hiddenFitIndicators: z.array(z.string()).optional(),
-    analysis: z.string().optional(),
-    priceAnalysis: z.string().optional(),
-    deliveryAnalysis: z.string().optional(),
+    strengths: z.array(z.string()).optional(),
+    weaknesses: z.array(z.string()).optional(),
+    overallAnalysis: z.string().optional(),
     skillsAnalysis: z.string().optional(),
     experienceAnalysis: z.string().optional(),
+    priceAnalysis: z.string().optional(),
+    deliveryAnalysis: z.string().optional(),
     potentialAnalysis: z.string().optional(),
     careerTrajectoryAnalysis: z.string().optional(),
     hiddenFitAnalysis: z.string().optional(),
-    psychometricScore: z.number().int().min(0).max(100).optional(),
+    rankingAnalysis: z.string().optional(),
+    candidateSummary: z.string().max(500).optional(),
     psychometricAnalysis: z
       .object({
         lifePathNumber: z.number(),
@@ -162,6 +216,7 @@ export const CreateResponseScreeningSchema = createInsertSchema(
           .optional(),
       })
       .optional(),
+    screenedAt: z.coerce.date().optional(),
   },
 ).omit({
   id: true,
