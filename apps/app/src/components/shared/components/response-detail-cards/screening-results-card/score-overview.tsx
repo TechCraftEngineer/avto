@@ -37,7 +37,9 @@ export function ScoreOverview({
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <span className="text-xs sm:text-sm font-medium">Общая оценка</span>
-          <span className="text-xl sm:text-2xl font-bold">{score}/5</span>
+          <span className="text-xl sm:text-2xl font-bold tabular-nums">
+            {score}
+          </span>
         </div>
         <Progress value={((score ?? 0) / 5) * 100} className="h-2" />
       </div>
@@ -47,8 +49,8 @@ export function ScoreOverview({
           <span className="text-xs sm:text-sm font-medium">
             Детальная оценка
           </span>
-          <span className="text-xl sm:text-2xl font-bold">
-            {detailedScore}/100
+          <span className="text-xl sm:text-2xl font-bold tabular-nums">
+            {Math.round(detailedScore)}
           </span>
         </div>
         <Progress value={detailedScore ?? 0} className="h-2" />
@@ -61,8 +63,8 @@ export function ScoreOverview({
               <Sparkles className="h-3 w-3" />
               Потенциал
             </span>
-            <span className="text-xl sm:text-2xl font-bold">
-              {potentialScore}/100
+            <span className="text-xl sm:text-2xl font-bold tabular-nums">
+              {Math.round(potentialScore)}
             </span>
           </div>
           <Progress value={potentialScore} className="h-2" />
@@ -77,8 +79,8 @@ export function ScoreOverview({
                 <TrendingUp className="h-3 w-3" />
                 Карьерная траектория
               </span>
-              <span className="text-xl sm:text-2xl font-bold">
-                {careerTrajectoryScore}/100
+              <span className="text-xl sm:text-2xl font-bold tabular-nums">
+                {Math.round(careerTrajectoryScore)}
               </span>
             </div>
             <Progress value={careerTrajectoryScore} className="h-2" />
@@ -99,8 +101,8 @@ export function ScoreOverview({
               <Brain className="h-3 w-3" />
               Психологическая совместимость
             </span>
-            <span className="text-xl sm:text-2xl font-bold">
-              {psychometricScore}/100
+            <span className="text-xl sm:text-2xl font-bold tabular-nums">
+              {Math.round(psychometricScore)}
             </span>
           </div>
           <Progress value={psychometricScore} className="h-2" />

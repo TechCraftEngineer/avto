@@ -32,16 +32,16 @@ export function ScreeningCard({ screening }: ScreeningCardProps) {
             </CardTitle>
             {screening.score && (
               <CardDescription className="text-base">
-                Оценка: {screening.score}/5
+                Оценка: {screening.score}
               </CardDescription>
             )}
           </div>
           {screening.detailedScore !== undefined && (
             <Badge
               variant={getScoreBadgeVariant(screening.detailedScore)}
-              className="text-base px-3 py-1"
+              className="text-base px-3 py-1 tabular-nums"
             >
-              {screening.detailedScore}/100
+              {Math.round(screening.detailedScore)}
             </Badge>
           )}
         </div>

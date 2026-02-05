@@ -18,12 +18,12 @@ import { ResponseActions } from "~/components";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { getAvatarUrl } from "~/lib/avatar";
 import { ScreeningHoverCard } from "../../screening/screening-hover-card";
-import type { ColumnId } from "./types";
 import { CandidateAvatar } from "./candidate-avatar";
 import { CandidateBadges } from "./candidate-badges";
 import { CandidateInfo } from "./candidate-info";
 import { CoverLetterCell } from "./cover-letter-cell";
 import { ScoreCell } from "./score-cell";
+import type { ColumnId } from "./types";
 
 interface ResponseRowProps {
   response: RouterOutputs["vacancy"]["responses"]["list"]["responses"][0];
@@ -190,7 +190,7 @@ export function ResponseRow({
 
       {isColumnVisible("score") && (
         <TableCell>
-          <ScoreCell score={response.screening?.score} maxScore={100} />
+          <ScoreCell score={response.screening?.score} />
         </TableCell>
       )}
 

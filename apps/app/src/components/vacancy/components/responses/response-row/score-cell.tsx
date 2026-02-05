@@ -3,15 +3,15 @@ interface ScoreCellProps {
   maxScore?: number;
 }
 
-export function ScoreCell({ score, maxScore = 10 }: ScoreCellProps) {
+export function ScoreCell({ score, maxScore }: ScoreCellProps) {
   if (score == null) {
     return <span className="text-muted-foreground text-xs">—</span>;
   }
 
+  // Округляем до целого числа для чистого отображения
+  const displayScore = Math.round(score);
+
   return (
-    <div className="flex items-center gap-1">
-      <span className="text-sm font-medium">{score}</span>
-      <span className="text-xs text-muted-foreground">/{maxScore}</span>
-    </div>
+    <span className="text-sm font-medium tabular-nums">{displayScore}</span>
   );
 }

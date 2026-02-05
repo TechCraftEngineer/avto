@@ -68,13 +68,13 @@ export function ResponsesAnalyticsPanel({
     insights.push({
       type: "success" as const,
       icon: IconTrendingUp,
-      message: `Средний балл откликов ${averageScore.toFixed(0)}/100 — отличный показатель качества`,
+      message: `Средний балл откликов ${Math.round(averageScore)} — отличный показатель качества`,
     });
   } else if (averageScore < 50 && totalResponses > 10) {
     insights.push({
       type: "warning" as const,
       icon: IconAlertCircle,
-      message: `Средний балл откликов ${averageScore.toFixed(0)}/100 — возможно, стоит пересмотреть требования вакансии`,
+      message: `Средний балл откликов ${Math.round(averageScore)} — возможно, стоит пересмотреть требования вакансии`,
     });
   }
 
@@ -251,8 +251,8 @@ export function ResponsesAnalyticsPanel({
               </div>
               <div>
                 <span className="text-muted-foreground">Средний балл:</span>
-                <span className="ml-2 font-semibold text-foreground">
-                  {averageScore.toFixed(0)}/100
+                <span className="ml-2 font-semibold text-foreground tabular-nums">
+                  {Math.round(averageScore)}
                 </span>
               </div>
             </div>

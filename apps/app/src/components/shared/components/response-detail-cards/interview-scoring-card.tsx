@@ -46,8 +46,8 @@ export function InterviewScoringCard({
               <span className="text-xs sm:text-sm font-medium">
                 Общая оценка
               </span>
-              <span className="text-xl sm:text-2xl font-bold">
-                {interviewScoring.score}/5
+              <span className="text-xl sm:text-2xl font-bold tabular-nums">
+                {interviewScoring.score}
               </span>
             </div>
             <Progress
@@ -61,8 +61,8 @@ export function InterviewScoringCard({
               <span className="text-xs sm:text-sm font-medium">
                 Детальная оценка
               </span>
-              <span className="text-xl sm:text-2xl font-bold">
-                {interviewScoring.detailedScore ?? 0}/100
+              <span className="text-xl sm:text-2xl font-bold tabular-nums">
+                {Math.round(interviewScoring.detailedScore ?? 0)}
               </span>
             </div>
             <Progress

@@ -47,14 +47,14 @@ export function ScreeningHoverCard({ screening }: ScreeningHoverCardProps) {
         >
           <Badge
             variant={getScoreBadgeVariant(screening.score)}
-            className="gap-1.5 font-semibold"
+            className="gap-1.5 font-semibold tabular-nums"
           >
-            <span>{screening.score}/5</span>
+            <span>{screening.score}</span>
             {screening.detailedScore != null && (
               <>
                 <span className="opacity-70">·</span>
                 <span className="font-normal">
-                  {screening.detailedScore}/100
+                  {Math.round(screening.detailedScore)}
                 </span>
               </>
             )}
@@ -77,9 +77,9 @@ export function ScreeningHoverCard({ screening }: ScreeningHoverCardProps) {
                   Общая оценка
                 </p>
                 <p
-                  className={`text-2xl font-bold ${getScoreColor(screening.score)}`}
+                  className={`text-2xl font-bold tabular-nums ${getScoreColor(screening.score)}`}
                 >
-                  {screening.score}/5
+                  {screening.score}
                 </p>
               </div>
               <Badge
@@ -94,8 +94,8 @@ export function ScreeningHoverCard({ screening }: ScreeningHoverCardProps) {
                 <p className="text-sm text-muted-foreground mb-1">
                   Детальная оценка
                 </p>
-                <p className="text-2xl font-bold text-primary">
-                  {screening.detailedScore}/100
+                <p className="text-2xl font-bold text-primary tabular-nums">
+                  {Math.round(screening.detailedScore)}
                 </p>
               </div>
             )}

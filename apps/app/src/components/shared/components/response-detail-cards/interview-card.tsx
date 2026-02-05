@@ -58,7 +58,7 @@ export function InterviewCard({
               Интервью в Telegram
             </CardTitle>
             <CardDescription className="text-base">
-              Оценка: {conversation.interviewScoring.score}/5
+              Оценка: {conversation.interviewScoring.score}
             </CardDescription>
           </div>
           {conversation.interviewScoring.detailedScore !== undefined && (
@@ -66,9 +66,9 @@ export function InterviewCard({
               variant={getScoreBadgeVariant(
                 conversation.interviewScoring.detailedScore,
               )}
-              className="text-base px-3 py-1"
+              className="text-base px-3 py-1 tabular-nums"
             >
-              {conversation.interviewScoring.detailedScore}/100
+              {Math.round(conversation.interviewScoring.detailedScore)}
             </Badge>
           )}
         </div>

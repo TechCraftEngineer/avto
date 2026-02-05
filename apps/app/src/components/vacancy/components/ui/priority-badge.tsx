@@ -68,7 +68,7 @@ export function PriorityBadge({
                 </ul>
               )}
               <p className="text-xs text-muted-foreground">
-                Приоритет: {priorityScore}/100
+                Приоритет: {Math.round(priorityScore)}
               </p>
             </div>
           </TooltipContent>
