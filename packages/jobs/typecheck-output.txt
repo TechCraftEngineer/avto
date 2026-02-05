@@ -1,0 +1,29 @@
+$ tsc --noEmit
+src/inngest/functions/freelance/parse-profile.ts(7,8): error TS2307: Cannot find module '@qbs-autonaim/jobs-parsers' or its corresponding type declarations.
+src/inngest/functions/gig/evaluate-response.ts(8,8): error TS2307: Cannot find module '@qbs-autonaim/jobs-parsers' or its corresponding type declarations.
+src/inngest/functions/index.ts(11,8): error TS2307: Cannot find module '@qbs-autonaim/jobs-parsers' or its corresponding type declarations.
+src/inngest/functions/index.ts(36,8): error TS2307: Cannot find module '@qbs-autonaim/jobs-parsers' or its corresponding type declarations.
+src/inngest/functions/response/parse-new-resumes.ts(4,35): error TS2307: Cannot find module '@qbs-autonaim/jobs-parsers' or its corresponding type declarations.
+src/inngest/functions/telegram/interview/complete.ts(14,8): error TS2307: Cannot find module '@qbs-autonaim/jobs-parsers' or its corresponding type declarations.
+src/inngest/functions/vacancy/fetch-archived-list.ts(3,44): error TS2307: Cannot find module '@qbs-autonaim/jobs-parsers' or its corresponding type declarations.
+src/inngest/functions/vacancy/fetch-archived-list.ts(72,20): error TS7006: Parameter 'v' implicitly has an 'any' type.
+src/inngest/functions/vacancy/fetch-archived-list.ts(73,17): error TS7006: Parameter 'v' implicitly has an 'any' type.
+src/inngest/functions/vacancy/fetch-archived-list.ts(97,20): error TS7006: Parameter 'v' implicitly has an 'any' type.
+src/inngest/functions/vacancy/fetch-archived-list.ts(98,17): error TS7006: Parameter 'v' implicitly has an 'any' type.
+src/inngest/functions/vacancy/import-archived-selected.ts(1,41): error TS2307: Cannot find module '@qbs-autonaim/jobs-parsers' or its corresponding type declarations.
+src/inngest/functions/vacancy/import-archived-selected.ts(117,20): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/inngest/functions/vacancy/import-archived-selected.ts(117,27): error TS7006: Parameter 'success' implicitly has an 'any' type.
+src/inngest/functions/vacancy/import-archived-selected.ts(117,36): error TS7006: Parameter 'error' implicitly has an 'any' type.
+src/inngest/functions/vacancy/import-archived.ts(1,41): error TS2307: Cannot find module '@qbs-autonaim/jobs-parsers' or its corresponding type declarations.
+src/inngest/functions/vacancy/import-archived.ts(97,18): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/inngest/functions/vacancy/import-archived.ts(97,25): error TS7006: Parameter 'success' implicitly has an 'any' type.
+src/inngest/functions/vacancy/import-archived.ts(97,34): error TS7006: Parameter 'error' implicitly has an 'any' type.
+src/inngest/functions/vacancy/import-by-url.ts(1,37): error TS2307: Cannot find module '@qbs-autonaim/jobs-parsers' or its corresponding type declarations.
+src/inngest/functions/vacancy/import-new.ts(4,29): error TS2307: Cannot find module '@qbs-autonaim/jobs-parsers' or its corresponding type declarations.
+src/inngest/functions/vacancy/refresh-responses.ts(4,41): error TS2307: Cannot find module '@qbs-autonaim/jobs-parsers' or its corresponding type declarations.
+src/inngest/functions/vacancy/refresh-responses.ts(64,18): error TS7006: Parameter 'progressData' implicitly has an 'any' type.
+src/inngest/functions/vacancy/sync-archived-responses.ts(4,44): error TS2307: Cannot find module '@qbs-autonaim/jobs-parsers' or its corresponding type declarations.
+src/inngest/functions/vacancy/update-active.ts(1,29): error TS2307: Cannot find module '@qbs-autonaim/jobs-parsers' or its corresponding type declarations.
+src/inngest/functions/web-interview/complete.ts(17,8): error TS2307: Cannot find module '@qbs-autonaim/jobs-parsers' or its corresponding type declarations.
+src/services/vacancy/vacancy-repository.ts(5,34): error TS2307: Cannot find module '@qbs-autonaim/jobs-parsers' or its corresponding type declarations.
+error: script "typecheck" exited with code 1

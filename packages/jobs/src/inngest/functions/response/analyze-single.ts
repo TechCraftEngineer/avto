@@ -98,18 +98,18 @@ export const analyzeSingleResponseFunction = inngest.createFunction(
         const screeningResult = unwrap(resultWrapper);
 
         console.log(`✅ Скрининг завершен: ${responseId}`, {
-          score: screeningResult.score,
+          score: screeningResult.overallScore,
         });
 
         return {
           success: true as const,
-          score: screeningResult.score,
+          overallScore: screeningResult.overallScore,
         };
       } catch (error) {
         console.error(`❌ Ошибка скрининга для ${responseId}:`, error);
         return {
           success: false as const,
-          error: error instanceof Error ? error.message : "Неизвестная ошибка",
+          error: error instanceof Error ? error.message : String(error),
         };
       }
     });
@@ -121,14 +121,14 @@ export const analyzeSingleResponseFunction = inngest.createFunction(
           ? {
               responseId,
               success: true as const,
-              score: result.score,
+              score: result.overallScore,
               error: undefined,
             }
           : {
               responseId,
               success: false as const,
               score: undefined,
-              error: result.error,
+              error: String(result.error),
             },
       ),
     );

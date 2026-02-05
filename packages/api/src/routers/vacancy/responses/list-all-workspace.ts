@@ -266,13 +266,6 @@ export const listAllWorkspace = protectedProcedure
       respondedAt: Date | null;
       welcomeSentAt: Date | null;
       createdAt: Date;
-      evaluationReasoning: {
-        hardSkills?: { score: number; notes: string };
-        softSkills?: { score: number; notes: string };
-        cultureFit?: { score: number; notes: string };
-        salaryAlignment?: { score: number; notes: string };
-      } | null;
-      compositeScoreReasoning: string | null;
     }>;
 
     if (

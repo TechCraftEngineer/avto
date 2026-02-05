@@ -99,11 +99,11 @@ export function useGigResponseFlags(
 
   // Проверяем наличие reasoning данных
   const hasReasoning =
-    !!response.priceScoreReasoning ||
-    !!response.deliveryScoreReasoning ||
-    !!response.skillsMatchScoreReasoning ||
-    !!response.experienceScoreReasoning ||
-    !!response.compositeScoreReasoning;
+    !!response.screening?.priceScoreReasoning ||
+    !!response.screening?.deliveryScoreReasoning ||
+    !!response.screening?.skillsMatchScoreReasoning ||
+    !!response.screening?.experienceScoreReasoning ||
+    !!response.screening?.overallScoreReasoning;
 
   // Проверяем специфичные gig данные
   const hasPricingData = !!(

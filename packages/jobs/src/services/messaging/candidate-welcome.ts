@@ -317,8 +317,8 @@ ${bot?.companyWebsite ? `Сайт: ${bot?.companyWebsite}` : ""}
 ${responseData.vacancy?.description ? `Описание вакансии: ${stripHtml(responseData.vacancy.description).result.substring(0, 200)}` : ""}
 
 Кандидат: ${responseData.candidateName || "Кандидат"}
-${screening?.score ? `Оценка резюме: ${screening.score}/10` : ""}
-${screening?.analysis ? `Анализ резюме: ${screening.analysis}` : ""}
+${screening?.overallScore ? `Оценка резюме: ${screening.overallScore}/100` : ""}
+${screening?.overallAnalysis ? `Анализ резюме: ${screening.overallAnalysis}` : ""}
 
 Доступные каналы для продолжения интервью: ${availableChannels.join(", ")}
 
@@ -408,8 +408,8 @@ export async function generateTelegramInviteMessage(
       ? stripHtml(responseData.vacancy.description).result.substring(0, 200)
       : undefined,
     candidateName: responseData.candidateName || null,
-    screeningScore: screening?.score,
-    screeningAnalysis: screening?.analysis || undefined,
+    screeningScore: screening?.overallScore,
+    screeningAnalysis: screening?.overallAnalysis || undefined,
     resumeLanguage: responseData.resumeLanguage || "ru",
   });
 

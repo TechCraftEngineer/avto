@@ -36,11 +36,11 @@ export function GigResponseTabs({
 }: GigResponseTabsProps) {
   // Проверяем наличие reasoning данных
   const hasReasoning =
-    response.priceScoreReasoning ||
-    response.deliveryScoreReasoning ||
-    response.skillsMatchScoreReasoning ||
-    response.experienceScoreReasoning ||
-    response.compositeScoreReasoning;
+    response.screening?.priceScoreReasoning ||
+    response.screening?.deliveryScoreReasoning ||
+    response.screening?.skillsMatchScoreReasoning ||
+    response.screening?.experienceScoreReasoning ||
+    response.screening?.overallScoreReasoning;
 
   // Проверяем специфичные gig данные
   const hasPricingData = !!(
@@ -157,54 +157,54 @@ export function GigResponseTabs({
             >
               {/* Overall Assessment */}
               <OverallAssessment
-                compositeScore={response.compositeScore}
-                compositeReasoning={response.compositeScoreReasoning}
-                recommendation={response.recommendation}
-                strengths={response.strengths || undefined}
-                weaknesses={response.weaknesses || undefined}
+                compositeScore={response.screening?.overallScore}
+                compositeReasoning={response.screening?.overallScoreReasoning}
+                recommendation={response.screening?.recommendation}
+                strengths={response.screening?.strengths || undefined}
+                weaknesses={response.screening?.weaknesses || undefined}
               />
 
               {/* Factor Breakdown */}
               <FactorBreakdown
-                experienceScore={response.experienceScore}
-                experienceReasoning={response.experienceScoreReasoning}
-                skillsScore={response.skillsMatchScore}
-                skillsReasoning={response.skillsMatchScoreReasoning}
-                strengths={response.strengths || undefined}
-                weaknesses={response.weaknesses || undefined}
+                experienceScore={response.screening?.experienceScore}
+                experienceReasoning={response.screening?.experienceScoreReasoning}
+                skillsScore={response.screening?.skillsMatchScore}
+                skillsReasoning={response.screening?.skillsMatchScoreReasoning}
+                strengths={response.screening?.strengths || undefined}
+                weaknesses={response.screening?.weaknesses || undefined}
               />
 
               {/* Score Explanations */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {response.priceScore !== null && (
+                {response.screening?.priceScore !== null && (
                   <ScoreExplanation
                     label="Оценка цены"
-                    score={response.priceScore}
-                    reasoning={response.priceScoreReasoning}
+                    score={response.screening?.priceScore}
+                    reasoning={response.screening?.priceScoreReasoning}
                     icon={<Banknote className="h-4 w-4" />}
                   />
                 )}
-                {response.deliveryScore !== null && (
+                {response.screening?.deliveryScore !== null && (
                   <ScoreExplanation
                     label="Оценка сроков"
-                    score={response.deliveryScore}
-                    reasoning={response.deliveryScoreReasoning}
+                    score={response.screening?.deliveryScore}
+                    reasoning={response.screening?.deliveryScoreReasoning}
                     icon={<Clock className="h-4 w-4" />}
                   />
                 )}
-                {response.skillsMatchScore !== null && (
+                {response.screening?.skillsMatchScore !== null && (
                   <ScoreExplanation
                     label="Соответствие навыков"
-                    score={response.skillsMatchScore}
-                    reasoning={response.skillsMatchScoreReasoning}
+                    score={response.screening?.skillsMatchScore}
+                    reasoning={response.screening?.skillsMatchScoreReasoning}
                     icon={<Award className="h-4 w-4" />}
                   />
                 )}
-                {response.experienceScore !== null && (
+                {response.screening?.experienceScore !== null && (
                   <ScoreExplanation
                     label="Оценка опыта"
-                    score={response.experienceScore}
-                    reasoning={response.experienceScoreReasoning}
+                    score={response.screening?.experienceScore}
+                    reasoning={response.screening?.experienceScoreReasoning}
                     icon={<Briefcase className="h-4 w-4" />}
                   />
                 )}

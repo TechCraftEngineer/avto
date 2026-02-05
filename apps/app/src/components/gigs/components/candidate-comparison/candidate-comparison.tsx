@@ -119,9 +119,9 @@ export function CandidateComparison({
                     <h3 className="font-semibold text-sm truncate max-w-[200px]">
                       {candidate.candidateName || candidate.candidateId}
                     </h3>
-                    {candidate.rankingPosition && (
+                    {candidate.screening?.rankingPosition && (
                       <p className="text-xs text-muted-foreground">
-                        Позиция #{candidate.rankingPosition}
+                        Позиция #{candidate.screening?.rankingPosition}
                       </p>
                     )}
                   </div>
@@ -285,9 +285,9 @@ export function CandidateComparison({
                     key={candidate.id}
                     className="p-3 rounded-lg border bg-background"
                   >
-                    {candidate.strengths && candidate.strengths.length > 0 ? (
+                    {candidate.screening?.strengths && candidate.screening?.strengths.length > 0 ? (
                       <div className="flex flex-wrap gap-1.5">
-                        {candidate.strengths.map((strength) => (
+                        {candidate.screening?.strengths.map((strength) => (
                           <Badge
                             key={strength}
                             variant="secondary"
@@ -322,9 +322,9 @@ export function CandidateComparison({
                     key={candidate.id}
                     className="p-3 rounded-lg border bg-background"
                   >
-                    {candidate.weaknesses && candidate.weaknesses.length > 0 ? (
+                    {candidate.screening?.weaknesses && candidate.screening?.weaknesses.length > 0 ? (
                       <div className="flex flex-wrap gap-1.5">
-                        {candidate.weaknesses.map((weakness) => (
+                        {candidate.screening?.weaknesses.map((weakness) => (
                           <Badge
                             key={weakness}
                             variant="outline"

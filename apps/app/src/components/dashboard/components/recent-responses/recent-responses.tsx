@@ -65,7 +65,7 @@ function RecentResponseItem({
           {response.screening && (
             <Badge variant="outline" className="h-5 px-1.5">
               <Star className="h-3 w-3 mr-1" />
-              {response.screening.score.toFixed(1)}
+              {response.screening.overallScore.toFixed(1)}
             </Badge>
           )}
         </div>

@@ -236,17 +236,23 @@ export async function screenResponse(
       await db
         .update(responseScreening)
         .set({
-          score: screeningResult.score,
-          detailedScore: screeningResult.detailedScore,
-          analysis: screeningResult.analysis,
+          overallScore: screeningResult.overallScore,
+          overallAnalysis: screeningResult.overallAnalysis,
+          skillsMatchScore: screeningResult.skillsMatchScore ?? null,
+          experienceScore: screeningResult.experienceScore ?? null,
           potentialScore: screeningResult.potentialScore ?? null,
           careerTrajectoryScore: screeningResult.careerTrajectoryScore ?? null,
           careerTrajectoryType: screeningResult.careerTrajectoryType ?? null,
           hiddenFitIndicators: screeningResult.hiddenFitIndicators ?? null,
+          skillsAnalysis: screeningResult.skillsAnalysis ?? null,
+          experienceAnalysis: screeningResult.experienceAnalysis ?? null,
           potentialAnalysis: screeningResult.potentialAnalysis ?? null,
           careerTrajectoryAnalysis:
             screeningResult.careerTrajectoryAnalysis ?? null,
           hiddenFitAnalysis: screeningResult.hiddenFitAnalysis ?? null,
+          strengths: screeningResult.strengths ?? null,
+          weaknesses: screeningResult.weaknesses ?? null,
+          recommendation: screeningResult.recommendation ?? null,
           psychometricScore,
           psychometricAnalysis,
         })
@@ -254,17 +260,22 @@ export async function screenResponse(
     } else {
       await db.insert(responseScreening).values({
         responseId,
-        score: screeningResult.score,
-        detailedScore: screeningResult.detailedScore,
-        analysis: screeningResult.analysis,
+        overallScore: screeningResult.overallScore,
+        overallAnalysis: screeningResult.overallAnalysis,
+        skillsMatchScore: screeningResult.skillsMatchScore ?? null,
+        experienceScore: screeningResult.experienceScore ?? null,
         potentialScore: screeningResult.potentialScore ?? null,
         careerTrajectoryScore: screeningResult.careerTrajectoryScore ?? null,
         careerTrajectoryType: screeningResult.careerTrajectoryType ?? null,
         hiddenFitIndicators: screeningResult.hiddenFitIndicators ?? null,
+        skillsAnalysis: screeningResult.skillsAnalysis ?? null,
+        experienceAnalysis: screeningResult.experienceAnalysis ?? null,
         potentialAnalysis: screeningResult.potentialAnalysis ?? null,
-        careerTrajectoryAnalysis:
-          screeningResult.careerTrajectoryAnalysis ?? null,
+        careerTrajectoryAnalysis: screeningResult.careerTrajectoryAnalysis ?? null,
         hiddenFitAnalysis: screeningResult.hiddenFitAnalysis ?? null,
+        strengths: screeningResult.strengths ?? null,
+        weaknesses: screeningResult.weaknesses ?? null,
+        recommendation: screeningResult.recommendation ?? null,
         psychometricScore,
         psychometricAnalysis,
       });
@@ -280,7 +291,7 @@ export async function screenResponse(
       .where(eq(response.id, responseId));
 
     logger.info(
-      `Результат скрининга сохранен: оценка ${screeningResult.score}/5 (${screeningResult.detailedScore}/100), язык: ${screeningResult.resumeLanguage}${psychometricScore ? `, психометрия: ${psychometricScore}/100` : ""}`,
+      `Результат скрининга сохранен: оценка ${screeningResult.overallScore}/100, язык: ${screeningResult.resumeLanguage}${psychometricScore ? `, психометрия: ${psychometricScore}/100` : ""}`,
     );
 
     return screeningResult;
@@ -288,3 +299,4 @@ export async function screenResponse(
 
   return saveResult;
 }
+

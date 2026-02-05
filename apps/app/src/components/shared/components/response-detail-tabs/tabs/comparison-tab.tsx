@@ -128,7 +128,7 @@ export function ComparisonTab({
           <div className="space-y-3">
             {data.responses.map((response, index) => {
               const isCurrentResponse = response.id === responseId;
-              const score = response.compositeScore ?? 0;
+              const score = response.screening?.overallScore ?? 0;
 
               return (
                 <div
@@ -184,19 +184,19 @@ export function ComparisonTab({
 
                   {/* Детальные оценки */}
                   <div className="grid grid-cols-2 gap-2 text-xs">
-                    {response.skillsMatchScore !== null && (
+                    {response.screening?.skillsMatchScore !== null && (
                       <div className="flex items-center justify-between">
                         <span className="text-muted-foreground">Навыки:</span>
                         <span className="font-medium">
-                          {response.skillsMatchScore}
+                          {response.screening?.skillsMatchScore}
                         </span>
                       </div>
                     )}
-                    {response.experienceScore !== null && (
+                    {response.screening?.experienceScore !== null && (
                       <div className="flex items-center justify-between">
                         <span className="text-muted-foreground">Опыт:</span>
                         <span className="font-medium">
-                          {response.experienceScore}
+                          {response.screening?.experienceScore}
                         </span>
                       </div>
                     )}

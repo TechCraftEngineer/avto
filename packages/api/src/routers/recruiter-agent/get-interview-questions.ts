@@ -83,7 +83,7 @@ export const getInterviewQuestions = protectedProcedure
       where: (s, { eq }) => eq(s.responseId, responseId),
       columns: {
         overallScore: true,
-        analysis: true,
+        overallAnalysis: true,
       },
     });
 

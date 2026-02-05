@@ -169,16 +169,17 @@ export function ResponseListCard({
                             Скрининг
                           </span>
                           <span className="text-sm font-bold text-primary">
-                            {response.screening.score}/5
+                            {(response.screening.overallScore / 20).toFixed(1)}
+                            /5
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Progress
-                            value={response.screening.detailedScore}
+                            value={response.screening.overallScore}
                             className="flex-1 h-1.5"
                           />
                           <span className="text-xs text-muted-foreground font-medium">
-                            {response.screening.detailedScore}
+                            {response.screening.overallScore}
                           </span>
                         </div>
                       </div>
@@ -198,11 +199,11 @@ export function ResponseListCard({
                           Автоматическая оценка соответствия требованиям
                         </p>
                       </div>
-                      {response.screening.analysis && (
+                      {response.screening.overallAnalysis && (
                         <div>
                           <h5 className="font-medium text-xs mb-1">Анализ</h5>
                           <p className="text-xs text-muted-foreground leading-relaxed">
-                            {response.screening.analysis}
+                            {response.screening.overallAnalysis}
                           </p>
                         </div>
                       )}

@@ -100,13 +100,13 @@ export function RankedCandidateCard({
   onMessage,
   showRank = true,
 }: RankedCandidateCardProps) {
-  const recommendationConfig = candidate.recommendation
-    ? RECOMMENDATION_CONFIG[candidate.recommendation]
+  const recommendationConfig = candidate.screening?.recommendation
+    ? RECOMMENDATION_CONFIG[candidate.screening?.recommendation]
     : null;
   const RecommendationIcon = recommendationConfig?.icon;
 
   const isTopThree =
-    candidate.rankingPosition && candidate.rankingPosition <= 3;
+    candidate.screening?.rankingPosition && candidate.screening?.rankingPosition <= 3;
 
   const handleAction = (e: React.MouseEvent, action: () => void) => {
     e.preventDefault();
@@ -127,7 +127,7 @@ export function RankedCandidateCard({
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-3 flex-1 min-w-0">
               {/* Ranking Position Badge */}
-              {showRank && candidate.rankingPosition && (
+              {showRank && candidate.screening?.rankingPosition && (
                 <div
                   className={`flex h-12 w-12 items-center justify-center rounded-full shrink-0 font-bold text-lg ${
                     isTopThree
@@ -135,7 +135,7 @@ export function RankedCandidateCard({
                       : "bg-muted text-muted-foreground"
                   }`}
                 >
-                  #{candidate.rankingPosition}
+                  #{candidate.screening?.rankingPosition}
                 </div>
               )}
 
@@ -162,13 +162,13 @@ export function RankedCandidateCard({
                 </div>
 
                 {/* Composite Score */}
-                {candidate.compositeScore !== null && (
+                {candidate.screening?.overallScore !== null && (
                   <div className="flex items-center gap-2 text-sm">
                     <span className="text-muted-foreground">Общая оценка:</span>
                     <span
-                      className={`font-bold ${getScoreColor(candidate.compositeScore)}`}
+                      className={`font-bold ${getScoreColor(candidate.screening?.overallScore)}`}
                     >
-                      {candidate.compositeScore}/100
+                      {candidate.screening?.overallScore}/100
                     </span>
                   </div>
                 )}
@@ -190,19 +190,19 @@ export function RankedCandidateCard({
 
         <CardContent className="space-y-3">
           {/* Composite Score Progress Bar */}
-          {candidate.compositeScore !== null && (
+          {candidate.screening?.overallScore !== null && (
             <div className="space-y-1.5">
               <Progress
-                value={candidate.compositeScore}
+                value={candidate.screening?.overallScore}
                 className="h-2"
-                indicatorClassName={getProgressColor(candidate.compositeScore)}
+                indicatorClassName={getProgressColor(candidate.screening?.overallScore)}
               />
             </div>
           )}
 
           {/* Score Breakdown */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
-            {candidate.priceScore !== null && (
+            {candidate.screening?.priceScore !== null && (
               <HoverCard>
                 <HoverCardTrigger asChild>
                   <button
@@ -213,7 +213,7 @@ export function RankedCandidateCard({
                     <Banknote className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                     <div className="min-w-0 flex-1">
                       <div className="text-muted-foreground">Цена</div>
-                      <div className="font-medium">{candidate.priceScore}</div>
+                      <div className="font-medium">{candidate.screening?.priceScore}</div>
                     </div>
                   </button>
                 </HoverCardTrigger>
@@ -226,9 +226,9 @@ export function RankedCandidateCard({
                         {formatCurrency(candidate.proposedPrice)}
                       </p>
                     )}
-                    {candidate.priceScoreReasoning ? (
+                    {candidate.screening?.priceScoreReasoning ? (
                       <p className="text-xs text-muted-foreground leading-relaxed">
-                        {candidate.priceScoreReasoning}
+                        {candidate.screening?.priceScoreReasoning}
                       </p>
                     ) : (
                       <p className="text-xs text-muted-foreground italic">
@@ -240,7 +240,7 @@ export function RankedCandidateCard({
               </HoverCard>
             )}
 
-            {candidate.deliveryScore !== null && (
+            {candidate.screening?.deliveryScore !== null && (
               <HoverCard>
                 <HoverCardTrigger asChild>
                   <button
@@ -252,7 +252,7 @@ export function RankedCandidateCard({
                     <div className="min-w-0 flex-1">
                       <div className="text-muted-foreground">Срок</div>
                       <div className="font-medium">
-                        {candidate.deliveryScore}
+                        {candidate.screening?.deliveryScore}
                       </div>
                     </div>
                   </button>
@@ -270,9 +270,9 @@ export function RankedCandidateCard({
                             : "дней"}
                       </p>
                     )}
-                    {candidate.deliveryScoreReasoning ? (
+                    {candidate.screening?.deliveryScoreReasoning ? (
                       <p className="text-xs text-muted-foreground leading-relaxed">
-                        {candidate.deliveryScoreReasoning}
+                        {candidate.screening?.deliveryScoreReasoning}
                       </p>
                     ) : (
                       <p className="text-xs text-muted-foreground italic">
@@ -284,7 +284,7 @@ export function RankedCandidateCard({
               </HoverCard>
             )}
 
-            {candidate.skillsMatchScore !== null && (
+            {candidate.screening?.skillsMatchScore !== null && (
               <HoverCard>
                 <HoverCardTrigger asChild>
                   <button
@@ -296,7 +296,7 @@ export function RankedCandidateCard({
                     <div className="min-w-0 flex-1">
                       <div className="text-muted-foreground">Навыки</div>
                       <div className="font-medium">
-                        {candidate.skillsMatchScore}
+                        {candidate.screening?.skillsMatchScore}
                       </div>
                     </div>
                   </button>
@@ -306,9 +306,9 @@ export function RankedCandidateCard({
                     <h4 className="text-sm font-semibold">
                       Соответствие навыков
                     </h4>
-                    {candidate.skillsMatchScoreReasoning ? (
+                    {candidate.screening?.skillsMatchScoreReasoning ? (
                       <p className="text-xs text-muted-foreground leading-relaxed">
-                        {candidate.skillsMatchScoreReasoning}
+                        {candidate.screening?.skillsMatchScoreReasoning}
                       </p>
                     ) : (
                       <p className="text-xs text-muted-foreground italic">
@@ -320,7 +320,7 @@ export function RankedCandidateCard({
               </HoverCard>
             )}
 
-            {candidate.experienceScore !== null && (
+            {candidate.screening?.experienceScore !== null && (
               <HoverCard>
                 <HoverCardTrigger asChild>
                   <button
@@ -332,7 +332,7 @@ export function RankedCandidateCard({
                     <div className="min-w-0 flex-1">
                       <div className="text-muted-foreground">Опыт</div>
                       <div className="font-medium">
-                        {candidate.experienceScore}
+                        {candidate.screening?.experienceScore}
                       </div>
                     </div>
                   </button>
@@ -340,9 +340,9 @@ export function RankedCandidateCard({
                 <HoverCardContent className="w-80" align="start">
                   <div className="space-y-2">
                     <h4 className="text-sm font-semibold">Оценка опыта</h4>
-                    {candidate.experienceScoreReasoning ? (
+                    {candidate.screening?.experienceScoreReasoning ? (
                       <p className="text-xs text-muted-foreground leading-relaxed">
-                        {candidate.experienceScoreReasoning}
+                        {candidate.screening?.experienceScoreReasoning}
                       </p>
                     ) : (
                       <p className="text-xs text-muted-foreground italic">
@@ -356,11 +356,11 @@ export function RankedCandidateCard({
           </div>
 
           {/* Strengths and Weaknesses */}
-          {(candidate.strengths?.length || candidate.weaknesses?.length) && (
+          {(candidate.screening?.strengths?.length || candidate.screening?.weaknesses?.length) && (
             <div className="space-y-2">
-              {candidate.strengths && candidate.strengths.length > 0 && (
+              {candidate.screening?.strengths && candidate.screening?.strengths.length > 0 && (
                 <div className="flex flex-wrap gap-1.5">
-                  {candidate.strengths.map((strength) => (
+                  {candidate.screening?.strengths.map((strength) => (
                     <Badge
                       key={strength}
                       variant="secondary"
@@ -373,9 +373,9 @@ export function RankedCandidateCard({
                 </div>
               )}
 
-              {candidate.weaknesses && candidate.weaknesses.length > 0 && (
+              {candidate.screening?.weaknesses && candidate.screening?.weaknesses.length > 0 && (
                 <div className="flex flex-wrap gap-1.5">
-                  {candidate.weaknesses.map((weakness) => (
+                  {candidate.screening?.weaknesses.map((weakness) => (
                     <Badge
                       key={weakness}
                       variant="outline"
@@ -391,22 +391,22 @@ export function RankedCandidateCard({
           )}
 
           {/* Composite Score Reasoning Preview */}
-          {candidate.compositeScoreReasoning && (
+          {candidate.screening?.overallScoreReasoning && (
             <div className="p-3 rounded-lg border-l-4 border-primary/50 bg-muted/30">
               <h4 className="text-xs font-semibold mb-1">
                 Почему подходит / почему нет
               </h4>
               <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed">
-                {candidate.compositeScoreReasoning}
+                {candidate.screening?.overallScoreReasoning}
               </p>
             </div>
           )}
 
           {/* Ranking Analysis Preview */}
-          {candidate.rankingAnalysis && (
+          {candidate.screening?.rankingAnalysis && (
             <div className="p-3 rounded-lg border bg-muted/50">
               <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                {candidate.rankingAnalysis}
+                {candidate.screening?.rankingAnalysis}
               </p>
             </div>
           )}

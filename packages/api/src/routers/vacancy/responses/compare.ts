@@ -1,5 +1,6 @@
 import { and, desc, eq, sql } from "@qbs-autonaim/db";
 import {
+  responseScreening,
   response as responseTable,
   vacancy as vacancyTable,
 } from "@qbs-autonaim/db/schema";

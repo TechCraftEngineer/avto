@@ -146,20 +146,28 @@ export const evaluateGigResponseFunction = inngest.createFunction(
       });
     });
 
-    // Обновляем compositeScore в response для работы шортлиста
-    await step.run("update-response-composite-score", async () => {
-      const { response } = await import("@qbs-autonaim/db/schema");
+    // Обновляем overallScore в responseScreening для работы шортлиста
+    await step.run("update-response-screening-score", async () => {
+      const { responseScreening } = await import("@qbs-autonaim/db/schema");
 
       await db
-        .update(response)
-        .set({
-          compositeScore: scoring.detailedScore, // 0-100 шкала для шортлиста
+        .insert(responseScreening)
+        .values({
+          responseId: responseId,
+          overallScore: scoring.detailedScore, // 0-100 шкала для шортлиста
+          overallAnalysis: scoring.analysis,
         })
-        .where(eq(response.id, responseId));
+        .onConflictDoUpdate({
+          target: responseScreening.responseId,
+          set: {
+            overallScore: scoring.detailedScore,
+            overallAnalysis: scoring.analysis,
+          },
+        });
 
-      console.log("✅ Composite score обновлен в response", {
+      console.log("✅ Overall score обновлен в responseScreening", {
         responseId,
-        compositeScore: scoring.detailedScore,
+        overallScore: scoring.detailedScore,
       });
     });
 

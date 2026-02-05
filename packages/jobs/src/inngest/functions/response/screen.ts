@@ -28,8 +28,8 @@ export const screenResponseFunction = inngest.createFunction(
 
         console.log("✅ Скрининг завершен", {
           responseId,
-          score: result.score,
-          detailedScore: result.detailedScore,
+          score: result.overallScore,
+          detailedScore: result.overallScore,
         });
 
         return {

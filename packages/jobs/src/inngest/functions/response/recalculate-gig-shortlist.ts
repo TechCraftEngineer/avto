@@ -26,7 +26,9 @@ export const recalculateGigShortlistFunction = inngest.createFunction(
       try {
         // === ДИАГНОСТИКА: Проверяем наличие откликов ===
         const { db } = await import("@qbs-autonaim/db/client");
-        const { response } = await import("@qbs-autonaim/db/schema");
+        const { response, responseScreening } = await import(
+          "@qbs-autonaim/db/schema"
+        );
         const { eq, and, gte, isNotNull } = await import("@qbs-autonaim/db");
 
         // 1. Считаем все отклики для этого gig
@@ -40,34 +42,48 @@ export const recalculateGigShortlistFunction = inngest.createFunction(
           totalResponses,
         });
 
-        // 2. Считаем отклики с compositeScore >= 70 и не NULL
-        const scoredResponses = await db.$count(
-          response,
-          and(
-            eq(response.entityType, "gig"),
-            eq(response.entityId, gigId),
-            gte(response.compositeScore, 70),
-            isNotNull(response.compositeScore),
-          ),
-        );
+        // 2. Считаем отклики с overallScore >= 70 и не NULL
+        const scoredResponsesResult = await db
+          .select({ count: db.$count(response) })
+          .from(response)
+          .innerJoin(
+            responseScreening,
+            eq(response.id, responseScreening.responseId),
+          )
+          .where(
+            and(
+              eq(response.entityType, "gig"),
+              eq(response.entityId, gigId),
+              gte(responseScreening.overallScore, 70),
+              isNotNull(responseScreening.overallScore),
+            ),
+          );
 
-        console.log("📊 Отклики с compositeScore >= 70", {
+        const scoredResponses = scoredResponsesResult[0]?.count ?? 0;
+
+        console.log("📊 Отклики с overallScore >= 70", {
           gigId,
           scoredResponses,
         });
 
         // 3. Получаем распределение рекомендаций
-        const recommendationStats = await db.query.response.findMany({
-          where: and(
-            eq(response.entityType, "gig"),
-            eq(response.entityId, gigId),
-            isNotNull(response.compositeScore),
-          ),
-          columns: {
-            recommendation: true,
-            compositeScore: true,
-          },
-        });
+        const recommendationStats = await db
+          .select({
+            recommendation: responseScreening.recommendation,
+            overallScore: responseScreening.overallScore,
+          })
+          .from(response)
+          .innerJoin(
+            responseScreening,
+            eq(response.id, responseScreening.responseId),
+          )
+          .where(
+            and(
+              eq(response.entityType, "gig"),
+              eq(response.entityId, gigId),
+              isNotNull(responseScreening.overallScore),
+            ),
+          );
 
         const recStats = recommendationStats.reduce(
           (acc, r) => {
@@ -84,26 +100,29 @@ export const recalculateGigShortlistFunction = inngest.createFunction(
         });
 
         // 4. Получаем первые 5 откликов для детального анализа
-        const sampleResponses = await db.query.response.findMany({
-          where: and(
-            eq(response.entityType, "gig"),
-            eq(response.entityId, gigId),
-          ),
-          columns: {
-            id: true,
-            compositeScore: true,
-            recommendation: true,
-            status: true,
-            createdAt: true,
-          },
-          limit: 5,
-        });
+        const sampleResponses = await db
+          .select({
+            id: response.id,
+            overallScore: responseScreening.overallScore,
+            recommendation: responseScreening.recommendation,
+            status: response.status,
+            createdAt: response.createdAt,
+          })
+          .from(response)
+          .leftJoin(
+            responseScreening,
+            eq(response.id, responseScreening.responseId),
+          )
+          .where(
+            and(eq(response.entityType, "gig"), eq(response.entityId, gigId)),
+          )
+          .limit(5);
 
         console.log("📋 Примеры откликов", {
           gigId,
           sampleResponses: sampleResponses.map((r) => ({
             id: r.id,
-            compositeScore: r.compositeScore,
+            overallScore: r.overallScore,
             recommendation: r.recommendation,
             status: r.status,
             createdAt: r.createdAt,

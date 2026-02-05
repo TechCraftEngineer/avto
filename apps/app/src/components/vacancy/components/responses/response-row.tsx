@@ -466,10 +466,10 @@ export function ResponseRow({
         <span className="text-muted-foreground text-xs">—</span>
       </TableCell>
       <TableCell>
-        {response.compositeScore != null ? (
+        {response.screening?.overallScore != null ? (
           <div className="flex items-center gap-1">
             <span className="text-sm font-medium">
-              {response.compositeScore}
+              {response.screening.overallScore}
             </span>
             <span className="text-xs text-muted-foreground">/100</span>
           </div>

@@ -244,7 +244,7 @@ export function GigResponseHeaderCard({
             </div>
           )}
 
-          {response.compositeScore && (
+          {response.screening?.overallScore && (
             <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
               <Star className="h-5 w-5 text-blue-600 shrink-0" />
               <div>
@@ -252,7 +252,7 @@ export function GigResponseHeaderCard({
                   Общий рейтинг
                 </div>
                 <div className="text-lg font-semibold text-blue-900">
-                  {response.compositeScore}/100
+                  {response.screening?.overallScore}/100
                 </div>
                 <div className="text-xs text-blue-700">Композитная оценка</div>
               </div>

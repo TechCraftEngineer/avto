@@ -109,9 +109,9 @@ export async function generateFreelanceInvitation(
   }
 
   // Проверяем порог оценки
-  if (responseData.screening.score < MIN_SCORE_THRESHOLD) {
+  if (responseData.screening.overallScore < MIN_SCORE_THRESHOLD) {
     logger.info(
-      `Skipping invitation: score ${responseData.screening.score} below threshold ${MIN_SCORE_THRESHOLD}`,
+      `Skipping invitation: score ${responseData.screening.overallScore} below threshold ${MIN_SCORE_THRESHOLD}`,
     );
     return ok(null);
   }
@@ -169,7 +169,7 @@ export async function generateFreelanceInvitation(
   // Генерируем текст приглашения
   logger.info("Generating invitation text with AI");
 
-  const screeningScore = responseData.screening?.score;
+  const screeningScore = responseData.screening?.overallScore;
   if (!screeningScore) {
     return err("Screening score not found");
   }
