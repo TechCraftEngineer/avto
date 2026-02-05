@@ -114,15 +114,15 @@ export const getAnalytics = protectedProcedure
       const scoreDistribution = await ctx.db
         .select({
           scoreRange: sql<string>`CASE
-          WHEN ${responseScreening.detailedScore} >= 90 THEN '90-100'
-          WHEN ${responseScreening.detailedScore} >= 80 THEN '80-89'
-          WHEN ${responseScreening.detailedScore} >= 70 THEN '70-79'
-          WHEN ${responseScreening.detailedScore} >= 60 THEN '60-69'
-          WHEN ${responseScreening.detailedScore} >= 50 THEN '50-59'
+          WHEN ${responseScreening.overallScore} >= 90 THEN '90-100'
+          WHEN ${responseScreening.overallScore} >= 80 THEN '80-89'
+          WHEN ${responseScreening.overallScore} >= 70 THEN '70-79'
+          WHEN ${responseScreening.overallScore} >= 60 THEN '60-69'
+          WHEN ${responseScreening.overallScore} >= 50 THEN '50-59'
           ELSE '0-49'
         END`,
           count: count(responseScreening.id),
-          avgScore: sql<number>`ROUND(AVG(${responseScreening.detailedScore}), 2)`,
+          avgScore: sql<number>`ROUND(AVG(${responseScreening.overallScore}), 2)`,
         })
         .from(responseScreening)
         .innerJoin(
@@ -150,7 +150,7 @@ export const getAnalytics = protectedProcedure
           WHEN ${responseScreening.id} IS NOT NULL
           THEN ${responseTable.id}
         END)`,
-          avgScore: sql<number>`ROUND(AVG(${responseScreening.detailedScore}), 2)`,
+          avgScore: sql<number>`ROUND(AVG(${responseScreening.overallScore}), 2)`,
           avgTimeToShortlist: sql<number | null>`ROUND(
           AVG(EXTRACT(EPOCH FROM (${responseScreening.createdAt} - ${vacancy.createdAt})) / 86400),
           2
@@ -192,7 +192,7 @@ export const getAnalytics = protectedProcedure
           WHEN ${responseScreening.id} IS NOT NULL
           THEN ${responseTable.id}
         END)`,
-          avgScore: sql<number>`ROUND(AVG(${responseScreening.detailedScore}), 2)`,
+          avgScore: sql<number>`ROUND(AVG(${responseScreening.overallScore}), 2)`,
           avgTimeToShortlist: sql<number | null>`ROUND(
           AVG(EXTRACT(EPOCH FROM (${responseScreening.createdAt} - ${vacancy.createdAt})) / 86400),
           2

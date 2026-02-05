@@ -94,8 +94,8 @@ export const listAll = protectedProcedure
         screening: screening
           ? {
               ...screening,
-              analysis: screening.analysis
-                ? sanitizeHtml(screening.analysis)
+              analysis: screening.overallAnalysis
+                ? sanitizeHtml(screening.overallAnalysis)
                 : null,
             }
           : null,

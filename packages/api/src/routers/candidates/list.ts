@@ -285,7 +285,7 @@ export const list = protectedProcedure
           )
         : null;
 
-      const resumeScore = screening?.detailedScore;
+      const resumeScore = screening?.overallScore;
       const interviewScore =
         interviewScoring?.rating ??
         Math.round((interviewScoring?.score ?? 0) / 20);

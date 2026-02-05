@@ -58,16 +58,16 @@ export function getOrderByClause(
     // Для сортировки по score полям используем LEFT JOIN с responseScreening
     const scoreColumn =
       sortField === "score"
-        ? responseScreening.score
+        ? responseScreening.overallScore
         : sortField === "detailedScore"
-          ? responseScreening.detailedScore
+          ? responseScreening.overallScore // detailedScore вычисляется из overallScore
           : sortField === "potentialScore"
             ? responseScreening.potentialScore
             : sortField === "careerTrajectoryScore"
               ? responseScreening.careerTrajectoryScore
               : sortField === "salaryExpectationsAmount"
                 ? responseTable.salaryExpectationsAmount
-                : responseTable.compositeScore;
+                : responseScreening.overallScore; // compositeScore = overallScore
 
     return sortDirection === "asc"
       ? asc(sql`COALESCE(${scoreColumn}, -1)`)

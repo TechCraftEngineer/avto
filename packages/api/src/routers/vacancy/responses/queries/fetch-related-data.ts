@@ -33,19 +33,6 @@ export async function fetchScreenings(db: DbClient, responseIds: string[]) {
 
   return await db.query.responseScreening.findMany({
     where: inArray(responseScreening.responseId, responseIds),
-    columns: {
-      responseId: true,
-      score: true,
-      detailedScore: true,
-      analysis: true,
-      potentialScore: true,
-      careerTrajectoryScore: true,
-      careerTrajectoryType: true,
-      hiddenFitIndicators: true,
-      potentialAnalysis: true,
-      careerTrajectoryAnalysis: true,
-      hiddenFitAnalysis: true,
-    },
   });
 }
 

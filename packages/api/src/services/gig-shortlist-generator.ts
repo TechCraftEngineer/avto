@@ -7,7 +7,7 @@
 
 import { and, eq, gte, isNotNull } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
-import { response } from "@qbs-autonaim/db/schema";
+import { response, responseScreening } from "@qbs-autonaim/db/schema";
 
 /**
  * Контактная информация кандидата
@@ -91,42 +91,45 @@ export class GigShortlistGenerator {
       prioritizeBudgetFit = false,
     } = options;
 
-    // Получаем все ранжированные отклики для gig
-    const responses = await db.query.response.findMany({
-      where: and(
-        eq(response.entityType, "gig"),
-        eq(response.entityId, gigId),
-        gte(response.compositeScore, minScore),
-        isNotNull(response.compositeScore),
-      ),
-      columns: {
-        id: true,
-        candidateName: true,
-        email: true,
-        phone: true,
-        telegramUsername: true,
-        profileUrl: true,
-        // Gig-специфичные поля
-        proposedPrice: true,
-        proposedDeliveryDays: true,
-        portfolioLinks: true,
-        // Оценки
-        compositeScore: true,
-        priceScore: true,
-        deliveryScore: true,
-        skillsMatchScore: true,
-        experienceScore: true,
-        // Анализ
-        recommendation: true,
-        rankingAnalysis: true,
-        strengths: true,
-        weaknesses: true,
-        // Дополнительная информация
-        coverLetter: true,
-        skills: true,
-        createdAt: true,
-      },
-    });
+    // Получаем все ранжированные отклики для gig с JOIN к screening
+    const responses = await db
+      .select({
+        id: response.id,
+        candidateName: response.candidateName,
+        email: response.email,
+        phone: response.phone,
+        telegramUsername: response.telegramUsername,
+        profileUrl: response.profileUrl,
+        proposedPrice: response.proposedPrice,
+        proposedDeliveryDays: response.proposedDeliveryDays,
+        portfolioLinks: response.portfolioLinks,
+        coverLetter: response.coverLetter,
+        skills: response.skills,
+        createdAt: response.createdAt,
+        // Поля из screening
+        overallScore: responseScreening.overallScore,
+        priceScore: responseScreening.priceScore,
+        deliveryScore: responseScreening.deliveryScore,
+        skillsMatchScore: responseScreening.skillsMatchScore,
+        experienceScore: responseScreening.experienceScore,
+        recommendation: responseScreening.recommendation,
+        rankingAnalysis: responseScreening.rankingAnalysis,
+        strengths: responseScreening.strengths,
+        weaknesses: responseScreening.weaknesses,
+      })
+      .from(response)
+      .innerJoin(
+        responseScreening,
+        eq(response.id, responseScreening.responseId),
+      )
+      .where(
+        and(
+          eq(response.entityType, "gig"),
+          eq(response.entityId, gigId),
+          gte(responseScreening.overallScore, minScore),
+          isNotNull(responseScreening.overallScore),
+        ),
+      );
 
     // Фильтруем по рекомендациям если нужно
     let filteredResponses = responses;
@@ -154,7 +157,7 @@ export class GigShortlistGenerator {
         },
         proposedPrice: response.proposedPrice ?? undefined,
         proposedDeliveryDays: response.proposedDeliveryDays ?? undefined,
-        compositeScore: response.compositeScore ?? 0,
+        compositeScore: response.overallScore ?? 0,
         priceScore: response.priceScore ?? undefined,
         deliveryScore: response.deliveryScore ?? undefined,
         skillsMatchScore: response.skillsMatchScore ?? undefined,

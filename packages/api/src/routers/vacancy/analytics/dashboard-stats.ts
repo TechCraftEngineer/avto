@@ -95,7 +95,7 @@ export const dashboardStats = protectedProcedure
             vacancyIds.map((id) => sql`${id}`),
             sql`, `,
           )})`,
-          gte(responseScreening.score, 3),
+          gte(responseScreening.overallScore, 3),
         ),
       );
 
@@ -115,7 +115,7 @@ export const dashboardStats = protectedProcedure
             vacancyIds.map((id) => sql`${id}`),
             sql`, `,
           )})`,
-          gte(responseScreening.score, 4),
+          gte(responseScreening.overallScore, 4),
         ),
       );
 
@@ -123,7 +123,7 @@ export const dashboardStats = protectedProcedure
 
     const avgScoreResult = await ctx.db
       .select({
-        avg: sql<number>`COALESCE(AVG(${responseScreening.score}), 0)`,
+        avg: sql<number>`COALESCE(AVG(${responseScreening.overallScore}), 0)`,
       })
       .from(responseTable)
       .innerJoin(

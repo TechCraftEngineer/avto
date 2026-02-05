@@ -115,7 +115,7 @@ export class ShortlistGenerator {
           : null;
 
         // Получаем оценку анализа отклика
-        const responseScore = screening?.score ?? 0;
+        const responseScore = screening?.overallScore ?? 0;
 
         // Получаем оценку интервью (если есть завершённое интервью)
         const interviewScore = interviewScoring
@@ -133,7 +133,7 @@ export class ShortlistGenerator {
 
         // Извлекаем ключевые особенности и красные флаги
         const { keyHighlights, redFlags } = this.extractHighlightsAndFlags(
-          screening?.analysis,
+          screening?.overallAnalysis,
           interviewScoring?.analysis,
         );
 

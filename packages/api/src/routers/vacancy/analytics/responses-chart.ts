@@ -56,7 +56,7 @@ export const responsesChart = protectedProcedure
               inArray(screening.responseId, responseIds),
             columns: {
               responseId: true,
-              score: true,
+              overallScore: true,
             },
           })
         : [];
@@ -83,7 +83,7 @@ export const responsesChart = protectedProcedure
       const screening = screeningMap.get(response.id);
       if (screening) {
         existing.processed += 1;
-        if (screening.score >= 3) {
+        if (screening.overallScore >= 3) {
           existing.highScore += 1;
         }
       }

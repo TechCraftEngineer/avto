@@ -82,7 +82,7 @@ export const getInterviewQuestions = protectedProcedure
     const screening = await ctx.db.query.responseScreening.findFirst({
       where: (s, { eq }) => eq(s.responseId, responseId),
       columns: {
-        score: true,
+        overallScore: true,
         analysis: true,
       },
     });
@@ -150,8 +150,8 @@ export const getInterviewQuestions = protectedProcedure
         riskFactors,
         screening: screening
           ? {
-              score: screening.score ?? undefined,
-              analysis: screening.analysis ?? undefined,
+              score: screening.overallScore ?? undefined,
+              analysis: screening.overallAnalysis ?? undefined,
             }
           : undefined,
       },

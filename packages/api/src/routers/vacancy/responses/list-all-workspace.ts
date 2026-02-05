@@ -149,7 +149,7 @@ export const listAllWorkspace = protectedProcedure
           and(
             eq(responseTable.entityType, "vacancy"),
             inArray(responseTable.entityId, vacancyIds),
-            gte(responseScreening.score, 4),
+            gte(responseScreening.overallScore, 4),
           ),
         );
       filteredResponseIds = screenedResponses.map((r) => r.responseId);
@@ -165,7 +165,7 @@ export const listAllWorkspace = protectedProcedure
           and(
             eq(responseTable.entityType, "vacancy"),
             inArray(responseTable.entityId, vacancyIds),
-            lt(responseScreening.score, 4),
+            lt(responseScreening.overallScore, 4),
           ),
         );
       filteredResponseIds = screenedResponses.map((r) => r.responseId);
@@ -231,9 +231,9 @@ export const listAllWorkspace = protectedProcedure
     ) {
       const scoreColumn =
         sortField === "score"
-          ? responseScreening.score
+          ? responseScreening.overallScore
           : sortField === "detailedScore"
-            ? responseScreening.detailedScore
+            ? responseScreening.overallScore
             : sortField === "potentialScore"
               ? responseScreening.potentialScore
               : responseScreening.careerTrajectoryScore;
@@ -298,8 +298,6 @@ export const listAllWorkspace = protectedProcedure
           respondedAt: responseTable.respondedAt,
           welcomeSentAt: responseTable.welcomeSentAt,
           createdAt: responseTable.createdAt,
-          evaluationReasoning: responseTable.evaluationReasoning,
-          compositeScoreReasoning: responseTable.compositeScoreReasoning,
         })
         .from(responseTable)
         .leftJoin(
@@ -332,8 +330,6 @@ export const listAllWorkspace = protectedProcedure
           respondedAt: true,
           welcomeSentAt: true,
           createdAt: true,
-          evaluationReasoning: true,
-          compositeScoreReasoning: true,
         },
       });
     }
@@ -346,9 +342,8 @@ export const listAllWorkspace = protectedProcedure
             where: (s, { inArray }) => inArray(s.responseId, responseIds),
             columns: {
               responseId: true,
-              score: true,
-              detailedScore: true,
-              analysis: true,
+              overallScore: true,
+              overallAnalysis: true,
               potentialScore: true,
               careerTrajectoryScore: true,
               careerTrajectoryType: true,
@@ -410,7 +405,7 @@ export const listAllWorkspace = protectedProcedure
       response: (typeof responsesRaw)[0],
       screening: (typeof screenings)[0] | undefined,
     ): number => {
-      const fitScore = screening?.score ?? 0;
+      const fitScore = screening?.overallScore ?? 0;
       let priorityScore = fitScore * 0.4;
 
       const now = Date.now();
@@ -452,10 +447,10 @@ export const listAllWorkspace = protectedProcedure
         priorityScore,
         screening: screening
           ? {
-              score: screening.score,
-              detailedScore: screening.detailedScore,
-              analysis: screening.analysis
-                ? sanitizeHtml(screening.analysis)
+              score: screening.overallScore,
+              detailedScore: screening.overallScore,
+              analysis: screening.overallAnalysis
+                ? sanitizeHtml(screening.overallAnalysis)
                 : null,
               potentialScore: screening.potentialScore,
               careerTrajectoryScore: screening.careerTrajectoryScore,

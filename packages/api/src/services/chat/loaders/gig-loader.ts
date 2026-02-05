@@ -7,6 +7,7 @@ import {
   and,
   eq,
   gig,
+  inArray,
   interviewScoring,
   response,
   responseScreening,
@@ -66,31 +67,36 @@ export class GigContextLoader implements ContextLoader {
       return null;
     }
 
-    // Загрузка откликов кандидатов из универсальной таблицы
-    const responses = await database.query.response.findMany({
-      where: and(eq(response.entityType, "gig"), eq(response.entityId, gigId)),
-      columns: {
-        id: true,
-        candidateId: true,
-        candidateName: true,
-        proposedPrice: true,
-
-        proposedDeliveryDays: true,
-        coverLetter: true,
-        skills: true,
-        rating: true,
-        status: true,
-        hrSelectionStatus: true,
-        compositeScore: true,
-        strengths: true,
-        weaknesses: true,
-        recommendation: true,
-      },
-    });
+    // Загрузка откликов кандидатов с JOIN к screening
+    const responses = await database
+      .select({
+        id: response.id,
+        candidateId: response.candidateId,
+        candidateName: response.candidateName,
+        proposedPrice: response.proposedPrice,
+        proposedDeliveryDays: response.proposedDeliveryDays,
+        coverLetter: response.coverLetter,
+        skills: response.skills,
+        rating: response.rating,
+        status: response.status,
+        hrSelectionStatus: response.hrSelectionStatus,
+        // Поля из screening
+        overallScore: responseScreening.overallScore,
+        strengths: responseScreening.strengths,
+        weaknesses: responseScreening.weaknesses,
+        recommendation: responseScreening.recommendation,
+        screeningId: responseScreening.id,
+      })
+      .from(response)
+      .leftJoin(
+        responseScreening,
+        eq(response.id, responseScreening.responseId),
+      )
+      .where(and(eq(response.entityType, "gig"), eq(response.entityId, gigId)));
 
     const responseIds = responses.map((r) => r.id);
 
-    // Загрузка screening данных из универсальной таблицы
+    // Загрузка screening данных
     const screenings: Array<{
       responseId: string;
       score: number;
@@ -99,19 +105,17 @@ export class GigContextLoader implements ContextLoader {
     }> = [];
 
     if (responseIds.length > 0) {
-      for (const responseId of responseIds) {
-        const screening = await database.query.responseScreening.findFirst({
-          where: eq(responseScreening.responseId, responseId),
-          columns: {
-            responseId: true,
-            score: true,
-            detailedScore: true,
-            analysis: true,
-          },
+      const screeningData = await database.query.responseScreening.findMany({
+        where: inArray(responseScreening.responseId, responseIds),
+      });
+
+      for (const s of screeningData) {
+        screenings.push({
+          responseId: s.responseId,
+          score: s.overallScore,
+          detailedScore: s.overallScore, // Используем overallScore
+          analysis: s.overallAnalysis,
         });
-        if (screening) {
-          screenings.push(screening);
-        }
       }
     }
 
@@ -158,14 +162,13 @@ export class GigContextLoader implements ContextLoader {
         candidateId: resp.candidateId,
         candidateName: resp.candidateName,
         proposedPrice: resp.proposedPrice,
-
         proposedDeliveryDays: resp.proposedDeliveryDays,
         coverLetter: resp.coverLetter,
         skills: resp.skills,
         rating: resp.rating,
         status: resp.status,
         hrSelectionStatus: resp.hrSelectionStatus,
-        compositeScore: resp.compositeScore,
+        compositeScore: resp.overallScore,
         strengths: resp.strengths,
         weaknesses: resp.weaknesses,
         recommendation: resp.recommendation,

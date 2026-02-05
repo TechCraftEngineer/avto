@@ -59,8 +59,7 @@ export const listTop = protectedProcedure
         inArray(screening.responseId, responseIds),
       columns: {
         responseId: true,
-        score: true,
-        detailedScore: true,
+        overallScore: true,
       },
     });
 
@@ -98,8 +97,8 @@ export const listTop = protectedProcedure
             : null,
           screening: screening
             ? {
-                score: screening.score,
-                detailedScore: screening.detailedScore,
+                score: screening.overallScore,
+                detailedScore: screening.overallScore,
               }
             : null,
           photoUrl: r.photoFileId

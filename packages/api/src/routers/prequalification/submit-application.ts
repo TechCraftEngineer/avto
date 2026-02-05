@@ -252,8 +252,6 @@ export const submitApplication = publicProcedure
             recommendation: evaluation?.recommendation,
             contactPreferences: input.contactPreferences,
           },
-          // Store evaluation reasoning for explainable AI
-          evaluationReasoning,
         })
         .returning();
 

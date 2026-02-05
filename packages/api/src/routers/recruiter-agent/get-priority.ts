@@ -83,8 +83,7 @@ export const getPriority = protectedProcedure
       where: (s, { inArray }) => inArray(s.responseId, responseIds),
       columns: {
         responseId: true,
-        score: true,
-        detailedScore: true,
+        overallScore: true,
       },
     });
 
@@ -95,8 +94,8 @@ export const getPriority = protectedProcedure
       .map((r) => {
         const screening = screeningMap.get(r.id);
 
-        // Вычисляем fitScore (используем score из скрининга или 0)
-        const fitScore = screening?.score ?? 0;
+        // Вычисляем fitScore (используем overallScore из скрининга или 0)
+        const fitScore = screening?.overallScore ?? 0;
 
         return {
           id: r.id,
@@ -105,8 +104,8 @@ export const getPriority = protectedProcedure
           riskFactors: [], // Будет заполнено агентом на основе данных
           screening: screening
             ? {
-                score: screening.score ?? undefined,
-                detailedScore: screening.detailedScore ?? undefined,
+                score: screening.overallScore ?? undefined,
+                detailedScore: screening.overallScore ?? undefined,
               }
             : undefined,
           status: r.status,

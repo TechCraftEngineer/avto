@@ -138,7 +138,7 @@ export const getById = protectedProcedure
       response.hrSelectionStatus,
     );
 
-    const resumeScore = screening?.detailedScore;
+    const resumeScore = screening?.overallScore;
     const interviewScore =
       interviewScoring?.rating ??
       Math.round((interviewScoring?.score ?? 0) / 20);
@@ -203,7 +203,7 @@ export const getById = protectedProcedure
       resumeScore,
       interviewScore,
       scoreAnalysis: interviewScoring?.analysis ?? undefined,
-      screeningAnalysis: screening?.analysis ?? undefined,
+      screeningAnalysis: screening?.overallAnalysis ?? undefined,
       availability: "Не указано",
       salaryExpectation:
         response.salaryExpectationsAmount ||

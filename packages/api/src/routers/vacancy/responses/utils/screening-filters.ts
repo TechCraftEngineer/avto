@@ -68,7 +68,7 @@ export async function getFilteredResponseIds(
         and(
           eq(responseTable.entityType, "vacancy"),
           eq(responseTable.entityId, vacancyId),
-          gte(responseScreening.score, 4),
+          gte(responseScreening.overallScore, 70),
         ),
       );
     return screenedResponses.map((r: { responseId: string }) => r.responseId);
@@ -86,7 +86,7 @@ export async function getFilteredResponseIds(
         and(
           eq(responseTable.entityType, "vacancy"),
           eq(responseTable.entityId, vacancyId),
-          lt(responseScreening.score, 4),
+          lt(responseScreening.overallScore, 70),
         ),
       );
     return screenedResponses.map((r: { responseId: string }) => r.responseId);

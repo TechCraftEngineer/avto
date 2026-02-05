@@ -8,6 +8,7 @@ import {
   and,
   eq,
   gig,
+  inArray,
   interviewScoring,
   responseScreening,
   response as responseTable,
@@ -141,29 +142,36 @@ export async function loadCandidatesContext(
   gigId: string,
 ): Promise<CandidatesContext> {
   // Загружаем все отклики с screening и interview данными
-  const responses = await database.query.response.findMany({
-    where: and(
-      eq(responseTable.entityType, "gig"),
-      eq(responseTable.entityId, gigId),
-    ),
-    columns: {
-      id: true,
-      candidateId: true,
-      candidateName: true,
-      proposedPrice: true,
-
-      proposedDeliveryDays: true,
-      coverLetter: true,
-      skills: true,
-      rating: true,
-      status: true,
-      hrSelectionStatus: true,
-      compositeScore: true,
-      strengths: true,
-      weaknesses: true,
-      recommendation: true,
-    },
-  });
+  const responses = await database
+    .select({
+      id: responseTable.id,
+      candidateId: responseTable.candidateId,
+      candidateName: responseTable.candidateName,
+      proposedPrice: responseTable.proposedPrice,
+      proposedDeliveryDays: responseTable.proposedDeliveryDays,
+      coverLetter: responseTable.coverLetter,
+      skills: responseTable.skills,
+      rating: responseTable.rating,
+      status: responseTable.status,
+      hrSelectionStatus: responseTable.hrSelectionStatus,
+      // Поля из screening
+      overallScore: responseScreening.overallScore,
+      strengths: responseScreening.strengths,
+      weaknesses: responseScreening.weaknesses,
+      recommendation: responseScreening.recommendation,
+      screeningId: responseScreening.id,
+    })
+    .from(responseTable)
+    .leftJoin(
+      responseScreening,
+      eq(responseTable.id, responseScreening.responseId),
+    )
+    .where(
+      and(
+        eq(responseTable.entityType, "gig"),
+        eq(responseTable.entityId, gigId),
+      ),
+    );
 
   // Загружаем screening данные для всех откликов
   const responseIds = responses.map((r) => r.id);
@@ -177,19 +185,17 @@ export async function loadCandidatesContext(
   }> = [];
 
   if (responseIds.length > 0) {
-    for (const responseId of responseIds) {
-      const screening = await database.query.responseScreening.findFirst({
-        where: eq(responseScreening.responseId, responseId),
-        columns: {
-          responseId: true,
-          score: true,
-          detailedScore: true,
-          analysis: true,
-        },
+    const screeningData = await database.query.responseScreening.findMany({
+      where: inArray(responseScreening.responseId, responseIds),
+    });
+
+    for (const s of screeningData) {
+      screenings.push({
+        responseId: s.responseId,
+        score: s.overallScore,
+        detailedScore: s.overallScore, // Используем overallScore
+        analysis: s.overallAnalysis,
       });
-      if (screening) {
-        screenings.push(screening);
-      }
     }
   }
 
@@ -238,7 +244,6 @@ export async function loadCandidatesContext(
       candidateId: response.candidateId,
       candidateName: response.candidateName,
       proposedPrice: response.proposedPrice,
-
       proposedDeliveryDays: response.proposedDeliveryDays,
       coverLetter: response.coverLetter,
       skills: response.skills,
@@ -256,7 +261,7 @@ export async function loadCandidatesContext(
       interviewDetailedScore: interview?.score ?? null,
       interviewAnalysis: interview?.analysis ?? null,
       // Ranking data
-      compositeScore: response.compositeScore,
+      compositeScore: response.overallScore,
       strengths: response.strengths,
       weaknesses: response.weaknesses,
       recommendation: response.recommendation,

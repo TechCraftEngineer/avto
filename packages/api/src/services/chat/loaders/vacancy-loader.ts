@@ -6,6 +6,7 @@
 import {
   and,
   eq,
+  inArray,
   interviewScoring,
   response,
   responseScreening,
@@ -59,27 +60,35 @@ export class VacancyContextLoader implements ContextLoader {
       return null;
     }
 
-    // Загрузка откликов кандидатов из универсальной таблицы
-    const responses = await database.query.response.findMany({
-      where: and(
-        eq(response.entityType, "vacancy"),
-        eq(response.entityId, vacancyId),
-      ),
-      columns: {
-        id: true,
-        candidateId: true,
-        candidateName: true,
-        salaryExpectationsAmount: true,
-        coverLetter: true,
-        profileUrl: true,
-        status: true,
-        hrSelectionStatus: true,
-        compositeScore: true,
-        strengths: true,
-        weaknesses: true,
-        recommendation: true,
-      },
-    });
+    // Загрузка откликов кандидатов с JOIN к screening
+    const responses = await database
+      .select({
+        id: response.id,
+        candidateId: response.candidateId,
+        candidateName: response.candidateName,
+        salaryExpectationsAmount: response.salaryExpectationsAmount,
+        coverLetter: response.coverLetter,
+        profileUrl: response.profileUrl,
+        status: response.status,
+        hrSelectionStatus: response.hrSelectionStatus,
+        // Поля из screening
+        overallScore: responseScreening.overallScore,
+        strengths: responseScreening.strengths,
+        weaknesses: responseScreening.weaknesses,
+        recommendation: responseScreening.recommendation,
+        screeningId: responseScreening.id,
+      })
+      .from(response)
+      .leftJoin(
+        responseScreening,
+        eq(response.id, responseScreening.responseId),
+      )
+      .where(
+        and(
+          eq(response.entityType, "vacancy"),
+          eq(response.entityId, vacancyId),
+        ),
+      );
 
     const responseIds = responses.map((r) => r.id);
 
@@ -92,19 +101,17 @@ export class VacancyContextLoader implements ContextLoader {
     }> = [];
 
     if (responseIds.length > 0) {
-      for (const responseId of responseIds) {
-        const screening = await database.query.responseScreening.findFirst({
-          where: eq(responseScreening.responseId, responseId),
-          columns: {
-            responseId: true,
-            score: true,
-            detailedScore: true,
-            analysis: true,
-          },
+      const screeningData = await database.query.responseScreening.findMany({
+        where: inArray(responseScreening.responseId, responseIds),
+      });
+
+      for (const s of screeningData) {
+        screenings.push({
+          responseId: s.responseId,
+          score: s.overallScore,
+          detailedScore: s.overallScore, // Используем overallScore
+          analysis: s.overallAnalysis,
         });
-        if (screening) {
-          screenings.push(screening);
-        }
       }
     }
 
@@ -155,7 +162,7 @@ export class VacancyContextLoader implements ContextLoader {
         profileUrl: resp.profileUrl,
         status: resp.status,
         hrSelectionStatus: resp.hrSelectionStatus,
-        compositeScore: resp.compositeScore,
+        compositeScore: resp.overallScore,
         strengths: resp.strengths,
         weaknesses: resp.weaknesses,
         recommendation: resp.recommendation,

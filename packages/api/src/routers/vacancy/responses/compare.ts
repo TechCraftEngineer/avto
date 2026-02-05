@@ -48,46 +48,53 @@ export const compare = protectedProcedure
       });
     }
 
-    // Получаем топ откликов по compositeScore
+    // Получаем топ откликов по overallScore из responseScreening
     const topResponses = await ctx.db
       .select({
         id: responseTable.id,
         candidateName: responseTable.candidateName,
-        compositeScore: responseTable.compositeScore,
-        skillsMatchScore: responseTable.skillsMatchScore,
-        experienceScore: responseTable.experienceScore,
+        overallScore: responseScreening.overallScore,
+        skillsMatchScore: responseScreening.skillsMatchScore,
+        experienceScore: responseScreening.experienceScore,
         salaryExpectationsAmount: responseTable.salaryExpectationsAmount,
         skills: responseTable.skills,
         status: responseTable.status,
         hrSelectionStatus: responseTable.hrSelectionStatus,
         createdAt: responseTable.createdAt,
-        rankingPosition: responseTable.rankingPosition,
       })
       .from(responseTable)
+      .innerJoin(
+        responseScreening,
+        eq(responseTable.id, responseScreening.responseId),
+      )
       .where(
         and(
           eq(responseTable.entityType, "vacancy"),
           eq(responseTable.entityId, input.vacancyId),
-          sql`${responseTable.compositeScore} IS NOT NULL`,
+          sql`${responseScreening.overallScore} IS NOT NULL`,
         ),
       )
-      .orderBy(desc(responseTable.compositeScore))
+      .orderBy(desc(responseScreening.overallScore))
       .limit(input.limit);
 
     // Вычисляем статистику
     const stats = await ctx.db
       .select({
-        avgScore: sql<number>`AVG(${responseTable.compositeScore})`,
-        maxScore: sql<number>`MAX(${responseTable.compositeScore})`,
-        minScore: sql<number>`MIN(${responseTable.compositeScore})`,
+        avgScore: sql<number>`AVG(${responseScreening.overallScore})`,
+        maxScore: sql<number>`MAX(${responseScreening.overallScore})`,
+        minScore: sql<number>`MIN(${responseScreening.overallScore})`,
         totalCount: sql<number>`COUNT(*)`,
       })
       .from(responseTable)
+      .innerJoin(
+        responseScreening,
+        eq(responseTable.id, responseScreening.responseId),
+      )
       .where(
         and(
           eq(responseTable.entityType, "vacancy"),
           eq(responseTable.entityId, input.vacancyId),
-          sql`${responseTable.compositeScore} IS NOT NULL`,
+          sql`${responseScreening.overallScore} IS NOT NULL`,
         ),
       );
 

@@ -53,9 +53,9 @@ export const exportAnalytics = protectedProcedure
           WHEN ${responseScreening.id} IS NOT NULL
           THEN ${responseTable.id}
         END)`,
-        avgScore: sql<number>`ROUND(AVG(${responseScreening.detailedScore}), 2)`,
-        minScore: sql<number | null>`MIN(${responseScreening.detailedScore})`,
-        maxScore: sql<number | null>`MAX(${responseScreening.detailedScore})`,
+        avgScore: sql<number>`ROUND(AVG(${responseScreening.overallScore}), 2)`,
+        minScore: sql<number | null>`MIN(${responseScreening.overallScore})`,
+        maxScore: sql<number | null>`MAX(${responseScreening.overallScore})`,
         completionRate: sql<number>`ROUND(
           CAST(COUNT(DISTINCT CASE
             WHEN ${responseScreening.id} IS NOT NULL

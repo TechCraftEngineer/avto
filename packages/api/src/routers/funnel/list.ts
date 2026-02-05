@@ -110,8 +110,8 @@ export const list = protectedProcedure
         experience: formatExperienceText(r.profileData) || "Не указан",
         location: "Не указано",
         skills: [],
-        matchScore: screening?.detailedScore || 0,
-        resumeScore: screening?.detailedScore,
+        matchScore: screening?.overallScore || 0,
+        resumeScore: screening?.overallScore,
         interviewScore:
           interviewScoring?.rating ??
           Math.round((interviewScoring?.score ?? 0) / 20),
