@@ -10,52 +10,28 @@
 import { observe, updateActiveTrace } from "@langfuse/tracing";
 import { SpanStatusCode, trace } from "@opentelemetry/api";
 import { WebInterviewOrchestrator } from "@qbs-autonaim/ai";
-import { hasInterviewAccess, validateInterviewToken } from "@qbs-autonaim/api";
-import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
-import {
-  gig as gigTable,
-  interviewMessage,
-  response as responseTable,
-  vacancy as vacancyTable,
-} from "@qbs-autonaim/db/schema";
-import { getAIModel, getFallbackModel, streamText } from "@qbs-autonaim/lib/ai";
+import { getAIModel } from "@qbs-autonaim/lib/ai";
 import "@qbs-autonaim/lib/instrumentation";
-import {
-  createUIMessageStream,
-  JsonToSseTransformStream,
-  smoothStream,
-  stepCountIs,
-} from "ai";
+import { InterviewSDKError } from "@qbs-autonaim/lib/errors";
+import { createUIMessageStream } from "ai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { checkInterviewAccess, loadInterviewSession } from "./access-control";
+import { loadInterviewContext } from "./context-loader";
+import {
+  buildConversationHistory,
+  formatMessagesForModel,
+} from "./conversation-builder";
 import { createWebInterviewRuntime } from "./interview-runtime";
-
-// Гибкая схема для parts — AI SDK отправляет разные типы
-const partSchema = z
-  .object({
-    type: z.string(),
-    text: z.string().optional(),
-  })
-  .passthrough();
-
-const messageSchema = z
-  .object({
-    id: z.string(),
-    role: z.enum(["user", "assistant", "system"]),
-    content: z.string().optional(),
-    parts: z.array(partSchema).optional(),
-  })
-  .passthrough();
-
-const requestSchema = z
-  .object({
-    id: z.string().optional(),
-    messages: z.array(messageSchema),
-    sessionId: z.string().uuid(),
-    interviewToken: z.string().nullable().optional(),
-  })
-  .passthrough();
+import {
+  extractMessageText,
+  hasVoiceFile,
+  saveAssistantMessages,
+  saveUserMessage,
+} from "./message-handler";
+import { requestSchema } from "./schema";
+import { executeStreamWithFallback } from "./stream-executor";
 
 export const maxDuration = 60;
 
@@ -70,163 +46,52 @@ async function handler(request: Request) {
     const json = await request.json();
     requestBody = requestSchema.parse(json);
   } catch (error) {
-    console.error("[Interview Stream] Parse error:", error);
+    console.error("[Interview Stream] Ошибка парсинга:", error);
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Invalid request", details: error.issues },
+        { error: "Неверный запрос", details: error.issues },
         { status: 400 },
       );
     }
-    return NextResponse.json({ error: "Bad request" }, { status: 400 });
+    return NextResponse.json({ error: "Неверный запрос" }, { status: 400 });
   }
 
   try {
-    const { messages, sessionId, interviewToken } = requestBody;
+    const { messages, message, sessionId, interviewToken } = requestBody;
 
-    let validatedToken = null;
-    if (interviewToken) {
-      try {
-        validatedToken = await validateInterviewToken(interviewToken, db);
-      } catch (error) {
-        console.error(
-          "[Interview Stream] Failed to validate interview token:",
-          error,
-        );
-      }
-    }
+    // Проверка доступа
+    await checkInterviewAccess(sessionId, interviewToken, db);
 
-    const accessAllowed = await hasInterviewAccess(
-      sessionId,
-      validatedToken,
+    // Загрузка сессии
+    const session = await loadInterviewSession(sessionId, db);
+
+    // Загрузка контекста вакансии/задания
+    const { vacancy, gig, companySettings } = await loadInterviewContext(
+      session.responseId,
       db,
     );
 
-    if (!accessAllowed) {
-      return NextResponse.json({ error: "Access denied" }, { status: 403 });
-    }
-
-    // Проверяем что interview session существует и это WEB интервью
-    const session = await db.query.interviewSession.findFirst({
-      where: (s, { and }) => and(eq(s.id, sessionId), eq(s.lastChannel, "web")),
-      with: {
-        messages: {
-          with: {
-            file: true,
-          },
-          orderBy: (messages, { asc }) => [asc(messages.createdAt)],
-        },
-      },
-    });
-
-    if (!session) {
-      return NextResponse.json(
-        { error: "Interview not found" },
-        { status: 404 },
-      );
-    }
-
-    if (session.status !== "active") {
-      return NextResponse.json(
-        { error: "Interview is not active" },
-        { status: 403 },
-      );
-    }
-
-    // Загружаем контекст вакансии/задания
-    let vacancy = null;
-    let gig = null;
-    let companySettings = null;
-
-    const responseRecord = await db.query.response.findFirst({
-      where: eq(responseTable.id, session.responseId),
-    });
-
-    if (!responseRecord) {
-      return NextResponse.json(
-        { error: "Response not found" },
-        { status: 404 },
-      );
-    }
-
-    if (responseRecord.entityType === "vacancy") {
-      vacancy =
-        (await db.query.vacancy.findFirst({
-          where: eq(vacancyTable.id, responseRecord.entityId),
-          with: {
-            workspace: {
-              with: {
-                botSettings: true,
-              },
-            },
-          },
-        })) ?? null;
-
-      const bot = vacancy?.workspace?.botSettings;
-      companySettings = bot
-        ? {
-            botName: bot.botName,
-            botRole: bot.botRole,
-            name: bot.companyName,
-          }
-        : null;
-    }
-
-    if (responseRecord.entityType === "gig") {
-      gig =
-        (await db.query.gig.findFirst({
-          where: eq(gigTable.id, responseRecord.entityId),
-          with: {
-            workspace: {
-              with: {
-                botSettings: true,
-              },
-            },
-          },
-        })) ?? null;
-
-      const bot = gig?.workspace?.botSettings;
-      companySettings = bot
-        ? {
-            botName: bot.botName,
-            botRole: bot.botRole,
-            name: bot.companyName,
-          }
-        : null;
-    }
+    // Определяем тип запроса
+    const isToolApprovalFlow = Boolean(messages);
 
     // Получаем последнее сообщение пользователя
-    const lastUserMessage = messages.filter((m) => m.role === "user").pop();
-    const userMessageText =
-      lastUserMessage?.parts
-        ?.filter((p) => p.type === "text")
-        .map((p) => p.text)
-        .join("\n") ||
-      lastUserMessage?.content ||
-      "";
+    const lastUserMessage = isToolApprovalFlow
+      ? messages?.filter((m) => m.role === "user").pop()
+      : message;
 
-    // Сохраняем текстовое сообщение пользователя в БД
-    let savedMessageTimestamp: Date | null = null;
-    if (lastUserMessage && userMessageText) {
-      const hasVoiceFile = lastUserMessage.parts?.some(
-        (p) => p.type === "file",
-      );
-      if (!hasVoiceFile) {
-        const [savedMessage] = await db
-          .insert(interviewMessage)
-          .values({
-            sessionId,
-            role: "user",
-            type: "text",
-            channel: "web",
-            content: userMessageText,
-          })
-          .returning({ createdAt: interviewMessage.createdAt });
+    const userMessageText = lastUserMessage
+      ? extractMessageText(lastUserMessage)
+      : "";
 
-        savedMessageTimestamp = savedMessage?.createdAt ?? null;
-      }
-    }
+    // Сохраняем текстовое сообщение пользователя
+    const savedMessageTimestamp = await saveUserMessage(
+      sessionId,
+      userMessageText,
+      lastUserMessage ? hasVoiceFile(lastUserMessage) : false,
+      db,
+    );
 
-    // Устанавливаем метаданные для активного trace
+    // Устанавливаем метаданные для трассировки
     updateActiveTrace({
       name: "web-interview-chat",
       userId: sessionId,
@@ -242,33 +107,20 @@ async function handler(request: Request) {
     const model = getAIModel();
     const orchestrator = new WebInterviewOrchestrator({ model });
 
-    // Формируем историю диалога для оркестратора
-    const conversationHistory = session.messages
-      .filter((msg) => msg.role === "user" || msg.role === "assistant")
-      .map((msg) => ({
-        sender: (msg.role === "user" ? "CANDIDATE" : "BOT") as
-          | "CANDIDATE"
-          | "BOT",
-        content: msg.content ?? "",
-        timestamp: msg.createdAt,
-      }));
-
-    // Добавляем текущее сообщение в историю
-    if (userMessageText) {
-      conversationHistory.push({
-        sender: "CANDIDATE",
-        content: userMessageText,
-        timestamp: savedMessageTimestamp ?? new Date(),
-      });
-    }
+    // Формируем историю диалога
+    const conversationHistory = buildConversationHistory(
+      session.messages,
+      userMessageText,
+      savedMessageTimestamp,
+    );
 
     // Определяем, это первый ответ после приветствия
     const existingUserMessageCount = session.messages.filter(
-      (m) => m.role === "user",
+      (m: { role: string }) => m.role === "user",
     ).length;
     const isFirstResponse = existingUserMessageCount === 0;
 
-    // Анализируем контекст сообщения (для эскалации и типа)
+    // Анализируем контекст сообщения
     const contextAnalysis = await orchestrator.execute(
       {
         message: userMessageText,
@@ -277,10 +129,9 @@ async function handler(request: Request) {
       { conversationHistory },
     );
 
-    // Проверяем успешность анализа
     if (!contextAnalysis.success || !contextAnalysis.data) {
       console.error(
-        "[Interview Stream] Context analysis failed:",
+        "[Interview Stream] Ошибка анализа контекста:",
         contextAnalysis.error,
       );
       return NextResponse.json({
@@ -289,17 +140,13 @@ async function handler(request: Request) {
       });
     }
 
-    // Если нужна эскалация — логируем, но продолжаем интервью
+    // Логируем эскалацию
     if (contextAnalysis.data.shouldEscalate) {
-      console.warn("[Interview Stream] Escalation triggered:", {
+      console.warn("[Interview Stream] Требуется эскалация:", {
         conversationId: sessionId,
         reason: contextAnalysis.data.escalationReason,
       });
-      // TODO: можно добавить логику эскалации
     }
-
-    // В интервью всегда отвечаем, даже на простые подтверждения
-    // Это поддерживает естественный диалог
 
     // Формируем контекст для оркестратора
     const interviewContext = {
@@ -328,241 +175,55 @@ async function handler(request: Request) {
       isFirstResponse,
     });
 
-    // Метаданные уже установлены в updateActiveTrace выше
-
     const stream = createUIMessageStream({
       execute: async ({ writer }) => {
-        const formattedMessages: Array<{
-          role: "user" | "assistant";
-          content: string;
-        }> = session.messages
-          .filter((m) => m.role === "user" || m.role === "assistant")
-          .map((m) => {
-            const baseText =
-              m.type === "voice"
-                ? (m.voiceTranscription ?? m.content ?? "")
-                : (m.content ?? "");
+        const formattedMessages = formatMessagesForModel(
+          session.messages,
+          userMessageText,
+        );
 
-            const content =
-              m.type === "voice"
-                ? `[Голосовое сообщение]\n${baseText}`
-                : baseText;
-
-            return {
-              role: m.role as "user" | "assistant",
-              content,
-            };
-          });
-
-        if (userMessageText) {
-          const last = formattedMessages.at(-1);
-          if (last?.role !== "user" || last.content !== userMessageText) {
-            formattedMessages.push({ role: "user", content: userMessageText });
-          }
-        }
-
-        let result: Awaited<ReturnType<typeof tryStreamWithModel>>;
-
-        const tryStreamWithModel = async (
-          modelToUse: ReturnType<typeof getAIModel>,
-          isFallback = false,
-        ) => {
-          try {
-            const streamResult = streamText({
-              model: modelToUse,
-              system: systemPrompt,
-              messages: formattedMessages,
-              tools,
-              stopWhen: stepCountIs(25), // Allow up to 25 steps for complex tool chains
-              experimental_transform: smoothStream({ chunking: "word" }),
-              experimental_telemetry: { isEnabled: true }, // Enable Langfuse telemetry for tool calls
-              generationName: "web-interview-response",
-              entityId: sessionId,
-              metadata: {
-                sessionId,
-                isFallback,
-              },
-              onFinish: async () => {
-                // End span manually after stream has finished
-                trace.getActiveSpan()?.end();
-              },
-            });
-
-            // Проверяем, что стрим работает, попробовав прочитать первый чанк
-            const reader = streamResult.textStream.getReader();
-            const firstChunk = await reader.read();
-
-            if (firstChunk.done) {
-              throw new Error("Поток сразу завершился");
-            }
-
-            // Создаём новый стрим, который начинается с первого чанка
-            const newStream = new ReadableStream({
-              async start(controller) {
-                // Отправляем первый чанк
-                if (firstChunk.value) {
-                  controller.enqueue(firstChunk.value);
-                }
-
-                // Продолжаем читать остальные чанки
-                try {
-                  while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-                    controller.enqueue(value);
-                  }
-                  controller.close();
-                } catch (streamError) {
-                  controller.error(streamError);
-                }
-              },
-              async cancel(reason) {
-                // Отменяем исходный reader при отмене клиентом
-                try {
-                  await reader.cancel(reason);
-                  reader.releaseLock();
-                } catch (cancelError) {
-                  // Игнорируем ошибки при отмене
-                  console.warn("[Interview Stream] Cancel error:", cancelError);
-                }
-              },
-            });
-
-            return {
-              ...streamResult,
-              textStream: newStream as typeof streamResult.textStream,
-            };
-          } catch (error) {
-            const errorMessage =
-              error instanceof Error ? error.message : String(error);
-            const errorName = error instanceof Error ? error.name : "";
-
-            // Проверяем, является ли это ошибкой таймаута или сети
-            const isTimeoutError =
-              errorName === "TimeoutError" ||
-              errorName === "AbortError" ||
-              errorMessage.toLowerCase().includes("timeout") ||
-              errorMessage.includes("ETIMEDOUT") ||
-              errorMessage.includes("ECONNRESET") ||
-              errorMessage.includes("ECONNREFUSED") ||
-              errorMessage.toLowerCase().includes("networkerror") ||
-              errorMessage.includes("fetch failed") ||
-              errorMessage.includes("network error");
-
-            if (isTimeoutError) {
-              console.warn(
-                `[Interview Stream] ${isFallback ? "Fallback " : ""}модель недоступна (таймаут/сеть): ${errorMessage}`,
-              );
-              // Помечаем как временную сетевую ошибку для retry логики
-              const timeoutError = new Error(
-                `Network or timeout error: ${errorMessage}`,
-              );
-              (timeoutError as Error & { isTransient?: boolean }).isTransient =
-                true;
-              throw timeoutError;
-            }
-
-            // Проверяем, является ли это ошибкой бюджета
-            const isBudgetError =
-              errorMessage.includes("budget_exceeded") ||
-              errorMessage.includes("Budget has been exceeded");
-
-            if (isBudgetError) {
-              console.warn(
-                `[Interview Stream] Бюджет ${isFallback ? "fallback " : ""}модели исчерпан`,
-              );
-            }
-
-            throw error;
-          }
-        };
-
-        try {
-          result = await tryStreamWithModel(model, false);
-        } catch (error) {
-          console.warn(
-            "[Interview Stream] Ошибка с основной моделью, пробую fallback:",
-            error instanceof Error ? error.message : String(error),
-          );
-
-          try {
-            const fallbackModel = getFallbackModel();
-
-            result = await tryStreamWithModel(fallbackModel, true);
-
-            console.log(
-              "[Interview Stream] Успешно переключился на fallback модель",
-            );
-          } catch (fallbackError) {
-            console.error(
-              "[Interview Stream] Fallback модель также недоступна:",
-              fallbackError instanceof Error
-                ? fallbackError.message
-                : String(fallbackError),
-            );
-            // End span with error
-            trace.getActiveSpan()?.setStatus({
-              code: SpanStatusCode.ERROR,
-              message: `Основная модель: ${error instanceof Error ? error.message : String(error)}. Fallback: ${fallbackError instanceof Error ? fallbackError.message : String(fallbackError)}`,
-            });
-            trace.getActiveSpan()?.end();
-            throw fallbackError;
-          }
-        }
+        const result = await executeStreamWithFallback({
+          systemPrompt,
+          messages: formattedMessages,
+          tools,
+          sessionId,
+        });
 
         result.consumeStream();
         writer.merge(result.toUIMessageStream());
       },
       generateId: generateUUID,
       onFinish: async ({ messages: finishedMessages }) => {
-        const assistantMessages = finishedMessages.filter(
-          (m) => m.role === "assistant",
-        );
-
-        for (const msg of assistantMessages) {
-          const textParts = msg.parts?.filter(
-            (p): p is { type: "text"; text: string } =>
-              p.type === "text" && "text" in p,
-          );
-
-          const content = textParts?.map((p) => p.text).join("\n") || "";
-
-          if (content) {
-            await db.insert(interviewMessage).values({
-              sessionId,
-              role: "assistant",
-              type: "text",
-              channel: "web",
-              content,
-            });
-          }
-        }
+        await saveAssistantMessages(sessionId, finishedMessages, db);
       },
       onError: (error) => {
-        console.error("[Interview Stream] Error:", error);
-        return error instanceof Error ? error.message : "Unknown error";
+        console.error("[Interview Stream] Ошибка:", error);
+        return error instanceof Error ? error.message : "Неизвестная ошибка";
       },
     });
 
-    // Traces will be flushed automatically by OpenTelemetry
-
-    return stream.toDataStreamResponse({
+    return new Response(stream.pipeThrough(new TextEncoderStream()), {
       headers: {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
         Connection: "keep-alive",
       },
     });
-  } catch (error) {
-    console.error("[Interview Stream] Error:", error);
-    // End span with error on exception
+  } catch (error: unknown) {
+    console.error("[Interview Stream] Ошибка:", error);
+
     trace.getActiveSpan()?.setStatus({
       code: SpanStatusCode.ERROR,
       message: error instanceof Error ? error.message : String(error),
     });
     trace.getActiveSpan()?.end();
+
+    if (error instanceof InterviewSDKError) {
+      return error.toResponse();
+    }
+
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Внутренняя ошибка сервера" },
       { status: 500 },
     );
   }
@@ -571,5 +232,5 @@ async function handler(request: Request) {
 // Wrap handler with observe() to create a Langfuse trace
 export const POST = observe(handler, {
   name: "interview-chat-stream",
-  endOnExit: false, // Don't end observation until stream finishes
+  endOnExit: false,
 });

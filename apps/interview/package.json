@@ -39,6 +39,7 @@
     "react-dom": "19.2.4",
     "react-hook-form": "^7.71.1",
     "react-markdown": "^10.1.0",
+    "resumable-stream": "^2.2.10",
     "superjson": "2.2.6",
     "zod": "4.3.6"
   },

@@ -1,1 +1,1 @@
-export { maxDuration, POST } from "~/app/api/interview/chat/stream/handler";
+export { maxDuration, POST } from "./handler";

@@ -1,4 +1,6 @@
 export * from "./ai-text-sanitizer";
+// Error utilities
+export * from "./errors";
 // Logger utilities
 export * from "./logger";
 // Pluralization utilities
