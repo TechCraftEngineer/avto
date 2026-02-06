@@ -33,36 +33,8 @@
         "browser_close"
       ]
     },
-    "puppeteer": {
-      "command": "bunx",
-      "args": ["@puppeteer/mcp-server@latest"],
-      "autoApprove": [
-        "puppeteer_navigate",
-        "puppeteer_screenshot",
-        "puppeteer_evaluate",
-        "puppeteer_click",
-        "puppeteer_type",
-        "puppeteer_wait_for",
-        "puppeteer_close"
-      ]
-    },
-    "postgres": {
-      "command": "bunx",
-      "args": [
-        "@modelcontextprotocol/server-postgres",
-        "${POSTGRES_URL}"
-      ],
-      "env": {
-        "POSTGRES_URL": "${POSTGRES_URL}"
-      },
-      "disabled": false,
-      "autoApprove": [
-        "query",
-        "list_tables",
-        "describe_table",
-        "list_indexes"
-      ]
-    },
+  
+   
     "filesystem": {
       "command": "bunx",
       "args": [
