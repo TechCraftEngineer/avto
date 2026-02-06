@@ -11,10 +11,15 @@ import { observe, updateActiveTrace } from "@langfuse/tracing";
 import { SpanStatusCode, trace } from "@opentelemetry/api";
 import { WebInterviewOrchestrator } from "@qbs-autonaim/ai";
 import { db } from "@qbs-autonaim/db/client";
-import { getAIModel } from "@qbs-autonaim/lib/ai";
+import { getAIModel, streamText } from "@qbs-autonaim/lib/ai";
 import "@qbs-autonaim/lib/instrumentation";
 import { InterviewSDKError } from "@qbs-autonaim/lib/errors";
-import { createUIMessageStream, createUIMessageStreamResponse } from "ai";
+import {
+  createUIMessageStream,
+  createUIMessageStreamResponse,
+  smoothStream,
+  stepCountIs,
+} from "ai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { checkInterviewAccess, loadInterviewSession } from "./access-control";
@@ -32,7 +37,6 @@ import {
   saveUserMessage,
 } from "./message-handler";
 import { requestSchema } from "./schema";
-import { executeStreamWithFallback } from "./stream-executor";
 
 export const maxDuration = 60;
 
@@ -176,21 +180,22 @@ async function handler(request: Request) {
       isFirstResponse,
     });
 
+    const formattedMessages = formatMessagesForModel(
+      session.messages,
+      userMessageText,
+    );
+
     const stream = createUIMessageStream({
       execute: async ({ writer }) => {
-        const formattedMessages = formatMessagesForModel(
-          session.messages,
-          userMessageText,
-        );
-
-        const result = await executeStreamWithFallback({
-          systemPrompt,
+        const result = streamText({
+          model,
+          system: systemPrompt,
           messages: formattedMessages,
           tools,
-          sessionId,
+          stopWhen: stepCountIs(25),
+          experimental_transform: smoothStream({ chunking: "word" }),
         });
 
-        result.consumeStream();
         writer.merge(result.toUIMessageStream());
       },
       generateId: generateUUID,

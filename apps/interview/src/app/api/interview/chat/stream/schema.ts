@@ -41,7 +41,9 @@ const userMessageSchema = z.object({
 const basePartSchema = z
   .object({
     type: z.string(),
-    content: z.union([z.string(), z.record(z.unknown())]).optional(),
+    content: z
+      .union([z.string(), z.record(z.string(), z.unknown())])
+      .optional(),
   })
   .passthrough();
 

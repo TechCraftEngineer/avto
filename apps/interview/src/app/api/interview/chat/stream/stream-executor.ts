@@ -1,4 +1,4 @@
-import { SpanStatusCode, trace } from "@opentelemetry/api";
+import { context, SpanStatusCode, trace } from "@opentelemetry/api";
 import { getAIModel, getFallbackModel, streamText } from "@qbs-autonaim/lib/ai";
 import type { ToolSet } from "ai";
 import { smoothStream, stepCountIs } from "ai";
@@ -13,7 +13,7 @@ type StreamOptions = {
 /**
  * Попытка создать стрим с указанной моделью
  */
-async function tryStreamWithModel(
+function tryStreamWithModel(
   modelToUse: ReturnType<typeof getAIModel>,
   options: StreamOptions,
   isFallback = false,
@@ -39,45 +39,7 @@ async function tryStreamWithModel(
       },
     });
 
-    // Проверяем работоспособность стрима
-    const reader = streamResult.textStream.getReader();
-    const firstChunk = await reader.read();
-
-    if (firstChunk.done) {
-      throw new Error("Поток сразу завершился");
-    }
-
-    // Создаём новый стрим с первым чанком
-    const newStream = new ReadableStream({
-      async start(controller) {
-        if (firstChunk.value) {
-          controller.enqueue(firstChunk.value);
-        }
-
-        try {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            controller.enqueue(value);
-          }
-          controller.close();
-        } catch (streamError) {
-          controller.error(streamError);
-        }
-      },
-      async cancel(reason) {
-        try {
-          await reader.cancel(reason);
-          reader.releaseLock();
-        } catch (cancelError) {
-          console.warn("[Stream] Ошибка отмены:", cancelError);
-        }
-      },
-    });
-
-    return {
-      textStream: newStream as typeof streamResult.textStream,
-    };
+    return streamResult;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     const errorName = error instanceof Error ? error.name : "";
@@ -111,12 +73,13 @@ async function tryStreamWithModel(
 /**
  * Выполнение стриминга с автоматическим fallback
  */
-export async function executeStreamWithFallback(options: StreamOptions) {
+export function executeStreamWithFallback(options: StreamOptions) {
   const model = getAIModel();
-  const span = trace.getSpan(trace.context.active());
+  const activeContext = context.active();
+  const span = trace.getSpan(activeContext);
 
   try {
-    return await tryStreamWithModel(model, options, false, span);
+    return tryStreamWithModel(model, options, false, span);
   } catch (error) {
     console.warn(
       "[Stream] Ошибка с основной моделью, переключаюсь на fallback:",
@@ -125,12 +88,7 @@ export async function executeStreamWithFallback(options: StreamOptions) {
 
     try {
       const fallbackModel = getFallbackModel();
-      const result = await tryStreamWithModel(
-        fallbackModel,
-        options,
-        true,
-        span,
-      );
+      const result = tryStreamWithModel(fallbackModel, options, true, span);
 
       console.log("[Stream] Успешно переключился на fallback модель");
       return result;

@@ -62,20 +62,21 @@ export function VacancyTableRowRealtime({
   const isActive = stats?.isActive ?? vacancy.isActive;
 
   // Мутация для обновления статуса вакансии
-  const updateStatusMutation = useMutation({
-    ...trpc.freelancePlatforms.updateVacancyStatus.mutationOptions(),
-    onSuccess: async () => {
-      toast.success(
-        isActive ? "Вакансия деактивирована" : "Вакансия активирована",
-      );
-      await queryClient.invalidateQueries({
-        queryKey: trpc.freelancePlatforms.getVacancies.queryKey(),
-      });
-    },
-    onError: (error) => {
-      toast.error(error.message || "Не удалось обновить статус вакансии");
-    },
-  });
+  const updateStatusMutation = useMutation(
+    trpc.freelancePlatforms.updateVacancyStatus.mutationOptions({
+      onSuccess: async () => {
+        toast.success(
+          isActive ? "Вакансия деактивирована" : "Вакансия активирована",
+        );
+        await queryClient.invalidateQueries({
+          queryKey: trpc.freelancePlatforms.getVacancies.queryKey(),
+        });
+      },
+      onError: (error) => {
+        toast.error(error.message || "Не удалось обновить статус вакансии");
+      },
+    }),
+  );
 
   const handleStatusToggle = (checked: boolean) => {
     if (!workspaceId) return;
