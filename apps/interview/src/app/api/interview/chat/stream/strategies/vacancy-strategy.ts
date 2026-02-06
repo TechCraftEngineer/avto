@@ -125,10 +125,10 @@ export class VacancyInterviewStrategy extends BaseInterviewStrategy {
         ? "quality_criteria_met"
         : "quality_criteria_not_met";
     }
-    // Из motivation в wrapup
+    // Из motivation в wrapup (NOTE: noBotSuspicion intentionally omitted here as final stage allows completion regardless)
     else if (from === "motivation" && to === "wrapup") {
       const hasMinQuestions = context.askedQuestions.length >= 7;
-      canTransition = hasMinQuestions && hasGoodResponses && noBotSuspicion;
+      canTransition = hasMinQuestions && hasGoodResponses;
       reason = canTransition
         ? "quality_criteria_met"
         : "quality_criteria_not_met";

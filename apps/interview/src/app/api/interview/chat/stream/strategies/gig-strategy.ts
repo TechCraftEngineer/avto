@@ -101,11 +101,9 @@ export class GigInterviewStrategy extends BaseInterviewStrategy {
     let canTransition = false;
     let reason = "";
 
-    // Проверяем качество ответов только для текущей стадии
-    const currentStageResponses = context.userResponses.filter(
-      (r) => r.length > 50,
-    );
-    const hasGoodResponses = currentStageResponses.length >= 2;
+    // Проверяем качество ответов (длинные ответы независимо от стадии)
+    const longResponses = context.userResponses.filter((r) => r.length > 50);
+    const hasGoodResponses = longResponses.length >= 2;
     const noBotSuspicion =
       !context.botDetectionScore || context.botDetectionScore < 0.7;
 

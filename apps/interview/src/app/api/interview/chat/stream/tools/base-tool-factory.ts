@@ -120,10 +120,11 @@ export abstract class BaseToolFactory implements ToolFactory {
     interviewContext: InterviewContextLite,
   ): ToolSet {
     // Определяем entityType на основе this.entityType
+    // Маппинг "project" -> "vacancy" для совместимости с ScoringFactory
     const entityType: "gig" | "vacancy" | "unknown" =
       this.entityType === "gig"
         ? "gig"
-        : this.entityType === "vacancy"
+        : this.entityType === "vacancy" || this.entityType === "project"
           ? "vacancy"
           : "unknown";
 

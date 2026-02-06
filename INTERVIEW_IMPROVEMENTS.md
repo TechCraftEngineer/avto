@@ -108,7 +108,7 @@ protected getConversationContext(askedQuestions?: string[]): string {
   if (!askedQuestions || askedQuestions.length === 0) return "";
   
   return `УЖЕ ЗАДАННЫЕ ВОПРОСЫ (не повторяйте их):
-${askedQuestions.slice(-5).map((q, i) => `${i + 1}. ${q}`).join('\n')}`;
+${askedQuestions.slice(-10).map((q, i) => `${i + 1}. ${q}`).join('\n')}`;
 }
 ```
 
