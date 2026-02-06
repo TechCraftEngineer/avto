@@ -27,13 +27,6 @@ function tryStreamWithModel(
       tools: options.tools,
       stopWhen: stepCountIs(25),
       experimental_transform: smoothStream({ chunking: "word" }),
-      experimental_telemetry: { isEnabled: true },
-      generationName: "web-interview-response",
-      entityId: options.sessionId,
-      metadata: {
-        sessionId: options.sessionId,
-        isFallback,
-      },
       onFinish: async () => {
         capturedSpan?.end();
       },
