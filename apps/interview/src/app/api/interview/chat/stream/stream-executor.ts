@@ -59,12 +59,28 @@ function tryStreamWithModel(
     const errorMessage = error instanceof Error ? error.message : String(error);
     const errorName = error instanceof Error ? error.name : "";
 
+    // Проверяем на ошибки закрытого соединения (клиент отключился)
+    const isConnectionClosed =
+      errorName === "AbortError" ||
+      errorMessage.includes("terminated") ||
+      errorMessage.includes("UND_ERR_SOCKET") ||
+      errorMessage.includes("other side closed") ||
+      errorMessage.includes("socket hang up") ||
+      errorMessage.includes("ECONNRESET");
+
+    if (isConnectionClosed) {
+      console.log(
+        `[Stream] ${isFallback ? "Fallback " : ""}соединение закрыто клиентом`,
+      );
+      const abortError = new Error("Connection closed by client");
+      abortError.name = "AbortError";
+      throw abortError;
+    }
+
     const isTimeoutError =
       errorName === "TimeoutError" ||
-      errorName === "AbortError" ||
       errorMessage.toLowerCase().includes("timeout") ||
       errorMessage.includes("ETIMEDOUT") ||
-      errorMessage.includes("ECONNRESET") ||
       errorMessage.includes("ECONNREFUSED") ||
       errorMessage.toLowerCase().includes("networkerror") ||
       errorMessage.includes("fetch failed") ||
@@ -160,12 +176,28 @@ function tryStreamWithModelV6(
     const errorMessage = error instanceof Error ? error.message : String(error);
     const errorName = error instanceof Error ? error.name : "";
 
+    // Проверяем на ошибки закрытого соединения (клиент отключился)
+    const isConnectionClosed =
+      errorName === "AbortError" ||
+      errorMessage.includes("terminated") ||
+      errorMessage.includes("UND_ERR_SOCKET") ||
+      errorMessage.includes("other side closed") ||
+      errorMessage.includes("socket hang up") ||
+      errorMessage.includes("ECONNRESET");
+
+    if (isConnectionClosed) {
+      console.log(
+        `[Stream] ${isFallback ? "Fallback " : ""}соединение закрыто клиентом`,
+      );
+      const abortError = new Error("Connection closed by client");
+      abortError.name = "AbortError";
+      throw abortError;
+    }
+
     const isTimeoutError =
       errorName === "TimeoutError" ||
-      errorName === "AbortError" ||
       errorMessage.toLowerCase().includes("timeout") ||
       errorMessage.includes("ETIMEDOUT") ||
-      errorMessage.includes("ECONNRESET") ||
       errorMessage.includes("ECONNREFUSED") ||
       errorMessage.toLowerCase().includes("networkerror") ||
       errorMessage.includes("fetch failed") ||
@@ -197,6 +229,12 @@ export function executeStreamWithFallback(options: StreamOptions) {
   try {
     return tryStreamWithModel(model, options, false, span);
   } catch (error) {
+    // Если соединение закрыто клиентом, не пытаемся использовать fallback
+    if (error instanceof Error && error.name === "AbortError") {
+      console.log("[Stream] Соединение закрыто клиентом, пропускаем fallback");
+      throw error;
+    }
+
     console.warn(
       "[Stream] Ошибка с основной моделью, переключаюсь на fallback:",
       error instanceof Error ? error.message : String(error),
@@ -261,6 +299,12 @@ export function executeStreamWithFallbackV6(options: StreamOptionsV6) {
   try {
     return tryStreamWithModelV6(model, options, false, span);
   } catch (error) {
+    // Если соединение закрыто клиентом, не пытаемся использовать fallback
+    if (error instanceof Error && error.name === "AbortError") {
+      console.log("[Stream] Соединение закрыто клиентом, пропускаем fallback");
+      throw error;
+    }
+
     console.warn(
       "[Stream] Ошибка с основной моделью, переключаюсь на fallback:",
       error instanceof Error ? error.message : String(error),

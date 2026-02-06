@@ -1,5 +1,50 @@
 # Анализ и рекомендации по улучшению системы интервью
 
+## ✅ ИСПРАВЛЕНО: Обработка закрытого соединения
+
+### Проблема
+Ошибка `TypeError: terminated` и `UND_ERR_SOCKET` возникала когда клиент закрывал соединение (закрытие вкладки, нажатие "стоп"), а сервер продолжал пытаться отправлять данные.
+
+### Решение
+Добавлена graceful обработка закрытых соединений:
+
+1. **В `stream-executor.ts`**:
+   - Детекция ошибок закрытого соединения (AbortError, UND_ERR_SOCKET, terminated, socket hang up)
+   - Логирование вместо выброса ошибки
+   - Пропуск fallback модели при закрытом соединении
+
+2. **В `handler.ts`**:
+   - Try-catch обертка в `execute` для перехвата ошибок стрима
+   - Graceful return при закрытом соединении
+   - Улучшенная обработка в `onError`
+
+### Технические детали
+```typescript
+// Детекция закрытого соединения
+const isConnectionClosed =
+  errorName === "AbortError" ||
+  errorMessage.includes("terminated") ||
+  errorMessage.includes("UND_ERR_SOCKET") ||
+  errorMessage.includes("other side closed") ||
+  errorMessage.includes("socket hang up") ||
+  errorMessage.includes("ECONNRESET");
+
+// Не пытаемся использовать fallback при закрытом соединении
+if (error instanceof Error && error.name === "AbortError") {
+  console.log("[Stream] Соединение закрыто клиентом, пропускаем fallback");
+  throw error;
+}
+```
+
+### Результат
+- ✅ Нет ошибок в логах при закрытии соединения клиентом
+- ✅ Graceful shutdown стрима
+- ✅ Не тратим ресурсы на fallback модель
+- ✅ TypeScript компиляция успешна
+- ✅ Production build успешен
+
+---
+
 ## 🔴 Критические проблемы (требуют немедленного исправления)
 
 ### 1. botSettings не используются в промптах

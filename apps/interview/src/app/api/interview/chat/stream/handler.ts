@@ -251,51 +251,79 @@ async function handler(request: Request) {
 
     const stream = createUIMessageStream({
       execute: async ({ writer }) => {
-        const result = executeStreamWithFallbackV6({
-          systemPrompt,
-          messages: formattedMessages,
-          tools,
-          sessionId,
-          activeTools,
-          telemetryMetadata: {
-            entityType: strategy.entityType,
-            vacancyId: vacancy?.id,
-            gigId: gig?.id,
-            currentStage,
-          },
-          onPrepareStep: async (stepNumber) => {
-            console.log(`[Interview Stream] Начало шага ${stepNumber}`, {
-              sessionId,
+        try {
+          const result = executeStreamWithFallbackV6({
+            systemPrompt,
+            messages: formattedMessages,
+            tools,
+            sessionId,
+            activeTools,
+            telemetryMetadata: {
               entityType: strategy.entityType,
+              vacancyId: vacancy?.id,
+              gigId: gig?.id,
               currentStage,
-              timestamp: new Date().toISOString(),
-            });
-          },
-          onStepFinish: async ({ toolCalls }) => {
-            if (toolCalls.length > 0) {
-              console.log(
-                `[Interview Stream] Шаг завершён, вызваны инструменты:`,
-                {
-                  sessionId,
-                  entityType: strategy.entityType,
-                  currentStage,
-                  toolCalls: toolCalls.map((tc) => ({
-                    toolName: tc.toolName,
-                  })),
-                  timestamp: new Date().toISOString(),
-                },
-              );
-            }
-          },
-        });
+            },
+            onPrepareStep: async (stepNumber) => {
+              console.log(`[Interview Stream] Начало шага ${stepNumber}`, {
+                sessionId,
+                entityType: strategy.entityType,
+                currentStage,
+                timestamp: new Date().toISOString(),
+              });
+            },
+            onStepFinish: async ({ toolCalls }) => {
+              if (toolCalls.length > 0) {
+                console.log(
+                  `[Interview Stream] Шаг завершён, вызваны инструменты:`,
+                  {
+                    sessionId,
+                    entityType: strategy.entityType,
+                    currentStage,
+                    toolCalls: toolCalls.map((tc) => ({
+                      toolName: tc.toolName,
+                    })),
+                    timestamp: new Date().toISOString(),
+                  },
+                );
+              }
+            },
+          });
 
-        writer.merge(result.toUIMessageStream());
+          writer.merge(result.toUIMessageStream());
+        } catch (error) {
+          // Игнорируем ошибки закрытого соединения
+          if (
+            error instanceof Error &&
+            (error.message.includes("terminated") ||
+              error.message.includes("UND_ERR_SOCKET") ||
+              error.message.includes("other side closed") ||
+              error.name === "AbortError")
+          ) {
+            console.log("[Interview Stream] Соединение закрыто клиентом", {
+              sessionId,
+            });
+            return;
+          }
+          throw error;
+        }
       },
       generateId: generateUUID,
       onFinish: async ({ messages: finishedMessages }) => {
         await saveAssistantMessages(sessionId, finishedMessages, db);
       },
       onError: (error) => {
+        // Игнорируем ошибки закрытого соединения
+        if (
+          error instanceof Error &&
+          (error.message.includes("terminated") ||
+            error.message.includes("UND_ERR_SOCKET") ||
+            error.message.includes("other side closed") ||
+            error.name === "AbortError")
+        ) {
+          console.log("[Interview Stream] Соединение закрыто клиентом");
+          return "Соединение прервано";
+        }
         console.error("[Interview Stream] Ошибка:", error);
         return error instanceof Error ? error.message : "Неизвестная ошибка";
       },
