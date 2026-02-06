@@ -37,6 +37,8 @@ import {
   saveUserMessage,
 } from "./message-handler";
 import { requestSchema } from "./schema";
+import { getInterviewStrategy } from "./strategies";
+import { executeStreamWithFallbackV6 } from "./stream-executor";
 
 export const maxDuration = 60;
 
@@ -46,6 +48,16 @@ function generateUUID(): string {
 
 async function handler(request: Request) {
   let requestBody: z.infer<typeof requestSchema>;
+  
+  // Контекст для логирования ошибок
+  let errorContext: {
+    sessionId?: string;
+    entityType?: string;
+    currentStage?: string;
+    lastQuestion?: string;
+    vacancyId?: string;
+    gigId?: string;
+  } = {};
 
   try {
     const json = await request.json();
@@ -63,6 +75,9 @@ async function handler(request: Request) {
 
   try {
     const { messages, message, sessionId, interviewToken } = requestBody;
+    
+    // Сохраняем sessionId для логирования ошибок
+    errorContext.sessionId = sessionId;
 
     // Проверка доступа
     await checkInterviewAccess(sessionId, interviewToken, db);
@@ -76,6 +91,18 @@ async function handler(request: Request) {
       db,
     );
 
+    // Создаём стратегию на основе типа сущности
+    const strategy = getInterviewStrategy(gig ?? null, vacancy ?? null);
+    
+    // Получаем текущую стадию из метаданных сессии
+    const currentStage = (session.metadata as { currentStage?: string })?.currentStage || "intro";
+    
+    // Сохраняем контекст для логирования ошибок
+    errorContext.entityType = strategy.entityType;
+    errorContext.currentStage = currentStage;
+    errorContext.vacancyId = vacancy?.id;
+    errorContext.gigId = gig?.id;
+
     // Определяем тип запроса
     const isToolApprovalFlow = Boolean(messages);
 
@@ -87,6 +114,9 @@ async function handler(request: Request) {
     const userMessageText = lastUserMessage
       ? extractMessageText(lastUserMessage)
       : "";
+    
+    // Сохраняем последний вопрос для логирования ошибок
+    errorContext.lastQuestion = userMessageText;
 
     // Сохраняем текстовое сообщение пользователя
     const savedMessageTimestamp = await saveUserMessage(
@@ -105,6 +135,8 @@ async function handler(request: Request) {
         source: "WEB",
         vacancyId: vacancy?.id,
         gigId: gig?.id,
+        entityType: strategy.entityType,
+        currentStage,
       },
     });
 
@@ -180,6 +212,26 @@ async function handler(request: Request) {
       isFirstResponse,
     });
 
+    // Создаём инструменты через стратегию
+    const strategyTools = strategy.createTools(
+      model,
+      sessionId,
+      db,
+      gig ?? null,
+      vacancy ?? null,
+      interviewContext,
+      currentStage,
+    );
+
+    // Строим системный промпт через стратегию
+    const strategySystemPrompt = strategy.systemPromptBuilder.build(
+      isFirstResponse,
+      currentStage,
+    );
+
+    // Получаем список активных инструментов для текущей стадии
+    const activeTools = strategy.toolFactory.getAvailableTools(currentStage);
+
     const formattedMessages = formatMessagesForModel(
       session.messages,
       userMessageText,
@@ -187,13 +239,40 @@ async function handler(request: Request) {
 
     const stream = createUIMessageStream({
       execute: async ({ writer }) => {
-        const result = streamText({
-          model,
-          system: systemPrompt,
+        const result = executeStreamWithFallbackV6({
+          systemPrompt: strategySystemPrompt,
           messages: formattedMessages,
-          tools,
-          stopWhen: stepCountIs(25),
-          experimental_transform: smoothStream({ chunking: "word" }),
+          tools: strategyTools,
+          sessionId,
+          activeTools,
+          telemetryMetadata: {
+            entityType: strategy.entityType,
+            vacancyId: vacancy?.id,
+            gigId: gig?.id,
+            currentStage,
+          },
+          onPrepareStep: async (stepNumber) => {
+            console.log(`[Interview Stream] Начало шага ${stepNumber}`, {
+              sessionId,
+              entityType: strategy.entityType,
+              currentStage,
+              timestamp: new Date().toISOString(),
+            });
+          },
+          onStepFinish: async ({ stepNumber, toolCalls }) => {
+            if (toolCalls.length > 0) {
+              console.log(`[Interview Stream] Шаг ${stepNumber} завершён, вызваны инструменты:`, {
+                sessionId,
+                entityType: strategy.entityType,
+                currentStage,
+                toolCalls: toolCalls.map(tc => ({
+                  toolName: tc.toolName,
+                  args: tc.args,
+                })),
+                timestamp: new Date().toISOString(),
+              });
+            }
+          },
         });
 
         writer.merge(result.toUIMessageStream());
@@ -217,7 +296,23 @@ async function handler(request: Request) {
       },
     });
   } catch (error: unknown) {
-    console.error("[Interview Stream] Ошибка:", error);
+    // Логируем ошибку с полным стеком и контекстом
+    console.error("[Interview Stream] Ошибка:", {
+      error: error instanceof Error ? {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+      } : String(error),
+      context: {
+        sessionId: errorContext.sessionId,
+        entityType: errorContext.entityType,
+        currentStage: errorContext.currentStage,
+        lastQuestion: errorContext.lastQuestion,
+        vacancyId: errorContext.vacancyId,
+        gigId: errorContext.gigId,
+      },
+      timestamp: new Date().toISOString(),
+    });
 
     trace.getActiveSpan()?.setStatus({
       code: SpanStatusCode.ERROR,

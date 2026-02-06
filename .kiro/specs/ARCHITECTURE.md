@@ -2799,6 +2799,7 @@ function getCurrentStage(session: import("@qbs-autonaim/db/schema").InterviewSes
 ### Phase 1: Foundation (Week 1)
 
 1. **Create new directories structure**
+
    ```bash
    mkdir -p apps/interview/src/app/api/interview/chat/stream/{strategies,prompts,scoring,stages,tools}
    ```
@@ -2818,59 +2819,59 @@ function getCurrentStage(session: import("@qbs-autonaim/db/schema").InterviewSes
 
 ### Phase 2: Core Strategies (Week 2)
 
-5. **Create strategy implementations**
+1. **Create strategy implementations**
    - [`apps/interview/src/app/api/interview/chat/stream/strategies/gig-strategy.ts`](apps/interview/src/app/api/interview/chat/stream/strategies/gig-strategy.ts)
    - [`apps/interview/src/app/api/interview/chat/stream/strategies/vacancy-strategy.ts`](apps/interview/src/app/api/interview/chat/stream/strategies/vacancy-strategy.ts)
 
-6. **Create prompt modules**
+2. **Create prompt modules**
    - [`apps/interview/src/app/api/interview/chat/stream/prompts/base-prompt.ts`](apps/interview/src/app/api/interview/chat/stream/prompts/base-prompt.ts)
    - [`apps/interview/src/app/api/interview/chat/stream/prompts/gig-prompt.ts`](apps/interview/src/app/api/interview/chat/stream/prompts/gig-prompt.ts)
    - [`apps/interview/src/app/api/interview/chat/stream/prompts/vacancy-prompt.ts`](apps/interview/src/app/api/interview/chat/stream/prompts/vacancy-prompt.ts)
    - [`apps/interview/src/app/api/interview/chat/stream/prompts/index.ts`](apps/interview/src/app/api/interview/chat/stream/prompts/index.ts)
 
-7. **Create scoring schemas**
+3. **Create scoring schemas**
    - [`apps/interview/src/app/api/interview/chat/stream/scoring/gig-scoring.ts`](apps/interview/src/app/api/interview/chat/stream/scoring/gig-scoring.ts)
    - [`apps/interview/src/app/api/interview/chat/stream/scoring/vacancy-scoring.ts`](apps/interview/src/app/api/interview/chat/stream/scoring/vacancy-scoring.ts)
    - [`apps/interview/src/app/api/interview/chat/stream/scoring/index.ts`](apps/interview/src/app/api/interview/chat/stream/scoring/index.ts)
 
 ### Phase 3: Tool Factory (Week 3)
 
-8. **Refactor tools with factory pattern**
+1. **Refactor tools with factory pattern**
    - [`apps/interview/src/app/api/interview/chat/stream/tools/factory.ts`](apps/interview/src/app/api/interview/chat/stream/tools/factory.ts)
    - [`apps/interview/src/app/api/interview/chat/stream/tools/gig-tools.ts`](apps/interview/src/app/api/interview/chat/stream/tools/gig-tools.ts)
 
-9. **Update existing tools to work with factory**
+2. **Update existing tools to work with factory**
    - Keep [`apps/interview/src/app/api/interview/chat/stream/tools/index.ts`](apps/interview/src/app/api/interview/chat/stream/tools/index.ts) for backward compatibility
 
 ### Phase 4: AI SDK v6 Integration (Week 4)
 
-10. **Update stream executor**
+1. **Update stream executor**
     - [`apps/interview/src/app/api/interview/chat/stream/stream-executor.ts`](apps/interview/src/app/api/interview/chat/stream/stream-executor.ts)
     - Add `activeTools`, `prepareStep`, `onStepFinish` support
 
-11. **Update handler with strategy pattern**
+2. **Update handler with strategy pattern**
     - [`apps/interview/src/app/api/interview/chat/stream/handler.ts`](apps/interview/src/app/api/interview/chat/stream/handler.ts)
     - Integrate strategy factory and AI SDK v6 features
 
 ### Phase 5: UI Updates (Week 5)
 
-12. **Update components for entity-aware rendering**
+1. **Update components for entity-aware rendering**
     - [`apps/interview/src/components/interview-chat.tsx`](apps/interview/src/components/interview-chat.tsx)
     - [`apps/interview/src/components/interview-context-card.tsx`](apps/interview/src/components/interview-context-card.tsx)
     - [`apps/interview/src/components/chat/interview-greeting.tsx`](apps/interview/src/components/chat/interview-greeting.tsx)
 
 ### Phase 6: Testing and Cleanup (Week 6)
 
-13. **Integration testing**
+1. **Integration testing**
     - Test gig flow end-to-end
     - Test vacancy flow end-to-end
     - Verify no regression in shared functionality
 
-14. **Performance testing**
+2. **Performance testing**
     - Profile AI SDK v6 feature usage
     - Verify tool creation overhead is minimal
 
-15. **Documentation**
+3. **Documentation**
     - Update README.md with new architecture
     - Add examples for adding new entity types
 

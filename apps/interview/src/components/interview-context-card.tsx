@@ -8,8 +8,9 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@qbs-autonaim/ui/collapsible";
-import { Briefcase, Calendar, ChevronDown, Clock } from "lucide-react";
+import { Briefcase, Calendar, ChevronDown, Clock, MapPin } from "lucide-react";
 import { useState } from "react";
+import type { SupportedEntityType } from "~/app/api/interview/chat/stream/strategies/types";
 
 interface InterviewContext {
   type: "vacancy" | "gig";
@@ -31,16 +32,22 @@ interface InterviewContext {
   } | null;
   deadline?: Date | null;
   estimatedDuration?: string | null;
+  region?: string | null;
+  workLocation?: string | null;
 }
 
 interface InterviewContextCardProps {
   context: InterviewContext;
+  entityType?: SupportedEntityType;
 }
 
-export function InterviewContextCard({ context }: InterviewContextCardProps) {
+export function InterviewContextCard({ context, entityType }: InterviewContextCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const isVacancy = context.type === "vacancy";
-  const isGig = context.type === "gig";
+  
+  // Определяем тип из context или из prop
+  const type = entityType || context.type;
+  const isVacancy = type === "vacancy";
+  const isGig = type === "gig";
 
   const hasDetailedInfo =
     (context.description && context.description.length > 150) ||
@@ -60,7 +67,7 @@ export function InterviewContextCard({ context }: InterviewContextCardProps) {
             <div className="min-w-0 flex-1 space-y-3">
               <div className="flex items-center gap-2">
                 <Badge variant="secondary" className="font-normal">
-                  {isVacancy ? "Вакансия" : "Разовое задание"}
+                  {isGig ? "Разовое задание" : "Вакансия"}
                 </Badge>
               </div>
 
@@ -78,6 +85,7 @@ export function InterviewContextCard({ context }: InterviewContextCardProps) {
               )}
 
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                {/* Поля для gig */}
                 {isGig && context.budget && (
                   <div className="flex items-center gap-1.5 text-sm font-medium text-foreground">
                     <span className="tabular-nums">
@@ -108,6 +116,20 @@ export function InterviewContextCard({ context }: InterviewContextCardProps) {
                   <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                     <Clock className="size-4" aria-hidden="true" />
                     <span>{context.estimatedDuration}</span>
+                  </div>
+                )}
+
+                {/* Поля для vacancy */}
+                {isVacancy && context.region && (
+                  <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                    <MapPin className="size-4" aria-hidden="true" />
+                    <span>{context.region}</span>
+                  </div>
+                )}
+
+                {isVacancy && context.workLocation && (
+                  <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                    <span>{context.workLocation}</span>
                   </div>
                 )}
 
@@ -189,6 +211,7 @@ export function InterviewContextCard({ context }: InterviewContextCardProps) {
                     variant="ghost"
                     size="sm"
                     className="h-8 gap-1 px-2 text-muted-foreground hover:text-foreground"
+                    aria-label={isExpanded ? "Свернуть подробности" : "Показать подробности"}
                   >
                     <span className="text-xs">
                       {isExpanded ? "Свернуть" : "Показать подробности"}

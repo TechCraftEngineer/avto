@@ -61,6 +61,12 @@ export function InterviewChat({
     return chatHistory.messages.map(convertHistoryMessage);
   }, [chatHistory?.messages]);
 
+  // Определяем entityType из interviewContext
+  const entityType = useMemo(() => {
+    if (!interviewContext) return "vacancy";
+    return interviewContext.type === "gig" ? "gig" : "vacancy";
+  }, [interviewContext]);
+
   const transport = useMemo(
     () =>
       new DefaultChatTransport({
@@ -68,9 +74,10 @@ export function InterviewChat({
         body: {
           sessionId: interviewSessionId,
           interviewToken: interviewToken || null,
+          entityType, // Передаем entityType в body запроса
         },
       }),
-    [apiEndpoint, interviewSessionId, interviewToken],
+    [apiEndpoint, interviewSessionId, interviewToken, entityType],
   );
 
   const {
@@ -196,7 +203,7 @@ export function InterviewChat({
       {interviewContext && (
         <div className="shrink-0 border-b bg-background">
           <div className="mx-auto w-full max-w-4xl">
-            <InterviewContextCard context={interviewContext} />
+            <InterviewContextCard context={interviewContext} entityType={entityType} />
           </div>
         </div>
       )}
@@ -218,7 +225,9 @@ export function InterviewChat({
       <MessagesList
         messages={messages}
         status={status}
-        emptyStateComponent={<InterviewGreeting />}
+        emptyStateComponent={
+          <InterviewGreeting entityType={entityType} />
+        }
       />
 
       <div className="sticky bottom-0 z-10 shrink-0 border-t bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
