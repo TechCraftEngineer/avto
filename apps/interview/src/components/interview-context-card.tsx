@@ -1,8 +1,15 @@
 "use client";
 
 import { Badge } from "@qbs-autonaim/ui/badge";
+import { Button } from "@qbs-autonaim/ui/button";
 import { Card, CardContent } from "@qbs-autonaim/ui/card";
-import { Briefcase, Calendar, Clock } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@qbs-autonaim/ui/collapsible";
+import { Briefcase, Calendar, ChevronDown, Clock } from "lucide-react";
+import { useState } from "react";
 
 interface InterviewContext {
   type: "vacancy" | "gig";
@@ -14,6 +21,8 @@ interface InterviewContext {
       min: number | null;
       description: string;
     };
+    skills?: string[];
+    responsibilities?: string[];
   } | null;
   budget?: {
     min: number | null;
@@ -29,87 +38,98 @@ interface InterviewContextCardProps {
 }
 
 export function InterviewContextCard({ context }: InterviewContextCardProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const isVacancy = context.type === "vacancy";
   const isGig = context.type === "gig";
+
+  const hasDetailedInfo =
+    (context.description && context.description.length > 150) ||
+    (context.requirements?.skills && context.requirements.skills.length > 0) ||
+    (context.requirements?.responsibilities &&
+      context.requirements.responsibilities.length > 0);
 
   return (
     <Card className="border-0 shadow-none">
       <CardContent className="p-4 sm:p-6">
-        <div className="flex items-start gap-4">
-          <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 ring-1 ring-primary/20">
-            <Briefcase className="size-6 text-primary" aria-hidden="true" />
-          </div>
+        <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
+          <div className="flex items-start gap-4">
+            <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 ring-1 ring-primary/20">
+              <Briefcase className="size-6 text-primary" aria-hidden="true" />
+            </div>
 
-          <div className="min-w-0 flex-1 space-y-3">
-            <div className="space-y-1">
+            <div className="min-w-0 flex-1 space-y-3">
               <div className="flex items-center gap-2">
                 <Badge variant="secondary" className="font-normal">
                   {isVacancy ? "Вакансия" : "Разовое задание"}
                 </Badge>
               </div>
-              <h2 className="text-lg font-semibold leading-tight text-foreground sm:text-xl">
-                {context.title}
-              </h2>
-            </div>
 
-            {context.description && (
-              <p className="line-clamp-2 text-sm text-muted-foreground">
-                {context.description}
-              </p>
-            )}
-
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-              {isGig && context.budget && (
-                <div className="flex items-center gap-1.5 text-sm font-medium text-foreground">
-                  <span className="tabular-nums">
-                    {context.budget.min && context.budget.max
-                      ? `${context.budget.min.toLocaleString("ru-RU")}–${context.budget.max.toLocaleString("ru-RU")}`
-                      : (
-                          context.budget.min || context.budget.max
-                        )?.toLocaleString("ru-RU")}{" "}
-                    {context.budget.currency}
-                  </span>
+              {context.description && (
+                <div className="space-y-2">
+                  <div
+                    className={
+                      isExpanded
+                        ? "prose prose-sm max-w-none text-muted-foreground [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+                        : "line-clamp-2 text-sm text-muted-foreground"
+                    }
+                    dangerouslySetInnerHTML={{ __html: context.description }}
+                  />
                 </div>
               )}
 
-              {isGig && context.deadline && (
-                <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                  <Calendar className="size-4" aria-hidden="true" />
-                  <span>
-                    До{" "}
-                    {new Date(context.deadline).toLocaleDateString("ru-RU", {
-                      day: "numeric",
-                      month: "long",
-                    })}
-                  </span>
-                </div>
-              )}
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                {isGig && context.budget && (
+                  <div className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                    <span className="tabular-nums">
+                      {context.budget.min && context.budget.max
+                        ? `${context.budget.min.toLocaleString("ru-RU")}–${context.budget.max.toLocaleString("ru-RU")}`
+                        : (
+                            context.budget.min || context.budget.max
+                          )?.toLocaleString("ru-RU")}{" "}
+                      {context.budget.currency}
+                    </span>
+                  </div>
+                )}
 
-              {isGig && context.estimatedDuration && (
-                <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                  <Clock className="size-4" aria-hidden="true" />
-                  <span>{context.estimatedDuration}</span>
-                </div>
-              )}
+                {isGig && context.deadline && (
+                  <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                    <Calendar className="size-4" aria-hidden="true" />
+                    <span>
+                      До{" "}
+                      {new Date(context.deadline).toLocaleDateString("ru-RU", {
+                        day: "numeric",
+                        month: "long",
+                      })}
+                    </span>
+                  </div>
+                )}
 
-              {isVacancy && context.requirements?.experience_years && (
-                <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                  <Clock className="size-4" aria-hidden="true" />
-                  <span>
-                    {context.requirements.experience_years.min
-                      ? `От ${context.requirements.experience_years.min} лет`
-                      : context.requirements.experience_years.description}
-                  </span>
-                </div>
-              )}
-            </div>
+                {isGig && context.estimatedDuration && (
+                  <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                    <Clock className="size-4" aria-hidden="true" />
+                    <span>{context.estimatedDuration}</span>
+                  </div>
+                )}
 
-            {context.requirements?.tech_stack &&
-              context.requirements.tech_stack.length > 0 && (
-                <div className="flex flex-wrap gap-1.5">
-                  {context.requirements.tech_stack
-                    .slice(0, 6)
-                    .map((tech: string) => (
+                {isVacancy && context.requirements?.experience_years && (
+                  <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                    <Clock className="size-4" aria-hidden="true" />
+                    <span>
+                      {context.requirements.experience_years.min
+                        ? `От ${context.requirements.experience_years.min} лет`
+                        : context.requirements.experience_years.description}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {context.requirements?.tech_stack &&
+                context.requirements.tech_stack.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {(isExpanded
+                      ? context.requirements.tech_stack
+                      : context.requirements.tech_stack.slice(0, 6)
+                    ).map((tech: string) => (
                       <Badge
                         key={tech}
                         variant="outline"
@@ -118,15 +138,71 @@ export function InterviewContextCard({ context }: InterviewContextCardProps) {
                         {tech}
                       </Badge>
                     ))}
-                  {context.requirements.tech_stack.length > 6 && (
-                    <Badge variant="outline" className="font-normal">
-                      +{context.requirements.tech_stack.length - 6}
-                    </Badge>
+                    {!isExpanded &&
+                      context.requirements.tech_stack.length > 6 && (
+                        <Badge variant="outline" className="font-normal">
+                          +{context.requirements.tech_stack.length - 6}
+                        </Badge>
+                      )}
+                  </div>
+                )}
+
+              <CollapsibleContent className="space-y-3">
+                {context.requirements?.skills &&
+                  context.requirements.skills.length > 0 && (
+                    <div className="space-y-2">
+                      <h3 className="font-medium text-sm">Требуемые навыки</h3>
+                      <ul className="space-y-1 text-muted-foreground text-sm">
+                        {context.requirements.skills.map(
+                          (skill: string, idx: number) => (
+                            <li key={idx} className="flex items-start gap-2">
+                              <span className="mt-1.5 size-1 shrink-0 rounded-full bg-muted-foreground" />
+                              <span>{skill}</span>
+                            </li>
+                          ),
+                        )}
+                      </ul>
+                    </div>
                   )}
-                </div>
+
+                {context.requirements?.responsibilities &&
+                  context.requirements.responsibilities.length > 0 && (
+                    <div className="space-y-2">
+                      <h3 className="font-medium text-sm">Обязанности</h3>
+                      <ul className="space-y-1 text-muted-foreground text-sm">
+                        {context.requirements.responsibilities.map(
+                          (resp: string, idx: number) => (
+                            <li key={idx} className="flex items-start gap-2">
+                              <span className="mt-1.5 size-1 shrink-0 rounded-full bg-muted-foreground" />
+                              <span>{resp}</span>
+                            </li>
+                          ),
+                        )}
+                      </ul>
+                    </div>
+                  )}
+              </CollapsibleContent>
+
+              {hasDetailedInfo && (
+                <CollapsibleTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 gap-1 px-2 text-muted-foreground hover:text-foreground"
+                  >
+                    <span className="text-xs">
+                      {isExpanded ? "Свернуть" : "Показать подробности"}
+                    </span>
+                    <ChevronDown
+                      className={`size-4 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                      aria-hidden="true"
+                    />
+                  </Button>
+                </CollapsibleTrigger>
               )}
+            </div>
           </div>
-        </div>
+        </Collapsible>
       </CardContent>
     </Card>
   );

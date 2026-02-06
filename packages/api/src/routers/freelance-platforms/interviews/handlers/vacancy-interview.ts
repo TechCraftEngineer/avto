@@ -24,6 +24,7 @@ export async function handleVacancyInterview(
   vacancyId: string,
   freelancerInfo: FreelancerInfo,
   errorHandler: ErrorHandler,
+  existingResponseId?: string, // Если передан - используем существующий отклик
 ) {
   // Получаем вакансию
   const vacancy = await db.query.vacancy.findFirst({
@@ -48,12 +49,39 @@ export async function handleVacancyInterview(
   }
 
   // Проверяем существующий отклик
-  const existingResponse = await findExistingResponse(
-    db,
-    "vacancy",
+  let existingResponse: Awaited<ReturnType<typeof findExistingResponse>>;
+
+  if (existingResponseId) {
+    // Если передан responseId - используем его
+    console.log("[handleVacancyInterview] Используем переданный responseId:", {
+      responseId: existingResponseId,
+    });
+
+    existingResponse = await db.query.response.findFirst({
+      where: (r, { eq }) => eq(r.id, existingResponseId),
+    });
+
+    if (!existingResponse) {
+      throw await errorHandler.handleNotFoundError("Отклик", {
+        responseId: existingResponseId,
+      });
+    }
+  } else {
+    // Иначе ищем по данным кандидата
+    existingResponse = await findExistingResponse(
+      db,
+      "vacancy",
+      vacancyId,
+      freelancerInfo,
+    );
+  }
+
+  console.log("[handleVacancyInterview] Результат поиска отклика:", {
+    found: !!existingResponse,
+    responseId: existingResponse?.id,
     vacancyId,
-    freelancerInfo,
-  );
+    freelancerName: freelancerInfo.name,
+  });
 
   let response: Awaited<ReturnType<typeof createVacancyResponse>>;
   let shouldSyncAndParse = false;
@@ -61,6 +89,9 @@ export async function handleVacancyInterview(
   if (existingResponse) {
     // Используем существующий отклик
     response = existingResponse;
+    console.log("[handleVacancyInterview] Используем существующий отклик:", {
+      responseId: response.id,
+    });
 
     const sessionResult = await handleExistingSession(
       db,
@@ -71,6 +102,11 @@ export async function handleVacancyInterview(
       errorHandler,
     );
 
+    console.log("[handleVacancyInterview] Результат handleExistingSession:", {
+      hasResult: !!sessionResult,
+      sessionId: sessionResult?.sessionId,
+    });
+
     // Если handleExistingSession вернул результат - возвращаем его
     if (sessionResult) {
       return sessionResult;
@@ -80,12 +116,16 @@ export async function handleVacancyInterview(
     // Синхронизацию и парсинг НЕ запускаем, т.к. отклик уже обработан
   } else {
     // Создаём новый отклик
+    console.log("[handleVacancyInterview] Создаём новый отклик");
     response = await createVacancyResponse(
       db,
       vacancyId,
       freelancerInfo,
       errorHandler,
     );
+    console.log("[handleVacancyInterview] Создан новый отклик:", {
+      responseId: response.id,
+    });
 
     // Для нового отклика нужна синхронизация и парсинг
     shouldSyncAndParse = true;

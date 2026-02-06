@@ -178,7 +178,11 @@ export function InterviewChat({
             <Sparkles className="size-5 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="font-semibold text-base">Техническая беседа</h1>
+            {interviewContext && (
+              <h1 className="truncate font-semibold text-base">
+                {interviewContext.title}
+              </h1>
+            )}
             <p className="text-muted-foreground text-xs">
               {isCompleted && "Завершено"}
               {isCancelled && "Отменено"}

@@ -24,6 +24,7 @@ export async function handleGigInterview(
   gigId: string,
   freelancerInfo: FreelancerInfo,
   errorHandler: ErrorHandler,
+  existingResponseId?: string, // Если передан - используем существующий отклик
 ) {
   // Получаем гиг
   const gig = await db.query.gig.findFirst({
@@ -48,12 +49,39 @@ export async function handleGigInterview(
   }
 
   // Проверяем существующий отклик
-  const existingResponse = await findExistingResponse(
-    db,
-    "gig",
+  let existingResponse: Awaited<ReturnType<typeof findExistingResponse>>;
+
+  if (existingResponseId) {
+    // Если передан responseId - используем его
+    console.log("[handleGigInterview] Используем переданный responseId:", {
+      responseId: existingResponseId,
+    });
+
+    existingResponse = await db.query.response.findFirst({
+      where: (r, { eq }) => eq(r.id, existingResponseId),
+    });
+
+    if (!existingResponse) {
+      throw await errorHandler.handleNotFoundError("Отклик", {
+        responseId: existingResponseId,
+      });
+    }
+  } else {
+    // Иначе ищем по данным кандидата
+    existingResponse = await findExistingResponse(
+      db,
+      "gig",
+      gigId,
+      freelancerInfo,
+    );
+  }
+
+  console.log("[handleGigInterview] Результат поиска отклика:", {
+    found: !!existingResponse,
+    responseId: existingResponse?.id,
     gigId,
-    freelancerInfo,
-  );
+    freelancerName: freelancerInfo.name,
+  });
 
   let response: Awaited<ReturnType<typeof createGigResponse>>;
   let shouldSyncAndParse = false;
@@ -61,6 +89,9 @@ export async function handleGigInterview(
   if (existingResponse) {
     // Используем существующий отклик
     response = existingResponse;
+    console.log("[handleGigInterview] Используем существующий отклик:", {
+      responseId: response.id,
+    });
 
     const sessionResult = await handleExistingSession(
       db,
@@ -71,6 +102,11 @@ export async function handleGigInterview(
       errorHandler,
     );
 
+    console.log("[handleGigInterview] Результат handleExistingSession:", {
+      hasResult: !!sessionResult,
+      sessionId: sessionResult?.sessionId,
+    });
+
     // Если handleExistingSession вернул результат - возвращаем его
     if (sessionResult) {
       return sessionResult;
@@ -80,7 +116,11 @@ export async function handleGigInterview(
     // Синхронизацию и парсинг НЕ запускаем, т.к. отклик уже обработан
   } else {
     // Создаём новый отклик
+    console.log("[handleGigInterview] Создаём новый отклик");
     response = await createGigResponse(db, gigId, freelancerInfo, errorHandler);
+    console.log("[handleGigInterview] Создан новый отклик:", {
+      responseId: response.id,
+    });
 
     // Для нового отклика нужна синхронизация и парсинг
     shouldSyncAndParse = true;

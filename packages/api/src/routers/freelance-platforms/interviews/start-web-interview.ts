@@ -90,13 +90,14 @@ export const startWebInterview = publicProcedure
           });
         }
 
-        // Перенаправляем на соответствующий обработчик
+        // Перенаправляем на соответствующий обработчик с существующим responseId
         if (response.entityType === "gig") {
           return await handleGigInterview(
             ctx.db,
             response.entityId,
             input.freelancerInfo,
             errorHandler,
+            link.entityId, // Передаём responseId
           );
         }
 
@@ -106,6 +107,7 @@ export const startWebInterview = publicProcedure
           response.entityId,
           input.freelancerInfo,
           errorHandler,
+          link.entityId, // Передаём responseId
         );
       }
 

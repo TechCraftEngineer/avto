@@ -117,7 +117,6 @@ export async function hasInterviewAccess(
   if (!responseRecord) {
     return false;
   }
-  console.log(validatedToken, responseRecord);
   // Для токенов типа "response" проверяем соответствие responseId напрямую
   if (
     validatedToken.entityType === "response" &&
