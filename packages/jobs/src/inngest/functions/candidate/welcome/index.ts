@@ -12,10 +12,19 @@ import type { SendResult } from "./types";
 
 /**
  * Inngest функция для отправки приветственного сообщения кандидату
- * Маршрутизирует приветствие в настроенные каналы общения вакансии:
+ *
+ * Логика маршрутизации:
+ *
+ * Для откликов из HH.ru (importSource === "HH"):
+ * 1. Всегда отправляем сообщение в HH.ru чат
+ * 2. Содержание сообщения зависит от включенных каналов:
+ *    - Если включен Telegram: отправляем приглашение перейти в Telegram
+ *    - Если включен веб-чат: отправляем ссылку на веб-чат
+ *    - Если ничего не включено: отправляем обычное приветствие
+ *
+ * Для откликов из других источников:
  * - Telegram: если включен и есть активная сессия
  * - Веб-чат: если включен (работает независимо от Telegram)
- * - HH.ru чат: если ничего не включено и источник - HH.ru
  */
 export const sendCandidateWelcomeFunction = inngest.createFunction(
   {
@@ -42,19 +51,86 @@ export const sendCandidateWelcomeFunction = inngest.createFunction(
     const sendResults: SendResult[] = [];
     const errors: string[] = [];
 
-    // Attempt Telegram if enabled
-    if (enabledChannels.telegram) {
+    // Для откликов из HH.ru всегда отправляем сообщение в HH.ru чат
+    if (responseData.importSource === "HH") {
       try {
-        const welcomeMessage = await step.run(
-          "generate-telegram-message",
-          async () => {
-            console.log("🤖 Генерация приветственного сообщения для Telegram", {
+        // Генерируем сообщение в зависимости от включенных каналов
+        let hhMessage: string;
+
+        if (enabledChannels.telegram) {
+          // Генерируем приглашение в Telegram
+          hhMessage = await step.run(
+            "generate-hh-telegram-invite",
+            async () => {
+              console.log("🤖 Генерация приглашения в Telegram для HH.ru", {
+                responseId,
+                username,
+              });
+
+              const result = await generateWelcomeMessage(
+                responseId,
+                "hh-telegram-invite",
+              );
+
+              if (!result.success) {
+                throw new Error(result.error);
+              }
+
+              console.log("✅ Приглашение в Telegram сгенерировано", {
+                responseId,
+                messageLength: result.data.length,
+              });
+
+              return result.data;
+            },
+          );
+        } else if (enabledChannels.webChat) {
+          // Генерируем ссылку на веб-чат
+          const interviewLink = await step.run(
+            "generate-interview-link",
+            async () => {
+              const linkGenerator = new InterviewLinkGenerator();
+              return linkGenerator.getOrCreateInterviewLink(
+                responseData.vacancy.id,
+                responseData.vacancy.workspaceId,
+              );
+            },
+          );
+
+          hhMessage = await step.run("generate-hh-webchat-invite", async () => {
+            console.log("🤖 Генерация приглашения в веб-чат для HH.ru", {
               responseId,
               username,
-              source: responseData.importSource,
             });
 
-            const result = await generateWelcomeMessage(responseId, "telegram");
+            const result = await generateWelcomeMessage(
+              responseId,
+              "hh-webchat-invite",
+            );
+
+            if (!result.success) {
+              throw new Error(result.error);
+            }
+
+            // Добавляем ссылку на веб-чат
+            const messageWithLink = `${result.data}\n\n🔗 Перейти в веб-чат: ${interviewLink.url}`;
+
+            console.log("✅ Приглашение в веб-чат сгенерировано", {
+              responseId,
+              messageLength: messageWithLink.length,
+            });
+
+            return messageWithLink;
+          });
+        } else {
+          // Если ничего не включено, отправляем обычное приветствие
+          hhMessage = await step.run("generate-hh-message", async () => {
+            console.log("🤖 Генерация приветственного сообщения для HH.ru", {
+              responseId,
+              username,
+            });
+
+            const result = await generateWelcomeMessage(responseId, "hh");
 
             if (!result.success) {
               throw new Error(result.error);
@@ -66,124 +142,42 @@ export const sendCandidateWelcomeFunction = inngest.createFunction(
             });
 
             return result.data;
-          },
-        );
-
-        const telegramResult = await step.run(
-          "send-telegram-welcome",
-          async () => {
-            return sendTelegramWelcome(
-              responseData,
-              username,
-              phone,
-              welcomeMessage,
-            );
-          },
-        );
-
-        sendResults.push(telegramResult);
-      } catch (error) {
-        const errorMessage = `Telegram welcome failed: ${error instanceof Error ? error.message : "Unknown error"}`;
-        console.log(`⚠️ ${errorMessage}`);
-        errors.push(errorMessage);
-      }
-    }
-
-    // Attempt WebChat if enabled
-    // Для откликов из HH.ru: генерируем приглашение с уникальной ссылкой и отправляем в HH.ru чат
-    if (enabledChannels.webChat) {
-      try {
-        // Генерируем уникальную ссылку на веб-чат для этого отклика
-        const interviewLink = await step.run(
-          "generate-interview-link",
-          async () => {
-            const linkGenerator = new InterviewLinkGenerator();
-            return linkGenerator.getOrCreateInterviewLink(
-              responseData.vacancy.id,
-              responseData.vacancy.workspaceId,
-            );
-          },
-        );
-
-        const webChatMessage = await step.run(
-          "generate-webchat-message",
-          async () => {
-            console.log("🤖 Генерация приглашения в веб-чат", {
-              responseId,
-              username,
-              source: responseData.importSource,
-            });
-
-            // Для откликов из HH.ru используем специальный канал без указания вакансии
-            // так как сообщение отправляется в HH.ru чат, где контекст уже понятен
-            const channel =
-              responseData.importSource === "HH" ? "hh-webchat-invite" : "web";
-
-            const result = await generateWelcomeMessage(responseId, channel);
-
-            if (!result.success) {
-              throw new Error(result.error);
-            }
-
-            // Добавляем уникальную ссылку на веб-чат в сообщение
-            const messageWithLink = `${result.data}\n\n🔗 Перейти в веб-чат: ${interviewLink.url}`;
-
-            console.log("✅ Сообщение сгенерировано", {
-              responseId,
-              messageLength: messageWithLink.length,
-            });
-
-            return messageWithLink;
-          },
-        );
-
-        // Для откликов из HH.ru отправляем приглашение в HH.ru чат
-        if (responseData.importSource === "HH") {
-          const hhResult = await step.run(
-            "send-hh-webchat-invite",
-            async () => {
-              return sendHHWelcome(responseData, webChatMessage);
-            },
-          );
-          sendResults.push(hhResult);
-        } else {
-          // Для других источников создаем ссылку на веб-чат
-          const webChatResult = await step.run(
-            "send-webchat-invite",
-            async () => {
-              return sendWebChatInvite(
-                responseData,
-                username,
-                phone,
-                webChatMessage,
-              );
-            },
-          );
-          sendResults.push(webChatResult);
+          });
         }
+
+        // Отправляем сообщение в HH.ru чат
+        const hhResult = await step.run("send-hh-message", async () => {
+          return sendHHWelcome(responseData, hhMessage);
+        });
+
+        sendResults.push(hhResult);
       } catch (error) {
-        const errorMessage = `WebChat invite failed: ${error instanceof Error ? error.message : "Unknown error"}`;
+        const errorMessage = `HH message failed: ${error instanceof Error ? error.message : "Unknown error"}`;
         console.log(`⚠️ ${errorMessage}`);
         errors.push(errorMessage);
       }
-    }
+    } else {
+      // Для других источников (не HH.ru) используем прямую отправку в каналы
 
-    // If no channels were enabled, try HH.ru as fallback for HH sources
-    if (!enabledChannels.telegram && !enabledChannels.webChat) {
-      if (responseData.importSource === "HH") {
+      // Отправка в Telegram если включен
+      if (enabledChannels.telegram) {
         try {
           const welcomeMessage = await step.run(
-            "generate-hh-message",
+            "generate-telegram-message",
             async () => {
               console.log(
-                "🤖 Генерация приветственного сообщения для HH.ru (ничего не настроено)",
+                "🤖 Генерация приветственного сообщения для Telegram",
                 {
                   responseId,
                   username,
+                  source: responseData.importSource,
                 },
               );
 
-              const result = await generateWelcomeMessage(responseId, "hh");
+              const result = await generateWelcomeMessage(
+                responseId,
+                "telegram",
+              );
 
               if (!result.success) {
                 throw new Error(result.error);
@@ -198,18 +192,88 @@ export const sendCandidateWelcomeFunction = inngest.createFunction(
             },
           );
 
-          const hhResult = await step.run("send-hh-welcome", async () => {
-            return sendHHWelcome(responseData, welcomeMessage);
-          });
+          const telegramResult = await step.run(
+            "send-telegram-welcome",
+            async () => {
+              return sendTelegramWelcome(
+                responseData,
+                username,
+                phone,
+                welcomeMessage,
+              );
+            },
+          );
 
-          sendResults.push(hhResult);
+          sendResults.push(telegramResult);
         } catch (error) {
-          const errorMessage = `HH welcome failed: ${error instanceof Error ? error.message : "Unknown error"}`;
+          const errorMessage = `Telegram welcome failed: ${error instanceof Error ? error.message : "Unknown error"}`;
           console.log(`⚠️ ${errorMessage}`);
           errors.push(errorMessage);
         }
-      } else {
-        // Для других источников, если ничего не настроено
+      }
+
+      // Отправка в веб-чат если включен
+      if (enabledChannels.webChat) {
+        try {
+          const interviewLink = await step.run(
+            "generate-interview-link",
+            async () => {
+              const linkGenerator = new InterviewLinkGenerator();
+              return linkGenerator.getOrCreateInterviewLink(
+                responseData.vacancy.id,
+                responseData.vacancy.workspaceId,
+              );
+            },
+          );
+
+          const webChatMessage = await step.run(
+            "generate-webchat-message",
+            async () => {
+              console.log("🤖 Генерация приглашения в веб-чат", {
+                responseId,
+                username,
+                source: responseData.importSource,
+              });
+
+              const result = await generateWelcomeMessage(responseId, "web");
+
+              if (!result.success) {
+                throw new Error(result.error);
+              }
+
+              const messageWithLink = `${result.data}\n\n🔗 Перейти в веб-чат: ${interviewLink.url}`;
+
+              console.log("✅ Сообщение сгенерировано", {
+                responseId,
+                messageLength: messageWithLink.length,
+              });
+
+              return messageWithLink;
+            },
+          );
+
+          const webChatResult = await step.run(
+            "send-webchat-invite",
+            async () => {
+              return sendWebChatInvite(
+                responseData,
+                username,
+                phone,
+                webChatMessage,
+              );
+            },
+          );
+
+          sendResults.push(webChatResult);
+        } catch (error) {
+          const errorMessage = `WebChat invite failed: ${error instanceof Error ? error.message : "Unknown error"}`;
+          console.log(`⚠️ ${errorMessage}`);
+          errors.push(errorMessage);
+        }
+      }
+
+      // Если ничего не включено для не-HH источников
+      if (!enabledChannels.telegram && !enabledChannels.webChat) {
         console.log(
           `📋 Нет включенных каналов общения для вакансии ${responseData.vacancy.id}`,
         );

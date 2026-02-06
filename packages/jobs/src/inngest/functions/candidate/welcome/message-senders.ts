@@ -3,10 +3,7 @@ import { db } from "@qbs-autonaim/db/client";
 import { telegramSession } from "@qbs-autonaim/db/schema";
 import { InterviewLinkGenerator } from "@qbs-autonaim/shared/server";
 import { tgClientSDK } from "@qbs-autonaim/tg-client/sdk";
-import {
-  generateHHInviteMessage,
-  sendHHChatMessage,
-} from "../../../../services/messaging";
+import { sendHHChatMessage } from "../../../../services/messaging";
 import type {
   ResponseWithVacancy,
   SendMessageResponse,
@@ -38,15 +35,10 @@ export const sendHHWelcome = async (
     );
   }
 
-  const inviteMessageResult = await generateHHInviteMessage(responseData.id);
-  const messageWithInvite = inviteMessageResult.success
-    ? inviteMessageResult.data
-    : welcomeMessage;
-
   const hhResult = await sendHHChatMessage({
     workspaceId: responseData.vacancy.workspaceId,
     responseId: responseData.id,
-    text: messageWithInvite,
+    text: welcomeMessage,
   });
 
   if (!hhResult.success) {
@@ -62,7 +54,7 @@ export const sendHHWelcome = async (
     messageId: "",
     chatId: responseData.chatId,
     channel: "HH",
-    sentMessage: messageWithInvite,
+    sentMessage: welcomeMessage,
   };
 };
 

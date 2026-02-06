@@ -1,5 +1,4 @@
 export {
-  generateHHInviteMessage,
   generateTelegramInviteMessage,
   generateWelcomeMessage,
 } from "./candidate-welcome";
