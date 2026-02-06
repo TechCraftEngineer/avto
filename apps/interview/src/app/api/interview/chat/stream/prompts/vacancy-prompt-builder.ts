@@ -1,6 +1,7 @@
 import type { StageId } from "../stages/types";
 import type { GigLike, VacancyLike } from "../strategies/types";
 import { BaseSystemPromptBuilder } from "./base-prompt-builder";
+import type { BotSettings } from "./types";
 
 /**
  * Построитель промптов для интервью по вакансиям
@@ -10,8 +11,16 @@ export class VacancySystemPromptBuilder extends BaseSystemPromptBuilder {
     isFirstResponse: boolean,
     currentStage: StageId,
     entity?: GigLike | VacancyLike | null,
+    botSettings?: BotSettings,
+    askedQuestions?: string[],
   ): string {
-    const baseParts = super.build(isFirstResponse, currentStage, entity);
+    const baseParts = super.build(
+      isFirstResponse,
+      currentStage,
+      entity,
+      botSettings,
+      askedQuestions,
+    );
 
     const vacancyParts: string[] = [
       this.getVacancyPurpose(),

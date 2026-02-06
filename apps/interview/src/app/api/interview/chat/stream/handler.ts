@@ -233,12 +233,20 @@ async function handler(request: Request) {
       currentStage,
     );
 
-    // Строим системный промпт через стратегию с передачей entity для кастомных инструкций
+    // Строим системный промпт через стратегию с передачей всех параметров
     const entity = gig ?? vacancy ?? null;
+
+    // Извлекаем уже заданные вопросы из метаданных сессии
+    const askedQuestions = (
+      (session.metadata as { askedQuestions?: string[] })?.askedQuestions || []
+    ).slice(-10); // Берём последние 10 вопросов
+
     const systemPrompt = strategy.systemPromptBuilder.build(
       isFirstResponse,
       currentStage,
       entity,
+      interviewContext.botSettings,
+      askedQuestions,
     );
 
     // Получаем список активных инструментов для текущей стадии

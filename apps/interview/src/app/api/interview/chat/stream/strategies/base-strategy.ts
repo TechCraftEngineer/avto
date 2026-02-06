@@ -118,29 +118,11 @@ export abstract class BaseInterviewStrategy implements InterviewStrategy {
   }
 
   getNextQuestion(
-    questionBank: QuestionBankResult,
-    interviewState: InterviewState,
+    _questionBank: QuestionBankResult,
+    _interviewState: InterviewState,
   ): string | null {
-    const stage = interviewState.stage;
-    const asked = new Set(interviewState.askedQuestions);
-
-    let availableQuestions: string[];
-    switch (stage) {
-      case "intro":
-        availableQuestions = questionBank.organizational.slice(0, 2);
-        break;
-      case "org":
-        availableQuestions = questionBank.organizational;
-        break;
-      case "tech":
-        availableQuestions = questionBank.technical;
-        break;
-      case "wrapup":
-        return null;
-      default:
-        availableQuestions = questionBank.organizational;
-    }
-
-    return availableQuestions.find((q) => !asked.has(q)) || null;
+    // Бот сам генерирует вопросы на основе промпта и контекста
+    // Не используем жёстко заданные вопросы
+    return null;
   }
 }

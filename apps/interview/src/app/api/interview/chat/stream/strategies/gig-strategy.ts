@@ -21,18 +21,8 @@ export class GigInterviewStrategy extends BaseInterviewStrategy {
   readonly entityType = "gig" as const;
 
   protected _questionBank: QuestionBankConfig = {
-    organizationalDefaults: [
-      "Расскажите о вашем опыте работы с аналогичными задачами",
-      "Как вы оцениваете сложность этого задания и сроки выполнения?",
-      "Какую оплату за задание вы ожидаете?",
-      "Есть ли другие проекты, которые могут повлиять на сроки?",
-    ],
-    technicalDefaults: [
-      "Какие технологии вы планируете использовать для выполнения задания?",
-      "Опишите ваш подход к решению этой задачи",
-      "Сталкивались ли вы с подобными техническими вызовами ранее?",
-      "Как вы будете обеспечивать качество результата?",
-    ],
+    organizationalDefaults: [],
+    technicalDefaults: [],
     customQuestionsField: "customInterviewQuestions",
   };
 
@@ -54,11 +44,6 @@ export class GigInterviewStrategy extends BaseInterviewStrategy {
       subtitle: "Готовы обсудить это задание?",
       placeholder: "Расскажите о вашем опыте...",
       greeting: "Напишите сообщение, чтобы начать разговор о задании",
-      suggestedQuestions: [
-        "Расскажите о вашем опыте с аналогичными задачами",
-        "Как бы вы подошли к решению этой задачи?",
-        "Какие сроки вам нужны для выполнения?",
-      ],
     };
   }
 
@@ -110,37 +95,56 @@ export class GigInterviewStrategy extends BaseInterviewStrategy {
 
   /**
    * Переопределяет логику переходов между стадиями для gig
+   * Учитывает не только количество, но и качество ответов
    */
   canTransition(from: string, to: string, context: TransitionContext): boolean {
-    // Специфичная логика переходов для gig интервью
-
     let canTransition = false;
     let reason = "";
 
+    // Проверяем качество ответов
+    const hasGoodResponses =
+      context.userResponses.filter((r) => r.length > 50).length >= 2;
+    const noBotSuspicion =
+      !context.botDetectionScore || context.botDetectionScore < 0.7;
+
     // Из intro можно перейти в profile_review или org
     if (from === "intro" && (to === "profile_review" || to === "org")) {
-      canTransition = context.askedQuestions.length >= 1;
-      reason = canTransition ? "min_questions_met" : "min_questions_not_met";
+      const hasMinQuestions = context.askedQuestions.length >= 1;
+      canTransition = hasMinQuestions && hasGoodResponses && noBotSuspicion;
+      reason = canTransition
+        ? "quality_criteria_met"
+        : "quality_criteria_not_met";
     }
     // Из profile_review в org
     else if (from === "profile_review" && to === "org") {
-      canTransition = true;
-      reason = "always_allowed";
+      canTransition = hasGoodResponses && noBotSuspicion;
+      reason = canTransition
+        ? "quality_criteria_met"
+        : "quality_criteria_not_met";
     }
     // Из org в tech
     else if (from === "org" && to === "tech") {
-      canTransition = context.askedQuestions.length >= 3;
-      reason = canTransition ? "min_questions_met" : "min_questions_not_met";
+      const hasMinQuestions = context.askedQuestions.length >= 3;
+      canTransition = hasMinQuestions && hasGoodResponses && noBotSuspicion;
+      reason = canTransition
+        ? "quality_criteria_met"
+        : "quality_criteria_not_met";
     }
     // Из tech в task_approach
     else if (from === "tech" && to === "task_approach") {
-      canTransition = context.askedQuestions.length >= 5;
-      reason = canTransition ? "min_questions_met" : "min_questions_not_met";
+      const hasMinQuestions = context.askedQuestions.length >= 5;
+      canTransition = hasMinQuestions && hasGoodResponses && noBotSuspicion;
+      reason = canTransition
+        ? "quality_criteria_met"
+        : "quality_criteria_not_met";
     }
     // Из task_approach в wrapup
     else if (from === "task_approach" && to === "wrapup") {
-      canTransition = context.askedQuestions.length >= 7;
-      reason = canTransition ? "min_questions_met" : "min_questions_not_met";
+      const hasMinQuestions = context.askedQuestions.length >= 7;
+      canTransition = hasMinQuestions && hasGoodResponses;
+      reason = canTransition
+        ? "quality_criteria_met"
+        : "quality_criteria_not_met";
     } else {
       canTransition = super.canTransition(from, to, context);
       reason = "fallback_to_base";
@@ -157,6 +161,8 @@ export class GigInterviewStrategy extends BaseInterviewStrategy {
         context: {
           askedQuestionsCount: context.askedQuestions.length,
           userResponsesCount: context.userResponses.length,
+          goodResponsesCount: context.userResponses.filter((r) => r.length > 50)
+            .length,
           botDetectionScore: context.botDetectionScore,
           timeInCurrentStage: context.timeInCurrentStage,
         },
@@ -168,44 +174,13 @@ export class GigInterviewStrategy extends BaseInterviewStrategy {
   }
 
   /**
-   * Переопределяет логику получения следующего вопроса для gig
+   * Не используем жёстко заданные вопросы - бот генерирует их сам
    */
   getNextQuestion(
-    questionBank: QuestionBankResult,
-    interviewState: InterviewState,
+    _questionBank: QuestionBankResult,
+    _interviewState: InterviewState,
   ): string | null {
-    const stage = interviewState.stage;
-    const asked = new Set(interviewState.askedQuestions);
-
-    let availableQuestions: string[];
-
-    switch (stage) {
-      case "intro":
-        availableQuestions = questionBank.organizational.slice(0, 2);
-        break;
-      case "profile_review":
-        // На этой стадии вопросы генерируются на основе профиля
-        return null;
-      case "org":
-        availableQuestions = questionBank.organizational;
-        break;
-      case "tech":
-        availableQuestions = questionBank.technical;
-        break;
-      case "task_approach":
-        // Вопросы о подходе к выполнению задания
-        availableQuestions = [
-          "Как вы планируете подойти к выполнению этого задания?",
-          "Какие этапы работы вы выделяете?",
-          "Как вы будете контролировать прогресс?",
-        ];
-        break;
-      case "wrapup":
-        return null;
-      default:
-        availableQuestions = questionBank.organizational;
-    }
-
-    return availableQuestions.find((q) => !asked.has(q)) || null;
+    // Бот сам генерирует вопросы на основе промпта и контекста
+    return null;
   }
 }

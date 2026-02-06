@@ -21,18 +21,8 @@ export class VacancyInterviewStrategy extends BaseInterviewStrategy {
   readonly entityType = "vacancy" as const;
 
   protected _questionBank: QuestionBankConfig = {
-    organizationalDefaults: [
-      "Какой график работы вам подходит?",
-      "Какие ожидания по зарплате?",
-      "Когда готовы приступить к работе?",
-      "Какой формат работы предпочитаете?",
-    ],
-    technicalDefaults: [
-      "Расскажите о вашем опыте работы с релевантными технологиями",
-      "Опишите самый сложный проект, над которым вы работали",
-      "Как вы подходите к решению технических проблем?",
-      "Какие технологии вы хотели бы изучить в ближайшее время?",
-    ],
+    organizationalDefaults: [],
+    technicalDefaults: [],
     customQuestionsField: "customInterviewQuestions",
   };
 
@@ -54,10 +44,6 @@ export class VacancyInterviewStrategy extends BaseInterviewStrategy {
       subtitle: "Ответьте на несколько вопросов о себе",
       placeholder: "Расскажите о себе...",
       greeting: "Напишите сообщение, чтобы начать разговор",
-      suggestedQuestions: [
-        "Почему вас заинтересовала эта вакансия?",
-        "Какие у вас сильные стороны?",
-      ],
     };
   }
 
@@ -103,32 +89,49 @@ export class VacancyInterviewStrategy extends BaseInterviewStrategy {
 
   /**
    * Переопределяет логику переходов между стадиями для vacancy
+   * Учитывает не только количество, но и качество ответов
    */
   canTransition(from: string, to: string, context: TransitionContext): boolean {
-    // Специфичная логика переходов для vacancy интервью
-
     let canTransition = false;
     let reason = "";
 
+    // Проверяем качество ответов
+    const hasGoodResponses =
+      context.userResponses.filter((r) => r.length > 50).length >= 2;
+    const noBotSuspicion =
+      !context.botDetectionScore || context.botDetectionScore < 0.7;
+
     // Из intro в org
     if (from === "intro" && to === "org") {
-      canTransition = context.askedQuestions.length >= 1;
-      reason = canTransition ? "min_questions_met" : "min_questions_not_met";
+      const hasMinQuestions = context.askedQuestions.length >= 1;
+      canTransition = hasMinQuestions && hasGoodResponses && noBotSuspicion;
+      reason = canTransition
+        ? "quality_criteria_met"
+        : "quality_criteria_not_met";
     }
     // Из org в tech
     else if (from === "org" && to === "tech") {
-      canTransition = context.askedQuestions.length >= 3;
-      reason = canTransition ? "min_questions_met" : "min_questions_not_met";
+      const hasMinQuestions = context.askedQuestions.length >= 3;
+      canTransition = hasMinQuestions && hasGoodResponses && noBotSuspicion;
+      reason = canTransition
+        ? "quality_criteria_met"
+        : "quality_criteria_not_met";
     }
     // Из tech в motivation
     else if (from === "tech" && to === "motivation") {
-      canTransition = context.askedQuestions.length >= 5;
-      reason = canTransition ? "min_questions_met" : "min_questions_not_met";
+      const hasMinQuestions = context.askedQuestions.length >= 5;
+      canTransition = hasMinQuestions && hasGoodResponses && noBotSuspicion;
+      reason = canTransition
+        ? "quality_criteria_met"
+        : "quality_criteria_not_met";
     }
     // Из motivation в wrapup
     else if (from === "motivation" && to === "wrapup") {
-      canTransition = context.askedQuestions.length >= 7;
-      reason = canTransition ? "min_questions_met" : "min_questions_not_met";
+      const hasMinQuestions = context.askedQuestions.length >= 7;
+      canTransition = hasMinQuestions && hasGoodResponses;
+      reason = canTransition
+        ? "quality_criteria_met"
+        : "quality_criteria_not_met";
     } else {
       canTransition = super.canTransition(from, to, context);
       reason = "fallback_to_base";
@@ -145,6 +148,8 @@ export class VacancyInterviewStrategy extends BaseInterviewStrategy {
         context: {
           askedQuestionsCount: context.askedQuestions.length,
           userResponsesCount: context.userResponses.length,
+          goodResponsesCount: context.userResponses.filter((r) => r.length > 50)
+            .length,
           botDetectionScore: context.botDetectionScore,
           timeInCurrentStage: context.timeInCurrentStage,
         },
@@ -156,42 +161,13 @@ export class VacancyInterviewStrategy extends BaseInterviewStrategy {
   }
 
   /**
-   * Переопределяет логику получения следующего вопроса для vacancy
+   * Не используем жёстко заданные вопросы - бот генерирует их сам
    */
   getNextQuestion(
-    questionBank: QuestionBankResult,
-    interviewState: InterviewState,
+    _questionBank: QuestionBankResult,
+    _interviewState: InterviewState,
   ): string | null {
-    const stage = interviewState.stage;
-    const asked = new Set(interviewState.askedQuestions);
-
-    let availableQuestions: string[];
-
-    switch (stage) {
-      case "intro":
-        availableQuestions = questionBank.organizational.slice(0, 2);
-        break;
-      case "org":
-        availableQuestions = questionBank.organizational;
-        break;
-      case "tech":
-        availableQuestions = questionBank.technical;
-        break;
-      case "motivation":
-        // Вопросы о мотивации и долгосрочных целях
-        availableQuestions = [
-          "Почему вас заинтересовала эта позиция?",
-          "Какие у вас карьерные цели на ближайшие 2-3 года?",
-          "Что для вас важно в работе и команде?",
-          "Почему вы хотите сменить текущее место работы?",
-        ];
-        break;
-      case "wrapup":
-        return null;
-      default:
-        availableQuestions = questionBank.organizational;
-    }
-
-    return availableQuestions.find((q) => !asked.has(q)) || null;
+    // Бот сам генерирует вопросы на основе промпта и контекста
+    return null;
   }
 }
