@@ -1,6 +1,6 @@
-import { z } from 'zod';
-import type { SupportedEntityType } from '../strategies/types';
-import { gigScoringSchema, vacancyScoringSchema } from './schemas';
+import type { z } from "zod";
+import type { SupportedEntityType } from "../strategies/types";
+import { gigScoringSchema, vacancyScoringSchema } from "./schemas";
 
 /**
  * Фабрика для создания схем оценки на основе типа сущности
@@ -10,8 +10,8 @@ export class ScoringFactory {
 
   constructor() {
     this.schemas = new Map([
-      ['gig', gigScoringSchema],
-      ['vacancy', vacancyScoringSchema],
+      ["gig", gigScoringSchema],
+      ["vacancy", vacancyScoringSchema],
     ]);
   }
 
@@ -38,6 +38,6 @@ export class ScoringFactory {
 // Singleton экземпляр фабрики
 export const scoringFactory = new ScoringFactory();
 
+export type { GigScoring, VacancyScoring } from "./schemas";
 // Экспорт схем для прямого использования
-export { gigScoringSchema, vacancyScoringSchema } from './schemas';
-export type { GigScoring, VacancyScoring } from './schemas';
+export { gigScoringSchema, vacancyScoringSchema } from "./schemas";

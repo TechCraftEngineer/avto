@@ -1,9 +1,17 @@
-import { BaseInterviewStrategy } from "./base-strategy";
-import type { QuestionBankConfig, ScoringConfig, SystemPromptBuilder, ToolFactory, TransitionContext, QuestionBankResult, InterviewState } from "./types";
-import { gigStages } from "../stages/gig-stages";
-import { gigScoringSchema } from "../scoring/schemas";
 import { GigSystemPromptBuilder } from "../prompts/gig-prompt-builder";
+import type { SystemPromptBuilder } from "../prompts/types";
+import { gigScoringSchema } from "../scoring/schemas";
+import { gigStages } from "../stages/gig-stages";
 import { GigToolFactory } from "../tools/gig-tool-factory";
+import { BaseInterviewStrategy } from "./base-strategy";
+import type {
+  InterviewState,
+  QuestionBankConfig,
+  QuestionBankResult,
+  ScoringConfig,
+  ToolFactory,
+  TransitionContext,
+} from "./types";
 
 /**
  * Стратегия интервью для разовых заданий (gig)
@@ -36,7 +44,8 @@ export class GigInterviewStrategy extends BaseInterviewStrategy {
 
   protected _stages = gigStages;
 
-  readonly systemPromptBuilder: SystemPromptBuilder = new GigSystemPromptBuilder();
+  readonly systemPromptBuilder: SystemPromptBuilder =
+    new GigSystemPromptBuilder();
   readonly toolFactory: ToolFactory = new GigToolFactory();
 
   getWelcomeMessage() {
@@ -57,14 +66,44 @@ export class GigInterviewStrategy extends BaseInterviewStrategy {
     return {
       badgeLabel: "Разовое задание",
       fields: [
-        { key: "title", label: "Название", type: "text" as const, showFor: ["gig" as const] },
-        { key: "budget", label: "Бюджет", type: "currency" as const, showFor: ["gig" as const] },
-        { key: "deadline", label: "Дедлайн", type: "date" as const, showFor: ["gig" as const] },
-        { key: "estimatedDuration", label: "Срок выполнения", type: "text" as const, showFor: ["gig" as const] },
+        {
+          key: "title",
+          label: "Название",
+          type: "text" as const,
+          showFor: ["gig" as const],
+        },
+        {
+          key: "budget",
+          label: "Бюджет",
+          type: "currency" as const,
+          showFor: ["gig" as const],
+        },
+        {
+          key: "deadline",
+          label: "Дедлайн",
+          type: "date" as const,
+          showFor: ["gig" as const],
+        },
+        {
+          key: "estimatedDuration",
+          label: "Срок выполнения",
+          type: "text" as const,
+          showFor: ["gig" as const],
+        },
       ],
       expandableFields: [
-        { key: "description", label: "Описание", type: "text" as const, showFor: ["gig" as const] },
-        { key: "requirements", label: "Требования", type: "array" as const, showFor: ["gig" as const] },
+        {
+          key: "description",
+          label: "Описание",
+          type: "text" as const,
+          showFor: ["gig" as const],
+        },
+        {
+          key: "requirements",
+          label: "Требования",
+          type: "array" as const,
+          showFor: ["gig" as const],
+        },
       ],
     };
   }
@@ -74,42 +113,41 @@ export class GigInterviewStrategy extends BaseInterviewStrategy {
    */
   canTransition(from: string, to: string, context: TransitionContext): boolean {
     // Специфичная логика переходов для gig интервью
-    
+
     let canTransition = false;
     let reason = "";
-    
+
     // Из intro можно перейти в profile_review или org
-    if (from === 'intro' && (to === 'profile_review' || to === 'org')) {
+    if (from === "intro" && (to === "profile_review" || to === "org")) {
       canTransition = context.askedQuestions.length >= 1;
       reason = canTransition ? "min_questions_met" : "min_questions_not_met";
     }
     // Из profile_review в org
-    else if (from === 'profile_review' && to === 'org') {
+    else if (from === "profile_review" && to === "org") {
       canTransition = true;
       reason = "always_allowed";
     }
     // Из org в tech
-    else if (from === 'org' && to === 'tech') {
+    else if (from === "org" && to === "tech") {
       canTransition = context.askedQuestions.length >= 3;
       reason = canTransition ? "min_questions_met" : "min_questions_not_met";
     }
     // Из tech в task_approach
-    else if (from === 'tech' && to === 'task_approach') {
+    else if (from === "tech" && to === "task_approach") {
       canTransition = context.askedQuestions.length >= 5;
       reason = canTransition ? "min_questions_met" : "min_questions_not_met";
     }
     // Из task_approach в wrapup
-    else if (from === 'task_approach' && to === 'wrapup') {
+    else if (from === "task_approach" && to === "wrapup") {
       canTransition = context.askedQuestions.length >= 7;
       reason = canTransition ? "min_questions_met" : "min_questions_not_met";
-    }
-    else {
+    } else {
       canTransition = super.canTransition(from, to, context);
       reason = "fallback_to_base";
     }
-    
+
     // Логируем только в development режиме для оптимизации производительности
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       console.log(`[Interview Strategy] Проверка перехода стадии`, {
         entityType: this.entityType,
         from,
@@ -125,7 +163,7 @@ export class GigInterviewStrategy extends BaseInterviewStrategy {
         timestamp: new Date().toISOString(),
       });
     }
-    
+
     return canTransition;
   }
 
@@ -140,29 +178,29 @@ export class GigInterviewStrategy extends BaseInterviewStrategy {
     const asked = new Set(interviewState.askedQuestions);
 
     let availableQuestions: string[];
-    
+
     switch (stage) {
-      case 'intro':
+      case "intro":
         availableQuestions = questionBank.organizational.slice(0, 2);
         break;
-      case 'profile_review':
+      case "profile_review":
         // На этой стадии вопросы генерируются на основе профиля
         return null;
-      case 'org':
+      case "org":
         availableQuestions = questionBank.organizational;
         break;
-      case 'tech':
+      case "tech":
         availableQuestions = questionBank.technical;
         break;
-      case 'task_approach':
+      case "task_approach":
         // Вопросы о подходе к выполнению задания
         availableQuestions = [
-          'Как вы планируете подойти к выполнению этого задания?',
-          'Какие этапы работы вы выделяете?',
-          'Как вы будете контролировать прогресс?',
+          "Как вы планируете подойти к выполнению этого задания?",
+          "Какие этапы работы вы выделяете?",
+          "Как вы будете контролировать прогресс?",
         ];
         break;
-      case 'wrapup':
+      case "wrapup":
         return null;
       default:
         availableQuestions = questionBank.organizational;

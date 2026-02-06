@@ -1,7 +1,7 @@
-import type { LanguageModel, ToolSet } from "ai";
-import type { ZodType } from "zod";
-import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import type * as schema from "@qbs-autonaim/db/schema";
+import type { LanguageModel, ToolSet } from "ai";
+import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+import type { ZodType } from "zod";
 import type { InterviewStageConfig } from "../stages/types";
 
 /**
@@ -85,13 +85,6 @@ export interface QuestionBankResult {
 }
 
 /**
- * Интерфейс построителя системных промптов
- */
-export interface SystemPromptBuilder {
-  build(isFirstResponse: boolean, currentStage: string): string;
-}
-
-/**
  * Интерфейс фабрики инструментов
  */
 export interface ToolFactory {
@@ -103,9 +96,9 @@ export interface ToolFactory {
     vacancy: VacancyLike | null,
     interviewContext: InterviewContextLite,
   ): ToolSet;
-  
+
   getAvailableTools(stage: string): string[];
-  
+
   isToolAvailable(toolName: string, stage: string): boolean;
 }
 
@@ -176,31 +169,31 @@ export type InterviewContextLite = {
 export interface InterviewStrategy {
   /** Тип сущности которую обрабатывает эта стратегия */
   readonly entityType: SupportedEntityType;
-  
+
   /** Доступные стадии для этого типа сущности */
   readonly stages: InterviewStageConfig[];
-  
+
   /** Правила переходов между стадиями */
   readonly stageTransitions: StageTransitionConfig[];
-  
+
   /** Построитель системных промптов для этой сущности */
   readonly systemPromptBuilder: SystemPromptBuilder;
-  
+
   /** Фабрика инструментов для этой сущности */
   readonly toolFactory: ToolFactory;
-  
+
   /** Конфигурация банка вопросов */
   readonly questionBank: QuestionBankConfig;
-  
+
   /** Конфигурация оценки */
   readonly scoring: ScoringConfig;
-  
+
   /** Получить конфигурацию приветственного сообщения */
   getWelcomeMessage(): WelcomeMessageConfig;
-  
+
   /** Получить конфигурацию карточки контекста */
   getContextCardData(entity: GigLike | VacancyLike): ContextCardConfig;
-  
+
   /** Создать набор инструментов для текущей стадии */
   createTools(
     model: LanguageModel,
@@ -211,17 +204,13 @@ export interface InterviewStrategy {
     interviewContext: InterviewContextLite,
     currentStage: string,
   ): ToolSet;
-  
+
   /** Создать схему оценки */
   createScoringSchema(): ZodType;
-  
+
   /** Проверить возможность перехода между стадиями */
-  canTransition(
-    from: string,
-    to: string,
-    context: TransitionContext,
-  ): boolean;
-  
+  canTransition(from: string, to: string, context: TransitionContext): boolean;
+
   /** Получить следующий вопрос на основе текущего состояния */
   getNextQuestion(
     questionBank: QuestionBankResult,

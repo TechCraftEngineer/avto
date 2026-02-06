@@ -11,15 +11,10 @@ import { observe, updateActiveTrace } from "@langfuse/tracing";
 import { SpanStatusCode, trace } from "@opentelemetry/api";
 import { WebInterviewOrchestrator } from "@qbs-autonaim/ai";
 import { db } from "@qbs-autonaim/db/client";
-import { getAIModel, streamText } from "@qbs-autonaim/lib/ai";
+import { getAIModel } from "@qbs-autonaim/lib/ai";
 import "@qbs-autonaim/lib/instrumentation";
 import { InterviewSDKError } from "@qbs-autonaim/lib/errors";
-import {
-  createUIMessageStream,
-  createUIMessageStreamResponse,
-  smoothStream,
-  stepCountIs,
-} from "ai";
+import { createUIMessageStream, createUIMessageStreamResponse } from "ai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { checkInterviewAccess, loadInterviewSession } from "./access-control";
@@ -48,9 +43,9 @@ function generateUUID(): string {
 
 async function handler(request: Request) {
   let requestBody: z.infer<typeof requestSchema>;
-  
+
   // Контекст для логирования ошибок
-  let errorContext: {
+  const errorContext: {
     sessionId?: string;
     entityType?: string;
     currentStage?: string;
@@ -75,7 +70,7 @@ async function handler(request: Request) {
 
   try {
     const { messages, message, sessionId, interviewToken } = requestBody;
-    
+
     // Сохраняем sessionId для логирования ошибок
     errorContext.sessionId = sessionId;
 
@@ -93,10 +88,26 @@ async function handler(request: Request) {
 
     // Создаём стратегию на основе типа сущности
     const strategy = getInterviewStrategy(gig ?? null, vacancy ?? null);
-    
-    // Получаем текущую стадию из метаданных сессии
-    const currentStage = (session.metadata as { currentStage?: string })?.currentStage || "intro";
-    
+
+    // Получаем текущую стадию из метаданных сессии и валидируем
+    const currentStageRaw = (session.metadata as { currentStage?: string })
+      ?.currentStage;
+    const validStages = [
+      "intro",
+      "org",
+      "tech",
+      "motivation",
+      "wrapup",
+      "profile_review",
+      "task_approach",
+    ] as const;
+    type StageId = (typeof validStages)[number];
+    const isValidStageId = (stage: string | undefined): stage is StageId =>
+      validStages.includes(stage as StageId);
+    const currentStage: StageId = isValidStageId(currentStageRaw)
+      ? currentStageRaw
+      : "intro";
+
     // Сохраняем контекст для логирования ошибок
     errorContext.entityType = strategy.entityType;
     errorContext.currentStage = currentStage;
@@ -114,9 +125,23 @@ async function handler(request: Request) {
     const userMessageText = lastUserMessage
       ? extractMessageText(lastUserMessage)
       : "";
-    
-    // Сохраняем последний вопрос для логирования ошибок
-    errorContext.lastQuestion = userMessageText;
+
+    // Сохраняем последний вопрос для логирования ошибок (редактируем PII)
+    const sanitizeForLogging = (text: string): string => {
+      // Удаляем email адреса
+      let sanitized = text.replace(
+        /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g,
+        "[EMAIL]",
+      );
+      // Удаляем телефоны
+      sanitized = sanitized.replace(/\+?\d[\d\s\-()]{7,}\d/g, "[PHONE]");
+      // Обрезаем до 200 символов
+      if (sanitized.length > 200) {
+        sanitized = sanitized.substring(0, 200) + "...";
+      }
+      return sanitized;
+    };
+    errorContext.lastQuestion = sanitizeForLogging(userMessageText);
 
     // Сохраняем текстовое сообщение пользователя
     const savedMessageTimestamp = await saveUserMessage(
@@ -261,16 +286,18 @@ async function handler(request: Request) {
           },
           onStepFinish: async ({ stepNumber, toolCalls }) => {
             if (toolCalls.length > 0) {
-              console.log(`[Interview Stream] Шаг ${stepNumber} завершён, вызваны инструменты:`, {
-                sessionId,
-                entityType: strategy.entityType,
-                currentStage,
-                toolCalls: toolCalls.map(tc => ({
-                  toolName: tc.toolName,
-                  args: tc.args,
-                })),
-                timestamp: new Date().toISOString(),
-              });
+              console.log(
+                `[Interview Stream] Шаг ${stepNumber} завершён, вызваны инструменты:`,
+                {
+                  sessionId,
+                  entityType: strategy.entityType,
+                  currentStage,
+                  toolCalls: toolCalls.map((tc) => ({
+                    toolName: tc.toolName,
+                  })),
+                  timestamp: new Date().toISOString(),
+                },
+              );
             }
           },
         });
@@ -298,11 +325,14 @@ async function handler(request: Request) {
   } catch (error: unknown) {
     // Логируем ошибку с полным стеком и контекстом
     console.error("[Interview Stream] Ошибка:", {
-      error: error instanceof Error ? {
-        name: error.name,
-        message: error.message,
-        stack: error.stack,
-      } : String(error),
+      error:
+        error instanceof Error
+          ? {
+              name: error.name,
+              message: error.message,
+              stack: error.stack,
+            }
+          : String(error),
       context: {
         sessionId: errorContext.sessionId,
         entityType: errorContext.entityType,

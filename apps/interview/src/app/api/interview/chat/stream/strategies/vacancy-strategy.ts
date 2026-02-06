@@ -1,9 +1,17 @@
-import { BaseInterviewStrategy } from "./base-strategy";
-import type { QuestionBankConfig, ScoringConfig, SystemPromptBuilder, ToolFactory, TransitionContext, QuestionBankResult, InterviewState } from "./types";
-import { vacancyStages } from "../stages/vacancy-stages";
-import { vacancyScoringSchema } from "../scoring/schemas";
+import type { SystemPromptBuilder } from "../prompts/types";
 import { VacancySystemPromptBuilder } from "../prompts/vacancy-prompt-builder";
+import { vacancyScoringSchema } from "../scoring/schemas";
+import { vacancyStages } from "../stages/vacancy-stages";
 import { VacancyToolFactory } from "../tools/vacancy-tool-factory";
+import { BaseInterviewStrategy } from "./base-strategy";
+import type {
+  InterviewState,
+  QuestionBankConfig,
+  QuestionBankResult,
+  ScoringConfig,
+  ToolFactory,
+  TransitionContext,
+} from "./types";
 
 /**
  * Стратегия интервью для вакансий
@@ -36,7 +44,8 @@ export class VacancyInterviewStrategy extends BaseInterviewStrategy {
 
   protected _stages = vacancyStages;
 
-  readonly systemPromptBuilder: SystemPromptBuilder = new VacancySystemPromptBuilder();
+  readonly systemPromptBuilder: SystemPromptBuilder =
+    new VacancySystemPromptBuilder();
   readonly toolFactory: ToolFactory = new VacancyToolFactory();
 
   getWelcomeMessage() {
@@ -56,13 +65,38 @@ export class VacancyInterviewStrategy extends BaseInterviewStrategy {
     return {
       badgeLabel: "Вакансия",
       fields: [
-        { key: "title", label: "Название", type: "text" as const, showFor: ["vacancy" as const] },
-        { key: "region", label: "Регион", type: "text" as const, showFor: ["vacancy" as const] },
-        { key: "workLocation", label: "Место работы", type: "text" as const, showFor: ["vacancy" as const] },
+        {
+          key: "title",
+          label: "Название",
+          type: "text" as const,
+          showFor: ["vacancy" as const],
+        },
+        {
+          key: "region",
+          label: "Регион",
+          type: "text" as const,
+          showFor: ["vacancy" as const],
+        },
+        {
+          key: "workLocation",
+          label: "Место работы",
+          type: "text" as const,
+          showFor: ["vacancy" as const],
+        },
       ],
       expandableFields: [
-        { key: "description", label: "Описание", type: "text" as const, showFor: ["vacancy" as const] },
-        { key: "requirements", label: "Требования", type: "array" as const, showFor: ["vacancy" as const] },
+        {
+          key: "description",
+          label: "Описание",
+          type: "text" as const,
+          showFor: ["vacancy" as const],
+        },
+        {
+          key: "requirements",
+          label: "Требования",
+          type: "array" as const,
+          showFor: ["vacancy" as const],
+        },
       ],
     };
   }
@@ -72,37 +106,36 @@ export class VacancyInterviewStrategy extends BaseInterviewStrategy {
    */
   canTransition(from: string, to: string, context: TransitionContext): boolean {
     // Специфичная логика переходов для vacancy интервью
-    
+
     let canTransition = false;
     let reason = "";
-    
+
     // Из intro в org
-    if (from === 'intro' && to === 'org') {
+    if (from === "intro" && to === "org") {
       canTransition = context.askedQuestions.length >= 1;
       reason = canTransition ? "min_questions_met" : "min_questions_not_met";
     }
     // Из org в tech
-    else if (from === 'org' && to === 'tech') {
+    else if (from === "org" && to === "tech") {
       canTransition = context.askedQuestions.length >= 3;
       reason = canTransition ? "min_questions_met" : "min_questions_not_met";
     }
     // Из tech в motivation
-    else if (from === 'tech' && to === 'motivation') {
+    else if (from === "tech" && to === "motivation") {
       canTransition = context.askedQuestions.length >= 5;
       reason = canTransition ? "min_questions_met" : "min_questions_not_met";
     }
     // Из motivation в wrapup
-    else if (from === 'motivation' && to === 'wrapup') {
+    else if (from === "motivation" && to === "wrapup") {
       canTransition = context.askedQuestions.length >= 7;
       reason = canTransition ? "min_questions_met" : "min_questions_not_met";
-    }
-    else {
+    } else {
       canTransition = super.canTransition(from, to, context);
       reason = "fallback_to_base";
     }
-    
+
     // Логируем только в development режиме для оптимизации производительности
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       console.log(`[Interview Strategy] Проверка перехода стадии`, {
         entityType: this.entityType,
         from,
@@ -118,7 +151,7 @@ export class VacancyInterviewStrategy extends BaseInterviewStrategy {
         timestamp: new Date().toISOString(),
       });
     }
-    
+
     return canTransition;
   }
 
@@ -133,27 +166,27 @@ export class VacancyInterviewStrategy extends BaseInterviewStrategy {
     const asked = new Set(interviewState.askedQuestions);
 
     let availableQuestions: string[];
-    
+
     switch (stage) {
-      case 'intro':
+      case "intro":
         availableQuestions = questionBank.organizational.slice(0, 2);
         break;
-      case 'org':
+      case "org":
         availableQuestions = questionBank.organizational;
         break;
-      case 'tech':
+      case "tech":
         availableQuestions = questionBank.technical;
         break;
-      case 'motivation':
+      case "motivation":
         // Вопросы о мотивации и долгосрочных целях
         availableQuestions = [
-          'Почему вас заинтересовала эта позиция?',
-          'Какие у вас карьерные цели на ближайшие 2-3 года?',
-          'Что для вас важно в работе и команде?',
-          'Почему вы хотите сменить текущее место работы?',
+          "Почему вас заинтересовала эта позиция?",
+          "Какие у вас карьерные цели на ближайшие 2-3 года?",
+          "Что для вас важно в работе и команде?",
+          "Почему вы хотите сменить текущее место работы?",
         ];
         break;
-      case 'wrapup':
+      case "wrapup":
         return null;
       default:
         availableQuestions = questionBank.organizational;
