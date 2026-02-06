@@ -1,34 +1,20 @@
 "use client";
 
-import type {
-  VacancyHrSelectionStatus,
-  VacancyResponseStatus,
-} from "@qbs-autonaim/db/schema";
-import {
-  HR_SELECTION_STATUS_LABELS,
-  RESPONSE_STATUS_LABELS,
-} from "@qbs-autonaim/db/schema";
 import { Button } from "@qbs-autonaim/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@qbs-autonaim/ui/dropdown-menu";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  Ban,
   Brain,
-  Check,
   ClipboardCopy,
   ExternalLink,
   Loader2,
   Mail,
-  MessageSquare,
   MoreVertical,
   Phone,
   RefreshCw,
@@ -70,7 +56,6 @@ export function ResponseActions({
   email,
   welcomeSentAt,
   importSource,
-  status,
   hrSelectionStatus,
   hasScreening,
   candidateName,
@@ -294,11 +279,7 @@ export function ResponseActions({
         {email && (
           <DropdownMenuItem
             onClick={() =>
-              window.open(
-                `mailto:${email}`,
-                "_blank",
-                "noopener,noreferrer",
-              )
+              window.open(`mailto:${email}`, "_blank", "noopener,noreferrer")
             }
           >
             <Mail className="h-4 w-4 mr-2" />

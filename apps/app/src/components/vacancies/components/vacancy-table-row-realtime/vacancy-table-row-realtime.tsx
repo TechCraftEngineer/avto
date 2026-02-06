@@ -2,10 +2,19 @@
 
 import { Badge } from "@qbs-autonaim/ui/badge";
 import { Button } from "@qbs-autonaim/ui/button";
+import { Switch } from "@qbs-autonaim/ui/switch";
 import { TableCell, TableRow } from "@qbs-autonaim/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@qbs-autonaim/ui/tooltip";
 import { IconDots } from "@tabler/icons-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
+import { toast } from "sonner";
 import { useVacancyStats } from "~/hooks/use-vacancy-stats";
+import { useTRPC } from "~/trpc/react";
 
 interface Vacancy {
   id: string;
@@ -24,6 +33,7 @@ interface VacancyTableRowRealtimeProps {
   vacancy: Vacancy;
   orgSlug: string;
   workspaceSlug: string;
+  workspaceId?: string;
 }
 
 /**
@@ -34,7 +44,11 @@ export function VacancyTableRowRealtime({
   vacancy,
   orgSlug,
   workspaceSlug,
+  workspaceId,
 }: VacancyTableRowRealtimeProps) {
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+
   // Подключаем realtime обновления
   const { stats } = useVacancyStats(vacancy.id);
 
@@ -46,6 +60,32 @@ export function VacancyTableRowRealtime({
   const resumesInProgress =
     stats?.resumesInProgress ?? vacancy.resumesInProgress;
   const isActive = stats?.isActive ?? vacancy.isActive;
+
+  // Мутация для обновления статуса вакансии
+  const updateStatusMutation = useMutation({
+    ...trpc.freelancePlatforms.updateVacancyStatus.mutationOptions(),
+    onSuccess: async () => {
+      toast.success(
+        isActive ? "Вакансия деактивирована" : "Вакансия активирована",
+      );
+      await queryClient.invalidateQueries({
+        queryKey: trpc.freelancePlatforms.getVacancies.queryKey(),
+      });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Не удалось обновить статус вакансии");
+    },
+  });
+
+  const handleStatusToggle = (checked: boolean) => {
+    if (!workspaceId) return;
+
+    updateStatusMutation.mutate({
+      id: vacancy.id,
+      workspaceId,
+      status: checked ? "active" : "paused",
+    });
+  };
 
   return (
     <TableRow>
@@ -102,9 +142,39 @@ export function VacancyTableRowRealtime({
       </TableCell>
 
       <TableCell>
-        <Badge variant={isActive ? "default" : "secondary"}>
-          {isActive ? "Активна" : "Неактивна"}
-        </Badge>
+        <div className="flex items-center gap-3">
+          <Tooltip delayDuration={300}>
+            <TooltipTrigger asChild>
+              <div className="flex items-center">
+                <Switch
+                  checked={isActive ?? false}
+                  onCheckedChange={handleStatusToggle}
+                  disabled={updateStatusMutation.isPending}
+                  aria-label={
+                    isActive
+                      ? "Деактивировать вакансию"
+                      : "Активировать вакансию"
+                  }
+                />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="text-sm">
+              {isActive ? "Деактивировать вакансию" : "Активировать вакансию"}
+            </TooltipContent>
+          </Tooltip>
+          <div className="flex items-center gap-2">
+            <div
+              className={`size-2 rounded-full ${
+                isActive
+                  ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]"
+                  : "bg-zinc-300"
+              }`}
+            />
+            <span className="text-sm font-medium">
+              {isActive ? "Активна" : "Закрыта"}
+            </span>
+          </div>
+        </div>
       </TableCell>
 
       <TableCell className="text-right">
@@ -119,4 +189,3 @@ export function VacancyTableRowRealtime({
     </TableRow>
   );
 }
-

@@ -15,7 +15,6 @@ import {
   Award,
   Briefcase,
   Download,
-  FileJson,
   FileSpreadsheet,
   FileText,
   MapPin,

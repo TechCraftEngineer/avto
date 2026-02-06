@@ -18,6 +18,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Switch,
   TableCell,
   TableRow,
   Tooltip,
@@ -32,7 +33,10 @@ import {
   IconHistory,
   IconTrash,
 } from "@tabler/icons-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
+import { toast } from "sonner";
+import { useTRPC } from "~/trpc/react";
 import { VacancyPerformanceBadge } from "../vacancy-performance-badge";
 
 /**
@@ -128,6 +132,9 @@ export function VacancyTableRow({
   isMerging,
   onDeleteOpen,
 }: VacancyTableRowProps) {
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+
   const source = SOURCE_CONFIG[vacancy.source] || {
     label: vacancy.source,
     color: "bg-gray-500/10 text-gray-600 border-gray-200",
@@ -144,6 +151,32 @@ export function VacancyTableRow({
 
   // Определяем приоритет вакансии для рекрутера
   const needsAttention = vacancy.newResponses && vacancy.newResponses > 0;
+
+  // Мутация для обновления статуса вакансии
+  const updateStatusMutation = useMutation({
+    ...trpc.freelancePlatforms.updateVacancyStatus.mutationOptions(),
+    onSuccess: async () => {
+      toast.success(
+        vacancy.isActive ? "Вакансия деактивирована" : "Вакансия активирована",
+      );
+      await queryClient.invalidateQueries({
+        queryKey: trpc.freelancePlatforms.getVacancies.queryKey(),
+      });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Не удалось обновить статус вакансии");
+    },
+  });
+
+  const handleStatusToggle = (checked: boolean) => {
+    if (!workspaceId) return;
+
+    updateStatusMutation.mutate({
+      id: vacancy.id,
+      workspaceId,
+      status: checked ? "active" : "paused",
+    });
+  };
 
   return (
     <TableRow
@@ -263,17 +296,40 @@ export function VacancyTableRow({
         {vacancy.views?.toLocaleString() ?? "—"}
       </TableCell>
       <TableCell>
-        <div className="flex items-center gap-2">
-          <div
-            className={`size-2 rounded-full ${
-              vacancy.isActive
-                ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]"
-                : "bg-zinc-300"
-            }`}
-          />
-          <span className="text-sm font-medium">
-            {vacancy.isActive ? "Активна" : "Закрыта"}
-          </span>
+        <div className="flex items-center gap-3">
+          <Tooltip delayDuration={300}>
+            <TooltipTrigger asChild>
+              <div className="flex items-center">
+                <Switch
+                  checked={vacancy.isActive ?? false}
+                  onCheckedChange={handleStatusToggle}
+                  disabled={updateStatusMutation.isPending}
+                  aria-label={
+                    vacancy.isActive
+                      ? "Деактивировать вакансию"
+                      : "Активировать вакансию"
+                  }
+                />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="text-sm">
+              {vacancy.isActive
+                ? "Деактивировать вакансию"
+                : "Активировать вакансию"}
+            </TooltipContent>
+          </Tooltip>
+          <div className="flex items-center gap-2">
+            <div
+              className={`size-2 rounded-full ${
+                vacancy.isActive
+                  ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]"
+                  : "bg-zinc-300"
+              }`}
+            />
+            <span className="text-sm font-medium">
+              {vacancy.isActive ? "Активна" : "Закрыта"}
+            </span>
+          </div>
         </div>
       </TableCell>
       <TableCell className="text-right">

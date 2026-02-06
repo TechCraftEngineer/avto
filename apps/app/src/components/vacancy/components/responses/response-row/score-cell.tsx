@@ -3,7 +3,7 @@ interface ScoreCellProps {
   maxScore?: number;
 }
 
-export function ScoreCell({ score, maxScore }: ScoreCellProps) {
+export function ScoreCell({ score }: ScoreCellProps) {
   if (score == null) {
     return <span className="text-muted-foreground text-xs">—</span>;
   }
