@@ -43,11 +43,11 @@ interface InterviewContextCardProps {
 
 export function InterviewContextCard({ context, entityType }: InterviewContextCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  
+
   // Определяем тип из context или из prop
-  const type = entityType || context.type;
-  const isVacancy = type === "vacancy";
-  const isGig = type === "gig";
+  const entityTypeValue = entityType || context.type;
+  const isVacancy = entityTypeValue === "vacancy";
+  const isGig = entityTypeValue === "gig";
 
   const hasDetailedInfo =
     (context.description && context.description.length > 150) ||

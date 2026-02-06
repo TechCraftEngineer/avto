@@ -41,13 +41,13 @@ export function HydrateClient(props: { children: React.ReactNode }) {
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: Required for TRPC type compatibility
-export function prefetch<T extends ReturnType<TRPCQueryOptions<any>>>(
+export function prefetch<T extends ReturnType<TRPCQueryOptions<unknown>>>(
   queryOptions: T,
 ) {
   const queryClient = getQueryClient();
   if (queryOptions.queryKey[1]?.type === "infinite") {
     // biome-ignore lint/suspicious/noExplicitAny: Required for TRPC type compatibility
-    void queryClient.prefetchInfiniteQuery(queryOptions as any);
+    void queryClient.prefetchInfiniteQuery(queryOptions as unknown);
   } else {
     void queryClient.prefetchQuery(queryOptions);
   }

@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { DefaultChatTransport } from "ai";
 import { AlertCircle, Sparkles } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
+import { memo } from "react";
 import { useVoiceUpload } from "~/hooks/use-voice-upload";
 import {
   convertHistoryMessage,
@@ -31,7 +32,7 @@ interface InterviewChatProps {
   className?: string;
 }
 
-export function InterviewChat({
+function PureInterviewChat({
   interviewSessionId,
   interviewToken,
   apiEndpoint = "/api/interview/chat/stream",
@@ -259,3 +260,5 @@ export function InterviewChat({
     </div>
   );
 }
+
+export const InterviewChat = memo(PureInterviewChat);
