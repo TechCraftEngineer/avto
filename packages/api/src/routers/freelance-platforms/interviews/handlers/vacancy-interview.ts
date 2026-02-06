@@ -56,6 +56,7 @@ export async function handleVacancyInterview(
   );
 
   let response: Awaited<ReturnType<typeof createVacancyResponse>>;
+  let shouldSyncAndParse = false;
 
   if (existingResponse) {
     // Используем существующий отклик
@@ -70,29 +71,38 @@ export async function handleVacancyInterview(
       errorHandler,
     );
 
+    // Если handleExistingSession вернул результат - возвращаем его
     if (sessionResult) {
       return sessionResult;
     }
+
+    // Если вернул null - нужно создать новую сессию для существующего отклика
+    // Синхронизацию и парсинг НЕ запускаем, т.к. отклик уже обработан
   } else {
-    // Создаём новый отклик только если его нет
+    // Создаём новый отклик
     response = await createVacancyResponse(
       db,
       vacancyId,
       freelancerInfo,
       errorHandler,
     );
+
+    // Для нового отклика нужна синхронизация и парсинг
+    shouldSyncAndParse = true;
   }
 
-  // Синхронизируем с глобальным пулом
-  await syncCandidateToGlobalPool(
-    db,
-    response.id,
-    vacancy.workspace.organizationId,
-    freelancerInfo,
-  );
+  // Синхронизируем с глобальным пулом только для новых откликов
+  if (shouldSyncAndParse) {
+    await syncCandidateToGlobalPool(
+      db,
+      response.id,
+      vacancy.workspace.organizationId,
+      freelancerInfo,
+    );
 
-  // Запускаем парсинг профиля
-  await triggerProfileParsing(response.id);
+    // Запускаем парсинг профиля
+    await triggerProfileParsing(response.id);
+  }
 
   // Создаём сессию интервью
   const session = await createInterviewSession(

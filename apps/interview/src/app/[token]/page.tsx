@@ -258,6 +258,41 @@ function InterviewLandingClient({ token }: { token: string }) {
           <p className="mt-2 text-sm text-gray-500">{subtitle}</p>
         </div>
 
+        {/* AI Info Card */}
+        <div className="mb-4 rounded-xl border border-violet-200 bg-gradient-to-br from-violet-50 to-purple-50 p-4 shadow-sm">
+          <div className="flex items-start gap-3">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-violet-100">
+              <svg
+                className="h-5 w-5 text-violet-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <h3 className="mb-1 text-sm font-medium text-gray-900">
+                Как проходит интервью
+              </h3>
+              <p className="text-xs leading-relaxed text-gray-600">
+                Первый этап отбора проводит наш ИИ-ассистент — это помогает нам
+                быстрее обрабатывать отклики и уделить больше внимания каждому
+                кандидату. Общайтесь с ним естественно, как с обычным
+                рекрутером: подробно рассказывайте о своём опыте, задавайте
+                вопросы. Это поможет нам лучше понять ваши компетенции и принять
+                взвешенное решение.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Form Card */}
         <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
           {data.type === "direct_response" && !data.hasActiveSession ? (
