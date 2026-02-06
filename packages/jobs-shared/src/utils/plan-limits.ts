@@ -5,7 +5,7 @@ import type { WorkspacePlan } from "@qbs-autonaim/db/schema";
  */
 export const PLAN_LIMITS = {
   free: {
-    responsesLimit: 30,
+    responsesLimit: 10,
     name: "Бесплатный",
   },
   pro: {
