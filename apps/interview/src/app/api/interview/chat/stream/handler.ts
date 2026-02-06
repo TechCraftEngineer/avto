@@ -289,7 +289,7 @@ async function handler(request: Request) {
       });
     }
 
-    // Если нужна эскалация — возвращаем специальный ответ
+    // Если нужна эскалация — логируем, но продолжаем интервью
     if (contextAnalysis.data.shouldEscalate) {
       console.warn("[Interview Stream] Escalation triggered:", {
         conversationId: sessionId,
@@ -298,13 +298,8 @@ async function handler(request: Request) {
       // TODO: можно добавить логику эскалации
     }
 
-    // Если простое подтверждение — не отвечаем
-    if (
-      contextAnalysis.data.messageType === "ACKNOWLEDGMENT" &&
-      !contextAnalysis.data.requiresResponse
-    ) {
-      return NextResponse.json({ acknowledged: true });
-    }
+    // В интервью всегда отвечаем, даже на простые подтверждения
+    // Это поддерживает естественный диалог
 
     // Формируем контекст для оркестратора
     const interviewContext = {
@@ -551,7 +546,7 @@ async function handler(request: Request) {
 
     // Traces will be flushed automatically by OpenTelemetry
 
-    return new Response(stream.pipeThrough(new JsonToSseTransformStream()), {
+    return stream.toDataStreamResponse({
       headers: {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",

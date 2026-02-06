@@ -185,17 +185,17 @@ export function getFallbackModel(): LanguageModel {
   }
 
   if (actualProvider === "openrouter") {
-    if (openaiProvider) {
-      console.warn(
-        "[AI Client] OpenRouter недоступен, переключаюсь на OpenAI как fallback",
-      );
-      return openaiProvider(DEFAULT_MODEL_OPENAI);
-    }
     if (env.DEEPSEEK_API_KEY) {
       console.warn(
         "[AI Client] OpenRouter недоступен, переключаюсь на DeepSeek как fallback",
       );
       return deepseek(DEFAULT_MODEL_DEEPSEEK);
+    }
+    if (openaiProvider) {
+      console.warn(
+        "[AI Client] OpenRouter недоступен, переключаюсь на OpenAI как fallback",
+      );
+      return openaiProvider(DEFAULT_MODEL_OPENAI);
     }
   }
 
