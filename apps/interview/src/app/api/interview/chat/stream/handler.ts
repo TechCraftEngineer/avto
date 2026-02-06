@@ -24,7 +24,6 @@ import {
   formatMessagesForModel,
 } from "./conversation-builder";
 import { errorToResponse } from "./error-adapter";
-import { createWebInterviewRuntime } from "./interview-runtime";
 import {
   extractMessageText,
   hasVoiceFile,
@@ -137,7 +136,7 @@ async function handler(request: Request) {
       sanitized = sanitized.replace(/\+?\d[\d\s\-()]{7,}\d/g, "[PHONE]");
       // Обрезаем до 200 символов
       if (sanitized.length > 200) {
-        sanitized = sanitized.substring(0, 200) + "...";
+        sanitized = `${sanitized.substring(0, 200)}...`;
       }
       return sanitized;
     };
@@ -210,14 +209,10 @@ async function handler(request: Request) {
       });
     }
 
-    // Формируем контекст для оркестратора
+    // Формируем контекст для стратегии
     const interviewContext = {
-      conversationId: sessionId,
       candidateName:
         (session.metadata as { candidateName?: string })?.candidateName || null,
-      vacancyTitle: vacancy?.title || gig?.title || null,
-      vacancyDescription: vacancy?.description || gig?.description || null,
-      conversationHistory,
       botSettings: companySettings
         ? {
             botName: companySettings.botName || undefined,
@@ -227,18 +222,8 @@ async function handler(request: Request) {
         : undefined,
     };
 
-    const { tools, systemPrompt } = createWebInterviewRuntime({
-      model,
-      sessionId,
-      db,
-      gig: gig ?? null,
-      vacancy: vacancy ?? null,
-      interviewContext,
-      isFirstResponse,
-    });
-
     // Создаём инструменты через стратегию
-    const strategyTools = strategy.createTools(
+    const tools = strategy.createTools(
       model,
       sessionId,
       db,
@@ -249,7 +234,7 @@ async function handler(request: Request) {
     );
 
     // Строим системный промпт через стратегию
-    const strategySystemPrompt = strategy.systemPromptBuilder.build(
+    const systemPrompt = strategy.systemPromptBuilder.build(
       isFirstResponse,
       currentStage,
     );
@@ -265,9 +250,9 @@ async function handler(request: Request) {
     const stream = createUIMessageStream({
       execute: async ({ writer }) => {
         const result = executeStreamWithFallbackV6({
-          systemPrompt: strategySystemPrompt,
+          systemPrompt,
           messages: formattedMessages,
-          tools: strategyTools,
+          tools,
           sessionId,
           activeTools,
           telemetryMetadata: {
@@ -284,10 +269,10 @@ async function handler(request: Request) {
               timestamp: new Date().toISOString(),
             });
           },
-          onStepFinish: async ({ stepNumber, toolCalls }) => {
+          onStepFinish: async ({ toolCalls }) => {
             if (toolCalls.length > 0) {
               console.log(
-                `[Interview Stream] Шаг ${stepNumber} завершён, вызваны инструменты:`,
+                `[Interview Stream] Шаг завершён, вызваны инструменты:`,
                 {
                   sessionId,
                   entityType: strategy.entityType,

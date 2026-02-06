@@ -1,17 +1,23 @@
-import type { InterviewStrategy, SupportedEntityType, GigLike, VacancyLike } from "./types";
 import { GigInterviewStrategy } from "./gig-strategy";
+import type {
+  GigLike,
+  InterviewStrategy,
+  SupportedEntityType,
+  VacancyLike,
+} from "./types";
 import { VacancyInterviewStrategy } from "./vacancy-strategy";
 
 /**
  * Фабрика для создания стратегий интервью на основе типа сущности
  */
 export class InterviewStrategyFactory {
-  private strategies: Map<SupportedEntityType, () => InterviewStrategy> = new Map([
-    ["gig", () => new GigInterviewStrategy()],
-    ["vacancy", () => new VacancyInterviewStrategy()],
-    // Будущие типы сущностей могут быть добавлены здесь
-    // ["project", () => new ProjectInterviewStrategy()],
-  ]);
+  private strategies: Map<SupportedEntityType, () => InterviewStrategy> =
+    new Map<SupportedEntityType, () => InterviewStrategy>([
+      ["gig", () => new GigInterviewStrategy()],
+      ["vacancy", () => new VacancyInterviewStrategy()],
+      // Будущие типы сущностей могут быть добавлены здесь
+      // ["project", () => new ProjectInterviewStrategy()],
+    ]);
 
   /**
    * Создать стратегию для указанного типа сущности
@@ -21,7 +27,9 @@ export class InterviewStrategyFactory {
   create(entityType: SupportedEntityType): InterviewStrategy {
     const factory = this.strategies.get(entityType);
     if (!factory) {
-      console.warn(`[StrategyFactory] Неизвестный тип сущности: ${entityType}, используется vacancy`);
+      console.warn(
+        `[StrategyFactory] Неизвестный тип сущности: ${entityType}, используется vacancy`,
+      );
       return new VacancyInterviewStrategy();
     }
     return factory();
@@ -65,16 +73,18 @@ export function getInterviewStrategy(
   vacancy: VacancyLike | null,
 ): InterviewStrategy {
   if (!gig && !vacancy) {
-    console.warn("[Strategy] Не предоставлена сущность, используется vacancy стратегия");
+    console.warn(
+      "[Strategy] Не предоставлена сущность, используется vacancy стратегия",
+    );
     return strategyFactory.create("vacancy");
   }
-  
+
   const entityType: SupportedEntityType = gig ? "gig" : "vacancy";
   return strategyFactory.create(entityType);
 }
 
+export { BaseInterviewStrategy } from "./base-strategy";
+export { GigInterviewStrategy } from "./gig-strategy";
 // Экспорт типов и классов
 export type { InterviewStrategy, SupportedEntityType } from "./types";
-export { GigInterviewStrategy } from "./gig-strategy";
 export { VacancyInterviewStrategy } from "./vacancy-strategy";
-export { BaseInterviewStrategy } from "./base-strategy";

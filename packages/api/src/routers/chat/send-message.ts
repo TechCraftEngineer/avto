@@ -257,14 +257,6 @@ export const sendMessage = protectedProcedure
     try {
       const result = await streamText({
         prompt,
-        generationName: `${entityType}-ai-chat`,
-        entityId,
-        metadata: {
-          entityType,
-          entityId,
-          userId,
-          workspaceId,
-        },
       });
 
       for await (const chunk of result.textStream) {

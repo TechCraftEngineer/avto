@@ -4,11 +4,29 @@ import {
 } from "@qbs-autonaim/server-utils";
 import { tool } from "ai";
 import { z } from "zod";
-import type { InterviewStage } from "../types";
+
+type InterviewStage =
+  | "intro"
+  | "org"
+  | "tech"
+  | "wrapup"
+  | "profile_review"
+  | "task_approach"
+  | "motivation";
 
 const interviewStateSchema = z.object({
   version: z.string().optional(),
-  stage: z.enum(["intro", "org", "tech", "wrapup"]).optional(),
+  stage: z
+    .enum([
+      "intro",
+      "org",
+      "tech",
+      "wrapup",
+      "profile_review",
+      "task_approach",
+      "motivation",
+    ])
+    .optional(),
   askedQuestions: z.array(z.string()).optional(),
   voiceOptionOffered: z.boolean().optional(),
   updatedAt: z.string().optional(),
@@ -48,7 +66,17 @@ export function createUpdateInterviewStateTool(sessionId: string) {
     description:
       "Обновляет состояние интервью в метаданных interview session (stage, askedQuestions, voiceOptionOffered, lastQuestionAsked).",
     inputSchema: z.object({
-      stage: z.enum(["intro", "org", "tech", "wrapup"]).optional(),
+      stage: z
+        .enum([
+          "intro",
+          "org",
+          "tech",
+          "wrapup",
+          "profile_review",
+          "task_approach",
+          "motivation",
+        ])
+        .optional(),
       askedQuestions: z.array(z.string()).optional(),
       voiceOptionOffered: z.boolean().optional(),
       lastQuestionAsked: z.string().min(1).max(2000).optional(),
@@ -68,9 +96,17 @@ export function createUpdateInterviewStateTool(sessionId: string) {
       );
       const prev = parsedPrev.success ? parsedPrev.data : {};
 
+      // Приводим stage к базовому типу для совместимости с метаданными
+      const baseStage = (stage ?? prev.stage) as
+        | "intro"
+        | "org"
+        | "tech"
+        | "wrapup"
+        | undefined;
+
       const nextState = {
         version: prev.version ?? "v1",
-        stage: stage ?? prev.stage,
+        stage: baseStage,
         askedQuestions: askedQuestions ?? prev.askedQuestions ?? [],
         voiceOptionOffered: voiceOptionOffered ?? prev.voiceOptionOffered,
         updatedAt: new Date().toISOString(),

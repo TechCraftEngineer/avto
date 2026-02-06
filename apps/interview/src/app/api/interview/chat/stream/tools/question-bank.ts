@@ -7,7 +7,10 @@ import {
 } from "@qbs-autonaim/server-utils";
 import { tool } from "ai";
 import { z } from "zod";
-import type { EntityType, GigLike, LanguageModel, VacancyLike } from "../types";
+import type { GigLike, VacancyLike } from "../strategies/types";
+
+type EntityType = "gig" | "vacancy" | "unknown";
+type LanguageModel = import("ai").LanguageModel;
 
 function parseQuestions(raw: string | null | undefined): string[] {
   if (!raw) return [];

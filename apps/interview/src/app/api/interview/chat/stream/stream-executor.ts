@@ -14,13 +14,16 @@ type StreamOptionsV6 = StreamOptions & {
   activeTools?: Array<string>;
   onPrepareStep?: (stepNumber: number) => void | Promise<void>;
   onStepFinish?: (args: {
-    stepNumber: number;
     toolCalls: Array<{
       toolName: string;
       args: Record<string, unknown>;
     }>;
   }) => void | Promise<void>;
-  toolChoice?: "auto" | "required" | "none" | { type: "tool"; toolName: string };
+  toolChoice?:
+    | "auto"
+    | "required"
+    | "none"
+    | { type: "tool"; toolName: string };
   telemetryMetadata?: {
     entityType?: string;
     vacancyId?: string;
@@ -123,14 +126,17 @@ function tryStreamWithModelV6(
         : {}),
       ...(options.onStepFinish
         ? {
-            onStepFinish: async ({ toolCalls }: { toolCalls: Array<{ toolName: string; args: unknown }> }) => {
-              const stepNumber = 0; // AI SDK не предоставляет stepNumber в onStepFinish
-              const formattedToolCalls = toolCalls.map((tc) => ({
-                toolName: tc.toolName,
-                args: tc.args as Record<string, unknown>,
-              }));
+            onStepFinish: async (stepResult) => {
+              const formattedToolCalls = stepResult.toolCalls
+                .filter((tc) => "args" in tc)
+                .map((tc) => ({
+                  toolName: tc.toolName,
+                  args: (tc as { args: unknown }).args as Record<
+                    string,
+                    unknown
+                  >,
+                }));
               await options.onStepFinish?.({
-                stepNumber,
                 toolCalls: formattedToolCalls,
               });
             },

@@ -6,29 +6,29 @@
  * - Построение промпта < 5ms
  */
 
-import { describe, it, expect, beforeEach } from 'bun:test';
-import { InterviewStrategyFactory } from '../strategies';
-import type { SupportedEntityType } from '../strategies/types';
+import { beforeEach, describe, expect, it } from "bun:test";
+import { InterviewStrategyFactory } from "../strategies";
+import type { SupportedEntityType } from "../strategies/types";
 
-describe('Performance Tests', () => {
+describe("Performance Tests", () => {
   let strategyFactory: InterviewStrategyFactory;
 
   beforeEach(() => {
     strategyFactory = new InterviewStrategyFactory();
   });
 
-  describe('Создание стратегии', () => {
-    it('должно занимать < 10ms для gig стратегии', () => {
+  describe("Создание стратегии", () => {
+    it("должно занимать < 10ms для gig стратегии", () => {
       const iterations = 100;
       const times: number[] = [];
 
       for (let i = 0; i < iterations; i++) {
         const start = performance.now();
-        const strategy = strategyFactory.create('gig');
+        const strategy = strategyFactory.create("gig");
         const end = performance.now();
-        
+
         times.push(end - start);
-        expect(strategy.entityType).toBe('gig');
+        expect(strategy.entityType).toBe("gig");
       }
 
       const avgTime = times.reduce((a, b) => a + b, 0) / times.length;
@@ -45,17 +45,17 @@ describe('Performance Tests', () => {
       expect(maxTime).toBeLessThan(25); // Допускаем выбросы до 25ms (первый запуск может быть медленнее)
     });
 
-    it('должно занимать < 10ms для vacancy стратегии', () => {
+    it("должно занимать < 10ms для vacancy стратегии", () => {
       const iterations = 100;
       const times: number[] = [];
 
       for (let i = 0; i < iterations; i++) {
         const start = performance.now();
-        const strategy = strategyFactory.create('vacancy');
+        const strategy = strategyFactory.create("vacancy");
         const end = performance.now();
-        
+
         times.push(end - start);
-        expect(strategy.entityType).toBe('vacancy');
+        expect(strategy.entityType).toBe("vacancy");
       }
 
       const avgTime = times.reduce((a, b) => a + b, 0) / times.length;
@@ -72,17 +72,19 @@ describe('Performance Tests', () => {
       expect(maxTime).toBeLessThan(20);
     });
 
-    it('должно эффективно обрабатывать неизвестные типы (fallback)', () => {
+    it("должно эффективно обрабатывать неизвестные типы (fallback)", () => {
       const iterations = 100;
       const times: number[] = [];
 
       for (let i = 0; i < iterations; i++) {
         const start = performance.now();
-        const strategy = strategyFactory.create('unknown' as SupportedEntityType);
+        const strategy = strategyFactory.create(
+          "unknown" as SupportedEntityType,
+        );
         const end = performance.now();
-        
+
         times.push(end - start);
-        expect(strategy.entityType).toBe('vacancy'); // Fallback на vacancy
+        expect(strategy.entityType).toBe("vacancy"); // Fallback на vacancy
       }
 
       const avgTime = times.reduce((a, b) => a + b, 0) / times.length;
@@ -95,20 +97,20 @@ describe('Performance Tests', () => {
     });
   });
 
-  describe('Построение промпта', () => {
-    it('должно занимать < 5ms для gig промпта', () => {
-      const strategy = strategyFactory.create('gig');
+  describe("Построение промпта", () => {
+    it("должно занимать < 5ms для gig промпта", () => {
+      const strategy = strategyFactory.create("gig");
       const iterations = 100;
       const times: number[] = [];
 
       for (let i = 0; i < iterations; i++) {
         const start = performance.now();
-        const prompt = strategy.systemPromptBuilder.build(false, 'org');
+        const prompt = strategy.systemPromptBuilder.build(false, "org");
         const end = performance.now();
-        
+
         times.push(end - start);
         expect(prompt).toBeTruthy();
-        expect(typeof prompt).toBe('string');
+        expect(typeof prompt).toBe("string");
       }
 
       const avgTime = times.reduce((a, b) => a + b, 0) / times.length;
@@ -123,16 +125,16 @@ describe('Performance Tests', () => {
       expect(maxTime).toBeLessThan(10);
     });
 
-    it('должно занимать < 5ms для vacancy промпта', () => {
-      const strategy = strategyFactory.create('vacancy');
+    it("должно занимать < 5ms для vacancy промпта", () => {
+      const strategy = strategyFactory.create("vacancy");
       const iterations = 100;
       const times: number[] = [];
 
       for (let i = 0; i < iterations; i++) {
         const start = performance.now();
-        const prompt = strategy.systemPromptBuilder.build(false, 'tech');
+        const prompt = strategy.systemPromptBuilder.build(false, "tech");
         const end = performance.now();
-        
+
         times.push(end - start);
         expect(prompt).toBeTruthy();
       }
@@ -149,18 +151,18 @@ describe('Performance Tests', () => {
       expect(maxTime).toBeLessThan(10);
     });
 
-    it('должно эффективно строить промпт для первого ответа', () => {
-      const strategy = strategyFactory.create('gig');
+    it("должно эффективно строить промпт для первого ответа", () => {
+      const strategy = strategyFactory.create("gig");
       const iterations = 100;
       const times: number[] = [];
 
       for (let i = 0; i < iterations; i++) {
         const start = performance.now();
-        const prompt = strategy.systemPromptBuilder.build(true, 'intro');
+        const prompt = strategy.systemPromptBuilder.build(true, "intro");
         const end = performance.now();
-        
+
         times.push(end - start);
-        expect(prompt).toContain('первый'); // Должен содержать инструкции для первого ответа
+        expect(prompt).toContain("первый"); // Должен содержать инструкции для первого ответа
       }
 
       const avgTime = times.reduce((a, b) => a + b, 0) / times.length;
@@ -173,26 +175,26 @@ describe('Performance Tests', () => {
     });
   });
 
-  describe('Проверка переходов между стадиями', () => {
-    it('должно быстро проверять возможность перехода', () => {
-      const strategy = strategyFactory.create('gig');
+  describe("Проверка переходов между стадиями", () => {
+    it("должно быстро проверять возможность перехода", () => {
+      const strategy = strategyFactory.create("gig");
       const iterations = 1000;
       const times: number[] = [];
 
       const context = {
-        askedQuestions: ['q1', 'q2', 'q3'],
-        userResponses: ['r1', 'r2', 'r3'],
+        askedQuestions: ["q1", "q2", "q3"],
+        userResponses: ["r1", "r2", "r3"],
         botDetectionScore: 0,
         timeInCurrentStage: 60,
       };
 
       for (let i = 0; i < iterations; i++) {
         const start = performance.now();
-        const canTransition = strategy.canTransition('org', 'tech', context);
+        const canTransition = strategy.canTransition("org", "tech", context);
         const end = performance.now();
-        
+
         times.push(end - start);
-        expect(typeof canTransition).toBe('boolean');
+        expect(typeof canTransition).toBe("boolean");
       }
 
       const avgTime = times.reduce((a, b) => a + b, 0) / times.length;
@@ -207,38 +209,41 @@ describe('Performance Tests', () => {
     });
   });
 
-  describe('Получение следующего вопроса', () => {
-    it('должно быстро находить следующий вопрос', () => {
-      const strategy = strategyFactory.create('vacancy');
+  describe("Получение следующего вопроса", () => {
+    it("должно быстро находить следующий вопрос", () => {
+      const strategy = strategyFactory.create("vacancy");
       const iterations = 1000;
       const times: number[] = [];
 
       const questionBank = {
         organizational: [
-          'Вопрос 1',
-          'Вопрос 2',
-          'Вопрос 3',
-          'Вопрос 4',
-          'Вопрос 5',
+          "Вопрос 1",
+          "Вопрос 2",
+          "Вопрос 3",
+          "Вопрос 4",
+          "Вопрос 5",
         ],
-        technical: [
-          'Технический вопрос 1',
-          'Технический вопрос 2',
-        ],
+        technical: ["Технический вопрос 1", "Технический вопрос 2"],
+        asked: [],
       };
 
       const interviewState = {
-        stage: 'org',
-        askedQuestions: ['Вопрос 1', 'Вопрос 2'],
+        stage: "org",
+        askedQuestions: ["Вопрос 1", "Вопрос 2"],
+        voiceOptionOffered: false,
+        questionCount: 2,
       };
 
       for (let i = 0; i < iterations; i++) {
         const start = performance.now();
-        const nextQuestion = strategy.getNextQuestion(questionBank, interviewState);
+        const nextQuestion = strategy.getNextQuestion(
+          questionBank,
+          interviewState,
+        );
         const end = performance.now();
-        
+
         times.push(end - start);
-        expect(nextQuestion).toBe('Вопрос 3');
+        expect(nextQuestion).toBe("Вопрос 3");
       }
 
       const avgTime = times.reduce((a, b) => a + b, 0) / times.length;
@@ -253,9 +258,9 @@ describe('Performance Tests', () => {
     });
   });
 
-  describe('Получение конфигурации UI', () => {
-    it('должно быстро получать welcome message', () => {
-      const strategy = strategyFactory.create('gig');
+  describe("Получение конфигурации UI", () => {
+    it("должно быстро получать welcome message", () => {
+      const strategy = strategyFactory.create("gig");
       const iterations = 1000;
       const times: number[] = [];
 
@@ -263,7 +268,7 @@ describe('Performance Tests', () => {
         const start = performance.now();
         const welcomeMessage = strategy.getWelcomeMessage();
         const end = performance.now();
-        
+
         times.push(end - start);
         expect(welcomeMessage.title).toBeTruthy();
       }
@@ -277,23 +282,23 @@ describe('Performance Tests', () => {
       expect(avgTime).toBeLessThan(1);
     });
 
-    it('должно быстро получать context card data', () => {
-      const strategy = strategyFactory.create('vacancy');
+    it("должно быстро получать context card data", () => {
+      const strategy = strategyFactory.create("vacancy");
       const iterations = 1000;
       const times: number[] = [];
 
       const mockEntity = {
-        id: 'test-id',
-        title: 'Test Vacancy',
-        description: 'Test description',
-        __brand: 'vacancy' as const,
+        id: "test-id",
+        title: "Test Vacancy",
+        description: "Test description",
+        __brand: "vacancy" as const,
       };
 
       for (let i = 0; i < iterations; i++) {
         const start = performance.now();
         const contextCard = strategy.getContextCardData(mockEntity);
         const end = performance.now();
-        
+
         times.push(end - start);
         expect(contextCard.badgeLabel).toBeTruthy();
       }
@@ -308,9 +313,9 @@ describe('Performance Tests', () => {
     });
   });
 
-  describe('Создание схемы оценки', () => {
-    it('должно быстро создавать Zod схему', () => {
-      const strategy = strategyFactory.create('gig');
+  describe("Создание схемы оценки", () => {
+    it("должно быстро создавать Zod схему", () => {
+      const strategy = strategyFactory.create("gig");
       const iterations = 100;
       const times: number[] = [];
 
@@ -318,7 +323,7 @@ describe('Performance Tests', () => {
         const start = performance.now();
         const schema = strategy.createScoringSchema();
         const end = performance.now();
-        
+
         times.push(end - start);
         expect(schema).toBeTruthy();
       }
@@ -333,23 +338,26 @@ describe('Performance Tests', () => {
     });
   });
 
-  describe('Регистрация новой стратегии', () => {
-    it('должно быстро регистрировать и проверять стратегию', () => {
+  describe("Регистрация новой стратегии", () => {
+    it("должно быстро регистрировать и проверять стратегию", () => {
       const iterations = 1000;
       const times: number[] = [];
 
       class TestStrategy {
-        entityType = 'test' as const;
+        entityType = "test" as const;
       }
 
       for (let i = 0; i < iterations; i++) {
         const factory = new InterviewStrategyFactory();
-        
+
         const start = performance.now();
-        factory.register('test' as SupportedEntityType, () => new TestStrategy() as any);
-        const isSupported = factory.isSupported('test');
+        factory.register(
+          "test" as SupportedEntityType,
+          () => new TestStrategy() as any,
+        );
+        const isSupported = factory.isSupported("test");
         const end = performance.now();
-        
+
         times.push(end - start);
         expect(isSupported).toBe(true);
       }
@@ -364,32 +372,32 @@ describe('Performance Tests', () => {
     });
   });
 
-  describe('Общая производительность системы', () => {
-    it('должно эффективно выполнять полный цикл создания стратегии и получения данных', () => {
+  describe("Общая производительность системы", () => {
+    it("должно эффективно выполнять полный цикл создания стратегии и получения данных", () => {
       const iterations = 100;
       const times: number[] = [];
 
       for (let i = 0; i < iterations; i++) {
         const start = performance.now();
-        
+
         // Полный цикл работы со стратегией
-        const strategy = strategyFactory.create('gig');
-        const prompt = strategy.systemPromptBuilder.build(false, 'org');
+        const strategy = strategyFactory.create("gig");
+        const prompt = strategy.systemPromptBuilder.build(false, "org");
         const welcomeMessage = strategy.getWelcomeMessage();
         const schema = strategy.createScoringSchema();
-        const canTransition = strategy.canTransition('intro', 'org', {
-          askedQuestions: ['q1'],
-          userResponses: ['r1'],
+        const canTransition = strategy.canTransition("intro", "org", {
+          askedQuestions: ["q1"],
+          userResponses: ["r1"],
         });
-        
+
         const end = performance.now();
-        
+
         times.push(end - start);
         expect(strategy).toBeTruthy();
         expect(prompt).toBeTruthy();
         expect(welcomeMessage).toBeTruthy();
         expect(schema).toBeTruthy();
-        expect(typeof canTransition).toBe('boolean');
+        expect(typeof canTransition).toBe("boolean");
       }
 
       const avgTime = times.reduce((a, b) => a + b, 0) / times.length;

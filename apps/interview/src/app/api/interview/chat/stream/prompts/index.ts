@@ -1,8 +1,8 @@
-import type { SupportedEntityType } from '../strategies/types';
-import type { StageId } from '../stages/types';
-import type { SystemPromptBuilder } from './types';
-import { GigSystemPromptBuilder } from './gig-prompt-builder';
-import { VacancySystemPromptBuilder } from './vacancy-prompt-builder';
+import type { StageId } from "../stages/types";
+import type { SupportedEntityType } from "../strategies/types";
+import { GigSystemPromptBuilder } from "./gig-prompt-builder";
+import type { SystemPromptBuilder } from "./types";
+import { VacancySystemPromptBuilder } from "./vacancy-prompt-builder";
 
 /**
  * Фабрика для создания построителей промптов
@@ -11,10 +11,10 @@ export class PromptFactory {
   private builders: Map<SupportedEntityType, SystemPromptBuilder>;
 
   constructor() {
-    this.builders = new Map([
-      ['gig', new GigSystemPromptBuilder()],
-      ['vacancy', new VacancySystemPromptBuilder()],
-    ]);
+    this.builders = new Map<SupportedEntityType, SystemPromptBuilder>([
+      ["gig", new GigSystemPromptBuilder()],
+      ["vacancy", new VacancySystemPromptBuilder()],
+    ] as const);
   }
 
   /**
@@ -24,7 +24,7 @@ export class PromptFactory {
     const builder = this.builders.get(entityType);
     if (!builder) {
       // Fallback на vacancy построитель для неизвестных типов
-      return this.builders.get('vacancy')!;
+      return this.builders.get("vacancy")!;
     }
     return builder;
   }
@@ -35,7 +35,7 @@ export class PromptFactory {
   buildCompletePrompt(
     entityType: SupportedEntityType,
     isFirstResponse: boolean,
-    currentStage: StageId
+    currentStage: StageId,
   ): string {
     const builder = this.create(entityType);
     return builder.build(isFirstResponse, currentStage);
@@ -52,8 +52,8 @@ export class PromptFactory {
 // Singleton экземпляр фабрики
 export const promptFactory = new PromptFactory();
 
+export { BaseSystemPromptBuilder } from "./base-prompt-builder";
+export { GigSystemPromptBuilder } from "./gig-prompt-builder";
 // Экспорт типов и классов
-export type { SystemPromptBuilder } from './types';
-export { BaseSystemPromptBuilder } from './base-prompt-builder';
-export { GigSystemPromptBuilder } from './gig-prompt-builder';
-export { VacancySystemPromptBuilder } from './vacancy-prompt-builder';
+export type { SystemPromptBuilder } from "./types";
+export { VacancySystemPromptBuilder } from "./vacancy-prompt-builder";

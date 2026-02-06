@@ -9,10 +9,10 @@ export class ScoringFactory {
   private schemas: Map<SupportedEntityType, z.ZodSchema>;
 
   constructor() {
-    this.schemas = new Map([
+    this.schemas = new Map<SupportedEntityType, z.ZodSchema>([
       ["gig", gigScoringSchema],
       ["vacancy", vacancyScoringSchema],
-    ]);
+    ] as const);
   }
 
   /**

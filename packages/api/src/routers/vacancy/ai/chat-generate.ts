@@ -293,12 +293,6 @@ export const chatGenerate = protectedProcedure
     try {
       const result = await streamText({
         prompt,
-        generationName: "vacancy-chat-generation",
-        entityId: workspaceId,
-        metadata: {
-          workspaceId,
-          userId: ctx.session.user.id,
-        },
       });
 
       // Собираем весь текст из стрима

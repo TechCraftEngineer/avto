@@ -205,13 +205,6 @@ export const sendMessage = protectedProcedure
     try {
       const result = await streamText({
         prompt,
-        generationName: "gig-ai-chat",
-        entityId: gigData.workspaceId,
-        metadata: {
-          workspaceId: gigData.workspaceId,
-          gigId,
-          userId,
-        },
       });
 
       for await (const chunk of result.textStream) {

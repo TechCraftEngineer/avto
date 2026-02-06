@@ -2,6 +2,8 @@ import type * as schema from "@qbs-autonaim/db/schema";
 import type { LanguageModel, ToolSet } from "ai";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import type { ZodType } from "zod";
+// SystemPromptBuilder импортируется только для использования в интерфейсе InterviewStrategy
+import type { SystemPromptBuilder } from "../prompts/types";
 import type { InterviewStageConfig } from "../stages/types";
 
 /**

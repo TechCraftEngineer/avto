@@ -1,11 +1,12 @@
 import { tool } from "ai";
 import { z } from "zod";
 import type {
-  EntityType,
   GigLike,
   InterviewContextLite,
   VacancyLike,
-} from "../types";
+} from "../strategies/types";
+
+type EntityType = "gig" | "vacancy" | "unknown";
 
 export function createGetInterviewSettingsTool(
   gig: GigLike | null,

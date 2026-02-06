@@ -202,12 +202,6 @@ export const chatGenerate = protectedProcedure
     try {
       const result = await streamText({
         prompt,
-        generationName: "gig-chat-generation",
-        entityId: workspaceId,
-        metadata: {
-          workspaceId,
-          userId: ctx.session.user.id,
-        },
       });
 
       let fullText = "";

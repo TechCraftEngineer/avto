@@ -1,6 +1,7 @@
 import { tool } from "ai";
 import { z } from "zod";
-import type { EntityType } from "../types";
+
+type EntityType = "gig" | "vacancy" | "unknown";
 
 export function createGetInterviewPolicyTool(entityType: EntityType) {
   return tool({

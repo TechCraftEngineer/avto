@@ -8,7 +8,7 @@
 import type * as schema from "@qbs-autonaim/db/schema";
 import type { LanguageModel, ToolSet } from "ai";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
-import type { GigLike, VacancyLike } from "../types";
+import type { GigLike, VacancyLike } from "../strategies/types";
 
 // ============================================================================
 // Core Types

@@ -1,35 +1,35 @@
-import type { LanguageModel, ToolSet } from "ai";
-import type { ZodType } from "zod";
-import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import type * as schema from "@qbs-autonaim/db/schema";
-import type {
-  InterviewStrategy,
-  SystemPromptBuilder,
-  ToolFactory,
-  QuestionBankConfig,
-  ScoringConfig,
-  WelcomeMessageConfig,
-  ContextCardConfig,
-  TransitionContext,
-  QuestionBankResult,
-  InterviewState,
-  SupportedEntityType,
-  GigLike,
-  VacancyLike,
-  InterviewContextLite,
-} from "./types";
+import type { LanguageModel, ToolSet } from "ai";
+import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+import type { ZodType } from "zod";
+import type { SystemPromptBuilder } from "../prompts/types";
 import type { InterviewStageConfig } from "../stages/types";
+import type {
+  ContextCardConfig,
+  GigLike,
+  InterviewContextLite,
+  InterviewState,
+  InterviewStrategy,
+  QuestionBankConfig,
+  QuestionBankResult,
+  ScoringConfig,
+  SupportedEntityType,
+  ToolFactory,
+  TransitionContext,
+  VacancyLike,
+  WelcomeMessageConfig,
+} from "./types";
 
 /**
  * Базовая абстрактная стратегия интервью с общей функциональностью
  */
 export abstract class BaseInterviewStrategy implements InterviewStrategy {
   abstract readonly entityType: SupportedEntityType;
-  
+
   protected abstract _questionBank: QuestionBankConfig;
   protected abstract _scoring: ScoringConfig;
   protected abstract _stages: InterviewStageConfig[];
-  
+
   abstract readonly systemPromptBuilder: SystemPromptBuilder;
   abstract readonly toolFactory: ToolFactory;
 
@@ -62,7 +62,12 @@ export abstract class BaseInterviewStrategy implements InterviewStrategy {
     return {
       badgeLabel: "Интервью",
       fields: [
-        { key: "title", label: "Название", type: "text", showFor: ["gig", "vacancy"] },
+        {
+          key: "title",
+          label: "Название",
+          type: "text",
+          showFor: ["gig", "vacancy"],
+        },
       ],
     };
   }
@@ -93,7 +98,7 @@ export abstract class BaseInterviewStrategy implements InterviewStrategy {
   canTransition(from: string, to: string, context: TransitionContext): boolean {
     // По умолчанию разрешаем все переходы
     const canTransition = true;
-    
+
     console.log(`[Interview Strategy] Проверка перехода стадии`, {
       entityType: this.entityType,
       from,
@@ -108,7 +113,7 @@ export abstract class BaseInterviewStrategy implements InterviewStrategy {
       },
       timestamp: new Date().toISOString(),
     });
-    
+
     return canTransition;
   }
 

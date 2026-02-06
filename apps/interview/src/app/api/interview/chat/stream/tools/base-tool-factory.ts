@@ -1,22 +1,28 @@
-import type { LanguageModel, ToolSet } from 'ai';
-import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import type * as schema from '@qbs-autonaim/db/schema';
-import type { ToolFactory, GigLike, VacancyLike, InterviewContextLite, SupportedEntityType } from '../strategies/types';
-import type { StageId } from '../stages/types';
-import type { ToolAvailability } from './types';
+import type * as schema from "@qbs-autonaim/db/schema";
+import type { LanguageModel, ToolSet } from "ai";
+import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+import type { StageId } from "../stages/types";
+import type {
+  GigLike,
+  InterviewContextLite,
+  SupportedEntityType,
+  ToolFactory,
+  VacancyLike,
+} from "../strategies/types";
 import {
-  createGetInterviewSettingsTool,
+  createAnalyzeResponseAuthenticityTool,
+  createCompleteInterviewTool,
+  createGetBotDetectionSummaryTool,
   createGetInterviewPolicyTool,
-  createGetInterviewStateTool,
-  createUpdateInterviewStateTool,
   createGetInterviewQuestionBankTool,
+  createGetInterviewSettingsTool,
+  createGetInterviewStateTool,
   createGetScoringRubricTool,
   createSaveInterviewNoteTool,
   createSaveQuestionAnswerTool,
-  createAnalyzeResponseAuthenticityTool,
-  createGetBotDetectionSummaryTool,
-  createCompleteInterviewTool,
-} from './index';
+  createUpdateInterviewStateTool,
+} from "./index";
+import type { ToolAvailability } from "./types";
 
 /**
  * Базовая фабрика инструментов
@@ -38,27 +44,66 @@ export abstract class BaseToolFactory implements ToolFactory {
   protected defineToolAvailability(): ToolAvailability[] {
     return [
       // Инструменты доступные на всех стадиях
-      { name: 'getInterviewSettings', availableOnAllStages: true, availableOnStages: [] },
-      { name: 'getInterviewPolicy', availableOnAllStages: true, availableOnStages: [] },
-      { name: 'getInterviewState', availableOnAllStages: true, availableOnStages: [] },
-      { name: 'updateInterviewState', availableOnAllStages: true, availableOnStages: [] },
-      { name: 'saveInterviewNote', availableOnAllStages: true, availableOnStages: [] },
-      { name: 'saveQuestionAnswer', availableOnAllStages: true, availableOnStages: [] },
-      { name: 'analyzeResponseAuthenticity', availableOnAllStages: true, availableOnStages: [] },
-      { name: 'getBotDetectionSummary', availableOnAllStages: true, availableOnStages: [] },
-      
+      {
+        name: "getInterviewSettings",
+        availableOnAllStages: true,
+        availableOnStages: [],
+      },
+      {
+        name: "getInterviewPolicy",
+        availableOnAllStages: true,
+        availableOnStages: [],
+      },
+      {
+        name: "getInterviewState",
+        availableOnAllStages: true,
+        availableOnStages: [],
+      },
+      {
+        name: "updateInterviewState",
+        availableOnAllStages: true,
+        availableOnStages: [],
+      },
+      {
+        name: "saveInterviewNote",
+        availableOnAllStages: true,
+        availableOnStages: [],
+      },
+      {
+        name: "saveQuestionAnswer",
+        availableOnAllStages: true,
+        availableOnStages: [],
+      },
+      {
+        name: "analyzeResponseAuthenticity",
+        availableOnAllStages: true,
+        availableOnStages: [],
+      },
+      {
+        name: "getBotDetectionSummary",
+        availableOnAllStages: true,
+        availableOnStages: [],
+      },
+
       // Инструменты доступные на конкретных стадиях
-      { 
-        name: 'getInterviewQuestionBank', 
-        availableOnStages: ['intro', 'org', 'tech', 'profile_review', 'task_approach', 'motivation'] 
+      {
+        name: "getInterviewQuestionBank",
+        availableOnStages: [
+          "intro",
+          "org",
+          "tech",
+          "profile_review",
+          "task_approach",
+          "motivation",
+        ],
       },
-      { 
-        name: 'getScoringRubric', 
-        availableOnStages: ['wrapup'] 
+      {
+        name: "getScoringRubric",
+        availableOnStages: ["wrapup"],
       },
-      { 
-        name: 'completeInterview', 
-        availableOnStages: ['wrapup'] 
+      {
+        name: "completeInterview",
+        availableOnStages: ["wrapup"],
       },
     ];
   }
@@ -74,14 +119,21 @@ export abstract class BaseToolFactory implements ToolFactory {
     vacancy: VacancyLike | null,
     interviewContext: InterviewContextLite,
   ): ToolSet {
+    // Определяем entityType на основе наличия gig или vacancy
+    const entityType: "gig" | "vacancy" | "unknown" = gig
+      ? "gig"
+      : vacancy
+        ? "vacancy"
+        : "unknown";
+
     return {
       getInterviewSettings: createGetInterviewSettingsTool(
         gig,
         vacancy,
         interviewContext,
-        this.entityType,
+        entityType,
       ),
-      getInterviewPolicy: createGetInterviewPolicyTool(this.entityType),
+      getInterviewPolicy: createGetInterviewPolicyTool(entityType),
       getInterviewState: createGetInterviewStateTool(sessionId),
       updateInterviewState: createUpdateInterviewStateTool(sessionId),
       getInterviewQuestionBank: createGetInterviewQuestionBankTool(
@@ -89,16 +141,19 @@ export abstract class BaseToolFactory implements ToolFactory {
         sessionId,
         gig,
         vacancy,
-        this.entityType,
+        entityType,
       ),
-      getScoringRubric: createGetScoringRubricTool(sessionId, this.entityType),
+      getScoringRubric: createGetScoringRubricTool(sessionId, entityType),
       saveInterviewNote: createSaveInterviewNoteTool(sessionId),
       saveQuestionAnswer: createSaveQuestionAnswerTool(sessionId),
       analyzeResponseAuthenticity: createAnalyzeResponseAuthenticityTool(
         sessionId,
         model,
       ),
-      getBotDetectionSummary: createGetBotDetectionSummaryTool(sessionId, model),
+      getBotDetectionSummary: createGetBotDetectionSummaryTool(
+        sessionId,
+        model,
+      ),
       completeInterview: createCompleteInterviewTool(sessionId),
     };
   }
@@ -108,21 +163,24 @@ export abstract class BaseToolFactory implements ToolFactory {
    */
   getAvailableTools(stage: string): string[] {
     return this.toolAvailability
-      .filter(tool => 
-        tool.availableOnAllStages || 
-        tool.availableOnStages.includes(stage as StageId)
+      .filter(
+        (tool) =>
+          tool.availableOnAllStages ||
+          tool.availableOnStages.includes(stage as StageId),
       )
-      .map(tool => tool.name);
+      .map((tool) => tool.name);
   }
 
   /**
    * Проверяет доступность инструмента на указанной стадии
    */
   isToolAvailable(toolName: string, stage: string): boolean {
-    const tool = this.toolAvailability.find(t => t.name === toolName);
+    const tool = this.toolAvailability.find((t) => t.name === toolName);
     if (!tool) return false;
-    
-    return tool.availableOnAllStages || 
-           tool.availableOnStages.includes(stage as StageId);
+
+    return (
+      tool.availableOnAllStages ||
+      tool.availableOnStages.includes(stage as StageId)
+    );
   }
 }

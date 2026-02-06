@@ -178,13 +178,6 @@ export const generateInvitationTemplate = protectedProcedure
     try {
       const result = await streamText({
         prompt,
-        generationName: "invitation-template-generation",
-        entityId: gigId,
-        metadata: {
-          workspaceId,
-          gigId,
-          userId: ctx.session.user.id,
-        },
       });
 
       let fullText = "";
