@@ -13,8 +13,8 @@ import { WebInterviewOrchestrator } from "@qbs-autonaim/ai";
 import { db } from "@qbs-autonaim/db/client";
 import { getAIModel } from "@qbs-autonaim/lib/ai";
 import "@qbs-autonaim/lib/instrumentation";
-import { InterviewSDKError } from "@qbs-autonaim/lib/errors";
-import { createUIMessageStream } from "ai";
+import { InterviewSDKError } from "@qbs-autonaim/lib";
+import { createUIMessageStream, createUIMessageStreamResponse } from "ai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { checkInterviewAccess, loadInterviewSession } from "./access-control";
@@ -202,7 +202,8 @@ async function handler(request: Request) {
       },
     });
 
-    return new Response(stream.pipeThrough(new TextEncoderStream()), {
+    return createUIMessageStreamResponse({
+      stream,
       headers: {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",

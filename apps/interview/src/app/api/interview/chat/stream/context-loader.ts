@@ -5,7 +5,7 @@ import {
   response as responseTable,
   vacancy as vacancyTable,
 } from "@qbs-autonaim/db/schema";
-import { InterviewSDKError } from "@qbs-autonaim/lib/errors";
+import { InterviewSDKError } from "@qbs-autonaim/lib";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 
 type Database = NodePgDatabase<typeof schema>;

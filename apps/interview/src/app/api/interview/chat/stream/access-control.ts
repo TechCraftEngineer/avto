@@ -1,7 +1,6 @@
 import { hasInterviewAccess, validateInterviewToken } from "@qbs-autonaim/api";
-import { eq } from "@qbs-autonaim/db";
-import type { Database } from "@qbs-autonaim/db/client";
-import { InterviewSDKError } from "@qbs-autonaim/lib/errors";
+import { type DbClient, eq } from "@qbs-autonaim/db";
+import { InterviewSDKError } from "@qbs-autonaim/lib";
 
 /**
  * Проверка доступа к интервью
@@ -9,7 +8,7 @@ import { InterviewSDKError } from "@qbs-autonaim/lib/errors";
 export async function checkInterviewAccess(
   sessionId: string,
   interviewToken: string | null | undefined,
-  db: Database,
+  db: DbClient,
 ) {
   let validatedToken = null;
 
@@ -31,7 +30,7 @@ export async function checkInterviewAccess(
 /**
  * Загрузка и валидация сессии интервью
  */
-export async function loadInterviewSession(sessionId: string, db: Database) {
+export async function loadInterviewSession(sessionId: string, db: DbClient) {
   const session = await db.query.interviewSession.findFirst({
     where: (s, { and }) => and(eq(s.id, sessionId), eq(s.lastChannel, "web")),
     with: {
