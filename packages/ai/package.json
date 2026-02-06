@@ -23,9 +23,9 @@
     "@opentelemetry/sdk-node": "^0.211.0",
     "@qbs-autonaim/config": "workspace:*",
     "@qbs-autonaim/lib": "workspace:*",
-    "ai": "6.0.71",
+    "ai": "6.0.73",
     "langfuse": "3.38.6",
-    "p-limit": "^7.2.0",
+    "p-limit": "^7.3.0",
     "string-strip-html": "^13.5.3",
     "uuid": "^13.0.0",
     "zod": "4.3.6"
