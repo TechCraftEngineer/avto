@@ -2,7 +2,7 @@
  * Экспорты для Interview Chat Stream API
  */
 
-export { InterviewSDKError } from "@qbs-autonaim/lib";
+export { InterviewSDKError } from "@qbs-autonaim/lib/errors";
 export { maxDuration, POST } from "./handler";
 export type {
   BotSettings,

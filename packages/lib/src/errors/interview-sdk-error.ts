@@ -1,5 +1,3 @@
-import { NextResponse } from "next/server";
-
 /**
  * Структурированные ошибки для Interview API
  */
@@ -12,14 +10,7 @@ export class InterviewSDKError extends Error {
     this.name = "InterviewSDKError";
   }
 
-  toResponse() {
-    return NextResponse.json(
-      { error: this.message, code: this.code },
-      { status: this.getStatusCode() },
-    );
-  }
-
-  private getStatusCode(): number {
+  getStatusCode(): number {
     if (this.code.startsWith("unauthorized")) return 401;
     if (this.code.startsWith("forbidden")) return 403;
     if (this.code.startsWith("not_found")) return 404;

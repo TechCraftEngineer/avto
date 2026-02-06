@@ -9,6 +9,7 @@ export default defineConfig({
     instrumentation: "src/instrumentation.ts",
     server: "src/server/index.ts",
     utils: "src/utils/index.ts",
+    errors: "src/errors/index.ts",
   },
   format: ["esm", "cjs"],
   dts: true,

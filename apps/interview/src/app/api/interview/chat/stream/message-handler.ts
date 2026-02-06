@@ -41,7 +41,7 @@ export function hasVoiceFile(message: Message): boolean {
 
       // Проверяем MIME-тип если есть
       const mime = (p as { mime?: string }).mime;
-      if (mime && mime.startsWith("audio/")) return true;
+      if (mime?.startsWith("audio/")) return true;
 
       // Проверяем расширение файла
       const filename = (p as { filename?: string }).filename;

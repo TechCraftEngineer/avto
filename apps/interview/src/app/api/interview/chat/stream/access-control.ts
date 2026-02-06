@@ -1,6 +1,6 @@
 import { hasInterviewAccess, validateInterviewToken } from "@qbs-autonaim/api";
 import { type DbClient, eq } from "@qbs-autonaim/db";
-import { InterviewSDKError } from "@qbs-autonaim/lib";
+import { InterviewSDKError } from "@qbs-autonaim/lib/errors";
 
 /**
  * Проверка доступа к интервью

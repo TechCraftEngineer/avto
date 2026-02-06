@@ -13,7 +13,7 @@ import { WebInterviewOrchestrator } from "@qbs-autonaim/ai";
 import { db } from "@qbs-autonaim/db/client";
 import { getAIModel } from "@qbs-autonaim/lib/ai";
 import "@qbs-autonaim/lib/instrumentation";
-import { InterviewSDKError } from "@qbs-autonaim/lib";
+import { InterviewSDKError } from "@qbs-autonaim/lib/errors";
 import { createUIMessageStream, createUIMessageStreamResponse } from "ai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
@@ -23,6 +23,7 @@ import {
   buildConversationHistory,
   formatMessagesForModel,
 } from "./conversation-builder";
+import { errorToResponse } from "./error-adapter";
 import { createWebInterviewRuntime } from "./interview-runtime";
 import {
   extractMessageText,
@@ -220,7 +221,7 @@ async function handler(request: Request) {
     trace.getActiveSpan()?.end();
 
     if (error instanceof InterviewSDKError) {
-      return error.toResponse();
+      return errorToResponse(error);
     }
 
     return NextResponse.json(
