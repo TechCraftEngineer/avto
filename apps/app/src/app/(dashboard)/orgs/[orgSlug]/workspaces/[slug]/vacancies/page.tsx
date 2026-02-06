@@ -2,7 +2,12 @@
 
 import { Button } from "@qbs-autonaim/ui/button";
 import { IconDownload, IconPlus } from "@tabler/icons-react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  skipToken,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -40,11 +45,15 @@ export default function VacanciesPage() {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   const { data: vacancies, isLoading } = useQuery(
-    trpc.freelancePlatforms.getVacancies.queryOptions({
-      workspaceId: workspace?.id ?? "",
-      sortBy,
-      sortOrder,
-    }),
+    trpc.freelancePlatforms.getVacancies.queryOptions(
+      workspace?.id
+        ? {
+            workspaceId: workspace.id,
+            sortBy,
+            sortOrder,
+          }
+        : skipToken,
+    ),
   );
 
   const {

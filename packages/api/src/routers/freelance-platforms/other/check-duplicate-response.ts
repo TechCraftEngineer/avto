@@ -64,12 +64,12 @@ export const checkDuplicateResponse = publicProcedure
       }
     }
 
-    // Проверяем дубликаты по profileUrl + vacancyId
+    // Проверяем дубликаты по platformProfileUrl + vacancyId
     const existingResponse = await ctx.db.query.response.findFirst({
       where: and(
         eq(responseTable.entityId, input.vacancyId),
         eq(responseTable.entityType, "vacancy"),
-        eq(responseTable.profileUrl, input.platformProfileUrl),
+        eq(responseTable.platformProfileUrl, input.platformProfileUrl),
       ),
     });
 

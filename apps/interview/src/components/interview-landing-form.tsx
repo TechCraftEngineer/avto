@@ -98,7 +98,9 @@ export function InterviewLandingForm({
 
     try {
       const result = await onSubmit(trimmedData);
-      router.push(`/${token}/chat?sessionId=${result.interviewSessionId}`);
+      router.push(
+        `/interview/${token}/chat?sessionId=${result.interviewSessionId}`,
+      );
     } catch (error: unknown) {
       setIsSubmitting(false);
       const duplicateMessage =

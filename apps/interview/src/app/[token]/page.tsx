@@ -34,7 +34,7 @@ function InterviewLandingClient({ token }: { token: string }) {
       data.isActive &&
       data.sessionId
     ) {
-      router.push(`/interview/${token}/chat?sessionId=${data.sessionId}`);
+      router.push(`/${token}/chat?sessionId=${data.sessionId}`);
     }
   }, [data, router, token]);
 
@@ -135,20 +135,20 @@ function InterviewLandingClient({ token }: { token: string }) {
 
   const handleContinueInterview = async () => {
     // Для direct_response без активной сессии - создаем новую сессию
-    if (
-      data?.type === "direct_response" &&
-      !data.hasActiveSession &&
-      data.responseId
-    ) {
+    if (data?.type === "direct_response" && data.responseId) {
       try {
         const result = await startInterviewMutation.mutateAsync({
           token,
           freelancerInfo: {
-            name: "Продолжение интервью", // Можно улучшить, взяв из response
-            platformProfileUrl: "https://continue.interview", // Заглушка
+            name: "Продолжение интервью",
+            platformProfileUrl: "https://continue.interview",
           },
         });
-        return { interviewSessionId: result.sessionId };
+
+        // После успешного создания сессии переходим в чат
+        if (result.sessionId) {
+          router.push(`/${token}/chat?sessionId=${result.sessionId}`);
+        }
       } catch (error) {
         // Проверяем, не закрыта ли вакансия/задание
         if (
@@ -162,9 +162,9 @@ function InterviewLandingClient({ token }: { token: string }) {
               token,
             }),
           });
-          return { interviewSessionId: "" };
+        } else {
+          throw error;
         }
-        throw error;
       }
     }
   };
@@ -260,10 +260,10 @@ function InterviewLandingClient({ token }: { token: string }) {
 
         {/* Form Card */}
         <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          {data.type === "direct_response" ? (
+          {data.type === "direct_response" && !data.hasActiveSession ? (
             <div className="space-y-4">
               <p className="text-gray-600">
-                У вас есть незавершенное интервью. Хотите продолжить?
+                Начните интервью по вашему отклику
               </p>
               <button
                 type="button"
@@ -279,10 +279,10 @@ function InterviewLandingClient({ token }: { token: string }) {
                 )}
                 {startInterviewMutation.isPending
                   ? "Загрузка…"
-                  : "Продолжить интервью"}
+                  : "Начать интервью"}
               </button>
             </div>
-          ) : (
+          ) : data.type === "vacancy" || data.type === "gig" ? (
             <InterviewLandingForm
               token={token}
               entityId={data.data.id}
@@ -293,7 +293,7 @@ function InterviewLandingClient({ token }: { token: string }) {
                 data.type === "vacancy" ? handleCheckDuplicate : undefined
               }
             />
-          )}
+          ) : null}
         </div>
 
         {/* Footer */}

@@ -86,18 +86,25 @@ export const getInterviewByToken = publicProcedure
         });
       }
 
-      // Проверяем статус вакансии/гига
+      // Получаем данные вакансии/гига и проверяем статус
       let isActive = true;
+      let title = "";
+      let source = "direct_link";
+
       if (foundResponse.entityType === "vacancy") {
         const vacancy = await ctx.db.query.vacancy.findFirst({
           where: (v, { eq }) => eq(v.id, foundResponse.entityId),
         });
         isActive = vacancy?.isActive ?? false;
+        title = vacancy?.title ?? "Вакансия";
+        source = vacancy?.source ?? "direct_link";
       } else if (foundResponse.entityType === "gig") {
         const gig = await ctx.db.query.gig.findFirst({
           where: (g, { eq }) => eq(g.id, foundResponse.entityId),
         });
         isActive = gig?.isActive ?? false;
+        title = gig?.title ?? "Задание";
+        source = gig?.source ?? "direct_link";
       }
 
       const activeSession = foundResponse.interviewSessions?.[0];
@@ -114,9 +121,8 @@ export const getInterviewByToken = publicProcedure
         },
         data: {
           id: foundResponse.entityId,
-          title:
-            foundResponse.entityType === "vacancy" ? "Вакансия" : "Задание", // Можно улучшить, добавив получение названия
-          source: "direct_link",
+          title,
+          source,
         },
       };
     }

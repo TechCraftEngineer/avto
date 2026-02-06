@@ -3,320 +3,22 @@
 import { useChat } from "@ai-sdk/react";
 import { cn } from "@qbs-autonaim/ui";
 import { useQuery } from "@tanstack/react-query";
-import type { UIMessage } from "ai";
 import { DefaultChatTransport } from "ai";
-import { AlertCircle, ArrowDown, Sparkles } from "lucide-react";
-import { memo, useCallback, useEffect, useMemo, useRef } from "react";
-import Markdown from "react-markdown";
-import { toast } from "sonner";
-import { useScrollToBottom } from "~/hooks/use-scroll-to-bottom";
+import { AlertCircle, Sparkles } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useVoiceUpload } from "~/hooks/use-voice-upload";
+import {
+  convertHistoryMessage,
+  convertToSDKMessage,
+  convertUIMessage,
+} from "~/lib/message-converters";
 import { useTRPC } from "~/trpc/react";
-import type { ChatStatus } from "~/types/ai-chat";
+import type { ChatMessage, ChatStatus } from "~/types/chat";
 import { AIChatInput } from "./ai-chat-input";
+import { InterviewGreeting } from "./chat/interview-greeting";
+import { LoadingScreen } from "./chat/loading-screen";
+import { MessagesList } from "./chat/messages-list";
 import { InterviewContextCard } from "./interview-context-card";
-
-// Типы для сообщений
-interface MessagePart {
-  type: "text" | "file";
-  text?: string;
-  url?: string;
-  mediaType?: string;
-}
-
-interface ChatMessage {
-  id: string;
-  role: "user" | "assistant" | "system";
-  parts: MessagePart[];
-  createdAt?: Date;
-}
-
-function InterviewGreeting() {
-  return (
-    <div className="mx-auto mt-8 flex size-full max-w-3xl flex-col justify-center px-4 md:mt-16 md:px-8">
-      <div className="mb-4 flex size-12 items-center justify-center rounded-full bg-primary/10 ring-1 ring-primary/20">
-        <Sparkles className="size-6 text-primary" />
-      </div>
-      <div className="font-semibold text-xl md:text-2xl">Добро пожаловать!</div>
-      <div className="mt-1 text-muted-foreground text-xl md:text-2xl">
-        Готовы начать интервью?
-      </div>
-      <p className="mt-4 text-muted-foreground text-sm">
-        Напишите сообщение, чтобы начать диалог с AI-ассистентом
-      </p>
-    </div>
-  );
-}
-
-function ThinkingIndicator() {
-  return (
-    <output
-      className="group/message fade-in block w-full animate-in duration-300"
-      data-role="assistant"
-      aria-label="AI думает"
-    >
-      <div className="flex items-start justify-start gap-3">
-        <div className="-mt-1 flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 ring-1 ring-primary/20">
-          <div className="animate-pulse">
-            <Sparkles className="size-4 text-primary" />
-          </div>
-        </div>
-        <div className="flex w-full flex-col gap-2 md:gap-4">
-          <div className="flex items-center gap-1 p-0 text-muted-foreground text-sm">
-            <span className="animate-pulse">Думаю</span>
-            <span className="inline-flex">
-              <span className="animate-bounce [animation-delay:0ms]">.</span>
-              <span className="animate-bounce [animation-delay:150ms]">.</span>
-              <span className="animate-bounce [animation-delay:300ms]">.</span>
-            </span>
-          </div>
-        </div>
-      </div>
-    </output>
-  );
-}
-
-// Компонент сообщения
-interface MessageProps {
-  message: ChatMessage;
-  isLoading?: boolean;
-}
-
-const Message = memo(function Message({ message, isLoading }: MessageProps) {
-  const isUser = message.role === "user";
-
-  return (
-    <div
-      className="group/message fade-in w-full animate-in duration-200"
-      data-role={message.role}
-    >
-      <div
-        className={cn("flex w-full items-start gap-2 md:gap-3", {
-          "justify-end": isUser,
-          "justify-start": !isUser,
-        })}
-      >
-        {!isUser && (
-          <div className="-mt-1 flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 ring-1 ring-primary/20">
-            <Sparkles className="size-4 text-primary" />
-          </div>
-        )}
-
-        <div
-          className={cn("flex flex-col gap-2", {
-            "max-w-[calc(100%-2.5rem)] sm:max-w-[min(fit-content,80%)]": isUser,
-            "w-full": !isUser,
-          })}
-        >
-          {message.parts.map((part, index) => {
-            if (part.type === "file" && part.url) {
-              return (
-                <div key={`${message.id}-file-${index}`} className="mb-2">
-                  {/* biome-ignore lint/a11y/useMediaCaption: голосовое сообщение */}
-                  <audio
-                    controls
-                    src={part.url}
-                    className="h-10 max-w-[250px]"
-                    aria-label="Голосовое сообщение"
-                  />
-                </div>
-              );
-            }
-
-            if (part.type === "text" && part.text) {
-              if (isUser) {
-                return (
-                  <div
-                    key={`${message.id}-text-${index}`}
-                    className="break-words rounded-2xl bg-primary px-3 py-2 text-primary-foreground"
-                  >
-                    <p className="whitespace-pre-wrap">{part.text}</p>
-                  </div>
-                );
-              }
-
-              // Ответ AI — рендерим markdown с оптимизацией
-              return (
-                <div
-                  key={`${message.id}-text-${index}`}
-                  className="prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
-                >
-                  <Markdown
-                    components={{
-                      // Оптимизация: отключаем ненужные компоненты
-                      p: ({ children }) => <p>{children}</p>,
-                      strong: ({ children }) => <strong>{children}</strong>,
-                      em: ({ children }) => <em>{children}</em>,
-                      code: ({ children }) => <code>{children}</code>,
-                      pre: ({ children }) => <pre>{children}</pre>,
-                      ul: ({ children }) => <ul>{children}</ul>,
-                      ol: ({ children }) => <ol>{children}</ol>,
-                      li: ({ children }) => <li>{children}</li>,
-                    }}
-                  >
-                    {part.text}
-                  </Markdown>
-                </div>
-              );
-            }
-
-            return null;
-          })}
-
-          {isLoading && !isUser && message.parts.length === 0 && (
-            <div className="flex items-center gap-1 text-muted-foreground text-sm">
-              <span className="animate-pulse">Генерирую</span>
-              <span className="inline-flex">
-                <span className="animate-bounce [animation-delay:0ms]">.</span>
-                <span className="animate-bounce [animation-delay:150ms]">
-                  .
-                </span>
-                <span className="animate-bounce [animation-delay:300ms]">
-                  .
-                </span>
-              </span>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-});
-
-// Компонент списка сообщений
-interface MessagesListProps {
-  messages: ChatMessage[];
-  status: ChatStatus;
-  emptyStateComponent?: React.ReactNode;
-}
-
-function MessagesList({
-  messages,
-  status,
-  emptyStateComponent,
-}: MessagesListProps) {
-  const { containerRef, endRef, isAtBottom, scrollToBottom } =
-    useScrollToBottom();
-
-  const isStreaming = status === "streaming";
-  const isSubmitted = status === "submitted";
-
-  return (
-    <div className="relative flex-1">
-      <div
-        ref={containerRef}
-        className="absolute inset-0 touch-pan-y overflow-y-auto"
-        role="log"
-        aria-live="polite"
-        aria-label="История чата"
-      >
-        <div className="mx-auto flex min-w-0 max-w-4xl flex-col gap-4 px-2 py-4 md:gap-6 md:px-4">
-          {messages.length === 0 && emptyStateComponent}
-
-          {messages.map((message, index) => (
-            <Message
-              key={message.id}
-              message={message}
-              isLoading={isStreaming && index === messages.length - 1}
-            />
-          ))}
-
-          {isSubmitted && <ThinkingIndicator />}
-
-          <div
-            ref={endRef}
-            className="min-h-[24px] min-w-[24px] shrink-0"
-            aria-hidden="true"
-          />
-        </div>
-      </div>
-
-      <button
-        type="button"
-        aria-label="Прокрутить вниз"
-        className={cn(
-          "-translate-x-1/2 absolute bottom-4 left-1/2 z-10 rounded-full border bg-background p-2 shadow-lg transition-all hover:bg-muted",
-          isAtBottom
-            ? "pointer-events-none scale-0 opacity-0"
-            : "pointer-events-auto scale-100 opacity-100",
-        )}
-        onClick={() => scrollToBottom("smooth")}
-      >
-        <ArrowDown className="size-4" />
-      </button>
-    </div>
-  );
-}
-
-// Конвертация сообщений из getChatHistory в формат UI
-function convertHistoryMessage(message: {
-  id: string;
-  role: "user" | "assistant" | "system";
-  content: string | null;
-  type: "text" | "voice" | "file" | "event";
-  createdAt: Date;
-  voiceTranscription: string | null;
-  fileUrl: string | null;
-}): ChatMessage {
-  const role = message.role;
-  const parts: MessagePart[] = [];
-
-  if (message.type === "voice") {
-    // Добавляем аудиофайл, если есть URL
-    if (message.fileUrl) {
-      parts.push({
-        type: "file",
-        url: message.fileUrl,
-        mediaType: "audio/webm",
-      });
-    }
-    // Добавляем транскрипцию, если есть
-    if (message.voiceTranscription) {
-      parts.push({ type: "text", text: message.voiceTranscription });
-    }
-  } else {
-    // Обычное текстовое сообщение
-    parts.push({ type: "text", text: message.content ?? "" });
-  }
-
-  return { id: message.id, role, parts, createdAt: message.createdAt };
-}
-
-// Конвертация UIMessage из AI SDK в наш формат
-function convertUIMessage(msg: {
-  id: string;
-  role: string;
-  parts?: Array<{
-    type: string;
-    text?: string;
-    url?: string;
-    mediaType?: string;
-  }>;
-  content?: string;
-}): ChatMessage {
-  const parts: MessagePart[] = [];
-
-  if (msg.parts) {
-    for (const part of msg.parts) {
-      if (part.type === "text" && part.text) {
-        parts.push({ type: "text", text: part.text });
-      } else if (part.type === "file" && part.url) {
-        parts.push({
-          type: "file",
-          url: part.url,
-          mediaType: part.mediaType,
-        });
-      }
-    }
-  } else if (msg.content) {
-    parts.push({ type: "text", text: msg.content });
-  }
-
-  return {
-    id: msg.id,
-    role: msg.role as "user" | "assistant" | "system",
-    parts,
-  };
-}
 
 function generateUUID(): string {
   return crypto.randomUUID();
@@ -339,7 +41,6 @@ export function InterviewChat({
   const isInitializedRef = useRef(false);
   const currentConversationIdRef = useRef(interviewSessionId);
 
-  // Загрузка истории чата
   const { data: chatHistory, isLoading: isLoadingHistory } = useQuery(
     trpc.freelancePlatforms.getChatHistory.queryOptions({
       interviewSessionId,
@@ -347,23 +48,19 @@ export function InterviewChat({
     }),
   );
 
-  // Ленивая загрузка контекста интервью (вакансия/задание)
   const { data: interviewContext, isLoading: isLoadingContext } = useQuery({
     ...trpc.freelancePlatforms.getInterviewContext.queryOptions({
       interviewSessionId,
       interviewToken,
     }),
-    // Включаем только после загрузки истории чата
     enabled: !!chatHistory,
   });
 
-  // Конвертация истории в формат для отображения
   const historyMessages = useMemo(() => {
     if (!chatHistory?.messages) return [];
     return chatHistory.messages.map(convertHistoryMessage);
   }, [chatHistory?.messages]);
 
-  // Оптимизируем transport для useChat
   const transport = useMemo(
     () =>
       new DefaultChatTransport({
@@ -376,7 +73,6 @@ export function InterviewChat({
     [apiEndpoint, interviewSessionId, interviewToken],
   );
 
-  // useChat из AI SDK с нативным стримингом
   const {
     messages: rawMessages,
     status: rawStatus,
@@ -394,7 +90,6 @@ export function InterviewChat({
     },
   });
 
-  // Конвертация статуса
   const status: ChatStatus = useMemo(() => {
     if (rawStatus === "submitted") return "submitted";
     if (rawStatus === "streaming") return "streaming";
@@ -402,12 +97,10 @@ export function InterviewChat({
     return "idle";
   }, [rawStatus]);
 
-  // Конвертация сообщений в наш формат с оптимизацией
   const messages: ChatMessage[] = useMemo(() => {
     return rawMessages.map(convertUIMessage);
   }, [rawMessages]);
 
-  // Синхронизация истории при загрузке
   useEffect(() => {
     if (currentConversationIdRef.current !== interviewSessionId) {
       isInitializedRef.current = false;
@@ -415,164 +108,44 @@ export function InterviewChat({
     }
 
     if (!isInitializedRef.current && historyMessages.length > 0) {
-      // Конвертируем в формат AI SDK
-      const sdkMessages = historyMessages.map((msg) => {
-        // Собираем все части в правильном формате для AI SDK
-        const sdkParts = msg.parts
-          .map((part) => {
-            if (part.type === "text" && part.text) {
-              return { type: "text" as const, text: part.text };
-            } else if (part.type === "file" && part.url) {
-              return {
-                type: "file" as const,
-                url: part.url,
-                mediaType: part.mediaType || "audio/webm",
-              };
-            }
-            return null;
-          })
-          .filter(Boolean);
+      const sdkMessages = historyMessages.map(convertToSDKMessage);
 
-        return {
-          id: msg.id,
-          role: msg.role as "user" | "assistant",
-          content: msg.parts.find((p) => p.type === "text")?.text || "",
-          parts: sdkParts,
-        };
-      });
-
-      // Если есть существующие сообщения, сначала сбрасываем их
       if (rawMessages.length > 0) {
         setMessages([]);
-        // Небольшая задержка для корректного сброса
         setTimeout(() => {
-          setMessages(sdkMessages as UIMessage[]);
+          setMessages(sdkMessages);
           isInitializedRef.current = true;
         }, 0);
       } else {
-        setMessages(sdkMessages as UIMessage[]);
+        setMessages(sdkMessages);
         isInitializedRef.current = true;
       }
     }
   }, [interviewSessionId, historyMessages, rawMessages.length, setMessages]);
 
-  // Отправка сообщения
+  const { uploadVoice } = useVoiceUpload({
+    sessionId: interviewSessionId,
+    onSuccess: (audioUrl) => {
+      sendMessage({
+        role: "user",
+        parts: [
+          {
+            type: "file" as const,
+            url: audioUrl,
+            mediaType: "audio/webm",
+          },
+        ],
+      });
+    },
+  });
+
   const handleSendMessage = useCallback(
     async (content: string, audioFile?: File) => {
-      // Если есть аудиофайл, загружаем его
       if (audioFile) {
-        let audioObjectUrl: string | null = null;
-        let messageObjectUrl: string | null = null;
-
-        try {
-          // Конвертируем файл в base64
-          const reader = new FileReader();
-          const base64Promise = new Promise<string>((resolve, reject) => {
-            reader.onload = () => resolve(reader.result as string);
-            reader.onerror = reject;
-            reader.readAsDataURL(audioFile);
-          });
-
-          const base64Audio = await base64Promise;
-
-          // Получаем длительность аудио с таймаутом
-          audioObjectUrl = URL.createObjectURL(audioFile);
-          const audio = new Audio(audioObjectUrl);
-
-          const duration = await new Promise<number>((resolve, reject) => {
-            const timeout = setTimeout(() => {
-              cleanup();
-              reject(new Error("Audio metadata loading timeout"));
-            }, 10000);
-
-            const onLoadedMetadata = () => {
-              cleanup();
-              resolve(audio.duration);
-            };
-
-            const onError = () => {
-              cleanup();
-              reject(new Error("Failed to load audio metadata"));
-            };
-
-            const cleanup = () => {
-              clearTimeout(timeout);
-              audio.removeEventListener("loadedmetadata", onLoadedMetadata);
-              audio.removeEventListener("error", onError);
-            };
-
-            audio.addEventListener("loadedmetadata", onLoadedMetadata);
-            audio.addEventListener("error", onError);
-          });
-
-          // Освобождаем URL после получения метаданных
-          URL.revokeObjectURL(audioObjectUrl);
-          audioObjectUrl = null;
-
-          // Отправляем на сервер
-          const response = await fetch("/api/interview/upload-voice", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              sessionId: interviewSessionId,
-              audioFile: base64Audio,
-              fileName: audioFile.name,
-              mimeType: audioFile.type,
-              duration,
-            }),
-          });
-
-          if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(
-              errorData.message || "Failed to upload voice message",
-            );
-          }
-
-          // Создаём URL для UI
-          messageObjectUrl = URL.createObjectURL(audioFile);
-
-          // Добавляем сообщение в UI
-          sendMessage({
-            role: "user",
-            parts: [
-              {
-                type: "file" as const,
-                url: messageObjectUrl,
-                mediaType: audioFile.type,
-              },
-              ...(content.trim()
-                ? [{ type: "text" as const, text: content.trim() }]
-                : []),
-            ],
-          });
-
-          // Освобождаем URL после отправки (с небольшой задержкой для рендера)
-          setTimeout(() => {
-            if (messageObjectUrl) {
-              URL.revokeObjectURL(messageObjectUrl);
-            }
-          }, 1000);
-        } catch (error) {
-          // Очищаем все созданные URLs при ошибке
-          if (audioObjectUrl) {
-            URL.revokeObjectURL(audioObjectUrl);
-          }
-          if (messageObjectUrl) {
-            URL.revokeObjectURL(messageObjectUrl);
-          }
-
-          const errorMessage =
-            error instanceof Error
-              ? error.message
-              : "Не удалось отправить голосовое сообщение";
-
-          toast.error(errorMessage);
-        }
+        await uploadVoice(audioFile);
         return;
       }
 
-      // Обычное текстовое сообщение
       if (!content.trim()) return;
 
       sendMessage({
@@ -580,7 +153,7 @@ export function InterviewChat({
         parts: [{ type: "text", text: content }],
       });
     },
-    [interviewSessionId, sendMessage],
+    [uploadVoice, sendMessage],
   );
 
   const chatStatus = chatHistory?.status || "active";
@@ -589,103 +162,7 @@ export function InterviewChat({
   const isReadonly = isCompleted || isCancelled;
 
   if (isLoadingHistory || isLoadingContext) {
-    return (
-      <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden">
-        {/* Background elements */}
-        <div
-          className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)]"
-          style={{ backgroundSize: "64px 64px" }}
-          aria-hidden="true"
-        />
-        {/* Gradient orbs */}
-        <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 animate-pulse">
-          <div className="h-[400px] w-[600px] bg-[radial-gradient(ellipse_at_center,rgba(255,182,193,0.15)_0%,transparent_70%)] blur-3xl" />
-        </div>
-        <div className="pointer-events-none absolute left-1/4 top-20 animate-pulse delay-1000">
-          <div className="h-[300px] w-[300px] bg-[radial-gradient(ellipse_at_center,rgba(255,218,185,0.15)_0%,transparent_70%)] blur-3xl" />
-        </div>
-
-        {/* Main loading content */}
-        <div className="relative z-10 flex flex-col items-center gap-8 text-center">
-          {/* Animated logo */}
-          <div className="relative">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-linear-to-br from-violet-500 to-purple-600 shadow-2xl shadow-violet-500/30">
-              <svg
-                className="h-10 w-10 text-white animate-pulse"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={1.5}
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                />
-              </svg>
-            </div>
-            {/* Pulsing rings */}
-            <div className="absolute inset-0 rounded-full border-2 border-violet-500/30 animate-ping" />
-            <div className="absolute inset-2 rounded-full border border-purple-400/20 animate-ping animation-delay-300" />
-          </div>
-
-          {/* Loading steps */}
-          <div className="flex flex-col items-center gap-4 max-w-sm">
-            <div className="flex items-center gap-3 text-muted-foreground">
-              <div className="flex space-x-1">
-                <div className="w-2 h-2 bg-violet-500 rounded-full animate-bounce" />
-                <div className="w-2 h-2 bg-violet-500 rounded-full animate-bounce animation-delay-100" />
-                <div className="w-2 h-2 bg-violet-500 rounded-full animate-bounce animation-delay-200" />
-              </div>
-              <span className="text-sm font-medium">
-                Подготовка AI-интервью
-              </span>
-            </div>
-
-            {/* Progress bar */}
-            <div className="w-full max-w-xs">
-              <div className="h-1 bg-gray-200 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-linear-to-r from-violet-500 to-purple-600 rounded-full animate-pulse"
-                  style={{
-                    width: "60%",
-                    animation: "shimmer 2s infinite linear",
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Animated text */}
-            <div className="flex flex-col items-center gap-2">
-              <p className="text-sm text-muted-foreground animate-fade-in">
-                Загрузка персонализированных вопросов…
-              </p>
-              <p className="text-xs text-muted-foreground/70">
-                Это займет всего несколько секунд
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <style jsx>{`
-          @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-          }
-          .animation-delay-100 { animation-delay: 0.1s; }
-          .animation-delay-200 { animation-delay: 0.2s; }
-          .animation-delay-300 { animation-delay: 0.3s; }
-          .animate-fade-in {
-            animation: fadeIn 2s ease-in-out infinite alternate;
-          }
-          @keyframes fadeIn {
-            from { opacity: 0.7; }
-            to { opacity: 1; }
-          }
-        `}</style>
-      </main>
-    );
+    return <LoadingScreen />;
   }
 
   return (
