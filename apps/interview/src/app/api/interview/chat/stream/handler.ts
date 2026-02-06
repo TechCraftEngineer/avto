@@ -233,10 +233,12 @@ async function handler(request: Request) {
       currentStage,
     );
 
-    // Строим системный промпт через стратегию
+    // Строим системный промпт через стратегию с передачей entity для кастомных инструкций
+    const entity = gig ?? vacancy ?? null;
     const systemPrompt = strategy.systemPromptBuilder.build(
       isFirstResponse,
       currentStage,
+      entity,
     );
 
     // Получаем список активных инструментов для текущей стадии

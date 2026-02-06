@@ -1,5 +1,6 @@
-import type { StageId } from '../stages/types';
-import type { SystemPromptBuilder } from './types';
+import type { StageId } from "../stages/types";
+import type { GigLike, VacancyLike } from "../strategies/types";
+import type { SystemPromptBuilder } from "./types";
 
 /**
  * Базовый построитель системных промптов
@@ -9,9 +10,14 @@ export abstract class BaseSystemPromptBuilder implements SystemPromptBuilder {
   /**
    * Строит полный системный промпт
    */
-  build(isFirstResponse: boolean, currentStage: StageId): string {
+  build(
+    isFirstResponse: boolean,
+    currentStage: StageId,
+    entity?: GigLike | VacancyLike | null,
+  ): string {
     const parts: string[] = [
       this.getBaseRules(),
+      this.getCustomInstructions(entity),
       this.getStageInstructions(currentStage),
       this.getBotDetectionInstructions(),
       this.getCommunicationStyle(),
@@ -21,21 +27,45 @@ export abstract class BaseSystemPromptBuilder implements SystemPromptBuilder {
       parts.push(this.getFirstResponseInstructions());
     }
 
-    return parts.filter(Boolean).join('\n\n');
+    return parts.filter(Boolean).join("\n\n");
+  }
+
+  /**
+   * Получить кастомные инструкции из настроек вакансии/gig
+   */
+  protected getCustomInstructions(
+    entity?: GigLike | VacancyLike | null,
+  ): string {
+    if (!entity) return "";
+
+    const parts: string[] = [];
+
+    if (entity.customBotInstructions) {
+      parts.push(`ДОПОЛНИТЕЛЬНЫЕ ИНСТРУКЦИИ ОТ РАБОТОДАТЕЛЯ:
+${entity.customBotInstructions}`);
+    }
+
+    if (entity.customScreeningPrompt) {
+      parts.push(`СПЕЦИАЛЬНЫЕ КРИТЕРИИ ОТБОРА:
+${entity.customScreeningPrompt}`);
+    }
+
+    return parts.filter(Boolean).join("\n\n");
   }
 
   /**
    * Базовые правила для всех интервью
    */
   protected getBaseRules(): string {
-    return `Вы — AI-рекрутер, проводящий структурированное интервью с кандидатом.
+    return `Вы — профессиональный интервьюер, проводящий структурированное собеседование с кандидатом.
 
 ОСНОВНЫЕ ПРАВИЛА:
 - Задавайте вопросы последовательно, по одному за раз
 - Внимательно слушайте ответы и задавайте уточняющие вопросы при необходимости
 - Поддерживайте профессиональный, но дружелюбный тон
 - Адаптируйте вопросы на основе предыдущих ответов кандидата
-- Не повторяйте уже заданные вопросы`;
+- Не повторяйте уже заданные вопросы
+- Учитывайте специфику отрасли и должности`;
   }
 
   /**
@@ -45,7 +75,7 @@ export abstract class BaseSystemPromptBuilder implements SystemPromptBuilder {
     const stageInstructions: Record<StageId, string> = {
       intro: `ТЕКУЩАЯ СТАДИЯ: Введение
 - Поприветствуйте кандидата
-- Кратко объясните структуру интервью
+- Кратко объясните структуру собеседования
 - Убедитесь, что кандидат готов начать`,
 
       org: `ТЕКУЩАЯ СТАДИЯ: Организационные вопросы
@@ -53,20 +83,20 @@ export abstract class BaseSystemPromptBuilder implements SystemPromptBuilder {
 - Обсудите ожидания по срокам
 - Выясните предпочтения по формату работы`,
 
-      tech: `ТЕКУЩАЯ СТАДИЯ: Технические вопросы
-- Оцените технические навыки кандидата
-- Задавайте конкретные вопросы о технологиях и инструментах
-- Попросите примеры из практического опыта`,
+      tech: `ТЕКУЩАЯ СТАДИЯ: Профессиональные вопросы
+- Оцените профессиональные навыки и компетенции кандидата
+- Задавайте конкретные вопросы о релевантном опыте
+- Попросите примеры из практики`,
 
       wrapup: `ТЕКУЩАЯ СТАДИЯ: Завершение
-- Подведите итоги интервью
+- Подведите итоги собеседования
 - Ответьте на вопросы кандидата
 - Объясните следующие шаги процесса`,
 
       profile_review: `ТЕКУЩАЯ СТАДИЯ: Обзор профиля
 - Изучите профиль кандидата
 - Задайте вопросы о релевантном опыте
-- Уточните детали из резюме`,
+- Уточните детали из резюме или портфолио`,
 
       task_approach: `ТЕКУЩАЯ СТАДИЯ: Подход к задаче
 - Обсудите понимание задачи кандидатом
@@ -75,11 +105,11 @@ export abstract class BaseSystemPromptBuilder implements SystemPromptBuilder {
 
       motivation: `ТЕКУЩАЯ СТАДИЯ: Мотивация
 - Выясните причины интереса к позиции
-- Обсудите карьерные цели кандидата
+- Обсудите профессиональные цели кандидата
 - Оцените долгосрочную заинтересованность`,
     };
 
-    return stageInstructions[stage] || '';
+    return stageInstructions[stage] || "";
   }
 
   /**
@@ -115,8 +145,8 @@ export abstract class BaseSystemPromptBuilder implements SystemPromptBuilder {
   protected getFirstResponseInstructions(): string {
     return `ПЕРВЫЙ ОТВЕТ:
 - Начните с приветствия
-- Представьтесь как AI-рекрутер
-- Кратко опишите структуру интервью
+- Представьтесь как интервьюер
+- Кратко опишите структуру собеседования
 - Задайте первый вопрос`;
   }
 }
