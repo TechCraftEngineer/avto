@@ -133,7 +133,7 @@ export function streamText(
 
     // Определяем доступные fallback провайдеры
     const availableFallbacks: Array<{
-      provider: "openai" | "deepseek" | "openrouter";
+      provider: "openai" | "deepseek" | "openrouter" | "local";
       model: LanguageModel;
       modelName: string;
     }> = [];

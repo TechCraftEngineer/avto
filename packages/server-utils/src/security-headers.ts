@@ -23,6 +23,8 @@ const SECURITY_CONFIG = {
         "https://api.openai.com",
         "https://api.deepseek.com",
         "https://openrouter.ai",
+        // Примечание: Локальный AI провайдер использует пользовательский URL из LOCAL_API_URL
+        // Если используется локальный провайдер, добавьте его URL в CSP вручную
       ],
       frameSrc: ["'none'"],
       objectSrc: ["'none'"],

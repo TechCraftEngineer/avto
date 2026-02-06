@@ -35,12 +35,14 @@ export const env = createEnv({
 
     // AI Services
     AI_PROVIDER: z
-      .enum(["openai", "deepseek", "openrouter"])
+      .enum(["openai", "deepseek", "openrouter", "local"])
       .default("deepseek"),
     AI_MODEL: z.string().optional(),
     OPENAI_API_KEY: z.string().min(1).optional(),
     DEEPSEEK_API_KEY: z.string().min(1).optional(),
     OPENROUTER_API_KEY: z.string().min(1).optional(),
+    LOCAL_API_KEY: z.string().min(1).optional(),
+    LOCAL_API_URL: z.url().optional(),
     LANGFUSE_SECRET_KEY: z.string().min(1).optional(),
     LANGFUSE_PUBLIC_KEY: z.string().min(1).optional(),
     LANGFUSE_BASE_URL: z.url().optional(),
@@ -158,6 +160,8 @@ export const env = createEnv({
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     DEEPSEEK_API_KEY: process.env.DEEPSEEK_API_KEY,
     OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
+    LOCAL_API_KEY: process.env.LOCAL_API_KEY,
+    LOCAL_API_URL: process.env.LOCAL_API_URL,
     LANGFUSE_SECRET_KEY: process.env.LANGFUSE_SECRET_KEY,
     LANGFUSE_PUBLIC_KEY: process.env.LANGFUSE_PUBLIC_KEY,
     LANGFUSE_BASE_URL: process.env.LANGFUSE_BASE_URL,

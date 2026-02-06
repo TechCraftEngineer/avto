@@ -35,3 +35,12 @@ export const openrouterProvider = env.OPENROUTER_API_KEY
       apiKey: env.OPENROUTER_API_KEY,
     })
   : null;
+
+// Создаём Local провайдер только если есть API URL
+export const localProvider =
+  env.LOCAL_API_URL && env.LOCAL_API_KEY
+    ? createOpenAI({
+        apiKey: env.LOCAL_API_KEY,
+        baseURL: env.LOCAL_API_URL,
+      })
+    : null;

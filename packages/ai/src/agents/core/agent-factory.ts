@@ -41,7 +41,7 @@ export interface AgentFactoryConfig {
   model: LanguageModel;
   traceId?: string;
   maxSteps?: number;
-  modelProvider?: "openai" | "deepseek" | "openrouter" | string;
+  modelProvider?: "openai" | "deepseek" | "openrouter" | "local" | string;
   modelName?: string;
 }
 

@@ -41,7 +41,7 @@ export interface AgentConfig {
   maxSteps?: number;
   traceId?: string;
   tools?: ToolSet;
-  modelProvider?: "openai" | "deepseek" | "openrouter" | string;
+  modelProvider?: "openai" | "deepseek" | "openrouter" | "local" | string;
   modelName?: string;
 }
 

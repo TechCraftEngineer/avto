@@ -17,6 +17,7 @@ async function tryStreamWithModel(
   modelToUse: ReturnType<typeof getAIModel>,
   options: StreamOptions,
   isFallback = false,
+  capturedSpan?: ReturnType<typeof trace.getSpan>,
 ) {
   try {
     const streamResult = streamText({
@@ -34,7 +35,7 @@ async function tryStreamWithModel(
         isFallback,
       },
       onFinish: async () => {
-        trace.getActiveSpan()?.end();
+        capturedSpan?.end();
       },
     });
 
@@ -75,7 +76,6 @@ async function tryStreamWithModel(
     });
 
     return {
-      ...streamResult,
       textStream: newStream as typeof streamResult.textStream,
     };
   } catch (error) {
@@ -113,9 +113,10 @@ async function tryStreamWithModel(
  */
 export async function executeStreamWithFallback(options: StreamOptions) {
   const model = getAIModel();
+  const span = trace.getSpan(trace.context.active());
 
   try {
-    return await tryStreamWithModel(model, options, false);
+    return await tryStreamWithModel(model, options, false, span);
   } catch (error) {
     console.warn(
       "[Stream] Ошибка с основной моделью, переключаюсь на fallback:",
@@ -124,7 +125,12 @@ export async function executeStreamWithFallback(options: StreamOptions) {
 
     try {
       const fallbackModel = getFallbackModel();
-      const result = await tryStreamWithModel(fallbackModel, options, true);
+      const result = await tryStreamWithModel(
+        fallbackModel,
+        options,
+        true,
+        span,
+      );
 
       console.log("[Stream] Успешно переключился на fallback модель");
       return result;
@@ -136,13 +142,36 @@ export async function executeStreamWithFallback(options: StreamOptions) {
           : String(fallbackError),
       );
 
-      trace.getActiveSpan()?.setStatus({
-        code: SpanStatusCode.ERROR,
-        message: `Основная: ${error instanceof Error ? error.message : String(error)}. Fallback: ${fallbackError instanceof Error ? fallbackError.message : String(fallbackError)}`,
-      });
-      trace.getActiveSpan()?.end();
+      // Создаём комбинированную ошибку с обоими стеками
+      const primaryMsg = error instanceof Error ? error.message : String(error);
+      const fallbackMsg =
+        fallbackError instanceof Error
+          ? fallbackError.message
+          : String(fallbackError);
 
-      throw fallbackError;
+      const combinedError = new Error(
+        `Основная модель: ${primaryMsg}; Fallback модель: ${fallbackMsg}`,
+      );
+      combinedError.name = "StreamExecutionError";
+      (
+        combinedError as Error & {
+          primaryError?: unknown;
+          fallbackError?: unknown;
+        }
+      ).primaryError = error;
+      (
+        combinedError as Error & {
+          primaryError?: unknown;
+          fallbackError?: unknown;
+        }
+      ).fallbackError = fallbackError;
+
+      span?.setStatus({
+        code: SpanStatusCode.ERROR,
+        message: combinedError.message,
+      });
+
+      throw combinedError;
     }
   }
 }

@@ -35,7 +35,24 @@ export function extractMessageText(message: Message): string {
  * Проверка наличия голосового файла в сообщении
  */
 export function hasVoiceFile(message: Message): boolean {
-  return message.parts?.some((p) => p.type === "file") ?? false;
+  return (
+    message.parts?.some((p) => {
+      if (p.type !== "file") return false;
+
+      // Проверяем MIME-тип если есть
+      const mime = (p as { mime?: string }).mime;
+      if (mime && mime.startsWith("audio/")) return true;
+
+      // Проверяем расширение файла
+      const filename = (p as { filename?: string }).filename;
+      if (filename) {
+        const ext = filename.toLowerCase().split(".").pop();
+        return ["mp3", "wav", "webm", "ogg", "m4a", "aac"].includes(ext || "");
+      }
+
+      return false;
+    }) ?? false
+  );
 }
 
 /**
