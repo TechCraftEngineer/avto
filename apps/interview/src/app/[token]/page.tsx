@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import React from "react";
 import { InterviewLandingForm } from "~/components/interview-landing-form";
 import { InterviewResponseActions } from "~/components/interview-response-actions";
@@ -15,41 +15,23 @@ interface PageProps {
 function InterviewLandingClient({ token }: { token: string }) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
-  const searchParams = useSearchParams();
   const router = useRouter();
   const [createdResponseId, setCreatedResponseId] = React.useState<
     string | null
   >(null);
 
-  const _responseId = searchParams.get("responseId");
-
   const { data, isLoading, error } = useQuery(
     trpc.freelancePlatforms.getInterviewByToken.queryOptions({ token }),
   );
-
   const startInterviewMutation = useMutation(
     trpc.freelancePlatforms.startWebInterview.mutationOptions(),
   );
-
-  // Перенаправляем в чат после успешного начала интервью
-  React.useEffect(() => {
-    if (startInterviewMutation.isSuccess && startInterviewMutation.data) {
-      router.push(
-        `/interview/${token}/chat?sessionId=${startInterviewMutation.data.sessionId}`,
-      );
-    }
-  }, [
-    startInterviewMutation.isSuccess,
-    startInterviewMutation.data,
-    router,
-    token,
-  ]);
-
   // Автоматический переход в чат если есть активная сессия
   React.useEffect(() => {
     if (
       data?.type === "direct_response" &&
       data.hasActiveSession &&
+      data.isActive &&
       data.sessionId
     ) {
       router.push(`/interview/${token}/chat?sessionId=${data.sessionId}`);
@@ -86,6 +68,28 @@ function InterviewLandingClient({ token }: { token: string }) {
     );
   }
 
+  // Проверяем, активна ли вакансия/задание
+  if (data.isActive === false) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-background px-4">
+        <div className="text-center">
+          <h1 className="text-6xl font-bold text-foreground">⚠️</h1>
+          <h2 className="mt-4 text-2xl font-semibold text-foreground">
+            {data.type === "gig" ? "Задание закрыто" : "Вакансия закрыта"}
+          </h2>
+          <p className="mt-2 text-muted-foreground">
+            {data.type === "gig"
+              ? "К сожалению, это задание больше не принимает отклики"
+              : "К сожалению, эта вакансия больше не принимает отклики"}
+          </p>
+          <p className="mt-6 text-sm text-muted-foreground">
+            Свяжитесь с работодателем для получения дополнительной информации
+          </p>
+        </div>
+      </main>
+    );
+  }
+
   const subtitle =
     data.type === "vacancy"
       ? "Ответьте на несколько вопросов о себе"
@@ -97,17 +101,36 @@ function InterviewLandingClient({ token }: { token: string }) {
     name: string;
     platformProfileUrl: string;
   }) => {
-    const result = await startInterviewMutation.mutateAsync({
-      token,
-      freelancerInfo: formData,
-    });
+    try {
+      const result = await startInterviewMutation.mutateAsync({
+        token,
+        freelancerInfo: formData,
+      });
 
-    // Сохраняем responseId для отображения кнопок действий
-    if (result.responseId) {
-      setCreatedResponseId(result.responseId);
+      // Сохраняем responseId для отображения кнопок действий
+      if (result.responseId) {
+        setCreatedResponseId(result.responseId);
+      }
+
+      return { interviewSessionId: result.sessionId };
+    } catch (error) {
+      // Проверяем, не закрыта ли вакансия/задание
+      if (
+        error instanceof Error &&
+        (error.message.includes("Вакансия закрыта") ||
+          error.message.includes("Задание закрыто"))
+      ) {
+        // Перезагружаем данные, чтобы показать экран "закрыто"
+        await queryClient.invalidateQueries({
+          queryKey: trpc.freelancePlatforms.getInterviewByToken.queryKey({
+            token,
+          }),
+        });
+        // Не пробрасываем ошибку дальше - компонент перерендерится с новыми данными
+        return { interviewSessionId: "" };
+      }
+      throw error;
     }
-
-    return { interviewSessionId: result.sessionId };
   };
 
   const handleContinueInterview = async () => {
@@ -117,14 +140,32 @@ function InterviewLandingClient({ token }: { token: string }) {
       !data.hasActiveSession &&
       data.responseId
     ) {
-      const result = await startInterviewMutation.mutateAsync({
-        token,
-        freelancerInfo: {
-          name: "Продолжение интервью", // Можно улучшить, взяв из response
-          platformProfileUrl: "https://continue.interview", // Заглушка
-        },
-      });
-      return { interviewSessionId: result.sessionId };
+      try {
+        const result = await startInterviewMutation.mutateAsync({
+          token,
+          freelancerInfo: {
+            name: "Продолжение интервью", // Можно улучшить, взяв из response
+            platformProfileUrl: "https://continue.interview", // Заглушка
+          },
+        });
+        return { interviewSessionId: result.sessionId };
+      } catch (error) {
+        // Проверяем, не закрыта ли вакансия/задание
+        if (
+          error instanceof Error &&
+          (error.message.includes("Вакансия закрыта") ||
+            error.message.includes("Задание закрыто"))
+        ) {
+          // Перезагружаем данные, чтобы показать экран "закрыто"
+          await queryClient.invalidateQueries({
+            queryKey: trpc.freelancePlatforms.getInterviewByToken.queryKey({
+              token,
+            }),
+          });
+          return { interviewSessionId: "" };
+        }
+        throw error;
+      }
     }
   };
 

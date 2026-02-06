@@ -9,7 +9,6 @@ import {
   type vacancy,
 } from "@qbs-autonaim/db/schema";
 import { generateText, getAIModel } from "@qbs-autonaim/lib/ai";
-import { getInterviewBaseUrl } from "@qbs-autonaim/server-utils";
 import { stripHtml } from "string-strip-html";
 import { createLogger, err, type Result, tryCatch } from "../base";
 
@@ -28,7 +27,6 @@ async function fetchWelcomeMessageData(responseId: string): Promise<
   Result<{
     responseData: ResponseData;
     bot: typeof botSettings.$inferSelect | undefined;
-    webChatUrl?: string;
   }>
 > {
   logger.info(`Fetching data for welcome message ${responseId}`);
@@ -73,42 +71,9 @@ async function fetchWelcomeMessageData(responseId: string): Promise<
       where: eq(botSettings.workspaceId, workspaceId),
     });
 
-    // Получаем URL веб-чата из домена vacancy
-    let webChatUrl: string | undefined;
-    if (
-      entityData.type === "vacancy" &&
-      entityData.data.customDomainId &&
-      entityData.data.customDomainId !== null
-    ) {
-      // Ищем кастомный домен для vacancy
-      const customDomain = await db.query.customDomain.findFirst({
-        where: (domain, { eq, and }) =>
-          and(
-            eq(domain.id, entityData.data.customDomainId as string),
-            eq(domain.type, "interview"),
-            eq(domain.isVerified, true),
-          ),
-      });
-
-      if (customDomain) {
-        webChatUrl = `https://${customDomain.domain}`;
-      }
-    }
-
-    // Если нет кастомного домена, используем дефолтный URL
-    if (!webChatUrl) {
-      try {
-        webChatUrl = getInterviewBaseUrl();
-      } catch {
-        // Если не настроен NEXT_PUBLIC_INTERVIEW_URL, оставляем undefined
-        webChatUrl = undefined;
-      }
-    }
-
     return {
       responseData: { ...responseRecord, entity: entityData },
       bot,
-      webChatUrl,
     };
   }, "Failed to fetch data for welcome message");
 }
@@ -190,6 +155,7 @@ async function addEntityLink(
 export async function generateWelcomeMessage(
   responseId: string,
   channel: string,
+  webChatUrl?: string,
 ): Promise<Result<string>> {
   logger.info(`Generating welcome message for response ${responseId}`);
 
@@ -198,7 +164,7 @@ export async function generateWelcomeMessage(
     return err(dataResult.error);
   }
 
-  const { responseData, bot, webChatUrl } = dataResult.data;
+  const { responseData, bot } = dataResult.data;
 
   const aiResult = await generateAIWelcomeMessage(
     responseData,

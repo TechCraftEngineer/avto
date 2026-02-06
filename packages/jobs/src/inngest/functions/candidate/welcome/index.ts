@@ -85,13 +85,13 @@ export const sendCandidateWelcomeFunction = inngest.createFunction(
             },
           );
         } else if (enabledChannels.webChat) {
-          // Генерируем ссылку на веб-чат
+          // Генерируем уникальную ссылку на веб-чат для этого отклика
           const interviewLink = await step.run(
             "generate-interview-link",
             async () => {
               const linkGenerator = new InterviewLinkGenerator();
-              return linkGenerator.getOrCreateInterviewLink(
-                responseData.vacancy.id,
+              return linkGenerator.getOrCreateResponseInterviewLink(
+                responseId,
                 responseData.vacancy.workspaceId,
               );
             },
@@ -106,21 +106,19 @@ export const sendCandidateWelcomeFunction = inngest.createFunction(
             const result = await generateWelcomeMessage(
               responseId,
               "hh-webchat-invite",
+              interviewLink.url,
             );
 
             if (!result.success) {
               throw new Error(result.error);
             }
 
-            // Добавляем ссылку на веб-чат
-            const messageWithLink = `${result.data}\n\n🔗 Перейти в веб-чат: ${interviewLink.url}`;
-
             console.log("✅ Приглашение в веб-чат сгенерировано", {
               responseId,
-              messageLength: messageWithLink.length,
+              messageLength: result.data.length,
             });
 
-            return messageWithLink;
+            return result.data;
           });
         } else {
           // Если ничего не включено, отправляем обычное приветствие
@@ -219,8 +217,8 @@ export const sendCandidateWelcomeFunction = inngest.createFunction(
             "generate-interview-link",
             async () => {
               const linkGenerator = new InterviewLinkGenerator();
-              return linkGenerator.getOrCreateInterviewLink(
-                responseData.vacancy.id,
+              return linkGenerator.getOrCreateResponseInterviewLink(
+                responseId,
                 responseData.vacancy.workspaceId,
               );
             },
@@ -235,20 +233,22 @@ export const sendCandidateWelcomeFunction = inngest.createFunction(
                 source: responseData.importSource,
               });
 
-              const result = await generateWelcomeMessage(responseId, "web");
+              const result = await generateWelcomeMessage(
+                responseId,
+                "web",
+                interviewLink.url,
+              );
 
               if (!result.success) {
                 throw new Error(result.error);
               }
 
-              const messageWithLink = `${result.data}\n\n🔗 Перейти в веб-чат: ${interviewLink.url}`;
-
               console.log("✅ Сообщение сгенерировано", {
                 responseId,
-                messageLength: messageWithLink.length,
+                messageLength: result.data.length,
               });
 
-              return messageWithLink;
+              return result.data;
             },
           );
 

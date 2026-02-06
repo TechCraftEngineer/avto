@@ -90,7 +90,7 @@ export class WelcomeAgent extends BaseAgent<WelcomeInput, WelcomeOutput> {
       type,
       channel,
     } = input;
-
+    console.log(input);
     // Для канала "hh-webchat-invite" указываем минимальный контекст,
     // так как сообщение отправляется в HH.ru чат, где контекст уже понятен
     const isHHWebChatInvite = channel === "hh-webchat-invite";

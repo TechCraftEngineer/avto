@@ -49,15 +49,9 @@ export const getInterviewByToken = publicProcedure
         });
       }
 
-      if (!foundGig.isActive) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Задание закрыто",
-        });
-      }
-
       return {
         type: "gig" as const,
+        isActive: foundGig.isActive,
         interviewLink: {
           id: link.id,
           token: link.token,
@@ -92,33 +86,25 @@ export const getInterviewByToken = publicProcedure
         });
       }
 
-      // Проверяем, что вакансия/гиг все еще активны
+      // Проверяем статус вакансии/гига
+      let isActive = true;
       if (foundResponse.entityType === "vacancy") {
         const vacancy = await ctx.db.query.vacancy.findFirst({
           where: (v, { eq }) => eq(v.id, foundResponse.entityId),
         });
-        if (!vacancy?.isActive) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "Вакансия закрыта",
-          });
-        }
+        isActive = vacancy?.isActive ?? false;
       } else if (foundResponse.entityType === "gig") {
         const gig = await ctx.db.query.gig.findFirst({
           where: (g, { eq }) => eq(g.id, foundResponse.entityId),
         });
-        if (!gig?.isActive) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "Задание закрыто",
-          });
-        }
+        isActive = gig?.isActive ?? false;
       }
 
       const activeSession = foundResponse.interviewSessions?.[0];
 
       return {
         type: "direct_response" as const,
+        isActive,
         responseId: foundResponse.id,
         sessionId: activeSession?.id,
         hasActiveSession: !!activeSession,
@@ -147,15 +133,9 @@ export const getInterviewByToken = publicProcedure
       });
     }
 
-    if (!foundVacancy.isActive) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: "Вакансия закрыта",
-      });
-    }
-
     return {
       type: "vacancy" as const,
+      isActive: foundVacancy.isActive,
       interviewLink: {
         id: link.id,
         token: link.token,
