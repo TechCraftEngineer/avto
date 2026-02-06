@@ -47,12 +47,7 @@ export async function POST(request: Request) {
     }
 
     // Проверяем доступ к interview session
-    const hasAccess = await hasInterviewAccess(
-      sessionId,
-      validatedToken,
-      null, // нет авторизованного пользователя
-      db,
-    );
+    const hasAccess = await hasInterviewAccess(sessionId, validatedToken, db);
 
     if (!hasAccess) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });

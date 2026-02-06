@@ -43,7 +43,6 @@ export const withInterviewAccess = publicProcedure
     const hasAccess = await hasInterviewAccess(
       actualSessionId,
       validatedToken,
-      ctx.session?.user?.id ?? null,
       ctx.db,
     );
 

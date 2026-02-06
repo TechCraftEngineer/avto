@@ -5,7 +5,8 @@ import type { db as DbType } from "@qbs-autonaim/db/client";
 export interface ValidatedInterviewToken {
   type: "vacancy" | "gig";
   tokenId: string;
-  entityId: string; // vacancyId или gigId
+  entityId: string; // vacancyId, gigId или responseId (для entityType === "response")
+  entityType: "vacancy" | "gig" | "response"; // Тип сущности в interview_link
   token: string;
 }
 
@@ -36,12 +37,25 @@ export async function validateInterviewToken(
   }
 
   // Определяем тип на основе entityType
-  const type = link.entityType === "gig" ? "gig" : "vacancy";
+  // Для response нужно получить реальный тип из отклика
+  let type: "vacancy" | "gig" = "vacancy";
+
+  if (link.entityType === "gig") {
+    type = "gig";
+  } else if (link.entityType === "response") {
+    // Получаем отклик чтобы узнать реальный тип
+    const response = await db.query.response.findFirst({
+      where: (r, { eq }) => eq(r.id, link.entityId),
+      columns: { entityType: true },
+    });
+    type = response?.entityType === "gig" ? "gig" : "vacancy";
+  }
 
   return {
     type,
     tokenId: link.id,
     entityId: link.entityId,
+    entityType: link.entityType as "vacancy" | "gig" | "response",
     token: link.token,
   };
 }
@@ -75,77 +89,50 @@ export function hasGigAccess(
 }
 
 /**
- * Проверяет, имеет ли токен или пользователь доступ к interviewSession
+ * Проверяет, имеет ли токен доступ к interviewSession
+ * Интервью проходят анонимно, доступ только по токену
  */
 export async function hasInterviewAccess(
   sessionId: string,
   validatedToken: ValidatedInterviewToken | null,
-  userId: string | null,
   db: typeof DbType,
 ): Promise<boolean> {
+  // Без токена доступа нет
+  if (!validatedToken) {
+    return false;
+  }
+
   // Получаем interviewSession
   const session = await db.query.interviewSession.findFirst({
     where: (interviewSession, { eq }) => eq(interviewSession.id, sessionId),
   });
-
   if (!session) {
     return false;
   }
 
-  // Если есть авторизованный пользователь, проверяем владение через workspace
-  if (userId) {
-    // Получаем response через responseId
-    const responseRecord = await db.query.response.findFirst({
-      where: (r, { eq }) => eq(r.id, session.responseId),
-    });
-
-    if (responseRecord) {
-      let workspaceId: string | undefined;
-
-      // Получаем workspaceId в зависимости от типа сущности
-      if (responseRecord.entityType === "vacancy") {
-        const vacancy = await db.query.vacancy.findFirst({
-          where: (v, { eq }) => eq(v.id, responseRecord.entityId),
-          columns: { workspaceId: true },
-        });
-        workspaceId = vacancy?.workspaceId;
-      } else if (responseRecord.entityType === "gig") {
-        const gig = await db.query.gig.findFirst({
-          where: (g, { eq }) => eq(g.id, responseRecord.entityId),
-          columns: { workspaceId: true },
-        });
-        workspaceId = gig?.workspaceId;
-      }
-
-      // Проверяем членство в workspace
-      if (workspaceId) {
-        const workspaceMember = await db.query.workspaceMember.findFirst({
-          where: (member, { eq, and }) =>
-            and(eq(member.workspaceId, workspaceId), eq(member.userId, userId)),
-        });
-        if (workspaceMember) {
-          return true;
-        }
-      }
-    }
+  // Получаем response
+  const responseRecord = await db.query.response.findFirst({
+    where: (r, { eq }) => eq(r.id, session.responseId),
+  });
+  if (!responseRecord) {
+    return false;
+  }
+  console.log(validatedToken, responseRecord);
+  // Для токенов типа "response" проверяем соответствие responseId напрямую
+  if (
+    validatedToken.entityType === "response" &&
+    validatedToken.entityId === responseRecord.id
+  ) {
+    return true;
   }
 
-  // Если есть валидированный токен, проверяем соответствие
-  if (validatedToken) {
-    // Получаем response
-    const responseRecord = await db.query.response.findFirst({
-      where: (r, { eq }) => eq(r.id, session.responseId),
-    });
-
-    if (responseRecord) {
-      // Проверяем соответствие entityType и entityId
-      if (
-        validatedToken.type === responseRecord.entityType &&
-        validatedToken.entityId === responseRecord.entityId
-      ) {
-        return true;
-      }
-    }
+  // Для токенов типа "vacancy" или "gig" проверяем соответствие entityType и entityId
+  if (
+    validatedToken.entityType !== "response" &&
+    validatedToken.type === responseRecord.entityType &&
+    validatedToken.entityId === responseRecord.entityId
+  ) {
+    return true;
   }
 
   return false;

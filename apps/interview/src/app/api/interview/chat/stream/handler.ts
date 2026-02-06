@@ -98,7 +98,6 @@ async function handler(request: Request) {
     const accessAllowed = await hasInterviewAccess(
       sessionId,
       validatedToken,
-      null,
       db,
     );
 

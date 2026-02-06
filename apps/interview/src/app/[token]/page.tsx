@@ -95,7 +95,7 @@ function InterviewLandingClient({ token }: { token: string }) {
       ? "Ответьте на несколько вопросов о себе"
       : data.type === "gig"
         ? "Опишите ваше решение задания"
-        : "Продолжите интервью";
+        : "Пройдите интервью по вашему отклику";
 
   const handleSubmit = async (formData: {
     name: string;
