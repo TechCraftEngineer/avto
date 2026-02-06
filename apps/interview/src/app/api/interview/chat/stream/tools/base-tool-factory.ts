@@ -114,17 +114,18 @@ export abstract class BaseToolFactory implements ToolFactory {
   create(
     model: LanguageModel,
     sessionId: string,
-    db: NodePgDatabase<typeof schema>,
+    _db: NodePgDatabase<typeof schema>,
     gig: GigLike | null,
     vacancy: VacancyLike | null,
     interviewContext: InterviewContextLite,
   ): ToolSet {
-    // Определяем entityType на основе наличия gig или vacancy
-    const entityType: "gig" | "vacancy" | "unknown" = gig
-      ? "gig"
-      : vacancy
-        ? "vacancy"
-        : "unknown";
+    // Определяем entityType на основе this.entityType
+    const entityType: "gig" | "vacancy" | "unknown" =
+      this.entityType === "gig"
+        ? "gig"
+        : this.entityType === "vacancy"
+          ? "vacancy"
+          : "unknown";
 
     return {
       getInterviewSettings: createGetInterviewSettingsTool(

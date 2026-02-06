@@ -77,7 +77,14 @@ export interface ConversationMetadata {
 
   interviewState?: {
     version?: string;
-    stage?: "intro" | "org" | "tech" | "wrapup";
+    stage?:
+      | "intro"
+      | "org"
+      | "tech"
+      | "wrapup"
+      | "profile_review"
+      | "task_approach"
+      | "motivation";
     askedQuestions?: string[];
     voiceOptionOffered?: boolean;
     updatedAt?: string;

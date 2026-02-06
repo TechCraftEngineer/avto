@@ -4,15 +4,8 @@ import {
 } from "@qbs-autonaim/server-utils";
 import { tool } from "ai";
 import { z } from "zod";
-
-type InterviewStage =
-  | "intro"
-  | "org"
-  | "tech"
-  | "wrapup"
-  | "profile_review"
-  | "task_approach"
-  | "motivation";
+import type { StageId } from "../stages/types";
+import { VALID_STAGES } from "../stages/types";
 
 const interviewStateSchema = z.object({
   version: z.string().optional(),
@@ -45,7 +38,7 @@ export function createGetInterviewStateTool(sessionId: string) {
       );
       const state = parsed.success ? parsed.data : {};
 
-      let stage: InterviewStage = state.stage ?? "intro";
+      let stage: StageId = state.stage ?? "intro";
       if (metadata.interviewCompleted) stage = "wrapup";
 
       return {
@@ -84,7 +77,7 @@ export function createUpdateInterviewStateTool(sessionId: string) {
     execute: async (args: Record<string, unknown>) => {
       const { stage, askedQuestions, voiceOptionOffered, lastQuestionAsked } =
         args as {
-          stage?: InterviewStage;
+          stage?: StageId;
           askedQuestions?: string[];
           voiceOptionOffered?: boolean;
           lastQuestionAsked?: string;
@@ -96,17 +89,23 @@ export function createUpdateInterviewStateTool(sessionId: string) {
       );
       const prev = parsedPrev.success ? parsedPrev.data : {};
 
-      // Приводим stage к базовому типу для совместимости с метаданными
-      const baseStage = (stage ?? prev.stage) as
-        | "intro"
-        | "org"
-        | "tech"
-        | "wrapup"
-        | undefined;
+      // Нормализуем stage к валидному значению или используем предыдущее
+      const normalizeStage = (s: StageId | undefined): StageId | undefined => {
+        if (!s) return undefined;
+        return VALID_STAGES.includes(s) ? s : undefined;
+      };
 
-      const nextState = {
+      const normalizedStage = normalizeStage(stage ?? prev.stage);
+
+      const nextState: {
+        version: string;
+        stage: StageId | undefined;
+        askedQuestions: string[];
+        voiceOptionOffered: boolean | undefined;
+        updatedAt: string;
+      } = {
         version: prev.version ?? "v1",
-        stage: baseStage,
+        stage: normalizedStage,
         askedQuestions: askedQuestions ?? prev.askedQuestions ?? [],
         voiceOptionOffered: voiceOptionOffered ?? prev.voiceOptionOffered,
         updatedAt: new Date().toISOString(),

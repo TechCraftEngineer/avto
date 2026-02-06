@@ -12,6 +12,7 @@ export class ScoringFactory {
     this.schemas = new Map<SupportedEntityType, z.ZodSchema>([
       ["gig", gigScoringSchema],
       ["vacancy", vacancyScoringSchema],
+      ["project", vacancyScoringSchema],
     ] as const);
   }
 

@@ -101,9 +101,11 @@ export class GigInterviewStrategy extends BaseInterviewStrategy {
     let canTransition = false;
     let reason = "";
 
-    // Проверяем качество ответов
-    const hasGoodResponses =
-      context.userResponses.filter((r) => r.length > 50).length >= 2;
+    // Проверяем качество ответов только для текущей стадии
+    const currentStageResponses = context.userResponses.filter(
+      (r) => r.length > 50,
+    );
+    const hasGoodResponses = currentStageResponses.length >= 2;
     const noBotSuspicion =
       !context.botDetectionScore || context.botDetectionScore < 0.7;
 
@@ -138,7 +140,7 @@ export class GigInterviewStrategy extends BaseInterviewStrategy {
         ? "quality_criteria_met"
         : "quality_criteria_not_met";
     }
-    // Из task_approach в wrapup
+    // Из task_approach в wrapup (NOTE: noBotSuspicion intentionally omitted here as final stage allows completion regardless)
     else if (from === "task_approach" && to === "wrapup") {
       const hasMinQuestions = context.askedQuestions.length >= 7;
       canTransition = hasMinQuestions && hasGoodResponses;

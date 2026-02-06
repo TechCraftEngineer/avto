@@ -31,6 +31,8 @@ import {
   saveUserMessage,
 } from "./message-handler";
 import { requestSchema } from "./schema";
+import type { StageId } from "./stages/types";
+import { VALID_STAGES } from "./stages/types";
 import { getInterviewStrategy } from "./strategies";
 import { executeStreamWithFallbackV6 } from "./stream-executor";
 
@@ -91,18 +93,8 @@ async function handler(request: Request) {
     // Получаем текущую стадию из метаданных сессии и валидируем
     const currentStageRaw = (session.metadata as { currentStage?: string })
       ?.currentStage;
-    const validStages = [
-      "intro",
-      "org",
-      "tech",
-      "motivation",
-      "wrapup",
-      "profile_review",
-      "task_approach",
-    ] as const;
-    type StageId = (typeof validStages)[number];
     const isValidStageId = (stage: string | undefined): stage is StageId =>
-      validStages.includes(stage as StageId);
+      VALID_STAGES.includes(stage as StageId);
     const currentStage: StageId = isValidStageId(currentStageRaw)
       ? currentStageRaw
       : "intro";

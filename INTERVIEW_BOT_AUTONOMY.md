@@ -147,6 +147,27 @@ getWelcomeMessage() {
 
 ## Файлы изменены
 
+### Основные файлы стратегий:
 - `apps/interview/src/app/api/interview/chat/stream/strategies/base-strategy.ts`
 - `apps/interview/src/app/api/interview/chat/stream/strategies/vacancy-strategy.ts`
 - `apps/interview/src/app/api/interview/chat/stream/strategies/gig-strategy.ts`
+
+### Промпт-билдеры:
+- `apps/interview/src/app/api/interview/chat/stream/prompts/base-prompt-builder.ts`
+- `apps/interview/src/app/api/interview/chat/stream/prompts/gig-prompt-builder.ts`
+- `apps/interview/src/app/api/interview/chat/stream/prompts/vacancy-prompt-builder.ts`
+
+### Типы и интерфейсы:
+- `apps/interview/src/app/api/interview/chat/stream/prompts/types.ts`
+- `apps/interview/src/app/api/interview/chat/stream/strategies/types.ts`
+- `apps/interview/src/app/api/interview/chat/stream/strategies/interfaces.ts`
+- `apps/interview/src/app/api/interview/chat/stream/strategies/index.ts`
+- `apps/interview/src/app/api/interview/chat/stream/stages/types.ts`
+
+### Обработчики и инструменты:
+- `apps/interview/src/app/api/interview/chat/stream/handler.ts`
+- `apps/interview/src/app/api/interview/chat/stream/tools/base-tool-factory.ts`
+- `apps/interview/src/app/api/interview/chat/stream/tools/state.ts`
+
+### Оценка:
+- `apps/interview/src/app/api/interview/chat/stream/scoring/index.ts`

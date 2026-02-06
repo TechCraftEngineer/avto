@@ -5,10 +5,7 @@
  * (Gig vs Vacancy) following the Strategy pattern architecture.
  */
 
-import type * as schema from "@qbs-autonaim/db/schema";
-import type { LanguageModel, ToolSet } from "ai";
-import type { NodePgDatabase } from "drizzle-orm/node-postgres";
-import type { GigLike, VacancyLike } from "../strategies/types";
+import type { ToolSet } from "ai";
 
 // ============================================================================
 // Core Types
@@ -223,48 +220,6 @@ export interface CompletionCriteria {
   readonly minQuestions: number;
   readonly requiredStages: readonly string[];
   readonly maxDurationMinutes?: number;
-}
-
-// ============================================================================
-// Core Strategy Interface
-// ============================================================================
-
-export interface InterviewStrategy {
-  /** Entity type this strategy handles */
-  readonly entityType: EntityType;
-
-  /** Available stages for this entity type */
-  readonly stages: readonly InterviewStage[];
-
-  /** Get stage configuration */
-  getStageConfig(stage: InterviewStage): StageConfig;
-
-  /** Build system prompt for current context */
-  getSystemPrompt(context: InterviewContext, isFirstResponse: boolean): string;
-
-  /** Get welcome message for candidate */
-  getWelcomeMessage(context: InterviewContext): WelcomeMessageConfig;
-
-  /** Get scoring rubric for evaluation */
-  getScoringRubric(context: InterviewContext): ScoringRubric;
-
-  /** Create tool factory for current context */
-  createToolFactory(
-    context: InterviewContext,
-    model: LanguageModel,
-    sessionId: string,
-    db: NodePgDatabase<typeof schema>,
-  ): ToolFactory;
-
-  /** Determine if stage should advance */
-  shouldAdvanceStage(
-    currentStage: InterviewStage,
-    response: string,
-    context: InterviewContext,
-  ): boolean;
-
-  /** Get completion criteria */
-  getCompletionCriteria(context: InterviewContext): CompletionCriteria;
 }
 
 // ============================================================================
