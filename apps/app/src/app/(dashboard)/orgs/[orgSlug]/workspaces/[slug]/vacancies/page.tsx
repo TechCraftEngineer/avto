@@ -30,10 +30,6 @@ export default function VacanciesPage() {
   const trpc = useTRPC();
   const { workspace } = useWorkspace();
   const queryClient = useQueryClient();
-  const [mergeOpenVacancyId, setMergeOpenVacancyId] = useState<string | null>(
-    null,
-  );
-  const [mergeTargetVacancyId, setMergeTargetVacancyId] = useState<string>("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [vacancyToDelete, setVacancyToDelete] = useState<{
     id: string;
@@ -72,20 +68,6 @@ export default function VacanciesPage() {
   } = useVacancyFilters(vacancies);
 
   const stats = useVacanciesStats(vacancies);
-  const mergeVacanciesMutation = useMutation({
-    ...trpc.freelancePlatforms.mergeVacancies.mutationOptions(),
-    onSuccess: async () => {
-      toast.success("Вакансии успешно объединены");
-      setMergeOpenVacancyId(null);
-      setMergeTargetVacancyId("");
-      await queryClient.invalidateQueries({
-        queryKey: trpc.freelancePlatforms.getVacancies.queryKey(),
-      });
-    },
-    onError: (error) => {
-      toast.error(error.message || "Не удалось объединить вакансии");
-    },
-  });
 
   const deleteVacancyMutation = useMutation({
     ...trpc.freelancePlatforms.deleteVacancy.mutationOptions(),
@@ -101,15 +83,6 @@ export default function VacanciesPage() {
       toast.error(error.message || "Не удалось удалить вакансию");
     },
   });
-
-  const handleMergeConfirm = (sourceId: string, targetId: string) => {
-    if (!workspace?.id) return;
-    mergeVacanciesMutation.mutate({
-      workspaceId: workspace.id,
-      sourceVacancyId: sourceId,
-      targetVacancyId: targetId,
-    });
-  };
 
   const handleDeleteOpen = (vacancyId: string, vacancyTitle: string) => {
     setVacancyToDelete({ id: vacancyId, title: vacancyTitle });
@@ -245,17 +218,6 @@ export default function VacanciesPage() {
             orgSlug={orgSlug ?? ""}
             workspaceSlug={workspaceSlug ?? ""}
             workspaceId={workspace?.id}
-            allVacancies={vacancies ?? []}
-            mergeOpenVacancyId={mergeOpenVacancyId}
-            mergeTargetVacancyId={mergeTargetVacancyId}
-            onMergeOpen={setMergeOpenVacancyId}
-            onMergeClose={() => {
-              setMergeOpenVacancyId(null);
-              setMergeTargetVacancyId("");
-            }}
-            onMergeTargetChange={setMergeTargetVacancyId}
-            onMergeConfirm={handleMergeConfirm}
-            isMerging={mergeVacanciesMutation.isPending}
             hasFilters={hasFilters}
             sortBy={sortBy}
             sortOrder={sortOrder}

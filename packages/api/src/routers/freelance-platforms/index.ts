@@ -35,7 +35,6 @@ import { getVacancies } from "./vacancies/get-vacancies";
 import { getVacancyById } from "./vacancies/get-vacancy-by-id";
 import { getVacancyByToken } from "./vacancies/get-vacancy-by-token";
 import { getVacancyIntegrations } from "./vacancies/get-vacancy-integrations";
-import { mergeVacancies } from "./vacancies/merge-vacancies";
 import { updateVacancyStatus } from "./vacancies/update-vacancy-status";
 // import { subscribeToChatMessages } from "./chat/subscribe-to-chat-messages";
 
@@ -61,7 +60,6 @@ export const freelancePlatformsRouter = {
   exportAnalytics,
   updateVacancyStatus,
   deleteVacancy,
-  mergeVacancies,
   generateInterviewLink,
   getInterviewByToken,
   getInterviewLink,

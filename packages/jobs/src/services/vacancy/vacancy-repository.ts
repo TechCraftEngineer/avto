@@ -1,4 +1,4 @@
-import { eq, isNull, or } from "@qbs-autonaim/db";
+import { eq, or } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import type { PlatformSource } from "@qbs-autonaim/db/schema";
 import { vacancy, vacancyPublication } from "@qbs-autonaim/db/schema";
@@ -231,7 +231,6 @@ export async function saveBasicVacancy(
           eq(table.workspaceId, workspaceId),
           eq(table.source, dataToSave.source),
           eq(table.externalId, dataToSave.externalId ?? ""),
-          isNull(table.mergedIntoVacancyId),
         ),
     });
 
@@ -363,7 +362,6 @@ export async function saveVacancyToDb(
           eq(table.workspaceId, workspaceId),
           eq(table.source, dataToSave.source),
           eq(table.externalId, dataToSave.externalId ?? ""),
-          isNull(table.mergedIntoVacancyId),
         ),
     });
 

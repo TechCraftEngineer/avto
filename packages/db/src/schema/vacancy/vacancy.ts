@@ -75,8 +75,6 @@ export const vacancy = pgTable(
     // ID вакансии на внешней платформе
     externalId: varchar("external_id", { length: 100 }),
 
-    mergedIntoVacancyId: uuid("merged_into_vacancy_id"),
-
     // Кастомные настройки для бота
     customBotInstructions: text("custom_bot_instructions"),
     customScreeningPrompt: text("custom_screening_prompt"),
@@ -128,10 +126,6 @@ export const vacancy = pgTable(
     activeVacanciesIdx: index("vacancy_active_idx")
       .on(table.workspaceId, table.isActive)
       .where(sql`${table.isActive} = true`),
-    mergedIntoVacancyFk: foreignKey({
-      columns: [table.mergedIntoVacancyId],
-      foreignColumns: [table.id],
-    }).onDelete("set null"),
     sourceExternalIdx: index("vacancy_source_external_idx").on(
       table.source,
       table.externalId,

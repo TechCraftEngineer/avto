@@ -1,4 +1,3 @@
-import { isNull } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { vacancy, vacancyPublication } from "@qbs-autonaim/db/schema";
 
@@ -11,7 +10,6 @@ async function fixVacancyPublications() {
 
   // Получаем все вакансии
   const allVacancies = await db.query.vacancy.findMany({
-    where: isNull(vacancy.mergedIntoVacancyId),
     with: {
       publications: true,
     },

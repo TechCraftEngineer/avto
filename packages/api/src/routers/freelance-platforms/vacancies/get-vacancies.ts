@@ -1,5 +1,5 @@
 import type { SQL } from "@qbs-autonaim/db";
-import { and, count, eq, isNull, sql } from "@qbs-autonaim/db";
+import { and, count, eq, sql } from "@qbs-autonaim/db";
 import { response as responseTable, vacancy } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
@@ -50,10 +50,7 @@ export const getVacancies = protectedProcedure
       }
 
       // Построение условий фильтрации
-      const conditions = [
-        eq(vacancy.workspaceId, input.workspaceId),
-        isNull(vacancy.mergedIntoVacancyId),
-      ];
+      const conditions = [eq(vacancy.workspaceId, input.workspaceId)];
 
       // Фильтрация по источнику, если указан
       if (input.source) {

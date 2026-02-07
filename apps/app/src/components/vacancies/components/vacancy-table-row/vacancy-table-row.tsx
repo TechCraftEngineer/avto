@@ -10,14 +10,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  Popover,
-  PopoverAnchor,
-  PopoverContent,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
   Switch,
   TableCell,
   TableRow,
@@ -79,14 +71,6 @@ interface VacancyTableRowProps {
   orgSlug: string;
   workspaceSlug: string;
   workspaceId: string | undefined;
-  allVacancies: Vacancy[];
-  mergeOpenVacancyId: string | null;
-  mergeTargetVacancyId: string;
-  onMergeOpen: (vacancyId: string) => void;
-  onMergeClose: () => void;
-  onMergeTargetChange: (vacancyId: string) => void;
-  onMergeConfirm: (sourceId: string, targetId: string) => void;
-  isMerging: boolean;
   onDeleteOpen: (vacancyId: string, vacancyTitle: string) => void;
 }
 
@@ -122,14 +106,6 @@ export function VacancyTableRow({
   orgSlug,
   workspaceSlug,
   workspaceId,
-  allVacancies,
-  mergeOpenVacancyId,
-  mergeTargetVacancyId,
-  onMergeOpen,
-  onMergeClose,
-  onMergeTargetChange,
-  onMergeConfirm,
-  isMerging,
   onDeleteOpen,
 }: VacancyTableRowProps) {
   const trpc = useTRPC();
@@ -336,134 +312,74 @@ export function VacancyTableRow({
       </TableCell>
       <TableCell className="text-right">
         <div className="flex items-center justify-end gap-1">
-          <Popover
-            open={mergeOpenVacancyId === vacancy.id}
-            onOpenChange={(open) => {
-              if (open) {
-                onMergeOpen(vacancy.id);
-              } else {
-                onMergeClose();
-              }
-            }}
-          >
-            <DropdownMenu>
-              <PopoverAnchor asChild>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="size-8 group-hover:bg-background"
-                    aria-label="Действия"
-                  >
-                    <IconDots className="size-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-              </PopoverAnchor>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>Действия</DropdownMenuLabel>
-                <DropdownMenuSeparator />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8 group-hover:bg-background"
+                aria-label="Действия"
+              >
+                <IconDots className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>Действия</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link
+                  href={paths.workspace.vacancies(
+                    orgSlug,
+                    workspaceSlug,
+                    vacancy.id,
+                  )}
+                  className="cursor-pointer"
+                >
+                  <IconBriefcase className="mr-2 size-4" />
+                  Открыть вакансию
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link
+                  href={paths.workspace.vacancies(
+                    orgSlug,
+                    workspaceSlug,
+                    vacancy.id,
+                    ROUTE_SEGMENTS.vacancy.edit,
+                  )}
+                  className="cursor-pointer"
+                >
+                  <IconEdit className="mr-2 size-4" />
+                  Редактировать
+                </Link>
+              </DropdownMenuItem>
+              {safePlatformUrl ? (
                 <DropdownMenuItem asChild>
-                  <Link
-                    href={paths.workspace.vacancies(
-                      orgSlug,
-                      workspaceSlug,
-                      vacancy.id,
-                    )}
+                  <a
+                    href={safePlatformUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="cursor-pointer"
                   >
-                    <IconBriefcase className="mr-2 size-4" />
-                    Открыть вакансию
-                  </Link>
+                    <IconExternalLink className="mr-2 size-4" />
+                    На платформе
+                  </a>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link
-                    href={paths.workspace.vacancies(
-                      orgSlug,
-                      workspaceSlug,
-                      vacancy.id,
-                      ROUTE_SEGMENTS.vacancy.edit,
-                    )}
-                    className="cursor-pointer"
-                  >
-                    <IconEdit className="mr-2 size-4" />
-                    Редактировать
-                  </Link>
-                </DropdownMenuItem>
-                {safePlatformUrl ? (
-                  <DropdownMenuItem asChild>
-                    <a
-                      href={safePlatformUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="cursor-pointer"
-                    >
-                      <IconExternalLink className="mr-2 size-4" />
-                      На платформе
-                    </a>
-                  </DropdownMenuItem>
-                ) : null}
-                <DropdownMenuItem disabled>
-                  <IconHistory className="mr-2 size-4" />
-                  История изменений
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  className="text-primary focus:text-primary"
-                  onSelect={() => onMergeOpen(vacancy.id)}
-                >
-                  Сдружить с другой…
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  className="text-destructive focus:text-destructive"
-                  onSelect={() => onDeleteOpen(vacancy.id, vacancy.title)}
-                >
-                  <IconTrash className="mr-2 size-4" />
-                  Удалить вакансию
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <PopoverContent align="end" className="w-[320px]">
-              <div className="space-y-3">
-                <div className="text-sm font-medium">Основная вакансия</div>
-                <Select
-                  value={mergeTargetVacancyId}
-                  onValueChange={onMergeTargetChange}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Выберите вакансию" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {allVacancies
-                      .filter((v) => v.id !== vacancy.id)
-                      .map((v) => (
-                        <SelectItem key={v.id} value={v.id}>
-                          {v.title}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-                <div className="flex justify-end gap-2">
-                  <Button variant="ghost" size="sm" onClick={onMergeClose}>
-                    Отмена
-                  </Button>
-                  <Button
-                    size="sm"
-                    disabled={
-                      !workspaceId || !mergeTargetVacancyId || isMerging
-                    }
-                    onClick={() => {
-                      if (!workspaceId || !mergeTargetVacancyId) return;
-                      onMergeConfirm(vacancy.id, mergeTargetVacancyId);
-                    }}
-                  >
-                    Подтвердить
-                  </Button>
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
+              ) : null}
+              <DropdownMenuItem disabled>
+                <IconHistory className="mr-2 size-4" />
+                История изменений
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="text-destructive focus:text-destructive"
+                onSelect={() => onDeleteOpen(vacancy.id, vacancy.title)}
+              >
+                <IconTrash className="mr-2 size-4" />
+                Удалить вакансию
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </TableCell>
     </TableRow>

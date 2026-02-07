@@ -45,27 +45,6 @@ export const getVacancyById = protectedProcedure
       });
     }
 
-    const resolvedVacancyId =
-      vacancyDataRaw.mergedIntoVacancyId ?? vacancyDataRaw.id;
-    const vacancyData = vacancyDataRaw.mergedIntoVacancyId
-      ? await ctx.db.query.vacancy.findFirst({
-          where: and(
-            eq(vacancy.id, resolvedVacancyId),
-            eq(vacancy.workspaceId, input.workspaceId),
-          ),
-          with: {
-            publications: true,
-          },
-        })
-      : vacancyDataRaw;
-
-    if (!vacancyData) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "Основная вакансия не найдена",
-      });
-    }
-
     // Получаем статистику по источникам откликов
     const responseStats = await ctx.db
       .select({
@@ -75,7 +54,7 @@ export const getVacancyById = protectedProcedure
       .from(responseTable)
       .where(
         and(
-          eq(responseTable.entityId, resolvedVacancyId),
+          eq(responseTable.entityId, vacancyDataRaw.id),
           eq(responseTable.entityType, "vacancy"),
         ),
       )
@@ -85,7 +64,7 @@ export const getVacancyById = protectedProcedure
     const activeInterviewLink = await ctx.db.query.interviewLink.findFirst({
       where: (link, { eq, and }) =>
         and(
-          eq(link.entityId, resolvedVacancyId),
+          eq(link.entityId, vacancyDataRaw.id),
           eq(link.entityType, "vacancy"),
           eq(link.isActive, true),
         ),
@@ -102,8 +81,8 @@ export const getVacancyById = protectedProcedure
 
     return {
       vacancy: {
-        ...vacancyData,
-        publications: vacancyData.publications ?? [],
+        ...vacancyDataRaw,
+        publications: vacancyDataRaw.publications ?? [],
       },
       responseStats: stats,
       interviewLink: activeInterviewLink

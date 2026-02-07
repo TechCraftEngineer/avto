@@ -35,14 +35,6 @@ interface VacancyTableProps {
   orgSlug: string;
   workspaceSlug: string;
   workspaceId: string | undefined;
-  allVacancies: Vacancy[];
-  mergeOpenVacancyId: string | null;
-  mergeTargetVacancyId: string;
-  onMergeOpen: (vacancyId: string) => void;
-  onMergeClose: () => void;
-  onMergeTargetChange: (vacancyId: string) => void;
-  onMergeConfirm: (sourceId: string, targetId: string) => void;
-  isMerging: boolean;
   hasFilters: boolean;
   onDeleteOpen: (vacancyId: string, vacancyTitle: string) => void;
 }
@@ -53,14 +45,6 @@ export function VacancyTable({
   orgSlug,
   workspaceSlug,
   workspaceId,
-  allVacancies,
-  mergeOpenVacancyId,
-  mergeTargetVacancyId,
-  onMergeOpen,
-  onMergeClose,
-  onMergeTargetChange,
-  onMergeConfirm,
-  isMerging,
   hasFilters,
   sortBy,
   sortOrder,
@@ -262,14 +246,6 @@ export function VacancyTable({
                 orgSlug={orgSlug}
                 workspaceSlug={workspaceSlug}
                 workspaceId={workspaceId}
-                allVacancies={allVacancies}
-                mergeOpenVacancyId={mergeOpenVacancyId}
-                mergeTargetVacancyId={mergeTargetVacancyId}
-                onMergeOpen={onMergeOpen}
-                onMergeClose={onMergeClose}
-                onMergeTargetChange={onMergeTargetChange}
-                onMergeConfirm={onMergeConfirm}
-                isMerging={isMerging}
                 onDeleteOpen={onDeleteOpen}
               />
             ))
