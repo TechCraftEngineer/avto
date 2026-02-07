@@ -82,10 +82,8 @@ async function handler(request: Request) {
     const session = await loadInterviewSession(sessionId, db);
 
     // Загрузка контекста вакансии/задания
-    const { vacancy, gig, companySettings } = await loadInterviewContext(
-      session.responseId,
-      db,
-    );
+    const { vacancy, gig, companySettings, screening } =
+      await loadInterviewContext(session.responseId, db);
 
     // Создаём стратегию на основе типа сущности
     const strategy = getInterviewStrategy(gig ?? null, vacancy ?? null);
@@ -239,6 +237,7 @@ async function handler(request: Request) {
       entity,
       interviewContext.botSettings,
       askedQuestions,
+      screening,
     );
 
     // Получаем список активных инструментов для текущей стадии

@@ -16,11 +16,25 @@ type CompanySettings = {
   name: string;
 };
 
+type ScreeningInsights = {
+  overallScore: number;
+  recommendation: string | null;
+  strengths: string[];
+  weaknesses: string[];
+  skillsMatchScore: number | null;
+  experienceScore: number | null;
+  candidateSummary: string | null;
+  rankingAnalysis: string | null;
+};
+
 type InterviewContext = {
   vacancy: Awaited<ReturnType<typeof loadVacancy>> | null;
   gig: Awaited<ReturnType<typeof loadGig>> | null;
   companySettings: CompanySettings | null;
+  screening: ScreeningInsights | null;
 };
+
+export type { ScreeningInsights, InterviewContext };
 
 async function loadVacancy(entityId: string, db: Database) {
   return await db.query.vacancy.findFirst({
@@ -57,6 +71,9 @@ export async function loadInterviewContext(
 ): Promise<InterviewContext> {
   const responseRecord = await db.query.response.findFirst({
     where: eq(responseTable.id, responseId),
+    with: {
+      screening: true,
+    },
   });
 
   if (!responseRecord) {
@@ -93,5 +110,21 @@ export async function loadInterviewContext(
       : null;
   }
 
-  return { vacancy, gig, companySettings };
+  // Формируем screening insights если есть данные
+  let screening: ScreeningInsights | null = null;
+  if (responseRecord.screening) {
+    const s = responseRecord.screening;
+    screening = {
+      overallScore: s.overallScore,
+      recommendation: s.recommendation,
+      strengths: (s.strengths as string[]) ?? [],
+      weaknesses: (s.weaknesses as string[]) ?? [],
+      skillsMatchScore: s.skillsMatchScore,
+      experienceScore: s.experienceScore,
+      candidateSummary: s.candidateSummary,
+      rankingAnalysis: s.rankingAnalysis,
+    };
+  }
+
+  return { vacancy, gig, companySettings, screening };
 }

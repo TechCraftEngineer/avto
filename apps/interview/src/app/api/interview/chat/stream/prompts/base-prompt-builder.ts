@@ -1,6 +1,10 @@
 import type { StageId } from "../stages/types";
 import type { GigLike, VacancyLike } from "../strategies/types";
-import type { BotSettings, SystemPromptBuilder } from "./types";
+import type {
+  BotSettings,
+  ScreeningInsights,
+  SystemPromptBuilder,
+} from "./types";
 
 /**
  * Базовый построитель системных промптов
@@ -16,12 +20,14 @@ export abstract class BaseSystemPromptBuilder implements SystemPromptBuilder {
     entity?: GigLike | VacancyLike | null,
     botSettings?: BotSettings,
     askedQuestions?: string[],
+    screening?: ScreeningInsights | null,
   ): string {
     const parts: string[] = [
       this.getBotIdentity(botSettings),
       this.getBaseRules(),
       this.getEntityContext(entity),
       this.getCustomInstructions(entity),
+      this.getScreeningInsights(screening),
       this.getStageInstructions(currentStage),
       this.getConversationContext(askedQuestions),
       this.getBotDetectionInstructions(),
@@ -151,6 +157,111 @@ ${trimmed}
     const recentQuestions = askedQuestions.slice(-10);
     return `УЖЕ ЗАДАННЫЕ ВОПРОСЫ (не повторяйте их):
 ${recentQuestions.map((q, i) => `${i + 1}. ${q}`).join("\n")}`;
+  }
+
+  /**
+   * Инсайты из предварительного скрининга
+   * Бот сам анализирует и адаптирует вопросы
+   */
+  protected getScreeningInsights(screening?: ScreeningInsights | null): string {
+    if (!screening) return "";
+
+    const parts: string[] = [];
+
+    parts.push(`РЕЗУЛЬТАТЫ ПРЕДВАРИТЕЛЬНОГО АНАЛИЗА КАНДИДАТА:
+
+Это конфиденциальная информация для вашего использования. НЕ упоминайте напрямую оценки или баллы в разговоре с кандидатом.
+
+ОБЩАЯ ОЦЕНКА: ${screening.overallScore}/100
+РЕКОМЕНДАЦИЯ: ${screening.recommendation || "не указана"}`);
+
+    if (screening.candidateSummary) {
+      parts.push(`КРАТКАЯ ХАРАКТЕРИСТИКА:
+${screening.candidateSummary}`);
+    }
+
+    if (screening.strengths && screening.strengths.length > 0) {
+      parts.push(`СИЛЬНЫЕ СТОРОНЫ (требуют проверки в диалоге):
+${screening.strengths.map((s, i) => `${i + 1}. ${s}`).join("\n")}
+
+→ Задайте вопросы с просьбой привести КОНКРЕТНЫЕ примеры
+→ Попросите рассказать о деталях, цифрах, результатах
+→ Уточните контекст и вклад кандидата в успех`);
+    }
+
+    if (screening.weaknesses && screening.weaknesses.length > 0) {
+      parts.push(`ОБЛАСТИ ДЛЯ УТОЧНЕНИЯ (потенциальные пробелы):
+${screening.weaknesses.map((w, i) => `${i + 1}. ${w}`).join("\n")}
+
+→ Задавайте вопросы ДЕЛИКАТНО и КОНСТРУКТИВНО
+→ Выясните: насколько критичен этот пробел для позиции
+→ Узнайте о готовности к обучению и компенсирующем опыте
+→ Дайте кандидату возможность объяснить или показать скрытые навыки
+→ НЕ говорите "у вас слабые навыки в X", вместо этого: "Расскажите о вашем опыте с X"
+→ Если кандидат не работал с технологией — спросите про аналоги и скорость обучения`);
+    }
+
+    if (screening.rankingAnalysis) {
+      parts.push(`ДОПОЛНИТЕЛЬНЫЕ НАБЛЮДЕНИЯ:
+${screening.rankingAnalysis}
+
+→ Используйте эту информацию для формирования целевых вопросов
+→ Если есть противоречия — мягко уточните их в диалоге
+→ Если есть красные флаги — дайте кандидату шанс объяснить`);
+    }
+
+    if (screening.skillsMatchScore !== null) {
+      const skillsLevel =
+        screening.skillsMatchScore >= 80
+          ? "высокое"
+          : screening.skillsMatchScore >= 60
+            ? "среднее"
+            : "требует внимания";
+      parts.push(`СООТВЕТСТВИЕ НАВЫКОВ: ${screening.skillsMatchScore}/100 (${skillsLevel})
+→ ${skillsLevel === "требует внимания" ? "Особое внимание к проверке технических компетенций" : "Проверьте глубину знаний конкретными вопросами"}`);
+    }
+
+    if (screening.experienceScore !== null) {
+      const expLevel =
+        screening.experienceScore >= 80
+          ? "сильный опыт"
+          : screening.experienceScore >= 60
+            ? "достаточный опыт"
+            : "ограниченный опыт";
+      parts.push(`ОПЫТ: ${screening.experienceScore}/100 (${expLevel})
+→ ${expLevel === "ограниченный опыт" ? "Оцените потенциал роста и мотивацию к обучению" : "Попросите примеры сложных задач и их решений"}`);
+    }
+
+    parts.push(`
+СТРАТЕГИЯ ИСПОЛЬЗОВАНИЯ ЭТОЙ ИНФОРМАЦИИ:
+
+1. АДАПТИВНЫЕ ВОПРОСЫ:
+   - Формируйте вопросы на основе выявленных пробелов и сильных сторон
+   - Если оценка низкая — фокус на потенциале и мотивации
+   - Если оценка высокая — проверяйте глубину через сложные кейсы
+
+2. ПРОВЕРКА ГИПОТЕЗ:
+   - Предварительный анализ может быть неточным
+   - Ваша задача — проверить и уточнить через диалог
+   - Дайте кандидату возможность показать себя с лучшей стороны
+
+3. БАЛАНС:
+   - Не игнорируйте слабые стороны, но и не давите на них
+   - Не принимайте сильные стороны на веру — проверяйте примерами
+   - Ищите скрытые таланты и нестандартный опыт
+
+4. КОНФИДЕНЦИАЛЬНОСТЬ:
+   - НИКОГДА не говорите: "По результатам скрининга у вас X баллов"
+   - НИКОГДА не говорите: "Анализ показал, что вы..."
+   - Формулируйте вопросы естественно: "Расскажите о вашем опыте с..."
+
+5. ЭМПАТИЯ:
+   - Если кандидат получил низкую оценку — это не приговор
+   - Возможно, резюме было составлено неудачно
+   - Возможно, есть скрытые навыки, которые не отразились в документах
+   - Ваша задача — раскрыть реальный потенциал кандидата`);
+
+    return parts.join("\n\n");
   }
 
   /**
