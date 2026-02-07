@@ -14,13 +14,13 @@ import { useEffect } from "react";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
 import { BulkActionsBar } from "../actions/bulk-actions-bar";
-import { EmptyState } from "../ui/empty-state";
-import { ResponseRow } from "../response-row";
-import { ResponseTableHeader } from "./response-table-header";
-import { ResponseTableToolbar } from "./response-table-toolbar";
+import { useColumnVisibility } from "../hooks/use-column-visibility";
 import { useResponseActions } from "../hooks/use-response-actions";
 import { useResponseTable } from "../hooks/use-response-table";
-import { useColumnVisibility } from "../hooks/use-column-visibility";
+import { ResponseRow } from "../response-row";
+import { EmptyState } from "../ui/empty-state";
+import { ResponseTableHeader } from "./response-table-header";
+import { ResponseTableToolbar } from "./response-table-toolbar";
 
 interface ResponseTableProps {
   vacancyId: string;
@@ -95,6 +95,15 @@ export function ResponseTable({
     resetColumns,
     isColumnVisible,
   } = useColumnVisibility();
+
+  // Получаем данные вакансии для проверки источника импорта
+  const { data: vacancyData } = useQuery({
+    ...trpc.vacancy.get.queryOptions({
+      id: vacancyId,
+      workspaceId: workspace?.id ?? "",
+    }),
+    enabled: !!workspace?.id,
+  });
 
   const { data, isLoading, isFetching, isFetched } = useQuery({
     ...trpc.vacancy.responses.list.queryOptions({
@@ -264,7 +273,15 @@ export function ResponseTable({
     const visibleColumnCount =
       [...visibleColumns].filter((col) => isColumnVisible(col)).length + 2; // +2 для чекбокса и действий
     if (responses.length === 0 && isFetched) {
-      return <EmptyState hasResponses={total > 0} colSpan={visibleColumnCount} />;
+      return (
+        <EmptyState
+          hasResponses={total > 0}
+          colSpan={visibleColumnCount}
+          onRefresh={handleRefreshResponses}
+          isRefreshing={isRefreshing}
+          source={vacancyData?.source}
+        />
+      );
     }
 
     // Показываем отклики

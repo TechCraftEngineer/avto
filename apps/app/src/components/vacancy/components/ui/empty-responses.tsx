@@ -1,11 +1,20 @@
+import { Button } from "@qbs-autonaim/ui/button";
 import { Card, CardContent } from "@qbs-autonaim/ui/card";
-import { Inbox } from "lucide-react";
+import { Download, Inbox, RefreshCw } from "lucide-react";
 
-export function EmptyResponses() {
+interface EmptyResponsesProps {
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
+}
+
+export function EmptyResponses({
+  onRefresh,
+  isRefreshing = false,
+}: EmptyResponsesProps) {
   return (
     <Card className="border-dashed">
       <CardContent className="flex min-h-[400px] items-center justify-center">
-        <div className="text-center space-y-4 max-w-md px-4">
+        <div className="text-center space-y-6 max-w-lg px-4">
           <div className="flex justify-center">
             <div className="relative">
               <div className="absolute inset-0 bg-primary/10 rounded-full blur-2xl" />
@@ -15,24 +24,69 @@ export function EmptyResponses() {
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-3">
             <h3 className="text-lg font-semibold text-foreground">
-              Пока нет откликов
+              Отклики ещё не загружены
             </h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Отклики появятся здесь автоматически после парсинга данных с
-              платформы. Убедитесь, что интеграция настроена и вакансия активна
+              Вакансия успешно импортирована, но отклики нужно загрузить
+              отдельно. Нажмите кнопку ниже, чтобы начать загрузку откликов с
+              платформы
             </p>
           </div>
 
-          <div className="pt-2">
-            <p className="text-xs text-muted-foreground/80">
-              💡 Совет: проверьте настройки интеграции в разделе "Интеграции"
+          {onRefresh && (
+            <div className="flex flex-col items-center gap-3 pt-2">
+              <Button
+                onClick={onRefresh}
+                disabled={isRefreshing}
+                size="lg"
+                className="gap-2 min-w-[200px]"
+              >
+                {isRefreshing ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    Загрузка...
+                  </>
+                ) : (
+                  <>
+                    <Download className="h-4 w-4" />
+                    Загрузить отклики
+                  </>
+                )}
+              </Button>
+              <p className="text-xs text-muted-foreground/70">
+                Это может занять несколько минут
+              </p>
+            </div>
+          )}
+
+          <div className="pt-2 space-y-2 border-t">
+            <p className="text-xs text-muted-foreground/80 font-medium">
+              💡 Что произойдёт дальше:
             </p>
+            <ul className="text-xs text-muted-foreground/70 space-y-1 text-left max-w-md mx-auto">
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">•</span>
+                <span>Система загрузит все отклики с платформы HeadHunter</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">•</span>
+                <span>
+                  Отклики появятся в таблице и будут доступны для анализа
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">•</span>
+                <span>
+                  Вы сможете использовать AI для оценки и приоритизации
+                  кандидатов
+                </span>
+              </li>
+            </ul>
           </div>
         </div>
       </CardContent>
     </Card>
   );
 }
-

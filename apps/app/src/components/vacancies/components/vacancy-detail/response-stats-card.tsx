@@ -1,5 +1,6 @@
 import {
   Badge,
+  Button,
   Card,
   CardContent,
   CardHeader,
@@ -7,11 +8,16 @@ import {
   Progress,
 } from "@qbs-autonaim/ui";
 import { IconChartBar, IconInbox, IconTrendingUp } from "@tabler/icons-react";
+import Link from "next/link";
 import { SourceConfig as SOURCE_CONFIG } from "~/components/vacancy-detail";
 
 interface ResponseStatsCardProps {
   responseStats: Record<string, number>;
   totalResponses: number;
+  vacancyId?: string;
+  source?: string;
+  orgSlug?: string;
+  workspaceSlug?: string;
 }
 
 /**
@@ -21,8 +27,13 @@ interface ResponseStatsCardProps {
 export function ResponseStatsCard({
   responseStats,
   totalResponses,
+  vacancyId,
+  source,
+  orgSlug,
+  workspaceSlug,
 }: ResponseStatsCardProps) {
   const hasStats = Object.keys(responseStats).length > 0;
+  const isFromHH = source === "HH";
 
   // Сортируем площадки по количеству откликов
   const sortedStats = Object.entries(responseStats).sort(
@@ -103,7 +114,7 @@ export function ResponseStatsCard({
             )}
           </>
         ) : (
-          <div className="text-center py-8 space-y-3">
+          <div className="text-center py-8 space-y-4">
             <div className="flex justify-center">
               <div className="bg-primary/10 rounded-full p-4">
                 <IconInbox className="size-6 text-primary" />
@@ -111,13 +122,24 @@ export function ResponseStatsCard({
             </div>
             <div className="space-y-1">
               <p className="text-sm font-semibold text-foreground">
-                Пока нет откликов
+                {isFromHH ? "Отклики ещё не загружены" : "Пока нет откликов"}
               </p>
-              <p className="text-xs text-muted-foreground leading-relaxed max-w-[200px] mx-auto">
-                Статистика появится после получения первых откликов от
-                кандидатов
+              <p className="text-xs text-muted-foreground leading-relaxed max-w-[240px] mx-auto">
+                {isFromHH
+                  ? "Перейдите в раздел «Отклики», чтобы загрузить отклики с платформы HeadHunter"
+                  : "Статистика появится после получения первых откликов от кандидатов"}
               </p>
             </div>
+            {isFromHH && vacancyId && orgSlug && workspaceSlug && (
+              <Button asChild size="sm" className="gap-2">
+                <Link
+                  href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies/${vacancyId}/responses`}
+                >
+                  <IconChartBar className="size-4" />
+                  Перейти к откликам
+                </Link>
+              </Button>
+            )}
           </div>
         )}
       </CardContent>

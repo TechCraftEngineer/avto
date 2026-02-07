@@ -5,17 +5,26 @@ interface EmptyStateProps {
   hasResponses: boolean;
   colSpan: number;
   isLoading?: boolean;
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
+  source?: string | null;
 }
 
 export function EmptyState({
   hasResponses,
   colSpan,
   isLoading = false,
+  onRefresh,
+  isRefreshing = false,
+  source,
 }: EmptyStateProps) {
   // Не показываем пустое состояние во время загрузки
   if (isLoading) {
     return null;
   }
+
+  // Проверяем, импортирована ли вакансия из HeadHunter
+  const isFromHH = source === "HH";
 
   return (
     <TableRow>
@@ -53,21 +62,114 @@ export function EmptyState({
             <span className="text-base font-medium text-foreground">
               {hasResponses
                 ? "Нет откликов по выбранному фильтру"
-                : "Пока нет откликов"}
+                : isFromHH
+                  ? "Отклики ещё не загружены"
+                  : "Пока нет откликов"}
             </span>
             <div className="mt-2 text-pretty text-sm text-muted-foreground">
               {hasResponses
                 ? "Попробуйте изменить параметры фильтрации или сбросить все фильтры, чтобы увидеть больше результатов"
-                : "Отклики появятся здесь после того, как кандидаты начнут откликаться на вашу вакансию. Убедитесь, что вакансия опубликована и активна"}
+                : isFromHH
+                  ? "Вакансия успешно импортирована, но отклики нужно загрузить отдельно. Нажмите кнопку ниже, чтобы начать загрузку откликов с платформы"
+                  : "Отклики появятся здесь после того, как кандидаты начнут откликаться на вашу вакансию"}
             </div>
           </div>
 
-          {/* Подсказка для фильтров */}
-          {hasResponses && (
+          {/* Кнопка загрузки откликов или подсказка для фильтров */}
+          {hasResponses ? (
             <div className="text-xs text-muted-foreground/80">
               💡 Совет: используйте поиск или измените статус фильтра
             </div>
-          )}
+          ) : isFromHH && onRefresh ? (
+            <div className="flex flex-col items-center gap-4 pt-2">
+              <button
+                type="button"
+                onClick={onRefresh}
+                disabled={isRefreshing}
+                className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 min-w-[200px]"
+                aria-label={
+                  isRefreshing ? "Загрузка откликов…" : "Загрузить отклики"
+                }
+              >
+                {isRefreshing ? (
+                  <>
+                    <svg
+                      className="h-4 w-4 animate-spin"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
+                    </svg>
+                    Загрузка…
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      className="h-4 w-4"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                      />
+                    </svg>
+                    Загрузить отклики
+                  </>
+                )}
+              </button>
+              <p className="text-xs text-muted-foreground/70">
+                Это может занять несколько минут
+              </p>
+
+              {/* Информация о процессе */}
+              <div className="mt-2 space-y-2 border-t pt-4 max-w-md">
+                <p className="text-xs text-muted-foreground/80 font-medium text-center">
+                  💡 Что произойдёт дальше:
+                </p>
+                <ul className="text-xs text-muted-foreground/70 space-y-1.5 text-left">
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-0.5 shrink-0">•</span>
+                    <span>
+                      Система загрузит все отклики с платформы HeadHunter
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-0.5 shrink-0">•</span>
+                    <span>
+                      Отклики появятся в таблице и будут доступны для анализа
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-0.5 shrink-0">•</span>
+                    <span>
+                      Вы сможете использовать AI для оценки и приоритизации
+                      кандидатов
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          ) : null}
         </div>
       </TableCell>
     </TableRow>

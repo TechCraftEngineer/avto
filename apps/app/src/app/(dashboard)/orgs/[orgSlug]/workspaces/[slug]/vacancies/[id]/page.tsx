@@ -152,6 +152,10 @@ export default function VacancyDetailPage() {
         <ResponseStatsCard
           responseStats={responseStats}
           totalResponses={totalResponses}
+          vacancyId={id}
+          source={vacancy.source}
+          orgSlug={orgSlug}
+          workspaceSlug={workspaceSlug}
         />
 
         {/* Лучшие кандидаты */}
@@ -166,4 +170,3 @@ export default function VacancyDetailPage() {
     </div>
   );
 }
-
