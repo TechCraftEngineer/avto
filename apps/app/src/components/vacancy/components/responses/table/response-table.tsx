@@ -280,6 +280,7 @@ export function ResponseTable({
           onRefresh={handleRefreshResponses}
           isRefreshing={isRefreshing}
           source={vacancyData?.source}
+          externalId={vacancyData?.externalId}
         />
       );
     }

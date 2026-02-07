@@ -8,6 +8,7 @@ interface EmptyStateProps {
   onRefresh?: () => void;
   isRefreshing?: boolean;
   source?: string | null;
+  externalId?: string | null;
 }
 
 export function EmptyState({
@@ -17,6 +18,7 @@ export function EmptyState({
   onRefresh,
   isRefreshing = false,
   source,
+  externalId,
 }: EmptyStateProps) {
   // Не показываем пустое состояние во время загрузки
   if (isLoading) {
@@ -25,6 +27,9 @@ export function EmptyState({
 
   // Проверяем, импортирована ли вакансия из HeadHunter
   const isFromHH = source === "HH";
+
+  // Не показываем кнопку загрузки, если нет откликов и это не HH вакансия, или если нет onRefresh, или если нет externalId
+  const showLoadButton = !hasResponses && isFromHH && onRefresh && externalId;
 
   return (
     <TableRow>
@@ -80,13 +85,13 @@ export function EmptyState({
             <div className="text-xs text-muted-foreground/80">
               💡 Совет: используйте поиск или измените статус фильтра
             </div>
-          ) : isFromHH && onRefresh ? (
+          ) : showLoadButton ? (
             <div className="flex flex-col items-center gap-4 pt-2">
               <button
                 type="button"
                 onClick={onRefresh}
                 disabled={isRefreshing}
-                className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 min-w-[200px]"
+                className="inline-flex items-center justify-center gap-2 rounded-md bg-foreground px-6 py-2.5 text-sm font-medium text-background shadow-lg transition-colors hover:bg-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 min-w-[200px]"
                 aria-label={
                   isRefreshing ? "Загрузка откликов…" : "Загрузить отклики"
                 }
