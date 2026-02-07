@@ -13,26 +13,42 @@ export function calculateMatchScore(response: VacancyResponse): number {
 }
 
 export function calculateResponseTime(response: VacancyResponse): string {
+  // Время с момента отклика до сейчас
   const now = new Date();
   const respondedAt = response.respondedAt || response.createdAt;
   const diffMs = now.getTime() - new Date(respondedAt).getTime();
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
 
-  if (diffHours < 24) return `${diffHours}ч`;
+  if (diffHours < 1) return "< 1ч";
+  if (diffHours < 24) return `${diffHours}ч назад`;
   const diffDays = Math.floor(diffHours / 24);
-  return `${diffDays}д`;
+  if (diffDays === 1) return "1 день назад";
+  if (diffDays < 7) return `${diffDays} дн. назад`;
+  if (diffDays < 30) {
+    const weeks = Math.floor(diffDays / 7);
+    return `${weeks} нед. назад`;
+  }
+  const months = Math.floor(diffDays / 30);
+  return `${months} мес. назад`;
 }
 
 export function calculateLastActivity(response: VacancyResponse): string {
-  const respondedAt = response.respondedAt || response.createdAt;
+  // Последняя активность - используем updatedAt если есть, иначе respondedAt
+  const lastActivityDate =
+    response.updatedAt || response.respondedAt || response.createdAt;
   const now = new Date();
-  const diffMs = now.getTime() - new Date(respondedAt).getTime();
+  const diffMs = now.getTime() - new Date(lastActivityDate).getTime();
+  const diffMinutes = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
+  if (diffMinutes < 5) return "Только что";
+  if (diffMinutes < 60) return `${diffMinutes} мин. назад`;
+  if (diffHours < 24) return `${diffHours}ч назад`;
   if (diffDays === 0) return "Сегодня";
   if (diffDays === 1) return "Вчера";
-  if (diffDays < 7) return `${diffDays} д.`;
-  return ">7 д.";
+  if (diffDays < 7) return `${diffDays} дн. назад`;
+  return ">7 дн. назад";
 }
 
 export function getStatusColor(status: string): string {
