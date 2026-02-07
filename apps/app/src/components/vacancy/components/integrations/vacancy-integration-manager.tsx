@@ -28,8 +28,12 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
 } from "@qbs-autonaim/ui";
 import {
+  IconArchive,
   IconCheck,
   IconClock,
   IconExternalLink,
@@ -65,6 +69,35 @@ const SOURCE_CONFIG: Record<string, { label: string; color: string }> = {
     label: "Telegram",
     color: "bg-blue-500/10 text-blue-600 border-blue-200",
   },
+};
+
+// Функция для определения статуса публикации
+const getPublicationStatus = (publication: Publication) => {
+  if (publication.platform === "HH" && !publication.isActive) {
+    return {
+      text: "Архивная",
+      shortText: "Арх.",
+      color: "bg-amber-50 text-amber-700 border border-amber-200",
+      icon: IconArchive,
+      description: "Вакансия находится в архиве на HH.ru. Можно загрузить архивные отклики, которые пришли до закрытия вакансии."
+    };
+  }
+
+  return publication.isActive
+    ? {
+        text: "Активна",
+        shortText: "Акт.",
+        color: "bg-green-50 text-green-700 border border-green-200",
+        icon: IconCheck,
+        description: "Публикация активна на платформе. Можно собирать новые отклики в реальном времени."
+      }
+    : {
+        text: "Неактивна",
+        shortText: "Неакт.",
+        color: "bg-red-50 text-red-700 border border-red-200",
+        icon: IconX,
+        description: "Публикация не найдена на платформе или недоступна."
+      };
 };
 
 interface VacancyIntegrationManagerProps {
@@ -515,25 +548,30 @@ export function VacancyIntegrationManager({
                         </div>
                       </div>
                       <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 shrink-0">
-                        <div
-                          className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${
-                            publication.isActive
-                              ? "bg-green-50 text-green-700 border border-green-200"
-                              : "bg-red-50 text-red-700 border border-red-200"
-                          }`}
-                        >
-                          {publication.isActive ? (
-                            <IconCheck className="size-3" />
-                          ) : (
-                            <IconX className="size-3" />
-                          )}
-                          <span className="hidden sm:inline">
-                            {publication.isActive ? "Активна" : "Неактивна"}
-                          </span>
-                          <span className="sm:hidden">
-                            {publication.isActive ? "Акт." : "Неакт."}
-                          </span>
-                        </div>
+                        {(() => {
+                          const status = getPublicationStatus(publication);
+                          const IconComponent = status.icon;
+                          return (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div
+                                  className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${status.color}`}
+                                >
+                                  <IconComponent className="size-3" />
+                                  <span className="hidden sm:inline">
+                                    {status.text}
+                                  </span>
+                                  <span className="sm:hidden">
+                                    {status.shortText}
+                                  </span>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-xs">
+                                <p className="text-sm">{status.description}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          );
+                        })()}
                         {publication.lastCheckedAt && (
                           <div className="text-xs text-muted-foreground flex items-center gap-1 min-w-0">
                             <IconClock className="size-3 shrink-0" />
@@ -587,6 +625,24 @@ export function VacancyIntegrationManager({
                           </Button>
                         </div>
                       </div>
+
+                      {/* Дополнительная информация для архивных публикаций HH.ru */}
+                      {publication.platform === "HH" && !publication.isActive && (
+                        <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-md">
+                          <div className="flex items-start gap-2">
+                            <IconArchive className="size-4 text-amber-600 shrink-0 mt-0.5" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm text-amber-800 font-medium">
+                                Архивная вакансия
+                              </p>
+                              <p className="text-xs text-amber-700 mt-1 leading-relaxed">
+                                Вакансия автоматически перемещена в архив HH.ru. Вы можете загрузить все отклики,
+                                которые пришли до закрытия вакансии.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
