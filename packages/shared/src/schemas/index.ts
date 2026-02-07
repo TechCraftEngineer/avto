@@ -5,6 +5,8 @@ export {
   DraftSchema,
   type Message,
   MessageSchema,
+  type QuickReply,
+  QuickReplySchema,
   type UpdateDraftInput,
   UpdateDraftInputSchema,
   type VacancyData,

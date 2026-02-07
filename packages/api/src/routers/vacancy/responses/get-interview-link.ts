@@ -3,7 +3,7 @@ import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../trpc";
-import { verifyWorkspaceAccess } from "../../../utils/workspace-access";
+import { verifyWorkspaceAccess } from "../../../utils/verify-workspace-access";
 
 const getInterviewLinkInputSchema = z.object({
   responseId: z.string().uuid(),

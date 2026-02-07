@@ -94,6 +94,7 @@ export function AIVacancyChat({
     lastSavedAt,
     showRestorePrompt,
   } = useDraftPersistence({
+    debounceMs: 3000, // Увеличиваем debounce до 3 секунд
     onRestore: (draft) => {
       // Восстанавливаем состояние AI-бота из черновика
       if (draft.conversationHistory && draft.vacancyData) {
@@ -111,12 +112,29 @@ export function AIVacancyChat({
           customOrganizationalQuestions: undefined,
         };
 
-        restoreState(draft.conversationHistory, vacancyDocument);
+        // Преобразуем сообщения с сохранением quickReplies
+        const restoredMessages = draft.conversationHistory.map((msg) => ({
+          role: msg.role,
+          content: msg.content,
+          timestamp: msg.timestamp,
+          quickReplies: msg.quickReplies,
+          isMultiSelect: msg.isMultiSelect,
+        }));
+
+        restoreState(restoredMessages, vacancyDocument);
       }
     },
   });
 
   // Автоматическое сохранение при изменениях в документе или сообщениях
+  const prevDataRef = useRef<{
+    title?: string;
+    description?: string;
+    requirements?: string;
+    conditions?: string;
+    messagesLength: number;
+  } | null>(null);
+
   useEffect(() => {
     // Не сохраняем, если нет данных или идет генерация
     if (
@@ -126,6 +144,35 @@ export function AIVacancyChat({
     ) {
       return;
     }
+
+    // Сохраняем только когда генерация завершена (status === "idle")
+    if (status !== "idle") {
+      return;
+    }
+
+    // Проверяем, действительно ли данные изменились
+    const currentData = {
+      title: document.title,
+      description: document.description,
+      requirements: document.requirements,
+      conditions: document.conditions,
+      messagesLength: messages.length,
+    };
+
+    // Если данные не изменились, не сохраняем
+    if (
+      prevDataRef.current &&
+      prevDataRef.current.title === currentData.title &&
+      prevDataRef.current.description === currentData.description &&
+      prevDataRef.current.requirements === currentData.requirements &&
+      prevDataRef.current.conditions === currentData.conditions &&
+      prevDataRef.current.messagesLength === currentData.messagesLength
+    ) {
+      return;
+    }
+
+    // Обновляем ref с текущими данными
+    prevDataRef.current = currentData;
 
     // Преобразуем VacancyDocument в VacancyData для сохранения
     const vacancyData = {
@@ -144,11 +191,22 @@ export function AIVacancyChat({
           role: m.role,
           content: m.content,
           timestamp: m.timestamp,
+          quickReplies: m.quickReplies,
+          isMultiSelect: m.isMultiSelect,
         })),
       vacancyData,
       currentStep: document.title ? "editing" : "initial",
     });
-  }, [document, messages, status, saveDraft]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    document.title,
+    document.description,
+    document.requirements,
+    document.conditions,
+    messages.length,
+    status,
+    saveDraft,
+  ]);
 
   // Когда настройки компании созданы, автоматически переходим к следующему шагу
   // biome-ignore lint/correctness/useExhaustiveDependencies: clearChat is stable and should not trigger this effect

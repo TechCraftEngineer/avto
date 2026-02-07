@@ -150,7 +150,9 @@ export function VacancyTableRow({
       : null;
 
   // Определяем приоритет вакансии для рекрутера
-  const needsAttention = vacancy.newResponses && vacancy.newResponses > 0;
+  const needsAttention = Boolean(
+    vacancy.newResponses && vacancy.newResponses > 0,
+  );
 
   // Мутация для обновления статуса вакансии
   const updateStatusMutation = useMutation(

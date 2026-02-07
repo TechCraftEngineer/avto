@@ -506,6 +506,16 @@ export function useAIVacancyChat({
         role: "user" | "assistant";
         content: string;
         timestamp: Date;
+        quickReplies?: Array<{
+          id: string;
+          label: string;
+          value: string;
+          multiSelect?: boolean;
+          freeform?: boolean;
+          placeholder?: string;
+          maxLength?: number;
+        }>;
+        isMultiSelect?: boolean;
       }>,
       vacancyData: VacancyDocument,
     ) => {
@@ -523,6 +533,8 @@ export function useAIVacancyChat({
             role: msg.role,
             content: msg.content,
             timestamp: new Date(msg.timestamp),
+            quickReplies: msg.quickReplies,
+            isMultiSelect: msg.isMultiSelect,
           }),
         );
 
