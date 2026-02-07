@@ -9,6 +9,12 @@ export default async function createNextConfig(): Promise<NextConfig> {
   const config: NextConfig = {
     output: "standalone",
 
+    /** Build optimizations */
+    experimental: {
+      optimizePackageImports: ["@qbs-autonaim/ui", "@radix-ui/react-icons", "lucide-react"],
+      optimizeCss: true,
+    },
+
     transpilePackages: [
       "@qbs-autonaim/api",
       "@qbs-autonaim/auth",

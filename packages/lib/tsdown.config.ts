@@ -15,6 +15,8 @@ export default defineConfig({
   dts: true,
   sourcemap: false,
   clean: true,
+  minify: true,
+  target: "es2022",
   external: [
     /^@qbs-autonaim\/db/,
     /^@opentelemetry\//,

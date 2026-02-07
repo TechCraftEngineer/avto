@@ -9,6 +9,7 @@ export default defineConfig({
   sourcemap: false,
   clean: true,
   minify: isProduction,
+  target: "es2022",
   external: [
     "react",
     "react-dom",
