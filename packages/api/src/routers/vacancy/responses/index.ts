@@ -6,6 +6,7 @@ import { compare } from "./compare";
 import { debugList } from "./debug-list";
 import { get } from "./get";
 import { getCount } from "./get-count";
+import { getInterviewLink } from "./get-interview-link";
 import { getRefreshStatus } from "./get-refresh-status";
 import { getHistory } from "./history";
 import { list } from "./list";
@@ -35,5 +36,6 @@ export const responsesRouter = {
   removeTag,
   getRefreshStatus,
   analyzeSingle,
+  getInterviewLink,
   debugList, // Временный debug endpoint
 } satisfies TRPCRouterRecord;

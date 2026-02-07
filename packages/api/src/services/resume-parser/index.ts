@@ -26,6 +26,7 @@ import {
 } from "./types";
 
 // Re-export types for convenience
+// Resume parser types
 export * from "./types";
 
 /**

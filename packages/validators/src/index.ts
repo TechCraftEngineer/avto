@@ -12,7 +12,14 @@ export {
 } from "./company";
 
 // Data table
-export * from "./data-table";
+export {
+  dataTableItemSchema,
+  type DataTableItemData,
+  targetFormSchema,
+  type TargetFormData,
+  limitFormSchema,
+  type LimitFormData
+} from "./data-table";
 
 // Login
 export * from "./login";

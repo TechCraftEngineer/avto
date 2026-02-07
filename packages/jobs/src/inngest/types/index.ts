@@ -2,6 +2,7 @@
  * Централизованный экспорт всех типов и схем событий Inngest
  */
 
+// Type exports from various modules
 export * from "./buffer.types";
 export * from "./candidate.types";
 export * from "./freelance.types";

@@ -5,6 +5,12 @@
  * Не импортируйте его на клиенте!
  */
 
-export * from "./gig-shortlist-generator";
+export type {
+  GigContactInfo,
+  GigShortlistOptions,
+  GigShortlistCandidate,
+  GigShortlist
+} from "./gig-shortlist-generator";
+export { GigShortlistGenerator } from "./gig-shortlist-generator";
 export * from "./interview-link-generator";
 export * from "./ranking-service";

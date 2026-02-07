@@ -13,6 +13,7 @@ import {
   Brain,
   ClipboardCopy,
   ExternalLink,
+  Link2,
   Loader2,
   Mail,
   MoreVertical,
@@ -203,6 +204,20 @@ export function ResponseActions({
     });
   };
 
+  const handleCopyInterviewLink = async () => {
+    try {
+      const result = await trpc.vacancy.responses.getInterviewLink.query({
+        responseId,
+        workspaceId,
+      });
+
+      await navigator.clipboard.writeText(result.url);
+      toast.success("Ссылка на интервью скопирована");
+    } catch {
+      toast.error("Не удалось получить ссылку на интервью");
+    }
+  };
+
   const isLoading =
     isRefreshing ||
     isAnalyzing ||
@@ -315,6 +330,11 @@ export function ResponseActions({
             Скопировать контакты
           </DropdownMenuItem>
         )}
+
+        <DropdownMenuItem onClick={handleCopyInterviewLink}>
+          <Link2 className="h-4 w-4 mr-2" />
+          Скопировать ссылку на интервью
+        </DropdownMenuItem>
 
         <DropdownMenuSeparator />
 

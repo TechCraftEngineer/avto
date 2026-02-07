@@ -24,6 +24,7 @@ import {
 } from "./types";
 
 // Re-export types
+// Widget config types
 export * from "./types";
 
 /**

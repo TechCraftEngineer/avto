@@ -22,7 +22,14 @@ export {
 } from "./recommendation-prompts";
 
 // Screening prompts
-export * from "./screening-prompts";
+export type {
+  VacancyRequirements,
+  ResumeScreeningData
+} from "./screening-prompts";
+export {
+  formatResumeForScreening,
+  buildFullResumeScreeningPrompt
+} from "./screening-prompts";
 
 // Телеметрия
 export * from "./telemetry";

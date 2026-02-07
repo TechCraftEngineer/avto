@@ -32,6 +32,7 @@ import {
 export { generateDNSInstructions, verifyDNS } from "./dns-verifier";
 export { checkSSLStatus, provisionSSL } from "./ssl-provisioner";
 // Re-export types and utilities
+// Custom domain types
 export * from "./types";
 
 /**

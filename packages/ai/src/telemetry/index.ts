@@ -126,4 +126,5 @@ export function isTelemetryInitialized(): boolean {
   return langfuseClient !== null;
 }
 
+// Inngest wrapper for telemetry
 export * from "./inngest-wrapper";
