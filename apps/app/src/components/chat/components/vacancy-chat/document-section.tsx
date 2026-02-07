@@ -61,6 +61,7 @@ export function DocumentSection({
             size="sm"
             onClick={handleStartEdit}
             className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+            aria-label={`Редактировать ${title.toLowerCase()}`}
           >
             <IconEdit className="h-3 w-3" />
           </Button>
@@ -72,6 +73,7 @@ export function DocumentSection({
               size="sm"
               onClick={handleSave}
               className="h-6 w-6 p-0 text-green-600 hover:text-green-700"
+              aria-label="Сохранить изменения"
             >
               <IconCheck className="h-3 w-3" />
             </Button>
@@ -80,6 +82,7 @@ export function DocumentSection({
               size="sm"
               onClick={handleCancel}
               className="h-6 w-6 p-0 text-red-600 hover:text-red-700"
+              aria-label="Отменить изменения"
             >
               <IconX className="h-3 w-3" />
             </Button>
@@ -103,4 +106,3 @@ export function DocumentSection({
     </Card>
   );
 }
-

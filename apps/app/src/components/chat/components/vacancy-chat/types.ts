@@ -3,12 +3,51 @@
 // Типы для интерактивного AI-чата создания вакансий
 
 export interface VacancyDocument {
+  // Основная информация
   title?: string;
   description?: string;
-  requirements?: string;
+
+  // Опыт работы
+  experienceYears?: {
+    min?: number;
+    max?: number;
+  };
+
+  // Тип занятости
+  employmentType?: "full" | "part" | "project" | "internship" | "volunteer";
+
+  // Формат работы
+  workFormat?: "office" | "remote" | "hybrid";
+
+  // Оформление сотрудника
+  employmentContract?:
+    | "employment"
+    | "contract"
+    | "self_employed"
+    | "individual";
+
+  // График и часы работы
+  schedule?: "full_day" | "shift" | "flexible" | "remote_schedule" | "watch";
+  workingHours?: string; // Например: "9:00-18:00" или "5/2"
+
+  // Оплата работы
+  salary?: {
+    from?: number;
+    to?: number;
+    currency?: "RUB" | "USD" | "EUR";
+    gross?: boolean; // true = до вычета налогов, false = на руки
+  };
+
+  // Описание вакансии (структурированное)
   responsibilities?: string;
+  requirements?: string;
   conditions?: string;
   bonuses?: string;
+
+  // Навыки
+  skills?: string[];
+
+  // Настройки бота
   customBotInstructions?: string;
   customScreeningPrompt?: string;
   customInterviewQuestions?: string;

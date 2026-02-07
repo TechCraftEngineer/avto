@@ -99,6 +99,7 @@ export function DocumentPreview({
                     size="sm"
                     onClick={() => onEditSection("title")}
                     className="absolute top-0 right-0 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                    aria-label="Редактировать название"
                   >
                     <IconEdit className="h-3 w-3" />
                   </Button>
@@ -233,6 +234,8 @@ export function DocumentPreview({
             className="w-full transition-all hover:scale-[1.02] active:scale-[0.98]"
             size="lg"
             style={{ touchAction: "manipulation" }}
+            aria-live="polite"
+            aria-busy={isSaving || isGenerating}
           >
             {isSaving ? (
               <>

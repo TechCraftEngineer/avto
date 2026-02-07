@@ -63,45 +63,6 @@ function createWelcomeMessage(
   const hasSettings = !!botSettings?.companyName;
 
   if (!hasSettings) {
-    const _companyTemplates = [
-      {
-        id: "company-startup",
-        label: "🚀 IT-стартап",
-        value:
-          "Компания: TechStart (стартап), занимается разработкой мобильных приложений. Сайт: techstart.ru, Бот: Алексей, роль: HR-менеджер",
-      },
-      {
-        id: "company-product",
-        label: "🏢 Продуктовая IT-компания",
-        value:
-          "Компания: SoftPro, занимается разработкой SaaS-продуктов. Сайт: softpro.com, Бот: Мария, роль: Специалист по подбору персонала",
-      },
-      {
-        id: "company-agency",
-        label: "🎯 Digital-агентство",
-        value:
-          "Компания: DigitalWave, занимается веб-разработкой и маркетингом. Сайт: digitalwave.ru, Бот: Дмитрий, роль: Руководитель отдела подбора",
-      },
-      {
-        id: "company-corporate",
-        label: "🏛 Крупная корпорация",
-        value:
-          "Компания: MegaCorp, занимается enterprise-решениями. Сайт: megacorp.ru, Бот: Анна, роль: Корпоративный рекрутер",
-      },
-      {
-        id: "company-freelance",
-        label: "👤 Фрилансер/Индивидуальный проект",
-        value:
-          "Фрилансер: Иван Петров, занимается разработкой. Специализация: React, Node.js. Бот: Иван, роль: Фрилансер",
-      },
-      {
-        id: "company-consulting",
-        label: "💼 Консалтинговая компания",
-        value:
-          "Компания: ConsultPro, занимается IT-консалтингом. Сайт: consultpro.ru, Бот: Сергей, роль: Партнёр по подбору талантов",
-      },
-    ];
-
     return {
       id: "welcome",
       role: "assistant",

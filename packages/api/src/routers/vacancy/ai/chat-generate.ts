@@ -19,9 +19,54 @@ const companySetupSchema = z.object({
 const vacancySchema = z.object({
   title: z.string().optional(),
   description: z.string().optional(),
-  requirements: z.string().optional(),
+
+  // Опыт работы
+  experienceYears: z
+    .object({
+      min: z.number().optional(),
+      max: z.number().optional(),
+    })
+    .optional(),
+
+  // Тип занятости
+  employmentType: z
+    .enum(["full", "part", "project", "internship", "volunteer"])
+    .optional(),
+
+  // Формат работы
+  workFormat: z.enum(["office", "remote", "hybrid"]).optional(),
+
+  // Оформление сотрудника
+  employmentContract: z
+    .enum(["employment", "contract", "self_employed", "individual"])
+    .optional(),
+
+  // График работы
+  schedule: z
+    .enum(["full_day", "shift", "flexible", "remote_schedule", "watch"])
+    .optional(),
+  workingHours: z.string().optional(),
+
+  // Оплата
+  salary: z
+    .object({
+      from: z.number().optional(),
+      to: z.number().optional(),
+      currency: z.enum(["RUB", "USD", "EUR"]).optional(),
+      gross: z.boolean().optional(),
+    })
+    .optional(),
+
+  // Описание вакансии
   responsibilities: z.string().optional(),
+  requirements: z.string().optional(),
   conditions: z.string().optional(),
+  bonuses: z.string().optional(),
+
+  // Навыки
+  skills: z.array(z.string()).optional(),
+
+  // Настройки бота
   customBotInstructions: z.string().optional(),
   customScreeningPrompt: z.string().optional(),
   customInterviewQuestions: z.string().optional(),
@@ -82,9 +127,41 @@ const chatGenerateInputSchema = z.object({
     .object({
       title: z.string().optional(),
       description: z.string().optional(),
-      requirements: z.string().optional(),
+
+      experienceYears: z
+        .object({
+          min: z.number().optional(),
+          max: z.number().optional(),
+        })
+        .optional(),
+
+      employmentType: z
+        .enum(["full", "part", "project", "internship", "volunteer"])
+        .optional(),
+      workFormat: z.enum(["office", "remote", "hybrid"]).optional(),
+      employmentContract: z
+        .enum(["employment", "contract", "self_employed", "individual"])
+        .optional(),
+      schedule: z
+        .enum(["full_day", "shift", "flexible", "remote_schedule", "watch"])
+        .optional(),
+      workingHours: z.string().optional(),
+
+      salary: z
+        .object({
+          from: z.number().optional(),
+          to: z.number().optional(),
+          currency: z.enum(["RUB", "USD", "EUR"]).optional(),
+          gross: z.boolean().optional(),
+        })
+        .optional(),
+
       responsibilities: z.string().optional(),
+      requirements: z.string().optional(),
       conditions: z.string().optional(),
+      bonuses: z.string().optional(),
+      skills: z.array(z.string()).optional(),
+
       customBotInstructions: z.string().optional(),
       customScreeningPrompt: z.string().optional(),
       customInterviewQuestions: z.string().optional(),
@@ -107,9 +184,18 @@ function buildVacancyGenerationPrompt(
   currentDocument?: {
     title?: string;
     description?: string;
-    requirements?: string;
+    experienceYears?: { min?: number; max?: number };
+    employmentType?: string;
+    workFormat?: string;
+    employmentContract?: string;
+    schedule?: string;
+    workingHours?: string;
+    salary?: { from?: number; to?: number; currency?: string; gross?: boolean };
     responsibilities?: string;
+    requirements?: string;
     conditions?: string;
+    bonuses?: string;
+    skills?: string[];
     customBotInstructions?: string;
     customScreeningPrompt?: string;
     customInterviewQuestions?: string;
@@ -136,9 +222,18 @@ ${conversationHistory
 ТЕКУЩИЙ ДОКУМЕНТ ВАКАНСИИ:
 ${currentDocument.title ? `Название: ${currentDocument.title}` : ""}
 ${currentDocument.description ? `Описание: ${currentDocument.description}` : ""}
-${currentDocument.requirements ? `Требования:\n${currentDocument.requirements}` : ""}
+${currentDocument.experienceYears ? `Опыт работы: ${currentDocument.experienceYears.min ? `от ${currentDocument.experienceYears.min}` : ""}${currentDocument.experienceYears.max ? ` до ${currentDocument.experienceYears.max}` : ""} лет` : ""}
+${currentDocument.employmentType ? `Тип занятости: ${currentDocument.employmentType}` : ""}
+${currentDocument.workFormat ? `Формат работы: ${currentDocument.workFormat}` : ""}
+${currentDocument.employmentContract ? `Оформление: ${currentDocument.employmentContract}` : ""}
+${currentDocument.schedule ? `График: ${currentDocument.schedule}` : ""}
+${currentDocument.workingHours ? `Часы работы: ${currentDocument.workingHours}` : ""}
+${currentDocument.salary ? `Зарплата: ${currentDocument.salary.from ? `от ${currentDocument.salary.from}` : ""}${currentDocument.salary.to ? ` до ${currentDocument.salary.to}` : ""} ${currentDocument.salary.currency || "RUB"}${currentDocument.salary.gross ? " (до вычета налогов)" : " (на руки)"}` : ""}
 ${currentDocument.responsibilities ? `Обязанности:\n${currentDocument.responsibilities}` : ""}
+${currentDocument.requirements ? `Требования:\n${currentDocument.requirements}` : ""}
 ${currentDocument.conditions ? `Условия:\n${currentDocument.conditions}` : ""}
+${currentDocument.bonuses ? `Бонусы:\n${currentDocument.bonuses}` : ""}
+${currentDocument.skills ? `Навыки: ${currentDocument.skills.join(", ")}` : ""}
 ${currentDocument.customBotInstructions ? `Инструкции для бота:\n${currentDocument.customBotInstructions}` : ""}
 ${currentDocument.customScreeningPrompt ? `Промпт для скрининга:\n${currentDocument.customScreeningPrompt}` : ""}
 ${currentDocument.customInterviewQuestions ? `Вопросы для интервью:\n${currentDocument.customInterviewQuestions}` : ""}
@@ -213,9 +308,16 @@ ${documentSection}
 - Обнови соответствующие разделы документа
 - Если пользователь указывает название должности - обнови title
 - Если описывает компанию/проект - обнови description
+- Если указывает опыт работы - обнови experienceYears (min/max в годах)
+- Если говорит о типе занятости (полная/частичная/проектная/стажировка) - обнови employmentType
+- Если указывает формат работы (офис/удаленка/гибрид) - обнови workFormat
+- Если говорит об оформлении (ТК РФ/ГПХ/самозанятость/ИП) - обнови employmentContract
+- Если указывает график работы - обнови schedule и workingHours
+- Если называет зарплату - обнови salary (from/to, currency: RUB/USD/EUR, gross: true=до налогов/false=на руки)
+- Если перечисляет обязанности - обнови responsibilities
 - Если перечисляет требования к кандидату - обнови requirements
-- Если описывает обязанности - обнови responsibilities
-- Если говорит о зарплате/условиях - обнови conditions
+- Если говорит о зарплате/условиях/бонусах - обнови conditions и bonuses
+- Если называет навыки - обнови skills (массив строк)
 - Если просит настроить бота для интервью - обнови customBotInstructions
 - Если просит настроить скрининг - обнови customScreeningPrompt
 - Если просит добавить вопросы для интервью - обнови customInterviewQuestions
@@ -223,6 +325,12 @@ ${documentSection}
 - Сохрани существующую информацию, если пользователь не просит её изменить
 - Используй профессиональный язык
 - Структурируй списки с помощью маркеров или нумерации
+
+ЗНАЧЕНИЯ ДЛЯ ENUM ПОЛЕЙ:
+- employmentType: "full" (полная), "part" (частичная), "project" (проектная), "internship" (стажировка), "volunteer" (волонтёрство)
+- workFormat: "office" (офис), "remote" (удалённая), "hybrid" (гибрид)
+- employmentContract: "employment" (ТК РФ), "contract" (ГПХ), "self_employed" (самозанятость), "individual" (ИП)
+- schedule: "full_day" (полный день), "shift" (сменный), "flexible" (гибкий), "remote_schedule" (удалённый), "watch" (вахта)
 
 НАСТРОЙКИ БОТА (когда пользователь просит):
 - customBotInstructions: Инструкции для бота-интервьюера (как вести себя, на что обращать внимание)
@@ -243,9 +351,18 @@ ${
     : `{
   "title": "Название должности",
   "description": "Описание компании и проекта",
-  "requirements": "Требования к кандидату (список)",
+  "experienceYears": { "min": 3, "max": 5 },
+  "employmentType": "full",
+  "workFormat": "hybrid",
+  "employmentContract": "employment",
+  "schedule": "full_day",
+  "workingHours": "9:00-18:00, 5/2",
+  "salary": { "from": 100000, "to": 150000, "currency": "RUB", "gross": false },
   "responsibilities": "Обязанности (список)",
-  "conditions": "Условия работы и зарплата",
+  "requirements": "Требования к кандидату (список)",
+  "conditions": "Условия работы",
+  "bonuses": "Бонусы и премии",
+  "skills": ["JavaScript", "React", "TypeScript"],
   "customBotInstructions": "Инструкции для бота (если запрошено)",
   "customScreeningPrompt": "Промпт для скрининга (если запрошено)",
   "customInterviewQuestions": "Вопросы для интервью (если запрошено)",
@@ -378,13 +495,26 @@ export const chatGenerate = protectedProcedure
           title: validated.title ?? currentDocument?.title ?? "",
           description:
             validated.description ?? currentDocument?.description ?? "",
-          requirements:
-            validated.requirements ?? currentDocument?.requirements ?? "",
+          experienceYears:
+            validated.experienceYears ?? currentDocument?.experienceYears,
+          employmentType:
+            validated.employmentType ?? currentDocument?.employmentType,
+          workFormat: validated.workFormat ?? currentDocument?.workFormat,
+          employmentContract:
+            validated.employmentContract ?? currentDocument?.employmentContract,
+          schedule: validated.schedule ?? currentDocument?.schedule,
+          workingHours:
+            validated.workingHours ?? currentDocument?.workingHours ?? "",
+          salary: validated.salary ?? currentDocument?.salary,
           responsibilities:
             validated.responsibilities ??
             currentDocument?.responsibilities ??
             "",
+          requirements:
+            validated.requirements ?? currentDocument?.requirements ?? "",
           conditions: validated.conditions ?? currentDocument?.conditions ?? "",
+          bonuses: validated.bonuses ?? currentDocument?.bonuses ?? "",
+          skills: validated.skills ?? currentDocument?.skills ?? [],
           customBotInstructions:
             validated.customBotInstructions ??
             currentDocument?.customBotInstructions ??
