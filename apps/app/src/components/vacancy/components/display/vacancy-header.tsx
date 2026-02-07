@@ -2,12 +2,12 @@
 
 import { Badge } from "@qbs-autonaim/ui/badge";
 import { Button } from "@qbs-autonaim/ui/button";
-import { DeleteVacancyDialog } from "@qbs-autonaim/ui/delete-vacancy-dialog";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ExternalLink, MapPin, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { DeleteVacancyDialog } from "~/components/vacancies";
 import { useTRPC } from "~/trpc/react";
 
 /**
@@ -141,4 +141,3 @@ export function VacancyHeader({
     </>
   );
 }
-

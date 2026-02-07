@@ -117,8 +117,8 @@ export function AIVacancyChat({
           role: msg.role,
           content: msg.content,
           timestamp: msg.timestamp,
-          quickReplies: msg.quickReplies,
-          isMultiSelect: msg.isMultiSelect,
+          quickReplies: msg.quickReplies ?? undefined,
+          isMultiSelect: msg.isMultiSelect ?? undefined,
         }));
 
         restoreState(restoredMessages, vacancyDocument);
@@ -133,8 +133,11 @@ export function AIVacancyChat({
     requirements?: string;
     conditions?: string;
     messagesLength: number;
+    lastMessageId?: string;
+    lastMessageHasQuickReplies?: boolean;
   } | null>(null);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     // Не сохраняем, если нет данных или идет генерация
     if (
@@ -150,6 +153,9 @@ export function AIVacancyChat({
       return;
     }
 
+    // Получаем последнее сообщение
+    const lastMessage = messages[messages.length - 1];
+
     // Проверяем, действительно ли данные изменились
     const currentData = {
       title: document.title,
@@ -157,6 +163,8 @@ export function AIVacancyChat({
       requirements: document.requirements,
       conditions: document.conditions,
       messagesLength: messages.length,
+      lastMessageId: lastMessage?.id,
+      lastMessageHasQuickReplies: !!lastMessage?.quickReplies?.length,
     };
 
     // Если данные не изменились, не сохраняем
@@ -166,7 +174,10 @@ export function AIVacancyChat({
       prevDataRef.current.description === currentData.description &&
       prevDataRef.current.requirements === currentData.requirements &&
       prevDataRef.current.conditions === currentData.conditions &&
-      prevDataRef.current.messagesLength === currentData.messagesLength
+      prevDataRef.current.messagesLength === currentData.messagesLength &&
+      prevDataRef.current.lastMessageId === currentData.lastMessageId &&
+      prevDataRef.current.lastMessageHasQuickReplies ===
+        currentData.lastMessageHasQuickReplies
     ) {
       return;
     }
@@ -204,6 +215,8 @@ export function AIVacancyChat({
     document.requirements,
     document.conditions,
     messages.length,
+    messages[messages.length - 1]?.id,
+    messages[messages.length - 1]?.quickReplies?.length,
     status,
     saveDraft,
   ]);
