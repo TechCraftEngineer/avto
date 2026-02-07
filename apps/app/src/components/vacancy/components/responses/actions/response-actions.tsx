@@ -206,7 +206,6 @@ export function ResponseActions({
 
   const handleCopyInterviewLink = async () => {
     try {
-      const queryClient = useQueryClient();
       const result = await queryClient.fetchQuery(
         trpc.vacancy.responses.getInterviewLink.queryOptions({
           responseId,

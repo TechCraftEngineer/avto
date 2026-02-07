@@ -158,36 +158,54 @@ export async function fetchImportVacanciesToken(
  * Server action для получения токена подписки на Realtime канал статистики вакансии
  */
 export async function fetchVacancyStatsToken(vacancyId: string) {
-  const token = await getSubscriptionToken(inngest, {
-    channel: vacancyStatsChannel(vacancyId),
-    topics: ["stats-updated", "responses-updated"],
-  });
+  try {
+    const token = await getSubscriptionToken(inngest, {
+      channel: vacancyStatsChannel(vacancyId),
+      topics: ["stats-updated", "responses-updated"],
+    });
 
-  return token;
+    return token;
+  } catch (error) {
+    console.error("Ошибка получения токена статистики вакансии:", error);
+    return null;
+  }
 }
 
 /**
  * Server action для получения токена подписки на Realtime канал статистики workspace
  */
 export async function fetchWorkspaceStatsToken(workspaceId: string) {
-  const token = await getSubscriptionToken(inngest, {
-    channel: workspaceStatsChannel(workspaceId),
-    topics: ["vacancies-updated", "responses-updated"],
-  });
+  try {
+    const token = await getSubscriptionToken(inngest, {
+      channel: workspaceStatsChannel(workspaceId),
+      topics: ["vacancies-updated", "responses-updated"],
+    });
 
-  return token;
+    return token;
+  } catch (error) {
+    console.error(
+      "Ошибка получения токена статистики рабочего пространства:",
+      error,
+    );
+    return null;
+  }
 }
 
 /**
  * Server action для получения токена подписки на Realtime канал уведомлений workspace
  */
 export async function fetchWorkspaceNotificationsToken(workspaceId: string) {
-  const token = await getSubscriptionToken(inngest, {
-    channel: workspaceNotificationsChannel(workspaceId),
-    topics: ["integration-error", "task-completed"],
-  });
+  try {
+    const token = await getSubscriptionToken(inngest, {
+      channel: workspaceNotificationsChannel(workspaceId),
+      topics: ["integration-error", "task-completed"],
+    });
 
-  return token;
+    return token;
+  } catch (error) {
+    console.error("Ошибка получения токена уведомлений:", error);
+    return null;
+  }
 }
 
 /**
@@ -197,10 +215,15 @@ export async function fetchScreenBatchToken(
   workspaceId: string,
   batchId: string,
 ) {
-  const token = await getSubscriptionToken(inngest, {
-    channel: screenBatchChannel(workspaceId, batchId),
-    topics: ["response-scored", "batch-progress", "batch-completed"],
-  });
+  try {
+    const token = await getSubscriptionToken(inngest, {
+      channel: screenBatchChannel(workspaceId, batchId),
+      topics: ["response-scored", "batch-progress", "batch-completed"],
+    });
 
-  return token;
+    return token;
+  } catch (error) {
+    console.error("Ошибка получения токена batch скрининга:", error);
+    return null;
+  }
 }

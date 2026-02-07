@@ -26,9 +26,10 @@ export function useVacancyStats(vacancyId: string | undefined) {
   const queryClient = useQueryClient();
 
   const { latestData, state, error } = useInngestSubscription({
-    refreshToken: () => {
-      if (!vacancyId) throw new Error("vacancyId is required");
-      return fetchVacancyStatsToken(vacancyId);
+    refreshToken: async () => {
+      if (!vacancyId) return null;
+      const token = await fetchVacancyStatsToken(vacancyId);
+      return token;
     },
     enabled: Boolean(vacancyId),
   });

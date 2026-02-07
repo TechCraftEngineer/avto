@@ -25,9 +25,10 @@ const NotificationSchema = z.object({
  */
 export function useWorkspaceNotifications(workspaceId: string | undefined) {
   const { latestData, state } = useInngestSubscription({
-    refreshToken: () => {
-      if (!workspaceId) throw new Error("workspaceId is required");
-      return fetchWorkspaceNotificationsToken(workspaceId);
+    refreshToken: async () => {
+      if (!workspaceId) return null;
+      const token = await fetchWorkspaceNotificationsToken(workspaceId);
+      return token;
     },
     enabled: Boolean(workspaceId),
   });
