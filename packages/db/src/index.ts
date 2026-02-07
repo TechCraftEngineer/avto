@@ -1,15 +1,31 @@
 export { alias } from "drizzle-orm/pg-core";
 export * from "drizzle-orm/sql";
 export { db } from "./client";
-export * from "./permissions/organization";
-export * from "./repositories/candidate.repository";
+
+// Permissions
+export {
+  canManageOrganization,
+  canManageMembers,
+  canInviteMembers,
+  canCreateWorkspaces,
+  canDeleteWorkspaces,
+  hasOrganizationAccess,
+} from "./permissions/organization";
+
+// Repositories
+export type { CandidateSearchParams, CandidateDataFromResponse } from "./repositories/candidate.repository";
+export { CandidateRepository } from "./repositories/candidate.repository";
 export { DraftRepository } from "./repositories/draft.repository";
 export * from "./repositories/integration";
 export * from "./repositories/organization.repository";
 export * from "./repositories/response.repository";
 export * from "./repositories/response-history";
 export { WorkspaceRepository } from "./repositories/workspace.repository";
+
+// Schema
 export * from "./schema";
+
+// Utils
 export * from "./utils/encryption";
 export * from "./utils/profile-data-helpers";
 

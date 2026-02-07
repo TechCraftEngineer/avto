@@ -1,17 +1,46 @@
-export * from "./ai-text-sanitizer";
+// AI Text Sanitizer utilities
+export { sanitizeAiText, sanitizeAiTextArray } from "./ai-text-sanitizer";
+
 // Error utilities
-export * from "./errors";
+export { InterviewSDKError } from "./errors";
+
 // Logger utilities
-export * from "./logger";
+export { createLogger, logger } from "./logger";
+
 // Pluralization utilities
-export * from "./pluralization";
+export { getPluralForm } from "./pluralization";
+
 // Prompt sanitization utilities
-export * from "./prompt-sanitizer";
+export {
+  sanitizePromptText,
+  truncateText,
+  sanitizeConversationMessage
+} from "./prompt-sanitizer";
+
 // Rate limiting utilities
-export * from "./rate-limiter";
+export { getRateLimiter, checkRateLimit } from "./rate-limiter";
+
 // Result utilities
-export * from "./result";
+export type { Result } from "./result";
+export {
+  ok,
+  err,
+  tryCatch,
+  unwrap,
+  unwrapOr,
+  map,
+  flatMap
+} from "./result";
+
 // Date utilities
-export * from "./utils/date-utils";
+export {
+  parseBirthDate,
+  createUTCDate,
+  calculateAge,
+  formatBirthDate,
+  formatDateForInput,
+  parseDateFromInput
+} from "./utils/date-utils";
+
 // Sanitization utilities
-export * from "./utils/sanitize";
+export { removeNullBytes, sanitizeObject } from "./utils/sanitize";
