@@ -24,7 +24,11 @@ export class PromptFactory {
     const builder = this.builders.get(entityType);
     if (!builder) {
       // Fallback на vacancy построитель для неизвестных типов
-      return this.builders.get("vacancy")!;
+      const fallback = this.builders.get("vacancy");
+      if (!fallback) {
+        throw new Error("Vacancy builder not found");
+      }
+      return fallback;
     }
     return builder;
   }

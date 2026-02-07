@@ -10,7 +10,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@qbs-autonaim/ui/alert-dialog";
-import * as React from "react";
 
 interface DeleteVacancyDialogProps {
   open: boolean;

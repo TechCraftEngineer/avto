@@ -353,7 +353,7 @@ describe("Performance Tests", () => {
         const start = performance.now();
         factory.register(
           "test" as SupportedEntityType,
-          () => new TestStrategy() as any,
+          () => new TestStrategy() as unknown as InterviewStrategy,
         );
         const isSupported = factory.isSupported("test");
         const end = performance.now();

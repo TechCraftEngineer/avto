@@ -41,7 +41,10 @@ interface InterviewContextCardProps {
   entityType?: SupportedEntityType;
 }
 
-export function InterviewContextCard({ context, entityType }: InterviewContextCardProps) {
+export function InterviewContextCard({
+  context,
+  entityType,
+}: InterviewContextCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Определяем тип из context или из prop
@@ -175,14 +178,12 @@ export function InterviewContextCard({ context, entityType }: InterviewContextCa
                     <div className="space-y-2">
                       <h3 className="font-medium text-sm">Требуемые навыки</h3>
                       <ul className="space-y-1 text-muted-foreground text-sm">
-                        {context.requirements.skills.map(
-                          (skill: string, idx: number) => (
-                            <li key={idx} className="flex items-start gap-2">
-                              <span className="mt-1.5 size-1 shrink-0 rounded-full bg-muted-foreground" />
-                              <span>{skill}</span>
-                            </li>
-                          ),
-                        )}
+                        {context.requirements.skills.map((skill: string) => (
+                          <li key={skill} className="flex items-start gap-2">
+                            <span className="mt-1.5 size-1 shrink-0 rounded-full bg-muted-foreground" />
+                            <span>{skill}</span>
+                          </li>
+                        ))}
                       </ul>
                     </div>
                   )}
@@ -193,8 +194,8 @@ export function InterviewContextCard({ context, entityType }: InterviewContextCa
                       <h3 className="font-medium text-sm">Обязанности</h3>
                       <ul className="space-y-1 text-muted-foreground text-sm">
                         {context.requirements.responsibilities.map(
-                          (resp: string, idx: number) => (
-                            <li key={idx} className="flex items-start gap-2">
+                          (resp: string) => (
+                            <li key={resp} className="flex items-start gap-2">
                               <span className="mt-1.5 size-1 shrink-0 rounded-full bg-muted-foreground" />
                               <span>{resp}</span>
                             </li>
@@ -211,7 +212,11 @@ export function InterviewContextCard({ context, entityType }: InterviewContextCa
                     variant="ghost"
                     size="sm"
                     className="h-8 gap-1 px-2 text-muted-foreground hover:text-foreground"
-                    aria-label={isExpanded ? "Свернуть подробности" : "Показать подробности"}
+                    aria-label={
+                      isExpanded
+                        ? "Свернуть подробности"
+                        : "Показать подробности"
+                    }
                   >
                     <span className="text-xs">
                       {isExpanded ? "Свернуть" : "Показать подробности"}

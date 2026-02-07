@@ -137,7 +137,7 @@ export function AIVacancyChat({
     lastMessageHasQuickReplies?: boolean;
   } | null>(null);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: сохранение состояния чата управляется вручную
   useEffect(() => {
     // Не сохраняем, если нет данных или идет генерация
     if (

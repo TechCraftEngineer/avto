@@ -249,7 +249,7 @@ export const sendMessage = protectedProcedure
     let fullText = "";
 
     // Извлекаем workspaceId из контекста для трейсинга
-    const workspaceId =
+    const _workspaceId =
       typeof context.mainContext.workspaceId === "string"
         ? context.mainContext.workspaceId
         : undefined;

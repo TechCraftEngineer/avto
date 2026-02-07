@@ -68,6 +68,7 @@ export default function VacancySettingsPage({
     interviewLink,
     getInterviewLinkMutation.isIdle,
     getInterviewLinkMutation.mutate,
+    getInterviewLinkMutation,
   ]);
 
   const updateSettingsMutation = useMutation(
