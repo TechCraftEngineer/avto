@@ -125,7 +125,7 @@ async function collectAndSaveResponses(
 
   try {
     console.log(`📄 Переход на страницу откликов вакансии ${vacancyId}`);
-    const responsesUrl = `${HH_CONFIG.urls.baseUrl}/employer/vacancies/${vacancyId}/responses`;
+    const responsesUrl = `https://hh.ru/employer/vacancyresponses?vacancyId=${vacancyId}&order=DATE`;
     await page.goto(responsesUrl, {
       waitUntil: "domcontentloaded",
       timeout: HH_CONFIG.timeouts.navigation,

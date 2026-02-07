@@ -10,11 +10,13 @@ import {
   TableRow,
 } from "@qbs-autonaim/ui";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
+import { fetchRefreshVacancyResponsesToken } from "~/actions/realtime";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
 import { BulkActionsBar } from "../actions/bulk-actions-bar";
 import { useColumnVisibility } from "../hooks/use-column-visibility";
+import { useRefreshSubscription } from "../hooks/use-refresh-subscription";
 import { useResponseActions } from "../hooks/use-response-actions";
 import { useResponseTable } from "../hooks/use-response-table";
 import { ResponseRow } from "../response-row";
@@ -103,7 +105,21 @@ export function ResponseTable({
       workspaceId: workspace?.id ?? "",
     }),
     enabled: !!workspace?.id,
+    staleTime: 5 * 60 * 1000, // 5 минут - данные вакансии редко меняются
   });
+
+  // Мемоизируем производные значения, чтобы избежать лишних ре-рендеров
+  const isHHVacancy = useMemo(
+    () => vacancyData?.source === "HH",
+    [vacancyData?.source],
+  );
+
+  const isArchivedPublication = useMemo(() => {
+    const hhPublication = vacancyData?.publications?.find(
+      (pub: { platform: string; isActive: boolean }) => pub.platform === "HH",
+    );
+    return !(hhPublication?.isActive ?? true);
+  }, [vacancyData?.publications]);
 
   const { data, isLoading, isFetching, isFetched } = useQuery({
     ...trpc.vacancy.responses.list.queryOptions({
@@ -140,6 +156,39 @@ export function ResponseTable({
     selectedIds,
     setSelectedIds,
   );
+
+  // Подписываемся на события завершения обновления откликов через realtime
+  useRefreshSubscription({
+    vacancyId,
+    enabled: isRefreshing,
+    fetchToken: fetchRefreshVacancyResponsesToken,
+    onComplete: (success) => {
+      if (success) {
+        handleRefreshComplete();
+      }
+    },
+  });
+
+  // Подписываемся на события завершения обновления откликов
+  useEffect(() => {
+    if (!isRefreshing) return;
+
+    let timeoutId: NodeJS.Timeout;
+
+    // Устанавливаем таймаут на случай, если событие завершения не придет
+    timeoutId = setTimeout(
+      () => {
+        handleRefreshComplete();
+      },
+      5 * 60 * 1000,
+    ); // 5 минут максимум
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [isRefreshing, handleRefreshComplete]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: reset selection when filters change
   useEffect(() => {
@@ -281,6 +330,7 @@ export function ResponseTable({
           isRefreshing={isRefreshing}
           source={vacancyData?.source}
           externalId={vacancyData?.externalId}
+          isActive={!isArchivedPublication}
         />
       );
     }
@@ -328,6 +378,8 @@ export function ResponseTable({
         visibleColumns={visibleColumns}
         onToggleColumn={toggleColumn}
         onResetColumns={resetColumns}
+        isHHVacancy={isHHVacancy}
+        isArchivedPublication={isArchivedPublication}
       />
 
       <div className="rounded-md border bg-transparent">

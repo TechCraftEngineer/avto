@@ -35,6 +35,8 @@ interface ResponseTableToolbarProps {
   visibleColumns: ReadonlySet<ColumnId>;
   onToggleColumn: (columnId: ColumnId) => void;
   onResetColumns: () => void;
+  isHHVacancy?: boolean;
+  isArchivedPublication?: boolean;
 }
 
 export function ResponseTableToolbar({
@@ -59,6 +61,8 @@ export function ResponseTableToolbar({
   visibleColumns,
   onToggleColumn,
   onResetColumns,
+  isHHVacancy = false,
+  isArchivedPublication = false,
 }: ResponseTableToolbarProps) {
   // Custom hooks for different operation states
   const refreshState = useRefreshState(vacancyId, onRefresh, onRefreshComplete);
@@ -115,6 +119,8 @@ export function ResponseTableToolbar({
             onArchivedDialogOpen ||
             (() => syncArchivedState.setDialogOpen(true))
           }
+          isHHVacancy={isHHVacancy}
+          isArchivedPublication={isArchivedPublication}
         />
       </div>
     </div>

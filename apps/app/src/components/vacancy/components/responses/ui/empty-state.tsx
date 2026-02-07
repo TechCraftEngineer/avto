@@ -9,6 +9,7 @@ interface EmptyStateProps {
   isRefreshing?: boolean;
   source?: string | null;
   externalId?: string | null;
+  isActive?: boolean;
 }
 
 export function EmptyState({
@@ -19,6 +20,7 @@ export function EmptyState({
   isRefreshing = false,
   source,
   externalId,
+  isActive = true,
 }: EmptyStateProps) {
   // Не показываем пустое состояние во время загрузки
   if (isLoading) {
@@ -28,8 +30,13 @@ export function EmptyState({
   // Проверяем, импортирована ли вакансия из HeadHunter
   const isFromHH = source === "HH";
 
-  // Не показываем кнопку загрузки, если нет откликов и это не HH вакансия, или если нет onRefresh, или если нет externalId
-  const showLoadButton = !hasResponses && isFromHH && onRefresh && externalId;
+  // Определяем, является ли вакансия архивной
+  const isArchivedVacancy = !isActive;
+
+  // Показываем кнопку загрузки только для архивных вакансий из HH
+  // Для активных вакансий кнопка не нужна
+  const showLoadButton =
+    !hasResponses && isFromHH && isArchivedVacancy && onRefresh && externalId;
 
   return (
     <TableRow>
@@ -67,15 +74,15 @@ export function EmptyState({
             <span className="text-base font-medium text-foreground">
               {hasResponses
                 ? "Нет откликов по выбранному фильтру"
-                : isFromHH
+                : isFromHH && isArchivedVacancy
                   ? "Отклики ещё не загружены"
                   : "Пока нет откликов"}
             </span>
             <div className="mt-2 text-pretty text-sm text-muted-foreground">
               {hasResponses
                 ? "Попробуйте изменить параметры фильтрации или сбросить все фильтры, чтобы увидеть больше результатов"
-                : isFromHH
-                  ? "Вакансия успешно импортирована, но отклики нужно загрузить отдельно. Нажмите кнопку ниже, чтобы начать загрузку откликов с платформы"
+                : isFromHH && isArchivedVacancy
+                  ? "Архивная вакансия успешно импортирована, но отклики нужно загрузить отдельно. Нажмите кнопку ниже, чтобы начать загрузку архивных откликов с платформы"
                   : "Отклики появятся здесь после того, как кандидаты начнут откликаться на вашу вакансию"}
             </div>
           </div>
@@ -93,7 +100,9 @@ export function EmptyState({
                 disabled={isRefreshing}
                 className="inline-flex items-center justify-center gap-2 rounded-md bg-foreground px-6 py-2.5 text-sm font-medium text-background shadow-lg transition-colors hover:bg-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 min-w-[200px]"
                 aria-label={
-                  isRefreshing ? "Загрузка откликов…" : "Загрузить отклики"
+                  isRefreshing
+                    ? "Загрузка архивных откликов…"
+                    : "Загрузить архивные отклики"
                 }
               >
                 {isRefreshing ? (
@@ -138,7 +147,7 @@ export function EmptyState({
                         d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
                       />
                     </svg>
-                    Загрузить отклики
+                    Загрузить архивные отклики
                   </>
                 )}
               </button>
@@ -155,7 +164,8 @@ export function EmptyState({
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-0.5 shrink-0">•</span>
                     <span>
-                      Система загрузит все отклики с платформы HeadHunter
+                      Система загрузит все архивные отклики с платформы
+                      HeadHunter
                     </span>
                   </li>
                   <li className="flex items-start gap-2">
