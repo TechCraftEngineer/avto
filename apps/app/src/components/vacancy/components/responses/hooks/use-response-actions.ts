@@ -46,24 +46,11 @@ export function useResponseActions(
       }
 
       console.log("Запущена оценка выбранных откликов");
-
       setSelectedIds(new Set());
-
-      setTimeout(() => {
-        void queryClient.invalidateQueries(
-          trpc.vacancy.responses.list.pathFilter(),
-        );
-      }, 2000);
     } finally {
       setIsProcessing(false);
     }
-  }, [
-    selectedIds,
-    setSelectedIds,
-    queryClient,
-    trpc.vacancy.responses.list,
-    workspaceId,
-  ]);
+  }, [selectedIds, setSelectedIds, workspaceId]);
 
   const handleScreenAll = useCallback(async () => {
     setIsProcessingAll(true);
@@ -77,16 +64,10 @@ export function useResponseActions(
       }
 
       console.log("Запущена оценка всех откликов");
-
-      setTimeout(() => {
-        void queryClient.invalidateQueries(
-          trpc.vacancy.responses.list.pathFilter(),
-        );
-      }, 2000);
     } finally {
       setIsProcessingAll(false);
     }
-  }, [vacancyId, queryClient, trpc.vacancy.responses.list]);
+  }, [vacancyId]);
 
   const handleScreenNew = useCallback(async () => {
     setIsProcessingNew(true);
@@ -145,11 +126,7 @@ export function useResponseActions(
 
   const handleScreeningDialogClose = useCallback(() => {
     setIsProcessingNew(false);
-    // Обновляем список откликов после закрытия диалога
-    void queryClient.invalidateQueries(
-      trpc.vacancy.responses.list.pathFilter(),
-    );
-  }, [queryClient, trpc.vacancy.responses.list]);
+  }, []);
 
   const handleRefreshResponses = useCallback(async () => {
     setIsRefreshing(true);
@@ -176,6 +153,7 @@ export function useResponseActions(
   const handleRefreshComplete = useCallback(() => {
     setIsRefreshing(false);
     setIsSyncingArchived(false);
+    // Инвалидируем только после успешного завершения операции
     void queryClient.invalidateQueries(
       trpc.vacancy.responses.list.pathFilter(),
     );
@@ -198,18 +176,11 @@ export function useResponseActions(
       }
 
       console.log("Запущена массовая отправка приветствий");
-
       setSelectedIds(new Set());
-
-      setTimeout(() => {
-        void queryClient.invalidateQueries(
-          trpc.vacancy.responses.list.pathFilter(),
-        );
-      }, 3000);
     } finally {
       setIsSendingWelcome(false);
     }
-  }, [selectedIds, setSelectedIds, queryClient, trpc.vacancy.responses.list]);
+  }, [selectedIds, setSelectedIds]);
 
   return {
     isProcessing,

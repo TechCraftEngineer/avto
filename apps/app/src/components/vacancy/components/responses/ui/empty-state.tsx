@@ -6,7 +6,9 @@ interface EmptyStateProps {
   colSpan: number;
   isLoading?: boolean;
   onRefresh?: () => void;
+  onSyncArchived?: () => void;
   isRefreshing?: boolean;
+  isSyncingArchived?: boolean;
   source?: string | null;
   externalId?: string | null;
   isActive?: boolean;
@@ -16,8 +18,10 @@ export function EmptyState({
   hasResponses,
   colSpan,
   isLoading = false,
-  onRefresh,
-  isRefreshing = false,
+  onRefresh: _onRefresh,
+  onSyncArchived,
+  isRefreshing: _isRefreshing,
+  isSyncingArchived = false,
   source,
   externalId,
   isActive = true,
@@ -36,7 +40,11 @@ export function EmptyState({
   // Показываем кнопку загрузки только для архивных вакансий из HH
   // Для активных вакансий кнопка не нужна
   const showLoadButton =
-    !hasResponses && isFromHH && isArchivedVacancy && onRefresh && externalId;
+    !hasResponses &&
+    isFromHH &&
+    isArchivedVacancy &&
+    onSyncArchived &&
+    externalId;
 
   return (
     <TableRow>
@@ -96,16 +104,16 @@ export function EmptyState({
             <div className="flex flex-col items-center gap-4 pt-2">
               <button
                 type="button"
-                onClick={onRefresh}
-                disabled={isRefreshing}
+                onClick={onSyncArchived}
+                disabled={isSyncingArchived}
                 className="inline-flex items-center justify-center gap-2 rounded-md bg-foreground px-6 py-2.5 text-sm font-medium text-background shadow-lg transition-colors hover:bg-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 min-w-[200px]"
                 aria-label={
-                  isRefreshing
+                  isSyncingArchived
                     ? "Загрузка архивных откликов…"
                     : "Загрузить архивные отклики"
                 }
               >
-                {isRefreshing ? (
+                {isSyncingArchived ? (
                   <>
                     <svg
                       className="h-4 w-4 animate-spin"

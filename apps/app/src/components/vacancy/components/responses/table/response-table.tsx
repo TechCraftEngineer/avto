@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@qbs-autonaim/ui";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { fetchRefreshVacancyResponsesToken } from "~/actions/realtime";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
@@ -156,6 +156,13 @@ export function ResponseTable({
     selectedIds,
     setSelectedIds,
   );
+
+  // Обработчик для синхронизации архивных откликов с workspaceId
+  const handleSyncArchivedWithWorkspace = useCallback(() => {
+    if (workspace?.id) {
+      void handleSyncArchived(workspace.id);
+    }
+  }, [workspace?.id, handleSyncArchived]);
 
   // Подписываемся на события завершения обновления откликов через realtime
   useRefreshSubscription({
@@ -327,7 +334,9 @@ export function ResponseTable({
           hasResponses={total > 0}
           colSpan={visibleColumnCount}
           onRefresh={handleRefreshResponses}
+          onSyncArchived={handleSyncArchivedWithWorkspace}
           isRefreshing={isRefreshing}
+          isSyncingArchived={isSyncingArchived}
           source={vacancyData?.source}
           externalId={vacancyData?.externalId}
           isActive={!isArchivedPublication}
