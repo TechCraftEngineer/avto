@@ -21,6 +21,7 @@ interface ResponseTableToolbarProps {
   onSearchChange: (value: string) => void;
   isRefreshing: boolean;
   isSyncingArchived: boolean;
+  isReanalyzing: boolean;
   onRefresh: () => void;
   onRefreshComplete: () => void;
   onScreenNew: () => void;
@@ -32,6 +33,8 @@ interface ResponseTableToolbarProps {
   onSetArchivedHandler?: (handler: () => void) => void;
   onScreenNewDialogOpen?: () => void;
   onSetScreenNewHandler?: (handler: () => void) => void;
+  onReanalyzeDialogOpen?: () => void;
+  onSetReanalyzeHandler?: (handler: () => void) => void;
   visibleColumns: ReadonlySet<ColumnId>;
   onToggleColumn: (columnId: ColumnId) => void;
   onResetColumns: () => void;
@@ -49,15 +52,19 @@ export function ResponseTableToolbar({
   onSearchChange,
   isRefreshing,
   isSyncingArchived,
+  isReanalyzing,
   onRefresh,
   onRefreshComplete,
   onScreenNew,
+  onScreenAll,
   onSyncArchived,
   onScreeningComplete,
   onRefreshDialogOpen,
   onArchivedDialogOpen,
   onSetArchivedHandler,
   onSetScreenNewHandler,
+  onReanalyzeDialogOpen,
+  onSetReanalyzeHandler,
   visibleColumns,
   onToggleColumn,
   onResetColumns,
@@ -70,6 +77,12 @@ export function ResponseTableToolbar({
     vacancyId,
     "new",
     onScreenNew,
+    onScreeningComplete,
+  );
+  const screenAllState = useScreeningState(
+    vacancyId,
+    "all",
+    onScreenAll,
     onScreeningComplete,
   );
   const syncArchivedState = useSyncArchivedState(
@@ -92,6 +105,13 @@ export function ResponseTableToolbar({
     }
   }, [onSetScreenNewHandler, screenNewState.handleClick]);
 
+  // Передаем обработчик повторного анализа наверх
+  useEffect(() => {
+    if (onSetReanalyzeHandler) {
+      onSetReanalyzeHandler(screenAllState.handleClick);
+    }
+  }, [onSetReanalyzeHandler, screenAllState.handleClick]);
+
   return (
     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between px-1 mb-4">
       <ResponseSearchFilter
@@ -112,12 +132,16 @@ export function ResponseTableToolbar({
         <ResponseActionButtons
           isRefreshing={isRefreshing}
           isSyncingArchived={isSyncingArchived}
+          isReanalyzing={isReanalyzing}
           onRefreshDialogOpen={
             onRefreshDialogOpen || (() => refreshState.setDialogOpen(true))
           }
           onSyncArchivedDialogOpen={
             onArchivedDialogOpen ||
             (() => syncArchivedState.setDialogOpen(true))
+          }
+          onReanalyzeDialogOpen={
+            onReanalyzeDialogOpen || (() => screenAllState.setDialogOpen(true))
           }
           isHHVacancy={isHHVacancy}
           isArchivedPublication={isArchivedPublication}

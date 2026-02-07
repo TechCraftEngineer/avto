@@ -33,6 +33,8 @@ interface ResponseTableProps {
   onSetArchivedHandler?: (handler: () => void) => void;
   onScreenNewDialogOpen?: () => void;
   onSetScreenNewHandler?: (handler: () => void) => void;
+  onReanalyzeDialogOpen?: () => void;
+  onSetReanalyzeHandler?: (handler: () => void) => void;
 }
 
 const ITEMS_PER_PAGE = 25;
@@ -68,6 +70,8 @@ export function ResponseTable({
   onSetArchivedHandler,
   onScreenNewDialogOpen,
   onSetScreenNewHandler,
+  onReanalyzeDialogOpen,
+  onSetReanalyzeHandler,
 }: ResponseTableProps) {
   const trpc = useTRPC();
   const { workspace, orgSlug } = useWorkspace();
@@ -139,6 +143,7 @@ export function ResponseTable({
 
   const {
     isProcessing,
+    isProcessingAll,
     isRefreshing,
     isSendingWelcome,
     isSyncingArchived,
@@ -373,6 +378,7 @@ export function ResponseTable({
         onSearchChange={handleSearchChange}
         isRefreshing={isRefreshing}
         isSyncingArchived={isSyncingArchived}
+        isReanalyzing={isProcessingAll}
         onRefresh={handleRefreshResponses}
         onRefreshComplete={handleRefreshComplete}
         onScreenNew={handleScreenNew}
@@ -384,6 +390,8 @@ export function ResponseTable({
         onSetArchivedHandler={onSetArchivedHandler}
         onScreenNewDialogOpen={onScreenNewDialogOpen}
         onSetScreenNewHandler={onSetScreenNewHandler}
+        onReanalyzeDialogOpen={onReanalyzeDialogOpen}
+        onSetReanalyzeHandler={onSetReanalyzeHandler}
         visibleColumns={visibleColumns}
         onToggleColumn={toggleColumn}
         onResetColumns={resetColumns}

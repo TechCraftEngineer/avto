@@ -5,26 +5,34 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@qbs-autonaim/ui";
-import { ChevronDown, Loader2, RefreshCw } from "lucide-react";
+import { ChevronDown, Loader2, RefreshCw, Sparkles } from "lucide-react";
 
 interface ResponseActionButtonsProps {
   isRefreshing: boolean;
   isSyncingArchived: boolean;
+  isReanalyzing: boolean;
   onRefreshDialogOpen: () => void;
   onSyncArchivedDialogOpen: () => void;
+  onReanalyzeDialogOpen: () => void;
+  onAnalyzeNewDialogOpen: () => void;
   isHHVacancy?: boolean;
   isArchivedPublication?: boolean;
+  hasResponses?: boolean;
 }
 
 export function ResponseActionButtons({
   isRefreshing,
   isSyncingArchived,
+  isReanalyzing,
   onRefreshDialogOpen,
   onSyncArchivedDialogOpen,
+  onReanalyzeDialogOpen,
+  onAnalyzeNewDialogOpen,
   isHHVacancy = false,
   isArchivedPublication = false,
+  hasResponses = false,
 }: ResponseActionButtonsProps) {
-  const isAnyRefreshing = isRefreshing || isSyncingArchived;
+  const isAnyRefreshing = isRefreshing || isSyncingArchived || isReanalyzing;
 
   // Для HH вакансий показываем только одну кнопку в зависимости от статуса публикации
   if (isHHVacancy) {
@@ -49,7 +57,7 @@ export function ResponseActionButtons({
         </div>
       );
     } else {
-      // Активная публикация — только обновление откликов
+      // Активная публикация — обновление откликов + анализ (если есть отклики)
       return (
         <div className="flex items-center gap-2">
           <Button
@@ -66,59 +74,48 @@ export function ResponseActionButtons({
             )}
             {isRefreshing ? "Загрузка..." : "Обновить отклики"}
           </Button>
+
+          {hasResponses && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  disabled={isAnyRefreshing}
+                  size="sm"
+                  className="h-9"
+                  aria-label="Меню анализа откликов"
+                >
+                  {isReanalyzing ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-4 w-4 mr-2" />
+                  )}
+                  {isReanalyzing ? "Анализ..." : "Анализ"}
+                  <ChevronDown className="h-4 w-4 ml-1" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={onAnalyzeNewDialogOpen}
+                  disabled={isAnyRefreshing}
+                >
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Проанализировать новые отклики
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={onReanalyzeDialogOpen}
+                  disabled={isAnyRefreshing}
+                >
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Проанализировать все отклики
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       );
     }
   }
 
-  // Для не-HH вакансий показываем dropdown с обеими опциями
-  return (
-    <div className="flex items-center gap-2">
-      <DropdownMenu>
-        <div className="flex items-center">
-          <Button
-            disabled={isAnyRefreshing}
-            variant="outline"
-            size="sm"
-            onClick={onRefreshDialogOpen}
-            className="h-9 bg-background/60 border-border/60 hover:bg-background/80 transition-colors rounded-r-none border-r-0"
-          >
-            {isRefreshing ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            ) : (
-              <RefreshCw className="h-4 w-4 mr-2" />
-            )}
-            {isRefreshing ? "Загрузка..." : "Обновить отклики"}
-          </Button>
-          <DropdownMenuTrigger asChild>
-            <Button
-              disabled={isAnyRefreshing}
-              variant="outline"
-              size="sm"
-              className="h-9 bg-background/60 border-border/60 hover:bg-background/80 transition-colors rounded-l-none px-2"
-              aria-label="Открыть дополнительные действия"
-            >
-              <ChevronDown className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-        </div>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem
-            onClick={onRefreshDialogOpen}
-            disabled={isAnyRefreshing}
-          >
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Загрузить новые отклики
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={onSyncArchivedDialogOpen}
-            disabled={isAnyRefreshing}
-          >
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Загрузить архивные отклики
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
-  );
+  // Не должно быть достижимо, так как сейчас только HH вакансии
+  return null;
 }
