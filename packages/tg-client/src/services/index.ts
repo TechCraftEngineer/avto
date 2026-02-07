@@ -2,8 +2,8 @@
  * Сервисы для управления ботами
  */
 
-// Bot instance
+// Экземпляр бота
 export * from "./bot-instance";
 
-// Missed messages processor
+// Обработчик пропущенных сообщений
 export * from "./missed-messages-processor";

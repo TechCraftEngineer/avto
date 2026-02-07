@@ -101,8 +101,13 @@ export class GigInterviewStrategy extends BaseInterviewStrategy {
     let canTransition = false;
     let reason = "";
 
-    // Проверяем качество ответов (длинные ответы независимо от стадии)
-    const longResponses = context.userResponses.filter((r) => r.length > 50);
+    // Проверяем качество ответов только для текущей стадии
+    const currentStage = context.stage || from;
+    const longResponses = context.userResponses.filter(
+      (r) =>
+        r.length > 50 &&
+        (!r.metadata?.stage || r.metadata.stage === currentStage),
+    );
     const hasGoodResponses = longResponses.length >= 2;
     const noBotSuspicion =
       !context.botDetectionScore || context.botDetectionScore < 0.7;
@@ -161,8 +166,7 @@ export class GigInterviewStrategy extends BaseInterviewStrategy {
         context: {
           askedQuestionsCount: context.askedQuestions.length,
           userResponsesCount: context.userResponses.length,
-          goodResponsesCount: context.userResponses.filter((r) => r.length > 50)
-            .length,
+          goodResponsesCount: longResponses.length,
           botDetectionScore: context.botDetectionScore,
           timeInCurrentStage: context.timeInCurrentStage,
         },

@@ -3,6 +3,7 @@ import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../trpc";
+import { verifyWorkspaceAccess } from "../../../utils/workspace-access";
 
 const getInterviewLinkInputSchema = z.object({
   responseId: z.string().uuid(),
@@ -15,6 +16,13 @@ const getInterviewLinkInputSchema = z.object({
 export const getInterviewLink = protectedProcedure
   .input(getInterviewLinkInputSchema)
   .query(async ({ input, ctx }) => {
+    // Проверяем доступ к workspace
+    await verifyWorkspaceAccess(
+      ctx.workspaceRepository,
+      input.workspaceId,
+      ctx.session.user.id,
+    );
+
     // Проверяем существование отклика и доступ к нему
     const response = await ctx.db.query.response.findFirst({
       where: (fields, { eq }) => eq(fields.id, input.responseId),
@@ -52,7 +60,15 @@ export const getInterviewLink = protectedProcedure
         ? response.vacancy?.workspaceId
         : response.gig?.workspaceId;
 
-    // Проверяем доступ к workspace
+    // Проверяем что связанная сущность существует
+    if (!workspaceId) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Связанная сущность не найдена",
+      });
+    }
+
+    // Проверяем соответствие workspace
     if (workspaceId !== input.workspaceId) {
       throw new TRPCError({
         code: "FORBIDDEN",
