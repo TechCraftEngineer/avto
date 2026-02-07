@@ -16,10 +16,16 @@ export default function VacancyResponsesPage() {
   const [showRefreshConfirmation, setShowRefreshConfirmation] = useState(false);
   const [showArchivedConfirmation, setShowArchivedConfirmation] =
     useState(false);
+  const [showScreenNewConfirmation, setShowScreenNewConfirmation] =
+    useState(false);
+  const [showReanalyzeConfirmation, setShowReanalyzeConfirmation] =
+    useState(false);
 
   // Используем ref вместо state для хранения обработчиков
   const handleRefreshRef = useRef<(() => void) | null>(null);
   const handleArchivedSyncRef = useRef<(() => void) | null>(null);
+  const handleScreenNewRef = useRef<(() => void) | null>(null);
+  const handleReanalyzeRef = useRef<(() => void) | null>(null);
 
   // Мемоизируем обработчики для предотвращения бесконечных циклов
   const onSetRefreshHandler = useCallback((handler: () => void) => {
@@ -30,6 +36,14 @@ export default function VacancyResponsesPage() {
     handleArchivedSyncRef.current = handler;
   }, []);
 
+  const onSetScreenNewHandler = useCallback((handler: () => void) => {
+    handleScreenNewRef.current = handler;
+  }, []);
+
+  const onSetReanalyzeHandler = useCallback((handler: () => void) => {
+    handleReanalyzeRef.current = handler;
+  }, []);
+
   // Обертки для вызова обработчиков из ref
   const handleRefreshConfirm = useCallback(() => {
     handleRefreshRef.current?.();
@@ -37,6 +51,14 @@ export default function VacancyResponsesPage() {
 
   const handleArchivedConfirm = useCallback(() => {
     handleArchivedSyncRef.current?.();
+  }, []);
+
+  const handleScreenNewConfirm = useCallback(() => {
+    handleScreenNewRef.current?.();
+  }, []);
+
+  const handleReanalyzeConfirm = useCallback(() => {
+    handleReanalyzeRef.current?.();
   }, []);
 
   return (
@@ -68,6 +90,20 @@ export default function VacancyResponsesPage() {
           onConfirmationClose={() => setShowArchivedConfirmation(false)}
           onConfirm={handleArchivedConfirm}
         />
+        <RefreshStatusIndicator
+          vacancyId={id}
+          mode="screening"
+          showConfirmation={showScreenNewConfirmation}
+          onConfirmationClose={() => setShowScreenNewConfirmation(false)}
+          onConfirm={handleScreenNewConfirm}
+        />
+        <RefreshStatusIndicator
+          vacancyId={id}
+          mode="analyze"
+          showConfirmation={showReanalyzeConfirmation}
+          onConfirmationClose={() => setShowReanalyzeConfirmation(false)}
+          onConfirm={handleReanalyzeConfirm}
+        />
       </div>
 
       <Card className="border-none shadow-xl bg-card/60 backdrop-blur-xl overflow-hidden relative group">
@@ -80,6 +116,10 @@ export default function VacancyResponsesPage() {
             onSetRefreshHandler={onSetRefreshHandler}
             onArchivedDialogOpen={() => setShowArchivedConfirmation(true)}
             onSetArchivedHandler={onSetArchivedHandler}
+            onScreenNewDialogOpen={() => setShowScreenNewConfirmation(true)}
+            onSetScreenNewHandler={onSetScreenNewHandler}
+            onReanalyzeDialogOpen={() => setShowReanalyzeConfirmation(true)}
+            onSetReanalyzeHandler={onSetReanalyzeHandler}
           />
         </div>
       </Card>

@@ -110,9 +110,12 @@ export const screenAllResponsesFunction = inngest.createFunction(
       );
     }
 
-    // Обрабатываем каждый отклик
+    // Обрабатываем каждый отклик с отслеживанием прогресса
+    let processedCount = 0;
+    let failedCount = 0;
+
     const results = await Promise.allSettled(
-      responses.map(async (resp) => {
+      responses.map(async (resp, index) => {
         return await step.run(`screen-response-${resp.id}`, async () => {
           try {
             console.log(`🎯 Скрининг отклика: ${resp.id}`);
@@ -124,6 +127,24 @@ export const screenAllResponsesFunction = inngest.createFunction(
               score: result.detailedScore,
             });
 
+            processedCount++;
+
+            // Отправляем прогресс после каждого обработанного отклика
+            const vacancyId = resp.entityId;
+            const vacancyResponses = responsesByVacancy[vacancyId];
+            if (vacancyResponses) {
+              await publish(
+                screenAllResponsesChannel(vacancyId).progress({
+                  vacancyId,
+                  status: "processing",
+                  message: `Обработано ${processedCount} из ${responses.length} откликов`,
+                  total: vacancyResponses.length,
+                  processed: processedCount,
+                  failed: failedCount,
+                }),
+              );
+            }
+
             return {
               responseId: resp.id,
               vacancyId: resp.entityId,
@@ -132,6 +153,26 @@ export const screenAllResponsesFunction = inngest.createFunction(
             };
           } catch (error) {
             console.error(`❌ Ошибка скрининга для ${resp.id}:`, error);
+
+            processedCount++;
+            failedCount++;
+
+            // Отправляем прогресс даже при ошибке
+            const vacancyId = resp.entityId;
+            const vacancyResponses = responsesByVacancy[vacancyId];
+            if (vacancyResponses) {
+              await publish(
+                screenAllResponsesChannel(vacancyId).progress({
+                  vacancyId,
+                  status: "processing",
+                  message: `Обработано ${processedCount} из ${responses.length} откликов`,
+                  total: vacancyResponses.length,
+                  processed: processedCount,
+                  failed: failedCount,
+                }),
+              );
+            }
+
             return {
               responseId: resp.id,
               vacancyId: resp.entityId,

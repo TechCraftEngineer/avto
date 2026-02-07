@@ -73,11 +73,14 @@ export function ProgressView({
               </>
             ) : isAnalyzeMode || isScreeningMode ? (
               <>
-                {!analyzeProgress && !analyzeCompleted && "Подключение…"}
-                {analyzeProgress &&
+                {!analyzeCompleted &&
+                  analyzeProgress &&
                   (isScreeningMode ? "Скрининг откликов" : "Анализ откликов")}
                 {analyzeCompleted &&
                   (isScreeningMode ? "Скрининг завершен" : "Анализ завершен")}
+                {!analyzeProgress &&
+                  !analyzeCompleted &&
+                  (isScreeningMode ? "Запуск скрининга…" : "Запуск анализа…")}
               </>
             ) : (
               <>
@@ -106,6 +109,8 @@ export function ProgressView({
           !analyzeProgress &&
           !analyzeCompleted &&
           !error &&
+          !isAnalyzeMode &&
+          !isScreeningMode &&
           isConnecting && (
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Loader2 className="h-3 w-3 animate-spin" />

@@ -136,19 +136,10 @@ export function ResponseTableToolbar({
           isRefreshing={isRefreshing}
           isSyncingArchived={isSyncingArchived}
           isReanalyzing={isReanalyzing}
-          onRefreshDialogOpen={
-            onRefreshDialogOpen || (() => refreshState.setDialogOpen(true))
-          }
-          onSyncArchivedDialogOpen={
-            onArchivedDialogOpen ||
-            (() => syncArchivedState.setDialogOpen(true))
-          }
-          onAnalyzeNewDialogOpen={
-            onScreenNewDialogOpen || (() => screenNewState.setDialogOpen(true))
-          }
-          onReanalyzeDialogOpen={
-            onReanalyzeDialogOpen || (() => screenAllState.setDialogOpen(true))
-          }
+          onRefreshDialogOpen={onRefreshDialogOpen || (() => {})}
+          onSyncArchivedDialogOpen={onArchivedDialogOpen || (() => {})}
+          onAnalyzeNewDialogOpen={onScreenNewDialogOpen || (() => {})}
+          onReanalyzeDialogOpen={onReanalyzeDialogOpen || (() => {})}
           isHHVacancy={isHHVacancy}
           isArchivedPublication={isArchivedPublication}
           hasResponses={hasResponses}

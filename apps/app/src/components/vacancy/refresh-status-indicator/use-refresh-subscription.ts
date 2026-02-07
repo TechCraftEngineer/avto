@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
 import {
   fetchRefreshVacancyResponsesToken,
+  fetchScreenAllResponsesToken,
   fetchScreenBatchToken,
   fetchScreenNewResponsesToken,
   fetchSyncArchivedVacancyResponsesToken,
@@ -133,12 +134,10 @@ export function useRefreshSubscription({
     [vacancyId],
   );
 
-  const getAnalyzeToken = useCallback(() => {
-    if (!batchId || !workspaceId) {
-      throw new Error("batchId и workspaceId обязательны для режима analyze");
-    }
-    return fetchScreenBatchToken(workspaceId, batchId);
-  }, [batchId, workspaceId]);
+  const getAnalyzeToken = useCallback(
+    () => fetchScreenAllResponsesToken(vacancyId),
+    [vacancyId],
+  );
 
   // Подписываемся на канал Realtime для обычного обновления
   const { data: refreshData, error: refreshError } = useInngestSubscription({
@@ -189,10 +188,10 @@ export function useRefreshSubscription({
     screeningError,
   ]);
 
-  // Подписываемся на канал Realtime для анализа откликов (batch)
+  // Подписываемся на канал Realtime для анализа откликов (screen.all)
   const { data: analyzeData, error: analyzeError } = useInngestSubscription({
     refreshToken: getAnalyzeToken,
-    enabled: isAnalyzeMode && !!batchId && !!workspaceId,
+    enabled: isAnalyzeMode,
   });
 
   const data = isArchivedMode
@@ -253,9 +252,24 @@ export function useRefreshSubscription({
           });
         }
       } else if (isAnalyzeMode) {
-        if (message.topic === "batch-progress") {
-          const progressData = message.data as AnalyzeProgressData;
-          setAnalyzeProgress(progressData);
+        if (message.topic === "progress") {
+          const progressData = message.data as ProgressData & {
+            total?: number;
+            processed?: number;
+            failed?: number;
+          };
+
+          // Преобразуем в формат AnalyzeProgressData
+          if (progressData.total !== undefined) {
+            setAnalyzeProgress({
+              batchId: vacancyId, // используем vacancyId как batchId
+              total: progressData.total,
+              processed: progressData.processed || 0,
+              successful:
+                (progressData.processed || 0) - (progressData.failed || 0),
+              failed: progressData.failed || 0,
+            });
+          }
           setAnalyzeCompleted(null);
           onVisibilityChange(true);
 
@@ -270,34 +284,29 @@ export function useRefreshSubscription({
             }
             return null;
           });
-        } else if (message.topic === "batch-completed") {
-          const data = message.data as {
-            batchId: string;
+        } else if (message.topic === "result") {
+          const resultData = message.data as {
+            vacancyId: string;
+            success: boolean;
             total: number;
             processed: number;
             failed: number;
-            duration: number;
           };
           const completedData: AnalyzeCompletedData = {
-            batchId: data.batchId,
-            total: data.total,
-            successful: data.total - data.failed,
-            failed: data.failed,
+            batchId: vacancyId,
+            total: resultData.total,
+            successful: resultData.processed,
+            failed: resultData.failed,
           };
           setAnalyzeCompleted(completedData);
           onVisibilityChange(true);
 
-          // Финальная инвалидация при завершении batch
+          // Финальная инвалидация при завершении
           queryClient.invalidateQueries({
             queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
           });
 
-          const timer = setTimeout(() => {
-            onVisibilityChange(false);
-            setAnalyzeProgress(null);
-            setAnalyzeCompleted(null);
-          }, 5000);
-          setAutoCloseTimer(timer);
+          // Не закрываем окно автоматически для режима analyze
         }
       } else if (mode === "refresh" || isScreeningMode) {
         // Обработка для refresh и screening (используют одинаковую структуру событий)
