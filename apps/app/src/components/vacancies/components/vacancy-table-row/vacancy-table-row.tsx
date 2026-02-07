@@ -297,9 +297,6 @@ export function VacancyTableRow({
           <span className="text-muted-foreground">—</span>
         )}
       </TableCell>
-      <TableCell className="text-right tabular-nums hidden lg:table-cell text-muted-foreground">
-        {vacancy.views?.toLocaleString() ?? "—"}
-      </TableCell>
       <TableCell>
         <div className="flex items-center gap-3">
           <Tooltip delayDuration={300}>

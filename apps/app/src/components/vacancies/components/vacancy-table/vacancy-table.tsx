@@ -142,11 +142,6 @@ export function VacancyTable({
             <TableHead className="hidden text-right font-semibold text-foreground md:table-cell">
               <span title="Кандидаты в процессе рассмотрения">В обработке</span>
             </TableHead>
-            <TableHead className="hidden text-right font-semibold text-foreground lg:table-cell">
-              <span title="Количество просмотров вакансии на площадке">
-                Просмотры
-              </span>
-            </TableHead>
             <TableHead className="font-semibold text-foreground">
               Статус
             </TableHead>
@@ -186,9 +181,6 @@ export function VacancyTable({
                     <Skeleton className="h-3 w-[40px]" />
                   </div>
                 </TableCell>
-                <TableCell className="hidden lg:table-cell">
-                  <Skeleton className="h-5 w-[50px] ml-auto" />
-                </TableCell>
                 <TableCell>
                   <Skeleton className="h-6 w-[80px]" />
                 </TableCell>
@@ -199,7 +191,7 @@ export function VacancyTable({
             ))
           ) : vacancies.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={8} className="h-[500px] p-0">
+              <TableCell colSpan={7} className="h-[500px] p-0">
                 <div className="flex h-full flex-col items-center justify-center gap-6 px-4 py-10">
                   {/* Анимированный список скелетонов */}
                   <div className="animate-fade-in h-36 w-full max-w-64 overflow-hidden px-4 mask-[linear-gradient(transparent,black_10%,black_90%,transparent)]">
