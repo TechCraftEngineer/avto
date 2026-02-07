@@ -3,6 +3,8 @@ import { twMerge } from "tailwind-merge";
 
 export const cn = (...inputs: Parameters<typeof cx>) => twMerge(cx(inputs));
 
+
+export { Avatar, AvatarFallback, AvatarImage } from './avatar'
 // Alert components
 export { Alert, AlertTitle, AlertDescription } from "./alert";
 
@@ -37,9 +39,14 @@ export {
   ChartTooltipContent,
   ChartLegend,
   ChartLegendContent,
-  ChartStyle,
+  ChartStyle
 } from "./chart";
+export type { ChartConfig } from "./chart";
 
+
+export { CandidateAvatar } from "./candidate-avatar"
+
+export { Card, CardAction, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './card'
 // Checkbox components
 export { Checkbox } from "./checkbox";
 

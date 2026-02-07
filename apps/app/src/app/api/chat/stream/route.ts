@@ -187,12 +187,6 @@ ${historyContext}
         const result = streamText({
           model: getAIModel(),
           prompt,
-          generationName: "recruiter-chat-response",
-          entityId: resolvedChatSessionId,
-          metadata: {
-            workspaceId: currentWorkspaceId,
-            chatSessionId: resolvedChatSessionId,
-          },
         });
 
         result.consumeStream();

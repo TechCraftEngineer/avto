@@ -595,12 +595,6 @@ export async function POST(request: Request) {
     try {
       result = streamText({
         prompt,
-        generationName: "vacancy-chat-streaming",
-        entityId: workspaceId,
-        metadata: {
-          workspaceId,
-          userId: session.user.id,
-        },
       });
     } catch (aiError) {
       // AI generation error (Requirements 12.2)

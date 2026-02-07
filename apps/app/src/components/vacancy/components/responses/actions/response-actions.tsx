@@ -206,10 +206,13 @@ export function ResponseActions({
 
   const handleCopyInterviewLink = async () => {
     try {
-      const result = await trpc.vacancy.responses.getInterviewLink.query({
-        responseId,
-        workspaceId,
-      });
+      const queryClient = useQueryClient();
+      const result = await queryClient.fetchQuery(
+        trpc.vacancy.responses.getInterviewLink.queryOptions({
+          responseId,
+          workspaceId,
+        }),
+      );
 
       await navigator.clipboard.writeText(result.url);
       toast.success("Ссылка на интервью скопирована");
