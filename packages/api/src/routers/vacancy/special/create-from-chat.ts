@@ -3,6 +3,7 @@ import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../trpc";
+import { formatVacancyToHtml } from "../../../utils/vacancy-html-formatter";
 
 const createVacancyFromChatSchema = z.object({
   workspaceId: workspaceIdSchema,
@@ -34,36 +35,15 @@ export const createFromChat = protectedProcedure
       });
     }
 
-    // Формируем description из всех полей в структурированном формате
-    const descriptionParts: string[] = [];
-
-    if (input.description) {
-      descriptionParts.push(`Описание вакансии\n—\n${input.description}`);
-    }
-
-    if (input.requirements) {
-      if (descriptionParts.length > 0) descriptionParts.push("");
-      descriptionParts.push(`Требования\n—\n${input.requirements}`);
-    }
-
-    if (input.responsibilities) {
-      if (descriptionParts.length > 0) descriptionParts.push("");
-      descriptionParts.push(`Обязанности\n—\n${input.responsibilities}`);
-    }
-
-    if (input.conditions) {
-      if (descriptionParts.length > 0) descriptionParts.push("");
-      descriptionParts.push(`Условия\n—\n${input.conditions}`);
-    }
-
-    if (input.bonuses) {
-      if (descriptionParts.length > 0) descriptionParts.push("");
-      descriptionParts.push(
-        `Премии и другие мотивационные выплаты\n—\n${input.bonuses}`,
-      );
-    }
-
-    const fullDescription = descriptionParts.join("\n") || null;
+    // Формируем красивый HTML из всех полей вакансии
+    const htmlDescription = formatVacancyToHtml({
+      title: input.title,
+      description: input.description,
+      requirements: input.requirements,
+      responsibilities: input.responsibilities,
+      conditions: input.conditions,
+      bonuses: input.bonuses,
+    });
 
     // Создание вакансии (Requirement 6.2)
     const [newVacancy] = await ctx.db
@@ -71,7 +51,7 @@ export const createFromChat = protectedProcedure
       .values({
         workspaceId: input.workspaceId,
         title: input.title,
-        description: fullDescription || null,
+        description: htmlDescription,
         source: "MANUAL",
         createdBy: ctx.session.user.id,
         isActive: true,

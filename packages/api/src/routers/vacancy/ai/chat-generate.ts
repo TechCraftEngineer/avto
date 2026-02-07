@@ -374,36 +374,37 @@ export const chatGenerate = protectedProcedure
 
       // Проверяем тип validated перед доступом к полям вакансии
       if (!("companyName" in validated)) {
+        const vacancyData = {
+          title: validated.title ?? currentDocument?.title ?? "",
+          description:
+            validated.description ?? currentDocument?.description ?? "",
+          requirements:
+            validated.requirements ?? currentDocument?.requirements ?? "",
+          responsibilities:
+            validated.responsibilities ??
+            currentDocument?.responsibilities ??
+            "",
+          conditions: validated.conditions ?? currentDocument?.conditions ?? "",
+          customBotInstructions:
+            validated.customBotInstructions ??
+            currentDocument?.customBotInstructions ??
+            "",
+          customScreeningPrompt:
+            validated.customScreeningPrompt ??
+            currentDocument?.customScreeningPrompt ??
+            "",
+          customInterviewQuestions:
+            validated.customInterviewQuestions ??
+            currentDocument?.customInterviewQuestions ??
+            "",
+          customOrganizationalQuestions:
+            validated.customOrganizationalQuestions ??
+            currentDocument?.customOrganizationalQuestions ??
+            "",
+        };
+
         return {
-          document: {
-            title: validated.title ?? currentDocument?.title ?? "",
-            description:
-              validated.description ?? currentDocument?.description ?? "",
-            requirements:
-              validated.requirements ?? currentDocument?.requirements ?? "",
-            responsibilities:
-              validated.responsibilities ??
-              currentDocument?.responsibilities ??
-              "",
-            conditions:
-              validated.conditions ?? currentDocument?.conditions ?? "",
-            customBotInstructions:
-              validated.customBotInstructions ??
-              currentDocument?.customBotInstructions ??
-              "",
-            customScreeningPrompt:
-              validated.customScreeningPrompt ??
-              currentDocument?.customScreeningPrompt ??
-              "",
-            customInterviewQuestions:
-              validated.customInterviewQuestions ??
-              currentDocument?.customInterviewQuestions ??
-              "",
-            customOrganizationalQuestions:
-              validated.customOrganizationalQuestions ??
-              currentDocument?.customOrganizationalQuestions ??
-              "",
-          },
+          document: vacancyData,
         };
       }
 
