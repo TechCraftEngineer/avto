@@ -85,8 +85,7 @@ export {
   ContextMenuRadioGroup,
 } from "./context-menu";
 
-// Delete vacancy dialog components
-export { DeleteVacancyDialog } from "./delete-vacancy-dialog";
+
 
 // Dialog components
 export {

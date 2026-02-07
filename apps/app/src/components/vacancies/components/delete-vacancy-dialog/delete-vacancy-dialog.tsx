@@ -1,6 +1,16 @@
 "use client";
 
-import { DeleteVacancyDialog as UIDeleteVacancyDialog } from "@qbs-autonaim/ui/delete-vacancy-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@qbs-autonaim/ui/alert-dialog";
+import * as React from "react";
 
 interface DeleteVacancyDialogProps {
   open: boolean;
@@ -10,6 +20,36 @@ interface DeleteVacancyDialogProps {
   isLoading?: boolean;
 }
 
-export function DeleteVacancyDialog(props: DeleteVacancyDialogProps) {
-  return <UIDeleteVacancyDialog {...props} />;
+export function DeleteVacancyDialog({
+  open,
+  onOpenChange,
+  onConfirm,
+  vacancyTitle,
+  isLoading = false,
+}: DeleteVacancyDialogProps) {
+  return (
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Удалить вакансию?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Вы собираетесь удалить вакансию "{vacancyTitle}". Вакансия и все
+            связанные данные (отклики, статистика) будут безвозвратно удалены.
+            Это действие нельзя отменить.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isLoading}>Отмена</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => onConfirm("delete")}
+            disabled={isLoading}
+            className="bg-destructive hover:bg-destructive/90"
+          >
+            {isLoading ? "Удаление…" : "Удалить вакансию"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
 }
