@@ -1,4 +1,4 @@
-import { Activity, Award, Clock, Hash } from "lucide-react";
+import { Award, Clock, Hash } from "lucide-react";
 
 interface CandidateMetricsProps {
   matchScore: number;
@@ -47,12 +47,12 @@ export function CandidateMetrics({
 
       <div className="text-center">
         <div className="flex items-center justify-center gap-1 mb-1">
-          <Activity className="h-4 w-4 text-purple-600" />
+          <Clock className="h-4 w-4 text-purple-600" />
           <span className="text-lg font-bold text-purple-600">
             {lastActivity}
           </span>
         </div>
-        <div className="text-xs text-muted-foreground">Активность</div>
+        <div className="text-xs text-muted-foreground">Последний отклик</div>
       </div>
     </div>
   );
