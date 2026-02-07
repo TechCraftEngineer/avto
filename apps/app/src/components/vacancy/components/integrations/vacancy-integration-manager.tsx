@@ -79,7 +79,8 @@ const getPublicationStatus = (publication: Publication) => {
       shortText: "Арх.",
       color: "bg-amber-50 text-amber-700 border border-amber-200",
       icon: IconArchive,
-      description: "Вакансия находится в архиве на HH.ru. Можно загрузить архивные отклики, которые пришли до закрытия вакансии."
+      description:
+        "Вакансия находится в архиве на HH.ru. Можно загрузить архивные отклики, которые пришли до закрытия вакансии.",
     };
   }
 
@@ -89,14 +90,15 @@ const getPublicationStatus = (publication: Publication) => {
         shortText: "Акт.",
         color: "bg-green-50 text-green-700 border border-green-200",
         icon: IconCheck,
-        description: "Публикация активна на платформе. Можно собирать новые отклики в реальном времени."
+        description:
+          "Публикация активна на платформе. Можно собирать новые отклики в реальном времени.",
       }
     : {
         text: "Неактивна",
         shortText: "Неакт.",
         color: "bg-red-50 text-red-700 border border-red-200",
         icon: IconX,
-        description: "Публикация не найдена на платформе или недоступна."
+        description: "Публикация не найдена на платформе или недоступна.",
       };
 };
 
@@ -511,138 +513,142 @@ export function VacancyIntegrationManager({
                   className="shadow-sm border-border/50 hover:shadow-md transition-shadow"
                 >
                   <CardContent className="p-3 sm:p-4">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
-                        <div className="flex items-center gap-3 shrink-0">
-                          <div
-                            className={`size-3 rounded-full ${config.color.split(" ")[0]} shadow-sm`}
-                          />
-                          <div className="min-w-0">
-                            <div className="font-medium text-sm truncate">
-                              {config.label}
-                            </div>
-                            <div className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1 flex-wrap">
-                              {publication.externalId && (
-                                <span className="font-mono">
-                                  ID: {publication.externalId}
-                                </span>
-                              )}
-                              {publication.externalId && publication.url && (
-                                <span className="text-muted-foreground/50">
-                                  •
-                                </span>
-                              )}
-                              {publication.url && (
-                                <a
-                                  href={publication.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1 hover:text-foreground transition-colors"
-                                >
-                                  Ссылка
-                                  <IconExternalLink className="size-3" />
-                                </a>
-                              )}
+                    <div className="space-y-3">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+                          <div className="flex items-center gap-3 shrink-0">
+                            <div
+                              className={`size-3 rounded-full ${config.color.split(" ")[0]} shadow-sm`}
+                            />
+                            <div className="min-w-0">
+                              <div className="font-medium text-sm truncate">
+                                {config.label}
+                              </div>
+                              <div className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1 flex-wrap">
+                                {publication.externalId && (
+                                  <span className="font-mono">
+                                    ID: {publication.externalId}
+                                  </span>
+                                )}
+                                {publication.externalId && publication.url && (
+                                  <span className="text-muted-foreground/50">
+                                    •
+                                  </span>
+                                )}
+                                {publication.url && (
+                                  <a
+                                    href={publication.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1 hover:text-foreground transition-colors"
+                                  >
+                                    Ссылка
+                                    <IconExternalLink className="size-3" />
+                                  </a>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 shrink-0">
-                        {(() => {
-                          const status = getPublicationStatus(publication);
-                          const IconComponent = status.icon;
-                          return (
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <div
-                                  className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${status.color}`}
-                                >
-                                  <IconComponent className="size-3" />
-                                  <span className="hidden sm:inline">
-                                    {status.text}
-                                  </span>
-                                  <span className="sm:hidden">
-                                    {status.shortText}
-                                  </span>
-                                </div>
-                              </TooltipTrigger>
-                              <TooltipContent side="top" className="max-w-xs">
-                                <p className="text-sm">{status.description}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          );
-                        })()}
-                        {publication.lastCheckedAt && (
-                          <div className="text-xs text-muted-foreground flex items-center gap-1 min-w-0">
-                            <IconClock className="size-3 shrink-0" />
-                            <span className="truncate">
-                              <span className="hidden sm:inline">
-                                Проверено:{" "}
-                                {new Date(
-                                  publication.lastCheckedAt,
-                                ).toLocaleString("ru-RU", {
-                                  day: "2-digit",
-                                  month: "2-digit",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}
+                        <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 shrink-0">
+                          {(() => {
+                            const status = getPublicationStatus(publication);
+                            const IconComponent = status.icon;
+                            return (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div
+                                    className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${status.color}`}
+                                  >
+                                    <IconComponent className="size-3" />
+                                    <span className="hidden sm:inline">
+                                      {status.text}
+                                    </span>
+                                    <span className="sm:hidden">
+                                      {status.shortText}
+                                    </span>
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="max-w-xs">
+                                  <p className="text-sm">
+                                    {status.description}
+                                  </p>
+                                </TooltipContent>
+                              </Tooltip>
+                            );
+                          })()}
+                          {publication.lastCheckedAt && (
+                            <div className="text-xs text-muted-foreground flex items-center gap-1 min-w-0">
+                              <IconClock className="size-3 shrink-0" />
+                              <span className="truncate">
+                                <span className="hidden sm:inline">
+                                  Проверено:{" "}
+                                  {new Date(
+                                    publication.lastCheckedAt,
+                                  ).toLocaleString("ru-RU", {
+                                    day: "2-digit",
+                                    month: "2-digit",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
+                                </span>
+                                <span className="sm:hidden">
+                                  {new Date(
+                                    publication.lastCheckedAt,
+                                  ).toLocaleString("ru-RU", {
+                                    month: "2-digit",
+                                    day: "2-digit",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
+                                </span>
                               </span>
-                              <span className="sm:hidden">
-                                {new Date(
-                                  publication.lastCheckedAt,
-                                ).toLocaleString("ru-RU", {
-                                  month: "2-digit",
-                                  day: "2-digit",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}
-                              </span>
-                            </span>
+                            </div>
+                          )}
+                          <div className="flex items-center gap-1 shrink-0">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                handleValidatePublication(publication.id)
+                              }
+                              disabled={validatePublicationMutation.isPending}
+                              className="size-8 p-0 hover:bg-muted shrink-0"
+                              aria-label="Проверить интеграцию"
+                            >
+                              <IconRefresh className="size-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEditPublication(publication)}
+                              className="px-2 py-1 h-8 hover:bg-muted shrink-0 text-xs sm:px-3 sm:text-sm"
+                              aria-label="Изменить интеграцию"
+                            >
+                              <span className="hidden sm:inline">Изменить</span>
+                              <span className="sm:hidden">✏️</span>
+                            </Button>
                           </div>
-                        )}
-                        <div className="flex items-center gap-1 shrink-0">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() =>
-                              handleValidatePublication(publication.id)
-                            }
-                            disabled={validatePublicationMutation.isPending}
-                            className="size-8 p-0 hover:bg-muted shrink-0"
-                            aria-label="Проверить интеграцию"
-                          >
-                            <IconRefresh className="size-3.5" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEditPublication(publication)}
-                            className="px-2 py-1 h-8 hover:bg-muted shrink-0 text-xs sm:px-3 sm:text-sm"
-                            aria-label="Изменить интеграцию"
-                          >
-                            <span className="hidden sm:inline">Изменить</span>
-                            <span className="sm:hidden">✏️</span>
-                          </Button>
                         </div>
                       </div>
 
-                      {/* Дополнительная информация для архивных публикаций HH.ru */}
-                      {publication.platform === "HH" && !publication.isActive && (
-                        <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-md">
-                          <div className="flex items-start gap-2">
-                            <IconArchive className="size-4 text-amber-600 shrink-0 mt-0.5" />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm text-amber-800 font-medium">
-                                Архивная вакансия
-                              </p>
-                              <p className="text-xs text-amber-700 mt-1 leading-relaxed">
-                                Вакансия автоматически перемещена в архив HH.ru. Вы можете загрузить все отклики,
-                                которые пришли до закрытия вакансии.
-                              </p>
+                      {publication.platform === "HH" &&
+                        !publication.isActive && (
+                          <div className="p-3 bg-amber-50 border border-amber-200 rounded-md">
+                            <div className="flex items-start gap-2">
+                              <IconArchive className="size-4 text-amber-600 shrink-0 mt-0.5" />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm text-amber-800 font-medium">
+                                  Вакансия в архиве
+                                </p>
+                                <p className="text-xs text-amber-700 mt-1 leading-relaxed">
+                                  Вакансия находится в архиве на HH.ru. Можно
+                                  загрузить отклики.
+                                </p>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      )}
+                        )}
                     </div>
                   </CardContent>
                 </Card>

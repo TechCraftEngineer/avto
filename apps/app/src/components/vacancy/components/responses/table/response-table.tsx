@@ -397,6 +397,7 @@ export function ResponseTable({
         onResetColumns={resetColumns}
         isHHVacancy={isHHVacancy}
         isArchivedPublication={isArchivedPublication}
+        hasResponses={total > 0}
       />
 
       <div className="rounded-md border bg-transparent">

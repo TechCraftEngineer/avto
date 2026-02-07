@@ -40,6 +40,7 @@ interface ResponseTableToolbarProps {
   onResetColumns: () => void;
   isHHVacancy?: boolean;
   isArchivedPublication?: boolean;
+  hasResponses?: boolean;
 }
 
 export function ResponseTableToolbar({
@@ -62,6 +63,7 @@ export function ResponseTableToolbar({
   onRefreshDialogOpen,
   onArchivedDialogOpen,
   onSetArchivedHandler,
+  onScreenNewDialogOpen,
   onSetScreenNewHandler,
   onReanalyzeDialogOpen,
   onSetReanalyzeHandler,
@@ -70,6 +72,7 @@ export function ResponseTableToolbar({
   onResetColumns,
   isHHVacancy = false,
   isArchivedPublication = false,
+  hasResponses = false,
 }: ResponseTableToolbarProps) {
   // Custom hooks for different operation states
   const refreshState = useRefreshState(vacancyId, onRefresh, onRefreshComplete);
@@ -140,11 +143,15 @@ export function ResponseTableToolbar({
             onArchivedDialogOpen ||
             (() => syncArchivedState.setDialogOpen(true))
           }
+          onAnalyzeNewDialogOpen={
+            onScreenNewDialogOpen || (() => screenNewState.setDialogOpen(true))
+          }
           onReanalyzeDialogOpen={
             onReanalyzeDialogOpen || (() => screenAllState.setDialogOpen(true))
           }
           isHHVacancy={isHHVacancy}
           isArchivedPublication={isArchivedPublication}
+          hasResponses={hasResponses}
         />
       </div>
     </div>
