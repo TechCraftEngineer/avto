@@ -19,7 +19,7 @@
     "@dnd-kit/core": "6.3.1",
     "@dnd-kit/modifiers": "9.0.0",
     "@dnd-kit/sortable": "10.0.0",
-    "@bunworks/inngest-realtime": "0.1.5",
+    "@bunworks/inngest-realtime": "0.1.8",
     "@qbs-autonaim/api": "workspace:*",
     "@qbs-autonaim/auth": "workspace:*",
     "@qbs-autonaim/db": "workspace:*",

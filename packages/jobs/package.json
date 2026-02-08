@@ -51,7 +51,7 @@
   "dependencies": {
     "@ai-sdk/deepseek": "2.0.18",
     "@ai-sdk/openai": "3.0.26",
-    "@bunworks/inngest-realtime": "0.1.5",
+    "@bunworks/inngest-realtime": "0.1.8",
     "@qbs-autonaim/config": "workspace:*",
     "@qbs-autonaim/db": "workspace:*",
     "@qbs-autonaim/emails": "workspace:*",
