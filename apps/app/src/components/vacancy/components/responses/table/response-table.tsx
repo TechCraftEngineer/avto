@@ -27,14 +27,6 @@ import { ResponseTableToolbar } from "./response-table-toolbar";
 interface ResponseTableProps {
   vacancyId: string;
   workspaceSlug: string;
-  onRefreshDialogOpen?: () => void;
-  onSetRefreshHandler?: (handler: () => void) => void;
-  onArchivedDialogOpen?: () => void;
-  onSetArchivedHandler?: (handler: () => void) => void;
-  onScreenNewDialogOpen?: () => void;
-  onSetScreenNewHandler?: (handler: () => void) => void;
-  onReanalyzeDialogOpen?: () => void;
-  onSetReanalyzeHandler?: (handler: () => void) => void;
 }
 
 const ITEMS_PER_PAGE = 25;
@@ -64,14 +56,6 @@ type ResponseListItem = ResponsesListData["responses"][0];
 export function ResponseTable({
   vacancyId,
   workspaceSlug,
-  onRefreshDialogOpen,
-  onSetRefreshHandler,
-  onArchivedDialogOpen,
-  onSetArchivedHandler,
-  onScreenNewDialogOpen,
-  onSetScreenNewHandler,
-  onReanalyzeDialogOpen,
-  onSetReanalyzeHandler,
 }: ResponseTableProps) {
   const trpc = useTRPC();
   const { workspace, orgSlug } = useWorkspace();
@@ -143,7 +127,6 @@ export function ResponseTable({
 
   const {
     isProcessing,
-    isProcessingAll,
     isRefreshing,
     isSendingWelcome,
     isSyncingArchived,
@@ -213,13 +196,6 @@ export function ResponseTable({
     statusFilter,
     debouncedSearch,
   ]);
-
-  // Передаем обработчик обновления в родительский компонент
-  useEffect(() => {
-    if (onSetRefreshHandler) {
-      onSetRefreshHandler(handleRefreshResponses);
-    }
-  }, [onSetRefreshHandler, handleRefreshResponses]);
 
   const responses = data?.responses ?? [];
   const total = data?.total ?? 0;
@@ -371,22 +347,11 @@ export function ResponseTable({
         onStatusFilterChange={setStatusFilter}
         search={searchInput}
         onSearchChange={handleSearchChange}
-        isRefreshing={isRefreshing}
-        isSyncingArchived={isSyncingArchived}
-        isReanalyzing={isProcessingAll}
-        onRefresh={handleRefreshResponses}
         onRefreshComplete={handleRefreshComplete}
         onScreenNew={handleScreenNew}
         onScreenAll={handleScreenAll}
         onSyncArchived={handleSyncArchived}
         onScreeningComplete={handleScreeningDialogClose}
-        onRefreshDialogOpen={onRefreshDialogOpen}
-        onArchivedDialogOpen={onArchivedDialogOpen}
-        onSetArchivedHandler={onSetArchivedHandler}
-        onScreenNewDialogOpen={onScreenNewDialogOpen}
-        onSetScreenNewHandler={onSetScreenNewHandler}
-        onReanalyzeDialogOpen={onReanalyzeDialogOpen}
-        onSetReanalyzeHandler={onSetReanalyzeHandler}
         visibleColumns={visibleColumns}
         onToggleColumn={toggleColumn}
         onResetColumns={resetColumns}

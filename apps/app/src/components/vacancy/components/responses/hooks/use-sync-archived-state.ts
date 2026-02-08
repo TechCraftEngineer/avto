@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { fetchSyncArchivedVacancyResponsesToken } from "~/actions/realtime";
 import { useWorkspace } from "~/hooks/use-workspace";
+import { useVacancyOperation } from "../context/vacancy-responses-context";
 import {
   type StatusData,
   useSyncArchivedSubscription,
@@ -32,6 +33,7 @@ export function useSyncArchivedState(
   onSyncArchived: (workspaceId: string) => void,
   onRefreshComplete: () => void,
 ) {
+  const archivedOp = useVacancyOperation("archived");
   const { workspace } = useWorkspace();
   const [state, setState] = useState<SyncArchivedStateData>({
     vacancyId,
@@ -154,6 +156,11 @@ export function useSyncArchivedState(
   const setDialogOpen = useCallback((open: boolean) => {
     setState((prev) => ({ ...prev, dialogOpen: open }));
   }, []);
+
+  // Регистрируем обработчик в Context
+  useEffect(() => {
+    archivedOp.setHandler(handleClick);
+  }, [handleClick, archivedOp]);
 
   return {
     ...state,

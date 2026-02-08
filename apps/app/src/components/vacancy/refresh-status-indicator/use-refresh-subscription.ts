@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from "react";
 import {
   fetchRefreshVacancyResponsesToken,
   fetchScreenAllResponsesToken,
-  fetchScreenBatchToken,
   fetchScreenNewResponsesToken,
   fetchSyncArchivedVacancyResponsesToken,
 } from "~/actions/realtime";
@@ -22,13 +21,22 @@ interface UseRefreshSubscriptionProps {
   vacancyId: string;
   mode: SyncMode;
   onVisibilityChange: (visible: boolean) => void;
-  batchId?: string;
-  workspaceId?: string;
   initialStatus?: {
     isRunning: boolean;
     status: string | null;
     message: string | null;
     eventType: string | null;
+    progress?: {
+      currentPage?: number;
+      totalSaved?: number;
+      totalSkipped?: number;
+      total?: number;
+      processed?: number;
+      failed?: number;
+      newCount?: number;
+    } | null;
+    runId?: string | null;
+    startedAt?: string | null;
   } | null;
 }
 
@@ -36,8 +44,6 @@ export function useRefreshSubscription({
   vacancyId,
   mode,
   onVisibilityChange,
-  batchId,
-  workspaceId,
   initialStatus,
 }: UseRefreshSubscriptionProps) {
   const [currentProgress, setCurrentProgress] = useState<ProgressData | null>(
@@ -62,6 +68,97 @@ export function useRefreshSubscription({
   const isAnalyzeMode = mode === "analyze";
   const isScreeningMode = mode === "screening";
 
+  // Мемоизируем функции получения токенов
+  const getRefreshToken = useCallback(
+    () => fetchRefreshVacancyResponsesToken(vacancyId),
+    [vacancyId],
+  );
+
+  const getArchivedToken = useCallback(
+    () => fetchSyncArchivedVacancyResponsesToken(vacancyId),
+    [vacancyId],
+  );
+
+  const getScreeningToken = useCallback(
+    () => fetchScreenNewResponsesToken(vacancyId),
+    [vacancyId],
+  );
+
+  const getAnalyzeToken = useCallback(
+    () => fetchScreenAllResponsesToken(vacancyId),
+    [vacancyId],
+  );
+
+  // Определяем, есть ли активное задание для текущего режима
+  const hasActiveTask =
+    initialStatus?.isRunning === true &&
+    ((isArchivedMode &&
+      initialStatus.eventType === "vacancy/responses.sync-archived") ||
+      (mode === "refresh" &&
+        initialStatus.eventType === "vacancy/responses.refresh") ||
+      (isScreeningMode && initialStatus.eventType === "response/screen.new") ||
+      (isAnalyzeMode && initialStatus.eventType === "response/screen.batch"));
+
+  // ОДНО подключение для текущего режима
+  // Подключаемся ТОЛЬКО если есть активное задание для этого режима
+  const refreshSubscription = useInngestSubscription({
+    refreshToken: getRefreshToken,
+    enabled: mode === "refresh" && hasActiveTask,
+    key: "refresh",
+  });
+
+  const archivedSubscription = useInngestSubscription({
+    refreshToken: getArchivedToken,
+    enabled: isArchivedMode && hasActiveTask,
+    key: "archived",
+  });
+
+  const screeningSubscription = useInngestSubscription({
+    refreshToken: getScreeningToken,
+    enabled: isScreeningMode && hasActiveTask,
+    key: "screening",
+  });
+
+  const analyzeSubscription = useInngestSubscription({
+    refreshToken: getAnalyzeToken,
+    enabled: isAnalyzeMode && hasActiveTask,
+    key: "analyze",
+  });
+
+  // Выбираем данные из активной подписки
+  const data = isArchivedMode
+    ? archivedSubscription.data
+    : isScreeningMode
+      ? screeningSubscription.data
+      : isAnalyzeMode
+        ? analyzeSubscription.data
+        : refreshSubscription.data;
+
+  const error = isArchivedMode
+    ? archivedSubscription.error
+    : isScreeningMode
+      ? screeningSubscription.error
+      : isAnalyzeMode
+        ? analyzeSubscription.error
+        : refreshSubscription.error;
+
+  // Периодическая проверка статуса для восстановления после перезагрузки
+  // Проверяем каждые 5 секунд если есть активное задание
+  useEffect(() => {
+    if (!hasActiveTask) return;
+
+    const intervalId = setInterval(() => {
+      // Обновляем статус через REST API
+      queryClient.invalidateQueries({
+        queryKey: trpc.vacancy.responses.getRefreshStatus.queryKey({
+          vacancyId,
+        }),
+      });
+    }, 5000);
+
+    return () => clearInterval(intervalId);
+  }, [hasActiveTask, queryClient, trpc, vacancyId]);
+
   // Устанавливаем начальное состояние из REST API
   useEffect(() => {
     if (initialStatus?.isRunning && initialStatus.message) {
@@ -84,22 +181,64 @@ export function useRefreshSubscription({
 
       onVisibilityChange(true);
 
-      // Определяем режим по типу события
-      if (initialStatus.eventType === "vacancy/responses.sync-archived") {
-        setArchivedStatus({
-          status: "processing",
-          message: initialStatus.message,
-          vacancyId,
-        });
-      } else if (
-        initialStatus.eventType === "vacancy/responses.refresh" ||
-        initialStatus.eventType === "response/screen.new"
-      ) {
-        setCurrentProgress({
-          status: "processing",
-          message: initialStatus.message,
-          vacancyId,
-        });
+      // Восстанавливаем прогресс из REST API если доступен
+      if (initialStatus.progress) {
+        // Определяем режим по типу события
+        if (initialStatus.eventType === "vacancy/responses.sync-archived") {
+          setArchivedStatus({
+            status: "processing",
+            message: initialStatus.message,
+            vacancyId,
+            syncedResponses: initialStatus.progress.totalSaved,
+            newResponses: initialStatus.progress.newCount,
+          });
+        } else if (
+          initialStatus.eventType === "vacancy/responses.refresh" ||
+          initialStatus.eventType === "response/screen.new"
+        ) {
+          setCurrentProgress({
+            status: "processing",
+            message: initialStatus.message,
+            vacancyId,
+            currentPage: initialStatus.progress.currentPage,
+            totalSaved: initialStatus.progress.totalSaved,
+            totalSkipped: initialStatus.progress.totalSkipped,
+          });
+        } else if (initialStatus.eventType === "response/screen.batch") {
+          // Для analyze режима
+          if (
+            initialStatus.progress.total !== undefined &&
+            initialStatus.progress.processed !== undefined
+          ) {
+            setAnalyzeProgress({
+              batchId: vacancyId,
+              total: initialStatus.progress.total,
+              processed: initialStatus.progress.processed,
+              successful:
+                (initialStatus.progress.processed || 0) -
+                (initialStatus.progress.failed || 0),
+              failed: initialStatus.progress.failed || 0,
+            });
+          }
+        }
+      } else {
+        // Нет деталей прогресса, показываем базовое сообщение
+        if (initialStatus.eventType === "vacancy/responses.sync-archived") {
+          setArchivedStatus({
+            status: "processing",
+            message: initialStatus.message,
+            vacancyId,
+          });
+        } else if (
+          initialStatus.eventType === "vacancy/responses.refresh" ||
+          initialStatus.eventType === "response/screen.new"
+        ) {
+          setCurrentProgress({
+            status: "processing",
+            message: initialStatus.message,
+            vacancyId,
+          });
+        }
       }
     } else {
       // Нет активного задания, скрываем индикатор подключения через таймаут
@@ -118,97 +257,6 @@ export function useRefreshSubscription({
     mode,
   ]);
 
-  // Мемоизируем функции получения токенов
-  const getRefreshToken = useCallback(
-    () => fetchRefreshVacancyResponsesToken(vacancyId),
-    [vacancyId],
-  );
-
-  const getArchivedToken = useCallback(
-    () => fetchSyncArchivedVacancyResponsesToken(vacancyId),
-    [vacancyId],
-  );
-
-  const getScreeningToken = useCallback(
-    () => fetchScreenNewResponsesToken(vacancyId),
-    [vacancyId],
-  );
-
-  const getAnalyzeToken = useCallback(
-    () => fetchScreenAllResponsesToken(vacancyId),
-    [vacancyId],
-  );
-
-  // Подписываемся на канал Realtime для обычного обновления
-  const { data: refreshData, error: refreshError } = useInngestSubscription({
-    refreshToken: getRefreshToken,
-    enabled: mode === "refresh",
-  });
-
-  // Подписываемся на канал Realtime для архивной синхронизации
-  const { data: archivedData, error: archivedError } = useInngestSubscription({
-    refreshToken: getArchivedToken,
-    enabled: isArchivedMode,
-  });
-
-  // Подписываемся на канал Realtime для скрининга новых откликов
-  const { data: screeningData, error: screeningError } = useInngestSubscription(
-    {
-      refreshToken: getScreeningToken,
-      enabled: isScreeningMode,
-    },
-  );
-
-  // Логирование для диагностики
-  useEffect(() => {
-    if (isArchivedMode) {
-      console.log(
-        "[Archived Sync] Подписка активна, данных:",
-        archivedData.length,
-      );
-      if (archivedError) {
-        console.error("[Archived Sync] Ошибка подписки:", archivedError);
-      }
-    }
-    if (isScreeningMode) {
-      console.log(
-        "[Screening] Подписка активна, данных:",
-        screeningData.length,
-      );
-      if (screeningError) {
-        console.error("[Screening] Ошибка подписки:", screeningError);
-      }
-    }
-  }, [
-    isArchivedMode,
-    archivedData.length,
-    archivedError,
-    isScreeningMode,
-    screeningData.length,
-    screeningError,
-  ]);
-
-  // Подписываемся на канал Realtime для анализа откликов (screen.all)
-  const { data: analyzeData, error: analyzeError } = useInngestSubscription({
-    refreshToken: getAnalyzeToken,
-    enabled: isAnalyzeMode,
-  });
-
-  const data = isArchivedMode
-    ? archivedData
-    : isScreeningMode
-      ? screeningData
-      : isAnalyzeMode
-        ? analyzeData
-        : refreshData;
-  const error = isArchivedMode
-    ? archivedError
-    : isScreeningMode
-      ? screeningError
-      : isAnalyzeMode
-        ? analyzeError
-        : refreshError;
-
   // Показываем индикатор сразу при подключении к активному заданию
   useEffect(() => {
     if (data.length > 0) {
@@ -222,34 +270,36 @@ export function useRefreshSubscription({
     if (data.length === 0) return;
 
     for (const message of data) {
-      if (isArchivedMode && message.topic === "status") {
-        const statusData = message.data as ArchivedStatusData;
-        setArchivedStatus(statusData);
-        onVisibilityChange(true);
+      if (isArchivedMode) {
+        if (message.topic === "progress") {
+          const progressData = message.data as ArchivedStatusData;
+          setArchivedStatus(progressData);
+          onVisibilityChange(true);
 
-        // Инвалидируем кэш откликов при обработке
-        if (
-          statusData.status === "processing" ||
-          statusData.status === "completed"
-        ) {
-          queryClient.invalidateQueries({
-            queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
-          });
-        }
+          // Инвалидируем кэш откликов при обработке
+          if (
+            progressData.status === "processing" ||
+            progressData.status === "completed"
+          ) {
+            queryClient.invalidateQueries({
+              queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+            });
+          }
 
-        if (statusData.status === "completed") {
-          const timer = setTimeout(() => {
-            onVisibilityChange(false);
-            setArchivedStatus(null);
-          }, 3000);
-          setAutoCloseTimer(timer);
-        } else {
-          setAutoCloseTimer((prev) => {
-            if (prev) {
-              clearTimeout(prev);
-            }
-            return null;
-          });
+          if (progressData.status === "completed") {
+            const timer = setTimeout(() => {
+              onVisibilityChange(false);
+              setArchivedStatus(null);
+            }, 3000);
+            setAutoCloseTimer(timer);
+          } else {
+            setAutoCloseTimer((prev) => {
+              if (prev) {
+                clearTimeout(prev);
+              }
+              return null;
+            });
+          }
         }
       } else if (isAnalyzeMode) {
         if (message.topic === "progress") {
@@ -285,20 +335,28 @@ export function useRefreshSubscription({
             return null;
           });
         } else if (message.topic === "result") {
-          const resultData = message.data as {
-            vacancyId: string;
-            success: boolean;
-            total: number;
-            processed: number;
-            failed: number;
-          };
-          const completedData: AnalyzeCompletedData = {
-            batchId: vacancyId,
-            total: resultData.total,
-            successful: resultData.processed,
-            failed: resultData.failed,
-          };
-          setAnalyzeCompleted(completedData);
+          const resultData = message.data as
+            | {
+                vacancyId: string;
+                success: boolean;
+                total: number;
+                processed: number;
+                failed: number;
+              }
+            | ResultData;
+
+          // Проверяем, какой формат данных пришел
+          if ("total" in resultData && "processed" in resultData) {
+            // Формат для analyze режима
+            const completedData: AnalyzeCompletedData = {
+              batchId: vacancyId,
+              total: resultData.total,
+              successful: resultData.processed,
+              failed: resultData.failed,
+            };
+            setAnalyzeCompleted(completedData);
+          }
+
           onVisibilityChange(true);
 
           // Финальная инвалидация при завершении

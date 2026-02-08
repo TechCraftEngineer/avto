@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { fetchRefreshVacancyResponsesToken } from "~/actions/realtime";
+import { useVacancyOperation } from "../context/vacancy-responses-context";
 import {
   type RefreshProgress,
   useRefreshSubscription,
@@ -28,6 +29,7 @@ export function useRefreshState(
   onRefresh: () => void,
   onRefreshComplete: () => void,
 ) {
+  const refreshOp = useVacancyOperation("refresh");
   const [state, setState] = useState<RefreshStateData>({
     vacancyId,
     dialogOpen: false,
@@ -123,6 +125,11 @@ export function useRefreshState(
   const setDialogOpen = useCallback((open: boolean) => {
     setState((prev) => ({ ...prev, dialogOpen: open }));
   }, []);
+
+  // Регистрируем обработчик в Context
+  useEffect(() => {
+    refreshOp.setHandler(handleRefreshClick);
+  }, [handleRefreshClick, refreshOp]);
 
   return {
     ...state,

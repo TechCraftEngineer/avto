@@ -2,10 +2,18 @@ import { z } from "zod";
 import { protectedProcedure } from "../../../trpc";
 
 /**
- * Получить статус задания обновления откликов вакансии
+ * Получить детальный статус задания обновления откликов вакансии
+ *
  * Использует Inngest REST API v1:
- * 1. GET /v1/events - получить последние события, связанные с откликами
- * 2. GET /v1/events/{eventId}/runs - получить запуски для найденных событий
+ * 1. GET /v1/events - получить последние события
+ * 2. GET /v1/events/{eventId}/runs - получить запуски
+ * 3. GET /v1/runs/{runId} - получить детали запуска с output
+ *
+ * Возвращает:
+ * - Факт выполнения задания
+ * - Тип события (для определения режима)
+ * - Детали прогресса (если доступны из output)
+ * - Сообщение о статусе
  *
  * Отслеживаемые события:
  * - vacancy/responses.refresh - обновление откликов
@@ -122,6 +130,7 @@ export const getRefreshStatus = protectedProcedure
             function_id: string;
             run_started_at: string;
             ended_at?: string;
+            output?: unknown;
           }>;
         };
 
@@ -147,11 +156,46 @@ export const getRefreshStatus = protectedProcedure
             message = "Парсинг новых резюме выполняется…";
           }
 
+          // Пытаемся получить детали прогресса из запуска
+          let progressDetails = null;
+          try {
+            const runDetailsUrl = `${inngestBaseUrl}/v1/runs/${activeRun.run_id}`;
+            const runDetailsResponse = await fetch(runDetailsUrl, {
+              headers: {
+                Authorization: `Bearer ${inngestSigningKey}`,
+                "Content-Type": "application/json",
+              },
+            });
+
+            if (runDetailsResponse.ok) {
+              const runDetails = (await runDetailsResponse.json()) as {
+                output?: {
+                  currentPage?: number;
+                  totalSaved?: number;
+                  totalSkipped?: number;
+                  total?: number;
+                  processed?: number;
+                  failed?: number;
+                  newCount?: number;
+                };
+              };
+
+              if (runDetails.output) {
+                progressDetails = runDetails.output;
+              }
+            }
+          } catch (error) {
+            console.error("Ошибка при получении деталей запуска:", error);
+          }
+
           return {
             isRunning: true,
             status: "processing" as const,
             message,
             eventType: eventName,
+            progress: progressDetails,
+            runId: activeRun.run_id,
+            startedAt: activeRun.run_started_at,
           };
         }
       }
@@ -164,6 +208,9 @@ export const getRefreshStatus = protectedProcedure
         status: null,
         message: null,
         eventType: null,
+        progress: null,
+        runId: null,
+        startedAt: null,
       };
     } catch (error) {
       console.error("Ошибка при проверке статуса задания:", error);
@@ -172,6 +219,9 @@ export const getRefreshStatus = protectedProcedure
         status: null,
         message: null,
         eventType: null,
+        progress: null,
+        runId: null,
+        startedAt: null,
       };
     }
   });

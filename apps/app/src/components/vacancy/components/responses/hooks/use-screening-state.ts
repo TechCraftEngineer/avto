@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   fetchScreenAllResponsesToken,
   fetchScreenNewResponsesToken,
 } from "~/actions/realtime";
+import { useVacancyOperation } from "../context/vacancy-responses-context";
 import {
   type ScreeningProgress,
   useScreeningSubscription,
@@ -28,6 +29,9 @@ export function useScreeningState(
   onScreen: () => void,
   onComplete: () => void,
 ) {
+  const operation = useVacancyOperation(
+    type === "new" ? "screenNew" : "screenAll",
+  );
   const [state, setState] = useState<ScreeningStateData>({
     error: null,
     status: "idle",
@@ -105,6 +109,11 @@ export function useScreeningState(
       isRunningRef.current = false;
     }
   }, [onScreen, onComplete]);
+
+  // Регистрируем обработчик в Context
+  useEffect(() => {
+    operation.setHandler(handleClick);
+  }, [handleClick, operation]);
 
   return {
     ...state,

@@ -4,7 +4,6 @@ import { cn } from "@qbs-autonaim/ui";
 import { Card } from "@qbs-autonaim/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
-import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
 import { ConfirmationView } from "./confirmation-view";
 import { ProgressView } from "./progress-view";
@@ -18,7 +17,6 @@ export function RefreshStatusIndicator({
   onConfirmationClose,
   onConfirm,
   mode = "refresh",
-  batchId,
   totalResponses,
 }: RefreshStatusIndicatorProps) {
   const [isVisible, setIsVisible] = useState(false);
@@ -26,13 +24,26 @@ export function RefreshStatusIndicator({
     useState(false);
 
   const trpc = useTRPC();
-  const { workspace } = useWorkspace();
   const showConfirmation = externalShowConfirmation ?? internalShowConfirmation;
+
+  const isArchivedMode = mode === "archived";
+  const isAnalyzeMode = mode === "analyze";
+  const isScreeningMode = mode === "screening";
 
   // Проверяем статус при монтировании для всех режимов
   const { data: initialStatus } = useQuery(
     trpc.vacancy.responses.getRefreshStatus.queryOptions({ vacancyId }),
   );
+
+  // Определяем, есть ли активное задание для текущего режима
+  const hasActiveTaskForMode =
+    initialStatus?.isRunning === true &&
+    ((isArchivedMode &&
+      initialStatus.eventType === "vacancy/responses.sync-archived") ||
+      (mode === "refresh" &&
+        initialStatus.eventType === "vacancy/responses.refresh") ||
+      (isScreeningMode && initialStatus.eventType === "response/screen.new") ||
+      (isAnalyzeMode && initialStatus.eventType === "response/screen.batch"));
 
   const handleVisibilityChange = useCallback((visible: boolean) => {
     setIsVisible(visible);
@@ -51,8 +62,6 @@ export function RefreshStatusIndicator({
     vacancyId,
     mode,
     onVisibilityChange: handleVisibilityChange,
-    batchId,
-    workspaceId: workspace?.id,
     initialStatus: initialStatus ?? null,
   });
 
@@ -70,7 +79,11 @@ export function RefreshStatusIndicator({
     onConfirmationClose?.();
   };
 
-  if (!isVisible && !showConfirmation) {
+  // Не рендерим компонент если:
+  // 1. Нет активного задания для этого режима
+  // 2. И не показывается диалог подтверждения
+  // 3. И компонент не видим
+  if (!hasActiveTaskForMode && !showConfirmation && !isVisible) {
     return null;
   }
 

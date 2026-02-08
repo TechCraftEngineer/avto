@@ -1,9 +1,8 @@
 "use client";
-import { useEffect } from "react";
 import type { ScreeningFilter } from "~/components";
 import { ResponseActionButtons } from "../actions/response-action-buttons";
+import { useVacancyOperation } from "../context/vacancy-responses-context";
 import { ResponseSearchFilter } from "../filters/response-search-filter";
-import { useRefreshState } from "../hooks/use-refresh-state";
 import type { ResponseStatusFilterUI } from "../hooks/use-response-table";
 import { useScreeningState } from "../hooks/use-screening-state";
 import { useSyncArchivedState } from "../hooks/use-sync-archived-state";
@@ -19,22 +18,11 @@ interface ResponseTableToolbarProps {
   onStatusFilterChange: (statuses: ResponseStatusFilterUI[]) => void;
   search: string;
   onSearchChange: (value: string) => void;
-  isRefreshing: boolean;
-  isSyncingArchived: boolean;
-  isReanalyzing: boolean;
-  onRefresh: () => void;
   onRefreshComplete: () => void;
   onScreenNew: () => void;
   onScreenAll: () => void;
   onSyncArchived: (workspaceId: string) => void;
   onScreeningComplete: () => void;
-  onRefreshDialogOpen?: () => void;
-  onArchivedDialogOpen?: () => void;
-  onSetArchivedHandler?: (handler: () => void) => void;
-  onScreenNewDialogOpen?: () => void;
-  onSetScreenNewHandler?: (handler: () => void) => void;
-  onReanalyzeDialogOpen?: () => void;
-  onSetReanalyzeHandler?: (handler: () => void) => void;
   visibleColumns: ReadonlySet<ColumnId>;
   onToggleColumn: (columnId: ColumnId) => void;
   onResetColumns: () => void;
@@ -51,22 +39,11 @@ export function ResponseTableToolbar({
   onStatusFilterChange,
   search,
   onSearchChange,
-  isRefreshing,
-  isSyncingArchived,
-  isReanalyzing,
-  onRefresh,
   onRefreshComplete,
   onScreenNew,
   onScreenAll,
   onSyncArchived,
   onScreeningComplete,
-  onRefreshDialogOpen,
-  onArchivedDialogOpen,
-  onSetArchivedHandler,
-  onScreenNewDialogOpen,
-  onSetScreenNewHandler,
-  onReanalyzeDialogOpen,
-  onSetReanalyzeHandler,
   visibleColumns,
   onToggleColumn,
   onResetColumns,
@@ -74,46 +51,16 @@ export function ResponseTableToolbar({
   isArchivedPublication = false,
   hasResponses = false,
 }: ResponseTableToolbarProps) {
-  // Custom hooks for different operation states
-  const refreshState = useRefreshState(vacancyId, onRefresh, onRefreshComplete);
-  const screenNewState = useScreeningState(
-    vacancyId,
-    "new",
-    onScreenNew,
-    onScreeningComplete,
-  );
-  const screenAllState = useScreeningState(
-    vacancyId,
-    "all",
-    onScreenAll,
-    onScreeningComplete,
-  );
-  const syncArchivedState = useSyncArchivedState(
-    vacancyId,
-    onSyncArchived,
-    onRefreshComplete,
-  );
+  // Получаем состояния операций из Context
+  const refreshOp = useVacancyOperation("refresh");
+  const archivedOp = useVacancyOperation("archived");
+  const screenNewOp = useVacancyOperation("screenNew");
+  const screenAllOp = useVacancyOperation("screenAll");
 
-  // Передаем обработчик наверх для использования в RefreshStatusIndicator
-  useEffect(() => {
-    if (onSetArchivedHandler) {
-      onSetArchivedHandler(syncArchivedState.handleClick);
-    }
-  }, [onSetArchivedHandler, syncArchivedState.handleClick]);
-
-  // Передаем обработчик скрининга наверх
-  useEffect(() => {
-    if (onSetScreenNewHandler) {
-      onSetScreenNewHandler(screenNewState.handleClick);
-    }
-  }, [onSetScreenNewHandler, screenNewState.handleClick]);
-
-  // Передаем обработчик повторного анализа наверх
-  useEffect(() => {
-    if (onSetReanalyzeHandler) {
-      onSetReanalyzeHandler(screenAllState.handleClick);
-    }
-  }, [onSetReanalyzeHandler, screenAllState.handleClick]);
+  // Хуки для управления состоянием операций
+  useScreeningState(vacancyId, "new", onScreenNew, onScreeningComplete);
+  useScreeningState(vacancyId, "all", onScreenAll, onScreeningComplete);
+  useSyncArchivedState(vacancyId, onSyncArchived, onRefreshComplete);
 
   return (
     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between px-1 mb-4">
@@ -133,13 +80,13 @@ export function ResponseTableToolbar({
           onResetColumns={onResetColumns}
         />
         <ResponseActionButtons
-          isRefreshing={isRefreshing}
-          isSyncingArchived={isSyncingArchived}
-          isReanalyzing={isReanalyzing}
-          onRefreshDialogOpen={onRefreshDialogOpen || (() => {})}
-          onSyncArchivedDialogOpen={onArchivedDialogOpen || (() => {})}
-          onAnalyzeNewDialogOpen={onScreenNewDialogOpen || (() => {})}
-          onReanalyzeDialogOpen={onReanalyzeDialogOpen || (() => {})}
+          isRefreshing={refreshOp.isRunning}
+          isSyncingArchived={archivedOp.isRunning}
+          isReanalyzing={screenAllOp.isRunning}
+          onRefreshDialogOpen={refreshOp.openConfirmation}
+          onSyncArchivedDialogOpen={archivedOp.openConfirmation}
+          onAnalyzeNewDialogOpen={screenNewOp.openConfirmation}
+          onReanalyzeDialogOpen={screenAllOp.openConfirmation}
           isHHVacancy={isHHVacancy}
           isArchivedPublication={isArchivedPublication}
           hasResponses={hasResponses}
