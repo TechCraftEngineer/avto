@@ -1,15 +1,24 @@
 import type { VacancyResponse } from "./types";
 
 export function calculateMatchScore(response: VacancyResponse): number {
-  let score = 0;
-  if (response.profileData && !response.profileData.error) score += 30;
-  if (response.resumeUrl) score += 20;
-  if (response.salaryExpectationsAmount) score += 15;
-  if (response.email || response.phone || response.telegramUsername)
-    score += 15;
-  if (response.skills?.length) score += 10;
-  if (response.coverLetter) score += 10;
-  return Math.min(score, 100);
+  // Используем реальную оценку навыков из AI-скрининга
+  if (
+    response.screening?.skillsMatchScore !== null &&
+    response.screening?.skillsMatchScore !== undefined
+  ) {
+    return response.screening.skillsMatchScore;
+  }
+
+  // Fallback: если скрининга нет, используем общую оценку
+  if (
+    response.screening?.overallScore !== null &&
+    response.screening?.overallScore !== undefined
+  ) {
+    return response.screening.overallScore;
+  }
+
+  // Fallback: если вообще нет скрининга, возвращаем 0
+  return 0;
 }
 
 export function calculateResponseTime(response: VacancyResponse): string {

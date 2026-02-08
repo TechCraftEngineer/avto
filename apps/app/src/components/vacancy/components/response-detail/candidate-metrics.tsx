@@ -16,9 +16,7 @@ export function CandidateMetrics({
       <div className="text-center">
         <div className="flex items-center justify-center gap-1 mb-1">
           <Award className="h-4 w-4 text-green-600" />
-          <span className="text-lg font-bold text-green-600">
-            {matchScore}%
-          </span>
+          <span className="text-lg font-bold text-green-600">{matchScore}</span>
         </div>
         <div className="text-xs text-muted-foreground">Навыки</div>
       </div>
