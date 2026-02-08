@@ -22,6 +22,8 @@ COPY --from=prepare /app/out/full/ .
 # ENV TURBO_TEAM=$TURBO_TEAM
 # ARG TURBO_TOKEN
 # ENV TURBO_TOKEN=$TURBO_TOKEN
+# Disable Turborepo daemon in Docker to avoid connection issues
+ENV TURBO_FORCE=true
 RUN bunx turbo build --filter=@qbs-autonaim/jobs
 
 FROM base AS runner
