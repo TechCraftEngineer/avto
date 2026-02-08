@@ -14,6 +14,7 @@
       "!**/node_modules",
       "!**/.next",
       "!**/external",
+      "!**/packages/inngest-realtime",
       "!**/packages/ui/src/**/*.tsx",
       "!**/apps/web/src/**/*.tsx",
       "!**/apps/web/src/**/*.ts",

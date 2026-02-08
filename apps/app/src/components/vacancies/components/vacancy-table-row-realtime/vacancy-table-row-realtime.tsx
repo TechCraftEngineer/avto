@@ -13,7 +13,6 @@ import { IconDots } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { toast } from "sonner";
-import { useVacancyStats } from "~/hooks/use-vacancy-stats";
 import { useTRPC } from "~/trpc/react";
 
 interface Vacancy {
@@ -37,8 +36,7 @@ interface VacancyTableRowRealtimeProps {
 }
 
 /**
- * Строка таблицы вакансий с realtime обновлениями
- * Автоматически обновляет статистику без перезагрузки страницы
+ * Строка таблицы вакансий
  */
 export function VacancyTableRowRealtime({
   vacancy,
@@ -49,17 +47,12 @@ export function VacancyTableRowRealtime({
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 
-  // Подключаем realtime обновления
-  const { stats } = useVacancyStats(vacancy.id);
-
-  // Используем realtime данные если доступны, иначе начальные значения
-  const views = stats?.views ?? vacancy.views;
-  const totalResponses =
-    stats?.totalResponsesCount ?? vacancy.totalResponsesCount;
-  const newResponses = stats?.newResponses ?? vacancy.newResponses;
-  const resumesInProgress =
-    stats?.resumesInProgress ?? vacancy.resumesInProgress;
-  const isActive = stats?.isActive ?? vacancy.isActive;
+  // Используем данные из пропсов
+  const views = vacancy.views;
+  const totalResponses = vacancy.totalResponsesCount;
+  const newResponses = vacancy.newResponses;
+  const resumesInProgress = vacancy.resumesInProgress;
+  const isActive = vacancy.isActive;
 
   // Мутация для обновления статуса вакансии
   const updateStatusMutation = useMutation(
