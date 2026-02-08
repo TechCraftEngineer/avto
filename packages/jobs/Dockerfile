@@ -22,9 +22,9 @@ COPY --from=prepare /app/out/full/ .
 # ENV TURBO_TEAM=$TURBO_TEAM
 # ARG TURBO_TOKEN
 # ENV TURBO_TOKEN=$TURBO_TOKEN
-# Disable Turborepo daemon in Docker to avoid connection issues
-ENV TURBO_FORCE=true
-RUN bunx turbo build --filter=@qbs-autonaim/jobs
+# Disable telemetry and daemon for Docker builds
+ENV TURBO_TELEMETRY_DISABLED=1
+RUN bunx turbo build --filter=@qbs-autonaim/jobs --daemon=false
 
 FROM base AS runner
 # Install system dependencies including Chromium for Puppeteer
