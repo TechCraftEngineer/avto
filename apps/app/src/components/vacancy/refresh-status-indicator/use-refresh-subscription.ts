@@ -1,4 +1,4 @@
-import { useInngestSubscription } from "@inngest/realtime/hooks";
+import { useInngestSubscription } from "@bunworks/inngest-realtime/hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
 import {

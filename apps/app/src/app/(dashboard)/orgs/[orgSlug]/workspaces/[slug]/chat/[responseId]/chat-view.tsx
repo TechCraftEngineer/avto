@@ -1,10 +1,9 @@
 "use client";
 
-import { useInngestSubscription } from "@inngest/realtime/hooks";
+import { useInngestSubscription } from "@bunworks/inngest-realtime/hooks";
 import { paths } from "@qbs-autonaim/config";
 import { Button } from "@qbs-autonaim/ui/button";
-import { Sheet } from "@qbs-autonaim/ui/sheet";
-import { SheetContent, SheetTrigger } from "@qbs-autonaim/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger } from "@qbs-autonaim/ui/sheet";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Info } from "lucide-react";
 import Link from "next/link";
@@ -257,4 +256,3 @@ export function ChatView({ conversationId }: { conversationId: string }) {
     </div>
   );
 }
-

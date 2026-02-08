@@ -1,6 +1,6 @@
 "use client";
 
-import { useInngestSubscription } from "@inngest/realtime/hooks";
+import { useInngestSubscription } from "@bunworks/inngest-realtime/hooks";
 import {
   Dialog,
   DialogContent,
@@ -178,9 +178,7 @@ export function ScreeningProgressDialog({
                     <div className="text-2xl font-bold text-green-600">
                       {resultData.processed}
                     </div>
-                    <div className="text-xs text-muted-foreground">
-                      Успешно
-                    </div>
+                    <div className="text-xs text-muted-foreground">Успешно</div>
                   </div>
                   {resultData.failed > 0 && (
                     <div className="text-center">
@@ -197,9 +195,7 @@ export function ScreeningProgressDialog({
                 {resultData.total > 0 && (
                   <div className="pt-2 border-t">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">
-                        Успешность:
-                      </span>
+                      <span className="text-muted-foreground">Успешность:</span>
                       <span className="font-medium text-green-600">
                         {Math.round(
                           (resultData.processed / resultData.total) * 100,

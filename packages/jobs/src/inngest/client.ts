@@ -1,4 +1,4 @@
-import { realtimeMiddleware } from "@inngest/realtime/middleware";
+import { realtimeMiddleware } from "@bunworks/inngest-realtime/middleware";
 
 import { EventSchemas, Inngest } from "inngest";
 import {

@@ -1,6 +1,6 @@
 "use server";
 
-import { getSubscriptionToken } from "@inngest/realtime";
+import { getSubscriptionToken } from "@bunworks/inngest-realtime";
 import {
   fetchArchivedListChannel,
   importArchivedVacanciesChannel,

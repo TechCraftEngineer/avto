@@ -1,6 +1,6 @@
 "use client";
 
-import { useInngestSubscription } from "@inngest/realtime/hooks";
+import { useInngestSubscription } from "@bunworks/inngest-realtime/hooks";
 import type { RouterOutputs } from "@qbs-autonaim/api";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
