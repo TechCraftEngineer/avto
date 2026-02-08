@@ -39,7 +39,7 @@
       "name": "@qbs-autonaim/app",
       "dependencies": {
         "@ai-sdk/react": "3.0.79",
-        "@bunworks/inngest-realtime": "0.1.0",
+        "@bunworks/inngest-realtime": "0.1.5",
         "@dnd-kit/core": "6.3.1",
         "@dnd-kit/modifiers": "9.0.0",
         "@dnd-kit/sortable": "10.0.0",
@@ -370,7 +370,7 @@
       "dependencies": {
         "@ai-sdk/deepseek": "2.0.18",
         "@ai-sdk/openai": "3.0.26",
-        "@bunworks/inngest-realtime": "0.1.0",
+        "@bunworks/inngest-realtime": "0.1.5",
         "@qbs-autonaim/ai": "workspace:*",
         "@qbs-autonaim/config": "workspace:*",
         "@qbs-autonaim/db": "workspace:*",
@@ -851,7 +851,7 @@
 
     "@bufbuild/protobuf": ["@bufbuild/protobuf@2.11.0", "", {}, "sha512-sBXGT13cpmPR5BMgHE6UEEfEaShh5Ror6rfN3yEK5si7QVrtZg8LEPQb0VVhiLRUslD2yLnXtnRzG035J/mZXQ=="],
 
-    "@bunworks/inngest-realtime": ["@bunworks/inngest-realtime@0.1.0", "", { "dependencies": { "@standard-schema/spec": "^1.1.0", "debug": "^4.4.3", "zod": "^4.3.6" }, "peerDependencies": { "react": ">=18.0.0" } }, "sha512-pk3K8B5ibgJH9w8KVveTsJ/FS+GrYKYmiF+4aivdZ/RiSisUmGoG7b+DvMdeAXtFdtrVHQ4QyLAT/Ck/BJB5Yw=="],
+    "@bunworks/inngest-realtime": ["@bunworks/inngest-realtime@0.1.5", "", { "dependencies": { "@standard-schema/spec": "^1.1.0", "debug": "^4.4.3", "zod": "^4.3.6" }, "peerDependencies": { "react": ">=18.0.0" } }, "sha512-cx3XGYqh7H1jBPo3oCRKVxCSUky9fFYoS48MdZoe5DfNf3Fu5hB7/P+J+33fQ8+/AAr3gnWdnVNbh6Y9qQoahw=="],
 
     "@chevrotain/cst-dts-gen": ["@chevrotain/cst-dts-gen@10.5.0", "", { "dependencies": { "@chevrotain/gast": "10.5.0", "@chevrotain/types": "10.5.0", "lodash": "4.17.21" } }, "sha512-lhmC/FyqQ2o7pGK4Om+hzuDrm9rhFYIJ/AXoQBeongmn870Xeb0L6oGEiuR8nohFNL5sMaQEJWCxr1oIVIVXrw=="],
 
