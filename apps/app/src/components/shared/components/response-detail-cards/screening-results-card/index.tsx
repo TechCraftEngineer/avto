@@ -10,9 +10,9 @@ import {
   Separator,
 } from "@qbs-autonaim/ui";
 import { Award, UserCheck } from "lucide-react";
-import { ScoreOverview } from "./score-overview";
 import { AnalysisSections } from "./analysis-sections";
 import { PsychometricAnalysis } from "./psychometric-analysis";
+import { ScoreOverview } from "./score-overview";
 
 interface ScreeningData {
   score: number;
@@ -33,7 +33,6 @@ interface ScreeningData {
   potentialAnalysis?: string | null;
   careerTrajectoryAnalysis?: string | null;
   hiddenFitAnalysis?: string | null;
-  psychometricScore?: number | null;
   psychometricAnalysis?: {
     lifePathNumber: number;
     destinyNumber?: number | null;
@@ -74,7 +73,6 @@ export function ScreeningResultsCard({ screening }: ScreeningResultsCardProps) {
           potentialScore={screening.potentialScore}
           careerTrajectoryScore={screening.careerTrajectoryScore}
           careerTrajectoryType={screening.careerTrajectoryType}
-          psychometricScore={screening.psychometricScore}
         />
 
         {screening.hiddenFitIndicators &&

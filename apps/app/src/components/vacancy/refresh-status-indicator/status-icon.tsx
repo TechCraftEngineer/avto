@@ -15,7 +15,7 @@ export function StatusIcon({ status }: StatusIconProps) {
         status === "processing" && "bg-blue-500",
         status === "completed" && "bg-green-500",
         status === "error" && "bg-red-500",
-        !status && "bg-gray-500",
+        !status && "bg-blue-500",
       )}
       aria-hidden="true"
     >
@@ -23,6 +23,7 @@ export function StatusIcon({ status }: StatusIconProps) {
       {status === "processing" && <Loader2 className="h-4 w-4 animate-spin" />}
       {status === "completed" && <CheckCircle2 className="h-4 w-4" />}
       {status === "error" && <XCircle className="h-4 w-4" />}
+      {!status && <Loader2 className="h-4 w-4 animate-spin" />}
     </div>
   );
 }

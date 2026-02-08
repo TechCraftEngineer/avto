@@ -29,7 +29,7 @@ export function CandidateMetrics({
         <div className="flex items-center justify-center gap-1 mb-1">
           <Hash className="h-4 w-4 text-blue-600" />
           <span className="text-lg font-bold text-blue-600">
-            #{candidateRank}
+            {candidateRank}
           </span>
         </div>
         <div className="text-xs text-muted-foreground">Место в списке</div>

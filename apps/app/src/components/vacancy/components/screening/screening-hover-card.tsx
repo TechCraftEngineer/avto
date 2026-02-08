@@ -20,23 +20,25 @@ interface ScreeningHoverCardProps {
 
 export function ScreeningHoverCard({ screening }: ScreeningHoverCardProps) {
   const getScoreColor = (score: number) => {
-    if (score >= 4) return "text-green-600";
-    if (score >= 3) return "text-yellow-600";
+    if (score >= 80) return "text-green-600";
+    if (score >= 60) return "text-yellow-600";
     return "text-red-600";
   };
 
   const getScoreLabel = (score: number) => {
-    if (score >= 4) return "Отличное соответствие";
-    if (score === 3) return "Среднее соответствие";
-    if (score === 2) return "Слабое соответствие";
+    if (score >= 80) return "Отличное соответствие";
+    if (score >= 60) return "Хорошее соответствие";
+    if (score >= 40) return "Среднее соответствие";
     return "Не подходит";
   };
 
   const getScoreBadgeVariant = (score: number) => {
-    if (score >= 4) return "default";
-    if (score >= 3) return "secondary";
+    if (score >= 80) return "default";
+    if (score >= 60) return "secondary";
     return "destructive";
   };
+
+  const displayScore = screening.detailedScore ?? screening.score * 20;
 
   return (
     <HoverCard>
@@ -46,18 +48,10 @@ export function ScreeningHoverCard({ screening }: ScreeningHoverCardProps) {
           className="inline-flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
         >
           <Badge
-            variant={getScoreBadgeVariant(screening.score)}
+            variant={getScoreBadgeVariant(displayScore)}
             className="gap-1.5 font-semibold tabular-nums"
           >
-            <span>{screening.score}</span>
-            {screening.detailedScore != null && (
-              <>
-                <span className="opacity-70">·</span>
-                <span className="font-normal">
-                  {Math.round(screening.detailedScore)}
-                </span>
-              </>
-            )}
+            <span>{Math.round(displayScore)}</span>
           </Badge>
           <Info className="h-3.5 w-3.5 text-muted-foreground" />
         </button>
@@ -74,37 +68,27 @@ export function ScreeningHoverCard({ screening }: ScreeningHoverCardProps) {
             <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/50">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">
-                  Общая оценка
+                  Детальная оценка
                 </p>
                 <p
-                  className={`text-2xl font-bold tabular-nums ${getScoreColor(screening.score)}`}
+                  className={`text-2xl font-bold tabular-nums ${getScoreColor(displayScore)}`}
                 >
-                  {screening.score}
+                  {Math.round(displayScore)}
                 </p>
               </div>
               <Badge
-                variant={screening.score >= 3 ? "default" : "destructive"}
+                variant={displayScore >= 60 ? "default" : "destructive"}
                 className="text-xs"
               >
-                {getScoreLabel(screening.score)}
+                {getScoreLabel(displayScore)}
               </Badge>
             </div>
-            {screening.detailedScore != null && (
-              <div className="mt-2 p-3 rounded-lg border bg-primary/5">
-                <p className="text-sm text-muted-foreground mb-1">
-                  Детальная оценка
-                </p>
-                <p className="text-2xl font-bold text-primary tabular-nums">
-                  {Math.round(screening.detailedScore)}
-                </p>
-              </div>
-            )}
           </div>
 
           {screening.analysis && (
             <div>
               <h4 className="font-semibold mb-2 flex items-center gap-2">
-                {screening.score >= 3 ? (
+                {displayScore >= 60 ? (
                   <CheckCircle2 className="h-4 w-4 text-green-600" />
                 ) : (
                   <XCircle className="h-4 w-4 text-red-600" />

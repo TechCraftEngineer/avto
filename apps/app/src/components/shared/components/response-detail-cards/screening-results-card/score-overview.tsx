@@ -1,5 +1,5 @@
 import { Badge, Progress } from "@qbs-autonaim/ui";
-import { Brain, Sparkles, TrendingUp } from "lucide-react";
+import { Sparkles, TrendingUp } from "lucide-react";
 
 interface ScoreOverviewProps {
   score: number;
@@ -13,7 +13,6 @@ interface ScoreOverviewProps {
     | "jump"
     | "role_change"
     | null;
-  psychometricScore?: number | null;
 }
 
 const TRAJECTORY_LABELS = {
@@ -30,7 +29,6 @@ export function ScoreOverview({
   potentialScore,
   careerTrajectoryScore,
   careerTrajectoryType,
-  psychometricScore,
 }: ScoreOverviewProps) {
   return (
     <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
@@ -93,21 +91,6 @@ export function ScoreOverview({
             )}
           </div>
         )}
-
-      {psychometricScore !== null && psychometricScore !== undefined && (
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs sm:text-sm font-medium flex items-center gap-1">
-              <Brain className="h-3 w-3" />
-              Психологическая совместимость
-            </span>
-            <span className="text-xl sm:text-2xl font-bold tabular-nums">
-              {Math.round(psychometricScore)}
-            </span>
-          </div>
-          <Progress value={psychometricScore} className="h-2" />
-        </div>
-      )}
     </div>
   );
 }
