@@ -232,16 +232,7 @@ export async function screenResponse(
       where: eq(responseScreening.responseId, responseId),
     });
 
-    // Приводим результат к типу с опциональными полями для обратной совместимости
-    const result = screeningResult as ResponseScreeningOutput & {
-      skillsMatchScore?: number | null;
-      experienceScore?: number | null;
-      skillsAnalysis?: string | null;
-      experienceAnalysis?: string | null;
-      strengths?: string[] | null;
-      weaknesses?: string[] | null;
-      recommendation?: "HIGHLY_RECOMMENDED" | "RECOMMENDED" | "NEUTRAL" | "NOT_RECOMMENDED" | null;
-    };
+    const result = screeningResult;
 
     if (existingScreening) {
       await db
@@ -249,17 +240,16 @@ export async function screenResponse(
         .set({
           overallScore: result.detailedScore,
           overallAnalysis: result.analysis,
-          skillsMatchScore: result.skillsMatchScore ?? null,
-          experienceScore: result.experienceScore ?? null,
-          potentialScore: result.potentialScore ?? null,
+          skillsMatchScore: result.skillsMatchScore,
+          experienceScore: result.experienceScore,
+          potentialScore: result.potentialScore,
           careerTrajectoryScore: result.careerTrajectoryScore ?? null,
           careerTrajectoryType: result.careerTrajectoryType ?? null,
           hiddenFitIndicators: result.hiddenFitIndicators ?? null,
           skillsAnalysis: result.skillsAnalysis ?? null,
           experienceAnalysis: result.experienceAnalysis ?? null,
           potentialAnalysis: result.potentialAnalysis ?? null,
-          careerTrajectoryAnalysis:
-            result.careerTrajectoryAnalysis ?? null,
+          careerTrajectoryAnalysis: result.careerTrajectoryAnalysis ?? null,
           hiddenFitAnalysis: result.hiddenFitAnalysis ?? null,
           strengths: result.strengths ?? null,
           weaknesses: result.weaknesses ?? null,
@@ -273,9 +263,9 @@ export async function screenResponse(
         responseId,
         overallScore: result.detailedScore,
         overallAnalysis: result.analysis,
-        skillsMatchScore: result.skillsMatchScore ?? null,
-        experienceScore: result.experienceScore ?? null,
-        potentialScore: result.potentialScore ?? null,
+        skillsMatchScore: result.skillsMatchScore,
+        experienceScore: result.experienceScore,
+        potentialScore: result.potentialScore,
         careerTrajectoryScore: result.careerTrajectoryScore ?? null,
         careerTrajectoryType: result.careerTrajectoryType ?? null,
         hiddenFitIndicators: result.hiddenFitIndicators ?? null,
@@ -310,4 +300,3 @@ export async function screenResponse(
 
   return saveResult;
 }
-

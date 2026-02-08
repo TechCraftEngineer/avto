@@ -13,7 +13,6 @@ export type ColumnId =
   | "risks"
   | "salary"
   | "skills"
-  | "score"
   | "interview"
   | "hrSelection"
   | "coverLetter"

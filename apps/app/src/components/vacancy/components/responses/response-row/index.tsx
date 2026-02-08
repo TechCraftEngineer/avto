@@ -188,12 +188,6 @@ export function ResponseRow({
         </TableCell>
       )}
 
-      {isColumnVisible("score") && (
-        <TableCell>
-          <ScoreCell score={response.screening?.score} />
-        </TableCell>
-      )}
-
       {isColumnVisible("interview") && (
         <TableCell>
           {response.interviewScoring ? (

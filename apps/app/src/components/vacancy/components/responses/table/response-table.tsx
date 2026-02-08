@@ -296,11 +296,6 @@ export function ResponseTable({
                 <Skeleton className="h-6 w-20" />
               </TableCell>
             )}
-            {isColumnVisible("score") && (
-              <TableCell>
-                <Skeleton className="h-6 w-16" />
-              </TableCell>
-            )}
             {isColumnVisible("interview") && (
               <TableCell>
                 <Skeleton className="h-4 w-24" />

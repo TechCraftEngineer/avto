@@ -45,9 +45,9 @@ export const responseScreeningOutputSchema = z.object({
   overallAnalysis: z.string().optional(),
 
   // Детальные оценки по критериям
-  skillsMatchScore: z.number().int().min(0).max(100).nullable().optional(),
-  experienceScore: z.number().int().min(0).max(100).nullable().optional(),
-  potentialScore: z.number().int().min(0).max(100).nullable().optional(),
+  skillsMatchScore: z.number().int().min(0).max(100),
+  experienceScore: z.number().int().min(0).max(100),
+  potentialScore: z.number().int().min(0).max(100),
   careerTrajectoryScore: z.number().int().min(0).max(100).nullable().optional(),
   careerTrajectoryType: z
     .enum(["growth", "stable", "decline", "jump", "role_change"])
@@ -115,7 +115,7 @@ export class ResponseScreeningAgent extends BaseAgent<
       ? `\n\nДОПОЛНИТЕЛЬНЫЕ ИНСТРУКЦИИ ОТ РЕКРУТЕРА:\n${customPrompt}\n`
       : "";
 
-    return `${customInstructions}
+    const prompt = `${customInstructions}
 
 ТРЕБОВАНИЯ ВАКАНСИИ:
 Позиция: ${requirements.job_title}
@@ -160,12 +160,22 @@ ${candidate.coverLetter ? `\nСопроводительное письмо:\n${c
    
    ВАЖНО: score должен соответствовать detailedScore по указанным диапазонам.
 
-3. ДЕТАЛЬНЫЕ ОЦЕНКИ (каждая от 0 до 100):
-   - skillsMatchScore: Соответствие навыков требованиям
-   - experienceScore: Релевантность и глубина опыта
-   - potentialScore: Способность реально справиться с задачей и потенциал роста
+3. ДЕТАЛЬНЫЕ ОЦЕНКИ (ОБЯЗАТЕЛЬНЫЕ ПОЛЯ, каждая от 0 до 100):
    
-   КРИТИЧЕСКИ ВАЖНО для potentialScore: Оценивай не только соответствие требованиям, но и способность кандидата РЕАЛЬНО СПРАВИТЬСЯ С ЗАДАЧЕЙ.
+   ВАЖНО: Эти три поля ОБЯЗАТЕЛЬНЫ и должны быть заполнены числами от 0 до 100:
+   
+   - skillsMatchScore (ОБЯЗАТЕЛЬНО): Соответствие навыков требованиям
+     * Оцени насколько навыки кандидата соответствуют обязательным требованиям
+     * Учитывай наличие желательных навыков
+     * Оцени соответствие технологическому стеку
+   
+   - experienceScore (ОБЯЗАТЕЛЬНО): Релевантность и глубина опыта
+     * Оцени релевантность опыта работы для данной позиции
+     * Учитывай глубину и качество опыта
+     * Оцени соответствие уровня опыта требованиям
+   
+   - potentialScore (ОБЯЗАТЕЛЬНО): Способность реально справиться с задачей и потенциал роста
+     * КРИТИЧЕСКИ ВАЖНО: Оценивай не только соответствие требованиям, но и способность кандидата РЕАЛЬНО СПРАВИТЬСЯ С ЗАДАЧЕЙ
    
    Учитывай:
    - Способность реально выполнить задачи роли (не только формальное соответствие)
@@ -208,12 +218,12 @@ ${candidate.coverLetter ? `\nСопроводительное письмо:\n${c
    - NOT_RECOMMENDED: Не рекомендуется к рассмотрению
 
 8. Напиши анализы (все в формате HTML с тегами <p>, <strong>, <ul>/<li>, <br>):
-   - analysis: Общий анализ соответствия (2-3 предложения) - БЕЗ заголовков, только текст
-   - skillsAnalysis: Анализ навыков (1-2 предложения) - БЕЗ заголовков, только текст
-   - experienceAnalysis: Анализ опыта (1-2 предложения) - БЕЗ заголовков, только текст
-   - potentialAnalysis: Анализ потенциала кандидата (2-3 предложения) - БЕЗ заголовков, только текст
-   - careerTrajectoryAnalysis: Анализ карьерной траектории (2-3 предложения) - БЕЗ заголовков, только текст
-   - hiddenFitAnalysis: Анализ скрытых индикаторов соответствия, если они есть (1-2 предложения) - БЕЗ заголовков, только текст
+   - analysis (ОБЯЗАТЕЛЬНО): Общий анализ соответствия (2-3 предложения) - БЕЗ заголовков, только текст
+   - skillsAnalysis (опционально): Анализ навыков (1-2 предложения) - БЕЗ заголовков, только текст
+   - experienceAnalysis (опционально): Анализ опыта (1-2 предложения) - БЕЗ заголовков, только текст
+   - potentialAnalysis (опционально): Анализ потенциала кандидата (2-3 предложения) - БЕЗ заголовков, только текст
+   - careerTrajectoryAnalysis (опционально): Анализ карьерной траектории (2-3 предложения) - БЕЗ заголовков, только текст
+   - hiddenFitAnalysis (опционально): Анализ скрытых индикаторов соответствия, если они есть (1-2 предложения) - БЕЗ заголовков, только текст
 
 ВАЖНО:
 - Фокусируйся на потенциале кандидата, а не только на формальном соответствии требованиям
@@ -234,6 +244,15 @@ ${candidate.coverLetter ? `\nСопроводительное письмо:\n${c
   ❌ "Кандидат имеет сильные бэкенд скиллы"
   ❌ "Опыт работы с современным веб-стеком"
   ❌ "Переход от джуна к мидлу занял 2 года"`;
+
+    console.log(
+      `[ResponseScreening] Building prompt with ${requirements.mandatory_requirements.length} mandatory requirements`,
+    );
+    console.log(
+      `[ResponseScreening] Prompt includes section 3 with ОБЯЗАТЕЛЬНЫЕ ПОЛЯ: ${prompt.includes("ОБЯЗАТЕЛЬНЫЕ ПОЛЯ")}`,
+    );
+
+    return prompt;
   }
 
   private formatProfileData(profileData: unknown): string {

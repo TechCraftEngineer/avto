@@ -2,9 +2,9 @@ import { Checkbox } from "@qbs-autonaim/ui/checkbox";
 import { InfoTooltip } from "@qbs-autonaim/ui/info-tooltip";
 import { TableHead, TableHeader, TableRow } from "@qbs-autonaim/ui/table";
 import { memo } from "react";
+import type { ColumnId, SortDirection, SortField } from "../types";
 import { SortableHeaderCell } from "./sortable-header-cell";
 import { StaticHeaderCell } from "./static-header-cell";
-import type { ColumnId, SortDirection, SortField } from "../types";
 
 interface ResponseTableHeaderProps {
   readonly allSelected: boolean;
@@ -132,19 +132,6 @@ function ResponseTableHeaderComponent({
             label="Навыки"
             tooltip={
               <InfoTooltip content="Ключевые профессиональные навыки кандидата, релевантные для данной вакансии. Показывает степень владения требуемыми технологиями и инструментами." />
-            }
-          />
-        )}
-
-        {isColumnVisible("score") && (
-          <SortableHeaderCell
-            field="compositeScore"
-            label="Оценка"
-            currentSortField={sortField}
-            currentSortDirection={sortDirection}
-            onSort={onSort}
-            tooltip={
-              <InfoTooltip content="Общая комплексная оценка кандидата. Объединяет результаты скрининга, потенциал, карьерную траекторию и другие факторы в единую метрику для удобного сравнения кандидатов." />
             }
           />
         )}
