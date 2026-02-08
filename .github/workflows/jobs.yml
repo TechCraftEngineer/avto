@@ -3,10 +3,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'packages/db/**'
-      - 'packages/jobs/**'
-      - 'packages/prompts/**'
-      - 'packages/lib/**'
+      - 'packages/**'
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
