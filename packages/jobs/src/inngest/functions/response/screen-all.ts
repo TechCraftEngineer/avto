@@ -223,6 +223,18 @@ export const screenAllResponsesFunction = inngest.createFunction(
       ).length;
       const vacancyFailed = vacancyResponses.length - vacancySuccessful;
 
+      // Отправляем финальный progress перед result
+      await publish(
+        screenAllResponsesChannel(vacancyId).progress({
+          vacancyId,
+          status: "processing",
+          message: `Обработано ${vacancyResponses.length} из ${vacancyResponses.length} откликов`,
+          total: vacancyResponses.length,
+          processed: vacancyResponses.length,
+          failed: vacancyFailed,
+        }),
+      );
+
       await publish(
         screenAllResponsesChannel(vacancyId).result({
           vacancyId,

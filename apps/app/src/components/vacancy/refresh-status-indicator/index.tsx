@@ -82,18 +82,18 @@ export function RefreshStatusIndicator({
   };
 
   // Не рендерим компонент если:
-  // 1. Нет активного задания для этого режима
-  // 2. И не показывается диалог подтверждения
-  // 3. И компонент не видим
-  // 4. И нет внешнего прогресса (для screening/analyze)
+  // 1. Компонент явно скрыт пользователем
+  // 2. ИЛИ (нет активного задания И не показывается диалог подтверждения И нет внешнего прогресса)
   const hasExternalProgress =
     (isScreeningMode || isAnalyzeMode) && (externalMessage || externalProgress);
-  if (
-    !hasActiveTaskForMode &&
-    !showConfirmation &&
-    !isVisible &&
-    !hasExternalProgress
-  ) {
+
+  // Если пользователь закрыл - не показываем
+  if (isVisible === false && !showConfirmation) {
+    return null;
+  }
+
+  // Если нет причин показывать - не показываем
+  if (!hasActiveTaskForMode && !showConfirmation && !hasExternalProgress) {
     return null;
   }
 
