@@ -1,4 +1,4 @@
-import { eq, or } from "@qbs-autonaim/db";
+import { eq, isNull, or } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import type { PlatformSource } from "@qbs-autonaim/db/schema";
 import { vacancy, vacancyPublication } from "@qbs-autonaim/db/schema";
