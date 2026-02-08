@@ -72,14 +72,18 @@ export function useScreeningState(
     ),
     onComplete: useCallback(
       (success: boolean, progress: ScreeningProgress) => {
+        const finalMessage = success
+          ? `Оценка завершена! Обработано: ${progress.processed} из ${progress.total}`
+          : "Процесс завершился с ошибками";
+
+        updateProgressRef.current(finalMessage, progress);
+
         setState((prev) => ({
           ...prev,
           progress,
           status: success ? "success" : "error",
           error: success ? null : "Процесс завершился с ошибками",
-          message: success
-            ? `Оценка завершена! Обработано: ${progress.processed} из ${progress.total}`
-            : "Процесс завершился с ошибками",
+          message: finalMessage,
           subscriptionActive: false,
         }));
 

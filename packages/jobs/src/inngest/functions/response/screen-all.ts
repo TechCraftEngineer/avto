@@ -111,8 +111,15 @@ export const screenAllResponsesFunction = inngest.createFunction(
     }
 
     // Обрабатываем каждый отклик с отслеживанием прогресса
-    let processedCount = 0;
-    let failedCount = 0;
+    const progressByVacancy: Record<
+      string,
+      { processed: number; failed: number }
+    > = {};
+
+    // Инициализируем счетчики для каждой вакансии
+    for (const vacancyId of Object.keys(responsesByVacancy)) {
+      progressByVacancy[vacancyId] = { processed: 0, failed: 0 };
+    }
 
     const results = await Promise.allSettled(
       responses.map(async (resp) => {
@@ -127,22 +134,28 @@ export const screenAllResponsesFunction = inngest.createFunction(
               score: result.detailedScore,
             });
 
-            processedCount++;
-
-            // Отправляем прогресс после каждого обработанного отклика
+            // Обновляем прогресс для вакансии
             const vacancyId = resp.entityId;
-            const vacancyResponses = responsesByVacancy[vacancyId];
-            if (vacancyResponses) {
-              await publish(
-                screenAllResponsesChannel(vacancyId).progress({
-                  vacancyId,
-                  status: "processing",
-                  message: `Обработано ${processedCount} из ${responses.length} откликов`,
-                  total: vacancyResponses.length,
-                  processed: processedCount,
-                  failed: failedCount,
-                }),
-              );
+            const vacancyProgress = progressByVacancy[vacancyId];
+            if (vacancyProgress) {
+              vacancyProgress.processed++;
+
+              const vacancyResponses = responsesByVacancy[vacancyId];
+              if (vacancyResponses) {
+                console.log(
+                  `📊 Прогресс для ${vacancyId}: ${vacancyProgress.processed}/${vacancyResponses.length}`,
+                );
+                await publish(
+                  screenAllResponsesChannel(vacancyId).progress({
+                    vacancyId,
+                    status: "processing",
+                    message: `Обработано ${vacancyProgress.processed} из ${vacancyResponses.length} откликов`,
+                    total: vacancyResponses.length,
+                    processed: vacancyProgress.processed,
+                    failed: vacancyProgress.failed,
+                  }),
+                );
+              }
             }
 
             return {
@@ -154,23 +167,26 @@ export const screenAllResponsesFunction = inngest.createFunction(
           } catch (error) {
             console.error(`❌ Ошибка скрининга для ${resp.id}:`, error);
 
-            processedCount++;
-            failedCount++;
-
-            // Отправляем прогресс даже при ошибке
+            // Обновляем прогресс для вакансии
             const vacancyId = resp.entityId;
-            const vacancyResponses = responsesByVacancy[vacancyId];
-            if (vacancyResponses) {
-              await publish(
-                screenAllResponsesChannel(vacancyId).progress({
-                  vacancyId,
-                  status: "processing",
-                  message: `Обработано ${processedCount} из ${responses.length} откликов`,
-                  total: vacancyResponses.length,
-                  processed: processedCount,
-                  failed: failedCount,
-                }),
-              );
+            const vacancyProgress = progressByVacancy[vacancyId];
+            if (vacancyProgress) {
+              vacancyProgress.processed++;
+              vacancyProgress.failed++;
+
+              const vacancyResponses = responsesByVacancy[vacancyId];
+              if (vacancyResponses) {
+                await publish(
+                  screenAllResponsesChannel(vacancyId).progress({
+                    vacancyId,
+                    status: "processing",
+                    message: `Обработано ${vacancyProgress.processed} из ${vacancyResponses.length} откликов`,
+                    total: vacancyResponses.length,
+                    processed: vacancyProgress.processed,
+                    failed: vacancyProgress.failed,
+                  }),
+                );
+              }
             }
 
             return {

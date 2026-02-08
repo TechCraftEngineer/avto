@@ -48,6 +48,7 @@ export function ProgressView({
     analyzeProgress,
     currentProgress,
     currentResult,
+    externalMessage,
   })
     .with(
       { mode: "archived", archivedStatus: { status: P.select() } },
@@ -56,9 +57,23 @@ export function ProgressView({
     .with(
       {
         mode: P.union("analyze", "screening"),
+        externalMessage: P.string.includes("завершена"),
+      },
+      () => "completed" as const,
+    )
+    .with(
+      {
+        mode: P.union("analyze", "screening"),
         analyzeCompleted: P.not(P.nullish),
       },
       () => "completed" as const,
+    )
+    .with(
+      {
+        mode: P.union("analyze", "screening"),
+        externalMessage: P.not(P.nullish),
+      },
+      () => "processing" as const,
     )
     .with(
       {
