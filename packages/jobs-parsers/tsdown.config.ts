@@ -10,4 +10,7 @@ export default defineConfig({
   clean: true,
   minify: isProduction,
   tsconfig: "tsconfig.json",
+  dts: {
+    eager: true,
+  },
 });

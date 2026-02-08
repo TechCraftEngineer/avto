@@ -1,4 +1,5 @@
 import { Loader2, XCircle } from "lucide-react";
+import { match, P } from "ts-pattern";
 import { AnalyzeProgressContent } from "./analyze-progress-content";
 import { ArchivedStatusContent } from "./archived-status-content";
 import { RefreshProgressContent } from "./refresh-progress-content";
@@ -9,6 +10,7 @@ import type {
   AnalyzeProgressData,
   ArchivedStatusData,
   ProgressData,
+  ProgressStatus,
   ResultData,
   SyncMode,
 } from "./types";
@@ -36,23 +38,109 @@ export function ProgressView({
   isConnecting,
   onClose,
 }: ProgressViewProps) {
-  const isArchivedMode = mode === "archived";
-  const isAnalyzeMode = mode === "analyze";
-  const isScreeningMode = mode === "screening";
-  const currentStatus = isArchivedMode
-    ? archivedStatus?.status
-    : isAnalyzeMode || isScreeningMode
-      ? analyzeCompleted
-        ? "completed"
-        : analyzeProgress
-          ? "processing"
-          : undefined
-      : currentProgress?.status || (currentResult ? "completed" : undefined);
-  const isCompleted = isArchivedMode
-    ? archivedStatus?.status === "completed"
-    : isAnalyzeMode || isScreeningMode
-      ? !!analyzeCompleted
-      : currentResult?.success === true;
+  // Определяем текущий статус через pattern matching
+  const currentStatus: ProgressStatus | undefined = match({
+    mode,
+    archivedStatus,
+    analyzeCompleted,
+    analyzeProgress,
+    currentProgress,
+    currentResult,
+  })
+    .with(
+      { mode: "archived", archivedStatus: { status: P.select() } },
+      (status: string) => status as ProgressStatus,
+    )
+    .with(
+      {
+        mode: P.union("analyze", "screening"),
+        analyzeCompleted: P.not(P.nullish),
+      },
+      () => "completed" as const,
+    )
+    .with(
+      {
+        mode: P.union("analyze", "screening"),
+        analyzeProgress: P.not(P.nullish),
+      },
+      () => "processing" as const,
+    )
+    .with(
+      { currentProgress: { status: P.select() } },
+      (status: string) => status as ProgressStatus,
+    )
+    .with({ currentResult: P.not(P.nullish) }, () => "completed" as const)
+    .otherwise(() => undefined);
+
+  // Определяем заголовок через pattern matching
+  const title = match({
+    mode,
+    archivedStatus,
+    analyzeProgress,
+    analyzeCompleted,
+    currentProgress,
+    currentResult,
+  })
+    .with({ mode: "archived", archivedStatus: P.nullish }, () => "Подключение…")
+    .with(
+      { mode: "archived", archivedStatus: { status: "started" } },
+      () => "Задание в очереди",
+    )
+    .with(
+      { mode: "archived", archivedStatus: { status: "processing" } },
+      () => "Синхронизация архивных откликов",
+    )
+    .with(
+      { mode: "archived", archivedStatus: { status: "error" } },
+      () => "Ошибка синхронизации",
+    )
+    .with(
+      { mode: "archived", archivedStatus: { status: "completed" } },
+      () => "Синхронизация завершена",
+    )
+    .with(
+      { mode: "screening", analyzeCompleted: P.not(P.nullish) },
+      () => "Скрининг завершен",
+    )
+    .with(
+      { mode: "screening", analyzeProgress: P.not(P.nullish) },
+      () => "Скрининг откликов",
+    )
+    .with({ mode: "screening" }, () => "Запуск скрининга…")
+    .with(
+      { mode: "analyze", analyzeCompleted: P.not(P.nullish) },
+      () => "Анализ завершен",
+    )
+    .with(
+      { mode: "analyze", analyzeProgress: P.not(P.nullish) },
+      () => "Анализ откликов",
+    )
+    .with({ mode: "analyze" }, () => "Запуск анализа…")
+    .with(
+      { currentProgress: P.nullish, currentResult: P.nullish },
+      () => "Подключение…",
+    )
+    .with({ currentProgress: { status: "started" } }, () => "Задание в очереди")
+    .with(
+      { currentProgress: { status: "processing" } },
+      () => "Получение откликов",
+    )
+    .with({ currentProgress: { status: "error" } }, () => "Ошибка обновления")
+    .with({ currentResult: P.not(P.nullish) }, () => "Получение завершено")
+    .otherwise(() => "Подключение…");
+
+  const showPageNumber =
+    mode === "refresh" && currentProgress?.currentPage !== undefined;
+  const showConnecting =
+    !currentProgress &&
+    !currentResult &&
+    !archivedStatus &&
+    !analyzeProgress &&
+    !analyzeCompleted &&
+    !error &&
+    mode !== "analyze" &&
+    mode !== "screening" &&
+    isConnecting;
 
   return (
     <div className="flex items-start gap-3">
@@ -60,86 +148,39 @@ export function ProgressView({
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-2 mb-1">
-          <h4 className="text-sm font-semibold">
-            {isArchivedMode ? (
-              <>
-                {!archivedStatus && "Подключение…"}
-                {archivedStatus?.status === "started" && "Задание в очереди"}
-                {archivedStatus?.status === "processing" &&
-                  "Синхронизация архивных откликов"}
-                {archivedStatus?.status === "error" && "Ошибка синхронизации"}
-                {archivedStatus?.status === "completed" &&
-                  "Синхронизация завершена"}
-              </>
-            ) : isAnalyzeMode || isScreeningMode ? (
-              <>
-                {!analyzeCompleted &&
-                  analyzeProgress &&
-                  (isScreeningMode ? "Скрининг откликов" : "Анализ откликов")}
-                {analyzeCompleted &&
-                  (isScreeningMode ? "Скрининг завершен" : "Анализ завершен")}
-                {!analyzeProgress &&
-                  !analyzeCompleted &&
-                  (isScreeningMode ? "Запуск скрининга…" : "Запуск анализа…")}
-              </>
-            ) : (
-              <>
-                {!currentProgress && !currentResult && "Подключение…"}
-                {currentProgress?.status === "started" && "Задание в очереди"}
-                {currentProgress?.status === "processing" &&
-                  "Получение откликов"}
-                {currentProgress?.status === "error" && "Ошибка обновления"}
-                {isCompleted && "Получение завершено"}
-              </>
-            )}
-          </h4>
-          {!isArchivedMode &&
-            !isAnalyzeMode &&
-            !isScreeningMode &&
-            currentProgress?.currentPage !== undefined && (
-              <span className="text-xs text-muted-foreground shrink-0">
-                Страница&nbsp;{currentProgress.currentPage + 1}
-              </span>
-            )}
+          <h4 className="text-sm font-semibold">{title}</h4>
+          {showPageNumber && (
+            <span className="text-xs text-muted-foreground shrink-0">
+              Страница&nbsp;{(currentProgress?.currentPage ?? 0) + 1}
+            </span>
+          )}
         </div>
 
-        {!currentProgress &&
-          !currentResult &&
-          !archivedStatus &&
-          !analyzeProgress &&
-          !analyzeCompleted &&
-          !error &&
-          !isAnalyzeMode &&
-          !isScreeningMode &&
-          isConnecting && (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Loader2 className="h-3 w-3 animate-spin" />
-              <span>Подключение к серверу…</span>
-            </div>
-          )}
+        {showConnecting && (
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Loader2 className="h-3 w-3 animate-spin" />
+            <span>Подключение к серверу…</span>
+          </div>
+        )}
 
-        {isArchivedMode && archivedStatus && (
+        {mode === "archived" && archivedStatus && (
           <ArchivedStatusContent status={archivedStatus} />
         )}
 
-        {(isAnalyzeMode || isScreeningMode) && (
+        {(mode === "analyze" || mode === "screening") && (
           <AnalyzeProgressContent
             progress={analyzeProgress}
             completed={analyzeCompleted}
           />
         )}
 
-        {!isArchivedMode &&
-          !isAnalyzeMode &&
-          !isScreeningMode &&
-          currentProgress && (
-            <RefreshProgressContent progress={currentProgress} />
-          )}
+        {mode === "refresh" && currentProgress && (
+          <RefreshProgressContent progress={currentProgress} />
+        )}
 
-        {!isArchivedMode &&
-          !isAnalyzeMode &&
-          !isScreeningMode &&
-          currentResult && <RefreshResultContent result={currentResult} />}
+        {mode === "refresh" && currentResult && (
+          <RefreshResultContent result={currentResult} />
+        )}
 
         {error && (
           <div className="flex items-center gap-2 text-destructive rounded-lg border border-destructive/50 bg-destructive/10 p-2 mt-2">

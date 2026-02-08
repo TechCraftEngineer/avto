@@ -24,7 +24,6 @@ interface CandidateInfoProps {
   matchScore: number;
   candidateRank: number;
   responseTime: string;
-  lastActivity: string;
 }
 
 export function CandidateInfo({
@@ -32,7 +31,6 @@ export function CandidateInfo({
   matchScore,
   candidateRank,
   responseTime,
-  lastActivity,
 }: CandidateInfoProps) {
   const photoUrl = useAvatarUrl(response.photoFileId);
   const candidateName = response.candidateName || "Кандидат";
@@ -135,7 +133,6 @@ export function CandidateInfo({
           matchScore={matchScore}
           candidateRank={candidateRank}
           responseTime={responseTime}
-          lastActivity={lastActivity}
         />
 
         <div className="text-sm text-muted-foreground mt-3">

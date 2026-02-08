@@ -7,7 +7,10 @@
  */
 
 import { beforeEach, describe, expect, it } from "bun:test";
-import { InterviewStrategyFactory } from "../strategies";
+import {
+  type InterviewStrategy,
+  InterviewStrategyFactory,
+} from "../strategies";
 import type { SupportedEntityType } from "../strategies/types";
 
 describe("Performance Tests", () => {

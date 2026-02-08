@@ -11,10 +11,10 @@ export function calculateMatchScore(response: VacancyResponse): number {
 
   // Fallback: если скрининга нет, используем общую оценку
   if (
-    response.screening?.overallScore !== null &&
-    response.screening?.overallScore !== undefined
+    response.screening?.score !== null &&
+    response.screening?.score !== undefined
   ) {
-    return response.screening.overallScore;
+    return response.screening.score;
   }
 
   // Fallback: если вообще нет скрининга, возвращаем 0

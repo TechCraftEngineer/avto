@@ -29,7 +29,6 @@ const COLUMN_LABELS: Readonly<Record<ColumnId, string>> = {
   risks: "Риски",
   salary: "Зарплата",
   skills: "Навыки",
-  score: "Оценка",
   interview: "Интервью",
   hrSelection: "Отбор HR",
   coverLetter: "Отклик",

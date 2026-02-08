@@ -115,7 +115,7 @@ export const screenAllResponsesFunction = inngest.createFunction(
     let failedCount = 0;
 
     const results = await Promise.allSettled(
-      responses.map(async (resp, index) => {
+      responses.map(async (resp) => {
         return await step.run(`screen-response-${resp.id}`, async () => {
           try {
             console.log(`🎯 Скрининг отклика: ${resp.id}`);

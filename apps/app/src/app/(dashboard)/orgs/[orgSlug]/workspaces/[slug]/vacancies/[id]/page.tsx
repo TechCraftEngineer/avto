@@ -140,7 +140,6 @@ export default function VacancyDetailPage() {
 
         {/* Аналитика и рекомендации */}
         <VacancyInsightsCard
-          vacancyId={id}
           totalResponses={totalResponses}
           daysActive={daysActive}
           views={vacancy.views ?? 0}

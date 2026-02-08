@@ -1,6 +1,13 @@
 "use client";
 
-import { createContext, useCallback, useContext, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 /**
  * Типы операций с откликами
@@ -58,10 +65,8 @@ export function VacancyResponsesProvider({
     screenAll: { isRunning: false, showConfirmation: false },
   });
 
-  // Храним обработчики операций
-  const [handlers, setHandlers] = useState<
-    Partial<Record<OperationType, () => void>>
-  >({});
+  // Храним обработчики операций в ref, чтобы избежать ре-рендеров
+  const handlersRef = useRef<Partial<Record<OperationType, () => void>>>({});
 
   const showConfirmation = useCallback((type: OperationType) => {
     setOperations((prev) => ({
@@ -93,22 +98,19 @@ export function VacancyResponsesProvider({
 
   const setOperationHandler = useCallback(
     (type: OperationType, handler: () => void) => {
-      setHandlers((prev) => ({ ...prev, [type]: handler }));
+      handlersRef.current[type] = handler;
     },
     [],
   );
 
-  const executeOperation = useCallback(
-    (type: OperationType) => {
-      const handler = handlers[type];
-      if (handler) {
-        handler();
-      } else {
-        console.warn(`No handler registered for operation: ${type}`);
-      }
-    },
-    [handlers],
-  );
+  const executeOperation = useCallback((type: OperationType) => {
+    const handler = handlersRef.current[type];
+    if (handler) {
+      handler();
+    } else {
+      console.warn(`No handler registered for operation: ${type}`);
+    }
+  }, []);
 
   return (
     <VacancyResponsesContext.Provider
@@ -147,16 +149,20 @@ export function useVacancyResponses() {
 export function useVacancyOperation(type: OperationType) {
   const context = useVacancyResponses();
 
-  return {
-    vacancyId: context.vacancyId,
-    isRunning: context.operations[type].isRunning,
-    showConfirmation: context.operations[type].showConfirmation,
-    openConfirmation: () => context.showConfirmation(type),
-    closeConfirmation: () => context.hideConfirmation(type),
-    start: () => context.startOperation(type),
-    complete: () => context.completeOperation(type),
-    setHandler: (handler: () => void) =>
-      context.setOperationHandler(type, handler),
-    execute: () => context.executeOperation(type),
-  };
+  // Мемоизируем весь объект, чтобы он был стабильным
+  return useMemo(
+    () => ({
+      vacancyId: context.vacancyId,
+      isRunning: context.operations[type].isRunning,
+      showConfirmation: context.operations[type].showConfirmation,
+      openConfirmation: () => context.showConfirmation(type),
+      closeConfirmation: () => context.hideConfirmation(type),
+      start: () => context.startOperation(type),
+      complete: () => context.completeOperation(type),
+      setHandler: (handler: () => void) =>
+        context.setOperationHandler(type, handler),
+      execute: () => context.executeOperation(type),
+    }),
+    [context, type],
+  );
 }

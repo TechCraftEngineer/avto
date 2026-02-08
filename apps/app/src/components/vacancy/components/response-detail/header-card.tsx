@@ -47,7 +47,6 @@ export function VacancyResponseHeaderCard({
             matchScore={matchScore}
             candidateRank={candidateRank}
             responseTime={responseTime}
-            lastActivity={lastActivity}
           />
 
           <CandidateActions
