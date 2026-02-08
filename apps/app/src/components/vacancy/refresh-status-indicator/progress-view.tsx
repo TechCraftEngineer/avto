@@ -25,6 +25,7 @@ interface ProgressViewProps {
   error: Error | null;
   isConnecting: boolean;
   onClose: () => void;
+  externalMessage?: string;
 }
 
 export function ProgressView({
@@ -37,6 +38,7 @@ export function ProgressView({
   error,
   isConnecting,
   onClose,
+  externalMessage,
 }: ProgressViewProps) {
   // Определяем текущий статус через pattern matching
   const currentStatus: ProgressStatus | undefined = match({
@@ -168,10 +170,17 @@ export function ProgressView({
         )}
 
         {(mode === "analyze" || mode === "screening") && (
-          <AnalyzeProgressContent
-            progress={analyzeProgress}
-            completed={analyzeCompleted}
-          />
+          <>
+            {externalMessage && (
+              <p className="text-xs text-muted-foreground mb-2">
+                {externalMessage}
+              </p>
+            )}
+            <AnalyzeProgressContent
+              progress={analyzeProgress}
+              completed={analyzeCompleted}
+            />
+          </>
         )}
 
         {mode === "refresh" && currentProgress && (

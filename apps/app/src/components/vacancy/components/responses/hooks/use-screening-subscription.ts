@@ -29,6 +29,7 @@ export interface ScreeningProgress {
 interface UseScreeningSubscriptionProps {
   vacancyId: string;
   enabled: boolean;
+  subscriptionKey?: string;
   fetchToken: (vacancyId: string) => Promise<Realtime.Subscribe.Token>;
   onProgress?: (message: string, progress: ScreeningProgress | null) => void;
   onComplete?: (success: boolean, progress: ScreeningProgress) => void;
@@ -37,6 +38,7 @@ interface UseScreeningSubscriptionProps {
 export function useScreeningSubscription({
   vacancyId,
   enabled,
+  subscriptionKey,
   fetchToken,
   onProgress,
   onComplete,
@@ -44,6 +46,7 @@ export function useScreeningSubscription({
   const subscription = useInngestSubscription({
     refreshToken: () => fetchToken(vacancyId),
     enabled,
+    key: subscriptionKey,
   });
 
   useEffect(() => {

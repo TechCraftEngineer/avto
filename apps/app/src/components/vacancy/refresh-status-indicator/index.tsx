@@ -18,6 +18,8 @@ export function RefreshStatusIndicator({
   onConfirm,
   mode = "refresh",
   totalResponses,
+  message: externalMessage,
+  progress: externalProgress,
 }: RefreshStatusIndicatorProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [internalShowConfirmation, setInternalShowConfirmation] =
@@ -83,7 +85,15 @@ export function RefreshStatusIndicator({
   // 1. Нет активного задания для этого режима
   // 2. И не показывается диалог подтверждения
   // 3. И компонент не видим
-  if (!hasActiveTaskForMode && !showConfirmation && !isVisible) {
+  // 4. И нет внешнего прогресса (для screening/analyze)
+  const hasExternalProgress =
+    (isScreeningMode || isAnalyzeMode) && (externalMessage || externalProgress);
+  if (
+    !hasActiveTaskForMode &&
+    !showConfirmation &&
+    !isVisible &&
+    !hasExternalProgress
+  ) {
     return null;
   }
 
@@ -111,11 +121,23 @@ export function RefreshStatusIndicator({
             currentProgress={currentProgress}
             currentResult={currentResult}
             archivedStatus={archivedStatus}
-            analyzeProgress={analyzeProgress}
+            analyzeProgress={
+              externalProgress
+                ? {
+                    batchId: vacancyId,
+                    total: externalProgress.total,
+                    processed: externalProgress.processed,
+                    successful:
+                      externalProgress.processed - externalProgress.failed,
+                    failed: externalProgress.failed,
+                  }
+                : analyzeProgress
+            }
             analyzeCompleted={analyzeCompleted}
             error={error}
             isConnecting={isConnecting}
             onClose={handleClose}
+            externalMessage={externalMessage}
           />
         )}
       </div>

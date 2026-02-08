@@ -20,6 +20,12 @@ type OperationType = "refresh" | "archived" | "screenNew" | "screenAll";
 interface OperationState {
   isRunning: boolean;
   showConfirmation: boolean;
+  message?: string;
+  progress?: {
+    total: number;
+    processed: number;
+    failed: number;
+  } | null;
 }
 
 /**
@@ -36,6 +42,11 @@ interface VacancyResponsesContextValue {
   hideConfirmation: (type: OperationType) => void;
   startOperation: (type: OperationType) => void;
   completeOperation: (type: OperationType) => void;
+  updateProgress: (
+    type: OperationType,
+    message: string,
+    progress?: { total: number; processed: number; failed: number } | null,
+  ) => void;
 
   // Обработчики операций (устанавливаются компонентами)
   setOperationHandler: (type: OperationType, handler: () => void) => void;
@@ -96,6 +107,20 @@ export function VacancyResponsesProvider({
     }));
   }, []);
 
+  const updateProgress = useCallback(
+    (
+      type: OperationType,
+      message: string,
+      progress?: { total: number; processed: number; failed: number } | null,
+    ) => {
+      setOperations((prev) => ({
+        ...prev,
+        [type]: { ...prev[type], message, progress },
+      }));
+    },
+    [],
+  );
+
   const setOperationHandler = useCallback(
     (type: OperationType, handler: () => void) => {
       handlersRef.current[type] = handler;
@@ -121,6 +146,7 @@ export function VacancyResponsesProvider({
         hideConfirmation,
         startOperation,
         completeOperation,
+        updateProgress,
         setOperationHandler,
         executeOperation,
       }}
@@ -155,10 +181,16 @@ export function useVacancyOperation(type: OperationType) {
       vacancyId: context.vacancyId,
       isRunning: context.operations[type].isRunning,
       showConfirmation: context.operations[type].showConfirmation,
+      message: context.operations[type].message,
+      progress: context.operations[type].progress,
       openConfirmation: () => context.showConfirmation(type),
       closeConfirmation: () => context.hideConfirmation(type),
       start: () => context.startOperation(type),
       complete: () => context.completeOperation(type),
+      updateProgress: (
+        message: string,
+        progress?: { total: number; processed: number; failed: number } | null,
+      ) => context.updateProgress(type, message, progress),
       setHandler: (handler: () => void) =>
         context.setOperationHandler(type, handler),
       execute: () => context.executeOperation(type),

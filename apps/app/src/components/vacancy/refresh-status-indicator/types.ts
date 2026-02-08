@@ -58,4 +58,10 @@ export interface RefreshStatusIndicatorProps {
   mode?: SyncMode;
   batchId?: string;
   totalResponses?: number;
+  message?: string;
+  progress?: {
+    total: number;
+    processed: number;
+    failed: number;
+  } | null;
 }

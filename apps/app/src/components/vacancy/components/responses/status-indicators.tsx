@@ -34,6 +34,8 @@ export function StatusIndicators() {
         showConfirmation={screenNewOp.showConfirmation}
         onConfirmationClose={screenNewOp.closeConfirmation}
         onConfirm={screenNewOp.execute}
+        message={screenNewOp.message}
+        progress={screenNewOp.progress}
       />
       <RefreshStatusIndicator
         vacancyId={screenAllOp.vacancyId}
@@ -41,6 +43,8 @@ export function StatusIndicators() {
         showConfirmation={screenAllOp.showConfirmation}
         onConfirmationClose={screenAllOp.closeConfirmation}
         onConfirm={screenAllOp.execute}
+        message={screenAllOp.message}
+        progress={screenAllOp.progress}
       />
     </div>
   );

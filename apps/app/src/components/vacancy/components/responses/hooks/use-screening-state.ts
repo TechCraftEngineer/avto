@@ -17,6 +17,7 @@ export interface ScreeningStateData {
   message: string;
   progress: ScreeningProgress | null;
   subscriptionActive: boolean;
+  subscriptionKey: number;
 }
 
 export interface ScreeningState extends ScreeningStateData {
@@ -38,20 +39,29 @@ export function useScreeningState(
     message: "",
     progress: null,
     subscriptionActive: false,
+    subscriptionKey: 0,
   });
 
   const isRunningRef = useRef(false);
+  const updateProgressRef = useRef(operation.updateProgress);
+
+  // Обновляем ref при изменении функции
+  useEffect(() => {
+    updateProgressRef.current = operation.updateProgress;
+  }, [operation.updateProgress]);
 
   // Screening subscription
   useScreeningSubscription({
     vacancyId,
     enabled: state.subscriptionActive,
+    subscriptionKey: `${vacancyId}-${type}-${state.subscriptionKey}`,
     fetchToken:
       type === "new"
         ? fetchScreenNewResponsesToken
         : fetchScreenAllResponsesToken,
     onProgress: useCallback(
       (message: string, progress: ScreeningProgress | null) => {
+        updateProgressRef.current(message, progress);
         setState((prev) => ({
           ...prev,
           message,
@@ -73,6 +83,7 @@ export function useScreeningState(
           subscriptionActive: false,
         }));
 
+        isRunningRef.current = false;
         onComplete();
       },
       [onComplete],
@@ -93,20 +104,22 @@ export function useScreeningState(
       progress: null,
       status: "loading",
       subscriptionActive: true,
+      subscriptionKey: prev.subscriptionKey + 1,
     }));
 
     try {
       await onScreen();
-    } catch (error) {
+      // Подписка остается активной - она отключится только когда придет result
+    } catch (error: unknown) {
+      // При ошибке запуска отключаем подписку сразу
       setState((prev) => ({
         ...prev,
         status: "error",
         error: error instanceof Error ? error.message : "Произошла ошибка",
         subscriptionActive: false,
       }));
-      onComplete();
-    } finally {
       isRunningRef.current = false;
+      onComplete();
     }
   }, [onScreen, onComplete]);
 
