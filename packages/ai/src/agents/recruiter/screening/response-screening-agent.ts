@@ -58,9 +58,9 @@ export const responseScreeningOutputSchema = z.object({
   hiddenFitIndicators: z.array(z.string()).nullable().optional(),
 
   // Детальные анализы
-  skillsAnalysis: z.string().nullable().optional(),
-  experienceAnalysis: z.string().nullable().optional(),
-  potentialAnalysis: z.string().nullable().optional(),
+  skillsAnalysis: z.string(),
+  experienceAnalysis: z.string(),
+  potentialAnalysis: z.string(),
   careerTrajectoryAnalysis: z.string().nullable().optional(),
   hiddenFitAnalysis: z.string().nullable().optional(),
 
@@ -219,9 +219,9 @@ ${candidate.coverLetter ? `\nСопроводительное письмо:\n${c
 
 8. Напиши анализы (все в формате HTML с тегами <p>, <strong>, <ul>/<li>, <br>):
    - analysis (ОБЯЗАТЕЛЬНО): Общий анализ соответствия (2-3 предложения) - БЕЗ заголовков, только текст
-   - skillsAnalysis (опционально): Анализ навыков (1-2 предложения) - БЕЗ заголовков, только текст
-   - experienceAnalysis (опционально): Анализ опыта (1-2 предложения) - БЕЗ заголовков, только текст
-   - potentialAnalysis (опционально): Анализ потенциала кандидата (2-3 предложения) - БЕЗ заголовков, только текст
+   - skillsAnalysis (ОБЯЗАТЕЛЬНО): Анализ навыков (1-2 предложения) - БЕЗ заголовков, только текст
+   - experienceAnalysis (ОБЯЗАТЕЛЬНО): Анализ опыта (1-2 предложения) - БЕЗ заголовков, только текст
+   - potentialAnalysis (ОБЯЗАТЕЛЬНО): Анализ потенциала кандидата (2-3 предложения) - БЕЗ заголовков, только текст
    - careerTrajectoryAnalysis (опционально): Анализ карьерной траектории (2-3 предложения) - БЕЗ заголовков, только текст
    - hiddenFitAnalysis (опционально): Анализ скрытых индикаторов соответствия, если они есть (1-2 предложения) - БЕЗ заголовков, только текст
 
