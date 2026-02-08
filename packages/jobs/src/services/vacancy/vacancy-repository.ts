@@ -246,13 +246,12 @@ export async function saveBasicVacancy(
       }
 
       // Создаём запись в vacancy_publications для связи с платформой
-      // Публикация всегда активна при импорте — статус архивности хранится в vacancy.isActive
       await createVacancyPublication(
         inserted.id,
         dataToSave.source,
         dataToSave.externalId,
         dataToSave.url,
-        true,
+        dataToSave.isActive,
       );
 
       logger.info(`Базовая информация создана: ${vacancyData.title}`);
@@ -265,13 +264,12 @@ export async function saveBasicVacancy(
       .where(eq(vacancy.id, existingVacancy.id));
 
     // Обновляем или создаём публикацию для существующей вакансии
-    // Публикация всегда активна при импорте — статус архивности хранится в vacancy.isActive
     await upsertVacancyPublication(
       existingVacancy.id,
       dataToSave.source,
       dataToSave.externalId,
       dataToSave.url,
-      true,
+      dataToSave.isActive,
     );
 
     logger.info(`Базовая информация обновлена: ${vacancyData.title}`);
@@ -380,13 +378,12 @@ export async function saveVacancyToDb(
       savedVacancyId = inserted.id;
 
       // Создаём запись в vacancy_publications для связи с платформой
-      // Публикация всегда активна при импорте — статус архивности хранится в vacancy.isActive
       await createVacancyPublication(
         savedVacancyId,
         dataToSave.source,
         dataToSave.externalId,
         dataToSave.url,
-        true,
+        dataToSave.isActive,
       );
 
       logger.info(`Вакансия создана: ${vacancyData.title}`);
@@ -398,13 +395,12 @@ export async function saveVacancyToDb(
       savedVacancyId = existingVacancy.id;
 
       // Обновляем или создаём публикацию для существующей вакансии
-      // Публикация всегда активна при импорте — статус архивности хранится в vacancy.isActive
       await upsertVacancyPublication(
         savedVacancyId,
         dataToSave.source,
         dataToSave.externalId,
         dataToSave.url,
-        true,
+        dataToSave.isActive,
       );
 
       logger.info(`Вакансия обновлена: ${vacancyData.title}`);
