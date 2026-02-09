@@ -21,7 +21,6 @@ interface UseRefreshSubscriptionProps {
   vacancyId: string;
   mode: SyncMode;
   onVisibilityChange: (visible: boolean) => void;
-  onDataReceived?: () => void;
   initialStatus?: {
     isRunning: boolean;
     status: string | null;
@@ -45,7 +44,6 @@ export function useRefreshSubscription({
   vacancyId,
   mode,
   onVisibilityChange,
-  onDataReceived,
   initialStatus,
 }: UseRefreshSubscriptionProps) {
   const [currentProgress, setCurrentProgress] = useState<ProgressData | null>(
@@ -264,154 +262,35 @@ export function useRefreshSubscription({
     if (data.length > 0) {
       setIsConnecting(false);
       onVisibilityChange(true);
-      onDataReceived?.();
     }
-  }, [data.length, onVisibilityChange, onDataReceived]);
+  }, [data.length, onVisibilityChange]);
 
   // Обрабатываем все сообщения из канала
   useEffect(() => {
     if (data.length === 0) return;
 
     for (const message of data) {
-      if (isArchivedMode) {
-        if (message.topic === "progress") {
-          const progressData = message.data as ArchivedStatusData;
-          setArchivedStatus(progressData);
-          onVisibilityChange(true);
+      // Канал syncArchivedResponsesChannel использует топик "status" вместо "progress"
+      const isProgressTopic =
+        message.topic === "progress" || message.topic === "status";
+      const isResultTopic = message.topic === "result";
 
-          // Инвалидируем кэш откликов при обработке
-          if (
-            progressData.status === "processing" ||
-            progressData.status === "completed"
-          ) {
-            queryClient.invalidateQueries({
-              queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
-            });
-          }
+      if (isArchivedMode && isProgressTopic) {
+        const progressData = message.data as ArchivedStatusData;
+        setArchivedStatus(progressData);
+        onVisibilityChange(true);
 
-          if (progressData.status === "completed") {
-            // Инвалидируем статус задания, чтобы отключить подписку
-            queryClient.invalidateQueries({
-              queryKey: trpc.vacancy.responses.getRefreshStatus.queryKey({
-                vacancyId,
-              }),
-            });
-
-            const timer = setTimeout(() => {
-              onVisibilityChange(false);
-              setArchivedStatus(null);
-            }, 3000);
-            setAutoCloseTimer(timer);
-          } else {
-            setAutoCloseTimer((prev) => {
-              if (prev) {
-                clearTimeout(prev);
-              }
-              return null;
-            });
-          }
+        // Инвалидируем кэш откликов при обработке
+        if (
+          progressData.status === "processing" ||
+          progressData.status === "completed"
+        ) {
+          queryClient.invalidateQueries({
+            queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+          });
         }
-      } else if (isAnalyzeMode) {
-        if (message.topic === "progress") {
-          const progressData = message.data as ProgressData & {
-            total?: number;
-            processed?: number;
-            failed?: number;
-          };
 
-          // Преобразуем в формат AnalyzeProgressData
-          if (progressData.total !== undefined) {
-            setAnalyzeProgress({
-              batchId: vacancyId, // используем vacancyId как batchId
-              total: progressData.total,
-              processed: progressData.processed || 0,
-              successful:
-                (progressData.processed || 0) - (progressData.failed || 0),
-              failed: progressData.failed || 0,
-            });
-          }
-          setAnalyzeCompleted(null);
-          onVisibilityChange(true);
-
-          // Инвалидируем кэш откликов при обработке каждого отклика
-          queryClient.invalidateQueries({
-            queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
-          });
-
-          setAutoCloseTimer((prev) => {
-            if (prev) {
-              clearTimeout(prev);
-            }
-            return null;
-          });
-        } else if (message.topic === "result") {
-          const resultData = message.data as
-            | {
-                vacancyId: string;
-                success: boolean;
-                total: number;
-                processed: number;
-                failed: number;
-              }
-            | ResultData;
-
-          // Проверяем, какой формат данных пришел
-          if ("total" in resultData && "processed" in resultData) {
-            // Формат для analyze режима
-            const completedData: AnalyzeCompletedData = {
-              batchId: vacancyId,
-              total: resultData.total,
-              successful: resultData.processed,
-              failed: resultData.failed,
-            };
-            setAnalyzeCompleted(completedData);
-          }
-
-          onVisibilityChange(true);
-
-          // Финальная инвалидация при завершении
-          queryClient.invalidateQueries({
-            queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
-          });
-
-          // Инвалидируем статус задания, чтобы отключить подписку
-          queryClient.invalidateQueries({
-            queryKey: trpc.vacancy.responses.getRefreshStatus.queryKey({
-              vacancyId,
-            }),
-          });
-
-          // Не закрываем окно автоматически для режима analyze
-        }
-      } else if (mode === "refresh" || isScreeningMode) {
-        // Обработка для refresh и screening (используют одинаковую структуру событий)
-        if (message.topic === "progress") {
-          const progressData = message.data as ProgressData;
-          setCurrentProgress(progressData);
-          setCurrentResult(null);
-          onVisibilityChange(true);
-
-          // Инвалидируем кэш откликов при обработке
-          queryClient.invalidateQueries({
-            queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
-          });
-
-          setAutoCloseTimer((prev) => {
-            if (prev) {
-              clearTimeout(prev);
-            }
-            return null;
-          });
-        } else if (message.topic === "result") {
-          const resultData = message.data as ResultData;
-          setCurrentResult(resultData);
-          onVisibilityChange(true);
-
-          // Финальная инвалидация при завершении
-          queryClient.invalidateQueries({
-            queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
-          });
-
+        if (progressData.status === "completed") {
           // Инвалидируем статус задания, чтобы отключить подписку
           queryClient.invalidateQueries({
             queryKey: trpc.vacancy.responses.getRefreshStatus.queryKey({
@@ -421,11 +300,128 @@ export function useRefreshSubscription({
 
           const timer = setTimeout(() => {
             onVisibilityChange(false);
-            setCurrentProgress(null);
-            setCurrentResult(null);
-          }, 10000);
+            setArchivedStatus(null);
+          }, 3000);
           setAutoCloseTimer(timer);
+        } else {
+          setAutoCloseTimer((prev) => {
+            if (prev) {
+              clearTimeout(prev);
+            }
+            return null;
+          });
         }
+      } else if (isAnalyzeMode && isProgressTopic) {
+        const progressData = message.data as ProgressData & {
+          total?: number;
+          processed?: number;
+          failed?: number;
+        };
+
+        // Преобразуем в формат AnalyzeProgressData
+        if (progressData.total !== undefined) {
+          setAnalyzeProgress({
+            batchId: vacancyId,
+            total: progressData.total,
+            processed: progressData.processed || 0,
+            successful:
+              (progressData.processed || 0) - (progressData.failed || 0),
+            failed: progressData.failed || 0,
+          });
+        }
+        setAnalyzeCompleted(null);
+        onVisibilityChange(true);
+
+        // Инвалидируем кэш откликов при обработке каждого отклика
+        queryClient.invalidateQueries({
+          queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+        });
+
+        setAutoCloseTimer((prev) => {
+          if (prev) {
+            clearTimeout(prev);
+          }
+          return null;
+        });
+      } else if (isAnalyzeMode && isResultTopic) {
+        const resultData = message.data as
+          | {
+              vacancyId: string;
+              success: boolean;
+              total: number;
+              processed: number;
+              failed: number;
+            }
+          | ResultData;
+
+        // Проверяем, какой формат данных пришел
+        if ("total" in resultData && "processed" in resultData) {
+          // Формат для analyze режима
+          const completedData: AnalyzeCompletedData = {
+            batchId: vacancyId,
+            total: resultData.total,
+            successful: resultData.processed,
+            failed: resultData.failed,
+          };
+          setAnalyzeCompleted(completedData);
+        }
+
+        onVisibilityChange(true);
+
+        // Финальная инвалидация при завершении
+        queryClient.invalidateQueries({
+          queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+        });
+
+        // Инвалидируем статус задания, чтобы отключить подписку
+        queryClient.invalidateQueries({
+          queryKey: trpc.vacancy.responses.getRefreshStatus.queryKey({
+            vacancyId,
+          }),
+        });
+
+        // Не закрываем окно автоматически для режима analyze
+      } else if ((mode === "refresh" || isScreeningMode) && isProgressTopic) {
+        // Обработка для refresh и screening (используют одинаковую структуру событий)
+        const progressData = message.data as ProgressData;
+        setCurrentProgress(progressData);
+        setCurrentResult(null);
+        onVisibilityChange(true);
+
+        // Инвалидируем кэш откликов при обработке
+        queryClient.invalidateQueries({
+          queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+        });
+
+        setAutoCloseTimer((prev) => {
+          if (prev) {
+            clearTimeout(prev);
+          }
+          return null;
+        });
+      } else if ((mode === "refresh" || isScreeningMode) && isResultTopic) {
+        const resultData = message.data as ResultData;
+        setCurrentResult(resultData);
+        onVisibilityChange(true);
+
+        // Финальная инвалидация при завершении
+        queryClient.invalidateQueries({
+          queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+        });
+
+        // Инвалидируем статус задания, чтобы отключить подписку
+        queryClient.invalidateQueries({
+          queryKey: trpc.vacancy.responses.getRefreshStatus.queryKey({
+            vacancyId,
+          }),
+        });
+
+        const timer = setTimeout(() => {
+          onVisibilityChange(false);
+          setCurrentProgress(null);
+          setCurrentResult(null);
+        }, 10000);
+        setAutoCloseTimer(timer);
       }
     }
   }, [

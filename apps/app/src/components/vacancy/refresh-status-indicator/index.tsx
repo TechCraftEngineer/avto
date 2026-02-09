@@ -3,7 +3,7 @@
 import { cn } from "@qbs-autonaim/ui";
 import { Card } from "@qbs-autonaim/ui/card";
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { useTRPC } from "~/trpc/react";
 import { ConfirmationView } from "./confirmation-view";
 import { ProgressView } from "./progress-view";
@@ -21,47 +21,27 @@ export function RefreshStatusIndicator({
   message: externalMessage,
   progress: externalProgress,
 }: RefreshStatusIndicatorProps) {
-  const [isVisible, setIsVisible] = useState(false);
-  const [internalShowConfirmation, setInternalShowConfirmation] =
-    useState(false);
-  const [isInitiating, setIsInitiating] = useState(false);
-
+  const [showDialog, setShowDialog] = useState(false);
   const trpc = useTRPC();
-  const showConfirmation = externalShowConfirmation ?? internalShowConfirmation;
 
-  const isArchivedMode = mode === "archived";
-  const isAnalyzeMode = mode === "analyze";
-  const isScreeningMode = mode === "screening";
-
-  // Проверяем статус при монтировании для всех режимов
+  // Проверяем статус при монтировании
   const { data: initialStatus } = useQuery(
     trpc.vacancy.responses.getRefreshStatus.queryOptions({ vacancyId }),
   );
 
   // Определяем, есть ли активное задание для текущего режима
-  const hasActiveTaskForMode =
+  const hasActiveTask =
     initialStatus?.isRunning === true &&
-    ((isArchivedMode &&
+    ((mode === "archived" &&
       initialStatus.eventType === "vacancy/responses.sync-archived") ||
       (mode === "refresh" &&
         initialStatus.eventType === "vacancy/responses.refresh") ||
-      (isScreeningMode && initialStatus.eventType === "response/screen.new") ||
-      (isAnalyzeMode && initialStatus.eventType === "response/screen.batch"));
+      (mode === "screening" &&
+        initialStatus.eventType === "response/screen.new") ||
+      (mode === "analyze" &&
+        initialStatus.eventType === "response/screen.batch"));
 
-  // Автоматически показываем компонент если есть активное задание (например, после перезагрузки страницы)
-  useEffect(() => {
-    if (hasActiveTaskForMode && !showConfirmation) {
-      setIsVisible(true);
-    }
-  }, [hasActiveTaskForMode, showConfirmation]);
-
-  const handleVisibilityChange = useCallback((visible: boolean) => {
-    setIsVisible(visible);
-  }, []);
-
-  const handleDataReceived = useCallback(() => {
-    setIsInitiating(false);
-  }, []);
+  const [isVisible, setIsVisible] = useState(hasActiveTask);
 
   const {
     currentProgress,
@@ -75,45 +55,41 @@ export function RefreshStatusIndicator({
   } = useRefreshSubscription({
     vacancyId,
     mode,
-    onVisibilityChange: handleVisibilityChange,
-    onDataReceived: handleDataReceived,
+    onVisibilityChange: setIsVisible,
     initialStatus: initialStatus ?? null,
   });
 
+  const showConfirmation = externalShowConfirmation ?? showDialog;
+
   const handleStartRefresh = () => {
-    setInternalShowConfirmation(false);
+    setShowDialog(false);
     setIsVisible(true);
-    setIsInitiating(true);
     onConfirmationClose?.();
     onConfirm?.();
   };
 
   const handleClose = () => {
     setIsVisible(false);
-    setInternalShowConfirmation(false);
-    setIsInitiating(false);
+    setShowDialog(false);
     clearAutoCloseTimer();
     onConfirmationClose?.();
   };
 
-  // Не рендерим компонент если:
-  // 1. Компонент явно скрыт пользователем
-  // 2. ИЛИ (нет активного задания И не показывается диалог подтверждения И нет внешнего прогресса И не в процессе инициализации)
-  const hasExternalProgress =
-    (isScreeningMode || isAnalyzeMode) && (externalMessage || externalProgress);
+  // Определяем, нужно ли показывать компонент
+  const hasData =
+    currentProgress ||
+    currentResult ||
+    archivedStatus ||
+    analyzeProgress ||
+    analyzeCompleted ||
+    externalMessage ||
+    externalProgress;
 
-  // Если пользователь закрыл - не показываем
-  if (isVisible === false && !showConfirmation) {
-    return null;
-  }
+  const shouldShow =
+    showConfirmation ||
+    (isVisible && (hasActiveTask || hasData || isConnecting));
 
-  // Если нет причин показывать - не показываем
-  if (
-    !hasActiveTaskForMode &&
-    !showConfirmation &&
-    !hasExternalProgress &&
-    !isInitiating
-  ) {
+  if (!shouldShow) {
     return null;
   }
 
@@ -128,7 +104,7 @@ export function RefreshStatusIndicator({
       aria-atomic="true"
     >
       <div className="p-4">
-        {showConfirmation && !isVisible ? (
+        {showConfirmation ? (
           <ConfirmationView
             mode={mode}
             onClose={handleClose}
