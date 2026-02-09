@@ -45,7 +45,7 @@ export function EmailVerificationBanner({
   };
 
   return (
-    <Alert className="relative border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950">
+    <Alert className="relative mb-6 border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950">
       <Mail className="size-4 text-amber-600 dark:text-amber-400" />
       <AlertTitle className="text-amber-900 dark:text-amber-100">
         Подтвердите ваш email

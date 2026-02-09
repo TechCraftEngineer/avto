@@ -9,6 +9,9 @@ const CSP_REPORT_ONLY = process.env.CSP_REPORT_ONLY === "true";
 export async function proxy(request: NextRequest) {
   const response = NextResponse.next();
 
+  // Передаем pathname в headers для использования в layouts
+  response.headers.set("x-pathname", request.nextUrl.pathname);
+
   // Настройка CSP на основе переменных окружения
   if (ENABLE_CSP || CSP_REPORT_ONLY) {
     const cspDirectives = [
@@ -32,6 +35,7 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Публичные маршруты (не требуют аутентификации)
+  // /auth/verify-email доступен всем (и авторизованным, и нет)
   const publicPaths = ["/auth", "/api", "/invite"];
   const isPublicPath = publicPaths.some((path) => pathname.startsWith(path));
 
