@@ -28,24 +28,23 @@ export interface ArchivedStatusData {
 }
 
 export interface AnalyzeProgressData {
-  batchId: string;
+  vacancyId: string;
   total: number;
   processed: number;
-  successful: number;
   failed: number;
 }
 
 export interface AnalyzeResponseData {
-  batchId: string;
+  vacancyId: string;
   responseId: string;
   success: boolean;
   error?: string;
 }
 
 export interface AnalyzeCompletedData {
-  batchId: string;
+  vacancyId: string;
   total: number;
-  successful: number;
+  processed: number;
   failed: number;
 }
 
@@ -56,7 +55,6 @@ export interface RefreshStatusIndicatorProps {
   onConfirmationClose?: () => void;
   onConfirm?: () => void;
   mode?: SyncMode;
-  batchId?: string;
   totalResponses?: number;
   message?: string;
   progress?: {

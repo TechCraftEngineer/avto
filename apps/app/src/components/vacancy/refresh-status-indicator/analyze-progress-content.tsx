@@ -13,7 +13,7 @@ export function AnalyzeProgressContent({
     return (
       <div className="space-y-1">
         <p className="text-xs text-muted-foreground">
-          Проанализировано откликов: {completed.successful} из {completed.total}
+          Проанализировано откликов: {completed.processed} из {completed.total}
         </p>
         {completed.failed > 0 && (
           <p className="text-xs text-destructive">Ошибок: {completed.failed}</p>
@@ -24,6 +24,7 @@ export function AnalyzeProgressContent({
 
   if (progress) {
     const percentage = Math.round((progress.processed / progress.total) * 100);
+    const successful = progress.processed - progress.failed;
 
     return (
       <div className="space-y-2">
@@ -37,7 +38,7 @@ export function AnalyzeProgressContent({
           />
         </div>
         <div className="flex justify-between text-xs text-muted-foreground">
-          <span>Успешно: {progress.successful}</span>
+          <span>Успешно: {successful}</span>
           {progress.failed > 0 && (
             <span className="text-destructive">Ошибок: {progress.failed}</span>
           )}

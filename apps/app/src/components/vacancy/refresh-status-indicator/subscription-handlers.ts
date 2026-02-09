@@ -98,23 +98,39 @@ export function handleAnalyzeProgress(
   const analyzeParseResult = analyzeProgressDataSchema.safeParse(message.data);
 
   if (analyzeParseResult.success) {
-    context.setAnalyzeProgress(analyzeParseResult.data);
-    context.setAnalyzeCompleted(null);
-    context.onVisibilityChange(true);
+    const data = analyzeParseResult.data;
 
-    // Инвалидируем кэш откликов при обработке каждого отклика
-    context.queryClient.invalidateQueries({
-      queryKey: context.trpc.vacancy.responses.list.queryKey({
-        vacancyId: context.vacancyId,
-      }),
-    });
+    // Преобразуем данные с сервера в формат компонента
+    if (
+      data.total !== undefined &&
+      data.processed !== undefined &&
+      data.failed !== undefined
+    ) {
+      const progressData: AnalyzeProgressData = {
+        vacancyId: data.vacancyId,
+        total: data.total,
+        processed: data.processed,
+        failed: data.failed,
+      };
 
-    context.setAutoCloseTimer((prev) => {
-      if (prev) {
-        clearTimeout(prev);
-      }
-      return null;
-    });
+      context.setAnalyzeProgress(progressData);
+      context.setAnalyzeCompleted(null);
+      context.onVisibilityChange(true);
+
+      // Инвалидируем кэш откликов при обработке каждого отклика
+      context.queryClient.invalidateQueries({
+        queryKey: context.trpc.vacancy.responses.list.queryKey({
+          vacancyId: context.vacancyId,
+        }),
+      });
+
+      context.setAutoCloseTimer((prev) => {
+        if (prev) {
+          clearTimeout(prev);
+        }
+        return null;
+      });
+    }
   } else {
     console.error(
       "Ошибка валидации analyze progress data:",
@@ -135,9 +151,9 @@ export function handleAnalyzeResult(
 
   const resultData = parseResult.data;
   const completedData: AnalyzeCompletedData = {
-    batchId: context.vacancyId,
+    vacancyId: resultData.vacancyId,
     total: resultData.total,
-    successful: resultData.processed,
+    processed: resultData.processed,
     failed: resultData.failed,
   };
   context.setAnalyzeCompleted(completedData);

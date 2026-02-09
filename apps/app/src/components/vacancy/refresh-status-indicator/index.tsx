@@ -155,11 +155,9 @@ export function RefreshStatusIndicator({
             analyzeProgress={
               externalProgress
                 ? {
-                    batchId: vacancyId,
+                    vacancyId,
                     total: externalProgress.total,
                     processed: externalProgress.processed,
-                    successful:
-                      externalProgress.processed - externalProgress.failed,
                     failed: externalProgress.failed,
                   }
                 : analyzeProgress

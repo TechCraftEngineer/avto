@@ -64,10 +64,9 @@ export function restoreProgressFromInitialStatus(
       progress.processed !== undefined
     ) {
       handlers.setAnalyzeProgress({
-        batchId: vacancyId,
+        vacancyId,
         total: progress.total,
         processed: progress.processed,
-        successful: (progress.processed || 0) - (progress.failed || 0),
         failed: progress.failed || 0,
       });
     }

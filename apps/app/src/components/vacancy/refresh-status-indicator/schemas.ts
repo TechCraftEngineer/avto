@@ -26,11 +26,12 @@ export const archivedStatusDataSchema = z.object({
 });
 
 export const analyzeProgressDataSchema = z.object({
-  batchId: z.string(),
-  total: z.number(),
-  processed: z.number(),
-  successful: z.number(),
-  failed: z.number(),
+  vacancyId: z.string(),
+  status: z.enum(["started", "processing", "completed", "error"]),
+  message: z.string(),
+  total: z.number().optional(),
+  processed: z.number().optional(),
+  failed: z.number().optional(),
 });
 
 export const analyzeResultDataSchema = z.object({
