@@ -3,15 +3,18 @@
 import { paths } from "@qbs-autonaim/config";
 import {
   Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
-  Label,
 } from "@qbs-autonaim/ui";
 import { loginFormSchema } from "@qbs-autonaim/validators";
-import { CheckCircle, Loader2, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { authClient } from "~/auth/client";
 import { translateAuthError } from "~/lib/auth-error-messages";
@@ -20,35 +23,36 @@ interface EmailVerificationFormProps {
   email?: string;
 }
 
-export function EmailVerificationForm({ email }: EmailVerificationFormProps) {
+export function EmailVerificationForm({
+  email,
+  ...props
+}: EmailVerificationFormProps & React.ComponentProps<typeof Card>) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [verifying, setVerifying] = useState(false);
-  const [cooldown, setCooldown] = useState(0);
-  const [resent, setResent] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [countdown, setCountdown] = useState(0);
   const [otpCode, setOtpCode] = useState("");
-  const [showOtpInput, setShowOtpInput] = useState(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [codeSent, setCodeSent] = useState(false);
 
-  // Очистка интервала при размонтировании
   useEffect(() => {
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-    };
-  }, []);
-
-  const handleSendOtp = async () => {
     if (!email) {
-      toast.error(
-        "Email не указан. Вернитесь на страницу входа и попробуйте снова.",
-      );
+      router.push(paths.auth.signin);
+    }
+  }, [email, router]);
+
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [countdown]);
+
+  const handleSendCode = async () => {
+    if (!email) {
+      toast.error("Email не указан. Вернитесь на страницу входа.");
       return;
     }
 
-    // Валидация email перед отправкой
     const validation = loginFormSchema.shape.email.safeParse(email);
     if (!validation.success) {
       toast.error("Некорректный email адрес");
@@ -67,29 +71,9 @@ export function EmailVerificationForm({ email }: EmailVerificationFormProps) {
         return;
       }
 
-      setResent(true);
-      setShowOtpInput(true);
-      toast.success("Код подтверждения отправлен на ваш email!");
-
-      // Очищаем предыдущий интервал если есть
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-
-      // Устанавливаем кулдаун 60 секунд
-      setCooldown(60);
-      intervalRef.current = setInterval(() => {
-        setCooldown((prev) => {
-          if (prev <= 1) {
-            if (intervalRef.current) {
-              clearInterval(intervalRef.current);
-              intervalRef.current = null;
-            }
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
+      setCodeSent(true);
+      toast.success("Код отправлен! Проверьте вашу почту.");
+      setCountdown(60);
     } catch (error) {
       console.error(error);
       toast.error("Не удалось отправить код. Попробуйте снова.");
@@ -98,18 +82,41 @@ export function EmailVerificationForm({ email }: EmailVerificationFormProps) {
     }
   };
 
-  const handleVerifyOtp = async () => {
+  const handleResend = async () => {
+    if (!email || countdown > 0) return;
+    setResending(true);
+    try {
+      const { error } = await authClient.emailOtp.sendVerificationOtp({
+        email,
+        type: "email-verification",
+      });
+
+      if (error) {
+        toast.error(translateAuthError(error.message));
+        return;
+      }
+
+      toast.success("Код отправлен! Проверьте вашу почту.");
+      setCountdown(60);
+    } catch (error) {
+      console.error(error);
+      toast.error("Не удалось отправить код. Попробуйте снова.");
+    } finally {
+      setResending(false);
+    }
+  };
+
+  const handleVerify = async () => {
     if (!email) {
       toast.error("Email не указан");
       return;
     }
 
-    if (!otpCode || otpCode.length < 6) {
-      toast.error("Введите корректный код из 6 цифр");
+    if (otpCode.length !== 6) {
       return;
     }
 
-    setVerifying(true);
+    setLoading(true);
     try {
       const { error } = await authClient.emailOtp.verifyEmail({
         email,
@@ -118,122 +125,113 @@ export function EmailVerificationForm({ email }: EmailVerificationFormProps) {
 
       if (error) {
         toast.error(translateAuthError(error.message));
+        setOtpCode("");
         return;
       }
 
       toast.success("Email успешно подтвержден!");
 
-      // Сбрасываем флаг dismissed баннера
       localStorage.removeItem("email-verification-dismissed");
 
-      // Перенаправляем на главную страницу
       setTimeout(() => {
         router.push(paths.dashboard.root);
       }, 1000);
     } catch (error) {
       console.error(error);
       toast.error("Не удалось подтвердить код. Попробуйте снова.");
+      setOtpCode("");
     } finally {
-      setVerifying(false);
+      setLoading(false);
     }
   };
 
-  const handleBackToLogin = () => {
-    router.push(paths.auth.signin);
-  };
-
-  const isSendDisabled = loading || cooldown > 0 || !email;
+  if (!codeSent) {
+    return (
+      <Card {...props}>
+        <CardHeader className="text-center">
+          <CardTitle className="text-xl">Подтвердите ваш email</CardTitle>
+          <CardDescription>
+            Для продолжения работы необходимо подтвердить ваш email адрес. Мы
+            отправим вам код подтверждения на почту.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {email && (
+            <div className="bg-muted rounded-lg p-3 text-center">
+              <p className="text-sm font-medium">{email}</p>
+            </div>
+          )}
+          <Button
+            onClick={handleSendCode}
+            disabled={loading || !email}
+            className="w-full"
+          >
+            {loading ? "Отправка…" : "Отправить код на email"}
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
-    <div className="w-full space-y-4">
-      {resent && (
-        <div className="bg-green-50 text-green-700 flex items-center gap-2 rounded-lg p-3 text-sm">
-          <CheckCircle className="size-4" />
-          <span>Код успешно отправлен!</span>
-        </div>
-      )}
-
-      {showOtpInput && (
-        <div className="space-y-3">
-          <div className="space-y-2">
-            <Label htmlFor="otp-code" className="text-center block">
-              Код подтверждения
-            </Label>
-            <div className="flex justify-center">
-              <InputOTP
-                maxLength={6}
-                value={otpCode}
-                onChange={setOtpCode}
-                disabled={verifying}
-              >
-                <InputOTPGroup>
-                  <InputOTPSlot index={0} />
-                  <InputOTPSlot index={1} />
-                  <InputOTPSlot index={2} />
-                  <InputOTPSlot index={3} />
-                  <InputOTPSlot index={4} />
-                  <InputOTPSlot index={5} />
-                </InputOTPGroup>
-              </InputOTP>
-            </div>
-            <p className="text-muted-foreground text-center text-xs">
-              Введите код из письма, отправленного на {email}
-            </p>
+    <Card {...props}>
+      <CardHeader className="text-center">
+        <CardTitle className="text-xl">Введите код подтверждения</CardTitle>
+        <CardDescription>
+          Мы отправили 6-значный код на {email}.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="space-y-2">
+          <div className="flex justify-center">
+            <InputOTP
+              maxLength={6}
+              value={otpCode}
+              onChange={(value) => {
+                setOtpCode(value);
+                if (value.length === 6) {
+                  handleVerify();
+                }
+              }}
+              disabled={loading}
+            >
+              <InputOTPGroup className="gap-2.5 *:data-[slot=input-otp-slot]:rounded-md *:data-[slot=input-otp-slot]:border">
+                <InputOTPSlot index={0} />
+                <InputOTPSlot index={1} />
+                <InputOTPSlot index={2} />
+                <InputOTPSlot index={3} />
+                <InputOTPSlot index={4} />
+                <InputOTPSlot index={5} />
+              </InputOTPGroup>
+            </InputOTP>
           </div>
-
-          <Button
-            onClick={handleVerifyOtp}
-            disabled={verifying || otpCode.length !== 6}
-            className="w-full"
-            variant="default"
-          >
-            {verifying ? (
-              <>
-                <Loader2 className="mr-2 size-4 animate-spin" />
-                Проверка кода...
-              </>
-            ) : (
-              <>
-                <CheckCircle className="mr-2 size-4" />
-                Подтвердить email
-              </>
-            )}
-          </Button>
+          <p className="text-muted-foreground text-center text-sm">
+            Введите 6-значный код, отправленный на вашу почту.
+          </p>
         </div>
-      )}
-
-      <Button
-        onClick={handleSendOtp}
-        disabled={isSendDisabled}
-        className="w-full"
-        variant={showOtpInput ? "outline" : "default"}
-      >
-        {loading ? (
-          <>
-            <Loader2 className="mr-2 size-4 animate-spin" />
-            Отправка...
-          </>
-        ) : cooldown > 0 ? (
-          <>
-            <Mail className="mr-2 size-4" />
-            Отправить повторно ({cooldown}s)
-          </>
-        ) : (
-          <>
-            <Mail className="mr-2 size-4" />
-            {showOtpInput ? "Отправить код повторно" : "Отправить код на email"}
-          </>
-        )}
-      </Button>
-
-      <Button
-        onClick={handleBackToLogin}
-        variant="outline"
-        className="w-full"
-        disabled={loading || verifying}
-      >
-        Вернуться ко входу
-      </Button>
-    </div>
+        <Button
+          onClick={handleVerify}
+          className="w-full"
+          disabled={loading || otpCode.length !== 6}
+        >
+          {loading ? "Проверка…" : "Подтвердить"}
+        </Button>
+        <p className="text-muted-foreground text-center text-sm">
+          Не получили код?{" "}
+          <button
+            type="button"
+            onClick={handleResend}
+            disabled={countdown > 0 || resending}
+            className="text-primary underline-offset-4 hover:underline disabled:opacity-50 disabled:cursor-not-allowed disabled:no-underline"
+          >
+            {resending
+              ? "Отправка…"
+              : countdown > 0
+                ? `Отправить повторно (${countdown}с)`
+                : "Отправить повторно"}
+          </button>
+        </p>
+      </CardContent>
+    </Card>
   );
 }
