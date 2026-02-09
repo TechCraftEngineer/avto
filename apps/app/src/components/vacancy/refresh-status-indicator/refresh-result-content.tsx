@@ -8,7 +8,7 @@ interface RefreshResultContentProps {
 export function RefreshResultContent({ result }: RefreshResultContentProps) {
   if (result.success) {
     return (
-      <div className="space-y-3 rounded-lg border bg-linear-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 p-3 mt-2">
+      <div className="space-y-3 rounded-lg border bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 p-3 mt-2">
         <div className="grid grid-cols-2 gap-3">
           <div className="text-center">
             <div className="text-xl font-bold text-foreground">

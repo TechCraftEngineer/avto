@@ -11,7 +11,7 @@ export function ArchivedStatusContent({ status }: ArchivedStatusContentProps) {
 
       {(status.syncedResponses !== undefined ||
         status.newResponses !== undefined) && (
-        <div className="rounded-lg border bg-blue-50 dark:bg-blue-950/20 p-3 mb-2">
+        <div className="rounded-lg border bg-gradient-to-br from-blue-50 to-blue-50 dark:bg-blue-950/20 p-3 mb-2">
           <div className="grid grid-cols-2 gap-3">
             <div className="text-center">
               <div className="text-xl font-bold text-foreground">
