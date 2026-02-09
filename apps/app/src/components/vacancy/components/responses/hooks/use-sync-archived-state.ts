@@ -95,7 +95,11 @@ export function useSyncArchivedState(
     onStatusChange: useCallback(
       (status: string, message: string) => {
         if (status === "completed") {
-          setState((prev) => ({ ...prev, status: "success" }));
+          setState((prev) => ({
+            ...prev,
+            status: "success",
+            subscriptionActive: false,
+          }));
           onRefreshComplete();
 
           // Очищаем предыдущий таймер перед установкой нового
@@ -110,6 +114,7 @@ export function useSyncArchivedState(
             ...prev,
             status: "error",
             error: message,
+            subscriptionActive: false,
           }));
           onRefreshComplete();
         }

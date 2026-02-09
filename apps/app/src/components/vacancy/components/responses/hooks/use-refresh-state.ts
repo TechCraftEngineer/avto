@@ -85,6 +85,7 @@ export function useRefreshState(
               ? `Получено новых откликов: ${newCount} из ${totalResponses}`
               : `Новых откликов нет. Всего откликов: ${totalResponses}`
             : "Процесс завершился с ошибками",
+          subscriptionActive: false,
         }));
 
         onRefreshComplete();

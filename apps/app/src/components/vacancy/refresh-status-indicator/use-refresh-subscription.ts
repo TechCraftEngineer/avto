@@ -287,6 +287,13 @@ export function useRefreshSubscription({
           }
 
           if (progressData.status === "completed") {
+            // Инвалидируем статус задания, чтобы отключить подписку
+            queryClient.invalidateQueries({
+              queryKey: trpc.vacancy.responses.getRefreshStatus.queryKey({
+                vacancyId,
+              }),
+            });
+
             const timer = setTimeout(() => {
               onVisibilityChange(false);
               setArchivedStatus(null);
@@ -364,6 +371,13 @@ export function useRefreshSubscription({
             queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
           });
 
+          // Инвалидируем статус задания, чтобы отключить подписку
+          queryClient.invalidateQueries({
+            queryKey: trpc.vacancy.responses.getRefreshStatus.queryKey({
+              vacancyId,
+            }),
+          });
+
           // Не закрываем окно автоматически для режима analyze
         }
       } else if (mode === "refresh" || isScreeningMode) {
@@ -395,6 +409,13 @@ export function useRefreshSubscription({
             queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
           });
 
+          // Инвалидируем статус задания, чтобы отключить подписку
+          queryClient.invalidateQueries({
+            queryKey: trpc.vacancy.responses.getRefreshStatus.queryKey({
+              vacancyId,
+            }),
+          });
+
           const timer = setTimeout(() => {
             onVisibilityChange(false);
             setCurrentProgress(null);
@@ -413,6 +434,7 @@ export function useRefreshSubscription({
     onVisibilityChange,
     queryClient,
     trpc.vacancy.responses.list,
+    trpc.vacancy.responses.getRefreshStatus,
     vacancyId,
   ]);
 

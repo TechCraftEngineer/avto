@@ -89,6 +89,7 @@ export function useRefreshAllResumesState(
         message: success
           ? `Обновление резюме завершено! Обработано: ${progress.processed} из ${progress.total}`
           : "Процесс завершился с ошибками",
+        subscriptionActive: false,
       }));
 
       // Очищаем предыдущий таймер перед установкой нового

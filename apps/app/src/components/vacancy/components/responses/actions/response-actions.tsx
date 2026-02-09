@@ -114,9 +114,11 @@ export function ResponseActions({
       toast.error(result.error || "Не удалось обновить резюме");
     }
 
+    // Отключаем подписку сразу после получения результата
+    setRefreshEnabled(false);
+
     const timer = setTimeout(() => {
       reset();
-      setRefreshEnabled(false);
     }, 3000);
 
     return () => clearTimeout(timer);
