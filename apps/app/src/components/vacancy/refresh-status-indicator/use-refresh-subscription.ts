@@ -21,6 +21,7 @@ interface UseRefreshSubscriptionProps {
   vacancyId: string;
   mode: SyncMode;
   onVisibilityChange: (visible: boolean) => void;
+  onDataReceived?: () => void;
   initialStatus?: {
     isRunning: boolean;
     status: string | null;
@@ -44,6 +45,7 @@ export function useRefreshSubscription({
   vacancyId,
   mode,
   onVisibilityChange,
+  onDataReceived,
   initialStatus,
 }: UseRefreshSubscriptionProps) {
   const [currentProgress, setCurrentProgress] = useState<ProgressData | null>(
@@ -262,8 +264,9 @@ export function useRefreshSubscription({
     if (data.length > 0) {
       setIsConnecting(false);
       onVisibilityChange(true);
+      onDataReceived?.();
     }
-  }, [data.length, onVisibilityChange]);
+  }, [data.length, onVisibilityChange, onDataReceived]);
 
   // Обрабатываем все сообщения из канала
   useEffect(() => {

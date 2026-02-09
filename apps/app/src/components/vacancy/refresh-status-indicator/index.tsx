@@ -3,7 +3,7 @@
 import { cn } from "@qbs-autonaim/ui";
 import { Card } from "@qbs-autonaim/ui/card";
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTRPC } from "~/trpc/react";
 import { ConfirmationView } from "./confirmation-view";
 import { ProgressView } from "./progress-view";
@@ -24,6 +24,7 @@ export function RefreshStatusIndicator({
   const [isVisible, setIsVisible] = useState(false);
   const [internalShowConfirmation, setInternalShowConfirmation] =
     useState(false);
+  const [isInitiating, setIsInitiating] = useState(false);
 
   const trpc = useTRPC();
   const showConfirmation = externalShowConfirmation ?? internalShowConfirmation;
@@ -47,8 +48,19 @@ export function RefreshStatusIndicator({
       (isScreeningMode && initialStatus.eventType === "response/screen.new") ||
       (isAnalyzeMode && initialStatus.eventType === "response/screen.batch"));
 
+  // Автоматически показываем компонент если есть активное задание (например, после перезагрузки страницы)
+  useEffect(() => {
+    if (hasActiveTaskForMode && !showConfirmation) {
+      setIsVisible(true);
+    }
+  }, [hasActiveTaskForMode, showConfirmation]);
+
   const handleVisibilityChange = useCallback((visible: boolean) => {
     setIsVisible(visible);
+  }, []);
+
+  const handleDataReceived = useCallback(() => {
+    setIsInitiating(false);
   }, []);
 
   const {
@@ -64,12 +76,14 @@ export function RefreshStatusIndicator({
     vacancyId,
     mode,
     onVisibilityChange: handleVisibilityChange,
+    onDataReceived: handleDataReceived,
     initialStatus: initialStatus ?? null,
   });
 
   const handleStartRefresh = () => {
     setInternalShowConfirmation(false);
     setIsVisible(true);
+    setIsInitiating(true);
     onConfirmationClose?.();
     onConfirm?.();
   };
@@ -77,13 +91,14 @@ export function RefreshStatusIndicator({
   const handleClose = () => {
     setIsVisible(false);
     setInternalShowConfirmation(false);
+    setIsInitiating(false);
     clearAutoCloseTimer();
     onConfirmationClose?.();
   };
 
   // Не рендерим компонент если:
   // 1. Компонент явно скрыт пользователем
-  // 2. ИЛИ (нет активного задания И не показывается диалог подтверждения И нет внешнего прогресса)
+  // 2. ИЛИ (нет активного задания И не показывается диалог подтверждения И нет внешнего прогресса И не в процессе инициализации)
   const hasExternalProgress =
     (isScreeningMode || isAnalyzeMode) && (externalMessage || externalProgress);
 
@@ -93,7 +108,12 @@ export function RefreshStatusIndicator({
   }
 
   // Если нет причин показывать - не показываем
-  if (!hasActiveTaskForMode && !showConfirmation && !hasExternalProgress) {
+  if (
+    !hasActiveTaskForMode &&
+    !showConfirmation &&
+    !hasExternalProgress &&
+    !isInitiating
+  ) {
     return null;
   }
 
