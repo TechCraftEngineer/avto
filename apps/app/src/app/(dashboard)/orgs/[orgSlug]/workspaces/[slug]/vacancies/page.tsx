@@ -118,12 +118,12 @@ export default function VacanciesPage() {
         <div className="flex items-center gap-2">
           <Button asChild className="h-9 gap-2 shadow-sm active:scale-95">
             <Link
-              href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies/create`}
-              title="Создать новую вакансию вручную"
+              href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies/import`}
+              title="Импортировать вакансии с HH.ru, Avito и других платформ"
             >
-              <IconPlus className="size-4" />
-              <span className="hidden sm:inline">Создать вакансию</span>
-              <span className="sm:hidden">Создать</span>
+              <IconDownload className="size-4" />
+              <span className="hidden sm:inline">Добавить с HH/Avito</span>
+              <span className="sm:hidden">Импорт</span>
             </Link>
           </Button>
           <Button
@@ -132,12 +132,12 @@ export default function VacanciesPage() {
             className="h-9 gap-2 shadow-sm active:scale-95"
           >
             <Link
-              href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies/import`}
-              title="Импортировать вакансии с HH.ru, Avito и других платформ"
+              href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies/create`}
+              title="Создать новую вакансию вручную"
             >
-              <IconDownload className="size-4" />
-              <span className="hidden sm:inline">Добавить с HH/Avito</span>
-              <span className="sm:hidden">Импорт</span>
+              <IconPlus className="size-4" />
+              <span className="hidden sm:inline">Создать вручную</span>
+              <span className="sm:hidden">Создать</span>
             </Link>
           </Button>
         </div>

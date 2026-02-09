@@ -53,6 +53,9 @@ export function SiteHeader({ user, children }: SiteHeaderProps) {
   const initials = getInitials(user.name);
   const avatarUrl = getAvatarUrl(user.avatar, user.name);
 
+  // TODO: Заменить на реальные данные из API
+  const hasNotifications = false;
+
   const handleLogout = async () => {
     await signOut({
       fetchOptions: {
@@ -118,7 +121,9 @@ export function SiteHeader({ user, children }: SiteHeaderProps) {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="size-8 relative">
                 <Bell aria-hidden="true" />
-                <span className="bg-destructive absolute end-0.5 top-0.5 block size-1.5 shrink-0 rounded-full" />
+                {hasNotifications && (
+                  <span className="bg-destructive absolute end-0.5 top-0.5 block size-1.5 shrink-0 rounded-full" />
+                )}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
