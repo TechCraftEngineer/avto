@@ -15,6 +15,7 @@ import { fetchRefreshVacancyResponsesToken } from "~/actions/realtime";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
 import { BulkActionsBar } from "../actions/bulk-actions-bar";
+import { useVacancyOperation } from "../context/vacancy-responses-context";
 import { useColumnVisibility } from "../hooks/use-column-visibility";
 import { useRefreshSubscription } from "../hooks/use-refresh-subscription";
 import { useResponseActions } from "../hooks/use-response-actions";
@@ -59,6 +60,7 @@ export function ResponseTable({
 }: ResponseTableProps) {
   const trpc = useTRPC();
   const { workspace, orgSlug } = useWorkspace();
+  const archivedOp = useVacancyOperation("archived");
   const {
     currentPage,
     setCurrentPage,
@@ -318,7 +320,7 @@ export function ResponseTable({
           hasResponses={total > 0}
           colSpan={visibleColumnCount}
           onRefresh={handleRefreshResponses}
-          onSyncArchived={handleSyncArchivedWithWorkspace}
+          onSyncArchivedDialogOpen={archivedOp.openConfirmation}
           isRefreshing={isRefreshing}
           isSyncingArchived={isSyncingArchived}
           source={vacancyData?.source}
