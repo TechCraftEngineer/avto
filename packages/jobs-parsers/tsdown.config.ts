@@ -11,6 +11,6 @@ export default defineConfig({
   minify: isProduction,
   tsconfig: "tsconfig.json",
   dts: {
-    eager: true,
+    eager: false, // Changed to false to reduce memory usage
   },
 });

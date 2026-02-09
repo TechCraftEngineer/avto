@@ -11,8 +11,8 @@
   },
   "license": "MIT",
   "scripts": {
-    "build": "tsdown",
-    "dev": "tsdown --watch",
+    "build": "NODE_OPTIONS='--max-old-space-size=4096' tsdown",
+    "dev": "NODE_OPTIONS='--max-old-space-size=4096' tsdown --watch",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "format": "prettier --check . --ignore-path ../../.gitignore",
     "lint": "biome lint .",
