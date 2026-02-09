@@ -4,7 +4,7 @@ export default defineConfig({
   clean: true,
   dts: true,
   entry: ["src/index.ts", "src/hooks.ts", "src/middleware.ts", "src/api.ts"],
-  format: ["cjs", "esm"],
+  format: ["esm"],
   outDir: "dist",
   tsconfig: "tsconfig.build.json",
   target: "node20",
