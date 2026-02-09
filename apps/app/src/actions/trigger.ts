@@ -1,6 +1,6 @@
 "use server";
 
-import { getSubscriptionToken } from "@qbs-autonaim/inngest-realtime";
+import { getSubscriptionToken } from "@bunworks/inngest-realtime";
 import { inngest } from "@qbs-autonaim/jobs/client";
 
 export async function getParseResumesToken() {

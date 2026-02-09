@@ -1,6 +1,6 @@
 "use client";
 
-import { useInngestSubscription } from "@qbs-autonaim/inngest-realtime/hooks";
+import { useInngestSubscription } from "@bunworks/inngest-realtime/hooks";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
