@@ -1,6 +1,6 @@
 "use client";
 
-import { useInngestSubscription } from "@qbs-autonaim/inngest-realtimetimetimetimetime/hooks";
+import { useInngestSubscription } from "@qbs-autonaim/inngest-realtime/hooks";
 import {
   Button,
   Card,

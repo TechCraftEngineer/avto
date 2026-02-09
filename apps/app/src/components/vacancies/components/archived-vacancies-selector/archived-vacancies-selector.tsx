@@ -1,6 +1,6 @@
 "use client";
 
-import { useInngestSubscription } from "@qbs-autonaim/inngest-realtimerealtime/hooks";
+import { useInngestSubscription } from "@qbs-autonaim/inngest-realtime/hooks";
 import {
   Alert,
   AlertDescription,

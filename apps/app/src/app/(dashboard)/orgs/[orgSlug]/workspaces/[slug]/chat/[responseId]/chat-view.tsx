@@ -1,8 +1,6 @@
 "use client";
 
-import { paths } from
-"@qbs-autonaim/con@qbs-autonaim/inngest-realtime
-
+import { paths } from "@qbs-autonaim/config";
 import { useInngestSubscription } from "@qbs-autonaim/inngest-realtime/hooks";
 import { Button } from "@qbs-autonaim/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@qbs-autonaim/ui/sheet";

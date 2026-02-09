@@ -1,6 +1,6 @@
 "use server";
 
-import { getSubscriptionToken } from "@qbs-autonaim/inngest-realtimetime";
+import { getSubscriptionToken } from "@qbs-autonaim/inngest-realtime";
 import {
   analyzeResponseChannel,
   fetchArchivedListChannel,
