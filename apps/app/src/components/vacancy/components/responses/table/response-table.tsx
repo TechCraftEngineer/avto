@@ -158,8 +158,16 @@ export function ResponseTable({
     enabled: isRefreshing,
     fetchToken: fetchRefreshVacancyResponsesToken,
     onComplete: (success) => {
-      if (success) {
-        handleRefreshComplete();
+      // Всегда завершаем состояние обновления, независимо от результата
+      handleRefreshComplete();
+
+      // Обрабатываем ошибку отдельно
+      if (!success) {
+        console.error(
+          "Ошибка при обновлении откликов для вакансии:",
+          vacancyId,
+        );
+        // Можно добавить toast уведомление или установить состояние ошибки
       }
     },
   });

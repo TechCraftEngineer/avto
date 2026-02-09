@@ -111,16 +111,6 @@ export const screenAllResponsesFunction = inngest.createFunction(
     }
 
     // Обрабатываем каждый отклик с отслеживанием прогресса
-    const progressByVacancy: Record<
-      string,
-      { processed: number; failed: number }
-    > = {};
-
-    // Инициализируем счетчики для каждой вакансии
-    for (const vacancyId of Object.keys(responsesByVacancy)) {
-      progressByVacancy[vacancyId] = { processed: 0, failed: 0 };
-    }
-
     const results = await Promise.allSettled(
       responses.map(async (resp) => {
         return await step.run(`screen-response-${resp.id}`, async () => {
@@ -134,71 +124,74 @@ export const screenAllResponsesFunction = inngest.createFunction(
               score: result.detailedScore,
             });
 
-            // Обновляем прогресс для вакансии
-            const vacancyId = resp.entityId;
-            const vacancyProgress = progressByVacancy[vacancyId];
-            if (vacancyProgress) {
-              vacancyProgress.processed++;
-
-              const vacancyResponses = responsesByVacancy[vacancyId];
-              if (vacancyResponses) {
-                console.log(
-                  `📊 Прогресс для ${vacancyId}: ${vacancyProgress.processed}/${vacancyResponses.length}`,
-                );
-                await publish(
-                  screenAllResponsesChannel(vacancyId).progress({
-                    vacancyId,
-                    status: "processing",
-                    message: `Обработано ${vacancyProgress.processed} из ${vacancyResponses.length} откликов`,
-                    total: vacancyResponses.length,
-                    processed: vacancyProgress.processed,
-                    failed: vacancyProgress.failed,
-                  }),
-                );
-              }
-            }
-
             return {
               responseId: resp.id,
               vacancyId: resp.entityId,
               success: true,
+              processed: 1,
+              failed: 0,
               score: result.detailedScore,
             };
           } catch (error) {
             console.error(`❌ Ошибка скрининга для ${resp.id}:`, error);
 
-            // Обновляем прогресс для вакансии
-            const vacancyId = resp.entityId;
-            const vacancyProgress = progressByVacancy[vacancyId];
-            if (vacancyProgress) {
-              vacancyProgress.processed++;
-              vacancyProgress.failed++;
-
-              const vacancyResponses = responsesByVacancy[vacancyId];
-              if (vacancyResponses) {
-                await publish(
-                  screenAllResponsesChannel(vacancyId).progress({
-                    vacancyId,
-                    status: "processing",
-                    message: `Обработано ${vacancyProgress.processed} из ${vacancyResponses.length} откликов`,
-                    total: vacancyResponses.length,
-                    processed: vacancyProgress.processed,
-                    failed: vacancyProgress.failed,
-                  }),
-                );
-              }
-            }
-
             return {
               responseId: resp.id,
               vacancyId: resp.entityId,
               success: false,
+              processed: 1,
+              failed: 1,
               error: error instanceof Error ? error.message : "Unknown error",
             };
           }
         });
       }),
     );
+
+    // Агрегируем результаты после завершения всех задач
+    const progressByVacancy: Record<
+      string,
+      { processed: number; failed: number }
+    > = {};
+
+    // Инициализируем счетчики для каждой вакансии
+    for (const vacancyId of Object.keys(responsesByVacancy)) {
+      progressByVacancy[vacancyId] = { processed: 0, failed: 0 };
+    }
+
+    // Собираем результаты из settled promises
+    for (const result of results) {
+      if (result.status === "fulfilled") {
+        const { vacancyId, processed, failed } = result.value;
+        const vacancyProgress = progressByVacancy[vacancyId];
+        if (vacancyProgress) {
+          vacancyProgress.processed += processed;
+          vacancyProgress.failed += failed;
+        }
+      }
+    }
+
+    // Отправляем прогресс для каждой вакансии после агрегации
+    for (const [vacancyId, vacancyResponses] of Object.entries(
+      responsesByVacancy,
+    )) {
+      const vacancyProgress = progressByVacancy[vacancyId];
+      if (vacancyProgress) {
+        console.log(
+          `📊 Итоговый прогресс для ${vacancyId}: ${vacancyProgress.processed}/${vacancyResponses.length}`,
+        );
+        await publish(
+          screenAllResponsesChannel(vacancyId).progress({
+            vacancyId,
+            status: "processing",
+            message: `Обработано ${vacancyProgress.processed} из ${vacancyResponses.length} откликов`,
+            total: vacancyResponses.length,
+            processed: vacancyProgress.processed,
+            failed: vacancyProgress.failed,
+          }),
+        );
+      }
+    }
 
     const successful = results.filter((r) => r.status === "fulfilled").length;
     const failed = results.filter((r) => r.status === "rejected").length;

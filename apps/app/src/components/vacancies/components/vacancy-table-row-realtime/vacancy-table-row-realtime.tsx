@@ -52,14 +52,45 @@ export function VacancyTableRowRealtime({
   const totalResponses = vacancy.totalResponsesCount;
   const newResponses = vacancy.newResponses;
   const resumesInProgress = vacancy.resumesInProgress;
-  const isActive = vacancy.isActive;
+
+  // Нормализуем статус вакансии с явной обработкой null/undefined
+  const vacancyStatus = (() => {
+    if (vacancy.isActive === true) {
+      return {
+        label: "Активна",
+        toneClass: "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]",
+        tooltip: "Деактивировать вакансию",
+        switchChecked: true,
+      };
+    }
+    if (vacancy.isActive === false) {
+      return {
+        label: "Закрыта",
+        toneClass: "bg-zinc-300",
+        tooltip: "Активировать вакансию",
+        switchChecked: false,
+      };
+    }
+    // null или undefined означает архивный статус (специфично для HH)
+    return {
+      label: "Архив",
+      toneClass: "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.4)]",
+      tooltip: "Вакансия в архиве на платформе. Управление статусом недоступно",
+      switchChecked: false,
+    };
+  })();
+
+  const isArchived =
+    vacancy.isActive === null || vacancy.isActive === undefined;
 
   // Мутация для обновления статуса вакансии
   const updateStatusMutation = useMutation(
     trpc.freelancePlatforms.updateVacancyStatus.mutationOptions({
       onSuccess: async () => {
         toast.success(
-          isActive ? "Вакансия деактивирована" : "Вакансия активирована",
+          vacancy.isActive
+            ? "Вакансия деактивирована"
+            : "Вакансия активирована",
         );
         await queryClient.invalidateQueries({
           queryKey: trpc.freelancePlatforms.getVacancies.queryKey(),
@@ -72,7 +103,7 @@ export function VacancyTableRowRealtime({
   );
 
   const handleStatusToggle = (checked: boolean) => {
-    if (!workspaceId) return;
+    if (!workspaceId || isArchived) return;
 
     updateStatusMutation.mutate({
       id: vacancy.id,
@@ -141,33 +172,35 @@ export function VacancyTableRowRealtime({
             <TooltipTrigger asChild>
               <div className="flex items-center">
                 <Switch
-                  checked={isActive ?? false}
+                  checked={vacancyStatus.switchChecked}
                   onCheckedChange={handleStatusToggle}
-                  disabled={updateStatusMutation.isPending}
-                  aria-label={
-                    isActive
-                      ? "Деактивировать вакансию"
-                      : "Активировать вакансию"
-                  }
+                  disabled={updateStatusMutation.isPending || isArchived}
+                  aria-label={vacancyStatus.tooltip}
                 />
               </div>
             </TooltipTrigger>
             <TooltipContent side="top" className="text-sm">
-              {isActive ? "Деактивировать вакансию" : "Активировать вакансию"}
+              {vacancyStatus.tooltip}
             </TooltipContent>
           </Tooltip>
-          <div className="flex items-center gap-2">
-            <div
-              className={`size-2 rounded-full ${
-                isActive
-                  ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]"
-                  : "bg-zinc-300"
-              }`}
-            />
-            <span className="text-sm font-medium">
-              {isActive ? "Активна" : "Закрыта"}
-            </span>
-          </div>
+          <Tooltip delayDuration={300}>
+            <TooltipTrigger asChild>
+              <div className="flex items-center gap-2">
+                <div
+                  className={`size-2 rounded-full ${vacancyStatus.toneClass}`}
+                />
+                <span className="text-sm font-medium">
+                  {vacancyStatus.label}
+                </span>
+              </div>
+            </TooltipTrigger>
+            {isArchived && (
+              <TooltipContent side="top" className="max-w-xs text-sm">
+                Вакансия находится в архиве на платформе HeadHunter. Изменение
+                статуса возможно только через интерфейс платформы
+              </TooltipContent>
+            )}
+          </Tooltip>
         </div>
       </TableCell>
 

@@ -1,24 +1,57 @@
 import { z } from "zod";
 
+// Брендированные типы для валидации
+const NonEmptyString = z.string().min(1, "Строка не может быть пустой");
+const PositiveInt = z
+  .number()
+  .int("Должно быть целым числом")
+  .positive("Должно быть положительным числом");
+
 // Схема быстрого ответа
 export const QuickReplySchema = z.object({
-  id: z.string(),
-  label: z.string(),
-  value: z.string(),
+  id: NonEmptyString,
+  label: NonEmptyString,
+  value: NonEmptyString,
   multiSelect: z.boolean().optional(),
   freeform: z.boolean().optional(),
-  placeholder: z.string().optional(),
-  maxLength: z.number().optional(),
+  placeholder: NonEmptyString.optional(),
+  maxLength: PositiveInt.optional(),
 });
 
 // Схема сообщения в диалоге с AI-ботом
-export const MessageSchema = z.object({
-  role: z.enum(["user", "assistant"]),
-  content: z.string(),
-  timestamp: z.date(),
-  quickReplies: z.array(QuickReplySchema).optional(),
-  isMultiSelect: z.boolean().optional(),
-});
+export const MessageSchema = z
+  .object({
+    role: z.enum(["user", "assistant"]),
+    content: z.string(),
+    timestamp: z.date(),
+    quickReplies: z.array(QuickReplySchema).optional(),
+    isMultiSelect: z.boolean().optional(),
+  })
+  .superRefine((data, ctx) => {
+    // Если isMultiSelect === true, quickReplies должен существовать и быть непустым
+    if (data.isMultiSelect === true) {
+      if (!data.quickReplies || data.quickReplies.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["quickReplies"],
+          message:
+            "quickReplies должен быть непустым массивом, когда isMultiSelect установлен в true",
+        });
+      }
+    }
+
+    // Если quickReplies присутствует и непустой, isMultiSelect должен быть явно определён
+    if (data.quickReplies && data.quickReplies.length > 0) {
+      if (data.isMultiSelect === undefined) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["isMultiSelect"],
+          message:
+            "isMultiSelect должен быть явно определён, когда присутствует quickReplies",
+        });
+      }
+    }
+  });
 
 // Схема данных вакансии
 export const VacancyDataSchema = z.object({
