@@ -388,10 +388,6 @@
         "vite-tsconfig-paths": "^6.1.0",
         "vitest": "^4.0.18",
       },
-      "peerDependencies": {
-        "react": ">=18.0.0",
-        "zod": "^4.0.0",
-      },
     },
     "packages/jobs": {
       "name": "@qbs-autonaim/jobs",
