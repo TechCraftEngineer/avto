@@ -98,7 +98,10 @@ export function ProgressView({
     currentProgress,
     currentResult,
   })
-    .with({ mode: "archived", archivedStatus: P.nullish }, () => "Подключение…")
+    .with(
+      { mode: "archived", archivedStatus: P.nullish },
+      () => "Запуск синхронизации…",
+    )
     .with(
       { mode: "archived", archivedStatus: { status: "started" } },
       () => "Задание в очереди",
@@ -134,8 +137,8 @@ export function ProgressView({
     )
     .with({ mode: "analyze" }, () => "Запуск анализа…")
     .with(
-      { currentProgress: P.nullish, currentResult: P.nullish },
-      () => "Подключение…",
+      { mode: "refresh", currentProgress: P.nullish, currentResult: P.nullish },
+      () => "Запуск получения откликов…",
     )
     .with({ currentProgress: { status: "started" } }, () => "Задание в очереди")
     .with(
@@ -144,7 +147,7 @@ export function ProgressView({
     )
     .with({ currentProgress: { status: "error" } }, () => "Ошибка обновления")
     .with({ currentResult: P.not(P.nullish) }, () => "Получение завершено")
-    .otherwise(() => "Подключение…");
+    .otherwise(() => "Загрузка…");
 
   const showPageNumber =
     mode === "refresh" && currentProgress?.currentPage !== undefined;
@@ -176,7 +179,7 @@ export function ProgressView({
         {showConnecting && (
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Loader2 className="h-3 w-3 animate-spin" />
-            <span>Подключение к серверу…</span>
+            <span>Инициализация…</span>
           </div>
         )}
 

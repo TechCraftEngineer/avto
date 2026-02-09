@@ -4,6 +4,7 @@ import { cn } from "@qbs-autonaim/ui";
 import { Card } from "@qbs-autonaim/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { match, P } from "ts-pattern";
 import { useTRPC } from "~/trpc/react";
 import { ConfirmationView } from "./confirmation-view";
 import { ProgressView } from "./progress-view";
@@ -22,6 +23,7 @@ export function RefreshStatusIndicator({
   progress: externalProgress,
 }: RefreshStatusIndicatorProps) {
   const [showDialog, setShowDialog] = useState(false);
+  const [taskStarted, setTaskStarted] = useState(false);
   const trpc = useTRPC();
 
   // Проверяем статус при монтировании
@@ -30,16 +32,39 @@ export function RefreshStatusIndicator({
   );
 
   // Определяем, есть ли активное задание для текущего режима
-  const hasActiveTask =
-    initialStatus?.isRunning === true &&
-    ((mode === "archived" &&
-      initialStatus.eventType === "vacancy/responses.sync-archived") ||
-      (mode === "refresh" &&
-        initialStatus.eventType === "vacancy/responses.refresh") ||
-      (mode === "screening" &&
-        initialStatus.eventType === "response/screen.new") ||
-      (mode === "analyze" &&
-        initialStatus.eventType === "response/screen.batch"));
+  const hasActiveTask = match({ mode, initialStatus })
+    .with(
+      {
+        initialStatus: { isRunning: true },
+        mode: "archived",
+      },
+      ({ initialStatus }) =>
+        initialStatus.eventType === "vacancy/responses.sync-archived",
+    )
+    .with(
+      {
+        initialStatus: { isRunning: true },
+        mode: "refresh",
+      },
+      ({ initialStatus }) =>
+        initialStatus.eventType === "vacancy/responses.refresh",
+    )
+    .with(
+      {
+        initialStatus: { isRunning: true },
+        mode: "screening",
+      },
+      ({ initialStatus }) => initialStatus.eventType === "response/screen.new",
+    )
+    .with(
+      {
+        initialStatus: { isRunning: true },
+        mode: "analyze",
+      },
+      ({ initialStatus }) =>
+        initialStatus.eventType === "response/screen.batch",
+    )
+    .otherwise(() => false);
 
   const [isVisible, setIsVisible] = useState(hasActiveTask);
 
@@ -64,6 +89,7 @@ export function RefreshStatusIndicator({
   const handleStartRefresh = () => {
     setShowDialog(false);
     setIsVisible(true);
+    setTaskStarted(true);
     onConfirmationClose?.();
     onConfirm?.();
   };
@@ -76,18 +102,27 @@ export function RefreshStatusIndicator({
   };
 
   // Определяем, нужно ли показывать компонент
-  const hasData =
-    currentProgress ||
-    currentResult ||
-    archivedStatus ||
-    analyzeProgress ||
-    analyzeCompleted ||
-    externalMessage ||
-    externalProgress;
+  const hasData = match({
+    currentProgress,
+    currentResult,
+    archivedStatus,
+    analyzeProgress,
+    analyzeCompleted,
+    externalMessage,
+    externalProgress,
+  })
+    .with({ currentProgress: P.not(P.nullish) }, () => true)
+    .with({ currentResult: P.not(P.nullish) }, () => true)
+    .with({ archivedStatus: P.not(P.nullish) }, () => true)
+    .with({ analyzeProgress: P.not(P.nullish) }, () => true)
+    .with({ analyzeCompleted: P.not(P.nullish) }, () => true)
+    .with({ externalMessage: P.not(P.nullish) }, () => true)
+    .with({ externalProgress: P.not(P.nullish) }, () => true)
+    .otherwise(() => false);
 
   const shouldShow =
     showConfirmation ||
-    (isVisible && (hasActiveTask || hasData || isConnecting));
+    (isVisible && (hasActiveTask || hasData || isConnecting || taskStarted));
 
   if (!shouldShow) {
     return null;

@@ -1,0 +1,225 @@
+import type { QueryClient } from "@tanstack/react-query";
+import {
+  analyzeProgressDataSchema,
+  analyzeResultDataSchema,
+  archivedStatusDataSchema,
+  progressDataSchema,
+  resultDataSchema,
+} from "./schemas";
+import type {
+  AnalyzeCompletedData,
+  AnalyzeProgressData,
+  ArchivedStatusData,
+  ProgressData,
+  ResultData,
+} from "./types";
+
+type TRPCClient = {
+  vacancy: {
+    responses: {
+      list: {
+        queryKey: (input: { vacancyId: string }) => unknown[];
+      };
+      getRefreshStatus: {
+        queryKey: (input: { vacancyId: string }) => unknown[];
+      };
+    };
+  };
+};
+
+interface MessageHandlerContext {
+  vacancyId: string;
+  queryClient: QueryClient;
+  trpc: TRPCClient;
+  onVisibilityChange: (visible: boolean) => void;
+  setArchivedStatus: (status: ArchivedStatusData | null) => void;
+  setAnalyzeProgress: (progress: AnalyzeProgressData | null) => void;
+  setAnalyzeCompleted: (completed: AnalyzeCompletedData | null) => void;
+  setCurrentProgress: (progress: ProgressData | null) => void;
+  setCurrentResult: (result: ResultData | null) => void;
+  setAutoCloseTimer: (
+    timer: NodeJS.Timeout | null | ((prev: NodeJS.Timeout | null) => null),
+  ) => void;
+}
+
+export function handleArchivedProgress(
+  message: { data: unknown },
+  context: MessageHandlerContext,
+) {
+  const parseResult = archivedStatusDataSchema.safeParse(message.data);
+  if (!parseResult.success) {
+    console.error("Ошибка валидации archived status data:", parseResult.error);
+    return;
+  }
+
+  const progressData = parseResult.data;
+  context.setArchivedStatus(progressData);
+  context.onVisibilityChange(true);
+
+  // Инвалидируем кэш откликов при обработке
+  if (
+    progressData.status === "processing" ||
+    progressData.status === "completed"
+  ) {
+    context.queryClient.invalidateQueries({
+      queryKey: context.trpc.vacancy.responses.list.queryKey({
+        vacancyId: context.vacancyId,
+      }),
+    });
+  }
+
+  if (progressData.status === "completed") {
+    // Инвалидируем статус задания, чтобы отключить подписку
+    context.queryClient.invalidateQueries({
+      queryKey: context.trpc.vacancy.responses.getRefreshStatus.queryKey({
+        vacancyId: context.vacancyId,
+      }),
+    });
+
+    const timer = setTimeout(() => {
+      context.onVisibilityChange(false);
+      context.setArchivedStatus(null);
+    }, 3000);
+    context.setAutoCloseTimer(timer);
+  } else {
+    context.setAutoCloseTimer((prev) => {
+      if (prev) {
+        clearTimeout(prev);
+      }
+      return null;
+    });
+  }
+}
+
+export function handleAnalyzeProgress(
+  message: { data: unknown },
+  context: MessageHandlerContext,
+) {
+  const analyzeParseResult = analyzeProgressDataSchema.safeParse(message.data);
+
+  if (analyzeParseResult.success) {
+    context.setAnalyzeProgress(analyzeParseResult.data);
+    context.setAnalyzeCompleted(null);
+    context.onVisibilityChange(true);
+
+    // Инвалидируем кэш откликов при обработке каждого отклика
+    context.queryClient.invalidateQueries({
+      queryKey: context.trpc.vacancy.responses.list.queryKey({
+        vacancyId: context.vacancyId,
+      }),
+    });
+
+    context.setAutoCloseTimer((prev) => {
+      if (prev) {
+        clearTimeout(prev);
+      }
+      return null;
+    });
+  } else {
+    console.error(
+      "Ошибка валидации analyze progress data:",
+      analyzeParseResult.error,
+    );
+  }
+}
+
+export function handleAnalyzeResult(
+  message: { data: unknown },
+  context: MessageHandlerContext,
+) {
+  const parseResult = analyzeResultDataSchema.safeParse(message.data);
+  if (!parseResult.success) {
+    console.error("Ошибка валидации analyze result data:", parseResult.error);
+    return;
+  }
+
+  const resultData = parseResult.data;
+  const completedData: AnalyzeCompletedData = {
+    batchId: context.vacancyId,
+    total: resultData.total,
+    successful: resultData.processed,
+    failed: resultData.failed,
+  };
+  context.setAnalyzeCompleted(completedData);
+  context.onVisibilityChange(true);
+
+  // Финальная инвалидация при завершении
+  context.queryClient.invalidateQueries({
+    queryKey: context.trpc.vacancy.responses.list.queryKey({
+      vacancyId: context.vacancyId,
+    }),
+  });
+
+  // Инвалидируем статус задания, чтобы отключить подписку
+  context.queryClient.invalidateQueries({
+    queryKey: context.trpc.vacancy.responses.getRefreshStatus.queryKey({
+      vacancyId: context.vacancyId,
+    }),
+  });
+}
+
+export function handleRefreshProgress(
+  message: { data: unknown },
+  context: MessageHandlerContext,
+) {
+  const parseResult = progressDataSchema.safeParse(message.data);
+  if (!parseResult.success) {
+    console.error("Ошибка валидации progress data:", parseResult.error);
+    return;
+  }
+
+  const progressData = parseResult.data;
+  context.setCurrentProgress(progressData);
+  context.setCurrentResult(null);
+  context.onVisibilityChange(true);
+
+  // Инвалидируем кэш откликов при обработке
+  context.queryClient.invalidateQueries({
+    queryKey: context.trpc.vacancy.responses.list.queryKey({
+      vacancyId: context.vacancyId,
+    }),
+  });
+
+  context.setAutoCloseTimer((prev) => {
+    if (prev) {
+      clearTimeout(prev);
+    }
+    return null;
+  });
+}
+
+export function handleRefreshResult(
+  message: { data: unknown },
+  context: MessageHandlerContext,
+) {
+  const parseResult = resultDataSchema.safeParse(message.data);
+  if (!parseResult.success) {
+    console.error("Ошибка валидации result data:", parseResult.error);
+    return;
+  }
+
+  const resultData = parseResult.data;
+  context.setCurrentResult(resultData);
+  context.onVisibilityChange(true);
+
+  // Финальная инвалидация при завершении
+  context.queryClient.invalidateQueries({
+    queryKey: context.trpc.vacancy.responses.list.queryKey({
+      vacancyId: context.vacancyId,
+    }),
+  });
+
+  // Инвалидируем статус задания, чтобы отключить подписку
+  context.queryClient.invalidateQueries({
+    queryKey: context.trpc.vacancy.responses.getRefreshStatus.queryKey({
+      vacancyId: context.vacancyId,
+    }),
+  });
+
+  const timer = setTimeout(() => {
+    context.onVisibilityChange(false);
+    context.setCurrentProgress(null);
+    context.setCurrentResult(null);
+  }, 10000);
+  context.setAutoCloseTimer(timer);
+}

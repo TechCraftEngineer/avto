@@ -67,8 +67,8 @@ export function ImportArchivedProgress({
 
   // Сообщение о статусе
   const getMessage = () => {
-    if (error) return "Ошибка подключения";
-    if (!lastMessage) return "Подключение...";
+    if (error) return "Не удалось загрузить данные";
+    if (!lastMessage) return "Подготовка к импорту...";
 
     if (progress?.message) return progress.message;
 
