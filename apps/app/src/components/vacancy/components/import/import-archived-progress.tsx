@@ -12,7 +12,7 @@ import {
   Progress,
 } from "@qbs-autonaim/ui";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { fetchImportArchivedVacanciesToken } from "~/actions/vacancy-import";
 
 interface ImportArchivedProgressProps {
@@ -24,17 +24,21 @@ export function ImportArchivedProgress({
   workspaceId,
   onComplete,
 }: ImportArchivedProgressProps) {
-  const completedRef = useRef(false);
+  const [isCompleted, setIsCompleted] = useState(false);
 
   const { data, error } = useInngestSubscription({
     refreshToken: () => fetchImportArchivedVacanciesToken(workspaceId),
-    enabled: true,
+    enabled: !isCompleted,
   });
 
   const lastMessage = data[data.length - 1];
 
-  // Простое определение состояния
-  const isCompleted = lastMessage?.topic === "result";
+  // Определение состояния завершения
+  useEffect(() => {
+    if (lastMessage?.topic === "result") {
+      setIsCompleted(true);
+    }
+  }, [lastMessage]);
 
   const isError =
     error ||
@@ -51,15 +55,6 @@ export function ImportArchivedProgress({
 
   // Результаты
   const result = lastMessage?.topic === "result" ? lastMessage.data : null;
-
-  // Автозакрытие при завершении
-  useEffect(() => {
-    if (completedRef.current || !isCompleted) return;
-
-    completedRef.current = true;
-    const timer = setTimeout(onComplete, 2000);
-    return () => clearTimeout(timer);
-  }, [isCompleted, onComplete]);
 
   // Сообщение о статусе
   const getMessage = () => {
