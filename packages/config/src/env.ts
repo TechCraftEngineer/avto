@@ -123,7 +123,8 @@ export const env = createEnv({
 
     ENCRYPTION_KEY: z
       .string()
-      .length(64, "ENCRYPTION_KEY должен быть 64 символа (32 байта в hex)"),
+      .length(64, "ENCRYPTION_KEY должен быть 64 символа (32 байта в hex)")
+      .optional(),
     TG_CLIENT_PORT: z.string().optional().default("8001").transform(Number),
   },
   client: {

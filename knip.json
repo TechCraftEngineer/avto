@@ -1,0 +1,6 @@
+{
+  "entry": [
+    "apps/app/**/*.{ts,tsx}"
+  ],
+  "project": ["**/*.{ts,tsx}"]
+}

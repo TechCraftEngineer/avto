@@ -284,30 +284,38 @@ export function VacancyTableRow({
                   disabled={updateStatusMutation.isPending}
                   aria-label={
                     vacancy.isActive
-                      ? "Деактивировать вакансию"
-                      : "Активировать вакансию"
+                      ? "Деактивировать вакансию в системе (не влияет на статус на hh.ru)"
+                      : "Активировать вакансию в системе (не влияет на статус на hh.ru)"
                   }
                 />
               </div>
             </TooltipTrigger>
             <TooltipContent side="top" className="text-sm">
               {vacancy.isActive
-                ? "Деактивировать вакансию"
-                : "Активировать вакансию"}
+                ? "Деактивировать вакансию в системе (не влияет на статус на hh.ru)"
+                : "Активировать вакансию в системе (не влияет на статус на hh.ru)"}
             </TooltipContent>
           </Tooltip>
-          <div className="flex items-center gap-2">
-            <div
-              className={`size-2 rounded-full ${
-                vacancy.isActive
-                  ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]"
-                  : "bg-zinc-300"
-              }`}
-            />
-            <span className="text-sm font-medium">
-              {vacancy.isActive ? "Активна" : "Закрыта"}
-            </span>
-          </div>
+          <Tooltip delayDuration={300}>
+            <TooltipTrigger asChild>
+              <div className="flex items-center gap-2">
+                <div
+                  className={`size-2 rounded-full ${
+                    vacancy.isActive
+                      ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]"
+                      : "bg-zinc-300"
+                  }`}
+                />
+                <span className="text-sm font-medium">
+                  {vacancy.isActive ? "Активна" : "Закрыта"}
+                </span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-xs text-sm">
+              Статус вакансии в системе. Изменение не влияет на статус на
+              платформе HeadHunter
+            </TooltipContent>
+          </Tooltip>
         </div>
       </TableCell>
       <TableCell className="text-right">

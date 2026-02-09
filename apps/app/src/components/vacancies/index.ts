@@ -11,4 +11,3 @@ export { VacancyPerformanceBadge } from "./components/vacancy-performance-badge/
 export { VacancyStats } from "./components/vacancy-stats/vacancy-stats";
 export { VacancyTable } from "./components/vacancy-table/vacancy-table";
 export { VacancyTableRow } from "./components/vacancy-table-row/vacancy-table-row";
-export { VacancyTableRowRealtime } from "./components/vacancy-table-row-realtime/vacancy-table-row-realtime";
