@@ -35,7 +35,7 @@ export function VacancyResponseHeaderCard({
 }: VacancyResponseHeaderCardProps) {
   const matchScore = calculateMatchScore(response);
   const responseTime = calculateResponseTime(response);
-  const lastActivity = calculateLastActivity(response);
+  const _lastActivity = calculateLastActivity(response);
   const candidateRank = Math.floor(Math.random() * 10) + 1;
 
   return (

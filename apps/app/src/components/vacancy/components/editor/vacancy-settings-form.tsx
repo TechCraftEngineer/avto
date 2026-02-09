@@ -13,14 +13,7 @@ import {
   Textarea,
 } from "@qbs-autonaim/ui";
 import { useQuery } from "@tanstack/react-query";
-import {
-  Loader2,
-  MessageSquare,
-  Save,
-  Settings,
-  Sparkles,
-  Wand2,
-} from "lucide-react";
+import { Loader2, Save, Wand2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -230,53 +223,34 @@ export function VacancySettingsForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-        <div className="max-w-4xl">
-          <Card className="p-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
+        <div className="max-w-4xl space-y-8">
+          {/* Настройки AI-бота */}
+          <div className="space-y-6">
             <div>
-              <div className="mb-4 flex items-center gap-3">
-                <div className="rounded-xl bg-linear-to-br from-primary/20 to-primary/10 p-3">
-                  <Sparkles
-                    className="size-6 text-primary"
-                    aria-hidden="true"
-                  />
-                </div>
-                <div>
-                  <h2 className="text-xl font-semibold text-foreground">
-                    Настройки AI-бота
-                  </h2>
-                  <p className="text-muted-foreground">
-                    Настройте поведение бота для этой вакансии
-                  </p>
-                </div>
-              </div>
-              <Separator className="mb-6" />
+              <h2 className="text-2xl font-semibold tracking-tight">
+                Настройки AI-бота
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Настройте поведение бота для этой вакансии
+              </p>
             </div>
 
-            <div className="space-y-8">
-              {/* Основные инструкции для бота */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <Settings className="size-4 text-muted-foreground" />
-                  <h3 className="text-base font-medium text-foreground">
-                    Общие настройки
-                  </h3>
-                </div>
+            <Card>
+              <div className="p-6 space-y-6">
                 <FormField
                   control={form.control}
                   name="customBotInstructions"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium">
-                        Общие инструкции для бота
-                      </FormLabel>
+                      <FormLabel>Общие инструкции для бота</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Textarea
                             {...field}
                             value={field.value ?? ""}
                             placeholder="Например: Обращай внимание на релевантный опыт работы и ключевые навыки. Важно уточнить мотивацию кандидата и готовность к условиям работы…"
-                            className="min-h-32 resize-y font-mono text-sm pr-12 leading-relaxed"
+                            className="min-h-32 resize-y pr-12"
                             maxLength={5000}
                           />
                           <Button
@@ -290,58 +264,52 @@ export function VacancySettingsForm({
                               improvingField === "customBotInstructions" ||
                               !field.value?.trim()
                             }
-                            className="absolute right-2 top-2 h-8 gap-1.5 text-xs hover:bg-primary/10"
+                            className="absolute right-2 top-2 h-8 gap-1.5"
                             aria-label="Улучшить инструкции с помощью AI"
                           >
                             {improvingField === "customBotInstructions" ? (
-                              <Loader2
-                                className="size-3.5 animate-spin"
-                                aria-hidden="true"
-                              />
+                              <Loader2 className="size-4 animate-spin" />
                             ) : (
-                              <Wand2 className="size-3.5" aria-hidden="true" />
+                              <Wand2 className="size-4" />
                             )}
                           </Button>
                         </div>
                       </FormControl>
-                      <FormDescription className="text-xs">
+                      <FormDescription>
                         Эти инструкции будут использоваться ботом при общении с
                         кандидатами. Укажите, на что обратить внимание, какие
                         вопросы задавать.
                       </FormDescription>
                       <FormMessage />
-                      <div className="flex items-center justify-between pt-1">
-                        <div className="text-muted-foreground text-xs">
-                          {field.value?.length ?? 0} / 5000 символов
-                        </div>
-                        {improvingField === "customBotInstructions" && (
-                          <span className="text-muted-foreground text-xs flex items-center gap-1">
-                            <Loader2 className="size-3 animate-spin" />
-                            Улучшение…
-                          </span>
-                        )}
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span>{field.value?.length ?? 0} / 5000</span>
                       </div>
                     </FormItem>
                   )}
                 />
               </div>
+            </Card>
+          </div>
 
-              <Separator className="my-8" />
+          {/* Вопросы для интервью */}
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-semibold tracking-tight">
+                Вопросы для интервью
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Настройте вопросы, которые бот будет задавать кандидатам
+              </p>
+            </div>
 
-              {/* Вопросы для интервью */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <MessageSquare className="size-4 text-muted-foreground" />
-                  <h3 className="text-base font-medium text-foreground">
-                    Вопросы для интервью
-                  </h3>
-                </div>
+            <Card>
+              <div className="p-6 space-y-6">
                 <FormField
                   control={form.control}
                   name="customInterviewQuestions"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium">
+                      <FormLabel>
                         Технические и профессиональные вопросы
                       </FormLabel>
                       <FormControl>
@@ -350,7 +318,7 @@ export function VacancySettingsForm({
                             {...field}
                             value={field.value ?? ""}
                             placeholder="Например:&#10;1. Расскажите о вашем профессиональном опыте и ключевых достижениях&#10;2. Какие проекты или задачи вы считаете наиболее успешными?&#10;3. Почему вас интересует эта позиция?…"
-                            className="min-h-40 resize-y font-mono text-sm pr-12 leading-relaxed"
+                            className="min-h-40 resize-y pr-12"
                             maxLength={5000}
                           />
                           <Button
@@ -364,56 +332,44 @@ export function VacancySettingsForm({
                               improvingField === "customInterviewQuestions" ||
                               !field.value?.trim()
                             }
-                            className="absolute right-2 top-2 h-8 gap-1.5 text-xs hover:bg-primary/10"
+                            className="absolute right-2 top-2 h-8 gap-1.5"
                             aria-label="Улучшить вопросы с помощью AI"
                           >
                             {improvingField === "customInterviewQuestions" ? (
-                              <Loader2
-                                className="size-3.5 animate-spin"
-                                aria-hidden="true"
-                              />
+                              <Loader2 className="size-4 animate-spin" />
                             ) : (
-                              <Wand2 className="size-3.5" aria-hidden="true" />
+                              <Wand2 className="size-4" />
                             )}
                           </Button>
                         </div>
                       </FormControl>
-                      <FormDescription className="text-xs">
+                      <FormDescription>
                         Список вопросов, которые бот будет задавать кандидатам
-                        во время интервью в Telegram. Каждый вопрос с новой
-                        строки.
+                        во время интервью. Каждый вопрос с новой строки.
                       </FormDescription>
                       <FormMessage />
-                      <div className="flex items-center justify-between pt-1">
-                        <div className="text-muted-foreground text-xs">
-                          {field.value?.length ?? 0} / 5000 символов
-                        </div>
-                        {improvingField === "customInterviewQuestions" && (
-                          <span className="text-muted-foreground text-xs flex items-center gap-1">
-                            <Loader2 className="size-3 animate-spin" />
-                            Улучшение…
-                          </span>
-                        )}
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span>{field.value?.length ?? 0} / 5000</span>
                       </div>
                     </FormItem>
                   )}
                 />
+
+                <Separator />
 
                 <FormField
                   control={form.control}
                   name="customOrganizationalQuestions"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium">
-                        Организационные вопросы
-                      </FormLabel>
+                      <FormLabel>Организационные вопросы</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Textarea
                             {...field}
                             value={field.value ?? ""}
                             placeholder="Например:&#10;1. Когда вы готовы приступить к работе?&#10;2. Какой формат работы вам подходит?&#10;3. Есть ли у вас другие офферы на рассмотрении?…"
-                            className="min-h-32 resize-y font-mono text-sm pr-12 leading-relaxed"
+                            className="min-h-32 resize-y pr-12"
                             maxLength={5000}
                           />
                           <Button
@@ -428,134 +384,129 @@ export function VacancySettingsForm({
                                 "customOrganizationalQuestions" ||
                               !field.value?.trim()
                             }
-                            className="absolute right-2 top-2 h-8 gap-1.5 text-xs hover:bg-primary/10"
+                            className="absolute right-2 top-2 h-8 gap-1.5"
                             aria-label="Улучшить вопросы с помощью AI"
                           >
                             {improvingField ===
                             "customOrganizationalQuestions" ? (
-                              <Loader2
-                                className="size-3.5 animate-spin"
-                                aria-hidden="true"
-                              />
+                              <Loader2 className="size-4 animate-spin" />
                             ) : (
-                              <Wand2 className="size-3.5" aria-hidden="true" />
+                              <Wand2 className="size-4" />
                             )}
                           </Button>
                         </div>
                       </FormControl>
-                      <FormDescription className="text-xs">
-                        Организационные вопросы, которые бот будет задавать в
-                        начале интервью (график работы, зарплата, сроки начала и
-                        т.д.). Каждый вопрос с новой строки.
+                      <FormDescription>
+                        Организационные вопросы о графике работы, зарплате,
+                        сроках начала и т.д. Каждый вопрос с новой строки.
                       </FormDescription>
                       <FormMessage />
-                      <div className="flex items-center justify-between pt-1">
-                        <div className="text-muted-foreground text-xs">
-                          {field.value?.length ?? 0} / 5000 символов
-                        </div>
-                        {improvingField === "customOrganizationalQuestions" && (
-                          <span className="text-muted-foreground text-xs flex items-center gap-1">
-                            <Loader2 className="size-3 animate-spin" />
-                            Улучшение…
-                          </span>
-                        )}
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span>{field.value?.length ?? 0} / 5000</span>
                       </div>
                     </FormItem>
                   )}
                 />
               </div>
-            </div>
-          </Card>
-
-          {/* Настройки каналов общения */}
-          <CommunicationChannelsSettings
-            control={form.control}
-            hasTelegramIntegration={hasTelegramIntegration}
-          />
-
-          {/* Кастомный домен для веб-чата */}
-          {workspaceId && (
-            <Card className="p-6">
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <div className="rounded-xl bg-linear-to-br from-purple-500/20 to-purple-600/10 p-3">
-                    <Settings
-                      className="size-6 text-purple-600"
-                      aria-hidden="true"
-                    />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-medium text-foreground">
-                      Кастомный домен для веб-чата
-                    </h3>
-                    <p className="text-muted-foreground">
-                      Выберите домен, через который будет доступен веб-чат для
-                      этой вакансии
-                    </p>
-                  </div>
-                </div>
-                <Separator className="my-4" />
-                <CustomDomainSelect
-                  workspaceId={workspaceId}
-                  value={form.watch("customDomainId")}
-                  onChange={(value: string | null) =>
-                    form.setValue("customDomainId", value, {
-                      shouldDirty: true,
-                    })
-                  }
-                />
-              </div>
             </Card>
+          </div>
+
+          {/* Каналы общения */}
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-semibold tracking-tight">
+                Каналы общения
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Выберите каналы, через которые кандидаты смогут общаться с вами
+              </p>
+            </div>
+
+            <CommunicationChannelsSettings
+              control={form.control}
+              hasTelegramIntegration={hasTelegramIntegration}
+            />
+          </div>
+
+          {/* Кастомный домен */}
+          {workspaceId && (
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-2xl font-semibold tracking-tight">
+                  Кастомный домен
+                </h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Выберите домен для веб-чата этой вакансии
+                </p>
+              </div>
+
+              <Card>
+                <div className="p-6">
+                  <CustomDomainSelect
+                    workspaceId={workspaceId}
+                    value={form.watch("customDomainId")}
+                    onChange={(value: string | null) =>
+                      form.setValue("customDomainId", value, {
+                        shouldDirty: true,
+                      })
+                    }
+                  />
+                </div>
+              </Card>
+            </div>
           )}
 
           {/* Шаблоны приветствия */}
-          <WelcomeMessageTemplates
-            control={form.control}
-            vacancyTitle={vacancyTitle}
-            vacancyDescription={vacancyDescription}
-            vacancyId={vacancyId}
-            workspaceId={workspaceId}
-            interviewUrl={interviewUrl}
-            improvingField={improvingField}
-          />
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-semibold tracking-tight">
+                Шаблоны приветствия
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Настройте приветственные сообщения для разных каналов
+              </p>
+            </div>
 
-          {/* Статус и кнопка сохранения */}
-          <div className="mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-lg border bg-card p-4">
+            <WelcomeMessageTemplates
+              control={form.control}
+              vacancyTitle={vacancyTitle}
+              vacancyDescription={vacancyDescription}
+              vacancyId={vacancyId}
+              workspaceId={workspaceId}
+              interviewUrl={interviewUrl}
+              improvingField={improvingField}
+            />
+          </div>
+
+          {/* Кнопка сохранения */}
+          <div className="flex items-center justify-between rounded-lg border bg-card p-4">
             <div className="flex items-center gap-2">
               {hasChanges ? (
                 <>
-                  <div className="h-2 w-2 rounded-full bg-amber-500 animate-pulse"></div>
-                  <p className="text-sm text-amber-700 dark:text-amber-400">
+                  <div className="size-2 rounded-full bg-amber-500 animate-pulse" />
+                  <p className="text-sm text-muted-foreground">
                     Есть несохраненные изменения
                   </p>
                 </>
               ) : (
                 <>
-                  <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                  <div className="size-2 rounded-full bg-green-500" />
                   <p className="text-sm text-muted-foreground">
                     Все изменения сохранены
                   </p>
                 </>
               )}
             </div>
-            <Button
-              type="submit"
-              disabled={isSaving || !hasChanges}
-              size="lg"
-              className="min-w-32 transition-all duration-200"
-            >
+            <Button type="submit" disabled={isSaving || !hasChanges} size="lg">
               {isSaving ? (
                 <>
-                  <Loader2
-                    className="mr-2 size-4 animate-spin"
-                    aria-hidden="true"
-                  />
+                  <Loader2 className="mr-2 size-4 animate-spin" />
                   Сохранение…
                 </>
               ) : (
                 <>
-                  <Save className="mr-2 size-4" aria-hidden="true" />
-                  Сохранить настройки
+                  <Save className="mr-2 size-4" />
+                  Сохранить
                 </>
               )}
             </Button>

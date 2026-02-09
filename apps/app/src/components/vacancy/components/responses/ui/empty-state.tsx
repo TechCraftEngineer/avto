@@ -1,5 +1,4 @@
 import { Button } from "@qbs-autonaim/ui/button";
-import { Spinner } from "@qbs-autonaim/ui/spinner";
 import { TableCell, TableRow } from "@qbs-autonaim/ui/table";
 import { Download, Filter, Inbox } from "lucide-react";
 

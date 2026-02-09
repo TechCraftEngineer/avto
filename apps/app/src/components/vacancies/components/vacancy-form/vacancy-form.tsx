@@ -16,7 +16,6 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Textarea,
 } from "@qbs-autonaim/ui";
 import { IconLoader2 } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -35,13 +34,46 @@ const TiptapEditor = dynamic(
   },
 );
 
+const VacancyRequirementsEditor = dynamic(
+  () =>
+    import(
+      "~/components/vacancy/components/editor/vacancy-requirements-editor"
+    ).then((mod) => mod.VacancyRequirementsEditor),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="min-h-[200px] animate-pulse bg-muted rounded" />
+    ),
+  },
+);
+
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
 
 const vacancyFormSchema = z.object({
   title: z.string().min(1, "Название обязательно").max(500),
   description: z.string().optional(),
-  requirements: z.string().optional(),
+  requirements: z
+    .object({
+      job_title: z.string(),
+      summary: z.string(),
+      mandatory_requirements: z.array(z.string()),
+      nice_to_have_skills: z.array(z.string()),
+      tech_stack: z.array(z.string()),
+      experience_years: z.object({
+        min: z.number().nullable(),
+        description: z.string(),
+      }),
+      languages: z.array(
+        z.object({
+          language: z.string(),
+          level: z.string(),
+        }),
+      ),
+      location_type: z.string(),
+      keywords_for_matching: z.array(z.string()),
+    })
+    .optional(),
   platformSource: z.enum([
     "HH",
     "AVITO",
@@ -70,7 +102,7 @@ export function VacancyForm({ onSuccess }: VacancyFormProps) {
     defaultValues: {
       title: "",
       description: "",
-      requirements: "",
+      requirements: undefined,
       platformSource: "HH",
       platformUrl: "",
     },
@@ -186,25 +218,9 @@ export function VacancyForm({ onSuccess }: VacancyFormProps) {
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="requirements"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Требования</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Требования к кандидату…"
-                  className="min-h-[100px] resize-y"
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>
-                Требования к кандидату (необязательно)
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
+        <VacancyRequirementsEditor
+          form={form}
+          requirements={form.watch("requirements") ?? null}
         />
 
         <FormField

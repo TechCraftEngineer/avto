@@ -148,7 +148,7 @@ export function ResponseTable({
   );
 
   // Обработчик для синхронизации архивных откликов с workspaceId
-  const handleSyncArchivedWithWorkspace = useCallback(() => {
+  const _handleSyncArchivedWithWorkspace = useCallback(() => {
     if (workspace?.id) {
       void handleSyncArchived(workspace.id);
     }
