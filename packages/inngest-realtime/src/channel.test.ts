@@ -1,4 +1,4 @@
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 import * as v from "valibot";
 import { channel, typeOnlyChannel } from "./channel";
 import { topic } from "./topic";

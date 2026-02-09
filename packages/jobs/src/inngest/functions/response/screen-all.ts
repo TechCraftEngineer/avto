@@ -160,13 +160,25 @@ export const screenAllResponsesFunction = inngest.createFunction(
     }
 
     // Собираем результаты из settled promises
-    for (const result of results) {
+    for (let i = 0; i < results.length; i++) {
+      const result = results[i];
       if (result.status === "fulfilled") {
         const { vacancyId, processed, failed } = result.value;
         const vacancyProgress = progressByVacancy[vacancyId];
         if (vacancyProgress) {
           vacancyProgress.processed += processed;
           vacancyProgress.failed += failed;
+        }
+      } else if (result.status === "rejected") {
+        // Обрабатываем rejected случаи
+        // Используем индекс для определения соответствующего отклика
+        const resp = responses[i];
+        if (resp) {
+          const vacancyProgress = progressByVacancy[resp.entityId];
+          if (vacancyProgress) {
+            vacancyProgress.processed += 1;
+            vacancyProgress.failed += 1;
+          }
         }
       }
     }

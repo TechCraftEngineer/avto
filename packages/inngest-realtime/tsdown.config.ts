@@ -3,7 +3,7 @@ import { defineConfig } from "tsdown";
 export default defineConfig({
   clean: true,
   dts: true,
-  entry: ["src/index.ts", "src/hooks.ts", "src/middleware.ts"],
+  entry: ["src/index.ts", "src/hooks.ts", "src/middleware.ts", "src/api.ts"],
   format: ["cjs", "esm"],
   outDir: "dist",
   tsconfig: "tsconfig.build.json",

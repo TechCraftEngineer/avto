@@ -2,7 +2,8 @@
   "name": "@bunworks/inngest-realtime",
   "version": "0.1.8",
   "description": "Realtime messaging для @bunworks",
-  "main": "./src/index.ts",
+  "main": "./index.js",
+  "types": "./index.d.ts",
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
     "access": "public"
@@ -18,16 +19,24 @@
   },
   "exports": {
     ".": {
-      "default": "./src/index.ts"
+      "import": "./index.js",
+      "require": "./index.cjs",
+      "types": "./index.d.ts"
     },
     "./hooks": {
-      "default": "./src/hooks.ts"
+      "import": "./hooks.js",
+      "require": "./hooks.cjs",
+      "types": "./hooks.d.ts"
     },
     "./middleware": {
-      "default": "./src/middleware.ts"
+      "import": "./middleware.js",
+      "require": "./middleware.cjs",
+      "types": "./middleware.d.ts"
     },
     "./api": {
-      "default": "./src/api.ts"
+      "import": "./api.js",
+      "require": "./api.cjs",
+      "types": "./api.d.ts"
     }
   },
   "keywords": [

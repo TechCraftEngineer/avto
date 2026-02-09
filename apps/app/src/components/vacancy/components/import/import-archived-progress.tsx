@@ -25,6 +25,15 @@ export function ImportArchivedProgress({
   onComplete,
 }: ImportArchivedProgressProps) {
   const [isCompleted, setIsCompleted] = useState(false);
+  const [currentWorkspaceId, setCurrentWorkspaceId] = useState(workspaceId);
+
+  // Сброс isCompleted при изменении workspaceId
+  useEffect(() => {
+    if (workspaceId !== currentWorkspaceId) {
+      setIsCompleted(false);
+      setCurrentWorkspaceId(workspaceId);
+    }
+  }, [workspaceId, currentWorkspaceId]);
 
   const { data, error } = useInngestSubscription({
     refreshToken: () => fetchImportArchivedVacanciesToken(workspaceId),

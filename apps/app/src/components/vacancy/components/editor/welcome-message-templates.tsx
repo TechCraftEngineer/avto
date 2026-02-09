@@ -14,6 +14,7 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import { Loader2, Wand2 } from "lucide-react";
 import type { Control } from "react-hook-form";
+import { useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { useTRPC } from "~/trpc/react";
 import { WelcomeMessagePreview } from "./welcome-message-preview";
@@ -70,11 +71,29 @@ export function WelcomeMessageTemplates({
     trpc.vacancy.improveWelcomeTemplates.mutationOptions(),
   );
 
+  // Используем useWatch для получения значений
+  const webChatTemplate = useWatch({
+    control,
+    name: "welcomeMessageTemplates.webChat",
+  });
+  const telegramTemplate = useWatch({
+    control,
+    name: "welcomeMessageTemplates.telegram",
+  });
+  const enabledWebChat = useWatch({
+    control,
+    name: "enabledCommunicationChannels.webChat",
+  });
+  const enabledTelegram = useWatch({
+    control,
+    name: "enabledCommunicationChannels.telegram",
+  });
+
   const handleImprove = async (channel: "webChat" | "telegram") => {
     if (!vacancyId || !workspaceId) return;
 
-    const fieldName = `welcomeMessageTemplates.${channel}` as const;
-    const currentValue = control._getWatch(fieldName) || "";
+    const currentValue =
+      (channel === "webChat" ? webChatTemplate : telegramTemplate) || "";
 
     if (!currentValue.trim()) {
       let defaultTemplate =
@@ -128,7 +147,7 @@ export function WelcomeMessageTemplates({
 
   const isChannelEnabled = (channel: "webChat" | "telegram") => {
     return (
-      control._getWatch(`enabledCommunicationChannels.${channel}`) ??
+      (channel === "webChat" ? enabledWebChat : enabledTelegram) ??
       channel === "webChat"
     );
   };
@@ -253,8 +272,8 @@ export function WelcomeMessageTemplates({
       <WelcomeMessagePreview
         vacancyTitle={vacancyTitle}
         interviewUrl={interviewUrl}
-        webChatTemplate={control._getWatch("welcomeMessageTemplates.webChat")}
-        telegramTemplate={control._getWatch("welcomeMessageTemplates.telegram")}
+        webChatTemplate={webChatTemplate}
+        telegramTemplate={telegramTemplate}
       />
     </Card>
   );

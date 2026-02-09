@@ -27,14 +27,20 @@ export const realtimeMiddleware = () => {
                 };
 
                 const action = async () => {
-                  const result = await client["inngestApi"].publish(
-                    publishOpts,
-                    data,
-                  );
+                  // TODO: Заменить на публичный API когда он станет доступен
+                  // Временно используем приватный API через type assertion
+                  const inngestApi = (client as any).inngestApi;
+                  if (!inngestApi || typeof inngestApi.publish !== "function") {
+                    throw new Error(
+                      "Inngest API недоступен. Требуется обновление SDK.",
+                    );
+                  }
+
+                  const result = await inngestApi.publish(publishOpts, data);
 
                   if (!result.ok) {
                     throw new Error(
-                      `Failed to publish event: ${result.error?.error}`,
+                      `Не удалось опубликовать событие: ${result.error?.error}`,
                     );
                   }
                 };

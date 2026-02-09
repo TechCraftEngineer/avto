@@ -1,6 +1,7 @@
 import { useInngestSubscription } from "@bunworks/inngest-realtime/hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
+import { z } from "zod";
 import {
   fetchRefreshVacancyResponsesToken,
   fetchScreenAllResponsesToken,
@@ -16,6 +17,56 @@ import type {
   ResultData,
   SyncMode,
 } from "./types";
+
+// Zod схемы для валидации данных из realtime сообщений
+const progressStatusSchema = z.enum([
+  "started",
+  "processing",
+  "completed",
+  "error",
+]);
+
+const progressDataSchema = z.object({
+  vacancyId: z.string(),
+  status: progressStatusSchema,
+  message: z.string(),
+  currentPage: z.number().optional(),
+  totalSaved: z.number().optional(),
+  totalSkipped: z.number().optional(),
+});
+
+const archivedStatusDataSchema = z.object({
+  status: progressStatusSchema,
+  message: z.string(),
+  vacancyId: z.string(),
+  syncedResponses: z.number().optional(),
+  newResponses: z.number().optional(),
+  vacancyTitle: z.string().optional(),
+});
+
+const analyzeProgressDataSchema = z.object({
+  batchId: z.string(),
+  total: z.number(),
+  processed: z.number(),
+  successful: z.number(),
+  failed: z.number(),
+});
+
+const analyzeResultDataSchema = z.object({
+  vacancyId: z.string(),
+  success: z.boolean(),
+  total: z.number(),
+  processed: z.number(),
+  failed: z.number(),
+});
+
+const resultDataSchema = z.object({
+  vacancyId: z.string(),
+  success: z.boolean(),
+  newCount: z.number(),
+  totalResponses: z.number(),
+  error: z.string().optional(),
+});
 
 interface UseRefreshSubscriptionProps {
   vacancyId: string;
@@ -276,7 +327,16 @@ export function useRefreshSubscription({
       const isResultTopic = message.topic === "result";
 
       if (isArchivedMode && isProgressTopic) {
-        const progressData = message.data as ArchivedStatusData;
+        const parseResult = archivedStatusDataSchema.safeParse(message.data);
+        if (!parseResult.success) {
+          console.error(
+            "Ошибка валидации archived status data:",
+            parseResult.error,
+          );
+          continue;
+        }
+
+        const progressData = parseResult.data;
         setArchivedStatus(progressData);
         onVisibilityChange(true);
 
@@ -312,59 +372,51 @@ export function useRefreshSubscription({
           });
         }
       } else if (isAnalyzeMode && isProgressTopic) {
-        const progressData = message.data as ProgressData & {
-          total?: number;
-          processed?: number;
-          failed?: number;
-        };
+        // Пытаемся распарсить как AnalyzeProgressData
+        const analyzeParseResult = analyzeProgressDataSchema.safeParse(
+          message.data,
+        );
 
-        // Преобразуем в формат AnalyzeProgressData
-        if (progressData.total !== undefined) {
-          setAnalyzeProgress({
-            batchId: vacancyId,
-            total: progressData.total,
-            processed: progressData.processed || 0,
-            successful:
-              (progressData.processed || 0) - (progressData.failed || 0),
-            failed: progressData.failed || 0,
+        if (analyzeParseResult.success) {
+          setAnalyzeProgress(analyzeParseResult.data);
+          setAnalyzeCompleted(null);
+          onVisibilityChange(true);
+
+          // Инвалидируем кэш откликов при обработке каждого отклика
+          queryClient.invalidateQueries({
+            queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
           });
-        }
-        setAnalyzeCompleted(null);
-        onVisibilityChange(true);
 
-        // Инвалидируем кэш откликов при обработке каждого отклика
-        queryClient.invalidateQueries({
-          queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
-        });
-
-        setAutoCloseTimer((prev) => {
-          if (prev) {
-            clearTimeout(prev);
-          }
-          return null;
-        });
-      } else if (isAnalyzeMode && isResultTopic) {
-        const resultData = message.data as
-          | {
-              vacancyId: string;
-              success: boolean;
-              total: number;
-              processed: number;
-              failed: number;
+          setAutoCloseTimer((prev) => {
+            if (prev) {
+              clearTimeout(prev);
             }
-          | ResultData;
-
-        // Проверяем, какой формат данных пришел
-        if ("total" in resultData && "processed" in resultData) {
-          // Формат для analyze режима
-          const completedData: AnalyzeCompletedData = {
-            batchId: vacancyId,
-            total: resultData.total,
-            successful: resultData.processed,
-            failed: resultData.failed,
-          };
-          setAnalyzeCompleted(completedData);
+            return null;
+          });
+        } else {
+          console.error(
+            "Ошибка валидации analyze progress data:",
+            analyzeParseResult.error,
+          );
         }
+      } else if (isAnalyzeMode && isResultTopic) {
+        const parseResult = analyzeResultDataSchema.safeParse(message.data);
+        if (!parseResult.success) {
+          console.error(
+            "Ошибка валидации analyze result data:",
+            parseResult.error,
+          );
+          continue;
+        }
+
+        const resultData = parseResult.data;
+        const completedData: AnalyzeCompletedData = {
+          batchId: vacancyId,
+          total: resultData.total,
+          successful: resultData.processed,
+          failed: resultData.failed,
+        };
+        setAnalyzeCompleted(completedData);
 
         onVisibilityChange(true);
 
@@ -383,7 +435,13 @@ export function useRefreshSubscription({
         // Не закрываем окно автоматически для режима analyze
       } else if ((mode === "refresh" || isScreeningMode) && isProgressTopic) {
         // Обработка для refresh и screening (используют одинаковую структуру событий)
-        const progressData = message.data as ProgressData;
+        const parseResult = progressDataSchema.safeParse(message.data);
+        if (!parseResult.success) {
+          console.error("Ошибка валидации progress data:", parseResult.error);
+          continue;
+        }
+
+        const progressData = parseResult.data;
         setCurrentProgress(progressData);
         setCurrentResult(null);
         onVisibilityChange(true);
@@ -400,7 +458,13 @@ export function useRefreshSubscription({
           return null;
         });
       } else if ((mode === "refresh" || isScreeningMode) && isResultTopic) {
-        const resultData = message.data as ResultData;
+        const parseResult = resultDataSchema.safeParse(message.data);
+        if (!parseResult.success) {
+          console.error("Ошибка валидации result data:", parseResult.error);
+          continue;
+        }
+
+        const resultData = parseResult.data;
         setCurrentResult(resultData);
         onVisibilityChange(true);
 
