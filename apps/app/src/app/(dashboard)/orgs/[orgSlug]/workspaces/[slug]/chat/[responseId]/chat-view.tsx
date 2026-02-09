@@ -1,7 +1,9 @@
 "use client";
 
-import { useInngestSubscription } from "@bunworks/inngest-realtime/hooks";
-import { paths } from "@qbs-autonaim/config";
+import { paths } from
+"@qbs-autonaim/con@qbs-autonaim/inngest-realtime
+
+import { useInngestSubscription } from "@qbs-autonaim/inngest-realtime/hooks";
 import { Button } from "@qbs-autonaim/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@qbs-autonaim/ui/sheet";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";

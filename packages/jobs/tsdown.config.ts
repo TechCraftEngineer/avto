@@ -11,7 +11,7 @@ export default defineConfig({
   minify: isProduction,
   tsconfig: "tsconfig.json",
   external: [
-    "@bunworks/inngest-realtime",
+    "@qbs-autonaim/inngest-realtime",
     "drizzle-orm",
     "react",
     "react-dom",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useInngestSubscription } from "@bunworks/inngest-realtime/hooks";
+import { useInngestSubscription } from "@qbs-autonaim/inngest-realtime/hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { fetchScreenBatchToken } from "~/actions/realtime";

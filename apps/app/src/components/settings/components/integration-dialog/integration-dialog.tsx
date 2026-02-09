@@ -1,7 +1,7 @@
 "use client";
 
-import { useInngestSubscription } from "@bunworks/inngest-realtime/hooks";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useInngestSubscription } from "@qbs-autonaim/inngest-realtime/hooks";
 import {
   Button,
   Dialog,

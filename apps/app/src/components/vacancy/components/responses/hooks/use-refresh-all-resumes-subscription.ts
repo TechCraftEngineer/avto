@@ -1,7 +1,7 @@
 "use client";
 
-import type { Realtime } from "@bunworks/inngest-realtime";
-import { useInngestSubscription } from "@bunworks/inngest-realtime/hooks";
+import type { Realtime } from "@qbs-autonaim/inngest-realtimetime";
+import { useInngestSubscription } from "@qbs-autonaim/inngest-realtimetime/hooks";
 import { useEffect } from "react";
 import { z } from "zod";
 

@@ -1,6 +1,6 @@
 "use server";
 
-import { getSubscriptionToken } from "@bunworks/inngest-realtime";
+import { getSubscriptionToken } from "@qbs-autonaim/inngest-realtimetime";
 import {
   analyzeResponseChannel,
   fetchArchivedListChannel,

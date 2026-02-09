@@ -2,7 +2,7 @@
  * Клиентские определения каналов для использования на фронтенде
  * Этот файл содержит только определения каналов без зависимостей от backend
  */
-import { channel, topic } from "@bunworks/inngest-realtime";
+import { channel, topic } from "@qbs-autonaim/inngest-realtime";
 import { z } from "zod";
 
 /**
