@@ -10,25 +10,11 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  Input,
-  Label,
 } from "@qbs-autonaim/ui";
 import { ImportByUrlSchema } from "@qbs-autonaim/validators";
-import { useQuery } from "@tanstack/react-query";
-import {
-  AlertCircle,
-  Download,
-  Link as LinkIcon,
-  Settings,
-} from "lucide-react";
+import { AlertCircle, Settings } from "lucide-react";
 import NextLink from "next/link";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import {
   fetchArchivedVacanciesList,
   triggerImportNewVacancies,
@@ -40,48 +26,58 @@ import { ImportByUrlProgress } from "~/components/vacancy/components/import/impo
 import { ImportNewProgress } from "~/components/vacancy/components/import/import-new-progress";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useWorkspaceParams } from "~/hooks/use-workspace-params";
-import { useTRPC } from "~/trpc/react";
 import { ArchivedVacanciesSelector } from "../archived-vacancies-selector";
+import { ImportActions } from "./import-actions";
+import { ImportDialogs } from "./import-dialogs";
+import { PlatformSelector } from "./platform-selector";
+import { useImportState } from "./use-import-state";
+import { usePlatformIntegration } from "./use-platform-integration";
 
 export function VacancyImportSection() {
   const { workspace } = useWorkspace();
   const { orgSlug, slug: workspaceSlug } = useWorkspaceParams();
-  const trpc = useTRPC();
 
   // Мемоизируем workspaceId, чтобы избежать ререндеров дочерних компонентов
   const workspaceId = useMemo(() => workspace?.id ?? "", [workspace?.id]);
 
-  const [isUrlDialogOpen, setIsUrlDialogOpen] = useState(false);
-  const [isConfirmNewDialogOpen, setIsConfirmNewDialogOpen] = useState(false);
-  const [isConfirmArchivedDialogOpen, setIsConfirmArchivedDialogOpen] =
-    useState(false);
-  const [isSelectingArchivedVacancies, setIsSelectingArchivedVacancies] =
-    useState(false);
-  const [archivedListRequestId, setArchivedListRequestId] = useState<
-    string | null
-  >(null);
-  const [vacancyUrl, setVacancyUrl] = useState("");
-  const [urlError, setUrlError] = useState("");
+  // Используем хуки для управления состоянием
+  const importState = useImportState();
+  const platformIntegration = usePlatformIntegration(workspaceId);
 
-  // Получаем список интеграций
-  const { data: integrations, isLoading: isLoadingIntegrations } = useQuery({
-    ...trpc.integration.list.queryOptions({
-      workspaceId,
-    }),
-    enabled: !!workspaceId,
-  });
+  const {
+    isLoadingIntegrations,
+    activeIntegrations,
+    selectedPlatform,
+    setSelectedPlatform,
+    currentIntegration,
+    hasActiveIntegrations,
+    getPlatformName,
+  } = platformIntegration;
 
-  // Проверяем наличие активной интеграции с HH
-  const hhIntegration = integrations?.find(
-    (int) => int.type === "hh" && int.isActive,
-  );
-  const hasActiveHHIntegration = !!hhIntegration;
-
-  // Progress tracking states
-  const [isImportingNew, setIsImportingNew] = useState(false);
-  const [isImportingArchived, setIsImportingArchived] = useState(false);
-  const [isImportingByUrl, setIsImportingByUrl] = useState(false);
-  const [byUrlRequestId, setByUrlRequestId] = useState<string | null>(null);
+  const {
+    isUrlDialogOpen,
+    setIsUrlDialogOpen,
+    isConfirmNewDialogOpen,
+    setIsConfirmNewDialogOpen,
+    isConfirmArchivedDialogOpen,
+    setIsConfirmArchivedDialogOpen,
+    isImportingNew,
+    setIsImportingNew,
+    isImportingArchived,
+    setIsImportingArchived,
+    isImportingByUrl,
+    setIsImportingByUrl,
+    isSelectingArchivedVacancies,
+    setIsSelectingArchivedVacancies,
+    archivedListRequestId,
+    setArchivedListRequestId,
+    vacancyUrl,
+    setVacancyUrl,
+    urlError,
+    setUrlError,
+    byUrlRequestId,
+    setByUrlRequestId,
+  } = importState;
 
   const handleImportNew = async () => {
     if (!workspaceId) return;
@@ -192,16 +188,16 @@ export function VacancyImportSection() {
 
   const handleNewVacanciesComplete = useCallback(() => {
     setIsImportingNew(false);
-  }, []);
+  }, [setIsImportingNew]);
 
   const handleArchivedVacanciesComplete = useCallback(() => {
     setIsImportingArchived(false);
-  }, []);
+  }, [setIsImportingArchived]);
 
   const handleByUrlComplete = useCallback(() => {
     setIsImportingByUrl(false);
     setByUrlRequestId(null);
-  }, []);
+  }, [setIsImportingByUrl, setByUrlRequestId]);
 
   // Показываем скелетон во время загрузки
   if (isLoadingIntegrations || !workspaceId) {
@@ -210,7 +206,7 @@ export function VacancyImportSection() {
         <CardHeader>
           <CardTitle>Импорт вакансий</CardTitle>
           <CardDescription>
-            Загрузите вакансии из HeadHunter в систему
+            Загрузите вакансии из подключенных платформ в систему
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -224,25 +220,25 @@ export function VacancyImportSection() {
     );
   }
 
-  // Показываем предупреждение, если нет активной интеграции
-  if (!hasActiveHHIntegration) {
+  // Показываем предупреждение, если нет активных интеграций
+  if (!hasActiveIntegrations) {
     return (
       <Card>
         <CardHeader>
           <CardTitle>Импорт вакансий</CardTitle>
           <CardDescription>
-            Загрузите вакансии из HeadHunter в систему
+            Загрузите вакансии из подключенных платформ в систему
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Интеграция с HeadHunter не настроена</AlertTitle>
+            <AlertTitle>Интеграция не настроена</AlertTitle>
             <AlertDescription className="mt-2 space-y-3">
               <p>
                 Для импорта вакансий необходимо настроить интеграцию с
-                HeadHunter. Это позволит системе автоматически загружать
-                вакансии и отслеживать отклики.
+                платформой подбора персонала. Это позволит системе автоматически
+                загружать вакансии и отслеживать отклики.
               </p>
               <Button asChild variant="outline" size="sm">
                 <NextLink
@@ -263,47 +259,34 @@ export function VacancyImportSection() {
     <>
       <Card>
         <CardHeader>
-          <CardTitle>Импорт вакансий</CardTitle>
-          <CardDescription>
-            Загрузите вакансии из HeadHunter в систему
-          </CardDescription>
+          <div className="flex items-start justify-between gap-4">
+            <div className="space-y-1.5">
+              <CardTitle>Импорт вакансий</CardTitle>
+              <CardDescription>
+                Загрузите вакансии из подключенных платформ в систему
+              </CardDescription>
+            </div>
+            <PlatformSelector
+              activeIntegrations={activeIntegrations}
+              selectedPlatform={selectedPlatform}
+              onPlatformChange={setSelectedPlatform}
+              getPlatformName={getPlatformName}
+            />
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex flex-wrap gap-3">
-            <Button
-              variant="default"
-              size="sm"
-              onClick={() => setIsConfirmNewDialogOpen(true)}
-              disabled={isImportingNew || !workspaceId}
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Загрузить активные вакансии
-            </Button>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsConfirmArchivedDialogOpen(true)}
-              disabled={
-                isImportingArchived ||
-                isSelectingArchivedVacancies ||
-                !workspaceId
-              }
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Загрузить архивные вакансии
-            </Button>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsUrlDialogOpen(true)}
-              disabled={isImportingByUrl || !workspaceId}
-            >
-              <LinkIcon className="h-4 w-4 mr-2" />
-              Добавить вакансию по ссылке
-            </Button>
-          </div>
+          <ImportActions
+            workspaceId={workspaceId}
+            hasCurrentIntegration={!!currentIntegration}
+            hasMultipleIntegrations={activeIntegrations.length > 1}
+            isImportingNew={isImportingNew}
+            isImportingArchived={isImportingArchived}
+            isSelectingArchivedVacancies={isSelectingArchivedVacancies}
+            isImportingByUrl={isImportingByUrl}
+            onImportNew={() => setIsConfirmNewDialogOpen(true)}
+            onImportArchived={() => setIsConfirmArchivedDialogOpen(true)}
+            onImportByUrl={() => setIsUrlDialogOpen(true)}
+          />
 
           {/* Selector for archived vacancies - показываем только если не идет импорт */}
           {isSelectingArchivedVacancies &&
@@ -343,120 +326,27 @@ export function VacancyImportSection() {
         </CardContent>
       </Card>
 
-      {/* Confirm New Vacancies Dialog */}
-      <Dialog
-        open={isConfirmNewDialogOpen}
-        onOpenChange={setIsConfirmNewDialogOpen}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Подтверждение импорта</DialogTitle>
-            <DialogDescription>
-              Вы уверены, что хотите запустить импорт активных вакансий?
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-2 py-4">
-            <p className="text-sm text-muted-foreground">
-              Эта операция может занять продолжительное время и загрузить
-              большое количество данных из HeadHunter.
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Рекомендуется запускать импорт только при необходимости обновления
-              списка вакансий.
-            </p>
-          </div>
-
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsConfirmNewDialogOpen(false)}
-            >
-              Отмена
-            </Button>
-            <Button onClick={handleImportNew}>Запустить импорт</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Confirm Archived Vacancies Dialog */}
-      <Dialog
-        open={isConfirmArchivedDialogOpen}
-        onOpenChange={setIsConfirmArchivedDialogOpen}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Выбор архивных вакансий</DialogTitle>
-            <DialogDescription>
-              Сейчас будет загружен список архивных вакансий для выбора
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-2 py-4">
-            <p className="text-sm text-muted-foreground">
-              Система загрузит список ваших архивных вакансий с HeadHunter, и вы
-              сможете выбрать, какие из них импортировать.
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Это позволит избежать загрузки ненужных данных и сэкономит время.
-            </p>
-          </div>
-
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsConfirmArchivedDialogOpen(false)}
-            >
-              Отмена
-            </Button>
-            <Button onClick={handleImportArchived}>Продолжить</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* URL Input Dialog */}
-      <Dialog open={isUrlDialogOpen} onOpenChange={setIsUrlDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Добавить вакансию по ссылке</DialogTitle>
-            <DialogDescription>
-              Введите ссылку на вакансию с HeadHunter
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="vacancy-url">Ссылка на вакансию</Label>
-              <Input
-                id="vacancy-url"
-                placeholder="https://hh.ru/vacancy/12345678"
-                value={vacancyUrl}
-                onChange={(e) => {
-                  setVacancyUrl(e.target.value);
-                  setUrlError("");
-                }}
-              />
-              {urlError && (
-                <p className="text-sm text-destructive">{urlError}</p>
-              )}
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setIsUrlDialogOpen(false);
-                setVacancyUrl("");
-                setUrlError("");
-              }}
-            >
-              Отмена
-            </Button>
-            <Button onClick={handleImportByUrl}>Импортировать</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Dialogs */}
+      <ImportDialogs
+        isConfirmNewDialogOpen={isConfirmNewDialogOpen}
+        onConfirmNewDialogChange={setIsConfirmNewDialogOpen}
+        onConfirmNew={handleImportNew}
+        currentPlatformName={
+          currentIntegration
+            ? getPlatformName(currentIntegration.type)
+            : undefined
+        }
+        isConfirmArchivedDialogOpen={isConfirmArchivedDialogOpen}
+        onConfirmArchivedDialogChange={setIsConfirmArchivedDialogOpen}
+        onConfirmArchived={handleImportArchived}
+        isUrlDialogOpen={isUrlDialogOpen}
+        onUrlDialogChange={setIsUrlDialogOpen}
+        vacancyUrl={vacancyUrl}
+        onVacancyUrlChange={setVacancyUrl}
+        urlError={urlError}
+        onUrlErrorChange={setUrlError}
+        onConfirmUrl={handleImportByUrl}
+      />
     </>
   );
 }
