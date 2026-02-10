@@ -15,7 +15,7 @@ export default function ImportVacancyPage() {
     <div className="flex flex-1 flex-col">
       <PageHeader
         title="Импорт вакансий"
-        description="Загрузите вакансии с HeadHunter для автоматического отслеживания откликов"
+        description="Загрузите вакансии с платформ подбора персонала для автоматического отслеживания откликов"
       >
         {orgSlug && workspaceSlug ? (
           <Button asChild variant="outline" className="h-9 gap-2">
@@ -52,7 +52,8 @@ export default function ImportVacancyPage() {
             <li className="flex items-start gap-2">
               <span className="font-semibold">2.</span>
               <span>
-                Система автоматически загрузит данные вакансий с HeadHunter
+                Система автоматически загрузит данные вакансий с выбранной
+                платформы
               </span>
             </li>
             <li className="flex items-start gap-2">

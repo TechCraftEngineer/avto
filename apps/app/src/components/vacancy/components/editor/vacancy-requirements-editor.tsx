@@ -18,13 +18,13 @@ import {
   SelectValue,
   Textarea,
 } from "@qbs-autonaim/ui";
-import type { UpdateFullVacancyInput } from "@qbs-autonaim/validators";
 import { Plus, X } from "lucide-react";
 import React from "react";
 import type { UseFormReturn } from "react-hook-form";
 
 interface VacancyRequirementsEditorProps {
-  form: UseFormReturn<UpdateFullVacancyInput>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  form: UseFormReturn<any>;
   requirements: VacancyRequirements | null | undefined;
 }
 

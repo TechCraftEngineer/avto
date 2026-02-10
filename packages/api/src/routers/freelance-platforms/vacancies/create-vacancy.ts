@@ -1,6 +1,9 @@
 import { vacancy } from "@qbs-autonaim/db/schema";
 import { InterviewLinkGenerator } from "@qbs-autonaim/shared/server";
-import { workspaceIdSchema } from "@qbs-autonaim/validators";
+import {
+  vacancyRequirementsSchema,
+  workspaceIdSchema,
+} from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../trpc";
@@ -10,7 +13,7 @@ const createVacancyInputSchema = z.object({
   workspaceId: workspaceIdSchema,
   title: z.string().min(1).max(500),
   description: z.string().optional(),
-  requirements: z.string().optional(),
+  requirements: vacancyRequirementsSchema.optional(),
   platformSource: z.enum([
     "HH",
     "AVITO",
@@ -54,6 +57,7 @@ export const createVacancy = protectedProcedure
           workspaceId: input.workspaceId,
           title: input.title,
           description: input.description,
+          requirements: input.requirements || null,
           source: input.platformSource,
           url: input.platformUrl,
           createdBy: ctx.session.user.id,

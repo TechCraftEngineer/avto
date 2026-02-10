@@ -162,6 +162,8 @@ export const screenAllResponsesFunction = inngest.createFunction(
     // Собираем результаты из settled promises
     for (let i = 0; i < results.length; i++) {
       const result = results[i];
+      if (!result) continue;
+
       if (result.status === "fulfilled") {
         const { vacancyId, processed, failed } = result.value;
         const vacancyProgress = progressByVacancy[vacancyId];

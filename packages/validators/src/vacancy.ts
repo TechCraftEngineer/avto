@@ -74,6 +74,10 @@ export const vacancyRequirementsSchema = z.object({
   keywords_for_matching: z.array(z.string()),
 });
 
+export type VacancyRequirementsInput = z.infer<
+  typeof vacancyRequirementsSchema
+>;
+
 export const updateFullVacancySchema = z.object({
   title: z
     .string()
