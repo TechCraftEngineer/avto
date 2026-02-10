@@ -1,0 +1,25 @@
+FROM oven/bun:1-alpine AS base
+
+WORKDIR /app
+
+# Копируем только необходимые файлы для миграции
+COPY package.json bun.lock* ./
+COPY packages/db/package.json ./packages/db/
+COPY packages/config/package.json ./packages/config/
+
+# Устанавливаем зависимости
+RUN bun install --frozen-lockfile --production
+
+# Копируем конфигурацию и миграции
+COPY packages/db/drizzle.config.ts ./packages/db/
+COPY packages/db/migrations ./packages/db/migrations
+COPY packages/db/src ./packages/db/src
+COPY packages/config ./packages/config
+
+# Устанавливаем drizzle-kit глобально
+RUN bun add -g drizzle-kit
+
+WORKDIR /app/packages/db
+
+# Команда для запуска миграции
+CMD ["bunx", "drizzle-kit", "migrate"]
