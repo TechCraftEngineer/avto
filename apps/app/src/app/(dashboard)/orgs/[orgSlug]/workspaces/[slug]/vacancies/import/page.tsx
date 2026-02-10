@@ -96,7 +96,8 @@ export default function ImportVacancyPage() {
                 •
               </span>
               <span>
-                Для импорта по ссылке поддерживаются только вакансии с hh.ru
+                Для импорта по ссылке используйте прямую ссылку на вакансию с
+                платформы подбора персонала
               </span>
             </li>
           </ul>
@@ -105,4 +106,3 @@ export default function ImportVacancyPage() {
     </div>
   );
 }
-
