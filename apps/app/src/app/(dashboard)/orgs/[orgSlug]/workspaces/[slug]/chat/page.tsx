@@ -6,7 +6,7 @@ export default function ChatPage() {
       <div className="@container/main flex flex-1 flex-col gap-2">
         <PageHeader
           title="Чаты"
-          description="Общение с кандидатами и заказчиками"
+          description="Обмен сообщениями с участниками"
           tooltipContent="[Подробнее в документации](https://docs.hh.qbs.ru/chat)"
         />
         <div className="flex h-full items-center justify-center p-4 w-full">

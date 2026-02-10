@@ -1,9 +1,11 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   CandidatesTable,
+  type ColumnVisibility,
+  ColumnVisibilityToggle,
   PipelineBoardView,
   PipelineToolbar,
   PipelineViewSwitcher,
@@ -16,6 +18,20 @@ import { useStagePagination } from "./hooks/use-stage-pagination";
 import { useStageQueries } from "./hooks/use-stage-queries";
 import { useStageUpdate } from "./hooks/use-stage-update";
 
+const DEFAULT_COLUMN_VISIBILITY: ColumnVisibility = {
+  vacancy: true,
+  experience: true,
+  location: true,
+  matchScore: true,
+  salary: true,
+  email: false,
+  phone: false,
+  telegram: false,
+  createdAt: true,
+};
+
+const STORAGE_KEY = "candidates-pipeline-column-visibility";
+
 export function CandidatePipeline() {
   const { workspaceId } = useWorkspaceContext();
   const trpc = useTRPC();
@@ -24,6 +40,33 @@ export function CandidatePipeline() {
   const [_selectedCandidate, setSelectedCandidate] =
     useState<FunnelCandidate | null>(null);
   const [_isModalOpen, setIsModalOpen] = useState(false);
+
+  const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>(
+    DEFAULT_COLUMN_VISIBILITY,
+  );
+
+  // Загрузка настроек видимости из localStorage
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored) as ColumnVisibility;
+        setColumnVisibility(parsed);
+      }
+    } catch (error) {
+      console.error("Ошибка загрузки настроек видимости колонок:", error);
+    }
+  }, []);
+
+  // Сохранение настроек видимости в localStorage
+  const handleVisibilityChange = useCallback((visibility: ColumnVisibility) => {
+    setColumnVisibility(visibility);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(visibility));
+    } catch (error) {
+      console.error("Ошибка сохранения настроек видимости колонок:", error);
+    }
+  }, []);
 
   const {
     selectedVacancy,
@@ -137,16 +180,26 @@ export function CandidatePipeline() {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      <PipelineToolbar
-        selectedVacancy={selectedVacancy ?? ""}
-        onVacancyChange={setSelectedVacancy}
-        searchText={searchText}
-        onSearchChange={setSearchText}
-        filterStages={filterStages}
-        onToggleStageFilter={toggleStageFilter}
-        onClearStageFilters={clearStageFilters}
-        vacancies={vacancies}
-      />
+      <div className="flex items-center justify-between gap-4 px-4 md:px-6 lg:px-8">
+        <div className="flex-1">
+          <PipelineToolbar
+            selectedVacancy={selectedVacancy ?? ""}
+            onVacancyChange={setSelectedVacancy}
+            searchText={searchText}
+            onSearchChange={setSearchText}
+            filterStages={filterStages}
+            onToggleStageFilter={toggleStageFilter}
+            onClearStageFilters={clearStageFilters}
+            vacancies={vacancies}
+          />
+        </div>
+        {activeView === "table" && (
+          <ColumnVisibilityToggle
+            visibility={columnVisibility}
+            onVisibilityChange={handleVisibilityChange}
+          />
+        )}
+      </div>
 
       <PipelineViewSwitcher
         activeView={activeView}
@@ -170,6 +223,7 @@ export function CandidatePipeline() {
               candidates={allCandidates}
               onRowClick={handleCardClick}
               isLoading={isLoading}
+              visibility={columnVisibility}
             />
           </div>
         )}

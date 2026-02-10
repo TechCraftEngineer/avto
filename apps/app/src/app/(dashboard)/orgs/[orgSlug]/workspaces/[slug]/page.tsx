@@ -8,6 +8,7 @@ import {
   QuickActions,
   RecentResponses,
 } from "~/components/dashboard/components";
+import { GettingStartedContainer } from "~/components/getting-started";
 
 export default function WorkspacePage({
   params,
@@ -17,24 +18,29 @@ export default function WorkspacePage({
   const { orgSlug, slug: workspaceSlug } = use(params);
 
   return (
-    <div className="flex flex-1 flex-col gap-4">
-      {/* Компактная статистика */}
-      <DashboardStats />
+    <>
+      <div className="flex flex-1 flex-col gap-4">
+        {/* Компактная статистика */}
+        <DashboardStats />
 
-      {/* Быстрые действия */}
-      <QuickActions orgSlug={orgSlug} workspaceSlug={workspaceSlug} />
+        {/* Быстрые действия */}
+        <QuickActions orgSlug={orgSlug} workspaceSlug={workspaceSlug} />
 
-      {/* Основной контент */}
-      <div className="grid flex-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {/* Требуют внимания */}
-        <PendingActions orgSlug={orgSlug} workspaceSlug={workspaceSlug} />
+        {/* Основной контент */}
+        <div className="grid flex-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {/* Требуют внимания */}
+          <PendingActions orgSlug={orgSlug} workspaceSlug={workspaceSlug} />
 
-        {/* Последние отклики */}
-        <RecentResponses orgSlug={orgSlug} workspaceSlug={workspaceSlug} />
+          {/* Последние отклики */}
+          <RecentResponses orgSlug={orgSlug} workspaceSlug={workspaceSlug} />
 
-        {/* Активные вакансии */}
-        <ActiveVacancies orgSlug={orgSlug} workspaceSlug={workspaceSlug} />
+          {/* Активные вакансии */}
+          <ActiveVacancies orgSlug={orgSlug} workspaceSlug={workspaceSlug} />
+        </div>
       </div>
-    </div>
+      <div className="hidden md:block">
+        <GettingStartedContainer />
+      </div>
+    </>
   );
 }

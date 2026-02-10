@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { getSession } from "~/auth/server";
 import { EmailVerificationBanner } from "~/components/auth";
-import { GettingStartedContainer } from "~/components/getting-started";
 import { SiteHeader } from "~/components/layout";
 import { AppSidebarWrapper } from "~/components/sidebar";
 import { WorkspaceProvider } from "~/contexts/workspace-context";
@@ -81,9 +80,6 @@ export default async function DashboardLayout({
             </div>
           </div>
         </SidebarInset>
-        <div className="hidden md:block">
-          <GettingStartedContainer />
-        </div>
       </SidebarProvider>
     </WorkspaceProvider>
   );
