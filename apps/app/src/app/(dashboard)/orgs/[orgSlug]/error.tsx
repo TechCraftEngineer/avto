@@ -5,6 +5,7 @@ import { ArrowLeft, Home, ShieldX } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { isForbiddenError } from "~/lib/errors";
 
 export default function OrganizationError({
   error,
@@ -20,7 +21,7 @@ export default function OrganizationError({
   }, [error]);
 
   // Проверяем, является ли это ошибкой доступа
-  const isForbidden = error.message?.includes("Нет доступа");
+  const isForbidden = isForbiddenError(error);
 
   if (isForbidden) {
     return (

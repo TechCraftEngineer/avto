@@ -2,6 +2,7 @@ import { paths } from "@qbs-autonaim/config";
 import { RATE_LIMITS, rateLimit } from "@qbs-autonaim/server-utils";
 import { getSessionCookie } from "better-auth/cookies";
 import { type NextRequest, NextResponse } from "next/server";
+import { pathnameSchema } from "~/lib/pathname-schema";
 
 const ENABLE_CSP = process.env.ENABLE_CSP === "true";
 const CSP_REPORT_ONLY = process.env.CSP_REPORT_ONLY === "true";
@@ -10,7 +11,19 @@ export async function proxy(request: NextRequest) {
   const response = NextResponse.next();
 
   // Передаем pathname в headers для использования в layouts
-  response.headers.set("x-pathname", request.nextUrl.pathname);
+  // Валидируем pathname перед установкой в header
+  const pathnameValidation = pathnameSchema.safeParse(request.nextUrl.pathname);
+  if (pathnameValidation.success) {
+    response.headers.set("x-pathname", pathnameValidation.data);
+  } else {
+    // Логируем ошибку валидации и используем безопасное значение по умолчанию
+    console.warn(
+      "[Security] Invalid pathname detected:",
+      request.nextUrl.pathname,
+      pathnameValidation.error.issues,
+    );
+    response.headers.set("x-pathname", "/");
+  }
 
   // Настройка CSP на основе переменных окружения
   if (ENABLE_CSP || CSP_REPORT_ONLY) {

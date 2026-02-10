@@ -45,16 +45,20 @@ interface SiteHeaderProps {
     avatar: string;
   };
   children?: React.ReactNode;
+  notificationsCount?: number;
 }
 
-export function SiteHeader({ user, children }: SiteHeaderProps) {
+export function SiteHeader({
+  user,
+  children,
+  notificationsCount = 0,
+}: SiteHeaderProps) {
   const router = useRouter();
 
   const initials = getInitials(user.name);
   const avatarUrl = getAvatarUrl(user.avatar, user.name);
 
-  // TODO: Заменить на реальные данные из API
-  const hasNotifications = false;
+  const hasNotifications = notificationsCount > 0;
 
   const handleLogout = async () => {
     await signOut({
@@ -119,10 +123,22 @@ export function SiteHeader({ user, children }: SiteHeaderProps) {
           {children}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="size-8 relative">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8 relative"
+                aria-label={
+                  hasNotifications
+                    ? `Уведомления, ${notificationsCount} новых`
+                    : "Уведомления, нет новых"
+                }
+              >
                 <Bell aria-hidden="true" />
                 {hasNotifications && (
-                  <span className="bg-destructive absolute end-0.5 top-0.5 block size-1.5 shrink-0 rounded-full" />
+                  <span
+                    className="bg-destructive absolute end-0.5 top-0.5 block size-1.5 shrink-0 rounded-full"
+                    aria-hidden="true"
+                  />
                 )}
               </Button>
             </DropdownMenuTrigger>

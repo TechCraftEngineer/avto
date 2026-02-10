@@ -128,11 +128,12 @@ export function useRefreshSubscription({
   });
 
   // Выбираем данные из активной подписки через pattern matching
+  // Обеспечиваем, что data всегда массив (никогда не undefined)
   const data = match(mode)
-    .with("archived", () => archivedSubscription.data)
-    .with("screening", () => screeningSubscription.data)
-    .with("analyze", () => analyzeSubscription.data)
-    .with("refresh", () => refreshSubscription.data)
+    .with("archived", () => archivedSubscription.data ?? [])
+    .with("screening", () => screeningSubscription.data ?? [])
+    .with("analyze", () => analyzeSubscription.data ?? [])
+    .with("refresh", () => refreshSubscription.data ?? [])
     .exhaustive();
 
   const error = match(mode)

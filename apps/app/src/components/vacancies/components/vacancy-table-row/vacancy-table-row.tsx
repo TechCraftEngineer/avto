@@ -279,21 +279,27 @@ export function VacancyTableRow({
             <TooltipTrigger asChild>
               <div className="flex items-center">
                 <Switch
-                  checked={vacancy.isActive ?? false}
+                  checked={vacancy.isActive === true}
                   onCheckedChange={handleStatusToggle}
-                  disabled={updateStatusMutation.isPending}
+                  disabled={
+                    updateStatusMutation.isPending || vacancy.isActive === null
+                  }
                   aria-label={
-                    vacancy.isActive
-                      ? "Деактивировать вакансию в системе (не влияет на статус на hh.ru)"
-                      : "Активировать вакансию в системе (не влияет на статус на hh.ru)"
+                    vacancy.isActive === null
+                      ? "Статус неизвестен"
+                      : vacancy.isActive
+                        ? "Деактивировать вакансию в системе (не влияет на статус на hh.ru)"
+                        : "Активировать вакансию в системе (не влияет на статус на hh.ru)"
                   }
                 />
               </div>
             </TooltipTrigger>
             <TooltipContent side="top" className="text-sm">
-              {vacancy.isActive
-                ? "Деактивировать вакансию в системе (не влияет на статус на hh.ru)"
-                : "Активировать вакансию в системе (не влияет на статус на hh.ru)"}
+              {vacancy.isActive === null
+                ? "Статус неизвестен"
+                : vacancy.isActive
+                  ? "Деактивировать вакансию в системе (не влияет на статус на hh.ru)"
+                  : "Активировать вакансию в системе (не влияет на статус на hh.ru)"}
             </TooltipContent>
           </Tooltip>
           <Tooltip delayDuration={300}>
@@ -301,19 +307,27 @@ export function VacancyTableRow({
               <div className="flex items-center gap-2">
                 <div
                   className={`size-2 rounded-full ${
-                    vacancy.isActive
+                    vacancy.isActive === true
                       ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]"
-                      : "bg-zinc-300"
+                      : vacancy.isActive === false
+                        ? "bg-zinc-300"
+                        : "bg-amber-400"
                   }`}
+                  aria-hidden="true"
                 />
                 <span className="text-sm font-medium">
-                  {vacancy.isActive ? "Активна" : "Закрыта"}
+                  {vacancy.isActive === true
+                    ? "Активна"
+                    : vacancy.isActive === false
+                      ? "Закрыта"
+                      : "Неизвестно"}
                 </span>
               </div>
             </TooltipTrigger>
             <TooltipContent side="top" className="max-w-xs text-sm">
-              Статус вакансии в системе. Изменение не влияет на статус на
-              платформе HeadHunter
+              {vacancy.isActive === null
+                ? "Статус вакансии неизвестен. Обновите данные для получения актуального статуса."
+                : "Статус вакансии в системе. Изменение не влияет на статус на платформе HeadHunter"}
             </TooltipContent>
           </Tooltip>
         </div>
