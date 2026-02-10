@@ -10,6 +10,8 @@ export {
   CandidatePipeline,
   CandidatesTable,
   ChatSection,
+  type ColumnVisibility,
+  ColumnVisibilityToggle,
   CommentsSection,
   FactorBreakdown,
   type FunnelActivity,

@@ -23,6 +23,24 @@ export const AVAILABLE_INTEGRATIONS = [
     fields: ["email", "password"],
     category: "job-search" as const,
   },
+  {
+    type: "avito",
+    name: "Avito",
+    description: "Автоматизация откликов на вакансии на Avito",
+    detailedDescription:
+      "Подключите свой аккаунт Avito для автоматического поиска и отклика на подходящие вакансии. Система будет анализировать вакансии и отправлять отклики от вашего имени.",
+    fields: ["email", "password"],
+    category: "job-search" as const,
+  },
+  {
+    type: "superjob",
+    name: "SuperJob",
+    description: "Автоматизация откликов на вакансии на SuperJob",
+    detailedDescription:
+      "Подключите свой аккаунт SuperJob для автоматического поиска и отклика на подходящие вакансии. Система будет анализировать вакансии и отправлять отклики от вашего имени.",
+    fields: ["email", "password"],
+    category: "job-search" as const,
+  },
 ] as const;
 
 export type IntegrationType = (typeof AVAILABLE_INTEGRATIONS)[number]["type"];
