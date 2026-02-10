@@ -90,7 +90,8 @@ export function ShortlistCard({
                 Список пуст
               </p>
               <p className="text-xs text-muted-foreground leading-relaxed max-w-[200px] mx-auto">
-                Добавьте кандидатов в финалисты после оценки их откликов
+                Кандидаты автоматически попадают в финалисты после оценки
+                откликов
               </p>
             </div>
           </div>
