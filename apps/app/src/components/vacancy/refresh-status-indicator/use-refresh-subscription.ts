@@ -15,6 +15,7 @@ import {
   handleAnalyzeProgress,
   handleAnalyzeResult,
   handleArchivedProgress,
+  handleArchivedResult,
   handleRefreshProgress,
   handleRefreshResult,
 } from "./subscription-handlers";
@@ -222,13 +223,13 @@ export function useRefreshSubscription({
     };
 
     for (const message of data) {
-      // Канал syncArchivedResponsesChannel использует топик "status" вместо "progress"
-      const isProgressTopic =
-        message.topic === "progress" || message.topic === "status";
+      const isProgressTopic = message.topic === "progress";
       const isResultTopic = message.topic === "result";
 
       if (isArchivedMode && isProgressTopic) {
         handleArchivedProgress(message, context);
+      } else if (isArchivedMode && isResultTopic) {
+        handleArchivedResult(message, context);
       } else if (isAnalyzeMode && isProgressTopic) {
         handleAnalyzeProgress(message, context);
       } else if (isAnalyzeMode && isResultTopic) {

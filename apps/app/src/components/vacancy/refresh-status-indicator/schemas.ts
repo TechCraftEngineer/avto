@@ -22,7 +22,14 @@ export const archivedStatusDataSchema = z.object({
   vacancyId: z.string(),
   syncedResponses: z.number().optional(),
   newResponses: z.number().optional(),
-  vacancyTitle: z.string().optional(),
+});
+
+export const archivedResultDataSchema = z.object({
+  vacancyId: z.string(),
+  success: z.boolean(),
+  syncedResponses: z.number(),
+  newResponses: z.number(),
+  vacancyTitle: z.string(),
 });
 
 export const analyzeProgressDataSchema = z.object({

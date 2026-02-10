@@ -2,6 +2,7 @@ import type { QueryClient } from "@tanstack/react-query";
 import {
   analyzeProgressDataSchema,
   analyzeResultDataSchema,
+  archivedResultDataSchema,
   archivedStatusDataSchema,
   progressDataSchema,
   resultDataSchema,
@@ -57,10 +58,7 @@ export function handleArchivedProgress(
   context.onVisibilityChange(true);
 
   // Инвалидируем кэш откликов при обработке
-  if (
-    progressData.status === "processing" ||
-    progressData.status === "completed"
-  ) {
+  if (progressData.status === "processing") {
     context.queryClient.invalidateQueries({
       queryKey: context.trpc.vacancy.responses.list.queryKey({
         vacancyId: context.vacancyId,
@@ -68,27 +66,56 @@ export function handleArchivedProgress(
     });
   }
 
-  if (progressData.status === "completed") {
-    // Инвалидируем статус задания, чтобы отключить подписку
-    context.queryClient.invalidateQueries({
-      queryKey: context.trpc.vacancy.responses.getRefreshStatus.queryKey({
-        vacancyId: context.vacancyId,
-      }),
-    });
+  // Очищаем таймер при получении нового прогресса
+  context.setAutoCloseTimer((prev) => {
+    if (prev) {
+      clearTimeout(prev);
+    }
+    return null;
+  });
+}
 
-    const timer = setTimeout(() => {
-      context.onVisibilityChange(false);
-      context.setArchivedStatus(null);
-    }, 3000);
-    context.setAutoCloseTimer(timer);
-  } else {
-    context.setAutoCloseTimer((prev) => {
-      if (prev) {
-        clearTimeout(prev);
-      }
-      return null;
-    });
+export function handleArchivedResult(
+  message: { data: unknown },
+  context: MessageHandlerContext,
+) {
+  const parseResult = archivedResultDataSchema.safeParse(message.data);
+  if (!parseResult.success) {
+    console.error("Ошибка валидации archived result data:", parseResult.error);
+    return;
   }
+
+  const resultData = parseResult.data;
+
+  // Показываем финальный статус с данными из result
+  context.setArchivedStatus({
+    status: "completed",
+    message: `Синхронизация завершена. Обработано: ${resultData.syncedResponses}, новых: ${resultData.newResponses}`,
+    vacancyId: resultData.vacancyId,
+    syncedResponses: resultData.syncedResponses,
+    newResponses: resultData.newResponses,
+  });
+  context.onVisibilityChange(true);
+
+  // Финальная инвалидация при завершении
+  context.queryClient.invalidateQueries({
+    queryKey: context.trpc.vacancy.responses.list.queryKey({
+      vacancyId: context.vacancyId,
+    }),
+  });
+
+  // Инвалидируем статус задания, чтобы отключить подписку
+  context.queryClient.invalidateQueries({
+    queryKey: context.trpc.vacancy.responses.getRefreshStatus.queryKey({
+      vacancyId: context.vacancyId,
+    }),
+  });
+
+  const timer = setTimeout(() => {
+    context.onVisibilityChange(false);
+    context.setArchivedStatus(null);
+  }, 3000);
+  context.setAutoCloseTimer(timer);
 }
 
 export function handleAnalyzeProgress(
