@@ -11,6 +11,7 @@ export { CandidateKanbanColumn } from "./candidate-kanban-column";
 export { CandidateKanbanItem } from "./candidate-kanban-item";
 export { CandidatePipeline } from "./candidate-pipeline";
 export { CandidatesTable } from "./candidates-table";
+export { CandidatesTableView } from "./candidates-table-view";
 export { ChatSection } from "./chat-section";
 export { CommentsSection } from "./comments-section";
 export { MatchScoreCircle } from "./match-score-circle";

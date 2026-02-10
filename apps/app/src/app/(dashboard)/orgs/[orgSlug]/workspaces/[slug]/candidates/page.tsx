@@ -1,4 +1,4 @@
-import { CandidatesTableView } from "~/components/candidates/components/candidates-table-view";
+import { CandidatesTableView } from "~/components/candidates/components";
 import { PageHeader } from "~/components/layout/components";
 
 export default function CandidatesPage() {
