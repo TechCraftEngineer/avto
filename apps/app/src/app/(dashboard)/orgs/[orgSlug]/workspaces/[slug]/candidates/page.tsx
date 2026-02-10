@@ -1,20 +1,16 @@
-import { CandidatePipeline } from "~/components/candidates/components";
+import { CandidatesTableView } from "~/components/candidates/components/candidates-table-view";
 import { PageHeader } from "~/components/layout/components";
 
 export default function CandidatesPage() {
   return (
-    <div className="kanban-page flex flex-1 flex-col overflow-hidden">
-      <div className="@container/main flex flex-1 flex-col gap-2 overflow-hidden">
+    <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="@container/main flex flex-1 flex-col gap-4 p-4 overflow-auto">
         <PageHeader
-          title="Кандидаты"
-          description="База данных кандидатов и их профили"
+          title="База кандидатов"
+          description="Полная база данных всех кандидатов"
           tooltipContent="[Подробнее в документации](https://docs.hh.qbs.ru/candidates)"
         />
-        <div className="flex flex-col flex-1 overflow-hidden">
-          <div className="flex-1 overflow-hidden">
-            <CandidatePipeline />
-          </div>
-        </div>
+        <CandidatesTableView />
       </div>
     </div>
   );

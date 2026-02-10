@@ -23,10 +23,11 @@ interface PipelineToolbarProps {
   onVacancyChange: (value: string) => void;
   searchText: string;
   onSearchChange: (value: string) => void;
-  filterStages: FunnelStage[];
-  onToggleStageFilter: (stageId: FunnelStage) => void;
-  onClearStageFilters: () => void;
+  filterStages?: FunnelStage[];
+  onToggleStageFilter?: (stageId: FunnelStage) => void;
+  onClearStageFilters?: () => void;
   vacancies?: Array<{ id: string; title: string }>;
+  hideStageFilters?: boolean;
 }
 
 export function PipelineToolbar({
@@ -34,10 +35,11 @@ export function PipelineToolbar({
   onVacancyChange,
   searchText,
   onSearchChange,
-  filterStages,
+  filterStages = [],
   onToggleStageFilter,
   onClearStageFilters,
   vacancies,
+  hideStageFilters = false,
 }: PipelineToolbarProps) {
   return (
     <div className="flex-shrink-0 mx-4 md:mx-6 lg:mx-8 mb-4 md:mb-6">
@@ -74,61 +76,69 @@ export function PipelineToolbar({
             </div>
           </div>
           <div className="flex gap-2">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-2 h-10 px-4">
-                  <SlidersHorizontal className="h-4 w-4" />
-                  <span className="hidden sm:inline">Фильтры</span>
-                  {filterStages.length > 0 && (
-                    <Badge
-                      variant="secondary"
-                      className="ml-1 px-1.5 py-0.5 h-5 text-[10px] min-w-5 justify-center text-foreground font-semibold"
-                    >
-                      {filterStages.length}
-                    </Badge>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-56 p-3" align="end">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-medium text-sm text-foreground">
-                      Статус
-                    </h4>
+            {!hideStageFilters && (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-2 h-10 px-4"
+                  >
+                    <SlidersHorizontal className="h-4 w-4" />
+                    <span className="hidden sm:inline">Фильтры</span>
                     {filterStages.length > 0 && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-auto p-0 text-xs text-muted-foreground hover:text-foreground"
-                        onClick={onClearStageFilters}
+                      <Badge
+                        variant="secondary"
+                        className="ml-1 px-1.5 py-0.5 h-5 text-[10px] min-w-5 justify-center text-foreground font-semibold"
                       >
-                        Сбросить
-                      </Button>
+                        {filterStages.length}
+                      </Badge>
                     )}
-                  </div>
-                  <div className="space-y-2">
-                    {STAGES.map((stage) => (
-                      <div
-                        key={stage.id}
-                        className="flex items-center space-x-2"
-                      >
-                        <Checkbox
-                          id={`filter-${stage.id}`}
-                          checked={filterStages.includes(stage.id)}
-                          onCheckedChange={() => onToggleStageFilter(stage.id)}
-                        />
-                        <Label
-                          htmlFor={`filter-${stage.id}`}
-                          className="text-sm font-normal cursor-pointer flex-1"
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-56 p-3" align="end">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-medium text-sm text-foreground">
+                        Статус
+                      </h4>
+                      {filterStages.length > 0 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-auto p-0 text-xs text-muted-foreground hover:text-foreground"
+                          onClick={onClearStageFilters}
                         >
-                          {stage.title}
-                        </Label>
-                      </div>
-                    ))}
+                          Сбросить
+                        </Button>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      {STAGES.map((stage) => (
+                        <div
+                          key={stage.id}
+                          className="flex items-center space-x-2"
+                        >
+                          <Checkbox
+                            id={`filter-${stage.id}`}
+                            checked={filterStages.includes(stage.id)}
+                            onCheckedChange={() =>
+                              onToggleStageFilter?.(stage.id)
+                            }
+                          />
+                          <Label
+                            htmlFor={`filter-${stage.id}`}
+                            className="text-sm font-normal cursor-pointer flex-1"
+                          >
+                            {stage.title}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </PopoverContent>
-            </Popover>
+                </PopoverContent>
+              </Popover>
+            )}
 
             <Button size="sm" className="gap-2 h-10 px-4" disabled>
               <UserPlus className="h-4 w-4" />

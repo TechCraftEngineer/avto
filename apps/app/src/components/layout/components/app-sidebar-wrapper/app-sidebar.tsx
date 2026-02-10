@@ -98,7 +98,7 @@ function getNavSections(
             : undefined,
         },
         {
-          title: "Кандидаты",
+          title: "База кандидатов",
           url: baseUrl ? `${baseUrl}/candidates` : "/candidates",
           icon: IconUsersGroup,
           badge: stats?.highScoreResponses,
@@ -117,6 +117,12 @@ function getNavSections(
           url: baseUrl ? `${baseUrl}/chat` : "/chat",
           icon: IconMessage,
         },
+      ],
+    },
+    {
+      title: "Аналитика",
+      defaultOpen: true,
+      items: [
         {
           title: "Воронка найма",
           url: baseUrl ? `${baseUrl}/funnel` : "/funnel",
