@@ -103,4 +103,3 @@ export function VacancySkeleton() {
     </div>
   );
 }
-

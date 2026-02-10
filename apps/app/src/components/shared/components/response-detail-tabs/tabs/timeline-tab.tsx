@@ -153,4 +153,3 @@ export function TimelineTab({ responseId }: TimelineTabProps) {
     </ScrollArea>
   );
 }
-

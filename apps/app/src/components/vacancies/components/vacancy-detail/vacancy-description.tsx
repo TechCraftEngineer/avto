@@ -1,4 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/card";
 import { IconFileDescription } from "@tabler/icons-react";
 
 import sanitizeHtml from "sanitize-html";
@@ -69,4 +74,3 @@ export function VacancyDescription({ description }: VacancyDescriptionProps) {
     </Card>
   );
 }
-

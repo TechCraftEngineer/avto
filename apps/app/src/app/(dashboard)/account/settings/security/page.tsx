@@ -19,4 +19,3 @@ export default function SecuritySettingsPage() {
 
   return <SecurityTab user={user} />;
 }
-

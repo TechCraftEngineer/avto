@@ -37,4 +37,3 @@ export function GigsStats({ stats, isLoading }: GigsStatsProps) {
     </div>
   );
 }
-

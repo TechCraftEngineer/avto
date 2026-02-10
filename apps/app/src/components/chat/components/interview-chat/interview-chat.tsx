@@ -667,4 +667,3 @@ export function InterviewChat({
     </div>
   );
 }
-

@@ -1,4 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/card";
 import { Briefcase } from "lucide-react";
 import { SafeHtml } from "~/components";
 
@@ -24,4 +29,3 @@ export function ExperienceCard({ experience }: ExperienceCardProps) {
     </Card>
   );
 }
-

@@ -1,7 +1,7 @@
 "use client";
 
-import { Badge } from "@qbs-autonaim/ui/badge";
 import { cn } from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/badge";
 import { ScrollArea } from "@qbs-autonaim/ui/scroll-area";
 import { Bot, Mic, User } from "lucide-react";
 import ReactMarkdown from "react-markdown";
@@ -172,4 +172,3 @@ function DialogMessage({ message }: { message: Message }) {
     </div>
   );
 }
-

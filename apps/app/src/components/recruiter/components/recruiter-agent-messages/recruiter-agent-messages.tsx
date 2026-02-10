@@ -122,4 +122,3 @@ const RecruiterAgentMessages = memo(function RecruiterAgentMessages({
 RecruiterAgentMessages.displayName = "RecruiterAgentMessages";
 
 export { RecruiterAgentMessages };
-

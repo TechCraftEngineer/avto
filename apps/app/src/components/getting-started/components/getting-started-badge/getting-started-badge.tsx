@@ -83,4 +83,3 @@ export function GettingStartedBadge({
     </motion.button>
   );
 }
-

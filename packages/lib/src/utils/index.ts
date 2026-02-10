@@ -1,11 +1,11 @@
 // Date utilities
 export {
-  parseBirthDate,
-  createUTCDate,
   calculateAge,
+  createUTCDate,
   formatBirthDate,
   formatDateForInput,
-  parseDateFromInput
+  parseBirthDate,
+  parseDateFromInput,
 } from "./date-utils";
 
 // Sanitization utilities

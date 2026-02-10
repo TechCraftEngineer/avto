@@ -193,4 +193,3 @@ export function GigChatList({ gigId }: GigChatListProps) {
     </div>
   );
 }
-

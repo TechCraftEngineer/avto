@@ -1,14 +1,14 @@
 import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
 } from "@qbs-autonaim/ui";
 import { formatPhone } from "@qbs-autonaim/validators";
-import { Mail, Phone, Copy, PhoneCall } from "lucide-react";
+import { Copy, Mail, Phone, PhoneCall } from "lucide-react";
 import { toast } from "sonner";
 
 interface Contact {
@@ -98,7 +98,11 @@ export function ContactInfo({ contacts, size = "md" }: ContactInfoProps) {
               displayValue = formatPhone(phoneToFormat);
             } catch (error) {
               // Если не удалось отформатировать, используем исходное значение
-              console.warn("Ошибка форматирования телефона:", phoneToFormat, error);
+              console.warn(
+                "Ошибка форматирования телефона:",
+                phoneToFormat,
+                error,
+              );
               displayValue = phoneToFormat;
             }
           }

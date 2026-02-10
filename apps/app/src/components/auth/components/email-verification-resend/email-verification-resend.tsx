@@ -99,4 +99,3 @@ export function EmailVerificationResend({
     </Button>
   );
 }
-

@@ -1,4 +1,9 @@
-import { Card, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/card";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/card";
 import { Eye, FileText, Inbox, Loader } from "lucide-react";
 
 interface VacancyStatsProps {
@@ -98,4 +103,3 @@ export function VacancyStats({
     </div>
   );
 }
-

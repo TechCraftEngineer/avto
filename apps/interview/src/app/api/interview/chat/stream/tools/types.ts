@@ -1,4 +1,4 @@
-import type { StageId } from '../stages/types';
+import type { StageId } from "../stages/types";
 
 /**
  * Конфигурация доступности инструмента по стадиям
@@ -6,10 +6,10 @@ import type { StageId } from '../stages/types';
 export interface ToolAvailability {
   /** Имя инструмента */
   name: string;
-  
+
   /** Стадии на которых инструмент доступен */
   availableOnStages: StageId[];
-  
+
   /** Доступен ли инструмент на всех стадиях */
   availableOnAllStages?: boolean;
 }

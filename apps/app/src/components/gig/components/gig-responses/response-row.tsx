@@ -107,4 +107,3 @@ export function ResponseRow({
     </TableRow>
   );
 }
-

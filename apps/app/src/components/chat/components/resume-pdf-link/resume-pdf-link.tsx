@@ -37,4 +37,3 @@ export function ResumePdfLink({ fileKey }: ResumePdfLinkProps) {
     </div>
   );
 }
-

@@ -334,4 +334,3 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
     </div>
   );
 }
-

@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui/button";
 import { cn } from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/button";
 import {
   ArrowUp,
   FileText,

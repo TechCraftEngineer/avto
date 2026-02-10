@@ -124,4 +124,3 @@ export function InviteAcceptClient({ invite, token }: InviteAcceptClientProps) {
     </div>
   );
 }
-

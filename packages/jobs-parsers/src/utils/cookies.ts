@@ -1,7 +1,7 @@
 import {
+  type Cookie,
   loadCookiesForIntegration,
   saveCookiesForIntegration,
-  type Cookie,
 } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import type { CookieData } from "puppeteer";
@@ -26,7 +26,12 @@ export async function saveCookies(
       secure: cookie.secure,
       sameSite: cookie.sameSite as Cookie["sameSite"],
     }));
-    await saveCookiesForIntegration(db, integrationType, dbCookies, workspaceId);
+    await saveCookiesForIntegration(
+      db,
+      integrationType,
+      dbCookies,
+      workspaceId,
+    );
     console.log(`✓ Cookies сохранены для интеграции ${integrationType}`);
   } catch (error) {
     console.error("Ошибка при сохранении cookies:", error);

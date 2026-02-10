@@ -7,9 +7,9 @@
 
 export type {
   GigContactInfo,
-  GigShortlistOptions,
+  GigShortlist,
   GigShortlistCandidate,
-  GigShortlist
+  GigShortlistOptions,
 } from "./gig-shortlist-generator";
 export { GigShortlistGenerator } from "./gig-shortlist-generator";
 export * from "./interview-link-generator";

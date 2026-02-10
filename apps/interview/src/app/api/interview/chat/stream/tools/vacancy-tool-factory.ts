@@ -1,4 +1,4 @@
-import { BaseToolFactory } from './base-tool-factory';
+import { BaseToolFactory } from "./base-tool-factory";
 
 /**
  * Фабрика инструментов для интервью по вакансиям
@@ -6,7 +6,7 @@ import { BaseToolFactory } from './base-tool-factory';
  */
 export class VacancyToolFactory extends BaseToolFactory {
   constructor() {
-    super('vacancy');
+    super("vacancy");
   }
 
   // Использует базовую реализацию без изменений

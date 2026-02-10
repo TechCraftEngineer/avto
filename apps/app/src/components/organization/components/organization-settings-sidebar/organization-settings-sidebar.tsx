@@ -55,4 +55,3 @@ export function OrganizationSettingsSidebar({ orgSlug }: { orgSlug: string }) {
     </nav>
   );
 }
-

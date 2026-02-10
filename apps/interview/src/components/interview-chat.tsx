@@ -5,8 +5,7 @@ import { cn } from "@qbs-autonaim/ui";
 import { useQuery } from "@tanstack/react-query";
 import { DefaultChatTransport } from "ai";
 import { AlertCircle, Sparkles } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef } from "react";
-import { memo } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { useVoiceUpload } from "~/hooks/use-voice-upload";
 import {
   convertHistoryMessage,
@@ -204,7 +203,10 @@ function PureInterviewChat({
       {interviewContext && (
         <div className="shrink-0 border-b bg-background">
           <div className="mx-auto w-full max-w-4xl">
-            <InterviewContextCard context={interviewContext} entityType={entityType} />
+            <InterviewContextCard
+              context={interviewContext}
+              entityType={entityType}
+            />
           </div>
         </div>
       )}
@@ -226,9 +228,7 @@ function PureInterviewChat({
       <MessagesList
         messages={messages}
         status={status}
-        emptyStateComponent={
-          <InterviewGreeting entityType={entityType} />
-        }
+        emptyStateComponent={<InterviewGreeting entityType={entityType} />}
       />
 
       <div className="sticky bottom-0 z-10 shrink-0 border-t bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">

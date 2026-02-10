@@ -1,9 +1,9 @@
 "use client";
 
+import { cn } from "@qbs-autonaim/ui";
 import { Badge } from "@qbs-autonaim/ui/badge";
 import { Button } from "@qbs-autonaim/ui/button";
 import { Card } from "@qbs-autonaim/ui/card";
-import { cn } from "@qbs-autonaim/ui";
 import {
   AlertTriangle,
   Calendar,
@@ -372,4 +372,3 @@ function RecommendationBadge({
     </div>
   );
 }
-

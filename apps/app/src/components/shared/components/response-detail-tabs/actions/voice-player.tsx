@@ -97,4 +97,3 @@ export function VoicePlayer({ url, duration }: VoicePlayerProps) {
     </div>
   );
 }
-

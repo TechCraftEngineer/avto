@@ -19,4 +19,3 @@ export default function AccountSettingsPage() {
 
   return <GeneralTab user={user} />;
 }
-

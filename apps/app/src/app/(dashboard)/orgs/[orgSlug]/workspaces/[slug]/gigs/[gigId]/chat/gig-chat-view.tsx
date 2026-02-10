@@ -6,7 +6,11 @@ import { ArrowLeft, ExternalLink, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { ChatInput, ChatMessageList, TypingIndicator } from "~/components/chat/components";
+import {
+  ChatInput,
+  ChatMessageList,
+  TypingIndicator,
+} from "~/components/chat/components";
 import { useAIChatStream } from "~/hooks/use-ai-chat-stream";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useWorkspaceParams } from "~/hooks/use-workspace-params";
@@ -270,4 +274,3 @@ export function GigChatView({ gigId, sessionId }: GigChatViewProps) {
     </div>
   );
 }
-

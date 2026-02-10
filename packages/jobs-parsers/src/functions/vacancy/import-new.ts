@@ -4,8 +4,8 @@ import {
   workspaceStatsChannel,
 } from "@qbs-autonaim/jobs/channels";
 import { inngest } from "@qbs-autonaim/jobs/client";
-import { runHHParser } from "../../parsers/hh";
 import { z } from "zod";
+import { runHHParser } from "../../parsers/hh";
 
 /**
  * Схема валидации входных данных для импорта новых вакансий

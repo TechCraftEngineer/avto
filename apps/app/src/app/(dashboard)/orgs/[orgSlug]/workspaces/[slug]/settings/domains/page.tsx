@@ -50,4 +50,3 @@ export default function WorkspaceDomainsPage() {
 
   return <CustomDomainsSection workspaceId={workspace.id} />;
 }
-

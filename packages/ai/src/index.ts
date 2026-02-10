@@ -7,28 +7,28 @@ export { buildTelegramInvitePrompt } from "./candidate-prompts";
 
 // Recommendation prompts
 export {
+  buildCandidateRecommendationPrompt,
+  type CandidateDataForRecommendation,
+  CandidateDataForRecommendationSchema,
+  type CandidateRecommendation,
+  CandidateRecommendationSchema,
+  type EntityDataForRecommendation,
+  EntityDataForRecommendationSchema,
+  formatRecommendationForTelegram,
   RecommendationLevel,
   type RecommendationLevel as RecommendationLevelType,
-  CandidateRecommendationSchema,
-  type CandidateRecommendation,
-  ScreeningDataForRecommendationSchema,
-  CandidateDataForRecommendationSchema,
-  EntityDataForRecommendationSchema,
   type ScreeningDataForRecommendation,
-  type CandidateDataForRecommendation,
-  type EntityDataForRecommendation,
-  buildCandidateRecommendationPrompt,
-  formatRecommendationForTelegram,
+  ScreeningDataForRecommendationSchema,
 } from "./recommendation-prompts";
 
 // Screening prompts
 export type {
+  ResumeScreeningData,
   VacancyRequirements,
-  ResumeScreeningData
 } from "./screening-prompts";
 export {
+  buildFullResumeScreeningPrompt,
   formatResumeForScreening,
-  buildFullResumeScreeningPrompt
 } from "./screening-prompts";
 
 // Телеметрия

@@ -36,4 +36,3 @@ export function ResumeActions({ resumeUrl, resumePdfUrl }: ResumeActionsProps) {
     </>
   );
 }
-

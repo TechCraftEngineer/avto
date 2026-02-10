@@ -242,4 +242,3 @@ function VirtualizedList<T>({
 
 // Export utilities
 export type { OptimizedComponentProps };
-

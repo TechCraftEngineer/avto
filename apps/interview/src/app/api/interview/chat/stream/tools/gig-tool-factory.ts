@@ -1,17 +1,21 @@
-import type { LanguageModel, ToolSet } from 'ai';
-import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import type * as schema from '@qbs-autonaim/db/schema';
-import type { GigLike, VacancyLike, InterviewContextLite } from '../strategies/types';
-import type { ToolAvailability } from './types';
-import { BaseToolFactory } from './base-tool-factory';
-import { createGetInterviewProfileTool } from './profile';
+import type * as schema from "@qbs-autonaim/db/schema";
+import type { LanguageModel, ToolSet } from "ai";
+import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+import type {
+  GigLike,
+  InterviewContextLite,
+  VacancyLike,
+} from "../strategies/types";
+import { BaseToolFactory } from "./base-tool-factory";
+import { createGetInterviewProfileTool } from "./profile";
+import type { ToolAvailability } from "./types";
 
 /**
  * Фабрика инструментов для интервью по разовым заданиям (gig)
  */
 export class GigToolFactory extends BaseToolFactory {
   constructor() {
-    super('gig');
+    super("gig");
   }
 
   /**
@@ -20,13 +24,19 @@ export class GigToolFactory extends BaseToolFactory {
    */
   protected defineToolAvailability(): ToolAvailability[] {
     const baseTools = super.defineToolAvailability();
-    
+
     // Добавляем gig-специфичный инструмент
     return [
       ...baseTools,
       {
-        name: 'getInterviewProfile',
-        availableOnStages: ['intro', 'profile_review', 'org', 'tech', 'task_approach'],
+        name: "getInterviewProfile",
+        availableOnStages: [
+          "intro",
+          "profile_review",
+          "org",
+          "tech",
+          "task_approach",
+        ],
       },
     ];
   }
@@ -43,8 +53,15 @@ export class GigToolFactory extends BaseToolFactory {
     vacancy: VacancyLike | null,
     interviewContext: InterviewContextLite,
   ): ToolSet {
-    const baseTools = super.create(model, sessionId, db, gig, vacancy, interviewContext);
-    
+    const baseTools = super.create(
+      model,
+      sessionId,
+      db,
+      gig,
+      vacancy,
+      interviewContext,
+    );
+
     // Добавляем gig-специфичный инструмент
     return {
       ...baseTools,

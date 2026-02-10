@@ -40,4 +40,3 @@ export function WelcomeScreen({ onGetStarted }: WelcomeScreenProps) {
     </div>
   );
 }
-

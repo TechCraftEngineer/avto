@@ -84,4 +84,3 @@ export function ChatMessages({ messages }: ChatMessagesProps) {
     </ScrollArea>
   );
 }
-

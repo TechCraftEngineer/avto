@@ -89,4 +89,3 @@ export function QuickActions({ orgSlug, workspaceSlug }: QuickActionsProps) {
     </>
   );
 }
-

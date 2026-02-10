@@ -175,4 +175,3 @@ function ChatMessageItem({ message }: { message: ChatMessage }) {
     </article>
   );
 }
-

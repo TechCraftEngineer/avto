@@ -79,9 +79,7 @@ function mapInterviewScoring(scoring: InterviewScoringData) {
     detailedScore: scoring.score,
     analysis: scoring.analysis ? sanitizeHtml(scoring.analysis) : null,
     botUsageDetected:
-      scoring.botUsageDetected !== null
-        ? scoring.botUsageDetected > 50
-        : null,
+      scoring.botUsageDetected !== null ? scoring.botUsageDetected > 50 : null,
   };
 }
 
@@ -108,22 +106,13 @@ export function mapResponsesToOutput(
   commentCountsMap: Map<string, number>,
 ) {
   // Строим lookup-карты для O(1) доступа вместо O(n) find()
-  const screeningByResponseId = buildLookupMap(
-    screenings,
-    (s) => s.responseId,
-  );
+  const screeningByResponseId = buildLookupMap(screenings, (s) => s.responseId);
   const scoringByResponseId = buildLookupMap(
     interviewScorings,
     (s) => s.responseId,
   );
-  const sessionByResponseId = buildLookupMap(
-    sessions,
-    (s) => s.responseId,
-  );
-  const candidateById = buildLookupMap(
-    globalCandidates,
-    (c) => c.id,
-  );
+  const sessionByResponseId = buildLookupMap(sessions, (s) => s.responseId);
+  const candidateById = buildLookupMap(globalCandidates, (c) => c.id);
 
   return responsesRaw.map((r) => {
     const screening = screeningByResponseId.get(r.id) ?? null;

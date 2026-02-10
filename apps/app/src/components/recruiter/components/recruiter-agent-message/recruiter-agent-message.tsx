@@ -96,4 +96,3 @@ const RecruiterAgentMessage = memo(function RecruiterAgentMessage({
 RecruiterAgentMessage.displayName = "RecruiterAgentMessage";
 
 export { RecruiterAgentMessage };
-

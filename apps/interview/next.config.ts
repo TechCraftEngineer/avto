@@ -11,7 +11,11 @@ export default async function createNextConfig(): Promise<NextConfig> {
 
     /** Build optimizations */
     experimental: {
-      optimizePackageImports: ["@qbs-autonaim/ui", "@radix-ui/react-icons", "lucide-react"],
+      optimizePackageImports: [
+        "@qbs-autonaim/ui",
+        "@radix-ui/react-icons",
+        "lucide-react",
+      ],
       optimizeCss: true,
     },
 

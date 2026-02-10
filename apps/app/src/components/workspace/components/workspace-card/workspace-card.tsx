@@ -58,4 +58,3 @@ export function WorkspaceCard({
     </Link>
   );
 }
-

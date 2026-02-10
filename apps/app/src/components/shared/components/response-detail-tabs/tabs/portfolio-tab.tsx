@@ -152,4 +152,3 @@ export function PortfolioTab({ response }: PortfolioTabProps) {
     </div>
   );
 }
-
