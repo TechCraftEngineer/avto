@@ -99,7 +99,7 @@ export async function fetchSyncArchivedVacancyResponsesToken(
 ) {
   const token = await getSubscriptionToken(inngest, {
     channel: syncArchivedResponsesChannel(vacancyId),
-    topics: ["status"],
+    topics: ["progress", "result"],
   });
 
   return token;

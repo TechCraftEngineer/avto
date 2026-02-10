@@ -23,10 +23,10 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
     const { vacancyId, workspaceId } = event.data;
 
     await publish(
-      syncArchivedResponsesChannel(vacancyId).status({
+      syncArchivedResponsesChannel(vacancyId).progress({
+        vacancyId,
         status: "started",
         message: "Начинаем синхронизацию архивных откликов",
-        vacancyId,
       }),
     );
 
@@ -42,10 +42,10 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
 
       if (!vacancyData) {
         await publish(
-          syncArchivedResponsesChannel(vacancyId).status({
+          syncArchivedResponsesChannel(vacancyId).progress({
+            vacancyId,
             status: "error",
             message: `Вакансия ${vacancyId} не найдена`,
-            vacancyId,
           }),
         );
         throw new Error(`Вакансия ${vacancyId} не найдена`);
@@ -54,10 +54,10 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
       // Проверяем, что вакансия принадлежит указанному рабочему пространству
       if (vacancyData.workspaceId !== workspaceId) {
         await publish(
-          syncArchivedResponsesChannel(vacancyId).status({
+          syncArchivedResponsesChannel(vacancyId).progress({
+            vacancyId,
             status: "error",
             message: `Вакансия ${vacancyId} не принадлежит рабочему пространству ${workspaceId}`,
-            vacancyId,
           }),
         );
         throw new Error(
@@ -73,10 +73,10 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
 
       if (!publication) {
         await publish(
-          syncArchivedResponsesChannel(vacancyId).status({
+          syncArchivedResponsesChannel(vacancyId).progress({
+            vacancyId,
             status: "error",
             message: "Вакансия не опубликована на HH.ru",
-            vacancyId,
           }),
         );
         throw new Error("Вакансия не опубликована на HH.ru");
@@ -84,10 +84,10 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
 
       if (!publication.externalId && !publication.url) {
         await publish(
-          syncArchivedResponsesChannel(vacancyId).status({
+          syncArchivedResponsesChannel(vacancyId).progress({
+            vacancyId,
             status: "error",
             message: "У публикации нет externalId или URL для синхронизации",
-            vacancyId,
           }),
         );
         throw new Error(
@@ -97,10 +97,10 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
 
       try {
         await publish(
-          syncArchivedResponsesChannel(vacancyId).status({
+          syncArchivedResponsesChannel(vacancyId).progress({
+            vacancyId,
             status: "processing",
             message: "Подключение к HeadHunter...",
-            vacancyId,
           }),
         );
 
@@ -115,10 +115,12 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
             : `Обработано откликов: ${processed} (новых: ${newCount})`;
 
           await publish(
-            syncArchivedResponsesChannel(vacancyId).status({
+            syncArchivedResponsesChannel(vacancyId).progress({
+              vacancyId,
               status: "processing",
               message,
-              vacancyId,
+              syncedResponses: processed,
+              newResponses: newCount,
             }),
           );
         };
@@ -140,10 +142,9 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
           .where(eq(vacancyPublication.id, publication.id));
 
         await publish(
-          syncArchivedResponsesChannel(vacancyId).status({
-            status: "completed",
-            message: `Синхронизация завершена. Обработано: ${syncedResponses}, новых: ${newResponses}`,
+          syncArchivedResponsesChannel(vacancyId).result({
             vacancyId,
+            success: true,
             syncedResponses,
             newResponses,
             vacancyTitle: vacancyData.title,
@@ -167,11 +168,11 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
           error,
         );
         await publish(
-          syncArchivedResponsesChannel(vacancyId).status({
+          syncArchivedResponsesChannel(vacancyId).progress({
+            vacancyId,
             status: "error",
             message:
               error instanceof Error ? error.message : "Неизвестная ошибка",
-            vacancyId,
           }),
         );
         throw error;

@@ -126,18 +126,29 @@ export const refreshVacancyResponsesChannel = channel(
  */
 export const syncArchivedResponsesChannel = channel(
   (vacancyId: string) => `vacancy-responses-sync-archived:${vacancyId}`,
-).addTopic(
-  topic("status").schema(
-    z.object({
-      status: z.enum(["started", "processing", "completed", "error"]),
-      message: z.string(),
-      vacancyId: z.string(),
-      syncedResponses: z.number().optional(),
-      newResponses: z.number().optional(),
-      vacancyTitle: z.string().optional(),
-    }),
-  ),
-);
+)
+  .addTopic(
+    topic("progress").schema(
+      z.object({
+        vacancyId: z.string(),
+        status: z.enum(["started", "processing", "completed", "error"]),
+        message: z.string(),
+        syncedResponses: z.number().optional(),
+        newResponses: z.number().optional(),
+      }),
+    ),
+  )
+  .addTopic(
+    topic("result").schema(
+      z.object({
+        vacancyId: z.string(),
+        success: z.boolean(),
+        syncedResponses: z.number(),
+        newResponses: z.number(),
+        vacancyTitle: z.string(),
+      }),
+    ),
+  );
 
 /**
  * Канал для отслеживания прогресса парсинга новых резюме
