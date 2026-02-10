@@ -314,7 +314,7 @@ export function CandidatesTable({
                 <TableHead className="w-[100px]">Совпадение</TableHead>
               )}
               {visibility.salary && <TableHead>Зарплата</TableHead>}
-              {visibility.email && <TableHead>Email</TableHead>}
+              {visibility.email && <TableHead>Электронная почта</TableHead>}
               {visibility.phone && <TableHead>Телефон</TableHead>}
               {visibility.telegram && <TableHead>Telegram</TableHead>}
               {visibility.createdAt && <TableHead>Дата отклика</TableHead>}
@@ -421,7 +421,7 @@ export function CandidatesTable({
                 Зарплата
               </SortableHeader>
             )}
-            {visibility.email && <TableHead>Email</TableHead>}
+            {visibility.email && <TableHead>Электронная почта</TableHead>}
             {visibility.phone && <TableHead>Телефон</TableHead>}
             {visibility.telegram && <TableHead>Telegram</TableHead>}
             {visibility.createdAt && (

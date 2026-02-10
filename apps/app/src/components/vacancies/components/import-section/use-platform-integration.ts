@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTRPC } from "~/trpc/react";
 
 export function usePlatformIntegration(workspaceId: string) {
@@ -23,7 +23,7 @@ export function usePlatformIntegration(workspaceId: string) {
   const [selectedPlatform, setSelectedPlatform] = useState<string>("");
 
   // Автоматически выбираем платформу, если она одна
-  useMemo(() => {
+  useEffect(() => {
     if (activeIntegrations.length === 1 && !selectedPlatform) {
       const integration = activeIntegrations[0];
       if (integration) {

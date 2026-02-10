@@ -37,9 +37,6 @@ export function CandidatePipeline() {
   const trpc = useTRPC();
 
   const [activeView, setActiveView] = useState<"board" | "table">("board");
-  const [_selectedCandidate, setSelectedCandidate] =
-    useState<FunnelCandidate | null>(null);
-  const [_isModalOpen, setIsModalOpen] = useState(false);
 
   const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>(
     DEFAULT_COLUMN_VISIBILITY,
@@ -50,8 +47,22 @@ export function CandidatePipeline() {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        const parsed = JSON.parse(stored) as ColumnVisibility;
-        setColumnVisibility(parsed);
+        const parsed = JSON.parse(stored) as Partial<ColumnVisibility>;
+
+        // Валидация: проверяем, что parsed - объект с булевыми значениями
+        const isValid =
+          parsed &&
+          typeof parsed === "object" &&
+          Object.values(parsed).every((v) => typeof v === "boolean");
+
+        if (isValid) {
+          // Объединяем с дефолтными значениями для безопасной миграции
+          setColumnVisibility({ ...DEFAULT_COLUMN_VISIBILITY, ...parsed });
+        } else {
+          console.warn(
+            "Некорректные данные в localStorage, используем значения по умолчанию",
+          );
+        }
       }
     } catch (error) {
       console.error("Ошибка загрузки настроек видимости колонок:", error);
@@ -173,9 +184,8 @@ export function CandidatePipeline() {
     (sq: { query: { isLoading: boolean } }) => sq.query.isLoading,
   );
 
-  const handleCardClick = useCallback((candidate: FunnelCandidate) => {
-    setSelectedCandidate(candidate);
-    setIsModalOpen(true);
+  const handleCardClick = useCallback((_candidate: FunnelCandidate) => {
+    // TODO: Реализовать модальное окно с деталями кандидата
   }, []);
 
   return (
