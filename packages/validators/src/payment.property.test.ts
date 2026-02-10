@@ -1,7 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import * as fc from "fast-check";
 import {
-  checkPaymentStatusSchema,
   createPaymentSchema,
   yookassaPaymentResponseSchema,
   yookassaWebhookSchema,

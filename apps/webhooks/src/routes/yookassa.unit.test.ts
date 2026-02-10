@@ -1,7 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 import { randomUUID } from "node:crypto";
-import { env } from "@qbs-autonaim/config/env";
-import type { payment } from "@qbs-autonaim/db/schema";
 import type { YookassaPaymentResponse } from "@qbs-autonaim/validators";
 import { Hono } from "hono";
 import { yookassaRouter } from "./yookassa";

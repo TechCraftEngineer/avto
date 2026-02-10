@@ -56,10 +56,10 @@ describe("create payment - Property-Based Tests", () => {
 
           // Мокируем fetch для перехвата Idempotence-Key из заголовков
           global.fetch = mock(
-            async (url: string | URL, options?: RequestInit) => {
+            async (_url: string | URL, options?: RequestInit) => {
               // Захватываем Idempotence-Key из заголовков
               const headers = options?.headers as Record<string, string>;
-              if (headers && headers["Idempotence-Key"]) {
+              if (headers?.["Idempotence-Key"]) {
                 capturedIdempotenceKeys.push(headers["Idempotence-Key"]);
               }
 
@@ -96,7 +96,7 @@ describe("create payment - Property-Based Tests", () => {
                 description: params.description,
                 returnUrl: "https://example.com/return",
               });
-            } catch (error) {
+            } catch (_error) {
               // Игнорируем ошибки, фокусируемся на захвате ключей
             }
           }
@@ -137,9 +137,9 @@ describe("create payment - Property-Based Tests", () => {
           const capturedKeys: string[] = [];
 
           global.fetch = mock(
-            async (url: string | URL, options?: RequestInit) => {
+            async (_url: string | URL, options?: RequestInit) => {
               const headers = options?.headers as Record<string, string>;
-              if (headers && headers["Idempotence-Key"]) {
+              if (headers?.["Idempotence-Key"]) {
                 capturedKeys.push(headers["Idempotence-Key"]);
               }
 
@@ -201,13 +201,13 @@ describe("create payment - Property-Based Tests", () => {
   it("Property 1 (parallel): idempotenceKey уникальны при параллельном создании", async () => {
     await fc.assert(
       fc.asyncProperty(fc.integer({ min: 5, max: 30 }), async (numPayments) => {
-        const capturedKeys: string[] = [];
+        const _capturedKeys: string[] = [];
         const keyLock = { keys: [] as string[] };
 
         global.fetch = mock(
-          async (url: string | URL, options?: RequestInit) => {
+          async (_url: string | URL, options?: RequestInit) => {
             const headers = options?.headers as Record<string, string>;
-            if (headers && headers["Idempotence-Key"]) {
+            if (headers?.["Idempotence-Key"]) {
               // Используем синхронный push для сбора ключей
               keyLock.keys.push(headers["Idempotence-Key"]);
             }

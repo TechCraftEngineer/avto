@@ -1,7 +1,5 @@
 import { describe, expect, test } from "bun:test";
 import {
-  type YookassaPaymentResponse,
-  type YookassaWebhook,
   yookassaPaymentResponseSchema,
   yookassaWebhookSchema,
 } from "./payment";

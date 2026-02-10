@@ -4,7 +4,6 @@ import type { payment } from "@qbs-autonaim/db/schema";
 import type { YookassaPaymentResponse } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import type { YookassaClient } from "../../services/yookassa/client";
-import * as yookassaClientModule from "../../services/yookassa/client";
 import { create } from "./create";
 
 /**
@@ -22,7 +21,7 @@ import { create } from "./create";
 
 describe("create payment - Unit Tests", () => {
   let originalFetch: typeof global.fetch;
-  let mockYookassaClient: YookassaClient;
+  let _mockYookassaClient: YookassaClient;
 
   beforeEach(() => {
     originalFetch = global.fetch;
@@ -100,7 +99,7 @@ describe("create payment - Unit Tests", () => {
         }),
       },
       db: {
-        insert: mock((table: typeof payment) => ({
+        insert: mock((_table: typeof payment) => ({
           values: mock((data: unknown) => ({
             returning: mock(async () => [
               {
@@ -449,7 +448,7 @@ describe("create payment - Unit Tests", () => {
         }),
       },
       db: {
-        insert: mock((table: typeof payment) => ({
+        insert: mock((_table: typeof payment) => ({
           values: mock(
             (data: {
               organizationId: string;

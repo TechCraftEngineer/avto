@@ -140,7 +140,7 @@ describe("create payment - Data Completeness Property", () => {
           expect(typeof result.confirmation?.confirmation_url).toBe("string");
           // Проверяем, что это валидный URL
           expect(
-            () => new URL(result.confirmation!.confirmation_url),
+            () => new URL(result.confirmation?.confirmation_url),
           ).not.toThrow();
 
           // 7. Дополнительная проверка: description (если передан)

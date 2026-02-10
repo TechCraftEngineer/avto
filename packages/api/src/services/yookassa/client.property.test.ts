@@ -74,7 +74,7 @@ describe("YookassaClient - Property-Based Tests", () => {
 
             // Мокируем fetch и захватываем заголовок Authorization
             global.fetch = mock(
-              async (url: string | URL | Request, init?: RequestInit) => {
+              async (_url: string | URL | Request, init?: RequestInit) => {
                 if (init?.headers) {
                   const headers = init.headers as Record<string, string>;
                   capturedAuthHeader =
@@ -186,7 +186,7 @@ describe("YookassaClient - Property-Based Tests", () => {
 
             // Мокируем fetch и захватываем заголовок Authorization
             global.fetch = mock(
-              async (url: string | URL | Request, init?: RequestInit) => {
+              async (_url: string | URL | Request, init?: RequestInit) => {
                 if (init?.headers) {
                   const headers = init.headers as Record<string, string>;
                   capturedAuthHeader =
@@ -280,7 +280,7 @@ describe("YookassaClient - Property-Based Tests", () => {
 
             // Мокируем fetch и захватываем заголовок Idempotence-Key
             global.fetch = mock(
-              async (url: string | URL | Request, init?: RequestInit) => {
+              async (_url: string | URL | Request, init?: RequestInit) => {
                 if (init?.headers) {
                   const headers = init.headers as Record<string, string>;
                   const idempotenceKey = headers["Idempotence-Key"];
@@ -394,7 +394,7 @@ describe("YookassaClient - Property-Based Tests", () => {
 
             // Мокируем fetch для симуляции идемпотентного поведения ЮКасса
             global.fetch = mock(
-              async (url: string | URL | Request, init?: RequestInit) => {
+              async (_url: string | URL | Request, init?: RequestInit) => {
                 if (init?.headers) {
                   const headers = init.headers as Record<string, string>;
                   const idempotenceKey = headers["Idempotence-Key"];

@@ -132,7 +132,7 @@ describe("create payment - Property-Based Tests", () => {
               }),
             },
             db: {
-              insert: mock((table: typeof payment) => ({
+              insert: mock((_table: typeof payment) => ({
                 values: mock((data: unknown) => {
                   // Перехватываем сохраненный платеж
                   const paymentData = data as {

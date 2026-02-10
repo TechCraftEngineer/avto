@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
-import { randomUUID } from "node:crypto";
 import type { YookassaPaymentResponse } from "@qbs-autonaim/validators";
 import * as fc from "fast-check";
 import { Hono } from "hono";
@@ -115,7 +114,7 @@ describe("yookassa webhook - Property-Based Tests", () => {
             const statusWillChange = testData.initialStatus !== expectedStatus;
 
             // Мокируем БД
-            const mockDb = {
+            const _mockDb = {
               select: mock(() => ({
                 from: mock(() => ({
                   where: mock(() => ({
@@ -301,7 +300,7 @@ describe("yookassa webhook - Property-Based Tests", () => {
             }
 
             // Мокируем БД в зависимости от сценария
-            const mockDb = {
+            const _mockDb = {
               select: mock(() => ({
                 from: mock(() => ({
                   where: mock(() => ({

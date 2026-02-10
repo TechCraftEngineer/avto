@@ -12,10 +12,10 @@ import * as fc from "fast-check";
  */
 
 describe("checkStatus - Property-Based Tests", () => {
-  let originalFetch: typeof global.fetch;
+  let _originalFetch: typeof global.fetch;
 
   beforeEach(() => {
-    originalFetch = global.fetch;
+    _originalFetch = global.fetch;
   });
 
   /**
