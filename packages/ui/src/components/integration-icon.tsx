@@ -1,8 +1,9 @@
 import { MessageCircle } from "lucide-react";
 import Image from "next/image";
+import { AvitoIcon, SuperjobIcon } from "./icons";
 
 interface IntegrationIconProps {
-  type: "hh" | "telegram";
+  type: "hh" | "telegram" | "avito" | "superjob";
   className?: string;
 }
 
@@ -32,6 +33,14 @@ export function IntegrationIcon({
         className={className}
       />
     );
+  }
+
+  if (type === "avito") {
+    return <AvitoIcon className={className} />;
+  }
+
+  if (type === "superjob") {
+    return <SuperjobIcon className={className} />;
   }
 
   return <MessageCircle className={className} />;
