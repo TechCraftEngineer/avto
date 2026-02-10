@@ -64,7 +64,7 @@ export function RefreshStatusIndicator({
       ({ initialStatus }) =>
         initialStatus.eventType === "response/screen.batch",
     )
-    .otherwise(() => false);
+    .otherwise(() => taskStarted); // Активируем подписку если задача только что запущена
 
   const [isVisible, setIsVisible] = useState(hasActiveTask);
 
