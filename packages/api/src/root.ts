@@ -12,6 +12,7 @@ import { integrationRouter } from "./routers/integration";
 import { interviewScenariosRouter } from "./routers/interview-scenarios";
 import { metaMatchRouter } from "./routers/meta-match";
 import { organizationRouter } from "./routers/organization";
+import { paymentRouter } from "./routers/payment";
 import { prequalificationRouter } from "./routers/prequalification";
 import { recruiterAgentRouter } from "./routers/recruiter-agent";
 import { telegramRouter } from "./routers/telegram";
@@ -37,6 +38,7 @@ export const appRouter = createTRPCRouter({
   telegram: telegramRouter,
   workspace: workspaceRouter,
   organization: organizationRouter,
+  payment: paymentRouter,
   funnel: funnelRouter,
   candidates: candidatesRouter,
   files: filesRouter,

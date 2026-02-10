@@ -126,6 +126,11 @@ export const env = createEnv({
       .length(64, "ENCRYPTION_KEY должен быть 64 символа (32 байта в hex)")
       .optional(),
     TG_CLIENT_PORT: z.string().optional().default("8001").transform(Number),
+
+    // YooKassa Payment Integration
+    YOOKASSA_SHOP_ID: z.string().min(1).optional(),
+    YOOKASSA_SECRET_KEY: z.string().min(1).optional(),
+    YOOKASSA_API_URL: z.url().optional().default("https://api.yookassa.ru/v3"),
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.url().optional().default("http://localhost:3000"),
@@ -201,6 +206,9 @@ export const env = createEnv({
     QDRANT_COLLECTION_NAME: process.env.QDRANT_COLLECTION_NAME,
     ENCRYPTION_KEY: process.env.ENCRYPTION_KEY,
     TG_CLIENT_PORT: process.env.TG_CLIENT_PORT,
+    YOOKASSA_SHOP_ID: process.env.YOOKASSA_SHOP_ID,
+    YOOKASSA_SECRET_KEY: process.env.YOOKASSA_SECRET_KEY,
+    YOOKASSA_API_URL: process.env.YOOKASSA_API_URL,
   },
   skipValidation:
     !!process.env.CI || process.env.npm_lifecycle_event === "lint",

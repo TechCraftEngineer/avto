@@ -14,11 +14,38 @@
 
 ### Технологический стек
 
-- **API**: tRPC для типобезопасных эндпоинтов
+**tRPC API** (основной API):
+- **API**: tRPC для типобезопасных эндпоинтов (create, get, list, checkStatus)
 - **База данных**: PostgreSQL с Drizzle ORM
 - **Валидация**: Zod v4
 - **HTTP клиент**: fetch API (встроенный в Node.js)
 - **Аутентификация**: Basic Auth (shopId:secretKey)
+
+**Webhook-сервис** (отдельный сервис на Hono):
+- **Фреймворк**: Hono (легковесный веб-фреймворк для Bun)
+- **База данных**: PostgreSQL с Drizzle ORM (общая с tRPC API)
+- **Валидация**: Zod v4
+- **HTTP клиент**: fetch API
+- **Расположение**: `apps/webhooks/`
+
+### Разделение ответственности
+
+**tRPC API** отвечает за:
+- Создание платежей (create)
+- Получение информации о платежах (get, list)
+- Проверка статуса платежей (checkStatus)
+
+**Webhook-сервис** отвечает за:
+- Обработка webhook-уведомлений от ЮКасса
+- API-верификация webhook
+- Обновление статусов платежей в БД
+
+**Преимущества разделения:**
+1. **Производительность**: Hono в 3-5 раз быстрее для простых HTTP endpoints
+2. **Масштабирование**: Webhook-сервис масштабируется независимо
+3. **Безопасность**: Легче настроить rate limiting и IP-whitelisting
+4. **Изоляция**: Проблемы с webhook не влияют на основной API
+5. **Гибкость**: Можно развернуть на edge (Cloudflare Workers, Vercel Edge)
 
 ## Архитектура
 
@@ -39,9 +66,14 @@
                             │                      │
                      ┌──────────────┐              │
                      │   Webhook    │◀─────────────┘
-                     │   Handler    │
+                     │   Service    │
+                     │   (Hono)     │
                      └──────────────┘
 ```
+
+**Примечание:** Webhook обрабатываются отдельным сервисом на Hono (`apps/webhooks/`), 
+а не через tRPC API. Это обеспечивает лучшую производительность, независимое 
+масштабирование и изоляцию от основного API.
 
 ### Поток создания платежа
 
@@ -338,9 +370,11 @@ packages/api/src/routers/payment/
 ├── create.ts             # Создание платежа
 ├── get.ts                # Получение платежа по ID
 ├── list.ts               # Список платежей пользователя
-├── check-status.ts       # Проверка статуса платежа
-└── webhook.ts            # Обработка webhook от ЮКасса
+└── check-status.ts       # Проверка статуса платежа
 ```
+
+**Примечание:** Webhook обрабатываются отдельным сервисом на Hono.
+См. `apps/webhooks/` для деталей.
 
 #### Процедура создания платежа
 
@@ -432,71 +466,37 @@ export const create = protectedProcedure
 ```
 
 
-#### Процедура обработки webhook
+#### Обработка webhook
 
-```typescript
-// packages/api/src/routers/payment/webhook.ts
-import { yookassaWebhookSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
-import { eq } from "drizzle-orm";
-import { publicProcedure } from "../../trpc";
-import { payment } from "@qbs-autonaim/db/schema";
+**Примечание:** Webhook обрабатываются отдельным сервисом на Hono, а не через tRPC API.
 
-export const webhook = publicProcedure
-  .input(yookassaWebhookSchema)
-  .mutation(async ({ input, ctx }) => {
-    const { object: paymentData } = input;
-    
-    try {
-      // Поиск платежа в БД
-      const existingPayment = await ctx.db
-        .select()
-        .from(payment)
-        .where(eq(payment.yookassaId, paymentData.id))
-        .limit(1);
+Webhook-сервис расположен в `apps/webhooks/` и обеспечивает:
+- Высокую производительность (Hono в 3-5 раз быстрее для простых HTTP endpoints)
+- Независимое масштабирование
+- Улучшенную безопасность (API-верификация, проверка HTTPS/порта)
+- Изоляцию от основного API
 
-      if (!existingPayment.length) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Платеж не найден",
-        });
-      }
+**Основные возможности webhook-сервиса:**
+1. Валидация структуры webhook через Zod схему
+2. Проверка безопасности соединения (HTTPS, порт 443/8443)
+3. API-верификация через GET-запрос к ЮКасса (Метод 2)
+4. Обновление статуса платежа в БД
+5. Установка completedAt для завершенных платежей
+6. Структурированное логирование всех операций
 
-      const currentPayment = existingPayment[0];
-      if (!currentPayment) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Платеж не найден",
-        });
-      }
+**Подробная документация:**
+- `apps/webhooks/README.md` - полная документация
+- `apps/webhooks/QUICKSTART.md` - быстрый старт
+- `apps/webhooks/DEPLOYMENT.md` - варианты деплоя
+- `.kiro/specs/yookassa-integration/WEBHOOK-SERVICE.md` - обзор для спецификации
 
-      // Маппинг статусов ЮКасса на наши статусы
-      let newStatus: "pending" | "succeeded" | "canceled" = "pending";
-      if (paymentData.status === "succeeded") {
-        newStatus = "succeeded";
-      } else if (paymentData.status === "canceled") {
-        newStatus = "canceled";
-      }
+**Пример использования:**
+```bash
+# Запуск webhook-сервиса локально
+bun run dev:webhooks
 
-      // Обновление статуса платежа
-      await ctx.db
-        .update(payment)
-        .set({
-          status: newStatus,
-          completedAt: newStatus !== "pending" ? new Date() : null,
-          updatedAt: new Date(),
-        })
-        .where(eq(payment.id, currentPayment.id));
-
-      return { success: true };
-    } catch (error) {
-      console.error("Ошибка обработки webhook:", error);
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Ошибка обработки webhook",
-      });
-    }
-  });
+# URL для webhook в ЮКасса
+https://yourdomain.com/webhooks/yookassa
 ```
 
 #### Процедура проверки статуса
@@ -601,14 +601,15 @@ import { checkStatus } from "./check-status";
 import { create } from "./create";
 import { get } from "./get";
 import { list } from "./list";
-import { webhook } from "./webhook";
+
+// Примечание: webhook обрабатываются отдельным сервисом на Hono
+// См. apps/webhooks/ для деталей
 
 export const paymentRouter = {
   create,
   get,
   list,
   checkStatus,
-  webhook,
 } satisfies TRPCRouterRecord;
 ```
 
@@ -1070,7 +1071,8 @@ const mockYookassaClient = {
 ### Покрытие тестами
 
 **Обязательное покрытие:**
-- ✅ Все tRPC процедуры (create, get, list, checkStatus, webhook)
+- ✅ Все tRPC процедуры (create, get, list, checkStatus)
+- ✅ Webhook-сервис на Hono (обработка webhook, API-верификация, безопасность)
 - ✅ Валидация всех Zod схем
 - ✅ Обработка всех типов ошибок
 - ✅ Все свойства корректности (12 property-based тестов)

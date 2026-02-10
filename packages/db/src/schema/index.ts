@@ -9,6 +9,7 @@ export * from "./integration";
 export * from "./interview";
 export * from "./meta-match";
 export * from "./organization";
+export * from "./payment";
 export * from "./prequalification";
 export * from "./recruiter-agent";
 export * from "./response";
