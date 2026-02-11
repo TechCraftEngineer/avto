@@ -298,6 +298,12 @@ export default function OrganizationBillingPage() {
                   canceled: "destructive",
                 };
 
+                const variant = statusVariants[payment.status] || "outline";
+                const label =
+                  statusLabels[payment.status] ||
+                  payment.status ||
+                  "Неизвестно";
+
                 return (
                   <div
                     key={payment.id}
@@ -308,9 +314,7 @@ export default function OrganizationBillingPage() {
                         <span className="font-medium">
                           {payment.description || "Платёж"}
                         </span>
-                        <Badge variant={statusVariants[payment.status]}>
-                          {statusLabels[payment.status] || payment.status}
-                        </Badge>
+                        <Badge variant={variant}>{label}</Badge>
                       </div>
                       <span className="text-muted-foreground text-sm">
                         {new Date(payment.createdAt).toLocaleDateString(
