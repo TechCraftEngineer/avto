@@ -32,7 +32,7 @@ jobs:
           CR_REPOSITORY: app
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -f apps/app/Dockerfile --build-arg POSTGRES_URL="${{ secrets.POSTGRES_URL }}" --build-arg NEXT_PUBLIC_APP_URL="${{ secrets.NEXT_PUBLIC_APP_URL }}" --build-arg NEXT_PUBLIC_APP_NAME="${{ secrets.NEXT_PUBLIC_APP_NAME }}" --build-arg NEXT_PUBLIC_INTERVIEW_URL="${{ secrets.NEXT_PUBLIC_INTERVIEW_URL }}" -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:latest .
+          docker build -f apps/app/Dockerfile --build-arg POSTGRES_URL="${{ secrets.POSTGRES_URL }}" --build-arg NEXT_PUBLIC_APP_URL="${{ secrets.NEXT_PUBLIC_APP_URL }}" --build-arg NEXT_PUBLIC_APP_NAME="${{ secrets.NEXT_PUBLIC_APP_NAME }}" --build-arg NEXT_PUBLIC_INTERVIEW_URL="${{ secrets.NEXT_PUBLIC_INTERVIEW_URL }}" --build-arg NEXT_PUBLIC_POSTHOG_KEY="phc_vTemct6Dxow98lRDKCzjA9q0ijfw2LsUj52mHp0qJVp" -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:latest .
           docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG
           docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:latest
 

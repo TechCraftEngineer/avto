@@ -8,10 +8,6 @@ export function initPostHog() {
 
   if (!key) return;
 
-  if (env.NODE_ENV === "development") {
-    console.log("init analytics");
-  }
-
   posthog.init(key, {
     api_host: "/api/analytics/ingest",
     ui_host: "https://eu.i.posthog.com",

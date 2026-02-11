@@ -27,7 +27,6 @@ function PostHogPageView() {
 }
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
-  console.log("posthog provider", IS_PRODUCTION);
   useEffect(() => {
     if (IS_PRODUCTION) {
       initPostHog();
