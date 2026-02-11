@@ -14,7 +14,45 @@ export const createPlanPayment = protectedProcedure
     z.object({
       organizationId: z.string().min(1, "ID организации обязателен"),
       plan: organizationPlanSchema,
-      returnUrl: z.string().url("Некорректный URL для возврата"),
+      returnUrl: z
+        .string()
+        .url("Некорректный URL для возврата")
+        .refine(
+          (url) => {
+            try {
+              const parsedUrl = new URL(url);
+              // Проверяем протокол
+              if (
+                parsedUrl.protocol !== "https:" &&
+                parsedUrl.protocol !== "http:"
+              ) {
+                return false;
+              }
+              // Получаем разрешенные домены из env
+              const allowedOrigins = [
+                process.env.APP_URL,
+                process.env.NEXT_PUBLIC_APP_URL,
+              ].filter(Boolean);
+
+              // Проверяем, что origin в списке разрешенных
+              return allowedOrigins.some((allowed) => {
+                if (!allowed) return false;
+                try {
+                  const allowedUrl = new URL(allowed);
+                  return parsedUrl.origin === allowedUrl.origin;
+                } catch {
+                  return false;
+                }
+              });
+            } catch {
+              return false;
+            }
+          },
+          {
+            message:
+              "URL возврата должен быть на разрешенном домене приложения",
+          },
+        ),
     }),
   )
   .mutation(async ({ input, ctx }) => {
@@ -26,6 +64,10 @@ export const createPlanPayment = protectedProcedure
       with: {
         members: {
           where: (member, { eq }) => eq(member.userId, userId),
+        },
+        workspaces: {
+          columns: { id: true },
+          limit: 1,
         },
       },
     });
@@ -99,6 +141,61 @@ export const createPlanPayment = protectedProcedure
           type: "plan_subscription",
         },
       });
+
+      // Сохраняем платеж в базу данных
+      const { payment: paymentSchema } = await import(
+        "@qbs-autonaim/db/schema"
+      );
+
+      try {
+        await ctx.db.insert(paymentSchema).values({
+          yookassaId: yookassaPayment.id,
+          idempotenceKey,
+          userId,
+          workspaceId: org.workspaces?.[0]?.id || "", // Используем первый workspace организации
+          organizationId: input.organizationId,
+          amount: amount.toString(),
+          currency: "RUB",
+          status: yookassaPayment.status || "pending",
+          description: `Оплата тарифа "${input.plan}" для организации "${org.name}"`,
+          returnUrl: input.returnUrl,
+          confirmationUrl:
+            yookassaPayment.confirmation?.confirmation_url || null,
+          metadata: JSON.stringify({
+            userId,
+            organizationId: input.organizationId,
+            plan: input.plan,
+            type: "plan_subscription",
+          }),
+        });
+      } catch (dbError) {
+        console.error(
+          JSON.stringify({
+            level: "error",
+            message: "Ошибка при сохранении платежа в БД",
+            timestamp: new Date().toISOString(),
+            context: {
+              errorType:
+                dbError instanceof Error
+                  ? dbError.constructor.name
+                  : "UnknownError",
+              errorMessage:
+                dbError instanceof Error
+                  ? dbError.message
+                  : "Неизвестная ошибка",
+              stack: dbError instanceof Error ? dbError.stack : undefined,
+              yookassaId: yookassaPayment.id,
+              userId,
+              organizationId: input.organizationId,
+            },
+          }),
+        );
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Не удалось сохранить информацию о платеже",
+        });
+      }
 
       return {
         paymentId: yookassaPayment.id,

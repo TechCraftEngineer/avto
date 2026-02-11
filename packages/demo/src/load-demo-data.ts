@@ -29,12 +29,41 @@ async function loadAllDemoData() {
       gig: gigSchema,
       response: responseSchema,
     } = await import("@qbs-autonaim/db/schema");
-    const { eq } = await import("drizzle-orm");
+    const { eq, inArray } = await import("drizzle-orm");
 
-    await db
-      .delete(responseSchema)
-      .where(eq(responseSchema.entityType, "vacancy"));
-    await db.delete(responseSchema).where(eq(responseSchema.entityType, "gig"));
+    // Получаем ID вакансий и заданий для текущего workspace
+    const vacancyIds = await db
+      .select({ id: vacancySchema.id })
+      .from(vacancySchema)
+      .where(eq(vacancySchema.workspaceId, workspaceId));
+
+    const gigIds = await db
+      .select({ id: gigSchema.id })
+      .from(gigSchema)
+      .where(eq(gigSchema.workspaceId, workspaceId));
+
+    // Удаляем отклики только для вакансий и заданий текущего workspace
+    if (vacancyIds.length > 0) {
+      await db.delete(responseSchema).where(
+        eq(responseSchema.entityType, "vacancy"),
+        inArray(
+          responseSchema.entityId,
+          vacancyIds.map((v) => v.id),
+        ),
+      );
+    }
+
+    if (gigIds.length > 0) {
+      await db.delete(responseSchema).where(
+        eq(responseSchema.entityType, "gig"),
+        inArray(
+          responseSchema.entityId,
+          gigIds.map((g) => g.id),
+        ),
+      );
+    }
+
+    // Удаляем вакансии и задания
     await db
       .delete(vacancySchema)
       .where(eq(vacancySchema.workspaceId, workspaceId));

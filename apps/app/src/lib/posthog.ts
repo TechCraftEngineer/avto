@@ -7,7 +7,11 @@ export function initPostHog() {
   const key = env.NEXT_PUBLIC_POSTHOG_KEY;
 
   if (!key) return;
-  console.log("init analytics");
+
+  if (env.NODE_ENV === "development") {
+    console.log("init analytics");
+  }
+
   posthog.init(key, {
     api_host: "/api/analytics/ingest",
     ui_host: "https://eu.i.posthog.com",
