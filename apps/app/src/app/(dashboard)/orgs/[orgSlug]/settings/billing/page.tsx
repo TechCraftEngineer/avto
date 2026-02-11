@@ -1,6 +1,5 @@
 "use client";
 
-import { paths } from "@qbs-autonaim/config";
 import {
   Badge,
   Button,
@@ -13,7 +12,7 @@ import {
 } from "@qbs-autonaim/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { toast } from "sonner";
 import { PageHeader } from "~/components/layout";
 import { useTRPC } from "~/trpc/react";
@@ -76,7 +75,6 @@ const plans = [
 
 export default function OrganizationBillingPage() {
   const params = useParams<{ orgSlug: string }>();
-  const router = useRouter();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 

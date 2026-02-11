@@ -13,7 +13,7 @@ import type { WorkspacePlan } from "../schema/workspace/workspace";
  * @returns эффективный план для воркспейса
  */
 export function getEffectivePlan(
-  workspace: { plan?: WorkspacePlan },
+  _workspace: { plan?: WorkspacePlan },
   organization: { plan: OrganizationPlan },
 ): WorkspacePlan {
   // Текущая логика: всегда используем план организации
@@ -36,11 +36,13 @@ export function hasFeatureAccess(
 ): boolean {
   const effectivePlan = getEffectivePlan(workspace, organization);
 
-  const planHierarchy: Record<string, number> = {
+  const planHierarchy: Record<"free" | "pro" | "enterprise", number> = {
     free: 0,
     pro: 1,
     enterprise: 2,
   };
 
-  return planHierarchy[effectivePlan] >= planHierarchy[requiredPlan];
+  return (
+    (planHierarchy[effectivePlan] ?? 0) >= (planHierarchy[requiredPlan] ?? 0)
+  );
 }
