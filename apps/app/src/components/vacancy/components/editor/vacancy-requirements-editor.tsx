@@ -22,10 +22,8 @@ import { Plus, X } from "lucide-react";
 import React from "react";
 import type { UseFormReturn } from "react-hook-form";
 
-interface VacancyRequirementsEditorProps<
-  T extends { requirements?: VacancyRequirements },
-> {
-  form: UseFormReturn<T>;
+interface VacancyRequirementsEditorProps {
+  form: UseFormReturn<{ requirements?: VacancyRequirements }>;
   requirements: VacancyRequirements | null | undefined;
 }
 
@@ -35,73 +33,64 @@ type ArrayFieldKey =
   | "tech_stack"
   | "keywords_for_matching";
 
-export function VacancyRequirementsEditor<
-  T extends { requirements?: VacancyRequirements },
->({ form, requirements }: VacancyRequirementsEditorProps<T>) {
-  const currentRequirements: VacancyRequirements = (form.watch(
-    "requirements",
-  ) as VacancyRequirements | undefined) ||
-    requirements || {
-      job_title: "",
-      summary: "",
-      mandatory_requirements: [],
-      nice_to_have_skills: [],
-      tech_stack: [],
-      experience_years: { min: null, description: "" },
-      languages: [],
-      location_type: "",
-      keywords_for_matching: [],
-    };
+const getDefaultRequirements = (): VacancyRequirements => ({
+  job_title: "",
+  summary: "",
+  mandatory_requirements: [],
+  nice_to_have_skills: [],
+  tech_stack: [],
+  experience_years: { min: null, description: "" },
+  languages: [],
+  location_type: "",
+  keywords_for_matching: [],
+});
+
+export function VacancyRequirementsEditor({
+  form,
+  requirements,
+}: VacancyRequirementsEditorProps) {
+  const watchedRequirements = form.watch("requirements");
+  const currentRequirements: VacancyRequirements =
+    watchedRequirements ?? requirements ?? getDefaultRequirements();
+
+  const updateRequirements = (updates: Partial<VacancyRequirements>) => {
+    form.setValue("requirements", {
+      ...currentRequirements,
+      ...updates,
+    });
+  };
 
   const addArrayItem = (field: ArrayFieldKey, value: string) => {
     if (!value.trim()) return;
-    const current = currentRequirements[field] || [];
-    form.setValue(
-      "requirements" as any,
-      {
-        ...currentRequirements,
-        [field]: [...current, value.trim()],
-      } as any,
-    );
+    const current = currentRequirements[field];
+    updateRequirements({
+      [field]: [...current, value.trim()],
+    });
   };
 
   const removeArrayItem = (field: ArrayFieldKey, index: number) => {
-    const current = currentRequirements[field] || [];
-    form.setValue(
-      "requirements" as any,
-      {
-        ...currentRequirements,
-        [field]: current.filter((_: string, i: number) => i !== index),
-      } as any,
-    );
+    const current = currentRequirements[field];
+    updateRequirements({
+      [field]: current.filter((_, i) => i !== index),
+    });
   };
 
   const addLanguage = (language: string, level: string) => {
     if (!language.trim() || !level.trim()) return;
-    const current = currentRequirements.languages || [];
-    form.setValue(
-      "requirements" as any,
-      {
-        ...currentRequirements,
-        languages: [
-          ...current,
-          { language: language.trim(), level: level.trim() },
-        ],
-      } as any,
-    );
+    const current = currentRequirements.languages;
+    updateRequirements({
+      languages: [
+        ...current,
+        { language: language.trim(), level: level.trim() },
+      ],
+    });
   };
 
   const removeLanguage = (index: number) => {
-    const current = currentRequirements.languages || [];
-    form.setValue(
-      "requirements" as any,
-      {
-        ...currentRequirements,
-        languages: current.filter(
-          (_: { language: string; level: string }, i: number) => i !== index,
-        ),
-      } as any,
-    );
+    const current = currentRequirements.languages;
+    updateRequirements({
+      languages: current.filter((_, i) => i !== index),
+    });
   };
 
   return (
@@ -118,15 +107,7 @@ export function VacancyRequirementsEditor<
           <FormLabel>Название должности</FormLabel>
           <Input
             value={currentRequirements.job_title}
-            onChange={(e) =>
-              form.setValue(
-                "requirements" as any,
-                {
-                  ...currentRequirements,
-                  job_title: e.target.value,
-                } as any,
-              )
-            }
+            onChange={(e) => updateRequirements({ job_title: e.target.value })}
             placeholder="Например: Senior Frontend Developer"
             className="bg-background"
           />
@@ -140,15 +121,7 @@ export function VacancyRequirementsEditor<
           <FormLabel>Краткое описание позиции</FormLabel>
           <Textarea
             value={currentRequirements.summary}
-            onChange={(e) =>
-              form.setValue(
-                "requirements" as any,
-                {
-                  ...currentRequirements,
-                  summary: e.target.value,
-                } as any,
-              )
-            }
+            onChange={(e) => updateRequirements({ summary: e.target.value })}
             placeholder="Краткое описание роли и основных обязанностей..."
             className="min-h-[80px] resize-y bg-background"
           />
@@ -161,7 +134,7 @@ export function VacancyRequirementsEditor<
         <ArrayFieldEditor
           label="Обязательные требования"
           description="Навыки и опыт, без которых кандидат не подходит"
-          items={currentRequirements.mandatory_requirements || []}
+          items={currentRequirements.mandatory_requirements}
           onAdd={(value) => addArrayItem("mandatory_requirements", value)}
           onRemove={(index) => removeArrayItem("mandatory_requirements", index)}
           placeholder="Например: Опыт работы с React от 3 лет"
@@ -171,7 +144,7 @@ export function VacancyRequirementsEditor<
         <ArrayFieldEditor
           label="Желательные навыки"
           description="Навыки, которые будут плюсом, но не обязательны"
-          items={currentRequirements.nice_to_have_skills || []}
+          items={currentRequirements.nice_to_have_skills}
           onAdd={(value) => addArrayItem("nice_to_have_skills", value)}
           onRemove={(index) => removeArrayItem("nice_to_have_skills", index)}
           placeholder="Например: Знание TypeScript"
@@ -181,7 +154,7 @@ export function VacancyRequirementsEditor<
         <ArrayFieldEditor
           label="Технологический стек"
           description="Технологии, с которыми предстоит работать"
-          items={currentRequirements.tech_stack || []}
+          items={currentRequirements.tech_stack}
           onAdd={(value) => addArrayItem("tech_stack", value)}
           onRemove={(index) => removeArrayItem("tech_stack", index)}
           placeholder="Например: React, Next.js, PostgreSQL"
@@ -198,18 +171,14 @@ export function VacancyRequirementsEditor<
               <Input
                 type="number"
                 min="0"
-                value={currentRequirements.experience_years?.min ?? ""}
+                value={currentRequirements.experience_years.min ?? ""}
                 onChange={(e) =>
-                  form.setValue(
-                    "requirements" as any,
-                    {
-                      ...currentRequirements,
-                      experience_years: {
-                        ...currentRequirements.experience_years,
-                        min: e.target.value ? Number(e.target.value) : null,
-                      },
-                    } as any,
-                  )
+                  updateRequirements({
+                    experience_years: {
+                      ...currentRequirements.experience_years,
+                      min: e.target.value ? Number(e.target.value) : null,
+                    },
+                  })
                 }
                 placeholder="3"
                 className="bg-background"
@@ -220,18 +189,14 @@ export function VacancyRequirementsEditor<
                 Описание опыта
               </FormLabel>
               <Input
-                value={currentRequirements.experience_years?.description ?? ""}
+                value={currentRequirements.experience_years.description}
                 onChange={(e) =>
-                  form.setValue(
-                    "requirements" as any,
-                    {
-                      ...currentRequirements,
-                      experience_years: {
-                        ...currentRequirements.experience_years,
-                        description: e.target.value,
-                      },
-                    } as any,
-                  )
+                  updateRequirements({
+                    experience_years: {
+                      ...currentRequirements.experience_years,
+                      description: e.target.value,
+                    },
+                  })
                 }
                 placeholder="Коммерческая разработка"
                 className="bg-background"
@@ -245,7 +210,7 @@ export function VacancyRequirementsEditor<
 
         {/* Языки */}
         <LanguageFieldEditor
-          languages={currentRequirements.languages || []}
+          languages={currentRequirements.languages}
           onAdd={addLanguage}
           onRemove={removeLanguage}
         />
@@ -256,10 +221,7 @@ export function VacancyRequirementsEditor<
           <Select
             value={currentRequirements.location_type}
             onValueChange={(value) =>
-              form.setValue("requirements", {
-                ...currentRequirements,
-                location_type: value,
-              })
+              updateRequirements({ location_type: value })
             }
           >
             <SelectTrigger className="bg-background">
@@ -279,7 +241,7 @@ export function VacancyRequirementsEditor<
         <ArrayFieldEditor
           label="Ключевые слова для поиска"
           description="Слова, по которым можно найти подходящих кандидатов"
-          items={currentRequirements.keywords_for_matching || []}
+          items={currentRequirements.keywords_for_matching}
           onAdd={(value) => addArrayItem("keywords_for_matching", value)}
           onRemove={(index) => removeArrayItem("keywords_for_matching", index)}
           placeholder="Например: frontend, react, javascript"

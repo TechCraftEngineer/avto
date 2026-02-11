@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { db } from "@qbs-autonaim/db";
+import { db, type NewVacancy } from "@qbs-autonaim/db";
 import { vacancy, vacancyPublication } from "@qbs-autonaim/db/schema";
 import { z } from "zod";
 
@@ -35,10 +35,12 @@ export async function loadVacancies(recruiterId: string): Promise<{
   console.log(`📋 Найдено ${vacanciesData.length} вакансий`);
 
   // Добавляем createdBy для всех вакансий
-  const vacanciesWithCreator = vacanciesData.map((v: any) => ({
-    ...v,
-    createdBy: recruiterId,
-  }));
+  const vacanciesWithCreator: NewVacancy[] = vacanciesData.map(
+    (v: NewVacancy) => ({
+      ...v,
+      createdBy: recruiterId,
+    }),
+  );
 
   const insertedVacancies = await db
     .insert(vacancy)
