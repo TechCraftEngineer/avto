@@ -17,7 +17,7 @@ import { ArrowUpDown } from "lucide-react";
 import Link from "next/link";
 
 type Response =
-  RouterOutputs["vacancy"]["responses"]["listAllWorkspace"]["responses"][number];
+  RouterOutputs["vacancy"]["responses"]["listWorkspace"]["responses"][number];
 
 interface ResponsesTableProps {
   responses: Response[];

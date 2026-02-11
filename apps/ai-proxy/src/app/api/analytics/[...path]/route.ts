@@ -1,14 +1,18 @@
-import { env } from "~/env";
+import { type NextRequest, NextResponse } from "next/server";
 
-const POSTHOG_HOST = env.NEXT_PUBLIC_POSTHOG_HOST || "https://eu.i.posthog.com";
+export const runtime = "edge";
+
+const POSTHOG_HOST = "https://eu.i.posthog.com";
+
 export async function POST(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ path: string[] }> },
 ) {
+  const { path } = await params;
+
   try {
     const body = await request.text();
-    const resolvedParams = await params;
-    const pathname = resolvedParams.path.join("/");
+    const pathname = path.join("/");
     const url = new URL(request.url);
     const posthogUrl = `${POSTHOG_HOST}/${pathname}${url.search}`;
 
@@ -16,7 +20,6 @@ export async function POST(
       "User-Agent": request.headers.get("user-agent") || "",
     };
 
-    // Только добавляем Content-Type если есть тело запроса
     if (body) {
       headers["Content-Type"] =
         request.headers.get("content-type") || "application/json";
@@ -30,7 +33,7 @@ export async function POST(
 
     const data = await response.text();
 
-    return new Response(data, {
+    return new NextResponse(data, {
       status: response.status,
       headers: {
         "Content-Type":
@@ -39,25 +42,23 @@ export async function POST(
     });
   } catch (error) {
     console.error("Analytics proxy error:", error);
-    return new Response(JSON.stringify({ error: "Internal server error" }), {
-      status: 500,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ path: string[] }> },
 ) {
+  const { path } = await params;
+
   try {
     const url = new URL(request.url);
-    const resolvedParams = await params;
-    const pathname = resolvedParams.path.join("/");
-    const search = url.search;
-    const posthogUrl = `${POSTHOG_HOST}/${pathname}${search}`;
+    const pathname = path.join("/");
+    const posthogUrl = `${POSTHOG_HOST}/${pathname}${url.search}`;
 
     const response = await fetch(posthogUrl, {
       method: "GET",
@@ -68,7 +69,7 @@ export async function GET(
 
     const data = await response.text();
 
-    return new Response(data, {
+    return new NextResponse(data, {
       status: response.status,
       headers: {
         "Content-Type":
@@ -77,11 +78,9 @@ export async function GET(
     });
   } catch (error) {
     console.error("Analytics proxy error:", error);
-    return new Response(JSON.stringify({ error: "Internal server error" }), {
-      status: 500,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

@@ -9,7 +9,7 @@ export function initPostHog() {
   if (!key) return;
 
   posthog.init(key, {
-    api_host: "/api/analytics/ingest",
+    api_host: `${env.NEXT_PUBLIC_AI_PROXY_URL}/api/analytics`,
     ui_host: "https://eu.i.posthog.com",
     person_profiles: "identified_only",
     capture_pageview: false,

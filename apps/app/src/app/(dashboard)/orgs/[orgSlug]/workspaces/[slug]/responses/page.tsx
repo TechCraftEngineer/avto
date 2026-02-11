@@ -2,7 +2,6 @@
 
 import { Button } from "@qbs-autonaim/ui/button";
 import {
-  IconDownload,
   IconFilter,
   IconLayoutKanban,
   IconRefresh,
@@ -33,7 +32,7 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
   const trpc = useTRPC();
   const { workspace } = useWorkspace();
 
-  const [viewMode, setViewMode] = useState<ViewMode>("table");
+  const [viewMode, setViewMode] = useState<ViewMode>("board");
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [screeningFilter, setScreeningFilter] = useState<
@@ -63,10 +62,10 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
     isLoading,
     refetch,
   } = useQuery({
-    ...trpc.vacancy.responses.listAllWorkspace.queryOptions({
+    ...trpc.vacancy.responses.listWorkspace.queryOptions({
       workspaceId: workspace?.id ?? "",
       page: viewMode === "board" ? 1 : page,
-      limit: viewMode === "board" ? 500 : 50,
+      limit: viewMode === "board" ? 50 : 50,
       sortField,
       sortDirection,
       screeningFilter,
@@ -84,8 +83,10 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
       ).length ?? 0,
     highScoreResponses:
       responsesData?.responses.filter(
-        (r: { screening: { score: number } | null }) =>
-          r.screening && r.screening.score >= 4,
+        (r) =>
+          r.screening !== null &&
+          r.screening.score !== null &&
+          r.screening.score >= 4,
       ).length ?? 0,
     interviewResponses:
       responsesData?.responses.filter(
@@ -121,62 +122,7 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
     }
   };
 
-  const escapeCsvField = (
-    value: string | number | null | undefined,
-  ): string => {
-    const str = String(value ?? "");
-    const needsQuotes =
-      str.includes(",") || str.includes('"') || str.includes("\n");
-    const escaped = str.replace(/"/g, '""').replace(/\r\n|\r|\n/g, "\n");
-    return needsQuotes ? `"${escaped}"` : escaped;
-  };
 
-  const handleExport = () => {
-    if (!responsesData?.responses.length) {
-      toast.error("Нет данных для экспорта");
-      return;
-    }
-
-    const csvContent = [
-      ["Кандидат", "Оценка", "Приоритет", "Статус", "Дата отклика"].join(","),
-      ...responsesData.responses.map(
-        (r: {
-          candidateName: string | null;
-          screening: { score: number } | null;
-          priorityScore: number;
-          status: string;
-          respondedAt: Date | null;
-        }) =>
-          [
-            escapeCsvField(r.candidateName || "Без имени"),
-            escapeCsvField(r.screening?.score ?? "—"),
-            escapeCsvField(r.priorityScore ?? "—"),
-            escapeCsvField(r.status),
-            escapeCsvField(
-              r.respondedAt
-                ? new Date(r.respondedAt).toLocaleDateString("ru-RU")
-                : "—",
-            ),
-          ].join(","),
-      ),
-    ].join("\n");
-
-    const blob = new Blob([`\uFEFF${csvContent}`], {
-      type: "text/csv;charset=utf-8;",
-    });
-    const objectUrl = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = objectUrl;
-    const today = new Date().toISOString().split("T")[0];
-    link.download = `отклики_${today}.csv`;
-    link.click();
-
-    setTimeout(() => {
-      URL.revokeObjectURL(objectUrl);
-    }, 100);
-
-    toast.success("Данные экспортированы");
-  };
 
   const quickFilters = [
     {
@@ -238,17 +184,6 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
               <span className="hidden sm:inline">Доска</span>
             </Button>
           </div>
-          {viewMode === "table" && (
-            <Button
-              onClick={handleExport}
-              disabled={isLoading || !responsesData?.responses.length}
-              variant="outline"
-              className="hidden h-9 items-center gap-2 px-4 font-medium transition-all hover:bg-muted active:scale-95 sm:flex"
-            >
-              <IconDownload className="size-4" />
-              Экспорт
-            </Button>
-          )}
           <Button
             onClick={handleRefresh}
             disabled={isLoading}
