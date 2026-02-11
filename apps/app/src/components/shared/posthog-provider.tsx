@@ -1,23 +1,18 @@
 "use client";
 
 import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { env } from "~/env";
 import { initPostHog, posthog } from "~/lib/posthog";
 
-export function PostHogProvider({ children }: { children: React.ReactNode }) {
+const IS_PRODUCTION = env.NODE_ENV === "production";
+
+function PostHogPageView() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const isProduction = env.VERCEL_ENV === "production";
 
   useEffect(() => {
-    if (isProduction) {
-      initPostHog();
-    }
-  }, [isProduction]);
-
-  useEffect(() => {
-    if (!isProduction || !pathname) return;
+    if (!IS_PRODUCTION || !pathname) return;
 
     let url = window.origin + pathname;
     if (searchParams?.toString()) {
@@ -26,7 +21,24 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
     posthog.capture("$pageview", {
       $current_url: url,
     });
-  }, [pathname, searchParams, isProduction]);
+  }, [pathname, searchParams]);
 
-  return <>{children}</>;
+  return null;
+}
+
+export function PostHogProvider({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    if (IS_PRODUCTION) {
+      initPostHog();
+    }
+  }, []);
+
+  return (
+    <>
+      <Suspense fallback={null}>
+        <PostHogPageView />
+      </Suspense>
+      {children}
+    </>
+  );
 }
