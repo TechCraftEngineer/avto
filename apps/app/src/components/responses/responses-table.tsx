@@ -1,6 +1,7 @@
 "use client";
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
+import { RESPONSE_STATUS_LABELS } from "@qbs-autonaim/db/schema";
 import {
   Badge,
   Button,
@@ -50,7 +51,7 @@ export function ResponsesTable({
 }: ResponsesTableProps) {
   if (isLoading) {
     return (
-      <div className="rounded-md border">
+      <div className="rounded-md border bg-card">
         <Table>
           <TableHeader>
             <TableRow>
@@ -94,7 +95,7 @@ export function ResponsesTable({
 
   if (responses.length === 0) {
     return (
-      <div className="rounded-md border border-dashed bg-muted/20 text-center py-12">
+      <div className="rounded-md border border-dashed bg-card/50 text-center py-12">
         <p className="text-sm text-muted-foreground">
           {hasFilters ? "Отклики не найдены" : "Пока нет откликов"}
         </p>
@@ -123,7 +124,7 @@ export function ResponsesTable({
   );
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border bg-card">
       <Table>
         <TableHeader>
           <TableRow>
@@ -194,7 +195,9 @@ export function ResponsesTable({
                 )}
               </TableCell>
               <TableCell>
-                <Badge variant="secondary">{response.status}</Badge>
+                <Badge variant="secondary">
+                  {RESPONSE_STATUS_LABELS[response.status]}
+                </Badge>
               </TableCell>
               <TableCell className="text-sm text-muted-foreground">
                 {response.respondedAt

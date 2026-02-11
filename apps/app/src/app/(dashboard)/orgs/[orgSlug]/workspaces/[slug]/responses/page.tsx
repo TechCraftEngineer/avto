@@ -111,16 +111,6 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
     }
   };
 
-  const handleRefresh = async () => {
-    try {
-      await refetch();
-      toast.success("Данные обновлены");
-    } catch (_error) {
-      toast.error("Не удалось обновить данные");
-    }
-  };
-
-
 
   const quickFilters = [
     {
