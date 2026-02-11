@@ -1,6 +1,7 @@
 import type { TRPCRouterRecord } from "@trpc/server";
 
 import { create } from "./create";
+import { createPlanPayment } from "./create-plan-payment";
 import { deleteOrganization } from "./delete";
 import { get } from "./get";
 import { getBySlug } from "./get-by-slug";
@@ -26,6 +27,7 @@ export const organizationRouter = {
   create,
   update,
   updatePlan,
+  createPlanPayment,
   delete: deleteOrganization,
   listMembers,
   addMember,

@@ -1,5 +1,5 @@
 import { db } from "@qbs-autonaim/db/client";
-import { payment } from "@qbs-autonaim/db/schema";
+import { organization, payment } from "@qbs-autonaim/db/schema";
 import { yookassaWebhookSchema } from "@qbs-autonaim/validators";
 import { eq } from "drizzle-orm";
 import type { Context } from "hono";
@@ -328,7 +328,58 @@ yookassaRouter.post("/", validateWebhookSecurity, async (c) => {
       })
       .where(eq(payment.id, existingPayment.id));
 
-    // 6. Логирование успешной обработки (Требование 9.2, 9.5)
+    // 6. Обновление плана организации при успешной оплате
+    if (newStatus === "succeeded" && existingPayment.organizationId) {
+      try {
+        // Получаем metadata платежа для определения плана
+        const metadata = existingPayment.metadata
+          ? JSON.parse(existingPayment.metadata as string)
+          : null;
+
+        if (metadata?.type === "plan_subscription" && metadata?.plan) {
+          // Обновляем план организации
+          await db
+            .update(organization)
+            .set({
+              plan: metadata.plan,
+            })
+            .where(eq(organization.id, existingPayment.organizationId));
+
+          console.log(
+            JSON.stringify({
+              level: "info",
+              message: "Webhook: план организации обновлён",
+              timestamp: new Date().toISOString(),
+              context: {
+                organizationId: existingPayment.organizationId,
+                plan: metadata.plan,
+                paymentId: existingPayment.id,
+              },
+            }),
+          );
+        }
+      } catch (error) {
+        console.error(
+          JSON.stringify({
+            level: "error",
+            message: "Webhook: ошибка обновления плана организации",
+            timestamp: new Date().toISOString(),
+            context: {
+              errorType:
+                error instanceof Error
+                  ? error.constructor.name
+                  : "UnknownError",
+              errorMessage:
+                error instanceof Error ? error.message : "Неизвестная ошибка",
+              organizationId: existingPayment.organizationId,
+              paymentId: existingPayment.id,
+            },
+          }),
+        );
+      }
+    }
+
+    // 7. Логирование успешной обработки (Требование 9.2, 9.5)
     console.log(
       JSON.stringify({
         level: "info",
@@ -345,7 +396,7 @@ yookassaRouter.post("/", validateWebhookSecurity, async (c) => {
       }),
     );
 
-    // 7. Возврат успешного ответа (Требование 3.5)
+    // 8. Возврат успешного ответа (Требование 3.5)
     return c.json({ success: true }, 200);
   } catch (error) {
     // Логирование ошибки (Требование 9.3)

@@ -39,7 +39,7 @@ export function VacancyRequirementsEditor<
   T extends { requirements?: VacancyRequirements },
 >({ form, requirements }: VacancyRequirementsEditorProps<T>) {
   const currentRequirements: VacancyRequirements = (form.watch(
-    "requirements" as any,
+    "requirements",
   ) as VacancyRequirements | undefined) ||
     requirements || {
       job_title: "",
@@ -256,13 +256,10 @@ export function VacancyRequirementsEditor<
           <Select
             value={currentRequirements.location_type}
             onValueChange={(value) =>
-              form.setValue(
-                "requirements" as any,
-                {
-                  ...currentRequirements,
-                  location_type: value,
-                } as any,
-              )
+              form.setValue("requirements", {
+                ...currentRequirements,
+                location_type: value,
+              })
             }
           >
             <SelectTrigger className="bg-background">

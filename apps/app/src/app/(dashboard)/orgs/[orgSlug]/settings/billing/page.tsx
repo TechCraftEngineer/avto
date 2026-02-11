@@ -10,9 +10,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@qbs-autonaim/ui";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  skipToken,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { Check } from "lucide-react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import { PageHeader } from "~/components/layout";
 import { useTRPC } from "~/trpc/react";
@@ -75,12 +81,39 @@ const plans = [
 
 export default function OrganizationBillingPage() {
   const params = useParams<{ orgSlug: string }>();
+  const searchParams = useSearchParams();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
+
+  // Обработка успешного платежа
+  useEffect(() => {
+    const paymentStatus = searchParams.get("payment");
+    if (paymentStatus === "success") {
+      toast.success("Платёж успешно обработан");
+      // Очищаем параметр из URL
+      window.history.replaceState(
+        {},
+        "",
+        `/orgs/${params.orgSlug}/settings/billing`,
+      );
+    }
+  }, [searchParams, params.orgSlug]);
 
   // Получаем данные организации
   const { data: organization, isLoading } = useQuery(
     trpc.organization.getBySlug.queryOptions({ slug: params.orgSlug }),
+  );
+
+  // Получаем историю платежей организации
+  const { data: payments, isLoading: isLoadingPayments } = useQuery(
+    trpc.payment.list.queryOptions(
+      organization?.id
+        ? {
+            organizationId: organization.id,
+            limit: 10,
+          }
+        : skipToken,
+    ),
   );
 
   // Мутация для обновления плана
@@ -100,6 +133,22 @@ export default function OrganizationBillingPage() {
     }),
   );
 
+  // Мутация для создания платежа
+  const { mutate: createPayment, isPending: isCreatingPayment } = useMutation(
+    trpc.organization.createPlanPayment.mutationOptions({
+      onSuccess: (data) => {
+        if (data.confirmationUrl) {
+          window.location.href = data.confirmationUrl;
+        } else {
+          toast.error("Не удалось получить ссылку на оплату");
+        }
+      },
+      onError: (error) => {
+        toast.error(error.message || "Не удалось создать платёж");
+      },
+    }),
+  );
+
   const handleSelectPlan = (planId: "free" | "pro" | "enterprise") => {
     if (!organization) return;
 
@@ -112,9 +161,13 @@ export default function OrganizationBillingPage() {
       return;
     }
 
-    // Для платных планов перенаправляем на страницу оплаты
-    // TODO: Реализовать интеграцию с платёжной системой
-    toast.info("Интеграция с платёжной системой в разработке");
+    // Для платных планов создаём платёж
+    const returnUrl = `${window.location.origin}/orgs/${params.orgSlug}/settings/billing?payment=success`;
+    createPayment({
+      organizationId: organization.id,
+      plan: planId,
+      returnUrl,
+    });
   };
 
   if (isLoading) {
@@ -194,11 +247,11 @@ export default function OrganizationBillingPage() {
                 <Button
                   variant={plan.variant}
                   className="w-full"
-                  disabled={isCurrent || isPending}
+                  disabled={isCurrent || isPending || isCreatingPayment}
                   onClick={() => handleSelectPlan(plan.planId)}
                 >
-                  {isPending
-                    ? "Обновление…"
+                  {isPending || isCreatingPayment
+                    ? "Обработка…"
                     : isCurrent
                       ? "Текущий тариф"
                       : "Выбрать тариф"}
@@ -217,9 +270,71 @@ export default function OrganizationBillingPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-muted-foreground flex items-center justify-center py-8 text-sm">
-            У вас пока нет платежей
-          </div>
+          {isLoadingPayments ? (
+            <div className="text-muted-foreground flex items-center justify-center py-8 text-sm">
+              Загрузка…
+            </div>
+          ) : !payments || payments.length === 0 ? (
+            <div className="text-muted-foreground flex items-center justify-center py-8 text-sm">
+              У вас пока нет платежей
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {payments.map((payment) => {
+                const statusLabels: Record<string, string> = {
+                  pending: "Ожидает оплаты",
+                  waiting_for_capture: "Ожидает подтверждения",
+                  succeeded: "Успешно",
+                  canceled: "Отменён",
+                };
+
+                const statusVariants: Record<
+                  string,
+                  "default" | "secondary" | "destructive" | "outline"
+                > = {
+                  pending: "secondary",
+                  waiting_for_capture: "secondary",
+                  succeeded: "default",
+                  canceled: "destructive",
+                };
+
+                return (
+                  <div
+                    key={payment.id}
+                    className="flex items-center justify-between rounded-lg border p-4"
+                  >
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">
+                          {payment.description || "Платёж"}
+                        </span>
+                        <Badge variant={statusVariants[payment.status]}>
+                          {statusLabels[payment.status] || payment.status}
+                        </Badge>
+                      </div>
+                      <span className="text-muted-foreground text-sm">
+                        {new Date(payment.createdAt).toLocaleDateString(
+                          "ru-RU",
+                          {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          },
+                        )}
+                      </span>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-semibold">
+                        {Number(payment.amount).toLocaleString("ru-RU")} ₽
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
