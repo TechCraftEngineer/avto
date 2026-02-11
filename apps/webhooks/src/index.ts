@@ -1,5 +1,4 @@
 import { Hono } from "hono";
-import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { yookassaRouter } from "./routes/yookassa";
 
@@ -19,14 +18,6 @@ const app = new Hono();
 
 // Middleware
 app.use("*", logger());
-app.use(
-  "*",
-  cors({
-    origin: "*", // В продакшене ограничить конкретными доменами
-    allowMethods: ["POST", "GET", "OPTIONS"],
-    allowHeaders: ["Content-Type", "Authorization"],
-  }),
-);
 
 // Health check
 app.get("/health", (c) => {

@@ -16,6 +16,51 @@ import { createYookassaClient } from "../services/yookassa-client";
  * переподтверждения статуса платежа.
  */
 
+/**
+ * Санитизирует webhook payload, удаляя чувствительные данные перед логированием
+ *
+ * Удаляет:
+ * - email адреса
+ * - телефоны
+ * - metadata
+ * - платежные данные (card, payment_method)
+ * - персональные данные получателя
+ */
+function sanitizeWebhookPayload(body: unknown): Record<string, unknown> {
+  if (!body || typeof body !== "object") {
+    return { type: typeof body };
+  }
+
+  const sanitized: Record<string, unknown> = {};
+  const obj = body as Record<string, unknown>;
+
+  // Безопасные поля для логирования
+  const safeFields = ["type", "event", "id", "status", "created_at"];
+
+  for (const key of safeFields) {
+    if (key in obj) {
+      sanitized[key] = obj[key];
+    }
+  }
+
+  // Добавляем информацию о наличии чувствительных полей без их значений
+  if ("object" in obj && obj.object && typeof obj.object === "object") {
+    const paymentObj = obj.object as Record<string, unknown>;
+    sanitized.object = {
+      id: paymentObj.id,
+      status: paymentObj.status,
+      amount: paymentObj.amount,
+      currency: paymentObj.currency,
+      created_at: paymentObj.created_at,
+      has_recipient: "recipient" in paymentObj,
+      has_metadata: "metadata" in paymentObj,
+      has_payment_method: "payment_method" in paymentObj,
+    };
+  }
+
+  return sanitized;
+}
+
 export const yookassaRouter = new Hono();
 
 /**
@@ -113,7 +158,7 @@ yookassaRouter.post("/", validateWebhookSecurity, async (c) => {
           timestamp: new Date().toISOString(),
           context: {
             errors: validationResult.error.issues,
-            body,
+            sanitizedPayload: sanitizeWebhookPayload(body),
           },
         }),
       );

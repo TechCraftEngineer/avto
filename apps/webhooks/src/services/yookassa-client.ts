@@ -8,6 +8,7 @@ interface YookassaConfig {
   shopId: string;
   secretKey: string;
   apiUrl: string;
+  timeoutMs?: number;
 }
 
 /**
@@ -19,6 +20,7 @@ interface YookassaConfig {
  */
 export class YookassaClient {
   private config: YookassaConfig;
+  private readonly DEFAULT_TIMEOUT_MS = 10000; // 10 секунд по умолчанию
 
   constructor(config: YookassaConfig) {
     this.config = config;
@@ -34,28 +36,40 @@ export class YookassaClient {
    * @throws Error если платеж не найден или произошла ошибка API
    */
   async getPayment(paymentId: string): Promise<YookassaPaymentResponse> {
-    const response = await fetch(
-      `${this.config.apiUrl}/payments/${paymentId}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Basic ${this.getAuthHeader()}`,
+    const timeoutMs = this.config.timeoutMs ?? this.DEFAULT_TIMEOUT_MS;
+
+    try {
+      const response = await fetch(
+        `${this.config.apiUrl}/payments/${paymentId}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Basic ${this.getAuthHeader()}`,
+          },
+          signal: AbortSignal.timeout(timeoutMs),
         },
-      },
-    );
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        throw new Error("Платеж не найден в ЮКасса");
-      }
-      const error = (await response.json()) as { description?: string };
-      throw new Error(
-        `Ошибка получения платежа: ${error.description || response.statusText}`,
       );
-    }
 
-    const data = await response.json();
-    return yookassaPaymentResponseSchema.parse(data);
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error("Платеж не найден в ЮКасса");
+        }
+        const error = (await response.json()) as { description?: string };
+        throw new Error(
+          `Ошибка получения платежа: ${error.description || response.statusText}`,
+        );
+      }
+
+      const data = await response.json();
+      return yookassaPaymentResponseSchema.parse(data);
+    } catch (error) {
+      if (error instanceof Error && error.name === "AbortError") {
+        throw new Error(
+          `Превышено время ожидания ответа от ЮКасса (${timeoutMs}ms)`,
+        );
+      }
+      throw error;
+    }
   }
 
   /**

@@ -66,9 +66,10 @@ export const create = protectedProcedure
     // 5. Генерируем ключ идемпотентности (Требование 1.2, 6.1)
     const idempotenceKey = randomUUID();
 
+    // 6. Создаем платеж в ЮКасса (Требование 1.1)
+    let yookassaPayment: Awaited<ReturnType<typeof yookassa.createPayment>>;
     try {
-      // 6. Создаем платеж в ЮКасса (Требование 1.1)
-      const yookassaPayment = await yookassa.createPayment({
+      yookassaPayment = await yookassa.createPayment({
         amount: input.amount,
         currency: input.currency,
         description: input.description,
@@ -79,69 +80,14 @@ export const create = protectedProcedure
           workspaceId: input.workspaceId,
           organizationId,
         },
+        idempotenceKey,
       });
-
-      // 7. Сохраняем платеж в БД (Требование 1.3, 5.3, 5.4, 5.6)
-      const [createdPayment] = await ctx.db
-        .insert(payment)
-        .values({
-          yookassaId: yookassaPayment.id,
-          idempotenceKey,
-          userId,
-          workspaceId: input.workspaceId,
-          organizationId,
-          amount: input.amount.toString(),
-          currency: input.currency,
-          status: "pending", // Требование 5.6
-          description: input.description,
-          returnUrl: input.returnUrl,
-          confirmationUrl: yookassaPayment.confirmation?.confirmation_url,
-          metadata: input.metadata ? JSON.stringify(input.metadata) : null,
-        })
-        .returning();
-
-      if (!createdPayment) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Не удалось сохранить платеж",
-        });
-      }
-
-      // Логирование создания платежа (Требование 9.1)
-      console.log(
-        JSON.stringify({
-          level: "info",
-          message: "Платеж успешно создан",
-          timestamp: new Date().toISOString(),
-          context: {
-            paymentId: createdPayment.id,
-            yookassaId: createdPayment.yookassaId,
-            amount: input.amount,
-            currency: input.currency,
-            userId,
-            workspaceId: input.workspaceId,
-            organizationId,
-            status: createdPayment.status,
-          },
-        }),
-      );
-
-      // 8. Возвращаем данные платежа (Требование 1.4)
-      return {
-        id: createdPayment.id,
-        yookassaId: createdPayment.yookassaId,
-        amount: createdPayment.amount,
-        currency: createdPayment.currency,
-        status: createdPayment.status,
-        confirmationUrl: createdPayment.confirmationUrl,
-      };
     } catch (error) {
-      // Обработка ошибок (Требование 1.5)
-      // Логирование ошибки с деталями (Требование 9.3)
+      // Обработка ошибок создания платежа в ЮКасса (Требование 1.5)
       console.error(
         JSON.stringify({
           level: "error",
-          message: "Ошибка при создании платежа",
+          message: "Ошибка при создании платежа в ЮКасса",
           timestamp: new Date().toISOString(),
           context: {
             errorType:
@@ -163,4 +109,140 @@ export const create = protectedProcedure
           error instanceof Error ? error.message : "Ошибка создания платежа",
       });
     }
+
+    // 7. Сохраняем платеж в БД (Требование 1.3, 5.3, 5.4, 5.6)
+    let createdPayment: Awaited<
+      ReturnType<typeof ctx.db.insert<typeof payment>>
+    >[0];
+    try {
+      const [insertedPayment] = await ctx.db
+        .insert(payment)
+        .values({
+          yookassaId: yookassaPayment.id,
+          idempotenceKey,
+          userId,
+          workspaceId: input.workspaceId,
+          organizationId,
+          amount: input.amount.toString(),
+          currency: input.currency,
+          status: "pending", // Требование 5.6
+          description: input.description,
+          returnUrl: input.returnUrl,
+          confirmationUrl: yookassaPayment.confirmation?.confirmation_url,
+          metadata: input.metadata ? JSON.stringify(input.metadata) : null,
+        })
+        .returning();
+
+      if (!insertedPayment) {
+        throw new Error("Не удалось сохранить платеж в БД");
+      }
+
+      createdPayment = insertedPayment;
+    } catch (dbError) {
+      // Компенсирующее действие: попытка отмены платежа в ЮКасса
+      console.error(
+        JSON.stringify({
+          level: "error",
+          message:
+            "Ошибка при сохранении платежа в БД, выполняется компенсирующее действие",
+          timestamp: new Date().toISOString(),
+          context: {
+            errorType:
+              dbError instanceof Error
+                ? dbError.constructor.name
+                : "UnknownError",
+            errorMessage:
+              dbError instanceof Error
+                ? dbError.message
+                : "Неизвестная ошибка БД",
+            stack: dbError instanceof Error ? dbError.stack : undefined,
+            yookassaPaymentId: yookassaPayment.id,
+            userId,
+            workspaceId: input.workspaceId,
+            amount: input.amount,
+            currency: input.currency,
+          },
+        }),
+      );
+
+      // Попытка отмены платежа в ЮКасса
+      try {
+        await yookassa.cancelPayment(yookassaPayment.id);
+
+        console.log(
+          JSON.stringify({
+            level: "info",
+            message:
+              "Компенсирующее действие выполнено: платеж отменен в ЮКасса",
+            timestamp: new Date().toISOString(),
+            context: {
+              yookassaPaymentId: yookassaPayment.id,
+              userId,
+              workspaceId: input.workspaceId,
+            },
+          }),
+        );
+      } catch (cancelError) {
+        // Логируем ошибку отмены, но не прерываем выполнение
+        // Платеж истечет автоматически в ЮКасса
+        console.error(
+          JSON.stringify({
+            level: "error",
+            message:
+              "Не удалось отменить платеж в ЮКасса (платеж истечет автоматически)",
+            timestamp: new Date().toISOString(),
+            context: {
+              errorType:
+                cancelError instanceof Error
+                  ? cancelError.constructor.name
+                  : "UnknownError",
+              errorMessage:
+                cancelError instanceof Error
+                  ? cancelError.message
+                  : "Неизвестная ошибка отмены",
+              stack:
+                cancelError instanceof Error ? cancelError.stack : undefined,
+              yookassaPaymentId: yookassaPayment.id,
+              userId,
+              workspaceId: input.workspaceId,
+            },
+          }),
+        );
+      }
+
+      // Пробрасываем исходную ошибку БД
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Не удалось сохранить платеж",
+      });
+    }
+
+    // Логирование создания платежа (Требование 9.1)
+    console.log(
+      JSON.stringify({
+        level: "info",
+        message: "Платеж успешно создан",
+        timestamp: new Date().toISOString(),
+        context: {
+          paymentId: createdPayment.id,
+          yookassaId: createdPayment.yookassaId,
+          amount: input.amount,
+          currency: input.currency,
+          userId,
+          workspaceId: input.workspaceId,
+          organizationId,
+          status: createdPayment.status,
+        },
+      }),
+    );
+
+    // 8. Возвращаем данные платежа (Требование 1.4)
+    return {
+      id: createdPayment.id,
+      yookassaId: createdPayment.yookassaId,
+      amount: createdPayment.amount,
+      currency: createdPayment.currency,
+      status: createdPayment.status,
+      confirmationUrl: createdPayment.confirmationUrl,
+    };
   });
