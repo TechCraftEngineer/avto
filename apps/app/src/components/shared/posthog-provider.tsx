@@ -5,7 +5,7 @@ import { Suspense, useEffect } from "react";
 import { env } from "~/env";
 import { initPostHog, posthog } from "~/lib/posthog";
 
-const IS_PRODUCTION = env.VERCEL_ENV === "production";
+const IS_PRODUCTION = env.NODE_ENV === "production";
 
 function PostHogPageView() {
   const pathname = usePathname();
