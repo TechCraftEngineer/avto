@@ -200,8 +200,8 @@ describe("yookassa webhook - Property-Based Tests", () => {
             if (statusWillChange) {
               expect(updatedPayment).not.toBeNull();
 
+              // Проверяем корректность обновленного статуса
               if (updatedPayment) {
-                // Проверяем корректность обновленного статуса
                 expect(updatedPayment.status).toBe(expectedStatus);
 
                 // Проверяем установку completedAt для завершенных платежей
@@ -369,17 +369,17 @@ describe("yookassa webhook - Property-Based Tests", () => {
             if (testData.scenario === "success") {
               // Успешная обработка → HTTP 200
               expect(response.status).toBe(200);
-              const body = await response.json();
+              const body = (await response.json()) as { success: boolean };
               expect(body).toEqual({ success: true });
             } else if (testData.scenario === "payment_not_found") {
               // Платеж не найден → HTTP 404
               expect(response.status).toBe(404);
-              const body = await response.json();
+              const body = (await response.json()) as { error: string };
               expect(body.error).toBe("Not Found");
             } else if (testData.scenario === "api_verification_failed") {
               // API-верификация не удалась → HTTP 403
               expect(response.status).toBe(403);
-              const body = await response.json();
+              const body = (await response.json()) as { error: string };
               expect(body.error).toBe("Forbidden");
             }
           },
@@ -458,7 +458,7 @@ describe("yookassa webhook - Property-Based Tests", () => {
             } else {
               // Небезопасный запрос должен быть отклонен с HTTP 403
               expect(response.status).toBe(403);
-              const body = await response.json();
+              const body = (await response.json()) as { error: string };
               expect(body.error).toBe("Forbidden");
             }
           },
@@ -549,7 +549,7 @@ describe("yookassa webhook - Property-Based Tests", () => {
             } else {
               // Невалидный webhook должен быть отклонен с HTTP 400
               expect(response.status).toBe(400);
-              const body = await response.json();
+              const body = (await response.json()) as { error: string };
               expect(body.error).toBe("Bad Request");
             }
           },

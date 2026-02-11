@@ -48,7 +48,7 @@ export class YookassaClient {
       if (response.status === 404) {
         throw new Error("Платеж не найден в ЮКасса");
       }
-      const error = await response.json();
+      const error = (await response.json()) as { description?: string };
       throw new Error(
         `Ошибка получения платежа: ${error.description || response.statusText}`,
       );

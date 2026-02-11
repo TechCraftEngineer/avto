@@ -500,7 +500,9 @@ describe("YookassaClient", () => {
       const client = new YookassaClient(config);
 
       // Используем рефлексию для доступа к приватному методу в тестах
-      const getAuthHeader = (client as any).getAuthHeader.bind(client);
+      const getAuthHeader = (
+        client as { getAuthHeader: () => string }
+      ).getAuthHeader.bind(client);
       const authHeader = getAuthHeader();
 
       // Проверяем, что заголовок является base64-закодированной строкой
@@ -520,7 +522,9 @@ describe("YookassaClient", () => {
       };
 
       const client = new YookassaClient(config);
-      const getAuthHeader = (client as any).getAuthHeader.bind(client);
+      const getAuthHeader = (
+        client as { getAuthHeader: () => string }
+      ).getAuthHeader.bind(client);
       const authHeader = getAuthHeader();
 
       const decoded = Buffer.from(authHeader, "base64").toString("utf-8");
@@ -560,7 +564,9 @@ describe("createYookassaClient", () => {
 
     expect(client).toBeInstanceOf(YookassaClient);
     // Проверяем, что используется дефолтный URL
-    expect((client as any).config.apiUrl).toBe("https://api.yookassa.ru/v3");
+    expect((client as { config: { apiUrl: string } }).config.apiUrl).toBe(
+      "https://api.yookassa.ru/v3",
+    );
   });
 
   it("использует кастомный API URL если указан", () => {
@@ -570,7 +576,7 @@ describe("createYookassaClient", () => {
 
     const client = createYookassaClient();
 
-    expect((client as any).config.apiUrl).toBe(
+    expect((client as { config: { apiUrl: string } }).config.apiUrl).toBe(
       "https://custom-api.example.com",
     );
   });

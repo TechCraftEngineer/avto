@@ -18,13 +18,19 @@ import {
   SelectValue,
   Textarea,
 } from "@qbs-autonaim/ui";
+import type { vacancyRequirementsSchema } from "@qbs-autonaim/validators";
 import { Plus, X } from "lucide-react";
 import React from "react";
 import type { UseFormReturn } from "react-hook-form";
+import type { z } from "zod";
+
+type VacancyFormData = {
+  requirements?: z.infer<typeof vacancyRequirementsSchema>;
+  [key: string]: unknown;
+};
 
 interface VacancyRequirementsEditorProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  form: UseFormReturn<any>;
+  form: UseFormReturn<VacancyFormData>;
   requirements: VacancyRequirements | null | undefined;
 }
 

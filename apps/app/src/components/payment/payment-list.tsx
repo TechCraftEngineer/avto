@@ -17,7 +17,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTRPC } from "~/trpc/react";
 
 interface PaymentListProps {
@@ -109,6 +109,11 @@ export function PaymentList({
   const hasNextPage = payments && payments.length === ITEMS_PER_PAGE;
   const hasPrevPage = page > 1;
 
+  const skeletonKeys = useMemo(
+    () => Array.from({ length: 5 }, (_, i) => `skeleton-${Date.now()}-${i}`),
+    [],
+  );
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -123,8 +128,8 @@ export function PaymentList({
           onOrganizationChange={handleOrganizationChange}
         />
         <div className="space-y-4 animate-pulse">
-          {[...Array(5)].map((_, i) => (
-            <div key={`skeleton-${i}`} className="h-20 bg-muted rounded" />
+          {skeletonKeys.map((key) => (
+            <div key={key} className="h-20 bg-muted rounded" />
           ))}
         </div>
       </div>

@@ -9,4 +9,7 @@ export default defineConfig({
   tsconfig: "tsconfig.build.json",
   minify: false, // let bundlers handle minification if they want it
   copy: ["package.json", "LICENSE.md", "README.md", "CHANGELOG.md"],
+  target: "node20",
+  unbundle: true, // let bundlers handle bundling
+  skipNodeModulesBundle: true,
 });

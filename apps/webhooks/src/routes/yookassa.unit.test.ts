@@ -437,7 +437,7 @@ describe("yookassa webhook - Unit Tests", () => {
     });
 
     expect(response.status).toBe(403);
-    const body = await response.json();
+    const body = (await response.json()) as { error: string; message: string };
     expect(body.error).toBe("Forbidden");
     expect(body.message).toContain("HTTPS");
   });
@@ -472,7 +472,7 @@ describe("yookassa webhook - Unit Tests", () => {
     });
 
     expect(response.status).toBe(403);
-    const body = await response.json();
+    const body = (await response.json()) as { error: string; message: string };
     expect(body.error).toBe("Forbidden");
     expect(body.message).toContain("порт");
   });
@@ -504,7 +504,7 @@ describe("yookassa webhook - Unit Tests", () => {
     });
 
     expect(response.status).toBe(400);
-    const body = await response.json();
+    const body = (await response.json()) as { error: string; message: string };
     expect(body.error).toBe("Bad Request");
     expect(body.message).toContain("Невалидная структура webhook");
   });
@@ -563,7 +563,7 @@ describe("yookassa webhook - Unit Tests", () => {
     });
 
     expect(response.status).toBe(404);
-    const body = await response.json();
+    const body = (await response.json()) as { error: string; message: string };
     expect(body.error).toBe("Not Found");
     expect(body.message).toContain("Платеж не найден");
   });
@@ -627,7 +627,7 @@ describe("yookassa webhook - Unit Tests", () => {
     });
 
     expect(response.status).toBe(403);
-    const body = await response.json();
+    const body = (await response.json()) as { error: string; message: string };
     expect(body.error).toBe("Forbidden");
     expect(body.message).toContain("верифицировать webhook");
   });

@@ -39,6 +39,7 @@
       "outputs": []
     },
     "typecheck": {
+      "dependsOn": ["^build"],
       "outputs": [".cache/tsbuildinfo.json"],
       "cache": false
     },
