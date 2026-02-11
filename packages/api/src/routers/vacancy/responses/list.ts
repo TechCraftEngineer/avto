@@ -131,7 +131,7 @@ export const list = protectedProcedure
     // 3. Получаем ID откликов с учётом фильтра по скринингу
     const filteredResponseIds = await getFilteredResponseIds(
       ctx.db,
-      vacancyId,
+      [vacancyId],
       screeningFilter,
     );
 

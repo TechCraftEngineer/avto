@@ -4,7 +4,6 @@ import { Button } from "@qbs-autonaim/ui/button";
 import {
   IconFilter,
   IconLayoutKanban,
-  IconRefresh,
   IconSparkles,
   IconTable,
 } from "@tabler/icons-react";
@@ -60,7 +59,6 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
   const {
     data: responsesData,
     isLoading,
-    refetch,
   } = useQuery({
     ...trpc.vacancy.responses.listWorkspace.queryOptions({
       workspaceId: workspace?.id ?? "",
@@ -166,15 +164,6 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1 rounded-lg border bg-background p-1">
             <Button
-              onClick={() => setViewMode("table")}
-              variant={viewMode === "table" ? "default" : "ghost"}
-              size="sm"
-              className="h-8 gap-2"
-            >
-              <IconTable className="size-4" />
-              <span className="hidden sm:inline">Таблица</span>
-            </Button>
-            <Button
               onClick={() => setViewMode("board")}
               variant={viewMode === "board" ? "default" : "ghost"}
               size="sm"
@@ -183,18 +172,16 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
               <IconLayoutKanban className="size-4" />
               <span className="hidden sm:inline">Доска</span>
             </Button>
+            <Button
+              onClick={() => setViewMode("table")}
+              variant={viewMode === "table" ? "default" : "ghost"}
+              size="sm"
+              className="h-8 gap-2"
+            >
+              <IconTable className="size-4" />
+              <span className="hidden sm:inline">Таблица</span>
+            </Button>
           </div>
-          <Button
-            onClick={handleRefresh}
-            disabled={isLoading}
-            variant="outline"
-            className="h-9 items-center gap-2 px-4 font-medium transition-all hover:bg-muted active:scale-95"
-          >
-            <IconRefresh
-              className={`size-4 ${isLoading ? "animate-spin" : ""}`}
-            />
-            <span className="hidden sm:inline">Обновить</span>
-          </Button>
         </div>
       </PageHeader>
 

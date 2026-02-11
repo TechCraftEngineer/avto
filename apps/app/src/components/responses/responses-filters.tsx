@@ -45,7 +45,7 @@ export function ResponsesFilters({
           placeholder="Поиск по имени кандидата…"
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-9"
+          className="pl-9 bg-background"
         />
       </div>
 
@@ -62,7 +62,7 @@ export function ResponsesFilters({
           )
         }
       >
-        <SelectTrigger className="w-full sm:w-[200px]">
+        <SelectTrigger className="w-full sm:w-[200px] bg-background">
           <SelectValue placeholder="Фильтр по оценке" />
         </SelectTrigger>
         <SelectContent>
@@ -80,7 +80,7 @@ export function ResponsesFilters({
           onSortFieldChange(value === "createdAt" ? null : value)
         }
       >
-        <SelectTrigger className="w-full sm:w-[200px]">
+        <SelectTrigger className="w-full sm:w-[200px] bg-background">
           <SelectValue placeholder="Сортировка" />
         </SelectTrigger>
         <SelectContent>
