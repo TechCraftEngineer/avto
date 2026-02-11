@@ -184,6 +184,8 @@ export {
 
 // Shared Components
 export { ParsedProfileCard } from "./shared";
+export { PostHogAuthTracker } from "./shared/posthog-auth-tracker";
+export { PostHogProvider } from "./shared/posthog-provider";
 
 // UI Components
 export { RestorePrompt } from "./ui/components/restore-prompt";
