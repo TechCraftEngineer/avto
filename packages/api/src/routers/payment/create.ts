@@ -111,7 +111,7 @@ export const create = protectedProcedure
     }
 
     // 7. Сохраняем платеж в БД (Требование 1.3, 5.3, 5.4, 5.6)
-    let createdPayment;
+    let createdPayment: typeof payment.$inferSelect;
     try {
       const [insertedPayment] = await ctx.db
         .insert(payment)
