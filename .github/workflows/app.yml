@@ -69,6 +69,8 @@ jobs:
               template:
                 spec:
                   restartPolicy: Never
+                  imagePullSecrets:
+                  - name: regcred
                   containers:
                   - name: migrate
                     image: cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG
