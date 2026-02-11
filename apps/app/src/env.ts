@@ -6,10 +6,12 @@ export const env = createEnv({
     NODE_ENV: z
       .enum(["development", "production", "test"])
       .default("development"),
+    VERCEL_ENV: z
+      .enum(["production", "preview", "development"])
+      .optional(),
   },
   server: {
     PORT: z.coerce.number().default(3000),
-    VERCEL_ENV: z.enum(["production", "preview", "development"]).optional(),
     VERCEL_URL: z.string().optional(),
   },
   client: {
@@ -26,6 +28,7 @@ export const env = createEnv({
     NEXT_PUBLIC_DOCS_URL: process.env.NEXT_PUBLIC_DOCS_URL,
     NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
     NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+    VERCEL_ENV: process.env.VERCEL_ENV,
   },
   skipValidation:
     !!process.env.CI || process.env.npm_lifecycle_event === "lint",
