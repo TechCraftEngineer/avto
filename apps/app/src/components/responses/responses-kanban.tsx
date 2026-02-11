@@ -1,6 +1,5 @@
 "use client";
 
-import type { RouterOutputs } from "@qbs-autonaim/api";
 import {
   DndContext,
   type DragEndEvent,
@@ -11,6 +10,7 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
+import type { RouterOutputs } from "@qbs-autonaim/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -22,7 +22,12 @@ import { ResponseKanbanColumn } from "./response-kanban-column";
 type ResponseItem =
   RouterOutputs["vacancy"]["responses"]["listWorkspace"]["responses"][0];
 
-type ResponseStatus = "NEW" | "EVALUATED" | "INTERVIEW" | "COMPLETED" | "SKIPPED";
+type ResponseStatus =
+  | "NEW"
+  | "EVALUATED"
+  | "INTERVIEW"
+  | "COMPLETED"
+  | "SKIPPED";
 
 interface ResponsesKanbanProps {
   responses: ResponseItem[];

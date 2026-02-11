@@ -6,7 +6,14 @@ import {
   Sparkles,
   XCircle,
 } from "lucide-react";
+import { getModeConfig } from "./mode-config";
 import type { SyncMode } from "./types";
+
+const MODE_ICONS = {
+  archive: Archive,
+  sparkles: Sparkles,
+  download: Download,
+} as const;
 
 interface ConfirmationViewProps {
   mode: SyncMode;
@@ -21,40 +28,19 @@ export function ConfirmationView({
   onConfirm,
   totalResponses,
 }: ConfirmationViewProps) {
-  const isArchivedMode = mode === "archived";
-  const isAnalyzeMode = mode === "analyze";
-  const isScreeningMode = mode === "screening";
+  const config = getModeConfig(mode, totalResponses);
+  const Icon = MODE_ICONS[config.iconType];
 
   return (
     <div className="space-y-4">
       <div className="flex items-start gap-3">
         <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 shrink-0">
-          {isArchivedMode ? (
-            <Archive className="h-4 w-4" />
-          ) : isAnalyzeMode || isScreeningMode ? (
-            <Sparkles className="h-4 w-4" />
-          ) : (
-            <Download className="h-4 w-4" />
-          )}
+          <Icon className="h-4 w-4" />
         </div>
         <div className="flex-1 min-w-0">
-          <h4 className="text-sm font-semibold mb-1">
-            {isArchivedMode
-              ? "Синхронизация архивных откликов"
-              : isAnalyzeMode
-                ? "Анализ откликов"
-                : isScreeningMode
-                  ? "Скрининг новых откликов"
-                  : "Получение новых откликов"}
-          </h4>
+          <h4 className="text-sm font-semibold mb-1">{config.title}</h4>
           <p className="text-xs text-muted-foreground mb-3">
-            {isArchivedMode
-              ? "Получение всех откликов с HeadHunter, включая архивные, с автоматической оценкой"
-              : isAnalyzeMode
-                ? `Автоматический анализ ${totalResponses ? `${totalResponses} откликов` : "выбранных откликов"} с помощью ИИ`
-                : isScreeningMode
-                  ? "Автоматический скрининг новых откликов с помощью ИИ"
-                  : "Получение новых откликов с HeadHunter с автоматической оценкой"}
+            {config.description}
           </p>
         </div>
         <button
@@ -75,37 +61,9 @@ export function ConfirmationView({
               Что будет происходить:
             </p>
             <ul className="space-y-0.5 text-muted-foreground list-disc list-inside">
-              {isArchivedMode ? (
-                <>
-                  <li>Получение всех откликов с HeadHunter</li>
-                  <li>Включая архивные и удаленные отклики</li>
-                  <li>ИИ автоматически оценит каждый отклик</li>
-                  <li>Процесс может занять несколько минут</li>
-                  <li>Вы можете закрыть окно — процесс продолжится</li>
-                </>
-              ) : isAnalyzeMode ? (
-                <>
-                  <li>ИИ проанализирует каждый отклик</li>
-                  <li>Оценит соответствие требованиям вакансии</li>
-                  <li>Выставит оценку и рекомендацию</li>
-                  <li>Вы можете закрыть окно — процесс продолжится</li>
-                </>
-              ) : isScreeningMode ? (
-                <>
-                  <li>ИИ проанализирует новые отклики</li>
-                  <li>Оценит соответствие требованиям вакансии</li>
-                  <li>Выставит оценку и рекомендацию</li>
-                  <li>Вы можете закрыть окно — процесс продолжится</li>
-                </>
-              ) : (
-                <>
-                  <li>Получение новых откликов с HeadHunter</li>
-                  <li>ИИ автоматически оценит каждый отклик</li>
-                  <li>Процесс выполняется в фоновом режиме</li>
-                  <li>Новые отклики появятся в таблице автоматически</li>
-                  <li>Вы можете закрыть окно — процесс продолжится</li>
-                </>
-              )}
+              {config.listItems.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
             </ul>
           </div>
         </div>
@@ -116,20 +74,8 @@ export function ConfirmationView({
           Отмена
         </Button>
         <Button size="sm" onClick={onConfirm}>
-          {isArchivedMode ? (
-            <Archive className="h-4 w-4 mr-2" />
-          ) : isAnalyzeMode || isScreeningMode ? (
-            <Sparkles className="h-4 w-4 mr-2" />
-          ) : (
-            <Download className="h-4 w-4 mr-2" />
-          )}
-          {isArchivedMode
-            ? "Начать синхронизацию"
-            : isAnalyzeMode
-              ? "Начать анализ"
-              : isScreeningMode
-                ? "Начать скрининг"
-                : "Получить отклики"}
+          <Icon className="h-4 w-4 mr-2" />
+          {config.confirmLabel}
         </Button>
       </div>
     </div>
