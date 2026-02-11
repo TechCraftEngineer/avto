@@ -31,6 +31,7 @@ import {
   triggerSendWelcome,
 } from "~/actions/trigger";
 import { useTRPC } from "~/trpc/react";
+import { useAnalyzeSingleResponse } from "../hooks/use-analyze-single-response";
 import { useRefreshSingleResume } from "../hooks/use-refresh-single-resume";
 
 interface ResponseActionsProps {
@@ -61,10 +62,20 @@ export function ResponseActions({
   hasScreening,
   candidateName,
 }: ResponseActionsProps) {
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analyzeEnabled, setAnalyzeEnabled] = useState(false);
   const [refreshEnabled, setRefreshEnabled] = useState(false);
   const queryClient = useQueryClient();
   const trpc = useTRPC();
+
+  const {
+    progress: analyzeProgress,
+    result: analyzeResult,
+    isAnalyzing,
+    reset: resetAnalyze,
+  } = useAnalyzeSingleResponse({
+    responseId,
+    enabled: analyzeEnabled,
+  });
 
   const { progress, result, isRefreshing, reset } = useRefreshSingleResume({
     responseId,
@@ -124,22 +135,41 @@ export function ResponseActions({
     return () => clearTimeout(timer);
   }, [result, reset, queryClient, trpc]);
 
+  // Обрабатываем результат AI-оценки
+  useEffect(() => {
+    if (!analyzeResult) return;
+
+    if (analyzeResult.success) {
+      toast.success("AI-оценка завершена");
+      void queryClient.invalidateQueries({
+        queryKey: trpc.vacancy.responses.list.queryKey(),
+      });
+    } else {
+      toast.error(analyzeResult.error || "Не удалось выполнить AI-оценку");
+    }
+
+    setAnalyzeEnabled(false);
+
+    const timer = setTimeout(() => {
+      resetAnalyze();
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [analyzeResult, resetAnalyze, queryClient, trpc]);
+
   const handleAnalyze = async () => {
-    setIsAnalyzing(true);
     try {
-      const analyzeResult = await triggerAnalyzeSingleResponse(
+      const triggerResult = await triggerAnalyzeSingleResponse(
         responseId,
         workspaceId,
       );
-      if (analyzeResult.success) {
-        toast.success("AI-оценка запущена");
+      if (triggerResult.success) {
+        setAnalyzeEnabled(true);
       } else {
         toast.error("Не удалось запустить оценку");
       }
     } catch {
       toast.error("Не удалось запустить оценку");
-    } finally {
-      setIsAnalyzing(false);
     }
   };
 
@@ -256,7 +286,7 @@ export function ResponseActions({
             className={`h-4 w-4 mr-2 ${isAnalyzing ? "animate-pulse" : ""}`}
           />
           {isAnalyzing
-            ? "Оценка запущена…"
+            ? analyzeProgress?.message || "Оценка запущена…"
             : hasScreening
               ? "Переоценить AI"
               : "Оценить AI"}

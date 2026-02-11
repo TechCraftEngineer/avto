@@ -78,10 +78,6 @@ export function useRefreshSubscription({
   // Определяем режим через pattern matching
   const { isArchivedMode, isAnalyzeMode, isScreeningMode } = getModeFlags(mode);
 
-  console.log(
-    `🔌 useRefreshSubscription: mode=${mode}, isArchivedMode=${isArchivedMode}`,
-  );
-
   // Мемоизируем функции получения токенов
   const getRefreshToken = useCallback(
     () => fetchRefreshVacancyResponsesToken(vacancyId),
@@ -119,11 +115,6 @@ export function useRefreshSubscription({
     enabled: isArchivedMode && hasActiveTask,
     key: "archived",
   });
-
-  console.log(
-    `📡 Archived subscription: enabled=${isArchivedMode && hasActiveTask}, data.length=${archivedSubscription.data?.length ?? 0}, error=`,
-    archivedSubscription.error,
-  );
 
   const screeningSubscription = useInngestSubscription({
     refreshToken: getScreeningToken,
@@ -218,11 +209,6 @@ export function useRefreshSubscription({
   useEffect(() => {
     if (data.length === 0) return;
 
-    console.log(
-      `📨 Получено ${data.length} сообщений для режима ${mode}:`,
-      data,
-    );
-
     const context = {
       vacancyId,
       queryClient,
@@ -239,11 +225,6 @@ export function useRefreshSubscription({
     for (const message of data) {
       const isProgressTopic = message.topic === "progress";
       const isResultTopic = message.topic === "result";
-
-      console.log(
-        `📬 Обработка сообщения: topic=${message.topic}, mode=${mode}`,
-        message.data,
-      );
 
       if (isArchivedMode && isProgressTopic) {
         handleArchivedProgress(message, context);
