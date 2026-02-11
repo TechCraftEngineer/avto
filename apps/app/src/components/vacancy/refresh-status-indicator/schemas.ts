@@ -2,6 +2,7 @@ import { z } from "zod";
 
 // Zod схемы для валидации данных из realtime сообщений
 export const progressStatusSchema = z.enum([
+  "started",
   "processing",
   "completed",
   "error",
