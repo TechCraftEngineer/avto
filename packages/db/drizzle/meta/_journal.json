@@ -15,6 +15,13 @@
       "when": 1770475620954,
       "tag": "0001_ambitious_gwen_stacy",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1770785785672,
+      "tag": "0002_absurd_agent_brand",
+      "breakpoints": true
     }
   ]
 }
