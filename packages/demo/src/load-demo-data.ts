@@ -29,7 +29,9 @@ async function loadAllDemoData() {
     const photoMapping = await loadPhotos();
 
     // 4. Загружаем вакансии
-    const { insertedVacancies, vacancyMapping } = await loadVacancies();
+    const { insertedVacancies, vacancyMapping } = await loadVacancies(
+      userIds.recruiterId,
+    );
 
     // 5. Загружаем задания (gigs)
     const { insertedGigs, gigMapping } = await loadGigs();

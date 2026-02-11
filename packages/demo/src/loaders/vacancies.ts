@@ -23,7 +23,7 @@ interface InsertedVacancy {
  */
 const ValidPlatformSchema = z.enum(["HH", "SUPERJOB", "MANUAL"]);
 
-export async function loadVacancies(): Promise<{
+export async function loadVacancies(recruiterId: string): Promise<{
   insertedVacancies: InsertedVacancy[];
   vacancyMapping: VacancyMapping;
 }> {
@@ -34,9 +34,15 @@ export async function loadVacancies(): Promise<{
 
   console.log(`📋 Найдено ${vacanciesData.length} вакансий`);
 
+  // Добавляем createdBy для всех вакансий
+  const vacanciesWithCreator = vacanciesData.map((v: any) => ({
+    ...v,
+    createdBy: recruiterId,
+  }));
+
   const insertedVacancies = await db
     .insert(vacancy)
-    .values(vacanciesData)
+    .values(vacanciesWithCreator)
     .returning({ id: vacancy.id, title: vacancy.title });
 
   if (insertedVacancies.length > 0) {

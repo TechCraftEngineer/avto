@@ -164,7 +164,7 @@ export function VacancyStats({
           className="border-none bg-purple-500/10 text-purple-700 px-1.5"
         >
           <IconTrendingUp className="size-3.5 mr-1" />
-          Требуют проверки
+          Новые
         </Badge>
       ),
     },
@@ -310,7 +310,7 @@ export function VacancyStats({
                   {stat.description}
                 </p>
               </div>
-              <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+              <div className="flex flex-col items-end gap-1.5 shrink-0">
                 <stat.icon className={cn("size-4", stat.color)} />
                 {stat.action}
               </div>
