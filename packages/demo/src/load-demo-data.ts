@@ -20,15 +20,34 @@ async function loadAllDemoData() {
 
   try {
     // 1. Создаем организацию и workspace
-    await createDemoOrganization();
+    const { workspaceId } = await createDemoOrganization();
 
-    // 2. Создаем демо пользователей
+    // 2. Удаляем старые демо-данные для этого workspace
+    console.log("\n🗑️  Очищаем старые демо-данные...");
+    const {
+      vacancy: vacancySchema,
+      gig: gigSchema,
+      response: responseSchema,
+    } = await import("@qbs-autonaim/db/schema");
+    const { eq } = await import("drizzle-orm");
+
+    await db
+      .delete(responseSchema)
+      .where(eq(responseSchema.entityType, "vacancy"));
+    await db.delete(responseSchema).where(eq(responseSchema.entityType, "gig"));
+    await db
+      .delete(vacancySchema)
+      .where(eq(vacancySchema.workspaceId, workspaceId));
+    await db.delete(gigSchema).where(eq(gigSchema.workspaceId, workspaceId));
+    console.log("✅ Старые данные очищены");
+
+    // 3. Создаем демо пользователей
     const userIds = await createDemoUsers();
 
-    // 3. Загружаем фото кандидатов
+    // 4. Загружаем фото кандидатов
     const photoMapping = await loadPhotos();
 
-    // 4. Загружаем вакансии
+    // 5. Загружаем вакансии
     const { insertedVacancies, vacancyMapping } = await loadVacancies(
       userIds.recruiterId,
     );
@@ -36,21 +55,21 @@ async function loadAllDemoData() {
     // 5. Загружаем задания (gigs)
     const { insertedGigs, gigMapping } = await loadGigs();
 
-    // 6. Загружаем отклики на вакансии
+    // 7. Загружаем отклики на вакансии
     const vacancyResponses = await loadVacancyResponses(
       vacancyMapping,
       photoMapping,
       insertedVacancies[0]?.id || "",
     );
 
-    // 7. Загружаем отклики на задания
+    // 8. Загружаем отклики на задания
     const gigResponses = await loadGigResponses(
       gigMapping,
       photoMapping,
       insertedGigs[0]?.id || "",
     );
 
-    // 8. Создаем маппинг откликов для интервью
+    // 9. Создаем маппинг откликов для интервью
     const allResponses = await db.query.response.findMany({
       columns: { id: true, candidateId: true },
     });
@@ -60,24 +79,24 @@ async function loadAllDemoData() {
       responseMapping[resp.candidateId] = resp.id;
     }
 
-    // 9. Загружаем интервью-сессии
+    // 10. Загружаем интервью-сессии
     const { sessions: interviewSessions, sessionMapping } =
       await loadInterviewSessions(responseMapping, allResponses[0]?.id || "");
 
-    // 10. Загружаем сообщения интервью
+    // 11. Загружаем сообщения интервью
     const interviewMessages = await loadInterviewMessages(
       sessionMapping,
       interviewSessions[0]?.id || "",
     );
 
-    // 11. Загружаем чат-сессии
+    // 12. Загружаем чат-сессии
     const vacancyIds = insertedVacancies.map((v) => v.id);
     const gigIds = insertedGigs.map((g) => g.id);
 
     const { sessions: chatSessions, sessionMapping: chatSessionMapping } =
       await loadChatSessions(userIds, vacancyIds, gigIds);
 
-    // 12. Загружаем сообщения чатов
+    // 13. Загружаем сообщения чатов
     const chatMessages = await loadChatMessages(
       userIds,
       chatSessionMapping,

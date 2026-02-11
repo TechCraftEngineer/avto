@@ -94,12 +94,42 @@ export function VacancyLayoutClient({
   // (2) Если есть ошибки в запросах, показываем ошибку
   if (vacancyError || responsesError) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center">
-        <p className="text-destructive">
-          {vacancyError
-            ? "Ошибка при загрузке вакансии"
-            : "Ошибка при загрузке откликов"}
-        </p>
+      <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6">
+        <div className="flex size-12 items-center justify-center rounded-full border border-border bg-muted">
+          <svg
+            className="size-5 text-muted-foreground"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+        </div>
+        <div className="flex flex-col items-center gap-1 text-center">
+          <h3 className="text-sm font-medium text-foreground">
+            {vacancyError
+              ? "Вакансия не найдена"
+              : "Не удалось загрузить отклики"}
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            {vacancyError
+              ? "Возможно, она была удалена или у вас нет доступа"
+              : "Попробуйте обновить страницу"}
+          </p>
+        </div>
+        {vacancyError && (
+          <Button variant="outline" size="sm" asChild>
+            <Link href={paths.workspace.vacancies(orgSlug, workspaceSlug)}>
+              Вернуться к списку
+            </Link>
+          </Button>
+        )}
       </div>
     );
   }

@@ -40,6 +40,7 @@ export async function loadVacancyResponses(
       entityType: "vacancy" as const,
       entityId,
       photoFileId: photoMapping[resp.candidateId] || null,
+      birthDate: resp.birthDate ? new Date(resp.birthDate as string) : null,
       respondedAt: resp.respondedAt ? new Date(resp.respondedAt) : null,
       rankedAt: resp.rankedAt ? new Date(resp.rankedAt) : null,
     };
@@ -48,6 +49,34 @@ export async function loadVacancyResponses(
   const insertedResponses = await db
     .insert(response)
     .values(updatedResponsesData)
+    .onConflictDoUpdate({
+      target: [response.entityType, response.entityId, response.candidateId],
+      set: {
+        candidateName: response.candidateName,
+        profileUrl: response.profileUrl,
+        birthDate: response.birthDate,
+        telegramUsername: response.telegramUsername,
+        phone: response.phone,
+        email: response.email,
+        contacts: response.contacts,
+        photoFileId: response.photoFileId,
+        resumeLanguage: response.resumeLanguage,
+        resumeId: response.resumeId,
+        resumeUrl: response.resumeUrl,
+        platformProfileUrl: response.platformProfileUrl,
+        salaryExpectationsAmount: response.salaryExpectationsAmount,
+        salaryExpectationsComment: response.salaryExpectationsComment,
+        coverLetter: response.coverLetter,
+        profileData: response.profileData,
+        skills: response.skills,
+        rating: response.rating,
+        status: response.status,
+        hrSelectionStatus: response.hrSelectionStatus,
+        importSource: response.importSource,
+        respondedAt: response.respondedAt,
+        updatedAt: new Date(),
+      },
+    })
     .returning({
       id: response.id,
       candidateName: response.candidateName,
@@ -85,6 +114,7 @@ export async function loadGigResponses(
     entityType: "gig" as const,
     entityId: gigMapping[resp.entityId] || fallbackGigId,
     photoFileId: photoMapping[resp.candidateId] || null,
+    birthDate: resp.birthDate ? new Date(resp.birthDate as string) : null,
     respondedAt: resp.respondedAt ? new Date(resp.respondedAt) : null,
     rankedAt: resp.rankedAt ? new Date(resp.rankedAt) : null,
   }));
@@ -92,6 +122,31 @@ export async function loadGigResponses(
   const insertedGigResponses = await db
     .insert(response)
     .values(updatedGigResponsesData)
+    .onConflictDoUpdate({
+      target: [response.entityType, response.entityId, response.candidateId],
+      set: {
+        candidateName: response.candidateName,
+        profileUrl: response.profileUrl,
+        birthDate: response.birthDate,
+        telegramUsername: response.telegramUsername,
+        phone: response.phone,
+        email: response.email,
+        contacts: response.contacts,
+        photoFileId: response.photoFileId,
+        proposedPrice: response.proposedPrice,
+        proposedDeliveryDays: response.proposedDeliveryDays,
+        portfolioLinks: response.portfolioLinks,
+        coverLetter: response.coverLetter,
+        profileData: response.profileData,
+        skills: response.skills,
+        rating: response.rating,
+        status: response.status,
+        hrSelectionStatus: response.hrSelectionStatus,
+        importSource: response.importSource,
+        respondedAt: response.respondedAt,
+        updatedAt: new Date(),
+      },
+    })
     .returning({
       id: response.id,
       candidateName: response.candidateName,

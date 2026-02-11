@@ -5,9 +5,15 @@
     "candidateId": "hh_candidate_001",
     "candidateName": "Алексей Петров",
     "profileUrl": "https://hh.ru/resume/12345678901234567890123456789012",
+    "birthDate": "1995-03-15T00:00:00Z",
     "telegramUsername": "alex_petrov_dev",
     "phone": "+7 (999) 123-45-67",
     "email": "alex.petrov@example.com",
+    "contacts": {
+      "telegram": "@alex_petrov_dev",
+      "github": "https://github.com/alex-petrov",
+      "linkedin": "https://linkedin.com/in/alex-petrov"
+    },
     "photoFileId": null,
     "resumeLanguage": "ru",
     "resumeId": "12345678901234567890123456789012",
@@ -43,10 +49,6 @@
     ],
     "weaknesses": ["Нет опыта с GraphQL", "Ограниченный опыт с тестированием"],
     "recommendation": "RECOMMENDED",
-    "contacts": {
-      "telegram": "@alex_petrov_dev",
-      "github": "https://github.com/alex-petrov"
-    },
     "profileData": {
       "position": "Frontend Developer",
       "company": "TechCorp",
@@ -61,9 +63,15 @@
     "candidateId": "hh_candidate_002",
     "candidateName": "Мария Сидорова",
     "profileUrl": "https://hh.ru/resume/98765432109876543210987654321098",
+    "birthDate": "1992-07-22T00:00:00Z",
     "telegramUsername": "maria_frontend",
     "phone": "+7 (999) 987-65-43",
     "email": "maria.sidorova@example.com",
+    "contacts": {
+      "telegram": "@maria_frontend",
+      "linkedin": "https://linkedin.com/in/maria-sidorova",
+      "github": "https://github.com/maria-sidorova"
+    },
     "photoFileId": null,
     "resumeLanguage": "ru",
     "resumeId": "98765432109876543210987654321098",
@@ -101,10 +109,6 @@
     ],
     "weaknesses": ["Высокие зарплатные ожидания"],
     "recommendation": "HIGHLY_RECOMMENDED",
-    "contacts": {
-      "telegram": "@maria_frontend",
-      "linkedin": "https://linkedin.com/in/maria-sidorova"
-    },
     "profileData": {
       "position": "Senior Frontend Developer",
       "company": "BigTech Inc",
@@ -120,9 +124,15 @@
     "candidateId": "hh_candidate_003",
     "candidateName": "Дмитрий Козлов",
     "profileUrl": "https://hh.ru/resume/11111111111111111111111111111111",
+    "birthDate": "1996-11-08T00:00:00Z",
     "telegramUsername": "dmitry_python",
     "phone": "+7 (999) 111-22-33",
     "email": "dmitry.kozlov@example.com",
+    "contacts": {
+      "telegram": "@dmitry_python",
+      "github": "https://github.com/dmitry-kozlov",
+      "stackoverflow": "https://stackoverflow.com/users/12345/dmitry-kozlov"
+    },
     "photoFileId": null,
     "resumeLanguage": "ru",
     "resumeId": "11111111111111111111111111111111",
@@ -160,10 +170,6 @@
       "Ограниченный опыт с облачными платформами"
     ],
     "recommendation": "RECOMMENDED",
-    "contacts": {
-      "telegram": "@dmitry_python",
-      "github": "https://github.com/dmitry-kozlov"
-    },
     "profileData": {
       "position": "Backend Developer",
       "company": "WebDev Studio",
@@ -178,9 +184,15 @@
     "candidateId": "sj_candidate_001",
     "candidateName": "Сергей Волков",
     "profileUrl": "https://superjob.ru/resume/123456789",
+    "birthDate": "1993-05-20T00:00:00Z",
     "telegramUsername": "sergey_devops",
     "phone": "+7 (999) 444-55-66",
     "email": "sergey.volkov@example.com",
+    "contacts": {
+      "telegram": "@sergey_devops",
+      "linkedin": "https://linkedin.com/in/sergey-volkov-devops",
+      "github": "https://github.com/sergey-volkov"
+    },
     "photoFileId": null,
     "resumeLanguage": "ru",
     "platformProfileUrl": "https://superjob.ru/candidate/123456789",
@@ -218,10 +230,6 @@
     ],
     "weaknesses": ["Высокие зарплатные ожидания"],
     "recommendation": "HIGHLY_RECOMMENDED",
-    "contacts": {
-      "telegram": "@sergey_devops",
-      "linkedin": "https://linkedin.com/in/sergey-volkov-devops"
-    },
     "profileData": {
       "position": "DevOps Engineer",
       "company": "CloudTech Solutions",
@@ -238,9 +246,14 @@
     "candidateId": "hh_candidate_004",
     "candidateName": "Анна Новикова",
     "profileUrl": "https://hh.ru/resume/22222222222222222222222222222222",
+    "birthDate": "1999-01-30T00:00:00Z",
     "telegramUsername": "anna_react_dev",
     "phone": "+7 (999) 777-88-99",
     "email": "anna.novikova@example.com",
+    "contacts": {
+      "telegram": "@anna_react_dev",
+      "github": "https://github.com/anna-novikova"
+    },
     "photoFileId": null,
     "resumeLanguage": "ru",
     "resumeId": "22222222222222222222222222222222",
@@ -269,9 +282,6 @@
       "Ограниченные знания современных инструментов"
     ],
     "recommendation": "NOT_RECOMMENDED",
-    "contacts": {
-      "telegram": "@anna_react_dev"
-    },
     "profileData": {
       "position": "Junior Frontend Developer",
       "company": "StartupXYZ",
@@ -287,9 +297,15 @@
     "candidateId": "hh_candidate_005",
     "candidateName": "Игорь Смирнов",
     "profileUrl": "https://hh.ru/resume/33333333333333333333333333333333",
+    "birthDate": "1994-09-12T00:00:00Z",
     "telegramUsername": "igor_fullstack",
     "phone": "+7 (999) 333-44-55",
     "email": "igor.smirnov@example.com",
+    "contacts": {
+      "telegram": "@igor_fullstack",
+      "github": "https://github.com/igor-smirnov",
+      "website": "https://igor-dev.ru"
+    },
     "photoFileId": null,
     "resumeLanguage": "ru",
     "resumeId": "33333333333333333333333333333333",
@@ -324,10 +340,6 @@
     ],
     "weaknesses": ["Нет опыта с NestJS"],
     "recommendation": "HIGHLY_RECOMMENDED",
-    "contacts": {
-      "telegram": "@igor_fullstack",
-      "github": "https://github.com/igor-smirnov"
-    },
     "profileData": {
       "position": "Full Stack Developer",
       "company": "E-commerce Solutions",
@@ -342,9 +354,15 @@
     "candidateId": "hh_candidate_006",
     "candidateName": "Елена Васильева",
     "profileUrl": "https://hh.ru/resume/44444444444444444444444444444444",
+    "birthDate": "1997-12-05T00:00:00Z",
     "telegramUsername": "elena_mobile",
     "phone": "+7 (999) 666-77-88",
     "email": "elena.vasileva@example.com",
+    "contacts": {
+      "telegram": "@elena_mobile",
+      "github": "https://github.com/elena-vasileva",
+      "portfolio": "https://elena-apps.com"
+    },
     "photoFileId": null,
     "resumeLanguage": "ru",
     "resumeId": "44444444444444444444444444444444",
@@ -380,10 +398,6 @@
     ],
     "weaknesses": ["Относительно небольшой опыт"],
     "recommendation": "RECOMMENDED",
-    "contacts": {
-      "telegram": "@elena_mobile",
-      "github": "https://github.com/elena-vasileva"
-    },
     "profileData": {
       "position": "Mobile Developer",
       "company": "Mobile Apps Studio",
@@ -399,9 +413,15 @@
     "candidateId": "sj_candidate_002",
     "candidateName": "Максим Орлов",
     "profileUrl": "https://superjob.ru/resume/987654321",
+    "birthDate": "1995-06-18T00:00:00Z",
     "telegramUsername": "maxim_qa",
     "phone": "+7 (999) 888-99-00",
     "email": "maxim.orlov@example.com",
+    "contacts": {
+      "telegram": "@maxim_qa",
+      "github": "https://github.com/maxim-orlov",
+      "linkedin": "https://linkedin.com/in/maxim-orlov-qa"
+    },
     "photoFileId": null,
     "resumeLanguage": "ru",
     "platformProfileUrl": "https://superjob.ru/candidate/987654321",
@@ -435,10 +455,6 @@
     ],
     "weaknesses": [],
     "recommendation": "HIGHLY_RECOMMENDED",
-    "contacts": {
-      "telegram": "@maxim_qa",
-      "github": "https://github.com/maxim-orlov"
-    },
     "profileData": {
       "position": "QA Automation Engineer",
       "company": "TestTech Solutions",
@@ -453,9 +469,16 @@
     "candidateId": "hh_candidate_007",
     "candidateName": "Ольга Морозова",
     "profileUrl": "https://hh.ru/resume/55555555555555555555555555555555",
+    "birthDate": "1991-04-28T00:00:00Z",
     "telegramUsername": "olga_datascience",
     "phone": "+7 (999) 111-22-33",
     "email": "olga.morozova@example.com",
+    "contacts": {
+      "telegram": "@olga_datascience",
+      "linkedin": "https://linkedin.com/in/olga-morozova-ds",
+      "github": "https://github.com/olga-morozova",
+      "kaggle": "https://kaggle.com/olgamorozova"
+    },
     "photoFileId": null,
     "resumeLanguage": "ru",
     "resumeId": "55555555555555555555555555555555",
@@ -492,10 +515,6 @@
     ],
     "weaknesses": ["Высокие зарплатные ожидания"],
     "recommendation": "HIGHLY_RECOMMENDED",
-    "contacts": {
-      "telegram": "@olga_datascience",
-      "linkedin": "https://linkedin.com/in/olga-morozova-ds"
-    },
     "profileData": {
       "position": "Senior Data Scientist",
       "company": "AI Analytics Corp",
@@ -511,9 +530,15 @@
     "candidateId": "hh_candidate_008",
     "candidateName": "Артем Лебедев",
     "profileUrl": "https://hh.ru/resume/66666666666666666666666666666666",
+    "birthDate": "1996-10-14T00:00:00Z",
     "telegramUsername": "artem_designer",
     "phone": "+7 (999) 444-55-66",
     "email": "artem.lebedev@example.com",
+    "contacts": {
+      "telegram": "@artem_designer",
+      "behance": "https://behance.net/artem-lebedev",
+      "dribbble": "https://dribbble.com/artemlebedev"
+    },
     "photoFileId": null,
     "resumeLanguage": "ru",
     "resumeId": "66666666666666666666666666666666",
@@ -548,10 +573,6 @@
     ],
     "weaknesses": ["Нет опыта с Adobe Creative Suite"],
     "recommendation": "RECOMMENDED",
-    "contacts": {
-      "telegram": "@artem_designer",
-      "behance": "https://behance.net/artem-lebedev"
-    },
     "profileData": {
       "position": "UI/UX Designer",
       "company": "Design Studio Pro",
@@ -566,9 +587,15 @@
     "candidateId": "sj_candidate_003",
     "candidateName": "Виктория Попова",
     "profileUrl": "https://superjob.ru/resume/456789123",
+    "birthDate": "1992-02-14T00:00:00Z",
     "telegramUsername": "victoria_java",
     "phone": "+7 (999) 777-88-99",
     "email": "victoria.popova@example.com",
+    "contacts": {
+      "telegram": "@victoria_java",
+      "linkedin": "https://linkedin.com/in/victoria-popova-java",
+      "github": "https://github.com/victoria-popova"
+    },
     "photoFileId": null,
     "resumeLanguage": "ru",
     "platformProfileUrl": "https://superjob.ru/candidate/456789123",
@@ -603,10 +630,6 @@
     ],
     "weaknesses": ["Высокие зарплатные ожидания"],
     "recommendation": "HIGHLY_RECOMMENDED",
-    "contacts": {
-      "telegram": "@victoria_java",
-      "linkedin": "https://linkedin.com/in/victoria-popova-java"
-    },
     "profileData": {
       "position": "Senior Java Developer",
       "company": "Enterprise Solutions Ltd",
@@ -622,9 +645,15 @@
     "candidateId": "hh_candidate_009",
     "candidateName": "Андрей Соколов",
     "profileUrl": "https://hh.ru/resume/77777777777777777777777777777777",
+    "birthDate": "1993-08-25T00:00:00Z",
     "telegramUsername": "andrey_pm",
     "phone": "+7 (999) 222-33-44",
     "email": "andrey.sokolov@example.com",
+    "contacts": {
+      "telegram": "@andrey_pm",
+      "linkedin": "https://linkedin.com/in/andrey-sokolov-pm",
+      "medium": "https://medium.com/@andrey-sokolov"
+    },
     "photoFileId": null,
     "resumeLanguage": "ru",
     "resumeId": "77777777777777777777777777777777",
@@ -659,10 +688,6 @@
     ],
     "weaknesses": [],
     "recommendation": "HIGHLY_RECOMMENDED",
-    "contacts": {
-      "telegram": "@andrey_pm",
-      "linkedin": "https://linkedin.com/in/andrey-sokolov-pm"
-    },
     "profileData": {
       "position": "Senior Product Manager",
       "company": "Product Tech Inc",
@@ -677,9 +702,15 @@
     "candidateId": "hh_candidate_010",
     "candidateName": "Татьяна Кузнецова",
     "profileUrl": "https://hh.ru/resume/88888888888888888888888888888888",
+    "birthDate": "1995-11-30T00:00:00Z",
     "telegramUsername": "tatiana_react",
     "phone": "+7 (999) 555-66-77",
     "email": "tatiana.kuznetsova@example.com",
+    "contacts": {
+      "telegram": "@tatiana_react",
+      "github": "https://github.com/tatiana-kuznetsova",
+      "codepen": "https://codepen.io/tatiana-k"
+    },
     "photoFileId": null,
     "resumeLanguage": "ru",
     "resumeId": "88888888888888888888888888888888",
@@ -715,10 +746,6 @@
     ],
     "weaknesses": ["Опыт немного меньше senior уровня", "Нет опыта с GraphQL"],
     "recommendation": "RECOMMENDED",
-    "contacts": {
-      "telegram": "@tatiana_react",
-      "github": "https://github.com/tatiana-kuznetsova"
-    },
     "profileData": {
       "position": "Frontend Developer",
       "company": "Web Solutions Pro",
