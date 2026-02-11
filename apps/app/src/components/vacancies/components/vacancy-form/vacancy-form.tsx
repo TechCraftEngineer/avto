@@ -200,7 +200,7 @@ export function VacancyForm({ onSuccess }: VacancyFormProps) {
         />
 
         <VacancyRequirementsEditor
-          form={form}
+          form={form as any}
           requirements={form.watch("requirements") ?? null}
         />
 

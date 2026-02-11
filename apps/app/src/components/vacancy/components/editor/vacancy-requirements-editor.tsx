@@ -22,8 +22,10 @@ import { Plus, X } from "lucide-react";
 import React from "react";
 import type { UseFormReturn } from "react-hook-form";
 
-interface VacancyRequirementsEditorProps {
-  form: UseFormReturn<{ requirements?: VacancyRequirements }>;
+interface VacancyRequirementsEditorProps<
+  T extends { requirements?: VacancyRequirements },
+> {
+  form: UseFormReturn<T>;
   requirements: VacancyRequirements | null | undefined;
 }
 
@@ -33,12 +35,11 @@ type ArrayFieldKey =
   | "tech_stack"
   | "keywords_for_matching";
 
-export function VacancyRequirementsEditor({
-  form,
-  requirements,
-}: VacancyRequirementsEditorProps) {
+export function VacancyRequirementsEditor<
+  T extends { requirements?: VacancyRequirements },
+>({ form, requirements }: VacancyRequirementsEditorProps<T>) {
   const currentRequirements: VacancyRequirements = (form.watch(
-    "requirements",
+    "requirements" as any,
   ) as VacancyRequirements | undefined) ||
     requirements || {
       job_title: "",
@@ -55,40 +56,52 @@ export function VacancyRequirementsEditor({
   const addArrayItem = (field: ArrayFieldKey, value: string) => {
     if (!value.trim()) return;
     const current = currentRequirements[field] || [];
-    form.setValue("requirements", {
-      ...currentRequirements,
-      [field]: [...current, value.trim()],
-    });
+    form.setValue(
+      "requirements" as any,
+      {
+        ...currentRequirements,
+        [field]: [...current, value.trim()],
+      } as any,
+    );
   };
 
   const removeArrayItem = (field: ArrayFieldKey, index: number) => {
     const current = currentRequirements[field] || [];
-    form.setValue("requirements", {
-      ...currentRequirements,
-      [field]: current.filter((_: string, i: number) => i !== index),
-    });
+    form.setValue(
+      "requirements" as any,
+      {
+        ...currentRequirements,
+        [field]: current.filter((_: string, i: number) => i !== index),
+      } as any,
+    );
   };
 
   const addLanguage = (language: string, level: string) => {
     if (!language.trim() || !level.trim()) return;
     const current = currentRequirements.languages || [];
-    form.setValue("requirements", {
-      ...currentRequirements,
-      languages: [
-        ...current,
-        { language: language.trim(), level: level.trim() },
-      ],
-    });
+    form.setValue(
+      "requirements" as any,
+      {
+        ...currentRequirements,
+        languages: [
+          ...current,
+          { language: language.trim(), level: level.trim() },
+        ],
+      } as any,
+    );
   };
 
   const removeLanguage = (index: number) => {
     const current = currentRequirements.languages || [];
-    form.setValue("requirements", {
-      ...currentRequirements,
-      languages: current.filter(
-        (_: { language: string; level: string }, i: number) => i !== index,
-      ),
-    });
+    form.setValue(
+      "requirements" as any,
+      {
+        ...currentRequirements,
+        languages: current.filter(
+          (_: { language: string; level: string }, i: number) => i !== index,
+        ),
+      } as any,
+    );
   };
 
   return (
@@ -106,10 +119,13 @@ export function VacancyRequirementsEditor({
           <Input
             value={currentRequirements.job_title}
             onChange={(e) =>
-              form.setValue("requirements", {
-                ...currentRequirements,
-                job_title: e.target.value,
-              })
+              form.setValue(
+                "requirements" as any,
+                {
+                  ...currentRequirements,
+                  job_title: e.target.value,
+                } as any,
+              )
             }
             placeholder="Например: Senior Frontend Developer"
             className="bg-background"
@@ -125,10 +141,13 @@ export function VacancyRequirementsEditor({
           <Textarea
             value={currentRequirements.summary}
             onChange={(e) =>
-              form.setValue("requirements", {
-                ...currentRequirements,
-                summary: e.target.value,
-              })
+              form.setValue(
+                "requirements" as any,
+                {
+                  ...currentRequirements,
+                  summary: e.target.value,
+                } as any,
+              )
             }
             placeholder="Краткое описание роли и основных обязанностей..."
             className="min-h-[80px] resize-y bg-background"
@@ -181,13 +200,16 @@ export function VacancyRequirementsEditor({
                 min="0"
                 value={currentRequirements.experience_years?.min ?? ""}
                 onChange={(e) =>
-                  form.setValue("requirements", {
-                    ...currentRequirements,
-                    experience_years: {
-                      ...currentRequirements.experience_years,
-                      min: e.target.value ? Number(e.target.value) : null,
-                    },
-                  })
+                  form.setValue(
+                    "requirements" as any,
+                    {
+                      ...currentRequirements,
+                      experience_years: {
+                        ...currentRequirements.experience_years,
+                        min: e.target.value ? Number(e.target.value) : null,
+                      },
+                    } as any,
+                  )
                 }
                 placeholder="3"
                 className="bg-background"
@@ -200,13 +222,16 @@ export function VacancyRequirementsEditor({
               <Input
                 value={currentRequirements.experience_years?.description ?? ""}
                 onChange={(e) =>
-                  form.setValue("requirements", {
-                    ...currentRequirements,
-                    experience_years: {
-                      ...currentRequirements.experience_years,
-                      description: e.target.value,
-                    },
-                  })
+                  form.setValue(
+                    "requirements" as any,
+                    {
+                      ...currentRequirements,
+                      experience_years: {
+                        ...currentRequirements.experience_years,
+                        description: e.target.value,
+                      },
+                    } as any,
+                  )
                 }
                 placeholder="Коммерческая разработка"
                 className="bg-background"
@@ -231,10 +256,13 @@ export function VacancyRequirementsEditor({
           <Select
             value={currentRequirements.location_type}
             onValueChange={(value) =>
-              form.setValue("requirements", {
-                ...currentRequirements,
-                location_type: value,
-              })
+              form.setValue(
+                "requirements" as any,
+                {
+                  ...currentRequirements,
+                  location_type: value,
+                } as any,
+              )
             }
           >
             <SelectTrigger className="bg-background">
