@@ -24,13 +24,8 @@ import React from "react";
 import type { UseFormReturn } from "react-hook-form";
 import type { z } from "zod";
 
-type VacancyFormData = {
-  requirements?: z.infer<typeof vacancyRequirementsSchema>;
-  [key: string]: unknown;
-};
-
 interface VacancyRequirementsEditorProps {
-  form: UseFormReturn<VacancyFormData>;
+  form: UseFormReturn<any>;
   requirements: VacancyRequirements | null | undefined;
 }
 

@@ -40,7 +40,7 @@ export function PaymentForm({
     workspaceId?: string;
   }>({});
 
-  const firstErrorRef = useRef<HTMLInputElement | HTMLButtonElement>(null);
+  const firstErrorRef = useRef<HTMLInputElement>(null);
 
   const { mutate: createPayment, isPending } = useMutation(
     trpc.payment.create.mutationOptions({
@@ -251,9 +251,6 @@ export function PaymentForm({
             aria-invalid={!!errors.workspaceId}
             aria-describedby={
               errors.workspaceId ? "workspace-error" : undefined
-            }
-            ref={
-              errors.workspaceId && !errors.amount ? firstErrorRef : undefined
             }
             className="w-full min-h-[44px] md:min-h-[36px]"
           >

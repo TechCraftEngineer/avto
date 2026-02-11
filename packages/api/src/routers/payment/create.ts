@@ -111,9 +111,7 @@ export const create = protectedProcedure
     }
 
     // 7. Сохраняем платеж в БД (Требование 1.3, 5.3, 5.4, 5.6)
-    let createdPayment: Awaited<
-      ReturnType<typeof ctx.db.insert<typeof payment>>
-    >[0];
+    let createdPayment;
     try {
       const [insertedPayment] = await ctx.db
         .insert(payment)
