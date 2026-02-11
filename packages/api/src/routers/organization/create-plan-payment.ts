@@ -147,6 +147,24 @@ export const createPlanPayment = protectedProcedure
         "@qbs-autonaim/db/schema"
       );
 
+      // Маппинг статусов ЮКасса на наши статусы
+      const mapYookassaStatus = (
+        status: string | undefined,
+      ): "pending" | "succeeded" | "canceled" => {
+        if (!status) return "pending";
+        switch (status) {
+          case "succeeded":
+            return "succeeded";
+          case "canceled":
+            return "canceled";
+          case "pending":
+          case "waiting_for_capture":
+            return "pending";
+          default:
+            return "pending";
+        }
+      };
+
       try {
         await ctx.db.insert(paymentSchema).values({
           yookassaId: yookassaPayment.id,
@@ -156,7 +174,7 @@ export const createPlanPayment = protectedProcedure
           organizationId: input.organizationId,
           amount: amount.toString(),
           currency: "RUB",
-          status: yookassaPayment.status || "pending",
+          status: mapYookassaStatus(yookassaPayment.status),
           description: `Оплата тарифа "${input.plan}" для организации "${org.name}"`,
           returnUrl: input.returnUrl,
           confirmationUrl:
