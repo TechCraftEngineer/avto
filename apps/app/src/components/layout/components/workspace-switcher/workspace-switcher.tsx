@@ -162,7 +162,10 @@ export function WorkspaceSwitcher({
                   {activeWorkspace.name}
                 </span>
                 <span className="truncate text-xs text-muted-foreground">
-                  {activeWorkspace.plan ?? "Бесплатный"}
+                  {activeOrganization.plan === "free" && "Бесплатный"}
+                  {activeOrganization.plan === "pro" && "Профессиональный"}
+                  {activeOrganization.plan === "enterprise" && "Корпоративный"}
+                  {!activeOrganization.plan && "Бесплатный"}
                 </span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
@@ -193,7 +196,11 @@ export function WorkspaceSwitcher({
                     {activeOrganization.name}
                   </span>
                   <span className="text-muted-foreground text-xs">
-                    {activeOrganization.plan ?? "Бесплатный"} ·{" "}
+                    {activeOrganization.plan === "free" && "Бесплатный"}
+                    {activeOrganization.plan === "pro" && "Профессиональный"}
+                    {activeOrganization.plan === "enterprise" &&
+                      "Корпоративный"}
+                    {!activeOrganization.plan && "Бесплатный"} ·{" "}
                     {activeOrganization.memberCount ?? 1}{" "}
                     {getPluralForm(activeOrganization.memberCount ?? 1, [
                       "участник",

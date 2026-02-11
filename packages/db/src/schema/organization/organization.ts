@@ -1,5 +1,14 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, timestamp, varchar } from "drizzle-orm/pg-core";
+import { pgEnum, pgTable, text, timestamp, varchar } from "drizzle-orm/pg-core";
+
+// Тарифные планы организации
+export const organizationPlanEnum = pgEnum("organization_plan", [
+  "free",
+  "pro",
+  "enterprise",
+]);
+
+export type OrganizationPlan = "free" | "pro" | "enterprise";
 
 export const organization = pgTable("organizations", {
   id: text("id").primaryKey().default(sql`organization_id_generate()`),
@@ -11,6 +20,13 @@ export const organization = pgTable("organizations", {
   logo: text("logo"),
   name: text("name").notNull(),
   slug: text("slug").notNull().unique(),
+
+  // Тарифный план организации
+  plan: organizationPlanEnum("plan").default("free").notNull(),
+
+  // Email для биллинга
+  billingEmail: text("billing_email"),
+
   updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
     .defaultNow()
     .$onUpdate(() => new Date())

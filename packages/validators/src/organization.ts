@@ -3,6 +3,11 @@ import { z } from "zod";
 // Общая схема для organizationId
 export const organizationIdSchema = z.string().regex(/^org_[A-Za-z0-9_-]+$/);
 
+// Схема тарифного плана организации
+export const organizationPlanSchema = z.enum(["free", "pro", "enterprise"], {
+  message: "План должен быть free, pro или enterprise",
+});
+
 export const createOrganizationSchema = z.object({
   name: z
     .string()
@@ -69,6 +74,10 @@ export const updateOrganizationSchema = z.object({
       z.literal(""),
       z.null(),
     ])
+    .optional(),
+  plan: organizationPlanSchema.optional(),
+  billingEmail: z
+    .union([z.literal(""), z.email({ error: "Некорректный email" })])
     .optional(),
 });
 
