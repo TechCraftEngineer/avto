@@ -8,10 +8,11 @@
     "registry": "https://registry.npmjs.org",
     "access": "public"
   },
+  "type":"module",
   "scripts": {
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "build": "tsc -p tsconfig.build.json && tsdown --config tsdown.config.ts",
+    "build": "tsdown --config tsdown.config.ts",
     "postversion": "bun run build",
     "release": "cross-env DIST_DIR=dist node ../../scripts/release/publish.js",
     "pack": "bun run build && mv $(npm pack ./dist --pack-destination . --silent) inngest-realtime.tgz",
@@ -51,7 +52,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/debug": "^4.1.12",
-    "@types/node": "^25.2.2",
+    "@types/node": "^25.2.3",
     "@types/react": "^19.2.13",
     "@vitest/coverage-v8": "4.0.18",
     "globals": "^17.3.0",
