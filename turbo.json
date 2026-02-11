@@ -39,7 +39,8 @@
       "outputs": []
     },
     "typecheck": {
-      "outputs": [".cache/tsbuildinfo.json"]
+      "outputs": [".cache/tsbuildinfo.json"],
+      "cache": false
     },
     "clean": {
       "cache": false
