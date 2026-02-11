@@ -13,7 +13,7 @@ const baseUrl = env.APP_URL ?? "http://localhost:3000";
 
 // Проверяем наличие AUTH_SECRET в runtime
 if (!env.AUTH_SECRET) {
-  throw new Error(
+  console.warn(
     "AUTH_SECRET не установлен. Пожалуйста, установите переменную окружения AUTH_SECRET. " +
       "Сгенерируйте секрет командой: openssl rand -base64 32",
   );
