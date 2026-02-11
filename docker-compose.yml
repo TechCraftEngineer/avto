@@ -21,6 +21,19 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+  
+  db-migrate:
+    build:
+      context: .
+      dockerfile: packages/db/Dockerfile.migrate
+    container_name: db-migrate
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
   inbucket:
     restart: always
     image: inbucket/inbucket:latest
