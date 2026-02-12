@@ -3,13 +3,12 @@
 import { cn } from "@qbs-autonaim/ui";
 import { Card } from "@qbs-autonaim/ui/card";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { match, P } from "ts-pattern";
 import { useTRPC } from "~/trpc/react";
 import { ConfirmationView } from "./confirmation-view";
 import { ProgressView } from "./progress-view";
 import type { RefreshStatusIndicatorProps } from "./types";
 import { useRefreshSubscription } from "./use-refresh-subscription";
+import { useRefreshVisibility } from "./use-refresh-visibility";
 
 export function RefreshStatusIndicator({
   vacancyId,
@@ -22,51 +21,17 @@ export function RefreshStatusIndicator({
   message: externalMessage,
   progress: externalProgress,
 }: RefreshStatusIndicatorProps) {
-  const [showDialog, setShowDialog] = useState(false);
-  const [taskStarted, setTaskStarted] = useState(false);
   const trpc = useTRPC();
 
-  // Проверяем статус при монтировании
   const { data: initialStatus } = useQuery(
     trpc.vacancy.responses.getRefreshStatus.queryOptions({ vacancyId }),
   );
 
-  // Определяем, есть ли активное задание для текущего режима
-  const hasActiveTask = match({ mode, initialStatus })
-    .with(
-      {
-        initialStatus: { isRunning: true },
-        mode: "archived",
-      },
-      ({ initialStatus }) =>
-        initialStatus.eventType === "vacancy/responses.sync-archived",
-    )
-    .with(
-      {
-        initialStatus: { isRunning: true },
-        mode: "refresh",
-      },
-      ({ initialStatus }) =>
-        initialStatus.eventType === "vacancy/responses.refresh",
-    )
-    .with(
-      {
-        initialStatus: { isRunning: true },
-        mode: "screening",
-      },
-      ({ initialStatus }) => initialStatus.eventType === "response/screen.new",
-    )
-    .with(
-      {
-        initialStatus: { isRunning: true },
-        mode: "analyze",
-      },
-      ({ initialStatus }) =>
-        initialStatus.eventType === "response/screen.batch",
-    )
-    .otherwise(() => taskStarted); // Активируем подписку если задача только что запущена
-
-  const [isVisible, setIsVisible] = useState(hasActiveTask);
+  const visibility = useRefreshVisibility({
+    showConfirmationProp: externalShowConfirmation,
+    mode,
+    initialStatus: initialStatus ?? null,
+  });
 
   const {
     currentProgress,
@@ -80,29 +45,29 @@ export function RefreshStatusIndicator({
   } = useRefreshSubscription({
     vacancyId,
     mode,
-    onVisibilityChange: setIsVisible,
+    onVisibilityChange: visibility.setIsVisible,
+    taskStarted: visibility.taskStarted,
+    onTaskComplete: () => visibility.setTaskStarted(false),
     initialStatus: initialStatus ?? null,
   });
 
-  const showConfirmation = externalShowConfirmation ?? showDialog;
-
   const handleStartRefresh = () => {
-    setShowDialog(false);
-    setIsVisible(true);
-    setTaskStarted(true);
+    visibility.setShowDialog(false);
+    visibility.setIsVisible(true);
+    visibility.setTaskStarted(true);
     onConfirmationClose?.();
     onConfirm?.();
   };
 
   const handleClose = () => {
-    setIsVisible(false);
-    setShowDialog(false);
+    visibility.setIsVisible(false);
+    visibility.setShowDialog(false);
+    visibility.setTaskStarted(false);
     clearAutoCloseTimer();
     onConfirmationClose?.();
   };
 
-  // Определяем, нужно ли показывать компонент
-  const hasData = match({
+  const shouldShow = visibility.computeShouldShow({
     currentProgress,
     currentResult,
     archivedStatus,
@@ -110,23 +75,10 @@ export function RefreshStatusIndicator({
     analyzeCompleted,
     externalMessage,
     externalProgress,
-  })
-    .with({ currentProgress: P.not(P.nullish) }, () => true)
-    .with({ currentResult: P.not(P.nullish) }, () => true)
-    .with({ archivedStatus: P.not(P.nullish) }, () => true)
-    .with({ analyzeProgress: P.not(P.nullish) }, () => true)
-    .with({ analyzeCompleted: P.not(P.nullish) }, () => true)
-    .with({ externalMessage: P.not(P.nullish) }, () => true)
-    .with({ externalProgress: P.not(P.nullish) }, () => true)
-    .otherwise(() => false);
+    isConnecting,
+  });
 
-  const shouldShow =
-    showConfirmation ||
-    (isVisible && (hasActiveTask || hasData || isConnecting || taskStarted));
-
-  if (!shouldShow) {
-    return null;
-  }
+  if (!shouldShow) return null;
 
   return (
     <Card
@@ -139,7 +91,7 @@ export function RefreshStatusIndicator({
       aria-atomic="true"
     >
       <div className="p-4">
-        {showConfirmation ? (
+        {visibility.showConfirmation ? (
           <ConfirmationView
             mode={mode}
             onClose={handleClose}

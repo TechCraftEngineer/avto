@@ -1,37 +1,36 @@
 import type {
   HrSelectionStatus,
-  ResponseScreening,
   ResponseStatus,
 } from "@qbs-autonaim/db/schema";
 
-interface ResponseForPriority {
+interface ResponseData {
   status: ResponseStatus;
   hrSelectionStatus: HrSelectionStatus | null;
   respondedAt: Date | null;
   createdAt: Date;
 }
 
+interface ScreeningData {
+  overallScore: number | null;
+}
+
 export function calculatePriorityScore(
-  response: ResponseForPriority,
-  screening: ResponseScreening | null,
+  response: ResponseData,
+  screening: ScreeningData | undefined,
 ): number {
-  // Базовый score из fitScore (40%)
   const fitScore = screening?.overallScore ?? 0;
   let priorityScore = fitScore * 0.4;
 
-  // Новизна отклика (20%)
   const now = Date.now();
   const respondedAt =
     response.respondedAt?.getTime() ?? response.createdAt.getTime();
   const hoursSinceResponse = (now - respondedAt) / (1000 * 60 * 60);
-  const freshnessScore = Math.max(0, 100 - hoursSinceResponse * 2); // Убывает на 2 пункта в час
+  const freshnessScore = Math.max(0, 100 - hoursSinceResponse * 2);
   priorityScore += freshnessScore * 0.2;
 
-  // Штраф за отсутствие скрининга (20%)
   const screeningBonus = screening ? 50 : 0;
   priorityScore += screeningBonus * 0.2;
 
-  // Бонус за статус (20%)
   let statusBonus = 0;
   if (
     response.hrSelectionStatus === "RECOMMENDED" ||

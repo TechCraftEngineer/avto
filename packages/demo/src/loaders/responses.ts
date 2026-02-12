@@ -74,6 +74,7 @@ export async function loadVacancyResponses(
         hrSelectionStatus: response.hrSelectionStatus,
         importSource: response.importSource,
         respondedAt: response.respondedAt,
+        rankedAt: response.rankedAt,
         updatedAt: new Date(),
       },
     })
@@ -144,6 +145,7 @@ export async function loadGigResponses(
         hrSelectionStatus: response.hrSelectionStatus,
         importSource: response.importSource,
         respondedAt: response.respondedAt,
+        rankedAt: response.rankedAt,
         updatedAt: new Date(),
       },
     })

@@ -1,7 +1,7 @@
 import { Loader2, XCircle } from "lucide-react";
-import { match, P } from "ts-pattern";
 import { AnalyzeProgressContent } from "./analyze-progress-content";
 import { ArchivedStatusContent } from "./archived-status-content";
+import { getProgressStatus, getProgressTitle } from "./progress-view-utils";
 import { RefreshProgressContent } from "./refresh-progress-content";
 import { RefreshResultContent } from "./refresh-result-content";
 import { StatusIcon } from "./status-icon";
@@ -10,7 +10,6 @@ import type {
   AnalyzeProgressData,
   ArchivedStatusData,
   ProgressData,
-  ProgressStatus,
   ResultData,
   SyncMode,
 } from "./types";
@@ -40,8 +39,7 @@ export function ProgressView({
   onClose,
   externalMessage,
 }: ProgressViewProps) {
-  // Определяем текущий статус через pattern matching
-  const currentStatus: ProgressStatus | undefined = match({
+  const currentStatus = getProgressStatus({
     mode,
     archivedStatus,
     analyzeCompleted,
@@ -49,105 +47,16 @@ export function ProgressView({
     currentProgress,
     currentResult,
     externalMessage,
-  })
-    .with(
-      { mode: "archived", archivedStatus: { status: P.select() } },
-      (status: string) => status as ProgressStatus,
-    )
-    .with(
-      {
-        mode: P.union("analyze", "screening"),
-        externalMessage: P.string.includes("завершена"),
-      },
-      () => "completed" as const,
-    )
-    .with(
-      {
-        mode: P.union("analyze", "screening"),
-        analyzeCompleted: P.not(P.nullish),
-      },
-      () => "completed" as const,
-    )
-    .with(
-      {
-        mode: P.union("analyze", "screening"),
-        externalMessage: P.not(P.nullish),
-      },
-      () => "processing" as const,
-    )
-    .with(
-      {
-        mode: P.union("analyze", "screening"),
-        analyzeProgress: P.not(P.nullish),
-      },
-      () => "processing" as const,
-    )
-    .with(
-      { currentProgress: { status: P.select() } },
-      (status: string) => status as ProgressStatus,
-    )
-    .with({ currentResult: P.not(P.nullish) }, () => "completed" as const)
-    .otherwise(() => undefined);
+  });
 
-  // Определяем заголовок через pattern matching
-  const title = match({
+  const title = getProgressTitle({
     mode,
     archivedStatus,
     analyzeProgress,
     analyzeCompleted,
     currentProgress,
     currentResult,
-  })
-    .with(
-      { mode: "archived", archivedStatus: P.nullish },
-      () => "Запуск синхронизации…",
-    )
-    .with(
-      { mode: "archived", archivedStatus: { status: "started" } },
-      () => "Задание в очереди",
-    )
-    .with(
-      { mode: "archived", archivedStatus: { status: "processing" } },
-      () => "Синхронизация архивных откликов",
-    )
-    .with(
-      { mode: "archived", archivedStatus: { status: "error" } },
-      () => "Ошибка синхронизации",
-    )
-    .with(
-      { mode: "archived", archivedStatus: { status: "completed" } },
-      () => "Синхронизация завершена",
-    )
-    .with(
-      { mode: "screening", analyzeCompleted: P.not(P.nullish) },
-      () => "Скрининг завершен",
-    )
-    .with(
-      { mode: "screening", analyzeProgress: P.not(P.nullish) },
-      () => "Скрининг откликов",
-    )
-    .with({ mode: "screening" }, () => "Запуск скрининга…")
-    .with(
-      { mode: "analyze", analyzeCompleted: P.not(P.nullish) },
-      () => "Анализ завершен",
-    )
-    .with(
-      { mode: "analyze", analyzeProgress: P.not(P.nullish) },
-      () => "Анализ откликов",
-    )
-    .with({ mode: "analyze" }, () => "Запуск анализа…")
-    .with(
-      { mode: "refresh", currentProgress: P.nullish, currentResult: P.nullish },
-      () => "Запуск получения откликов…",
-    )
-    .with({ currentProgress: { status: "started" } }, () => "Задание в очереди")
-    .with(
-      { currentProgress: { status: "processing" } },
-      () => "Получение откликов",
-    )
-    .with({ currentProgress: { status: "error" } }, () => "Ошибка обновления")
-    .with({ currentResult: P.not(P.nullish) }, () => "Получение завершено")
-    .otherwise(() => "Загрузка…");
+  });
 
   const showPageNumber =
     mode === "refresh" && currentProgress?.currentPage !== undefined;

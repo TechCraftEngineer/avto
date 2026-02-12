@@ -45,39 +45,45 @@ const getDefaultRequirements = (): VacancyRequirements => ({
   keywords_for_matching: [],
 });
 
-export function VacancyRequirementsEditor({
-  form,
-  requirements,
-}: VacancyRequirementsEditorProps) {
-  const watchedRequirements = form.watch("requirements");
-  const currentRequirements: VacancyRequirements =
-    watchedRequirements ?? requirements ?? getDefaultRequirements();
+export function VacancyRequirementsEditor<
+  T extends { requirements?: VacancyRequirements },
+>({ form, requirements }: VacancyRequirementsEditorProps<T>) {
+  const watchedRequirements = (form.watch("requirements" as never) ??
+    undefined) as unknown as VacancyRequirements | undefined;
+
+  const currentRequirements: VacancyRequirements = {
+    ...getDefaultRequirements(),
+    ...(requirements ?? {}),
+    ...(watchedRequirements ?? {}),
+  };
 
   const updateRequirements = (updates: Partial<VacancyRequirements>) => {
-    form.setValue("requirements", {
-      ...currentRequirements,
-      ...updates,
-    });
+    const base = {
+      ...getDefaultRequirements(),
+      ...(requirements ?? {}),
+      ...(watchedRequirements ?? {}),
+    };
+    form.setValue("requirements" as any, { ...base, ...updates } as any);
   };
 
   const addArrayItem = (field: ArrayFieldKey, value: string) => {
     if (!value.trim()) return;
-    const current = currentRequirements[field];
+    const current = currentRequirements[field] || [];
     updateRequirements({
       [field]: [...current, value.trim()],
     });
   };
 
   const removeArrayItem = (field: ArrayFieldKey, index: number) => {
-    const current = currentRequirements[field];
+    const current = currentRequirements[field] || [];
     updateRequirements({
-      [field]: current.filter((_, i) => i !== index),
+      [field]: current.filter((_: string, i: number) => i !== index),
     });
   };
 
   const addLanguage = (language: string, level: string) => {
     if (!language.trim() || !level.trim()) return;
-    const current = currentRequirements.languages;
+    const current = currentRequirements.languages || [];
     updateRequirements({
       languages: [
         ...current,
@@ -87,9 +93,11 @@ export function VacancyRequirementsEditor({
   };
 
   const removeLanguage = (index: number) => {
-    const current = currentRequirements.languages;
+    const current = currentRequirements.languages || [];
     updateRequirements({
-      languages: current.filter((_, i) => i !== index),
+      languages: current.filter(
+        (_: { language: string; level: string }, i: number) => i !== index,
+      ),
     });
   };
 
@@ -107,7 +115,11 @@ export function VacancyRequirementsEditor({
           <FormLabel>Название должности</FormLabel>
           <Input
             value={currentRequirements.job_title}
-            onChange={(e) => updateRequirements({ job_title: e.target.value })}
+            onChange={(e) =>
+              updateRequirements({
+                job_title: e.target.value,
+              })
+            }
             placeholder="Например: Senior Frontend Developer"
             className="bg-background"
           />
@@ -121,7 +133,11 @@ export function VacancyRequirementsEditor({
           <FormLabel>Краткое описание позиции</FormLabel>
           <Textarea
             value={currentRequirements.summary}
-            onChange={(e) => updateRequirements({ summary: e.target.value })}
+            onChange={(e) =>
+              updateRequirements({
+                summary: e.target.value,
+              })
+            }
             placeholder="Краткое описание роли и основных обязанностей..."
             className="min-h-[80px] resize-y bg-background"
           />
@@ -221,7 +237,9 @@ export function VacancyRequirementsEditor({
           <Select
             value={currentRequirements.location_type}
             onValueChange={(value) =>
-              updateRequirements({ location_type: value })
+              updateRequirements({
+                location_type: value,
+              })
             }
           >
             <SelectTrigger className="bg-background">

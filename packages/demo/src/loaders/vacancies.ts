@@ -1,7 +1,11 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { db, type NewVacancy } from "@qbs-autonaim/db";
-import { vacancy, vacancyPublication } from "@qbs-autonaim/db/schema";
+import { db } from "@qbs-autonaim/db";
+import {
+  CreateVacancySchema,
+  vacancy,
+  vacancyPublication,
+} from "@qbs-autonaim/db/schema";
 import { z } from "zod";
 
 import type { VacancyMapping } from "../types";
@@ -9,6 +13,16 @@ import type { VacancyMapping } from "../types";
 interface InsertedVacancy {
   id: string;
   title: string;
+}
+
+interface VacancyData {
+  title: string;
+  description?: string;
+  workspaceId: string;
+  source?: string;
+  externalId?: string;
+  url?: string;
+  [key: string]: unknown;
 }
 
 /**
@@ -30,21 +44,53 @@ export async function loadVacancies(recruiterId: string): Promise<{
   console.log("\n📝 Загружаем вакансии...");
 
   const vacanciesPath = join(__dirname, "../../data/vacancies.json");
-  const vacanciesData = JSON.parse(readFileSync(vacanciesPath, "utf-8"));
+  const vacanciesData: VacancyData[] = JSON.parse(
+    readFileSync(vacanciesPath, "utf-8"),
+  );
 
   console.log(`📋 Найдено ${vacanciesData.length} вакансий`);
 
-  // Добавляем createdBy для всех вакансий
-  const vacanciesWithCreator: NewVacancy[] = vacanciesData.map(
-    (v: NewVacancy) => ({
-      ...v,
+  // Валидируем каждую вакансию перед вставкой
+  const validatedVacancies: VacancyData[] = [];
+  const validationErrors: Array<{ index: number; errors: string[] }> = [];
+
+  for (let i = 0; i < vacanciesData.length; i++) {
+    const vacancyData = vacanciesData[i];
+    if (!vacancyData) continue;
+
+    const dataWithCreator = {
+      ...vacancyData,
       createdBy: recruiterId,
-    }),
-  );
+    };
+
+    const result = CreateVacancySchema.safeParse(dataWithCreator);
+
+    if (result.success) {
+      validatedVacancies.push(result.data);
+    } else {
+      validationErrors.push({
+        index: i,
+        errors: result.error.errors.map(
+          (e) => `${e.path.join(".")}: ${e.message}`,
+        ),
+      });
+    }
+  }
+
+  if (validationErrors.length > 0) {
+    console.warn(`⚠️  Найдено ${validationErrors.length} невалидных вакансий:`);
+    for (const err of validationErrors) {
+      console.warn(`  - Вакансия #${err.index}: ${err.errors.join(", ")}`);
+    }
+  }
+
+  if (validatedVacancies.length === 0) {
+    throw new Error("Нет валидных вакансий для загрузки");
+  }
 
   const insertedVacancies = await db
     .insert(vacancy)
-    .values(vacanciesWithCreator)
+    .values(validatedVacancies)
     .returning({ id: vacancy.id, title: vacancy.title });
 
   if (insertedVacancies.length > 0) {

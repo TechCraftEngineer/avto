@@ -5,7 +5,6 @@ import { useTRPC } from "~/trpc/react";
 import { CandidateNavigation } from "./candidate-navigation";
 import { VacancyResponseHeaderCard } from "./header-card";
 import { useVacancyResponseFlags } from "./hooks/use-vacancy-response-flags";
-import { QuickActionsFab } from "./quick-actions-fab";
 import { StatusTimeline } from "./status-timeline";
 import { VacancyResponseTabs } from "./tabs";
 import type { VacancyResponseDetailCardProps } from "./types";
@@ -86,9 +85,6 @@ export function VacancyResponseDetailCard({
 
       {/* Status Timeline */}
       <StatusTimeline response={response} />
-
-      {/* Быстрые действия FAB */}
-      <QuickActionsFab response={response} />
     </div>
   );
 }

@@ -23,72 +23,96 @@ import { inngest } from "@qbs-autonaim/jobs/client";
  * Server action для получения токена подписки на Realtime канал скрининга новых откликов
  */
 export async function fetchScreenNewResponsesToken(vacancyId: string) {
-  const token = await getSubscriptionToken(inngest, {
-    channel: screenNewResponsesChannel(vacancyId),
-    topics: ["progress", "result"],
-  });
-
-  return token;
+  try {
+    const token = await getSubscriptionToken(inngest, {
+      channel: screenNewResponsesChannel(vacancyId),
+      topics: ["progress", "result"],
+    });
+    return token;
+  } catch (error) {
+    console.error("Ошибка получения токена скрининга новых откликов:", error);
+    throw error;
+  }
 }
 
 /**
  * Server action для получения токена подписки на Realtime канал анализа одного отклика
  */
 export async function fetchAnalyzeResponseToken(responseId: string) {
-  const token = await getSubscriptionToken(inngest, {
-    channel: analyzeResponseChannel(responseId),
-    topics: ["progress", "result"],
-  });
-
-  return token;
+  try {
+    const token = await getSubscriptionToken(inngest, {
+      channel: analyzeResponseChannel(responseId),
+      topics: ["progress", "result"],
+    });
+    return token;
+  } catch (error) {
+    console.error("Ошибка получения токена анализа отклика:", error);
+    throw error;
+  }
 }
 
 /**
  * Server action для получения токена подписки на Realtime канал скрининга всех откликов
  */
 export async function fetchScreenAllResponsesToken(vacancyId: string) {
-  const token = await getSubscriptionToken(inngest, {
-    channel: screenAllResponsesChannel(vacancyId),
-    topics: ["progress", "result"],
-  });
-
-  return token;
+  try {
+    const token = await getSubscriptionToken(inngest, {
+      channel: screenAllResponsesChannel(vacancyId),
+      topics: ["progress", "result"],
+    });
+    return token;
+  } catch (error) {
+    console.error("Ошибка получения токена скрининга всех откликов:", error);
+    throw error;
+  }
 }
 
 /**
  * Server action для получения токена подписки на Realtime канал обновления откликов
  */
 export async function fetchRefreshVacancyResponsesToken(vacancyId: string) {
-  const token = await getSubscriptionToken(inngest, {
-    channel: refreshVacancyResponsesChannel(vacancyId),
-    topics: ["progress", "result"],
-  });
-
-  return token;
+  try {
+    const token = await getSubscriptionToken(inngest, {
+      channel: refreshVacancyResponsesChannel(vacancyId),
+      topics: ["progress", "result"],
+    });
+    return token;
+  } catch (error) {
+    console.error("Ошибка получения токена обновления откликов:", error);
+    throw error;
+  }
 }
 
 /**
  * Server action для получения токена подписки на Realtime канал обновления всех резюме вакансии
  */
 export async function fetchRefreshAllResumesToken(vacancyId: string) {
-  const token = await getSubscriptionToken(inngest, {
-    channel: refreshAllResumesChannel(vacancyId),
-    topics: ["progress", "result"],
-  });
-
-  return token;
+  try {
+    const token = await getSubscriptionToken(inngest, {
+      channel: refreshAllResumesChannel(vacancyId),
+      topics: ["progress", "result"],
+    });
+    return token;
+  } catch (error) {
+    console.error("Ошибка получения токена обновления всех резюме:", error);
+    throw error;
+  }
 }
 
 /**
  * Server action для получения токена подписки на Realtime канал обновления одного резюме
  */
 export async function fetchRefreshSingleResumeToken(responseId: string) {
-  const token = await getSubscriptionToken(inngest, {
-    channel: refreshSingleResumeChannel(responseId),
-    topics: ["progress", "result"],
-  });
-
-  return token;
+  try {
+    const token = await getSubscriptionToken(inngest, {
+      channel: refreshSingleResumeChannel(responseId),
+      topics: ["progress", "result"],
+    });
+    return token;
+  } catch (error) {
+    console.error("Ошибка получения токена обновления резюме:", error);
+    throw error;
+  }
 }
 
 /**
@@ -97,12 +121,16 @@ export async function fetchRefreshSingleResumeToken(responseId: string) {
 export async function fetchSyncArchivedVacancyResponsesToken(
   vacancyId: string,
 ) {
-  const token = await getSubscriptionToken(inngest, {
-    channel: syncArchivedResponsesChannel(vacancyId),
-    topics: ["progress", "result"],
-  });
-
-  return token;
+  try {
+    const token = await getSubscriptionToken(inngest, {
+      channel: syncArchivedResponsesChannel(vacancyId),
+      topics: ["progress", "result"],
+    });
+    return token;
+  } catch (error) {
+    console.error("Ошибка получения токена синхронизации архивных откликов:", error);
+    throw error;
+  }
 }
 
 /**

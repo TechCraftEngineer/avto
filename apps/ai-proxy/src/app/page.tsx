@@ -2,7 +2,7 @@ export default function Home() {
   return (
     <main style={{ padding: "2rem", fontFamily: "system-ui" }}>
       <h1>AI Proxy</h1>
-      <p>OpenAI API proxy service</p>
+      <p>API proxy service</p>
     </main>
   );
 }

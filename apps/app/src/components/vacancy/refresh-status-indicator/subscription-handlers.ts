@@ -33,6 +33,7 @@ interface MessageHandlerContext {
   queryClient: QueryClient;
   trpc: TRPCClient;
   onVisibilityChange: (visible: boolean) => void;
+  onTaskComplete?: () => void;
   setArchivedStatus: (status: ArchivedStatusData | null) => void;
   setAnalyzeProgress: (progress: AnalyzeProgressData | null) => void;
   setAnalyzeCompleted: (completed: AnalyzeCompletedData | null) => void;
@@ -57,14 +58,9 @@ export function handleArchivedProgress(
   context.setArchivedStatus(progressData);
   context.onVisibilityChange(true);
 
-  // Инвалидируем кэш откликов при обработке
-  if (progressData.status === "processing") {
-    context.queryClient.invalidateQueries({
-      queryKey: context.trpc.vacancy.responses.list.queryKey({
-        vacancyId: context.vacancyId,
-      }),
-    });
-  }
+  // Не инвалидируем vacancy.responses.list при каждом progress: парсер шлёт progress
+  // после КАЖДОГО отклика → сотни сообщений → массовая атака на list. Инвалидация
+  // только при завершении (handleArchivedResult).
 
   // Очищаем таймер при получении нового прогресса
   context.setAutoCloseTimer((prev) => {
@@ -114,6 +110,7 @@ export function handleArchivedResult(
   const timer = setTimeout(() => {
     context.onVisibilityChange(false);
     context.setArchivedStatus(null);
+    context.onTaskComplete?.();
   }, 3000);
   context.setAutoCloseTimer(timer);
 }

@@ -2,19 +2,21 @@
 
 import { Button } from "@qbs-autonaim/ui/button";
 import {
-  IconDownload,
   IconFilter,
-  IconRefresh,
+  IconLayoutKanban,
   IconSparkles,
+  IconTable,
 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
+import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
 import { use, useState } from "react";
-import { toast } from "sonner";
 import { PageHeader } from "~/components/layout";
 import {
   ResponsesFilters,
+  ResponsesKanban,
   ResponsesStats,
   ResponsesTable,
+  VacancyFilter,
 } from "~/components/responses";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
@@ -23,11 +25,14 @@ interface ResponsesPageProps {
   params: Promise<{ orgSlug: string; slug: string }>;
 }
 
+type ViewMode = "table" | "board";
+
 export default function ResponsesPage({ params }: ResponsesPageProps) {
   const { orgSlug, slug: workspaceSlug } = use(params);
   const trpc = useTRPC();
   const { workspace } = useWorkspace();
 
+  const [viewMode, setViewMode] = useState<ViewMode>("board");
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [screeningFilter, setScreeningFilter] = useState<
@@ -52,37 +57,52 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
     "all" | "high" | "medium" | "low"
   >("all");
 
-  // Получаем отклики для всего workspace
-  const {
-    data: responsesData,
-    isLoading,
-    refetch,
-  } = useQuery({
-    ...trpc.vacancy.responses.listAllWorkspace.queryOptions({
+  const [selectedVacancyIds, setSelectedVacancyIds] = useQueryState(
+    "vacancies",
+    parseAsArrayOf(parseAsString).withDefault([]),
+  );
+
+  const { data: vacanciesData } = useQuery({
+    ...trpc.vacancy.listActive.queryOptions({
       workspaceId: workspace?.id ?? "",
-      page,
-      limit: 50,
+      limit: 100,
+    }),
+    enabled: Boolean(workspace?.id),
+  });
+
+  const { data: responsesData, isLoading } = useQuery({
+    ...trpc.vacancy.responses.listWorkspace.queryOptions({
+      workspaceId: workspace?.id ?? "",
+      page: viewMode === "board" ? 1 : page,
+      limit: viewMode === "board" ? 50 : 50,
       sortField,
       sortDirection,
       screeningFilter,
       statusFilter: statusFilter.length > 0 ? statusFilter : undefined,
+      vacancyIds:
+        selectedVacancyIds.length > 0 ? selectedVacancyIds : undefined,
       search: search.trim() || undefined,
     }),
     enabled: Boolean(workspace?.id),
   });
 
-  // Подсчитываем статистику
   const stats = {
     totalResponses: responsesData?.total ?? 0,
     evaluatedResponses:
-      responsesData?.responses.filter((r) => r.screening !== null).length ?? 0,
+      responsesData?.responses.filter(
+        (r: { screening: unknown }) => r.screening !== null,
+      ).length ?? 0,
     highScoreResponses:
       responsesData?.responses.filter(
-        (r) => r.screening && r.screening.score >= 4,
+        (r) =>
+          r.screening !== null &&
+          r.screening.score !== null &&
+          r.screening.score >= 4,
       ).length ?? 0,
     interviewResponses:
-      responsesData?.responses.filter((r) => r.interviewSession !== null)
-        .length ?? 0,
+      responsesData?.responses.filter(
+        (r: { interviewSession: unknown }) => r.interviewSession !== null,
+      ).length ?? 0,
   };
 
   const handleSort = (
@@ -102,65 +122,6 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
       setSortField(field);
       setSortDirection("desc");
     }
-  };
-
-  const handleRefresh = async () => {
-    try {
-      await refetch();
-      toast.success("Данные обновлены");
-    } catch (_error) {
-      toast.error("Не удалось обновить данные");
-    }
-  };
-
-  const escapeCsvField = (
-    value: string | number | null | undefined,
-  ): string => {
-    const str = String(value ?? "");
-    const needsQuotes =
-      str.includes(",") || str.includes('"') || str.includes("\n");
-    const escaped = str.replace(/"/g, '""').replace(/\r\n|\r|\n/g, "\n");
-    return needsQuotes ? `"${escaped}"` : escaped;
-  };
-
-  const handleExport = () => {
-    if (!responsesData?.responses.length) {
-      toast.error("Нет данных для экспорта");
-      return;
-    }
-
-    const csvContent = [
-      ["Кандидат", "Оценка", "Приоритет", "Статус", "Дата отклика"].join(","),
-      ...responsesData.responses.map((r) =>
-        [
-          escapeCsvField(r.candidateName || "Без имени"),
-          escapeCsvField(r.screening?.score ?? "—"),
-          escapeCsvField(r.priorityScore ?? "—"),
-          escapeCsvField(r.status),
-          escapeCsvField(
-            r.respondedAt
-              ? new Date(r.respondedAt).toLocaleDateString("ru-RU")
-              : "—",
-          ),
-        ].join(","),
-      ),
-    ].join("\n");
-
-    const blob = new Blob([`\uFEFF${csvContent}`], {
-      type: "text/csv;charset=utf-8;",
-    });
-    const objectUrl = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = objectUrl;
-    const today = new Date().toISOString().split("T")[0];
-    link.download = `отклики_${today}.csv`;
-    link.click();
-
-    setTimeout(() => {
-      URL.revokeObjectURL(objectUrl);
-    }, 100);
-
-    toast.success("Данные экспортированы");
   };
 
   const quickFilters = [
@@ -203,26 +164,26 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
         tooltipContent="Здесь отображаются все отклики на ваши вакансии. Вы можете фильтровать их по статусу, оценке скрининга и другим параметрам."
       >
         <div className="flex items-center gap-2">
-          <Button
-            onClick={handleExport}
-            disabled={isLoading || !responsesData?.responses.length}
-            variant="outline"
-            className="hidden h-9 items-center gap-2 px-4 font-medium transition-all hover:bg-muted active:scale-95 sm:flex"
-          >
-            <IconDownload className="size-4" />
-            Экспорт
-          </Button>
-          <Button
-            onClick={handleRefresh}
-            disabled={isLoading}
-            variant="outline"
-            className="h-9 items-center gap-2 px-4 font-medium transition-all hover:bg-muted active:scale-95"
-          >
-            <IconRefresh
-              className={`size-4 ${isLoading ? "animate-spin" : ""}`}
-            />
-            <span className="hidden sm:inline">Обновить</span>
-          </Button>
+          <div className="flex items-center gap-1 rounded-lg border bg-background p-1">
+            <Button
+              onClick={() => setViewMode("board")}
+              variant={viewMode === "board" ? "default" : "ghost"}
+              size="sm"
+              className="h-8 gap-2"
+            >
+              <IconLayoutKanban className="size-4" />
+              <span className="hidden sm:inline">Доска</span>
+            </Button>
+            <Button
+              onClick={() => setViewMode("table")}
+              variant={viewMode === "table" ? "default" : "ghost"}
+              size="sm"
+              className="h-8 gap-2"
+            >
+              <IconTable className="size-4" />
+              <span className="hidden sm:inline">Таблица</span>
+            </Button>
+          </div>
         </div>
       </PageHeader>
 
@@ -235,7 +196,6 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
           isLoading={isLoading}
         />
 
-        {/* Быстрые фильтры */}
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm font-medium text-muted-foreground">
             Быстрые фильтры:
@@ -255,28 +215,39 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
         </div>
 
         <div className="flex flex-col gap-5">
-          <ResponsesFilters
-            search={search}
-            onSearchChange={setSearch}
-            screeningFilter={screeningFilter}
-            onScreeningFilterChange={setScreeningFilter}
-            sortField={sortField}
-            onSortFieldChange={(field) => {
-              if (field === null || field === "createdAt") {
-                setSortField(null);
-              } else if (
-                field === "score" ||
-                field === "detailedScore" ||
-                field === "potentialScore" ||
-                field === "careerTrajectoryScore" ||
-                field === "priorityScore" ||
-                field === "status" ||
-                field === "respondedAt"
-              ) {
-                setSortField(field);
-              }
-            }}
-          />
+          <div className="flex flex-col sm:flex-row gap-3">
+            <VacancyFilter
+              vacancies={(vacanciesData ?? []).map((v) => ({
+                id: v.id,
+                title: v.title,
+              }))}
+              selectedVacancyIds={selectedVacancyIds}
+              onSelectionChange={setSelectedVacancyIds}
+              isLoading={!vacanciesData}
+            />
+            <ResponsesFilters
+              search={search}
+              onSearchChange={setSearch}
+              screeningFilter={screeningFilter}
+              onScreeningFilterChange={setScreeningFilter}
+              sortField={sortField}
+              onSortFieldChange={(field) => {
+                if (field === null || field === "createdAt") {
+                  setSortField(null);
+                } else if (
+                  field === "score" ||
+                  field === "detailedScore" ||
+                  field === "potentialScore" ||
+                  field === "careerTrajectoryScore" ||
+                  field === "priorityScore" ||
+                  field === "status" ||
+                  field === "respondedAt"
+                ) {
+                  setSortField(field);
+                }
+              }}
+            />
+          </div>
 
           <div className="flex items-center justify-between px-1">
             {!isLoading && responsesData && (
@@ -290,44 +261,55 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
             )}
           </div>
 
-          <ResponsesTable
-            responses={responsesData?.responses ?? []}
-            isLoading={isLoading}
-            orgSlug={orgSlug}
-            workspaceSlug={workspaceSlug}
-            sortField={sortField}
-            onSortChange={handleSort}
-            hasFilters={
-              search.trim() !== "" ||
-              screeningFilter !== "all" ||
-              statusFilter.length > 0
-            }
-          />
-
-          {responsesData && responsesData.totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-              >
-                Назад
-              </Button>
-              <span className="text-sm text-muted-foreground">
-                Страница {page} из {responsesData.totalPages}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  setPage((p) => Math.min(responsesData.totalPages, p + 1))
+          {viewMode === "table" ? (
+            <>
+              <ResponsesTable
+                responses={responsesData?.responses ?? []}
+                isLoading={isLoading}
+                orgSlug={orgSlug}
+                workspaceSlug={workspaceSlug}
+                sortField={sortField}
+                onSortChange={handleSort}
+                hasFilters={
+                  search.trim() !== "" ||
+                  screeningFilter !== "all" ||
+                  statusFilter.length > 0
                 }
-                disabled={page === responsesData.totalPages}
-              >
-                Вперёд
-              </Button>
-            </div>
+              />
+
+              {responsesData && responsesData.totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                  >
+                    Назад
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    Страница {page} из {responsesData.totalPages}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      setPage((p) => Math.min(responsesData.totalPages, p + 1))
+                    }
+                    disabled={page === responsesData.totalPages}
+                  >
+                    Вперёд
+                  </Button>
+                </div>
+              )}
+            </>
+          ) : (
+            <ResponsesKanban
+              responses={responsesData?.responses ?? []}
+              isLoading={isLoading}
+              orgSlug={orgSlug}
+              workspaceSlug={workspaceSlug}
+            />
           )}
         </div>
       </div>

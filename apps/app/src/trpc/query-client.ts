@@ -11,6 +11,25 @@ export const createQueryClient = () =>
         // With SSR, we usually want to set some default staleTime
         // above 0 to avoid refetching immediately on the client
         staleTime: 30 * 1000,
+        retry: (failureCount, error) => {
+          // Не повторяем при ошибках подключения к БД
+          const isConnectionError =
+            error instanceof Error &&
+            (error.message?.includes("ECONNREFUSED") ||
+              error.message?.includes("Failed query") ||
+              error.message?.includes("Connection refused"));
+
+          if (isConnectionError) {
+            return false;
+          }
+
+          // Для остальных ошибок - стандартная логика (3 попытки)
+          return failureCount < 3;
+        },
+        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+      },
+      mutations: {
+        retry: false, // Не повторяем мутации автоматически
       },
       dehydrate: {
         serializeData: SuperJSON.serialize,

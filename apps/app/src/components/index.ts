@@ -181,9 +181,9 @@ export {
   WorkspaceForm,
   WorkspaceMembersClient,
 } from "./settings";
-
-// Shared Components
 export { ParsedProfileCard } from "./shared";
+// Shared Components
+export { ErrorBoundary } from "./shared/error-boundary";
 export { PostHogAuthTracker } from "./shared/posthog-auth-tracker";
 export { PostHogProvider } from "./shared/posthog-provider";
 

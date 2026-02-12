@@ -11,6 +11,14 @@ import { cache } from "react";
 
 const baseUrl = env.APP_URL ?? "http://localhost:3000";
 
+// Проверяем наличие AUTH_SECRET в runtime
+if (!env.AUTH_SECRET) {
+  console.warn(
+    "AUTH_SECRET не установлен. Пожалуйста, установите переменную окружения AUTH_SECRET. " +
+      "Сгенерируйте секрет командой: openssl rand -base64 32",
+  );
+}
+
 export const auth = initAuth({
   baseUrl,
   productionUrl: env.APP_URL ?? "http://localhost:3000",
@@ -71,6 +79,30 @@ export const auth = initAuth({
   },
 });
 
-export const getSession = cache(async () =>
-  auth.api.getSession({ headers: await headers() }),
-);
+export const getSession = cache(async () => {
+  try {
+    return await auth.api.getSession({ headers: await headers() });
+  } catch (error) {
+    // Логируем ошибку для отладки
+    console.error("[Auth] Ошибка получения сессии:", error);
+
+    // Проверяем, является ли это ошибкой подключения к БД
+    const isConnectionError =
+      error instanceof Error &&
+      (error.message?.includes("ECONNREFUSED") ||
+        error.message?.includes("Failed query") ||
+        error.message?.includes("Connection refused") ||
+        error.message?.includes("INTERNAL_SERVER_ERROR"));
+
+    if (isConnectionError) {
+      // При ошибке подключения выбрасываем ошибку, чтобы error boundary её перехватил
+      throw new Error(
+        "Не удалось подключиться к базе данных. Проверьте подключение.",
+        { cause: error },
+      );
+    }
+
+    // Для других ошибок возвращаем null
+    return { session: null, user: null };
+  }
+});

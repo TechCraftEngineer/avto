@@ -32,6 +32,10 @@ interface UseRefreshSubscriptionProps {
   vacancyId: string;
   mode: SyncMode;
   onVisibilityChange: (visible: boolean) => void;
+  /** Флаг что пользователь только что запустил задание (до того как API вернёт isRunning) */
+  taskStarted?: boolean;
+  /** Вызывается при завершении задания (для сброса taskStarted) */
+  onTaskComplete?: () => void;
   initialStatus?: {
     isRunning: boolean;
     status: string | null;
@@ -55,6 +59,8 @@ export function useRefreshSubscription({
   vacancyId,
   mode,
   onVisibilityChange,
+  taskStarted = false,
+  onTaskComplete,
   initialStatus,
 }: UseRefreshSubscriptionProps) {
   const [currentProgress, setCurrentProgress] = useState<ProgressData | null>(
@@ -78,10 +84,6 @@ export function useRefreshSubscription({
   // Определяем режим через pattern matching
   const { isArchivedMode, isAnalyzeMode, isScreeningMode } = getModeFlags(mode);
 
-  console.log(
-    `🔌 useRefreshSubscription: mode=${mode}, isArchivedMode=${isArchivedMode}`,
-  );
-
   // Мемоизируем функции получения токенов
   const getRefreshToken = useCallback(
     () => fetchRefreshVacancyResponsesToken(vacancyId),
@@ -104,7 +106,9 @@ export function useRefreshSubscription({
   );
 
   // Определяем, есть ли активное задание для текущего режима
-  const hasActiveTask = checkActiveTask(mode, initialStatus);
+  // taskStarted нужен чтобы подписаться сразу после клика, пока API ещё не вернул isRunning
+  const hasActiveTask =
+    taskStarted || checkActiveTask(mode, initialStatus);
 
   // ОДНО подключение для текущего режима
   // Подключаемся ТОЛЬКО если есть активное задание для этого режима
@@ -119,11 +123,6 @@ export function useRefreshSubscription({
     enabled: isArchivedMode && hasActiveTask,
     key: "archived",
   });
-
-  console.log(
-    `📡 Archived subscription: enabled=${isArchivedMode && hasActiveTask}, data.length=${archivedSubscription.data?.length ?? 0}, error=`,
-    archivedSubscription.error,
-  );
 
   const screeningSubscription = useInngestSubscription({
     refreshToken: getScreeningToken,
@@ -218,16 +217,12 @@ export function useRefreshSubscription({
   useEffect(() => {
     if (data.length === 0) return;
 
-    console.log(
-      `📨 Получено ${data.length} сообщений для режима ${mode}:`,
-      data,
-    );
-
     const context = {
       vacancyId,
       queryClient,
       trpc,
       onVisibilityChange,
+      onTaskComplete,
       setArchivedStatus,
       setAnalyzeProgress,
       setAnalyzeCompleted,
@@ -239,11 +234,6 @@ export function useRefreshSubscription({
     for (const message of data) {
       const isProgressTopic = message.topic === "progress";
       const isResultTopic = message.topic === "result";
-
-      console.log(
-        `📬 Обработка сообщения: topic=${message.topic}, mode=${mode}`,
-        message.data,
-      );
 
       if (isArchivedMode && isProgressTopic) {
         handleArchivedProgress(message, context);
@@ -265,6 +255,7 @@ export function useRefreshSubscription({
     isAnalyzeMode,
     isScreeningMode,
     mode,
+    onTaskComplete,
     onVisibilityChange,
     queryClient,
     trpc,

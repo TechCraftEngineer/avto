@@ -121,7 +121,7 @@ export function mapResponsesToOutput(
     const globalCandidate = r.globalCandidateId
       ? (candidateById.get(r.globalCandidateId) ?? null)
       : null;
-    const priorityScore = calculatePriorityScore(r, screening);
+    const priorityScore = calculatePriorityScore(r, screening ?? undefined);
 
     return {
       ...r,
