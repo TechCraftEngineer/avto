@@ -4,6 +4,19 @@ export const runtime = "edge";
 
 const POSTHOG_HOST = "https://eu.i.posthog.com";
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, User-Agent",
+};
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: corsHeaders,
+  });
+}
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ path: string[] }> },
@@ -36,6 +49,7 @@ export async function POST(
     return new NextResponse(data, {
       status: response.status,
       headers: {
+        ...corsHeaders,
         "Content-Type":
           response.headers.get("Content-Type") || "application/json",
       },
@@ -44,7 +58,7 @@ export async function POST(
     console.error("Analytics proxy error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 },
+      { status: 500, headers: corsHeaders },
     );
   }
 }
@@ -72,6 +86,7 @@ export async function GET(
     return new NextResponse(data, {
       status: response.status,
       headers: {
+        ...corsHeaders,
         "Content-Type":
           response.headers.get("Content-Type") || "application/json",
       },
@@ -80,7 +95,7 @@ export async function GET(
     console.error("Analytics proxy error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 },
+      { status: 500, headers: corsHeaders },
     );
   }
 }
