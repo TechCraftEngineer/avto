@@ -47,6 +47,16 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
             headers.set("x-trpc-source", "nextjs-react");
             return headers;
           },
+          fetch(url, options) {
+            return fetch(url, {
+              ...options,
+              credentials: "same-origin",
+            }).catch((error) => {
+              // Логируем ошибки сети для отладки
+              console.error("[TRPC] Ошибка сети:", error);
+              throw error;
+            });
+          },
         }),
       ],
     }),

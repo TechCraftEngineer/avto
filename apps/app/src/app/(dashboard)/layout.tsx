@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { getSession } from "~/auth/server";
 import { EmailVerificationBanner } from "~/components/auth";
 import { SiteHeader } from "~/components/layout";
+import { DatabaseErrorFallback } from "~/components/shared/database-error-fallback";
 import { AppSidebarWrapper } from "~/components/sidebar";
 import { WorkspaceProvider } from "~/contexts/workspace-context";
 import { api } from "~/trpc/server";
@@ -14,18 +15,64 @@ export default async function DashboardLayout({
 }: {
   children: ReactNode;
 }) {
-  const session = await getSession();
+  let session: Awaited<ReturnType<typeof getSession>>;
+  let userWorkspaces: Awaited<
+    ReturnType<Awaited<ReturnType<typeof api>>["workspace"]["list"]>
+  >;
+  let userOrganizations: Awaited<
+    ReturnType<Awaited<ReturnType<typeof api>>["organization"]["list"]>
+  >;
+
+  try {
+    session = await getSession();
+  } catch (error) {
+    console.error("[DashboardLayout] Ошибка получения сессии:", error);
+
+    // Проверяем, является ли это ошибкой подключения к БД
+    const isConnectionError =
+      error instanceof Error &&
+      (error.message?.includes("ECONNREFUSED") ||
+        error.message?.includes("Failed query") ||
+        error.message?.includes("Connection") ||
+        error.message?.includes("Database") ||
+        error.message?.includes("подключиться к базе данных"));
+
+    if (isConnectionError) {
+      return <DatabaseErrorFallback />;
+    }
+
+    // Для других ошибок выбрасываем дальше
+    throw error;
+  }
 
   // Редирект на /auth/signin обрабатывается в middleware
   if (!session?.user) {
-    return null;
+    redirect(paths.auth.signin);
   }
 
-  const caller = await api();
-  const [userWorkspaces, userOrganizations] = await Promise.all([
-    caller.workspace.list(),
-    caller.organization.list(),
-  ]);
+  try {
+    const caller = await api();
+    [userWorkspaces, userOrganizations] = await Promise.all([
+      caller.workspace.list(),
+      caller.organization.list(),
+    ]);
+  } catch (error) {
+    console.error("[DashboardLayout] Ошибка загрузки данных:", error);
+
+    // Проверяем, является ли это ошибкой подключения к БД
+    const isConnectionError =
+      error instanceof Error &&
+      (error.message?.includes("ECONNREFUSED") ||
+        error.message?.includes("Failed query") ||
+        error.message?.includes("Connection") ||
+        error.message?.includes("Database"));
+
+    if (isConnectionError) {
+      return <DatabaseErrorFallback />;
+    }
+
+    throw error;
+  }
 
   // Если нет workspaces, редирект на создание
   // (логика с приглашениями обрабатывается на странице /invite/[token])
@@ -74,7 +121,7 @@ export default async function DashboardLayout({
             }}
           />
           <div className="bg-muted/40 flex flex-1 flex-col">
-            <div className="@container/main p-[var(--content-padding)] xl:group-data-[theme-content-layout=centered]/layout:container xl:group-data-[theme-content-layout=centered]/layout:mx-auto">
+            <div className="p-[var(--content-padding)] xl:group-data-[theme-content-layout=centered]/layout:container xl:group-data-[theme-content-layout=centered]/layout:mx-auto @container/main">
               <EmailVerificationBanner session={session} />
               {children}
             </div>
