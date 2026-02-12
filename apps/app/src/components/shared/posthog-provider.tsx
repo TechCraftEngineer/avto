@@ -30,6 +30,48 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (IS_PRODUCTION) {
       initPostHog();
+
+      // Глобальный обработчик необработанных ошибок
+      const handleError = (event: ErrorEvent) => {
+        if (window.posthog) {
+          window.posthog.capture("$exception", {
+            $exception_message: event.message,
+            $exception_type: "Error",
+            $exception_stack_trace_raw: event.error?.stack,
+            $exception_level: "error",
+            $exception_source: event.filename,
+            $exception_lineno: event.lineno,
+            $exception_colno: event.colno,
+          });
+        }
+      };
+
+      // Обработчик необработанных промисов
+      const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+        if (window.posthog) {
+          const error =
+            event.reason instanceof Error
+              ? event.reason
+              : new Error(String(event.reason));
+          window.posthog.capture("$exception", {
+            $exception_message: error.message,
+            $exception_type: "UnhandledRejection",
+            $exception_stack_trace_raw: error.stack,
+            $exception_level: "error",
+          });
+        }
+      };
+
+      window.addEventListener("error", handleError);
+      window.addEventListener("unhandledrejection", handleUnhandledRejection);
+
+      return () => {
+        window.removeEventListener("error", handleError);
+        window.removeEventListener(
+          "unhandledrejection",
+          handleUnhandledRejection,
+        );
+      };
     }
   }, []);
 

@@ -21,12 +21,16 @@ export function initPostHog() {
     person_profiles: "identified_only",
     capture_pageview: false,
     capture_pageleave: true,
+    capture_exceptions: true,
     loaded: (posthog) => {
       if (env.NODE_ENV === "development") {
         posthog.opt_out_capturing();
       }
     },
   });
+
+  // Сохраняем экземпляр в window для доступа из ErrorBoundary
+  window.posthog = posthog;
 }
 
 export { posthog };

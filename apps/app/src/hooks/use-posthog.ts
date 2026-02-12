@@ -16,6 +16,7 @@ export function usePostHog() {
   const identify = useCallback(
     (userId: string, properties?: Record<string, unknown>) => {
       if (typeof window === "undefined" || !isProduction) return;
+      console.log("identify", userId, properties);
       posthog.identify(userId, properties);
     },
     [isProduction],

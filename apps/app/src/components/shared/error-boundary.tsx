@@ -26,6 +26,17 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error("ErrorBoundary перехватил ошибку:", error, errorInfo);
+
+    // Отправка ошибки в PostHog
+    if (typeof window !== "undefined" && window.posthog) {
+      window.posthog.capture("$exception", {
+        $exception_message: error.message,
+        $exception_type: error.name,
+        $exception_stack_trace_raw: error.stack,
+        $exception_level: "error",
+        componentStack: errorInfo.componentStack,
+      });
+    }
   }
 
   reset = () => {
