@@ -19,6 +19,8 @@ const window = new Window({
 // Устанавливаем глобальные объекты
 globalThis.window = window as any;
 globalThis.document = window.document as any;
+// Radix UI и др. используют DocumentFragment глобально
+globalThis.DocumentFragment = (window as any).DocumentFragment;
 globalThis.HTMLElement = window.HTMLElement as any;
 globalThis.SVGElement = window.SVGElement as any;
 globalThis.Element = window.Element as any;

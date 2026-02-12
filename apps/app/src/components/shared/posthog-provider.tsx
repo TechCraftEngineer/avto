@@ -41,7 +41,7 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
       );
       return;
     }
-
+    console.log("posthog init");
     posthog.init(key, {
       api_host: `${proxyUrl}/api/analytics`,
       ui_host: "https://eu.i.posthog.com",

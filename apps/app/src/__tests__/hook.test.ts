@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { renderHook } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
 import React from "react";
 
 // Простой хук для тестирования
@@ -23,7 +23,9 @@ describe("Тесты хуков", () => {
     const { result } = renderHook(() => useCounter(0));
 
     expect(result.current.count).toBe(0);
-    result.current.increment();
+    act(() => {
+      result.current.increment();
+    });
     expect(result.current.count).toBe(1);
   });
 
@@ -31,18 +33,24 @@ describe("Тесты хуков", () => {
     const { result } = renderHook(() => useCounter(5));
 
     expect(result.current.count).toBe(5);
-    result.current.decrement();
+    act(() => {
+      result.current.decrement();
+    });
     expect(result.current.count).toBe(4);
   });
 
   it("должен сбрасывать счетчик", () => {
     const { result } = renderHook(() => useCounter(10));
 
-    result.current.increment();
-    result.current.increment();
+    act(() => {
+      result.current.increment();
+      result.current.increment();
+    });
     expect(result.current.count).toBe(12);
 
-    result.current.reset();
+    act(() => {
+      result.current.reset();
+    });
     expect(result.current.count).toBe(10);
   });
 });

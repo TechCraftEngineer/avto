@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
-import { renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { useSyncArchivedState } from "./use-sync-archived-state";
 
 // Mock dependencies
@@ -70,7 +70,9 @@ describe("useSyncArchivedState", () => {
       ),
     );
 
-    result.current.setDialogOpen(true);
+    act(() => {
+      result.current.setDialogOpen(true);
+    });
 
     expect(result.current.dialogOpen).toBe(true);
   });
@@ -85,10 +87,14 @@ describe("useSyncArchivedState", () => {
     );
 
     // Открываем диалог и устанавливаем некоторое состояние
-    result.current.setDialogOpen(true);
+    act(() => {
+      result.current.setDialogOpen(true);
+    });
 
     // Закрываем диалог
-    result.current.handleDialogClose();
+    act(() => {
+      result.current.handleDialogClose();
+    });
 
     expect(result.current.dialogOpen).toBe(false);
     expect(result.current.error).toBe(null);
@@ -166,7 +172,9 @@ describe("useSyncArchivedState", () => {
     const originalOnSyncArchived = mockOnSyncArchived;
     mockOnSyncArchived.mockImplementation(mockOnSyncError);
 
-    await result.current.handleClick();
+    await act(async () => {
+      await result.current.handleClick();
+    });
 
     await waitFor(() => {
       expect(result.current.error).toBeDefined();
@@ -176,7 +184,9 @@ describe("useSyncArchivedState", () => {
     mockOnSyncArchived.mockImplementation(originalOnSyncArchived);
 
     // Второй вызов должен сбросить ошибку
-    await result.current.handleClick();
+    await act(async () => {
+      await result.current.handleClick();
+    });
 
     await waitFor(() => {
       expect(result.current.error).toBe(null);
