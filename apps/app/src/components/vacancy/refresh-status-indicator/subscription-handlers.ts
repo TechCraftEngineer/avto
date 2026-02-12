@@ -141,12 +141,9 @@ export function handleAnalyzeProgress(
       context.setAnalyzeCompleted(null);
       context.onVisibilityChange(true);
 
-      // Инвалидируем кэш откликов при обработке каждого отклика
-      context.queryClient.invalidateQueries({
-        queryKey: context.trpc.vacancy.responses.list.queryKey({
-          vacancyId: context.vacancyId,
-        }),
-      });
+      // Не инвалидируем vacancy.responses.list при каждом progress: при анализе
+      // сотен откликов это вызывает массовые запросы. Инвалидация только при
+      // завершении (handleAnalyzeResult).
 
       context.setAutoCloseTimer((prev) => {
         if (prev) {
@@ -215,12 +212,9 @@ export function handleRefreshProgress(
   context.setCurrentResult(null);
   context.onVisibilityChange(true);
 
-  // Инвалидируем кэш откликов при обработке
-  context.queryClient.invalidateQueries({
-    queryKey: context.trpc.vacancy.responses.list.queryKey({
-      vacancyId: context.vacancyId,
-    }),
-  });
+  // Не инвалидируем vacancy.responses.list при каждом progress: парсер шлёт
+  // progress после КАЖДОГО отклика → массовые запросы. Инвалидация только при
+  // завершении (handleRefreshResult).
 
   context.setAutoCloseTimer((prev) => {
     if (prev) {

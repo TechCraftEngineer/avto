@@ -67,14 +67,9 @@ export function useScreenBatchProgress(
       const scored = latestData.data as ResponseScored;
       setScoredResponses((prev) => [...prev, scored]);
 
-      // Обновляем кэш конкретного отклика
-      if (scored.status === "completed") {
-        queryClient.invalidateQueries({
-          queryKey: trpc.vacancy.responses.get.queryKey({
-            id: scored.responseId,
-          }),
-        });
-      }
+      // Не инвалидируем отдельные отклики при каждом scored - это вызывает
+      // множественные запросы. Инвалидация списка после завершения батча
+      // обновит все данные разом.
     } else if (topic === "batch-progress") {
       setProgress(latestData.data as BatchProgress);
     } else if (topic === "batch-completed") {

@@ -157,7 +157,7 @@ export function useResponseActions(
     void queryClient.invalidateQueries(
       trpc.vacancy.responses.list.pathFilter(),
     );
-  }, [queryClient, trpc.vacancy.responses.list]);
+  }, [queryClient, trpc]);
 
   const handleSendWelcomeBatch = useCallback(async () => {
     if (selectedIds.size === 0) return;
