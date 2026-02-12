@@ -1,6 +1,10 @@
 "use client";
 
 import { useInngestSubscription } from "@bunworks/inngest-realtime/hooks";
+import {
+  analyzeResponseProgressSchema,
+  analyzeResponseResultSchema,
+} from "@qbs-autonaim/jobs/channels";
 import { useCallback, useEffect, useState } from "react";
 import { fetchAnalyzeResponseToken } from "~/actions/realtime";
 
@@ -29,6 +33,7 @@ export function useAnalyzeSingleResponse({
   const [progress, setProgress] = useState<AnalyzeProgress | null>(null);
   const [result, setResult] = useState<AnalyzeResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
 
   const getToken = useCallback(
     () => fetchAnalyzeResponseToken(responseId),
@@ -45,14 +50,41 @@ export function useAnalyzeSingleResponse({
 
     for (const message of data) {
       if (message.topic === "progress") {
-        const progressData = message.data as AnalyzeProgress;
+        const parseResult = analyzeResponseProgressSchema.safeParse(
+          message.data,
+        );
+        if (!parseResult.success) {
+          console.error(
+            "Ошибка валидации progress data:",
+            parseResult.error,
+          );
+          continue;
+        }
+        const progressData = parseResult.data;
         setProgress(progressData);
         setResult(null);
-        setIsAnalyzing(true);
+        if (progressData.status === "error") {
+          setIsAnalyzing(false);
+          setAnalysisError(progressData.message);
+        } else {
+          setIsAnalyzing(true);
+          setAnalysisError(null);
+        }
       } else if (message.topic === "result") {
-        const resultData = message.data as AnalyzeResult;
+        const parseResult = analyzeResponseResultSchema.safeParse(
+          message.data,
+        );
+        if (!parseResult.success) {
+          console.error(
+            "Ошибка валидации result data:",
+            parseResult.error,
+          );
+          continue;
+        }
+        const resultData = parseResult.data;
         setResult(resultData);
         setIsAnalyzing(false);
+        setAnalysisError(null);
       }
     }
   }, [data]);
@@ -61,13 +93,14 @@ export function useAnalyzeSingleResponse({
     setProgress(null);
     setResult(null);
     setIsAnalyzing(false);
+    setAnalysisError(null);
   }, []);
 
   return {
     progress,
     result,
     isAnalyzing,
-    error,
+    error: error ?? analysisError,
     reset,
   };
 }

@@ -68,15 +68,13 @@ export function ResponseKanbanColumn({
             <p className="text-sm">Нет откликов</p>
           </div>
         ) : (
-          <>
-            {responses.map((response) => (
-              <ResponseKanbanItem
-                key={response.id}
-                response={response}
-                onClick={onCardClick}
-              />
-            ))}
-          </>
+          responses.map((response) => (
+            <ResponseKanbanItem
+              key={response.id}
+              response={response}
+              onClick={onCardClick}
+            />
+          ))
         )}
       </div>
     </fieldset>

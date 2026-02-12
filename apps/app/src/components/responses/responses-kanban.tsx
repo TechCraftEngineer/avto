@@ -44,6 +44,8 @@ const statusColumns = [
   { id: "SKIPPED" as const, label: "Пропущенные", color: "bg-gray-500" },
 ];
 
+const VALID_STATUSES = new Set(statusColumns.map((c) => c.id));
+
 export function ResponsesKanban({
   responses,
   isLoading,
@@ -93,8 +95,16 @@ export function ResponsesKanban({
 
     if (!over) return;
 
-    const responseId = active.id as string;
-    const newStatus = over.id as ResponseStatus;
+    const responseId = active.id;
+    if (typeof responseId !== "string") return;
+
+    const overId = over.id;
+    const isColumn =
+      typeof overId === "string" &&
+      VALID_STATUSES.has(overId as ResponseStatus);
+    if (!isColumn) return;
+
+    const newStatus = overId as ResponseStatus;
 
     const response = responses.find((r) => r.id === responseId);
     if (!response || response.status === newStatus) return;

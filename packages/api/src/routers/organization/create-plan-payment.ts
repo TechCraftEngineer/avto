@@ -68,6 +68,7 @@ export const createPlanPayment = protectedProcedure
         workspaces: {
           columns: { id: true },
           limit: 1,
+          orderBy: (ws, { asc }) => [asc(ws.createdAt)],
         },
       },
     });
@@ -85,6 +86,15 @@ export const createPlanPayment = protectedProcedure
       throw new TRPCError({
         code: "FORBIDDEN",
         message: "Только владелец организации может оплачивать тарифный план",
+      });
+    }
+
+    const workspaceId = org.workspaces?.[0]?.id;
+    if (!workspaceId) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message:
+          "Организация должна иметь хотя бы один workspace для оплаты тарифа",
       });
     }
 
@@ -170,7 +180,7 @@ export const createPlanPayment = protectedProcedure
           yookassaId: yookassaPayment.id,
           idempotenceKey,
           userId,
-          workspaceId: org.workspaces?.[0]?.id || "", // Используем первый workspace организации
+          workspaceId,
           organizationId: input.organizationId,
           amount: amount.toString(),
           currency: "RUB",

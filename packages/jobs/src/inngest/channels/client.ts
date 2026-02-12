@@ -66,30 +66,32 @@ export const screenAllResponsesChannel = channel(
   );
 
 /**
+ * Схема прогресса анализа одного отклика (для safeParse на клиенте)
+ */
+export const analyzeResponseProgressSchema = z.object({
+  responseId: z.string(),
+  status: z.enum(["started", "analyzing", "completed", "error"]),
+  message: z.string(),
+});
+
+/**
+ * Схема результата анализа одного отклика (для safeParse на клиенте)
+ */
+export const analyzeResponseResultSchema = z.object({
+  responseId: z.string(),
+  success: z.boolean(),
+  score: z.number().optional(),
+  error: z.string().optional(),
+});
+
+/**
  * Канал для отслеживания прогресса анализа одного отклика
  */
 export const analyzeResponseChannel = channel(
   (responseId: string) => `analyze-response:${responseId}`,
 )
-  .addTopic(
-    topic("progress").schema(
-      z.object({
-        responseId: z.string(),
-        status: z.enum(["started", "analyzing", "completed", "error"]),
-        message: z.string(),
-      }),
-    ),
-  )
-  .addTopic(
-    topic("result").schema(
-      z.object({
-        responseId: z.string(),
-        success: z.boolean(),
-        score: z.number().optional(),
-        error: z.string().optional(),
-      }),
-    ),
-  );
+  .addTopic(topic("progress").schema(analyzeResponseProgressSchema))
+  .addTopic(topic("result").schema(analyzeResponseResultSchema));
 
 /**
  * Канал для отслеживания прогресса обновления откликов вакансии

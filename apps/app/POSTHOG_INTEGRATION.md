@@ -2,7 +2,7 @@
 
 PostHog интегрирован в приложение для аналитики пользовательского поведения.
 
-**Важно:** PostHog работает только в production окружении (VERCEL_ENV=production).
+**Важно:** PostHog работает только в production окружении (NODE_ENV=production).
 
 ## Настройка
 
@@ -40,18 +40,7 @@ function MyComponent() {
 
 ### Идентификация пользователя
 
-```tsx
-import { PostHogAuthTracker } from "~/components";
-
-function Layout({ user }) {
-  return (
-    <>
-      <PostHogAuthTracker user={user} />
-      {/* остальной контент */}
-    </>
-  );
-}
-```
+Идентификация выполняется в корневом layout: сессия получается на сервере и передаётся в `PostHogAuthTracker` через `ClientLayout`. Пользователь идентифицируется на всех страницах (dashboard, invitations, onboarding и т.д.), при выходе вызывается `reset()`.
 
 ### Прямой доступ к PostHog
 

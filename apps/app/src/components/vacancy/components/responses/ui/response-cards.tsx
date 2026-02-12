@@ -117,9 +117,10 @@ export function ResponseCards({
                   <ContactInfo contacts={response.contacts} size="md" />
                 </div>
               ) : null}
-              <div
-                className="pt-2 border-t"
+              <fieldset
+                className="pt-2 border-t border-0 p-0 m-0 min-w-0"
                 onClick={(e) => e.preventDefault()}
+                onKeyDown={(e) => e.preventDefault()}
               >
                 <ResponseActions
                   responseId={response.id}
@@ -135,7 +136,7 @@ export function ResponseCards({
                   hasScreening={!!response.screening}
                   candidateName={response.candidateName}
                 />
-              </div>
+              </fieldset>
             </CardContent>
           </Card>
         </Link>

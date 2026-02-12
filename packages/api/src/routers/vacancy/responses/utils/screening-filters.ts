@@ -1,4 +1,3 @@
-import type { SQL } from "@qbs-autonaim/db";
 import { and, eq, gte, inArray, lt, sql } from "@qbs-autonaim/db";
 import {
   response as responseTable,

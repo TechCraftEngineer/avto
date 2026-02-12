@@ -5,11 +5,18 @@ export function initPostHog() {
   if (typeof window === "undefined") return;
 
   const key = env.NEXT_PUBLIC_POSTHOG_KEY;
+  const proxyUrl = env.NEXT_PUBLIC_AI_PROXY_URL;
 
   if (!key) return;
+  if (proxyUrl == null || proxyUrl === "") {
+    console.error(
+      "[PostHog] NEXT_PUBLIC_AI_PROXY_URL is not set; skipping analytics initialization",
+    );
+    return;
+  }
 
   posthog.init(key, {
-    api_host: `${env.NEXT_PUBLIC_AI_PROXY_URL}/api/analytics`,
+    api_host: `${proxyUrl}/api/analytics`,
     ui_host: "https://eu.i.posthog.com",
     person_profiles: "identified_only",
     capture_pageview: false,

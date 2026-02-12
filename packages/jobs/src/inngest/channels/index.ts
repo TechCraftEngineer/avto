@@ -4,6 +4,8 @@
 
 export {
   analyzeResponseChannel,
+  analyzeResponseProgressSchema,
+  analyzeResponseResultSchema,
   checkPublicationStatusChannel,
   conversationMessagesChannel,
   fetchArchivedListChannel,

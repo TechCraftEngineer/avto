@@ -3,7 +3,7 @@ import { env } from "~/env";
 import { posthog } from "~/lib/posthog";
 
 export function usePostHog() {
-  const isProduction = env.VERCEL_ENV === "production";
+  const isProduction = env.NODE_ENV === "production";
 
   const capture = useCallback(
     (eventName: string, properties?: Record<string, unknown>) => {

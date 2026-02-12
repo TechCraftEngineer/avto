@@ -20,7 +20,7 @@ import {
 import { IconLoader2 } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
-import { useForm } from "react-hook-form";
+import { useForm, type UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -47,6 +47,7 @@ const VacancyRequirementsEditor = dynamic(
   },
 );
 
+import type { VacancyRequirements } from "@qbs-autonaim/db";
 import { vacancyRequirementsSchema } from "@qbs-autonaim/validators";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
@@ -200,7 +201,9 @@ export function VacancyForm({ onSuccess }: VacancyFormProps) {
         />
 
         <VacancyRequirementsEditor
-          form={form as any}
+          form={
+            form as UseFormReturn<{ requirements?: VacancyRequirements }>
+          }
           requirements={form.watch("requirements") ?? null}
         />
 

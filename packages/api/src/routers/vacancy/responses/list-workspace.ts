@@ -219,6 +219,13 @@ export const listWorkspace = protectedProcedure
     );
 
     if (needsPrioritySort) {
+      const totalCountResult = await ctx.db
+        .select({ count: sql<number>`count(*)` })
+        .from(responseTable)
+        .where(whereCondition);
+
+      const total = Number(totalCountResult[0]?.count ?? 0);
+
       const sorted = [...responsesMapped].sort((a, b) => {
         const scoreA = a.priorityScore ?? 0;
         const scoreB = b.priorityScore ?? 0;
@@ -227,10 +234,10 @@ export const listWorkspace = protectedProcedure
       const paginatedResponses = sorted.slice(offset, offset + limit);
       return {
         responses: paginatedResponses,
-        total: sorted.length,
+        total,
         page,
         limit,
-        totalPages: Math.ceil(sorted.length / limit),
+        totalPages: Math.ceil(total / limit),
       };
     }
 

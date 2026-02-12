@@ -457,9 +457,13 @@ function PaymentStatusBadge({ status }: { status: string }) {
     );
   }
 
+  console.warn(
+    "[PaymentStatusBadge] Неизвестный статус платежа для диагностики:",
+    status,
+  );
   return (
     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted text-muted-foreground text-xs font-medium">
-      {status}
+      Неизвестно
     </span>
   );
 }

@@ -196,6 +196,8 @@ export function handleAnalyzeResult(
       vacancyId: context.vacancyId,
     }),
   });
+
+  context.onTaskComplete?.();
 }
 
 export function handleRefreshProgress(
@@ -260,6 +262,7 @@ export function handleRefreshResult(
     context.onVisibilityChange(false);
     context.setCurrentProgress(null);
     context.setCurrentResult(null);
+    context.onTaskComplete?.();
   }, 10000);
   context.setAutoCloseTimer(timer);
 }

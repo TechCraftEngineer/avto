@@ -66,7 +66,7 @@ export function VacancyRequirementsEditor<
       ...(requirements ?? {}),
       ...(watchedRequirements ?? {}),
     };
-    form.setValue("requirements" as any, { ...base, ...updates } as any);
+    form.setValue("requirements" as never, { ...base, ...updates } as never);
   };
 
   const addArrayItem = (field: ArrayFieldKey, value: string) => {
