@@ -155,35 +155,32 @@ describe("useSyncArchivedState", () => {
   });
 
   it("должен сбрасывать ошибку при новом вызове handleClick", async () => {
+    // Отдельный мок для первого вызова (ошибка) и второго (успех)
+    let callCount = 0;
+    const onSyncWithFlakyBehavior = mock(async () => {
+      callCount++;
+      if (callCount === 1) {
+        throw new Error("Ошибка синхронизации");
+      }
+      return Promise.resolve();
+    });
+
     const { result } = renderHook(() =>
       useSyncArchivedState(
         mockVacancyId,
-        mockOnSyncArchived,
+        onSyncWithFlakyBehavior,
         mockOnRefreshComplete,
       ),
     );
-
-    // Первый вызов с ошибкой
-    const mockOnSyncError = mock(() =>
-      Promise.reject(new Error("Ошибка синхронизации")),
-    );
-
-    // Временно заменяем обработчик
-    const originalOnSyncArchived = mockOnSyncArchived;
-    mockOnSyncArchived.mockImplementation(mockOnSyncError);
 
     await act(async () => {
       await result.current.handleClick();
     });
 
     await waitFor(() => {
-      expect(result.current.error).toBeDefined();
+      expect(result.current.error).toBe("Ошибка синхронизации");
     });
 
-    // Восстанавливаем оригинальный обработчик
-    mockOnSyncArchived.mockImplementation(originalOnSyncArchived);
-
-    // Второй вызов должен сбросить ошибку
     await act(async () => {
       await result.current.handleClick();
     });

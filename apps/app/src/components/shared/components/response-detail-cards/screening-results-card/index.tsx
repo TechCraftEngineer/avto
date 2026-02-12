@@ -34,18 +34,11 @@ interface ScreeningData {
   careerTrajectoryAnalysis?: string | null;
   hiddenFitAnalysis?: string | null;
   psychometricAnalysis?: {
-    lifePathNumber: number;
-    destinyNumber?: number | null;
-    soulUrgeNumber?: number | null;
     compatibilityScore: number;
-    roleCompatibility: { score: number; analysis: string };
-    companyCompatibility: { score: number; analysis: string };
-    teamCompatibility: { score: number; analysis: string };
+    summary: string;
     strengths: string[];
     challenges: string[];
     recommendations: string[];
-    summary: string;
-    favorablePeriods?: Array<{ period: string; description: string }>;
   } | null;
 }
 

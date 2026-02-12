@@ -45,18 +45,11 @@ export const responseScreening = pgTable(
     priceAnalysis: text("price_analysis"),
     priceScore: integer("price_score"),
     psychometricAnalysis: jsonb("psychometric_analysis").$type<{
-      lifePathNumber: number;
-      destinyNumber?: number | null;
-      soulUrgeNumber?: number | null;
       compatibilityScore: number;
-      roleCompatibility: { score: number; analysis: string };
-      companyCompatibility: { score: number; analysis: string };
-      teamCompatibility: { score: number; analysis: string };
+      summary: string;
       strengths: string[];
       challenges: string[];
       recommendations: string[];
-      summary: string;
-      favorablePeriods?: Array<{ period: string; description: string }>;
     }>(),
     psychometricScore: integer("psychometric_score"),
     rankingAnalysis: text("ranking_analysis"),
@@ -169,34 +162,11 @@ export const CreateResponseScreeningSchema = createInsertSchema(
     candidateSummary: z.string().max(500).optional(),
     psychometricAnalysis: z
       .object({
-        lifePathNumber: z.number(),
-        destinyNumber: z.number().optional(),
-        soulUrgeNumber: z.number().optional(),
         compatibilityScore: z.number(),
-        roleCompatibility: z.object({
-          score: z.number(),
-          analysis: z.string(),
-        }),
-        companyCompatibility: z.object({
-          score: z.number(),
-          analysis: z.string(),
-        }),
-        teamCompatibility: z.object({
-          score: z.number(),
-          analysis: z.string(),
-        }),
+        summary: z.string(),
         strengths: z.array(z.string()),
         challenges: z.array(z.string()),
         recommendations: z.array(z.string()),
-        summary: z.string(),
-        favorablePeriods: z
-          .array(
-            z.object({
-              period: z.string(),
-              description: z.string(),
-            }),
-          )
-          .optional(),
       })
       .optional(),
     screenedAt: z.coerce.date().optional(),

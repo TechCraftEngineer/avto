@@ -5,7 +5,7 @@ const SimpleComponent = () => {
   return (
     <div>
       <h1>Тестовый компонент</h1>
-      <button>Кнопка</button>
+      <button type="button">Кнопка</button>
       <input placeholder="Введите текст" />
     </div>
   );

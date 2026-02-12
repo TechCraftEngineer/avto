@@ -1,16 +1,24 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { renderHook, waitFor } from "@testing-library/react";
-import { useSyncArchivedSubscription } from "./use-sync-archived-subscription";
 
-// Mock useInngestSubscription
+// Mock ДО импорта хука (модуль кэшируется при первом импорте)
 const mockUseInngestSubscription = mock(() => ({
-  data: [],
-  error: null,
-  latestData: null,
+  data: [] as any[],
+  error: null as Error | null,
+  latestData: null as any,
 }));
 
-// Mock модулей перед каждым тестом
+mock.module("@bunworks/inngest-realtime/hooks", () => ({
+  useInngestSubscription: mockUseInngestSubscription,
+}));
+
+const { useSyncArchivedSubscription } = await import(
+  "./use-sync-archived-subscription"
+);
+
 beforeEach(() => {
+  mockUseInngestSubscription.mockClear();
+  // Повторно применяем мок перед каждым тестом (другие файлы могут перезаписать)
   mock.module("@bunworks/inngest-realtime/hooks", () => ({
     useInngestSubscription: mockUseInngestSubscription,
   }));

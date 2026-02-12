@@ -4,7 +4,7 @@ import { ArchivedStatusContent } from "./archived-status-content";
 
 describe("ArchivedStatusContent", () => {
   it("должен отображать message", () => {
-    render(
+    const { container } = render(
       <ArchivedStatusContent
         status={{
           status: "processing",
@@ -14,11 +14,11 @@ describe("ArchivedStatusContent", () => {
       />,
     );
 
-    expect(screen.getByText("Загрузка откликов...")).toBeDefined();
+    expect(within(container).getByText("Загрузка откликов...")).toBeDefined();
   });
 
   it("должен отображать syncedResponses и newResponses", () => {
-    render(
+    const { container } = render(
       <ArchivedStatusContent
         status={{
           status: "processing",
@@ -30,10 +30,11 @@ describe("ArchivedStatusContent", () => {
       />,
     );
 
-    expect(screen.getByText("25")).toBeDefined();
-    expect(screen.getByText("8")).toBeDefined();
-    expect(screen.getByText("Обработано")).toBeDefined();
-    expect(screen.getByText("Новых добавлено")).toBeDefined();
+    const w = within(container);
+    expect(w.getByText("25")).toBeDefined();
+    expect(w.getByText("8")).toBeDefined();
+    expect(w.getByText("Обработано")).toBeDefined();
+    expect(w.getByText("Новых добавлено")).toBeDefined();
   });
 
   it("должен отображать сообщение для статуса processing", () => {
@@ -53,7 +54,7 @@ describe("ArchivedStatusContent", () => {
   });
 
   it("должен отображать сообщение для статуса completed", () => {
-    render(
+    const { container } = render(
       <ArchivedStatusContent
         status={{
           status: "completed",
@@ -65,11 +66,13 @@ describe("ArchivedStatusContent", () => {
       />,
     );
 
-    expect(screen.getByText(/Закроется автоматически через 3 секунды/i)).toBeDefined();
+    expect(
+      within(container).getByText(/Закроется автоматически через 3 секунды/i),
+    ).toBeDefined();
   });
 
   it("должен отображать сообщение об ошибке при status=error", () => {
-    render(
+    const { container } = render(
       <ArchivedStatusContent
         status={{
           status: "error",
@@ -79,7 +82,9 @@ describe("ArchivedStatusContent", () => {
       />,
     );
 
-    const errorElements = screen.getAllByText("Не удалось загрузить отклики");
+    const errorElements = within(container).getAllByText(
+      "Не удалось загрузить отклики",
+    );
     expect(errorElements.length).toBeGreaterThanOrEqual(1);
   });
 });

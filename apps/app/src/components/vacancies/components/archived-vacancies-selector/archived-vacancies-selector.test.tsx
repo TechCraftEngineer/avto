@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
-import type { UseInngestSubscriptionResult } from "@bunworks/inngest-realtime/hooks";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { ArchivedVacanciesSelector } from "./archived-vacancies-selector";
 
 // Mock dependencies
@@ -53,7 +52,7 @@ describe("ArchivedVacanciesSelector", () => {
   const mockOnCancel = mock(() => {});
 
   it("должен отображать список архивных вакансий", async () => {
-    render(
+    const { container } = render(
       <ArchivedVacanciesSelector
         workspaceId={mockWorkspaceId}
         requestId={mockRequestId}
@@ -62,14 +61,15 @@ describe("ArchivedVacanciesSelector", () => {
       />,
     );
 
+    const w = within(container);
     await waitFor(() => {
-      expect(screen.getByText("Senior TypeScript Developer")).toBeDefined();
-      expect(screen.getByText("Frontend Developer")).toBeDefined();
+      expect(w.getByText("Senior TypeScript Developer")).toBeDefined();
+      expect(w.getByText("Frontend Developer")).toBeDefined();
     });
   });
 
   it("должен отображать статистику вакансий", async () => {
-    render(
+    const { container } = render(
       <ArchivedVacanciesSelector
         workspaceId={mockWorkspaceId}
         requestId={mockRequestId}
@@ -78,15 +78,16 @@ describe("ArchivedVacanciesSelector", () => {
       />,
     );
 
+    const w = within(container);
     await waitFor(() => {
-      expect(screen.getByText(/Всего: 2/)).toBeDefined();
-      expect(screen.getByText(/Загружено: 1/)).toBeDefined();
-      expect(screen.getByText(/Новых: 1/)).toBeDefined();
+      expect(w.getByText(/Всего: 2/)).toBeDefined();
+      expect(w.getByText(/Загружено: 1/)).toBeDefined();
+      expect(w.getByText(/Новых: 1/)).toBeDefined();
     });
   });
 
   it("должен фильтровать вакансии по поисковому запросу", async () => {
-    render(
+    const { container } = render(
       <ArchivedVacanciesSelector
         workspaceId={mockWorkspaceId}
         requestId={mockRequestId}
@@ -95,19 +96,20 @@ describe("ArchivedVacanciesSelector", () => {
       />,
     );
 
-    const searchInput = screen.getByPlaceholderText(
+    const w = within(container);
+    const searchInput = w.getByPlaceholderText(
       "Поиск по названию вакансии...",
     );
     fireEvent.change(searchInput, { target: { value: "TypeScript" } });
 
     await waitFor(() => {
-      expect(screen.getByText("Senior TypeScript Developer")).toBeDefined();
-      expect(screen.queryByText("Frontend Developer")).toBeNull();
+      expect(w.getByText("Senior TypeScript Developer")).toBeDefined();
+      expect(w.queryByText("Frontend Developer")).toBeNull();
     });
   });
 
   it("должен фильтровать вакансии по табам", async () => {
-    render(
+    const { container } = render(
       <ArchivedVacanciesSelector
         workspaceId={mockWorkspaceId}
         requestId={mockRequestId}
@@ -116,27 +118,26 @@ describe("ArchivedVacanciesSelector", () => {
       />,
     );
 
-    // Переключаемся на таб "Новые"
-    const newTab = screen.getByRole("tab", { name: /Новые/ });
+    const w = within(container);
+    const newTab = w.getByRole("tab", { name: /Новые/ });
     fireEvent.click(newTab);
 
     await waitFor(() => {
-      expect(screen.getByText("Senior TypeScript Developer")).toBeDefined();
-      expect(screen.queryByText("Frontend Developer")).toBeNull();
+      expect(w.getByText("Senior TypeScript Developer")).toBeDefined();
+      expect(w.queryByText("Frontend Developer")).toBeNull();
     });
 
-    // Переключаемся на таб "Загруженные"
-    const importedTab = screen.getByRole("tab", { name: /Загруженные/ });
+    const importedTab = w.getByRole("tab", { name: /Загруженные/ });
     fireEvent.click(importedTab);
 
     await waitFor(() => {
-      expect(screen.queryByText("Senior TypeScript Developer")).toBeNull();
-      expect(screen.getByText("Frontend Developer")).toBeDefined();
+      expect(w.queryByText("Senior TypeScript Developer")).toBeNull();
+      expect(w.getByText("Frontend Developer")).toBeDefined();
     });
   });
 
   it("должен выбирать и снимать выбор вакансий", async () => {
-    render(
+    const { container } = render(
       <ArchivedVacanciesSelector
         workspaceId={mockWorkspaceId}
         requestId={mockRequestId}
@@ -145,32 +146,31 @@ describe("ArchivedVacanciesSelector", () => {
       />,
     );
 
+    const w = within(container);
     await waitFor(() => {
-      expect(screen.getByText(/Выбрано: 0/)).toBeDefined();
+      expect(w.getByText(/Выбрано: 0/)).toBeDefined();
     });
 
-    // Выбираем первую вакансию
-    const checkboxes = screen.getAllByRole("checkbox");
+    const checkboxes = w.getAllByRole("checkbox");
     if (checkboxes[1]) {
-      fireEvent.click(checkboxes[1]); // Первый checkbox - это "выбрать все"
+      fireEvent.click(checkboxes[1]!);
     }
 
     await waitFor(() => {
-      expect(screen.getByText(/Выбрано: 1/)).toBeDefined();
+      expect(w.getByText(/Выбрано: 1/)).toBeDefined();
     });
 
-    // Снимаем выбор
     if (checkboxes[1]) {
-      fireEvent.click(checkboxes[1]);
+      fireEvent.click(checkboxes[1]!);
     }
 
     await waitFor(() => {
-      expect(screen.getByText(/Выбрано: 0/)).toBeDefined();
+      expect(w.getByText(/Выбрано: 0/)).toBeDefined();
     });
   });
 
   it("должен выбирать все видимые вакансии", async () => {
-    render(
+    const { container } = render(
       <ArchivedVacanciesSelector
         workspaceId={mockWorkspaceId}
         requestId={mockRequestId}
@@ -179,19 +179,19 @@ describe("ArchivedVacanciesSelector", () => {
       />,
     );
 
-    // Нажимаем на checkbox "Выбрать все"
-    const checkboxes = screen.getAllByRole("checkbox");
+    const w = within(container);
+    const checkboxes = w.getAllByRole("checkbox");
     if (checkboxes[0]) {
-      fireEvent.click(checkboxes[0]);
+      fireEvent.click(checkboxes[0]!);
     }
 
     await waitFor(() => {
-      expect(screen.getByText(/Выбрано: 2/)).toBeDefined();
+      expect(w.getByText(/Выбрано: 2/)).toBeDefined();
     });
   });
 
   it("должен выбирать только новые вакансии", async () => {
-    render(
+    const { container } = render(
       <ArchivedVacanciesSelector
         workspaceId={mockWorkspaceId}
         requestId={mockRequestId}
@@ -200,18 +200,19 @@ describe("ArchivedVacanciesSelector", () => {
       />,
     );
 
-    const selectNewButton = screen.getByRole("button", {
+    const w = within(container);
+    const selectNewButton = w.getByRole("button", {
       name: /Выбрать все новые/,
     });
     fireEvent.click(selectNewButton);
 
     await waitFor(() => {
-      expect(screen.getByText(/Выбрано: 1/)).toBeDefined();
+      expect(w.getByText(/Выбрано: 1/)).toBeDefined();
     });
   });
 
   it("должен вызывать onSelect с выбранными вакансиями", async () => {
-    render(
+    const { container } = render(
       <ArchivedVacanciesSelector
         workspaceId={mockWorkspaceId}
         requestId={mockRequestId}
@@ -220,14 +221,13 @@ describe("ArchivedVacanciesSelector", () => {
       />,
     );
 
-    // Выбираем вакансию
-    const checkboxes = screen.getAllByRole("checkbox");
+    const w = within(container);
+    const checkboxes = w.getAllByRole("checkbox");
     if (checkboxes[1]) {
-      fireEvent.click(checkboxes[1]);
+      fireEvent.click(checkboxes[1]!);
     }
 
-    // Нажимаем кнопку импорта
-    const importButton = screen.getByRole("button", { name: /Импортировать/ });
+    const importButton = w.getByRole("button", { name: /Импортировать/ });
     fireEvent.click(importButton);
 
     await waitFor(() => {
@@ -236,7 +236,7 @@ describe("ArchivedVacanciesSelector", () => {
   });
 
   it("должен вызывать onCancel при нажатии кнопки Отмена", async () => {
-    render(
+    const { container } = render(
       <ArchivedVacanciesSelector
         workspaceId={mockWorkspaceId}
         requestId={mockRequestId}
@@ -245,14 +245,15 @@ describe("ArchivedVacanciesSelector", () => {
       />,
     );
 
-    const cancelButton = screen.getByRole("button", { name: "Отмена" });
+    const w = within(container);
+    const cancelButton = w.getByRole("button", { name: "Отмена" });
     fireEvent.click(cancelButton);
 
     expect(mockOnCancel).toHaveBeenCalled();
   });
 
   it("должен отключать кнопку импорта если ничего не выбрано", async () => {
-    render(
+    const { container } = render(
       <ArchivedVacanciesSelector
         workspaceId={mockWorkspaceId}
         requestId={mockRequestId}
@@ -261,12 +262,13 @@ describe("ArchivedVacanciesSelector", () => {
       />,
     );
 
-    const importButton = screen.getByRole("button", { name: /Импортировать/ });
+    const w = within(container);
+    const importButton = w.getByRole("button", { name: /Импортировать/ });
     expect(importButton.hasAttribute("disabled")).toBe(true);
   });
 
   it("должен сортировать вакансии по названию", async () => {
-    render(
+    const { container } = render(
       <ArchivedVacanciesSelector
         workspaceId={mockWorkspaceId}
         requestId={mockRequestId}
@@ -275,13 +277,12 @@ describe("ArchivedVacanciesSelector", () => {
       />,
     );
 
-    // Меняем сортировку на "По названию"
-    const sortSelect = screen.getByRole("combobox");
+    const w = within(container);
+    const sortSelect = w.getByRole("combobox");
     fireEvent.change(sortSelect, { target: { value: "name" } });
 
     await waitFor(() => {
-      const vacancies = screen.getAllByRole("checkbox");
-      // Проверяем что вакансии отсортированы по алфавиту
+      const vacancies = w.getAllByRole("checkbox");
       expect(vacancies.length).toBeGreaterThan(0);
     });
   });
