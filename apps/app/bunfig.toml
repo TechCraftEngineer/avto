@@ -1,0 +1,19 @@
+[test]
+# Используем happy-dom для DOM окружения
+env = { NODE_ENV = "test" }
+jsxRuntime = "automatic"
+jsxImportSource = "react"
+
+# Настройки для тестов
+preload = ["./test-setup.ts"]
+
+# Настройки для React Testing Library
+[test.react]
+# Используем happy-dom для DOM окружения
+dom = "happy-dom"
+
+# Настройки для покрытия кода
+[test.coverage]
+enabled = true
+reporter = ["text", "html", "lcov"]
+exclude = ["**/node_modules/**", "**/.next/**", "**/*.test.*", "**/*.spec.*"]
