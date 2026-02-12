@@ -24,8 +24,20 @@ export function ResponseKanbanCard({
   const photoUrl = useAvatarUrl(response.photoFileId);
   const avatarUrl = getAvatarUrl(photoUrl, response.candidateName ?? "");
 
+  // Определяем цвет границы по рейтингу (шкала 0-100)
+  const getBorderColor = () => {
+    if (score === null || score === undefined) return "border-border";
+    if (score >= 80) return "border-l-green-500 border-l-4";
+    if (score >= 60) return "border-l-emerald-500 border-l-4";
+    if (score >= 40) return "border-l-yellow-500 border-l-4";
+    if (score >= 20) return "border-l-orange-500 border-l-4";
+    return "border-l-red-500 border-l-4";
+  };
+
   return (
-    <div className="bg-card border border-border rounded-lg shadow-sm transition-all duration-200 hover:shadow-md hover:border-primary/30 flex flex-col group relative">
+    <div
+      className={`bg-card border border-border rounded-lg shadow-sm transition-all duration-200 hover:shadow-md hover:border-primary/30 flex flex-col group relative ${getBorderColor()}`}
+    >
       <div className="flex items-center justify-between gap-2 px-3 py-2 border-b">
         {response.priorityScore !== null && (
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -38,11 +50,11 @@ export function ResponseKanbanCard({
         {response.priorityScore === null && <div />}
         {score !== null && score !== undefined && (
           <Badge
-            variant={score >= 4 ? "default" : "secondary"}
+            variant={score >= 60 ? "default" : "secondary"}
             className="shrink-0"
           >
             <IconStar className="size-3 mr-1" />
-            {score.toFixed(1)}
+            {score.toFixed(0)}
           </Badge>
         )}
       </div>

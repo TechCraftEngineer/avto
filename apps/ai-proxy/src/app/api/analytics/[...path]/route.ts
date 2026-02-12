@@ -5,13 +5,21 @@ export const runtime = "edge";
 const POSTHOG_HOST = "https://eu.i.posthog.com";
 
 function getCorsHeaders(request: NextRequest) {
-  const origin = request.headers.get("origin") || "*";
-  return {
-    "Access-Control-Allow-Origin": origin,
+  const origin = request.headers.get("origin");
+  const headers: Record<string, string> = {
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, User-Agent",
+    "Access-Control-Allow-Headers": "Content-Type, User-Agent, Authorization",
     "Access-Control-Max-Age": "86400",
+    "Access-Control-Allow-Credentials": "true",
   };
+
+  if (origin) {
+    headers["Access-Control-Allow-Origin"] = origin;
+  } else {
+    headers["Access-Control-Allow-Origin"] = "*";
+  }
+
+  return headers;
 }
 
 export async function OPTIONS(request: NextRequest) {
