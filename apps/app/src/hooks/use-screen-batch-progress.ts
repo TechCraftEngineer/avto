@@ -52,12 +52,14 @@ export function useScreenBatchProgress(
   });
 
   // Reset state when workspaceId or batchId change
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     setScoredResponses([]);
     setProgress(null);
     setCompleted(null);
-  }, []);
+  }, [workspaceId, batchId]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (!latestData) return;
 
@@ -81,7 +83,7 @@ export function useScreenBatchProgress(
         queryKey: trpc.vacancy.responses.list.queryKey(),
       });
     }
-  }, [latestData, queryClient, trpc]);
+  }, [latestData]);
 
   return {
     scoredResponses,
