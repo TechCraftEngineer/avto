@@ -50,9 +50,8 @@ const getDefaultRequirements = (): VacancyRequirements => ({
 export function VacancyRequirementsEditor<
   T extends { requirements?: VacancyRequirements },
 >({ form, requirements }: VacancyRequirementsEditorProps<T>) {
-  const watchedRequirements = (
-    form.watch("requirements" as never) ?? undefined
-  ) as unknown as VacancyRequirements | undefined;
+  const watchedRequirements = (form.watch("requirements" as never) ??
+    undefined) as unknown as VacancyRequirements | undefined;
 
   const currentRequirements: VacancyRequirements = {
     ...getDefaultRequirements(),
@@ -66,7 +65,9 @@ export function VacancyRequirementsEditor<
       ...(requirements ?? {}),
       ...(watchedRequirements ?? {}),
     };
-    form.setValue("requirements" as never, { ...base, ...updates } as never);
+    form.setValue("requirements" as never, { ...base, ...updates } as never, {
+      shouldDirty: true,
+    });
   };
 
   const addArrayItem = (field: ArrayFieldKey, value: string) => {
