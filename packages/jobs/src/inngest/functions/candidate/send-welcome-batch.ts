@@ -14,7 +14,7 @@ import {
   generateTelegramInviteMessage,
   generateWelcomeMessage,
   sendHHChatMessage,
-} from "~/services/messaging";
+} from "../../../services/messaging";
 import { inngest } from "../../client";
 
 /**

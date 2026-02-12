@@ -1,7 +1,7 @@
 import { and, eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { response, vacancy } from "@qbs-autonaim/db/schema";
-import { screenResponse, unwrap } from "~/services/response";
+import { screenResponse, unwrap } from "../../../services/response";
 import {
   screenNewResponsesChannel,
   workspaceNotificationsChannel,
