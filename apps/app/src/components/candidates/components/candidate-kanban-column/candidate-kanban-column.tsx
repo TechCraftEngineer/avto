@@ -40,7 +40,7 @@ export function CandidateKanbanColumn({
       <div className="flex items-center gap-2 mb-3 px-1">
         <div className={cn("w-2 h-2 rounded-full shrink-0", color)} />
         <h3 className="text-sm font-semibold truncate">{title}</h3>
-        <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full tabular-nums ml-auto shrink-0">
+        <span className="text-xs font-medium text-muted-foreground bg-background/90 px-2 py-0.5 rounded-full tabular-nums ml-auto shrink-0">
           {total}
         </span>
       </div>
@@ -51,7 +51,7 @@ export function CandidateKanbanColumn({
           "flex flex-col gap-3 flex-1 p-3 rounded-xl border-2 border-dashed transition-colors overflow-y-auto",
           isOver
             ? "border-primary/50 bg-primary/5"
-            : "border-transparent bg-muted/30",
+            : "border-border/50 bg-background/50",
         )}
       >
         {isLoading ? (
