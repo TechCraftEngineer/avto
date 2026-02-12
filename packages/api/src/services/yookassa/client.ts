@@ -15,7 +15,7 @@ interface CreatePaymentParams {
   description?: string;
   returnUrl: string;
   metadata?: Record<string, unknown>;
-  idempotenceKey: string;
+  idempotenceKey?: string;
 }
 
 export class YookassaClient {
@@ -50,7 +50,7 @@ export class YookassaClient {
   async createPayment(
     params: CreatePaymentParams,
   ): Promise<YookassaPaymentResponse> {
-    const { idempotenceKey } = params;
+    const idempotenceKey = params.idempotenceKey ?? randomUUID();
 
     // Формируем тело запроса
     const requestBody = {

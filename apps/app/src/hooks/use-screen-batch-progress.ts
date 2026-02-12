@@ -52,14 +52,14 @@ export function useScreenBatchProgress(
   });
 
   // Reset state when workspaceId or batchId change
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: state reset on dependency change
   useEffect(() => {
     setScoredResponses([]);
     setProgress(null);
     setCompleted(null);
   }, [workspaceId, batchId]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: subscription effect with controlled dependencies
   useEffect(() => {
     if (!latestData) return;
 
