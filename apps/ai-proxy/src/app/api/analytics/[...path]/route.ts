@@ -4,16 +4,20 @@ export const runtime = "edge";
 
 const POSTHOG_HOST = "https://eu.i.posthog.com";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, User-Agent",
-};
+function getCorsHeaders(request: NextRequest) {
+  const origin = request.headers.get("origin") || "*";
+  return {
+    "Access-Control-Allow-Origin": origin,
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, User-Agent",
+    "Access-Control-Max-Age": "86400",
+  };
+}
 
-export async function OPTIONS() {
+export async function OPTIONS(request: NextRequest) {
   return new NextResponse(null, {
     status: 204,
-    headers: corsHeaders,
+    headers: getCorsHeaders(request),
   });
 }
 
@@ -22,10 +26,11 @@ export async function POST(
   { params }: { params: Promise<{ path: string[] }> },
 ) {
   const { path } = await params;
+  const corsHeaders = getCorsHeaders(request);
 
   try {
     const body = await request.text();
-    const pathname = path.join("/");
+    const pathname = path.filter(Boolean).join("/");
     const url = new URL(request.url);
     const posthogUrl = `${POSTHOG_HOST}/${pathname}${url.search}`;
 
@@ -68,10 +73,11 @@ export async function GET(
   { params }: { params: Promise<{ path: string[] }> },
 ) {
   const { path } = await params;
+  const corsHeaders = getCorsHeaders(request);
 
   try {
     const url = new URL(request.url);
-    const pathname = path.join("/");
+    const pathname = path.filter(Boolean).join("/");
     const posthogUrl = `${POSTHOG_HOST}/${pathname}${url.search}`;
 
     const response = await fetch(posthogUrl, {

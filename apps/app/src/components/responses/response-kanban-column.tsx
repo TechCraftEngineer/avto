@@ -1,7 +1,7 @@
 "use client";
 
-import type { RouterOutputs } from "@qbs-autonaim/api";
 import { useDroppable } from "@dnd-kit/core";
+import type { RouterOutputs } from "@qbs-autonaim/api";
 import { cn } from "@qbs-autonaim/ui";
 import { IconUser } from "@tabler/icons-react";
 import { ResponseKanbanItem } from "./response-kanban-item";

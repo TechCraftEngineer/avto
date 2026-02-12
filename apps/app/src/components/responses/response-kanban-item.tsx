@@ -1,8 +1,8 @@
 "use client";
 
-import type { RouterOutputs } from "@qbs-autonaim/api";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
+import type { RouterOutputs } from "@qbs-autonaim/api";
 import { ResponseKanbanCard } from "./response-kanban-card";
 
 type ResponseItem =

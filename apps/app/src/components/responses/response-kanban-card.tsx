@@ -2,6 +2,7 @@
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
 import { Badge } from "@qbs-autonaim/ui/badge";
+import { CandidateAvatar } from "@qbs-autonaim/ui/candidate-avatar";
 import { IconClock, IconStar } from "@tabler/icons-react";
 
 type ResponseItem =
@@ -44,27 +45,37 @@ export function ResponseKanbanCard({
 
       <button
         onClick={onClick}
-        className="flex-1 p-3 cursor-pointer text-left focus:outline-none"
+        className="flex-1 p-3 cursor-pointer text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-b-lg"
         type="button"
       >
-        <div className="flex flex-col gap-2">
-          <h4 className="font-semibold text-sm leading-tight wrap-break-word">
-            {response.candidateName || "Без имени"}
-          </h4>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <IconClock className="size-3" />
-            {response.respondedAt
-              ? new Date(response.respondedAt).toLocaleDateString("ru-RU", {
-                  day: "numeric",
-                  month: "short",
-                })
-              : "Нет даты"}
+        <div className="flex gap-3">
+          <CandidateAvatar
+            name={response.candidateName}
+            photoUrl={null}
+            photoFileId={null}
+            className="size-10 shrink-0"
+          />
+          <div className="flex flex-col gap-2 flex-1 min-w-0">
+            <h4 className="font-semibold text-sm leading-tight truncate">
+              {response.candidateName || "Без имени"}
+            </h4>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <IconClock className="size-3 shrink-0" />
+              <span className="truncate">
+                {response.respondedAt
+                  ? new Date(response.respondedAt).toLocaleDateString("ru-RU", {
+                      day: "numeric",
+                      month: "short",
+                    })
+                  : "Нет даты"}
+              </span>
+            </div>
+            {hasInterview && (
+              <Badge variant="default" className="text-xs w-fit">
+                Есть интервью
+              </Badge>
+            )}
           </div>
-          {hasInterview && (
-            <Badge variant="default" className="text-xs w-fit">
-              Есть интервью
-            </Badge>
-          )}
         </div>
       </button>
     </div>
