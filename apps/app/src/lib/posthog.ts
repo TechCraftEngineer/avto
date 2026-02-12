@@ -1,11 +1,8 @@
 import posthog from "posthog-js";
 import { env } from "~/env";
 
-let isInitialized = false;
-
 export function initPostHog() {
   if (typeof window === "undefined") return;
-  if (isInitialized) return;
 
   const key = env.NEXT_PUBLIC_POSTHOG_KEY;
   const proxyUrl = env.NEXT_PUBLIC_AI_PROXY_URL;
@@ -17,7 +14,7 @@ export function initPostHog() {
     );
     return;
   }
-  console.log("init posthog");
+
   posthog.init(key, {
     api_host: `${proxyUrl}/api/analytics`,
     ui_host: "https://eu.i.posthog.com",
@@ -29,16 +26,11 @@ export function initPostHog() {
       if (env.NODE_ENV === "development") {
         posthog.opt_out_capturing();
       }
-      isInitialized = true;
     },
   });
 
   // Сохраняем экземпляр в window для доступа из ErrorBoundary
   window.posthog = posthog;
-}
-
-export function isPostHogReady(): boolean {
-  return isInitialized && typeof window !== "undefined";
 }
 
 export { posthog };

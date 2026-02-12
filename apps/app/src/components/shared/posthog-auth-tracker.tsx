@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
-import { usePostHog } from "~/hooks/use-posthog";
+import { useIdentifyUser } from "~/hooks/use-posthog";
 
 interface PostHogAuthTrackerProps {
   user?: {
@@ -12,20 +11,6 @@ interface PostHogAuthTrackerProps {
 }
 
 export function PostHogAuthTracker({ user }: PostHogAuthTrackerProps) {
-  const { identify, reset, isEnabled } = usePostHog();
-
-  useEffect(() => {
-    if (!isEnabled) return;
-
-    if (user) {
-      identify(user.id, {
-        email: user.email,
-        name: user.name,
-      });
-    } else {
-      reset();
-    }
-  }, [user, identify, reset, isEnabled]);
-
+  useIdentifyUser(user ?? null);
   return null;
 }
