@@ -1,34 +1,32 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { renderHook, waitFor } from "@testing-library/react";
 
-// Mock ДО импорта хука (модуль кэшируется при первом импорте)
+// Mock, уникальный для этого файла — не конфликтует с archived-vacancies-selector
 const mockUseInngestSubscription = mock(() => ({
   data: [] as any[],
   error: null as Error | null,
   latestData: null as any,
 }));
 
-mock.module("@bunworks/inngest-realtime/hooks", () => ({
-  useInngestSubscription: mockUseInngestSubscription,
-}));
-
-const { useSyncArchivedSubscription } = await import(
-  "./use-sync-archived-subscription"
-);
-
-beforeEach(() => {
+beforeEach(async () => {
   mockUseInngestSubscription.mockClear();
-  // Повторно применяем мок перед каждым тестом (другие файлы могут перезаписать)
   mock.module("@bunworks/inngest-realtime/hooks", () => ({
     useInngestSubscription: mockUseInngestSubscription,
   }));
 });
+
+/** Хук загружается после мока, чтобы гарантировать использование нашего mock */
+async function getHook() {
+  const mod = await import("./use-sync-archived-subscription");
+  return mod.useSyncArchivedSubscription;
+}
 
 describe("useSyncArchivedSubscription", () => {
   const mockVacancyId = "vacancy-123";
   const mockFetchToken = mock(() => Promise.resolve("token-123"));
 
   it("должен вызывать onMessage при получении progress сообщения", async () => {
+    const useSyncArchivedSubscription = await getHook();
     const mockOnMessage = mock(() => {});
     const mockOnStatusChange = mock(() => {});
 
@@ -66,6 +64,7 @@ describe("useSyncArchivedSubscription", () => {
   });
 
   it("должен вызывать onStatusChange при получении result сообщения", async () => {
+    const useSyncArchivedSubscription = await getHook();
     const mockOnMessage = mock(() => {});
     const mockOnStatusChange = mock(() => {});
 
@@ -103,6 +102,7 @@ describe("useSyncArchivedSubscription", () => {
   });
 
   it("должен вызывать onStatusChange с error при получении ошибки в progress", async () => {
+    const useSyncArchivedSubscription = await getHook();
     const mockOnMessage = mock(() => {});
     const mockOnStatusChange = mock(() => {});
 
@@ -138,6 +138,7 @@ describe("useSyncArchivedSubscription", () => {
   });
 
   it("должен обрабатывать невалидные данные в progress", async () => {
+    const useSyncArchivedSubscription = await getHook();
     const mockOnMessage = mock(() => {});
     const mockOnStatusChange = mock(() => {});
 
@@ -173,6 +174,7 @@ describe("useSyncArchivedSubscription", () => {
   });
 
   it("должен обрабатывать невалидные данные в result", async () => {
+    const useSyncArchivedSubscription = await getHook();
     const mockOnMessage = mock(() => {});
     const mockOnStatusChange = mock(() => {});
 
@@ -206,7 +208,8 @@ describe("useSyncArchivedSubscription", () => {
     });
   });
 
-  it("не должен обрабатывать сообщения если enabled=false", () => {
+  it("не должен обрабатывать сообщения если enabled=false", async () => {
+    const useSyncArchivedSubscription = await getHook();
     const mockOnMessage = mock(() => {});
     const mockOnStatusChange = mock(() => {});
 

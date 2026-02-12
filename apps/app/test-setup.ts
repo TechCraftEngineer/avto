@@ -19,6 +19,10 @@ const window = new Window({
 // Устанавливаем глобальные объекты
 globalThis.window = window as any;
 globalThis.document = window.document as any;
+// Radix UI Presence использует getComputedStyle (вызывается без window)
+(globalThis as any).getComputedStyle =
+  (window as any).getComputedStyle?.bind(window) ??
+  ((_el: Element) => ({ getPropertyValue: () => "" }));
 // Radix UI и др. используют DocumentFragment глобально
 globalThis.DocumentFragment = (window as any).DocumentFragment;
 globalThis.HTMLElement = window.HTMLElement as any;
@@ -37,4 +41,4 @@ globalThis.KeyboardEvent = window.KeyboardEvent as any;
 globalThis.FocusEvent = window.FocusEvent as any;
 
 // Глобальные моки для тестов
-globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+(globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;

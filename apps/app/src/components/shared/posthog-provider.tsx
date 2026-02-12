@@ -8,6 +8,31 @@ import { env } from "~/env";
 
 const IS_PRODUCTION = env.NODE_ENV === "production";
 
+// Инициализация PostHog до рендера компонента
+if (typeof window !== "undefined" && IS_PRODUCTION) {
+  const key = env.NEXT_PUBLIC_POSTHOG_KEY;
+  const proxyUrl = env.NEXT_PUBLIC_AI_PROXY_URL;
+
+  if (key && proxyUrl) {
+    posthog.init(key, {
+      api_host: `${proxyUrl}/api/analytics`,
+      ui_host: "https://eu.i.posthog.com",
+      person_profiles: "identified_only",
+      capture_pageview: false,
+      capture_pageleave: true,
+      loaded: (posthog) => {
+        if (env.NODE_ENV === "development") {
+          posthog.opt_out_capturing();
+        }
+      },
+    });
+  } else if (!proxyUrl) {
+    console.error(
+      "[PostHog] NEXT_PUBLIC_AI_PROXY_URL is not set; skipping analytics initialization",
+    );
+  }
+}
+
 function PostHogPageView() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -30,29 +55,6 @@ function PostHogPageView() {
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!IS_PRODUCTION) return;
-
-    const key = env.NEXT_PUBLIC_POSTHOG_KEY;
-    const proxyUrl = env.NEXT_PUBLIC_AI_PROXY_URL;
-
-    if (!key) return;
-    if (!proxyUrl) {
-      console.error(
-        "[PostHog] NEXT_PUBLIC_AI_PROXY_URL is not set; skipping analytics initialization",
-      );
-      return;
-    }
-    console.log("posthog init");
-    posthog.init(key, {
-      api_host: `${proxyUrl}/api/analytics`,
-      ui_host: "https://eu.i.posthog.com",
-      person_profiles: "identified_only",
-      capture_pageview: false,
-      capture_pageleave: true,
-    });
-
-    if (env.NODE_ENV === "development") {
-      posthog.opt_out_capturing();
-    }
 
     // Глобальный обработчик необработанных ошибок
     const handleError = (event: ErrorEvent) => {

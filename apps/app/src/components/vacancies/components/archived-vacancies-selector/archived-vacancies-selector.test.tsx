@@ -1,5 +1,12 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { ArchivedVacanciesSelector } from "./archived-vacancies-selector";
 
 // Mock dependencies
@@ -109,6 +116,7 @@ describe("ArchivedVacanciesSelector", () => {
   });
 
   it("должен фильтровать вакансии по табам", async () => {
+    const user = userEvent.setup();
     const { container } = render(
       <ArchivedVacanciesSelector
         workspaceId={mockWorkspaceId}
@@ -119,8 +127,12 @@ describe("ArchivedVacanciesSelector", () => {
     );
 
     const w = within(container);
+    await waitFor(() => {
+      expect(w.getByText("Senior TypeScript Developer")).toBeDefined();
+    });
+
     const newTab = w.getByRole("tab", { name: /Новые/ });
-    fireEvent.click(newTab);
+    await user.click(newTab);
 
     await waitFor(() => {
       expect(w.getByText("Senior TypeScript Developer")).toBeDefined();
@@ -128,7 +140,7 @@ describe("ArchivedVacanciesSelector", () => {
     });
 
     const importedTab = w.getByRole("tab", { name: /Загруженные/ });
-    fireEvent.click(importedTab);
+    await user.click(importedTab);
 
     await waitFor(() => {
       expect(w.queryByText("Senior TypeScript Developer")).toBeNull();

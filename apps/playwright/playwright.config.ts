@@ -41,7 +41,7 @@ export default defineConfig({
     {
       name: "e2e-slow",
       testMatch:
-        /.*\/(account|organization|workspace|onboarding|sidebar)\/.*\.spec\.ts/,
+        /.*\/(account|organization|workspace|onboarding|sidebar|vacancy)\/.*\.spec\.ts/,
       use: {
         ...devices["Desktop Chrome"],
       },
