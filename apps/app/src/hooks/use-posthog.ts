@@ -1,13 +1,13 @@
 import { useCallback } from "react";
 import { env } from "~/env";
-import { posthog } from "~/lib/posthog";
+import { isPostHogReady, posthog } from "~/lib/posthog";
 
 export function usePostHog() {
   const isProduction = env.NODE_ENV === "production";
 
   const capture = useCallback(
     (eventName: string, properties?: Record<string, unknown>) => {
-      if (typeof window === "undefined" || !isProduction) return;
+      if (!isPostHogReady() || !isProduction) return;
       posthog.capture(eventName, properties);
     },
     [isProduction],
@@ -15,7 +15,7 @@ export function usePostHog() {
 
   const identify = useCallback(
     (userId: string, properties?: Record<string, unknown>) => {
-      if (typeof window === "undefined" || !isProduction) return;
+      if (!isPostHogReady() || !isProduction) return;
       console.log("identify", userId, properties);
       posthog.identify(userId, properties);
     },
@@ -23,7 +23,7 @@ export function usePostHog() {
   );
 
   const reset = useCallback(() => {
-    if (typeof window === "undefined" || !isProduction) return;
+    if (!isPostHogReady() || !isProduction) return;
     posthog.reset();
   }, [isProduction]);
 
@@ -32,6 +32,6 @@ export function usePostHog() {
     identify,
     reset,
     posthog,
-    isEnabled: isProduction,
+    isEnabled: isProduction && isPostHogReady(),
   };
 }
