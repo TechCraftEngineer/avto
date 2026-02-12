@@ -4,6 +4,8 @@ import type { RouterOutputs } from "@qbs-autonaim/api";
 import { Badge } from "@qbs-autonaim/ui/badge";
 import { CandidateAvatar } from "@qbs-autonaim/ui/candidate-avatar";
 import { IconClock, IconStar } from "@tabler/icons-react";
+import { useAvatarUrl } from "~/hooks/use-avatar-url";
+import { getAvatarUrl } from "~/lib/avatar";
 
 type ResponseItem =
   RouterOutputs["vacancy"]["responses"]["listWorkspace"]["responses"][0];
@@ -19,6 +21,8 @@ export function ResponseKanbanCard({
 }: ResponseKanbanCardProps) {
   const score = response.screening?.score;
   const hasInterview = response.interviewSession !== null;
+  const photoUrl = useAvatarUrl(response.photoFileId);
+  const avatarUrl = getAvatarUrl(photoUrl, response.candidateName ?? "");
 
   return (
     <div className="bg-card border border-border rounded-lg shadow-sm transition-all duration-200 hover:shadow-md hover:border-primary/30 flex flex-col group relative">
@@ -51,8 +55,8 @@ export function ResponseKanbanCard({
         <div className="flex gap-3">
           <CandidateAvatar
             name={response.candidateName}
-            photoUrl={null}
-            photoFileId={null}
+            photoUrl={avatarUrl}
+            photoFileId={response.photoFileId}
             className="size-10 shrink-0"
           />
           <div className="flex flex-col gap-2 flex-1 min-w-0">
