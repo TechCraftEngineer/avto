@@ -46,6 +46,8 @@ export function RefreshStatusIndicator({
     vacancyId,
     mode,
     onVisibilityChange: visibility.setIsVisible,
+    taskStarted: visibility.taskStarted,
+    onTaskComplete: () => visibility.setTaskStarted(false),
     initialStatus: initialStatus ?? null,
   });
 
@@ -60,6 +62,7 @@ export function RefreshStatusIndicator({
   const handleClose = () => {
     visibility.setIsVisible(false);
     visibility.setShowDialog(false);
+    visibility.setTaskStarted(false);
     clearAutoCloseTimer();
     onConfirmationClose?.();
   };

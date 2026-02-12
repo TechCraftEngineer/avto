@@ -32,6 +32,10 @@ interface UseRefreshSubscriptionProps {
   vacancyId: string;
   mode: SyncMode;
   onVisibilityChange: (visible: boolean) => void;
+  /** Флаг что пользователь только что запустил задание (до того как API вернёт isRunning) */
+  taskStarted?: boolean;
+  /** Вызывается при завершении задания (для сброса taskStarted) */
+  onTaskComplete?: () => void;
   initialStatus?: {
     isRunning: boolean;
     status: string | null;
@@ -55,6 +59,8 @@ export function useRefreshSubscription({
   vacancyId,
   mode,
   onVisibilityChange,
+  taskStarted = false,
+  onTaskComplete,
   initialStatus,
 }: UseRefreshSubscriptionProps) {
   const [currentProgress, setCurrentProgress] = useState<ProgressData | null>(
@@ -100,7 +106,9 @@ export function useRefreshSubscription({
   );
 
   // Определяем, есть ли активное задание для текущего режима
-  const hasActiveTask = checkActiveTask(mode, initialStatus);
+  // taskStarted нужен чтобы подписаться сразу после клика, пока API ещё не вернул isRunning
+  const hasActiveTask =
+    taskStarted || checkActiveTask(mode, initialStatus);
 
   // ОДНО подключение для текущего режима
   // Подключаемся ТОЛЬКО если есть активное задание для этого режима
@@ -214,6 +222,7 @@ export function useRefreshSubscription({
       queryClient,
       trpc,
       onVisibilityChange,
+      onTaskComplete,
       setArchivedStatus,
       setAnalyzeProgress,
       setAnalyzeCompleted,
@@ -246,6 +255,7 @@ export function useRefreshSubscription({
     isAnalyzeMode,
     isScreeningMode,
     mode,
+    onTaskComplete,
     onVisibilityChange,
     queryClient,
     trpc,

@@ -33,6 +33,7 @@ interface MessageHandlerContext {
   queryClient: QueryClient;
   trpc: TRPCClient;
   onVisibilityChange: (visible: boolean) => void;
+  onTaskComplete?: () => void;
   setArchivedStatus: (status: ArchivedStatusData | null) => void;
   setAnalyzeProgress: (progress: AnalyzeProgressData | null) => void;
   setAnalyzeCompleted: (completed: AnalyzeCompletedData | null) => void;
@@ -114,6 +115,7 @@ export function handleArchivedResult(
   const timer = setTimeout(() => {
     context.onVisibilityChange(false);
     context.setArchivedStatus(null);
+    context.onTaskComplete?.();
   }, 3000);
   context.setAutoCloseTimer(timer);
 }
