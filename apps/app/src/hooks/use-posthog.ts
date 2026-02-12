@@ -13,13 +13,16 @@ export function useIdentifyUser(user: User | null) {
   const posthog = usePostHog();
 
   useEffect(() => {
-    if (user && posthog) {
+    // Проверяем, что PostHog инициализирован
+    if (!posthog?.__loaded) return;
+
+    if (user) {
       posthog.identify(user.id, {
         email: user.email,
         name: user.name,
       });
       console.log("identify", user.id, { email: user.email, name: user.name });
-    } else if (!user && posthog) {
+    } else {
       posthog.reset();
     }
   }, [user, posthog]);
