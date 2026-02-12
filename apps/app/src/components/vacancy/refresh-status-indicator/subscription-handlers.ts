@@ -58,14 +58,9 @@ export function handleArchivedProgress(
   context.setArchivedStatus(progressData);
   context.onVisibilityChange(true);
 
-  // Инвалидируем кэш откликов при обработке
-  if (progressData.status === "processing") {
-    context.queryClient.invalidateQueries({
-      queryKey: context.trpc.vacancy.responses.list.queryKey({
-        vacancyId: context.vacancyId,
-      }),
-    });
-  }
+  // Не инвалидируем vacancy.responses.list при каждом progress: парсер шлёт progress
+  // после КАЖДОГО отклика → сотни сообщений → массовая атака на list. Инвалидация
+  // только при завершении (handleArchivedResult).
 
   // Очищаем таймер при получении нового прогресса
   context.setAutoCloseTimer((prev) => {
