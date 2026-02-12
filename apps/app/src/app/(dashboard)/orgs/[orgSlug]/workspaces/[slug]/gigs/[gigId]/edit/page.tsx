@@ -246,7 +246,7 @@ export default function EditGigPage({ params }: PageProps) {
       <PageHeader
         title="Редактирование задания"
         description="Редактирование существующего задания"
-        tooltipContent={`[Подробнее в документации](${process.env.NEXT_PUBLIC_DOCS_URL}/editing)`}
+        tooltipContent={`[Подробнее в документации](${process.env.NEXT_PUBLIC_DOCS_URL}/gigs)`}
       />
 
       <Form {...form}>
