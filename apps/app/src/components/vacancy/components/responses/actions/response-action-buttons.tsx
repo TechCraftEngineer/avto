@@ -70,42 +70,58 @@ export function ResponseActionButtons({
           </Button>
         )}
 
-        {hasResponses && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                disabled={isAnyRefreshing}
-                size="sm"
-                className="h-9"
-                aria-label="Меню анализа откликов"
-              >
-                {isReanalyzing ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <Sparkles className="h-4 w-4 mr-2" />
-                )}
-                {isReanalyzing ? "Анализ..." : "Анализ"}
-                <ChevronDown className="h-4 w-4 ml-1" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={onAnalyzeNewDialogOpen}
-                disabled={isAnyRefreshing}
-              >
+        {hasResponses &&
+          (isArchivedPublication ? (
+            <Button
+              disabled={isAnyRefreshing}
+              size="sm"
+              onClick={onReanalyzeDialogOpen}
+              className="h-9"
+              aria-label="Проанализировать все отклики"
+            >
+              {isReanalyzing ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
                 <Sparkles className="h-4 w-4 mr-2" />
-                Проанализировать новые отклики
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={onReanalyzeDialogOpen}
-                disabled={isAnyRefreshing}
-              >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Проанализировать все отклики
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
+              )}
+              {isReanalyzing ? "Анализ..." : "Проанализировать все отклики"}
+            </Button>
+          ) : (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  disabled={isAnyRefreshing}
+                  size="sm"
+                  className="h-9"
+                  aria-label="Меню анализа откликов"
+                >
+                  {isReanalyzing ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-4 w-4 mr-2" />
+                  )}
+                  {isReanalyzing ? "Анализ..." : "Анализ"}
+                  <ChevronDown className="h-4 w-4 ml-1" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={onAnalyzeNewDialogOpen}
+                  disabled={isAnyRefreshing}
+                >
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Проанализировать новые отклики
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={onReanalyzeDialogOpen}
+                  disabled={isAnyRefreshing}
+                >
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Проанализировать все отклики
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ))}
       </div>
     );
   }
