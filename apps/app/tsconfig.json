@@ -10,6 +10,6 @@
     "plugins": [{ "name": "next" }],
     "types": ["bun"]
   },
-  "include": [".", ".next/types/**/*.ts", "../ai-proxy/src/app/api/analytics/ingest/route.ts"],
+  "include": [".", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
 }

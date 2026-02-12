@@ -3,7 +3,7 @@
 import type { RouterOutputs } from "@qbs-autonaim/api";
 import { Badge } from "@qbs-autonaim/ui/badge";
 import { CandidateAvatar } from "@qbs-autonaim/ui/candidate-avatar";
-import { IconClock, IconStar } from "@tabler/icons-react";
+import { IconClock, IconMessageCircle, IconStar } from "@tabler/icons-react";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { getAvatarUrl } from "~/lib/avatar";
 
@@ -21,6 +21,7 @@ export function ResponseKanbanCard({
 }: ResponseKanbanCardProps) {
   const score = response.screening?.score;
   const hasInterview = response.interviewSession !== null;
+  const messageCount = response.interviewSession?.messageCount ?? 0;
   const photoUrl = useAvatarUrl(response.photoFileId);
   const avatarUrl = getAvatarUrl(photoUrl, response.candidateName ?? "");
 
@@ -39,15 +40,25 @@ export function ResponseKanbanCard({
       className={`bg-card border border-border rounded-lg shadow-sm transition-all duration-200 hover:shadow-md hover:border-primary/30 flex flex-col group relative ${getBorderColor()}`}
     >
       <div className="flex items-center justify-between gap-2 px-3 py-2 border-b">
-        {response.priorityScore !== null && (
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <span className="font-medium">Приоритет:</span>
-            <Badge variant="outline" className="text-xs">
-              {response.priorityScore.toFixed(1)}
-            </Badge>
-          </div>
-        )}
-        {response.priorityScore === null && <div />}
+        <div className="flex items-center gap-2 min-w-0">
+          {response.priorityScore !== null && (
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
+              <span className="font-medium">Приоритет:</span>
+              <Badge variant="outline" className="text-xs">
+                {response.priorityScore.toFixed(1)}
+              </Badge>
+            </div>
+          )}
+          {messageCount > 0 && (
+            <div
+              className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0"
+              title={`${messageCount} сообщений в переписке`}
+            >
+              <IconMessageCircle className="size-3.5" />
+              <span className="font-medium tabular-nums">{messageCount}</span>
+            </div>
+          )}
+        </div>
         {score !== null && score !== undefined && (
           <Badge
             variant={score >= 60 ? "default" : "secondary"}
