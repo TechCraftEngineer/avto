@@ -5,8 +5,8 @@ import type {
   ResponseStatus,
 } from "@qbs-autonaim/db/schema";
 import {
-  response as responseTable,
   responseScreening,
+  response as responseTable,
   vacancy,
 } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
@@ -55,6 +55,7 @@ export const listWorkspace = protectedProcedure
           z.enum(["NEW", "EVALUATED", "INTERVIEW", "COMPLETED", "SKIPPED"]),
         )
         .optional(),
+      vacancyIds: z.array(z.string()).optional(),
       search: z.string().optional(),
     }),
   )
@@ -67,6 +68,7 @@ export const listWorkspace = protectedProcedure
       sortDirection,
       screeningFilter,
       statusFilter,
+      vacancyIds: filterVacancyIds,
       search,
     } = input;
     const offset = (page - 1) * limit;
@@ -88,7 +90,11 @@ export const listWorkspace = protectedProcedure
       columns: { id: true },
     });
 
-    const vacancyIds = workspaceVacancies.map((v) => v.id);
+    let vacancyIds = workspaceVacancies.map((v) => v.id);
+
+    if (filterVacancyIds && filterVacancyIds.length > 0) {
+      vacancyIds = vacancyIds.filter((id) => filterVacancyIds.includes(id));
+    }
 
     if (vacancyIds.length === 0) {
       return { ...EMPTY_RESULT, page, limit };

@@ -1,6 +1,7 @@
 import { paths } from "@qbs-autonaim/config";
 import { SidebarInset, SidebarProvider } from "@qbs-autonaim/ui/sidebar";
 import { redirect } from "next/navigation";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 import type { ReactNode } from "react";
 import { getSession } from "~/auth/server";
 import { EmailVerificationBanner } from "~/components/auth";
@@ -103,31 +104,33 @@ export default async function DashboardLayout({
   }));
 
   return (
-    <WorkspaceProvider workspaces={workspaces} organizations={organizations}>
-      <SidebarProvider>
-        <AppSidebarWrapper
-          user={{
-            name: session.user.name,
-            email: session.user.email,
-            avatar: session.user.image || "",
-          }}
-        />
-        <SidebarInset>
-          <SiteHeader
+    <NuqsAdapter>
+      <WorkspaceProvider workspaces={workspaces} organizations={organizations}>
+        <SidebarProvider>
+          <AppSidebarWrapper
             user={{
               name: session.user.name,
               email: session.user.email,
               avatar: session.user.image || "",
             }}
           />
-          <div className="bg-muted/40 flex flex-1 flex-col">
-            <div className="p-[var(--content-padding)] xl:group-data-[theme-content-layout=centered]/layout:container xl:group-data-[theme-content-layout=centered]/layout:mx-auto @container/main">
-              <EmailVerificationBanner session={session} />
-              {children}
+          <SidebarInset>
+            <SiteHeader
+              user={{
+                name: session.user.name,
+                email: session.user.email,
+                avatar: session.user.image || "",
+              }}
+            />
+            <div className="bg-muted/40 flex flex-1 flex-col">
+              <div className="p-[var(--content-padding)] xl:group-data-[theme-content-layout=centered]/layout:container xl:group-data-[theme-content-layout=centered]/layout:mx-auto @container/main">
+                <EmailVerificationBanner session={session} />
+                {children}
+              </div>
             </div>
-          </div>
-        </SidebarInset>
-      </SidebarProvider>
-    </WorkspaceProvider>
+          </SidebarInset>
+        </SidebarProvider>
+      </WorkspaceProvider>
+    </NuqsAdapter>
   );
 }

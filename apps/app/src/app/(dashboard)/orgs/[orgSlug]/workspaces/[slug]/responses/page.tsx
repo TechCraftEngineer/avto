@@ -8,14 +8,15 @@ import {
   IconTable,
 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
+import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
 import { use, useState } from "react";
-import { toast } from "sonner";
 import { PageHeader } from "~/components/layout";
 import {
   ResponsesFilters,
   ResponsesKanban,
   ResponsesStats,
   ResponsesTable,
+  VacancyFilter,
 } from "~/components/responses";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
@@ -56,10 +57,20 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
     "all" | "high" | "medium" | "low"
   >("all");
 
-  const {
-    data: responsesData,
-    isLoading,
-  } = useQuery({
+  const [selectedVacancyIds, setSelectedVacancyIds] = useQueryState(
+    "vacancies",
+    parseAsArrayOf(parseAsString).withDefault([]),
+  );
+
+  const { data: vacanciesData } = useQuery({
+    ...trpc.vacancy.listActive.queryOptions({
+      workspaceId: workspace?.id ?? "",
+      limit: 100,
+    }),
+    enabled: Boolean(workspace?.id),
+  });
+
+  const { data: responsesData, isLoading } = useQuery({
     ...trpc.vacancy.responses.listWorkspace.queryOptions({
       workspaceId: workspace?.id ?? "",
       page: viewMode === "board" ? 1 : page,
@@ -68,6 +79,8 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
       sortDirection,
       screeningFilter,
       statusFilter: statusFilter.length > 0 ? statusFilter : undefined,
+      vacancyIds:
+        selectedVacancyIds.length > 0 ? selectedVacancyIds : undefined,
       search: search.trim() || undefined,
     }),
     enabled: Boolean(workspace?.id),
@@ -110,7 +123,6 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
       setSortDirection("desc");
     }
   };
-
 
   const quickFilters = [
     {
@@ -203,28 +215,39 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
         </div>
 
         <div className="flex flex-col gap-5">
-          <ResponsesFilters
-            search={search}
-            onSearchChange={setSearch}
-            screeningFilter={screeningFilter}
-            onScreeningFilterChange={setScreeningFilter}
-            sortField={sortField}
-            onSortFieldChange={(field) => {
-              if (field === null || field === "createdAt") {
-                setSortField(null);
-              } else if (
-                field === "score" ||
-                field === "detailedScore" ||
-                field === "potentialScore" ||
-                field === "careerTrajectoryScore" ||
-                field === "priorityScore" ||
-                field === "status" ||
-                field === "respondedAt"
-              ) {
-                setSortField(field);
-              }
-            }}
-          />
+          <div className="flex flex-col sm:flex-row gap-3">
+            <VacancyFilter
+              vacancies={(vacanciesData ?? []).map((v) => ({
+                id: v.id,
+                title: v.title,
+              }))}
+              selectedVacancyIds={selectedVacancyIds}
+              onSelectionChange={setSelectedVacancyIds}
+              isLoading={!vacanciesData}
+            />
+            <ResponsesFilters
+              search={search}
+              onSearchChange={setSearch}
+              screeningFilter={screeningFilter}
+              onScreeningFilterChange={setScreeningFilter}
+              sortField={sortField}
+              onSortFieldChange={(field) => {
+                if (field === null || field === "createdAt") {
+                  setSortField(null);
+                } else if (
+                  field === "score" ||
+                  field === "detailedScore" ||
+                  field === "potentialScore" ||
+                  field === "careerTrajectoryScore" ||
+                  field === "priorityScore" ||
+                  field === "status" ||
+                  field === "respondedAt"
+                ) {
+                  setSortField(field);
+                }
+              }}
+            />
+          </div>
 
           <div className="flex items-center justify-between px-1">
             {!isLoading && responsesData && (
