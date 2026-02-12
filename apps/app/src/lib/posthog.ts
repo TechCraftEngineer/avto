@@ -14,7 +14,7 @@ export function initPostHog() {
     );
     return;
   }
-
+  console.log("init posthog");
   posthog.init(key, {
     api_host: `${proxyUrl}/api/analytics`,
     ui_host: "https://eu.i.posthog.com",
