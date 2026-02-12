@@ -95,6 +95,10 @@ const SOURCE_CONFIG: Record<string, { label: string; color: string }> = {
     label: "SuperJob",
     color: "bg-cyan-500/10 text-cyan-700 border-cyan-200/50",
   },
+  KWORK: {
+    label: "Kwork",
+    color: "bg-amber-500/10 text-amber-700 border-amber-200/50",
+  },
   HABR: {
     label: "Хабр Карьера",
     color: "bg-slate-500/10 text-slate-700 border-slate-200/50",

@@ -20,7 +20,7 @@ import {
 import { IconLoader2 } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
-import { useForm, type UseFormReturn } from "react-hook-form";
+import { type UseFormReturn, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -60,6 +60,7 @@ const vacancyFormSchema = z.object({
     "HH",
     "AVITO",
     "SUPERJOB",
+    "KWORK",
     "HABR",
     "FL_RU",
     "FREELANCE_RU",
@@ -164,6 +165,7 @@ export function VacancyForm({ onSuccess }: VacancyFormProps) {
                   <SelectItem value="HH">HH.ru</SelectItem>
                   <SelectItem value="AVITO">Avito</SelectItem>
                   <SelectItem value="SUPERJOB">SuperJob</SelectItem>
+                  <SelectItem value="KWORK">Kwork</SelectItem>
                   <SelectItem value="HABR">Habr Career</SelectItem>
                   <SelectItem value="FL_RU">FL.ru</SelectItem>
                   <SelectItem value="FREELANCE_RU">Freelance.ru</SelectItem>
@@ -201,9 +203,7 @@ export function VacancyForm({ onSuccess }: VacancyFormProps) {
         />
 
         <VacancyRequirementsEditor
-          form={
-            form as UseFormReturn<{ requirements?: VacancyRequirements }>
-          }
+          form={form as UseFormReturn<{ requirements?: VacancyRequirements }>}
           requirements={form.watch("requirements") ?? null}
         />
 

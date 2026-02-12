@@ -41,6 +41,15 @@ export const AVAILABLE_INTEGRATIONS = [
     fields: ["email", "password"],
     category: "job-search" as const,
   },
+  {
+    type: "kwork",
+    name: "Kwork",
+    description: "Автоматизация откликов на заказы на Kwork.ru",
+    detailedDescription:
+      "Подключите свой аккаунт Kwork для автоматического поиска и отклика на подходящие заказы. Система будет анализировать заказы и отправлять предложения от вашего имени.",
+    fields: ["email", "password"],
+    category: "job-search" as const,
+  },
 ] as const;
 
 export type IntegrationType = (typeof AVAILABLE_INTEGRATIONS)[number]["type"];

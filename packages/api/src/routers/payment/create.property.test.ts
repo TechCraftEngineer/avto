@@ -52,20 +52,22 @@ describe("create payment - Property-Based Tests", () => {
    *
    * Минимум 100 итераций для обеспечения надежности.
    */
-  it("все созданные платежи содержат все обязательные поля", async () => {
-    await fc.assert(
-      fc.asyncProperty(
-        // Генератор случайных параметров платежа
-        fc.record({
-          amount: fc.double({ min: 0.01, max: 1000000, noNaN: true }),
-          description: fc.option(fc.string({ minLength: 1, maxLength: 128 }), {
-            nil: undefined,
+  it(
+    "все созданные платежи содержат все обязательные поля",
+    async () => {
+      await fc.assert(
+        fc.asyncProperty(
+          // Генератор случайных параметров платежа
+          fc.record({
+            amount: fc.double({ min: 0.01, max: 1000000, noNaN: true }),
+            description: fc.option(fc.string({ minLength: 1, maxLength: 128 }), {
+              nil: undefined,
+            }),
+            workspaceId: fc.string({ minLength: 10, maxLength: 50 }),
+            organizationId: fc.string({ minLength: 10, maxLength: 50 }),
+            userId: fc.string({ minLength: 10, maxLength: 50 }),
           }),
-          workspaceId: fc.string({ minLength: 10, maxLength: 50 }),
-          organizationId: fc.string({ minLength: 10, maxLength: 50 }),
-          userId: fc.string({ minLength: 10, maxLength: 50 }),
-        }),
-        async (testData) => {
+          async (testData) => {
           const testYookassaId = `yookassa_${randomUUID()}`;
           let savedPayment: {
             id: string;
@@ -200,6 +202,7 @@ describe("create payment - Property-Based Tests", () => {
             type: "mutation",
             path: "payment.create",
             getRawInput: async () => input,
+            next: async () => ({ ctx: mockContext }),
           });
 
           // Проверяем полноту данных платежа
@@ -254,8 +257,10 @@ describe("create payment - Property-Based Tests", () => {
       ),
       {
         numRuns: 100, // Минимум 100 итераций
-        timeout: 30000, // 30 секунд таймаут для 100 итераций
+        timeout: 60000, // 60 секунд на весь прогон (100 итераций)
       },
     );
-  });
+  },
+  { timeout: 90000 }, // Таймаут для it (Bun по умолчанию 5 сек)
+);
 });

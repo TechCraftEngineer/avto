@@ -2,6 +2,13 @@ import { describe, expect, it, mock } from "bun:test";
 import type { Session } from "@qbs-autonaim/auth";
 import { TRPCError } from "@trpc/server";
 import type { Context } from "../../../trpc";
+
+const mockInngestSend = mock(() => Promise.resolve({ ids: ["event-123"] }));
+
+mock.module("@qbs-autonaim/jobs/client", () => ({
+  inngest: { send: mockInngestSend },
+}));
+
 import { syncArchivedVacancyResponses } from "./sync-archived-vacancy-responses";
 
 describe("syncArchivedVacancyResponses", () => {
@@ -181,6 +188,8 @@ describe("syncArchivedVacancyResponses", () => {
   });
 
   it("должен успешно запустить синхронизацию с валидными данными", async () => {
+    mockInngestSend.mockClear();
+
     const mockVacancy = {
       id: mockVacancyId,
       workspaceId: mockWorkspaceId,
@@ -195,8 +204,6 @@ describe("syncArchivedVacancyResponses", () => {
       url: "https://hh.ru/vacancy/123",
     };
 
-    const mockInngestSend = mock(() => Promise.resolve({ ids: ["event-123"] }));
-
     const mockCtx = createMockContext({
       db: {
         query: {
@@ -210,28 +217,17 @@ describe("syncArchivedVacancyResponses", () => {
       },
     });
 
-    // Mock inngest
-    // biome-ignore lint/suspicious/noExplicitAny: mocking global inngest for testing
-    const originalInngest = (global as any).inngest;
-    // biome-ignore lint/suspicious/noExplicitAny: mocking global inngest for testing
-    (global as any).inngest = { send: mockInngestSend };
+    const result = await callProcedure(mockCtx, {
+      workspaceId: mockWorkspaceId,
+      vacancyId: mockVacancyId,
+    });
 
-    try {
-      const result = await callProcedure(mockCtx, {
-        workspaceId: mockWorkspaceId,
-        vacancyId: mockVacancyId,
-      });
-
-      expect(result.success).toBe(true);
-      expect(result.message).toBe(
-        "Синхронизация откликов с архивной вакансии запущена в фоне",
-      );
-      expect(result.platform).toBe("HH");
-      expect(result.vacancyTitle).toBe("Test Vacancy");
-      expect(mockInngestSend).toHaveBeenCalledTimes(1);
-    } finally {
-      // biome-ignore lint/suspicious/noExplicitAny: restoring global inngest after testing
-      (global as any).inngest = originalInngest;
-    }
+    expect(result.success).toBe(true);
+    expect(result.message).toBe(
+      "Синхронизация откликов с архивной вакансии запущена в фоне",
+    );
+    expect(result.platform).toBe("HH");
+    expect(result.vacancyTitle).toBe("Test Vacancy");
+    expect(mockInngestSend).toHaveBeenCalledTimes(1);
   });
 });

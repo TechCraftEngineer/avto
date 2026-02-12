@@ -23,6 +23,10 @@ export const SOURCE_CONFIG: Record<string, { label: string; color: string }> = {
     label: "SuperJob",
     color: "bg-sky-500/10 text-sky-600 border-sky-200",
   },
+  KWORK: {
+    label: "Kwork",
+    color: "bg-amber-500/10 text-amber-600 border-amber-200",
+  },
   HABR: {
     label: "Хабр Карьера",
     color: "bg-zinc-500/10 text-zinc-600 border-zinc-200",

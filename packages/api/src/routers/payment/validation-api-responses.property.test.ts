@@ -200,12 +200,12 @@ describe("payment validation - API Response Validation Property-Based Tests", ()
             if (!result.success) {
               const error = result.error as ZodError;
 
-              // Должны быть ошибки валидации
-              expect(error.errors).toBeDefined();
-              expect(error.errors.length).toBeGreaterThan(0);
+              // Должны быть ошибки валидации (Zod 4 использует issues)
+              expect(error.issues).toBeDefined();
+              expect(error.issues.length).toBeGreaterThan(0);
 
               // Каждая ошибка должна иметь сообщение и путь
-              for (const err of error.errors) {
+              for (const err of error.issues) {
                 expect(err.message).toBeDefined();
                 expect(typeof err.message).toBe("string");
                 expect(err.path).toBeDefined();
@@ -332,7 +332,7 @@ describe("payment validation - API Response Validation Property-Based Tests", ()
             } else {
               expect(result.success).toBe(false);
               if (!result.success) {
-                expect(result.error.errors.length).toBeGreaterThan(0);
+                expect(result.error.issues.length).toBeGreaterThan(0);
               }
             }
           },
@@ -400,10 +400,10 @@ describe("payment validation - API Response Validation Property-Based Tests", ()
 
             if (!result.success) {
               const error = result.error as ZodError;
-              expect(error.errors.length).toBeGreaterThan(0);
+              expect(error.issues.length).toBeGreaterThan(0);
 
               // Проверяем, что ошибка связана с типом данных
-              const hasTypeError = error.errors.some(
+              const hasTypeError = error.issues.some(
                 (err) =>
                   err.code === "invalid_type" ||
                   err.message.toLowerCase().includes("expected") ||
@@ -486,7 +486,7 @@ describe("payment validation - API Response Validation Property-Based Tests", ()
               // Должно быть невалидно из-за неверных типов опциональных полей
               expect(result.success).toBe(false);
               if (!result.success) {
-                expect(result.error.errors.length).toBeGreaterThan(0);
+                expect(result.error.issues.length).toBeGreaterThan(0);
               }
             }
           },
