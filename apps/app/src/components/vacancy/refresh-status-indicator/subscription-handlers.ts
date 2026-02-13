@@ -34,6 +34,8 @@ interface MessageHandlerContext {
   trpc: TRPCClient;
   onVisibilityChange: (visible: boolean) => void;
   onTaskComplete?: () => void;
+  /** Вызывается при завершении sync archived (handleRefreshComplete) */
+  onArchivedSyncComplete?: () => void;
   setArchivedStatus: (status: ArchivedStatusData | null) => void;
   setAnalyzeProgress: (progress: AnalyzeProgressData | null) => void;
   setAnalyzeCompleted: (completed: AnalyzeCompletedData | null) => void;
@@ -57,6 +59,10 @@ export function handleArchivedProgress(
   const progressData = parseResult.data;
   context.setArchivedStatus(progressData);
   context.onVisibilityChange(true);
+
+  if (progressData.status === "error") {
+    context.onArchivedSyncComplete?.();
+  }
 
   // Не инвалидируем vacancy.responses.list при каждом progress: парсер шлёт progress
   // после КАЖДОГО отклика → сотни сообщений → массовая атака на list. Инвалидация
@@ -106,6 +112,8 @@ export function handleArchivedResult(
       vacancyId: context.vacancyId,
     }),
   });
+
+  context.onArchivedSyncComplete?.();
 
   const timer = setTimeout(() => {
     context.onVisibilityChange(false);

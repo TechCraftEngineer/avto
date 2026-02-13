@@ -2,13 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { fetchSyncArchivedVacancyResponsesToken } from "~/actions/realtime";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useVacancyOperation } from "../context/vacancy-responses-context";
-import {
-  type StatusData,
-  useSyncArchivedSubscription,
-} from "./use-sync-archived-subscription";
+import { useVacancyOperation, useVacancyResponses } from "../context/vacancy-responses-context";
 
 export interface SyncArchivedStateData {
   vacancyId: string;
@@ -34,6 +29,7 @@ export function useSyncArchivedState(
   onRefreshComplete: () => void,
 ) {
   const archivedOp = useVacancyOperation("archived");
+  const { registerOnArchivedSyncComplete } = useVacancyResponses();
   const { workspace } = useWorkspace();
   const [state, setState] = useState<SyncArchivedStateData>({
     vacancyId,
@@ -69,59 +65,12 @@ export function useSyncArchivedState(
     }));
   }, []);
 
-  // Sync archived subscription
-  useSyncArchivedSubscription({
-    vacancyId,
-    enabled: state.subscriptionActive,
-    fetchToken: fetchSyncArchivedVacancyResponsesToken,
-    onMessage: useCallback((message: string, data?: StatusData) => {
-      setState((prev) => {
-        const newState = { ...prev, message };
-        // Use data from realtime message if available
-        if (data) {
-          if (data.syncedResponses !== undefined) {
-            newState.syncedCount = data.syncedResponses;
-          }
-          if (data.newResponses !== undefined) {
-            newState.newCount = data.newResponses;
-          }
-          if (data.vacancyTitle) {
-            newState.vacancyTitle = data.vacancyTitle;
-          }
-        }
-        return newState;
-      });
-    }, []),
-    onStatusChange: useCallback(
-      (status: string, message: string) => {
-        if (status === "completed") {
-          setState((prev) => ({
-            ...prev,
-            status: "success",
-            subscriptionActive: false,
-          }));
-          onRefreshComplete();
-
-          // Очищаем предыдущий таймер перед установкой нового
-          if (timerRef.current) {
-            clearTimeout(timerRef.current);
-          }
-          timerRef.current = setTimeout(() => {
-            handleDialogClose();
-          }, 3000);
-        } else {
-          setState((prev) => ({
-            ...prev,
-            status: "error",
-            error: message,
-            subscriptionActive: false,
-          }));
-          onRefreshComplete();
-        }
-      },
-      [onRefreshComplete, handleDialogClose],
-    ),
-  });
+  // Регистрируем колбэк для вызова при завершении sync archived.
+  // Прогресс и результат приходят через RefreshStatusIndicator (один WebSocket).
+  useEffect(() => {
+    registerOnArchivedSyncComplete(onRefreshComplete);
+    return () => registerOnArchivedSyncComplete(null);
+  }, [onRefreshComplete, registerOnArchivedSyncComplete]);
 
   const handleClick = useCallback(async () => {
     if (!workspace) {
@@ -154,9 +103,11 @@ export function useSyncArchivedState(
         ...prev,
         status: "error",
         error: error instanceof Error ? error.message : "Произошла ошибка",
+        subscriptionActive: false,
       }));
+      onRefreshComplete();
     }
-  }, [workspace, onSyncArchived]);
+  }, [workspace, onSyncArchived, onRefreshComplete]);
 
   const setDialogOpen = useCallback((open: boolean) => {
     setState((prev) => ({ ...prev, dialogOpen: open }));

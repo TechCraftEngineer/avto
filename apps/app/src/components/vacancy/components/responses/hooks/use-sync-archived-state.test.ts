@@ -14,11 +14,13 @@ const mockUseVacancyOperation = mock(() => ({
   setHandler: mock(() => {}),
 }));
 
+const mockUseVacancyResponses = mock(() => ({
+  registerOnArchivedSyncComplete: mock(() => {}),
+}));
+
 const mockFetchSyncArchivedVacancyResponsesToken = mock(() =>
   Promise.resolve("token-123"),
 );
-
-const mockUseSyncArchivedSubscription = mock(() => ({}));
 
 // Mock модулей перед каждым тестом
 beforeEach(() => {
@@ -28,15 +30,12 @@ beforeEach(() => {
 
   mock.module("../context/vacancy-responses-context", () => ({
     useVacancyOperation: mockUseVacancyOperation,
+    useVacancyResponses: mockUseVacancyResponses,
   }));
 
   mock.module("~/actions/realtime", () => ({
     fetchSyncArchivedVacancyResponsesToken:
       mockFetchSyncArchivedVacancyResponsesToken,
-  }));
-
-  mock.module("./use-sync-archived-subscription", () => ({
-    useSyncArchivedSubscription: mockUseSyncArchivedSubscription,
   }));
 });
 

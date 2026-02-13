@@ -4,6 +4,7 @@ import { cn } from "@qbs-autonaim/ui";
 import { Card } from "@qbs-autonaim/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "~/trpc/react";
+import { useVacancyResponses } from "~/components/vacancy/components/responses/context/vacancy-responses-context";
 import { ConfirmationView } from "./confirmation-view";
 import { ProgressView } from "./progress-view";
 import type { RefreshStatusIndicatorProps } from "./types";
@@ -22,6 +23,7 @@ export function RefreshStatusIndicator({
   progress: externalProgress,
 }: RefreshStatusIndicatorProps) {
   const trpc = useTRPC();
+  const { getOnArchivedSyncComplete } = useVacancyResponses();
 
   const { data: initialStatus } = useQuery(
     trpc.vacancy.responses.getRefreshStatus.queryOptions({ vacancyId }),
@@ -48,6 +50,8 @@ export function RefreshStatusIndicator({
     onVisibilityChange: visibility.setIsVisible,
     taskStarted: visibility.taskStarted,
     onTaskComplete: () => visibility.setTaskStarted(false),
+    onArchivedSyncComplete:
+      mode === "archived" ? () => getOnArchivedSyncComplete()?.() : undefined,
     initialStatus: initialStatus ?? null,
   });
 

@@ -51,6 +51,10 @@ interface VacancyResponsesContextValue {
   // Обработчики операций (устанавливаются компонентами)
   setOperationHandler: (type: OperationType, handler: () => void) => void;
   executeOperation: (type: OperationType) => void;
+
+  // Колбэк при завершении синхронизации архивных (для handleRefreshComplete)
+  registerOnArchivedSyncComplete: (cb: (() => void) | null) => void;
+  getOnArchivedSyncComplete: () => (() => void) | null;
 }
 
 const VacancyResponsesContext = createContext<
@@ -78,6 +82,7 @@ export function VacancyResponsesProvider({
 
   // Храним обработчики операций в ref, чтобы избежать ре-рендеров
   const handlersRef = useRef<Partial<Record<OperationType, () => void>>>({});
+  const onArchivedSyncCompleteRef = useRef<(() => void) | null>(null);
 
   const showConfirmation = useCallback((type: OperationType) => {
     setOperations((prev) => ({
@@ -137,6 +142,18 @@ export function VacancyResponsesProvider({
     }
   }, []);
 
+  const registerOnArchivedSyncComplete = useCallback(
+    (cb: (() => void) | null) => {
+      onArchivedSyncCompleteRef.current = cb;
+    },
+    [],
+  );
+
+  const getOnArchivedSyncComplete = useCallback(
+    () => onArchivedSyncCompleteRef.current,
+    [],
+  );
+
   return (
     <VacancyResponsesContext.Provider
       value={{
@@ -149,6 +166,8 @@ export function VacancyResponsesProvider({
         updateProgress,
         setOperationHandler,
         executeOperation,
+        registerOnArchivedSyncComplete,
+        getOnArchivedSyncComplete,
       }}
     >
       {children}
