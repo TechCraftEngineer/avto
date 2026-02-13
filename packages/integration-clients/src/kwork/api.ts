@@ -24,7 +24,44 @@ export interface KworkSignInParams {
 
 export interface KworkAuthSuccess {
   token?: string;
+  data?: { token?: string };
+  response?: string | { token?: string };
   [key: string]: unknown;
+}
+
+const TOKEN_KEYS = ["token", "auth_token", "access_token"] as const;
+
+/** Извлекает токен из ответа signIn (разные варианты структуры Kwork API) */
+export function extractTokenFromSignInResponse(
+  data: KworkAuthSuccess | Record<string, unknown> | undefined,
+): string | undefined {
+  if (!data || typeof data !== "object") return undefined;
+  const d = data as Record<string, unknown>;
+
+  const tryGetToken = (obj: Record<string, unknown>): string | undefined => {
+    for (const key of TOKEN_KEYS) {
+      const v = obj[key];
+      if (typeof v === "string") return v;
+    }
+    return undefined;
+  };
+
+  const t = tryGetToken(d);
+  if (t) return t;
+
+  const inner = d.data;
+  if (inner && typeof inner === "object") {
+    const t2 = tryGetToken(inner as Record<string, unknown>);
+    if (t2) return t2;
+  }
+
+  const resp = d.response;
+  if (typeof resp === "string") return resp;
+  if (resp && typeof resp === "object") {
+    const t3 = tryGetToken(resp as Record<string, unknown>);
+    if (t3) return t3;
+  }
+  return undefined;
 }
 
 export interface KworkErrorResponse {

@@ -1,6 +1,10 @@
 import { upsertIntegration } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
-import { KWORK_ERROR_CODES, signIn } from "@qbs-autonaim/integration-clients";
+import {
+  extractTokenFromSignInResponse,
+  KWORK_ERROR_CODES,
+  signIn,
+} from "@qbs-autonaim/integration-clients";
 import {
   verifyKworkCredentialsChannel,
   workspaceNotificationsChannel,
@@ -78,13 +82,7 @@ export const verifyKworkCredentialsFunction = inngest.createFunction(
         }
 
         // Успешная авторизация — сохраняем интеграцию с токеном
-        const rawData = signInResult.data as
-          | Record<string, unknown>
-          | undefined;
-        const innerData = rawData?.data as Record<string, unknown> | undefined;
-        const token =
-          (rawData?.token as string | undefined) ??
-          (innerData?.token as string | undefined);
+        const token = extractTokenFromSignInResponse(signInResult.data);
         const credentials: Record<string, string> = {
           login,
           password,

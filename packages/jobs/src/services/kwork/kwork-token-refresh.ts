@@ -11,6 +11,7 @@ import {
   workspaceNotificationsChannel,
 } from "../../inngest/channels/client";
 import {
+  extractTokenFromSignInResponse,
   isKworkAuthError,
   signIn,
   type KworkErrorResponse,
@@ -55,11 +56,7 @@ export async function executeWithKworkTokenRefresh<T>(
       password: credentials.password,
     });
     if (signInResult.success) {
-      const rawData = signInResult.data as Record<string, unknown> | undefined;
-      const innerData = rawData?.data as Record<string, unknown> | undefined;
-      const newToken =
-        (rawData?.token as string | undefined) ??
-        (innerData?.token as string | undefined);
+      const newToken = extractTokenFromSignInResponse(signInResult.data);
       if (newToken) {
         token = newToken;
         await upsertIntegration(db, {
@@ -116,11 +113,7 @@ export async function executeWithKworkTokenRefresh<T>(
     throw new Error(errMsg);
   }
 
-  const rawData = signInResult.data as Record<string, unknown> | undefined;
-  const innerData = rawData?.data as Record<string, unknown> | undefined;
-  const newToken =
-    (rawData?.token as string | undefined) ??
-    (innerData?.token as string | undefined);
+  const newToken = extractTokenFromSignInResponse(signInResult.data);
 
   if (!newToken) {
     await notifyAuthFailed(workspaceId, options?.publish);
