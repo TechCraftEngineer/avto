@@ -52,6 +52,7 @@ import {
   evaluateGigResponseFunction,
   importGigByUrlFunction,
   importNewGigsFunction,
+  kworkChatImportHistoryFunction,
   kworkChatProcessFunction,
   syncGigResponses,
 } from "./gig";
@@ -142,6 +143,7 @@ export const inngestFunctions: any[] = [
   evaluateGigResponseFunction,
   importGigByUrlFunction,
   importNewGigsFunction,
+  kworkChatImportHistoryFunction,
   kworkChatProcessFunction,
   syncGigResponses,
   // Integration

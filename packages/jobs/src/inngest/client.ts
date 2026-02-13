@@ -22,6 +22,7 @@ import {
   gigShortlistRecalculateDataSchema,
   gigSyncResponsesDataSchema,
   kworkChatProcessDataSchema,
+  kworkChatImportHistoryDataSchema,
   interviewAnalysisDataSchema,
   interviewCompleteDataSchema,
   interviewSendQuestionDataSchema,
@@ -117,5 +118,6 @@ export const inngest = new Inngest({
     "gig/response.evaluate": gigResponseEvaluateDataSchema,
     "gig/sync-responses": gigSyncResponsesDataSchema,
     "kwork-chat/process": kworkChatProcessDataSchema,
+    "kwork-chat/import-history": kworkChatImportHistoryDataSchema,
   }),
 });

@@ -40,3 +40,8 @@ export const kworkChatProcessDataSchema = z.object({
   responseId: z.string().uuid("ID отклика должен быть валидным UUID"),
   workspaceId: z.string().min(1, "ID рабочей области обязателен"),
 });
+
+export const kworkChatImportHistoryDataSchema = z.object({
+  responseId: z.string().uuid("ID отклика должен быть валидным UUID"),
+  workspaceId: z.string().min(1, "ID рабочей области обязателен"),
+});

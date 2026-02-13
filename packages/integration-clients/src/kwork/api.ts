@@ -6,8 +6,7 @@
 import axios, { type AxiosInstance } from "axios";
 
 const KWORK_BASE_URL = "https://api.kwork.ru/";
-const KWORK_AUTH_HEADER =
-  "Basic bW9iaWxlX2FwaTpxRnZmUmw3dw==";
+const KWORK_AUTH_HEADER = "Basic bW9iaWxlX2FwaTpxRnZmUmw3dw==";
 
 export interface KworkSignInParams {
   login: string;
@@ -206,13 +205,18 @@ export interface KworkDetails {
 export async function getProject(
   token: string,
   projectId: number,
-): Promise<{ success: boolean; response?: KworkProject; error?: KworkErrorResponse }> {
+): Promise<{
+  success: boolean;
+  response?: KworkProject;
+  error?: KworkErrorResponse;
+}> {
   try {
     const body = new URLSearchParams({ id: String(projectId), token });
-    const response = await kworkApi.post<{ success?: boolean; response?: KworkProject; code?: number }>(
-      "project",
-      body.toString(),
-    );
+    const response = await kworkApi.post<{
+      success?: boolean;
+      response?: KworkProject;
+      code?: number;
+    }>("project", body.toString());
 
     const data = response.data;
     if (data && typeof data === "object" && "code" in data && data.code) {
@@ -249,8 +253,10 @@ export async function getProjects(
     const body = new URLSearchParams();
     body.append("token", token);
     if (params.categories) body.append("categories", params.categories);
-    if (params.price_from != null) body.append("price_from", String(params.price_from));
-    if (params.price_to != null) body.append("price_to", String(params.price_to));
+    if (params.price_from != null)
+      body.append("price_from", String(params.price_from));
+    if (params.price_to != null)
+      body.append("price_to", String(params.price_to));
     if (params.page != null) body.append("page", String(params.page));
     if (params.query) body.append("query", params.query);
 
@@ -265,7 +271,10 @@ export async function getProjects(
     if (data && typeof data === "object" && "code" in data && data.code) {
       return { success: false, error: data as KworkErrorResponse };
     }
-    const result = data as { response?: KworkProject[]; paging?: { page: number; total: number; limit: number } };
+    const result = data as {
+      response?: KworkProject[];
+      paging?: { page: number; total: number; limit: number };
+    };
     return {
       success: true,
       response: result?.response ?? [],
@@ -363,7 +372,12 @@ export async function getMyWants(
     }>("myWants", body.toString());
 
     const data = response.data;
-    if (data && typeof data === "object" && "code" in data && (data as KworkErrorResponse).code) {
+    if (
+      data &&
+      typeof data === "object" &&
+      "code" in data &&
+      (data as KworkErrorResponse).code
+    ) {
       return { success: false, error: data as KworkErrorResponse };
     }
     const result = data as {
@@ -405,7 +419,12 @@ export async function getWant(
     >("want", body.toString());
 
     const data = response.data;
-    if (data && typeof data === "object" && "code" in data && (data as KworkErrorResponse).code) {
+    if (
+      data &&
+      typeof data === "object" &&
+      "code" in data &&
+      (data as KworkErrorResponse).code
+    ) {
       return { success: false, error: data as KworkErrorResponse };
     }
     return {
@@ -449,7 +468,12 @@ export async function getOffers(
     }>("offers", body.toString());
 
     const data = response.data;
-    if (data && typeof data === "object" && "code" in data && (data as KworkErrorResponse).code) {
+    if (
+      data &&
+      typeof data === "object" &&
+      "code" in data &&
+      (data as KworkErrorResponse).code
+    ) {
       return { success: false, error: data as KworkErrorResponse };
     }
     const result = data as {
@@ -491,7 +515,12 @@ export async function getOffer(
     >("offer", body.toString());
 
     const data = response.data;
-    if (data && typeof data === "object" && "code" in data && (data as KworkErrorResponse).code) {
+    if (
+      data &&
+      typeof data === "object" &&
+      "code" in data &&
+      (data as KworkErrorResponse).code
+    ) {
       return { success: false, error: data as KworkErrorResponse };
     }
     return {
@@ -552,7 +581,12 @@ export async function getDialog(
     >("getDialog", body.toString());
 
     const data = response.data;
-    if (data && typeof data === "object" && "code" in data && (data as KworkErrorResponse).code) {
+    if (
+      data &&
+      typeof data === "object" &&
+      "code" in data &&
+      (data as KworkErrorResponse).code
+    ) {
       return { success: false, error: data as KworkErrorResponse };
     }
     return {
@@ -598,13 +632,21 @@ export async function sendMessage(
     >("inboxCreate", body.toString());
 
     const data = response.data;
-    if (data && typeof data === "object" && "code" in data && (data as KworkErrorResponse).code) {
+    if (
+      data &&
+      typeof data === "object" &&
+      "code" in data &&
+      (data as KworkErrorResponse).code
+    ) {
       return { success: false, error: data as KworkErrorResponse };
     }
     return {
       success: true,
-      response: (data as { response?: { id?: number; conversation_id?: number; type?: string } })
-        ?.response,
+      response: (
+        data as {
+          response?: { id?: number; conversation_id?: number; type?: string };
+        }
+      )?.response,
     };
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.data) {
@@ -653,7 +695,12 @@ export async function getInboxTracks(
     >("getInboxTracks", body.toString());
 
     const data = response.data;
-    if (data && typeof data === "object" && "code" in data && (data as KworkErrorResponse).code) {
+    if (
+      data &&
+      typeof data === "object" &&
+      "code" in data &&
+      (data as KworkErrorResponse).code
+    ) {
       return { success: false, error: data as KworkErrorResponse };
     }
     const result = data as {
@@ -697,7 +744,12 @@ export async function getInboxMessage(
     >("inboxMessage", body.toString());
 
     const data = response.data;
-    if (data && typeof data === "object" && "code" in data && (data as KworkErrorResponse).code) {
+    if (
+      data &&
+      typeof data === "object" &&
+      "code" in data &&
+      (data as KworkErrorResponse).code
+    ) {
       return { success: false, error: data as KworkErrorResponse };
     }
     return {
@@ -725,10 +777,11 @@ export async function getKworkDetails(kworkId: number): Promise<{
 }> {
   try {
     const body = new URLSearchParams({ id: String(kworkId) });
-    const response = await kworkApi.post<{ success?: boolean; response?: KworkDetails; code?: number }>(
-      "getKworkDetails",
-      body.toString(),
-    );
+    const response = await kworkApi.post<{
+      success?: boolean;
+      response?: KworkDetails;
+      code?: number;
+    }>("getKworkDetails", body.toString());
 
     const data = response.data;
     if (data && typeof data === "object" && "code" in data && data.code) {

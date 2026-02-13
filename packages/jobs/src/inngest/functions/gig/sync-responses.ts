@@ -44,6 +44,7 @@ export const syncGigResponses = inngest.createFunction(
           success: false,
           message: "Gig has no external ID",
           syncedCount: 0,
+          responseIdsForChatImport: [] as string[],
         };
       }
 
@@ -56,17 +57,37 @@ export const syncGigResponses = inngest.createFunction(
             publish as (event: object) => Promise<void>,
           );
         case "FL_RU":
-          return await syncFlRuResponses(gigRecord.externalId);
+          return { ...(await syncFlRuResponses(gigRecord.externalId)), responseIdsForChatImport: [] };
         case "FREELANCE_RU":
-          return await syncFreelanceRuResponses(gigRecord.externalId);
+          return { ...(await syncFreelanceRuResponses(gigRecord.externalId)), responseIdsForChatImport: [] };
         default:
           return {
             success: false,
             message: `Unsupported platform: ${gigRecord.source}`,
             syncedCount: 0,
+            responseIdsForChatImport: [],
           };
       }
     });
+
+    // Запуск импорта истории чатов для откликов Kwork с kworkWorkerId
+    const responseIds =
+      syncResult.responseIdsForChatImport ?? [];
+    if (
+      syncResult.success &&
+      responseIds.length > 0 &&
+      gigRecord.source === "KWORK"
+    ) {
+      await step.run("trigger-chat-import", async () => {
+        await inngest.send(
+          responseIds.map((responseId) => ({
+            name: "kwork-chat/import-history" as const,
+            data: { responseId, workspaceId: gigRecord.workspaceId },
+          })),
+        );
+        return { triggered: responseIds.length };
+      });
+    }
 
     return {
       success: syncResult.success,
@@ -93,6 +114,7 @@ async function syncKworkResponses(
       success: false,
       message: "Invalid Kwork project ID",
       syncedCount: 0,
+      responseIdsForChatImport: [],
     };
   }
 
@@ -113,6 +135,7 @@ async function syncKworkResponses(
           success: false,
           message: result.error?.message ?? "Failed to fetch Kwork offers",
           syncedCount: 0,
+          responseIdsForChatImport: [],
         };
       }
       const offers = result.response as KworkOffer[];
@@ -126,7 +149,12 @@ async function syncKworkResponses(
   } catch (error) {
     const msg =
       error instanceof Error ? error.message : "Ошибка синхронизации Kwork";
-    return { success: false, message: msg, syncedCount: 0 };
+    return {
+      success: false,
+      message: msg,
+      syncedCount: 0,
+      responseIdsForChatImport: [],
+    };
   }
 
   const offersForProject = allOffers.filter(
@@ -138,6 +166,7 @@ async function syncKworkResponses(
       success: true,
       message: "No offers found for this project",
       syncedCount: 0,
+      responseIdsForChatImport: [],
     };
   }
 
@@ -213,10 +242,21 @@ async function syncKworkResponses(
     .set({ responses: counts.total, newResponses: counts.newCount })
     .where(eq(gig.id, gigId));
 
+  const responseIdsForChatImport = inserted
+    .map((row, i) => {
+      const val = values[i];
+      if (!val) return null;
+      const workerId = (val.profileData as { kworkWorkerId?: number })
+        ?.kworkWorkerId;
+      return workerId != null ? row.id : null;
+    })
+    .filter((id): id is string => id != null);
+
   return {
     success: true,
     message: `Synced ${inserted.length} Kwork offers`,
     syncedCount: inserted.length,
+    responseIdsForChatImport,
   };
 }
 

@@ -92,6 +92,7 @@ export const importNewGigsFunction = inngest.createFunction(
       let imported = 0;
       let updated = 0;
       let failed = 0;
+      const kworkGigIds: string[] = [];
       let page = 1;
       let hasMore = true;
 
@@ -151,12 +152,19 @@ export const importNewGigsFunction = inngest.createFunction(
                   })
                   .where(eq(gig.id, existing.id));
                 updated += 1;
+                kworkGigIds.push(existing.id);
               } else {
-                await db.insert(gig).values({
-                  ...gigData,
-                  type: "OTHER",
-                });
-                imported += 1;
+                const [inserted] = await db
+                  .insert(gig)
+                  .values({
+                    ...gigData,
+                    type: "OTHER",
+                  })
+                  .returning({ id: gig.id });
+                if (inserted) {
+                  imported += 1;
+                  kworkGigIds.push(inserted.id);
+                }
               }
             } catch (itemError) {
               console.error(
@@ -202,7 +210,13 @@ export const importNewGigsFunction = inngest.createFunction(
           }),
         );
 
-        return { success: true, imported, updated, failed };
+        return {
+          success: true,
+          imported,
+          updated,
+          failed,
+          kworkGigIds,
+        };
       } catch (error) {
         const userMessage = mapKworkErrorToUserMessage(error);
 
@@ -239,6 +253,23 @@ export const importNewGigsFunction = inngest.createFunction(
         throw error;
       }
     });
+
+    // Запуск синхронизации откликов для каждого импортированного Kwork-гига
+    if (
+      result.success &&
+      result.kworkGigIds &&
+      result.kworkGigIds.length > 0
+    ) {
+      await step.run("trigger-sync-responses", async () => {
+        await inngest.send(
+          result.kworkGigIds!.map((gigId) => ({
+            name: "gig/sync-responses" as const,
+            data: { gigId },
+          })),
+        );
+        return { triggered: result.kworkGigIds!.length };
+      });
+    }
 
     return result;
   },

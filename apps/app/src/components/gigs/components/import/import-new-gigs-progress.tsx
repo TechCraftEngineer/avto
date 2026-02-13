@@ -13,7 +13,6 @@ import {
   Separator,
 } from "@qbs-autonaim/ui";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
-import { useEffect, useRef } from "react";
 import { fetchImportNewGigsToken } from "~/actions/gig-import";
 
 interface ImportNewGigsProgressProps {
@@ -25,15 +24,14 @@ export function ImportNewGigsProgress({
   workspaceId,
   onComplete,
 }: ImportNewGigsProgressProps) {
-  const completedRef = useRef(false);
-
   const { data, error } = useInngestSubscription({
     refreshToken: () => fetchImportNewGigsToken(workspaceId),
     enabled: true,
   });
 
   const latestMessage = data[data.length - 1];
-  const isCompleted = latestMessage?.topic === "result";
+  const isCompleted =
+    latestMessage?.topic === "result" || Boolean(error);
   const progressData =
     latestMessage?.topic === "progress" ? latestMessage.data : null;
   const resultData =
@@ -45,15 +43,6 @@ export function ImportNewGigsProgress({
     progressTotal && progressTotal > 0
       ? Math.round(((progressProcessed || 0) / progressTotal) * 100)
       : 0;
-
-  useEffect(() => {
-    if (completedRef.current) return;
-
-    if (isCompleted || error) {
-      completedRef.current = true;
-      onComplete();
-    }
-  }, [isCompleted, error, onComplete]);
 
   const getStatusMessage = () => {
     if (error) return "Ошибка подключения к серверу";

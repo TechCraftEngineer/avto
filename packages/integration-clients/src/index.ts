@@ -4,6 +4,7 @@
  */
 
 export {
+  extractTokenFromSignInResponse,
   getDialog,
   getInboxMessage,
   getInboxTracks,
@@ -13,7 +14,6 @@ export {
   getOffers,
   getProject,
   getProjects,
-  extractTokenFromSignInResponse,
   getWant,
   isKworkAuthError,
   KWORK_ERROR_CODES,
