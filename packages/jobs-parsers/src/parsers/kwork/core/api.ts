@@ -106,3 +106,158 @@ export async function signIn(params: KworkSignInParams): Promise<{
     throw error;
   }
 }
+
+/** Параметры для запроса списка проектов */
+export interface KworkProjectsParams {
+  categories?: string;
+  price_from?: number;
+  price_to?: number;
+  page?: number;
+  query?: string;
+}
+
+/** Проект Kwork (запрос покупателя) - want_worker */
+export interface KworkProject {
+  id: number;
+  status?: string;
+  user_id?: number;
+  username?: string;
+  profile_picture?: string;
+  price?: number;
+  title?: string;
+  description?: string;
+  offers?: number;
+  time_left?: number;
+  parent_category_id?: number;
+  category_id?: number;
+  [key: string]: unknown;
+}
+
+/** Детали кворка (услуги продавца) */
+export interface KworkDetails {
+  id: string;
+  kwork_link?: string;
+  kwork_title?: string;
+  kwork_description?: string;
+  default_kwork_price?: number;
+  term?: string;
+  orders_in_queue_count?: number;
+  category?: number;
+  [key: string]: unknown;
+}
+
+/**
+ * Получить проект по ID (требует token)
+ */
+export async function getProject(
+  token: string,
+  projectId: number,
+): Promise<{ success: boolean; response?: KworkProject; error?: KworkErrorResponse }> {
+  try {
+    const body = new URLSearchParams({ id: String(projectId), token });
+    const response = await kworkApi.post<{ success?: boolean; response?: KworkProject; code?: number }>(
+      "project",
+      body.toString(),
+    );
+
+    const data = response.data;
+    if (data && typeof data === "object" && "code" in data && data.code) {
+      return { success: false, error: data as KworkErrorResponse };
+    }
+    return {
+      success: true,
+      response: (data as { response?: KworkProject })?.response,
+    };
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data) {
+      return {
+        success: false,
+        error: error.response.data as KworkErrorResponse,
+      };
+    }
+    throw error;
+  }
+}
+
+/**
+ * Получить список проектов (требует token)
+ */
+export async function getProjects(
+  token: string,
+  params: KworkProjectsParams = {},
+): Promise<{
+  success: boolean;
+  response?: KworkProject[];
+  paging?: { page: number; total: number; limit: number };
+  error?: KworkErrorResponse;
+}> {
+  try {
+    const body = new URLSearchParams();
+    body.append("token", token);
+    if (params.categories) body.append("categories", params.categories);
+    if (params.price_from != null) body.append("price_from", String(params.price_from));
+    if (params.price_to != null) body.append("price_to", String(params.price_to));
+    if (params.page != null) body.append("page", String(params.page));
+    if (params.query) body.append("query", params.query);
+
+    const response = await kworkApi.post<{
+      success?: boolean;
+      response?: KworkProject[];
+      paging?: { page: number; total: number; limit: number };
+      code?: number;
+    }>("projects", body.toString());
+
+    const data = response.data;
+    if (data && typeof data === "object" && "code" in data && data.code) {
+      return { success: false, error: data as KworkErrorResponse };
+    }
+    const result = data as { response?: KworkProject[]; paging?: { page: number; total: number; limit: number } };
+    return {
+      success: true,
+      response: result?.response ?? [],
+      paging: result?.paging,
+    };
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data) {
+      return {
+        success: false,
+        error: error.response.data as KworkErrorResponse,
+      };
+    }
+    throw error;
+  }
+}
+
+/**
+ * Получить детали кворка по ID (без token)
+ */
+export async function getKworkDetails(kworkId: number): Promise<{
+  success: boolean;
+  response?: KworkDetails;
+  error?: KworkErrorResponse;
+}> {
+  try {
+    const body = new URLSearchParams({ id: String(kworkId) });
+    const response = await kworkApi.post<{ success?: boolean; response?: KworkDetails; code?: number }>(
+      "getKworkDetails",
+      body.toString(),
+    );
+
+    const data = response.data;
+    if (data && typeof data === "object" && "code" in data && data.code) {
+      return { success: false, error: data as KworkErrorResponse };
+    }
+    return {
+      success: true,
+      response: (data as { response?: KworkDetails })?.response,
+    };
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data) {
+      return {
+        success: false,
+        error: error.response.data as KworkErrorResponse,
+      };
+    }
+    throw error;
+  }
+}
