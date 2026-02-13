@@ -46,6 +46,7 @@ export {
   err,
   // Messaging
   executeWithKworkTokenRefresh,
+  type KworkApiResult,
   extractVacancyRequirements,
   findResponseByPinCode,
   // Screening

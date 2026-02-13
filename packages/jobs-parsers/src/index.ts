@@ -51,6 +51,7 @@ export {
   sendMessage,
   signIn,
   type KworkErrorResponse,
+  type KworkProject,
   type KworkInboxMessage,
   type KworkInboxTracksParams,
   type KworkOffer,

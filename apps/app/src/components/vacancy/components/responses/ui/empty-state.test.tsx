@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, within } from "@testing-library/react";
 import { EmptyState } from "./empty-state";
 
 const mockOnSyncArchivedDialogOpen = mock(() => {});

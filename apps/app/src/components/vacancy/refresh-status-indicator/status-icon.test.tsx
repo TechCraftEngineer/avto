@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import { StatusIcon } from "./status-icon";
 
 describe("StatusIcon", () => {

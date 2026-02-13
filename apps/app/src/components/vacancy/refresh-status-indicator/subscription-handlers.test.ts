@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
+import type { MessageHandlerContext } from "./subscription-handlers";
 import {
   handleArchivedProgress,
   handleArchivedResult,
@@ -63,7 +64,7 @@ describe("handleArchivedProgress", () => {
       },
     };
 
-    handleArchivedProgress(message, context as any);
+    handleArchivedProgress(message, context as MessageHandlerContext);
 
     expect(mockSetArchivedStatus).toHaveBeenCalledWith({
       status: "processing",
@@ -85,7 +86,7 @@ describe("handleArchivedProgress", () => {
       },
     };
 
-    handleArchivedProgress(message, context as any);
+    handleArchivedProgress(message, context as MessageHandlerContext);
 
     expect(mockSetAutoCloseTimer).toHaveBeenCalled();
   });
@@ -100,7 +101,7 @@ describe("handleArchivedProgress", () => {
       },
     };
 
-    handleArchivedProgress(message, context as any);
+    handleArchivedProgress(message, context as MessageHandlerContext);
 
     expect(mockSetArchivedStatus).not.toHaveBeenCalled();
   });
@@ -120,7 +121,7 @@ describe("handleArchivedProgress", () => {
             newResponses: 0,
           },
         },
-        context as any,
+        context as MessageHandlerContext,
       );
     }
 
@@ -158,7 +159,7 @@ describe("handleArchivedResult", () => {
       },
     };
 
-    handleArchivedResult(message, context as any);
+    handleArchivedResult(message, context as MessageHandlerContext);
 
     expect(mockSetArchivedStatus).toHaveBeenCalledWith({
       status: "completed",
@@ -183,7 +184,7 @@ describe("handleArchivedResult", () => {
       },
     };
 
-    handleArchivedResult(message, context as any);
+    handleArchivedResult(message, context as MessageHandlerContext);
 
     expect(mockSetAutoCloseTimer).toHaveBeenCalled();
   });
@@ -197,7 +198,7 @@ describe("handleArchivedResult", () => {
       },
     };
 
-    handleArchivedResult(message, context as any);
+    handleArchivedResult(message, context as MessageHandlerContext);
 
     expect(mockSetArchivedStatus).not.toHaveBeenCalled();
   });
@@ -217,7 +218,7 @@ describe("handleRefreshProgress (refresh + screening)", () => {
       },
     };
 
-    handleRefreshProgress(message, context as any);
+    handleRefreshProgress(message, context as MessageHandlerContext);
 
     expect(mockSetCurrentProgress).toHaveBeenCalledWith({
       vacancyId: "vacancy-123",
@@ -245,7 +246,7 @@ describe("handleRefreshProgress (refresh + screening)", () => {
             totalSkipped: 0,
           },
         },
-        context as any,
+        context as MessageHandlerContext,
       );
     }
 
@@ -279,7 +280,7 @@ describe("handleRefreshResult", () => {
       },
     };
 
-    handleRefreshResult(message, context as any);
+    handleRefreshResult(message, context as MessageHandlerContext);
 
     expect(mockSetCurrentResult).toHaveBeenCalledWith({
       vacancyId: "vacancy-123",

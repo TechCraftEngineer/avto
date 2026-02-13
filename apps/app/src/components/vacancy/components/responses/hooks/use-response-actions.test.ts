@@ -192,7 +192,7 @@ describe("useResponseActions", () => {
 
       expect(result.current.isSyncingArchived).toBe(false);
 
-      let syncPromise: Promise<void>;
+      let syncPromise: Promise<void> | undefined;
       act(() => {
         syncPromise = result.current.handleSyncArchived(mockWorkspaceId);
       });
@@ -202,7 +202,7 @@ describe("useResponseActions", () => {
       });
 
       await act(async () => {
-        await syncPromise!;
+        if (syncPromise) await syncPromise;
       });
 
       // При успехе isSyncingArchived не сбрасывается сразу — сбрасывается в handleRefreshComplete

@@ -28,7 +28,7 @@ type TRPCClient = {
   };
 };
 
-interface MessageHandlerContext {
+export interface MessageHandlerContext {
   vacancyId: string;
   queryClient: QueryClient;
   trpc: TRPCClient;

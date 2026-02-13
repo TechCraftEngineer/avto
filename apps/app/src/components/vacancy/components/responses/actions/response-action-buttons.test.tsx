@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, within } from "@testing-library/react";
 import { ResponseActionButtons } from "./response-action-buttons";
 
 const mockOnRefreshDialogOpen = mock(() => {});

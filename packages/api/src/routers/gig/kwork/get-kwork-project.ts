@@ -3,8 +3,11 @@
  * Использует Kwork Mobile API: https://api.kwork.ru/
  */
 import { getIntegrationCredentials } from "@qbs-autonaim/db";
-import { executeWithKworkTokenRefresh } from "@qbs-autonaim/jobs";
-import { getProject } from "@qbs-autonaim/jobs-parsers";
+import {
+  executeWithKworkTokenRefresh,
+  type KworkApiResult,
+} from "@qbs-autonaim/jobs";
+import { getProject, type KworkProject } from "@qbs-autonaim/jobs-parsers";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../trpc";
@@ -43,7 +46,7 @@ export const getKworkProject = protectedProcedure
       });
     }
 
-    let result;
+    let result: KworkApiResult<KworkProject>;
     try {
       result = await executeWithKworkTokenRefresh(
         ctx.db,

@@ -102,6 +102,15 @@
       "linter": {
         "enabled": false
       }
+    },
+    {
+      "includes": ["**/*.test.ts", "**/*.test.tsx", "**/test-setup.ts", "**/__tests__/**"],
+      "linter": {
+        "rules": {
+          "suspicious": { "noExplicitAny": "off" },
+          "style": { "noNonNullAssertion": "off" }
+        }
+      }
     }
   ]
 }

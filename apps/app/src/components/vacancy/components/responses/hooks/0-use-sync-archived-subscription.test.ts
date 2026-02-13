@@ -3,9 +3,9 @@ import { renderHook, waitFor } from "@testing-library/react";
 
 // Mock, уникальный для этого файла — не конфликтует с archived-vacancies-selector
 const mockUseInngestSubscription = mock(() => ({
-  data: [] as any[],
+  data: [] as unknown[],
   error: null as Error | null,
-  latestData: null as any,
+  latestData: null as unknown,
 }));
 
 beforeEach(async () => {

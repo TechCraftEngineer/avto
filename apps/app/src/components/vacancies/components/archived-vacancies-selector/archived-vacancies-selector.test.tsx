@@ -164,16 +164,17 @@ describe("ArchivedVacanciesSelector", () => {
     });
 
     const checkboxes = w.getAllByRole("checkbox");
-    if (checkboxes[1]) {
-      fireEvent.click(checkboxes[1]!);
+    const checkbox1 = checkboxes[1];
+    if (checkbox1) {
+      fireEvent.click(checkbox1);
     }
 
     await waitFor(() => {
       expect(w.getByText(/Выбрано: 1/)).toBeDefined();
     });
 
-    if (checkboxes[1]) {
-      fireEvent.click(checkboxes[1]!);
+    if (checkbox1) {
+      fireEvent.click(checkbox1);
     }
 
     await waitFor(() => {
@@ -193,8 +194,9 @@ describe("ArchivedVacanciesSelector", () => {
 
     const w = within(container);
     const checkboxes = w.getAllByRole("checkbox");
-    if (checkboxes[0]) {
-      fireEvent.click(checkboxes[0]!);
+    const selectAllCheckbox = checkboxes[0];
+    if (selectAllCheckbox) {
+      fireEvent.click(selectAllCheckbox);
     }
 
     await waitFor(() => {
@@ -235,8 +237,9 @@ describe("ArchivedVacanciesSelector", () => {
 
     const w = within(container);
     const checkboxes = w.getAllByRole("checkbox");
-    if (checkboxes[1]) {
-      fireEvent.click(checkboxes[1]!);
+    const vacancyCheckbox = checkboxes[1];
+    if (vacancyCheckbox) {
+      fireEvent.click(vacancyCheckbox);
     }
 
     const importButton = w.getByRole("button", { name: /Импортировать/ });

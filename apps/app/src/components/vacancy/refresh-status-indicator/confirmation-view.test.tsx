@@ -88,7 +88,7 @@ describe("ConfirmationView", () => {
     const { container } = render(<ConfirmationView {...defaultProps} />);
     const buttons = container.querySelectorAll("button");
     const cancelButton = Array.from(buttons).find(b => b.textContent === "Отмена");
-    fireEvent.click(cancelButton!);
+    if (cancelButton) fireEvent.click(cancelButton);
     expect(defaultProps.onClose).toHaveBeenCalledTimes(1);
   });
 
@@ -96,14 +96,14 @@ describe("ConfirmationView", () => {
     const { container } = render(<ConfirmationView {...defaultProps} />);
     const buttons = container.querySelectorAll("button");
     const confirmButton = Array.from(buttons).find(b => b.textContent?.includes("Получить отклики"));
-    fireEvent.click(confirmButton!);
+    if (confirmButton) fireEvent.click(confirmButton);
     expect(defaultProps.onConfirm).toHaveBeenCalledTimes(1);
   });
 
   it("должен вызывать onClose при клике на кнопку закрытия", () => {
     const { container } = render(<ConfirmationView {...defaultProps} />);
     const closeButton = container.querySelector('button[aria-label="Закрыть"]');
-    fireEvent.click(closeButton!);
+    if (closeButton) fireEvent.click(closeButton);
     expect(defaultProps.onClose).toHaveBeenCalledTimes(1);
   });
 

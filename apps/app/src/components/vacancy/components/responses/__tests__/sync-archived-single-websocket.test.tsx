@@ -36,7 +36,7 @@ const defaultSubscriptionReturn = {
   state: "closed" as const,
 };
 
-const mockUseInngestSubscription = mock((opts: { enabled?: boolean }) => {
+const mockUseInngestSubscription = mock((_opts: { enabled?: boolean }) => {
   return defaultSubscriptionReturn;
 });
 
