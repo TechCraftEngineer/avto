@@ -14,7 +14,7 @@ export interface PageSEO {
 }
 
 export function generateSEO(page: PageSEO): Metadata {
-  const baseUrl = "https://docs.avtonaim.qbs.ru";
+  const baseUrl = "https://docs.avtonaim.qbsoft.ru";
   const url = page.url ? `${baseUrl}${page.url}` : baseUrl;
 
   return {

@@ -549,7 +549,7 @@ export default function PricingPage() {
               💬 Написать в Telegram
             </a>
             <a
-              href="mailto:sales@avtonaim.qbs.ru"
+              href="mailto:sales@avtonaim.qbsoft.ru"
               className="inline-flex items-center gap-2 px-4 py-2 border border-border rounded-md hover:bg-accent transition-colors"
             >
               📧 Написать email

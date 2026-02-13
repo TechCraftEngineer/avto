@@ -22,7 +22,7 @@ export const env = createEnv({
   client: {
     NEXT_PUBLIC_APP_URL: z.url().default("http://localhost:3000"),
     NEXT_PUBLIC_APP_NAME: z.string().default("QBS Автонайм"),
-    NEXT_PUBLIC_DEMO_URL: z.url().default("https://demo.avtonaim.qbs.ru"),
+    NEXT_PUBLIC_DEMO_URL: z.url().default("https://demo.avtonaim.qbsoft.ru"),
   },
   /**
    * Destructure all variables from `process.env` to make sure they aren't tree-shaken away.

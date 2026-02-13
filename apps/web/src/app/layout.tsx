@@ -42,7 +42,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "ru_RU",
-    url: "https://avtonaim.qbs.ru",
+    url: "https://avtonaim.qbsoft.ru",
     siteName: "QBS Автонайм",
     title: "QBS Автонайм — Автоматизация подбора персонала с ИИ",
     description: "AI-скрининг резюме, голосовые интервью, интеграция с hh.ru. Сократите время найма на 70%.",

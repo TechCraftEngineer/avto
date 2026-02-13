@@ -140,7 +140,7 @@ export const env = createEnv({
       .optional()
       .default("http://localhost:3001"),
     NEXT_PUBLIC_IS_DEMO: z.coerce.boolean().optional().default(false),
-    NEXT_PUBLIC_DOCS_URL: z.string().optional().default("https://docs.avtonaim.qbs.ru/"),
+    NEXT_PUBLIC_DOCS_URL: z.string().optional().default("https://docs.avtonaim.qbsoft.ru/"),
   },
   clientPrefix: "NEXT_PUBLIC_",
   runtimeEnv: {

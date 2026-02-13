@@ -4,7 +4,7 @@
 
 export const SITE_CONFIG = {
   name: "QBS Автонайм",
-  url: "https://avtonaim.qbs.ru",
+  url: "https://avtonaim.qbsoft.ru",
   ogImage: "/og-image.png",
   description:
     "Автоматизируйте подбор персонала с помощью искусственного интеллекта. AI-скрининг резюме, голосовые интервью в Telegram, интеграция с hh.ru.",

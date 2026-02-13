@@ -14,7 +14,7 @@ const defaultMetadata = {
   defaultTitle: "QBS Автонайм — AI-платформа автоматизации подбора персонала",
   defaultDescription:
     "Автоматизируйте подбор персонала с помощью искусственного интеллекта. AI-скрининг резюме, голосовые интервью в Telegram, интеграция с hh.ru. Сократите время найма на 70%.",
-  siteUrl: "https://avtonaim.qbs.ru",
+  siteUrl: "https://avtonaim.qbsoft.ru",
   ogImage: "/og-image.png",
   twitterHandle: "@qbs_autonaim",
 }
@@ -95,8 +95,8 @@ export const structuredData = {
     "@type": "Organization",
     name: "QBS",
     legalName: "QBS Автонайм",
-    url: "https://avtonaim.qbs.ru",
-    logo: "https://avtonaim.qbs.ru/logo.png",
+    url: "https://avtonaim.qbsoft.ru",
+    logo: "https://avtonaim.qbsoft.ru/logo.png",
     description:
       "AI-платформа для автоматизации найма персонала. Интеграция с HH.ru и Telegram.",
     address: {
@@ -107,7 +107,7 @@ export const structuredData = {
     contactPoint: {
       "@type": "ContactPoint",
       contactType: "Служба поддержки",
-      email: "support@avtonaim.qbs.ru",
+      email: "support@avtonaim.qbsoft.ru",
       availableLanguage: ["Russian"],
     },
     sameAs: [
@@ -179,12 +179,12 @@ export const structuredData = {
       name: "QBS Автонайм",
       logo: {
         "@type": "ImageObject",
-        url: "https://avtonaim.qbs.ru/logo.png",
+        url: "https://avtonaim.qbsoft.ru/logo.png",
       },
     },
     datePublished: article.datePublished,
     dateModified: article.dateModified || article.datePublished,
-    image: article.image || "https://avtonaim.qbs.ru/og-image.png",
+    image: article.image || "https://avtonaim.qbsoft.ru/og-image.png",
   }),
 
   breadcrumb: (items: Array<{ name: string; url: string }>) => ({
@@ -194,7 +194,7 @@ export const structuredData = {
       "@type": "ListItem",
       position: index + 1,
       name: item.name,
-      item: `https://avtonaim.qbs.ru${item.url}`,
+      item: `https://avtonaim.qbsoft.ru${item.url}`,
     })),
   }),
 }

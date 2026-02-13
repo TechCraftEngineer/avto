@@ -12,6 +12,16 @@ export default async function createNextConfig(): Promise<NextConfig> {
     /** Enables hot reloading for local packages without a build step */
     output: "standalone",
 
+    /** Exclude packages using Node.js APIs or dynamic require from bundling */
+    serverExternalPackages: [
+      "ai",
+      "@qbs-autonaim/lib",
+      "@qbs-autonaim/jobs-parsers",
+      "@ai-sdk/provider",
+      "@ai-sdk/provider-utils",
+      "@ai-sdk/gateway",
+    ],
+
     /** Build optimizations */
     experimental: {
       optimizePackageImports: [

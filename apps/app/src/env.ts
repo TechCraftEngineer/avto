@@ -15,7 +15,7 @@ export const env = createEnv({
   client: {
     NEXT_PUBLIC_APP_URL: z.url().default("http://localhost:3000"),
     NEXT_PUBLIC_APP_NAME: z.string().default("QBS Автонайм"),
-    NEXT_PUBLIC_DOCS_URL: z.url().default("https://docs.avtonaim.qbs.ru"),
+    NEXT_PUBLIC_DOCS_URL: z.url().default("https://docs.avtonaim.qbsoft.ru"),
     NEXT_PUBLIC_POSTHOG_KEY: z.string().optional(),
     NEXT_PUBLIC_POSTHOG_HOST: z.string().optional(),
     NEXT_PUBLIC_AI_PROXY_URL: z

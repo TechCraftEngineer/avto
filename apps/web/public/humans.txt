@@ -3,17 +3,9 @@
 
 /* КОМАНДА */
 Компания: QBS
-Сайт: https://avtonaim.qbs.ru
-Контакт: info@avtonaim.qbs.ru
+Сайт: https://avtonaim.qbsoft.ru
+Контакт: info@avtonaim.qbsoft.ru
 Местоположение: Москва, Россия
-
-/* ТЕХНОЛОГИИ */
-Фреймворк: Next.js 16
-Язык: TypeScript
-Стили: Tailwind CSS
-Хостинг: Vercel
-База данных: PostgreSQL
-AI: OpenAI GPT-4
 
 /* БЛАГОДАРНОСТИ */
 Спасибо всем рекрутерам, которые помогли нам создать лучший продукт!

@@ -40,14 +40,14 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL("https://docs.avtonaim.qbs.ru"),
+  metadataBase: new URL("https://docs.avtonaim.qbsoft.ru"),
   alternates: {
     canonical: "/",
   },
   openGraph: {
     type: "website",
     locale: "ru_RU",
-    url: "https://docs.avtonaim.qbs.ru",
+    url: "https://docs.avtonaim.qbsoft.ru",
     title: "Документация QBS Автонайм — AI для автоматизации рекрутинга",
     description:
       "Полная документация AI-платформы для автоматизации найма персонала в России. Интеграция с HH.ru, SuperJob, Telegram. Экономьте до 80% времени на подборе кандидатов.",
@@ -116,12 +116,12 @@ export default function RootLayout({
     "@graph": [
       {
         "@type": "Organization",
-        "@id": "https://avtonaim.qbs.ru/#organization",
+        "@id": "https://avtonaim.qbsoft.ru/#organization",
         name: "QBS Автонайм",
-        url: "https://avtonaim.qbs.ru",
+        url: "https://avtonaim.qbsoft.ru",
         logo: {
           "@type": "ImageObject",
-          url: "https://avtonaim.qbs.ru/logo.png",
+          url: "https://avtonaim.qbsoft.ru/logo.png",
           width: 512,
           height: 512,
         },
@@ -132,7 +132,7 @@ export default function RootLayout({
           "@type": "ContactPoint",
           telephone: "+7 (495) 123-45-67",
           contactType: "customer service",
-          email: "support@avtonaim.qbs.ru",
+          email: "support@avtonaim.qbsoft.ru",
         },
         sameAs: [
           "https://t.me/qbs_autonaim",
@@ -141,7 +141,7 @@ export default function RootLayout({
       },
       {
         "@type": "SoftwareApplication",
-        "@id": "https://avtonaim.qbs.ru/#software",
+        "@id": "https://avtonaim.qbsoft.ru/#software",
         name: "QBS Автонайм",
         applicationCategory: "BusinessApplication",
         operatingSystem: "Web",
@@ -159,21 +159,21 @@ export default function RootLayout({
           "Аналитика найма",
           "Корпоративные интеграции",
         ],
-        screenshot: "https://avtonaim.qbs.ru/screenshot.png",
+        screenshot: "https://avtonaim.qbsoft.ru/screenshot.png",
         author: {
-          "@id": "https://avtonaim.qbs.ru/#organization",
+          "@id": "https://avtonaim.qbsoft.ru/#organization",
         },
       },
       {
         "@type": "WebSite",
-        "@id": "https://docs.avtonaim.qbs.ru/#website",
-        url: "https://docs.avtonaim.qbs.ru",
+        "@id": "https://docs.avtonaim.qbsoft.ru/#website",
+        url: "https://docs.avtonaim.qbsoft.ru",
         name: "Документация QBS Автонайм",
         description:
           "Полная документация AI-платформы для автоматизации рекрутинга",
         inLanguage: "ru-RU",
         publisher: {
-          "@id": "https://avtonaim.qbs.ru/#organization",
+          "@id": "https://avtonaim.qbsoft.ru/#organization",
         },
       },
     ],

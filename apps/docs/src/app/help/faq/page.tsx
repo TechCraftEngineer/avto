@@ -148,7 +148,7 @@ export default function FAQPage() {
       questions: [
         {
           q: "Как получить помощь?",
-          a: "Поддержка доступна через чат в личном кабинете, email support@avtonaim.qbs.ru или Telegram @qbs_support. Время ответа — в течение 2 часов в рабочее время.",
+          a: "Поддержка доступна через чат в личном кабинете, email support@avtonaim.qbsoft.ru или Telegram @qbs_support. Время ответа — в течение 2 часов в рабочее время.",
         },
         {
           q: "Есть ли обучение для новых пользователей?",
@@ -156,7 +156,7 @@ export default function FAQPage() {
         },
         {
           q: "Как сообщить о проблеме или баге?",
-          a: "Используйте форму обратной связи в личном кабинете или напишите на support@avtonaim.qbs.ru. Приложите скриншоты и описание проблемы для быстрого решения.",
+          a: "Используйте форму обратной связи в личном кабинете или напишите на support@avtonaim.qbsoft.ru. Приложите скриншоты и описание проблемы для быстрого решения.",
         },
         {
           q: "Есть ли SLA для корпоративных клиентов?",
@@ -197,7 +197,7 @@ export default function FAQPage() {
           </a>{" "}
           или{" "}
           <a
-            href="mailto:support@avtonaim.qbs.ru"
+            href="mailto:support@avtonaim.qbsoft.ru"
             className="text-primary hover:underline"
           >
             email
@@ -250,7 +250,7 @@ export default function FAQPage() {
               💬 Написать в Telegram
             </a>
             <a
-              href="mailto:support@avtonaim.qbs.ru"
+              href="mailto:support@avtonaim.qbsoft.ru"
               className="inline-flex items-center gap-2 px-4 py-2 border border-border rounded-md hover:bg-accent transition-colors"
             >
               📧 Написать email

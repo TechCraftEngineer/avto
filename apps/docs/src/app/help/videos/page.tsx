@@ -320,7 +320,7 @@ export default function VideosPage() {
           </p>
           <div className="flex gap-4">
             <a
-              href="mailto:training@avtonaim.qbs.ru"
+              href="mailto:training@avtonaim.qbsoft.ru"
               className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
             >
               📧 Заказать обучение

@@ -1,5 +1,5 @@
 # Robots.txt для QBS Автонайм
-# https://avtonaim.qbs.ru
+# https://avtonaim.qbsoft.ru
 
 # Разрешаем всем поисковым роботам индексировать сайт
 User-agent: *
@@ -30,4 +30,4 @@ Disallow: /admin/
 Disallow: /*.json$
 
 # Карта сайта
-Sitemap: https://avtonaim.qbs.ru/sitemap.xml
+Sitemap: https://avtonaim.qbsoft.ru/sitemap.xml
