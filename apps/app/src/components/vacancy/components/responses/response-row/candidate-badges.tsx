@@ -113,7 +113,7 @@ export function CandidateBadges({
             <p
               className="text-xs"
               dangerouslySetInnerHTML={{
-                html: response.screening.careerTrajectoryAnalysis || "",
+                __html: response.screening.careerTrajectoryAnalysis || "",
               }}
             />
           </HoverCardContent>

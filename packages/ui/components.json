@@ -13,5 +13,8 @@
     "utils": "@qbs-autonaim/ui",
     "components": "src/components/",
     "ui": "src/components/"
+  },
+  "registries": {
+    "@reui": "https://reui.io/r/{style}/{name}.json"
   }
 }

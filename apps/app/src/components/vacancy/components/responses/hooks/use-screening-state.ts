@@ -5,7 +5,10 @@ import {
   fetchScreenAllResponsesToken,
   fetchScreenNewResponsesToken,
 } from "~/actions/realtime";
-import { useVacancyOperation } from "../context/vacancy-responses-context";
+import {
+  useVacancyOperation,
+  useVacancyResponses,
+} from "../context/vacancy-responses-context";
 import {
   type ScreeningProgress,
   useScreeningSubscription,
@@ -33,6 +36,8 @@ export function useScreeningState(
   const operation = useVacancyOperation(
     type === "new" ? "screenNew" : "screenAll",
   );
+  const { registerOnScreenAllProgress, registerOnScreenAllComplete } =
+    useVacancyResponses();
   const [state, setState] = useState<ScreeningStateData>({
     error: null,
     status: "idle",
@@ -50,10 +55,38 @@ export function useScreeningState(
     updateProgressRef.current = operation.updateProgress;
   }, [operation.updateProgress]);
 
-  // Screening subscription
+  // Для type="all" подписка только через RefreshStatusIndicator (один WebSocket).
+  // Прогресс и завершение приходят через registerOnScreenAllProgress/Complete.
+  useEffect(() => {
+    if (type !== "all") return;
+
+    registerOnScreenAllProgress((message, progress) => {
+      updateProgressRef.current(message, progress ?? undefined);
+      setState((prev) => ({
+        ...prev,
+        message,
+        progress: progress ?? null,
+      }));
+    });
+    registerOnScreenAllComplete(() => {
+      isRunningRef.current = false;
+      setState((prev) => ({
+        ...prev,
+        subscriptionActive: false,
+      }));
+      onComplete();
+    });
+
+    return () => {
+      registerOnScreenAllProgress(null);
+      registerOnScreenAllComplete(null);
+    };
+  }, [type, onComplete, registerOnScreenAllProgress, registerOnScreenAllComplete]);
+
+  // Screening subscription — только для type="new" (screen-new имеет один источник)
   useScreeningSubscription({
     vacancyId,
-    enabled: state.subscriptionActive,
+    enabled: type === "new" && state.subscriptionActive,
     subscriptionKey: `${vacancyId}-${type}-${state.subscriptionKey}`,
     fetchToken:
       type === "new"

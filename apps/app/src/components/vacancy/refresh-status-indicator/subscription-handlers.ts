@@ -36,6 +36,13 @@ interface MessageHandlerContext {
   onTaskComplete?: () => void;
   /** Вызывается при завершении sync archived (handleRefreshComplete) */
   onArchivedSyncComplete?: () => void;
+  /** Вызывается при прогрессе screen-all (для контекста useScreeningState) */
+  onAnalyzeProgress?: (
+    message: string,
+    progress: { total: number; processed: number; failed: number } | null,
+  ) => void;
+  /** Вызывается при завершении screen-all (onScreeningComplete) */
+  onAnalyzeComplete?: () => void;
   setArchivedStatus: (status: ArchivedStatusData | null) => void;
   setAnalyzeProgress: (progress: AnalyzeProgressData | null) => void;
   setAnalyzeCompleted: (completed: AnalyzeCompletedData | null) => void;
@@ -145,6 +152,15 @@ export function handleAnalyzeProgress(
         failed: data.failed,
       };
 
+      const progressMessage =
+        data.message ??
+        `Обработано: ${data.processed} из ${data.total}`;
+      context.onAnalyzeProgress?.(progressMessage, {
+        total: data.total,
+        processed: data.processed,
+        failed: data.failed,
+      });
+
       context.setAnalyzeProgress(progressData);
       context.setAnalyzeCompleted(null);
       context.onVisibilityChange(true);
@@ -202,6 +218,7 @@ export function handleAnalyzeResult(
     }),
   });
 
+  context.onAnalyzeComplete?.();
   context.onTaskComplete?.();
 }
 

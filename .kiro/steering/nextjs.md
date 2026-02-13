@@ -49,3 +49,4 @@ Component Size:
 - Each component should have a single responsibility
 - Extract reusable logic into custom hooks
 - Keep render functions clean and readable
+

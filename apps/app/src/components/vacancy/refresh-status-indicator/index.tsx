@@ -23,7 +23,11 @@ export function RefreshStatusIndicator({
   progress: externalProgress,
 }: RefreshStatusIndicatorProps) {
   const trpc = useTRPC();
-  const { getOnArchivedSyncComplete } = useVacancyResponses();
+  const {
+    getOnArchivedSyncComplete,
+    getOnScreenAllProgress,
+    getOnScreenAllComplete,
+  } = useVacancyResponses();
 
   const { data: initialStatus } = useQuery({
     ...trpc.vacancy.responses.getRefreshStatus.queryOptions({ vacancyId }),
@@ -54,6 +58,12 @@ export function RefreshStatusIndicator({
     onTaskComplete: () => visibility.setTaskStarted(false),
     onArchivedSyncComplete:
       mode === "archived" ? () => getOnArchivedSyncComplete()?.() : undefined,
+    onAnalyzeProgress:
+      mode === "analyze"
+        ? (msg, prog) => getOnScreenAllProgress()?.(msg, prog)
+        : undefined,
+    onAnalyzeComplete:
+      mode === "analyze" ? () => getOnScreenAllComplete()?.() : undefined,
     initialStatus: initialStatus ?? null,
   });
 

@@ -38,6 +38,13 @@ interface UseRefreshSubscriptionProps {
   onTaskComplete?: () => void;
   /** Вызывается при завершении sync archived (handleRefreshComplete) */
   onArchivedSyncComplete?: () => void;
+  /** Вызывается при прогрессе screen-all */
+  onAnalyzeProgress?: (
+    message: string,
+    progress: { total: number; processed: number; failed: number } | null,
+  ) => void;
+  /** Вызывается при завершении screen-all */
+  onAnalyzeComplete?: () => void;
   initialStatus?: {
     isRunning: boolean;
     status: string | null;
@@ -64,6 +71,8 @@ export function useRefreshSubscription({
   taskStarted = false,
   onTaskComplete,
   onArchivedSyncComplete,
+  onAnalyzeProgress,
+  onAnalyzeComplete,
   initialStatus,
 }: UseRefreshSubscriptionProps) {
   const [currentProgress, setCurrentProgress] = useState<ProgressData | null>(
@@ -89,9 +98,13 @@ export function useRefreshSubscription({
   const onVisibilityChangeRef = useRef(onVisibilityChange);
   const onTaskCompleteRef = useRef(onTaskComplete);
   const onArchivedSyncCompleteRef = useRef(onArchivedSyncComplete);
+  const onAnalyzeProgressRef = useRef(onAnalyzeProgress);
+  const onAnalyzeCompleteRef = useRef(onAnalyzeComplete);
   onVisibilityChangeRef.current = onVisibilityChange;
   onTaskCompleteRef.current = onTaskComplete;
   onArchivedSyncCompleteRef.current = onArchivedSyncComplete;
+  onAnalyzeProgressRef.current = onAnalyzeProgress;
+  onAnalyzeCompleteRef.current = onAnalyzeComplete;
 
   // Отслеживаем, сколько сообщений уже обработано — не обрабатываем повторно
   const lastProcessedLengthRef = useRef(0);
@@ -232,6 +245,11 @@ export function useRefreshSubscription({
         onVisibilityChangeRef.current?.(visible),
       onTaskComplete: () => onTaskCompleteRef.current?.(),
       onArchivedSyncComplete: () => onArchivedSyncCompleteRef.current?.(),
+      onAnalyzeProgress: (
+        message: string,
+        progress: { total: number; processed: number; failed: number } | null,
+      ) => onAnalyzeProgressRef.current?.(message, progress),
+      onAnalyzeComplete: () => onAnalyzeCompleteRef.current?.(),
       setArchivedStatus,
       setAnalyzeProgress,
       setAnalyzeCompleted,
@@ -241,22 +259,23 @@ export function useRefreshSubscription({
     };
 
     for (let i = lastProcessedLengthRef.current; i < data.length; i++) {
-      const message = data[i];
-      const isProgressTopic = message.topic === "progress";
-      const isResultTopic = message.topic === "result";
+      const msg = data[i];
+      if (!msg) continue;
+      const isProgressTopic = msg.topic === "progress";
+      const isResultTopic = msg.topic === "result";
 
       if (isArchivedMode && isProgressTopic) {
-        handleArchivedProgress(message, context);
+        handleArchivedProgress(msg, context);
       } else if (isArchivedMode && isResultTopic) {
-        handleArchivedResult(message, context);
+        handleArchivedResult(msg, context);
       } else if (isAnalyzeMode && isProgressTopic) {
-        handleAnalyzeProgress(message, context);
+        handleAnalyzeProgress(msg, context);
       } else if (isAnalyzeMode && isResultTopic) {
-        handleAnalyzeResult(message, context);
+        handleAnalyzeResult(msg, context);
       } else if ((mode === "refresh" || isScreeningMode) && isProgressTopic) {
-        handleRefreshProgress(message, context);
+        handleRefreshProgress(msg, context);
       } else if ((mode === "refresh" || isScreeningMode) && isResultTopic) {
-        handleRefreshResult(message, context);
+        handleRefreshResult(msg, context);
       }
     }
     lastProcessedLengthRef.current = data.length;
