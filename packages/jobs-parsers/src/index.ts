@@ -1,6 +1,7 @@
 // Экспорт парсеров
 
 export { verifyHHCredentialsFunction } from "./functions/integration/verify-hh-credentials";
+export { verifyKworkCredentialsFunction } from "./functions/integration/verify-kwork-credentials";
 // Экспорт Inngest функций
 export { refreshAllResumesFunction } from "./functions/response/refresh-all-resumes";
 export { refreshSingleResumeFunction } from "./functions/response/refresh-resume";

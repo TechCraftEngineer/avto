@@ -48,6 +48,7 @@ import {
   vacancyUpdateActiveDataSchema,
   vacancyUpdateSingleDataSchema,
   verifyHHCredentialsDataSchema,
+  verifyKworkCredentialsDataSchema,
   voiceTranscriptionDataSchema,
 } from "./types";
 
@@ -100,6 +101,7 @@ export const inngest = new Inngest({
     "telegram/interview.complete": interviewCompleteDataSchema,
     "telegram/auth.error": telegramAuthErrorDataSchema,
     "integration/verify-hh-credentials": verifyHHCredentialsDataSchema,
+    "integration/verify-kwork-credentials": verifyKworkCredentialsDataSchema,
     "interview/message.buffered": messageBufferedDataSchema,
     "interview/typing.activity": typingActivityDataSchema,
     "interview/buffer.flush": bufferFlushDataSchema,

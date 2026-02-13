@@ -298,6 +298,23 @@ export const verifyHHCredentialsChannel = channel(
 );
 
 /**
+ * Канал для верификации Kwork credentials
+ */
+export const verifyKworkCredentialsChannel = channel(
+  (workspaceId: string) => `verify-kwork-credentials-${workspaceId}`,
+).addTopic(
+  topic("result").schema(
+    z.object({
+      success: z.boolean(),
+      isValid: z.boolean(),
+      error: z.string().optional(),
+      captchaRequired: z.boolean().optional(),
+      recaptchaPassToken: z.string().optional(),
+    }),
+  ),
+);
+
+/**
  * Канал для отслеживания прогресса импорта новых вакансий
  */
 export const importNewVacanciesChannel = channel(
@@ -524,6 +541,7 @@ export const workspaceNotificationsChannel = channel(
         workspaceId: z.string(),
         type: z.enum([
           "hh-auth-failed",
+          "kwork-auth-failed",
           "telegram-auth-failed",
           "api-error",
           "rate-limit",

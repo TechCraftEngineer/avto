@@ -22,6 +22,7 @@ export {
   syncArchivedResponsesChannel,
   vacancyStatsChannel,
   verifyHHCredentialsChannel,
+  verifyKworkCredentialsChannel,
   workspaceNotificationsChannel,
   workspaceStatsChannel,
 } from "./client";
