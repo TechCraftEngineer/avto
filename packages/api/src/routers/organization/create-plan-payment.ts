@@ -98,11 +98,12 @@ export const createPlanPayment = protectedProcedure
       });
     }
 
-    // Определяем стоимость плана
+    // Определяем стоимость плана (₽/мес)
     const planPrices: Record<string, number> = {
       free: 0,
-      pro: 990,
-      enterprise: 2490,
+      starter: 490,
+      pro: 1490,
+      enterprise: 4990,
     };
 
     const amount = planPrices[input.plan];

@@ -1,6 +1,9 @@
 "use client";
 
 import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
   Badge,
   Button,
   Card,
@@ -13,7 +16,8 @@ import {
   Switch,
   Textarea,
 } from "@qbs-autonaim/ui";
-import { IconAlertCircle, IconCheck, IconLoader2 } from "@tabler/icons-react";
+import { paths } from "@qbs-autonaim/config";
+import { IconAlertCircle, IconCheck, IconInfoCircle, IconLoader2 } from "@tabler/icons-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -40,6 +44,11 @@ interface ParsedResponseItem {
   };
 }
 
+const FREE_PLAN_LIMITS = {
+  responsesPerMonth: 25,
+  activeVacancies: 1,
+} as const;
+
 export default function ImportResponsesPage() {
   const {
     id: vacancyId,
@@ -51,8 +60,10 @@ export default function ImportResponsesPage() {
     slug: string;
   }>();
   const router = useRouter();
-  const { workspace } = useWorkspace();
+  const { workspace, organization } = useWorkspace();
   const api = useTRPC();
+
+  const isFreePlan = (organization?.plan ?? "free") === "free";
 
   const [mode, setMode] = useState<"single" | "bulk">("bulk");
   const [rawText, setRawText] = useState("");
@@ -211,6 +222,37 @@ export default function ImportResponsesPage() {
         title="Импорт откликов"
         description="Вставьте отклики фрилансеров для автоматического парсинга и импорта"
       />
+
+      {/* Лимиты тарифа Free */}
+      {isFreePlan && (
+        <Alert variant="default" className="border-amber-500/50 bg-amber-500/5">
+          <IconInfoCircle className="size-4" aria-hidden="true" />
+          <AlertTitle>Лимиты бесплатного тарифа</AlertTitle>
+          <AlertDescription>
+            <p className="mb-2">
+              На бесплатном тарифе действуют ограничения:
+            </p>
+            <ul className="list-disc list-inside space-y-1 text-sm">
+              <li>
+                До {FREE_PLAN_LIMITS.responsesPerMonth} откликов в месяц
+              </li>
+              <li>
+                {FREE_PLAN_LIMITS.activeVacancies} активная вакансия
+              </li>
+            </ul>
+            <p className="mt-2">
+              Учитывайте лимиты при импорте — лишние отклики не будут
+              добавлены.{" "}
+              <Link
+                href={paths.organization.settings.billing(orgSlug ?? "")}
+                className="font-medium underline hover:no-underline"
+              >
+                Перейти на расширенный тариф
+              </Link>
+            </p>
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Переключатель режима */}
       <Card>

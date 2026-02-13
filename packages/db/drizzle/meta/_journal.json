@@ -29,6 +29,13 @@
       "when": 1770810856072,
       "tag": "0003_fantastic_fabian_cortez",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1770990029643,
+      "tag": "0004_public_tyger_tiger",
+      "breakpoints": true
     }
   ]
 }

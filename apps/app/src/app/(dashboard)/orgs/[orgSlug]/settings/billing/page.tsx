@@ -28,9 +28,9 @@ const plans = [
     name: "Бесплатный",
     price: "0",
     period: "навсегда",
-    description: "Для начинающих и тестирования",
+    description: "Для тестирования продукта",
     features: [
-      "До 10 откликов в месяц",
+      "До 25 откликов в месяц",
       "Базовые шаблоны сопроводительных писем",
       "1 активная вакансия",
       "Поддержка по email",
@@ -41,14 +41,30 @@ const plans = [
     planId: "free" as const,
   },
   {
-    name: "Профессиональный",
-    price: "990",
+    name: "Стартовый",
+    price: "490",
     period: "мес",
-    description: "Для активного поиска работы",
+    description: "Для микробизнеса и фрилансеров",
     features: [
-      "До 500 откликов в месяц",
-      "Все шаблоны и персонализация",
+      "До 150 откликов в месяц",
+      "До 3 активных вакансий",
+      "AI-скрининг резюме",
+      "Базовые шаблоны",
+    ],
+    limitations: [],
+    badge: null,
+    variant: "outline" as const,
+    planId: "starter" as const,
+  },
+  {
+    name: "Профессиональный",
+    price: "1 490",
+    period: "мес",
+    description: "Для SMB и IT-компаний",
+    features: [
+      "До 1 000 откликов в месяц",
       "До 10 активных вакансий",
+      "Все шаблоны и персонализация",
       "Аналитика откликов",
       "Приоритетная поддержка",
       "Автоматические отклики",
@@ -60,13 +76,12 @@ const plans = [
   },
   {
     name: "Корпоративный",
-    price: "2490",
+    price: "4 990",
     period: "мес",
-    description: "Для профессионалов и рекрутеров",
+    description: "Для агентств и крупных компаний",
     features: [
       "Неограниченные отклики",
-      "Все функции Профессионального",
-      "Неограниченные активные вакансии",
+      "Неограниченные вакансии",
       "Расширенная аналитика и отчёты",
       "API доступ",
       "Персональный менеджер",
@@ -149,7 +164,9 @@ export default function OrganizationBillingPage() {
     }),
   );
 
-  const handleSelectPlan = (planId: "free" | "pro" | "enterprise") => {
+  const handleSelectPlan = (
+    planId: "free" | "starter" | "pro" | "enterprise",
+  ) => {
     if (!organization) return;
 
     // Для бесплатного плана просто обновляем
@@ -198,7 +215,7 @@ export default function OrganizationBillingPage() {
         description="Выберите тариф, который подходит для вашей организации. Тариф применяется ко всем рабочим пространствам."
       />
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         {plans.map((plan) => {
           const isCurrent = plan.planId === currentPlan;
           return (

@@ -4,11 +4,12 @@ import { pgEnum, pgTable, text, timestamp, varchar } from "drizzle-orm/pg-core";
 // Тарифные планы организации
 export const organizationPlanEnum = pgEnum("organization_plan", [
   "free",
+  "starter",
   "pro",
   "enterprise",
 ]);
 
-export type OrganizationPlan = "free" | "pro" | "enterprise";
+export type OrganizationPlan = "free" | "starter" | "pro" | "enterprise";
 
 export const organization = pgTable("organizations", {
   id: text("id").primaryKey().default(sql`organization_id_generate()`),

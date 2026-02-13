@@ -38,6 +38,7 @@ import { useTRPC } from "~/trpc/react";
 
 const PLAN_LABELS: Record<string, string> = {
   free: "Бесплатный",
+  starter: "Стартовый",
   pro: "Профессиональный",
   enterprise: "Корпоративный",
 } as const;
@@ -49,6 +50,7 @@ function getPlanLabel(plan?: string | null) {
 function getPlanBadgeVariant(plan?: string | null): "secondary" | "default" | "outline" {
   if (plan === "pro") return "default";
   if (plan === "enterprise") return "default";
+  if (plan === "starter") return "outline";
   return "secondary";
 }
 

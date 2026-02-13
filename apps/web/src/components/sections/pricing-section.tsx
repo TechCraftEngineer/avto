@@ -12,44 +12,62 @@ export function PricingSection() {
 
   const plans = [
     {
-      name: "Старт",
+      name: "Бесплатный",
       price: "Бесплатно",
       priceAnnual: "Бесплатно",
-      description: "Для небольших команд",
-      features: ["1 проект", "3 активные вакансии", "100 откликов/месяц", "AI-скрининг резюме", "Базовая аналитика"],
+      description: "Для тестирования продукта",
+      features: [
+        "До 25 откликов в месяц",
+        "1 активная вакансия",
+        "AI-скрининг резюме",
+        "Базовые шаблоны",
+      ],
       cta: "Начать бесплатно",
       href: `${env.NEXT_PUBLIC_APP_URL}`,
       popular: false,
     },
     {
-      name: "Бизнес",
-      price: "9 900 ₽",
-      priceAnnual: "7 900 ₽",
-      description: "Для активного найма",
+      name: "Стартовый",
+      price: "490 ₽",
+      priceAnnual: "390 ₽",
+      description: "Для микробизнеса и фрилансеров",
       features: [
-        "До 5 проектов",
-        "Неограниченные вакансии",
-        "1000 откликов/месяц",
+        "До 150 откликов в месяц",
+        "До 3 активных вакансий",
+        "AI-скрининг резюме",
+        "Базовые шаблоны",
+      ],
+      cta: "Выбрать тариф",
+      href: `${env.NEXT_PUBLIC_APP_URL}`,
+      popular: false,
+    },
+    {
+      name: "Профессиональный",
+      price: "1 490 ₽",
+      priceAnnual: "1 190 ₽",
+      description: "Для SMB и IT-компаний",
+      features: [
+        "До 1 000 откликов в месяц",
+        "До 10 активных вакансий",
         "AI-интервью в Telegram и веб-чате",
         "Расширенная аналитика",
         "Приоритетная поддержка",
       ],
-      cta: "Попробовать 14 дней",
+      cta: "Выбрать тариф",
       href: `${env.NEXT_PUBLIC_APP_URL}`,
       popular: true,
     },
     {
       name: "Корпоративный",
-      price: "По запросу",
-      priceAnnual: "По запросу",
-      description: "Для крупных компаний",
+      price: "от 4 990 ₽",
+      priceAnnual: "от 3 990 ₽",
+      description: "Для агентств и крупных компаний",
       features: [
-        "Неограниченные проекты",
         "Неограниченные отклики",
-        "Собственный брендинг (White-label)",
-        "Выделенная инфраструктура",
-        "SLA 99.9%",
+        "Неограниченные вакансии",
+        "Расширенная аналитика и API",
         "Персональный менеджер",
+        "Кастомные интеграции",
       ],
       cta: "Связаться с нами",
       href: `${env.NEXT_PUBLIC_APP_URL}/contact?plan=enterprise`,
@@ -100,7 +118,7 @@ export function PricingSection() {
           </div>
         </div>
 
-        <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-3">
+        <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-2 lg:grid-cols-4">
           {plans.map((plan) => (
             <Card
               key={plan.name}
