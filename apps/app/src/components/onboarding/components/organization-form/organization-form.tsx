@@ -108,7 +108,7 @@ export function OrganizationForm({
             <Input
               id="slug"
               name="organization-slug"
-              placeholder="пример-организации…"
+              placeholder="example-org…"
               value={slug}
               onChange={(e) => onSlugChange(e.target.value)}
               required
@@ -154,10 +154,7 @@ export function OrganizationForm({
         </div>
 
         {error && (
-          <p
-            className="text-destructive text-sm"
-            role="alert"
-          >
+          <p className="text-destructive text-sm" role="alert">
             {error}
           </p>
         )}
