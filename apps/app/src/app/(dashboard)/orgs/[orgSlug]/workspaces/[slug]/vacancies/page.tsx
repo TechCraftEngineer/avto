@@ -114,7 +114,7 @@ export default function VacanciesPage() {
       <PageHeader
         title="Вакансии"
         description="Управление вашими вакансиями и откликами на фриланс-платформах"
-        tooltipContent={`Вы можете импортировать вакансии из HH, Avito и других площадок. Система будет автоматически отслеживать новые отклики и синхронизировать статусы.\n\n[Подробнее в документации](${env.NEXT_PUBLIC_DOCS_URL}/vacancies)`}
+        tooltipContent={`Вы можете импортировать вакансии из HH, Avito и других площадок. Система будет автоматически отслеживать новые отклики и синхронизировать статусы.\n\n[Подробнее в документации](${env.NEXT_PUBLIC_DOCS_URL}/integrations/hh)`}
       >
         <div className="flex items-center gap-2">
           <Button asChild className="h-9 gap-2 shadow-sm active:scale-95">

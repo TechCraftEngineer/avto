@@ -72,7 +72,7 @@ export default function VacancyDetailPage({ params }: VacancyDetailPageProps) {
         <PageHeader
           title="Вакансия не найдена"
           description="Запрошенная вакансия не существует или была удалена"
-          tooltipContent={`Запрошенная вакансия не найдена. Вернитесь к списку вакансий или создайте новую.\n\n[Подробнее в документации](${env.NEXT_PUBLIC_DOCS_URL}/vacancies)`}
+          tooltipContent={`Запрошенная вакансия не найдена. Вернитесь к списку вакансий или создайте новую.\n\n[Подробнее в документации](${env.NEXT_PUBLIC_DOCS_URL}/integrations/hh)`}
         >
           <Button variant="outline" asChild>
             <Link
@@ -108,7 +108,7 @@ export default function VacancyDetailPage({ params }: VacancyDetailPageProps) {
       <PageHeader
         title={vacancy.title}
         description={`Вакансия на платформе ${sourceLabel}`}
-        tooltipContent={`На этой странице отображаются детали вакансии, отклики и история изменений. Вы можете редактировать вакансию или управлять статусами откликов.\n\n[Подробнее в документации](${env.NEXT_PUBLIC_DOCS_URL}/vacancies)`}
+        tooltipContent={`На этой странице отображаются детали вакансии, отклики и история изменений. Вы можете редактировать вакансию или управлять статусами откликов.\n\n[Подробнее в документации](${env.NEXT_PUBLIC_DOCS_URL}/integrations/hh)`}
       >
         <div className="flex items-center gap-2">
           <Button variant="outline" asChild>

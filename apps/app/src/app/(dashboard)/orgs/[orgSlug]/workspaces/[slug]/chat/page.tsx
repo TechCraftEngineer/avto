@@ -8,7 +8,7 @@ export default function ChatPage() {
         <PageHeader
           title="Чаты"
           description="Обмен сообщениями с участниками"
-          tooltipContent={`Здесь вы можете обмениваться сообщениями с кандидатами и участниками проектов. Чаты сохраняются и привязаны к конкретным вакансиям или заданиям.\n\n[Подробнее в документации](${env.NEXT_PUBLIC_DOCS_URL}/chat)`}
+          tooltipContent={`Здесь вы можете обмениваться сообщениями с кандидатами и участниками проектов. Чаты сохраняются и привязаны к конкретным вакансиям или заданиям.\n\n[Подробнее в документации](${env.NEXT_PUBLIC_DOCS_URL}/ai-assistant/chat)`}
         />
         <div className="flex h-full items-center justify-center p-4 w-full">
           <div className="text-center text-muted-foreground">

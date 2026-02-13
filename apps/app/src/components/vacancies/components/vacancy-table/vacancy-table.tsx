@@ -226,7 +226,7 @@ export function VacancyTable({
                       </Button>
                       <Button asChild variant="outline" className="h-10">
                         <Link
-                          href={`${env.NEXT_PUBLIC_DOCS_URL}/vacancies`}
+                          href={`${env.NEXT_PUBLIC_DOCS_URL}/integrations/hh`}
                           target="_blank"
                           rel="noopener noreferrer"
                         >
