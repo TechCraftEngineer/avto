@@ -45,7 +45,7 @@ export function PricingSection() {
       name: "Профессиональный",
       price: "1 490 ₽",
       priceAnnual: "1 190 ₽",
-      description: "Для SMB и IT-компаний",
+      description: "Для малого и среднего бизнеса и IT-компаний",
       features: [
         "До 1 000 откликов в месяц",
         "До 10 активных вакансий",

@@ -528,6 +528,20 @@ export const workspaceStatsChannel = channel(
     ),
   );
 
+const integrationErrorPayloadSchema = z.object({
+  workspaceId: z.string(),
+  type: z.enum([
+    "hh-auth-failed",
+    "kwork-auth-failed",
+    "telegram-auth-failed",
+    "api-error",
+    "rate-limit",
+  ]),
+  message: z.string(),
+  severity: z.enum(["error", "warning", "info"]),
+  timestamp: z.string(),
+});
+
 /**
  * Канал для realtime уведомлений workspace
  * Используется для мгновенных уведомлений об ошибках и важных событиях
@@ -536,21 +550,7 @@ export const workspaceNotificationsChannel = channel(
   (workspaceId: string) => `workspace-notifications:${workspaceId}`,
 )
   .addTopic(
-    topic("integration-error").schema(
-      z.object({
-        workspaceId: z.string(),
-        type: z.enum([
-          "hh-auth-failed",
-          "kwork-auth-failed",
-          "telegram-auth-failed",
-          "api-error",
-          "rate-limit",
-        ]),
-        message: z.string(),
-        severity: z.enum(["error", "warning", "info"]),
-        timestamp: z.string(),
-      }),
-    ),
+    topic("integration-error").schema(integrationErrorPayloadSchema),
   )
   .addTopic(
     topic("task-completed").schema(
@@ -570,6 +570,13 @@ export const workspaceNotificationsChannel = channel(
       }),
     ),
   );
+
+/** Тип события integration-error для publish callbacks */
+export type IntegrationErrorEvent = Awaited<
+  ReturnType<
+    ReturnType<typeof workspaceNotificationsChannel>["integration-error"]
+  >
+>;
 
 /**
  * Канал для отслеживания прогресса импорта новых gigs

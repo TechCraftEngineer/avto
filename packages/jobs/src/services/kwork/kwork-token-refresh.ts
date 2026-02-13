@@ -6,7 +6,10 @@
  */
 import type { DbClient } from "@qbs-autonaim/db";
 import { getIntegrationCredentials, upsertIntegration } from "@qbs-autonaim/db";
-import { workspaceNotificationsChannel } from "../../inngest/channels/client";
+import {
+  type IntegrationErrorEvent,
+  workspaceNotificationsChannel,
+} from "../../inngest/channels/client";
 import {
   isKworkAuthError,
   signIn,
@@ -29,8 +32,7 @@ export async function executeWithKworkTokenRefresh<T>(
   workspaceId: string,
   apiCall: (token: string) => Promise<KworkApiResult<T>>,
   options?: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    publish?: (event: any) => Promise<void>;
+    publish?: (event: IntegrationErrorEvent) => Promise<unknown>;
   },
 ): Promise<KworkApiResult<T>> {
   const credentials = await getIntegrationCredentials(db, "kwork", workspaceId);
@@ -94,18 +96,16 @@ export async function executeWithKworkTokenRefresh<T>(
 
 async function notifyAuthFailed(
   workspaceId: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  publish?: (event: any) => Promise<void>,
+  publish?: (event: IntegrationErrorEvent) => Promise<unknown>,
 ): Promise<void> {
   if (!publish) return;
 
-  await publish(
-    workspaceNotificationsChannel(workspaceId)["integration-error"]({
-      workspaceId,
-      type: "kwork-auth-failed",
-      message: "Не удалось обновить токен Kwork. Требуется повторная авторизация.",
-      severity: "error",
-      timestamp: new Date().toISOString(),
-    }),
-  );
+  const event = await workspaceNotificationsChannel(workspaceId)["integration-error"]({
+    workspaceId,
+    type: "kwork-auth-failed",
+    message: "Не удалось обновить токен Kwork. Требуется повторная авторизация.",
+    severity: "error",
+    timestamp: new Date().toISOString(),
+  });
+  await publish(event);
 }

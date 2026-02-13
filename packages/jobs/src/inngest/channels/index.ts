@@ -26,5 +26,6 @@ export {
   verifyHHCredentialsChannel,
   verifyKworkCredentialsChannel,
   workspaceNotificationsChannel,
+  type IntegrationErrorEvent,
   workspaceStatsChannel,
 } from "./client";

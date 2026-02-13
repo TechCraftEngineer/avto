@@ -6,7 +6,10 @@ export const organizationIdSchema = z.string().regex(/^org_[A-Za-z0-9_-]+$/);
 // Схема тарифного плана организации
 export const organizationPlanSchema = z.enum(
   ["free", "starter", "pro", "enterprise"],
-  { message: "План должен быть free, starter, pro или enterprise" },
+  {
+    message:
+      "План должен быть «бесплатный», «стартер», «про» или «корпоративный»",
+  },
 );
 
 export const createOrganizationSchema = z.object({
