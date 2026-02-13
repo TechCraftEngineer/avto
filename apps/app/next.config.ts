@@ -16,7 +16,6 @@ export default async function createNextConfig(): Promise<NextConfig> {
     serverExternalPackages: [
       "ai",
       "@qbs-autonaim/lib",
-      "@qbs-autonaim/jobs-parsers",
       "@ai-sdk/provider",
       "@ai-sdk/provider-utils",
       "@ai-sdk/gateway",
