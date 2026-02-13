@@ -47,8 +47,10 @@ const VacancyRequirementsEditor = dynamic(
   },
 );
 
+import type { VacancyRequirements } from "@qbs-autonaim/db";
 import { vacancyRequirementsSchema } from "@qbs-autonaim/validators";
 import { useWorkspace } from "~/hooks/use-workspace";
+import type { UseFormReturn } from "react-hook-form";
 import { useTRPC } from "~/trpc/react";
 
 const vacancyFormSchema = z.object({
@@ -200,7 +202,7 @@ export function VacancyForm({ onSuccess }: VacancyFormProps) {
         />
 
         <VacancyRequirementsEditor
-          form={form}
+          form={form as unknown as UseFormReturn<{ requirements?: VacancyRequirements }>}
           requirements={form.watch("requirements") ?? null}
         />
 

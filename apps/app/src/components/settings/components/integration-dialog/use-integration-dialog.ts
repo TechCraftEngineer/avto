@@ -193,7 +193,7 @@ export function useIntegrationDialog({
       workspaceId,
       type: data.type,
       name: data.name || integrationType?.label || "",
-      credentials,
+      credentials: credentials as unknown as Record<string, string>,
     };
 
     if (data.type === "hh") {

@@ -35,7 +35,7 @@ interface ScreeningData {
   hiddenFitAnalysis?: string | null;
   psychometricAnalysis?: {
     compatibilityScore: number;
-    summary: string;
+    summary: string | null;
     strengths: string[];
     challenges: string[];
     recommendations: string[];

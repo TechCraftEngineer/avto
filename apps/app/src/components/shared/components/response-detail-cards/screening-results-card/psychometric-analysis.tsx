@@ -4,7 +4,7 @@ import { sanitizeHtmlFunction } from "~/lib/sanitize-html";
 
 interface PsychometricAnalysisData {
   compatibilityScore: number;
-  summary: string;
+  summary: string | null;
   strengths: string[];
   challenges: string[];
   recommendations: string[];
