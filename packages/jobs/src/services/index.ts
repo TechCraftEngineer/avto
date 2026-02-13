@@ -43,7 +43,7 @@ export {
 // ==================== Freelance ====================
 export { generateFreelanceInvitation } from "./freelance";
 // ==================== Kwork ====================
-export { executeWithKworkTokenRefresh, type KworkApiResult } from "./kwork";
+export { executeWithKworkTokenRefresh } from "./kwork";
 // ==================== Interview ====================
 export {
   addQuestionAnswer,
