@@ -110,9 +110,12 @@ export function CandidateBadges({
             </Badge>
           </HoverCardTrigger>
           <HoverCardContent side="right" className="max-w-xs">
-            <p className="text-xs">
-              {response.screening.careerTrajectoryAnalysis || ""}
-            </p>
+            <p
+              className="text-xs"
+              dangerouslySetInnerHTML={{
+                html: response.screening.careerTrajectoryAnalysis || "",
+              }}
+            />
           </HoverCardContent>
         </HoverCard>
       )}
