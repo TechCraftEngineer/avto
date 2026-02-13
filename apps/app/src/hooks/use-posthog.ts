@@ -21,7 +21,6 @@ export function useIdentifyUser(user: User | null) {
         email: user.email,
         name: user.name,
       });
-      console.log("identify", user.id, { email: user.email, name: user.name });
     } else {
       posthog.reset();
     }
