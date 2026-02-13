@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "@reapi/mcp-openapi": {
+      "command": "bunx",
+      "args": ["-y", "@reapi/mcp-openapi@latest", "--dir", "./specs"],
+      "env": {}
+    }
+  }
+}
