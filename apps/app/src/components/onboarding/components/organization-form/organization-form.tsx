@@ -21,6 +21,7 @@ interface OrganizationFormProps {
   website: string;
   isGeneratingSlug: boolean;
   isPending: boolean;
+  error: string | null;
   onNameChange: (value: string) => void;
   onSlugChange: (value: string) => void;
   onDescriptionChange: (value: string) => void;
@@ -34,6 +35,7 @@ export function OrganizationForm({
   description,
   website,
   isPending,
+  error,
   onNameChange,
   onSlugChange,
   onDescriptionChange,
@@ -150,6 +152,15 @@ export function OrganizationForm({
             autoComplete="url"
           />
         </div>
+
+        {error && (
+          <p
+            className="text-destructive text-sm"
+            role="alert"
+          >
+            {error}
+          </p>
+        )}
 
         <Button
           type="submit"

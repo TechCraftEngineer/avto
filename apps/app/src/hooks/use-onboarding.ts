@@ -32,6 +32,9 @@ export function useOnboarding() {
   const [website, setWebsite] = useState("");
   const [isGeneratingSlug, setIsGeneratingSlug] = useState(true);
 
+  // Ошибка создания организации (показывается на форме)
+  const [organizationError, setOrganizationError] = useState<string | null>(null);
+
   // Созданная организация
   const [createdOrganization, setCreatedOrganization] =
     useState<CreatedOrganization | null>(null);
@@ -68,13 +71,9 @@ export function useOnboarding() {
           error.message.includes("duplicate") ||
           error.message.includes("CONFLICT")
         ) {
-          toast.error("Организация с таким slug уже существует", {
-            description: "Попробуйте другой slug",
-          });
+          setOrganizationError("Организация с таким слагом уже существует. Попробуйте другой слаг.");
         } else {
-          toast.error("Ошибка при создании организации", {
-            description: error.message,
-          });
+          setOrganizationError(error.message);
         }
       },
     }),
@@ -124,6 +123,7 @@ export function useOnboarding() {
 
   const handleNameChange = (value: string) => {
     setName(value);
+    setOrganizationError(null);
     if (isGeneratingSlug) {
       const generatedSlug = slugify(value);
       setSlug(generatedSlug);
@@ -133,10 +133,12 @@ export function useOnboarding() {
   const handleSlugChange = (value: string) => {
     setIsGeneratingSlug(false);
     setSlug(value);
+    setOrganizationError(null);
   };
 
   const handleOrganizationSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setOrganizationError(null);
 
     // Формируем payload для валидации
     const payload = {
@@ -150,22 +152,14 @@ export function useOnboarding() {
     const result = createOrganizationSchema.safeParse(payload);
 
     if (!result.success) {
-      // Обработка ошибок валидации
+      // Обработка ошибок валидации — показываем на форме
       const errors = result.error.flatten();
-
-      // Показываем первую ошибку валидации
       const firstError =
         errors.fieldErrors.name?.[0] ||
         errors.fieldErrors.slug?.[0] ||
         errors.fieldErrors.description?.[0] ||
         errors.fieldErrors.website?.[0];
-
-      if (firstError) {
-        toast.error("Ошибка валидации", {
-          description: firstError,
-        });
-      }
-
+      setOrganizationError(firstError ?? "Ошибка валидации");
       return;
     }
 
@@ -245,10 +239,17 @@ export function useOnboarding() {
       website,
       isGeneratingSlug,
       isPending: createOrganization.isPending,
+      error: organizationError,
       onNameChange: handleNameChange,
       onSlugChange: handleSlugChange,
-      onDescriptionChange: setDescription,
-      onWebsiteChange: setWebsite,
+      onDescriptionChange: (v) => {
+        setDescription(v);
+        setOrganizationError(null);
+      },
+      onWebsiteChange: (v) => {
+        setWebsite(v);
+        setOrganizationError(null);
+      },
       onSubmit: handleOrganizationSubmit,
     },
     workspace: {
