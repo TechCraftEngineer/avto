@@ -1,6 +1,6 @@
 import { useInngestSubscription } from "@bunworks/inngest-realtime/hooks";
 import { useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { match } from "ts-pattern";
 import {
   fetchRefreshVacancyResponsesToken,
@@ -36,6 +36,15 @@ interface UseRefreshSubscriptionProps {
   taskStarted?: boolean;
   /** Вызывается при завершении задания (для сброса taskStarted) */
   onTaskComplete?: () => void;
+  /** Вызывается при завершении sync archived (handleRefreshComplete) */
+  onArchivedSyncComplete?: () => void;
+  /** Вызывается при прогрессе screen-all */
+  onAnalyzeProgress?: (
+    message: string,
+    progress: { total: number; processed: number; failed: number } | null,
+  ) => void;
+  /** Вызывается при завершении screen-all */
+  onAnalyzeComplete?: () => void;
   initialStatus?: {
     isRunning: boolean;
     status: string | null;
@@ -61,6 +70,9 @@ export function useRefreshSubscription({
   onVisibilityChange,
   taskStarted = false,
   onTaskComplete,
+  onArchivedSyncComplete,
+  onAnalyzeProgress,
+  onAnalyzeComplete,
   initialStatus,
 }: UseRefreshSubscriptionProps) {
   const [currentProgress, setCurrentProgress] = useState<ProgressData | null>(
@@ -80,6 +92,22 @@ export function useRefreshSubscription({
 
   const queryClient = useQueryClient();
   const trpc = useTRPC();
+
+  // Refs для колбэков — не включаем их в deps useEffect, иначе бесконечный цикл
+  // при пересоздании колбэков родителем на каждом рендере
+  const onVisibilityChangeRef = useRef(onVisibilityChange);
+  const onTaskCompleteRef = useRef(onTaskComplete);
+  const onArchivedSyncCompleteRef = useRef(onArchivedSyncComplete);
+  const onAnalyzeProgressRef = useRef(onAnalyzeProgress);
+  const onAnalyzeCompleteRef = useRef(onAnalyzeComplete);
+  onVisibilityChangeRef.current = onVisibilityChange;
+  onTaskCompleteRef.current = onTaskComplete;
+  onArchivedSyncCompleteRef.current = onArchivedSyncComplete;
+  onAnalyzeProgressRef.current = onAnalyzeProgress;
+  onAnalyzeCompleteRef.current = onAnalyzeComplete;
+
+  // Отслеживаем, сколько сообщений уже обработано — не обрабатываем повторно
+  const lastProcessedLengthRef = useRef(0);
 
   // Определяем режим через pattern matching
   const { isArchivedMode, isAnalyzeMode, isScreeningMode } = getModeFlags(mode);
@@ -152,23 +180,6 @@ export function useRefreshSubscription({
     .with("refresh", () => refreshSubscription.error)
     .exhaustive();
 
-  // Периодическая проверка статуса для восстановления после перезагрузки
-  // Проверяем каждые 5 секунд если есть активное задание
-  useEffect(() => {
-    if (!hasActiveTask) return;
-
-    const intervalId = setInterval(() => {
-      // Обновляем статус через REST API
-      queryClient.invalidateQueries({
-        queryKey: trpc.vacancy.responses.getRefreshStatus.queryKey({
-          vacancyId,
-        }),
-      });
-    }, 5000);
-
-    return () => clearInterval(intervalId);
-  }, [hasActiveTask, queryClient, trpc, vacancyId]);
-
   // Устанавливаем начальное состояние из REST API
   useEffect(() => {
     if (initialStatus?.isRunning && initialStatus.message) {
@@ -213,16 +224,32 @@ export function useRefreshSubscription({
     }
   }, [data.length, onVisibilityChange]);
 
-  // Обрабатываем все сообщения из канала
+  // Обрабатываем сообщения из канала. Используем refs для колбэков и
+  // обрабатываем только новые сообщения, чтобы избежать бесконечного цикла.
   useEffect(() => {
-    if (data.length === 0) return;
+    if (data.length === 0) {
+      lastProcessedLengthRef.current = 0;
+      return;
+    }
+
+    // Подписка могла очистить данные — сбрасываем счётчик
+    if (data.length < lastProcessedLengthRef.current) {
+      lastProcessedLengthRef.current = 0;
+    }
 
     const context = {
       vacancyId,
       queryClient,
       trpc,
-      onVisibilityChange,
-      onTaskComplete,
+      onVisibilityChange: (visible: boolean) =>
+        onVisibilityChangeRef.current?.(visible),
+      onTaskComplete: () => onTaskCompleteRef.current?.(),
+      onArchivedSyncComplete: () => onArchivedSyncCompleteRef.current?.(),
+      onAnalyzeProgress: (
+        message: string,
+        progress: { total: number; processed: number; failed: number } | null,
+      ) => onAnalyzeProgressRef.current?.(message, progress),
+      onAnalyzeComplete: () => onAnalyzeCompleteRef.current?.(),
       setArchivedStatus,
       setAnalyzeProgress,
       setAnalyzeCompleted,
@@ -231,32 +258,33 @@ export function useRefreshSubscription({
       setAutoCloseTimer,
     };
 
-    for (const message of data) {
-      const isProgressTopic = message.topic === "progress";
-      const isResultTopic = message.topic === "result";
+    for (let i = lastProcessedLengthRef.current; i < data.length; i++) {
+      const msg = data[i];
+      if (!msg) continue;
+      const isProgressTopic = msg.topic === "progress";
+      const isResultTopic = msg.topic === "result";
 
       if (isArchivedMode && isProgressTopic) {
-        handleArchivedProgress(message, context);
+        handleArchivedProgress(msg, context);
       } else if (isArchivedMode && isResultTopic) {
-        handleArchivedResult(message, context);
+        handleArchivedResult(msg, context);
       } else if (isAnalyzeMode && isProgressTopic) {
-        handleAnalyzeProgress(message, context);
+        handleAnalyzeProgress(msg, context);
       } else if (isAnalyzeMode && isResultTopic) {
-        handleAnalyzeResult(message, context);
+        handleAnalyzeResult(msg, context);
       } else if ((mode === "refresh" || isScreeningMode) && isProgressTopic) {
-        handleRefreshProgress(message, context);
+        handleRefreshProgress(msg, context);
       } else if ((mode === "refresh" || isScreeningMode) && isResultTopic) {
-        handleRefreshResult(message, context);
+        handleRefreshResult(msg, context);
       }
     }
+    lastProcessedLengthRef.current = data.length;
   }, [
     data,
     isArchivedMode,
     isAnalyzeMode,
     isScreeningMode,
     mode,
-    onTaskComplete,
-    onVisibilityChange,
     queryClient,
     trpc,
     vacancyId,

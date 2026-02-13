@@ -4,6 +4,7 @@ import { cn } from "@qbs-autonaim/ui";
 import { Card } from "@qbs-autonaim/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "~/trpc/react";
+import { useVacancyResponses } from "~/components/vacancy/components/responses/context/vacancy-responses-context";
 import { ConfirmationView } from "./confirmation-view";
 import { ProgressView } from "./progress-view";
 import type { RefreshStatusIndicatorProps } from "./types";
@@ -22,10 +23,17 @@ export function RefreshStatusIndicator({
   progress: externalProgress,
 }: RefreshStatusIndicatorProps) {
   const trpc = useTRPC();
+  const {
+    getOnArchivedSyncComplete,
+    getOnScreenAllProgress,
+    getOnScreenAllComplete,
+  } = useVacancyResponses();
 
-  const { data: initialStatus } = useQuery(
-    trpc.vacancy.responses.getRefreshStatus.queryOptions({ vacancyId }),
-  );
+  const { data: initialStatus } = useQuery({
+    ...trpc.vacancy.responses.getRefreshStatus.queryOptions({ vacancyId }),
+    refetchInterval: (query) =>
+      (query.state.data?.isRunning ?? false) ? 5000 : false,
+  });
 
   const visibility = useRefreshVisibility({
     showConfirmationProp: externalShowConfirmation,
@@ -48,6 +56,14 @@ export function RefreshStatusIndicator({
     onVisibilityChange: visibility.setIsVisible,
     taskStarted: visibility.taskStarted,
     onTaskComplete: () => visibility.setTaskStarted(false),
+    onArchivedSyncComplete:
+      mode === "archived" ? () => getOnArchivedSyncComplete()?.() : undefined,
+    onAnalyzeProgress:
+      mode === "analyze"
+        ? (msg, prog) => getOnScreenAllProgress()?.(msg, prog)
+        : undefined,
+    onAnalyzeComplete:
+      mode === "analyze" ? () => getOnScreenAllComplete()?.() : undefined,
     initialStatus: initialStatus ?? null,
   });
 

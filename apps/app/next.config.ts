@@ -22,6 +22,9 @@ export default async function createNextConfig(): Promise<NextConfig> {
       optimizeCss: true,
     },
 
+    /** Source maps только для production builds (не публикуются) */
+    productionBrowserSourceMaps: false,
+
     transpilePackages: [
       "@qbs-autonaim/auth",
       "@qbs-autonaim/api",

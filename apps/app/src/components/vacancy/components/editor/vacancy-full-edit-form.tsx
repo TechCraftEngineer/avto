@@ -202,7 +202,7 @@ export function VacancyFullEditForm({
               )}
               <Button
                 type="submit"
-                disabled={isSaving || !hasChanges}
+                disabled={isSaving}
                 className="h-9 px-6 min-w-[140px] shadow-sm"
               >
                 {isSaving ? (

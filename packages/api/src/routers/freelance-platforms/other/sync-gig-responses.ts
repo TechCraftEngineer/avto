@@ -1,3 +1,4 @@
+import { inngest } from "@qbs-autonaim/jobs/client";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
@@ -45,13 +46,15 @@ export const syncGigResponses = protectedProcedure
       });
     }
 
-    // TODO: Реализовать синхронизацию с конкретной платформой
-    // Пока возвращаем заглушку
+    await inngest.send({
+      name: "gig/sync-responses",
+      data: { gigId: input.gigId },
+    });
+
     return {
       success: true,
       message: "Синхронизация откликов запущена",
       platform: gigRecord.source,
       externalId: gigRecord.externalId,
-      syncedCount: 0, // количество синхронизированных откликов
     };
   });

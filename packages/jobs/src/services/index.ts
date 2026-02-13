@@ -42,6 +42,8 @@ export {
 } from "./base";
 // ==================== Freelance ====================
 export { generateFreelanceInvitation } from "./freelance";
+// ==================== Kwork ====================
+export { executeWithKworkTokenRefresh } from "./kwork";
 // ==================== Interview ====================
 export {
   addQuestionAnswer,

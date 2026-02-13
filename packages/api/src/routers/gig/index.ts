@@ -3,6 +3,7 @@ import type { TRPCRouterRecord } from "@trpc/server";
 import { aiChatRouter, chatGenerate } from "./chat";
 import { create, deleteGig, get, list, listActive, update } from "./crud";
 import { generateInterviewLink, getInterviewLink } from "./interview";
+import { gigKworkRouter } from "./kwork";
 import { gigResponsesRouter } from "./responses";
 import { getGigShortlist, recalculateGigShortlist } from "./shortlist";
 import { syncAllResponseCounts, syncResponseCounts } from "./sync";
@@ -25,4 +26,5 @@ export const gigRouter = {
   recalculateShortlist: recalculateGigShortlist,
   responses: gigResponsesRouter,
   aiChat: aiChatRouter,
+  kwork: gigKworkRouter,
 } satisfies TRPCRouterRecord;

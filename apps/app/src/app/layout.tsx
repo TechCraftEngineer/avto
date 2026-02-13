@@ -1,5 +1,6 @@
 import { APP_CONFIG } from "@qbs-autonaim/config";
 import type { Metadata, Viewport } from "next";
+import { getSession } from "~/auth/server";
 import { ClientLayout } from "~/components";
 import { env } from "~/env";
 
@@ -28,11 +29,25 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout(props: { children: React.ReactNode }) {
+export default async function RootLayout(props: { children: React.ReactNode }) {
+  let user: { id: string; email?: string; name?: string } | null = null;
+  try {
+    const session = await getSession();
+    if (session?.user) {
+      user = {
+        id: session.user.id,
+        email: session.user.email ?? undefined,
+        name: session.user.name ?? undefined,
+      };
+    }
+  } catch {
+    // Сессия недоступна — PostHog остаётся анонимным
+  }
+
   return (
     <html lang="ru" suppressHydrationWarning>
       <body className="bg-background text-foreground min-h-screen font-sans antialiased">
-        <ClientLayout>{props.children}</ClientLayout>
+        <ClientLayout user={user}>{props.children}</ClientLayout>
       </body>
     </html>
   );

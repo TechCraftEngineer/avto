@@ -1,36 +1,29 @@
-import { useCallback } from "react";
-import { env } from "~/env";
-import { posthog } from "~/lib/posthog";
+"use client";
 
-export function usePostHog() {
-  const isProduction = env.VERCEL_ENV === "production";
+import { usePostHog } from "posthog-js/react";
+import { useEffect } from "react";
 
-  const capture = useCallback(
-    (eventName: string, properties?: Record<string, unknown>) => {
-      if (typeof window === "undefined" || !isProduction) return;
-      posthog.capture(eventName, properties);
-    },
-    [isProduction],
-  );
+interface User {
+  id: string;
+  email?: string;
+  name?: string;
+}
 
-  const identify = useCallback(
-    (userId: string, properties?: Record<string, unknown>) => {
-      if (typeof window === "undefined" || !isProduction) return;
-      posthog.identify(userId, properties);
-    },
-    [isProduction],
-  );
+export function useIdentifyUser(user: User | null) {
+  const posthog = usePostHog();
 
-  const reset = useCallback(() => {
-    if (typeof window === "undefined" || !isProduction) return;
-    posthog.reset();
-  }, [isProduction]);
+  useEffect(() => {
+    // Проверяем, что PostHog инициализирован
+    if (!posthog?.__loaded) return;
 
-  return {
-    capture,
-    identify,
-    reset,
-    posthog,
-    isEnabled: isProduction,
-  };
+    if (user) {
+      posthog.identify(user.id, {
+        email: user.email,
+        name: user.name,
+      });
+      console.log("identify", user.id, { email: user.email, name: user.name });
+    } else {
+      posthog.reset();
+    }
+  }, [user, posthog]);
 }

@@ -46,7 +46,12 @@ export function ChatIndicator({
         <TooltipContent side="bottom" align="start">
           <p className="font-semibold">Диалог активен</p>
           <p className="text-xs text-muted-foreground">
-            Перейти к переписке ({messageCount} сообщений)
+            {messageCount}{" "}
+            {messageCount === 1
+              ? "сообщение"
+              : messageCount < 5
+                ? "сообщения"
+                : "сообщений"}
           </p>
         </TooltipContent>
       </Tooltip>

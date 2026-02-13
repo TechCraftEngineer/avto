@@ -1,4 +1,4 @@
-import { calculateAge, formatBirthDate } from "@qbs-autonaim/lib";
+import { calculateAge } from "@qbs-autonaim/lib";
 import { getInitials } from "@qbs-autonaim/shared";
 import {
   Avatar,
@@ -7,7 +7,7 @@ import {
   Badge,
   CardTitle,
 } from "@qbs-autonaim/ui";
-import { Cake, Calendar, FileText, MapPin, User, Wallet } from "lucide-react";
+import { Cake, User } from "lucide-react";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { getAvatarUrl } from "~/lib/avatar";
 import { CandidateMetrics } from "./candidate-metrics";
@@ -38,11 +38,6 @@ export function CandidateInfo({
   const initials = getInitials(candidateName);
 
   const age = response.birthDate ? calculateAge(response.birthDate) : null;
-  const birthDateFormatted = response.birthDate
-    ? formatBirthDate(response.birthDate)
-    : null;
-  // В детальном просмотре нет globalCandidate, только globalCandidateId
-  const location = null;
 
   return (
     <div className="flex items-start gap-3 sm:gap-4 min-w-0 flex-1">
@@ -54,34 +49,17 @@ export function CandidateInfo({
       </Avatar>
       <div className="min-w-0 flex-1">
         <CardTitle className="text-lg sm:text-xl truncate">
-          {response.candidateName || "Кандидат"}
+          {candidateName}
         </CardTitle>
 
-        {/* Основная информация о кандидате */}
-        <div className="flex flex-wrap items-center gap-2 mt-2 text-sm text-muted-foreground">
-          {age !== null && (
-            <div className="flex items-center gap-1.5">
-              <Cake className="h-3.5 w-3.5 shrink-0" />
-              <span>
-                {age} {age === 1 ? "год" : age < 5 ? "года" : "лет"}
-              </span>
-            </div>
-          )}
-
-          {birthDateFormatted && (
-            <div className="flex items-center gap-1.5">
-              <Calendar className="h-3.5 w-3.5 shrink-0" />
-              <span>{birthDateFormatted}</span>
-            </div>
-          )}
-
-          {location && (
-            <div className="flex items-center gap-1.5">
-              <MapPin className="h-3.5 w-3.5 shrink-0" />
-              <span className="truncate max-w-[200px]">{location}</span>
-            </div>
-          )}
-        </div>
+        {age !== null && (
+          <div className="flex items-center gap-1.5 mt-2 text-sm text-muted-foreground">
+            <Cake className="h-3.5 w-3.5 shrink-0" />
+            <span>
+              {age} {age === 1 ? "год" : age < 5 ? "года" : "лет"}
+            </span>
+          </div>
+        )}
 
         {/* Контактная информация */}
         {(response.phone || response.email) && (
@@ -96,7 +74,7 @@ export function CandidateInfo({
           </div>
         )}
 
-        {/* Бейджи со статусами и дополнительной информацией */}
+        {/* Статус и источник — детали резюме и зарплаты в CandidateKeyInfo ниже */}
         <div className="flex flex-wrap items-center gap-2 mt-3">
           <Badge variant="outline" className={getStatusColor(response.status)}>
             {getStatusLabel(response.status)}
@@ -109,24 +87,6 @@ export function CandidateInfo({
               {getImportSourceLabel(response.importSource)}
             </Badge>
           )}
-          {response.resumeId && (
-            <Badge
-              variant="outline"
-              className="bg-green-50 text-green-700 border-green-200 dark:bg-green-950/30 dark:text-green-400 dark:border-green-800"
-            >
-              <FileText className="h-3 w-3 mr-1" />
-              Есть резюме
-            </Badge>
-          )}
-          {response.salaryExpectationsAmount && (
-            <Badge
-              variant="outline"
-              className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800"
-            >
-              <Wallet className="h-3 w-3 mr-1" />
-              {response.salaryExpectationsAmount.toLocaleString()}&nbsp;₽
-            </Badge>
-          )}
         </div>
 
         <CandidateMetrics
@@ -134,13 +94,6 @@ export function CandidateInfo({
           candidateRank={candidateRank}
           responseTime={responseTime}
         />
-
-        <div className="text-sm text-muted-foreground mt-3">
-          Откликнулся{" "}
-          {new Date(
-            response.respondedAt || response.createdAt,
-          ).toLocaleDateString("ru-RU")}
-        </div>
       </div>
     </div>
   );

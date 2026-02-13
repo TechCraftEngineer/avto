@@ -9,7 +9,13 @@ import { fetchWorkspaceNotificationsToken } from "~/actions/realtime";
 const NotificationSchema = z.object({
   workspaceId: z.string(),
   type: z
-    .enum(["hh-auth-failed", "telegram-auth-failed", "api-error", "rate-limit"])
+    .enum([
+      "hh-auth-failed",
+      "kwork-auth-failed",
+      "telegram-auth-failed",
+      "api-error",
+      "rate-limit",
+    ])
     .optional(),
   taskType: z
     .enum(["import", "screening", "resume-parsing", "sync", "update"])
@@ -80,11 +86,18 @@ export function useWorkspaceNotifications(workspaceId: string | undefined) {
 }
 
 function getErrorDescription(
-  type?: "hh-auth-failed" | "telegram-auth-failed" | "api-error" | "rate-limit",
+  type?:
+    | "hh-auth-failed"
+    | "kwork-auth-failed"
+    | "telegram-auth-failed"
+    | "api-error"
+    | "rate-limit",
 ): string {
   switch (type) {
     case "hh-auth-failed":
       return "Требуется повторная авторизация на HeadHunter";
+    case "kwork-auth-failed":
+      return "Требуется повторная авторизация на Kwork";
     case "telegram-auth-failed":
       return "Проверьте настройки Telegram бота";
     case "rate-limit":

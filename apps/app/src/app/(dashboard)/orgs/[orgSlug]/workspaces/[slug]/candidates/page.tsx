@@ -8,7 +8,7 @@ export default function CandidatesPage() {
         <PageHeader
           title="База кандидатов"
           description="Полная база данных всех кандидатов"
-          tooltipContent="[Подробнее в документации](https://docs.hh.qbs.ru/candidates)"
+          tooltipContent={`База кандидатов содержит всех соискателей, откликнувшихся на ваши вакансии. Здесь можно искать, фильтровать и просматривать профили кандидатов.\n\n[Подробнее в документации](${process.env.NEXT_PUBLIC_DOCS_URL}/candidates)`}
         />
         <CandidatesTableView />
       </div>

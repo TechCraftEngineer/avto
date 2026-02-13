@@ -8,6 +8,7 @@ export {
   refreshSingleResumeFunction,
   updateSingleVacancyFunction,
   verifyHHCredentialsFunction,
+  verifyKworkCredentialsFunction,
 } from "@qbs-autonaim/jobs-parsers";
 // Candidate functions
 export * from "./candidate";
@@ -33,6 +34,7 @@ import {
   refreshSingleResumeFunction,
   updateSingleVacancyFunction,
   verifyHHCredentialsFunction,
+  verifyKworkCredentialsFunction,
 } from "@qbs-autonaim/jobs-parsers";
 import {
   sendCandidateWelcomeBatchFunction,
@@ -46,7 +48,11 @@ import {
   parseFreelanceProfileFunction,
   sendFreelanceNotificationFunction,
 } from "./freelance";
-import { evaluateGigResponseFunction, syncGigResponses } from "./gig";
+import {
+  evaluateGigResponseFunction,
+  kworkChatProcessFunction,
+  syncGigResponses,
+} from "./gig";
 import {
   bufferDebounceFunction,
   bufferFlushFunction,
@@ -132,9 +138,11 @@ export const inngestFunctions: any[] = [
   sendFreelanceNotificationFunction,
   // Gig
   evaluateGigResponseFunction,
+  kworkChatProcessFunction,
   syncGigResponses,
   // Integration
   verifyHHCredentialsFunction,
+  verifyKworkCredentialsFunction,
   // Interview
   bufferDebounceFunction,
   bufferFlushFunction,

@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@qbs-autonaim/db": "workspace:*",
+    "axios": "1.13.5",
     "@qbs-autonaim/jobs-shared": "workspace:*",
     "@qbs-autonaim/lib": "workspace:*",
     "@qbs-autonaim/server-utils": "workspace:*",

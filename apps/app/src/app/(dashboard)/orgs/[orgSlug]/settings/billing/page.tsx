@@ -299,10 +299,14 @@ export default function OrganizationBillingPage() {
                 };
 
                 const variant = statusVariants[payment.status] || "outline";
-                const label =
-                  statusLabels[payment.status] ||
-                  payment.status ||
-                  "Неизвестно";
+                const label = statusLabels[payment.status] || "Неизвестно";
+                if (!statusLabels[payment.status]) {
+                  console.warn(
+                    "[billing] Неизвестный статус платежа для диагностики:",
+                    payment.status,
+                    { paymentId: payment.id },
+                  );
+                }
 
                 return (
                   <div

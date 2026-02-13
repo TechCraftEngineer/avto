@@ -51,6 +51,20 @@ interface VacancyResponsesContextValue {
   // Обработчики операций (устанавливаются компонентами)
   setOperationHandler: (type: OperationType, handler: () => void) => void;
   executeOperation: (type: OperationType) => void;
+
+  // Колбэк при завершении синхронизации архивных (для handleRefreshComplete)
+  registerOnArchivedSyncComplete: (cb: (() => void) | null) => void;
+  getOnArchivedSyncComplete: () => (() => void) | null;
+
+  // Колбэки при анализе всех откликов (screen-all)
+  registerOnScreenAllProgress: (
+    cb: ((message: string, progress: { total: number; processed: number; failed: number } | null) => void) | null,
+  ) => void;
+  registerOnScreenAllComplete: (cb: (() => void) | null) => void;
+  getOnScreenAllProgress: () =>
+    | ((message: string, progress: { total: number; processed: number; failed: number } | null) => void)
+    | null;
+  getOnScreenAllComplete: () => (() => void) | null;
 }
 
 const VacancyResponsesContext = createContext<
@@ -78,6 +92,11 @@ export function VacancyResponsesProvider({
 
   // Храним обработчики операций в ref, чтобы избежать ре-рендеров
   const handlersRef = useRef<Partial<Record<OperationType, () => void>>>({});
+  const onArchivedSyncCompleteRef = useRef<(() => void) | null>(null);
+  const onScreenAllProgressRef = useRef<
+    ((message: string, progress: { total: number; processed: number; failed: number } | null) => void) | null
+  >(null);
+  const onScreenAllCompleteRef = useRef<(() => void) | null>(null);
 
   const showConfirmation = useCallback((type: OperationType) => {
     setOperations((prev) => ({
@@ -137,6 +156,44 @@ export function VacancyResponsesProvider({
     }
   }, []);
 
+  const registerOnArchivedSyncComplete = useCallback(
+    (cb: (() => void) | null) => {
+      onArchivedSyncCompleteRef.current = cb;
+    },
+    [],
+  );
+
+  const getOnArchivedSyncComplete = useCallback(
+    () => onArchivedSyncCompleteRef.current,
+    [],
+  );
+
+  const registerOnScreenAllProgress = useCallback(
+    (
+      cb: ((message: string, progress: { total: number; processed: number; failed: number } | null) => void) | null,
+    ) => {
+      onScreenAllProgressRef.current = cb;
+    },
+    [],
+  );
+
+  const registerOnScreenAllComplete = useCallback(
+    (cb: (() => void) | null) => {
+      onScreenAllCompleteRef.current = cb;
+    },
+    [],
+  );
+
+  const getOnScreenAllProgress = useCallback(
+    () => onScreenAllProgressRef.current,
+    [],
+  );
+
+  const getOnScreenAllComplete = useCallback(
+    () => onScreenAllCompleteRef.current,
+    [],
+  );
+
   return (
     <VacancyResponsesContext.Provider
       value={{
@@ -149,6 +206,12 @@ export function VacancyResponsesProvider({
         updateProgress,
         setOperationHandler,
         executeOperation,
+        registerOnArchivedSyncComplete,
+        getOnArchivedSyncComplete,
+        registerOnScreenAllProgress,
+        registerOnScreenAllComplete,
+        getOnScreenAllProgress,
+        getOnScreenAllComplete,
       }}
     >
       {children}

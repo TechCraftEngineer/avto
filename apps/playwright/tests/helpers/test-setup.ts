@@ -119,6 +119,28 @@ export async function createTestUser(
   );
 }
 
+export interface ArchivedVacancy {
+  vacancyId: string;
+  title: string;
+}
+
+/**
+ * Создание архивной HH вакансии для E2E тестов (только в dev/test режиме)
+ */
+export async function createArchivedVacancy(
+  testUser: TestUser,
+  baseURL = "http://localhost:3000",
+  title?: string,
+): Promise<ArchivedVacancy> {
+  const trpc = createTestTRPCClient(baseURL);
+  const result = await trpc.test.createArchivedVacancy.mutate({
+    workspaceId: testUser.workspace.id,
+    createdBy: testUser.user.id,
+    title,
+  });
+  return result;
+}
+
 /**
  * Удаление тестового пользователя и всех связанных данных через TRPC
  */

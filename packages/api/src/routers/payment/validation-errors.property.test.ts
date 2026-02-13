@@ -105,12 +105,12 @@ describe("payment validation - Error Handling Property-Based Tests", () => {
             if (!result.success) {
               const error = result.error as ZodError;
 
-              // Проверка 1: Должны быть ошибки
-              expect(error.errors).toBeDefined();
-              expect(error.errors.length).toBeGreaterThan(0);
+              // Проверка 1: Должны быть ошибки (Zod 4 использует issues)
+              expect(error.issues).toBeDefined();
+              expect(error.issues.length).toBeGreaterThan(0);
 
               // Проверка 2: Каждая ошибка должна иметь сообщение
-              for (const err of error.errors) {
+              for (const err of error.issues) {
                 expect(err.message).toBeDefined();
                 expect(typeof err.message).toBe("string");
                 expect(err.message.length).toBeGreaterThan(0);
@@ -136,7 +136,7 @@ describe("payment validation - Error Handling Property-Based Tests", () => {
               }
 
               // Проверка 5: Ошибка должна относиться к ожидаемому полю
-              const errorPaths = error.errors.map((e) => e.path.join("."));
+              const errorPaths = error.issues.map((e) => e.path.join("."));
               const expectedField = invalidData.fieldName;
 
               if (expectedField) {
@@ -197,10 +197,10 @@ describe("payment validation - Error Handling Property-Based Tests", () => {
             if (!result.success) {
               const error = result.error as ZodError;
 
-              // Должны быть ошибки с сообщениями
-              expect(error.errors.length).toBeGreaterThan(0);
+              // Должны быть ошибки с сообщениями (Zod 4 использует issues)
+              expect(error.issues.length).toBeGreaterThan(0);
 
-              for (const err of error.errors) {
+              for (const err of error.issues) {
                 expect(err.message).toBeDefined();
                 expect(typeof err.message).toBe("string");
                 expect(err.message.length).toBeGreaterThan(0);
@@ -297,10 +297,10 @@ describe("payment validation - Error Handling Property-Based Tests", () => {
             if (!result.success) {
               const error = result.error as ZodError;
 
-              // Должны быть ошибки
-              expect(error.errors.length).toBeGreaterThan(0);
+              // Должны быть ошибки (Zod 4 использует issues)
+              expect(error.issues.length).toBeGreaterThan(0);
 
-              for (const err of error.errors) {
+              for (const err of error.issues) {
                 // Каждая ошибка должна иметь сообщение
                 expect(err.message).toBeDefined();
                 expect(typeof err.message).toBe("string");
@@ -355,17 +355,17 @@ describe("payment validation - Error Handling Property-Based Tests", () => {
             if (!result.success) {
               const error = result.error as ZodError;
 
-              // Должно быть несколько ошибок (минимум 2)
-              expect(error.errors.length).toBeGreaterThanOrEqual(2);
+              // Должно быть несколько ошибок (минимум 2) (Zod 4 использует issues)
+              expect(error.issues.length).toBeGreaterThanOrEqual(2);
 
               // Ошибки должны относиться к разным полям
               const errorFields = new Set(
-                error.errors.map((e) => e.path.join(".")),
+                error.issues.map((e) => e.path.join(".")),
               );
               expect(errorFields.size).toBeGreaterThanOrEqual(2);
 
               // Каждая ошибка должна быть информативной
-              for (const err of error.errors) {
+              for (const err of error.issues) {
                 expect(err.message).toBeDefined();
                 expect(err.message.length).toBeGreaterThan(0);
                 expect(err.path.length).toBeGreaterThan(0);
@@ -417,12 +417,11 @@ describe("payment validation - Error Handling Property-Based Tests", () => {
             if (!result.success) {
               const error = result.error as ZodError;
 
-              // Проверяем структуру ZodError
+              // Проверяем структуру ZodError (Zod 4 использует issues)
               expect(error).toBeInstanceOf(ZodError);
               expect(error.name).toBe("ZodError");
               expect(error.issues).toBeDefined();
               expect(Array.isArray(error.issues)).toBe(true);
-              expect(error.issues).toEqual(error.errors);
 
               // Проверяем методы ZodError
               expect(typeof error.format).toBe("function");

@@ -64,4 +64,11 @@ export interface StoredProfileData {
 
   parsedAt?: string;
   error?: string;
+
+  // Kwork-specific (для откликов с Kwork)
+  kworkOfferId?: number;
+  kworkWantId?: number;
+  kworkWorkerId?: number;
+  kworkUsername?: string;
+  kworkLastProcessedMessageId?: number;
 }

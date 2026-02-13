@@ -10,6 +10,13 @@ const verifyHHCredentialsSchema = z.object({
   workspaceId: z.string().min(1, "Workspace ID is required"),
 });
 
+const verifyKworkCredentialsSchema = z.object({
+  login: z.string().min(1, "Login is required"),
+  password: z.string().min(1, "Password is required"),
+  workspaceId: z.string().min(1, "Workspace ID is required"),
+  gRecaptchaResponse: z.string().optional(),
+});
+
 export async function triggerVerifyHHCredentials(
   email: string,
   password: string,
@@ -57,6 +64,58 @@ export async function triggerVerifyHHCredentials(
 export async function fetchVerifyHHCredentialsToken(workspaceId: string) {
   const token = await getSubscriptionToken(inngest, {
     channel: `verify-hh-credentials-${workspaceId}`,
+    topics: ["result"],
+  });
+  return token;
+}
+
+export async function triggerVerifyKworkCredentials(
+  login: string,
+  password: string,
+  workspaceId: string,
+  gRecaptchaResponse?: string,
+) {
+  const validationResult = verifyKworkCredentialsSchema.safeParse({
+    login,
+    password,
+    workspaceId,
+    gRecaptchaResponse,
+  });
+
+  if (!validationResult.success) {
+    const errors = validationResult.error.issues
+      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+      .join(", ");
+    throw new Error(`Validation failed: ${errors}`);
+  }
+
+  try {
+    await inngest.send({
+      name: "integration/verify-kwork-credentials",
+      data: {
+        login: validationResult.data.login,
+        password: validationResult.data.password,
+        workspaceId: validationResult.data.workspaceId,
+        ...(validationResult.data.gRecaptchaResponse && {
+          gRecaptchaResponse: validationResult.data.gRecaptchaResponse,
+        }),
+      },
+    });
+  } catch (error) {
+    console.error("Failed to send Kwork verification event:", {
+      login: `${validationResult.data.login[0]}***`,
+      workspaceId: validationResult.data.workspaceId,
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+    throw new Error(
+      "Failed to trigger Kwork credential verification. Please try again.",
+    );
+  }
+}
+
+export async function fetchVerifyKworkCredentialsToken(workspaceId: string) {
+  const token = await getSubscriptionToken(inngest, {
+    channel: `verify-kwork-credentials-${workspaceId}`,
     topics: ["result"],
   });
   return token;

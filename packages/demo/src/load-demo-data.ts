@@ -29,7 +29,7 @@ async function loadAllDemoData() {
       gig: gigSchema,
       response: responseSchema,
     } = await import("@qbs-autonaim/db/schema");
-    const { eq, inArray } = await import("drizzle-orm");
+    const { and, eq, inArray } = await import("drizzle-orm");
 
     // Получаем ID вакансий и заданий для текущего workspace
     const vacancyIds = await db
@@ -45,20 +45,24 @@ async function loadAllDemoData() {
     // Удаляем отклики только для вакансий и заданий текущего workspace
     if (vacancyIds.length > 0) {
       await db.delete(responseSchema).where(
-        eq(responseSchema.entityType, "vacancy"),
-        inArray(
-          responseSchema.entityId,
-          vacancyIds.map((v) => v.id),
+        and(
+          eq(responseSchema.entityType, "vacancy"),
+          inArray(
+            responseSchema.entityId,
+            vacancyIds.map((v) => v.id),
+          ),
         ),
       );
     }
 
     if (gigIds.length > 0) {
       await db.delete(responseSchema).where(
-        eq(responseSchema.entityType, "gig"),
-        inArray(
-          responseSchema.entityId,
-          gigIds.map((g) => g.id),
+        and(
+          eq(responseSchema.entityType, "gig"),
+          inArray(
+            responseSchema.entityId,
+            gigIds.map((g) => g.id),
+          ),
         ),
       );
     }
@@ -119,11 +123,11 @@ async function loadAllDemoData() {
     );
 
     // 12. Загружаем чат-сессии
-    const vacancyIds = insertedVacancies.map((v) => v.id);
-    const gigIds = insertedGigs.map((g) => g.id);
+    const insertedVacancyIds = insertedVacancies.map((v) => v.id);
+    const insertedGigIds = insertedGigs.map((g) => g.id);
 
     const { sessions: chatSessions, sessionMapping: chatSessionMapping } =
-      await loadChatSessions(userIds, vacancyIds, gigIds);
+      await loadChatSessions(userIds, insertedVacancyIds, insertedGigIds);
 
     // 13. Загружаем сообщения чатов
     const chatMessages = await loadChatMessages(

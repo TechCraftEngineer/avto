@@ -49,8 +49,8 @@
     "with-env": "bun run --env-file ../../.env"
   },
   "dependencies": {
-    "@ai-sdk/deepseek": "2.0.18",
-    "@ai-sdk/openai": "3.0.26",
+    "@ai-sdk/deepseek": "2.0.19",
+    "@ai-sdk/openai": "3.0.27",
     "@bunworks/inngest-realtime": "workspace:*",
     "@qbs-autonaim/config": "workspace:*",
     "@qbs-autonaim/db": "workspace:*",
@@ -63,7 +63,7 @@
     "@qbs-autonaim/shared": "workspace:*",
     "@qbs-autonaim/tg-client": "workspace:*",
     "@t3-oss/env-core": "0.13.10",
-    "ai": "6.0.78",
+    "ai": "6.0.83",
     "axios": "1.13.5",
     "inngest": "3.52.0",
     "langfuse": "3.38.6",
@@ -75,7 +75,7 @@
     "@types/bun": "1.3.9",
     "@types/node": "25.2.3",
     "cross-env": "10.1.0",
-    "inngest-cli": "1.16.3",
+    "inngest-cli": "1.17.0",
     "tsdown": "0.20.3",
     "typescript": "5.9.3"
   }

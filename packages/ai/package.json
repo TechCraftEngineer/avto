@@ -19,11 +19,11 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@langfuse/otel": "^4.6.0",
-    "@opentelemetry/sdk-node": "^0.211.0",
+    "@langfuse/otel": "^4.6.1",
+    "@opentelemetry/sdk-node": "^0.212.0",
     "@qbs-autonaim/config": "workspace:*",
     "@qbs-autonaim/lib": "workspace:*",
-    "ai": "6.0.78",
+    "ai": "6.0.83",
     "langfuse": "3.38.6",
     "p-limit": "^7.3.0",
     "string-strip-html": "^13.5.3",

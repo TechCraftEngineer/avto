@@ -28,12 +28,21 @@ type TRPCClient = {
   };
 };
 
-interface MessageHandlerContext {
+export interface MessageHandlerContext {
   vacancyId: string;
   queryClient: QueryClient;
   trpc: TRPCClient;
   onVisibilityChange: (visible: boolean) => void;
   onTaskComplete?: () => void;
+  /** Вызывается при завершении sync archived (handleRefreshComplete) */
+  onArchivedSyncComplete?: () => void;
+  /** Вызывается при прогрессе screen-all (для контекста useScreeningState) */
+  onAnalyzeProgress?: (
+    message: string,
+    progress: { total: number; processed: number; failed: number } | null,
+  ) => void;
+  /** Вызывается при завершении screen-all (onScreeningComplete) */
+  onAnalyzeComplete?: () => void;
   setArchivedStatus: (status: ArchivedStatusData | null) => void;
   setAnalyzeProgress: (progress: AnalyzeProgressData | null) => void;
   setAnalyzeCompleted: (completed: AnalyzeCompletedData | null) => void;
@@ -57,6 +66,10 @@ export function handleArchivedProgress(
   const progressData = parseResult.data;
   context.setArchivedStatus(progressData);
   context.onVisibilityChange(true);
+
+  if (progressData.status === "error") {
+    context.onArchivedSyncComplete?.();
+  }
 
   // Не инвалидируем vacancy.responses.list при каждом progress: парсер шлёт progress
   // после КАЖДОГО отклика → сотни сообщений → массовая атака на list. Инвалидация
@@ -107,6 +120,8 @@ export function handleArchivedResult(
     }),
   });
 
+  context.onArchivedSyncComplete?.();
+
   const timer = setTimeout(() => {
     context.onVisibilityChange(false);
     context.setArchivedStatus(null);
@@ -137,16 +152,22 @@ export function handleAnalyzeProgress(
         failed: data.failed,
       };
 
+      const progressMessage =
+        data.message ??
+        `Обработано: ${data.processed} из ${data.total}`;
+      context.onAnalyzeProgress?.(progressMessage, {
+        total: data.total,
+        processed: data.processed,
+        failed: data.failed,
+      });
+
       context.setAnalyzeProgress(progressData);
       context.setAnalyzeCompleted(null);
       context.onVisibilityChange(true);
 
-      // Инвалидируем кэш откликов при обработке каждого отклика
-      context.queryClient.invalidateQueries({
-        queryKey: context.trpc.vacancy.responses.list.queryKey({
-          vacancyId: context.vacancyId,
-        }),
-      });
+      // Не инвалидируем vacancy.responses.list при каждом progress: при анализе
+      // сотен откликов это вызывает массовые запросы. Инвалидация только при
+      // завершении (handleAnalyzeResult).
 
       context.setAutoCloseTimer((prev) => {
         if (prev) {
@@ -196,6 +217,9 @@ export function handleAnalyzeResult(
       vacancyId: context.vacancyId,
     }),
   });
+
+  context.onAnalyzeComplete?.();
+  context.onTaskComplete?.();
 }
 
 export function handleRefreshProgress(
@@ -213,12 +237,9 @@ export function handleRefreshProgress(
   context.setCurrentResult(null);
   context.onVisibilityChange(true);
 
-  // Инвалидируем кэш откликов при обработке
-  context.queryClient.invalidateQueries({
-    queryKey: context.trpc.vacancy.responses.list.queryKey({
-      vacancyId: context.vacancyId,
-    }),
-  });
+  // Не инвалидируем vacancy.responses.list при каждом progress: парсер шлёт
+  // progress после КАЖДОГО отклика → массовые запросы. Инвалидация только при
+  // завершении (handleRefreshResult).
 
   context.setAutoCloseTimer((prev) => {
     if (prev) {
@@ -260,6 +281,7 @@ export function handleRefreshResult(
     context.onVisibilityChange(false);
     context.setCurrentProgress(null);
     context.setCurrentResult(null);
+    context.onTaskComplete?.();
   }, 10000);
   context.setAutoCloseTimer(timer);
 }

@@ -23,6 +23,7 @@ import {
 import { useState } from "react";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 import { useTRPC } from "~/trpc/react";
+import { getStatusColor, getStatusLabel } from "./header-card-utils";
 import type { VacancyResponse } from "./types";
 
 interface StatusTimelineProps {
@@ -160,44 +161,6 @@ export function StatusTimeline({ response }: StatusTimelineProps) {
   events.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
   const displayedEvents = isExpanded ? events : events.slice(0, 3);
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case "NEW":
-        return "Новый";
-      case "EVALUATED":
-        return "Оценен";
-      case "INTERVIEW":
-        return "Собеседование";
-      case "NEGOTIATION":
-        return "Переговоры";
-      case "COMPLETED":
-        return "Завершен";
-      case "SKIPPED":
-        return "Пропущен";
-      default:
-        return status;
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "NEW":
-        return "bg-blue-100 text-blue-800";
-      case "EVALUATED":
-        return "bg-yellow-100 text-yellow-800";
-      case "INTERVIEW":
-        return "bg-purple-100 text-purple-800";
-      case "NEGOTIATION":
-        return "bg-orange-100 text-orange-800";
-      case "COMPLETED":
-        return "bg-green-100 text-green-800";
-      case "SKIPPED":
-        return "bg-gray-100 text-gray-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
 
   const formatTimeAgo = (date: Date) => {
     const now = new Date();

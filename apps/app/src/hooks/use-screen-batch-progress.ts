@@ -52,12 +52,14 @@ export function useScreenBatchProgress(
   });
 
   // Reset state when workspaceId or batchId change
+  // biome-ignore lint/correctness/useExhaustiveDependencies: state reset on dependency change
   useEffect(() => {
     setScoredResponses([]);
     setProgress(null);
     setCompleted(null);
-  }, []);
+  }, [workspaceId, batchId]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: subscription effect with controlled dependencies
   useEffect(() => {
     if (!latestData) return;
 
@@ -67,14 +69,9 @@ export function useScreenBatchProgress(
       const scored = latestData.data as ResponseScored;
       setScoredResponses((prev) => [...prev, scored]);
 
-      // Обновляем кэш конкретного отклика
-      if (scored.status === "completed") {
-        queryClient.invalidateQueries({
-          queryKey: trpc.vacancy.responses.get.queryKey({
-            id: scored.responseId,
-          }),
-        });
-      }
+      // Не инвалидируем отдельные отклики при каждом scored - это вызывает
+      // множественные запросы. Инвалидация списка после завершения батча
+      // обновит все данные разом.
     } else if (topic === "batch-progress") {
       setProgress(latestData.data as BatchProgress);
     } else if (topic === "batch-completed") {
@@ -86,7 +83,7 @@ export function useScreenBatchProgress(
         queryKey: trpc.vacancy.responses.list.queryKey(),
       });
     }
-  }, [latestData, queryClient, trpc]);
+  }, [latestData]);
 
   return {
     scoredResponses,

@@ -4,6 +4,8 @@
 
 export {
   analyzeResponseChannel,
+  analyzeResponseProgressSchema,
+  analyzeResponseResultSchema,
   checkPublicationStatusChannel,
   conversationMessagesChannel,
   fetchArchivedListChannel,
@@ -20,6 +22,7 @@ export {
   syncArchivedResponsesChannel,
   vacancyStatsChannel,
   verifyHHCredentialsChannel,
+  verifyKworkCredentialsChannel,
   workspaceNotificationsChannel,
   workspaceStatsChannel,
 } from "./client";

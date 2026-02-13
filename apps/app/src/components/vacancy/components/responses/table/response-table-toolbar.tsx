@@ -29,6 +29,7 @@ interface ResponseTableToolbarProps {
   isHHVacancy?: boolean;
   isArchivedPublication?: boolean;
   hasResponses?: boolean;
+  hasActiveIntegrations?: boolean;
 }
 
 export function ResponseTableToolbar({
@@ -50,6 +51,7 @@ export function ResponseTableToolbar({
   isHHVacancy = false,
   isArchivedPublication = false,
   hasResponses = false,
+  hasActiveIntegrations = false,
 }: ResponseTableToolbarProps) {
   // Получаем состояния операций из Context
   const refreshOp = useVacancyOperation("refresh");
@@ -79,18 +81,20 @@ export function ResponseTableToolbar({
           onToggleColumn={onToggleColumn}
           onResetColumns={onResetColumns}
         />
-        <ResponseActionButtons
-          isRefreshing={refreshOp.isRunning}
-          isSyncingArchived={archivedOp.isRunning}
-          isReanalyzing={screenAllOp.isRunning}
-          onRefreshDialogOpen={refreshOp.openConfirmation}
-          onSyncArchivedDialogOpen={archivedOp.openConfirmation}
-          onAnalyzeNewDialogOpen={screenNewOp.openConfirmation}
-          onReanalyzeDialogOpen={screenAllOp.openConfirmation}
-          isHHVacancy={isHHVacancy}
-          isArchivedPublication={isArchivedPublication}
-          hasResponses={hasResponses}
-        />
+        {hasActiveIntegrations && (
+          <ResponseActionButtons
+            isRefreshing={refreshOp.isRunning}
+            isSyncingArchived={archivedOp.isRunning}
+            isReanalyzing={screenAllOp.isRunning}
+            onRefreshDialogOpen={refreshOp.openConfirmation}
+            onSyncArchivedDialogOpen={archivedOp.openConfirmation}
+            onAnalyzeNewDialogOpen={screenNewOp.openConfirmation}
+            onReanalyzeDialogOpen={screenAllOp.openConfirmation}
+            isHHVacancy={isHHVacancy}
+            isArchivedPublication={isArchivedPublication}
+            hasResponses={hasResponses}
+          />
+        )}
       </div>
     </div>
   );

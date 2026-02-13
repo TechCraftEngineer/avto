@@ -161,7 +161,7 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
       <PageHeader
         title="Отклики"
         description="Управление откликами кандидатов на ваши вакансии"
-        tooltipContent="Здесь отображаются все отклики на ваши вакансии. Вы можете фильтровать их по статусу, оценке скрининга и другим параметрам."
+        tooltipContent={`Здесь отображаются все отклики на ваши вакансии. Вы можете фильтровать их по статусу, оценке скрининга и другим параметрам.\n\n[Подробнее в документации](${process.env.NEXT_PUBLIC_DOCS_URL}/responses)`}
       >
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1 rounded-lg border bg-background p-1">

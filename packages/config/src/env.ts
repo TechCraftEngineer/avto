@@ -140,6 +140,7 @@ export const env = createEnv({
       .optional()
       .default("http://localhost:3001"),
     NEXT_PUBLIC_IS_DEMO: z.coerce.boolean().optional().default(false),
+    NEXT_PUBLIC_DOCS_URL: z.string().optional().default("https://docs.avtonaim.qbs.ru/"),
   },
   clientPrefix: "NEXT_PUBLIC_",
   runtimeEnv: {
@@ -194,6 +195,7 @@ export const env = createEnv({
     NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME,
     NEXT_PUBLIC_INTERVIEW_URL: process.env.NEXT_PUBLIC_INTERVIEW_URL,
     NEXT_PUBLIC_IS_DEMO: process.env.NEXT_PUBLIC_IS_DEMO,
+    NEXT_PUBLIC_DOCS_URL: process.env.NEXT_PUBLIC_DOCS_URL,
     DOCLING_API_URL: process.env.DOCLING_API_URL,
     DOCLING_API_KEY: process.env.DOCLING_API_KEY,
     EMBEDDING_PROVIDER: process.env.EMBEDDING_PROVIDER,

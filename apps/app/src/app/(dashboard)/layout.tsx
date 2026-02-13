@@ -7,7 +7,6 @@ import { getSession } from "~/auth/server";
 import { EmailVerificationBanner } from "~/components/auth";
 import { SiteHeader } from "~/components/layout";
 import { DatabaseErrorFallback } from "~/components/shared/database-error-fallback";
-import { PostHogAuthTracker } from "~/components/shared/posthog-auth-tracker";
 import { AppSidebarWrapper } from "~/components/sidebar";
 import { WorkspaceProvider } from "~/contexts/workspace-context";
 import { api } from "~/trpc/server";
@@ -106,13 +105,6 @@ export default async function DashboardLayout({
 
   return (
     <NuqsAdapter>
-      <PostHogAuthTracker
-        user={{
-          id: session.user.id,
-          email: session.user.email ?? undefined,
-          name: session.user.name ?? undefined,
-        }}
-      />
       <WorkspaceProvider workspaces={workspaces} organizations={organizations}>
         <SidebarProvider>
           <AppSidebarWrapper

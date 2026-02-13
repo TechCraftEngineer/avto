@@ -24,10 +24,12 @@ interface GigResponseHeaderCardProps {
   onReject?: () => void;
   onMessage?: () => void;
   onSendGreeting?: () => void;
+  onStartKworkChat?: () => void;
   onEvaluate?: () => void;
   isProcessing?: boolean;
   isPolling?: boolean;
   isSendingGreeting?: boolean;
+  isStartingKworkChat?: boolean;
 }
 
 const getStatusColor = (status: string) => {
@@ -74,10 +76,12 @@ export function GigResponseHeaderCard({
   onReject,
   onMessage,
   onSendGreeting,
+  onStartKworkChat,
   onEvaluate,
   isProcessing,
   isPolling,
   isSendingGreeting,
+  isStartingKworkChat,
 }: GigResponseHeaderCardProps) {
   const hasPortfolio =
     response.portfolioLinks?.length || response.portfolioFileId;
@@ -154,6 +158,24 @@ export function GigResponseHeaderCard({
                 Связаться
               </Button>
             )}
+            {onStartKworkChat &&
+              response.importSource === "KWORK" &&
+              (response.profileData as { kworkWorkerId?: number })?.kworkWorkerId && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onStartKworkChat}
+                  disabled={isProcessing || isStartingKworkChat}
+                  className="min-h-[36px]"
+                >
+                  {isStartingKworkChat ? (
+                    <div className="h-4 w-4 mr-2 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  ) : (
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                  )}
+                  {isStartingKworkChat ? "Запуск…" : "AI в чате Kwork"}
+                </Button>
+              )}
             {onSendGreeting && response.status === "NEW" && (
               <Button
                 variant="outline"

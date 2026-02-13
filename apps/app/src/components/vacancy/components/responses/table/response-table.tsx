@@ -111,6 +111,11 @@ export function ResponseTable({
     return !(hhPublication?.isActive ?? true);
   }, [vacancyData?.publications]);
 
+  const hasActiveIntegrations = useMemo(
+    () => (vacancyData?.publications?.length ?? 0) > 0,
+    [vacancyData?.publications],
+  );
+
   const { data, isLoading, isFetching, isFetched } = useQuery({
     ...trpc.vacancy.responses.list.queryOptions({
       workspaceId: workspace?.id ?? "",
@@ -368,6 +373,7 @@ export function ResponseTable({
         isHHVacancy={isHHVacancy}
         isArchivedPublication={isArchivedPublication}
         hasResponses={total > 0}
+        hasActiveIntegrations={hasActiveIntegrations}
       />
 
       <div className="rounded-md border bg-transparent">
