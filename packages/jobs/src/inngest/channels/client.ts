@@ -572,6 +572,73 @@ export const workspaceNotificationsChannel = channel(
   );
 
 /**
+ * Канал для отслеживания прогресса импорта новых gigs
+ */
+export const importNewGigsChannel = channel(
+  (workspaceId: string) => `import-new-gigs:${workspaceId}`,
+)
+  .addTopic(
+    topic("progress").schema(
+      z.object({
+        workspaceId: z.string(),
+        status: z.enum(["started", "processing", "completed", "error"]),
+        message: z.string(),
+        total: z.number().int().nonnegative().optional(),
+        processed: z.number().int().nonnegative().optional(),
+        failed: z.number().int().nonnegative().optional(),
+      }),
+    ),
+  )
+  .addTopic(
+    topic("result").schema(
+      z.object({
+        workspaceId: z.string(),
+        success: z.boolean(),
+        imported: z.number().int().nonnegative(),
+        updated: z.number().int().nonnegative(),
+        failed: z.number().int().nonnegative(),
+        error: z.string().optional(),
+      }),
+    ),
+  );
+
+/**
+ * Канал для отслеживания прогресса импорта gig по ссылке
+ */
+export const importGigByUrlChannel = channel(
+  (workspaceId: string, requestId: string) =>
+    `import-gig-by-url:${workspaceId}:${requestId}`,
+)
+  .addTopic(
+    topic("progress").schema(
+      z.object({
+        workspaceId: z.string(),
+        requestId: z.string(),
+        status: z.enum([
+          "started",
+          "validating",
+          "fetching",
+          "saving",
+          "completed",
+          "error",
+        ]),
+        message: z.string(),
+      }),
+    ),
+  )
+  .addTopic(
+    topic("result").schema(
+      z.object({
+        workspaceId: z.string(),
+        requestId: z.string(),
+        success: z.boolean(),
+        gigId: z.string().optional(),
+        error: z.string().optional(),
+      }),
+    ),
+  );
+
+/**
  * Канал для batch операций скрининга
  * Показывает детальный прогресс оценки каждого отклика
  */

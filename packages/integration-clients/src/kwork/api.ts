@@ -292,6 +292,63 @@ export interface KworkOffersParams {
   page?: number;
 }
 
+/** Параметры для getMyWants */
+export interface KworkMyWantsParams {
+  /** Альтернативные статусы через запятую. -1 для архивных */
+  want_status_id?: string;
+  page?: number;
+}
+
+/**
+ * Получить список запросов на услугу заказчика (мои проекты)
+ */
+export async function getMyWants(
+  token: string,
+  params: KworkMyWantsParams = {},
+): Promise<{
+  success: boolean;
+  response?: KworkWantPayer[];
+  paging?: { page: number; total: number; pages?: number };
+  error?: KworkErrorResponse;
+}> {
+  try {
+    const body = new URLSearchParams();
+    body.append("token", token);
+    if (params.want_status_id != null)
+      body.append("want_status_id", params.want_status_id);
+    if (params.page != null) body.append("page", String(params.page));
+
+    const response = await kworkApi.post<{
+      success?: boolean;
+      response?: KworkWantPayer[];
+      paging?: { page: number; total: number; pages?: number };
+      code?: number;
+    }>("myWants", body.toString());
+
+    const data = response.data;
+    if (data && typeof data === "object" && "code" in data && (data as KworkErrorResponse).code) {
+      return { success: false, error: data as KworkErrorResponse };
+    }
+    const result = data as {
+      response?: KworkWantPayer[];
+      paging?: { page: number; total: number; pages?: number };
+    };
+    return {
+      success: true,
+      response: result?.response ?? [],
+      paging: result?.paging,
+    };
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data) {
+      return {
+        success: false,
+        error: error.response.data as KworkErrorResponse,
+      };
+    }
+    throw error;
+  }
+}
+
 /**
  * Получить проект для покупателя (want) — данные по запросу на услугу
  */

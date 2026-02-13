@@ -50,6 +50,8 @@ import {
 } from "./freelance";
 import {
   evaluateGigResponseFunction,
+  importGigByUrlFunction,
+  importNewGigsFunction,
   kworkChatProcessFunction,
   syncGigResponses,
 } from "./gig";
@@ -138,6 +140,8 @@ export const inngestFunctions: any[] = [
   sendFreelanceNotificationFunction,
   // Gig
   evaluateGigResponseFunction,
+  importGigByUrlFunction,
+  importNewGigsFunction,
   kworkChatProcessFunction,
   syncGigResponses,
   // Integration

@@ -18,6 +18,7 @@ export {
 } from "./gig-detail-skeleton";
 export { GigDetailStats } from "./gig-detail-stats";
 export { formatBudget, formatDate, getGigTypeLabel } from "./gig-detail-utils";
+export { GigImportSection } from "./import-section";
 export { GigInterviewSettings } from "./gig-interview-settings";
 export { GigListItem } from "./gig-list-item";
 export { GigsFilters } from "./gigs-filters";

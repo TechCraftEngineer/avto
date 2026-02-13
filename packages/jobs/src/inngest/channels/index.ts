@@ -10,6 +10,8 @@ export {
   conversationMessagesChannel,
   fetchArchivedListChannel,
   importArchivedVacanciesChannel,
+  importGigByUrlChannel,
+  importNewGigsChannel,
   importNewVacanciesChannel,
   importVacancyByUrlChannel,
   parseNewResumesChannel,

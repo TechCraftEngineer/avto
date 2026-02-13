@@ -150,7 +150,15 @@ export function GigsFilters({
         </div>
       </div>
 
-      <div className="flex w-full gap-2 md:w-auto">
+      <div className="flex w-full flex-wrap gap-2 md:w-auto">
+        <Button asChild variant="outline" className="flex-1 md:flex-initial">
+          <Link
+            href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs/import`}
+            aria-label="Добавить с Kwork"
+          >
+            Импорт с Kwork
+          </Link>
+        </Button>
         <Button asChild variant="default" className="flex-1 md:flex-initial">
           <Link
             href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs/create`}

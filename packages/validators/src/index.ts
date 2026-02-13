@@ -43,5 +43,7 @@ export * from "./security";
 export * from "./vacancy";
 // Vacancy import
 export * from "./vacancy-import";
+// Gig import
+export * from "./gig-import";
 // Workspace
 export * from "./workspace";
