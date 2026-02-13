@@ -143,7 +143,7 @@ export function IntegrationFormFields({
               <FormControl>
                 <Input
                   type="email"
-                  placeholder="your@email.com"
+                  placeholder="ваш@email.com"
                   className="h-11"
                   autoComplete="email"
                   {...field}
@@ -178,6 +178,7 @@ export function IntegrationFormFields({
                   size="sm"
                   className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                   onClick={onTogglePassword}
+                  aria-label={showPassword ? "Скрыть пароль" : "Показать пароль"}
                 >
                   {showPassword ? (
                     <EyeOff className="h-4 w-4 text-muted-foreground" />

@@ -60,7 +60,10 @@ export function mapScreeningToOutput(screening: ResponseScreening | null) {
     psychometricAnalysis: screening.psychometricAnalysis
       ? {
           compatibilityScore: screening.psychometricAnalysis.compatibilityScore,
-          summary: sanitizeHtml(screening.psychometricAnalysis.summary ?? ""),
+          summary:
+            screening.psychometricAnalysis.summary == null
+              ? null
+              : sanitizeHtml(screening.psychometricAnalysis.summary),
           strengths: (screening.psychometricAnalysis.strengths ?? []).map(
             (s) => sanitizeHtml(s),
           ),

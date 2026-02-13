@@ -80,7 +80,11 @@ export function DocsHeader() {
             className="hidden md:inline-flex"
             asChild
           >
-            <Link href="https://app.avtonaim.qbsoft.ru" target="_blank">
+            <Link
+              href="https://app.avtonaim.qbsoft.ru"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Войти
             </Link>
           </Button>

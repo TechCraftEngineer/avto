@@ -53,4 +53,4 @@ jobs:
       - name: Sync Inngest App
         run: |
           sleep 10
-          curl -X PUT https://demo-jobs.avtonaim.qbsoft.ru/api/inngest
+          curl -f -S --retry 2 --retry-delay 5 --max-time 30 -X PUT https://demo-jobs.avtonaim.qbsoft.ru/api/inngest

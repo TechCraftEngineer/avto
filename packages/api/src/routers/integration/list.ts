@@ -38,9 +38,9 @@ export const listIntegrations = protectedProcedure
           const decrypted = decryptCredentials(
             int.credentials as Record<string, string>,
           );
-          // Kwork использует login, остальные — email
+          // Kwork использует login (legacy — email), остальные — email
           if (int.type === "kwork") {
-            login = decrypted.login || null;
+            login = decrypted.login || decrypted.email || null;
           } else {
             email = decrypted.email || null;
           }
