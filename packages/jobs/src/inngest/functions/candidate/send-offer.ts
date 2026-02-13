@@ -1,6 +1,7 @@
 import { eq, logResponseEvent } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import {
+  type InterviewChannel,
   interviewMessage,
   interviewSession,
   response,
@@ -94,7 +95,7 @@ ${offerDetails.message ? `\n${offerDetails.message}\n` : ""}
         sessionId: session.id,
         role: "assistant",
         type: "text",
-        channel: session.lastChannel ?? "telegram",
+        channel: (session.lastChannel ?? "telegram") as InterviewChannel,
         content: removeNullBytes(offerMessage),
         externalId: result.messageId,
       });

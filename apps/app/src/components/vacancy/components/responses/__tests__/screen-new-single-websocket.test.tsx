@@ -9,6 +9,7 @@ import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
+import type { ColumnId } from "../types";
 import { VacancyResponsesProvider, useVacancyOperation } from "../context/vacancy-responses-context";
 import { StatusIndicators } from "../status-indicators";
 import { ResponseTableToolbar } from "../table/response-table-toolbar";
@@ -124,7 +125,7 @@ describe("скрининг новых откликов — один WebSocket", 
       onScreenAll: () => {},
       onSyncArchived: () => {},
       onScreeningComplete: mockOnScreeningComplete,
-      visibleColumns: new Set() as ReadonlySet<string>,
+      visibleColumns: new Set() as ReadonlySet<ColumnId>,
       onToggleColumn: () => {},
       onResetColumns: () => {},
       isHHVacancy: true,

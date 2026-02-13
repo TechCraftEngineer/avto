@@ -68,9 +68,10 @@ export const fetchArchivedListFunction = inngest.createFunction(
         const rawVacancies = await fetchArchivedVacanciesList(workspaceId);
 
         // Получаем список externalId для проверки в базе
+        type ArchivedVacancyItem = (typeof rawVacancies)[number];
         const validExternalIds = rawVacancies
-          .filter((v) => v.externalId)
-          .map((v) => v.externalId);
+          .filter((v: ArchivedVacancyItem) => v.externalId)
+          .map((v: ArchivedVacancyItem) => v.externalId);
 
         // Проверяем, какие вакансии уже загружены в базу
         const existingVacancies =
@@ -88,14 +89,14 @@ export const fetchArchivedListFunction = inngest.createFunction(
 
         const existingExternalIds = new Set(
           existingVacancies
-            .map((v) => v.externalId)
+            .map((v: { externalId: string | null }) => v.externalId)
             .filter((id): id is string => id !== null),
         );
 
         // Преобразуем данные в формат, ожидаемый каналом, добавляем флаг isImported
         const vacancies = rawVacancies
-          .filter((v) => v.externalId)
-          .map((v) => ({
+          .filter((v: ArchivedVacancyItem) => v.externalId)
+          .map((v: ArchivedVacancyItem) => ({
             id: v.externalId ?? "",
             title: v.title || "",
             region: v.region,

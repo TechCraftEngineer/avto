@@ -114,7 +114,7 @@ export const importSelectedArchivedVacanciesFunction = inngest.createFunction(
           const vacanciesWithProgress = await importMultipleVacancies(
             workspaceId,
             vacanciesWithUrls,
-            async (index, success, error) => {
+            async (index: number, success: boolean, error?: string) => {
               // Обновляем статус текущей вакансии
               const currentVacancy = vacancyList[index];
               if (!currentVacancy) return;

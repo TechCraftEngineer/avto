@@ -94,7 +94,7 @@ export const importArchivedVacanciesFunction = inngest.createFunction(
             date: v.archivedAt || "",
             region: v.region,
           })),
-          async (index, success, error) => {
+          async (index: number, success: boolean, error?: string) => {
             // Обновляем статус текущей вакансии
             const currentVacancy = vacancies[index];
             if (!currentVacancy) return;

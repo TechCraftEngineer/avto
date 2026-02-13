@@ -101,7 +101,7 @@ export const importGigByUrlFunction = inngest.createFunction(
           }),
         );
 
-        const apiResult = await executeWithKworkTokenRefresh(
+        const apiResult = await executeWithKworkTokenRefresh<KworkWantPayer[]>(
           db,
           workspaceId,
           (token) => getWant(token, projectId),

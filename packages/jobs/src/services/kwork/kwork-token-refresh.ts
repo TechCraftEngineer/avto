@@ -29,7 +29,8 @@ export async function executeWithKworkTokenRefresh<T>(
   workspaceId: string,
   apiCall: (token: string) => Promise<KworkApiResult<T>>,
   options?: {
-    publish?: (event: object) => Promise<void>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    publish?: (event: any) => Promise<void>;
   },
 ): Promise<KworkApiResult<T>> {
   const credentials = await getIntegrationCredentials(db, "kwork", workspaceId);
@@ -93,7 +94,8 @@ export async function executeWithKworkTokenRefresh<T>(
 
 async function notifyAuthFailed(
   workspaceId: string,
-  publish?: (event: object) => Promise<void>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  publish?: (event: any) => Promise<void>,
 ): Promise<void> {
   if (!publish) return;
 

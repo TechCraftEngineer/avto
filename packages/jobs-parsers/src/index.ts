@@ -32,6 +32,7 @@ export {
 // Экспорт типов
 export type {
   ProgressCallback,
+  ProgressData,
   ResponseData,
   ResumeExperience,
   VacancyData,

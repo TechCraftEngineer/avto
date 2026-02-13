@@ -130,7 +130,7 @@ export async function triggerRefreshVacancyResponses(vacancyId: string) {
 export async function triggerSyncArchivedVacancyResponses(
   vacancyId: string,
   workspaceId: string,
-) {
+): Promise<{ success: true } | { success: false; error: string }> {
   try {
     await inngest.send({
       name: "vacancy/responses.sync-archived",

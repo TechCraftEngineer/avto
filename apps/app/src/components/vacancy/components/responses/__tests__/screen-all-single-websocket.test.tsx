@@ -22,6 +22,7 @@ import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
+import type { ColumnId } from "../types";
 import {
   VacancyResponsesProvider,
   useVacancyOperation,
@@ -144,7 +145,7 @@ describe("screen-all (анализ всех откликов) — один WebSo
       onScreenAll: mockOnScreenAll,
       onSyncArchived: () => {},
       onScreeningComplete: mockOnScreeningComplete,
-      visibleColumns: new Set() as ReadonlySet<string>,
+      visibleColumns: new Set() as ReadonlySet<ColumnId>,
       onToggleColumn: () => {},
       onResetColumns: () => {},
       isHHVacancy: true,

@@ -64,7 +64,7 @@ describe("handleArchivedProgress", () => {
       },
     };
 
-    handleArchivedProgress(message, context as MessageHandlerContext);
+    handleArchivedProgress(message, context as unknown as MessageHandlerContext);
 
     expect(mockSetArchivedStatus).toHaveBeenCalledWith({
       status: "processing",
@@ -86,7 +86,7 @@ describe("handleArchivedProgress", () => {
       },
     };
 
-    handleArchivedProgress(message, context as MessageHandlerContext);
+    handleArchivedProgress(message, context as unknown as MessageHandlerContext);
 
     expect(mockSetAutoCloseTimer).toHaveBeenCalled();
   });
@@ -101,7 +101,7 @@ describe("handleArchivedProgress", () => {
       },
     };
 
-    handleArchivedProgress(message, context as MessageHandlerContext);
+    handleArchivedProgress(message, context as unknown as MessageHandlerContext);
 
     expect(mockSetArchivedStatus).not.toHaveBeenCalled();
   });
@@ -121,7 +121,7 @@ describe("handleArchivedProgress", () => {
             newResponses: 0,
           },
         },
-        context as MessageHandlerContext,
+        context as unknown as MessageHandlerContext,
       );
     }
 
@@ -159,7 +159,7 @@ describe("handleArchivedResult", () => {
       },
     };
 
-    handleArchivedResult(message, context as MessageHandlerContext);
+    handleArchivedResult(message, context as unknown as MessageHandlerContext);
 
     expect(mockSetArchivedStatus).toHaveBeenCalledWith({
       status: "completed",
@@ -184,7 +184,7 @@ describe("handleArchivedResult", () => {
       },
     };
 
-    handleArchivedResult(message, context as MessageHandlerContext);
+    handleArchivedResult(message, context as unknown as MessageHandlerContext);
 
     expect(mockSetAutoCloseTimer).toHaveBeenCalled();
   });
@@ -198,7 +198,7 @@ describe("handleArchivedResult", () => {
       },
     };
 
-    handleArchivedResult(message, context as MessageHandlerContext);
+    handleArchivedResult(message, context as unknown as MessageHandlerContext);
 
     expect(mockSetArchivedStatus).not.toHaveBeenCalled();
   });
@@ -218,7 +218,7 @@ describe("handleRefreshProgress (refresh + screening)", () => {
       },
     };
 
-    handleRefreshProgress(message, context as MessageHandlerContext);
+    handleRefreshProgress(message, context as unknown as MessageHandlerContext);
 
     expect(mockSetCurrentProgress).toHaveBeenCalledWith({
       vacancyId: "vacancy-123",
@@ -246,7 +246,7 @@ describe("handleRefreshProgress (refresh + screening)", () => {
             totalSkipped: 0,
           },
         },
-        context as MessageHandlerContext,
+        context as unknown as MessageHandlerContext,
       );
     }
 
@@ -280,7 +280,7 @@ describe("handleRefreshResult", () => {
       },
     };
 
-    handleRefreshResult(message, context as MessageHandlerContext);
+    handleRefreshResult(message, context as unknown as MessageHandlerContext);
 
     expect(mockSetCurrentResult).toHaveBeenCalledWith({
       vacancyId: "vacancy-123",

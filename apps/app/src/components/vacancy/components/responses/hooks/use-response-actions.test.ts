@@ -106,9 +106,9 @@ describe("useResponseActions", () => {
 
     it("должен показывать toast.error при result.success=false", async () => {
       mockTriggerSyncArchivedVacancyResponses.mockResolvedValue({
-        success: false as const,
+        success: false,
         error: "Ошибка запуска",
-      });
+      } as { success: false; error: string });
 
       const { result } = renderHook(() =>
         useResponseActions(
@@ -130,9 +130,9 @@ describe("useResponseActions", () => {
 
     it("должен сбрасывать isSyncingArchived при result.success=false", async () => {
       mockTriggerSyncArchivedVacancyResponses.mockResolvedValue({
-        success: false as const,
+        success: false,
         error: "Ошибка",
-      });
+      } as { success: false; error: string });
 
       const { result } = renderHook(() =>
         useResponseActions(

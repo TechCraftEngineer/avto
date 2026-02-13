@@ -1,7 +1,10 @@
 import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { vacancy } from "@qbs-autonaim/db/schema";
-import { refreshVacancyResponses } from "@qbs-autonaim/jobs-parsers";
+import {
+  type ProgressData,
+  refreshVacancyResponses,
+} from "@qbs-autonaim/jobs-parsers";
 import {
   refreshVacancyResponsesChannel,
   vacancyStatsChannel,
@@ -61,7 +64,7 @@ export const refreshVacancyResponsesFunction = inngest.createFunction(
         const { newCount, totalResponses } = await refreshVacancyResponses(
           vacancyId,
           vacancyData.workspaceId,
-          async (progressData) => {
+          async (progressData: ProgressData) => {
             // Публикуем прогресс в realtime канал
             await publish(
               refreshVacancyResponsesChannel(vacancyId).progress({

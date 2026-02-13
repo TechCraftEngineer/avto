@@ -1,3 +1,4 @@
+import type { Realtime } from "@bunworks/inngest-realtime";
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { renderHook, waitFor } from "@testing-library/react";
 
@@ -23,7 +24,10 @@ async function getHook() {
 
 describe("useSyncArchivedSubscription", () => {
   const mockVacancyId = "vacancy-123";
-  const mockFetchToken = mock(() => Promise.resolve("token-123"));
+  const mockFetchToken = mock(
+  () =>
+    Promise.resolve("token-123" as unknown as Realtime.Subscribe.Token),
+);
 
   it("должен вызывать onMessage при получении progress сообщения", async () => {
     const useSyncArchivedSubscription = await getHook();
