@@ -167,23 +167,6 @@ export function useRefreshSubscription({
     .with("refresh", () => refreshSubscription.error)
     .exhaustive();
 
-  // Периодическая проверка статуса для восстановления после перезагрузки
-  // Проверяем каждые 5 секунд если есть активное задание
-  useEffect(() => {
-    if (!hasActiveTask) return;
-
-    const intervalId = setInterval(() => {
-      // Обновляем статус через REST API
-      queryClient.invalidateQueries({
-        queryKey: trpc.vacancy.responses.getRefreshStatus.queryKey({
-          vacancyId,
-        }),
-      });
-    }, 5000);
-
-    return () => clearInterval(intervalId);
-  }, [hasActiveTask, queryClient, trpc, vacancyId]);
-
   // Устанавливаем начальное состояние из REST API
   useEffect(() => {
     if (initialStatus?.isRunning && initialStatus.message) {

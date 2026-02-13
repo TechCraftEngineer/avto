@@ -25,9 +25,11 @@ export function RefreshStatusIndicator({
   const trpc = useTRPC();
   const { getOnArchivedSyncComplete } = useVacancyResponses();
 
-  const { data: initialStatus } = useQuery(
-    trpc.vacancy.responses.getRefreshStatus.queryOptions({ vacancyId }),
-  );
+  const { data: initialStatus } = useQuery({
+    ...trpc.vacancy.responses.getRefreshStatus.queryOptions({ vacancyId }),
+    refetchInterval: (query) =>
+      (query.state.data?.isRunning ?? false) ? 5000 : false,
+  });
 
   const visibility = useRefreshVisibility({
     showConfirmationProp: externalShowConfirmation,

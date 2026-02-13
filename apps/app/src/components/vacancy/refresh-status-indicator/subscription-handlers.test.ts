@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it, mock } from "bun:test";
 import {
   handleArchivedProgress,
   handleArchivedResult,
+  handleRefreshProgress,
+  handleRefreshResult,
 } from "./subscription-handlers";
 
 const mockSetArchivedStatus = mock(() => {});
@@ -9,6 +11,9 @@ const mockOnVisibilityChange = mock(() => {});
 const mockOnTaskComplete = mock(() => {});
 const mockSetAutoCloseTimer = mock(() => {});
 const mockInvalidateQueries = mock(() => Promise.resolve());
+
+const mockSetCurrentProgress = mock(() => {});
+const mockSetCurrentResult = mock(() => {});
 
 const createContext = () => ({
   vacancyId: "vacancy-123",
@@ -30,13 +35,15 @@ const createContext = () => ({
   setArchivedStatus: mockSetArchivedStatus,
   setAnalyzeProgress: mock(() => {}),
   setAnalyzeCompleted: mock(() => {}),
-  setCurrentProgress: mock(() => {}),
-  setCurrentResult: mock(() => {}),
+  setCurrentProgress: mockSetCurrentProgress,
+  setCurrentResult: mockSetCurrentResult,
   setAutoCloseTimer: mockSetAutoCloseTimer,
 });
 
 beforeEach(() => {
   mockSetArchivedStatus.mockClear();
+  mockSetCurrentProgress.mockClear();
+  mockSetCurrentResult.mockClear();
   mockOnVisibilityChange.mockClear();
   mockOnTaskComplete.mockClear();
   mockSetAutoCloseTimer.mockClear();
@@ -97,6 +104,45 @@ describe("handleArchivedProgress", () => {
 
     expect(mockSetArchivedStatus).not.toHaveBeenCalled();
   });
+
+  it("не должен инвалидировать vacancy.responses.list при каждом progress — только при result", () => {
+    const context = createContext();
+
+    // Парсер шлёт progress после КАЖДОГО отклика — симулируем 50 сообщений
+    for (let i = 1; i <= 50; i++) {
+      handleArchivedProgress(
+        {
+          data: {
+            status: "processing",
+            message: `Обработан отклик ${i}`,
+            vacancyId: "vacancy-123",
+            syncedResponses: i,
+            newResponses: 0,
+          },
+        },
+        context as any,
+      );
+    }
+
+    // После 50 progress-сообщений invalidateQueries не должен вызываться
+    expect(mockInvalidateQueries).not.toHaveBeenCalled();
+
+    // Инвалидация только при result
+    handleArchivedResult(
+      {
+        data: {
+          vacancyId: "vacancy-123",
+          success: true,
+          syncedResponses: 50,
+          newResponses: 10,
+          vacancyTitle: "Test",
+        },
+      },
+      context as any,
+    );
+
+    expect(mockInvalidateQueries).toHaveBeenCalledTimes(2);
+  });
 });
 
 describe("handleArchivedResult", () => {
@@ -154,5 +200,94 @@ describe("handleArchivedResult", () => {
     handleArchivedResult(message, context as any);
 
     expect(mockSetArchivedStatus).not.toHaveBeenCalled();
+  });
+});
+
+describe("handleRefreshProgress (refresh + screening)", () => {
+  it("должен вызывать setCurrentProgress с данными прогресса", () => {
+    const context = createContext();
+    const message = {
+      data: {
+        vacancyId: "vacancy-123",
+        status: "processing",
+        message: "Обработка страницы 2",
+        currentPage: 2,
+        totalSaved: 50,
+        totalSkipped: 10,
+      },
+    };
+
+    handleRefreshProgress(message, context as any);
+
+    expect(mockSetCurrentProgress).toHaveBeenCalledWith({
+      vacancyId: "vacancy-123",
+      status: "processing",
+      message: "Обработка страницы 2",
+      currentPage: 2,
+      totalSaved: 50,
+      totalSkipped: 10,
+    });
+    expect(mockOnVisibilityChange).toHaveBeenCalledWith(true);
+  });
+
+  it("не должен инвалидировать vacancy.responses.list при каждом progress — только при result", () => {
+    const context = createContext();
+
+    for (let i = 1; i <= 50; i++) {
+      handleRefreshProgress(
+        {
+          data: {
+            vacancyId: "vacancy-123",
+            status: "processing",
+            message: `Обработана страница ${i}`,
+            currentPage: i,
+            totalSaved: i * 10,
+            totalSkipped: 0,
+          },
+        },
+        context as any,
+      );
+    }
+
+    expect(mockInvalidateQueries).not.toHaveBeenCalled();
+
+    handleRefreshResult(
+      {
+        data: {
+          vacancyId: "vacancy-123",
+          success: true,
+          newCount: 5,
+          totalResponses: 100,
+        },
+      },
+      context as any,
+    );
+
+    expect(mockInvalidateQueries).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe("handleRefreshResult", () => {
+  it("должен вызывать setCurrentResult и инвалидировать кэш", () => {
+    const context = createContext();
+    const message = {
+      data: {
+        vacancyId: "vacancy-123",
+        success: true,
+        newCount: 10,
+        totalResponses: 50,
+      },
+    };
+
+    handleRefreshResult(message, context as any);
+
+    expect(mockSetCurrentResult).toHaveBeenCalledWith({
+      vacancyId: "vacancy-123",
+      success: true,
+      newCount: 10,
+      totalResponses: 50,
+    });
+    expect(mockOnVisibilityChange).toHaveBeenCalledWith(true);
+    expect(mockInvalidateQueries).toHaveBeenCalledTimes(2);
   });
 });
