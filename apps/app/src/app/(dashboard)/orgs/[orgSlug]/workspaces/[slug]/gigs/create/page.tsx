@@ -541,6 +541,7 @@ export default function CreateGigPage({ params }: PageProps) {
               onSubmit={onSubmit}
               onCancel={() => setShowForm(false)}
               isCreating={isCreating}
+              workspaceId={workspace?.id}
             />
           </GigPreview>
 

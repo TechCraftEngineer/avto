@@ -16,62 +16,34 @@ import {
   SelectValue,
   Textarea,
 } from "@qbs-autonaim/ui";
+import { parsePlatformLink } from "@qbs-autonaim/shared";
 import { Check, Loader2 } from "lucide-react";
-import { useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
+import { useDebouncedCallback } from "use-debounce";
 import type { UseFormReturn } from "react-hook-form";
+import { toast } from "sonner";
+import { useTRPCClient } from "~/trpc/react";
 import type { FormValues } from "./types";
 import { gigTypeOptions } from "./types";
 
-// Локальная функция парсинга ссылок (без зависимостей от DB)
-const parsePlatformUrl = (url: string) => {
-  if (!url || typeof url !== "string") return null;
+/** Допустимые платформы для формы gig */
+const GIG_PLATFORM_SOURCES = [
+  "MANUAL",
+  "HH",
+  "AVITO",
+  "KWORK",
+  "FL_RU",
+  "FREELANCE_RU",
+  "WEB_LINK",
+] as const;
 
-  const normalizedUrl = url.trim();
+/** Kwork project URL: kwork.ru/project/123 (для подгрузки данных) */
+const isKworkProjectUrl = (url: string) =>
+  /kwork\.(ru|com)\/project\/\d+/.test(url.trim());
 
-  // Проверяем HeadHunter (HH.ru)
-  if (
-    /^https?:\/\/(?:www\.)?(?:hh\.ru|headhunter\.ru)\/vacancy\/\d+(?:.*)?$/.test(
-      normalizedUrl,
-    )
-  ) {
-    return "HH";
-  }
-
-  // Проверяем Avito (только вакансии)
-  if (
-    /^https?:\/\/(?:www\.)?avito\.ru\/[^/]+\/(?:rabota|vakansii)\/[^/]+\/\d+(?:.*)?$/.test(
-      normalizedUrl,
-    )
-  ) {
-    return "AVITO";
-  }
-
-  // Проверяем KWork
-  if (
-    /^https?:\/\/(?:www\.)?kwork\.ru\/projects\/\d+(?:\/.*)?$/.test(
-      normalizedUrl,
-    )
-  ) {
-    return "KWORK";
-  }
-
-  // Проверяем FL.ru
-  if (
-    /^https?:\/\/(?:www\.)?fl\.ru\/projects\/\d+(?:\/.*)?$/.test(normalizedUrl)
-  ) {
-    return "FL_RU";
-  }
-
-  // Проверяем Freelance.ru
-  if (
-    /^https?:\/\/(?:www\.)?freelance\.ru\/project\/\d+(?:\/.*)?$/.test(
-      normalizedUrl,
-    )
-  ) {
-    return "FREELANCE_RU";
-  }
-
-  return null;
+const extractKworkProjectId = (url: string): number | null => {
+  const m = url.trim().match(/kwork\.(ru|com)\/project\/(\d+)/);
+  return m?.[2] ? Number.parseInt(m[2], 10) : null;
 };
 
 interface GigFormProps {
@@ -79,6 +51,7 @@ interface GigFormProps {
   onSubmit: (values: FormValues) => void;
   onCancel: () => void;
   isCreating: boolean;
+  workspaceId: string | undefined;
 }
 
 export function GigForm({
@@ -86,20 +59,74 @@ export function GigForm({
   onSubmit,
   onCancel,
   isCreating,
+  workspaceId,
 }: GigFormProps) {
-  // Автоопределение платформы при вводе URL
+  const trpcClient = useTRPCClient();
+  const lastImportedUrlRef = useRef<string | null>(null);
+
+  const tryImportFromKwork = useCallback(
+    async (url: string) => {
+      if (!workspaceId || !isKworkProjectUrl(url)) return;
+      const normalizedUrl = url.trim();
+      if (lastImportedUrlRef.current === normalizedUrl) return;
+      const projectId = extractKworkProjectId(url);
+      if (!projectId) return;
+
+      lastImportedUrlRef.current = normalizedUrl;
+      try {
+        const project = await trpcClient.gig.kwork.getProject.query({
+          workspaceId,
+          projectId,
+        });
+        form.setValue("title", project.title || form.getValues("title"));
+        form.setValue(
+          "description",
+          project.description || form.getValues("description"),
+        );
+        if (project.price != null) {
+          form.setValue("budgetMin", project.price);
+          form.setValue("budgetMax", project.price);
+        }
+        form.setValue("platformSource", "KWORK");
+        toast.success("Данные загружены с Kwork");
+      } catch {
+        lastImportedUrlRef.current = null;
+        form.setValue("platformSource", "KWORK");
+      }
+    },
+    [workspaceId, trpcClient, form],
+  );
+
+  const debouncedImportFromKwork = useDebouncedCallback(
+    (url: string) => void tryImportFromKwork(url),
+    600,
+  );
+
+  // Автоопределение платформы и подгрузка с Kwork при вводе URL
   useEffect(() => {
     const subscription = form.watch((value, { name }) => {
-      if (name === "platformUrl" && value.platformUrl) {
-        const platform = parsePlatformUrl(value.platformUrl);
-        if (platform) {
-          form.setValue("platformSource", platform);
+      if (name === "platformUrl") {
+        if (!value.platformUrl) {
+          lastImportedUrlRef.current = null;
+          return;
+        }
+        const parsed = parsePlatformLink(value.platformUrl);
+        const validSource = parsed
+          ? (GIG_PLATFORM_SOURCES as readonly string[]).includes(parsed.source)
+            ? (parsed.source as (typeof GIG_PLATFORM_SOURCES)[number])
+            : undefined
+          : undefined;
+        if (validSource) {
+          form.setValue("platformSource", validSource);
+          if (validSource === "KWORK" && isKworkProjectUrl(value.platformUrl)) {
+            debouncedImportFromKwork(value.platformUrl);
+          }
         }
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [form]);
+  }, [form, debouncedImportFromKwork]);
 
   return (
     <Form {...form}>
@@ -152,7 +179,7 @@ export function GigForm({
               <FormControl>
                 <Textarea
                   placeholder="Описание проекта…"
-                  className="min-h-[80px]"
+                  className="min-h-20"
                   {...field}
                 />
               </FormControl>
@@ -288,7 +315,7 @@ export function GigForm({
               <FormLabel>Ссылка на задание</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="https://hh.ru/vacancy/12345678 или https://avito.ru/rossiya/rabota/vakansiya-1234567890"
+                  placeholder="https://kwork.ru/project/123, https://hh.ru/vacancy/12345678…"
                   {...field}
                 />
               </FormControl>

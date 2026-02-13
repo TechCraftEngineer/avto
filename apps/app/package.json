@@ -25,6 +25,7 @@
     "@dnd-kit/sortable": "10.0.0",
     "@qbs-autonaim/api": "workspace:*",
     "@qbs-autonaim/auth": "workspace:*",
+    "@qbs-autonaim/shared": "workspace:*",
     "@qbs-autonaim/db": "workspace:*",
     "@qbs-autonaim/emails": "workspace:*",
     "@qbs-autonaim/jobs": "workspace:*",
