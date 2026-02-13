@@ -102,7 +102,6 @@ export function VacancyFilters({
               <SelectItem value="FREELANCE_RU">Freelance.ru</SelectItem>
               <SelectItem value="AVITO">Avito</SelectItem>
               <SelectItem value="SUPERJOB">SuperJob</SelectItem>
-              <SelectItem value="KWORK">Kwork</SelectItem>
               <SelectItem value="HABR">Хабр Карьера</SelectItem>
             </SelectContent>
           </Select>

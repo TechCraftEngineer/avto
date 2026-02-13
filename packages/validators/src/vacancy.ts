@@ -97,7 +97,6 @@ export const updateFullVacancySchema = z.object({
       "AVITO",
       "SUPERJOB",
       "HABR",
-      "KWORK",
       "WEB_LINK",
       "TELEGRAM",
     ])

@@ -60,7 +60,6 @@ const vacancyFormSchema = z.object({
     "HH",
     "AVITO",
     "SUPERJOB",
-    "KWORK",
     "HABR",
     "FL_RU",
     "FREELANCE_RU",
@@ -165,7 +164,6 @@ export function VacancyForm({ onSuccess }: VacancyFormProps) {
                   <SelectItem value="HH">HH.ru</SelectItem>
                   <SelectItem value="AVITO">Avito</SelectItem>
                   <SelectItem value="SUPERJOB">SuperJob</SelectItem>
-                  <SelectItem value="KWORK">Kwork</SelectItem>
                   <SelectItem value="HABR">Habr Career</SelectItem>
                   <SelectItem value="FL_RU">FL.ru</SelectItem>
                   <SelectItem value="FREELANCE_RU">Freelance.ru</SelectItem>

@@ -108,8 +108,6 @@ export function getImportSourceLabel(importSource: string): string {
       return "Авито";
     case "HABR":
       return "Habr";
-    case "KWORK":
-      return "Kwork";
     case "FL_RU":
       return "FL.ru";
     case "FREELANCE_RU":
