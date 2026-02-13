@@ -51,8 +51,9 @@ export function ImportNewGigsProgress({
 
     if (isCompleted || error) {
       completedRef.current = true;
+      onComplete();
     }
-  }, [isCompleted, error]);
+  }, [isCompleted, error, onComplete]);
 
   const getStatusMessage = () => {
     if (error) return "Ошибка подключения к серверу";

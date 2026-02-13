@@ -6,18 +6,20 @@ import {
   importNewGigsChannel,
 } from "@qbs-autonaim/jobs/channels";
 import { inngest } from "@qbs-autonaim/jobs/client";
-import { GigImportByUrlSchema } from "@qbs-autonaim/validators";
+import { GigImportByUrlSchema, workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 
-const workspaceIdSchema = z.object({
-  workspaceId: z.string().min(1, "ID рабочей области обязателен"),
+const workspaceValidationSchema = z.object({
+  workspaceId: workspaceIdSchema,
 });
+
+const requestIdSchema = z.string().min(1, "ID запроса обязателен");
 
 /**
  * Server action для получения токена подписки на канал импорта новых gigs
  */
 export async function fetchImportNewGigsToken(workspaceId: string) {
-  const validationResult = workspaceIdSchema.safeParse({ workspaceId });
+  const validationResult = workspaceValidationSchema.safeParse({ workspaceId });
 
   if (!validationResult.success) {
     const errors = validationResult.error.issues
@@ -41,8 +43,29 @@ export async function fetchImportGigByUrlToken(
   workspaceId: string,
   requestId: string,
 ) {
+  const workspaceValidation = workspaceValidationSchema.safeParse({
+    workspaceId,
+  });
+  if (!workspaceValidation.success) {
+    const errors = workspaceValidation.error.issues
+      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+      .join(", ");
+    throw new Error(`Ошибка валидации: ${errors}`);
+  }
+
+  const requestIdValidation = requestIdSchema.safeParse(requestId);
+  if (!requestIdValidation.success) {
+    const errors = requestIdValidation.error.issues
+      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+      .join(", ");
+    throw new Error(`Ошибка валидации: ${errors}`);
+  }
+
   const token = await getSubscriptionToken(inngest, {
-    channel: importGigByUrlChannel(workspaceId, requestId),
+    channel: importGigByUrlChannel(
+      workspaceValidation.data.workspaceId,
+      requestIdValidation.data,
+    ),
     topics: ["progress", "result"],
   });
 
@@ -55,7 +78,7 @@ export async function fetchImportGigByUrlToken(
 export async function triggerImportNewGigs(
   workspaceId: string,
 ): Promise<void> {
-  const validationResult = workspaceIdSchema.safeParse({ workspaceId });
+  const validationResult = workspaceValidationSchema.safeParse({ workspaceId });
 
   if (!validationResult.success) {
     const errors = validationResult.error.issues
@@ -80,7 +103,9 @@ export async function triggerImportGigByUrl(
   url: string,
   requestId: string,
 ): Promise<void> {
-  const workspaceValidation = workspaceIdSchema.safeParse({ workspaceId });
+  const workspaceValidation = workspaceValidationSchema.safeParse({
+    workspaceId,
+  });
 
   if (!workspaceValidation.success) {
     const errors = workspaceValidation.error.issues
@@ -98,12 +123,20 @@ export async function triggerImportGigByUrl(
     throw new Error(`Ошибка валидации: ${errors}`);
   }
 
+  const requestIdValidation = requestIdSchema.safeParse(requestId);
+  if (!requestIdValidation.success) {
+    const errors = requestIdValidation.error.issues
+      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+      .join(", ");
+    throw new Error(`Ошибка валидации: ${errors}`);
+  }
+
   await inngest.send({
     name: "gig/import.by-url",
     data: {
       workspaceId: workspaceValidation.data.workspaceId,
       url: urlValidation.data.url,
-      requestId,
+      requestId: requestIdValidation.data,
     },
   });
 }

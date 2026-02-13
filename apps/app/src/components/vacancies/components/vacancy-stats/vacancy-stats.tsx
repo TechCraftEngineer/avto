@@ -297,7 +297,7 @@ export function VacancyStats({
                 <CardDescription className="text-[9px] @sm/card:text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70 mb-0.5 @sm/card:mb-1.5 truncate">
                   {stat.title}
                 </CardDescription>
-                <CardTitle className="text-lg @sm/card:text-xl @md/card:text-2xl font-bold tracking-tight wrap-break-word">
+                <CardTitle className="text-lg @sm/card:text-xl @md/card:text-2xl font-bold tracking-tight break-words">
                   {stat.value?.toLocaleString() ?? 0}
                   {stat.suffix && stat.value && stat.value > 0 && (
                     <span className="ml-0.5 text-xs @sm/card:text-sm text-muted-foreground whitespace-nowrap">

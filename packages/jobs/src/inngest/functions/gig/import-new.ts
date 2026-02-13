@@ -205,9 +205,9 @@ export const importNewGigsFunction = inngest.createFunction(
           importNewGigsChannel(workspaceId).result({
             workspaceId,
             success: false,
-            imported: 0,
-            updated: 0,
-            failed: 0,
+            imported,
+            updated,
+            failed,
             error: userMessage,
           }),
         );
