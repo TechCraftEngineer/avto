@@ -1,13 +1,16 @@
 import { and, db, eq } from "@qbs-autonaim/db";
 import { gig } from "@qbs-autonaim/db/schema";
-import { getMyWants, type KworkWantPayer } from "@qbs-autonaim/integration-clients";
+import {
+  getMyWants,
+  type KworkWantPayer,
+} from "@qbs-autonaim/integration-clients";
+import { z } from "zod";
 import { executeWithKworkTokenRefresh } from "../../../services/kwork";
 import {
   importNewGigsChannel,
   workspaceNotificationsChannel,
 } from "../../channels/client";
 import { inngest } from "../../client";
-import { z } from "zod";
 
 const ImportNewGigsEventSchema = z.object({
   workspaceId: z.string().min(1, "ID рабочего пространства обязателен"),
@@ -46,9 +49,7 @@ function mapKworkWantToGig(want: KworkWantPayer, workspaceId: string) {
     description: want.description ?? undefined,
     budgetMin: priceLimit ?? undefined,
     budgetMax: priceLimit ?? undefined,
-    deadline: want.date_expire
-      ? new Date(want.date_expire * 1000)
-      : undefined,
+    deadline: want.date_expire ? new Date(want.date_expire * 1000) : undefined,
     source: "KWORK" as const,
     externalId,
     url: `https://kwork.ru/project/${want.id}`,
@@ -69,7 +70,8 @@ export const importNewGigsFunction = inngest.createFunction(
     const validationResult = ImportNewGigsEventSchema.safeParse(event.data);
     if (!validationResult.success) {
       const errorMessage =
-        validationResult.error.issues[0]?.message || "Некорректные данные запроса";
+        validationResult.error.issues[0]?.message ||
+        "Некорректные данные запроса";
       throw new Error(errorMessage);
     }
 
@@ -90,6 +92,8 @@ export const importNewGigsFunction = inngest.createFunction(
       let page = 1;
       let hasMore = true;
 
+      let totalPages = 1;
+
       try {
         while (hasMore) {
           await publish(
@@ -97,6 +101,8 @@ export const importNewGigsFunction = inngest.createFunction(
               workspaceId,
               status: "processing",
               message: `Загрузка страницы ${page}...`,
+              total: totalPages,
+              processed: page - 1,
             }),
           );
 
@@ -108,7 +114,8 @@ export const importNewGigsFunction = inngest.createFunction(
           );
 
           if (!apiResult.success || !apiResult.response) {
-            const msg = apiResult.error?.message ?? "Не удалось получить проекты";
+            const msg =
+              apiResult.error?.message ?? "Не удалось получить проекты";
             throw new Error(msg);
           }
 
@@ -149,13 +156,16 @@ export const importNewGigsFunction = inngest.createFunction(
                 imported += 1;
               }
             } catch (itemError) {
-              console.error(`[import-new-gigs] Failed to import want ${want.id}:`, itemError);
+              console.error(
+                `[import-new-gigs] Failed to import want ${want.id}:`,
+                itemError,
+              );
               failed += 1;
             }
           }
 
           const paging = apiResult.paging;
-          const totalPages = paging?.pages ?? 1;
+          totalPages = paging?.pages ?? totalPages;
           hasMore = wants.length > 0 && page < totalPages;
           page += 1;
         }

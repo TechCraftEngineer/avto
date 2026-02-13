@@ -9,6 +9,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
+  cn,
 } from "@qbs-autonaim/ui";
 import {
   skipToken,
@@ -16,12 +17,14 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { Check } from "lucide-react";
+import { Check, Minus } from "lucide-react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { PageHeader } from "~/components/layout";
 import { useTRPC } from "~/trpc/react";
+
+const MAX_FEATURES = 6;
 
 const plans = [
   {
@@ -215,55 +218,109 @@ export default function OrganizationBillingPage() {
         description="Выберите тариф, который подходит для вашей организации. Тариф применяется ко всем рабочим пространствам."
       />
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid auto-rows-fr gap-5 md:grid-cols-2 lg:grid-cols-4">
         {plans.map((plan) => {
           const isCurrent = plan.planId === currentPlan;
+          const isPopular = plan.badge === "Популярный";
+          const allItems: (string | null)[] = [
+            ...plan.features,
+            ...(plan.limitations?.map((l) => `limitation:${l}`) ?? []),
+            ...Array(MAX_FEATURES - plan.features.length - (plan.limitations?.length ?? 0)).fill(
+              null,
+            ),
+          ];
           return (
             <Card
               key={plan.name}
-              className={
-                plan.variant === "default" ? "border-primary shadow-md" : ""
-              }
+              className={cn(
+                "relative flex h-full flex-col overflow-hidden transition-all duration-200",
+                isPopular &&
+                  "border-primary/40 bg-linear-to-b from-primary/3 to-transparent shadow-lg ring-1 ring-primary/15 dark:from-primary/5 dark:ring-primary/20",
+                !isPopular &&
+                  "hover:border-border/80 hover:shadow-md hover:shadow-black/5",
+              )}
             >
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <CardTitle>{plan.name}</CardTitle>
-                  {plan.badge && (
-                    <Badge variant="default" className="ml-2">
-                      {plan.badge}
-                    </Badge>
-                  )}
+              {/* Лента «Популярный» */}
+              {isPopular && (
+                <div
+                  aria-hidden
+                  className="absolute right-0 top-0 h-8 w-28 origin-top-right translate-x-3 translate-y-1 -rotate-45 bg-primary px-2 text-center text-[10px] font-semibold tracking-wide text-primary-foreground shadow-sm"
+                >
+                  {plan.badge}
+                </div>
+              )}
+
+              <CardHeader className="pb-4 pt-6">
+                <div className="flex flex-wrap items-center gap-2">
+                  <CardTitle className="text-lg tracking-tight">
+                    {plan.name}
+                  </CardTitle>
                   {isCurrent && (
-                    <Badge variant="secondary" className="ml-2">
+                    <Badge
+                      variant="secondary"
+                      className="font-medium text-muted-foreground"
+                    >
                       Текущий
                     </Badge>
                   )}
                 </div>
-                <CardDescription>{plan.description}</CardDescription>
-                <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-4xl font-bold">{plan.price}</span>
-                  <span className="text-muted-foreground text-sm">₽</span>
-                  <span className="text-muted-foreground text-sm">
+                <CardDescription className="mt-1.5 text-[13px] leading-snug">
+                  {plan.description}
+                </CardDescription>
+                <div className="mt-5 flex items-baseline gap-0.5">
+                  <span className="tabular-nums text-3xl font-semibold tracking-tight">
+                    {plan.price}
+                  </span>
+                  <span className="text-muted-foreground ml-0.5 text-sm">
+                    ₽
+                  </span>
+                  <span className="text-muted-foreground ml-1 text-sm">
                     / {plan.period}
                   </span>
                 </div>
               </CardHeader>
 
-              <CardContent className="flex flex-col gap-4">
-                <ul className="flex flex-col gap-2">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-2">
-                      <Check className="text-primary mt-0.5 size-4 shrink-0" />
-                      <span className="text-sm">{feature}</span>
-                    </li>
-                  ))}
+              <CardContent className="min-h-44 flex-1 border-t border-border/60 py-4">
+                <ul className="flex flex-col gap-2.5">
+                  {allItems.map((item, i) =>
+                    item === null ? (
+                      <li
+                        key={`${plan.planId}-spacer-${i}`}
+                        className="h-6"
+                        aria-hidden
+                      />
+                    ) : item.startsWith("limitation:") ? (
+                      <li
+                        key={item}
+                        className="flex items-start gap-2.5 text-sm text-muted-foreground/90"
+                      >
+                        <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center">
+                          <Minus className="size-3 opacity-50" />
+                        </span>
+                        <span className="leading-snug line-through">
+                          {item.replace("limitation:", "")}
+                        </span>
+                      </li>
+                    ) : (
+                      <li
+                        key={item}
+                        className="flex items-start gap-2.5 text-sm"
+                      >
+                        <span className="bg-primary/10 text-primary mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full">
+                          <Check className="size-2.5" strokeWidth={2.5} />
+                        </span>
+                        <span className="leading-snug">{item}</span>
+                      </li>
+                    ),
+                  )}
                 </ul>
               </CardContent>
 
-              <CardFooter>
+              <CardFooter className="shrink-0 border-t border-border/60 pt-4">
                 <Button
-                  variant={plan.variant}
-                  className="w-full"
+                  variant={isPopular ? "default" : "outline"}
+                  size="lg"
+                  className="h-10 w-full font-medium"
                   disabled={isCurrent || isPending || isCreatingPayment}
                   onClick={() => handleSelectPlan(plan.planId)}
                 >
