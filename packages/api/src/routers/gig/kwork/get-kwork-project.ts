@@ -4,7 +4,7 @@
  */
 import { getIntegrationCredentials } from "@qbs-autonaim/db";
 import { getProject } from "@qbs-autonaim/integration-clients";
-import { executeWithKworkTokenRefresh } from "@qbs-autonaim/jobs";
+import { executeWithKworkTokenRefresh } from "@qbs-autonaim/jobs/services/kwork";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../trpc";
@@ -52,8 +52,7 @@ export const getKworkProject = protectedProcedure
         (token) => getProject(token, input.projectId),
       );
     } catch (error) {
-      const msg =
-        error instanceof Error ? error.message : "Ошибка Kwork";
+      const msg = error instanceof Error ? error.message : "Ошибка Kwork";
       throw new TRPCError({
         code: "UNAUTHORIZED",
         message:

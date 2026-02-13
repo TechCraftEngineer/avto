@@ -31,6 +31,9 @@
     },
     "./services/messaging": {
       "default": "./src/services/messaging/index.ts"
+    },
+    "./services/kwork": {
+      "default": "./src/services/kwork/index.ts"
     }
   },
   "license": "MIT",
