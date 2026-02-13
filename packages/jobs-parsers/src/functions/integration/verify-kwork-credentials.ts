@@ -1,11 +1,11 @@
 import { upsertIntegration } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
+import { KWORK_ERROR_CODES, signIn } from "@qbs-autonaim/integration-clients";
 import {
   verifyKworkCredentialsChannel,
   workspaceNotificationsChannel,
 } from "@qbs-autonaim/jobs/channels";
 import { inngest } from "@qbs-autonaim/jobs/client";
-import { KWORK_ERROR_CODES, signIn } from "@qbs-autonaim/integration-clients";
 
 export const verifyKworkCredentialsFunction = inngest.createFunction(
   {
