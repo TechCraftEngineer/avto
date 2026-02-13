@@ -1,6 +1,6 @@
 "use client";
 
-import { APP_CONFIG } from "@qbs-autonaim/config";
+import { APP_CONFIG, env } from "@qbs-autonaim/config";
 import {
   Button,
   Input,
@@ -223,7 +223,7 @@ export function WorkspaceForm({
       <FormHeader
         title="Создайте пространство"
         description="Настройте общее пространство для управления проектами с вашей командой."
-        tooltipContent={`Что такое рабочее пространство? Это изолированная среда внутри организации для работы над конкретным проектом или направлением. В каждом пространстве могут быть свои участники, настройки и данные.\n\n[Подробнее в документации](${process.env.NEXT_PUBLIC_DOCS_URL}/workspaces)`}
+        tooltipContent={`Что такое рабочее пространство? Это изолированная среда внутри организации для работы над конкретным проектом или направлением. В каждом пространстве могут быть свои участники, настройки и данные.\n\n[Подробнее в документации](${env.NEXT_PUBLIC_DOCS_URL}/workspaces)`}
       />
 
       <form
