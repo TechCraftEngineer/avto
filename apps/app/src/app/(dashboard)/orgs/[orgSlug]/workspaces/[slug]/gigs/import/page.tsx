@@ -15,7 +15,7 @@ export default function GigsImportPage() {
     <div className="flex flex-1 flex-col">
       <PageHeader
         title="Импорт проектов"
-        description="Загрузите проекты с Kwork для отслеживания откликов"
+        description="Загрузите проекты с подключенных платформ для отслеживания откликов"
       >
         {orgSlug && workspaceSlug ? (
           <Button asChild variant="outline" className="h-9 gap-2">
@@ -44,14 +44,14 @@ export default function GigsImportPage() {
               <span className="font-semibold">1.</span>
               <span>
                 Загрузите активные проекты — система получит список ваших
-                проектов с Kwork
+                проектов с подключенных платформ
               </span>
             </li>
             <li className="flex gap-2">
               <span className="font-semibold">2.</span>
               <span>
                 Или добавьте проект по ссылке — вставьте прямую ссылку на проект
-                с kwork.ru
+                с поддерживаемой платформы
               </span>
             </li>
             <li className="flex gap-2">
@@ -75,7 +75,10 @@ export default function GigsImportPage() {
           <ul className="space-y-2 text-sm text-amber-800 dark:text-amber-200">
             <li className="flex gap-2">
               <span className="mt-0.5 text-amber-600 dark:text-amber-400">•</span>
-              <span>Для импорта необходима настроенная интеграция с Kwork</span>
+              <span>
+                Для импорта необходима настроенная интеграция с
+                фриланс-платформой
+              </span>
             </li>
             <li className="flex gap-2">
               <span className="mt-0.5 text-amber-600 dark:text-amber-400">•</span>
@@ -86,8 +89,8 @@ export default function GigsImportPage() {
             <li className="flex gap-2">
               <span className="mt-0.5 text-amber-600 dark:text-amber-400">•</span>
               <span>
-                Для импорта по ссылке используйте формат
-                https://kwork.ru/project/12345
+                Для импорта по ссылке используйте прямую ссылку на проект
+                (например, https://kwork.ru/project/12345)
               </span>
             </li>
           </ul>

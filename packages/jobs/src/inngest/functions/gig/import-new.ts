@@ -17,27 +17,30 @@ const ImportNewGigsEventSchema = z.object({
 });
 
 function mapKworkErrorToUserMessage(error: unknown): string {
+  const msg = error instanceof Error ? error.message : "";
+  if (msg && msg.length < 150 && !msg.includes("Error:")) {
+    return msg;
+  }
   if (error instanceof Error) {
     const message = error.message;
     if (
-      message.includes("не настроена") ||
       message.includes("credentials") ||
-      message.includes("токен")
+      (message.includes("токен") && !message.includes("Перейдите"))
     ) {
-      return "Kwork интеграция не настроена или токен истёк";
+      return "Интеграция с платформой не настроена или токен истёк";
     }
     if (
       message.includes("timeout") ||
       message.includes("ETIMEDOUT") ||
       message.includes("ECONNREFUSED")
     ) {
-      return "Не удалось подключиться к Kwork. Попробуйте позже";
+      return "Не удалось подключиться к платформе. Попробуйте позже";
     }
     if (message.length < 100 && !message.includes("Error:")) {
       return message;
     }
   }
-  return "Не удалось импортировать проекты с Kwork";
+  return "Не удалось импортировать проекты";
 }
 
 function mapKworkWantToGig(want: KworkWantPayer, workspaceId: string) {

@@ -2,7 +2,6 @@
  * Получение данных проекта Kwork для связки с gig
  * Использует Kwork Mobile API: https://api.kwork.ru/
  */
-import { getIntegrationCredentials } from "@qbs-autonaim/db";
 import { getProject } from "@qbs-autonaim/integration-clients";
 import { executeWithKworkTokenRefresh } from "@qbs-autonaim/jobs/services/kwork";
 import { TRPCError } from "@trpc/server";
@@ -26,20 +25,6 @@ export const getKworkProject = protectedProcedure
       throw new TRPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к workspace",
-      });
-    }
-
-    const credentials = await getIntegrationCredentials(
-      ctx.db,
-      "kwork",
-      input.workspaceId,
-    );
-
-    if (!credentials?.token) {
-      throw new TRPCError({
-        code: "PRECONDITION_FAILED",
-        message:
-          "Kwork интеграция не настроена. Подключите Kwork в настройках workspace.",
       });
     }
 

@@ -1,11 +1,4 @@
-import {
-  and,
-  count,
-  db,
-  eq,
-  getIntegrationCredentials,
-  sql,
-} from "@qbs-autonaim/db";
+import { and, count, db, eq, sql } from "@qbs-autonaim/db";
 import { gig, response } from "@qbs-autonaim/db/schema";
 import { getOffers, type KworkOffer } from "@qbs-autonaim/integration-clients";
 import { executeWithKworkTokenRefresh } from "../../../services/kwork";
@@ -94,15 +87,6 @@ async function syncKworkResponses(
   projectId: string,
   publish: (event: object) => Promise<void>,
 ) {
-  const credentials = await getIntegrationCredentials(db, "kwork", workspaceId);
-  if (!credentials?.token) {
-    return {
-      success: false,
-      message: "Kwork integration not configured or token missing",
-      syncedCount: 0,
-    };
-  }
-
   const wantId = Number(projectId);
   if (!Number.isFinite(wantId)) {
     return {

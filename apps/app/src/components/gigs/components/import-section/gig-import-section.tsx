@@ -35,7 +35,7 @@ export function GigImportSection() {
   const workspaceId = useMemo(() => workspace?.id ?? "", [workspace?.id]);
 
   const importState = useGigImportState();
-  const { hasKworkIntegration, isLoadingIntegrations, hasActiveIntegrations } =
+  const { hasKworkIntegration, isLoadingIntegrations } =
     useGigPlatformIntegration(workspaceId);
 
   const {
@@ -114,7 +114,7 @@ export function GigImportSection() {
         <CardHeader>
           <CardTitle>Импорт проектов</CardTitle>
           <CardDescription>
-            Загрузите проекты с Kwork в систему
+            Загрузите проекты с подключенных платформ в систему
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -127,32 +127,39 @@ export function GigImportSection() {
     );
   }
 
-  if (!hasActiveIntegrations) {
+  if (!hasKworkIntegration) {
+    const integrationsUrl =
+      orgSlug && workspaceSlug
+        ? `/orgs/${orgSlug}/workspaces/${workspaceSlug}/settings/integrations`
+        : null;
+
     return (
       <Card>
         <CardHeader>
           <CardTitle>Импорт проектов</CardTitle>
           <CardDescription>
-            Загрузите проекты с Kwork в систему
+            Загрузите проекты с подключенных платформ для отслеживания откликов
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Alert variant="destructive">
+          <Alert variant="default">
             <AlertCircle className="size-4" />
-            <AlertTitle>Интеграция Kwork не настроена</AlertTitle>
+            <AlertTitle>Сначала настройте интеграцию</AlertTitle>
             <AlertDescription className="mt-2 space-y-3">
               <p>
-                Для импорта проектов необходимо настроить интеграцию с Kwork в
-                настройках рабочего пространства.
+                Для импорта проектов необходимо подключить интеграцию с
+                фриланс-платформой в настройках рабочего пространства. После
+                настройки вы сможете загружать активные проекты и добавлять их по
+                ссылке.
               </p>
-              <Button asChild variant="outline" size="sm">
-                <NextLink
-                  href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/settings/integrations`}
-                >
-                  <Settings className="mr-2 size-4" />
-                  Настроить интеграцию
-                </NextLink>
-              </Button>
+              {integrationsUrl ? (
+                <Button asChild variant="default" size="sm">
+                  <NextLink href={integrationsUrl}>
+                    <Settings className="mr-2 size-4" />
+                    Перейти в настройки интеграций
+                  </NextLink>
+                </Button>
+              ) : null}
             </AlertDescription>
           </Alert>
         </CardContent>
@@ -166,7 +173,7 @@ export function GigImportSection() {
         <CardHeader>
           <CardTitle>Импорт проектов</CardTitle>
           <CardDescription>
-            Загрузите проекты с Kwork для отслеживания откликов
+            Загрузите проекты с подключенных платформ для отслеживания откликов
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

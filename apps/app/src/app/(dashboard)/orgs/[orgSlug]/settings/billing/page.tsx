@@ -1,6 +1,14 @@
 "use client";
 
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
   Badge,
   Button,
   Card,
@@ -19,10 +27,27 @@ import {
 } from "@tanstack/react-query";
 import { Check, Minus } from "lucide-react";
 import { useParams, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { PageHeader } from "~/components/layout";
 import { useTRPC } from "~/trpc/react";
+
+type PlanId = "free" | "starter" | "pro" | "enterprise";
+
+/** Порядок планов для определения upgrade/downgrade (меньше = дешевле) */
+const PLAN_ORDER: Record<PlanId, number> = {
+  free: 0,
+  starter: 1,
+  pro: 2,
+  enterprise: 3,
+};
+
+const PLAN_NAMES: Record<PlanId, string> = {
+  free: "Бесплатный",
+  starter: "Стартовый",
+  pro: "Профессиональный",
+  enterprise: "Корпоративный",
+};
 
 const MAX_FEATURES = 6;
 
@@ -167,27 +192,47 @@ export default function OrganizationBillingPage() {
     }),
   );
 
-  const handleSelectPlan = (
-    planId: "free" | "starter" | "pro" | "enterprise",
-  ) => {
+  const [pendingDowngrade, setPendingDowngrade] = useState<PlanId | null>(null);
+
+  const isDowngrade = (targetPlan: PlanId) => {
+    if (!organization) return false;
+    const current = (organization.plan || "free") as PlanId;
+    return PLAN_ORDER[targetPlan] < PLAN_ORDER[current];
+  };
+
+  const handleSelectPlan = (planId: PlanId) => {
     if (!organization) return;
 
-    // Для бесплатного плана просто обновляем
-    if (planId === "free") {
-      updatePlan({
-        organizationId: organization.id,
-        plan: planId,
-      });
+    const current = (organization.plan || "free") as PlanId;
+    const downgrade = PLAN_ORDER[planId] < PLAN_ORDER[current];
+
+    // Downgrade: обновляем план без оплаты
+    if (downgrade) {
+      // Для downgrade показываем подтверждение
+      setPendingDowngrade(planId);
       return;
     }
 
-    // Для платных планов создаём платёж
+    // Upgrade: для платных планов создаём платёж (planId не free, т.к. free — минимальный план)
     const returnUrl = `${window.location.origin}/orgs/${params.orgSlug}/settings/billing?payment=success`;
     createPayment({
       organizationId: organization.id,
       plan: planId,
       returnUrl,
     });
+  };
+
+  const confirmDowngrade = () => {
+    if (!organization || !pendingDowngrade) return;
+    updatePlan(
+      {
+        organizationId: organization.id,
+        plan: pendingDowngrade,
+      },
+      {
+        onSettled: () => setPendingDowngrade(null),
+      },
+    );
   };
 
   if (isLoading) {
@@ -209,10 +254,62 @@ export default function OrganizationBillingPage() {
     );
   }
 
-  const currentPlan = organization.plan || "free";
+  const currentPlan = (organization.plan || "free") as PlanId;
+
+  const getPlanButtonText = (plan: (typeof plans)[0]) => {
+    if (isPending || isCreatingPayment) return "Обработка…";
+    if (plan.planId === currentPlan) return "Текущий тариф";
+    if (isDowngrade(plan.planId)) {
+      return plan.planId === "free"
+        ? "Вернуться на бесплатный"
+        : "Понизить тариф";
+    }
+    return "Выбрать тариф";
+  };
 
   return (
     <div className="flex flex-col gap-8 p-6">
+      <AlertDialog
+        open={pendingDowngrade !== null}
+        onOpenChange={(open) => !open && setPendingDowngrade(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {pendingDowngrade && pendingDowngrade !== "free"
+                ? `Понизить тариф до «${PLAN_NAMES[pendingDowngrade]}»?`
+                : "Вернуться на бесплатный тариф?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingDowngrade === "free" ? (
+                <>
+                  Вы потеряете доступ к платным функциям: больше откликов,
+                  расширенные шаблоны, AI-скрининг и другие возможности. Тариф
+                  изменится сразу.
+                </>
+              ) : pendingDowngrade ? (
+                <>
+                  Тариф изменится на «{PLAN_NAMES[pendingDowngrade]}».
+                  Ограничения нового плана начнут действовать сразу.
+                </>
+              ) : null}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Отмена</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                confirmDowngrade();
+              }}
+              disabled={isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isPending ? "Обработка…" : "Подтвердить"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <PageHeader
         title="Тарифы и биллинг"
         description="Выберите тариф, который подходит для вашей организации. Тариф применяется ко всем рабочим пространствам."
@@ -324,11 +421,7 @@ export default function OrganizationBillingPage() {
                   disabled={isCurrent || isPending || isCreatingPayment}
                   onClick={() => handleSelectPlan(plan.planId)}
                 >
-                  {isPending || isCreatingPayment
-                    ? "Обработка…"
-                    : isCurrent
-                      ? "Текущий тариф"
-                      : "Выбрать тариф"}
+                  {getPlanButtonText(plan)}
                 </Button>
               </CardFooter>
             </Card>

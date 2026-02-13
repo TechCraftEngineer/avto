@@ -1,5 +1,5 @@
 import { eq } from "@qbs-autonaim/db";
-import { db, getIntegrationCredentials } from "@qbs-autonaim/db";
+import { db } from "@qbs-autonaim/db";
 import { response as responseTable } from "@qbs-autonaim/db/schema";
 import {
   getInboxTracks,
@@ -48,15 +48,6 @@ export const kworkChatProcessFunction = inngest.createFunction(
     const workerId = profileData?.kworkWorkerId;
     if (workerId == null) {
       return { success: false, error: "Kwork worker ID not found in response" };
-    }
-
-    const credentials = await getIntegrationCredentials(
-      db,
-      "kwork",
-      workspaceId,
-    );
-    if (!credentials?.token) {
-      return { success: false, error: "Kwork integration not configured" };
     }
 
     const inboxResult = await step.run("fetch-inbox", async () => {

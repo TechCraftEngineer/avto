@@ -154,9 +154,9 @@ export function GigsFilters({
         <Button asChild variant="outline" className="flex-1 md:flex-initial">
           <Link
             href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs/import`}
-            aria-label="Импорт с Kwork"
+            aria-label="Импорт проектов"
           >
-            Импорт с Kwork
+            Импорт проектов
           </Link>
         </Button>
         <Button asChild variant="default" className="flex-1 md:flex-initial">

@@ -1,4 +1,4 @@
-import { and, eq, getIntegrationCredentials } from "@qbs-autonaim/db";
+import { and, eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { gig, response as responseTable } from "@qbs-autonaim/db/schema";
 import { sendMessage as kworkSendMessage } from "@qbs-autonaim/integration-clients";
@@ -69,18 +69,6 @@ export const sendMessage = protectedProcedure
           code: "BAD_REQUEST",
           message:
             "Невозможно отправить сообщение: не найден Kwork user_id кандидата",
-        });
-      }
-
-      const credentials = await getIntegrationCredentials(
-        db,
-        "kwork",
-        input.workspaceId,
-      );
-      if (!credentials?.token) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Интеграция Kwork не настроена",
         });
       }
 

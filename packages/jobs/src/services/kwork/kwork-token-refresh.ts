@@ -35,15 +35,61 @@ export async function executeWithKworkTokenRefresh<T>(
     publish?: (event: IntegrationErrorEvent) => Promise<unknown>;
   },
 ): Promise<KworkApiResult<T>> {
-  const credentials = await getIntegrationCredentials(db, "kwork", workspaceId);
-  if (!credentials?.token) {
+  let credentials = await getIntegrationCredentials(db, "kwork", workspaceId);
+  if (!credentials) {
     return {
       success: false,
-      error: { message: "Kwork интеграция не настроена или отсутствует токен" },
+      error: {
+        message:
+          "Интеграция не настроена. Подключите интеграцию в настройках рабочего пространства.",
+      },
     } as KworkApiResult<T>;
   }
 
-  const result = await apiCall(credentials.token);
+  let token = credentials.token;
+  let signInError: string | undefined;
+
+  if (!token && credentials.login && credentials.password) {
+    const signInResult = await signIn({
+      login: credentials.login,
+      password: credentials.password,
+    });
+    if (signInResult.success) {
+      const rawData = signInResult.data as Record<string, unknown> | undefined;
+      const innerData = rawData?.data as Record<string, unknown> | undefined;
+      const newToken =
+        (rawData?.token as string | undefined) ??
+        (innerData?.token as string | undefined);
+      if (newToken) {
+        token = newToken;
+        await upsertIntegration(db, {
+          workspaceId,
+          type: "kwork",
+          name: "Kwork",
+          credentials: { ...credentials, token: newToken },
+        });
+      } else {
+        signInError = "Токен не получен при авторизации";
+      }
+    } else {
+      signInError =
+        signInResult.error?.message ?? "Не удалось авторизоваться";
+    }
+  }
+
+  if (!token) {
+    const message =
+      signInError ??
+      (credentials.login && credentials.password
+        ? "Токен истёк. Перейдите в настройки интеграций и повторно войдите в аккаунт."
+        : "Интеграция не настроена. Подключите интеграцию в настройках рабочего пространства.");
+    return {
+      success: false,
+      error: { message },
+    } as KworkApiResult<T>;
+  }
+
+  const result = await apiCall(token);
 
   if (result.success) {
     return result;

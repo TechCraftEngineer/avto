@@ -46,7 +46,8 @@ export function GigImportDialogs({
           <DialogHeader>
             <DialogTitle>Подтверждение импорта</DialogTitle>
             <DialogDescription>
-              Вы уверены, что хотите загрузить активные проекты с Kwork?
+              Вы уверены, что хотите загрузить активные проекты с подключенных
+              платформ?
             </DialogDescription>
           </DialogHeader>
 
@@ -74,7 +75,7 @@ export function GigImportDialogs({
           <DialogHeader>
             <DialogTitle>Добавить проект по ссылке</DialogTitle>
             <DialogDescription>
-              Введите ссылку на проект с Kwork (например,
+              Введите ссылку на проект (например,
               https://kwork.ru/project/12345)
             </DialogDescription>
           </DialogHeader>
