@@ -144,7 +144,7 @@ export default function GigsPage() {
           <PageHeader
             title="Разовые задания"
             description="Создание и управление разовыми задачами"
-            tooltipContent={`[Подробнее в документации](${env.NEXT_PUBLIC_DOCS_URL}/gigs)`}
+            tooltipContent={`Разовые задания — это задачи с фиксированным объёмом и сроком. Создавайте задания, получайте отклики и управляйте статусами в одном месте.\n\n[Подробнее в документации](${env.NEXT_PUBLIC_DOCS_URL}/gigs)`}
           />
           <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
             <GigsStats stats={stats} isLoading={isLoading} />

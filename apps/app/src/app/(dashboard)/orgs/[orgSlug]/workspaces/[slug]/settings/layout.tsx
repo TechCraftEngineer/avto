@@ -18,7 +18,7 @@ export default async function SettingsLayout({
           <PageHeader
             title="Настройки"
             description="Управляйте настройками рабочего пространства и интеграциями"
-            tooltipContent={`[Подробнее в документации](${process.env.NEXT_PUBLIC_DOCS_URL}/settings)`}
+            tooltipContent={`Настройте параметры рабочего пространства: домены, интеграции с HH, Avito и другими платформами, уведомления и доступы.\n\n[Подробнее в документации](${process.env.NEXT_PUBLIC_DOCS_URL}/settings)`}
           />
           <p className="text-sm text-muted-foreground">
             Настройте параметры рабочего пространства, управляйте доменами и

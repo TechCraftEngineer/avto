@@ -507,7 +507,7 @@ export default function CreateGigPage({ params }: PageProps) {
       <PageHeader
         title="Создание задания"
         description="Создание нового разового задания"
-        tooltipContent={`[Подробнее в документации](${process.env.NEXT_PUBLIC_DOCS_URL}/creating)`}
+        tooltipContent={`Создайте разовое задание с помощью пошагового мастера. Укажите тип задания, требования и бюджет — AI поможет сформулировать описание.\n\n[Подробнее в документации](${process.env.NEXT_PUBLIC_DOCS_URL}/creating)`}
       >
         <Link
           href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs`}
