@@ -3,8 +3,8 @@
  * Использует Kwork Mobile API: https://api.kwork.ru/
  */
 import { getIntegrationCredentials } from "@qbs-autonaim/db";
+import { getProject } from "@qbs-autonaim/integration-clients";
 import { executeWithKworkTokenRefresh } from "@qbs-autonaim/jobs";
-import { getProject } from "@qbs-autonaim/jobs-parsers";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../trpc";

@@ -11,7 +11,7 @@ import {
   isKworkAuthError,
   signIn,
   type KworkErrorResponse,
-} from "@qbs-autonaim/jobs-parsers";
+} from "@qbs-autonaim/integration-clients";
 
 export interface KworkApiResult<T = unknown> {
   success: boolean;

@@ -5,7 +5,7 @@ import {
   workspaceNotificationsChannel,
 } from "@qbs-autonaim/jobs/channels";
 import { inngest } from "@qbs-autonaim/jobs/client";
-import { KWORK_ERROR_CODES, signIn } from "../../parsers/kwork/core/api";
+import { KWORK_ERROR_CODES, signIn } from "@qbs-autonaim/integration-clients";
 
 export const verifyKworkCredentialsFunction = inngest.createFunction(
   {

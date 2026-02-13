@@ -30,6 +30,7 @@
     "@qbs-autonaim/auth": "workspace:*",
     "@qbs-autonaim/db": "workspace:*",
     "@qbs-autonaim/document-processor": "workspace:*",
+    "@qbs-autonaim/integration-clients": "workspace:*",
     "@qbs-autonaim/jobs": "workspace:*",
     "@qbs-autonaim/jobs-parsers": "workspace:*",
     "@qbs-autonaim/server-utils": "workspace:*",

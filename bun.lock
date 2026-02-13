@@ -271,6 +271,7 @@
         "@qbs-autonaim/auth": "workspace:*",
         "@qbs-autonaim/db": "workspace:*",
         "@qbs-autonaim/document-processor": "workspace:*",
+        "@qbs-autonaim/integration-clients": "workspace:*",
         "@qbs-autonaim/jobs": "workspace:*",
         "@qbs-autonaim/jobs-parsers": "workspace:*",
         "@qbs-autonaim/server-utils": "workspace:*",
@@ -420,6 +421,16 @@
         "vitest": "^4.0.18",
       },
     },
+    "packages/integration-clients": {
+      "name": "@qbs-autonaim/integration-clients",
+      "dependencies": {
+        "axios": "1.13.5",
+      },
+      "devDependencies": {
+        "@qbs-autonaim/tsconfig": "workspace:*",
+        "typescript": "5.9.3",
+      },
+    },
     "packages/jobs": {
       "name": "@qbs-autonaim/jobs",
       "version": "0.1.2",
@@ -460,6 +471,7 @@
       "version": "0.1.0",
       "dependencies": {
         "@qbs-autonaim/db": "workspace:*",
+        "@qbs-autonaim/integration-clients": "workspace:*",
         "@qbs-autonaim/jobs-shared": "workspace:*",
         "@qbs-autonaim/lib": "workspace:*",
         "@qbs-autonaim/server-utils": "workspace:*",
@@ -1466,6 +1478,8 @@
     "@qbs-autonaim/emails": ["@qbs-autonaim/emails@workspace:packages/emails"],
 
     "@qbs-autonaim/github": ["@qbs-autonaim/github@workspace:tooling/github"],
+
+    "@qbs-autonaim/integration-clients": ["@qbs-autonaim/integration-clients@workspace:packages/integration-clients"],
 
     "@qbs-autonaim/interview": ["@qbs-autonaim/interview@workspace:apps/interview"],
 

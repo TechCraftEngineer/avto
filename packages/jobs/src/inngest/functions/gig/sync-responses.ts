@@ -7,7 +7,7 @@ import {
   sql,
 } from "@qbs-autonaim/db";
 import { gig, response } from "@qbs-autonaim/db/schema";
-import { getOffers, type KworkOffer } from "@qbs-autonaim/jobs-parsers";
+import { getOffers, type KworkOffer } from "@qbs-autonaim/integration-clients";
 import { executeWithKworkTokenRefresh } from "../../../services/kwork";
 import { inngest } from "../../client";
 

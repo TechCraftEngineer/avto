@@ -2,7 +2,7 @@ import { and, eq, getIntegrationCredentials } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { gig, response as responseTable } from "@qbs-autonaim/db/schema";
 import { executeWithKworkTokenRefresh } from "@qbs-autonaim/jobs";
-import { sendMessage as kworkSendMessage } from "@qbs-autonaim/jobs-parsers";
+import { sendMessage as kworkSendMessage } from "@qbs-autonaim/integration-clients";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";

@@ -5,7 +5,7 @@ import {
   getInboxTracks,
   sendMessage as kworkSendMessage,
   type KworkInboxMessage,
-} from "@qbs-autonaim/jobs-parsers";
+} from "@qbs-autonaim/integration-clients";
 import type { StoredProfileData } from "@qbs-autonaim/db";
 import { generateText } from "@qbs-autonaim/lib/ai";
 import { executeWithKworkTokenRefresh } from "../../../services/kwork";
