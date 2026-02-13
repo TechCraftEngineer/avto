@@ -28,16 +28,22 @@ export const listIntegrations = protectedProcedure
       input.workspaceId,
     );
 
-    // Не возвращаем credentials на клиент, только email
+    // Не возвращаем credentials на клиент, только email/login
     return integrations.map((int: (typeof integrations)[number]) => {
       let email: string | null = null;
+      let login: string | null = null;
 
       if (int.credentials) {
         try {
           const decrypted = decryptCredentials(
             int.credentials as Record<string, string>,
           );
-          email = decrypted.email || null;
+          // Kwork использует login, остальные — email
+          if (int.type === "kwork") {
+            login = decrypted.login || null;
+          } else {
+            email = decrypted.email || null;
+          }
         } catch (error) {
           console.error("Failed to decrypt credentials:", error);
         }
@@ -55,6 +61,7 @@ export const listIntegrations = protectedProcedure
         hasCookies: !!int.cookies,
         hasCredentials: !!int.credentials,
         email,
+        login,
       };
     });
   });

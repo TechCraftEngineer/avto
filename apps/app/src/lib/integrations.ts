@@ -47,7 +47,7 @@ export const AVAILABLE_INTEGRATIONS = [
     description: "Автоматизация откликов на заказы на Kwork.ru",
     detailedDescription:
       "Подключите свой аккаунт Kwork для автоматического поиска и отклика на подходящие заказы. Система будет анализировать заказы и отправлять предложения от вашего имени.",
-    fields: ["email", "password"],
+    fields: ["login", "password"],
     category: "job-search" as const,
   },
 ] as const;

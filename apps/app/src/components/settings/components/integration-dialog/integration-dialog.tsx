@@ -25,14 +25,16 @@ import {
   SelectValue,
 } from "@qbs-autonaim/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Briefcase, Eye, EyeOff, Mail } from "lucide-react";
+import { Briefcase, Eye, EyeOff, LogIn, Mail } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import {
   fetchVerifyHHCredentialsToken,
+  fetchVerifyKworkCredentialsToken,
   triggerVerifyHHCredentials,
+  triggerVerifyKworkCredentials,
 } from "~/actions/integration";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { AVAILABLE_INTEGRATIONS } from "~/lib/integrations";
@@ -41,6 +43,7 @@ import { useTRPC } from "~/trpc/react";
 interface VerificationSubscriptionProps {
   workspaceId: string;
   isVerifying: boolean;
+  verifyingType: "hh" | "kwork";
   onResult: (result: {
     success?: boolean;
     isValid?: boolean;
@@ -52,12 +55,16 @@ interface VerificationSubscriptionProps {
 function VerificationSubscription({
   workspaceId,
   isVerifying,
+  verifyingType,
   onResult,
   onError,
 }: VerificationSubscriptionProps) {
   const refreshToken = useCallback(
-    () => fetchVerifyHHCredentialsToken(workspaceId),
-    [workspaceId],
+    () =>
+      verifyingType === "kwork"
+        ? fetchVerifyKworkCredentialsToken(workspaceId)
+        : fetchVerifyHHCredentialsToken(workspaceId),
+    [workspaceId, verifyingType],
   );
 
   const { latestData, error } = useInngestSubscription({
@@ -93,12 +100,39 @@ interface IntegrationDialogProps {
   onVerify?: (type: string) => void;
 }
 
-const integrationFormSchema = z.object({
-  type: z.string(),
-  name: z.string().optional(),
-  email: z.email({ error: "Некорректный email" }),
-  password: z.string().min(1, "Пароль обязателен"),
-});
+const integrationFormSchema = z
+  .object({
+    type: z.string(),
+    name: z.string().optional(),
+    email: z.string().optional(),
+    login: z.string().optional(),
+    password: z.string().min(1, "Пароль обязателен"),
+  })
+  .superRefine((data, ctx) => {
+    if (data.type === "kwork") {
+      if (!data.login || data.login.trim().length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Логин обязателен",
+          path: ["login"],
+        });
+      }
+    } else {
+      if (!data.email) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Email обязателен",
+          path: ["email"],
+        });
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Некорректный email",
+          path: ["email"],
+        });
+      }
+    }
+  });
 
 type IntegrationFormValues = z.infer<typeof integrationFormSchema>;
 
@@ -139,6 +173,7 @@ export function IntegrationDialog({
       type: selectedType || "hh",
       name: "",
       email: "",
+      login: "",
       password: "",
     },
   });
@@ -152,16 +187,35 @@ export function IntegrationDialog({
       form.setValue("type", selectedType);
       if (isEditing && existingIntegration) {
         form.setValue("name", existingIntegration.name || "");
-        // Backend расшифровывает credentials и возвращает email как отдельное поле
-        const email = (existingIntegration as { email?: string | null }).email;
-        form.setValue("email", email || "");
+        const existing = existingIntegration as {
+          email?: string | null;
+          login?: string | null;
+        };
+        if (selectedType === "kwork") {
+          form.setValue("login", existing.login || "");
+          form.setValue("email", "");
+        } else {
+          form.setValue("email", existing.email || "");
+          form.setValue("login", "");
+        }
       } else if (!isEditing) {
         form.setValue("name", "");
         form.setValue("email", "");
+        form.setValue("login", "");
         form.setValue("password", "");
       }
     }
   }, [selectedType, isEditing, existingIntegration, form]);
+
+  // Сброс неиспользуемого поля при смене типа
+  const currentType = form.watch("type");
+  useEffect(() => {
+    if (currentType === "kwork") {
+      form.setValue("email", "");
+    } else {
+      form.setValue("login", "");
+    }
+  }, [currentType, form]);
 
   const createMutation = useMutation(
     trpc.integration.create.mutationOptions({
@@ -216,6 +270,7 @@ export function IntegrationDialog({
   );
 
   const [isVerifying, setIsVerifying] = useState(false);
+  const [verifyingType, setVerifyingType] = useState<"hh" | "kwork">("hh");
 
   const handleClose = useCallback(() => {
     form.reset();
@@ -259,19 +314,27 @@ export function IntegrationDialog({
       return;
     }
 
+    const credentials =
+      data.type === "kwork"
+        ? {
+            login: data.login ?? "",
+            password: data.password,
+          }
+        : {
+            email: data.email ?? "",
+            password: data.password,
+          };
+
     const payload = {
       workspaceId,
       type: data.type,
       name: data.name || integrationType?.label || "",
-      credentials: {
-        email: data.email,
-        password: data.password,
-      },
+      credentials,
     };
 
     if (data.type === "hh") {
       setIsVerifying(true);
-
+      setVerifyingType("hh");
       toast.info(
         "Проверка данных может занять до 2 минут. Пожалуйста, подождите…",
         { duration: 5000 },
@@ -279,7 +342,7 @@ export function IntegrationDialog({
 
       try {
         await triggerVerifyHHCredentials(
-          data.email,
+          data.email ?? "",
           data.password,
           workspaceId,
         );
@@ -291,7 +354,28 @@ export function IntegrationDialog({
         return;
       }
 
-      // Результат придёт через useInngestSubscription
+      return;
+    }
+
+    if (data.type === "kwork") {
+      setIsVerifying(true);
+      setVerifyingType("kwork");
+      toast.info("Проверка данных Kwork…", { duration: 3000 });
+
+      try {
+        await triggerVerifyKworkCredentials(
+          data.login ?? "",
+          data.password,
+          workspaceId,
+        );
+      } catch (error) {
+        setIsVerifying(false);
+        toast.error(
+          error instanceof Error ? error.message : "Ошибка отправки запроса",
+        );
+        return;
+      }
+
       return;
     }
 
@@ -309,6 +393,7 @@ export function IntegrationDialog({
           key={workspaceId}
           workspaceId={workspaceId}
           isVerifying={isVerifying}
+          verifyingType={verifyingType}
           onResult={handleVerificationResult}
           onError={handleVerificationError}
         />
@@ -337,11 +422,16 @@ export function IntegrationDialog({
             >
               <div className="rounded-lg bg-muted/50 p-4 text-sm text-muted-foreground space-y-2">
                 <p>
-                  Для подключения HeadHunter используйте учетные данные вашего
-                  аккаунта работодателя
+                  {integrationType?.value === "kwork"
+                    ? "Для Kwork используйте логин и пароль от аккаунта"
+                    : "Для подключения HeadHunter используйте учетные данные вашего аккаунта работодателя"}
                 </p>
                 <p className="text-xs">
-                  Проверка данных может занять до 2 минут
+                  {integrationType?.value === "hh"
+                    ? "Проверка данных может занять до 2 минут"
+                    : integrationType?.value === "kwork"
+                      ? "Проверка данных Kwork…"
+                      : null}
                 </p>
               </div>
 
@@ -400,27 +490,53 @@ export function IntegrationDialog({
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-muted-foreground" />
-                      Email
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="your@email.com"
-                        className="h-11"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {integrationType?.value === "kwork" ? (
+                <FormField
+                  control={form.control}
+                  name="login"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium flex items-center gap-2">
+                        <LogIn className="h-4 w-4 text-muted-foreground" />
+                        Логин
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="text"
+                          placeholder="Ваш логин Kwork"
+                          className="h-11"
+                          autoComplete="username"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              ) : (
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium flex items-center gap-2">
+                        <Mail className="h-4 w-4 text-muted-foreground" />
+                        Email
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder="your@email.com"
+                          className="h-11"
+                          autoComplete="email"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
 
               <FormField
                 control={form.control}

@@ -13,13 +13,7 @@ export default async function createNextConfig(): Promise<NextConfig> {
     output: "standalone",
 
     /** Exclude packages using Node.js APIs or dynamic require from bundling */
-    serverExternalPackages: [
-      "ai",
-      "@qbs-autonaim/lib",
-      "@ai-sdk/provider",
-      "@ai-sdk/provider-utils",
-      "@ai-sdk/gateway",
-    ],
+    serverExternalPackages: ["@qbs-autonaim/lib"],
 
     /** Build optimizations */
     experimental: {
