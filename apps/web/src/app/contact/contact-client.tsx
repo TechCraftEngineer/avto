@@ -48,9 +48,9 @@ const contactMethods = [
   {
     icon: Mail,
     title: "Email",
-    value: "hello@qbs.ru",
+    value: "info@avtonaim.qbsoft.ru",
     description: "Ответим в течение 24 часов",
-    href: "mailto:hello@qbs.ru",
+    href: "mailto:info@avtonaim.qbsoft.ru",
   },
   {
     icon: Phone,

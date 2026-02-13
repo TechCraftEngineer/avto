@@ -18,7 +18,9 @@ export const env = createEnv({
     RESEND_API_KEY: z.string().optional(),
     EMAIL_SANDBOX_ENABLED: z.coerce.boolean().optional().default(false),
     EMAIL_SANDBOX_HOST: z.string().default("localhost"),
-    EMAIL_FROM: z.string().default("QBS Автонайм <onboarding@resend.dev>"),
+    EMAIL_FROM: z
+      .string()
+      .default("QBS Автонайм <onboarding@avtonaim.qbsoft.ru>"),
 
     // Auth
     AUTH_SECRET: z.string().optional(),
@@ -140,7 +142,10 @@ export const env = createEnv({
       .optional()
       .default("http://localhost:3001"),
     NEXT_PUBLIC_IS_DEMO: z.coerce.boolean().optional().default(false),
-    NEXT_PUBLIC_DOCS_URL: z.string().optional().default("https://docs.avtonaim.qbsoft.ru/"),
+    NEXT_PUBLIC_DOCS_URL: z
+      .string()
+      .optional()
+      .default("https://docs.avtonaim.qbsoft.ru/"),
   },
   clientPrefix: "NEXT_PUBLIC_",
   runtimeEnv: {

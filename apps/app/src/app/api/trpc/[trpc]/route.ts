@@ -14,8 +14,7 @@ const setCorsHeaders = (res: Response, origin?: string | null) => {
   const allowedOrigins = [
     process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
     "http://localhost:3000",
-    "https://hh.qbs.ru",
-    "https://app.hr.qbs1.com",
+    "https://app.avtonaim.qbsoft.ru",
   ];
 
   // Check if origin is allowed
