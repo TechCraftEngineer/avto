@@ -1,5 +1,8 @@
-﻿import { and, eq } from "@qbs-autonaim/db";
+import { and, eq, getIntegrationCredentials } from "@qbs-autonaim/db";
+import { db } from "@qbs-autonaim/db/client";
 import { gig, response as responseTable } from "@qbs-autonaim/db/schema";
+import { executeWithKworkTokenRefresh } from "@qbs-autonaim/jobs";
+import { sendMessage as kworkSendMessage } from "@qbs-autonaim/jobs-parsers";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
@@ -54,20 +57,72 @@ export const sendMessage = protectedProcedure
       });
     }
 
-    // Check if we have telegram username to send message
-    if (!response.telegramUsername) {
+    const profileData = response.profileData as
+      | { kworkWorkerId?: number; kworkUsername?: string }
+      | null
+      | undefined;
+
+    if (response.importSource === "KWORK") {
+      const workerId = profileData?.kworkWorkerId;
+      if (workerId == null) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message:
+            "Невозможно отправить сообщение: не найден Kwork user_id кандидата",
+        });
+      }
+
+      const credentials = await getIntegrationCredentials(
+        db,
+        "kwork",
+        input.workspaceId,
+      );
+      if (!credentials?.token) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Интеграция Kwork не настроена",
+        });
+      }
+
+      let result;
+      try {
+        result = await executeWithKworkTokenRefresh(
+          db,
+          input.workspaceId,
+          (token) => kworkSendMessage(token, workerId, input.message),
+        );
+      } catch (error) {
+        const msg =
+          error instanceof Error ? error.message : "Ошибка Kwork";
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message:
+            msg.includes("авториз") || msg.includes("token")
+              ? "Токен Kwork истёк. Требуется повторная авторизация в настройках интеграции."
+              : msg,
+        });
+      }
+      if (!result.success) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: result.error?.message ?? "Ошибка отправки сообщения в Kwork",
+        });
+      }
+    } else if (response.telegramUsername) {
+      // TODO: Integrate with telegram sending system for non-Kwork responses
+    } else {
       throw new TRPCError({
         code: "BAD_REQUEST",
-        message: "У кандидата не указан Telegram username",
+        message:
+          "Нет канала для отправки: укажите Telegram или отклик должен быть с Kwork",
       });
     }
 
-    // TODO: Integrate with telegram sending system
-    // For now, we'll just update the response status to indicate message was sent
     const [updated] = await ctx.db
       .update(responseTable)
       .set({
         status: "EVALUATED",
+        welcomeSentAt: new Date(),
         updatedAt: new Date(),
       })
       .where(eq(responseTable.id, input.responseId))

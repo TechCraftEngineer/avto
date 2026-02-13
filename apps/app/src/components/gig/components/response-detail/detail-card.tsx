@@ -12,10 +12,12 @@ export function GigResponseDetailCard({
   onReject,
   onMessage,
   onSendGreeting,
+  onStartKworkChat,
   onEvaluate,
   isProcessing,
   isPolling,
   isSendingGreeting,
+  isStartingKworkChat,
 }: GigResponseDetailCardProps) {
   const { hasInterviewScoring, hasConversation, conversation, getDefaultTab } =
     useGigResponseFlags(response);
@@ -45,10 +47,12 @@ export function GigResponseDetailCard({
         onReject={onReject}
         onMessage={onMessage}
         onSendGreeting={onSendGreeting}
+        onStartKworkChat={onStartKworkChat}
         onEvaluate={onEvaluate}
         isProcessing={isProcessing}
         isPolling={isPolling}
         isSendingGreeting={isSendingGreeting}
+        isStartingKworkChat={isStartingKworkChat}
       />
 
       {/* Parsed Profile Info */}

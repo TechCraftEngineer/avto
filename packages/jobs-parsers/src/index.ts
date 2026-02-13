@@ -38,3 +38,22 @@ export type {
 } from "./parsers/types";
 // Экспорт утилит
 export { loadCookies, saveCookies } from "./utils/cookies";
+// Kwork API
+export {
+  getDialog,
+  getInboxMessage,
+  getInboxTracks,
+  getOffer,
+  getOffers,
+  getProject,
+  getWant,
+  isKworkAuthError,
+  sendMessage,
+  signIn,
+  type KworkErrorResponse,
+  type KworkInboxMessage,
+  type KworkInboxTracksParams,
+  type KworkOffer,
+  type KworkOffersParams,
+  type KworkWantPayer,
+} from "./parsers/kwork/core/api";

@@ -13,6 +13,7 @@ export type GigResponse = NonNullable<RouterOutputs["gig"]["responses"]["get"]>;
 export interface GigResponseDetailCardProps {
   response: GigResponse;
   onAccept?: () => void;
+  onStartKworkChat?: () => void;
   onReject?: () => void;
   onMessage?: () => void;
   onSendGreeting?: () => void;
@@ -20,6 +21,7 @@ export interface GigResponseDetailCardProps {
   isProcessing?: boolean;
   isPolling?: boolean;
   isSendingGreeting?: boolean;
+  isStartingKworkChat?: boolean;
 }
 
 /**

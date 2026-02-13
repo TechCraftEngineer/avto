@@ -78,6 +78,7 @@ export default function GigResponseDetailPage({ params }: PageProps) {
   }>({ open: false, action: "accept" });
   const [isPolling, setIsPolling] = React.useState(false);
   const [isSendingGreeting, setIsSendingGreeting] = React.useState(false);
+  const [isStartingKworkChat, setIsStartingKworkChat] = React.useState(false);
   const pollingIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
 
   // Fetch response details
@@ -258,6 +259,30 @@ export default function GigResponseDetailPage({ params }: PageProps) {
     setMessageDialog(true);
   };
 
+  const startKworkChatMutation = useMutation(
+    trpc.gig.kwork.processChat.mutationOptions({
+      onSuccess: () => {
+        toast.success("Обработка чата Kwork запущена");
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    }),
+  );
+
+  const handleStartKworkChat = async () => {
+    if (!workspace?.id) return;
+    setIsStartingKworkChat(true);
+    try {
+      await startKworkChatMutation.mutateAsync({
+        workspaceId: workspace.id,
+        responseId,
+      });
+    } finally {
+      setIsStartingKworkChat(false);
+    }
+  };
+
   const handleSendGreeting = async () => {
     if (!workspace?.id) return;
 
@@ -373,10 +398,12 @@ export default function GigResponseDetailPage({ params }: PageProps) {
         onReject={handleReject}
         onMessage={handleMessage}
         onSendGreeting={handleSendGreeting}
+        onStartKworkChat={handleStartKworkChat}
         onEvaluate={handleEvaluate}
         isProcessing={isProcessing}
         isPolling={isPolling}
         isSendingGreeting={isSendingGreeting}
+        isStartingKworkChat={isStartingKworkChat}
       />
 
       {/* Confirm Dialog */}

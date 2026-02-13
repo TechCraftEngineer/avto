@@ -3,25 +3,11 @@
  * Использует Kwork Mobile API: https://api.kwork.ru/
  */
 import { getIntegrationCredentials } from "@qbs-autonaim/db";
+import { executeWithKworkTokenRefresh } from "@qbs-autonaim/jobs";
+import { getProject } from "@qbs-autonaim/jobs-parsers";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../trpc";
-
-const KWORK_API_URL = "https://api.kwork.ru";
-const KWORK_AUTH_HEADER = "Basic bW9iaWxlX2FwaTpxRnZmUmw3dw==";
-
-/** Проект Kwork (want_worker) - запрос покупателя */
-interface KworkProject {
-  id: number;
-  status?: string;
-  price?: number;
-  title?: string;
-  description?: string;
-  offers?: number;
-  time_left?: number;
-  category_id?: number;
-  parent_category_id?: number;
-}
 
 export const getKworkProject = protectedProcedure
   .input(
@@ -57,44 +43,41 @@ export const getKworkProject = protectedProcedure
       });
     }
 
-    const body = new URLSearchParams({
-      id: String(input.projectId),
-      token: credentials.token,
-    });
-
-    const response = await fetch(`${KWORK_API_URL}/project`, {
-      method: "POST",
-      headers: {
-        Authorization: KWORK_AUTH_HEADER,
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: body.toString(),
-    });
-
-    const data = (await response.json()) as {
-      success?: boolean;
-      response?: KworkProject;
-      code?: number;
-      message?: string;
-    };
-
-    if (data?.code) {
+    let result;
+    try {
+      result = await executeWithKworkTokenRefresh(
+        ctx.db,
+        input.workspaceId,
+        (token) => getProject(token, input.projectId),
+      );
+    } catch (error) {
+      const msg =
+        error instanceof Error ? error.message : "Ошибка Kwork";
       throw new TRPCError({
-        code: "BAD_REQUEST",
+        code: "UNAUTHORIZED",
         message:
-          data.message ??
-          "Не удалось получить проект с Kwork. Проверьте, что интеграция активна.",
+          msg.includes("авториз") || msg.includes("token")
+            ? "Токен Kwork истёк. Требуется повторная авторизация в настройках интеграции."
+            : msg,
       });
     }
 
-    if (!data?.success || !data?.response) {
+    if (!result.success || !result.response) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message:
+          result.error?.message ??
+          "Проект не найден на Kwork. Проверьте, что интеграция активна.",
+      });
+    }
+
+    const project = result.response;
+    if (!project) {
       throw new TRPCError({
         code: "NOT_FOUND",
         message: "Проект не найден на Kwork",
       });
     }
-
-    const project = data.response;
 
     return {
       id: project.id,

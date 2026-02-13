@@ -48,7 +48,11 @@ import {
   parseFreelanceProfileFunction,
   sendFreelanceNotificationFunction,
 } from "./freelance";
-import { evaluateGigResponseFunction, syncGigResponses } from "./gig";
+import {
+  evaluateGigResponseFunction,
+  kworkChatProcessFunction,
+  syncGigResponses,
+} from "./gig";
 import {
   bufferDebounceFunction,
   bufferFlushFunction,
@@ -134,6 +138,7 @@ export const inngestFunctions: any[] = [
   sendFreelanceNotificationFunction,
   // Gig
   evaluateGigResponseFunction,
+  kworkChatProcessFunction,
   syncGigResponses,
   // Integration
   verifyHHCredentialsFunction,

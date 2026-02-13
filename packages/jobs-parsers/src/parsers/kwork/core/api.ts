@@ -38,6 +38,23 @@ export const KWORK_ERROR_CODES = {
   CAPTCHA_REQUIRED: 118,
 } as const;
 
+/**
+ * Проверяет, указывает ли ошибка Kwork API на проблему с токеном (истёкший/невалидный).
+ * В таких случаях можно попробовать переавторизоваться через signIn.
+ */
+export function isKworkAuthError(error?: KworkErrorResponse | null): boolean {
+  if (!error) return false;
+  const msg = String(error.message ?? error.error ?? "").toLowerCase();
+  return (
+    msg.includes("token") ||
+    msg.includes("токен") ||
+    msg.includes("авториз") ||
+    msg.includes("authorization") ||
+    msg.includes("требуется token") ||
+    msg.includes("неверный token")
+  );
+}
+
 function createKworkApiClient(): AxiosInstance {
   return axios.create({
     baseURL: KWORK_BASE_URL,
@@ -216,6 +233,382 @@ export async function getProjects(
       success: true,
       response: result?.response ?? [],
       paging: result?.paging,
+    };
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data) {
+      return {
+        success: false,
+        error: error.response.data as KworkErrorResponse,
+      };
+    }
+    throw error;
+  }
+}
+
+/** Проект для покупателя (want_payer) */
+export interface KworkWantPayer {
+  id: number;
+  title?: string;
+  description?: string;
+  status?: string;
+  want_status_id?: number;
+  date_create?: number | null;
+  date_active?: number | null;
+  date_expire?: number | null;
+  price_limit?: number;
+  views?: number;
+  orders?: number;
+  offers?: number;
+  allow_higher_price?: boolean;
+  possible_price_limit?: number;
+  [key: string]: unknown;
+}
+
+/** Предложение на запрос услуги (offer) */
+export interface KworkOffer {
+  id: number;
+  status?: string;
+  title?: string;
+  comment?: string;
+  price?: number;
+  duration?: number;
+  date_create?: number;
+  is_actual?: boolean;
+  is_read?: boolean;
+  read_status?: number;
+  want_id?: number;
+  order_id?: number;
+  kwork_id?: number;
+  project?: KworkProject & { user_id?: number; username?: string };
+  /** ID фрилансера (продавца), отправившего отклик — может приходить в ответе API */
+  user_id?: number;
+  worker_id?: number;
+  username?: string;
+  [key: string]: unknown;
+}
+
+/** Параметры для getOffers */
+export interface KworkOffersParams {
+  page?: number;
+}
+
+/**
+ * Получить проект для покупателя (want) — данные по запросу на услугу
+ */
+export async function getWant(
+  token: string,
+  projectId: number,
+): Promise<{
+  success: boolean;
+  response?: KworkWantPayer[];
+  error?: KworkErrorResponse;
+}> {
+  try {
+    const body = new URLSearchParams({ id: String(projectId), token });
+    const response = await kworkApi.post<
+      | { success?: boolean; response?: KworkWantPayer[]; code?: number }
+      | KworkErrorResponse
+    >("want", body.toString());
+
+    const data = response.data;
+    if (data && typeof data === "object" && "code" in data && (data as KworkErrorResponse).code) {
+      return { success: false, error: data as KworkErrorResponse };
+    }
+    return {
+      success: true,
+      response: (data as { response?: KworkWantPayer[] })?.response ?? [],
+    };
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data) {
+      return {
+        success: false,
+        error: error.response.data as KworkErrorResponse,
+      };
+    }
+    throw error;
+  }
+}
+
+/**
+ * Получить список предложений пользователя (offers)
+ * Для покупателя — отклики на его проекты; фильтрация по want_id — на стороне клиента
+ */
+export async function getOffers(
+  token: string,
+  params: KworkOffersParams = {},
+): Promise<{
+  success: boolean;
+  response?: KworkOffer[];
+  paging?: { page: number; total: number; limit?: number; pages?: number };
+  error?: KworkErrorResponse;
+}> {
+  try {
+    const body = new URLSearchParams();
+    body.append("token", token);
+    if (params.page != null) body.append("page", String(params.page));
+
+    const response = await kworkApi.post<{
+      success?: boolean;
+      response?: KworkOffer[];
+      paging?: { page: number; total: number; limit?: number; pages?: number };
+      code?: number;
+    }>("offers", body.toString());
+
+    const data = response.data;
+    if (data && typeof data === "object" && "code" in data && (data as KworkErrorResponse).code) {
+      return { success: false, error: data as KworkErrorResponse };
+    }
+    const result = data as {
+      response?: KworkOffer[];
+      paging?: { page: number; total: number; limit?: number; pages?: number };
+    };
+    return {
+      success: true,
+      response: result?.response ?? [],
+      paging: result?.paging,
+    };
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data) {
+      return {
+        success: false,
+        error: error.response.data as KworkErrorResponse,
+      };
+    }
+    throw error;
+  }
+}
+
+/**
+ * Получить одно предложение по ID
+ */
+export async function getOffer(
+  token: string,
+  offerId: number,
+): Promise<{
+  success: boolean;
+  response?: KworkOffer;
+  error?: KworkErrorResponse;
+}> {
+  try {
+    const body = new URLSearchParams({ id: String(offerId), token });
+    const response = await kworkApi.post<
+      | { success?: boolean; response?: KworkOffer; code?: number }
+      | KworkErrorResponse
+    >("offer", body.toString());
+
+    const data = response.data;
+    if (data && typeof data === "object" && "code" in data && (data as KworkErrorResponse).code) {
+      return { success: false, error: data as KworkErrorResponse };
+    }
+    return {
+      success: true,
+      response: (data as { response?: KworkOffer })?.response,
+    };
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data) {
+      return {
+        success: false,
+        error: error.response.data as KworkErrorResponse,
+      };
+    }
+    throw error;
+  }
+}
+
+/** Сообщение в переписке Kwork (inbox_message / inbox_track_message) */
+export interface KworkInboxMessage {
+  message_id?: number;
+  conversation_id?: number;
+  to_id?: number;
+  from_id?: number;
+  from_username?: string;
+  message?: string;
+  time?: number;
+  unread?: boolean;
+  type?: string;
+  [key: string]: unknown;
+}
+
+/** Параметры для getInboxTracks */
+export interface KworkInboxTracksParams {
+  userId?: number;
+  username?: string;
+  page?: number;
+  lastConversationId?: number;
+  direction?: "before" | "after" | "around";
+  limit?: number;
+}
+
+/**
+ * Получить диалог по идентификатору собеседника
+ */
+export async function getDialog(
+  token: string,
+  userId: number,
+): Promise<{
+  success: boolean;
+  response?: unknown;
+  error?: KworkErrorResponse;
+}> {
+  try {
+    const body = new URLSearchParams({ id: String(userId), token });
+    const response = await kworkApi.post<
+      | { success?: boolean; response?: unknown; code?: number }
+      | KworkErrorResponse
+    >("getDialog", body.toString());
+
+    const data = response.data;
+    if (data && typeof data === "object" && "code" in data && (data as KworkErrorResponse).code) {
+      return { success: false, error: data as KworkErrorResponse };
+    }
+    return {
+      success: true,
+      response: (data as { response?: unknown })?.response,
+    };
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data) {
+      return {
+        success: false,
+        error: error.response.data as KworkErrorResponse,
+      };
+    }
+    throw error;
+  }
+}
+
+/**
+ * Отправить сообщение в диалог
+ */
+export async function sendMessage(
+  token: string,
+  userId: number,
+  text: string,
+): Promise<{
+  success: boolean;
+  response?: { id?: number; conversation_id?: number; type?: string };
+  error?: KworkErrorResponse;
+}> {
+  try {
+    const body = new URLSearchParams();
+    body.append("token", token);
+    body.append("user_id", String(userId));
+    body.append("text", text);
+
+    const response = await kworkApi.post<
+      | {
+          success?: boolean;
+          response?: { id?: number; conversation_id?: number; type?: string };
+          code?: number;
+        }
+      | KworkErrorResponse
+    >("inboxCreate", body.toString());
+
+    const data = response.data;
+    if (data && typeof data === "object" && "code" in data && (data as KworkErrorResponse).code) {
+      return { success: false, error: data as KworkErrorResponse };
+    }
+    return {
+      success: true,
+      response: (data as { response?: { id?: number; conversation_id?: number; type?: string } })
+        ?.response,
+    };
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data) {
+      return {
+        success: false,
+        error: error.response.data as KworkErrorResponse,
+      };
+    }
+    throw error;
+  }
+}
+
+/**
+ * Получить сообщения в диалоге (с треками)
+ */
+export async function getInboxTracks(
+  token: string,
+  params: KworkInboxTracksParams = {},
+): Promise<{
+  success: boolean;
+  response?: KworkInboxMessage[];
+  paging?: { page?: number; total?: number };
+  user?: { user_id?: number; username?: string };
+  error?: KworkErrorResponse;
+}> {
+  try {
+    const body = new URLSearchParams();
+    body.append("token", token);
+    if (params.userId != null) body.append("userId", String(params.userId));
+    if (params.username) body.append("username", params.username);
+    if (params.page != null) body.append("page", String(params.page));
+    if (params.lastConversationId != null)
+      body.append("lastConversationId", String(params.lastConversationId));
+    if (params.direction) body.append("direction", params.direction);
+    if (params.limit != null) body.append("limit", String(params.limit));
+
+    const response = await kworkApi.post<
+      | {
+          success?: boolean;
+          response?: KworkInboxMessage[];
+          paging?: { page?: number; total?: number };
+          user?: { user_id?: number; username?: string };
+          code?: number;
+        }
+      | KworkErrorResponse
+    >("getInboxTracks", body.toString());
+
+    const data = response.data;
+    if (data && typeof data === "object" && "code" in data && (data as KworkErrorResponse).code) {
+      return { success: false, error: data as KworkErrorResponse };
+    }
+    const result = data as {
+      response?: KworkInboxMessage[];
+      paging?: { page?: number; total?: number };
+      user?: { user_id?: number; username?: string };
+    };
+    return {
+      success: true,
+      response: result?.response ?? [],
+      paging: result?.paging,
+      user: result?.user,
+    };
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data) {
+      return {
+        success: false,
+        error: error.response.data as KworkErrorResponse,
+      };
+    }
+    throw error;
+  }
+}
+
+/**
+ * Получить одно сообщение по messageId
+ */
+export async function getInboxMessage(
+  token: string,
+  messageId: number,
+): Promise<{
+  success: boolean;
+  response?: KworkInboxMessage[];
+  error?: KworkErrorResponse;
+}> {
+  try {
+    const body = new URLSearchParams({ messageId: String(messageId), token });
+    const response = await kworkApi.post<
+      | { success?: boolean; response?: KworkInboxMessage[]; code?: number }
+      | KworkErrorResponse
+    >("inboxMessage", body.toString());
+
+    const data = response.data;
+    if (data && typeof data === "object" && "code" in data && (data as KworkErrorResponse).code) {
+      return { success: false, error: data as KworkErrorResponse };
+    }
+    return {
+      success: true,
+      response: (data as { response?: KworkInboxMessage[] })?.response ?? [],
     };
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.data) {
