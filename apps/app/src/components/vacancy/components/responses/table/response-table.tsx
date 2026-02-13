@@ -112,7 +112,7 @@ export function ResponseTable({
   }, [vacancyData?.publications]);
 
   const hasActiveIntegrations = useMemo(
-    () => (vacancyData?.publications?.length ?? 0) > 0,
+    () => vacancyData?.publications?.some((pub) => pub.isActive) ?? false,
     [vacancyData?.publications],
   );
 

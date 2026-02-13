@@ -22,8 +22,10 @@ import { Plus, X } from "lucide-react";
 import React from "react";
 import type { UseFormReturn } from "react-hook-form";
 
-interface VacancyRequirementsEditorProps {
-  form: UseFormReturn<{ requirements?: VacancyRequirements }>;
+interface VacancyRequirementsEditorProps<
+  T extends { requirements?: VacancyRequirements },
+> {
+  form: UseFormReturn<T>;
   requirements: VacancyRequirements | null | undefined;
 }
 

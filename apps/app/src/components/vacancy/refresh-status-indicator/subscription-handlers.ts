@@ -68,6 +68,19 @@ export function handleArchivedProgress(
   context.onVisibilityChange(true);
 
   if (progressData.status === "error") {
+    // Финальная инвалидация при ошибке (как в handleArchivedResult)
+    context.queryClient.invalidateQueries({
+      queryKey: context.trpc.vacancy.responses.list.queryKey({
+        vacancyId: context.vacancyId,
+      }),
+    });
+
+    context.queryClient.invalidateQueries({
+      queryKey: context.trpc.vacancy.responses.getRefreshStatus.queryKey({
+        vacancyId: context.vacancyId,
+      }),
+    });
+
     context.onArchivedSyncComplete?.();
   }
 

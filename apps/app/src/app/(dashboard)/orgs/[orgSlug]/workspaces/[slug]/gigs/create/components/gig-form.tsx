@@ -1,5 +1,6 @@
 "use client";
 
+import { parsePlatformLink } from "@qbs-autonaim/shared";
 import {
   Button,
   Form,
@@ -16,12 +17,11 @@ import {
   SelectValue,
   Textarea,
 } from "@qbs-autonaim/ui";
-import { parsePlatformLink } from "@qbs-autonaim/shared";
 import { Check, Loader2 } from "lucide-react";
 import { useCallback, useEffect, useRef } from "react";
-import { useDebouncedCallback } from "use-debounce";
 import type { UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
+import { useDebouncedCallback } from "use-debounce";
 import { useTRPCClient } from "~/trpc/react";
 import type { FormValues } from "./types";
 import { gigTypeOptions } from "./types";
@@ -78,6 +78,7 @@ export function GigForm({
           workspaceId,
           projectId,
         });
+        if (lastImportedUrlRef.current !== normalizedUrl) return;
         form.setValue("title", project.title || form.getValues("title"));
         form.setValue(
           "description",
@@ -90,8 +91,10 @@ export function GigForm({
         form.setValue("platformSource", "KWORK");
         toast.success("Данные загружены с Kwork");
       } catch {
-        lastImportedUrlRef.current = null;
-        form.setValue("platformSource", "KWORK");
+        if (lastImportedUrlRef.current === normalizedUrl) {
+          lastImportedUrlRef.current = null;
+          form.setValue("platformSource", "KWORK");
+        }
       }
     },
     [workspaceId, trpcClient, form],

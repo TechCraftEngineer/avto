@@ -57,7 +57,21 @@ export function mapScreeningToOutput(screening: ResponseScreening | null) {
     hiddenFitIndicators: screening.hiddenFitIndicators ?? [],
     candidateSummary: screening.candidateSummary,
     rankingPosition: screening.rankingPosition,
-    psychometricAnalysis: screening.psychometricAnalysis,
+    psychometricAnalysis: screening.psychometricAnalysis
+      ? {
+          compatibilityScore: screening.psychometricAnalysis.compatibilityScore,
+          summary: sanitizeHtml(screening.psychometricAnalysis.summary ?? ""),
+          strengths: (screening.psychometricAnalysis.strengths ?? []).map(
+            (s) => sanitizeHtml(s),
+          ),
+          challenges: (screening.psychometricAnalysis.challenges ?? []).map(
+            (c) => sanitizeHtml(c),
+          ),
+          recommendations: (
+            screening.psychometricAnalysis.recommendations ?? []
+          ).map((r) => sanitizeHtml(r)),
+        }
+      : null,
   };
 }
 

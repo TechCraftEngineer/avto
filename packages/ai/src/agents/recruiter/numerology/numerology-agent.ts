@@ -39,16 +39,16 @@ export const numerologyOutputSchema = z.object({
   compatibilityScore: z.number().int().min(0).max(100),
 
   // Краткий психологический портрет
-  summary: z.string(),
+  summary: z.string().max(3000),
 
   // Сильные стороны — 2-3 пункта
-  strengths: z.array(z.string()).max(4),
+  strengths: z.array(z.string()).min(2).max(3),
 
   // Зоны внимания / красные флаги — 2-3 пункта
-  challenges: z.array(z.string()).max(4),
+  challenges: z.array(z.string()).min(2).max(3),
 
   // Вопросы для интервью — 3-4 пункта
-  recommendations: z.array(z.string()).max(5),
+  recommendations: z.array(z.string()).min(3).max(4),
 });
 
 export type NumerologyOutput = z.infer<typeof numerologyOutputSchema>;

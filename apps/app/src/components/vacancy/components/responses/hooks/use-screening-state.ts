@@ -72,6 +72,10 @@ export function useScreeningState(
       isRunningRef.current = false;
       setState((prev) => ({
         ...prev,
+        status: "success",
+        error: null,
+        progress: null,
+        message: "Оценка завершена",
         subscriptionActive: false,
       }));
       onComplete();
