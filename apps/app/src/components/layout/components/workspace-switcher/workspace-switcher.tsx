@@ -260,7 +260,7 @@ export function WorkspaceSwitcher({
                   className="flex-1 cursor-pointer justify-center gap-2 border-primary/20 bg-primary/5 p-2 focus:bg-primary/10"
                   onClick={() => {
                     router.push(
-                      paths.organization.settings.usage(
+                      paths.organization.settings.billing(
                         activeOrganization.slug,
                       ),
                     );
