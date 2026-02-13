@@ -2,6 +2,7 @@
 
 import { paths } from "@qbs-autonaim/config";
 import {
+  Badge,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -34,6 +35,22 @@ import { CreateWorkspaceDialog } from "~/components/workspace/components";
 import { useWorkspaces } from "~/contexts/workspace-context";
 import { getPluralForm } from "~/lib/pluralization";
 import { useTRPC } from "~/trpc/react";
+
+const PLAN_LABELS: Record<string, string> = {
+  free: "Бесплатный",
+  pro: "Профессиональный",
+  enterprise: "Корпоративный",
+} as const;
+
+function getPlanLabel(plan?: string | null) {
+  return PLAN_LABELS[plan ?? "free"] ?? "Бесплатный";
+}
+
+function getPlanBadgeVariant(plan?: string | null): "secondary" | "default" | "outline" {
+  if (plan === "pro") return "default";
+  if (plan === "enterprise") return "default";
+  return "secondary";
+}
 
 export function WorkspaceSwitcher({
   activeWorkspaceId,
@@ -143,7 +160,7 @@ export function WorkspaceSwitcher({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <div className="flex items-center gap-2">
-                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 shrink-0 items-center justify-center rounded-lg">
                   {activeOrganization.logo ? (
                     // biome-ignore lint/performance/noImgElement: external URL from database
                     <img
@@ -155,20 +172,25 @@ export function WorkspaceSwitcher({
                     <IconBuildingCommunity className="size-4" />
                   )}
                 </div>
-                <span className="text-muted-foreground">/</span>
+                <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-medium">
+                    {activeOrganization.name}
+                    <span className="text-muted-foreground font-normal">
+                      {" / "}
+                      {activeWorkspace.name}
+                    </span>
+                  </span>
+                  <span className="mt-0.5 flex items-center gap-1.5">
+                    <Badge
+                      variant={getPlanBadgeVariant(activeOrganization.plan)}
+                      className="text-[10px] px-1.5 py-0 font-medium"
+                    >
+                      {getPlanLabel(activeOrganization.plan)}
+                    </Badge>
+                  </span>
+                </div>
               </div>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">
-                  {activeWorkspace.name}
-                </span>
-                <span className="truncate text-xs text-muted-foreground">
-                  {activeOrganization.plan === "free" && "Бесплатный"}
-                  {activeOrganization.plan === "pro" && "Профессиональный"}
-                  {activeOrganization.plan === "enterprise" && "Корпоративный"}
-                  {!activeOrganization.plan && "Бесплатный"}
-                </span>
-              </div>
-              <ChevronsUpDown className="ml-auto size-4" />
+              <ChevronsUpDown className="ml-auto size-4 shrink-0" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -178,8 +200,11 @@ export function WorkspaceSwitcher({
             sideOffset={4}
           >
             <div className="flex flex-col gap-2 p-2">
+              <DropdownMenuLabel className="text-muted-foreground px-0 text-xs font-normal">
+                Организация · здесь тариф и оплата
+              </DropdownMenuLabel>
               <div className="flex items-center gap-2">
-                <div className="flex size-10 items-center justify-center rounded-lg border">
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border">
                   {activeOrganization.logo ? (
                     // biome-ignore lint/performance/noImgElement: external URL from database
                     <img
@@ -191,16 +216,19 @@ export function WorkspaceSwitcher({
                     <IconBuildingCommunity className="size-5" />
                   )}
                 </div>
-                <div className="flex flex-1 flex-col">
-                  <span className="font-semibold text-sm">
-                    {activeOrganization.name}
-                  </span>
-                  <span className="text-muted-foreground text-xs">
-                    {activeOrganization.plan === "free" && "Бесплатный"}
-                    {activeOrganization.plan === "pro" && "Профессиональный"}
-                    {activeOrganization.plan === "enterprise" &&
-                      "Корпоративный"}
-                    {!activeOrganization.plan && "Бесплатный"} ·{" "}
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="font-semibold text-sm">
+                      {activeOrganization.name}
+                    </span>
+                    <Badge
+                      variant={getPlanBadgeVariant(activeOrganization.plan)}
+                      className="text-[10px] shrink-0 px-1.5 py-0"
+                    >
+                      {getPlanLabel(activeOrganization.plan)}
+                    </Badge>
+                  </div>
+                  <span className="text-muted-foreground mt-0.5 block text-xs">
                     {activeOrganization.memberCount ?? 1}{" "}
                     {getPluralForm(activeOrganization.memberCount ?? 1, [
                       "участник",
@@ -229,7 +257,7 @@ export function WorkspaceSwitcher({
                   <span className="text-sm">Настройки</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  className="flex-1 cursor-pointer justify-center gap-2 p-2"
+                  className="flex-1 cursor-pointer justify-center gap-2 border-primary/20 bg-primary/5 p-2 focus:bg-primary/10"
                   onClick={() => {
                     router.push(
                       paths.organization.settings.usage(
@@ -239,14 +267,19 @@ export function WorkspaceSwitcher({
                   }}
                 >
                   <IconCreditCard className="size-4" />
-                  <span className="text-sm">Потребление</span>
+                  <span className="font-medium text-sm">
+                    Тариф и оплата
+                  </span>
                 </DropdownMenuItem>
               </div>
             </div>
             <DropdownMenuSeparator />
             <div className="flex flex-col gap-2 p-2">
+              <DropdownMenuLabel className="text-muted-foreground px-0 text-xs font-normal">
+                Рабочее пространство · текущий контекст
+              </DropdownMenuLabel>
               <div className="flex items-center gap-2">
-                <div className="flex size-10 items-center justify-center rounded-lg border">
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border">
                   {activeWorkspace.logo ? (
                     // biome-ignore lint/performance/noImgElement: external URL from database
                     <img
@@ -258,11 +291,11 @@ export function WorkspaceSwitcher({
                     <IconBriefcase className="size-5" />
                   )}
                 </div>
-                <div className="flex flex-1 flex-col">
+                <div className="min-w-0 flex-1">
                   <span className="font-semibold text-sm">
                     {activeWorkspace.name}
                   </span>
-                  <span className="text-muted-foreground text-xs">
+                  <span className="text-muted-foreground mt-0.5 block text-xs">
                     {activeWorkspace.memberCount ?? 1}{" "}
                     {getPluralForm(activeWorkspace.memberCount ?? 1, [
                       "участник",
