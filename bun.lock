@@ -427,6 +427,7 @@
       },
       "devDependencies": {
         "@qbs-autonaim/tsconfig": "workspace:*",
+        "tsdown": "0.20.3",
         "typescript": "5.9.3",
       },
     },

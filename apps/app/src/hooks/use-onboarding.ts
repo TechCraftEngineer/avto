@@ -242,11 +242,11 @@ export function useOnboarding() {
       error: organizationError,
       onNameChange: handleNameChange,
       onSlugChange: handleSlugChange,
-      onDescriptionChange: (v) => {
+      onDescriptionChange: (v: string) => {
         setDescription(v);
         setOrganizationError(null);
       },
-      onWebsiteChange: (v) => {
+      onWebsiteChange: (v: string) => {
         setWebsite(v);
         setOrganizationError(null);
       },

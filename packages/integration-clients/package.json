@@ -4,13 +4,13 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
     }
   },
   "license": "MIT",
   "scripts": {
-    "build": "echo no-op",
+    "build": "tsdown",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "typecheck": "tsc --noEmit"
   },
@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "@qbs-autonaim/tsconfig": "workspace:*",
+    "tsdown": "0.20.3",
     "typescript": "5.9.3"
   }
 }
