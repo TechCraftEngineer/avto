@@ -101,10 +101,10 @@ export const designSystemConfigSchema = z
       const availableThemes = getThemesForBaseColor(data.baseColor)
       return availableThemes.some((t) => t.name === data.theme)
     },
-    (data) => ({
-      message: `Theme "${data.theme}" is not available for base color "${data.baseColor}"`,
+    {
+      message: "Theme is not available for the selected base color",
       path: ["theme"],
-    })
+    }
   )
 
 export type DesignSystemConfig = z.infer<typeof designSystemConfigSchema>
@@ -350,14 +350,19 @@ export function buildRegistryTheme(config: DesignSystemConfig) {
 
   // Apply menu accent transformation.
   if (config.menuAccent === "bold") {
-    lightVars.accent = lightVars.primary
-    lightVars["accent-foreground"] = lightVars["primary-foreground"]
-    darkVars.accent = darkVars.primary
-    darkVars["accent-foreground"] = darkVars["primary-foreground"]
-    lightVars["sidebar-accent"] = lightVars.primary
-    lightVars["sidebar-accent-foreground"] = lightVars["primary-foreground"]
-    darkVars["sidebar-accent"] = darkVars.primary
-    darkVars["sidebar-accent-foreground"] = darkVars["primary-foreground"]
+    const primary = lightVars.primary
+    const primaryForeground = lightVars["primary-foreground"]
+    const darkPrimary = darkVars.primary
+    const darkPrimaryForeground = darkVars["primary-foreground"]
+    
+    if (primary) lightVars.accent = primary
+    if (primaryForeground) lightVars["accent-foreground"] = primaryForeground
+    if (darkPrimary) darkVars.accent = darkPrimary
+    if (darkPrimaryForeground) darkVars["accent-foreground"] = darkPrimaryForeground
+    if (primary) lightVars["sidebar-accent"] = primary
+    if (primaryForeground) lightVars["sidebar-accent-foreground"] = primaryForeground
+    if (darkPrimary) darkVars["sidebar-accent"] = darkPrimary
+    if (darkPrimaryForeground) darkVars["sidebar-accent-foreground"] = darkPrimaryForeground
   }
 
   // Apply radius transformation.
@@ -397,7 +402,7 @@ export function buildRegistryBase(config: DesignSystemConfig) {
     `shadcn@${SHADCN_VERSION}`,
     "class-variance-authority",
     "tw-animate-css",
-    ...(baseItem.dependencies ?? []),
+    ...("dependencies" in baseItem && Array.isArray(baseItem.dependencies) ? baseItem.dependencies : []),
     ...iconLibraryItem.packages,
   ]
 
