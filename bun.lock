@@ -76,7 +76,7 @@
         "better-auth": "1.4.18",
         "date-fns": "4.1.0",
         "jspdf": "^4.1.0",
-        "lucide-react": "0.563.0",
+        "lucide-react": "0.564.0",
         "motion": "^12.34.0",
         "next": "16.1.6",
         "nuqs": "^2.8.8",
@@ -117,7 +117,7 @@
         "@t3-oss/env-nextjs": "^0.13.10",
         "@vercel/analytics": "1.6.1",
         "clsx": "^2.1.1",
-        "lucide-react": "^0.563.0",
+        "lucide-react": "^0.564.0",
         "next": "16.1.6",
         "next-themes": "^0.4.6",
         "react": "19.2.4",
@@ -158,7 +158,7 @@
         "@trpc/tanstack-react-query": "^11.10.0",
         "ai": "6.0.86",
         "dompurify": "^3.3.1",
-        "lucide-react": "^0.563.0",
+        "lucide-react": "^0.564.0",
         "motion": "^12.34.0",
         "next": "16.1.6",
         "react": "19.2.4",
@@ -202,7 +202,7 @@
         "clsx": "^2.1.1",
         "date-fns": "4.1.0",
         "geist": "^1.7.0",
-        "lucide-react": "^0.563.0",
+        "lucide-react": "^0.564.0",
         "motion": "12.34.0",
         "next": "16.1.6",
         "next-themes": "0.4.6",
@@ -3322,7 +3322,7 @@
 
     "lru-cache": ["lru-cache@7.18.3", "", {}, "sha512-jumlc0BIUrS3qJGgIkWZsyfAM7NCWiBcCDhnd+3NNM5KbBmLTgHVfWBcg6W+rLUsIpzpERPsvwUP7CckAQSOoA=="],
 
-    "lucide-react": ["lucide-react@0.563.0", "", { "peerDependencies": { "react": "^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-8dXPB2GI4dI8jV4MgUDGBeLdGk8ekfqVZ0BdLcrRzocGgG75ltNEmWS+gE7uokKF/0oSUuczNDT+g9hFJ23FkA=="],
+    "lucide-react": ["lucide-react@0.564.0", "", { "peerDependencies": { "react": "^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-JJ8GVTQqFwuliifD48U6+h7DXEHdkhJ/E87kksGByII3qHxtPciVb8T8woQONHBQgHVOl7rSMrrip3SeVNy7Fg=="],
 
     "lz-string": ["lz-string@1.5.0", "", { "bin": { "lz-string": "bin/bin.js" } }, "sha512-h5bgJWpxJNswbU7qCrV0tIKQCaS3blPDrqKWx+QxzuzL1zGUzij9XCWLrSLsJPu5t+eWA/ycetzYAO5IOMcWAQ=="],
 
@@ -4681,8 +4681,6 @@
     "@qbs-autonaim/lib/@ai-sdk/openai": ["@ai-sdk/openai@3.0.28", "", { "dependencies": { "@ai-sdk/provider": "3.0.8", "@ai-sdk/provider-utils": "4.0.15" }, "peerDependencies": { "zod": "^3.25.76 || ^4.1.8" } }, "sha512-m2Dm6fwUzMksqnPrd5f/WZ4cZ9GTZHpzsVO6jxKQwwc84gFHzAFZmUCG0C5mV7XlPOw4mwaiYV3HfLiEfphvvA=="],
 
     "@qbs-autonaim/tailwind-config/@types/node": ["@types/node@25.0.8", "", { "dependencies": { "undici-types": "~7.16.0" } }, "sha512-powIePYMmC3ibL0UJ2i2s0WIbq6cg6UyVFQxSCpaPxxzAaziRfimGivjdF943sSGV6RADVbk0Nvlm5P/FB44Zg=="],
-
-    "@qbs-autonaim/ui/lucide-react": ["lucide-react@0.564.0", "", { "peerDependencies": { "react": "^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-JJ8GVTQqFwuliifD48U6+h7DXEHdkhJ/E87kksGByII3qHxtPciVb8T8woQONHBQgHVOl7rSMrrip3SeVNy7Fg=="],
 
     "@radix-ui/react-alert-dialog/@radix-ui/react-slot": ["@radix-ui/react-slot@1.2.3", "", { "dependencies": { "@radix-ui/react-compose-refs": "1.1.2" }, "peerDependencies": { "@types/react": "*", "react": "^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" }, "optionalPeers": ["@types/react"] }, "sha512-aeNmHnBxbi2St0au6VBVC7JXFlhLlOnvIIlePNniyUNAClzmtAUEY8/pBiK3iHjufOlwA+c20/8jngo7xcrg8A=="],
 

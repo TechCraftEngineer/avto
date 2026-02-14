@@ -15,6 +15,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for db migration changes
+        id: migration-changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            db-migrations:
+              - 'packages/db/drizzle/**'
+              - 'packages/db/src/schema/**'
 
       - uses: actions/setup-node@v4
         with:
@@ -37,6 +48,7 @@ jobs:
           docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:latest
 
       - name: Build migration image
+        if: steps.migration-changes.outputs.db-migrations == 'true'
         env:
           CR_REGISTRY: crpqovavgc2mbmvv32ko
           CR_REPOSITORY: db-migrate
@@ -49,6 +61,7 @@ jobs:
           docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:latest
 
       - name: Run database migration
+        if: steps.migration-changes.outputs.db-migrations == 'true'
         uses: kodermax/kubectl-aws-eks@main
         env:
           KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
@@ -90,6 +103,7 @@ jobs:
             EOF
 
       - name: Wait for migration to complete
+        if: steps.migration-changes.outputs.db-migrations == 'true'
         uses: kodermax/kubectl-aws-eks@main
         env:
           KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
@@ -97,7 +111,7 @@ jobs:
           args: wait --for=condition=complete --timeout=300s job/db-migrate-${{ github.sha }} -n qbs
 
       - name: Get migration logs
-        if: always()
+        if: always() && steps.migration-changes.outputs.db-migrations == 'true'
         uses: kodermax/kubectl-aws-eks@main
         env:
           KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
@@ -122,7 +136,7 @@ jobs:
           args: rollout status deployment/app -n qbs
 
       - name: Cleanup migration job
-        if: always()
+        if: always() && steps.migration-changes.outputs.db-migrations == 'true'
         uses: kodermax/kubectl-aws-eks@main
         env:
           KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
