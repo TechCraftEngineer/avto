@@ -14,6 +14,7 @@ import { cva } from "class-variance-authority"
 
 import { cn } from "../.."
 import { Checkbox } from "../../checkbox"
+import { Skeleton } from "../../skeleton"
 
 const headerCellSpacingVariants = cva("", {
   variants: {
@@ -278,7 +279,7 @@ function DataGridTableBodyRowSkeletonCell<TData>({
         column.columnDef.meta?.cellClassName,
         props.tableLayout?.columnsPinnable &&
           column.getCanPin() &&
-          '[&[data-pinned][data-last-col]]:border-border data-pinned:bg-background/90 data-pinned:backdrop-blur-xs" [&[data-pinned=left][data-last-col=left]]:border-e! [&[data-pinned=right][data-last-col=right]]:border-s!',
+          '[&[data-pinned][data-last-col]]:border-border data-pinned:bg-background/90 data-pinned:backdrop-blur-xs [&[data-pinned=left][data-last-col=left]]:border-e! [&[data-pinned=right][data-last-col=right]]:border-s!',
         column.getIndex() === 0 ||
           column.getIndex() === table.getVisibleFlatColumns().length - 1
           ? props.tableClassNames?.edgeCell
@@ -400,7 +401,7 @@ function DataGridTableBodyRowCell<TData>({
         cell.column.columnDef.meta?.cellClassName,
         props.tableLayout?.columnsPinnable &&
           column.getCanPin() &&
-          '[&[data-pinned][data-last-col]]:border-border data-pinned:bg-background/90 data-pinned:backdrop-blur-xs" [&[data-pinned=left][data-last-col=left]]:border-e! [&[data-pinned=right][data-last-col=right]]:border-s!',
+          '[&[data-pinned][data-last-col]]:border-border data-pinned:bg-background/90 data-pinned:backdrop-blur-xs [&[data-pinned=left][data-last-col=left]]:border-e! [&[data-pinned=right][data-last-col=right]]:border-s!',
         column.getIndex() === 0 ||
           column.getIndex() === row.getVisibleCells().length - 1
           ? props.tableClassNames?.edgeCell
@@ -550,7 +551,9 @@ function DataGridTable<TData>() {
                     column={column}
                     key={colIndex}
                   >
-                    {column.columnDef.meta?.skeleton}
+                    {column.columnDef.meta?.skeleton ?? (
+                      <Skeleton className="h-4 w-full max-w-[120px]" />
+                    )}
                   </DataGridTableBodyRowSkeletonCell>
                 )
               })}

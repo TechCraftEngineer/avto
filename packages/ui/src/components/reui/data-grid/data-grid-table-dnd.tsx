@@ -44,6 +44,7 @@ import {
 
 import { Button } from "../../button"
 import { IconPlaceholder } from "../icon-placeholder"
+import { Skeleton } from "../../skeleton"
 
 
 function DataGridTableDndHeader<TData>({
@@ -227,7 +228,9 @@ function DataGridTableDnd<TData>({
                         column={column}
                         key={colIndex}
                       >
-                        {column.columnDef.meta?.skeleton}
+                        {column.columnDef.meta?.skeleton ?? (
+                          <Skeleton className="h-4 w-full max-w-[120px]" />
+                        )}
                       </DataGridTableBodyRowSkeletonCell>
                     )
                   })}

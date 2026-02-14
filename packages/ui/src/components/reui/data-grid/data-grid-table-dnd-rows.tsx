@@ -47,6 +47,7 @@ import { Cell, flexRender, HeaderGroup, Row } from "@tanstack/react-table"
 import { cn } from "../.."
 import { Button } from "../../button"
 import { IconPlaceholder } from "../icon-placeholder"
+import { Skeleton } from "../../skeleton"
 
 // Context to share sortable listeners from row to handle
 type SortableContextValue = ReturnType<typeof useSortable>
@@ -242,7 +243,9 @@ function DataGridTableDndRows<TData>({
                         column={column}
                         key={colIndex}
                       >
-                        {column.columnDef.meta?.skeleton}
+                        {column.columnDef.meta?.skeleton ?? (
+                          <Skeleton className="h-4 w-full max-w-[120px]" />
+                        )}
                       </DataGridTableBodyRowSkeletonCell>
                     )
                   })}
