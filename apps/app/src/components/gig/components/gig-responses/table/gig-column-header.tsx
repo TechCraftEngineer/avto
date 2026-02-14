@@ -2,25 +2,36 @@
 
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import type { HeaderContext } from "@tanstack/react-table";
-import type { ResponseListItem } from "./response-columns";
-import type { ResponseTableMeta } from "./response-columns";
-import type { SortField } from "../types";
 
-interface ResponseColumnHeaderProps {
-  context: HeaderContext<ResponseListItem, unknown>;
-  label: React.ReactNode;
+export type GigSortField =
+  | "candidateName"
+  | "status"
+  | "proposedPrice"
+  | "proposedDeliveryDays"
+  | "createdAt"
+  | "screening"
+  | "interview";
+
+export interface GigTableMeta {
+  sortField: GigSortField | null;
+  sortDirection: "asc" | "desc";
+  onSort: (field: GigSortField) => void;
 }
 
-export function ResponseColumnHeader({
-  context,
-  label,
-}: ResponseColumnHeaderProps) {
-  const { column, table } = context;
-  const meta = table.options.meta as ResponseTableMeta;
-  const sortField = (column.columnDef.meta as { sortField?: SortField })
-    ?.sortField;
+interface GigColumnHeaderProps {
+  context: HeaderContext<unknown, unknown>;
+  label: React.ReactNode;
+  sortField?: GigSortField;
+  meta: GigTableMeta | undefined;
+}
 
-  if (!sortField || !meta.onSort) {
+export function GigColumnHeader({
+  context: _context,
+  label,
+  sortField,
+  meta,
+}: GigColumnHeaderProps) {
+  if (!sortField || !meta?.onSort) {
     return <div className="font-semibold text-foreground">{label}</div>;
   }
 

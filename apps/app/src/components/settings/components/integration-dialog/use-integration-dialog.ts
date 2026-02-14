@@ -33,7 +33,7 @@ interface UseIntegrationDialogProps {
 }
 
 export function useIntegrationDialog({
-  open,
+  open: _open,
   selectedType,
   isEditing,
   onClose,

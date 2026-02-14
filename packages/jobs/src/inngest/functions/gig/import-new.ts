@@ -256,14 +256,15 @@ export const importNewGigsFunction = inngest.createFunction(
 
     // Запуск синхронизации откликов для каждого импортированного Kwork-гига
     if (result.success && result.kworkGigIds && result.kworkGigIds.length > 0) {
+      const gigIds = result.kworkGigIds;
       await step.run("trigger-sync-responses", async () => {
         await inngest.send(
-          result.kworkGigIds!.map((gigId) => ({
+          gigIds.map((gigId) => ({
             name: "gig/sync-responses" as const,
             data: { gigId },
           })),
         );
-        return { triggered: result.kworkGigIds!.length };
+        return { triggered: gigIds.length };
       });
     }
 

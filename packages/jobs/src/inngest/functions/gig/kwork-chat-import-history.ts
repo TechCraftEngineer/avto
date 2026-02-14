@@ -72,6 +72,7 @@ export const kworkChatImportHistoryFunction = inngest.createFunction(
       return { success: false, error: "Failed to create session" };
     }
 
+    const sessionId = session.id;
     const allMessages: KworkInboxMessage[] = [];
     let lastConversationId: number | undefined;
     let hasMore = true;
@@ -122,7 +123,7 @@ export const kworkChatImportHistoryFunction = inngest.createFunction(
       "get-existing-external-ids",
       async () => {
         const existing = await db.query.interviewMessage.findMany({
-          where: eq(interviewMessage.sessionId, session!.id),
+          where: eq(interviewMessage.sessionId, sessionId),
           columns: { externalId: true },
         });
         return existing
@@ -139,7 +140,7 @@ export const kworkChatImportHistoryFunction = inngest.createFunction(
         const role =
           m.from_id === workerId ? ("user" as const) : ("assistant" as const);
         return {
-          sessionId: session!.id,
+          sessionId,
           role,
           type: "text" as const,
           channel: "web" as const,
@@ -192,16 +193,17 @@ export const kworkChatImportHistoryFunction = inngest.createFunction(
     }
 
     const lastMsg = allMessages[allMessages.length - 1];
-    if (lastMsg?.time) {
+    if (lastMsg?.time != null) {
+      const lastMsgTime = lastMsg.time;
       await step.run("update-session-last-message", async () => {
         await db
           .update(interviewSession)
           .set({
-            lastMessageAt: new Date(lastMsg.time! * 1000),
+            lastMessageAt: new Date(lastMsgTime * 1000),
             messageCount: allMessages.length,
             updatedAt: new Date(),
           })
-          .where(eq(interviewSession.id, session!.id));
+          .where(eq(interviewSession.id, sessionId));
       });
     }
 

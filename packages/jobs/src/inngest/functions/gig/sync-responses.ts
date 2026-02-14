@@ -163,7 +163,7 @@ async function syncKworkResponses(
           ? `kwork_user_${username}`
           : `kwork_offer_${offerId}`;
     const profileUrl =
-      rawProfileUrl && rawProfileUrl.startsWith("http")
+      rawProfileUrl?.startsWith("http")
         ? rawProfileUrl
         : rawProfileUrl
           ? `https://kwork.ru${rawProfileUrl.startsWith("/") ? "" : "/"}${rawProfileUrl}`

@@ -1,6 +1,5 @@
 "use client";
 
-import type { RouterOutputs } from "@qbs-autonaim/api";
 import {
   DataGrid,
   DataGridContainer,
