@@ -3,8 +3,14 @@
  * Импортировать из @qbs-autonaim/integration-clients/server
  */
 export * from "./index";
+
 import type { AxiosInstance } from "axios";
-import { getProjectOffersFromWeb as getProjectOffersFromWebRaw } from "./kwork/web-offers";
+import {
+  getProjectOffersFromWeb as getProjectOffersFromWebRaw,
+  parseOffersFromHtml,
+} from "./kwork/web-offers";
+
+export { parseOffersFromHtml };
 
 export async function getProjectOffersFromWeb(
   api: AxiosInstance,

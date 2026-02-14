@@ -2,11 +2,12 @@
  * Парсинг откликов со веб-страницы проекта Kwork (API offers не работает).
  * Server-only: использует cheerio. Импортировать из @qbs-autonaim/integration-clients/server
  */
+
+import type { AxiosInstance } from "axios";
 import axios from "axios";
 import type { Cheerio } from "cheerio";
 import * as cheerio from "cheerio";
 import type { Element } from "domhandler";
-import type { AxiosInstance } from "axios";
 import { getWebAuthToken } from "./auth";
 import {
   parseSetCookieToCookieHeader,
@@ -155,18 +156,45 @@ export async function getProjectOffersFromWeb(
     }
 
     const $ = cheerio.load(html);
-    const offersContainer = $(".offers.js-offer-list");
-    if (!offersContainer.length) {
+    const finalUrl =
+      (projectRes.request as { res?: { responseUrl?: string } })?.res
+        ?.responseUrl ?? projectUrl;
+
+    // Детекция страницы логина / редиректа на авторизацию
+    const isLoginPage =
+      /login|auth|signin|вход|авторизац/i.test(finalUrl) ||
+      $('form[action*="login"], form[action*="auth"], form[action*="signin"]')
+        .length > 0 ||
+      $('input[name="login"], input[name="email"][type="text"]').length > 0 ||
+      /вход|войти|авторизац/i.test($("title").text());
+
+    const offersContainer =
+      $(".offers.js-offer-list").length > 0
+        ? $(".offers.js-offer-list")
+        : $(".offers").length > 0
+          ? $(".offers")
+          : $(".js-offer-list").length > 0
+            ? $(".js-offer-list")
+            : null;
+
+    const offerElsFromContainer = offersContainer
+      ? offersContainer.find("[data-offer-id]")
+      : $("[data-offer-id]");
+
+    if (!offersContainer && !offerElsFromContainer.length) {
+      const pageTitle = $("title").text().trim().slice(0, 50);
+      const hint = isLoginPage
+        ? "Страница логина: требуется авторизация в Kwork"
+        : `Контейнер откликов не найден (title: ${pageTitle || "—"})`;
       return {
         success: false,
         offers: [],
         webCookies,
-        errorMessage:
-          "Контейнер откликов не найден (возможно, требуется авторизация)",
+        errorMessage: hint,
       };
     }
 
-    const offerEls = offersContainer.find("[data-offer-id]");
+    const offerEls = offerElsFromContainer;
     const offers: WebParsedOffer[] = [];
 
     offerEls.each((_, node) => {
@@ -187,4 +215,24 @@ export async function getProjectOffersFromWeb(
       webCookies,
     };
   }
+}
+
+/**
+ * Парсит HTML (после рендеринга JS) и извлекает отклики.
+ * Для использования с Puppeteer/Playwright — когда DOM уже отрисован.
+ */
+export function parseOffersFromHtml(html: string): WebParsedOffer[] {
+  const $ = cheerio.load(html);
+  const offerEls = $(
+    ".offers.js-offer-list [data-offer-id], .offers [data-offer-id], .js-offer-list [data-offer-id], [data-offer-id]",
+  );
+  const offers: WebParsedOffer[] = [];
+  offerEls.each((_, node) => {
+    const el = $(node);
+    const offerId = Number(el.attr("data-offer-id"));
+    if (offerId) {
+      offers.push(parseOfferFromCheerio(el));
+    }
+  });
+  return offers;
 }

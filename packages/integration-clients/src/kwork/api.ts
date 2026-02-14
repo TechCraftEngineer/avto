@@ -140,4 +140,8 @@ export async function getInboxMessage(
 }
 
 // Cookies (pure utils, no cheerio)
-export { cookiesToHeaderString, parseSetCookieToCookies } from "./cookies";
+export {
+  cookiesToHeaderString,
+  parseSetCookieToCookieHeader,
+  parseSetCookieToCookies,
+} from "./cookies";

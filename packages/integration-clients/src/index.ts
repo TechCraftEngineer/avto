@@ -34,6 +34,7 @@ export {
   type KworkWantPayer,
   type KworkWebAuthTokenResponse,
   type KworkWebCookie,
+  parseSetCookieToCookieHeader,
   parseSetCookieToCookies,
   sendMessage,
   signIn,

@@ -11,9 +11,9 @@ import {
 } from "@qbs-autonaim/db";
 import {
   cookiesToHeaderString,
-  getProjectOffersFromWeb,
   type WebParsedOffer,
 } from "@qbs-autonaim/integration-clients/server";
+import { getProjectOffersFromBrowser } from "@qbs-autonaim/jobs-parsers";
 import type { IntegrationErrorEvent } from "../../inngest/channels/client";
 import { executeWithKworkTokenRefresh } from "./kwork-token-refresh";
 
@@ -69,9 +69,12 @@ export async function getProjectOffersFromWebWithCache(
         cookieHeader = cookiesToHeaderString(integration.cookies);
       }
 
-      const firstResult = await getProjectOffersFromWeb(api, token, projectId, {
-        cookieHeader,
-      });
+      const firstResult = await getProjectOffersFromBrowser(
+        api,
+        token,
+        projectId,
+        { cookieHeader },
+      );
 
       if (
         firstResult.success &&
@@ -91,7 +94,7 @@ export async function getProjectOffersFromWebWithCache(
       }
 
       if (isAuthRequiredError(firstResult) || !cookieHeader) {
-        const retryResult = await getProjectOffersFromWeb(
+        const retryResult = await getProjectOffersFromBrowser(
           api,
           token,
           projectId,
