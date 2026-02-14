@@ -4,6 +4,7 @@
  */
 
 export {
+  cookiesToHeaderString,
   extractTokenFromSignInResponse,
   getDialog,
   getInboxMessage,
@@ -13,8 +14,10 @@ export {
   getOffer,
   getOffers,
   getProject,
+  getProjectOffersFromWeb,
   getProjects,
   getWant,
+  getWebAuthToken,
   isKworkAuthError,
   KWORK_ERROR_CODES,
   type KworkDetails,
@@ -28,6 +31,10 @@ export {
   type KworkProjectsParams,
   type KworkSignInParams,
   type KworkWantPayer,
+  type KworkWebAuthTokenResponse,
+  type KworkWebCookie,
+  parseSetCookieToCookies,
   sendMessage,
   signIn,
+  type WebParsedOffer,
 } from "./kwork/api";

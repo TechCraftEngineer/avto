@@ -69,14 +69,22 @@ export async function upsertIntegration(db: DbClient, data: NewIntegration) {
   return created;
 }
 
+/** Метаданные для интеграции Kwork (web cookies) */
+export const KWORK_WEB_COOKIES_SAVED_AT_KEY = "kworkWebCookiesSavedAt" as const;
+
+/** Время жизни web cookies в секундах (~50 мин, web auth token живёт 1 мин) */
+export const KWORK_WEB_COOKIES_TTL_SEC = 50 * 60;
+
 /**
- * Сохранить cookies для интеграции
+ * Сохранить cookies для интеграции.
+ * Для kwork можно передать metadataUpdate чтобы обновить kworkWebCookiesSavedAt.
  */
 export async function saveCookiesForIntegration(
   db: DbClient,
   type: string,
   cookies: Cookie[],
   workspaceId: string,
+  metadataUpdate?: Record<string, unknown>,
 ) {
   const existing = await getIntegration(db, type, workspaceId);
 
@@ -84,13 +92,27 @@ export async function saveCookiesForIntegration(
     throw new Error(`Integration ${type} not found`);
   }
 
+  const updateData: {
+    cookies: typeof integration.$inferInsert.cookies;
+    lastUsedAt: Date;
+    updatedAt: Date;
+    metadata?: Record<string, unknown>;
+  } = {
+    cookies: cookies as unknown as typeof integration.$inferInsert.cookies,
+    lastUsedAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  if (metadataUpdate) {
+    updateData.metadata = {
+      ...((existing.metadata as Record<string, unknown>) ?? {}),
+      ...metadataUpdate,
+    };
+  }
+
   await db
     .update(integration)
-    .set({
-      cookies: cookies as unknown as typeof integration.$inferInsert.cookies,
-      lastUsedAt: new Date(),
-      updatedAt: new Date(),
-    })
+    .set(updateData)
     .where(eq(integration.id, existing.id));
 }
 

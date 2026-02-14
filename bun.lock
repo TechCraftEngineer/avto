@@ -424,6 +424,7 @@
       "name": "@qbs-autonaim/integration-clients",
       "dependencies": {
         "axios": "1.13.5",
+        "cheerio": "^1.2.0",
       },
       "devDependencies": {
         "@qbs-autonaim/tsconfig": "workspace:*",
