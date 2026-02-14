@@ -1,9 +1,9 @@
-import type { DbClient } from "@qbs-autonaim/db";
+п»їimport type { DbClient } from "@qbs-autonaim/db";
 import type { CreateAuditLog } from "@qbs-autonaim/db/schema";
 import { auditLog } from "@qbs-autonaim/db/schema";
 
 /**
- * Типы событий преквалификации для аудита
+ * РўРёРїС‹ СЃРѕР±С‹С‚РёР№ РїСЂРµРєРІР°Р»РёС„РёРєР°С†РёРё РґР»СЏ Р°СѓРґРёС‚Р°
  */
 export type PrequalificationAuditEventType =
   | "session_created"
@@ -23,7 +23,7 @@ export class AuditLoggerService {
   constructor(private db: DbClient) {}
 
   /**
-   * Логирует доступ к персональным данным
+   * Р›РѕРіРёСЂСѓРµС‚ РґРѕСЃС‚СѓРї Рє РїРµСЂСЃРѕРЅР°Р»СЊРЅС‹Рј РґР°РЅРЅС‹Рј
    */
   async logAccess(params: {
     userId: string;
@@ -47,13 +47,13 @@ export class AuditLoggerService {
         userAgent: params.userAgent,
       });
     } catch (error) {
-      // Логируем ошибку, но не прерываем основной поток
+      // Р›РѕРіРёСЂСѓРµРј РѕС€РёР±РєСѓ, РЅРѕ РЅРµ РїСЂРµСЂС‹РІР°РµРј РѕСЃРЅРѕРІРЅРѕР№ РїРѕС‚РѕРє
       console.error("Failed to log audit entry:", error);
     }
   }
 
   /**
-   * Логирует просмотр отклика фрилансера
+   * Р›РѕРіРёСЂСѓРµС‚ РїСЂРѕСЃРјРѕС‚СЂ РѕС‚РєР»РёРєР° С„СЂРёР»Р°РЅСЃРµСЂР°
    */
   async logResponseView(params: {
     userId: string;
@@ -73,7 +73,7 @@ export class AuditLoggerService {
   }
 
   /**
-   * Логирует экспорт данных
+   * Р›РѕРіРёСЂСѓРµС‚ СЌРєСЃРїРѕСЂС‚ РґР°РЅРЅС‹С…
    */
   async logDataExport(params: {
     userId: string;
@@ -95,7 +95,7 @@ export class AuditLoggerService {
   }
 
   /**
-   * Логирует доступ к контактной информации
+   * Р›РѕРіРёСЂСѓРµС‚ РґРѕСЃС‚СѓРї Рє РєРѕРЅС‚Р°РєС‚РЅРѕР№ РёРЅС„РѕСЂРјР°С†РёРё
    */
   async logContactAccess(params: {
     userId: string;
@@ -116,7 +116,7 @@ export class AuditLoggerService {
   }
 
   /**
-   * Логирует доступ к резюме
+   * Р›РѕРіРёСЂСѓРµС‚ РґРѕСЃС‚СѓРї Рє СЂРµР·СЋРјРµ
    */
   async logResumeAccess(params: {
     userId: string;
@@ -135,7 +135,7 @@ export class AuditLoggerService {
   }
 
   /**
-   * Логирует доступ к разговору
+   * Р›РѕРіРёСЂСѓРµС‚ РґРѕСЃС‚СѓРї Рє СЂР°Р·РіРѕРІРѕСЂСѓ
    */
   async logConversationAccess(params: {
     userId: string;
@@ -154,7 +154,7 @@ export class AuditLoggerService {
   }
 
   /**
-   * Логирует удаление вакансии
+   * Р›РѕРіРёСЂСѓРµС‚ СѓРґР°Р»РµРЅРёРµ РІР°РєР°РЅСЃРёРё
    */
   async logVacancyDeletion(params: {
     userId: string;
@@ -175,7 +175,7 @@ export class AuditLoggerService {
   }
 
   /**
-   * Логирует ошибку для отладки и мониторинга
+   * Р›РѕРіРёСЂСѓРµС‚ РѕС€РёР±РєСѓ РґР»СЏ РѕС‚Р»Р°РґРєРё Рё РјРѕРЅРёС‚РѕСЂРёРЅРіР°
    */
   async logError(params: {
     userId?: string;
@@ -206,7 +206,7 @@ export class AuditLoggerService {
         userAgent: params.userAgent,
       });
     } catch (error) {
-      // Логируем в консоль, если не удалось записать в БД
+      // Р›РѕРіРёСЂСѓРµРј РІ РєРѕРЅСЃРѕР»СЊ, РµСЃР»Рё РЅРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РїРёСЃР°С‚СЊ РІ Р‘Р”
       console.error("Failed to log error to audit log:", error);
       console.error("Original error:", params);
     }
@@ -217,7 +217,7 @@ export class AuditLoggerService {
   // ==========================================
 
   /**
-   * Логирует создание сессии преквалификации
+   * Р›РѕРіРёСЂСѓРµС‚ СЃРѕР·РґР°РЅРёРµ СЃРµСЃСЃРёРё РїСЂРµРєРІР°Р»РёС„РёРєР°С†РёРё
    */
   async logPrequalificationSessionCreated(params: {
     sessionId: string;
@@ -244,7 +244,7 @@ export class AuditLoggerService {
   }
 
   /**
-   * Логирует получение согласия кандидата
+   * Р›РѕРіРёСЂСѓРµС‚ РїРѕР»СѓС‡РµРЅРёРµ СЃРѕРіР»Р°СЃРёСЏ РєР°РЅРґРёРґР°С‚Р°
    */
   async logPrequalificationConsentGiven(params: {
     sessionId: string;
@@ -268,7 +268,7 @@ export class AuditLoggerService {
   }
 
   /**
-   * Логирует загрузку резюме
+   * Р›РѕРіРёСЂСѓРµС‚ Р·Р°РіСЂСѓР·РєСѓ СЂРµР·СЋРјРµ
    */
   async logPrequalificationResumeUploaded(params: {
     sessionId: string;
@@ -295,7 +295,7 @@ export class AuditLoggerService {
   }
 
   /**
-   * Логирует сообщение в диалоге преквалификации
+   * Р›РѕРіРёСЂСѓРµС‚ СЃРѕРѕР±С‰РµРЅРёРµ РІ РґРёР°Р»РѕРіРµ РїСЂРµРєРІР°Р»РёС„РёРєР°С†РёРё
    */
   async logPrequalificationDialogueMessage(params: {
     sessionId: string;
@@ -322,7 +322,7 @@ export class AuditLoggerService {
   }
 
   /**
-   * Логирует начало оценки кандидата
+   * Р›РѕРіРёСЂСѓРµС‚ РЅР°С‡Р°Р»Рѕ РѕС†РµРЅРєРё РєР°РЅРґРёРґР°С‚Р°
    */
   async logPrequalificationEvaluationStarted(params: {
     sessionId: string;
@@ -346,7 +346,7 @@ export class AuditLoggerService {
   }
 
   /**
-   * Логирует завершение оценки кандидата
+   * Р›РѕРіРёСЂСѓРµС‚ Р·Р°РІРµСЂС€РµРЅРёРµ РѕС†РµРЅРєРё РєР°РЅРґРёРґР°С‚Р°
    */
   async logPrequalificationEvaluationCompleted(params: {
     sessionId: string;
@@ -374,7 +374,7 @@ export class AuditLoggerService {
   }
 
   /**
-   * Логирует подачу заявки кандидатом
+   * Р›РѕРіРёСЂСѓРµС‚ РїРѕРґР°С‡Сѓ Р·Р°СЏРІРєРё РєР°РЅРґРёРґР°С‚РѕРј
    */
   async logPrequalificationApplicationSubmitted(params: {
     sessionId: string;
@@ -402,7 +402,7 @@ export class AuditLoggerService {
   }
 
   /**
-   * Логирует истечение сессии
+   * Р›РѕРіРёСЂСѓРµС‚ РёСЃС‚РµС‡РµРЅРёРµ СЃРµСЃСЃРёРё
    */
   async logPrequalificationSessionExpired(params: {
     sessionId: string;
@@ -422,7 +422,7 @@ export class AuditLoggerService {
   }
 
   /**
-   * Логирует обновление конфигурации виджета
+   * Р›РѕРіРёСЂСѓРµС‚ РѕР±РЅРѕРІР»РµРЅРёРµ РєРѕРЅС„РёРіСѓСЂР°С†РёРё РІРёРґР¶РµС‚Р°
    */
   async logWidgetConfigUpdated(params: {
     userId: string;
@@ -448,7 +448,7 @@ export class AuditLoggerService {
   }
 
   /**
-   * Логирует регистрацию кастомного домена
+   * Р›РѕРіРёСЂСѓРµС‚ СЂРµРіРёСЃС‚СЂР°С†РёСЋ РєР°СЃС‚РѕРјРЅРѕРіРѕ РґРѕРјРµРЅР°
    */
   async logCustomDomainRegistered(params: {
     userId: string;
@@ -475,7 +475,7 @@ export class AuditLoggerService {
   }
 
   /**
-   * Логирует верификацию кастомного домена
+   * Р›РѕРіРёСЂСѓРµС‚ РІРµСЂРёС„РёРєР°С†РёСЋ РєР°СЃС‚РѕРјРЅРѕРіРѕ РґРѕРјРµРЅР°
    */
   async logCustomDomainVerified(params: {
     userId: string;
@@ -506,7 +506,7 @@ export class AuditLoggerService {
   }
 
   /**
-   * Логирует удаление кастомного домена
+   * Р›РѕРіРёСЂСѓРµС‚ СѓРґР°Р»РµРЅРёРµ РєР°СЃС‚РѕРјРЅРѕРіРѕ РґРѕРјРµРЅР°
    */
   async logCustomDomainDeleted(params: {
     userId: string;
@@ -533,7 +533,7 @@ export class AuditLoggerService {
   }
 
   /**
-   * Логирует изменение статуса сессии преквалификации
+   * Р›РѕРіРёСЂСѓРµС‚ РёР·РјРµРЅРµРЅРёРµ СЃС‚Р°С‚СѓСЃР° СЃРµСЃСЃРёРё РїСЂРµРєРІР°Р»РёС„РёРєР°С†РёРё
    */
   async logPrequalificationStatusChange(params: {
     sessionId: string;
@@ -561,7 +561,7 @@ export class AuditLoggerService {
   }
 
   /**
-   * Получает аудит-логи для workspace (для tenant isolation)
+   * РџРѕР»СѓС‡Р°РµС‚ Р°СѓРґРёС‚-Р»РѕРіРё РґР»СЏ workspace (РґР»СЏ tenant isolation)
    */
   async getWorkspaceAuditLogs(params: {
     workspaceId: string;

@@ -1,4 +1,4 @@
-import { botSettings, eq } from "@qbs-autonaim/db";
+п»їimport { botSettings, eq } from "@qbs-autonaim/db";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
@@ -13,7 +13,7 @@ export const updateOnboarding = protectedProcedure
     }),
   )
   .mutation(async ({ ctx, input }) => {
-    // Проверка доступа к workspace
+    // РџСЂРѕРІРµСЂРєР° РґРѕСЃС‚СѓРїР° Рє workspace
     const access = await ctx.workspaceRepository.checkAccess(
       input.workspaceId,
       ctx.session.user.id,
@@ -22,11 +22,11 @@ export const updateOnboarding = protectedProcedure
     if (!access || (access.role !== "owner" && access.role !== "admin")) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "Недостаточно прав для изменения настроек онбординга",
+        message: "РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РїСЂР°РІ РґР»СЏ РёР·РјРµРЅРµРЅРёСЏ РЅР°СЃС‚СЂРѕРµРє РѕРЅР±РѕСЂРґРёРЅРіР°",
       });
     }
 
-    // Проверяем существующие настройки
+    // РџСЂРѕРІРµСЂСЏРµРј СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёРµ РЅР°СЃС‚СЂРѕР№РєРё
     const existing = await ctx.db.query.botSettings.findFirst({
       where: eq(botSettings.workspaceId, input.workspaceId),
     });
@@ -50,7 +50,7 @@ export const updateOnboarding = protectedProcedure
     }
 
     if (existing) {
-      // Обновляем существующие
+      // РћР±РЅРѕРІР»СЏРµРј СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёРµ
       const [updated] = await ctx.db
         .update(botSettings)
         .set(updateData)
@@ -60,12 +60,12 @@ export const updateOnboarding = protectedProcedure
       return updated;
     }
 
-    // Создаем новые с базовыми значениями
+    // РЎРѕР·РґР°РµРј РЅРѕРІС‹Рµ СЃ Р±Р°Р·РѕРІС‹РјРё Р·РЅР°С‡РµРЅРёСЏРјРё
     const [created] = await ctx.db
       .insert(botSettings)
       .values({
         workspaceId: input.workspaceId,
-        companyName: "Моя компания", // Значение по умолчанию
+        companyName: "РњРѕСЏ РєРѕРјРїР°РЅРёСЏ", // Р—РЅР°С‡РµРЅРёРµ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
         ...updateData,
       })
       .returning();

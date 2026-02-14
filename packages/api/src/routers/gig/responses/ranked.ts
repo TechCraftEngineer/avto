@@ -1,4 +1,4 @@
-import { getAIModel } from "@qbs-autonaim/lib/ai";
+п»їimport { getAIModel } from "@qbs-autonaim/lib/ai";
 import { RankingService } from "@qbs-autonaim/shared/server";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
@@ -6,7 +6,7 @@ import { z } from "zod";
 import { protectedProcedure } from "../../../trpc";
 
 /**
- * Получение ранжированного списка кандидатов
+ * РџРѕР»СѓС‡РµРЅРёРµ СЂР°РЅР¶РёСЂРѕРІР°РЅРЅРѕРіРѕ СЃРїРёСЃРєР° РєР°РЅРґРёРґР°С‚РѕРІ
  *
  * Requirements: 5.1-5.7
  */
@@ -29,7 +29,7 @@ export const ranked = protectedProcedure
     }),
   )
   .query(async ({ ctx, input }) => {
-    // Проверка доступа к workspace
+    // РџСЂРѕРІРµСЂРєР° РґРѕСЃС‚СѓРїР° Рє workspace
     const access = await ctx.workspaceRepository.checkAccess(
       input.workspaceId,
       ctx.session.user.id,
@@ -38,18 +38,18 @@ export const ranked = protectedProcedure
     if (!access) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
+        message: "РќРµС‚ РґРѕСЃС‚СѓРїР° Рє СЌС‚РѕРјСѓ workspace",
       });
     }
 
-    // Создаем RankingService с AI конфигурацией
+    // РЎРѕР·РґР°РµРј RankingService СЃ AI РєРѕРЅС„РёРіСѓСЂР°С†РёРµР№
     const model = getAIModel();
     const rankingService = new RankingService({
       model,
       maxSteps: 5,
     });
 
-    // Получаем ранжированных кандидатов из БД
+    // РџРѕР»СѓС‡Р°РµРј СЂР°РЅР¶РёСЂРѕРІР°РЅРЅС‹С… РєР°РЅРґРёРґР°С‚РѕРІ РёР· Р‘Р”
     const result = await rankingService.getRankedCandidates(
       input.gigId,
       input.workspaceId,

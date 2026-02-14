@@ -1,13 +1,13 @@
-import { inngest } from "@qbs-autonaim/jobs/client";
+п»їimport { inngest } from "@qbs-autonaim/jobs/client";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../trpc";
 
 /**
- * Триггер пересчета рейтинга кандидатов
+ * РўСЂРёРіРіРµСЂ РїРµСЂРµСЃС‡РµС‚Р° СЂРµР№С‚РёРЅРіР° РєР°РЅРґРёРґР°С‚РѕРІ
  *
- * Отправляет событие в Inngest для фоновой обработки
+ * РћС‚РїСЂР°РІР»СЏРµС‚ СЃРѕР±С‹С‚РёРµ РІ Inngest РґР»СЏ С„РѕРЅРѕРІРѕР№ РѕР±СЂР°Р±РѕС‚РєРё
  * Requirements: 6.3
  */
 export const recalculateRanking = protectedProcedure
@@ -18,7 +18,7 @@ export const recalculateRanking = protectedProcedure
     }),
   )
   .mutation(async ({ ctx, input }) => {
-    // Проверка доступа к workspace
+    // РџСЂРѕРІРµСЂРєР° РґРѕСЃС‚СѓРїР° Рє workspace
     const access = await ctx.workspaceRepository.checkAccess(
       input.workspaceId,
       ctx.session.user.id,
@@ -27,11 +27,11 @@ export const recalculateRanking = protectedProcedure
     if (!access) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
+        message: "РќРµС‚ РґРѕСЃС‚СѓРїР° Рє СЌС‚РѕРјСѓ workspace",
       });
     }
 
-    // Отправляем событие в Inngest для фоновой обработки
+    // РћС‚РїСЂР°РІР»СЏРµРј СЃРѕР±С‹С‚РёРµ РІ Inngest РґР»СЏ С„РѕРЅРѕРІРѕР№ РѕР±СЂР°Р±РѕС‚РєРё
     try {
       await inngest.send({
         name: "gig/ranking.recalculate",
@@ -42,9 +42,9 @@ export const recalculateRanking = protectedProcedure
         },
       });
     } catch (err) {
-      // Структурированное логирование ошибки
+      // РЎС‚СЂСѓРєС‚СѓСЂРёСЂРѕРІР°РЅРЅРѕРµ Р»РѕРіРёСЂРѕРІР°РЅРёРµ РѕС€РёР±РєРё
       console.log({
-        msg: "Не удалось поставить задачу на пересчет рейтинга",
+        msg: "РќРµ СѓРґР°Р»РѕСЃСЊ РїРѕСЃС‚Р°РІРёС‚СЊ Р·Р°РґР°С‡Сѓ РЅР° РїРµСЂРµСЃС‡РµС‚ СЂРµР№С‚РёРЅРіР°",
         gigId: input.gigId,
         workspaceId: input.workspaceId,
         errorMessage: String((err as Error)?.message || err),
@@ -53,12 +53,12 @@ export const recalculateRanking = protectedProcedure
 
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
-        message: "Не удалось запустить пересчет рейтинга",
+        message: "РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РїСѓСЃС‚РёС‚СЊ РїРµСЂРµСЃС‡РµС‚ СЂРµР№С‚РёРЅРіР°",
       });
     }
 
     return {
       success: true,
-      message: "Пересчет рейтинга запущен",
+      message: "РџРµСЂРµСЃС‡РµС‚ СЂРµР№С‚РёРЅРіР° Р·Р°РїСѓС‰РµРЅ",
     };
   });

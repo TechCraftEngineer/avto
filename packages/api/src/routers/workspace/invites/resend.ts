@@ -1,4 +1,4 @@
-import { env, paths } from "@qbs-autonaim/config";
+п»їimport { env, paths } from "@qbs-autonaim/config";
 
 import { WorkspaceInviteEmail } from "@qbs-autonaim/emails";
 import { sendEmail } from "@qbs-autonaim/emails/send";
@@ -17,7 +17,7 @@ export const resend = protectedProcedure
     if (!access || (access.role !== "owner" && access.role !== "admin")) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "Недостаточно прав для отправки приглашений",
+        message: "РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РїСЂР°РІ РґР»СЏ РѕС‚РїСЂР°РІРєРё РїСЂРёРіР»Р°С€РµРЅРёР№",
       });
     }
 
@@ -29,7 +29,7 @@ export const resend = protectedProcedure
     if (!existingInvite) {
       throw new TRPCError({
         code: "NOT_FOUND",
-        message: "Приглашение не найдено",
+        message: "РџСЂРёРіР»Р°С€РµРЅРёРµ РЅРµ РЅР°Р№РґРµРЅРѕ",
       });
     }
 
@@ -38,7 +38,7 @@ export const resend = protectedProcedure
     if (!workspace) {
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
-        message: "Workspace не найден",
+        message: "Workspace РЅРµ РЅР°Р№РґРµРЅ",
       });
     }
 
@@ -46,7 +46,7 @@ export const resend = protectedProcedure
 
     await sendEmail({
       to: [input.email],
-      subject: `Приглашение в ${workspace.name}`,
+      subject: `РџСЂРёРіР»Р°С€РµРЅРёРµ РІ ${workspace.name}`,
       react: WorkspaceInviteEmail({
         workspaceName: workspace.name,
         workspaceLogo: workspace.logo || undefined,

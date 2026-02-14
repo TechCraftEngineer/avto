@@ -1,4 +1,4 @@
-import { and, eq, inArray } from "@qbs-autonaim/db";
+п»їimport { and, eq, inArray } from "@qbs-autonaim/db";
 import { response as responseTable, vacancy } from "@qbs-autonaim/db/schema";
 import { z } from "zod";
 import { protectedProcedure } from "../../trpc";
@@ -55,7 +55,7 @@ export const analytics = protectedProcedure
 
     const newThisWeek = responses.filter((r) => r.createdAt >= weekAgo).length;
 
-    // Используем единую функцию маппинга для подсчета
+    // РСЃРїРѕР»СЊР·СѓРµРј РµРґРёРЅСѓСЋ С„СѓРЅРєС†РёСЋ РјР°РїРїРёРЅРіР° РґР»СЏ РїРѕРґСЃС‡РµС‚Р°
     const byStage = {
       NEW: 0,
       REVIEW: 0,

@@ -1,4 +1,4 @@
-import { and, desc, eq } from "@qbs-autonaim/db";
+п»їimport { and, desc, eq } from "@qbs-autonaim/db";
 import { gig, response as responseTable } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
@@ -21,11 +21,11 @@ export const list = protectedProcedure
     if (!access) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
+        message: "РќРµС‚ РґРѕСЃС‚СѓРїР° Рє СЌС‚РѕРјСѓ workspace",
       });
     }
 
-    // Проверяем что gig принадлежит workspace
+    // РџСЂРѕРІРµСЂСЏРµРј С‡С‚Рѕ gig РїСЂРёРЅР°РґР»РµР¶РёС‚ workspace
     const existingGig = await ctx.db.query.gig.findFirst({
       where: and(
         eq(gig.id, input.gigId),
@@ -36,7 +36,7 @@ export const list = protectedProcedure
     if (!existingGig) {
       throw new TRPCError({
         code: "NOT_FOUND",
-        message: "Задание не найдено",
+        message: "Р—Р°РґР°РЅРёРµ РЅРµ РЅР°Р№РґРµРЅРѕ",
       });
     }
 

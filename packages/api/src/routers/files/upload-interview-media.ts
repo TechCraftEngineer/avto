@@ -1,4 +1,4 @@
-import { db } from "@qbs-autonaim/db/client";
+п»їimport { db } from "@qbs-autonaim/db/client";
 import { file, gigInterviewMedia } from "@qbs-autonaim/db/schema";
 import { uploadFile } from "@qbs-autonaim/lib/s3";
 import { uuidv7Schema, workspaceIdSchema } from "@qbs-autonaim/validators";
@@ -19,8 +19,8 @@ const ALLOWED_MIME_TYPES = [
 ];
 
 /**
- * Загрузка медиафайлов для интервью
- * Принимает base64 файл, загружает в S3 и создает запись в БД
+ * Р—Р°РіСЂСѓР·РєР° РјРµРґРёР°С„Р°Р№Р»РѕРІ РґР»СЏ РёРЅС‚РµСЂРІСЊСЋ
+ * РџСЂРёРЅРёРјР°РµС‚ base64 С„Р°Р№Р», Р·Р°РіСЂСѓР¶Р°РµС‚ РІ S3 Рё СЃРѕР·РґР°РµС‚ Р·Р°РїРёСЃСЊ РІ Р‘Р”
  */
 export const uploadInterviewMedia = protectedProcedure
   .input(
@@ -29,13 +29,13 @@ export const uploadInterviewMedia = protectedProcedure
       gigId: uuidv7Schema,
       fileName: z.string().min(1).max(500),
       mimeType: z.string().refine((type) => ALLOWED_MIME_TYPES.includes(type), {
-        message: "Неподдерживаемый тип файла",
+        message: "РќРµРїРѕРґРґРµСЂР¶РёРІР°РµРјС‹Р№ С‚РёРї С„Р°Р№Р»Р°",
       }),
       fileData: z.string().min(1), // base64
     }),
   )
   .mutation(async ({ input, ctx }) => {
-    // Проверяем доступ к workspace
+    // РџСЂРѕРІРµСЂСЏРµРј РґРѕСЃС‚СѓРї Рє workspace
     const access = await ctx.workspaceRepository.checkAccess(
       input.workspaceId,
       ctx.session.user.id,
@@ -44,11 +44,11 @@ export const uploadInterviewMedia = protectedProcedure
     if (!access) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "Нет доступа к workspace",
+        message: "РќРµС‚ РґРѕСЃС‚СѓРїР° Рє workspace",
       });
     }
 
-    // Проверяем что gig принадлежит workspace
+    // РџСЂРѕРІРµСЂСЏРµРј С‡С‚Рѕ gig РїСЂРёРЅР°РґР»РµР¶РёС‚ workspace
     const gigRecord = await ctx.db.query.gig.findFirst({
       where: (gigs, { eq }) => eq(gigs.id, input.gigId),
     });
@@ -56,38 +56,38 @@ export const uploadInterviewMedia = protectedProcedure
     if (!gigRecord) {
       throw new TRPCError({
         code: "NOT_FOUND",
-        message: "Задание не найдено",
+        message: "Р—Р°РґР°РЅРёРµ РЅРµ РЅР°Р№РґРµРЅРѕ",
       });
     }
 
     if (gigRecord.workspaceId !== input.workspaceId) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "Нет доступа к этому заданию",
+        message: "РќРµС‚ РґРѕСЃС‚СѓРїР° Рє СЌС‚РѕРјСѓ Р·Р°РґР°РЅРёСЋ",
       });
     }
 
-    // Декодируем base64
+    // Р”РµРєРѕРґРёСЂСѓРµРј base64
     let fileBuffer: Buffer;
     try {
       fileBuffer = Buffer.from(input.fileData, "base64");
     } catch {
       throw new TRPCError({
         code: "BAD_REQUEST",
-        message: "Некорректный формат файла",
+        message: "РќРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ С„РѕСЂРјР°С‚ С„Р°Р№Р»Р°",
       });
     }
 
-    // Проверяем размер
+    // РџСЂРѕРІРµСЂСЏРµРј СЂР°Р·РјРµСЂ
     if (fileBuffer.length > MAX_FILE_SIZE) {
       throw new TRPCError({
         code: "BAD_REQUEST",
-        message: `Размер файла превышает ${MAX_FILE_SIZE / 1024 / 1024}MB`,
+        message: `Р Р°Р·РјРµСЂ С„Р°Р№Р»Р° РїСЂРµРІС‹С€Р°РµС‚ ${MAX_FILE_SIZE / 1024 / 1024}MB`,
       });
     }
 
     try {
-      // Загружаем в S3
+      // Р—Р°РіСЂСѓР¶Р°РµРј РІ S3
       const key = await uploadFile(
         fileBuffer,
         input.fileName,
@@ -95,7 +95,7 @@ export const uploadInterviewMedia = protectedProcedure
         "interview-media",
       );
 
-      // Создаем запись файла в БД
+      // РЎРѕР·РґР°РµРј Р·Р°РїРёСЃСЊ С„Р°Р№Р»Р° РІ Р‘Р”
       const [fileRecord] = await db
         .insert(file)
         .values({
@@ -110,11 +110,11 @@ export const uploadInterviewMedia = protectedProcedure
       if (!fileRecord) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Не удалось создать запись файла",
+          message: "РќРµ СѓРґР°Р»РѕСЃСЊ СЃРѕР·РґР°С‚СЊ Р·Р°РїРёСЃСЊ С„Р°Р№Р»Р°",
         });
       }
 
-      // Связываем файл с gig через join-таблицу
+      // РЎРІСЏР·С‹РІР°РµРј С„Р°Р№Р» СЃ gig С‡РµСЂРµР· join-С‚Р°Р±Р»РёС†Сѓ
       await db.insert(gigInterviewMedia).values({
         gigId: input.gigId,
         fileId: fileRecord.id,
@@ -132,7 +132,7 @@ export const uploadInterviewMedia = protectedProcedure
       }
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
-        message: "Ошибка при загрузке файла",
+        message: "РћС€РёР±РєР° РїСЂРё Р·Р°РіСЂСѓР·РєРµ С„Р°Р№Р»Р°",
       });
     }
   });
