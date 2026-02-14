@@ -1,48 +1,91 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { APP_CONFIG } from "@qbs-autonaim/config";
 import {
   Button,
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
   Input,
-  Label,
   Textarea,
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@qbs-autonaim/ui";
+import { createOrganizationSchema } from "@qbs-autonaim/validators";
+import slugify from "@sindresorhus/slugify";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Building2, HelpCircle, Loader2 } from "lucide-react";
-import type { FormEvent } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
+import { useTRPC } from "~/trpc/react";
+
+type OrganizationFormValues = z.infer<typeof createOrganizationSchema>;
 
 interface OrganizationFormProps {
-  name: string;
-  slug: string;
-  description: string;
-  website: string;
-  isGeneratingSlug: boolean;
-  isPending: boolean;
-  error: string | null;
-  onNameChange: (value: string) => void;
-  onSlugChange: (value: string) => void;
-  onDescriptionChange: (value: string) => void;
-  onWebsiteChange: (value: string) => void;
-  onSubmit: (e: FormEvent) => void;
+  onSuccess?: (organization: { id: string; slug: string; name: string }) => void;
 }
 
-export function OrganizationForm({
-  name,
-  slug,
-  description,
-  website,
-  isPending,
-  error,
-  onNameChange,
-  onSlugChange,
-  onDescriptionChange,
-  onWebsiteChange,
-  onSubmit,
-}: OrganizationFormProps) {
+export function OrganizationForm({ onSuccess }: OrganizationFormProps) {
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
   const appDomain = new URL(APP_CONFIG.url).host;
+
+  const form = useForm<OrganizationFormValues>({
+    resolver: zodResolver(createOrganizationSchema),
+    defaultValues: {
+      name: "",
+      slug: "",
+      description: "",
+      website: "",
+    },
+  });
+
+  const createMutation = useMutation(
+    trpc.organization.create.mutationOptions({
+      onSuccess: (organization) => {
+        toast.success("Организация создана", {
+          description: `Организация "${organization.name}" успешно создана`,
+        });
+        void queryClient.invalidateQueries(trpc.organization.list.pathFilter());
+        onSuccess?.({
+          id: organization.id,
+          slug: organization.slug,
+          name: organization.name,
+        });
+      },
+      onError: (error) => {
+        if (
+          error.message.includes("уже существует") ||
+          error.message.includes("already exists") ||
+          error.message.includes("duplicate") ||
+          error.message.includes("CONFLICT")
+        ) {
+          form.setError("slug", {
+            message: "Организация с таким слагом уже существует. Попробуйте другой слаг.",
+          });
+        } else {
+          toast.error("Ошибка при создании организации", {
+            description: error.message,
+          });
+        }
+      },
+    }),
+  );
+
+  const handleNameChange = (name: string) => {
+    form.setValue("name", name);
+    if (!form.formState.dirtyFields.slug) {
+      form.setValue("slug", slugify(name));
+    }
+  };
 
   return (
     <>
@@ -57,120 +100,155 @@ export function OrganizationForm({
         </p>
       </div>
 
-      <form
-        onSubmit={onSubmit}
-        className="space-y-6 rounded-xl border bg-card p-8 shadow-lg backdrop-blur-sm"
-      >
-        <div className="space-y-2">
-          <Label htmlFor="name">Название организации</Label>
-          <Input
-            id="name"
-            name="organization-name"
-            placeholder="Моя компания"
-            value={name}
-            onChange={(e) => onNameChange(e.target.value)}
-            required
-            maxLength={100}
-            autoFocus
-            autoComplete="organization"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <div className="flex items-center gap-1.5">
-            <Label htmlFor="slug">Слаг организации</Label>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    type="button"
-                    className="text-muted-foreground inline-flex"
-                    aria-label="Информация о слаге"
-                  >
-                    <HelpCircle className="size-4" aria-hidden="true" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent className="max-w-xs">
-                  <p>
-                    Слаг — это уникальный идентификатор для адреса. Например,
-                    для организации "Моя Компания" слаг может быть
-                    "moya-kompaniya". Используется только латиница, цифры и
-                    дефисы.
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-          <div className="flex items-stretch overflow-hidden rounded-md border">
-            <div className="bg-muted text-muted-foreground flex items-center px-3 text-sm">
-              {appDomain}/orgs/
-            </div>
-            <Input
-              id="slug"
-              name="organization-slug"
-              placeholder="пример-организации…"
-              value={slug}
-              onChange={(e) => onSlugChange(e.target.value)}
-              required
-              maxLength={50}
-              pattern="[a-z0-9-]+"
-              title="Только строчные буквы, цифры и дефис"
-              className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-              autoComplete="off"
-              spellCheck={false}
-            />
-          </div>
-          <p className="text-muted-foreground text-xs">
-            Вы сможете изменить это позже в настройках организации.
-          </p>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="description">Описание (опционально)</Label>
-          <Textarea
-            id="description"
-            name="organization-description"
-            placeholder="Краткое описание организации…"
-            value={description}
-            onChange={(e) => onDescriptionChange(e.target.value)}
-            rows={3}
-            maxLength={500}
-            className="resize-none"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="website">Веб-сайт (опционально)</Label>
-          <Input
-            id="website"
-            name="organization-website"
-            type="url"
-            placeholder="https://пример.рф…"
-            value={website}
-            onChange={(e) => onWebsiteChange(e.target.value)}
-            maxLength={200}
-            autoComplete="url"
-          />
-        </div>
-
-        {error && (
-          <p className="text-destructive text-sm" role="alert">
-            {error}
-          </p>
-        )}
-
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={isPending}
-          aria-busy={isPending}
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit((values) => createMutation.mutate(values))}
+          className="space-y-6 rounded-xl border bg-card p-8 shadow-lg backdrop-blur-sm"
         >
-          {isPending && (
-            <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />
-          )}
-          Создать организацию
-        </Button>
-      </form>
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Название организации</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Моя компания"
+                    autoFocus
+                    autoComplete="organization"
+                    maxLength={100}
+                    {...field}
+                    onChange={(e) => handleNameChange(e.target.value)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="slug"
+            render={({ field }) => (
+              <FormItem>
+                <div className="flex items-center gap-1.5">
+                  <FormLabel>Слаг организации</FormLabel>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          type="button"
+                          className="text-muted-foreground inline-flex"
+                          aria-label="Информация о слаге"
+                        >
+                          <HelpCircle className="size-4" aria-hidden="true" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p>
+                          Слаг — это уникальный идентификатор для адреса.
+                          Например, для организации &quot;Моя Компания&quot; слаг
+                          может быть &quot;moya-kompaniya&quot;. Используется
+                          только латиница, цифры и дефисы.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <FormControl>
+                  <div className="flex items-stretch overflow-hidden rounded-md border">
+                    <div className="bg-muted text-muted-foreground flex items-center px-3 text-sm">
+                      {appDomain}/orgs/
+                    </div>
+                    <Input
+                      placeholder="пример-организации…"
+                      maxLength={50}
+                      pattern="[a-z0-9-]+"
+                      title="Только строчные буквы, цифры и дефис"
+                      className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                      autoComplete="off"
+                      spellCheck={false}
+                      {...field}
+                      onChange={(e) =>
+                        form.setValue("slug", e.target.value, {
+                          shouldDirty: true,
+                        })
+                      }
+                    />
+                  </div>
+                </FormControl>
+                <FormDescription>
+                  Вы сможете изменить это позже в настройках организации.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Описание (опционально)</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Краткое описание организации…"
+                    rows={3}
+                    maxLength={500}
+                    className="resize-none"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="website"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Веб-сайт (опционально)</FormLabel>
+                <FormControl>
+                  <Input
+                    type="url"
+                    placeholder="https://пример.рф…"
+                    maxLength={200}
+                    autoComplete="url"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={
+              createMutation.isPending ||
+              !form.watch("name") ||
+              !form.watch("slug")
+            }
+            aria-busy={createMutation.isPending}
+          >
+            {createMutation.isPending ? (
+              <>
+                <Loader2
+                  className="mr-2 size-4 animate-spin"
+                  aria-hidden="true"
+                />
+                Создание…
+              </>
+            ) : (
+              "Создать организацию"
+            )}
+          </Button>
+        </form>
+      </Form>
     </>
   );
 }
