@@ -47,7 +47,9 @@ function getPlanLabel(plan?: string | null) {
   return PLAN_LABELS[plan ?? "free"] ?? "Бесплатный";
 }
 
-function getPlanBadgeVariant(plan?: string | null): "secondary" | "default" | "outline" {
+function getPlanBadgeVariant(
+  plan?: string | null,
+): "secondary" | "default" | "outline" {
   if (plan === "pro") return "default";
   if (plan === "enterprise") return "default";
   if (plan === "starter") return "outline";
@@ -269,9 +271,7 @@ export function WorkspaceSwitcher({
                   }}
                 >
                   <IconCreditCard className="size-4" />
-                  <span className="font-medium text-sm">
-                    Тариф и оплата
-                  </span>
+                  <span className="font-medium text-sm">Тариф и оплата</span>
                 </DropdownMenuItem>
               </div>
             </div>

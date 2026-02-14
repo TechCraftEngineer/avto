@@ -54,10 +54,7 @@ export function useAnalyzeSingleResponse({
           message.data,
         );
         if (!parseResult.success) {
-          console.error(
-            "Ошибка валидации progress data:",
-            parseResult.error,
-          );
+          console.error("Ошибка валидации progress data:", parseResult.error);
           continue;
         }
         const progressData = parseResult.data;
@@ -71,14 +68,9 @@ export function useAnalyzeSingleResponse({
           setAnalysisError(null);
         }
       } else if (message.topic === "result") {
-        const parseResult = analyzeResponseResultSchema.safeParse(
-          message.data,
-        );
+        const parseResult = analyzeResponseResultSchema.safeParse(message.data);
         if (!parseResult.success) {
-          console.error(
-            "Ошибка валидации result data:",
-            parseResult.error,
-          );
+          console.error("Ошибка валидации result data:", parseResult.error);
           continue;
         }
         const resultData = parseResult.data;

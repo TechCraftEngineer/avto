@@ -65,7 +65,10 @@ const MODE_CONFIG: Record<SyncMode, ModeConfig> = {
   },
 };
 
-export function getModeConfig(mode: SyncMode, totalResponses?: number): ModeConfig {
+export function getModeConfig(
+  mode: SyncMode,
+  totalResponses?: number,
+): ModeConfig {
   const config = { ...MODE_CONFIG[mode] };
 
   if (mode === "analyze" && totalResponses !== undefined) {

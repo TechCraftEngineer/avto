@@ -131,7 +131,9 @@ export interface UseColumnVisibilityReturn {
   readonly resetColumns: () => void;
   readonly isColumnVisible: (columnId: ColumnId) => boolean;
   readonly columnOrder: ColumnId[];
-  readonly setColumnOrder: (order: ColumnId[] | ((prev: ColumnId[]) => ColumnId[])) => void;
+  readonly setColumnOrder: (
+    order: ColumnId[] | ((prev: ColumnId[]) => ColumnId[]),
+  ) => void;
 }
 
 export function useColumnVisibility(): UseColumnVisibilityReturn {

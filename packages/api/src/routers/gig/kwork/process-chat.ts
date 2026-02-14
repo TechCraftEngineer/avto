@@ -64,7 +64,10 @@ export const processChat = protectedProcedure
       });
     }
 
-    const profileData = response.profileData as { kworkWorkerId?: number } | null | undefined;
+    const profileData = response.profileData as
+      | { kworkWorkerId?: number }
+      | null
+      | undefined;
     if (!profileData?.kworkWorkerId) {
       throw new TRPCError({
         code: "BAD_REQUEST",

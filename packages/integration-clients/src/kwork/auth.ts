@@ -120,7 +120,11 @@ export async function getWebAuthToken(
         : "getWebAuthToken";
 
     const response = await api.post<
-      | { success?: boolean; response?: KworkWebAuthTokenResponse; code?: number }
+      | {
+          success?: boolean;
+          response?: KworkWebAuthTokenResponse;
+          code?: number;
+        }
       | KworkErrorResponse
     >(url, body.toString());
 

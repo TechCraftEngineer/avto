@@ -128,7 +128,10 @@ export async function fetchSyncArchivedVacancyResponsesToken(
     });
     return token;
   } catch (error) {
-    console.error("Ошибка получения токена синхронизации архивных откликов:", error);
+    console.error(
+      "Ошибка получения токена синхронизации архивных откликов:",
+      error,
+    );
     throw error;
   }
 }

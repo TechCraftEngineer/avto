@@ -104,9 +104,7 @@ describe("ArchivedVacanciesSelector", () => {
     );
 
     const w = within(container);
-    const searchInput = w.getByPlaceholderText(
-      "Поиск по названию вакансии...",
-    );
+    const searchInput = w.getByPlaceholderText("Поиск по названию вакансии...");
     fireEvent.change(searchInput, { target: { value: "TypeScript" } });
 
     await waitFor(() => {

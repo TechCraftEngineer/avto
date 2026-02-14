@@ -6,7 +6,10 @@ import {
   importNewGigsChannel,
 } from "@qbs-autonaim/jobs/channels";
 import { inngest } from "@qbs-autonaim/jobs/client";
-import { GigImportByUrlSchema, workspaceIdSchema } from "@qbs-autonaim/validators";
+import {
+  GigImportByUrlSchema,
+  workspaceIdSchema,
+} from "@qbs-autonaim/validators";
 import { z } from "zod";
 
 const workspaceValidationSchema = z.object({
@@ -75,9 +78,7 @@ export async function fetchImportGigByUrlToken(
 /**
  * Server action для запуска импорта новых gigs
  */
-export async function triggerImportNewGigs(
-  workspaceId: string,
-): Promise<void> {
+export async function triggerImportNewGigs(workspaceId: string): Promise<void> {
   const validationResult = workspaceValidationSchema.safeParse({ workspaceId });
 
   if (!validationResult.success) {

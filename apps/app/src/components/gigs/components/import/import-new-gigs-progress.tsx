@@ -1,6 +1,9 @@
 "use client";
 
-import { InngestSubscriptionState, useInngestSubscription } from "@bunworks/inngest-realtime/hooks";
+import {
+  InngestSubscriptionState,
+  useInngestSubscription,
+} from "@bunworks/inngest-realtime/hooks";
 import {
   Button,
   Card,

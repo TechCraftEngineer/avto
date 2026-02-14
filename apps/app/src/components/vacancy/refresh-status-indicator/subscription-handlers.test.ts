@@ -24,9 +24,14 @@ const createContext = () => ({
   trpc: {
     vacancy: {
       responses: {
-        list: { queryKey: (i: { vacancyId: string }) => ["responses", i.vacancyId] },
+        list: {
+          queryKey: (i: { vacancyId: string }) => ["responses", i.vacancyId],
+        },
         getRefreshStatus: {
-          queryKey: (i: { vacancyId: string }) => ["refreshStatus", i.vacancyId],
+          queryKey: (i: { vacancyId: string }) => [
+            "refreshStatus",
+            i.vacancyId,
+          ],
         },
       },
     },
@@ -64,7 +69,10 @@ describe("handleArchivedProgress", () => {
       },
     };
 
-    handleArchivedProgress(message, context as unknown as MessageHandlerContext);
+    handleArchivedProgress(
+      message,
+      context as unknown as MessageHandlerContext,
+    );
 
     expect(mockSetArchivedStatus).toHaveBeenCalledWith({
       status: "processing",
@@ -86,7 +94,10 @@ describe("handleArchivedProgress", () => {
       },
     };
 
-    handleArchivedProgress(message, context as unknown as MessageHandlerContext);
+    handleArchivedProgress(
+      message,
+      context as unknown as MessageHandlerContext,
+    );
 
     expect(mockSetAutoCloseTimer).toHaveBeenCalled();
   });
@@ -101,7 +112,10 @@ describe("handleArchivedProgress", () => {
       },
     };
 
-    handleArchivedProgress(message, context as unknown as MessageHandlerContext);
+    handleArchivedProgress(
+      message,
+      context as unknown as MessageHandlerContext,
+    );
 
     expect(mockSetArchivedStatus).not.toHaveBeenCalled();
   });

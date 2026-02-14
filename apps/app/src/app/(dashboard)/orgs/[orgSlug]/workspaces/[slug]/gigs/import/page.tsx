@@ -74,20 +74,26 @@ export default function GigsImportPage() {
           </h3>
           <ul className="space-y-2 text-sm text-amber-800 dark:text-amber-200">
             <li className="flex gap-2">
-              <span className="mt-0.5 text-amber-600 dark:text-amber-400">•</span>
+              <span className="mt-0.5 text-amber-600 dark:text-amber-400">
+                •
+              </span>
               <span>
                 Для импорта необходима настроенная интеграция с
                 фриланс-платформой
               </span>
             </li>
             <li className="flex gap-2">
-              <span className="mt-0.5 text-amber-600 dark:text-amber-400">•</span>
+              <span className="mt-0.5 text-amber-600 dark:text-amber-400">
+                •
+              </span>
               <span>
                 Существующие проекты будут обновлены, дубликаты не создаются
               </span>
             </li>
             <li className="flex gap-2">
-              <span className="mt-0.5 text-amber-600 dark:text-amber-400">•</span>
+              <span className="mt-0.5 text-amber-600 dark:text-amber-400">
+                •
+              </span>
               <span>
                 Для импорта по ссылке используйте прямую ссылку на проект
                 (например, https://kwork.ru/project/12345)

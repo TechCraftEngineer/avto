@@ -17,7 +17,11 @@ export function hasData(params: {
   analyzeProgress: AnalyzeProgressData | null;
   analyzeCompleted: AnalyzeCompletedData | null;
   externalMessage?: string;
-  externalProgress?: { total: number; processed: number; failed: number } | null;
+  externalProgress?: {
+    total: number;
+    processed: number;
+    failed: number;
+  } | null;
 }): boolean {
   return match(params)
     .with({ currentProgress: P.not(P.nullish) }, () => true)
@@ -53,7 +57,11 @@ export function useRefreshVisibility(params: {
     analyzeProgress: AnalyzeProgressData | null;
     analyzeCompleted: AnalyzeCompletedData | null;
     externalMessage?: string;
-    externalProgress?: { total: number; processed: number; failed: number } | null;
+    externalProgress?: {
+      total: number;
+      processed: number;
+      failed: number;
+    } | null;
     isConnecting: boolean;
   }): boolean {
     return (

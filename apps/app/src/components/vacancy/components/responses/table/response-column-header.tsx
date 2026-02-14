@@ -11,7 +11,10 @@ interface ResponseColumnHeaderProps {
   label: React.ReactNode;
 }
 
-export function ResponseColumnHeader({ context, label }: ResponseColumnHeaderProps) {
+export function ResponseColumnHeader({
+  context,
+  label,
+}: ResponseColumnHeaderProps) {
   const { column, table } = context;
   const meta = table.options.meta as ResponseTableMeta;
   const sortField = (column.columnDef.meta as { sortField?: SortField })

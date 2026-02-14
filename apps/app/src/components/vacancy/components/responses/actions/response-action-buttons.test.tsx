@@ -120,7 +120,9 @@ describe("ResponseActionButtons", () => {
       expect(
         within(container).getByRole("button", { name: /Обновить отклики/i }),
       ).toBeDefined();
-      expect(within(container).queryByText(/Загрузить архивные отклики/i)).toBeNull();
+      expect(
+        within(container).queryByText(/Загрузить архивные отклики/i),
+      ).toBeNull();
     });
   });
 });

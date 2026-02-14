@@ -17,7 +17,12 @@ import {
   Textarea,
 } from "@qbs-autonaim/ui";
 import { paths } from "@qbs-autonaim/config";
-import { IconAlertCircle, IconCheck, IconInfoCircle, IconLoader2 } from "@tabler/icons-react";
+import {
+  IconAlertCircle,
+  IconCheck,
+  IconInfoCircle,
+  IconLoader2,
+} from "@tabler/icons-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -229,20 +234,13 @@ export default function ImportResponsesPage() {
           <IconInfoCircle className="size-4" aria-hidden="true" />
           <AlertTitle>Лимиты бесплатного тарифа</AlertTitle>
           <AlertDescription>
-            <p className="mb-2">
-              На бесплатном тарифе действуют ограничения:
-            </p>
+            <p className="mb-2">На бесплатном тарифе действуют ограничения:</p>
             <ul className="list-disc list-inside space-y-1 text-sm">
-              <li>
-                До {FREE_PLAN_LIMITS.responsesPerMonth} откликов в месяц
-              </li>
-              <li>
-                {FREE_PLAN_LIMITS.activeVacancies} активная вакансия
-              </li>
+              <li>До {FREE_PLAN_LIMITS.responsesPerMonth} откликов в месяц</li>
+              <li>{FREE_PLAN_LIMITS.activeVacancies} активная вакансия</li>
             </ul>
             <p className="mt-2">
-              Учитывайте лимиты при импорте — лишние отклики не будут
-              добавлены.{" "}
+              Учитывайте лимиты при импорте — лишние отклики не будут добавлены.{" "}
               <Link
                 href={paths.organization.settings.billing(orgSlug ?? "")}
                 className="font-medium underline hover:no-underline"

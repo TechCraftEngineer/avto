@@ -10,7 +10,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import type { ColumnId } from "../types";
-import { VacancyResponsesProvider, useVacancyOperation } from "../context/vacancy-responses-context";
+import {
+  VacancyResponsesProvider,
+  useVacancyOperation,
+} from "../context/vacancy-responses-context";
 import { StatusIndicators } from "../status-indicators";
 import { ResponseTableToolbar } from "../table/response-table-toolbar";
 
@@ -164,7 +167,8 @@ describe("скрининг новых откликов — один WebSocket", 
 
     // 4. Считаем вызовы useInngestSubscription с enabled=true
     const callsWithEnabled = mockUseInngestSubscription.mock.calls.filter(
-      (call: unknown[]) => (call?.[0] as { enabled?: boolean })?.enabled === true,
+      (call: unknown[]) =>
+        (call?.[0] as { enabled?: boolean })?.enabled === true,
     );
     expect(
       callsWithEnabled.length,

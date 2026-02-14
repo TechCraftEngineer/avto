@@ -117,7 +117,10 @@ describe("checkActiveTask", () => {
 
 describe("checkMatchingMode", () => {
   it("должен возвращать true для archived режима с sync-archived событием", () => {
-    const result = checkMatchingMode("archived", "vacancy/responses.sync-archived");
+    const result = checkMatchingMode(
+      "archived",
+      "vacancy/responses.sync-archived",
+    );
     expect(result).toBe(true);
   });
 
@@ -132,7 +135,10 @@ describe("checkMatchingMode", () => {
   });
 
   it("должен возвращать false для refresh режима с другим событием", () => {
-    const result = checkMatchingMode("refresh", "vacancy/responses.sync-archived");
+    const result = checkMatchingMode(
+      "refresh",
+      "vacancy/responses.sync-archived",
+    );
     expect(result).toBe(false);
   });
 

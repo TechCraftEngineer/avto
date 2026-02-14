@@ -80,9 +80,7 @@ export class NumerologyAgent extends BaseAgent<
     const { birthDate, candidateName, vacancy } = input;
 
     const formattedDate = this.formatDate(birthDate);
-    const candidateInfo = candidateName
-      ? `Кандидат: ${candidateName}\n`
-      : "";
+    const candidateInfo = candidateName ? `Кандидат: ${candidateName}\n` : "";
 
     return `${candidateInfo}Дата рождения: ${formattedDate}
 

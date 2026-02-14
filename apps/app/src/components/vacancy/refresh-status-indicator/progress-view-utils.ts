@@ -114,10 +114,7 @@ export function getProgressTitle(params: {
       },
       () => "Запуск получения откликов…",
     )
-    .with(
-      { currentProgress: { status: "started" } },
-      () => "Задание в очереди",
-    )
+    .with({ currentProgress: { status: "started" } }, () => "Задание в очереди")
     .with(
       { currentProgress: { status: "processing" } },
       () => "Получение откликов",

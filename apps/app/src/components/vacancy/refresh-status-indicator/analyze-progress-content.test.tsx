@@ -4,7 +4,9 @@ import { AnalyzeProgressContent } from "./analyze-progress-content";
 
 describe("AnalyzeProgressContent", () => {
   it("должен возвращать null когда нет progress и completed", () => {
-    const { container } = render(<AnalyzeProgressContent progress={null} completed={null} />);
+    const { container } = render(
+      <AnalyzeProgressContent progress={null} completed={null} />,
+    );
     expect(container.firstChild).toBeNull();
   });
 

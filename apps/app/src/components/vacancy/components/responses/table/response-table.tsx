@@ -27,10 +27,7 @@ import { useRefreshSubscription } from "../hooks/use-refresh-subscription";
 import { useResponseActions } from "../hooks/use-response-actions";
 import { useResponseTable } from "../hooks/use-response-table";
 import { EmptyState } from "../ui/empty-state";
-import {
-  responseColumns,
-  type ResponseTableMeta,
-} from "./response-columns";
+import { responseColumns, type ResponseTableMeta } from "./response-columns";
 import { ResponseTableToolbar } from "./response-table-toolbar";
 
 interface ResponseTableProps {

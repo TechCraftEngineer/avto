@@ -18,7 +18,11 @@ describe("hasData", () => {
   it("должен возвращать true когда есть currentProgress", () => {
     const result = hasData({
       ...baseParams,
-      currentProgress: { status: "processing", message: "Тест", vacancyId: "v1" },
+      currentProgress: {
+        status: "processing",
+        message: "Тест",
+        vacancyId: "v1",
+      },
     });
     expect(result).toBe(true);
   });
@@ -26,7 +30,12 @@ describe("hasData", () => {
   it("должен возвращать true когда есть currentResult", () => {
     const result = hasData({
       ...baseParams,
-      currentResult: { success: true, vacancyId: "v1", newCount: 5, totalResponses: 100 },
+      currentResult: {
+        success: true,
+        vacancyId: "v1",
+        newCount: 5,
+        totalResponses: 100,
+      },
     });
     expect(result).toBe(true);
   });
@@ -34,7 +43,11 @@ describe("hasData", () => {
   it("должен возвращать true когда есть archivedStatus", () => {
     const result = hasData({
       ...baseParams,
-      archivedStatus: { status: "processing", message: "Тест", vacancyId: "v1" },
+      archivedStatus: {
+        status: "processing",
+        message: "Тест",
+        vacancyId: "v1",
+      },
     });
     expect(result).toBe(true);
   });
@@ -42,7 +55,12 @@ describe("hasData", () => {
   it("должен возвращать true когда есть analyzeProgress", () => {
     const result = hasData({
       ...baseParams,
-      analyzeProgress: { vacancyId: "v1", total: 100, processed: 50, failed: 2 },
+      analyzeProgress: {
+        vacancyId: "v1",
+        total: 100,
+        processed: 50,
+        failed: 2,
+      },
     });
     expect(result).toBe(true);
   });
@@ -50,7 +68,12 @@ describe("hasData", () => {
   it("должен возвращать true когда есть analyzeCompleted", () => {
     const result = hasData({
       ...baseParams,
-      analyzeCompleted: { vacancyId: "v1", total: 100, processed: 100, failed: 0 },
+      analyzeCompleted: {
+        vacancyId: "v1",
+        total: 100,
+        processed: 100,
+        failed: 0,
+      },
     });
     expect(result).toBe(true);
   });

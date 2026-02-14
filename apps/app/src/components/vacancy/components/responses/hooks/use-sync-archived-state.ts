@@ -3,7 +3,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useVacancyOperation, useVacancyResponses } from "../context/vacancy-responses-context";
+import {
+  useVacancyOperation,
+  useVacancyResponses,
+} from "../context/vacancy-responses-context";
 
 export interface SyncArchivedStateData {
   vacancyId: string;

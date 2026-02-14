@@ -64,8 +64,8 @@ export function mapScreeningToOutput(screening: ResponseScreening | null) {
             screening.psychometricAnalysis.summary == null
               ? null
               : sanitizeHtml(screening.psychometricAnalysis.summary),
-          strengths: (screening.psychometricAnalysis.strengths ?? []).map(
-            (s) => sanitizeHtml(s),
+          strengths: (screening.psychometricAnalysis.strengths ?? []).map((s) =>
+            sanitizeHtml(s),
           ),
           challenges: (screening.psychometricAnalysis.challenges ?? []).map(
             (c) => sanitizeHtml(c),

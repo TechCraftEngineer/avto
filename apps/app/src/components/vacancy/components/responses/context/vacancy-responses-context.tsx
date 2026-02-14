@@ -58,11 +58,19 @@ interface VacancyResponsesContextValue {
 
   // Колбэки при анализе всех откликов (screen-all)
   registerOnScreenAllProgress: (
-    cb: ((message: string, progress: { total: number; processed: number; failed: number } | null) => void) | null,
+    cb:
+      | ((
+          message: string,
+          progress: { total: number; processed: number; failed: number } | null,
+        ) => void)
+      | null,
   ) => void;
   registerOnScreenAllComplete: (cb: (() => void) | null) => void;
   getOnScreenAllProgress: () =>
-    | ((message: string, progress: { total: number; processed: number; failed: number } | null) => void)
+    | ((
+        message: string,
+        progress: { total: number; processed: number; failed: number } | null,
+      ) => void)
     | null;
   getOnScreenAllComplete: () => (() => void) | null;
 }
@@ -94,7 +102,11 @@ export function VacancyResponsesProvider({
   const handlersRef = useRef<Partial<Record<OperationType, () => void>>>({});
   const onArchivedSyncCompleteRef = useRef<(() => void) | null>(null);
   const onScreenAllProgressRef = useRef<
-    ((message: string, progress: { total: number; processed: number; failed: number } | null) => void) | null
+    | ((
+        message: string,
+        progress: { total: number; processed: number; failed: number } | null,
+      ) => void)
+    | null
   >(null);
   const onScreenAllCompleteRef = useRef<(() => void) | null>(null);
 
@@ -170,19 +182,25 @@ export function VacancyResponsesProvider({
 
   const registerOnScreenAllProgress = useCallback(
     (
-      cb: ((message: string, progress: { total: number; processed: number; failed: number } | null) => void) | null,
+      cb:
+        | ((
+            message: string,
+            progress: {
+              total: number;
+              processed: number;
+              failed: number;
+            } | null,
+          ) => void)
+        | null,
     ) => {
       onScreenAllProgressRef.current = cb;
     },
     [],
   );
 
-  const registerOnScreenAllComplete = useCallback(
-    (cb: (() => void) | null) => {
-      onScreenAllCompleteRef.current = cb;
-    },
-    [],
-  );
+  const registerOnScreenAllComplete = useCallback((cb: (() => void) | null) => {
+    onScreenAllCompleteRef.current = cb;
+  }, []);
 
   const getOnScreenAllProgress = useCallback(
     () => onScreenAllProgressRef.current,

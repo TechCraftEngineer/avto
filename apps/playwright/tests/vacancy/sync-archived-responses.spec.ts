@@ -32,9 +32,9 @@ test.describe("Синхронизация архивных откликов", ()
       `/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies/${vacancyId}/responses`,
     );
 
-    await expect(
-      page.getByRole("heading", { name: /отклики/i }),
-    ).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole("heading", { name: /отклики/i })).toBeVisible({
+      timeout: 15000,
+    });
 
     await expect(
       page.getByRole("button", { name: /загрузить архивные отклики/i }),
@@ -48,9 +48,9 @@ test.describe("Синхронизация архивных откликов", ()
       `/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies/${vacancyId}/responses`,
     );
 
-    await expect(
-      page.getByText(/отклики ещё не загружены/i),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/отклики ещё не загружены/i)).toBeVisible({
+      timeout: 10000,
+    });
 
     await expect(
       page.getByText(
@@ -123,8 +123,8 @@ test.describe("Синхронизация архивных откликов", ()
     await page.getByRole("button", { name: /начать синхронизацию/i }).click();
 
     // Ожидаем toast — успешный запуск или сообщение об ошибке (если Inngest недоступен)
-    await expect(
-      page.getByText(/архивн.*отклик|отклик.*архивн/i),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/архивн.*отклик|отклик.*архивн/i)).toBeVisible({
+      timeout: 10000,
+    });
   });
 });

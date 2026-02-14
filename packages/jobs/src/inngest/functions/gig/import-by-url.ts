@@ -1,6 +1,9 @@
 import { and, db, eq } from "@qbs-autonaim/db";
 import { gig } from "@qbs-autonaim/db/schema";
-import { getWant, type KworkWantPayer } from "@qbs-autonaim/integration-clients";
+import {
+  getWant,
+  type KworkWantPayer,
+} from "@qbs-autonaim/integration-clients";
 import { GigImportByUrlSchema } from "@qbs-autonaim/validators";
 import { executeWithKworkTokenRefresh } from "../../../services/kwork";
 import { importGigByUrlChannel } from "../../channels/client";

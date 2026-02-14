@@ -20,7 +20,9 @@ export function useGigPlatformIntegration(workspaceId: string) {
       integrations?.filter(
         (int) =>
           int.isActive &&
-          GIG_IMPORT_PLATFORMS.includes(int.type as (typeof GIG_IMPORT_PLATFORMS)[number]),
+          GIG_IMPORT_PLATFORMS.includes(
+            int.type as (typeof GIG_IMPORT_PLATFORMS)[number],
+          ),
       ) ?? [],
     [integrations],
   );

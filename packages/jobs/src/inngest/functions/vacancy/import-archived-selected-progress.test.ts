@@ -114,7 +114,9 @@ describe("Логика подсчётов progress в import-archived-selected",
         const word = pluralizeVacancy(vacancyListLength);
         const message = `Обработано ${index + 1} из ${vacancyListLength} ${word}`;
         const processed = index + 1;
-        expect(message).toBe(`Обработано ${processed} из ${vacancyListLength} ${word}`);
+        expect(message).toBe(
+          `Обработано ${processed} из ${vacancyListLength} ${word}`,
+        );
         expect(processed).toBeLessThanOrEqual(vacancyListLength);
       }
     });

@@ -1,8 +1,5 @@
 import { db } from "@qbs-autonaim/db";
-import {
-  vacancy,
-  vacancyPublication,
-} from "@qbs-autonaim/db/schema";
+import { vacancy, vacancyPublication } from "@qbs-autonaim/db/schema";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { publicProcedure } from "../../trpc";

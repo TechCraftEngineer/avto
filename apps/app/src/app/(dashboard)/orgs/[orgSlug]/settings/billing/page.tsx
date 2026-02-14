@@ -322,9 +322,11 @@ export default function OrganizationBillingPage() {
           const allItems: (string | null)[] = [
             ...plan.features,
             ...(plan.limitations?.map((l) => `limitation:${l}`) ?? []),
-            ...Array(MAX_FEATURES - plan.features.length - (plan.limitations?.length ?? 0)).fill(
-              null,
-            ),
+            ...Array(
+              MAX_FEATURES -
+                plan.features.length -
+                (plan.limitations?.length ?? 0),
+            ).fill(null),
           ];
           return (
             <Card

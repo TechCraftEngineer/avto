@@ -3,8 +3,8 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { useResponseActions } from "./use-response-actions";
 
 // Mock dependencies
-const mockTriggerSyncArchivedVacancyResponses = mock(
-  () => Promise.resolve({ success: true }),
+const mockTriggerSyncArchivedVacancyResponses = mock(() =>
+  Promise.resolve({ success: true }),
 );
 const mockToastError = mock(() => {});
 const mockToastSuccess = mock(() => {});
@@ -26,12 +26,15 @@ const mockQueryClient = {
 
 beforeEach(() => {
   mock.module("~/actions/trigger", () => ({
-    triggerRefreshVacancyResponses: mock(() => Promise.resolve({ success: true })),
+    triggerRefreshVacancyResponses: mock(() =>
+      Promise.resolve({ success: true }),
+    ),
     triggerScreenAllResponses: mock(() => Promise.resolve({ success: true })),
     triggerScreenNewResponses: mock(() => Promise.resolve({ success: true })),
     triggerScreenResponsesBatch: mock(() => Promise.resolve({ success: true })),
     triggerSendWelcomeBatch: mock(() => Promise.resolve({ success: true })),
-    triggerSyncArchivedVacancyResponses: mockTriggerSyncArchivedVacancyResponses,
+    triggerSyncArchivedVacancyResponses:
+      mockTriggerSyncArchivedVacancyResponses,
   }));
 
   mock.module("sonner", () => ({

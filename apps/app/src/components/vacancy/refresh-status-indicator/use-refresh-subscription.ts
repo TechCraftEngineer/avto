@@ -135,8 +135,7 @@ export function useRefreshSubscription({
 
   // Определяем, есть ли активное задание для текущего режима
   // taskStarted нужен чтобы подписаться сразу после клика, пока API ещё не вернул isRunning
-  const hasActiveTask =
-    taskStarted || checkActiveTask(mode, initialStatus);
+  const hasActiveTask = taskStarted || checkActiveTask(mode, initialStatus);
 
   // ОДНО подключение для текущего режима
   // Подключаемся ТОЛЬКО если есть активное задание для этого режима

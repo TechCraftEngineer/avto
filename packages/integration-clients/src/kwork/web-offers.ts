@@ -12,7 +12,11 @@ import {
   parseSetCookieToCookieHeader,
   parseSetCookieToCookies,
 } from "./cookies";
-import type { KworkErrorResponse, KworkWebCookie, WebParsedOffer } from "./types";
+import type {
+  KworkErrorResponse,
+  KworkWebCookie,
+  WebParsedOffer,
+} from "./types";
 
 const KWORK_WEB_BASE = "https://kwork.ru";
 const USER_AGENT =

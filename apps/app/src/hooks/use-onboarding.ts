@@ -33,7 +33,9 @@ export function useOnboarding() {
   const [isGeneratingSlug, setIsGeneratingSlug] = useState(true);
 
   // Ошибка создания организации (показывается на форме)
-  const [organizationError, setOrganizationError] = useState<string | null>(null);
+  const [organizationError, setOrganizationError] = useState<string | null>(
+    null,
+  );
 
   // Созданная организация
   const [createdOrganization, setCreatedOrganization] =
@@ -71,7 +73,9 @@ export function useOnboarding() {
           error.message.includes("duplicate") ||
           error.message.includes("CONFLICT")
         ) {
-          setOrganizationError("Организация с таким слагом уже существует. Попробуйте другой слаг.");
+          setOrganizationError(
+            "Организация с таким слагом уже существует. Попробуйте другой слаг.",
+          );
         } else {
           setOrganizationError(error.message);
         }

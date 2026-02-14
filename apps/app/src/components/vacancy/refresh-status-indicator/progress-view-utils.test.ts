@@ -15,7 +15,11 @@ describe("getProgressStatus", () => {
     const result = getProgressStatus({
       ...baseParams,
       mode: "archived",
-      archivedStatus: { status: "processing", message: "Тест", vacancyId: "v1" },
+      archivedStatus: {
+        status: "processing",
+        message: "Тест",
+        vacancyId: "v1",
+      },
     });
     expect(result).toBe("processing");
   });
@@ -24,7 +28,12 @@ describe("getProgressStatus", () => {
     const result = getProgressStatus({
       ...baseParams,
       mode: "analyze",
-      analyzeCompleted: { vacancyId: "v1", total: 10, processed: 10, failed: 0 },
+      analyzeCompleted: {
+        vacancyId: "v1",
+        total: 10,
+        processed: 10,
+        failed: 0,
+      },
     });
     expect(result).toBe("completed");
   });
@@ -33,7 +42,12 @@ describe("getProgressStatus", () => {
     const result = getProgressStatus({
       ...baseParams,
       mode: "screening",
-      analyzeCompleted: { vacancyId: "v1", total: 10, processed: 10, failed: 0 },
+      analyzeCompleted: {
+        vacancyId: "v1",
+        total: 10,
+        processed: 10,
+        failed: 0,
+      },
     });
     expect(result).toBe("completed");
   });
@@ -128,7 +142,11 @@ describe("getProgressTitle", () => {
       const result = getProgressTitle({
         ...baseParams,
         mode: "archived",
-        archivedStatus: { status: "processing", message: "Тест", vacancyId: "v1" },
+        archivedStatus: {
+          status: "processing",
+          message: "Тест",
+          vacancyId: "v1",
+        },
       });
       expect(result).toBe("Синхронизация архивных откликов");
     });
@@ -146,7 +164,11 @@ describe("getProgressTitle", () => {
       const result = getProgressTitle({
         ...baseParams,
         mode: "archived",
-        archivedStatus: { status: "completed", message: "Тест", vacancyId: "v1" },
+        archivedStatus: {
+          status: "completed",
+          message: "Тест",
+          vacancyId: "v1",
+        },
       });
       expect(result).toBe("Синхронизация завершена");
     });
@@ -162,7 +184,12 @@ describe("getProgressTitle", () => {
       const result = getProgressTitle({
         ...baseParams,
         mode: "screening",
-        analyzeProgress: { vacancyId: "v1", total: 10, processed: 5, failed: 0 },
+        analyzeProgress: {
+          vacancyId: "v1",
+          total: 10,
+          processed: 5,
+          failed: 0,
+        },
       });
       expect(result).toBe("Скрининг откликов");
     });
@@ -171,7 +198,12 @@ describe("getProgressTitle", () => {
       const result = getProgressTitle({
         ...baseParams,
         mode: "screening",
-        analyzeCompleted: { vacancyId: "v1", total: 10, processed: 10, failed: 0 },
+        analyzeCompleted: {
+          vacancyId: "v1",
+          total: 10,
+          processed: 10,
+          failed: 0,
+        },
       });
       expect(result).toBe("Скрининг завершен");
     });
@@ -187,7 +219,12 @@ describe("getProgressTitle", () => {
       const result = getProgressTitle({
         ...baseParams,
         mode: "analyze",
-        analyzeProgress: { vacancyId: "v1", total: 10, processed: 5, failed: 0 },
+        analyzeProgress: {
+          vacancyId: "v1",
+          total: 10,
+          processed: 5,
+          failed: 0,
+        },
       });
       expect(result).toBe("Анализ откликов");
     });
@@ -196,7 +233,12 @@ describe("getProgressTitle", () => {
       const result = getProgressTitle({
         ...baseParams,
         mode: "analyze",
-        analyzeCompleted: { vacancyId: "v1", total: 10, processed: 10, failed: 0 },
+        analyzeCompleted: {
+          vacancyId: "v1",
+          total: 10,
+          processed: 10,
+          failed: 0,
+        },
       });
       expect(result).toBe("Анализ завершен");
     });
@@ -211,7 +253,11 @@ describe("getProgressTitle", () => {
     it("должен возвращать 'Задание в очереди' для статуса started", () => {
       const result = getProgressTitle({
         ...baseParams,
-        currentProgress: { status: "started", message: "Тест", vacancyId: "v1" },
+        currentProgress: {
+          status: "started",
+          message: "Тест",
+          vacancyId: "v1",
+        },
       });
       expect(result).toBe("Задание в очереди");
     });
@@ -219,7 +265,11 @@ describe("getProgressTitle", () => {
     it("должен возвращать 'Получение откликов' для статуса processing", () => {
       const result = getProgressTitle({
         ...baseParams,
-        currentProgress: { status: "processing", message: "Тест", vacancyId: "v1" },
+        currentProgress: {
+          status: "processing",
+          message: "Тест",
+          vacancyId: "v1",
+        },
       });
       expect(result).toBe("Получение откликов");
     });
@@ -235,7 +285,12 @@ describe("getProgressTitle", () => {
     it("должен возвращать 'Получение завершено' с currentResult", () => {
       const result = getProgressTitle({
         ...baseParams,
-        currentResult: { success: true, vacancyId: "v1", newCount: 5, totalResponses: 100 },
+        currentResult: {
+          success: true,
+          vacancyId: "v1",
+          newCount: 5,
+          totalResponses: 100,
+        },
       });
       expect(result).toBe("Получение завершено");
     });

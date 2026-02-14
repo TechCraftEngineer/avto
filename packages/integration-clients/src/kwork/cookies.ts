@@ -4,7 +4,9 @@
  */
 import type { KworkWebCookie } from "./types";
 
-export function parseSetCookieToCookieHeader(setCookie: string[] | string): string {
+export function parseSetCookieToCookieHeader(
+  setCookie: string[] | string,
+): string {
   const headers = Array.isArray(setCookie) ? setCookie : [setCookie];
   return headers
     .map((h) => {
@@ -40,10 +42,8 @@ export function parseSetCookieToCookies(
       const lower = part.toLowerCase();
       if (lower === "httponly") cookie.httpOnly = true;
       else if (lower === "secure") cookie.secure = true;
-      else if (part.startsWith("Path="))
-        cookie.path = part.slice(5).trim();
-      else if (part.startsWith("Domain="))
-        cookie.domain = part.slice(7).trim();
+      else if (part.startsWith("Path=")) cookie.path = part.slice(5).trim();
+      else if (part.startsWith("Domain=")) cookie.domain = part.slice(7).trim();
       else if (part.startsWith("Expires=")) {
         const dateStr = part.slice(8).trim();
         const ts = new Date(dateStr).getTime();
@@ -54,8 +54,7 @@ export function parseSetCookieToCookies(
           cookie.expires = Math.floor(Date.now() / 1000) + sec;
       } else if (part.startsWith("SameSite=")) {
         const v = part.slice(9).trim();
-        if (v === "Strict" || v === "Lax" || v === "None")
-          cookie.sameSite = v;
+        if (v === "Strict" || v === "Lax" || v === "None") cookie.sameSite = v;
       }
     }
     cookies.push(cookie);

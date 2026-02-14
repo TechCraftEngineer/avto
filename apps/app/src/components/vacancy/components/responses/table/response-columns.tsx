@@ -11,10 +11,7 @@ import {
 } from "@qbs-autonaim/db/schema";
 import { Badge, Checkbox } from "@qbs-autonaim/ui";
 import { InfoTooltip } from "@qbs-autonaim/ui";
-import {
-  createColumnHelper,
-  type ColumnDef,
-} from "@tanstack/react-table";
+import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import { ResponseActions } from "~/components";
 import { ScreeningHoverCard } from "../../screening/screening-hover-card";
 import { CoverLetterCell } from "../response-row/cover-letter-cell";
@@ -51,7 +48,9 @@ function createColumns(): ColumnDef<ResponseListItem, unknown>[] {
         const meta = table.options.meta as ResponseTableMeta;
         const allSelected =
           meta.selectedIds.size > 0 &&
-          table.getRowModel().rows.every((r) => meta.selectedIds.has(r.original.id));
+          table
+            .getRowModel()
+            .rows.every((r) => meta.selectedIds.has(r.original.id));
         const hasRows = table.getRowModel().rows.length > 0;
         return (
           <Checkbox

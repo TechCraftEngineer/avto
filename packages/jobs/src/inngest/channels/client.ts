@@ -549,9 +549,7 @@ const integrationErrorPayloadSchema = z.object({
 export const workspaceNotificationsChannel = channel(
   (workspaceId: string) => `workspace-notifications:${workspaceId}`,
 )
-  .addTopic(
-    topic("integration-error").schema(integrationErrorPayloadSchema),
-  )
+  .addTopic(topic("integration-error").schema(integrationErrorPayloadSchema))
   .addTopic(
     topic("task-completed").schema(
       z.object({

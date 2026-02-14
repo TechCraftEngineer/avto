@@ -94,7 +94,8 @@ beforeEach(() => {
   });
 
   mock.module("~/actions/trigger", () => ({
-    triggerSyncArchivedVacancyResponses: () => Promise.resolve({ eventId: "evt-1" }),
+    triggerSyncArchivedVacancyResponses: () =>
+      Promise.resolve({ eventId: "evt-1" }),
   }));
 });
 
@@ -157,7 +158,8 @@ describe("синхронизация архивных откликов — од�
     // 3. Считаем вызовы useInngestSubscription с enabled=true
     // mock.calls = [[opts], [opts], ...] — каждый вызов хранится как массив аргументов
     const callsWithEnabled = mockUseInngestSubscription.mock.calls.filter(
-      (call: unknown[]) => (call?.[0] as { enabled?: boolean })?.enabled === true,
+      (call: unknown[]) =>
+        (call?.[0] as { enabled?: boolean })?.enabled === true,
     );
     expect(
       callsWithEnabled.length,

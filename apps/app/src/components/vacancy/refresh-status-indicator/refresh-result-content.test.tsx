@@ -67,7 +67,9 @@ describe("RefreshResultContent", () => {
         />,
       );
 
-      expect(within(container).getByText(/Закроется автоматически через 10 секунд/)).toBeDefined();
+      expect(
+        within(container).getByText(/Закроется автоматически через 10 секунд/),
+      ).toBeDefined();
     });
 
     it("должен иметь зеленую цветовую схему", () => {
@@ -134,7 +136,9 @@ describe("RefreshResultContent", () => {
         />,
       );
 
-      expect(within(container).getByText("Произошла неизвестная ошибка")).toBeDefined();
+      expect(
+        within(container).getByText("Произошла неизвестная ошибка"),
+      ).toBeDefined();
     });
 
     it("должен иметь красную цветовую схему для ошибки", () => {

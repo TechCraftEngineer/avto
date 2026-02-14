@@ -24,10 +24,9 @@ async function getHook() {
 
 describe("useSyncArchivedSubscription", () => {
   const mockVacancyId = "vacancy-123";
-  const mockFetchToken = mock(
-  () =>
+  const mockFetchToken = mock(() =>
     Promise.resolve("token-123" as unknown as Realtime.Subscribe.Token),
-);
+  );
 
   it("должен вызывать onMessage при получении progress сообщения", async () => {
     const useSyncArchivedSubscription = await getHook();

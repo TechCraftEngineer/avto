@@ -166,8 +166,7 @@ export function handleAnalyzeProgress(
       };
 
       const progressMessage =
-        data.message ??
-        `Обработано: ${data.processed} из ${data.total}`;
+        data.message ?? `Обработано: ${data.processed} из ${data.total}`;
       context.onAnalyzeProgress?.(progressMessage, {
         total: data.total,
         processed: data.processed,

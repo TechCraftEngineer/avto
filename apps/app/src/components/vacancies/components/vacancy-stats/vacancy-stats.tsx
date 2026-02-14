@@ -310,7 +310,12 @@ export function VacancyStats({
                 </p>
               </div>
               <div className="flex flex-row items-center gap-1.5 @sm/card:flex-col @sm/card:items-end @sm/card:shrink-0">
-                <stat.icon className={cn("size-3.5 @sm/card:size-4 shrink-0", stat.color)} />
+                <stat.icon
+                  className={cn(
+                    "size-3.5 @sm/card:size-4 shrink-0",
+                    stat.color,
+                  )}
+                />
                 {stat.action}
               </div>
             </div>

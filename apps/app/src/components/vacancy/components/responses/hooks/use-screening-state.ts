@@ -85,7 +85,12 @@ export function useScreeningState(
       registerOnScreenAllProgress(null);
       registerOnScreenAllComplete(null);
     };
-  }, [type, onComplete, registerOnScreenAllProgress, registerOnScreenAllComplete]);
+  }, [
+    type,
+    onComplete,
+    registerOnScreenAllProgress,
+    registerOnScreenAllComplete,
+  ]);
 
   // Screening subscription — только для type="new" (screen-new имеет один источник)
   useScreeningSubscription({

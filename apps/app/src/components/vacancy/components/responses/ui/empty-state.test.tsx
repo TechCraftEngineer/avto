@@ -156,7 +156,9 @@ describe("EmptyState", () => {
         </table>,
       );
 
-      expect(within(container).queryByText(/Отклики ещё не загружены/i)).toBeNull();
+      expect(
+        within(container).queryByText(/Отклики ещё не загружены/i),
+      ).toBeNull();
       expect(within(container).queryByText(/Пока нет откликов/i)).toBeNull();
     });
   });

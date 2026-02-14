@@ -160,7 +160,8 @@ export function GigResponseHeaderCard({
             )}
             {onStartKworkChat &&
               response.importSource === "KWORK" &&
-              (response.profileData as { kworkWorkerId?: number })?.kworkWorkerId && (
+              (response.profileData as { kworkWorkerId?: number })
+                ?.kworkWorkerId && (
                 <Button
                   variant="outline"
                   size="sm"

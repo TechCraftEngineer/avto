@@ -10,11 +10,7 @@ import {
   CommandItem,
   CommandList,
 } from "@qbs-autonaim/ui";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@qbs-autonaim/ui";
+import { Popover, PopoverContent, PopoverTrigger } from "@qbs-autonaim/ui";
 import { IconCheck, IconChevronDown } from "@tabler/icons-react";
 import { useState } from "react";
 
