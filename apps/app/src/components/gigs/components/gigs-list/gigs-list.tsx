@@ -1,12 +1,17 @@
 import { Skeleton } from "@qbs-autonaim/ui";
 import { EmptyState } from "../empty-state";
 import { GigCard } from "../gig-card";
+import { GigCompactItem } from "../gig-compact-item";
 import { GigListItem } from "../gig-list-item";
+import { GigsAttentionBlock } from "../gigs-attention-block";
 import type { DisplayMode, Gig } from "../gigs-filters";
+import { GigsTable } from "../gigs-table";
+
+type GigWithActive = Gig & { isActive: boolean };
 
 interface GigsListProps {
   gigs: Gig[] | undefined;
-  filteredGigs: Gig[];
+  filteredGigs: GigWithActive[];
   isLoading: boolean;
   displayMode: DisplayMode;
   searchQuery: string;
@@ -18,6 +23,10 @@ interface GigsListProps {
   onDuplicate: (gigId: string) => void;
   onToggleActive: (gigId: string) => void;
   onSyncResponses: (gigId: string) => void;
+  tableSortField?: string | null;
+  tableSortDirection?: "asc" | "desc";
+  onTableSort?: (field: string) => void;
+  showAttentionBlock?: boolean;
 }
 
 export function GigsList({
@@ -34,7 +43,32 @@ export function GigsList({
   onDuplicate,
   onToggleActive,
   onSyncResponses,
+  tableSortField = null,
+  tableSortDirection = "asc",
+  onTableSort,
+  showAttentionBlock = true,
 }: GigsListProps) {
+  const getAttentionGigs = () => {
+    const now = Date.now();
+    const threeDays = 3 * 24 * 60 * 60 * 1000;
+    return filteredGigs.filter((g) => {
+      const hasNew = (g.newResponses ?? 0) > 0;
+      const deadline = g.deadline ? new Date(g.deadline).getTime() : null;
+      const isOverdue = deadline && deadline < now && g.isActive;
+      const isUrgent =
+        deadline &&
+        g.isActive &&
+        !isOverdue &&
+        deadline - now <= threeDays &&
+        deadline - now > 0;
+      return hasNew || !!isOverdue || !!isUrgent;
+    });
+  };
+
+  const attentionGigs = showAttentionBlock ? getAttentionGigs() : [];
+  const mainGigs = filteredGigs.filter(
+    (g) => !attentionGigs.some((a) => a.id === g.id),
+  );
   // Показываем скелетоны только при первой загрузке (когда данных еще нет)
   if (isLoading && gigs === undefined) {
     return (
@@ -86,22 +120,24 @@ export function GigsList({
     );
   }
 
-  return (
-    <>
-      {!isLoading && filteredGigs.length > 0 && (
-        <div className="mb-3 text-sm text-muted-foreground">
-          Найдено заданий:{" "}
-          <span className="font-medium tabular-nums">
-            {filteredGigs.length}
-          </span>
-          {(searchQuery || typeFilter !== "all" || statusFilter !== "all") &&
-            gigs &&
-            filteredGigs.length !== gigs.length && (
-              <span> из {gigs.length}</span>
-            )}
-        </div>
-      )}
+  const renderMainList = () => {
+    const listGigs = showAttentionBlock ? mainGigs : filteredGigs;
 
+    if (displayMode === "table") {
+      return (
+        <GigsTable
+          gigs={listGigs}
+          orgSlug={orgSlug}
+          workspaceSlug={workspaceSlug}
+          sortField={tableSortField}
+          sortDirection={tableSortDirection ?? "asc"}
+          onSort={onTableSort ?? (() => {})}
+          onDelete={onDelete}
+        />
+      );
+    }
+
+    return (
       <div
         className={
           displayMode === "grid"
@@ -111,11 +147,23 @@ export function GigsList({
               : "space-y-2"
         }
       >
-        {filteredGigs.map((gig) => {
+        {listGigs.map((gig) => {
           const gigData = {
             ...gig,
             isActive: gig.isActive ?? true,
           };
+
+          if (displayMode === "compact") {
+            return (
+              <GigCompactItem
+                key={gig.id}
+                gig={gigData}
+                orgSlug={orgSlug}
+                workspaceSlug={workspaceSlug}
+                onDelete={onDelete}
+              />
+            );
+          }
 
           if (displayMode === "list") {
             return (
@@ -143,6 +191,36 @@ export function GigsList({
           );
         })}
       </div>
+    );
+  };
+
+  return (
+    <>
+      {!isLoading && filteredGigs.length > 0 && (
+        <div className="mb-3 text-sm text-muted-foreground">
+          Найдено заданий:{" "}
+          <span className="font-medium tabular-nums">
+            {filteredGigs.length}
+          </span>
+          {(searchQuery || typeFilter !== "all" || statusFilter !== "all") &&
+            gigs &&
+            filteredGigs.length !== gigs.length && (
+              <span> из {gigs.length}</span>
+            )}
+        </div>
+      )}
+
+      {attentionGigs.length > 0 && (
+        <GigsAttentionBlock
+          gigs={attentionGigs}
+          displayMode={displayMode === "table" ? "list" : displayMode}
+          orgSlug={orgSlug}
+          workspaceSlug={workspaceSlug}
+          onDelete={onDelete}
+        />
+      )}
+
+      {renderMainList()}
     </>
   );
 }

@@ -30,6 +30,28 @@ function formatDate(date: Date | null) {
   }).format(date);
 }
 
+function formatListItemDate(date: Date | null) {
+  if (!date) return "";
+
+  const d = date instanceof Date ? date : new Date(date);
+  const now = new Date();
+  const diffInDays = Math.floor(
+    (d.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
+  );
+
+  if (diffInDays === 0) return "Сегодня";
+  if (diffInDays === 1) return "Завтра";
+  if (diffInDays === -1) return "Вчера";
+  if (diffInDays > 0 && diffInDays <= 7) return `Через ${diffInDays} дн.`;
+  if (diffInDays < 0 && diffInDays >= -7)
+    return `${Math.abs(diffInDays)} дн. назад`;
+
+  return new Intl.DateTimeFormat("ru-RU", {
+    day: "numeric",
+    month: "short",
+  }).format(d);
+}
+
 function getGigTypeLabel(type: string) {
   const types: Record<string, string> = {
     DEVELOPMENT: "Разработка",
@@ -48,4 +70,4 @@ function getGigTypeLabel(type: string) {
   return types[type] || type;
 }
 
-export { formatBudget, formatDate, getGigTypeLabel };
+export { formatBudget, formatDate, formatListItemDate, getGigTypeLabel };

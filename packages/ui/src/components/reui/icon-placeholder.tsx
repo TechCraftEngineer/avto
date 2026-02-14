@@ -57,7 +57,9 @@ export function IconPlaceholder({
   // Priority: Context (includes overrides) > URL Params > LocalStorage Config
   const iconLibraryValue =
     context?.iconLibrary ?? params.iconLibrary ?? config.iconLibrary
-  const iconName = props[iconLibraryValue]
+
+  const iconName =
+    iconLibraryValue != null ? props[iconLibraryValue as IconLibraryName] : undefined
 
   if (!iconName || !mounted) {
     return null

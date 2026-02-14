@@ -1,6 +1,10 @@
-import { Checkbox } from "@qbs-autonaim/ui";
-import { InfoTooltip } from "@qbs-autonaim/ui";
-import { TableHead, TableHeader, TableRow } from "@qbs-autonaim/ui";
+import {
+  Checkbox,
+  InfoTooltip,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@qbs-autonaim/ui";
 import { memo } from "react";
 import type { ColumnId, SortDirection, SortField } from "../types";
 import { SortableHeaderCell } from "./sortable-header-cell";
