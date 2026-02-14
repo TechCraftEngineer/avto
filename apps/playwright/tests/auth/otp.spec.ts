@@ -109,11 +109,9 @@ test.describe("OTP верификация", () => {
   });
 
   test("проверка aria-label для полей OTP", async ({ page }) => {
-    // Проверяем, что label с sr-only существует
-    const srOnlyLabel = page
-      .locator("label.sr-only")
-      .filter({ hasText: "Код подтверждения" });
-    await expect(srOnlyLabel).toHaveClass(/sr-only/);
+    // Проверяем, что input связан с label "Код подтверждения"
+    const otpInput = page.getByRole("textbox", { name: "Код подтверждения" });
+    await expect(otpInput).toBeVisible();
   });
 
   test("описание формы видимо", async ({ page }) => {

@@ -7,20 +7,24 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
+  Field,
+  FieldLabel,
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
   InputOTP,
   InputOTPGroup,
+  InputOTPSeparator,
   InputOTPSlot,
 } from "@qbs-autonaim/ui";
 import { type OTPFormData, otpFormSchema } from "@qbs-autonaim/validators";
+import { RefreshCwIcon } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -130,73 +134,97 @@ export function OTPForm({ ...props }: React.ComponentProps<typeof Card>) {
 
   return (
     <Card {...props}>
-      <CardHeader className="text-center">
-        <CardTitle className="text-xl">Введите код подтверждения</CardTitle>
-        <CardDescription>
-          Мы отправили 6-значный код на {email}.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <CardHeader>
+            <CardTitle className="text-xl">Введите код подтверждения</CardTitle>
+            <CardDescription>
+              Мы отправили 6-значный код на{" "}
+              <span className="text-foreground font-medium">{email}</span>.
+              Введите код, который вы получили.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
             <FormField
               control={form.control}
               name="otp"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel htmlFor="otp" className="sr-only">
-                    Код подтверждения
-                  </FormLabel>
-                  <FormControl>
-                    <InputOTP
-                      maxLength={6}
-                      id="otp"
-                      {...field}
-                      onChange={(value) => {
-                        field.onChange(value);
-                        if (value.length === 6) {
-                          form.handleSubmit(onSubmit)();
-                        }
-                      }}
-                    >
-                      <InputOTPGroup className="gap-2.5 *:data-[slot=input-otp-slot]:rounded-md *:data-[slot=input-otp-slot]:border">
-                        <InputOTPSlot index={0} />
-                        <InputOTPSlot index={1} />
-                        <InputOTPSlot index={2} />
-                        <InputOTPSlot index={3} />
-                        <InputOTPSlot index={4} />
-                        <InputOTPSlot index={5} />
-                      </InputOTPGroup>
-                    </InputOTP>
-                  </FormControl>
-                  <FormDescription className="text-center">
+                  <Field>
+                    <div className="flex items-center justify-between">
+                      <FieldLabel htmlFor="otp-verification">
+                        Код подтверждения
+                      </FieldLabel>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="xs"
+                        onClick={handleResend}
+                        disabled={countdown > 0 || resending}
+                      >
+                        <RefreshCwIcon
+                          className="size-3"
+                          data-slot="inline-start"
+                          aria-hidden
+                        />
+                        {resending
+                          ? "Отправка…"
+                          : countdown > 0
+                            ? `Отправить повторно (${countdown}с)`
+                            : "Отправить повторно"}
+                      </Button>
+                    </div>
+                    <FormControl>
+                      <InputOTP
+                        maxLength={6}
+                        id="otp-verification"
+                        required
+                        {...field}
+                        onChange={(value) => {
+                          field.onChange(value);
+                          if (value.length === 6) {
+                            form.handleSubmit(onSubmit)();
+                          }
+                        }}
+                      >
+                        <InputOTPGroup className="*:data-[slot=input-otp-slot]:h-9 *:data-[slot=input-otp-slot]:w-11 *:data-[slot=input-otp-slot]:text-xl">
+                          <InputOTPSlot index={0} />
+                          <InputOTPSlot index={1} />
+                          <InputOTPSlot index={2} />
+                        </InputOTPGroup>
+                        <InputOTPSeparator />
+                        <InputOTPGroup className="*:data-[slot=input-otp-slot]:h-9 *:data-[slot=input-otp-slot]:w-11 *:data-[slot=input-otp-slot]:text-xl">
+                          <InputOTPSlot index={3} />
+                          <InputOTPSlot index={4} />
+                          <InputOTPSlot index={5} />
+                        </InputOTPGroup>
+                      </InputOTP>
+                    </FormControl>
+                  </Field>
+                  <p className="text-muted-foreground text-center text-sm">
                     Введите 6-значный код, отправленный на вашу почту.
-                  </FormDescription>
+                  </p>
                   <FormMessage />
                 </FormItem>
               )}
             />
+          </CardContent>
+          <CardFooter className="flex-col gap-2">
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Проверка…" : "Подтвердить"}
             </Button>
-            <FormDescription className="text-center">
-              Не получили код?{" "}
-              <button
-                type="button"
-                onClick={handleResend}
-                disabled={countdown > 0 || resending}
-                className="text-primary underline-offset-4 hover:underline disabled:opacity-50 disabled:cursor-not-allowed disabled:no-underline"
+            <p className="text-muted-foreground text-center text-sm">
+              Проблемы со входом?{" "}
+              <Link
+                href={paths.auth.signin}
+                className="text-primary underline-offset-4 transition-colors hover:underline"
               >
-                {resending
-                  ? "Отправка…"
-                  : countdown > 0
-                    ? `Отправить повторно (${countdown}с)`
-                    : "Отправить повторно"}
-              </button>
-            </FormDescription>
-          </form>
-        </Form>
-      </CardContent>
+                Вернуться на страницу входа
+              </Link>
+            </p>
+          </CardFooter>
+        </form>
+      </Form>
     </Card>
   );
 }
