@@ -179,6 +179,7 @@ export function OTPForm({ ...props }: React.ComponentProps<typeof Card>) {
                         maxLength={6}
                         id="otp-verification"
                         required
+                        containerClassName="justify-center"
                         {...field}
                         onChange={(value) => {
                           field.onChange(value);
@@ -201,15 +202,12 @@ export function OTPForm({ ...props }: React.ComponentProps<typeof Card>) {
                       </InputOTP>
                     </FormControl>
                   </Field>
-                  <p className="text-muted-foreground text-center text-sm">
-                    Введите 6-значный код, отправленный на вашу почту.
-                  </p>
                   <FormMessage />
                 </FormItem>
               )}
             />
           </CardContent>
-          <CardFooter className="flex flex-col gap-4 pt-2">
+          <CardFooter className="flex flex-col gap-4 pt-6">
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Проверка…" : "Подтвердить"}
             </Button>
