@@ -5,8 +5,8 @@ import { lazy, Suspense } from "react"
 import { SquareIcon } from "lucide-react"
 import { useConfig } from "../../hooks/use-config"
 import { useDesignSystemSearchParams } from "../../lib/search-params"
-import { IconLibraryName } from "../../registry/config"
 import { DesignSystemContext } from "./design-system-provider"
+import { IconLibraryName } from "../../registry/config"
 
 
 
