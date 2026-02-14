@@ -12,7 +12,7 @@ import {
 import {
   cookiesToHeaderString,
   type WebParsedOffer,
-} from "@qbs-autonaim/integration-clients/server";
+} from "@qbs-autonaim/integration-clients";
 import { getProjectOffersFromBrowser } from "@qbs-autonaim/jobs-parsers";
 import type { IntegrationErrorEvent } from "../../inngest/channels/client";
 import { executeWithKworkTokenRefresh } from "./kwork-token-refresh";

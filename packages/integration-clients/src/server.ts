@@ -1,9 +1,3 @@
-/**
- * Server-only exports: kwork API + web-offers (cheerio).
- * Импортировать из @qbs-autonaim/integration-clients/server
- */
-import "server-only";
-
 export * from "./index";
 
 import type { AxiosInstance } from "axios";

@@ -41,7 +41,7 @@ export type {
   ResumeExperience,
   VacancyData,
 } from "./parsers/types";
-// Экспорт утилит
-export { loadCookies, saveCookies } from "./utils/cookies";
 // Kwork browser fetcher
 export { getProjectOffersFromBrowser } from "./services/kwork/get-kwork-project-offers-browser";
+// Экспорт утилит
+export { loadCookies, saveCookies } from "./utils/cookies";
