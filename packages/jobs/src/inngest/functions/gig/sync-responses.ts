@@ -1,7 +1,6 @@
 import { and, count, db, eq, sql } from "@qbs-autonaim/db";
 import { gig, response } from "@qbs-autonaim/db/schema";
-import { getOffers, type KworkOffer } from "@qbs-autonaim/integration-clients";
-import { executeWithKworkTokenRefresh } from "../../../services/kwork";
+import { getProjectOffersFromWebWithCache } from "../../../services/kwork";
 import { inngest } from "../../client";
 
 /**
@@ -105,7 +104,8 @@ export const syncGigResponses = inngest.createFunction(
 );
 
 /**
- * Синхронизация откликов с KWork
+ * Синхронизация откликов с KWork через веб (парсинг страницы проекта).
+ * API offers не работает, поэтому используется getProjectOffersFromWeb.
  */
 async function syncKworkResponses(
   workspaceId: string,
@@ -123,50 +123,24 @@ async function syncKworkResponses(
     };
   }
 
-  const allOffers: KworkOffer[] = [];
-  let page = 1;
-  let hasMore = true;
+  const webResult = await getProjectOffersFromWebWithCache(
+    db,
+    workspaceId,
+    wantId,
+    { publish },
+  );
 
-  try {
-    while (hasMore) {
-      const result = await executeWithKworkTokenRefresh(
-        db,
-        workspaceId,
-        (api, token) => getOffers(api, token, { page }),
-        { publish },
-      );
-      if (!result.success || !result.response) {
-        return {
-          success: false,
-          message: result.error?.message ?? "Failed to fetch Kwork offers",
-          syncedCount: 0,
-          responseIdsForChatImport: [],
-        };
-      }
-      const offers = result.response as KworkOffer[];
-      allOffers.push(...offers);
-      const paging = result.paging;
-      const totalPages = paging?.pages ?? 1;
-      hasMore =
-        offers.length > 0 && (paging?.pages == null || page < totalPages);
-      page += 1;
-    }
-  } catch (error) {
-    const msg =
-      error instanceof Error ? error.message : "Ошибка синхронизации Kwork";
+  if (!webResult.success) {
     return {
       success: false,
-      message: msg,
+      message: webResult.errorMessage ?? "Failed to fetch Kwork offers",
       syncedCount: 0,
       responseIdsForChatImport: [],
     };
   }
 
-  const offersForProject = allOffers.filter(
-    (o) => o.want_id != null && o.want_id === wantId,
-  );
-
-  if (offersForProject.length === 0) {
+  const offers = webResult.offers ?? [];
+  if (offers.length === 0) {
     return {
       success: true,
       message: "No offers found for this project",
@@ -175,41 +149,47 @@ async function syncKworkResponses(
     };
   }
 
-  const values = offersForProject.map((offer) => {
-    const workerId =
-      offer.user_id ??
-      offer.worker_id ??
-      (offer.project as { user_id?: number })?.user_id;
-    const username =
-      offer.username ?? (offer.project as { username?: string })?.username;
+  const parseDurationDays = (s: string): number | undefined => {
+    const num = Number.parseInt(s.replace(/[^\d]/g, ""), 10);
+    return Number.isFinite(num) && num > 0 ? num : undefined;
+  };
+
+  const values = offers.map((offer) => {
+    const { workerId, username, offerId, profileUrl: rawProfileUrl } = offer;
     const candidateId =
-      workerId != null
+      workerId != null && workerId > 0
         ? `kwork_${workerId}`
         : username
           ? `kwork_user_${username}`
-          : `kwork_offer_${offer.id}`;
+          : `kwork_offer_${offerId}`;
     const profileUrl =
-      username != null ? `https://kwork.ru/user/${username}` : undefined;
+      rawProfileUrl && rawProfileUrl.startsWith("http")
+        ? rawProfileUrl
+        : rawProfileUrl
+          ? `https://kwork.ru${rawProfileUrl.startsWith("/") ? "" : "/"}${rawProfileUrl}`
+          : username
+            ? `https://kwork.ru/user/${username}`
+            : undefined;
 
     return {
       entityType: "gig" as const,
       entityId: gigId,
       candidateId,
-      candidateName: offer.title ?? "Кандидат Kwork",
+      candidateName: offer.username || "Кандидат Kwork",
       profileUrl,
       platformProfileUrl: profileUrl,
-      coverLetter: offer.comment ?? undefined,
-      proposedPrice: offer.price ?? undefined,
-      proposedDeliveryDays: offer.duration ?? undefined,
+      coverLetter: offer.description || undefined,
+      proposedPrice: offer.price > 0 ? offer.price : undefined,
+      proposedDeliveryDays: offer.duration
+        ? parseDurationDays(offer.duration)
+        : undefined,
       importSource: "KWORK" as const,
-      respondedAt: offer.date_create
-        ? new Date(offer.date_create * 1000)
-        : new Date(),
+      respondedAt: new Date(),
       profileData: {
-        kworkOfferId: offer.id,
-        kworkWantId: offer.want_id,
-        ...(workerId != null && { kworkWorkerId: workerId }),
-        ...(username != null && { kworkUsername: username }),
+        kworkOfferId: offerId,
+        kworkWantId: offer.projectId,
+        ...(workerId != null && workerId > 0 && { kworkWorkerId: workerId }),
+        ...(username && { kworkUsername: username }),
       },
     };
   });

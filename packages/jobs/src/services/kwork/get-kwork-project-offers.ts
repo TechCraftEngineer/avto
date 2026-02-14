@@ -14,6 +14,7 @@ import {
   getProjectOffersFromWeb,
   type WebParsedOffer,
 } from "@qbs-autonaim/integration-clients/server";
+import type { IntegrationErrorEvent } from "../../inngest/channels/client";
 import { executeWithKworkTokenRefresh } from "./kwork-token-refresh";
 
 export interface GetProjectOffersResult {
@@ -50,6 +51,7 @@ export async function getProjectOffersFromWebWithCache(
   db: DbClient,
   workspaceId: string,
   projectId: number,
+  options?: { publish?: (event: IntegrationErrorEvent) => Promise<unknown> },
 ): Promise<GetProjectOffersResult> {
   const result = await executeWithKworkTokenRefresh(
     db,
@@ -127,6 +129,7 @@ export async function getProjectOffersFromWebWithCache(
         },
       };
     },
+    { publish: options?.publish },
   );
 
   if (result.success && result.response) {
