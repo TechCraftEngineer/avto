@@ -35,7 +35,7 @@ export function GigImportSection() {
   const workspaceId = useMemo(() => workspace?.id ?? "", [workspace?.id]);
 
   const importState = useGigImportState();
-  const { hasKworkIntegration, isLoadingIntegrations } =
+  const { hasActiveIntegrations, isLoadingIntegrations } =
     useGigPlatformIntegration(workspaceId);
 
   const {
@@ -127,7 +127,7 @@ export function GigImportSection() {
     );
   }
 
-  if (!hasKworkIntegration) {
+  if (!hasActiveIntegrations) {
     const integrationsUrl =
       orgSlug && workspaceSlug
         ? `/orgs/${orgSlug}/workspaces/${workspaceSlug}/settings/integrations`
@@ -179,7 +179,7 @@ export function GigImportSection() {
         <CardContent className="space-y-4">
           <GigImportActions
             workspaceId={workspaceId}
-            hasKworkIntegration={hasKworkIntegration}
+            hasActiveIntegrations={hasActiveIntegrations}
             isImportingNew={isImportingNew}
             isImportingByUrl={isImportingByUrl}
             onImportNew={() => setIsConfirmNewDialogOpen(true)}

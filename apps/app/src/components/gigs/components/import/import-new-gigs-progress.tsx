@@ -1,6 +1,6 @@
 "use client";
 
-import { useInngestSubscription } from "@bunworks/inngest-realtime/hooks";
+import { InngestSubscriptionState, useInngestSubscription } from "@bunworks/inngest-realtime/hooks";
 import {
   Button,
   Card,
@@ -12,7 +12,8 @@ import {
   Progress,
   Separator,
 } from "@qbs-autonaim/ui";
-import { CheckCircle2, Loader2, XCircle } from "lucide-react";
+import { CheckCircle2, Loader2, RefreshCw, XCircle } from "lucide-react";
+import { useCallback, useState } from "react";
 import { fetchImportNewGigsToken } from "~/actions/gig-import";
 
 interface ImportNewGigsProgressProps {
@@ -20,18 +21,48 @@ interface ImportNewGigsProgressProps {
   onComplete: () => void;
 }
 
+/**
+ * Ошибки подключения/токена (до получения result) считаются повторяемыми.
+ * Только result topic или неизвестные ошибки после result — терминальные.
+ */
+function isTransientError(
+  error: Error | null,
+  latestTopic: string | undefined,
+  state: InngestSubscriptionState,
+): boolean {
+  if (!error) return false;
+  if (latestTopic === "result") return false;
+  return (
+    state === InngestSubscriptionState.Error ||
+    state === InngestSubscriptionState.RefreshingToken
+  );
+}
+
 export function ImportNewGigsProgress({
   workspaceId,
   onComplete,
 }: ImportNewGigsProgressProps) {
-  const { data, error } = useInngestSubscription({
+  const [retryKey, setRetryKey] = useState(0);
+
+  const { data, error, state } = useInngestSubscription({
     refreshToken: () => fetchImportNewGigsToken(workspaceId),
     enabled: true,
+    key: String(retryKey),
   });
 
   const latestMessage = data[data.length - 1];
+  const hasTerminalResult = latestMessage?.topic === "result";
+  const hasTransientError = isTransientError(
+    error,
+    latestMessage?.topic,
+    state,
+  );
   const isCompleted =
-    latestMessage?.topic === "result" || Boolean(error);
+    hasTerminalResult || (Boolean(error) && !hasTransientError);
+
+  const handleRetry = useCallback(() => {
+    setRetryKey((k) => k + 1);
+  }, []);
   const progressData =
     latestMessage?.topic === "progress" ? latestMessage.data : null;
   const resultData =
@@ -70,22 +101,22 @@ export function ImportNewGigsProgress({
     <Card>
       <CardHeader>
         <div className="flex items-center gap-3">
-          {isCompleted ? (
-            resultData?.success ? (
-              <CheckCircle2 className="size-6 text-green-600" />
-            ) : (
-              <XCircle className="size-6 text-destructive" />
-            )
+          {resultData?.success ? (
+            <CheckCircle2 className="size-6 text-green-600" />
+          ) : error ? (
+            <XCircle className="size-6 text-destructive" />
           ) : (
             <Loader2 className="size-6 animate-spin text-primary" />
           )}
           <div className="flex-1">
             <CardTitle>
-              {isCompleted
-                ? resultData?.success
-                  ? "Импорт завершён"
-                  : "Ошибка импорта"
-                : "Импорт активных проектов"}
+              {resultData?.success
+                ? "Импорт завершён"
+                : error
+                  ? hasTransientError
+                    ? "Ошибка подключения"
+                    : "Ошибка импорта"
+                  : "Импорт активных проектов"}
             </CardTitle>
             <CardDescription>{getStatusMessage()}</CardDescription>
           </div>
@@ -142,9 +173,19 @@ export function ImportNewGigsProgress({
           )}
       </CardContent>
 
-      {isCompleted && (
-        <CardFooter>
-          <Button onClick={onComplete} className="w-full">
+      {(isCompleted || hasTransientError) && (
+        <CardFooter className="flex flex-wrap gap-2">
+          {hasTransientError && (
+            <Button onClick={handleRetry} variant="default">
+              <RefreshCw className="mr-2 size-4" />
+              Повторить
+            </Button>
+          )}
+          <Button
+            onClick={onComplete}
+            variant={hasTransientError ? "outline" : "default"}
+            className="flex-1"
+          >
             Закрыть
           </Button>
         </CardFooter>

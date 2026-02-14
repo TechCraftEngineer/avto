@@ -4,10 +4,11 @@
  * где index — 0-based индекс только что обработанной вакансии.
  */
 import { describe, expect, it } from "bun:test";
+import { pluralizeVacancy } from "./pluralize-vacancy";
 
 describe("Логика подсчётов progress в import-archived-selected", () => {
   function buildProgressMessage(index: number, total: number): string {
-    return `Обработано ${index + 1} из ${total} вакансий`;
+    return `Обработано ${index + 1} из ${total} ${pluralizeVacancy(total)}`;
   }
 
   function getProcessedCount(index: number): number {
@@ -15,27 +16,27 @@ describe("Логика подсчётов progress в import-archived-selected",
   }
 
   describe("сообщение 'Обработано X из Y'", () => {
-    it("при index=0 и total=3 показывает 'Обработано 1 из 3 вакансий'", () => {
-      expect(buildProgressMessage(0, 3)).toBe("Обработано 1 из 3 вакансий");
+    it("при index=0 и total=3 показывает 'Обработано 1 из 3 вакансии'", () => {
+      expect(buildProgressMessage(0, 3)).toBe("Обработано 1 из 3 вакансии");
     });
 
-    it("при index=1 и total=3 показывает 'Обработано 2 из 3 вакансий'", () => {
-      expect(buildProgressMessage(1, 3)).toBe("Обработано 2 из 3 вакансий");
+    it("при index=1 и total=3 показывает 'Обработано 2 из 3 вакансии'", () => {
+      expect(buildProgressMessage(1, 3)).toBe("Обработано 2 из 3 вакансии");
     });
 
-    it("при index=2 и total=3 показывает 'Обработано 3 из 3 вакансий'", () => {
-      expect(buildProgressMessage(2, 3)).toBe("Обработано 3 из 3 вакансий");
+    it("при index=2 и total=3 показывает 'Обработано 3 из 3 вакансии'", () => {
+      expect(buildProgressMessage(2, 3)).toBe("Обработано 3 из 3 вакансии");
     });
 
-    it("при одной вакансии (index=0, total=1) показывает 'Обработано 1 из 1 вакансий'", () => {
-      expect(buildProgressMessage(0, 1)).toBe("Обработано 1 из 1 вакансий");
+    it("при одной вакансии (index=0, total=1) показывает 'Обработано 1 из 1 вакансия'", () => {
+      expect(buildProgressMessage(0, 1)).toBe("Обработано 1 из 1 вакансия");
     });
 
     it("при 5 вакансиях последовательно даёт корректные сообщения", () => {
       const total = 5;
       for (let i = 0; i < total; i++) {
         expect(buildProgressMessage(i, total)).toBe(
-          `Обработано ${i + 1} из ${total} вакансий`,
+          `Обработано ${i + 1} из ${total} ${pluralizeVacancy(total)}`,
         );
       }
     });
@@ -110,9 +111,10 @@ describe("Логика подсчётов progress в import-archived-selected",
       const callbackIndices = [0, 1, 2];
 
       for (const index of callbackIndices) {
-        const message = `Обработано ${index + 1} из ${vacancyListLength} вакансий`;
+        const word = pluralizeVacancy(vacancyListLength);
+        const message = `Обработано ${index + 1} из ${vacancyListLength} ${word}`;
         const processed = index + 1;
-        expect(message).toBe(`Обработано ${processed} из ${vacancyListLength} вакансий`);
+        expect(message).toBe(`Обработано ${processed} из ${vacancyListLength} ${word}`);
         expect(processed).toBeLessThanOrEqual(vacancyListLength);
       }
     });

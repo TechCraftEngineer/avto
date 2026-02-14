@@ -219,7 +219,7 @@ export async function getProjectOffersFromWeb(
     const offersContainer = $(".offers.js-offer-list");
     if (!offersContainer.length) {
       return {
-        success: true,
+        success: false,
         offers: [],
         webCookies,
         errorMessage:

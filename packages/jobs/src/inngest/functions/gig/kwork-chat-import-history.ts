@@ -61,7 +61,12 @@ export const kworkChatImportHistoryFunction = inngest.createFunction(
           metadata: { importSource: "kwork" },
         })
         .returning();
-      return created!;
+      if (!created) {
+        throw new Error(
+          "Failed to create interview session: db.insert returned no rows",
+        );
+      }
+      return created;
     });
 
     if (!session) {

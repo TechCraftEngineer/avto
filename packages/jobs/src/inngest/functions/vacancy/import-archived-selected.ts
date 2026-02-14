@@ -5,6 +5,7 @@ import {
   workspaceNotificationsChannel,
 } from "../../channels/client";
 import { inngest } from "../../client";
+import { pluralizeVacancy } from "./pluralize-vacancy";
 
 /**
  * Схема валидации входных данных для импорта выбранных архивных вакансий
@@ -138,7 +139,7 @@ export const importSelectedArchivedVacanciesFunction = inngest.createFunction(
                 importArchivedVacanciesChannel(workspaceId).progress({
                   workspaceId,
                   status: "processing",
-                  message: `Обработано ${index + 1} из ${vacancyList.length} вакансий`,
+                  message: `Обработано ${index + 1} из ${vacancyList.length} ${pluralizeVacancy(vacancyList.length)}`,
                   total: vacancyList.length,
                   processed: index + 1,
                   failed,

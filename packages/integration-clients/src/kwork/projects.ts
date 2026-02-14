@@ -193,6 +193,12 @@ export async function getMyWants(
   }
 }
 
+/**
+ * Детали кворка по ID. Эндпоинт публичный и не требует аутентификации —
+ * используется Basic Auth из заголовков клиента api.
+ *
+ * @see https://api.kwork.ru/
+ */
 export async function getKworkDetails(
   api: AxiosInstance,
   kworkId: number,

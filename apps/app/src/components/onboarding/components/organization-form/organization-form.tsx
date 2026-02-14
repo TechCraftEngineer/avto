@@ -108,7 +108,7 @@ export function OrganizationForm({
             <Input
               id="slug"
               name="organization-slug"
-              placeholder="example-org…"
+              placeholder="пример-организации…"
               value={slug}
               onChange={(e) => onSlugChange(e.target.value)}
               required

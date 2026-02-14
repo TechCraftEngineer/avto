@@ -3,7 +3,7 @@ import { Download, Link as LinkIcon } from "lucide-react";
 
 interface GigImportActionsProps {
   workspaceId: string;
-  hasKworkIntegration: boolean;
+  hasActiveIntegrations: boolean;
   isImportingNew: boolean;
   isImportingByUrl: boolean;
   onImportNew: () => void;
@@ -12,7 +12,7 @@ interface GigImportActionsProps {
 
 export function GigImportActions({
   workspaceId,
-  hasKworkIntegration,
+  hasActiveIntegrations,
   isImportingNew,
   isImportingByUrl,
   onImportNew,
@@ -24,7 +24,7 @@ export function GigImportActions({
         variant="default"
         size="sm"
         onClick={onImportNew}
-        disabled={isImportingNew || !workspaceId || !hasKworkIntegration}
+        disabled={isImportingNew || !workspaceId || !hasActiveIntegrations}
       >
         <Download className="mr-2 size-4" />
         Загрузить активные проекты
@@ -34,7 +34,7 @@ export function GigImportActions({
         variant="outline"
         size="sm"
         onClick={onImportByUrl}
-        disabled={isImportingByUrl || !workspaceId || !hasKworkIntegration}
+        disabled={isImportingByUrl || !workspaceId || !hasActiveIntegrations}
       >
         <LinkIcon className="mr-2 size-4" />
         Добавить по ссылке
