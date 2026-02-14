@@ -64,7 +64,7 @@ export async function executeWithKworkTokenRefresh<T>(
     } as KworkApiResult<T>;
   }
 
-  const api = createKworkApiClient({ login, password });
+  const api = createKworkApiClient();
   let token = credentials.token;
   let signInError: string | undefined;
 
