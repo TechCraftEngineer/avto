@@ -102,7 +102,7 @@ export function GigsFilters({
 
           <div className="flex flex-wrap gap-2">
             {/* Переключатель режима отображения */}
-            <div className="flex items-center rounded-md border bg-muted/50 p-1">
+            <div className="flex items-center rounded-md border bg-card p-1">
               <Button
                 variant={displayMode === "grid" ? "default" : "ghost"}
                 size="sm"
@@ -192,7 +192,7 @@ export function GigsFilters({
               </SelectContent>
             </Select>
 
-            <div className="flex items-center rounded-md border bg-muted/50 p-1">
+            <div className="flex items-center rounded-md border bg-card p-1">
               <Button
                 variant={groupBy === "none" ? "ghost" : "default"}
                 size="sm"

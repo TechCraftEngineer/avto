@@ -31,15 +31,17 @@ export function CandidateCell({
   const age = response.birthDate ? calculateAge(response.birthDate) : null;
   const location = response.globalCandidate?.location || null;
 
+  const displayName = response.candidateName || "Без имени";
+
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex min-w-0 items-center gap-3 overflow-hidden">
       <CandidateAvatar
         avatarUrl={avatarUrl}
         candidateName={candidateName}
         initials={initials}
       />
-      <div className="flex flex-col min-w-0">
-        <div className="flex items-center gap-2">
+      <div className="min-w-0 flex-1 overflow-hidden">
+        <div className="flex min-w-0 items-center gap-2">
           <Link
             href={paths.workspace.vacancyResponse(
               orgSlug,
@@ -47,16 +49,19 @@ export function CandidateCell({
               vacancyId,
               response.id,
             )}
-            className="font-medium text-sm hover:underline truncate transition-colors"
+            className="min-w-0 truncate font-medium text-sm transition-colors hover:underline"
             prefetch={false}
+            title={displayName}
           >
-            {response.candidateName || "Без имени"}
+            {displayName}
           </Link>
-          <CandidateBadges
-            response={response}
-            orgSlug={orgSlug}
-            workspaceSlug={workspaceSlug}
-          />
+          <div className="shrink-0">
+            <CandidateBadges
+              response={response}
+              orgSlug={orgSlug}
+              workspaceSlug={workspaceSlug}
+            />
+          </div>
         </div>
         <CandidateInfo
           age={age}

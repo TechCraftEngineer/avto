@@ -35,7 +35,7 @@ export function GigListItem({
   const isOverdue = gig.deadline && gig.deadline < new Date();
 
   return (
-    <div className="rounded-lg border p-3 transition-shadow hover:shadow-sm">
+    <div className="rounded-lg border bg-card p-3 transition-shadow hover:shadow-sm">
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="mb-1.5 flex flex-wrap items-center gap-1.5">

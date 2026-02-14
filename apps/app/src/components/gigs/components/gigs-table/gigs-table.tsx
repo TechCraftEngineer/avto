@@ -85,7 +85,8 @@ export function GigsTable({
   );
 
   return (
-    <Table>
+    <div className="overflow-hidden rounded-lg border bg-card">
+      <Table>
       <TableHeader>
         <TableRow>
           <SortHeader field="title">Название</SortHeader>
@@ -239,5 +240,6 @@ export function GigsTable({
         })}
       </TableBody>
     </Table>
+    </div>
   );
 }

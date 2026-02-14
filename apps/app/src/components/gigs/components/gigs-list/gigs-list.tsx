@@ -74,7 +74,10 @@ export function GigsList({
     return (
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }).map((_) => (
-          <div key={crypto.randomUUID()} className="rounded-lg border p-6">
+          <div
+            key={crypto.randomUUID()}
+            className="rounded-lg border bg-card p-6"
+          >
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Skeleton className="h-5 w-20" />

@@ -41,7 +41,7 @@ export function GigCompactItem({
   const isOverdue = gig.deadline && gig.deadline < new Date();
 
   return (
-    <div className="flex items-center gap-2 rounded-md border px-3 py-2 transition-colors hover:bg-muted/50">
+    <div className="flex items-center gap-2 rounded-md border bg-card px-3 py-2 transition-colors hover:bg-muted/50">
       <Link
         href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs/${gig.id}`}
         className="min-w-0 flex-1 truncate text-sm font-medium transition-colors hover:text-primary"
