@@ -1,3 +1,7 @@
+/**
+ * Server-only: puppeteer, crawlee, cheerio.
+ * Использовать только в jobs/Inngest. Не импортировать в app (клиент).
+ */
 // Экспорт парсеров
 
 export { verifyHHCredentialsFunction } from "./functions/integration/verify-hh-credentials";

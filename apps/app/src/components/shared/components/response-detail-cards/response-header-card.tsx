@@ -2,7 +2,7 @@
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
 import type { Candidate } from "@qbs-autonaim/db/schema";
-import { calculateAge, formatBirthDate } from "@qbs-autonaim/lib";
+import { calculateAge, formatBirthDate } from "@qbs-autonaim/lib/utils";
 import { getInitials } from "@qbs-autonaim/shared";
 import { hasExperience as checkExperience } from "@qbs-autonaim/shared/utils";
 import {

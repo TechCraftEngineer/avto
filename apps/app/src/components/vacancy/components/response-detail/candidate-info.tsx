@@ -1,4 +1,4 @@
-import { calculateAge } from "@qbs-autonaim/lib";
+import { calculateAge } from "@qbs-autonaim/lib/utils";
 import { getInitials } from "@qbs-autonaim/shared";
 import {
   Avatar,

@@ -1,3 +1,7 @@
+/**
+ * Client-safe utilities (date, sanitize).
+ * Использовать для клиентских компонентов вместо @qbs-autonaim/lib
+ */
 // Date utilities
 export {
   calculateAge,

@@ -10,7 +10,7 @@ import {
   HR_SELECTION_STATUS_LABELS,
   RESPONSE_STATUS_LABELS,
 } from "@qbs-autonaim/db/schema";
-import { calculateAge } from "@qbs-autonaim/lib";
+import { calculateAge } from "@qbs-autonaim/lib/utils";
 import { getInitials } from "@qbs-autonaim/shared";
 import { Badge, Checkbox, TableCell, TableRow } from "@qbs-autonaim/ui";
 import Link from "next/link";

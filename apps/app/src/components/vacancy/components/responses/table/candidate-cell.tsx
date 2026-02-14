@@ -2,7 +2,7 @@
 
 import type { ResponseListItem } from "./response-columns";
 import { paths } from "@qbs-autonaim/config";
-import { calculateAge } from "@qbs-autonaim/lib";
+import { calculateAge } from "@qbs-autonaim/lib/utils";
 import { getInitials } from "@qbs-autonaim/shared";
 import Link from "next/link";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
