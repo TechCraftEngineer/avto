@@ -80,6 +80,7 @@ function createColumns(): ColumnDef<ResponseListItem, unknown>[] {
     columnHelper.display({
       id: "candidate",
       header: () => "Кандидат",
+      size: 280,
       cell: ({ row, table }) => {
         const meta = table.options.meta as ResponseTableMeta;
         return (
