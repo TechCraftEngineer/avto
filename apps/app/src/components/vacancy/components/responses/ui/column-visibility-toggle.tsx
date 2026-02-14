@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui/button";
+import { Button } from "@qbs-autonaim/ui";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -8,7 +8,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@qbs-autonaim/ui/dropdown-menu";
+} from "@qbs-autonaim/ui";
 import { IconColumns3 } from "@tabler/icons-react";
 import { useMemo } from "react";
 import type { ColumnId } from "../types";

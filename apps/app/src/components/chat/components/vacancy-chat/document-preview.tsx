@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui/button";
-import { Textarea } from "@qbs-autonaim/ui/textarea";
+import { Button } from "@qbs-autonaim/ui";
+import { Textarea } from "@qbs-autonaim/ui";
 import { IconEdit } from "@tabler/icons-react";
 import { FileText, Loader2 } from "lucide-react";
 import { useMemo } from "react";

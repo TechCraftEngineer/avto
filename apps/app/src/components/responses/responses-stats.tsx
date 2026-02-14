@@ -3,7 +3,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@qbs-autonaim/ui/card";
+} from "@qbs-autonaim/ui";
 import { CheckCircle, FileText, Inbox, Sparkles } from "lucide-react";
 
 interface ResponsesStatsProps {

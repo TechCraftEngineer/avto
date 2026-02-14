@@ -5,7 +5,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from "@qbs-autonaim/ui/card";
+} from "@qbs-autonaim/ui";
 import { CandidateCard } from "~/components";
 import type { FunnelCandidate } from "../../types/types";
 

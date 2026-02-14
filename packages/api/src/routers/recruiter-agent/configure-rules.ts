@@ -1,11 +1,11 @@
-п»ї/**
- * Configure Rules procedure РґР»СЏ AI-Р°СЃСЃРёСЃС‚РµРЅС‚Р° СЂРµРєСЂСѓС‚РµСЂР°
+/**
+ * Configure Rules procedure для AI-ассистента рекрутера
  *
- * РЈРїСЂР°РІР»РµРЅРёРµ РїСЂР°РІРёР»Р°РјРё Р°РІС‚РѕРјР°С‚РёР·Р°С†РёРё:
- * - РЎРѕР·РґР°РЅРёРµ РїСЂР°РІРёР»
- * - РћР±РЅРѕРІР»РµРЅРёРµ РїСЂР°РІРёР»
- * - РЈРґР°Р»РµРЅРёРµ РїСЂР°РІРёР»
- * - Р’РєР»СЋС‡РµРЅРёРµ/РІС‹РєР»СЋС‡РµРЅРёРµ РїСЂР°РІРёР»
+ * Управление правилами автоматизации:
+ * - Создание правил
+ * - Обновление правил
+ * - Удаление правил
+ * - Включение/выключение правил
  *
  * Requirements: 6.1, 6.2, 6.4
  */
@@ -25,7 +25,7 @@ import { protectedProcedure } from "../../trpc";
 import { checkActionPermission, checkWorkspaceAccess } from "./middleware";
 
 /**
- * РЎС…РµРјР° СѓСЃР»РѕРІРёСЏ РїСЂР°РІРёР»Р°
+ * Схема условия правила
  */
 const ruleConditionSchema: z.ZodType<RuleCondition> = z.object({
   field: z.enum([
@@ -51,7 +51,7 @@ const ruleConditionSchema: z.ZodType<RuleCondition> = z.object({
 });
 
 /**
- * РЎС…РµРјР° СЃРѕСЃС‚Р°РІРЅРѕРіРѕ СѓСЃР»РѕРІРёСЏ
+ * Схема составного условия
  */
 const compositeConditionSchema: z.ZodType<CompositeCondition> = z.lazy(() =>
   z.object({
@@ -63,7 +63,7 @@ const compositeConditionSchema: z.ZodType<CompositeCondition> = z.lazy(() =>
 );
 
 /**
- * РЎС…РµРјР° РґРµР№СЃС‚РІРёСЏ РїСЂР°РІРёР»Р°
+ * Схема действия правила
  */
 const ruleActionSchema: z.ZodType<RuleAction> = z.object({
   type: z.enum([
@@ -85,7 +85,7 @@ const ruleActionSchema: z.ZodType<RuleAction> = z.object({
 });
 
 /**
- * РЎС…РµРјР° РґР»СЏ СЃРѕР·РґР°РЅРёСЏ РїСЂР°РІРёР»Р°
+ * Схема для создания правила
  */
 const createRuleInputSchema = z.object({
   workspaceId: workspaceIdSchema,
@@ -100,7 +100,7 @@ const createRuleInputSchema = z.object({
 });
 
 /**
- * РЎС…РµРјР° РґР»СЏ РѕР±РЅРѕРІР»РµРЅРёСЏ РїСЂР°РІРёР»Р°
+ * Схема для обновления правила
  */
 const updateRuleInputSchema = z.object({
   workspaceId: workspaceIdSchema,
@@ -117,7 +117,7 @@ const updateRuleInputSchema = z.object({
 });
 
 /**
- * РЎС…РµРјР° РґР»СЏ СѓРґР°Р»РµРЅРёСЏ РїСЂР°РІРёР»Р°
+ * Схема для удаления правила
  */
 const deleteRuleInputSchema = z.object({
   workspaceId: workspaceIdSchema,
@@ -125,7 +125,7 @@ const deleteRuleInputSchema = z.object({
 });
 
 /**
- * РЎС…РµРјР° РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РїСЂР°РІРёР»
+ * Схема для получения правил
  */
 const getRulesInputSchema = z.object({
   workspaceId: workspaceIdSchema,
@@ -150,7 +150,7 @@ export const createRule = protectedProcedure
       enabled,
     } = input;
 
-    // РџСЂРѕРІРµСЂРєР° РґРѕСЃС‚СѓРїР° Рє workspace
+    // Проверка доступа к workspace
     const hasAccess = await checkWorkspaceAccess(
       ctx.workspaceRepository,
       workspaceId,
@@ -160,11 +160,11 @@ export const createRule = protectedProcedure
     if (!hasAccess) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "РќРµС‚ РґРѕСЃС‚СѓРїР° Рє workspace",
+        message: "Нет доступа к workspace",
       });
     }
 
-    // РџСЂРѕРІРµСЂРєР° РїСЂР°РІ РЅР° РЅР°СЃС‚СЂРѕР№РєСѓ РїСЂР°РІРёР»
+    // Проверка прав на настройку правил
     const hasPermission = await checkActionPermission(
       ctx.workspaceRepository,
       workspaceId,
@@ -175,13 +175,13 @@ export const createRule = protectedProcedure
     if (!hasPermission) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "РќРµС‚ РїСЂР°РІ РЅР° РЅР°СЃС‚СЂРѕР№РєСѓ РїСЂР°РІРёР»",
+        message: "Нет прав на настройку правил",
       });
     }
 
     const ruleEngine = getRuleEngine();
 
-    // РЎРѕР·РґР°С‘Рј РїСЂР°РІРёР»Рѕ
+    // Создаём правило
     const rule = RuleEngine.createRule({
       workspaceId,
       vacancyId,
@@ -196,7 +196,7 @@ export const createRule = protectedProcedure
 
     ruleEngine.addRule(rule);
 
-    // Р›РѕРіРёСЂСѓРµРј РІ audit log
+    // Логируем в audit log
     await ctx.auditLogger.logAccess({
       userId: ctx.session.user.id,
       workspaceId,
@@ -239,7 +239,7 @@ export const updateRule = protectedProcedure
   .mutation(async ({ input, ctx }) => {
     const { workspaceId, ruleId, ...updates } = input;
 
-    // РџСЂРѕРІРµСЂРєР° РґРѕСЃС‚СѓРїР° Рє workspace
+    // Проверка доступа к workspace
     const hasAccess = await checkWorkspaceAccess(
       ctx.workspaceRepository,
       workspaceId,
@@ -249,11 +249,11 @@ export const updateRule = protectedProcedure
     if (!hasAccess) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "РќРµС‚ РґРѕСЃС‚СѓРїР° Рє workspace",
+        message: "Нет доступа к workspace",
       });
     }
 
-    // РџСЂРѕРІРµСЂРєР° РїСЂР°РІ РЅР° РЅР°СЃС‚СЂРѕР№РєСѓ РїСЂР°РІРёР»
+    // Проверка прав на настройку правил
     const hasPermission = await checkActionPermission(
       ctx.workspaceRepository,
       workspaceId,
@@ -264,7 +264,7 @@ export const updateRule = protectedProcedure
     if (!hasPermission) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "РќРµС‚ РїСЂР°РІ РЅР° РЅР°СЃС‚СЂРѕР№РєСѓ РїСЂР°РІРёР»",
+        message: "Нет прав на настройку правил",
       });
     }
 
@@ -274,19 +274,19 @@ export const updateRule = protectedProcedure
     if (!existingRule) {
       throw new TRPCError({
         code: "NOT_FOUND",
-        message: "РџСЂР°РІРёР»Рѕ РЅРµ РЅР°Р№РґРµРЅРѕ",
+        message: "Правило не найдено",
       });
     }
 
-    // РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РїСЂР°РІРёР»Рѕ РїСЂРёРЅР°РґР»РµР¶РёС‚ workspace
+    // Проверяем, что правило принадлежит workspace
     if (existingRule.workspaceId !== workspaceId) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "РџСЂР°РІРёР»Рѕ РЅРµ РїСЂРёРЅР°РґР»РµР¶РёС‚ СЌС‚РѕРјСѓ workspace",
+        message: "Правило не принадлежит этому workspace",
       });
     }
 
-    // РћР±РЅРѕРІР»СЏРµРј РїСЂР°РІРёР»Рѕ
+    // Обновляем правило
     const updatedRule: AutomationRule = {
       ...existingRule,
       ...updates,
@@ -295,7 +295,7 @@ export const updateRule = protectedProcedure
 
     ruleEngine.addRule(updatedRule);
 
-    // Р›РѕРіРёСЂСѓРµРј РІ audit log
+    // Логируем в audit log
     await ctx.auditLogger.logAccess({
       userId: ctx.session.user.id,
       workspaceId,
@@ -336,7 +336,7 @@ export const deleteRule = protectedProcedure
   .mutation(async ({ input, ctx }) => {
     const { workspaceId, ruleId } = input;
 
-    // РџСЂРѕРІРµСЂРєР° РґРѕСЃС‚СѓРїР° Рє workspace
+    // Проверка доступа к workspace
     const hasAccess = await checkWorkspaceAccess(
       ctx.workspaceRepository,
       workspaceId,
@@ -346,11 +346,11 @@ export const deleteRule = protectedProcedure
     if (!hasAccess) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "РќРµС‚ РґРѕСЃС‚СѓРїР° Рє workspace",
+        message: "Нет доступа к workspace",
       });
     }
 
-    // РџСЂРѕРІРµСЂРєР° РїСЂР°РІ РЅР° РЅР°СЃС‚СЂРѕР№РєСѓ РїСЂР°РІРёР»
+    // Проверка прав на настройку правил
     const hasPermission = await checkActionPermission(
       ctx.workspaceRepository,
       workspaceId,
@@ -361,7 +361,7 @@ export const deleteRule = protectedProcedure
     if (!hasPermission) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "РќРµС‚ РїСЂР°РІ РЅР° РЅР°СЃС‚СЂРѕР№РєСѓ РїСЂР°РІРёР»",
+        message: "Нет прав на настройку правил",
       });
     }
 
@@ -371,15 +371,15 @@ export const deleteRule = protectedProcedure
     if (!existingRule) {
       throw new TRPCError({
         code: "NOT_FOUND",
-        message: "РџСЂР°РІРёР»Рѕ РЅРµ РЅР°Р№РґРµРЅРѕ",
+        message: "Правило не найдено",
       });
     }
 
-    // РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РїСЂР°РІРёР»Рѕ РїСЂРёРЅР°РґР»РµР¶РёС‚ workspace
+    // Проверяем, что правило принадлежит workspace
     if (existingRule.workspaceId !== workspaceId) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "РџСЂР°РІРёР»Рѕ РЅРµ РїСЂРёРЅР°РґР»РµР¶РёС‚ СЌС‚РѕРјСѓ workspace",
+        message: "Правило не принадлежит этому workspace",
       });
     }
 
@@ -388,11 +388,11 @@ export const deleteRule = protectedProcedure
     if (!deleted) {
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
-        message: "РќРµ СѓРґР°Р»РѕСЃСЊ СѓРґР°Р»РёС‚СЊ РїСЂР°РІРёР»Рѕ",
+        message: "Не удалось удалить правило",
       });
     }
 
-    // Р›РѕРіРёСЂСѓРµРј РІ audit log
+    // Логируем в audit log
     await ctx.auditLogger.logAccess({
       userId: ctx.session.user.id,
       workspaceId,
@@ -409,7 +409,7 @@ export const deleteRule = protectedProcedure
 
     return {
       success: true,
-      message: "РџСЂР°РІРёР»Рѕ СѓСЃРїРµС€РЅРѕ СѓРґР°Р»РµРЅРѕ",
+      message: "Правило успешно удалено",
     };
   });
 
@@ -421,7 +421,7 @@ export const getRules = protectedProcedure
   .query(async ({ input, ctx }) => {
     const { workspaceId, vacancyId } = input;
 
-    // РџСЂРѕРІРµСЂРєР° РґРѕСЃС‚СѓРїР° Рє workspace
+    // Проверка доступа к workspace
     const hasAccess = await checkWorkspaceAccess(
       ctx.workspaceRepository,
       workspaceId,
@@ -431,7 +431,7 @@ export const getRules = protectedProcedure
     if (!hasAccess) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "РќРµС‚ РґРѕСЃС‚СѓРїР° Рє workspace",
+        message: "Нет доступа к workspace",
       });
     }
 
@@ -474,7 +474,7 @@ export const toggleRule = protectedProcedure
   .mutation(async ({ input, ctx }) => {
     const { workspaceId, ruleId, enabled } = input;
 
-    // РџСЂРѕРІРµСЂРєР° РґРѕСЃС‚СѓРїР° Рє workspace
+    // Проверка доступа к workspace
     const hasAccess = await checkWorkspaceAccess(
       ctx.workspaceRepository,
       workspaceId,
@@ -484,11 +484,11 @@ export const toggleRule = protectedProcedure
     if (!hasAccess) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "РќРµС‚ РґРѕСЃС‚СѓРїР° Рє workspace",
+        message: "Нет доступа к workspace",
       });
     }
 
-    // РџСЂРѕРІРµСЂРєР° РїСЂР°РІ РЅР° РЅР°СЃС‚СЂРѕР№РєСѓ РїСЂР°РІРёР»
+    // Проверка прав на настройку правил
     const hasPermission = await checkActionPermission(
       ctx.workspaceRepository,
       workspaceId,
@@ -499,7 +499,7 @@ export const toggleRule = protectedProcedure
     if (!hasPermission) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "РќРµС‚ РїСЂР°РІ РЅР° РЅР°СЃС‚СЂРѕР№РєСѓ РїСЂР°РІРёР»",
+        message: "Нет прав на настройку правил",
       });
     }
 
@@ -509,15 +509,15 @@ export const toggleRule = protectedProcedure
     if (!existingRule) {
       throw new TRPCError({
         code: "NOT_FOUND",
-        message: "РџСЂР°РІРёР»Рѕ РЅРµ РЅР°Р№РґРµРЅРѕ",
+        message: "Правило не найдено",
       });
     }
 
-    // РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РїСЂР°РІРёР»Рѕ РїСЂРёРЅР°РґР»РµР¶РёС‚ workspace
+    // Проверяем, что правило принадлежит workspace
     if (existingRule.workspaceId !== workspaceId) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "РџСЂР°РІРёР»Рѕ РЅРµ РїСЂРёРЅР°РґР»РµР¶РёС‚ СЌС‚РѕРјСѓ workspace",
+        message: "Правило не принадлежит этому workspace",
       });
     }
 
@@ -526,11 +526,11 @@ export const toggleRule = protectedProcedure
     if (!success) {
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
-        message: "РќРµ СѓРґР°Р»РѕСЃСЊ РёР·РјРµРЅРёС‚СЊ СЃС‚Р°С‚СѓСЃ РїСЂР°РІРёР»Р°",
+        message: "Не удалось изменить статус правила",
       });
     }
 
-    // Р›РѕРіРёСЂСѓРµРј РІ audit log
+    // Логируем в audit log
     await ctx.auditLogger.logAccess({
       userId: ctx.session.user.id,
       workspaceId,
@@ -551,12 +551,12 @@ export const toggleRule = protectedProcedure
     return {
       success: true,
       enabled,
-      message: enabled ? "РџСЂР°РІРёР»Рѕ РІРєР»СЋС‡РµРЅРѕ" : "РџСЂР°РІРёР»Рѕ РІС‹РєР»СЋС‡РµРЅРѕ",
+      message: enabled ? "Правило включено" : "Правило выключено",
     };
   });
 
 /**
- * РћР±СЉРµРґРёРЅС‘РЅРЅС‹Р№ СЌРєСЃРїРѕСЂС‚ РґР»СЏ configure-rules
+ * Объединённый экспорт для configure-rules
  */
 export const configureRules = {
   create: createRule,

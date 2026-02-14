@@ -1,4 +1,4 @@
-import { TableHead } from "@qbs-autonaim/ui/table";
+import { TableHead } from "@qbs-autonaim/ui";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import { memo } from "react";
 import type { SortDirection, SortField } from "../types";

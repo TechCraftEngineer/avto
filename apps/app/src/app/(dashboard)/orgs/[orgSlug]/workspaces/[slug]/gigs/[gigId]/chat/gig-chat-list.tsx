@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui/button";
-import { Skeleton } from "@qbs-autonaim/ui/skeleton";
+import { Button } from "@qbs-autonaim/ui";
+import { Skeleton } from "@qbs-autonaim/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";

@@ -13,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@qbs-autonaim/ui";
-import { InfoTooltip } from "@qbs-autonaim/ui/info-tooltip";
+import { InfoTooltip } from "@qbs-autonaim/ui";
 import { ArrowUpDown } from "lucide-react";
 import Link from "next/link";
 

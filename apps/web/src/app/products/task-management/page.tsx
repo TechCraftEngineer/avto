@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import { Header, Footer } from "@/components/layout"
-import { Button } from "@qbs-autonaim/ui/button"
+import { Button } from "@qbs-autonaim/ui"
 import { Kanban, ArrowRight, Globe, Bell, Filter, Calendar, BarChart3, Link2, Users, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { ProductNavigation } from "@/components/layout" // Added import for ProductNavigation

@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui/button";
+import { Button } from "@qbs-autonaim/ui";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { authClient } from "~/auth/client";

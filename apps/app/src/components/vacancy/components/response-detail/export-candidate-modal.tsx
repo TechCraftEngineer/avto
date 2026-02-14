@@ -1,16 +1,16 @@
 "use client";
 
-import { Badge } from "@qbs-autonaim/ui/badge";
-import { Button } from "@qbs-autonaim/ui/button";
-import { Checkbox } from "@qbs-autonaim/ui/checkbox";
+import { Badge } from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui";
+import { Checkbox } from "@qbs-autonaim/ui";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@qbs-autonaim/ui/dialog";
-import { Label } from "@qbs-autonaim/ui/label";
+} from "@qbs-autonaim/ui";
+import { Label } from "@qbs-autonaim/ui";
 import {
   Award,
   Briefcase,

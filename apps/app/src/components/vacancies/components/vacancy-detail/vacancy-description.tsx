@@ -3,7 +3,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from "@qbs-autonaim/ui/card";
+} from "@qbs-autonaim/ui";
 import { IconFileDescription } from "@tabler/icons-react";
 
 import sanitizeHtml from "sanitize-html";

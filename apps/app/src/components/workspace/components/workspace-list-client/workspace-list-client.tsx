@@ -1,8 +1,8 @@
 "use client";
 
 import type { OrganizationRole, Workspace } from "@qbs-autonaim/db";
-import { Button } from "@qbs-autonaim/ui/button";
-import { Input } from "@qbs-autonaim/ui/input";
+import { Button } from "@qbs-autonaim/ui";
+import { Input } from "@qbs-autonaim/ui";
 import { Plus, Search } from "lucide-react";
 import { useState } from "react";
 import { CreateWorkspaceDialog } from "../create-workspace-dialog";

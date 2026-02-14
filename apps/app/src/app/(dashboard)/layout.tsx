@@ -1,5 +1,5 @@
 import { paths } from "@qbs-autonaim/config";
-import { SidebarInset, SidebarProvider } from "@qbs-autonaim/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "@qbs-autonaim/ui";
 import { redirect } from "next/navigation";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import type { ReactNode } from "react";

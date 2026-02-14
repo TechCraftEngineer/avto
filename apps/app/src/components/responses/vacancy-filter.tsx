@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@qbs-autonaim/ui";
-import { Button } from "@qbs-autonaim/ui/button";
+import { Button } from "@qbs-autonaim/ui";
 import {
   Command,
   CommandEmpty,
@@ -9,12 +9,12 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@qbs-autonaim/ui/command";
+} from "@qbs-autonaim/ui";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@qbs-autonaim/ui/popover";
+} from "@qbs-autonaim/ui";
 import { IconCheck, IconChevronDown } from "@tabler/icons-react";
 import { useState } from "react";
 

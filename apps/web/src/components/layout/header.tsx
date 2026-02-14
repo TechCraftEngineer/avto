@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
-import { Button } from "@qbs-autonaim/ui/button"
+import { Button } from "@qbs-autonaim/ui"
 import {
   Menu,
   X,

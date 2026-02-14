@@ -1,4 +1,4 @@
-п»їimport { and, eq } from "@qbs-autonaim/db";
+import { and, eq } from "@qbs-autonaim/db";
 import {
   response as responseTable,
   vacancy as vacancyTable,
@@ -25,7 +25,7 @@ export const updateSalaryExpectations = protectedProcedure
     if (!access) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "РќРµС‚ РґРѕСЃС‚СѓРїР° Рє workspace",
+        message: "Нет доступа к workspace",
       });
     }
 
@@ -39,7 +39,7 @@ export const updateSalaryExpectations = protectedProcedure
     if (!response) {
       throw new TRPCError({
         code: "NOT_FOUND",
-        message: "РљР°РЅРґРёРґР°С‚ РЅРµ РЅР°Р№РґРµРЅ",
+        message: "Кандидат не найден",
       });
     }
 
@@ -52,14 +52,14 @@ export const updateSalaryExpectations = protectedProcedure
     if (!vacancy) {
       throw new TRPCError({
         code: "NOT_FOUND",
-        message: "Р’Р°РєР°РЅСЃРёСЏ РЅРµ РЅР°Р№РґРµРЅР°",
+        message: "Вакансия не найдена",
       });
     }
 
     if (vacancy.workspaceId !== input.workspaceId) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "РќРµС‚ РґРѕСЃС‚СѓРїР° Рє СЌС‚РѕРјСѓ РєР°РЅРґРёРґР°С‚Сѓ",
+        message: "Нет доступа к этому кандидату",
       });
     }
 

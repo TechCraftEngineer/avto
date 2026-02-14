@@ -1,4 +1,4 @@
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@qbs-autonaim/ui/accordion"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@qbs-autonaim/ui"
 import { HelpCircle } from "lucide-react"
 
 export function FAQSection() {

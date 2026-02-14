@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui/button";
+import { Button } from "@qbs-autonaim/ui";
 import { IconDownload, IconPlus } from "@tabler/icons-react";
 import {
   skipToken,

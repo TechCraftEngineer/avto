@@ -1,5 +1,5 @@
-import { Badge } from "@qbs-autonaim/ui/badge";
-import { Separator } from "@qbs-autonaim/ui/separator";
+import { Badge } from "@qbs-autonaim/ui";
+import { Separator } from "@qbs-autonaim/ui";
 import { sanitizeHtmlFunction } from "~/lib/sanitize-html";
 
 interface ResumeProfileProps {

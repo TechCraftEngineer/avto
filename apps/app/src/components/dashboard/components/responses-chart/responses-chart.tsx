@@ -19,7 +19,7 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from "@qbs-autonaim/ui";
-import { useIsMobile } from "@qbs-autonaim/ui/hooks";
+import { useIsMobile } from "@qbs-autonaim/ui";
 import { useQuery } from "@tanstack/react-query";
 import * as React from "react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";

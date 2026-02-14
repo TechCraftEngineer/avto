@@ -10,7 +10,7 @@ import {
   RESPONSE_STATUS_LABELS,
 } from "@qbs-autonaim/db/schema";
 import { Badge, Checkbox } from "@qbs-autonaim/ui";
-import { InfoTooltip } from "@qbs-autonaim/ui/info-tooltip";
+import { InfoTooltip } from "@qbs-autonaim/ui";
 import {
   createColumnHelper,
   type ColumnDef,

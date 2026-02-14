@@ -1,5 +1,5 @@
-import { Button } from "@qbs-autonaim/ui/button";
-import { TableCell, TableRow } from "@qbs-autonaim/ui/table";
+import { Button } from "@qbs-autonaim/ui";
+import { TableCell, TableRow } from "@qbs-autonaim/ui";
 import { Download, Filter, Inbox } from "lucide-react";
 
 interface EmptyStateProps {

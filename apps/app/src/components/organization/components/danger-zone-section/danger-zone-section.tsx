@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui/button";
+import { Button } from "@qbs-autonaim/ui";
 import { useMutation } from "@tanstack/react-query";
 import { AlertTriangle } from "lucide-react";
 import { useRouter } from "next/navigation";

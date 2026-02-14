@@ -1,7 +1,7 @@
 "use client";
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
-import { Separator } from "@qbs-autonaim/ui/separator";
+import { Separator } from "@qbs-autonaim/ui";
 import {
   ExternalLink,
   FileText,

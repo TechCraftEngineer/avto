@@ -1,7 +1,7 @@
 "use client";
 
-import { Badge } from "@qbs-autonaim/ui/badge";
-import { Button } from "@qbs-autonaim/ui/button";
+import { Badge } from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui";
 import { ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getStatusLabel } from "./header-card-utils";

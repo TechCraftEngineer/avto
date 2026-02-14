@@ -1,6 +1,6 @@
 "use client";
 
-import { ScrollArea } from "@qbs-autonaim/ui/scroll-area";
+import { ScrollArea } from "@qbs-autonaim/ui";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 import { useEffect, useMemo, useRef } from "react";

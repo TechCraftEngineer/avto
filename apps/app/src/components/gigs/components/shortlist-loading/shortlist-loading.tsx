@@ -1,4 +1,4 @@
-import { Skeleton } from "@qbs-autonaim/ui/skeleton";
+import { Skeleton } from "@qbs-autonaim/ui";
 
 export function ShortlistLoading() {
   return (

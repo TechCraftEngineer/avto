@@ -1,10 +1,10 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui/button";
-import { Input } from "@qbs-autonaim/ui/input";
-import { Label } from "@qbs-autonaim/ui/label";
-import { Separator } from "@qbs-autonaim/ui/separator";
-import { Textarea } from "@qbs-autonaim/ui/textarea";
+import { Button } from "@qbs-autonaim/ui";
+import { Input } from "@qbs-autonaim/ui";
+import { Label } from "@qbs-autonaim/ui";
+import { Separator } from "@qbs-autonaim/ui";
+import { Textarea } from "@qbs-autonaim/ui";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
 

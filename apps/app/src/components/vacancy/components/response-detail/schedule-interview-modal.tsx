@@ -1,24 +1,24 @@
 "use client";
 
-import { Badge } from "@qbs-autonaim/ui/badge";
-import { Button } from "@qbs-autonaim/ui/button";
-import { Calendar } from "@qbs-autonaim/ui/calendar";
+import { Badge } from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui";
+import { Calendar } from "@qbs-autonaim/ui";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@qbs-autonaim/ui/dialog";
-import { Label } from "@qbs-autonaim/ui/label";
+} from "@qbs-autonaim/ui";
+import { Label } from "@qbs-autonaim/ui";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@qbs-autonaim/ui/select";
-import { Textarea } from "@qbs-autonaim/ui/textarea";
+} from "@qbs-autonaim/ui";
+import { Textarea } from "@qbs-autonaim/ui";
 import { CalendarIcon, Clock, MapPin, Users } from "lucide-react";
 import { useState } from "react";
 import type { VacancyResponse } from "./types";

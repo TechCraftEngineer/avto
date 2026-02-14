@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui/button";
+import { Button } from "@qbs-autonaim/ui";
 import { useQuery } from "@tanstack/react-query";
 import { ExternalLink, MessageSquare } from "lucide-react";
 import Link from "next/link";

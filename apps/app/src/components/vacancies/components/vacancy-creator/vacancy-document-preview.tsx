@@ -1,8 +1,8 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui/button";
-import { Card } from "@qbs-autonaim/ui/card";
-import { ScrollArea } from "@qbs-autonaim/ui/scroll-area";
+import { Button } from "@qbs-autonaim/ui";
+import { Card } from "@qbs-autonaim/ui";
+import { ScrollArea } from "@qbs-autonaim/ui";
 import { FileText, Loader2 } from "lucide-react";
 
 interface VacancyDocument {

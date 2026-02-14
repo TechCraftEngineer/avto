@@ -5,6 +5,10 @@ export const cn = (...inputs: Parameters<typeof cx>) => twMerge(cx(inputs));
 
 
 export { Avatar, AvatarFallback, AvatarImage } from './avatar'
+
+// Accordion components
+export { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "./accordion";
+
 // Alert components
 export { Alert, AlertTitle, AlertDescription } from "./alert";
 

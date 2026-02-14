@@ -1,4 +1,4 @@
-п»їimport {
+import {
   eq,
   interviewMessage,
   interviewSession,
@@ -23,7 +23,7 @@ export const sendMessageRouter = protectedProcedure
       .insert(interviewMessage)
       .values({
         sessionId: input.sessionId,
-        role: "assistant", // РђРґРјРёРЅ РѕС‚РїСЂР°РІР»СЏРµС‚ РєР°Рє assistant
+        role: "assistant", // Админ отправляет как assistant
         type: input.type,
         channel: "web",
         content: input.content,
@@ -36,7 +36,7 @@ export const sendMessageRouter = protectedProcedure
       throw new Error("Failed to create message");
     }
 
-    // РџРѕР»СѓС‡Р°РµРј РґР°РЅРЅС‹Рµ СЃРµСЃСЃРёРё РґР»СЏ РѕС‚РїСЂР°РІРєРё РІ Telegram
+    // Получаем данные сессии для отправки в Telegram
     const sessionData = await ctx.db
       .select({
         id: interviewSession.id,

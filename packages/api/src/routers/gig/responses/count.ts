@@ -1,4 +1,4 @@
-п»їimport { and, count, eq } from "@qbs-autonaim/db";
+import { and, count, eq } from "@qbs-autonaim/db";
 import { gig, response as responseTable } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
@@ -21,11 +21,11 @@ export const countResponses = protectedProcedure
     if (!access) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "РќРµС‚ РґРѕСЃС‚СѓРїР° Рє СЌС‚РѕРјСѓ workspace",
+        message: "Нет доступа к этому workspace",
       });
     }
 
-    // РџСЂРѕРІРµСЂСЏРµРј С‡С‚Рѕ gig РїСЂРёРЅР°РґР»РµР¶РёС‚ workspace
+    // Проверяем что gig принадлежит workspace
     const existingGig = await ctx.db.query.gig.findFirst({
       where: and(
         eq(gig.id, input.gigId),
@@ -36,11 +36,11 @@ export const countResponses = protectedProcedure
     if (!existingGig) {
       throw new TRPCError({
         code: "NOT_FOUND",
-        message: "Р—Р°РґР°РЅРёРµ РЅРµ РЅР°Р№РґРµРЅРѕ",
+        message: "Задание не найдено",
       });
     }
 
-    // РџРѕРґСЃС‡РёС‚С‹РІР°РµРј СЂРµР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РѕС‚РєР»РёРєРѕРІ
+    // Подсчитываем реальное количество откликов
     const totalResult = await ctx.db
       .select({ count: count() })
       .from(responseTable)
@@ -53,7 +53,7 @@ export const countResponses = protectedProcedure
 
     const total = totalResult[0]?.count ?? 0;
 
-    // РџРѕРґСЃС‡РёС‚С‹РІР°РµРј РЅРѕРІС‹Рµ РѕС‚РєР»РёРєРё (СЃС‚Р°С‚СѓСЃ NEW)
+    // Подсчитываем новые отклики (статус NEW)
     const newResult = await ctx.db
       .select({ count: count() })
       .from(responseTable)
@@ -70,10 +70,10 @@ export const countResponses = protectedProcedure
     return {
       total,
       new: newCount,
-      // Р’РѕР·РІСЂР°С‰Р°РµРј С‚Р°РєР¶Рµ Р·РЅР°С‡РµРЅРёСЏ РёР· С‚Р°Р±Р»РёС†С‹ gig РґР»СЏ СЃСЂР°РІРЅРµРЅРёСЏ
+      // Возвращаем также значения из таблицы gig для сравнения
       gigResponses: existingGig.responses ?? 0,
       gigNewResponses: existingGig.newResponses ?? 0,
-      // Р¤Р»Р°Рі СЂР°СЃСЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё
+      // Флаг рассинхронизации
       isSynced:
         total === (existingGig.responses ?? 0) &&
         newCount === (existingGig.newResponses ?? 0),

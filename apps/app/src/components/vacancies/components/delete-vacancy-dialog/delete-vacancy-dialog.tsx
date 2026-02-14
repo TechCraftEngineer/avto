@@ -9,7 +9,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@qbs-autonaim/ui/alert-dialog";
+} from "@qbs-autonaim/ui";
 
 interface DeleteVacancyDialogProps {
   open: boolean;

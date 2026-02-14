@@ -3,7 +3,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from "@qbs-autonaim/ui/card";
+} from "@qbs-autonaim/ui";
 
 interface ShortlistStatsProps {
   candidatesCount: number;

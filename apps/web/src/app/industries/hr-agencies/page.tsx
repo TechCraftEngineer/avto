@@ -15,9 +15,9 @@ import {
 import Link from "next/link"
 import type { Metadata } from "next"
 import { Footer, Header } from "~/components/layout"
-import { Badge } from "@qbs-autonaim/ui/badge"
-import { Button } from "@qbs-autonaim/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/card"
+import { Badge } from "@qbs-autonaim/ui"
+import { Button } from "@qbs-autonaim/ui"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui"
 
 export const metadata: Metadata = {
   title: "Решения для кадровых агентств | QBS Автонайм",

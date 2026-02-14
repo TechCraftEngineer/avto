@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { Star, Quote, ChevronLeft, ChevronRight } from "lucide-react"
-import { Button } from "@qbs-autonaim/ui/button"
+import { Button } from "@qbs-autonaim/ui"
 
 const testimonials = [
   {

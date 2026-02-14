@@ -1,4 +1,4 @@
-п»їimport { env, paths } from "@qbs-autonaim/config";
+import { env, paths } from "@qbs-autonaim/config";
 
 import { WorkspaceInviteEmail } from "@qbs-autonaim/emails";
 import { sendEmail } from "@qbs-autonaim/emails/send";
@@ -17,7 +17,7 @@ export const add = protectedProcedure
     if (!access || (access.role !== "owner" && access.role !== "admin")) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РїСЂР°РІ РґР»СЏ РїСЂРёРіР»Р°С€РµРЅРёСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№",
+        message: "Недостаточно прав для приглашения пользователей",
       });
     }
 
@@ -33,7 +33,7 @@ export const add = protectedProcedure
       if (existingMember) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: "РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ СѓР¶Рµ СЏРІР»СЏРµС‚СЃСЏ СѓС‡Р°СЃС‚РЅРёРєРѕРј workspace",
+          message: "Пользователь уже является участником workspace",
         });
       }
     }
@@ -46,7 +46,7 @@ export const add = protectedProcedure
     if (existingInvite) {
       throw new TRPCError({
         code: "BAD_REQUEST",
-        message: "РџСЂРёРіР»Р°С€РµРЅРёРµ РґР»СЏ СЌС‚РѕРіРѕ email СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚",
+        message: "Приглашение для этого email уже существует",
       });
     }
 
@@ -65,7 +65,7 @@ export const add = protectedProcedure
 
       await sendEmail({
         to: [input.email],
-        subject: `РџСЂРёРіР»Р°С€РµРЅРёРµ РІ ${workspace.name}`,
+        subject: `Приглашение в ${workspace.name}`,
         react: WorkspaceInviteEmail({
           workspaceName: workspace.name,
           workspaceLogo: workspace.logo || undefined,

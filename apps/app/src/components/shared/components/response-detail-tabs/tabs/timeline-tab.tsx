@@ -1,6 +1,6 @@
 "use client";
 
-import { ScrollArea } from "@qbs-autonaim/ui/scroll-area";
+import { ScrollArea } from "@qbs-autonaim/ui";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";

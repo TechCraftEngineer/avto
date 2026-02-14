@@ -1,4 +1,4 @@
-import { InfoTooltip } from "@qbs-autonaim/ui/info-tooltip";
+import { InfoTooltip } from "@qbs-autonaim/ui";
 
 interface PageHeaderProps {
   title: string;

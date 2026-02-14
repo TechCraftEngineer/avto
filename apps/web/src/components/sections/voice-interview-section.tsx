@@ -18,7 +18,7 @@ import {
   Brain,
   MessageSquare,
 } from "lucide-react"
-import { Button } from "@qbs-autonaim/ui/button"
+import { Button } from "@qbs-autonaim/ui"
 
 export function VoiceInterviewSection() {
   const [selectedPlatform, setSelectedPlatform] = useState<"telegram" | "webchat">("telegram")

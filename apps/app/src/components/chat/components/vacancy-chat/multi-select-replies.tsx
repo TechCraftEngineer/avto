@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@qbs-autonaim/ui";
-import { Button } from "@qbs-autonaim/ui/button";
+import { Button } from "@qbs-autonaim/ui";
 import { Check } from "lucide-react";
 import { useState } from "react";
 import type { QuickReply } from "./types";

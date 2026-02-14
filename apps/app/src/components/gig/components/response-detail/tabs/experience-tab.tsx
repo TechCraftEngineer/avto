@@ -1,9 +1,9 @@
 "use client";
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
-import { Badge } from "@qbs-autonaim/ui/badge";
-import { Button } from "@qbs-autonaim/ui/button";
-import { Separator } from "@qbs-autonaim/ui/separator";
+import { Badge } from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui";
+import { Separator } from "@qbs-autonaim/ui";
 import { Award, ExternalLink } from "lucide-react";
 import { getProfileData } from "~/components/shared/utils/types";
 import { sanitizeHtmlFunction } from "~/lib/sanitize-html";

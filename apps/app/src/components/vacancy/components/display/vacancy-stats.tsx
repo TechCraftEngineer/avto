@@ -3,7 +3,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@qbs-autonaim/ui/card";
+} from "@qbs-autonaim/ui";
 import { Eye, FileText, Inbox, Loader } from "lucide-react";
 
 interface VacancyStatsProps {

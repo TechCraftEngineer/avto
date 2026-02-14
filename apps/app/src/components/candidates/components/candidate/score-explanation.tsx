@@ -1,7 +1,7 @@
 "use client";
 
-import { Card, CardContent, CardHeader } from "@qbs-autonaim/ui/card";
-import { Progress } from "@qbs-autonaim/ui/progress";
+import { Card, CardContent, CardHeader } from "@qbs-autonaim/ui";
+import { Progress } from "@qbs-autonaim/ui";
 import { AlertCircle, Info } from "lucide-react";
 
 interface ScoreExplanationProps {

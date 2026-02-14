@@ -1,9 +1,9 @@
-ï»¿/**
- * Get Recommendations procedure Ð´Ð»Ñ AI-Ð°ÑÑÐ¸ÑÑ‚ÐµÐ½Ñ‚Ð° Ñ€ÐµÐºÑ€ÑƒÑ‚ÐµÑ€Ð°
+/**
+ * Get Recommendations procedure äëÿ AI-àññèñòåíòà ðåêðóòåðà
  *
- * ÐŸÐ¾Ð»ÑƒÑ‡Ð°ÐµÑ‚ Ñ€ÐµÐºÐ¾Ð¼ÐµÐ½Ð´Ð°Ñ†Ð¸Ð¸ Ð°Ð³ÐµÐ½Ñ‚Ð° Ð´Ð»Ñ:
- * - ÐšÐ°Ð½Ð´Ð¸Ð´Ð°Ñ‚Ð¾Ð² (Ð½Ð° Ð¾ÑÐ½Ð¾Ð²Ðµ Ð¿Ñ€Ð°Ð²Ð¸Ð»)
- * - Ð’Ð°ÐºÐ°Ð½ÑÐ¸Ð¹ (Ð°Ð½Ð°Ð»Ð¸Ñ‚Ð¸ÐºÐ°)
+ * Ïîëó÷àåò ðåêîìåíäàöèè àãåíòà äëÿ:
+ * - Êàíäèäàòîâ (íà îñíîâå ïðàâèë)
+ * - Âàêàíñèé (àíàëèòèêà)
  * - Pending approvals
  *
  * Requirements: 1.1, 1.2, 6.1, 6.2
@@ -25,7 +25,7 @@ import { protectedProcedure } from "../../trpc";
 import { checkWorkspaceAccess } from "./middleware";
 
 /**
- * Ð¡Ñ…ÐµÐ¼Ð° Ð´Ð»Ñ Ð¿Ð¾Ð»ÑƒÑ‡ÐµÐ½Ð¸Ñ Ñ€ÐµÐºÐ¾Ð¼ÐµÐ½Ð´Ð°Ñ†Ð¸Ð¹ Ð¿Ð¾ ÐºÐ°Ð½Ð´Ð¸Ð´Ð°Ñ‚Ñƒ
+ * Ñõåìà äëÿ ïîëó÷åíèÿ ðåêîìåíäàöèé ïî êàíäèäàòó
  */
 const getCandidateRecommendationsInputSchema = z.object({
   workspaceId: workspaceIdSchema,
@@ -45,14 +45,14 @@ const getCandidateRecommendationsInputSchema = z.object({
 });
 
 /**
- * Ð¡Ñ…ÐµÐ¼Ð° Ð´Ð»Ñ Ð¿Ð¾Ð»ÑƒÑ‡ÐµÐ½Ð¸Ñ pending approvals
+ * Ñõåìà äëÿ ïîëó÷åíèÿ pending approvals
  */
 const getPendingApprovalsInputSchema = z.object({
   workspaceId: workspaceIdSchema,
 });
 
 /**
- * Ð¡Ñ…ÐµÐ¼Ð° Ð´Ð»Ñ Ð¿Ð¾Ð»ÑƒÑ‡ÐµÐ½Ð¸Ñ undoable actions
+ * Ñõåìà äëÿ ïîëó÷åíèÿ undoable actions
  */
 const getUndoableActionsInputSchema = z.object({
   workspaceId: workspaceIdSchema,
@@ -61,14 +61,14 @@ const getUndoableActionsInputSchema = z.object({
 /**
  * Get Candidate Recommendations procedure
  *
- * ÐŸÑ€Ð¸Ð¼ÐµÐ½ÑÐµÑ‚ Ð¿Ñ€Ð°Ð²Ð¸Ð»Ð° Ðº ÐºÐ°Ð½Ð´Ð¸Ð´Ð°Ñ‚Ñƒ Ð¸ Ð²Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÑ‚ Ñ€ÐµÐºÐ¾Ð¼ÐµÐ½Ð´Ð°Ñ†Ð¸Ð¸
+ * Ïðèìåíÿåò ïðàâèëà ê êàíäèäàòó è âîçâðàùàåò ðåêîìåíäàöèè
  */
 export const getRecommendations = protectedProcedure
   .input(getCandidateRecommendationsInputSchema)
   .query(async ({ input, ctx }) => {
     const { workspaceId, candidateId, vacancyId, candidateData } = input;
 
-    // ÐŸÑ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð´Ð¾ÑÑ‚ÑƒÐ¿Ð° Ðº workspace
+    // Ïðîâåðêà äîñòóïà ê workspace
     const hasAccess = await checkWorkspaceAccess(
       ctx.workspaceRepository,
       workspaceId,
@@ -78,13 +78,13 @@ export const getRecommendations = protectedProcedure
     if (!hasAccess) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "ÐÐµÑ‚ Ð´Ð¾ÑÑ‚ÑƒÐ¿Ð° Ðº workspace",
+        message: "Íåò äîñòóïà ê workspace",
       });
     }
 
     const ruleEngine = getRuleEngine();
 
-    // ÐŸÑ€ÐµÐ¾Ð±Ñ€Ð°Ð·ÑƒÐµÐ¼ Ð´Ð°Ð½Ð½Ñ‹Ðµ ÐºÐ°Ð½Ð´Ð¸Ð´Ð°Ñ‚Ð°
+    // Ïðåîáðàçóåì äàííûå êàíäèäàòà
     const ruleData: CandidateRuleData = {
       id: candidateId,
       fitScore: candidateData.fitScore,
@@ -96,19 +96,19 @@ export const getRecommendations = protectedProcedure
       skills: candidateData.skills,
     };
 
-    // ÐŸÑ€Ð¸Ð¼ÐµÐ½ÑÐµÐ¼ Ð¿Ñ€Ð°Ð²Ð¸Ð»Ð°
+    // Ïðèìåíÿåì ïðàâèëà
     const results: RuleApplicationResult[] = ruleEngine.applyRules(
       ruleData,
       workspaceId,
       vacancyId,
     );
 
-    // Ð¤Ð¸Ð»ÑŒÑ‚Ñ€ÑƒÐµÐ¼ Ñ‚Ð¾Ð»ÑŒÐºÐ¾ ÑÑ€Ð°Ð±Ð¾Ñ‚Ð°Ð²ÑˆÐ¸Ðµ Ð¿Ñ€Ð°Ð²Ð¸Ð»Ð°
+    // Ôèëüòðóåì òîëüêî ñðàáîòàâøèå ïðàâèëà
     const matchedRules = results.filter(
       (r: RuleApplicationResult) => r.matched,
     );
 
-    // Ð¤Ð¾Ñ€Ð¼Ð¸Ñ€ÑƒÐµÐ¼ Ñ€ÐµÐºÐ¾Ð¼ÐµÐ½Ð´Ð°Ñ†Ð¸Ð¸
+    // Ôîðìèðóåì ðåêîìåíäàöèè
     const recommendations = matchedRules.map(
       (result: RuleApplicationResult) => ({
         ruleId: result.ruleId,
@@ -132,14 +132,14 @@ export const getRecommendations = protectedProcedure
 /**
  * Get Pending Approvals procedure
  *
- * Ð’Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÑ‚ ÑÐ¿Ð¸ÑÐ¾Ðº Ð´ÐµÐ¹ÑÑ‚Ð²Ð¸Ð¹, Ð¾Ð¶Ð¸Ð´Ð°ÑŽÑ‰Ð¸Ñ… Ð¿Ð¾Ð´Ñ‚Ð²ÐµÑ€Ð¶Ð´ÐµÐ½Ð¸Ñ
+ * Âîçâðàùàåò ñïèñîê äåéñòâèé, îæèäàþùèõ ïîäòâåðæäåíèÿ
  */
 export const getPendingApprovals = protectedProcedure
   .input(getPendingApprovalsInputSchema)
   .query(async ({ input, ctx }) => {
     const { workspaceId } = input;
 
-    // ÐŸÑ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð´Ð¾ÑÑ‚ÑƒÐ¿Ð° Ðº workspace
+    // Ïðîâåðêà äîñòóïà ê workspace
     const hasAccess = await checkWorkspaceAccess(
       ctx.workspaceRepository,
       workspaceId,
@@ -149,7 +149,7 @@ export const getPendingApprovals = protectedProcedure
     if (!hasAccess) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "ÐÐµÑ‚ Ð´Ð¾ÑÑ‚ÑƒÐ¿Ð° Ðº workspace",
+        message: "Íåò äîñòóïà ê workspace",
       });
     }
 
@@ -176,14 +176,14 @@ export const getPendingApprovals = protectedProcedure
 /**
  * Get Undoable Actions procedure
  *
- * Ð’Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÑ‚ ÑÐ¿Ð¸ÑÐ¾Ðº Ð´ÐµÐ¹ÑÑ‚Ð²Ð¸Ð¹, ÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ðµ Ð¼Ð¾Ð¶Ð½Ð¾ Ð¾Ñ‚Ð¼ÐµÐ½Ð¸Ñ‚ÑŒ
+ * Âîçâðàùàåò ñïèñîê äåéñòâèé, êîòîðûå ìîæíî îòìåíèòü
  */
 export const getUndoableActions = protectedProcedure
   .input(getUndoableActionsInputSchema)
   .query(async ({ input, ctx }) => {
     const { workspaceId } = input;
 
-    // ÐŸÑ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð´Ð¾ÑÑ‚ÑƒÐ¿Ð° Ðº workspace
+    // Ïðîâåðêà äîñòóïà ê workspace
     const hasAccess = await checkWorkspaceAccess(
       ctx.workspaceRepository,
       workspaceId,
@@ -193,7 +193,7 @@ export const getUndoableActions = protectedProcedure
     if (!hasAccess) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "ÐÐµÑ‚ Ð´Ð¾ÑÑ‚ÑƒÐ¿Ð° Ðº workspace",
+        message: "Íåò äîñòóïà ê workspace",
       });
     }
 
@@ -222,7 +222,7 @@ export const getUndoableActions = protectedProcedure
 /**
  * Get Audit Log procedure
  *
- * Ð’Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÑ‚ audit log Ð´Ð»Ñ workspace
+ * Âîçâðàùàåò audit log äëÿ workspace
  */
 export const getAuditLog = protectedProcedure
   .input(
@@ -235,7 +235,7 @@ export const getAuditLog = protectedProcedure
   .query(async ({ input, ctx }) => {
     const { workspaceId, limit, offset } = input;
 
-    // ÐŸÑ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð´Ð¾ÑÑ‚ÑƒÐ¿Ð° Ðº workspace
+    // Ïðîâåðêà äîñòóïà ê workspace
     const hasAccess = await checkWorkspaceAccess(
       ctx.workspaceRepository,
       workspaceId,
@@ -245,14 +245,14 @@ export const getAuditLog = protectedProcedure
     if (!hasAccess) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "ÐÐµÑ‚ Ð´Ð¾ÑÑ‚ÑƒÐ¿Ð° Ðº workspace",
+        message: "Íåò äîñòóïà ê workspace",
       });
     }
 
     const actionExecutor = getActionExecutor();
     const auditLog: AuditLogEntry[] = actionExecutor.getAuditLog(workspaceId);
 
-    // Ð¡Ð¾Ñ€Ñ‚Ð¸Ñ€ÑƒÐµÐ¼ Ð¿Ð¾ Ð²Ñ€ÐµÐ¼ÐµÐ½Ð¸ (Ð½Ð¾Ð²Ñ‹Ðµ Ð¿ÐµÑ€Ð²Ñ‹Ð¼Ð¸) Ð¸ Ð¿Ñ€Ð¸Ð¼ÐµÐ½ÑÐµÐ¼ Ð¿Ð°Ð³Ð¸Ð½Ð°Ñ†Ð¸ÑŽ
+    // Ñîðòèðóåì ïî âðåìåíè (íîâûå ïåðâûìè) è ïðèìåíÿåì ïàãèíàöèþ
     const sortedLog = auditLog
       .sort(
         (a: AuditLogEntry, b: AuditLogEntry) =>

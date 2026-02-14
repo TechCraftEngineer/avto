@@ -1,13 +1,13 @@
 "use client";
 
 import { getResponseEventTitle } from "@qbs-autonaim/shared";
-import { Badge } from "@qbs-autonaim/ui/badge";
+import { Badge } from "@qbs-autonaim/ui";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from "@qbs-autonaim/ui/card";
+} from "@qbs-autonaim/ui";
 import { skipToken, useQuery } from "@tanstack/react-query";
 import {
   Briefcase,

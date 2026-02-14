@@ -1,4 +1,4 @@
-import { ScrollArea } from "@qbs-autonaim/ui/scroll-area";
+import { ScrollArea } from "@qbs-autonaim/ui";
 import { CandidateInfo } from "./candidate-info";
 import { ResumePdfLink } from "./resume-pdf-link";
 import { ScreeningInfo } from "./screening-info";

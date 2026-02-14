@@ -1,8 +1,8 @@
 "use client";
 
 import { paths } from "@qbs-autonaim/config";
-import { Button } from "@qbs-autonaim/ui/button";
-import { Skeleton } from "@qbs-autonaim/ui/skeleton";
+import { Button } from "@qbs-autonaim/ui";
+import { Skeleton } from "@qbs-autonaim/ui";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, MessageSquare } from "lucide-react";
 import Link from "next/link";

@@ -1,8 +1,8 @@
 "use client";
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
-import { Badge } from "@qbs-autonaim/ui/badge";
-import { CandidateAvatar } from "@qbs-autonaim/ui/candidate-avatar";
+import { Badge } from "@qbs-autonaim/ui";
+import { CandidateAvatar } from "@qbs-autonaim/ui";
 import { IconClock, IconMessageCircle, IconStar } from "@tabler/icons-react";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { getAvatarUrl } from "~/lib/avatar";

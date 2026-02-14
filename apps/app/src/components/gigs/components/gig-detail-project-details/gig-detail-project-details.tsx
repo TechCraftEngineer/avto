@@ -3,7 +3,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from "@qbs-autonaim/ui/card";
+} from "@qbs-autonaim/ui";
 import { Calendar, Target, Timer, Wallet } from "lucide-react";
 import { memo } from "react";
 import { formatBudget, formatDate } from "../gig-detail-utils";

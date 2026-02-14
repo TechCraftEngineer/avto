@@ -1,13 +1,13 @@
 "use client";
 
-import { Badge } from "@qbs-autonaim/ui/badge";
-import { Button } from "@qbs-autonaim/ui/button";
-import { Card, CardContent } from "@qbs-autonaim/ui/card";
+import { Badge } from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui";
+import { Card, CardContent } from "@qbs-autonaim/ui";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@qbs-autonaim/ui/collapsible";
+} from "@qbs-autonaim/ui";
 import { Briefcase, Calendar, ChevronDown, Clock, MapPin } from "lucide-react";
 import { useState } from "react";
 import type { SupportedEntityType } from "~/app/api/interview/chat/stream/strategies/types";

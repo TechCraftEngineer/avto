@@ -1,10 +1,10 @@
 "use client";
 
 import { cn } from "@qbs-autonaim/ui";
-import { Button } from "@qbs-autonaim/ui/button";
-import { Card } from "@qbs-autonaim/ui/card";
-import { ScrollArea } from "@qbs-autonaim/ui/scroll-area";
-import { Textarea } from "@qbs-autonaim/ui/textarea";
+import { Button } from "@qbs-autonaim/ui";
+import { Card } from "@qbs-autonaim/ui";
+import { ScrollArea } from "@qbs-autonaim/ui";
+import { Textarea } from "@qbs-autonaim/ui";
 import { useMutation } from "@tanstack/react-query";
 import { AlertCircle, Bot, FileText, Loader2, Send, User } from "lucide-react";
 import { useRouter } from "next/navigation";

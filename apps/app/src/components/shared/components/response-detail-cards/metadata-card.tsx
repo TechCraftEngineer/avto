@@ -6,7 +6,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from "@qbs-autonaim/ui/card";
+} from "@qbs-autonaim/ui";
 import { formatDate } from "../../utils/constants";
 
 type GigResponseDetail = RouterOutputs["gig"]["responses"]["get"];

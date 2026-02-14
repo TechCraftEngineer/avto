@@ -4,7 +4,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from "@qbs-autonaim/ui/card";
+} from "@qbs-autonaim/ui";
 import { AlertTriangle, Award, CheckCircle2, XCircle } from "lucide-react";
 import { analyzeSkillMatch } from "./utils";
 

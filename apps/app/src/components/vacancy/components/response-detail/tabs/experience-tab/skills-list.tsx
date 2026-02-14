@@ -1,4 +1,4 @@
-import { Badge } from "@qbs-autonaim/ui/badge";
+import { Badge } from "@qbs-autonaim/ui";
 
 interface SkillsListProps {
   skills: string[];

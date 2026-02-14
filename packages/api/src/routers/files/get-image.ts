@@ -1,11 +1,11 @@
-п»їimport { getDownloadUrl } from "@qbs-autonaim/lib/s3";
+import { getDownloadUrl } from "@qbs-autonaim/lib/s3";
 import { uuidv7Schema, workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../trpc";
 
 /**
- * РџРѕР»СѓС‡РµРЅРёРµ presigned URL РґР»СЏ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ СЃ РєРѕРЅС‚СЂРѕР»РµРј РґРѕСЃС‚СѓРїР°
+ * Получение presigned URL для изображения с контролем доступа
  */
 export const getImageUrl = protectedProcedure
   .input(
@@ -15,7 +15,7 @@ export const getImageUrl = protectedProcedure
     }),
   )
   .query(async ({ input, ctx }) => {
-    // РџСЂРѕРІРµСЂСЏРµРј РґРѕСЃС‚СѓРї Рє workspace
+    // Проверяем доступ к workspace
     const access = await ctx.workspaceRepository.checkAccess(
       input.workspaceId,
       ctx.session.user.id,
@@ -24,22 +24,22 @@ export const getImageUrl = protectedProcedure
     if (!access) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "РќРµС‚ РґРѕСЃС‚СѓРїР° Рє workspace",
+        message: "Нет доступа к workspace",
       });
     }
 
-    // РџРѕР»СѓС‡Р°РµРј С„Р°Р№Р» РёР· Р‘Р” СЃ РїСЂРѕРІРµСЂРєРѕР№ РїСЂРёРЅР°РґР»РµР¶РЅРѕСЃС‚Рё Рє workspace
-    // Р¤Р°Р№Р»С‹ РјРѕРіСѓС‚ Р±С‹С‚СЊ СЃРІСЏР·Р°РЅС‹ С‡РµСЂРµР·:
-    // 1. response (resumePdfFileId, photoFileId) в†’ vacancy в†’ workspace
-    // 2. interviewMessage (fileId) в†’ interviewSession в†’ response в†’ vacancy в†’ workspace
+    // Получаем файл из БД с проверкой принадлежности к workspace
+    // Файлы могут быть связаны через:
+    // 1. response (resumePdfFileId, photoFileId) > vacancy > workspace
+    // 2. interviewMessage (fileId) > interviewSession > response > vacancy > workspace
     const fileRecord = await ctx.db.query.file.findFirst({
       where: (files, { eq }) => eq(files.id, input.fileId),
       with: {
-        // РџСЂРѕРІРµСЂСЏРµРј СЃРІСЏР·СЊ С‡РµСЂРµР· response (resumePdfFileId)
+        // Проверяем связь через response (resumePdfFileId)
         responsesAsResumePdf: true,
-        // РџСЂРѕРІРµСЂСЏРµРј СЃРІСЏР·СЊ С‡РµСЂРµР· response (photoFileId)
+        // Проверяем связь через response (photoFileId)
         responsesAsPhoto: true,
-        // РџСЂРѕРІРµСЂСЏРµРј СЃРІСЏР·СЊ С‡РµСЂРµР· interviewMessage
+        // Проверяем связь через interviewMessage
         interviewMessages: {
           with: {
             session: true,
@@ -51,7 +51,7 @@ export const getImageUrl = protectedProcedure
     if (!fileRecord) {
       throw new TRPCError({
         code: "NOT_FOUND",
-        message: "Р¤Р°Р№Р» РЅРµ РЅР°Р№РґРµРЅ",
+        message: "Файл не найден",
       });
     }
 
@@ -67,7 +67,7 @@ export const getImageUrl = protectedProcedure
     if (responseIds.length === 0) {
       throw new TRPCError({
         code: "NOT_FOUND",
-        message: "Р¤Р°Р№Р» РЅРµ РЅР°Р№РґРµРЅ",
+        message: "Файл не найден",
       });
     }
 
@@ -87,7 +87,7 @@ export const getImageUrl = protectedProcedure
       columns: { id: true, workspaceId: true },
     });
 
-    // РџСЂРѕРІРµСЂСЏРµРј С‡С‚Рѕ С„Р°Р№Р» РїСЂРёРЅР°РґР»РµР¶РёС‚ СѓРєР°Р·Р°РЅРЅРѕРјСѓ workspace
+    // Проверяем что файл принадлежит указанному workspace
     const belongsToWorkspace = vacancies.some(
       (v) => v.workspaceId === input.workspaceId,
     );
@@ -95,20 +95,20 @@ export const getImageUrl = protectedProcedure
     if (!belongsToWorkspace) {
       throw new TRPCError({
         code: "NOT_FOUND",
-        message: "Р¤Р°Р№Р» РЅРµ РЅР°Р№РґРµРЅ",
+        message: "Файл не найден",
       });
     }
 
-    // РџСЂРѕРІРµСЂСЏРµРј С‡С‚Рѕ СЌС‚Рѕ РёР·РѕР±СЂР°Р¶РµРЅРёРµ
+    // Проверяем что это изображение
     if (!fileRecord.mimeType?.startsWith("image/")) {
       throw new TRPCError({
         code: "BAD_REQUEST",
-        message: "Р¤Р°Р№Р» РЅРµ СЏРІР»СЏРµС‚СЃСЏ РёР·РѕР±СЂР°Р¶РµРЅРёРµРј",
+        message: "Файл не является изображением",
       });
     }
 
     try {
-      // Р“РµРЅРµСЂРёСЂСѓРµРј presigned URL СЃ РєРѕСЂРѕС‚РєРёРј РІСЂРµРјРµРЅРµРј Р¶РёР·РЅРё (5 РјРёРЅСѓС‚)
+      // Генерируем presigned URL с коротким временем жизни (5 минут)
       const url = await getDownloadUrl(fileRecord.key);
 
       return {
@@ -119,7 +119,7 @@ export const getImageUrl = protectedProcedure
     } catch {
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
-        message: "РћС€РёР±РєР° РїСЂРё РїРѕР»СѓС‡РµРЅРёРё URL С„Р°Р№Р»Р°",
+        message: "Ошибка при получении URL файла",
       });
     }
   });

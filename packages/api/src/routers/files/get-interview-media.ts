@@ -1,4 +1,4 @@
-ï»¿import { eq } from "@qbs-autonaim/db";
+import { eq } from "@qbs-autonaim/db";
 import { gig, gigInterviewMedia } from "@qbs-autonaim/db/schema";
 import { getDownloadUrl } from "@qbs-autonaim/lib/s3";
 import { uuidv7Schema, workspaceIdSchema } from "@qbs-autonaim/validators";
@@ -15,8 +15,8 @@ const interviewMediaFileSchema = z.object({
 });
 
 /**
- * ÐŸÐ¾Ð»ÑƒÑ‡ÐµÐ½Ð¸Ðµ presigned URLs Ð´Ð»Ñ Ð¼ÐµÐ´Ð¸Ð°Ñ„Ð°Ð¹Ð»Ð¾Ð² Ð¸Ð½Ñ‚ÐµÑ€Ð²ÑŒÑŽ
- * Ð’Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÑ‚ Ð¼Ð°ÑÑÐ¸Ð² Ñ„Ð°Ð¹Ð»Ð¾Ð² Ñ Ð¸Ñ… URL Ð´Ð»Ñ Ð¿Ð¾ÐºÐ°Ð·Ð° ÐºÐ°Ð½Ð´Ð¸Ð´Ð°Ñ‚Ñƒ
+ * Ïîëó÷åíèå presigned URLs äëÿ ìåäèàôàéëîâ èíòåðâüþ
+ * Âîçâðàùàåò ìàññèâ ôàéëîâ ñ èõ URL äëÿ ïîêàçà êàíäèäàòó
  */
 export const getInterviewMedia = protectedProcedure
   .input(
@@ -27,7 +27,7 @@ export const getInterviewMedia = protectedProcedure
   )
   .output(z.array(interviewMediaFileSchema))
   .query(async ({ input, ctx }) => {
-    // ÐŸÑ€Ð¾Ð²ÐµÑ€ÑÐµÐ¼ Ð´Ð¾ÑÑ‚ÑƒÐ¿ Ðº workspace
+    // Ïðîâåðÿåì äîñòóï ê workspace
     const access = await ctx.workspaceRepository.checkAccess(
       input.workspaceId,
       ctx.session.user.id,
@@ -36,11 +36,11 @@ export const getInterviewMedia = protectedProcedure
     if (!access) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "ÐÐµÑ‚ Ð´Ð¾ÑÑ‚ÑƒÐ¿Ð° Ðº workspace",
+        message: "Íåò äîñòóïà ê workspace",
       });
     }
 
-    // ÐŸÐ¾Ð»ÑƒÑ‡Ð°ÐµÐ¼ gig
+    // Ïîëó÷àåì gig
     const gigRecord = await ctx.db.query.gig.findFirst({
       where: eq(gig.id, input.gigId),
     });
@@ -48,18 +48,18 @@ export const getInterviewMedia = protectedProcedure
     if (!gigRecord) {
       throw new TRPCError({
         code: "NOT_FOUND",
-        message: "Ð—Ð°Ð´Ð°Ð½Ð¸Ðµ Ð½Ðµ Ð½Ð°Ð¹Ð´ÐµÐ½Ð¾",
+        message: "Çàäàíèå íå íàéäåíî",
       });
     }
 
     if (gigRecord.workspaceId !== input.workspaceId) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "ÐÐµÑ‚ Ð´Ð¾ÑÑ‚ÑƒÐ¿Ð° Ðº ÑÑ‚Ð¾Ð¼Ñƒ Ð·Ð°Ð´Ð°Ð½Ð¸ÑŽ",
+        message: "Íåò äîñòóïà ê ýòîìó çàäàíèþ",
       });
     }
 
-    // ÐŸÐ¾Ð»ÑƒÑ‡Ð°ÐµÐ¼ Ð¼ÐµÐ´Ð¸Ð°Ñ„Ð°Ð¹Ð»Ñ‹ Ñ‡ÐµÑ€ÐµÐ· join table Ñ relations
+    // Ïîëó÷àåì ìåäèàôàéëû ÷åðåç join table ñ relations
     const mediaRecords = await ctx.db.query.gigInterviewMedia.findMany({
       where: eq(gigInterviewMedia.gigId, input.gigId),
       with: {
@@ -71,7 +71,7 @@ export const getInterviewMedia = protectedProcedure
       return [];
     }
 
-    // Ð“ÐµÐ½ÐµÑ€Ð¸Ñ€ÑƒÐµÐ¼ presigned URLs
+    // Ãåíåðèðóåì presigned URLs
     const mediaFiles = await Promise.all(
       mediaRecords.map(async (record) => {
         try {

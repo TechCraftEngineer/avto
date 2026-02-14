@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent } from "@qbs-autonaim/ui/card";
+import { Card, CardContent } from "@qbs-autonaim/ui";
 import { MessageSquare } from "lucide-react";
 
 interface EmptyStateProps {

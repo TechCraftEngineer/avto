@@ -1,4 +1,4 @@
-import { Tabs, TabsList, TabsTrigger } from "@qbs-autonaim/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@qbs-autonaim/ui";
 import { LayoutGrid, List } from "lucide-react";
 import { pluralizeCandidate } from "../constants";
 

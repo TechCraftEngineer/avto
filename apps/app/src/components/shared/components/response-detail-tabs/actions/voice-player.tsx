@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui/button";
+import { Button } from "@qbs-autonaim/ui";
 import { Pause, Play } from "lucide-react";
 import { useRef, useState } from "react";
 

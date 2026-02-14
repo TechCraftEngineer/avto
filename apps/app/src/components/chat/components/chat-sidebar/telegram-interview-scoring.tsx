@@ -1,6 +1,6 @@
 "use client";
 
-import { Progress } from "@qbs-autonaim/ui/progress";
+import { Progress } from "@qbs-autonaim/ui";
 import { Star } from "lucide-react";
 import { sanitizeHtmlFunction } from "~/lib/sanitize-html";
 

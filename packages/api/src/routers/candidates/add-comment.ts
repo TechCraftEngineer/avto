@@ -1,4 +1,4 @@
-﻿import {
+import {
   and,
   eq,
   responseComment,

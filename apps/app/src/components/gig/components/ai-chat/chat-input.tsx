@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui/button";
-import { Textarea } from "@qbs-autonaim/ui/textarea";
+import { Button } from "@qbs-autonaim/ui";
+import { Textarea } from "@qbs-autonaim/ui";
 import { Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 

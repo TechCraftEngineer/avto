@@ -1,7 +1,7 @@
 "use client";
 
 import { paths } from "@qbs-autonaim/config";
-import { Button } from "@qbs-autonaim/ui/button";
+import { Button } from "@qbs-autonaim/ui";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";

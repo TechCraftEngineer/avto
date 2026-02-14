@@ -1,7 +1,7 @@
 "use client";
 
-import { Toaster } from "@qbs-autonaim/ui/sonner";
-import { ThemeProvider } from "@qbs-autonaim/ui/theme";
+import { Toaster } from "@qbs-autonaim/ui";
+import { ThemeProvider } from "@qbs-autonaim/ui";
 import { ErrorBoundary } from "~/components/shared/error-boundary";
 import { PostHogAuthTracker } from "~/components/shared/posthog-auth-tracker";
 import { PostHogProvider } from "~/components/shared/posthog-provider";

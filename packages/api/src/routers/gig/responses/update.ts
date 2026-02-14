@@ -1,4 +1,4 @@
-п»їimport { and, eq } from "@qbs-autonaim/db";
+import { and, eq } from "@qbs-autonaim/db";
 import { gig, response as responseTable } from "@qbs-autonaim/db/schema";
 import {
   phoneNullishSchema,
@@ -33,7 +33,7 @@ export const update = protectedProcedure
     if (!access) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "РќРµС‚ РґРѕСЃС‚СѓРїР° Рє СЌС‚РѕРјСѓ workspace",
+        message: "Нет доступа к этому workspace",
       });
     }
 
@@ -47,7 +47,7 @@ export const update = protectedProcedure
     if (!response) {
       throw new TRPCError({
         code: "NOT_FOUND",
-        message: "РћС‚РєР»РёРє РЅРµ РЅР°Р№РґРµРЅ",
+        message: "Отклик не найден",
       });
     }
 
@@ -61,7 +61,7 @@ export const update = protectedProcedure
     if (!existingGig) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "РќРµС‚ РґРѕСЃС‚СѓРїР° Рє СЌС‚РѕРјСѓ РѕС‚РєР»РёРєСѓ",
+        message: "Нет доступа к этому отклику",
       });
     }
 
@@ -71,7 +71,7 @@ export const update = protectedProcedure
     if (Object.keys(updateData).length === 0) {
       throw new TRPCError({
         code: "BAD_REQUEST",
-        message: "РќРµ СѓРєР°Р·Р°РЅС‹ РїРѕР»СЏ РґР»СЏ РѕР±РЅРѕРІР»РµРЅРёСЏ",
+        message: "Не указаны поля для обновления",
       });
     }
 
