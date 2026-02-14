@@ -136,7 +136,7 @@ export function OTPForm({ ...props }: React.ComponentProps<typeof Card>) {
     <Card {...props}>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <CardHeader>
+          <CardHeader className="gap-4">
             <CardTitle className="text-xl">Введите код подтверждения</CardTitle>
             <CardDescription>
               Мы отправили 6-значный код на{" "}
@@ -144,13 +144,13 @@ export function OTPForm({ ...props }: React.ComponentProps<typeof Card>) {
               Введите код, который вы получили.
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-2">
             <FormField
               control={form.control}
               name="otp"
               render={({ field }) => (
-                <FormItem>
-                  <Field>
+                <FormItem className="gap-4">
+                  <Field className="gap-4" orientation="vertical">
                     <div className="flex items-center justify-between">
                       <FieldLabel htmlFor="otp-verification">
                         Код подтверждения
@@ -209,7 +209,7 @@ export function OTPForm({ ...props }: React.ComponentProps<typeof Card>) {
               )}
             />
           </CardContent>
-          <CardFooter className="flex-col gap-2">
+          <CardFooter className="flex flex-col gap-4 pt-2">
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Проверка…" : "Подтвердить"}
             </Button>
