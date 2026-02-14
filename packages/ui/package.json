@@ -26,6 +26,7 @@
     "./collapsible": "./src/components/collapsible.tsx",
     "./command": "./src/components/command.tsx",
     "./context-menu": "./src/components/context-menu.tsx",
+    "./data-grid": "./src/components/reui/data-grid/index.ts",
     "./delete-vacancy-dialog": "./src/components/delete-vacancy-dialog.tsx",
     "./dialog": "./src/components/dialog.tsx",
     "./drawer": "./src/components/drawer.tsx",

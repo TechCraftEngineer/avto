@@ -43,6 +43,7 @@ import {
 } from "@tanstack/react-table"
 
 import { Button } from "../../button"
+import { IconPlaceholder } from "../icon-placeholder"
 
 
 function DataGridTableDndHeader<TData>({

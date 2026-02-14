@@ -4,7 +4,24 @@ import { useCallback, useEffect, useState } from "react";
 import type { ColumnId } from "../types";
 
 const STORAGE_KEY = "vacancy-responses-column-visibility";
+const ORDER_STORAGE_KEY = "vacancy-responses-column-order";
 const REQUIRED_COLUMN: ColumnId = "candidate";
+
+const DEFAULT_COLUMN_ORDER: readonly ColumnId[] = [
+  "candidate",
+  "status",
+  "priority",
+  "screening",
+  "potential",
+  "career",
+  "risks",
+  "salary",
+  "skills",
+  "interview",
+  "hrSelection",
+  "coverLetter",
+  "date",
+] as const;
 
 const DEFAULT_VISIBLE_COLUMNS: ReadonlySet<ColumnId> = new Set([
   "candidate",
@@ -82,24 +99,66 @@ function saveVisibleColumns(columns: Set<ColumnId>): void {
   }
 }
 
+function loadColumnOrder(): ColumnId[] {
+  if (typeof window === "undefined") {
+    return [...DEFAULT_COLUMN_ORDER];
+  }
+
+  try {
+    const stored = localStorage.getItem(ORDER_STORAGE_KEY);
+    if (!stored) return [...DEFAULT_COLUMN_ORDER];
+    const parsed: unknown = JSON.parse(stored);
+    if (!Array.isArray(parsed)) return [...DEFAULT_COLUMN_ORDER];
+    return parsed.filter(isValidColumnId);
+  } catch {
+    return [...DEFAULT_COLUMN_ORDER];
+  }
+}
+
+function saveColumnOrder(order: ColumnId[]): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(order));
+  } catch (error) {
+    console.error("Ошибка сохранения порядка колонок:", error);
+  }
+}
+
 export interface UseColumnVisibilityReturn {
   readonly visibleColumns: ReadonlySet<ColumnId>;
   readonly isHydrated: boolean;
   readonly toggleColumn: (columnId: ColumnId) => void;
   readonly resetColumns: () => void;
   readonly isColumnVisible: (columnId: ColumnId) => boolean;
+  readonly columnOrder: ColumnId[];
+  readonly setColumnOrder: (order: ColumnId[] | ((prev: ColumnId[]) => ColumnId[])) => void;
 }
 
 export function useColumnVisibility(): UseColumnVisibilityReturn {
   const [visibleColumns, setVisibleColumns] = useState<Set<ColumnId>>(
     () => new Set(DEFAULT_VISIBLE_COLUMNS),
   );
+  const [columnOrder, setColumnOrderState] = useState<ColumnId[]>(
+    () => DEFAULT_COLUMN_ORDER as ColumnId[],
+  );
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
     setVisibleColumns(loadVisibleColumns());
+    setColumnOrderState(loadColumnOrder());
     setIsHydrated(true);
   }, []);
+
+  const setColumnOrder = useCallback(
+    (updater: ColumnId[] | ((prev: ColumnId[]) => ColumnId[])) => {
+      setColumnOrderState((prev) => {
+        const next = typeof updater === "function" ? updater(prev) : updater;
+        saveColumnOrder(next);
+        return next;
+      });
+    },
+    [],
+  );
 
   const toggleColumn = useCallback((columnId: ColumnId) => {
     if (columnId === REQUIRED_COLUMN) {
@@ -120,8 +179,11 @@ export function useColumnVisibility(): UseColumnVisibilityReturn {
 
   const resetColumns = useCallback(() => {
     const defaultColumns = new Set(DEFAULT_VISIBLE_COLUMNS);
+    const defaultOrder = [...DEFAULT_COLUMN_ORDER];
     setVisibleColumns(defaultColumns);
+    setColumnOrderState(defaultOrder);
     saveVisibleColumns(defaultColumns);
+    saveColumnOrder(defaultOrder);
   }, []);
 
   const isColumnVisible = useCallback(
@@ -137,5 +199,7 @@ export function useColumnVisibility(): UseColumnVisibilityReturn {
     toggleColumn,
     resetColumns,
     isColumnVisible,
+    columnOrder,
+    setColumnOrder,
   };
 }
