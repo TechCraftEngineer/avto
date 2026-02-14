@@ -36,9 +36,7 @@ function isAuthRequiredError(result: {
   return false;
 }
 
-function useCachedCookies(
-  savedAt: number | undefined,
-): boolean {
+function useCachedCookies(savedAt: number | undefined): boolean {
   if (savedAt == null) return false;
   const now = Math.floor(Date.now() / 1000);
   return now < savedAt + KWORK_WEB_COOKIES_TTL_SEC;
@@ -56,7 +54,7 @@ export async function getProjectOffersFromWebWithCache(
   const result = await executeWithKworkTokenRefresh(
     db,
     workspaceId,
-    async (token) => {
+    async (api, token) => {
       const integration = await getIntegration(db, "kwork", workspaceId);
 
       const metadata = (integration?.metadata ?? {}) as Record<string, unknown>;
@@ -69,7 +67,7 @@ export async function getProjectOffersFromWebWithCache(
         cookieHeader = cookiesToHeaderString(integration.cookies);
       }
 
-      const firstResult = await getProjectOffersFromWeb(token, projectId, {
+      const firstResult = await getProjectOffersFromWeb(api, token, projectId, {
         cookieHeader,
       });
 
@@ -91,7 +89,11 @@ export async function getProjectOffersFromWebWithCache(
       }
 
       if (isAuthRequiredError(firstResult) || !cookieHeader) {
-        const retryResult = await getProjectOffersFromWeb(token, projectId);
+        const retryResult = await getProjectOffersFromWeb(
+          api,
+          token,
+          projectId,
+        );
 
         if (retryResult.webCookies?.length) {
           await saveCookiesForIntegration(
@@ -113,8 +115,7 @@ export async function getProjectOffersFromWebWithCache(
         return {
           success: false,
           error: {
-            message:
-              retryResult.errorMessage ?? "Не удалось получить отклики",
+            message: retryResult.errorMessage ?? "Не удалось получить отклики",
           },
         };
       }
@@ -122,8 +123,7 @@ export async function getProjectOffersFromWebWithCache(
       return {
         success: false,
         error: {
-          message:
-            firstResult.errorMessage ?? "Не удалось получить отклики",
+          message: firstResult.errorMessage ?? "Не удалось получить отклики",
         },
       };
     },

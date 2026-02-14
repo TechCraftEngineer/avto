@@ -34,7 +34,7 @@ export const getKworkProject = protectedProcedure
       result = await executeWithKworkTokenRefresh(
         ctx.db,
         input.workspaceId,
-        (token) => getProject(token, input.projectId),
+        (api, token) => getProject(api, token, input.projectId),
       );
     } catch (error) {
       const msg = error instanceof Error ? error.message : "Ошибка Kwork";

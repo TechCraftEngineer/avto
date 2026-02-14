@@ -1,6 +1,7 @@
 import { upsertIntegration } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import {
+  createKworkApiClient,
   extractTokenFromSignInResponse,
   KWORK_ERROR_CODES,
   signIn,
@@ -22,7 +23,8 @@ export const verifyKworkCredentialsFunction = inngest.createFunction(
 
     const result = await step.run("verify-credentials", async () => {
       try {
-        const signInResult = await signIn({
+        const api = createKworkApiClient({ login, password });
+        const signInResult = await signIn(api, {
           login,
           password,
           ...(gRecaptchaResponse && {

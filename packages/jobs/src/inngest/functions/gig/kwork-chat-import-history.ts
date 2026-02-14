@@ -1,5 +1,5 @@
-import { eq } from "@qbs-autonaim/db";
-import { db } from "@qbs-autonaim/db";
+import type { StoredProfileData } from "@qbs-autonaim/db";
+import { db, eq } from "@qbs-autonaim/db";
 import {
   interviewMessage,
   interviewSession,
@@ -9,7 +9,6 @@ import {
   getInboxTracks,
   type KworkInboxMessage,
 } from "@qbs-autonaim/integration-clients";
-import type { StoredProfileData } from "@qbs-autonaim/db";
 import { executeWithKworkTokenRefresh } from "../../../services/kwork";
 import { inngest } from "../../client";
 
@@ -46,7 +45,7 @@ export const kworkChatImportHistoryFunction = inngest.createFunction(
       return { success: true, imported: 0, reason: "No kworkWorkerId" };
     }
 
-    let session = await step.run("get-or-create-session", async () => {
+    const session = await step.run("get-or-create-session", async () => {
       const existing = await db.query.interviewSession.findFirst({
         where: eq(interviewSession.responseId, responseId),
       });
@@ -87,8 +86,8 @@ export const kworkChatImportHistoryFunction = inngest.createFunction(
           const result = await executeWithKworkTokenRefresh(
             db,
             workspaceId,
-            (token) =>
-              getInboxTracks(token, {
+            (api, token) =>
+              getInboxTracks(api, token, {
                 userId: workerId,
                 limit: 50,
                 lastConversationId,
@@ -149,17 +148,12 @@ export const kworkChatImportHistoryFunction = inngest.createFunction(
           metadata: m.time
             ? ({ kworkTime: m.time } as Record<string, unknown>)
             : undefined,
-          createdAt: m.time
-            ? new Date(m.time * 1000)
-            : new Date(),
+          createdAt: m.time ? new Date(m.time * 1000) : new Date(),
         };
       })
-      .filter(
-        (m) => m.externalId && !existingExternalIds.has(m.externalId),
-      )
+      .filter((m) => m.externalId && !existingExternalIds.has(m.externalId))
       .sort(
-        (a, b) =>
-          (a.createdAt?.getTime() ?? 0) - (b.createdAt?.getTime() ?? 0),
+        (a, b) => (a.createdAt?.getTime() ?? 0) - (b.createdAt?.getTime() ?? 0),
       );
 
     const inserted = await step.run("insert-messages", async () => {

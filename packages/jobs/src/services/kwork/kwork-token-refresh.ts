@@ -7,15 +7,16 @@
 import type { DbClient } from "@qbs-autonaim/db";
 import { getIntegrationCredentials, upsertIntegration } from "@qbs-autonaim/db";
 import {
+  createKworkApiClient,
+  extractTokenFromSignInResponse,
+  isKworkAuthError,
+  type KworkErrorResponse,
+  signIn,
+} from "@qbs-autonaim/integration-clients";
+import {
   type IntegrationErrorEvent,
   workspaceNotificationsChannel,
 } from "../../inngest/channels/client";
-import {
-  extractTokenFromSignInResponse,
-  isKworkAuthError,
-  signIn,
-  type KworkErrorResponse,
-} from "@qbs-autonaim/integration-clients";
 
 export interface KworkApiResult<T = unknown> {
   success: boolean;
@@ -26,17 +27,21 @@ export interface KworkApiResult<T = unknown> {
 
 /**
  * Выполняет API-вызов Kwork с автоматическим обновлением токена при ошибке авторизации.
- * Если signIn не удаётся — публикует integration-error (когда publish передан) и выбрасывает ошибку.
+ * Credentials берутся из БД интеграций. Если signIn не удаётся — публикует integration-error
+ * (когда publish передан) и выбрасывает ошибку.
  */
 export async function executeWithKworkTokenRefresh<T>(
   db: DbClient,
   workspaceId: string,
-  apiCall: (token: string) => Promise<KworkApiResult<T>>,
+  apiCall: (
+    api: import("axios").AxiosInstance,
+    token: string,
+  ) => Promise<KworkApiResult<T>>,
   options?: {
     publish?: (event: IntegrationErrorEvent) => Promise<unknown>;
   },
 ): Promise<KworkApiResult<T>> {
-  let credentials = await getIntegrationCredentials(db, "kwork", workspaceId);
+  const credentials = await getIntegrationCredentials(db, "kwork", workspaceId);
   if (!credentials) {
     return {
       success: false,
@@ -47,13 +52,26 @@ export async function executeWithKworkTokenRefresh<T>(
     } as KworkApiResult<T>;
   }
 
+  const login = credentials.login ?? credentials.email;
+  const password = credentials.password;
+  if (!login || !password) {
+    return {
+      success: false,
+      error: {
+        message:
+          "Интеграция не настроена. Подключите интеграцию в настройках рабочего пространства.",
+      },
+    } as KworkApiResult<T>;
+  }
+
+  const api = createKworkApiClient({ login, password });
   let token = credentials.token;
   let signInError: string | undefined;
 
-  if (!token && credentials.login && credentials.password) {
-    const signInResult = await signIn({
-      login: credentials.login,
-      password: credentials.password,
+  if (!token) {
+    const signInResult = await signIn(api, {
+      login,
+      password,
     });
     if (signInResult.success) {
       const newToken = extractTokenFromSignInResponse(signInResult.data);
@@ -69,24 +87,21 @@ export async function executeWithKworkTokenRefresh<T>(
         signInError = "Токен не получен при авторизации";
       }
     } else {
-      signInError =
-        signInResult.error?.message ?? "Не удалось авторизоваться";
+      signInError = signInResult.error?.message ?? "Не удалось авторизоваться";
     }
   }
 
   if (!token) {
     const message =
       signInError ??
-      (credentials.login && credentials.password
-        ? "Токен истёк. Перейдите в настройки интеграций и повторно войдите в аккаунт."
-        : "Интеграция не настроена. Подключите интеграцию в настройках рабочего пространства.");
+      "Токен истёк. Перейдите в настройки интеграций и повторно войдите в аккаунт.";
     return {
       success: false,
       error: { message },
     } as KworkApiResult<T>;
   }
 
-  const result = await apiCall(token);
+  const result = await apiCall(api, token);
 
   if (result.success) {
     return result;
@@ -96,8 +111,6 @@ export async function executeWithKworkTokenRefresh<T>(
     return result;
   }
 
-  const login = credentials.login;
-  const password = credentials.password;
   if (!login || !password) {
     await notifyAuthFailed(workspaceId, options?.publish);
     throw new Error(
@@ -105,7 +118,7 @@ export async function executeWithKworkTokenRefresh<T>(
     );
   }
 
-  const signInResult = await signIn({ login, password });
+  const signInResult = await signIn(api, { login, password });
   if (!signInResult.success) {
     await notifyAuthFailed(workspaceId, options?.publish);
     const errMsg =
@@ -130,7 +143,7 @@ export async function executeWithKworkTokenRefresh<T>(
     },
   });
 
-  return apiCall(newToken);
+  return apiCall(api, newToken);
 }
 
 async function notifyAuthFailed(
@@ -139,10 +152,13 @@ async function notifyAuthFailed(
 ): Promise<void> {
   if (!publish) return;
 
-  const event = await workspaceNotificationsChannel(workspaceId)["integration-error"]({
+  const event = await workspaceNotificationsChannel(workspaceId)[
+    "integration-error"
+  ]({
     workspaceId,
     type: "kwork-auth-failed",
-    message: "Не удалось обновить токен Kwork. Требуется повторная авторизация.",
+    message:
+      "Не удалось обновить токен Kwork. Требуется повторная авторизация.",
     severity: "error",
     timestamp: new Date().toISOString(),
   });

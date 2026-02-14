@@ -78,7 +78,7 @@ export const sendMessage = protectedProcedure
         result = await executeWithKworkTokenRefresh(
           db,
           input.workspaceId,
-          (token) => kworkSendMessage(token, workerId, input.message),
+          (api, token) => kworkSendMessage(api, token, workerId, input.message),
         );
       } catch (error) {
         const msg = error instanceof Error ? error.message : "Ошибка Kwork";

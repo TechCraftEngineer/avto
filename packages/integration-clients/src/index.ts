@@ -5,6 +5,7 @@
 
 export {
   cookiesToHeaderString,
+  createKworkApiClient,
   extractTokenFromSignInResponse,
   getDialog,
   getInboxMessage,
@@ -19,6 +20,7 @@ export {
   getWebAuthToken,
   isKworkAuthError,
   KWORK_ERROR_CODES,
+  type KworkCredentials,
   type KworkDetails,
   type KworkErrorResponse,
   type KworkInboxMessage,

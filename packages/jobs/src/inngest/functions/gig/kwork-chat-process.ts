@@ -1,12 +1,11 @@
-import { eq } from "@qbs-autonaim/db";
-import { db } from "@qbs-autonaim/db";
+import type { StoredProfileData } from "@qbs-autonaim/db";
+import { db, eq } from "@qbs-autonaim/db";
 import { response as responseTable } from "@qbs-autonaim/db/schema";
 import {
   getInboxTracks,
-  sendMessage as kworkSendMessage,
   type KworkInboxMessage,
+  sendMessage as kworkSendMessage,
 } from "@qbs-autonaim/integration-clients";
-import type { StoredProfileData } from "@qbs-autonaim/db";
 import { generateText } from "@qbs-autonaim/lib/ai";
 import { executeWithKworkTokenRefresh } from "../../../services/kwork";
 import { inngest } from "../../client";
@@ -55,8 +54,8 @@ export const kworkChatProcessFunction = inngest.createFunction(
         return await executeWithKworkTokenRefresh(
           db,
           workspaceId,
-          (token) =>
-            getInboxTracks(token, {
+          (api, token) =>
+            getInboxTracks(api, token, {
               userId: workerId,
               limit: 30,
               direction: "before",
@@ -122,8 +121,9 @@ export const kworkChatProcessFunction = inngest.createFunction(
         return await executeWithKworkTokenRefresh(
           db,
           workspaceId,
-          (token) =>
+          (api, token) =>
             kworkSendMessage(
+              api,
               token,
               workerId,
               aiResponse ?? "Спасибо за ответ!",

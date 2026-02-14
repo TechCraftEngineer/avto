@@ -1,10 +1,11 @@
 /**
  * Kwork.ru API клиент
  * API: https://api.kwork.ru/
- * Barrel: реэкспорт модулей с привязкой к общему axios-клиенту.
- * Без web-offers (cheerio) — для app build. Server-only: см. server.ts
+ *
+ * Все функции принимают api client первым аргументом.
+ * Client создаётся через createKworkApiClient(credentials) с данными из БД интеграций.
  */
-import { kworkApi } from "./client";
+import type { AxiosInstance } from "axios";
 import * as auth from "./auth";
 import * as inbox from "./inbox";
 import * as offers from "./offers";
@@ -29,78 +30,113 @@ export type {
   WebParsedOffer,
 } from "./types";
 
+export { createKworkApiClient, type KworkCredentials } from "./client";
 export { KWORK_ERROR_CODES } from "./types";
 
-// Auth (без api в сигнатуре для обратной совместимости)
+// Auth
 export { extractTokenFromSignInResponse, isKworkAuthError } from "./auth";
 
 export async function signIn(
+  api: AxiosInstance,
   params: import("./types").KworkSignInParams,
 ) {
-  return auth.signIn(kworkApi, params);
+  return auth.signIn(api, params);
 }
 
-export async function getWebAuthToken(token: string, urlToRedirect?: string) {
-  return auth.getWebAuthToken(kworkApi, token, urlToRedirect);
+export async function getWebAuthToken(
+  api: AxiosInstance,
+  token: string,
+  urlToRedirect?: string,
+) {
+  return auth.getWebAuthToken(api, token, urlToRedirect);
 }
 
 // Projects
-export async function getProject(token: string, projectId: number) {
-  return projects.getProject(kworkApi, token, projectId);
+export async function getProject(
+  api: AxiosInstance,
+  token: string,
+  projectId: number,
+) {
+  return projects.getProject(api, token, projectId);
 }
 
 export async function getProjects(
+  api: AxiosInstance,
   token: string,
   params?: import("./types").KworkProjectsParams,
 ) {
-  return projects.getProjects(kworkApi, token, params);
+  return projects.getProjects(api, token, params);
 }
 
-export async function getWant(token: string, projectId: number) {
-  return projects.getWant(kworkApi, token, projectId);
+export async function getWant(
+  api: AxiosInstance,
+  token: string,
+  projectId: number,
+) {
+  return projects.getWant(api, token, projectId);
 }
 
 export async function getMyWants(
+  api: AxiosInstance,
   token: string,
   params?: import("./types").KworkMyWantsParams,
 ) {
-  return projects.getMyWants(kworkApi, token, params);
+  return projects.getMyWants(api, token, params);
 }
 
-export async function getKworkDetails(kworkId: number) {
-  return projects.getKworkDetails(kworkApi, kworkId);
+export async function getKworkDetails(api: AxiosInstance, kworkId: number) {
+  return projects.getKworkDetails(api, kworkId);
 }
 
 // Offers
-export async function getOffer(token: string, offerId: number) {
-  return offers.getOffer(kworkApi, token, offerId);
+export async function getOffer(
+  api: AxiosInstance,
+  token: string,
+  offerId: number,
+) {
+  return offers.getOffer(api, token, offerId);
 }
 
 export async function getOffers(
+  api: AxiosInstance,
   token: string,
   params?: import("./types").KworkOffersParams,
 ) {
-  return offers.getOffers(kworkApi, token, params);
+  return offers.getOffers(api, token, params);
 }
 
 // Inbox
-export async function getDialog(token: string, userId: number) {
-  return inbox.getDialog(kworkApi, token, userId);
+export async function getDialog(
+  api: AxiosInstance,
+  token: string,
+  userId: number,
+) {
+  return inbox.getDialog(api, token, userId);
 }
 
-export async function sendMessage(token: string, userId: number, text: string) {
-  return inbox.sendMessage(kworkApi, token, userId, text);
+export async function sendMessage(
+  api: AxiosInstance,
+  token: string,
+  userId: number,
+  text: string,
+) {
+  return inbox.sendMessage(api, token, userId, text);
 }
 
 export async function getInboxTracks(
+  api: AxiosInstance,
   token: string,
   params?: import("./types").KworkInboxTracksParams,
 ) {
-  return inbox.getInboxTracks(kworkApi, token, params);
+  return inbox.getInboxTracks(api, token, params);
 }
 
-export async function getInboxMessage(token: string, messageId: number) {
-  return inbox.getInboxMessage(kworkApi, token, messageId);
+export async function getInboxMessage(
+  api: AxiosInstance,
+  token: string,
+  messageId: number,
+) {
+  return inbox.getInboxMessage(api, token, messageId);
 }
 
 // Cookies (pure utils, no cheerio)

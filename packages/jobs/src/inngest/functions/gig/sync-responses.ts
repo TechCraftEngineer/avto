@@ -57,9 +57,15 @@ export const syncGigResponses = inngest.createFunction(
             publish as (event: object) => Promise<void>,
           );
         case "FL_RU":
-          return { ...(await syncFlRuResponses(gigRecord.externalId)), responseIdsForChatImport: [] };
+          return {
+            ...(await syncFlRuResponses(gigRecord.externalId)),
+            responseIdsForChatImport: [],
+          };
         case "FREELANCE_RU":
-          return { ...(await syncFreelanceRuResponses(gigRecord.externalId)), responseIdsForChatImport: [] };
+          return {
+            ...(await syncFreelanceRuResponses(gigRecord.externalId)),
+            responseIdsForChatImport: [],
+          };
         default:
           return {
             success: false,
@@ -71,8 +77,7 @@ export const syncGigResponses = inngest.createFunction(
     });
 
     // Запуск импорта истории чатов для откликов Kwork с kworkWorkerId
-    const responseIds =
-      syncResult.responseIdsForChatImport ?? [];
+    const responseIds = syncResult.responseIdsForChatImport ?? [];
     if (
       syncResult.success &&
       responseIds.length > 0 &&
@@ -127,7 +132,7 @@ async function syncKworkResponses(
       const result = await executeWithKworkTokenRefresh(
         db,
         workspaceId,
-        (token) => getOffers(token, { page }),
+        (api, token) => getOffers(api, token, { page }),
         { publish },
       );
       if (!result.success || !result.response) {
@@ -176,13 +181,13 @@ async function syncKworkResponses(
       offer.worker_id ??
       (offer.project as { user_id?: number })?.user_id;
     const username =
-      offer.username ??
-      (offer.project as { username?: string })?.username;
-    const candidateId = workerId != null
-      ? `kwork_${workerId}`
-      : username
-        ? `kwork_user_${username}`
-        : `kwork_offer_${offer.id}`;
+      offer.username ?? (offer.project as { username?: string })?.username;
+    const candidateId =
+      workerId != null
+        ? `kwork_${workerId}`
+        : username
+          ? `kwork_user_${username}`
+          : `kwork_offer_${offer.id}`;
     const profileUrl =
       username != null ? `https://kwork.ru/user/${username}` : undefined;
 
