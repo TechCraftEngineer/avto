@@ -49,6 +49,7 @@ export function GigColumnHeader({
 
   return (
     <div className="flex items-center gap-1.5 font-semibold text-foreground">
+      {/* biome-ignore lint/a11y/useSemanticElements: button required for sort click; role and aria-sort needed for table header semantics */}
       <button
         type="button"
         role="columnheader"
