@@ -10,27 +10,14 @@ import {
   type Options,
 } from "nuqs/server"
 
-import {
-  BASE_COLORS,
-  BASES,
-  DEFAULT_CONFIG,
-  iconLibraries,
-  MENU_ACCENTS,
-  MENU_COLORS,
-  RADII,
-  STYLES,
-  THEMES,
-  type BaseColorName,
-  type BaseName,
-  type FontValue,
-  type IconLibraryName,
-  type MenuAccentValue,
-  type MenuColorValue,
-  type RadiusValue,
-  type StyleName,
-  type ThemeName,
-} from "@/registry/config"
-import { FONTS } from "@/app/(create)/lib/fonts"
+
+import { FONTS } from "./fonts"
+import { IconLibraryName, iconLibraries } from "shadcn/icons"
+import { BASE_COLORS } from "../registry/base-colors"
+import { BASES } from "../registry/bases"
+import { BaseName, StyleName, ThemeName, FontValue, BaseColorName, MenuAccentValue, MENU_ACCENTS, MenuColorValue, MENU_COLORS, RadiusValue, RADII } from "../registry/config"
+import { STYLES } from "../registry/styles"
+import { THEMES } from "../registry/themes"
 
 const designSystemSearchParams = {
   base: parseAsStringLiteral<BaseName>(BASES.map((b) => b.name)),
