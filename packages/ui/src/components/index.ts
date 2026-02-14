@@ -51,6 +51,10 @@ export type { ChartConfig } from "./chart";
 export { CandidateAvatar } from "./candidate-avatar"
 
 export { Card, CardAction, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './card'
+
+// Calendar components
+export { Calendar, CalendarDayButton } from "./calendar";
+
 // Checkbox components
 export { Checkbox } from "./checkbox";
 
@@ -89,7 +93,35 @@ export {
   ContextMenuRadioGroup,
 } from "./context-menu";
 
-
+// Data Grid components
+export {
+  DataGrid,
+  DataGridContainer,
+  DataGridProvider,
+  useDataGrid,
+  DataGridTableDnd,
+  DataGridPagination,
+  DataGridTableBase,
+  DataGridTableBody,
+  DataGridTableBodyRow,
+  DataGridTableBodyRowCell,
+  DataGridTableBodyRowExpandded,
+  DataGridTableBodyRowSkeleton,
+  DataGridTableBodyRowSkeletonCell,
+  DataGridTableEmpty,
+  DataGridTableHead,
+  DataGridTableHeadRow,
+  DataGridTableHeadRowCell,
+  DataGridTableHeadRowCellResize,
+  DataGridTableRowSpacer,
+} from "./reui/data-grid";
+export type {
+  DataGridApiFetchParams,
+  DataGridApiResponse,
+  DataGridProps,
+  DataGridRequestParams,
+  DataGridPaginationProps,
+} from "./reui/data-grid";
 
 // Dialog components
 export {
