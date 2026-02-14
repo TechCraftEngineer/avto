@@ -1,6 +1,6 @@
 import { and, count, db, eq, sql } from "@qbs-autonaim/db";
 import { gig, response } from "@qbs-autonaim/db/schema";
-import { getProjectOffersFromWebWithCache } from "../../../services/kwork";
+import { getProjectOffersFromWebWithCache } from "../../../services/kwork/get-kwork-project-offers";
 import { inngest } from "../../client";
 
 /**

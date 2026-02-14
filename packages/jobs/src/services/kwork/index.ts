@@ -1,7 +1,7 @@
-export {
-  type GetProjectOffersResult,
-  getProjectOffersFromWebWithCache,
-} from "./get-kwork-project-offers";
+/**
+ * API-safe exports (без cheerio, jobs-parsers).
+ * Использовать в api, app, interview.
+ */
 export {
   executeWithKworkTokenRefresh,
   type KworkApiResult,

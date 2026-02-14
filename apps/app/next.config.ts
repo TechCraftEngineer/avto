@@ -16,6 +16,9 @@ export default async function createNextConfig(): Promise<NextConfig> {
     serverExternalPackages: [
         "@qbs-autonaim/lib",
         "@qbs-autonaim/document-processor",
+        "@qbs-autonaim/integration-clients",
+        "@qbs-autonaim/jobs-parsers",
+        "cheerio",
       ],
 
     /** Build optimizations */

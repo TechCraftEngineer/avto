@@ -56,7 +56,8 @@ alwaysApply: false
 ### jobs
 - `jobs/channels` — zod-схемы, inngest-realtime — client-safe
 - `jobs/client` — Inngest client, использовать в Server Actions
-- `jobs/services/*` — только Inngest (Node)
+- `jobs/services/kwork` — только executeWithKworkTokenRefresh (API-safe, без cheerio)
+- `jobs/services/kwork/get-kwork-project-offers` — getProjectOffersFromWebWithCache (cheerio, jobs-parsers) — только Inngest
 
 ### shared
 - `shared` — client-safe (utils, schemas, constants)

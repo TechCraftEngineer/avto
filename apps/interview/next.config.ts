@@ -13,7 +13,9 @@ export default async function createNextConfig(): Promise<NextConfig> {
     serverExternalPackages: [
       "ai",
       "@qbs-autonaim/lib",
+      "@qbs-autonaim/integration-clients",
       "@qbs-autonaim/jobs-parsers",
+      "cheerio",
       "puppeteer-extra-plugin-stealth",
       "puppeteer-extra-plugin",
       "@ai-sdk/provider",
