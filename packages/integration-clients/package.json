@@ -20,7 +20,8 @@
   },
   "dependencies": {
     "axios": "1.13.5",
-    "cheerio": "^1.2.0"
+    "cheerio": "^1.2.0",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@qbs-autonaim/tsconfig": "workspace:*",
