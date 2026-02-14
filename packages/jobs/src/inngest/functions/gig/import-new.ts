@@ -113,7 +113,7 @@ export const importNewGigsFunction = inngest.createFunction(
           const apiResult = await executeWithKworkTokenRefresh(
             db,
             workspaceId,
-            (token) => getMyWants(token, { page }),
+            (api, token) => getMyWants(api, token, { page }),
             { publish },
           );
 

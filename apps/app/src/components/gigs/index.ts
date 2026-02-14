@@ -1,4 +1,5 @@
 // gigs domain exports
+export type { DisplayMode } from "./components";
 export {
   CandidateComparison,
   CustomDomainSelect,

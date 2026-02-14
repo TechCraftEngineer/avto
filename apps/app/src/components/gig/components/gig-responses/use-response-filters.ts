@@ -10,21 +10,21 @@ export interface Response {
   score?: number | null;
 }
 
-interface UseResponseFiltersProps {
-  responses: Response[] | undefined;
+interface UseResponseFiltersProps<T extends Response = Response> {
+  responses: T[] | undefined;
   searchQuery: string;
   statusFilter: string;
   activeTab: string;
 }
 
-export const useResponseFilters = ({
+export const useResponseFilters = <T extends Response>({
   responses,
   searchQuery,
   statusFilter,
   activeTab,
-}: UseResponseFiltersProps) => {
-  const filteredResponses = useMemo(() => {
-    if (!responses) return [];
+}: UseResponseFiltersProps<T>) => {
+  const filteredResponses = useMemo((): T[] => {
+    if (!responses) return [] as T[];
 
     return responses.filter((response) => {
       const matchesSearch =

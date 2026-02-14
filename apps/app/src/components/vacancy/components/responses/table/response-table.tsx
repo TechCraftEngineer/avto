@@ -265,10 +265,13 @@ export function ResponseTable({
       },
     },
     onColumnOrderChange: (updater) => {
-      const next = updater(fullColumnOrder);
+      const next =
+        typeof updater === "function" ? updater(fullColumnOrder) : updater;
       const dataOrder = next.filter(
-        (id): id is ColumnId =>
-          id !== "select" && id !== "actions" && DATA_COLUMN_IDS.includes(id),
+        (id: string): id is ColumnId =>
+          id !== "select" &&
+          id !== "actions" &&
+          (DATA_COLUMN_IDS as readonly string[]).includes(id),
       );
       setColumnOrder(dataOrder);
     },
@@ -292,8 +295,10 @@ export function ResponseTable({
 
       const reordered = arrayMove(fullColumnOrder, oldIndex, newIndex);
       const dataOrder = reordered.filter(
-        (id): id is ColumnId =>
-          id !== "select" && id !== "actions" && DATA_COLUMN_IDS.includes(id),
+        (id: string): id is ColumnId =>
+          id !== "select" &&
+          id !== "actions" &&
+          (DATA_COLUMN_IDS as readonly string[]).includes(id),
       );
       setColumnOrder(dataOrder);
     },

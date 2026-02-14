@@ -19,7 +19,8 @@ export interface GigTableMeta {
 }
 
 interface GigColumnHeaderProps {
-  context: HeaderContext<unknown, unknown>;
+  // biome-ignore lint/suspicious/noExplicitAny: HeaderContext is invariant, need to accept specific table row types
+  context: HeaderContext<any, unknown>;
   label: React.ReactNode;
   sortField?: GigSortField;
   meta: GigTableMeta | undefined;

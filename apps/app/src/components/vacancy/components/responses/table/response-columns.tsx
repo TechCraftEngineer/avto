@@ -34,7 +34,7 @@ export interface ResponseTableMeta {
   sortField: SortField;
   sortDirection: "asc" | "desc";
   onSort: (field: SortField) => void;
-  visibleColumnIds: Set<ColumnId>;
+  visibleColumnIds: ReadonlySet<ColumnId>;
 }
 
 const columnHelper = createColumnHelper<ResponseListItem>();

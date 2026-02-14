@@ -23,7 +23,7 @@ export const verifyKworkCredentialsFunction = inngest.createFunction(
 
     const result = await step.run("verify-credentials", async () => {
       try {
-        const api = createKworkApiClient({ login, password });
+        const api = createKworkApiClient();
         const signInResult = await signIn(api, {
           login,
           password,
