@@ -1,6 +1,8 @@
 import { and, count, db, eq, sql } from "@qbs-autonaim/db";
 import { gig, response } from "@qbs-autonaim/db/schema";
+import { getDialogs } from "@qbs-autonaim/integration-clients";
 import { getProjectOffersFromWebWithCache } from "../../../services/kwork/get-kwork-project-offers";
+import { executeWithKworkTokenRefresh } from "../../../services/kwork/kwork-token-refresh";
 import { inngest } from "../../client";
 
 /**
@@ -149,13 +151,38 @@ async function syncKworkResponses(
     };
   }
 
+  // Загружаем диалоги из API для аватаров (fallback, если веб-парсинг не получил avatarUrl)
+  const avatarByWorkerId = new Map<number, string>();
+  const dialogsResult = await executeWithKworkTokenRefresh(
+    db,
+    workspaceId,
+    (api, token) => getDialogs(api, token, {}),
+    { publish },
+  );
+  if (dialogsResult.success && Array.isArray(dialogsResult.response)) {
+    for (const d of dialogsResult.response) {
+      const uid = d.user_id;
+      const pic = d.profilepicture;
+      if (
+        uid != null &&
+        typeof uid === "number" &&
+        pic &&
+        typeof pic === "string" &&
+        pic.trim().length > 0
+      ) {
+        const url = pic.startsWith("http") ? pic : `https://kwork.ru${pic.startsWith("/") ? "" : "/"}${pic}`;
+        avatarByWorkerId.set(uid, url);
+      }
+    }
+  }
+
   const parseDurationDays = (s: string): number | undefined => {
     const num = Number.parseInt(s.replace(/[^\d]/g, ""), 10);
     return Number.isFinite(num) && num > 0 ? num : undefined;
   };
 
   const values = offers.map((offer) => {
-    const { workerId, username, offerId, profileUrl: rawProfileUrl } = offer;
+    const { workerId, username, offerId, profileUrl: rawProfileUrl, avatarUrl: webAvatarUrl } = offer;
     const candidateId =
       workerId != null && workerId > 0
         ? `kwork_${workerId}`
@@ -170,6 +197,12 @@ async function syncKworkResponses(
           : username
             ? `https://kwork.ru/user/${username}`
             : undefined;
+
+    // Аватар: приоритет веб-парсингу, fallback — из API dialogs
+    const avatarFromDialogs =
+      workerId != null && workerId > 0 && !webAvatarUrl?.trim()
+        ? avatarByWorkerId.get(workerId)
+        : undefined;
 
     return {
       entityType: "gig" as const,
@@ -190,6 +223,7 @@ async function syncKworkResponses(
         kworkWantId: offer.projectId,
         ...(workerId != null && workerId > 0 && { kworkWorkerId: workerId }),
         ...(username && { kworkUsername: username }),
+        ...(avatarFromDialogs && { kworkAvatarUrl: avatarFromDialogs }),
       },
     };
   });

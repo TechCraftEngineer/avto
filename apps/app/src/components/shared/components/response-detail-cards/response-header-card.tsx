@@ -84,12 +84,15 @@ export function ResponseHeaderCard({
   const statusConfig = STATUS_CONFIG[response.status];
   const StatusIcon = statusConfig?.icon;
 
-  // Получаем URL аватарки из файла
+  // Получаем URL аватарки: photoFileId → kworkAvatarUrl (из dialogs) → fallback на инициалы
   const photoUrl = useAvatarUrl(
     "photoFileId" in response ? response.photoFileId : null,
   );
+  const profileData = response.profileData as { kworkAvatarUrl?: string } | null | undefined;
+  const fallbackAvatar =
+    !photoUrl && profileData?.kworkAvatarUrl ? profileData.kworkAvatarUrl : photoUrl;
   const candidateName = response.candidateName || response.candidateId;
-  const avatarUrl = getAvatarUrl(photoUrl, candidateName);
+  const avatarUrl = getAvatarUrl(fallbackAvatar, candidateName);
   const initials = getInitials(candidateName);
 
   const hasConversation =

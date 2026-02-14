@@ -76,7 +76,13 @@ export default function GigsPage() {
       if (stored.typeFilter) setTypeFilter(stored.typeFilter);
       if (stored.statusFilter) setStatusFilter(stored.statusFilter);
       if (stored.sortBy) setSortBy(stored.sortBy);
-      if (stored.displayMode) setDisplayMode(stored.displayMode);
+      if (stored.displayMode) {
+        setDisplayMode(
+          stored.displayMode === "grid" || stored.displayMode === "table"
+            ? stored.displayMode
+            : "grid",
+        );
+      }
       if (stored.quickFilter) setQuickFilter(stored.quickFilter);
       if (stored.groupBy) setGroupBy(stored.groupBy);
     }

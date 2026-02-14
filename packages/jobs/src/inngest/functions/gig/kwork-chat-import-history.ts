@@ -6,6 +6,7 @@ import {
   response as responseTable,
 } from "@qbs-autonaim/db/schema";
 import {
+  getDialog,
   getInboxTracks,
   type KworkInboxMessage,
 } from "@qbs-autonaim/integration-clients";
@@ -205,6 +206,42 @@ export const kworkChatImportHistoryFunction = inngest.createFunction(
           })
           .where(eq(interviewSession.id, sessionId));
       });
+    }
+
+    // Обогащаем аватаром из API getDialog, если его ещё нет в response
+    const currentResponse = await db.query.response.findFirst({
+      where: eq(responseTable.id, responseId),
+      columns: { profileData: true, photoFileId: true },
+    });
+    const pd = (currentResponse?.profileData ?? {}) as Record<string, unknown>;
+    if (!currentResponse?.photoFileId && !pd.kworkAvatarUrl) {
+      const dialogResult = await step.run("enrich-avatar-from-dialog", async () => {
+        return await executeWithKworkTokenRefresh(
+          db,
+          workspaceId,
+          (api, token) => getDialog(api, token, workerId),
+        );
+      });
+      if (dialogResult.success && dialogResult.response) {
+        const dialog = dialogResult.response as {
+          profilepicture?: string;
+          user_id?: number;
+          [key: string]: unknown;
+        };
+        const pic = dialog?.profilepicture;
+        if (pic && typeof pic === "string" && pic.trim().length > 0) {
+          const avatarUrl = pic.startsWith("http")
+            ? pic
+            : `https://kwork.ru${pic.startsWith("/") ? "" : "/"}${pic}`;
+          await db
+            .update(responseTable)
+            .set({
+              profileData: { ...pd, kworkAvatarUrl: avatarUrl } as StoredProfileData,
+              updatedAt: new Date(),
+            })
+            .where(eq(responseTable.id, responseId));
+        }
+      }
     }
 
     return { success: true, imported: inserted, total: allMessages.length };

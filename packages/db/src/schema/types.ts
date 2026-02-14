@@ -71,4 +71,6 @@ export interface StoredProfileData {
   kworkWorkerId?: number;
   kworkUsername?: string;
   kworkLastProcessedMessageId?: number;
+  /** URL аватара из API dialogs (fallback, если нет photoFileId) */
+  kworkAvatarUrl?: string;
 }

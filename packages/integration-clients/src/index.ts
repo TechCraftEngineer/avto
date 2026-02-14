@@ -8,6 +8,7 @@ export {
   createKworkApiClient,
   extractTokenFromSignInResponse,
   getDialog,
+  getDialogs,
   getInboxMessage,
   getInboxTracks,
   getKworkDetails,

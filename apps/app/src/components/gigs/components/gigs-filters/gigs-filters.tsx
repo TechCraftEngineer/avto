@@ -11,15 +11,13 @@ import {
 import {
   IconFilter,
   IconLayoutGrid,
-  IconLayoutList,
-  IconList,
   IconSearch,
   IconSparkles,
   IconTable,
 } from "@tabler/icons-react";
 import Link from "next/link";
 
-export type DisplayMode = "grid" | "list" | "compact" | "table";
+export type DisplayMode = "grid" | "table";
 
 export const gigTypeLabels: Record<string, string> = {
   DEVELOPMENT: "Разработка",
@@ -108,27 +106,9 @@ export function GigsFilters({
                 size="sm"
                 onClick={() => onDisplayModeChange("grid")}
                 className="h-8 px-2"
-                title="Сетка"
+                title="Карточки"
               >
                 <IconLayoutGrid className="size-4" />
-              </Button>
-              <Button
-                variant={displayMode === "list" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => onDisplayModeChange("list")}
-                className="h-8 px-2"
-                title="Список"
-              >
-                <IconLayoutList className="size-4" />
-              </Button>
-              <Button
-                variant={displayMode === "compact" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => onDisplayModeChange("compact")}
-                className="h-8 px-2"
-                title="Компактно"
-              >
-                <IconList className="size-4" />
               </Button>
               <Button
                 variant={displayMode === "table" ? "default" : "ghost"}

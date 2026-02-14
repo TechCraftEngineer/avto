@@ -145,6 +145,22 @@ export interface KworkInboxTracksParams {
   limit?: number;
 }
 
+/** Диалог из API /dialogs (список диалогов) */
+export interface KworkDialog {
+  user_id?: number;
+  username?: string;
+  profilepicture?: string;
+  last_message?: string;
+  time?: number;
+  unread_count?: number;
+  [key: string]: unknown;
+}
+
+export interface KworkDialogsParams {
+  page?: number;
+  excludedIds?: string;
+}
+
 export interface KworkWebAuthTokenResponse {
   token?: string;
   expires_at?: number;

@@ -1,9 +1,12 @@
 import { AlertTriangle } from "lucide-react";
 import { GigCompactItem } from "../gig-compact-item";
-import { GigListItem } from "../gig-list-item";
-import type { DisplayMode, Gig } from "../gigs-filters";
+import { GigCard } from "../gig-card";
+import type { Gig } from "../gigs-filters";
 
 export type GigWithActive = Gig & { isActive: boolean };
+
+/** grid = карточки, compact = компактные строки (для блока при режиме таблицы) */
+type AttentionBlockDisplayMode = "grid" | "compact";
 
 function getAttentionGigs(gigs: GigWithActive[]): GigWithActive[] {
   const now = new Date();
@@ -29,7 +32,7 @@ function getAttentionGigs(gigs: GigWithActive[]): GigWithActive[] {
 
 interface GigsAttentionBlockProps {
   gigs: GigWithActive[];
-  displayMode: DisplayMode;
+  displayMode: AttentionBlockDisplayMode;
   orgSlug: string;
   workspaceSlug: string;
   onDelete?: (gigId: string) => void;
@@ -47,12 +50,18 @@ export function GigsAttentionBlock({
   if (attentionGigs.length === 0) return null;
 
   return (
-    <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50/50 p-3 dark:border-amber-800 dark:bg-amber-950/20">
+    <div className="mb-4 max-w-3xl rounded-lg border border-amber-200 bg-amber-50/50 p-3 dark:border-amber-800 dark:bg-amber-950/20">
       <div className="mb-2 flex items-center gap-2 text-sm font-medium text-amber-800 dark:text-amber-200">
         <AlertTriangle className="size-4 shrink-0" />
         Требуют внимания ({attentionGigs.length})
       </div>
-      <div className="space-y-1.5">
+      <div
+        className={
+          displayMode === "grid"
+            ? "grid gap-3 sm:grid-cols-2 lg:grid-cols-3"
+            : "space-y-1.5"
+        }
+      >
         {attentionGigs.map((gig) =>
           displayMode === "compact" ? (
             <GigCompactItem
@@ -63,7 +72,7 @@ export function GigsAttentionBlock({
               onDelete={onDelete}
             />
           ) : (
-            <GigListItem
+            <GigCard
               key={gig.id}
               gig={gig}
               orgSlug={orgSlug}

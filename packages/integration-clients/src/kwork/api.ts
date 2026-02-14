@@ -15,6 +15,8 @@ import * as projects from "./projects";
 export type {
   KworkAuthSuccess,
   KworkDetails,
+  KworkDialog,
+  KworkDialogsParams,
   KworkErrorResponse,
   KworkInboxMessage,
   KworkInboxTracksParams,
@@ -106,6 +108,14 @@ export async function getOffers(
 }
 
 // Inbox
+export async function getDialogs(
+  api: AxiosInstance,
+  token: string,
+  params?: import("./types").KworkDialogsParams,
+) {
+  return inbox.getDialogs(api, token, params ?? {});
+}
+
 export async function getDialog(
   api: AxiosInstance,
   token: string,

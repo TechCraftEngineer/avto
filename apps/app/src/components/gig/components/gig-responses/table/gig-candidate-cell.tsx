@@ -33,7 +33,10 @@ export function GigCandidateCell({
 }: GigCandidateCellProps) {
   const photoUrl = useAvatarUrl(response.photoFileId);
   const candidateName = response.candidateName || "Кандидат";
-  const avatarUrl = getAvatarUrl(photoUrl, candidateName);
+  const profileData = response.profileData as { kworkAvatarUrl?: string } | null | undefined;
+  const fallbackAvatar =
+    !photoUrl && profileData?.kworkAvatarUrl ? profileData.kworkAvatarUrl : photoUrl;
+  const avatarUrl = getAvatarUrl(fallbackAvatar, candidateName);
   const initials = getInitials(candidateName);
   const age = response.birthDate ? calculateAge(response.birthDate) : null;
 

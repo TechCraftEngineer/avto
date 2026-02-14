@@ -1,8 +1,6 @@
 import { Skeleton } from "@qbs-autonaim/ui";
 import { EmptyState } from "../empty-state";
 import { GigCard } from "../gig-card";
-import { GigCompactItem } from "../gig-compact-item";
-import { GigListItem } from "../gig-list-item";
 import { GigsAttentionBlock } from "../gigs-attention-block";
 import type { DisplayMode, Gig } from "../gigs-filters";
 import { GigsTable } from "../gigs-table";
@@ -141,45 +139,12 @@ export function GigsList({
     }
 
     return (
-      <div
-        className={
-          displayMode === "grid"
-            ? "grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
-            : displayMode === "list"
-              ? "space-y-4"
-              : "space-y-2"
-        }
-      >
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {listGigs.map((gig) => {
           const gigData = {
             ...gig,
             isActive: gig.isActive ?? true,
           };
-
-          if (displayMode === "compact") {
-            return (
-              <GigCompactItem
-                key={gig.id}
-                gig={gigData}
-                orgSlug={orgSlug}
-                workspaceSlug={workspaceSlug}
-                onDelete={onDelete}
-              />
-            );
-          }
-
-          if (displayMode === "list") {
-            return (
-              <GigListItem
-                key={gig.id}
-                gig={gigData}
-                orgSlug={orgSlug}
-                workspaceSlug={workspaceSlug}
-                onDelete={onDelete}
-              />
-            );
-          }
-
           return (
             <GigCard
               key={gig.id}
@@ -216,7 +181,7 @@ export function GigsList({
       {attentionGigs.length > 0 && (
         <GigsAttentionBlock
           gigs={attentionGigs}
-          displayMode={displayMode === "table" ? "list" : displayMode}
+          displayMode={displayMode === "table" ? "compact" : "grid"}
           orgSlug={orgSlug}
           workspaceSlug={workspaceSlug}
           onDelete={onDelete}
