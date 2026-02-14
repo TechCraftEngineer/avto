@@ -2,13 +2,13 @@
  * Kwork.ru API клиент
  * API: https://api.kwork.ru/
  * Barrel: реэкспорт модулей с привязкой к общему axios-клиенту.
+ * Без web-offers (cheerio) — для app build. Server-only: см. server.ts
  */
 import { kworkApi } from "./client";
 import * as auth from "./auth";
 import * as inbox from "./inbox";
 import * as offers from "./offers";
 import * as projects from "./projects";
-import * as webOffers from "./web-offers";
 
 // Типы
 export type {
@@ -103,21 +103,5 @@ export async function getInboxMessage(token: string, messageId: number) {
   return inbox.getInboxMessage(kworkApi, token, messageId);
 }
 
-// Web offers
-export {
-  cookiesToHeaderString,
-  parseSetCookieToCookies,
-} from "./web-offers";
-
-export async function getProjectOffersFromWeb(
-  token: string,
-  projectId: number,
-  options?: { cookieHeader?: string },
-) {
-  return webOffers.getProjectOffersFromWeb(
-    kworkApi,
-    token,
-    projectId,
-    options,
-  );
-}
+// Cookies (pure utils, no cheerio)
+export { cookiesToHeaderString, parseSetCookieToCookies } from "./cookies";

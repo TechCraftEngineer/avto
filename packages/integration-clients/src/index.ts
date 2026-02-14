@@ -14,7 +14,6 @@ export {
   getOffer,
   getOffers,
   getProject,
-  getProjectOffersFromWeb,
   getProjects,
   getWant,
   getWebAuthToken,

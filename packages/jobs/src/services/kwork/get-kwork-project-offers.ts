@@ -13,7 +13,7 @@ import {
   cookiesToHeaderString,
   getProjectOffersFromWeb,
   type WebParsedOffer,
-} from "@qbs-autonaim/integration-clients";
+} from "@qbs-autonaim/integration-clients/server";
 import { executeWithKworkTokenRefresh } from "./kwork-token-refresh";
 
 export interface GetProjectOffersResult {

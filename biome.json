@@ -20,6 +20,7 @@
       "!**/apps/web/src/**/*.ts",
       "!**/apps/docs/src/**/*.ts",
       "!**/packages/ui/src/**/*.ts",
+      "!**/packages/ui/src/**/*.tsx",
       "!**/packages/ui/src/**/*.css",
       "!**/tooling/**/*",
       "!**/apps/app/**/*.css",
@@ -104,7 +105,12 @@
       }
     },
     {
-      "includes": ["**/*.test.ts", "**/*.test.tsx", "**/test-setup.ts", "**/__tests__/**"],
+      "includes": [
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "**/test-setup.ts",
+        "**/__tests__/**"
+      ],
       "linter": {
         "rules": {
           "suspicious": { "noExplicitAny": "off" },
