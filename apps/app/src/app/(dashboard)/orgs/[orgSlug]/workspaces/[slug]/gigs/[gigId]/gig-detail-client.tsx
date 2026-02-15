@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
   GigDetailActions,
@@ -68,6 +68,13 @@ export function GigDetailClient({
     organizationIsLoading,
   } = useWorkspace();
   const workspaceId = workspace?.id;
+
+  // Update document title for SEO
+  useEffect(() => {
+    if (gig?.title) {
+      document.title = `${gig.title} | Разовое задание`;
+    }
+  }, [gig]);
 
   const {
     data: gig,

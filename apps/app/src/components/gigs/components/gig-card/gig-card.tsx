@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { IMPORT_SOURCE_LABELS } from "~/lib/shared/response-configs";
+import { getGigTypeLabel, getGigTypeDescription } from "../gig-config";
 
 // Импортируем только функцию, без зависимостей от DB
 const getPlatformDisplayName = (source: string) => {
@@ -149,9 +150,9 @@ export function GigCard({
     const deadline = new Date(gig.deadline);
     const diffInHours = (deadline.getTime() - now.getTime()) / (1000 * 60 * 60);
 
-    if (isOverdue) return "border-red-300 bg-red-50/50";
-    if (diffInHours <= 24) return "border-orange-300 bg-orange-50/50";
-    if (diffInHours <= 72) return "border-yellow-300 bg-yellow-50/50";
+    if (isOverdue) return "border-destructive/30 bg-destructive/5";
+    if (diffInHours <= 24) return "border-orange-300 dark:border-orange-700 bg-orange-50/50 dark:bg-orange-900/20";
+    if (diffInHours <= 72) return "border-yellow-300 dark:border-yellow-700 bg-yellow-50/50 dark:bg-yellow-900/20";
     return "";
   };
 
@@ -171,9 +172,7 @@ export function GigCard({
                   </Badge>
                 </TooltipTrigger>
                 <TooltipContent>
-                  {gig.type === "OTHER"
-                    ? "Категория для заданий, не подходящих под остальные"
-                    : "Тип задания"}
+                  {getGigTypeDescription(gig.type) || "Тип задания"}
                 </TooltipContent>
               </Tooltip>
 
@@ -216,10 +215,10 @@ export function GigCard({
               size="icon"
               className="h-8 w-8 shrink-0"
               onClick={() => onToggleActive?.(gig.id)}
-              title={gig.isActive ? "Деактивировать" : "Активировать"}
+              aria-label={gig.isActive ? "Деактивировать" : "Активировать"}
             >
               <Power
-                className={`h-4 w-4 ${gig.isActive ? "text-green-600" : "text-gray-400"}`}
+                className={`h-4 w-4 ${gig.isActive ? "text-green-600 dark:text-green-400" : "text-muted-foreground"}`}
               />
             </Button>
 
@@ -343,8 +342,8 @@ export function GigCard({
               className={`font-medium ${
                 (gig.responses || 0) > 0
                   ? (gig.responses || 0) > 5
-                    ? "text-green-600"
-                    : "text-blue-600"
+                    ? "text-green-600 dark:text-green-400"
+                    : "text-blue-600 dark:text-blue-400"
                   : "text-muted-foreground"
               }`}
             >

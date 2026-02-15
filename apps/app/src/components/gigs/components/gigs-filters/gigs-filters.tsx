@@ -16,28 +16,21 @@ import {
   IconTable,
 } from "@tabler/icons-react";
 import Link from "next/link";
+import { gigTypesConfig, gigTypeLabels, type DisplayMode } from "../gig-config";
 
-export type DisplayMode = "grid" | "table";
-
-export const gigTypeLabels: Record<string, string> = {
-  DEVELOPMENT: "Разработка",
-  DESIGN: "Дизайн",
-  COPYWRITING: "Копирайтинг",
-  MARKETING: "Маркетинг",
-  TRANSLATION: "Перевод",
-  VIDEO: "Видео",
-  AUDIO: "Аудио",
-  DATA_ENTRY: "Ввод данных",
-  RESEARCH: "Исследования",
-  CONSULTING: "Консалтинг",
-  OTHER: "Другое",
-};
+// Константы для фильтров
+const DEADLINE_WARNING_DAYS = 7;
+const QUICK_FILTER_LABELS = {
+  NEEDS_ATTENTION: "Нужно внимание",
+  HAS_NEW_RESPONSES: "С новыми откликами",
+  DEADLINE_SOON: `Истекают за ${DEADLINE_WARNING_DAYS} дн.`,
+} as const;
 
 export const quickFilterOptions = [
   { value: "", label: "Все" },
-  { value: "needsAttention", label: "Нужно внимание" },
-  { value: "hasNewResponses", label: "С новыми откликами" },
-  { value: "deadlineSoon", label: "Истекают за 7 дн." },
+  { value: "needsAttention", label: QUICK_FILTER_LABELS.NEEDS_ATTENTION },
+  { value: "hasNewResponses", label: QUICK_FILTER_LABELS.HAS_NEW_RESPONSES },
+  { value: "deadlineSoon", label: QUICK_FILTER_LABELS.DEADLINE_SOON },
 ] as const;
 
 interface GigsFiltersProps {
@@ -131,9 +124,9 @@ export function GigsFilters({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Все типы</SelectItem>
-                {Object.entries(gigTypeLabels).map(([value, label]) => (
-                  <SelectItem key={value} value={value}>
-                    {label}
+                {gigTypesConfig.map((type) => (
+                  <SelectItem key={type.value} value={type.value}>
+                    {type.label}
                   </SelectItem>
                 ))}
               </SelectContent>

@@ -195,6 +195,34 @@ export default function GigsPage() {
     }),
   );
 
+  const duplicateMutation = useMutation(
+    api.gig.duplicate.mutationOptions({
+      onSuccess: (data) => {
+        toast.success("Задание дублировано");
+        queryClient.invalidateQueries({
+          queryKey: api.gig.list.queryKey(),
+        });
+      },
+      onError: (error) => {
+        toast.error(error.message || "Не удалось дублировать задание");
+      },
+    }),
+  );
+
+  const toggleActiveMutation = useMutation(
+    api.gig.toggleActive.mutationOptions({
+      onSuccess: (data) => {
+        toast.success(data.isActive ? "Задание активировано" : "Задание деактивировано");
+        queryClient.invalidateQueries({
+          queryKey: api.gig.list.queryKey(),
+        });
+      },
+      onError: (error) => {
+        toast.error(error.message || "Не удалось изменить статус");
+      },
+    }),
+  );
+
   const handleDeleteClick = useCallback(
     (gigId: string) => {
       const gig = gigs?.find((g) => g.id === gigId);
@@ -219,22 +247,26 @@ export default function GigsPage() {
     (gigId: string) => {
       const gig = gigs?.find((g) => g.id === gigId);
       if (gig && workspace?.id) {
-        // TODO: Implement duplicate functionality
-        toast.info("Функция дублирования скоро будет доступна");
+        duplicateMutation.mutate({
+          gigId: gig.id,
+          workspaceId: workspace.id,
+        });
       }
     },
-    [gigs, workspace?.id],
+    [gigs, workspace?.id, duplicateMutation],
   );
 
   const handleToggleActive = useCallback(
     (gigId: string) => {
       const gig = gigs?.find((g) => g.id === gigId);
       if (gig && workspace?.id) {
-        // TODO: Implement toggle active functionality
-        toast.info("Функция переключения активности скоро будет доступна");
+        toggleActiveMutation.mutate({
+          gigId: gig.id,
+          workspaceId: workspace.id,
+        });
       }
     },
-    [gigs, workspace?.id],
+    [gigs, workspace?.id, toggleActiveMutation],
   );
 
   const handleSyncResponses = useCallback(

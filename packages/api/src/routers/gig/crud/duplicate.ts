@@ -1,0 +1,82 @@
+import { and, eq } from "@qbs-autonaim/db";
+import { gig } from "@qbs-autonaim/db/schema";
+import { workspaceIdSchema } from "@qbs-autonaim/validators";
+import { TRPCError } from "@trpc/server";
+import { z } from "zod";
+import { protectedProcedure } from "../../../trpc";
+
+export const duplicate = protectedProcedure
+  .input(
+    z.object({
+      gigId: z.uuid(),
+      workspaceId: workspaceIdSchema,
+    }),
+  )
+  .mutation(async ({ ctx, input }) => {
+    const access = await ctx.workspaceRepository.checkAccess(
+      input.workspaceId,
+      ctx.session.user.id,
+    );
+
+    if (!access) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "Нет доступа к этому workspace",
+      });
+    }
+
+    const existingGig = await ctx.db.query.gig.findFirst({
+      where: and(
+        eq(gig.id, input.gigId),
+        eq(gig.workspaceId, input.workspaceId),
+      ),
+    });
+
+    if (!existingGig) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Задание не найдено",
+      });
+    }
+
+    // Создаём копию задания
+    const [newGig] = await ctx.db
+      .insert(gig)
+      .values({
+        workspaceId: input.workspaceId,
+        title: `${existingGig.title} (копия)`,
+        description: existingGig.description,
+        type: existingGig.type,
+        budgetMin: existingGig.budgetMin,
+        budgetMax: existingGig.budgetMax,
+        deadline: null, // Сбрасываем дедлайн для копии
+        estimatedDuration: existingGig.estimatedDuration,
+        requirements: existingGig.requirements,
+        customBotInstructions: existingGig.customBotInstructions,
+        customScreeningPrompt: existingGig.customScreeningPrompt,
+        customInterviewQuestions: existingGig.customInterviewQuestions,
+        customOrganizationalQuestions: existingGig.customOrganizationalQuestions,
+        customDomainId: existingGig.customDomainId,
+        interviewScenarioId: existingGig.interviewScenarioId,
+        // Сбрасываем счётчики
+        responses: 0,
+        newResponses: 0,
+        views: 0,
+        // Новое задание создаём как неактивное
+        isActive: false,
+      })
+      .returning({ id: gig.id, title: gig.title, isActive: gig.isActive });
+
+    if (!newGig) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Не удалось создать копию задания",
+      });
+    }
+
+    return {
+      id: newGig.id,
+      title: newGig.title,
+      isActive: newGig.isActive,
+    };
+  });

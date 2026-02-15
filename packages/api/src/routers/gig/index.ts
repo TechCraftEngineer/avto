@@ -1,7 +1,7 @@
 import type { TRPCRouterRecord } from "@trpc/server";
 
 import { aiChatRouter, chatGenerate } from "./chat";
-import { create, deleteGig, get, list, listActive, update } from "./crud";
+import { create, deleteGig, duplicate, get, list, listActive, toggleActive, update } from "./crud";
 import { generateInterviewLink, getInterviewLink } from "./interview";
 import { gigKworkRouter } from "./kwork";
 import { gigResponsesRouter } from "./responses";
@@ -16,6 +16,8 @@ export const gigRouter = {
   create,
   update,
   delete: deleteGig,
+  duplicate,
+  toggleActive,
   chatGenerate,
   generateInterviewLink,
   getInterviewLink,
