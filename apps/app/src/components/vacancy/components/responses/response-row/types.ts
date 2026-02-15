@@ -16,7 +16,8 @@ export type ColumnId =
   | "interview"
   | "hrSelection"
   | "coverLetter"
-  | "date";
+  | "date"
+  | "actions";
 
 export interface ResponseRowProps {
   response: ResponseRowData;

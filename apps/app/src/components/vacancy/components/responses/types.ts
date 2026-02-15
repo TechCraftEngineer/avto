@@ -31,4 +31,5 @@ export type ColumnId =
   | "interview"
   | "hrSelection"
   | "coverLetter"
-  | "date";
+  | "date"
+  | "actions";

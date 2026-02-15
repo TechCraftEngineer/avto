@@ -9,49 +9,43 @@ import {
   CardTitle,
   Separator,
 } from "@qbs-autonaim/ui";
-import { Award, UserCheck } from "lucide-react";
-import { AnalysisSections } from "./analysis-sections";
-import { PsychometricAnalysis } from "./psychometric-analysis";
-import { ScoreOverview } from "./score-overview";
+import { UserCheck } from "lucide-react";
+import { lazy, Suspense, memo } from "react";
+import { ScoreDisplay } from "~/components/ui/score-display";
+import { ItemsListSection } from "~/components/ui/items-list";
+import type { ScreeningData } from "~/types/screening";
 
-interface ScreeningData {
-  score: number;
-  detailedScore: number;
-  analysis: string | null | undefined;
-  priceAnalysis?: string | null;
-  deliveryAnalysis?: string | null;
-  potentialScore?: number | null;
-  careerTrajectoryScore?: number | null;
-  careerTrajectoryType?:
-    | "growth"
-    | "stable"
-    | "decline"
-    | "jump"
-    | "role_change"
-    | null;
-  hiddenFitIndicators?: string[] | null;
-  potentialAnalysis?: string | null;
-  careerTrajectoryAnalysis?: string | null;
-  hiddenFitAnalysis?: string | null;
-  psychometricAnalysis?: {
-    compatibilityScore: number;
-    summary: string | null;
-    strengths: string[];
-    challenges: string[];
-    recommendations: string[];
-  } | null;
+// Lazy load heavy components for performance
+const AnalysisSections = lazy(() => import("./analysis-sections").then(module => ({ default: module.AnalysisSections })));
+const PsychometricAnalysis = lazy(() => import("./psychometric-analysis").then(module => ({ default: module.PsychometricAnalysis })));
+
+// Loading skeleton
+function ComponentSkeleton() {
+  return (
+    <div className="animate-pulse space-y-3">
+      <div className="h-20 bg-muted rounded-lg" />
+      <div className="h-16 bg-muted rounded-lg" />
+    </div>
+  );
 }
 
 interface ScreeningResultsCardProps {
   screening: ScreeningData;
 }
 
-export function ScreeningResultsCard({ screening }: ScreeningResultsCardProps) {
+/**
+ * Screening Results Card - Main container component
+ * Displays comprehensive screening analysis with scores and detailed sections
+ */
+export const ScreeningResultsCard = memo(function ScreeningResultsCard({ screening }: ScreeningResultsCardProps) {
+  const hasPsychometricAnalysis = !!screening.psychometricAnalysis;
+  const hasHiddenFitIndicators = screening.hiddenFitIndicators && screening.hiddenFitIndicators.length > 0;
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-          <Award className="h-4 w-4 sm:h-5 sm:w-5 text-primary shrink-0" />
+          <span className="text-primary">★</span>
           Результаты скрининга
         </CardTitle>
         <CardDescription className="text-xs sm:text-sm">
@@ -60,43 +54,84 @@ export function ScreeningResultsCard({ screening }: ScreeningResultsCardProps) {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 sm:space-y-6">
-        <ScoreOverview
-          score={screening.score}
-          detailedScore={screening.detailedScore}
-          potentialScore={screening.potentialScore}
-          careerTrajectoryScore={screening.careerTrajectoryScore}
-          careerTrajectoryType={screening.careerTrajectoryType}
-        />
-
-        {screening.hiddenFitIndicators &&
-          screening.hiddenFitIndicators.length > 0 && (
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="flex items-center gap-1">
-                <UserCheck className="h-3 w-3" />
-                Скрытый подходящий
-              </Badge>
-            </div>
+        {/* Score Overview - Using reusable ScoreDisplay components */}
+        <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
+          <ScoreDisplay
+            score={screening.score}
+            maxScore={5}
+            label="Общая оценка"
+            size="md"
+          />
+          <ScoreDisplay
+            score={screening.detailedScore}
+            maxScore={100}
+            label="Детальная оценка"
+            size="md"
+          />
+          {screening.potentialScore != null && screening.potentialScore !== undefined && (
+            <ScoreDisplay
+              score={screening.potentialScore}
+              maxScore={100}
+              label="Потенциал"
+              size="md"
+            />
           )}
+          {screening.careerTrajectoryScore != null && screening.careerTrajectoryScore !== undefined && (
+            <ScoreDisplay
+              score={screening.careerTrajectoryScore}
+              maxScore={100}
+              label="Карьерная траектория"
+              size="md"
+            />
+          )}
+        </div>
+
+        {/* Career Trajectory Badge */}
+        {screening.careerTrajectoryType && (
+          <div className="mt-1">
+            <Badge variant="outline" className="text-xs">
+              {screening.careerTrajectoryType}
+            </Badge>
+          </div>
+        )}
+
+        {/* Hidden Fit Indicator */}
+        {hasHiddenFitIndicators && (
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="flex items-center gap-1">
+              <UserCheck className="h-3 w-3" />
+              Скрытый подходящий
+            </Badge>
+          </div>
+        )}
 
         <Separator />
 
-        <AnalysisSections
-          analysis={screening.analysis}
-          priceAnalysis={screening.priceAnalysis}
-          deliveryAnalysis={screening.deliveryAnalysis}
-          potentialAnalysis={screening.potentialAnalysis}
-          careerTrajectoryAnalysis={screening.careerTrajectoryAnalysis}
-          hiddenFitAnalysis={screening.hiddenFitAnalysis}
-          hiddenFitIndicators={screening.hiddenFitIndicators}
-        />
+        {/* Analysis Sections - Lazy loaded for performance */}
+        <Suspense fallback={<ComponentSkeleton />}>
+          <AnalysisSections
+            analysis={screening.analysis}
+            priceAnalysis={screening.priceAnalysis}
+            deliveryAnalysis={screening.deliveryAnalysis}
+            potentialAnalysis={screening.potentialAnalysis}
+            careerTrajectoryAnalysis={screening.careerTrajectoryAnalysis}
+            hiddenFitAnalysis={screening.hiddenFitAnalysis}
+            hiddenFitIndicators={screening.hiddenFitIndicators}
+          />
+        </Suspense>
 
-        {screening.psychometricAnalysis && (
+        {/* Psychometric Analysis - Lazy loaded */}
+        {hasPsychometricAnalysis && (
           <>
             <Separator />
-            <PsychometricAnalysis analysis={screening.psychometricAnalysis} />
+            <Suspense fallback={<ComponentSkeleton />}>
+              <PsychometricAnalysis analysis={screening.psychometricAnalysis!} />
+            </Suspense>
           </>
         )}
       </CardContent>
     </Card>
   );
-}
+});
+
+export default ScreeningResultsCard;

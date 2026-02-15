@@ -50,6 +50,7 @@ const DATA_COLUMN_IDS: ColumnId[] = [
   "hrSelection",
   "coverLetter",
   "date",
+  "actions",
 ];
 
 function getPluralForm(
@@ -217,10 +218,12 @@ export function ResponseTable({
   );
 
   const columnVisibility = useMemo(
-    () =>
-      Object.fromEntries(
+    () => ({
+      ...Object.fromEntries(
         DATA_COLUMN_IDS.map((id) => [id, visibleColumns.has(id)]),
       ),
+      select: true,
+    }),
     [visibleColumns],
   );
 
@@ -307,7 +310,7 @@ export function ResponseTable({
 
   const isEmpty = responses.length === 0 && isFetched;
   const visibleColumnCount =
-    [...visibleColumns].filter((col) => isColumnVisible(col)).length + 2;
+    [...visibleColumns].filter((col) => isColumnVisible(col)).length + 1;
 
   return (
     <div className="space-y-4">
@@ -373,10 +376,10 @@ export function ResponseTable({
                 headerBackground: true,
                 headerBorder: true,
                 rowBorder: true,
-                width: "fixed",
+                width: "auto",
               }}
             >
-              <DataGridContainer className="bg-background border-0 rounded-none">
+              <DataGridContainer className="bg-background border-0 rounded-none min-w-max overflow-visible">
                 <DataGridTableDnd handleDragEnd={handleDragEnd} />
               </DataGridContainer>
             </DataGrid>

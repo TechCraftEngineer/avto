@@ -44,6 +44,7 @@ function createColumns(): ColumnDef<ResponseListItem, unknown>[] {
     columnHelper.display({
       id: "select",
       enableColumnOrdering: false,
+      enableHiding: false,
       header: ({ table }) => {
         const meta = table.options.meta as ResponseTableMeta;
         const allSelected =
@@ -325,6 +326,7 @@ function createColumns(): ColumnDef<ResponseListItem, unknown>[] {
     columnHelper.display({
       id: "actions",
       enableColumnOrdering: false,
+      enableHiding: false,
       header: () => (
         <span className="font-semibold text-foreground">Действия</span>
       ),

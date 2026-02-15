@@ -8,84 +8,43 @@ import {
   CardTitle,
   Progress,
 } from "@qbs-autonaim/ui";
-import { AlertCircle, CheckCircle2, TrendingUp, XCircle } from "lucide-react";
+import { memo } from "react";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { cn, getScoreTheme, getScoreColor, getProgressColor } from "~/lib/score-utils";
+import { getRecommendationConfig } from "~/lib/recommendation-config";
+import { ItemsListSection } from "~/components/ui/items-list";
+import type { OverallAssessmentData } from "~/types/screening";
 
-interface OverallAssessmentProps {
-  /** Итоговая оценка */
-  compositeScore: number | null;
-  /** Объяснение итоговой оценки */
-  compositeReasoning: string | null;
-  /** Рекомендация */
-  recommendation?:
-    | "HIGHLY_RECOMMENDED"
-    | "RECOMMENDED"
-    | "NEUTRAL"
-    | "NOT_RECOMMENDED"
-    | null;
-  /** Сильные стороны */
-  strengths?: string[];
-  /** Слабые стороны */
-  weaknesses?: string[];
-}
+interface OverallAssessmentProps extends OverallAssessmentData {}
 
-const RECOMMENDATION_CONFIG = {
-  HIGHLY_RECOMMENDED: {
-    label: "Настоятельно рекомендован",
-    variant: "default" as const,
-    icon: CheckCircle2,
-    color: "text-green-600 dark:text-green-400",
-    bgColor: "bg-green-50 dark:bg-green-950/30",
-  },
-  RECOMMENDED: {
-    label: "Рекомендован",
-    variant: "secondary" as const,
-    icon: TrendingUp,
-    color: "text-blue-600 dark:text-blue-400",
-    bgColor: "bg-blue-50 dark:bg-blue-950/30",
-  },
-  NEUTRAL: {
-    label: "Нейтрально",
-    variant: "outline" as const,
-    icon: AlertCircle,
-    color: "text-gray-600 dark:text-gray-400",
-    bgColor: "bg-gray-50 dark:bg-gray-950/30",
-  },
-  NOT_RECOMMENDED: {
-    label: "Не рекомендован",
-    variant: "destructive" as const,
-    icon: XCircle,
-    color: "text-red-600 dark:text-red-400",
-    bgColor: "bg-red-50 dark:bg-red-950/30",
-  },
-};
-
-function getScoreColor(score: number | null): string {
+function getScoreColorValue(score: number | null): string {
   if (score === null) return "text-muted-foreground";
-  if (score >= 80) return "text-green-600 dark:text-green-400";
-  if (score >= 60) return "text-blue-600 dark:text-blue-400";
-  if (score >= 40) return "text-yellow-600 dark:text-yellow-400";
-  return "text-red-600 dark:text-red-400";
+  const theme = getScoreTheme(score);
+  return getScoreColor(theme);
 }
 
-function getProgressColor(score: number | null): string {
+function getProgressColorValue(score: number | null): string {
   if (score === null) return "bg-muted";
-  if (score >= 80) return "bg-green-500";
-  if (score >= 60) return "bg-blue-500";
-  if (score >= 40) return "bg-yellow-500";
-  return "bg-red-500";
+  const theme = getScoreTheme(score);
+  return getProgressColor(theme);
 }
 
-export function OverallAssessment({
+/**
+ * Overall Assessment Component
+ * Displays the composite score, recommendation, and strengths/weaknesses summary
+ */
+export const OverallAssessment = memo(function OverallAssessment({
   compositeScore,
   compositeReasoning,
   recommendation,
   strengths,
   weaknesses,
 }: OverallAssessmentProps) {
-  const recommendationConfig = recommendation
-    ? RECOMMENDATION_CONFIG[recommendation]
-    : null;
+  const recommendationConfig = recommendation ? getRecommendationConfig(recommendation) : null;
   const RecommendationIcon = recommendationConfig?.icon;
+
+  const hasStrengths = strengths && strengths.length > 0;
+  const hasWeaknesses = weaknesses && weaknesses.length > 0;
 
   return (
     <Card>
@@ -117,7 +76,7 @@ export function OverallAssessment({
                 Итоговая оценка
               </span>
               <span
-                className={`text-2xl font-bold ${getScoreColor(compositeScore)}`}
+                className={cn("text-2xl font-bold", getScoreColorValue(compositeScore))}
               >
                 {compositeScore}/100
               </span>
@@ -125,7 +84,12 @@ export function OverallAssessment({
             <Progress
               value={compositeScore}
               className="h-3"
-              indicatorClassName={getProgressColor(compositeScore)}
+              indicatorClassName={getProgressColorValue(compositeScore)}
+              role="progressbar"
+              aria-valuenow={compositeScore}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label="Общая оценка кандидата"
             />
           </div>
         ) : (
@@ -153,49 +117,29 @@ export function OverallAssessment({
           </div>
         )}
 
-        {/* Strengths and Weaknesses Summary */}
-        {(strengths?.length || weaknesses?.length) && (
+        {/* Strengths and Weaknesses Summary - Using reusable ItemsListSection */}
+        {(hasStrengths || hasWeaknesses) && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {strengths && strengths.length > 0 && (
-              <div className="space-y-2">
-                <h4 className="text-sm font-semibold flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
-                  Сильные стороны
-                </h4>
-                <ul className="space-y-1">
-                  {strengths.map((strength, _index) => (
-                    <li
-                      key={strength}
-                      className="text-sm text-muted-foreground leading-relaxed"
-                    >
-                      • {strength}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+            {hasStrengths && (
+              <ItemsListSection
+                items={strengths!}
+                type="strengths"
+                icon={true}
+              />
             )}
 
-            {weaknesses && weaknesses.length > 0 && (
-              <div className="space-y-2">
-                <h4 className="text-sm font-semibold flex items-center gap-2">
-                  <AlertCircle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
-                  Слабые стороны
-                </h4>
-                <ul className="space-y-1">
-                  {weaknesses.map((weakness, _index) => (
-                    <li
-                      key={weakness}
-                      className="text-sm text-muted-foreground leading-relaxed"
-                    >
-                      • {weakness}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+            {hasWeaknesses && (
+              <ItemsListSection
+                items={weaknesses!}
+                type="weaknesses"
+                icon={true}
+              />
             )}
           </div>
         )}
       </CardContent>
     </Card>
   );
-}
+});
+
+export default OverallAssessment;

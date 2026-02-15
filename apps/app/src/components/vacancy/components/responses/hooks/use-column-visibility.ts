@@ -37,6 +37,7 @@ const DEFAULT_VISIBLE_COLUMNS: ReadonlySet<ColumnId> = new Set([
   "hrSelection",
   "coverLetter",
   "date",
+  "actions",
 ] as const);
 
 function isValidColumnId(value: unknown): value is ColumnId {
@@ -54,6 +55,7 @@ function isValidColumnId(value: unknown): value is ColumnId {
     "hrSelection",
     "coverLetter",
     "date",
+    "actions",
   ];
   return typeof value === "string" && validColumns.includes(value as ColumnId);
 }
@@ -77,8 +79,9 @@ function loadVisibleColumns(): Set<ColumnId> {
     const validColumns = parsed.filter(isValidColumnId);
     const columns = new Set(validColumns);
 
-    // Всегда включаем обязательную колонку
+    // Всегда включаем обязательные колонки
     columns.add(REQUIRED_COLUMN);
+    columns.add("actions");
 
     return columns;
   } catch (error) {

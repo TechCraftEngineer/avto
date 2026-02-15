@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui";
 import {
+  Button,
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@qbs-autonaim/ui";
 import { IconColumns3 } from "@tabler/icons-react";
+import { Settings2Icon } from "lucide-react";
 import { useMemo } from "react";
 import type { ColumnId } from "../types";
 
@@ -33,9 +34,13 @@ const COLUMN_LABELS: Readonly<Record<ColumnId, string>> = {
   hrSelection: "Отбор HR",
   coverLetter: "Отклик",
   date: "Дата",
+  actions: "Действия",
 } as const;
 
-const REQUIRED_COLUMN: ColumnId = "candidate";
+const ALWAYS_VISIBLE_COLUMNS: ReadonlySet<ColumnId> = new Set([
+  "candidate",
+  "actions",
+]);
 
 const COLUMN_ENTRIES = Object.entries(COLUMN_LABELS) as ReadonlyArray<
   readonly [ColumnId, string]
@@ -51,6 +56,9 @@ export function ColumnVisibilityToggle({
     [visibleColumns],
   );
 
+  const isColumnDisabled = (columnId: ColumnId) =>
+    ALWAYS_VISIBLE_COLUMNS.has(columnId);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -60,7 +68,8 @@ export function ColumnVisibilityToggle({
           className="h-8 gap-2"
           aria-label="Настроить видимость колонок"
         >
-          <IconColumns3 className="h-4 w-4" aria-hidden="true" />
+          <Settings2Icon className="h-4 w-4" aria-hidden="true" />
+
           <span className="hidden sm:inline">Колонки</span>
         </Button>
       </DropdownMenuTrigger>
@@ -85,7 +94,7 @@ export function ColumnVisibilityToggle({
         <DropdownMenuSeparator />
         {COLUMN_ENTRIES.map(([columnId, label]) => {
           const isVisible = visibleColumns.has(columnId);
-          const isDisabled = columnId === REQUIRED_COLUMN;
+          const isDisabled = isColumnDisabled(columnId);
 
           return (
             <DropdownMenuCheckboxItem

@@ -1,32 +1,19 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui";
-import {
-  AlertCircle,
-  Award,
-  Briefcase,
-  TrendingDown,
-  TrendingUp,
-} from "lucide-react";
+import { memo } from "react";
+import { Briefcase, Award } from "lucide-react";
+import { ItemsListSection } from "~/components/ui/items-list";
+import { ScoreDisplay } from "~/components/ui/score-display";
+import type { FactorBreakdownData } from "~/types/screening";
 
-interface FactorBreakdownProps {
-  /** Оценка опыта */
-  experienceScore?: number | null;
-  /** Объяснение оценки опыта */
-  experienceReasoning?: string | null;
-  /** Оценка навыков */
-  skillsScore?: number | null;
-  /** Объяснение оценки навыков */
-  skillsReasoning?: string | null;
-  /** Риски (для вакансий) */
-  risks?: string[];
-  /** Сильные стороны */
-  strengths?: string[];
-  /** Слабые стороны */
-  weaknesses?: string[];
-}
+interface FactorBreakdownProps extends FactorBreakdownData {}
 
-export function FactorBreakdown({
+/**
+ * Factor Breakdown Component
+ * Displays detailed assessment across key criteria (experience, skills)
+ */
+export const FactorBreakdown = memo(function FactorBreakdown({
   experienceScore,
   experienceReasoning,
   skillsScore,
@@ -35,6 +22,12 @@ export function FactorBreakdown({
   strengths,
   weaknesses,
 }: FactorBreakdownProps) {
+  const hasExperience = experienceScore !== undefined || experienceReasoning;
+  const hasSkills = skillsScore !== undefined || skillsReasoning;
+  const hasStrengths = strengths && strengths.length > 0;
+  const hasWeaknesses = weaknesses && weaknesses.length > 0;
+  const hasRisks = risks && risks.length > 0;
+
   return (
     <Card>
       <CardHeader>
@@ -44,26 +37,25 @@ export function FactorBreakdown({
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Опыт */}
-        {(experienceScore !== undefined || experienceReasoning) && (
-          <div className="space-y-2">
+        {/* Experience */}
+        {hasExperience && (
+          <div className="space-y-3">
             <div className="flex items-center gap-2">
               <Briefcase className="h-4 w-4 text-muted-foreground" />
               <h4 className="text-sm font-semibold">Опыт</h4>
-              {experienceScore !== null && experienceScore !== undefined && (
-                <span
-                  className={`text-xs font-medium ${
-                    experienceScore >= 70
-                      ? "text-green-600 dark:text-green-400"
-                      : experienceScore >= 50
-                        ? "text-yellow-600 dark:text-yellow-400"
-                        : "text-red-600 dark:text-red-400"
-                  }`}
-                >
-                  {experienceScore}/100
-                </span>
-              )}
             </div>
+            
+            {experienceScore != null && experienceScore !== undefined && (
+              <div className="pl-6">
+                <ScoreDisplay
+                  score={experienceScore}
+                  maxScore={100}
+                  label="Оценка опыта"
+                  size="sm"
+                />
+              </div>
+            )}
+            
             {experienceReasoning ? (
               <p className="text-sm text-muted-foreground leading-relaxed pl-6">
                 {experienceReasoning}
@@ -76,26 +68,25 @@ export function FactorBreakdown({
           </div>
         )}
 
-        {/* Навыки */}
-        {(skillsScore !== undefined || skillsReasoning) && (
-          <div className="space-y-2">
+        {/* Skills */}
+        {hasSkills && (
+          <div className="space-y-3">
             <div className="flex items-center gap-2">
               <Award className="h-4 w-4 text-muted-foreground" />
               <h4 className="text-sm font-semibold">Навыки</h4>
-              {skillsScore !== null && skillsScore !== undefined && (
-                <span
-                  className={`text-xs font-medium ${
-                    skillsScore >= 70
-                      ? "text-green-600 dark:text-green-400"
-                      : skillsScore >= 50
-                        ? "text-yellow-600 dark:text-yellow-400"
-                        : "text-red-600 dark:text-red-400"
-                  }`}
-                >
-                  {skillsScore}/100
-                </span>
-              )}
             </div>
+            
+            {skillsScore != null && skillsScore !== undefined && (
+              <div className="pl-6">
+                <ScoreDisplay
+                  score={skillsScore}
+                  maxScore={100}
+                  label="Оценка навыков"
+                  size="sm"
+                />
+              </div>
+            )}
+            
             {skillsReasoning ? (
               <p className="text-sm text-muted-foreground leading-relaxed pl-6">
                 {skillsReasoning}
@@ -108,73 +99,35 @@ export function FactorBreakdown({
           </div>
         )}
 
-        {/* Сильные стороны */}
-        {strengths && strengths.length > 0 && (
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-green-600 dark:text-green-400" />
-              <h4 className="text-sm font-semibold">Сильные стороны</h4>
-            </div>
-            <ul className="space-y-1 pl-6">
-              {strengths.map((strength, _index) => (
-                <li
-                  key={strength}
-                  className="text-sm text-muted-foreground leading-relaxed flex items-start gap-2"
-                >
-                  <span className="text-green-600 dark:text-green-400 mt-1">
-                    •
-                  </span>
-                  <span>{strength}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+        {/* Strengths - Using reusable ItemsListSection */}
+        {hasStrengths && (
+          <ItemsListSection
+            items={strengths!}
+            type="strengths"
+            icon={true}
+          />
         )}
 
-        {/* Слабые стороны */}
-        {weaknesses && weaknesses.length > 0 && (
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <TrendingDown className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
-              <h4 className="text-sm font-semibold">Слабые стороны</h4>
-            </div>
-            <ul className="space-y-1 pl-6">
-              {weaknesses.map((weakness, _index) => (
-                <li
-                  key={weakness}
-                  className="text-sm text-muted-foreground leading-relaxed flex items-start gap-2"
-                >
-                  <span className="text-yellow-600 dark:text-yellow-400 mt-1">
-                    •
-                  </span>
-                  <span>{weakness}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+        {/* Weaknesses - Using reusable ItemsListSection */}
+        {hasWeaknesses && (
+          <ItemsListSection
+            items={weaknesses!}
+            type="weaknesses"
+            icon={true}
+          />
         )}
 
-        {/* Риски */}
-        {risks && risks.length > 0 && (
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
-              <h4 className="text-sm font-semibold">Риски</h4>
-            </div>
-            <ul className="space-y-1 pl-6">
-              {risks.map((risk, _index) => (
-                <li
-                  key={risk}
-                  className="text-sm text-muted-foreground leading-relaxed flex items-start gap-2"
-                >
-                  <span className="text-red-600 dark:text-red-400 mt-1">•</span>
-                  <span>{risk}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+        {/* Risks - Using reusable ItemsListSection */}
+        {hasRisks && (
+          <ItemsListSection
+            items={risks!}
+            type="risks"
+            icon={true}
+          />
         )}
       </CardContent>
     </Card>
   );
-}
+});
+
+export default FactorBreakdown;

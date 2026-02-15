@@ -9,90 +9,31 @@ import {
   CardTitle,
   Separator,
 } from "@qbs-autonaim/ui";
-import {
-  AlertCircle,
-  AlertOctagon,
-  AlertTriangle,
-  ArrowRight,
-  CheckCircle,
-  HelpCircle,
-  Lightbulb,
-  Star,
-  ThumbsUp,
-  XCircle,
-} from "lucide-react";
-import type { RecommendationData } from "~/components/shared/utils/types";
+import { ArrowRight, Lightbulb } from "lucide-react";
+import { memo } from "react";
+import { getRecommendationConfig } from "~/lib/recommendation-config";
+import { ItemsListSection } from "~/components/ui/items-list";
+import type { CandidateRecommendation } from "~/types/screening";
 
 interface RecommendationCardProps {
-  recommendation: RecommendationData;
+  recommendation: CandidateRecommendation;
 }
 
-interface RecommendationConfig {
-  variant: "default" | "secondary" | "destructive";
-  color: string;
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-}
-
-function getRecommendationConfig(
-  level: RecommendationData["recommendation"],
-): RecommendationConfig {
-  const configs: Record<
-    RecommendationData["recommendation"],
-    RecommendationConfig
-  > = {
-    HIGHLY_RECOMMENDED: {
-      variant: "default",
-      color: "text-green-600 dark:text-green-400",
-      icon: Star,
-      label: "Настоятельно рекомендуется",
-    },
-    RECOMMENDED: {
-      variant: "default",
-      color: "text-blue-600 dark:text-blue-400",
-      icon: ThumbsUp,
-      label: "Рекомендуется",
-    },
-    NEUTRAL: {
-      variant: "secondary",
-      color: "text-yellow-600 dark:text-yellow-400",
-      icon: AlertCircle,
-      label: "Нейтрально",
-    },
-    NOT_RECOMMENDED: {
-      variant: "destructive",
-      color: "text-red-600 dark:text-red-400",
-      icon: XCircle,
-      label: "Не рекомендуется",
-    },
-    hire: {
-      variant: "default",
-      color: "text-green-600 dark:text-green-400",
-      icon: CheckCircle,
-      label: "Нанять",
-    },
-    maybe: {
-      variant: "secondary",
-      color: "text-yellow-600 dark:text-yellow-400",
-      icon: HelpCircle,
-      label: "Возможно",
-    },
-    pass: {
-      variant: "destructive",
-      color: "text-red-600 dark:text-red-400",
-      icon: XCircle,
-      label: "Отклонить",
-    },
-  };
-
-  return configs[level];
-}
-
-export function RecommendationCard({
+/**
+ * Recommendation Card Component
+ * Displays candidate recommendation with strengths, weaknesses, risks, and action suggestions
+ */
+export const RecommendationCard = memo(function RecommendationCard({
   recommendation,
 }: RecommendationCardProps) {
   const config = getRecommendationConfig(recommendation.recommendation);
   const Icon = config.icon;
+
+  const hasStrengths = recommendation.strengths.length > 0;
+  const hasWeaknesses = recommendation.weaknesses && recommendation.weaknesses.length > 0;
+  const hasRisks = recommendation.riskFactors && recommendation.riskFactors.length > 0;
+  const hasQuestions = recommendation.interviewQuestions && recommendation.interviewQuestions.length > 0;
+  const hasActions = recommendation.actionSuggestions && recommendation.actionSuggestions.length > 0;
 
   return (
     <Card>
@@ -113,22 +54,48 @@ export function RecommendationCard({
       </CardHeader>
 
       <CardContent className="space-y-4 sm:space-y-5">
-        {/* Сильные стороны */}
-        {recommendation.strengths.length > 0 && (
+        {/* Strengths - Using reusable ItemsListSection */}
+        {hasStrengths && (
+          <>
+            <ItemsListSection
+              items={recommendation.strengths}
+              type="strengths"
+              icon={true}
+            />
+            <Separator />
+          </>
+        )}
+
+        {/* Weaknesses - Using reusable ItemsListSection */}
+        {hasWeaknesses && (
+          <>
+            <ItemsListSection
+              items={recommendation.weaknesses!}
+              type="weaknesses"
+              icon={true}
+            />
+            <Separator />
+          </>
+        )}
+
+        {/* Risk Factors */}
+        {hasRisks && (
           <>
             <div className="space-y-2">
               <h4 className="text-xs sm:text-sm font-semibold flex items-center gap-2">
-                <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-green-600 dark:text-green-400 shrink-0" />
-                Сильные стороны
+                <span className="text-red-600 dark:text-red-400">⚠</span>
+                Факторы риска
               </h4>
               <ul className="space-y-1.5 sm:space-y-2">
-                {recommendation.strengths.map((strength) => (
+                {recommendation.riskFactors!.map((risk, index) => (
                   <li
-                    key={strength}
+                    key={`risk-${index}`}
                     className="flex items-start gap-2 text-xs sm:text-sm text-muted-foreground"
                   >
-                    <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-green-600 dark:text-green-400 shrink-0 mt-0.5" />
-                    <span className="wrap-break-word">{strength}</span>
+                    <span className="text-red-600 dark:text-red-400 shrink-0 mt-0.5">
+                      •
+                    </span>
+                    <span className="wrap-break-word">{risk.description}</span>
                   </li>
                 ))}
               </ul>
@@ -137,103 +104,43 @@ export function RecommendationCard({
           </>
         )}
 
-        {/* Слабые стороны */}
-        {recommendation.weaknesses && recommendation.weaknesses.length > 0 && (
+        {/* Interview Questions - Using reusable ItemsListSection */}
+        {hasQuestions && (
           <>
-            <div className="space-y-2">
-              <h4 className="text-xs sm:text-sm font-semibold flex items-center gap-2">
-                <AlertTriangle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-yellow-600 dark:text-yellow-400 shrink-0" />
-                Слабые стороны
-              </h4>
-              <ul className="space-y-1.5 sm:space-y-2">
-                {recommendation.weaknesses.map((weakness) => (
-                  <li
-                    key={weakness}
-                    className="flex items-start gap-2 text-xs sm:text-sm text-muted-foreground"
-                  >
-                    <AlertTriangle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-yellow-600 dark:text-yellow-400 shrink-0 mt-0.5" />
-                    <span className="wrap-break-word">{weakness}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <ItemsListSection
+              items={recommendation.interviewQuestions!}
+              type="questions"
+              icon={true}
+            />
             <Separator />
           </>
         )}
 
-        {/* Факторы риска */}
-        {recommendation.riskFactors &&
-          recommendation.riskFactors.length > 0 && (
-            <>
-              <div className="space-y-2">
-                <h4 className="text-xs sm:text-sm font-semibold flex items-center gap-2">
-                  <AlertOctagon className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-red-600 dark:text-red-400 shrink-0" />
-                  Факторы риска
-                </h4>
-                <ul className="space-y-1.5 sm:space-y-2">
-                  {recommendation.riskFactors.map((risk) => (
-                    <li
-                      key={risk.description}
-                      className="flex items-start gap-2 text-xs sm:text-sm text-muted-foreground"
-                    >
-                      <AlertOctagon className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
-                      <span className="wrap-break-word">
-                        {risk.description}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <Separator />
-            </>
-          )}
-
-        {/* Вопросы для интервью */}
-        {recommendation.interviewQuestions &&
-          recommendation.interviewQuestions.length > 0 && (
-            <>
-              <div className="space-y-2">
-                <h4 className="text-xs sm:text-sm font-semibold flex items-center gap-2">
-                  <HelpCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary shrink-0" />
-                  Вопросы для интервью
-                </h4>
-                <ul className="space-y-1.5 sm:space-y-2">
-                  {recommendation.interviewQuestions.map((question) => (
-                    <li
-                      key={question}
-                      className="flex items-start gap-2 text-xs sm:text-sm text-muted-foreground"
-                    >
-                      <HelpCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary shrink-0 mt-0.5" />
-                      <span className="wrap-break-word">{question}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <Separator />
-            </>
-          )}
-
-        {/* Рекомендуемые действия */}
-        <div className="space-y-2">
-          <h4 className="text-xs sm:text-sm font-semibold flex items-center gap-2">
-            <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary shrink-0" />
-            Рекомендуемые действия
-          </h4>
-          <ol className="space-y-1.5 sm:space-y-2">
-            {recommendation.actionSuggestions?.map((action, index) => (
-              <li
-                key={action}
-                className="flex items-start gap-2 text-xs sm:text-sm text-muted-foreground"
-              >
-                <span className="font-medium text-primary shrink-0">
-                  {index + 1}.
-                </span>
-                <span className="wrap-break-word">{action}</span>
-              </li>
-            ))}
-          </ol>
-        </div>
+        {/* Action Suggestions */}
+        {hasActions && (
+          <div className="space-y-2">
+            <h4 className="text-xs sm:text-sm font-semibold flex items-center gap-2">
+              <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary shrink-0" />
+              Рекомендуемые действия
+            </h4>
+            <ol className="space-y-1.5 sm:space-y-2">
+              {recommendation.actionSuggestions!.map((action, index) => (
+                <li
+                  key={`action-${index}`}
+                  className="flex items-start gap-2 text-xs sm:text-sm text-muted-foreground"
+                >
+                  <span className="font-medium text-primary shrink-0">
+                    {index + 1}.
+                  </span>
+                  <span className="wrap-break-word">{action}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
-}
+});
+
+export default RecommendationCard;
