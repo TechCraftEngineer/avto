@@ -25,8 +25,15 @@ import { publicProcedure } from "../../trpc";
 const submitApplicationInputSchema = z.object({
   sessionId: z.uuid("sessionId должен быть UUID"),
   workspaceId: z.string().min(1, "workspaceId обязателен"),
-  /** Optional additional message from candidate */
-  coverLetter: z.string().max(5000).optional(),
+  /** Required contact email from parsed resume */
+  email: z.string().email("Укажите корректный email").optional(),
+  /** Optional additional message from candidate - minimum 10 characters for meaningful content */
+  coverLetter: z
+    .string()
+    .min(10, "Сопроводительное письмо должно содержать минимум 10 символов")
+    .max(5000, "Сопроводительное письмо не может превышать 5000 символов")
+    .optional()
+    .or(z.literal("")),
   /** Optional contact preferences */
   contactPreferences: z
     .object({
@@ -39,6 +46,18 @@ const submitApplicationInputSchema = z.object({
 export const submitApplication = publicProcedure
   .input(submitApplicationInputSchema)
   .mutation(async ({ ctx, input }) => {
+    // Track application attempt for analytics
+    const startTime = Date.now();
+    
+    // Validate cover letter content quality
+    if (input.coverLetter && input.coverLetter.trim().length < 10) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "Пожалуйста, напишите более подробное сопроводительное письмо (минимум 10 символов)",
+      });
+    }
+
+    // Validate that session has required data
     const sessionManager = new SessionManager(ctx.db);
 
     // Get session

@@ -30,6 +30,14 @@ export const POSTHOG_EVENTS = {
   // Интеграции
   INTEGRATION_CONNECTED: "integration_connected",
   INTEGRATION_DISCONNECTED: "integration_disconnected",
+
+  // Заявки кандидатов (воронка откликов)
+  APPLICATION_STARTED: "application_started",
+  APPLICATION_FORM_VIEWED: "application_form_viewed",
+  APPLICATION_SUBMITTED: "application_submitted",
+  APPLICATION_ERROR: "application_error",
+  APPLICATION_ABANDONED: "application_abandoned",
+  APPLICATION_DRAFT_SAVED: "application_draft_saved",
 } as const;
 
 export type PostHogEvent = (typeof POSTHOG_EVENTS)[keyof typeof POSTHOG_EVENTS];

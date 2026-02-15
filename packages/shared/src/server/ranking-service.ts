@@ -15,6 +15,8 @@ import type {
 } from "@qbs-autonaim/ai";
 import { RankingOrchestrator } from "@qbs-autonaim/ai";
 import { db } from "@qbs-autonaim/db/client";
+import { response, responseScreening, gig } from "@qbs-autonaim/db";
+import { and, eq, desc, sql } from "drizzle-orm";
 import { z } from "zod";
 import { formatExperienceText } from "../utils/experience-helpers";
 

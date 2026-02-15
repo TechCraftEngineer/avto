@@ -348,7 +348,7 @@ export function ResponseTable({
           />
         )}
 
-        <div className="relative w-full overflow-auto">
+        <div className="relative w-full overflow-x-auto">
           {isEmpty ? (
             <Table className="bg-background">
               <TableBody>

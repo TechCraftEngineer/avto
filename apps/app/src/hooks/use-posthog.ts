@@ -1,7 +1,7 @@
 "use client";
 
-import { usePostHog } from "posthog-js/react";
-import { useEffect } from "react";
+import { usePostHog as usePostHogOriginal } from "posthog-js/react";
+import { useEffect, useCallback } from "react";
 
 interface User {
   id: string;
@@ -9,12 +9,29 @@ interface User {
   name?: string;
 }
 
+// Re-export for convenience with capture helper
+export const usePostHog = () => {
+  const posthog = usePostHogOriginal();
+  const isEnabled = posthog?.__loaded ?? false;
+  
+  const capture = useCallback((event: string, properties?: Record<string, unknown>) => {
+    if (isEnabled && posthog) {
+      posthog.capture(event, properties);
+    }
+  }, [posthog, isEnabled]);
+
+  return {
+    posthog,
+    isEnabled,
+    capture,
+  };
+};
+
 export function useIdentifyUser(user: User | null) {
-  const posthog = usePostHog();
+  const { posthog, isEnabled } = usePostHog();
 
   useEffect(() => {
-    // Проверяем, что PostHog инициализирован
-    if (!posthog?.__loaded) return;
+    if (!isEnabled || !posthog) return;
 
     if (user) {
       posthog.identify(user.id, {
@@ -24,5 +41,5 @@ export function useIdentifyUser(user: User | null) {
     } else {
       posthog.reset();
     }
-  }, [user, posthog]);
+  }, [user, posthog, isEnabled]);
 }
