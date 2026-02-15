@@ -112,24 +112,6 @@ function formatDate(date: Date) {
   }).format(date);
 }
 
-function getGigTypeLabel(type: string) {
-  const types: Record<string, string> = {
-    DEVELOPMENT: "Разработка",
-    DESIGN: "Дизайн",
-    COPYWRITING: "Копирайтинг",
-    MARKETING: "Маркетинг",
-    TRANSLATION: "Перевод",
-    VIDEO: "Видео",
-    AUDIO: "Аудио",
-    DATA_ENTRY: "Ввод данных",
-    RESEARCH: "Исследования",
-    CONSULTING: "Консультации",
-    OTHER: "Другое",
-  };
-
-  return types[type] || type;
-}
-
 export function GigCard({
   gig,
   orgSlug,
