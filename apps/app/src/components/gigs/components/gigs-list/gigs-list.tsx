@@ -68,12 +68,20 @@ export function GigsList({
     (g) => !attentionGigs.some((a) => a.id === g.id),
   );
   // Показываем скелетоны только при первой загрузке (когда данных еще нет)
+  const skeletonKeys = [
+    "skeleton-a",
+    "skeleton-b",
+    "skeleton-c",
+    "skeleton-d",
+    "skeleton-e",
+    "skeleton-f",
+  ] as const;
   if (isLoading && gigs === undefined) {
     return (
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2">
-        {Array.from({ length: 6 }).map((_, index) => (
+        {skeletonKeys.map((key) => (
           <div
-            key={`skeleton-${index}`}
+            key={key}
             className="rounded-lg border bg-card shadow-sm p-6"
           >
             <div className="space-y-3">
