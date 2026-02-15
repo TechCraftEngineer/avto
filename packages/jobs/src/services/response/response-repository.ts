@@ -3,6 +3,7 @@ import { db } from "@qbs-autonaim/db/client";
 import { file, RESPONSE_STATUS, response } from "@qbs-autonaim/db/schema";
 import type { SaveResponseData } from "@qbs-autonaim/jobs-shared";
 import { uploadFile } from "@qbs-autonaim/lib/s3";
+import axios from "axios";
 import {
   createLogger,
   type ResponseStatus,
@@ -370,6 +371,59 @@ export async function uploadCandidatePhoto(
     );
     return fileRecord?.id ?? null;
   }, "Failed to upload photo");
+}
+
+const CONTENT_TYPE_TO_MIME: Record<string, string> = {
+  "image/jpeg": "image/jpeg",
+  "image/jpg": "image/jpeg",
+  "image/png": "image/png",
+  "image/webp": "image/webp",
+  "image/gif": "image/gif",
+};
+
+/**
+ * Скачивает аватар по URL, загружает в S3 и сохраняет запись в БД.
+ * Используется для аватарок Kwork и других внешних источников.
+ */
+export async function uploadAvatarFromUrl(
+  avatarUrl: string,
+  identifier: string,
+): Promise<Result<string | null>> {
+  return tryCatch(async () => {
+    logger.info(`Downloading avatar from ${avatarUrl} for ${identifier}`);
+
+    const response = await axios.get(avatarUrl, {
+      responseType: "arraybuffer",
+      timeout: 15000,
+      headers: {
+        "User-Agent": "Mozilla/5.0 (compatible; QBS-AutoNaim/1.0)",
+      },
+    });
+
+    const buffer = Buffer.from(response.data);
+    const contentType =
+      response.headers["content-type"]?.split(";")[0]?.toLowerCase().trim() ??
+      "";
+    const mimeType =
+      CONTENT_TYPE_TO_MIME[contentType] ??
+      (avatarUrl.includes(".png")
+        ? "image/png"
+        : avatarUrl.includes(".webp")
+          ? "image/webp"
+          : avatarUrl.includes(".gif")
+            ? "image/gif"
+            : "image/jpeg");
+
+    logger.info(
+      `Avatar downloaded: ${buffer.length} bytes, type: ${mimeType}, uploading to S3...`,
+    );
+
+    const uploadResult = await uploadCandidatePhoto(buffer, identifier, mimeType);
+    if (!uploadResult.success) {
+      throw new Error(uploadResult.error ?? "Upload failed");
+    }
+    return uploadResult.data ?? null;
+  }, `Failed to upload avatar from URL for ${identifier}`);
 }
 
 /**

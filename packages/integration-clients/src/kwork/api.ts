@@ -10,7 +10,12 @@ import * as auth from "./auth";
 import * as inbox from "./inbox";
 import * as offers from "./offers";
 import * as projects from "./projects";
+import * as user from "./user";
 
+// Auth
+export { extractTokenFromSignInResponse, isKworkAuthError } from "./auth";
+
+export { createKworkApiClient, type KworkCredentials } from "./client";
 // Типы
 export type {
   KworkAuthSuccess,
@@ -26,17 +31,13 @@ export type {
   KworkProject,
   KworkProjectsParams,
   KworkSignInParams,
+  KworkUser,
   KworkWantPayer,
   KworkWebAuthTokenResponse,
   KworkWebCookie,
   WebParsedOffer,
 } from "./types";
-
-export { createKworkApiClient, type KworkCredentials } from "./client";
 export { KWORK_ERROR_CODES } from "./types";
-
-// Auth
-export { extractTokenFromSignInResponse, isKworkAuthError } from "./auth";
 
 export async function signIn(
   api: AxiosInstance,
@@ -147,6 +148,15 @@ export async function getInboxMessage(
   messageId: number,
 ) {
   return inbox.getInboxMessage(api, token, messageId);
+}
+
+// User profile
+export async function getUser(
+  api: AxiosInstance,
+  token: string,
+  userId: number,
+) {
+  return user.getUser(api, token, userId);
 }
 
 // Cookies (pure utils, no cheerio)

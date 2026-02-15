@@ -17,6 +17,7 @@ export {
   getOffers,
   getProject,
   getProjects,
+  getUser,
   getWant,
   getWebAuthToken,
   isKworkAuthError,

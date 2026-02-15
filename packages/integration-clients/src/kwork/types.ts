@@ -187,6 +187,49 @@ export interface WebParsedOffer {
   description: string;
 }
 
+/** Профиль пользователя Kwork (ответ /user) */
+export interface KworkUser {
+  id: number;
+  username?: string;
+  status?: string;
+  fullname?: string;
+  profilepicture?: string;
+  description?: string;
+  slogan?: string;
+  location?: string;
+  rating?: string;
+  rating_count?: number;
+  level_description?: string;
+  good_reviews?: number;
+  bad_reviews?: number;
+  reviews_count?: number;
+  online?: boolean;
+  live_date?: number;
+  cover?: string;
+  custom_request_min_budget?: number;
+  is_allow_custom_request?: boolean;
+  order_done_persent?: number;
+  order_done_intime_persent?: number;
+  order_done_repeat_persent?: number;
+  timezoneId?: number;
+  blocked_by_user?: boolean;
+  allowedDialog?: boolean;
+  addtime?: number;
+  achievments_list?: unknown[];
+  completed_orders_count?: number;
+  specialization?: string;
+  profession?: string;
+  kworks_count?: number;
+  kworks?: unknown[];
+  portfolio_list?: unknown;
+  reviews?: unknown;
+  skills?: unknown[];
+  is_verified_worker?: boolean;
+  note?: unknown[];
+  is_cashless_payment_available?: boolean;
+  [key: string]: unknown;
+}
+
 /** Cookie для сохранения в БД */
 export interface KworkWebCookie {
   name: string;

@@ -11,6 +11,7 @@ export {
   saveResponseToDb,
   updateResponseDetails,
   updateResponseStatus,
+  uploadAvatarFromUrl,
   uploadCandidatePhoto,
   uploadResumePdf,
 } from "./response-repository";

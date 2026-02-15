@@ -1,9 +1,9 @@
 import { and, count, db, eq, sql } from "@qbs-autonaim/db";
 import { gig, response } from "@qbs-autonaim/db/schema";
-import { getDialogs } from "@qbs-autonaim/integration-clients";
-import { z } from "zod";
+import { getUser } from "@qbs-autonaim/integration-clients";
 import { getProjectOffersFromWebWithCache } from "../../../services/kwork/get-kwork-project-offers";
 import { executeWithKworkTokenRefresh } from "../../../services/kwork/kwork-token-refresh";
+import { uploadAvatarFromUrl } from "../../../services/response";
 import { inngest } from "../../client";
 
 /**
@@ -152,64 +152,35 @@ async function syncKworkResponses(
     };
   }
 
-  // Загружаем диалоги из API для аватаров (fallback, если веб-парсинг не получил avatarUrl)
+  // Загружаем профили через API /user для аватаров и полной инфы по откликам
   const avatarByWorkerId = new Map<number, string>();
+  const userDataByWorkerId = new Map<number, Record<string, unknown>>();
 
-  const DialogItemSchema = z.object({
-    user_id: z.number(),
-    profilepicture: z.string().min(1).optional(),
-  });
-  const DialogsResponseSchema = z.object({
-    response: z.array(z.unknown()),
-    paging: z
-      .object({
-        page: z.number().optional(),
-        total: z.number().optional(),
-        pages: z.number().optional(),
-      })
-      .optional(),
-  });
+  const uniqueWorkerIds = [
+    ...new Set(
+      offers
+        .map((o) => o.workerId)
+        .filter((id): id is number => id != null && id > 0),
+    ),
+  ];
 
-  let page = 1;
-  let hasMore = true;
-  while (hasMore) {
-    const dialogsResult = await executeWithKworkTokenRefresh(
+  for (const workerId of uniqueWorkerIds) {
+    const userResult = await executeWithKworkTokenRefresh(
       db,
       workspaceId,
-      (api, token) => getDialogs(api, token, { page }),
+      (api, token) => getUser(api, token, workerId),
       { publish },
     );
-    if (!dialogsResult.success || !Array.isArray(dialogsResult.response)) {
-      hasMore = false;
-      break;
+    if (!userResult.success || !userResult.response) continue;
+
+    const u = userResult.response;
+    if (u.profilepicture?.trim()) {
+      const url = u.profilepicture.startsWith("http")
+        ? u.profilepicture
+        : `https://kwork.ru${u.profilepicture.startsWith("/") ? "" : "/"}${u.profilepicture}`;
+      avatarByWorkerId.set(workerId, url);
     }
-    const parsed = DialogsResponseSchema.safeParse({
-      response: dialogsResult.response,
-      paging: dialogsResult.paging,
-    });
-    if (!parsed.success) {
-      hasMore = false;
-      break;
-    }
-    for (const raw of parsed.data.response) {
-      const item = DialogItemSchema.safeParse(raw);
-      if (!item.success) continue;
-      const { user_id: uid, profilepicture: pic } = item.data;
-      if (pic && pic.trim().length > 0) {
-        const url = pic.startsWith("http")
-          ? pic
-          : `https://kwork.ru${pic.startsWith("/") ? "" : "/"}${pic}`;
-        avatarByWorkerId.set(uid, url);
-      }
-    }
-    const paging = parsed.data.paging;
-    const totalPages = paging?.pages ?? 1;
-    const receivedCount = parsed.data.response.length;
-    if (receivedCount === 0 || page >= totalPages || page > 100) {
-      hasMore = false;
-    } else {
-      page += 1;
-    }
+    userDataByWorkerId.set(workerId, u as unknown as Record<string, unknown>);
   }
 
   const parseDurationDays = (s: string): number | undefined => {
@@ -217,34 +188,65 @@ async function syncKworkResponses(
     return Number.isFinite(num) && num > 0 ? num : undefined;
   };
 
+  // Загружаем аватарки в S3 (уникальные URL, чтобы не дублировать)
+  const photoFileIdByUrl = new Map<string, string | null>();
+  for (const offer of offers) {
+    const avatarUrl =
+      offer.avatarUrl?.trim() ||
+      (offer.workerId != null
+        ? avatarByWorkerId.get(offer.workerId)
+        : undefined);
+    if (!avatarUrl || photoFileIdByUrl.has(avatarUrl)) continue;
+
+    const identifier = `kwork_${offer.workerId ?? offer.offerId}`;
+    const result = await uploadAvatarFromUrl(avatarUrl, identifier);
+    photoFileIdByUrl.set(
+      avatarUrl,
+      result.success ? (result.data ?? null) : null,
+    );
+  }
+
   const values = offers.map((offer) => {
-    const { workerId, username, offerId, profileUrl: rawProfileUrl, avatarUrl: webAvatarUrl } = offer;
+    const {
+      workerId,
+      username,
+      offerId,
+      profileUrl: rawProfileUrl,
+      avatarUrl: webAvatarUrl,
+    } = offer;
     const candidateId =
       workerId != null && workerId > 0
         ? `kwork_${workerId}`
         : username
           ? `kwork_user_${username}`
           : `kwork_offer_${offerId}`;
-    const profileUrl =
-      rawProfileUrl?.startsWith("http")
-        ? rawProfileUrl
-        : rawProfileUrl
-          ? `https://kwork.ru${rawProfileUrl.startsWith("/") ? "" : "/"}${rawProfileUrl}`
-          : username
-            ? `https://kwork.ru/user/${username}`
-            : undefined;
+    const profileUrl = rawProfileUrl?.startsWith("http")
+      ? rawProfileUrl
+      : rawProfileUrl
+        ? `https://kwork.ru${rawProfileUrl.startsWith("/") ? "" : "/"}${rawProfileUrl}`
+        : username
+          ? `https://kwork.ru/user/${username}`
+          : undefined;
 
-    // Аватар: приоритет веб-парсингу, fallback — из API dialogs
-    const avatarFromDialogs =
-      workerId != null && workerId > 0 && !webAvatarUrl?.trim()
+    // Аватар: URL из веб-парсинга или API /user
+    const avatarUrl =
+      webAvatarUrl?.trim() ||
+      (workerId != null && workerId > 0
         ? avatarByWorkerId.get(workerId)
-        : undefined;
+        : undefined);
+    const photoFileId = avatarUrl
+      ? (photoFileIdByUrl.get(avatarUrl) ?? null)
+      : null;
+
+    const userData =
+      workerId != null ? userDataByWorkerId.get(workerId) : undefined;
+    const fullname = (userData?.fullname as string)?.trim();
 
     return {
       entityType: "gig" as const,
       entityId: gigId,
       candidateId,
-      candidateName: offer.username || "Кандидат Kwork",
+      candidateName: fullname || offer.username || "Кандидат Kwork",
       profileUrl,
       platformProfileUrl: profileUrl,
       coverLetter: offer.description || undefined,
@@ -254,12 +256,14 @@ async function syncKworkResponses(
         : undefined,
       importSource: "KWORK" as const,
       respondedAt: new Date(),
+      photoFileId: photoFileId ?? undefined,
       profileData: {
         kworkOfferId: offerId,
         kworkWantId: offer.projectId,
         ...(workerId != null && workerId > 0 && { kworkWorkerId: workerId }),
         ...(username && { kworkUsername: username }),
-        ...(avatarFromDialogs && { kworkAvatarUrl: avatarFromDialogs }),
+        ...(!photoFileId && avatarUrl && { kworkAvatarUrl: avatarUrl }),
+        ...(userData && { kworkUserData: userData }),
       },
     };
   });
@@ -276,6 +280,7 @@ async function syncKworkResponses(
         coverLetter: sql`excluded.cover_letter`,
         proposedPrice: sql`excluded.proposed_price`,
         proposedDeliveryDays: sql`excluded.proposed_delivery_days`,
+        photoFileId: sql`excluded.photo_file_id`,
         profileData: sql`excluded.profile_data`,
         respondedAt: sql`excluded.responded_at`,
         updatedAt: new Date(),
