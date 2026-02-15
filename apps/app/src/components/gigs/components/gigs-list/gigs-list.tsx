@@ -71,9 +71,9 @@ export function GigsList({
   if (isLoading && gigs === undefined) {
     return (
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2">
-        {Array.from({ length: 6 }).map((_) => (
+        {Array.from({ length: 6 }).map((_, index) => (
           <div
-            key={crypto.randomUUID()}
+            key={`skeleton-${index}`}
             className="rounded-lg border bg-card shadow-sm p-6"
           >
             <div className="space-y-3">

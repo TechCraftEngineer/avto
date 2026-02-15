@@ -46,7 +46,10 @@ function loadColumnOrder(): string[] {
     if (!stored) return [...DEFAULT_COLUMN_ORDER];
     const parsed: unknown = JSON.parse(stored);
     if (!Array.isArray(parsed)) return [...DEFAULT_COLUMN_ORDER];
-    return parsed.filter((id) => DATA_COLUMN_IDS.includes(id));
+    const savedOrder = parsed.filter((id) => DATA_COLUMN_IDS.includes(id));
+    const savedSet = new Set(savedOrder);
+    const missingDefaults = DEFAULT_COLUMN_ORDER.filter((id) => !savedSet.has(id));
+    return [...savedOrder, ...missingDefaults];
   } catch {
     return [...DEFAULT_COLUMN_ORDER];
   }
@@ -118,12 +121,16 @@ function sortResponses(
       }
       case "interview": {
         const scoreA =
-          (a.interviewScoring?.rating ?? a.interviewScoring)
-            ? Math.round(a.interviewScoring.score / 20)
+          a.interviewScoring != null &&
+          typeof a.interviewScoring.score === "number" &&
+          Number.isFinite(a.interviewScoring.score)
+            ? Math.round((a.interviewScoring.score as number) / 20)
             : -1;
         const scoreB =
-          (b.interviewScoring?.rating ?? b.interviewScoring)
-            ? Math.round(b.interviewScoring.score / 20)
+          b.interviewScoring != null &&
+          typeof b.interviewScoring.score === "number" &&
+          Number.isFinite(b.interviewScoring.score)
+            ? Math.round((b.interviewScoring.score as number) / 20)
             : -1;
         cmp = scoreA - scoreB;
         break;

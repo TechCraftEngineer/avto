@@ -1,6 +1,7 @@
 import { and, count, db, eq, sql } from "@qbs-autonaim/db";
 import { gig, response } from "@qbs-autonaim/db/schema";
 import { getDialogs } from "@qbs-autonaim/integration-clients";
+import { z } from "zod";
 import { getProjectOffersFromWebWithCache } from "../../../services/kwork/get-kwork-project-offers";
 import { executeWithKworkTokenRefresh } from "../../../services/kwork/kwork-token-refresh";
 import { inngest } from "../../client";
@@ -153,26 +154,61 @@ async function syncKworkResponses(
 
   // Загружаем диалоги из API для аватаров (fallback, если веб-парсинг не получил avatarUrl)
   const avatarByWorkerId = new Map<number, string>();
-  const dialogsResult = await executeWithKworkTokenRefresh(
-    db,
-    workspaceId,
-    (api, token) => getDialogs(api, token, {}),
-    { publish },
-  );
-  if (dialogsResult.success && Array.isArray(dialogsResult.response)) {
-    for (const d of dialogsResult.response) {
-      const uid = d.user_id;
-      const pic = d.profilepicture;
-      if (
-        uid != null &&
-        typeof uid === "number" &&
-        pic &&
-        typeof pic === "string" &&
-        pic.trim().length > 0
-      ) {
-        const url = pic.startsWith("http") ? pic : `https://kwork.ru${pic.startsWith("/") ? "" : "/"}${pic}`;
+
+  const DialogItemSchema = z.object({
+    user_id: z.number(),
+    profilepicture: z.string().min(1).optional(),
+  });
+  const DialogsResponseSchema = z.object({
+    response: z.array(z.unknown()),
+    paging: z
+      .object({
+        page: z.number().optional(),
+        total: z.number().optional(),
+        pages: z.number().optional(),
+      })
+      .optional(),
+  });
+
+  let page = 1;
+  let hasMore = true;
+  while (hasMore) {
+    const dialogsResult = await executeWithKworkTokenRefresh(
+      db,
+      workspaceId,
+      (api, token) => getDialogs(api, token, { page }),
+      { publish },
+    );
+    if (!dialogsResult.success || !Array.isArray(dialogsResult.response)) {
+      hasMore = false;
+      break;
+    }
+    const parsed = DialogsResponseSchema.safeParse({
+      response: dialogsResult.response,
+      paging: dialogsResult.paging,
+    });
+    if (!parsed.success) {
+      hasMore = false;
+      break;
+    }
+    for (const raw of parsed.data.response) {
+      const item = DialogItemSchema.safeParse(raw);
+      if (!item.success) continue;
+      const { user_id: uid, profilepicture: pic } = item.data;
+      if (pic && pic.trim().length > 0) {
+        const url = pic.startsWith("http")
+          ? pic
+          : `https://kwork.ru${pic.startsWith("/") ? "" : "/"}${pic}`;
         avatarByWorkerId.set(uid, url);
       }
+    }
+    const paging = parsed.data.paging;
+    const totalPages = paging?.pages ?? 1;
+    const receivedCount = parsed.data.response.length;
+    if (receivedCount === 0 || page >= totalPages || page > 100) {
+      hasMore = false;
+    } else {
+      page += 1;
     }
   }
 

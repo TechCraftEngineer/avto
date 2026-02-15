@@ -116,7 +116,7 @@ test.describe("OTP верификация", () => {
 
   test("описание формы видимо", async ({ page }) => {
     await expect(
-      page.getByText("Введите 6-значный код, отправленный на вашу почту."),
+      page.getByText("Мы отправили 6-значный код на test@example.com. Введите код, который вы получили."),
     ).toBeVisible();
   });
 
