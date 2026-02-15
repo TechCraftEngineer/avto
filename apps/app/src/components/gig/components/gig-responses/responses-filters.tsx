@@ -49,6 +49,7 @@ export function ResponsesFilters({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">Все статусы</SelectItem>
+          <SelectItem value="recommended">Рекомендованы</SelectItem>
           <SelectItem value={RESPONSE_STATUS.NEW}>
             {RESPONSE_STATUS_LABELS[RESPONSE_STATUS.NEW]}
           </SelectItem>

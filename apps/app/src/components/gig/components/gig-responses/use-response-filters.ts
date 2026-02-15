@@ -14,14 +14,12 @@ interface UseResponseFiltersProps<T extends Response = Response> {
   responses: T[] | undefined;
   searchQuery: string;
   statusFilter: string;
-  activeTab: string;
 }
 
 export const useResponseFilters = <T extends Response>({
   responses,
   searchQuery,
   statusFilter,
-  activeTab,
 }: UseResponseFiltersProps<T>) => {
   const filteredResponses = useMemo((): T[] => {
     if (!responses) return [] as T[];
@@ -35,18 +33,15 @@ export const useResponseFilters = <T extends Response>({
         response.candidateId.toLowerCase().includes(searchQuery.toLowerCase());
 
       const matchesStatus =
-        statusFilter === "all" || response.status === statusFilter;
+        statusFilter === "all"
+          ? true
+          : statusFilter === "recommended"
+            ? response.hrSelectionStatus === "RECOMMENDED"
+            : response.status === statusFilter;
 
-      const matchesTab =
-        activeTab === "all" ||
-        (activeTab === "new" && response.status === "NEW") ||
-        (activeTab === "evaluated" && response.status === "EVALUATED") ||
-        (activeTab === "recommended" &&
-          response.hrSelectionStatus === "RECOMMENDED");
-
-      return matchesSearch && matchesStatus && matchesTab;
+      return matchesSearch && matchesStatus;
     });
-  }, [responses, searchQuery, statusFilter, activeTab]);
+  }, [responses, searchQuery, statusFilter]);
 
   return { filteredResponses };
 };

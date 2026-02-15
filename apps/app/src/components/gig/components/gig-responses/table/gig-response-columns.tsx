@@ -264,6 +264,7 @@ export function createGigResponseColumns() {
     }),
     columnHelper.display({
       id: "actions",
+      enableColumnOrdering: false,
       header: () => (
         <span className="font-semibold text-foreground">Действия</span>
       ),

@@ -1,12 +1,12 @@
 export { ConfirmDialog } from "./confirm-dialog";
 export { EmptyState } from "./empty-state";
+export { GigResponseActionButtons } from "./gig-response-action-buttons";
 export { MessageDialog } from "./message-dialog";
 export { ResponseHeader } from "./response-header";
 export * from "./response-helpers";
 export { ResponseRow } from "./response-row";
 export { ResponsesFilters } from "./responses-filters";
 export { ResponsesTable } from "./responses-table";
-export { ResponsesTabs } from "./responses-tabs";
 export { useResponseFilters } from "./use-response-filters";
 export { useResponseMutations } from "./use-response-mutations";
 export { useResponseStats } from "./use-response-stats";

@@ -18,6 +18,7 @@ export {
 } from "./data-grid-pagination";
 export type { DataGridPaginationProps } from "./data-grid-pagination";
 export {
+  DataGridTable,
   DataGridTableBase,
   DataGridTableBody,
   DataGridTableBodyRow,

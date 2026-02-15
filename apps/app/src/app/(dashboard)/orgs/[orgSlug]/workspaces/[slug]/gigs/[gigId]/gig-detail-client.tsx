@@ -14,10 +14,19 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  Separator,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
 } from "@qbs-autonaim/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import {
+  ArrowLeft,
+  ExternalLink,
+  FileText,
+  Mail,
+  Settings,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
@@ -167,34 +176,73 @@ export function GigDetailClient({
             onDeleteClick={handleDeleteClick}
           />
 
-          <GigRequirements requirements={gig.requirements} />
+          <Tabs defaultValue="project" className="w-full">
+            <TabsList className="grid w-full grid-cols-3 h-auto gap-1 p-1.5 bg-muted/50 rounded-lg mb-4">
+              <TabsTrigger
+                value="project"
+                className="min-h-11 sm:min-h-9 gap-2 touch-manipulation data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all font-medium"
+              >
+                <FileText className="h-4 w-4 shrink-0" aria-hidden="true" />
+                <span className="hidden sm:inline">О проекте</span>
+                <span className="sm:hidden">Проект</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="interview"
+                className="min-h-11 sm:min-h-9 gap-2 touch-manipulation data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all font-medium"
+              >
+                <Settings className="h-4 w-4 shrink-0" aria-hidden="true" />
+                <span className="hidden sm:inline">Интервью</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="invitation"
+                className="min-h-11 sm:min-h-9 gap-2 touch-manipulation data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all font-medium"
+              >
+                <Mail className="h-4 w-4 shrink-0" aria-hidden="true" />
+                <span className="hidden sm:inline">Приглашение</span>
+                <span className="sm:hidden">Шаблон</span>
+              </TabsTrigger>
+            </TabsList>
 
-          {gig.url && (
-            <Card>
-              <CardHeader className="px-4 py-4 sm:px-5 sm:py-4">
-                <CardTitle className="text-lg sm:text-xl">
-                  Внешняя ссылка
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="px-4 pb-4 sm:px-5 sm:pb-5">
-                <Button
-                  variant="outline"
-                  asChild
-                  className="w-full sm:w-auto min-h-11 touch-manipulation"
-                >
-                  <a href={gig.url} target="_blank" rel="noopener noreferrer">
-                    <ExternalLink className="h-4 w-4 mr-2" aria-hidden="true" />
-                    Открыть на {gig.source}
-                  </a>
-                </Button>
-              </CardContent>
-            </Card>
-          )}
+            <TabsContent value="project" className="mt-0 space-y-6">
+              <GigRequirements requirements={gig.requirements} />
+              {gig.url && (
+                <Card>
+                  <CardHeader className="px-4 py-4 sm:px-5 sm:py-4">
+                    <CardTitle className="text-lg sm:text-xl">
+                      Внешняя ссылка
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="px-4 pb-4 sm:px-5 sm:pb-5">
+                    <Button
+                      variant="outline"
+                      asChild
+                      className="w-full sm:w-auto min-h-11 touch-manipulation"
+                    >
+                      <a
+                        href={gig.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <ExternalLink
+                          className="h-4 w-4 mr-2"
+                          aria-hidden="true"
+                        />
+                        Открыть на {gig.source}
+                      </a>
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+            </TabsContent>
 
-          <Separator className="my-6" />
+            <TabsContent value="interview" className="mt-0">
+              <GigInterviewSettings gigId={gigId} />
+            </TabsContent>
 
-          <GigInterviewSettings gigId={gigId} />
-          <GigInvitationTemplate gigId={gigId} gigTitle={gig.title} />
+            <TabsContent value="invitation" className="mt-0">
+              <GigInvitationTemplate gigId={gigId} gigTitle={gig.title} />
+            </TabsContent>
+          </Tabs>
         </div>
 
         <aside className="space-y-6" aria-label="Дополнительная информация">

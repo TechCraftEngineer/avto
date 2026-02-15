@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useCallback } from "react";
 import { toast } from "sonner";
 import { useTRPC } from "~/trpc/react";
 import type { Response } from "./use-response-filters";
@@ -62,30 +63,39 @@ export const useResponseMutations = ({
     }),
   );
 
-  const handleAccept = (responseId: string) => {
-    if (!workspaceId) return;
-    return acceptMutation.mutateAsync({
-      responseId,
-      workspaceId,
-    });
-  };
+  const handleAccept = useCallback(
+    (responseId: string) => {
+      if (!workspaceId) return;
+      return acceptMutation.mutateAsync({
+        responseId,
+        workspaceId,
+      });
+    },
+    [workspaceId, acceptMutation],
+  );
 
-  const handleReject = (responseId: string) => {
-    if (!workspaceId) return;
-    return rejectMutation.mutateAsync({
-      responseId,
-      workspaceId,
-    });
-  };
+  const handleReject = useCallback(
+    (responseId: string) => {
+      if (!workspaceId) return;
+      return rejectMutation.mutateAsync({
+        responseId,
+        workspaceId,
+      });
+    },
+    [workspaceId, rejectMutation],
+  );
 
-  const handleSendMessage = (responseId: string, message: string) => {
-    if (!workspaceId || !message.trim()) return;
-    return sendMessageMutation.mutateAsync({
-      responseId,
-      workspaceId,
-      message: message.trim(),
-    });
-  };
+  const handleSendMessage = useCallback(
+    (responseId: string, message: string) => {
+      if (!workspaceId || !message.trim()) return;
+      return sendMessageMutation.mutateAsync({
+        responseId,
+        workspaceId,
+        message: message.trim(),
+      });
+    },
+    [workspaceId, sendMessageMutation],
+  );
 
   const isProcessing =
     acceptMutation.isPending ||

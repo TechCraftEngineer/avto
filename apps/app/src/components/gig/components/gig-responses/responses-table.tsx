@@ -1,25 +1,65 @@
 "use client";
 
+import type { DragEndEvent } from "@dnd-kit/core";
+import { arrayMove } from "@dnd-kit/sortable";
 import {
+  Card,
   DataGrid,
   DataGridContainer,
   DataGridTableDnd,
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
 } from "@qbs-autonaim/ui";
-import { Table, TableBody, TableCell, TableRow } from "@qbs-autonaim/ui";
-import {
-  getCoreRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import { useMemo, useState, useCallback } from "react";
+import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
+import type { GigSortField } from "./table/gig-column-header";
 import {
   createGigResponseColumns,
   type GigResponseListItem,
   type GigTableMeta,
 } from "./table/gig-response-columns";
-import type { GigSortField } from "./table/gig-column-header";
 
 type GigResponseWithScore = GigResponseListItem & { score?: number | null };
+
+const GIG_COLUMN_ORDER_KEY = "gig-responses-column-order";
+
+const DEFAULT_COLUMN_ORDER = [
+  "candidate",
+  "status",
+  "price",
+  "delivery",
+  "screening",
+  "interview",
+  "hrSelection",
+  "coverLetter",
+  "date",
+] as const;
+
+const DATA_COLUMN_IDS = [...DEFAULT_COLUMN_ORDER] as readonly string[];
+
+function loadColumnOrder(): string[] {
+  if (typeof window === "undefined") return [...DEFAULT_COLUMN_ORDER];
+  try {
+    const stored = localStorage.getItem(GIG_COLUMN_ORDER_KEY);
+    if (!stored) return [...DEFAULT_COLUMN_ORDER];
+    const parsed: unknown = JSON.parse(stored);
+    if (!Array.isArray(parsed)) return [...DEFAULT_COLUMN_ORDER];
+    return parsed.filter((id) => DATA_COLUMN_IDS.includes(id));
+  } catch {
+    return [...DEFAULT_COLUMN_ORDER];
+  }
+}
+
+function saveColumnOrder(order: string[]): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(GIG_COLUMN_ORDER_KEY, JSON.stringify(order));
+  } catch {
+    // ignore
+  }
+}
 
 interface ResponsesTableProps {
   responses: GigResponseWithScore[];
@@ -77,12 +117,14 @@ function sortResponses(
         break;
       }
       case "interview": {
-        const scoreA = a.interviewScoring?.rating ?? a.interviewScoring
-          ? Math.round(a.interviewScoring.score / 20)
-          : -1;
-        const scoreB = b.interviewScoring?.rating ?? b.interviewScoring
-          ? Math.round(b.interviewScoring.score / 20)
-          : -1;
+        const scoreA =
+          (a.interviewScoring?.rating ?? a.interviewScoring)
+            ? Math.round(a.interviewScoring.score / 20)
+            : -1;
+        const scoreB =
+          (b.interviewScoring?.rating ?? b.interviewScoring)
+            ? Math.round(b.interviewScoring.score / 20)
+            : -1;
         cmp = scoreA - scoreB;
         break;
       }
@@ -96,7 +138,7 @@ function sortResponses(
   return sorted;
 }
 
-export function ResponsesTable({
+export const ResponsesTable = memo(function ResponsesTable({
   responses,
   orgSlug,
   workspaceSlug,
@@ -108,15 +150,36 @@ export function ResponsesTable({
 }: ResponsesTableProps) {
   const [sortField, setSortField] = useState<GigSortField | null>("createdAt");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [columnOrder, setColumnOrderState] = useState<string[]>(() =>
+    loadColumnOrder(),
+  );
 
-  const handleSort = useCallback((field: GigSortField) => {
-    if (sortField === field) {
-      setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
-    } else {
-      setSortField(field);
-      setSortDirection("desc");
-    }
-  }, [sortField]);
+  useEffect(() => {
+    setColumnOrderState(loadColumnOrder());
+  }, []);
+
+  const setColumnOrder = useCallback(
+    (order: string[] | ((prev: string[]) => string[])) => {
+      setColumnOrderState((prev) => {
+        const next = typeof order === "function" ? order(prev) : order;
+        saveColumnOrder(next);
+        return next;
+      });
+    },
+    [],
+  );
+
+  const handleSort = useCallback(
+    (field: GigSortField) => {
+      if (sortField === field) {
+        setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
+      } else {
+        setSortField(field);
+        setSortDirection("desc");
+      }
+    },
+    [sortField],
+  );
 
   const sortedResponses = useMemo(
     () => sortResponses(responses, sortField, sortDirection),
@@ -160,19 +223,47 @@ export function ResponsesTable({
 
   const columns = useMemo(() => createGigResponseColumns(), []);
 
+  const fullColumnOrder = useMemo(
+    () => [...columnOrder, "actions"] as string[],
+    [columnOrder],
+  );
+
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over || String(active.id) === String(over.id)) return;
+
+      const oldIndex = fullColumnOrder.indexOf(String(active.id));
+      const newIndex = fullColumnOrder.indexOf(String(over.id));
+      if (oldIndex === -1 || newIndex === -1) return;
+
+      const reordered = arrayMove(fullColumnOrder, oldIndex, newIndex);
+      const dataOrder = reordered.filter((id) => DATA_COLUMN_IDS.includes(id));
+      setColumnOrder(dataOrder);
+    },
+    [fullColumnOrder, setColumnOrder],
+  );
+
   const table = useReactTable({
     data: sortedResponses,
     columns,
-    state: {},
+    state: {
+      columnOrder: fullColumnOrder,
+    },
+    onColumnOrderChange: (updater) => {
+      const next =
+        typeof updater === "function" ? updater(fullColumnOrder) : updater;
+      const dataOrder = next.filter((id) => DATA_COLUMN_IDS.includes(id));
+      setColumnOrder(dataOrder);
+    },
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
     meta: tableMeta,
   });
 
   const isEmpty = sortedResponses.length === 0;
 
   return (
-    <div className="border rounded-lg overflow-hidden bg-card shadow-sm">
+    <Card className="border shadow-sm overflow-hidden">
       <div className="relative w-full overflow-auto">
         {isEmpty ? (
           <Table className="bg-background">
@@ -194,19 +285,22 @@ export function ResponsesTable({
             isLoading={false}
             emptyMessage={null}
             tableLayout={{
-              columnsDraggable: false,
+              columnsDraggable: true,
               headerBackground: true,
               headerBorder: true,
               rowBorder: true,
               width: "fixed",
             }}
           >
-            <DataGridContainer className="bg-background border-0 rounded-none">
-              <DataGridTableDnd handleDragEnd={() => {}} />
+            <DataGridContainer
+              className="bg-background border-0 rounded-none"
+              border={false}
+            >
+              <DataGridTableDnd handleDragEnd={handleDragEnd} />
             </DataGridContainer>
           </DataGrid>
         )}
       </div>
-    </div>
+    </Card>
   );
-}
+});

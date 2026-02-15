@@ -101,6 +101,7 @@ export {
   useDataGrid,
   DataGridTableDnd,
   DataGridPagination,
+  DataGridTable,
   DataGridTableBase,
   DataGridTableBody,
   DataGridTableBodyRow,

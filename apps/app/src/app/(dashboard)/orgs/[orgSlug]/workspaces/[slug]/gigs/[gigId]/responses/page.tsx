@@ -15,24 +15,25 @@ import {
   TableHeader,
   TableRow,
 } from "@qbs-autonaim/ui";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import {
   ConfirmDialog,
   EmptyState,
+  GigResponseActionButtons,
   MessageDialog,
   ResponseHeader,
   ResponsesFilters,
   ResponsesTable,
-  ResponsesTabs,
   useResponseFilters,
   useResponseMutations,
   useResponseStats,
 } from "~/components/gig/components/gig-responses";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
+import { toast } from "sonner";
 
 interface PageProps {
   params: Promise<{ orgSlug: string; slug: string; gigId: string }>;
@@ -113,11 +114,11 @@ export function ResponsesSkeleton() {
 export default function GigResponsesPage({ params }: PageProps) {
   const { orgSlug, slug: workspaceSlug, gigId } = React.use(params);
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
   const { workspace } = useWorkspace();
 
   const [searchQuery, setSearchQuery] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState<string>("all");
-  const [activeTab, setActiveTab] = React.useState("all");
   const [messageText, setMessageText] = React.useState("");
 
   const [messageDialog, setMessageDialog] = React.useState<{
@@ -173,10 +174,55 @@ export default function GigResponsesPage({ params }: PageProps) {
     responses: responsesWithScore,
     searchQuery,
     statusFilter,
-    activeTab,
   });
 
   const stats = useResponseStats(responses);
+
+  const syncMutation = useMutation(
+    trpc.freelancePlatforms.syncGigResponses.mutationOptions({
+      onSuccess: () => {
+        toast.success("Синхронизация откликов запущена");
+        queryClient.invalidateQueries({
+          queryKey: trpc.gig.responses.list.queryKey({ gigId, workspaceId: workspace?.id ?? "" }),
+        });
+        queryClient.invalidateQueries({
+          queryKey: trpc.gig.responses.count.queryKey({ gigId, workspaceId: workspace?.id ?? "" }),
+        });
+      },
+      onError: (error) => {
+        toast.error(error.message || "Ошибка синхронизации");
+      },
+    }),
+  );
+
+  const analyzeMutation = useMutation(
+    trpc.gig.responses.recalculateRanking.mutationOptions({
+      onSuccess: () => {
+        toast.success("Анализ откликов запущен");
+        queryClient.invalidateQueries({
+          queryKey: trpc.gig.responses.list.queryKey({ gigId, workspaceId: workspace?.id ?? "" }),
+        });
+        queryClient.invalidateQueries({
+          queryKey: trpc.gig.responses.ranked.queryKey(),
+        });
+      },
+      onError: (error) => {
+        toast.error(error.message || "Не удалось запустить анализ");
+      },
+    }),
+  );
+
+  const handleSync = React.useCallback(() => {
+    if (workspace?.id) {
+      syncMutation.mutate({ gigId, workspaceId: workspace.id });
+    }
+  }, [workspace?.id, gigId, syncMutation]);
+
+  const handleAnalyze = React.useCallback(() => {
+    if (workspace?.id) {
+      analyzeMutation.mutate({ gigId, workspaceId: workspace.id });
+    }
+  }, [workspace?.id, gigId, analyzeMutation]);
 
   const { handleAccept, handleReject, handleSendMessage, isProcessing } =
     useResponseMutations({
@@ -185,8 +231,8 @@ export default function GigResponsesPage({ params }: PageProps) {
       responses,
     });
 
-  // Handlers
-  const handleAcceptClick = (responseId: string) => {
+  // Handlers — обёрнуты в useCallback для стабилизации ссылок и уменьшения ререндеров таблицы
+  const handleAcceptClick = React.useCallback((responseId: string) => {
     const response = responses?.find((r) => r.id === responseId);
     setConfirmDialog({
       open: true,
@@ -194,9 +240,9 @@ export default function GigResponsesPage({ params }: PageProps) {
       action: "accept",
       candidateName: response?.candidateName,
     });
-  };
+  }, [responses]);
 
-  const handleRejectClick = (responseId: string) => {
+  const handleRejectClick = React.useCallback((responseId: string) => {
     const response = responses?.find((r) => r.id === responseId);
     setConfirmDialog({
       open: true,
@@ -204,18 +250,18 @@ export default function GigResponsesPage({ params }: PageProps) {
       action: "reject",
       candidateName: response?.candidateName,
     });
-  };
+  }, [responses]);
 
-  const handleMessageClick = (responseId: string) => {
+  const handleMessageClick = React.useCallback((responseId: string) => {
     const response = responses?.find((r) => r.id === responseId);
     setMessageDialog({
       open: true,
       responseId,
       candidateName: response?.candidateName,
     });
-  };
+  }, [responses]);
 
-  const handleConfirmAction = async () => {
+  const handleConfirmAction = React.useCallback(async () => {
     try {
       if (confirmDialog.action === "accept") {
         await handleAccept(confirmDialog.responseId);
@@ -226,9 +272,9 @@ export default function GigResponsesPage({ params }: PageProps) {
     } catch {
       // Error handling is done in the mutation hook
     }
-  };
+  }, [confirmDialog.action, confirmDialog.responseId, handleAccept, handleReject]);
 
-  const handleSendMessageClick = async () => {
+  const handleSendMessageClick = React.useCallback(async () => {
     try {
       await handleSendMessage(messageDialog.responseId, messageText);
       setMessageDialog({ open: false, responseId: "" });
@@ -236,7 +282,7 @@ export default function GigResponsesPage({ params }: PageProps) {
     } catch {
       // Error handling is done in the mutation hook
     }
-  };
+  }, [messageDialog.responseId, messageText, handleSendMessage]);
 
   if (isLoading || isGigLoading || !workspace?.id) {
     return <ResponsesSkeleton />;
@@ -279,45 +325,55 @@ export default function GigResponsesPage({ params }: PageProps) {
         </Link>
       </div>
 
-      <div className="space-y-4 sm:space-y-6">
+      <div className="space-y-4 sm:space-y-5">
         {/* Header */}
         <ResponseHeader gigTitle={gig.title} totalResponses={stats.total} />
 
-        {/* Filters */}
-        <Card className="border shadow-sm">
-          <CardContent>
-            <ResponsesFilters
-              searchQuery={searchQuery}
-              onSearchChange={setSearchQuery}
-              statusFilter={statusFilter}
-              onStatusFilterChange={setStatusFilter}
-            />
+        {/* Filters and actions */}
+        <Card className="border shadow-sm overflow-hidden">
+          <CardContent className="p-4 sm:p-5">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <ResponsesFilters
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                statusFilter={statusFilter}
+                onStatusFilterChange={setStatusFilter}
+              />
+              <GigResponseActionButtons
+                isSyncing={syncMutation.isPending}
+                isAnalyzing={analyzeMutation.isPending}
+                onSync={handleSync}
+                onAnalyze={handleAnalyze}
+                canSync={Boolean(gig.url && gig.externalId)}
+                hasResponses={stats.total > 0}
+              />
+            </div>
+            {(searchQuery || statusFilter !== "all") &&
+              filteredResponses.length > 0 && (
+                <p className="mt-3 text-xs sm:text-sm text-muted-foreground">
+                  Показано {filteredResponses.length} из {stats.total}
+                </p>
+              )}
           </CardContent>
         </Card>
 
-        {/* Tabs */}
-        <ResponsesTabs
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-          stats={stats}
-        >
-          {filteredResponses.length === 0 ? (
-            <EmptyState
-              hasFilters={Boolean(searchQuery) || statusFilter !== "all"}
-            />
-          ) : (
-            <ResponsesTable
-              responses={filteredResponses}
-              orgSlug={orgSlug}
-              workspaceSlug={workspaceSlug}
-              gigId={gigId}
-              onAccept={handleAcceptClick}
-              onReject={handleRejectClick}
-              onMessage={handleMessageClick}
-              isProcessing={isProcessing}
-            />
-          )}
-        </ResponsesTabs>
+        {/* Table */}
+        {filteredResponses.length === 0 ? (
+          <EmptyState
+            hasFilters={Boolean(searchQuery) || statusFilter !== "all"}
+          />
+        ) : (
+          <ResponsesTable
+            responses={filteredResponses}
+            orgSlug={orgSlug}
+            workspaceSlug={workspaceSlug}
+            gigId={gigId}
+            onAccept={handleAcceptClick}
+            onReject={handleRejectClick}
+            onMessage={handleMessageClick}
+            isProcessing={isProcessing}
+          />
+        )}
       </div>
 
       {/* Confirm Dialog */}

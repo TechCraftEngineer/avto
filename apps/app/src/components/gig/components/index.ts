@@ -9,7 +9,6 @@ export {
   ResponseRow,
   ResponsesFilters,
   ResponsesTable,
-  ResponsesTabs,
   useResponseFilters,
   useResponseMutations,
   useResponseStats,
