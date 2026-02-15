@@ -7,8 +7,6 @@ import {
   AlertCircle,
   CheckCircle,
   HelpCircle,
-  Star,
-  ThumbsUp,
   TrendingUp,
   XCircle,
 } from "lucide-react";

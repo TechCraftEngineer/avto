@@ -8,11 +8,8 @@ import {
   AlertCircle,
   AlertTriangle,
   HelpCircle,
-  TrendingUp,
-  TrendingDown,
   AlertOctagon,
   Sparkles,
-  UserCheck,
 } from "lucide-react";
 
 type ItemsListType = 'strengths' | 'weaknesses' | 'risks' | 'recommendations' | 'questions' | 'challenges';
@@ -121,7 +118,7 @@ export const ItemsList = memo(function ItemsList({
     <ul className={cn("space-y-2", className)}>
       {items.map((item, index) => (
         <li
-          key={`${type}-${index}`}
+          key={`${type}-${item.slice(0, 20)}-${index}`}
           className="flex items-start gap-2 text-sm text-muted-foreground"
         >
           {icon && (

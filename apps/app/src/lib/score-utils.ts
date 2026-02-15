@@ -3,7 +3,7 @@
  * Replaces duplicated getScoreColor, getScoreBadgeVariant, and related functions
  */
 
-import { cva, type VariantProps } from "class-variance-authority";
+import { cva } from "class-variance-authority";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import type { ScoreTheme, ScoreScale } from "~/types/screening";

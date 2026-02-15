@@ -14,9 +14,7 @@ import type {
   RankingResult,
 } from "@qbs-autonaim/ai";
 import { RankingOrchestrator } from "@qbs-autonaim/ai";
-import { and, desc, eq, inArray, sql } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
-import { gig, interviewScoring, response, responseScreening } from "@qbs-autonaim/db/schema";
 import { z } from "zod";
 import { formatExperienceText } from "../utils/experience-helpers";
 

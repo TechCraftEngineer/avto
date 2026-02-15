@@ -3,7 +3,7 @@
  * Используется для отображения лейблов и других метаданных
  */
 
-import { gigTypeValues } from "@qbs-autonaim/db/schema";
+import type { gigTypeValues } from "@qbs-autonaim/db/schema";
 
 export type GigType = (typeof gigTypeValues)[number];
 

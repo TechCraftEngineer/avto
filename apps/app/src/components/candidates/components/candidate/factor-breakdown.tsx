@@ -102,7 +102,7 @@ export const FactorBreakdown = memo(function FactorBreakdown({
         {/* Strengths - Using reusable ItemsListSection */}
         {hasStrengths && (
           <ItemsListSection
-            items={strengths!}
+            items={strengths ?? []}
             type="strengths"
             icon={true}
           />
@@ -111,7 +111,7 @@ export const FactorBreakdown = memo(function FactorBreakdown({
         {/* Weaknesses - Using reusable ItemsListSection */}
         {hasWeaknesses && (
           <ItemsListSection
-            items={weaknesses!}
+            items={weaknesses ?? []}
             type="weaknesses"
             icon={true}
           />
@@ -120,7 +120,7 @@ export const FactorBreakdown = memo(function FactorBreakdown({
         {/* Risks - Using reusable ItemsListSection */}
         {hasRisks && (
           <ItemsListSection
-            items={risks!}
+            items={risks ?? []}
             type="risks"
             icon={true}
           />

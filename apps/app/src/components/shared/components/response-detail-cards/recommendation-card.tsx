@@ -70,7 +70,7 @@ export const RecommendationCard = memo(function RecommendationCard({
         {hasWeaknesses && (
           <>
             <ItemsListSection
-              items={recommendation.weaknesses!}
+              items={recommendation.weaknesses ?? []}
               type="weaknesses"
               icon={true}
             />
@@ -87,9 +87,9 @@ export const RecommendationCard = memo(function RecommendationCard({
                 Факторы риска
               </h4>
               <ul className="space-y-1.5 sm:space-y-2">
-                {recommendation.riskFactors!.map((risk, index) => (
+                {recommendation.riskFactors?.map((risk) => (
                   <li
-                    key={`risk-${index}`}
+                    key={`risk-${risk.description.slice(0, 20)}`}
                     className="flex items-start gap-2 text-xs sm:text-sm text-muted-foreground"
                   >
                     <span className="text-red-600 dark:text-red-400 shrink-0 mt-0.5">
@@ -108,7 +108,7 @@ export const RecommendationCard = memo(function RecommendationCard({
         {hasQuestions && (
           <>
             <ItemsListSection
-              items={recommendation.interviewQuestions!}
+              items={recommendation.interviewQuestions ?? []}
               type="questions"
               icon={true}
             />
@@ -124,9 +124,9 @@ export const RecommendationCard = memo(function RecommendationCard({
               Рекомендуемые действия
             </h4>
             <ol className="space-y-1.5 sm:space-y-2">
-              {recommendation.actionSuggestions!.map((action, index) => (
+              {recommendation.actionSuggestions?.map((action, index) => (
                 <li
-                  key={`action-${index}`}
+                  key={`action-${index}-${action.slice(0, 20)}`}
                   className="flex items-start gap-2 text-xs sm:text-sm text-muted-foreground"
                 >
                   <span className="font-medium text-primary shrink-0">

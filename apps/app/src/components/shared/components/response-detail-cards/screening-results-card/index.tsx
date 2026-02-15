@@ -16,7 +16,7 @@ import { lazy, Suspense, memo, useMemo } from "react";
 import { ScoreDisplay } from "~/components/ui/score-display";
 import { ItemsListSection } from "~/components/ui/items-list";
 import { getScoreTheme, getScoreColor, getProgressColor, cn } from "~/lib/score-utils";
-import { getRecommendationConfig, CAREER_TRAJECTORY_LABELS } from "~/lib/recommendation-config";
+import { getRecommendationConfig } from "~/lib/recommendation-config";
 import type { ScreeningData, RecommendationLevel } from "~/types/screening";
 import { SCREENING_TOOLTIPS } from "./screening-tooltips";
 
@@ -116,10 +116,10 @@ function calculateOverallScore(screening: ScreeningData): { score: number; recom
 
   // Формируем сводку
   if (strengths.length > 0) {
-    summary.push("Преимущества: " + strengths.slice(0, 3).join(", "));
+    summary.push(`Преимущества: ${strengths.slice(0, 3).join(", ")}`);
   }
   if (concerns.length > 0) {
-    summary.push("Точки роста: " + concerns.slice(0, 3).join(", "));
+    summary.push(`Точки роста: ${concerns.slice(0, 3).join(", ")}`);
   }
   if (summary.length === 0) {
     summary.push("Для полной оценки требуется больше данных");
@@ -210,8 +210,9 @@ export const ScreeningResultsCard = memo(function ScreeningResultsCard({ screeni
           {/* Сводка */}
           {overallAssessment.summary.length > 0 && (
             <div className="space-y-2">
+              {/* eslint-disable-next-line @biomejs/biome/no-array-index-key */}
               {overallAssessment.summary.map((item, idx) => (
-                <div key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
+                <div key={`summary-${item.slice(0, 30)}-${idx}`} className="text-sm text-muted-foreground flex items-start gap-2">
                   {idx === 0 && overallAssessment.strengths.length > 0 ? (
                     <CheckCircle className="h-4 w-4 text-green-600 shrink-0 mt-0.5" />
                   ) : idx === overallAssessment.strengths.length && overallAssessment.concerns.length > 0 ? (
@@ -317,7 +318,7 @@ export const ScreeningResultsCard = memo(function ScreeningResultsCard({ screeni
           <>
             <Separator />
             <ItemsListSection
-              items={interviewQuestions!}
+              items={interviewQuestions ?? []}
               type="questions"
               icon={true}
             />
@@ -329,6 +330,7 @@ export const ScreeningResultsCard = memo(function ScreeningResultsCard({ screeni
           <>
             <Separator />
             <Suspense fallback={<ComponentSkeleton />}>
+              {/* biome-ignore lint/style/noNonNullAssertion: Проверка выполнена через hasPsychometricAnalysis */}
               <PsychometricAnalysis analysis={screening.psychometricAnalysis!} />
             </Suspense>
           </>

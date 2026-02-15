@@ -9,7 +9,7 @@ import {
   Progress,
 } from "@qbs-autonaim/ui";
 import { memo } from "react";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { cn, getScoreTheme, getScoreColor, getProgressColor } from "~/lib/score-utils";
 import { getRecommendationConfig } from "~/lib/recommendation-config";
 import { ItemsListSection } from "~/components/ui/items-list";
@@ -122,7 +122,7 @@ export const OverallAssessment = memo(function OverallAssessment({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {hasStrengths && (
               <ItemsListSection
-                items={strengths!}
+                items={strengths ?? []}
                 type="strengths"
                 icon={true}
               />
@@ -130,7 +130,7 @@ export const OverallAssessment = memo(function OverallAssessment({
 
             {hasWeaknesses && (
               <ItemsListSection
-                items={weaknesses!}
+                items={weaknesses ?? []}
                 type="weaknesses"
                 icon={true}
               />

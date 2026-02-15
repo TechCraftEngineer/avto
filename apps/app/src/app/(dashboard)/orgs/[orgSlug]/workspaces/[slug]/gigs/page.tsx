@@ -197,7 +197,7 @@ export default function GigsPage() {
 
   const duplicateMutation = useMutation(
     api.gig.duplicate.mutationOptions({
-      onSuccess: (data) => {
+      onSuccess: (_data) => {
         toast.success("Задание дублировано");
         queryClient.invalidateQueries({
           queryKey: api.gig.list.queryKey(),

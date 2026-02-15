@@ -9,7 +9,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@qbs-autonaim/ui";
-import { IconColumns3 } from "@tabler/icons-react";
 import { Settings2Icon } from "lucide-react";
 import { useMemo } from "react";
 import type { ColumnId } from "../types";

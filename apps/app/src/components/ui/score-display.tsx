@@ -2,7 +2,7 @@
 
 import { memo, type ReactNode } from "react";
 import { Progress } from "@qbs-autonaim/ui";
-import { cn, getScoreTheme, getScoreColor, getProgressColor, formatScore, SCORE_SCALES, type ScoreTheme, type ScoreScale } from "~/lib/score-utils";
+import { cn, getScoreTheme, getScoreColor, getProgressColor, formatScore } from "~/lib/score-utils";
 
 interface ScoreDisplayProps {
   /** Score value to display */
@@ -100,7 +100,7 @@ export const ScoreDisplayGrid = memo(function ScoreDisplayGrid({
 
   return (
     <div className={cn("grid gap-4", gridClasses[columns], className)}>
-      {scores.map((item, index) => (
+      {scores.map((item) => (
         <ScoreDisplay
           key={item.label}
           score={item.score}

@@ -204,8 +204,8 @@ export function GigProposalTab({ response }: GigProposalTabProps) {
             Рекомендации по улучшению отклика
           </div>
           <ul className="space-y-1">
-            {quality.suggestions.map((suggestion, index) => (
-              <li key={index} className="text-xs sm:text-sm text-amber-700 dark:text-amber-300 flex items-start gap-2">
+            {quality.suggestions.map((suggestion) => (
+              <li key={`suggestion-${suggestion.slice(0, 20)}`} className="text-xs sm:text-sm text-amber-700 dark:text-amber-300 flex items-start gap-2">
                 <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-amber-500 shrink-0" />
                 {suggestion}
               </li>
@@ -222,8 +222,8 @@ export function GigProposalTab({ response }: GigProposalTabProps) {
             Выполнено
           </div>
           <ul className="space-y-1">
-            {quality.completed.map((item, index) => (
-              <li key={index} className="text-xs sm:text-sm text-green-700 dark:text-green-300 flex items-start gap-2">
+            {quality.completed.map((item) => (
+              <li key={`completed-${item.slice(0, 20)}`} className="text-xs sm:text-sm text-green-700 dark:text-green-300 flex items-start gap-2">
                 <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
                 {item}
               </li>
