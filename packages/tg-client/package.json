@@ -27,9 +27,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@mtcute/bun": "0.27.8",
-    "@mtcute/core": "0.27.8",
-    "@mtcute/dispatcher": "0.27.8",
+    "@mtcute/bun": "0.27.9",
+    "@mtcute/core": "0.27.9",
+    "@mtcute/dispatcher": "0.27.9",
     "@qbs-autonaim/config": "workspace:*",
     "@qbs-autonaim/db": "workspace:*",
     "@qbs-autonaim/lib": "workspace:*",
