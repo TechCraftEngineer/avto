@@ -4,6 +4,7 @@ import {
   Card,
   CardContent,
   CardHeader,
+  CardTitle,
   Tabs,
   TabsContent,
   TabsList,
@@ -80,12 +81,36 @@ export function VacancyResponseTabs({
             {hasScreening && screening ? (
               <ScreeningResultsCard screening={screening} />
             ) : null}
-            {hasInterviewScoring && response.interviewScoring ? (
-              <InterviewScoringCard
-                interviewScoring={response.interviewScoring}
-              />
+            {/* Показываем карточку интервью или заглушку */}
+            {(hasInterviewScoring || hasConversation) ? (
+              response.interviewScoring ? (
+                <InterviewScoringCard interviewScoring={response.interviewScoring} />
+              ) : (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                      <span className="text-primary">💬</span>
+                      Результаты интервью
+                    </CardTitle>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      Оценка кандидата на основе AI-интервью
+                    </p>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="rounded-lg border border-dashed bg-muted/20 text-center py-8 px-4">
+                      <div className="text-sm text-muted-foreground">
+                        <span className="block mb-2">⏳</span>
+                        Оценка появится после прохождения интервью
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Результаты AI-анализа станут доступны, когда кандидат завершит интервью
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
             ) : null}
-            {!hasScreening && !hasInterviewScoring && (
+            {!hasScreening && !hasInterviewScoring && !hasConversation && (
               <div className="rounded-lg border border-dashed bg-muted/20 text-center py-12 text-muted-foreground">
                 <div className="text-sm">Анализ отклика не проводился</div>
               </div>

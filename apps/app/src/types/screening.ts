@@ -44,6 +44,7 @@ export interface ScreeningAnalysis {
   potentialAnalysis?: string | null;
   careerTrajectoryAnalysis?: string | null;
   hiddenFitAnalysis?: string | null;
+  interviewQuestions?: string[] | null;
 }
 
 export interface HiddenFitData {

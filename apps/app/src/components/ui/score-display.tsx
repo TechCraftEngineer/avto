@@ -1,6 +1,6 @@
 "use client";
 
-import { memo } from "react";
+import { memo, type ReactNode } from "react";
 import { Progress } from "@qbs-autonaim/ui";
 import { cn, getScoreTheme, getScoreColor, getProgressColor, formatScore, SCORE_SCALES, type ScoreTheme, type ScoreScale } from "~/lib/score-utils";
 
@@ -10,7 +10,7 @@ interface ScoreDisplayProps {
   /** Maximum score value */
   maxScore?: number;
   /** Label for the score */
-  label: string;
+  label: string | ReactNode;
   /** Whether to show progress bar */
   showProgress?: boolean;
   /** Size variant */

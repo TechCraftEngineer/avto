@@ -20,8 +20,8 @@ export function useCandidatesData({ vacancyId }: UseCandidatesDataProps) {
   const trpc = useTRPC();
 
   // Получаем все отклики вакансии
-  const { data: responsesData, isLoading } = useQuery(
-    trpc.vacancy.responses.list.queryOptions({
+  const { data: responsesData, isLoading } = useQuery({
+    ...trpc.vacancy.responses.list.queryOptions({
       workspaceId: workspace?.id ?? "",
       vacancyId,
       page: 1,
@@ -29,7 +29,8 @@ export function useCandidatesData({ vacancyId }: UseCandidatesDataProps) {
       sortField: "createdAt",
       sortDirection: "desc",
     }),
-  );
+    enabled: !!workspace?.id,
+  });
 
   // Преобразуем отклики в метрики кандидатов
   const candidates = useMemo<CandidateMetrics[]>(() => {
