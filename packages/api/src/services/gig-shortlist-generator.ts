@@ -7,7 +7,7 @@
 
 import { and, eq, gte, isNotNull } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
-import { response, responseScreening } from "@qbs-autonaim/db/schema";
+import { interviewScoring, response, responseScreening } from "@qbs-autonaim/db/schema";
 
 /**
  * Контактная информация кандидата
@@ -45,6 +45,8 @@ export interface GigShortlistCandidate {
   deliveryScore?: number;
   skillsMatchScore?: number;
   experienceScore?: number;
+  // Оценка интервью
+  interviewScore?: number;
   // Рекомендации
   recommendation:
     | "HIGHLY_RECOMMENDED"
@@ -92,6 +94,7 @@ export class GigShortlistGenerator {
     } = options;
 
     // Получаем все ранжированные отклики для gig с JOIN к screening
+    // Также получаем оценку интервью если есть
     const responses = await db
       .select({
         id: response.id,
@@ -116,11 +119,17 @@ export class GigShortlistGenerator {
         rankingAnalysis: responseScreening.rankingAnalysis,
         strengths: responseScreening.strengths,
         weaknesses: responseScreening.weaknesses,
+        // Оценка интервью
+        interviewScore: interviewScoring.score,
       })
       .from(response)
       .innerJoin(
         responseScreening,
         eq(response.id, responseScreening.responseId),
+      )
+      .leftJoin(
+        interviewScoring,
+        eq(response.id, interviewScoring.responseId),
       )
       .where(
         and(
@@ -162,6 +171,7 @@ export class GigShortlistGenerator {
         deliveryScore: response.deliveryScore ?? undefined,
         skillsMatchScore: response.skillsMatchScore ?? undefined,
         experienceScore: response.experienceScore ?? undefined,
+        interviewScore: response.interviewScore ?? undefined,
         recommendation:
           response.recommendation as GigShortlistCandidate["recommendation"],
         rankingAnalysis: response.rankingAnalysis ?? undefined,

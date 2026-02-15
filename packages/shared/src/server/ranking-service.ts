@@ -14,9 +14,9 @@ import type {
   RankingResult,
 } from "@qbs-autonaim/ai";
 import { RankingOrchestrator } from "@qbs-autonaim/ai";
-import { and, desc, eq, sql } from "@qbs-autonaim/db";
+import { and, desc, eq, inArray, sql } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
-import { gig, response, responseScreening } from "@qbs-autonaim/db/schema";
+import { gig, interviewScoring, response, responseScreening } from "@qbs-autonaim/db/schema";
 import { z } from "zod";
 import { formatExperienceText } from "../utils/experience-helpers";
 
@@ -118,6 +118,31 @@ export class RankingService {
     }
 
     // 3. Преобразуем в формат для оркестратора
+    // Сначала загружаем screening и interview оценки для всех кандидатов
+    const candidateIds = candidates.map((c) => c.id);
+
+    // Загружаем screening scores
+    const screenings = await db.query.responseScreening.findMany({
+      where: (s, { inArray }) => inArray(s.responseId, candidateIds),
+      columns: {
+        responseId: true,
+        overallScore: true,
+      },
+    });
+
+    // Загружаем interview scores
+    const interviewScores = await db.query.interviewScoring.findMany({
+      where: (s, { inArray }) => inArray(s.responseId, candidateIds),
+      columns: {
+        responseId: true,
+        score: true,
+      },
+    });
+
+    // Создаём lookup maps
+    const screeningMap = new Map(screenings.map((s) => [s.responseId, s.overallScore]));
+    const interviewScoreMap = new Map(interviewScores.map((i) => [i.responseId, i.score]));
+
     const candidateInputs: CandidateInput[] = candidates.map((c) => ({
       id: c.id,
       candidateName: c.candidateName,
@@ -130,8 +155,8 @@ export class RankingService {
       skills: c.skills as string[] | null | undefined,
       portfolioLinks: c.portfolioLinks as string[] | null | undefined,
       rating: c.rating,
-      screeningScore: null, // TODO: добавить когда будет screening
-      interviewScore: null, // TODO: добавить когда будет interview
+      screeningScore: screeningMap.get(c.id) ?? null,
+      interviewScore: interviewScoreMap.get(c.id) ?? null,
       hrSelectionStatus: c.hrSelectionStatus,
       createdAt: c.createdAt,
     }));
