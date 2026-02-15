@@ -16,16 +16,18 @@ import {
   TrendingUp,
   Wallet,
 } from "lucide-react";
-import type { GigResponse } from "./types";
+import type { GigResponse, GigContextData } from "./types";
 
 interface PricingCardProps {
   response: GigResponse;
+  gig?: GigContextData;
   onAccept?: () => void;
   onNegotiate?: () => void;
 }
 
 export function PricingCard({
   response,
+  gig,
   onAccept,
   onNegotiate,
 }: PricingCardProps) {
@@ -40,9 +42,23 @@ export function PricingCard({
   const pricePerDay =
     price && deliveryDays ? Math.round(price / deliveryDays) : null;
 
-  // Моковые данные для сравнения с рынком (в реальном приложении приходили бы из API)
-  const marketAveragePrice = 15000; // Средняя цена за подобную работу
-  const marketAverageDays = 7; // Средние сроки
+  // Используем данные из gig если доступны, иначе - средние значения
+  const marketAveragePrice = gig?.budgetMin && gig?.budgetMax
+    ? (gig.budgetMin + gig.budgetMax) / 2
+    : 15000;
+  
+  // Parse estimatedDuration to number (e.g., "1-2 дня" -> 2, "неделя" -> 7)
+  const parseDurationToDays = (duration: string | null): number => {
+    if (!duration) return 7;
+    const match = duration.match(/(\d+)/);
+    if (match?.[1]) return parseInt(match[1], 10);
+    if (duration.toLowerCase().includes("недел")) return 7;
+    if (duration.toLowerCase().includes("день") || duration.toLowerCase().includes("дней")) return 1;
+    if (duration.toLowerCase().includes("месяц")) return 30;
+    return 7;
+  };
+  
+  const marketAverageDays = gig ? parseDurationToDays(gig.estimatedDuration) : 7;
 
   const getPriceComparison = () => {
     if (!price) return null;

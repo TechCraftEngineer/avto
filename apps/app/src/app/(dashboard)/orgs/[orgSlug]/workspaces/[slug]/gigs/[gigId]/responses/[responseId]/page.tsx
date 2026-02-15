@@ -17,13 +17,13 @@ import {
   Textarea,
 } from "@qbs-autonaim/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, ChevronRight, Home, Loader2 } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import { toast } from "sonner";
 import { triggerSendWelcome } from "~/actions/trigger";
 import { GigResponseDetailCard } from "~/components";
-import { useWorkspace } from "~/hooks/use-workspace";
+import { usePostHog, useWorkspace } from "~/hooks";
 import { useTRPC } from "~/trpc/react";
 
 interface PageProps {
@@ -69,6 +69,7 @@ export default function GigResponseDetailPage({ params }: PageProps) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { workspace } = useWorkspace();
+  const { capture } = usePostHog();
 
   const [messageDialog, setMessageDialog] = React.useState(false);
   const [messageText, setMessageText] = React.useState("");
@@ -122,6 +123,13 @@ export default function GigResponseDetailPage({ params }: PageProps) {
   const acceptMutation = useMutation(
     trpc.gig.responses.accept.mutationOptions({
       onSuccess: () => {
+        capture('gig_response_accepted', {
+          response_id: responseId,
+          gig_id: gigId,
+          workspace_id: workspace?.id,
+          proposed_price: gigResponse?.proposedPrice,
+          screening_score: gigResponse?.screening?.overallScore,
+        });
         queryClient.invalidateQueries({
           queryKey: trpc.gig.responses.get.queryKey({
             responseId,
@@ -147,6 +155,13 @@ export default function GigResponseDetailPage({ params }: PageProps) {
   const rejectMutation = useMutation(
     trpc.gig.responses.reject.mutationOptions({
       onSuccess: () => {
+        capture('gig_response_rejected', {
+          response_id: responseId,
+          gig_id: gigId,
+          workspace_id: workspace?.id,
+          proposed_price: gigResponse?.proposedPrice,
+          screening_score: gigResponse?.screening?.overallScore,
+        });
         queryClient.invalidateQueries({
           queryKey: trpc.gig.responses.get.queryKey({
             responseId,
@@ -172,6 +187,11 @@ export default function GigResponseDetailPage({ params }: PageProps) {
   const sendMessageMutation = useMutation(
     trpc.gig.responses.sendMessage.mutationOptions({
       onSuccess: () => {
+        capture('gig_response_message_sent', {
+          response_id: responseId,
+          gig_id: gigId,
+          workspace_id: workspace?.id,
+        });
         toast.success("Сообщение отправлено");
         setMessageDialog(false);
         setMessageText("");
@@ -190,6 +210,18 @@ export default function GigResponseDetailPage({ params }: PageProps) {
       }
     };
   }, []);
+
+  // Track page view
+  React.useEffect(() => {
+    if (!workspace?.id || !responseId) return;
+    
+    capture('gig_response_viewed', {
+      response_id: responseId,
+      gig_id: gigId,
+      workspace_id: workspace.id,
+      status: gigResponse?.status,
+    });
+  }, [workspace?.id, responseId, gigId, gigResponse?.status, capture]);
 
   // Start polling for updated data
   const startPolling = React.useCallback(() => {
@@ -238,6 +270,11 @@ export default function GigResponseDetailPage({ params }: PageProps) {
   const evaluateMutation = useMutation(
     trpc.gig.responses.evaluate.mutationOptions({
       onSuccess: () => {
+        capture('gig_response_evaluation_started', {
+          response_id: responseId,
+          gig_id: gigId,
+          workspace_id: workspace?.id,
+        });
         toast.success("Пересчёт рейтинга запущен");
         startPolling();
       },
@@ -374,7 +411,55 @@ export default function GigResponseDetailPage({ params }: PageProps) {
 
   return (
     <div className="container mx-auto max-w-5xl py-4 px-4 sm:py-6 sm:px-6">
-      {/* Breadcrumb */}
+      {/* Breadcrumb Navigation */}
+      <nav aria-label="Breadcrumb" className="mb-4 sm:mb-6">
+        <ol className="flex items-center gap-1 sm:gap-2 text-sm flex-wrap">
+          <li>
+            <Link
+              href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}`}
+              className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded"
+            >
+              <Home className="h-4 w-4" />
+              <span className="sr-only">Рабочее пространство</span>
+            </Link>
+          </li>
+          <li className="flex items-center gap-1">
+            <ChevronRight className="h-3 w-3 text-muted-foreground" />
+            <Link
+              href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs`}
+              className="text-muted-foreground hover:text-foreground transition-colors truncate max-w-[100px] sm:max-w-none"
+            >
+              Gig-и
+            </Link>
+          </li>
+          <li className="flex items-center gap-1">
+            <ChevronRight className="h-3 w-3 text-muted-foreground" />
+            <Link
+              href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs/${gigId}`}
+              className="text-muted-foreground hover:text-foreground transition-colors truncate max-w-[100px] sm:max-w-none"
+            >
+              {response?.gig?.title || 'Gig'}
+            </Link>
+          </li>
+          <li className="flex items-center gap-1">
+            <ChevronRight className="h-3 w-3 text-muted-foreground" />
+            <Link
+              href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs/${gigId}/responses`}
+              className="text-muted-foreground hover:text-foreground transition-colors truncate max-w-[100px] sm:max-w-none"
+            >
+              Отклики
+            </Link>
+          </li>
+          <li className="flex items-center gap-1">
+            <ChevronRight className="h-3 w-3 text-muted-foreground" />
+            <span className="text-foreground font-medium truncate max-w-[100px] sm:max-w-none">
+              {gigResponse?.candidateName || 'Кандидат'}
+            </span>
+          </li>
+        </ol>
+      </nav>
+
+      {/* Quick Back Button */}
       <div className="mb-4 sm:mb-6">
         <Button
           asChild
@@ -392,19 +477,22 @@ export default function GigResponseDetailPage({ params }: PageProps) {
       </div>
 
       {/* Response Detail */}
-      <GigResponseDetailCard
-        response={gigResponse}
-        onAccept={handleAccept}
-        onReject={handleReject}
-        onMessage={handleMessage}
-        onSendGreeting={handleSendGreeting}
-        onStartKworkChat={handleStartKworkChat}
-        onEvaluate={handleEvaluate}
-        isProcessing={isProcessing}
-        isPolling={isPolling}
-        isSendingGreeting={isSendingGreeting}
-        isStartingKworkChat={isStartingKworkChat}
-      />
+      {gigResponse && (
+        <GigResponseDetailCard
+          response={gigResponse}
+          gig={gigResponse.gig ?? undefined}
+          onAccept={handleAccept}
+          onReject={handleReject}
+          onMessage={handleMessage}
+          onSendGreeting={handleSendGreeting}
+          onStartKworkChat={handleStartKworkChat}
+          onEvaluate={handleEvaluate}
+          isProcessing={isProcessing}
+          isPolling={isPolling}
+          isSendingGreeting={isSendingGreeting}
+          isStartingKworkChat={isStartingKworkChat}
+        />
+      )}
 
       {/* Confirm Dialog */}
       <Dialog

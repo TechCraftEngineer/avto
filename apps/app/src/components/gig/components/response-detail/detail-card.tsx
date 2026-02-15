@@ -4,10 +4,12 @@ import { ParsedProfileCard } from "~/components/shared/components/response-detai
 import { GigResponseHeaderCard } from "./header-card";
 import { useGigResponseFlags } from "./hooks/use-gig-response-flags";
 import { GigResponseTabs } from "./tabs";
+import { ResponseSummaryCard } from "./summary-card";
 import type { GigResponseDetailCardProps } from "./types";
 
 export function GigResponseDetailCard({
   response,
+  gig,
   onAccept,
   onReject,
   onMessage,
@@ -43,6 +45,7 @@ export function GigResponseDetailCard({
       {/* Header Card */}
       <GigResponseHeaderCard
         response={response}
+        gig={gig}
         onAccept={onAccept}
         onReject={onReject}
         onMessage={onMessage}
@@ -54,6 +57,11 @@ export function GigResponseDetailCard({
         isSendingGreeting={isSendingGreeting}
         isStartingKworkChat={isStartingKworkChat}
       />
+
+      {/* Summary Card */}
+      {gig && (
+        <ResponseSummaryCard response={response} gig={gig} />
+      )}
 
       {/* Parsed Profile Info */}
       {response.profileData && !response.profileData.error && (

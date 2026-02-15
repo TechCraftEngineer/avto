@@ -83,7 +83,7 @@ export function ApplicationForm({
     },
   });
 
-  const { watch, setValue, getValues } = form;
+  const { watch, setValue } = form;
 
   // Watch all form values
   const formValues = watch();
@@ -137,7 +137,7 @@ export function ApplicationForm({
       hasPhone: !!formValues.phone,
       hasCoverLetter: !!formValues.coverLetter,
     });
-  }, [formValues, sessionId, vacancyTitle, capture]);
+  }, [formValues, sessionId, vacancyTitle, capture, form.getValues]);
 
   // Auto-save draft every 30 seconds
   useEffect(() => {

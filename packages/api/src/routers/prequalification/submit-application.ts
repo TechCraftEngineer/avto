@@ -46,9 +46,6 @@ const submitApplicationInputSchema = z.object({
 export const submitApplication = publicProcedure
   .input(submitApplicationInputSchema)
   .mutation(async ({ ctx, input }) => {
-    // Track application attempt for analytics
-    const startTime = Date.now();
-    
     // Validate cover letter content quality
     if (input.coverLetter && input.coverLetter.trim().length < 10) {
       throw new TRPCError({

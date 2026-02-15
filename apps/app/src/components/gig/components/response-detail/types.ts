@@ -8,10 +8,25 @@ import type { RouterOutputs } from "@qbs-autonaim/api";
 export type GigResponse = NonNullable<RouterOutputs["gig"]["responses"]["get"]>;
 
 /**
+ * Данные о gig для контекста
+ */
+export interface GigContextData {
+  id: string;
+  title: string;
+  description: string | null;
+  budgetMin: number | null;
+  budgetMax: number | null;
+  deadline: Date | null;
+  estimatedDuration: string | null;
+  requiredSkills: string[];
+}
+
+/**
  * Пропсы для gig response detail card
  */
 export interface GigResponseDetailCardProps {
   response: GigResponse;
+  gig?: GigContextData;
   onAccept?: () => void;
   onStartKworkChat?: () => void;
   onReject?: () => void;
