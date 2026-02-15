@@ -20,7 +20,7 @@ export function EmptyState({
   showCreateButton = true,
 }: EmptyStateProps) {
   return (
-    <Card>
+    <Card className="shadow-sm">
       <CardContent className="pt-6">
         <div className="flex flex-col items-center justify-center gap-6 py-12">
           {/* Анимированный список скелетонов */}

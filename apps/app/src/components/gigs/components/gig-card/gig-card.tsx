@@ -10,6 +10,9 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
 } from "@qbs-autonaim/ui";
 import {
   Calendar,
@@ -154,23 +157,25 @@ export function GigCard({
 
   return (
     <Card
-      className={`hover:shadow-sm transition-shadow h-full ${getUrgencyClass()}`}
+      className={`shadow-sm transition-shadow hover:shadow-md h-full ${getUrgencyClass()}`}
     >
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-2">
           <div className="space-y-1.5 flex-1 min-w-0">
             {/* Бейджи в одну строку */}
-            <div className="flex items-center gap-1 flex-wrap">
-              <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
-                {getGigTypeLabel(gig.type)}
-              </Badge>
-
-              <Badge
-                variant={gig.isActive ? "default" : "outline"}
-                className={`text-xs px-1.5 py-0.5 ${gig.isActive ? "bg-green-100 text-green-800 hover:bg-green-200" : ""}`}
-              >
-                {gig.isActive ? "●" : "○"}
-              </Badge>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
+                    {getGigTypeLabel(gig.type)}
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {gig.type === "OTHER"
+                    ? "Категория для заданий, не подходящих под остальные"
+                    : "Тип задания"}
+                </TooltipContent>
+              </Tooltip>
 
               {gig.source !== "MANUAL" && gig.source !== "WEB_LINK" && (
                 <Badge variant="outline" className="text-xs px-1.5 py-0.5">
@@ -204,17 +209,17 @@ export function GigCard({
             </div>
           </div>
 
-          {/* Компактные кнопки действий */}
-          <div className="flex items-center gap-0.5">
+          {/* Кнопки действий */}
+          <div className="flex items-center gap-1 shrink-0">
             <Button
               variant="ghost"
               size="icon"
-              className="h-7 w-7 shrink-0"
+              className="h-8 w-8 shrink-0"
               onClick={() => onToggleActive?.(gig.id)}
               title={gig.isActive ? "Деактивировать" : "Активировать"}
             >
               <Power
-                className={`h-3.5 w-3.5 ${gig.isActive ? "text-green-600" : "text-gray-400"}`}
+                className={`h-4 w-4 ${gig.isActive ? "text-green-600" : "text-gray-400"}`}
               />
             </Button>
 
@@ -222,11 +227,11 @@ export function GigCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 shrink-0"
+                className="h-8 w-8 shrink-0"
                 onClick={() => onSyncResponses?.(gig.id)}
                 title="Синхронизировать отклики"
               >
-                <RefreshCw className="h-3.5 w-3.5" />
+                <RefreshCw className="h-4 w-4" />
               </Button>
             )}
 
@@ -235,9 +240,9 @@ export function GigCard({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7 shrink-0"
+                  className="h-8 w-8 shrink-0"
                 >
-                  <MoreHorizontal className="h-3.5 w-3.5" />
+                  <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
@@ -295,35 +300,35 @@ export function GigCard({
         </div>
       </CardHeader>
 
-      {/* Компактное описание */}
+      {/* Описание */}
       {gig.description && (
         <CardContent className="pt-0 pb-2 px-4">
-          <p className="text-xs text-muted-foreground line-clamp-1">
+          <p className="text-sm text-muted-foreground line-clamp-2">
             {gig.description}
           </p>
         </CardContent>
       )}
 
-      {/* Компактный футер */}
+      {/* Футер */}
       <CardContent className="pt-0 pb-3 px-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3 text-xs">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-3 text-sm">
             {budget && (
               <span className="font-medium text-foreground">{budget}</span>
             )}
 
             {gig.estimatedDuration && (
-              <div className="flex items-center gap-1 text-muted-foreground">
-                <Clock className="h-3 w-3" />
+              <div className="flex items-center gap-1.5 text-muted-foreground">
+                <Clock className="h-4 w-4 shrink-0" />
                 <span>{gig.estimatedDuration}</span>
               </div>
             )}
 
             {gig.deadline && (
               <div
-                className={`flex items-center gap-1 ${isOverdue ? "text-destructive" : "text-muted-foreground"}`}
+                className={`flex items-center gap-1.5 ${isOverdue ? "text-destructive" : "text-muted-foreground"}`}
               >
-                <Calendar className="h-3 w-3" />
+                <Calendar className="h-4 w-4 shrink-0" />
                 <span>{formatDate(gig.deadline)}</span>
               </div>
             )}
@@ -331,9 +336,9 @@ export function GigCard({
 
           <Link
             href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs/${gig.id}/responses`}
-            className="flex items-center gap-1 hover:text-foreground transition-colors text-xs"
+            className="flex items-center gap-1.5 hover:text-foreground transition-colors text-sm shrink-0"
           >
-            <MessageSquare className="h-3 w-3" />
+            <MessageSquare className="h-4 w-4 shrink-0" />
             <span
               className={`font-medium ${
                 (gig.responses || 0) > 0

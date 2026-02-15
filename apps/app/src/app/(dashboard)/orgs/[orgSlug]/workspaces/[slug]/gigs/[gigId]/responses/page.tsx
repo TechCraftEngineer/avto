@@ -19,6 +19,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import React from "react";
+import { toast } from "sonner";
 import {
   ConfirmDialog,
   EmptyState,
@@ -33,7 +34,6 @@ import {
 } from "~/components/gig/components/gig-responses";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
-import { toast } from "sonner";
 
 interface PageProps {
   params: Promise<{ orgSlug: string; slug: string; gigId: string }>;
@@ -41,7 +41,7 @@ interface PageProps {
 
 export function ResponsesSkeleton() {
   return (
-    <div className="container mx-auto max-w-7xl py-4 px-4 sm:py-6 sm:px-6">
+    <div className="container mx-auto max-w-[1600px] w-full py-4 px-4 sm:py-6 sm:px-6">
       <div className="mb-4 sm:mb-6">
         <Skeleton className="h-4 w-32" />
       </div>
@@ -183,10 +183,16 @@ export default function GigResponsesPage({ params }: PageProps) {
       onSuccess: () => {
         toast.success("Синхронизация откликов запущена");
         queryClient.invalidateQueries({
-          queryKey: trpc.gig.responses.list.queryKey({ gigId, workspaceId: workspace?.id ?? "" }),
+          queryKey: trpc.gig.responses.list.queryKey({
+            gigId,
+            workspaceId: workspace?.id ?? "",
+          }),
         });
         queryClient.invalidateQueries({
-          queryKey: trpc.gig.responses.count.queryKey({ gigId, workspaceId: workspace?.id ?? "" }),
+          queryKey: trpc.gig.responses.count.queryKey({
+            gigId,
+            workspaceId: workspace?.id ?? "",
+          }),
         });
       },
       onError: (error) => {
@@ -200,7 +206,10 @@ export default function GigResponsesPage({ params }: PageProps) {
       onSuccess: () => {
         toast.success("Анализ откликов запущен");
         queryClient.invalidateQueries({
-          queryKey: trpc.gig.responses.list.queryKey({ gigId, workspaceId: workspace?.id ?? "" }),
+          queryKey: trpc.gig.responses.list.queryKey({
+            gigId,
+            workspaceId: workspace?.id ?? "",
+          }),
         });
         queryClient.invalidateQueries({
           queryKey: trpc.gig.responses.ranked.queryKey(),
@@ -232,34 +241,43 @@ export default function GigResponsesPage({ params }: PageProps) {
     });
 
   // Handlers — обёрнуты в useCallback для стабилизации ссылок и уменьшения ререндеров таблицы
-  const handleAcceptClick = React.useCallback((responseId: string) => {
-    const response = responses?.find((r) => r.id === responseId);
-    setConfirmDialog({
-      open: true,
-      responseId,
-      action: "accept",
-      candidateName: response?.candidateName,
-    });
-  }, [responses]);
+  const handleAcceptClick = React.useCallback(
+    (responseId: string) => {
+      const response = responses?.find((r) => r.id === responseId);
+      setConfirmDialog({
+        open: true,
+        responseId,
+        action: "accept",
+        candidateName: response?.candidateName,
+      });
+    },
+    [responses],
+  );
 
-  const handleRejectClick = React.useCallback((responseId: string) => {
-    const response = responses?.find((r) => r.id === responseId);
-    setConfirmDialog({
-      open: true,
-      responseId,
-      action: "reject",
-      candidateName: response?.candidateName,
-    });
-  }, [responses]);
+  const handleRejectClick = React.useCallback(
+    (responseId: string) => {
+      const response = responses?.find((r) => r.id === responseId);
+      setConfirmDialog({
+        open: true,
+        responseId,
+        action: "reject",
+        candidateName: response?.candidateName,
+      });
+    },
+    [responses],
+  );
 
-  const handleMessageClick = React.useCallback((responseId: string) => {
-    const response = responses?.find((r) => r.id === responseId);
-    setMessageDialog({
-      open: true,
-      responseId,
-      candidateName: response?.candidateName,
-    });
-  }, [responses]);
+  const handleMessageClick = React.useCallback(
+    (responseId: string) => {
+      const response = responses?.find((r) => r.id === responseId);
+      setMessageDialog({
+        open: true,
+        responseId,
+        candidateName: response?.candidateName,
+      });
+    },
+    [responses],
+  );
 
   const handleConfirmAction = React.useCallback(async () => {
     try {
@@ -272,7 +290,12 @@ export default function GigResponsesPage({ params }: PageProps) {
     } catch {
       // Error handling is done in the mutation hook
     }
-  }, [confirmDialog.action, confirmDialog.responseId, handleAccept, handleReject]);
+  }, [
+    confirmDialog.action,
+    confirmDialog.responseId,
+    handleAccept,
+    handleReject,
+  ]);
 
   const handleSendMessageClick = React.useCallback(async () => {
     try {
@@ -313,7 +336,7 @@ export default function GigResponsesPage({ params }: PageProps) {
   }
 
   return (
-    <div className="container mx-auto max-w-7xl py-4 px-4 sm:py-6 sm:px-6">
+    <div className="container mx-auto max-w-[1600px] w-full py-4 px-4 sm:py-6 sm:px-6">
       {/* Breadcrumb */}
       <div className="mb-4 sm:mb-6">
         <Link

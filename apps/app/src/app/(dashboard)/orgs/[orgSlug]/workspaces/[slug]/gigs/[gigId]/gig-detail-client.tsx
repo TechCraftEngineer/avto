@@ -153,7 +153,7 @@ export function GigDetailClient({
   }
 
   return (
-    <div className="container mx-auto max-w-6xl py-4 px-4 sm:py-6 sm:px-6">
+    <div className="container mx-auto max-w-[1600px] w-full py-4 px-4 sm:py-6 sm:px-6">
       <nav className="mb-4 sm:mb-6" aria-label="Навигация">
         <Link
           href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs`}

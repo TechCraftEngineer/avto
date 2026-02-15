@@ -70,11 +70,11 @@ export function GigsList({
   // Показываем скелетоны только при первой загрузке (когда данных еще нет)
   if (isLoading && gigs === undefined) {
     return (
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2">
         {Array.from({ length: 6 }).map((_) => (
           <div
             key={crypto.randomUUID()}
-            className="rounded-lg border bg-card p-6"
+            className="rounded-lg border bg-card shadow-sm p-6"
           >
             <div className="space-y-3">
               <div className="flex items-center gap-2">
@@ -139,7 +139,7 @@ export function GigsList({
     }
 
     return (
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2">
         {listGigs.map((gig) => {
           const gigData = {
             ...gig,

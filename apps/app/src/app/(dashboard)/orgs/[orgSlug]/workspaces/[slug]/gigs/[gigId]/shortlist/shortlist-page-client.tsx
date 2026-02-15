@@ -181,7 +181,7 @@ export function ShortlistPageClient({
       : 0;
 
   return (
-    <div className="container mx-auto py-6 space-y-6 max-w-7xl">
+    <div className="container mx-auto max-w-[1600px] w-full py-6 space-y-6">
       {/* Header */}
       <ShortlistHeader
         orgSlug={orgSlug}

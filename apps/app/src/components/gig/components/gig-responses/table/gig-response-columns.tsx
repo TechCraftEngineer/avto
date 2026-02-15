@@ -295,7 +295,7 @@ export function createGigResponseColumns() {
           </div>
         );
       },
-      size: 120,
+      size: 48,
     }),
   ] as ColumnDef<GigResponseListItem, unknown>[];
 }

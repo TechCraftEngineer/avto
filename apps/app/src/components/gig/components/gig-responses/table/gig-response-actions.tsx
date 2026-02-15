@@ -59,40 +59,7 @@ export function GigResponseActions({
   const hasContacts = !!(telegramUsername || phone || email);
 
   return (
-    <div className="flex items-center justify-end gap-1">
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={() => onMessage(responseId)}
-          className="h-8 w-8 p-0 touch-manipulation"
-          title="Отправить сообщение"
-          aria-label={`Отправить сообщение кандидату ${candidateName || "без имени"}`}
-          disabled={isProcessing}
-        >
-          <MessageSquare className="h-4 w-4" />
-        </Button>
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={() => onAccept(responseId)}
-          className="h-8 w-8 p-0 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 touch-manipulation"
-          title="Принять"
-          aria-label={`Принять кандидата ${candidateName || "без имени"}`}
-          disabled={isProcessing}
-        >
-          <Check className="h-4 w-4" />
-        </Button>
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={() => onReject(responseId)}
-          className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10 touch-manipulation"
-          title="Отклонить"
-          aria-label={`Отклонить кандидата ${candidateName || "без имени"}`}
-          disabled={isProcessing}
-        >
-          <X className="h-4 w-4" />
-        </Button>
+    <div className="flex items-center justify-end">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -107,10 +74,18 @@ export function GigResponseActions({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
           <DropdownMenuItem
+            onClick={() => onMessage(responseId)}
+            disabled={isProcessing}
+          >
+            <MessageSquare className="h-4 w-4 mr-2" />
+            Отправить сообщение
+          </DropdownMenuItem>
+          <DropdownMenuItem
             onClick={() => onAccept(responseId)}
             disabled={isProcessing}
             className="text-emerald-600 focus:text-emerald-700"
           >
+            <Check className="h-4 w-4 mr-2" />
             Принять
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -118,6 +93,7 @@ export function GigResponseActions({
             disabled={isProcessing}
             className="text-destructive focus:text-destructive"
           >
+            <X className="h-4 w-4 mr-2" />
             Отклонить
           </DropdownMenuItem>
           <DropdownMenuSeparator />

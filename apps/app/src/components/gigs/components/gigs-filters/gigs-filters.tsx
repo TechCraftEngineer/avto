@@ -93,14 +93,14 @@ export function GigsFilters({
               placeholder="Поиск по названию…"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="pl-9"
+              className="pl-9 bg-card shadow-sm"
               aria-label="Поиск заданий"
             />
           </div>
 
           <div className="flex flex-wrap gap-2">
             {/* Переключатель режима отображения */}
-            <div className="flex items-center rounded-md border bg-card p-1">
+            <div className="flex items-center rounded-md border bg-card shadow-sm p-1">
               <Button
                 variant={displayMode === "grid" ? "default" : "ghost"}
                 size="sm"
@@ -123,7 +123,7 @@ export function GigsFilters({
 
             <Select value={typeFilter} onValueChange={onTypeFilterChange}>
               <SelectTrigger
-                className="w-full sm:w-[160px]"
+                className="w-full sm:w-[160px] bg-card shadow-sm"
                 aria-label="Фильтр по типу"
               >
                 <IconFilter className="size-4" aria-hidden="true" />
@@ -141,7 +141,7 @@ export function GigsFilters({
 
             <Select value={statusFilter} onValueChange={onStatusFilterChange}>
               <SelectTrigger
-                className="w-full sm:w-[140px]"
+                className="w-full sm:w-[140px] bg-card shadow-sm"
                 aria-label="Фильтр по статусу"
               >
                 <SelectValue placeholder="Статус" />
@@ -155,7 +155,7 @@ export function GigsFilters({
 
             <Select value={sortBy} onValueChange={onSortByChange}>
               <SelectTrigger
-                className="w-full sm:w-[160px]"
+                className="w-full sm:w-[160px] bg-card shadow-sm"
                 aria-label="Сортировка"
               >
                 <SelectValue placeholder="Сортировка" />
@@ -172,7 +172,7 @@ export function GigsFilters({
               </SelectContent>
             </Select>
 
-            <div className="flex items-center rounded-md border bg-card p-1">
+            <div className="flex items-center rounded-md border bg-card shadow-sm p-1">
               <Button
                 variant={groupBy === "none" ? "ghost" : "default"}
                 size="sm"
@@ -220,7 +220,7 @@ export function GigsFilters({
               <Badge
                 key={opt.value}
                 variant={quickFilter === opt.value ? "default" : "outline"}
-                className="cursor-pointer transition-colors hover:bg-muted"
+                className="cursor-pointer transition-colors hover:bg-muted/70"
                 onClick={() =>
                   onQuickFilterChange(
                     quickFilter === opt.value ? "" : opt.value,

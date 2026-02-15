@@ -85,10 +85,10 @@ export function GigsTable({
   );
 
   return (
-    <div className="overflow-hidden rounded-lg border bg-card">
+    <div className="overflow-hidden rounded-lg border bg-card shadow-sm">
       <Table>
       <TableHeader>
-        <TableRow>
+        <TableRow className="bg-muted/30 hover:bg-muted/30">
           <SortHeader field="title">Название</SortHeader>
           <TableHead>Тип</TableHead>
           <SortHeader field="responses">Отклики</SortHeader>

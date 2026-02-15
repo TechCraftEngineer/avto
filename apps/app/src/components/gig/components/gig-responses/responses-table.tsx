@@ -13,7 +13,7 @@ import {
   TableRow,
 } from "@qbs-autonaim/ui";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
-import { memo, useCallback, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import type { GigSortField } from "./table/gig-column-header";
 import {
   createGigResponseColumns,
@@ -153,10 +153,6 @@ export const ResponsesTable = memo(function ResponsesTable({
   const [columnOrder, setColumnOrderState] = useState<string[]>(() =>
     loadColumnOrder(),
   );
-
-  useEffect(() => {
-    setColumnOrderState(loadColumnOrder());
-  }, []);
 
   const setColumnOrder = useCallback(
     (order: string[] | ((prev: string[]) => string[])) => {

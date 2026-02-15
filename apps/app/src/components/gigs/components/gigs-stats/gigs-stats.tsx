@@ -12,7 +12,7 @@ interface GigsStatsProps {
 
 export function GigsStats({ stats, isLoading, onCardClick }: GigsStatsProps) {
   const cardClass =
-    "rounded-lg border bg-card p-4 transition-colors hover:bg-muted/50 w-full text-left";
+    "rounded-lg border bg-card shadow-sm p-4 transition-all hover:bg-muted/60 hover:shadow-md w-full text-left";
   const clickableClass = onCardClick ? "cursor-pointer" : "";
 
   const cardProps = (

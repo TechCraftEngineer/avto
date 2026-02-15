@@ -35,19 +35,12 @@ export function GigListItem({
   const isOverdue = gig.deadline && gig.deadline < new Date();
 
   return (
-    <div className="rounded-lg border bg-card p-3 transition-shadow hover:shadow-sm">
+    <div className="rounded-lg border bg-card shadow-sm p-3 transition-all hover:shadow-md">
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
             <Badge variant="secondary" className="px-1.5 py-0.5 text-xs">
               {getGigTypeLabel(gig.type)}
-            </Badge>
-
-            <Badge
-              variant={gig.isActive ? "default" : "outline"}
-              className={`px-1.5 py-0.5 text-xs ${gig.isActive ? "bg-green-100 text-green-800 hover:bg-green-200" : ""}`}
-            >
-              {gig.isActive ? "●" : "○"}
             </Badge>
 
             {(gig.newResponses ?? 0) > 0 && (
