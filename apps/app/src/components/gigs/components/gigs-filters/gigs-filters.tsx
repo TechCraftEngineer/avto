@@ -16,7 +16,7 @@ import {
   IconTable,
 } from "@tabler/icons-react";
 import Link from "next/link";
-import { gigTypesConfig, gigTypeLabels, type DisplayMode } from "../gig-config";
+import { gigTypesConfig, type DisplayMode } from "../gig-config";
 
 // Константы для фильтров
 const DEADLINE_WARNING_DAYS = 7;

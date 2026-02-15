@@ -381,38 +381,71 @@ const CONTENT_TYPE_TO_MIME: Record<string, string> = {
   "image/gif": "image/gif",
 };
 
+const AVATAR_ALLOWED_HOSTS = ["kwork.ru", "www.kwork.ru"] as const;
+const AVATAR_MAX_BYTES = 5 * 1024 * 1024; // 5 MiB
+
+function isAvatarUrlAllowed(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== "https:") return false;
+    const host = parsed.hostname.toLowerCase();
+    return AVATAR_ALLOWED_HOSTS.some(
+      (allowed) => host === allowed || host.endsWith(`.${allowed}`),
+    );
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Скачивает аватар по URL, загружает в S3 и сохраняет запись в БД.
  * Используется для аватарок Kwork и других внешних источников.
+ * Валидирует URL (только HTTPS, только kwork.ru), ограничивает размер загрузки.
  */
 export async function uploadAvatarFromUrl(
   avatarUrl: string,
   identifier: string,
 ): Promise<Result<string | null>> {
   return tryCatch(async () => {
+    if (!isAvatarUrlAllowed(avatarUrl)) {
+      throw new Error(
+        `Avatar URL rejected: only HTTPS and allowlisted hosts (kwork.ru) are allowed`,
+      );
+    }
+
     logger.info(`Downloading avatar from ${avatarUrl} for ${identifier}`);
 
     const response = await axios.get(avatarUrl, {
       responseType: "arraybuffer",
       timeout: 15000,
+      maxContentLength: AVATAR_MAX_BYTES,
+      maxBodyLength: AVATAR_MAX_BYTES,
       headers: {
         "User-Agent": "Mozilla/5.0 (compatible; QBS-AutoNaim/1.0)",
       },
+      validateStatus: (status) => status === 200,
     });
 
+    if (response.status !== 200) {
+      throw new Error(`Avatar fetch failed with status ${response.status}`);
+    }
+
     const buffer = Buffer.from(response.data);
+    if (buffer.length > AVATAR_MAX_BYTES) {
+      throw new Error(
+        `Avatar too large: ${buffer.length} bytes (max ${AVATAR_MAX_BYTES})`,
+      );
+    }
+
     const contentType =
       response.headers["content-type"]?.split(";")[0]?.toLowerCase().trim() ??
       "";
-    const mimeType =
-      CONTENT_TYPE_TO_MIME[contentType] ??
-      (avatarUrl.includes(".png")
-        ? "image/png"
-        : avatarUrl.includes(".webp")
-          ? "image/webp"
-          : avatarUrl.includes(".gif")
-            ? "image/gif"
-            : "image/jpeg");
+    const mimeType = CONTENT_TYPE_TO_MIME[contentType];
+    if (!mimeType) {
+      throw new Error(
+        `Avatar content-type not allowed: ${contentType || "unknown"}`,
+      );
+    }
 
     logger.info(
       `Avatar downloaded: ${buffer.length} bytes, type: ${mimeType}, uploading to S3...`,

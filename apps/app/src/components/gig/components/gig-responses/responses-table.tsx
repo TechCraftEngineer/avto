@@ -14,6 +14,7 @@ import {
 } from "@qbs-autonaim/ui";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { memo, useCallback, useMemo, useState } from "react";
+import { z } from "zod";
 import type { GigSortField } from "./table/gig-column-header";
 import {
   createGigResponseColumns,
@@ -39,14 +40,28 @@ const DEFAULT_COLUMN_ORDER = [
 
 const DATA_COLUMN_IDS = [...DEFAULT_COLUMN_ORDER] as readonly string[];
 
+const columnOrderSchema = z.array(z.string()).transform((arr) => {
+  const allowedSet = new Set(DATA_COLUMN_IDS);
+  const deduped: string[] = [];
+  const seen = new Set<string>();
+  for (const id of arr) {
+    if (allowedSet.has(id) && !seen.has(id)) {
+      deduped.push(id);
+      seen.add(id);
+    }
+  }
+  return deduped;
+});
+
 function loadColumnOrder(): string[] {
   if (typeof window === "undefined") return [...DEFAULT_COLUMN_ORDER];
   try {
     const stored = localStorage.getItem(GIG_COLUMN_ORDER_KEY);
     if (!stored) return [...DEFAULT_COLUMN_ORDER];
     const parsed: unknown = JSON.parse(stored);
-    if (!Array.isArray(parsed)) return [...DEFAULT_COLUMN_ORDER];
-    const savedOrder = parsed.filter((id) => DATA_COLUMN_IDS.includes(id));
+    const result = columnOrderSchema.safeParse(parsed);
+    if (!result.success) return [...DEFAULT_COLUMN_ORDER];
+    const savedOrder = result.data;
     const savedSet = new Set(savedOrder);
     const missingDefaults = DEFAULT_COLUMN_ORDER.filter((id) => !savedSet.has(id));
     return [...savedOrder, ...missingDefaults];

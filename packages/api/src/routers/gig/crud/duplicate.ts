@@ -39,12 +39,19 @@ export const duplicate = protectedProcedure
       });
     }
 
-    // Создаём копию задания
+    // Создаём копию задания (title ограничен 500 символами)
+    const copySuffix = " (копия)";
+    const maxTitleLength = 500 - copySuffix.length;
+    const title =
+      existingGig.title.length > maxTitleLength
+        ? `${existingGig.title.slice(0, maxTitleLength)}${copySuffix}`
+        : `${existingGig.title}${copySuffix}`;
+
     const [newGig] = await ctx.db
       .insert(gig)
       .values({
         workspaceId: input.workspaceId,
-        title: `${existingGig.title} (копия)`,
+        title,
         description: existingGig.description,
         type: existingGig.type,
         budgetMin: existingGig.budgetMin,

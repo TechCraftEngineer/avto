@@ -69,13 +69,6 @@ export function GigDetailClient({
   } = useWorkspace();
   const workspaceId = workspace?.id;
 
-  // Update document title for SEO
-  useEffect(() => {
-    if (gig?.title) {
-      document.title = `${gig.title} | Разовое задание`;
-    }
-  }, [gig]);
-
   const {
     data: gig,
     isPending,
@@ -88,6 +81,13 @@ export function GigDetailClient({
     }),
     enabled: !!workspaceId,
   });
+
+  // Update document title for SEO
+  useEffect(() => {
+    if (gig?.title) {
+      document.title = `${gig.title} | Разовое задание`;
+    }
+  }, [gig]);
 
   const { data: responseCounts } = useQuery({
     ...trpc.gig.responses.count.queryOptions({

@@ -1,4 +1,4 @@
-import { and, eq } from "@qbs-autonaim/db";
+import { and, eq, not } from "@qbs-autonaim/db";
 import { gig } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
@@ -25,35 +25,27 @@ export const toggleActive = protectedProcedure
       });
     }
 
-    const existingGig = await ctx.db.query.gig.findFirst({
-      where: and(
-        eq(gig.id, input.gigId),
-        eq(gig.workspaceId, input.workspaceId),
-      ),
-    });
+    const [updated] = await ctx.db
+      .update(gig)
+      .set({
+        isActive: not(gig.isActive),
+        updatedAt: new Date(),
+      })
+      .where(
+        and(eq(gig.id, input.gigId), eq(gig.workspaceId, input.workspaceId)),
+      )
+      .returning({ id: gig.id, title: gig.title, isActive: gig.isActive });
 
-    if (!existingGig) {
+    if (!updated) {
       throw new TRPCError({
         code: "NOT_FOUND",
         message: "Задание не найдено",
       });
     }
 
-    const newIsActive = !existingGig.isActive;
-
-    await ctx.db
-      .update(gig)
-      .set({
-        isActive: newIsActive,
-        updatedAt: new Date(),
-      })
-      .where(
-        and(eq(gig.id, input.gigId), eq(gig.workspaceId, input.workspaceId)),
-      );
-
     return {
-      id: existingGig.id,
-      title: existingGig.title,
-      isActive: newIsActive,
+      id: updated.id,
+      title: updated.title,
+      isActive: updated.isActive,
     };
   });

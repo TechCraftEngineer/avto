@@ -1,1 +1,35 @@
-[]
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "title": "Верстка лендинга",
+    "description": "Нужна адаптивная верстка одностраничного сайта по макету Figma",
+    "type": "DESIGN",
+    "budgetMin": 5000,
+    "budgetMax": 15000,
+    "estimatedDuration": "3-5 дней",
+    "deadline": null,
+    "metadata": {}
+  },
+  {
+    "id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+    "title": "Написание SEO-статей",
+    "description": "Серия из 10 статей для блога по тематике маркетинга",
+    "type": "COPYWRITING",
+    "budgetMin": 10000,
+    "budgetMax": 25000,
+    "estimatedDuration": "2 недели",
+    "deadline": "2025-03-01T23:59:59Z",
+    "metadata": { "wordCountPerArticle": 1500 }
+  },
+  {
+    "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+    "title": "Консультация по Python",
+    "description": "Одноразовая консультация по архитектуре микросервисов",
+    "type": "CONSULTING",
+    "budgetMin": 3000,
+    "budgetMax": 5000,
+    "estimatedDuration": "2 часа",
+    "deadline": null,
+    "metadata": {}
+  }
+]

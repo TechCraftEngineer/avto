@@ -1,4 +1,5 @@
 export { alias } from "drizzle-orm/pg-core";
+export { not } from "drizzle-orm";
 export * from "drizzle-orm/sql";
 export { db } from "./client";
 
