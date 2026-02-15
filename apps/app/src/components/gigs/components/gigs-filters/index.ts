@@ -1,4 +1,4 @@
-export type { DisplayMode } from "./gigs-filters";
+export type { DisplayMode } from "../gig-config";
 export { GigsFilters } from "./gigs-filters";
 export type {
   Gig,
