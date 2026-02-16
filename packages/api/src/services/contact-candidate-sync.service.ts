@@ -7,7 +7,7 @@
  */
 
 import type { DbClient } from "@qbs-autonaim/db";
-import { CandidateRepository } from "@qbs-autonaim/db";
+import { GlobalCandidateRepository } from "@qbs-autonaim/db";
 
 export interface ContactData {
   name?: string;
@@ -83,32 +83,34 @@ export class ContactCandidateSyncService {
       };
     }
 
-    const candidateRepository = new CandidateRepository(this.db);
+    const globalCandidateRepository = new GlobalCandidateRepository(this.db);
 
-    // Ищем существующего кандидата по контактам
-    const existing = await candidateRepository.findCandidateByContacts({
-      organizationId,
-      email: email || null,
-      phone: phone || null,
-      telegramUsername: telegramUsername || null,
-    });
-
-    const candidateData = {
-      organizationId,
-      fullName: name || "Без имени",
-      email: email || null,
-      phone: phone || null,
-      telegramUsername: telegramUsername || null,
-      source,
-      originalSource,
-      location: additionalData?.location || null,
-      skills: additionalData?.skills || null,
-      salaryExpectationsAmount: additionalData?.salaryExpectations || null,
-      resumeUrl: contactData.platformProfileUrl || null,
-    };
+    // Ищем существующего глобального кандидата по контактам
+    const existing =
+      await globalCandidateRepository.findGlobalCandidateByContacts({
+        email: email || null,
+        phone: phone || null,
+        telegramUsername: telegramUsername || null,
+      });
 
     if (existing) {
       // Кандидат уже существует - возвращаем его ID
+      // Также создаем/обновляем связь с организацией
+      try {
+        await globalCandidateRepository.createOrUpdateCandidateOrganizationLink(
+          existing.id,
+          {
+            organizationId,
+            status: "ACTIVE",
+          },
+        );
+      } catch (error) {
+        console.error(
+          "[ContactCandidateSyncService] Ошибка при создании связи с организацией:",
+          error,
+        );
+      }
+
       return {
         candidateId: existing.id,
         created: false,
@@ -117,14 +119,32 @@ export class ContactCandidateSyncService {
       };
     }
 
-    // Создаем нового кандидата
-    const { candidate, created } =
-      await candidateRepository.findOrCreateCandidate(candidateData);
+    // Создаем нового глобального кандидата
+    const { candidate, candidateCreated } =
+      await globalCandidateRepository.findOrCreateWithOrganizationLink(
+        {
+          fullName: name || "Без имени",
+          email: email || null,
+          phone: phone || null,
+          telegramUsername: telegramUsername || null,
+          source,
+          originalSource,
+          location: additionalData?.location || null,
+          skills: additionalData?.skills || null,
+          salaryExpectationsAmount: additionalData?.salaryExpectations || null,
+          resumeUrl: contactData.platformProfileUrl || null,
+        },
+        {
+          organizationId,
+          status: "ACTIVE",
+          appliedAt: new Date(),
+        },
+      );
 
     return {
       candidateId: candidate.id,
-      created,
-      updated: false, // Консервативный подход: обновление не отслеживается
+      created: candidateCreated,
+      updated: false,
       hasContacts: true,
     };
   }

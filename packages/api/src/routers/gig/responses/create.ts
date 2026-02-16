@@ -1,4 +1,10 @@
-import { and, CandidateRepository, eq, sql } from "@qbs-autonaim/db";
+import {
+  and,
+  CandidateRepository,
+  eq,
+  GlobalCandidateRepository,
+  sql,
+} from "@qbs-autonaim/db";
 import {
   gig,
   importSourceValues,
@@ -91,9 +97,10 @@ export const create = protectedProcedure
     }
 
     // Создаем или находим кандидата в базе
+    // Используем глобальную таблицу кандидатов и таблицу связей с организациями
     let globalCandidateId: string | null = null;
     try {
-      const candidateRepository = new CandidateRepository(ctx.db);
+      const globalCandidateRepository = new GlobalCandidateRepository(ctx.db);
       const candidateService = new CandidateService();
 
       // Создаем временный объект response для извлечения данных
@@ -124,13 +131,25 @@ export const create = protectedProcedure
       const normalizedData =
         candidateService.normalizeCandidateData(candidateData);
 
-      const { candidate } =
-        await candidateRepository.findOrCreateCandidate(normalizedData);
+      // Создаем/находим глобального кандидата и связываем с организацией
+      const { candidate, organizationLink } =
+        await globalCandidateRepository.findOrCreateWithOrganizationLink(
+          normalizedData,
+          {
+            organizationId: workspaceData.organizationId,
+            status: "ACTIVE",
+            appliedAt: new Date(),
+          },
+        );
 
       globalCandidateId = candidate.id;
+
+      console.log(
+        `[gig/responses/create] Глобальный кандидат: ${candidate.id}, связь с организацией: ${organizationLink.id}, статус: ${organizationLink.status}`,
+      );
     } catch (error) {
       // Логируем ошибку, но не блокируем создание отклика
-      console.error("Ошибка при создании/поиске кандидата:", error);
+      console.error("Ошибка при создании/поиске глобального кандидата:", error);
     }
 
     let newResponse: Response | undefined;

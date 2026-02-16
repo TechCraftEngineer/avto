@@ -1,4 +1,10 @@
-import { and, CandidateRepository, eq } from "@qbs-autonaim/db";
+import {
+  and,
+  CandidateRepository,
+  eq,
+  GlobalCandidateRepository,
+  sql,
+} from "@qbs-autonaim/db";
 import {
   freelanceImportHistory,
   type Response,
@@ -108,9 +114,10 @@ export const importSingleResponse = protectedProcedure
     }
 
     // Create or find candidate in database
+    // Используем глобальную таблицу кандидатов и таблицу связей с организациями
     let globalCandidateId: string | null = null;
     try {
-      const candidateRepository = new CandidateRepository(ctx.db);
+      const globalCandidateRepository = new GlobalCandidateRepository(ctx.db);
       const candidateService = new CandidateService();
 
       // Create temporary response object for data extraction
@@ -142,10 +149,22 @@ export const importSingleResponse = protectedProcedure
       const normalizedData =
         candidateService.normalizeCandidateData(candidateData);
 
-      const { candidate } =
-        await candidateRepository.findOrCreateCandidate(normalizedData);
+      // Создаем/находим глобального кандидата и связываем с организацией
+      const { candidate, organizationLink } =
+        await globalCandidateRepository.findOrCreateWithOrganizationLink(
+          normalizedData,
+          {
+            organizationId: workspaceData.organizationId,
+            status: "ACTIVE",
+            appliedAt: new Date(),
+          },
+        );
 
       globalCandidateId = candidate.id;
+
+      console.log(
+        `[import-single-response] Глобальный кандидат: ${candidate.id}, связь с организацией: ${organizationLink.id}, статус: ${organizationLink.status}`,
+      );
     } catch (error) {
       // Log error but don't block response creation
       console.error("Ошибка при создании/поиске кандидата:", error);

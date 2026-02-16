@@ -92,11 +92,12 @@ export async function parseArchivedVacancyResponses(
     page,
     responsesNeedingDetails,
     vacancyId,
-    async (processed, total, currentName) => {
-      // Передаем прогресс дальше: общее количество = все собранные + детали
-      const totalResponses =
-        allResponses.length + responsesNeedingDetails.length;
-      const totalProcessed = allResponses.length + processed;
+    async (processed, _total, currentName) => {
+      // totalResponses = всего откликов (responsesNeedingDetails — подмножество allResponses)
+      const totalResponses = allResponses.length;
+      // Обработано = отклики без деталей (уже после этапа 1) + отклики с деталями (processed)
+      const totalProcessed =
+        allResponses.length - responsesNeedingDetails.length + processed;
       await onProgress?.(totalProcessed, totalResponses, newCount, currentName);
     },
   );

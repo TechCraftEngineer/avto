@@ -1,5 +1,5 @@
-export { alias } from "drizzle-orm/pg-core";
 export { not } from "drizzle-orm";
+export { alias } from "drizzle-orm/pg-core";
 export * from "drizzle-orm/sql";
 export { db } from "./client";
 
@@ -20,6 +20,12 @@ export type {
 } from "./repositories/candidate.repository";
 export { CandidateRepository } from "./repositories/candidate.repository";
 export { DraftRepository } from "./repositories/draft.repository";
+export type {
+  CandidateOrganizationLinkData,
+  GlobalCandidateData,
+  GlobalCandidateSearchParams,
+} from "./repositories/global-candidate.repository";
+export { GlobalCandidateRepository } from "./repositories/global-candidate.repository";
 // Integration repository exports - keeping as * since it has many functions
 export * from "./repositories/integration";
 export * from "./repositories/organization.repository";

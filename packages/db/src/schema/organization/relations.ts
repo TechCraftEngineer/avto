@@ -1,5 +1,6 @@
 import { relations } from "drizzle-orm";
 import { user } from "../auth/user";
+import { candidateOrganization } from "../candidate/candidate-organization";
 import { payment } from "../payment/payment";
 import { workspace } from "../workspace/workspace";
 import { organization } from "./organization";
@@ -11,6 +12,7 @@ export const organizationRelations = relations(organization, ({ many }) => ({
   workspaces: many(workspace),
   invites: many(organizationInvite),
   payments: many(payment),
+  candidateLinks: many(candidateOrganization),
 }));
 
 export const organizationMemberRelations = relations(
