@@ -28,31 +28,34 @@ recruitment-assistant-extension/
 │   ├── content/                 # Content scripts
 │   │   ├── content-script.ts    # Главный content script
 │   │   └── ui/                  # UI компоненты для инъекции
-│   │       ├── ActionButton.tsx
-│   │       └── DataPanel.tsx
+│   │       ├── action-button.tsx
+│   │       └── data-panel.tsx
 │   ├── popup/                   # Popup интерфейс
-│   │   ├── Popup.tsx
+│   │   ├── popup.tsx
 │   │   └── popup.html
 │   ├── options/                 # Страница настроек
-│   │   ├── Options.tsx
+│   │   ├── options.tsx
 │   │   └── options.html
 │   ├── adapters/                # Адаптеры для платформ
 │   │   ├── base/
-│   │   │   └── PlatformAdapter.ts
+│   │   │   └── platform-adapter.ts
 │   │   ├── linkedin/
-│   │   │   └── LinkedInAdapter.ts
+│   │   │   └── linkedin-adapter.ts
 │   │   └── headhunter/
-│   │       └── HeadHunterAdapter.ts
+│   │       └── headhunter-adapter.ts
 │   ├── core/                    # Основная бизнес-логика
-│   │   ├── DataExtractor.ts
-│   │   ├── DataValidator.ts
-│   │   └── ApiClient.ts
+│   │   ├── auth-service.ts
+│   │   ├── data-extractor.ts
+│   │   ├── data-validator.ts
+│   │   └── api-client.ts
 │   ├── storage/                 # Работа с хранилищем
-│   │   └── StorageManager.ts
+│   │   └── storage-manager.ts
 │   └── shared/                  # Общие утилиты и типы
 │       ├── types.ts
 │       ├── schemas.ts           # Zod схемы
-│       └── utils.ts
+│       ├── utils.ts
+│       ├── error-handler.ts
+│       └── logger.ts
 └── package.json
 ```
 

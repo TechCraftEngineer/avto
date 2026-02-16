@@ -21,5 +21,6 @@
     "next/dist/client/router.d.ts"
   ],
   "typescript.tsdk": "node_modules/typescript/lib",
-  "typescript.autoClosingTags": false
+  "typescript.autoClosingTags": false,
+  "html.autoClosingTags": false
 }
