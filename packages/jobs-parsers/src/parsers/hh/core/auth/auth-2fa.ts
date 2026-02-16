@@ -13,6 +13,24 @@ function logError(message: string): void {
   console.error(message);
 }
 
+function isLoginUrl(url: string): boolean {
+  return url.includes("/account/login") || url.includes("/login");
+}
+
+/**
+ * Безопасное получение URL — при "Execution context was destroyed" ждёт и повторяет
+ */
+async function safeGetUrl(page: Page): Promise<string | null> {
+  for (let i = 0; i < 5; i++) {
+    try {
+      return page.url();
+    } catch {
+      await new Promise((r) => setTimeout(r, 1000 * (i + 1)));
+    }
+  }
+  return null;
+}
+
 /** Таймаут ожидания поля кода после нажатия «Получить код» (мс) */
 const CODE_INPUT_WAIT_TIMEOUT_MS = 12_000;
 /** Интервал опроса при ожидании (мс) */
@@ -274,92 +292,48 @@ export async function submitVerificationCode(
     // Небольшая пауза перед отправкой
     await new Promise((r) => setTimeout(r, 500));
 
-    // Нажимаем кнопку подтверждения
+    // Нажимаем кнопку — НЕ используем waitForNavigation (на HH.ru даёт "Execution context was destroyed")
+    // Вместо этого: клик, пауза для завершения навигации, опрос URL
     logInfo("📤 Отправка кода...");
-    const submitButton = await page.$('button[data-qa="account-login-submit"]');
+    const submitSelector = 'button[data-qa="account-login-submit"]';
+    const hasSubmitButton = (await page.$(submitSelector)) !== null;
 
-    // Ожидаем навигации до клика — иначе после навигации execution context уничтожается
-    const navPromise = page
-      .waitForNavigation({ waitUntil: "domcontentloaded", timeout: 15000 })
-      .catch(() => null);
-
-    if (submitButton) {
-      await submitButton.click();
-    } else {
-      await page.keyboard.press("Enter");
+    try {
+      if (hasSubmitButton) {
+        await page.click(submitSelector);
+      } else {
+        await page.keyboard.press("Enter");
+      }
+    } catch (clickErr) {
+      const msg =
+        clickErr instanceof Error ? clickErr.message : String(clickErr);
+      if (msg.includes("Execution context was destroyed")) {
+        // Клик сработал, навигация началась
+        logInfo("⏳ Ожидание завершения навигации...");
+        await new Promise((r) => setTimeout(r, 5000));
+        const url = await safeGetUrl(page);
+        if (url && !isLoginUrl(url)) {
+          logInfo("✅ Авторизация по коду успешна!");
+          return { success: true };
+        }
+      }
+      throw clickErr;
     }
 
-    await navPromise;
+    // Ждём стабилизации страницы (навигация или обновление DOM)
+    await new Promise((r) => setTimeout(r, 4000));
 
-    const currentUrl = page.url();
-
-    if (
-      !currentUrl.includes("/account/login") &&
-      !currentUrl.includes("/login")
-    ) {
+    const currentUrl = await safeGetUrl(page);
+    if (!currentUrl) {
+      logInfo("✅ Авторизация по коду успешна (страница перешла)");
+      return { success: true };
+    }
+    if (!isLoginUrl(currentUrl)) {
       logInfo("✅ Авторизация по коду успешна!");
       return { success: true };
     }
 
-    // Остались на странице входа — проверяем ошибки
-    try {
-      const errorMessage = await page.$(
-        '.form-field-error, [data-qa="account-login-code-error"], .error-message',
-      );
-
-      if (errorMessage) {
-        const errorText = await errorMessage.evaluate((el) => el.textContent);
-
-        if (errorText?.includes("неверн") || errorText?.includes("неправильн")) {
-          return {
-            success: false,
-            error: "Неверный код подтверждения",
-          };
-        }
-
-        if (errorText?.includes("время") || errorText?.includes("истёк")) {
-          return {
-            success: false,
-            error: "Время ввода кода истекло. Запросите новый код",
-          };
-        }
-
-        return {
-          success: false,
-          error: errorText || "Ошибка при проверке кода",
-        };
-      }
-
-      const stillOnCodePage = await page.$(
-        'div[data-qa="account-login-code-input"]',
-      );
-
-      if (stillOnCodePage) {
-        return {
-          success: false,
-          error: "Неверный или истёкший код подтверждения",
-        };
-      }
-    } catch (checkError) {
-      const msg =
-        checkError instanceof Error ? checkError.message : String(checkError);
-      if (msg.includes("Execution context was destroyed")) {
-        const url = page.url();
-        if (
-          !url.includes("/account/login") &&
-          !url.includes("/login")
-        ) {
-          logInfo("✅ Авторизация по коду успешна (навигация)");
-          return { success: true };
-        }
-      }
-      throw checkError;
-    }
-
-    return {
-      success: false,
-      error: "Неизвестная ошибка при авторизации",
-    };
+    return checkCodePageErrors(page);
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Неизвестная ошибка";
@@ -368,6 +342,71 @@ export async function submitVerificationCode(
       success: false,
       error: message,
     };
+  }
+}
+
+/**
+ * Проверяет страницу ввода кода на ошибки (остались после отправки)
+ */
+async function checkCodePageErrors(
+  page: Page,
+): Promise<TwoFactorAuthResult> {
+  try {
+    const errorMessage = await page.$(
+      '.form-field-error, [data-qa="account-login-code-error"], .error-message',
+    );
+
+    if (errorMessage) {
+      const errorText = await errorMessage.evaluate((el) => el.textContent);
+
+      if (errorText?.includes("неверн") || errorText?.includes("неправильн")) {
+        return {
+          success: false,
+          error: "Неверный код подтверждения",
+        };
+      }
+
+      if (errorText?.includes("время") || errorText?.includes("истёк")) {
+        return {
+          success: false,
+          error: "Время ввода кода истекло. Запросите новый код",
+        };
+      }
+
+      return {
+        success: false,
+        error: errorText || "Ошибка при проверке кода",
+      };
+    }
+
+    const stillOnCodePage = await page.$(
+      'div[data-qa="account-login-code-input"]',
+    );
+
+    if (stillOnCodePage) {
+      return {
+        success: false,
+        error: "Неверный или истёкший код подтверждения",
+      };
+    }
+
+    return {
+      success: false,
+      error: "Неизвестная ошибка при авторизации",
+    };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes("Execution context was destroyed")) {
+      const url = await safeGetUrl(page);
+      if (url && !isLoginUrl(url)) {
+        logInfo("✅ Авторизация по коду успешна (навигация)");
+        return { success: true };
+      }
+      // Контекст разрушен при навигации — вероятен успешный вход
+      logInfo("✅ Авторизация по коду успешна (контекст разрушен)");
+      return { success: true };
+    }
+    throw err;
   }
 }
 

@@ -10,7 +10,7 @@ import {
   workspaceNotificationsChannel,
 } from "@qbs-autonaim/jobs/channels";
 import { inngest } from "@qbs-autonaim/jobs/client";
-import type { Browser, Page } from "puppeteer";
+import type { Browser, CookieData, Page } from "puppeteer";
 import puppeteer from "puppeteer";
 import {
   initiateCodeAuth,
@@ -301,7 +301,14 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
                   const codeResult = await submitVerificationCode(page, code);
                   if (!codeResult.success) {
                     // После ввода кода могла появиться капча
-                    if (await isCaptchaRequired(page)) {
+                    let captchaCheck = false;
+                    try {
+                      captchaCheck = await isCaptchaRequired(page);
+                    } catch {
+                      // Execution context destroyed — страница могла перейти
+                      captchaCheck = false;
+                    }
+                    if (captchaCheck) {
                       await resolveCaptchaLoop(
                         page,
                         db,
@@ -329,7 +336,24 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
                     };
                   }
 
-                  const cookies = await page.browserContext().cookies();
+                  let cookies: CookieData[] = [];
+                  for (let attempt = 0; attempt < 3; attempt++) {
+                    try {
+                      cookies = await page.browserContext().cookies();
+                      break;
+                    } catch (err) {
+                      const msg =
+                        err instanceof Error ? err.message : String(err);
+                      if (
+                        msg.includes("Execution context was destroyed") &&
+                        attempt < 2
+                      ) {
+                        await sleep(2000 * (attempt + 1));
+                        continue;
+                      }
+                      throw err;
+                    }
+                  }
                   await upsertIntegration(db, {
                     workspaceId,
                     type: "hh",
