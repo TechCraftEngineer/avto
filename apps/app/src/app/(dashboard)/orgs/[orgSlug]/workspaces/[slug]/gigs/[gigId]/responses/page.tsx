@@ -31,10 +31,13 @@ import {
   useResponseFilters,
   useResponseMutations,
   useResponseStats,
+  BulkActionButtons,
+  useBulkOperations,
 } from "~/components/gig/components/gig-responses";
 import type { ResponseFiltersState } from "~/components/gig/components/gig-responses/use-response-filters";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
+import { convertToCSV, downloadCSV, generateExportFilename } from "~/lib/export-csv";
 
 interface PageProps {
   params: Promise<{ orgSlug: string; slug: string; gigId: string }>;
@@ -143,6 +146,52 @@ export default function GigResponsesPage({ params }: PageProps) {
     candidateName?: string | null;
   }>({ open: false, responseId: "", action: "accept", candidateName: "" });
 
+  // Selected responses for bulk operations
+  const [selectedResponses, setSelectedResponses] = React.useState<Set<string>>(new Set());
+
+  // Bulk operations
+  const { handleAcceptMultiple, handleRejectMultiple, isAccepting, isRejecting } = useBulkOperations({
+    gigId,
+    workspaceId: workspace?.id,
+  });
+
+  // Export query
+  const { refetch: exportData, isFetching: isExporting } = useQuery({
+    ...trpc.gig.responses.exportResponses.queryOptions({
+      gigId,
+      workspaceId: workspace?.id ?? "",
+    }),
+    enabled: false, // Manual trigger only
+  });
+
+  const handleExport = React.useCallback(async () => {
+    if (!workspace?.id) return;
+    
+    try {
+      const result = await exportData();
+      if (result.data) {
+        const csvContent = convertToCSV(result.data.headers, result.data.rows);
+        downloadCSV(csvContent, generateExportFilename(result.data.gigTitle));
+        toast.success("Отклики экспортированы");
+      }
+    } catch (error) {
+      console.error("Export failed:", error);
+      toast.error("Ошибка экспорта");
+    }
+  }, [exportData, workspace?.id]);
+
+  const handleSelectResponse = React.useCallback((responseId: string) => {
+    setSelectedResponses((prev) => {
+      const next = new Set(prev);
+      if (next.has(responseId)) {
+        next.delete(responseId);
+      } else {
+        next.add(responseId);
+      }
+      return next;
+    });
+  }, []);
+
   // Fetch gig info
   const {
     data: gig,
@@ -183,6 +232,25 @@ export default function GigResponsesPage({ params }: PageProps) {
     responses: responsesWithScore,
     filters,
   });
+
+  // Bulk handlers - defined after filteredResponses is available
+  const handleSelectAll = React.useCallback(() => {
+    if (selectedResponses.size === filteredResponses.length) {
+      setSelectedResponses(new Set());
+    } else {
+      setSelectedResponses(new Set(filteredResponses.map((r) => r.id)));
+    }
+  }, [filteredResponses, selectedResponses.size]);
+
+  const handleBulkAccept = React.useCallback(() => {
+    handleAcceptMultiple(Array.from(selectedResponses));
+    setSelectedResponses(new Set());
+  }, [handleAcceptMultiple, selectedResponses]);
+
+  const handleBulkReject = React.useCallback(() => {
+    handleRejectMultiple(Array.from(selectedResponses));
+    setSelectedResponses(new Set());
+  }, [handleRejectMultiple, selectedResponses]);
 
   const stats = useResponseStats(responses?.items);
 
@@ -412,6 +480,19 @@ export default function GigResponsesPage({ params }: PageProps) {
                 onAnalyze={handleAnalyze}
                 canSync={Boolean(gig.url && gig.externalId)}
                 hasResponses={stats.total > 0}
+              />
+            </div>
+            
+            {/* Bulk Actions */}
+            <div className="mt-4 pt-4 border-t">
+              <BulkActionButtons
+                selectedCount={selectedResponses.size}
+                onAccept={handleBulkAccept}
+                onReject={handleBulkReject}
+                onExport={handleExport}
+                isAccepting={isAccepting}
+                isRejecting={isRejecting}
+                isExporting={isExporting}
               />
             </div>
             {(filters.searchQuery || filters.statusFilter !== "all" ||

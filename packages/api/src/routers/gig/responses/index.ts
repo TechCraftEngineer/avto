@@ -1,10 +1,12 @@
 import type { TRPCRouterRecord } from "@trpc/server";
 
+import { acceptMultiple, rejectMultiple } from "./bulk-operations";
 import { accept } from "./accept";
 import { countResponses } from "./count";
 import { create } from "./create";
 import { deleteResponse } from "./delete";
 import { evaluate } from "./evaluate";
+import { exportResponses } from "./export";
 import { generateInvitation } from "./generate-invitation";
 import { get } from "./get";
 import { getInvitation } from "./get-invitation";
@@ -32,4 +34,8 @@ export const gigResponsesRouter = {
   getInvitation,
   ranked,
   recalculateRanking,
+  // Bulk operations
+  acceptMultiple,
+  rejectMultiple,
+  exportResponses,
 } satisfies TRPCRouterRecord;

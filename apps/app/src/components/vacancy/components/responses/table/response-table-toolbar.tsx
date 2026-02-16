@@ -81,7 +81,7 @@ export function ResponseTableToolbar({
           onToggleColumn={onToggleColumn}
           onResetColumns={onResetColumns}
         />
-        {hasActiveIntegrations && (
+        {(hasActiveIntegrations || isHHVacancy) && (
           <ResponseActionButtons
             isRefreshing={refreshOp.isRunning}
             isSyncingArchived={archivedOp.isRunning}
