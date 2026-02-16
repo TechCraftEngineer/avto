@@ -11,13 +11,19 @@ import { getRefreshStatus } from "./get-refresh-status";
 import { getHistory } from "./history";
 import { list } from "./list";
 import { listAll } from "./list-all";
-import { listWorkspace } from "./list-workspace";
 import { listRecent } from "./list-recent";
 import { listTags } from "./list-tags";
 import { listTop } from "./list-top";
+import { listWorkspace } from "./list-workspace";
 import { removeTag } from "./remove-tag";
 import { sendByUsername } from "./send-by-username";
 import { sendWelcome } from "./send-welcome";
+import {
+  cancelSyncEndpoint,
+  getSyncStatusEndpoint,
+  retryResponseEndpoint,
+  syncArchived,
+} from "./sync-archived";
 import { updateStatus } from "./update-status";
 
 export const responsesRouter = {
@@ -40,4 +46,9 @@ export const responsesRouter = {
   getInterviewLink,
   updateStatus,
   debugList, // Временный debug endpoint
+  // Синхронизация архивных откликов
+  syncArchived,
+  getSyncStatus: getSyncStatusEndpoint,
+  cancelSync: cancelSyncEndpoint,
+  retryResponse: retryResponseEndpoint,
 } satisfies TRPCRouterRecord;
