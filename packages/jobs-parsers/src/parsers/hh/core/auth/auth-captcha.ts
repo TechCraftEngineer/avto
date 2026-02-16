@@ -50,9 +50,7 @@ export async function submitCaptcha(
 
     await new Promise((r) => setTimeout(r, 500));
 
-    const submitButton = await page.$(
-      'div[data-qa="modal-footer"] button[type="submit"], button[data-qa="account-login-submit"], button[type="submit"]',
-    );
+    const submitButton = await page.$('button[type="submit"]:not([data-qa])');
     if (submitButton) {
       await submitButton.click();
     } else {

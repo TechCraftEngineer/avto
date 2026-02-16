@@ -1,5 +1,7 @@
 import type { Page } from "puppeteer";
 
+import { isCaptchaRequired } from "./auth-captcha";
+
 /**
  * Вспомогательная функция для логирования
  */
@@ -10,6 +12,11 @@ function logInfo(message: string): void {
 function logError(message: string): void {
   console.error(message);
 }
+
+/** Таймаут ожидания поля кода после нажатия «Получить код» (мс) */
+const CODE_INPUT_WAIT_TIMEOUT_MS = 12_000;
+/** Интервал опроса при ожидании (мс) */
+const POLL_INTERVAL_MS = 500;
 
 /**
  * Результат проверки необходимости 2FA
@@ -135,31 +142,51 @@ export async function initiateCodeAuth(
       await submitButton.click();
     }
 
-    // Ждем появления поля для ввода кода
-    logInfo("⏳ Ожидание поля для ввода кода...");
-    await new Promise((r) => setTimeout(r, 2000));
+    // Ожидаем один из исходов: поле кода, пароль или капча
+    logInfo("⏳ Ожидание поля для ввода кода (до 12 сек)...");
+    const startedAt = Date.now();
 
-    // Проверяем, появилось ли поле для ввода кода
-    const codeInputDiv = await page.$(
+    while (Date.now() - startedAt < CODE_INPUT_WAIT_TIMEOUT_MS) {
+      const codeInputDiv = await page.$(
+        'div[data-qa="account-login-code-input"]',
+      );
+      if (codeInputDiv) {
+        logInfo("✅ Поле ввода кода появилось");
+        return true;
+      }
+
+      const passwordInput = await page.$(
+        'input[type="password"][name="password"]',
+      );
+      if (passwordInput) {
+        logInfo("⚠️ Появилось поле пароля — требуется вход по паролю");
+        return false;
+      }
+
+      if (await isCaptchaRequired(page)) {
+        logInfo("⚠️ Появилась капча — следующий шаг: ввод капчи");
+        return false;
+      }
+
+      await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
+    }
+
+    // Таймаут — финальная проверка
+    if (await isCaptchaRequired(page)) {
+      logInfo("⚠️ Капча обнаружена после ожидания");
+      return false;
+    }
+    const codeInputAfterTimeout = await page.$(
       'div[data-qa="account-login-code-input"]',
     );
-
-    if (codeInputDiv) {
-      logInfo("✅ Переход к вводу кода выполнен");
+    if (codeInputAfterTimeout) {
+      logInfo("✅ Поле ввода кода появилось (перед таймаутом)");
       return true;
     }
 
-    // Если код не запрошен, возможно требуется пароль
-    const passwordInput = await page.$(
-      'input[type="password"][name="password"]',
+    logInfo(
+      "⚠️ Не удалось определить следующий шаг: ни поле кода, ни пароль, ни капча. Возможна задержка загрузки.",
     );
-
-    if (passwordInput) {
-      logInfo("⚠️ Требуется пароль вместо кода");
-      return false;
-    }
-
-    logInfo("⚠️ Не удалось определить следующий шаг авторизации");
     return false;
   } catch (error) {
     const message =
