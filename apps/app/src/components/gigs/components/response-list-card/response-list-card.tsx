@@ -35,7 +35,7 @@ import {
   RESPONSE_STATUS_CONFIG,
 } from "~/lib/shared/response-configs";
 
-type GigResponseListItem = RouterOutputs["gig"]["responses"]["list"][number] & {
+type GigResponseListItem = RouterOutputs["gig"]["responses"]["list"]["items"][number] & {
   interviewScoring?: {
     score: number;
     detailedScore: number;
@@ -142,10 +142,10 @@ export function ResponseListCard({
 
               {response.hrSelectionStatus && (
                 <Badge
-                  variant={HR_STATUS_CONFIG[response.hrSelectionStatus].variant}
+                  variant={HR_STATUS_CONFIG[response.hrSelectionStatus]?.variant || "secondary"}
                   className="text-xs px-2 py-0.5"
                 >
-                  {HR_STATUS_CONFIG[response.hrSelectionStatus].label}
+                  {HR_STATUS_CONFIG[response.hrSelectionStatus]?.label || response.hrSelectionStatus}
                 </Badge>
               )}
             </div>

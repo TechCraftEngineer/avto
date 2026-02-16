@@ -12,7 +12,7 @@ import { GigCandidateCell } from "./gig-candidate-cell";
 import { GigResponseActions } from "./gig-response-actions";
 import { GigColumnHeader, type GigTableMeta } from "./gig-column-header";
 
-export type GigResponseListItem = RouterOutputs["gig"]["responses"]["list"][number];
+export type GigResponseListItem = RouterOutputs["gig"]["responses"]["list"]["items"][number];
 
 export type { GigTableMeta };
 

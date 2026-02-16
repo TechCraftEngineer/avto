@@ -17,7 +17,7 @@ import {
   Textarea,
 } from "@qbs-autonaim/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, ChevronRight, Home, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronRight, Home, Loader2 } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import { toast } from "sonner";
@@ -94,6 +94,31 @@ export default function GigResponseDetailPage({ params }: PageProps) {
     }),
     enabled: !!workspace?.id,
   });
+
+  // Fetch all response IDs for navigation
+  const { data: responsesData } = useQuery({
+    ...trpc.gig.responses.list.queryOptions({
+      gigId,
+      workspaceId: workspace?.id ?? "",
+      limit: 1000, // Get all responses for navigation
+    }),
+    enabled: !!workspace?.id && !!gigId,
+  });
+
+  // Calculate previous and next response IDs
+  const { prevResponseId, nextResponseId, currentIndex, totalResponses } = React.useMemo(() => {
+    if (!responsesData?.items) {
+      return { prevResponseId: null, nextResponseId: null, currentIndex: -1, totalResponses: 0 };
+    }
+    const items = responsesData.items;
+    const index = items.findIndex((r) => r.id === responseId);
+    return {
+      prevResponseId: index > 0 ? items[index - 1]?.id : null,
+      nextResponseId: index < items.length - 1 ? items[index + 1]?.id : null,
+      currentIndex: index + 1,
+      totalResponses: items.length,
+    };
+  }, [responsesData, responseId]);
 
   // Приводим к GigResponse типу
   const gigResponse = response
@@ -459,21 +484,65 @@ export default function GigResponseDetailPage({ params }: PageProps) {
         </ol>
       </nav>
 
-      {/* Quick Back Button */}
-      <div className="mb-4 sm:mb-6">
-        <Button
-          asChild
-          variant="ghost"
-          size="sm"
-          className="gap-2 px-2 -ml-2 min-h-[44px] sm:min-h-[36px] touch-action-manipulation"
-        >
-          <Link
-            href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs/${gigId}/responses`}
+      {/* Navigation */}
+      <div className="mb-4 sm:mb-6 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-2">
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className="gap-2 px-2 min-h-[44px] sm:min-h-[36px] touch-action-manipulation"
           >
-            <ArrowLeft className="h-4 w-4" />
-            Назад к откликам
-          </Link>
-        </Button>
+            <Link
+              href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs/${gigId}/responses`}
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">Назад к откликам</span>
+              <span className="sm:hidden">Назад</span>
+            </Link>
+          </Button>
+          
+          {/* Previous */}
+          {prevResponseId && (
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className="gap-1 px-2 min-h-[44px] sm:min-h-[36px] touch-action-manipulation"
+            >
+              <Link
+                href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs/${gigId}/responses/${prevResponseId}`}
+              >
+                <ArrowLeft className="h-4 w-4" />
+                <span className="hidden sm:inline">Предыдущий</span>
+              </Link>
+            </Button>
+          )}
+          
+          {/* Next */}
+          {nextResponseId && (
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className="gap-1 px-2 min-h-[44px] sm:min-h-[36px] touch-action-manipulation"
+            >
+              <Link
+                href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs/${gigId}/responses/${nextResponseId}`}
+              >
+                <span className="hidden sm:inline">Следующий</span>
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          )}
+        </div>
+        
+        {/* Counter */}
+        {totalResponses > 0 && (
+          <span className="text-sm text-muted-foreground">
+            {currentIndex} из {totalResponses}
+          </span>
+        )}
       </div>
 
       {/* Response Detail */}

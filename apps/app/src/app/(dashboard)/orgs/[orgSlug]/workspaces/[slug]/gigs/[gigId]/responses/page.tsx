@@ -32,6 +32,7 @@ import {
   useResponseMutations,
   useResponseStats,
 } from "~/components/gig/components/gig-responses";
+import type { ResponseFiltersState } from "~/components/gig/components/gig-responses/use-response-filters";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
 
@@ -117,8 +118,16 @@ export default function GigResponsesPage({ params }: PageProps) {
   const queryClient = useQueryClient();
   const { workspace } = useWorkspace();
 
-  const [searchQuery, setSearchQuery] = React.useState("");
-  const [statusFilter, setStatusFilter] = React.useState<string>("all");
+  const [filters, setFilters] = React.useState<ResponseFiltersState>({
+    searchQuery: "",
+    statusFilter: "all",
+    priceMin: null,
+    priceMax: null,
+    dateFrom: null,
+    dateTo: null,
+    scoreMin: null,
+    scoreMax: null,
+  });
   const [messageText, setMessageText] = React.useState("");
 
   const [messageDialog, setMessageDialog] = React.useState<{
@@ -159,7 +168,7 @@ export default function GigResponsesPage({ params }: PageProps) {
   // Transform responses to include score
   const responsesWithScore = React.useMemo(() => {
     return (
-      responses?.map((response) => ({
+      responses?.items?.map((response) => ({
         ...response,
         score: response.interviewScoring
           ? (response.interviewScoring.rating ??
@@ -170,13 +179,12 @@ export default function GigResponsesPage({ params }: PageProps) {
   }, [responses]);
 
   // Custom hooks
-  const { filteredResponses } = useResponseFilters({
+  const { filteredResponses, stats: filterStats } = useResponseFilters({
     responses: responsesWithScore,
-    searchQuery,
-    statusFilter,
+    filters,
   });
 
-  const stats = useResponseStats(responses);
+  const stats = useResponseStats(responses?.items);
 
   const syncMutation = useMutation(
     trpc.freelancePlatforms.syncGigResponses.mutationOptions({
@@ -237,13 +245,13 @@ export default function GigResponsesPage({ params }: PageProps) {
     useResponseMutations({
       gigId,
       workspaceId: workspace?.id,
-      responses,
+      responses: responses?.items,
     });
 
   // Handlers — обёрнуты в useCallback для стабилизации ссылок и уменьшения ререндеров таблицы
   const handleAcceptClick = React.useCallback(
     (responseId: string) => {
-      const response = responses?.find((r) => r.id === responseId);
+      const response = responses?.items?.find((r) => r.id === responseId);
       setConfirmDialog({
         open: true,
         responseId,
@@ -256,7 +264,7 @@ export default function GigResponsesPage({ params }: PageProps) {
 
   const handleRejectClick = React.useCallback(
     (responseId: string) => {
-      const response = responses?.find((r) => r.id === responseId);
+      const response = responses?.items?.find((r) => r.id === responseId);
       setConfirmDialog({
         open: true,
         responseId,
@@ -269,7 +277,7 @@ export default function GigResponsesPage({ params }: PageProps) {
 
   const handleMessageClick = React.useCallback(
     (responseId: string) => {
-      const response = responses?.find((r) => r.id === responseId);
+      const response = responses?.items?.find((r) => r.id === responseId);
       setMessageDialog({
         open: true,
         responseId,
@@ -337,7 +345,43 @@ export default function GigResponsesPage({ params }: PageProps) {
 
   return (
     <div className="container mx-auto max-w-[1600px] w-full py-4 px-4 sm:py-6 sm:px-6">
-      {/* Breadcrumb */}
+      {/* Breadcrumb Navigation */}
+      <nav aria-label="Breadcrumb" className="mb-4 sm:mb-6">
+        <ol className="flex items-center gap-1 sm:gap-2 text-sm flex-wrap">
+          <li>
+            <Link
+              href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}`}
+              className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded"
+            >
+              Рабочее пространство
+            </Link>
+          </li>
+          <li className="flex items-center gap-1">
+            <span className="text-muted-foreground">/</span>
+            <Link
+              href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs`}
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Gig-ы
+            </Link>
+          </li>
+          <li className="flex items-center gap-1">
+            <span className="text-muted-foreground">/</span>
+            <Link
+              href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs/${gigId}`}
+              className="text-muted-foreground hover:text-foreground transition-colors truncate max-w-[150px]"
+            >
+              {gig.title}
+            </Link>
+          </li>
+          <li className="flex items-center gap-1">
+            <span className="text-muted-foreground">/</span>
+            <span className="text-foreground font-medium">Отклики</span>
+          </li>
+        </ol>
+      </nav>
+
+      {/* Back Button */}
       <div className="mb-4 sm:mb-6">
         <Link
           href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs/${gigId}`}
@@ -357,10 +401,9 @@ export default function GigResponsesPage({ params }: PageProps) {
           <CardContent className="p-4 sm:p-5">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <ResponsesFilters
-                searchQuery={searchQuery}
-                onSearchChange={setSearchQuery}
-                statusFilter={statusFilter}
-                onStatusFilterChange={setStatusFilter}
+                filters={filters}
+                onFiltersChange={setFilters}
+                stats={filterStats}
               />
               <GigResponseActionButtons
                 isSyncing={syncMutation.isPending}
@@ -371,7 +414,10 @@ export default function GigResponsesPage({ params }: PageProps) {
                 hasResponses={stats.total > 0}
               />
             </div>
-            {(searchQuery || statusFilter !== "all") &&
+            {(filters.searchQuery || filters.statusFilter !== "all" ||
+              filters.priceMin !== null || filters.priceMax !== null ||
+              filters.dateFrom !== null || filters.dateTo !== null ||
+              filters.scoreMin !== null || filters.scoreMax !== null) &&
               filteredResponses.length > 0 && (
                 <p className="mt-3 text-xs sm:text-sm text-muted-foreground">
                   Показано {filteredResponses.length} из {stats.total}
@@ -383,7 +429,16 @@ export default function GigResponsesPage({ params }: PageProps) {
         {/* Table */}
         {filteredResponses.length === 0 ? (
           <EmptyState
-            hasFilters={Boolean(searchQuery) || statusFilter !== "all"}
+            hasFilters={Boolean(
+              filters.searchQuery ||
+              filters.statusFilter !== "all" ||
+              filters.priceMin !== null ||
+              filters.priceMax !== null ||
+              filters.dateFrom !== null ||
+              filters.dateTo !== null ||
+              filters.scoreMin !== null ||
+              filters.scoreMax !== null
+            )}
           />
         ) : (
           <ResponsesTable

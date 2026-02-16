@@ -9,7 +9,7 @@ import { getAvatarUrl } from "~/lib/avatar";
 import { CandidateAvatar } from "~/components/vacancy/components/responses/response-row/candidate-avatar";
 import { CandidateInfo } from "~/components/vacancy/components/responses/response-row/candidate-info";
 
-type GigResponseListItem = RouterOutputs["gig"]["responses"]["list"][number];
+type GigResponseListItem = RouterOutputs["gig"]["responses"]["list"]["items"][number];
 
 interface GigCandidateCellProps {
   response: GigResponseListItem;

@@ -1,4 +1,4 @@
-﻿import { getDownloadUrl } from "@qbs-autonaim/lib/s3";
+import { getDownloadUrl } from "@qbs-autonaim/lib/s3";
 import { uuidv7Schema, workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
@@ -6,6 +6,7 @@ import { protectedProcedure } from "../../trpc";
 
 /**
  * Получение presigned URL для изображения с контролем доступа
+ * Файлы связаны с response (photoFileId, resumePdfFileId) → entity (vacancy/gig) → workspace
  */
 export const getImageUrl = protectedProcedure
   .input(
@@ -28,10 +29,6 @@ export const getImageUrl = protectedProcedure
       });
     }
 
-    // Получаем файл из БД с проверкой принадлежности к workspace
-    // Файлы могут быть связаны через:
-    // 1. response (resumePdfFileId, photoFileId) > vacancy > workspace
-    // 2. interviewMessage (fileId) > interviewSession > response > vacancy > workspace
     const fileRecord = await ctx.db.query.file.findFirst({
       where: (files, { eq }) => eq(files.id, input.fileId),
       with: {
@@ -71,26 +68,46 @@ export const getImageUrl = protectedProcedure
       });
     }
 
-    // Query all responses to get their vacancyIds
     const responses = await ctx.db.query.response.findMany({
       where: (response, { inArray }) => inArray(response.id, responseIds),
       columns: { id: true, entityId: true, entityType: true },
     });
 
-    const vacancyIds = [...new Set(responses.map((r) => r.entityId))].filter(
-      (id): id is string => id !== undefined,
-    );
+    const vacancyIds = [
+      ...new Set(
+        responses
+          .filter((r) => r.entityType === "vacancy")
+          .map((r) => r.entityId)
+          .filter((id): id is string => id !== undefined),
+      ),
+    ];
+    const gigIds = [
+      ...new Set(
+        responses
+          .filter((r) => r.entityType === "gig")
+          .map((r) => r.entityId)
+          .filter((id): id is string => id !== undefined),
+      ),
+    ];
 
-    // Query all vacancies to check workspace access
-    const vacancies = await ctx.db.query.vacancy.findMany({
-      where: (vacancy, { inArray }) => inArray(vacancy.id, vacancyIds),
-      columns: { id: true, workspaceId: true },
-    });
+    const [vacancies, gigs] = await Promise.all([
+      vacancyIds.length > 0
+        ? ctx.db.query.vacancy.findMany({
+            where: (v, { inArray }) => inArray(v.id, vacancyIds),
+            columns: { workspaceId: true },
+          })
+        : Promise.resolve([]),
+      gigIds.length > 0
+        ? ctx.db.query.gig.findMany({
+            where: (g, { inArray }) => inArray(g.id, gigIds),
+            columns: { workspaceId: true },
+          })
+        : Promise.resolve([]),
+    ]);
 
-    // Проверяем что файл принадлежит указанному workspace
-    const belongsToWorkspace = vacancies.some(
-      (v) => v.workspaceId === input.workspaceId,
-    );
+    const belongsToWorkspace =
+      vacancies.some((v) => v.workspaceId === input.workspaceId) ||
+      gigs.some((g) => g.workspaceId === input.workspaceId);
 
     if (!belongsToWorkspace) {
       throw new TRPCError({

@@ -188,14 +188,11 @@ async function syncKworkResponses(
     return Number.isFinite(num) && num > 0 ? num : undefined;
   };
 
-  // Загружаем аватарки в S3 (уникальные URL, чтобы не дублировать)
+  // Загружаем аватарки в S3 только из API /user (уникальные URL)
   const photoFileIdByUrl = new Map<string, string | null>();
   for (const offer of offers) {
     const avatarUrl =
-      offer.avatarUrl?.trim() ||
-      (offer.workerId != null
-        ? avatarByWorkerId.get(offer.workerId)
-        : undefined);
+      offer.workerId != null ? avatarByWorkerId.get(offer.workerId) : undefined;
     if (!avatarUrl || photoFileIdByUrl.has(avatarUrl)) continue;
 
     const identifier = `kwork_${offer.workerId ?? offer.offerId}`;
@@ -207,13 +204,7 @@ async function syncKworkResponses(
   }
 
   const values = offers.map((offer) => {
-    const {
-      workerId,
-      username,
-      offerId,
-      profileUrl: rawProfileUrl,
-      avatarUrl: webAvatarUrl,
-    } = offer;
+    const { workerId, username, offerId, profileUrl: rawProfileUrl } = offer;
     const candidateId =
       workerId != null && workerId > 0
         ? `kwork_${workerId}`
@@ -228,12 +219,11 @@ async function syncKworkResponses(
           ? `https://kwork.ru/user/${username}`
           : undefined;
 
-    // Аватар: URL из веб-парсинга или API /user
+    // Аватар только из API /user
     const avatarUrl =
-      webAvatarUrl?.trim() ||
-      (workerId != null && workerId > 0
+      workerId != null && workerId > 0
         ? avatarByWorkerId.get(workerId)
-        : undefined);
+        : undefined;
     const photoFileId = avatarUrl
       ? (photoFileIdByUrl.get(avatarUrl) ?? null)
       : null;
