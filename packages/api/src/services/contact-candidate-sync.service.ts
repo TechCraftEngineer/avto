@@ -7,7 +7,7 @@
  */
 
 import type { DbClient } from "@qbs-autonaim/db";
-import { GlobalCandidateRepository } from "@qbs-autonaim/db";
+import { eq, GlobalCandidateRepository, globalCandidate } from "@qbs-autonaim/db";
 
 export interface ContactData {
   name?: string;
@@ -94,11 +94,34 @@ export class ContactCandidateSyncService {
       });
 
     if (existing) {
-      // Кандидат уже существует - возвращаем его ID
-      // Также создаем/обновляем связь с организацией
+      // Кандидат уже существует — мерджим входящие contactData в запись
+      const mergedData =
+        globalCandidateRepository.mergeGlobalCandidateData(existing, {
+          fullName: name || existing.fullName || "Без имени",
+          email: email || null,
+          phone: phone || null,
+          telegramUsername: telegramUsername || null,
+          source,
+          originalSource,
+          location: additionalData?.location || null,
+          skills: additionalData?.skills || null,
+          salaryExpectationsAmount: additionalData?.salaryExpectations || null,
+          resumeUrl: contactData.platformProfileUrl || null,
+        });
+
+      let updatedCandidate = existing;
+      if (Object.keys(mergedData).length > 0) {
+        const [updated] = await this.db
+          .update(globalCandidate)
+          .set(mergedData)
+          .where(eq(globalCandidate.id, existing.id))
+          .returning();
+        if (updated) updatedCandidate = updated;
+      }
+
       try {
         await globalCandidateRepository.createOrUpdateCandidateOrganizationLink(
-          existing.id,
+          updatedCandidate.id,
           {
             organizationId,
             status: "ACTIVE",
@@ -112,9 +135,9 @@ export class ContactCandidateSyncService {
       }
 
       return {
-        candidateId: existing.id,
+        candidateId: updatedCandidate.id,
         created: false,
-        updated: false,
+        updated: Object.keys(mergedData).length > 0,
         hasContacts: true,
       };
     }

@@ -12,6 +12,7 @@ import {
   pgTable,
   text,
   timestamp,
+  unique,
   uuid,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
@@ -88,11 +89,10 @@ export const candidateOrganization = pgTable(
     statusIdx: index("candidate_org_status_idx").on(table.status),
     appliedAtIdx: index("candidate_org_applied_at_idx").on(table.appliedAt),
     // Уникальный индекс - один кандидат может быть связан с организацией только один раз
-    uniqueCandidateOrg: {
-      name: "candidate_organization_unique",
-      columns: [table.candidateId, table.organizationId],
-      isUnique: true,
-    },
+    uniqueCandidateOrg: unique("candidate_organization_unique").on(
+      table.candidateId,
+      table.organizationId,
+    ),
   }),
 );
 

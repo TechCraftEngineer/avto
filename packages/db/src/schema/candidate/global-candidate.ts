@@ -15,6 +15,7 @@ import {
   pgTable,
   text,
   timestamp,
+  unique,
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
@@ -165,6 +166,12 @@ export const globalCandidate = pgTable(
     telegramIdx: index("global_candidate_telegram_idx").on(
       table.telegramUsername,
     ),
+    // Уникальность контактов: один email/phone/telegram = один кандидат (NULL допускает множественные записи)
+    emailUnique: unique("global_candidate_email_unique").on(table.email),
+    phoneUnique: unique("global_candidate_phone_unique").on(table.phone),
+    telegramUnique: unique("global_candidate_telegram_unique").on(
+      table.telegramUsername,
+    ),
     skillsIdx: index("global_candidate_skills_idx").using("gin", table.skills),
     profileDataIdx: index("global_candidate_profile_data_idx").using(
       "gin",
@@ -190,7 +197,7 @@ export const CreateGlobalCandidateSchema = createInsertSchema(globalCandidate, {
   location: z.string().max(200).optional(),
   salaryExpectationsAmount: z.number().int().optional(),
   telegramUsername: z.string().max(100).optional(),
-  profileData: z.any(),
+  profileData: z.custom<StoredProfileData>().nullable().optional(),
   skills: z.array(z.string()).optional(),
   experienceYears: z.number().int().min(0).optional(),
   gender: z.enum(globalGenderEnum.enumValues).optional(),
@@ -201,7 +208,20 @@ export const CreateGlobalCandidateSchema = createInsertSchema(globalCandidate, {
   originalSource: z.enum(platformSourceEnum.enumValues).default("MANUAL"),
   tags: z.array(z.string()).optional(),
   isSearchable: z.boolean().default(true),
-  metadata: z.record(z.string(), z.unknown()).optional(),
+  metadata: z
+    .record(
+      z.string(),
+      z.union([
+        z.string(),
+        z.number(),
+        z.boolean(),
+        z.null(),
+        z.array(z.string()),
+        z.array(z.number()),
+        z.record(z.string(), z.unknown()),
+      ]),
+    )
+    .optional(),
 }).omit({
   id: true,
   createdAt: true,

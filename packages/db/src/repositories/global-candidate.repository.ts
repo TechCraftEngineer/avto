@@ -33,7 +33,7 @@ export interface GlobalCandidateData {
   telegramUsername?: string | null;
   headline?: string | null;
   resumeUrl?: string | null;
-  profileData?: unknown;
+  profileData?: StoredProfileData | null;
   skills?: string[] | null;
   experienceYears?: number | null;
   salaryExpectationsAmount?: number | null;
@@ -295,36 +295,32 @@ export class GlobalCandidateRepository {
   }
 
   /**
-   * Найти или создать глобального кандидата
+   * Найти или создать глобального кандидата.
+   * При конфликте по email/phone/telegram (23505) перезапрашивает кандидата и применяет merge.
    */
   async findOrCreateGlobalCandidate(
     data: GlobalCandidateData,
   ): Promise<{ candidate: GlobalCandidate; created: boolean }> {
-    // Ищем существующего кандидата по контактам
-    const existing = await this.findGlobalCandidateByContacts({
+    const contactParams = {
       email: data.email ?? null,
       phone: data.phone ?? null,
       telegramUsername: data.telegramUsername ?? null,
-    });
+    };
 
+    const existing = await this.findGlobalCandidateByContacts(contactParams);
     if (existing) {
-      // Найден существующий - обновляем умным слиянием
       const mergedData = this.mergeGlobalCandidateData(existing, data);
-
       if (Object.keys(mergedData).length > 0) {
         const [updated] = await this.db
           .update(globalCandidate)
           .set(mergedData)
           .where(eq(globalCandidate.id, existing.id))
           .returning();
-
         return { candidate: updated ?? existing, created: false };
       }
-
       return { candidate: existing, created: false };
     }
 
-    // Не найден - создаем нового
     const newCandidateData: NewGlobalCandidate = {
       fullName: data.fullName,
       firstName: data.firstName ?? null,
@@ -335,7 +331,7 @@ export class GlobalCandidateRepository {
       telegramUsername: data.telegramUsername ?? null,
       headline: data.headline ?? null,
       resumeUrl: data.resumeUrl ?? null,
-      profileData: data.profileData as StoredProfileData,
+      profileData: (data.profileData ?? null) as StoredProfileData,
       skills: data.skills ?? null,
       experienceYears: data.experienceYears ?? null,
       salaryExpectationsAmount: data.salaryExpectationsAmount ?? null,
@@ -352,16 +348,33 @@ export class GlobalCandidateRepository {
       notes: data.notes ?? null,
     };
 
-    const [created] = await this.db
-      .insert(globalCandidate)
-      .values(newCandidateData)
-      .returning();
-
-    if (!created) {
-      throw new Error("Не удалось создать глобального кандидата");
+    try {
+      const [created] = await this.db
+        .insert(globalCandidate)
+        .values(newCandidateData)
+        .returning();
+      if (created) return { candidate: created, created: true };
+    } catch (err: unknown) {
+      const pgErr = err as { code?: string };
+      if (pgErr?.code === "23505") {
+        const found = await this.findGlobalCandidateByContacts(contactParams);
+        if (found) {
+          const mergedData = this.mergeGlobalCandidateData(found, data);
+          if (Object.keys(mergedData).length > 0) {
+            const [updated] = await this.db
+              .update(globalCandidate)
+              .set(mergedData)
+              .where(eq(globalCandidate.id, found.id))
+              .returning();
+            return { candidate: updated ?? found, created: false };
+          }
+          return { candidate: found, created: false };
+        }
+      }
+      throw err;
     }
 
-    return { candidate: created, created: true };
+    throw new Error("Не удалось создать глобального кандидата");
   }
 
   /**
