@@ -53,6 +53,7 @@ export interface RunHHArchivedVacancyParserOptions {
   externalId?: string | null;
   onProgress?: (
     processed: number,
+    total: number,
     newCount: number,
     currentName?: string,
   ) => Promise<void>;

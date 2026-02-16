@@ -23,6 +23,7 @@ export const archivedStatusDataSchema = z.object({
   vacancyId: z.string(),
   syncedResponses: z.number().optional(),
   newResponses: z.number().optional(),
+  totalResponses: z.number().optional(), // Общее количество для расчёта процента
 });
 
 export const archivedResultDataSchema = z.object({

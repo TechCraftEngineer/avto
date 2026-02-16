@@ -30,6 +30,7 @@ export async function parseArchivedVacancyResponses(
   workspacePlan?: "free" | "pro" | "enterprise",
   onProgress?: (
     processed: number,
+    total: number,
     newCount: number,
     currentName?: string,
   ) => Promise<void>,
@@ -92,12 +93,11 @@ export async function parseArchivedVacancyResponses(
     responsesNeedingDetails,
     vacancyId,
     async (processed, total, currentName) => {
-      // Передаем прогресс дальше, добавляя к уже обработанным откликам из этапа 1
-      await onProgress?.(
-        allResponses.length + processed,
-        allResponses.length + total,
-        currentName,
-      );
+      // Передаем прогресс дальше: общее количество = все собранные + детали
+      const totalResponses =
+        allResponses.length + responsesNeedingDetails.length;
+      const totalProcessed = allResponses.length + processed;
+      await onProgress?.(totalProcessed, totalResponses, newCount, currentName);
     },
   );
 
@@ -115,6 +115,7 @@ async function collectAllArchivedResponses(
   workspacePlan?: "free" | "pro" | "enterprise",
   onProgress?: (
     processed: number,
+    total: number,
     newCount: number,
     currentName?: string,
   ) => Promise<void>,
@@ -291,9 +292,11 @@ async function collectAllArchivedResponses(
           }
 
           // Отправляем прогресс после обработки каждого отклика
-          // processed = всего обработано, newCount = только новых
+          // В ЭТАПЕ 1 мы ещё не знаем общее количество, поэтому total = allResponses.length (текущее)
+          // Позже, в ЭТАПЕ 3, будет известно точное общее количество
           await onProgress?.(
             allResponses.length,
+            allResponses.length, // total = текущее количество (будет обновлено на этапе 3)
             totalSaved + pageSaved,
             response.name,
           );

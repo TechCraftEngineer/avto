@@ -137,6 +137,7 @@ export const syncArchivedResponsesChannel = channel(
         message: z.string(),
         syncedResponses: z.number().optional(),
         newResponses: z.number().optional(),
+        totalResponses: z.number().optional(), // Общее количество для расчёта процента
       }),
     ),
   )
@@ -147,6 +148,7 @@ export const syncArchivedResponsesChannel = channel(
         success: z.boolean(),
         syncedResponses: z.number(),
         newResponses: z.number(),
+        totalResponses: z.number().optional(),
         vacancyTitle: z.string(),
       }),
     ),

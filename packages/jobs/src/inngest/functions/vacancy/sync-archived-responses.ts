@@ -104,15 +104,29 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
           }),
         );
 
-        // Создаем callback для промежуточных статусов
+        // Создаем callback для промежуточных статусов с throttling
+        let lastPublishTime = 0;
+        const THROTTLE_INTERVAL = 2000; // Минимум 2 секунды между обновлениями
+
         const onProgress = async (
           processed: number,
+          total: number,
           newCount: number,
           currentName?: string,
         ) => {
+          const now = Date.now();
+
+          // Throttle: отправляем только каждые 2 секунды или на последнем элементе
+          if (now - lastPublishTime < THROTTLE_INTERVAL && processed < total) {
+            return;
+          }
+          lastPublishTime = now;
+
+          const progressPercent =
+            total > 0 ? Math.round((processed / total) * 100) : 0;
           const message = currentName
-            ? `Обработано откликов: ${processed} (новых: ${newCount}). Обрабатывается: ${currentName}`
-            : `Обработано откликов: ${processed} (новых: ${newCount})`;
+            ? `Обработано ${processed}/${total} (${progressPercent}%). Обрабатывается: ${currentName}`
+            : `Обработано ${processed}/${total} (${progressPercent}%). Новых: ${newCount}`;
 
           await publish(
             syncArchivedResponsesChannel(vacancyId).progress({
@@ -121,6 +135,7 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
               message,
               syncedResponses: processed,
               newResponses: newCount,
+              totalResponses: total,
             }),
           );
         };
@@ -147,6 +162,7 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
             success: true,
             syncedResponses,
             newResponses,
+            totalResponses: syncedResponses,
             vacancyTitle: vacancyData.title,
           }),
         );
@@ -167,14 +183,31 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
           `❌ Ошибка при синхронизации архивных откликов вакансии ${vacancyId}:`,
           error,
         );
+
+        // Формируем детальную информацию об ошибке
+        const errorDetails = {
+          message:
+            error instanceof Error ? error.message : "Неизвестная ошибка",
+          stack: error instanceof Error ? error.stack : undefined,
+          timestamp: new Date().toISOString(),
+          vacancyId,
+        };
+
         await publish(
           syncArchivedResponsesChannel(vacancyId).progress({
             vacancyId,
             status: "error",
             message:
-              error instanceof Error ? error.message : "Неизвестная ошибка",
+              error instanceof Error ? error.message : "Ошибка синхронизации",
           }),
         );
+
+        // Логируем полную информацию для отладки
+        console.error(
+          "Детали ошибки синхронизации:",
+          JSON.stringify(errorDetails, null, 2),
+        );
+
         throw error;
       }
     });

@@ -24,6 +24,7 @@ export interface ArchivedStatusData {
   vacancyId: string;
   syncedResponses?: number;
   newResponses?: number;
+  totalResponses?: number; // Общее количество для расчёта процента
   vacancyTitle?: string;
 }
 

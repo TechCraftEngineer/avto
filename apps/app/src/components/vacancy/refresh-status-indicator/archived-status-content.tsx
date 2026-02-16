@@ -5,6 +5,12 @@ interface ArchivedStatusContentProps {
 }
 
 export function ArchivedStatusContent({ status }: ArchivedStatusContentProps) {
+  // Рассчитываем процент выполнения
+  const progressPercent =
+    status.totalResponses && status.syncedResponses
+      ? Math.round((status.syncedResponses / status.totalResponses) * 100)
+      : null;
+
   return (
     <>
       <p className="text-xs text-muted-foreground mb-2">{status.message}</p>
@@ -12,12 +18,34 @@ export function ArchivedStatusContent({ status }: ArchivedStatusContentProps) {
       {(status.syncedResponses !== undefined ||
         status.newResponses !== undefined) && (
         <div className="rounded-lg border bg-gradient-to-br from-blue-50 to-blue-50 dark:bg-blue-950/20 p-3 mb-2">
+          {/* Progress bar */}
+          {progressPercent !== null && (
+            <div className="mb-3">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-xs text-muted-foreground">Прогресс</span>
+                <span className="text-xs font-medium text-blue-600">
+                  {progressPercent}%
+                </span>
+              </div>
+              <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-blue-500 transition-all duration-300 ease-out"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-3">
             <div className="text-center">
               <div className="text-xl font-bold text-foreground">
                 {status.syncedResponses || 0}
               </div>
-              <div className="text-xs text-muted-foreground">Обработано</div>
+              <div className="text-xs text-muted-foreground">
+                {status.totalResponses
+                  ? `из ${status.totalResponses}`
+                  : "Обработано"}
+              </div>
             </div>
             <div className="text-center">
               <div className="text-xl font-bold text-blue-600">

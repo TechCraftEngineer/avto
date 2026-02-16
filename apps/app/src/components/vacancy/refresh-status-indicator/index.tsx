@@ -1,10 +1,9 @@
 "use client";
 
-import { cn } from "@qbs-autonaim/ui";
-import { Card } from "@qbs-autonaim/ui";
+import { Card, cn } from "@qbs-autonaim/ui";
 import { useQuery } from "@tanstack/react-query";
-import { useTRPC } from "~/trpc/react";
 import { useVacancyResponses } from "~/components/vacancy/components/responses/context/vacancy-responses-context";
+import { useTRPC } from "~/trpc/react";
 import { ConfirmationView } from "./confirmation-view";
 import { ProgressView } from "./progress-view";
 import type { RefreshStatusIndicatorProps } from "./types";
@@ -31,8 +30,16 @@ export function RefreshStatusIndicator({
 
   const { data: initialStatus } = useQuery({
     ...trpc.vacancy.responses.getRefreshStatus.queryOptions({ vacancyId }),
-    refetchInterval: (query) =>
-      (query.state.data?.isRunning ?? false) ? 5000 : false,
+    // Polling с увеличенным интервалом (10 сек) - подписка основной источник
+    // Используем только как fallback для случаев когда подписка недоступна
+    refetchInterval: (query) => {
+      const isRunning = query.state.data?.isRunning ?? false;
+      return isRunning ? 10000 : false;
+    },
+    // Не обновляем при фокусе - подписка сама обновит
+    refetchOnWindowFocus: false,
+    // Данные считаются свежими на 30 секунд
+    staleTime: 30000,
   });
 
   const visibility = useRefreshVisibility({
