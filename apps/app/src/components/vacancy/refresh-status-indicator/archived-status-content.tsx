@@ -5,9 +5,11 @@ interface ArchivedStatusContentProps {
 }
 
 export function ArchivedStatusContent({ status }: ArchivedStatusContentProps) {
-  // Рассчитываем процент выполнения
+  // Рассчитываем процент выполнения: 0 — валидное значение, проверяем явно на null/undefined
   const progressPercent =
-    status.totalResponses && status.syncedResponses
+    status.totalResponses != null &&
+    status.totalResponses > 0 &&
+    status.syncedResponses != null
       ? Math.round((status.syncedResponses / status.totalResponses) * 100)
       : null;
 

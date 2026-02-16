@@ -112,6 +112,14 @@ export default function GigResponseDetailPage({ params }: PageProps) {
     }
     const items = responsesData.items;
     const index = items.findIndex((r) => r.id === responseId);
+    if (index === -1) {
+      return {
+        prevResponseId: null,
+        nextResponseId: null,
+        currentIndex: -1,
+        totalResponses: items.length,
+      };
+    }
     return {
       prevResponseId: index > 0 ? items[index - 1]?.id : null,
       nextResponseId: index < items.length - 1 ? items[index + 1]?.id : null,
@@ -538,7 +546,7 @@ export default function GigResponseDetailPage({ params }: PageProps) {
         </div>
         
         {/* Counter */}
-        {totalResponses > 0 && (
+        {totalResponses > 0 && currentIndex >= 0 && (
           <span className="text-sm text-muted-foreground">
             {currentIndex} из {totalResponses}
           </span>

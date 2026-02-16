@@ -291,12 +291,13 @@ async function collectAllArchivedResponses(
             pageSkipped++;
           }
 
-          // Отправляем прогресс после обработки каждого отклика
-          // В ЭТАПЕ 1 мы ещё не знаем общее количество, поэтому total = allResponses.length (текущее)
-          // Позже, в ЭТАПЕ 3, будет известно точное общее количество
+          // Отправляем прогресс после обработки каждого отклика.
+          // В ЭТАПЕ 1 общее количество ещё неизвестно (responsesNeedingDetails не обработаны),
+          // поэтому total = 0 — потребитель не должен трактовать текущее processed/total как 100%.
+          // Точное total будет передано в ЭТАПЕ 3.
           await onProgress?.(
             allResponses.length,
-            allResponses.length, // total = текущее количество (будет обновлено на этапе 3)
+            0,
             totalSaved + pageSaved,
             response.name,
           );

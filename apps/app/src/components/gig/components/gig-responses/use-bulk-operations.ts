@@ -18,7 +18,20 @@ export function useBulkOperations({ gigId, workspaceId }: UseBulkOperationsProps
       onSuccess: (data) => {
         toast.success(`Принято ${data.updatedCount} откликов`);
         queryClient.invalidateQueries({
-          queryKey: trpc.gig.responses.list.queryKey({ gigId }),
+          predicate: (query) => {
+            const key = query.queryKey as unknown[];
+            if (!Array.isArray(key) || key.length < 2) return false;
+            const path = key[0];
+            const opts = key[1] as { input?: { gigId?: string } } | undefined;
+            const input = opts?.input ?? (key[1] as { gigId?: string });
+            const pathArr = Array.isArray(path) ? path : [path];
+            return (
+              pathArr[0] === "gig" &&
+              pathArr[1] === "responses" &&
+              pathArr[2] === "list" &&
+              input?.gigId === gigId
+            );
+          },
         });
       },
       onError: (error) => {
@@ -32,7 +45,20 @@ export function useBulkOperations({ gigId, workspaceId }: UseBulkOperationsProps
       onSuccess: (data) => {
         toast.success(`Отклонено ${data.updatedCount} откликов`);
         queryClient.invalidateQueries({
-          queryKey: trpc.gig.responses.list.queryKey({ gigId }),
+          predicate: (query) => {
+            const key = query.queryKey as unknown[];
+            if (!Array.isArray(key) || key.length < 2) return false;
+            const path = key[0];
+            const opts = key[1] as { input?: { gigId?: string } } | undefined;
+            const input = opts?.input ?? (key[1] as { gigId?: string });
+            const pathArr = Array.isArray(path) ? path : [path];
+            return (
+              pathArr[0] === "gig" &&
+              pathArr[1] === "responses" &&
+              pathArr[2] === "list" &&
+              input?.gigId === gigId
+            );
+          },
         });
       },
       onError: (error) => {
@@ -42,16 +68,16 @@ export function useBulkOperations({ gigId, workspaceId }: UseBulkOperationsProps
   );
 
   const handleAcceptMultiple = (responseIds: string[]) => {
-    if (!workspaceId) return;
-    acceptMultipleMutation.mutate({
+    if (!workspaceId) return Promise.reject(new Error("Workspace not loaded"));
+    return acceptMultipleMutation.mutateAsync({
       responseIds,
       workspaceId,
     });
   };
 
   const handleRejectMultiple = (responseIds: string[]) => {
-    if (!workspaceId) return;
-    rejectMultipleMutation.mutate({
+    if (!workspaceId) return Promise.reject(new Error("Workspace not loaded"));
+    return rejectMultipleMutation.mutateAsync({
       responseIds,
       workspaceId,
     });

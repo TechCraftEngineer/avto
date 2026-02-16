@@ -1,4 +1,4 @@
-﻿import { and, desc, eq, sql } from "@qbs-autonaim/db";
+import { and, desc, eq, sql } from "@qbs-autonaim/db";
 import { gig, response as responseTable } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
@@ -47,7 +47,7 @@ export const list = protectedProcedure
       ? and(
           eq(responseTable.entityType, "gig"),
           eq(responseTable.entityId, input.gigId),
-          sql`${responseTable.createdAt} < (SELECT created_at FROM response WHERE id = ${input.cursor})`,
+          sql`${responseTable.createdAt} < (SELECT created_at FROM responses WHERE id = ${input.cursor})`,
         )
       : and(
           eq(responseTable.entityType, "gig"),

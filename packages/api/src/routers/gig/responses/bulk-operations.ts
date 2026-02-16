@@ -1,9 +1,90 @@
 import { and, eq, inArray } from "@qbs-autonaim/db";
-import { gig, response as responseTable, RESPONSE_STATUS } from "@qbs-autonaim/db/schema";
+import { response as responseTable, RESPONSE_STATUS } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
+import type { TRPCContext } from "../../../trpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../trpc";
+
+type BulkUpdateInput = {
+  responseIds: string[];
+  workspaceId: string;
+};
+
+async function bulkUpdateStatus(
+  ctx: TRPCContext,
+  input: BulkUpdateInput,
+  targetStatus: typeof RESPONSE_STATUS.COMPLETED | typeof RESPONSE_STATUS.SKIPPED,
+): Promise<{ success: boolean; updatedCount: number }> {
+  const session = ctx.session;
+  if (!session) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "Требуется авторизация",
+    });
+  }
+  const userId = session.user.id;
+
+  const access = await ctx.workspaceRepository.checkAccess(
+    input.workspaceId,
+    userId,
+  );
+
+  if (!access) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Нет доступа к этому workspace",
+    });
+  }
+
+  const responses = await ctx.db.query.response.findMany({
+    where: inArray(responseTable.id, input.responseIds),
+    with: {
+      gig: {
+        columns: {
+          id: true,
+          workspaceId: true,
+        },
+      },
+    },
+  });
+
+  if (responses.length !== input.responseIds.length) {
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "Некоторые отклики не найдены",
+    });
+  }
+
+  const invalidResponses = responses.filter(
+    (r) => !r.gig || r.gig.workspaceId !== input.workspaceId,
+  );
+
+  if (invalidResponses.length > 0) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Некоторые отклики не принадлежат этому workspace",
+    });
+  }
+
+  const updateResult = await ctx.db
+    .update(responseTable)
+    .set({
+      status: targetStatus,
+      updatedAt: new Date(),
+    })
+    .where(
+      and(
+        inArray(responseTable.id, input.responseIds),
+        eq(responseTable.status, RESPONSE_STATUS.NEW),
+      ),
+    );
+
+  return {
+    success: true,
+    updatedCount: updateResult.rowCount ?? 0,
+  };
+}
 
 export const acceptMultiple = protectedProcedure
   .input(
@@ -13,71 +94,7 @@ export const acceptMultiple = protectedProcedure
     }),
   )
   .mutation(async ({ input, ctx }) => {
-    const userId = ctx.session.user.id;
-
-    // Проверка доступа к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
-      input.workspaceId,
-      userId,
-    );
-
-    if (!access) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
-      });
-    }
-
-    // Проверяем что все отклики принадлежат этому gig и workspace
-    const responses = await ctx.db.query.response.findMany({
-      where: inArray(responseTable.id, input.responseIds),
-      with: {
-        gig: {
-          columns: {
-            id: true,
-            workspaceId: true,
-          },
-        },
-      },
-    });
-
-    if (responses.length !== input.responseIds.length) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "Некоторые отклики не найдены",
-      });
-    }
-
-    // Проверяем что все отклики из одного workspace
-    const invalidResponses = responses.filter(
-      (r) => r.gig?.workspaceId !== input.workspaceId,
-    );
-
-    if (invalidResponses.length > 0) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
-        message: "Некоторые отклики не принадлежат этому workspace",
-      });
-    }
-
-    // Обновляем статусы откликов
-    const updateResult = await ctx.db
-      .update(responseTable)
-      .set({
-        status: RESPONSE_STATUS.COMPLETED,
-        updatedAt: new Date(),
-      })
-      .where(
-        and(
-          inArray(responseTable.id, input.responseIds),
-          eq(responseTable.status, RESPONSE_STATUS.NEW),
-        ),
-      );
-
-    return {
-      success: true,
-      updatedCount: updateResult.rowCount ?? 0,
-    };
+    return bulkUpdateStatus(ctx, input, RESPONSE_STATUS.COMPLETED);
   });
 
 export const rejectMultiple = protectedProcedure
@@ -88,69 +105,5 @@ export const rejectMultiple = protectedProcedure
     }),
   )
   .mutation(async ({ input, ctx }) => {
-    const userId = ctx.session.user.id;
-
-    // Проверка доступа к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
-      input.workspaceId,
-      userId,
-    );
-
-    if (!access) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
-      });
-    }
-
-    // Проверяем что все отклики принадлежат этому workspace
-    const responses = await ctx.db.query.response.findMany({
-      where: inArray(responseTable.id, input.responseIds),
-      with: {
-        gig: {
-          columns: {
-            id: true,
-            workspaceId: true,
-          },
-        },
-      },
-    });
-
-    if (responses.length !== input.responseIds.length) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "Некоторые отклики не найдены",
-      });
-    }
-
-    // Проверяем что все отклики из одного workspace
-    const invalidResponses = responses.filter(
-      (r) => r.gig?.workspaceId !== input.workspaceId,
-    );
-
-    if (invalidResponses.length > 0) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
-        message: "Некоторые отклики не принадлежат этому workspace",
-      });
-    }
-
-    // Обновляем статусы откликов
-    const updateResult = await ctx.db
-      .update(responseTable)
-      .set({
-        status: RESPONSE_STATUS.SKIPPED,
-        updatedAt: new Date(),
-      })
-      .where(
-        and(
-          inArray(responseTable.id, input.responseIds),
-          eq(responseTable.status, RESPONSE_STATUS.NEW),
-        ),
-      );
-
-    return {
-      success: true,
-      updatedCount: updateResult.rowCount ?? 0,
-    };
+    return bulkUpdateStatus(ctx, input, RESPONSE_STATUS.SKIPPED);
   });

@@ -242,14 +242,22 @@ export default function GigResponsesPage({ params }: PageProps) {
     }
   }, [filteredResponses, selectedResponses.size]);
 
-  const handleBulkAccept = React.useCallback(() => {
-    handleAcceptMultiple(Array.from(selectedResponses));
-    setSelectedResponses(new Set());
+  const handleBulkAccept = React.useCallback(async () => {
+    try {
+      await handleAcceptMultiple(Array.from(selectedResponses));
+      setSelectedResponses(new Set());
+    } catch {
+      // Error shown by mutation hook; selection kept for retry
+    }
   }, [handleAcceptMultiple, selectedResponses]);
 
-  const handleBulkReject = React.useCallback(() => {
-    handleRejectMultiple(Array.from(selectedResponses));
-    setSelectedResponses(new Set());
+  const handleBulkReject = React.useCallback(async () => {
+    try {
+      await handleRejectMultiple(Array.from(selectedResponses));
+      setSelectedResponses(new Set());
+    } catch {
+      // Error shown by mutation hook; selection kept for retry
+    }
   }, [handleRejectMultiple, selectedResponses]);
 
   const stats = useResponseStats(responses?.items);
