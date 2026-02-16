@@ -2,6 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { useTRPC } from "~/trpc/react";
 
+/** Платформы, которые поддерживают только импорт gigs (разовые задания) */
+const GIG_ONLY_PLATFORMS = ["kwork"] as const;
+
 export function usePlatformIntegration(workspaceId: string) {
   const trpc = useTRPC();
 
@@ -13,9 +16,16 @@ export function usePlatformIntegration(workspaceId: string) {
     enabled: !!workspaceId,
   });
 
-  // Получаем активные интеграции
+  // Получаем активные интеграции для вакансий (исключая gig-платформы)
   const activeIntegrations = useMemo(
-    () => integrations?.filter((int) => int.isActive) ?? [],
+    () =>
+      integrations?.filter(
+        (int) =>
+          int.isActive &&
+          !GIG_ONLY_PLATFORMS.includes(
+            int.type as (typeof GIG_ONLY_PLATFORMS)[number],
+          ),
+      ) ?? [],
     [integrations],
   );
 
@@ -45,7 +55,10 @@ export function usePlatformIntegration(workspaceId: string) {
   const getPlatformName = (type: string) => {
     const names: Record<string, string> = {
       hh: "HeadHunter",
-      // Добавьте другие платформы по мере необходимости
+      avito: "Avito",
+      superjob: "SuperJob",
+      fl: "FL.ru",
+      freelance: "Freelance.ru",
     };
     return names[type] ?? type.toUpperCase();
   };
