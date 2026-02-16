@@ -300,6 +300,9 @@ export const verifyHHCredentialsChannel = channel(
       success: z.boolean(),
       isValid: z.boolean(),
       error: z.string().optional(),
+      requiresTwoFactor: z.boolean().optional(),
+      twoFactorType: z.enum(["email", "phone"]).optional(),
+      message: z.string().optional(),
     }),
   ),
 );

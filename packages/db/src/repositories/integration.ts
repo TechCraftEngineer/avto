@@ -72,6 +72,65 @@ export async function upsertIntegration(db: DbClient, data: NewIntegration) {
 /** Метаданные для интеграции Kwork (web cookies) */
 export const KWORK_WEB_COOKIES_SAVED_AT_KEY = "kworkWebCookiesSavedAt" as const;
 
+/** Ключ для ожидающего кода 2FA HH — job опрашивает, юзер вводит в UI */
+export const HH_PENDING_VERIFICATION_CODE_KEY =
+  "hhPendingVerificationCode" as const;
+export const HH_PENDING_VERIFICATION_AT_KEY =
+  "hhPendingVerificationCodeAt" as const;
+
+/**
+ * Сохраняет код 2FA от юзера для HH — job с открытым браузером опрашивает и найдёт
+ */
+export async function saveHHPendingVerificationCode(
+  db: DbClient,
+  workspaceId: string,
+  code: string,
+): Promise<void> {
+  const existing = await getIntegration(db, "hh", workspaceId);
+  if (!existing) {
+    throw new Error(`Integration hh not found for workspace ${workspaceId}`);
+  }
+  const metadata = (existing.metadata as Record<string, unknown>) ?? {};
+  await db
+    .update(integration)
+    .set({
+      metadata: {
+        ...metadata,
+        [HH_PENDING_VERIFICATION_CODE_KEY]: code,
+        [HH_PENDING_VERIFICATION_AT_KEY]: Date.now(),
+      },
+      updatedAt: new Date(),
+    })
+    .where(eq(integration.id, existing.id));
+}
+
+/**
+ * Читает и очищает код 2FA — вызывает job в цикле опроса
+ */
+export async function getAndClearHHPendingVerificationCode(
+  db: DbClient,
+  workspaceId: string,
+): Promise<string | null> {
+  const existing = await getIntegration(db, "hh", workspaceId);
+  if (!existing?.metadata) return null;
+
+  const meta = existing.metadata as Record<string, unknown>;
+  const code = meta[HH_PENDING_VERIFICATION_CODE_KEY] as string | undefined;
+  if (!code || typeof code !== "string") return null;
+
+  // Очищаем сразу — код одноразовый
+  const { [HH_PENDING_VERIFICATION_CODE_KEY]: _, [HH_PENDING_VERIFICATION_AT_KEY]: __, ...rest } = meta;
+  await db
+    .update(integration)
+    .set({
+      metadata: Object.keys(rest).length > 0 ? rest : null,
+      updatedAt: new Date(),
+    })
+    .where(eq(integration.id, existing.id));
+
+  return code;
+}
+
 /** Время жизни web cookies в секундах (~50 мин, web auth token живёт 1 мин) */
 export const KWORK_WEB_COOKIES_TTL_SEC = 50 * 60;
 

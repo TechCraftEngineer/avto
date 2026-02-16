@@ -11,6 +11,7 @@ import {
   Form,
 } from "@qbs-autonaim/ui";
 import { Briefcase } from "lucide-react";
+import { HHVerificationCodeDialog } from "../hh-verification-code-dialog/hh-verification-code-dialog";
 import { IntegrationFormFields } from "./integration-form-fields";
 import { useIntegrationDialog } from "./use-integration-dialog";
 import { VerificationSubscription } from "./verification-subscription";
@@ -44,6 +45,13 @@ export function IntegrationDialog({
     handleVerificationResult,
     handleVerificationError,
     onSubmit,
+    show2FADialog,
+    setShow2FADialog,
+    twoFactorError,
+    handle2FACodeSubmit,
+    handleResendCode,
+    isResendingCode,
+    resendCountdownReset,
   } = useIntegrationDialog({
     open,
     selectedType,
@@ -64,6 +72,22 @@ export function IntegrationDialog({
           onError={handleVerificationError}
         />
       )}
+
+      {/* Диалог 2FA для HH.ru */}
+      {show2FADialog && workspaceId && (
+        <HHVerificationCodeDialog
+          open={show2FADialog}
+          onClose={() => setShow2FADialog(false)}
+          email={form.getValues("login") ?? ""}
+          onSubmitCode={handle2FACodeSubmit}
+          isLoading={isVerifying}
+          error={twoFactorError}
+          onResendCode={handleResendCode}
+          isResending={isResendingCode}
+          resendCountdownReset={resendCountdownReset}
+        />
+      )}
+
       <Dialog
         open={open}
         onOpenChange={(isOpen: boolean) => !isOpen && handleClose()}
@@ -92,6 +116,7 @@ export function IntegrationDialog({
                 showPassword={showPassword}
                 onTogglePassword={() => setShowPassword((p) => !p)}
                 isEditing={isEditing}
+                authType={form.watch("authType")}
               />
 
               <DialogFooter className="gap-2">

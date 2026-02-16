@@ -5,9 +5,10 @@ export const integrationFormSchema = z
   .object({
     type: z.string(),
     name: z.string().optional(),
-    email: z.string().optional(),
     login: z.string().optional(),
-    password: z.string().min(1, "Пароль обязателен"),
+    email: z.string().optional(),
+    password: z.string(),
+    authType: z.enum(["password", "code"]),
   })
   .superRefine((data, ctx) => {
     if (data.type === "kwork") {
@@ -18,18 +19,41 @@ export const integrationFormSchema = z
           path: ["login"],
         });
       }
-    } else {
-      if (!data.email) {
+      // Kwork всегда требует пароль
+      if (!data.password || data.password.trim().length === 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "Email обязателен",
-          path: ["email"],
+          message: "Пароль обязателен",
+          path: ["password"],
         });
-      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+      }
+    } else {
+      // Для HH может быть email или телефон
+      if (!data.login) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "Некорректный email",
-          path: ["email"],
+          message: "Email или телефон обязательны",
+          path: ["login"],
+        });
+      } else if (
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.login) &&
+        !/^\+?[0-9\s\-()]{10,}$/.test(data.login)
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Некорректный email или телефон",
+          path: ["login"],
+        });
+      }
+      // Для HH с паролем - пароль обязателен
+      if (
+        data.authType === "password" &&
+        (!data.password || data.password.trim().length === 0)
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Пароль обязателен",
+          path: ["password"],
         });
       }
     }

@@ -2,10 +2,11 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import {
+  triggerVerifyHH2FACode,
   triggerVerifyHHCredentials,
   triggerVerifyKworkCredentials,
 } from "~/actions/integration";
@@ -45,6 +46,11 @@ export function useIntegrationDialog({
   const [showPassword, setShowPassword] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyingType, setVerifyingType] = useState<"hh" | "kwork">("hh");
+  const [show2FADialog, setShow2FADialog] = useState(false);
+  const [twoFactorError, setTwoFactorError] = useState<string | null>(null);
+  const [isResendingCode, setIsResendingCode] = useState(false);
+  const [resendCountdownReset, setResendCountdownReset] = useState(0);
+  const resendTriggeredRef = useRef(false);
 
   const workspaceId = useMemo(() => workspace?.id || "", [workspace?.id]);
 
@@ -65,6 +71,7 @@ export function useIntegrationDialog({
       email: "",
       login: "",
       password: "",
+      authType: "password",
     },
   });
 
@@ -81,8 +88,9 @@ export function useIntegrationDialog({
           form.setValue("login", existingIntegration.login || "");
           form.setValue("email", "");
         } else {
-          form.setValue("email", existingIntegration.email || "");
-          form.setValue("login", "");
+          // HH использует login (email или телефон)
+          form.setValue("login", existingIntegration.email || "");
+          form.setValue("email", "");
         }
       } else if (!isEditing) {
         form.setValue("name", "");
@@ -95,11 +103,8 @@ export function useIntegrationDialog({
 
   const currentType = form.watch("type");
   useEffect(() => {
-    if (currentType === "kwork") {
-      form.setValue("email", "");
-    } else {
-      form.setValue("login", "");
-    }
+    // Очищаем поле email при смене типа - HH использует login
+    form.setValue("email", "");
   }, [currentType, form]);
 
   const createMutation = useMutation(
@@ -150,12 +155,35 @@ export function useIntegrationDialog({
     form.reset();
     setShowPassword(false);
     setIsVerifying(false);
+    setShow2FADialog(false);
+    setTwoFactorError(null);
     onClose();
   }, [form, onClose]);
 
   const handleVerificationResult = useCallback(
-    (result: { success?: boolean; isValid?: boolean; error?: string }) => {
+    (result: {
+      success?: boolean;
+      isValid?: boolean;
+      error?: string;
+      requiresTwoFactor?: boolean;
+      twoFactorType?: "email" | "phone";
+      message?: string;
+    }) => {
       setIsVerifying(false);
+      setIsResendingCode(false);
+
+      // Проверяем, требуется ли 2FA
+      if (result.requiresTwoFactor) {
+        setShow2FADialog(true);
+        if (resendTriggeredRef.current) {
+          resendTriggeredRef.current = false;
+          setResendCountdownReset((prev) => prev + 1);
+          toast.success("Новый код отправлен. Проверьте почту или SMS.");
+        } else if (result.message) {
+          toast.info(result.message);
+        }
+        return;
+      }
 
       if (result.success && result.isValid) {
         toast.success("Данные успешно проверены");
@@ -187,13 +215,14 @@ export function useIntegrationDialog({
     const credentials =
       data.type === "kwork"
         ? { login: data.login ?? "", password: data.password }
-        : { email: data.email ?? "", password: data.password };
+        : { login: data.login ?? "", password: data.password };
 
     const payload = {
       workspaceId,
       type: data.type,
       name: data.name || integrationType?.label || "",
       credentials: credentials as unknown as Record<string, string>,
+      authType: data.authType,
     };
 
     if (data.type === "hh") {
@@ -206,9 +235,10 @@ export function useIntegrationDialog({
 
       try {
         await triggerVerifyHHCredentials(
-          data.email ?? "",
+          data.login ?? "",
           data.password,
           workspaceId,
+          data.authType,
         );
       } catch (error) {
         setIsVerifying(false);
@@ -248,6 +278,68 @@ export function useIntegrationDialog({
     }
   };
 
+  const handle2FACodeSubmit = async (code: string) => {
+    if (!workspaceId) {
+      setTwoFactorError("Workspace не найден");
+      return;
+    }
+
+    const login = form.getValues("login") ?? "";
+    const password = form.getValues("password") ?? "";
+    const authType = form.getValues("authType");
+
+    if (!login) {
+      setTwoFactorError("Email или телефон не найден. Попробуйте заново.");
+      return;
+    }
+
+    if (authType === "password" && !password) {
+      setTwoFactorError("Данные не найдены. Попробуйте заново.");
+      return;
+    }
+
+    setIsVerifying(true);
+    setTwoFactorError(null);
+
+    try {
+      await triggerVerifyHH2FACode(login, password, workspaceId, code);
+    } catch (error) {
+      setIsVerifying(false);
+      setTwoFactorError(
+        error instanceof Error ? error.message : "Ошибка отправки кода",
+      );
+    }
+  };
+
+  const handleResendCode = useCallback(async () => {
+    if (!workspaceId) return;
+
+    const login = form.getValues("login") ?? "";
+    if (!login) {
+      toast.error("Email или телефон не найден.");
+      return;
+    }
+
+    resendTriggeredRef.current = true;
+    setIsResendingCode(true);
+    setTwoFactorError(null);
+
+    try {
+      await triggerVerifyHHCredentials(
+        login,
+        "",
+        workspaceId,
+        "code",
+      );
+    } catch (error) {
+      resendTriggeredRef.current = false;
+      setIsResendingCode(false);
+      toast.error(
+        error instanceof Error ? error.message : "Ошибка повторной отправки",
+      );
+    }
+  }, [workspaceId, form]);
+
   return {
     form,
     integrationType,
@@ -262,5 +354,12 @@ export function useIntegrationDialog({
     handleVerificationResult,
     handleVerificationError,
     onSubmit,
+    show2FADialog,
+    setShow2FADialog,
+    twoFactorError,
+    handle2FACodeSubmit,
+    handleResendCode,
+    isResendingCode,
+    resendCountdownReset,
   };
 }

@@ -14,8 +14,9 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Switch,
 } from "@qbs-autonaim/ui";
-import { Briefcase, Eye, EyeOff, LogIn, Mail } from "lucide-react";
+import { Briefcase, Eye, EyeOff, LogIn, Mail, Smartphone } from "lucide-react";
 import type { Control } from "react-hook-form";
 import type { IntegrationFormValues } from "./integration-form-schema";
 import { INTEGRATION_TYPES } from "./integration-form-schema";
@@ -26,6 +27,7 @@ interface IntegrationFormFieldsProps {
   showPassword: boolean;
   onTogglePassword: () => void;
   isEditing: boolean;
+  authType?: "password" | "code";
 }
 
 export function IntegrationFormFields({
@@ -34,6 +36,7 @@ export function IntegrationFormFields({
   showPassword,
   onTogglePassword,
   isEditing,
+  authType,
 }: IntegrationFormFieldsProps) {
   return (
     <>
@@ -131,72 +134,106 @@ export function IntegrationFormFields({
           )}
         />
       ) : (
+        <>
+          <FormField
+            control={control}
+            name="login"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium flex items-center gap-2">
+                  <Mail className="h-4 w-4 text-muted-foreground" />
+                  Email или телефон
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    type="text"
+                    placeholder="ваш@email.com или +7 999 999-99-99"
+                    className="h-11"
+                    autoComplete="username"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Toggle for authentication type - only for HH */}
+          {integrationType?.value === "hh" && (
+            <FormField
+              control={control}
+              name="authType"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 bg-muted/30">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-sm font-medium flex items-center gap-2">
+                      <Smartphone className="h-4 w-4 text-muted-foreground" />
+                      Вход по коду
+                    </FormLabel>
+                    <FormDescription className="text-xs">
+                      Вместо пароля использовать код из SMS или email
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value === "code"}
+                      onCheckedChange={(checked) =>
+                        field.onChange(checked ? "code" : "password")
+                      }
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          )}
+        </>
+      )}
+
+      {/* Password field - hide for HH with code auth */}
+      {integrationType?.value === "hh" && authType === "code" ? null : (
         <FormField
           control={control}
-          name="email"
+          name="password"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-sm font-medium flex items-center gap-2">
-                <Mail className="h-4 w-4 text-muted-foreground" />
-                Email
+                <Eye className="h-4 w-4 text-muted-foreground" />
+                Пароль
               </FormLabel>
               <FormControl>
-                <Input
-                  type="email"
-                  placeholder="ваш@email.com"
-                  className="h-11"
-                  autoComplete="email"
-                  {...field}
-                />
+                <div className="relative">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    className="h-11 pr-10"
+                    {...field}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={onTogglePassword}
+                    aria-label={
+                      showPassword ? "Скрыть пароль" : "Показать пароль"
+                    }
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </Button>
+                </div>
               </FormControl>
+              <FormDescription className="text-xs">
+                Пароль хранится в зашифрованном виде
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
       )}
-
-      <FormField
-        control={control}
-        name="password"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="text-sm font-medium flex items-center gap-2">
-              <Eye className="h-4 w-4 text-muted-foreground" />
-              Пароль
-            </FormLabel>
-            <FormControl>
-              <div className="relative">
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  className="h-11 pr-10"
-                  {...field}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                  onClick={onTogglePassword}
-                  aria-label={
-                    showPassword ? "Скрыть пароль" : "Показать пароль"
-                  }
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-muted-foreground" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-muted-foreground" />
-                  )}
-                </Button>
-              </div>
-            </FormControl>
-            <FormDescription className="text-xs">
-              Пароль хранится в зашифрованном виде
-            </FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
     </>
   );
 }

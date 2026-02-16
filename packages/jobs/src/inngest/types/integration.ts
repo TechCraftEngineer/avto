@@ -4,6 +4,8 @@ export const verifyHHCredentialsDataSchema = z.object({
   email: z.email(),
   password: z.string(),
   workspaceId: z.string(),
+  /** 4-значный код подтверждения — передаётся когда юзер ввёл его в диалоге */
+  verificationCode: z.string().length(4).optional(),
 });
 
 export type VerifyHHCredentialsData = z.infer<

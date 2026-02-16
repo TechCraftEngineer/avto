@@ -1,4 +1,7 @@
-import { upsertIntegration } from "@qbs-autonaim/db";
+import {
+  getAndClearHHPendingVerificationCode,
+  upsertIntegration,
+} from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import {
   verifyHHCredentialsChannel,
@@ -6,11 +9,43 @@ import {
 } from "@qbs-autonaim/jobs/channels";
 import { inngest } from "@qbs-autonaim/jobs/client";
 import { Log } from "crawlee";
-import type { Browser } from "puppeteer";
+import type { Browser, Page } from "puppeteer";
 import puppeteer from "puppeteer";
-import { performLogin, saveCookies } from "../../parsers/hh/core/auth/auth";
+import { performLogin } from "../../parsers/hh/core/auth/auth";
+import {
+  initiateCodeAuth,
+  isWaitingForCode,
+  submitVerificationCode,
+} from "../../parsers/hh/core/auth/auth-2fa";
 import { closeBrowserSafely } from "../../parsers/hh/core/browser/browser-utils";
 import { HH_CONFIG } from "../../parsers/hh/core/config/config";
+import { saveCookies } from "../../utils/cookies";
+
+/**
+ * Тип результата проверки 2FA
+ */
+export interface TwoFactorRequiredResult {
+  success: boolean;
+  isValid: boolean;
+  requiresTwoFactor: boolean;
+  twoFactorType?: "email" | "phone";
+  message?: string;
+}
+
+/**
+ * Результат проверки кода 2FA
+ */
+export interface TwoFactorCodeResult {
+  success: boolean;
+  isValid: boolean;
+  error?: string;
+}
+
+/** Результат шага verify-credentials */
+type VerifyCredentialsStepResult =
+  | { success: true; isValid: true }
+  | { success: false; isValid: false; requiresTwoFactor: true }
+  | { success: false; isValid: false; error: string };
 
 export const verifyHHCredentialsFunction = inngest.createFunction(
   {
@@ -19,15 +54,29 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
   },
   { event: "integration/verify-hh-credentials" },
   async ({ event, step, publish }) => {
-    const { email, password, workspaceId } = event.data;
+    const eventData = event.data as {
+      email: string;
+      password: string;
+      workspaceId: string;
+      verificationCode?: string;
+    };
+    const { email, password, workspaceId } = eventData;
 
-    const result = await step.run("verify-credentials", async () => {
+    // Код в первом событии не передаётся — его ждём через waitForEvent
+
+    const POLL_INTERVAL_MS = 2000;
+    const POLL_TIMEOUT_MS = 10 * 60 * 1000; // 10 мин
+
+    return await step.run("verify-credentials", async (): Promise<VerifyCredentialsStepResult> => {
       let browser: Browser | undefined;
+      let page: Page | undefined;
+
+      const sleep = (ms: number) =>
+        new Promise<void>((resolve) => setTimeout(resolve, ms));
+
       try {
         browser = await puppeteer.launch(HH_CONFIG.puppeteer);
-
-        const page = await browser.newPage();
-
+        page = await browser.newPage();
         await page.setUserAgent({ userAgent: HH_CONFIG.userAgent });
 
         await page.goto(HH_CONFIG.urls.login, {
@@ -43,75 +92,174 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
 
         if (loginInput) {
           const log = new Log();
+
+          const initiated = await initiateCodeAuth(page, email);
+
+          if (initiated) {
+            const waitingForCode = await isWaitingForCode(page);
+
+            if (waitingForCode) {
+              console.log("🔐 Требуется 2FA — ждём код от пользователя в открытом браузере");
+
+              await upsertIntegration(db, {
+                workspaceId,
+                type: "hh",
+                name: "HeadHunter",
+                credentials: { email },
+              });
+
+              await publish(
+                verifyHHCredentialsChannel(workspaceId).result({
+                  success: false,
+                  isValid: false,
+                  requiresTwoFactor: true,
+                  twoFactorType: "email",
+                  message: "Требуется ввод кода подтверждения",
+                }),
+              );
+
+              // Не закрываем браузер — опрашиваем БД и вводим код в уже открытую форму
+              const startedAt = Date.now();
+              while (Date.now() - startedAt < POLL_TIMEOUT_MS) {
+                const code = await getAndClearHHPendingVerificationCode(
+                  db,
+                  workspaceId,
+                );
+                if (code && page) {
+                  const codeResult = await submitVerificationCode(page, code);
+                  if (!codeResult.success) {
+                    await closeBrowserSafely(browser);
+                    await publish(
+                      verifyHHCredentialsChannel(workspaceId).result({
+                        success: false,
+                        isValid: false,
+                        error: codeResult.error,
+                      }),
+                    );
+                    return {
+                      success: false,
+                      isValid: false,
+                      error: codeResult.error ?? "Ошибка ввода кода",
+                    };
+                  }
+
+                  const cookies = await page.browserContext().cookies();
+                  await upsertIntegration(db, {
+                    workspaceId,
+                    type: "hh",
+                    name: "HeadHunter",
+                    credentials: { email, password },
+                  });
+                  await saveCookies("hh", cookies, workspaceId);
+
+                  await closeBrowserSafely(browser);
+                  await publish(
+                    verifyHHCredentialsChannel(workspaceId).result({
+                      success: true,
+                      isValid: true,
+                    }),
+                  );
+                  return { success: true, isValid: true };
+                }
+                await sleep(POLL_INTERVAL_MS);
+              }
+
+              await closeBrowserSafely(browser);
+              await publish(
+                verifyHHCredentialsChannel(workspaceId).result({
+                  success: false,
+                  isValid: false,
+                  error: "Время ввода кода истекло. Запросите новый код.",
+                }),
+              );
+              return {
+                success: false,
+                isValid: false,
+                error: "Время ввода кода истекло",
+              };
+            }
+          }
+
+          await page.goto(HH_CONFIG.urls.login, {
+            waitUntil: "domcontentloaded",
+            timeout: HH_CONFIG.timeouts.navigation,
+          });
+
           await performLogin(page, log, email, password, workspaceId, false);
         } else {
-          console.log("✅ Успешно авторизованы");
+          console.log("✅ Уже авторизованы");
         }
 
-        // Получаем cookies ДО закрытия браузера
         const cookies = await page.browserContext().cookies();
 
-        // Сначала создаём/обновляем интеграцию с credentials
         await upsertIntegration(db, {
           workspaceId,
           type: "hh",
           name: "HeadHunter",
-          credentials: {
-            email,
-            password,
-          },
+          credentials: { email, password },
         });
 
-        // Теперь сохраняем cookies (интеграция уже существует)
         await saveCookies("hh", cookies, workspaceId);
-        // Закрываем браузер безопасно
+
         await closeBrowserSafely(browser);
 
-        const successResult = {
-          success: true,
-          isValid: true,
-        };
-
         await publish(
-          verifyHHCredentialsChannel(workspaceId).result(successResult),
+          verifyHHCredentialsChannel(workspaceId).result({
+            success: true,
+            isValid: true,
+          }),
         );
 
-        return successResult;
+        return { success: true, isValid: true };
       } catch (error) {
         if (browser) {
           await closeBrowserSafely(browser);
         }
 
-        // Всегда сохраняем логин и пароль, даже при ошибке авторизации
-        await upsertIntegration(db, {
-          workspaceId,
-          type: "hh",
-          name: "HeadHunter",
-          credentials: {
-            email,
-            password,
-          },
-        });
-
         const errorMessage =
           error instanceof Error ? error.message : "Неизвестная ошибка";
+
+        if (
+          errorMessage.includes("капча") ||
+          errorMessage.includes("captcha") ||
+          errorMessage.includes("требуется")
+        ) {
+          await upsertIntegration(db, {
+            workspaceId,
+            type: "hh",
+            name: "HeadHunter",
+            credentials: { email },
+          });
+
+          await publish(
+            verifyHHCredentialsChannel(workspaceId).result({
+              success: false,
+              isValid: false,
+              requiresTwoFactor: true,
+              message: errorMessage,
+            }),
+          );
+
+          return {
+            success: false,
+            isValid: false,
+            requiresTwoFactor: true,
+          } as VerifyCredentialsStepResult;
+        }
 
         if (
           errorMessage.includes("Неверный логин") ||
           errorMessage.includes("пароль") ||
           errorMessage.includes("login")
         ) {
-          const errorResult = {
-            success: false,
-            isValid: false,
-            error: "Неверный логин или пароль",
-          };
-
           await publish(
-            verifyHHCredentialsChannel(workspaceId).result(errorResult),
+            verifyHHCredentialsChannel(workspaceId).result({
+              success: false,
+              isValid: false,
+              error: "Неверный логин или пароль",
+            }),
           );
 
-          // Отправляем realtime уведомление об ошибке авторизации
           await publish(
             workspaceNotificationsChannel(workspaceId)["integration-error"]({
               workspaceId,
@@ -122,20 +270,21 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
             }),
           );
 
-          return errorResult;
+          return {
+            success: false,
+            isValid: false,
+            error: "Неверный логин или пароль",
+          };
         }
 
-        const unknownErrorResult = {
-          success: false,
-          isValid: false,
-          error: errorMessage,
-        };
-
         await publish(
-          verifyHHCredentialsChannel(workspaceId).result(unknownErrorResult),
+          verifyHHCredentialsChannel(workspaceId).result({
+            success: false,
+            isValid: false,
+            error: errorMessage,
+          }),
         );
 
-        // Отправляем realtime уведомление об общей ошибке
         await publish(
           workspaceNotificationsChannel(workspaceId)["integration-error"]({
             workspaceId,
@@ -149,7 +298,5 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
         throw error;
       }
     });
-
-    return result;
   },
 );
