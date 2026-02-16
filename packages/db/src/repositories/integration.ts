@@ -78,6 +78,52 @@ export const HH_PENDING_VERIFICATION_CODE_KEY =
 export const HH_PENDING_VERIFICATION_AT_KEY =
   "hhPendingVerificationCodeAt" as const;
 
+/** Ключ для запроса повторной отправки кода — job кликает кнопку на HH */
+export const HH_RESEND_REQUESTED_KEY = "hhResendRequested" as const;
+
+export async function saveHHResendRequested(
+  db: DbClient,
+  workspaceId: string,
+): Promise<void> {
+  const existing = await getIntegration(db, "hh", workspaceId);
+  if (!existing) {
+    throw new Error(`Integration hh not found for workspace ${workspaceId}`);
+  }
+  const metadata = (existing.metadata as Record<string, unknown>) ?? {};
+  await db
+    .update(integration)
+    .set({
+      metadata: {
+        ...metadata,
+        [HH_RESEND_REQUESTED_KEY]: true,
+      },
+      updatedAt: new Date(),
+    })
+    .where(eq(integration.id, existing.id));
+}
+
+export async function getAndClearHHResendRequested(
+  db: DbClient,
+  workspaceId: string,
+): Promise<boolean> {
+  const existing = await getIntegration(db, "hh", workspaceId);
+  if (!existing?.metadata) return false;
+
+  const meta = existing.metadata as Record<string, unknown>;
+  if (meta[HH_RESEND_REQUESTED_KEY] !== true) return false;
+
+  const { [HH_RESEND_REQUESTED_KEY]: _, ...rest } = meta;
+  await db
+    .update(integration)
+    .set({
+      metadata: Object.keys(rest).length > 0 ? rest : null,
+      updatedAt: new Date(),
+    })
+    .where(eq(integration.id, existing.id));
+
+  return true;
+}
+
 /**
  * Сохраняет код 2FA от юзера для HH — job с открытым браузером опрашивает и найдёт
  */
@@ -119,7 +165,11 @@ export async function getAndClearHHPendingVerificationCode(
   if (!code || typeof code !== "string") return null;
 
   // Очищаем сразу — код одноразовый
-  const { [HH_PENDING_VERIFICATION_CODE_KEY]: _, [HH_PENDING_VERIFICATION_AT_KEY]: __, ...rest } = meta;
+  const {
+    [HH_PENDING_VERIFICATION_CODE_KEY]: _,
+    [HH_PENDING_VERIFICATION_AT_KEY]: __,
+    ...rest
+  } = meta;
   await db
     .update(integration)
     .set({

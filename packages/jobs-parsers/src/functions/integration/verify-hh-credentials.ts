@@ -1,4 +1,5 @@
 import {
+  getAndClearHHResendRequested,
   getAndClearHHPendingVerificationCode,
   upsertIntegration,
 } from "@qbs-autonaim/db";
@@ -15,6 +16,7 @@ import { performLogin } from "../../parsers/hh/core/auth/auth";
 import {
   initiateCodeAuth,
   isWaitingForCode,
+  resendVerificationCode,
   submitVerificationCode,
 } from "../../parsers/hh/core/auth/auth-2fa";
 import { closeBrowserSafely } from "../../parsers/hh/core/browser/browser-utils";
@@ -118,9 +120,17 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
                 }),
               );
 
-              // Не закрываем браузер — опрашиваем БД и вводим код в уже открытую форму
+              // Не закрываем браузер — опрашиваем БД: resend или код
               const startedAt = Date.now();
               while (Date.now() - startedAt < POLL_TIMEOUT_MS) {
+                const resendRequested = await getAndClearHHResendRequested(
+                  db,
+                  workspaceId,
+                );
+                if (resendRequested && page) {
+                  await resendVerificationCode(page);
+                }
+
                 const code = await getAndClearHHPendingVerificationCode(
                   db,
                   workspaceId,

@@ -1,10 +1,5 @@
 "use server";
 
-import {
-  getIntegration,
-  saveHHPendingVerificationCode,
-} from "@qbs-autonaim/db";
-import { db } from "@qbs-autonaim/db/client";
 import { getSubscriptionToken } from "@bunworks/inngest-realtime";
 import { inngest } from "@qbs-autonaim/jobs/client";
 import { z } from "zod";
@@ -25,13 +20,6 @@ const verifyHHCredentialsSchema = z
       });
     }
   });
-
-const verifyHH2FACodeSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string(), // для входа по коду может быть пустым
-  workspaceId: z.string().min(1, "Workspace ID is required"),
-  verificationCode: z.string().length(4, "Code must be 4 digits"),
-});
 
 const verifyKworkCredentialsSchema = z.object({
   login: z.string().min(1, "Login is required"),
@@ -93,39 +81,6 @@ export async function fetchVerifyHHCredentialsToken(workspaceId: string) {
     topics: ["result"],
   });
   return token;
-}
-
-/**
- * Отправляет код 2FA — пишет в БД, job с открытым браузером опрашивает и вводит в форму
- */
-export async function triggerVerifyHH2FACode(
-  email: string,
-  password: string,
-  workspaceId: string,
-  verificationCode: string,
-) {
-  const validationResult = verifyHH2FACodeSchema.safeParse({
-    email,
-    password,
-    workspaceId,
-    verificationCode,
-  });
-
-  if (!validationResult.success) {
-    const errors = validationResult.error.issues
-      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
-      .join(", ");
-    throw new Error(`Validation failed: ${errors}`);
-  }
-
-  const { workspaceId: wid, verificationCode: code } = validationResult.data;
-
-  const existing = await getIntegration(db, "hh", wid);
-  if (!existing) {
-    throw new Error("Интеграция HH не найдена. Запросите код заново.");
-  }
-
-  await saveHHPendingVerificationCode(db, wid, code);
 }
 
 export async function triggerVerifyKworkCredentials(

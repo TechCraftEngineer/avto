@@ -6,7 +6,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import {
-  triggerVerifyHH2FACode,
   triggerVerifyHHCredentials,
   triggerVerifyKworkCredentials,
 } from "~/actions/integration";
@@ -106,6 +105,26 @@ export function useIntegrationDialog({
     // Очищаем поле email при смене типа - HH использует login
     form.setValue("email", "");
   }, [currentType, form]);
+
+  const saveHH2FACodeMutation = useMutation(
+    trpc.integration.saveHH2FACode.mutationOptions({
+      onError: (err) => {
+        setTwoFactorError(err.message);
+      },
+    }),
+  );
+
+  const requestHHResendCodeMutation = useMutation(
+    trpc.integration.requestHHResendCode.mutationOptions({
+      onSuccess: () => {
+        setResendCountdownReset((prev) => prev + 1);
+        toast.success("Новый код отправлен. Проверьте почту или SMS.");
+      },
+      onError: (err) => {
+        toast.error(err.message || "Ошибка повторной отправки");
+      },
+    }),
+  );
 
   const createMutation = useMutation(
     trpc.integration.create.mutationOptions({
@@ -302,43 +321,30 @@ export function useIntegrationDialog({
     setTwoFactorError(null);
 
     try {
-      await triggerVerifyHH2FACode(login, password, workspaceId, code);
-    } catch (error) {
+      await saveHH2FACodeMutation.mutateAsync({
+        workspaceId,
+        email: login,
+        verificationCode: code,
+      });
+    } catch {
       setIsVerifying(false);
-      setTwoFactorError(
-        error instanceof Error ? error.message : "Ошибка отправки кода",
-      );
     }
   };
 
   const handleResendCode = useCallback(async () => {
     if (!workspaceId) return;
 
-    const login = form.getValues("login") ?? "";
-    if (!login) {
-      toast.error("Email или телефон не найден.");
-      return;
-    }
-
     resendTriggeredRef.current = true;
     setIsResendingCode(true);
     setTwoFactorError(null);
 
     try {
-      await triggerVerifyHHCredentials(
-        login,
-        "",
-        workspaceId,
-        "code",
-      );
-    } catch (error) {
+      await requestHHResendCodeMutation.mutateAsync({ workspaceId });
+    } finally {
       resendTriggeredRef.current = false;
       setIsResendingCode(false);
-      toast.error(
-        error instanceof Error ? error.message : "Ошибка повторной отправки",
-      );
     }
-  }, [workspaceId, form]);
+  }, [workspaceId, requestHHResendCodeMutation]);
 
   return {
     form,
