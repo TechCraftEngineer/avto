@@ -2,8 +2,13 @@ import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { vacancy, vacancyPublication } from "@qbs-autonaim/db/schema";
 import { runHHArchivedVacancyParser } from "@qbs-autonaim/jobs-parsers";
-import { syncArchivedResponsesChannel } from "../../channels/client";
+import {
+  syncArchivedResponsesChannel,
+  workspaceNotificationsChannel,
+} from "../../channels/client";
 import { inngest } from "../../client";
+import { collectChatIdsForVacancy } from "../../../services/collect-chat-ids";
+import { screenNewResponsesForVacancy } from "../../../services/screen-new-responses";
 
 /**
  * Inngest функция для синхронизации всех откликов архивной вакансии
@@ -35,7 +40,6 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
         `🚀 Запуск синхронизации архивных откликов для вакансии ${vacancyId}`,
       );
 
-      // Получаем вакансию
       const vacancyData = await db.query.vacancy.findFirst({
         where: eq(vacancy.id, vacancyId),
       });
@@ -51,7 +55,6 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
         throw new Error(`Вакансия ${vacancyId} не найдена`);
       }
 
-      // Проверяем, что вакансия принадлежит указанному рабочему пространству
       if (vacancyData.workspaceId !== workspaceId) {
         await publish(
           syncArchivedResponsesChannel(vacancyId).progress({
@@ -65,7 +68,6 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
         );
       }
 
-      // Получаем публикацию на HH.ru
       const publication = await db.query.vacancyPublication.findFirst({
         where: (pub, { and, eq }) =>
           and(eq(pub.vacancyId, vacancyId), eq(pub.platform, "HH")),
@@ -104,9 +106,8 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
           }),
         );
 
-        // Создаем callback для промежуточных статусов с throttling
         let lastPublishTime = 0;
-        const THROTTLE_INTERVAL = 2000; // Минимум 2 секунды между обновлениями
+        const THROTTLE_INTERVAL = 2000;
 
         const onProgress = async (
           processed: number,
@@ -115,8 +116,6 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
           currentName?: string,
         ) => {
           const now = Date.now();
-
-          // Throttle: отправляем только каждые 2 секунды или на последнем элементе
           if (now - lastPublishTime < THROTTLE_INTERVAL && processed < total) {
             return;
           }
@@ -148,24 +147,10 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
             onProgress,
           } as Parameters<typeof runHHArchivedVacancyParser>[0]);
 
-        // Обновляем lastSyncedAt для публикации
         await db
           .update(vacancyPublication)
-          .set({
-            lastSyncedAt: new Date(),
-          })
+          .set({ lastSyncedAt: new Date() })
           .where(eq(vacancyPublication.id, publication.id));
-
-        await publish(
-          syncArchivedResponsesChannel(vacancyId).result({
-            vacancyId,
-            success: true,
-            syncedResponses,
-            newResponses,
-            totalResponses: syncedResponses,
-            vacancyTitle: vacancyData.title,
-          }),
-        );
 
         console.log(
           `✅ Архивные отклики для вакансии ${vacancyId} синхронизированы успешно`,
@@ -184,15 +169,6 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
           error,
         );
 
-        // Формируем детальную информацию об ошибке
-        const errorDetails = {
-          message:
-            error instanceof Error ? error.message : "Неизвестная ошибка",
-          stack: error instanceof Error ? error.stack : undefined,
-          timestamp: new Date().toISOString(),
-          vacancyId,
-        };
-
         await publish(
           syncArchivedResponsesChannel(vacancyId).progress({
             vacancyId,
@@ -202,42 +178,86 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
           }),
         );
 
-        // Логируем полную информацию для отладки
-        console.error(
-          "Детали ошибки синхронизации:",
-          JSON.stringify(errorDetails, null, 2),
-        );
-
         throw error;
       }
     });
 
-    // Запускаем сбор chat_id после получения откликов
-    await step.run("trigger-chat-ids-collection", async () => {
-      console.log(`🔄 Запускаем сбор chat_id для вакансии ${vacancyId}`);
-      await inngest.send({
-        name: "vacancy/chat-ids.collect",
-        data: { vacancyId },
-      });
-      console.log(
-        `✅ Событие сбора chat_id отправлено для вакансии ${vacancyId}`,
+    await step.run("collect-chat-ids", async () => {
+      await publish(
+        syncArchivedResponsesChannel(vacancyId).progress({
+          vacancyId,
+          status: "processing",
+          message: "Сбор chat_id и сопроводительных писем...",
+        }),
       );
+
+      const { updatedCount } = await collectChatIdsForVacancy(vacancyId, {
+        silent: true,
+      });
+
+      console.log(`✅ Сбор chat_id завершен. Обновлено: ${updatedCount}`);
+      return { success: true, updatedCount };
     });
 
-    // Запускаем оценку новых откликов
-    await step.run("trigger-screening", async () => {
-      console.log(
-        `🎯 Запускаем оценку новых откликов для вакансии ${vacancyId}`,
-      );
-      await inngest.send({
-        name: "response/screen.new",
-        data: { vacancyId },
-      });
-      console.log(
-        `✅ Событие оценки откликов отправлено для вакансии ${vacancyId}`,
-      );
+    const screeningResult = await step.run("screen-new-responses", async () => {
+      const { processed, failed, total } =
+        await screenNewResponsesForVacancy(vacancyId, {
+          onProgress: async (progress) => {
+            await publish(
+              syncArchivedResponsesChannel(vacancyId).progress({
+                vacancyId,
+                status: "processing",
+                message: `Оценено откликов: ${progress.processed + progress.failed} из ${progress.total}`,
+                screenedTotal: progress.total,
+                screenedProcessed: progress.processed,
+                screenedFailed: progress.failed,
+              }),
+            );
+          },
+        });
+
+      return { processed, failed, total };
     });
 
-    return result;
+    const vacancyData = await db.query.vacancy.findFirst({
+      where: eq(vacancy.id, vacancyId),
+      columns: { title: true, workspaceId: true },
+    });
+
+    await publish(
+      syncArchivedResponsesChannel(vacancyId).result({
+        vacancyId,
+        success: true,
+        syncedResponses: result.syncedResponses,
+        newResponses: result.newResponses,
+        totalResponses: result.syncedResponses,
+        vacancyTitle: result.vacancyTitle ?? vacancyData?.title ?? "",
+        screenedProcessed: screeningResult?.processed,
+        screenedFailed: screeningResult?.failed,
+      }),
+    );
+
+    if (
+      screeningResult &&
+      screeningResult.processed > 0 &&
+      vacancyData?.workspaceId
+    ) {
+      await publish(
+        workspaceNotificationsChannel(vacancyData.workspaceId)["task-completed"]({
+          workspaceId: vacancyData.workspaceId,
+          taskType: "screening",
+          taskId: vacancyId,
+          success: true,
+          message: `Оценено ${screeningResult.processed} новых откликов`,
+          timestamp: new Date().toISOString(),
+        }),
+      );
+    }
+
+    return {
+      ...result,
+      screenedProcessed: screeningResult?.processed,
+      screenedFailed: screeningResult?.failed,
+    };
   },
 );

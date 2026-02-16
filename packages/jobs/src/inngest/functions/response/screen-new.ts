@@ -1,7 +1,7 @@
-import { and, eq } from "@qbs-autonaim/db";
+import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
-import { response, vacancy } from "@qbs-autonaim/db/schema";
-import { screenResponse, unwrap } from "../../../services/response";
+import { vacancy } from "@qbs-autonaim/db/schema";
+import { screenNewResponsesForVacancy } from "../../../services/screen-new-responses";
 import {
   screenNewResponsesChannel,
   workspaceNotificationsChannel,
@@ -23,7 +23,6 @@ export const screenNewResponsesFunction = inngest.createFunction(
 
     console.log(`🚀 Запуск оценки новых откликов для вакансии: ${vacancyId}`);
 
-    // Отправляем уведомление о начале
     await publish(
       screenNewResponsesChannel(vacancyId).progress({
         vacancyId,
@@ -32,47 +31,27 @@ export const screenNewResponsesFunction = inngest.createFunction(
       }),
     );
 
-    // Получаем новые отклики (без скрининга)
-    const responses = await step.run("fetch-new-responses", async () => {
-      // Получаем все отклики для вакансии
-      const allResponses = await db.query.response.findMany({
-        where: and(
-          eq(response.entityType, "vacancy"),
-          eq(response.entityId, vacancyId),
-        ),
-        columns: {
-          id: true,
-          entityId: true,
-        },
-      });
+    const result = await step.run("screen-new-responses", async () => {
+      const { processed, failed, total } =
+        await screenNewResponsesForVacancy(vacancyId, {
+          onProgress: async (progress) => {
+            await publish(
+              screenNewResponsesChannel(vacancyId).progress({
+                vacancyId,
+                status: "processing",
+                message: `Оценено откликов: ${progress.processed + progress.failed} из ${progress.total}`,
+                total: progress.total,
+                processed: progress.processed,
+                failed: progress.failed,
+              }),
+            );
+          },
+        });
 
-      // Если нет откликов, возвращаем пустой массив
-      if (allResponses.length === 0) {
-        return [];
-      }
-
-      // Получаем ID откликов, у которых уже есть скрининг
-      const responseIds = allResponses.map((r) => r.id);
-      const screenedResponseIds = await db.query.responseScreening.findMany({
-        where: (screening, { inArray }) =>
-          inArray(screening.responseId, responseIds),
-        columns: {
-          responseId: true,
-        },
-      });
-
-      const screenedIds = new Set(screenedResponseIds.map((s) => s.responseId));
-
-      // Фильтруем только отклики без скрининга
-      const results = allResponses.filter((r) => !screenedIds.has(r.id));
-
-      console.log(`✅ Найдено новых откликов: ${results.length}`);
-      return results;
+      return { processed, failed, total };
     });
 
-    if (responses.length === 0) {
-      console.log("ℹ️ Нет новых откликов для оценки");
-
+    if (result.total === 0) {
       await publish(
         screenNewResponsesChannel(vacancyId).result({
           vacancyId,
@@ -82,115 +61,23 @@ export const screenNewResponsesFunction = inngest.createFunction(
           failed: 0,
         }),
       );
-
-      return {
-        success: true,
-        total: 0,
-        processed: 0,
-        failed: 0,
-      };
+      return { success: true, total: 0, processed: 0, failed: 0 };
     }
 
-    // Отправляем прогресс о найденных откликах
-    await publish(
-      screenNewResponsesChannel(vacancyId).progress({
-        vacancyId,
-        status: "processing",
-        message: `Найдено ${responses.length} новых откликов. Начинаем оценку...`,
-        total: responses.length,
-        processed: 0,
-        failed: 0,
-      }),
-    );
-
-    // Обрабатываем каждый отклик последовательно с прогрессом
-    const results: Array<{
-      responseId: string;
-      vacancyId: string;
-      success: boolean;
-      score?: number;
-      error?: string;
-    }> = [];
-
-    let processedCount = 0;
-    let failedCount = 0;
-
-    for (const resp of responses) {
-      const result = await step.run(`screen-response-${resp.id}`, async () => {
-        try {
-          console.log(`🎯 Скрининг отклика: ${resp.id}`);
-
-          const resultWrapper = await screenResponse(resp.id);
-          const screenResult = unwrap(resultWrapper);
-
-          console.log(`✅ Скрининг завершен: ${resp.id}`, {
-            score: screenResult.detailedScore,
-          });
-
-          return {
-            responseId: resp.id,
-            vacancyId: resp.entityId,
-            success: true,
-            score: screenResult.detailedScore,
-          };
-        } catch (error) {
-          console.error(`❌ Ошибка скрининга для ${resp.id}:`, error);
-          return {
-            responseId: resp.id,
-            vacancyId: resp.entityId,
-            success: false,
-            error: error instanceof Error ? error.message : "Unknown error",
-          };
-        }
-      });
-
-      results.push(result);
-
-      if (result.success) {
-        processedCount++;
-      } else {
-        failedCount++;
-      }
-
-      // Публикуем прогресс после каждого обработанного отклика
-      await publish(
-        screenNewResponsesChannel(vacancyId).progress({
-          vacancyId,
-          status: "processing",
-          message: `Оценено откликов: ${processedCount + failedCount} из ${responses.length}`,
-          total: responses.length,
-          processed: processedCount,
-          failed: failedCount,
-        }),
-      );
-    }
-
-    const successful = processedCount;
-    const failed = failedCount;
-
-    console.log(
-      `✅ Завершено: успешно ${successful}, ошибок ${failed} из ${responses.length}`,
-    );
-
-    // Отправляем финальный результат
     await publish(
       screenNewResponsesChannel(vacancyId).result({
         vacancyId,
         success: true,
-        total: responses.length,
-        processed: successful,
-        failed,
+        total: result.total,
+        processed: result.processed,
+        failed: result.failed,
       }),
     );
 
-    // Отправляем уведомление о завершении задачи
-    if (successful > 0) {
-      // Получаем workspaceId вакансии для уведомления
+    if (result.processed > 0) {
       const vacancyData = await db.query.vacancy.findFirst({
         where: eq(vacancy.id, vacancyId),
-        columns: {
-          workspaceId: true,
-        },
+        columns: { workspaceId: true },
       });
 
       if (vacancyData?.workspaceId) {
@@ -202,7 +89,7 @@ export const screenNewResponsesFunction = inngest.createFunction(
             taskType: "screening",
             taskId: vacancyId,
             success: true,
-            message: `Оценено ${successful} новых откликов`,
+            message: `Оценено ${result.processed} новых откликов`,
             timestamp: new Date().toISOString(),
           }),
         );
@@ -211,9 +98,9 @@ export const screenNewResponsesFunction = inngest.createFunction(
 
     return {
       success: true,
-      total: responses.length,
-      processed: successful,
-      failed,
+      total: result.total,
+      processed: result.processed,
+      failed: result.failed,
     };
   },
 );

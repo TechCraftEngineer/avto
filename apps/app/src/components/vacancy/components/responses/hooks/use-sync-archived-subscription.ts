@@ -11,6 +11,9 @@ const ProgressDataSchema = z.object({
   vacancyId: z.string(),
   syncedResponses: z.number().optional(),
   newResponses: z.number().optional(),
+  screenedTotal: z.number().optional(),
+  screenedProcessed: z.number().optional(),
+  screenedFailed: z.number().optional(),
 });
 
 const ResultDataSchema = z.object({
@@ -19,6 +22,8 @@ const ResultDataSchema = z.object({
   syncedResponses: z.number(),
   newResponses: z.number(),
   vacancyTitle: z.string(),
+  screenedProcessed: z.number().optional(),
+  screenedFailed: z.number().optional(),
 });
 
 export interface StatusData {
@@ -27,6 +32,9 @@ export interface StatusData {
   vacancyId?: string;
   syncedResponses?: number;
   newResponses?: number;
+  screenedTotal?: number;
+  screenedProcessed?: number;
+  screenedFailed?: number;
   vacancyTitle?: string;
 }
 
@@ -71,6 +79,9 @@ export function useSyncArchivedSubscription({
         vacancyId: progressData.vacancyId,
         syncedResponses: progressData.syncedResponses,
         newResponses: progressData.newResponses,
+        screenedTotal: progressData.screenedTotal,
+        screenedProcessed: progressData.screenedProcessed,
+        screenedFailed: progressData.screenedFailed,
       });
 
       if (progressData.status === "error") {
@@ -87,7 +98,17 @@ export function useSyncArchivedSubscription({
       }
 
       const resultData = parseResult.data;
-      const message = `Синхронизация завершена. Обработано: ${resultData.syncedResponses}, новых: ${resultData.newResponses}`;
+      const parts = [
+        `Обработано: ${resultData.syncedResponses}`,
+        `новых: ${resultData.newResponses}`,
+      ];
+      if (
+        resultData.screenedProcessed != null &&
+        resultData.screenedProcessed > 0
+      ) {
+        parts.push(`оценено: ${resultData.screenedProcessed}`);
+      }
+      const message = `Синхронизация завершена. ${parts.join(", ")}`;
 
       onMessage?.(message, {
         status: "completed",
@@ -96,6 +117,8 @@ export function useSyncArchivedSubscription({
         syncedResponses: resultData.syncedResponses,
         newResponses: resultData.newResponses,
         vacancyTitle: resultData.vacancyTitle,
+        screenedProcessed: resultData.screenedProcessed,
+        screenedFailed: resultData.screenedFailed,
       });
 
       onStatusChange?.("completed", message);

@@ -21,6 +21,12 @@ export {
 } from "@qbs-autonaim/jobs-shared";
 // ==================== Auth ====================
 export { checkHHCredentials } from "./auth";
+// ==================== Collect Chat IDs ====================
+export {
+  collectChatIdsForVacancy,
+  type CollectChatIdsOptions,
+  type CollectChatIdsResult,
+} from "./collect-chat-ids";
 // ==================== Base Utilities ====================
 export {
   // Logger
@@ -87,6 +93,13 @@ export {
   saveRecommendation,
   toSaveData,
 } from "./recommendation";
+// ==================== Screen New Responses ====================
+export {
+  screenNewResponsesForVacancy,
+  type ScreenNewResponsesOptions,
+  type ScreenNewResponsesProgress,
+  type ScreenNewResponsesResult,
+} from "./screen-new-responses";
 // ==================== Response ====================
 export {
   // Repository

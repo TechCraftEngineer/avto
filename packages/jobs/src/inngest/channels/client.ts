@@ -138,6 +138,9 @@ export const syncArchivedResponsesChannel = channel(
         syncedResponses: z.number().optional(),
         newResponses: z.number().optional(),
         totalResponses: z.number().optional(), // Общее количество для расчёта процента
+        screenedTotal: z.number().optional(),
+        screenedProcessed: z.number().optional(),
+        screenedFailed: z.number().optional(),
       }),
     ),
   )
@@ -150,6 +153,8 @@ export const syncArchivedResponsesChannel = channel(
         newResponses: z.number(),
         totalResponses: z.number().optional(),
         vacancyTitle: z.string(),
+        screenedProcessed: z.number().optional(),
+        screenedFailed: z.number().optional(),
       }),
     ),
   );
