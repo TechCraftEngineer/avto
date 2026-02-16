@@ -1,5 +1,4 @@
 import type { Page } from "puppeteer";
-import { HH_CONFIG } from "../config/config";
 
 /**
  * Вспомогательная функция для логирования
@@ -185,7 +184,6 @@ export async function submitVerificationCode(
     // Поле для ввода кода имеет id "magritte-pincode-input-field"
     // Оно находится внутри div[data-qa="account-login-code-input"]
 
-    // Ищем все поля ввода внутри контейнера для кода
     const codeInputContainer = await page.$(
       'div[data-qa="account-login-code-input"]',
     );
@@ -197,34 +195,52 @@ export async function submitVerificationCode(
       };
     }
 
-    // Ищем поля ввода внутри контейнера
-    const inputFields = await codeInputContainer.$$("input");
-
-    if (inputFields.length === 0) {
-      // Пробуем найти поле по id
-      const pincodeInput = await page.$("#magritte-pincode-input-field");
-
-      if (!pincodeInput) {
+    // 1. Единое поле magritte-pincode (data-qa, не id) — maxlength 6, принимает код
+    const pincodeInput = await page.$('[data-qa="magritte-pincode-input-field"]');
+    if (pincodeInput) {
+      await pincodeInput.click();
+      await pincodeInput.type(code, { delay: 100 });
+    } else {
+      const inputFields = await codeInputContainer.$$("input");
+      if (inputFields.length === 0) {
         return {
           success: false,
           error: "Поле для ввода кода не найдено",
         };
       }
-
-      await pincodeInput.type(code, { delay: 100 });
-    } else {
-      // Вводим код в каждое поле (4 поля для 4-значного кода)
-      const codeDigits = code.split("");
-
-      for (
-        let i = 0;
-        i < Math.min(codeDigits.length, inputFields.length);
-        i++
-      ) {
-        const digit = codeDigits[i];
-        if (digit !== undefined) {
-          await inputFields[i]!.type(digit, { delay: 100 });
+      // 2. Много слотов (4, 6...) — по цифре в каждый
+      if (code.length <= inputFields.length) {
+        const codeDigits = code.split("");
+        for (let i = 0; i < codeDigits.length; i++) {
+          const digit = codeDigits[i];
+          const slot = inputFields[i];
+          if (digit !== undefined && slot) {
+            await slot.type(digit, { delay: 100 });
+          }
         }
+      } else {
+        // 3. Код длиннее слотов (напр. 4+ цифр при 2 слотах oauth-merge-by-code)
+        // Распределяем цифры по слотам, задаём value через JS (обходим maxLength=1)
+        const codeDigits = code.split("");
+        const perSlot = Math.ceil(codeDigits.length / inputFields.length);
+        await page.evaluate(
+          ({ digits, perSlot: p }) => {
+            const container = document.querySelector(
+              'div[data-qa="account-login-code-input"]',
+            );
+            const inputs = Array.from(container?.querySelectorAll("input") ?? []);
+            for (let s = 0; s < inputs.length; s++) {
+              const chunk = digits.slice(s * p, (s + 1) * p).join("");
+              const el = inputs[s] as HTMLInputElement | undefined;
+              if (el && chunk) {
+                el.value = chunk;
+                el.dispatchEvent(new Event("input", { bubbles: true }));
+                el.dispatchEvent(new Event("change", { bubbles: true }));
+              }
+            }
+          },
+          { digits: codeDigits, perSlot },
+        );
       }
     }
 

@@ -101,6 +101,7 @@ export function useIntegrationDialog({
   }, [selectedType, isEditing, existingIntegration, form]);
 
   const currentType = form.watch("type");
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     // Очищаем поле email при смене типа - HH использует login
     form.setValue("email", "");

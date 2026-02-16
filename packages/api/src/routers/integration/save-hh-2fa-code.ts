@@ -11,7 +11,10 @@ import { protectedProcedure } from "../../trpc";
 const saveHH2FACodeSchema = z.object({
   workspaceId: workspaceIdSchema,
   email: z.string().email("Некорректный email"),
-  verificationCode: z.string().length(4, "Код должен содержать 4 цифры"),
+  verificationCode: z
+    .string()
+    .min(1, "Введите код")
+    .regex(/^\d+$/, "Код должен содержать только цифры"),
 });
 
 export const saveHH2FACode = protectedProcedure

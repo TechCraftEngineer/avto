@@ -15,9 +15,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
+  Input,
 } from "@qbs-autonaim/ui";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -26,8 +24,8 @@ import { z } from "zod";
 const verificationCodeSchema = z.object({
   code: z
     .string()
-    .length(4, "Код должен состоять из 4 цифр")
-    .regex(/^\d{4}$/, "Код должен содержать только цифры"),
+    .min(1, "Введите код")
+    .regex(/^\d+$/, "Код должен содержать только цифры"),
 });
 
 type VerificationCodeValues = z.infer<typeof verificationCodeSchema>;
@@ -129,7 +127,7 @@ export function HHVerificationCodeDialog({
             Подтверждение входа в hh.ru
           </DialogTitle>
           <DialogDescription className="text-base">
-            Введите 4-значный код, отправленный на {email}
+            Введите код, отправленный на {email}
           </DialogDescription>
         </DialogHeader>
 
@@ -147,29 +145,23 @@ export function HHVerificationCodeDialog({
                     Код подтверждения
                   </FormLabel>
                   <FormControl>
-                    <InputOTP
-                      maxLength={4}
-                      value={field.value}
-                      onChange={(value) => {
-                        field.onChange(value);
-                        if (value.length === 4) {
-                          form.handleSubmit(handleSubmit)();
-                        }
-                      }}
+                    <Input
+                      {...field}
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      placeholder="Код из письма или SMS"
                       disabled={isLoading}
                       autoComplete="one-time-code"
                       aria-describedby={
                         onResendCode ? "code-description" : undefined
                       }
-                      containerClassName="justify-center"
-                    >
-                      <InputOTPGroup className="*:data-[slot=input-otp-slot]:h-12 *:data-[slot=input-otp-slot]:w-12 *:data-[slot=input-otp-slot]:text-xl *:data-[slot=input-otp-slot]:text-center">
-                        <InputOTPSlot index={0} />
-                        <InputOTPSlot index={1} />
-                        <InputOTPSlot index={2} />
-                        <InputOTPSlot index={3} />
-                      </InputOTPGroup>
-                    </InputOTP>
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, "");
+                        field.onChange(value);
+                      }}
+                      className="text-center tabular-nums"
+                    />
                   </FormControl>
                   {onResendCode && (
                     <FormDescription
@@ -228,7 +220,7 @@ export function HHVerificationCodeDialog({
               </Button>
               <Button
                 type="submit"
-                disabled={isLoading || form.getValues("code").length !== 4}
+                disabled={isLoading || !form.watch("code")?.trim()}
                 className="h-11"
               >
                 {isLoading ? "Проверка…" : "Подтвердить"}
