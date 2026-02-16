@@ -82,6 +82,17 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
           await closeBrowserSafely(browser);
         }
 
+        // Всегда сохраняем логин и пароль, даже при ошибке авторизации
+        await upsertIntegration(db, {
+          workspaceId,
+          type: "hh",
+          name: "HeadHunter",
+          credentials: {
+            email,
+            password,
+          },
+        });
+
         const errorMessage =
           error instanceof Error ? error.message : "Неизвестная ошибка";
 
