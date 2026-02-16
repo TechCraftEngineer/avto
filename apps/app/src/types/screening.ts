@@ -3,6 +3,8 @@
  * Centralizes all type definitions for consistent data structures across components
  */
 
+import type { ComponentType } from "react";
+
 // ============================================
 // SCORE TYPES
 // ============================================
@@ -175,7 +177,7 @@ export interface AnalysisSection {
   id: string;
   title: string;
   content: string;
-  icon?: React.ComponentType<{ className?: string }>;
+  icon?: ComponentType<{ className?: string }>;
   badge?: string;
 }
 

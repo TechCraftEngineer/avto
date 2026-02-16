@@ -30,6 +30,7 @@ const submitApplicationInputSchema = z.object({
   /** Optional additional message from candidate - minimum 10 characters for meaningful content */
   coverLetter: z
     .string()
+    .trim()
     .min(10, "Сопроводительное письмо должно содержать минимум 10 символов")
     .max(5000, "Сопроводительное письмо не может превышать 5000 символов")
     .optional()
@@ -46,14 +47,6 @@ const submitApplicationInputSchema = z.object({
 export const submitApplication = publicProcedure
   .input(submitApplicationInputSchema)
   .mutation(async ({ ctx, input }) => {
-    // Validate cover letter content quality
-    if (input.coverLetter && input.coverLetter.trim().length < 10) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: "Пожалуйста, напишите более подробное сопроводительное письмо (минимум 10 символов)",
-      });
-    }
-
     // Validate that session has required data
     const sessionManager = new SessionManager(ctx.db);
 
@@ -159,7 +152,7 @@ export const submitApplication = publicProcedure
         // Синхронизируем кандидата с контактными данными
         const syncResult = await candidateSync.syncCandidateFromContacts({
           name: candidateInfo?.name,
-          email: candidateInfo?.email || undefined,
+          email: candidateInfo?.email || input.email || undefined,
           phone: candidateInfo?.phone || undefined,
           telegramUsername: undefined,
           organizationId: workspaceData.organizationId,
@@ -258,7 +251,7 @@ export const submitApplication = publicProcedure
           globalCandidateId,
           // Store prequalification metadata in contacts field
           contacts: {
-            email: candidateInfo?.email,
+            email: candidateInfo?.email || input.email,
             prequalificationSessionId: session.id,
             fitScore: session.fitScore,
             fitDecision: session.fitDecision,

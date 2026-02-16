@@ -3,6 +3,7 @@
  * Replaces duplicated RECOMMENDATION_CONFIG in multiple components
  */
 
+import type { ComponentType } from "react";
 import {
   AlertCircle,
   CheckCircle,
@@ -15,7 +16,7 @@ import type { RecommendationLevel } from "~/types/screening";
 export interface RecommendationConfig {
   label: string;
   variant: "default" | "secondary" | "destructive" | "outline";
-  icon: React.ComponentType<{ className?: string }>;
+  icon: ComponentType<{ className?: string }>;
   color: string;
   bgColor: string;
 }
@@ -107,7 +108,7 @@ export function parseRecommendationLevel(
   value: string,
 ): RecommendationLevel | null {
   const normalized = value
-    .toUpperCase()
+    .toLowerCase()
     .replace(/[-_\s]/g, "_") as RecommendationLevel;
   return RECOMMENDATION_CONFIG[normalized] ? normalized : null;
 }

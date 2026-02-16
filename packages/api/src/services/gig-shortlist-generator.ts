@@ -5,7 +5,7 @@
  * compositeScore и рекомендаций AI
  */
 
-import { and, eq, gte, isNotNull } from "@qbs-autonaim/db";
+import { and, eq, gte, isNotNull, sql } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { interviewScoring, response, responseScreening } from "@qbs-autonaim/db/schema";
 
@@ -95,6 +95,18 @@ export class GigShortlistGenerator {
 
     // Получаем все ранжированные отклики для gig с JOIN к screening
     // Также получаем оценку интервью если есть
+    // Используем подзапрос для дедупликации interviewScoring по responseId (берём max score)
+    const bestInterviewScoring = db
+      .select({
+        responseId: interviewScoring.responseId,
+        score: sql`MAX(${interviewScoring.score})`.as("max_score"),
+      })
+      .from(interviewScoring)
+      .groupBy(interviewScoring.responseId)
+      .as("best_interview_scoring");
+
+    // Получаем все ранжированные отклики для gig с JOIN к screening
+    // Также получаем оценку интервью если есть
     const responses = await db
       .select({
         id: response.id,
@@ -128,8 +140,15 @@ export class GigShortlistGenerator {
         eq(response.id, responseScreening.responseId),
       )
       .leftJoin(
+        bestInterviewScoring,
+        eq(response.id, bestInterviewScoring.responseId),
+      )
+      .leftJoin(
         interviewScoring,
-        eq(response.id, interviewScoring.responseId),
+        and(
+          eq(response.id, interviewScoring.responseId),
+          eq(interviewScoring.score, bestInterviewScoring.score),
+        ),
       )
       .where(
         and(
@@ -196,7 +215,8 @@ export class GigShortlistGenerator {
     return {
       gigId,
       candidates,
-      totalCandidates: responses.length,
+      // Подсчитываем уникальных кандидатов (дедупликация по response.id)
+      totalCandidates: new Set(responses.map((r) => r.id)).size,
       generatedAt: new Date(),
       options: {
         minScore,

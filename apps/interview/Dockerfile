@@ -8,7 +8,8 @@ RUN npm install -g bun
 # Set working directory
 WORKDIR /app
 # Install turbo globally
-RUN npm install -g turbo@2.8.9-canary.1
+# Using stable version 2.8.9 for consistency with other services
+RUN npm install -g turbo@2.8.9
 COPY . .
 
 # Generate a partial monorepo with a pruned lockfile for a target workspace.
