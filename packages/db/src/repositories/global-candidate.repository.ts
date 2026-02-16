@@ -331,7 +331,10 @@ export class GlobalCandidateRepository {
       telegramUsername: data.telegramUsername ?? null,
       headline: data.headline ?? null,
       resumeUrl: data.resumeUrl ?? null,
-      profileData: (data.profileData ?? null) as StoredProfileData,
+      profileData:
+        data.profileData !== undefined && data.profileData !== null
+          ? data.profileData
+          : undefined,
       skills: data.skills ?? null,
       experienceYears: data.experienceYears ?? null,
       salaryExpectationsAmount: data.salaryExpectationsAmount ?? null,

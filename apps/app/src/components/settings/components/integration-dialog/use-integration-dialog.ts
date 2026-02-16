@@ -374,9 +374,12 @@ export function useIntegrationDialog({
         email: login,
         verificationCode: code,
       });
-    } catch {
+    } catch (error) {
       codeSubmittedRef.current = false;
       setIsVerifying(false);
+      const fallback =
+        error instanceof Error ? error.message : String(error);
+      setTwoFactorError(fallback || "Ошибка проверки кода. Попробуйте снова.");
     }
   };
 

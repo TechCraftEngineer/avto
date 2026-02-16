@@ -3,6 +3,7 @@ import { db } from "@qbs-autonaim/db/client";
 import { integration, response, vacancy } from "@qbs-autonaim/db/schema";
 import { getResponsesLimit } from "@qbs-autonaim/jobs-shared";
 import axios from "axios";
+import { z } from "zod";
 
 interface ChatItem {
   id: string;
@@ -63,20 +64,29 @@ export interface CollectChatIdsResult {
  * Собирает chat_id и сопроводительные письма для всех откликов вакансии через HH Chat API.
  * Используется в collect-chat-ids и sync-archived-responses.
  */
+const vacancyIdSchema = z.string().min(1);
+
 export async function collectChatIdsForVacancy(
   vacancyId: string,
   options: CollectChatIdsOptions = {},
 ): Promise<CollectChatIdsResult> {
   const { silent = false } = options;
 
+  const parsed = vacancyIdSchema.safeParse(vacancyId);
+  if (!parsed.success) {
+    if (silent) return { success: true, updatedCount: 0 };
+    throw new Error("Некорректный идентификатор вакансии");
+  }
+  const validatedVacancyId = parsed.data;
+
   const vacancyData = await db.query.vacancy.findFirst({
-    where: eq(vacancy.id, vacancyId),
+    where: eq(vacancy.id, validatedVacancyId),
     with: { workspace: true },
   });
 
-  if (!vacancyData) {
+    if (!vacancyData) {
     if (silent) return { success: true, updatedCount: 0 };
-    throw new Error(`Вакансия ${vacancyId} не найдена`);
+    throw new Error(`Вакансия ${validatedVacancyId} не найдена`);
   }
 
   const externalId =
@@ -84,14 +94,14 @@ export async function collectChatIdsForVacancy(
     (
       await db.query.vacancyPublication.findFirst({
         where: (pub, { and, eq }) =>
-          and(eq(pub.vacancyId, vacancyId), eq(pub.platform, "HH")),
+          and(eq(pub.vacancyId, validatedVacancyId), eq(pub.platform, "HH")),
         columns: { externalId: true },
       })
     )?.externalId;
 
   if (!externalId) {
     if (silent) return { success: true, updatedCount: 0 };
-    throw new Error(`У вакансии ${vacancyId} отсутствует externalId`);
+    throw new Error(`У вакансии ${validatedVacancyId} отсутствует externalId`);
   }
 
   const hhIntegration = await db.query.integration.findFirst({
@@ -125,6 +135,7 @@ export async function collectChatIdsForVacancy(
     const chatsRes = await axios.get<ChatsResponse>(
       "https://chatik.hh.ru/chatik/api/chats",
       {
+        timeout: 15_000,
         params: {
           vacancyIds: externalId,
           filterUnread: false,
@@ -162,7 +173,7 @@ export async function collectChatIdsForVacancy(
     .where(
       and(
         eq(response.entityType, "vacancy"),
-        eq(response.entityId, vacancyId),
+        eq(response.entityId, validatedVacancyId),
       ),
     )
     .orderBy(desc(response.respondedAt));

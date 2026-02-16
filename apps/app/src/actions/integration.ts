@@ -6,9 +6,9 @@ import { z } from "zod";
 
 const verifyHHCredentialsSchema = z
   .object({
-    email: z.string().email("Invalid email address"),
+    email: z.string().email("Неверный адрес электронной почты"),
     password: z.string().optional(),
-    workspaceId: z.string().min(1, "Workspace ID is required"),
+    workspaceId: z.string().min(1, "Идентификатор рабочего пространства обязателен"),
     authType: z.enum(["password", "code"]).default("password"),
   })
   .superRefine((data, ctx) => {
@@ -16,7 +16,7 @@ const verifyHHCredentialsSchema = z
       if (!data.password || data.password.length < 8) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "Password must be at least 8 characters",
+          message: "Пароль должен содержать не менее 8 символов",
           path: ["password"],
         });
       }

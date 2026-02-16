@@ -7,7 +7,7 @@ export const integrationFormSchema = z
     name: z.string().optional(),
     login: z.string().optional(),
     email: z.string().optional(),
-    password: z.string(),
+    password: z.string().optional(),
     authType: z.enum(["password", "code"]),
   })
   .superRefine((data, ctx) => {
@@ -20,7 +20,12 @@ export const integrationFormSchema = z
         });
       }
       // Kwork всегда требует пароль
-      if (!data.password || data.password.trim().length === 0) {
+      if (
+        data.password === undefined ||
+        data.password === null ||
+        typeof data.password !== "string" ||
+        data.password.trim().length === 0
+      ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Пароль обязателен",
@@ -46,15 +51,19 @@ export const integrationFormSchema = z
         });
       }
       // Для HH с паролем - пароль обязателен
-      if (
-        data.authType === "password" &&
-        (!data.password || data.password.trim().length === 0)
-      ) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Пароль обязателен",
-          path: ["password"],
-        });
+      if (data.authType === "password") {
+        if (
+          data.password === undefined ||
+          data.password === null ||
+          typeof data.password !== "string" ||
+          data.password.trim().length === 0
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Пароль обязателен",
+            path: ["password"],
+          });
+        }
       }
     }
   });

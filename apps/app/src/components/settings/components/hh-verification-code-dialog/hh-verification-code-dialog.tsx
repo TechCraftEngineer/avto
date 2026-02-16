@@ -110,6 +110,7 @@ export function HHVerificationCodeDialog({
   });
 
   const handleSubmit = (data: VerificationCodeValues) => {
+    if (attempts >= 3) return;
     setAttempts((prev) => prev + 1);
     onSubmitCode(data.code);
   };
@@ -221,7 +222,11 @@ export function HHVerificationCodeDialog({
               </Button>
               <Button
                 type="submit"
-                disabled={isLoading || !form.watch("code")?.trim()}
+                disabled={
+                  isLoading ||
+                  !form.watch("code")?.trim() ||
+                  attempts >= 3
+                }
                 className="h-11"
               >
                 {isLoading && <Spinner className="h-4 w-4" />}

@@ -40,12 +40,14 @@ const POLL_INTERVAL_MS = 500;
  * Результат проверки необходимости 2FA
  */
 export interface TwoFactorCheckResult {
-  /** Требуется ли двухфакторная аутентификация */
-  requiresTwoFactor: boolean;
+  /** Требуется ли двухфакторная аутентификация (null — проверка не удалась) */
+  requiresTwoFactor: boolean | null;
   /** Сообщение для пользователя */
   message?: string;
   /** Тип 2FA (email или phone) */
   twoFactorType?: "email" | "phone";
+  /** Ошибка при неудачной проверке (отличает от «2FA не требуется») */
+  error?: unknown;
 }
 
 /**
@@ -97,7 +99,8 @@ export async function checkTwoFactorRequired(
     logError("Ошибка при проверке 2FA:");
     console.error(error);
     return {
-      requiresTwoFactor: false,
+      requiresTwoFactor: null,
+      error,
     };
   }
 }

@@ -19,7 +19,18 @@ export const requestHHResendCode = protectedProcedure
       });
     }
 
-    await saveHHResendRequested(ctx.db, input.workspaceId);
+    try {
+      await saveHHResendRequested(ctx.db, input.workspaceId);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.includes("not found") || msg.includes("Integration hh not found")) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Интеграция HH не найдена",
+        });
+      }
+      throw err;
+    }
 
     return { ok: true };
   });

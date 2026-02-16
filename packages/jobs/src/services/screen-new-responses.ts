@@ -1,6 +1,7 @@
 import { and, eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { response } from "@qbs-autonaim/db/schema";
+import { z } from "zod";
 import { screenResponse, unwrap } from "./response";
 
 export interface ScreenNewResponsesProgress {
@@ -23,10 +24,14 @@ export interface ScreenNewResponsesResult {
  * Собирает отклики без скрининга и оценивает их.
  * Используется в screen-new и sync-archived-responses.
  */
+const vacancyIdSchema = z.string().min(1);
+
 export async function screenNewResponsesForVacancy(
   vacancyId: string,
   options: ScreenNewResponsesOptions = {},
 ): Promise<ScreenNewResponsesResult> {
+  vacancyIdSchema.parse(vacancyId);
+
   const { onProgress } = options;
 
   const allResponses = await db.query.response.findMany({
