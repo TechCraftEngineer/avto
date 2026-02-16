@@ -1,5 +1,6 @@
 import {
   getAndClearHHResendRequested,
+  getAndClearHHPendingCaptcha,
   getAndClearHHPendingVerificationCode,
   upsertIntegration,
 } from "@qbs-autonaim/db";
@@ -9,10 +10,13 @@ import {
   workspaceNotificationsChannel,
 } from "@qbs-autonaim/jobs/channels";
 import { inngest } from "@qbs-autonaim/jobs/client";
-import { Log } from "crawlee";
 import type { Browser, Page } from "puppeteer";
 import puppeteer from "puppeteer";
-import { performLogin } from "../../parsers/hh/core/auth/auth";
+import {
+  getCaptchaImageUrl,
+  isCaptchaRequired,
+  submitCaptcha,
+} from "../../parsers/hh/core/auth/auth-captcha";
 import {
   initiateCodeAuth,
   isWaitingForCode,
@@ -48,6 +52,84 @@ type VerifyCredentialsStepResult =
   | { success: true; isValid: true }
   | { success: false; isValid: false; requiresTwoFactor: true }
   | { success: false; isValid: false; error: string };
+
+type PublishFn = (event: unknown) => Promise<unknown>;
+
+/**
+ * Опрашивает капчу, если она появилась: публикует URL на фронт, ждёт ввод, вводит в Puppeteer
+ */
+async function resolveCaptchaLoop(
+  page: Page,
+  dbInstance: typeof db,
+  workspaceId: string,
+  publish: PublishFn,
+  sleep: (ms: number) => Promise<void>,
+  timeoutMs: number,
+  pollIntervalMs: number,
+  email?: string,
+): Promise<void> {
+  const startedAt = Date.now();
+  while (Date.now() - startedAt < timeoutMs) {
+    if (!(await isCaptchaRequired(page))) return;
+
+    const imageUrl = await getCaptchaImageUrl(page);
+    if (!imageUrl) {
+      await sleep(pollIntervalMs);
+      continue;
+    }
+
+    await upsertIntegration(dbInstance, {
+      workspaceId,
+      type: "hh",
+      name: "HeadHunter",
+      credentials: email ? { email } : {},
+    });
+
+    await publish(
+      verifyHHCredentialsChannel(workspaceId).result({
+        success: false,
+        isValid: false,
+        captchaRequired: true,
+        captchaImageUrl: imageUrl,
+        message: "Введите символы с картинки",
+      }),
+    );
+
+    const captchaTimeout = Date.now() + timeoutMs - (Date.now() - startedAt);
+    let captchaText: string | null = null;
+    while (Date.now() < captchaTimeout) {
+      captchaText = await getAndClearHHPendingCaptcha(dbInstance, workspaceId);
+      if (captchaText) break;
+      await sleep(pollIntervalMs);
+    }
+
+    if (!captchaText) {
+      await publish(
+        verifyHHCredentialsChannel(workspaceId).result({
+          success: false,
+          isValid: false,
+          error: "Время ввода капчи истекло",
+        }),
+      );
+      throw new Error("Время ввода капчи истекло");
+    }
+
+    const result = await submitCaptcha(page, captchaText);
+    if (result.success) return;
+    if (result.error?.includes("Неверная")) {
+      await publish(
+        verifyHHCredentialsChannel(workspaceId).result({
+          success: false,
+          isValid: false,
+          captchaRequired: true,
+          captchaImageUrl: imageUrl,
+          message: result.error,
+        }),
+      );
+    }
+    await sleep(1000);
+  }
+}
 
 export const verifyHHCredentialsFunction = inngest.createFunction(
   {
@@ -93,14 +175,59 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
         const loginInput = await page.$('input[type="text"][name="username"]');
 
         if (loginInput) {
-          const log = new Log();
-
           const initiated = await initiateCodeAuth(page, email);
 
-          if (initiated) {
-            const waitingForCode = await isWaitingForCode(page);
+          // Капча может появиться после нажатия «Получить код» или «Войти»
+          await resolveCaptchaLoop(
+            page,
+            db,
+            workspaceId,
+            publish,
+            sleep,
+            POLL_TIMEOUT_MS,
+            POLL_INTERVAL_MS,
+            email,
+          );
 
-            if (waitingForCode) {
+          let waitingForCode = await isWaitingForCode(page);
+
+          if (!initiated && !waitingForCode) {
+            // initiateCodeAuth вернул false — проверяем, доступен ли вход по паролю.
+            // Для аккаунтов «только по коду» кнопки «Войти с паролем» нет.
+            const passwordLoginAvailable = await page.$(
+              'button[data-qa="expand-login-by_password"]',
+            );
+            if (!passwordLoginAvailable) {
+              // Вход только по коду — поле кода могло появиться с задержкой
+              await sleep(2000);
+              waitingForCode = await isWaitingForCode(page);
+              if (!waitingForCode) {
+                await upsertIntegration(db, {
+                  workspaceId,
+                  type: "hh",
+                  name: "HeadHunter",
+                  credentials: { email },
+                });
+                await publish(
+                  verifyHHCredentialsChannel(workspaceId).result({
+                    success: false,
+                    isValid: false,
+                    requiresTwoFactor: true,
+                    twoFactorType: "email",
+                    message: "Вход только по коду. Введите код из письма.",
+                  }),
+                );
+                await closeBrowserSafely(browser);
+                return {
+                  success: false,
+                  isValid: false,
+                  requiresTwoFactor: true,
+                } as VerifyCredentialsStepResult;
+              }
+            }
+          }
+
+          if (waitingForCode) {
               console.log("🔐 Требуется 2FA — ждём код от пользователя в открытом браузере");
 
               await upsertIntegration(db, {
@@ -138,6 +265,20 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
                 if (code && page) {
                   const codeResult = await submitVerificationCode(page, code);
                   if (!codeResult.success) {
+                    // После ввода кода могла появиться капча
+                    if (await isCaptchaRequired(page)) {
+                      await resolveCaptchaLoop(
+                        page,
+                        db,
+                        workspaceId,
+                        publish,
+                        sleep,
+                        POLL_TIMEOUT_MS,
+                        POLL_INTERVAL_MS,
+                        email,
+                      );
+                      continue;
+                    }
                     await closeBrowserSafely(browser);
                     await publish(
                       verifyHHCredentialsChannel(workspaceId).result({
@@ -187,7 +328,6 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
                 isValid: false,
                 error: "Время ввода кода истекло",
               };
-            }
           }
 
           await page.goto(HH_CONFIG.urls.login, {
@@ -195,7 +335,55 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
             timeout: HH_CONFIG.timeouts.navigation,
           });
 
-          await performLogin(page, log, email, password, workspaceId, false);
+          await page.waitForSelector('input[type="text"][name="username"]', {
+            visible: false,
+            timeout: 15000,
+          });
+          await page.click('input[type="text"][name="username"]', {
+            clickCount: 3,
+          });
+          await page.keyboard.press("Backspace");
+          await sleep(Math.random() * 500 + 200);
+          await page.type('input[type="text"][name="username"]', email, {
+            delay: 100,
+          });
+          await page.waitForSelector(
+            'button[data-qa="expand-login-by_password"]',
+            { visible: false, timeout: 10000 },
+          );
+          await page.click('button[data-qa="expand-login-by_password"]');
+          await sleep(2000);
+          await page.waitForSelector(
+            'input[type="password"][name="password"]',
+            { visible: false },
+          );
+          await page.type('input[type="password"][name="password"]', password, {
+            delay: 100,
+          });
+          await sleep(Math.random() * 1000 + 500);
+          await page.click('button[type="submit"]');
+          await sleep(5000);
+
+          // Капча может появиться после нажатия «Войти»
+          await resolveCaptchaLoop(
+            page,
+            db,
+            workspaceId,
+            publish,
+            sleep,
+            POLL_TIMEOUT_MS,
+            POLL_INTERVAL_MS,
+            email,
+          );
+
+          const loginUrl = page.url();
+          if (
+            loginUrl.includes("/account/login") ||
+            loginUrl.includes("error") ||
+            loginUrl.includes("failed")
+          ) {
+            throw new Error(`Логин не удался. Текущий URL: ${loginUrl}`);
+          }
         } else {
           console.log("✅ Уже авторизованы");
         }

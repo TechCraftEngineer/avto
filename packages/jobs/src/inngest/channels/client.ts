@@ -303,6 +303,8 @@ export const verifyHHCredentialsChannel = channel(
       requiresTwoFactor: z.boolean().optional(),
       twoFactorType: z.enum(["email", "phone"]).optional(),
       message: z.string().optional(),
+      captchaRequired: z.boolean().optional(),
+      captchaImageUrl: z.string().optional(),
     }),
   ),
 );

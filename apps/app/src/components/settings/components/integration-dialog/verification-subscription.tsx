@@ -11,6 +11,11 @@ export interface VerificationResult {
   success?: boolean;
   isValid?: boolean;
   error?: string;
+  requiresTwoFactor?: boolean;
+  twoFactorType?: "email" | "phone";
+  message?: string;
+  captchaRequired?: boolean;
+  captchaImageUrl?: string;
 }
 
 interface VerificationSubscriptionProps {

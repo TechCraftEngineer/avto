@@ -11,6 +11,7 @@ import {
   Form,
 } from "@qbs-autonaim/ui";
 import { Briefcase } from "lucide-react";
+import { HHCaptchaDialog } from "../hh-captcha-dialog/hh-captcha-dialog";
 import { HHVerificationCodeDialog } from "../hh-verification-code-dialog/hh-verification-code-dialog";
 import { IntegrationFormFields } from "./integration-form-fields";
 import { useIntegrationDialog } from "./use-integration-dialog";
@@ -52,6 +53,11 @@ export function IntegrationDialog({
     handleResendCode,
     isResendingCode,
     resendCountdownReset,
+    showCaptchaDialog,
+    setShowCaptchaDialog,
+    captchaImageUrl,
+    captchaError,
+    handleCaptchaSubmit,
   } = useIntegrationDialog({
     open,
     selectedType,
@@ -70,6 +76,18 @@ export function IntegrationDialog({
           verifyingType={verifyingType}
           onResult={handleVerificationResult}
           onError={handleVerificationError}
+        />
+      )}
+
+      {/* Диалог капчи для HH.ru */}
+      {showCaptchaDialog && workspaceId && (
+        <HHCaptchaDialog
+          open={showCaptchaDialog}
+          onClose={() => setShowCaptchaDialog(false)}
+          captchaImageUrl={captchaImageUrl}
+          onSubmitCaptcha={handleCaptchaSubmit}
+          isLoading={isVerifying}
+          error={captchaError}
         />
       )}
 

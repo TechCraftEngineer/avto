@@ -81,6 +81,9 @@ export const HH_PENDING_VERIFICATION_AT_KEY =
 /** Ключ для запроса повторной отправки кода — job кликает кнопку на HH */
 export const HH_RESEND_REQUESTED_KEY = "hhResendRequested" as const;
 
+/** Ключ для ожидающего ввода капчи HH — job опрашивает, юзер вводит в UI */
+export const HH_PENDING_CAPTCHA_KEY = "hhPendingCaptcha" as const;
+
 export async function saveHHResendRequested(
   db: DbClient,
   workspaceId: string,
@@ -179,6 +182,57 @@ export async function getAndClearHHPendingVerificationCode(
     .where(eq(integration.id, existing.id));
 
   return code;
+}
+
+/**
+ * Сохраняет введённую капчу от юзера для HH — job опрашивает и найдёт
+ */
+export async function saveHHPendingCaptcha(
+  db: DbClient,
+  workspaceId: string,
+  captcha: string,
+): Promise<void> {
+  const existing = await getIntegration(db, "hh", workspaceId);
+  if (!existing) {
+    throw new Error(`Integration hh not found for workspace ${workspaceId}`);
+  }
+  const metadata = (existing.metadata as Record<string, unknown>) ?? {};
+  await db
+    .update(integration)
+    .set({
+      metadata: {
+        ...metadata,
+        [HH_PENDING_CAPTCHA_KEY]: captcha,
+      },
+      updatedAt: new Date(),
+    })
+    .where(eq(integration.id, existing.id));
+}
+
+/**
+ * Читает и очищает введённую капчу — вызывает job в цикле опроса
+ */
+export async function getAndClearHHPendingCaptcha(
+  db: DbClient,
+  workspaceId: string,
+): Promise<string | null> {
+  const existing = await getIntegration(db, "hh", workspaceId);
+  if (!existing?.metadata) return null;
+
+  const meta = existing.metadata as Record<string, unknown>;
+  const captcha = meta[HH_PENDING_CAPTCHA_KEY] as string | undefined;
+  if (!captcha || typeof captcha !== "string") return null;
+
+  const { [HH_PENDING_CAPTCHA_KEY]: _, ...rest } = meta;
+  await db
+    .update(integration)
+    .set({
+      metadata: Object.keys(rest).length > 0 ? rest : null,
+      updatedAt: new Date(),
+    })
+    .where(eq(integration.id, existing.id));
+
+  return captcha;
 }
 
 /** Время жизни web cookies в секундах (~50 мин, web auth token живёт 1 мин) */

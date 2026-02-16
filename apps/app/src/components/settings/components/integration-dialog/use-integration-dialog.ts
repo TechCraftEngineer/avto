@@ -48,6 +48,9 @@ export function useIntegrationDialog({
   const [show2FADialog, setShow2FADialog] = useState(false);
   const [twoFactorError, setTwoFactorError] = useState<string | null>(null);
   const [isResendingCode, setIsResendingCode] = useState(false);
+  const [showCaptchaDialog, setShowCaptchaDialog] = useState(false);
+  const [captchaImageUrl, setCaptchaImageUrl] = useState<string | null>(null);
+  const [captchaError, setCaptchaError] = useState<string | null>(null);
   const [resendCountdownReset, setResendCountdownReset] = useState(0);
   const resendTriggeredRef = useRef(false);
 
@@ -177,8 +180,19 @@ export function useIntegrationDialog({
     setIsVerifying(false);
     setShow2FADialog(false);
     setTwoFactorError(null);
+    setShowCaptchaDialog(false);
+    setCaptchaImageUrl(null);
+    setCaptchaError(null);
     onClose();
   }, [form, onClose]);
+
+  const saveHHCaptchaMutation = useMutation(
+    trpc.integration.saveHHCaptcha.mutationOptions({
+      onError: (err) => {
+        setCaptchaError(err.message);
+      },
+    }),
+  );
 
   const handleVerificationResult = useCallback(
     (result: {
@@ -188,12 +202,25 @@ export function useIntegrationDialog({
       requiresTwoFactor?: boolean;
       twoFactorType?: "email" | "phone";
       message?: string;
+      captchaRequired?: boolean;
+      captchaImageUrl?: string;
     }) => {
-      setIsVerifying(false);
       setIsResendingCode(false);
+
+      // Проверяем, требуется ли капча
+      if (result.captchaRequired && result.captchaImageUrl) {
+        setShowCaptchaDialog(true);
+        setCaptchaImageUrl(result.captchaImageUrl);
+        setCaptchaError(result.message ?? null);
+        if (result.message) {
+          toast.info(result.message);
+        }
+        return;
+      }
 
       // Проверяем, требуется ли 2FA
       if (result.requiresTwoFactor) {
+        setIsVerifying(false);
         setShow2FADialog(true);
         if (resendTriggeredRef.current) {
           resendTriggeredRef.current = false;
@@ -204,6 +231,8 @@ export function useIntegrationDialog({
         }
         return;
       }
+
+      setIsVerifying(false);
 
       if (result.success && result.isValid) {
         toast.success("Данные успешно проверены");
@@ -332,6 +361,25 @@ export function useIntegrationDialog({
     }
   };
 
+  const handleCaptchaSubmit = useCallback(
+    async (captcha: string) => {
+      if (!workspaceId) return;
+
+      setIsVerifying(true);
+      setCaptchaError(null);
+
+      try {
+        await saveHHCaptchaMutation.mutateAsync({
+          workspaceId,
+          captcha,
+        });
+      } finally {
+        setIsVerifying(false);
+      }
+    },
+    [workspaceId, saveHHCaptchaMutation],
+  );
+
   const handleResendCode = useCallback(async () => {
     if (!workspaceId) return;
 
@@ -368,5 +416,10 @@ export function useIntegrationDialog({
     handleResendCode,
     isResendingCode,
     resendCountdownReset,
+    showCaptchaDialog,
+    setShowCaptchaDialog,
+    captchaImageUrl,
+    captchaError,
+    handleCaptchaSubmit,
   };
 }
