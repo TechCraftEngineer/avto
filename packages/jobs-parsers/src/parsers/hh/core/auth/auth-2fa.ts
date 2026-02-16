@@ -31,23 +31,42 @@ async function safeGetUrl(page: Page): Promise<string | null> {
   return null;
 }
 
+/**
+ * Проверяет успешность входа: URL не login и/или наличие post-login селектора
+ */
+async function verifyLoginSuccess(page: Page): Promise<boolean> {
+  const url = await safeGetUrl(page);
+  if (url && !isLoginUrl(url)) {
+    return true;
+  }
+  try {
+    await page.waitForSelector(POST_LOGIN_SELECTORS, { timeout: 5000 });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** Таймаут ожидания поля кода после нажатия «Получить код» (мс) */
 const CODE_INPUT_WAIT_TIMEOUT_MS = 12_000;
 /** Интервал опроса при ожидании (мс) */
 const POLL_INTERVAL_MS = 500;
+/** Селекторы, появляющиеся после успешного входа в employer-аккаунт HH */
+const POST_LOGIN_SELECTORS =
+  '[data-qa="main-navigation"], [data-qa="vacancy-serp__vacancy"], a[href*="/employer/vacancies"], [data-qa="sidebar"]';
 
 /**
  * Результат проверки необходимости 2FA
  */
 export interface TwoFactorCheckResult {
-  /** Требуется ли двухфакторная аутентификация (null — проверка не удалась) */
-  requiresTwoFactor: boolean | null;
+  /** Требуется ли двухфакторная аутентификация (отсутствует при ошибке) */
+  requiresTwoFactor?: boolean;
   /** Сообщение для пользователя */
   message?: string;
   /** Тип 2FA (email или phone) */
   twoFactorType?: "email" | "phone";
-  /** Ошибка при неудачной проверке (отличает от «2FA не требуется») */
-  error?: unknown;
+  /** Ошибка при неудачной проверке (при наличии — сначала проверять её, затем requiresTwoFactor) */
+  error?: Error | { message?: string };
 }
 
 /**
@@ -99,8 +118,7 @@ export async function checkTwoFactorRequired(
     logError("Ошибка при проверке 2FA:");
     console.error(error);
     return {
-      requiresTwoFactor: null,
-      error,
+      error: error instanceof Error ? error : { message: String(error) },
     };
   }
 }
@@ -311,17 +329,15 @@ export async function submitVerificationCode(
       const msg =
         clickErr instanceof Error ? clickErr.message : String(clickErr);
       if (msg.includes("Execution context was destroyed")) {
-        // Клик сработал, навигация началась — контекст разрушен = страница ушла (успешный вход)
         logInfo("⏳ Ожидание завершения навигации...");
         await new Promise((r) => setTimeout(r, 5000));
-        const url = await safeGetUrl(page);
-        if (url && !isLoginUrl(url)) {
+        const verified = await verifyLoginSuccess(page);
+        if (verified) {
           logInfo("✅ Авторизация по коду успешна (URL изменился)");
           return { success: true };
         }
-        // safeGetUrl вернул null или login — контекст разрушен, навигация скорее всего успешна
-        logInfo("✅ Авторизация по коду успешна (контекст разрушен при навигации)");
-        return { success: true };
+        logError("❌ Контекст разрушен, но вход не подтверждён (URL/login или post-login селектор)");
+        return { success: false, error: "Не удалось подтвердить успешный вход" };
       }
       throw clickErr;
     }
@@ -330,23 +346,37 @@ export async function submitVerificationCode(
     await new Promise((r) => setTimeout(r, 4000));
 
     const currentUrl = await safeGetUrl(page);
-    if (!currentUrl) {
-      logInfo("✅ Авторизация по коду успешна (страница перешла)");
-      return { success: true };
-    }
-    if (!isLoginUrl(currentUrl)) {
+    if (currentUrl && !isLoginUrl(currentUrl)) {
       logInfo("✅ Авторизация по коду успешна!");
       return { success: true };
     }
-
-    return checkCodePageErrors(page);
+    const verified = await verifyLoginSuccess(page);
+    if (verified) {
+      logInfo("✅ Авторизация по коду успешна (post-login селектор найден)");
+      return { success: true };
+    }
+    if (currentUrl && isLoginUrl(currentUrl)) {
+      return checkCodePageErrors(page);
+    }
+    logError("❌ Не удалось подтвердить вход (URL недоступен, post-login селектор не найден)");
+    return { success: false, error: "Не удалось подтвердить успешный вход" };
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Неизвестная ошибка";
     if (message.includes("Execution context was destroyed")) {
-      // Навигация произошла — вход скорее всего успешен
-      logInfo("✅ Авторизация по коду успешна (контекст разрушен)");
-      return { success: true };
+      logInfo("⏳ Контекст разрушен при навигации, проверка входа...");
+      await new Promise((r) => setTimeout(r, 5000));
+      try {
+        const verified = await verifyLoginSuccess(page);
+        if (verified) {
+          logInfo("✅ Авторизация по коду успешна (контекст разрушен)");
+          return { success: true };
+        }
+      } catch {
+        // page может быть недоступен
+      }
+      logError("❌ Контекст разрушен, но вход не подтверждён");
+      return { success: false, error: "Не удалось подтвердить успешный вход" };
     }
     logError(`❌ Ошибка при отправке кода: ${message}`);
     return {
@@ -408,14 +438,14 @@ async function checkCodePageErrors(
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     if (msg.includes("Execution context was destroyed")) {
-      const url = await safeGetUrl(page);
-      if (url && !isLoginUrl(url)) {
+      await new Promise((r) => setTimeout(r, 3000));
+      const verified = await verifyLoginSuccess(page);
+      if (verified) {
         logInfo("✅ Авторизация по коду успешна (навигация)");
         return { success: true };
       }
-      // Контекст разрушен при навигации — вероятен успешный вход
-      logInfo("✅ Авторизация по коду успешна (контекст разрушен)");
-      return { success: true };
+      logError("❌ Контекст разрушен в checkCodePageErrors, вход не подтверждён");
+      return { success: false, error: "Не удалось подтвердить успешный вход" };
     }
     throw err;
   }
