@@ -106,7 +106,7 @@ export function useIntegrationDialog({
   }, [selectedType, isEditing, existingIntegration, form]);
 
   const currentType = form.watch("type");
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: only run when currentType changes to clear email on integration type switch
   useEffect(() => {
     // Очищаем поле email при смене типа - HH использует login
     form.setValue("email", "");
@@ -440,5 +440,6 @@ export function useIntegrationDialog({
     captchaImageUrl,
     captchaError,
     handleCaptchaSubmit,
+    isSavingCaptcha: saveHHCaptchaMutation.isPending,
   };
 }

@@ -11,7 +11,7 @@ export const HH_CONFIG = {
   },
   userAgent: HH_USER_AGENT,
   timeouts: {
-    networkIdle: 30000,
+    networkIdle: 60000,
     selector: 10000,
     contacts: 10000,
     navigation: 120000,

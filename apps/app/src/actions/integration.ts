@@ -7,17 +7,19 @@ import { z } from "zod";
 const verifyHHCredentialsSchema = z
   .object({
     email: z.string().email("Invalid email address"),
-    password: z.string(),
+    password: z.string().optional(),
     workspaceId: z.string().min(1, "Workspace ID is required"),
     authType: z.enum(["password", "code"]).default("password"),
   })
   .superRefine((data, ctx) => {
-    if (data.authType === "password" && data.password.length < 8) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Password must be at least 8 characters",
-        path: ["password"],
-      });
+    if (data.authType === "password") {
+      if (!data.password || data.password.length < 8) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Password must be at least 8 characters",
+          path: ["password"],
+        });
+      }
     }
   });
 
@@ -30,13 +32,13 @@ const verifyKworkCredentialsSchema = z.object({
 
 export async function triggerVerifyHHCredentials(
   email: string,
-  password: string,
+  password: string | undefined,
   workspaceId: string,
   authType: "password" | "code" = "password",
 ) {
   const validationResult = verifyHHCredentialsSchema.safeParse({
     email,
-    password,
+    password: authType === "code" ? undefined : password,
     workspaceId,
     authType,
   });
@@ -49,14 +51,13 @@ export async function triggerVerifyHHCredentials(
   }
 
   try {
+    const { email, workspaceId, authType, password } = validationResult.data;
     await inngest.send({
       name: "integration/verify-hh-credentials",
-      data: {
-        email: validationResult.data.email,
-        password: validationResult.data.password,
-        workspaceId: validationResult.data.workspaceId,
-        authType: validationResult.data.authType,
-      },
+      data:
+        authType === "code"
+          ? { email, workspaceId, authType }
+          : { email, workspaceId, authType, password: password ?? "" },
     });
   } catch (error) {
     const email = validationResult.data.email;

@@ -1,7 +1,7 @@
 import {
-  getAndClearHHResendRequested,
   getAndClearHHPendingCaptcha,
   getAndClearHHPendingVerificationCode,
+  getAndClearHHResendRequested,
   upsertIntegration,
 } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
@@ -13,16 +13,16 @@ import { inngest } from "@qbs-autonaim/jobs/client";
 import type { Browser, Page } from "puppeteer";
 import puppeteer from "puppeteer";
 import {
-  getCaptchaImageUrl,
-  isCaptchaRequired,
-  submitCaptcha,
-} from "../../parsers/hh/core/auth/auth-captcha";
-import {
   initiateCodeAuth,
   isWaitingForCode,
   resendVerificationCode,
   submitVerificationCode,
 } from "../../parsers/hh/core/auth/auth-2fa";
+import {
+  getCaptchaImageUrl,
+  isCaptchaRequired,
+  submitCaptcha,
+} from "../../parsers/hh/core/auth/auth-captcha";
 import { closeBrowserSafely } from "../../parsers/hh/core/browser/browser-utils";
 import { HH_CONFIG } from "../../parsers/hh/core/config/config";
 import { saveCookies } from "../../utils/cookies";
@@ -53,7 +53,8 @@ type VerifyCredentialsStepResult =
   | { success: false; isValid: false; requiresTwoFactor: true }
   | { success: false; isValid: false; error: string };
 
-type PublishFn = (event: unknown) => Promise<unknown>;
+// biome-ignore lint/suspicious/noExplicitAny: compatible with Inngest Realtime PublishFn which expects Input
+type PublishFn = (event: any) => Promise<unknown>;
 
 /**
  * Опрашивает капчу, если она появилась: публикует URL на фронт, ждёт ввод, вводит в Puppeteer
@@ -140,68 +141,74 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
   async ({ event, step, publish }) => {
     const eventData = event.data as {
       email: string;
-      password: string;
+      password?: string;
       workspaceId: string;
+      authType?: "password" | "code";
       verificationCode?: string;
     };
-    const { email, password, workspaceId } = eventData;
+    const {
+      email,
+      password,
+      workspaceId,
+      authType = "password",
+    } = eventData;
 
     // Код в первом событии не передаётся — его ждём через waitForEvent
 
     const POLL_INTERVAL_MS = 2000;
     const POLL_TIMEOUT_MS = 10 * 60 * 1000; // 10 мин
 
-    return await step.run("verify-credentials", async (): Promise<VerifyCredentialsStepResult> => {
-      let browser: Browser | undefined;
-      let page: Page | undefined;
+    return await step.run(
+      "verify-credentials",
+      async (): Promise<VerifyCredentialsStepResult> => {
+        let browser: Browser | undefined;
+        let page: Page | undefined;
 
-      const sleep = (ms: number) =>
-        new Promise<void>((resolve) => setTimeout(resolve, ms));
+        const sleep = (ms: number) =>
+          new Promise<void>((resolve) => setTimeout(resolve, ms));
 
-      try {
-        browser = await puppeteer.launch(HH_CONFIG.puppeteer);
-        page = await browser.newPage();
-        await page.setUserAgent({ userAgent: HH_CONFIG.userAgent });
+        try {
+          browser = await puppeteer.launch(HH_CONFIG.puppeteer);
+          page = await browser.newPage();
+          await page.setUserAgent({ userAgent: HH_CONFIG.userAgent });
 
-        await page.goto(HH_CONFIG.urls.login, {
-          waitUntil: "domcontentloaded",
-          timeout: HH_CONFIG.timeouts.navigation,
-        });
+          await page.goto(HH_CONFIG.urls.login, {
+            waitUntil: "domcontentloaded",
+            timeout: HH_CONFIG.timeouts.navigation,
+          });
 
-        await page.waitForNetworkIdle({
-          timeout: HH_CONFIG.timeouts.networkIdle,
-        });
+          await page.waitForNetworkIdle({
+            timeout: HH_CONFIG.timeouts.networkIdle,
+          });
 
-        const loginInput = await page.$('input[type="text"][name="username"]');
-
-        if (loginInput) {
-          const initiated = await initiateCodeAuth(page, email);
-
-          // Капча может появиться после нажатия «Получить код» или «Войти»
-          await resolveCaptchaLoop(
-            page,
-            db,
-            workspaceId,
-            publish,
-            sleep,
-            POLL_TIMEOUT_MS,
-            POLL_INTERVAL_MS,
-            email,
+          const loginInput = await page.$(
+            'input[type="text"][name="username"]',
           );
 
-          let waitingForCode = await isWaitingForCode(page);
+          if (loginInput) {
+            const initiated = await initiateCodeAuth(page, email);
 
-          if (!initiated && !waitingForCode) {
-            // initiateCodeAuth вернул false — проверяем, доступен ли вход по паролю.
-            // Для аккаунтов «только по коду» кнопки «Войти с паролем» нет.
-            const passwordLoginAvailable = await page.$(
-              'button[data-qa="expand-login-by_password"]',
+            // Капча может появиться после нажатия «Получить код» или «Войти»
+            await resolveCaptchaLoop(
+              page,
+              db,
+              workspaceId,
+              publish,
+              sleep,
+              POLL_TIMEOUT_MS,
+              POLL_INTERVAL_MS,
+              email,
             );
-            if (!passwordLoginAvailable) {
-              // Вход только по коду — поле кода могло появиться с задержкой
-              await sleep(2000);
-              waitingForCode = await isWaitingForCode(page);
-              if (!waitingForCode) {
+
+            let waitingForCode = await isWaitingForCode(page);
+
+            if (!initiated && !waitingForCode) {
+              // initiateCodeAuth вернул false — проверяем, доступен ли вход по паролю.
+              // Для аккаунтов «только по коду» кнопки «Войти с паролем» нет.
+              const passwordLoginAvailable = await page.$(
+                'button[data-qa="expand-login-by_password"]',
+              );
+              if (authType === "code" && passwordLoginAvailable) {
                 await upsertIntegration(db, {
                   workspaceId,
                   type: "hh",
@@ -212,23 +219,51 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
                   verifyHHCredentialsChannel(workspaceId).result({
                     success: false,
                     isValid: false,
-                    requiresTwoFactor: true,
-                    twoFactorType: "email",
-                    message: "Вход только по коду. Введите код из письма.",
+                    error:
+                      "Для этого аккаунта требуется вход по паролю. Выберите «Вход по паролю».",
                   }),
                 );
                 await closeBrowserSafely(browser);
                 return {
                   success: false,
                   isValid: false,
-                  requiresTwoFactor: true,
+                  error: "Требуется вход по паролю",
                 } as VerifyCredentialsStepResult;
               }
+              if (!passwordLoginAvailable) {
+                // Вход только по коду — поле кода могло появиться с задержкой
+                await sleep(2000);
+                waitingForCode = await isWaitingForCode(page);
+                if (!waitingForCode) {
+                  await upsertIntegration(db, {
+                    workspaceId,
+                    type: "hh",
+                    name: "HeadHunter",
+                    credentials: { email },
+                  });
+                  await publish(
+                    verifyHHCredentialsChannel(workspaceId).result({
+                      success: false,
+                      isValid: false,
+                      requiresTwoFactor: true,
+                      twoFactorType: "email",
+                      message: "Вход только по коду. Введите код из письма.",
+                    }),
+                  );
+                  await closeBrowserSafely(browser);
+                  return {
+                    success: false,
+                    isValid: false,
+                    requiresTwoFactor: true,
+                  } as VerifyCredentialsStepResult;
+                }
+              }
             }
-          }
 
-          if (waitingForCode) {
-              console.log("🔐 Требуется 2FA — ждём код от пользователя в открытом браузере");
+            if (waitingForCode) {
+              console.log(
+                "🔐 Требуется 2FA — ждём код от пользователя в открытом браузере",
+              );
 
               await upsertIntegration(db, {
                 workspaceId,
@@ -299,7 +334,10 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
                     workspaceId,
                     type: "hh",
                     name: "HeadHunter",
-                    credentials: { email, password },
+                    credentials:
+                      authType === "password" && password
+                        ? { email, password }
+                        : { email },
                   });
                   await saveCookies("hh", cookies, workspaceId);
 
@@ -328,173 +366,188 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
                 isValid: false,
                 error: "Время ввода кода истекло",
               };
+            }
+
+            if (authType !== "password" || !password) {
+              await closeBrowserSafely(browser);
+              throw new Error(
+                "Вход по паролю недоступен: пароль не передан (используйте тип «Вход по паролю»).",
+              );
+            }
+
+            await page.goto(HH_CONFIG.urls.login, {
+              waitUntil: "domcontentloaded",
+              timeout: HH_CONFIG.timeouts.navigation,
+            });
+
+            await page.waitForSelector('input[type="text"][name="username"]', {
+              visible: false,
+              timeout: 15000,
+            });
+            await page.click('input[type="text"][name="username"]', {
+              clickCount: 3,
+            });
+            await page.keyboard.press("Backspace");
+            await sleep(Math.random() * 500 + 200);
+            await page.type('input[type="text"][name="username"]', email, {
+              delay: 100,
+            });
+            await page.waitForSelector(
+              'button[data-qa="expand-login-by_password"]',
+              { visible: false, timeout: 10000 },
+            );
+            await page.click('button[data-qa="expand-login-by_password"]');
+            await sleep(2000);
+            await page.waitForSelector(
+              'input[type="password"][name="password"]',
+              { visible: false },
+            );
+            await page.type(
+              'input[type="password"][name="password"]',
+              password,
+              {
+                delay: 100,
+              },
+            );
+            await sleep(Math.random() * 1000 + 500);
+            await page.click('button[type="submit"]');
+            await sleep(5000);
+
+            // Капча может появиться после нажатия «Войти»
+            await resolveCaptchaLoop(
+              page,
+              db,
+              workspaceId,
+              publish,
+              sleep,
+              POLL_TIMEOUT_MS,
+              POLL_INTERVAL_MS,
+              email,
+            );
+
+            const loginUrl = page.url();
+            if (
+              loginUrl.includes("/account/login") ||
+              loginUrl.includes("error") ||
+              loginUrl.includes("failed")
+            ) {
+              throw new Error(`Логин не удался. Текущий URL: ${loginUrl}`);
+            }
+          } else {
+            console.log("✅ Уже авторизованы");
           }
 
-          await page.goto(HH_CONFIG.urls.login, {
-            waitUntil: "domcontentloaded",
-            timeout: HH_CONFIG.timeouts.navigation,
-          });
+          const cookies = await page.browserContext().cookies();
 
-          await page.waitForSelector('input[type="text"][name="username"]', {
-            visible: false,
-            timeout: 15000,
-          });
-          await page.click('input[type="text"][name="username"]', {
-            clickCount: 3,
-          });
-          await page.keyboard.press("Backspace");
-          await sleep(Math.random() * 500 + 200);
-          await page.type('input[type="text"][name="username"]', email, {
-            delay: 100,
-          });
-          await page.waitForSelector(
-            'button[data-qa="expand-login-by_password"]',
-            { visible: false, timeout: 10000 },
-          );
-          await page.click('button[data-qa="expand-login-by_password"]');
-          await sleep(2000);
-          await page.waitForSelector(
-            'input[type="password"][name="password"]',
-            { visible: false },
-          );
-          await page.type('input[type="password"][name="password"]', password, {
-            delay: 100,
-          });
-          await sleep(Math.random() * 1000 + 500);
-          await page.click('button[type="submit"]');
-          await sleep(5000);
-
-          // Капча может появиться после нажатия «Войти»
-          await resolveCaptchaLoop(
-            page,
-            db,
-            workspaceId,
-            publish,
-            sleep,
-            POLL_TIMEOUT_MS,
-            POLL_INTERVAL_MS,
-            email,
-          );
-
-          const loginUrl = page.url();
-          if (
-            loginUrl.includes("/account/login") ||
-            loginUrl.includes("error") ||
-            loginUrl.includes("failed")
-          ) {
-            throw new Error(`Логин не удался. Текущий URL: ${loginUrl}`);
-          }
-        } else {
-          console.log("✅ Уже авторизованы");
-        }
-
-        const cookies = await page.browserContext().cookies();
-
-        await upsertIntegration(db, {
-          workspaceId,
-          type: "hh",
-          name: "HeadHunter",
-          credentials: { email, password },
-        });
-
-        await saveCookies("hh", cookies, workspaceId);
-
-        await closeBrowserSafely(browser);
-
-        await publish(
-          verifyHHCredentialsChannel(workspaceId).result({
-            success: true,
-            isValid: true,
-          }),
-        );
-
-        return { success: true, isValid: true };
-      } catch (error) {
-        if (browser) {
-          await closeBrowserSafely(browser);
-        }
-
-        const errorMessage =
-          error instanceof Error ? error.message : "Неизвестная ошибка";
-
-        if (
-          errorMessage.includes("капча") ||
-          errorMessage.includes("captcha") ||
-          errorMessage.includes("требуется")
-        ) {
           await upsertIntegration(db, {
             workspaceId,
             type: "hh",
             name: "HeadHunter",
-            credentials: { email },
+            credentials:
+              authType === "password" && password
+                ? { email, password }
+                : { email },
           });
+
+          await saveCookies("hh", cookies, workspaceId);
+
+          await closeBrowserSafely(browser);
 
           await publish(
             verifyHHCredentialsChannel(workspaceId).result({
-              success: false,
-              isValid: false,
-              requiresTwoFactor: true,
-              message: errorMessage,
+              success: true,
+              isValid: true,
             }),
           );
 
-          return {
-            success: false,
-            isValid: false,
-            requiresTwoFactor: true,
-          } as VerifyCredentialsStepResult;
-        }
+          return { success: true, isValid: true };
+        } catch (error) {
+          if (browser) {
+            await closeBrowserSafely(browser);
+          }
 
-        if (
-          errorMessage.includes("Неверный логин") ||
-          errorMessage.includes("пароль") ||
-          errorMessage.includes("login")
-        ) {
+          const errorMessage =
+            error instanceof Error ? error.message : "Неизвестная ошибка";
+
+          if (
+            errorMessage.includes("капча") ||
+            errorMessage.includes("captcha") ||
+            errorMessage.includes("требуется")
+          ) {
+            await upsertIntegration(db, {
+              workspaceId,
+              type: "hh",
+              name: "HeadHunter",
+              credentials: { email },
+            });
+
+            await publish(
+              verifyHHCredentialsChannel(workspaceId).result({
+                success: false,
+                isValid: false,
+                requiresTwoFactor: true,
+                message: errorMessage,
+              }),
+            );
+
+            return {
+              success: false,
+              isValid: false,
+              requiresTwoFactor: true,
+            } as VerifyCredentialsStepResult;
+          }
+
+          if (
+            errorMessage.includes("Неверный логин") ||
+            errorMessage.includes("пароль") ||
+            errorMessage.includes("login")
+          ) {
+            await publish(
+              verifyHHCredentialsChannel(workspaceId).result({
+                success: false,
+                isValid: false,
+                error: "Неверный логин или пароль",
+              }),
+            );
+
+            await publish(
+              workspaceNotificationsChannel(workspaceId)["integration-error"]({
+                workspaceId,
+                type: "hh-auth-failed",
+                message: "Не удалось авторизоваться на HeadHunter",
+                severity: "error",
+                timestamp: new Date().toISOString(),
+              }),
+            );
+
+            return {
+              success: false,
+              isValid: false,
+              error: "Неверный логин или пароль",
+            };
+          }
+
           await publish(
             verifyHHCredentialsChannel(workspaceId).result({
               success: false,
               isValid: false,
-              error: "Неверный логин или пароль",
+              error: errorMessage,
             }),
           );
 
           await publish(
             workspaceNotificationsChannel(workspaceId)["integration-error"]({
               workspaceId,
-              type: "hh-auth-failed",
-              message: "Не удалось авторизоваться на HeadHunter",
+              type: "api-error",
+              message: `Ошибка при проверке учётных данных: ${errorMessage}`,
               severity: "error",
               timestamp: new Date().toISOString(),
             }),
           );
 
-          return {
-            success: false,
-            isValid: false,
-            error: "Неверный логин или пароль",
-          };
+          throw error;
         }
-
-        await publish(
-          verifyHHCredentialsChannel(workspaceId).result({
-            success: false,
-            isValid: false,
-            error: errorMessage,
-          }),
-        );
-
-        await publish(
-          workspaceNotificationsChannel(workspaceId)["integration-error"]({
-            workspaceId,
-            type: "api-error",
-            message: `Ошибка при проверке учётных данных: ${errorMessage}`,
-            severity: "error",
-            timestamp: new Date().toISOString(),
-          }),
-        );
-
-        throw error;
-      }
-    });
+      },
+    );
   },
 );

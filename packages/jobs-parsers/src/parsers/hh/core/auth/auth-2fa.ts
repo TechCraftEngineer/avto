@@ -251,20 +251,21 @@ export async function submitVerificationCode(
     logInfo("📤 Отправка кода...");
     const submitButton = await page.$('button[data-qa="account-login-submit"]');
 
+    // Ожидаем навигации до клика — иначе после навигации execution context уничтожается
+    const navPromise = page
+      .waitForNavigation({ waitUntil: "domcontentloaded", timeout: 15000 })
+      .catch(() => null);
+
     if (submitButton) {
       await submitButton.click();
     } else {
-      // Пробуем нажать Enter
       await page.keyboard.press("Enter");
     }
 
-    // Ждем обработки
-    await new Promise((r) => setTimeout(r, 3000));
+    await navPromise;
 
-    // Проверяем результат
     const currentUrl = page.url();
 
-    // Если мы больше не на странице входа - авторизация успешна
     if (
       !currentUrl.includes("/account/login") &&
       !currentUrl.includes("/login")
@@ -273,44 +274,59 @@ export async function submitVerificationCode(
       return { success: true };
     }
 
-    // Проверяем, не появилась ли ошибка
-    const errorMessage = await page.$(
-      '.form-field-error, [data-qa="account-login-code-error"], .error-message',
-    );
+    // Остались на странице входа — проверяем ошибки
+    try {
+      const errorMessage = await page.$(
+        '.form-field-error, [data-qa="account-login-code-error"], .error-message',
+      );
 
-    if (errorMessage) {
-      const errorText = await errorMessage.evaluate((el) => el.textContent);
+      if (errorMessage) {
+        const errorText = await errorMessage.evaluate((el) => el.textContent);
 
-      if (errorText?.includes("неверн") || errorText?.includes("неправильн")) {
+        if (errorText?.includes("неверн") || errorText?.includes("неправильн")) {
+          return {
+            success: false,
+            error: "Неверный код подтверждения",
+          };
+        }
+
+        if (errorText?.includes("время") || errorText?.includes("истёк")) {
+          return {
+            success: false,
+            error: "Время ввода кода истекло. Запросите новый код",
+          };
+        }
+
         return {
           success: false,
-          error: "Неверный код подтверждения",
+          error: errorText || "Ошибка при проверке кода",
         };
       }
 
-      if (errorText?.includes("время") || errorText?.includes("истёк")) {
+      const stillOnCodePage = await page.$(
+        'div[data-qa="account-login-code-input"]',
+      );
+
+      if (stillOnCodePage) {
         return {
           success: false,
-          error: "Время ввода кода истекло. Запросите новый код",
+          error: "Неверный или истёкший код подтверждения",
         };
       }
-
-      return {
-        success: false,
-        error: errorText || "Ошибка при проверке кода",
-      };
-    }
-
-    // Если остались на странице с кодом, возможно код неверный
-    const stillOnCodePage = await page.$(
-      'div[data-qa="account-login-code-input"]',
-    );
-
-    if (stillOnCodePage) {
-      return {
-        success: false,
-        error: "Неверный или истёкший код подтверждения",
-      };
+    } catch (checkError) {
+      const msg =
+        checkError instanceof Error ? checkError.message : String(checkError);
+      if (msg.includes("Execution context was destroyed")) {
+        const url = page.url();
+        if (
+          !url.includes("/account/login") &&
+          !url.includes("/login")
+        ) {
+          logInfo("✅ Авторизация по коду успешна (навигация)");
+          return { success: true };
+        }
+      }
+      throw checkError;
     }
 
     return {

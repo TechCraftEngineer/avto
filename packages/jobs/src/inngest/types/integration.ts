@@ -1,12 +1,24 @@
 import { z } from "zod";
 
-export const verifyHHCredentialsDataSchema = z.object({
-  email: z.email(),
-  password: z.string(),
-  workspaceId: z.string(),
-  /** 4-значный код подтверждения — передаётся когда юзер ввёл его в диалоге */
-  verificationCode: z.string().length(4).optional(),
-});
+export const verifyHHCredentialsDataSchema = z
+  .object({
+    email: z.email(),
+    /** Пароль — только при authType: "password" */
+    password: z.string().optional(),
+    workspaceId: z.string(),
+    authType: z.enum(["password", "code"]).optional().default("password"),
+    /** 4-значный код подтверждения — передаётся когда юзер ввёл его в диалоге */
+    verificationCode: z.string().length(4).optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.authType === "password" && !data.password) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Password is required when authType is password",
+        path: ["password"],
+      });
+    }
+  });
 
 export type VerifyHHCredentialsData = z.infer<
   typeof verifyHHCredentialsDataSchema

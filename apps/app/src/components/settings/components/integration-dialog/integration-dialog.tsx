@@ -58,6 +58,7 @@ export function IntegrationDialog({
     captchaImageUrl,
     captchaError,
     handleCaptchaSubmit,
+    isSavingCaptcha,
   } = useIntegrationDialog({
     open,
     selectedType,
@@ -86,7 +87,7 @@ export function IntegrationDialog({
           onClose={() => setShowCaptchaDialog(false)}
           captchaImageUrl={captchaImageUrl}
           onSubmitCaptcha={handleCaptchaSubmit}
-          isLoading={isVerifying}
+          isLoading={isSavingCaptcha}
           error={captchaError}
         />
       )}
