@@ -16,6 +16,7 @@ import {
   FormLabel,
   FormMessage,
   Input,
+  Spinner,
 } from "@qbs-autonaim/ui";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -223,6 +224,7 @@ export function HHVerificationCodeDialog({
                 disabled={isLoading || !form.watch("code")?.trim()}
                 className="h-11"
               >
+                {isLoading && <Spinner className="h-4 w-4" />}
                 {isLoading ? "Проверка…" : "Подтвердить"}
               </Button>
             </DialogFooter>

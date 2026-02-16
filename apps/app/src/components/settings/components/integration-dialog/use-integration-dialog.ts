@@ -53,6 +53,8 @@ export function useIntegrationDialog({
   const [captchaError, setCaptchaError] = useState<string | null>(null);
   const [resendCountdownReset, setResendCountdownReset] = useState(0);
   const resendTriggeredRef = useRef(false);
+  /** Код отправлен, ждём результат от job — не показывать повторный toast requiresTwoFactor */
+  const codeSubmittedRef = useRef(false);
 
   const workspaceId = useMemo(() => workspace?.id || "", [workspace?.id]);
 
@@ -220,8 +222,12 @@ export function useIntegrationDialog({
 
       // Проверяем, требуется ли 2FA
       if (result.requiresTwoFactor) {
-        setIsVerifying(false);
         setShow2FADialog(true);
+        if (codeSubmittedRef.current) {
+          codeSubmittedRef.current = false;
+          return;
+        }
+        setIsVerifying(false);
         if (resendTriggeredRef.current) {
           resendTriggeredRef.current = false;
           setResendCountdownReset((prev) => prev + 1);
@@ -232,10 +238,15 @@ export function useIntegrationDialog({
         return;
       }
 
+      codeSubmittedRef.current = false;
       setIsVerifying(false);
 
       if (result.success && result.isValid) {
-        toast.success("Данные успешно проверены");
+        toast.success(
+          verifyingType === "hh"
+            ? "Подключение к hh.ru выполнено успешно"
+            : "Данные успешно проверены",
+        );
 
         if (workspaceId) {
           queryClient.invalidateQueries({
@@ -247,7 +258,13 @@ export function useIntegrationDialog({
         toast.error(result.error || "Ошибка проверки данных");
       }
     },
-    [workspaceId, queryClient, trpc.integration.list, handleClose],
+    [
+      workspaceId,
+      queryClient,
+      trpc.integration.list,
+      handleClose,
+      verifyingType,
+    ],
   );
 
   const handleVerificationError = useCallback(() => {
@@ -347,6 +364,7 @@ export function useIntegrationDialog({
       return;
     }
 
+    codeSubmittedRef.current = true;
     setIsVerifying(true);
     setTwoFactorError(null);
 
@@ -357,6 +375,7 @@ export function useIntegrationDialog({
         verificationCode: code,
       });
     } catch {
+      codeSubmittedRef.current = false;
       setIsVerifying(false);
     }
   };
