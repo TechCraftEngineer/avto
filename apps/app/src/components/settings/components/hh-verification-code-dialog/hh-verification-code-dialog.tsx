@@ -37,6 +37,8 @@ interface HHVerificationCodeDialogProps {
   email: string;
   onSubmitCode: (code: string) => void;
   isLoading: boolean;
+  /** Код принят — ждём завершения job (отображаем прогресс) */
+  isCodeAccepted?: boolean;
   error?: string | null;
   onResendCode?: () => void;
   isResending?: boolean;
@@ -50,6 +52,7 @@ export function HHVerificationCodeDialog({
   email,
   onSubmitCode,
   isLoading,
+  isCodeAccepted = false,
   error,
   onResendCode,
   isResending,
@@ -126,10 +129,14 @@ export function HHVerificationCodeDialog({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader className="space-y-3">
           <DialogTitle className="text-2xl font-semibold">
-            Подтверждение входа в hh.ru
+            {isCodeAccepted
+              ? "Завершаем подключение"
+              : "Подтверждение входа в hh.ru"}
           </DialogTitle>
           <DialogDescription className="text-base">
-            Введите код, отправленный на {email}
+            {isCodeAccepted
+              ? "Код принят. Ожидаем завершения проверки на стороне hh.ru…"
+              : `Введите код, отправленный на ${email}`}
           </DialogDescription>
         </DialogHeader>
 
@@ -142,7 +149,7 @@ export function HHVerificationCodeDialog({
               control={form.control}
               name="code"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className={isCodeAccepted ? "sr-only" : undefined}>
                   <FormLabel className="text-sm font-medium">
                     Код подтверждения
                   </FormLabel>
@@ -153,7 +160,7 @@ export function HHVerificationCodeDialog({
                       inputMode="numeric"
                       pattern="[0-9]*"
                       placeholder="Код из письма или SMS"
-                      disabled={isLoading}
+                      disabled={isLoading || isCodeAccepted}
                       autoComplete="one-time-code"
                       aria-describedby={
                         onResendCode ? "code-description" : undefined
@@ -165,7 +172,7 @@ export function HHVerificationCodeDialog({
                       className="text-center tabular-nums"
                     />
                   </FormControl>
-                  {onResendCode && (
+                  {onResendCode && !isCodeAccepted && (
                     <FormDescription
                       id="code-description"
                       className="text-xs text-center"
@@ -203,7 +210,15 @@ export function HHVerificationCodeDialog({
               )}
             />
 
-            {attempts > 0 && attempts >= 3 && (
+            {isCodeAccepted && (
+              <div className="flex flex-col items-center gap-3 py-4">
+                <Spinner className="h-8 w-8 text-primary" />
+                <p className="text-sm text-muted-foreground text-center">
+                  Проверка может занять до 30 секунд
+                </p>
+              </div>
+            )}
+            {attempts > 0 && attempts >= 3 && !isCodeAccepted && (
               <div className="text-center text-sm text-muted-foreground">
                 <p>Превышено количество попыток.</p>
                 <p>Подождите немного или попробуйте войти по паролю.</p>
@@ -215,23 +230,36 @@ export function HHVerificationCodeDialog({
                 type="button"
                 variant="outline"
                 onClick={handleClose}
-                disabled={isLoading}
+                disabled={isLoading && !isCodeAccepted}
+                title={
+                  isCodeAccepted
+                    ? "Проверка идёт в фоне — можно закрыть"
+                    : undefined
+                }
                 className="h-11"
               >
                 Отмена
               </Button>
-              <Button
-                type="submit"
-                disabled={
-                  isLoading ||
-                  !form.watch("code")?.trim() ||
-                  attempts >= 3
-                }
-                className="h-11"
-              >
-                {isLoading && <Spinner className="h-4 w-4" />}
-                {isLoading ? "Проверка…" : "Подтвердить"}
-              </Button>
+              {!isCodeAccepted && (
+                <Button
+                  type="submit"
+                  disabled={
+                    isLoading ||
+                    !form.watch("code")?.trim() ||
+                    attempts >= 3
+                  }
+                  className="h-11"
+                >
+                  {isLoading && <Spinner className="h-4 w-4" />}
+                  {isLoading ? "Отправка…" : "Подтвердить"}
+                </Button>
+              )}
+              {isCodeAccepted && (
+                <Button disabled className="h-11">
+                  <Spinner className="h-4 w-4" />
+                  Завершаем подключение…
+                </Button>
+              )}
             </DialogFooter>
           </form>
         </Form>

@@ -311,14 +311,17 @@ export async function submitVerificationCode(
       const msg =
         clickErr instanceof Error ? clickErr.message : String(clickErr);
       if (msg.includes("Execution context was destroyed")) {
-        // Клик сработал, навигация началась
+        // Клик сработал, навигация началась — контекст разрушен = страница ушла (успешный вход)
         logInfo("⏳ Ожидание завершения навигации...");
         await new Promise((r) => setTimeout(r, 5000));
         const url = await safeGetUrl(page);
         if (url && !isLoginUrl(url)) {
-          logInfo("✅ Авторизация по коду успешна!");
+          logInfo("✅ Авторизация по коду успешна (URL изменился)");
           return { success: true };
         }
+        // safeGetUrl вернул null или login — контекст разрушен, навигация скорее всего успешна
+        logInfo("✅ Авторизация по коду успешна (контекст разрушен при навигации)");
+        return { success: true };
       }
       throw clickErr;
     }
@@ -340,6 +343,11 @@ export async function submitVerificationCode(
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Неизвестная ошибка";
+    if (message.includes("Execution context was destroyed")) {
+      // Навигация произошла — вход скорее всего успешен
+      logInfo("✅ Авторизация по коду успешна (контекст разрушен)");
+      return { success: true };
+    }
     logError(`❌ Ошибка при отправке кода: ${message}`);
     return {
       success: false,

@@ -49,6 +49,7 @@ export function IntegrationDialog({
     show2FADialog,
     setShow2FADialog,
     twoFactorError,
+    isCodeAccepted,
     handle2FACodeSubmit,
     handleResendCode,
     isResendingCode,
@@ -100,6 +101,7 @@ export function IntegrationDialog({
           email={form.getValues("login") ?? ""}
           onSubmitCode={handle2FACodeSubmit}
           isLoading={isVerifying}
+          isCodeAccepted={isCodeAccepted}
           error={twoFactorError}
           onResendCode={handleResendCode}
           isResending={isResendingCode}

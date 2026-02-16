@@ -47,6 +47,8 @@ export function useIntegrationDialog({
   const [verifyingType, setVerifyingType] = useState<"hh" | "kwork">("hh");
   const [show2FADialog, setShow2FADialog] = useState(false);
   const [twoFactorError, setTwoFactorError] = useState<string | null>(null);
+  /** Код 2FA успешно отправлен — ждём результат от job (Realtime или fallback polling) */
+  const [isCodeAccepted, setIsCodeAccepted] = useState(false);
   const [isResendingCode, setIsResendingCode] = useState(false);
   const [showCaptchaDialog, setShowCaptchaDialog] = useState(false);
   const [captchaImageUrl, setCaptchaImageUrl] = useState<string | null>(null);
@@ -60,7 +62,8 @@ export function useIntegrationDialog({
 
   const { data: integrations } = useQuery({
     ...trpc.integration.list.queryOptions({ workspaceId }),
-    enabled: !!workspaceId && isEditing,
+    enabled: !!workspaceId && (isEditing || isCodeAccepted),
+    refetchInterval: isCodeAccepted ? 3000 : false,
   });
 
   const existingIntegration = integrations?.find(
@@ -182,6 +185,7 @@ export function useIntegrationDialog({
     setIsVerifying(false);
     setShow2FADialog(false);
     setTwoFactorError(null);
+    setIsCodeAccepted(false);
     setShowCaptchaDialog(false);
     setCaptchaImageUrl(null);
     setCaptchaError(null);
@@ -240,6 +244,7 @@ export function useIntegrationDialog({
 
       codeSubmittedRef.current = false;
       setIsVerifying(false);
+      setIsCodeAccepted(false);
 
       if (result.success && result.isValid) {
         toast.success(
@@ -255,6 +260,7 @@ export function useIntegrationDialog({
         }
         handleClose();
       } else {
+        setIsCodeAccepted(false);
         toast.error(result.error || "Ошибка проверки данных");
       }
     },
@@ -271,6 +277,35 @@ export function useIntegrationDialog({
     setIsVerifying(false);
     toast.error("Ошибка подключения к серверу");
   }, []);
+
+  // Fallback: после отправки 2FA проверяем интеграцию — job сохраняет cookies при успехе
+  useEffect(() => {
+    if (!isCodeAccepted || !integrations) return;
+    const hh = integrations.find((i) => i.type === "hh");
+    if (hh?.hasCookies) {
+      setIsCodeAccepted(false);
+      codeSubmittedRef.current = false;
+      setIsVerifying(false);
+      toast.success("Подключение к hh.ru выполнено успешно");
+      if (workspaceId) {
+        queryClient.invalidateQueries({
+          queryKey: trpc.integration.list.queryKey({ workspaceId }),
+        });
+      }
+      handleClose();
+      if (onVerify) {
+        setTimeout(() => onVerify("hh"), 500);
+      }
+    }
+  }, [
+    isCodeAccepted,
+    integrations,
+    workspaceId,
+    queryClient,
+    trpc.integration.list,
+    handleClose,
+    onVerify,
+  ]);
 
   const onSubmit = async (data: IntegrationFormValues) => {
     if (!workspaceId) {
@@ -324,7 +359,7 @@ export function useIntegrationDialog({
       try {
         await triggerVerifyKworkCredentials(
           data.login ?? "",
-          data.password,
+          data.password ?? "", 
           workspaceId,
         );
       } catch (error) {
@@ -374,6 +409,7 @@ export function useIntegrationDialog({
         email: login,
         verificationCode: code,
       });
+      setIsCodeAccepted(true);
     } catch (error) {
       codeSubmittedRef.current = false;
       setIsVerifying(false);
@@ -434,6 +470,7 @@ export function useIntegrationDialog({
     show2FADialog,
     setShow2FADialog,
     twoFactorError,
+    isCodeAccepted,
     handle2FACodeSubmit,
     handleResendCode,
     isResendingCode,
