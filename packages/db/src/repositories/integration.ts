@@ -46,10 +46,14 @@ export async function upsertIntegration(db: DbClient, data: NewIntegration) {
   };
 
   if (existing) {
+    // Явно обновляем только нужные поля — metadata (hhPendingCaptcha и др.) не трогаем
     const [updated] = await db
       .update(integration)
       .set({
-        ...encryptedData,
+        workspaceId: encryptedData.workspaceId,
+        type: encryptedData.type,
+        name: encryptedData.name,
+        credentials: encryptedData.credentials,
         updatedAt: new Date(),
       })
       .where(eq(integration.id, existing.id))
