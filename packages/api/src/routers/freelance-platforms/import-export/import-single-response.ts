@@ -1,4 +1,4 @@
-import { and, eq, GlobalCandidateRepository, sql } from "@qbs-autonaim/db";
+import { and, eq, GlobalCandidateRepository } from "@qbs-autonaim/db";
 import {
   freelanceImportHistory,
   type Response,

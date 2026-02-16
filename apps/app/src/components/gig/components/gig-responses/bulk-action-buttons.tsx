@@ -2,7 +2,6 @@
 
 import { Button } from "@qbs-autonaim/ui";
 import { CheckCircle, Download, XCircle } from "lucide-react";
-import React from "react";
 
 interface BulkActionButtonsProps {
   selectedCount: number;

@@ -180,7 +180,7 @@ export default function GigResponsesPage({ params }: PageProps) {
     }
   }, [exportData, workspace?.id]);
 
-  const handleSelectResponse = React.useCallback((responseId: string) => {
+  const _handleSelectResponse = React.useCallback((responseId: string) => {
     setSelectedResponses((prev) => {
       const next = new Set(prev);
       if (next.has(responseId)) {
@@ -234,7 +234,7 @@ export default function GigResponsesPage({ params }: PageProps) {
   });
 
   // Bulk handlers - defined after filteredResponses is available
-  const handleSelectAll = React.useCallback(() => {
+  const _handleSelectAll = React.useCallback(() => {
     if (selectedResponses.size === filteredResponses.length) {
       setSelectedResponses(new Set());
     } else {

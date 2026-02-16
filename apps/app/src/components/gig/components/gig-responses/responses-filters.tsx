@@ -183,9 +183,12 @@ export function ResponsesFilters({
 
               {/* Price Range */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">Цена (₽)</label>
+                <label htmlFor="filter-price-min" className="text-sm font-medium">
+                  Цена (₽)
+                </label>
                 <div className="flex gap-2">
                   <Input
+                    id="filter-price-min"
                     type="number"
                     placeholder="От"
                     value={priceMin}
@@ -212,9 +215,12 @@ export function ResponsesFilters({
 
               {/* Date Range */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">Дата отклика</label>
+                <label htmlFor="filter-date-from" className="text-sm font-medium">
+                  Дата отклика
+                </label>
                 <div className="flex gap-2">
                   <Input
+                    id="filter-date-from"
                     type="date"
                     value={dateFrom}
                     onChange={(e) => setDateFrom(e.target.value)}
@@ -231,9 +237,12 @@ export function ResponsesFilters({
 
               {/* Score Range */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">Оценка скрининга (%)</label>
+                <label htmlFor="filter-score-min" className="text-sm font-medium">
+                  Оценка скрининга (%)
+                </label>
                 <div className="flex gap-2">
                   <Input
+                    id="filter-score-min"
                     type="number"
                     placeholder="От"
                     value={scoreMin}
@@ -277,6 +286,7 @@ export function ResponsesFilters({
             <span className="inline-flex items-center gap-1 px-2 py-1 bg-secondary text-secondary-foreground rounded-md text-sm">
               Цена от {filters.priceMin.toLocaleString()} ₽
               <button
+                type="button"
                 onClick={() =>
                   onFiltersChange({ ...filters, priceMin: null })
                 }
@@ -290,6 +300,7 @@ export function ResponsesFilters({
             <span className="inline-flex items-center gap-1 px-2 py-1 bg-secondary text-secondary-foreground rounded-md text-sm">
               Цена до {filters.priceMax.toLocaleString()} ₽
               <button
+                type="button"
                 onClick={() =>
                   onFiltersChange({ ...filters, priceMax: null })
                 }
@@ -303,6 +314,7 @@ export function ResponsesFilters({
             <span className="inline-flex items-center gap-1 px-2 py-1 bg-secondary text-secondary-foreground rounded-md text-sm">
               С {filters.dateFrom.toLocaleDateString("ru-RU")}
               <button
+                type="button"
                 onClick={() =>
                   onFiltersChange({ ...filters, dateFrom: null })
                 }
@@ -316,6 +328,7 @@ export function ResponsesFilters({
             <span className="inline-flex items-center gap-1 px-2 py-1 bg-secondary text-secondary-foreground rounded-md text-sm">
               По {filters.dateTo.toLocaleDateString("ru-RU")}
               <button
+                type="button"
                 onClick={() =>
                   onFiltersChange({ ...filters, dateTo: null })
                 }
@@ -329,6 +342,7 @@ export function ResponsesFilters({
             <span className="inline-flex items-center gap-1 px-2 py-1 bg-secondary text-secondary-foreground rounded-md text-sm">
               Оценка от {filters.scoreMin}%
               <button
+                type="button"
                 onClick={() =>
                   onFiltersChange({ ...filters, scoreMin: null })
                 }
@@ -342,6 +356,7 @@ export function ResponsesFilters({
             <span className="inline-flex items-center gap-1 px-2 py-1 bg-secondary text-secondary-foreground rounded-md text-sm">
               Оценка до {filters.scoreMax}%
               <button
+                type="button"
                 onClick={() =>
                   onFiltersChange({ ...filters, scoreMax: null })
                 }

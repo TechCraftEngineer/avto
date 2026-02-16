@@ -13,7 +13,7 @@ import { globalCandidate } from "./global-candidate";
  */
 export const globalCandidateRelations = relations(
   globalCandidate,
-  ({ one, many }) => ({
+  ({ many }) => ({
     // Связь с организациями через таблицу связей
     organizationLinks: many(candidateOrganization),
   }),
