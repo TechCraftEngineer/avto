@@ -9,22 +9,23 @@ export const vacancyDataExtractionSchema = z.object({
   salary: z.string().optional().describe("Зарплата как в тексте (например: от 150 000 ₽)"),
   region: z.string().optional().describe("Регион размещения вакансии"),
   workLocation: z.string().optional().describe("Адрес или локация работы"),
-  /** Обязанности — что нужно делать на позиции (задачи, функции) */
-  responsibilities: z.string().optional().describe("Обязанности кандидата, список задач"),
-  /** Требования — что должен знать/уметь кандидат (навыки, опыт, образование) */
-  requirements: z.string().optional().describe("Требования к кандидату (навыки, опыт, образование)"),
-  /** Условия — зарплата, формат работы, график, бенефиты */
-  conditions: z.string().optional().describe("Условия: зарплата, формат работы, график, бенефиты (ДМС и т.д.)"),
-  /** Дополнительно — бонусы, премии, прочее */
-  bonuses: z.string().optional().describe("Бонусы, премии, дополнительные мотивации"),
-  /** Общее описание или вводный текст (если есть) */
-  description: z.string().optional().describe("Общее описание вакансии или вводный текст (не дублируй обязанности/требования/условия)"),
+  /** Обязанности — текст дословно, оформлен в <ul><li> */
+  responsibilities: z.string().optional().describe("Обязанности в HTML: <ul><li>...</li></ul>, текст дословно из источника"),
+  /** Требования — текст дословно, оформлен в <ul><li> */
+  requirements: z.string().optional().describe("Требования в HTML: <ul><li>...</li></ul>, текст дословно из источника"),
+  /** Условия — текст дословно, оформлен в HTML */
+  conditions: z.string().optional().describe("Условия в HTML (<p> или <ul><li>), текст дословно из источника"),
+  /** Дополнительно — текст дословно, оформлен в HTML */
+  bonuses: z.string().optional().describe("Бонусы, премии в HTML, текст дословно из источника"),
+  /** Общее описание — текст дословно, оформлен в HTML */
+  description: z.string().optional().describe("Вводный текст в HTML (<p>), не дублируй обязанности/требования/условия"),
 });
 
 export type VacancyDataExtraction = z.infer<typeof vacancyDataExtractionSchema>;
 
 /**
- * Собирает description из структурированных полей (как в create/crud)
+ * Собирает description из структурированных полей в HTML-формате.
+ * Поля от AI уже содержат HTML-разметку (ul/li, p).
  */
 export function buildDescriptionFromSections(data: VacancyDataExtraction): string {
   const parts: string[] = [];
@@ -33,41 +34,48 @@ export function buildDescriptionFromSections(data: VacancyDataExtraction): strin
     parts.push(data.description.trim());
   }
   if (data.responsibilities?.trim()) {
-    parts.push(`\n\nОбязанности:\n${data.responsibilities.trim()}`);
+    parts.push(`<h3>Обязанности</h3>${data.responsibilities.trim()}`);
   }
   if (data.requirements?.trim()) {
-    parts.push(`\n\nТребования:\n${data.requirements.trim()}`);
+    parts.push(`<h3>Требования</h3>${data.requirements.trim()}`);
   }
   if (data.conditions?.trim()) {
-    parts.push(`\n\nУсловия:\n${data.conditions.trim()}`);
+    parts.push(`<h3>Условия</h3>${data.conditions.trim()}`);
   }
   if (data.bonuses?.trim()) {
-    parts.push(`\n\nДополнительно:\n${data.bonuses.trim()}`);
+    parts.push(`<h3>Дополнительно</h3>${data.bonuses.trim()}`);
   }
 
-  return parts.join("").trimStart() || "";
+  return parts.join("") || "";
 }
 
 /**
  * Промпт для извлечения структурированных данных вакансии из HTML-страницы HH.ru
  */
 export function buildVacancyDataExtractionPrompt(htmlContent: string): string {
-  return `Ты — эксперт по извлечению данных с сайтов поиска работы. Перед тобой HTML-страница вакансии с HH.ru (print-версия, без стилей). 
+  return `Ты — эксперт по извлечению данных с сайтов поиска работы. Перед тобой HTML-страница вакансии с HH.ru (print-версия, без стилей).
 
-Извлеки из контента следующие поля. На HH.ru обычно есть блоки "Обязанности", "Требования", "Условия" — выдели их отдельно:
+КРИТИЧЕСКИ ВАЖНО:
+- Передавай текст ДОСЛОВНО, как в исходнике. Не переписывай, не перефразируй, не сокращай, не "улучшай" формулировки.
+- Сохраняй точные цифры, названия, терминологию.
+- Оформляй результат в виде HTML: используй <p> для абзацев, <ul><li> для списков, <br> при необходимости.
 
-- title: название вакансии
-- company: название компании/работодателя
-- salary: зарплата как указано в тексте (если есть)
-- region: регион размещения
-- workLocation: адрес офиса или локация работы (удалённо, гибрид и т.д.)
-- responsibilities: только обязанности (задачи, что делать). Каждый пункт с новой строки, можно с "- " или "• "
-- requirements: только требования к кандидату (навыки, опыт, образование). Каждый пункт с новой строки
-- conditions: условия работы — зарплата (если не в salary), формат, график, бенефиты (ДМС, отпуск и т.д.)
-- bonuses: бонусы, премии, доп. мотивация (если выделены отдельно)
-- description: общий вводный текст о вакансии/компании (если есть). Не дублируй сюда обязанности, требования, условия — они в своих полях.
+Извлеки следующие поля (на HH.ru обычно есть блоки "Обязанности", "Требования", "Условия"):
 
-Сохраняй структуру текста (абзацы, списки). Если блок не найден — оставь поле пустым.
+- title: название вакансии (plain text)
+- company: название компании (plain text)
+- salary: зарплата как в тексте, например "от 150 000 ₽" (plain text)
+- region: регион (plain text)
+- workLocation: адрес офиса или локация (удалённо, гибрид и т.д.) (plain text)
+- responsibilities: обязанности — только извлечь и оформить в <ul><li>...</li></ul>. Текст копировать буквально.
+- requirements: требования к кандидату — <ul><li>...</li></ul>. Текст копировать буквально.
+- conditions: условия работы (зарплата, формат, график, ДМС и т.д.) — <p> или <ul><li>. Текст копировать буквально.
+- bonuses: бонусы, премии (если есть отдельный блок) — HTML. Текст копировать буквально.
+- description: вводный текст о вакансии/компании (если есть). Не дублируй обязанности/требования/условия. HTML.
+
+Пример оформления списка: <ul><li>Разработка новых модулей</li><li>Code review</li></ul>
+
+Если блок не найден — оставь поле пустым.
 
 HTML-контент страницы:
 ${htmlContent}`;
