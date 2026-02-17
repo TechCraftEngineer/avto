@@ -101,6 +101,7 @@ export default async function DashboardLayout({
     memberCount: (org as typeof org & { memberCount: number }).memberCount,
     workspaceCount: (org as typeof org & { workspaceCount: number })
       .workspaceCount,
+    plan: org.plan,
   }));
 
   return (
