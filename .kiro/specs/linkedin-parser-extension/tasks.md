@@ -2,7 +2,7 @@
 
 ## Фаза 1: Инфраструктура и базовая настройка
 
-- [ ] 1. Настройка проекта расширения
+- [x] 1. Настройка проекта расширения
   - [x] 1.1 Создать структуру директорий проекта
   - [x] 1.2 Настроить package.json с необходимыми зависимостями (React, TypeScript, Zod v4, fast-check)
   - [x] 1.3 Создать manifest.json для Chrome-расширения
@@ -30,59 +30,59 @@
   - [x] 4.4 Добавить индикатор загрузки при авторизации
   - [x] 4.5 Создать popup.html
 
-- [ ] 5. Тестирование авторизации
-  - [~] 5.1 Написать unit-тесты для AuthService
-  - [~] 5.2 Написать unit-тесты для LoginForm
-  - [~] 5.3 Протестировать интеграцию с API авторизации
+- [x] 5. Тестирование авторизации
+  - [x] 5.1 Написать unit-тесты для AuthService
+  - [x] 5.2 Написать unit-тесты для LoginForm
+  - [x] 5.3 Протестировать интеграцию с API авторизации
 
 ## Фаза 3: Адаптеры платформ
 
-- [ ] 6. Создание базового адаптера
-  - [~] 6.1 Создать абстрактный класс PlatformAdapter в src/adapters/base/platform-adapter.ts
-  - [~] 6.2 Определить интерфейсы для методов извлечения данных
-  - [~] 6.3 Реализовать метод extractAll()
+- [x] 6. Создание базового адаптера
+  - [x] 6.1 Создать абстрактный класс PlatformAdapter в src/adapters/base/platform-adapter.ts
+  - [x] 6.2 Определить интерфейсы для методов извлечения данных
+  - [x] 6.3 Реализовать метод extractAll()
 
-- [ ] 7. Реализация LinkedIn адаптера
-  - [~] 7.1 Создать LinkedInAdapter в src/adapters/linkedin/linkedin-adapter.ts
-  - [~] 7.2 Реализовать метод isProfilePage()
-  - [~] 7.3 Реализовать метод extractBasicInfo()
-  - [~] 7.4 Реализовать метод extractExperience()
-  - [~] 7.5 Реализовать метод extractEducation()
-  - [~] 7.6 Реализовать метод extractSkills()
-  - [~] 7.7 Реализовать метод extractContacts()
-  - [~] 7.8 Реализовать вспомогательный метод parseDateRange()
+- [x] 7. Реализация LinkedIn адаптера
+  - [x] 7.1 Создать LinkedInAdapter в src/adapters/linkedin/linkedin-adapter.ts
+  - [x] 7.2 Реализовать метод isProfilePage()
+  - [x] 7.3 Реализовать метод extractBasicInfo()
+  - [x] 7.4 Реализовать метод extractExperience()
+  - [x] 7.5 Реализовать метод extractEducation()
+  - [x] 7.6 Реализовать метод extractSkills()
+  - [x] 7.7 Реализовать метод extractContacts()
+  - [x] 7.8 Реализовать вспомогательный метод parseDateRange()
 
-- [ ] 8. Реализация HeadHunter адаптера
-  - [~] 8.1 Создать HeadHunterAdapter в src/adapters/headhunter/headhunter-adapter.ts
-  - [~] 8.2 Реализовать метод isProfilePage()
-  - [~] 8.3 Реализовать метод extractBasicInfo()
-  - [~] 8.4 Реализовать метод extractExperience()
-  - [~] 8.5 Реализовать метод extractEducation()
-  - [~] 8.6 Реализовать метод extractSkills()
-  - [~] 8.7 Реализовать метод extractContacts()
-  - [~] 8.8 Реализовать вспомогательный метод parseDateRange()
+- [x] 8. Реализация HeadHunter адаптера
+  - [x] 8.1 Создать HeadHunterAdapter в src/adapters/headhunter/headhunter-adapter.ts
+  - [x] 8.2 Реализовать метод isProfilePage()
+  - [x] 8.3 Реализовать метод extractBasicInfo()
+  - [x] 8.4 Реализовать метод extractExperience()
+  - [x] 8.5 Реализовать метод extractEducation()
+  - [x] 8.6 Реализовать метод extractSkills()
+  - [x] 8.7 Реализовать метод extractContacts()
+  - [x] 8.8 Реализовать вспомогательный метод parseDateRange()
 
-- [ ] 9. Тестирование адаптеров
-  - [~] 9.1 Написать unit-тесты для LinkedInAdapter
-  - [~] 9.2 Написать unit-тесты для HeadHunterAdapter
-  - [~] 9.3 Написать property-based тесты для проверки свойств 1-7
+- [x] 9. Тестирование адаптеров
+  - [x] 9.1 Написать unit-тесты для LinkedInAdapter
+  - [x] 9.2 Написать unit-тесты для HeadHunterAdapter
+  - [-] 9.3 Написать property-based тесты для проверки свойств 1-7
   - [~] 9.4 Протестировать на реальных страницах профилей
 
 ## Фаза 4: Извлечение и валидация данных
 
-- [ ] 10. Реализация Data Extractor
+- [~] 10. Реализация Data Extractor
   - [~] 10.1 Создать DataExtractor в src/core/data-extractor.ts
   - [~] 10.2 Реализовать метод detectPlatform()
   - [~] 10.3 Реализовать метод extract()
   - [~] 10.4 Добавить обработку ошибок извлечения
 
-- [ ] 11. Реализация Data Validator
+- [~] 11. Реализация Data Validator
   - [~] 11.1 Создать DataValidator в src/core/data-validator.ts
   - [~] 11.2 Реализовать метод validate() с использованием Zod
   - [~] 11.3 Реализовать метод validatePartial() для частичной валидации
   - [~] 11.4 Добавить обработку ошибок валидации
 
-- [ ] 12. Тестирование извлечения и валидации
+- [~] 12. Тестирование извлечения и валидации
   - [~] 12.1 Написать unit-тесты для DataExtractor
   - [~] 12.2 Написать unit-тесты для DataValidator
   - [~] 12.3 Написать property-based тесты для свойства 8 (валидность экспорта)
@@ -90,21 +90,21 @@
 
 ## Фаза 5: Хранилище и настройки
 
-- [ ] 13. Реализация Storage Manager
+- [~] 13. Реализация Storage Manager
   - [~] 13.1 Создать StorageManager в src/storage/storage-manager.ts
   - [~] 13.2 Реализовать метод saveCandidate()
   - [~] 13.3 Реализовать методы работы с настройками (getSettings, saveSettings)
   - [~] 13.4 Реализовать метод clearTemporaryData()
   - [~] 13.5 Реализовать метод getDefaultSettings()
 
-- [ ] 14. Создание страницы настроек
+- [~] 14. Создание страницы настроек
   - [~] 14.1 Создать компонент Options в src/options/options.tsx
   - [~] 14.2 Добавить поля для настройки API (URL, токен, organizationId)
   - [~] 14.3 Добавить опции выбора полей для извлечения
   - [~] 14.4 Добавить валидацию настроек перед сохранением
   - [~] 14.5 Создать options.html
 
-- [ ] 15. Тестирование хранилища
+- [~] 15. Тестирование хранилища
   - [~] 15.1 Написать unit-тесты для StorageManager
   - [~] 15.2 Написать property-based тесты для свойства 14 (round-trip настроек)
   - [~] 15.3 Написать property-based тесты для свойства 15 (валидация настроек)
@@ -112,14 +112,14 @@
 
 ## Фаза 6: API клиент
 
-- [ ] 16. Реализация API Client
+- [~] 16. Реализация API Client
   - [~] 16.1 Создать ApiClient в src/core/api-client.ts
   - [~] 16.2 Реализовать метод importCandidate()
   - [~] 16.3 Реализовать метод testConnection()
   - [~] 16.4 Реализовать вспомогательные методы (extractFirstName, extractLastName, calculateExperienceYears, mapPlatformToSource)
   - [~] 16.5 Добавить обработку ошибок API
 
-- [ ] 17. Тестирование API клиента
+- [~] 17. Тестирование API клиента
   - [~] 17.1 Написать unit-тесты для ApiClient
   - [~] 17.2 Написать property-based тесты для свойства 9 (включение токена)
   - [~] 17.3 Написать property-based тесты для свойства 10 (корректность импорта)
@@ -127,7 +127,7 @@
 
 ## Фаза 7: UI компоненты
 
-- [ ] 18. Создание Action Button
+- [~] 18. Создание Action Button
   - [~] 18.1 Создать компонент ActionButton в src/content/ui/action-button.tsx
   - [~] 18.2 Добавить обработку клика для запуска извлечения
   - [~] 18.3 Добавить индикатор загрузки
