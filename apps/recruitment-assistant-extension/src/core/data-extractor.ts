@@ -1,1 +1,71 @@
-// Data extractor
+/**
+ * Data Extractor
+ *
+ * Координирует процесс извлечения данных, выбирая подходящий адаптер
+ * для текущей платформы (LinkedIn, HeadHunter).
+ */
+
+import type { PlatformAdapter } from "../adapters/base/platform-adapter";
+import { HeadHunterAdapter } from "../adapters/headhunter/headhunter-adapter";
+import { LinkedInAdapter } from "../adapters/linkedin/linkedin-adapter";
+import type { CandidateData } from "../shared/types";
+
+/**
+ * Класс для извлечения данных кандидатов с различных платформ
+ */
+export class DataExtractor {
+  private adapters: Map<string, PlatformAdapter>;
+
+  /**
+   * Создает экземпляр DataExtractor с зарегистрированными адаптерами
+   */
+  constructor() {
+    this.adapters = new Map<string, PlatformAdapter>([
+      ["linkedin", new LinkedInAdapter()],
+      ["headhunter", new HeadHunterAdapter()],
+    ]);
+  }
+
+  /**
+   * Определяет платформу текущей страницы
+   *
+   * Проверяет каждый зарегистрированный адаптер, чтобы найти тот,
+   * который соответствует текущей странице.
+   *
+   * @returns Адаптер для текущей платформы или null, если платформа не поддерживается
+   */
+  detectPlatform(): PlatformAdapter | null {
+    for (const adapter of this.adapters.values()) {
+      if (adapter.isProfilePage()) {
+        return adapter;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Извлекает данные кандидата с текущей страницы
+   *
+   * Определяет платформу, выбирает соответствующий адаптер
+   * и извлекает все данные профиля.
+   *
+   * @returns Объект с данными кандидата
+   * @throws Error если платформа не поддерживается или извлечение данных не удалось
+   */
+  async extract(): Promise<CandidateData> {
+    const adapter = this.detectPlatform();
+    if (!adapter) {
+      throw new Error(
+        "Неподдерживаемая платформа или страница не является профилем кандидата",
+      );
+    }
+
+    try {
+      const data = adapter.extractAll();
+      return data;
+    } catch (error) {
+      console.error("Ошибка при извлечении данных:", error);
+      throw new Error("Не удалось извлечь данные профиля");
+    }
+  }
+}

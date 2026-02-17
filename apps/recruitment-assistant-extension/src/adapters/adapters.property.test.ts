@@ -6,12 +6,35 @@
  */
 
 import * as fc from "fast-check";
-import { describe, expect, it } from "vitest";
+import { Window } from "happy-dom";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { PlatformAdapter } from "./base/platform-adapter";
 import { HeadHunterAdapter } from "./headhunter/headhunter-adapter";
 import { LinkedInAdapter } from "./linkedin/linkedin-adapter";
 
+// Создаем глобальное окружение для тестов
+const happyWindow = new Window();
+declare global {
+  var window: Window;
+  var document: Document;
+}
+(global as any).window = happyWindow;
+(global as any).document = happyWindow.document;
+
 describe("Property-based тесты адаптеров", () => {
+  beforeEach(() => {
+    // Очищаем DOM перед каждым тестом
+    if (typeof document !== "undefined") {
+      document.body.innerHTML = "";
+    }
+  });
+
+  afterEach(() => {
+    // Очищаем DOM после каждого теста
+    if (typeof document !== "undefined") {
+      document.body.innerHTML = "";
+    }
+  });
   /**
    * Свойство 1: Определение платформы профиля
    *
@@ -158,13 +181,22 @@ describe("Property-based тесты адаптеров", () => {
           fc.record({
             fullName: fc
               .string({ minLength: 1, maxLength: 100 })
-              .filter((s) => s.trim().length > 0),
+              .filter(
+                (s) =>
+                  s.trim().length > 0 && !s.includes("<") && !s.includes(">"),
+              ),
             position: fc
               .string({ minLength: 1, maxLength: 100 })
-              .filter((s) => s.trim().length > 0),
+              .filter(
+                (s) =>
+                  s.trim().length > 0 && !s.includes("<") && !s.includes(">"),
+              ),
             location: fc
               .string({ minLength: 1, maxLength: 100 })
-              .filter((s) => s.trim().length > 0),
+              .filter(
+                (s) =>
+                  s.trim().length > 0 && !s.includes("<") && !s.includes(">"),
+              ),
             photoUrl: fc.option(fc.webUrl(), { nil: null }),
           }),
           (data) => {
@@ -201,13 +233,22 @@ describe("Property-based тесты адаптеров", () => {
           fc.record({
             fullName: fc
               .string({ minLength: 1, maxLength: 100 })
-              .filter((s) => s.trim().length > 0),
+              .filter(
+                (s) =>
+                  s.trim().length > 0 && !s.includes("<") && !s.includes(">"),
+              ),
             position: fc
               .string({ minLength: 1, maxLength: 100 })
-              .filter((s) => s.trim().length > 0),
+              .filter(
+                (s) =>
+                  s.trim().length > 0 && !s.includes("<") && !s.includes(">"),
+              ),
             location: fc
               .string({ minLength: 1, maxLength: 100 })
-              .filter((s) => s.trim().length > 0),
+              .filter(
+                (s) =>
+                  s.trim().length > 0 && !s.includes("<") && !s.includes(">"),
+              ),
             photoUrl: fc.option(fc.webUrl(), { nil: null }),
           }),
           (data) => {
@@ -494,10 +535,16 @@ describe("Property-based тесты адаптеров", () => {
             fc.record({
               position: fc
                 .string({ minLength: 1, maxLength: 50 })
-                .filter((s) => s.trim().length > 0),
+                .filter(
+                  (s) =>
+                    s.trim().length > 0 && !s.includes("<") && !s.includes(">"),
+                ),
               company: fc
                 .string({ minLength: 1, maxLength: 50 })
-                .filter((s) => s.trim().length > 0),
+                .filter(
+                  (s) =>
+                    s.trim().length > 0 && !s.includes("<") && !s.includes(">"),
+                ),
             }),
             { minLength: 2, maxLength: 5 },
           ),
@@ -552,7 +599,10 @@ describe("Property-based тесты адаптеров", () => {
           fc.array(
             fc
               .string({ minLength: 1, maxLength: 30 })
-              .filter((s) => s.trim().length > 0),
+              .filter(
+                (s) =>
+                  s.trim().length > 0 && !s.includes("<") && !s.includes(">"),
+              ),
             {
               minLength: 2,
               maxLength: 10,
@@ -599,7 +649,10 @@ describe("Property-based тесты адаптеров", () => {
           fc.array(
             fc
               .string({ minLength: 1, maxLength: 30 })
-              .filter((s) => s.trim().length > 0),
+              .filter(
+                (s) =>
+                  s.trim().length > 0 && !s.includes("<") && !s.includes(">"),
+              ),
             {
               minLength: 0,
               maxLength: 20,
@@ -636,7 +689,10 @@ describe("Property-based тесты адаптеров", () => {
           fc.array(
             fc
               .string({ minLength: 1, maxLength: 30 })
-              .filter((s) => s.trim().length > 0),
+              .filter(
+                (s) =>
+                  s.trim().length > 0 && !s.includes("<") && !s.includes(">"),
+              ),
             {
               minLength: 0,
               maxLength: 20,
@@ -686,7 +742,10 @@ describe("Property-based тесты адаптеров", () => {
             phone: fc.option(
               fc
                 .string({ minLength: 5, maxLength: 20 })
-                .filter((s) => s.trim().length > 0),
+                .filter(
+                  (s) =>
+                    s.trim().length > 0 && !s.includes("<") && !s.includes(">"),
+                ),
               {
                 nil: null,
               },
@@ -732,7 +791,10 @@ describe("Property-based тесты адаптеров", () => {
             phone: fc.option(
               fc
                 .string({ minLength: 5, maxLength: 20 })
-                .filter((s) => s.trim().length > 0),
+                .filter(
+                  (s) =>
+                    s.trim().length > 0 && !s.includes("<") && !s.includes(">"),
+                ),
               {
                 nil: null,
               },

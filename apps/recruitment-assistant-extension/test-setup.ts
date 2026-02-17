@@ -5,18 +5,18 @@
 import { Window } from "happy-dom";
 
 // Создаем окружение happy-dom
-const window = new Window();
-const document = window.document;
+const happyWindow = new Window();
 
 // Устанавливаем глобальные переменные
-(globalThis as any).window = window;
-(globalThis as any).document = document;
-(globalThis as any).navigator = window.navigator;
-(globalThis as any).HTMLElement = window.HTMLElement;
-(globalThis as any).Element = window.Element;
+global.window = happyWindow as any;
+global.document = happyWindow.document as any;
+global.navigator = happyWindow.navigator as any;
+global.HTMLElement = happyWindow.HTMLElement as any;
+global.Element = happyWindow.Element as any;
+global.location = happyWindow.location as any;
 
 // Мок для chrome API
-(globalThis as any).chrome = {
+(global as any).chrome = {
   storage: {
     local: {
       get: () => Promise.resolve({}),
