@@ -19,11 +19,13 @@
   },
   "devDependencies": {
     "@qbs-autonaim/tsconfig": "workspace:*",
+    "@testing-library/jest-dom": "^6.9.1",
     "@types/bun": "latest",
     "@types/chrome": "^0.1.36",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "5.1.4",
+    "axe-core": "^4.11.1",
     "fast-check": "4.5.3",
     "happy-dom": "^20.6.1",
     "typescript": "^5.9.3",
