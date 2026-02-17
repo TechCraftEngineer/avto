@@ -8,6 +8,7 @@ export {
   analyzeResponseResultSchema,
   checkPublicationStatusChannel,
   conversationMessagesChannel,
+  fetchActiveListChannel,
   fetchArchivedListChannel,
   importArchivedVacanciesChannel,
   importGigByUrlChannel,

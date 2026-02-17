@@ -9,6 +9,7 @@ export { verifyKworkCredentialsFunction } from "./functions/integration/verify-k
 // Экспорт Inngest функций
 export { refreshAllResumesFunction } from "./functions/response/refresh-all-resumes";
 export { refreshSingleResumeFunction } from "./functions/response/refresh-resume";
+export { fetchActiveListFunction } from "./functions/vacancy/fetch-active-list";
 export { fetchArchivedListFunction } from "./functions/vacancy/fetch-archived-list";
 export { importArchivedVacanciesFunction } from "./functions/vacancy/import-archived";
 export { importVacancyByUrlFunction } from "./functions/vacancy/import-by-url";
@@ -17,6 +18,7 @@ export { refreshVacancyResponsesFunction } from "./functions/vacancy/refresh-res
 export { updateSingleVacancyFunction } from "./functions/vacancy/update-single";
 export {
   enrichHHResponses,
+  fetchActiveVacanciesList,
   fetchArchivedVacanciesList,
   importMultipleVacancies,
   importSingleVacancy,

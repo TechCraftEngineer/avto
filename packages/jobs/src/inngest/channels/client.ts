@@ -443,6 +443,46 @@ export const importVacancyByUrlChannel = channel(
   );
 
 /**
+ * Канал для отслеживания прогресса получения списка активных вакансий
+ */
+export const fetchActiveListChannel = channel(
+  (workspaceId: string, requestId: string) =>
+    `fetch-active-list:${workspaceId}:${requestId}`,
+)
+  .addTopic(
+    topic("progress").schema(
+      z.object({
+        workspaceId: z.string(),
+        requestId: z.string(),
+        status: z.enum(["started", "processing", "completed", "error"]),
+        message: z.string(),
+      }),
+    ),
+  )
+  .addTopic(
+    topic("result").schema(
+      z.object({
+        workspaceId: z.string(),
+        requestId: z.string(),
+        success: z.boolean(),
+        vacancies: z
+          .array(
+            z.object({
+              id: z.string(),
+              title: z.string(),
+              region: z.string().optional(),
+              views: z.string().optional(),
+              responses: z.string().optional(),
+              isImported: z.boolean().optional(),
+            }),
+          )
+          .optional(),
+        error: z.string().optional(),
+      }),
+    ),
+  );
+
+/**
  * Канал для отслеживания прогресса получения списка архивных вакансий
  */
 export const fetchArchivedListChannel = channel(

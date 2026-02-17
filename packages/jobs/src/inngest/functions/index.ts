@@ -4,6 +4,10 @@
 
 // Integration functions
 export {
+  fetchActiveListFunction,
+  fetchArchivedListFunction,
+  importArchivedVacanciesFunction,
+  importSelectedArchivedVacanciesFunction,
   refreshAllResumesFunction,
   refreshSingleResumeFunction,
   updateSingleVacancyFunction,
@@ -30,6 +34,10 @@ export * from "./vacancy";
 export * from "./web-interview";
 
 import {
+  fetchActiveListFunction,
+  fetchArchivedListFunction,
+  importArchivedVacanciesFunction,
+  importSelectedArchivedVacanciesFunction,
   refreshAllResumesFunction,
   refreshSingleResumeFunction,
   updateSingleVacancyFunction,
@@ -87,10 +95,7 @@ import {
 import {
   collectChatIdsFunction,
   extractVacancyRequirementsFunction,
-  fetchArchivedListFunction,
-  importArchivedVacanciesFunction,
   importNewVacanciesFunction,
-  importSelectedArchivedVacanciesFunction,
   importVacancyByUrlFunction,
   refreshVacancyResponsesFunction,
   syncArchivedVacancyResponsesFunction,
@@ -106,6 +111,7 @@ export const inngestFunctions: any[] = [
   // Vacancy
   collectChatIdsFunction,
   extractVacancyRequirementsFunction,
+  fetchActiveListFunction,
   fetchArchivedListFunction,
   importArchivedVacanciesFunction,
   importNewVacanciesFunction,

@@ -2,6 +2,7 @@
 
 import { getSubscriptionToken } from "@bunworks/inngest-realtime";
 import {
+  fetchActiveListChannel,
   fetchArchivedListChannel,
   importArchivedVacanciesChannel,
   importNewVacanciesChannel,
@@ -102,6 +103,47 @@ export async function triggerImportNewVacancies(
       workspaceId: validationResult.data.workspaceId,
     },
   });
+}
+
+/**
+ * Server action для получения списка активных вакансий для предпросмотра
+ */
+export async function fetchActiveVacanciesList(workspaceId: string) {
+  const validationResult = workspaceIdSchema.safeParse({ workspaceId });
+
+  if (!validationResult.success) {
+    const errors = validationResult.error.issues
+      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+      .join(", ");
+    throw new Error(`Ошибка валидации: ${errors}`);
+  }
+
+  const requestId = crypto.randomUUID();
+
+  await inngest.send({
+    name: "vacancy/fetch-active-list",
+    data: {
+      workspaceId: validationResult.data.workspaceId,
+      requestId,
+    },
+  });
+
+  return requestId;
+}
+
+/**
+ * Server action для получения токена подписки на канал получения списка активных вакансий
+ */
+export async function fetchActiveVacanciesListToken(
+  workspaceId: string,
+  requestId: string,
+) {
+  const token = await getSubscriptionToken(inngest, {
+    channel: fetchActiveListChannel(workspaceId, requestId),
+    topics: ["progress", "result"],
+  });
+
+  return token;
 }
 
 /**

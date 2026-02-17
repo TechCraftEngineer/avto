@@ -313,3 +313,99 @@ export async function importSingleVacancy(
     await closeBrowserSafely(browser);
   }
 }
+
+export async function fetchActiveVacanciesList(workspaceId: string): Promise<
+  {
+    url: string;
+    externalId?: string;
+    title?: string;
+    region?: string;
+    views?: string;
+    responses?: string;
+  }[]
+> {
+  console.log("📋 Получение списка активных вакансий");
+
+  const credentials = await getIntegrationCredentials(db, "hh", workspaceId);
+  if (!credentials) {
+    throw new Error("Не найдены учетные данные для HH.ru");
+  }
+
+  validateCredentials(credentials);
+
+  const password = credentials.password || "";
+
+  const { browser, page } = await setupPageWithAuth(
+    workspaceId,
+    credentials.email!,
+    password,
+  );
+
+  try {
+    await page.goto(HH_CONFIG.urls.vacancies, {
+      waitUntil: "domcontentloaded",
+      timeout: HH_CONFIG.timeouts.navigation,
+    });
+
+    await page.waitForNetworkIdle({
+      timeout: HH_CONFIG.timeouts.networkIdle,
+    });
+
+    await page.waitForSelector('[data-qa="vacancy-serp__vacancy"]', {
+      timeout: HH_CONFIG.timeouts.selector,
+    });
+
+    const activeVacancies = await page.$$eval(
+      '[data-qa="vacancy-serp__vacancy"]',
+      (elements) => {
+        return elements.map((element) => {
+          const titleElement = element.querySelector(
+            '[data-qa="vacancy-serp__vacancy-title"]',
+          );
+          const title = titleElement?.textContent?.trim() || "";
+
+          const urlElement = element.querySelector(
+            '[data-qa="vacancy-serp__vacancy-title"]',
+          ) as HTMLAnchorElement;
+          const url = urlElement?.href || "";
+
+          const locationElement = element.querySelector(
+            '[data-qa="vacancy-serp__vacancy-address"]',
+          );
+          const region = locationElement?.textContent?.trim();
+
+          const idMatch = url.match(/\/vacancy\/(\d+)/);
+          const externalId = idMatch?.[1];
+
+          // Извлекаем статистику если доступна
+          const viewsElement = element.querySelector(
+            '[data-qa="vacancy-serp__vacancy-views"]',
+          );
+          const views = viewsElement?.textContent?.trim();
+
+          const responsesElement = element.querySelector(
+            '[data-qa="vacancy-serp__vacancy-response-count"]',
+          );
+          const responses = responsesElement?.textContent?.trim();
+
+          return { title, url, region, externalId, views, responses };
+        });
+      },
+    );
+
+    console.log(`✅ Найдено активных вакансий: ${activeVacancies.length}`);
+
+    return activeVacancies.map((vacancy) => ({
+      url: vacancy.url,
+      externalId: vacancy.externalId,
+      title: vacancy.title,
+      region: vacancy.region,
+      views: vacancy.views,
+      responses: vacancy.responses,
+    }));
+  } finally {
+    await closeBrowserSafely(browser);
+  }
+}
+
+
