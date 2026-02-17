@@ -42,8 +42,6 @@ interface HHVerificationCodeDialogProps {
   error?: string | null;
   onResendCode?: () => void;
   isResending?: boolean;
-  /** Сбрасывает кулдаун после успешной повторной отправки */
-  resendCountdownReset?: number;
 }
 
 export function HHVerificationCodeDialog({
@@ -56,7 +54,6 @@ export function HHVerificationCodeDialog({
   error,
   onResendCode,
   isResending,
-  resendCountdownReset = 0,
 }: HHVerificationCodeDialogProps) {
   const [attempts, setAttempts] = useState(0);
   const [resendCountdown, setResendCountdown] = useState(60);
@@ -76,13 +73,6 @@ export function HHVerificationCodeDialog({
     }, 1000);
     return () => clearInterval(timer);
   }, [open, onResendCode]);
-
-  // Сброс кулдауна после успешной повторной отправки
-  useEffect(() => {
-    if (resendCountdownReset > 0) {
-      setResendCountdown(60);
-    }
-  }, [resendCountdownReset]);
 
   const form = useForm<VerificationCodeValues>({
     resolver: async (data) => {
@@ -182,9 +172,7 @@ export function HHVerificationCodeDialog({
                         type="button"
                         onClick={onResendCode}
                         disabled={
-                          isResending ||
-                          attempts >= 3 ||
-                          resendCountdown > 0
+                          isResending || attempts >= 3 || resendCountdown > 0
                         }
                         className="text-primary hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
                       >
@@ -244,9 +232,7 @@ export function HHVerificationCodeDialog({
                 <Button
                   type="submit"
                   disabled={
-                    isLoading ||
-                    !form.watch("code")?.trim() ||
-                    attempts >= 3
+                    isLoading || !form.watch("code")?.trim() || attempts >= 3
                   }
                   className="h-11"
                 >

@@ -38,32 +38,23 @@ export function IntegrationDialog({
     integrationType,
     showPassword,
     setShowPassword,
-    isVerifying,
     workspaceId,
-    verifyingType,
     createMutation,
     updateMutation,
     handleClose,
-    handleVerificationResult,
-    handleVerificationError,
     onSubmit,
-    show2FADialog,
-    setShow2FADialog,
-    twoFactorLogin,
-    twoFactorError,
-    isCodeAccepted,
-    handle2FACodeSubmit,
-    handleResendCode,
-    isResendingCode,
-    resendCountdownReset,
-    showCaptchaDialog,
-    setShowCaptchaDialog,
-    captchaImageUrl,
-    captchaError,
-    handleCaptchaSubmit,
-    isSavingCaptcha,
-    showHHSuccessDialog,
+    hhState,
+    isVerifyingHH,
+    handleHHVerificationResult,
+    handleHHVerificationError,
+    handleHHCaptchaSubmit,
+    handleHH2FACodeSubmit,
+    handleHHResendCode,
+    isResendingHHCode,
     handleHHSuccessClose,
+    isVerifyingKwork,
+    handleKworkVerificationResult,
+    handleKworkVerificationError,
   } = useIntegrationDialog({
     open,
     selectedType,
@@ -71,6 +62,9 @@ export function IntegrationDialog({
     onClose,
     onVerify,
   });
+
+  const isVerifying = isVerifyingHH || isVerifyingKwork;
+  const verifyingType = isVerifyingHH ? "hh" : "kwork";
 
   return (
     <>
@@ -80,46 +74,54 @@ export function IntegrationDialog({
           workspaceId={workspaceId}
           isVerifying={isVerifying}
           verifyingType={verifyingType}
-          onResult={handleVerificationResult}
-          onError={handleVerificationError}
+          onResult={
+            verifyingType === "hh"
+              ? handleHHVerificationResult
+              : handleKworkVerificationResult
+          }
+          onError={
+            verifyingType === "hh"
+              ? handleHHVerificationError
+              : handleKworkVerificationError
+          }
         />
       )}
 
       {/* Диалог капчи для HH.ru */}
-      {showCaptchaDialog && workspaceId && (
+      {hhState.step === "captcha" && workspaceId && (
         <HHCaptchaDialog
-          open={showCaptchaDialog}
-          onClose={() => setShowCaptchaDialog(false)}
-          captchaImageUrl={captchaImageUrl}
-          onSubmitCaptcha={handleCaptchaSubmit}
-          isLoading={isSavingCaptcha}
-          error={captchaError}
+          open={true}
+          onClose={() => handleClose()}
+          captchaImageUrl={hhState.captchaImageUrl}
+          onSubmitCaptcha={handleHHCaptchaSubmit}
+          isLoading={isVerifyingHH}
+          error={hhState.error}
         />
       )}
 
       {/* Диалог успешной интеграции с hh.ru */}
-      {showHHSuccessDialog && (
+      {hhState.step === "success" && (
         <HHIntegrationSuccessDialog
-          open={showHHSuccessDialog}
+          open={true}
           onClose={handleHHSuccessClose}
         />
       )}
 
       {/* Диалог 2FA для HH.ru */}
-      {show2FADialog && workspaceId && (
-        <HHVerificationCodeDialog
-          open={show2FADialog}
-          onClose={() => setShow2FADialog(false)}
-          email={twoFactorLogin}
-          onSubmitCode={handle2FACodeSubmit}
-          isLoading={isVerifying}
-          isCodeAccepted={isCodeAccepted}
-          error={twoFactorError}
-          onResendCode={handleResendCode}
-          isResending={isResendingCode}
-          resendCountdownReset={resendCountdownReset}
-        />
-      )}
+      {(hhState.step === "twoFactor" || hhState.step === "processing") &&
+        workspaceId && (
+          <HHVerificationCodeDialog
+            open={true}
+            onClose={() => handleClose()}
+            email={hhState.credentials?.login ?? ""}
+            onSubmitCode={handleHH2FACodeSubmit}
+            isLoading={isVerifyingHH}
+            isCodeAccepted={hhState.step === "processing"}
+            error={hhState.error}
+            onResendCode={handleHHResendCode}
+            isResending={isResendingHHCode}
+          />
+        )}
 
       <Dialog
         open={open}
