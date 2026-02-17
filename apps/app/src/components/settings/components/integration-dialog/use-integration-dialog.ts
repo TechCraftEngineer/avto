@@ -345,11 +345,26 @@ export function useIntegrationDialog({
     };
 
     if (data.type === "hh") {
+      // Сохраняем данные ДО любых асинхронных операций
+      const loginValue = data.login?.trim() ?? "";
+      const passwordValue = data.password?.trim() ?? "";
+
+      if (!loginValue) {
+        toast.error("Email или телефон обязательны");
+        return;
+      }
+
+      if (data.authType === "password" && !passwordValue) {
+        toast.error("Пароль обязателен");
+        return;
+      }
+
       twoFactorCredentialsRef.current = {
-        login: data.login ?? "",
-        password: data.password ?? "",
+        login: loginValue,
+        password: passwordValue,
         authType: data.authType,
       };
+
       setIsVerifying(true);
       setVerifyingType("hh");
       toast.info(
@@ -359,8 +374,8 @@ export function useIntegrationDialog({
 
       try {
         await triggerVerifyHHCredentials(
-          data.login ?? "",
-          data.password,
+          loginValue,
+          passwordValue,
           workspaceId,
           data.authType,
         );
@@ -382,7 +397,7 @@ export function useIntegrationDialog({
       try {
         await triggerVerifyKworkCredentials(
           data.login ?? "",
-          data.password ?? "", 
+          data.password ?? "",
           workspaceId,
         );
       } catch (error) {
@@ -409,23 +424,26 @@ export function useIntegrationDialog({
     }
 
     // Берём из формы, fallback — сохранённые при submit (форма может сброситься из-за useEffect/refetch)
+    const formLogin = form.getValues("login");
+    const formPassword = form.getValues("password");
+    const formAuthType = form.getValues("authType");
+
     const login =
-      form.getValues("login") ??
-      twoFactorCredentialsRef.current?.login ??
+      (formLogin?.trim() && formLogin.trim()) ||
+      twoFactorCredentialsRef.current?.login ||
       "";
     const password =
-      form.getValues("password") ??
-      twoFactorCredentialsRef.current?.password ??
+      (formPassword?.trim() && formPassword.trim()) ||
+      twoFactorCredentialsRef.current?.password ||
       "";
-    const authType =
-      form.getValues("authType") ?? twoFactorCredentialsRef.current?.authType;
+    const authType = formAuthType ?? twoFactorCredentialsRef.current?.authType;
 
-    if (!login.trim()) {
+    if (!login) {
       setTwoFactorError("Email или телефон не найден. Попробуйте заново.");
       return;
     }
 
-    if (authType === "password" && !password.trim()) {
+    if (authType === "password" && !password) {
       setTwoFactorError("Данные не найдены. Попробуйте заново.");
       return;
     }
@@ -444,8 +462,7 @@ export function useIntegrationDialog({
     } catch (error) {
       codeSubmittedRef.current = false;
       setIsVerifying(false);
-      const fallback =
-        error instanceof Error ? error.message : String(error);
+      const fallback = error instanceof Error ? error.message : String(error);
       setTwoFactorError(fallback || "Ошибка проверки кода. Попробуйте снова.");
     }
   };
@@ -485,9 +502,7 @@ export function useIntegrationDialog({
   }, [workspaceId, requestHHResendCodeMutation]);
 
   const twoFactorLogin =
-    form.getValues("login") ??
-    twoFactorCredentialsRef.current?.login ??
-    "";
+    form.getValues("login") ?? twoFactorCredentialsRef.current?.login ?? "";
 
   return {
     form,
