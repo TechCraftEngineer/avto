@@ -12,6 +12,7 @@ import {
 } from "@qbs-autonaim/ui";
 import { Briefcase } from "lucide-react";
 import { HHCaptchaDialog } from "../hh-captcha-dialog/hh-captcha-dialog";
+import { HHIntegrationSuccessDialog } from "../hh-integration-success-dialog/hh-integration-success-dialog";
 import { HHVerificationCodeDialog } from "../hh-verification-code-dialog/hh-verification-code-dialog";
 import { IntegrationFormFields } from "./integration-form-fields";
 import { useIntegrationDialog } from "./use-integration-dialog";
@@ -61,6 +62,8 @@ export function IntegrationDialog({
     captchaError,
     handleCaptchaSubmit,
     isSavingCaptcha,
+    showHHSuccessDialog,
+    handleHHSuccessClose,
   } = useIntegrationDialog({
     open,
     selectedType,
@@ -91,6 +94,14 @@ export function IntegrationDialog({
           onSubmitCaptcha={handleCaptchaSubmit}
           isLoading={isSavingCaptcha}
           error={captchaError}
+        />
+      )}
+
+      {/* Диалог успешной интеграции с hh.ru */}
+      {showHHSuccessDialog && (
+        <HHIntegrationSuccessDialog
+          open={showHHSuccessDialog}
+          onClose={handleHHSuccessClose}
         />
       )}
 

@@ -53,6 +53,7 @@ export function useIntegrationDialog({
   const [showCaptchaDialog, setShowCaptchaDialog] = useState(false);
   const [captchaImageUrl, setCaptchaImageUrl] = useState<string | null>(null);
   const [captchaError, setCaptchaError] = useState<string | null>(null);
+  const [showHHSuccessDialog, setShowHHSuccessDialog] = useState(false);
   const [resendCountdownReset, setResendCountdownReset] = useState(0);
   const resendTriggeredRef = useRef(false);
   /** Код отправлен, ждём результат от job — не показывать повторный toast requiresTwoFactor */
@@ -196,8 +197,17 @@ export function useIntegrationDialog({
     setShowCaptchaDialog(false);
     setCaptchaImageUrl(null);
     setCaptchaError(null);
+    setShowHHSuccessDialog(false);
     onClose();
   }, [form, onClose]);
+
+  const handleHHSuccessClose = useCallback(() => {
+    setShowHHSuccessDialog(false);
+    handleClose();
+    if (onVerify) {
+      setTimeout(() => onVerify("hh"), 300);
+    }
+  }, [handleClose, onVerify]);
 
   const saveHHCaptchaMutation = useMutation(
     trpc.integration.saveHHCaptcha.mutationOptions({
@@ -254,18 +264,24 @@ export function useIntegrationDialog({
       setIsCodeAccepted(false);
 
       if (result.success && result.isValid) {
-        toast.success(
-          verifyingType === "hh"
-            ? "Подключение к hh.ru выполнено успешно"
-            : "Данные успешно проверены",
-        );
-
-        if (workspaceId) {
-          queryClient.invalidateQueries({
-            queryKey: trpc.integration.list.queryKey({ workspaceId }),
-          });
+        if (verifyingType === "hh") {
+          setShow2FADialog(false);
+          setShowCaptchaDialog(false);
+          setShowHHSuccessDialog(true);
+          if (workspaceId) {
+            queryClient.invalidateQueries({
+              queryKey: trpc.integration.list.queryKey({ workspaceId }),
+            });
+          }
+        } else {
+          toast.success("Данные успешно проверены");
+          if (workspaceId) {
+            queryClient.invalidateQueries({
+              queryKey: trpc.integration.list.queryKey({ workspaceId }),
+            });
+          }
+          handleClose();
         }
-        handleClose();
       } else {
         setIsCodeAccepted(false);
         toast.error(result.error || "Ошибка проверки данных");
@@ -293,15 +309,12 @@ export function useIntegrationDialog({
       setIsCodeAccepted(false);
       codeSubmittedRef.current = false;
       setIsVerifying(false);
-      toast.success("Подключение к hh.ru выполнено успешно");
+      setShow2FADialog(false);
+      setShowHHSuccessDialog(true);
       if (workspaceId) {
         queryClient.invalidateQueries({
           queryKey: trpc.integration.list.queryKey({ workspaceId }),
         });
-      }
-      handleClose();
-      if (onVerify) {
-        setTimeout(() => onVerify("hh"), 500);
       }
     }
   }, [
@@ -310,8 +323,6 @@ export function useIntegrationDialog({
     workspaceId,
     queryClient,
     trpc.integration.list,
-    handleClose,
-    onVerify,
   ]);
 
   const onSubmit = async (data: IntegrationFormValues) => {
@@ -507,5 +518,7 @@ export function useIntegrationDialog({
     captchaError,
     handleCaptchaSubmit,
     isSavingCaptcha: saveHHCaptchaMutation.isPending,
+    showHHSuccessDialog,
+    handleHHSuccessClose,
   };
 }
