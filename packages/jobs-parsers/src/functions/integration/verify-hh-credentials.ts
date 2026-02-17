@@ -186,7 +186,13 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
           );
 
           if (loginInput) {
-            const initiated = await initiateCodeAuth(page, email);
+            // При authType=password — сразу вход по паролю, не инициируем код
+            const shouldUsePasswordAuth =
+              authType === "password" && password && password.length > 0;
+
+            const initiated = shouldUsePasswordAuth
+              ? false
+              : await initiateCodeAuth(page, email);
 
             // Капча может появиться после нажатия «Получить код» или «Войти»
             await resolveCaptchaLoop(
