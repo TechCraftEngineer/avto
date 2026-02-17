@@ -65,6 +65,7 @@ export const CandidateDataSchema = z.object({
 export const SettingsSchema = z.object({
   apiUrl: z.string().url(),
   apiToken: z.string().min(10),
+  organizationId: z.string(),
   fieldsToExtract: z.object({
     basicInfo: z.boolean(),
     experience: z.boolean(),

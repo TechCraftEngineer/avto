@@ -376,6 +376,7 @@ describe("DataValidator", () => {
       const validSettings: Settings = {
         apiUrl: "https://api.example.com",
         apiToken: "valid-token-123456",
+        organizationId: "org-123",
         fieldsToExtract: {
           basicInfo: true,
           experience: true,
@@ -397,6 +398,7 @@ describe("DataValidator", () => {
       const invalidSettings = {
         apiUrl: "not-a-url",
         apiToken: "valid-token-123456",
+        organizationId: "org-123",
         fieldsToExtract: {
           basicInfo: true,
           experience: true,
@@ -417,6 +419,7 @@ describe("DataValidator", () => {
       const invalidSettings = {
         apiUrl: "https://api.example.com",
         apiToken: "short",
+        organizationId: "org-123",
         fieldsToExtract: {
           basicInfo: true,
           experience: true,
@@ -437,6 +440,7 @@ describe("DataValidator", () => {
       const invalidSettings = {
         apiUrl: "https://api.example.com",
         apiToken: "valid-token-123456",
+        organizationId: "org-123",
         fieldsToExtract: {
           basicInfo: true,
           // Отсутствуют остальные поля
@@ -454,6 +458,7 @@ describe("DataValidator", () => {
       const validSettings: Settings = {
         apiUrl: "https://api.example.com",
         apiToken: "valid-token-123456",
+        organizationId: "org-123",
         fieldsToExtract: {
           basicInfo: false,
           experience: false,

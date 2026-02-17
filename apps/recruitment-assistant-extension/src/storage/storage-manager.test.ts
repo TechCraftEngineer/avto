@@ -67,6 +67,7 @@ describe("StorageManager", () => {
       const savedSettings: Settings = {
         apiUrl: "https://api.example.com",
         apiToken: "test-token-123",
+        organizationId: "org-123",
         fieldsToExtract: {
           basicInfo: true,
           experience: true,
@@ -92,6 +93,7 @@ describe("StorageManager", () => {
       expect(result).toEqual({
         apiUrl: "",
         apiToken: "",
+        organizationId: "",
         fieldsToExtract: {
           basicInfo: true,
           experience: true,
@@ -108,6 +110,7 @@ describe("StorageManager", () => {
       const settings: Settings = {
         apiUrl: "https://api.example.com",
         apiToken: "test-token-123",
+        organizationId: "org-123",
         fieldsToExtract: {
           basicInfo: true,
           experience: true,
@@ -165,6 +168,7 @@ describe("StorageManager", () => {
       expect(defaults).toEqual({
         apiUrl: "",
         apiToken: "",
+        organizationId: "",
         fieldsToExtract: {
           basicInfo: true,
           experience: true,

@@ -47,6 +47,7 @@ export class StorageManager {
     return {
       apiUrl: "",
       apiToken: "",
+      organizationId: "",
       fieldsToExtract: {
         basicInfo: true,
         experience: true,

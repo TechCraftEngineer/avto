@@ -118,6 +118,8 @@ export interface Settings {
   apiUrl: string;
   /** Токен аутентификации */
   apiToken: string;
+  /** ID организации для привязки кандидатов */
+  organizationId: string;
   /** Какие поля извлекать */
   fieldsToExtract: {
     basicInfo: boolean;
