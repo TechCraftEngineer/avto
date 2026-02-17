@@ -4,10 +4,8 @@ import { z } from "zod";
 import type { VacancyData } from "../../../types";
 import { HH_CONFIG } from "../../core/config/config";
 import { humanDelay } from "../../utils/human-behavior";
-import {
-  collectArchivedVacancies,
-  collectVacancies,
-} from "./vacancy-collector";
+import { fetchActiveVacanciesList } from "../../fetchers/fetch-active-vacancy-list";
+import { fetchArchivedVacanciesList } from "../../fetchers/fetch-archived-vacancy-list";
 import { extractVacancyDataWithAI } from "./ai-vacancy-extractor";
 import {
   parseVacancyDescriptions,
@@ -29,7 +27,25 @@ export async function parseVacancies(
 
   // ЭТАП 1: Собираем список всех активных вакансий
   console.log("\n📋 ЭТАП 1: Сбор списка активных вакансий...");
-  const vacancies = await collectVacancies(page);
+  const rawActive = await fetchActiveVacanciesList(workspaceId);
+  const vacancies: VacancyData[] = rawActive
+    .filter((v) => v.externalId && v.url)
+    .map((v) => ({
+      id: v.externalId ?? "",
+      externalId: v.externalId,
+      source: "hh" as const,
+      title: v.title ?? "",
+      url: v.url,
+      views: v.views ?? "0",
+      responses: v.responses ?? "0",
+      responsesUrl: null,
+      newResponses: "0",
+      resumesInProgress: "0",
+      suitableResumes: "0",
+      region: v.region,
+      description: "",
+      isActive: true,
+    }));
 
   if (vacancies.length === 0) {
     console.log("⚠️ Не найдено активных вакансий");
@@ -72,7 +88,25 @@ export async function parseArchivedVacancies(
 
   // ЭТАП 1: Собираем список всех архивных вакансий
   console.log("\n📋 ЭТАП 1: Сбор списка архивных вакансий...");
-  const archivedVacancies = await collectArchivedVacancies(page);
+  const rawArchived = await fetchArchivedVacanciesList(workspaceId);
+  const archivedVacancies: VacancyData[] = rawArchived
+    .filter((v) => v.externalId && v.url)
+    .map((v) => ({
+      id: v.externalId ?? "",
+      externalId: v.externalId,
+      source: "hh" as const,
+      title: v.title ?? "",
+      url: v.url,
+      views: "0",
+      responses: "0",
+      responsesUrl: null,
+      newResponses: "0",
+      resumesInProgress: "0",
+      suitableResumes: "0",
+      region: v.region,
+      description: "",
+      isActive: false,
+    }));
 
   if (archivedVacancies.length === 0) {
     console.log("⚠️ Не найдено архивных вакансий");
