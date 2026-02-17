@@ -1,16 +1,15 @@
-import { eq } from "@qbs-autonaim/db";
+import { eq, getIntegrationCredentials } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { vacancy } from "@qbs-autonaim/db/schema";
 import { inngest } from "@qbs-autonaim/jobs/client";
 import { updateVacancyDescription } from "@qbs-autonaim/jobs/services/vacancy";
-import puppeteer from "puppeteer";
+import { extractVacancyDataWithAI } from "../../parsers/hh/parsers/vacancy/ai-vacancy-extractor";
+import { setupPageWithAuth } from "../../parsers/hh/core/browser/browser-setup";
 import { closeBrowserSafely } from "../../parsers/hh/core/browser/browser-utils";
-import { HH_CONFIG } from "../../parsers/hh/core/config/config";
-import { humanBrowse, humanDelay } from "../../parsers/hh/utils/human-behavior";
 
 /**
  * Функция Inngest для обновления одиночной вакансии
- * Загружает свежее описание с HH.ru и запускает генерацию требований
+ * Загружает свежее описание с HH.ru через AI-парсер и запускает генерацию требований
  */
 export const updateSingleVacancyFunction = inngest.createFunction(
   {
@@ -25,60 +24,65 @@ export const updateSingleVacancyFunction = inngest.createFunction(
     return await step.run("update-vacancy", async () => {
       console.log(`🚀 Обновление вакансии ${vacancyId}`);
 
-      let browser = null;
+      const existingVacancy = await db.query.vacancy.findFirst({
+        where: eq(vacancy.id, vacancyId),
+      });
+
+      if (!existingVacancy) {
+        throw new Error(`Вакансия ${vacancyId} не найдена`);
+      }
+
+      if (!existingVacancy.url) {
+        throw new Error(`У вакансии ${vacancyId} нет URL`);
+      }
+
+      const credentials = await getIntegrationCredentials(
+        db,
+        "hh",
+        existingVacancy.workspaceId,
+      );
+
+      if (!credentials?.email || !credentials?.password) {
+        throw new Error("Не найдены учетные данные HH.ru для workspace");
+      }
+
+      const { browser, page } = await setupPageWithAuth(
+        existingVacancy.workspaceId,
+        credentials.email,
+        credentials.password,
+      );
 
       try {
-        // Получаем вакансию из БД
-        const existingVacancy = await db.query.vacancy.findFirst({
-          where: eq(vacancy.id, vacancyId),
-        });
+        console.log(`📥 Парсинг описания с ${existingVacancy.url}`);
 
-        if (!existingVacancy) {
-          throw new Error(`Вакансия ${vacancyId} не найдена`);
-        }
-
-        if (!existingVacancy.url) {
-          throw new Error(`У вакансии ${vacancyId} нет URL`);
-        }
-
-        // Парсим описание с HH.ru
-        console.log(`📥 Загрузка описания с ${existingVacancy.url}`);
-        browser = await puppeteer.launch(HH_CONFIG.puppeteer);
-
-        const page = await browser.newPage();
-        await page.setUserAgent({ userAgent: HH_CONFIG.userAgent });
-
-        await page.goto(existingVacancy.url, { waitUntil: "networkidle2" });
-        await humanDelay(1000, 2500);
-
-        await page.waitForSelector(".vacancy-section", {
-          timeout: HH_CONFIG.timeouts.selector,
-        });
-
-        await humanBrowse(page);
-
-        const description = await page.$eval(
-          ".vacancy-section",
-          (el) => (el as HTMLElement).innerHTML,
+        const vacancyData = await extractVacancyDataWithAI(
+          page,
+          existingVacancy.url,
+          {
+            isArchived: !existingVacancy.isActive,
+            region: existingVacancy.region ?? undefined,
+          },
         );
 
-        if (!description?.trim()) {
-          throw new Error(`Не удалось получить описание вакансии ${vacancyId}`);
+        if (!vacancyData?.description) {
+          throw new Error(`Не удалось извлечь описание вакансии ${vacancyId}`);
         }
 
-        // Обновляем описание и запускаем генерацию требований
-        await updateVacancyDescription(vacancyId, description.trim());
+        const updateResult = await updateVacancyDescription(
+          vacancyId,
+          vacancyData.description,
+          vacancyData.workLocation,
+          vacancyData.region,
+        );
+
+        if (!updateResult.success) {
+          throw new Error(updateResult.error);
+        }
 
         console.log(`✅ Вакансия ${vacancyId} успешно обновлена`);
         return { success: true, vacancyId };
-      } catch (error) {
-        console.error(`❌ Ошибка обновления вакансии ${vacancyId}:`, error);
-        throw error;
       } finally {
-        // Корректное закрытие браузера для Windows
-        if (browser) {
-          await closeBrowserSafely(browser);
-        }
+        await closeBrowserSafely(browser);
       }
     });
   },

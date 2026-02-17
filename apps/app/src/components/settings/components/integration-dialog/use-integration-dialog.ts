@@ -57,6 +57,12 @@ export function useIntegrationDialog({
   const resendTriggeredRef = useRef(false);
   /** Код отправлен, ждём результат от job — не показывать повторный toast requiresTwoFactor */
   const codeSubmittedRef = useRef(false);
+  /** Сохраняем логин при submit для 2FA — форма может сброситься до отправки кода (useEffect, refetch) */
+  const twoFactorCredentialsRef = useRef<{
+    login: string;
+    password: string;
+    authType: "password" | "code";
+  } | null>(null);
 
   const workspaceId = useMemo(() => workspace?.id || "", [workspace?.id]);
 
@@ -181,6 +187,7 @@ export function useIntegrationDialog({
 
   const handleClose = useCallback(() => {
     form.reset();
+    twoFactorCredentialsRef.current = null;
     setShowPassword(false);
     setIsVerifying(false);
     setShow2FADialog(false);
@@ -327,6 +334,11 @@ export function useIntegrationDialog({
     };
 
     if (data.type === "hh") {
+      twoFactorCredentialsRef.current = {
+        login: data.login ?? "",
+        password: data.password ?? "",
+        authType: data.authType,
+      };
       setIsVerifying(true);
       setVerifyingType("hh");
       toast.info(
@@ -385,16 +397,24 @@ export function useIntegrationDialog({
       return;
     }
 
-    const login = form.getValues("login") ?? "";
-    const password = form.getValues("password") ?? "";
-    const authType = form.getValues("authType");
+    // Берём из формы, fallback — сохранённые при submit (форма может сброситься из-за useEffect/refetch)
+    const login =
+      form.getValues("login") ??
+      twoFactorCredentialsRef.current?.login ??
+      "";
+    const password =
+      form.getValues("password") ??
+      twoFactorCredentialsRef.current?.password ??
+      "";
+    const authType =
+      form.getValues("authType") ?? twoFactorCredentialsRef.current?.authType;
 
-    if (!login) {
+    if (!login.trim()) {
       setTwoFactorError("Email или телефон не найден. Попробуйте заново.");
       return;
     }
 
-    if (authType === "password" && !password) {
+    if (authType === "password" && !password.trim()) {
       setTwoFactorError("Данные не найдены. Попробуйте заново.");
       return;
     }
@@ -453,9 +473,15 @@ export function useIntegrationDialog({
     }
   }, [workspaceId, requestHHResendCodeMutation]);
 
+  const twoFactorLogin =
+    form.getValues("login") ??
+    twoFactorCredentialsRef.current?.login ??
+    "";
+
   return {
     form,
     integrationType,
+    twoFactorLogin,
     showPassword,
     setShowPassword,
     isVerifying,

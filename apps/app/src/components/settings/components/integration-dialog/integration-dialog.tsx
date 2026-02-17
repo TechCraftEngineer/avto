@@ -48,6 +48,7 @@ export function IntegrationDialog({
     onSubmit,
     show2FADialog,
     setShow2FADialog,
+    twoFactorLogin,
     twoFactorError,
     isCodeAccepted,
     handle2FACodeSubmit,
@@ -98,7 +99,7 @@ export function IntegrationDialog({
         <HHVerificationCodeDialog
           open={show2FADialog}
           onClose={() => setShow2FADialog(false)}
-          email={form.getValues("login") ?? ""}
+          email={twoFactorLogin}
           onSubmitCode={handle2FACodeSubmit}
           isLoading={isVerifying}
           isCodeAccepted={isCodeAccepted}

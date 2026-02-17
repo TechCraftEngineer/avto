@@ -17,10 +17,12 @@ import {
   FormMessage,
   Input,
   PasswordInput,
+  PasswordRequirements,
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
+  usePasswordRequirements,
 } from "@qbs-autonaim/ui";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -31,16 +33,27 @@ import { z } from "zod";
 import { authClient } from "~/auth/client";
 import { translateAuthError } from "~/lib/auth-error-messages";
 
-const emailPasswordSchema = z.object({
-  email: z.string().email("Неверный email адрес"),
-  password: z.string().min(8, "Пароль должен содержать минимум 8 символов"),
-});
+const passwordSchema = z
+  .string()
+  .min(8, "Минимум 8 символов")
+  .regex(/[A-Z]/, "Заглавная буква")
+  .regex(/[a-z]/, "Строчная буква")
+  .regex(/\d/, "Цифра");
+
+const createEmailPasswordSchema = (mode: "signin" | "signup") =>
+  z.object({
+    email: z.string().email("Неверный email адрес"),
+    password:
+      mode === "signup"
+        ? passwordSchema
+        : z.string().min(8, "Пароль должен содержать минимум 8 символов"),
+  });
 
 const emailOtpSchema = z.object({
   email: z.string().email("Неверный email адрес"),
 });
 
-type EmailPasswordData = z.infer<typeof emailPasswordSchema>;
+type EmailPasswordData = z.infer<ReturnType<typeof createEmailPasswordSchema>>;
 type EmailOtpData = z.infer<typeof emailOtpSchema>;
 
 export function UnifiedAuthForm({
@@ -53,9 +66,12 @@ export function UnifiedAuthForm({
   const router = useRouter();
 
   const passwordForm = useForm<EmailPasswordData>({
-    resolver: zodResolver(emailPasswordSchema),
+    resolver: zodResolver(createEmailPasswordSchema(mode)),
     defaultValues: { email: "", password: "" },
   });
+
+  const passwordValue = passwordForm.watch("password");
+  const passwordRequirements = usePasswordRequirements(passwordValue);
 
   const otpForm = useForm<EmailOtpData>({
     resolver: zodResolver(emailOtpSchema),
@@ -245,6 +261,11 @@ export function UnifiedAuthForm({
                             {...field}
                           />
                         </FormControl>
+                        {mode === "signup" && (
+                          <PasswordRequirements
+                            requirements={passwordRequirements}
+                          />
+                        )}
                         <FormMessage />
                       </FormItem>
                     )}

@@ -13,11 +13,12 @@ export default async function AuthLayout({
   const headersList = await headers();
   const pathname = headersList.get("x-pathname") || "";
 
-  // Разрешаем доступ к /auth/verify-email для авторизованных пользователей
+  // Разрешаем доступ к /auth/verify-email и /auth/reset-password для авторизованных пользователей
   const isVerifyEmailPage = pathname === "/auth/verify-email";
+  const isResetPasswordPage = pathname === "/auth/reset-password";
 
-  // Если пользователь уже авторизован и это не страница верификации, редиректим на главную
-  if (session?.user && !isVerifyEmailPage) {
+  // Если пользователь уже авторизован и это не страница верификации или сброса пароля, редиректим на главную
+  if (session?.user && !isVerifyEmailPage && !isResetPasswordPage) {
     redirect(paths.dashboard.root);
   }
 

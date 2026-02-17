@@ -15,7 +15,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  isPasswordValid,
   PasswordInput,
+  PasswordRequirements,
+  usePasswordRequirements,
 } from "@qbs-autonaim/ui";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -26,9 +29,16 @@ import { z } from "zod";
 import { authClient } from "~/auth/client";
 import { translateAuthError } from "~/lib/auth-error-messages";
 
+const passwordSchema = z
+  .string()
+  .min(8, "Минимум 8 символов")
+  .regex(/[A-Z]/, "Заглавная буква")
+  .regex(/[a-z]/, "Строчная буква")
+  .regex(/\d/, "Цифра");
+
 const resetPasswordSchema = z
   .object({
-    password: z.string().min(8, "Пароль должен содержать минимум 8 символов"),
+    password: passwordSchema,
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -53,6 +63,9 @@ export function ResetPasswordForm({
       confirmPassword: "",
     },
   });
+
+  const passwordValue = form.watch("password");
+  const passwordRequirements = usePasswordRequirements(passwordValue);
 
   const onSubmit = async (data: ResetPasswordFormData) => {
     if (!token) {
@@ -122,6 +135,7 @@ export function ResetPasswordForm({
                       {...field}
                     />
                   </FormControl>
+                  <PasswordRequirements requirements={passwordRequirements} />
                   <FormMessage />
                 </FormItem>
               )}
