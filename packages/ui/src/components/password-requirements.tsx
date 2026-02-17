@@ -1,7 +1,8 @@
 "use client";
 
-import { cn } from "../lib/utils";
-import { CheckCircleIcon } from "./icons/icon-lucide";
+import { CheckCircleIcon } from "lucide-react";
+
+import { cn } from ".";
 
 export interface PasswordRequirement {
   label: string;
