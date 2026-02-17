@@ -5,6 +5,7 @@ export { unwrap } from "../base/index";
 export {
   checkVacancyExists,
   getVacanciesWithoutDescription,
+  getVacancyByExternalId,
   getVacancyById,
   hasVacancyDescription,
   saveBasicVacancy,

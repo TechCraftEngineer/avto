@@ -1,6 +1,6 @@
 import { eq, isNull, or } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
-import type { PlatformSource } from "@qbs-autonaim/db/schema";
+import type { PlatformSource, Vacancy } from "@qbs-autonaim/db/schema";
 import { vacancy, vacancyPublication } from "@qbs-autonaim/db/schema";
 import type { VacancyData } from "@qbs-autonaim/jobs-parsers";
 import { createLogger, type Result, tryCatch } from "../base";
@@ -169,6 +169,26 @@ export async function hasVacancyDescription(
     if (!existingVacancy) return false;
     return !!existingVacancy.description?.trim();
   }, "Ошибка проверки описания вакансии");
+}
+
+/**
+ * Получает вакансию по externalId в рамках workspace
+ */
+export async function getVacancyByExternalId(
+  workspaceId: string,
+  externalId: string,
+): Promise<Result<Vacancy | null>> {
+  return tryCatch(async () => {
+    const result = await db.query.vacancy.findFirst({
+      where: (table, { and, eq }) =>
+        and(
+          eq(table.workspaceId, workspaceId),
+          eq(table.source, "HH"),
+          eq(table.externalId, externalId),
+        ),
+    });
+    return result ?? null;
+  }, "Ошибка получения вакансии по externalId");
 }
 
 /**

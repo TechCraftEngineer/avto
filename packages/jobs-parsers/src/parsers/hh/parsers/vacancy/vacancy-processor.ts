@@ -1,5 +1,5 @@
 import {
-  hasVacancyDescription,
+  getVacancyByExternalId,
   saveBasicVacancy,
   updateVacancyDescription,
 } from "@qbs-autonaim/jobs/services/vacancy";
@@ -7,6 +7,7 @@ import type { Page } from "puppeteer";
 import type { VacancyData } from "../../../types";
 import { HH_CONFIG } from "../../core/config/config";
 import { humanDelay } from "../../utils/human-behavior";
+import { extractVacancyDataWithAI } from "./ai-vacancy-extractor";
 
 /**
  * Сохраняет базовую информацию всех вакансий
@@ -31,7 +32,7 @@ export async function saveBasicVacancies(
 
     try {
       const saved = await saveBasicVacancy(vacancy, workspaceId);
-      if (saved) {
+      if (saved.success) {
         savedCount++;
         newVacancyIds.add(vacancy.externalId);
       }
@@ -43,7 +44,6 @@ export async function saveBasicVacancies(
       errorCount++;
     }
 
-    // Небольшая задержка между сохранениями
     await humanDelay(100, 300);
   }
 
@@ -52,18 +52,18 @@ export async function saveBasicVacancies(
 }
 
 /**
- * Парсит описания вакансий для новых вакансий
+ * Парсит описания вакансий через AI для новых вакансий
  */
 export async function parseVacancyDescriptions(
   page: Page,
   vacancies: VacancyData[],
   newVacancyIds: Set<string>,
+  workspaceId: string,
 ): Promise<{ successCount: number; errorCount: number }> {
   let successCount = 0;
   let errorCount = 0;
 
   for (const vacancy of vacancies) {
-    // Парсим описание только для новых вакансий
     if (!vacancy.externalId || !newVacancyIds.has(vacancy.externalId)) {
       continue;
     }
@@ -74,35 +74,37 @@ export async function parseVacancyDescriptions(
     }
 
     try {
-      const hasDescription = await hasVacancyDescription(vacancy.externalId);
+      const vacancyResult = await getVacancyByExternalId(
+        workspaceId,
+        vacancy.externalId,
+      );
 
-      if (!hasDescription) {
-        console.log(`📝 Парсим описание для вакансии: ${vacancy.title}`);
+      if (!vacancyResult.success || !vacancyResult.data) {
+        console.warn(`⚠️ Вакансия не найдена в БД: ${vacancy.externalId}`);
+        continue;
+      }
 
-        await page.goto(vacancy.url, {
-          waitUntil: "domcontentloaded",
-          timeout: HH_CONFIG.timeouts.navigation,
-        });
+      const dbVacancy = vacancyResult.data;
+      if (dbVacancy.description?.trim()) {
+        continue;
+      }
 
-        await page.waitForNetworkIdle({
-          timeout: HH_CONFIG.timeouts.networkIdle,
-        });
+      console.log(`📝 Парсим описание через AI для вакансии: ${vacancy.title}`);
 
-        await humanDelay(
-          HH_CONFIG.delays.readingPage.min,
-          HH_CONFIG.delays.readingPage.max,
+      const vacancyData = await extractVacancyDataWithAI(page, vacancy.url, {
+        isArchived: !vacancy.isActive,
+        region: vacancy.region,
+      });
+
+      if (vacancyData?.description) {
+        const updateResult = await updateVacancyDescription(
+          dbVacancy.id,
+          vacancyData.description,
+          vacancyData.workLocation,
+          vacancyData.region,
         );
 
-        const description = await extractVacancyDescription(page);
-        const workLocation = await extractVacancyWorkLocation(page);
-
-        if (description) {
-          await updateVacancyDescription(
-            vacancy.id,
-            description,
-            workLocation,
-            vacancy.region, // Используем регион из списка вакансий
-          );
+        if (updateResult.success) {
           successCount++;
           console.log(`✅ Описание сохранено для: ${vacancy.title}`);
         }
@@ -115,7 +117,6 @@ export async function parseVacancyDescriptions(
       errorCount++;
     }
 
-    // Задержка между обработкой вакансий
     await humanDelay(
       HH_CONFIG.delays.betweenResumes.min,
       HH_CONFIG.delays.betweenResumes.max,
@@ -124,42 +125,4 @@ export async function parseVacancyDescriptions(
 
   console.log(`📊 Описаний обработано: ${successCount}, ошибок: ${errorCount}`);
   return { successCount, errorCount };
-}
-
-/**
- * Извлекает описание вакансии со страницы
- */
-async function extractVacancyDescription(page: Page): Promise<string | null> {
-  try {
-    const description = await page.$eval(
-      '[data-qa="vacancy-description"]',
-      (element) => {
-        return element.textContent?.trim() || null;
-      },
-    );
-
-    return description;
-  } catch (error) {
-    console.error("❌ Ошибка извлечения описания вакансии:", error);
-    return null;
-  }
-}
-
-/**
- * Извлекает локацию работы со страницы вакансии
- */
-async function extractVacancyWorkLocation(page: Page): Promise<string | null> {
-  try {
-    const workLocation = await page.$eval(
-      '[data-qa="vacancy-view-location"]',
-      (element) => {
-        return element.textContent?.trim() || null;
-      },
-    );
-
-    return workLocation;
-  } catch (error) {
-    console.error("❌ Ошибка извлечения локации работы:", error);
-    return null;
-  }
 }

@@ -8,7 +8,7 @@ import {
   collectArchivedVacancies,
   collectVacancies,
 } from "./vacancy-collector";
-import { extractSingleVacancy } from "./vacancy-extractor";
+import { extractVacancyDataWithAI } from "./ai-vacancy-extractor";
 import {
   parseVacancyDescriptions,
   saveBasicVacancies,
@@ -51,6 +51,7 @@ export async function parseVacancies(
     page,
     vacancies,
     newVacancyIds,
+    workspaceId,
   );
 
   console.log(`\n🎉 Парсинг активных вакансий завершен!`);
@@ -93,6 +94,7 @@ export async function parseArchivedVacancies(
     page,
     archivedVacancies,
     newVacancyIds,
+    workspaceId,
   );
 
   console.log(`\n🎉 Парсинг архивных вакансий завершен!`);
@@ -157,13 +159,10 @@ export async function parseSingleVacancy(
       isArchived = isArchivedOnPage;
     }
 
-    const vacancyData = await extractSingleVacancy(
-      page,
-      url,
+    const vacancyData = await extractVacancyDataWithAI(page, url, {
       isArchived,
       region,
-    );
-    console.log(vacancyData);
+    });
     if (vacancyData) {
       const saved = await saveBasicVacancy(vacancyData, workspaceId);
       if (saved.success) {

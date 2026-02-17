@@ -19,6 +19,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@qbs-autonaim/ai": "workspace:*",
     "@qbs-autonaim/db": "workspace:*",
     "@qbs-autonaim/integration-clients": "workspace:*",
     "@qbs-autonaim/jobs-shared": "workspace:*",
