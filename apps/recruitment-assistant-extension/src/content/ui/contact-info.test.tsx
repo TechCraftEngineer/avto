@@ -230,6 +230,21 @@ describe("ContactInfo", () => {
       expect(onEdit).not.toHaveBeenCalled();
     });
 
+    it("не должен добавлять некорректный URL", () => {
+      const onEdit = vi.fn();
+      render(<ContactInfo contacts={mockContacts} onEdit={onEdit} />);
+
+      const input = screen.getByLabelText("Новая ссылка на социальную сеть");
+      fireEvent.change(input, { target: { value: "не-ссылка" } });
+
+      const addButton = screen.getByLabelText("Добавить ссылку");
+      fireEvent.click(addButton);
+
+      expect(onEdit).not.toHaveBeenCalled();
+      const alert = screen.getByRole("alert");
+      expect(alert.textContent).toMatch(/корректный URL/i);
+    });
+
     it("не должен добавлять дубликат ссылки", () => {
       const onEdit = vi.fn();
       render(<ContactInfo contacts={mockContacts} onEdit={onEdit} />);

@@ -1,5 +1,5 @@
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 
 interface EditableFieldProps {
   label: string;
@@ -16,6 +16,7 @@ export function EditableField({
   multiline = false,
   disabled = false,
 }: EditableFieldProps) {
+  const fieldId = useId();
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(value);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
@@ -62,7 +63,7 @@ export function EditableField({
       }}
     >
       <label
-        htmlFor={`field-${label}`}
+        htmlFor={fieldId}
         style={{
           fontSize: "14px",
           fontWeight: 500,
@@ -77,7 +78,7 @@ export function EditableField({
           {multiline ? (
             <textarea
               ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-              id={`field-${label}`}
+              id={fieldId}
               value={editValue}
               onChange={(e) => setEditValue(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -96,7 +97,7 @@ export function EditableField({
           ) : (
             <input
               ref={inputRef as React.RefObject<HTMLInputElement>}
-              id={`field-${label}`}
+              id={fieldId}
               type="text"
               value={editValue}
               onChange={(e) => setEditValue(e.target.value)}

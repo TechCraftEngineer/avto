@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useId } from "react";
 import type { EducationEntry } from "../../shared/types";
 import { EditableField } from "./editable-field";
 
@@ -8,6 +8,8 @@ interface EducationCardProps {
 }
 
 export function EducationCard({ education, onEdit }: EducationCardProps) {
+  const baseId = useId();
+
   const formatDateRange = (start: string, end: string): string => {
     if (!start && !end) return "Даты не указаны";
     if (!start) return end;
@@ -65,7 +67,7 @@ export function EducationCard({ education, onEdit }: EducationCardProps) {
         >
           <div>
             <label
-              htmlFor={`edu-start-${education.institution}`}
+              htmlFor={`${baseId}-start`}
               style={{
                 fontSize: "12px",
                 color: "#6b7280",
@@ -76,7 +78,7 @@ export function EducationCard({ education, onEdit }: EducationCardProps) {
               Начало
             </label>
             <input
-              id={`edu-start-${education.institution}`}
+              id={`${baseId}-start`}
               type="text"
               value={education.startDate}
               onChange={(e) => onEdit("startDate", e.target.value)}
@@ -103,7 +105,7 @@ export function EducationCard({ education, onEdit }: EducationCardProps) {
           </div>
           <div>
             <label
-              htmlFor={`edu-end-${education.institution}`}
+              htmlFor={`${baseId}-end`}
               style={{
                 fontSize: "12px",
                 color: "#6b7280",
@@ -114,7 +116,7 @@ export function EducationCard({ education, onEdit }: EducationCardProps) {
               Окончание
             </label>
             <input
-              id={`edu-end-${education.institution}`}
+              id={`${baseId}-end`}
               type="text"
               value={education.endDate}
               onChange={(e) => onEdit("endDate", e.target.value)}

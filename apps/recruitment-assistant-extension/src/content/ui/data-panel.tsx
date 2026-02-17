@@ -8,11 +8,15 @@ import { SkillsList } from "./skills-list";
 
 interface DataPanelProps {
   data: CandidateData | null;
-  onEdit: (field: string, value: any) => void;
-  onExport: (format: "json" | "clipboard") => void;
+  onEdit: (
+    field: string,
+    value: string | string[] | null,
+  ) => void;
+  onExport: (format: "json" | "clipboard") => Promise<void>;
   onImportToSystem: () => void;
   apiConfigured: boolean;
   isImporting?: boolean;
+  onExportError?: (error: Error) => void;
 }
 
 export function DataPanel({
@@ -22,6 +26,7 @@ export function DataPanel({
   onImportToSystem,
   apiConfigured,
   isImporting = false,
+  onExportError,
 }: DataPanelProps) {
   const [isExporting, setIsExporting] = useState(false);
 
@@ -31,6 +36,9 @@ export function DataPanel({
     setIsExporting(true);
     try {
       await onExport(format);
+    } catch (error) {
+      console.error("Ошибка экспорта:", error);
+      onExportError?.(error instanceof Error ? error : new Error(String(error)));
     } finally {
       setIsExporting(false);
     }

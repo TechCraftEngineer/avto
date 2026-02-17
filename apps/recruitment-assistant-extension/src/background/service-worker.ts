@@ -54,6 +54,20 @@ function logError(message: string, error: unknown): void {
   console.error(`[Service Worker ${timestamp}] ОШИБКА:`, message, error);
 }
 
+const FETCH_TIMEOUT_MS = 10000;
+
+/**
+ * Проверяет, что payload является валидным ApiRequest
+ */
+function isApiRequest(payload: unknown): payload is ApiRequest {
+  if (!payload || typeof payload !== "object") return false;
+  const p = payload as Record<string, unknown>;
+  if (typeof p.url !== "string" || !p.url) return false;
+  const validMethods = ["GET", "POST", "PUT", "DELETE", "PATCH"];
+  if (!validMethods.includes(p.method as string)) return false;
+  return true;
+}
+
 /**
  * Проксирование API запроса для обхода CORS
  */
@@ -74,11 +88,15 @@ async function proxyApiRequest(request: ApiRequest): Promise<ApiResponse> {
       throw new Error("Разрешены только HTTPS запросы");
     }
 
-    // Подготовка заголовков
-    const headers: HeadersInit = {
-      "Content-Type": "application/json",
-      ...request.headers,
-    };
+    // Подготовка заголовков (Content-Type только для методов с телом)
+    const headers: HeadersInit = { ...request.headers };
+    if (
+      request.body &&
+      ["POST", "PUT", "PATCH"].includes(request.method)
+    ) {
+      (headers as Record<string, string>)["Content-Type"] =
+        "application/json";
+    }
 
     // Подготовка опций запроса
     const fetchOptions: RequestInit = {
@@ -91,8 +109,16 @@ async function proxyApiRequest(request: ApiRequest): Promise<ApiResponse> {
       fetchOptions.body = JSON.stringify(request.body);
     }
 
-    // Выполнение запроса
+    // Таймаут для fetch
+    const controller = new AbortController();
+    const timeoutId = setTimeout(
+      () => controller.abort(),
+      FETCH_TIMEOUT_MS,
+    );
+    fetchOptions.signal = controller.signal;
+
     const response = await fetch(request.url, fetchOptions);
+    clearTimeout(timeoutId);
 
     // Обработка ответа
     let data: unknown;
@@ -140,7 +166,10 @@ async function proxyApiRequest(request: ApiRequest): Promise<ApiResponse> {
     // Определение типа ошибки
     let errorMessage = "Не удалось выполнить запрос к API";
 
-    if (error instanceof TypeError && error.message.includes("fetch")) {
+    if (error instanceof Error && error.name === "AbortError") {
+      errorMessage =
+        "Превышено время ожидания ответа от сервера. Попробуйте позже.";
+    } else if (error instanceof TypeError && error.message.includes("fetch")) {
       errorMessage =
         "Не удалось подключиться к серверу. Проверьте подключение к интернету.";
     } else if (error instanceof Error) {
@@ -172,8 +201,15 @@ chrome.runtime.onMessage.addListener(
     // Обработка разных типов сообщений
     switch (message.type) {
       case "API_REQUEST": {
-        // Проксирование API запроса
-        const apiRequest = message.payload as ApiRequest;
+        if (!isApiRequest(message.payload)) {
+          sendResponse({
+            success: false,
+            error: "Некорректный формат запроса: ожидается объект с url и method",
+          });
+          return true;
+        }
+
+        const apiRequest = message.payload;
 
         proxyApiRequest(apiRequest)
           .then((response) => {

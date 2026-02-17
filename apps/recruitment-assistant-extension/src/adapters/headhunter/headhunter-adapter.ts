@@ -24,8 +24,9 @@ export class HeadHunterAdapter extends PlatformAdapter {
    * @returns true, если это страница резюме на hh.ru
    */
   isProfilePage(): boolean {
+    const host = window.location.hostname.toLowerCase();
     return (
-      window.location.hostname.includes("hh.ru") &&
+      (host === "hh.ru" || host.endsWith(".hh.ru")) &&
       window.location.pathname.startsWith("/resume/")
     );
   }

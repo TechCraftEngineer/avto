@@ -1,5 +1,6 @@
 import type React from "react";
 import { useState } from "react";
+import { z } from "zod";
 import type { ContactInfo as ContactInfoType } from "../../shared/types";
 
 interface ContactInfoProps {
@@ -12,13 +13,22 @@ interface ContactInfoProps {
 
 export function ContactInfo({ contacts, onEdit }: ContactInfoProps) {
   const [newLink, setNewLink] = useState("");
+  const [linkError, setLinkError] = useState<string | null>(null);
 
   const handleAddLink = () => {
     const trimmed = newLink.trim();
-    if (trimmed && !contacts.socialLinks.includes(trimmed)) {
-      onEdit("socialLinks", [...contacts.socialLinks, trimmed]);
-      setNewLink("");
+    setLinkError(null);
+    if (!trimmed) return;
+    if (contacts.socialLinks.includes(trimmed)) return;
+
+    const parsed = z.string().url().safeParse(trimmed);
+    if (!parsed.success) {
+      setLinkError("Введите корректный URL (например, https://example.com)");
+      return;
     }
+
+    onEdit("socialLinks", [...contacts.socialLinks, parsed.data]);
+    setNewLink("");
   };
 
   const handleRemoveLink = (linkToRemove: string) => {
@@ -179,6 +189,8 @@ export function ContactInfo({ contacts, onEdit }: ContactInfoProps) {
               e.currentTarget.style.outline = "none";
             }}
             aria-label="Новая ссылка на социальную сеть"
+            aria-invalid={!!linkError}
+            aria-describedby={linkError ? "social-link-error" : undefined}
           />
           <button
             onClick={handleAddLink}
@@ -210,6 +222,19 @@ export function ContactInfo({ contacts, onEdit }: ContactInfoProps) {
             Добавить
           </button>
         </div>
+        {linkError && (
+          <div
+            id="social-link-error"
+            role="alert"
+            style={{
+              fontSize: "12px",
+              color: "#dc2626",
+              marginBottom: "8px",
+            }}
+          >
+            {linkError}
+          </div>
+        )}
 
         {contacts.socialLinks.length === 0 ? (
           <div

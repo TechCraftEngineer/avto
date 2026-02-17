@@ -21,10 +21,16 @@ export class LinkedInAdapter extends PlatformAdapter {
 
   /**
    * Проверяет, является ли текущая страница профилем LinkedIn
-   * @returns true, если URL начинается с /in/
+   * @returns true, если это страница профиля на linkedin.com и путь /in/
    */
   isProfilePage(): boolean {
-    return window.location.pathname.startsWith("/in/");
+    const host = window.location.hostname.toLowerCase();
+    return (
+      (host === "www.linkedin.com" ||
+        host === "linkedin.com" ||
+        host.endsWith(".linkedin.com")) &&
+      window.location.pathname.startsWith("/in/")
+    );
   }
 
   /**
