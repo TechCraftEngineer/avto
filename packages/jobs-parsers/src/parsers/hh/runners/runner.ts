@@ -1,5 +1,6 @@
 import { getIntegrationCredentials } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
+import { validateCredentials } from "../core/auth/auth";
 import { setupPageWithAuth } from "../core/browser/browser-setup";
 import { closeBrowserSafely } from "../core/browser/browser-utils";
 import { parseResponses } from "../parsers/response/response-parser";
@@ -35,14 +36,18 @@ export async function runHHParser(
   console.log(`   Включить архивные вакансии: ${includeArchived}`);
 
   const credentials = await getIntegrationCredentials(db, "hh", workspaceId);
-  if (!credentials?.email || !credentials?.password) {
+  if (!credentials) {
     throw new Error("Не найдены учетные данные для HH.ru");
   }
 
+  validateCredentials(credentials);
+
+  const password = credentials.password || "";
+
   const { browser, page } = await setupPageWithAuth(
     workspaceId,
-    credentials.email,
-    credentials.password,
+    credentials.email!,
+    password,
   );
 
   try {

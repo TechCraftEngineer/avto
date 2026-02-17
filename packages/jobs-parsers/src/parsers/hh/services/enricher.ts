@@ -4,6 +4,7 @@ import { db } from "@qbs-autonaim/db/client";
 import { getResponsesWithoutDetails } from "@qbs-autonaim/jobs/services/response";
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
+import { validateCredentials } from "../core/auth/auth";
 import { setupPageWithAuth } from "../core/browser/browser-setup";
 import { closeBrowserSafely } from "../core/browser/browser-utils";
 import { enrichResumeData } from "./resume-enrichment";
@@ -25,9 +26,13 @@ export async function enrichHHResponses(
   console.log("🚀 Запуск обогащения откликов HH...");
 
   const credentials = await getIntegrationCredentials(db, "hh", workspaceId);
-  if (!credentials?.email || !credentials?.password) {
+  if (!credentials) {
     throw new Error("Не найдены учетные данные для HH.ru");
   }
+
+  validateCredentials(credentials);
+
+  const password = credentials.password || "";
 
   // Get responses that need enrichment
   const responsesResult = await getResponsesWithoutDetails();
@@ -49,8 +54,8 @@ export async function enrichHHResponses(
 
   const { browser, page } = await setupPageWithAuth(
     workspaceId,
-    credentials.email,
-    credentials.password,
+    credentials.email!,
+    password,
   );
 
   try {

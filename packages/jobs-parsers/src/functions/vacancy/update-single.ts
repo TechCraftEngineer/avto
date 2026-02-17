@@ -4,6 +4,7 @@ import { vacancy } from "@qbs-autonaim/db/schema";
 import { inngest } from "@qbs-autonaim/jobs/client";
 import { updateVacancyDescription } from "@qbs-autonaim/jobs/services/vacancy";
 import { extractVacancyDataWithAI } from "../../parsers/hh/parsers/vacancy/ai-vacancy-extractor";
+import { validateCredentials } from "../../parsers/hh/core/auth/auth";
 import { setupPageWithAuth } from "../../parsers/hh/core/browser/browser-setup";
 import { closeBrowserSafely } from "../../parsers/hh/core/browser/browser-utils";
 
@@ -42,14 +43,18 @@ export const updateSingleVacancyFunction = inngest.createFunction(
         existingVacancy.workspaceId,
       );
 
-      if (!credentials?.email || !credentials?.password) {
+      if (!credentials) {
         throw new Error("Не найдены учетные данные HH.ru для workspace");
       }
 
+      validateCredentials(credentials);
+
+      const password = credentials.password || "";
+
       const { browser, page } = await setupPageWithAuth(
         existingVacancy.workspaceId,
-        credentials.email,
-        credentials.password,
+        credentials.email!,
+        password,
       );
 
       try {

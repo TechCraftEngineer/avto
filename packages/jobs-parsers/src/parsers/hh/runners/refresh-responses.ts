@@ -3,6 +3,7 @@ import { db } from "@qbs-autonaim/db/client";
 import { vacancy } from "@qbs-autonaim/db/schema";
 
 import type { ProgressCallback } from "../../types";
+import { validateCredentials } from "../core/auth/auth";
 import {
   ensureAuthenticated,
   navigateWithAuth,
@@ -38,16 +39,19 @@ export async function refreshVacancyResponses(
 
   // Get credentials
   const credentials = await getIntegrationCredentials(db, "hh", workspaceId);
-  if (!credentials?.email || !credentials?.password) {
+  if (!credentials) {
     throw new Error("HH credentials не найдены в интеграциях");
   }
 
-  const { email, password } = credentials;
+  validateCredentials(credentials);
+
+  const { email } = credentials;
+  const password = credentials.password || "";
 
   // Setup authenticated browser with universal function
   const { browser, page } = await setupAuthenticatedBrowser(
     workspaceId,
-    email,
+    email!,
     password,
   );
 
@@ -64,11 +68,11 @@ export async function refreshVacancyResponses(
     });
 
     // Ensure authentication (will login if needed)
-    await ensureAuthenticated(page, email, password, workspaceId);
+    await ensureAuthenticated(page, email!, password, workspaceId);
 
     // Navigate to responses page with auth check
     const responsesUrl = `https://hh.ru/employer/vacancyresponses?vacancyId=${vacancyData.externalId}&order=DATE`;
-    await navigateWithAuth(page, responsesUrl, email, password, workspaceId);
+    await navigateWithAuth(page, responsesUrl, email!, password, workspaceId);
 
     // Получаем план workspace
     const workspaceData = await db.query.workspace.findFirst({

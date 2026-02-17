@@ -1,6 +1,7 @@
 import { getIntegrationCredentials } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import type { VacancyData } from "../../types";
+import { validateCredentials } from "../core/auth/auth";
 import { setupPageWithAuth } from "../core/browser/browser-setup";
 import { closeBrowserSafely } from "../core/browser/browser-utils";
 import { HH_CONFIG } from "../core/config/config";
@@ -78,14 +79,19 @@ export async function runHHArchivedVacancyParser(
   });
 
   const credentials = await getIntegrationCredentials(db, "hh", workspaceId);
-  if (!credentials?.email || !credentials?.password) {
+  if (!credentials) {
     throw new Error("Не найдены учетные данные для HH.ru");
   }
 
+  validateCredentials(credentials);
+
+  // Используем пустую строку для пароля, если его нет
+  const password = credentials.password || "";
+
   const { browser, page } = await setupPageWithAuth(
     workspaceId,
-    credentials.email,
-    credentials.password,
+    credentials.email!,
+    password,
   );
 
   try {
@@ -125,14 +131,18 @@ export async function fetchArchivedVacanciesList(workspaceId: string): Promise<
   console.log("📋 Получение списка архивных вакансий");
 
   const credentials = await getIntegrationCredentials(db, "hh", workspaceId);
-  if (!credentials?.email || !credentials?.password) {
+  if (!credentials) {
     throw new Error("Не найдены учетные данные для HH.ru");
   }
 
+  validateCredentials(credentials);
+
+  const password = credentials.password || "";
+
   const { browser, page } = await setupPageWithAuth(
     workspaceId,
-    credentials.email,
-    credentials.password,
+    credentials.email!,
+    password,
   );
 
   try {
@@ -209,14 +219,18 @@ export async function importMultipleVacancies(
   console.log(`📦 Импорт ${vacancies.length} архивных вакансий`);
 
   const credentials = await getIntegrationCredentials(db, "hh", workspaceId);
-  if (!credentials?.email || !credentials?.password) {
+  if (!credentials) {
     throw new Error("Не найдены учетные данные для HH.ru");
   }
 
+  validateCredentials(credentials);
+
+  const password = credentials.password || "";
+
   const { browser, page } = await setupPageWithAuth(
     workspaceId,
-    credentials.email,
-    credentials.password,
+    credentials.email!,
+    password,
   );
 
   try {
@@ -273,14 +287,18 @@ export async function importSingleVacancy(
   console.log(`🔍 Импорт отдельной вакансии: ${url}`);
 
   const credentials = await getIntegrationCredentials(db, "hh", workspaceId);
-  if (!credentials?.email || !credentials?.password) {
+  if (!credentials) {
     throw new Error("Не найдены учетные данные для HH.ru");
   }
 
+  validateCredentials(credentials);
+
+  const password = credentials.password || "";
+
   const { browser, page } = await setupPageWithAuth(
     workspaceId,
-    credentials.email,
-    credentials.password,
+    credentials.email!,
+    password,
   );
 
   try {

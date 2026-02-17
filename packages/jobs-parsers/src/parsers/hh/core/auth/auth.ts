@@ -1,6 +1,7 @@
 import { Log } from "crawlee";
 import type { Page } from "puppeteer";
 import { loadCookies, saveCookies } from "../../../../utils/cookies";
+import { HHAuthError } from "./auth-errors";
 import { HH_CONFIG } from "../config/config";
 
 export async function performLogin(
@@ -27,19 +28,40 @@ export async function performLogin(
     delay: 100,
   });
 
+  log.info("🔑 Проверка доступности авторизации по паролю...");
+  const passwordButton = await page.$(
+    'button[data-qa="expand-login-by_password"]',
+  );
+
+  if (!passwordButton) {
+    throw new HHAuthError(
+      "Авторизация по паролю недоступна для этого аккаунта. Для вашего аккаунта настроена только авторизация по коду. Пожалуйста, настройте авторизацию по паролю в настройках HH.ru или обновите данные интеграции",
+      "PASSWORD_AUTH_UNAVAILABLE",
+    );
+  }
+
   log.info("🔑 Нажатие на кнопку 'Войти с паролем'...");
-  await page.waitForSelector('button[data-qa="expand-login-by_password"]', {
-    visible: false,
-    timeout: 10000,
-  });
   await new Promise((r) => setTimeout(r, Math.random() * 1000 + 500));
   await page.click('button[data-qa="expand-login-by_password"]');
 
   await new Promise((resolve) => setTimeout(resolve, 2000));
 
-  await page.waitForSelector('input[type="password"][name="password"]', {
-    visible: false,
-  });
+  // Проверяем, что поле пароля появилось
+  const passwordField = await page.waitForSelector(
+    'input[type="password"][name="password"]',
+    {
+      visible: false,
+      timeout: 10000,
+    },
+  );
+
+  if (!passwordField) {
+    throw new HHAuthError(
+      "Не удалось найти поле для ввода пароля. Возможно, для вашего аккаунта доступна только авторизация по коду",
+      "PASSWORD_AUTH_UNAVAILABLE",
+    );
+  }
+
   log.info("🔒 Заполнение пароля...");
   await page.type('input[type="password"][name="password"]', password, {
     delay: 100,
@@ -72,7 +94,10 @@ export async function performLogin(
     currentUrl.includes("error") ||
     currentUrl.includes("failed")
   ) {
-    throw new Error(`Логин не удался. Текущий URL: ${currentUrl}`);
+    throw new HHAuthError(
+      `Не удалось войти в систему HH.ru. Проверьте правильность email и пароля в настройках интеграции. URL: ${currentUrl}`,
+      "LOGIN_FAILED",
+    );
   }
 
   log.info("✅ Авторизация выполнена!");
@@ -137,3 +162,4 @@ export async function checkAndPerformLogin(
 }
 
 export { loadCookies, saveCookies };
+export { HHAuthError, validateCredentials } from "./auth-errors";
