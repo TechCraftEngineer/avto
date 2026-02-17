@@ -90,12 +90,12 @@
 
 ## Фаза 5: Хранилище и настройки
 
-- [~] 13. Реализация Storage Manager
-  - [~] 13.1 Создать StorageManager в src/storage/storage-manager.ts
-  - [~] 13.2 Реализовать метод saveCandidate()
-  - [~] 13.3 Реализовать методы работы с настройками (getSettings, saveSettings)
-  - [~] 13.4 Реализовать метод clearTemporaryData()
-  - [~] 13.5 Реализовать метод getDefaultSettings()
+- [ ] 13. Реализация Storage Manager
+  - [x] 13.1 Создать StorageManager в src/storage/storage-manager.ts
+  - [x] 13.2 Реализовать метод saveCandidate()
+  - [x] 13.3 Реализовать методы работы с настройками (getSettings, saveSettings)
+  - [x] 13.4 Реализовать метод clearTemporaryData()
+  - [x] 13.5 Реализовать метод getDefaultSettings()
 
 - [~] 14. Создание страницы настроек
   - [~] 14.1 Создать компонент Options в src/options/options.tsx
@@ -104,8 +104,8 @@
   - [~] 14.4 Добавить валидацию настроек перед сохранением
   - [~] 14.5 Создать options.html
 
-- [~] 15. Тестирование хранилища
-  - [~] 15.1 Написать unit-тесты для StorageManager
+- [-] 15. Тестирование хранилища
+  - [-] 15.1 Написать unit-тесты для StorageManager
   - [~] 15.2 Написать property-based тесты для свойства 14 (round-trip настроек)
   - [~] 15.3 Написать property-based тесты для свойства 15 (валидация настроек)
   - [~] 15.4 Протестировать очистку временных данных
