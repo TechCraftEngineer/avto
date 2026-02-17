@@ -201,6 +201,35 @@ describe("ContentScript - Import функциональность", () => {
       expect(global.fetch).not.toHaveBeenCalled();
     });
 
+    it("должен показать ошибку если пользователь не авторизован (Требование 1.9)", async () => {
+      // Arrange
+      global.chrome.storage.local.get = vi.fn().mockImplementation((keys) => {
+        if (keys === "settings") {
+          return Promise.resolve({ settings: mockSettings });
+        }
+        if (keys === "authToken") {
+          return Promise.resolve({ authToken: null });
+        }
+        return Promise.resolve({});
+      });
+
+      const { ContentScript } = await import("./content-script");
+      const contentScript = new (ContentScript as any)();
+      contentScript.currentData = mockCandidateData;
+      const showNotificationSpy = vi.spyOn(contentScript, "showNotification");
+
+      // Act
+      await contentScript.handleImport();
+
+      // Assert
+      expect(showNotificationSpy).toHaveBeenCalledWith({
+        type: "error",
+        message:
+          "Необходима авторизация для импорта данных. Войдите в систему через расширение.",
+      });
+      expect(global.fetch).not.toHaveBeenCalled();
+    });
+
     it("должен показать ошибку если нет данных для импорта", async () => {
       // Arrange
       const { ContentScript } = await import("./content-script");

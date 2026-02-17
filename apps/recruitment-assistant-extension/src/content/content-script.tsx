@@ -684,7 +684,7 @@ export class ContentScript {
 
   /**
    * Импортирует данные в систему через API
-   * Требования 10.1, 10.2, 10.3, 10.4
+   * Требования 10.1, 10.2, 10.3, 10.4, 1.9
    */
   private async handleImport(): Promise<void> {
     console.log("[Recruitment Assistant] Импорт данных в систему...");
@@ -710,6 +710,17 @@ export class ContentScript {
           type: "error",
           message:
             "API не настроен. Перейдите в настройки расширения для конфигурации.",
+        });
+        return;
+      }
+
+      // Проверяем авторизацию пользователя (Требование 1.9)
+      const isAuthenticated = await this.checkAuthentication();
+      if (!isAuthenticated) {
+        this.showNotification({
+          type: "error",
+          message:
+            "Необходима авторизация для импорта данных. Войдите в систему через расширение.",
         });
         return;
       }
