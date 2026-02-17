@@ -3,6 +3,7 @@
 import { getSubscriptionToken } from "@bunworks/inngest-realtime";
 import {
   analyzeResponseChannel,
+  fetchActiveListChannel,
   fetchArchivedListChannel,
   importArchivedVacanciesChannel,
   importNewVacanciesChannel,
@@ -143,6 +144,21 @@ export async function fetchTelegramMessagesToken(conversationId: string) {
   const token = await getSubscriptionToken(inngest, {
     channel: `telegram-messages-${conversationId}`,
     topics: ["message"],
+  });
+
+  return token;
+}
+
+/**
+ * Server action для получения токена подписки на Realtime канал получения списка активных вакансий
+ */
+export async function fetchActiveVacanciesListToken(
+  workspaceId: string,
+  requestId: string,
+) {
+  const token = await getSubscriptionToken(inngest, {
+    channel: fetchActiveListChannel(workspaceId, requestId),
+    topics: ["result"],
   });
 
   return token;

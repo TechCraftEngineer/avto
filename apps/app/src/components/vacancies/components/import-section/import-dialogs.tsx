@@ -57,22 +57,20 @@ export function ImportDialogs({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Подтверждение импорта</DialogTitle>
+            <DialogTitle>Выбор активных вакансий</DialogTitle>
             <DialogDescription>
-              Вы уверены, что хотите запустить импорт активных вакансий
+              Сейчас будет загружен список активных вакансий для выбора
               {currentPlatformName ? ` с платформы ${currentPlatformName}` : ""}
-              ?
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-2 py-4">
             <p className="text-sm text-muted-foreground">
-              Эта операция может занять продолжительное время и загрузить
-              большое количество данных из подключенной платформы.
+              Система загрузит список ваших активных вакансий, и вы сможете
+              выбрать, какие из них импортировать.
             </p>
             <p className="text-sm text-muted-foreground">
-              Рекомендуется запускать импорт только при необходимости обновления
-              списка вакансий.
+              Это позволит избежать загрузки ненужных данных и сэкономит время.
             </p>
           </div>
 
@@ -83,7 +81,7 @@ export function ImportDialogs({
             >
               Отмена
             </Button>
-            <Button onClick={onConfirmNew}>Запустить импорт</Button>
+            <Button onClick={onConfirmNew}>Продолжить</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

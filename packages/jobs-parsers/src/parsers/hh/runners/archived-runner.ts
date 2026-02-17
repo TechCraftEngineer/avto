@@ -209,14 +209,18 @@ export async function fetchArchivedVacanciesList(workspaceId: string): Promise<
 
 export async function importMultipleVacancies(
   workspaceId: string,
-  vacancies: { url: string; date: string; region?: string }[],
+  vacancies: { url: string; date?: string; region?: string }[],
   onProgress?: (
     index: number,
     success: boolean,
     error?: string,
   ) => Promise<void>,
+  options?: { isArchived?: boolean },
 ): Promise<{ imported: number; updated: number; failed: number }> {
-  console.log(`📦 Импорт ${vacancies.length} архивных вакансий`);
+  const isArchived = options?.isArchived ?? true;
+  console.log(
+    `📦 Импорт ${vacancies.length} ${isArchived ? "архивных" : "активных"} вакансий`,
+  );
 
   const credentials = await getIntegrationCredentials(db, "hh", workspaceId);
   if (!credentials) {
@@ -250,7 +254,7 @@ export async function importMultipleVacancies(
           page,
           vacancy.url,
           workspaceId,
-          true,
+          isArchived,
           vacancy.region,
         );
 

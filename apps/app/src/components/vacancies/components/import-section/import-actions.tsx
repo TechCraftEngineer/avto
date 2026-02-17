@@ -7,6 +7,7 @@ interface ImportActionsProps {
   hasMultipleIntegrations: boolean;
   isImportingNew: boolean;
   isImportingArchived: boolean;
+  isSelectingActiveVacancies: boolean;
   isSelectingArchivedVacancies: boolean;
   isImportingByUrl: boolean;
   onImportNew: () => void;
@@ -20,6 +21,7 @@ export function ImportActions({
   hasMultipleIntegrations,
   isImportingNew,
   isImportingArchived,
+  isSelectingActiveVacancies,
   isSelectingArchivedVacancies,
   isImportingByUrl,
   onImportNew,
@@ -33,7 +35,12 @@ export function ImportActions({
           variant="default"
           size="sm"
           onClick={onImportNew}
-          disabled={isImportingNew || !workspaceId || !hasCurrentIntegration}
+          disabled={
+            isImportingNew ||
+            isSelectingActiveVacancies ||
+            !workspaceId ||
+            !hasCurrentIntegration
+          }
         >
           <Download className="h-4 w-4 mr-2" />
           Загрузить активные вакансии

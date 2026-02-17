@@ -16,8 +16,9 @@ import { AlertCircle, Settings } from "lucide-react";
 import NextLink from "next/link";
 import { useCallback, useMemo } from "react";
 import {
+  fetchActiveVacanciesList,
   fetchArchivedVacanciesList,
-  triggerImportNewVacancies,
+  triggerImportSelectedActiveVacancies,
   triggerImportSelectedArchivedVacancies,
   triggerImportVacancyByUrl,
 } from "~/actions/vacancy-import";
@@ -26,6 +27,7 @@ import { ImportByUrlProgress } from "~/components/vacancy/components/import/impo
 import { ImportNewProgress } from "~/components/vacancy/components/import/import-new-progress";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useWorkspaceParams } from "~/hooks/use-workspace-params";
+import { ActiveVacanciesSelector } from "../active-vacancies-selector";
 import { ArchivedVacanciesSelector } from "../archived-vacancies-selector";
 import { ImportActions } from "./import-actions";
 import { ImportDialogs } from "./import-dialogs";
@@ -67,6 +69,10 @@ export function VacancyImportSection() {
     setIsImportingArchived,
     isImportingByUrl,
     setIsImportingByUrl,
+    isSelectingActiveVacancies,
+    setIsSelectingActiveVacancies,
+    activeListRequestId,
+    setActiveListRequestId,
     isSelectingArchivedVacancies,
     setIsSelectingArchivedVacancies,
     archivedListRequestId,
@@ -85,12 +91,53 @@ export function VacancyImportSection() {
     setIsConfirmNewDialogOpen(false);
 
     try {
+      setIsSelectingActiveVacancies(true);
+      const requestId = await fetchActiveVacanciesList(workspaceId);
+      setActiveListRequestId(requestId);
+    } catch (error) {
+      console.error("Ошибка получения списка активных вакансий:", error);
+      setIsSelectingActiveVacancies(false);
+      setActiveListRequestId(null);
+    }
+  };
+
+  const handleActiveVacanciesSelected = async (
+    selectedIds: string[],
+    vacancies: Array<{
+      id: string;
+      title: string;
+      region?: string;
+    }>,
+  ) => {
+    if (!workspaceId) return;
+
+    setIsSelectingActiveVacancies(false);
+    setActiveListRequestId(null);
+
+    if (selectedIds.length === 0) {
+      return;
+    }
+
+    try {
       setIsImportingNew(true);
-      await triggerImportNewVacancies(workspaceId);
+      const vacanciesWithUrls = vacancies.map((v) => ({
+        ...v,
+        url: `https://hh.ru/vacancy/${v.id}`,
+      }));
+      await triggerImportSelectedActiveVacancies(
+        workspaceId,
+        selectedIds,
+        vacanciesWithUrls,
+      );
     } catch (error) {
       console.error("Ошибка запуска импорта:", error);
       setIsImportingNew(false);
     }
+  };
+
+  const handleActiveVacanciesCancel = () => {
+    setIsSelectingActiveVacancies(false);
+    setActiveListRequestId(null);
   };
 
   const handleImportArchived = async () => {
@@ -281,6 +328,7 @@ export function VacancyImportSection() {
             hasMultipleIntegrations={activeIntegrations.length > 1}
             isImportingNew={isImportingNew}
             isImportingArchived={isImportingArchived}
+            isSelectingActiveVacancies={isSelectingActiveVacancies}
             isSelectingArchivedVacancies={isSelectingArchivedVacancies}
             isImportingByUrl={isImportingByUrl}
             onImportNew={() => setIsConfirmNewDialogOpen(true)}
@@ -288,7 +336,20 @@ export function VacancyImportSection() {
             onImportByUrl={() => setIsUrlDialogOpen(true)}
           />
 
-          {/* Selector for archived vacancies - показываем только если не идет импорт */}
+          {/* Selector for active vacancies */}
+          {isSelectingActiveVacancies &&
+            activeListRequestId &&
+            workspaceId &&
+            !isImportingNew && (
+              <ActiveVacanciesSelector
+                workspaceId={workspaceId}
+                requestId={activeListRequestId}
+                onSelect={handleActiveVacanciesSelected}
+                onCancel={handleActiveVacanciesCancel}
+              />
+            )}
+
+          {/* Selector for archived vacancies */}
           {isSelectingArchivedVacancies &&
             archivedListRequestId &&
             workspaceId &&

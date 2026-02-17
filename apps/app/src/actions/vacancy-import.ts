@@ -82,6 +82,48 @@ export async function fetchImportVacancyByUrlToken(
   return token;
 }
 
+const selectedActiveVacanciesSchema = z.object({
+  workspaceId: z.string().min(1, "ID рабочей области обязателен"),
+  vacancyIds: z
+    .array(z.string())
+    .min(1, "Выберите хотя бы одну вакансию для импорта"),
+});
+
+/**
+ * Server action для запуска импорта выбранных активных вакансий
+ */
+export async function triggerImportSelectedActiveVacancies(
+  workspaceId: string,
+  vacancyIds: string[],
+  vacancies?: Array<{
+    id: string;
+    title: string;
+    url: string;
+    region?: string;
+  }>,
+): Promise<void> {
+  const validationResult = selectedActiveVacanciesSchema.safeParse({
+    workspaceId,
+    vacancyIds,
+  });
+
+  if (!validationResult.success) {
+    const errors = validationResult.error.issues
+      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+      .join(", ");
+    throw new Error(`Ошибка валидации: ${errors}`);
+  }
+
+  await inngest.send({
+    name: "vacancy/import.new-selected",
+    data: {
+      workspaceId: validationResult.data.workspaceId,
+      vacancyIds: validationResult.data.vacancyIds,
+      vacancies,
+    },
+  });
+}
+
 /**
  * Server action для запуска импорта новых вакансий
  */

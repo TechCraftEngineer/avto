@@ -65,6 +65,28 @@ export const vacancyFetchArchivedListDataSchema = z.object({
   requestId: z.string().min(1, "ID запроса обязателен"),
 });
 
+export const vacancyFetchActiveListDataSchema = z.object({
+  workspaceId: z.string().min(1, "ID рабочего пространства обязателен"),
+  requestId: z.string().min(1, "ID запроса обязателен"),
+});
+
+export const vacancyImportNewSelectedDataSchema = z.object({
+  workspaceId: z.string().min(1, "ID рабочего пространства обязателен"),
+  vacancyIds: z
+    .array(z.string())
+    .min(1, "Необходимо выбрать хотя бы одну вакансию"),
+  vacancies: z
+    .array(
+      z.object({
+        id: z.string(),
+        title: z.string(),
+        url: z.string(),
+        region: z.string().optional(),
+      }),
+    )
+    .optional(),
+});
+
 /**
  * Type inference
  */
@@ -104,4 +126,10 @@ export type VacancyImportByUrlPayload = z.infer<
 >;
 export type VacancyFetchArchivedListPayload = z.infer<
   typeof vacancyFetchArchivedListDataSchema
+>;
+export type VacancyFetchActiveListPayload = z.infer<
+  typeof vacancyFetchActiveListDataSchema
+>;
+export type VacancyImportNewSelectedPayload = z.infer<
+  typeof vacancyImportNewSelectedDataSchema
 >;

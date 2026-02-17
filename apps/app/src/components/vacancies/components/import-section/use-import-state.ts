@@ -12,6 +12,13 @@ export function useImportState() {
   const [isImportingArchived, setIsImportingArchived] = useState(false);
   const [isImportingByUrl, setIsImportingByUrl] = useState(false);
 
+  // Active vacancies selection
+  const [isSelectingActiveVacancies, setIsSelectingActiveVacancies] =
+    useState(false);
+  const [activeListRequestId, setActiveListRequestId] = useState<
+    string | null
+  >(null);
+
   // Archived vacancies selection
   const [isSelectingArchivedVacancies, setIsSelectingArchivedVacancies] =
     useState(false);
@@ -40,6 +47,12 @@ export function useImportState() {
     setIsImportingArchived,
     isImportingByUrl,
     setIsImportingByUrl,
+
+    // Active vacancies
+    isSelectingActiveVacancies,
+    setIsSelectingActiveVacancies,
+    activeListRequestId,
+    setActiveListRequestId,
 
     // Archived vacancies
     isSelectingArchivedVacancies,
