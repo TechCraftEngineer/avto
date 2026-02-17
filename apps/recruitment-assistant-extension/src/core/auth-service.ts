@@ -76,8 +76,8 @@ export class AuthService {
    * Проверка авторизации
    */
   async isAuthenticated(): Promise<boolean> {
-    const result = await chrome.storage.local.get("authToken");
-    return !!result.authToken;
+    const token = await this.getToken();
+    return Boolean(token);
   }
 
   /**

@@ -61,6 +61,13 @@ export async function extractVacancyDataWithAI(
     const idFromPath = vacancyUrl.match(/\/vacancy\/(\d+)/)?.[1];
     const externalId = idFromParam ?? idFromPath ?? "";
 
+    if (!externalId) {
+      console.warn(
+        `⚠️ Не удалось извлечь externalId из URL: ${vacancyUrl} (idFromParam=${idFromParam ?? "null"}, idFromPath=${idFromPath ?? "null"})`,
+      );
+      return null;
+    }
+
     const rawHtml = await fetchPrintPageContent(page, vacancyUrl);
     const bareHtml = stripHtmlToBareTags(rawHtml);
 

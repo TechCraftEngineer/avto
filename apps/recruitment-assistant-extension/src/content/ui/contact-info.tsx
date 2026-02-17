@@ -168,7 +168,10 @@ export function ContactInfo({ contacts, onEdit }: ContactInfoProps) {
             id="social-link-input"
             type="url"
             value={newLink}
-            onChange={(e) => setNewLink(e.target.value)}
+            onChange={(e) => {
+              setNewLink(e.target.value);
+              setLinkError(null);
+            }}
             onKeyDown={handleKeyDown}
             placeholder="https://example.com/profile"
             style={{

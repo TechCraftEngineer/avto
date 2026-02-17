@@ -187,8 +187,7 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
 
           if (loginInput) {
             // При authType=password — сразу вход по паролю, не инициируем код
-            const shouldUsePasswordAuth =
-              authType === "password" && password && password.length > 0;
+            const shouldUsePasswordAuth = authType === "password" && !!password;
 
             const initiated = shouldUsePasswordAuth
               ? false

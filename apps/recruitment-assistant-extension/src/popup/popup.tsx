@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { API_URL } from "../config";
 import { AuthService } from "../core/auth-service";
@@ -14,14 +14,14 @@ function Popup() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const authService = new AuthService(API_URL);
+  const authService = useMemo(() => new AuthService(API_URL), []);
 
   useEffect(() => {
     authService.isAuthenticated().then(setIsAuthenticated);
     authService.getUserData().then((user) => {
       if (user?.email) setUserEmail(user.email);
     });
-  }, []);
+  }, [authService]);
 
   const handleLogin = async (credentials: { email: string; password: string }) => {
     setError(null);
@@ -35,7 +35,9 @@ function Popup() {
         setError(result.message ?? "Ошибка входа");
       }
     } catch (e) {
-      setError("Не удалось подключиться к серверу");
+      const message =
+        e instanceof Error ? e.message : typeof e === "string" ? e : "Не удалось подключиться к серверу";
+      setError(message);
     } finally {
       setIsLoading(false);
     }

@@ -34,7 +34,9 @@ export async function saveBasicVacancies(
       const saved = await saveBasicVacancy(vacancy, workspaceId);
       if (saved.success) {
         savedCount++;
-        newVacancyIds.add(vacancy.externalId);
+        if (saved.data.isNew) {
+          newVacancyIds.add(vacancy.externalId);
+        }
       }
     } catch (error) {
       console.error(
@@ -108,6 +110,13 @@ export async function parseVacancyDescriptions(
           successCount++;
           console.log(`✅ Описание сохранено для: ${vacancy.title}`);
         }
+      } else {
+        const info = vacancyData
+          ? ` vacancyData keys: ${Object.keys(vacancyData).join(", ")}`
+          : " vacancyData=null";
+        console.warn(
+          `⚠️ AI не извлёк описание для вакансии: url=${vacancy.url}, title=${vacancy.title}, isActive=${vacancy.isActive}, region=${vacancy.region}${info}`,
+        );
       }
     } catch (error) {
       console.error(
