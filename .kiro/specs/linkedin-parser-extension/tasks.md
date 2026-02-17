@@ -112,15 +112,15 @@
 
 ## Фаза 6: API клиент
 
-- [-] 16. Реализация API Client
-  - [~] 16.1 Создать ApiClient в src/core/api-client.ts
-  - [~] 16.2 Реализовать метод importCandidate()
-  - [~] 16.3 Реализовать метод testConnection()
-  - [~] 16.4 Реализовать вспомогательные методы (extractFirstName, extractLastName, calculateExperienceYears, mapPlatformToSource)
-  - [~] 16.5 Добавить обработку ошибок API
+- [x] 16. Реализация API Client
+  - [x] 16.1 Создать ApiClient в src/core/api-client.ts
+  - [x] 16.2 Реализовать метод importCandidate()
+  - [x] 16.3 Реализовать метод testConnection()
+  - [x] 16.4 Реализовать вспомогательные методы (extractFirstName, extractLastName, calculateExperienceYears, mapPlatformToSource)
+  - [x] 16.5 Добавить обработку ошибок API
 
-- [~] 17. Тестирование API клиента
-  - [~] 17.1 Написать unit-тесты для ApiClient
+- [-] 17. Тестирование API клиента
+  - [-] 17.1 Написать unit-тесты для ApiClient
   - [~] 17.2 Написать property-based тесты для свойства 9 (включение токена)
   - [~] 17.3 Написать property-based тесты для свойства 10 (корректность импорта)
   - [~] 17.4 Протестировать обработку ошибок API
