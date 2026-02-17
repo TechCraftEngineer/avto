@@ -13,6 +13,8 @@ import { getVacancyPrintUrl } from "../../utils/print-url";
 
 /**
  * Извлекает HTML-контент print-страницы вакансии.
+ * Берётся только div.main-content (основной текст вакансии).
+ * Если блок не найден — используется body целиком.
  * Print-версия содержит минимум разметки, удобна для AI-парсинга.
  */
 async function fetchPrintPageContent(
@@ -35,7 +37,10 @@ async function fetchPrintPageContent(
     HH_CONFIG.delays.readingPage.max,
   );
 
-  const content = await page.evaluate(() => document.body.innerHTML);
+  const content = await page.evaluate(() => {
+    const mainContent = document.querySelector('div.main-content');
+    return mainContent?.innerHTML ?? document.body.innerHTML;
+  });
   return content;
 }
 
