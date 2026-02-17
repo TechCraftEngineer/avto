@@ -291,6 +291,15 @@ export { Pagination } from "./pagination";
 // Password Input components
 export { PasswordInput } from "./password-input";
 
+// Password Requirements components
+export {
+  PasswordRequirements,
+  usePasswordRequirements,
+  isPasswordValid,
+  type PasswordRequirement,
+  type PasswordRequirementsProps,
+} from "./password-requirements";
+
 // Popover components
 export { Popover, PopoverTrigger, PopoverContent, PopoverAnchor } from "./popover";
 

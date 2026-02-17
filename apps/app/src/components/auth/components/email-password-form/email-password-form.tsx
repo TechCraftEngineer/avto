@@ -17,6 +17,8 @@ import {
   FormMessage,
   Input,
   PasswordInput,
+  PasswordRequirements,
+  usePasswordRequirements,
 } from "@qbs-autonaim/ui";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -27,12 +29,23 @@ import { z } from "zod";
 import { authClient } from "~/auth/client";
 import { translateAuthError } from "~/lib/auth-error-messages";
 
-const signInSchema = z.object({
-  email: z.string().email("Неверный email адрес"),
-  password: z.string().min(8, "Пароль должен содержать минимум 8 символов"),
-});
+const passwordSchema = z
+  .string()
+  .min(8, "Минимум 8 символов")
+  .regex(/[A-Z]/, "Заглавная буква")
+  .regex(/[a-z]/, "Строчная буква")
+  .regex(/\d/, "Цифра");
 
-type SignInFormData = z.infer<typeof signInSchema>;
+const createSignInSchema = (mode: "signin" | "signup") =>
+  z.object({
+    email: z.string().email("Неверный email адрес"),
+    password:
+      mode === "signup"
+        ? passwordSchema
+        : z.string().min(8, "Пароль должен содержать минимум 8 символов"),
+  });
+
+type SignInFormData = z.infer<ReturnType<typeof createSignInSchema>>;
 
 export function EmailPasswordForm({
   mode = "signin",
@@ -44,12 +57,15 @@ export function EmailPasswordForm({
   const router = useRouter();
 
   const form = useForm<SignInFormData>({
-    resolver: zodResolver(signInSchema),
+    resolver: zodResolver(createSignInSchema(mode)),
     defaultValues: {
       email: "",
       password: "",
     },
   });
+
+  const passwordValue = form.watch("password");
+  const passwordRequirements = usePasswordRequirements(passwordValue);
 
   const onSubmit = async (data: SignInFormData) => {
     setLoading(true);
@@ -154,6 +170,9 @@ export function EmailPasswordForm({
                       {...field}
                     />
                   </FormControl>
+                  {mode === "signup" && (
+                    <PasswordRequirements requirements={passwordRequirements} />
+                  )}
                   <FormMessage />
                 </FormItem>
               )}

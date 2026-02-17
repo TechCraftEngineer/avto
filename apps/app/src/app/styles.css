@@ -242,4 +242,24 @@
   .save-indicator .status-text {
     @apply font-medium;
   }
+
+  /* Анимация scale-in для требований пароля */
+  @keyframes scale-in {
+    from {
+      transform: scale(var(--from-scale, 0.8));
+    }
+    to {
+      transform: scale(var(--to-scale, 1));
+    }
+  }
+
+  .animate-scale-in {
+    animation: scale-in var(--animation-duration, 150ms) var(--animation-timing-function, ease-in-out) var(--animation-iteration-count, 1) var(--animation-direction, normal);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-scale-in {
+      animation: none;
+    }
+  }
 }
