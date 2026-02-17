@@ -13,7 +13,7 @@ import type { PlatformAdapter } from "../adapters/base/platform-adapter";
 import { HeadHunterAdapter } from "../adapters/headhunter/headhunter-adapter";
 import { LinkedInAdapter } from "../adapters/linkedin/linkedin-adapter";
 import { DataExtractor } from "../core/data-extractor";
-import type { CandidateData } from "../shared/types";
+import type { CandidateData, Notification } from "../shared/types";
 import { DataPanel } from "./ui/data-panel";
 
 /**
@@ -325,6 +325,62 @@ export class ContentScript {
   }
 
   /**
+   * Отображает уведомление пользователю (success, error, info, warning)
+   */
+  private showNotification(notification: Notification): void {
+    const bgColor =
+      notification.type === "success"
+        ? "#dcfce7"
+        : notification.type === "info"
+          ? "#dbeafe"
+          : notification.type === "warning"
+            ? "#fef3c7"
+            : "#fee2e2";
+    const borderColor =
+      notification.type === "success"
+        ? "#86efac"
+        : notification.type === "info"
+          ? "#93c5fd"
+          : notification.type === "warning"
+            ? "#fcd34d"
+            : "#fca5a5";
+    const textColor =
+      notification.type === "success"
+        ? "#166534"
+        : notification.type === "info"
+          ? "#1e40af"
+          : notification.type === "warning"
+            ? "#92400e"
+            : "#991b1b";
+
+    const element = document.createElement("div");
+    element.setAttribute("role", "alert");
+    element.setAttribute("aria-live", "assertive");
+    element.style.cssText = `
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      z-index: 1000000;
+      max-width: 400px;
+      padding: 16px 20px;
+      background-color: ${bgColor};
+      border: 1px solid ${borderColor};
+      border-radius: 8px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      color: ${textColor};
+    `;
+    element.textContent = notification.message;
+
+    document.body.appendChild(element);
+    setTimeout(() => {
+      if (element.parentNode) element.remove();
+    }, 5000);
+  }
+
+  /**
    * Обрабатывает клик на кнопку извлечения данных
    * Требование 11: Обработка ошибок с понятными сообщениями
    */
@@ -560,22 +616,22 @@ export class ContentScript {
   }
 
   /**
-   * Проверяет, настроен ли API для импорта
+   * Проверяет, авторизован ли пользователь и готов ли API для импорта
    */
   private async checkApiConfiguration(): Promise<boolean> {
     try {
-      const result = await chrome.storage.local.get("settings");
-      const settings = result.settings;
-
-      if (!settings) {
-        return false;
-      }
-
-      // Проверяем, что все необходимые поля заполнены
-      return !!(
-        settings.apiUrl &&
-        settings.apiToken &&
-        settings.organizationId
+      const result = await chrome.storage.local.get([
+        "authToken",
+        "userData",
+      ]);
+      const token = result.authToken;
+      const userData = result.userData as
+        | { organizationId?: string }
+        | undefined;
+      return (
+        typeof token === "string" &&
+        !!userData &&
+        typeof userData.organizationId === "string"
       );
     } catch (error) {
       console.error(
@@ -646,19 +702,25 @@ export class ContentScript {
       return;
     }
 
+    const firstKey = path[0];
+    if (firstKey === undefined) {
+      return;
+    }
+
     // Если это последний элемент пути, устанавливаем значение
     if (path.length === 1) {
-      obj[path[0]] = value;
+      obj[firstKey] = value;
       return;
     }
 
     // Получаем текущий ключ
-    const currentKey = path[0];
+    const currentKey = firstKey;
     const remainingPath = path.slice(1);
+    const nextKey = remainingPath[0];
 
     // Проверяем, является ли следующий ключ числом (индекс массива)
-    const nextKey = remainingPath[0];
-    const isArrayIndex = !Number.isNaN(Number.parseInt(nextKey, 10));
+    const isArrayIndex =
+      nextKey !== undefined && !Number.isNaN(Number.parseInt(nextKey, 10));
 
     // Если текущее значение не существует или не является объектом/массивом, создаем его
     if (!obj[currentKey] || typeof obj[currentKey] !== "object") {
@@ -699,46 +761,35 @@ export class ContentScript {
     }
 
     try {
-      // Получаем настройки из хранилища
-      const { StorageManager } = await import("../storage/storage-manager");
-      const storageManager = new StorageManager();
-      const settings = await storageManager.getSettings();
+      const result = await chrome.storage.local.get(["authToken", "userData"]);
+      const token = result.authToken as string | undefined;
+      const userData = result.userData as { organizationId?: string } | undefined;
 
-      // Проверяем, настроен ли API (Требование 10.1)
-      if (!settings.apiUrl || !settings.apiToken || !settings.organizationId) {
+      if (!token || !userData?.organizationId) {
         this.showNotification({
           type: "error",
           message:
-            "API не настроен. Перейдите в настройки расширения для конфигурации.",
+            "Войдите в систему через расширение для импорта кандидатов.",
         });
         return;
       }
 
-      // Проверяем авторизацию пользователя (Требование 1.9)
-      const isAuthenticated = await this.checkAuthentication();
-      if (!isAuthenticated) {
-        this.showNotification({
-          type: "error",
-          message:
-            "Необходима авторизация для импорта данных. Войдите в систему через расширение.",
-        });
-        return;
-      }
-
-      // Показываем индикатор загрузки
       this.showNotification({
         type: "info",
         message: "Импорт данных в систему…",
       });
 
-      // Создаем экземпляр ApiClient и отправляем данные
+      const { API_URL } = await import("../config");
       const { ApiClient } = await import("../core/api-client");
-      const apiClient = new ApiClient(settings);
+      const apiClient = new ApiClient({
+        apiUrl: API_URL,
+        apiToken: token,
+        organizationId: userData.organizationId,
+      });
 
-      // Отправляем данные с токеном аутентификации (Требование 10.2)
       const response = await apiClient.importCandidate(
         this.currentData,
-        settings.organizationId,
+        userData.organizationId,
       );
 
       // Показываем уведомление об успехе (Требование 10.3)
@@ -769,36 +820,18 @@ export class ContentScript {
   }
 
   /**
-   * Проверяет, авторизован ли пользователь и настроен ли API
-   * Требование 10.5
+   * Проверяет, авторизован ли пользователь
    */
   private async checkAuthentication(): Promise<boolean> {
     try {
-      // Получаем настройки из хранилища
-      const { StorageManager } = await import("../storage/storage-manager");
-      const storageManager = new StorageManager();
-      const settings = await storageManager.getSettings();
-
-      // Проверяем, настроен ли API
-      const isApiConfigured =
-        !!settings.apiUrl && !!settings.apiToken && !!settings.organizationId;
-
-      if (!isApiConfigured) {
-        console.log(
-          "[Recruitment Assistant] API не настроен, импорт недоступен",
-        );
-        return false;
-      }
-
-      // Проверяем авторизацию пользователя
-      const result = await chrome.storage.local.get("authToken");
-      const isAuthenticated = !!result.authToken;
-
-      console.log(
-        `[Recruitment Assistant] Статус авторизации: ${isAuthenticated}`,
+      const result = await chrome.storage.local.get(["authToken", "userData"]);
+      const token = result.authToken;
+      const userData = result.userData as { organizationId?: string } | undefined;
+      return (
+        typeof token === "string" &&
+        !!userData &&
+        typeof userData.organizationId === "string"
       );
-
-      return isAuthenticated;
     } catch (error) {
       console.error(
         "[Recruitment Assistant] Ошибка проверки авторизации:",

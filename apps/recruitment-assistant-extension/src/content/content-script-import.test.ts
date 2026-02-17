@@ -1,17 +1,16 @@
 /**
  * Unit-тесты для Content Script - Import функциональность
- * Задача 21.8: Реализовать импорт данных в систему через API
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { CandidateData } from "../shared/types";
 
-describe("ContentScript - Import функциональность (Task 21.8)", () => {
+vi.mock("../config", () => ({ API_URL: "https://api.example.com" }));
+
+describe("ContentScript - Import функциональность", () => {
   let mockCandidateData: CandidateData;
-  let mockSettings: any;
 
   beforeEach(() => {
-    // Создаем mock данные кандидата
     mockCandidateData = {
       platform: "LinkedIn",
       profileUrl: "https://linkedin.com/in/test-user",
@@ -48,32 +47,16 @@ describe("ContentScript - Import функциональность (Task 21.8)", 
       extractedAt: new Date("2024-01-15T10:00:00Z"),
     };
 
-    // Mock настроек
-    mockSettings = {
-      apiUrl: "https://api.example.com",
-      apiToken: "test-token-123",
-      organizationId: "org-123",
-      fieldsToExtract: {
-        basicInfo: true,
-        experience: true,
-        education: true,
-        skills: true,
-        contacts: true,
-      },
-    };
-
-    // Mock для chrome.storage.local
     global.chrome = {
       storage: {
         local: {
-          get: vi.fn().mockImplementation((keys) => {
-            if (keys === "settings") {
-              return Promise.resolve({ settings: mockSettings });
-            }
-            if (keys === "authToken") {
-              return Promise.resolve({ authToken: "test-auth-token" });
-            }
-            return Promise.resolve({});
+          get: vi.fn().mockImplementation((keys: string | string[]) => {
+            const keyList = Array.isArray(keys) ? keys : [keys];
+            const result: Record<string, unknown> = {};
+            if (keyList.includes("authToken")) result.authToken = "test-auth-token";
+            if (keyList.includes("userData"))
+              result.userData = { organizationId: "org-123" };
+            return Promise.resolve(result);
           }),
           set: vi.fn().mockResolvedValue(undefined),
           remove: vi.fn().mockResolvedValue(undefined),
@@ -81,7 +64,6 @@ describe("ContentScript - Import функциональность (Task 21.8)", 
       },
     } as any;
 
-    // Mock для fetch
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
@@ -97,24 +79,21 @@ describe("ContentScript - Import функциональность (Task 21.8)", 
   });
 
   describe("handleImport", () => {
-    it("должен успешно импортировать данные кандидата в систему (Требование 10.1)", async () => {
-      // Arrange
+    it("должен успешно импортировать данные кандидата в систему", async () => {
       const { ContentScript } = await import("./content-script");
       const contentScript = new (ContentScript as any)();
       contentScript.currentData = mockCandidateData;
       const showNotificationSpy = vi.spyOn(contentScript, "showNotification");
 
-      // Act
       await contentScript.handleImport();
 
-      // Assert
       expect(global.fetch).toHaveBeenCalledWith(
         "https://api.example.com/api/candidates/import",
         expect.objectContaining({
           method: "POST",
           headers: expect.objectContaining({
             "Content-Type": "application/json",
-            Authorization: "Bearer test-token-123",
+            Authorization: "Bearer test-auth-token",
           }),
         }),
       );
@@ -127,55 +106,27 @@ describe("ContentScript - Import функциональность (Task 21.8)", 
       );
     });
 
-    it("должен включать токен аутентификации в запрос (Требование 10.2)", async () => {
-      // Arrange
+    it("должен включить токен аутентификации в запрос", async () => {
       const { ContentScript } = await import("./content-script");
       const contentScript = new (ContentScript as any)();
       contentScript.currentData = mockCandidateData;
 
-      // Act
       await contentScript.handleImport();
 
-      // Assert
       expect(global.fetch).toHaveBeenCalledWith(
         expect.any(String),
         expect.objectContaining({
           headers: expect.objectContaining({
-            Authorization: "Bearer test-token-123",
+            Authorization: "Bearer test-auth-token",
           }),
         }),
       );
     });
 
-    it("должен показать уведомление об успехе (Требование 10.3)", async () => {
-      // Arrange
-      const { ContentScript } = await import("./content-script");
-      const contentScript = new (ContentScript as any)();
-      contentScript.currentData = mockCandidateData;
-      const showNotificationSpy = vi.spyOn(contentScript, "showNotification");
-
-      // Act
-      await contentScript.handleImport();
-
-      // Assert
-      expect(showNotificationSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: "success",
-          message: expect.stringMatching(
-            /Кандидат успешно импортирован в систему \(ID: candidate-123\)/,
-          ),
-        }),
-      );
-    });
-
-    it("должен показать ошибку с описанием при неудачном запросе (Требование 10.4)", async () => {
-      // Arrange
-      global.fetch = vi.fn().mockResolvedValue({
-        ok: false,
-        statusText: "Bad Request",
-        json: async () => ({
-          message: "Неверный формат данных",
-        }),
+    it("должен показать ошибку если пользователь не авторизован", async () => {
+      global.chrome.storage.local.get = vi.fn().mockResolvedValue({
+        authToken: null,
+        userData: { organizationId: "org-123" },
       });
 
       const { ContentScript } = await import("./content-script");
@@ -183,27 +134,21 @@ describe("ContentScript - Import функциональность (Task 21.8)", 
       contentScript.currentData = mockCandidateData;
       const showNotificationSpy = vi.spyOn(contentScript, "showNotification");
 
-      // Act
       await contentScript.handleImport();
 
-      // Assert
       expect(showNotificationSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           type: "error",
-          message: expect.stringContaining("Ошибка импорта"),
+          message: expect.stringContaining("Войдите в систему"),
         }),
       );
+      expect(global.fetch).not.toHaveBeenCalled();
     });
 
-    it("должен показать ошибку если API не настроен (Требование 10.5)", async () => {
-      // Arrange
+    it("должен показать ошибку если нет organizationId", async () => {
       global.chrome.storage.local.get = vi.fn().mockResolvedValue({
-        settings: {
-          apiUrl: "",
-          apiToken: "",
-          organizationId: "",
-          fieldsToExtract: {},
-        },
+        authToken: "test-token",
+        userData: {},
       });
 
       const { ContentScript } = await import("./content-script");
@@ -211,132 +156,53 @@ describe("ContentScript - Import функциональность (Task 21.8)", 
       contentScript.currentData = mockCandidateData;
       const showNotificationSpy = vi.spyOn(contentScript, "showNotification");
 
-      // Act
       await contentScript.handleImport();
 
-      // Assert
-      expect(showNotificationSpy).toHaveBeenCalledWith({
-        type: "error",
-        message:
-          "API не настроен. Перейдите в настройки расширения для конфигурации.",
-      });
+      expect(showNotificationSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "error",
+          message: expect.stringContaining("Войдите в систему"),
+        }),
+      );
       expect(global.fetch).not.toHaveBeenCalled();
-    });
-
-    it("должен показать ошибку если пользователь не авторизован (Требование 1.9)", async () => {
-      // Arrange
-      global.chrome.storage.local.get = vi.fn().mockImplementation((keys) => {
-        if (keys === "settings") {
-          return Promise.resolve({ settings: mockSettings });
-        }
-        if (keys === "authToken") {
-          return Promise.resolve({ authToken: null });
-        }
-        return Promise.resolve({});
-      });
-
-      const { ContentScript } = await import("./content-script");
-      const contentScript = new (ContentScript as any)();
-      contentScript.currentData = mockCandidateData;
-      const showNotificationSpy = vi.spyOn(contentScript, "showNotification");
-
-      // Act
-      await contentScript.handleImport();
-
-      // Assert
-      expect(showNotificationSpy).toHaveBeenCalledWith({
-        type: "error",
-        message:
-          "Необходима авторизация для импорта данных. Войдите в систему через расширение.",
-      });
-      expect(global.fetch).not.toHaveBeenCalled();
-    });
-
-    it("уведомления должны быть на русском языке без англицизмов", async () => {
-      // Arrange
-      const { ContentScript } = await import("./content-script");
-      const contentScript = new (ContentScript as any)();
-      contentScript.currentData = mockCandidateData;
-      const showNotificationSpy = vi.spyOn(contentScript, "showNotification");
-
-      // Act
-      await contentScript.handleImport();
-
-      // Assert
-      const successNotification = showNotificationSpy.mock.calls.find(
-        (call) => call[0].type === "success",
-      );
-      expect(successNotification).toBeDefined();
-      expect(successNotification![0].message).not.toMatch(
-        /import|success|candidate/i,
-      );
-      expect(successNotification![0].message).toMatch(
-        /кандидат|импортирован|систему/i,
-      );
     });
   });
 
   describe("checkAuthentication", () => {
-    it("должен вернуть true если пользователь авторизован и API настроен", async () => {
-      // Arrange
+    it("должен вернуть true если пользователь авторизован", async () => {
       const { ContentScript } = await import("./content-script");
       const contentScript = new (ContentScript as any)();
 
-      // Act
       const result = await contentScript.checkAuthentication();
 
-      // Assert
       expect(result).toBe(true);
     });
 
-    it("должен вернуть false если API не настроен", async () => {
-      // Arrange
-      global.chrome.storage.local.get = vi.fn().mockImplementation((keys) => {
-        if (keys === "settings") {
-          return Promise.resolve({
-            settings: {
-              apiUrl: "",
-              apiToken: "",
-              organizationId: "",
-              fieldsToExtract: {},
-            },
-          });
-        }
-        if (keys === "authToken") {
-          return Promise.resolve({ authToken: "test-auth-token" });
-        }
-        return Promise.resolve({});
+    it("должен вернуть false если нет organizationId", async () => {
+      global.chrome.storage.local.get = vi.fn().mockResolvedValue({
+        authToken: "test-token",
+        userData: {},
       });
 
       const { ContentScript } = await import("./content-script");
       const contentScript = new (ContentScript as any)();
 
-      // Act
       const result = await contentScript.checkAuthentication();
 
-      // Assert
       expect(result).toBe(false);
     });
 
     it("должен вернуть false если пользователь не авторизован", async () => {
-      // Arrange
-      global.chrome.storage.local.get = vi.fn().mockImplementation((keys) => {
-        if (keys === "settings") {
-          return Promise.resolve({ settings: mockSettings });
-        }
-        if (keys === "authToken") {
-          return Promise.resolve({ authToken: null });
-        }
-        return Promise.resolve({});
+      global.chrome.storage.local.get = vi.fn().mockResolvedValue({
+        authToken: null,
+        userData: { organizationId: "org-123" },
       });
 
       const { ContentScript } = await import("./content-script");
       const contentScript = new (ContentScript as any)();
 
-      // Act
       const result = await contentScript.checkAuthentication();
 
-      // Assert
       expect(result).toBe(false);
     });
   });

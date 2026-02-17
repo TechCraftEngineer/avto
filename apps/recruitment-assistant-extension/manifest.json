@@ -8,15 +8,14 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "permissions": [
-    "storage",
-    "activeTab"
-  ],
+  "permissions": ["storage", "activeTab"],
   "host_permissions": [
     "https://www.linkedin.com/*",
     "https://linkedin.com/*",
     "https://hh.ru/*",
-    "https://www.hh.ru/*"
+    "https://www.hh.ru/*",
+    "https://app.avtonaim.qbsoft.ru/*",
+    "http://localhost:3000/*"
   ],
   "background": {
     "service_worker": "src/background/service-worker.ts"
@@ -43,7 +42,6 @@
     },
     "default_title": "Помощник рекрутера"
   },
-  "options_page": "src/options/options.html",
   "web_accessible_resources": [
     {
       "resources": ["content/*.css", "icons/*"],

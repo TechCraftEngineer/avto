@@ -7,17 +7,23 @@ import type {
   ExperienceEntry,
   ImportCandidateRequest,
   ImportCandidateResponse,
-  Settings,
 } from "../shared/types";
+
+/** Минимальная конфигурация для API (из авторизации) */
+export interface ApiConfig {
+  apiUrl: string;
+  apiToken: string;
+  organizationId: string;
+}
 
 /**
  * Класс для отправки данных в систему управления кандидатами
  */
 export class ApiClient {
-  private settings: Settings;
+  private config: ApiConfig;
 
-  constructor(settings: Settings) {
-    this.settings = settings;
+  constructor(config: ApiConfig) {
+    this.config = config;
   }
 
   /**
@@ -27,7 +33,7 @@ export class ApiClient {
     data: CandidateData,
     organizationId: string,
   ): Promise<ImportCandidateResponse> {
-    if (!this.settings.apiUrl || !this.settings.apiToken) {
+    if (!this.config.apiUrl || !this.config.apiToken) {
       throw new Error("API не настроен");
     }
 
@@ -56,12 +62,12 @@ export class ApiClient {
     };
 
     const response = await fetch(
-      `${this.settings.apiUrl}/api/candidates/import`,
+      `${this.config.apiUrl}/api/candidates/import`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${this.settings.apiToken}`,
+          Authorization: `Bearer ${this.config.apiToken}`,
         },
         body: JSON.stringify(request),
       },
@@ -82,9 +88,9 @@ export class ApiClient {
    */
   async testConnection(): Promise<boolean> {
     try {
-      const response = await fetch(`${this.settings.apiUrl}/api/health`, {
+      const response = await fetch(`${this.config.apiUrl}/api/health`, {
         headers: {
-          Authorization: `Bearer ${this.settings.apiToken}`,
+          Authorization: `Bearer ${this.config.apiToken}`,
         },
       });
       return response.ok;
@@ -106,7 +112,7 @@ export class ApiClient {
    */
   private extractLastName(fullName: string): string {
     const parts = fullName.trim().split(/\s+/);
-    return parts.length > 1 ? parts[parts.length - 1] : "";
+    return parts.length > 1 ? (parts[parts.length - 1] ?? "") : "";
   }
 
   /**

@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "bun run generate-icons && tsc && vite build && bun run generate-icons:dist",
+    "generate-icons": "bun run scripts/generate-icons.ts",
+    "generate-icons:dist": "bun run scripts/generate-icons.ts dist",
     "preview": "vite preview",
     "test": "bun test",
     "test:watch": "bun test --watch",
@@ -28,6 +30,7 @@
     "axe-core": "^4.11.1",
     "fast-check": "4.5.3",
     "happy-dom": "^20.6.1",
+    "sharp": "^0.34.5",
     "typescript": "^5.9.3",
     "vite": "7.3.1",
     "vite-plugin-web-extension": "^4.5.0"

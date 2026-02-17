@@ -85,7 +85,8 @@ export class AuthService {
    */
   async getToken(): Promise<string | null> {
     const result = await chrome.storage.local.get("authToken");
-    return result.authToken || null;
+    const token = result.authToken;
+    return typeof token === "string" ? token : null;
   }
 
   /**
