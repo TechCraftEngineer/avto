@@ -15,7 +15,9 @@ import {
   generateWelcomeMessage,
   sendHHChatMessage,
 } from "../../../services/messaging";
+import { workspaceNotificationsChannel } from "../../channels/client";
 import { inngest } from "../../client";
+import { isHHAuthError } from "../../../utils/hh-auth-error";
 
 /**
  * Inngest функция для массовой отправки приветственных сообщений кандидатам
@@ -31,7 +33,7 @@ export const sendCandidateWelcomeBatchFunction = inngest.createFunction(
     },
   },
   { event: "candidate/welcome.batch" },
-  async ({ events, step }) => {
+  async ({ events, step, publish }) => {
     console.log(
       `🚀 Запуск массовой отправки приветствий для ${events.length} событий`,
     );
@@ -216,6 +218,21 @@ export const sendCandidateWelcomeBatchFunction = inngest.createFunction(
                   method: "hh",
                   sentMessage: actualSentMessage,
                 };
+              }
+
+              if (isHHAuthError(new Error(hhResult.error))) {
+                await publish(
+                  workspaceNotificationsChannel(workspaceId)[
+                    "integration-error"
+                  ]({
+                    workspaceId,
+                    type: "hh-auth-failed",
+                    message:
+                      "Авторизация в HeadHunter слетела. Проверьте учётные данные в настройках интеграции.",
+                    severity: "error",
+                    timestamp: new Date().toISOString(),
+                  }),
+                );
               }
 
               console.error(

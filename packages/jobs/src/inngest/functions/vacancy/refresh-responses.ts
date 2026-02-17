@@ -8,7 +8,9 @@ import {
 import {
   refreshVacancyResponsesChannel,
   vacancyStatsChannel,
+  workspaceNotificationsChannel,
 } from "../../channels/client";
+import { isHHAuthError } from "../../../utils/hh-auth-error";
 import { inngest } from "../../client";
 
 /**
@@ -116,6 +118,20 @@ export const refreshVacancyResponsesFunction = inngest.createFunction(
               error instanceof Error ? error.message : "Неизвестная ошибка",
           }),
         );
+        if (isHHAuthError(error)) {
+          await publish(
+            workspaceNotificationsChannel(vacancyData.workspaceId)[
+              "integration-error"
+            ]({
+              workspaceId: vacancyData.workspaceId,
+              type: "hh-auth-failed",
+              message:
+                "Авторизация в HeadHunter слетела. Проверьте учётные данные в настройках интеграции.",
+              severity: "error",
+              timestamp: new Date().toISOString(),
+            }),
+          );
+        }
         throw error;
       }
     });

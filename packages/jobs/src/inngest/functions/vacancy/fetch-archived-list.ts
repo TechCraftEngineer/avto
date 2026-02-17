@@ -3,7 +3,11 @@ import { vacancy } from "@qbs-autonaim/db/schema";
 import { fetchArchivedVacanciesList } from "@qbs-autonaim/jobs-parsers";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
-import { fetchArchivedListChannel } from "../../channels/client";
+import {
+  fetchArchivedListChannel,
+  workspaceNotificationsChannel,
+} from "../../channels/client";
+import { isHHAuthError } from "../../../utils/hh-auth-error";
 import { inngest } from "../../client";
 
 /**
@@ -137,6 +141,19 @@ export const fetchArchivedListFunction = inngest.createFunction(
             error: errorMessage,
           }),
         );
+
+        if (isHHAuthError(error)) {
+          await publish(
+            workspaceNotificationsChannel(workspaceId)["integration-error"]({
+              workspaceId,
+              type: "hh-auth-failed",
+              message:
+                "Авторизация в HeadHunter слетела. Проверьте учётные данные в настройках интеграции.",
+              severity: "error",
+              timestamp: new Date().toISOString(),
+            }),
+          );
+        }
 
         throw error;
       }

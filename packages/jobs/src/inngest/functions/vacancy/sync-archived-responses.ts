@@ -6,6 +6,7 @@ import {
   syncArchivedResponsesChannel,
   workspaceNotificationsChannel,
 } from "../../channels/client";
+import { isHHAuthError } from "../../../utils/hh-auth-error";
 import { inngest } from "../../client";
 import { collectChatIdsForVacancy } from "../../../services/collect-chat-ids";
 import { screenNewResponsesForVacancy } from "../../../services/screen-new-responses";
@@ -177,6 +178,19 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
               error instanceof Error ? error.message : "Ошибка синхронизации",
           }),
         );
+
+        if (isHHAuthError(error)) {
+          await publish(
+            workspaceNotificationsChannel(workspaceId)["integration-error"]({
+              workspaceId,
+              type: "hh-auth-failed",
+              message:
+                "Авторизация в HeadHunter слетела. Проверьте учётные данные в настройках интеграции.",
+              severity: "error",
+              timestamp: new Date().toISOString(),
+            }),
+          );
+        }
 
         throw error;
       }

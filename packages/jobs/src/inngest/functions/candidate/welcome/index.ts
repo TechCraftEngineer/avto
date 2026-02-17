@@ -1,6 +1,8 @@
 import { InterviewLinkGenerator } from "@qbs-autonaim/shared/server";
 import { generateWelcomeMessage } from "../../../../services/messaging";
+import { workspaceNotificationsChannel } from "../../../channels/client";
 import { inngest } from "../../../client";
+import { isHHAuthError } from "../../../../utils/hh-auth-error";
 import { fetchResponseData } from "./data-fetchers";
 import {
   sendHHWelcome,
@@ -33,7 +35,7 @@ export const sendCandidateWelcomeFunction = inngest.createFunction(
     retries: 3,
   },
   { event: "candidate/welcome" },
-  async ({ event, step }) => {
+  async ({ event, step, publish }) => {
     const { responseId, username, phone } = event.data;
 
     // Получаем данные отклика
@@ -153,6 +155,20 @@ export const sendCandidateWelcomeFunction = inngest.createFunction(
         const errorMessage = `HH message failed: ${error instanceof Error ? error.message : "Unknown error"}`;
         console.log(`⚠️ ${errorMessage}`);
         errors.push(errorMessage);
+        if (isHHAuthError(error)) {
+          await publish(
+            workspaceNotificationsChannel(responseData.vacancy.workspaceId)[
+              "integration-error"
+            ]({
+              workspaceId: responseData.vacancy.workspaceId,
+              type: "hh-auth-failed",
+              message:
+                "Авторизация в HeadHunter слетела. Проверьте учётные данные в настройках интеграции.",
+              severity: "error",
+              timestamp: new Date().toISOString(),
+            }),
+          );
+        }
       }
     } else {
       // Для других источников (не HH.ru) используем прямую отправку в каналы

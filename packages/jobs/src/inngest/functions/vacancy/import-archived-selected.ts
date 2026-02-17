@@ -4,6 +4,7 @@ import {
   importArchivedVacanciesChannel,
   workspaceNotificationsChannel,
 } from "../../channels/client";
+import { isHHAuthError } from "../../../utils/hh-auth-error";
 import { inngest } from "../../client";
 import { pluralizeVacancy } from "./pluralize-vacancy";
 
@@ -223,6 +224,19 @@ export const importSelectedArchivedVacanciesFunction = inngest.createFunction(
               error: errorMessage,
             }),
           );
+
+          if (isHHAuthError(error)) {
+            await publish(
+              workspaceNotificationsChannel(workspaceId)["integration-error"]({
+                workspaceId,
+                type: "hh-auth-failed",
+                message:
+                  "Авторизация в HeadHunter слетела. Проверьте учётные данные в настройках интеграции.",
+                severity: "error",
+                timestamp: new Date().toISOString(),
+              }),
+            );
+          }
 
           throw error;
         }
