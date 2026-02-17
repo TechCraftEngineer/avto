@@ -1,6 +1,6 @@
 import { Log } from "crawlee";
 import type { Page } from "puppeteer";
-import { loadCookies, saveCookies } from "../../../../utils/cookies";
+import { loadCookies } from "../../../../utils/cookies";
 import { HHAuthError } from "./auth-errors";
 import { HH_CONFIG } from "../config/config";
 
@@ -10,7 +10,6 @@ export async function performLogin(
   email: string,
   password: string,
   workspaceId: string,
-  saveCookiesAfterLogin = true,
 ) {
   log.info("🔍 Поиск поля email...");
   await page.waitForSelector('input[type="text"][name="username"]', {
@@ -101,12 +100,6 @@ export async function performLogin(
   }
 
   log.info("✅ Авторизация выполнена!");
-
-  if (saveCookiesAfterLogin) {
-    const cookies = await page.browser().cookies();
-    log.info(`🍪 Получено ${cookies.length} cookies`);
-    await saveCookies("hh", cookies, workspaceId);
-  }
 }
 
 /**
@@ -134,14 +127,10 @@ export async function checkAndPerformLogin(
     if (loginInput) {
       console.log("🔑 Требуется авторизация, выполняем логин...");
       const log = new Log();
-      // performLogin сохранит cookies, если saveCookiesAfterLogin = true
-      await performLogin(page, log, email, password, workspaceId, true);
+      await performLogin(page, log, email, password, workspaceId);
       console.log("✅ Логин завершен");
     } else {
       console.log("✅ Уже авторизованы");
-      // Если уже авторизованы, сохраняем cookies один раз
-      const cookies = await page.browser().cookies();
-      await saveCookies("hh", cookies, workspaceId);
     }
 
     // Проверяем успешность после логина/проверки
@@ -161,5 +150,5 @@ export async function checkAndPerformLogin(
   }
 }
 
-export { loadCookies, saveCookies };
+export { loadCookies };
 export { HHAuthError, validateCredentials } from "./auth-errors";

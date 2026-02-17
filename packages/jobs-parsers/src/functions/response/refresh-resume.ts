@@ -11,7 +11,6 @@ import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import {
   loadCookies,
   performLogin,
-  saveCookies,
 } from "../../parsers/hh/core/auth/auth";
 import {
   setupBrowser,
@@ -47,9 +46,6 @@ async function checkAndPerformLogin(
       const log = new Log();
       await performLogin(page, log, email, password, workspaceId);
     }
-
-    const cookies = await page.cookies();
-    await saveCookies("hh", cookies, workspaceId);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     throw new Error(`HH login failed: ${message}`);

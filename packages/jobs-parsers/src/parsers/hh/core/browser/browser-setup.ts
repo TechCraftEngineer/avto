@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import puppeteer, { type Browser, type CookieData, type Page } from "puppeteer";
-import { checkAndPerformLogin, loadCookies, saveCookies } from "../auth/auth";
+import { checkAndPerformLogin, loadCookies } from "../auth/auth";
 import { HH_CONFIG } from "../config/config";
 import { closeBrowserSafely } from "./browser-utils";
 
@@ -147,10 +147,6 @@ export async function setupAuthenticatedBrowser(
     // Check login status and perform login if needed
     await checkAndPerformLogin(page, email, password, workspaceId);
 
-    // Save cookies after login check/attempt
-    const cookies = await page.browserContext().cookies();
-    await saveCookies("hh", cookies, workspaceId);
-
     return { browser, page, credentials: { email, password } };
   } catch (error) {
     await closeBrowserSafely(browser);
@@ -186,13 +182,6 @@ export async function setupPageWithAuth(
 
     if (!loggedIn) {
       throw new Error("Не удалось войти в систему HeadHunter");
-    }
-
-    // Save cookies after successful login
-    const cookies = await page.browserContext().cookies();
-    const filteredCookies = cookies.filter((cookie) => cookie.domain);
-    if (filteredCookies.length > 0) {
-      await saveCookies("hh", filteredCookies, workspaceId);
     }
 
     return { browser, page };

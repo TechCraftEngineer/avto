@@ -4,6 +4,9 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../trpc";
 
+/** Типы интеграций, которые создаются только через verify (настройка) */
+const CREATE_VIA_VERIFY_ONLY = ["hh", "kwork"] as const;
+
 export const createIntegration = protectedProcedure
   .input(
     z.object({
@@ -15,6 +18,14 @@ export const createIntegration = protectedProcedure
     }),
   )
   .mutation(async ({ input, ctx }) => {
+    // HH и Kwork создаются только через verify flow
+    if (CREATE_VIA_VERIFY_ONLY.includes(input.type as (typeof CREATE_VIA_VERIFY_ONLY)[number])) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: `Интеграция ${input.type} создаётся только через настройку интеграции`,
+      });
+    }
+
     // Проверка доступа к workspace
     const access = await ctx.workspaceRepository.checkAccess(
       input.workspaceId,
