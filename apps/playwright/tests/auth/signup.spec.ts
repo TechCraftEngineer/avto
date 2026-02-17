@@ -4,6 +4,7 @@ import {
   safeClickByRole,
   submitSignUpForm,
 } from "../helpers/auth";
+import { mockSignUp } from "../helpers/mock-api";
 
 test.describe("Регистрация", () => {
   test.beforeEach(async ({ page }) => {
@@ -44,13 +45,12 @@ test.describe("Регистрация", () => {
     await fillEmailPasswordForm(page, "test@example.com", "short");
     await submitSignUpForm(page);
 
-    await expect(
-      page.getByText("Пароль должен содержать минимум 8 символов"),
-    ).toBeVisible();
+    await expect(page.getByText("Минимум 8 символов")).toBeVisible();
   });
 
   test("кнопка регистрации показывает состояние загрузки", async ({ page }) => {
-    await fillEmailPasswordForm(page, "newuser@example.com", "password123");
+    await mockSignUp(page);
+    await fillEmailPasswordForm(page, "newuser@example.com", "Password1");
 
     const submitButton = page.getByRole("button", { name: "Создать аккаунт" });
 
