@@ -10,6 +10,8 @@ export const realtimeMiddleware = () => {
         onFunctionRun({ ctx: { runId } }) {
           return {
             transformInput({ ctx: { step } }) {
+              let publishIndex = 0;
+
               const publish: Realtime.PublishFn = async (input) => {
                 const { topic, channel, data } = await input;
 
@@ -51,10 +53,12 @@ export const realtimeMiddleware = () => {
                   (store as any).executingStep ||
                   (store as any).execution?.executingStep;
 
+                const stepId = `publish:${publishOpts.channel}:${publishIndex++}`;
+
                 return (
                   isExecutingStep
                     ? action()
-                    : step.run(`publish:${publishOpts.channel}`, action)
+                    : step.run(stepId, action)
                 ).then(() => {
                   // Always return the data passed in to the `publish` call.
 
