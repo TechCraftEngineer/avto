@@ -1,9 +1,472 @@
 /**
- * Unit-тесты для Content Script - Export функциональность
+ * Unit-тесты для Content Script
+ * Покрывает: определение платформы, извлечение данных, экспорт, импорт
+ * @vitest-environment happy-dom
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { CandidateData } from "../shared/types";
+
+describe("ContentScript - Инициализация и определение платформы", () => {
+  beforeEach(() => {
+    // Очищаем DOM перед каждым тестом
+    document.body.innerHTML = "";
+
+    // Mock для console.log
+    vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  describe("init", () => {
+    it("должен инициализироваться только один раз", async () => {
+      // Arrange
+      const { ContentScript } = await import("./content-script");
+      const contentScript = new (ContentScript as any)();
+
+      // Act
+      await contentScript.init();
+      await contentScript.init(); // Повторная инициализация
+
+      // Assert
+      expect(contentScript.isInitialized).toBe(true);
+    });
+
+    it("должен вызвать setupUI если страница поддерживается", async () => {
+      // Arrange
+      Object.defineProperty(window, "location", {
+        value: { pathname: "/in/test-user/", hostname: "linkedin.com" },
+        writable: true,
+      });
+
+      const { ContentScript } = await import("./content-script");
+      const contentScript = new (ContentScript as any)();
+      const setupUISpy = vi.spyOn(contentScript, "setupUI");
+
+      // Act
+      await contentScript.init();
+
+      // Assert
+      expect(setupUISpy).toHaveBeenCalled();
+    });
+
+    it("не должен вызывать setupUI если страница не поддерживается", async () => {
+      // Arrange
+      Object.defineProperty(window, "location", {
+        value: { pathname: "/feed/", hostname: "linkedin.com" },
+        writable: true,
+      });
+
+      const { ContentScript } = await import("./content-script");
+      const contentScript = new (ContentScript as any)();
+      const setupUISpy = vi.spyOn(contentScript, "setupUI");
+
+      // Act
+      await contentScript.init();
+
+      // Assert
+      expect(setupUISpy).not.toHaveBeenCalled();
+    });
+
+    it("должен обработать ошибку при инициализации", async () => {
+      // Arrange
+      const { ContentScript } = await import("./content-script");
+      const contentScript = new (ContentScript as any)();
+      vi.spyOn(contentScript, "checkIfSupportedPage").mockRejectedValue(
+        new Error("Test error"),
+      );
+
+      // Act & Assert
+      await expect(contentScript.init()).resolves.not.toThrow();
+      expect(console.error).toHaveBeenCalled();
+    });
+  });
+
+  describe("checkIfSupportedPage", () => {
+    it("должен вернуть true для страницы профиля LinkedIn", async () => {
+      // Arrange
+      Object.defineProperty(window, "location", {
+        value: { pathname: "/in/john-doe/", hostname: "linkedin.com" },
+        writable: true,
+      });
+
+      const { ContentScript } = await import("./content-script");
+      const contentScript = new (ContentScript as any)();
+
+      // Act
+      const result = await contentScript.checkIfSupportedPage();
+
+      // Assert
+      expect(result).toBe(true);
+      expect(contentScript.currentAdapter).not.toBeNull();
+      expect(contentScript.currentAdapter.platformName).toBe("LinkedIn");
+    });
+
+    it("должен вернуть true для страницы профиля HeadHunter", async () => {
+      // Arrange
+      Object.defineProperty(window, "location", {
+        value: {
+          pathname: "/resume/12345678",
+          hostname: "hh.ru",
+        },
+        writable: true,
+      });
+
+      const { ContentScript } = await import("./content-script");
+      const contentScript = new (ContentScript as any)();
+
+      // Act
+      const result = await contentScript.checkIfSupportedPage();
+
+      // Assert
+      expect(result).toBe(true);
+      expect(contentScript.currentAdapter).not.toBeNull();
+      expect(contentScript.currentAdapter.platformName).toBe("HeadHunter");
+    });
+
+    it("должен вернуть false для неподдерживаемой страницы", async () => {
+      // Arrange
+      Object.defineProperty(window, "location", {
+        value: { pathname: "/feed/", hostname: "linkedin.com" },
+        writable: true,
+      });
+
+      const { ContentScript } = await import("./content-script");
+      const contentScript = new (ContentScript as any)();
+
+      // Act
+      const result = await contentScript.checkIfSupportedPage();
+
+      // Assert
+      expect(result).toBe(false);
+      expect(contentScript.currentAdapter).toBeNull();
+    });
+
+    it("должен вернуть false для неподдерживаемого сайта", async () => {
+      // Arrange
+      Object.defineProperty(window, "location", {
+        value: { pathname: "/profile/test", hostname: "facebook.com" },
+        writable: true,
+      });
+
+      const { ContentScript } = await import("./content-script");
+      const contentScript = new (ContentScript as any)();
+
+      // Act
+      const result = await contentScript.checkIfSupportedPage();
+
+      // Assert
+      expect(result).toBe(false);
+      expect(contentScript.currentAdapter).toBeNull();
+    });
+  });
+
+  describe("setupUI", () => {
+    it("должен создать и добавить Action Button в DOM", async () => {
+      // Arrange
+      const { ContentScript } = await import("./content-script");
+      const contentScript = new (ContentScript as any)();
+
+      // Act
+      await contentScript.setupUI();
+
+      // Assert
+      const buttonContainer = document.getElementById(
+        "recruitment-assistant-action-button",
+      );
+      expect(buttonContainer).not.toBeNull();
+      expect(buttonContainer?.querySelector("button")).not.toBeNull();
+    });
+
+    it("Action Button должна иметь корректные атрибуты доступности", async () => {
+      // Arrange
+      const { ContentScript } = await import("./content-script");
+      const contentScript = new (ContentScript as any)();
+
+      // Act
+      await contentScript.setupUI();
+
+      // Assert
+      const button = document.querySelector(
+        "#recruitment-assistant-action-button button",
+      );
+      expect(button?.getAttribute("aria-label")).toBe(
+        "Извлечь данные профиля кандидата",
+      );
+      expect(button?.getAttribute("aria-busy")).toBe("false");
+      expect(button?.getAttribute("aria-live")).toBe("polite");
+    });
+
+    it("Action Button должна иметь минимальные размеры для мобильных устройств", async () => {
+      // Arrange
+      const { ContentScript } = await import("./content-script");
+      const contentScript = new (ContentScript as any)();
+
+      // Act
+      await contentScript.setupUI();
+
+      // Assert
+      const button = document.querySelector(
+        "#recruitment-assistant-action-button button",
+      ) as HTMLButtonElement;
+      const styles = button.style;
+
+      expect(styles.minWidth).toBe("44px");
+      expect(styles.minHeight).toBe("44px");
+      expect(styles.touchAction).toBe("manipulation");
+    });
+
+    it("Action Button должна иметь русскоязычный текст без англицизмов", async () => {
+      // Arrange
+      const { ContentScript } = await import("./content-script");
+      const contentScript = new (ContentScript as any)();
+
+      // Act
+      await contentScript.setupUI();
+
+      // Assert
+      const button = document.querySelector(
+        "#recruitment-assistant-action-button button",
+      );
+      expect(button?.textContent).toBe("Извлечь данные");
+      expect(button?.textContent).not.toMatch(/extract|parse|scrape/i);
+    });
+
+    it("должен установить контейнер с высоким z-index", async () => {
+      // Arrange
+      const { ContentScript } = await import("./content-script");
+      const contentScript = new (ContentScript as any)();
+
+      // Act
+      await contentScript.setupUI();
+
+      // Assert
+      const container = document.getElementById(
+        "recruitment-assistant-action-button",
+      );
+      expect(container?.style.zIndex).toBe("999999");
+      expect(container?.style.position).toBe("fixed");
+    });
+  });
+
+  describe("createActionButton", () => {
+    it("должен создать кнопку с обработчиком клика", async () => {
+      // Arrange
+      const { ContentScript } = await import("./content-script");
+      const contentScript = new (ContentScript as any)();
+      const handleExtractClickSpy = vi.spyOn(
+        contentScript,
+        "handleExtractClick",
+      );
+
+      // Act
+      const button = contentScript.createActionButton();
+      button.click();
+
+      // Assert
+      expect(handleExtractClickSpy).toHaveBeenCalled();
+    });
+
+    it("должен применить стили для состояния загрузки", async () => {
+      // Arrange
+      const { ContentScript } = await import("./content-script");
+      const contentScript = new (ContentScript as any)();
+      const button = document.createElement("button");
+
+      // Act
+      contentScript.applyButtonStyles(button, true);
+
+      // Assert
+      expect(button.disabled).toBe(true);
+      expect(button.getAttribute("aria-busy")).toBe("true");
+      expect(button.style.cursor).toBe("not-allowed");
+    });
+
+    it("должен применить стили для обычного состояния", async () => {
+      // Arrange
+      const { ContentScript } = await import("./content-script");
+      const contentScript = new (ContentScript as any)();
+      const button = document.createElement("button");
+
+      // Act
+      contentScript.applyButtonStyles(button, false);
+
+      // Assert
+      expect(button.disabled).toBe(false);
+      expect(button.getAttribute("aria-busy")).toBe("false");
+      expect(button.style.cursor).toBe("pointer");
+    });
+  });
+
+  describe("updateButtonState", () => {
+    it("должен обновить текст кнопки при загрузке", async () => {
+      // Arrange
+      const { ContentScript } = await import("./content-script");
+      const contentScript = new (ContentScript as any)();
+      await contentScript.setupUI();
+
+      // Act
+      contentScript.updateButtonState(true);
+
+      // Assert
+      const button = document.querySelector(
+        "#recruitment-assistant-action-button button",
+      );
+      expect(button?.textContent).toBe("Извлечение данных…");
+      expect(button?.textContent).toMatch(/…$/); // Проверяем эллипсис
+    });
+
+    it("должен обновить текст кнопки после загрузки", async () => {
+      // Arrange
+      const { ContentScript } = await import("./content-script");
+      const contentScript = new (ContentScript as any)();
+      await contentScript.setupUI();
+      contentScript.updateButtonState(true);
+
+      // Act
+      contentScript.updateButtonState(false);
+
+      // Assert
+      const button = document.querySelector(
+        "#recruitment-assistant-action-button button",
+      );
+      expect(button?.textContent).toBe("Извлечь данные");
+    });
+
+    it("должен обновить состояние isLoading", async () => {
+      // Arrange
+      const { ContentScript } = await import("./content-script");
+      const contentScript = new (ContentScript as any)();
+      await contentScript.setupUI();
+
+      // Act
+      contentScript.updateButtonState(true);
+
+      // Assert
+      expect(contentScript.isLoading).toBe(true);
+
+      // Act
+      contentScript.updateButtonState(false);
+
+      // Assert
+      expect(contentScript.isLoading).toBe(false);
+    });
+  });
+
+  describe("cleanup", () => {
+    it("должен удалить контейнер из DOM", async () => {
+      // Arrange
+      const { ContentScript } = await import("./content-script");
+      const contentScript = new (ContentScript as any)();
+      await contentScript.setupUI();
+
+      // Act
+      contentScript.cleanup();
+
+      // Assert
+      const container = document.getElementById(
+        "recruitment-assistant-action-button",
+      );
+      expect(container).toBeNull();
+    });
+
+    it("должен очистить все данные", async () => {
+      // Arrange
+      const { ContentScript } = await import("./content-script");
+      const contentScript = new (ContentScript as any)();
+      contentScript.currentData = { test: "data" };
+      contentScript.currentAdapter = { test: "adapter" };
+      contentScript.isInitialized = true;
+
+      // Act
+      contentScript.cleanup();
+
+      // Assert
+      expect(contentScript.currentData).toBeNull();
+      expect(contentScript.currentAdapter).toBeNull();
+      expect(contentScript.isInitialized).toBe(false);
+      expect(contentScript.buttonContainer).toBeNull();
+    });
+
+    it("должен безопасно обрабатывать повторный вызов", async () => {
+      // Arrange
+      const { ContentScript } = await import("./content-script");
+      const contentScript = new (ContentScript as any)();
+      await contentScript.setupUI();
+
+      // Act & Assert
+      contentScript.cleanup();
+      expect(() => contentScript.cleanup()).not.toThrow();
+    });
+  });
+
+  describe("showNotification", () => {
+    it("должен создать уведомление с корректным типом", async () => {
+      // Arrange
+      const { ContentScript } = await import("./content-script");
+      const contentScript = new (ContentScript as any)();
+
+      // Act
+      contentScript.showNotification({
+        type: "success",
+        message: "Тестовое уведомление",
+      });
+
+      // Assert
+      const notification = document.querySelector('[role="alert"]');
+      expect(notification).not.toBeNull();
+      expect(notification?.textContent).toBe("Тестовое уведомление");
+    });
+
+    it("должен использовать aria-live для доступности", async () => {
+      // Arrange
+      const { ContentScript } = await import("./content-script");
+      const contentScript = new (ContentScript as any)();
+
+      // Act
+      contentScript.showNotification({
+        type: "info",
+        message: "Информация",
+      });
+
+      // Assert
+      const notification = document.querySelector('[role="alert"]');
+      expect(notification?.getAttribute("aria-live")).toBe("polite");
+    });
+
+    it("должен использовать корректные цвета для разных типов", async () => {
+      // Arrange
+      const { ContentScript } = await import("./content-script");
+      const contentScript = new (ContentScript as any)();
+
+      // Act & Assert
+      expect(contentScript.getNotificationColor("success")).toBe("#10b981");
+      expect(contentScript.getNotificationColor("error")).toBe("#ef4444");
+      expect(contentScript.getNotificationColor("warning")).toBe("#f59e0b");
+      expect(contentScript.getNotificationColor("info")).toBe("#3b82f6");
+    });
+
+    it("уведомления должны быть на русском языке", async () => {
+      // Arrange
+      const { ContentScript } = await import("./content-script");
+      const contentScript = new (ContentScript as any)();
+
+      // Act
+      contentScript.showNotification({
+        type: "success",
+        message: "Данные успешно сохранены",
+      });
+
+      // Assert
+      const notification = document.querySelector('[role="alert"]');
+      expect(notification?.textContent).not.toMatch(/success|saved|data/i);
+      expect(notification?.textContent).toMatch(/данные|успешно|сохранены/i);
+    });
+  });
+});
 
 describe("ContentScript - Export функциональность", () => {
   let mockCandidateData: CandidateData;

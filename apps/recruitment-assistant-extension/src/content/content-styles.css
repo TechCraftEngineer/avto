@@ -1,1 +1,109 @@
 /* Стили для content script */
+
+/* Уведомления */
+.ra-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  max-width: 400px;
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 10000;
+  animation: ra-notification-slide-in 0.3s ease-out;
+}
+
+@keyframes ra-notification-slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.ra-notification--success {
+  border-left: 4px solid #10b981;
+}
+
+.ra-notification--error {
+  border-left: 4px solid #ef4444;
+}
+
+.ra-notification--warning {
+  border-left: 4px solid #f59e0b;
+}
+
+.ra-notification--info {
+  border-left: 4px solid #3b82f6;
+}
+
+.ra-notification__message {
+  color: #1f2937;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.ra-notification__action {
+  align-self: flex-start;
+  padding: 8px 16px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  min-height: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ra-notification__action:hover {
+  background: #2563eb;
+}
+
+.ra-notification__action:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.ra-notification__close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: #6b7280;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 4px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ra-notification__close:hover {
+  background: #f3f4f6;
+  color: #1f2937;
+}
+
+.ra-notification__close:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ra-notification {
+    animation: none;
+  }
+}

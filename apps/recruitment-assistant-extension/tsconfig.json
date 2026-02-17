@@ -3,7 +3,7 @@
   "compilerOptions": {
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "jsx": "react-jsx",
-    "types": ["chrome", "vite/client"],
+    "types": ["chrome", "vite/client", "bun-types"],
     "paths": {
       "@/*": ["./src/*"]
     },
@@ -13,5 +13,5 @@
     "skipLibCheck": true
   },
   "include": ["src/**/*", "vite.config.ts"],
-  "exclude": ["node_modules", "dist", "build"]
+  "exclude": ["node_modules", "dist", "build", "**/*.test.ts", "**/*.test.tsx"]
 }
