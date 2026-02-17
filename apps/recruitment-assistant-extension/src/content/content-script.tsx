@@ -6,11 +6,15 @@
  * извлечение данных, отображение панели, редактирование, экспорт и импорт.
  */
 
+import React from "react";
+import type { Root } from "react-dom/client";
+import { createRoot } from "react-dom/client";
 import type { PlatformAdapter } from "../adapters/base/platform-adapter";
 import { HeadHunterAdapter } from "../adapters/headhunter/headhunter-adapter";
 import { LinkedInAdapter } from "../adapters/linkedin/linkedin-adapter";
 import { DataExtractor } from "../core/data-extractor";
 import type { CandidateData } from "../shared/types";
+import { DataPanel } from "./ui/data-panel";
 
 /**
  * Главный класс Content Script
@@ -20,6 +24,8 @@ export class ContentScript {
   private currentData: CandidateData | null = null;
   private currentAdapter: PlatformAdapter | null = null;
   private buttonContainer: HTMLDivElement | null = null;
+  private panelContainer: HTMLDivElement | null = null;
+  private panelRoot: Root | null = null;
   private isLoading = false;
 
   /**
@@ -504,21 +510,167 @@ export class ContentScript {
 
   /**
    * Отображает панель с данными
+   * Требование 8: Отображение извлеченных данных в структурированном виде
    */
   private async showDataPanel(data: CandidateData): Promise<void> {
-    // TODO: Реализовать отображение DataPanel
-    // Будет реализовано в задаче 21.5
     console.log("[Recruitment Assistant] Отображение панели данных...");
     this.currentData = data;
+
+    // Проверяем, настроен ли API
+    const apiConfigured = await this.checkApiConfiguration();
+
+    // Если панель уже существует, обновляем её
+    if (this.panelContainer && this.panelRoot) {
+      this.renderDataPanel(data, apiConfigured);
+      return;
+    }
+
+    // Создаем контейнер для панели
+    this.panelContainer = document.createElement("div");
+    this.panelContainer.id = "recruitment-assistant-data-panel";
+    this.panelContainer.style.cssText = `
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    `;
+
+    // Добавляем контейнер в DOM
+    document.body.appendChild(this.panelContainer);
+
+    // Создаем React root и рендерим панель
+    this.panelRoot = createRoot(this.panelContainer);
+    this.renderDataPanel(data, apiConfigured);
+
+    console.log("[Recruitment Assistant] Панель данных отображена");
+  }
+
+  /**
+   * Рендерит DataPanel компонент
+   */
+  private renderDataPanel(data: CandidateData, apiConfigured: boolean): void {
+    if (!this.panelRoot) return;
+
+    this.panelRoot.render(
+      <DataPanel
+        data={data}
+        onEdit={(field, value) => this.handleEdit(field, value)}
+        onExport={(format) => this.handleExport(format)}
+        onImportToSystem={() => this.handleImport()}
+        apiConfigured={apiConfigured}
+      />,
+    );
+  }
+
+  /**
+   * Проверяет, настроен ли API для импорта
+   */
+  private async checkApiConfiguration(): Promise<boolean> {
+    try {
+      const result = await chrome.storage.local.get("settings");
+      const settings = result.settings;
+
+      if (!settings) {
+        return false;
+      }
+
+      // Проверяем, что все необходимые поля заполнены
+      return !!(
+        settings.apiUrl &&
+        settings.apiToken &&
+        settings.organizationId
+      );
+    } catch (error) {
+      console.error(
+        "[Recruitment Assistant] Ошибка проверки конфигурации API:",
+        error,
+      );
+      return false;
+    }
   }
 
   /**
    * Обрабатывает редактирование поля
+   * Поддерживает редактирование вложенных полей (например, "basicInfo.fullName", "experience.0.position")
+   * Требование 8.5: Возможность редактирования полей перед экспортом
    */
   private handleEdit(field: string, value: unknown): void {
-    // TODO: Реализовать редактирование данных
-    // Будет реализовано в задаче 21.6
+    if (!this.currentData) {
+      console.warn("[Recruitment Assistant] Нет данных для редактирования");
+      return;
+    }
+
     console.log("[Recruitment Assistant] Редактирование поля:", field, value);
+
+    try {
+      // Создаем копию текущих данных для изменения
+      const updatedData = { ...this.currentData };
+
+      // Разбираем путь к полю (например, "basicInfo.fullName" или "experience.0.position")
+      const fieldPath = field.split(".");
+
+      // Обновляем значение по пути
+      this.setNestedValue(updatedData, fieldPath, value);
+
+      // Сохраняем обновленные данные
+      this.currentData = updatedData;
+
+      // Перерисовываем панель с обновленными данными
+      this.checkApiConfiguration().then((apiConfigured) => {
+        this.renderDataPanel(updatedData, apiConfigured);
+      });
+
+      console.log(
+        "[Recruitment Assistant] Поле успешно обновлено:",
+        field,
+        value,
+      );
+    } catch (error) {
+      console.error(
+        "[Recruitment Assistant] Ошибка при редактировании поля:",
+        error,
+      );
+      this.showError(
+        "Не удалось обновить поле. Попробуйте еще раз или обновите страницу.",
+      );
+    }
+  }
+
+  /**
+   * Устанавливает значение по вложенному пути в объекте
+   * Поддерживает пути вида "basicInfo.fullName" и "experience.0.position"
+   */
+  private setNestedValue(
+    obj: Record<string, unknown>,
+    path: string[],
+    value: unknown,
+  ): void {
+    if (path.length === 0) {
+      return;
+    }
+
+    // Если это последний элемент пути, устанавливаем значение
+    if (path.length === 1) {
+      obj[path[0]] = value;
+      return;
+    }
+
+    // Получаем текущий ключ
+    const currentKey = path[0];
+    const remainingPath = path.slice(1);
+
+    // Проверяем, является ли следующий ключ числом (индекс массива)
+    const nextKey = remainingPath[0];
+    const isArrayIndex = !Number.isNaN(Number.parseInt(nextKey, 10));
+
+    // Если текущее значение не существует или не является объектом/массивом, создаем его
+    if (!obj[currentKey] || typeof obj[currentKey] !== "object") {
+      obj[currentKey] = isArrayIndex ? [] : {};
+    }
+
+    // Рекурсивно обновляем вложенное значение
+    this.setNestedValue(
+      obj[currentKey] as Record<string, unknown>,
+      remainingPath,
+      value,
+    );
   }
 
   /**
@@ -532,20 +684,117 @@ export class ContentScript {
 
   /**
    * Импортирует данные в систему через API
+   * Требования 10.1, 10.2, 10.3, 10.4
    */
   private async handleImport(): Promise<void> {
-    // TODO: Реализовать импорт в систему
-    // Будет реализовано в задаче 21.8
     console.log("[Recruitment Assistant] Импорт данных в систему...");
+
+    // Проверяем наличие данных
+    if (!this.currentData) {
+      this.showNotification({
+        type: "error",
+        message: "Нет данных для импорта",
+      });
+      return;
+    }
+
+    try {
+      // Получаем настройки из хранилища
+      const { StorageManager } = await import("../storage/storage-manager");
+      const storageManager = new StorageManager();
+      const settings = await storageManager.getSettings();
+
+      // Проверяем, настроен ли API (Требование 10.1)
+      if (!settings.apiUrl || !settings.apiToken || !settings.organizationId) {
+        this.showNotification({
+          type: "error",
+          message:
+            "API не настроен. Перейдите в настройки расширения для конфигурации.",
+        });
+        return;
+      }
+
+      // Показываем индикатор загрузки
+      this.showNotification({
+        type: "info",
+        message: "Импорт данных в систему…",
+      });
+
+      // Создаем экземпляр ApiClient и отправляем данные
+      const { ApiClient } = await import("../core/api-client");
+      const apiClient = new ApiClient(settings);
+
+      // Отправляем данные с токеном аутентификации (Требование 10.2)
+      const response = await apiClient.importCandidate(
+        this.currentData,
+        settings.organizationId,
+      );
+
+      // Показываем уведомление об успехе (Требование 10.3)
+      this.showNotification({
+        type: "success",
+        message: `Кандидат успешно импортирован в систему (ID: ${response.candidateId || response.candidateOrganizationId || "неизвестен"})`,
+      });
+
+      console.log(
+        "[Recruitment Assistant] Данные успешно импортированы:",
+        response,
+      );
+    } catch (error) {
+      // Показываем сообщение об ошибке с описанием (Требование 10.4)
+      console.error("[Recruitment Assistant] Ошибка импорта:", error);
+
+      let errorMessage = "Не удалось импортировать данные в систему";
+
+      if (error instanceof Error) {
+        errorMessage = `Ошибка импорта: ${error.message}`;
+      }
+
+      this.showNotification({
+        type: "error",
+        message: errorMessage,
+      });
+    }
   }
 
   /**
-   * Проверяет, авторизован ли пользователь
+   * Проверяет, авторизован ли пользователь и настроен ли API
+   * Требование 10.5
    */
   private async checkAuthentication(): Promise<boolean> {
-    // TODO: Реализовать проверку авторизации
-    // Будет реализовано в задаче 21.9
-    return false;
+    try {
+      // Получаем настройки из хранилища
+      const { StorageManager } = await import("../storage/storage-manager");
+      const storageManager = new StorageManager();
+      const settings = await storageManager.getSettings();
+
+      // Проверяем, настроен ли API
+      const isApiConfigured =
+        !!settings.apiUrl && !!settings.apiToken && !!settings.organizationId;
+
+      if (!isApiConfigured) {
+        console.log(
+          "[Recruitment Assistant] API не настроен, импорт недоступен",
+        );
+        return false;
+      }
+
+      // Проверяем авторизацию пользователя
+      const result = await chrome.storage.local.get("authToken");
+      const isAuthenticated = !!result.authToken;
+
+      console.log(
+        `[Recruitment Assistant] Статус авторизации: ${isAuthenticated}`,
+      );
+
+      return isAuthenticated;
+    } catch (error) {
+      console.error(
+        "[Recruitment Assistant] Ошибка проверки авторизации:",
+        error,
+      );
+      return false;
+    }
   }
 
   /**
@@ -554,7 +803,19 @@ export class ContentScript {
   cleanup(): void {
     console.log("[Recruitment Assistant] Очистка content script...");
 
-    // Удаляем контейнер из DOM
+    // Размонтируем React компонент
+    if (this.panelRoot) {
+      this.panelRoot.unmount();
+      this.panelRoot = null;
+    }
+
+    // Удаляем контейнер панели из DOM
+    if (this.panelContainer?.parentNode) {
+      this.panelContainer.parentNode.removeChild(this.panelContainer);
+      this.panelContainer = null;
+    }
+
+    // Удаляем контейнер кнопки из DOM
     if (this.buttonContainer?.parentNode) {
       this.buttonContainer.parentNode.removeChild(this.buttonContainer);
       this.buttonContainer = null;

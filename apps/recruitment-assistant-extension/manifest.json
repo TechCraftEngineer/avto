@@ -29,7 +29,7 @@
         "https://hh.ru/resume/*",
         "https://www.hh.ru/resume/*"
       ],
-      "js": ["src/content/content-script.ts"],
+      "js": ["src/content/content-script.tsx"],
       "css": ["src/content/content-styles.css"],
       "run_at": "document_idle"
     }
