@@ -60,6 +60,21 @@ function logError(message: string, error: unknown): void {
 
 const FETCH_TIMEOUT_MS = 10000;
 
+/** Разрешённые хосты для API-запросов (защита от SSRF) */
+const ALLOWED_HOSTS = [
+  "app.avtonaim.qbsoft.ru",
+  "localhost",
+  "127.0.0.1",
+  "api.example.com", // для unit-тестов (RFC 2606 — зарезервированный домен)
+];
+
+function isUrlAllowed(url: URL): boolean {
+  const host = url.hostname.toLowerCase();
+  return ALLOWED_HOSTS.some(
+    (allowed) => host === allowed || host.endsWith(`.${allowed}`)
+  );
+}
+
 /**
  * Проверяет, что payload является валидным ApiRequest
  */
@@ -87,12 +102,15 @@ async function proxyApiRequest(request: ApiRequest): Promise<ApiResponse> {
       throw new Error("Некорректный URL запроса");
     }
 
-    // Проверка протокола: HTTPS или localhost для разработки
+    // Проверка протокола и whitelist хостов (защита от SSRF)
     const url = new URL(request.url);
     const isLocalhost =
       url.hostname === "localhost" || url.hostname === "127.0.0.1";
     if (!request.url.startsWith("https://") && !isLocalhost) {
       throw new Error("Разрешены только HTTPS запросы");
+    }
+    if (!isUrlAllowed(url)) {
+      throw new Error("Домен не в списке разрешённых");
     }
 
     // Подготовка заголовков (Content-Type только для методов с телом)

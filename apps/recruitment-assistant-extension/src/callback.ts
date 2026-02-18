@@ -8,13 +8,15 @@
   if (!root) return;
 
   const showError = (msg: string) => {
-    root.innerHTML = `
-      <div class="page">
-        <div class="icon icon-error">✕</div>
-        <h1 class="title">Ошибка</h1>
-        <p class="message">${msg}</p>
-      </div>
+    const page = document.createElement("div");
+    page.className = "page";
+    page.innerHTML = `
+      <div class="icon icon-error">✕</div>
+      <h1 class="title">Ошибка</h1>
+      <p class="message"></p>
     `;
+    (page.querySelector(".message") as HTMLParagraphElement).textContent = msg;
+    root.replaceChildren(page);
   };
 
   const closeTab = () => {
@@ -24,17 +26,18 @@
   };
 
   const showSuccess = () => {
-    root.innerHTML = `
-      <div class="page">
-        <div class="icon icon-success">✓</div>
-        <h1 class="title">Авторизация прошла успешно</h1>
-        <p class="message">Расширение подключено к вашему аккаунту.</p>
-        <button type="button" class="btn" id="close-btn">Закрыть вкладку</button>
-      </div>
+    const page = document.createElement("div");
+    page.className = "page";
+    page.innerHTML = `
+      <div class="icon icon-success">✓</div>
+      <h1 class="title">Авторизация прошла успешно</h1>
+      <p class="message">Расширение подключено к вашему аккаунту.</p>
+      <button type="button" class="btn" id="close-btn">Закрыть вкладку</button>
     `;
-    document.getElementById("close-btn")?.addEventListener("click", closeTab);
+    page.querySelector("#close-btn")?.addEventListener("click", closeTab);
+    root.replaceChildren(page);
 
-    // Автозакрытие через 3 секунды, чтобы вкладка не оставалась открытой
+    // Автозакрытие через 3 секунды
     setTimeout(closeTab, 3000);
   };
 
