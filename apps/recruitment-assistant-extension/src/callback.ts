@@ -53,7 +53,12 @@
     return;
   }
 
-  let user: { id: string; email?: string; organizationId?: string };
+  let user: {
+    id: string;
+    email?: string;
+    organizationId?: string;
+    workspaceId?: string;
+  };
   try {
     user = JSON.parse(decodeURIComponent(userStr));
   } catch {
@@ -61,8 +66,9 @@
     return;
   }
 
-  chrome.storage.local.set(
-    { authToken: token, userData: user },
-    () => showSuccess(),
-  );
+  const toStore: Record<string, unknown> = { authToken: token, userData: user };
+  if (user.workspaceId) {
+    toStore.workspaceId = user.workspaceId;
+  }
+  chrome.storage.local.set(toStore, () => showSuccess());
 })();

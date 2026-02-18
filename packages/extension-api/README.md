@@ -19,9 +19,10 @@ cd packages/extension-api && bun run dev
 | Метод | Путь | Авторизация |
 |-------|------|-------------|
 | GET | `/health` | — |
+| GET | `/organizations` | Bearer token |
+| GET | `/workspaces?organizationId=...` | Bearer token |
 | POST | `/hh-import?type=vacancies` | Bearer token |
 | POST | `/hh-import?type=responses` | Bearer token |
-| GET | `/workspaces?organizationId=...` | Bearer token |
 
 ## Интеграция с расширением
 

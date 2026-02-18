@@ -1,7 +1,6 @@
+import { eq, WorkspaceRepository } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
-import { eq } from "@qbs-autonaim/db";
 import { vacancy as vacancySchema } from "@qbs-autonaim/db/schema";
-import { WorkspaceRepository } from "@qbs-autonaim/db";
 import { saveBasicResponse } from "@qbs-autonaim/jobs/services/response";
 import { saveBasicVacancy } from "@qbs-autonaim/jobs/services/vacancy";
 import type { VacancyData } from "@qbs-autonaim/jobs-parsers";
@@ -65,10 +64,7 @@ hhImportRouter.post("/", async (c) => {
   if (type === "vacancies") {
     const parsed = vacanciesBodySchema.safeParse(body);
     if (!parsed.success) {
-      return c.json(
-        { error: "Требуется workspaceId и массив vacancies" },
-        400,
-      );
+      return c.json({ error: "Требуется workspaceId и массив vacancies" }, 400);
     }
     const data = parsed.data;
 
@@ -113,8 +109,7 @@ hhImportRouter.post("/", async (c) => {
     if (!parsed.success) {
       return c.json(
         {
-          error:
-            "Требуется workspaceId, vacancyExternalId и массив responses",
+          error: "Требуется workspaceId, vacancyExternalId и массив responses",
         },
         400,
       );
@@ -165,8 +160,5 @@ hhImportRouter.post("/", async (c) => {
     return c.json({ imported });
   }
 
-  return c.json(
-    { error: "Укажите type=vacancies или type=responses" },
-    400,
-  );
+  return c.json({ error: "Укажите type=vacancies или type=responses" }, 400);
 });

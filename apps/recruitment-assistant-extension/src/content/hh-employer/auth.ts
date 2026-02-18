@@ -72,7 +72,7 @@ export async function resolveAuth(): Promise<ResolveAuthResult> {
     return {
       ok: false,
       error: "no-workspace",
-      message: "Выберите workspace в настройках",
+      message: "Выберите рабочее пространство в настройках",
     };
   }
 

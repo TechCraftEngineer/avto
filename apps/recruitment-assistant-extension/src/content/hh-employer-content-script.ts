@@ -8,7 +8,6 @@ import {
   getSelectedIds,
   initHHEmployerContentScript,
   runResponsesImport,
-  runVacanciesImport,
   runVacanciesImportSelected,
 } from "./hh-employer";
 import { resolveAuth } from "./hh-employer/auth";
@@ -47,7 +46,7 @@ chrome.runtime.onMessage.addListener(
             error:
               auth.error === "no-token"
                 ? "Войдите в систему"
-                : "Выберите workspace",
+                : "Выберите рабочее пространство",
           });
           return;
         }
@@ -55,48 +54,6 @@ chrome.runtime.onMessage.addListener(
         try {
           const result = await runVacanciesImportSelected(
             [...ids],
-            pageType,
-            auth.context.workspaceId,
-            auth.context.token,
-          );
-          sendResponse({
-            ok: result.success,
-            error: result.error,
-            vacanciesImported: result.vacanciesImported,
-          });
-        } catch (e) {
-          sendResponse({
-            ok: false,
-            error: e instanceof Error ? e.message : "Неизвестная ошибка",
-          });
-        }
-      });
-      return true;
-    }
-
-    if (msg?.type === "IMPORT_ALL_VACANCIES") {
-      const pageType = detectHHEmployerPageType();
-      if (
-        pageType !== "active-vacancies" &&
-        pageType !== "archived-vacancies"
-      ) {
-        sendResponse({ ok: false, error: "Не страница вакансий" });
-        return false;
-      }
-
-      resolveAuth().then(async (auth) => {
-        if (!auth.ok) {
-          sendResponse({
-            ok: false,
-            error:
-              auth.error === "no-token"
-                ? "Войдите в систему"
-                : "Выберите workspace",
-          });
-          return;
-        }
-        try {
-          const result = await runVacanciesImport(
             pageType,
             auth.context.workspaceId,
             auth.context.token,
@@ -136,7 +93,7 @@ chrome.runtime.onMessage.addListener(
             error:
               auth.error === "no-token"
                 ? "Войдите в систему"
-                : "Выберите workspace",
+                : "Выберите рабочее пространство",
           });
           return;
         }

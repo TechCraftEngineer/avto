@@ -35,7 +35,12 @@ export async function GET(request: Request) {
 
   const user = await db.query.user.findFirst({
     where: eq(userTable.id, session.user.id),
-    columns: { id: true, email: true, lastActiveOrganizationId: true },
+    columns: {
+      id: true,
+      email: true,
+      lastActiveOrganizationId: true,
+      lastActiveWorkspaceId: true,
+    },
   });
 
   if (!user) {
@@ -51,6 +56,7 @@ export async function GET(request: Request) {
       id: user.id,
       email: user.email,
       organizationId: user.lastActiveOrganizationId ?? undefined,
+      workspaceId: user.lastActiveWorkspaceId ?? undefined,
     },
   });
 }

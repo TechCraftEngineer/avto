@@ -3,11 +3,12 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { authMiddleware } from "./middleware/auth";
 import { hhImportRouter } from "./routes/hh-import";
+import { organizationsRouter } from "./routes/organizations";
 import { workspacesRouter } from "./routes/workspaces";
 
 /**
  * API для браузерного расширения Recruitment Assistant.
- * Принимает импорт вакансий и откликов с HH.ru, управляет workspaces.
+ * Принимает импорт вакансий и откликов с HH.ru, управляет организациями и рабочими пространствами.
  */
 
 const app = new Hono();
@@ -27,6 +28,7 @@ app.get("/health", (c) => {
 const protectedRoutes = new Hono();
 protectedRoutes.use("*", authMiddleware());
 protectedRoutes.route("/hh-import", hhImportRouter);
+protectedRoutes.route("/organizations", organizationsRouter);
 protectedRoutes.route("/workspaces", workspacesRouter);
 
 app.route("/", protectedRoutes);
