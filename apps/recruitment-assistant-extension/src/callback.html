@@ -1,11 +1,24 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Подключение расширения</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Расширение подключено</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: #f8fafc; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .page { text-align: center; padding: 40px 24px; max-width: 400px; }
+    .icon { width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 24px; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; }
+    .icon-success { background: #dcfce7; color: #16a34a; }
+    .icon-error { background: #fee2e2; color: #dc2626; }
+    .title { margin: 0 0 12px; font-size: 22px; font-weight: 600; color: #0f172a; }
+    .message { margin: 0 0 24px; font-size: 15px; line-height: 1.5; color: #64748b; }
+    .btn { padding: 12px 24px; font-size: 15px; font-weight: 500; color: #fff; background: #3b82f6; border: none; border-radius: 8px; cursor: pointer; }
+    .btn:hover { background: #2563eb; }
+  </style>
 </head>
 <body>
-  <p>Подключение завершено. Закройте эту вкладку.</p>
+  <div id="root"></div>
   <script type="module" src="./callback.ts"></script>
 </body>
 </html>

@@ -99,7 +99,11 @@ function Popup() {
 
   return (
     <div style={styles.container}>
-      <h2 style={styles.title}>Помощник рекрутера</h2>
+      <div style={styles.successBadge}>✓</div>
+      <h2 style={styles.title}>Всё готово!</h2>
+      <p style={styles.successMessage}>
+        Расширение подключено к аккаунту
+      </p>
       <p style={styles.userEmail}>{userEmail}</p>
       <p style={styles.hint}>
         Откройте профиль на LinkedIn или hh.ru для извлечения и импорта данных.
@@ -154,8 +158,27 @@ const styles: Record<string, React.CSSProperties> = {
     margin: 0,
     color: "#6b7280",
   },
+  successBadge: {
+    width: 40,
+    height: 40,
+    borderRadius: "50%",
+    background: "#dcfce7",
+    color: "#16a34a",
+    fontSize: 20,
+    fontWeight: 600,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    margin: "0 auto 12px",
+  },
+  successMessage: {
+    margin: "0 0 4px",
+    fontSize: 14,
+    color: "#16a34a",
+    fontWeight: 500,
+  },
   userEmail: {
-    margin: "0 0 8px",
+    margin: "0 0 12px",
     fontWeight: 500,
     color: "#374151",
   },
