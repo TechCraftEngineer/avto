@@ -93,6 +93,7 @@ import {
 import {
   collectChatIdsFunction,
   extractVacancyRequirementsFunction,
+  importSelectedArchivedVacanciesFunction,
   importSelectedNewVacanciesFunction,
   importVacancyByUrlFunction,
   refreshVacancyResponsesFunction,
@@ -111,6 +112,7 @@ export const inngestFunctions: any[] = [
   fetchActiveListFunction,
   fetchArchivedListFunction,
   importArchivedVacanciesFunction,
+  importSelectedArchivedVacanciesFunction,
   importSelectedNewVacanciesFunction,
   importVacancyByUrlFunction,
   refreshVacancyResponsesFunction,
