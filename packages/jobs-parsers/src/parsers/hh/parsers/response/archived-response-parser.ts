@@ -1,5 +1,5 @@
 import { saveBasicResponse } from "@qbs-autonaim/jobs/services/response";
-import { getResponsesLimit } from "@qbs-autonaim/jobs-shared";
+import { getResponsesLimitByOrganizationPlan } from "@qbs-autonaim/jobs-shared";
 import type { Page } from "puppeteer";
 import type { ResponseData } from "../../../types";
 import { HH_CONFIG } from "../../core/config/config";
@@ -27,7 +27,7 @@ export async function parseArchivedVacancyResponses(
   page: Page,
   vacancyId: string,
   externalId?: string | null,
-  workspacePlan?: "free" | "pro" | "enterprise",
+  organizationPlan?: "free" | "starter" | "pro" | "enterprise",
   onProgress?: (
     processed: number,
     total: number,
@@ -54,7 +54,7 @@ export async function parseArchivedVacancyResponses(
       page,
       responsesUrl,
       vacancyId,
-      workspacePlan,
+      organizationPlan,
       onProgress,
     );
 
@@ -113,7 +113,7 @@ async function collectAllArchivedResponses(
   page: Page,
   responsesUrl: string,
   vacancyIdForSave: string,
-  workspacePlan?: "free" | "pro" | "enterprise",
+  organizationPlan?: "free" | "starter" | "pro" | "enterprise",
   onProgress?: (
     processed: number,
     total: number,
@@ -126,13 +126,15 @@ async function collectAllArchivedResponses(
   let totalSaved = 0;
   let totalSkipped = 0;
 
-  // Получаем лимит из тарифного плана
-  const responsesLimit = workspacePlan ? getResponsesLimit(workspacePlan) : 0;
+  // Получаем лимит из тарифного плана организации (воркспейс наследует план организации)
+  const responsesLimit = organizationPlan
+    ? getResponsesLimitByOrganizationPlan(organizationPlan)
+    : 0;
   const hasLimit = responsesLimit > 0;
 
   if (hasLimit) {
     console.log(
-      `⚙️ Установлен лимит для тарифа "${workspacePlan}": ${responsesLimit} откликов`,
+      `⚙️ Установлен лимит для тарифа "${organizationPlan}": ${responsesLimit} откликов`,
     );
   }
 

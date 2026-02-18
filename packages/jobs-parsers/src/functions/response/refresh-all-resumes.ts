@@ -9,7 +9,7 @@ import {
   uploadCandidatePhoto,
   uploadResumePdf,
 } from "@qbs-autonaim/jobs/services/response";
-import { getResponsesLimit } from "@qbs-autonaim/jobs-shared";
+import { getResponsesLimitByOrganizationPlan } from "@qbs-autonaim/jobs-shared";
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import {
@@ -84,22 +84,21 @@ export const refreshAllResumesFunction = inngest.createFunction(
         throw new Error(`WorkspaceId не найден для вакансии ${vacancyId}`);
       }
 
-      // Получаем план workspace
+      // Получаем план организации (воркспейс наследует план организации)
       const workspaceData = await db.query.workspace.findFirst({
         where: (w, { eq }) => eq(w.id, vacancy.workspaceId),
-        columns: {
-          plan: true,
-        },
+        columns: { plan: true },
+        with: { organization: { columns: { plan: true } } },
       });
 
-      // Получаем лимит из тарифного плана
-      const responsesLimit = workspaceData?.plan
-        ? getResponsesLimit(workspaceData.plan)
-        : 0;
+      const organizationPlan = workspaceData?.organization?.plan ?? "free";
+
+      const responsesLimit =
+        getResponsesLimitByOrganizationPlan(organizationPlan);
 
       if (responsesLimit > 0) {
         console.log(
-          `⚙️ Установлен лимит для тарифа "${workspaceData?.plan}": ${responsesLimit} откликов`,
+          `⚙️ Установлен лимит для тарифа "${organizationPlan}": ${responsesLimit} откликов`,
         );
       }
 

@@ -11,6 +11,8 @@ export type { SaveResponseData } from "./types/response";
 export {
   getPlanName,
   getResponsesLimit,
+  getResponsesLimitByOrganizationPlan,
   hasResponsesLimit,
+  ORGANIZATION_PLAN_LIMITS,
   PLAN_LIMITS,
 } from "./utils/plan-limits";

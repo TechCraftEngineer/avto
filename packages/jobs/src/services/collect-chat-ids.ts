@@ -1,7 +1,7 @@
 import { and, desc, eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { integration, response, vacancy } from "@qbs-autonaim/db/schema";
-import { getResponsesLimit } from "@qbs-autonaim/jobs-shared";
+import { getResponsesLimitByOrganizationPlan } from "@qbs-autonaim/jobs-shared";
 import axios from "axios";
 import { z } from "zod";
 
@@ -81,7 +81,7 @@ export async function collectChatIdsForVacancy(
 
   const vacancyData = await db.query.vacancy.findFirst({
     where: eq(vacancy.id, validatedVacancyId),
-    with: { workspace: true },
+    with: { workspace: { with: { organization: { columns: { plan: true } } } } },
   });
 
     if (!vacancyData) {
@@ -163,8 +163,10 @@ export async function collectChatIdsForVacancy(
 
   if (allChats.length === 0) return { success: true, updatedCount: 0 };
 
-  const workspacePlan = vacancyData.workspace?.plan || "free";
-  const responsesLimit = getResponsesLimit(workspacePlan);
+  const organizationPlan =
+    vacancyData.workspace?.organization?.plan ?? "free";
+  const responsesLimit =
+    getResponsesLimitByOrganizationPlan(organizationPlan);
   const hasLimit = responsesLimit > 0;
 
   const baseQuery = db

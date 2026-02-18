@@ -55,13 +55,14 @@ export async function runHHParser(
     let totalUpdated = 0;
     let totalFailed = 0;
 
-    // Получаем план workspace
+    // Получаем план организации (воркспейс наследует план организации)
     const workspaceData = await db.query.workspace.findFirst({
       where: (w, { eq }) => eq(w.id, workspaceId),
-      columns: {
-        plan: true,
-      },
+      columns: { plan: true },
+      with: { organization: { columns: { plan: true } } },
     });
+
+    const organizationPlan = workspaceData?.organization?.plan ?? "free";
 
     const vacanciesResult = await parseVacancies(page, workspaceId);
     totalImported += vacanciesResult.imported;
@@ -80,7 +81,7 @@ export async function runHHParser(
               vacancy.externalId,
               vacancy.id || "",
               undefined,
-              workspaceData?.plan,
+              organizationPlan,
             );
           } catch (error) {
             console.error(

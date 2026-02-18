@@ -74,13 +74,14 @@ export async function refreshVacancyResponses(
     const responsesUrl = `https://hh.ru/employer/vacancyresponses?vacancyId=${vacancyData.externalId}&order=DATE`;
     await navigateWithAuth(page, responsesUrl, email!, password, workspaceId);
 
-    // Получаем план workspace
+    // Получаем план организации (воркспейс наследует план организации)
     const workspaceData = await db.query.workspace.findFirst({
       where: (w, { eq }) => eq(w.id, workspaceId),
-      columns: {
-        plan: true,
-      },
+      columns: { plan: true },
+      with: { organization: { columns: { plan: true } } },
     });
+
+    const organizationPlan = workspaceData?.organization?.plan ?? "free";
 
     // Parse responses
     console.log(`📋 Parsing responses for vacancy ${vacancyId}...`);
@@ -90,7 +91,7 @@ export async function refreshVacancyResponses(
       vacancyData.externalId,
       vacancyId,
       onProgress,
-      workspaceData?.plan,
+      organizationPlan,
     );
 
     console.log(`✅ Responses for vacancy ${vacancyId} updated successfully`);

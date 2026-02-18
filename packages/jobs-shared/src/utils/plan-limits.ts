@@ -1,7 +1,7 @@
 import type { WorkspacePlan } from "@qbs-autonaim/db/schema";
 
 /**
- * Лимиты для разных тарифных планов
+ * Лимиты для разных тарифных планов workspace
  */
 export const PLAN_LIMITS = {
   free: {
@@ -18,13 +18,36 @@ export const PLAN_LIMITS = {
   },
 } as const;
 
+/** Лимиты для планов организации (включая starter) */
+export const ORGANIZATION_PLAN_LIMITS: Record<
+  "free" | "starter" | "pro" | "enterprise",
+  number
+> = {
+  free: 10,
+  starter: 150,
+  pro: 500,
+  enterprise: 0, // 0 = без ограничений
+};
+
 /**
- * Получить лимит откликов для тарифного плана
+ * Получить лимит откликов для тарифного плана workspace
  * @param plan - тарифный план workspace
  * @returns количество откликов (0 = без ограничений)
  */
 export function getResponsesLimit(plan: WorkspacePlan): number {
   return PLAN_LIMITS[plan].responsesLimit;
+}
+
+/**
+ * Получить лимит откликов по плану организации.
+ * Используется для лимитов импорта — воркспейс наследует план организации.
+ * @param plan - тарифный план организации
+ * @returns количество откликов (0 = без ограничений)
+ */
+export function getResponsesLimitByOrganizationPlan(
+  plan: "free" | "starter" | "pro" | "enterprise",
+): number {
+  return ORGANIZATION_PLAN_LIMITS[plan] ?? ORGANIZATION_PLAN_LIMITS.free;
 }
 
 /**

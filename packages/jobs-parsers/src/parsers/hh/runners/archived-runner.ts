@@ -32,13 +32,14 @@ export async function runHHArchivedVacancyParser(
   console.log(`   Vacancy: ${vacancyId}`);
   console.log(`   External ID: ${externalId}`);
 
-  // Получаем план workspace
+  // Получаем план организации (воркспейс наследует план организации)
   const workspaceData = await db.query.workspace.findFirst({
     where: (w, { eq }) => eq(w.id, workspaceId),
-    columns: {
-      plan: true,
-    },
+    columns: { plan: true },
+    with: { organization: { columns: { plan: true } } },
   });
+
+  const organizationPlan = workspaceData?.organization?.plan ?? "free";
 
   const credentials = await getIntegrationCredentials(db, "hh", workspaceId);
   if (!credentials) {
@@ -62,7 +63,7 @@ export async function runHHArchivedVacancyParser(
       page,
       vacancyId,
       externalId,
-      workspaceData?.plan,
+      organizationPlan,
       onProgress,
     );
 
