@@ -43,7 +43,8 @@ export function VerificationSubscription({
 
   const { latestData, error } = useInngestSubscription({
     refreshToken,
-    enabled: isVerifying,
+    key: `${workspaceId}-${verifyingType}`,
+    enabled: true,
   });
 
   useEffect(() => {
@@ -53,11 +54,11 @@ export function VerificationSubscription({
   }, [error, isVerifying, onError]);
 
   useEffect(() => {
-    if (latestData?.topic === "result" && isVerifying) {
+    if (latestData?.topic === "result") {
       const result = latestData.data as VerificationResult;
       onResult(result);
     }
-  }, [latestData, isVerifying, onResult]);
+  }, [latestData, onResult]);
 
   return null;
 }

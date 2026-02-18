@@ -64,11 +64,17 @@ export function IntegrationDialog({
   });
 
   const isVerifying = isVerifyingHH || isVerifyingKwork;
-  const verifyingType = isVerifyingHH ? "hh" : "kwork";
+  const verifyingType = isVerifyingHH
+    ? "hh"
+    : isVerifyingKwork
+      ? "kwork"
+      : selectedType === "kwork"
+        ? "kwork"
+        : "hh";
 
   return (
     <>
-      {open && workspaceId && (
+      {open && workspaceId && (selectedType === "hh" || selectedType === "kwork") && (
         <VerificationSubscription
           key={workspaceId}
           workspaceId={workspaceId}

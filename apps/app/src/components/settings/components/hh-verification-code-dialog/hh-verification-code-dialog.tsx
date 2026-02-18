@@ -199,10 +199,13 @@ export function HHVerificationCodeDialog({
             />
 
             {isCodeAccepted && (
-              <div className="flex flex-col items-center gap-3 py-4">
-                <Spinner className="h-8 w-8 text-primary" />
+              <div className="flex flex-col items-center gap-3 py-6">
+                <Spinner className="h-10 w-10 text-primary" />
                 <p className="text-sm text-muted-foreground text-center">
-                  Проверка может занять до 30 секунд
+                  Код принят. Ожидаем подтверждения от hh.ru…
+                </p>
+                <p className="text-xs text-muted-foreground/80">
+                  Обычно занимает до 30 секунд
                 </p>
               </div>
             )}
