@@ -93,12 +93,10 @@ import {
 import {
   collectChatIdsFunction,
   extractVacancyRequirementsFunction,
-  importNewVacanciesFunction,
   importSelectedNewVacanciesFunction,
   importVacancyByUrlFunction,
   refreshVacancyResponsesFunction,
   syncArchivedVacancyResponsesFunction,
-  updateVacanciesFunction,
 } from "./vacancy";
 import {
   webCompleteInterviewFunction,
@@ -113,13 +111,11 @@ export const inngestFunctions: any[] = [
   fetchActiveListFunction,
   fetchArchivedListFunction,
   importArchivedVacanciesFunction,
-  importNewVacanciesFunction,
   importSelectedNewVacanciesFunction,
   importVacancyByUrlFunction,
   refreshVacancyResponsesFunction,
   syncArchivedVacancyResponsesFunction,
   updateSingleVacancyFunction,
-  updateVacanciesFunction,
   // Response
   analyzeSingleResponseFunction,
   generateRecommendationFunction,

@@ -124,28 +124,7 @@ export async function triggerImportSelectedActiveVacancies(
   });
 }
 
-/**
- * Server action для запуска импорта новых вакансий
- */
-export async function triggerImportNewVacancies(
-  workspaceId: string,
-): Promise<void> {
-  const validationResult = workspaceIdSchema.safeParse({ workspaceId });
 
-  if (!validationResult.success) {
-    const errors = validationResult.error.issues
-      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
-      .join(", ");
-    throw new Error(`Ошибка валидации: ${errors}`);
-  }
-
-  await inngest.send({
-    name: "vacancy/import.new",
-    data: {
-      workspaceId: validationResult.data.workspaceId,
-    },
-  });
-}
 
 /**
  * Server action для получения списка активных вакансий для предпросмотра

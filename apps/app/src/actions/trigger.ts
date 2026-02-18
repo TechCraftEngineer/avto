@@ -88,21 +88,7 @@ export async function triggerScreenNewResponses(vacancyId: string) {
   }
 }
 
-export async function triggerUpdateVacancies(workspaceId: string) {
-  try {
-    await inngest.send({
-      name: "vacancy/update.active",
-      data: { workspaceId },
-    });
-    return { success: true as const };
-  } catch (error) {
-    console.error("Не удалось запустить обновление вакансий:", error);
-    return {
-      success: false as const,
-      error: "Не удалось запустить обновление",
-    };
-  }
-}
+
 
 export async function triggerRefreshVacancyResponses(vacancyId: string) {
   try {
