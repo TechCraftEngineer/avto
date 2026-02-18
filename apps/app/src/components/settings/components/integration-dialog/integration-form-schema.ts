@@ -9,7 +9,7 @@ export const integrationFormSchema = z
     email: z.string().optional(),
     password: z.string().optional(),
     authType: z.enum(["password", "code"]),
-    enabled: z.boolean().default(true),
+    enabled: z.boolean(),
   })
   .superRefine((data, ctx) => {
     if (data.type === "kwork") {
