@@ -15,6 +15,7 @@ export const createIntegration = protectedProcedure
       name: z.string(),
       credentials: z.record(z.string(), z.string()),
       metadata: z.record(z.string(), z.any()).optional(),
+      isActive: z.boolean().optional(),
     }),
   )
   .mutation(async ({ input, ctx }) => {
@@ -45,6 +46,7 @@ export const createIntegration = protectedProcedure
       name: input.name,
       credentials: input.credentials,
       metadata: input.metadata,
+      isActive: input.isActive ?? true,
     });
 
     return {

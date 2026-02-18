@@ -7,6 +7,30 @@ import { z } from "zod";
 import { importMultipleVacancies } from "../../parsers/hh";
 
 /**
+ * Определяет, является ли ошибка связанной с авторизацией HH.ru
+ */
+function isHHAuthError(error: unknown): boolean {
+  if (!error) return false;
+
+  const message =
+    error instanceof Error ? error.message : String(error).toLowerCase();
+  const msg = message.toLowerCase();
+
+  // Типичные фразы при слетевшей авторизации
+  const authPhrases = [
+    "не удалось войти",
+    "не удалось авторизоваться",
+    "авторизация не удалась",
+    "авторизация слетела",
+    "требуется повторная авторизация",
+    "требуется повторная настройка интеграции",
+    "не найдены учетные данные для hh",
+  ];
+
+  return authPhrases.some((phrase) => msg.includes(phrase.toLowerCase()));
+}
+
+/**
  * Схема валидации входных данных для импорта архивных вакансий
  */
 const ImportArchivedVacanciesEventSchema = z.object({
@@ -132,6 +156,7 @@ export const importArchivedVacanciesFunction = inngest.createFunction(
               }),
             );
           },
+          { isArchived: true },
         );
 
         await publish(
@@ -179,10 +204,11 @@ export const importArchivedVacanciesFunction = inngest.createFunction(
           error,
         );
 
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : "Не удалось подключиться к источнику вакансий";
+        let errorMessage = "Не удалось подключиться к источнику вакансий";
+        
+        if (error instanceof Error) {
+          errorMessage = error.message;
+        }
 
         await publish(
           importArchivedVacanciesChannel(workspaceId).progress({
@@ -202,6 +228,20 @@ export const importArchivedVacanciesFunction = inngest.createFunction(
             error: errorMessage,
           }),
         );
+
+        // Проверяем, является ли это ошибкой авторизации
+        if (isHHAuthError(error)) {
+          await publish(
+            workspaceNotificationsChannel(workspaceId)["integration-error"]({
+              workspaceId,
+              type: "hh-auth-failed",
+              message:
+                "Авторизация в HeadHunter слетела. Проверьте учётные данные в настройках интеграции",
+              severity: "error",
+              timestamp: new Date().toISOString(),
+            }),
+          );
+        }
 
         throw error;
       }

@@ -1,4 +1,7 @@
-import { getIntegrationCredentials } from "@qbs-autonaim/db";
+import {
+  getIntegrationCredentials,
+  markIntegrationAuthError,
+} from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { validateCredentials } from "../core/auth/auth";
 import { setupPageWithAuth } from "../core/browser/browser-setup";
@@ -60,11 +63,22 @@ export async function fetchArchivedVacanciesList(workspaceId: string): Promise<
 
   const password = credentials.password || "";
 
-  const { browser, page } = await setupPageWithAuth(
-    workspaceId,
-    credentials.email!,
-    password,
-  );
+  let browser;
+  let page;
+
+  try {
+    const result = await setupPageWithAuth(
+      workspaceId,
+      credentials.email!,
+      password,
+    );
+    browser = result.browser;
+    page = result.page;
+  } catch (error) {
+    // Ошибка авторизации уже помечена в checkAndPerformLogin
+    console.error("❌ Ошибка при настройке браузера с авторизацией:", error);
+    throw error;
+  }
 
   try {
     await page.goto(HH_CONFIG.urls.archivedVacancies, {

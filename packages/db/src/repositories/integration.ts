@@ -54,6 +54,7 @@ export async function upsertIntegration(db: DbClient, data: NewIntegration) {
         type: encryptedData.type,
         name: encryptedData.name,
         credentials: encryptedData.credentials,
+        isActive: encryptedData.isActive ?? existing.isActive,
         updatedAt: new Date(),
       })
       .where(eq(integration.id, existing.id))

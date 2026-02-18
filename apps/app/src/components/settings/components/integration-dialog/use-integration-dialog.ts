@@ -20,6 +20,7 @@ interface Integration {
   name?: string | null;
   email?: string | null;
   login?: string | null;
+  isActive?: boolean;
 }
 
 interface UseIntegrationDialogProps {
@@ -73,6 +74,7 @@ export function useIntegrationDialog({
       login: "",
       password: "",
       authType: "password",
+      enabled: true,
     },
   });
 
@@ -85,6 +87,7 @@ export function useIntegrationDialog({
       form.setValue("type", selectedType);
       if (isEditing && existingIntegration) {
         form.setValue("name", existingIntegration.name || "");
+        form.setValue("enabled", existingIntegration.isActive ?? true);
         if (selectedType === "kwork") {
           form.setValue("login", existingIntegration.login || "");
           form.setValue("email", "");
@@ -98,6 +101,7 @@ export function useIntegrationDialog({
         form.setValue("email", "");
         form.setValue("login", "");
         form.setValue("password", "");
+        form.setValue("enabled", true);
       }
     }
   }, [selectedType, isEditing, existingIntegration, form]);
@@ -217,6 +221,7 @@ export function useIntegrationDialog({
       name: data.name || integrationType?.label || "",
       credentials: credentials as unknown as Record<string, string>,
       authType: data.authType,
+      isActive: data.enabled,
     };
 
     if (isEditing) {
