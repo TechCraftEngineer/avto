@@ -126,7 +126,7 @@ export function IntegrationDialog({
             onClose={() => handleClose()}
             email={hhState.credentials?.login ?? ""}
             onSubmitCode={handleHH2FACodeSubmit}
-            isLoading={isVerifyingHH}
+            isLoading={hhState.step === "processing" ? isVerifyingHH : false}
             isCodeAccepted={hhState.step === "processing"}
             error={hhState.error}
             onResendCode={handleHHResendCode}
