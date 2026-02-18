@@ -2,6 +2,7 @@ import {
   getAndClearHHPendingCaptcha,
   getAndClearHHPendingVerificationCode,
   getAndClearHHResendRequested,
+  setIntegrationSetupStatus,
   upsertIntegration,
 } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
@@ -277,6 +278,13 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
                 credentials: { email },
               });
 
+              await setIntegrationSetupStatus(
+                db,
+                "hh",
+                workspaceId,
+                "pending_verification",
+              );
+
               await publish(
                 verifyHHCredentialsChannel(workspaceId).result({
                   success: false,
@@ -369,6 +377,14 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
                         : { email },
                   });
                   await saveCookies("hh", cookies, workspaceId);
+
+                  // Успешная авторизация — статус completed
+                  await setIntegrationSetupStatus(
+                    db,
+                    "hh",
+                    workspaceId,
+                    "completed",
+                  );
 
                   await closeBrowserSafely(browser);
                   await publish(
@@ -479,6 +495,9 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
           });
 
           await saveCookies("hh", cookies, workspaceId);
+
+          // Успешная авторизация — статус completed
+          await setIntegrationSetupStatus(db, "hh", workspaceId, "completed");
 
           await closeBrowserSafely(browser);
 

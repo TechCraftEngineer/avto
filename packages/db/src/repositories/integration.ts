@@ -77,6 +77,13 @@ export async function upsertIntegration(db: DbClient, data: NewIntegration) {
 /** Метаданные для интеграции Kwork (web cookies) */
 export const KWORK_WEB_COOKIES_SAVED_AT_KEY = "kworkWebCookiesSavedAt" as const;
 
+/** Статус настройки интеграции */
+export const INTEGRATION_SETUP_STATUS_KEY = "setupStatus" as const;
+export type IntegrationSetupStatus =
+  | "completed"
+  | "pending_verification"
+  | "pending_captcha";
+
 /** Ключ для ожидающего кода 2FA HH — job опрашивает, юзер вводит в UI */
 export const HH_PENDING_VERIFICATION_CODE_KEY =
   "hhPendingVerificationCode" as const;
@@ -130,6 +137,32 @@ export async function getAndClearHHResendRequested(
     .where(eq(integration.id, existing.id));
 
   return true;
+}
+
+/**
+ * Устанавливает статус настройки интеграции
+ */
+export async function setIntegrationSetupStatus(
+  db: DbClient,
+  type: string,
+  workspaceId: string,
+  status: IntegrationSetupStatus,
+): Promise<void> {
+  const existing = await getIntegration(db, type, workspaceId);
+  if (!existing) {
+    throw new Error(`Integration ${type} not found for workspace ${workspaceId}`);
+  }
+  const metadata = (existing.metadata as Record<string, unknown>) ?? {};
+  await db
+    .update(integration)
+    .set({
+      metadata: {
+        ...metadata,
+        [INTEGRATION_SETUP_STATUS_KEY]: status,
+      },
+      updatedAt: new Date(),
+    })
+    .where(eq(integration.id, existing.id));
 }
 
 /**
@@ -208,6 +241,7 @@ export async function saveHHPendingCaptcha(
       metadata: {
         ...metadata,
         [HH_PENDING_CAPTCHA_KEY]: captcha,
+        [INTEGRATION_SETUP_STATUS_KEY]: "pending_captcha" as IntegrationSetupStatus,
       },
       updatedAt: new Date(),
     })

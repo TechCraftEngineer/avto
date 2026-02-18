@@ -57,6 +57,9 @@ export const listIntegrations = protectedProcedure
       const authErrorAt = metadata?.authErrorAt
         ? String(metadata.authErrorAt)
         : null;
+      const setupStatus = metadata?.setupStatus
+        ? String(metadata.setupStatus)
+        : "completed";
 
       return {
         id: int.id,
@@ -73,6 +76,7 @@ export const listIntegrations = protectedProcedure
         login,
         authError,
         authErrorAt,
+        setupStatus,
       };
     });
   });

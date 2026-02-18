@@ -1,4 +1,4 @@
-import { upsertIntegration } from "@qbs-autonaim/db";
+import { setIntegrationSetupStatus, upsertIntegration } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import {
   createKworkApiClient,
@@ -39,6 +39,21 @@ export const verifyKworkCredentialsFunction = inngest.createFunction(
 
           // Код 118 — требуется капча, показать webview http://kwork.ru/captcha_only
           if (errorCode === KWORK_ERROR_CODES.CAPTCHA_REQUIRED) {
+            // Создаем интеграцию со статусом pending_captcha
+            await upsertIntegration(db, {
+              workspaceId,
+              type: "kwork",
+              name: "Kwork",
+              credentials: { login, password },
+            });
+
+            await setIntegrationSetupStatus(
+              db,
+              "kwork",
+              workspaceId,
+              "pending_captcha",
+            );
+
             const captchaResult = {
               success: false,
               isValid: false,
@@ -97,6 +112,9 @@ export const verifyKworkCredentialsFunction = inngest.createFunction(
           name: "Kwork",
           credentials,
         });
+
+        // Успешная авторизация — статус completed
+        await setIntegrationSetupStatus(db, "kwork", workspaceId, "completed");
 
         const successResult = {
           success: true,

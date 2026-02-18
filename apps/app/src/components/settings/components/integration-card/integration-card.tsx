@@ -15,7 +15,7 @@ import {
   IntegrationIcon,
 } from "@qbs-autonaim/ui";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, Edit, Plus, Trash2, XCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2, Edit, Plus, Trash2, XCircle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import type { AVAILABLE_INTEGRATIONS } from "~/lib/integrations";
@@ -34,6 +34,7 @@ interface IntegrationCardProps {
     email?: string | null;
     authError?: string | null;
     authErrorAt?: string | null;
+    setupStatus?: string;
   };
   onCreate: () => void;
   onEdit: () => void;
@@ -82,6 +83,19 @@ export function IntegrationCard({
   const isActive = integration?.isActive === true;
   const isConnected = !!integration;
   const hasAuthError = !!integration?.authError;
+  const setupStatus = integration?.setupStatus || "completed";
+  const needsSetup =
+    setupStatus === "pending_verification" || setupStatus === "pending_captcha";
+
+  const getSetupStatusText = () => {
+    if (setupStatus === "pending_verification") {
+      return "Требуется код подтверждения";
+    }
+    if (setupStatus === "pending_captcha") {
+      return "Требуется ввод капчи";
+    }
+    return null;
+  };
 
   return (
     <Card className="p-4 sm:p-6">
@@ -100,7 +114,12 @@ export function IntegrationCard({
               </h3>
               {isConnected ? (
                 <>
-                  {hasAuthError ? (
+                  {needsSetup ? (
+                    <Badge variant="outline" className="gap-1 w-fit border-orange-500 text-orange-700 dark:text-orange-400">
+                      <AlertCircle className="h-3 w-3" />
+                      Требуется настройка
+                    </Badge>
+                  ) : hasAuthError ? (
                     <Badge variant="destructive" className="gap-1 w-fit">
                       <XCircle className="h-3 w-3" />
                       Ошибка авторизации
@@ -129,6 +148,11 @@ export function IntegrationCard({
                 ? availableIntegration.detailedDescription
                 : availableIntegration.description}
             </p>
+            {needsSetup && (
+              <p className="text-xs text-orange-700 dark:text-orange-400">
+                {getSetupStatusText()}. Нажмите «Донастроить» для завершения.
+              </p>
+            )}
             {hasAuthError && integration.authError && (
               <p className="text-xs text-destructive">
                 {integration.authError}
@@ -167,9 +191,15 @@ export function IntegrationCard({
           {canEdit ? (
             isConnected ? (
               <>
-                <Button variant="outline" size="sm" onClick={onEdit}>
+                <Button 
+                  variant={needsSetup ? "default" : "outline"} 
+                  size="sm" 
+                  onClick={onEdit}
+                >
                   <Edit className="h-4 w-4" />
-                  <span className="ml-2 hidden sm:inline">Изменить</span>
+                  <span className="ml-2 hidden sm:inline">
+                    {needsSetup ? "Донастроить" : "Изменить"}
+                  </span>
                 </Button>
                 <Button
                   variant="outline"
