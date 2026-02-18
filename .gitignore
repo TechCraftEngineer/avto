@@ -42,6 +42,9 @@ bun.lockb
 .env
 .env*.local
 
+# scripts with sensitive data
+scripts/cookies.json
+
 # vercel
 .vercel
 

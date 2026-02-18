@@ -53,7 +53,7 @@ export function useHHIntegration({
   const startVerification = useCallback(
     async (login: string, password: string, authType: "password" | "code") => {
       if (!login.trim()) {
-        toast.error("Email или телефон обязательны");
+        toast.error("Электронная почта или телефон обязательны");
         return;
       }
 
@@ -110,15 +110,9 @@ export function useHHIntegration({
 
       // 2FA
       if (result.requiresTwoFactor) {
-        // Не показываем toast повторно, если уже в процессе обработки кода
-        if (state.step !== "processing") {
-          dispatch({
-            type: "REQUIRE_2FA",
-            message: result.message,
-          });
-          if (result.message) {
-            toast.info(result.message);
-          }
+        dispatch({ type: "REQUIRE_2FA", message: result.message });
+        if (state.step !== "processing" && result.message) {
+          toast.info(result.message);
         }
         return;
       }
@@ -170,7 +164,7 @@ export function useHHIntegration({
       if (!state.credentials?.login) {
         dispatch({
           type: "ERROR",
-          error: "Email или телефон не найден. Попробуйте заново.",
+          error: "Электронная почта или телефон не найден. Попробуйте заново.",
         });
         return;
       }

@@ -61,17 +61,17 @@ export const vacancyImportByUrlDataSchema = z.object({
 });
 
 export const vacancyFetchArchivedListDataSchema = z.object({
-  workspaceId: z.string().min(1, "ID рабочего пространства обязателен"),
+  workspaceId: workspaceIdSchema,
   requestId: z.string().min(1, "ID запроса обязателен"),
 });
 
 export const vacancyFetchActiveListDataSchema = z.object({
-  workspaceId: z.string().min(1, "ID рабочего пространства обязателен"),
+  workspaceId: workspaceIdSchema,
   requestId: z.string().min(1, "ID запроса обязателен"),
 });
 
 export const vacancyImportNewSelectedDataSchema = z.object({
-  workspaceId: z.string().min(1, "ID рабочего пространства обязателен"),
+  workspaceId: workspaceIdSchema,
   vacancyIds: z
     .array(z.string())
     .min(1, "Необходимо выбрать хотя бы одну вакансию"),
@@ -80,7 +80,7 @@ export const vacancyImportNewSelectedDataSchema = z.object({
       z.object({
         id: z.string(),
         title: z.string(),
-        url: z.string(),
+        url: z.string().url(),
         region: z.string().optional(),
       }),
     )

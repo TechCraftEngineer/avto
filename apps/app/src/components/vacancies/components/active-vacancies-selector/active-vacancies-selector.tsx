@@ -71,9 +71,20 @@ export function ActiveVacanciesSelector({
   const isCompleted = latestMessage?.topic === "result";
   const isLoading = !isCompleted && !error;
 
+  const resultData =
+    latestMessage?.topic === "result" ? latestMessage.data : undefined;
+  const resultError =
+    resultData &&
+    "success" in resultData &&
+    resultData.success === false
+      ? ("error" in resultData && typeof resultData.error === "string"
+          ? resultData.error
+          : "Не удалось получить список активных вакансий")
+      : null;
+
   const vacancies: ActiveVacancy[] =
-    latestMessage?.topic === "result" && latestMessage.data?.vacancies
-      ? (latestMessage.data.vacancies as ActiveVacancy[])
+    resultData && !resultError && resultData.vacancies
+      ? (resultData.vacancies as ActiveVacancy[])
       : [];
 
   const filteredAndSortedVacancies = useMemo(() => {
@@ -160,13 +171,13 @@ export function ActiveVacanciesSelector({
     onSelect(Array.from(selectedIds), selectedVacancies);
   };
 
-  if (error) {
+  if (error || resultError) {
     return (
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>Ошибка загрузки</AlertTitle>
         <AlertDescription>
-          Не удалось получить список активных вакансий. Попробуйте позже.
+          {resultError ?? "Не удалось получить список активных вакансий. Попробуйте позже."}
         </AlertDescription>
       </Alert>
     );

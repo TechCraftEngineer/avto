@@ -155,10 +155,6 @@ export async function setupAuthenticatedBrowser(
 }
 
 /**
- * Ensures the user is authenticated on the current page
- */
-
-/**
  * Sets up a fully configured browser page with authentication
  */
 export async function setupPageWithAuth(

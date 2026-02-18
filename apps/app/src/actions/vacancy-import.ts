@@ -82,11 +82,19 @@ export async function fetchImportVacancyByUrlToken(
   return token;
 }
 
-const selectedActiveVacanciesSchema = z.object({
+const vacancySchema = z.object({
+  id: z.string().min(1),
+  title: z.string().min(1),
+  url: z.string().url(),
+  region: z.string().optional(),
+});
+
+const selectedActiveVacanciesWithVacanciesSchema = z.object({
   workspaceId: z.string().min(1, "ID рабочей области обязателен"),
   vacancyIds: z
     .array(z.string())
     .min(1, "Выберите хотя бы одну вакансию для импорта"),
+  vacancies: z.array(vacancySchema).optional(),
 });
 
 /**
@@ -102,13 +110,12 @@ export async function triggerImportSelectedActiveVacancies(
     region?: string;
   }>,
 ): Promise<void> {
-  const validationResult = selectedActiveVacanciesSchema.safeParse({
-    workspaceId,
-    vacancyIds,
-  });
+  const payloadValidation = selectedActiveVacanciesWithVacanciesSchema.safeParse(
+    { workspaceId, vacancyIds, vacancies },
+  );
 
-  if (!validationResult.success) {
-    const errors = validationResult.error.issues
+  if (!payloadValidation.success) {
+    const errors = payloadValidation.error.issues
       .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
       .join(", ");
     throw new Error(`Ошибка валидации: ${errors}`);
@@ -117,9 +124,9 @@ export async function triggerImportSelectedActiveVacancies(
   await inngest.send({
     name: "vacancy/import.new-selected",
     data: {
-      workspaceId: validationResult.data.workspaceId,
-      vacancyIds: validationResult.data.vacancyIds,
-      vacancies,
+      workspaceId: payloadValidation.data.workspaceId,
+      vacancyIds: payloadValidation.data.vacancyIds,
+      vacancies: payloadValidation.data.vacancies,
     },
   });
 }
@@ -152,6 +159,11 @@ export async function fetchActiveVacanciesList(workspaceId: string) {
   return requestId;
 }
 
+const workspaceRequestSchema = z.object({
+  workspaceId: z.string().min(1, "ID рабочей области обязателен"),
+  requestId: z.string().min(1, "ID запроса обязателен"),
+});
+
 /**
  * Server action для получения токена подписки на канал получения списка активных вакансий
  */
@@ -159,8 +171,23 @@ export async function fetchActiveVacanciesListToken(
   workspaceId: string,
   requestId: string,
 ) {
+  const validationResult = workspaceRequestSchema.safeParse({
+    workspaceId,
+    requestId,
+  });
+
+  if (!validationResult.success) {
+    const errors = validationResult.error.issues
+      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+      .join(", ");
+    throw new Error(`Ошибка валидации: ${errors}`);
+  }
+
   const token = await getSubscriptionToken(inngest, {
-    channel: fetchActiveListChannel(workspaceId, requestId),
+    channel: fetchActiveListChannel(
+      validationResult.data.workspaceId,
+      validationResult.data.requestId,
+    ),
     topics: ["progress", "result"],
   });
 

@@ -395,3 +395,54 @@ export async function deleteIntegration(
     await db.delete(integration).where(eq(integration.id, existing.id));
   }
 }
+
+/**
+ * Пометить интеграцию как имеющую проблемы с авторизацией
+ */
+export async function markIntegrationAuthError(
+  db: DbClient,
+  type: string,
+  workspaceId: string,
+  reason: string,
+) {
+  const existing = await getIntegration(db, type, workspaceId);
+
+  if (existing) {
+    const metadata = (existing.metadata as Record<string, unknown>) ?? {};
+    await db
+      .update(integration)
+      .set({
+        metadata: {
+          ...metadata,
+          authError: reason,
+          authErrorAt: new Date().toISOString(),
+        },
+        updatedAt: new Date(),
+      })
+      .where(eq(integration.id, existing.id));
+  }
+}
+
+/**
+ * Очистить ошибку авторизации (при успешном входе)
+ */
+export async function clearIntegrationAuthError(
+  db: DbClient,
+  type: string,
+  workspaceId: string,
+) {
+  const existing = await getIntegration(db, type, workspaceId);
+
+  if (existing?.metadata) {
+    const metadata = existing.metadata as Record<string, unknown>;
+    const { authError: _, authErrorAt: __, ...rest } = metadata;
+
+    await db
+      .update(integration)
+      .set({
+        metadata: Object.keys(rest).length > 0 ? rest : null,
+        updatedAt: new Date(),
+      })
+      .where(eq(integration.id, existing.id));
+  }
+}

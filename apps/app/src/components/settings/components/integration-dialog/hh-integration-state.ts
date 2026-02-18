@@ -74,6 +74,8 @@ export function hhIntegrationReducer(
       return {
         ...state,
         step: "success",
+        credentials: null,
+        captchaImageUrl: null,
         error: null,
       };
 
@@ -81,6 +83,8 @@ export function hhIntegrationReducer(
       return {
         ...state,
         step: "error",
+        credentials: null,
+        captchaImageUrl: null,
         error: action.error,
       };
 

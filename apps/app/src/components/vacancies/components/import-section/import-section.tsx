@@ -15,6 +15,7 @@ import { ImportByUrlSchema } from "@qbs-autonaim/validators";
 import { AlertCircle, Settings } from "lucide-react";
 import NextLink from "next/link";
 import { useCallback, useMemo } from "react";
+import { toast } from "sonner";
 import {
   fetchActiveVacanciesList,
   fetchArchivedVacanciesList,
@@ -96,6 +97,11 @@ export function VacancyImportSection() {
       setActiveListRequestId(requestId);
     } catch (error) {
       console.error("Ошибка получения списка активных вакансий:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Не удалось получить список активных вакансий. Попробуйте позже.",
+      );
       setIsSelectingActiveVacancies(false);
       setActiveListRequestId(null);
     }
@@ -153,6 +159,11 @@ export function VacancyImportSection() {
       setArchivedListRequestId(requestId);
     } catch (error) {
       console.error("Ошибка получения списка архивных вакансий:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Не удалось получить список архивных вакансий. Попробуйте позже.",
+      );
       setIsSelectingArchivedVacancies(false);
       setArchivedListRequestId(null);
     }

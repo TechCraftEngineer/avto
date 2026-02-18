@@ -113,7 +113,6 @@ export async function importMultipleVacancies(
 
   try {
     let imported = 0;
-    const updated = 0;
     let failed = 0;
 
     for (let i = 0; i < vacancies.length; i++) {
@@ -152,7 +151,7 @@ export async function importMultipleVacancies(
       `✅ Импорт завершен: ${imported} импортировано, ${failed} ошибок`,
     );
 
-    return { imported, updated, failed };
+    return { imported, updated: 0, failed };
   } finally {
     await closeBrowserSafely(browser);
   }

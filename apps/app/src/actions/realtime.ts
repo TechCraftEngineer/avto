@@ -1,6 +1,7 @@
 "use server";
 
 import { getSubscriptionToken } from "@bunworks/inngest-realtime";
+import { z } from "zod";
 import {
   analyzeResponseChannel,
   fetchActiveListChannel,
@@ -149,6 +150,11 @@ export async function fetchTelegramMessagesToken(conversationId: string) {
   return token;
 }
 
+const workspaceRequestSchema = z.object({
+  workspaceId: z.string().min(1, "ID рабочей области обязателен"),
+  requestId: z.string().min(1, "ID запроса обязателен"),
+});
+
 /**
  * Server action для получения токена подписки на Realtime канал получения списка активных вакансий
  */
@@ -156,8 +162,23 @@ export async function fetchActiveVacanciesListToken(
   workspaceId: string,
   requestId: string,
 ) {
+  const validationResult = workspaceRequestSchema.safeParse({
+    workspaceId,
+    requestId,
+  });
+
+  if (!validationResult.success) {
+    const errors = validationResult.error.issues
+      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+      .join(", ");
+    throw new Error(`Ошибка валидации: ${errors}`);
+  }
+
   const token = await getSubscriptionToken(inngest, {
-    channel: fetchActiveListChannel(workspaceId, requestId),
+    channel: fetchActiveListChannel(
+      validationResult.data.workspaceId,
+      validationResult.data.requestId,
+    ),
     topics: ["result"],
   });
 

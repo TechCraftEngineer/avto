@@ -5,9 +5,9 @@
 export function isHHAuthError(error: unknown): boolean {
   if (!error) return false;
 
-  const message =
-    error instanceof Error ? error.message : String(error).toLowerCase();
-  const msg = message.toLowerCase();
+  const message = (
+    error instanceof Error ? error.message : String(error)
+  ).toLowerCase();
 
   // HHAuthError из auth-errors
   if (error instanceof Error && error.name === "HHAuthError") {
@@ -33,5 +33,5 @@ export function isHHAuthError(error: unknown): boolean {
     "hh.ru integration not found",
   ];
 
-  return authPhrases.some((phrase) => msg.includes(phrase.toLowerCase()));
+  return authPhrases.some((phrase) => message.includes(phrase.toLowerCase()));
 }

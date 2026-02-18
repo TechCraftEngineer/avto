@@ -25,7 +25,7 @@ const ImportNewSelectedEventSchema = z.object({
       z.object({
         id: z.string(),
         title: z.string(),
-        url: z.string(),
+        url: z.string().url(),
         region: z.string().optional(),
       }),
     )
@@ -60,8 +60,9 @@ export const importSelectedNewVacanciesFunction = inngest.createFunction(
     const { workspaceId, vacancyIds, vacancies } = validationResult.data;
 
     const vacancyList =
-      vacancies ||
-      vacancyIds.map((id) => ({
+      vacancies && vacancies.length > 0
+        ? vacancies
+        : vacancyIds.map((id) => ({
         id,
         title: `Вакансия ${id}`,
         url: `https://hh.ru/vacancy/${id}`,

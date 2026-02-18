@@ -265,8 +265,10 @@ export function useIntegrationDialog({
     hhState: hhIntegration.state,
     isVerifyingHH: hhIntegration.isLoading,
     handleHHVerificationResult: hhIntegration.handleVerificationResult,
-    handleHHVerificationError: () =>
-      toast.error("Ошибка подключения к серверу"),
+    handleHHVerificationError: () => {
+      hhIntegration.reset();
+      toast.error("Ошибка подключения к серверу");
+    },
     handleHHCaptchaSubmit: hhIntegration.submitCaptcha,
     handleHH2FACodeSubmit: hhIntegration.submit2FACode,
     handleHHResendCode: hhIntegration.resendCode,

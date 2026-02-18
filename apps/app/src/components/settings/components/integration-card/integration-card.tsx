@@ -32,6 +32,8 @@ interface IntegrationCardProps {
     hasCookies: boolean;
     hasCredentials: boolean;
     email?: string | null;
+    authError?: string | null;
+    authErrorAt?: string | null;
   };
   onCreate: () => void;
   onEdit: () => void;
@@ -79,6 +81,7 @@ export function IntegrationCard({
 
   const isActive = integration?.isActive === true;
   const isConnected = !!integration;
+  const hasAuthError = !!integration?.authError;
 
   return (
     <Card className="p-4 sm:p-6">
@@ -96,17 +99,24 @@ export function IntegrationCard({
                 {availableIntegration.name}
               </h3>
               {isConnected ? (
-                isActive ? (
-                  <Badge variant="default" className="gap-1 w-fit">
-                    <CheckCircle2 className="h-3 w-3" />
-                    Активна
-                  </Badge>
-                ) : (
-                  <Badge variant="secondary" className="gap-1 w-fit">
-                    <XCircle className="h-3 w-3" />
-                    Неактивна
-                  </Badge>
-                )
+                <>
+                  {hasAuthError ? (
+                    <Badge variant="destructive" className="gap-1 w-fit">
+                      <XCircle className="h-3 w-3" />
+                      Ошибка авторизации
+                    </Badge>
+                  ) : isActive ? (
+                    <Badge variant="default" className="gap-1 w-fit">
+                      <CheckCircle2 className="h-3 w-3" />
+                      Активна
+                    </Badge>
+                  ) : (
+                    <Badge variant="secondary" className="gap-1 w-fit">
+                      <XCircle className="h-3 w-3" />
+                      Неактивна
+                    </Badge>
+                  )}
+                </>
               ) : (
                 <Badge variant="outline" className="w-fit">
                   Не подключена
@@ -119,6 +129,11 @@ export function IntegrationCard({
                 ? availableIntegration.detailedDescription
                 : availableIntegration.description}
             </p>
+            {hasAuthError && integration.authError && (
+              <p className="text-xs text-destructive">
+                {integration.authError}
+              </p>
+            )}
             {integration?.email && (
               <p className="text-xs text-muted-foreground truncate">
                 Email: {integration.email}

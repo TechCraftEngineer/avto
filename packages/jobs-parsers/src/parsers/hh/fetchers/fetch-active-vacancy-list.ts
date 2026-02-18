@@ -57,9 +57,15 @@ export async function fetchActiveVacanciesList(workspaceId: string): Promise<
       HH_CONFIG.delays.readingPage.max,
     );
 
-    await page.waitForSelector('[data-qa="vacancy-serp__vacancy"]', {
-      timeout: HH_CONFIG.timeouts.selector,
-    });
+    try {
+      await page.waitForSelector('[data-qa="vacancy-serp__vacancy"]', {
+        timeout: HH_CONFIG.timeouts.selector,
+      });
+    } catch {
+      // Таймаут — у пользователя нет активных вакансий
+      console.log("✅ Активных вакансий не найдено (пустой список)");
+      return vacancies;
+    }
 
     let hasNextPage = true;
     let pageNum = 0;

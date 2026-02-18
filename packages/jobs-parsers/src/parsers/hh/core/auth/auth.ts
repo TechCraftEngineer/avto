@@ -1,5 +1,10 @@
 import { Log } from "crawlee";
 import type { Page } from "puppeteer";
+import {
+  clearIntegrationAuthError,
+  markIntegrationAuthError,
+} from "@qbs-autonaim/db";
+import { db } from "@qbs-autonaim/db/client";
 import { loadCookies } from "../../../../utils/cookies";
 import { HHAuthError } from "./auth-errors";
 import { HH_CONFIG } from "../config/config";
@@ -46,13 +51,21 @@ export async function performLogin(
   await new Promise((resolve) => setTimeout(resolve, 2000));
 
   // Проверяем, что поле пароля появилось
-  const passwordField = await page.waitForSelector(
-    'input[type="password"][name="password"]',
-    {
-      visible: false,
-      timeout: 10000,
-    },
-  );
+  let passwordField;
+  try {
+    passwordField = await page.waitForSelector(
+      'input[type="password"][name="password"]',
+      {
+        visible: false,
+        timeout: 10000,
+      },
+    );
+  } catch {
+    throw new HHAuthError(
+      "Не удалось найти поле для ввода пароля. Возможно, для вашего аккаунта доступна только авторизация по коду",
+      "PASSWORD_AUTH_UNAVAILABLE",
+    );
+  }
 
   if (!passwordField) {
     throw new HHAuthError(
@@ -111,10 +124,13 @@ export async function checkAndPerformLogin(
   password: string,
   workspaceId: string,
 ): Promise<boolean> {
+  let loginAttempted = false;
+
   try {
     console.log("🔐 Проверка авторизации...");
 
-    await page.goto(HH_CONFIG.urls.login, {
+    // Проверяем авторизацию через главную страницу
+    await page.goto(HH_CONFIG.urls.baseUrl, {
       waitUntil: "domcontentloaded",
       timeout: HH_CONFIG.timeouts.navigation,
     });
@@ -123,29 +139,75 @@ export async function checkAndPerformLogin(
       timeout: HH_CONFIG.timeouts.networkIdle,
     });
 
-    const loginInput = await page.$('input[type="text"][name="username"]');
-    if (loginInput) {
+    // Проверяем наличие формы регистрации - если есть, значит не авторизованы
+    const signupForm = await page.$('form[data-qa="account-signup"]');
+    
+    if (signupForm) {
       console.log("🔑 Требуется авторизация, выполняем логин...");
+      loginAttempted = true;
+
+      // Проверяем, есть ли у нас пароль (вход был по паролю)
+      if (!password || password.trim() === "") {
+        console.log(
+          "❌ Авторизация слетела, но пароль отсутствует (вход был по коду)",
+        );
+        await markIntegrationAuthError(
+          db,
+          "hh",
+          workspaceId,
+          "Авторизация слетела, требуется повторная настройка (вход был по коду)",
+        );
+        return false;
+      }
+
       const log = new Log();
       await performLogin(page, log, email, password, workspaceId);
       console.log("✅ Логин завершен");
+
+      // После логина снова проверяем главную страницу
+      await page.goto(HH_CONFIG.urls.baseUrl, {
+        waitUntil: "domcontentloaded",
+        timeout: HH_CONFIG.timeouts.navigation,
+      });
+
+      await page.waitForNetworkIdle({
+        timeout: HH_CONFIG.timeouts.networkIdle,
+      });
+
+      const stillHasSignupForm = await page.$('form[data-qa="account-signup"]');
+      
+      if (stillHasSignupForm) {
+        console.log("❌ Авторизация не удалась - форма регистрации все еще присутствует");
+        await markIntegrationAuthError(
+          db,
+          "hh",
+          workspaceId,
+          "Не удалось войти в систему. Проверьте правильность email и пароля",
+        );
+        return false;
+      }
     } else {
       console.log("✅ Уже авторизованы");
     }
 
-    // Проверяем успешность после логина/проверки
-    const currentUrl = page.url();
-    const hasLoginInput = await page.$('input[type="text"][name="username"]');
-
-    if (currentUrl.includes("/account/login") && hasLoginInput) {
-      console.log("❌ Авторизация не удалась - остались на странице логина");
-      return false;
-    }
-
+    // Успешная авторизация - очищаем предыдущие ошибки если были
     console.log("✅ Авторизация успешна");
+    await clearIntegrationAuthError(db, "hh", workspaceId);
     return true;
   } catch (error) {
     console.error("❌ Ошибка авторизации:", error);
+
+    // Если была попытка логина и произошла ошибка - помечаем ошибку авторизации
+    if (loginAttempted) {
+      const errorMessage =
+        error instanceof HHAuthError
+          ? error.message
+          : "Ошибка авторизации. Требуется повторная настройка интеграции";
+
+      console.log("❌ Помечаем ошибку авторизации в интеграции");
+      await markIntegrationAuthError(db, "hh", workspaceId, errorMessage);
+    }
+
     return false;
   }
 }
