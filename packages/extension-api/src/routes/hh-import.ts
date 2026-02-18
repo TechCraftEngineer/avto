@@ -1,13 +1,13 @@
 import { eq, WorkspaceRepository } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { vacancy as vacancySchema } from "@qbs-autonaim/db/schema";
-import { extractVacancyDataFromHtml } from "@qbs-autonaim/jobs-parsers";
 import { saveBasicResponse } from "@qbs-autonaim/jobs/services/response";
 import {
   saveBasicVacancy,
   updateVacancyDescription,
 } from "@qbs-autonaim/jobs/services/vacancy";
 import type { VacancyData } from "@qbs-autonaim/jobs-parsers";
+import { extractVacancyDataFromHtml } from "@qbs-autonaim/jobs-parsers";
 import { Hono } from "hono";
 import { z } from "zod";
 

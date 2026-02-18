@@ -16,7 +16,10 @@ export default defineConfig({
     react(),
     webExtension({
       manifest: "./manifest.json",
-      additionalInputs: ["src/callback.html"],
+      additionalInputs: [
+        "src/callback.html",
+        "src/injected/fetch-page-context.js",
+      ],
     }) as any,
   ],
   resolve: {

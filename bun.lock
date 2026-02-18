@@ -192,7 +192,7 @@
     },
     "apps/recruitment-assistant-extension": {
       "name": "recruitment-assistant-extension",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "dependencies": {
         "react": "19.2.4",
         "react-dom": "19.2.4",

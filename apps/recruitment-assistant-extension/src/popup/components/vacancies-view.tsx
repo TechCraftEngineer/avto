@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { AuthenticatedLayout } from "./authenticated-layout";
-import type { PageContext } from "../types";
 import { styles } from "../styles";
+import type { PageContext } from "../types";
+import { AuthenticatedLayout } from "./authenticated-layout";
 
 interface VacanciesViewProps {
   pageContext: Extract<PageContext, { type: "hh-vacancies" }>;
@@ -87,7 +87,9 @@ export function VacanciesView({
         disabled={isImporting || (selectedCount ?? 0) === 0}
         style={styles.primaryButton}
       >
-        {isImporting ? "Импорт…" : `Загрузить выбранные (${selectedCount ?? 0})`}
+        {isImporting
+          ? "Импорт…"
+          : `Загрузить выбранные (${selectedCount ?? 0})`}
       </button>
       {error && <p style={styles.errorText}>{error}</p>}
     </AuthenticatedLayout>

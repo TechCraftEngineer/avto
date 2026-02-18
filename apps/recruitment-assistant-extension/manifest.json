@@ -27,7 +27,8 @@
         "https://www.linkedin.com/in/*",
         "https://linkedin.com/in/*",
         "https://hh.ru/resume/*",
-        "https://www.hh.ru/resume/*"
+        "https://www.hh.ru/resume/*",
+        "*://*.hh.ru/employer/resume/*"
       ],
       "js": ["src/content/content-script.tsx"],
       "css": ["src/content/content-styles.css"],
@@ -66,6 +67,16 @@
       "matches": [
         "https://app.avtonaim.qbsoft.ru/*",
         "http://localhost:3000/*"
+      ]
+    },
+    {
+      "resources": ["src/injected/fetch-page-context.js"],
+      "matches": [
+        "https://hh.ru/*",
+        "https://www.hh.ru/*",
+        "https://employer.hh.ru/*",
+        "*://*.hh.ru/*"
+
       ]
     }
   ]

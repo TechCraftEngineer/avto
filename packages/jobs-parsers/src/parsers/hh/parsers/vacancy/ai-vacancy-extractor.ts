@@ -41,14 +41,43 @@ export async function extractVacancyDataFromHtml(
     const externalId = idFromParam ?? idFromPath ?? "";
 
     if (!externalId) {
-      console.warn(
-        `⚠️ Не удалось извлечь externalId из URL: ${vacancyUrl}`,
-      );
+      console.warn(`⚠️ Не удалось извлечь externalId из URL: ${vacancyUrl}`);
       return null;
     }
 
     const $ = cheerio.load(rawHtml);
-    const mainContent = $("div.main-content").html() ?? $("body").html() ?? "";
+
+    // Пробуем несколько селекторов для извлечения контента вакансии
+    let mainContent = "";
+    let usedSelector = "";
+
+    // 1. Основной контейнер print-версии
+    const printContent = $(
+      ".vacancy-section, .vacancy-description, [data-qa='vacancy-description']",
+    ).html();
+    if (printContent) {
+      mainContent = printContent;
+      usedSelector =
+        ".vacancy-section, .vacancy-description, [data-qa='vacancy-description']";
+    } else {
+      // 2. Fallback: ищем основной контент по классам
+      const contentByClass = $(
+        ".main-content, .content, .vacancy-content",
+      ).html();
+      if (contentByClass) {
+        mainContent = contentByClass;
+        usedSelector = ".main-content, .content, .vacancy-content";
+      } else {
+        // 3. Последний fallback: весь body (может содержать лишнее)
+        mainContent = $("body").html() ?? "";
+        usedSelector = "body (fallback)";
+      }
+    }
+
+    console.log(
+      `📄 Извлечение контента вакансии ${externalId}: селектор = ${usedSelector}, длина HTML = ${mainContent.length}`,
+    );
+
     const bareHtml = stripHtmlToBareTags(mainContent);
 
     if (!bareHtml.trim()) {
@@ -112,7 +141,7 @@ async function fetchPrintPageContent(
   );
 
   const content = await page.evaluate(() => {
-    const mainContent = document.querySelector('div.main-content');
+    const mainContent = document.querySelector("div.main-content");
     return mainContent?.innerHTML ?? document.body.innerHTML;
   });
   return content;

@@ -20,6 +20,7 @@ export function getVacancyPrintUrl(vacancyUrl: string): string {
 
 /**
  * Загрузка HTML print-страницы вакансии (с куками HH из page context)
+ * Использует внешний скрипт для обхода CSP
  */
 export function fetchVacancyPrintHtml(vacancyUrl: string): Promise<string> {
   const printUrl = getVacancyPrintUrl(vacancyUrl);
@@ -42,16 +43,15 @@ export function fetchVacancyPrintHtml(vacancyUrl: string): Promise<string> {
 
     window.addEventListener("message", handler);
 
+    // Создаем внешний скрипт для обхода CSP
     const script = document.createElement("script");
-    script.textContent = `
-      (function() {
-        const id = ${JSON.stringify(id)};
-        fetch(${JSON.stringify(printUrl)}, { credentials: 'include' })
-          .then(r => r.text())
-          .then(html => window.postMessage({ type: 'HH_VACANCY_HTML_RESULT', id, html }, '*'))
-          .catch(err => window.postMessage({ type: 'HH_VACANCY_HTML_RESULT', id, error: err.message }, '*'));
-      })();
-    `;
+    const scriptUrl = chrome.runtime.getURL(
+      "src/injected/fetch-page-context.js",
+    );
+    script.src = scriptUrl;
+    script.dataset.fetchId = id;
+    script.dataset.fetchUrl = printUrl;
+    script.dataset.fetchType = "vacancy";
     document.documentElement.appendChild(script);
     script.remove();
 
@@ -82,16 +82,15 @@ export function fetchResumeHtml(resumeUrl: string): Promise<string> {
 
     window.addEventListener("message", handler);
 
+    // Создаем внешний скрипт для обхода CSP
     const script = document.createElement("script");
-    script.textContent = `
-      (function() {
-        const id = ${JSON.stringify(id)};
-        fetch(${JSON.stringify(resumeUrl)}, { credentials: 'include' })
-          .then(r => r.text())
-          .then(html => window.postMessage({ type: 'HH_RESUME_HTML_RESULT', id, html }, '*'))
-          .catch(err => window.postMessage({ type: 'HH_RESUME_HTML_RESULT', id, error: err.message }, '*'));
-      })();
-    `;
+    const scriptUrl = chrome.runtime.getURL(
+      "src/injected/fetch-page-context.js",
+    );
+    script.src = scriptUrl;
+    script.dataset.fetchId = id;
+    script.dataset.fetchUrl = resumeUrl;
+    script.dataset.fetchType = "resume";
     document.documentElement.appendChild(script);
     script.remove();
 
@@ -112,39 +111,32 @@ export function parseResumeFromHtml(html: string): {
   const doc = new DOMParser().parseFromString(html, "text/html");
 
   const experience =
-    Array.from(
-      doc.querySelectorAll('[data-qa="resume-block-experience-item"]'),
-    )
-      .map(
-        (el) =>
-          [
-            el.querySelector('[data-qa="resume-block-experience-position"]')
-              ?.textContent,
-            el.querySelector('[data-qa="resume-block-experience-company"]')
-              ?.textContent,
-            el.querySelector('[data-qa="resume-block-experience-date"]')
-              ?.textContent,
-          ]
-            .filter(Boolean)
-            .join(" "),
+    Array.from(doc.querySelectorAll('[data-qa="resume-block-experience-item"]'))
+      .map((el) =>
+        [
+          el.querySelector('[data-qa="resume-block-experience-position"]')
+            ?.textContent,
+          el.querySelector('[data-qa="resume-block-experience-company"]')
+            ?.textContent,
+          el.querySelector('[data-qa="resume-block-experience-date"]')
+            ?.textContent,
+        ]
+          .filter(Boolean)
+          .join(" "),
       )
       .join("\n") || "";
 
   const education =
-    Array.from(
-      doc.querySelectorAll('[data-qa="resume-block-education-item"]'),
-    )
-      .map(
-        (el) =>
-          [
-            el.querySelector('[data-qa="resume-block-education-name"]')
-              ?.textContent,
-            el.querySelector(
-              '[data-qa="resume-block-education-organization"]',
-            )?.textContent,
-          ]
-            .filter(Boolean)
-            .join(" "),
+    Array.from(doc.querySelectorAll('[data-qa="resume-block-education-item"]'))
+      .map((el) =>
+        [
+          el.querySelector('[data-qa="resume-block-education-name"]')
+            ?.textContent,
+          el.querySelector('[data-qa="resume-block-education-organization"]')
+            ?.textContent,
+        ]
+          .filter(Boolean)
+          .join(" "),
       )
       .join("\n") || "";
 
