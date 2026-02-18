@@ -4,10 +4,10 @@
  */
 
 import {
-  initHHEmployerContentScript,
-  getSelectedIds,
-  runVacanciesImportSelected,
   detectHHEmployerPageType,
+  getSelectedIds,
+  initHHEmployerContentScript,
+  runVacanciesImportSelected,
 } from "./hh-employer";
 import { resolveAuth } from "./hh-employer/auth";
 

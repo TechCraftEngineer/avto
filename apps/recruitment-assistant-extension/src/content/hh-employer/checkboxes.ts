@@ -7,9 +7,51 @@ import { getSelectedIds, setSelectedIds, toggleSelection } from "./storage";
 
 const CHECKBOX_CLASS = "recruitment-assistant-vacancy-checkbox";
 
-/** Нативные чекбоксы HH: span[data-qa="vacancies-dashboard-vacancy-archive-label"] input[type="checkbox"] */
+/** Нативные чекбоксы HH: span[data-qa^="vacancies-dashboard-vacancy-archive-label"] input[type="checkbox"] */
 export const ARCHIVE_CHECKBOX_SELECTOR =
-  '[data-qa="vacancies-dashboard-vacancy-archive-label"] input[type="checkbox"]';
+  '[data-qa^="vacancies-dashboard-vacancy-archive-label"] input[type="checkbox"]';
+
+let archiveOnUpdate: (() => void) | null = null;
+let archiveListenerBound = false;
+
+function bindArchiveChangeListener(): void {
+  if (archiveListenerBound) return;
+  archiveListenerBound = true;
+  console.log("[RA] Archive checkbox listener attached to document");
+  document.addEventListener(
+    "change",
+    (e) => {
+      const target = e.target as HTMLInputElement;
+      if (
+        target?.type === "checkbox" &&
+        target.closest("[data-qa^='vacancies-dashboard-vacancy-archive-label']")
+      ) {
+            const id = target.value;
+            if (id) {
+              console.log("[RA] Archive checkbox changed:", id);
+              void toggleSelection(id).then(() => archiveOnUpdate?.());
+            }
+      }
+    },
+    true,
+  );
+}
+
+/** Ждёт появления контейнера архивных вакансий (HH грузит их асинхронно) */
+function whenArchiveReady(cb: () => void): void {
+  const root = document.querySelector("div.vacancy-dashboard-archive");
+  if (root) {
+    cb();
+    return;
+  }
+  const observer = new MutationObserver(() => {
+    if (document.querySelector("div.vacancy-dashboard-archive")) {
+      observer.disconnect();
+      cb();
+    }
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+}
 
 export function runNativeCheckboxBinding(
   pageType: HHEmployerPageType,
@@ -18,37 +60,18 @@ export function runNativeCheckboxBinding(
   if (pageType === "vacancy-responses") return;
 
   if (pageType === "archived-vacancies") {
-    bindNativeArchiveCheckboxes(onUpdate);
-    void syncStorageFromNativeCheckboxes(pageType);
-
-    const observer = new MutationObserver(() => {
-      bindNativeArchiveCheckboxes(onUpdate);
+    archiveOnUpdate = onUpdate;
+    // Вешаем listener сразу на document — сработает для любых чекбоксов, включая появившиеся позже
+    bindArchiveChangeListener();
+    // Sync и update — после появления списка
+    whenArchiveReady(() => {
+      void syncStorageFromNativeCheckboxes(pageType);
+      onUpdate();
     });
-    const listEl =
-      document.querySelector("div.vacancy-dashboard-archive") ??
-      document.querySelector("[data-qa='vacancies-dashboard']") ??
-      document.body;
-    observer.observe(listEl, { childList: true, subtree: true });
     return;
   }
 
   injectCheckboxesForActive(pageType, onUpdate);
-}
-
-function bindNativeArchiveCheckboxes(onUpdate: () => void): void {
-  document.querySelectorAll(ARCHIVE_CHECKBOX_SELECTOR).forEach((input) => {
-    if ((input as HTMLElement).dataset.raBound) return;
-    (input as HTMLElement).dataset.raBound = "1";
-
-    const cb = input as HTMLInputElement;
-    const externalId = cb.value;
-    if (!externalId) return;
-
-    cb.addEventListener("change", async () => {
-      await toggleSelection(externalId);
-      onUpdate();
-    });
-  });
 }
 
 export async function syncStorageFromNativeCheckboxes(

@@ -33,16 +33,14 @@
       "css": ["src/content/content-styles.css"],
       "run_at": "document_idle"
     },
-    {
-      "matches": [
-        "https://hh.ru/employer/vacancies*",
-        "https://hh.ru/employer/vacancyresponses*",
-        "https://www.hh.ru/employer/vacancies*",
-        "https://www.hh.ru/employer/vacancyresponses*"
-      ],
-      "js": ["src/content/hh-employer-content-script.ts"],
-      "run_at": "document_idle"
-    }
+  {
+    "matches": [
+      "*://*.hh.ru/employer/vacancies*",
+      "*://*.hh.ru/employer/vacancyresponses*"
+    ],
+    "js": ["src/content/hh-employer-content-script.ts"],
+    "run_at": "document_idle"
+  }
   ],
   "action": {
     "default_popup": "src/popup/popup.html",
