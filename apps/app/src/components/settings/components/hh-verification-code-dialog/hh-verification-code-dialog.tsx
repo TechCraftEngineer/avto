@@ -18,6 +18,7 @@ import {
   Input,
   Spinner,
 } from "@qbs-autonaim/ui";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -57,6 +58,9 @@ export function HHVerificationCodeDialog({
 }: HHVerificationCodeDialogProps) {
   const [attempts, setAttempts] = useState(0);
   const [resendCountdown, setResendCountdown] = useState(60);
+  const [isWaitingForResult, setIsWaitingForResult] = useState(false);
+
+  const showLoader = isWaitingForResult || isCodeAccepted;
 
   // Кулдаун 60 сек — кнопка «Отправить повторно» на hh.ru (data-qa="oauth-merge-by-code__code-resend") появляется через минуту
   useEffect(() => {
@@ -75,42 +79,21 @@ export function HHVerificationCodeDialog({
   }, [open, onResendCode]);
 
   const form = useForm<VerificationCodeValues>({
-    resolver: async (data) => {
-      try {
-        const result = verificationCodeSchema.safeParse(data);
-        if (!result.success) {
-          return {
-            values: {},
-            errors: result.error.issues.reduce(
-              (acc, issue) => {
-                const path = issue.path[0] as string;
-                acc[path] = {
-                  type: issue.code,
-                  message: issue.message,
-                };
-                return acc;
-              },
-              {} as Record<string, { type: string; message: string }>,
-            ),
-          };
-        }
-        return { values: result.data, errors: {} };
-      } catch {
-        return { values: {}, errors: {} };
-      }
-    },
+    resolver: zodResolver(verificationCodeSchema),
     defaultValues: { code: "" },
   });
 
   const handleSubmit = (data: VerificationCodeValues) => {
     if (attempts >= 3) return;
     setAttempts((prev) => prev + 1);
+    setIsWaitingForResult(true);
     onSubmitCode(data.code);
   };
 
   const handleClose = () => {
     form.reset();
     setAttempts(0);
+    setIsWaitingForResult(false);
     onClose();
   };
 
@@ -119,12 +102,12 @@ export function HHVerificationCodeDialog({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader className="space-y-3">
           <DialogTitle className="text-2xl font-semibold">
-            {isCodeAccepted
+            {showLoader
               ? "Завершаем подключение"
               : "Подтверждение входа в hh.ru"}
           </DialogTitle>
           <DialogDescription className="text-base">
-            {isCodeAccepted
+            {showLoader
               ? "Код принят. Ожидаем завершения проверки на стороне hh.ru…"
               : `Введите код, отправленный на ${email}`}
           </DialogDescription>
@@ -139,7 +122,7 @@ export function HHVerificationCodeDialog({
               control={form.control}
               name="code"
               render={({ field }) => (
-                <FormItem className={isCodeAccepted ? "sr-only" : undefined}>
+                <FormItem className={showLoader ? "sr-only" : undefined}>
                   <FormLabel className="text-sm font-medium">
                     Код подтверждения
                   </FormLabel>
@@ -150,7 +133,7 @@ export function HHVerificationCodeDialog({
                       inputMode="numeric"
                       pattern="[0-9]*"
                       placeholder="Код из письма или SMS"
-                      disabled={isLoading || isCodeAccepted}
+                      disabled={isLoading || showLoader}
                       autoComplete="one-time-code"
                       aria-describedby={
                         onResendCode ? "code-description" : undefined
@@ -162,7 +145,7 @@ export function HHVerificationCodeDialog({
                       className="text-center tabular-nums"
                     />
                   </FormControl>
-                  {onResendCode && !isCodeAccepted && (
+                  {onResendCode && !showLoader && (
                     <FormDescription
                       id="code-description"
                       className="text-xs text-center"
@@ -198,7 +181,7 @@ export function HHVerificationCodeDialog({
               )}
             />
 
-            {isCodeAccepted && (
+            {showLoader && (
               <div className="flex flex-col items-center gap-3 py-6">
                 <Spinner className="h-10 w-10 text-primary" />
                 <p className="text-sm text-muted-foreground text-center">
@@ -209,7 +192,7 @@ export function HHVerificationCodeDialog({
                 </p>
               </div>
             )}
-            {attempts > 0 && attempts >= 3 && !isCodeAccepted && (
+            {attempts > 0 && attempts >= 3 && !showLoader && (
               <div className="text-center text-sm text-muted-foreground">
                 <p>Превышено количество попыток.</p>
                 <p>Подождите немного или попробуйте войти по паролю.</p>
@@ -221,9 +204,9 @@ export function HHVerificationCodeDialog({
                 type="button"
                 variant="outline"
                 onClick={handleClose}
-                disabled={isLoading && !isCodeAccepted}
+                disabled={isLoading && !showLoader}
                 title={
-                  isCodeAccepted
+                  showLoader
                     ? "Проверка идёт в фоне — можно закрыть"
                     : undefined
                 }
@@ -231,7 +214,7 @@ export function HHVerificationCodeDialog({
               >
                 Отмена
               </Button>
-              {!isCodeAccepted && (
+              {!showLoader && (
                 <Button
                   type="submit"
                   disabled={
@@ -243,7 +226,7 @@ export function HHVerificationCodeDialog({
                   {isLoading ? "Отправка…" : "Подтвердить"}
                 </Button>
               )}
-              {isCodeAccepted && (
+              {showLoader && (
                 <Button disabled className="h-11">
                   <Spinner className="h-4 w-4" />
                   Завершаем подключение…

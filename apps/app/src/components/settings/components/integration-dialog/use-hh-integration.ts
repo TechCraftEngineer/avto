@@ -16,13 +16,9 @@ import type { VerificationResult } from "./verification-subscription";
 
 interface UseHHIntegrationProps {
   workspaceId: string;
-  onSuccess: () => void;
 }
 
-export function useHHIntegration({
-  workspaceId,
-  onSuccess: _onSuccess,
-}: UseHHIntegrationProps) {
+export function useHHIntegration({ workspaceId }: UseHHIntegrationProps) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const [state, dispatch] = useReducer(
@@ -110,9 +106,7 @@ export function useHHIntegration({
       // 2FA
       if (result.requiresTwoFactor) {
         dispatch({ type: "REQUIRE_2FA", message: result.message });
-        if (state.step !== "processing" && result.message) {
-          toast.info(result.message);
-        }
+        if (result.message) toast.info(result.message);
         return;
       }
 
@@ -132,7 +126,7 @@ export function useHHIntegration({
       });
       toast.error(result.error || "Ошибка проверки данных");
     },
-    [state.step, workspaceId, queryClient, trpc.integration.list],
+    [workspaceId, queryClient, trpc.integration.list],
   );
 
   const submitCaptcha = useCallback(

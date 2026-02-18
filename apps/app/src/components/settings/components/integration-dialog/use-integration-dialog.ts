@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { skipToken, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -47,19 +47,13 @@ export function useIntegrationDialog({
   const workspaceId = useMemo(() => workspace?.id || "", [workspace?.id]);
 
   // HH интеграция с машиной состояний
-  const hhIntegration = useHHIntegration({
-    workspaceId,
-    onSuccess: () => {
-      if (onVerify) {
-        setTimeout(() => onVerify("hh"), 300);
-      }
-    },
-  });
+  const hhIntegration = useHHIntegration({ workspaceId });
 
-  const { data: integrations } = useQuery({
-    ...trpc.integration.list.queryOptions({ workspaceId }),
-    enabled: !!workspaceId && isEditing,
-  });
+  const { data: integrations } = useQuery(
+    trpc.integration.list.queryOptions(
+      workspaceId && isEditing ? { workspaceId } : skipToken,
+    ),
+  );
 
   const existingIntegration = integrations?.find(
     (i) => i.type === selectedType,
@@ -157,13 +151,14 @@ export function useIntegrationDialog({
     }),
   );
 
+  const { reset: resetHH } = hhIntegration;
   const handleClose = useCallback(() => {
     form.reset();
     setShowPassword(false);
     setIsVerifyingKwork(false);
-    hhIntegration.reset();
+    resetHH();
     onClose();
-  }, [form, onClose, hhIntegration]);
+  }, [form, onClose, resetHH]);
 
   const handleHHSuccessClose = useCallback(() => {
     handleClose();

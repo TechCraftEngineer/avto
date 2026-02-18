@@ -64,13 +64,8 @@ export function IntegrationDialog({
   });
 
   const isVerifying = isVerifyingHH || isVerifyingKwork;
-  const verifyingType = isVerifyingHH
-    ? "hh"
-    : isVerifyingKwork
-      ? "kwork"
-      : selectedType === "kwork"
-        ? "kwork"
-        : "hh";
+  const verifyingType: "hh" | "kwork" =
+    isVerifyingHH || selectedType === "hh" ? "hh" : "kwork";
 
   return (
     <>
