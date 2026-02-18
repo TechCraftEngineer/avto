@@ -65,7 +65,7 @@ export function ResponseTableToolbar({
   useSyncArchivedState(vacancyId, onSyncArchived, onRefreshComplete);
 
   return (
-    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between px-1 mb-4">
+    <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between md:gap-4 px-1 mb-4 min-w-0">
       <ResponseSearchFilter
         search={search}
         onSearchChange={onSearchChange}
@@ -75,7 +75,7 @@ export function ResponseTableToolbar({
         onStatusFilterChange={onStatusFilterChange}
       />
 
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 shrink-0">
         <ColumnVisibilityToggle
           visibleColumns={visibleColumns}
           onToggleColumn={onToggleColumn}

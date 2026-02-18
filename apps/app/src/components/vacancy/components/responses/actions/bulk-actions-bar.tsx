@@ -17,11 +17,11 @@ export function BulkActionsBar({
   onBulkScreen,
 }: BulkActionsBarProps) {
   return (
-    <div className="flex items-center justify-between border-b bg-muted/50 px-4 py-3">
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b bg-muted/50 px-3 sm:px-4 py-3">
+      <div className="flex items-center gap-2 text-sm text-muted-foreground shrink-0">
         <span>Выбрано: {selectedCount}</span>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <Button
           variant="outline"
           size="sm"

@@ -28,8 +28,11 @@ describe("parseArchivedVacancyResponses", () => {
   it("должен вернуть 0 откликов если список пуст", async () => {
     const mockPage = {
       goto: mock(() => Promise.resolve()),
-      waitForSelector: mock(() => Promise.resolve(null)),
-      $eval: mock(() => Promise.resolve([])),
+      waitForSelector: mock(() => Promise.resolve(true)),
+      evaluate: mock(() => Promise.resolve()),
+      $$eval: mock((_sel: string, fn: (els: unknown[]) => unknown) =>
+        Promise.resolve(fn([])),
+      ),
     } as unknown as Page;
 
     const result = await parseArchivedVacancyResponses(

@@ -4,11 +4,11 @@ import type { Page } from "puppeteer";
 import type { ResponseData } from "../../../types";
 import { HH_CONFIG } from "../../core/config/config";
 import { parseResponseDate } from "../../utils/date-utils";
-import { humanScroll } from "../../utils/human-behavior";
 import {
   filterResponsesNeedingDetails,
   parseResponseDetails,
 } from "./response-utils";
+import { scrollToLoadAllContent } from "../../utils/human-behavior";
 
 interface ResponseWithId {
   name: string;
@@ -184,7 +184,7 @@ async function collectAllArchivedResponses(
       break;
     }
 
-    await humanScroll(page);
+    await scrollToLoadAllContent(page);
 
     const pageResponses = await page.$$eval(
       'div[data-qa="vacancy-real-responses"] [data-resume-id]',

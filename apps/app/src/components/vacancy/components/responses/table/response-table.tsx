@@ -313,7 +313,7 @@ export function ResponseTable({
     [...visibleColumns].filter((col) => isColumnVisible(col)).length + 1;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 min-w-0 overflow-hidden">
       <ResponseTableToolbar
         vacancyId={vacancyId}
         totalResponses={total}
@@ -387,12 +387,12 @@ export function ResponseTable({
         </div>
 
         {total > 0 && !isEmpty && (
-          <div className="flex items-center justify-between border-t bg-background/80 backdrop-blur-sm px-4 py-4">
-            <div className="flex-1 text-sm text-muted-foreground whitespace-nowrap">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-t bg-background/80 backdrop-blur-sm px-3 sm:px-4 py-3 sm:py-4">
+            <div className="text-sm text-muted-foreground shrink-0 order-2 sm:order-1">
               {selectedIds.size} из {total}{" "}
               {getPluralForm(total, "отклика", "откликов", "откликов")} выбрано
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center justify-center sm:justify-end shrink-0 order-1 sm:order-2">
               <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}

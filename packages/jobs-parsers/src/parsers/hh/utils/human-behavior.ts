@@ -39,6 +39,39 @@ export async function humanScroll(page: Page): Promise<void> {
 }
 
 /**
+ * Прокручивает страницу до конца для загрузки всех элементов при lazy-load/infinite scroll.
+ * HH.ru может подгружать отклики по мере прокрутки — без этого видно только 5–7 первых.
+ */
+export async function scrollToLoadAllContent(page: Page): Promise<void> {
+  const maxIterations = 15; // защита от бесконечного цикла
+  let lastCount = 0;
+  let sameCountIterations = 0;
+
+  for (let i = 0; i < maxIterations; i++) {
+    await page.evaluate(() => {
+      window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: "smooth",
+      });
+    });
+    await humanDelay(800, 1500);
+
+    const currentCount = await page.$$eval(
+      'div[data-qa="vacancy-real-responses"] [data-resume-id]',
+      (els) => els.length,
+    );
+
+    if (currentCount === lastCount) {
+      sameCountIterations++;
+      if (sameCountIterations >= 2) break;
+    } else {
+      sameCountIterations = 0;
+    }
+    lastCount = currentCount;
+  }
+}
+
+/**
  * Имитирует чтение страницы (случайная пауза)
  */
 export async function humanRead(page: Page): Promise<void> {
