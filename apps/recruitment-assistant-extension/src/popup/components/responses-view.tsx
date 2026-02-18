@@ -20,15 +20,33 @@ export function ResponsesView({ userEmail, onOpenSettings, onLogout }: Responses
         active: true,
         currentWindow: true,
       });
-      if (tab?.id) {
-        const resp = await chrome.tabs.sendMessage(tab.id, {
+      if (!tab?.id) {
+        setError("Вкладка не найдена");
+        return;
+      }
+
+      let resp: { ok?: boolean; error?: string } | undefined;
+      try {
+        resp = await chrome.tabs.sendMessage(tab.id, {
           type: "IMPORT_RESPONSES",
         });
-        if (resp?.ok === false) {
-          setError(resp.error ?? "Ошибка импорта");
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        if (
+          msg.includes("Receiving end") ||
+          msg.includes("Could not establish connection")
+        ) {
+          resp = await chrome.runtime.sendMessage({
+            type: "EXECUTE_IMPORT_RESPONSES",
+            payload: { tabId: tab.id },
+          });
+        } else {
+          throw e;
         }
-      } else {
-        setError("Вкладка не найдена");
+      }
+
+      if (resp?.ok === false) {
+        setError(resp.error ?? "Ошибка импорта");
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Не удалось импортировать");

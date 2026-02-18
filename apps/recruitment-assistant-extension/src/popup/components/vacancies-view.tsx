@@ -31,17 +31,35 @@ export function VacanciesView({
         active: true,
         currentWindow: true,
       });
-      if (tab?.id) {
-        const resp = await chrome.tabs.sendMessage(tab.id, {
+      if (!tab?.id) {
+        setError("Вкладка не найдена");
+        return;
+      }
+
+      let resp: { ok?: boolean; error?: string } | undefined;
+      try {
+        resp = await chrome.tabs.sendMessage(tab.id, {
           type: "IMPORT_SELECTED_VACANCIES",
         });
-        if (resp?.ok === false) {
-          setError(resp.error ?? "Ошибка импорта");
-        } else if (resp?.ok) {
-          onImportSuccess();
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        if (
+          msg.includes("Receiving end") ||
+          msg.includes("Could not establish connection")
+        ) {
+          resp = await chrome.runtime.sendMessage({
+            type: "EXECUTE_IMPORT_SELECTED_VACANCIES",
+            payload: { tabId: tab.id },
+          });
+        } else {
+          throw e;
         }
-      } else {
-        setError("Вкладка не найдена");
+      }
+
+      if (resp?.ok === false) {
+        setError(resp.error ?? "Ошибка импорта");
+      } else if (resp?.ok) {
+        onImportSuccess();
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Не удалось импортировать");

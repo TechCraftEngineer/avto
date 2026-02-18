@@ -6,16 +6,20 @@
  */
 
 /**
- * Типы сообщений от content script
+ * Типы сообщений от content script / popup
  */
-type MessageType = "API_REQUEST" | "PING";
+type MessageType =
+  | "API_REQUEST"
+  | "PING"
+  | "EXECUTE_IMPORT_SELECTED_VACANCIES"
+  | "EXECUTE_IMPORT_RESPONSES";
 
 /**
- * Структура сообщения от content script
+ * Структура сообщения от content script / popup
  */
 interface Message {
   type: MessageType;
-  payload?: ApiRequest | Record<string, unknown>;
+  payload?: ApiRequest | { tabId: number } | Record<string, unknown>;
 }
 
 /**
@@ -83,8 +87,11 @@ async function proxyApiRequest(request: ApiRequest): Promise<ApiResponse> {
       throw new Error("Некорректный URL запроса");
     }
 
-    // Проверка, что используется HTTPS
-    if (!request.url.startsWith("https://")) {
+    // Проверка протокола: HTTPS или localhost для разработки
+    const url = new URL(request.url);
+    const isLocalhost =
+      url.hostname === "localhost" || url.hostname === "127.0.0.1";
+    if (!request.url.startsWith("https://") && !isLocalhost) {
       throw new Error("Разрешены только HTTPS запросы");
     }
 
@@ -193,7 +200,8 @@ chrome.runtime.onMessage.addListener(
     sendResponse: (
       response:
         | ApiResponse
-        | { success: boolean; message?: string; error?: string },
+        | { success: boolean; message?: string; error?: string }
+        | { ok?: boolean; error?: string },
     ) => void,
   ) => {
     log("Получено сообщение", { type: message.type, sender: sender.tab?.url });
@@ -232,6 +240,77 @@ chrome.runtime.onMessage.addListener(
         log("Получен PING");
         sendResponse({ success: true, message: "pong" });
         return false;
+
+      case "EXECUTE_IMPORT_SELECTED_VACANCIES": {
+        const tabId = (message.payload as { tabId?: number })?.tabId;
+        if (typeof tabId !== "number") {
+          sendResponse({ ok: false, error: "Неверный tabId" });
+          return false;
+        }
+
+        (async () => {
+          try {
+            const manifest = chrome.runtime.getManifest();
+            const hhEmployerEntry = manifest.content_scripts?.find((cs) =>
+              cs.js?.some((p) => p.includes("hh-employer-content-script")),
+            );
+            const scriptPath = hhEmployerEntry?.js?.[0];
+            if (scriptPath) {
+              await chrome.scripting.executeScript({
+                target: { tabId },
+                files: [scriptPath],
+              });
+            }
+            const resp = await chrome.tabs.sendMessage(tabId, {
+              type: "IMPORT_SELECTED_VACANCIES",
+            });
+            sendResponse(resp ?? { ok: false, error: "Нет ответа" });
+          } catch (err) {
+            logError("EXECUTE_IMPORT_SELECTED_VACANCIES", err);
+            sendResponse({
+              ok: false,
+              error:
+                err instanceof Error ? err.message : "Ошибка выполнения",
+            });
+          }
+        })();
+        return true;
+      }
+
+      case "EXECUTE_IMPORT_RESPONSES": {
+        const tabId = (message.payload as { tabId?: number })?.tabId;
+        if (typeof tabId !== "number") {
+          sendResponse({ ok: false, error: "Неверный tabId" });
+          return false;
+        }
+        (async () => {
+          try {
+            const manifest = chrome.runtime.getManifest();
+            const hhEmployerEntry = manifest.content_scripts?.find((cs) =>
+              cs.js?.some((p) => p.includes("hh-employer-content-script")),
+            );
+            const scriptPath = hhEmployerEntry?.js?.[0];
+            if (scriptPath) {
+              await chrome.scripting.executeScript({
+                target: { tabId },
+                files: [scriptPath],
+              });
+            }
+            const resp = await chrome.tabs.sendMessage(tabId, {
+              type: "IMPORT_RESPONSES",
+            });
+            sendResponse(resp ?? { ok: false, error: "Нет ответа" });
+          } catch (err) {
+            logError("EXECUTE_IMPORT_RESPONSES", err);
+            sendResponse({
+              ok: false,
+              error:
+                err instanceof Error ? err.message : "Ошибка выполнения",
+            });
+          }
+        })();
+        return true;
+      }
 
       default:
         logError("Неизвестный тип сообщения", message.type);

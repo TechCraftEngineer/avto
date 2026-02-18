@@ -9,7 +9,7 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "permissions": ["storage", "activeTab", "tabs"],
+  "permissions": ["storage", "activeTab", "tabs", "scripting"],
   "host_permissions": [
     "https://www.linkedin.com/*",
     "https://linkedin.com/*",
@@ -35,8 +35,10 @@
     },
   {
     "matches": [
-      "*://*.hh.ru/employer/vacancies*",
-      "*://*.hh.ru/employer/vacancyresponses*"
+      "https://hh.ru/employer/*",
+      "https://www.hh.ru/employer/*",
+      "https://employer.hh.ru/*",
+      "*://*.hh.ru/employer/*"
     ],
     "js": ["src/content/hh-employer-content-script.ts"],
     "run_at": "document_idle"

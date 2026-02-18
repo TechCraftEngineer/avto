@@ -47,7 +47,10 @@ export function usePopupSettings(authService: AuthService) {
           }
         }
       } else {
-        return "Не удалось загрузить организации";
+        return (
+          (orgsResp as { error?: string } | undefined)?.error ??
+          "Не удалось загрузить организации"
+        );
       }
     } catch (e) {
       return e instanceof Error ? e.message : "Ошибка загрузки";
