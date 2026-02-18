@@ -3,19 +3,33 @@ import { createRoot } from "react-dom/client";
 import { API_URL } from "../config";
 import { AuthService } from "../core/auth-service";
 
-function isProfilePageUrl(url: string): { platform: string } | null {
+const HH_SELECTED_STORAGE_KEY = "hh-selected-vacancy-ids";
+
+type PageContext =
+  | { type: "profile"; platform: string }
+  | { type: "hh-vacancies"; isActive: boolean };
+
+function getPageContext(url: string): PageContext | null {
   try {
     const u = new URL(url);
     const host = u.hostname.toLowerCase();
     const path = u.pathname;
-    if ((host === "hh.ru" || host.endsWith(".hh.ru")) && path.startsWith("/resume/")) {
-      return { platform: "HeadHunter" };
+
+    if (host === "hh.ru" || host.endsWith(".hh.ru")) {
+      if (path.startsWith("/resume/")) {
+        return { type: "profile", platform: "HeadHunter" };
+      }
+      if (path.includes("/employer/vacancies")) {
+        const isActive = !path.includes("/employer/vacancies/archived");
+        return { type: "hh-vacancies", isActive };
+      }
     }
+
     if (
       (host === "www.linkedin.com" || host === "linkedin.com" || host.endsWith(".linkedin.com")) &&
       path.startsWith("/in/")
     ) {
-      return { platform: "LinkedIn" };
+      return { type: "profile", platform: "LinkedIn" };
     }
   } catch {
     // ignore
@@ -31,17 +45,45 @@ function Popup() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [pageContext, setPageContext] = useState<{ platform: string } | null>(null);
+  const [pageContext, setPageContext] = useState<PageContext | null>(null);
   const [isExtracting, setIsExtracting] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+  const [selectedCount, setSelectedCount] = useState<number | null>(null);
 
   const authService = useMemo(() => new AuthService(API_URL), []);
 
   useEffect(() => {
     chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
       const url = tab?.url;
-      if (url) setPageContext(isProfilePageUrl(url));
+      if (url) setPageContext(getPageContext(url));
     });
   }, []);
+
+  useEffect(() => {
+    if (pageContext?.type !== "hh-vacancies") return;
+
+    const updateCount = () => {
+      chrome.storage.local.get(HH_SELECTED_STORAGE_KEY).then((r) => {
+        const arr = r[HH_SELECTED_STORAGE_KEY] as string[] | undefined;
+        setSelectedCount(Array.isArray(arr) ? arr.length : 0);
+      });
+    };
+
+    updateCount();
+
+    const listener = (
+      changes: { [key: string]: chrome.storage.StorageChange },
+      areaName: string,
+    ) => {
+      if (areaName === "local" && changes[HH_SELECTED_STORAGE_KEY]) {
+        const arr = changes[HH_SELECTED_STORAGE_KEY].newValue as string[] | undefined;
+        setSelectedCount(Array.isArray(arr) ? arr.length : 0);
+      }
+    };
+
+    chrome.storage.onChanged.addListener(listener);
+    return () => chrome.storage.onChanged.removeListener(listener);
+  }, [pageContext]);
 
   useEffect(() => {
     const refresh = () => {
@@ -102,8 +144,79 @@ function Popup() {
     );
   }
 
-  // Контекстный экран на странице резюме/профиля (hh.ru, LinkedIn)
-  if (pageContext) {
+  // Контекст: страница вакансий HH (активные или архивные)
+  if (pageContext?.type === "hh-vacancies") {
+    const handleImportSelected = async () => {
+      setError(null);
+      setIsImporting(true);
+      try {
+        const [tab] = await chrome.tabs.query({
+          active: true,
+          currentWindow: true,
+        });
+        if (tab?.id) {
+          const resp = await chrome.tabs.sendMessage(tab.id, {
+            type: "IMPORT_SELECTED_VACANCIES",
+          });
+          if (resp?.ok === false) {
+            setError(resp.error ?? "Ошибка импорта");
+          } else if (resp?.ok) {
+            setSelectedCount(0);
+          }
+        } else {
+          setError("Вкладка не найдена");
+        }
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Не удалось импортировать");
+      } finally {
+        setIsImporting(false);
+      }
+    };
+
+    return (
+      <div style={styles.container}>
+        <h2 style={styles.title}>
+          {pageContext.isActive ? "Активные вакансии" : "Архивные вакансии"}
+        </h2>
+        <p style={styles.subtitle}>
+          Отметьте вакансии галочками на странице и загрузите выбранные в систему.
+          Для импорта с нескольких страниц — перейдите на первую страницу списка.
+        </p>
+        <button
+          type="button"
+          onClick={handleImportSelected}
+          disabled={isImporting || (selectedCount ?? 0) === 0}
+          style={{
+            ...styles.siteLoginButton,
+            color: "#fff",
+            backgroundColor: "#2563eb",
+            border: "none",
+          }}
+        >
+          {isImporting
+            ? "Импорт…"
+            : `Загрузить выбранные (${selectedCount ?? 0})`}
+        </button>
+        {error && (
+          <p style={{ ...styles.subtitle, color: "#dc2626", marginTop: 8 }}>
+            {error}
+          </p>
+        )}
+        <p style={styles.userEmail}>{userEmail}</p>
+        <button
+          type="button"
+          onClick={handleLogout}
+          style={{ ...styles.logoutButton, marginTop: 8 }}
+        >
+          Выйти
+        </button>
+        <p style={styles.version}>v{version}</p>
+      </div>
+    );
+  }
+
+  // Контекст: страница резюме/профиля (hh.ru, LinkedIn)
+  if (pageContext?.type === "profile") {
     const handleExtract = async () => {
       setError(null);
       setIsExtracting(true);
@@ -165,10 +278,7 @@ function Popup() {
         <button
           type="button"
           onClick={handleLogout}
-          style={{
-            ...styles.logoutButton,
-            marginTop: 8,
-          }}
+          style={{ ...styles.logoutButton, marginTop: 8 }}
         >
           Выйти
         </button>

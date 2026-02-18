@@ -58,14 +58,15 @@
       "resources": ["content/*.css", "icons/*"],
       "matches": [
         "https://www.linkedin.com/*",
-        "https://linkedin.com/*",
-        "https://hh.ru/*",
-        "https://www.hh.ru/*"
+        "https://linkedin.com/*"
       ]
     },
     {
       "resources": ["src/callback.html"],
-      "matches": ["<all_urls>"]
+      "matches": [
+        "https://app.avtonaim.qbsoft.ru/*",
+        "http://localhost:3000/*"
+      ]
     }
   ]
 }

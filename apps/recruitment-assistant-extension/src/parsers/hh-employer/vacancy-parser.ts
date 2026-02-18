@@ -52,11 +52,15 @@ export function parseActiveVacanciesFromDOM(): ParsedVacancy[] {
   return vacancies.filter((v) => v.externalId && v.url);
 }
 
+/** Контейнер архивных вакансий на HH */
+const ARCHIVE_CONTAINER = 'div.vacancy-dashboard-archive';
+
 /**
  * Парсит архивные вакансии со страницы hh.ru/employer/vacancies/archived
  */
 export function parseArchivedVacanciesFromDOM(): ParsedVacancy[] {
-  const elements = document.querySelectorAll('div[data-qa^="vacancy-archive_"]');
+  const root = document.querySelector(ARCHIVE_CONTAINER) ?? document;
+  const elements = root.querySelectorAll('div[data-qa^="vacancy-archive_"]');
   const vacancies: ParsedVacancy[] = [];
 
   elements.forEach((element) => {
