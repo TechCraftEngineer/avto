@@ -41,24 +41,39 @@ export function VerificationSubscription({
     [workspaceId, verifyingType],
   );
 
-  const { latestData, error } = useInngestSubscription({
+  const { latestData, error, data, state } = useInngestSubscription({
     refreshToken,
     key: `${workspaceId}-${verifyingType}`,
-    enabled: true,
+    enabled: isVerifying,
   });
+
+  // Логирование состояния подписки
+  useEffect(() => {
+    console.log(`📡 Subscription state for ${verifyingType}:`, {
+      state,
+      isVerifying,
+      dataLength: data?.length ?? 0,
+      hasLatestData: !!latestData,
+      latestData,
+    });
+  }, [state, isVerifying, data, latestData, verifyingType]);
 
   useEffect(() => {
     if (error && isVerifying) {
+      console.error(`❌ Subscription error for ${verifyingType}:`, error);
       onError();
     }
-  }, [error, isVerifying, onError]);
+  }, [error, isVerifying, onError, verifyingType]);
 
   useEffect(() => {
     if (latestData?.topic === "result") {
+      console.log(`🔔 WebSocket message received for ${verifyingType}:`, latestData);
       const result = latestData.data as VerificationResult;
       onResult(result);
+    } else if (latestData) {
+      console.log(`⚠️ Unexpected WebSocket topic for ${verifyingType}:`, latestData.topic, latestData);
     }
-  }, [latestData, onResult]);
+  }, [latestData, onResult, verifyingType]);
 
   return null;
 }

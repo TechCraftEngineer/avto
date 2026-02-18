@@ -516,6 +516,42 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
           const errorMessage =
             error instanceof Error ? error.message : "Неизвестная ошибка";
 
+          // Проверяем, является ли ошибка таймаутом навигации
+          const isNavigationTimeout =
+            errorMessage.includes("Navigation timeout") ||
+            errorMessage.includes("TimeoutError") ||
+            (error instanceof Error && error.name === "TimeoutError");
+
+          if (isNavigationTimeout) {
+            console.warn(
+              "⚠️ Таймаут навигации — это не ошибка авторизации, возможны проблемы с сетью или сайтом",
+            );
+            await publish(
+              verifyHHCredentialsChannel(workspaceId).result({
+                success: false,
+                isValid: false,
+                error:
+                  "Не удалось загрузить страницу HeadHunter. Проверьте подключение к интернету и попробуйте снова.",
+              }),
+            );
+
+            await publish(
+              workspaceNotificationsChannel(workspaceId)["integration-error"]({
+                workspaceId,
+                type: "network-error",
+                message: "Не удалось подключиться к HeadHunter",
+                severity: "warning",
+                timestamp: new Date().toISOString(),
+              }),
+            );
+
+            return {
+              success: false,
+              isValid: false,
+              error: "Не удалось загрузить страницу HeadHunter",
+            };
+          }
+
           if (
             errorMessage.includes("капча") ||
             errorMessage.includes("captcha") ||

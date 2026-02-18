@@ -67,6 +67,16 @@ export function IntegrationDialog({
   const verifyingType: "hh" | "kwork" =
     isVerifyingHH || selectedType === "hh" ? "hh" : "kwork";
 
+  // Логирование состояния HH интеграции
+  console.log("🔍 IntegrationDialog state:", {
+    open,
+    selectedType,
+    hhStep: hhState.step,
+    isVerifyingHH,
+    isVerifying,
+    workspaceId,
+  });
+
   return (
     <>
       {open && workspaceId && (selectedType === "hh" || selectedType === "kwork") && (

@@ -90,6 +90,8 @@ export function useHHIntegration({ workspaceId }: UseHHIntegrationProps) {
 
   const handleVerificationResult = useCallback(
     (result: VerificationResult) => {
+      console.log("🔍 HH Verification Result:", result);
+
       // Капча
       if (result.captchaRequired && result.captchaImageUrl) {
         dispatch({
@@ -111,20 +113,30 @@ export function useHHIntegration({ workspaceId }: UseHHIntegrationProps) {
       }
 
       // Успех
-      if (result.success && result.isValid) {
+      if (result.success === true && result.isValid === true) {
+        console.log("✅ Успешная авторизация HH");
         dispatch({ type: "SUCCESS" });
         queryClient.invalidateQueries({
           queryKey: trpc.integration.list.queryKey({ workspaceId }),
         });
+        toast.success("Интеграция с HeadHunter успешно настроена");
         return;
       }
 
       // Ошибка
-      dispatch({
-        type: "ERROR",
-        error: result.error || "Ошибка проверки данных",
-      });
-      toast.error(result.error || "Ошибка проверки данных");
+      if (result.error || (result.success === false && result.isValid === false)) {
+        const errorMsg = result.error || "Ошибка проверки данных";
+        console.error("❌ Ошибка HH верификации:", errorMsg);
+        dispatch({
+          type: "ERROR",
+          error: errorMsg,
+        });
+        toast.error(errorMsg);
+        return;
+      }
+
+      // Неожиданный результат
+      console.warn("⚠️ Неожиданный результат верификации HH:", result);
     },
     [workspaceId, queryClient, trpc.integration.list],
   );
@@ -207,6 +219,9 @@ export function useHHIntegration({ workspaceId }: UseHHIntegrationProps) {
     isLoading:
       state.step === "verifying" ||
       state.step === "processing" ||
+      state.step === "captcha" ||
+      state.step === "twoFactor" ||
+      state.step === "success" || // Оставляем подписку активной до закрытия диалога
       saveHHCaptchaMutation.isPending ||
       saveHH2FACodeMutation.isPending,
     isResending: requestHHResendCodeMutation.isPending,

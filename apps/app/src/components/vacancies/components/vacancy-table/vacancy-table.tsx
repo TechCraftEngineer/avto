@@ -175,7 +175,7 @@ export function VacancyTable({
             ))
           ) : vacancies.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={7} className="h-[500px] p-0">
+              <TableCell colSpan={8} className="h-[500px] p-0">
                 <div className="flex h-full flex-col items-center justify-center gap-6 px-4 py-10">
                   {/* Анимированный список скелетонов */}
                   <div className="animate-fade-in h-36 w-full max-w-64 overflow-hidden px-4 mask-[linear-gradient(transparent,black_10%,black_90%,transparent)]">
