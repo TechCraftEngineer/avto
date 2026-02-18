@@ -83,34 +83,6 @@ export interface CandidateData {
 }
 
 /**
- * Учетные данные для авторизации
- */
-export interface AuthCredentials {
-  /** Электронная почта */
-  email: string;
-  /** Пароль */
-  password: string;
-}
-
-/**
- * Ответ от сервера авторизации
- */
-export interface AuthResponse {
-  /** Успешность авторизации */
-  success: boolean;
-  /** Токен доступа */
-  token?: string;
-  /** Данные пользователя */
-  user?: {
-    id: string;
-    email: string;
-    organizationId: string;
-  };
-  /** Сообщение об ошибке */
-  message?: string;
-}
-
-/**
  * Настройки расширения
  */
 export interface Settings {

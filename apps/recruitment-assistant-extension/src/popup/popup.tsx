@@ -2,19 +2,46 @@ import { useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { API_URL } from "../config";
 import { AuthService } from "../core/auth-service";
-import { LoginForm } from "./components/login-form";
+
+function isProfilePageUrl(url: string): { platform: string } | null {
+  try {
+    const u = new URL(url);
+    const host = u.hostname.toLowerCase();
+    const path = u.pathname;
+    if ((host === "hh.ru" || host.endsWith(".hh.ru")) && path.startsWith("/resume/")) {
+      return { platform: "HeadHunter" };
+    }
+    if (
+      (host === "www.linkedin.com" || host === "linkedin.com" || host.endsWith(".linkedin.com")) &&
+      path.startsWith("/in/")
+    ) {
+      return { platform: "LinkedIn" };
+    }
+  } catch {
+    // ignore
+  }
+  return null;
+}
 
 /**
- * Popup расширения — только авторизация (как у Huntflow).
- * При отсутствии входа — форма логина, при входе — данные пользователя и выход.
+ * Popup расширения — авторизация и контекстные действия.
+ * На страницах hh.ru/LinkedIn показывает кнопку «Извлечь данные».
  */
 function Popup() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [pageContext, setPageContext] = useState<{ platform: string } | null>(null);
+  const [isExtracting, setIsExtracting] = useState(false);
 
   const authService = useMemo(() => new AuthService(API_URL), []);
+
+  useEffect(() => {
+    chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
+      const url = tab?.url;
+      if (url) setPageContext(isProfilePageUrl(url));
+    });
+  }, []);
 
   useEffect(() => {
     const refresh = () => {
@@ -35,26 +62,6 @@ function Popup() {
     chrome.storage.onChanged.addListener(listener);
     return () => chrome.storage.onChanged.removeListener(listener);
   }, [authService]);
-
-  const handleLogin = async (credentials: { email: string; password: string }) => {
-    setError(null);
-    setIsLoading(true);
-    try {
-      const result = await authService.login(credentials);
-      if (result.success) {
-        setIsAuthenticated(true);
-        setUserEmail(result.user?.email ?? null);
-      } else {
-        setError(result.message ?? "Ошибка входа");
-      }
-    } catch (e) {
-      const message =
-        e instanceof Error ? e.message : typeof e === "string" ? e : "Не удалось подключиться к серверу";
-      setError(message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleLogout = async () => {
     await authService.logout();
@@ -90,17 +97,87 @@ function Popup() {
         >
           Войти через сайт
         </button>
-        <p style={styles.divider}>или</p>
-        <LoginForm
-          onLogin={handleLogin}
-          isLoading={isLoading}
-          error={error}
-        />
         <p style={styles.version}>v{version}</p>
       </div>
     );
   }
 
+  // Контекстный экран на странице резюме/профиля (hh.ru, LinkedIn)
+  if (pageContext) {
+    const handleExtract = async () => {
+      setError(null);
+      setIsExtracting(true);
+      try {
+        const [tab] = await chrome.tabs.query({
+          active: true,
+          currentWindow: true,
+        });
+        if (tab?.id) {
+          const resp = await chrome.tabs.sendMessage(tab.id, {
+            type: "EXTRACT_DATA",
+          });
+          if (resp?.ok === false) {
+            setError(resp.error ?? "Ошибка извлечения");
+          }
+        } else {
+          setError("Вкладка не найдена");
+        }
+      } catch (e) {
+        setError(
+          e instanceof Error ? e.message : "Не удалось извлечь данные",
+        );
+      } finally {
+        setIsExtracting(false);
+      }
+    };
+
+    return (
+      <div style={styles.container}>
+        <h2 style={styles.title}>
+          {pageContext.platform === "HeadHunter"
+            ? "Страница резюме"
+            : "Профиль LinkedIn"}
+        </h2>
+        <p style={styles.subtitle}>
+          {pageContext.platform === "HeadHunter"
+            ? "Извлеките данные кандидата и импортируйте в систему"
+            : "Извлеките данные профиля и импортируйте в систему"}
+        </p>
+        <button
+          type="button"
+          onClick={handleExtract}
+          disabled={isExtracting}
+          style={{
+            ...styles.siteLoginButton,
+            color: "#fff",
+            backgroundColor: "#2563eb",
+            border: "none",
+          }}
+        >
+          {isExtracting ? "Извлечение…" : "Извлечь данные"}
+        </button>
+        {error && (
+          <p style={{ ...styles.subtitle, color: "#dc2626", marginTop: 8 }}>
+            {error}
+          </p>
+        )}
+        <p style={styles.userEmail}>{userEmail}</p>
+        <button
+          type="button"
+          onClick={handleLogout}
+          style={{
+            ...styles.logoutButton,
+            marginTop: 8,
+          }}
+        >
+          Выйти
+        </button>
+        <p style={styles.version}>v{version}</p>
+      </div>
+    );
+  }
+
+  // Обычный экран — не на странице профиля
   return (
     <div style={styles.container}>
       <div style={styles.successBadge}>✓</div>
@@ -152,12 +229,6 @@ const styles: Record<string, React.CSSProperties> = {
     border: "1px solid #93c5fd",
     borderRadius: "6px",
     cursor: "pointer",
-  },
-  divider: {
-    margin: "0 0 12px",
-    color: "#9ca3af",
-    fontSize: "12px",
-    textAlign: "center" as const,
   },
   loading: {
     margin: 0,

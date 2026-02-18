@@ -17,16 +17,25 @@
     `;
   };
 
+  const closeTab = () => {
+    chrome.tabs.getCurrent((tab) => {
+      if (tab?.id) chrome.tabs.remove(tab.id);
+    });
+  };
+
   const showSuccess = () => {
     root.innerHTML = `
       <div class="page">
         <div class="icon icon-success">✓</div>
         <h1 class="title">Авторизация прошла успешно</h1>
-        <p class="message">Расширение подключено к вашему аккаунту. Можете закрыть эту вкладку и пользоваться расширением.</p>
+        <p class="message">Расширение подключено к вашему аккаунту.</p>
         <button type="button" class="btn" id="close-btn">Закрыть вкладку</button>
       </div>
     `;
-    document.getElementById("close-btn")?.addEventListener("click", () => window.close());
+    document.getElementById("close-btn")?.addEventListener("click", closeTab);
+
+    // Автозакрытие через 3 секунды, чтобы вкладка не оставалась открытой
+    setTimeout(closeTab, 3000);
   };
 
   const hash = window.location.hash.slice(1);

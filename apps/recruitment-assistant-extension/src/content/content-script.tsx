@@ -380,6 +380,13 @@ export class ContentScript {
   }
 
   /**
+   * Запускает извлечение данных (вызывается из кнопки или по сообщению от popup)
+   */
+  triggerExtract(): Promise<void> {
+    return this.handleExtractClick();
+  }
+
+  /**
    * Обрабатывает клик на кнопку извлечения данных
    * Требование 11: Обработка ошибок с понятными сообщениями
    */
@@ -866,4 +873,17 @@ if (typeof process === "undefined" || process.env.NODE_ENV !== "test") {
   window.addEventListener("beforeunload", () => {
     contentScript.cleanup();
   });
+
+  // Слушаем сообщения от popup (кнопка «Извлечь данные»)
+  chrome.runtime.onMessage.addListener(
+    (msg: { type?: string }, _sender, sendResponse) => {
+      if (msg?.type === "EXTRACT_DATA") {
+        contentScript.triggerExtract().then(
+          () => sendResponse({ ok: true }),
+          (e) => sendResponse({ ok: false, error: String(e) }),
+        );
+        return true; // async response
+      }
+    },
+  );
 }

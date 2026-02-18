@@ -26,6 +26,13 @@ export default function LinkExtPage() {
       setStatus("error");
       return;
     }
+    if (extensionId === "invalid") {
+      setError(
+        "ID расширения неизвестен. Перезагрузите расширение в chrome://extensions и повторите попытку.",
+      );
+      setStatus("error");
+      return;
+    }
 
     const run = async () => {
       try {
@@ -60,6 +67,7 @@ export default function LinkExtPage() {
         const hash = `#token=${encodeURIComponent(token)}&user=${encodeURIComponent(
           JSON.stringify(user),
         )}`;
+
         window.location.href = `chrome-extension://${extensionId}/src/callback.html${hash}`;
       } catch (e) {
         setError(
@@ -86,10 +94,7 @@ export default function LinkExtPage() {
     return (
       <div className="flex min-h-svh flex-col items-center justify-center gap-4 p-6">
         <p className="text-destructive text-sm">{error}</p>
-        <a
-          href="/"
-          className="text-primary hover:underline text-sm"
-        >
+        <a href="/" className="text-primary hover:underline text-sm">
           Вернуться на главную
         </a>
       </div>

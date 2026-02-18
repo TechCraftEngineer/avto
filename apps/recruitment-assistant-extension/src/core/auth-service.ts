@@ -1,68 +1,13 @@
 /**
- * Сервис для управления авторизацией пользователя
+ * Сервис для управления авторизацией пользователя.
+ * Вход только через «Войти через сайт» (link-ext + extension-token).
  */
-
-interface AuthCredentials {
-  email: string;
-  password: string;
-}
-
-interface AuthResponse {
-  success: boolean;
-  token?: string;
-  user?: {
-    id: string;
-    email: string;
-    organizationId: string;
-  };
-  message?: string;
-}
 
 export class AuthService {
   private apiUrl: string;
 
   constructor(apiUrl: string) {
     this.apiUrl = apiUrl;
-  }
-
-  /**
-   * Авторизация пользователя
-   */
-  async login(credentials: AuthCredentials): Promise<AuthResponse> {
-    try {
-      const response = await fetch(`${this.apiUrl}/api/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(credentials),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        return {
-          success: false,
-          message: error.message || "Ошибка авторизации",
-        };
-      }
-
-      const data = await response.json();
-
-      // Сохраняем токен и данные пользователя
-      await this.saveAuthData(data.token, data.user);
-
-      return {
-        success: true,
-        token: data.token,
-        user: data.user,
-      };
-    } catch (error) {
-      console.error("Ошибка авторизации:", error);
-      return {
-        success: false,
-        message: "Не удалось подключиться к серверу",
-      };
-    }
   }
 
   /**
@@ -117,12 +62,4 @@ export class AuthService {
     }
   }
 
-  private async saveAuthData(token: string, user: any): Promise<void> {
-    await chrome.storage.local.set({
-      authToken: token,
-      userData: user,
-    });
-  }
 }
-
-export type { AuthCredentials, AuthResponse };

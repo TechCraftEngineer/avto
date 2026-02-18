@@ -1,16 +1,22 @@
 import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
-import { session as sessionTable, user as userTable } from "@qbs-autonaim/db/schema";
-import { getSession } from "~/auth/server";
+import {
+  session as sessionTable,
+  user as userTable,
+} from "@qbs-autonaim/db/schema";
 import { NextResponse } from "next/server";
+import { auth } from "~/auth/server";
 
 /**
  * Возвращает session token и данные пользователя для расширения.
  * Вызывается со страницы приложения (cookies отправляются автоматически).
  * Используется для авторизации расширения «одной кнопкой».
+ * Важно: передаём request.headers явно для корректной работы в Route Handler.
  */
-export async function GET() {
-  const session = await getSession();
+export async function GET(request: Request) {
+  const session = await auth.api.getSession({
+    headers: request.headers,
+  });
   if (!session?.session?.id || !session?.user) {
     return NextResponse.json(
       { error: "Необходима авторизация" },
@@ -24,10 +30,7 @@ export async function GET() {
   });
 
   if (!sess || new Date(sess.expiresAt) < new Date()) {
-    return NextResponse.json(
-      { error: "Сессия истекла" },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: "Сессия истекла" }, { status: 401 });
   }
 
   const user = await db.query.user.findFirst({
