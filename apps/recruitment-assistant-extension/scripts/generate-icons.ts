@@ -1,6 +1,6 @@
 /**
  * Генерирует иконки для расширения (16x16, 48x48, 128x128)
- * Цвет #2563eb — синий, как кнопка в расширении
+ * Синий фон, белая буква A
  */
 import sharp from "sharp";
 import { mkdir, writeFile } from "node:fs/promises";
@@ -9,14 +9,18 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(__dirname, "..");
-// Передайте "dist" как аргумент для вывода в папку сборки
 const outDir = process.argv[2] ?? process.env.OUT_DIR ?? "public";
 const iconsDir = join(rootDir, outDir, "icons");
 
+/** Буква A как SVG path (viewBox 0 0 100 100) */
+const letterAPath = "M50 8 L90 95 L70 95 L50 48 L30 95 L10 95 Z";
+
 async function createIcon(size: number): Promise<Buffer> {
+  const rx = Math.max(12, 100 / 8);
   const svg = `
-    <svg width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
-      <rect width="${size}" height="${size}" rx="${Math.max(2, size / 8)}" fill="#2563eb"/>
+    <svg width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+      <rect width="100" height="100" rx="${rx}" fill="#2563eb"/>
+      <path d="${letterAPath}" fill="white"/>
     </svg>
   `;
   return sharp(Buffer.from(svg))

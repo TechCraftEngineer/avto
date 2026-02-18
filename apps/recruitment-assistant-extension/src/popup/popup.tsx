@@ -62,10 +62,13 @@ function Popup() {
     setUserEmail(null);
   };
 
+  const version = chrome.runtime.getManifest().version;
+
   if (isAuthenticated === null) {
     return (
       <div style={styles.container}>
         <p style={styles.loading}>Загрузка…</p>
+        <p style={styles.version}>v{version}</p>
       </div>
     );
   }
@@ -93,6 +96,7 @@ function Popup() {
           isLoading={isLoading}
           error={error}
         />
+        <p style={styles.version}>v{version}</p>
       </div>
     );
   }
@@ -115,6 +119,7 @@ function Popup() {
       >
         Выйти
       </button>
+      <p style={styles.version}>v{version}</p>
     </div>
   );
 }
@@ -197,6 +202,12 @@ const styles: Record<string, React.CSSProperties> = {
     border: "1px solid #fca5a5",
     borderRadius: "6px",
     cursor: "pointer",
+  },
+  version: {
+    margin: "12px 0 0",
+    fontSize: "11px",
+    color: "#9ca3af",
+    textAlign: "center" as const,
   },
 };
 
