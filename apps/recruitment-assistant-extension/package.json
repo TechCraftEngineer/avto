@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:local": "EXTENSION_API_URL=http://localhost:3000 vite",
     "build": "bun run generate-icons && tsc && vite build && bun run generate-icons:dist",
+    "build:local": "EXTENSION_API_URL=http://localhost:3000 EXTENSION_API_BASE=http://localhost:3002 bun run build",
     "generate-icons": "bun run scripts/generate-icons.ts",
     "generate-icons:dist": "bun run scripts/generate-icons.ts dist",
     "preview": "vite preview",

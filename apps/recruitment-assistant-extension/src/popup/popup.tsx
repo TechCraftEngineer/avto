@@ -17,10 +17,23 @@ function Popup() {
   const authService = useMemo(() => new AuthService(API_URL), []);
 
   useEffect(() => {
-    authService.isAuthenticated().then(setIsAuthenticated);
-    authService.getUserData().then((user) => {
-      if (user?.email) setUserEmail(user.email);
-    });
+    const refresh = () => {
+      authService.isAuthenticated().then(setIsAuthenticated);
+      authService.getUserData().then((user) => {
+        if (user?.email) setUserEmail(user.email);
+      });
+    };
+    refresh();
+    const listener = (
+      changes: { [key: string]: chrome.storage.StorageChange },
+      areaName: string,
+    ) => {
+      if (areaName === "local" && (changes.authToken || changes.userData)) {
+        refresh();
+      }
+    };
+    chrome.storage.onChanged.addListener(listener);
+    return () => chrome.storage.onChanged.removeListener(listener);
   }, [authService]);
 
   const handleLogin = async (credentials: { email: string; password: string }) => {
@@ -58,10 +71,23 @@ function Popup() {
   }
 
   if (!isAuthenticated) {
+    const handleLoginViaSite = () => {
+      const url = `${API_URL}/auth/link-ext?extensionId=${chrome.runtime.id}`;
+      chrome.tabs.create({ url });
+    };
+
     return (
       <div style={styles.container}>
         <h2 style={styles.title}>Помощник рекрутера</h2>
         <p style={styles.subtitle}>Войдите для импорта кандидатов в систему</p>
+        <button
+          type="button"
+          onClick={handleLoginViaSite}
+          style={styles.siteLoginButton}
+        >
+          Войти через сайт
+        </button>
+        <p style={styles.divider}>или</p>
         <LoginForm
           onLogin={handleLogin}
           isLoading={isLoading}
@@ -102,9 +128,27 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 600,
   },
   subtitle: {
-    margin: "0 0 16px",
+    margin: "0 0 12px",
     color: "#6b7280",
     fontSize: "13px",
+  },
+  siteLoginButton: {
+    width: "100%",
+    marginBottom: "12px",
+    padding: "10px 16px",
+    fontSize: "14px",
+    fontWeight: 500,
+    color: "#3b82f6",
+    backgroundColor: "transparent",
+    border: "1px solid #93c5fd",
+    borderRadius: "6px",
+    cursor: "pointer",
+  },
+  divider: {
+    margin: "0 0 12px",
+    color: "#9ca3af",
+    fontSize: "12px",
+    textAlign: "center" as const,
   },
   loading: {
     margin: 0,

@@ -16,6 +16,7 @@ export default defineConfig({
     react(),
     webExtension({
       manifest: "./manifest.json",
+      additionalInputs: ["src/callback.html"],
     }) as any,
   ],
   resolve: {
