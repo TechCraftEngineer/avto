@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { AuthenticatedLayout } from "./authenticated-layout";
 import type { PageContext } from "../types";
-import { styles } from "../styles";
+import { Alert, Button } from "../ui";
 
 interface ProfileViewProps {
   pageContext: Extract<PageContext, { type: "profile" }>;
@@ -47,23 +47,26 @@ export function ProfileView({ pageContext, userEmail, onOpenSettings, onLogout }
       onOpenSettings={onOpenSettings}
       onLogout={onLogout}
     >
-      <h2 style={styles.title}>
-        {isHeadHunter ? "Страница резюме" : "Профиль LinkedIn"}
-      </h2>
-      <p style={styles.subtitle}>
-        {isHeadHunter
-          ? "Извлеките данные кандидата и импортируйте в систему"
-          : "Извлеките данные профиля и импортируйте в систему"}
-      </p>
-      <button
-        type="button"
-        onClick={handleExtract}
-        disabled={isExtracting}
-        style={styles.primaryButton}
-      >
-        {isExtracting ? "Извлечение…" : "Извлечь данные"}
-      </button>
-      {error && <p style={styles.errorText}>{error}</p>}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-base font-semibold leading-tight">
+            {isHeadHunter ? "Страница резюме" : "Профиль LinkedIn"}
+          </h2>
+          <p className="text-muted-foreground text-sm">
+            {isHeadHunter
+              ? "Извлеките данные кандидата и импортируйте в систему"
+              : "Извлеките данные профиля и импортируйте в систему"}
+          </p>
+        </div>
+        <Button
+          className="w-full"
+          onClick={handleExtract}
+          disabled={isExtracting}
+        >
+          {isExtracting ? "Извлечение…" : "Извлечь данные"}
+        </Button>
+        {error && <Alert variant="destructive">{error}</Alert>}
+      </div>
     </AuthenticatedLayout>
   );
 }

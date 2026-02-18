@@ -1,3 +1,4 @@
+import "./popup.css";
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
 import { DefaultView } from "./components/default-view";
@@ -7,9 +8,9 @@ import { ResponsesView } from "./components/responses-view";
 import { SettingsView } from "./components/settings-view";
 import { VacanciesView } from "./components/vacancies-view";
 import { usePageContext } from "./hooks/use-page-context";
+import { PopupHeader } from "./components/popup-header";
 import { usePopupAuth } from "./hooks/use-popup-auth";
 import { usePopupSettings } from "./hooks/use-popup-settings";
-import { styles } from "./styles";
 
 /**
  * Popup расширения — авторизация и контекстные действия.
@@ -58,9 +59,10 @@ function Popup() {
   if (auth.isAuthenticated === null) {
     const version = chrome.runtime.getManifest().version;
     return (
-      <div style={styles.container}>
-        <p style={styles.loading}>Загрузка…</p>
-        <p style={styles.version}>v{version}</p>
+      <div className="flex min-w-[280px] flex-col items-center justify-center gap-4 p-4 font-sans text-sm">
+        <PopupHeader />
+        <p className="text-muted-foreground">Загрузка…</p>
+        <p className="text-center text-xs text-muted-foreground">v{version}</p>
       </div>
     );
   }

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { AuthenticatedLayout } from "./authenticated-layout";
-import { styles } from "../styles";
+import { Alert, Button } from "../ui";
 
 interface ResponsesViewProps {
   userEmail: string | null;
@@ -61,17 +61,24 @@ export function ResponsesView({ userEmail, onOpenSettings, onLogout }: Responses
       onOpenSettings={onOpenSettings}
       onLogout={onLogout}
     >
-      <h2 style={styles.title}>Отклики по вакансии</h2>
-      <p style={styles.subtitle}>Импортируйте отклики кандидатов в систему</p>
-      <button
-        type="button"
-        onClick={handleImportResponses}
-        disabled={isImporting}
-        style={styles.primaryButton}
-      >
-        {isImporting ? "Импорт…" : "Импортировать отклики"}
-      </button>
-      {error && <p style={styles.errorText}>{error}</p>}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-base font-semibold leading-tight">
+            Отклики по вакансии
+          </h2>
+          <p className="text-muted-foreground text-sm">
+            Импортируйте отклики кандидатов в систему
+          </p>
+        </div>
+        <Button
+          className="w-full"
+          onClick={handleImportResponses}
+          disabled={isImporting}
+        >
+          {isImporting ? "Импорт…" : "Импортировать отклики"}
+        </Button>
+        {error && <Alert variant="destructive">{error}</Alert>}
+      </div>
     </AuthenticatedLayout>
   );
 }

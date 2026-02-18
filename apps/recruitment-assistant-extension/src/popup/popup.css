@@ -1,0 +1,14 @@
+@import "tailwindcss";
+@import "@qbs-autonaim/tailwind-config/theme";
+
+@source "./**/*.{ts,tsx}";
+@source "../**/*.{ts,tsx}";
+
+@layer base {
+  html,
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: system-ui, -apple-system, sans-serif;
+  }
+}

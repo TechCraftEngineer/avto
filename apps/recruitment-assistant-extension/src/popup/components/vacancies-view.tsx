@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { styles } from "../styles";
 import type { PageContext } from "../types";
 import { AuthenticatedLayout } from "./authenticated-layout";
+import { Alert, Button } from "../ui";
 
 interface VacanciesViewProps {
   pageContext: Extract<PageContext, { type: "hh-vacancies" }>;
@@ -74,24 +74,27 @@ export function VacanciesView({
       onOpenSettings={onOpenSettings}
       onLogout={onLogout}
     >
-      <h2 style={styles.title}>
-        {pageContext.isActive ? "Активные вакансии" : "Архивные вакансии"}
-      </h2>
-      <p style={styles.subtitle}>
-        Отметьте вакансии галочками на странице и загрузите выбранные в систему.
-        Для импорта с нескольких страниц — перейдите на первую страницу списка.
-      </p>
-      <button
-        type="button"
-        onClick={handleImportSelected}
-        disabled={isImporting || (selectedCount ?? 0) === 0}
-        style={styles.primaryButton}
-      >
-        {isImporting
-          ? "Импорт…"
-          : `Загрузить выбранные (${selectedCount ?? 0})`}
-      </button>
-      {error && <p style={styles.errorText}>{error}</p>}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-base font-semibold leading-tight">
+            {pageContext.isActive ? "Активные вакансии" : "Архивные вакансии"}
+          </h2>
+          <p className="text-muted-foreground text-sm">
+            Отметьте вакансии галочками на странице и загрузите выбранные в систему.
+            Для импорта с нескольких страниц — перейдите на первую страницу списка.
+          </p>
+        </div>
+        <Button
+          className="w-full"
+          onClick={handleImportSelected}
+          disabled={isImporting || (selectedCount ?? 0) === 0}
+        >
+          {isImporting
+            ? "Импорт…"
+            : `Загрузить выбранные (${selectedCount ?? 0})`}
+        </Button>
+        {error && <Alert variant="destructive">{error}</Alert>}
+      </div>
     </AuthenticatedLayout>
   );
 }

@@ -1,5 +1,6 @@
 import { API_URL } from "../../config";
-import { styles } from "../styles";
+import { Button } from "../ui";
+import { PopupHeader } from "./popup-header";
 
 export function LoginView() {
   const handleLoginViaSite = () => {
@@ -10,13 +11,24 @@ export function LoginView() {
   const version = chrome.runtime.getManifest().version;
 
   return (
-    <div style={styles.container}>
-      <h2 style={styles.title}>Помощник рекрутера</h2>
-      <p style={styles.subtitle}>Войдите для импорта кандидатов в систему</p>
-      <button type="button" onClick={handleLoginViaSite} style={styles.siteLoginButton}>
+    <div className="flex min-w-[280px] flex-col gap-4 p-4 font-sans text-sm">
+      <PopupHeader />
+      <div className="flex flex-col gap-1">
+        <h2 className="text-base font-semibold leading-tight">
+          Помощник рекрутера
+        </h2>
+        <p className="text-muted-foreground text-sm">
+          Войдите для импорта кандидатов в систему
+        </p>
+      </div>
+      <Button
+        variant="outline"
+        className="w-full"
+        onClick={handleLoginViaSite}
+      >
         Войти через сайт
-      </button>
-      <p style={styles.version}>v{version}</p>
+      </Button>
+      <p className="text-center text-xs text-muted-foreground">v{version}</p>
     </div>
   );
 }

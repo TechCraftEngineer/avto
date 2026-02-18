@@ -1,7 +1,8 @@
 import { getExtensionApiUrl } from "../../config";
 import type { AuthService } from "../../core/auth-service";
 import type { Organization, Workspace } from "../types";
-import { styles } from "../styles";
+import { Alert, Button, Label, Select } from "../ui";
+import { PopupHeader } from "./popup-header";
 
 interface SettingsViewProps {
   authService: AuthService;
@@ -32,7 +33,6 @@ export function SettingsView({
   onError,
   onClose,
 }: SettingsViewProps) {
-
   const handleOrgChange = async (orgId: string) => {
     setSelectedOrgId(orgId);
     setSelectedWorkspaceId(null);
@@ -87,25 +87,25 @@ export function SettingsView({
   const version = chrome.runtime.getManifest().version;
 
   return (
-    <div style={styles.container}>
-      <h2 style={styles.title}>Настройки</h2>
-      <p style={styles.subtitle}>
-        Выберите организацию и рабочее пространство для работы
-      </p>
+    <div className="flex min-w-[280px] flex-col gap-4 p-4 font-sans text-sm">
+      <PopupHeader />
+      <div className="flex flex-col gap-1">
+        <h2 className="text-base font-semibold leading-tight">Настройки</h2>
+        <p className="text-muted-foreground text-sm">
+          Выберите организацию и рабочее пространство для работы
+        </p>
+      </div>
 
       {isLoadingSettings ? (
-        <p style={styles.loading}>Загрузка…</p>
+        <p className="text-muted-foreground">Загрузка…</p>
       ) : (
-        <>
-          <div style={styles.formGroup}>
-            <label htmlFor="org-select" style={styles.label}>
-              Организация
-            </label>
-            <select
+        <div className="flex flex-col gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="org-select">Организация</Label>
+            <Select
               id="org-select"
               value={selectedOrgId ?? ""}
               onChange={(e) => handleOrgChange(e.target.value)}
-              style={styles.select}
             >
               <option value="">Выберите организацию</option>
               {organizations.map((org) => (
@@ -113,19 +113,16 @@ export function SettingsView({
                   {org.name}
                 </option>
               ))}
-            </select>
+            </Select>
           </div>
 
           {selectedOrgId && (
-            <div style={styles.formGroup}>
-              <label htmlFor="workspace-select" style={styles.label}>
-                Рабочее пространство
-              </label>
-              <select
+            <div className="space-y-2">
+              <Label htmlFor="workspace-select">Рабочее пространство</Label>
+              <Select
                 id="workspace-select"
                 value={selectedWorkspaceId ?? ""}
                 onChange={(e) => handleWorkspaceChange(e.target.value)}
-                style={styles.select}
               >
                 <option value="">Выберите рабочее пространство</option>
                 {workspaces.map((ws) => (
@@ -133,34 +130,28 @@ export function SettingsView({
                     {ws.name}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
           )}
 
-          {error && <p style={styles.errorText}>{error}</p>}
+          {error && <Alert variant="destructive">{error}</Alert>}
 
-          <button
-            type="button"
-            onClick={handleSaveSettings}
-            disabled={!selectedOrgId || !selectedWorkspaceId}
-            style={{
-              ...styles.siteLoginButton,
-              color: "#fff",
-              backgroundColor: "#2563eb",
-              border: "none",
-              marginBottom: 8,
-            }}
-          >
-            Сохранить
-          </button>
-
-          <button type="button" onClick={onClose} style={styles.logoutButton}>
-            Отмена
-          </button>
-        </>
+          <div className="flex flex-col gap-2">
+            <Button
+              className="w-full"
+              onClick={handleSaveSettings}
+              disabled={!selectedOrgId || !selectedWorkspaceId}
+            >
+              Сохранить
+            </Button>
+            <Button variant="outline" className="w-full" onClick={onClose}>
+              Отмена
+            </Button>
+          </div>
+        </div>
       )}
 
-      <p style={styles.version}>v{version}</p>
+      <p className="text-center text-xs text-muted-foreground">v{version}</p>
     </div>
   );
 }
