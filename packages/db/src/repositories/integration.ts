@@ -35,6 +35,14 @@ export async function getIntegration(
 
 /**
  * Создать или обновить интеграцию
+ * 
+ * ВАЖНО: Эта функция должна вызываться минимально:
+ * - Один раз в начале процесса верификации для создания записи
+ * - При успешной авторизации для обновления credentials
+ * - В API роутерах для защиты от race conditions
+ * 
+ * Для обновления статуса используйте setIntegrationSetupStatus()
+ * Для работы с metadata используйте специализированные функции
  */
 export async function upsertIntegration(db: DbClient, data: NewIntegration) {
   const existing = await getIntegration(db, data.type, data.workspaceId);

@@ -1,7 +1,6 @@
 import {
   getIntegration,
   saveHHPendingVerificationCode,
-  upsertIntegration,
 } from "@qbs-autonaim/db";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
@@ -32,18 +31,7 @@ export const saveHH2FACode = protectedProcedure
       });
     }
 
-    let existing = await getIntegration(ctx.db, "hh", input.workspaceId);
-    if (!existing) {
-      // Гонка: job мог ещё не закоммитить upsertIntegration
-      await upsertIntegration(ctx.db, {
-        workspaceId: input.workspaceId,
-        type: "hh",
-        name: "HeadHunter",
-        credentials: { email: input.email },
-      });
-      existing = await getIntegration(ctx.db, "hh", input.workspaceId);
-    }
-
+    const existing = await getIntegration(ctx.db, "hh", input.workspaceId);
     if (!existing) {
       throw new TRPCError({
         code: "NOT_FOUND",

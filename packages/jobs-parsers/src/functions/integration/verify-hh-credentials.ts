@@ -80,12 +80,13 @@ async function resolveCaptchaLoop(
       continue;
     }
 
-    await upsertIntegration(dbInstance, {
+    // Обновляем только статус, интеграция уже создана
+    await setIntegrationSetupStatus(
+      dbInstance,
+      "hh",
       workspaceId,
-      type: "hh",
-      name: "HeadHunter",
-      credentials: email ? { email } : {},
-    });
+      "pending_captcha",
+    );
 
     await publish(
       verifyHHCredentialsChannel(workspaceId).result({
@@ -169,6 +170,14 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
           new Promise<void>((resolve) => setTimeout(resolve, ms));
 
         try {
+          // Создаём интеграцию один раз в начале
+          await upsertIntegration(db, {
+            workspaceId,
+            type: "hh",
+            name: "HeadHunter",
+            credentials: { email },
+          });
+
           browser = await puppeteer.launch(HH_CONFIG.puppeteer);
           page = await browser.newPage();
           await page.setUserAgent({ userAgent: HH_CONFIG.userAgent });
@@ -215,12 +224,6 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
                 'button[data-qa="expand-login-by_password"]',
               );
               if (authType === "code" && passwordLoginAvailable) {
-                await upsertIntegration(db, {
-                  workspaceId,
-                  type: "hh",
-                  name: "HeadHunter",
-                  credentials: { email },
-                });
                 await publish(
                   verifyHHCredentialsChannel(workspaceId).result({
                     success: false,
@@ -241,12 +244,12 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
                 await sleep(2000);
                 waitingForCode = await isWaitingForCode(page);
                 if (!waitingForCode) {
-                  await upsertIntegration(db, {
+                  await setIntegrationSetupStatus(
+                    db,
+                    "hh",
                     workspaceId,
-                    type: "hh",
-                    name: "HeadHunter",
-                    credentials: { email },
-                  });
+                    "pending_verification",
+                  );
                   await publish(
                     verifyHHCredentialsChannel(workspaceId).result({
                       success: false,
@@ -270,13 +273,6 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
               console.log(
                 "🔐 Требуется 2FA — ждём код от пользователя в открытом браузере",
               );
-
-              await upsertIntegration(db, {
-                workspaceId,
-                type: "hh",
-                name: "HeadHunter",
-                credentials: { email },
-              });
 
               await setIntegrationSetupStatus(
                 db,
@@ -367,6 +363,8 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
                       throw err;
                     }
                   }
+                  
+                  // Обновляем credentials только при успешной авторизации
                   await upsertIntegration(db, {
                     workspaceId,
                     type: "hh",
@@ -484,6 +482,7 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
 
           const cookies = await page.browserContext().cookies();
 
+          // Обновляем credentials только при успешной авторизации
           await upsertIntegration(db, {
             workspaceId,
             type: "hh",
@@ -522,12 +521,12 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
             errorMessage.includes("captcha") ||
             errorMessage.includes("требуется")
           ) {
-            await upsertIntegration(db, {
+            await setIntegrationSetupStatus(
+              db,
+              "hh",
               workspaceId,
-              type: "hh",
-              name: "HeadHunter",
-              credentials: { email },
-            });
+              "pending_captcha",
+            );
 
             await publish(
               verifyHHCredentialsChannel(workspaceId).result({

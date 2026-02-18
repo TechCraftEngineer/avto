@@ -23,6 +23,14 @@ export const verifyKworkCredentialsFunction = inngest.createFunction(
 
     const result = await step.run("verify-credentials", async () => {
       try {
+        // Создаём интеграцию один раз в начале
+        await upsertIntegration(db, {
+          workspaceId,
+          type: "kwork",
+          name: "Kwork",
+          credentials: { login, password },
+        });
+
         const api = createKworkApiClient();
         const signInResult = await signIn(api, {
           login,
@@ -39,14 +47,7 @@ export const verifyKworkCredentialsFunction = inngest.createFunction(
 
           // Код 118 — требуется капча, показать webview http://kwork.ru/captcha_only
           if (errorCode === KWORK_ERROR_CODES.CAPTCHA_REQUIRED) {
-            // Создаем интеграцию со статусом pending_captcha
-            await upsertIntegration(db, {
-              workspaceId,
-              type: "kwork",
-              name: "Kwork",
-              credentials: { login, password },
-            });
-
+            // Обновляем только статус
             await setIntegrationSetupStatus(
               db,
               "kwork",
@@ -98,7 +99,7 @@ export const verifyKworkCredentialsFunction = inngest.createFunction(
           return errorResult;
         }
 
-        // Успешная авторизация — сохраняем интеграцию с токеном
+        // Успешная авторизация — обновляем credentials с токеном
         const token = extractTokenFromSignInResponse(signInResult.data);
         const credentials: Record<string, string> = {
           login,

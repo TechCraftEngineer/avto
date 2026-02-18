@@ -1,7 +1,6 @@
 import {
   getIntegration,
   saveHHPendingCaptcha,
-  upsertIntegration,
 } from "@qbs-autonaim/db";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
@@ -28,17 +27,7 @@ export const saveHHCaptcha = protectedProcedure
       });
     }
 
-    let existing = await getIntegration(ctx.db, "hh", input.workspaceId);
-    if (!existing) {
-      await upsertIntegration(ctx.db, {
-        workspaceId: input.workspaceId,
-        type: "hh",
-        name: "HeadHunter",
-        credentials: {},
-      });
-      existing = await getIntegration(ctx.db, "hh", input.workspaceId);
-    }
-
+    const existing = await getIntegration(ctx.db, "hh", input.workspaceId);
     if (!existing) {
       throw new TRPCError({
         code: "NOT_FOUND",
