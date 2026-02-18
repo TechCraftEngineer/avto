@@ -20,6 +20,8 @@ export type { HHEmployerPageType } from "./page-detector";
 
 export {
   fetchResumeHtml,
+  fetchVacancyPrintHtml,
+  getVacancyPrintUrl,
   parseResumeFromHtml,
   FETCH_DELAY_MS,
 } from "./fetch-resume-html";

@@ -1,4 +1,8 @@
 export {
+  extractVacancyDataFromHtml,
+  type VacancyParseFromHtmlResult,
+} from "./parsers/vacancy/ai-vacancy-extractor";
+export {
   fetchActiveVacanciesList,
   fetchArchivedVacanciesList,
   importMultipleVacancies,

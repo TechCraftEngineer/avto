@@ -4,12 +4,86 @@ import {
   vacancyDataExtractionSchema,
 } from "@qbs-autonaim/ai";
 import { generateObject } from "@qbs-autonaim/lib/ai";
+import * as cheerio from "cheerio";
 import type { Page } from "puppeteer";
 import type { VacancyData } from "../../../types";
 import { HH_CONFIG } from "../../core/config/config";
 import { stripHtmlToBareTags } from "../../utils/html-utils";
 import { humanDelay } from "../../utils/human-behavior";
 import { getVacancyPrintUrl } from "../../utils/print-url";
+
+/**
+ * Результат парсинга HTML вакансии (без Puppeteer).
+ * Используется расширением: fetch HTML → отправка на API → AI-парсинг.
+ */
+export interface VacancyParseFromHtmlResult {
+  description: string;
+  workLocation?: string | null;
+  region?: string | null;
+  title?: string;
+}
+
+/**
+ * Извлекает данные вакансии из HTML через AI.
+ * Не требует Puppeteer — принимает готовый HTML (например, от fetch в расширении).
+ */
+export async function extractVacancyDataFromHtml(
+  rawHtml: string,
+  vacancyUrl: string,
+  options: {
+    isArchived?: boolean;
+    region?: string;
+  } = {},
+): Promise<VacancyParseFromHtmlResult | null> {
+  try {
+    const idFromParam = vacancyUrl.match(/[?&]id=(\d+)/)?.[1];
+    const idFromPath = vacancyUrl.match(/\/vacancy\/(\d+)/)?.[1];
+    const externalId = idFromParam ?? idFromPath ?? "";
+
+    if (!externalId) {
+      console.warn(
+        `⚠️ Не удалось извлечь externalId из URL: ${vacancyUrl}`,
+      );
+      return null;
+    }
+
+    const $ = cheerio.load(rawHtml);
+    const mainContent = $("div.main-content").html() ?? $("body").html() ?? "";
+    const bareHtml = stripHtmlToBareTags(mainContent);
+
+    if (!bareHtml.trim()) {
+      console.error("❌ Пустой HTML после очистки");
+      return null;
+    }
+
+    const result = await generateObject({
+      schema: vacancyDataExtractionSchema,
+      prompt: buildVacancyDataExtractionPrompt(bareHtml),
+      generationName: "extract-vacancy-data",
+      entityId: externalId,
+      metadata: { vacancyUrl, externalId },
+    });
+
+    const extracted = result.object;
+
+    if (!extracted?.title?.trim()) {
+      console.warn("AI не извлёк название вакансии");
+      return null;
+    }
+
+    const description = buildDescriptionFromSections(extracted);
+
+    return {
+      description,
+      workLocation: extracted.workLocation ?? null,
+      region: extracted.region ?? options.region ?? null,
+      title: extracted.title,
+    };
+  } catch (error) {
+    console.error("❌ Ошибка AI-извлечения данных вакансии из HTML:", error);
+    return null;
+  }
+}
 
 /**
  * Извлекает HTML-контент print-страницы вакансии.

@@ -6,6 +6,7 @@ import { getExtensionApiUrl } from "../../config";
 import {
   FETCH_DELAY_MS,
   fetchResumeHtml,
+  fetchVacancyPrintHtml,
   parseResumeFromHtml,
   type HHEmployerPageType,
   type ParsedResponse,
@@ -89,8 +90,52 @@ export async function runVacanciesImportSelected(
       };
     }
 
-    const data = response.data as { imported?: number; updated?: number };
+    const data = response.data as {
+      imported?: number;
+      updated?: number;
+      savedExternalIds?: string[];
+    };
     const imported = (data?.imported ?? 0) + (data?.updated ?? 0);
+    const savedIds = new Set(data?.savedExternalIds ?? []);
+
+    if (savedIds.size > 0) {
+      const toParse = vacancies.filter((v) => savedIds.has(v.externalId));
+      for (let i = 0; i < toParse.length; i++) {
+        const v = toParse[i];
+        if (!v?.url) continue;
+        try {
+          onProgress?.({
+            stage: "vacancies",
+            current: i,
+            total: toParse.length,
+            message: `Парсинг описания: ${i + 1}/${toParse.length}`,
+          });
+          const html = await fetchVacancyPrintHtml(v.url);
+          await chrome.runtime.sendMessage({
+            type: "API_REQUEST",
+            payload: {
+              url: getExtensionApiUrl("hh-import/parse-vacancy-html"),
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+              body: {
+                workspaceId,
+                vacancyExternalId: v.externalId,
+                vacancyUrl: v.url,
+                htmlContent: html,
+                isArchived: !v.isActive,
+                region: v.region,
+              },
+            },
+          });
+        } catch (_e) {
+          // Пропускаем ошибки парсинга отдельных вакансий
+        }
+        await new Promise((r) => setTimeout(r, FETCH_DELAY_MS));
+      }
+    }
 
     await setSelectedIds(new Set());
     return { success: true, vacanciesImported: imported };
@@ -168,10 +213,56 @@ export async function runVacanciesImport(
       };
     }
 
-    const data = response.data as { imported?: number; updated?: number };
+    const data = response.data as {
+      imported?: number;
+      updated?: number;
+      savedExternalIds?: string[];
+    };
+    const imported = (data?.imported ?? 0) + (data?.updated ?? 0);
+    const savedIds = new Set(data?.savedExternalIds ?? []);
+
+    if (savedIds.size > 0) {
+      const toParse = vacancies.filter((v) => savedIds.has(v.externalId));
+      for (let i = 0; i < toParse.length; i++) {
+        const v = toParse[i];
+        if (!v?.url) continue;
+        try {
+          onProgress?.({
+            stage: "vacancies",
+            current: i,
+            total: toParse.length,
+            message: `Парсинг описания: ${i + 1}/${toParse.length}`,
+          });
+          const html = await fetchVacancyPrintHtml(v.url);
+          await chrome.runtime.sendMessage({
+            type: "API_REQUEST",
+            payload: {
+              url: getExtensionApiUrl("hh-import/parse-vacancy-html"),
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+              body: {
+                workspaceId,
+                vacancyExternalId: v.externalId,
+                vacancyUrl: v.url,
+                htmlContent: html,
+                isArchived: !v.isActive,
+                region: v.region,
+              },
+            },
+          });
+        } catch (_e) {
+          // Пропускаем ошибки парсинга отдельных вакансий
+        }
+        await new Promise((r) => setTimeout(r, FETCH_DELAY_MS));
+      }
+    }
+
     return {
       success: true,
-      vacanciesImported: (data?.imported ?? 0) + (data?.updated ?? 0),
+      vacanciesImported: imported,
     };
   } catch (e) {
     return {

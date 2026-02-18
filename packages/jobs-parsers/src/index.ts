@@ -18,11 +18,13 @@ export { refreshVacancyResponsesFunction } from "./functions/vacancy/refresh-res
 export { updateSingleVacancyFunction } from "./functions/vacancy/update-single";
 export {
   enrichHHResponses,
+  extractVacancyDataFromHtml,
   fetchActiveVacanciesList,
   fetchArchivedVacanciesList,
   importMultipleVacancies,
   importSingleVacancy,
   type RunHHArchivedVacancyParserOptions,
+  type VacancyParseFromHtmlResult,
   refreshVacancyResponses,
   runHHArchivedVacancyParser,
   runHHParser,
