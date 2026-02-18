@@ -9,7 +9,7 @@ export default defineConfig({
       process.env.EXTENSION_API_URL ?? "https://app.avtonaim.qbsoft.ru",
     ),
     __EXTENSION_API_BASE__: JSON.stringify(
-      process.env.EXTENSION_API_BASE || "",
+      process.env.EXTENSION_API_BASE ?? "http://localhost:3002",
     ),
   },
   plugins: [

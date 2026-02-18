@@ -4,7 +4,6 @@ import { chatRouter } from "./routers/chat";
 import { botRouter } from "./routers/company";
 import { customDomainRouter } from "./routers/custom-domain";
 import { draftRouter } from "./routers/draft";
-import { extensionRouter } from "./routers/extension";
 import { filesRouter } from "./routers/files";
 import { freelancePlatformsRouter } from "./routers/freelance-platforms";
 import { funnelRouter } from "./routers/funnel";
@@ -51,7 +50,6 @@ export const appRouter = createTRPCRouter({
   customDomain: customDomainRouter,
   chat: chatRouter,
   draft: draftRouter,
-  extension: extensionRouter,
   ...(process.env.NODE_ENV !== "production" && { test: testRouter }),
 });
 
