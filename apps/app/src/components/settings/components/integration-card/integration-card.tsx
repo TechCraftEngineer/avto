@@ -113,29 +113,27 @@ export function IntegrationCard({
                 {availableIntegration.name}
               </h3>
               {isConnected ? (
-                <>
-                  {needsSetup ? (
-                    <Badge variant="outline" className="gap-1 w-fit border-orange-500 text-orange-700 dark:text-orange-400">
-                      <AlertCircle className="h-3 w-3" />
-                      Требуется настройка
-                    </Badge>
-                  ) : hasAuthError ? (
-                    <Badge variant="destructive" className="gap-1 w-fit">
-                      <XCircle className="h-3 w-3" />
-                      Ошибка авторизации
-                    </Badge>
-                  ) : isActive ? (
-                    <Badge variant="default" className="gap-1 w-fit">
-                      <CheckCircle2 className="h-3 w-3" />
-                      Активна
-                    </Badge>
-                  ) : (
-                    <Badge variant="secondary" className="gap-1 w-fit">
-                      <XCircle className="h-3 w-3" />
-                      Неактивна
-                    </Badge>
-                  )}
-                </>
+                needsSetup ? (
+                  <Badge variant="outline" className="gap-1 w-fit border-orange-500 text-orange-700 dark:text-orange-400">
+                    <AlertCircle className="h-3 w-3" />
+                    Требуется настройка
+                  </Badge>
+                ) : hasAuthError ? (
+                  <Badge variant="destructive" className="gap-1 w-fit">
+                    <XCircle className="h-3 w-3" />
+                    Ошибка авторизации
+                  </Badge>
+                ) : isActive ? (
+                  <Badge variant="default" className="gap-1 w-fit">
+                    <CheckCircle2 className="h-3 w-3" />
+                    Активна
+                  </Badge>
+                ) : (
+                  <Badge variant="secondary" className="gap-1 w-fit">
+                    <XCircle className="h-3 w-3" />
+                    Неактивна
+                  </Badge>
+                )
               ) : (
                 <Badge variant="outline" className="w-fit">
                   Не подключена

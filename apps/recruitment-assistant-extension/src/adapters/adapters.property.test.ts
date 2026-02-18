@@ -8,7 +8,6 @@
 import * as fc from "fast-check";
 import { Window } from "happy-dom";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import type { PlatformAdapter } from "./base/platform-adapter";
 import { HeadHunterAdapter } from "./headhunter/headhunter-adapter";
 import { LinkedInAdapter } from "./linkedin/linkedin-adapter";
 

@@ -1,6 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "bun:test";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import React from "react";
 import type { CandidateData } from "../../shared/types";
 import { DataPanel } from "./data-panel";
 

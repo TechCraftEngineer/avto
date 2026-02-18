@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import type { CandidateData } from "../../shared/types";
 import { ContactInfo } from "./contact-info";
 import { EditableField } from "./editable-field";

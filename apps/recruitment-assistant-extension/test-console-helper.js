@@ -456,7 +456,7 @@ function testLinkedIn() {
   printSection("6. Контакты", contacts);
 
   // Полное извлечение
-  console.log("\n" + "=".repeat(50));
+  console.log(`\n${"=".repeat(50)}`);
   console.log("7. Полное извлечение данных");
   console.log("=".repeat(50));
   console.time("⏱️ Полное извлечение");
@@ -534,7 +534,7 @@ function testHeadHunter() {
   printSection("6. Контакты", contacts);
 
   // Полное извлечение
-  console.log("\n" + "=".repeat(50));
+  console.log(`\n${"=".repeat(50)}`);
   console.log("7. Полное извлечение данных");
   console.log("=".repeat(50));
   console.time("⏱️ Полное извлечение");
@@ -553,7 +553,7 @@ function testHeadHunter() {
 }
 
 // Автоматическое определение платформы и запуск теста
-function autoTest() {
+function _autoTest() {
   if (window.location.hostname.includes("linkedin.com")) {
     return testLinkedIn();
   } else if (window.location.hostname.includes("hh.ru")) {

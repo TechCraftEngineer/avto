@@ -1,6 +1,6 @@
 import puppeteer from 'puppeteer';
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 async function main() {
   const cookiesPath = process.argv[2] || './scripts/cookies.json';
@@ -8,7 +8,7 @@ async function main() {
   let cookies;
   try {
     cookies = JSON.parse(readFileSync(resolve(cookiesPath), 'utf-8'));
-  } catch (error) {
+  } catch (_error) {
     console.error('Не удалось загрузить cookies из файла:', cookiesPath);
     process.exit(1);
   }

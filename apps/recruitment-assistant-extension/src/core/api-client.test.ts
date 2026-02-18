@@ -104,7 +104,7 @@ describe("ApiClient", () => {
       expect(callArgs[0]).toBe("https://api.example.com/api/candidates/import");
       expect(callArgs[1].method).toBe("POST");
       expect(callArgs[1].headers["Content-Type"]).toBe("application/json");
-      expect(callArgs[1].headers["Authorization"]).toBe(
+      expect(callArgs[1].headers.Authorization).toBe(
         "Bearer test-token-123",
       );
     });
@@ -673,7 +673,7 @@ describe("Property-based тесты для ApiClient", () => {
           expect(headers).toHaveProperty("Authorization");
 
           // Проверяем формат Bearer {token}
-          const authHeader = headers["Authorization"];
+          const authHeader = headers.Authorization;
           expect(authHeader).toMatch(/^Bearer .+$/);
 
           // Проверяем, что токен соответствует настройкам
@@ -711,7 +711,7 @@ describe("Property-based тесты для ApiClient", () => {
         expect(headers).toHaveProperty("Authorization");
 
         // Проверяем формат Bearer {token}
-        const authHeader = headers["Authorization"];
+        const authHeader = headers.Authorization;
         expect(authHeader).toMatch(/^Bearer .+$/);
         expect(authHeader).toBe(`Bearer ${settings.apiToken}`);
       }),
@@ -767,7 +767,7 @@ describe("Property-based тесты для ApiClient", () => {
 
           // Assert
           const callArgs = mockFetch.mock.calls[0];
-          const authHeader = callArgs[1].headers["Authorization"];
+          const authHeader = callArgs[1].headers.Authorization;
 
           // Токен должен быть точно таким же, как в настройках
           expect(authHeader).toBe(`Bearer ${apiToken}`);
@@ -820,7 +820,7 @@ describe("Property-based тесты для ApiClient", () => {
         await client.importCandidate(candidateData, "org-123");
 
         const importCallHeaders = mockFetch.mock.calls[0][1].headers;
-        expect(importCallHeaders["Authorization"]).toBe(
+        expect(importCallHeaders.Authorization).toBe(
           `Bearer ${settings.apiToken}`,
         );
 
@@ -832,7 +832,7 @@ describe("Property-based тесты для ApiClient", () => {
         await client.testConnection();
 
         const testCallHeaders = mockFetch.mock.calls[1][1].headers;
-        expect(testCallHeaders["Authorization"]).toBe(
+        expect(testCallHeaders.Authorization).toBe(
           `Bearer ${settings.apiToken}`,
         );
       }),

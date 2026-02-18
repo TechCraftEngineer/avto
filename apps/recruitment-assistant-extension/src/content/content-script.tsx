@@ -6,7 +6,6 @@
  * извлечение данных, отображение панели, редактирование, экспорт и импорт.
  */
 
-import React from "react";
 import type { Root } from "react-dom/client";
 import { createRoot } from "react-dom/client";
 import type { PlatformAdapter } from "../adapters/base/platform-adapter";
@@ -816,28 +815,6 @@ export class ContentScript {
         type: "error",
         message: errorMessage,
       });
-    }
-  }
-
-  /**
-   * Проверяет, авторизован ли пользователь
-   */
-  private async checkAuthentication(): Promise<boolean> {
-    try {
-      const result = await chrome.storage.local.get(["authToken", "userData"]);
-      const token = result.authToken;
-      const userData = result.userData as { organizationId?: string } | undefined;
-      return (
-        typeof token === "string" &&
-        !!userData &&
-        typeof userData.organizationId === "string"
-      );
-    } catch (error) {
-      console.error(
-        "[Recruitment Assistant] Ошибка проверки авторизации:",
-        error,
-      );
-      return false;
     }
   }
 

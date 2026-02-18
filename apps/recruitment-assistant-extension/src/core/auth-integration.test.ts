@@ -45,7 +45,7 @@ const mockStorage = {
 };
 
 // Мок для fetch
-const mockFetch = mock((url: string, options?: RequestInit) => {
+const mockFetch = mock((_url: string, _options?: RequestInit) => {
   return Promise.resolve({
     ok: true,
     json: () => Promise.resolve({}),

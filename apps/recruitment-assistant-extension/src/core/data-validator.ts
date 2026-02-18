@@ -2,7 +2,6 @@
  * Валидатор данных кандидата
  */
 
-import { z } from "zod";
 import { CandidateDataSchema, SettingsSchema } from "../shared/schemas";
 import type { CandidateData, Settings } from "../shared/types";
 

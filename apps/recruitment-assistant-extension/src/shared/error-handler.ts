@@ -158,7 +158,7 @@ export class ErrorHandler {
       actionButton.className = "ra-notification__action";
       actionButton.textContent = notification.action.label;
       actionButton.onclick = () => {
-        notification.action!.callback();
+        notification.action?.callback();
         notificationElement.remove();
       };
       notificationElement.appendChild(actionButton);

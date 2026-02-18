@@ -1,6 +1,5 @@
 import {
   getIntegrationCredentials,
-  markIntegrationAuthError,
 } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { validateCredentials } from "../core/auth/auth";

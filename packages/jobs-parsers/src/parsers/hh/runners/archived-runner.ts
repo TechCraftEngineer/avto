@@ -4,8 +4,6 @@ import type { VacancyData } from "../../types";
 import { validateCredentials } from "../core/auth/auth";
 import { setupPageWithAuth } from "../core/browser/browser-setup";
 import { closeBrowserSafely } from "../core/browser/browser-utils";
-import { fetchArchivedVacanciesList } from "../fetchers/fetch-archived-vacancy-list";
-import { fetchActiveVacanciesList } from "../fetchers/fetch-active-vacancy-list";
 import { parseArchivedVacancyResponses } from "../parsers/response/archived-response-parser";
 import { parseSingleVacancy } from "../parsers/vacancy/vacancy-parser";
 

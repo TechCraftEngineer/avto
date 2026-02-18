@@ -1,4 +1,4 @@
-import React, { useId } from "react";
+import { useId } from "react";
 import type { EducationEntry } from "../../shared/types";
 import { EditableField } from "./editable-field";
 

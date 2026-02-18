@@ -11,7 +11,7 @@ describe("LoginForm", () => {
   let mockOnLogin: ReturnType<typeof mock>;
 
   beforeEach(() => {
-    mockOnLogin = mock(async (credentials: AuthCredentials) =>
+    mockOnLogin = mock(async (_credentials: AuthCredentials) =>
       Promise.resolve(),
     );
   });
@@ -385,7 +385,7 @@ describe("LoginForm", () => {
         <LoginForm onLogin={mockOnLogin} isLoading={false} error={null} />,
       );
 
-      const longEmail = "a".repeat(100) + "@example.com";
+      const longEmail = `${"a".repeat(100)}@example.com`;
       const emailInput = screen.getByLabelText("Электронная почта");
       fireEvent.change(emailInput, { target: { value: longEmail } });
 

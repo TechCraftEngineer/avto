@@ -6,7 +6,7 @@
  * Проверяет функциональность редактирования данных (Требование 8.5)
  */
 
-import { beforeEach, describe, expect, it, mock } from "bun:test";
+import { beforeEach, describe, expect, it, } from "bun:test";
 import { DataExtractor } from "../core/data-extractor";
 import type { CandidateData } from "../shared/types";
 import { ContentScript } from "./content-script";

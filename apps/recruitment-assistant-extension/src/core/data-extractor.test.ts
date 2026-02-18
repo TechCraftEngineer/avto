@@ -5,7 +5,6 @@
 import { beforeEach, describe, expect, it, vi } from "bun:test";
 import { HeadHunterAdapter } from "../adapters/headhunter/headhunter-adapter";
 import { LinkedInAdapter } from "../adapters/linkedin/linkedin-adapter";
-import type { CandidateData } from "../shared/types";
 import { DataExtractor } from "./data-extractor";
 
 describe("DataExtractor", () => {

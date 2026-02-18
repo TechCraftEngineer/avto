@@ -9,7 +9,6 @@ import { toast } from "sonner";
 import { triggerVerifyHHCredentials } from "~/actions/integration";
 import { useTRPC } from "~/trpc/react";
 import {
-  type HHIntegrationState,
   hhIntegrationReducer,
   initialHHIntegrationState,
 } from "./hh-integration-state";
@@ -22,7 +21,7 @@ interface UseHHIntegrationProps {
 
 export function useHHIntegration({
   workspaceId,
-  onSuccess,
+  onSuccess: _onSuccess,
 }: UseHHIntegrationProps) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
