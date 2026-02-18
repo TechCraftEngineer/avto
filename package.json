@@ -23,6 +23,7 @@
     "dev": "turbo watch dev --continue",
     "dev:app": "turbo watch dev -F @qbs-autonaim/app...",
     "dev:webhooks": "turbo watch dev -F @qbs-autonaim/webhooks",
+    "dev:extension-api": "turbo watch dev -F @qbs-autonaim/extension-api",
     "dev:all": "concurrently \"bun run tg:dev\" \"bun run jobs:dev\" \"bun run dev:webhooks\"",
     "jobs:dev": "bun --filter @qbs-autonaim/jobs --filter @qbs-autonaim/jobs-parsers dev",
     "tg": "bun --filter @qbs-autonaim/tg-client start",

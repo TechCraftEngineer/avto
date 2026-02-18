@@ -1,0 +1,24 @@
+{
+  "name": "@qbs-autonaim/extension-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --env-file ../../.env --hot src/index.ts",
+    "start": "bun run --env-file ../../.env src/index.ts",
+    "build": "bun build src/index.ts --outdir dist --target bun",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@qbs-autonaim/db": "workspace:*",
+    "@qbs-autonaim/jobs": "workspace:*",
+    "@qbs-autonaim/jobs-parsers": "workspace:*",
+    "hono": "^4.11.9",
+    "zod": "4.3.6"
+  },
+  "devDependencies": {
+    "@qbs-autonaim/tsconfig": "workspace:*",
+    "@types/bun": "^1.3.9",
+    "typescript": "5.9.3"
+  }
+}

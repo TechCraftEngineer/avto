@@ -8,6 +8,9 @@ export default defineConfig({
     __API_URL__: JSON.stringify(
       process.env.EXTENSION_API_URL ?? "https://app.avtonaim.qbsoft.ru",
     ),
+    __EXTENSION_API_BASE__: JSON.stringify(
+      process.env.EXTENSION_API_BASE || "",
+    ),
   },
   plugins: [
     react(),
