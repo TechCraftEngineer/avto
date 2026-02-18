@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AuthenticatedLayout } from "./AuthenticatedLayout";
+import { AuthenticatedLayout } from "./authenticated-layout";
 import type { PageContext } from "../types";
 import { styles } from "../styles";
 

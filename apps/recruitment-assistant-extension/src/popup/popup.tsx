@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
-import { DefaultView } from "./components/DefaultView";
-import { LoginView } from "./components/LoginView";
-import { ProfileView } from "./components/ProfileView";
-import { ResponsesView } from "./components/ResponsesView";
-import { SettingsView } from "./components/SettingsView";
-import { VacanciesView } from "./components/VacanciesView";
+import { DefaultView } from "./components/default-view";
+import { LoginView } from "./components/login-view";
+import { ProfileView } from "./components/profile-view";
+import { ResponsesView } from "./components/responses-view";
+import { SettingsView } from "./components/settings-view";
+import { VacanciesView } from "./components/vacancies-view";
 import { usePageContext } from "./hooks/use-page-context";
 import { usePopupAuth } from "./hooks/use-popup-auth";
 import { usePopupSettings } from "./hooks/use-popup-settings";

@@ -1,4 +1,4 @@
-import { AuthenticatedLayout } from "./AuthenticatedLayout";
+import { AuthenticatedLayout } from "./authenticated-layout";
 import { styles } from "../styles";
 
 interface DefaultViewProps {
