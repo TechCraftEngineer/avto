@@ -553,7 +553,7 @@ function testHeadHunter() {
 }
 
 // Автоматическое определение платформы и запуск теста
-function _autoTest() {
+function autoTest() {
   if (window.location.hostname.includes("linkedin.com")) {
     return testLinkedIn();
   } else if (window.location.hostname.includes("hh.ru")) {

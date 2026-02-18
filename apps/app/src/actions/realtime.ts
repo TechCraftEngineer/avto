@@ -150,7 +150,7 @@ export async function fetchTelegramMessagesToken(conversationId: string) {
   return token;
 }
 
-const workspaceRequestSchema = z.object({
+const WORKSPACE_REQUEST_SCHEMA = z.object({
   workspaceId: z.string().min(1, "ID рабочей области обязателен"),
   requestId: z.string().min(1, "ID запроса обязателен"),
 });
@@ -162,7 +162,7 @@ export async function fetchActiveVacanciesListToken(
   workspaceId: string,
   requestId: string,
 ) {
-  const validationResult = workspaceRequestSchema.safeParse({
+  const validationResult = WORKSPACE_REQUEST_SCHEMA.safeParse({
     workspaceId,
     requestId,
   });

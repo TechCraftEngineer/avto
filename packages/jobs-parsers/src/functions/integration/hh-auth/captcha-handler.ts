@@ -35,7 +35,7 @@ export async function resolveCaptchaLoop(ctx: AuthContext): Promise<void> {
       }),
     );
 
-    const captchaTimeout = Date.now() + pollTimeoutMs - (Date.now() - startedAt);
+    const captchaTimeout = startedAt + pollTimeoutMs;
     let captchaText: string | null = null;
 
     while (Date.now() < captchaTimeout) {
@@ -59,16 +59,17 @@ export async function resolveCaptchaLoop(ctx: AuthContext): Promise<void> {
     if (result.success) return;
 
     if (result.error?.includes("Неверная")) {
+      const freshImageUrl = await getCaptchaImageUrl(page);
       await publish(
         verifyHHCredentialsChannel(workspaceId).result({
           success: false,
           isValid: false,
           captchaRequired: true,
-          captchaImageUrl: imageUrl,
+          captchaImageUrl: freshImageUrl ?? imageUrl,
           message: result.error,
         }),
       );
     }
-    await sleep(1000);
+    await sleep(pollIntervalMs);
   }
 }

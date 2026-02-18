@@ -5,30 +5,7 @@ import {
 import { inngest } from "@qbs-autonaim/jobs/client";
 import { z } from "zod";
 import { importMultipleVacancies } from "../../parsers/hh";
-
-/**
- * Определяет, является ли ошибка связанной с авторизацией HH.ru
- */
-function isHHAuthError(error: unknown): boolean {
-  if (!error) return false;
-
-  const message =
-    error instanceof Error ? error.message : String(error).toLowerCase();
-  const msg = message.toLowerCase();
-
-  // Типичные фразы при слетевшей авторизации
-  const authPhrases = [
-    "не удалось войти",
-    "не удалось авторизоваться",
-    "авторизация не удалась",
-    "авторизация слетела",
-    "требуется повторная авторизация",
-    "требуется повторная настройка интеграции",
-    "не найдены учетные данные для hh",
-  ];
-
-  return authPhrases.some((phrase) => msg.includes(phrase.toLowerCase()));
-}
+import { isHHAuthError } from "../../utils/hh-auth-error";
 
 /**
  * Схема валидации входных данных для импорта архивных вакансий
@@ -204,11 +181,8 @@ export const importArchivedVacanciesFunction = inngest.createFunction(
           error,
         );
 
-        let errorMessage = "Не удалось подключиться к источнику вакансий";
-        
-        if (error instanceof Error) {
-          errorMessage = error.message;
-        }
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
 
         await publish(
           importArchivedVacanciesChannel(workspaceId).progress({

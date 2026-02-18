@@ -49,11 +49,12 @@ export async function handleAuthError(
     };
   }
 
-  if (
-    errorMessage.includes("капча") ||
-    errorMessage.includes("captcha") ||
-    errorMessage.includes("требуется")
-  ) {
+  const isCaptchaRelated =
+    errorMessage.toLowerCase().includes("капча") ||
+    errorMessage.toLowerCase().includes("captcha") ||
+    /требуется\s*(.*\s+)?(капч|captcha)/i.test(errorMessage);
+
+  if (isCaptchaRelated) {
     await setIntegrationSetupStatus(dbInstance, "hh", workspaceId, "pending_captcha");
 
     await publish(

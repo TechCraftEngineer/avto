@@ -15,7 +15,7 @@ export async function performPasswordLogin(
   });
 
   await page.waitForSelector('input[type="text"][name="username"]', {
-    visible: false,
+    visible: true,
     timeout: 15000,
   });
   await page.click('input[type="text"][name="username"]', { clickCount: 3 });
@@ -24,13 +24,16 @@ export async function performPasswordLogin(
   await page.type('input[type="text"][name="username"]', email, { delay: 100 });
 
   await page.waitForSelector('button[data-qa="expand-login-by_password"]', {
-    visible: false,
+    visible: true,
     timeout: 10000,
   });
   await page.click('button[data-qa="expand-login-by_password"]');
   await sleep(2000);
 
-  await page.waitForSelector('input[type="password"][name="password"]', { visible: false });
+  await page.waitForSelector('input[type="password"][name="password"]', {
+    visible: true,
+    timeout: 15000,
+  });
   await page.type('input[type="password"][name="password"]', password, { delay: 100 });
   await sleep(Math.random() * 1000 + 500);
   await page.click('button[type="submit"]');

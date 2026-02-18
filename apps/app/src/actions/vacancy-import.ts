@@ -82,19 +82,19 @@ export async function fetchImportVacancyByUrlToken(
   return token;
 }
 
-const vacancySchema = z.object({
-  id: z.string().min(1),
-  title: z.string().min(1),
-  url: z.string().url(),
+const VacancyDataSchema = z.object({
+  id: z.string().min(1, "ID вакансии обязателен"),
+  title: z.string().min(1, "Название вакансии обязательно"),
+  url: z.string().url("Неверный формат URL"),
   region: z.string().optional(),
 });
 
-const selectedActiveVacanciesWithVacanciesSchema = z.object({
+const SelectedActiveVacanciesWithVacanciesSchema = z.object({
   workspaceId: z.string().min(1, "ID рабочей области обязателен"),
   vacancyIds: z
     .array(z.string())
     .min(1, "Выберите хотя бы одну вакансию для импорта"),
-  vacancies: z.array(vacancySchema).optional(),
+  vacancies: z.array(VacancyDataSchema).optional(),
 });
 
 /**
@@ -110,7 +110,7 @@ export async function triggerImportSelectedActiveVacancies(
     region?: string;
   }>,
 ): Promise<void> {
-  const payloadValidation = selectedActiveVacanciesWithVacanciesSchema.safeParse(
+  const payloadValidation = SelectedActiveVacanciesWithVacanciesSchema.safeParse(
     { workspaceId, vacancyIds, vacancies },
   );
 

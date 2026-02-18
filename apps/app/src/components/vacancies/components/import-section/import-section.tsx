@@ -98,9 +98,7 @@ export function VacancyImportSection() {
     } catch (error) {
       console.error("Ошибка получения списка активных вакансий:", error);
       toast.error(
-        error instanceof Error
-          ? error.message
-          : "Не удалось получить список активных вакансий. Попробуйте позже.",
+        "Не удалось получить список активных вакансий. Попробуйте позже.",
       );
       setIsSelectingActiveVacancies(false);
       setActiveListRequestId(null);
@@ -160,9 +158,7 @@ export function VacancyImportSection() {
     } catch (error) {
       console.error("Ошибка получения списка архивных вакансий:", error);
       toast.error(
-        error instanceof Error
-          ? error.message
-          : "Не удалось получить список архивных вакансий. Попробуйте позже.",
+        "Не удалось получить список архивных вакансий. Попробуйте позже.",
       );
       setIsSelectingArchivedVacancies(false);
       setArchivedListRequestId(null);

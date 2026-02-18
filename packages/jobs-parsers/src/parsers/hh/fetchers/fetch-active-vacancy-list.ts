@@ -61,10 +61,24 @@ export async function fetchActiveVacanciesList(workspaceId: string): Promise<
       await page.waitForSelector('[data-qa="vacancy-serp__vacancy"]', {
         timeout: HH_CONFIG.timeouts.selector,
       });
-    } catch {
-      // Таймаут — у пользователя нет активных вакансий
-      console.log("✅ Активных вакансий не найдено (пустой список)");
-      return vacancies;
+    } catch (err) {
+      // Проверяем явный пустой список: страница вакансий загружена, но вакансий нет
+      try {
+        await page.waitForSelector('[data-qa="vacancy-serp"]', {
+          timeout: 3000,
+        });
+        const vacancyCount = await page.$$eval(
+          '[data-qa="vacancy-serp__vacancy"]',
+          (els) => els.length,
+        );
+        if (vacancyCount === 0) {
+          console.log("✅ Активных вакансий не найдено (пустой список)");
+          return vacancies;
+        }
+      } catch {
+        // Не на странице вакансий — пробрасываем исходную ошибку
+      }
+      throw err;
     }
 
     let hasNextPage = true;

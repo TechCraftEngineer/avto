@@ -58,9 +58,8 @@ export function HHVerificationCodeDialog({
 }: HHVerificationCodeDialogProps) {
   const [attempts, setAttempts] = useState(0);
   const [resendCountdown, setResendCountdown] = useState(60);
-  const [isWaitingForResult, setIsWaitingForResult] = useState(false);
 
-  const showLoader = isWaitingForResult || isCodeAccepted;
+  const showLoader = isLoading || isCodeAccepted;
 
   // Кулдаун 60 сек — кнопка «Отправить повторно» на hh.ru (data-qa="oauth-merge-by-code__code-resend") появляется через минуту
   useEffect(() => {
@@ -86,14 +85,12 @@ export function HHVerificationCodeDialog({
   const handleSubmit = (data: VerificationCodeValues) => {
     if (attempts >= 3) return;
     setAttempts((prev) => prev + 1);
-    setIsWaitingForResult(true);
     onSubmitCode(data.code);
   };
 
   const handleClose = () => {
     form.reset();
     setAttempts(0);
-    setIsWaitingForResult(false);
     onClose();
   };
 

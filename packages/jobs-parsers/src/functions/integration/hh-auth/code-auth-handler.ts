@@ -75,37 +75,55 @@ export async function handleCodeAuth(
       }
 
       let cookies: CookieData[] = [];
-      for (let attempt = 0; attempt < 3; attempt++) {
-        try {
-          cookies = await page.browserContext().cookies();
-          break;
-        } catch (err) {
-          const msg = err instanceof Error ? err.message : String(err);
-          if (msg.includes("Execution context was destroyed") && attempt < 2) {
-            await sleep(2000 * (attempt + 1));
-            continue;
+      try {
+        for (let attempt = 0; attempt < 3; attempt++) {
+          try {
+            cookies = await page.browserContext().cookies();
+            break;
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : String(err);
+            if (msg.includes("Execution context was destroyed") && attempt < 2) {
+              await sleep(2000 * (attempt + 1));
+              continue;
+            }
+            throw err;
           }
-          throw err;
         }
+
+        await upsertIntegration(dbInstance, {
+          workspaceId,
+          type: "hh",
+          name: "HeadHunter",
+          credentials: authType === "password" && password ? { email, password } : { email },
+        });
+        await saveCookies("hh", cookies, workspaceId);
+        await setIntegrationSetupStatus(dbInstance, "hh", workspaceId, "completed");
+
+        await publish(
+          verifyHHCredentialsChannel(workspaceId).result({
+            success: true,
+            isValid: true,
+          }),
+        );
+        return { success: true, isValid: true };
+      } catch (persistErr) {
+        const errMsg =
+          persistErr instanceof Error ? persistErr.message : String(persistErr);
+        await publish(
+          verifyHHCredentialsChannel(workspaceId).result({
+            success: false,
+            isValid: false,
+            error: errMsg,
+          }),
+        );
+        return {
+          success: false,
+          isValid: false,
+          error: errMsg ?? "Ошибка сохранения интеграции",
+        };
+      } finally {
+        await closeBrowserSafely(browser);
       }
-
-      await upsertIntegration(dbInstance, {
-        workspaceId,
-        type: "hh",
-        name: "HeadHunter",
-        credentials: authType === "password" && password ? { email, password } : { email },
-      });
-      await saveCookies("hh", cookies, workspaceId);
-      await setIntegrationSetupStatus(dbInstance, "hh", workspaceId, "completed");
-
-      await closeBrowserSafely(browser);
-      await publish(
-        verifyHHCredentialsChannel(workspaceId).result({
-          success: true,
-          isValid: true,
-        }),
-      );
-      return { success: true, isValid: true };
     }
     await sleep(pollIntervalMs);
   }

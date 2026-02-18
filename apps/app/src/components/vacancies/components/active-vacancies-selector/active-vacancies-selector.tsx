@@ -73,13 +73,17 @@ export function ActiveVacanciesSelector({
 
   const resultData =
     latestMessage?.topic === "result" ? latestMessage.data : undefined;
-  const resultError =
+  const rawError =
     resultData &&
     "success" in resultData &&
-    resultData.success === false
-      ? ("error" in resultData && typeof resultData.error === "string"
-          ? resultData.error
-          : "Не удалось получить список активных вакансий")
+    resultData.success === false &&
+    "error" in resultData &&
+    typeof resultData.error === "string"
+      ? (resultData.error as string).trim()
+      : "";
+  const resultError =
+    resultData && "success" in resultData && resultData.success === false
+      ? rawError || "Не удалось получить список активных вакансий"
       : null;
 
   const vacancies: ActiveVacancy[] =

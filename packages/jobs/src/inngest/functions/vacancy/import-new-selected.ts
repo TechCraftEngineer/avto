@@ -2,7 +2,6 @@ import { and, eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { vacancy } from "@qbs-autonaim/db/schema";
 import { importMultipleVacancies } from "@qbs-autonaim/jobs-parsers";
-import { z } from "zod";
 import {
   importNewVacanciesChannel,
   workspaceNotificationsChannel,
@@ -10,27 +9,8 @@ import {
 } from "../../channels/client";
 import { isHHAuthError } from "../../../utils/hh-auth-error";
 import { inngest } from "../../client";
+import { vacancyImportNewSelectedDataSchema } from "../../types/vacancy.types";
 import { pluralizeVacancy } from "./pluralize-vacancy";
-
-/**
- * Схема валидации входных данных для импорта выбранных активных вакансий
- */
-const ImportNewSelectedEventSchema = z.object({
-  workspaceId: z.string().min(1, "ID рабочего пространства обязателен"),
-  vacancyIds: z
-    .array(z.string())
-    .min(1, "Необходимо выбрать хотя бы одну вакансию"),
-  vacancies: z
-    .array(
-      z.object({
-        id: z.string(),
-        title: z.string(),
-        url: z.string().url(),
-        region: z.string().optional(),
-      }),
-    )
-    .optional(),
-});
 
 /**
  * Inngest функция для импорта выбранных активных вакансий из HH.ru
@@ -45,7 +25,7 @@ export const importSelectedNewVacanciesFunction = inngest.createFunction(
   },
   { event: "vacancy/import.new-selected" },
   async ({ event, step, publish, runId }) => {
-    const validationResult = ImportNewSelectedEventSchema.safeParse(
+    const validationResult = vacancyImportNewSelectedDataSchema.safeParse(
       event.data,
     );
 
