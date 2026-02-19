@@ -134,7 +134,7 @@ export default function VacancyResponseDetailPage() {
 
             <ResponseDetailCard
               response={responseData}
-              vacancy={vacancyData}
+              vacancy={vacancyData ?? undefined}
               allResponses={allResponsesData?.responses || []}
             />
           </div>

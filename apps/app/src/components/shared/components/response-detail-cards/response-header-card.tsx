@@ -1,7 +1,7 @@
 "use client";
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
-import type { Candidate } from "@qbs-autonaim/db/schema";
+import type { GlobalCandidate } from "@qbs-autonaim/db/schema";
 import { calculateAge, formatBirthDate } from "@qbs-autonaim/lib/utils";
 import { getInitials } from "@qbs-autonaim/shared";
 import { hasExperience as checkExperience } from "@qbs-autonaim/shared/utils";
@@ -45,7 +45,7 @@ type VacancyResponseDetail = RouterOutputs["vacancy"]["responses"]["get"];
 
 interface ResponseHeaderCardProps {
   response: (GigResponseDetail | VacancyResponseDetail) & {
-    globalCandidate?: Candidate | null;
+    globalCandidate?: GlobalCandidate | null;
     interviewScoring?: {
       score: number;
       detailedScore?: number;

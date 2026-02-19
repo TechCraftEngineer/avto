@@ -6,7 +6,7 @@ interface Vacancy {
   source: string;
   region: string | null;
   workLocation: string | null;
-  views: number | null;
+  views?: number | null;
   totalResponsesCount: number | null;
   newResponses: number | null;
   resumesInProgress: number | null;
