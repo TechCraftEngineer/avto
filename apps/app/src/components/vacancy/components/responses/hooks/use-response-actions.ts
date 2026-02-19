@@ -132,7 +132,10 @@ export function useResponseActions(
     setIsRefreshing(true);
 
     try {
-      const result = await triggerRefreshVacancyResponses(vacancyId);
+      const result = await triggerRefreshVacancyResponses(
+        vacancyId,
+        workspaceId,
+      );
 
       if (!result.success) {
         console.error("Не удалось запустить обновление:", result.error);
@@ -148,16 +151,16 @@ export function useResponseActions(
       toast.error("Произошла ошибка");
       throw error;
     }
-  }, [vacancyId]);
+  }, [vacancyId, workspaceId]);
 
   const handleRefreshComplete = useCallback(() => {
     setIsRefreshing(false);
     setIsSyncingArchived(false);
-    // Инвалидируем только после успешного завершения операции
-    void queryClient.invalidateQueries(
-      trpc.vacancy.responses.list.pathFilter(),
-    );
-  }, [queryClient, trpc]);
+    // Инвалидируем только текущую вакансию, чтобы не вызывать refetch для других
+    void queryClient.invalidateQueries({
+      queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+    });
+  }, [queryClient, trpc, vacancyId]);
 
   const handleSendWelcomeBatch = useCallback(async () => {
     if (selectedIds.size === 0) return;

@@ -25,7 +25,7 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
     id: "sync-archived-vacancy-responses",
     name: "Sync Archived Vacancy Responses",
     retries: 1,
-    concurrency: 1,
+    concurrency: { limit: 1, key: "event.data.workspaceId" },
   },
   { event: "vacancy/responses.sync-archived" },
   async ({ event, step, publish }) => {

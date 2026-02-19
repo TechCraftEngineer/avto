@@ -86,6 +86,7 @@ export async function triggerVacanciesUpdate(
  */
 export async function triggerVacancyResponsesRefresh(data: {
   vacancyId: string;
+  workspaceId: string;
 }): Promise<void> {
   try {
     await inngest.send({

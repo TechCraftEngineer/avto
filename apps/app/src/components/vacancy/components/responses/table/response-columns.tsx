@@ -339,6 +339,7 @@ function createColumns(): ColumnDef<ResponseListItem, unknown>[] {
               <ResponseActions
                 responseId={r.id}
                 workspaceId={meta.workspaceId}
+                vacancyId={meta.vacancyId}
                 resumeUrl={r.profileUrl}
                 telegramUsername={r.telegramUsername}
                 phone={r.phone}

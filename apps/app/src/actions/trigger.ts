@@ -90,13 +90,17 @@ export async function triggerScreenNewResponses(vacancyId: string) {
 
 
 
-export async function triggerRefreshVacancyResponses(vacancyId: string) {
+export async function triggerRefreshVacancyResponses(
+  vacancyId: string,
+  workspaceId: string,
+) {
   try {
     // Отправляем событие в Inngest для запуска задания
     await inngest.send({
       name: "vacancy/responses.refresh",
       data: {
-        vacancyId: vacancyId,
+        vacancyId,
+        workspaceId,
       },
     });
 

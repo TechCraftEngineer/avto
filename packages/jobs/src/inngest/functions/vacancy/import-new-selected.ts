@@ -21,7 +21,7 @@ export const importSelectedNewVacanciesFunction = inngest.createFunction(
     id: "import-new-selected-vacancies",
     name: "Импорт выбранных активных вакансий",
     retries: 0,
-    concurrency: 1,
+    concurrency: { limit: 1, key: "event.data.workspaceId" },
   },
   { event: "vacancy/import.new-selected" },
   async ({ event, step, publish, runId }) => {

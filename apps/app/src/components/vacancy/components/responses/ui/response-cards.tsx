@@ -147,6 +147,7 @@ export function ResponseCards({
                 <ResponseActions
                   responseId={response.id}
                   workspaceId={workspaceId}
+                  vacancyId={vacancyId}
                   resumeUrl={response.profileUrl}
                   telegramUsername={response.telegramUsername}
                   phone={response.phone}

@@ -17,11 +17,13 @@ interface ScreeningResult {
 
 interface ScreenResponseButtonProps {
   responseId: string;
+  vacancyId?: string;
   candidateName?: string;
 }
 
 export function ScreenResponseButton({
   responseId,
+  vacancyId,
   candidateName,
 }: ScreenResponseButtonProps) {
   const [showModal, setShowModal] = useState(false);
@@ -121,10 +123,18 @@ export function ScreenResponseButton({
               setIsLoading(false);
               setShowModal(true);
 
-              // Обновляем кэш списка откликов
-              void queryClient.invalidateQueries(
-                trpc.vacancy.responses.list.pathFilter(),
-              );
+              // Обновляем кэш только для текущей вакансии
+              if (vacancyId) {
+                void queryClient.invalidateQueries({
+                  queryKey: trpc.vacancy.responses.list.queryKey({
+                    vacancyId,
+                  }),
+                });
+              } else {
+                void queryClient.invalidateQueries(
+                  trpc.vacancy.responses.list.pathFilter(),
+                );
+              }
             }
             resolve();
             return;
@@ -197,9 +207,15 @@ export function ScreenResponseButton({
     setShowModal(open);
     if (!open) {
       setScreeningResult(null);
-      void queryClient.invalidateQueries(
-        trpc.vacancy.responses.list.pathFilter(),
-      );
+      if (vacancyId) {
+        void queryClient.invalidateQueries({
+          queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+        });
+      } else {
+        void queryClient.invalidateQueries(
+          trpc.vacancy.responses.list.pathFilter(),
+        );
+      }
     }
   };
 

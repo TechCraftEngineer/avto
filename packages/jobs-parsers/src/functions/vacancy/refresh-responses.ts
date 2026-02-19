@@ -18,7 +18,7 @@ export const refreshVacancyResponsesFunction = inngest.createFunction(
     id: "refresh-vacancy-responses",
     name: "Refresh Vacancy Responses",
     retries: 1,
-    concurrency: 1,
+    concurrency: { limit: 1, key: "event.data.workspaceId" },
   },
   { event: "vacancy/responses.refresh" },
   async ({ event, step, publish }) => {

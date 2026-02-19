@@ -23,7 +23,7 @@ import {
   UserCheck,
   UserX,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
   triggerAnalyzeSingleResponse,
@@ -37,6 +37,7 @@ import { useRefreshSingleResume } from "../hooks/use-refresh-single-resume";
 interface ResponseActionsProps {
   responseId: string;
   workspaceId: string;
+  vacancyId?: string;
   resumeUrl?: string | null;
   telegramUsername?: string | null;
   phone?: string | null;
@@ -52,6 +53,7 @@ interface ResponseActionsProps {
 export function ResponseActions({
   responseId,
   workspaceId,
+  vacancyId,
   resumeUrl,
   telegramUsername,
   phone,
@@ -66,6 +68,18 @@ export function ResponseActions({
   const [refreshEnabled, setRefreshEnabled] = useState(false);
   const queryClient = useQueryClient();
   const trpc = useTRPC();
+
+  const invalidateList = useCallback(() => {
+    if (vacancyId) {
+      void queryClient.invalidateQueries({
+        queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+      });
+    } else {
+      void queryClient.invalidateQueries(
+        trpc.vacancy.responses.list.pathFilter(),
+      );
+    }
+  }, [queryClient, trpc, vacancyId]);
 
   const {
     progress: analyzeProgress,
@@ -87,9 +101,7 @@ export function ResponseActions({
     trpc.candidates.inviteCandidate.mutationOptions({
       onSuccess: () => {
         toast.success("Кандидат приглашён на собеседование");
-        void queryClient.invalidateQueries({
-          queryKey: trpc.vacancy.responses.list.queryKey(),
-        });
+        invalidateList();
       },
       onError: (error) => {
         toast.error(error.message || "Не удалось пригласить кандидата");
@@ -102,9 +114,7 @@ export function ResponseActions({
     trpc.candidates.rejectCandidate.mutationOptions({
       onSuccess: () => {
         toast.success("Кандидат отклонён");
-        void queryClient.invalidateQueries({
-          queryKey: trpc.vacancy.responses.list.queryKey(),
-        });
+        invalidateList();
       },
       onError: (error) => {
         toast.error(error.message || "Не удалось отклонить кандидата");
@@ -118,9 +128,7 @@ export function ResponseActions({
 
     if (result.success) {
       toast.success("Резюме успешно обновлено");
-      void queryClient.invalidateQueries({
-        queryKey: trpc.vacancy.responses.list.queryKey(),
-      });
+      invalidateList();
     } else {
       toast.error(result.error || "Не удалось обновить резюме");
     }
@@ -133,7 +141,7 @@ export function ResponseActions({
     }, 3000);
 
     return () => clearTimeout(timer);
-  }, [result, reset, queryClient, trpc]);
+  }, [result, reset, invalidateList]);
 
   // Обрабатываем результат AI-оценки
   useEffect(() => {
@@ -141,9 +149,7 @@ export function ResponseActions({
 
     if (analyzeResult.success) {
       toast.success("AI-оценка завершена");
-      void queryClient.invalidateQueries({
-        queryKey: trpc.vacancy.responses.list.queryKey(),
-      });
+      invalidateList();
     } else {
       toast.error(analyzeResult.error || "Не удалось выполнить AI-оценку");
     }
@@ -155,7 +161,7 @@ export function ResponseActions({
     }, 3000);
 
     return () => clearTimeout(timer);
-  }, [analyzeResult, resetAnalyze, queryClient, trpc]);
+  }, [analyzeResult, resetAnalyze, invalidateList]);
 
   const handleAnalyze = async () => {
     try {
@@ -198,9 +204,7 @@ export function ResponseActions({
       );
       if (welcomeResult.success) {
         toast.success("Приветствие отправлено");
-        void queryClient.invalidateQueries({
-          queryKey: trpc.vacancy.responses.list.queryKey(),
-        });
+        invalidateList();
       } else {
         toast.error("Не удалось отправить приветствие");
       }

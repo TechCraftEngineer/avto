@@ -38,7 +38,7 @@ export const importSelectedArchivedVacanciesFunction = inngest.createFunction(
     id: "import-archived-selected-vacancies",
     name: "Импорт выбранных архивных вакансий",
     retries: 0,
-    concurrency: 1,
+    concurrency: { limit: 1, key: "event.data.workspaceId" },
   },
   { event: "vacancy/import.archived-selected" },
   async ({ event, step, publish, runId }) => {

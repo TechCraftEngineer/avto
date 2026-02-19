@@ -20,6 +20,7 @@ export const vacancyUpdateSingleDataSchema = z.object({
 
 export const vacancyResponsesRefreshDataSchema = z.object({
   vacancyId: z.string().min(1, "Vacancy ID is required"),
+  workspaceId: workspaceIdSchema,
 });
 
 export const collectChatIdsDataSchema = z.object({

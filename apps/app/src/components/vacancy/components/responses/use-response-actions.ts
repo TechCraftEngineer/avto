@@ -50,14 +50,14 @@ export function useResponseActions(
       setSelectedIds(new Set());
 
       setTimeout(() => {
-        void queryClient.invalidateQueries(
-          trpc.vacancy.responses.list.pathFilter(),
-        );
+        void queryClient.invalidateQueries({
+          queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+        });
       }, 2000);
     } finally {
       setIsProcessing(false);
     }
-  }, [selectedIds, setSelectedIds, queryClient, trpc, workspaceId]);
+  }, [selectedIds, setSelectedIds, queryClient, trpc, workspaceId, vacancyId]);
 
   const handleScreenAll = useCallback(async () => {
     setIsProcessingAll(true);
@@ -73,9 +73,9 @@ export function useResponseActions(
       console.log("Запущена оценка всех откликов");
 
       setTimeout(() => {
-        void queryClient.invalidateQueries(
-          trpc.vacancy.responses.list.pathFilter(),
-        );
+        void queryClient.invalidateQueries({
+          queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+        });
       }, 2000);
     } finally {
       setIsProcessingAll(false);
@@ -139,17 +139,20 @@ export function useResponseActions(
 
   const handleScreeningDialogClose = useCallback(() => {
     setIsProcessingNew(false);
-    // Обновляем список откликов после закрытия диалога
-    void queryClient.invalidateQueries(
-      trpc.vacancy.responses.list.pathFilter(),
-    );
-  }, [queryClient, trpc]);
+    // Обновляем список откликов только для текущей вакансии
+    void queryClient.invalidateQueries({
+      queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+    });
+  }, [queryClient, trpc, vacancyId]);
 
   const handleRefreshResponses = useCallback(async () => {
     setIsRefreshing(true);
 
     try {
-      const result = await triggerRefreshVacancyResponses(vacancyId);
+      const result = await triggerRefreshVacancyResponses(
+        vacancyId,
+        workspaceId,
+      );
 
       if (!result.success) {
         console.error("Не удалось запустить обновление:", result.error);
@@ -165,15 +168,15 @@ export function useResponseActions(
       toast.error("Произошла ошибка");
       throw error;
     }
-  }, [vacancyId]);
+  }, [vacancyId, workspaceId]);
 
   const handleRefreshComplete = useCallback(() => {
     setIsRefreshing(false);
     setIsSyncingArchived(false);
-    void queryClient.invalidateQueries(
-      trpc.vacancy.responses.list.pathFilter(),
-    );
-  }, [queryClient, trpc]);
+    void queryClient.invalidateQueries({
+      queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+    });
+  }, [queryClient, trpc, vacancyId]);
 
   const handleSendWelcomeBatch = useCallback(async () => {
     if (selectedIds.size === 0) return;
@@ -196,14 +199,14 @@ export function useResponseActions(
       setSelectedIds(new Set());
 
       setTimeout(() => {
-        void queryClient.invalidateQueries(
-          trpc.vacancy.responses.list.pathFilter(),
-        );
+        void queryClient.invalidateQueries({
+          queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+        });
       }, 3000);
     } finally {
       setIsSendingWelcome(false);
     }
-  }, [selectedIds, setSelectedIds, queryClient, trpc]);
+  }, [selectedIds, setSelectedIds, queryClient, trpc, vacancyId]);
 
   return {
     isProcessing,

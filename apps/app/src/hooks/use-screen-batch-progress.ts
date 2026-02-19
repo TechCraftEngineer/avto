@@ -31,10 +31,12 @@ interface BatchCompleted {
 /**
  * Хук для отслеживания прогресса batch скрининга откликов
  * Показывает детальный прогресс оценки каждого кандидата
+ * @param vacancyId - при указании инвалидация ограничивается только этой вакансией
  */
 export function useScreenBatchProgress(
   workspaceId: string | undefined,
   batchId: string | undefined,
+  vacancyId?: string,
 ) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
@@ -78,10 +80,16 @@ export function useScreenBatchProgress(
       const completedData = latestData.data as BatchCompleted;
       setCompleted(completedData);
 
-      // Инвалидируем список откликов после завершения
-      queryClient.invalidateQueries({
-        queryKey: trpc.vacancy.responses.list.queryKey(),
-      });
+      // Инвалидируем список откликов после завершения (только vacancyId при указании)
+      if (vacancyId) {
+        queryClient.invalidateQueries({
+          queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+        });
+      } else {
+        queryClient.invalidateQueries(
+          trpc.vacancy.responses.list.pathFilter(),
+        );
+      }
     }
   }, [latestData]);
 

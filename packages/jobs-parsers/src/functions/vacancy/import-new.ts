@@ -69,7 +69,7 @@ export const importNewVacanciesFunction = inngest.createFunction(
     id: "import-new-vacancies",
     name: "Импорт новых вакансий",
     retries: 0,
-    concurrency: 1,
+    concurrency: { limit: 1, key: "event.data.workspaceId" },
   },
   { event: "vacancy/import.new" },
   async ({ event, step, publish }) => {

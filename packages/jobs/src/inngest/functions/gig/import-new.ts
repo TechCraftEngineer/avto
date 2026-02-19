@@ -66,7 +66,7 @@ export const importNewGigsFunction = inngest.createFunction(
     id: "import-new-gigs",
     name: "Импорт активных проектов Kwork",
     retries: 0,
-    concurrency: 1,
+    concurrency: { limit: 1, key: "event.data.workspaceId" },
   },
   { event: "gig/import.new" },
   async ({ event, step, publish }) => {
