@@ -6,8 +6,8 @@ import {
   DEFAULT_MODEL_OPENAI,
   DEFAULT_MODEL_OPENROUTER,
 } from "./constants";
-import { getActualProvider, getAIModel, getAIModelName } from "./models";
-import { langfuse, openaiProvider, openrouterProvider } from "./providers";
+import { getActualProvider, getAIModel } from "./models";
+import { openaiProvider, openrouterProvider } from "./providers";
 
 export interface GenerateTextOptions
   extends Omit<Parameters<typeof aiGenerateText>[0], "model"> {
@@ -28,42 +28,22 @@ export async function generateText(
     ...aiOptions
   } = options;
 
-  const prompt = aiOptions.prompt || JSON.stringify(aiOptions.messages);
-  const modelName = getAIModelName();
-
-  const trace = langfuse?.trace({
-    name: generationName,
-    userId: entityId,
-    metadata,
-  });
-
-  const generation = trace?.generation({
-    name: generationName,
-    model: modelName,
-    input: prompt,
-    metadata,
-  });
-
   try {
     const result = await aiGenerateText({
       ...(aiOptions as unknown as Record<string, unknown>),
       model,
+      experimental_telemetry: {
+        isEnabled: true,
+        functionId: generationName,
+        metadata: {
+          ...metadata,
+          ...(entityId && { userId: entityId }),
+        },
+      },
     } as unknown as Parameters<typeof aiGenerateText>[0]);
-
-    generation?.end({
-      output: result.text,
-    });
-
-    trace?.update({
-      output: result.text,
-    });
 
     return result;
   } catch (error) {
-    generation?.end({
-      statusMessage: error instanceof Error ? error.message : String(error),
-    });
-
     // Retry с fallback моделью
     const actualProvider = getActualProvider();
 
@@ -109,46 +89,21 @@ export async function generateText(
         error instanceof Error ? error.message : String(error),
       );
 
-      const fallbackGeneration = trace?.generation({
-        name: `${generationName}-fallback`,
-        model: fallback.modelName,
-        input: prompt,
-        metadata: { ...metadata, fallback: true },
-      });
-
-      try {
-        const fallbackResult = await aiGenerateText({
-          ...(aiOptions as unknown as Record<string, unknown>),
-          model: fallback.model,
-        } as unknown as Parameters<typeof aiGenerateText>[0]);
-
-        fallbackGeneration?.end({
-          output: fallbackResult.text,
-        });
-
-        return fallbackResult;
-      } catch (fallbackError) {
-        fallbackGeneration?.end({
-          statusMessage:
-            fallbackError instanceof Error
-              ? fallbackError.message
-              : String(fallbackError),
-        });
-        throw fallbackError;
-      }
+      return aiGenerateText({
+        ...(aiOptions as unknown as Record<string, unknown>),
+        model: fallback.model,
+        experimental_telemetry: {
+          isEnabled: true,
+          functionId: `${generationName}-fallback`,
+          metadata: {
+            ...metadata,
+            fallback: true,
+            ...(entityId && { userId: entityId }),
+          },
+        },
+      } as unknown as Parameters<typeof aiGenerateText>[0]);
     }
 
     throw error;
-  } finally {
-    try {
-      await langfuse?.flushAsync();
-    } catch (flushError) {
-      console.error("Не удалось сохранить трейс Langfuse", {
-        generationName,
-        traceId: trace?.id,
-        entityId,
-        error: flushError,
-      });
-    }
   }
 }
