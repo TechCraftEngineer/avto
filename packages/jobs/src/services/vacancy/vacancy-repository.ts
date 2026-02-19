@@ -269,6 +269,19 @@ export async function saveBasicVacancy(
       );
 
       logger.info(`Базовая информация создана: ${vacancyData.title}`);
+
+      // Запускаем извлечение требований если описание не пустое (импорт архивных/активных вакансий)
+      if (vacancyData.description?.trim()) {
+        logger.info(`Запуск извлечения требований: ${inserted.id}`);
+        await triggerVacancyRequirementsExtraction(
+          {
+            vacancyId: inserted.id,
+            description: vacancyData.description,
+          },
+          { swallow: true },
+        );
+      }
+
       return { vacancyId: inserted.id, isNew: true };
     }
 
@@ -287,6 +300,19 @@ export async function saveBasicVacancy(
     );
 
     logger.info(`Базовая информация обновлена: ${vacancyData.title}`);
+
+    // Запускаем извлечение требований если описание не пустое (импорт архивных/активных вакансий)
+    if (vacancyData.description?.trim()) {
+      logger.info(`Запуск извлечения требований: ${existingVacancy.id}`);
+      await triggerVacancyRequirementsExtraction(
+        {
+          vacancyId: existingVacancy.id,
+          description: vacancyData.description,
+        },
+        { swallow: true },
+      );
+    }
+
     return { vacancyId: existingVacancy.id, isNew };
   }, `Ошибка сохранения базовой информации вакансии ${vacancyData.title}`);
 }
