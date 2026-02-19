@@ -2,6 +2,7 @@ import { and, eq } from "@qbs-autonaim/db";
 import {
   responseStatusValues,
   response as responseTable,
+  vacancy,
 } from "@qbs-autonaim/db/schema";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
