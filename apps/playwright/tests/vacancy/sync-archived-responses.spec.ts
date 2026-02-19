@@ -75,7 +75,7 @@ test.describe("Синхронизация архивных откликов", ()
     ).toBeVisible();
 
     await expect(
-      page.getByText(/получение всех откликов с headhunter/i),
+      page.getByText(/получение всех откликов с headhunter/i).first(),
     ).toBeVisible();
 
     await expect(
@@ -123,7 +123,9 @@ test.describe("Синхронизация архивных откликов", ()
     await page.getByRole("button", { name: /начать синхронизацию/i }).click();
 
     // Ожидаем toast — успешный запуск или сообщение об ошибке (если Inngest недоступен)
-    await expect(page.getByText(/архивн.*отклик|отклик.*архивн/i)).toBeVisible({
+    await expect(
+      page.getByText(/архивн.*отклик|отклик.*архивн/i).first(),
+    ).toBeVisible({
       timeout: 10000,
     });
   });

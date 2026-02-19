@@ -23,7 +23,9 @@ test.describe("Настройки организации", () => {
   test.describe("Общая навигация", () => {
     test("отображает страницу настроек организации", async ({ page }) => {
       await page.goto(`/orgs/${orgSlug}/settings`);
-      await expect(page.getByText("Общие настройки")).toBeVisible();
+      await expect(
+        page.getByRole("heading", { name: "Общие настройки" }),
+      ).toBeVisible();
     });
 
     test("отображает форму с основными полями", async ({ page }) => {
