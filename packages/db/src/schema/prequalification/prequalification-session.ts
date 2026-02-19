@@ -26,6 +26,10 @@ export interface ParsedResumePersonalInfo {
   email?: string;
   phone?: string;
   location?: string;
+  /** "male" | "female" | "other" (извлекается AI-парсером резюме) */
+  gender?: string;
+  /** Гражданство (извлекается AI-парсером резюме) */
+  citizenship?: string;
 }
 
 export interface WorkExperience {
