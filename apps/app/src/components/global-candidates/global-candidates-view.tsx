@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Users } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 import { useTRPC } from "~/trpc/react";
 import {
@@ -53,8 +53,7 @@ export function GlobalCandidatesView() {
   // Дебаунс поиска
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
-  // Обновляем debouncedSearch с задержкой
-  useMemo(() => {
+  useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(filters.search);
     }, 300);

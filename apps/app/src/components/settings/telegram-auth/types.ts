@@ -1,9 +1,9 @@
 import { z } from "zod";
 
 export const step1Schema = z.object({
-  apiId: z.string().min(1, "API ID обязателен"),
-  apiHash: z.string().min(1, "API Hash обязателен"),
-  phone: z.string().min(1, "Номер телефона обязателен"),
+  apiId: z.string().trim().min(1, "API ID обязателен"),
+  apiHash: z.string().trim().min(1, "API Hash обязателен"),
+  phone: z.string().trim().min(1, "Номер телефона обязателен"),
 });
 
 export const step2Schema = z.object({
