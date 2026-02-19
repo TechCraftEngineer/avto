@@ -10,7 +10,6 @@ import {
   CardTitle,
 } from "@qbs-autonaim/ui";
 import {
-  IconAlertCircle,
   IconAlertTriangle,
   IconBulb,
   IconChartLine,

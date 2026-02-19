@@ -13,7 +13,6 @@ import {
 import { isHHAuthError } from "../../../utils/hh-auth-error";
 import { inngest } from "../../client";
 import { collectChatIdsForVacancy } from "../../../services/collect-chat-ids";
-import { screenNewResponsesForVacancy } from "../../../services/screen-new-responses";
 
 /**
  * Inngest функция для синхронизации всех откликов архивной вакансии.
@@ -300,26 +299,6 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
       return { success: true, updatedCount };
     });
 
-    const screeningResult = await step.run("screen-new-responses", async () => {
-      const { processed, failed, total } =
-        await screenNewResponsesForVacancy(vacancyId, {
-          onProgress: async (progress) => {
-            await publish(
-              syncArchivedResponsesChannel(vacancyId).progress({
-                vacancyId,
-                status: "processing",
-                message: `Оценено откликов: ${progress.processed + progress.failed} из ${progress.total}`,
-                screenedTotal: progress.total,
-                screenedProcessed: progress.processed,
-                screenedFailed: progress.failed,
-              }),
-            );
-          },
-        });
-
-      return { processed, failed, total };
-    });
-
     const vacancyData = await db.query.vacancy.findFirst({
       where: eq(vacancy.id, vacancyId),
       columns: { title: true, workspaceId: true },
@@ -333,32 +312,9 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
         newResponses: result.newResponses,
         totalResponses: result.syncedResponses,
         vacancyTitle: result.vacancyTitle ?? vacancyData?.title ?? "",
-        screenedProcessed: screeningResult?.processed,
-        screenedFailed: screeningResult?.failed,
       }),
     );
 
-    if (
-      screeningResult &&
-      screeningResult.processed > 0 &&
-      vacancyData?.workspaceId
-    ) {
-      await publish(
-        workspaceNotificationsChannel(vacancyData.workspaceId)["task-completed"]({
-          workspaceId: vacancyData.workspaceId,
-          taskType: "screening",
-          taskId: vacancyId,
-          success: true,
-          message: `Оценено ${screeningResult.processed} новых откликов`,
-          timestamp: new Date().toISOString(),
-        }),
-      );
-    }
-
-    return {
-      ...result,
-      screenedProcessed: screeningResult?.processed,
-      screenedFailed: screeningResult?.failed,
-    };
+    return result;
   },
 );
