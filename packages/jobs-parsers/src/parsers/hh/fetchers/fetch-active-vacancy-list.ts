@@ -1,6 +1,6 @@
 import { getIntegrationCredentials } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
-import { uploadToTermbin } from "../../../utils/termbin";
+import { uploadToDpaste } from "../../../utils/dpaste";
 import { validateCredentials } from "../core/auth/auth";
 import { setupPageWithAuth } from "../core/browser/browser-setup";
 import { closeBrowserSafely } from "../core/browser/browser-utils";
@@ -48,9 +48,7 @@ export async function fetchActiveVacanciesList(workspaceId: string): Promise<
       HH_CONFIG.delays.readingPage.min,
       HH_CONFIG.delays.readingPage.max,
     );
-    // Сохраняем содержимое div.vacancies-dashboard на termbin для отладки
-    // termbin.com ограничивает размер ~64 KB, усекаем при необходимости
-    const TERMBIN_MAX_SIZE = 60_000;
+    // Сохраняем содержимое div.vacancies-dashboard на dpaste.org для отладки (лимит 250 MB)
     try {
       const pageContent = await page.evaluate(() => {
         const el = document.querySelector("div.vacancies-dashboard");
@@ -60,30 +58,25 @@ export async function fetchActiveVacanciesList(workspaceId: string): Promise<
       if (!pageContent) {
         console.warn("📋 div.vacancies-dashboard не найден на странице");
       } else {
-        const contentToUpload =
-          pageContent.length > TERMBIN_MAX_SIZE
-            ? pageContent.slice(0, TERMBIN_MAX_SIZE) +
-              `\n\n... [обрезано, всего ${(pageContent.length / 1024).toFixed(1)} KB]`
-            : pageContent;
         console.log(
-          "📋 Загрузка верстки на termbin...",
+          "📋 Загрузка верстки на dpaste...",
           `(размер: ${(pageContent.length / 1024).toFixed(1)} KB)`,
         );
-        const termbinUrl = await uploadToTermbin(contentToUpload);
-        if (termbinUrl) {
+        const pasteUrl = await uploadToDpaste(pageContent);
+        if (pasteUrl) {
           console.log(
-            `📋 Верстка vacancies-dashboard сохранена: ${termbinUrl}`,
+            `📋 Верстка vacancies-dashboard сохранена: ${pasteUrl}`,
           );
         } else {
           console.warn(
-            "📋 termbin вернул пустой ответ — верстка не сохранена",
+            "📋 dpaste вернул пустой ответ — верстка не сохранена",
           );
         }
       }
-    } catch (termbinError) {
+    } catch (pasteError) {
       console.warn(
-        "⚠️ Не удалось сохранить верстку на termbin:",
-        termbinError instanceof Error ? termbinError.message : termbinError,
+        "⚠️ Не удалось сохранить верстку на dpaste:",
+        pasteError instanceof Error ? pasteError.message : pasteError,
       );
     }
 
