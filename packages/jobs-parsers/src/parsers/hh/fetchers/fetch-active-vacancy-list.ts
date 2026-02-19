@@ -51,10 +51,18 @@ export async function fetchActiveVacanciesList(workspaceId: string): Promise<
     // Сохраняем верстку страницы с активными вакансиями на termbin для отладки
     try {
       const pageContent = await page.content();
+      console.log(
+        "📋 Загрузка верстки на termbin...",
+        `(размер: ${(pageContent.length / 1024).toFixed(1)} KB)`,
+      );
       const termbinUrl = await uploadToTermbin(pageContent);
       if (termbinUrl) {
         console.log(
           `📋 Верстка страницы с активными вакансиями сохранена: ${termbinUrl}`,
+        );
+      } else {
+        console.warn(
+          "📋 termbin вернул пустой ответ — верстка не сохранена",
         );
       }
     } catch (termbinError) {
