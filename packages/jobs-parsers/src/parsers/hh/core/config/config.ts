@@ -6,13 +6,14 @@ export const HH_CONFIG = {
     login:
       "https://hh.ru/account/login?role=employer&backurl=%2F&hhtmFrom=main&hasSwitcher=true&skipSwitcher=true",
     vacancies: "https://hh.ru/employer/vacancies?hhtmFrom=vacancy",
-    archivedVacancies: "https://hh.ru/employer/vacancies/archived?selectedAreaId=ALL&selectedManagerId=ALL&query=&visible=true&selectedArchivationType=ARCHIVED&order=BY_ARCHIVATION_TIME_DESC&selectedVacancyPublicationFormat=ALL&selectedVacancyVisibility=ALL",
+    archivedVacancies:
+      "https://hh.ru/employer/vacancies/archived?selectedAreaId=ALL&selectedManagerId=ALL&query=&visible=true&selectedArchivationType=ARCHIVED&order=BY_ARCHIVATION_TIME_DESC&selectedVacancyPublicationFormat=ALL&selectedVacancyVisibility=ALL",
     baseUrl: "https://hh.ru",
   },
   userAgent: HH_USER_AGENT,
   timeouts: {
     networkIdle: 60000,
-    selector: 10000,
+    selector: 20000,
     contacts: 10000,
     navigation: 120000,
     requestHandler: 300,
