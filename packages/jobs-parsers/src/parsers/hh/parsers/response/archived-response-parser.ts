@@ -177,7 +177,7 @@ export async function parseArchivedVacancyResponsesPage(
   await scrollToLoadAllContent(page);
 
   const pageResponses = await page.$$eval(
-    'div[data-qa="vacancy-real-responses"] [data-resume-id]',
+    'div[data-qa="vacancy-real-responses"] [data-resume-hash]',
     (elements: Element[]) => {
       return elements.map((el) => {
         const link = el.querySelector('a[data-qa="serp-item__title"]');
@@ -388,7 +388,7 @@ async function collectAllArchivedResponses(
     await scrollToLoadAllContent(page);
 
     const pageResponses = await page.$$eval(
-      'div[data-qa="vacancy-real-responses"] [data-resume-id]',
+      'div[data-qa="vacancy-real-responses"] [data-resume-hash]',
       (elements: Element[]) => {
         return elements.map((el) => {
           const link = el.querySelector('a[data-qa="serp-item__title"]');
