@@ -3,7 +3,6 @@ import { getResponsesLimitByOrganizationPlan } from "@qbs-autonaim/jobs-shared";
 import type { Page } from "puppeteer";
 import { z } from "zod";
 import type { ProgressCallback, ResponseData } from "../../../types";
-import { uploadToTermbin } from "../../../../utils/termbin";
 import { HH_CONFIG } from "../../core/config/config";
 import { parseResponseDate } from "../../utils/date-utils";
 import {
@@ -141,22 +140,6 @@ async function collectAndSaveResponses(
     await page.waitForSelector('[data-qa="responses-list"]', {
       timeout: HH_CONFIG.timeouts.selector,
     });
-
-    // Сохраняем верстку страницы активных откликов на termbin для отладки
-    try {
-      const pageContent = await page.content();
-      const termbinUrl = await uploadToTermbin(pageContent);
-      if (termbinUrl) {
-        console.log(
-          `📋 Верстка страницы активных откликов сохранена: ${termbinUrl}`,
-        );
-      }
-    } catch (termbinError) {
-      console.warn(
-        "⚠️ Не удалось сохранить верстку на termbin:",
-        termbinError instanceof Error ? termbinError.message : termbinError,
-      );
-    }
 
     // Собираем все отклики со всех страниц
     let hasNextPage = true;

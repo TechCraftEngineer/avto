@@ -1,5 +1,6 @@
 import { getIntegrationCredentials } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
+import { uploadToTermbin } from "../../../utils/termbin";
 import { validateCredentials } from "../core/auth/auth";
 import { setupPageWithAuth } from "../core/browser/browser-setup";
 import { closeBrowserSafely } from "../core/browser/browser-utils";
@@ -61,12 +62,28 @@ export async function fetchActiveVacanciesList(workspaceId: string): Promise<
       await page.waitForSelector('[data-qa="vacancy-serp__vacancy"]', {
         timeout: HH_CONFIG.timeouts.selector,
       });
+      // Сохраняем верстку страницы с активными вакансиями на termbin для отладки
+      try {
+        const pageContent = await page.content();
+        const termbinUrl = await uploadToTermbin(pageContent);
+        if (termbinUrl) {
+          console.log(
+            `📋 Верстка страницы с активными вакансиями сохранена: ${termbinUrl}`,
+          );
+        }
+      } catch (termbinError) {
+        console.warn(
+          "⚠️ Не удалось сохранить верстку на termbin:",
+          termbinError instanceof Error ? termbinError.message : termbinError,
+        );
+      }
     } catch (err) {
       // Проверяем явный пустой список: страница вакансий загружена, но вакансий нет
       try {
         await page.waitForSelector('[data-qa="vacancy-serp"]', {
           timeout: 3000,
         });
+
         const vacancyCount = await page.$$eval(
           '[data-qa="vacancy-serp__vacancy"]',
           (els) => els.length,
@@ -85,9 +102,7 @@ export async function fetchActiveVacanciesList(workspaceId: string): Promise<
     let pageNum = 0;
 
     while (hasNextPage && pageNum < 50) {
-      console.log(
-        `📄 Парсим страницу ${pageNum + 1} активных вакансий...`,
-      );
+      console.log(`📄 Парсим страницу ${pageNum + 1} активных вакансий...`);
 
       const pageVacancies = await page.$$eval(
         '[data-qa="vacancy-serp__vacancy"]',

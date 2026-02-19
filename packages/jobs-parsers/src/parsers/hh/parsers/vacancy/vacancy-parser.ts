@@ -3,9 +3,9 @@ import type { Page } from "puppeteer";
 import { z } from "zod";
 import type { VacancyData } from "../../../types";
 import { HH_CONFIG } from "../../core/config/config";
-import { humanDelay } from "../../utils/human-behavior";
 import { fetchActiveVacanciesList } from "../../fetchers/fetch-active-vacancy-list";
 import { fetchArchivedVacanciesList } from "../../fetchers/fetch-archived-vacancy-list";
+import { humanDelay } from "../../utils/human-behavior";
 import { extractVacancyDataWithAI } from "./ai-vacancy-extractor";
 import {
   parseVacancyDescriptions,
