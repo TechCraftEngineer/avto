@@ -12,6 +12,8 @@ export interface ResponseNeedingDetails {
   resumeUrl: string | null;
   candidateName: string | null;
   candidateId: string | null;
+  /** UUID связи с global_candidates (не путать с candidateId — ID на платформе HH) */
+  globalCandidateId: string | null;
 }
 
 /**
@@ -35,6 +37,7 @@ export async function getResponsesNeedingDetailsForVacancy(
       resumeUrl: true,
       candidateName: true,
       candidateId: true,
+      globalCandidateId: true,
     },
   });
 
@@ -48,6 +51,7 @@ export async function getResponsesNeedingDetailsForVacancy(
       resumeUrl: r.resumeUrl,
       candidateName: r.candidateName,
       candidateId: r.candidateId,
+      globalCandidateId: r.globalCandidateId,
     }));
 }
 

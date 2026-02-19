@@ -19,7 +19,10 @@ interface ResponseWithId {
   status?: string;
   coverLetter?: string;
   vacancyId?: string;
+  /** ID на платформе (HH resume ID) */
   candidateId?: string;
+  /** UUID связи с global_candidates */
+  globalCandidateId?: string | null;
 }
 
 /**
@@ -83,6 +86,7 @@ export async function parseResponseDetailsForVacancy(
     resumeUrl: r.resumeUrl ?? undefined,
     vacancyId,
     candidateId: r.candidateId ?? undefined,
+    globalCandidateId: r.globalCandidateId ?? null,
   }));
 
   await parseResponseDetails(page, mappedResponses, vacancyId, onProgress);
@@ -145,7 +149,7 @@ export async function parseResponseDetails(
         resumeId: response.resumeId,
         resumeUrl: response.resumeUrl,
         candidateName: response.name,
-        globalCandidateId: response.candidateId || null,
+        globalCandidateId: response.globalCandidateId ?? null,
         traceId: `archived-${response.resumeId}`,
       });
 
