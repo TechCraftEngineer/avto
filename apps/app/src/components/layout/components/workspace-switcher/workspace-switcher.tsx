@@ -26,7 +26,7 @@ import {
   IconSettings,
   IconUserPlus,
 } from "@tabler/icons-react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ChevronsUpDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
@@ -72,6 +72,10 @@ export function WorkspaceSwitcher({
   const router = useRouter();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
+
+  const { mutate: setActiveWorkspace } = useMutation(
+    trpc.user.setActiveWorkspace.mutationOptions(),
+  );
 
   // Используем воркспейс из контекста (определяется по URL) или fallback
   const activeWorkspace = React.useMemo(() => {
@@ -119,6 +123,13 @@ export function WorkspaceSwitcher({
       return;
     }
 
+    if (workspace.organizationId) {
+      setActiveWorkspace({
+        organizationId: workspace.organizationId,
+        workspaceId: workspace.id,
+      });
+    }
+
     router.push(
       paths.workspace.root(workspace.organizationSlug, workspace.slug),
     );
@@ -137,6 +148,11 @@ export function WorkspaceSwitcher({
     );
 
     if (firstWorkspace?.organizationSlug && firstWorkspace?.slug) {
+      setActiveWorkspace({
+        organizationId: organization.id,
+        workspaceId: firstWorkspace.id,
+      });
+
       // Перенаправляем на первый воркспейс
       router.push(
         paths.workspace.root(

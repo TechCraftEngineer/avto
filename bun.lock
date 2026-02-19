@@ -639,7 +639,7 @@
         "@qbs-autonaim/server-utils": "workspace:*",
         "@qbs-autonaim/shared": "workspace:*",
         "file-type": "21.3.0",
-        "hono": "4.11.9",
+        "hono": "4.12.0",
         "long": "^5.3.2",
         "mime-types": "3.0.2",
         "zod": "^4.3.6",
@@ -4916,7 +4916,7 @@
 
     "@qbs-autonaim/tailwind-config/@types/node": ["@types/node@25.0.8", "", { "dependencies": { "undici-types": "~7.16.0" } }, "sha512-powIePYMmC3ibL0UJ2i2s0WIbq6cg6UyVFQxSCpaPxxzAaziRfimGivjdF943sSGV6RADVbk0Nvlm5P/FB44Zg=="],
 
-    "@qbs-autonaim/tg-client/hono": ["hono@4.11.9", "", {}, "sha512-Eaw2YTGM6WOxA6CXbckaEvslr2Ne4NFsKrvc0v97JD5awbmeBLO5w9Ho9L9kmKonrwF9RJlW6BxT1PVv/agBHQ=="],
+    "@qbs-autonaim/tg-client/hono": ["hono@4.12.0", "", {}, "sha512-NekXntS5M94pUfiVZ8oXXK/kkri+5WpX2/Ik+LVsl+uvw+soj4roXIsPqO+XsWrAw20mOzaXOZf3Q7PfB9A/IA=="],
 
     "@qbs-autonaim/ui/lucide-react": ["lucide-react@0.571.0", "", { "peerDependencies": { "react": "^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-WyKTOQ5MFyedq1C5kYEiWR1bpwa0lKQaxBgudVziReCiu5itJh6c0WTeg83sPv97IOyAcEA3mKOt4NCAq5cIOw=="],
 

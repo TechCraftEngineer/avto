@@ -21,7 +21,6 @@ auth.post("/send-code", async (c) => {
     const { client, storage } = await createUserClient(apiId, apiHash);
 
     const authResult = await client.sendCode({ phone });
-
     if ("phoneCodeHash" in authResult) {
       const sessionData = await storage.export();
 

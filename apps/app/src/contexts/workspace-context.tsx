@@ -2,6 +2,8 @@
 
 import { useParams } from "next/navigation";
 import { createContext, useContext, useEffect, useMemo } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { useTRPC } from "~/trpc/react";
 
 type WorkspaceWithRole = {
   id: string;
@@ -50,6 +52,10 @@ export function WorkspaceProvider({
 }) {
   const params = useParams();
   const workspaceSlug = params?.slug as string | undefined;
+  const trpc = useTRPC();
+  const { mutate: setActiveWorkspace } = useMutation(
+    trpc.user.setActiveWorkspace.mutationOptions(),
+  );
 
   const workspace = useMemo(() => {
     // Если есть slug в URL, используем его
@@ -76,7 +82,7 @@ export function WorkspaceProvider({
     return workspaces[0];
   }, [workspaces, workspaceSlug]);
 
-  // Сохраняем активный workspace в localStorage когда он определен из URL
+  // Сохраняем активный workspace в localStorage и БД когда он определен из URL
   useEffect(() => {
     if (
       workspace &&
@@ -91,8 +97,15 @@ export function WorkspaceProvider({
           orgSlug: workspace.organizationSlug,
         }),
       );
+
+      if (workspace.organizationId) {
+        setActiveWorkspace({
+          organizationId: workspace.organizationId,
+          workspaceId: workspace.id,
+        });
+      }
     }
-  }, [workspace, workspaceSlug]);
+  }, [workspace, workspaceSlug, setActiveWorkspace]);
 
   const value = useMemo(
     () => ({
