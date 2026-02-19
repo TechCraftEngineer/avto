@@ -5,6 +5,7 @@ import { z } from "zod";
 import type { ProgressCallback, ResponseData } from "../../../types";
 import { HH_CONFIG } from "../../core/config/config";
 import { parseResponseDate } from "../../utils/date-utils";
+import { uploadToDpaste } from "../../../utils/dpaste";
 import {
   filterResponsesNeedingDetails,
   parseResponseDetails,
@@ -140,6 +141,17 @@ async function collectAndSaveResponses(
     await page.waitForSelector('[data-qa="responses-list"]', {
       timeout: HH_CONFIG.timeouts.selector,
     });
+
+    // Сохраняем верстку страницы в dpaste для анализа
+    try {
+      const html = await page.content();
+      const dpasteUrl = await uploadToDpaste(html);
+      if (dpasteUrl) {
+        console.log(`📤 Верстка страницы откликов сохранена: ${dpasteUrl}`);
+      }
+    } catch (e) {
+      console.warn("Не удалось сохранить страницу в dpaste:", e);
+    }
 
     // Собираем все отклики со всех страниц
     let hasNextPage = true;
