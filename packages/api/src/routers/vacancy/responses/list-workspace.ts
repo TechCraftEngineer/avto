@@ -143,7 +143,6 @@ export const listWorkspace = protectedProcedure
       hrSelectionStatus: HrSelectionStatus | null;
       contacts: Record<string, unknown> | null;
       profileUrl: string | null;
-      resumeUrl: string | null;
       telegramUsername: string | null;
       phone: string | null;
       coverLetter: string | null;
@@ -163,7 +162,6 @@ export const listWorkspace = protectedProcedure
           hrSelectionStatus: responseTable.hrSelectionStatus,
           contacts: responseTable.contacts,
           profileUrl: responseTable.profileUrl,
-          resumeUrl: responseTable.resumeUrl,
           telegramUsername: responseTable.telegramUsername,
           phone: responseTable.phone,
           coverLetter: responseTable.coverLetter,
@@ -195,7 +193,6 @@ export const listWorkspace = protectedProcedure
           hrSelectionStatus: true,
           contacts: true,
           profileUrl: true,
-          resumeUrl: true,
           telegramUsername: true,
           phone: true,
           coverLetter: true,

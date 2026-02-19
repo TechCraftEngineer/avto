@@ -259,7 +259,6 @@ export async function parseArchivedVacancyResponsesPage(
           respondedAt,
           {
             profileUrl: response.url || null,
-            platformProfileUrl: response.url || null,
           },
         );
 
@@ -483,7 +482,6 @@ async function collectAllArchivedResponses(
             respondedAt,
             {
               profileUrl: response.url || null,
-              platformProfileUrl: response.url || null,
             },
           );
 

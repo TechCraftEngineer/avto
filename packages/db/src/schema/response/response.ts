@@ -75,8 +75,6 @@ export const response = pgTable(
 
     // === Vacancy-специфичные поля ===
     resumeId: varchar("resume_id", { length: 100 }),
-    resumeUrl: text("resume_url"),
-    platformProfileUrl: text("platform_profile_url"),
     salaryExpectationsAmount: integer("salary_expectations_amount"),
     salaryExpectationsComment: varchar("salary_expectations_comment", {
       length: 200,
@@ -126,7 +124,6 @@ export const response = pgTable(
     // Поиск по кандидату
     index("response_candidate_idx").on(table.candidateId),
     index("response_profile_url_idx").on(table.profileUrl),
-    index("response_platform_profile_idx").on(table.platformProfileUrl),
     // GIN индексы для JSONB
     index("response_skills_idx").using("gin", table.skills),
     index("response_profile_data_idx").using("gin", table.profileData),
@@ -154,8 +151,6 @@ export const CreateResponseSchema = createInsertSchema(response, {
   portfolioLinks: z.array(z.string().url()).optional(),
   // Vacancy fields
   resumeId: z.string().max(100).optional(),
-  resumeUrl: z.string().optional(),
-  platformProfileUrl: z.string().optional(),
   salaryExpectationsAmount: z.number().int().optional(),
   salaryExpectationsComment: z.string().max(200).optional(),
   // Common

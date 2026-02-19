@@ -41,7 +41,7 @@ export const parseFreelanceProfileFunction = inngest.createFunction(
         where: eq(response.id, responseId),
         columns: {
           id: true,
-          platformProfileUrl: true,
+          profileUrl: true,
           candidateName: true,
         },
       });
@@ -50,7 +50,7 @@ export const parseFreelanceProfileFunction = inngest.createFunction(
         throw new Error(`Отклик ${responseId} не найден`);
       }
 
-      if (!responseData.platformProfileUrl) {
+      if (!responseData.profileUrl) {
         console.log("⚠️ URL профиля отсутствует, пропускаем парсинг");
         return {
           success: true,
@@ -60,11 +60,11 @@ export const parseFreelanceProfileFunction = inngest.createFunction(
       }
 
       try {
-        console.log("📊 Парсинг профиля:", responseData.platformProfileUrl);
+        console.log("📊 Парсинг профиля:", responseData.profileUrl);
 
         // Парсим профиль
         const profileData = await parseFreelancerProfile(
-          responseData.platformProfileUrl,
+          responseData.profileUrl,
         );
 
         console.log("✅ Профиль распарсен", {
@@ -106,7 +106,7 @@ export const parseFreelanceProfileFunction = inngest.createFunction(
         const errorProfileData = formatProfileDataForStorage({
           platform: "unknown",
           username: "",
-          profileUrl: responseData.platformProfileUrl,
+          profileUrl: responseData.profileUrl,
           parsedAt: new Date(),
           error:
             error instanceof Error

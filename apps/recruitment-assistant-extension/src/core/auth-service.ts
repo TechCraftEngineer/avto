@@ -39,7 +39,16 @@ export class AuthService {
    */
   async getUserData(): Promise<{ id: string; email: string; organizationId?: string } | null> {
     const result = await chrome.storage.local.get("userData");
-    return result.userData || null;
+    const userData = result.userData;
+    if (
+      !userData ||
+      typeof userData !== "object" ||
+      typeof (userData as Record<string, unknown>).id !== "string" ||
+      typeof (userData as Record<string, unknown>).email !== "string"
+    ) {
+      return null;
+    }
+    return userData as { id: string; email: string; organizationId?: string };
   }
 
   /**

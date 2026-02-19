@@ -62,8 +62,6 @@ export async function loadVacancyResponses(
         photoFileId: response.photoFileId,
         resumeLanguage: response.resumeLanguage,
         resumeId: response.resumeId,
-        resumeUrl: response.resumeUrl,
-        platformProfileUrl: response.platformProfileUrl,
         salaryExpectationsAmount: response.salaryExpectationsAmount,
         salaryExpectationsComment: response.salaryExpectationsComment,
         coverLetter: response.coverLetter,

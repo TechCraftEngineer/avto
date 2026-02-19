@@ -63,7 +63,7 @@ export const refreshAllResumesFunction = inngest.createFunction(
           id: true,
           entityId: true,
           resumeId: true,
-          resumeUrl: true,
+          profileUrl: true,
           candidateName: true,
         },
       });
@@ -182,7 +182,7 @@ export const refreshAllResumesFunction = inngest.createFunction(
 
             const resumeData = await parseResumeData(
               page,
-              responseItem.resumeUrl ?? "",
+              responseItem.profileUrl ?? "",
               responseItem.candidateName ?? "",
             );
 

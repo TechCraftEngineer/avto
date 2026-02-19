@@ -28,11 +28,10 @@ export async function createVacancyResponse(
       entityId: vacancyId,
       candidateId: normalizedProfileUrl,
       resumeId: normalizedProfileUrl,
-      resumeUrl: freelancerInfo.platformProfileUrl,
+      profileUrl: freelancerInfo.platformProfileUrl
+        ? normalizeProfileUrl(freelancerInfo.platformProfileUrl)
+        : null,
       candidateName: freelancerInfo.name,
-      platformProfileUrl: freelancerInfo.platformProfileUrl
-        ? normalizedProfileUrl
-        : undefined,
       phone: freelancerInfo.phone,
       email: freelancerInfo.email,
       telegramUsername: freelancerInfo.telegram,

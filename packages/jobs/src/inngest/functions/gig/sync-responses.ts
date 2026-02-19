@@ -245,7 +245,6 @@ async function syncKworkResponses(
       candidateId,
       candidateName: fullname || offer.username || "Кандидат Kwork",
       profileUrl,
-      platformProfileUrl: profileUrl,
       coverLetter: offer.description || undefined,
       proposedPrice: offer.price > 0 ? offer.price : undefined,
       proposedDeliveryDays: offer.duration
@@ -273,7 +272,6 @@ async function syncKworkResponses(
       set: {
         candidateName: sql`excluded.candidate_name`,
         profileUrl: sql`excluded.profile_url`,
-        platformProfileUrl: sql`excluded.platform_profile_url`,
         coverLetter: sql`excluded.cover_letter`,
         proposedPrice: sql`excluded.proposed_price`,
         proposedDeliveryDays: sql`excluded.proposed_delivery_days`,
@@ -310,8 +308,7 @@ async function syncKworkResponses(
         (userData?.specialization as string)?.trim() ||
         null;
       const location = (userData?.location as string)?.trim() || null;
-      const profileUrl =
-        val.platformProfileUrl ?? (val.profileUrl as string | undefined);
+      const profileUrl = val.profileUrl as string | undefined;
 
       try {
         const { candidate } =

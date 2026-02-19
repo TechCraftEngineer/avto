@@ -82,7 +82,7 @@ export const refreshSingleResumeFunction = inngest.createFunction(
           id: true,
           entityId: true,
           resumeId: true,
-          resumeUrl: true,
+          profileUrl: true,
           candidateName: true,
         },
       });
@@ -150,7 +150,7 @@ export const refreshSingleResumeFunction = inngest.createFunction(
             page,
             entityId: responseData.entityId,
             resumeId: responseData.resumeId ?? "",
-            resumeUrl: responseData.resumeUrl ?? "",
+            resumeUrl: responseData.profileUrl ?? "",
             candidateName: responseData.candidateName ?? "",
             traceId: runId, // Используем runId из Inngest как traceId для Langfuse
           });

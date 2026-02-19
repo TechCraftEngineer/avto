@@ -69,7 +69,7 @@ export const checkDuplicateResponse = publicProcedure
       where: and(
         eq(responseTable.entityId, input.vacancyId),
         eq(responseTable.entityType, "vacancy"),
-        eq(responseTable.platformProfileUrl, input.platformProfileUrl),
+        eq(responseTable.profileUrl, input.platformProfileUrl),
       ),
     });
 

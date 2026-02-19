@@ -9,7 +9,8 @@ const logger = createLogger("SharedResponseService");
 export interface ResponseNeedingDetails {
   id: string;
   resumeId: string;
-  resumeUrl: string | null;
+  /** URL профиля/резюме на платформе (HH resume, Kwork profile) */
+  profileUrl: string | null;
   candidateName: string | null;
   candidateId: string | null;
   /** UUID связи с global_candidates (не путать с candidateId — ID на платформе HH) */
@@ -27,14 +28,14 @@ export async function getResponsesNeedingDetailsForVacancy(
     where: and(
       eq(response.entityType, "vacancy"),
       eq(response.entityId, vacancyId),
-      sql`${response.resumeUrl} IS NOT NULL`,
+      sql`${response.profileUrl} IS NOT NULL`,
       sql`((${response.profileData} IS NULL) OR (${response.profileData}::text IN ('null', '{}', '[]')))`,
       sql`((${response.contacts} IS NULL) OR (${response.contacts}::text IN ('null', '{}', '[]')))`,
     ),
     columns: {
       id: true,
       resumeId: true,
-      resumeUrl: true,
+      profileUrl: true,
       candidateName: true,
       candidateId: true,
       globalCandidateId: true,
@@ -42,13 +43,13 @@ export async function getResponsesNeedingDetailsForVacancy(
   });
 
   return rows
-    .filter((r): r is typeof r & { resumeId: string; resumeUrl: string } => {
-      return !!(r.resumeId && r.resumeUrl);
+    .filter((r): r is typeof r & { resumeId: string; profileUrl: string } => {
+      return !!(r.resumeId && r.profileUrl);
     })
     .map((r) => ({
       id: r.id,
       resumeId: r.resumeId,
-      resumeUrl: r.resumeUrl,
+      profileUrl: r.profileUrl,
       candidateName: r.candidateName,
       candidateId: r.candidateId,
       globalCandidateId: r.globalCandidateId,

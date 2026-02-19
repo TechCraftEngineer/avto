@@ -81,9 +81,9 @@ export async function parseResponseDetailsForVacancy(
 
   const mappedResponses = responsesNeedingDetails.map((r) => ({
     name: r.candidateName ?? "",
-    url: r.resumeUrl ?? "",
+    url: r.profileUrl ?? "",
     resumeId: r.resumeId,
-    resumeUrl: r.resumeUrl ?? undefined,
+    resumeUrl: r.profileUrl ?? undefined,
     vacancyId,
     candidateId: r.candidateId ?? undefined,
     globalCandidateId: r.globalCandidateId ?? null,

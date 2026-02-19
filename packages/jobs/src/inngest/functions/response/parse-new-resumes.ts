@@ -47,7 +47,7 @@ export const parseNewResumesFunction = inngest.createFunction(
             id: true,
             entityId: true,
             resumeId: true,
-            resumeUrl: true,
+            profileUrl: true,
             candidateName: true,
             contacts: true,
           },
@@ -55,7 +55,7 @@ export const parseNewResumesFunction = inngest.createFunction(
 
         // Фильтруем только отклики без детальной информации
         const results = allResponses.filter(
-          (r) => !r.resumeUrl || r.resumeUrl === "",
+          (r) => !r.profileUrl || r.profileUrl === "",
         );
 
         console.log(`✅ Найдено откликов без деталей: ${results.length}`);

@@ -186,8 +186,8 @@ export async function collectChatIdsForVacancy(
 
   let updatedCount = 0;
   for (const resp of responses) {
-    const resumeId = resp.resumeUrl
-      ? extractResumeIdFromUrl(resp.resumeUrl)
+      const resumeId = resp.profileUrl
+      ? extractResumeIdFromUrl(resp.profileUrl)
       : null;
     const chat = allChats.find((c) =>
       (c.resources?.RESUME || []).includes(resumeId || ""),

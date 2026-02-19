@@ -51,13 +51,8 @@ export class CandidateService {
         ? response.photoFileId
         : null;
 
-    // Определяем resume URL
-    // Используем resumeUrl или platformProfileUrl из response
-    const resumeUrl =
-      response.resumeUrl ??
-      ("platformProfileUrl" in response && response.platformProfileUrl
-        ? response.platformProfileUrl
-        : null);
+    // URL профиля/резюме на платформе (HH resume, Kwork profile)
+    const resumeUrl = response.profileUrl ?? null;
 
     return {
       organizationId,

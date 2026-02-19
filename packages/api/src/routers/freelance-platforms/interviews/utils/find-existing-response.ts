@@ -29,7 +29,7 @@ export async function findExistingResponse(
     );
 
     const field =
-      entityType === "vacancy" ? "platformProfileUrl" : "candidateId";
+      entityType === "vacancy" ? "profileUrl" : "candidateId";
 
     const result = await db
       .select()

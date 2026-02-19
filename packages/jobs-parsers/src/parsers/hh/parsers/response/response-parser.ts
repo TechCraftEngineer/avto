@@ -235,7 +235,6 @@ async function collectAndSaveResponses(
             parseResponseDate(response.respondedAt),
             {
               profileUrl: response.resumeUrl || null,
-              platformProfileUrl: response.resumeUrl || null,
               coverLetter: response.coverLetter || null,
             },
           );

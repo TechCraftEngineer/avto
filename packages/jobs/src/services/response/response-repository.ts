@@ -63,10 +63,8 @@ export async function getResponsesWithoutDetails() {
 }
 
 export interface SaveBasicResponseOptions {
-  /** URL профиля/резюме на платформе (HH resume URL) */
+  /** URL профиля/резюме на платформе (HH resume URL, Kwork profile) */
   profileUrl?: string | null;
-  /** То же для platform_profile_url, при HH обычно = resumeUrl */
-  platformProfileUrl?: string | null;
   /** Сопроводительное письмо кандидата */
   coverLetter?: string | null;
 }
@@ -78,7 +76,7 @@ export interface SaveBasicResponseOptions {
 export async function saveBasicResponse(
   entityId: string,
   resumeId: string,
-  resumeUrl: string,
+  profileUrl: string,
   candidateName: string,
   respondedAt?: Date,
   options?: SaveBasicResponseOptions,
@@ -114,10 +112,7 @@ export async function saveBasicResponse(
       return false; // Не новый, но обновлен
     }
 
-    const profileUrl =
-      options?.profileUrl ?? options?.platformProfileUrl ?? resumeUrl;
-    const platformProfileUrl =
-      options?.platformProfileUrl ?? options?.profileUrl ?? resumeUrl;
+    const url = options?.profileUrl ?? profileUrl;
 
     const [inserted] = await db
       .insert(response)
@@ -126,9 +121,7 @@ export async function saveBasicResponse(
         entityId,
         candidateId: resumeId,
         resumeId,
-        resumeUrl,
-        profileUrl: profileUrl || null,
-        platformProfileUrl: platformProfileUrl || null,
+        profileUrl: url || null,
         coverLetter: options?.coverLetter || null,
         candidateName,
         status: RESPONSE_STATUS.NEW,
@@ -491,7 +484,7 @@ export async function saveResponseToDb(
         entityId: responseData.vacancyId,
         candidateId: responseData.resumeId,
         resumeId: responseData.resumeId,
-        resumeUrl: responseData.resumeUrl,
+        profileUrl: responseData.resumeUrl ?? null,
         candidateName: responseData.candidateName,
         status: RESPONSE_STATUS.NEW,
         importSource: "HH",

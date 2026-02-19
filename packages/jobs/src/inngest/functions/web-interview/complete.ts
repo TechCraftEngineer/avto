@@ -148,16 +148,16 @@ export const webCompleteInterviewFunction = inngest.createFunction(
               where: (r, { eq }) => eq(r.id, responseId),
             });
 
-            if (!responseRecord?.platformProfileUrl) {
+            if (!responseRecord?.profileUrl) {
               console.log(
-                "⚠️ platformProfileUrl отсутствует, пропускаем парсинг профиля",
+                "⚠️ profileUrl отсутствует, пропускаем парсинг профиля",
               );
               return null;
             }
 
             try {
               const profile = await parseFreelancerProfile(
-                responseRecord.platformProfileUrl,
+                responseRecord.profileUrl,
               );
 
               console.log("✅ Профиль распарсен", {
@@ -258,10 +258,7 @@ export const webCompleteInterviewFunction = inngest.createFunction(
               notificationType: "INTERVIEW_COMPLETED",
               candidateName: responseRecord.candidateName ?? undefined,
               score: scoring.score,
-              profileUrl:
-                responseRecord.platformProfileUrl ??
-                responseRecord.resumeUrl ??
-                undefined,
+              profileUrl: responseRecord.profileUrl ?? undefined,
             },
           });
 

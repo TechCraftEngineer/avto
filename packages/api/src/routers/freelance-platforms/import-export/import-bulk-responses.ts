@@ -204,7 +204,6 @@ export const importBulkResponses = protectedProcedure
               coverLetter: parsed.responseText,
               importSource: input.platformSource,
               profileUrl: parsed.contactInfo.platformProfile,
-              platformProfileUrl: parsed.contactInfo.platformProfile,
               phone: parsed.contactInfo.phone,
               telegramUsername: parsed.contactInfo.telegram,
               globalCandidateId,

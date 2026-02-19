@@ -22,7 +22,6 @@ interface RawResponse {
   contacts: Record<string, unknown> | null;
   profileUrl: string | null;
   profileData: StoredProfileData | null;
-  resumeUrl: string | null;
   telegramUsername: string | null;
   phone: string | null;
   email: string | null;

@@ -15,7 +15,6 @@ interface RawResponse {
   hrSelectionStatus: HrSelectionStatus | null;
   contacts: Record<string, unknown> | null;
   profileUrl: string | null;
-  resumeUrl: string | null;
   telegramUsername: string | null;
   phone: string | null;
   coverLetter: string | null;

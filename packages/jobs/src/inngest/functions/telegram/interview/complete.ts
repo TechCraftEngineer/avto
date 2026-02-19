@@ -102,10 +102,10 @@ export const completeInterviewFunction = inngest.createFunction(
           hrSelectionStatus,
         };
 
-        if (responseRecord?.platformProfileUrl) {
+        if (responseRecord?.profileUrl) {
           try {
             const profile = await parseFreelancerProfile(
-              responseRecord.platformProfileUrl,
+              responseRecord.profileUrl,
             );
 
             if (!profile.error) {
@@ -165,10 +165,7 @@ export const completeInterviewFunction = inngest.createFunction(
             notificationType: "INTERVIEW_COMPLETED",
             candidateName: responseRecord.candidateName ?? undefined,
             score: scoringResult.score,
-            profileUrl:
-              responseRecord.platformProfileUrl ??
-              responseRecord.resumeUrl ??
-              undefined,
+            profileUrl: responseRecord.profileUrl ?? undefined,
           },
         });
 
