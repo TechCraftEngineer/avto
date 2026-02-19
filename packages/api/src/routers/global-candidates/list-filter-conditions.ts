@@ -1,8 +1,5 @@
-import type { DbClient } from "@qbs-autonaim/db";
 import {
-  and,
   eq,
-  exists,
   gte,
   ilike,
   inArray,
@@ -12,11 +9,7 @@ import {
   type SQL,
   sql,
 } from "@qbs-autonaim/db";
-import {
-  candidateOrganization,
-  globalCandidate,
-  response as responseTable,
-} from "@qbs-autonaim/db/schema";
+import { candidateOrganization, globalCandidate } from "@qbs-autonaim/db/schema";
 import type { ListInput } from "./list-schema";
 
 /** lastActivity: MAX(ответы) или updated_at связи */
@@ -30,7 +23,6 @@ export function lastActivityExpr() {
 
 export function buildFilterConditions(
   input: ListInput,
-  db: DbClient,
   options?: { cursor?: string },
 ): SQL<unknown>[] {
   const conditions: SQL<unknown>[] = [
@@ -64,19 +56,14 @@ export function buildFilterConditions(
   }
 
   if (input.vacancyId) {
+    // Кандидаты, у которых есть отклик на выбранную вакансию
     conditions.push(
-      exists(
-        db
-          .select({ one: sql`1` })
-          .from(responseTable)
-          .where(
-            and(
-              eq(responseTable.globalCandidateId, globalCandidate.id),
-              eq(responseTable.entityType, "vacancy"),
-              eq(responseTable.entityId, input.vacancyId),
-            ),
-          ),
-      ),
+      sql`EXISTS (
+        SELECT 1 FROM responses r
+        WHERE r.global_candidate_id = ${globalCandidate.id}
+          AND r.entity_type = 'vacancy'
+          AND r.entity_id = ${input.vacancyId}
+      )`,
     );
   }
 

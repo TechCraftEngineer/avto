@@ -2,10 +2,10 @@ import { saveBasicResponse } from "@qbs-autonaim/jobs/services/response";
 import { getResponsesLimitByOrganizationPlan } from "@qbs-autonaim/jobs-shared";
 import type { Page } from "puppeteer";
 import { z } from "zod";
-import { uploadToDpaste } from "../../../../utils/dpaste";
 import type { ProgressCallback, ResponseData } from "../../../types";
 import { HH_CONFIG } from "../../core/config/config";
 import { parseResponseDate } from "../../utils/date-utils";
+import { scrollToLoadAllContent } from "../../utils/human-behavior";
 import {
   filterResponsesNeedingDetails,
   parseResponseDetails,
@@ -103,6 +103,14 @@ export async function parseResponses(
   };
 }
 
+interface ParsedResponse {
+  name: string;
+  url: string;
+  resumeId: string;
+  respondedAtStr: string;
+  respondedAtError: boolean;
+}
+
 async function collectAndSaveResponses(
   page: Page,
   vacancyId: string,
@@ -111,8 +119,7 @@ async function collectAndSaveResponses(
   organizationPlan?: "free" | "starter" | "pro" | "enterprise",
 ): Promise<{ responses: ResponseData[]; newCount: number }> {
   const responses: ResponseData[] = [];
-  let processedCount = 0;
-  let newCount = 0;
+  let totalSaved = 0;
 
   // Получаем лимит из тарифного плана организации
   const responsesLimit = organizationPlan
@@ -126,39 +133,12 @@ async function collectAndSaveResponses(
     );
   }
 
+  const responsesUrl = `${HH_CONFIG.urls.baseUrl}/employer/vacancyresponses?vacancyId=${vacancyId}`;
+
   try {
-    console.log(`📄 Переход на страницу откликов вакансии ${vacancyId}`);
-    const responsesUrl = `https://hh.ru/employer/vacancyresponses?vacancyId=${vacancyId}&order=DATE`;
-    await page.goto(responsesUrl, {
-      waitUntil: "domcontentloaded",
-      timeout: HH_CONFIG.timeouts.navigation,
-    });
+    let currentPage = 0;
 
-    await page.waitForNetworkIdle({
-      timeout: HH_CONFIG.timeouts.networkIdle,
-    });
-
-    // Сохраняем верстку страницы в dpaste для анализа
-    try {
-      const html = await page.content();
-      const dpasteUrl = await uploadToDpaste(html);
-      if (dpasteUrl) {
-        console.log(`📤 Верстка страницы откликов сохранена: ${dpasteUrl}`);
-      }
-    } catch (e) {
-      console.warn("Не удалось сохранить страницу в dpaste:", e);
-    }
-    await page.waitForSelector('[data-qa="responses-list"]', {
-      timeout: HH_CONFIG.timeouts.selector,
-    });
-
-    // Собираем все отклики со всех страниц
-    let hasNextPage = true;
-    let pageNum = 0;
-
-    while (hasNextPage && pageNum < 100) {
-      // Ограничение на 100 страниц
-
+    while (currentPage < 100) {
       // Проверяем лимит перед загрузкой следующей страницы
       if (hasLimit && responses.length >= responsesLimit) {
         console.log(
@@ -167,67 +147,108 @@ async function collectAndSaveResponses(
         break;
       }
 
-      // Если лимит установлен и мы загрузили первую страницу, останавливаемся
-      if (hasLimit && pageNum > 0 && responses.length >= responsesLimit) {
+      if (hasLimit && currentPage > 0 && responses.length >= responsesLimit) {
         console.log(
           `⏹️ Лимит исчерпан (${responsesLimit}), загружена только первая страница`,
         );
         break;
       }
 
-      console.log(`📄 Парсим страницу ${pageNum + 1} откликов...`);
+      const pageUrl =
+        currentPage === 0
+          ? `${responsesUrl}&order=DATE`
+          : `${responsesUrl}&page=${currentPage}&order=DATE`;
 
-      // Собираем отклики с текущей страницы
+      console.log(`📄 Страница ${currentPage}: ${pageUrl}`);
+
+      try {
+        await page.goto(pageUrl, {
+          waitUntil: "networkidle2",
+          timeout: HH_CONFIG.timeouts.navigation,
+        });
+      } catch (error) {
+        console.error(
+          `❌ Ошибка загрузки страницы ${currentPage}:`,
+          error,
+        );
+        break;
+      }
+
+      const hasResponses = await page
+        .waitForSelector('div[data-qa="vacancy-real-responses"]', {
+          timeout: HH_CONFIG.timeouts.selector,
+        })
+        .then(() => true)
+        .catch(() => false);
+
+      if (!hasResponses) {
+        console.log(
+          `⚠️ Контейнер с откликами не найден на странице ${currentPage}`,
+        );
+        break;
+      }
+
+      await scrollToLoadAllContent(page);
+
       const pageResponses = await page.$$eval(
-        '[data-qa="responses-list"] [data-qa*="response"]',
-        (elements) => {
-          return elements.map((element, index) => {
-            const nameElement = element.querySelector(
-              '[data-qa="response-candidate-name"]',
+        'div[data-qa="vacancy-real-responses"] [data-resume-hash]',
+        (elements: Element[]) => {
+          return elements.map((el) => {
+            const link = el.querySelector('a[data-qa="serp-item__title"]');
+            const url = link ? link.getAttribute("href") : "";
+            const nameEl = el.querySelector(
+              'span[data-qa="resume-serp__resume-fullname"]',
             );
-            const name = nameElement?.textContent?.trim() || "";
+            const name = nameEl ? nameEl.textContent?.trim() : "";
 
-            const resumeLink = element.querySelector(
-              '[data-qa="response-candidate-link"]',
-            ) as HTMLAnchorElement;
-            const resumeUrl = resumeLink?.href || "";
+            let resumeId = "";
+            if (url) {
+              const fullUrl = new URL(url, "https://hh.ru").href;
+              const match = fullUrl.match(/\/resume\/([a-f0-9]+)/);
+              resumeId = match?.[1] ?? "";
+            }
 
-            const statusElement = element.querySelector(
-              '[data-qa*="response-status"]',
-            );
-            const status = statusElement?.textContent?.trim() || "";
-
-            const dateElement = element.querySelector(
-              '[data-qa="response-date"]',
-            );
-            const date = dateElement?.textContent?.trim() || "";
-
-            const coverLetterElement = element.querySelector(
-              '[data-qa="response-cover-letter"]',
-            );
-            const coverLetter = coverLetterElement?.textContent?.trim() || "";
-
-            const resumeIdMatch = resumeUrl.match(/\/resume\/([a-f0-9]+)/);
-            const resumeId = resumeIdMatch ? resumeIdMatch[1] : "";
+            let respondedAtStr = "";
+            let respondedAtError = false;
+            try {
+              const dateSpans = el.querySelectorAll("span");
+              for (const span of Array.from(dateSpans)) {
+                const text = span.textContent?.trim() || "";
+                if (text.includes("Откликнулся")) {
+                  const innerSpan = span.querySelector("span");
+                  respondedAtStr = innerSpan?.textContent?.trim() || "";
+                  break;
+                }
+              }
+            } catch (error) {
+              respondedAtError = true;
+              respondedAtStr = `Ошибка парсинга даты: ${error instanceof Error ? error.message : String(error)}`;
+            }
 
             return {
               name,
-              resumeUrl,
+              url: url ? new URL(url, "https://hh.ru").href : "",
               resumeId,
-              status,
-              respondedAt: date,
-              coverLetter,
-              vacancyId: "", // Будет заполнено позже
-              candidateId: "", // Будет заполнено позже
-              externalId: `${vacancyId}_${resumeId}_${index}`, // Уникальный ID для каждого отклика
+              respondedAtStr,
+              respondedAtError,
             };
           });
         },
       );
 
-      // Сохраняем каждый отклик
-      for (const response of pageResponses) {
-        // Проверяем лимит перед обработкой каждого отклика
+      if (pageResponses.length === 0) {
+        console.log(`⚠️ Нет откликов на странице ${currentPage}`);
+        break;
+      }
+
+      console.log(
+        `✅ Страница ${currentPage}: найдено ${pageResponses.length} откликов`,
+      );
+
+      let pageSaved = 0;
+      let pageSkipped = 0;
+
+      for (const response of pageResponses as ParsedResponse[]) {
         if (hasLimit && responses.length >= responsesLimit) {
           console.log(
             `⏹️ Достигнут лимит загрузки откликов (${responsesLimit}), останавливаем обработку страницы`,
@@ -235,55 +256,73 @@ async function collectAndSaveResponses(
           break;
         }
 
-        try {
-          response.vacancyId = dbVacancyId;
-
-          const saved = await saveBasicResponse(
-            dbVacancyId,
-            response.resumeId || "",
-            response.resumeUrl,
-            response.name,
-            parseResponseDate(response.respondedAt),
-            {
-              profileUrl: response.resumeUrl || null,
-              coverLetter: response.coverLetter || null,
-            },
+        if (response.respondedAtError) {
+          console.error(
+            `❌ Ошибка парсинга даты отклика для резюме ${response.resumeId}:`,
+            response.respondedAtStr,
           );
+        }
 
+        if (response.url && response.resumeId) {
+          const respondedAt = parseResponseDate(response.respondedAtStr || "");
           const responseData: ResponseData = {
-            ...response,
-            url: response.resumeUrl,
+            name: response.name,
+            url: response.url,
+            resumeUrl: response.url,
+            resumeId: response.resumeId,
+            externalId: `${dbVacancyId}_${response.resumeId}`,
+            respondedAt: respondedAt?.toISOString(),
+            vacancyId: dbVacancyId,
           };
 
-          if (saved.success && saved.data) {
-            responses.push(responseData);
-            newCount++;
-          } else {
-            responses.push(responseData); // Добавляем даже если не новый
-          }
+          try {
+            const result = await saveBasicResponse(
+              dbVacancyId,
+              response.resumeId,
+              response.url,
+              response.name,
+              respondedAt ?? new Date(),
+              {
+                profileUrl: response.url || null,
+              },
+            );
 
-          processedCount++;
-          if (onProgress && processedCount % 10 === 0) {
-            onProgress({
-              currentPage: pageNum + 1,
-              totalSaved: newCount,
-              totalSkipped: processedCount - newCount,
-              message: `Обработано откликов: ${processedCount}`,
+            if (!result.success) {
+              console.error(
+                `❌ Ошибка сохранения отклика ${response.name}:`,
+                result.error,
+              );
+            } else if (result.data) {
+              pageSaved++;
+            } else {
+              pageSkipped++;
+            }
+
+            responses.push(responseData);
+
+            await onProgress?.({
+              currentPage: currentPage + 1,
+              totalSaved: totalSaved + pageSaved,
+              totalSkipped: pageSkipped,
+              message: `Обработано откликов: ${responses.length}`,
             });
+          } catch (error) {
+            console.error(
+              `❌ Ошибка сохранения отклика ${response.name}:`,
+              error,
+            );
           }
-        } catch (error) {
-          console.error(
-            `❌ Ошибка сохранения отклика ${response.externalId}:`,
-            error,
-          );
+        } else {
+          console.log(`⚠️ Не удалось получить resumeId для: ${response.name}`);
         }
       }
 
+      totalSaved += pageSaved;
+
       console.log(
-        `📋 Откликов на странице ${pageNum + 1}: ${pageResponses.length}`,
+        `💾 Страница ${currentPage}: сохранено ${pageSaved}, пропущено ${pageSkipped}`,
       );
 
-      // Проверяем лимит после обработки страницы
       if (hasLimit && responses.length >= responsesLimit) {
         console.log(
           `⏹️ Достигнут лимит загрузки откликов (${responsesLimit}), останавливаем парсинг`,
@@ -291,31 +330,40 @@ async function collectAndSaveResponses(
         break;
       }
 
-      // Если лимит установлен и мы загрузили первую страницу, останавливаемся
-      if (hasLimit && pageNum === 0 && responses.length >= responsesLimit) {
+      if (
+        hasLimit &&
+        currentPage === 0 &&
+        responses.length >= responsesLimit
+      ) {
         console.log(
           `⏹️ Лимит исчерпан после первой страницы (${responsesLimit}), останавливаем парсинг`,
         );
         break;
       }
 
-      // Проверяем, есть ли следующая страница
-      const nextButton = await page.$('[data-qa="pager-next"]');
-      if (nextButton) {
-        await nextButton.click();
-        await page.waitForNetworkIdle({
-          timeout: HH_CONFIG.timeouts.networkIdle,
-        });
-        pageNum++;
-      } else {
-        hasNextPage = false;
+      if (pageSaved === 0 && pageSkipped > 0) {
+        console.log(
+          `⏹️ Все отклики на странице ${currentPage} уже в базе, останавливаем парсинг`,
+        );
+        break;
       }
+
+      if (pageSaved === 0 && pageSkipped === 0) {
+        console.log(
+          `⏹️ На странице ${currentPage} нет откликов, останавливаем парсинг`,
+        );
+        break;
+      }
+
+      currentPage++;
     }
 
-    console.log(`📊 Всего собрано откликов: ${responses.length}`);
+    console.log(
+      `\n✅ Итого: собрано ${responses.length}, сохранено новых ${totalSaved}`,
+    );
   } catch (error) {
     console.error("❌ Ошибка при сборе откликов:", error);
   }
 
-  return { responses, newCount };
+  return { responses, newCount: totalSaved };
 }

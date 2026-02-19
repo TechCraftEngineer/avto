@@ -55,7 +55,7 @@ export const list = protectedProcedure
       });
     }
 
-    const conditions = buildFilterConditions(input, ctx.db, {
+    const conditions = buildFilterConditions(input, {
       cursor: input.cursor,
     });
     const orderBy = buildOrderBy(input);
@@ -77,7 +77,7 @@ export const list = protectedProcedure
         : undefined;
     const links = candidateLinks.slice(0, input.limit);
 
-    const totalConditions = buildFilterConditions(input, ctx.db);
+    const totalConditions = buildFilterConditions(input);
     const totalResult = await ctx.db
       .select({ count: sql<number>`count(*)::int` })
       .from(candidateOrganization)

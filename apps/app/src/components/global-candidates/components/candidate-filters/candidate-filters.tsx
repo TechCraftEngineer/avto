@@ -42,10 +42,11 @@ export function CandidateFilters({
   const { workspace } = useWorkspaceContext();
   const trpc = useTRPC();
 
-  // Получаем список вакансий воркспейса
+  // Получаем список активных вакансий воркспейса (лимит 100 для выбора в фильтре)
   const { data: vacanciesData } = useQuery({
     ...trpc.vacancy.listActive.queryOptions({
       workspaceId: workspace?.id ?? "",
+      limit: 100,
     }),
     enabled: !!workspace?.id,
   });
