@@ -8,6 +8,7 @@ import { filesRouter } from "./routers/files";
 import { freelancePlatformsRouter } from "./routers/freelance-platforms";
 import { funnelRouter } from "./routers/funnel";
 import { gigRouter } from "./routers/gig";
+import { globalCandidatesRouter } from "./routers/global-candidates";
 import { integrationRouter } from "./routers/integration";
 import { interviewScenariosRouter } from "./routers/interview-scenarios";
 import { metaMatchRouter } from "./routers/meta-match";
@@ -41,6 +42,7 @@ export const appRouter = createTRPCRouter({
   payment: paymentRouter,
   funnel: funnelRouter,
   candidates: candidatesRouter,
+  globalCandidates: globalCandidatesRouter,
   files: filesRouter,
   freelancePlatforms: freelancePlatformsRouter,
   prequalification: prequalificationRouter,

@@ -1,7 +1,6 @@
 "use server";
 
 import { getSubscriptionToken } from "@bunworks/inngest-realtime";
-import { z } from "zod";
 import {
   analyzeResponseChannel,
   fetchActiveListChannel,
@@ -20,6 +19,7 @@ import {
   workspaceStatsChannel,
 } from "@qbs-autonaim/jobs/channels";
 import { inngest } from "@qbs-autonaim/jobs/client";
+import { z } from "zod";
 
 /**
  * Server action для получения токена подписки на Realtime канал скрининга новых откликов

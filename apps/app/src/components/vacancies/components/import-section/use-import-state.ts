@@ -18,6 +18,11 @@ export function useImportState() {
   const [activeListRequestId, setActiveListRequestId] = useState<
     string | null
   >(null);
+  const [activeListToken, setActiveListToken] = useState<{
+    channel: string;
+    topics: string[];
+    key: string;
+  } | null>(null);
 
   // Archived vacancies selection
   const [isSelectingArchivedVacancies, setIsSelectingArchivedVacancies] =
@@ -25,6 +30,11 @@ export function useImportState() {
   const [archivedListRequestId, setArchivedListRequestId] = useState<
     string | null
   >(null);
+  const [archivedListToken, setArchivedListToken] = useState<{
+    channel: string;
+    topics: string[];
+    key: string;
+  } | null>(null);
 
   // URL import
   const [vacancyUrl, setVacancyUrl] = useState("");
@@ -53,12 +63,16 @@ export function useImportState() {
     setIsSelectingActiveVacancies,
     activeListRequestId,
     setActiveListRequestId,
+    activeListToken,
+    setActiveListToken,
 
     // Archived vacancies
     isSelectingArchivedVacancies,
     setIsSelectingArchivedVacancies,
     archivedListRequestId,
     setArchivedListRequestId,
+    archivedListToken,
+    setArchivedListToken,
 
     // URL import
     vacancyUrl,

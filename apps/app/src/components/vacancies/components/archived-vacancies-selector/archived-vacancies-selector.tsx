@@ -32,9 +32,14 @@ interface ArchivedVacancy {
   isImported?: boolean; // Флаг, что вакансия уже загружена
 }
 
+// Токен подписки — сериализуемая форма для передачи с сервера
+type SubscriptionToken = { channel: string; topics: string[]; key: string };
+
 interface ArchivedVacanciesSelectorProps {
   workspaceId: string;
   requestId: string;
+  /** Токен подписки, полученный до отправки события (для доставки progress) */
+  initialToken?: SubscriptionToken;
   onSelect: (
     selectedIds: string[],
     vacancies: Array<{
@@ -51,6 +56,7 @@ interface ArchivedVacanciesSelectorProps {
 export function ArchivedVacanciesSelector({
   workspaceId,
   requestId,
+  initialToken,
   onSelect,
   onCancel,
 }: ArchivedVacanciesSelectorProps) {
@@ -59,14 +65,16 @@ export function ArchivedVacanciesSelector({
   const [filterTab, setFilterTab] = useState<"all" | "new" | "imported">("all");
   const [sortBy, setSortBy] = useState<"name" | "date">("date");
 
-  // Мемоизируем функцию получения токена
+  // Мемоизируем функцию получения токена (для переподключения при необходимости)
   const refreshToken = useCallback(
     () => fetchArchivedVacanciesListToken(workspaceId, requestId),
     [workspaceId, requestId],
   );
 
   // Подписываемся на выполнение функции через Realtime API
+  // initialToken подключает сразу, без ожидания — progress не теряется (at-most-once)
   const { data, error } = useInngestSubscription({
+    token: initialToken as Parameters<typeof useInngestSubscription>[0]["token"],
     refreshToken,
     enabled: true,
   });

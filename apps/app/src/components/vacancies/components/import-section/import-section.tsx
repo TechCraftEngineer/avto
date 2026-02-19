@@ -74,10 +74,14 @@ export function VacancyImportSection() {
     setIsSelectingActiveVacancies,
     activeListRequestId,
     setActiveListRequestId,
+    activeListToken,
+    setActiveListToken,
     isSelectingArchivedVacancies,
     setIsSelectingArchivedVacancies,
     archivedListRequestId,
     setArchivedListRequestId,
+    archivedListToken,
+    setArchivedListToken,
     vacancyUrl,
     setVacancyUrl,
     urlError,
@@ -93,8 +97,9 @@ export function VacancyImportSection() {
 
     try {
       setIsSelectingActiveVacancies(true);
-      const requestId = await fetchActiveVacanciesList(workspaceId);
+      const { requestId, token } = await fetchActiveVacanciesList(workspaceId);
       setActiveListRequestId(requestId);
+      setActiveListToken(token);
     } catch (error) {
       console.error("Ошибка получения списка активных вакансий:", error);
       toast.error(
@@ -102,6 +107,7 @@ export function VacancyImportSection() {
       );
       setIsSelectingActiveVacancies(false);
       setActiveListRequestId(null);
+      setActiveListToken(null);
     }
   };
 
@@ -117,6 +123,7 @@ export function VacancyImportSection() {
 
     setIsSelectingActiveVacancies(false);
     setActiveListRequestId(null);
+    setActiveListToken(null);
 
     if (selectedIds.length === 0) {
       return;
@@ -142,6 +149,7 @@ export function VacancyImportSection() {
   const handleActiveVacanciesCancel = () => {
     setIsSelectingActiveVacancies(false);
     setActiveListRequestId(null);
+    setActiveListToken(null);
   };
 
   const handleImportArchived = async () => {
@@ -152,9 +160,10 @@ export function VacancyImportSection() {
     try {
       setIsSelectingArchivedVacancies(true);
 
-      // Запускаем получение списка вакансий
-      const requestId = await fetchArchivedVacanciesList(workspaceId);
+      // Запускаем получение списка вакансий (токен получается до отправки события)
+      const { requestId, token } = await fetchArchivedVacanciesList(workspaceId);
       setArchivedListRequestId(requestId);
+      setArchivedListToken(token);
     } catch (error) {
       console.error("Ошибка получения списка архивных вакансий:", error);
       toast.error(
@@ -162,6 +171,7 @@ export function VacancyImportSection() {
       );
       setIsSelectingArchivedVacancies(false);
       setArchivedListRequestId(null);
+      setArchivedListToken(null);
     }
   };
 
@@ -179,6 +189,7 @@ export function VacancyImportSection() {
 
     setIsSelectingArchivedVacancies(false);
     setArchivedListRequestId(null);
+    setArchivedListToken(null);
 
     if (selectedIds.length === 0) {
       return;
@@ -207,6 +218,7 @@ export function VacancyImportSection() {
   const handleArchivedVacanciesCancel = () => {
     setIsSelectingArchivedVacancies(false);
     setArchivedListRequestId(null);
+    setArchivedListToken(null);
   };
 
   const handleImportByUrl = async () => {
@@ -351,6 +363,7 @@ export function VacancyImportSection() {
               <ActiveVacanciesSelector
                 workspaceId={workspaceId}
                 requestId={activeListRequestId}
+                initialToken={activeListToken ?? undefined}
                 onSelect={handleActiveVacanciesSelected}
                 onCancel={handleActiveVacanciesCancel}
               />
@@ -364,6 +377,7 @@ export function VacancyImportSection() {
               <ArchivedVacanciesSelector
                 workspaceId={workspaceId}
                 requestId={archivedListRequestId}
+                initialToken={archivedListToken ?? undefined}
                 onSelect={handleArchivedVacanciesSelected}
                 onCancel={handleArchivedVacanciesCancel}
               />

@@ -32,9 +32,14 @@ interface ActiveVacancy {
   isImported?: boolean;
 }
 
+// Токен подписки — сериализуемая форма для передачи с сервера
+type SubscriptionToken = { channel: string; topics: string[]; key: string };
+
 interface ActiveVacanciesSelectorProps {
   workspaceId: string;
   requestId: string;
+  /** Токен подписки, полученный до отправки события (для доставки progress) */
+  initialToken?: SubscriptionToken;
   onSelect: (
     selectedIds: string[],
     vacancies: Array<{
@@ -49,6 +54,7 @@ interface ActiveVacanciesSelectorProps {
 export function ActiveVacanciesSelector({
   workspaceId,
   requestId,
+  initialToken,
   onSelect,
   onCancel,
 }: ActiveVacanciesSelectorProps) {
@@ -62,7 +68,9 @@ export function ActiveVacanciesSelector({
     [workspaceId, requestId],
   );
 
+  // initialToken подключает сразу, без ожидания — progress не теряется (at-most-once)
   const { data, error } = useInngestSubscription({
+    token: initialToken as Parameters<typeof useInngestSubscription>[0]["token"],
     refreshToken,
     enabled: true,
   });

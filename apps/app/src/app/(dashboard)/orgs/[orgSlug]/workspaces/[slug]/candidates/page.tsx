@@ -1,4 +1,4 @@
-import { CandidatesTableView } from "~/components/candidates/components";
+import { GlobalCandidatesView } from "~/components/global-candidates";
 import { PageHeader } from "~/components/layout/components";
 import { env } from "~/env";
 
@@ -8,10 +8,10 @@ export default function CandidatesPage() {
       <div className="@container/main flex flex-1 flex-col gap-4 p-4 overflow-auto">
         <PageHeader
           title="База кандидатов"
-          description="Полная база данных всех кандидатов"
+          description="Полная база данных всех кандидатов организации"
           tooltipContent={`База кандидатов содержит всех соискателей, откликнувшихся на ваши вакансии. Здесь можно искать, фильтровать и просматривать профили кандидатов.\n\n[Подробнее в документации](${env.NEXT_PUBLIC_DOCS_URL}/candidates)`}
         />
-        <CandidatesTableView />
+        <GlobalCandidatesView />
       </div>
     </div>
   );

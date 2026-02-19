@@ -5,10 +5,10 @@ import {
   workspaceNotificationsChannel,
 } from "@qbs-autonaim/jobs/channels";
 import { inngest } from "@qbs-autonaim/jobs/client";
-import { isHHAuthError } from "../../utils/hh-auth-error";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { fetchArchivedVacanciesList } from "../../parsers/hh";
+import { isHHAuthError } from "../../utils/hh-auth-error";
 
 /**
  * Схема валидации входных данных для получения списка архивных вакансий

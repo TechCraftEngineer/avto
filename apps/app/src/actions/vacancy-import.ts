@@ -134,7 +134,9 @@ export async function triggerImportSelectedActiveVacancies(
 
 
 /**
- * Server action для получения списка активных вакансий для предпросмотра
+ * Server action для получения списка активных вакансий для предпросмотра.
+ * Возвращает requestId и токен подписки. Токен получается ДО отправки события,
+ * чтобы клиент успел подключиться до публикации progress (at-most-once delivery).
  */
 export async function fetchActiveVacanciesList(workspaceId: string) {
   const validationResult = workspaceIdSchema.safeParse({ workspaceId });
@@ -148,6 +150,16 @@ export async function fetchActiveVacanciesList(workspaceId: string) {
 
   const requestId = crypto.randomUUID();
 
+  // 1. Сначала получаем токен — клиент подключится к каналу до запуска функции
+  const token = await getSubscriptionToken(inngest, {
+    channel: fetchActiveListChannel(
+      validationResult.data.workspaceId,
+      requestId,
+    ),
+    topics: ["progress", "result"],
+  });
+
+  // 2. Затем отправляем событие — Inngest начнёт выполнение после подключения клиента
   await inngest.send({
     name: "vacancy/fetch-active-list",
     data: {
@@ -156,7 +168,10 @@ export async function fetchActiveVacanciesList(workspaceId: string) {
     },
   });
 
-  return requestId;
+  return {
+    requestId,
+    token: token as unknown as { channel: string; topics: string[]; key: string },
+  };
 }
 
 const workspaceRequestSchema = z.object({
@@ -195,7 +210,9 @@ export async function fetchActiveVacanciesListToken(
 }
 
 /**
- * Server action для получения списка архивных вакансий для предпросмотра
+ * Server action для получения списка архивных вакансий для предпросмотра.
+ * Возвращает requestId и токен подписки. Токен получается ДО отправки события,
+ * чтобы клиент успел подключиться до публикации progress (at-most-once delivery).
  */
 export async function fetchArchivedVacanciesList(workspaceId: string) {
   const validationResult = workspaceIdSchema.safeParse({ workspaceId });
@@ -209,6 +226,16 @@ export async function fetchArchivedVacanciesList(workspaceId: string) {
 
   const requestId = crypto.randomUUID();
 
+  // 1. Сначала получаем токен — клиент подключится к каналу до запуска функции
+  const token = await getSubscriptionToken(inngest, {
+    channel: fetchArchivedListChannel(
+      validationResult.data.workspaceId,
+      requestId,
+    ),
+    topics: ["progress", "result"],
+  });
+
+  // 2. Затем отправляем событие — Inngest начнёт выполнение после подключения клиента
   await inngest.send({
     name: "vacancy/fetch-archived-list",
     data: {
@@ -217,7 +244,10 @@ export async function fetchArchivedVacanciesList(workspaceId: string) {
     },
   });
 
-  return requestId;
+  return {
+    requestId,
+    token: token as unknown as { channel: string; topics: string[]; key: string },
+  };
 }
 
 /**

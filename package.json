@@ -22,6 +22,7 @@
     "db:generate-key": "bun --filter @qbs-autonaim/db generate-key",
     "dev": "turbo watch dev --continue",
     "dev:app": "turbo watch dev -F @qbs-autonaim/app...",
+    "dev:jobs": "turbo watch dev -F @qbs-autonaim/jobs...",
     "dev:webhooks": "turbo watch dev -F @qbs-autonaim/webhooks",
     "dev:extension-api": "turbo watch dev -F @qbs-autonaim/extension-api",
     "dev:all": "concurrently \"bun run tg:dev\" \"bun run jobs:dev\" \"bun run dev:webhooks\"",
