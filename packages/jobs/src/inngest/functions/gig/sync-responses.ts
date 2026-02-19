@@ -1,4 +1,11 @@
-import { and, count, db, eq, sql } from "@qbs-autonaim/db";
+import {
+  and,
+  count,
+  db,
+  eq,
+  GlobalCandidateRepository,
+  sql,
+} from "@qbs-autonaim/db";
 import { gig, response } from "@qbs-autonaim/db/schema";
 import { getUser } from "@qbs-autonaim/integration-clients";
 import { getProjectOffersFromWebWithCache } from "../../../services/kwork/get-kwork-project-offers";
@@ -276,7 +283,68 @@ async function syncKworkResponses(
         updatedAt: new Date(),
       },
     })
-    .returning({ id: response.id });
+    .returning({ id: response.id, candidateId: response.candidateId });
+
+  // Создаём/линкуем global_candidates с данными из Kwork user API
+  const gigWithWorkspace = await db.query.gig.findFirst({
+    where: eq(gig.id, gigId),
+    columns: { workspaceId: true },
+    with: { workspace: { columns: { organizationId: true } } },
+  });
+  const organizationId = gigWithWorkspace?.workspace?.organizationId;
+
+  if (organizationId) {
+    const globalCandidateRepository = new GlobalCandidateRepository(db);
+
+    for (let i = 0; i < inserted.length; i++) {
+      const row = inserted[i];
+      const val = values[i];
+      if (!row || !val) continue;
+
+      const userData = (val.profileData as { kworkUserData?: Record<string, unknown> })
+        ?.kworkUserData;
+      const fullname = (userData?.fullname as string)?.trim();
+      const candidateName = fullname || val.candidateName || "Кандидат Kwork";
+      const headline =
+        (userData?.profession as string)?.trim() ||
+        (userData?.specialization as string)?.trim() ||
+        null;
+      const location = (userData?.location as string)?.trim() || null;
+      const profileUrl =
+        val.platformProfileUrl ?? (val.profileUrl as string | undefined);
+
+      try {
+        const { candidate } =
+          await globalCandidateRepository.findOrCreateWithOrganizationLink(
+            {
+              fullName: candidateName,
+              headline,
+              location,
+              photoFileId: val.photoFileId ?? null,
+              resumeUrl: profileUrl ?? null,
+              profileData: (val.profileData as Record<string, unknown>) ?? null,
+              source: "IMPORT",
+              originalSource: "KWORK",
+            },
+            {
+              organizationId,
+              status: "ACTIVE",
+              appliedAt: new Date(),
+            },
+          );
+
+        await db
+          .update(response)
+          .set({ globalCandidateId: candidate.id })
+          .where(eq(response.id, row.id));
+      } catch (err) {
+        console.error(
+          `[sync-gig-responses] Ошибка создания global_candidate для ${val.candidateId}:`,
+          err,
+        );
+      }
+    }
+  }
 
   const countsResult = await db
     .select({

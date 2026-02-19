@@ -37,6 +37,7 @@ export interface GlobalCandidateData {
   skills?: string[] | null;
   experienceYears?: number | null;
   salaryExpectationsAmount?: number | null;
+  photoFileId?: string | null;
   source?: "APPLICANT" | "SOURCING" | "IMPORT" | "MANUAL" | "REFERRAL";
   originalSource?:
     | "MANUAL"
@@ -166,6 +167,11 @@ export class GlobalCandidateRepository {
     // Headline - обновляем если пусто
     if (newData.headline && !existing.headline) {
       merged.headline = newData.headline;
+    }
+
+    // Photo - обновляем если пусто
+    if (newData.photoFileId && !existing.photoFileId) {
+      merged.photoFileId = newData.photoFileId;
     }
 
     // Resume URL - обновляем если пусто
@@ -348,6 +354,7 @@ export class GlobalCandidateRepository {
       telegramUsername: data.telegramUsername ?? null,
       headline: data.headline ?? null,
       resumeUrl: data.resumeUrl ?? null,
+      photoFileId: data.photoFileId ?? null,
       profileData: data.profileData ?? null,
       skills: data.skills ?? null,
       experienceYears: data.experienceYears ?? null,

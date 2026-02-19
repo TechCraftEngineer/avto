@@ -1,5 +1,6 @@
-import { GlobalCandidateRepository } from "@qbs-autonaim/db";
+import { eq, GlobalCandidateRepository } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
+import { globalCandidate } from "@qbs-autonaim/db/schema";
 import {
   updateResponseDetails,
   uploadCandidatePhoto,
@@ -105,13 +106,14 @@ export async function enrichResumeData(
       console.log(`✅ Найден email: ${email}`);
     }
 
-    // Подготавливаем profileData для кандидата
+    // Подготавливаем profileData для кандидата (включая personalInfo для link-responses)
     const profileData = resumeData.structuredData
       ? {
           experience: resumeData.experience || [],
           education: resumeData.structuredData.education,
           languages: resumeData.structuredData.languages,
           summary: resumeData.structuredData.summary,
+          personalInfo: resumeData.structuredData.personalInfo,
           parsedAt: new Date().toISOString(),
         }
       : resumeData.experience
@@ -120,6 +122,39 @@ export async function enrichResumeData(
             parsedAt: new Date().toISOString(),
           }
         : undefined;
+
+    // Извлекаем общие поля для global_candidate (используются при создании и обновлении)
+    const lastExp = resumeData.experience?.[resumeData.experience.length - 1];
+    const headline = lastExp?.experience?.position?.trim() || undefined;
+    const personalInfo = resumeData.structuredData?.personalInfo as
+      | { location?: string; gender?: string; citizenship?: string }
+      | undefined;
+    const location = personalInfo?.location?.trim() || undefined;
+    const gender = personalInfo?.gender?.toLowerCase();
+    const genderNorm =
+      gender === "male" || gender === "female" || gender === "other"
+        ? gender
+        : undefined;
+    const citizenship = personalInfo?.citizenship?.trim() || undefined;
+    let englishLevel:
+      | "A1"
+      | "A2"
+      | "B1"
+      | "B2"
+      | "C1"
+      | "C2"
+      | undefined;
+    const englishLang = resumeData.structuredData?.languages?.find(
+      (lang) =>
+        lang.name.toLowerCase().includes("english") ||
+        lang.name.toLowerCase().includes("английский"),
+    );
+    if (englishLang?.level) {
+      const level = englishLang.level.toUpperCase().replace(/\s/g, "");
+      if (["A1", "A2", "B1", "B2", "C1", "C2"].includes(level)) {
+        englishLevel = level as "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
+      }
+    }
 
     // Create or update global candidate (даже без контактов — по имени и resumeUrl)
     let globalCandidateId: string | null = input.globalCandidateId ?? null;
@@ -193,6 +228,12 @@ export async function enrichResumeData(
                 skills: resumeData.structuredData?.skills || null,
                 experienceYears: experienceYears,
                 birthDate: resumeData.birthDate || null,
+                headline: headline ?? null,
+                location: location ?? null,
+                englishLevel: englishLevel ?? null,
+                photoFileId: photoFileId ?? null,
+                gender: genderNorm ?? null,
+                citizenship: citizenship ?? null,
               },
               {
                 organizationId: vacancy.workspace.organizationId,
@@ -216,6 +257,49 @@ export async function enrichResumeData(
       } catch (error) {
         console.error(`⚠️ Ошибка создания глобального кандидата:`, error);
         // Продолжаем без кандидата
+      }
+    }
+
+    // Обновляем существующего global_candidate обогащёнными данными (photo, headline, location, english, gender, citizenship)
+    if (
+      globalCandidateId &&
+      (photoFileId ||
+        headline ||
+        location ||
+        englishLevel ||
+        genderNorm ||
+        citizenship)
+    ) {
+      try {
+        const globalCandidateRepository = new GlobalCandidateRepository(db);
+        const existing = await globalCandidateRepository.findById(
+          globalCandidateId,
+        );
+        if (existing) {
+          const merged = globalCandidateRepository.mergeGlobalCandidateData(
+            existing,
+            {
+              fullName: input.candidateName || existing.fullName,
+              photoFileId: photoFileId ?? undefined,
+              headline: headline ?? undefined,
+              location: location ?? undefined,
+              englishLevel: englishLevel ?? undefined,
+              gender: genderNorm ?? undefined,
+              citizenship: citizenship ?? undefined,
+            },
+          );
+          if (Object.keys(merged).length > 0) {
+            await db
+              .update(globalCandidate)
+              .set(merged)
+              .where(eq(globalCandidate.id, globalCandidateId));
+          }
+        }
+      } catch (err) {
+        console.error(
+          `⚠️ Ошибка обновления global_candidate ${globalCandidateId}:`,
+          err,
+        );
       }
     }
 

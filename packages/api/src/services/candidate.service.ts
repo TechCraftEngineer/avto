@@ -41,6 +41,16 @@ export class CandidateService {
       response.profileData ?? null,
     );
 
+    // Извлекаем headline, location, englishLevel, gender, citizenship из profileData (Kwork, HH и др.)
+    const { headline, location, englishLevel, gender, citizenship } =
+      this.extractFieldsFromProfileData(response.profileData ?? null);
+
+    // photoFileId — из response (заполняется при импорте Kwork, HH и т.д.)
+    const photoFileId =
+      "photoFileId" in response && typeof response.photoFileId === "string"
+        ? response.photoFileId
+        : null;
+
     // Определяем resume URL
     // Используем resumeUrl или platformProfileUrl из response
     const resumeUrl =
@@ -60,20 +70,21 @@ export class CandidateService {
       telegramUsername: telegramUsername
         ? telegramUsername.replace("@", "").trim()
         : null,
-      headline: null, // Можно извлечь из profileData или experience
+      headline,
       resumeUrl,
+      photoFileId,
       profileData: response.profileData ?? null,
       skills: response.skills ?? null,
       experienceYears,
       salaryExpectationsAmount: response.salaryExpectationsAmount ?? null,
       source,
       originalSource: response.importSource ?? undefined,
-      location: null, // Можно извлечь из profileData
+      location,
       birthDate: null,
-      gender: null,
-      citizenship: null,
+      gender,
+      citizenship,
       workFormat: null,
-      englishLevel: null,
+      englishLevel,
       readyForRelocation: null,
       tags: null,
       notes: null,
@@ -257,6 +268,103 @@ export class CandidateService {
     }
 
     return normalized;
+  }
+
+  /**
+   * Извлечение headline, location, englishLevel из profileData
+   * Поддерживает Kwork (kworkUserData), HH (experience, languages) и др. источники
+   */
+  private extractFieldsFromProfileData(profileData: unknown): {
+    headline: string | null;
+    location: string | null;
+    englishLevel: "A1" | "A2" | "B1" | "B2" | "C1" | "C2" | null;
+    gender: "male" | "female" | "other" | null;
+    citizenship: string | null;
+  } {
+    const result = {
+      headline: null as string | null,
+      location: null as string | null,
+      englishLevel: null as "A1" | "A2" | "B1" | "B2" | "C1" | "C2" | null,
+      gender: null as "male" | "female" | "other" | null,
+      citizenship: null as string | null,
+    };
+
+    if (!profileData || typeof profileData !== "object") {
+      return result;
+    }
+
+    const pd = profileData as Record<string, unknown>;
+
+    // personalInfo (HH-style): location, gender, citizenship
+    const personalInfo = pd.personalInfo as
+      | { location?: string; gender?: string; citizenship?: string }
+      | undefined;
+    if (personalInfo?.location && typeof personalInfo.location === "string") {
+      result.location = personalInfo.location.trim() || null;
+    }
+    if (personalInfo?.gender) {
+      const g = String(personalInfo.gender).toLowerCase();
+      if (g === "male" || g === "female" || g === "other") {
+        result.gender = g;
+      }
+    }
+    if (personalInfo?.citizenship && typeof personalInfo.citizenship === "string") {
+      result.citizenship = personalInfo.citizenship.trim() || null;
+    }
+
+    // Kwork: location, profession/specialization (перезаписываем если пусто)
+    const kwork = pd.kworkUserData as Record<string, unknown> | undefined;
+    if (!result.location && kwork?.location && typeof kwork.location === "string") {
+      result.location = kwork.location.trim() || null;
+    }
+    if (kwork?.profession && typeof kwork.profession === "string") {
+      result.headline = kwork.profession.trim() || null;
+    }
+    if (
+      !result.headline &&
+      kwork?.specialization &&
+      typeof kwork.specialization === "string"
+    ) {
+      result.headline = kwork.specialization.trim() || null;
+    }
+
+    // HH-style: experience (последняя должность), languages (английский)
+    const experience = pd.experience as
+      | Array<{ experience?: { position?: string } }>
+      | undefined;
+    if (Array.isArray(experience) && experience.length > 0 && !result.headline) {
+      const last = experience[experience.length - 1];
+      const pos = last?.experience?.position;
+      if (pos && typeof pos === "string") {
+        result.headline = pos.trim() || null;
+      }
+    }
+
+    const languages = pd.languages as
+      | Array<{ name?: string; level?: string }>
+      | undefined;
+    if (Array.isArray(languages) && !result.englishLevel) {
+      const english = languages.find(
+        (l) =>
+          l?.name &&
+          (String(l.name).toLowerCase().includes("english") ||
+            String(l.name).toLowerCase().includes("английский")),
+      );
+      if (english?.level) {
+        const level = String(english.level).toUpperCase().replace(/\s/g, "");
+        if (["A1", "A2", "B1", "B2", "C1", "C2"].includes(level)) {
+          result.englishLevel = level as
+            | "A1"
+            | "A2"
+            | "B1"
+            | "B2"
+            | "C1"
+            | "C2";
+        }
+      }
+    }
+
+    return result;
   }
 
   /**

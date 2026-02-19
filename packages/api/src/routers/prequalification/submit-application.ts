@@ -158,11 +158,26 @@ export const submitApplication = publicProcedure
           organizationId: workspaceData.organizationId,
           source: "APPLICANT",
           originalSource: "WEB_LINK",
-          additionalData: session.parsedResume?.structured?.personalInfo
-            ? {
-                location: session.parsedResume.structured.personalInfo.location,
-              }
-            : undefined,
+          additionalData: (() => {
+            const pi = session.parsedResume?.structured?.personalInfo;
+            const exp = session.parsedResume?.structured?.experience;
+            const headline = exp?.length
+              ? exp[exp.length - 1]?.position
+              : undefined;
+            if (!pi && !headline) return undefined;
+            return {
+              ...(pi && {
+                location: pi.location,
+                gender: pi.gender?.toLowerCase() as
+                  | "male"
+                  | "female"
+                  | "other"
+                  | undefined,
+                citizenship: pi.citizenship,
+              }),
+              headline,
+            };
+          })(),
         });
 
         if (syncResult.hasContacts) {

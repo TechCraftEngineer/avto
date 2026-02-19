@@ -15,6 +15,7 @@ export interface CandidateDataFromResponse {
   telegramUsername?: string | null;
   headline?: string | null;
   resumeUrl?: string | null;
+  photoFileId?: string | null;
   profileData?: StoredProfileData | null;
   skills?: string[] | null;
   experienceYears?: number | null;

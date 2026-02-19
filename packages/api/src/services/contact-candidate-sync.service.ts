@@ -31,6 +31,9 @@ export interface ContactData {
     | "TELEGRAM";
   additionalData?: {
     location?: string;
+    headline?: string;
+    gender?: "male" | "female" | "other";
+    citizenship?: string;
     experience?: string;
     skills?: string[];
     salaryExpectations?: number;
@@ -106,6 +109,9 @@ export class ContactCandidateSyncService {
           source,
           originalSource,
           location: additionalData?.location || null,
+          headline: additionalData?.headline || null,
+          gender: additionalData?.gender || null,
+          citizenship: additionalData?.citizenship || null,
           skills: additionalData?.skills || null,
           salaryExpectationsAmount: additionalData?.salaryExpectations || null,
           resumeUrl: contactData.platformProfileUrl || null,
@@ -157,6 +163,9 @@ export class ContactCandidateSyncService {
           source,
           originalSource,
           location: additionalData?.location || null,
+          headline: additionalData?.headline || null,
+          gender: additionalData?.gender || null,
+          citizenship: additionalData?.citizenship || null,
           skills: additionalData?.skills || null,
           salaryExpectationsAmount: additionalData?.salaryExpectations || null,
           resumeUrl: contactData.platformProfileUrl || null,

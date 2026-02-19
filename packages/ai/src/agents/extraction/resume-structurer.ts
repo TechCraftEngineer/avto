@@ -49,6 +49,8 @@ export class ResumeStructurerAgent extends BaseAgent<
    - whatsapp: номер WhatsApp (обычно совпадает с телефоном, но может быть указан отдельно)
    - location: город проживания (например "Москва, м. Курская")
    - birthDate: дата рождения в формате ISO 8601 (YYYY-MM-DD)
+   - gender: пол — "male" (мужской), "female" (женский), "other" (другой). Ищи "Пол", "Мужчина", "Женщина"
+   - citizenship: гражданство (например "Российская Федерация", "Россия", "Украина"). Ищи "Гражданство"
 
    ВАЖНО для контактов:
    - Telegram может быть указан как "@username", "t.me/username", "telegram: username" или просто username
