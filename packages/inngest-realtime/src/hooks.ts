@@ -117,9 +117,9 @@ export function useInngestSubscription<
     }
   }, [key, refreshToken, tokenInput]);
 
-  // Token fetch fallback
+  // Token fetch fallback — не вызывать, если tokenInput уже передан (избегаем двойной подписки)
   useEffect(() => {
-    if (!token && enabled && !fetchingTokenRef.current) {
+    if (!token && !tokenInput && enabled && !fetchingTokenRef.current) {
       if (refreshToken) {
         fetchingTokenRef.current = true;
         setState(InngestSubscriptionState.RefreshingToken);
