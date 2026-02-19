@@ -48,22 +48,37 @@ export async function fetchActiveVacanciesList(workspaceId: string): Promise<
       HH_CONFIG.delays.readingPage.min,
       HH_CONFIG.delays.readingPage.max,
     );
-    // Сохраняем верстку страницы с активными вакансиями на termbin для отладки
+    // Сохраняем содержимое div.vacancies-dashboard на termbin для отладки
+    // termbin.com ограничивает размер ~64 KB, усекаем при необходимости
+    const TERMBIN_MAX_SIZE = 60_000;
     try {
-      const pageContent = await page.content();
-      console.log(
-        "📋 Загрузка верстки на termbin...",
-        `(размер: ${(pageContent.length / 1024).toFixed(1)} KB)`,
-      );
-      const termbinUrl = await uploadToTermbin(pageContent);
-      if (termbinUrl) {
-        console.log(
-          `📋 Верстка страницы с активными вакансиями сохранена: ${termbinUrl}`,
-        );
+      const pageContent = await page.evaluate(() => {
+        const el = document.querySelector("div.vacancies-dashboard");
+        return el ? (el as HTMLElement).outerHTML : null;
+      });
+
+      if (!pageContent) {
+        console.warn("📋 div.vacancies-dashboard не найден на странице");
       } else {
-        console.warn(
-          "📋 termbin вернул пустой ответ — верстка не сохранена",
+        const contentToUpload =
+          pageContent.length > TERMBIN_MAX_SIZE
+            ? pageContent.slice(0, TERMBIN_MAX_SIZE) +
+              `\n\n... [обрезано, всего ${(pageContent.length / 1024).toFixed(1)} KB]`
+            : pageContent;
+        console.log(
+          "📋 Загрузка верстки на termbin...",
+          `(размер: ${(pageContent.length / 1024).toFixed(1)} KB)`,
         );
+        const termbinUrl = await uploadToTermbin(contentToUpload);
+        if (termbinUrl) {
+          console.log(
+            `📋 Верстка vacancies-dashboard сохранена: ${termbinUrl}`,
+          );
+        } else {
+          console.warn(
+            "📋 termbin вернул пустой ответ — верстка не сохранена",
+          );
+        }
       }
     } catch (termbinError) {
       console.warn(
