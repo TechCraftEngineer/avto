@@ -75,15 +75,13 @@ export function VacancyLayoutClient({
   // (1) Если workspaceId еще не доступен, показываем загрузку
   if (!workspaceId) {
     return (
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col min-w-0">
         <div className="@container/main flex flex-1 flex-col gap-2">
-          <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-            <div className="px-4 lg:px-6">
-              <Skeleton className="h-10 md:h-10 w-32 md:w-40 mb-4" />
-              <div className="space-y-4 md:space-y-6">
-                <Skeleton className="h-10 md:h-10 w-full md:w-64" />
-                {children}
-              </div>
+          <div className="flex flex-col gap-4 px-4 py-4 md:gap-6 md:py-6 lg:px-6">
+            <Skeleton className="h-11 w-32 md:h-10 md:w-40 mb-2 md:mb-4" />
+            <div className="space-y-4 md:space-y-6">
+              <Skeleton className="h-11 w-full md:h-10 md:w-64" />
+              {children}
             </div>
           </div>
         </div>
@@ -94,7 +92,7 @@ export function VacancyLayoutClient({
   // (2) Если есть ошибки в запросах, показываем ошибку
   if (vacancyError || responsesError) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6">
+      <div className="flex flex-1 flex-col items-center justify-center gap-3 p-4 sm:p-6">
         <div className="flex size-12 items-center justify-center rounded-full border border-border bg-muted">
           <svg
             className="size-5 text-muted-foreground"
@@ -138,15 +136,13 @@ export function VacancyLayoutClient({
   const isLoading = vacancyLoading || responsesLoading;
   if (isLoading) {
     return (
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col min-w-0">
         <div className="@container/main flex flex-1 flex-col gap-2">
-          <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-            <div className="px-4 lg:px-6">
-              <Skeleton className="h-10 md:h-10 w-32 md:w-40 mb-4" />
-              <div className="space-y-4 md:space-y-6">
-                <Skeleton className="h-10 md:h-10 w-full md:w-64" />
-                {children}
-              </div>
+          <div className="flex flex-col gap-4 px-4 py-4 md:gap-6 md:py-6 lg:px-6">
+            <Skeleton className="h-11 w-32 md:h-10 md:w-40 mb-2 md:mb-4" />
+            <div className="space-y-4 md:space-y-6">
+              <Skeleton className="h-11 w-full md:h-10 md:w-64" />
+              {children}
             </div>
           </div>
         </div>
@@ -157,25 +153,25 @@ export function VacancyLayoutClient({
   // (3) Только после успешного завершения запросов проверяем, найдена ли вакансия
   if (!vacancy) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center">
-        <p className="text-muted-foreground">Вакансия не найдена</p>
+      <div className="flex flex-1 flex-col items-center justify-center p-4">
+        <p className="text-center text-muted-foreground">Вакансия не найдена</p>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-1 flex-col">
-      <div className="@container/main flex flex-1 flex-col gap-2">
-        <div className="flex flex-col gap-4">
-          <div className="mb-4">
+    <div className="flex flex-1 flex-col min-w-0">
+      <div className="@container/main flex flex-1 flex-col gap-2 min-w-0">
+        <div className="flex flex-col gap-4 px-4 lg:px-6">
+          <div className="mb-2 md:mb-4 -ml-2">
             <Button
               variant="ghost"
               size="sm"
-              className="min-h-11 md:min-h-0"
+              className="min-h-11 min-w-11 touch-manipulation md:min-h-0 md:min-w-0"
               asChild
             >
               <Link href={paths.workspace.vacancies(orgSlug, workspaceSlug)}>
-                <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
+                <ArrowLeft className="mr-2 h-4 w-4 shrink-0" aria-hidden="true" />
                 <span className="hidden sm:inline">Назад к списку</span>
                 <span className="sm:hidden">Назад</span>
               </Link>
@@ -183,12 +179,15 @@ export function VacancyLayoutClient({
           </div>
 
           <Tabs value={getActiveTab()} className="space-y-4 md:space-y-6">
-            <div className="flex items-center justify-between">
-              <TabsList className="w-full sm:w-auto">
+            <section
+              className="-mx-4 overflow-x-auto px-4 lg:mx-0 lg:px-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              aria-label="Навигация по разделам вакансии"
+            >
+              <TabsList className="inline-flex h-11 min-w-max flex-nowrap gap-0.5 bg-transparent p-0 sm:h-9 sm:rounded-lg sm:bg-muted sm:p-[3px]">
                 <TabsTrigger
                   value="detail"
                   asChild
-                  className="flex-1 sm:flex-initial min-h-11 md:min-h-0 gap-2"
+                  className="h-11 shrink-0 touch-manipulation gap-1.5 rounded-md px-3 sm:h-[calc(100%-1px)] sm:flex-1 sm:px-2 md:flex-initial"
                 >
                   <Link
                     href={paths.workspace.vacancies(
@@ -197,15 +196,14 @@ export function VacancyLayoutClient({
                       vacancyId,
                     )}
                   >
-                    <IconEye className="size-4" aria-hidden="true" />
-                    <span className="hidden sm:inline">Обзор</span>
-                    <span className="sm:hidden">Обзор</span>
+                    <IconEye className="size-4 shrink-0" aria-hidden="true" />
+                    <span>Обзор</span>
                   </Link>
                 </TabsTrigger>
                 <TabsTrigger
                   value="responses"
                   asChild
-                  className="flex-1 sm:flex-initial min-h-11 md:min-h-0 gap-2"
+                  className="h-11 shrink-0 touch-manipulation gap-1.5 rounded-md px-3 sm:h-[calc(100%-1px)] sm:flex-1 sm:px-2 md:flex-initial"
                 >
                   <Link
                     href={paths.workspace.vacancies(
@@ -215,7 +213,7 @@ export function VacancyLayoutClient({
                       "responses",
                     )}
                   >
-                    <IconMessage className="size-4" aria-hidden="true" />
+                    <IconMessage className="size-4 shrink-0" aria-hidden="true" />
                     <span className="hidden sm:inline">
                       Отклики ({responsesCount?.total ?? 0})
                     </span>
@@ -225,7 +223,7 @@ export function VacancyLayoutClient({
                 <TabsTrigger
                   value="edit"
                   asChild
-                  className="flex-1 sm:flex-initial min-h-11 md:min-h-0 gap-2"
+                  className="h-11 shrink-0 touch-manipulation gap-1.5 rounded-md px-3 sm:h-[calc(100%-1px)] sm:flex-1 sm:px-2 md:flex-initial"
                 >
                   <Link
                     href={paths.workspace.vacancies(
@@ -235,7 +233,7 @@ export function VacancyLayoutClient({
                       "edit",
                     )}
                   >
-                    <IconEdit className="size-4" aria-hidden="true" />
+                    <IconEdit className="size-4 shrink-0" aria-hidden="true" />
                     <span className="hidden sm:inline">Редактировать</span>
                     <span className="sm:hidden">Редакт.</span>
                   </Link>
@@ -243,7 +241,7 @@ export function VacancyLayoutClient({
                 <TabsTrigger
                   value="integrations"
                   asChild
-                  className="flex-1 sm:flex-initial min-h-11 md:min-h-0 gap-2"
+                  className="h-11 shrink-0 touch-manipulation gap-1.5 rounded-md px-3 sm:h-[calc(100%-1px)] sm:flex-1 sm:px-2 md:flex-initial"
                 >
                   <Link
                     href={paths.workspace.vacancies(
@@ -253,7 +251,7 @@ export function VacancyLayoutClient({
                       "integrations",
                     )}
                   >
-                    <IconPlug className="size-4" aria-hidden="true" />
+                    <IconPlug className="size-4 shrink-0" aria-hidden="true" />
                     <span className="hidden sm:inline">Интеграции</span>
                     <span className="sm:hidden">Интегр.</span>
                   </Link>
@@ -261,7 +259,7 @@ export function VacancyLayoutClient({
                 <TabsTrigger
                   value="settings"
                   asChild
-                  className="flex-1 sm:flex-initial min-h-11 md:min-h-0 gap-2"
+                  className="h-11 shrink-0 touch-manipulation gap-1.5 rounded-md px-3 sm:h-[calc(100%-1px)] sm:flex-1 sm:px-2 md:flex-initial"
                 >
                   <Link
                     href={paths.workspace.vacancies(
@@ -271,13 +269,13 @@ export function VacancyLayoutClient({
                       "settings",
                     )}
                   >
-                    <IconSettings className="size-4" aria-hidden="true" />
+                    <IconSettings className="size-4 shrink-0" aria-hidden="true" />
                     <span className="hidden sm:inline">Настройки</span>
                     <span className="sm:hidden">Настр.</span>
                   </Link>
                 </TabsTrigger>
               </TabsList>
-            </div>
+            </section>
 
             {children}
           </Tabs>
