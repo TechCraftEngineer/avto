@@ -3,12 +3,12 @@ import type { Realtime } from "@bunworks/inngest-realtime";
 /**
  * Создает mock токен для тестирования компонентов с Inngest Realtime
  */
-export function createMockToken<TTopics extends readonly string[]>(
+export function createMockToken(
   channelName: string,
-  topics: TTopics,
+  topics: string[],
 ): Realtime.Subscribe.Token<
   Realtime.Channel<string, Record<string, Realtime.Topic.Definition>>,
-  TTopics
+  string[]
 > {
   return {
     channel: {

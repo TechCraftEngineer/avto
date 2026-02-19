@@ -50,7 +50,7 @@ describe("ArchivedVacanciesSelector", () => {
   const mockRequestId = "request-123";
   const mockToken = createMockToken(
     `fetch-archived-list:${mockWorkspaceId}:${mockRequestId}`,
-    ["progress", "result"] as const,
+    ["progress", "result"],
   );
   const mockOnSelect = mock(() => {});
   const mockOnCancel = mock(() => {});

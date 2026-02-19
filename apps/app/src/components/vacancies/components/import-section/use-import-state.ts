@@ -1,3 +1,4 @@
+import type { getSubscriptionToken } from "@bunworks/inngest-realtime";
 import { useState } from "react";
 
 export function useImportState() {
@@ -15,9 +16,9 @@ export function useImportState() {
   // Active vacancies selection
   const [isSelectingActiveVacancies, setIsSelectingActiveVacancies] =
     useState(false);
-  const [activeListRequestId, setActiveListRequestId] = useState<
-    string | null
-  >(null);
+  const [activeListRequestId, setActiveListRequestId] = useState<string | null>(
+    null,
+  );
   const [activeListToken, setActiveListToken] = useState<{
     channel: string;
     topics: string[];
