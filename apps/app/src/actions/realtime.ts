@@ -179,7 +179,7 @@ export async function fetchActiveVacanciesListToken(
       validationResult.data.workspaceId,
       validationResult.data.requestId,
     ),
-    topics: ["result"],
+    topics: ["progress", "result"],
   });
 
   return token;
@@ -194,7 +194,7 @@ export async function fetchArchivedVacanciesListToken(
 ) {
   const token = await getSubscriptionToken(inngest, {
     channel: fetchArchivedListChannel(workspaceId, requestId),
-    topics: ["result"],
+    topics: ["progress", "result"],
   });
 
   return token;
