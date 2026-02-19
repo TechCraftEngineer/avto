@@ -86,7 +86,6 @@ function ProfileContent({
   candidate,
   organizationId,
   onStatusChange,
-  onOpenChange,
 }: {
   candidate: GlobalCandidate;
   organizationId: string | null | undefined;

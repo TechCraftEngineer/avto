@@ -24,8 +24,8 @@ export function CandidateKeyInfo({
 }: CandidateKeyInfoProps) {
   const [isSalaryCommentExpanded, setIsSalaryCommentExpanded] = useState(false);
 
-  const hasResume = response.resumeId || response.resumeUrl;
-  const hasProfile = response.platformProfileUrl;
+  const hasResume = response.resumeId || resumePdfUrl;
+  const hasProfile = response.profileUrl;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
@@ -37,23 +37,6 @@ export function CandidateKeyInfo({
           <div className="flex-1 min-w-0">
             <div className="text-sm font-medium mb-3">Резюме кандидата</div>
             <div className="flex flex-wrap gap-2">
-              {response.resumeUrl && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  asChild
-                  className="h-8 text-xs"
-                >
-                  <a
-                    href={response.resumeUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
-                    Открыть
-                  </a>
-                </Button>
-              )}
               {resumePdfUrl && (
                 <Button
                   variant="outline"
@@ -85,11 +68,11 @@ export function CandidateKeyInfo({
           <div className="flex-1 min-w-0">
             <div className="text-sm font-medium mb-1">Профиль на платформе</div>
             <div className="text-xs text-muted-foreground mb-3 truncate">
-              {response.platformProfileUrl}
+              {response.profileUrl}
             </div>
             <Button variant="outline" size="sm" asChild className="h-8 text-xs">
               <a
-                href={response.platformProfileUrl || "#"}
+                href={response.profileUrl || "#"}
                 target="_blank"
                 rel="noopener noreferrer"
               >

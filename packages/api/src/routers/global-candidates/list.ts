@@ -11,10 +11,8 @@ import {
 } from "@qbs-autonaim/db";
 import {
   candidateOrganization,
-  file as fileTable,
   globalCandidate,
   response as responseTable,
-  vacancy,
 } from "@qbs-autonaim/db/schema";
 import { uuidv7Schema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";

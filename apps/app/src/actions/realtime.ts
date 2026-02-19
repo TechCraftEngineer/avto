@@ -17,7 +17,6 @@ import {
   workspaceStatsChannel,
 } from "@qbs-autonaim/jobs/channels";
 import { inngest } from "@qbs-autonaim/jobs/client";
-import { z } from "zod";
 
 /**
  * Server action для получения токена подписки на Realtime канал скрининга новых откликов

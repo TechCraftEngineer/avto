@@ -31,14 +31,11 @@ interface ActiveVacancy {
   isImported?: boolean;
 }
 
-// Токен подписки — сериализуемая форма для передачи с сервера
-type SubscriptionToken = { channel: string; topics: string[]; key: string };
-
 interface ActiveVacanciesSelectorProps {
   workspaceId: string;
   requestId: string;
   /** Токен подписки — обязателен, получается до отправки события (at-most-once delivery) */
-  token: SubscriptionToken;
+  token: Awaited<ReturnType<typeof import("@bunworks/inngest-realtime").getSubscriptionToken>>;
   onSelect: (
     selectedIds: string[],
     vacancies: Array<{
@@ -51,8 +48,6 @@ interface ActiveVacanciesSelectorProps {
 }
 
 export function ActiveVacanciesSelector({
-  workspaceId,
-  requestId,
   token,
   onSelect,
   onCancel,
@@ -180,7 +175,8 @@ export function ActiveVacanciesSelector({
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>Ошибка загрузки</AlertTitle>
         <AlertDescription>
-          {resultError ?? "Не удалось получить список активных вакансий. Попробуйте позже."}
+          {resultError ??
+            "Не удалось получить список активных вакансий. Попробуйте позже."}
         </AlertDescription>
       </Alert>
     );
@@ -234,7 +230,9 @@ export function ActiveVacanciesSelector({
               {notImportedCount > 0 && (
                 <>
                   <span>•</span>
-                  <span className="text-blue-600">Новых: {notImportedCount}</span>
+                  <span className="text-blue-600">
+                    Новых: {notImportedCount}
+                  </span>
                 </>
               )}
             </div>

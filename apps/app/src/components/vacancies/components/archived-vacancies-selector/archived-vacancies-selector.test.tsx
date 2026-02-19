@@ -7,6 +7,7 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { createMockToken } from "~/test-utils/mock-token";
 import { ArchivedVacanciesSelector } from "./archived-vacancies-selector";
 
 // Mock dependencies
@@ -42,17 +43,15 @@ beforeEach(() => {
   mock.module("@bunworks/inngest-realtime/hooks", () => ({
     useInngestSubscription: mockUseInngestSubscription,
   }));
-
 });
 
 describe("ArchivedVacanciesSelector", () => {
   const mockWorkspaceId = "workspace-123";
   const mockRequestId = "request-123";
-  const mockToken = {
-    channel: `fetch-archived-list:${mockWorkspaceId}:${mockRequestId}`,
-    topics: ["progress", "result"],
-    key: "test-token",
-  };
+  const mockToken = createMockToken(
+    `fetch-archived-list:${mockWorkspaceId}:${mockRequestId}`,
+    ["progress", "result"] as const,
+  );
   const mockOnSelect = mock(() => {});
   const mockOnCancel = mock(() => {});
 

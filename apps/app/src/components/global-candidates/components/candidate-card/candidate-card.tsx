@@ -18,11 +18,8 @@ import {
 import {
   Briefcase,
   Calendar,
-  Mail,
   MapPin,
   MoreVertical,
-  Phone,
-  Send,
   Star,
   UserCheck,
   UserMinus,

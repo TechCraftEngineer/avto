@@ -31,14 +31,13 @@ interface ArchivedVacancy {
   isImported?: boolean; // Флаг, что вакансия уже загружена
 }
 
-// Токен подписки — сериализуемая форма для передачи с сервера
-type SubscriptionToken = { channel: string; topics: string[]; key: string };
-
 interface ArchivedVacanciesSelectorProps {
   workspaceId: string;
   requestId: string;
   /** Токен подписки — обязателен, получается до отправки события (at-most-once delivery) */
-  token: SubscriptionToken;
+  token: Awaited<
+    ReturnType<typeof import("@bunworks/inngest-realtime").getSubscriptionToken>
+  >;
   onSelect: (
     selectedIds: string[],
     vacancies: Array<{
@@ -53,8 +52,6 @@ interface ArchivedVacanciesSelectorProps {
 }
 
 export function ArchivedVacanciesSelector({
-  workspaceId,
-  requestId,
   token,
   onSelect,
   onCancel,
