@@ -247,7 +247,7 @@ export async function parseArchivedVacancyResponsesPage(
       );
     }
 
-    if (response.url && response.resumeId) {
+      if (response.url && response.resumeId) {
       const respondedAt = parseResponseDate(response.respondedAtStr || "");
 
       try {
@@ -257,6 +257,10 @@ export async function parseArchivedVacancyResponsesPage(
           response.url,
           response.name,
           respondedAt,
+          {
+            profileUrl: response.url || null,
+            platformProfileUrl: response.url || null,
+          },
         );
 
         if (!result.success) {
@@ -477,6 +481,10 @@ async function collectAllArchivedResponses(
             response.url,
             response.name,
             respondedAt,
+            {
+              profileUrl: response.url || null,
+              platformProfileUrl: response.url || null,
+            },
           );
 
           if (!result.success) {

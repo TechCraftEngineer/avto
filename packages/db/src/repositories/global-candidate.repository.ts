@@ -104,6 +104,20 @@ export class GlobalCandidateRepository {
   }
 
   /**
+   * Найти глобального кандидата по URL резюме.
+   * Используется при отсутствии контактов (HH resume URL уникален для кандидата).
+   */
+  async findGlobalCandidateByResumeUrl(
+    resumeUrl: string | null,
+  ): Promise<GlobalCandidate | null> {
+    if (!resumeUrl?.trim()) return null;
+    const found = await this.db.query.globalCandidate.findFirst({
+      where: eq(globalCandidate.resumeUrl, resumeUrl),
+    });
+    return found ?? null;
+  }
+
+  /**
    * Умное слияние данных глобального кандидата
    * Обновляет только пустые поля или более полные значения
    */
@@ -307,7 +321,10 @@ export class GlobalCandidateRepository {
       telegramUsername: data.telegramUsername ?? null,
     };
 
-    const existing = await this.findGlobalCandidateByContacts(contactParams);
+    let existing = await this.findGlobalCandidateByContacts(contactParams);
+    if (!existing && data.resumeUrl) {
+      existing = await this.findGlobalCandidateByResumeUrl(data.resumeUrl);
+    }
     if (existing) {
       const mergedData = this.mergeGlobalCandidateData(existing, data);
       if (Object.keys(mergedData).length > 0) {

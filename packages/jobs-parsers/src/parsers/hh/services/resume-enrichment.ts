@@ -121,10 +121,10 @@ export async function enrichResumeData(
           }
         : undefined;
 
-    // Create or update global candidate if we have contact info
+    // Create or update global candidate (даже без контактов — по имени и resumeUrl)
     let globalCandidateId: string | null = input.globalCandidateId ?? null;
 
-    if (!globalCandidateId && (email || phone || telegramUsername)) {
+    if (!globalCandidateId) {
       try {
         // Get workspace to obtain organizationId
         const vacancy = await db.query.vacancy.findFirst({

@@ -233,6 +233,11 @@ async function collectAndSaveResponses(
             response.resumeUrl,
             response.name,
             parseResponseDate(response.respondedAt),
+            {
+              profileUrl: response.resumeUrl || null,
+              platformProfileUrl: response.resumeUrl || null,
+              coverLetter: response.coverLetter || null,
+            },
           );
 
           const responseData: ResponseData = {

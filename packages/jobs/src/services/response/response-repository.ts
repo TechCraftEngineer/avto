@@ -62,6 +62,15 @@ export async function getResponsesWithoutDetails() {
   }, "Failed to get responses without details");
 }
 
+export interface SaveBasicResponseOptions {
+  /** URL профиля/резюме на платформе (HH resume URL) */
+  profileUrl?: string | null;
+  /** То же для platform_profile_url, при HH обычно = resumeUrl */
+  platformProfileUrl?: string | null;
+  /** Сопроводительное письмо кандидата */
+  coverLetter?: string | null;
+}
+
 /**
  * Saves basic response info (without detailed resume info)
  * @returns true if response was saved, false if already existed
@@ -72,6 +81,7 @@ export async function saveBasicResponse(
   resumeUrl: string,
   candidateName: string,
   respondedAt?: Date,
+  options?: SaveBasicResponseOptions,
 ): Promise<Result<boolean>> {
   return tryCatch(async () => {
     // Проверяем, существует ли отклик с таким resumeId для любой вакансии
@@ -104,6 +114,11 @@ export async function saveBasicResponse(
       return false; // Не новый, но обновлен
     }
 
+    const profileUrl =
+      options?.profileUrl ?? options?.platformProfileUrl ?? resumeUrl;
+    const platformProfileUrl =
+      options?.platformProfileUrl ?? options?.profileUrl ?? resumeUrl;
+
     const [inserted] = await db
       .insert(response)
       .values({
@@ -112,6 +127,9 @@ export async function saveBasicResponse(
         candidateId: resumeId,
         resumeId,
         resumeUrl,
+        profileUrl: profileUrl || null,
+        platformProfileUrl: platformProfileUrl || null,
+        coverLetter: options?.coverLetter || null,
         candidateName,
         status: RESPONSE_STATUS.NEW,
         importSource: "HH",
