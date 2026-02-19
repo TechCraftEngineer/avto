@@ -138,10 +138,6 @@ async function collectAndSaveResponses(
       timeout: HH_CONFIG.timeouts.networkIdle,
     });
 
-    await page.waitForSelector('[data-qa="responses-list"]', {
-      timeout: HH_CONFIG.timeouts.selector,
-    });
-
     // Сохраняем верстку страницы в dpaste для анализа
     try {
       const html = await page.content();
@@ -152,6 +148,9 @@ async function collectAndSaveResponses(
     } catch (e) {
       console.warn("Не удалось сохранить страницу в dpaste:", e);
     }
+    await page.waitForSelector('[data-qa="responses-list"]', {
+      timeout: HH_CONFIG.timeouts.selector,
+    });
 
     // Собираем все отклики со всех страниц
     let hasNextPage = true;

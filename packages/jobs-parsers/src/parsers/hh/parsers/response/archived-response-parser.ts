@@ -4,11 +4,11 @@ import type { Page } from "puppeteer";
 import type { ResponseData } from "../../../types";
 import { HH_CONFIG } from "../../core/config/config";
 import { parseResponseDate } from "../../utils/date-utils";
+import { scrollToLoadAllContent } from "../../utils/human-behavior";
 import {
   filterResponsesNeedingDetails,
   parseResponseDetails,
 } from "./response-utils";
-import { scrollToLoadAllContent } from "../../utils/human-behavior";
 
 interface ResponseWithId {
   name: string;
@@ -168,9 +168,7 @@ export async function parseArchivedVacancyResponsesPage(
     .catch(() => false);
 
   if (!hasResponses) {
-    console.log(
-      `⚠️ Контейнер с откликами не найден на странице ${pageIndex}`,
-    );
+    console.log(`⚠️ Контейнер с откликами не найден на странице ${pageIndex}`);
     return { syncedResponses: 0, newResponses: 0, hasMore: false };
   }
 
@@ -247,7 +245,7 @@ export async function parseArchivedVacancyResponsesPage(
       );
     }
 
-      if (response.url && response.resumeId) {
+    if (response.url && response.resumeId) {
       const respondedAt = parseResponseDate(response.respondedAtStr || "");
 
       try {
@@ -282,10 +280,7 @@ export async function parseArchivedVacancyResponsesPage(
           response.name,
         );
       } catch (error) {
-        console.error(
-          `❌ Ошибка сохранения отклика ${response.name}:`,
-          error,
-        );
+        console.error(`❌ Ошибка сохранения отклика ${response.name}:`, error);
       }
     }
   }
