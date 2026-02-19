@@ -1,6 +1,5 @@
 import { getIntegrationCredentials } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
-import { uploadToDpaste } from "../../../utils/dpaste";
 import { validateCredentials } from "../core/auth/auth";
 import { setupPageWithAuth } from "../core/browser/browser-setup";
 import { closeBrowserSafely } from "../core/browser/browser-utils";
@@ -13,8 +12,6 @@ export async function fetchActiveVacanciesList(workspaceId: string): Promise<
     externalId?: string;
     title?: string;
     region?: string;
-    views?: string;
-    responses?: string;
   }[]
 > {
   console.log("📋 Получение списка активных вакансий");
@@ -48,90 +45,43 @@ export async function fetchActiveVacanciesList(workspaceId: string): Promise<
       HH_CONFIG.delays.readingPage.min,
       HH_CONFIG.delays.readingPage.max,
     );
-    // Сохраняем содержимое div.vacancies-dashboard на dpaste.org для отладки (лимит 250 MB)
-    try {
-      const pageContent = await page.evaluate(() => {
-        const el = document.querySelector("div.vacancies-dashboard");
-        return el ? (el as HTMLElement).outerHTML : null;
-      });
 
-      if (!pageContent) {
-        console.warn("📋 div.vacancies-dashboard не найден на странице");
-      } else {
-        console.log(
-          "📋 Загрузка верстки на dpaste...",
-          `(размер: ${(pageContent.length / 1024).toFixed(1)} KB)`,
-        );
-        const pasteUrl = await uploadToDpaste(pageContent);
-        if (pasteUrl) {
-          console.log(
-            `📋 Верстка vacancies-dashboard сохранена: ${pasteUrl}`,
+
+    await page.waitForSelector('div[data-qa~="vacancies-dashboard-manager"]', {
+      timeout: HH_CONFIG.timeouts.selector,
+    });
+
+    const activeVacancies = await page.$$eval(
+      'div[data-qa^="vacancy-active_"]',
+      (elements) => {
+        return elements.map((element) => {
+          const dataQa = element.getAttribute("data-qa") || "";
+          const externalId = dataQa.match(/vacancy-active_(\d+)/)?.[1];
+
+          const linkElement = element.querySelector(
+            'a[data-qa="vacancies-dashboard-vacancy-name"]',
+          ) as HTMLAnchorElement;
+          const title = linkElement?.textContent?.trim() || "";
+          const url = linkElement?.href || "";
+
+          const regionElement = element.querySelector(
+            'div[data-qa="table-flexible-cell-area"]',
           );
-        } else {
-          console.warn(
-            "📋 dpaste вернул пустой ответ — верстка не сохранена",
-          );
-        }
-      }
-    } catch (pasteError) {
-      console.warn(
-        "⚠️ Не удалось сохранить верстку на dpaste:",
-        pasteError instanceof Error ? pasteError.message : pasteError,
-      );
-    }
+          const region = regionElement?.textContent?.trim();
 
-    // await page.waitForSelector('div[class="vacancy-dashboard-active"]', {
-    //   timeout: HH_CONFIG.timeouts.selector,
-    // });
+          return { title, url, region, externalId };
+        });
+      },
+    );
 
-    // const activeVacancies = await page.$$eval(
-    //   'div[data-qa^="vacancy-active_"]',
-    //   (elements) => {
-    //     return elements.map((element) => {
-    //       const dataQa = element.getAttribute("data-qa") || "";
-    //       const externalId = dataQa.match(/vacancy-active_(\d+)/)?.[1];
+    console.log(`✅ Найдено активных вакансий: ${activeVacancies.length}`);
 
-    //       const titleElement = element.querySelector(
-    //         'span[data-qa^="vacancies-dashboard-vacancy--active-name_"][data-qa$="-text"]',
-    //       );
-    //       const title = titleElement?.textContent?.trim() || "";
-
-    //       const urlElement = element.querySelector(
-    //         'a[data-qa^="vacancies-dashboard-vacancy--active-name_"]',
-    //       ) as HTMLAnchorElement;
-    //       const url = urlElement?.href || "";
-
-    //       const regionElement = element.querySelector(
-    //         'div[data-qa="table-flexible-cell-activeVacancyArea"]',
-    //       );
-    //       const region = regionElement?.textContent?.trim();
-
-    //       const viewsElement = element.querySelector(
-    //         'div[data-qa="table-flexible-cell-activeVacancyViews"]',
-    //       );
-    //       const views = viewsElement?.textContent?.trim();
-
-    //       const responsesElement = element.querySelector(
-    //         'div[data-qa="table-flexible-cell-activeVacancyResponses"]',
-    //       );
-    //       const responses = responsesElement?.textContent?.trim();
-
-    //       return { title, url, region, externalId, views, responses };
-    //     });
-    //   },
-    // );
-
-    // console.log(`✅ Найдено активных вакансий: ${activeVacancies.length}`);
-
-    // return activeVacancies.map((vacancy) => ({
-    //   url: vacancy.url,
-    //   externalId: vacancy.externalId,
-    //   title: vacancy.title,
-    //   region: vacancy.region,
-    //   views: vacancy.views,
-    //   responses: vacancy.responses,
-    // }));
-    return [];
+    return activeVacancies.map((vacancy) => ({
+      url: vacancy.url,
+      externalId: vacancy.externalId,
+      title: vacancy.title,
+      region: vacancy.region,
+    }));
   } finally {
     await closeBrowserSafely(browser);
   }

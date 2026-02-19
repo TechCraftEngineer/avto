@@ -103,8 +103,6 @@ export const fetchActiveListFunction = inngest.createFunction(
             id: v.externalId ?? "",
             title: v.title || "",
             region: v.region,
-            views: v.views,
-            responses: v.responses,
             isImported: existingExternalIds.has(v.externalId ?? ""),
           }));
 

@@ -22,5 +22,8 @@
   ],
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.autoClosingTags": false,
-  "html.autoClosingTags": false
+  "html.autoClosingTags": false,
+  "[html]": {
+    "editor.defaultFormatter": "vscode.html-language-features"
+  }
 }
