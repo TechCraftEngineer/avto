@@ -91,17 +91,13 @@ export function TelegramAuthDialog({
         }
       },
       onError: (err) => {
-        if (
-          err.message === "PHONE_CODE_EXPIRED" ||
-          err.message === "PHONE_CODE_INVALID"
-        ) {
-          const errorText =
-            err.message === "PHONE_CODE_EXPIRED"
-              ? "Код истёк. Отправьте новый код"
-              : "Неверный код";
-          toast.error(errorText);
+        if (err.message === "PHONE_CODE_EXPIRED") {
+          toast.error("Код истёк. Отправьте новый код");
           form2.reset();
           setSessionData("");
+        } else if (err.message === "PHONE_CODE_INVALID") {
+          toast.error("Неверный код");
+          form2.reset();
         } else if (err.message.includes("уже подключен")) {
           toast.error(
             "В этом workspace уже подключен Telegram аккаунт. Удалите существующий аккаунт перед добавлением нового.",

@@ -51,7 +51,7 @@ export function Step2Code({
                 <Input
                   placeholder="12345"
                   className="h-11 text-center text-lg tracking-widest"
-                  maxLength={5}
+                  maxLength={10}
                   {...field}
                 />
               </FormControl>
