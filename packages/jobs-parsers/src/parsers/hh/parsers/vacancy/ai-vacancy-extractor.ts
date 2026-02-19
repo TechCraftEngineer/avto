@@ -38,10 +38,8 @@ export async function extractVacancyDataFromHtml(
   try {
     const idFromParam = vacancyUrl.match(/[?&]id=(\d+)/)?.[1];
     const idFromPath = vacancyUrl.match(/\/vacancy\/(\d+)/)?.[1];
-    const idFromEmployerView =
-      vacancyUrl.match(/\/vacancy\/view\/(\d+)/)?.[1];
-    const externalId =
-      idFromParam ?? idFromPath ?? idFromEmployerView ?? "";
+    const idFromEmployerView = vacancyUrl.match(/\/vacancy\/view\/(\d+)/)?.[1];
+    const externalId = idFromParam ?? idFromPath ?? idFromEmployerView ?? "";
 
     if (!externalId) {
       console.warn(`⚠️ Не удалось извлечь externalId из URL: ${vacancyUrl}`);
@@ -55,13 +53,10 @@ export async function extractVacancyDataFromHtml(
     let usedSelector = "";
 
     // 1. Основной контейнер print-версии
-    const printContent = $(
-      ".vacancy-section, .vacancy-description, [data-qa='vacancy-description']",
-    ).html();
+    const printContent = $(".vacancy-description").html();
     if (printContent) {
       mainContent = printContent;
-      usedSelector =
-        ".vacancy-section, .vacancy-description, [data-qa='vacancy-description']";
+      usedSelector = ".vacancy-description";
     } else {
       // 2. Fallback: ищем основной контент по классам
       const contentByClass = $(
@@ -140,17 +135,10 @@ async function fetchPrintPageContent(
     timeout: HH_CONFIG.timeouts.networkIdle,
   });
 
-  await humanDelay(
-    HH_CONFIG.delays.readingPage.min,
-    HH_CONFIG.delays.readingPage.max,
-  );
-
   // Для HH employer view print-страницы структура может отличаться от публичной
   const content = await page.evaluate(() => {
-    const mainContent =
-      document.querySelector("div.main-content") ??
-      document.querySelector(".vacancy-section, .vacancy-description") ??
-      document.querySelector("[data-qa='vacancy-description']");
+    const mainContent = document.querySelector("div.vacancy-description");
+
     return mainContent?.innerHTML ?? document.body.innerHTML;
   });
   return content;
@@ -171,10 +159,8 @@ export async function extractVacancyDataWithAI(
   try {
     const idFromParam = vacancyUrl.match(/[?&]id=(\d+)/)?.[1];
     const idFromPath = vacancyUrl.match(/\/vacancy\/(\d+)/)?.[1];
-    const idFromEmployerView =
-      vacancyUrl.match(/\/vacancy\/view\/(\d+)/)?.[1];
-    const externalId =
-      idFromParam ?? idFromPath ?? idFromEmployerView ?? "";
+    const idFromEmployerView = vacancyUrl.match(/\/vacancy\/view\/(\d+)/)?.[1];
+    const externalId = idFromParam ?? idFromPath ?? idFromEmployerView ?? "";
 
     if (!externalId) {
       console.warn(
