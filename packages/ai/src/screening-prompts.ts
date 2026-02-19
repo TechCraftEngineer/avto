@@ -2,6 +2,8 @@
  * Промпты для скрининга резюме
  */
 
+import { formatBirthDateWithAge } from "@qbs-autonaim/lib";
+
 export interface VacancyRequirements {
   job_title: string;
   summary: string;
@@ -23,6 +25,8 @@ export interface VacancyRequirements {
 export interface ResumeScreeningData {
   experience: string;
   skills?: string;
+  /** Дата рождения кандидата (если известна) — для контекста оценки карьеры */
+  birthDate?: Date | string | null;
 }
 
 /**
@@ -32,6 +36,13 @@ export function formatResumeForScreening(
   resumeData: ResumeScreeningData,
 ): string {
   const sections: string[] = [];
+
+  if (resumeData.birthDate) {
+    const formatted = formatBirthDateWithAge(resumeData.birthDate);
+    if (formatted) {
+      sections.push(`ДАТА РОЖДЕНИЯ: ${formatted}`);
+    }
+  }
 
   sections.push(`ОПЫТ РАБОТЫ:\n${resumeData.experience}`);
 
@@ -52,7 +63,7 @@ export function buildFullResumeScreeningPrompt(
 ): string {
   const formattedResume = formatResumeForScreening(resumeData);
 
-  const basePrompt = `Ты эксперт по подбору персонала. Оцени резюме кандидата на соответствие требованиям вакансии.`;
+  const basePrompt = `Ты эксперт по подбору персонала. Оцени резюме кандидата на соответствие требованиям вакансии. Если указана дата рождения — учитывай возраст для контекста оценки карьеры (соотношение опыта и возраста), но не дискриминируй по возрасту.`;
 
   const customInstructions = customPrompt
     ? `\n\nДОПОЛНИТЕЛЬНЫЕ ИНСТРУКЦИИ ОТ РЕКРУТЕРА:\n${customPrompt}\n`

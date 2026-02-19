@@ -184,3 +184,28 @@ export function parseDateFromInput(
 
   return createUTCDate(year, month, day);
 }
+
+/**
+ * Форматирует дату рождения с возрастом для скрининга резюме
+ *
+ * @param birthDate - Дата рождения в любом формате
+ * @returns Строка "DD MMMM YYYY (возраст: X лет)" или пустая строка
+ *
+ * @example
+ * formatBirthDateWithAge(new Date("1987-09-24")) // -> "24 сентября 1987 (возраст: 37 лет)"
+ * formatBirthDateWithAge("1987-09-24") // -> "24 сентября 1987 (возраст: 37 лет)"
+ * formatBirthDateWithAge(null) // -> ""
+ */
+export function formatBirthDateWithAge(
+  birthDate: Date | string | null | undefined,
+): string {
+  if (!birthDate) return "";
+
+  const date = typeof birthDate === "string" ? new Date(birthDate) : birthDate;
+  const formatted = formatBirthDate(date);
+  const age = calculateAge(date);
+
+  if (!formatted) return "";
+
+  return `${formatted}${age !== null ? ` (возраст: ${age} лет)` : ""}`;
+}

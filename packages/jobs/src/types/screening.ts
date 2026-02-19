@@ -53,6 +53,9 @@ export interface ResumeScreeningData {
 
   /** Навыки */
   skills?: string;
+
+  /** Дата рождения (если известна) — для контекста оценки карьеры */
+  birthDate?: Date | string | null;
 }
 
 /**

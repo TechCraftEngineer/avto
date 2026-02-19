@@ -13,6 +13,7 @@ import {
   vacancy,
 } from "@qbs-autonaim/db/schema";
 import { getAIModel } from "@qbs-autonaim/lib/ai";
+import { parseBirthDate } from "@qbs-autonaim/lib";
 import { createLogger, err, type Result, tryCatch } from "../base";
 import { extractVacancyRequirements, getVacancyRequirements } from "../vacancy";
 
@@ -106,6 +107,7 @@ export async function screenResponse(
       candidateName: resp.candidateName || null,
       coverLetter: resp.coverLetter || null,
       profileData: resp.profileData || null,
+      birthDate: resp.birthDate ? parseBirthDate(resp.birthDate) : null,
     },
     requirements,
     customPrompt,

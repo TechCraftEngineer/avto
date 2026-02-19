@@ -2,6 +2,7 @@
  * ResponseScreeningAgent - AI агент для скрининга откликов кандидатов
  */
 
+import { formatBirthDateWithAge } from "@qbs-autonaim/lib";
 import { z } from "zod";
 import type { VacancyRequirements } from "../../../screening-prompts";
 import { type AgentConfig, BaseAgent } from "../../core/base-agent";
@@ -17,6 +18,7 @@ export const responseScreeningInputSchema = z.object({
     candidateName: z.string().nullable(),
     coverLetter: z.string().nullable().optional(),
     profileData: z.unknown().nullable().optional(),
+    birthDate: z.union([z.date(), z.string()]).nullable().optional(),
   }),
 
   // Требования вакансии (используем существующий тип)
@@ -136,6 +138,7 @@ ${requirements.nice_to_have_skills.map((s) => `- ${s}`).join("\n")}
 РЕЗЮМЕ КАНДИДАТА:
 
 ${this.formatProfileData(candidate.profileData)}
+${this.formatBirthDateSection(candidate.birthDate)}
 ${candidate.coverLetter ? `\nСопроводительное письмо:\n${candidate.coverLetter}` : ""}
 
 ЗАДАЧА:
@@ -215,6 +218,7 @@ ${candidate.coverLetter ? `\nСопроводительное письмо:\n${c
    - Скорость и стабильность роста
    - Признаки деградации или стагнации
    - Потенциал для дальнейшего роста
+   - Если указана дата рождения — учитывай возраст для контекста: соотношение опыта и возраста (быстрый карьерный рост, смена карьеры в зрелом возрасте и т.д.)
    
    Оцени карьерную траекторию (careerTrajectoryScore) от 0 до 100:
    - Высокая оценка: логичный рост, стабильность, качественные переходы
@@ -269,6 +273,12 @@ ${candidate.coverLetter ? `\nСопроводительное письмо:\n${c
     );
 
     return prompt;
+  }
+
+  private formatBirthDateSection(birthDate: Date | string | null | undefined): string {
+    const formatted = formatBirthDateWithAge(birthDate);
+    if (!formatted) return "";
+    return `\nДата рождения: ${formatted}`;
   }
 
   private formatProfileData(profileData: unknown): string {

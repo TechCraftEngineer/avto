@@ -7,6 +7,7 @@ export {
   calculateAge,
   createUTCDate,
   formatBirthDate,
+  formatBirthDateWithAge,
   formatDateForInput,
   parseBirthDate,
   parseDateFromInput,
