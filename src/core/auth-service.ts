@@ -18,6 +18,8 @@ interface AuthResponse {
   message?: string;
 }
 
+type UserData = { id: string; email: string; organizationId?: string };
+
 export class AuthService {
   private apiUrl: string;
 
@@ -91,7 +93,7 @@ export class AuthService {
   /**
    * Получение данных пользователя
    */
-  async getUserData(): Promise<any | null> {
+  async getUserData(): Promise<UserData | null> {
     const result = await chrome.storage.local.get("userData");
     return result.userData || null;
   }
@@ -116,7 +118,7 @@ export class AuthService {
     }
   }
 
-  private async saveAuthData(token: string, user: any): Promise<void> {
+  private async saveAuthData(token: string, user: UserData | undefined): Promise<void> {
     await chrome.storage.local.set({
       authToken: token,
       userData: user,

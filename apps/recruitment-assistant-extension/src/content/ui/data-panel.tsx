@@ -45,8 +45,7 @@ export function DataPanel({
   };
 
   return (
-    <div
-      role="region"
+    <section
       aria-label="Данные кандидата"
       style={{
         position: "fixed",
@@ -177,7 +176,7 @@ export function DataPanel({
             </h3>
             {data.experience.map((exp, idx) => (
               <ExperienceCard
-                key={idx}
+                key={`${exp.company}-${exp.position}-${idx}`}
                 experience={exp}
                 onEdit={(field, value) =>
                   onEdit(`experience.${idx}.${field}`, value)
@@ -202,7 +201,7 @@ export function DataPanel({
             </h3>
             {data.education.map((edu, idx) => (
               <EducationCard
-                key={idx}
+                key={`${edu.institution}-${edu.degree}-${idx}`}
                 education={edu}
                 onEdit={(field, value) =>
                   onEdit(`education.${idx}.${field}`, value)
@@ -245,6 +244,7 @@ export function DataPanel({
         }}
       >
         <button
+          type="button"
           onClick={() => handleExport("json")}
           disabled={isExporting}
           style={{
@@ -278,6 +278,7 @@ export function DataPanel({
         </button>
 
         <button
+          type="button"
           onClick={() => handleExport("clipboard")}
           disabled={isExporting}
           style={{
@@ -312,6 +313,7 @@ export function DataPanel({
 
         {apiConfigured && (
           <button
+            type="button"
             onClick={onImportToSystem}
             disabled={isImporting}
             style={{
@@ -346,6 +348,6 @@ export function DataPanel({
           </button>
         )}
       </div>
-    </div>
+    </section>
   );
 }

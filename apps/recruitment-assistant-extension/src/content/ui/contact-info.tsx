@@ -196,6 +196,7 @@ export function ContactInfo({ contacts, onEdit }: ContactInfoProps) {
             aria-describedby={linkError ? "social-link-error" : undefined}
           />
           <button
+            type="button"
             onClick={handleAddLink}
             disabled={!newLink.trim()}
             style={{
@@ -252,19 +253,20 @@ export function ContactInfo({ contacts, onEdit }: ContactInfoProps) {
             Ссылки не добавлены
           </div>
         ) : (
-          <div
+          <ul
             style={{
               display: "flex",
               flexDirection: "column",
               gap: "8px",
+              margin: 0,
+              padding: 0,
+              listStyle: "none",
             }}
-            role="list"
             aria-label="Список социальных сетей"
           >
             {contacts.socialLinks.map((link) => (
-              <div
+              <li
                 key={link}
-                role="listitem"
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -301,6 +303,7 @@ export function ContactInfo({ contacts, onEdit }: ContactInfoProps) {
                   {link}
                 </a>
                 <button
+                  type="button"
                   onClick={() => handleRemoveLink(link)}
                   style={{
                     minWidth: "32px",
@@ -330,9 +333,9 @@ export function ContactInfo({ contacts, onEdit }: ContactInfoProps) {
                 >
                   ×
                 </button>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
         )}
       </div>
     </div>

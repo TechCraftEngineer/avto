@@ -16,7 +16,7 @@ global.chrome = {
   runtime: {
     openOptionsPage: vi.fn(),
   },
-} as any;
+} as typeof chrome;
 
 // Mock для window.matchMedia (используется в content script для prefers-reduced-motion)
 Object.defineProperty(window, "matchMedia", {

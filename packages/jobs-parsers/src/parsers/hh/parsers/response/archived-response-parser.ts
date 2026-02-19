@@ -125,7 +125,7 @@ export async function parseArchivedVacancyResponsesPage(
   page: Page,
   responsesUrl: string,
   vacancyIdForSave: string,
-  organizationPlan: "free" | "starter" | "pro" | "enterprise" | undefined,
+  _organizationPlan: "free" | "starter" | "pro" | "enterprise" | undefined,
   options: SyncArchivedPageOptions,
   onProgress?: (
     processed: number,

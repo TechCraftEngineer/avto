@@ -181,7 +181,7 @@ export interface ErrorLog {
   /** Стек вызовов */
   stack?: string;
   /** Дополнительный контекст */
-  context?: any;
+  context?: Record<string, unknown>;
 }
 
 /**

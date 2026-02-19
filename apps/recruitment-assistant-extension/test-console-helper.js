@@ -566,6 +566,9 @@ function autoTest() {
   }
 }
 
+// Экспорт в window для вызова из консоли
+window.autoTest = autoTest;
+
 // Вывод инструкций
 console.log(
   "%c📖 Инструкции по использованию",

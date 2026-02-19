@@ -2,6 +2,7 @@ import {
   getIntegrationCredentials,
 } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
+import type { Browser, Page } from "puppeteer";
 import { validateCredentials } from "../core/auth/auth";
 import { setupPageWithAuth } from "../core/browser/browser-setup";
 import { closeBrowserSafely } from "../core/browser/browser-utils";
@@ -62,8 +63,8 @@ export async function fetchArchivedVacanciesList(workspaceId: string): Promise<
 
   const password = credentials.password || "";
 
-  let browser;
-  let page;
+  let browser: Browser;
+  let page: Page;
 
   try {
     const result = await setupPageWithAuth(

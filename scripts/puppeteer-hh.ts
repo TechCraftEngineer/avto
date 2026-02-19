@@ -5,7 +5,7 @@ import { resolve } from 'node:path';
 async function main() {
   const cookiesPath = process.argv[2] || './scripts/cookies.json';
   
-  let cookies;
+  let cookies: Array<{ name: string; value: string; domain: string }>;
   try {
     cookies = JSON.parse(readFileSync(resolve(cookiesPath), 'utf-8'));
   } catch (_error) {

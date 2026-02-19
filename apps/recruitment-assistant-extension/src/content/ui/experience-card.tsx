@@ -15,7 +15,7 @@ export function ExperienceCard({ experience, onEdit }: ExperienceCardProps) {
   };
 
   return (
-    <div
+    <article
       style={{
         padding: "16px",
         backgroundColor: "white",
@@ -23,7 +23,6 @@ export function ExperienceCard({ experience, onEdit }: ExperienceCardProps) {
         borderRadius: "8px",
         marginBottom: "12px",
       }}
-      role="article"
       aria-label={`Опыт работы: ${experience.position} в ${experience.company}`}
     >
       <EditableField
@@ -151,6 +150,6 @@ export function ExperienceCard({ experience, onEdit }: ExperienceCardProps) {
         onChange={(v) => onEdit("description", v)}
         multiline
       />
-    </div>
+    </article>
   );
 }

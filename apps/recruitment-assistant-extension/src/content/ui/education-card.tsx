@@ -18,7 +18,7 @@ export function EducationCard({ education, onEdit }: EducationCardProps) {
   };
 
   return (
-    <div
+    <article
       style={{
         padding: "16px",
         backgroundColor: "white",
@@ -26,7 +26,6 @@ export function EducationCard({ education, onEdit }: EducationCardProps) {
         borderRadius: "8px",
         marginBottom: "12px",
       }}
-      role="article"
       aria-label={`Образование: ${education.degree} в ${education.institution}`}
     >
       <EditableField
@@ -153,6 +152,6 @@ export function EducationCard({ education, onEdit }: EducationCardProps) {
           {formatDateRange(education.startDate, education.endDate)}
         </div>
       </div>
-    </div>
+    </article>
   );
 }

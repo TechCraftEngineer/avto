@@ -115,6 +115,7 @@ export function EditableField({
 
           <div style={{ display: "flex", gap: "8px" }}>
             <button
+              type="button"
               onClick={handleSave}
               style={{
                 minWidth: "44px",
@@ -141,6 +142,7 @@ export function EditableField({
               Сохранить
             </button>
             <button
+              type="button"
               onClick={handleCancel}
               style={{
                 minWidth: "44px",
@@ -194,6 +196,7 @@ export function EditableField({
           </div>
           {!disabled && (
             <button
+              type="button"
               onClick={() => setIsEditing(true)}
               style={{
                 minWidth: "44px",

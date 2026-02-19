@@ -51,7 +51,7 @@ export async function performLogin(
   await new Promise((resolve) => setTimeout(resolve, 2000));
 
   // Проверяем, что поле пароля появилось
-  let passwordField;
+  let passwordField: Awaited<ReturnType<Page["waitForSelector"]>>;
   try {
     passwordField = await page.waitForSelector(
       'input[type="password"][name="password"]',

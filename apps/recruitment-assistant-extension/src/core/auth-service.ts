@@ -37,7 +37,7 @@ export class AuthService {
   /**
    * Получение данных пользователя
    */
-  async getUserData(): Promise<any | null> {
+  async getUserData(): Promise<{ id: string; email: string; organizationId?: string } | null> {
     const result = await chrome.storage.local.get("userData");
     return result.userData || null;
   }

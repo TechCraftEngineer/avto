@@ -50,6 +50,7 @@ export function SkillsList({ skills, onEdit }: SkillsListProps) {
           Навыки
         </h3>
         <button
+          type="button"
           onClick={() => setIsEditing(!isEditing)}
           style={{
             minWidth: "44px",
@@ -114,6 +115,7 @@ export function SkillsList({ skills, onEdit }: SkillsListProps) {
             aria-label="Новый навык"
           />
           <button
+            type="button"
             onClick={handleAddSkill}
             disabled={!newSkill.trim()}
             style={{
@@ -159,19 +161,20 @@ export function SkillsList({ skills, onEdit }: SkillsListProps) {
           Навыки не указаны
         </div>
       ) : (
-        <div
+        <ul
           style={{
             display: "flex",
             flexWrap: "wrap",
             gap: "8px",
+            margin: 0,
+            padding: 0,
+            listStyle: "none",
           }}
-          role="list"
           aria-label="Список навыков"
         >
           {skills.map((skill) => (
-            <div
+            <li
               key={skill}
-              role="listitem"
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -187,6 +190,7 @@ export function SkillsList({ skills, onEdit }: SkillsListProps) {
               <span>{skill}</span>
               {isEditing && (
                 <button
+                  type="button"
                   onClick={() => handleRemoveSkill(skill)}
                   style={{
                     minWidth: "24px",
@@ -217,9 +221,9 @@ export function SkillsList({ skills, onEdit }: SkillsListProps) {
                   ×
                 </button>
               )}
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
     </div>
   );
