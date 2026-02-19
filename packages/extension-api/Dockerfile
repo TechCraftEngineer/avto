@@ -5,7 +5,7 @@ RUN apk update
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 # Установка turbo глобально
-RUN bun install -g turbo@2.8.9
+RUN bun install -g turbo@2.8.10
 COPY . .
 
 # Создание изолированного монорепозитория для extension-api
