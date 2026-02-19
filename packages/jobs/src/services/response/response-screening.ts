@@ -12,15 +12,90 @@ import {
   responseScreening,
   vacancy,
 } from "@qbs-autonaim/db/schema";
+import {
+  hasExperience,
+  type StoredProfileData,
+} from "@qbs-autonaim/db";
 import { getAIModel } from "@qbs-autonaim/lib/ai";
 import { parseBirthDate } from "@qbs-autonaim/lib";
-import { createLogger, err, type Result, tryCatch } from "../base";
+import { createLogger, err, ok, type Result, tryCatch } from "../base";
 import { extractVacancyRequirements, getVacancyRequirements } from "../vacancy";
 
 const logger = createLogger("ResponseScreening");
 
+/** Минимальная длина текста для скрининга (фильтр "hi", "ok" и т.п.) */
+const MIN_TEXT_LENGTH = 50;
+
+/** Проверяет, достаточно ли данных для скрининга */
+function hasSufficientDataForScreening(
+  profileData: unknown,
+  coverLetter: string | null | undefined,
+): boolean {
+  const profile = profileData as StoredProfileData | null | undefined;
+
+  // Есть опыт работы
+  if (hasExperience(profile)) return true;
+
+  // Есть осмысленный текст в резюме (summary/aboutMe для фрилансеров)
+  const summary = profile?.summary ?? profile?.aboutMe;
+  if (typeof summary === "string" && summary.trim().length >= MIN_TEXT_LENGTH) {
+    return true;
+  }
+
+  // Есть осмысленное сопроводительное письмо
+  if (coverLetter && coverLetter.trim().length >= MIN_TEXT_LENGTH) {
+    return true;
+  }
+
+  return false;
+}
+
 // Используем тип из агента
 type ScreeningResult = ResponseScreeningOutput;
+
+const SKIP_ANALYSIS =
+  "<p>Скрининг пропущен: недостаточно данных для оценки (пустой отклик, отсутствие опыта работы или иных релевантных сведений).</p>";
+
+/** Сохраняет запись о пропущенном скрининге (чтобы не пытаться снова) */
+async function saveSkippedScreening(responseId: string): Promise<Result<void, string>> {
+  return tryCatch(async () => {
+    await db.transaction(async (tx) => {
+      const existingScreening = await tx.query.responseScreening.findFirst({
+        where: eq(responseScreening.responseId, responseId),
+      });
+
+      const skipData = {
+        overallScore: 0,
+        overallAnalysis: SKIP_ANALYSIS,
+        skillsMatchScore: 0,
+        experienceScore: 0,
+        potentialScore: 0,
+        skillsAnalysis: SKIP_ANALYSIS,
+        experienceAnalysis: SKIP_ANALYSIS,
+        potentialAnalysis: SKIP_ANALYSIS,
+      };
+
+      if (existingScreening) {
+        await tx
+          .update(responseScreening)
+          .set(skipData)
+          .where(eq(responseScreening.responseId, responseId));
+      } else {
+        await tx.insert(responseScreening).values({
+          responseId,
+          ...skipData,
+        });
+      }
+
+      await tx
+        .update(response)
+        .set({
+          status: RESPONSE_STATUS.EVALUATED,
+        })
+        .where(eq(response.id, responseId));
+    });
+  }, "Не удалось сохранить запись о пропущенном скрининге");
+}
 
 /**
  * Screens response and generates evaluation using AI agent
@@ -45,6 +120,31 @@ export async function screenResponse(
   const resp = responseResult.data;
   if (!resp) {
     return err(`Отклик ${responseId} не найден в базе данных`);
+  }
+
+  // Пропускаем скрининг при недостаточных данных (пустой отклик, нет опыта и т.п.)
+  if (!hasSufficientDataForScreening(resp.profileData, resp.coverLetter)) {
+    logger.info(
+      `Пропуск скрининга ${responseId}: недостаточно данных (пустой отклик, отсутствие опыта или релевантных сведений)`,
+    );
+
+    const skipResult = await saveSkippedScreening(responseId);
+    if (!skipResult.success) {
+      return err(skipResult.error);
+    }
+
+    return ok({
+      detailedScore: 0,
+      score: 0,
+      resumeLanguage: "ru",
+      analysis: SKIP_ANALYSIS,
+      skillsMatchScore: 0,
+      experienceScore: 0,
+      potentialScore: 0,
+      skillsAnalysis: SKIP_ANALYSIS,
+      experienceAnalysis: SKIP_ANALYSIS,
+      potentialAnalysis: SKIP_ANALYSIS,
+    } satisfies ScreeningResult);
   }
 
   let requirements = await getVacancyRequirements(resp.entityId);
