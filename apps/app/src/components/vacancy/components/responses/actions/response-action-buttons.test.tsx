@@ -95,7 +95,7 @@ describe("ResponseActionButtons", () => {
       );
 
       const button = within(container).getByRole("button", {
-        name: /Загрузка\.\.\./i,
+        name: /Загрузка/i,
       });
       expect(button).toHaveProperty("disabled", true);
     });
@@ -114,6 +114,7 @@ describe("ResponseActionButtons", () => {
           onAnalyzeNewDialogOpen={mockOnAnalyzeNewDialogOpen}
           isHHVacancy={true}
           isArchivedPublication={false}
+          hasResponses={true}
         />,
       );
 

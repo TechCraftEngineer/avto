@@ -1,5 +1,7 @@
-import { beforeEach, describe, expect, it, mock } from "bun:test";
+import { beforeEach, describe, expect, it, mock, spyOn } from "bun:test";
 import { act, renderHook, waitFor } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import type { ReactNode } from "react";
 import { useResponseActions } from "./use-response-actions";
 
 // Mock dependencies
@@ -8,7 +10,6 @@ const mockTriggerSyncArchivedVacancyResponses = mock(() =>
 );
 const mockToastError = mock(() => {});
 const mockToastSuccess = mock(() => {});
-const mockInvalidateQueries = mock(() => Promise.resolve());
 
 const mockTrpc = {
   vacancy: {
@@ -20,9 +21,22 @@ const mockTrpc = {
   },
 };
 
-const mockQueryClient = {
-  invalidateQueries: mockInvalidateQueries,
-};
+let queryClient: QueryClient;
+let invalidateQueriesSpy: ReturnType<typeof spyOn>;
+
+function createWrapper() {
+  queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  invalidateQueriesSpy = spyOn(queryClient, "invalidateQueries").mockResolvedValue(
+    undefined as never,
+  );
+  return function Wrapper({ children }: { children: ReactNode }) {
+    return (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+  };
+}
 
 beforeEach(() => {
   mock.module("~/actions/trigger", () => ({
@@ -44,17 +58,12 @@ beforeEach(() => {
     },
   }));
 
-  mock.module("@tanstack/react-query", () => ({
-    useQueryClient: () => mockQueryClient,
-  }));
-
   mock.module("~/trpc/react", () => ({
     useTRPC: () => mockTrpc,
   }));
 
   mockToastError.mockClear();
   mockToastSuccess.mockClear();
-  mockInvalidateQueries.mockClear();
   mockTriggerSyncArchivedVacancyResponses.mockClear();
 });
 
@@ -65,13 +74,15 @@ describe("useResponseActions", () => {
 
   describe("handleSyncArchived", () => {
     it("должен вызывать triggerSyncArchivedVacancyResponses с vacancyId и workspaceId", async () => {
-      const { result } = renderHook(() =>
-        useResponseActions(
-          mockVacancyId,
-          mockWorkspaceId,
-          new Set(),
-          mockSetSelectedIds,
-        ),
+      const { result } = renderHook(
+        () =>
+          useResponseActions(
+            mockVacancyId,
+            mockWorkspaceId,
+            new Set(),
+            mockSetSelectedIds,
+          ),
+        { wrapper: createWrapper() },
       );
 
       await act(async () => {
@@ -89,13 +100,15 @@ describe("useResponseActions", () => {
         success: true,
       });
 
-      const { result } = renderHook(() =>
-        useResponseActions(
-          mockVacancyId,
-          mockWorkspaceId,
-          new Set(),
-          mockSetSelectedIds,
-        ),
+      const { result } = renderHook(
+        () =>
+          useResponseActions(
+            mockVacancyId,
+            mockWorkspaceId,
+            new Set(),
+            mockSetSelectedIds,
+          ),
+        { wrapper: createWrapper() },
       );
 
       await act(async () => {
@@ -113,13 +126,15 @@ describe("useResponseActions", () => {
         error: "Ошибка запуска",
       } as { success: false; error: string });
 
-      const { result } = renderHook(() =>
-        useResponseActions(
-          mockVacancyId,
-          mockWorkspaceId,
-          new Set(),
-          mockSetSelectedIds,
-        ),
+      const { result } = renderHook(
+        () =>
+          useResponseActions(
+            mockVacancyId,
+            mockWorkspaceId,
+            new Set(),
+            mockSetSelectedIds,
+          ),
+        { wrapper: createWrapper() },
       );
 
       await act(async () => {
@@ -137,13 +152,15 @@ describe("useResponseActions", () => {
         error: "Ошибка",
       } as { success: false; error: string });
 
-      const { result } = renderHook(() =>
-        useResponseActions(
-          mockVacancyId,
-          mockWorkspaceId,
-          new Set(),
-          mockSetSelectedIds,
-        ),
+      const { result } = renderHook(
+        () =>
+          useResponseActions(
+            mockVacancyId,
+            mockWorkspaceId,
+            new Set(),
+            mockSetSelectedIds,
+          ),
+        { wrapper: createWrapper() },
       );
 
       await act(async () => {
@@ -160,13 +177,15 @@ describe("useResponseActions", () => {
         new Error("Network error"),
       );
 
-      const { result } = renderHook(() =>
-        useResponseActions(
-          mockVacancyId,
-          mockWorkspaceId,
-          new Set(),
-          mockSetSelectedIds,
-        ),
+      const { result } = renderHook(
+        () =>
+          useResponseActions(
+            mockVacancyId,
+            mockWorkspaceId,
+            new Set(),
+            mockSetSelectedIds,
+          ),
+        { wrapper: createWrapper() },
       );
 
       await act(async () => {
@@ -184,13 +203,15 @@ describe("useResponseActions", () => {
           }),
       );
 
-      const { result } = renderHook(() =>
-        useResponseActions(
-          mockVacancyId,
-          mockWorkspaceId,
-          new Set(),
-          mockSetSelectedIds,
-        ),
+      const { result } = renderHook(
+        () =>
+          useResponseActions(
+            mockVacancyId,
+            mockWorkspaceId,
+            new Set(),
+            mockSetSelectedIds,
+          ),
+        { wrapper: createWrapper() },
       );
 
       expect(result.current.isSyncingArchived).toBe(false);
@@ -219,13 +240,15 @@ describe("useResponseActions", () => {
         success: true,
       });
 
-      const { result } = renderHook(() =>
-        useResponseActions(
-          mockVacancyId,
-          mockWorkspaceId,
-          new Set(),
-          mockSetSelectedIds,
-        ),
+      const { result } = renderHook(
+        () =>
+          useResponseActions(
+            mockVacancyId,
+            mockWorkspaceId,
+            new Set(),
+            mockSetSelectedIds,
+          ),
+        { wrapper: createWrapper() },
       );
 
       await act(async () => {
@@ -246,18 +269,20 @@ describe("useResponseActions", () => {
     });
 
     it("должен вызывать invalidateQueries для vacancy.responses.list", () => {
-      const { result } = renderHook(() =>
-        useResponseActions(
-          mockVacancyId,
-          mockWorkspaceId,
-          new Set(),
-          mockSetSelectedIds,
-        ),
+      const { result } = renderHook(
+        () =>
+          useResponseActions(
+            mockVacancyId,
+            mockWorkspaceId,
+            new Set(),
+            mockSetSelectedIds,
+          ),
+        { wrapper: createWrapper() },
       );
 
       result.current.handleRefreshComplete();
 
-      expect(mockInvalidateQueries).toHaveBeenCalled();
+      expect(invalidateQueriesSpy).toHaveBeenCalled();
     });
   });
 });

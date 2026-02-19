@@ -1,2 +1,2 @@
 [test]
-preload = ["./test-setup.ts"]
+preload = ["./mock-next-font.ts", "./test-setup.ts"]
