@@ -69,7 +69,7 @@ export async function fetchArchivedVacanciesList(workspaceId: string): Promise<
   try {
     const result = await setupPageWithAuth(
       workspaceId,
-      credentials.email!,
+      credentials.email,
       password,
     );
     browser = result.browser;

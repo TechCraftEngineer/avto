@@ -157,19 +157,20 @@ async function migrate() {
       merged++;
     }
 
+    if (!globalId) throw new Error("Unexpected: globalId not set");
     idMapping.set(c.id, globalId);
 
     const existingLink = await db.query.candidateOrganization.findFirst({
       where: (co, { and, eq }) =>
         and(
-          eq(co.candidateId, globalId!),
+          eq(co.candidateId, globalId),
           eq(co.organizationId, c.organization_id),
         ),
     });
 
     if (!existingLink) {
       await db.insert(candidateOrganization).values({
-        candidateId: globalId!,
+        candidateId: globalId,
         organizationId: c.organization_id,
         status: "ACTIVE",
         appliedAt: c.created_at,

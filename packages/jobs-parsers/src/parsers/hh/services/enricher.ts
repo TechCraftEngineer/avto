@@ -54,7 +54,7 @@ export async function enrichHHResponses(
 
   const { browser, page } = await setupPageWithAuth(
     workspaceId,
-    credentials.email!,
+    credentials.email,
     password,
   );
 

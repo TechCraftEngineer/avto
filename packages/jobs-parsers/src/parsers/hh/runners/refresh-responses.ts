@@ -51,7 +51,7 @@ export async function refreshVacancyResponses(
   // Setup authenticated browser with universal function
   const { browser, page } = await setupAuthenticatedBrowser(
     workspaceId,
-    email!,
+    email,
     password,
   );
 
@@ -68,11 +68,11 @@ export async function refreshVacancyResponses(
     });
 
     // Ensure authentication (will login if needed)
-    await ensureAuthenticated(page, email!, password, workspaceId);
+    await ensureAuthenticated(page, email, password, workspaceId);
 
     // Navigate to responses page with auth check
     const responsesUrl = `https://hh.ru/employer/vacancyresponses?vacancyId=${vacancyData.externalId}&order=DATE`;
-    await navigateWithAuth(page, responsesUrl, email!, password, workspaceId);
+    await navigateWithAuth(page, responsesUrl, email, password, workspaceId);
 
     // Получаем план организации (воркспейс наследует план организации)
     const workspaceData = await db.query.workspace.findFirst({

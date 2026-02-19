@@ -33,7 +33,7 @@ export function createGetInterviewProfileTool(
           where: (fields, { eq }) => eq(fields.id, session.responseId),
           columns: {
             profileData: true,
-            platformProfileUrl: true,
+            profileUrl: true,
           },
         });
 
@@ -48,7 +48,7 @@ export function createGetInterviewProfileTool(
           return {
             available: false,
             reason: "Данные профиля недоступны (возможно, идет разбор)",
-            platformProfileUrl: responseData.platformProfileUrl,
+            platformProfileUrl: responseData.profileUrl,
           };
         }
 
@@ -57,7 +57,7 @@ export function createGetInterviewProfileTool(
             available: false,
             reason: "Разбор профиля не удался",
             error: responseData.profileData.error,
-            platformProfileUrl: responseData.platformProfileUrl,
+            platformProfileUrl: responseData.profileUrl,
           };
         }
 
@@ -70,7 +70,7 @@ export function createGetInterviewProfileTool(
           skills: responseData.profileData.skills,
           statistics: responseData.profileData.statistics,
           parsedAt: responseData.profileData.parsedAt,
-          platformProfileUrl: responseData.platformProfileUrl,
+          platformProfileUrl: responseData.profileUrl,
         };
       } catch (error) {
         console.error("Ошибка получения профиля интервью:", error);

@@ -53,7 +53,7 @@ export const updateSingleVacancyFunction = inngest.createFunction(
 
       const { browser, page } = await setupPageWithAuth(
         existingVacancy.workspaceId,
-        credentials.email!,
+        credentials.email,
         password,
       );
 

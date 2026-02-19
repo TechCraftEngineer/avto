@@ -27,7 +27,7 @@ export async function fetchActiveVacanciesList(workspaceId: string): Promise<
 
   const { browser, page } = await setupPageWithAuth(
     workspaceId,
-    credentials.email!,
+    credentials.email,
     password,
   );
 

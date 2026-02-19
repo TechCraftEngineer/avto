@@ -21,7 +21,7 @@ export class HHAuthError extends Error {
 export function validateCredentials(credentials: {
   email?: string;
   password?: string;
-}): void {
+}): asserts credentials is { email: string; password?: string } {
   if (!credentials.email) {
     throw new HHAuthError(
       "Не указан email для авторизации в HH.ru",
