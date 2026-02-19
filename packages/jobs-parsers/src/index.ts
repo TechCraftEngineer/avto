@@ -24,9 +24,12 @@ export {
   importMultipleVacancies,
   importSingleVacancy,
   type RunHHArchivedVacancyParserOptions,
+  type RunHHArchivedVacancyParserPageOptions,
   type VacancyParseFromHtmlResult,
   refreshVacancyResponses,
   runHHArchivedVacancyParser,
+  runHHArchivedVacancyParserPage,
+  runHHParseResponseDetailsForVacancy,
   runHHParser,
 } from "./parsers/hh";
 // Экспорт конфигурации

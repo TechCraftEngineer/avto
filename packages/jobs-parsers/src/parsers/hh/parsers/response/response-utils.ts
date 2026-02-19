@@ -1,4 +1,7 @@
-import { hasDetailedInfo } from "@qbs-autonaim/jobs-shared";
+import {
+  getResponsesNeedingDetailsForVacancy,
+  hasDetailedInfo,
+} from "@qbs-autonaim/jobs-shared";
 import type { Page } from "puppeteer";
 import type { ResponseData } from "../../../types";
 import { HH_CONFIG } from "../../core/config/config";
@@ -50,6 +53,39 @@ export async function filterResponsesNeedingDetails(
   }
 
   return responsesNeedingDetails;
+}
+
+/**
+ * Парсит детальную информацию для всех откликов вакансии, которым она нужна.
+ * Загружает список из БД и парсит через Puppeteer.
+ */
+export async function parseResponseDetailsForVacancy(
+  page: Page,
+  vacancyId: string,
+  onProgress?: (
+    processed: number,
+    total: number,
+    currentName?: string,
+  ) => Promise<void>,
+): Promise<void> {
+  const responsesNeedingDetails =
+    await getResponsesNeedingDetailsForVacancy(vacancyId);
+
+  if (responsesNeedingDetails.length === 0) {
+    console.log("ℹ️ Все отклики уже имеют детальную информацию");
+    return;
+  }
+
+  const mappedResponses = responsesNeedingDetails.map((r) => ({
+    name: r.candidateName ?? "",
+    url: r.resumeUrl ?? "",
+    resumeId: r.resumeId,
+    resumeUrl: r.resumeUrl ?? undefined,
+    vacancyId,
+    candidateId: r.candidateId ?? undefined,
+  }));
+
+  await parseResponseDetails(page, mappedResponses, vacancyId, onProgress);
 }
 
 /**

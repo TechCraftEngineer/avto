@@ -8,7 +8,10 @@ export {
   importMultipleVacancies,
   importSingleVacancy,
   type RunHHArchivedVacancyParserOptions,
+  type RunHHArchivedVacancyParserPageOptions,
   runHHArchivedVacancyParser,
+  runHHArchivedVacancyParserPage,
+  runHHParseResponseDetailsForVacancy,
 } from "./runners/archived-runner";
 export { refreshVacancyResponses } from "./runners/refresh-responses";
 export { runHHParser } from "./runners/runner";

@@ -4,7 +4,13 @@ import type { VacancyData } from "../../types";
 import { validateCredentials } from "../core/auth/auth";
 import { setupPageWithAuth } from "../core/browser/browser-setup";
 import { closeBrowserSafely } from "../core/browser/browser-utils";
-import { parseArchivedVacancyResponses } from "../parsers/response/archived-response-parser";
+import { HH_CONFIG } from "../core/config/config";
+import {
+  parseArchivedVacancyResponses,
+  parseArchivedVacancyResponsesPage,
+  type SyncArchivedPageOptions,
+} from "../parsers/response/archived-response-parser";
+import { parseResponseDetailsForVacancy } from "../parsers/response/response-utils";
 import { parseSingleVacancy } from "../parsers/vacancy/vacancy-parser";
 
 export { fetchActiveVacanciesList } from "../fetchers/fetch-active-vacancy-list";
@@ -22,17 +28,35 @@ export interface RunHHArchivedVacancyParserOptions {
   ) => Promise<void>;
 }
 
-export async function runHHArchivedVacancyParser(
-  options: RunHHArchivedVacancyParserOptions,
-): Promise<{ syncedResponses: number; newResponses: number }> {
-  const { workspaceId, vacancyId, externalId, onProgress } = options;
+export interface RunHHArchivedVacancyParserPageOptions {
+  workspaceId: string;
+  vacancyId: string;
+  externalId?: string | null;
+  pageOptions: SyncArchivedPageOptions;
+  onProgress?: (
+    processed: number,
+    total: number,
+    newCount: number,
+    currentName?: string,
+  ) => Promise<void>;
+}
 
-  console.log("🚀 Запуск HH парсера для архивной вакансии");
-  console.log(`   Workspace: ${workspaceId}`);
-  console.log(`   Vacancy: ${vacancyId}`);
-  console.log(`   External ID: ${externalId}`);
+/**
+ * Результат настройки браузера для парсинга HH
+ */
+interface BrowserSetupResult {
+  browser: Awaited<ReturnType<typeof setupPageWithAuth>>["browser"];
+  page: Awaited<ReturnType<typeof setupPageWithAuth>>["page"];
+  organizationPlan: "free" | "starter" | "pro" | "enterprise";
+}
 
-  // Получаем план организации (воркспейс наследует план организации)
+/**
+ * Настраивает браузер с авторизацией для парсинга HH.
+ * Возвращает браузер, страницу и план организации.
+ */
+async function setupBrowserForWorkspace(
+  workspaceId: string,
+): Promise<BrowserSetupResult> {
   const workspaceData = await db.query.workspace.findFirst({
     where: (w, { eq }) => eq(w.id, workspaceId),
     columns: { plan: true },
@@ -48,17 +72,30 @@ export async function runHHArchivedVacancyParser(
 
   validateCredentials(credentials);
 
-  // Используем пустую строку для пароля, если его нет
   const password = credentials.password || "";
-
   const { browser, page } = await setupPageWithAuth(
     workspaceId,
     credentials.email!,
     password,
   );
 
+  return { browser, page, organizationPlan };
+}
+
+export async function runHHArchivedVacancyParser(
+  options: RunHHArchivedVacancyParserOptions,
+): Promise<{ syncedResponses: number; newResponses: number }> {
+  const { workspaceId, vacancyId, externalId, onProgress } = options;
+
+  console.log("🚀 Запуск HH парсера для архивной вакансии");
+  console.log(`   Workspace: ${workspaceId}`);
+  console.log(`   Vacancy: ${vacancyId}`);
+  console.log(`   External ID: ${externalId}`);
+
+  const { browser, page, organizationPlan } =
+    await setupBrowserForWorkspace(workspaceId);
+
   try {
-    // Парсим отклики для конкретной архивной вакансии
     const result = await parseArchivedVacancyResponses(
       page,
       vacancyId,
@@ -68,13 +105,84 @@ export async function runHHArchivedVacancyParser(
     );
 
     console.log("✅ Парсинг архивной вакансии завершен успешно");
-    console.log(`   Синхронизировано откликов: ${result.syncedResponses}`);
-    console.log(`   Новых откликов: ${result.newResponses}`);
 
     return result;
   } catch (error) {
     console.error("❌ Ошибка при парсинге архивной вакансии:", error);
     throw error;
+  } finally {
+    await closeBrowserSafely(browser);
+  }
+}
+
+/**
+ * Синхронизирует одну страницу откликов архивной вакансии.
+ * Используется для возобновляемой загрузки в Inngest step loop.
+ */
+export async function runHHArchivedVacancyParserPage(
+  options: RunHHArchivedVacancyParserPageOptions,
+): Promise<{
+  syncedResponses: number;
+  newResponses: number;
+  hasMore: boolean;
+}> {
+  const {
+    workspaceId,
+    vacancyId,
+    externalId,
+    pageOptions,
+    onProgress,
+  } = options;
+
+  console.log(
+    `🚀 Синхронизация страницы ${pageOptions.pageIndex} для архивной вакансии ${vacancyId}`,
+  );
+
+  const { browser, page, organizationPlan } =
+    await setupBrowserForWorkspace(workspaceId);
+
+  try {
+    const responsesUrl = `${HH_CONFIG.urls.baseUrl}/employer/vacancyresponses?vacancyId=${externalId}`;
+
+    const result = await parseArchivedVacancyResponsesPage(
+      page,
+      responsesUrl,
+      vacancyId,
+      organizationPlan,
+      pageOptions,
+      onProgress,
+    );
+
+    console.log(
+      `✅ Страница ${pageOptions.pageIndex}: ${result.syncedResponses} откликов, новых: ${result.newResponses}`,
+    );
+
+    return result;
+  } catch (error) {
+    console.error("❌ Ошибка при парсинге архивной вакансии:", error);
+    throw error;
+  } finally {
+    await closeBrowserSafely(browser);
+  }
+}
+
+/**
+ * Парсит детальную информацию резюме для откликов вакансии.
+ * Используется после постраничной синхронизации в отдельном Inngest step.
+ */
+export async function runHHParseResponseDetailsForVacancy(
+  workspaceId: string,
+  vacancyId: string,
+  onProgress?: (
+    processed: number,
+    total: number,
+    currentName?: string,
+  ) => Promise<void>,
+): Promise<void> {
+  const { browser, page } = await setupBrowserForWorkspace(workspaceId);
+
+  try {
+    await parseResponseDetailsForVacancy(page, vacancyId, onProgress);
   } finally {
     await closeBrowserSafely(browser);
   }
@@ -95,20 +203,7 @@ export async function importMultipleVacancies(
     `📦 Импорт ${vacancies.length} ${isArchived ? "архивных" : "активных"} вакансий`,
   );
 
-  const credentials = await getIntegrationCredentials(db, "hh", workspaceId);
-  if (!credentials) {
-    throw new Error("Не найдены учетные данные для HH.ru");
-  }
-
-  validateCredentials(credentials);
-
-  const password = credentials.password || "";
-
-  const { browser, page } = await setupPageWithAuth(
-    workspaceId,
-    credentials.email!,
-    password,
-  );
+  const { browser, page } = await setupBrowserForWorkspace(workspaceId);
 
   try {
     let imported = 0;
@@ -162,20 +257,7 @@ export async function importSingleVacancy(
 ): Promise<{ success: boolean; vacancy?: VacancyData; isNew?: boolean }> {
   console.log(`🔍 Импорт отдельной вакансии: ${url}`);
 
-  const credentials = await getIntegrationCredentials(db, "hh", workspaceId);
-  if (!credentials) {
-    throw new Error("Не найдены учетные данные для HH.ru");
-  }
-
-  validateCredentials(credentials);
-
-  const password = credentials.password || "";
-
-  const { browser, page } = await setupPageWithAuth(
-    workspaceId,
-    credentials.email!,
-    password,
-  );
+  const { browser, page } = await setupBrowserForWorkspace(workspaceId);
 
   try {
     const result = await parseSingleVacancy(page, url, workspaceId);

@@ -109,6 +109,203 @@ export async function parseArchivedVacancyResponses(
   return { syncedResponses: allResponses.length, newResponses: newCount };
 }
 
+/** Параметры для синхронизации одной страницы (для возобновляемой загрузки) */
+export interface SyncArchivedPageOptions {
+  pageIndex: number;
+  accumulatedCount: number;
+  accumulatedNewCount: number;
+  responsesLimit: number;
+}
+
+/**
+ * Синхронизирует одну страницу откликов архивной вакансии.
+ * Используется для возобновляемой загрузки через Inngest step loop.
+ */
+export async function parseArchivedVacancyResponsesPage(
+  page: Page,
+  responsesUrl: string,
+  vacancyIdForSave: string,
+  organizationPlan: "free" | "starter" | "pro" | "enterprise" | undefined,
+  options: SyncArchivedPageOptions,
+  onProgress?: (
+    processed: number,
+    total: number,
+    newCount: number,
+    currentName?: string,
+  ) => Promise<void>,
+): Promise<{
+  syncedResponses: number;
+  newResponses: number;
+  hasMore: boolean;
+}> {
+  const { pageIndex, accumulatedCount, accumulatedNewCount, responsesLimit } =
+    options;
+  const hasLimit = responsesLimit > 0;
+
+  if (hasLimit && accumulatedCount >= responsesLimit) {
+    return { syncedResponses: 0, newResponses: 0, hasMore: false };
+  }
+
+  const pageUrl =
+    pageIndex === 0
+      ? `${responsesUrl}&order=DATE`
+      : `${responsesUrl}&page=${pageIndex}&order=DATE`;
+
+  console.log(`📄 Страница ${pageIndex}: ${pageUrl}`);
+
+  try {
+    await page.goto(pageUrl, { waitUntil: "networkidle2", timeout: 30000 });
+  } catch (error) {
+    console.error(`❌ Ошибка загрузки страницы ${pageIndex}:`, error);
+    return { syncedResponses: 0, newResponses: 0, hasMore: false };
+  }
+
+  const hasResponses = await page
+    .waitForSelector('div[data-qa="vacancy-real-responses"]', {
+      timeout: HH_CONFIG.timeouts.selector,
+    })
+    .then(() => true)
+    .catch(() => false);
+
+  if (!hasResponses) {
+    console.log(
+      `⚠️ Контейнер с откликами не найден на странице ${pageIndex}`,
+    );
+    return { syncedResponses: 0, newResponses: 0, hasMore: false };
+  }
+
+  await scrollToLoadAllContent(page);
+
+  const pageResponses = await page.$$eval(
+    'div[data-qa="vacancy-real-responses"] [data-resume-id]',
+    (elements: Element[]) => {
+      return elements.map((el) => {
+        const link = el.querySelector('a[data-qa="serp-item__title"]');
+        const url = link ? link.getAttribute("href") : "";
+        const nameEl = el.querySelector(
+          'span[data-qa="resume-serp__resume-fullname"]',
+        );
+        const name = nameEl ? nameEl.textContent?.trim() : "";
+
+        let resumeId = "";
+        if (url) {
+          const fullUrl = new URL(url, "https://hh.ru").href;
+          const match = fullUrl.match(/\/resume\/([a-f0-9]+)/);
+          resumeId = match?.[1] ?? "";
+        }
+
+        let respondedAtStr = "";
+        let respondedAtError = false;
+        try {
+          const dateSpans = el.querySelectorAll("span");
+          for (const span of Array.from(dateSpans)) {
+            const text = span.textContent?.trim() || "";
+            if (text.includes("Откликнулся")) {
+              const innerSpan = span.querySelector("span");
+              respondedAtStr = innerSpan?.textContent?.trim() || "";
+              break;
+            }
+          }
+        } catch (error) {
+          respondedAtError = true;
+          respondedAtStr = `Ошибка парсинга даты: ${error instanceof Error ? error.message : String(error)}`;
+        }
+
+        return {
+          name,
+          url: url ? new URL(url, "https://hh.ru").href : "",
+          resumeId,
+          respondedAtStr,
+          respondedAtError,
+        };
+      });
+    },
+  );
+
+  if (pageResponses.length === 0) {
+    console.log(`⚠️ Нет откликов на странице ${pageIndex}`);
+    return { syncedResponses: 0, newResponses: 0, hasMore: false };
+  }
+
+  console.log(
+    `✅ Страница ${pageIndex}: найдено ${pageResponses.length} откликов`,
+  );
+
+  let pageSaved = 0;
+  let pageSkipped = 0;
+  let totalSynced = accumulatedCount;
+
+  for (const response of pageResponses) {
+    if (hasLimit && totalSynced >= responsesLimit) {
+      break;
+    }
+
+    if (response.respondedAtError) {
+      console.error(
+        `❌ Ошибка парсинга даты отклика для резюме ${response.resumeId}:`,
+        response.respondedAtStr,
+      );
+    }
+
+    if (response.url && response.resumeId) {
+      const respondedAt = parseResponseDate(response.respondedAtStr || "");
+
+      try {
+        const result = await saveBasicResponse(
+          vacancyIdForSave,
+          response.resumeId,
+          response.url,
+          response.name,
+          respondedAt,
+        );
+
+        if (!result.success) {
+          console.error(
+            `❌ Ошибка сохранения отклика ${response.name}:`,
+            result.error,
+          );
+        } else if (result.data) {
+          pageSaved++;
+        } else {
+          pageSkipped++;
+        }
+
+        totalSynced++;
+
+        await onProgress?.(
+          totalSynced,
+          totalSynced,
+          accumulatedNewCount + pageSaved,
+          response.name,
+        );
+      } catch (error) {
+        console.error(
+          `❌ Ошибка сохранения отклика ${response.name}:`,
+          error,
+        );
+      }
+    }
+  }
+
+  console.log(
+    `💾 Страница ${pageIndex}: сохранено ${pageSaved}, пропущено ${pageSkipped}`,
+  );
+
+  // Продолжаем на следующую страницу если:
+  // 1. На текущей странице были отклики (pageResponses.length > 0)
+  // 2. Не достигнут лимит
+  // Это гарантирует, что мы не пропустим новые отклики на следующих страницах,
+  // даже если на текущей странице все отклики уже были в базе.
+  const hasMore =
+    pageResponses.length > 0 && !(hasLimit && totalSynced >= responsesLimit);
+
+  return {
+    syncedResponses: totalSynced - accumulatedCount,
+    newResponses: pageSaved,
+    hasMore,
+  };
+}
+
 async function collectAllArchivedResponses(
   page: Page,
   responsesUrl: string,

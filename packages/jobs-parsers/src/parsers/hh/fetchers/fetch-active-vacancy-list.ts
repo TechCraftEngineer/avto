@@ -57,26 +57,25 @@ export async function fetchActiveVacanciesList(workspaceId: string): Promise<
       HH_CONFIG.delays.readingPage.min,
       HH_CONFIG.delays.readingPage.max,
     );
-
+    // Сохраняем верстку страницы с активными вакансиями на termbin для отладки
+    try {
+      const pageContent = await page.content();
+      const termbinUrl = await uploadToTermbin(pageContent);
+      if (termbinUrl) {
+        console.log(
+          `📋 Верстка страницы с активными вакансиями сохранена: ${termbinUrl}`,
+        );
+      }
+    } catch (termbinError) {
+      console.warn(
+        "⚠️ Не удалось сохранить верстку на termbin:",
+        termbinError instanceof Error ? termbinError.message : termbinError,
+      );
+    }
     try {
       await page.waitForSelector('[data-qa="vacancy-serp__vacancy"]', {
         timeout: HH_CONFIG.timeouts.selector,
       });
-      // Сохраняем верстку страницы с активными вакансиями на termbin для отладки
-      try {
-        const pageContent = await page.content();
-        const termbinUrl = await uploadToTermbin(pageContent);
-        if (termbinUrl) {
-          console.log(
-            `📋 Верстка страницы с активными вакансиями сохранена: ${termbinUrl}`,
-          );
-        }
-      } catch (termbinError) {
-        console.warn(
-          "⚠️ Не удалось сохранить верстку на termbin:",
-          termbinError instanceof Error ? termbinError.message : termbinError,
-        );
-      }
     } catch (err) {
       // Проверяем явный пустой список: страница вакансий загружена, но вакансий нет
       try {

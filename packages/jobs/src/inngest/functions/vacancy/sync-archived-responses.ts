@@ -1,7 +1,11 @@
 import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { vacancy, vacancyPublication } from "@qbs-autonaim/db/schema";
-import { runHHArchivedVacancyParser } from "@qbs-autonaim/jobs-parsers";
+import {
+  runHHArchivedVacancyParserPage,
+  runHHParseResponseDetailsForVacancy,
+} from "@qbs-autonaim/jobs-parsers";
+import { getResponsesLimitByOrganizationPlan } from "@qbs-autonaim/jobs-shared";
 import {
   syncArchivedResponsesChannel,
   workspaceNotificationsChannel,
@@ -12,8 +16,8 @@ import { collectChatIdsForVacancy } from "../../../services/collect-chat-ids";
 import { screenNewResponsesForVacancy } from "../../../services/screen-new-responses";
 
 /**
- * Inngest функция для синхронизации всех откликов архивной вакансии
- * Парсит все страницы откликов архивной вакансии через Puppeteer в headless режиме
+ * Inngest функция для синхронизации всех откликов архивной вакансии.
+ * Разбита на шаги по страницам — при рестарте сервиса продолжит с последней страницы.
  * ENGLISH_IDENTIFIERS_EXCEPTION: Технические идентификаторы функции (id, name) и шагов (step.run)
  * оставлены на английском языке, так как они используются для внутренней коммуникации между сервисами
  */
@@ -36,11 +40,7 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
       }),
     );
 
-    const result = await step.run("sync-archived-responses", async () => {
-      console.log(
-        `🚀 Запуск синхронизации архивных откликов для вакансии ${vacancyId}`,
-      );
-
+    const validation = await step.run("validate", async () => {
       const vacancyData = await db.query.vacancy.findFirst({
         where: eq(vacancy.id, vacancyId),
       });
@@ -98,103 +98,190 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
         );
       }
 
+      const workspaceData = await db.query.workspace.findFirst({
+        where: (w, { eq }) => eq(w.id, workspaceId),
+        columns: { plan: true },
+        with: { organization: { columns: { plan: true } } },
+      });
+
+      const organizationPlan =
+        workspaceData?.organization?.plan ?? "free";
+      const responsesLimit =
+        getResponsesLimitByOrganizationPlan(organizationPlan);
+
+      return {
+        publicationId: publication.id,
+        externalId: publication.externalId,
+        vacancyTitle: vacancyData.title,
+        responsesLimit: responsesLimit > 0 ? responsesLimit : 0,
+      };
+    });
+
+    let pageIndex = 0;
+    let accumulatedSynced = 0;
+    let accumulatedNew = 0;
+    let hasMore = true;
+
+    while (hasMore) {
+      const pageResult = await step.run(
+        `sync-page-${pageIndex}`,
+        async () => {
+          try {
+            await publish(
+              syncArchivedResponsesChannel(vacancyId).progress({
+                vacancyId,
+                status: "processing",
+                message: `Синхронизация страницы ${pageIndex + 1}...`,
+              }),
+            );
+
+            let lastPublishTime = 0;
+            const THROTTLE_INTERVAL = 2000;
+
+            const onProgress = async (
+              processed: number,
+              total: number,
+              newCount: number,
+              currentName?: string,
+            ) => {
+              const now = Date.now();
+              if (now - lastPublishTime < THROTTLE_INTERVAL && processed < total) {
+                return;
+              }
+              lastPublishTime = now;
+
+              const progressPercent =
+                total > 0 ? Math.round((processed / total) * 100) : 0;
+              const message = currentName
+                ? `Страница ${pageIndex + 1}: ${processed}/${total} (${progressPercent}%). ${currentName}`
+                : `Страница ${pageIndex + 1}: ${processed}/${total} (${progressPercent}%). Новых: ${newCount}`;
+
+              await publish(
+                syncArchivedResponsesChannel(vacancyId).progress({
+                  vacancyId,
+                  status: "processing",
+                  message,
+                  syncedResponses: processed,
+                  newResponses: newCount,
+                  totalResponses: total,
+                }),
+              );
+            };
+
+            const result = await runHHArchivedVacancyParserPage({
+              workspaceId,
+              vacancyId,
+              externalId: validation.externalId,
+              pageOptions: {
+                pageIndex,
+                accumulatedCount: accumulatedSynced,
+                accumulatedNewCount: accumulatedNew,
+                responsesLimit: validation.responsesLimit,
+              },
+              onProgress,
+            });
+
+            return result;
+          } catch (error) {
+            console.error(
+              `❌ Ошибка синхронизации страницы ${pageIndex} для вакансии ${vacancyId}:`,
+              error,
+            );
+
+            await publish(
+              syncArchivedResponsesChannel(vacancyId).progress({
+                vacancyId,
+                status: "error",
+                message:
+                  error instanceof Error
+                    ? error.message
+                    : "Ошибка синхронизации",
+              }),
+            );
+
+            if (isHHAuthError(error)) {
+              await publish(
+                workspaceNotificationsChannel(workspaceId)["integration-error"]({
+                  workspaceId,
+                  type: "hh-auth-failed",
+                  message:
+                    "Авторизация в HeadHunter слетела. Проверьте учётные данные в настройках интеграции.",
+                  severity: "error",
+                  timestamp: new Date().toISOString(),
+                }),
+              );
+            }
+
+            throw error;
+          }
+        },
+      );
+
+      accumulatedSynced += pageResult.syncedResponses;
+      accumulatedNew += pageResult.newResponses;
+      hasMore = pageResult.hasMore;
+      pageIndex++;
+    }
+
+    await step.run("update-last-synced", async () => {
+      const publication = await db.query.vacancyPublication.findFirst({
+        where: (pub, { and, eq }) =>
+          and(eq(pub.vacancyId, vacancyId), eq(pub.platform, "HH")),
+      });
+      if (publication) {
+        await db
+          .update(vacancyPublication)
+          .set({ lastSyncedAt: new Date() })
+          .where(eq(vacancyPublication.id, publication.id));
+      }
+      return { success: true };
+    });
+
+    await step.run("parse-response-details", async () => {
       try {
         await publish(
           syncArchivedResponsesChannel(vacancyId).progress({
             vacancyId,
             status: "processing",
-            message: "Подключение к HeadHunter...",
+            message: "Парсинг деталей резюме...",
           }),
         );
 
-        let lastPublishTime = 0;
-        const THROTTLE_INTERVAL = 2000;
-
-        const onProgress = async (
-          processed: number,
-          total: number,
-          newCount: number,
-          currentName?: string,
-        ) => {
-          const now = Date.now();
-          if (now - lastPublishTime < THROTTLE_INTERVAL && processed < total) {
-            return;
-          }
-          lastPublishTime = now;
-
-          const progressPercent =
-            total > 0 ? Math.round((processed / total) * 100) : 0;
-          const message = currentName
-            ? `Обработано ${processed}/${total} (${progressPercent}%). Обрабатывается: ${currentName}`
-            : `Обработано ${processed}/${total} (${progressPercent}%). Новых: ${newCount}`;
-
-          await publish(
-            syncArchivedResponsesChannel(vacancyId).progress({
-              vacancyId,
-              status: "processing",
-              message,
-              syncedResponses: processed,
-              newResponses: newCount,
-              totalResponses: total,
-            }),
-          );
-        };
-
-        const { syncedResponses, newResponses } =
-          await runHHArchivedVacancyParser({
-            workspaceId,
-            vacancyId,
-            externalId: publication.externalId,
-            onProgress,
-          } as Parameters<typeof runHHArchivedVacancyParser>[0]);
-
-        await db
-          .update(vacancyPublication)
-          .set({ lastSyncedAt: new Date() })
-          .where(eq(vacancyPublication.id, publication.id));
-
-        console.log(
-          `✅ Архивные отклики для вакансии ${vacancyId} синхронизированы успешно`,
+        await runHHParseResponseDetailsForVacancy(
+          workspaceId,
+          vacancyId,
+          async (
+            processed: number,
+            total: number,
+            currentName?: string,
+          ) => {
+            await publish(
+              syncArchivedResponsesChannel(vacancyId).progress({
+                vacancyId,
+                status: "processing",
+                message: `Парсинг деталей: ${processed}/${total}${currentName ? ` — ${currentName}` : ""}`,
+              }),
+            );
+          },
         );
 
-        return {
-          success: true,
-          vacancyId,
-          syncedResponses,
-          newResponses,
-          vacancyTitle: vacancyData.title,
-        };
+        return { success: true };
       } catch (error) {
         console.error(
-          `❌ Ошибка при синхронизации архивных откликов вакансии ${vacancyId}:`,
+          `❌ Ошибка парсинга деталей для вакансии ${vacancyId}:`,
           error,
         );
-
-        await publish(
-          syncArchivedResponsesChannel(vacancyId).progress({
-            vacancyId,
-            status: "error",
-            message:
-              error instanceof Error ? error.message : "Ошибка синхронизации",
-          }),
-        );
-
-        if (isHHAuthError(error)) {
-          await publish(
-            workspaceNotificationsChannel(workspaceId)["integration-error"]({
-              workspaceId,
-              type: "hh-auth-failed",
-              message:
-                "Авторизация в HeadHunter слетела. Проверьте учётные данные в настройках интеграции.",
-              severity: "error",
-              timestamp: new Date().toISOString(),
-            }),
-          );
-        }
-
         throw error;
       }
     });
+
+    const result = {
+      success: true,
+      vacancyId,
+      syncedResponses: accumulatedSynced,
+      newResponses: accumulatedNew,
+      vacancyTitle: validation.vacancyTitle,
+    };
 
     await step.run("collect-chat-ids", async () => {
       await publish(

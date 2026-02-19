@@ -1,10 +1,55 @@
-import { and, eq, logResponseEvent } from "@qbs-autonaim/db";
+import { and, eq, logResponseEvent, sql } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { response } from "@qbs-autonaim/db/schema";
 import { createLogger, type Result, tryCatch } from "@qbs-autonaim/lib";
 import type { SaveResponseData } from "../types/response";
 
 const logger = createLogger("SharedResponseService");
+
+export interface ResponseNeedingDetails {
+  id: string;
+  resumeId: string;
+  resumeUrl: string | null;
+  candidateName: string | null;
+  candidateId: string | null;
+}
+
+/**
+ * Возвращает отклики вакансии, которым нужна детальная информация (profileData/contacts).
+ * Используется после постраничной синхронизации для парсинга деталей резюме.
+ */
+export async function getResponsesNeedingDetailsForVacancy(
+  vacancyId: string,
+): Promise<ResponseNeedingDetails[]> {
+  const rows = await db.query.response.findMany({
+    where: and(
+      eq(response.entityType, "vacancy"),
+      eq(response.entityId, vacancyId),
+      sql`${response.resumeUrl} IS NOT NULL`,
+      sql`((${response.profileData} IS NULL) OR (${response.profileData}::text IN ('null', '{}', '[]')))`,
+      sql`((${response.contacts} IS NULL) OR (${response.contacts}::text IN ('null', '{}', '[]')))`,
+    ),
+    columns: {
+      id: true,
+      resumeId: true,
+      resumeUrl: true,
+      candidateName: true,
+      candidateId: true,
+    },
+  });
+
+  return rows
+    .filter((r): r is typeof r & { resumeId: string; resumeUrl: string } => {
+      return !!(r.resumeId && r.resumeUrl);
+    })
+    .map((r) => ({
+      id: r.id,
+      resumeId: r.resumeId,
+      resumeUrl: r.resumeUrl,
+      candidateName: r.candidateName,
+      candidateId: r.candidateId,
+    }));
+}
 
 /**
  * Checks if response has detailed info
