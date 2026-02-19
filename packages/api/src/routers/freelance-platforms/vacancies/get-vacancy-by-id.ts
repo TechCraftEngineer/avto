@@ -1,4 +1,4 @@
-import { and, eq, sql } from "@qbs-autonaim/db";
+import { and, count, eq, sql } from "@qbs-autonaim/db";
 import { response as responseTable, vacancy } from "@qbs-autonaim/db/schema";
 import { getInterviewUrlFromDb } from "@qbs-autonaim/server-utils";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
@@ -79,10 +79,26 @@ export const getVacancyById = protectedProcedure
       }
     }
 
+    const [responseCounts] = await ctx.db
+      .select({
+        total: count(responseTable.id),
+        newCount: sql<number>`COUNT(*) FILTER (WHERE ${responseTable.status} = 'NEW')`,
+      })
+      .from(responseTable)
+      .where(
+        and(
+          eq(responseTable.entityId, vacancyDataRaw.id),
+          eq(responseTable.entityType, "vacancy"),
+        ),
+      );
+
     return {
       vacancy: {
         ...vacancyDataRaw,
         publications: vacancyDataRaw.publications ?? [],
+        views: 0,
+        responses: responseCounts?.total ?? 0,
+        newResponses: Number(responseCounts?.newCount ?? 0),
       },
       responseStats: stats,
       interviewLink: activeInterviewLink

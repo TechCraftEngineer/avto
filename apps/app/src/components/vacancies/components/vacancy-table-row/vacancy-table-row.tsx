@@ -58,7 +58,6 @@ interface Vacancy {
   source: string;
   region: string | null;
   workLocation: string | null;
-  views: number | null;
   totalResponsesCount: number | null;
   newResponses: number | null;
   resumesInProgress: number | null;
@@ -119,11 +118,6 @@ export function VacancyTableRow({
   // Валидируем и санитизируем URL платформы
   const safePlatformUrl = sanitizeUrl(vacancy.platformUrl);
 
-  // Вычисляем конверсию просмотров в отклики
-  const conversionRate =
-    vacancy.views && vacancy.views > 0 && vacancy.totalResponsesCount
-      ? ((vacancy.totalResponsesCount / vacancy.views) * 100).toFixed(1)
-      : null;
 
   // Определяем приоритет вакансии для рекрутера
   const needsAttention = Boolean(
@@ -198,7 +192,6 @@ export function VacancyTableRow({
           </div>
           <div className="flex items-center gap-2">
             <VacancyPerformanceBadge
-              views={vacancy.views}
               responses={vacancy.totalResponsesCount}
               className="text-[10px] px-1.5 py-0"
             />
@@ -234,11 +227,6 @@ export function VacancyTableRow({
         >
           {vacancy.totalResponsesCount ?? 0}
         </Link>
-        {conversionRate && (
-          <div className="text-xs text-muted-foreground mt-0.5">
-            {conversionRate}% конверсия
-          </div>
-        )}
       </TableCell>
       <TableCell className="text-right tabular-nums">
         {vacancy.newResponses && vacancy.newResponses > 0 ? (

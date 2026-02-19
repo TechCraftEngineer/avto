@@ -56,12 +56,10 @@ async function updateVacancyCounter(id: string) {
       process.exit(1);
     }
 
-    // Обновляем счетчики
+        // Обновляем счетчики (views, responses, new_responses удалены из схемы)
     const result = await db
       .update(vacancy)
       .set({
-        responses: Number(stats.total) || 0,
-        newResponses: Number(stats.new) || 0,
         resumesInProgress: Number(stats.inProgress) || 0,
         suitableResumes: Number(stats.suitable) || 0,
         updatedAt: new Date(),
@@ -70,8 +68,6 @@ async function updateVacancyCounter(id: string) {
       .returning({
         id: vacancy.id,
         title: vacancy.title,
-        responses: vacancy.responses,
-        newResponses: vacancy.newResponses,
         resumesInProgress: vacancy.resumesInProgress,
         suitableResumes: vacancy.suitableResumes,
       });
@@ -86,8 +82,8 @@ async function updateVacancyCounter(id: string) {
     console.log("✅ Счетчики успешно обновлены:");
     console.log(`   Вакансия: ${updated?.title}`);
     console.log(`   ID: ${updated?.id}`);
-    console.log(`   Всего откликов: ${updated?.responses}`);
-    console.log(`   Новые: ${updated?.newResponses}`);
+    console.log(`   Всего откликов: ${stats?.total}`);
+    console.log(`   Новые: ${stats?.new}`);
     console.log(`   В работе: ${updated?.resumesInProgress}`);
     console.log(`   Подходящие: ${updated?.suitableResumes}`);
   } catch (error) {

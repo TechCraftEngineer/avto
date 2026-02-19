@@ -17,9 +17,6 @@ interface VacancyDbData {
   url?: string;
   source: PlatformSource;
   externalId?: string;
-  views: number;
-  responses: number;
-  newResponses: number;
   resumesInProgress: number;
   suitableResumes: number;
   region: string;
@@ -63,9 +60,6 @@ function mapVacancyData(
     url: vacancyData.url || undefined,
     source,
     externalId,
-    views: Number.parseInt(vacancyData.views, 10) || 0,
-    responses: Number.parseInt(vacancyData.responses, 10) || 0,
-    newResponses: Number.parseInt(vacancyData.newResponses, 10) || 0,
     resumesInProgress: Number.parseInt(vacancyData.resumesInProgress, 10) || 0,
     suitableResumes: Number.parseInt(vacancyData.suitableResumes, 10) || 0,
     region: vacancyData.region || "",

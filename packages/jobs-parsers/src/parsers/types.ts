@@ -4,10 +4,7 @@ export interface VacancyData {
   source: "hh" | "avito" | "superjob" | "fl" | "freelance" | "kwork";
   title: string;
   url: string | null;
-  views: string;
-  responses: string;
   responsesUrl: string | null;
-  newResponses: string;
   resumesInProgress: string;
   suitableResumes: string;
   region?: string; // Регион размещения вакансии (где опубликована)

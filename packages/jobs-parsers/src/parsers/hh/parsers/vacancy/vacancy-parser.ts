@@ -5,7 +5,6 @@ import type { VacancyData } from "../../../types";
 import { HH_CONFIG } from "../../core/config/config";
 import { fetchActiveVacanciesList } from "../../fetchers/fetch-active-vacancy-list";
 import { fetchArchivedVacanciesList } from "../../fetchers/fetch-archived-vacancy-list";
-import { humanDelay } from "../../utils/human-behavior";
 import { extractVacancyDataWithAI } from "./ai-vacancy-extractor";
 import {
   parseVacancyDescriptions,
@@ -36,10 +35,7 @@ export async function parseVacancies(
       source: "hh" as const,
       title: v.title ?? "",
       url: v.url,
-      views: v.views ?? "0",
-      responses: v.responses ?? "0",
       responsesUrl: null,
-      newResponses: "0",
       resumesInProgress: "0",
       suitableResumes: "0",
       region: v.region,
@@ -97,10 +93,7 @@ export async function parseArchivedVacancies(
       source: "hh" as const,
       title: v.title ?? "",
       url: v.url,
-      views: "0",
-      responses: "0",
       responsesUrl: null,
-      newResponses: "0",
       resumesInProgress: "0",
       suitableResumes: "0",
       region: v.region,
@@ -175,11 +168,6 @@ export async function parseSingleVacancy(
     await page.waitForNetworkIdle({
       timeout: HH_CONFIG.timeouts.networkIdle,
     });
-
-    await humanDelay(
-      HH_CONFIG.delays.readingPage.min,
-      HH_CONFIG.delays.readingPage.max,
-    );
 
     // Если статус не передан явно, определяем его по странице
     if (!isArchived) {

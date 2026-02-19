@@ -12,8 +12,6 @@ async function checkVacancyData() {
     .select({
       id: vacancy.id,
       title: vacancy.title,
-      responses: vacancy.responses,
-      newResponses: vacancy.newResponses,
       resumesInProgress: vacancy.resumesInProgress,
       suitableResumes: vacancy.suitableResumes,
     })
@@ -28,8 +26,6 @@ async function checkVacancyData() {
 
   console.log("📊 Данные в таблице вакансий:");
   console.log(`   Название: ${vac[0]?.title}`);
-  console.log(`   Всего откликов: ${vac[0]?.responses}`);
-  console.log(`   Новые: ${vac[0]?.newResponses}`);
   console.log(`   В работе: ${vac[0]?.resumesInProgress}`);
   console.log(`   Подходящие: ${vac[0]?.suitableResumes}\n`);
 
@@ -55,10 +51,8 @@ async function checkVacancyData() {
   console.log(`   В работе: ${stats?.inProgress}`);
   console.log(`   Подходящие: ${stats?.suitable}\n`);
 
-  // Проверяем соответствие
+  // Проверяем соответствие (responses/newResponses удалены — сравниваем только in_progress/suitable)
   const match =
-    vac[0]?.responses === Number(stats?.total) &&
-    vac[0]?.newResponses === Number(stats?.new) &&
     vac[0]?.resumesInProgress === Number(stats?.inProgress) &&
     vac[0]?.suitableResumes === Number(stats?.suitable);
 

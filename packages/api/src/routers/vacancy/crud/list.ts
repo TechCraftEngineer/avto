@@ -1,5 +1,5 @@
-import { desc, eq } from "@qbs-autonaim/db";
-import { vacancy } from "@qbs-autonaim/db/schema";
+import { and, count, desc, eq, sql } from "@qbs-autonaim/db";
+import { response as responseTable, vacancy } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
@@ -27,9 +27,10 @@ export const list = protectedProcedure
         workspaceId: vacancy.workspaceId,
         title: vacancy.title,
         url: vacancy.url,
-        views: vacancy.views,
-        totalResponsesCount: vacancy.responses,
-        newResponses: vacancy.newResponses,
+        totalResponsesCount: count(responseTable.id),
+        newResponses: sql<number>`CAST(COUNT(CASE WHEN ${responseTable.status} = 'NEW' THEN 1 END) AS INTEGER)`.as(
+          "newResponses",
+        ),
         resumesInProgress: vacancy.resumesInProgress,
         suitableResumes: vacancy.suitableResumes,
         region: vacancy.region,
@@ -47,7 +48,15 @@ export const list = protectedProcedure
         updatedAt: vacancy.updatedAt,
       })
       .from(vacancy)
+      .leftJoin(
+        responseTable,
+        and(
+          eq(vacancy.id, responseTable.entityId),
+          eq(responseTable.entityType, "vacancy"),
+        ),
+      )
       .where(eq(vacancy.workspaceId, input.workspaceId))
+      .groupBy(vacancy.id)
       .orderBy(desc(vacancy.createdAt));
 
     return vacancies;

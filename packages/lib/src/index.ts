@@ -6,23 +6,16 @@ export { InterviewSDKError } from "./errors";
 
 // Logger utilities
 export { createLogger, logger } from "./logger";
-
-// Name parsing utilities
-export { parseFullName } from "./utils/name-utils";
-
 // Pluralization utilities
 export { getPluralForm } from "./pluralization";
-
 // Prompt sanitization utilities
 export {
   sanitizeConversationMessage,
   sanitizePromptText,
   truncateText,
 } from "./prompt-sanitizer";
-
 // Rate limiting utilities
 export { checkRateLimit, getRateLimiter } from "./rate-limiter";
-
 // Result utilities
 export type { Result } from "./result";
 export {
@@ -34,7 +27,6 @@ export {
   unwrap,
   unwrapOr,
 } from "./result";
-
 // Date utilities
 export {
   calculateAge,
@@ -45,6 +37,8 @@ export {
   parseBirthDate,
   parseDateFromInput,
 } from "./utils/date-utils";
+// Name parsing utilities
+export { parseFullName } from "./utils/name-utils";
 
 // Sanitization utilities
 export { removeNullBytes, sanitizeObject } from "./utils/sanitize";

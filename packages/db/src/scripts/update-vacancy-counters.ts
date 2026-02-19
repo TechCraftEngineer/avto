@@ -5,11 +5,8 @@ import { response, responseScreening, vacancy } from "../schema";
 /**
  * Скрипт для обновления счетчиков откликов в вакансиях
  *
- * Обновляет следующие поля:
- * - responses: общее количество откликов
- * - newResponses: количество откликов со статусом NEW
- * - resumesInProgress: количество откликов с hrSelectionStatus = IN_PROGRESS
- * - suitableResumes: количество откликов с recommendation = HIGHLY_RECOMMENDED или RECOMMENDED
+ * Обновляет поля resumesInProgress и suitableResumes.
+ * (views, responses, new_responses удалены из схемы — подсчёт через таблицу responses)
  */
 
 async function updateVacancyCounters() {
@@ -60,8 +57,6 @@ async function updateVacancyCounters() {
         await db
           .update(vacancy)
           .set({
-            responses: Number(stats.total) || 0,
-            newResponses: Number(stats.new) || 0,
             resumesInProgress: Number(stats.inProgress) || 0,
             suitableResumes: Number(stats.suitable) || 0,
             updatedAt: new Date(),

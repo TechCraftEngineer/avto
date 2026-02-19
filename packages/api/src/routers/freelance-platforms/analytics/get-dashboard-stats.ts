@@ -76,18 +76,25 @@ export const getDashboardStats = protectedProcedure
         conditions.push(lte(vacancy.createdAt, new Date(input.dateTo)));
       }
 
-      // Получаем обзорные метрики
+      // Получаем обзорные метрики (подсчёт из таблицы responses)
       const overviewMetrics = await ctx.db
         .select({
           totalJobs: count(vacancy.id),
-          totalResponses: sql<number>`COALESCE(SUM(${vacancy.responses}), 0)`,
-          totalNewResponses: sql<number>`COALESCE(SUM(${vacancy.newResponses}), 0)`,
+          totalResponses: sql<number>`COALESCE(SUM(
+            (SELECT COUNT(*)::int FROM ${responseTable} r
+             WHERE r.entity_id = ${vacancy.id} AND r.entity_type = 'vacancy')
+          ), 0)`,
+          totalNewResponses: sql<number>`COALESCE(SUM(
+            (SELECT COUNT(*)::int FROM ${responseTable} r
+             WHERE r.entity_id = ${vacancy.id} AND r.entity_type = 'vacancy'
+             AND r.status = 'NEW')
+          ), 0)`,
           totalSuitableResumes: sql<number>`COALESCE(SUM(${vacancy.suitableResumes}), 0)`,
         })
         .from(vacancy)
         .where(and(...conditions));
 
-      // Получаем список заданий с ключевой статистикой
+      // Получаем список заданий с ключевой статистикой (подсчёт из responses)
       const jobs = await ctx.db
         .select({
           id: vacancy.id,
@@ -96,9 +103,16 @@ export const getDashboardStats = protectedProcedure
           isActive: vacancy.isActive,
           createdAt: vacancy.createdAt,
           url: vacancy.url,
-          // Статистика откликов
-          totalResponses: vacancy.responses,
-          newResponses: vacancy.newResponses,
+          // Статистика откликов — из таблицы responses
+          totalResponses: sql<number>`(
+            SELECT COUNT(*)::int FROM ${responseTable} r
+            WHERE r.entity_id = ${vacancy.id} AND r.entity_type = 'vacancy'
+          )`,
+          newResponses: sql<number>`(
+            SELECT COUNT(*)::int FROM ${responseTable} r
+            WHERE r.entity_id = ${vacancy.id} AND r.entity_type = 'vacancy'
+            AND r.status = 'NEW'
+          )`,
           suitableResumes: vacancy.suitableResumes,
           // Статистика по источникам
           hhApiCount: sql<number>`(

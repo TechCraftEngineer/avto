@@ -1,5 +1,5 @@
-import { and, eq } from "@qbs-autonaim/db";
-import { vacancy } from "@qbs-autonaim/db/schema";
+import { and, count, eq, sql } from "@qbs-autonaim/db";
+import { response as responseTable, vacancy } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
@@ -8,7 +8,6 @@ import { protectedProcedure } from "../../../trpc";
 export const get = protectedProcedure
   .input(z.object({ id: z.string(), workspaceId: workspaceIdSchema }))
   .query(async ({ ctx, input }) => {
-    // Проверка доступа к workspace
     const access = await ctx.workspaceRepository.checkAccess(
       input.workspaceId,
       ctx.session.user.id,
@@ -21,7 +20,7 @@ export const get = protectedProcedure
       });
     }
 
-    return ctx.db.query.vacancy.findFirst({
+    const vacancyRow = await ctx.db.query.vacancy.findFirst({
       where: and(
         eq(vacancy.id, input.id),
         eq(vacancy.workspaceId, input.workspaceId),
@@ -30,4 +29,26 @@ export const get = protectedProcedure
         publications: true,
       },
     });
+
+    if (!vacancyRow) return null;
+
+    const [counts] = await ctx.db
+      .select({
+        totalResponses: count(responseTable.id),
+        newResponses: sql<number>`COUNT(*) FILTER (WHERE ${responseTable.status} = 'NEW')`,
+      })
+      .from(responseTable)
+      .where(
+        and(
+          eq(responseTable.entityId, vacancyRow.id),
+          eq(responseTable.entityType, "vacancy"),
+        ),
+      );
+
+    return {
+      ...vacancyRow,
+      views: 0,
+      responses: counts?.totalResponses ?? 0,
+      newResponses: Number(counts?.newResponses ?? 0),
+    };
   });

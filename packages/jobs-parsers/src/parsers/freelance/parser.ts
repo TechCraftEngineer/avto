@@ -15,10 +15,7 @@ export function normalizeFreelanceVacancy(
     source,
     title: raw.title,
     url: raw.url,
-    views: "0",
-    responses: "0",
     responsesUrl: null,
-    newResponses: "0",
     resumesInProgress: "0",
     suitableResumes: "0",
     // region не указывается для фриланс-вакансий, так как они обычно удаленные
@@ -82,10 +79,7 @@ export function createFreelanceVacancyStub(
     source,
     title,
     url: `${config.baseUrl}/project/${id}`,
-    views: "0",
-    responses: "0",
     responsesUrl: null,
-    newResponses: "0",
     resumesInProgress: "0",
     suitableResumes: "0",
     // region не указывается для фриланс-вакансий

@@ -20,7 +20,7 @@ const getVacanciesInputSchema = z.object({
     ])
     .optional(),
   sortBy: z
-    .enum(["createdAt", "title", "views", "responses", "newResponses"])
+    .enum(["createdAt", "title", "responses", "newResponses"])
     .optional(),
   sortOrder: z.enum(["asc", "desc"]).optional(),
 });
@@ -64,8 +64,6 @@ export const getVacancies = protectedProcedure
           workspaceId: vacancy.workspaceId,
           title: vacancy.title,
           url: vacancy.url,
-          views: vacancy.views,
-          responses: vacancy.responses,
           newResponses:
             sql<number>`CAST(COUNT(CASE WHEN ${responseTable.status} = 'NEW' THEN 1 END) AS INTEGER)`.as(
               "newResponses",
@@ -109,13 +107,11 @@ export const getVacancies = protectedProcedure
       const orderByMapping: {
         readonly createdAt: typeof vacancy.createdAt;
         readonly title: typeof vacancy.title;
-        readonly views: typeof vacancy.views;
         readonly responses: SQL<number>;
         readonly newResponses: SQL<number>;
       } = {
         createdAt: vacancy.createdAt,
         title: vacancy.title,
-        views: vacancy.views,
         responses: count(responseTable.id),
         newResponses: sql<number>`CAST(COUNT(CASE WHEN ${responseTable.status} = 'NEW' THEN 1 END) AS INTEGER)`,
       } as const;

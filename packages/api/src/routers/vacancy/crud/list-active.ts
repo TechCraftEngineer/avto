@@ -34,7 +34,6 @@ export const listActive = protectedProcedure
         workspaceId: vacancy.workspaceId,
         title: vacancy.title,
         url: vacancy.url,
-        views: vacancy.views,
         region: vacancy.region,
         workLocation: vacancy.workLocation,
         description: vacancy.description,

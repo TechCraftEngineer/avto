@@ -29,8 +29,6 @@ const vacancyItemSchema = z.object({
   title: z.string(),
   url: z.string(),
   region: z.string().optional(),
-  views: z.string().optional(),
-  responses: z.string().optional(),
   isActive: z.boolean().optional(),
 });
 
@@ -162,10 +160,7 @@ hhImportRouter.post("/", async (c) => {
         source: "hh",
         title: v.title,
         url: v.url,
-        views: v.views ?? "0",
-        responses: v.responses ?? "0",
         responsesUrl: null,
-        newResponses: "0",
         resumesInProgress: "0",
         suitableResumes: "0",
         region: v.region,

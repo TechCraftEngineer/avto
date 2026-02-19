@@ -1,8 +1,7 @@
-import { and, eq, sql } from "@qbs-autonaim/db";
+import { and, eq } from "@qbs-autonaim/db";
 import {
   responseStatusValues,
   response as responseTable,
-  vacancy,
 } from "@qbs-autonaim/db/schema";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
@@ -56,9 +55,7 @@ export const updateStatus = protectedProcedure
       });
     }
 
-    // Атомарно обновляем статус и счётчик newResponses в одной транзакции
     const updated = await ctx.db.transaction(async (tx) => {
-      // Блокируем строку отклика для предотвращения race conditions
       const [lockedResponse] = await tx
         .select()
         .from(responseTable)
@@ -77,7 +74,6 @@ export const updateStatus = protectedProcedure
         });
       }
 
-      // Обновляем статус
       const [result] = await tx
         .update(responseTable)
         .set({
@@ -92,28 +88,6 @@ export const updateStatus = protectedProcedure
           code: "INTERNAL_SERVER_ERROR",
           message: "Не удалось обновить статус отклика",
         });
-      }
-
-      // Обновляем счётчик новых откликов на основе статуса внутри транзакции
-      const wasNew = lockedResponse.status === "NEW";
-      const isNew = input.status === "NEW";
-
-      if (wasNew && !isNew) {
-        // Отклик перестал быть новым — уменьшаем счётчик
-        await tx
-          .update(vacancy)
-          .set({
-            newResponses: sql`GREATEST(COALESCE(${vacancy.newResponses}, 0) - 1, 0)`,
-          })
-          .where(eq(vacancy.id, lockedResponse.entityId));
-      } else if (!wasNew && isNew) {
-        // Отклик стал новым — увеличиваем счётчик
-        await tx
-          .update(vacancy)
-          .set({
-            newResponses: sql`COALESCE(${vacancy.newResponses}, 0) + 1`,
-          })
-          .where(eq(vacancy.id, lockedResponse.entityId));
       }
 
       return result;

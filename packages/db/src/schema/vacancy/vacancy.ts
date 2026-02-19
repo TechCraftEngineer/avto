@@ -59,9 +59,6 @@ export const vacancy = pgTable(
 
     title: varchar("title", { length: 500 }).notNull(),
     url: text("url"),
-    views: integer("views").default(0),
-    responses: integer("responses").default(0),
-    newResponses: integer("new_responses").default(0),
     resumesInProgress: integer("resumes_in_progress").default(0),
     suitableResumes: integer("suitable_resumes").default(0),
     region: varchar("region", { length: 200 }),
