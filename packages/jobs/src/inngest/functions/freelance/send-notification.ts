@@ -204,18 +204,9 @@ export const sendFreelanceNotificationFunction = inngest.createFunction(
             ? responseRecord.vacancy.title
             : "Вакансия";
 
-        const profileUrl = isGig
-          ? "profileUrl" in responseRecord
-            ? responseRecord.profileUrl
-            : undefined
-          : "platformProfileUrl" in responseRecord
-            ? responseRecord.platformProfileUrl ||
-              ("resumeUrl" in responseRecord
-                ? responseRecord.resumeUrl
-                : undefined)
-            : undefined;
+        const profileUrl = responseRecord.profileUrl ?? undefined;
 
-        const errorMessage = error;
+        const errorMessage = String(error ?? "");
 
         // Sanitize all user-controlled values
         const safeCandidateName = escapeHtml(candidateName);

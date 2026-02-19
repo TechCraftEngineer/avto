@@ -276,10 +276,7 @@ export const webCompleteInterviewFunction = inngest.createFunction(
                 notificationType: "HIGH_SCORE_CANDIDATE",
                 candidateName: responseRecord.candidateName ?? undefined,
                 score: scoring.score,
-                profileUrl:
-                  responseRecord.platformProfileUrl ??
-                  responseRecord.resumeUrl ??
-                  undefined,
+                profileUrl: responseRecord.profileUrl ?? undefined,
               },
             });
           }

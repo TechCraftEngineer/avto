@@ -180,10 +180,7 @@ export const completeInterviewFunction = inngest.createFunction(
               notificationType: "HIGH_SCORE_CANDIDATE",
               candidateName: responseRecord.candidateName ?? undefined,
               score: scoringResult.score,
-              profileUrl:
-                responseRecord.platformProfileUrl ??
-                responseRecord.resumeUrl ??
-                undefined,
+              profileUrl: responseRecord.profileUrl ?? undefined,
             },
           });
         }
