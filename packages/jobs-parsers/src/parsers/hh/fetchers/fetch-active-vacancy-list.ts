@@ -64,57 +64,58 @@ export async function fetchActiveVacanciesList(workspaceId: string): Promise<
       );
     }
 
-    await page.waitForSelector('div[class="vacancy-dashboard-active"]', {
-      timeout: HH_CONFIG.timeouts.selector,
-    });
+    // await page.waitForSelector('div[class="vacancy-dashboard-active"]', {
+    //   timeout: HH_CONFIG.timeouts.selector,
+    // });
 
-    const activeVacancies = await page.$$eval(
-      'div[data-qa^="vacancy-active_"]',
-      (elements) => {
-        return elements.map((element) => {
-          const dataQa = element.getAttribute("data-qa") || "";
-          const externalId = dataQa.match(/vacancy-active_(\d+)/)?.[1];
+    // const activeVacancies = await page.$$eval(
+    //   'div[data-qa^="vacancy-active_"]',
+    //   (elements) => {
+    //     return elements.map((element) => {
+    //       const dataQa = element.getAttribute("data-qa") || "";
+    //       const externalId = dataQa.match(/vacancy-active_(\d+)/)?.[1];
 
-          const titleElement = element.querySelector(
-            'span[data-qa^="vacancies-dashboard-vacancy--active-name_"][data-qa$="-text"]',
-          );
-          const title = titleElement?.textContent?.trim() || "";
+    //       const titleElement = element.querySelector(
+    //         'span[data-qa^="vacancies-dashboard-vacancy--active-name_"][data-qa$="-text"]',
+    //       );
+    //       const title = titleElement?.textContent?.trim() || "";
 
-          const urlElement = element.querySelector(
-            'a[data-qa^="vacancies-dashboard-vacancy--active-name_"]',
-          ) as HTMLAnchorElement;
-          const url = urlElement?.href || "";
+    //       const urlElement = element.querySelector(
+    //         'a[data-qa^="vacancies-dashboard-vacancy--active-name_"]',
+    //       ) as HTMLAnchorElement;
+    //       const url = urlElement?.href || "";
 
-          const regionElement = element.querySelector(
-            'div[data-qa="table-flexible-cell-activeVacancyArea"]',
-          );
-          const region = regionElement?.textContent?.trim();
+    //       const regionElement = element.querySelector(
+    //         'div[data-qa="table-flexible-cell-activeVacancyArea"]',
+    //       );
+    //       const region = regionElement?.textContent?.trim();
 
-          const viewsElement = element.querySelector(
-            'div[data-qa="table-flexible-cell-activeVacancyViews"]',
-          );
-          const views = viewsElement?.textContent?.trim();
+    //       const viewsElement = element.querySelector(
+    //         'div[data-qa="table-flexible-cell-activeVacancyViews"]',
+    //       );
+    //       const views = viewsElement?.textContent?.trim();
 
-          const responsesElement = element.querySelector(
-            'div[data-qa="table-flexible-cell-activeVacancyResponses"]',
-          );
-          const responses = responsesElement?.textContent?.trim();
+    //       const responsesElement = element.querySelector(
+    //         'div[data-qa="table-flexible-cell-activeVacancyResponses"]',
+    //       );
+    //       const responses = responsesElement?.textContent?.trim();
 
-          return { title, url, region, externalId, views, responses };
-        });
-      },
-    );
+    //       return { title, url, region, externalId, views, responses };
+    //     });
+    //   },
+    // );
 
-    console.log(`✅ Найдено активных вакансий: ${activeVacancies.length}`);
+    // console.log(`✅ Найдено активных вакансий: ${activeVacancies.length}`);
 
-    return activeVacancies.map((vacancy) => ({
-      url: vacancy.url,
-      externalId: vacancy.externalId,
-      title: vacancy.title,
-      region: vacancy.region,
-      views: vacancy.views,
-      responses: vacancy.responses,
-    }));
+    // return activeVacancies.map((vacancy) => ({
+    //   url: vacancy.url,
+    //   externalId: vacancy.externalId,
+    //   title: vacancy.title,
+    //   region: vacancy.region,
+    //   views: vacancy.views,
+    //   responses: vacancy.responses,
+    // }));
+    return [];
   } finally {
     await closeBrowserSafely(browser);
   }

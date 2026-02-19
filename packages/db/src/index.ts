@@ -14,11 +14,7 @@ export {
 } from "./permissions/organization";
 
 // Repositories
-export type {
-  CandidateDataFromResponse,
-  CandidateSearchParams,
-} from "./repositories/candidate.repository";
-export { CandidateRepository } from "./repositories/candidate.repository";
+export type { CandidateDataFromResponse } from "./schema/candidate/candidate-types";
 export { DraftRepository } from "./repositories/draft.repository";
 export type {
   CandidateOrganizationLinkData,

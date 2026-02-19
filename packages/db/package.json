@@ -37,6 +37,7 @@
     "update-counters": "bun with-env bun src/scripts/update-vacancy-counters.ts",
     "update-counter": "bun with-env bun src/scripts/update-vacancy-counter-by-id.ts",
     "check-vacancy": "bun with-env bun src/scripts/check-vacancy-data.ts",
+    "migrate:candidates": "bun with-env bun src/scripts/migrate-candidates-to-global.ts",
     "typecheck": "npx tsc --noEmit",
     "with-env": "bun run --env-file ../../.env"
   },

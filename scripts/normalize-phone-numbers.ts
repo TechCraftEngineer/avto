@@ -5,7 +5,7 @@
 
 import { eq, isNotNull } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
-import { candidate, response } from "@qbs-autonaim/db/schema";
+import { globalCandidate, response } from "@qbs-autonaim/db/schema";
 import { normalizePhone } from "@qbs-autonaim/validators";
 
 async function normalizeResponsePhones() {
@@ -52,12 +52,12 @@ async function normalizeResponsePhones() {
 }
 
 async function normalizeCandidatePhones() {
-  console.log("\n🔄 Нормализация телефонов в таблице candidates...");
+  console.log("\n🔄 Нормализация телефонов в таблице global_candidates...");
 
   const candidates = await db
-    .select({ id: candidate.id, phone: candidate.phone })
-    .from(candidate)
-    .where(isNotNull(candidate.phone));
+    .select({ id: globalCandidate.id, phone: globalCandidate.phone })
+    .from(globalCandidate)
+    .where(isNotNull(globalCandidate.phone));
 
   console.log(`📊 Найдено кандидатов с телефонами: ${candidates.length}`);
 
@@ -71,12 +71,11 @@ async function normalizeCandidatePhones() {
     try {
       const normalized = normalizePhone(cand.phone);
 
-      // Обновляем только если изменилось
       if (normalized !== cand.phone) {
         await db
-          .update(candidate)
+          .update(globalCandidate)
           .set({ phone: normalized })
-          .where(eq(candidate.id, cand.id));
+          .where(eq(globalCandidate.id, cand.id));
 
         updated++;
         console.log(`  ✅ ${cand.phone} → ${normalized}`);
