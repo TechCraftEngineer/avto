@@ -65,7 +65,7 @@ export async function enrichHHResponses(
     for (let i = 0; i < responsesToEnrich.length; i++) {
       const response = responsesToEnrich[i];
 
-      if (!response || !response.resumeUrl || !response.resumeId) {
+      if (!response || !response.profileUrl || !response.resumeId) {
         console.warn(
           `⚠️ Пропускаем отклик ${i + 1}: отсутствуют необходимые данные`,
         );
@@ -89,7 +89,7 @@ export async function enrichHHResponses(
           page,
           entityId: response.entityId,
           resumeId: response.resumeId,
-          resumeUrl: response.resumeUrl,
+          resumeUrl: response.profileUrl,
           candidateName: response.candidateName || "",
           globalCandidateId: response.globalCandidateId,
           traceId: `enrich-${response.resumeId}`, // Генерируем traceId на основе resumeId

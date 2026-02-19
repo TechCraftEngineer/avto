@@ -238,7 +238,7 @@ export const refreshAllResumesFunction = inngest.createFunction(
             await updateResponseDetails({
               vacancyId: responseItem.entityId,
               resumeId: responseItem.resumeId ?? "",
-              resumeUrl: responseItem.resumeUrl ?? "",
+              resumeUrl: responseItem.profileUrl ?? "",
               candidateName: responseItem.candidateName ?? "",
               contacts: resumeData.contacts,
               phone: resumeData.phone ?? null,
