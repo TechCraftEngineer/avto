@@ -1,6 +1,6 @@
 import type { CandidateDataFromResponse } from "@qbs-autonaim/db";
 import type { ImportSource, Language, Response } from "@qbs-autonaim/db/schema";
-import { parseBirthDate } from "@qbs-autonaim/lib";
+import { parseBirthDate, parseFullName } from "@qbs-autonaim/lib";
 
 /**
  * Сервис для работы с данными кандидатов
@@ -34,7 +34,7 @@ export class CandidateService {
     );
 
     // Парсим ФИО из полного имени
-    const nameParts = this.parseFullName(response.candidateName ?? "");
+    const nameParts = parseFullName(response.candidateName ?? "");
 
     // Извлекаем опыт работы из profileData
     const experienceYears = this.calculateExperienceYears(
@@ -116,7 +116,7 @@ export class CandidateService {
         personalInfo.name &&
         personalInfo.name.length > (enriched.fullName?.length ?? 0)
       ) {
-        const nameParts = this.parseFullName(personalInfo.name);
+        const nameParts = parseFullName(personalInfo.name);
         enriched.fullName = personalInfo.name;
         enriched.firstName = enriched.firstName ?? nameParts.firstName;
         enriched.lastName = enriched.lastName ?? nameParts.lastName;
@@ -257,59 +257,6 @@ export class CandidateService {
     }
 
     return normalized;
-  }
-
-  /**
-   * Парсинг полного имени на компоненты
-   */
-  private parseFullName(fullName: string | null): {
-    firstName: string | null;
-    lastName: string | null;
-    middleName: string | null;
-  } {
-    if (!fullName || fullName.trim().length === 0) {
-      return {
-        firstName: null,
-        lastName: null,
-        middleName: null,
-      };
-    }
-
-    const parts = fullName
-      .trim()
-      .split(/\s+/)
-      .filter((p) => p.length > 0);
-
-    if (parts.length === 0) {
-      return {
-        firstName: null,
-        lastName: null,
-        middleName: null,
-      };
-    }
-
-    if (parts.length === 1) {
-      return {
-        firstName: parts[0] ?? null,
-        lastName: null,
-        middleName: null,
-      };
-    }
-
-    if (parts.length === 2) {
-      return {
-        firstName: parts[0] ?? null,
-        lastName: parts[1] ?? null,
-        middleName: null,
-      };
-    }
-
-    // 3+ части - считаем что это Фамилия Имя Отчество (для РФ)
-    return {
-      firstName: parts[1] ?? null,
-      lastName: parts[0] ?? null,
-      middleName: parts.slice(2).join(" ") || null,
-    };
   }
 
   /**

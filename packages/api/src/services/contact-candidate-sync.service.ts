@@ -8,6 +8,7 @@
 
 import type { DbClient } from "@qbs-autonaim/db";
 import { eq, GlobalCandidateRepository, globalCandidate } from "@qbs-autonaim/db";
+import { parseFullName } from "@qbs-autonaim/lib";
 
 export interface ContactData {
   name?: string;
@@ -98,6 +99,7 @@ export class ContactCandidateSyncService {
       const mergedData =
         globalCandidateRepository.mergeGlobalCandidateData(existing, {
           fullName: name || existing.fullName || "Без имени",
+          ...parseFullName(name || existing.fullName || "Без имени"),
           email: email || null,
           phone: phone || null,
           telegramUsername: telegramUsername || null,
@@ -143,10 +145,12 @@ export class ContactCandidateSyncService {
     }
 
     // Создаем нового глобального кандидата
+    const fullName = name || "Без имени";
     const { candidate, candidateCreated } =
       await globalCandidateRepository.findOrCreateWithOrganizationLink(
         {
-          fullName: name || "Без имени",
+          fullName,
+          ...parseFullName(fullName),
           email: email || null,
           phone: phone || null,
           telegramUsername: telegramUsername || null,

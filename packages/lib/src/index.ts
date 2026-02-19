@@ -7,6 +7,9 @@ export { InterviewSDKError } from "./errors";
 // Logger utilities
 export { createLogger, logger } from "./logger";
 
+// Name parsing utilities
+export { parseFullName } from "./utils/name-utils";
+
 // Pluralization utilities
 export { getPluralForm } from "./pluralization";
 

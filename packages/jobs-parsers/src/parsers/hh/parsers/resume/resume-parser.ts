@@ -30,6 +30,7 @@ export async function parseResumeData(
   photoMimeType?: string;
   // Полные структурированные данные из LLM
   structuredData?: {
+    personalInfo?: { name?: string };
     education?: Array<{
       institution: string;
       degree?: string;
@@ -55,6 +56,7 @@ export async function parseResumeData(
     photoBuffer?: Buffer;
     photoMimeType?: string;
     structuredData?: {
+      personalInfo?: { name?: string };
       education?: Array<{
         institution: string;
         degree?: string;
@@ -223,6 +225,7 @@ export async function parseResumeData(
 
     // Сохраняем полные структурированные данные для profileData
     result.structuredData = {
+      personalInfo: structuredData.personalInfo,
       education: structuredData.education,
       languages: structuredData.languages?.map((lang) => ({
         name: lang.name,

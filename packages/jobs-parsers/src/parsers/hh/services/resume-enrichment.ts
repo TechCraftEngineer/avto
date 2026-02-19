@@ -5,6 +5,7 @@ import {
   uploadCandidatePhoto,
   uploadResumePdf,
 } from "@qbs-autonaim/jobs/services/response";
+import { parseFullName } from "@qbs-autonaim/lib";
 import type { Page } from "puppeteer";
 import { parseResumeData } from "../parsers/resume/resume-parser";
 
@@ -169,10 +170,19 @@ export async function enrichResumeData(
             }
           }
 
+          const fullName =
+            input.candidateName ||
+            resumeData.structuredData?.personalInfo?.name ||
+            "Без имени";
+          const { firstName, lastName, middleName } = parseFullName(fullName);
+
           const { candidate, candidateCreated } =
             await globalCandidateRepository.findOrCreateWithOrganizationLink(
               {
-                fullName: input.candidateName || "Без имени",
+                fullName,
+                firstName,
+                lastName,
+                middleName,
                 email: email,
                 phone: phone,
                 telegramUsername: telegramUsername,
