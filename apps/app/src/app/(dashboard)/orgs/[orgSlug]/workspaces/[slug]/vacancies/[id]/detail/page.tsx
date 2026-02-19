@@ -175,7 +175,6 @@ export default function VacancyDetailPage({ params }: VacancyDetailPageProps) {
             </div>
 
             <VacancyStats
-              views={vacancy.views}
               responses={vacancy.responses}
               newResponses={vacancy.newResponses}
               resumesInProgress={vacancy.resumesInProgress}

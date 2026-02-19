@@ -29,7 +29,7 @@ interface VacancyFiltersProps {
   onStatusChange: (value: string) => void;
   sortBy: string;
   onSortChange: (
-    value: "createdAt" | "title" | "views" | "responses" | "newResponses",
+    value: "createdAt" | "title" | "responses" | "newResponses",
   ) => void;
   dateFrom: string;
   onDateFromChange: (value: string) => void;
@@ -210,7 +210,6 @@ export function VacancyFilters({
               <SelectItem value="createdAt">По дате создания</SelectItem>
               <SelectItem value="responses">По числу откликов</SelectItem>
               <SelectItem value="newResponses">По новым откликам</SelectItem>
-              <SelectItem value="views">По просмотрам</SelectItem>
               <SelectItem value="title">По алфавиту</SelectItem>
             </SelectContent>
           </Select>

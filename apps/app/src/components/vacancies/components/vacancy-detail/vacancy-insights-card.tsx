@@ -20,7 +20,6 @@ import {
 interface VacancyInsightsCardProps {
   totalResponses: number;
   daysActive: number;
-  views: number;
   isActive: boolean;
   hasPublications: boolean;
 }
@@ -39,41 +38,14 @@ interface Insight {
 export function VacancyInsightsCard({
   totalResponses: initialTotalResponses,
   daysActive,
-  views: initialViews,
   isActive: initialIsActive,
   hasPublications,
 }: VacancyInsightsCardProps) {
-  // Используем данные из пропсов
   const totalResponses = initialTotalResponses;
-  const views = initialViews;
   const isActive = initialIsActive;
 
   const insights: Insight[] = [];
-
-  // Средняя конверсия: 1 отклик на 10-20 просмотров считается нормой
-  const conversionRate = views > 0 ? (totalResponses / views) * 100 : 0;
   const responsesPerDay = daysActive > 0 ? totalResponses / daysActive : 0;
-
-  // Анализ: отличная конверсия
-  if (conversionRate >= 10 && totalResponses > 5) {
-    insights.push({
-      type: "success",
-      title: "Отличная конверсия!",
-      message: `${conversionRate.toFixed(1)}% просмотров превращаются в отклики. Это выше среднего показателя. Вакансия привлекательна для кандидатов.`,
-      icon: IconTrendingUp,
-    });
-  }
-
-  // Анализ: низкая конверсия при хороших просмотрах
-  if (views >= 50 && conversionRate < 3 && totalResponses < 5) {
-    insights.push({
-      type: "warning",
-      title: "Низкая конверсия",
-      message:
-        "Много просмотров, но мало откликов. Рекомендуем улучшить описание вакансии, проверить требования и условия работы.",
-      icon: IconAlertTriangle,
-    });
-  }
 
   // Анализ: хорошая активность откликов
   if (responsesPerDay >= 2 && daysActive >= 3) {
@@ -96,17 +68,6 @@ export function VacancyInsightsCard({
     });
   }
 
-  // Анализ: вакансия неактивна, но есть просмотры
-  if (!isActive && views > 0) {
-    insights.push({
-      type: "info",
-      title: "Вакансия закрыта",
-      message:
-        "Вакансия неактивна, но продолжает получать просмотры. Если позиция всё ещё актуальна, рекомендуем активировать её снова.",
-      icon: IconAlertCircle,
-    });
-  }
-
   // Анализ: нет публикаций
   if (!hasPublications && isActive) {
     insights.push({
@@ -119,7 +80,7 @@ export function VacancyInsightsCard({
   }
 
   // Анализ: новая вакансия без активности
-  if (daysActive <= 2 && totalResponses === 0 && views < 10 && isActive) {
+  if (daysActive <= 2 && totalResponses === 0 && isActive) {
     insights.push({
       type: "info",
       title: "Вакансия только создана",
@@ -130,7 +91,7 @@ export function VacancyInsightsCard({
   }
 
   // Анализ: отличные показатели
-  if (totalResponses >= 10 && conversionRate >= 5 && responsesPerDay >= 1.5) {
+  if (totalResponses >= 10 && responsesPerDay >= 1.5) {
     insights.push({
       type: "success",
       title: "Превосходные результаты!",

@@ -6,7 +6,6 @@ import {
   IconCalendar,
   IconClock,
   IconExternalLink,
-  IconEye,
   IconMapPin,
 } from "@tabler/icons-react";
 import { SourceConfig as SOURCE_CONFIG } from "~/components/vacancy-detail";
@@ -18,7 +17,6 @@ interface VacancyHeaderProps {
     region?: string | null;
     workLocation?: string | null;
     createdAt: Date;
-    views?: number | null;
     url?: string | null;
     isActive: boolean | null;
     publications?: VacancyPublication[] | null;
@@ -137,18 +135,6 @@ export function VacancyHeader({ vacancy }: VacancyHeaderProps) {
               </span>
             </div>
 
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <IconEye className="size-4 text-primary" />
-              <span className="font-medium">
-                {vacancy.views ?? 0}{" "}
-                {pluralize(
-                  vacancy.views ?? 0,
-                  "просмотр",
-                  "просмотра",
-                  "просмотров",
-                )}
-              </span>
-            </div>
           </div>
         </div>
 

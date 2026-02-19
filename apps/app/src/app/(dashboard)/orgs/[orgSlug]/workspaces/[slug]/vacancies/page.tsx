@@ -37,7 +37,7 @@ export default function VacanciesPage() {
     title: string;
   } | null>(null);
   const [sortBy, setSortBy] = useState<
-    "createdAt" | "title" | "views" | "responses" | "newResponses"
+    "createdAt" | "title" | "responses" | "newResponses"
   >("createdAt");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
@@ -99,7 +99,7 @@ export default function VacanciesPage() {
   };
 
   const handleTableSort = (
-    field: "createdAt" | "title" | "views" | "responses" | "newResponses",
+    field: "createdAt" | "title" | "responses" | "newResponses",
   ) => {
     if (sortBy === field) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");

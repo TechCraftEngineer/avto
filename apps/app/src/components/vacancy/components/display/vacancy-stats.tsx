@@ -1,27 +1,22 @@
 import { Card, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui";
-import { Eye, FileText, Inbox, Loader } from "lucide-react";
+import { Eye, Inbox, Loader } from "lucide-react";
 
 interface VacancyStatsProps {
-  views: number | null;
   responses: number | null;
   newResponses: number | null;
   resumesInProgress: number | null;
 }
 
 export function VacancyStats({
-  views,
   responses,
   newResponses,
   resumesInProgress,
 }: VacancyStatsProps) {
-  // Проверяем, есть ли хоть какие-то данные
   const hasAnyData =
-    (views ?? 0) > 0 ||
     (responses ?? 0) > 0 ||
     (newResponses ?? 0) > 0 ||
     (resumesInProgress ?? 0) > 0;
 
-  // Если нет никаких данных - показываем красивое пустое состояние
   if (!hasAnyData) {
     return (
       <Card className="border-dashed col-span-full">
@@ -38,8 +33,7 @@ export function VacancyStats({
             Статистика пока недоступна
           </CardTitle>
           <CardDescription className="text-sm">
-            Данные о просмотрах и откликах появятся после публикации вакансии на
-            платформе
+            Данные об откликах появятся после публикации вакансии на платформе
           </CardDescription>
         </CardHeader>
       </Card>
@@ -47,23 +41,11 @@ export function VacancyStats({
   }
 
   return (
-    <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-2 gap-4 *:data-[slot=card]:bg-linear-to-t *:data-[slot=card]:shadow-xs md:grid-cols-4">
+    <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-2 gap-4 *:data-[slot=card]:bg-linear-to-t *:data-[slot=card]:shadow-xs md:grid-cols-3">
       <Card className="@container/card">
         <CardHeader>
           <div className="flex items-center gap-2 mb-1">
             <Eye className="h-4 w-4 text-muted-foreground" />
-            <CardDescription>Просмотров</CardDescription>
-          </div>
-          <CardTitle className="text-2xl font-semibold tabular-nums">
-            {views ?? 0}
-          </CardTitle>
-        </CardHeader>
-      </Card>
-
-      <Card className="@container/card">
-        <CardHeader>
-          <div className="flex items-center gap-2 mb-1">
-            <FileText className="h-4 w-4 text-muted-foreground" />
             <CardDescription>Откликов</CardDescription>
           </div>
           <CardTitle className="text-2xl font-semibold tabular-nums">

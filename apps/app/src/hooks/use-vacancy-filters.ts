@@ -19,7 +19,7 @@ export function useVacancyFilters(vacancies: Vacancy[] | undefined) {
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<
-    "createdAt" | "title" | "views" | "responses" | "newResponses"
+    "createdAt" | "title" | "responses" | "newResponses"
   >("createdAt");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [dateFrom, setDateFrom] = useState<string>("");

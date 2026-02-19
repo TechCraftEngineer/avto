@@ -109,9 +109,7 @@ export function ActiveVacanciesSelector({
       if (sortBy === "name") {
         return a.title.localeCompare(b.title, "ru");
       }
-      const aViews = parseInt(a.views || "0", 10);
-      const bViews = parseInt(b.views || "0", 10);
-      return bViews - aViews;
+      return 0;
     });
 
     return result;
@@ -279,7 +277,6 @@ export function ActiveVacanciesSelector({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="name">По названию</SelectItem>
-              <SelectItem value="views">По просмотрам</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -370,15 +367,11 @@ export function ActiveVacanciesSelector({
                         </Badge>
                       )}
                     </div>
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                      {vacancy.region && <span>{vacancy.region}</span>}
-                      {vacancy.views && (
-                        <span>Просмотров: {vacancy.views}</span>
-                      )}
-                      {vacancy.responses && (
-                        <span>Откликов: {vacancy.responses}</span>
-                      )}
-                    </div>
+                    {vacancy.region && (
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                        <span>{vacancy.region}</span>
+                      </div>
+                    )}
                   </label>
                 </div>
               ))}

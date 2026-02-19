@@ -21,7 +21,6 @@ interface Vacancy {
   source: string;
   region: string | null;
   workLocation: string | null;
-  views: number | null;
   totalResponsesCount: number | null;
   newResponses: number | null;
   resumesInProgress: number | null;
@@ -54,11 +53,11 @@ export function VacancyTable({
   sortBy: string;
   sortOrder: "asc" | "desc";
   onSortChange: (
-    field: "createdAt" | "title" | "views" | "responses" | "newResponses",
+    field: "createdAt" | "title" | "responses" | "newResponses",
   ) => void;
 }) {
   const handleSort = (
-    field: "createdAt" | "title" | "views" | "responses" | "newResponses",
+    field: "createdAt" | "title" | "responses" | "newResponses",
   ) => {
     onSortChange(field);
   };

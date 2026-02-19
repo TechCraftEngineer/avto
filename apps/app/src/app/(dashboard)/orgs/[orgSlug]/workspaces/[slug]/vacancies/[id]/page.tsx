@@ -142,7 +142,6 @@ export default function VacancyDetailPage() {
         <VacancyInsightsCard
           totalResponses={totalResponses}
           daysActive={daysActive}
-          views={vacancy.views ?? 0}
           isActive={vacancy.isActive ?? false}
           hasPublications={hasPublications}
         />
