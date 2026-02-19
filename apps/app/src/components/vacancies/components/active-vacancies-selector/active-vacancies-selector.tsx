@@ -20,8 +20,7 @@ import {
   TabsTrigger,
 } from "@qbs-autonaim/ui";
 import { AlertCircle, CheckCircle2, Loader2, Search } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
-import { fetchActiveVacanciesListToken } from "~/actions/realtime";
+import { useMemo, useState } from "react";
 
 interface ActiveVacancy {
   id: string;
@@ -38,8 +37,8 @@ type SubscriptionToken = { channel: string; topics: string[]; key: string };
 interface ActiveVacanciesSelectorProps {
   workspaceId: string;
   requestId: string;
-  /** Токен подписки, полученный до отправки события (для доставки progress) */
-  initialToken?: SubscriptionToken;
+  /** Токен подписки — обязателен, получается до отправки события (at-most-once delivery) */
+  token: SubscriptionToken;
   onSelect: (
     selectedIds: string[],
     vacancies: Array<{
@@ -54,7 +53,7 @@ interface ActiveVacanciesSelectorProps {
 export function ActiveVacanciesSelector({
   workspaceId,
   requestId,
-  initialToken,
+  token,
   onSelect,
   onCancel,
 }: ActiveVacanciesSelectorProps) {
@@ -63,15 +62,9 @@ export function ActiveVacanciesSelector({
   const [filterTab, setFilterTab] = useState<"all" | "new" | "imported">("all");
   const [sortBy, setSortBy] = useState<"name" | "views">("name");
 
-  const refreshToken = useCallback(
-    () => fetchActiveVacanciesListToken(workspaceId, requestId),
-    [workspaceId, requestId],
-  );
-
-  // initialToken подключает сразу, без ожидания — progress не теряется (at-most-once)
+  // Один источник токена — один WebSocket
   const { data, error } = useInngestSubscription({
-    token: initialToken as Parameters<typeof useInngestSubscription>[0]["token"],
-    refreshToken,
+    token: token,
     enabled: true,
   });
 

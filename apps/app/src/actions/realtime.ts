@@ -3,8 +3,6 @@
 import { getSubscriptionToken } from "@bunworks/inngest-realtime";
 import {
   analyzeResponseChannel,
-  fetchActiveListChannel,
-  fetchArchivedListChannel,
   importArchivedVacanciesChannel,
   importNewVacanciesChannel,
   refreshAllResumesChannel,
@@ -145,56 +143,6 @@ export async function fetchTelegramMessagesToken(conversationId: string) {
   const token = await getSubscriptionToken(inngest, {
     channel: `telegram-messages-${conversationId}`,
     topics: ["message"],
-  });
-
-  return token;
-}
-
-const WORKSPACE_REQUEST_SCHEMA = z.object({
-  workspaceId: z.string().min(1, "ID рабочей области обязателен"),
-  requestId: z.string().min(1, "ID запроса обязателен"),
-});
-
-/**
- * Server action для получения токена подписки на Realtime канал получения списка активных вакансий
- */
-export async function fetchActiveVacanciesListToken(
-  workspaceId: string,
-  requestId: string,
-) {
-  const validationResult = WORKSPACE_REQUEST_SCHEMA.safeParse({
-    workspaceId,
-    requestId,
-  });
-
-  if (!validationResult.success) {
-    const errors = validationResult.error.issues
-      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
-      .join(", ");
-    throw new Error(`Ошибка валидации: ${errors}`);
-  }
-
-  const token = await getSubscriptionToken(inngest, {
-    channel: fetchActiveListChannel(
-      validationResult.data.workspaceId,
-      validationResult.data.requestId,
-    ),
-    topics: ["progress", "result"],
-  });
-
-  return token;
-}
-
-/**
- * Server action для получения токена подписки на Realtime канал получения списка архивных вакансий
- */
-export async function fetchArchivedVacanciesListToken(
-  workspaceId: string,
-  requestId: string,
-) {
-  const token = await getSubscriptionToken(inngest, {
-    channel: fetchArchivedListChannel(workspaceId, requestId),
-    topics: ["progress", "result"],
   });
 
   return token;

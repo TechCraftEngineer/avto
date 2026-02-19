@@ -161,7 +161,8 @@ export function VacancyImportSection() {
       setIsSelectingArchivedVacancies(true);
 
       // Запускаем получение списка вакансий (токен получается до отправки события)
-      const { requestId, token } = await fetchArchivedVacanciesList(workspaceId);
+      const { requestId, token } =
+        await fetchArchivedVacanciesList(workspaceId);
       setArchivedListRequestId(requestId);
       setArchivedListToken(token);
     } catch (error) {
@@ -358,12 +359,13 @@ export function VacancyImportSection() {
           {/* Selector for active vacancies */}
           {isSelectingActiveVacancies &&
             activeListRequestId &&
+            activeListToken &&
             workspaceId &&
             !isImportingNew && (
               <ActiveVacanciesSelector
                 workspaceId={workspaceId}
                 requestId={activeListRequestId}
-                initialToken={activeListToken ?? undefined}
+                token={activeListToken}
                 onSelect={handleActiveVacanciesSelected}
                 onCancel={handleActiveVacanciesCancel}
               />
@@ -372,12 +374,13 @@ export function VacancyImportSection() {
           {/* Selector for archived vacancies */}
           {isSelectingArchivedVacancies &&
             archivedListRequestId &&
+            archivedListToken &&
             workspaceId &&
             !isImportingArchived && (
               <ArchivedVacanciesSelector
                 workspaceId={workspaceId}
                 requestId={archivedListRequestId}
-                initialToken={archivedListToken ?? undefined}
+                token={archivedListToken}
                 onSelect={handleArchivedVacanciesSelected}
                 onCancel={handleArchivedVacanciesCancel}
               />

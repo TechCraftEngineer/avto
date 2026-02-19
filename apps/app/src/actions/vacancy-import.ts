@@ -174,41 +174,6 @@ export async function fetchActiveVacanciesList(workspaceId: string) {
   };
 }
 
-const workspaceRequestSchema = z.object({
-  workspaceId: z.string().min(1, "ID рабочей области обязателен"),
-  requestId: z.string().min(1, "ID запроса обязателен"),
-});
-
-/**
- * Server action для получения токена подписки на канал получения списка активных вакансий
- */
-export async function fetchActiveVacanciesListToken(
-  workspaceId: string,
-  requestId: string,
-) {
-  const validationResult = workspaceRequestSchema.safeParse({
-    workspaceId,
-    requestId,
-  });
-
-  if (!validationResult.success) {
-    const errors = validationResult.error.issues
-      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
-      .join(", ");
-    throw new Error(`Ошибка валидации: ${errors}`);
-  }
-
-  const token = await getSubscriptionToken(inngest, {
-    channel: fetchActiveListChannel(
-      validationResult.data.workspaceId,
-      validationResult.data.requestId,
-    ),
-    topics: ["progress", "result"],
-  });
-
-  return token;
-}
-
 /**
  * Server action для получения списка архивных вакансий для предпросмотра.
  * Возвращает requestId и токен подписки. Токен получается ДО отправки события,
@@ -248,21 +213,6 @@ export async function fetchArchivedVacanciesList(workspaceId: string) {
     requestId,
     token: token as unknown as { channel: string; topics: string[]; key: string },
   };
-}
-
-/**
- * Server action для получения токена подписки на канал получения списка архивных вакансий
- */
-export async function fetchArchivedVacanciesListToken(
-  workspaceId: string,
-  requestId: string,
-) {
-  const token = await getSubscriptionToken(inngest, {
-    channel: fetchArchivedListChannel(workspaceId, requestId),
-    topics: ["progress", "result"],
-  });
-
-  return token;
 }
 
 const selectedVacanciesSchema = z.object({
