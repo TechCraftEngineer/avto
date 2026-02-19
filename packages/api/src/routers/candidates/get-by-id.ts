@@ -1,7 +1,7 @@
 import { and, eq } from "@qbs-autonaim/db";
 import {
-  candidate as candidateTable,
   file as fileTable,
+  globalCandidate,
   interviewMessage as interviewMessageTable,
   interviewScoring as interviewScoringTable,
   interviewSession as interviewSessionTable,
@@ -162,10 +162,10 @@ export const getById = protectedProcedure
     }
 
     // Получаем информацию о глобальном кандидате, если он связан
-    let globalCandidate = null;
+    let globalCandidateData = null;
     if (response.globalCandidateId) {
-      globalCandidate = await ctx.db.query.candidate.findFirst({
-        where: eq(candidateTable.id, response.globalCandidateId),
+      globalCandidateData = await ctx.db.query.globalCandidate.findFirst({
+        where: eq(globalCandidate.id, response.globalCandidateId),
         columns: {
           id: true,
           fullName: true,
@@ -198,7 +198,7 @@ export const getById = protectedProcedure
           .toUpperCase()
           .slice(0, 2) || "??",
       experience: formatExperienceText(response.profileData) || "Не указан", // Из profileData
-      location: globalCandidate?.location || "Не указано",
+      location: globalCandidateData?.location || "Не указано",
       matchScore,
       resumeScore,
       interviewScore,
@@ -207,35 +207,36 @@ export const getById = protectedProcedure
       availability: "Не указано",
       salaryExpectation:
         response.salaryExpectationsAmount ||
-        globalCandidate?.salaryExpectationsAmount ||
+        globalCandidateData?.salaryExpectationsAmount ||
         "Не указано",
       stage,
       status: response.status,
       hrSelectionStatus: response.hrSelectionStatus,
       vacancyId: response.entityId,
       vacancyName: vacancyData.title || "Неизвестная вакансия",
-      email: email || globalCandidate?.email || null,
-      phone: contactPhone || globalCandidate?.phone || null,
+      email: email || globalCandidateData?.email || null,
+      phone: contactPhone || globalCandidateData?.phone || null,
       github: github,
-      telegram: telegram || globalCandidate?.telegramUsername || null,
+      telegram: telegram || globalCandidateData?.telegramUsername || null,
       resumePdfUrl,
       messageCount: messageCount,
       globalCandidateId: response.globalCandidateId,
-      globalCandidate: globalCandidate
+      globalCandidate: globalCandidateData
         ? {
-            id: globalCandidate.id,
-            fullName: globalCandidate.fullName,
-            email: globalCandidate.email,
-            phone: globalCandidate.phone,
-            telegramUsername: globalCandidate.telegramUsername,
-            location: globalCandidate.location,
-            headline: globalCandidate.headline,
-            skills: globalCandidate.skills,
-            experienceYears: globalCandidate.experienceYears,
-            salaryExpectationsAmount: globalCandidate.salaryExpectationsAmount,
-            resumeUrl: globalCandidate.resumeUrl,
-            createdAt: globalCandidate.createdAt,
-            updatedAt: globalCandidate.updatedAt,
+            id: globalCandidateData.id,
+            fullName: globalCandidateData.fullName,
+            email: globalCandidateData.email,
+            phone: globalCandidateData.phone,
+            telegramUsername: globalCandidateData.telegramUsername,
+            location: globalCandidateData.location,
+            headline: globalCandidateData.headline,
+            skills: globalCandidateData.skills,
+            experienceYears: globalCandidateData.experienceYears,
+            salaryExpectationsAmount:
+              globalCandidateData.salaryExpectationsAmount,
+            resumeUrl: globalCandidateData.resumeUrl,
+            createdAt: globalCandidateData.createdAt,
+            updatedAt: globalCandidateData.updatedAt,
           }
         : null,
       createdAt: response.createdAt,

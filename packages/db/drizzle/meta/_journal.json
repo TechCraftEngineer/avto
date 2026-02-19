@@ -43,6 +43,13 @@
       "when": 1771238438187,
       "tag": "0005_shocking_shiver_man",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1771482720365,
+      "tag": "0006_square_norrin_radd",
+      "breakpoints": true
     }
   ]
 }

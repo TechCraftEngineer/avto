@@ -5,7 +5,7 @@
  * bun run link-responses-to-candidates [workspaceId] [--all] [--dry-run]
  */
 
-import { CandidateRepository, eq } from "@qbs-autonaim/db";
+import { eq, GlobalCandidateRepository } from "@qbs-autonaim/db";
 import { db, pool } from "@qbs-autonaim/db/client";
 import {
   response as responseTable,
@@ -37,7 +37,7 @@ async function linkResponsesToCandidates(
   };
 
   try {
-    const candidateRepository = new CandidateRepository(db);
+    const globalCandidateRepository = new GlobalCandidateRepository(db);
     const candidateService = new CandidateService();
     const processResponse = async (
       responseItem: typeof responseTable.$inferSelect,
@@ -83,10 +83,10 @@ async function linkResponsesToCandidates(
         if (options.dryRun) {
           // Для dry-run используем только поиск, без записи в БД
           const existingCandidate =
-            await candidateRepository.findCandidateByContacts({
-              organizationId: workspaceData.organizationId,
+            await globalCandidateRepository.findGlobalCandidateByContacts({
               email: normalizedData.email ?? null,
               phone: normalizedData.phone ?? null,
+              telegramUsername: normalizedData.telegramUsername ?? null,
             });
 
           if (existingCandidate) {
@@ -99,10 +99,18 @@ async function linkResponsesToCandidates(
           return;
         }
 
-        const { candidate, created } =
-          await candidateRepository.findOrCreateCandidate(normalizedData);
+        const { organizationId, ...globalCandidateData } = normalizedData;
+        const { candidate, candidateCreated } =
+          await globalCandidateRepository.findOrCreateWithOrganizationLink(
+            globalCandidateData,
+            {
+              organizationId,
+              status: "ACTIVE",
+              appliedAt: new Date(),
+            },
+          );
 
-        if (created) {
+        if (candidateCreated) {
           stats.candidatesCreated++;
         } else {
           stats.candidatesFound++;

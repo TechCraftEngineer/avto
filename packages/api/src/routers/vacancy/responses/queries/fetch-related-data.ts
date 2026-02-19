@@ -1,7 +1,7 @@
 import type { DbClient } from "@qbs-autonaim/db";
 import { inArray, sql } from "@qbs-autonaim/db";
 import {
-  candidate,
+  globalCandidate,
   interviewMessage,
   interviewScoring,
   interviewSession,
@@ -17,8 +17,8 @@ export async function fetchGlobalCandidates(
     return [];
   }
 
-  return await db.query.candidate.findMany({
-    where: inArray(candidate.id, globalCandidateIds),
+  return await db.query.globalCandidate.findMany({
+    where: inArray(globalCandidate.id, globalCandidateIds),
     columns: {
       id: true,
       location: true,

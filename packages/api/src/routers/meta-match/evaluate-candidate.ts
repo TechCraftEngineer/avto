@@ -1,7 +1,7 @@
 import { eq } from "@qbs-autonaim/db";
 import {
-  candidate as candidateTable,
   gig,
+  globalCandidate,
   metaMatchReport,
   response as responseTable,
   vacancy,
@@ -94,11 +94,11 @@ export const evaluateCandidate = protectedProcedure
 
     let resolvedBirthDate = input.birthDate ?? null;
     if (!resolvedBirthDate && response.globalCandidateId) {
-      const globalCandidate = await ctx.db.query.candidate.findFirst({
-        where: eq(candidateTable.id, response.globalCandidateId),
+      const gc = await ctx.db.query.globalCandidate.findFirst({
+        where: eq(globalCandidate.id, response.globalCandidateId),
         columns: { birthDate: true },
       });
-      resolvedBirthDate = globalCandidate?.birthDate ?? null;
+      resolvedBirthDate = gc?.birthDate ?? null;
     }
 
     if (!resolvedBirthDate) {

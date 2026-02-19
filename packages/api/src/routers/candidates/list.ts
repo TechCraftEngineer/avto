@@ -1,7 +1,7 @@
 import { and, desc, eq, ilike, inArray, lt, or } from "@qbs-autonaim/db";
 import {
-  candidate as candidateTable,
   file as fileTable,
+  globalCandidate,
   interviewMessage as interviewMessageTable,
   interviewScoring as interviewScoringTable,
   interviewSession as interviewSessionTable,
@@ -252,8 +252,8 @@ export const list = protectedProcedure
 
     const globalCandidates =
       globalCandidateIds.length > 0
-        ? await ctx.db.query.candidate.findMany({
-            where: inArray(candidateTable.id, globalCandidateIds),
+        ? await ctx.db.query.globalCandidate.findMany({
+            where: inArray(globalCandidate.id, globalCandidateIds),
             columns: {
               id: true,
               fullName: true,

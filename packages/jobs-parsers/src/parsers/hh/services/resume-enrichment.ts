@@ -1,4 +1,4 @@
-import { CandidateRepository } from "@qbs-autonaim/db";
+import { GlobalCandidateRepository } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import {
   updateResponseDetails,
@@ -136,7 +136,7 @@ export async function enrichResumeData(
         });
 
         if (vacancy?.workspace?.organizationId) {
-          const candidateRepository = new CandidateRepository(db);
+          const globalCandidateRepository = new GlobalCandidateRepository(db);
 
           // Рассчитываем опыт работы в годах
           let experienceYears: number | undefined;
@@ -169,25 +169,31 @@ export async function enrichResumeData(
             }
           }
 
-          const { candidate, created } =
-            await candidateRepository.findOrCreateCandidate({
-              organizationId: vacancy.workspace.organizationId,
-              fullName: input.candidateName || "Без имени",
-              email: email,
-              phone: phone,
-              telegramUsername: telegramUsername,
-              resumeUrl: input.resumeUrl || null,
-              source: "APPLICANT",
-              originalSource: "HH",
-              profileData: profileData,
-              skills: resumeData.structuredData?.skills || null,
-              experienceYears: experienceYears,
-              birthDate: resumeData.birthDate || null,
-            });
+          const { candidate, candidateCreated } =
+            await globalCandidateRepository.findOrCreateWithOrganizationLink(
+              {
+                fullName: input.candidateName || "Без имени",
+                email: email,
+                phone: phone,
+                telegramUsername: telegramUsername,
+                resumeUrl: input.resumeUrl || null,
+                source: "APPLICANT",
+                originalSource: "HH",
+                profileData: profileData,
+                skills: resumeData.structuredData?.skills || null,
+                experienceYears: experienceYears,
+                birthDate: resumeData.birthDate || null,
+              },
+              {
+                organizationId: vacancy.workspace.organizationId,
+                status: "ACTIVE",
+                appliedAt: new Date(),
+              },
+            );
 
           globalCandidateId = candidate.id;
 
-          if (created) {
+          if (candidateCreated) {
             console.log(
               `✅ Создан глобальный кандидат при обогащении: ${candidate.id}`,
             );

@@ -6,7 +6,7 @@
  * Публичная процедура - не требует авторизации пользователя.
  */
 
-import { and, CandidateRepository, candidate, eq } from "@qbs-autonaim/db";
+import { and, eq, GlobalCandidateRepository, globalCandidate } from "@qbs-autonaim/db";
 import {
   prequalificationSession,
   type Response,
@@ -209,22 +209,28 @@ export const submitApplication = publicProcedure
             const normalizedData =
               candidateService.normalizeCandidateData(enrichedData);
 
-            // Обновляем кандидата дополнительными данными
-            const existingCandidate = await ctx.db.query.candidate.findFirst({
-              where: eq(candidate.id, globalCandidateId),
-            });
+            // Обновляем глобального кандидата дополнительными данными
+            const existingCandidate =
+              await ctx.db.query.globalCandidate.findFirst({
+                where: eq(globalCandidate.id, globalCandidateId),
+              });
 
             if (existingCandidate) {
-              const candidateRepository = new CandidateRepository(ctx.db);
-              const mergedData = candidateRepository.mergeCandidateData(
-                existingCandidate,
-                normalizedData,
+              const globalCandidateRepository = new GlobalCandidateRepository(
+                ctx.db,
               );
+              const { organizationId: _orgId, ...candidateData } =
+                normalizedData;
+              const mergedData =
+                globalCandidateRepository.mergeGlobalCandidateData(
+                  existingCandidate,
+                  candidateData,
+                );
               if (Object.keys(mergedData).length > 0) {
                 await ctx.db
-                  .update(candidate)
+                  .update(globalCandidate)
                   .set(mergedData)
-                  .where(eq(candidate.id, globalCandidateId));
+                  .where(eq(globalCandidate.id, globalCandidateId));
               }
             }
           }

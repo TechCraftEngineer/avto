@@ -2,7 +2,7 @@
  * ContactCandidateSyncService - Сервис для автоматического создания/обновления кандидатов
  * на основе контактных данных
  *
- * Автоматически создает записи в таблице candidates когда появляются контактные данные
+ * Автоматически создает записи в таблице global_candidates когда появляются контактные данные
  * кандидата (телефон, email, telegram username)
  */
 
@@ -47,7 +47,7 @@ export interface ContactSyncResult {
 }
 
 /**
- * Сервис для синхронизации контактных данных с таблицей candidates
+ * Сервис для синхронизации контактных данных с таблицей global_candidates
  */
 export class ContactCandidateSyncService {
   constructor(private db: DbClient) {}

@@ -13,7 +13,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
-import { candidate } from "../candidate/candidate";
+import { globalCandidate } from "../candidate/global-candidate";
 import { file } from "../file";
 import {
   candidateContactColumns,
@@ -54,7 +54,7 @@ export const response = pgTable(
 
     // Связь с глобальным профилем кандидата (Global Talent Pool)
     globalCandidateId: uuid("global_candidate_id").references(
-      () => candidate.id,
+      () => globalCandidate.id,
       { onDelete: "set null" },
     ),
 
