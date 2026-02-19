@@ -38,7 +38,10 @@ export async function extractVacancyDataFromHtml(
   try {
     const idFromParam = vacancyUrl.match(/[?&]id=(\d+)/)?.[1];
     const idFromPath = vacancyUrl.match(/\/vacancy\/(\d+)/)?.[1];
-    const externalId = idFromParam ?? idFromPath ?? "";
+    const idFromEmployerView =
+      vacancyUrl.match(/\/vacancy\/view\/(\d+)/)?.[1];
+    const externalId =
+      idFromParam ?? idFromPath ?? idFromEmployerView ?? "";
 
     if (!externalId) {
       console.warn(`⚠️ Не удалось извлечь externalId из URL: ${vacancyUrl}`);
@@ -100,7 +103,9 @@ export async function extractVacancyDataFromHtml(
       return null;
     }
 
-    const description = buildDescriptionFromSections(extracted);
+    // Fallback на bareHtml если AI не разбил по секциям (для корректного извлечения требований)
+    const description =
+      buildDescriptionFromSections(extracted) || bareHtml.trim();
 
     return {
       description,
@@ -140,8 +145,12 @@ async function fetchPrintPageContent(
     HH_CONFIG.delays.readingPage.max,
   );
 
+  // Для HH employer view print-страницы структура может отличаться от публичной
   const content = await page.evaluate(() => {
-    const mainContent = document.querySelector("div.main-content");
+    const mainContent =
+      document.querySelector("div.main-content") ??
+      document.querySelector(".vacancy-section, .vacancy-description") ??
+      document.querySelector("[data-qa='vacancy-description']");
     return mainContent?.innerHTML ?? document.body.innerHTML;
   });
   return content;
@@ -162,11 +171,14 @@ export async function extractVacancyDataWithAI(
   try {
     const idFromParam = vacancyUrl.match(/[?&]id=(\d+)/)?.[1];
     const idFromPath = vacancyUrl.match(/\/vacancy\/(\d+)/)?.[1];
-    const externalId = idFromParam ?? idFromPath ?? "";
+    const idFromEmployerView =
+      vacancyUrl.match(/\/vacancy\/view\/(\d+)/)?.[1];
+    const externalId =
+      idFromParam ?? idFromPath ?? idFromEmployerView ?? "";
 
     if (!externalId) {
       console.warn(
-        `⚠️ Не удалось извлечь externalId из URL: ${vacancyUrl} (idFromParam=${idFromParam ?? "null"}, idFromPath=${idFromPath ?? "null"})`,
+        `⚠️ Не удалось извлечь externalId из URL: ${vacancyUrl} (idFromParam=${idFromParam ?? "null"}, idFromPath=${idFromPath ?? "null"}, idFromEmployerView=${idFromEmployerView ?? "null"})`,
       );
       return null;
     }
@@ -194,7 +206,11 @@ export async function extractVacancyDataWithAI(
       return null;
     }
 
-    const description = buildDescriptionFromSections(extracted);
+    // description для saveBasicVacancy; используется для triggerVacancyRequirementsExtraction.
+    // Если AI не разбил по секциям (пустой результат) — используем bareHtml как fallback,
+    // чтобы извлечение требований всегда запускалось при наличии контента.
+    const description =
+      buildDescriptionFromSections(extracted) || bareHtml.trim();
 
     const vacancyData: VacancyData = {
       id: externalId,
