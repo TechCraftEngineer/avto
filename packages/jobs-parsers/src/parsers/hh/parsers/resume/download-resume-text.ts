@@ -1,9 +1,8 @@
-import axios from "axios";
 import type { Page } from "puppeteer";
-import { HH_CONFIG } from "../../core/config/config";
 
 /**
- * Скачивает текстовую версию резюме с HH.ru
+ * Скачивает текстовую версию резюме с HH.ru через Puppeteer
+ * (с той же сессией и куками, что и основная страница)
  */
 export async function downloadResumeText(
   page: Page,
@@ -29,47 +28,31 @@ export async function downloadResumeText(
 
     console.log(`📄 URL: ${fileUrl}`);
 
-    const cookies = await page.browserContext().cookies();
-    const cookieString = cookies
-      .map((cookie) => `${cookie.name}=${cookie.value}`)
-      .join("; ");
+    const currentUrl = page.url();
 
-    const response = await axios.get(fileUrl, {
-      headers: {
-        Accept: "text/plain,text/html,*/*",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Accept-Language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
-        "Cache-Control": "no-cache",
-        Connection: "keep-alive",
-        Cookie: cookieString,
-        Host: "hh.ru",
-        Pragma: "no-cache",
-        Referer: resumeUrl,
-        "Sec-Ch-Ua":
-          '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
-        "Sec-Ch-Ua-Mobile": "?0",
-        "Sec-Ch-Ua-Platform": '"Windows"',
-        "Sec-Fetch-Dest": "document",
-        "Sec-Fetch-Mode": "navigate",
-        "Sec-Fetch-Site": "same-origin",
-        "Sec-Fetch-User": "?1",
-        "Upgrade-Insecure-Requests": "1",
-        "User-Agent": HH_CONFIG.userAgent,
-      },
-      responseType: "text",
+    await page.goto(fileUrl, {
+      waitUntil: "domcontentloaded",
       timeout: 30000,
-      maxRedirects: 5,
+      referer: resumeUrl,
     });
 
-    const text = response.data;
+    const text = await page.evaluate(
+      () => document.body?.innerText ?? document.body?.textContent ?? "",
+    );
 
-    if (!text || typeof text !== "string" || text.length === 0) {
+    // Возвращаем страницу на исходный URL
+    await page.goto(currentUrl, {
+      waitUntil: "domcontentloaded",
+      timeout: 30000,
+    });
+
+    if (!text || text.length === 0) {
       console.log("⚠️ Скачанный файл пустой");
       return null;
     }
 
     console.log(`✅ Текст резюме скачан (${text.length} символов)`);
-    return text;
+    return text.trim();
   } catch (error) {
     console.error("❌ Ошибка скачивания текста резюме:", error);
     return null;
