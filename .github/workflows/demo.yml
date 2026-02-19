@@ -10,6 +10,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   deploy:
+    if: false
     runs-on: self-hosted
     steps:
       - name: Checkout
