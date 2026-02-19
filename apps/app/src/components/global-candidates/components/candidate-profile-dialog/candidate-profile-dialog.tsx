@@ -47,6 +47,7 @@ import {
   UserX,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { useMediaQuery } from "~/hooks/use-media-query";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { getAvatarUrl } from "~/lib/avatar";
@@ -179,7 +180,7 @@ function ProfileContent({
     .slice(0, 2);
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col min-h-0 flex-1 overflow-hidden">
       {/* Заголовок с основной информацией */}
       <div className="flex items-start gap-4 pb-4">
         <Avatar className="h-16 w-16 border shrink-0">
@@ -245,14 +246,14 @@ function ProfileContent({
       <Separator className="my-4" />
 
       {/* Табы */}
-      <Tabs defaultValue="info" className="flex-1 overflow-hidden">
+      <Tabs defaultValue="info" className="flex-1 min-h-0 overflow-hidden flex flex-col">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="info">Информация</TabsTrigger>
           <TabsTrigger value="responses">Отклики</TabsTrigger>
           <TabsTrigger value="notes">Заметки</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="info" className="mt-4 overflow-y-auto">
+        <TabsContent value="info" className="mt-4 overflow-y-auto min-h-0 flex-1">
           <div className="space-y-4">
             {/* Контакты */}
             <div className="space-y-2">
@@ -396,7 +397,7 @@ function ProfileContent({
           </div>
         </TabsContent>
 
-        <TabsContent value="responses" className="mt-4 overflow-y-auto">
+        <TabsContent value="responses" className="mt-4 overflow-y-auto min-h-0 flex-1">
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
@@ -436,7 +437,7 @@ function ProfileContent({
           )}
         </TabsContent>
 
-        <TabsContent value="notes" className="mt-4 overflow-y-auto">
+        <TabsContent value="notes" className="mt-4 overflow-y-auto min-h-0 flex-1">
           <div className="space-y-3">
             {isEditingNotes ? (
               <div className="space-y-3">
@@ -495,14 +496,15 @@ export function CandidateProfileDialog({
 }: CandidateProfileDialogProps) {
   const { workspace } = useWorkspaceContext();
   const organizationId = workspace?.organizationId;
+  const isDesktop = useMediaQuery("(min-width: 768px)"); // Должен вызываться до early return
 
   if (!candidate) return null;
 
-  return (
-    <>
-      {/* Desktop Dialog */}
+  // Рендерим только один компонент — иначе два overlay (Dialog + Sheet) складываются и затемняют экран вдвойне
+  if (isDesktop) {
+    return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden hidden md:flex flex-col">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
           <DialogHeader className="sr-only">
             <DialogTitle>Профиль кандидата {candidate.fullName}</DialogTitle>
           </DialogHeader>
@@ -514,21 +516,22 @@ export function CandidateProfileDialog({
           />
         </DialogContent>
       </Dialog>
+    );
+  }
 
-      {/* Mobile Sheet */}
-      <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent className="w-full sm:max-w-lg md:hidden overflow-y-auto">
-          <SheetHeader className="sr-only">
-            <SheetTitle>Профиль кандидата {candidate.fullName}</SheetTitle>
-          </SheetHeader>
-          <ProfileContent
-            candidate={candidate}
-            organizationId={organizationId}
-            onStatusChange={onStatusChange}
-            onOpenChange={onOpenChange}
-          />
-        </SheetContent>
-      </Sheet>
-    </>
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
+        <SheetHeader className="sr-only">
+          <SheetTitle>Профиль кандидата {candidate.fullName}</SheetTitle>
+        </SheetHeader>
+        <ProfileContent
+          candidate={candidate}
+          organizationId={organizationId}
+          onStatusChange={onStatusChange}
+          onOpenChange={onOpenChange}
+        />
+      </SheetContent>
+    </Sheet>
   );
 }
