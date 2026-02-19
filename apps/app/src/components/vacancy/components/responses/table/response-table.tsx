@@ -323,6 +323,7 @@ export function ResponseTable({
         onStatusFilterChange={setStatusFilter}
         search={searchInput}
         onSearchChange={handleSearchChange}
+        onRefresh={handleRefreshResponses}
         onRefreshComplete={handleRefreshComplete}
         onScreenNew={handleScreenNew}
         onScreenAll={handleScreenAll}

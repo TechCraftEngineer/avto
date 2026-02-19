@@ -7,7 +7,6 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { createMockToken } from "~/test-utils/mock-token";
 import { ArchivedVacanciesSelector } from "./archived-vacancies-selector";
 
 // Mock dependencies
@@ -48,10 +47,12 @@ beforeEach(() => {
 describe("ArchivedVacanciesSelector", () => {
   const mockWorkspaceId = "workspace-123";
   const mockRequestId = "request-123";
-  const mockToken = createMockToken(
-    `fetch-archived-list:${mockWorkspaceId}:${mockRequestId}`,
-    ["progress", "result"],
-  );
+  const mockToken = {
+    channel: `fetch-archived-list:${mockWorkspaceId}:${mockRequestId}`,
+    topics: ["progress", "result"],
+    key: "mock-key",
+  };
+  const mockGetToken = async () => mockToken;
   const mockOnSelect = mock(() => {});
   const mockOnCancel = mock(() => {});
 
@@ -60,7 +61,7 @@ describe("ArchivedVacanciesSelector", () => {
       <ArchivedVacanciesSelector
         workspaceId={mockWorkspaceId}
         requestId={mockRequestId}
-        token={mockToken}
+        token={mockToken as any}
         onSelect={mockOnSelect}
         onCancel={mockOnCancel}
       />,
@@ -78,7 +79,7 @@ describe("ArchivedVacanciesSelector", () => {
       <ArchivedVacanciesSelector
         workspaceId={mockWorkspaceId}
         requestId={mockRequestId}
-        token={mockToken}
+        getToken={mockGetToken}
         onSelect={mockOnSelect}
         onCancel={mockOnCancel}
       />,
@@ -97,7 +98,7 @@ describe("ArchivedVacanciesSelector", () => {
       <ArchivedVacanciesSelector
         workspaceId={mockWorkspaceId}
         requestId={mockRequestId}
-        token={mockToken}
+        getToken={mockGetToken}
         onSelect={mockOnSelect}
         onCancel={mockOnCancel}
       />,
@@ -119,7 +120,7 @@ describe("ArchivedVacanciesSelector", () => {
       <ArchivedVacanciesSelector
         workspaceId={mockWorkspaceId}
         requestId={mockRequestId}
-        token={mockToken}
+        getToken={mockGetToken}
         onSelect={mockOnSelect}
         onCancel={mockOnCancel}
       />,
@@ -152,7 +153,7 @@ describe("ArchivedVacanciesSelector", () => {
       <ArchivedVacanciesSelector
         workspaceId={mockWorkspaceId}
         requestId={mockRequestId}
-        token={mockToken}
+        getToken={mockGetToken}
         onSelect={mockOnSelect}
         onCancel={mockOnCancel}
       />,
@@ -187,7 +188,7 @@ describe("ArchivedVacanciesSelector", () => {
       <ArchivedVacanciesSelector
         workspaceId={mockWorkspaceId}
         requestId={mockRequestId}
-        token={mockToken}
+        getToken={mockGetToken}
         onSelect={mockOnSelect}
         onCancel={mockOnCancel}
       />,
@@ -210,7 +211,7 @@ describe("ArchivedVacanciesSelector", () => {
       <ArchivedVacanciesSelector
         workspaceId={mockWorkspaceId}
         requestId={mockRequestId}
-        token={mockToken}
+        getToken={mockGetToken}
         onSelect={mockOnSelect}
         onCancel={mockOnCancel}
       />,
@@ -232,7 +233,7 @@ describe("ArchivedVacanciesSelector", () => {
       <ArchivedVacanciesSelector
         workspaceId={mockWorkspaceId}
         requestId={mockRequestId}
-        token={mockToken}
+        getToken={mockGetToken}
         onSelect={mockOnSelect}
         onCancel={mockOnCancel}
       />,
@@ -258,7 +259,7 @@ describe("ArchivedVacanciesSelector", () => {
       <ArchivedVacanciesSelector
         workspaceId={mockWorkspaceId}
         requestId={mockRequestId}
-        token={mockToken}
+        getToken={mockGetToken}
         onSelect={mockOnSelect}
         onCancel={mockOnCancel}
       />,
@@ -276,7 +277,7 @@ describe("ArchivedVacanciesSelector", () => {
       <ArchivedVacanciesSelector
         workspaceId={mockWorkspaceId}
         requestId={mockRequestId}
-        token={mockToken}
+        getToken={mockGetToken}
         onSelect={mockOnSelect}
         onCancel={mockOnCancel}
       />,
@@ -292,7 +293,7 @@ describe("ArchivedVacanciesSelector", () => {
       <ArchivedVacanciesSelector
         workspaceId={mockWorkspaceId}
         requestId={mockRequestId}
-        token={mockToken}
+        getToken={mockGetToken}
         onSelect={mockOnSelect}
         onCancel={mockOnCancel}
       />,
@@ -321,7 +322,7 @@ describe("ArchivedVacanciesSelector", () => {
       <ArchivedVacanciesSelector
         workspaceId={mockWorkspaceId}
         requestId={mockRequestId}
-        token={mockToken}
+        getToken={mockGetToken}
         onSelect={mockOnSelect}
         onCancel={mockOnCancel}
       />,
@@ -345,7 +346,7 @@ describe("ArchivedVacanciesSelector", () => {
       <ArchivedVacanciesSelector
         workspaceId={mockWorkspaceId}
         requestId={mockRequestId}
-        token={mockToken}
+        getToken={mockGetToken}
         onSelect={mockOnSelect}
         onCancel={mockOnCancel}
       />,
@@ -376,7 +377,7 @@ describe("ArchivedVacanciesSelector", () => {
       <ArchivedVacanciesSelector
         workspaceId={mockWorkspaceId}
         requestId={mockRequestId}
-        token={mockToken}
+        getToken={mockGetToken}
         onSelect={mockOnSelect}
         onCancel={mockOnCancel}
       />,

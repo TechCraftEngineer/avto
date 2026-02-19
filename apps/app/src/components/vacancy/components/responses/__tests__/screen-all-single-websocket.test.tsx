@@ -140,6 +140,7 @@ describe("screen-all (анализ всех откликов) — один WebSo
       onStatusFilterChange: () => {},
       search: "",
       onSearchChange: () => {},
+      onRefresh: () => {},
       onRefreshComplete: () => {},
       onScreenNew: () => {},
       onScreenAll: mockOnScreenAll,

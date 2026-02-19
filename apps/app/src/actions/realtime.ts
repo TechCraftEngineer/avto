@@ -3,6 +3,8 @@
 import { getSubscriptionToken } from "@bunworks/inngest-realtime";
 import {
   analyzeResponseChannel,
+  fetchActiveListChannel,
+  fetchArchivedListChannel,
   importArchivedVacanciesChannel,
   importNewVacanciesChannel,
   refreshAllResumesChannel,
@@ -240,5 +242,43 @@ export async function fetchScreenBatchToken(
   } catch (error) {
     console.error("Ошибка получения токена batch скрининга:", error);
     return null;
+  }
+}
+
+/**
+ * Server action для получения токена подписки на Realtime канал списка активных вакансий
+ */
+export async function fetchActiveVacanciesListToken(
+  workspaceId: string,
+  requestId: string,
+) {
+  try {
+    const token = await getSubscriptionToken(inngest, {
+      channel: fetchActiveListChannel(workspaceId, requestId),
+      topics: ["progress", "result"],
+    });
+    return token;
+  } catch (error) {
+    console.error("Ошибка получения токена списка активных вакансий:", error);
+    throw error;
+  }
+}
+
+/**
+ * Server action для получения токена подписки на Realtime канал списка архивных вакансий
+ */
+export async function fetchArchivedVacanciesListToken(
+  workspaceId: string,
+  requestId: string,
+) {
+  try {
+    const token = await getSubscriptionToken(inngest, {
+      channel: fetchArchivedListChannel(workspaceId, requestId),
+      topics: ["progress", "result"],
+    });
+    return token;
+  } catch (error) {
+    console.error("Ошибка получения токена списка архивных вакансий:", error);
+    throw error;
   }
 }

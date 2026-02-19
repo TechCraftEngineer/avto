@@ -3,6 +3,7 @@ import type { ScreeningFilter } from "~/components";
 import { ResponseActionButtons } from "../actions/response-action-buttons";
 import { useVacancyOperation } from "../context/vacancy-responses-context";
 import { ResponseSearchFilter } from "../filters/response-search-filter";
+import { useRefreshState } from "../hooks/use-refresh-state";
 import type { ResponseStatusFilterUI } from "../hooks/use-response-table";
 import { useScreeningState } from "../hooks/use-screening-state";
 import { useSyncArchivedState } from "../hooks/use-sync-archived-state";
@@ -18,6 +19,7 @@ interface ResponseTableToolbarProps {
   onStatusFilterChange: (statuses: ResponseStatusFilterUI[]) => void;
   search: string;
   onSearchChange: (value: string) => void;
+  onRefresh: () => void;
   onRefreshComplete: () => void;
   onScreenNew: () => void;
   onScreenAll: () => void;
@@ -40,6 +42,7 @@ export function ResponseTableToolbar({
   onStatusFilterChange,
   search,
   onSearchChange,
+  onRefresh,
   onRefreshComplete,
   onScreenNew,
   onScreenAll,
@@ -59,7 +62,8 @@ export function ResponseTableToolbar({
   const screenNewOp = useVacancyOperation("screenNew");
   const screenAllOp = useVacancyOperation("screenAll");
 
-  // Хуки для управления состоянием операций
+  // Хуки для управления состоянием операций (регистрируют handlers в Context)
+  useRefreshState(vacancyId, onRefresh, onRefreshComplete);
   useScreeningState(vacancyId, "new", onScreenNew, onScreeningComplete);
   useScreeningState(vacancyId, "all", onScreenAll, onScreeningComplete);
   useSyncArchivedState(vacancyId, onSyncArchived, onRefreshComplete);

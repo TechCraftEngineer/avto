@@ -17,6 +17,10 @@ import NextLink from "next/link";
 import { useCallback, useMemo } from "react";
 import { toast } from "sonner";
 import {
+  fetchActiveVacanciesListToken,
+  fetchArchivedVacanciesListToken,
+} from "~/actions/realtime";
+import {
   fetchActiveVacanciesList,
   fetchArchivedVacanciesList,
   triggerImportSelectedActiveVacancies,
@@ -365,7 +369,12 @@ export function VacancyImportSection() {
               <ActiveVacanciesSelector
                 workspaceId={workspaceId}
                 requestId={activeListRequestId}
-                token={activeListToken}
+                getToken={() =>
+                  fetchActiveVacanciesListToken(
+                    workspaceId,
+                    activeListRequestId,
+                  )
+                }
                 onSelect={handleActiveVacanciesSelected}
                 onCancel={handleActiveVacanciesCancel}
               />
@@ -380,7 +389,12 @@ export function VacancyImportSection() {
               <ArchivedVacanciesSelector
                 workspaceId={workspaceId}
                 requestId={archivedListRequestId}
-                token={archivedListToken}
+                getToken={() =>
+                  fetchArchivedVacanciesListToken(
+                    workspaceId,
+                    archivedListRequestId,
+                  )
+                }
                 onSelect={handleArchivedVacanciesSelected}
                 onCancel={handleArchivedVacanciesCancel}
               />

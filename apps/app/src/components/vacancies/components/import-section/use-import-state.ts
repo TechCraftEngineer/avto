@@ -1,6 +1,16 @@
 import type { getSubscriptionToken } from "@bunworks/inngest-realtime";
 import { useState } from "react";
 
+/**
+ * Сериализованная версия токена подписки для передачи через server actions.
+ * Server actions сериализуют объекты, поэтому Channel превращается в строку.
+ */
+export type SerializedSubscriptionToken = {
+  channel: string;
+  topics: string[];
+  key: string;
+};
+
 export function useImportState() {
   // Dialog states
   const [isUrlDialogOpen, setIsUrlDialogOpen] = useState(false);
@@ -19,11 +29,8 @@ export function useImportState() {
   const [activeListRequestId, setActiveListRequestId] = useState<string | null>(
     null,
   );
-  const [activeListToken, setActiveListToken] = useState<{
-    channel: string;
-    topics: string[];
-    key: string;
-  } | null>(null);
+  const [activeListToken, setActiveListToken] =
+    useState<SerializedSubscriptionToken | null>(null);
 
   // Archived vacancies selection
   const [isSelectingArchivedVacancies, setIsSelectingArchivedVacancies] =
@@ -31,11 +38,8 @@ export function useImportState() {
   const [archivedListRequestId, setArchivedListRequestId] = useState<
     string | null
   >(null);
-  const [archivedListToken, setArchivedListToken] = useState<{
-    channel: string;
-    topics: string[];
-    key: string;
-  } | null>(null);
+  const [archivedListToken, setArchivedListToken] =
+    useState<SerializedSubscriptionToken | null>(null);
 
   // URL import
   const [vacancyUrl, setVacancyUrl] = useState("");

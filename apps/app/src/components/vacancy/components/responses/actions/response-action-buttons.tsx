@@ -64,8 +64,20 @@ export function ResponseActionButtons({
             size="sm"
             onClick={onRefreshDialogOpen}
             className="h-9 shrink-0 bg-background/60 border-border/60 hover:bg-background/80 transition-colors [&>svg]:shrink-0"
-            aria-label={isRefreshing ? "Загрузка" : "Обновить отклики"}
-            title={isRefreshing ? "Загрузка" : "Обновить отклики"}
+            aria-label={
+              isRefreshing
+                ? "Загрузка"
+                : hasResponses
+                  ? "Обновить отклики"
+                  : "Загрузить отклики"
+            }
+            title={
+              isRefreshing
+                ? "Загрузка"
+                : hasResponses
+                  ? "Обновить отклики"
+                  : "Загрузить отклики"
+            }
           >
             {isRefreshing ? (
               <Loader2 className="h-4 w-4 sm:mr-2 animate-spin" />
@@ -73,7 +85,11 @@ export function ResponseActionButtons({
               <RefreshCw className="h-4 w-4 sm:mr-2" />
             )}
             <span className="hidden sm:inline">
-              {isRefreshing ? "Загрузка..." : "Обновить отклики"}
+              {isRefreshing
+                ? "Загрузка..."
+                : hasResponses
+                  ? "Обновить отклики"
+                  : "Загрузить отклики"}
             </span>
           </Button>
         )}

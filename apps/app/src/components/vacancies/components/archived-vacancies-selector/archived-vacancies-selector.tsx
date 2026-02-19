@@ -1,5 +1,4 @@
-"use client";
-
+import type { Realtime } from "@bunworks/inngest-realtime";
 import { useInngestSubscription } from "@bunworks/inngest-realtime/hooks";
 import {
   Alert,
@@ -34,10 +33,8 @@ interface ArchivedVacancy {
 interface ArchivedVacanciesSelectorProps {
   workspaceId: string;
   requestId: string;
-  /** Токен подписки — обязателен, получается до отправки события (at-most-once delivery) */
-  token: Awaited<
-    ReturnType<typeof import("@bunworks/inngest-realtime").getSubscriptionToken>
-  >;
+  /** Функция для получения токена подписки */
+  getToken: () => Promise<Realtime.Subscribe.Token>;
   onSelect: (
     selectedIds: string[],
     vacancies: Array<{
@@ -52,7 +49,7 @@ interface ArchivedVacanciesSelectorProps {
 }
 
 export function ArchivedVacanciesSelector({
-  token,
+  getToken,
   onSelect,
   onCancel,
 }: ArchivedVacanciesSelectorProps) {
@@ -63,7 +60,7 @@ export function ArchivedVacanciesSelector({
 
   // Один источник токена — один WebSocket
   const { data, error } = useInngestSubscription({
-    token: token,
+    refreshToken: getToken,
     enabled: true,
   });
 
