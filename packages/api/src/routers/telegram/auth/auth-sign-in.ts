@@ -43,6 +43,7 @@ export const signInRouter = protectedProcedure
         sessionData: input.sessionData,
       });
 
+      // result.sessionData уже является JSON-строкой, парсим её
       const sessionDataObj = JSON.parse(result.sessionData);
 
       // Encrypt sensitive data before storing
@@ -51,7 +52,6 @@ export const signInRouter = protectedProcedure
         {
           apiId: input.apiId.toString(),
           apiHash: input.apiHash,
-          sessionData: sessionDataObj,
         },
         encryptionKey,
       );
@@ -63,9 +63,7 @@ export const signInRouter = protectedProcedure
           apiId: encryptedApiData.apiId,
           apiHash: encryptedApiData.apiHash,
           phone,
-          sessionData: encryptedApiData.sessionData
-            ? JSON.parse(encryptedApiData.sessionData)
-            : undefined,
+          sessionData: sessionDataObj as Record<string, unknown>,
           userInfo: {
             id: result.user.id,
             firstName: result.user.firstName,
