@@ -2,6 +2,8 @@
  * Типы для кандидатов
  */
 
+import type { StoredProfileData } from "@qbs-autonaim/db";
+
 /**
  * Базовая информация о кандидате
  */
@@ -114,7 +116,7 @@ export interface CandidateDataFromResponse extends BaseCandidateData {
   organizationId: string;
   resumeUrl?: string | null;
   photoFileId?: string | null;
-  profileData?: unknown | null;
+  profileData?: StoredProfileData | null;
   salaryExpectationsAmount?: number | null;
   source?: "APPLICANT" | "SOURCING" | "IMPORT" | "MANUAL" | "REFERRAL";
   originalSource?:

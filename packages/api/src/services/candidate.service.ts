@@ -1,6 +1,6 @@
-import type { CandidateDataFromResponse } from "@qbs-autonaim/db";
 import type { ImportSource, Language, Response } from "@qbs-autonaim/db/schema";
 import { parseBirthDate, parseFullName } from "@qbs-autonaim/lib";
+import type { CandidateDataFromResponse } from "@qbs-autonaim/shared";
 
 /**
  * Сервис для работы с данными кандидатов
@@ -303,13 +303,20 @@ export class CandidateService {
         result.gender = g;
       }
     }
-    if (personalInfo?.citizenship && typeof personalInfo.citizenship === "string") {
+    if (
+      personalInfo?.citizenship &&
+      typeof personalInfo.citizenship === "string"
+    ) {
       result.citizenship = personalInfo.citizenship.trim() || null;
     }
 
     // Kwork: location, profession/specialization (перезаписываем если пусто)
     const kwork = pd.kworkUserData as Record<string, unknown> | undefined;
-    if (!result.location && kwork?.location && typeof kwork.location === "string") {
+    if (
+      !result.location &&
+      kwork?.location &&
+      typeof kwork.location === "string"
+    ) {
       result.location = kwork.location.trim() || null;
     }
     if (kwork?.profession && typeof kwork.profession === "string") {
@@ -327,7 +334,11 @@ export class CandidateService {
     const experience = pd.experience as
       | Array<{ experience?: { position?: string } }>
       | undefined;
-    if (Array.isArray(experience) && experience.length > 0 && !result.headline) {
+    if (
+      Array.isArray(experience) &&
+      experience.length > 0 &&
+      !result.headline
+    ) {
       const last = experience[experience.length - 1];
       const pos = last?.experience?.position;
       if (pos && typeof pos === "string") {

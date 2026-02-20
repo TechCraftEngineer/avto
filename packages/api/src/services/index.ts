@@ -65,7 +65,6 @@ export {
 export type { GigInterviewLink } from "./gig-interview-link-generator";
 export { GigInterviewLinkGenerator } from "./gig-interview-link-generator";
 export type {
-  ContactInfo,
   ParsedResponse,
   ValidationResult,
 } from "./response-parser";
@@ -84,7 +83,6 @@ export {
   ResumeParserService,
 } from "./resume-parser";
 export type {
-  ContactInfo as ShortlistContactInfo,
   Shortlist,
   ShortlistCandidate,
   ShortlistOptions,
