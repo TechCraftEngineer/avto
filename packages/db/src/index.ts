@@ -21,7 +21,6 @@ export type {
   PersonalInfo,
   StoredProfileData,
 } from "./schema/types";
-export type { CandidateDataFromResponse } from "./schema/candidate/candidate-types";
 export { DraftRepository } from "./repositories/draft.repository";
 export type {
   CandidateOrganizationLinkData,
