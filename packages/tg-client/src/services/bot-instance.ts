@@ -5,6 +5,11 @@
 import { TelegramClient } from "@mtcute/bun";
 import { Dispatcher } from "@mtcute/dispatcher";
 import type { telegramSession } from "@qbs-autonaim/db/schema";
+import {
+  decryptApiKeys,
+  getEncryptionKey,
+  isEncrypted,
+} from "@qbs-autonaim/server-utils";
 import type { MessageData } from "../schemas/message-data.schema";
 import { messageDataSchema } from "../schemas/message-data.schema";
 import { ExportableStorage } from "../storage";
@@ -42,7 +47,7 @@ export async function createBotInstance(
   config: BotInstanceConfig,
 ): Promise<BotInstance> {
   const { session, onAuthError } = config;
-  const {
+  let {
     id: sessionId,
     workspaceId,
     apiId,
@@ -50,6 +55,18 @@ export async function createBotInstance(
     sessionData,
     phone,
   } = session;
+
+  // Расшифровка apiId и apiHash, если они хранятся зашифрованными
+  if (apiId && apiHash && isEncrypted(apiId)) {
+    const encryptionKey = getEncryptionKey();
+    const decrypted = await decryptApiKeys(
+      { apiId, apiHash },
+      encryptionKey,
+    );
+    apiId = decrypted.apiId;
+    apiHash = decrypted.apiHash;
+  }
+
   if (!apiId || !apiHash) {
     throw new Error(
       `Отсутствуют apiId или apiHash для workspace ${workspaceId}`,
