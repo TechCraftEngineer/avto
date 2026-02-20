@@ -34,16 +34,40 @@ export interface DimensionScore {
 }
 
 /**
- * Результат скрининга
+ * Рекомендация по результатам скрининга
+ */
+export type ScreeningRecommendation = "invite" | "reject" | "need_info";
+
+/**
+ * Результат скрининга - объединенная версия
  */
 export interface ScreeningResult {
-  match_percentage: number; // 0-100
+  /** Процент соответствия резюме вакансии (0-100) */
+  match_percentage: number;
+  
+  /** Общая оценка (0-100) */
   overallScore: number;
+  
+  /** Детальная оценка (0-100) */
   detailedScore?: number;
+  
+  /** Анализ соответствия */
   analysis?: string;
+  
+  /** Рекомендация: пригласить, отклонить или нужна доп. информация */
+  recommendation?: ScreeningRecommendation;
+  
+  /** Сильные стороны кандидата */
   strengths?: string[];
+  
+  /** Слабые стороны или недостающие навыки */
   weaknesses?: string[];
-  recommendation?: "HIGHLY_RECOMMENDED" | "RECOMMENDED" | "NEUTRAL" | "NOT_RECOMMENDED";
+  
+  /** Краткое резюме оценки */
+  summary?: string;
+  
+  /** Рекомендация для UI */
+  recommendationUI?: "HIGHLY_RECOMMENDED" | "RECOMMENDED" | "NEUTRAL" | "NOT_RECOMMENDED";
 }
 
 /**

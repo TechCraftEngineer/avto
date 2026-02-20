@@ -1,13 +1,10 @@
 "use client";
 
 import { useDroppable } from "@dnd-kit/core";
-import type { RouterOutputs } from "@qbs-autonaim/api";
 import { cn } from "@qbs-autonaim/ui";
 import { IconUser } from "@tabler/icons-react";
 import { ResponseKanbanItem } from "./response-kanban-item";
-
-type ResponseItem =
-  RouterOutputs["vacancy"]["responses"]["listWorkspace"]["responses"][0];
+import type { ResponseItem } from "./types";
 
 interface ResponseKanbanColumnProps {
   id: string;

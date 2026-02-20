@@ -3,7 +3,7 @@
  * Адаптированы из ai-chatbot
  */
 
-export type MessageRole = "user" | "assistant" | "system";
+import type { MessageRole } from "./chat";
 
 export type MessagePartType =
   | "text"

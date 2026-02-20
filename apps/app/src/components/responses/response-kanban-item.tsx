@@ -2,12 +2,9 @@
 
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
-import type { RouterOutputs } from "@qbs-autonaim/api";
 import { cn } from "@qbs-autonaim/ui";
 import { ResponseKanbanCard } from "./response-kanban-card";
-
-type ResponseItem =
-  RouterOutputs["vacancy"]["responses"]["listWorkspace"]["responses"][0];
+import type { ResponseItem } from "./types";
 
 interface ResponseKanbanItemProps {
   response: ResponseItem;

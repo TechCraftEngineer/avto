@@ -10,6 +10,7 @@ import type {
   FullCandidateData,
 } from "@qbs-autonaim/shared";
 
+// Переэкспорт типов с псевдонимами для удобства
 export type BasicInfo = BasicCandidateInfo;
 export type ExperienceEntry = WorkExperienceEntry;
 export type { EducationEntry };

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import type { AIChatMessage, ChatStatus, TextPart } from "~/types/ai-chat";
+import type { AIChatMessage, ChatStatus, TextPart } from "@qbs-autonaim/shared";
 
 interface UseAIChatOptions {
   /** API endpoint для отправки сообщений */

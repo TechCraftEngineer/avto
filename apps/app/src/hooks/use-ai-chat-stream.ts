@@ -6,7 +6,7 @@ import type {
   ChatStatus,
   MessagePart,
   TextPart,
-} from "~/types/ai-chat";
+} from "@qbs-autonaim/shared";
 
 interface UseAIChatStreamOptions {
   apiEndpoint: string;

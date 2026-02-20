@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Конфигурация промпта для vacancy
  */
 
@@ -17,7 +17,7 @@ interface VacancyMainContext {
 
 // Расширенный тип для vacancy с дополнительными полями
 interface VacancyCandidateData extends CandidateContextData {
-  salaryExpectationsAmount: string | null;
+  salaryExpectationsAmount: number | null;
   profileUrl: string | null;
 }
 

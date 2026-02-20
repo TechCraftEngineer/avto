@@ -12,4 +12,4 @@ export interface ChatMessage {
   createdAt?: Date;
 }
 
-export type { ChatStatus } from "./ai-chat";
+export type { ChatStatus } from "@qbs-autonaim/shared";

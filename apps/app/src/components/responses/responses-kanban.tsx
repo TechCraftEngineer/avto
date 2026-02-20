@@ -12,7 +12,6 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import type { RouterOutputs } from "@qbs-autonaim/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
@@ -20,16 +19,7 @@ import { toast } from "sonner";
 import { useTRPC } from "~/trpc/react";
 import { ResponseKanbanCard } from "./response-kanban-card";
 import { ResponseKanbanColumn } from "./response-kanban-column";
-
-type ResponseItem =
-  RouterOutputs["vacancy"]["responses"]["listWorkspace"]["responses"][0];
-
-type ResponseStatus =
-  | "NEW"
-  | "EVALUATED"
-  | "INTERVIEW"
-  | "COMPLETED"
-  | "SKIPPED";
+import type { ResponseItem, ResponseStatus } from "./types";
 
 interface ResponsesKanbanProps {
   responses: ResponseItem[];

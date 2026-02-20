@@ -8,16 +8,9 @@
 import { and, eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { response } from "@qbs-autonaim/db/schema";
+import type { ContactInfo } from "../types/gig";
 
-/**
- * Контактная информация кандидата
- */
-export interface ContactInfo {
-  email?: string;
-  phone?: string;
-  telegram?: string;
-  platformProfile?: string;
-}
+export type { ContactInfo } from "../types/gig";
 
 /**
  * Опции генерации шортлиста для gig

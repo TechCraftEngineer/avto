@@ -2,30 +2,13 @@
  * Типы для системы скрининга резюме
  */
 
-/**
- * Рекомендация по результатам скрининга
- */
-export type ScreeningRecommendation = "invite" | "reject" | "need_info";
+import type {
+  ScreeningResult as SharedScreeningResult,
+  ScreeningRecommendation,
+} from "@qbs-autonaim/shared";
 
-/**
- * Результат скрининга резюме
- */
-export interface ScreeningResult {
-  /** Процент соответствия резюме вакансии (0-100) */
-  match_percentage: number;
-
-  /** Рекомендация: пригласить, отклонить или нужна доп. информация */
-  recommendation: ScreeningRecommendation;
-
-  /** Сильные стороны кандидата */
-  strengths: string[];
-
-  /** Слабые стороны или недостающие навыки */
-  weaknesses: string[];
-
-  /** Краткое резюме оценки */
-  summary: string;
-}
+// Переэкспорт унифицированного типа
+export type ScreeningResult = SharedScreeningResult;
 
 /**
  * Данные для генерации промпта

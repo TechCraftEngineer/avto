@@ -1,13 +1,10 @@
 "use client";
 
-import type { RouterOutputs } from "@qbs-autonaim/api";
 import { Badge, CandidateAvatar, cn } from "@qbs-autonaim/ui";
 import { IconClock, IconMessageCircle, IconStar } from "@tabler/icons-react";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { getAvatarUrl } from "~/lib/avatar";
-
-type ResponseItem =
-  RouterOutputs["vacancy"]["responses"]["listWorkspace"]["responses"][0];
+import type { ResponseItem } from "./types";
 
 interface ResponseKanbanCardProps {
   response: ResponseItem;

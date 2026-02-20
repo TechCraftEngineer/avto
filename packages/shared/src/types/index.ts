@@ -62,6 +62,28 @@ export type {
   ChatContext,
 } from "./chat";
 
+// Типы AI чата
+export type {
+  MessagePartType,
+  TextPart,
+  ReasoningPart,
+  FilePart,
+  ToolCallPart,
+  ToolResultPart,
+  MessagePart,
+  AIChatMessage,
+  Attachment,
+  ChatStatus,
+} from "./ai-chat";
+
+export {
+  getPartKey,
+  convertLegacyMessage,
+  getMessageText,
+  hasReasoning,
+  getReasoningText,
+} from "./ai-chat";
+
 // Типы оценки и скрининга
 export type {
   FitDecision,
@@ -69,6 +91,7 @@ export type {
   EvaluationResult,
   DimensionScore,
   ScreeningResult,
+  ScreeningRecommendation,
   ScreeningDataForRecommendation,
   PrequalificationResult,
 } from "./evaluation";
