@@ -21,9 +21,9 @@
   "scripts": {
     "build": "tsdown && tsc --emitDeclarationOnly",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
-    "dev": "tsdown --watch",
+    "start:dev": "tsdown --watch",
     "start": "bun run src/api/index.ts",
-    "start:dev": "bun run --env-file ../../.env --watch src/api/index.ts",
+    "dev": "bun run --env-file ../../.env --watch src/api/index.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
