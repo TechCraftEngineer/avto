@@ -42,7 +42,6 @@ export const checkPasswordRouter = protectedProcedure
       });
 
       const sessionDataObj = JSON.parse(result.sessionData);
-
       const encryptionKey = getEncryptionKey();
       const encryptedApiData = await encryptApiKeys(
         {

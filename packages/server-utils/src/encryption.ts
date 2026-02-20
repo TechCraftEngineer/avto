@@ -18,10 +18,12 @@ const ENCRYPTION_CONFIG = {
   keyLength: 32, // 256 bits
   ivLength: 16, // 128 bits
   tagLength: 16, // 128 bits
+  // Параметры снижены для окружений с ограниченной памятью (Vercel, Docker).
+  // N=8192 (~8MB) обеспечивает достаточную стойкость для шифрования API-ключей.
   scryptParams: {
-    N: 32768, // CPU/memory cost parameter
-    r: 8, // block size parameter
-    p: 1, // parallelization parameter
+    N: 8192, // CPU/memory cost (было 32768 — вызывало memory limit exceeded)
+    r: 8, // block size
+    p: 1, // parallelization
   },
 } as const;
 
