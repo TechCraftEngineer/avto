@@ -140,6 +140,20 @@ export const sendTelegramMessageFunction = inngest.createFunction(
     const resultExternalMessageId = result.externalMessageId;
 
     if (messageId) {
+      // Пропускаем временные ID (используются для неидентифицированных пользователей)
+      if (messageId.startsWith("temp_")) {
+        console.log("⏭️ Пропущен апдейт: временный messageId", {
+          messageId,
+          externalId: resultExternalMessageId,
+        });
+        return {
+          success: true,
+          messageId,
+          chatId,
+          externalMessageId: resultExternalMessageId,
+        };
+      }
+
       // Проверка на формат UUID для messageId (ID записи в БД)
       const isUuid =
         /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
