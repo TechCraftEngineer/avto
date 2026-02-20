@@ -43,8 +43,8 @@ export function ResponseKanbanCard({
         getBorderColor(),
         // Отключаем transition при перетаскивании для предотвращения конфликта с dnd-kit
         isDragging
-          ? "transition-none"
-          : "transition-all duration-200 hover:shadow-md hover:border-primary/30",
+          ? "transition-none shadow-lg scale-105"
+          : "transition-shadow duration-200 hover:shadow-md hover:border-primary/30",
       )}
     >
       <div className="flex items-center justify-between gap-2 px-3 py-2 border-b">

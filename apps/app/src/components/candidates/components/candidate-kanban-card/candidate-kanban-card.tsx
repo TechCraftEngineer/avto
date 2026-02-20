@@ -27,8 +27,8 @@ export function CandidateKanbanCard({
         "bg-card border rounded-lg shadow-sm flex flex-col group relative",
         // Отключаем transition при перетаскивании для предотвращения конфликта с dnd-kit
         isDragging
-          ? "transition-none"
-          : "transition-all duration-200 hover:shadow-md hover:border-primary/30",
+          ? "transition-none shadow-lg scale-105"
+          : "transition-shadow duration-200 hover:shadow-md hover:border-primary/30",
       )}
     >
       <div className="flex items-center justify-between gap-2 px-3 py-2 border-b">
@@ -58,10 +58,10 @@ export function CandidateKanbanCard({
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <h4 className="font-semibold text-sm leading-tight break-words">
+            <h4 className="font-semibold text-sm leading-tight wrap-break-word">
               {candidate.name}
             </h4>
-            <p className="text-xs text-muted-foreground mt-0.5 break-words">
+            <p className="text-xs text-muted-foreground mt-0.5 wrap-break-word">
               {candidate.position}
             </p>
           </div>

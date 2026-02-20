@@ -26,6 +26,7 @@ export function ResponseKanbanItem({
 
   const style = {
     transform: CSS.Translate.toString(transform),
+    touchAction: "none",
   };
 
   // Всегда применяем transform и рендерим одну структуру
@@ -38,8 +39,9 @@ export function ResponseKanbanItem({
       {...listeners}
       {...attributes}
       className={cn(
-        "transition-none", // Отключаем transition для предотвращения конфликта с dnd-kit
-        isDragging && "opacity-30 grayscale pointer-events-none",
+        "will-change-transform", // Оптимизация для GPU
+        isDragging && "opacity-30 grayscale pointer-events-none cursor-grabbing",
+        !isDragging && "cursor-grab active:cursor-grabbing",
       )}
     >
       <ResponseKanbanCard
