@@ -61,7 +61,7 @@ export async function runVacanciesImportSelected(
     const response = await chrome.runtime.sendMessage({
       type: "API_REQUEST",
       payload: {
-        url: getExtensionApiUrl("hh-import?type=vacancies"),
+        url: getExtensionApiUrl("hh-import/vacancies"),
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -182,7 +182,7 @@ export async function runVacanciesImport(
     const response = await chrome.runtime.sendMessage({
       type: "API_REQUEST",
       payload: {
-        url: getExtensionApiUrl("hh-import?type=vacancies"),
+        url: getExtensionApiUrl("hh-import/vacancies"),
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -350,7 +350,7 @@ export async function runResponsesImport(
       const response = await chrome.runtime.sendMessage({
         type: "API_REQUEST",
         payload: {
-          url: getExtensionApiUrl("hh-import?type=responses"),
+          url: getExtensionApiUrl("hh-import/responses"),
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -387,3 +387,4 @@ export async function runResponsesImport(
     };
   }
 }
+

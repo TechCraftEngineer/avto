@@ -67,6 +67,8 @@ export interface SaveBasicResponseOptions {
   profileUrl?: string | null;
   /** Сопроводительное письмо кандидата */
   coverLetter?: string | null;
+  /** Фото кандидата в формате base64 */
+  photoUrl?: string | null;
 }
 
 /**

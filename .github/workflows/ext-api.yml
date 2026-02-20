@@ -1,9 +1,11 @@
-name: Deploy Docs
+name: Deploy External API
 on:
   push:
     branches: [main]
     paths:
-      - "apps/docs/**"
+      - 'packages/ext-api/**'
+      - 'packages/jobs/**'
+      - 'packages/lib/**'
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -26,10 +28,10 @@ jobs:
       - name: Build, tag, and push image
         env:
           CR_REGISTRY: crpqovavgc2mbmvv32ko
-          CR_REPOSITORY: docs
+          CR_REPOSITORY: ext-api
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -f apps/docs/Dockerfile --build-arg NEXT_PUBLIC_APP_URL=${{ secrets.NEXT_PUBLIC_APP_URL }} --build-arg NEXT_PUBLIC_APP_NAME="${{ secrets.NEXT_PUBLIC_APP_NAME }}" -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:latest .
+          docker build -f packages/ext-api/Dockerfile -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:latest .
           docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG
           docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:latest
       - name: Deploy To Cluster
@@ -37,7 +39,7 @@ jobs:
         env:
           KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
           CR_REGISTRY: crpqovavgc2mbmvv32ko
-          CR_REPOSITORY: docs
+          CR_REPOSITORY: ext-api
           IMAGE_TAG: ${{ github.sha }}
         with:
           args: set image deployment/$CR_REPOSITORY $CR_REPOSITORY=cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG -n qbs
@@ -46,4 +48,4 @@ jobs:
         env:
           KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
         with:
-          args: rollout status deployment/docs -n qbs
+          args: rollout status deployment/ext-api -n qbs
