@@ -37,9 +37,11 @@ export function ResponsesView({
 }: ResponsesViewProps) {
   const [error, setError] = useState<string | null>(null);
   const [isImporting, setIsImporting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const handleImportResponses = async () => {
     setError(null);
+    setSuccessMessage(null);
     setIsImporting(true);
     try {
       const [tab] = await chrome.tabs.query({
@@ -51,7 +53,7 @@ export function ResponsesView({
         return;
       }
 
-      let resp: { ok?: boolean; error?: string } | undefined;
+      let resp: { ok?: boolean; error?: string; responsesImported?: number } | undefined;
       try {
         resp = await chrome.tabs.sendMessage(tab.id, {
           type: "IMPORT_RESPONSES",
@@ -73,6 +75,9 @@ export function ResponsesView({
 
       if (resp?.ok === false) {
         setError(resp.error ?? "Ошибка импорта");
+      } else if (resp?.ok === true) {
+        const count = resp.responsesImported ?? 0;
+        setSuccessMessage(`Успешно импортировано откликов: ${count}`);
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Не удалось импортировать");
@@ -113,6 +118,11 @@ export function ResponsesView({
         >
           {isImporting ? "Импорт…" : "Импортировать отклики"}
         </Button>
+        {successMessage && (
+          <Alert variant="default" className="bg-green-50 text-green-900 border-green-200">
+            {successMessage}
+          </Alert>
+        )}
         {error && <Alert variant="destructive">{error}</Alert>}
       </div>
     </AuthenticatedLayout>

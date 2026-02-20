@@ -353,7 +353,18 @@ chrome.runtime.onMessage.addListener(
             }
 
             const html = await response.text();
-            sendResponse({ success: true, data: html });
+            
+            // Парсим HTML и извлекаем содержимое div[class="vacancy-description"]
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, "text/html");
+            const descriptionDiv = doc.querySelector('div[class="vacancy-description"]');
+            
+            if (!descriptionDiv) {
+              throw new Error("Не найден элемент vacancy-description в HTML");
+            }
+            
+            const content = descriptionDiv.innerHTML;
+            sendResponse({ success: true, data: content });
           } catch (err) {
             logError("FETCH_RESUME_TEXT", err);
             sendResponse({

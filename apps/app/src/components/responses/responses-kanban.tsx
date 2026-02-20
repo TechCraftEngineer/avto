@@ -15,7 +15,7 @@ import {
 import type { RouterOutputs } from "@qbs-autonaim/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useTRPC } from "~/trpc/react";
 import { ResponseKanbanCard } from "./response-kanban-card";
@@ -59,6 +59,14 @@ export function ResponsesKanban({
   const queryClient = useQueryClient();
   const [activeId, setActiveId] = useState<string | null>(null);
   const [localResponses, setLocalResponses] = useState(responses);
+  const [isDragging, setIsDragging] = useState(false);
+
+  // Синхронизируем только когда не перетаскиваем
+  useMemo(() => {
+    if (!isDragging) {
+      setLocalResponses(responses);
+    }
+  }, [responses, isDragging]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -93,6 +101,7 @@ export function ResponsesKanban({
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
     setActiveId(event.active.id as string);
+    setIsDragging(true);
     document.body.style.userSelect = "none";
   }, []);
 
@@ -129,6 +138,7 @@ export function ResponsesKanban({
 
       document.body.style.userSelect = "";
       setActiveId(null);
+      setIsDragging(false);
 
       if (!over) {
         setLocalResponses(responses);
@@ -174,10 +184,6 @@ export function ResponsesKanban({
     },
     [router, orgSlug, workspaceSlug],
   );
-
-  if (responses !== localResponses && !activeId) {
-    setLocalResponses(responses);
-  }
 
   const groupedResponses = statusColumns.map((column) => ({
     ...column,

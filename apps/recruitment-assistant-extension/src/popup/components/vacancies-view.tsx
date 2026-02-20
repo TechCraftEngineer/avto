@@ -43,9 +43,11 @@ export function VacanciesView({
 }: VacanciesViewProps) {
   const [error, setError] = useState<string | null>(null);
   const [isImporting, setIsImporting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const handleImportSelected = async () => {
     setError(null);
+    setSuccessMessage(null);
     setIsImporting(true);
     try {
       const [tab] = await chrome.tabs.query({
@@ -57,7 +59,7 @@ export function VacanciesView({
         return;
       }
 
-      let resp: { ok?: boolean; error?: string } | undefined;
+      let resp: { ok?: boolean; error?: string; imported?: number; updated?: number } | undefined;
       try {
         resp = await chrome.tabs.sendMessage(tab.id, {
           type: "IMPORT_SELECTED_VACANCIES",
@@ -80,6 +82,19 @@ export function VacanciesView({
       if (resp?.ok === false) {
         setError(resp.error ?? "Ошибка импорта");
       } else if (resp?.ok) {
+        const imported = resp.imported ?? 0;
+        const updated = resp.updated ?? 0;
+        const total = imported + updated;
+        
+        if (total > 0) {
+          const parts = [];
+          if (imported > 0) parts.push(`новых: ${imported}`);
+          if (updated > 0) parts.push(`обновлено: ${updated}`);
+          setSuccessMessage(`Успешно импортировано вакансий (${parts.join(", ")})`);
+        } else {
+          setSuccessMessage("Импорт завершен");
+        }
+        
         onImportSuccess();
       }
     } catch (e) {
@@ -124,6 +139,11 @@ export function VacanciesView({
             ? "Импорт…"
             : `Загрузить выбранные (${selectedCount ?? 0})`}
         </Button>
+        {successMessage && (
+          <Alert variant="default" className="bg-green-50 text-green-900 border-green-200">
+            {successMessage}
+          </Alert>
+        )}
         {error && <Alert variant="destructive">{error}</Alert>}
       </div>
     </AuthenticatedLayout>
