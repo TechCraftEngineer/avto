@@ -51,8 +51,9 @@ export class ApiClient {
         skills: data.skills,
         experienceYears: this.calculateExperienceYears(data.experience),
         profileData: {
-          experience: data.experience,
-          education: data.education,
+          experience: data.experience || [],
+          education: data.education || [],
+          parsedAt: new Date().toISOString(),
         },
         source: "SOURCING",
         originalSource: this.mapPlatformToSource(data.platform),

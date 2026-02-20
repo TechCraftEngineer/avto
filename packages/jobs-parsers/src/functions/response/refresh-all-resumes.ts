@@ -1,5 +1,5 @@
 import os from "node:os";
-import { eq, getIntegrationCredentials } from "@qbs-autonaim/db";
+import { eq, getIntegrationCredentials, createResumeProfileData } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { response } from "@qbs-autonaim/db/schema";
 import { refreshAllResumesChannel } from "@qbs-autonaim/jobs/channels";
@@ -220,18 +220,18 @@ export const refreshAllResumesFunction = inngest.createFunction(
 
             // Подготавливаем profileData
             const profileData = resumeData.structuredData
-              ? {
+              ? createResumeProfileData({
                   experience: resumeData.experience || [],
                   education: resumeData.structuredData.education,
                   languages: resumeData.structuredData.languages,
+                  skills: resumeData.structuredData.skills,
                   summary: resumeData.structuredData.summary,
-                  parsedAt: new Date().toISOString(),
-                }
+                  personalInfo: resumeData.structuredData.personalInfo,
+                })
               : resumeData.experience
-                ? {
+                ? createResumeProfileData({
                     experience: resumeData.experience,
-                    parsedAt: new Date().toISOString(),
-                  }
+                  })
                 : undefined;
 
             // Обновляем данные отклика

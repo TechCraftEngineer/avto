@@ -1,6 +1,7 @@
 import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { response } from "@qbs-autonaim/db/schema";
+import { createResumeProfileData } from "@qbs-autonaim/db";
 import { inngest } from "@qbs-autonaim/jobs/client";
 
 export function extractTextFromHtml(html: string): string {
@@ -18,6 +19,7 @@ export async function processResumeText(
 ): Promise<void> {
   const textContent = extractTextFromHtml(resumeTextHtml);
 
+  // Временно сохраняем resumeText для парсинга (будет удален после обработки)
   await db
     .update(response)
     .set({

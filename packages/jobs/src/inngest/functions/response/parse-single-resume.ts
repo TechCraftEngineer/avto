@@ -3,6 +3,8 @@ import {
   gig,
   vacancy,
   GlobalCandidateRepository,
+  createResumeProfileData,
+  cleanProfileData,
 } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { response, workspace } from "@qbs-autonaim/db/schema";
@@ -279,10 +281,18 @@ export const parseSingleResumeFunction = inngest.createFunction(
               citizenship: personalInfo?.citizenship || null,
               skills: skills || null,
               experienceYears: processedData.experienceYears || null,
-              profileData: {
-                ...(responseData.profileData || {}),
-                parsedResume: parsedData,
-              },
+              profileData: (() => {
+                const { resumeText, parsedResume, ...cleanData } =
+                  responseData.profileData || {};
+                return createResumeProfileData({
+                  experience: parsedData.experience || [],
+                  education: parsedData.education || [],
+                  languages: parsedData.languages || [],
+                  skills: parsedData.skills || [],
+                  summary: parsedData.summary,
+                  personalInfo: parsedData.personalInfo,
+                });
+              })(),
               source: "APPLICANT",
               originalSource: "HH",
               resumeUrl:
@@ -321,11 +331,15 @@ export const parseSingleResumeFunction = inngest.createFunction(
           birthDate: processedData.birthDate || null,
           // Навыки
           skills: skills || null,
-          // Сохраняем полные распарсенные данные в profileData
-          profileData: {
-            ...(responseData.profileData || {}),
-            parsedResume: parsedData,
-          },
+          // Сохраняем структурированные данные в profileData (без resumeText и parsedResume)
+          profileData: createResumeProfileData({
+            experience: parsedData.experience || [],
+            education: parsedData.education || [],
+            languages: parsedData.languages || [],
+            skills: parsedData.skills || [],
+            summary: parsedData.summary,
+            personalInfo: parsedData.personalInfo,
+          }),
         })
         .where(eq(response.id, responseId));
 

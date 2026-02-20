@@ -1,6 +1,7 @@
 import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { response } from "@qbs-autonaim/db/schema";
+import { createResumeProfileData } from "@qbs-autonaim/db";
 import {
   formatProfileDataForStorage,
   parseFreelancerProfile,

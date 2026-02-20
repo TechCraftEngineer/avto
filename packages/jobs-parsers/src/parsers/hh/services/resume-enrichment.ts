@@ -1,6 +1,7 @@
 import { eq, GlobalCandidateRepository } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { globalCandidate } from "@qbs-autonaim/db/schema";
+import { createResumeProfileData } from "@qbs-autonaim/db";
 import {
   updateResponseDetails,
   uploadCandidatePhoto,
@@ -108,19 +109,18 @@ export async function enrichResumeData(
 
     // Подготавливаем profileData для кандидата (включая personalInfo для link-responses)
     const profileData = resumeData.structuredData
-      ? {
+      ? createResumeProfileData({
           experience: resumeData.experience || [],
           education: resumeData.structuredData.education,
           languages: resumeData.structuredData.languages,
+          skills: resumeData.structuredData.skills,
           summary: resumeData.structuredData.summary,
           personalInfo: resumeData.structuredData.personalInfo,
-          parsedAt: new Date().toISOString(),
-        }
+        })
       : resumeData.experience
-        ? {
+        ? createResumeProfileData({
             experience: resumeData.experience,
-            parsedAt: new Date().toISOString(),
-          }
+          })
         : undefined;
 
     // Извлекаем общие поля для global_candidate (используются при создании и обновлении)

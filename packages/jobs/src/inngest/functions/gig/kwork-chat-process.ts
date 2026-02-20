@@ -1,5 +1,5 @@
 import type { StoredProfileData } from "@qbs-autonaim/db";
-import { db, eq } from "@qbs-autonaim/db";
+import { db, eq, mergeProfileData } from "@qbs-autonaim/db";
 import { response as responseTable } from "@qbs-autonaim/db/schema";
 import {
   getInboxTracks,
@@ -155,10 +155,9 @@ export const kworkChatProcessFunction = inngest.createFunction(
         await db
           .update(responseTable)
           .set({
-            profileData: {
-              ...current,
+            profileData: mergeProfileData(current, {
               kworkLastProcessedMessageId: newLastId,
-            } as StoredProfileData,
+            }),
             updatedAt: new Date(),
           })
           .where(eq(responseTable.id, responseId));

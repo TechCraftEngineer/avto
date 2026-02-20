@@ -1,44 +1,71 @@
-import type { ExperienceItem, StoredProfileData } from "../schema/types";
+import type { StoredProfileData } from "../schema/types";
 
 /**
- * Извлекает опыт работы из profileData
+ * Создает структурированный profileData для резюме HH.ru
  */
-export function getExperienceFromProfile(
-  profileData: StoredProfileData | null | undefined,
-): ExperienceItem[] {
-  if (!profileData?.experience) return [];
-  return profileData.experience;
+export function createResumeProfileData(data: {
+  experience?: Array<{
+    company?: string;
+    position?: string;
+    period?: string;
+    description?: string;
+  }>;
+  education?: Array<{
+    institution?: string;
+    degree?: string;
+    field?: string;
+    startDate?: string;
+    endDate?: string;
+  }>;
+  languages?: Array<{
+    name: string;
+    level?: string;
+  }>;
+  skills?: string[];
+  summary?: string;
+  personalInfo?: {
+    name?: string;
+    email?: string;
+    phone?: string;
+    telegram?: string;
+    whatsapp?: string;
+    location?: string;
+    birthDate?: string;
+    gender?: "male" | "female" | "other";
+    citizenship?: string;
+  };
+}): StoredProfileData {
+  return {
+    experience: data.experience || [],
+    education: data.education || [],
+    languages: data.languages || [],
+    skills: data.skills || [],
+    summary: data.summary,
+    personalInfo: data.personalInfo,
+    parsedAt: new Date().toISOString(),
+  };
 }
 
 /**
- * Форматирует опыт работы в текстовую строку для отображения
+ * Обновляет существующий profileData, сохраняя все поля
  */
-export function formatExperienceText(
-  profileData: StoredProfileData | null | undefined,
-): string {
-  const experience = getExperienceFromProfile(profileData);
-  if (experience.length === 0) return "";
-
-  return experience
-    .map((item) => {
-      const exp = item.experience || item;
-      const parts: string[] = [];
-
-      if (exp.position) parts.push(exp.position);
-      if (exp.company) parts.push(`в ${exp.company}`);
-      if (exp.period) parts.push(`(${exp.period})`);
-      if (exp.description) parts.push(`\n${exp.description}`);
-
-      return parts.join(" ");
-    })
-    .join("\n\n");
+export function mergeProfileData(
+  existing: StoredProfileData | null | undefined,
+  updates: Partial<StoredProfileData>,
+): StoredProfileData {
+  const base = existing || {};
+  return {
+    ...base,
+    ...updates,
+  };
 }
 
 /**
- * Проверяет, есть ли опыт работы в profileData
+ * Очищает временные поля из profileData
  */
-export function hasExperience(
-  profileData: StoredProfileData | null | undefined,
-): boolean {
-  return getExperienceFromProfile(profileData).length > 0;
+export function cleanProfileData(
+  data: Record<string, unknown>,
+): StoredProfileData {
+  const { resumeText, parsedResume, ...clean } = data;
+  return clean as StoredProfileData;
 }

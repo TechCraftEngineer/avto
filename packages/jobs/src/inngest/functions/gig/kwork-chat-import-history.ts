@@ -1,5 +1,5 @@
 import type { StoredProfileData } from "@qbs-autonaim/db";
-import { db, eq } from "@qbs-autonaim/db";
+import { db, eq, mergeProfileData } from "@qbs-autonaim/db";
 import {
   interviewMessage,
   interviewSession,
@@ -183,10 +183,9 @@ export const kworkChatImportHistoryFunction = inngest.createFunction(
         await db
           .update(responseTable)
           .set({
-            profileData: {
-              ...current,
+            profileData: mergeProfileData(current, {
               kworkLastProcessedMessageId: maxMsgId,
-            } as StoredProfileData,
+            }),
             updatedAt: new Date(),
           })
           .where(eq(responseTable.id, responseId));
@@ -236,7 +235,9 @@ export const kworkChatImportHistoryFunction = inngest.createFunction(
           await db
             .update(responseTable)
             .set({
-              profileData: { ...pd, kworkAvatarUrl: avatarUrl } as StoredProfileData,
+              profileData: mergeProfileData(pd, {
+                kworkAvatarUrl: avatarUrl,
+              }),
               updatedAt: new Date(),
             })
             .where(eq(responseTable.id, responseId));
