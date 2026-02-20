@@ -134,6 +134,7 @@ export const parseSingleResumeFunction = inngest.createFunction(
           entityId: response.entityId,
           candidateId: response.candidateId,
           globalCandidateId: response.globalCandidateId,
+          coverLetter: response.coverLetter,
         })
         .from(response)
         .where(eq(response.id, responseId))
@@ -143,9 +144,10 @@ export const parseSingleResumeFunction = inngest.createFunction(
         throw new Error("Отклик не найден");
       }
 
-      const resumeText = resp.profileData?.resumeText;
+      // Используем coverLetter как источник текста для парсинга
+      const resumeText = resp.coverLetter;
       if (!resumeText || typeof resumeText !== "string") {
-        throw new Error("Текст резюме не найден в profileData");
+        throw new Error("Текст резюме не найден (coverLetter пуст)");
       }
 
       // Получаем workspaceId через отдельный запрос

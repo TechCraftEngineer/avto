@@ -7,9 +7,8 @@
  * Requirements: 7.5 - THE AI_Agent SHALL адаптировать стиль общения под настройки компании
  */
 
+import type { CompanySettings } from "@qbs-autonaim/shared";
 import { z } from "zod";
-
-import type { CompanySettingsData } from "../core/context";
 import type { RecruiterCompanySettings } from "../core/types";
 
 /**
@@ -27,14 +26,14 @@ export interface CompanySettingsFromDB {
 }
 
 /**
- * Преобразует данные из БД в формат CompanySettingsData
+ * Преобразует данные из БД в формат CompanySettings
  *
  * @param dbSettings - Настройки из БД (может быть null/undefined)
- * @returns CompanySettingsData для использования в контексте
+ * @returns CompanySettings для использования в контексте
  */
 export function mapDBSettingsToCompanyData(
   dbSettings: CompanySettingsFromDB | null | undefined,
-): CompanySettingsData | null {
+): CompanySettings | null {
   if (!dbSettings) {
     return null;
   }

@@ -5,6 +5,10 @@
  */
 
 import type {
+  CompanySettings,
+  ExtendedWorkspaceData,
+} from "@qbs-autonaim/shared";
+import type {
   ConversationMessage,
   RecruiterAgentContext,
   RecruiterCompanySettings,
@@ -14,10 +18,6 @@ import type {
   RecruiterFeedbackHistory,
   RecruiterFeedbackStats,
 } from "./types";
-import type {
-  ExtendedWorkspaceData,
-  CompanySettings,
-} from "@qbs-autonaim/shared";
 
 /**
  * Максимальное количество сообщений в истории диалога

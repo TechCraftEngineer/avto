@@ -1,3 +1,7 @@
+import type { BotSettings } from "@qbs-autonaim/shared";
+
+export type { BotSettings };
+
 export interface MessagePayload {
   workspaceId: string;
   messageData: {

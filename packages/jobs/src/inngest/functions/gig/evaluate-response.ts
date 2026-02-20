@@ -2,10 +2,10 @@ import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import {
   formatProfileDataForStorage,
-  type ProfileData,
   parseFreelancerProfile,
   type StoredProfileData,
 } from "@qbs-autonaim/jobs-parsers";
+import type { BaseProfileData } from "@qbs-autonaim/shared";
 import {
   createInterviewScoring,
   getInterviewContext,
@@ -66,7 +66,7 @@ export const evaluateGigResponseFunction = inngest.createFunction(
     // Парсим профиль фрилансера (если есть profileUrl)
     const profileData = await step.run(
       "parse-profile",
-      async (): Promise<ProfileData | null> => {
+      async (): Promise<BaseProfileData | null> => {
         if (!responseData.profileUrl) {
           console.log("⚠️ ProfileUrl отсутствует, пропускаем парсинг профиля");
           return null;

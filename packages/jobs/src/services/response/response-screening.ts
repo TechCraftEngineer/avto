@@ -6,18 +6,16 @@ import {
 } from "@qbs-autonaim/ai";
 import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
+import type { StoredProfileData } from "@qbs-autonaim/db/schema";
 import {
   RESPONSE_STATUS,
   response,
   responseScreening,
   vacancy,
 } from "@qbs-autonaim/db/schema";
-import {
-  hasExperience,
-  type StoredProfileData,
-} from "@qbs-autonaim/db";
-import { getAIModel } from "@qbs-autonaim/lib/ai";
 import { parseBirthDate } from "@qbs-autonaim/lib";
+import { getAIModel } from "@qbs-autonaim/lib/ai";
+import { hasExperience } from "@qbs-autonaim/shared";
 import { createLogger, err, ok, type Result, tryCatch } from "../base";
 import { extractVacancyRequirements, getVacancyRequirements } from "../vacancy";
 
@@ -57,7 +55,9 @@ const SKIP_ANALYSIS =
   "<p>Скрининг пропущен: недостаточно данных для оценки (пустой отклик, отсутствие опыта работы или иных релевантных сведений).</p>";
 
 /** Сохраняет запись о пропущенном скрининге (чтобы не пытаться снова) */
-async function saveSkippedScreening(responseId: string): Promise<Result<void, string>> {
+async function saveSkippedScreening(
+  responseId: string,
+): Promise<Result<void, string>> {
   return tryCatch(async () => {
     await db.transaction(async (tx) => {
       const existingScreening = await tx.query.responseScreening.findFirst({

@@ -11,10 +11,10 @@ import {
 import { db } from "@qbs-autonaim/db/client";
 import {
   formatProfileDataForStorage,
-  type ProfileData,
   parseFreelancerProfile,
   type StoredProfileData,
 } from "@qbs-autonaim/jobs-parsers";
+import type { BaseProfileData } from "@qbs-autonaim/shared";
 import {
   createInterviewScoring,
   getInterviewContext,
@@ -143,7 +143,7 @@ export const webCompleteInterviewFunction = inngest.createFunction(
         // Парсим профиль фрилансера перед обновлением статуса
         const profileData = await step.run(
           "parse-profile",
-          async (): Promise<ProfileData | null> => {
+          async (): Promise<BaseProfileData | null> => {
             const responseRecord = await db.query.response.findFirst({
               where: (r, { eq }) => eq(r.id, responseId),
             });
@@ -294,7 +294,7 @@ export const webCompleteInterviewFunction = inngest.createFunction(
         // Парсим профиль фрилансера перед обновлением статуса
         const gigProfileData = await step.run(
           "parse-gig-profile",
-          async (): Promise<ProfileData | null> => {
+          async (): Promise<BaseProfileData | null> => {
             const responseRecord = await db.query.response.findFirst({
               where: (r, { eq }) => eq(r.id, gigResponseId),
             });

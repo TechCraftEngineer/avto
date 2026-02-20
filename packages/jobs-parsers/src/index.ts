@@ -25,18 +25,17 @@ export {
   importSingleVacancy,
   type RunHHArchivedVacancyParserOptions,
   type RunHHArchivedVacancyParserPageOptions,
-  type VacancyParseFromHtmlResult,
   refreshVacancyResponses,
   runHHArchivedVacancyParser,
   runHHArchivedVacancyParserPage,
   runHHParseResponseDetailsForVacancy,
   runHHParser,
+  type VacancyParseFromHtmlResult,
 } from "./parsers/hh";
 // Экспорт конфигурации
 export { HH_CONFIG } from "./parsers/hh/core/config/config";
 export {
   formatProfileDataForStorage,
-  type ProfileData,
   parseFreelancerProfile,
   type StoredProfileData,
 } from "./parsers/profile-parser";
