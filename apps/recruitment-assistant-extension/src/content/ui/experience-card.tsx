@@ -8,10 +8,22 @@ interface ExperienceCardProps {
 }
 
 export function ExperienceCard({ experience, onEdit }: ExperienceCardProps) {
-  const formatDateRange = (start: string, end: string | null): string => {
-    if (!start) return "Даты не указаны";
-    if (!end) return `${start} — по настоящее время`;
-    return `${start} — ${end}`;
+  const formatDateRange = (
+    start: string | Date | null,
+    end: string | Date | null,
+  ): string => {
+    const formatDate = (date: string | Date | null): string => {
+      if (!date) return "";
+      if (typeof date === "string") return date;
+      return date.toISOString().split("T")[0] || "";
+    };
+
+    const startStr = formatDate(start);
+    const endStr = formatDate(end);
+
+    if (!startStr) return "Даты не указаны";
+    if (!endStr) return `${startStr} — по настоящее время`;
+    return `${startStr} — ${endStr}`;
   };
 
   return (
@@ -33,7 +45,7 @@ export function ExperienceCard({ experience, onEdit }: ExperienceCardProps) {
 
       <EditableField
         label="Компания"
-        value={experience.company}
+        value={experience.company || ""}
         onChange={(v) => onEdit("company", v)}
       />
 
@@ -57,7 +69,7 @@ export function ExperienceCard({ experience, onEdit }: ExperienceCardProps) {
         >
           <div>
             <label
-              htmlFor={`start-${experience.company}`}
+              htmlFor={`start-${experience.company || "exp"}`}
               style={{
                 fontSize: "12px",
                 color: "#6b7280",
@@ -68,9 +80,15 @@ export function ExperienceCard({ experience, onEdit }: ExperienceCardProps) {
               Начало
             </label>
             <input
-              id={`start-${experience.company}`}
+              id={`start-${experience.company || "exp"}`}
               type="text"
-              value={experience.startDate}
+              value={
+                experience.startDate
+                  ? typeof experience.startDate === "string"
+                    ? experience.startDate
+                    : experience.startDate.toISOString().split("T")[0]
+                  : ""
+              }
               onChange={(e) => onEdit("startDate", e.target.value)}
               placeholder="Январь 2020"
               style={{
@@ -95,7 +113,7 @@ export function ExperienceCard({ experience, onEdit }: ExperienceCardProps) {
           </div>
           <div>
             <label
-              htmlFor={`end-${experience.company}`}
+              htmlFor={`end-${experience.company || "exp"}`}
               style={{
                 fontSize: "12px",
                 color: "#6b7280",
@@ -106,9 +124,15 @@ export function ExperienceCard({ experience, onEdit }: ExperienceCardProps) {
               Окончание
             </label>
             <input
-              id={`end-${experience.company}`}
+              id={`end-${experience.company || "exp"}`}
               type="text"
-              value={experience.endDate || ""}
+              value={
+                experience.endDate
+                  ? typeof experience.endDate === "string"
+                    ? experience.endDate
+                    : experience.endDate.toISOString().split("T")[0]
+                  : ""
+              }
               onChange={(e) => onEdit("endDate", e.target.value || null)}
               placeholder="По настоящее время"
               style={{
@@ -146,7 +170,7 @@ export function ExperienceCard({ experience, onEdit }: ExperienceCardProps) {
 
       <EditableField
         label="Описание обязанностей"
-        value={experience.description}
+        value={experience.description || ""}
         onChange={(v) => onEdit("description", v)}
         multiline
       />

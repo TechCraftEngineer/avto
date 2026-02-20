@@ -15,11 +15,13 @@ export function ContactInfo({ contacts, onEdit }: ContactInfoProps) {
   const [newLink, setNewLink] = useState("");
   const [linkError, setLinkError] = useState<string | null>(null);
 
+  const socialLinks = contacts.socialLinks || [];
+
   const handleAddLink = () => {
     const trimmed = newLink.trim();
     setLinkError(null);
     if (!trimmed) return;
-    if (contacts.socialLinks.includes(trimmed)) return;
+    if (socialLinks.includes(trimmed)) return;
 
     const parsed = z.string().url().safeParse(trimmed);
     if (!parsed.success) {
@@ -27,14 +29,14 @@ export function ContactInfo({ contacts, onEdit }: ContactInfoProps) {
       return;
     }
 
-    onEdit("socialLinks", [...contacts.socialLinks, parsed.data]);
+    onEdit("socialLinks", [...socialLinks, parsed.data]);
     setNewLink("");
   };
 
   const handleRemoveLink = (linkToRemove: string) => {
     onEdit(
       "socialLinks",
-      contacts.socialLinks.filter((link: string) => link !== linkToRemove),
+      socialLinks.filter((link: string) => link !== linkToRemove),
     );
   };
 
@@ -240,7 +242,7 @@ export function ContactInfo({ contacts, onEdit }: ContactInfoProps) {
           </div>
         )}
 
-        {contacts.socialLinks.length === 0 ? (
+        {socialLinks.length === 0 ? (
           <div
             style={{
               padding: "12px",
@@ -264,7 +266,7 @@ export function ContactInfo({ contacts, onEdit }: ContactInfoProps) {
             }}
             aria-label="Список социальных сетей"
           >
-            {contacts.socialLinks.map((link: string) => (
+            {socialLinks.map((link: string) => (
               <li
                 key={link}
                 style={{

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type {
   CandidateData,
-  WorkExperienceEntry,
+  ExperienceEntry,
   EducationEntry,
 } from "../../shared/types";
 import { ContactInfo } from "./contact-info";
@@ -178,7 +178,7 @@ export function DataPanel({
             >
               Опыт работы
             </h3>
-            {data.experience.map((exp: WorkExperienceEntry, idx: number) => (
+            {data.experience.map((exp: ExperienceEntry, idx: number) => (
               <ExperienceCard
                 key={`${exp.company || ""}-${exp.position || ""}-${idx}`}
                 experience={exp}

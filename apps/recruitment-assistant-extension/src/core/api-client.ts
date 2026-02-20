@@ -123,6 +123,7 @@ export class ApiClient {
     if (experience.length === 0) return 0;
 
     const totalMonths = experience.reduce((sum, entry) => {
+      if (!entry.startDate) return sum;
       const start = new Date(entry.startDate);
       const end = entry.endDate ? new Date(entry.endDate) : new Date();
       const months =

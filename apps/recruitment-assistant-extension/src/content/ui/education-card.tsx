@@ -10,9 +10,9 @@ interface EducationCardProps {
 export function EducationCard({ education, onEdit }: EducationCardProps) {
   const baseId = useId();
 
-  const formatDateRange = (start: string, end: string): string => {
+  const formatDateRange = (start?: string, end?: string): string => {
     if (!start && !end) return "Даты не указаны";
-    if (!start) return end;
+    if (!start) return end || "";
     if (!end) return start;
     return `${start} — ${end}`;
   };
@@ -30,19 +30,19 @@ export function EducationCard({ education, onEdit }: EducationCardProps) {
     >
       <EditableField
         label="Учебное заведение"
-        value={education.institution}
+        value={education.institution || ""}
         onChange={(v) => onEdit("institution", v)}
       />
 
       <EditableField
         label="Степень/квалификация"
-        value={education.degree}
+        value={education.degree || ""}
         onChange={(v) => onEdit("degree", v)}
       />
 
       <EditableField
         label="Специальность"
-        value={education.fieldOfStudy}
+        value={education.fieldOfStudy || ""}
         onChange={(v) => onEdit("fieldOfStudy", v)}
       />
 
@@ -79,7 +79,7 @@ export function EducationCard({ education, onEdit }: EducationCardProps) {
             <input
               id={`${baseId}-start`}
               type="text"
-              value={education.startDate}
+              value={education.startDate || ""}
               onChange={(e) => onEdit("startDate", e.target.value)}
               placeholder="2016"
               style={{
@@ -117,7 +117,7 @@ export function EducationCard({ education, onEdit }: EducationCardProps) {
             <input
               id={`${baseId}-end`}
               type="text"
-              value={education.endDate}
+              value={education.endDate || ""}
               onChange={(e) => onEdit("endDate", e.target.value)}
               placeholder="2020"
               style={{
