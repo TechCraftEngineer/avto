@@ -233,10 +233,21 @@ hhImportRouter.post("/", async (c) => {
         respondedAt,
         { coverLetter: r.coverLetter ?? null },
       );
-      if (saveResult.success && saveResult.data) imported++;
-
-      // TODO: Парсинг resumeTextHtml через AI будет реализован отдельно
-      // Сейчас просто сохраняем базовую информацию
+      
+      if (saveResult.success && saveResult.data) {
+        imported++;
+        
+        // Если есть resumeTextHtml, запускаем парсинг через AI
+        if (r.resumeTextHtml && r.resumeTextHtml.trim()) {
+          await inngest.send({
+            name: "response/parse-resume-text",
+            data: {
+              responseId: saveResult.data.id,
+              resumeTextHtml: r.resumeTextHtml,
+            },
+          });
+        }
+      }
     }
 
     return c.json({ imported });
