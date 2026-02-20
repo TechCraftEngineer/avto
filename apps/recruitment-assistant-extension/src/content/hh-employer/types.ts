@@ -3,7 +3,7 @@
  */
 
 export interface ImportProgress {
-  stage: "vacancies" | "responses" | "resume-details";
+  stage: "vacancies" | "responses" | "resume-details" | "photos";
   current: number;
   total: number;
   message: string;

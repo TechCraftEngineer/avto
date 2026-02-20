@@ -12,8 +12,6 @@ export interface ParsedResponse {
   coverLetter?: string;
   externalId: string;
   photoUrl?: string;
-  photoBase64?: string;
-  photoContentType?: string;
 }
 
 const CONTAINER_SELECTOR = 'div[data-qa="vacancy-real-responses"]';

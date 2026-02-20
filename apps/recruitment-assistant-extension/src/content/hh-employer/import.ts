@@ -1,18 +1,24 @@
 /**
- * Логика импорта вакансий и откликов через API
+ * Улучшенная логика импорта с имитацией человеческого поведения
  */
 
 import { getExtensionApiUrl } from "../../config";
 import {
-  FETCH_DELAY_MS,
   fetchResumeTextHtml,
   fetchVacancyPrintHtml,
+  fetchPhotoAsBase64,
   type HHEmployerPageType,
   type ParsedResponse,
 } from "../../parsers/hh-employer";
 import { setSelectedIds } from "./storage";
 import { collectAllResponses, collectAllVacancies, collectSelectedVacancies } from "./collectors";
 import type { ImportProgress, ImportResult } from "./types";
+import {
+  getRandomDelay,
+  getRandomBatchSize,
+  checkAndPauseIfNeeded,
+  checkImportLimit,
+} from "../../utils/stealth";
 
 export type { ImportProgress, ImportResult } from "./types";
 
@@ -130,7 +136,13 @@ export async function runVacanciesImportSelected(
         } catch (_e) {
           // Пропускаем ошибки парсинга отдельных вакансий
         }
-        await new Promise((r) => setTimeout(r, FETCH_DELAY_MS));
+        
+        // Случайная задержка 2-3.5 секунды
+        const delay = getRandomDelay(2000, 1500);
+        await new Promise((r) => setTimeout(r, delay));
+        
+        // Пауза после каждых 10 вакансий (5-10 секунд)
+        await checkAndPauseIfNeeded(i, 10);
       }
     }
 
@@ -251,7 +263,13 @@ export async function runVacanciesImport(
         } catch (_e) {
           // Пропускаем ошибки парсинга отдельных вакансий
         }
-        await new Promise((r) => setTimeout(r, FETCH_DELAY_MS));
+        
+        // Случайная задержка 2-3.5 секунды
+        const delay = getRandomDelay(2000, 1500);
+        await new Promise((r) => setTimeout(r, delay));
+        
+        // Пауза после каждых 10 вакансий (5-10 секунд)
+        await checkAndPauseIfNeeded(i, 10);
       }
     }
 
@@ -299,6 +317,15 @@ export async function runResponsesImport(
       };
     }
 
+    // Проверка лимита импорта
+    const limitCheck = checkImportLimit(responses.length, 100);
+    if (!limitCheck.allowed) {
+      return {
+        success: false,
+        error: limitCheck.message || "Превышен лимит импорта",
+      };
+    }
+
     const responsesToSend = responses.map((r: ParsedResponse) => ({
       resumeId: r.resumeId,
       resumeUrl: r.resumeUrl,
@@ -309,6 +336,46 @@ export async function runResponsesImport(
       photoUrl: r.photoUrl,
       resumeTextHtml: undefined as string | undefined,
     }));
+
+    // Загрузка фото в base64 для всех откликов
+    const photosToLoad = responses.filter(r => r.photoUrl);
+    if (photosToLoad.length > 0) {
+      console.log(`[Import] Начинаем загрузку ${photosToLoad.length} фото`);
+      onProgress?.({
+        stage: "photos",
+        current: 0,
+        total: photosToLoad.length,
+        message: "Загрузка фото кандидатов...",
+      });
+
+      let photoCount = 0;
+      for (let i = 0; i < responses.length; i++) {
+        const r = responses[i];
+        if (r?.photoUrl) {
+          console.log(`[Import] Загружаем фото для ${r.name}: ${r.photoUrl}`);
+          try {
+            const photoData = await fetchPhotoAsBase64(r.photoUrl);
+            const item = responsesToSend[i];
+            if (item && photoData?.base64) {
+              const base64Url = `data:${photoData.contentType};base64,${photoData.base64}`;
+              item.photoUrl = base64Url;
+              console.log(`[Import] Фото загружено для ${r.name}, размер base64: ${photoData.base64.length} символов`);
+            }
+            photoCount++;
+            onProgress?.({
+              stage: "photos",
+              current: photoCount,
+              total: photosToLoad.length,
+              message: `Загружено фото: ${photoCount}/${photosToLoad.length}`,
+            });
+          } catch (e) {
+            console.error(`[Import] Ошибка загрузки фото для ${r.name}:`, e);
+            // Пропускаем ошибки загрузки фото
+          }
+        }
+      }
+      console.log(`[Import] Загрузка фото завершена: ${photoCount}/${photosToLoad.length}`);
+    }
 
     // Загрузка текстовой версии резюме (HTML) для отправки на сервер
     if (fetchResumeDetails) {
@@ -331,7 +398,13 @@ export async function runResponsesImport(
           } catch (_e) {
             // Пропускаем ошибки отдельных резюме
           }
-          await new Promise((res) => setTimeout(res, FETCH_DELAY_MS));
+          
+          // Случайная задержка 2-3.5 секунды
+          const delay = getRandomDelay(2000, 1500);
+          await new Promise((res) => setTimeout(res, delay));
+          
+          // Пауза после каждых 15 резюме (5-10 секунд)
+          await checkAndPauseIfNeeded(i, 15);
         }
         onProgress?.({
           stage: "resume-details",
@@ -342,7 +415,8 @@ export async function runResponsesImport(
       }
     }
 
-    const batchSize = 50;
+    // Случайный размер батча 30-50
+    const batchSize = getRandomBatchSize(30, 50);
     let totalImported = 0;
 
     for (let i = 0; i < responsesToSend.length; i += batchSize) {
