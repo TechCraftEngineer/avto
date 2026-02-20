@@ -53,7 +53,7 @@
   },
   "dependencies": {
     "@ai-sdk/deepseek": "2.0.20",
-    "@ai-sdk/openai": "3.0.29",
+    "@ai-sdk/openai": "3.0.30",
     "@bunworks/inngest-realtime": "workspace:*",
     "@qbs-autonaim/ai": "workspace:*",
     "@qbs-autonaim/config": "workspace:*",
