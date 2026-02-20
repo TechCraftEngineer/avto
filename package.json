@@ -43,18 +43,12 @@
     "knip": "cross-env CI=true POSTGRES_URL=postgresql://postgres:postgres@localhost/qbs-dev knip"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.2",
+    "@biomejs/biome": "2.4.3",
     "@turbo/gen": "2.8.10",
     "@types/node": "^25.2.3",
     "concurrently": "^9.2.1",
     "cross-env": "^10.1.0",
     "diff": "^8.0.3",
-    "esbuild": "^0.27.3",
-    "js-yaml": "^4.1.1",
-    "lodash": "^4.17.23",
-    "lodash-es": "^4.17.23",
-    "sanitize-html": "^2.17.0",
-    "tmp": "^0.2.5",
     "turbo": "2.8.10",
     "typescript": "^5.9.3"
   },
