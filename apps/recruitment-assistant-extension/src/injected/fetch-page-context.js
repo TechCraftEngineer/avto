@@ -33,9 +33,11 @@
       ? "HH_VACANCY_HTML_RESULT"
       : type === "resume"
         ? "HH_RESUME_HTML_RESULT"
-        : type === "image"
-          ? "HH_IMAGE_RESULT"
-          : "HH_RESUME_HTML_RESULT";
+        : type === "resume-text"
+          ? "HH_RESUME_TEXT_HTML_RESULT"
+          : type === "image"
+            ? "HH_IMAGE_RESULT"
+            : "HH_RESUME_HTML_RESULT";
 
   if (type === "image") {
     fetch(url, { credentials: "include" })

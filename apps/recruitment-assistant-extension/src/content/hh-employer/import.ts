@@ -7,6 +7,7 @@ import {
   FETCH_DELAY_MS,
   fetchPhotoAsBase64,
   fetchResumeHtml,
+  fetchResumeTextHtml,
   fetchVacancyPrintHtml,
   parseResumeFromHtml,
   type HHEmployerPageType,
@@ -308,47 +309,26 @@ export async function runResponsesImport(
       respondedAt: r.respondedAt,
       status: r.status,
       coverLetter: r.coverLetter,
-      email: undefined as string | undefined,
-      phone: undefined as string | undefined,
-      experience: undefined as string | undefined,
-      education: undefined as string | undefined,
-      skills: undefined as string[] | undefined,
-      photoBase64: undefined as string | undefined,
-      photoContentType: undefined as string | undefined,
+      resumeTextHtml: undefined as string | undefined,
     }));
 
-    if (fetchResumeDetails && responses.length <= 100) {
+    // Загрузка текстовой версии резюме (HTML) для отправки на сервер
+    if (fetchResumeDetails) {
       onProgress?.({
         stage: "resume-details",
         current: 0,
         total: responses.length,
-        message: "Загрузка деталей резюме...",
+        message: "Загрузка текстовых версий резюме...",
       });
 
       for (let i = 0; i < responses.length; i++) {
         const r = responses[i];
         if (r?.resumeUrl) {
           try {
-            const html = await fetchResumeHtml(r.resumeUrl);
-            const details = parseResumeFromHtml(html);
+            const textHtml = await fetchResumeTextHtml(r.resumeUrl, r.name);
             const item = responsesToSend[i];
             if (item) {
-              item.email = details.email ?? undefined;
-              item.phone = details.phone ?? undefined;
-              item.experience = details.experience || undefined;
-              item.education = details.education || undefined;
-              item.skills = details.skills.length ? details.skills : undefined;
-              if (details.photoUrl) {
-                try {
-                  const { base64, contentType } = await fetchPhotoAsBase64(
-                    details.photoUrl,
-                  );
-                  item.photoBase64 = base64;
-                  item.photoContentType = contentType;
-                } catch (_e) {
-                  // Пропускаем ошибки загрузки фото
-                }
-              }
+              item.resumeTextHtml = textHtml;
             }
           } catch (_e) {
             // Пропускаем ошибки отдельных резюме

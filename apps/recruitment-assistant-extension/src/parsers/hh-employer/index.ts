@@ -26,3 +26,5 @@ export {
   parseResumeFromHtml,
   FETCH_DELAY_MS,
 } from "./fetch-resume-html";
+
+export { fetchResumeTextHtml } from "./fetch-resume-text";
