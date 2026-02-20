@@ -6,7 +6,7 @@ import type {
 import type {
   ExtendedProfileData,
   ParsedProfileData,
-} from "@qbs-autonaim/shared/types";
+} from "@qbs-autonaim/shared";
 
 export type { ExperienceItem, EducationItem, PersonalInfo };
 

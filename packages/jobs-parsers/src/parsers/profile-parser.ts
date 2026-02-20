@@ -4,7 +4,7 @@
  */
 
 import type { StoredProfileData } from "@qbs-autonaim/db/schema";
-import type { BaseProfileData, ProfilePlatform } from "@qbs-autonaim/shared/types";
+import type { BaseProfileData, ProfilePlatform } from "@qbs-autonaim/shared";
 import { scrapeKworkProfile } from "./kwork/profile-scraper";
 import {
   URLSecurityError,

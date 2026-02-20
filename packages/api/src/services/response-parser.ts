@@ -5,15 +5,7 @@
  * Поддерживает одиночный и массовый парсинг.
  */
 
-/**
- * Контактная информация фрилансера
- */
-export interface ContactInfo {
-  email?: string;
-  phone?: string;
-  telegram?: string;
-  platformProfile?: string;
-}
+import type { ContactInfo } from "@qbs-autonaim/shared/server";
 
 /**
  * Распарсенный отклик фрилансера

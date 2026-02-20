@@ -31,3 +31,20 @@ export type {
   ExtendedGigData,
   GigContextData,
 } from "./gig";
+
+// Типы вакансий
+export type {
+  VacancyRequirements,
+  BaseVacancyData,
+  ExtendedVacancyData,
+  VacancyEvaluationData,
+  ParsedVacancyData,
+} from "./vacancy";
+
+// Типы откликов
+export type {
+  BaseResponseData,
+  ParsedResponseData,
+  ResumeContactInfo,
+  ResumeExperience,
+} from "./response";

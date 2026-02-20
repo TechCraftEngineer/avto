@@ -6,16 +6,7 @@
  */
 
 import { db } from "@qbs-autonaim/db/client";
-
-/**
- * Контактная информация кандидата
- */
-export interface ContactInfo {
-  email?: string;
-  phone?: string;
-  telegram?: string;
-  platformProfile?: string;
-}
+import type { ContactInfo } from "@qbs-autonaim/shared/server";
 
 /**
  * Опции генерации шортлиста

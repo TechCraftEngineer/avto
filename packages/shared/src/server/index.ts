@@ -6,7 +6,7 @@
  */
 
 export type {
-  GigContactInfo,
+  ContactInfo,
   GigShortlist,
   GigShortlistCandidate,
   GigShortlistOptions,

@@ -1,7 +1,7 @@
 // Специфичные типы для gig откликов
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
-import type { GigContextData } from "@qbs-autonaim/shared/types";
+import type { GigContextData } from "@qbs-autonaim/shared";
 
 /**
  * Gig отклик - inferred тип из API
