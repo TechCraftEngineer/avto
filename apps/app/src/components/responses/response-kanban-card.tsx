@@ -37,7 +37,7 @@ export function ResponseKanbanCard({
 
   return (
     <div
-      className={`bg-card border border-border rounded-lg shadow-sm transition-all duration-200 hover:shadow-md hover:border-primary/30 flex flex-col group relative ${getBorderColor()}`}
+      className={`bg-background border border-border rounded-lg shadow-sm transition-all duration-200 hover:shadow-md hover:border-primary/30 flex flex-col group relative ${getBorderColor()}`}
     >
       <div className="flex items-center justify-between gap-2 px-3 py-2 border-b">
         <div className="flex items-center gap-2 min-w-0">
