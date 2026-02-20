@@ -1,6 +1,5 @@
 import {
   eq,
-  globalCandidate,
   gig,
   vacancy,
   GlobalCandidateRepository,
@@ -10,7 +9,6 @@ import { response, workspace } from "@qbs-autonaim/db/schema";
 import { getAIModel } from "@qbs-autonaim/lib/ai";
 import { parseFullName, parseBirthDate } from "@qbs-autonaim/lib";
 import { AgentFactory } from "@qbs-autonaim/ai";
-import type { ResumeStructurerOutput } from "@qbs-autonaim/ai";
 import { inngest } from "../../client";
 
 /**

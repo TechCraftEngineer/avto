@@ -7,12 +7,9 @@ import {
   FETCH_DELAY_MS,
   fetchPhotoAsBase64,
   fetchResumeTextHtml,
-  fetchVacancyPrintHtml,
-  type HHEmployerPageType,
   type ParsedResponse,
 } from "../../parsers/hh-employer";
-import { setSelectedIds } from "./storage";
-import { collectAllResponses, collectAllVacancies, collectSelectedVacancies } from "./collectors";
+import { collectAllResponses } from "./collectors";
 import type { ImportProgress, ImportResult } from "./types";
 
 export type { ImportProgress, ImportResult } from "./types";
