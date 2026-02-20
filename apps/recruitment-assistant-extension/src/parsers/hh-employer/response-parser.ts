@@ -11,6 +11,9 @@ export interface ParsedResponse {
   respondedAt?: string;
   coverLetter?: string;
   externalId: string;
+  photoUrl?: string;
+  photoBase64?: string;
+  photoContentType?: string;
 }
 
 const CONTAINER_SELECTOR = 'div[data-qa="vacancy-real-responses"]';
@@ -34,6 +37,27 @@ function parseRespondedAtFromElement(element: Element): string | undefined {
 }
 
 /**
+ * Извлекает URL фото из элемента отклика
+ */
+function parsePhotoUrlFromElement(element: Element): string | undefined {
+  const avatarDiv = element.querySelector(
+    'div[data-qa="resume-card-avatar resume-card-avatar_with-user-photo"]'
+  );
+  if (!avatarDiv) return undefined;
+
+  const img = avatarDiv.querySelector("img");
+  if (!img?.src) return undefined;
+
+  // Проверяем, что это не placeholder
+  const src = img.src;
+  if (src.includes("placeholder") || src.includes("no-photo")) {
+    return undefined;
+  }
+
+  return src;
+}
+
+/**
  * Парсит отклики с текущей страницы
  */
 export function parseResponsesFromDOM(
@@ -54,12 +78,14 @@ export function parseResponsesFromDOM(
     const name = nameEl?.textContent?.trim() || "";
 
     const respondedAt = parseRespondedAtFromElement(element);
+    const photoUrl = parsePhotoUrlFromElement(element);
 
     responses.push({
       name,
       resumeUrl,
       resumeId,
       respondedAt,
+      photoUrl,
       externalId: `${vacancyExternalId}_${resumeId}_${index}`,
     });
   });

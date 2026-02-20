@@ -1,15 +1,14 @@
 import { AgentFactory } from "@qbs-autonaim/ai";
 import type { HHContacts } from "@qbs-autonaim/jobs";
-import { parseBirthDate } from "@qbs-autonaim/lib";
 import { getAIModel } from "@qbs-autonaim/lib/ai";
 import type { WorkExperience } from "@qbs-autonaim/validators";
-import { formatPhone, normalizePhone } from "@qbs-autonaim/validators";
 import type { Page } from "puppeteer";
 import { HH_CONFIG } from "../../core/config/config";
 import { downloadCandidatePhoto } from "./download-candidate-photo";
 import { downloadResumeHtml } from "./download-resume-html";
 import { downloadResumePdf } from "./download-resume-pdf";
 import { downloadResumeText } from "./download-resume-text";
+import { processResumeStructuredData } from "./process-parsed-resume";
 import type { ResumeExperienceItem } from "./types";
 
 /**
@@ -135,78 +134,12 @@ export async function parseResumeData(
     const structuredData = structuredResult.data;
     console.log("✅ Данные извлечены через LLM");
 
-    // Преобразуем данные в нужный формат
-    if (structuredData.personalInfo) {
-      const { email, phone, telegram, whatsapp, birthDate } =
-        structuredData.personalInfo;
-
-      // Формируем contacts в формате HH
-      const contacts: HHContacts = {};
-
-      if (phone) {
-        // Нормализуем и форматируем телефон
-        const normalizedPhone = normalizePhone(phone);
-        const formattedPhone = formatPhone(normalizedPhone);
-
-        contacts.phone = [
-          {
-            raw: normalizedPhone,
-            formatted: formattedPhone,
-          },
-        ];
-        result.phone = normalizedPhone;
-        console.log(`✅ Найден телефон: ${phone} -> ${formattedPhone}`);
-      }
-
-      if (email) {
-        contacts.email = [{ email }];
-        result.email = email;
-        console.log(`✅ Найден email: ${email}`);
-      }
-
-      // Добавляем Telegram и WhatsApp в preferred контакты
-      const preferredContacts: Array<{
-        type: { id: string; name: string };
-        value?: string;
-      }> = [];
-
-      if (telegram) {
-        preferredContacts.push({
-          type: { id: "telegram", name: "Telegram" },
-          value: telegram.startsWith("@") ? telegram.slice(1) : telegram,
-        });
-        console.log(`✅ Найден Telegram: ${telegram}`);
-      }
-
-      if (whatsapp) {
-        preferredContacts.push({
-          type: { id: "whatsapp", name: "WhatsApp" },
-          value: whatsapp,
-        });
-        console.log(`✅ Найден WhatsApp: ${whatsapp}`);
-      }
-
-      if (preferredContacts.length > 0) {
-        contacts.preferred = preferredContacts;
-      }
-
-      if (Object.keys(contacts).length > 0) {
-        result.contacts = contacts;
-      }
-
-      // Обрабатываем дату рождения
-      if (birthDate) {
-        const parsedDate = parseBirthDate(birthDate);
-        if (parsedDate) {
-          result.birthDate = parsedDate;
-          console.log(
-            `✅ Дата рождения извлечена LLM: ${birthDate} -> ${parsedDate.toISOString()}`,
-          );
-        } else {
-          console.log(`⚠️ Ошибка парсинга даты рождения: ${birthDate}`);
-        }
-      }
-    }
+    // Обрабатываем распарсенные данные через общую утилиту
+    const processedData = processResumeStructuredData(structuredData);
+    result.contacts = processedData.contacts;
+    result.phone = processedData.phone;
+    result.email = processedData.email;
+    result.birthDate = processedData.birthDate;
 
     // Преобразуем опыт работы
     if (structuredData.experience && structuredData.experience.length > 0) {

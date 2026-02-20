@@ -306,6 +306,7 @@ export async function runResponsesImport(
       respondedAt: r.respondedAt,
       status: r.status,
       coverLetter: r.coverLetter,
+      photoUrl: r.photoUrl,
       resumeTextHtml: undefined as string | undefined,
     }));
 

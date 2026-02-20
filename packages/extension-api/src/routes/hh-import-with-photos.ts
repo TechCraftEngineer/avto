@@ -4,6 +4,9 @@ import { response, vacancy as vacancySchema } from "@qbs-autonaim/db/schema";
 import { inngest } from "@qbs-autonaim/jobs/client";
 import { saveBasicResponse } from "@qbs-autonaim/jobs/services/response";
 import {
+  uploadCandidatePhoto,
+} from "@qbs-autonaim/jobs";
+import {
   saveBasicVacancy,
   updateVacancyDescription,
 } from "@qbs-autonaim/jobs/services/vacancy";
@@ -44,7 +47,8 @@ const responseItemSchema = z.object({
   name: z.string(),
   respondedAt: z.string().optional(),
   coverLetter: z.string().optional(),
-  photoUrl: z.string().optional(),
+  photoBase64: z.string().optional(),
+  photoContentType: z.string().optional(),
   resumeTextHtml: z.string().optional(),
 });
 
@@ -234,17 +238,37 @@ hhImportRouter.post("/", async (c) => {
         respondedAt,
         { 
           coverLetter: r.coverLetter ?? null,
-          photoUrl: r.photoUrl ?? null,
         },
       );
 
       if (saveResult.success && saveResult.data) {
         imported++;
+        const responseId = saveResult.data.id;
+
+        // Обработка фото, если передан base64
+        if (r.photoBase64 && r.photoContentType) {
+          try {
+            const photoBuffer = Buffer.from(r.photoBase64, 'base64');
+            const photoResult = await uploadCandidatePhoto(
+              photoBuffer,
+              r.resumeId,
+              r.photoContentType
+            );
+
+            if (photoResult.success && photoResult.data) {
+              await db
+                .update(response)
+                .set({ photoFileId: photoResult.data })
+                .where(eq(response.id, responseId));
+            }
+          } catch (error) {
+            // Не прерываем процесс, если фото не удалось загрузить
+            console.error(`Failed to upload photo for ${r.name}:`, error);
+          }
+        }
 
         // Если есть resumeTextHtml, сохраняем его и запускаем парсинг
         if (r.resumeTextHtml?.trim()) {
-          const responseId = saveResult.data.id;
-
           // Извлекаем текст из HTML, добавляя пробелы вокруг блочных элементов
           const textContent = r.resumeTextHtml
             .replace(/<(br|p|div|h[1-6]|li|tr|td|th)[^>]*>/gi, " ")
