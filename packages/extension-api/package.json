@@ -11,9 +11,9 @@
   },
   "dependencies": {
     "@qbs-autonaim/db": "workspace:*",
-    "@t3-oss/env-core": "0.13.10",
+    "@qbs-autonaim/html-parsers": "workspace:*",
     "@qbs-autonaim/jobs": "workspace:*",
-    "@qbs-autonaim/jobs-parsers": "workspace:*",
+    "@t3-oss/env-core": "0.13.10",
     "hono": "^4.12.0",
     "zod": "4.3.6"
   },

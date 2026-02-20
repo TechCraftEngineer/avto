@@ -1,8 +1,8 @@
 import { eq, WorkspaceRepository } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { vacancy as vacancySchema } from "@qbs-autonaim/db/schema";
+import { extractVacancyDataFromHtml } from "@qbs-autonaim/html-parsers";
 import { updateVacancyDescription } from "@qbs-autonaim/jobs/services/vacancy";
-import { extractVacancyDataFromHtml } from "@qbs-autonaim/jobs-parsers";
 import type { Context } from "hono";
 import { parseVacancyHtmlSchema } from "../schemas";
 
@@ -29,7 +29,10 @@ export async function handleParseVacancyHtml(c: Context) {
   const data = parsed.data;
 
   const workspaceRepository = new WorkspaceRepository(db);
-  const member = await workspaceRepository.checkAccess(data.workspaceId, userId);
+  const member = await workspaceRepository.checkAccess(
+    data.workspaceId,
+    userId,
+  );
   if (!member) {
     return c.json({ error: "Нет доступа к workspace" }, 403);
   }
