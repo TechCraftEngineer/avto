@@ -4,9 +4,9 @@ import {
   closestCenter,
   DndContext,
   type DragEndEvent,
+  type DragOverEvent,
   DragOverlay,
   type DragStartEvent,
-  MouseSensor,
   PointerSensor,
   TouchSensor,
   useSensor,
@@ -58,6 +58,7 @@ export function ResponsesKanban({
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [localResponses, setLocalResponses] = useState(responses);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -75,53 +76,14 @@ export function ResponsesKanban({
 
   const { mutate: updateStatus } = useMutation(
     trpc.vacancy.responses.updateStatus.mutationOptions({
-      onMutate: async ({ responseId, status }) => {
-        // Отменяем исходящие запросы для предотвращения гонки данных
-        await queryClient.cancelQueries({
-          queryKey: trpc.vacancy.responses.listWorkspace.queryKey(),
-        });
-
-        // Сохраняем предыдущее состояние для отката
-        const previousData = queryClient.getQueryData(
-          trpc.vacancy.responses.listWorkspace.queryKey(),
-        );
-
-        // Оптимистично обновляем статус в кэше
-        // Используем type assertion для обхода сложной типизации TanStack Query
-        type QueryData = {
-          responses: ResponseItem[];
-          [key: string]: unknown;
-        };
-        queryClient.setQueryData<QueryData>(
-          trpc.vacancy.responses.listWorkspace.queryKey(),
-          (old): QueryData | undefined => {
-            if (!old) return undefined;
-            return {
-              ...old,
-              responses: old.responses.map((r) =>
-                r.id === responseId ? { ...r, status } : r,
-              ),
-            };
-          },
-        );
-
-        return { previousData };
-      },
-      onError: (error, _variables, context) => {
-        // Откатываем изменения при ошибке
-        if (context?.previousData) {
-          queryClient.setQueryData(
-            trpc.vacancy.responses.listWorkspace.queryKey(),
-            context.previousData,
-          );
-        }
+      onError: (error) => {
+        setLocalResponses(responses);
         toast.error(error.message || "Не удалось обновить статус");
       },
       onSuccess: () => {
         toast.success("Статус отклика обновлён");
       },
       onSettled: () => {
-        // Синхронизируем с сервером после завершения
         queryClient.invalidateQueries({
           queryKey: trpc.vacancy.responses.listWorkspace.queryKey(),
         });
@@ -131,12 +93,12 @@ export function ResponsesKanban({
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
     setActiveId(event.active.id as string);
+    document.body.style.userSelect = "none";
   }, []);
 
-  const handleDragEnd = useCallback(
-    (event: DragEndEvent) => {
+  const handleDragOver = useCallback(
+    (event: DragOverEvent) => {
       const { active, over } = event;
-      setActiveId(null);
 
       if (!over) return;
 
@@ -151,8 +113,50 @@ export function ResponsesKanban({
 
       const newStatus = overId as ResponseStatus;
 
-      const response = responses.find((r) => r.id === responseId);
+      const response = localResponses.find((r) => r.id === responseId);
       if (!response || response.status === newStatus) return;
+
+      setLocalResponses((prev) =>
+        prev.map((r) => (r.id === responseId ? { ...r, status: newStatus } : r)),
+      );
+    },
+    [localResponses],
+  );
+
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+
+      document.body.style.userSelect = "";
+      setActiveId(null);
+
+      if (!over) {
+        setLocalResponses(responses);
+        return;
+      }
+
+      const responseId = active.id;
+      if (typeof responseId !== "string") {
+        setLocalResponses(responses);
+        return;
+      }
+
+      const overId = over.id;
+      const isColumn =
+        typeof overId === "string" &&
+        VALID_STATUSES.has(overId as ResponseStatus);
+      if (!isColumn) {
+        setLocalResponses(responses);
+        return;
+      }
+
+      const newStatus = overId as ResponseStatus;
+
+      const response = responses.find((r) => r.id === responseId);
+      if (!response || response.status === newStatus) {
+        setLocalResponses(responses);
+        return;
+      }
 
       updateStatus({
         responseId,
@@ -171,9 +175,13 @@ export function ResponsesKanban({
     [router, orgSlug, workspaceSlug],
   );
 
+  if (responses !== localResponses && !activeId) {
+    setLocalResponses(responses);
+  }
+
   const groupedResponses = statusColumns.map((column) => ({
     ...column,
-    responses: responses.filter((r) => r.status === column.id),
+    responses: localResponses.filter((r) => r.status === column.id),
   }));
 
   return (
@@ -181,6 +189,7 @@ export function ResponsesKanban({
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
       <div className="flex min-h-0 flex-1 flex-col overflow-x-auto rounded-2xl bg-muted/40 p-4">

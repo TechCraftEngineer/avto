@@ -30,7 +30,7 @@ export function getResumeTextUrl(
 }
 
 /**
- * Загружает HTML текстовой версии резюме через инжект в page context
+ * Загружает HTML текстовой версии резюме через background service worker
  */
 export function fetchResumeTextHtml(resumeUrl: string, candidateName?: string): Promise<string> {
   const textUrl = getResumeTextUrl(resumeUrl, candidateName);
@@ -40,38 +40,23 @@ export function fetchResumeTextHtml(resumeUrl: string, candidateName?: string): 
   }
 
   return new Promise((resolve, reject) => {
-    const id = `hh-resume-text-fetch-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    chrome.runtime.sendMessage(
+      {
+        type: "FETCH_RESUME_TEXT",
+        payload: { url: textUrl },
+      },
+      (response: { success: boolean; data?: string; error?: string }) => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+          return;
+        }
 
-    const handler = (event: MessageEvent) => {
-      if (
-        event.data?.type === "HH_RESUME_TEXT_HTML_RESULT" &&
-        event.data?.id === id
-      ) {
-        window.removeEventListener("message", handler);
-        if (event.data.error) {
-          reject(new Error(event.data.error));
+        if (response.success && response.data) {
+          resolve(response.data);
         } else {
-          resolve(event.data.html);
+          reject(new Error(response.error || "Ошибка загрузки текстовой версии"));
         }
       }
-    };
-
-    window.addEventListener("message", handler);
-
-    const script = document.createElement("script");
-    const scriptUrl = chrome.runtime.getURL(
-      "src/injected/fetch-page-context.js",
     );
-    script.src = scriptUrl;
-    script.dataset.fetchId = id;
-    script.dataset.fetchUrl = textUrl;
-    script.dataset.fetchType = "resume-text";
-    document.documentElement.appendChild(script);
-    script.remove();
-
-    setTimeout(() => {
-      window.removeEventListener("message", handler);
-      reject(new Error("Таймаут загрузки текстовой версии резюме"));
-    }, 30000);
   });
 }

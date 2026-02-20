@@ -15,6 +15,7 @@
     "https://linkedin.com/*",
     "https://hh.ru/*",
     "https://www.hh.ru/*",
+    "https://*.hh.ru/*",
     "https://app.avtonaim.qbsoft.ru/*",
     "http://localhost:3000/*"
   ],
@@ -28,7 +29,7 @@
         "https://linkedin.com/in/*",
         "https://hh.ru/resume/*",
         "https://www.hh.ru/resume/*",
-        "*://*.hh.ru/employer/resume/*"
+        "*://*.hh.ru/*"
       ],
       "js": ["src/content/content-script.tsx"],
       "css": ["src/content/content-styles.css"],
@@ -39,7 +40,7 @@
       "https://hh.ru/employer/*",
       "https://www.hh.ru/employer/*",
       "https://employer.hh.ru/*",
-      "*://*.hh.ru/employer/*"
+      "*://*.hh.ru/*"
     ],
     "js": ["src/content/hh-employer-content-script.ts"],
     "run_at": "document_idle"

@@ -12,7 +12,8 @@ type MessageType =
   | "API_REQUEST"
   | "PING"
   | "EXECUTE_IMPORT_SELECTED_VACANCIES"
-  | "EXECUTE_IMPORT_RESPONSES";
+  | "EXECUTE_IMPORT_RESPONSES"
+  | "FETCH_RESUME_TEXT";
 
 /**
  * Структура сообщения от content script / popup
@@ -324,6 +325,40 @@ chrome.runtime.onMessage.addListener(
               ok: false,
               error:
                 err instanceof Error ? err.message : "Ошибка выполнения",
+            });
+          }
+        })();
+        return true;
+      }
+
+      case "FETCH_RESUME_TEXT": {
+        const url = (message.payload as { url?: string })?.url;
+        if (typeof url !== "string") {
+          sendResponse({ success: false, error: "Неверный URL" });
+          return false;
+        }
+
+        (async () => {
+          try {
+            log("Загрузка текстовой версии резюме", { url });
+            const response = await fetch(url, {
+              credentials: "include",
+              headers: {
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+              },
+            });
+
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const html = await response.text();
+            sendResponse({ success: true, data: html });
+          } catch (err) {
+            logError("FETCH_RESUME_TEXT", err);
+            sendResponse({
+              success: false,
+              error: err instanceof Error ? err.message : "Ошибка загрузки",
             });
           }
         })();
