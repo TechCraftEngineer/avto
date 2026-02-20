@@ -64,6 +64,7 @@ const FETCH_TIMEOUT_MS = 10000;
 /** Разрешённые хосты для API-запросов (защита от SSRF) */
 const ALLOWED_HOSTS = [
   "app.avtonaim.qbsoft.ru",
+  "hooks.avtonaim.qbsoft.ru",
   "localhost",
   "127.0.0.1",
   "api.example.com", // для unit-тестов (RFC 2606 — зарезервированный домен)
@@ -72,7 +73,7 @@ const ALLOWED_HOSTS = [
 function isUrlAllowed(url: URL): boolean {
   const host = url.hostname.toLowerCase();
   return ALLOWED_HOSTS.some(
-    (allowed) => host === allowed || host.endsWith(`.${allowed}`)
+    (allowed) => host === allowed || host.endsWith(`.${allowed}`),
   );
 }
 
@@ -116,12 +117,8 @@ async function proxyApiRequest(request: ApiRequest): Promise<ApiResponse> {
 
     // Подготовка заголовков (Content-Type только для методов с телом)
     const headers: HeadersInit = { ...request.headers };
-    if (
-      request.body &&
-      ["POST", "PUT", "PATCH"].includes(request.method)
-    ) {
-      (headers as Record<string, string>)["Content-Type"] =
-        "application/json";
+    if (request.body && ["POST", "PUT", "PATCH"].includes(request.method)) {
+      (headers as Record<string, string>)["Content-Type"] = "application/json";
     }
 
     // Подготовка опций запроса
@@ -137,10 +134,7 @@ async function proxyApiRequest(request: ApiRequest): Promise<ApiResponse> {
 
     // Таймаут для fetch
     const controller = new AbortController();
-    const timeoutId = setTimeout(
-      () => controller.abort(),
-      FETCH_TIMEOUT_MS,
-    );
+    const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
     fetchOptions.signal = controller.signal;
 
     const response = await fetch(request.url, fetchOptions);
@@ -231,7 +225,8 @@ chrome.runtime.onMessage.addListener(
         if (!isApiRequest(message.payload)) {
           sendResponse({
             success: false,
-            error: "Некорректный формат запроса: ожидается объект с url и method",
+            error:
+              "Некорректный формат запроса: ожидается объект с url и method",
           });
           return true;
         }
@@ -288,8 +283,7 @@ chrome.runtime.onMessage.addListener(
             logError("EXECUTE_IMPORT_SELECTED_VACANCIES", err);
             sendResponse({
               ok: false,
-              error:
-                err instanceof Error ? err.message : "Ошибка выполнения",
+              error: err instanceof Error ? err.message : "Ошибка выполнения",
             });
           }
         })();
@@ -323,8 +317,7 @@ chrome.runtime.onMessage.addListener(
             logError("EXECUTE_IMPORT_RESPONSES", err);
             sendResponse({
               ok: false,
-              error:
-                err instanceof Error ? err.message : "Ошибка выполнения",
+              error: err instanceof Error ? err.message : "Ошибка выполнения",
             });
           }
         })();
@@ -344,24 +337,27 @@ chrome.runtime.onMessage.addListener(
             const response = await fetch(url, {
               credentials: "include",
               headers: {
-                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                Accept:
+                  "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
               },
             });
 
             if (!response.ok) {
-              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+              throw new Error(
+                `HTTP ${response.status}: ${response.statusText}`,
+              );
             }
 
             const html = await response.text();
-            
+
             // Извлекаем содержимое <body> через регулярное выражение
             // Service Worker не имеет доступа к DOMParser
             const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-            
+
             if (!bodyMatch || !bodyMatch[1]) {
               throw new Error("Не найден элемент body в HTML");
             }
-            
+
             const content = bodyMatch[1].trim();
             sendResponse({ success: true, data: content });
           } catch (err) {

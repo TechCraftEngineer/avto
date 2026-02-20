@@ -10,13 +10,13 @@
     "128": "icons/icon128.png"
   },
   "permissions": ["storage", "activeTab", "tabs", "scripting"],
-  "content_security_policy":{"extension_pages":"script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"},"host_permissions": [
+  "host_permissions": [
     "https://www.linkedin.com/*",
     "https://linkedin.com/*",
     "https://hh.ru/*",
     "https://www.hh.ru/*",
     "https://*.hh.ru/*",
-    "https://app.avtonaim.qbsoft.ru/*",
+    "https://*.avtonaim.qbsoft.ru/*",
     "http://localhost:3000/*"
   ],
   "background": {

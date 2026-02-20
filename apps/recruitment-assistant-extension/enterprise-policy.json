@@ -1,0 +1,11 @@
+{
+  "ExtensionInstallForcelist": [
+    "YOUR_EXTENSION_ID;https://app.avtonaim.qbsoft.ru/extension/updates.xml"
+  ],
+  "ExtensionSettings": {
+    "YOUR_EXTENSION_ID": {
+      "installation_mode": "force_installed",
+      "update_url": "https://app.avtonaim.qbsoft.ru/extension/updates.xml"
+    }
+  }
+}

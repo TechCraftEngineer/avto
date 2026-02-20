@@ -626,10 +626,7 @@ export class ContentScript {
    */
   private async checkApiConfiguration(): Promise<boolean> {
     try {
-      const result = await chrome.storage.local.get([
-        "authToken",
-        "userData",
-      ]);
+      const result = await chrome.storage.local.get(["authToken", "userData"]);
       const token = result.authToken;
       const userData = result.userData as
         | { organizationId?: string }
@@ -769,13 +766,14 @@ export class ContentScript {
     try {
       const result = await chrome.storage.local.get(["authToken", "userData"]);
       const token = result.authToken as string | undefined;
-      const userData = result.userData as { organizationId?: string } | undefined;
+      const userData = result.userData as
+        | { organizationId?: string }
+        | undefined;
 
       if (!token || !userData?.organizationId) {
         this.showNotification({
           type: "error",
-          message:
-            "Войдите в систему через расширение для импорта кандидатов.",
+          message: "Войдите в систему через расширение для импорта кандидатов.",
         });
         return;
       }
@@ -815,13 +813,16 @@ export class ContentScript {
       let errorMessage = "Не удалось импортировать данные в систему";
 
       if (error instanceof Error) {
-        errorMessage = `Ошибка импорта: ${error.message}`;
+        errorMessage = error.message;
       }
 
       this.showNotification({
         type: "error",
         message: errorMessage,
       });
+
+      // Пробрасываем ошибку для обработки в popup
+      throw new Error(errorMessage);
     }
   }
 
