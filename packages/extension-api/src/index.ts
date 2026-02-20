@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
+import { env } from "./env";
 import { authMiddleware } from "./middleware/auth";
 import { hhImportRouter } from "./routes/hh-import";
 import { organizationsRouter } from "./routes/organizations";
@@ -69,7 +70,7 @@ app.onError((err, c) => {
   );
 });
 
-const port = Number(process.env.EXTENSION_API_PORT) || 3002;
+const port = env.EXTENSION_API_PORT;
 
 console.log(
   JSON.stringify({
@@ -78,7 +79,7 @@ console.log(
     timestamp: new Date().toISOString(),
     context: {
       port,
-      env: process.env.NODE_ENV || "development",
+      env: env.NODE_ENV,
     },
   }),
 );

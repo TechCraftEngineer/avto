@@ -3,7 +3,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'packages/ext-api/**'
+      - 'packages/extension-api/**'
       - 'packages/jobs/**'
       - 'packages/lib/**'
 concurrency:
@@ -31,7 +31,7 @@ jobs:
           CR_REPOSITORY: ext-api
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -f packages/ext-api/Dockerfile -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:latest .
+          docker build -f packages/extension-api/Dockerfile -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:latest .
           docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG
           docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:latest
       - name: Deploy To Cluster
