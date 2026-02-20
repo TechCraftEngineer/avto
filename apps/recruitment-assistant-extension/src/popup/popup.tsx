@@ -41,7 +41,7 @@ function Popup() {
   const { pageContext, selectedCount, setSelectedCount } = usePageContext();
   const settings = usePopupSettings(auth.authService);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: auth.authService is stable
   useEffect(() => {
     if (auth.isAuthenticated) {
       setSettingsError(null);

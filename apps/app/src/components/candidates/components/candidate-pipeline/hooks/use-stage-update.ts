@@ -1,13 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useTRPC } from "~/trpc/react";
-import type { FunnelStage } from "../../../types/types";
-
-interface UpdateStageParams {
-  workspaceId: string;
-  candidateId: string;
-  stage: FunnelStage;
-}
 
 export function useStageUpdate() {
   const trpc = useTRPC();

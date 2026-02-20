@@ -238,7 +238,7 @@ hhImportRouter.post("/", async (c) => {
         imported++;
 
         // Если есть resumeTextHtml, сохраняем его и запускаем парсинг
-        if (r.resumeTextHtml && r.resumeTextHtml.trim()) {
+        if (r.resumeTextHtml?.trim()) {
           const responseId = saveResult.data.id;
 
           // Извлекаем текст из HTML, добавляя пробелы вокруг блочных элементов

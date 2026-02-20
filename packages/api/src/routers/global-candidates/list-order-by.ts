@@ -17,7 +17,6 @@ export function buildOrderBy(input: ListInput): SQL[] {
       return [orderDir(candidateOrganization.updatedAt), byId];
     case "fullName":
       return [orderDir(globalCandidate.fullName), byId];
-    case "lastActivity":
     default:
       return [orderDir(lastActivityExpr()), byId];
   }

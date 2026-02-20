@@ -5,11 +5,8 @@
 import { getExtensionApiUrl } from "../../config";
 import {
   FETCH_DELAY_MS,
-  fetchPhotoAsBase64,
-  fetchResumeHtml,
   fetchResumeTextHtml,
   fetchVacancyPrintHtml,
-  parseResumeFromHtml,
   type HHEmployerPageType,
   type ParsedResponse,
 } from "../../parsers/hh-employer";

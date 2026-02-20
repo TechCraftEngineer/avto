@@ -1,5 +1,3 @@
-import type { candidateOrganization, globalCandidate } from "@qbs-autonaim/db/schema";
-
 /** Тип строки из запроса кандидатов - синхронизирован с LIST_SELECT в list.ts */
 type CandidateLinkRow = {
   id: string;

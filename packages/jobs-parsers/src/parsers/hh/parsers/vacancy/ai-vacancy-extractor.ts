@@ -9,7 +9,6 @@ import type { Page } from "puppeteer";
 import type { VacancyData } from "../../../types";
 import { HH_CONFIG } from "../../core/config/config";
 import { stripHtmlToBareTags } from "../../utils/html-utils";
-import { humanDelay } from "../../utils/human-behavior";
 import { getVacancyPrintUrl } from "../../utils/print-url";
 
 /**

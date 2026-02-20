@@ -1,4 +1,3 @@
-import type { getSubscriptionToken } from "@bunworks/inngest-realtime";
 import { useState } from "react";
 
 /**
