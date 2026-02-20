@@ -12,3 +12,9 @@
     font-family: system-ui, -apple-system, sans-serif;
   }
 }
+
+/* Popup scroll when content is tall */
+#root {
+  max-height: 500px;
+  overflow-y: auto;
+}

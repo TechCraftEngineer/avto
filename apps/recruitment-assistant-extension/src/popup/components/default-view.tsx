@@ -1,17 +1,53 @@
+import type { Organization, Workspace } from "../types";
+import type { AuthService } from "../../core/auth-service";
 import { AuthenticatedLayout } from "./authenticated-layout";
 
 interface DefaultViewProps {
   userEmail: string | null;
-  onOpenSettings: () => void;
   onLogout: () => void;
+  authService: AuthService;
+  selectedOrgId: string | null;
+  setSelectedOrgId: (id: string | null) => void;
+  selectedWorkspaceId: string | null;
+  setSelectedWorkspaceId: (id: string | null) => void;
+  organizations: Organization[];
+  workspaces: Workspace[];
+  setWorkspaces: (ws: Workspace[]) => void;
+  isLoadingSettings: boolean;
+  settingsError: string | null;
+  onSettingsError: (err: string | null) => void;
 }
 
-export function DefaultView({ userEmail, onOpenSettings, onLogout }: DefaultViewProps) {
+export function DefaultView({
+  userEmail,
+  onLogout,
+  authService,
+  selectedOrgId,
+  setSelectedOrgId,
+  selectedWorkspaceId,
+  setSelectedWorkspaceId,
+  organizations,
+  workspaces,
+  setWorkspaces,
+  isLoadingSettings,
+  settingsError,
+  onSettingsError,
+}: DefaultViewProps) {
   return (
     <AuthenticatedLayout
       userEmail={userEmail}
-      onOpenSettings={onOpenSettings}
       onLogout={onLogout}
+      authService={authService}
+      selectedOrgId={selectedOrgId}
+      setSelectedOrgId={setSelectedOrgId}
+      selectedWorkspaceId={selectedWorkspaceId}
+      setSelectedWorkspaceId={setSelectedWorkspaceId}
+      organizations={organizations}
+      workspaces={workspaces}
+      setWorkspaces={setWorkspaces}
+      isLoadingSettings={isLoadingSettings}
+      settingsError={settingsError}
+      onSettingsError={onSettingsError}
     >
       <div className="flex flex-col items-center gap-4">
         <div className="flex size-10 items-center justify-center rounded-full bg-green-100 text-lg font-semibold text-green-600">

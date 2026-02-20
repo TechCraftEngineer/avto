@@ -1,60 +1,55 @@
 import "./popup.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { DefaultView } from "./components/default-view";
 import { LoginView } from "./components/login-view";
+import { PopupHeader } from "./components/popup-header";
 import { ProfileView } from "./components/profile-view";
 import { ResponsesView } from "./components/responses-view";
-import { SettingsView } from "./components/settings-view";
 import { VacanciesView } from "./components/vacancies-view";
 import { usePageContext } from "./hooks/use-page-context";
-import { PopupHeader } from "./components/popup-header";
 import { usePopupAuth } from "./hooks/use-popup-auth";
 import { usePopupSettings } from "./hooks/use-popup-settings";
+
+const settingsProps = (
+  auth: ReturnType<typeof usePopupAuth>,
+  settings: ReturnType<typeof usePopupSettings>,
+  settingsError: string | null,
+  setSettingsError: (err: string | null) => void,
+) => ({
+  authService: auth.authService,
+  selectedOrgId: auth.selectedOrgId,
+  setSelectedOrgId: auth.setSelectedOrgId,
+  selectedWorkspaceId: auth.selectedWorkspaceId,
+  setSelectedWorkspaceId: auth.setSelectedWorkspaceId,
+  organizations: settings.organizations,
+  workspaces: settings.workspaces,
+  setWorkspaces: settings.setWorkspaces,
+  isLoadingSettings: settings.isLoadingSettings,
+  settingsError,
+  onSettingsError: setSettingsError,
+});
 
 /**
  * Popup расширения — авторизация и контекстные действия.
  * На страницах hh.ru/LinkedIn показывает кнопку «Извлечь данные».
  */
 function Popup() {
-  const [showSettings, setShowSettings] = useState(false);
   const [settingsError, setSettingsError] = useState<string | null>(null);
 
   const auth = usePopupAuth();
   const { pageContext, selectedCount, setSelectedCount } = usePageContext();
   const settings = usePopupSettings(auth.authService);
 
-  const handleOpenSettings = () => {
-    setShowSettings(true);
-    setSettingsError(null);
-    settings
-      .loadOrganizationsAndWorkspaces(auth.selectedOrgId)
-      .then((err) => setSettingsError(err ?? null));
-  };
-
-  const handleCloseSettings = () => {
-    setShowSettings(false);
-    setSettingsError(null);
-  };
-
-  if (showSettings) {
-    return (
-      <SettingsView
-        authService={auth.authService}
-        selectedOrgId={auth.selectedOrgId}
-        setSelectedOrgId={auth.setSelectedOrgId}
-        selectedWorkspaceId={auth.selectedWorkspaceId}
-        setSelectedWorkspaceId={auth.setSelectedWorkspaceId}
-        organizations={settings.organizations}
-        workspaces={settings.workspaces}
-        setWorkspaces={settings.setWorkspaces}
-        isLoadingSettings={settings.isLoadingSettings}
-        error={settingsError}
-        onError={setSettingsError}
-        onClose={handleCloseSettings}
-      />
-    );
-  }
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  useEffect(() => {
+    if (auth.isAuthenticated) {
+      setSettingsError(null);
+      settings
+        .loadOrganizationsAndWorkspaces(auth.selectedOrgId)
+        .then((err) => setSettingsError(err ?? null));
+    }
+  }, [auth.isAuthenticated]);
 
   if (auth.isAuthenticated === null) {
     const version = chrome.runtime.getManifest().version;
@@ -71,12 +66,19 @@ function Popup() {
     return <LoginView />;
   }
 
+  const layoutProps = settingsProps(
+    auth,
+    settings,
+    settingsError,
+    setSettingsError,
+  );
+
   if (pageContext?.type === "hh-responses") {
     return (
       <ResponsesView
         userEmail={auth.userEmail}
-        onOpenSettings={handleOpenSettings}
         onLogout={auth.logout}
+        {...layoutProps}
       />
     );
   }
@@ -87,9 +89,9 @@ function Popup() {
         pageContext={pageContext}
         selectedCount={selectedCount}
         userEmail={auth.userEmail}
-        onOpenSettings={handleOpenSettings}
         onLogout={auth.logout}
         onImportSuccess={() => setSelectedCount(0)}
+        {...layoutProps}
       />
     );
   }
@@ -99,8 +101,8 @@ function Popup() {
       <ProfileView
         pageContext={pageContext}
         userEmail={auth.userEmail}
-        onOpenSettings={handleOpenSettings}
         onLogout={auth.logout}
+        {...layoutProps}
       />
     );
   }
@@ -108,8 +110,8 @@ function Popup() {
   return (
     <DefaultView
       userEmail={auth.userEmail}
-      onOpenSettings={handleOpenSettings}
       onLogout={auth.logout}
+      {...layoutProps}
     />
   );
 }

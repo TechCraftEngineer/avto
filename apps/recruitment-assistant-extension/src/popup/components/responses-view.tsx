@@ -1,14 +1,40 @@
 import { useState } from "react";
+import type { Organization, Workspace } from "../types";
+import type { AuthService } from "../../core/auth-service";
 import { AuthenticatedLayout } from "./authenticated-layout";
 import { Alert, Button } from "../ui";
 
 interface ResponsesViewProps {
   userEmail: string | null;
-  onOpenSettings: () => void;
   onLogout: () => void;
+  authService: AuthService;
+  selectedOrgId: string | null;
+  setSelectedOrgId: (id: string | null) => void;
+  selectedWorkspaceId: string | null;
+  setSelectedWorkspaceId: (id: string | null) => void;
+  organizations: Organization[];
+  workspaces: Workspace[];
+  setWorkspaces: (ws: Workspace[]) => void;
+  isLoadingSettings: boolean;
+  settingsError: string | null;
+  onSettingsError: (err: string | null) => void;
 }
 
-export function ResponsesView({ userEmail, onOpenSettings, onLogout }: ResponsesViewProps) {
+export function ResponsesView({
+  userEmail,
+  onLogout,
+  authService,
+  selectedOrgId,
+  setSelectedOrgId,
+  selectedWorkspaceId,
+  setSelectedWorkspaceId,
+  organizations,
+  workspaces,
+  setWorkspaces,
+  isLoadingSettings,
+  settingsError,
+  onSettingsError,
+}: ResponsesViewProps) {
   const [error, setError] = useState<string | null>(null);
   const [isImporting, setIsImporting] = useState(false);
 
@@ -58,8 +84,18 @@ export function ResponsesView({ userEmail, onOpenSettings, onLogout }: Responses
   return (
     <AuthenticatedLayout
       userEmail={userEmail}
-      onOpenSettings={onOpenSettings}
       onLogout={onLogout}
+      authService={authService}
+      selectedOrgId={selectedOrgId}
+      setSelectedOrgId={setSelectedOrgId}
+      selectedWorkspaceId={selectedWorkspaceId}
+      setSelectedWorkspaceId={setSelectedWorkspaceId}
+      organizations={organizations}
+      workspaces={workspaces}
+      setWorkspaces={setWorkspaces}
+      isLoadingSettings={isLoadingSettings}
+      settingsError={settingsError}
+      onSettingsError={onSettingsError}
     >
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
