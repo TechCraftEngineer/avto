@@ -2,7 +2,7 @@ import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { response } from "@qbs-autonaim/db/schema";
 import { getAIModel } from "@qbs-autonaim/lib/ai";
-import { AgentFactory } from "@qbs-autonaim/ai/agents/core";
+import { AgentFactory } from "@qbs-autonaim/ai";
 import { inngest } from "../../client";
 
 /**

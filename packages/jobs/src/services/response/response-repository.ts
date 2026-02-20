@@ -80,7 +80,7 @@ export async function saveBasicResponse(
   candidateName: string,
   respondedAt?: Date,
   options?: SaveBasicResponseOptions,
-): Promise<Result<boolean>> {
+): Promise<Result<{ id: string; isNew: boolean }>> {
   return tryCatch(async () => {
     // Проверяем, существует ли отклик с таким resumeId для любой вакансии
     const existingResponse = await db.query.response.findFirst({
@@ -109,7 +109,13 @@ export async function saveBasicResponse(
         newValue: entityId,
       });
 
-      return false; // Не новый, но обновлен
+      return { id: existingResponse.id, isNew: false }; // Не новый, но обновлен
+    }
+
+    // Если отклик уже существует для этой вакансии, возвращаем его
+    if (existingResponse) {
+      logger.info(`Skip: ${candidateName} (already in database)`);
+      return { id: existingResponse.id, isNew: false };
     }
 
     const url = options?.profileUrl ?? profileUrl;
@@ -135,9 +141,7 @@ export async function saveBasicResponse(
       })
       .returning({ id: response.id });
 
-    const isNew = !!inserted;
-
-    if (isNew) {
+    if (inserted) {
       await logResponseEvent({
         db,
         responseId: inserted.id,
@@ -145,11 +149,24 @@ export async function saveBasicResponse(
         newValue: { candidateName, entityId },
       });
       logger.info(`Basic info saved: ${candidateName}`);
-    } else {
-      logger.info(`Skip: ${candidateName} (already in database)`);
+      return { id: inserted.id, isNew: true };
     }
 
-    return isNew;
+    // Если не вставлено из-за конфликта, ищем существующий
+    const conflictedResponse = await db.query.response.findFirst({
+      where: and(
+        eq(response.entityType, "vacancy"),
+        eq(response.entityId, entityId),
+        eq(response.candidateId, resumeId),
+      ),
+    });
+
+    if (!conflictedResponse) {
+      throw new Error("Failed to insert or find response");
+    }
+
+    logger.info(`Skip: ${candidateName} (already in database)`);
+    return { id: conflictedResponse.id, isNew: false };
   }, `Failed to save basic response for ${candidateName}`);
 }
 

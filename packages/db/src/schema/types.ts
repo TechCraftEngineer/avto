@@ -61,6 +61,8 @@ export interface StoredProfileData {
   education?: EducationItem[];
   languages?: LanguageItem[];
   summary?: string;
+  resumeText?: string; // Сырой текст резюме для парсинга
+  parsedResume?: unknown; // Результат парсинга через ResumeStructurerAgent
 
   parsedAt?: string;
   error?: string;

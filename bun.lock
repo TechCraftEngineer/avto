@@ -171,7 +171,7 @@
         "@types/sanitize-html": "^2.16.0",
         "jiti": "2.6.1",
         "sanitize-html": "^2.17.1",
-        "tailwindcss": "4.1.18",
+        "tailwindcss": "4.2.0",
         "tw-animate-css": "1.4.0",
         "typescript": "5.9.3",
       },
@@ -4908,8 +4908,6 @@
     "@pnpm/network.ca-file/graceful-fs": ["graceful-fs@4.2.10", "", {}, "sha512-9ByhssR2fPVsNZj478qUUbKfmL0+t5BDVyjShtyZZLiK7ZDAArFFfopyOTj0M05wE2tJPisA4iTnnXl2YoPvOA=="],
 
     "@qbs-autonaim/docs/lucide-react": ["lucide-react@0.571.0", "", { "peerDependencies": { "react": "^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-WyKTOQ5MFyedq1C5kYEiWR1bpwa0lKQaxBgudVziReCiu5itJh6c0WTeg83sPv97IOyAcEA3mKOt4NCAq5cIOw=="],
-
-    "@qbs-autonaim/interview/tailwindcss": ["tailwindcss@4.1.18", "", {}, "sha512-4+Z+0yiYyEtUVCScyfHCxOYP06L5Ne+JiHhY2IjR2KWMIWhJOYZKLSGZaP5HkZ8+bY0cxfzwDE5uOmzFXyIwxw=="],
 
     "@qbs-autonaim/tailwind-config/@types/node": ["@types/node@25.0.8", "", { "dependencies": { "undici-types": "~7.16.0" } }, "sha512-powIePYMmC3ibL0UJ2i2s0WIbq6cg6UyVFQxSCpaPxxzAaziRfimGivjdF943sSGV6RADVbk0Nvlm5P/FB44Zg=="],
 

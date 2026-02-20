@@ -2,17 +2,6 @@
  * Centralized export for all Inngest functions
  */
 
-// Integration functions
-export {
-  fetchActiveListFunction,
-  fetchArchivedListFunction,
-  importArchivedVacanciesFunction,
-  refreshAllResumesFunction,
-  refreshSingleResumeFunction,
-  updateSingleVacancyFunction,
-  verifyHHCredentialsFunction,
-  verifyKworkCredentialsFunction,
-} from "@qbs-autonaim/jobs-parsers";
 // Candidate functions
 export * from "./candidate";
 // Draft functions
