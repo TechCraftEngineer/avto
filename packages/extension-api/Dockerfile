@@ -19,8 +19,7 @@ WORKDIR /app
 # Установка зависимостей
 COPY --from=builder /app/out/json/ .
 COPY --from=builder /app/bun.lock .
-RUN bun install --frozen-lockfile
-
+RUN bun install 
 # Копирование исходного кода
 COPY --from=builder /app/out/full/ .
 

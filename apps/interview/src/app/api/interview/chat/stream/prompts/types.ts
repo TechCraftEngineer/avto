@@ -1,6 +1,8 @@
+import type { BotSettings } from "@qbs-autonaim/shared";
 import type { StageId } from "../stages/types";
 import type { GigLike, VacancyLike } from "../strategies/types";
-import type { BotSettings } from "@qbs-autonaim/shared";
+
+export type { BotSettings };
 
 /**
  * Инсайты из предварительного скрининга
