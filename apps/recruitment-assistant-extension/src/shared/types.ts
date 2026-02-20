@@ -120,6 +120,7 @@ export interface ImportCandidateRequest {
     profileData?: {
       experience: ExperienceEntry[];
       education: EducationEntry[];
+      parsedAt?: string;
     };
     source: "SOURCING";
     originalSource: "LINKEDIN" | "HEADHUNTER";
