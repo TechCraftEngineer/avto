@@ -5,6 +5,9 @@
 
 import type { MessageRole } from "./chat";
 
+// Реэкспорт MessageRole для удобства импорта
+export type { MessageRole } from "./chat";
+
 export type MessagePartType =
   | "text"
   | "reasoning"
