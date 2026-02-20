@@ -49,9 +49,5 @@ export {
   SecurityEventType,
   securityAuditLogger,
 } from "./security-audit";
-// Экспорты security утилит
-export {
-  addAPISecurityHeaders,
-  addSecurityHeaders,
-  securityMiddleware,
-} from "./security-headers";
+// Экспорты security headers
+export { addAPISecurityHeaders } from "./security-headers";
