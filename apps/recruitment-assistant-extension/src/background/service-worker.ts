@@ -354,16 +354,15 @@ chrome.runtime.onMessage.addListener(
 
             const html = await response.text();
             
-            // Парсим HTML и извлекаем содержимое div[class="vacancy-description"]
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, "text/html");
-            const descriptionDiv = doc.querySelector('div[class="vacancy-description"]');
+            // Извлекаем содержимое <body> через регулярное выражение
+            // Service Worker не имеет доступа к DOMParser
+            const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
             
-            if (!descriptionDiv) {
-              throw new Error("Не найден элемент vacancy-description в HTML");
+            if (!bodyMatch || !bodyMatch[1]) {
+              throw new Error("Не найден элемент body в HTML");
             }
             
-            const content = descriptionDiv.innerHTML;
+            const content = bodyMatch[1].trim();
             sendResponse({ success: true, data: content });
           } catch (err) {
             logError("FETCH_RESUME_TEXT", err);

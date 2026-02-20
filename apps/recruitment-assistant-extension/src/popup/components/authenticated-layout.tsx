@@ -90,7 +90,7 @@ export function AuthenticatedLayout({
   };
 
   return (
-    <div className="flex min-w-[280px] flex-col gap-4 p-4 font-sans text-sm">
+    <div className="flex min-w-[400px] flex-col gap-4 p-4 font-sans text-sm">
       <PopupHeader />
       {children}
 

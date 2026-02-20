@@ -1,6 +1,6 @@
 import { eq, WorkspaceRepository } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
-import { vacancy as vacancySchema, response } from "@qbs-autonaim/db/schema";
+import { response, vacancy as vacancySchema } from "@qbs-autonaim/db/schema";
 import { inngest } from "@qbs-autonaim/jobs/client";
 import { saveBasicResponse } from "@qbs-autonaim/jobs/services/response";
 import {
@@ -233,14 +233,14 @@ hhImportRouter.post("/", async (c) => {
         respondedAt,
         { coverLetter: r.coverLetter ?? null },
       );
-      
+
       if (saveResult.success && saveResult.data) {
         imported++;
-        
+
         // Если есть resumeTextHtml, сохраняем его и запускаем парсинг
         if (r.resumeTextHtml && r.resumeTextHtml.trim()) {
           const responseId = saveResult.data.id;
-          
+
           // Извлекаем текст из HTML, добавляя пробелы вокруг блочных элементов
           const textContent = r.resumeTextHtml
             .replace(/<(br|p|div|h[1-6]|li|tr|td|th)[^>]*>/gi, " ")
@@ -248,7 +248,7 @@ hhImportRouter.post("/", async (c) => {
             .replace(/<[^>]*>/g, "")
             .replace(/\s+/g, " ")
             .trim();
-          
+
           // Обновляем profileData с текстом резюме
           await db
             .update(response)
@@ -258,7 +258,7 @@ hhImportRouter.post("/", async (c) => {
               },
             })
             .where(eq(response.id, responseId));
-          
+
           // Запускаем парсинг конкретного резюме через ResumeStructurerAgent
           await inngest.send({
             name: "response/resume.parse-single",
