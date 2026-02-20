@@ -1,5 +1,3 @@
-import type { BotSettings } from "@qbs-autonaim/shared";
-
 export interface MessagePayload {
   workspaceId: string;
   messageData: {

@@ -1,16 +1,15 @@
+import { AgentFactory } from "@qbs-autonaim/ai";
 import {
+  createResumeProfileData,
   eq,
+  GlobalCandidateRepository,
   gig,
   vacancy,
-  GlobalCandidateRepository,
-  createResumeProfileData,
-  cleanProfileData,
 } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { response, workspace } from "@qbs-autonaim/db/schema";
+import { parseBirthDate, parseFullName } from "@qbs-autonaim/lib";
 import { getAIModel } from "@qbs-autonaim/lib/ai";
-import { parseFullName, parseBirthDate } from "@qbs-autonaim/lib";
-import { AgentFactory } from "@qbs-autonaim/ai";
 import { inngest } from "../../client";
 
 /**
@@ -281,18 +280,14 @@ export const parseSingleResumeFunction = inngest.createFunction(
               citizenship: personalInfo?.citizenship || null,
               skills: skills || null,
               experienceYears: processedData.experienceYears || null,
-              profileData: (() => {
-                const { resumeText, parsedResume, ...cleanData } =
-                  responseData.profileData || {};
-                return createResumeProfileData({
-                  experience: parsedData.experience || [],
-                  education: parsedData.education || [],
-                  languages: parsedData.languages || [],
-                  skills: parsedData.skills || [],
-                  summary: parsedData.summary,
-                  personalInfo: parsedData.personalInfo,
-                });
-              })(),
+              profileData: createResumeProfileData({
+                experience: parsedData.experience || [],
+                education: parsedData.education || [],
+                languages: parsedData.languages || [],
+                skills: parsedData.skills || [],
+                summary: parsedData.summary,
+                personalInfo: parsedData.personalInfo,
+              }),
               source: "APPLICANT",
               originalSource: "HH",
               resumeUrl:

@@ -5,13 +5,8 @@
  * (Gig vs Vacancy) following the Strategy pattern architecture.
  */
 
+import type { BotSettings, FreelancerProfileData } from "@qbs-autonaim/shared";
 import type { ToolSet } from "ai";
-import type {
-  BotSettings,
-  WorkExperienceEntry,
-  EducationEntry,
-  FreelancerProfileData,
-} from "@qbs-autonaim/shared";
 
 // ============================================================================
 // Core Types
