@@ -1,8 +1,7 @@
 "use client";
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
-import { Badge } from "@qbs-autonaim/ui";
-import { CandidateAvatar } from "@qbs-autonaim/ui";
+import { Badge, CandidateAvatar, cn } from "@qbs-autonaim/ui";
 import { IconClock, IconMessageCircle, IconStar } from "@tabler/icons-react";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { getAvatarUrl } from "~/lib/avatar";
@@ -13,11 +12,13 @@ type ResponseItem =
 interface ResponseKanbanCardProps {
   response: ResponseItem;
   onClick: () => void;
+  isDragging?: boolean;
 }
 
 export function ResponseKanbanCard({
   response,
   onClick,
+  isDragging = false,
 }: ResponseKanbanCardProps) {
   const score = response.screening?.score;
   const hasInterview = response.interviewSession !== null;
@@ -37,7 +38,14 @@ export function ResponseKanbanCard({
 
   return (
     <div
-      className={`bg-background border border-border rounded-lg shadow-sm transition-all duration-200 hover:shadow-md hover:border-primary/30 flex flex-col group relative ${getBorderColor()}`}
+      className={cn(
+        "bg-background border border-border rounded-lg shadow-sm flex flex-col group relative",
+        getBorderColor(),
+        // Отключаем transition при перетаскивании для предотвращения конфликта с dnd-kit
+        isDragging
+          ? "transition-none"
+          : "transition-all duration-200 hover:shadow-md hover:border-primary/30",
+      )}
     >
       <div className="flex items-center justify-between gap-2 px-3 py-2 border-b">
         <div className="flex items-center gap-2 min-w-0">

@@ -13,7 +13,7 @@ import {
 import type { RouterOutputs } from "@qbs-autonaim/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useTRPC } from "~/trpc/react";
 import { ResponseKanbanCard } from "./response-kanban-card";
@@ -73,53 +73,101 @@ export function ResponsesKanban({
 
   const { mutate: updateStatus } = useMutation(
     trpc.vacancy.responses.updateStatus.mutationOptions({
+      onMutate: async ({ responseId, status }) => {
+        // Отменяем исходящие запросы для предотвращения гонки данных
+        await queryClient.cancelQueries({
+          queryKey: trpc.vacancy.responses.listWorkspace.queryKey(),
+        });
+
+        // Сохраняем предыдущее состояние для отката
+        const previousData = queryClient.getQueryData(
+          trpc.vacancy.responses.listWorkspace.queryKey(),
+        );
+
+        // Оптимистично обновляем статус в кэше
+        // Используем type assertion для обхода сложной типизации TanStack Query
+        type QueryData = {
+          responses: ResponseItem[];
+          [key: string]: unknown;
+        };
+        queryClient.setQueryData<QueryData>(
+          trpc.vacancy.responses.listWorkspace.queryKey(),
+          (old): QueryData | undefined => {
+            if (!old) return undefined;
+            return {
+              ...old,
+              responses: old.responses.map((r) =>
+                r.id === responseId ? { ...r, status } : r,
+              ),
+            };
+          },
+        );
+
+        return { previousData };
+      },
+      onError: (error, _variables, context) => {
+        // Откатываем изменения при ошибке
+        if (context?.previousData) {
+          queryClient.setQueryData(
+            trpc.vacancy.responses.listWorkspace.queryKey(),
+            context.previousData,
+          );
+        }
+        toast.error(error.message || "Не удалось обновить статус");
+      },
       onSuccess: () => {
+        toast.success("Статус отклика обновлён");
+      },
+      onSettled: () => {
+        // Синхронизируем с сервером после завершения
         queryClient.invalidateQueries({
           queryKey: trpc.vacancy.responses.listWorkspace.queryKey(),
         });
-        toast.success("Статус отклика обновлён");
-      },
-      onError: (error) => {
-        toast.error(error.message || "Не удалось обновить статус");
       },
     }),
   );
 
-  const handleDragStart = (event: DragStartEvent) => {
+  const handleDragStart = useCallback((event: DragStartEvent) => {
     setActiveId(event.active.id as string);
-  };
+  }, []);
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    setActiveId(null);
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      setActiveId(null);
 
-    if (!over) return;
+      if (!over) return;
 
-    const responseId = active.id;
-    if (typeof responseId !== "string") return;
+      const responseId = active.id;
+      if (typeof responseId !== "string") return;
 
-    const overId = over.id;
-    const isColumn =
-      typeof overId === "string" &&
-      VALID_STATUSES.has(overId as ResponseStatus);
-    if (!isColumn) return;
+      const overId = over.id;
+      const isColumn =
+        typeof overId === "string" &&
+        VALID_STATUSES.has(overId as ResponseStatus);
+      if (!isColumn) return;
 
-    const newStatus = overId as ResponseStatus;
+      const newStatus = overId as ResponseStatus;
 
-    const response = responses.find((r) => r.id === responseId);
-    if (!response || response.status === newStatus) return;
+      const response = responses.find((r) => r.id === responseId);
+      if (!response || response.status === newStatus) return;
 
-    updateStatus({
-      responseId,
-      status: newStatus,
-    });
-  };
+      updateStatus({
+        responseId,
+        status: newStatus,
+      });
+    },
+    [responses, updateStatus],
+  );
 
-  const handleCardClick = (response: ResponseItem) => {
-    router.push(
-      `/orgs/${orgSlug}/workspaces/${workspaceSlug}/responses/${response.id}`,
-    );
-  };
+  const handleCardClick = useCallback(
+    (response: ResponseItem) => {
+      router.push(
+        `/orgs/${orgSlug}/workspaces/${workspaceSlug}/responses/${response.id}`,
+      );
+    },
+    [router, orgSlug, workspaceSlug],
+  );
 
   const groupedResponses = statusColumns.map((column) => ({
     ...column,
@@ -155,7 +203,11 @@ export function ResponsesKanban({
         {(() => {
           const response = responses.find((r) => r.id === activeId);
           return activeId && response ? (
-            <ResponseKanbanCard response={response} onClick={() => {}} />
+            <ResponseKanbanCard
+              response={response}
+              onClick={() => {}}
+              isDragging
+            />
           ) : null;
         })()}
       </DragOverlay>

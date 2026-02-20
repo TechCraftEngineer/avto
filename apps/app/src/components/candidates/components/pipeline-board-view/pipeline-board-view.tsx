@@ -10,7 +10,7 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { CandidateKanbanCard } from "../candidate-kanban-card";
 import { CandidateKanbanColumn } from "../candidate-kanban-column";
 import { STAGES } from "../constants";
@@ -55,31 +55,34 @@ export function PipelineBoardView({
     }),
   );
 
-  const handleDragStart = (event: DragStartEvent) => {
+  const handleDragStart = useCallback((event: DragStartEvent) => {
     setActiveId(event.active.id as string);
-  };
+  }, []);
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    setActiveId(null);
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      setActiveId(null);
 
-    if (!over) return;
+      if (!over) return;
 
-    const candidateId = active.id as string;
-    const newStage = over.id as FunnelStage;
+      const candidateId = active.id as string;
+      const newStage = over.id as FunnelStage;
 
-    let candidate: FunnelCandidate | undefined;
-    for (const stage of Object.keys(candidatesByStage) as FunnelStage[]) {
-      candidate = candidatesByStage[stage].items.find(
-        (c) => c.id === candidateId,
-      );
-      if (candidate) break;
-    }
+      let candidate: FunnelCandidate | undefined;
+      for (const stage of Object.keys(candidatesByStage) as FunnelStage[]) {
+        candidate = candidatesByStage[stage].items.find(
+          (c) => c.id === candidateId,
+        );
+        if (candidate) break;
+      }
 
-    if (!candidate || candidate.stage === newStage) return;
+      if (!candidate || candidate.stage === newStage) return;
 
-    onDragEnd(candidateId, newStage);
-  };
+      onDragEnd(candidateId, newStage);
+    },
+    [candidatesByStage, onDragEnd],
+  );
 
   return (
     <DndContext
@@ -117,7 +120,11 @@ export function PipelineBoardView({
         {(() => {
           const candidate = allCandidates.find((c) => c.id === activeId);
           return activeId && candidate ? (
-            <CandidateKanbanCard candidate={candidate} onClick={() => {}} />
+            <CandidateKanbanCard
+              candidate={candidate}
+              onClick={() => {}}
+              isDragging
+            />
           ) : null;
         })()}
       </DragOverlay>

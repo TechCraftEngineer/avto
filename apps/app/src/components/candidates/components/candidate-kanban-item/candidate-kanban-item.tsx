@@ -2,6 +2,7 @@
 
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
+import { cn } from "@qbs-autonaim/ui";
 import { CandidateKanbanCard } from "~/components";
 import type { FunnelCandidate } from "../../types/types";
 
@@ -24,19 +25,24 @@ export function CandidateKanbanItem({
     transform: CSS.Translate.toString(transform),
   };
 
-  if (isDragging) {
-    return (
-      <div ref={setNodeRef} style={style} className="opacity-40 grayscale">
-        <CandidateKanbanCard candidate={candidate} onClick={() => {}} />
-      </div>
-    );
-  }
-
+  // Всегда применяем transform и рендерим одну структуру
+  // При перетаскивании показываем заглушку (opacity + pointer-events none)
+  // DragOverlay показывает реальную перетаскиваемую карточку
   return (
-    <div ref={setNodeRef} style={style} {...listeners} {...attributes}>
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...listeners}
+      {...attributes}
+      className={cn(
+        "transition-none", // Отключаем transition для предотвращения конфликта с dnd-kit
+        isDragging && "opacity-30 grayscale pointer-events-none",
+      )}
+    >
       <CandidateKanbanCard
         candidate={candidate}
         onClick={() => onClick(candidate)}
+        isDragging={isDragging}
       />
     </div>
   );

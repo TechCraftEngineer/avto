@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@qbs-autonaim/ui";
+import { Avatar, AvatarFallback, AvatarImage, cn } from "@qbs-autonaim/ui";
 import { Mail, MessageCircle, Phone } from "lucide-react";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { getAvatarUrl } from "~/lib/avatar";
@@ -10,17 +10,27 @@ import { MatchScoreCircle } from "../match-score-circle";
 interface CandidateKanbanCardProps {
   candidate: FunnelCandidate;
   onClick: () => void;
+  isDragging?: boolean;
 }
 
 export function CandidateKanbanCard({
   candidate,
   onClick,
+  isDragging = false,
 }: CandidateKanbanCardProps) {
   const photoUrl = useAvatarUrl(candidate.avatarFileId);
   const avatarUrl = getAvatarUrl(photoUrl, candidate.name);
 
   return (
-    <div className="bg-card border rounded-lg shadow-sm transition-all duration-200 hover:shadow-md hover:border-primary/30 flex flex-col group relative">
+    <div
+      className={cn(
+        "bg-card border rounded-lg shadow-sm flex flex-col group relative",
+        // Отключаем transition при перетаскивании для предотвращения конфликта с dnd-kit
+        isDragging
+          ? "transition-none"
+          : "transition-all duration-200 hover:shadow-md hover:border-primary/30",
+      )}
+    >
       <div className="flex items-center justify-between gap-2 px-3 py-2 border-b">
         {candidate.messageCount !== undefined && candidate.messageCount > 0 && (
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">

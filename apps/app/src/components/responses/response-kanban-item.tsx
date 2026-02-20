@@ -3,6 +3,7 @@
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import type { RouterOutputs } from "@qbs-autonaim/api";
+import { cn } from "@qbs-autonaim/ui";
 import { ResponseKanbanCard } from "./response-kanban-card";
 
 type ResponseItem =
@@ -27,19 +28,24 @@ export function ResponseKanbanItem({
     transform: CSS.Translate.toString(transform),
   };
 
-  if (isDragging) {
-    return (
-      <div ref={setNodeRef} style={style} className="opacity-40 grayscale">
-        <ResponseKanbanCard response={response} onClick={() => {}} />
-      </div>
-    );
-  }
-
+  // Всегда применяем transform и рендерим одну структуру
+  // При перетаскивании показываем заглушку (opacity + pointer-events none)
+  // DragOverlay показывает реальную перетаскиваемую карточку
   return (
-    <div ref={setNodeRef} style={style} {...listeners} {...attributes}>
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...listeners}
+      {...attributes}
+      className={cn(
+        "transition-none", // Отключаем transition для предотвращения конфликта с dnd-kit
+        isDragging && "opacity-30 grayscale pointer-events-none",
+      )}
+    >
       <ResponseKanbanCard
         response={response}
         onClick={() => onClick(response)}
+        isDragging={isDragging}
       />
     </div>
   );
