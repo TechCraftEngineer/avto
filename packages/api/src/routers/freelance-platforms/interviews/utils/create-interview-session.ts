@@ -1,16 +1,11 @@
 import { interviewMessage, interviewSession } from "@qbs-autonaim/db/schema";
+import type { BotSettings } from "@qbs-autonaim/shared";
 import type { Database } from "../../../../types/database";
 import type { ErrorHandler } from "../../../../utils/error-handler";
 
 interface FreelancerInfo {
   name: string;
   email?: string;
-}
-
-interface BotSettings {
-  botName?: string | null;
-  botRole?: string | null;
-  companyName?: string | null;
 }
 
 export async function createInterviewSession(

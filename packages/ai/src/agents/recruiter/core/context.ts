@@ -14,33 +14,15 @@ import type {
   RecruiterFeedbackHistory,
   RecruiterFeedbackStats,
 } from "./types";
+import type {
+  ExtendedWorkspaceData,
+  CompanySettings,
+} from "@qbs-autonaim/shared";
 
 /**
  * Максимальное количество сообщений в истории диалога
  */
 export const MAX_CONVERSATION_HISTORY = 20;
-
-/**
- * Данные workspace для контекста
- */
-export interface WorkspaceData {
-  id: string;
-  name: string;
-  description?: string | null;
-  website?: string | null;
-  logo?: string | null;
-}
-
-/**
- * Данные company settings для контекста
- */
-export interface CompanySettingsData {
-  name: string;
-  description?: string | null;
-  website?: string | null;
-  botName?: string | null;
-  botRole?: string | null;
-}
 
 /**
  * Данные вакансии для контекста
@@ -78,8 +60,8 @@ export interface ContextBuilderInput {
   workspaceId: string;
   userId: string;
   vacancyId?: string;
-  workspace?: WorkspaceData | null;
-  companySettings?: CompanySettingsData | null;
+  workspace?: ExtendedWorkspaceData | null;
+  companySettings?: CompanySettings | null;
   vacancy?: VacancyData | null;
   conversationHistory?: ConversationMessage[];
   recentDecisions?: RecruiterDecision[];
@@ -269,8 +251,8 @@ export class RecruiterContextManager {
    * Строит настройки компании из workspace и company settings
    */
   private buildCompanySettings(
-    workspace?: WorkspaceData | null,
-    companySettings?: CompanySettingsData | null,
+    workspace?: ExtendedWorkspaceData | null,
+    companySettings?: CompanySettings | null,
   ): RecruiterCompanySettings {
     return {
       name: companySettings?.name || workspace?.name || "Компания",

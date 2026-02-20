@@ -48,3 +48,49 @@ export type {
   ResumeContactInfo,
   ResumeExperience,
 } from "./response";
+
+// Типы чата и сообщений
+export type {
+  MessageRole,
+  InterviewMessageSender,
+  BaseChatMessage,
+  ChatMessageWithId,
+  ChatHistoryMessage,
+  ConversationMessage,
+  ChatMessageMetadata,
+  BotSettings,
+  ChatContext,
+} from "./chat";
+
+// Типы оценки и скрининга
+export type {
+  FitDecision,
+  HonestyLevel,
+  EvaluationResult,
+  DimensionScore,
+  ScreeningResult,
+  ScreeningDataForRecommendation,
+  PrequalificationResult,
+} from "./evaluation";
+
+// Типы workspace и организаций
+export type {
+  BaseWorkspaceData,
+  ExtendedWorkspaceData,
+  CompanySettings,
+  OrganizationData,
+} from "./workspace";
+
+// Типы кандидатов
+export type {
+  BasicCandidateInfo,
+  WorkExperienceEntry,
+  EducationEntry,
+  CandidateContactInfo,
+  FreelancerProfileData,
+  BaseCandidateData,
+  ExtendedCandidateData,
+  CandidateDataFromResponse,
+  CandidateContextData,
+  FullCandidateData,
+} from "./candidate";

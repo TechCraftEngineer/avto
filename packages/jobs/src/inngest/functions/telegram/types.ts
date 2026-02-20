@@ -1,3 +1,5 @@
+import type { BotSettings } from "@qbs-autonaim/shared";
+
 export interface MessagePayload {
   workspaceId: string;
   messageData: {
@@ -20,11 +22,6 @@ export interface MessagePayload {
     };
     [key: string]: unknown;
   };
-}
-
-export interface BotSettings {
-  botName: string;
-  botRole: string;
 }
 
 export type PromptStage = "PIN_RECEIVED" | "INVALID_PIN" | "AWAITING_PIN";

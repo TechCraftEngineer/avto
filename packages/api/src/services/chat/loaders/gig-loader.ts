@@ -13,31 +13,8 @@ import {
   responseScreening,
 } from "@qbs-autonaim/db";
 import type { db } from "@qbs-autonaim/db/client";
+import type { CandidateContextData } from "@qbs-autonaim/shared";
 import type { ChatContext, ContextLoader } from "../types";
-
-interface CandidateData {
-  id: string;
-  candidateId: string;
-  candidateName: string | null;
-  proposedPrice: number | null;
-
-  proposedDeliveryDays: number | null;
-  coverLetter: string | null;
-  skills: string[] | null;
-  rating: string | null;
-  status: string;
-  hrSelectionStatus: string | null;
-  compositeScore: number | null;
-  strengths: string[] | null;
-  weaknesses: string[] | null;
-  recommendation: string | null;
-  screeningScore: number | null;
-  screeningDetailedScore: number | null;
-  screeningAnalysis: string | null;
-  interviewScore: number | null;
-  interviewDetailedScore: number | null;
-  interviewAnalysis: string | null;
-}
 
 export class GigContextLoader implements ContextLoader {
   async loadContext(
@@ -153,7 +130,7 @@ export class GigContextLoader implements ContextLoader {
     );
 
     // Формирование данных кандидатов
-    const candidates: CandidateData[] = responses.map((resp) => {
+    const candidates: CandidateContextData[] = responses.map((resp) => {
       const screening = screeningMap.get(resp.id);
       const interview = interviewMap.get(resp.id);
 
@@ -211,7 +188,7 @@ export class GigContextLoader implements ContextLoader {
   }
 
   private calculateStatistics(
-    candidates: CandidateData[],
+    candidates: CandidateContextData[],
   ): Record<string, unknown> {
     const total = candidates.length;
 

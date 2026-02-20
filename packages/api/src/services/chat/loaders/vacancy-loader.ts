@@ -13,27 +13,13 @@ import {
   vacancy,
 } from "@qbs-autonaim/db";
 import type { db } from "@qbs-autonaim/db/client";
+import type { CandidateContextData } from "@qbs-autonaim/shared";
 import type { ChatContext, ContextLoader } from "../types";
 
-interface CandidateData {
-  id: string;
-  candidateId: string;
-  candidateName: string | null;
+// Расширенный тип для vacancy с дополнительными полями
+interface VacancyCandidateData extends CandidateContextData {
   salaryExpectationsAmount: number | null;
-  coverLetter: string | null;
   profileUrl: string | null;
-  status: string;
-  hrSelectionStatus: string | null;
-  compositeScore: number | null;
-  strengths: string[] | null;
-  weaknesses: string[] | null;
-  recommendation: string | null;
-  screeningScore: number | null;
-  screeningDetailedScore: number | null;
-  screeningAnalysis: string | null;
-  interviewScore: number | null;
-  interviewDetailedScore: number | null;
-  interviewAnalysis: string | null;
 }
 
 export class VacancyContextLoader implements ContextLoader {
@@ -149,7 +135,7 @@ export class VacancyContextLoader implements ContextLoader {
     );
 
     // Формирование данных кандидатов
-    const candidates: CandidateData[] = responses.map((resp) => {
+    const candidates: VacancyCandidateData[] = responses.map((resp) => {
       const screening = screeningMap.get(resp.id);
       const interview = interviewMap.get(resp.id);
 
@@ -201,7 +187,7 @@ export class VacancyContextLoader implements ContextLoader {
   }
 
   private calculateStatistics(
-    candidates: CandidateData[],
+    candidates: VacancyCandidateData[],
   ): Record<string, unknown> {
     const total = candidates.length;
 

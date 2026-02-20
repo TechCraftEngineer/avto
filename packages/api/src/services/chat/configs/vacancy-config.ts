@@ -2,6 +2,7 @@
  * Конфигурация промпта для vacancy
  */
 
+import type { CandidateContextData } from "@qbs-autonaim/shared";
 import type { PromptConfig } from "../types";
 
 interface VacancyMainContext {
@@ -14,25 +15,10 @@ interface VacancyMainContext {
   customBotInstructions: string | null;
 }
 
-interface CandidateData {
-  id: string;
-  candidateId: string;
-  candidateName: string | null;
+// Расширенный тип для vacancy с дополнительными полями
+interface VacancyCandidateData extends CandidateContextData {
   salaryExpectationsAmount: string | null;
-  coverLetter: string | null;
   profileUrl: string | null;
-  status: string;
-  hrSelectionStatus: string | null;
-  compositeScore: number | null;
-  strengths: string[] | null;
-  weaknesses: string[] | null;
-  recommendation: string | null;
-  screeningScore: number | null;
-  screeningDetailedScore: number | null;
-  screeningAnalysis: string | null;
-  interviewScore: number | null;
-  interviewDetailedScore: number | null;
-  interviewAnalysis: string | null;
 }
 
 function formatVacancyMain(ctx: Record<string, unknown>): string {
@@ -63,7 +49,7 @@ function formatVacancyMain(ctx: Record<string, unknown>): string {
   return parts.join("\n");
 }
 
-function formatCandidate(candidate: CandidateData): string {
+function formatCandidate(candidate: VacancyCandidateData): string {
   const parts: string[] = [];
 
   const name =
@@ -142,7 +128,7 @@ function formatCandidate(candidate: CandidateData): string {
 }
 
 function formatVacancyRelated(ctx: Record<string, unknown>): string {
-  const { candidates } = ctx as { candidates: CandidateData[] };
+  const { candidates } = ctx as { candidates: VacancyCandidateData[] };
   const parts: string[] = [];
 
   if (candidates.length === 0) {

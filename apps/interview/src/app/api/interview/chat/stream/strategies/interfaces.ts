@@ -6,6 +6,12 @@
  */
 
 import type { ToolSet } from "ai";
+import type {
+  BotSettings,
+  WorkExperienceEntry,
+  EducationEntry,
+  FreelancerProfileData,
+} from "@qbs-autonaim/shared";
 
 // ============================================================================
 // Core Types
@@ -46,12 +52,6 @@ export interface StageConfig {
 // Interview Context
 // ============================================================================
 
-export interface BotSettings {
-  botName?: string;
-  botRole?: string;
-  companyName?: string;
-}
-
 export interface InterviewContextBase {
   readonly entityType: EntityType;
   readonly entityId: string;
@@ -63,12 +63,6 @@ export interface InterviewContextBase {
 // ============================================================================
 // Gig-Specific Types
 // ============================================================================
-
-export interface GigInterviewContext extends InterviewContextBase {
-  readonly entityType: "gig";
-  readonly gig: GigDetails;
-  readonly profileData?: FreelancerProfileData;
-}
 
 export interface GigDetails {
   id: string;
@@ -86,34 +80,10 @@ export interface GigDetails {
   requirements?: unknown;
 }
 
-export interface FreelancerProfileData {
-  id: string;
-  name?: string | null;
-  title?: string | null;
-  rating?: number | null;
-  completedGigs?: number | null;
-  skills?: string[];
-  hourlyRate?: number | null;
-  bio?: string | null;
-  workExperience?: WorkExperience[];
-  education?: Education[];
-}
-
-export interface WorkExperience {
-  id: string;
-  company?: string | null;
-  position?: string | null;
-  description?: string | null;
-  startDate?: Date | null;
-  endDate?: Date | null;
-}
-
-export interface Education {
-  id: string;
-  institution?: string | null;
-  degree?: string | null;
-  field?: string | null;
-  graduationYear?: number | null;
+export interface GigInterviewContext extends InterviewContextBase {
+  readonly entityType: "gig";
+  readonly gig: GigDetails;
+  readonly profileData?: FreelancerProfileData;
 }
 
 export interface GigScoringOutput {

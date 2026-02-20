@@ -2,85 +2,16 @@
  * Типы данных для Recruitment Assistant Extension
  */
 
-/**
- * Базовая информация о кандидате
- */
-export interface BasicInfo {
-  /** Полное имя */
-  fullName: string;
-  /** Текущая должность */
-  currentPosition: string;
-  /** Местоположение */
-  location: string;
-  /** URL фотографии профиля */
-  photoUrl: string | null;
-}
+import type {
+  BasicCandidateInfo as BasicInfo,
+  WorkExperienceEntry as ExperienceEntry,
+  EducationEntry,
+  CandidateContactInfo as ContactInfo,
+  FullCandidateData as CandidateData,
+} from "@qbs-autonaim/shared";
 
-/**
- * Запись об опыте работы
- */
-export interface ExperienceEntry {
-  /** Должность */
-  position: string;
-  /** Название компании */
-  company: string;
-  /** Дата начала работы */
-  startDate: string;
-  /** Дата окончания (null = по настоящее время) */
-  endDate: string | null;
-  /** Описание обязанностей */
-  description: string;
-}
-
-/**
- * Запись об образовании
- */
-export interface EducationEntry {
-  /** Учебное заведение */
-  institution: string;
-  /** Степень/квалификация */
-  degree: string;
-  /** Специальность */
-  fieldOfStudy: string;
-  /** Дата начала обучения */
-  startDate: string;
-  /** Дата окончания обучения */
-  endDate: string;
-}
-
-/**
- * Контактная информация
- */
-export interface ContactInfo {
-  /** Электронная почта */
-  email: string | null;
-  /** Номер телефона */
-  phone: string | null;
-  /** Ссылки на социальные сети */
-  socialLinks: string[];
-}
-
-/**
- * Полная структура данных кандидата
- */
-export interface CandidateData {
-  /** Название платформы (LinkedIn, HeadHunter) */
-  platform: string;
-  /** URL профиля */
-  profileUrl: string;
-  /** Базовая информация */
-  basicInfo: BasicInfo;
-  /** Опыт работы */
-  experience: ExperienceEntry[];
-  /** Образование */
-  education: EducationEntry[];
-  /** Навыки */
-  skills: string[];
-  /** Контактная информация */
-  contacts: ContactInfo;
-  /** Время извлечения */
-  extractedAt: Date;
-}
+// Реэкспорт для обратной совместимости
+export type { BasicInfo, ExperienceEntry, EducationEntry, ContactInfo, CandidateData };
 
 /**
  * Настройки расширения

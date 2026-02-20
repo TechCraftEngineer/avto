@@ -1,14 +1,6 @@
 import type { StageId } from "../stages/types";
 import type { GigLike, VacancyLike } from "../strategies/types";
-
-/**
- * Настройки бота для промпта
- */
-export interface BotSettings {
-  botName?: string;
-  botRole?: string;
-  companyName?: string;
-}
+import type { BotSettings } from "@qbs-autonaim/shared";
 
 /**
  * Инсайты из предварительного скрининга

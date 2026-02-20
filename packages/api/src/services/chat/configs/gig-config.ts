@@ -2,6 +2,7 @@
  * Конфигурация промпта для gig заданий
  */
 
+import type { CandidateContextData } from "@qbs-autonaim/shared";
 import type { PromptConfig } from "../types";
 
 interface GigMainContext {
@@ -29,30 +30,6 @@ interface GigMainContext {
   deadline: Date | null;
   estimatedDuration: string | null;
   customBotInstructions: string | null;
-}
-
-interface CandidateData {
-  id: string;
-  candidateId: string;
-  candidateName: string | null;
-  proposedPrice: number | null;
-
-  proposedDeliveryDays: number | null;
-  coverLetter: string | null;
-  skills: string[] | null;
-  rating: string | null;
-  status: string;
-  hrSelectionStatus: string | null;
-  compositeScore: number | null;
-  strengths: string[] | null;
-  weaknesses: string[] | null;
-  recommendation: string | null;
-  screeningScore: number | null;
-  screeningDetailedScore: number | null;
-  screeningAnalysis: string | null;
-  interviewScore: number | null;
-  interviewDetailedScore: number | null;
-  interviewAnalysis: string | null;
 }
 
 function formatGigMain(ctx: Record<string, unknown>): string {
@@ -135,7 +112,7 @@ function formatGigMain(ctx: Record<string, unknown>): string {
   return parts.join("\n");
 }
 
-function formatCandidate(candidate: CandidateData): string {
+function formatCandidate(candidate: CandidateContextData): string {
   const parts: string[] = [];
 
   const name =
@@ -220,7 +197,7 @@ function formatCandidate(candidate: CandidateData): string {
 }
 
 function formatGigRelated(ctx: Record<string, unknown>): string {
-  const { candidates } = ctx as { candidates: CandidateData[] };
+  const { candidates } = ctx as { candidates: CandidateContextData[] };
   const parts: string[] = [];
 
   if (candidates.length === 0) {

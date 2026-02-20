@@ -3,6 +3,10 @@
  */
 
 import { z } from "zod";
+import type { ScreeningDataForRecommendation } from "@qbs-autonaim/shared";
+
+// Реэкспорт для обратной совместимости
+export type { ScreeningDataForRecommendation };
 
 /**
  * Уровни рекомендаций (соответствуют enum в БД)
