@@ -14,6 +14,13 @@ export {
 } from "./permissions/organization";
 
 // Repositories
+export type {
+  ExperienceItem,
+  EducationItem,
+  LanguageItem,
+  PersonalInfo,
+  StoredProfileData,
+} from "./schema/types";
 export type { CandidateDataFromResponse } from "./schema/candidate/candidate-types";
 export { DraftRepository } from "./repositories/draft.repository";
 export type {

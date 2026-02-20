@@ -26,14 +26,33 @@ export interface EducationItem {
   degree?: string;
   period?: string;
   specialization?: string;
+  field?: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 /**
  * Языки из резюме
  */
 export interface LanguageItem {
-  language?: string;
+  name: string;
   level?: string;
+  language?: string; // Для обратной совместимости
+}
+
+/**
+ * Личная информация из резюме
+ */
+export interface PersonalInfo {
+  name?: string;
+  email?: string;
+  phone?: string;
+  telegram?: string;
+  whatsapp?: string;
+  location?: string;
+  birthDate?: string;
+  gender?: "male" | "female" | "other";
+  citizenship?: string;
 }
 
 /**
@@ -61,8 +80,7 @@ export interface StoredProfileData {
   education?: EducationItem[];
   languages?: LanguageItem[];
   summary?: string;
-  resumeText?: string; // Сырой текст резюме для парсинга
-  parsedResume?: unknown; // Результат парсинга через ResumeStructurerAgent
+  personalInfo?: PersonalInfo;
 
   parsedAt?: string;
   error?: string;

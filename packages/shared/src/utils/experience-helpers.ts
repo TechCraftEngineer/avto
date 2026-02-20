@@ -2,26 +2,7 @@
  * Вспомогательные функции для работы с опытом работы из profileData
  */
 
-interface ExperienceItem {
-  company?: string;
-  position?: string;
-  period?: string;
-  description?: string;
-  experience?: {
-    company?: string;
-    position?: string;
-    period?: string;
-    description?: string;
-  };
-}
-
-interface ProfileData {
-  experience?: ExperienceItem[];
-  education?: unknown[];
-  languages?: unknown[];
-  summary?: string;
-  [key: string]: unknown;
-}
+import type { ExperienceItem, StoredProfileData } from "@qbs-autonaim/db/schema";
 
 /**
  * Извлекает опыт работы из profileData
@@ -31,7 +12,7 @@ export function getExperienceFromProfile(
 ): ExperienceItem[] {
   if (!profileData || typeof profileData !== "object") return [];
 
-  const experience = (profileData as ProfileData).experience;
+  const experience = (profileData as StoredProfileData).experience;
   if (!Array.isArray(experience)) return [];
 
   return experience;

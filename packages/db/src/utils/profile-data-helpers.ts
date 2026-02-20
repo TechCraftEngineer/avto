@@ -1,5 +1,7 @@
 import type { StoredProfileData } from "../schema/types";
 
+import type { PersonalInfo } from "@qbs-autonaim/db/schema";
+
 /**
  * Создает структурированный profileData для резюме HH.ru
  */
@@ -23,17 +25,7 @@ export function createResumeProfileData(data: {
   }>;
   skills?: string[];
   summary?: string;
-  personalInfo?: {
-    name?: string;
-    email?: string;
-    phone?: string;
-    telegram?: string;
-    whatsapp?: string;
-    location?: string;
-    birthDate?: string;
-    gender?: "male" | "female" | "other";
-    citizenship?: string;
-  };
+  personalInfo?: PersonalInfo;
 }): StoredProfileData {
   return {
     experience: data.experience || [],

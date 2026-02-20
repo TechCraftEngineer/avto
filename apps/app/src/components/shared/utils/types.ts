@@ -1,22 +1,10 @@
-export interface ExperienceItem {
-  company?: string;
-  position?: string;
-  period?: string;
-  description?: string;
-  experience?: {
-    company?: string;
-    position?: string;
-    period?: string;
-    description?: string;
-  };
-}
+import type {
+  ExperienceItem,
+  EducationItem,
+  PersonalInfo,
+} from "@qbs-autonaim/db/schema";
 
-export interface EducationItem {
-  institution?: string;
-  degree?: string;
-  period?: string;
-  specialization?: string;
-}
+export type { ExperienceItem, EducationItem, PersonalInfo };
 
 export interface ProfileData {
   error?: string | null;
