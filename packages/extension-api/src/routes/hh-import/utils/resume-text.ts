@@ -18,13 +18,11 @@ export async function processResumeText(
 ): Promise<void> {
   const textContent = extractTextFromHtml(resumeTextHtml);
 
-  // Временно сохраняем resumeText для парсинга (будет удален после обработки)
+  // Временно сохраняем текст резюме в coverLetter для парсинга
   await db
     .update(response)
     .set({
-      profileData: {
-        resumeText: textContent,
-      },
+      coverLetter: textContent,
     })
     .where(eq(response.id, responseId));
 

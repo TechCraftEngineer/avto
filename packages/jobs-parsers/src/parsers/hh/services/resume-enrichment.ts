@@ -1,7 +1,10 @@
-import { eq, GlobalCandidateRepository } from "@qbs-autonaim/db";
+import {
+  createResumeProfileData,
+  eq,
+  GlobalCandidateRepository,
+} from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { globalCandidate } from "@qbs-autonaim/db/schema";
-import { createResumeProfileData } from "@qbs-autonaim/db";
 import {
   updateResponseDetails,
   uploadCandidatePhoto,
@@ -110,7 +113,8 @@ export async function enrichResumeData(
     // Подготавливаем profileData для кандидата (включая personalInfo для link-responses)
     const profileData = resumeData.structuredData
       ? createResumeProfileData({
-          experience: resumeData.experience || [],
+          experience:
+            resumeData.experience?.map((item) => item.experience) || [],
           education: resumeData.structuredData.education,
           languages: resumeData.structuredData.languages,
           skills: resumeData.structuredData.skills,
@@ -119,7 +123,7 @@ export async function enrichResumeData(
         })
       : resumeData.experience
         ? createResumeProfileData({
-            experience: resumeData.experience,
+            experience: resumeData.experience.map((item) => item.experience),
           })
         : undefined;
 
@@ -136,14 +140,7 @@ export async function enrichResumeData(
         ? gender
         : undefined;
     const citizenship = personalInfo?.citizenship?.trim() || undefined;
-    let englishLevel:
-      | "A1"
-      | "A2"
-      | "B1"
-      | "B2"
-      | "C1"
-      | "C2"
-      | undefined;
+    let englishLevel: "A1" | "A2" | "B1" | "B2" | "C1" | "C2" | undefined;
     const englishLang = resumeData.structuredData?.languages?.find(
       (lang) =>
         lang.name.toLowerCase().includes("english") ||
@@ -272,9 +269,8 @@ export async function enrichResumeData(
     ) {
       try {
         const globalCandidateRepository = new GlobalCandidateRepository(db);
-        const existing = await globalCandidateRepository.findById(
-          globalCandidateId,
-        );
+        const existing =
+          await globalCandidateRepository.findById(globalCandidateId);
         if (existing) {
           const merged = globalCandidateRepository.mergeGlobalCandidateData(
             existing,

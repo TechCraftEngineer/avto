@@ -4,6 +4,7 @@
  */
 // Экспорт парсеров
 
+export type { StoredProfileData } from "@qbs-autonaim/db/schema";
 export { verifyHHCredentialsFunction } from "./functions/integration/verify-hh-credentials";
 export { verifyKworkCredentialsFunction } from "./functions/integration/verify-kwork-credentials";
 // Экспорт Inngest функций
@@ -37,7 +38,6 @@ export { HH_CONFIG } from "./parsers/hh/core/config/config";
 export {
   formatProfileDataForStorage,
   parseFreelancerProfile,
-  type StoredProfileData,
 } from "./parsers/profile-parser";
 // Экспорт типов
 export type {

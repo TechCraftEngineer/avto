@@ -1,5 +1,9 @@
 import os from "node:os";
-import { eq, getIntegrationCredentials, createResumeProfileData } from "@qbs-autonaim/db";
+import {
+  createResumeProfileData,
+  eq,
+  getIntegrationCredentials,
+} from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { response } from "@qbs-autonaim/db/schema";
 import { refreshAllResumesChannel } from "@qbs-autonaim/jobs/channels";
@@ -221,7 +225,8 @@ export const refreshAllResumesFunction = inngest.createFunction(
             // Подготавливаем profileData
             const profileData = resumeData.structuredData
               ? createResumeProfileData({
-                  experience: resumeData.experience || [],
+                  experience:
+                    resumeData.experience?.map((item) => item.experience) || [],
                   education: resumeData.structuredData.education,
                   languages: resumeData.structuredData.languages,
                   skills: resumeData.structuredData.skills,
@@ -230,7 +235,9 @@ export const refreshAllResumesFunction = inngest.createFunction(
                 })
               : resumeData.experience
                 ? createResumeProfileData({
-                    experience: resumeData.experience,
+                    experience: resumeData.experience.map(
+                      (item) => item.experience,
+                    ),
                   })
                 : undefined;
 

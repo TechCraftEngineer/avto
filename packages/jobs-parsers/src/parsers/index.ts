@@ -16,7 +16,6 @@ export * from "./hh";
 // Парсер профилей фрилансеров
 export {
   formatProfileDataForStorage,
-  type ProfileData,
   parseFreelancerProfile,
   type StoredProfileData,
 } from "./profile-parser";
