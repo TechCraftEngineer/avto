@@ -3,33 +3,12 @@ import type {
   EducationItem,
   PersonalInfo,
 } from "@qbs-autonaim/db/schema";
+import type {
+  ExtendedProfileData,
+  ParsedProfileData,
+} from "@qbs-autonaim/shared/types";
 
 export type { ExperienceItem, EducationItem, PersonalInfo };
-
-export interface ProfileData {
-  error?: string | null;
-  name?: string | null;
-  email?: string | null;
-  phone?: string | null;
-  location?: string | null;
-  experience?: ExperienceItem[] | string | null;
-  education?: EducationItem[] | string | null;
-  skills?: string[] | null;
-  summary?: string | null;
-  platform?: string | null;
-  username?: string | null;
-  profileUrl?: string | null;
-  aboutMe?: string | null;
-  statistics?: {
-    rating?: number;
-    ordersCompleted?: number;
-    reviewsReceived?: number;
-    successRate?: number;
-    onTimeRate?: number;
-    repeatOrdersRate?: number;
-    buyerLevel?: string;
-  } | null;
-}
 
 export interface RecommendationData {
   score: number;
@@ -51,12 +30,6 @@ export interface RecommendationData {
   actionSuggestions?: string[];
 }
 
-export interface ParsedProfileData {
-  isJson: boolean;
-  data: ProfileData | null;
-  text: string | null;
-}
-
 export function getProfileData(
   profileData: unknown,
   fallbackExperience?: string | null,
@@ -64,7 +37,7 @@ export function getProfileData(
   // Пытаемся распарсить JSON из profileData
   if (profileData && typeof profileData === "string") {
     try {
-      const parsed = JSON.parse(profileData) as ProfileData;
+      const parsed = JSON.parse(profileData) as ExtendedProfileData;
       return {
         isJson: true,
         data: parsed,
@@ -83,7 +56,7 @@ export function getProfileData(
   if (profileData && typeof profileData === "object") {
     return {
       isJson: true,
-      data: profileData as ProfileData,
+      data: profileData as ExtendedProfileData,
       text: null,
     };
   }

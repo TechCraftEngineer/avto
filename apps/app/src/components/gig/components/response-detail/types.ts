@@ -1,25 +1,12 @@
 // Специфичные типы для gig откликов
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
+import type { GigContextData } from "@qbs-autonaim/shared/types";
 
 /**
  * Gig отклик - inferred тип из API
  */
 export type GigResponse = NonNullable<RouterOutputs["gig"]["responses"]["get"]>;
-
-/**
- * Данные о gig для контекста
- */
-export interface GigContextData {
-  id: string;
-  title: string;
-  description: string | null;
-  budgetMin: number | null;
-  budgetMax: number | null;
-  deadline: Date | null;
-  estimatedDuration: string | null;
-  requiredSkills: string[];
-}
 
 /**
  * Пропсы для gig response detail card

@@ -1,5 +1,8 @@
 {
   "extends": "@qbs-autonaim/tsconfig/compiled-package.json",
+  "compilerOptions": {
+    "rootDir": "./src"
+  },
   "include": ["src"],
   "exclude": ["node_modules", "**/*.test.ts", "src/scripts/**"]
 }

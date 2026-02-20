@@ -4,31 +4,12 @@
  */
 
 import type { StoredProfileData } from "@qbs-autonaim/db/schema";
+import type { BaseProfileData, ProfilePlatform } from "@qbs-autonaim/shared/types";
 import { scrapeKworkProfile } from "./kwork/profile-scraper";
 import {
   URLSecurityError,
   validateSecureURLWithDNS,
 } from "./utils/url-security";
-
-export interface ProfileData {
-  platform: "kwork" | "fl" | "freelance" | "unknown";
-  username: string;
-  profileUrl: string;
-  aboutMe?: string;
-  skills?: string[];
-  statistics?: {
-    rating?: number;
-    ordersCompleted?: number;
-    reviewsReceived?: number;
-    successRate?: number;
-    onTimeRate?: number;
-    repeatOrdersRate?: number;
-    buyerLevel?: string;
-  };
-  rawData?: string;
-  parsedAt: Date;
-  error?: string;
-}
 
 /**
  * Тип для структурированных данных профиля в БД
@@ -39,7 +20,7 @@ export type { StoredProfileData } from "@qbs-autonaim/db/schema";
 /**
  * Определяет платформу по URL профиля
  */
-function detectPlatform(url: string): ProfileData["platform"] {
+function detectPlatform(url: string): ProfilePlatform {
   const urlLower = url.toLowerCase();
 
   if (urlLower.includes("kwork.ru")) return "kwork";
@@ -54,7 +35,7 @@ function detectPlatform(url: string): ProfileData["platform"] {
  */
 function extractUsername(
   url: string,
-  platform: ProfileData["platform"],
+  platform: ProfilePlatform,
 ): string {
   try {
     const urlObj = new URL(url);
@@ -85,7 +66,7 @@ function extractUsername(
  */
 export async function parseFreelancerProfile(
   profileUrl: string,
-): Promise<ProfileData> {
+): Promise<BaseProfileData> {
   // Валидация URL на безопасность (защита от SSRF и DNS rebinding)
   try {
     await validateSecureURLWithDNS(profileUrl, {
@@ -170,7 +151,7 @@ export async function parseFreelancerProfile(
  */
 export function formatProfileDataForStorage(
   profile:
-    | ProfileData
+    | BaseProfileData
     | {
         platform: string;
         username: string;

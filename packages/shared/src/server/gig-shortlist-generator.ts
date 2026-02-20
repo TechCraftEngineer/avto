@@ -8,16 +8,7 @@
 import { and, eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { response } from "@qbs-autonaim/db/schema";
-
-/**
- * Контактная информация кандидата
- */
-export interface GigContactInfo {
-  email?: string;
-  phone?: string;
-  telegram?: string;
-  platformProfile?: string;
-}
+import type { ContactInfo } from "@qbs-autonaim/shared/types";
 
 /**
  * Опции генерации шортлиста для gig
@@ -35,7 +26,7 @@ export interface GigShortlistOptions {
 export interface GigShortlistCandidate {
   responseId: string;
   name: string;
-  contactInfo: GigContactInfo;
+  contactInfo: ContactInfo;
   // Ценовые предложения
   proposedPrice?: number;
   proposedDeliveryDays?: number;

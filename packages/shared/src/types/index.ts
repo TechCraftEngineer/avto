@@ -14,3 +14,20 @@ export type {
   ConversationMetadata,
   QuestionAnswer,
 } from "./conversation";
+
+// Типы профилей
+export type {
+  ProfilePlatform,
+  ProfileStatistics,
+  BaseProfileData,
+  ExtendedProfileData,
+  ParsedProfileData,
+} from "./profile";
+
+// Типы gig заданий и контактов
+export type {
+  ContactInfo,
+  BaseGigData,
+  ExtendedGigData,
+  GigContextData,
+} from "./gig";
