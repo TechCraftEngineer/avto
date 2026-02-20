@@ -103,7 +103,7 @@ chrome.runtime.onMessage.addListener(
             "",
             auth.context.workspaceId,
             auth.context.token,
-            false,
+            true, // fetchResumeDetails: парсим текст резюме и фото
           );
           sendResponse({
             ok: result.success,

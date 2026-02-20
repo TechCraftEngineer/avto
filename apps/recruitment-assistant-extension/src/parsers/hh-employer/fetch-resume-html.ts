@@ -62,6 +62,40 @@ export function fetchVacancyPrintHtml(vacancyUrl: string): Promise<string> {
   });
 }
 
+/**
+ * Загрузка изображения (фото кандидата) через инжект в page context.
+ */
+export function fetchPhotoAsBase64(photoUrl: string): Promise<{ base64: string; contentType: string }> {
+  return new Promise((resolve, reject) => {
+    const id = `hh-photo-fetch-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const handler = (event: MessageEvent) => {
+      if (event.data?.type === "HH_IMAGE_RESULT" && event.data?.id === id) {
+        window.removeEventListener("message", handler);
+        if (event.data.error) {
+          reject(new Error(event.data.error));
+        } else {
+          resolve({
+            base64: event.data.base64,
+            contentType: event.data.contentType || "image/jpeg",
+          });
+        }
+      }
+    };
+    window.addEventListener("message", handler);
+    const script = document.createElement("script");
+    script.src = chrome.runtime.getURL("src/injected/fetch-page-context.js");
+    script.dataset.fetchId = id;
+    script.dataset.fetchUrl = photoUrl;
+    script.dataset.fetchType = "image";
+    document.documentElement.appendChild(script);
+    script.remove();
+    setTimeout(() => {
+      window.removeEventListener("message", handler);
+      reject(new Error("Таймаут загрузки фото"));
+    }, 15000);
+  });
+}
+
 export function fetchResumeHtml(resumeUrl: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const id = `hh-resume-fetch-${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -107,8 +141,18 @@ export function parseResumeFromHtml(html: string): {
   skills: string[];
   email: string | null;
   phone: string | null;
+  photoUrl: string | null;
 } {
   const doc = new DOMParser().parseFromString(html, "text/html");
+
+  const photoImg = doc.querySelector('[data-qa="resume-photo"] img');
+  const rawPhotoSrc = photoImg?.getAttribute("src") || null;
+  const photoUrl =
+    rawPhotoSrc &&
+    !rawPhotoSrc.includes("placeholder") &&
+    !rawPhotoSrc.includes("no-photo")
+      ? rawPhotoSrc
+      : null;
 
   const experience =
     Array.from(doc.querySelectorAll('[data-qa="resume-block-experience-item"]'))
@@ -157,7 +201,7 @@ export function parseResumeFromHtml(html: string): {
       .querySelector('[data-qa="resume-contact-phone"]')
       ?.textContent?.trim() || null;
 
-  return { experience, education, skills, email, phone };
+  return { experience, education, skills, email, phone, photoUrl };
 }
 
 export { FETCH_DELAY_MS };

@@ -19,6 +19,7 @@ export {
 export type { HHEmployerPageType } from "./page-detector";
 
 export {
+  fetchPhotoAsBase64,
   fetchResumeHtml,
   fetchVacancyPrintHtml,
   getVacancyPrintUrl,

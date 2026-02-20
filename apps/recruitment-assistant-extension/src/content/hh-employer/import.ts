@@ -5,6 +5,7 @@
 import { getExtensionApiUrl } from "../../config";
 import {
   FETCH_DELAY_MS,
+  fetchPhotoAsBase64,
   fetchResumeHtml,
   fetchVacancyPrintHtml,
   parseResumeFromHtml,
@@ -312,6 +313,8 @@ export async function runResponsesImport(
       experience: undefined as string | undefined,
       education: undefined as string | undefined,
       skills: undefined as string[] | undefined,
+      photoBase64: undefined as string | undefined,
+      photoContentType: undefined as string | undefined,
     }));
 
     if (fetchResumeDetails && responses.length <= 100) {
@@ -335,11 +338,22 @@ export async function runResponsesImport(
               item.experience = details.experience || undefined;
               item.education = details.education || undefined;
               item.skills = details.skills.length ? details.skills : undefined;
+              if (details.photoUrl) {
+                try {
+                  const { base64, contentType } = await fetchPhotoAsBase64(
+                    details.photoUrl,
+                  );
+                  item.photoBase64 = base64;
+                  item.photoContentType = contentType;
+                } catch (_e) {
+                  // Пропускаем ошибки загрузки фото
+                }
+              }
             }
           } catch (_e) {
             // Пропускаем ошибки отдельных резюме
           }
-          await new Promise((r) => setTimeout(r, FETCH_DELAY_MS));
+          await new Promise((res) => setTimeout(res, FETCH_DELAY_MS));
         }
         onProgress?.({
           stage: "resume-details",

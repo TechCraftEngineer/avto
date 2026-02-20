@@ -1,7 +1,11 @@
 import { eq, WorkspaceRepository } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { vacancy as vacancySchema } from "@qbs-autonaim/db/schema";
-import { saveBasicResponse } from "@qbs-autonaim/jobs/services/response";
+import {
+  saveBasicResponse,
+  updateResponseDetails,
+  uploadCandidatePhoto,
+} from "@qbs-autonaim/jobs/services/response";
 import {
   saveBasicVacancy,
   updateVacancyDescription,
@@ -42,6 +46,14 @@ const responseItemSchema = z.object({
   resumeUrl: z.string(),
   name: z.string(),
   respondedAt: z.string().optional(),
+  coverLetter: z.string().optional(),
+  email: z.string().optional(),
+  phone: z.string().optional(),
+  experience: z.string().optional(),
+  education: z.string().optional(),
+  skills: z.array(z.string()).optional(),
+  photoBase64: z.string().optional(),
+  photoContentType: z.string().optional(),
 });
 
 const responsesBodySchema = z.object({
@@ -222,14 +234,77 @@ hhImportRouter.post("/", async (c) => {
         if (!Number.isNaN(d.getTime())) respondedAt = d;
       }
 
-      const result = await saveBasicResponse(
+      const saveResult = await saveBasicResponse(
         entityId,
         r.resumeId,
         r.resumeUrl,
         r.name,
         respondedAt,
+        { coverLetter: r.coverLetter ?? null },
       );
-      if (result.success && result.data) imported++;
+      if (saveResult.success && saveResult.data) imported++;
+
+      const hasDetails =
+        r.email ||
+        r.phone ||
+        r.experience ||
+        r.education ||
+        (r.skills && r.skills.length > 0) ||
+        (r.photoBase64 && r.photoContentType);
+
+      if (hasDetails) {
+        let photoFileId: string | null = null;
+        if (r.photoBase64 && r.photoContentType) {
+          try {
+            const buffer = Buffer.from(r.photoBase64, "base64");
+            const uploadResult = await uploadCandidatePhoto(
+              buffer,
+              r.resumeId,
+              r.photoContentType,
+            );
+            if (uploadResult.success && uploadResult.data) {
+              photoFileId = uploadResult.data;
+            }
+          } catch {
+            // Пропускаем ошибки загрузки фото
+          }
+        }
+
+        const profileData =
+          r.experience || r.education || (r.skills && r.skills.length > 0)
+            ? {
+                experience: r.experience
+                  ? [{ experience: { text: r.experience } }]
+                  : undefined,
+                education: r.education
+                  ? [{ text: r.education }]
+                  : undefined,
+                skills: r.skills ?? undefined,
+                parsedAt: new Date().toISOString(),
+              }
+            : undefined;
+
+        const updateResult = await updateResponseDetails({
+          vacancyId: entityId,
+          resumeId: r.resumeId,
+          resumeUrl: r.resumeUrl,
+          candidateName: r.name,
+          contacts: null,
+          phone: r.phone ?? null,
+          email: r.email ?? undefined,
+          photoFileId: photoFileId ?? undefined,
+          profileData: profileData ?? undefined,
+          skills: r.skills ?? undefined,
+        });
+
+        if (!updateResult.success) {
+          // Логируем, но не прерываем — базовый отклик уже сохранён
+          console.warn(
+            `Ошибка обновления деталей отклика ${r.resumeId}:`,
+            updateResult.error,
+          );
+        }
+      }
     }
 
     return c.json({ imported });
