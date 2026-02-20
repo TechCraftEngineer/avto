@@ -33,9 +33,9 @@ export function ResponseKanbanColumn({
   });
 
   return (
-    <fieldset className="flex flex-col w-[320px] shrink-0 border-0 p-0 m-0 h-full">
+    <fieldset className="flex min-h-full w-[320px] shrink-0 flex-col border-0 p-0 m-0">
       <legend className="sr-only">{`Колонка ${title}`}</legend>
-      <div className="flex items-center gap-2 mb-3 px-1">
+      <div className="mb-3 flex shrink-0 items-center gap-2 px-1">
         <div className={cn("w-2 h-2 rounded-full shrink-0", color)} />
         <h3 className="text-sm font-semibold truncate text-foreground/90">{title}</h3>
         <span className="text-xs font-medium text-muted-foreground bg-background/80 px-2.5 py-0.5 rounded-full tabular-nums ml-auto shrink-0">
@@ -46,7 +46,7 @@ export function ResponseKanbanColumn({
       <div
         ref={setNodeRef}
         className={cn(
-          "flex flex-col gap-3 flex-1 p-3 rounded-xl transition-colors overflow-y-auto min-h-70 shadow-sm",
+          "flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto rounded-xl p-3 shadow-sm transition-colors",
           isOver
             ? "border-2 border-primary/50 bg-primary/5 ring-2 ring-primary/20"
             : "border border-border/50 bg-card/90 backdrop-blur-sm",

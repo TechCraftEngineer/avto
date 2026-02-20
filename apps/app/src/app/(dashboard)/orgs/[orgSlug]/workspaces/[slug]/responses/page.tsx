@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui";
+import { Button, cn } from "@qbs-autonaim/ui";
 import {
   IconFilter,
   IconLayoutKanban,
@@ -215,7 +215,12 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
           ))}
         </div>
 
-        <div className="flex flex-col gap-5">
+        <div
+          className={cn(
+            "flex flex-col gap-5",
+            viewMode === "board" && "min-h-0 flex-1",
+          )}
+        >
           <div className="flex flex-col sm:flex-row gap-3">
             <VacancyFilter
               vacancies={(vacanciesData ?? []).map((v) => ({
@@ -305,12 +310,17 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
               )}
             </>
           ) : (
-            <ResponsesKanban
-              responses={responsesData?.responses ?? []}
-              isLoading={isLoading}
-              orgSlug={orgSlug}
-              workspaceSlug={workspaceSlug}
-            />
+            <div
+              className="kanban-page flex min-h-0 flex-1 flex-col"
+              style={{ minHeight: "calc(100dvh - 320px)" }}
+            >
+              <ResponsesKanban
+                responses={responsesData?.responses ?? []}
+                isLoading={isLoading}
+                orgSlug={orgSlug}
+                workspaceSlug={workspaceSlug}
+              />
+            </div>
           )}
         </div>
       </div>

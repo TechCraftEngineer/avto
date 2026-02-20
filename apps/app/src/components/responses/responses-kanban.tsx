@@ -132,9 +132,9 @@ export function ResponsesKanban({
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="h-full overflow-x-auto rounded-2xl bg-muted/40 p-4">
+      <div className="flex min-h-0 flex-1 flex-col overflow-x-auto rounded-2xl bg-muted/40 p-4">
         <section
-          className="flex gap-3 md:gap-4 min-w-max h-full pb-2 items-stretch"
+          className="flex min-h-full min-w-max flex-1 gap-3 pb-2 md:gap-4 items-stretch"
           aria-label="Канбан-доска откликов"
         >
           {groupedResponses.map((column) => (
