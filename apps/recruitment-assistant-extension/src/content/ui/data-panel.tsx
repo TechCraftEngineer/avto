@@ -1,5 +1,9 @@
 import { useState } from "react";
-import type { CandidateData } from "../../shared/types";
+import type {
+  CandidateData,
+  WorkExperienceEntry,
+  EducationEntry,
+} from "../../shared/types";
 import { ContactInfo } from "./contact-info";
 import { EditableField } from "./editable-field";
 import { EducationCard } from "./education-card";
@@ -174,12 +178,12 @@ export function DataPanel({
             >
               Опыт работы
             </h3>
-            {data.experience.map((exp, idx) => (
+            {data.experience.map((exp: WorkExperienceEntry, idx: number) => (
               <ExperienceCard
-                key={`${exp.company}-${exp.position}-${idx}`}
+                key={`${exp.company || ""}-${exp.position || ""}-${idx}`}
                 experience={exp}
                 onEdit={(field, value) =>
-                  onEdit(`experience.${idx}.${field}`, value)
+                  onEdit(`experience.${idx}.${String(field)}`, value)
                 }
               />
             ))}
@@ -199,12 +203,12 @@ export function DataPanel({
             >
               Образование
             </h3>
-            {data.education.map((edu, idx) => (
+            {data.education.map((edu: EducationEntry, idx: number) => (
               <EducationCard
-                key={`${edu.institution}-${edu.degree}-${idx}`}
+                key={`${edu.institution || ""}-${edu.degree || ""}-${idx}`}
                 education={edu}
                 onEdit={(field, value) =>
-                  onEdit(`education.${idx}.${field}`, value)
+                  onEdit(`education.${idx}.${String(field)}`, value)
                 }
               />
             ))}
@@ -223,7 +227,7 @@ export function DataPanel({
         <section style={{ marginBottom: "24px" }}>
           <ContactInfo
             contacts={data.contacts}
-            onEdit={(field, value) => onEdit(`contacts.${field}`, value)}
+            onEdit={(field, value) => onEdit(`contacts.${String(field)}`, value)}
           />
         </section>
       </div>

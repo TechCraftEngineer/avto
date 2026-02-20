@@ -2,13 +2,19 @@
  * Типы данных для Recruitment Assistant Extension
  */
 
-export type {
-  BasicCandidateInfo as BasicInfo,
-  WorkExperienceEntry as ExperienceEntry,
+import type {
+  BasicCandidateInfo,
+  WorkExperienceEntry,
   EducationEntry,
-  CandidateContactInfo as ContactInfo,
-  FullCandidateData as CandidateData,
+  CandidateContactInfo,
+  FullCandidateData,
 } from "@qbs-autonaim/shared";
+
+export type BasicInfo = BasicCandidateInfo;
+export type ExperienceEntry = WorkExperienceEntry;
+export type { EducationEntry };
+export type ContactInfo = CandidateContactInfo;
+export type CandidateData = FullCandidateData;
 
 /**
  * Настройки расширения

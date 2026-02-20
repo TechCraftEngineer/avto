@@ -34,7 +34,7 @@ export function ContactInfo({ contacts, onEdit }: ContactInfoProps) {
   const handleRemoveLink = (linkToRemove: string) => {
     onEdit(
       "socialLinks",
-      contacts.socialLinks.filter((link) => link !== linkToRemove),
+      contacts.socialLinks.filter((link: string) => link !== linkToRemove),
     );
   };
 
@@ -264,7 +264,7 @@ export function ContactInfo({ contacts, onEdit }: ContactInfoProps) {
             }}
             aria-label="Список социальных сетей"
           >
-            {contacts.socialLinks.map((link) => (
+            {contacts.socialLinks.map((link: string) => (
               <li
                 key={link}
                 style={{
