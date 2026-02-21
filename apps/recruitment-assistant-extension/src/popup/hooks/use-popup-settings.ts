@@ -34,7 +34,7 @@ export function usePopupSettings(authService: AuthService) {
 
         // Если организация не выбрана — выбираем первую по умолчанию
         const effectiveOrgId =
-          selectedOrgId ?? (orgs.length > 0 ? orgs[0]!.id : null);
+          selectedOrgId ?? (orgs.length > 0 ? orgs[0]?.id : null);
 
         if (effectiveOrgId) {
           const wsResp = await chrome.runtime.sendMessage({
@@ -54,7 +54,7 @@ export function usePopupSettings(authService: AuthService) {
 
             // Если workspace не выбран — выбираем первый по умолчанию и сохраняем
             const effectiveWorkspaceId =
-              selectedWorkspaceId ?? (wss.length > 0 ? wss[0]!.id : null);
+              selectedWorkspaceId ?? (wss.length > 0 ? wss[0]?.id : null);
 
             if (effectiveWorkspaceId && (!selectedOrgId || !selectedWorkspaceId)) {
               const { userData } = await chrome.storage.local.get(["userData"]);

@@ -16,7 +16,8 @@ type MessageType =
   | "EXECUTE_IMPORT_SELECTED_VACANCIES"
   | "EXECUTE_IMPORT_RESPONSES"
   | "FETCH_RESUME_TEXT"
-  | "FETCH_CHATIK_CHATS";
+  | "FETCH_CHATIK_CHATS"
+  | "FETCH_CHATIK_SEARCH";
 
 /**
  * Структура сообщения от content script / popup
@@ -420,6 +421,68 @@ chrome.runtime.onMessage.addListener(
             sendResponse({
               success: false,
               error: err instanceof Error ? err.message : "Ошибка Chatik API",
+            });
+          }
+        })();
+        return true;
+      }
+
+      case "FETCH_CHATIK_SEARCH": {
+        const payload = message.payload as {
+          query?: string;
+          vacancyExternalId?: string;
+        };
+        const query = payload?.query;
+        const vacancyExternalId = payload?.vacancyExternalId;
+
+        if (typeof query !== "string" || !query.trim()) {
+          sendResponse({ success: false, error: "Не указан query для поиска" });
+          return false;
+        }
+
+        (async () => {
+          try {
+            const url = new URL("https://chatik.hh.ru/chatik/api/search");
+            url.searchParams.set("query", query.trim());
+            url.searchParams.set("do_not_track_session_events", "true");
+            if (
+              typeof vacancyExternalId === "string" &&
+              vacancyExternalId.trim()
+            ) {
+              url.searchParams.set("vacancyIds", vacancyExternalId.trim());
+            }
+
+            const response = await fetch(url.toString(), {
+              credentials: "include",
+              headers: {
+                Accept: "application/json, text/plain, */*",
+                "Accept-Language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
+                Origin: "https://hh.ru",
+                Referer: "https://hh.ru/",
+              },
+            });
+
+            if (!response.ok) {
+              throw new Error(
+                `Chatik Search API: HTTP ${response.status} ${response.statusText}`,
+              );
+            }
+
+            const data = (await response.json()) as
+              | { chats?: { items?: unknown[] } }
+              | { items?: unknown[] };
+            const items =
+              (data && "chats" in data && data.chats?.items) ??
+              (data && "items" in data && data.items) ??
+              [];
+
+            sendResponse({ success: true, data: Array.isArray(items) ? items : [] });
+          } catch (err) {
+            logError("FETCH_CHATIK_SEARCH", err);
+            sendResponse({
+              success: false,
+              error:
+                err instanceof Error ? err.message : "Ошибка Chatik Search API",
             });
           }
         })();

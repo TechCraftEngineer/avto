@@ -3,7 +3,7 @@ import { env } from "@qbs-autonaim/config";
 import { upsertUserIntegration } from "@qbs-autonaim/db";
 import { getSession } from "~/auth/server";
 import { createHash } from "node:crypto";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 const TOKEN_URL = "https://oauth2.googleapis.com/token";
 

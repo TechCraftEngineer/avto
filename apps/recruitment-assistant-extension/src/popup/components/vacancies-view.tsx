@@ -135,14 +135,13 @@ export function VacanciesView({
             страницу списка.
           </p>
           {(selectedCount ?? 0) === 0 && !isImporting && (
-            <p
-              className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800"
-              role="status"
+            <output
+              className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 block"
               aria-live="polite"
             >
               Выберите вакансии галочками на странице, затем нажмите кнопку
               импорта.
-            </p>
+            </output>
           )}
         </div>
         <Button

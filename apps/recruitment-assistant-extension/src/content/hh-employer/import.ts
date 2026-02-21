@@ -7,8 +7,7 @@ import {
   fetchResumeTextHtml,
   fetchVacancyPrintHtml,
   fetchPhotoAsBase64,
-  fetchChatikChats,
-  buildResumeToCoverLetterMap,
+  fetchCoverLettersBySearch,
   type HHEmployerPageType,
   type ParsedResponse,
 } from "../../parsers/hh-employer";
@@ -364,10 +363,12 @@ export async function runResponsesImport(
       };
     }
 
-    // Загрузка сопроводительных писем через Chatik API
+    // Загрузка сопроводительных писем через поиск Chatik (по имени кандидата)
     try {
-      const chats = await fetchChatikChats(vacancyExternalId);
-      const coverLetterMap = buildResumeToCoverLetterMap(chats);
+      const coverLetterMap = await fetchCoverLettersBySearch(
+        responses.map((r) => ({ name: r.name, resumeId: r.resumeId })),
+        vacancyExternalId,
+      );
       for (const r of responses) {
         const letter = coverLetterMap.get(r.resumeId);
         if (letter) r.coverLetter = letter;
@@ -391,7 +392,7 @@ export async function runResponsesImport(
       name: r.name,
       respondedAt: r.respondedAt,
       status: r.status,
-      coverLetter: r.coverLetter,
+      coverLetter: r.coverLetter ?? "",
       photoUrl: r.photoUrl,
       resumeTextHtml: undefined as string | undefined,
     }));
@@ -431,7 +432,9 @@ export async function runResponsesImport(
             });
           } catch (e) {
             console.error(`[Import] Ошибка загрузки фото для ${r.name}:`, e);
-            // Пропускаем ошибки загрузки фото
+            // Очищаем photoUrl — схема ожидает base64, иначе валидация отклоняет весь запрос (включая coverLetter)
+            const item = responsesToSend[i];
+            if (item) item.photoUrl = undefined;
           }
         }
       }
