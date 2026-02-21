@@ -28,3 +28,8 @@ export {
 } from "./fetch-resume-html";
 
 export { fetchResumeTextHtml } from "./fetch-resume-text";
+
+export {
+  fetchChatikChats,
+  buildResumeToCoverLetterMap,
+} from "./fetch-chatik-chats";

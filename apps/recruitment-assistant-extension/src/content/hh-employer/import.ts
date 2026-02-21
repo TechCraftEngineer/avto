@@ -7,6 +7,8 @@ import {
   fetchResumeTextHtml,
   fetchVacancyPrintHtml,
   fetchPhotoAsBase64,
+  fetchChatikChats,
+  buildResumeToCoverLetterMap,
   type HHEmployerPageType,
   type ParsedResponse,
 } from "../../parsers/hh-employer";
@@ -360,6 +362,18 @@ export async function runResponsesImport(
         success: false,
         error: "Не найдено откликов на странице",
       };
+    }
+
+    // Загрузка сопроводительных писем через Chatik API
+    try {
+      const chats = await fetchChatikChats(vacancyExternalId);
+      const coverLetterMap = buildResumeToCoverLetterMap(chats);
+      for (const r of responses) {
+        const letter = coverLetterMap.get(r.resumeId);
+        if (letter) r.coverLetter = letter;
+      }
+    } catch (e) {
+      console.warn("[Import] Не удалось загрузить сопроводительные письма:", e);
     }
 
     // Проверка лимита импорта
