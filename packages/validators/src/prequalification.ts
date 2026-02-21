@@ -1,3 +1,4 @@
+import type { FitDecision as FitDecisionType } from "@qbs-autonaim/types";
 import { z } from "zod";
 
 // ============================================================================
@@ -32,15 +33,16 @@ export const sessionStatusSchema = z.enum([
 export type SessionStatus = z.infer<typeof sessionStatusSchema>;
 
 /**
- * Fit decision enum
+ * Fit decision enum — значения из @qbs-autonaim/types
  */
 export const fitDecisionSchema = z.enum([
   "strong_fit",
   "potential_fit",
   "not_fit",
-]);
+]) satisfies z.ZodType<FitDecisionType>;
 
-export type FitDecision = z.infer<typeof fitDecisionSchema>;
+/** Реэкспорт из @qbs-autonaim/types */
+export type FitDecision = FitDecisionType;
 
 /**
  * Prequalification source enum
@@ -540,7 +542,7 @@ export type ParsedResume = z.infer<typeof parsedResumeSchema>;
 // ============================================================================
 
 /**
- * Dimension score validation
+ * Dimension score validation — структура для prequalification (hardSkills, softSkills, …)
  */
 export const dimensionScoreSchema = z.object({
   score: z.number().int().min(0).max(100),
@@ -551,7 +553,7 @@ export const dimensionScoreSchema = z.object({
 export type DimensionScore = z.infer<typeof dimensionScoreSchema>;
 
 /**
- * Evaluation result validation
+ * Evaluation result validation — структура для prequalification (dimensions object)
  */
 export const evaluationResultSchema = z.object({
   fitScore: z.number().int().min(0).max(100),

@@ -25,6 +25,7 @@ interface Vacancy {
   newResponses: number | null;
   resumesInProgress: number | null;
   isActive: boolean | null;
+  isFavorite: boolean;
   platformUrl?: string | null;
 }
 
@@ -73,6 +74,7 @@ export function VacancyTable({
         <TableHeader className="bg-muted/30">
           <TableRow className="hover:bg-transparent">
             {/* Headers... */}
+            <TableHead className="w-12" aria-label="Избранное" />
             <TableHead className="w-[280px] font-semibold text-foreground">
               Название вакансии
             </TableHead>
@@ -138,6 +140,9 @@ export function VacancyTable({
             Array.from({ length: 5 }, (_, i) => `skeleton-${i}`).map((key) => (
               <TableRow key={key}>
                 <TableCell>
+                  <Skeleton className="h-8 w-8 rounded-full" />
+                </TableCell>
+                <TableCell>
                   <div className="flex flex-col gap-2">
                     <Skeleton className="h-5 w-[220px]" />
                     <Skeleton className="h-4 w-[120px]" />
@@ -174,7 +179,7 @@ export function VacancyTable({
             ))
           ) : vacancies.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={8} className="h-[500px] p-0">
+              <TableCell colSpan={9} className="h-[500px] p-0">
                 <div className="flex h-full flex-col items-center justify-center gap-6 px-4 py-10">
                   {/* Анимированный список скелетонов */}
                   <div className="animate-fade-in h-36 w-full max-w-64 overflow-hidden px-4 mask-[linear-gradient(transparent,black_10%,black_90%,transparent)]">

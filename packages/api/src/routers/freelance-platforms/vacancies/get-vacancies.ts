@@ -81,6 +81,7 @@ export const getVacancies = protectedProcedure
           customInterviewQuestions: vacancy.customInterviewQuestions,
           customOrganizationalQuestions: vacancy.customOrganizationalQuestions,
           isActive: vacancy.isActive,
+          isFavorite: vacancy.isFavorite,
           createdAt: vacancy.createdAt,
           updatedAt: vacancy.updatedAt,
           platformUrl: vacancy.url,

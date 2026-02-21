@@ -23,6 +23,8 @@ import {
   IconEdit,
   IconExternalLink,
   IconHistory,
+  IconStar,
+  IconStarFilled,
   IconTrash,
 } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -62,6 +64,7 @@ interface Vacancy {
   newResponses: number | null;
   resumesInProgress: number | null;
   isActive: boolean | null;
+  isFavorite: boolean;
   platformUrl?: string | null;
 }
 
@@ -142,6 +145,25 @@ export function VacancyTableRow({
     }),
   );
 
+  // Мутация для обновления статуса избранного
+  const updateFavoriteMutation = useMutation(
+    trpc.freelancePlatforms.updateVacancyFavorite.mutationOptions({
+      onSuccess: async () => {
+        toast.success(
+          vacancy.isFavorite
+            ? "Вакансия удалена из избранных"
+            : "Вакансия добавлена в избранные",
+        );
+        await queryClient.invalidateQueries({
+          queryKey: trpc.freelancePlatforms.getVacancies.queryKey(),
+        });
+      },
+      onError: (error) => {
+        toast.error(error.message || "Не удалось обновить статус избранного");
+      },
+    }),
+  );
+
   const handleStatusToggle = (checked: boolean) => {
     if (!workspaceId) return;
 
@@ -152,12 +174,55 @@ export function VacancyTableRow({
     });
   };
 
+  const handleFavoriteToggle = () => {
+    if (!workspaceId) return;
+
+    updateFavoriteMutation.mutate({
+      workspaceId,
+      vacancyId: vacancy.id,
+      isFavorite: !vacancy.isFavorite,
+    });
+  };
+
   return (
     <TableRow
       className={`group transition-colors hover:bg-muted/50 ${
         needsAttention ? "bg-green-50/50 dark:bg-green-950/10" : ""
       }`}
     >
+      <TableCell className="w-12">
+        <Tooltip delayDuration={300}>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`size-8 hover:bg-yellow-50 dark:hover:bg-yellow-950/20 transition-colors ${
+                vacancy.isFavorite
+                  ? "text-yellow-500 hover:text-yellow-600"
+                  : "text-muted-foreground hover:text-yellow-500"
+              }`}
+              onClick={handleFavoriteToggle}
+              disabled={updateFavoriteMutation.isPending}
+              aria-label={
+                vacancy.isFavorite
+                  ? "Удалить из избранных"
+                  : "Добавить в избранные"
+              }
+            >
+              {vacancy.isFavorite ? (
+                <IconStarFilled className="size-4 fill-current" />
+              ) : (
+                <IconStar className="size-4" />
+              )}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="top" className="text-sm">
+            {vacancy.isFavorite
+              ? "Удалить из избранных"
+              : "Добавить в избранные"}
+          </TooltipContent>
+        </Tooltip>
+      </TableCell>
       <TableCell className="max-w-[280px]">
         <div className="flex flex-col gap-1">
           <div className="flex items-start gap-2">

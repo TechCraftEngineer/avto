@@ -94,6 +94,7 @@ export const vacancy = pgTable(
     }>(),
 
     isActive: boolean("is_active").default(true),
+    isFavorite: boolean("is_favorite").default(false),
     createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
       .defaultNow()
       .notNull(),

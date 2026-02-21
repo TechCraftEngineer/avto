@@ -14,6 +14,8 @@ import {
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+import type { FitDecision } from "@qbs-autonaim/types";
+
 import { chatSession } from "../chat/chat-session";
 import { interviewSession } from "../interview/interview-session";
 import { response } from "../response/response";
@@ -232,4 +234,5 @@ export type PrequalificationStatus =
   (typeof prequalificationStatusEnum.enumValues)[number];
 export type PrequalificationSource =
   (typeof prequalificationSourceEnum.enumValues)[number];
-export type FitDecision = (typeof fitDecisionEnum.enumValues)[number];
+/** Реэкспорт для обратной совместимости */
+export type { FitDecision } from "@qbs-autonaim/types";

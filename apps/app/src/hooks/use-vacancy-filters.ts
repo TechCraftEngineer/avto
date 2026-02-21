@@ -11,6 +11,7 @@ interface Vacancy {
   newResponses: number | null;
   resumesInProgress: number | null;
   isActive: boolean | null;
+  isFavorite: boolean;
   createdAt: Date;
 }
 
@@ -60,9 +61,14 @@ export function useVacancyFilters(vacancies: Vacancy[] | undefined) {
       filtered = filtered.filter((v) => new Date(v.createdAt) <= toDate);
     }
 
-    // Сортировка: сначала по статусу (активные сверху), затем по выбранному полю
+    // Сортировка: сначала по статусу избранного, затем по активности, затем по выбранному полю
     filtered.sort((a, b) => {
-      // Сначала сортируем по статусу: активные (true) должны быть выше архивных (false)
+      // Сначала сортируем по статусу избранного: избранные (true) должны быть выше
+      if (a.isFavorite !== b.isFavorite) {
+        return (b.isFavorite ? 1 : 0) - (a.isFavorite ? 1 : 0);
+      }
+
+      // Затем сортируем по статусу: активные (true) должны быть выше архивных (false)
       if (a.isActive !== b.isActive) {
         return (b.isActive ? 1 : 0) - (a.isActive ? 1 : 0);
       }

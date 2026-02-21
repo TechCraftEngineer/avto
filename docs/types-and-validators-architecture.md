@@ -192,7 +192,7 @@ export type VacancyRequirementsInput = z.infer<typeof vacancyRequirementsSchema>
 4. ~~**Обновить shared**~~ ✓ — удалить types, реэкспортировать из @qbs-autonaim/types для обратной совместимости
 5. ~~**Перенести draft schemas**~~ ✓ — из shared/schemas в validators (CreateDraftInputSchema, UpdateDraftInputSchema, DraftSchema, MessageSchema, VacancyDataSchema)
 6. **Обновить consumers** — api, jobs, ai, jobs-parsers, app, extension (импорты из shared сохранены)
-7. **Унифицировать дубликаты** — FitDecision, DimensionScore, EvaluationResult (развести domain vs prequalification-специфичные)
+7. ~~**Унифицировать дубликаты**~~ ✓ — FitDecision в types (validators satisfies, db реэкспорт); DimensionScore/EvaluationResult разведены по JSDoc (screening в types, prequalification в db/validators)
 
 ---
 
