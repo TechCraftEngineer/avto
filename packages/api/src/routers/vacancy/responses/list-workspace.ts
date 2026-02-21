@@ -1,9 +1,5 @@
 import type { SQL } from "@qbs-autonaim/db";
 import { and, eq, ilike, inArray, sql } from "@qbs-autonaim/db";
-import type {
-  HrSelectionStatus,
-  ResponseStatus,
-} from "@qbs-autonaim/db/schema";
 import {
   responseScreening,
   response as responseTable,
@@ -20,11 +16,12 @@ import {
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../trpc";
+import type { RawResponseBase } from "./types";
 import { fetchRelatedData } from "./utils/fetch-related-data";
 import { mapResponseData } from "./utils/map-response-data";
 import { getFilteredResponseIds } from "./utils/screening-filters";
-import { vacancyResponseSortFieldWorkspaceSchema } from "./utils/sort-types";
 import { buildOrderByClause, isScoreBasedSort } from "./utils/sort-builder";
+import { vacancyResponseSortFieldWorkspaceSchema } from "./utils/sort-types";
 
 const EMPTY_RESULT = {
   responses: [],
@@ -123,25 +120,10 @@ export const listWorkspace = protectedProcedure
     const needsPrioritySort = sortField === "priorityScore";
     const fetchLimit = needsPrioritySort ? Math.min(limit * 3, 300) : limit;
 
-    let responsesRaw: Array<{
-      id: string;
-      entityId: string;
-      candidateName: string | null;
-      photoFileId: string | null;
-      status: ResponseStatus;
-      hrSelectionStatus: HrSelectionStatus | null;
-      contacts: Record<string, unknown> | null;
-      profileUrl: string | null;
-      telegramUsername: string | null;
-      phone: string | null;
-      coverLetter: string | null;
-      respondedAt: Date | null;
-      welcomeSentAt: Date | null;
-      createdAt: Date;
-    }>;
+    let responsesRaw: RawResponseBase[];
 
     if (isScoreBasedSort(sortField)) {
-      responsesRaw = await ctx.db
+      responsesRaw = (await ctx.db
         .select({
           id: responseTable.id,
           entityId: responseTable.entityId,
@@ -166,9 +148,9 @@ export const listWorkspace = protectedProcedure
         .where(whereCondition)
         .orderBy(orderByClause)
         .limit(needsPrioritySort ? fetchLimit : limit)
-        .offset(needsPrioritySort ? 0 : offset);
+        .offset(needsPrioritySort ? 0 : offset)) as RawResponseBase[];
     } else {
-      responsesRaw = await ctx.db.query.response.findMany({
+      responsesRaw = (await ctx.db.query.response.findMany({
         where: whereCondition,
         orderBy: [orderByClause],
         limit: needsPrioritySort ? fetchLimit : limit,
@@ -189,7 +171,7 @@ export const listWorkspace = protectedProcedure
           welcomeSentAt: true,
           createdAt: true,
         },
-      });
+      })) as RawResponseBase[];
     }
 
     const responseIds = responsesRaw.map((r) => r.id);

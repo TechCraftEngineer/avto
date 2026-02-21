@@ -94,13 +94,15 @@ export function ProfileView({
               : "Извлеките данные профиля и импортируйте в систему"}
           </p>
         </div>
-        <Button
-          className="w-full"
-          onClick={handleExtract}
-          disabled={isExtracting}
-        >
-          {isExtracting ? "Извлечение…" : "Извлечь данные"}
-        </Button>
+        <div className="flex justify-center">
+          <Button
+            className="w-fit"
+            onClick={handleExtract}
+            disabled={isExtracting}
+          >
+            {isExtracting ? "Извлечение…" : "Извлечь данные"}
+          </Button>
+        </div>
         {error && (
           <Alert variant="destructive" role="alert" aria-live="polite">
             {error}

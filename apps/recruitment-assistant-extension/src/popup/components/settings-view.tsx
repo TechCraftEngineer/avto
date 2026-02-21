@@ -140,16 +140,16 @@ export function SettingsView({
 
           {error && <Alert variant="destructive">{error}</Alert>}
 
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-wrap justify-end gap-2">
+            <Button variant="outline" className="w-fit" onClick={onClose}>
+              Отмена
+            </Button>
             <Button
-              className="w-full"
+              className="w-fit"
               onClick={handleSaveSettings}
               disabled={!selectedOrgId || !selectedWorkspaceId}
             >
               Сохранить
-            </Button>
-            <Button variant="outline" className="w-full" onClick={onClose}>
-              Отмена
             </Button>
           </div>
         </div>

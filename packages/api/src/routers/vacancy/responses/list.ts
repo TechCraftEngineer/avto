@@ -24,6 +24,7 @@ import {
   fetchResponsesWithoutJoin,
   fetchResponsesWithScoreJoin,
 } from "./queries/fetch-responses";
+import type { RawResponse } from "./types";
 import { getFilteredResponseIds } from "./utils/screening-filters";
 import { vacancyResponseSortFieldSchema } from "./utils/sort-types";
 import { getOrderByClause, needsScoreJoin } from "./utils/sorting";
@@ -142,21 +143,23 @@ export const list = protectedProcedure
     const fetchOffset = needsPrioritySort ? 0 : offset;
 
     // 6. Получаем отфильтрованные данные с пагинацией
-    const responsesRaw = needsScoreJoin(sortField)
-      ? await fetchResponsesWithScoreJoin(
-          ctx.db,
-          whereCondition,
-          orderByClause,
-          fetchLimit,
-          fetchOffset,
-        )
-      : await fetchResponsesWithoutJoin(
-          ctx.db,
-          whereCondition,
-          orderByClause,
-          fetchLimit,
-          fetchOffset,
-        );
+    const responsesRaw: RawResponse[] = (
+      needsScoreJoin(sortField)
+        ? await fetchResponsesWithScoreJoin(
+            ctx.db,
+            whereCondition,
+            orderByClause,
+            fetchLimit,
+            fetchOffset,
+          )
+        : await fetchResponsesWithoutJoin(
+            ctx.db,
+            whereCondition,
+            orderByClause,
+            fetchLimit,
+            fetchOffset,
+          )
+    ) as RawResponse[];
 
     if (responsesRaw.length === 0) {
       return emptyPaginatedResponse(page, limit);

@@ -167,15 +167,17 @@ export function VacanciesView({
             </output>
           )}
         </div>
-        <Button
-          className="w-full tabular-nums"
-          onClick={handleImportSelected}
-          disabled={isImporting || (selectedCount ?? 0) === 0}
-        >
-          {isImporting
-            ? "Импорт…"
-            : `Загрузить выбранные (${selectedCount ?? 0})`}
-        </Button>
+        <div className="flex justify-center">
+          <Button
+            className="w-fit tabular-nums"
+            onClick={handleImportSelected}
+            disabled={isImporting || (selectedCount ?? 0) === 0}
+          >
+            {isImporting
+              ? "Импорт…"
+              : `Загрузить выбранные (${selectedCount ?? 0})`}
+          </Button>
+        </div>
         {isImporting && progressMessage && (
           <p
             className="text-muted-foreground text-sm"

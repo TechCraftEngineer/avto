@@ -152,15 +152,17 @@ export function AuthenticatedLayout({
               <Alert variant="destructive">{settingsError}</Alert>
             )}
 
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full"
-              onClick={handleSaveSettings}
-              disabled={!selectedOrgId || !selectedWorkspaceId}
-            >
-              Сохранить настройки
-            </Button>
+            <div className="flex justify-end">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-fit"
+                onClick={handleSaveSettings}
+                disabled={!selectedOrgId || !selectedWorkspaceId}
+              >
+                Сохранить настройки
+              </Button>
+            </div>
           </div>
         )}
       </section>
@@ -173,9 +175,11 @@ export function AuthenticatedLayout({
           Аккаунт
         </h2>
         <p className="font-medium text-foreground tabular-nums">{userEmail}</p>
-        <Button variant="destructive" className="w-full" onClick={onLogout}>
-          Выйти
-        </Button>
+        <div className="flex justify-end">
+          <Button variant="destructive" className="w-fit" onClick={onLogout}>
+            Выйти
+          </Button>
+        </div>
       </section>
       <p className="text-center text-xs text-muted-foreground tabular-nums">
         v{version}

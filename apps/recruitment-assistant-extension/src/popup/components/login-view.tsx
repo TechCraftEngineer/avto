@@ -21,9 +21,11 @@ export function LoginView() {
           Войдите для импорта кандидатов в систему
         </p>
       </div>
-      <Button variant="outline" className="w-full" onClick={handleLoginViaSite}>
-        Войти через сайт
-      </Button>
+      <div className="flex justify-center">
+        <Button variant="outline" className="w-fit" onClick={handleLoginViaSite}>
+          Войти через сайт
+        </Button>
+      </div>
       <p className="text-center text-xs text-muted-foreground tabular-nums">v{version}</p>
     </div>
   );

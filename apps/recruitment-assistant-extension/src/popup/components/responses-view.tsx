@@ -136,13 +136,15 @@ export function ResponsesView({
             Импортируйте отклики кандидатов в систему
           </p>
         </div>
-        <Button
-          className="w-full"
-          onClick={handleImportResponses}
-          disabled={isImporting}
-        >
-          {isImporting ? "Импорт…" : "Импортировать отклики"}
-        </Button>
+        <div className="flex justify-center">
+          <Button
+            className="w-fit"
+            onClick={handleImportResponses}
+            disabled={isImporting}
+          >
+            {isImporting ? "Импорт…" : "Импортировать отклики"}
+          </Button>
+        </div>
         {isImporting && progressMessage && (
           <p
             className="text-muted-foreground text-sm"
