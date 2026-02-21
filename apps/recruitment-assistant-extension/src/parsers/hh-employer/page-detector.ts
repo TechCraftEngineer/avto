@@ -16,10 +16,18 @@ export function detectHHEmployerPageType(): HHEmployerPageType {
   if (path.includes("/employer/vacancyresponses") && vacancyId) {
     return "vacancy-responses";
   }
-  if (path.includes("/employer/vacancies/archived")) {
+  if (
+    path.includes("/employer/vacancies/archived") ||
+    path.includes("/vacancies/archived")
+  ) {
     return "archived-vacancies";
   }
-  if (path === "/employer/vacancies" || path.includes("/employer/vacancies?")) {
+  if (
+    path === "/employer/vacancies" ||
+    path.includes("/employer/vacancies?") ||
+    path === "/vacancies" ||
+    path.startsWith("/vacancies?")
+  ) {
     return "active-vacancies";
   }
 

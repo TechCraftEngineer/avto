@@ -16,8 +16,14 @@ export function getPageContext(url: string): PageContext | null {
       ) {
         return { type: "hh-responses" };
       }
-      if (path.includes("/employer/vacancies")) {
-        const isActive = !path.includes("/employer/vacancies/archived");
+      // hh.ru/employer/vacancies или employer.hh.ru/vacancies
+      const isEmployerVacancies =
+        path.includes("/employer/vacancies") ||
+        (host === "employer.hh.ru" && path.startsWith("/vacancies"));
+      if (isEmployerVacancies) {
+        const isActive =
+          !path.includes("/employer/vacancies/archived") &&
+          !path.includes("/vacancies/archived");
         return { type: "hh-vacancies", isActive };
       }
     }

@@ -14,10 +14,20 @@ export const ARCHIVE_CHECKBOX_SELECTOR =
 let archiveOnUpdate: (() => void) | null = null;
 let archiveListenerBound = false;
 
+/** Извлекает externalId вакансии из чекбокса или родительской строки (HH не всегда ставит value) */
+function getArchiveVacancyId(checkbox: HTMLInputElement): string | null {
+  const val = checkbox.value?.trim();
+  if (val && val !== "on") return val;
+
+  const row = checkbox.closest('div[data-qa^="vacancy-archive_"]');
+  const dataQa = row?.getAttribute("data-qa") || "";
+  const match = dataQa.match(/vacancy-archive_(\d+)/);
+  return match?.[1] ?? null;
+}
+
 function bindArchiveChangeListener(): void {
   if (archiveListenerBound) return;
   archiveListenerBound = true;
-  console.log("[RA] Archive checkbox listener attached to document");
   document.addEventListener(
     "change",
     (e) => {
@@ -26,9 +36,8 @@ function bindArchiveChangeListener(): void {
         target?.type === "checkbox" &&
         target.closest("[data-qa^='vacancies-dashboard-vacancy-archive-label']")
       ) {
-        const id = target.value;
+        const id = getArchiveVacancyId(target);
         if (id) {
-          console.log("[RA] Archive checkbox changed:", id);
           void toggleSelection(id).then(() => archiveOnUpdate?.());
         }
       }
@@ -82,10 +91,22 @@ export async function syncStorageFromNativeCheckboxes(
   const ids = await getSelectedIds();
   document.querySelectorAll(ARCHIVE_CHECKBOX_SELECTOR).forEach((input) => {
     const cb = input as HTMLInputElement;
-    const val = cb.value;
-    if (val && cb.checked) ids.add(val);
+    const id = getArchiveVacancyId(cb);
+    if (id && cb.checked) ids.add(id);
   });
   await setSelectedIds(ids);
+}
+
+/** Извлекает externalId из строки активной вакансии (поддержка разных структур HH) */
+function getActiveVacancyId(row: Element): string | null {
+  const dataQa = row.getAttribute("data-qa") || "";
+  const match = dataQa.match(/vacancy-active_(\d+)/);
+  if (match?.[1]) return match[1];
+
+  const titleEl = row.querySelector(
+    '[data-qa="vacancy-serp__vacancy-title"], a[data-qa="vacancies-dashboard-vacancy-name"]',
+  ) as HTMLAnchorElement;
+  return titleEl?.href?.match(/\/vacancy\/(\d+)/)?.[1] ?? null;
 }
 
 function injectCheckboxesForActive(
@@ -94,18 +115,15 @@ function injectCheckboxesForActive(
 ): void {
   const selectedIdsPromise = getSelectedIds();
 
-  document
-    .querySelectorAll('[data-qa="vacancy-serp__vacancy"]')
-    .forEach((row) => {
-      if (row.querySelector(`.${CHECKBOX_CLASS}`)) return;
+  const rowSelectors =
+    '[data-qa="vacancy-serp__vacancy"], div[data-qa^="vacancy-active_"]';
+  document.querySelectorAll(rowSelectors).forEach((row) => {
+    if (row.querySelector(`.${CHECKBOX_CLASS}`)) return;
 
-      const titleEl = row.querySelector(
-        '[data-qa="vacancy-serp__vacancy-title"]',
-      ) as HTMLAnchorElement;
-      const externalId = titleEl?.href?.match(/\/vacancy\/(\d+)/)?.[1];
-      if (!externalId) return;
+    const externalId = getActiveVacancyId(row);
+    if (!externalId) return;
 
-      selectedIdsPromise.then((ids) => {
+    selectedIdsPromise.then((ids) => {
         const wrap = document.createElement("div");
         wrap.className = `${CHECKBOX_CLASS}-wrap`;
         wrap.style.cssText =
@@ -134,7 +152,9 @@ function injectCheckboxesForActive(
     injectCheckboxesForActive(pageType, onUpdate);
   });
   const listEl =
-    document.querySelector('[data-qa="vacancy-serp"]') ?? document.body;
+    document.querySelector(
+      '[data-qa="vacancy-serp"], div[data-qa~="vacancies-dashboard-manager"]',
+    ) ?? document.body;
   observer.observe(listEl, { childList: true, subtree: true });
 }
 
