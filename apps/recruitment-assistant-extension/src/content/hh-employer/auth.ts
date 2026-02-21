@@ -26,18 +26,15 @@ export type ResolveAuthResult = AuthResult | AuthErrorResult;
 
 /**
  * Получает token и workspaceId из storage или API.
- * Сохраняет workspaceId в storage при первом запросе.
+ * При отсутствии выбора автоматически выбирает первую организацию и workspace.
  */
 export async function resolveAuth(): Promise<ResolveAuthResult> {
-  const { authToken, userData } = await chrome.storage.local.get([
-    "authToken",
-    "userData",
-  ]);
+  const { authToken, userData, workspaceId: storedWorkspaceId } =
+    await chrome.storage.local.get(["authToken", "userData", "workspaceId"]);
   const token = authToken as string | undefined;
-  const user = userData as { organizationId?: string } | undefined;
-  let workspaceId = (userData as { workspaceId?: string })?.workspaceId as
-    | string
-    | undefined;
+  const user = userData as { organizationId?: string; workspaceId?: string } | undefined;
+  let organizationId = user?.organizationId;
+  let workspaceId = (storedWorkspaceId as string | undefined) ?? user?.workspaceId;
 
   if (!token) {
     return {
@@ -47,12 +44,35 @@ export async function resolveAuth(): Promise<ResolveAuthResult> {
     };
   }
 
-  if (!workspaceId && user?.organizationId) {
+  // Если нет организации — загружаем список и выбираем первую
+  if (!organizationId) {
+    const orgsResp = await chrome.runtime.sendMessage({
+      type: "API_REQUEST",
+      payload: {
+        url: getExtensionApiUrl("organizations"),
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    });
+    if (
+      orgsResp?.success &&
+      Array.isArray(orgsResp.data) &&
+      orgsResp.data.length > 0
+    ) {
+      organizationId = (orgsResp.data[0] as { id: string }).id;
+      await chrome.storage.local.set({
+        userData: { ...user, organizationId },
+      });
+    }
+  }
+
+  // Если нет workspace — загружаем по организации и выбираем первый
+  if (!workspaceId && organizationId) {
     const workspacesResp = await chrome.runtime.sendMessage({
       type: "API_REQUEST",
       payload: {
         url: getExtensionApiUrl(
-          `workspaces?organizationId=${encodeURIComponent(user.organizationId)}`,
+          `workspaces?organizationId=${encodeURIComponent(organizationId)}`,
         ),
         method: "GET",
         headers: { Authorization: `Bearer ${token}` },
@@ -63,7 +83,7 @@ export async function resolveAuth(): Promise<ResolveAuthResult> {
       Array.isArray(workspacesResp.data) &&
       workspacesResp.data.length > 0
     ) {
-      workspaceId = workspacesResp.data[0].id;
+      workspaceId = (workspacesResp.data[0] as { id: string }).id;
       await chrome.storage.local.set({ workspaceId });
     }
   }

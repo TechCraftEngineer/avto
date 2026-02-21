@@ -10,6 +10,7 @@ export function usePopupSettings(authService: AuthService) {
 
   const loadOrganizationsAndWorkspaces = async (
     selectedOrgId: string | null,
+    selectedWorkspaceId: string | null,
   ): Promise<string | null> => {
     setIsLoadingSettings(true);
     try {
@@ -28,14 +29,19 @@ export function usePopupSettings(authService: AuthService) {
       });
 
       if (orgsResp?.success && Array.isArray(orgsResp.data)) {
-        setOrganizations(orgsResp.data);
+        const orgs = orgsResp.data as Organization[];
+        setOrganizations(orgs);
 
-        if (selectedOrgId) {
+        // Если организация не выбрана — выбираем первую по умолчанию
+        const effectiveOrgId =
+          selectedOrgId ?? (orgs.length > 0 ? orgs[0]!.id : null);
+
+        if (effectiveOrgId) {
           const wsResp = await chrome.runtime.sendMessage({
             type: "API_REQUEST",
             payload: {
               url: getExtensionApiUrl(
-                `workspaces?organizationId=${encodeURIComponent(selectedOrgId)}`,
+                `workspaces?organizationId=${encodeURIComponent(effectiveOrgId)}`,
               ),
               method: "GET",
               headers: { Authorization: `Bearer ${token}` },
@@ -43,7 +49,24 @@ export function usePopupSettings(authService: AuthService) {
           });
 
           if (wsResp?.success && Array.isArray(wsResp.data)) {
-            setWorkspaces(wsResp.data);
+            const wss = wsResp.data as Workspace[];
+            setWorkspaces(wss);
+
+            // Если workspace не выбран — выбираем первый по умолчанию и сохраняем
+            const effectiveWorkspaceId =
+              selectedWorkspaceId ?? (wss.length > 0 ? wss[0]!.id : null);
+
+            if (effectiveWorkspaceId && (!selectedOrgId || !selectedWorkspaceId)) {
+              const { userData } = await chrome.storage.local.get(["userData"]);
+              const user = userData as Record<string, unknown> | undefined;
+              await chrome.storage.local.set({
+                userData: {
+                  ...user,
+                  organizationId: effectiveOrgId,
+                },
+                workspaceId: effectiveWorkspaceId,
+              });
+            }
           }
         }
       } else {

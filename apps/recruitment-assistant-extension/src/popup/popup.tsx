@@ -46,7 +46,10 @@ function Popup() {
     if (auth.isAuthenticated) {
       setSettingsError(null);
       settings
-        .loadOrganizationsAndWorkspaces(auth.selectedOrgId)
+        .loadOrganizationsAndWorkspaces(
+          auth.selectedOrgId,
+          auth.selectedWorkspaceId,
+        )
         .then((err) => setSettingsError(err ?? null));
     }
   }, [auth.isAuthenticated]);
