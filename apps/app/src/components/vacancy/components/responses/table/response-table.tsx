@@ -1,29 +1,37 @@
 "use client";
 
-import { DataGrid, DataGridContainer, DataGridTableDnd } from "@qbs-autonaim/ui/components/reui/data-grid";
-import { Pagination } from "@qbs-autonaim/ui/components/pagination"
-import { Table, TableBody } from "@qbs-autonaim/ui/components/table";
 import type { DragEndEvent } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
+import { Pagination } from "@qbs-autonaim/ui/components/pagination";
+import {
+  DataGrid,
+  DataGridContainer,
+  DataGridTableDnd,
+} from "@qbs-autonaim/ui/components/reui/data-grid";
+import { Table, TableBody } from "@qbs-autonaim/ui/components/table";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import {
   getCoreRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo } from "react";
 import { fetchRefreshVacancyResponsesToken } from "~/actions/realtime";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
-import type { ColumnId } from "../types";
 import { BulkActionsBar } from "../actions/bulk-actions-bar";
 import { useVacancyOperation } from "../context/vacancy-responses-context";
 import { useColumnVisibility } from "../hooks/use-column-visibility";
 import { useRefreshSubscription } from "../hooks/use-refresh-subscription";
 import { useResponseActions } from "../hooks/use-response-actions";
 import { useResponseTable } from "../hooks/use-response-table";
+import type { ColumnId } from "../types";
 import { EmptyState } from "../ui/empty-state";
-import { responseColumns, type ResponseTableMeta } from "./response-columns";
+import {
+  type ResponseListItem,
+  type ResponseTableMeta,
+  responseColumns,
+} from "./response-columns";
 import { ResponseTableToolbar } from "./response-table-toolbar";
 
 interface ResponseTableProps {

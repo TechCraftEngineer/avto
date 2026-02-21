@@ -1,10 +1,9 @@
 "use client";
 
-import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import type { HeaderContext } from "@tanstack/react-table";
-import type { ResponseListItem } from "./response-columns";
-import type { ResponseTableMeta } from "./response-columns";
+import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import type { SortField } from "../types";
+import type { ResponseListItem, ResponseTableMeta } from "./types";
 
 interface ResponseColumnHeaderProps {
   context: HeaderContext<ResponseListItem, unknown>;

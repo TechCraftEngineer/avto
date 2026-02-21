@@ -9,34 +9,18 @@ import {
   HR_SELECTION_STATUS_LABELS,
   RESPONSE_STATUS_LABELS,
 } from "@qbs-autonaim/db/schema";
-import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Badge } from "@qbs-autonaim/ui/components/badge";
 import { Checkbox } from "@qbs-autonaim/ui/components/checkbox";
 import { InfoTooltip } from "@qbs-autonaim/ui/components/info-tooltip";
-import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
+import { type ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { ResponseActions } from "~/components";
 import { ScreeningHoverCard } from "../../screening/screening-hover-card";
 import { CoverLetterCell } from "../response-row/cover-letter-cell";
 import { ScoreCell } from "../response-row/score-cell";
+import type { SortField } from "../types";
 import { CandidateCell } from "./candidate-cell";
 import { ResponseColumnHeader } from "./response-column-header";
-import type { ColumnId, SortDirection, SortField } from "../types";
-
-export type ResponseListItem =
-  RouterOutputs["vacancy"]["responses"]["list"]["responses"][0];
-
-export interface ResponseTableMeta {
-  orgSlug: string;
-  workspaceSlug: string;
-  workspaceId: string;
-  vacancyId: string;
-  selectedIds: Set<string>;
-  onSelect: (id: string) => void;
-  onSelectAll: (selected: boolean) => void;
-  sortField: SortField;
-  sortDirection: SortDirection;
-  onSort: (field: SortField) => void;
-  visibleColumnIds: ReadonlySet<ColumnId>;
-}
+import type { ResponseListItem, ResponseTableMeta } from "./types";
 
 const columnHelper = createColumnHelper<ResponseListItem>();
 
@@ -362,3 +346,4 @@ function createColumns(): ColumnDef<ResponseListItem, unknown>[] {
 }
 
 export const responseColumns = createColumns();
+export type { ResponseListItem, ResponseTableMeta } from "./types";

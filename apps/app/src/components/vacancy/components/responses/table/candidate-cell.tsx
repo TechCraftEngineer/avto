@@ -1,6 +1,5 @@
 "use client";
 
-import type { ResponseListItem } from "./response-columns";
 import { paths } from "@qbs-autonaim/config";
 import { calculateAge } from "@qbs-autonaim/lib/utils";
 import { getInitials } from "@qbs-autonaim/shared";
@@ -10,6 +9,7 @@ import { getAvatarUrl } from "~/lib/avatar";
 import { CandidateAvatar } from "../response-row/candidate-avatar";
 import { CandidateBadges } from "../response-row/candidate-badges";
 import { CandidateInfo } from "../response-row/candidate-info";
+import type { ResponseListItem } from "./types";
 
 interface CandidateCellProps {
   response: ResponseListItem;
