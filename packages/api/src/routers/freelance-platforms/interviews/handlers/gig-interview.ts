@@ -10,14 +10,7 @@ import { findExistingResponse } from "../utils/find-existing-response";
 import { handleExistingSession } from "../utils/handle-existing-session";
 import { syncCandidateToGlobalPool } from "../utils/sync-candidate";
 import { triggerProfileParsing } from "../utils/trigger-profile-parsing";
-
-interface FreelancerInfo {
-  name: string;
-  email?: string;
-  platformProfileUrl?: string;
-  phone?: string;
-  telegram?: string;
-}
+import type { FreelancerInfo } from "../types";
 
 export async function handleGigInterview(
   db: Database,

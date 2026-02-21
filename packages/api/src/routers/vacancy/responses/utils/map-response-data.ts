@@ -1,30 +1,10 @@
-import type {
-  HrSelectionStatus,
-  ResponseStatus,
-} from "@qbs-autonaim/db/schema";
 import { formatContacts } from "../../../../utils/format-contacts";
 import { sanitizeHtml } from "../../../utils/sanitize-html";
+import type { RawResponseBase } from "../types";
 import { calculatePriorityScore } from "./priority-score";
 
-interface RawResponse {
-  id: string;
-  entityId: string;
-  candidateName: string | null;
-  photoFileId: string | null;
-  status: ResponseStatus;
-  hrSelectionStatus: HrSelectionStatus | null;
-  contacts: Record<string, unknown> | null;
-  profileUrl: string | null;
-  telegramUsername: string | null;
-  phone: string | null;
-  coverLetter: string | null;
-  respondedAt: Date | null;
-  welcomeSentAt: Date | null;
-  createdAt: Date;
-}
-
 export function mapResponseData(
-  responsesRaw: RawResponse[],
+  responsesRaw: RawResponseBase[],
   screenings: Array<{
     responseId: string | null;
     overallScore: number | null;

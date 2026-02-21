@@ -3,25 +3,31 @@
  */
 
 /**
- * Требования вакансии
+ * Строгие требования вакансии (обязательные поля для БД и скрининга)
  */
-export interface VacancyRequirements {
-  job_title?: string;
-  summary?: string;
-  mandatory_requirements?: string[];
-  nice_to_have_skills?: string[];
-  tech_stack?: string[];
-  experience_years?: {
+export interface VacancyRequirementsStrict {
+  job_title: string;
+  summary: string;
+  mandatory_requirements: string[];
+  nice_to_have_skills: string[];
+  tech_stack: string[];
+  experience_years: {
     min: number | null;
     description: string;
   };
-  languages?: Array<{
+  languages: Array<{
     language: string;
     level: string;
   }>;
-  location_type?: string;
-  keywords_for_matching?: string[];
-  // Альтернативные поля для совместимости
+  location_type: string;
+  keywords_for_matching: string[];
+}
+
+/**
+ * Требования вакансии (расширенная версия с опциональными полями)
+ */
+export interface VacancyRequirements extends Partial<VacancyRequirementsStrict> {
+  /** Альтернативные поля для совместимости */
   hardSkills?: string[];
   softSkills?: string[];
   minExperience?: number;

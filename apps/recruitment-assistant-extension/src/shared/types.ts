@@ -2,6 +2,26 @@
  * Типы данных для Recruitment Assistant Extension
  */
 
+/**
+ * Структура API запроса (Service Worker)
+ */
+export interface ApiRequest {
+  url: string;
+  method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+  headers?: Record<string, string>;
+  body?: Record<string, unknown> | string;
+}
+
+/**
+ * Структура ответа на API запрос (Service Worker)
+ */
+export interface ApiResponse {
+  success: boolean;
+  data?: unknown;
+  error?: string;
+  status?: number;
+}
+
 import type {
   BasicCandidateInfo,
   WorkExperienceEntry,

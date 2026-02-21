@@ -44,6 +44,7 @@ export type {
   GigContextData,
   // Типы вакансий
   VacancyRequirements,
+  VacancyRequirementsStrict,
   BaseVacancyData,
   ExtendedVacancyData,
   VacancyEvaluationData,
@@ -51,8 +52,10 @@ export type {
   // Типы откликов
   BaseResponseData,
   ParsedResponseData,
+  ResponseData,
   ResumeContactInfo,
   ResumeExperience,
+  ResumeScreeningData,
   // Типы чата и сообщений
   MessageRole,
   InterviewMessageSender,

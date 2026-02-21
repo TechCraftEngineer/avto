@@ -35,6 +35,7 @@ export type {
 // Типы вакансий
 export type {
   VacancyRequirements,
+  VacancyRequirementsStrict,
   BaseVacancyData,
   ExtendedVacancyData,
   VacancyEvaluationData,
@@ -45,8 +46,10 @@ export type {
 export type {
   BaseResponseData,
   ParsedResponseData,
+  ResponseData,
   ResumeContactInfo,
   ResumeExperience,
+  ResumeScreeningData,
 } from "./response";
 
 // Типы чата и сообщений

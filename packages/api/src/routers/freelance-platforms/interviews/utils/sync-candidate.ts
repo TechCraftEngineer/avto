@@ -2,14 +2,7 @@ import { eq } from "@qbs-autonaim/db";
 import { response as responseTable } from "@qbs-autonaim/db/schema";
 import { ContactCandidateSyncService } from "../../../../services/contact-candidate-sync.service";
 import type { Database } from "../../../../types/database";
-
-interface FreelancerInfo {
-  name: string;
-  email?: string;
-  platformProfileUrl?: string;
-  phone?: string;
-  telegram?: string;
-}
+import type { FreelancerInfo } from "../types";
 
 export async function syncCandidateToGlobalPool(
   db: Database,

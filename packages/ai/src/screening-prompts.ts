@@ -1,5 +1,8 @@
 /**
  * Промпты для скрининга резюме
+ *
+ * Типы VacancyRequirements и ResumeScreeningData дублируют shared
+ * из-за циклической зависимости (shared -> ai). Совместимы по структуре.
  */
 
 import { formatBirthDateWithAge } from "@qbs-autonaim/lib";
@@ -25,7 +28,6 @@ export interface VacancyRequirements {
 export interface ResumeScreeningData {
   experience: string;
   skills?: string;
-  /** Дата рождения кандидата (если известна) — для контекста оценки карьеры */
   birthDate?: Date | string | null;
 }
 

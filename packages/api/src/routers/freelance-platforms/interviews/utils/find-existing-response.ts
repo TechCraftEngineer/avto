@@ -3,11 +3,7 @@ import { response as responseTable } from "@qbs-autonaim/db/schema";
 import type { Database } from "../../../../types/database";
 import { normalizeProfileUrl } from "./normalize-profile-url";
 
-interface FreelancerInfo {
-  name: string;
-  email?: string;
-  platformProfileUrl?: string;
-}
+import type { FreelancerInfo } from "../types";
 
 export async function findExistingResponse(
   db: Database,

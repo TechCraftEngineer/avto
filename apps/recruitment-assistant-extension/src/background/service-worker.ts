@@ -5,6 +5,8 @@
  * для обхода CORS ограничений.
  */
 
+import type { ApiRequest, ApiResponse } from "../shared/types";
+
 /**
  * Типы сообщений от content script / popup
  */
@@ -21,26 +23,6 @@ type MessageType =
 interface Message {
   type: MessageType;
   payload?: ApiRequest | { tabId: number } | Record<string, unknown>;
-}
-
-/**
- * Структура API запроса
- */
-interface ApiRequest {
-  url: string;
-  method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
-  headers?: Record<string, string>;
-  body?: Record<string, unknown> | string;
-}
-
-/**
- * Структура ответа на API запрос
- */
-interface ApiResponse {
-  success: boolean;
-  data?: unknown;
-  error?: string;
-  status?: number;
 }
 
 /**

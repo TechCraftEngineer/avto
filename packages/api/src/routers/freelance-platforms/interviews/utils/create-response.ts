@@ -2,14 +2,7 @@ import { response as responseTable } from "@qbs-autonaim/db/schema";
 import type { Database } from "../../../../types/database";
 import type { ErrorHandler } from "../../../../utils/error-handler";
 import { normalizeProfileUrl } from "./normalize-profile-url";
-
-interface FreelancerInfo {
-  name: string;
-  email?: string;
-  platformProfileUrl?: string;
-  phone?: string;
-  telegram?: string;
-}
+import type { FreelancerInfo } from "../types";
 
 export async function createVacancyResponse(
   db: Database,

@@ -1,40 +1,9 @@
-import type {
-  HrSelectionStatus,
-  ImportSource,
-  ResponseScreening,
-  ResponseStatus,
-  StoredProfileData,
-} from "@qbs-autonaim/db/schema";
+import type { ResponseScreening } from "@qbs-autonaim/db/schema";
 import { formatContacts } from "../../../../utils/format-contacts";
 import { sanitizeHtml } from "../../../utils/sanitize-html";
 import { calculatePriorityScore } from "../utils/priority-score";
+import type { RawResponse } from "../types";
 import { mapScreeningToOutput } from "./screening-mapper";
-
-interface RawResponse {
-  id: string;
-  entityId: string;
-  candidateName: string | null;
-  photoFileId: string | null;
-  birthDate: Date | null;
-  globalCandidateId: string | null;
-  status: ResponseStatus;
-  hrSelectionStatus: HrSelectionStatus | null;
-  contacts: Record<string, unknown> | null;
-  profileUrl: string | null;
-  profileData: StoredProfileData | null;
-  telegramUsername: string | null;
-  phone: string | null;
-  email: string | null;
-  coverLetter: string | null;
-  respondedAt: Date | null;
-  welcomeSentAt: Date | null;
-  createdAt: Date;
-  salaryExpectationsAmount: number | null;
-  salaryExpectationsComment: string | null;
-  skills: string[] | null;
-  rating: string | null;
-  importSource: ImportSource | null;
-}
 
 interface InterviewScoringData {
   responseId: string | null;

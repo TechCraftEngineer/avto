@@ -4,16 +4,11 @@ import { Button } from "@qbs-autonaim/ui";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader2, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import type { ScreeningDataForRecommendation } from "@qbs-autonaim/shared";
 import { triggerScreenResponse } from "~/actions/trigger";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
 import { ScreeningResultModal } from "./screening-result-modal";
-
-interface ScreeningResult {
-  score: number;
-  detailedScore: number;
-  analysis: string;
-}
 
 interface ScreenResponseButtonProps {
   responseId: string;
@@ -29,7 +24,7 @@ export function ScreenResponseButton({
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [screeningResult, setScreeningResult] =
-    useState<ScreeningResult | null>(null);
+    useState<ScreeningDataForRecommendation | null>(null);
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { workspace } = useWorkspace();

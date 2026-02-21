@@ -2,25 +2,7 @@
  * Клиент для взаимодействия с Background Service Worker
  */
 
-/**
- * Структура API запроса
- */
-interface ApiRequest {
-  url: string;
-  method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
-  headers?: Record<string, string>;
-  body?: Record<string, unknown> | string;
-}
-
-/**
- * Структура ответа на API запрос
- */
-interface ApiResponse {
-  success: boolean;
-  data?: unknown;
-  error?: string;
-  status?: number;
-}
+import type { ApiRequest, ApiResponse } from "./types";
 
 /**
  * Отправка API запроса через Service Worker для обхода CORS
