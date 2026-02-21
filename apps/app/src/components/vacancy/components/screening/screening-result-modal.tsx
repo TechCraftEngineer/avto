@@ -14,7 +14,7 @@ import { CheckCircle2, XCircle } from "lucide-react";
 interface ScreeningResult {
   score: number;
   detailedScore: number;
-  analysis: string;
+  analysis?: string | null;
 }
 
 interface ScreeningResultModalProps {
@@ -112,7 +112,7 @@ export function ScreeningResultModal({
                   Анализ
                 </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  {result.analysis}
+                  {result.analysis ?? "—"}
                 </p>
               </div>
 

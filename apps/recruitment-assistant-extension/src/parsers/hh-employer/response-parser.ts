@@ -69,8 +69,15 @@ export function parseResponsesFromDOM(
     const resumeUrl = link?.href
       ? new URL(link.href, "https://hh.ru").href
       : "";
+    // data-resume-hash — канонический ID HH, используется Chatik API для сопоставления
+    const resumeIdFromAttr =
+      (element.getAttribute?.("data-resume-hash") as string | null) ||
+      (element.closest("[data-resume-hash]") as HTMLElement)?.getAttribute?.(
+        "data-resume-hash",
+      );
     const resumeIdMatch = resumeUrl.match(/\/resume\/([a-f0-9]+)/);
-    const resumeId = resumeIdMatch?.[1] || "";
+    const resumeId =
+      resumeIdFromAttr?.trim() || resumeIdMatch?.[1] || "";
 
     const nameEl = element.querySelector(NAME_SELECTOR);
     const name = nameEl?.textContent?.trim() || "";

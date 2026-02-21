@@ -1,5 +1,6 @@
 "use client";
 
+import type { SortDirection } from "@qbs-autonaim/shared";
 import {
   Badge,
   Button,
@@ -47,7 +48,7 @@ interface GigsTableProps {
   orgSlug: string;
   workspaceSlug: string;
   sortField: string | null;
-  sortDirection: "asc" | "desc";
+  sortDirection: SortDirection;
   onSort: (field: string) => void;
   onDelete?: (gigId: string) => void;
 }

@@ -121,18 +121,6 @@ export const OptimizedComponent = React.memo<OptimizedComponentProps>(
 
 OptimizedComponent.displayName = "OptimizedComponent";
 
-// Hook for stable callbacks
-export function useStableCallback<T extends (...args: never[]) => unknown>(
-  callback: T,
-): T {
-  const callbackRef = React.useRef(callback);
-  callbackRef.current = callback;
-
-  return React.useCallback((...args: Parameters<T>) => {
-    return callbackRef.current(...args);
-  }, []) as T;
-}
-
 // Hook for stable values
 export function useStableValue<T>(value: T): T {
   const valueRef = React.useRef(value);

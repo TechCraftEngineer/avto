@@ -3,7 +3,7 @@
  * Centralizes all type definitions for consistent data structures across components
  */
 
-import type { ComponentType } from "react";
+import type { ComponentType, ReactNode } from "react";
 
 // ============================================
 // SCORE TYPES
@@ -162,22 +162,56 @@ export interface FactorBreakdownData {
 
 // ============================================
 // UI COMPONENT PROP TYPES
+// Централизованные типы для score-display и items-list
 // ============================================
 
 export interface ScoreDisplayProps {
-  score: number;
+  /** Score value to display */
+  score: number | null;
+  /** Maximum score value */
   maxScore?: number;
-  label: string;
+  /** Label for the score */
+  label: string | ReactNode;
+  /** Whether to show progress bar */
   showProgress?: boolean;
+  /** Size variant */
   size?: "sm" | "md" | "lg";
+  /** Whether to show badge (optional, for future use) */
   showBadge?: boolean;
+  /** Additional CSS classes */
+  className?: string;
+  /** Accessibility label */
+  ariaLabel?: string;
+}
+
+export type ItemsListType =
+  | "strengths"
+  | "weaknesses"
+  | "risks"
+  | "recommendations"
+  | "questions"
+  | "challenges";
+
+export interface ItemsListProps {
+  /** List of items to display */
+  items: string[];
+  /** Type of list determines colors and icons */
+  type: ItemsListType;
+  /** Whether to show icons */
+  icon?: boolean;
+  /** Whether to show items as badges */
+  asBadges?: boolean;
+  /** Additional CSS classes */
   className?: string;
 }
 
-export interface ItemsListProps {
-  items: string[];
-  type: "strengths" | "weaknesses" | "risks" | "recommendations" | "questions";
-  icon?: boolean;
+export interface ScoreDisplayGridProps {
+  scores: Array<{
+    score: number | null;
+    maxScore?: number;
+    label: string;
+  }>;
+  columns?: 1 | 2 | 3 | 4;
   className?: string;
 }
 

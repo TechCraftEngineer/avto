@@ -119,11 +119,11 @@ export const parseSingleResumeFunction = inngest.createFunction(
   },
   { event: "response/resume.parse-single" },
   async ({ event, step }) => {
-    const { responseId } = event.data;
+    const { responseId, resumeText: eventResumeText } = event.data;
 
     console.log(`🚀 Запуск парсинга резюме для отклика: ${responseId}`);
 
-    // Получаем отклик с текстом резюме
+    // Получаем отклик (и текст резюме из coverLetter, если не передан в event)
     const responseData = await step.run("fetch-response", async () => {
       const [resp] = await db
         .select({
@@ -144,10 +144,11 @@ export const parseSingleResumeFunction = inngest.createFunction(
         throw new Error("Отклик не найден");
       }
 
-      // Используем coverLetter как источник текста для парсинга
-      const resumeText = resp.coverLetter;
-      if (!resumeText || typeof resumeText !== "string") {
-        throw new Error("Текст резюме не найден (coverLetter пуст)");
+      const resumeText =
+        eventResumeText ??
+        (typeof resp.coverLetter === "string" ? resp.coverLetter : null);
+      if (!resumeText || !resumeText.trim()) {
+        throw new Error("Текст резюме не найден (coverLetter пуст и resumeText не передан)");
       }
 
       // Получаем workspaceId через отдельный запрос

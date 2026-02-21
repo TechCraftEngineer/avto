@@ -1,5 +1,6 @@
 "use client";
 
+import type { SortDirection } from "@qbs-autonaim/shared";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import type { HeaderContext } from "@tanstack/react-table";
 
@@ -14,7 +15,7 @@ export type GigSortField =
 
 export interface GigTableMeta {
   sortField: GigSortField | null;
-  sortDirection: "asc" | "desc";
+  sortDirection: SortDirection;
   onSort: (field: GigSortField) => void;
 }
 

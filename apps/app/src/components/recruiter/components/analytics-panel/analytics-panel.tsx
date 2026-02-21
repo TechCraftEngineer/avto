@@ -175,7 +175,7 @@ export const VacancyAnalyticsPanel = memo(function VacancyAnalyticsPanel({
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {recommendations
+              {[...recommendations]
                 .sort((a, b) => b.priority - a.priority)
                 .map((rec, index) => (
                   <RecommendationItem

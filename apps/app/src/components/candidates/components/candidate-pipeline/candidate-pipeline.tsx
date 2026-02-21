@@ -99,7 +99,7 @@ export function CandidatePipeline() {
     stageLimits,
   });
 
-  const updateStageMutation = useStageUpdate(stageQueries);
+  const updateStageMutation = useStageUpdate();
 
   const handleDragEnd = useCallback(
     (candidateId: string, newStage: FunnelStage) => {

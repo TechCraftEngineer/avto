@@ -31,6 +31,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useTRPC } from "~/trpc/react";
+import type { VacancyListItem } from "../../types";
 import { VacancyPerformanceBadge } from "../vacancy-performance-badge";
 
 /**
@@ -54,22 +55,8 @@ function sanitizeUrl(url: string | null | undefined): string | null {
   }
 }
 
-interface Vacancy {
-  id: string;
-  title: string;
-  source: string;
-  region: string | null;
-  workLocation: string | null;
-  totalResponsesCount: number | null;
-  newResponses: number | null;
-  resumesInProgress: number | null;
-  isActive: boolean | null;
-  isFavorite: boolean;
-  platformUrl?: string | null;
-}
-
 interface VacancyTableRowProps {
-  vacancy: Vacancy;
+  vacancy: VacancyListItem;
   orgSlug: string;
   workspaceSlug: string;
   workspaceId: string | undefined;

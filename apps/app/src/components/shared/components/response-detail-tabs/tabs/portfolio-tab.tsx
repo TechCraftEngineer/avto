@@ -1,6 +1,5 @@
 "use client";
 
-import type { RouterOutputs } from "@qbs-autonaim/api";
 import { Button } from "@qbs-autonaim/ui";
 import { skipToken, useQuery } from "@tanstack/react-query";
 import {
@@ -12,10 +11,10 @@ import {
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
 
-type GigResponseDetail = NonNullable<RouterOutputs["gig"]["responses"]["get"]>;
-type VacancyResponseDetail = NonNullable<
-  RouterOutputs["vacancy"]["responses"]["get"]
->;
+import type {
+  GigResponseDetail,
+  VacancyResponseDetail,
+} from "~/components/responses/types";
 
 interface PortfolioTabProps {
   response: GigResponseDetail | VacancyResponseDetail;

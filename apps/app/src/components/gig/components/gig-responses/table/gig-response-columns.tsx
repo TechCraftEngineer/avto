@@ -1,6 +1,6 @@
 "use client";
 
-import type { RouterOutputs } from "@qbs-autonaim/api";
+import type { GigResponseListItem } from "~/components/responses/types";
 import { HR_SELECTION_STATUS_LABELS } from "@qbs-autonaim/db/schema";
 import type { VacancyHrSelectionStatus } from "@qbs-autonaim/db/schema";
 import { Badge, InfoTooltip } from "@qbs-autonaim/ui";
@@ -12,9 +12,7 @@ import { GigCandidateCell } from "./gig-candidate-cell";
 import { GigResponseActions } from "./gig-response-actions";
 import { GigColumnHeader, type GigTableMeta } from "./gig-column-header";
 
-export type GigResponseListItem =
-  RouterOutputs["gig"]["responses"]["list"]["items"][number];
-
+export type { GigResponseListItem } from "~/components/responses/types";
 export type { GigTableMeta };
 
 function mapScreeningForHoverCard(

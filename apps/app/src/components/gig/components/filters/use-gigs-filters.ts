@@ -1,3 +1,4 @@
+import type { SortDirection } from "@qbs-autonaim/shared";
 import { useMemo } from "react";
 
 export interface Gig {
@@ -25,7 +26,7 @@ export interface GigsFilters {
   typeFilter: string;
   statusFilter: string;
   sortBy: string;
-  sortDirection?: "asc" | "desc";
+  sortDirection?: SortDirection;
   quickFilter?: string;
   groupBy?: "none" | "urgency";
 }
@@ -112,7 +113,7 @@ export function useGigsFilters(gigs: Gig[] | undefined, filters: GigsFilters) {
     }
 
     const dir = sortDirection === "asc" ? -1 : 1;
-    filtered.sort((a, b) => {
+    filtered = [...filtered].sort((a, b) => {
       let cmp: number;
       if (groupBy === "urgency" || sortBy === "urgency") {
         const now = Date.now();

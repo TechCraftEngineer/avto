@@ -1,3 +1,5 @@
+import type { SortDirection } from "@qbs-autonaim/shared";
+
 export interface CandidateMetrics {
   id: string;
   name: string;
@@ -11,4 +13,4 @@ export interface CandidateMetrics {
 }
 
 export type SortField = "name" | "matchScore" | "salary" | "responseTime";
-export type SortDirection = "asc" | "desc";
+export type { SortDirection };

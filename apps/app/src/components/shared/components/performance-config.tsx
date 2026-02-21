@@ -94,19 +94,6 @@ export function useServerCache<T>(
   return null;
 }
 
-/**
- * Утилита для оптимизации re-renders
- */
-export function useStableCallback<T extends (...args: never[]) => unknown>(
-  callback: T,
-): T {
-  const callbackRef = React.useRef(callback);
-  callbackRef.current = callback;
-
-  return React.useCallback((...args: Parameters<T>) => {
-    return callbackRef.current(...args);
-  }, []) as T;
-}
 
 /**
  * Компонент для оптимизации списков

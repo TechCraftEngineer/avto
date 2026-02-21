@@ -3,6 +3,8 @@
  * Domain types — единый источник правды для структуры данных
  */
 
+// Common
+export type { SortDirection } from "./common";
 // Candidate
 export type {
   BaseCandidateData,

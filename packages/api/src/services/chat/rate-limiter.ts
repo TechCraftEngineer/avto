@@ -4,11 +4,7 @@
  */
 
 import type { ChatEntityType } from "@qbs-autonaim/db/schema";
-
-interface RateLimitEntry {
-  count: number;
-  windowStart: number;
-}
+import type { RateLimitEntry } from "../../utils/rate-limiter-types";
 
 class UniversalRateLimiter {
   private limits: Map<string, RateLimitEntry> = new Map();

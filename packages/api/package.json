@@ -36,6 +36,8 @@
     "@qbs-autonaim/jobs": "workspace:*",
     "@qbs-autonaim/lib": "workspace:*",
     "@qbs-autonaim/server-utils": "workspace:*",
+    "@qbs-autonaim/shared": "workspace:*",
+    "@qbs-autonaim/types": "workspace:*",
     "@qbs-autonaim/validators": "workspace:*",
     "@trpc/server": "^11.10.0",
     "random-word-slugs": "^0.1.7",

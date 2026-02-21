@@ -1,6 +1,5 @@
 import { deleteUserIntegration } from "@qbs-autonaim/db";
 import { userIntegrationTypeSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../trpc";
 

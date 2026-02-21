@@ -11,26 +11,14 @@ import {
   TableRow,
 } from "@qbs-autonaim/ui";
 import { IconPlus, IconSearch } from "@tabler/icons-react";
+import type { SortDirection } from "@qbs-autonaim/shared";
 import Link from "next/link";
 import { env } from "~/env";
+import type { VacancyListItem } from "../../types";
 import { VacancyTableRow } from "../vacancy-table-row";
 
-interface Vacancy {
-  id: string;
-  title: string;
-  source: string;
-  region: string | null;
-  workLocation: string | null;
-  totalResponsesCount: number | null;
-  newResponses: number | null;
-  resumesInProgress: number | null;
-  isActive: boolean | null;
-  isFavorite: boolean;
-  platformUrl?: string | null;
-}
-
 interface VacancyTableProps {
-  vacancies: Vacancy[];
+  vacancies: VacancyListItem[];
   isLoading: boolean;
   orgSlug: string;
   workspaceSlug: string;
@@ -52,7 +40,7 @@ export function VacancyTable({
   onDeleteOpen,
 }: VacancyTableProps & {
   sortBy: string;
-  sortOrder: "asc" | "desc";
+  sortOrder: SortDirection;
   onSortChange: (
     field: "createdAt" | "title" | "responses" | "newResponses",
   ) => void;

@@ -25,6 +25,10 @@ export type {
   TenantVerificationParams,
   TenantVerificationResult,
 } from "./middleware";
+export type {
+  VacancyResponseSortDirection,
+  VacancyResponseSortField,
+} from "./routers/vacancy/responses/utils/sort-types";
 export {
   createTenantGuard,
   TenantGuard,

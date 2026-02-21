@@ -4,19 +4,12 @@
  * Построитель промптов для AI чата по анализу кандидатов.
  */
 
+import type { ChatHistoryMessage } from "@qbs-autonaim/shared";
 import type {
   CandidateContext,
   CandidatesContext,
   GigContext,
 } from "./context-loader";
-
-/**
- * Сообщение в истории диалога
- */
-export interface ChatHistoryMessage {
-  role: "user" | "assistant";
-  content: string;
-}
 
 /**
  * Форматирует контекст gig задания для промпта

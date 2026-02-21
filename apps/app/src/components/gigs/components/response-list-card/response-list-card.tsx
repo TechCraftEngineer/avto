@@ -1,6 +1,6 @@
 "use client";
 
-import type { RouterOutputs } from "@qbs-autonaim/api";
+import type { GigResponseListItem } from "~/components/responses/types";
 import {
   Badge,
   Button,
@@ -34,15 +34,6 @@ import {
   IMPORT_SOURCE_LABELS,
   RESPONSE_STATUS_CONFIG,
 } from "~/lib/shared/response-configs";
-
-type GigResponseListItem =
-  RouterOutputs["gig"]["responses"]["list"]["items"][number] & {
-    interviewScoring?: {
-      score: number;
-      detailedScore: number;
-      analysis: string | null;
-    } | null;
-  };
 
 interface ResponseListCardProps {
   response: GigResponseListItem;
@@ -235,11 +226,17 @@ export function ResponseListCard({
                         </div>
                         <div className="flex items-center gap-2">
                           <Progress
-                            value={response.interviewScoring.detailedScore}
+                            value={
+                              response.interviewScoring.rating != null
+                                ? response.interviewScoring.rating * 20
+                                : response.interviewScoring.score
+                            }
                             className="flex-1 h-1.5"
                           />
                           <span className="text-xs text-muted-foreground font-medium">
-                            {response.interviewScoring.detailedScore}
+                            {response.interviewScoring.rating != null
+                              ? response.interviewScoring.rating * 20
+                              : response.interviewScoring.score}
                           </span>
                         </div>
                       </div>

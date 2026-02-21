@@ -1,7 +1,7 @@
-import { env } from "@qbs-autonaim/config";
-import { getSession } from "~/auth/server";
-import { NextResponse } from "next/server";
 import { createHash, randomBytes } from "node:crypto";
+import { env } from "@qbs-autonaim/config";
+import { NextResponse } from "next/server";
+import { getSession } from "~/auth/server";
 
 const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
 const SCOPES = [
@@ -15,12 +15,14 @@ export async function GET() {
 
   if (!session?.user) {
     return NextResponse.redirect(
-      new URL("/auth/sign-in?callbackUrl=/account/settings/integrations", env.APP_URL),
+      new URL(
+        "/auth/sign-in?callbackUrl=/account/settings/integrations",
+        env.APP_URL,
+      ),
     );
   }
 
-  const clientId =
-    env.GOOGLE_CALENDAR_CLIENT_ID ?? env.AUTH_GOOGLE_ID;
+  const clientId = env.GOOGLE_CALENDAR_CLIENT_ID ?? env.AUTH_GOOGLE_ID;
   const clientSecret =
     env.GOOGLE_CALENDAR_CLIENT_SECRET ?? env.AUTH_GOOGLE_SECRET;
 
@@ -29,10 +31,7 @@ export async function GET() {
       "[Google Calendar OAuth] GOOGLE_CALENDAR_CLIENT_ID or GOOGLE_CALENDAR_CLIENT_SECRET not configured",
     );
     return NextResponse.redirect(
-      new URL(
-        "/account/settings/integrations?error=config",
-        env.APP_URL,
-      ),
+      new URL("/account/settings/integrations?error=config", env.APP_URL),
     );
   }
 

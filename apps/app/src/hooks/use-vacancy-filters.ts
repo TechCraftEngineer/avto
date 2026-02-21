@@ -1,28 +1,15 @@
+import type { SortDirection } from "@qbs-autonaim/shared";
 import { useMemo, useState } from "react";
+import type { VacancyListItem } from "~/types/vacancy";
 
-interface Vacancy {
-  id: string;
-  title: string;
-  source: string;
-  region: string | null;
-  workLocation: string | null;
-  views?: number | null;
-  totalResponsesCount: number | null;
-  newResponses: number | null;
-  resumesInProgress: number | null;
-  isActive: boolean | null;
-  isFavorite: boolean;
-  createdAt: Date;
-}
-
-export function useVacancyFilters(vacancies: Vacancy[] | undefined) {
+export function useVacancyFilters(vacancies: VacancyListItem[] | undefined) {
   const [searchQuery, setSearchQuery] = useState("");
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<
     "createdAt" | "title" | "responses" | "newResponses"
   >("createdAt");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [sortOrder, setSortOrder] = useState<SortDirection>("desc");
   const [dateFrom, setDateFrom] = useState<string>("");
   const [dateTo, setDateTo] = useState<string>("");
 
@@ -62,7 +49,7 @@ export function useVacancyFilters(vacancies: Vacancy[] | undefined) {
     }
 
     // Сортировка: сначала по статусу избранного, затем по активности, затем по выбранному полю
-    filtered.sort((a, b) => {
+    filtered = [...filtered].sort((a, b) => {
       // Сначала сортируем по статусу избранного: избранные (true) должны быть выше
       if (a.isFavorite !== b.isFavorite) {
         return (b.isFavorite ? 1 : 0) - (a.isFavorite ? 1 : 0);

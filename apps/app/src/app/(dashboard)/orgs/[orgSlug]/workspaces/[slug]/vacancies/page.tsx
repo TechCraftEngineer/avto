@@ -1,5 +1,6 @@
 "use client";
 
+import type { SortDirection } from "@qbs-autonaim/shared";
 import { Button } from "@qbs-autonaim/ui";
 import { IconDownload, IconPlus } from "@tabler/icons-react";
 import {
@@ -39,7 +40,7 @@ export default function VacanciesPage() {
   const [sortBy, setSortBy] = useState<
     "createdAt" | "title" | "responses" | "newResponses"
   >("createdAt");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [sortOrder, setSortOrder] = useState<SortDirection>("desc");
 
   const { data: vacancies, isLoading } = useQuery(
     trpc.freelancePlatforms.getVacancies.queryOptions(

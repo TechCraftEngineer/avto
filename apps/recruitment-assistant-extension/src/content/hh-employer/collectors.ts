@@ -50,11 +50,13 @@ export async function collectAllVacancies(
 }
 
 /**
- * Собирает все отклики (с пагинацией)
+ * Собирает все отклики (с пагинацией).
+ * Если передан fetchCoverLetters, после каждой страницы вызывает его для сбора сопроводительных писем.
  */
 export async function collectAllResponses(
   vacancyExternalId: string,
   onProgress?: (current: number, total: number) => void,
+  fetchCoverLetters?: (pageResponses: ParsedResponse[]) => Promise<void>,
 ): Promise<ParsedResponse[]> {
   const all: ParsedResponse[] = [];
   let pageNum = 0;
@@ -67,6 +69,10 @@ export async function collectAllResponses(
         seen.add(r.externalId);
         all.push(r);
       }
+    }
+
+    if (pageItems.length > 0 && fetchCoverLetters) {
+      await fetchCoverLetters(pageItems);
     }
 
     onProgress?.(all.length, all.length + (pageItems.length > 0 ? 20 : 0));

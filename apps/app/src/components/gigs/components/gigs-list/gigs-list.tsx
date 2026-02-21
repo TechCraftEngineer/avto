@@ -1,3 +1,4 @@
+import type { SortDirection } from "@qbs-autonaim/shared";
 import { Skeleton } from "@qbs-autonaim/ui";
 import { EmptyState } from "../empty-state";
 import { GigCard } from "../gig-card";
@@ -22,7 +23,7 @@ interface GigsListProps {
   onToggleActive: (gigId: string) => void;
   onSyncResponses: (gigId: string) => void;
   tableSortField?: string | null;
-  tableSortDirection?: "asc" | "desc";
+  tableSortDirection?: SortDirection;
   onTableSort?: (field: string) => void;
   showAttentionBlock?: boolean;
 }

@@ -36,7 +36,7 @@ export function ResponseStatsCard({
   const isFromHH = source === "HH";
 
   // Сортируем площадки по количеству откликов
-  const sortedStats = Object.entries(responseStats).sort(
+  const sortedStats = [...Object.entries(responseStats)].sort(
     ([, a], [, b]) => b - a,
   );
 

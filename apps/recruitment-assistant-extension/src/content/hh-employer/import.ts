@@ -7,8 +7,7 @@ import {
   fetchResumeTextHtml,
   fetchVacancyPrintHtml,
   fetchPhotoAsBase64,
-  fetchChatikChats,
-  buildResumeToCoverLetterMap,
+  fetchCoverLettersForPage,
   type HHEmployerPageType,
   type ParsedResponse,
 } from "../../parsers/hh-employer";
@@ -21,7 +20,6 @@ import {
 import type { ImportProgress, ImportResult } from "./types";
 import {
   getRandomDelay,
-  getRandomBatchSize,
   checkAndPauseIfNeeded,
   checkImportLimit,
 } from "../../utils/stealth";
@@ -348,32 +346,33 @@ export async function runResponsesImport(
       message: "Сбор откликов...",
     });
 
-    const responses = await collectAllResponses(vacancyExternalId, (cur) => {
-      onProgress?.({
-        stage: "responses",
-        current: cur,
-        total: cur + 20,
-        message: `Собрано откликов: ${cur}`,
-      });
-    });
+    const responses = await collectAllResponses(
+      vacancyExternalId,
+      (cur) => {
+        onProgress?.({
+          stage: "responses",
+          current: cur,
+          total: cur + 20,
+          message: `Собрано откликов: ${cur}`,
+        });
+      },
+      async (pageResponses) => {
+        try {
+          await fetchCoverLettersForPage(pageResponses);
+        } catch (e) {
+          console.warn(
+            "[Import] Не удалось загрузить сопроводительные письма:",
+            e,
+          );
+        }
+      },
+    );
 
     if (responses.length === 0) {
       return {
         success: false,
         error: "Не найдено откликов на странице",
       };
-    }
-
-    // Загрузка сопроводительных писем через Chatik API
-    try {
-      const chats = await fetchChatikChats(vacancyExternalId);
-      const coverLetterMap = buildResumeToCoverLetterMap(chats);
-      for (const r of responses) {
-        const letter = coverLetterMap.get(r.resumeId);
-        if (letter) r.coverLetter = letter;
-      }
-    } catch (e) {
-      console.warn("[Import] Не удалось загрузить сопроводительные письма:", e);
     }
 
     // Проверка лимита импорта
@@ -385,105 +384,24 @@ export async function runResponsesImport(
       };
     }
 
-    const responsesToSend = responses.map((r: ParsedResponse) => ({
-      resumeId: r.resumeId,
-      resumeUrl: r.resumeUrl,
-      name: r.name,
-      respondedAt: r.respondedAt,
-      status: r.status,
-      coverLetter: r.coverLetter,
-      photoUrl: r.photoUrl,
-      resumeTextHtml: undefined as string | undefined,
-    }));
-
-    // Загрузка фото в base64 для всех откликов
-    const photosToLoad = responses.filter((r) => r.photoUrl);
-    if (photosToLoad.length > 0) {
-      console.log(`[Import] Начинаем загрузку ${photosToLoad.length} фото`);
-      onProgress?.({
-        stage: "photos",
-        current: 0,
-        total: photosToLoad.length,
-        message: "Загрузка фото кандидатов...",
-      });
-
-      let photoCount = 0;
-      for (let i = 0; i < responses.length; i++) {
-        const r = responses[i];
-        if (r?.photoUrl) {
-          console.log(`[Import] Загружаем фото для ${r.name}: ${r.photoUrl}`);
-          try {
-            const photoData = await fetchPhotoAsBase64(r.photoUrl);
-            const item = responsesToSend[i];
-            if (item && photoData?.base64) {
-              const base64Url = `data:${photoData.contentType};base64,${photoData.base64}`;
-              item.photoUrl = base64Url;
-              console.log(
-                `[Import] Фото загружено для ${r.name}, размер base64: ${photoData.base64.length} символов`,
-              );
-            }
-            photoCount++;
-            onProgress?.({
-              stage: "photos",
-              current: photoCount,
-              total: photosToLoad.length,
-              message: `Загружено фото: ${photoCount}/${photosToLoad.length}`,
-            });
-          } catch (e) {
-            console.error(`[Import] Ошибка загрузки фото для ${r.name}:`, e);
-            // Пропускаем ошибки загрузки фото
-          }
-        }
-      }
-      console.log(
-        `[Import] Загрузка фото завершена: ${photoCount}/${photosToLoad.length}`,
-      );
-    }
-
-    // Загрузка текстовой версии резюме (HTML) для отправки на сервер
-    if (fetchResumeDetails) {
-      onProgress?.({
-        stage: "resume-details",
-        current: 0,
-        total: responses.length,
-        message: "Загрузка текстовых версий резюме...",
-      });
-
-      for (let i = 0; i < responses.length; i++) {
-        const r = responses[i];
-        if (r?.resumeUrl) {
-          try {
-            const textHtml = await fetchResumeTextHtml(r.resumeUrl, r.name);
-            const item = responsesToSend[i];
-            if (item) {
-              item.resumeTextHtml = textHtml;
-            }
-          } catch (_e) {
-            // Пропускаем ошибки отдельных резюме
-          }
-
-          // Случайная задержка 2-3.5 секунды
-          const delay = getRandomDelay(2000, 1500);
-          await new Promise((res) => setTimeout(res, delay));
-
-          // Пауза после каждых 15 резюме (5-10 секунд)
-          await checkAndPauseIfNeeded(i, 15);
-        }
-        onProgress?.({
-          stage: "resume-details",
-          current: i + 1,
-          total: responses.length,
-          message: `Обработано резюме: ${i + 1}/${responses.length}`,
-        });
-      }
-    }
-
-    // Случайный размер батча 30-50
-    const batchSize = getRandomBatchSize(30, 50);
+    const FLUSH_BATCH_SIZE = 5;
+    const buffer: Array<{
+      resumeId: string;
+      resumeUrl: string;
+      name: string;
+      respondedAt?: string;
+      status?: string;
+      coverLetter: string;
+      photoUrl?: string;
+      resumeTextHtml?: string;
+    }> = [];
     let totalImported = 0;
 
-    for (let i = 0; i < responsesToSend.length; i += batchSize) {
-      const batch = responsesToSend.slice(i, i + batchSize);
+    const flushBuffer = async () => {
+      if (buffer.length === 0) return;
+      const batch = [...buffer];
+      buffer.length = 0;
+
       const response = await chrome.runtime.sendMessage({
         type: "API_REQUEST",
         payload: {
@@ -503,15 +421,66 @@ export async function runResponsesImport(
       });
 
       if (!response?.success) {
-        return {
-          success: false,
-          error: response?.error || "Ошибка при импорте откликов",
-        };
+        throw new Error(response?.error || "Ошибка при импорте откликов");
       }
 
       const data = response.data as { imported?: number };
       totalImported += data?.imported ?? batch.length;
+    };
+
+    for (let i = 0; i < responses.length; i++) {
+      const r = responses[i];
+      if (!r) continue;
+
+      let photoUrl: string | undefined = r.photoUrl;
+      if (photoUrl) {
+        try {
+          const photoData = await fetchPhotoAsBase64(photoUrl);
+          if (photoData?.base64) {
+            photoUrl = `data:${photoData.contentType};base64,${photoData.base64}`;
+          }
+        } catch (e) {
+          console.error(`[Import] Ошибка загрузки фото для ${r.name}:`, e);
+          photoUrl = undefined;
+        }
+      }
+
+      let resumeTextHtml: string | undefined;
+      if (fetchResumeDetails && r.resumeUrl) {
+        try {
+          resumeTextHtml = await fetchResumeTextHtml(r.resumeUrl, r.name);
+        } catch (_e) {
+          // пропускаем ошибки
+        }
+        const delay = getRandomDelay(2000, 1500);
+        await new Promise((res) => setTimeout(res, delay));
+        await checkAndPauseIfNeeded(i, 15);
+      }
+
+      buffer.push({
+        resumeId: r.resumeId,
+        resumeUrl: r.resumeUrl,
+        name: r.name,
+        respondedAt: r.respondedAt,
+        status: r.status,
+        coverLetter: r.coverLetter ?? "",
+        photoUrl,
+        resumeTextHtml,
+      });
+
+      if (buffer.length >= FLUSH_BATCH_SIZE) {
+        await flushBuffer();
+      }
+
+      onProgress?.({
+        stage: "resume-details",
+        current: i + 1,
+        total: responses.length,
+        message: `Обработано: ${i + 1}/${responses.length} (импортировано: ${totalImported})`,
+      });
     }
+
+    await flushBuffer();
 
     return {
       success: true,

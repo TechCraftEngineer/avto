@@ -1,5 +1,6 @@
 "use client";
 
+import type { SortDirection } from "@qbs-autonaim/shared";
 import { Button, cn } from "@qbs-autonaim/ui";
 import {
   IconFilter,
@@ -53,7 +54,7 @@ export default function ResponsesPage({ params }: ResponsesPageProps) {
     | "respondedAt"
     | null
   >(null);
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [priorityFilter, setPriorityFilter] = useState<
     "all" | "high" | "medium" | "low"
   >("all");

@@ -20,15 +20,7 @@ import {
 } from "@qbs-autonaim/ui";
 import { AlertCircle, CheckCircle2, Loader2, Search } from "lucide-react";
 import { useMemo, useState } from "react";
-
-interface ArchivedVacancy {
-  id: string;
-  title: string;
-  region?: string;
-  workLocation?: string;
-  archivedAt?: string;
-  isImported?: boolean; // Флаг, что вакансия уже загружена
-}
+import type { ArchivedVacancy } from "~/types/vacancy";
 
 interface ArchivedVacanciesSelectorProps {
   workspaceId: string;
@@ -92,7 +84,7 @@ export function ArchivedVacanciesSelector({
     }
 
     // Сортировка
-    result.sort((a, b) => {
+    result = [...result].sort((a, b) => {
       if (sortBy === "name") {
         return a.title.localeCompare(b.title, "ru");
       }

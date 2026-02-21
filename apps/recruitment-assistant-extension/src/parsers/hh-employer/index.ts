@@ -32,4 +32,6 @@ export { fetchResumeTextHtml } from "./fetch-resume-text";
 export {
   fetchChatikChats,
   buildResumeToCoverLetterMap,
+  fetchCoverLettersBySearch,
 } from "./fetch-chatik-chats";
+export { fetchCoverLettersForPage } from "./fetch-cover-letter-spoiler";

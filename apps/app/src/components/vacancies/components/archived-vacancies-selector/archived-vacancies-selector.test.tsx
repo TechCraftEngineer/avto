@@ -1,3 +1,4 @@
+import type { Realtime } from "@bunworks/inngest-realtime";
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 import {
   fireEvent,
@@ -51,7 +52,7 @@ describe("ArchivedVacanciesSelector", () => {
     channel: `fetch-archived-list:${mockWorkspaceId}:${mockRequestId}`,
     topics: ["progress", "result"],
     key: "mock-key",
-  };
+  } as unknown as Realtime.Subscribe.Token;
   const mockGetToken = async () => mockToken;
   const mockOnSelect = mock(() => {});
   const mockOnCancel = mock(() => {});
@@ -61,7 +62,7 @@ describe("ArchivedVacanciesSelector", () => {
       <ArchivedVacanciesSelector
         workspaceId={mockWorkspaceId}
         requestId={mockRequestId}
-        token={mockToken as any}
+        getToken={mockGetToken}
         onSelect={mockOnSelect}
         onCancel={mockOnCancel}
       />,

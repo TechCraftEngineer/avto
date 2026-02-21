@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Organization, Workspace } from "../types";
 import type { AuthService } from "../../core/auth-service";
+import { IMPORT_PROGRESS_KEY } from "../../shared/import-progress";
 import { AuthenticatedLayout } from "./authenticated-layout";
 import { Alert, Button } from "../ui";
 
@@ -38,10 +39,32 @@ export function ResponsesView({
   const [error, setError] = useState<string | null>(null);
   const [isImporting, setIsImporting] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [progressMessage, setProgressMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isImporting) return;
+    const listener = (
+      changes: Record<string, chrome.storage.StorageChange>,
+      areaName: string,
+    ) => {
+      if (areaName === "local" && changes[IMPORT_PROGRESS_KEY]) {
+        const val = changes[IMPORT_PROGRESS_KEY].newValue as
+          | { message?: string }
+          | undefined;
+        setProgressMessage(val?.message ?? null);
+      }
+    };
+    chrome.storage.onChanged.addListener(listener);
+    return () => {
+      chrome.storage.onChanged.removeListener(listener);
+      setProgressMessage(null);
+    };
+  }, [isImporting]);
 
   const handleImportResponses = async () => {
     setError(null);
     setSuccessMessage(null);
+    setProgressMessage(null);
     setIsImporting(true);
     try {
       const [tab] = await chrome.tabs.query({
@@ -120,6 +143,15 @@ export function ResponsesView({
         >
           {isImporting ? "Импорт…" : "Импортировать отклики"}
         </Button>
+        {isImporting && progressMessage && (
+          <p
+            className="text-muted-foreground text-sm"
+            role="status"
+            aria-live="polite"
+          >
+            {progressMessage}
+          </p>
+        )}
         {successMessage && (
           <Alert
             variant="default"

@@ -18,7 +18,7 @@ import { CoverLetterCell } from "../response-row/cover-letter-cell";
 import { ScoreCell } from "../response-row/score-cell";
 import { CandidateCell } from "./candidate-cell";
 import { ResponseColumnHeader } from "./response-column-header";
-import type { ColumnId, SortField } from "../types";
+import type { ColumnId, SortDirection, SortField } from "../types";
 
 export type ResponseListItem =
   RouterOutputs["vacancy"]["responses"]["list"]["responses"][0];
@@ -32,7 +32,7 @@ export interface ResponseTableMeta {
   onSelect: (id: string) => void;
   onSelectAll: (selected: boolean) => void;
   sortField: SortField;
-  sortDirection: "asc" | "desc";
+  sortDirection: SortDirection;
   onSort: (field: SortField) => void;
   visibleColumnIds: ReadonlySet<ColumnId>;
 }

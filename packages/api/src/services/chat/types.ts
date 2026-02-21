@@ -4,6 +4,7 @@
 
 import type { db } from "@qbs-autonaim/db/client";
 import type { ChatEntityType } from "@qbs-autonaim/db/schema";
+import type { ChatHistoryMessage } from "@qbs-autonaim/shared";
 
 /**
  * Контекст сущности для AI чата
@@ -16,13 +17,8 @@ export interface ChatContext {
   statistics: Record<string, unknown>;
 }
 
-/**
- * Сообщение в истории диалога
- */
-export interface ChatHistoryMessage {
-  role: "user" | "assistant" | "system";
-  content: string;
-}
+/** Реэкспорт из @qbs-autonaim/shared для обратной совместимости */
+export type { ChatHistoryMessage };
 
 /**
  * Конфигурация промпта для конкретного типа сущности

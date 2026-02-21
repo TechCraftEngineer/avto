@@ -104,7 +104,7 @@ export function ScheduleInterviewModal({
   const handleScheduleInterview = () => {
     if (!selectedDate || !selectedTime || !interviewType || !workspaceId) return;
 
-    const [hours, minutes] = selectedTime.split(":").map(Number);
+    const [hours = 0, minutes = 0] = selectedTime.split(":").map(Number);
     const scheduledAt = new Date(selectedDate);
     scheduledAt.setHours(hours, minutes, 0, 0);
 
