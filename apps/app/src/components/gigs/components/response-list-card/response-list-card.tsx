@@ -226,11 +226,17 @@ export function ResponseListCard({
                         </div>
                         <div className="flex items-center gap-2">
                           <Progress
-                            value={response.interviewScoring.detailedScore}
+                            value={
+                              response.interviewScoring.rating != null
+                                ? response.interviewScoring.rating * 20
+                                : response.interviewScoring.score
+                            }
                             className="flex-1 h-1.5"
                           />
                           <span className="text-xs text-muted-foreground font-medium">
-                            {response.interviewScoring.detailedScore}
+                            {response.interviewScoring.rating != null
+                              ? response.interviewScoring.rating * 20
+                              : response.interviewScoring.score}
                           </span>
                         </div>
                       </div>

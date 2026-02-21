@@ -3,6 +3,9 @@
 import type { RouterOutputs } from "@qbs-autonaim/api";
 import type { GigContextData } from "@qbs-autonaim/shared";
 
+/** Реэкспорт для GigResponseDetailCard, header-card, pricing-card, summary-card */
+export type { GigContextData };
+
 /**
  * Gig отклик - inferred тип из API
  */

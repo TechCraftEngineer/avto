@@ -205,6 +205,16 @@ export interface ItemsListProps {
   className?: string;
 }
 
+export interface ScoreDisplayGridProps {
+  scores: Array<{
+    score: number | null;
+    maxScore?: number;
+    label: string;
+  }>;
+  columns?: 1 | 2 | 3 | 4;
+  className?: string;
+}
+
 export interface AnalysisSection {
   id: string;
   title: string;

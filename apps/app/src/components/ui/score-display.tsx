@@ -9,7 +9,10 @@ import {
   getProgressColor,
   formatScore,
 } from "~/lib/score-utils";
-import type { ScoreDisplayProps } from "~/types/screening";
+import type {
+  ScoreDisplayGridProps,
+  ScoreDisplayProps,
+} from "~/types/screening";
 
 /**
  * Reusable score display component with consistent styling
@@ -68,16 +71,6 @@ export const ScoreDisplay = memo(function ScoreDisplay({
     </div>
   );
 });
-
-interface ScoreDisplayGridProps {
-  scores: Array<{
-    score: number | null;
-    maxScore?: number;
-    label: string;
-  }>;
-  columns?: 1 | 2 | 3 | 4;
-  className?: string;
-}
 
 /**
  * Grid layout for multiple score displays

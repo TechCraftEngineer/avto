@@ -22,15 +22,7 @@ import {
 } from "@qbs-autonaim/ui";
 import { AlertCircle, CheckCircle2, Loader2, Search } from "lucide-react";
 import { useMemo, useState } from "react";
-
-interface ActiveVacancy {
-  id: string;
-  title: string;
-  region?: string;
-  views?: string;
-  responses?: string;
-  isImported?: boolean;
-}
+import type { ActiveVacancy } from "~/types/vacancy";
 
 interface ActiveVacanciesSelectorProps {
   workspaceId: string;

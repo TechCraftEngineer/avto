@@ -10,6 +10,9 @@ import type {
 
 export type { ExperienceItem, EducationItem, PersonalInfo };
 
+/** Профиль из отклика (platform, username, statistics, error) — для ParsedProfileCard */
+export type ProfileData = ExtendedProfileData;
+
 export interface RecommendationData {
   score: number;
   reasoning: string;

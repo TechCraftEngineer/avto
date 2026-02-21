@@ -57,7 +57,9 @@ export default function VacancyResponseDetailPage() {
             workspaceId,
             vacancyId,
             page: 1,
-            limit: 100, // Получаем все отклики для навигации
+            limit: 100,
+            sortField: null,
+            sortDirection: "desc",
           }
         : skipToken,
     ),
