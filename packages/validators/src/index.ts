@@ -11,6 +11,9 @@ export {
   companyPartialSchema,
 } from "./company";
 
+// Draft (recruiter agent)
+export * from "./draft";
+
 // Data table
 export {
   type DataTableItemData,

@@ -3,34 +3,58 @@
  * Domain types — единый источник правды для структуры данных
  */
 
+// Candidate
+export type {
+  BaseCandidateData,
+  BasicCandidateInfo,
+  CandidateContactInfo,
+  CandidateContextData,
+  CandidateDataFromResponse,
+  EducationEntry,
+  ExtendedCandidateData,
+  FreelancerProfileData,
+  FullCandidateData,
+  WorkExperienceEntry,
+} from "./candidate";
+// Evaluation
+export type {
+  DimensionScore,
+  EvaluationResult,
+  FitDecision,
+  HonestyLevel,
+  PrequalificationResult,
+  ScreeningDataForRecommendation,
+  ScreeningRecommendation,
+  ScreeningResult,
+} from "./evaluation";
+// Gig
+export type {
+  BaseGigData,
+  ContactInfo,
+  ExtendedGigData,
+  GigContextData,
+} from "./gig";
+// Platform & response events (used by shared utils, db schema)
+export {
+  type PlatformSource,
+  platformSourceValues,
+} from "./platform";
 // Profile (db/StoredProfileData format)
 export type {
-  ExperienceItem,
   EducationItem,
+  ExperienceItem,
   LanguageItem,
   PersonalInfo,
   StoredProfileData,
 } from "./profile";
-
 // Profile extended (parsing, UI)
 export type {
-  ProfilePlatform,
-  ProfileStatistics,
   BaseProfileData,
   ExtendedProfileData,
   ParsedProfileData,
+  ProfilePlatform,
+  ProfileStatistics,
 } from "./profile-extended";
-
-// Vacancy
-export type {
-  VacancyRequirements,
-  VacancyRequirementsStrict,
-  BaseVacancyData,
-  ExtendedVacancyData,
-  VacancyEvaluationData,
-  ParsedVacancyData,
-} from "./vacancy";
-
 // Response
 export type {
   BaseResponseData,
@@ -40,55 +64,23 @@ export type {
   ResumeExperience,
   ResumeScreeningData,
 } from "./response";
-
-// Evaluation
+export {
+  type ResponseEventType,
+  responseEventTypeValues,
+} from "./response-event";
+// Vacancy
 export type {
-  FitDecision,
-  HonestyLevel,
-  DimensionScore,
-  EvaluationResult,
-  ScreeningRecommendation,
-  ScreeningResult,
-  ScreeningDataForRecommendation,
-  PrequalificationResult,
-} from "./evaluation";
-
+  BaseVacancyData,
+  ExtendedVacancyData,
+  ParsedVacancyData,
+  VacancyEvaluationData,
+  VacancyRequirements,
+  VacancyRequirementsStrict,
+} from "./vacancy";
 // Workspace
 export type {
   BaseWorkspaceData,
-  ExtendedWorkspaceData,
   CompanySettings,
+  ExtendedWorkspaceData,
   OrganizationData,
 } from "./workspace";
-
-// Candidate
-export type {
-  BasicCandidateInfo,
-  WorkExperienceEntry,
-  EducationEntry,
-  CandidateContactInfo,
-  FreelancerProfileData,
-  BaseCandidateData,
-  ExtendedCandidateData,
-  CandidateDataFromResponse,
-  CandidateContextData,
-  FullCandidateData,
-} from "./candidate";
-
-// Gig
-export type {
-  ContactInfo,
-  BaseGigData,
-  ExtendedGigData,
-  GigContextData,
-} from "./gig";
-
-// Platform & response events (used by shared utils, db schema)
-export {
-  platformSourceValues,
-  type PlatformSource,
-} from "./platform";
-export {
-  responseEventTypeValues,
-  type ResponseEventType,
-} from "./response-event";

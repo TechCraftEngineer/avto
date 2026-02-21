@@ -23,7 +23,7 @@ export {
   UpdateDraftInputSchema,
   type VacancyData,
   VacancyDataSchema,
-} from "./schemas/draft";
+} from "./schemas";
 // Типы
 export type {
   BufferedMessage,

@@ -26,7 +26,7 @@ export function extractExternalIdFromUrl(url: string): string | null {
 /**
  * Схема для валидации данных вакансии
  */
-export const VacancyDataSchema = z.object({
+export const HhImportVacancyDataSchema = z.object({
   title: z.string().min(1, "Название вакансии обязательно"),
   description: z.string().min(1, "Описание вакансии обязательно"),
   url: z.string().url("Некорректная ссылка на вакансию"),
@@ -50,5 +50,5 @@ export const VacancyDataSchema = z.object({
   archivedAt: z.coerce.date().optional(),
 });
 
-export type VacancyData = z.infer<typeof VacancyDataSchema>;
+export type HhImportVacancyData = z.infer<typeof HhImportVacancyDataSchema>;
 export type ImportByUrl = z.infer<typeof ImportByUrlSchema>;

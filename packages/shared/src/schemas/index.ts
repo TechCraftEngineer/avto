@@ -1,3 +1,4 @@
+// Реэкспорт draft-схем из validators для обратной совместимости
 export {
   type CreateDraftInput,
   CreateDraftInputSchema,
@@ -11,4 +12,4 @@ export {
   UpdateDraftInputSchema,
   type VacancyData,
   VacancyDataSchema,
-} from "./draft";
+} from "@qbs-autonaim/validators";

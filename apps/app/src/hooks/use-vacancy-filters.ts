@@ -60,8 +60,35 @@ export function useVacancyFilters(vacancies: Vacancy[] | undefined) {
       filtered = filtered.filter((v) => new Date(v.createdAt) <= toDate);
     }
 
+    // Сортировка: сначала по статусу (активные сверху), затем по выбранному полю
+    filtered.sort((a, b) => {
+      // Сначала сортируем по статусу: активные (true) должны быть выше архивных (false)
+      if (a.isActive !== b.isActive) {
+        return (b.isActive ? 1 : 0) - (a.isActive ? 1 : 0);
+      }
+
+      // Затем сортируем по выбранному полю
+      let comparison = 0;
+      switch (sortBy) {
+        case "createdAt":
+          comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+          break;
+        case "title":
+          comparison = a.title.localeCompare(b.title);
+          break;
+        case "responses":
+          comparison = (a.totalResponsesCount || 0) - (b.totalResponsesCount || 0);
+          break;
+        case "newResponses":
+          comparison = (a.newResponses || 0) - (b.newResponses || 0);
+          break;
+      }
+
+      return sortOrder === "asc" ? comparison : -comparison;
+    });
+
     return filtered;
-  }, [vacancies, searchQuery, sourceFilter, statusFilter, dateFrom, dateTo]);
+  }, [vacancies, searchQuery, sourceFilter, statusFilter, dateFrom, dateTo, sortBy, sortOrder]);
 
   const hasFilters =
     searchQuery ||

@@ -632,6 +632,7 @@
         "@qbs-autonaim/config": "workspace:*",
         "@qbs-autonaim/db": "workspace:*",
         "@qbs-autonaim/types": "workspace:*",
+        "@qbs-autonaim/validators": "workspace:*",
         "random-word-slugs": "^0.1.7",
         "zod": "4.3.6",
       },
