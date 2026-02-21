@@ -12,6 +12,15 @@ import {
 } from "./hh-employer";
 import { resolveAuth } from "./hh-employer/auth";
 import { getVacancyIdFromResponsesPage } from "../parsers/hh-employer";
+import { IMPORT_PROGRESS_KEY } from "../shared/import-progress";
+
+function reportProgress(message: string) {
+  void chrome.storage.local.set({ [IMPORT_PROGRESS_KEY]: { message } });
+}
+
+function clearProgress() {
+  void chrome.storage.local.remove(IMPORT_PROGRESS_KEY);
+}
 
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () =>
@@ -57,13 +66,16 @@ chrome.runtime.onMessage.addListener(
             pageType,
             auth.context.workspaceId,
             auth.context.token,
+            (p) => reportProgress(p.message),
           );
+          clearProgress();
           sendResponse({
             ok: result.success,
             error: result.error,
             vacanciesImported: result.vacanciesImported,
           });
         } catch (e) {
+          clearProgress();
           sendResponse({
             ok: false,
             error: e instanceof Error ? e.message : "Неизвестная ошибка",
@@ -104,13 +116,16 @@ chrome.runtime.onMessage.addListener(
             auth.context.workspaceId,
             auth.context.token,
             true, // fetchResumeDetails: парсим текст резюме и фото
+            (p) => reportProgress(p.message),
           );
+          clearProgress();
           sendResponse({
             ok: result.success,
             error: result.error,
             responsesImported: result.responsesImported,
           });
         } catch (e) {
+          clearProgress();
           sendResponse({
             ok: false,
             error: e instanceof Error ? e.message : "Неизвестная ошибка",
