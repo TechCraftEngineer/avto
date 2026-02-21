@@ -49,7 +49,7 @@ export function useVacancyFilters(vacancies: VacancyListItem[] | undefined) {
     }
 
     // Сортировка: сначала по статусу избранного, затем по активности, затем по выбранному полю
-    filtered.sort((a, b) => {
+    filtered = [...filtered].sort((a, b) => {
       // Сначала сортируем по статусу избранного: избранные (true) должны быть выше
       if (a.isFavorite !== b.isFavorite) {
         return (b.isFavorite ? 1 : 0) - (a.isFavorite ? 1 : 0);

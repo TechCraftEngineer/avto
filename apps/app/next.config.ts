@@ -27,6 +27,7 @@ export default async function createNextConfig(): Promise<NextConfig> {
         "@qbs-autonaim/ui",
         "@radix-ui/react-icons",
         "lucide-react",
+        "@tabler/icons-react",
       ],
       optimizeCss: true,
     },

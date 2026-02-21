@@ -84,7 +84,7 @@ export function ArchivedVacanciesSelector({
     }
 
     // Сортировка
-    result.sort((a, b) => {
+    result = [...result].sort((a, b) => {
       if (sortBy === "name") {
         return a.title.localeCompare(b.title, "ru");
       }

@@ -153,9 +153,10 @@ export function StatusTimeline({ response }: StatusTimelineProps) {
   }
 
   // Сортируем по времени (новые сверху)
-  events.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-
-  const displayedEvents = isExpanded ? events : events.slice(0, 3);
+  const sortedEvents = [...events].sort(
+    (a, b) => b.timestamp.getTime() - a.timestamp.getTime(),
+  );
+  const displayedEvents = isExpanded ? sortedEvents : sortedEvents.slice(0, 3);
 
   const formatTimeAgo = (date: Date) => {
     const now = new Date();

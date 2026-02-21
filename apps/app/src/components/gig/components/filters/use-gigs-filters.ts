@@ -113,7 +113,7 @@ export function useGigsFilters(gigs: Gig[] | undefined, filters: GigsFilters) {
     }
 
     const dir = sortDirection === "asc" ? -1 : 1;
-    filtered.sort((a, b) => {
+    filtered = [...filtered].sort((a, b) => {
       let cmp: number;
       if (groupBy === "urgency" || sortBy === "urgency") {
         const now = Date.now();
