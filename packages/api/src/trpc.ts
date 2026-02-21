@@ -292,22 +292,16 @@ const _rateLimitMiddleware = t.middleware(async ({ next, path, ctx, type }) => {
 });
 
 /**
- * Timing middleware with artificial delay in development
+ * Timing middleware - логирование времени выполнения.
+ * Искусственная задержка в dev отключена (маскировала проблемы производительности).
  */
 const timingMiddleware = t.middleware(async ({ next, path }) => {
   const start = Date.now();
-
-  if (t._config.isDev) {
-    // artificial delay in dev 100-500ms
-    const waitMs = Math.floor(Math.random() * 400) + 100;
-    await new Promise((resolve) => setTimeout(resolve, waitMs));
-  }
-
   const result = await next();
-
   const end = Date.now();
-  console.log(`[TRPC] ${path} выполнен за ${end - start}мс`);
-
+  if (process.env.NODE_ENV === "development") {
+    console.log(`[TRPC] ${path} выполнен за ${end - start}мс`);
+  }
   return result;
 });
 

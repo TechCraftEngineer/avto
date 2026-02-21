@@ -1,112 +1,89 @@
+/**
+ * Тонкий хук для управления состоянием фильтров вакансий.
+ * Вся фильтрация и сортировка выполняется на сервере (getVacancies).
+ */
+
 import type { SortDirection } from "@qbs-autonaim/shared";
-import { useMemo, useState } from "react";
-import type { VacancyListItem } from "~/types/vacancy";
+import { useState, useCallback } from "react";
 
-export function useVacancyFilters(vacancies: VacancyListItem[] | undefined) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sourceFilter, setSourceFilter] = useState<string>("all");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [sortBy, setSortBy] = useState<
-    "createdAt" | "title" | "responses" | "newResponses"
-  >("createdAt");
-  const [sortOrder, setSortOrder] = useState<SortDirection>("desc");
-  const [dateFrom, setDateFrom] = useState<string>("");
-  const [dateTo, setDateTo] = useState<string>("");
+export type VacancyFiltersState = {
+  searchQuery: string;
+  sourceFilter: string; // "all" | HH | FL_RU | ...
+  statusFilter: "all" | "active" | "inactive";
+  sortBy: "createdAt" | "title" | "responses" | "newResponses";
+  sortOrder: SortDirection;
+  dateFrom: string;
+  dateTo: string;
+  page: number;
+};
 
-  const filteredAndSortedVacancies = useMemo(() => {
-    if (!vacancies) return [];
+const DEFAULT_FILTERS: VacancyFiltersState = {
+  searchQuery: "",
+  sourceFilter: "all",
+  statusFilter: "all",
+  sortBy: "createdAt",
+  sortOrder: "desc",
+  dateFrom: "",
+  dateTo: "",
+  page: 1,
+};
 
-    let filtered = [...vacancies];
+export function useVacancyFilters() {
+  const [filters, setFilters] = useState<VacancyFiltersState>(DEFAULT_FILTERS);
 
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (v) =>
-          v.title.toLowerCase().includes(query) ||
-          v.region?.toLowerCase().includes(query),
-      );
-    }
-
-    if (sourceFilter !== "all") {
-      filtered = filtered.filter((v) => v.source === sourceFilter);
-    }
-
-    if (statusFilter === "active") {
-      filtered = filtered.filter((v) => v.isActive === true);
-    } else if (statusFilter === "inactive") {
-      filtered = filtered.filter((v) => v.isActive === false);
-    }
-
-    if (dateFrom) {
-      const fromDate = new Date(dateFrom);
-      filtered = filtered.filter((v) => new Date(v.createdAt) >= fromDate);
-    }
-
-    if (dateTo) {
-      const toDate = new Date(dateTo);
-      toDate.setHours(23, 59, 59, 999);
-      filtered = filtered.filter((v) => new Date(v.createdAt) <= toDate);
-    }
-
-    // Сортировка: сначала по статусу избранного, затем по активности, затем по выбранному полю
-    filtered = [...filtered].sort((a, b) => {
-      // Сначала сортируем по статусу избранного: избранные (true) должны быть выше
-      if (a.isFavorite !== b.isFavorite) {
-        return (b.isFavorite ? 1 : 0) - (a.isFavorite ? 1 : 0);
-      }
-
-      // Затем сортируем по статусу: активные (true) должны быть выше архивных (false)
-      if (a.isActive !== b.isActive) {
-        return (b.isActive ? 1 : 0) - (a.isActive ? 1 : 0);
-      }
-
-      // Затем сортируем по выбранному полю
-      let comparison = 0;
-      switch (sortBy) {
-        case "createdAt":
-          comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-          break;
-        case "title":
-          comparison = a.title.localeCompare(b.title);
-          break;
-        case "responses":
-          comparison = (a.totalResponsesCount || 0) - (b.totalResponsesCount || 0);
-          break;
-        case "newResponses":
-          comparison = (a.newResponses || 0) - (b.newResponses || 0);
-          break;
-      }
-
-      return sortOrder === "asc" ? comparison : -comparison;
-    });
-
-    return filtered;
-  }, [vacancies, searchQuery, sourceFilter, statusFilter, dateFrom, dateTo, sortBy, sortOrder]);
+  const setSearchQuery = useCallback((v: string) => {
+    setFilters((prev) => ({ ...prev, searchQuery: v, page: 1 }));
+  }, []);
+  const setSourceFilter = useCallback((v: string) => {
+    setFilters((prev) => ({ ...prev, sourceFilter: v, page: 1 }));
+  }, []);
+  const setStatusFilter = useCallback((v: "all" | "active" | "inactive") => {
+    setFilters((prev) => ({ ...prev, statusFilter: v, page: 1 }));
+  }, []);
+  const setSortBy = useCallback(
+    (v: "createdAt" | "title" | "responses" | "newResponses") => {
+      setFilters((prev) => ({ ...prev, sortBy: v, page: 1 }));
+    },
+    [],
+  );
+  const setSortOrder = useCallback((v: SortDirection) => {
+    setFilters((prev) => ({ ...prev, sortOrder: v, page: 1 }));
+  }, []);
+  const setDateFrom = useCallback((v: string) => {
+    setFilters((prev) => ({ ...prev, dateFrom: v, page: 1 }));
+  }, []);
+  const setDateTo = useCallback((v: string) => {
+    setFilters((prev) => ({ ...prev, dateTo: v, page: 1 }));
+  }, []);
+  const setPage = useCallback((v: number) => {
+    setFilters((prev) => ({ ...prev, page: v }));
+  }, []);
 
   const hasFilters =
-    searchQuery ||
-    sourceFilter !== "all" ||
-    statusFilter !== "all" ||
-    dateFrom ||
-    dateTo ||
-    "";
+    filters.searchQuery ||
+    filters.sourceFilter !== "all" ||
+    filters.statusFilter !== "all" ||
+    filters.dateFrom ||
+    filters.dateTo;
 
   return {
-    searchQuery,
+    filters,
+    searchQuery: filters.searchQuery,
     setSearchQuery,
-    sourceFilter,
+    sourceFilter: filters.sourceFilter,
     setSourceFilter,
-    statusFilter,
+    statusFilter: filters.statusFilter,
     setStatusFilter,
-    sortBy,
+    sortBy: filters.sortBy,
     setSortBy,
-    sortOrder,
+    sortOrder: filters.sortOrder,
     setSortOrder,
-    dateFrom,
+    dateFrom: filters.dateFrom,
     setDateFrom,
-    dateTo,
+    dateTo: filters.dateTo,
     setDateTo,
-    filteredAndSortedVacancies,
+    page: filters.page,
+    setPage,
     hasFilters: !!hasFilters,
   };
 }

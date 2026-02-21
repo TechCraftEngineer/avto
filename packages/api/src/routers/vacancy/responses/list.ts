@@ -1,6 +1,13 @@
 import { sql } from "@qbs-autonaim/db";
 import { response as responseTable } from "@qbs-autonaim/db/schema";
-import { workspaceIdSchema } from "@qbs-autonaim/validators";
+import {
+  paginationLimitSchema,
+  paginationPageSchema,
+  screeningFilterSchema,
+  sortDirectionSchema,
+  vacancyResponseStatusFilterSchema,
+  workspaceIdSchema,
+} from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../trpc";
@@ -18,31 +25,22 @@ import {
   fetchResponsesWithScoreJoin,
 } from "./queries/fetch-responses";
 import { getFilteredResponseIds } from "./utils/screening-filters";
-import {
-  vacancyResponseSortFieldSchema,
-  sortDirectionSchema,
-} from "./utils/sort-types";
+import { vacancyResponseSortFieldSchema } from "./utils/sort-types";
 import { getOrderByClause, needsScoreJoin } from "./utils/sorting";
 import { buildWhereConditions } from "./utils/where-conditions";
 
 /** Множитель лимита для клиентской сортировки по priorityScore */
 const PRIORITY_SORT_LIMIT_MULTIPLIER = 3;
 
-const statusFilterSchema = z
-  .array(z.enum(["NEW", "EVALUATED", "INTERVIEW", "COMPLETED", "SKIPPED"]))
-  .optional();
-
 const listInputSchema = z.object({
   workspaceId: workspaceIdSchema,
   vacancyId: z.string().min(1),
-  page: z.number().int().min(1).default(1),
-  limit: z.number().int().min(1).max(100).default(50),
+  page: paginationPageSchema,
+  limit: paginationLimitSchema({ default: 50, max: 100 }),
   sortField: vacancyResponseSortFieldSchema,
   sortDirection: sortDirectionSchema,
-  screeningFilter: z
-    .enum(["all", "evaluated", "not-evaluated", "high-score", "low-score"])
-    .default("all"),
-  statusFilter: statusFilterSchema,
+  screeningFilter: screeningFilterSchema,
+  statusFilter: vacancyResponseStatusFilterSchema,
   search: z.string().max(200).optional(),
 });
 

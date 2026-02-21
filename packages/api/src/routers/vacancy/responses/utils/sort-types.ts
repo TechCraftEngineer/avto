@@ -3,8 +3,13 @@
  * Используются в list, list-workspace, sorting, sort-builder
  */
 
+import { sortDirectionSchema as validatorsSortDirectionSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import type { SortDirection } from "@qbs-autonaim/types";
+
+/** Re-export для обратной совместимости */
+export const sortDirectionSchema =
+  validatorsSortDirectionSchema as z.ZodType<SortDirection>;
 
 /** Поля для сортировки откликов на вакансию (полный набор для list) */
 export type VacancyResponseSortField =
@@ -61,6 +66,3 @@ export const vacancyResponseSortFieldWorkspaceSchema = z
   .nullable()
   .default(null);
 
-export const sortDirectionSchema = z
-  .enum(["asc", "desc"])
-  .default("desc") as z.ZodType<VacancyResponseSortDirection>;

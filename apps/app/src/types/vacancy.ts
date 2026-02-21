@@ -7,7 +7,7 @@ import type { RouterOutputs } from "@qbs-autonaim/api";
 
 /** Элемент списка вакансий (getVacancies) */
 export type VacancyListItem =
-  RouterOutputs["freelancePlatforms"]["getVacancies"][number];
+  RouterOutputs["freelancePlatforms"]["getVacancies"]["vacancies"][number];
 
 /** Вакансия в архиве (для ArchivedVacanciesSelector) */
 export interface ArchivedVacancy {

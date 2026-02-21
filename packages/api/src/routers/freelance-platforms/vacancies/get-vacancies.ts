@@ -1,28 +1,50 @@
 import type { SQL } from "@qbs-autonaim/db";
-import { and, count, eq, sql } from "@qbs-autonaim/db";
+import {
+  and,
+  count,
+  desc,
+  eq,
+  gte,
+  ilike,
+  lte,
+  or,
+  sql,
+} from "@qbs-autonaim/db";
 import { response as responseTable, vacancy } from "@qbs-autonaim/db/schema";
-import { workspaceIdSchema } from "@qbs-autonaim/validators";
+import {
+  paginationLimitSchema,
+  paginationPageSchema,
+  sortDirectionSchema,
+  workspaceIdSchema,
+} from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../../trpc";
 import { createErrorHandler } from "../../../utils/error-handler";
 
+const vacancySourceEnum = z.enum([
+  "HH",
+  "FL_RU",
+  "FREELANCE_RU",
+  "WEB_LINK",
+  "AVITO",
+  "SUPERJOB",
+  "HABR",
+]);
+
 const getVacanciesInputSchema = z.object({
   workspaceId: workspaceIdSchema,
-  source: z
-    .enum([
-      "HH",
-      "FL_RU",
-      "FREELANCE_RU",
-      "WEB_LINK",
-      "AVITO",
-      "SUPERJOB",
-      "HABR",
-    ])
-    .optional(),
+  source: vacancySourceEnum.optional(),
+  /** "all" | "active" | "inactive" - фильтр по isActive */
+  statusFilter: z.enum(["all", "active", "inactive"]).default("all"),
   sortBy: z
     .enum(["createdAt", "title", "responses", "newResponses"])
-    .optional(),
-  sortOrder: z.enum(["asc", "desc"]).optional(),
+    .default("createdAt"),
+  sortOrder: sortDirectionSchema,
+  search: z.string().max(200).optional(),
+  dateFrom: z.string().optional(), // ISO date YYYY-MM-DD
+  dateTo: z.string().optional(), // ISO date YYYY-MM-DD
+  page: paginationPageSchema,
+  limit: paginationLimitSchema({ default: 50, max: 200 }),
 });
 
 export const getVacancies = protectedProcedure
@@ -50,12 +72,44 @@ export const getVacancies = protectedProcedure
       }
 
       // Построение условий фильтрации
-      const conditions = [eq(vacancy.workspaceId, input.workspaceId)];
+      const conditions: Parameters<typeof and>[0][] = [
+        eq(vacancy.workspaceId, input.workspaceId),
+      ];
 
-      // Фильтрация по источнику, если указан
       if (input.source) {
         conditions.push(eq(vacancy.source, input.source));
       }
+      if (input.statusFilter === "active") {
+        conditions.push(eq(vacancy.isActive, true));
+      } else if (input.statusFilter === "inactive") {
+        conditions.push(eq(vacancy.isActive, false));
+      }
+      if (input.dateFrom) {
+        conditions.push(
+          gte(
+            vacancy.createdAt,
+            new Date(`${input.dateFrom}T00:00:00.000Z`),
+          ),
+        );
+      }
+      if (input.dateTo) {
+        conditions.push(
+          lte(
+            vacancy.createdAt,
+            new Date(`${input.dateTo}T23:59:59.999Z`),
+          ),
+        );
+      }
+      if (input.search?.trim()) {
+        const q = `%${input.search.trim()}%`;
+        const searchCond = or(
+          ilike(vacancy.title, q),
+          ilike(sql`COALESCE(${vacancy.region}, '')`, q),
+        );
+        if (searchCond) conditions.push(searchCond);
+      }
+
+      const whereClause = and(...conditions);
 
       // Базовый запрос
       const query = ctx.db
@@ -99,12 +153,11 @@ export const getVacancies = protectedProcedure
             eq(responseTable.entityType, "vacancy"),
           ),
         )
-        .where(and(...conditions));
+        .where(whereClause);
 
-      // Сортировка
-      const { sortBy = "createdAt", sortOrder = "desc" } = input;
+      const sortBy = input.sortBy;
+      const sortOrder = input.sortOrder;
 
-      // Строго типизированный маппинг: каждый ключ сортировки соответствует точному типу выражения
       const orderByMapping: {
         readonly createdAt: typeof vacancy.createdAt;
         readonly title: typeof vacancy.title;
@@ -117,15 +170,90 @@ export const getVacancies = protectedProcedure
         newResponses: sql<number>`CAST(COUNT(CASE WHEN ${responseTable.status} = 'NEW' THEN 1 END) AS INTEGER)`,
       } as const;
 
-      const orderBy = orderByMapping[sortBy] || vacancy.createdAt;
+      const orderBy = orderByMapping[sortBy] ?? vacancy.createdAt;
+      const offset = (input.page - 1) * input.limit;
+      const mainOrder =
+        sortOrder === "asc"
+          ? (sql`${orderBy} ASC` as SQL)
+          : (sql`${orderBy} DESC` as SQL);
 
       const vacancies = await query
         .groupBy(vacancy.id)
-        .orderBy(
-          sortOrder === "asc" ? sql`${orderBy} ASC` : sql`${orderBy} DESC`,
-        );
+        .orderBy(desc(vacancy.isFavorite), desc(vacancy.isActive), mainOrder)
+        .limit(input.limit)
+        .offset(offset);
 
-      return vacancies;
+      const countResult = await ctx.db
+        .select({ count: sql<number>`count(*)` })
+        .from(vacancy)
+        .where(whereClause);
+
+      const total = Number(countResult[0]?.count ?? 0);
+
+      const result: {
+        vacancies: typeof vacancies;
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+        stats?: {
+          totalVacancies: number;
+          activeVacancies: number;
+          totalResponses: number;
+          newResponses: number;
+        };
+      } = {
+        vacancies,
+        total,
+        page: input.page,
+        limit: input.limit,
+        totalPages: Math.ceil(total / input.limit),
+      };
+
+      // Статистика для первой страницы без фильтров
+      const hasNoFilters =
+        input.page === 1 &&
+        !input.search?.trim() &&
+        input.statusFilter === "all" &&
+        !input.dateFrom &&
+        !input.dateTo &&
+        !input.source;
+
+      if (hasNoFilters) {
+        const [activeCount, totals] = await Promise.all([
+          ctx.db
+            .select({ count: sql<number>`count(*)` })
+            .from(vacancy)
+            .where(
+              and(
+                eq(vacancy.workspaceId, input.workspaceId),
+                eq(vacancy.isActive, true),
+              ),
+            ),
+          ctx.db
+            .select({
+              totalResponses: sql<number>`COALESCE(SUM(
+                (SELECT COUNT(*)::int FROM ${responseTable} r
+                 WHERE r.entity_id = ${vacancy.id} AND r.entity_type = 'vacancy')
+              ), 0)`,
+              newResponses: sql<number>`COALESCE(SUM(
+                (SELECT COUNT(*)::int FROM ${responseTable} r
+                 WHERE r.entity_id = ${vacancy.id} AND r.entity_type = 'vacancy'
+                 AND r.status = 'NEW')
+              ), 0)`,
+            })
+            .from(vacancy)
+            .where(eq(vacancy.workspaceId, input.workspaceId)),
+        ]);
+        result.stats = {
+          totalVacancies: total,
+          activeVacancies: Number(activeCount[0]?.count ?? 0),
+          totalResponses: Number(totals[0]?.totalResponses ?? 0),
+          newResponses: Number(totals[0]?.newResponses ?? 0),
+        };
+      }
+
+      return result;
     } catch (error) {
       if (error instanceof Error && error.message.includes("TRPC")) {
         throw error;

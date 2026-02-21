@@ -20,6 +20,12 @@ alwaysApply: false
 - `packages/db/` - Drizzle ORM и схемы
 - `packages/ui/` - UI компоненты
 
+### Path aliases
+
+- **apps** (Next.js): `~/*` и `@/*` → `./src/*`
+- **packages** (jobs, jobs-parsers и др.): `~/*` → `./src/*` или `./src/`
+- Новые пакеты: предпочитать `~/*` для единообразия
+
 ## Качество кода
 
 ### TypeScript
