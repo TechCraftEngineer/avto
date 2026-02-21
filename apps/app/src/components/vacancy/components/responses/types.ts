@@ -1,3 +1,8 @@
+import type {
+  VacancyResponseSortDirection,
+  VacancyResponseSortField,
+} from "@qbs-autonaim/api";
+
 export type ScreeningFilter =
   | "all"
   | "evaluated"
@@ -5,18 +10,11 @@ export type ScreeningFilter =
   | "high-score"
   | "low-score";
 
-export type SortField =
-  | "status"
-  | "priorityScore"
-  | "detailedScore"
-  | "potentialScore"
-  | "careerTrajectoryScore"
-  | "salaryExpectationsAmount"
-  | "compositeScore"
-  | "respondedAt"
-  | null;
+/** Централизованный тип из API (vacancy list) */
+export type SortField = VacancyResponseSortField | null;
 
-export type SortDirection = "asc" | "desc";
+/** Централизованный тип из API */
+export type SortDirection = VacancyResponseSortDirection;
 
 export type ColumnId =
   | "candidate"

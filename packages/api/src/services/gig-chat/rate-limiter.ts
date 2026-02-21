@@ -3,10 +3,7 @@
  * Tracks message counts per user with 1-minute sliding window
  */
 
-interface RateLimitEntry {
-  count: number;
-  windowStart: number;
-}
+import type { RateLimitEntry } from "../../utils/rate-limiter-types";
 
 class RateLimiter {
   private limits: Map<string, RateLimitEntry> = new Map();

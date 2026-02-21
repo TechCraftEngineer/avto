@@ -1,1 +1,1 @@
-// types for vacancies
+export type { VacancyListItem } from "~/types/vacancy";

@@ -18,27 +18,15 @@ import {
   fetchResponsesWithScoreJoin,
 } from "./queries/fetch-responses";
 import { getFilteredResponseIds } from "./utils/screening-filters";
+import {
+  vacancyResponseSortFieldSchema,
+  sortDirectionSchema,
+} from "./utils/sort-types";
 import { getOrderByClause, needsScoreJoin } from "./utils/sorting";
 import { buildWhereConditions } from "./utils/where-conditions";
 
 /** Множитель лимита для клиентской сортировки по priorityScore */
 const PRIORITY_SORT_LIMIT_MULTIPLIER = 3;
-
-const sortFieldSchema = z
-  .enum([
-    "createdAt",
-    "score",
-    "detailedScore",
-    "potentialScore",
-    "careerTrajectoryScore",
-    "priorityScore",
-    "salaryExpectationsAmount",
-    "compositeScore",
-    "status",
-    "respondedAt",
-  ])
-  .nullable()
-  .default(null);
 
 const statusFilterSchema = z
   .array(z.enum(["NEW", "EVALUATED", "INTERVIEW", "COMPLETED", "SKIPPED"]))
@@ -49,8 +37,8 @@ const listInputSchema = z.object({
   vacancyId: z.string().min(1),
   page: z.number().int().min(1).default(1),
   limit: z.number().int().min(1).max(100).default(50),
-  sortField: sortFieldSchema,
-  sortDirection: z.enum(["asc", "desc"]).default("desc"),
+  sortField: vacancyResponseSortFieldSchema,
+  sortDirection: sortDirectionSchema,
   screeningFilter: z
     .enum(["all", "evaluated", "not-evaluated", "high-score", "low-score"])
     .default("all"),

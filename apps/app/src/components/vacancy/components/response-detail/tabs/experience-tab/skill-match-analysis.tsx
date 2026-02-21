@@ -1,11 +1,7 @@
-import type { RouterOutputs } from "@qbs-autonaim/api";
+import type { VacancyResponseDetail } from "~/components/responses/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui";
 import { AlertTriangle, Award, CheckCircle2, XCircle } from "lucide-react";
 import { analyzeSkillMatch } from "./utils";
-
-type VacancyResponseDetail = NonNullable<
-  RouterOutputs["vacancy"]["responses"]["get"]
->;
 
 interface SkillMatchAnalysisProps {
   response: VacancyResponseDetail;

@@ -13,14 +13,8 @@ import {
   vacancy,
 } from "@qbs-autonaim/db";
 import type { db } from "@qbs-autonaim/db/client";
-import type { CandidateContextData } from "@qbs-autonaim/shared";
 import type { ChatContext, ContextLoader } from "../types";
-
-// Расширенный тип для vacancy с дополнительными полями
-interface VacancyCandidateData extends CandidateContextData {
-  salaryExpectationsAmount: number | null;
-  profileUrl: string | null;
-}
+import type { VacancyCandidateData } from "../vacancy-types";
 
 export class VacancyContextLoader implements ContextLoader {
   async loadContext(

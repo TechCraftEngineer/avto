@@ -1,6 +1,6 @@
 "use client";
 
-import type { RouterOutputs } from "@qbs-autonaim/api";
+import type { GigResponseDetail } from "~/components/responses/types";
 import { Badge, Separator } from "@qbs-autonaim/ui";
 import {
   AlertCircle,
@@ -11,8 +11,6 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { formatCurrency } from "../../../utils/constants";
-
-type GigResponseDetail = NonNullable<RouterOutputs["gig"]["responses"]["get"]>;
 
 interface GigProposalTabProps {
   response: GigResponseDetail;

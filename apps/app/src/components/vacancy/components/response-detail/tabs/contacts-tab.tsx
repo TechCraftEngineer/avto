@@ -1,6 +1,6 @@
 "use client";
 
-import type { RouterOutputs } from "@qbs-autonaim/api";
+import type { VacancyResponseDetail } from "~/components/responses/types";
 import { Separator } from "@qbs-autonaim/ui";
 import {
   ExternalLink,
@@ -9,10 +9,6 @@ import {
   MessageSquare,
   Phone,
 } from "lucide-react";
-
-type VacancyResponseDetail = NonNullable<
-  RouterOutputs["vacancy"]["responses"]["get"]
->;
 
 interface VacancyContactsTabProps {
   response: VacancyResponseDetail;

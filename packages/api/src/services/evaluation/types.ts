@@ -15,6 +15,7 @@ export type {
 } from "@qbs-autonaim/db";
 
 import type { FitDecision, HonestyLevel, ParsedResume } from "@qbs-autonaim/db";
+import type { DialogueMessage, VacancyData } from "./shared-types";
 
 /**
  * Входные данные для оценки кандидата
@@ -30,53 +31,10 @@ export interface EvaluationInput {
   workspaceConfig: WorkspaceEvaluationConfig;
 }
 
-/**
- * Сообщение в диалоге
- */
-export interface DialogueMessage {
-  /** Роль отправителя */
-  role: "assistant" | "user";
-  /** Текст сообщения */
-  content: string;
-  /** Время отправки */
-  timestamp: Date;
-}
-
-/**
- * Данные вакансии для оценки
- */
-export interface VacancyData {
-  /** ID вакансии */
-  id: string;
-  /** Название вакансии */
-  title: string;
-  /** Описание вакансии */
-  description?: string;
-  /** Требования к кандидату */
-  requirements?: VacancyRequirements;
-}
-
-/**
- * Требования вакансии
- */
-export interface VacancyRequirements {
-  /** Обязательные навыки */
-  hardSkills?: string[];
-  /** Желаемые soft skills */
-  softSkills?: string[];
-  /** Минимальный опыт работы (в годах) */
-  minExperience?: number;
-  /** Требования к образованию */
-  education?: string[];
-  /** Диапазон зарплаты */
-  salaryRange?: {
-    min?: number;
-    max?: number;
-    currency?: string;
-  };
-  /** Дополнительные требования */
-  other?: string[];
-}
+/** Реэкспорт общих типов для обратной совместимости */
+export type { DialogueMessage, VacancyData };
+/** Реэкспорт из @qbs-autonaim/types для обратной совместимости */
+export type { VacancyRequirements } from "@qbs-autonaim/types";
 
 /**
  * Конфигурация оценки для workspace

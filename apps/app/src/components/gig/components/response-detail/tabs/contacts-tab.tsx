@@ -1,10 +1,9 @@
 "use client";
 
-import type { RouterOutputs } from "@qbs-autonaim/api";
 import { Separator } from "@qbs-autonaim/ui";
 import { ExternalLink, Mail, MessageSquare, Phone } from "lucide-react";
 
-type GigResponseDetail = NonNullable<RouterOutputs["gig"]["responses"]["get"]>;
+import type { GigResponseDetail } from "~/components/responses/types";
 
 interface GigContactsTabProps {
   response: GigResponseDetail;

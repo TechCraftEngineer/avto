@@ -99,6 +99,8 @@ export interface AIResponse {
   metadata?: Record<string, unknown>;
 }
 
+import type { DialogueMessage, VacancyData } from "../evaluation/shared-types";
+
 /**
  * Входные данные для оценки кандидата
  */
@@ -115,31 +117,8 @@ export interface EvaluationInput {
   workspaceConfig: WorkspacePrequalificationConfig;
 }
 
-/**
- * Сообщение в диалоге
- */
-export interface DialogueMessage {
-  /** Роль отправителя */
-  role: "assistant" | "user";
-  /** Текст сообщения */
-  content: string;
-  /** Время отправки */
-  timestamp: Date;
-}
-
-/**
- * Данные вакансии для оценки
- */
-export interface VacancyData {
-  /** ID вакансии */
-  id: string;
-  /** Название вакансии */
-  title: string;
-  /** Описание вакансии */
-  description?: string;
-  /** Требования к кандидату */
-  requirements?: import("@qbs-autonaim/db").VacancyRequirements;
-}
+/** Реэкспорт общих типов для обратной совместимости */
+export type { DialogueMessage, VacancyData };
 
 /**
  * Конфигурация преквалификации для workspace

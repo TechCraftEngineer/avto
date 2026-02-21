@@ -1,6 +1,6 @@
 "use client";
 
-import type { RouterOutputs } from "@qbs-autonaim/api";
+import type { VacancyResponseDetail } from "~/components/responses/types";
 import { Separator } from "@qbs-autonaim/ui";
 import { Award } from "lucide-react";
 import { getProfileData } from "~/components/shared/utils/types";
@@ -8,10 +8,6 @@ import { sanitizeHtmlFunction } from "~/lib/sanitize-html";
 import { ResumeProfile } from "./resume-profile";
 import { SkillMatchAnalysis } from "./skill-match-analysis";
 import { SkillsList } from "./skills-list";
-
-type VacancyResponseDetail = NonNullable<
-  RouterOutputs["vacancy"]["responses"]["get"]
->;
 
 interface VacancyExperienceTabProps {
   response: VacancyResponseDetail;

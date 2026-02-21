@@ -11,27 +11,10 @@ import {
   AlertOctagon,
   Sparkles,
 } from "lucide-react";
+import type { ItemsListProps, ItemsListType } from "~/types/screening";
 
-type ItemsListType =
-  | "strengths"
-  | "weaknesses"
-  | "risks"
-  | "recommendations"
-  | "questions"
-  | "challenges";
-
-interface ItemsListProps {
-  /** List of items to display */
-  items: string[];
-  /** Type of list determines colors and icons */
-  type: ItemsListType;
-  /** Whether to show icons */
-  icon?: boolean;
-  /** Whether to show items as badges */
-  asBadges?: boolean;
-  /** Additional CSS classes */
-  className?: string;
-}
+/** Реэкспорт для внешнего использования */
+export type { ItemsListType };
 
 /**
  * Configuration for each list type
@@ -145,13 +128,7 @@ export const ItemsList = memo(function ItemsList({
 /**
  * Section wrapper with title for items list
  */
-interface ItemsListSectionProps {
-  items: string[];
-  type: ItemsListType;
-  icon?: boolean;
-  asBadges?: boolean;
-  className?: string;
-}
+type ItemsListSectionProps = ItemsListProps;
 
 export const ItemsListSection = memo(function ItemsListSection({
   items,

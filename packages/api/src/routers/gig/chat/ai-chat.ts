@@ -12,10 +12,8 @@ import {
   loadCandidatesContext,
   loadGigContext,
 } from "../../../services/gig-chat/context-loader";
-import {
-  buildGigAIChatPrompt,
-  type ChatHistoryMessage,
-} from "../../../services/gig-chat/prompt-builder";
+import type { ChatHistoryMessage } from "@qbs-autonaim/shared";
+import { buildGigAIChatPrompt } from "../../../services/gig-chat/prompt-builder";
 import { gigChatRateLimiter } from "../../../services/gig-chat/rate-limiter";
 import { protectedProcedure } from "../../../trpc";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import type { RouterOutputs } from "@qbs-autonaim/api";
+import type { GigResponseListItem } from "~/components/responses/types";
 import {
   Badge,
   Button,
@@ -34,15 +34,6 @@ import {
   IMPORT_SOURCE_LABELS,
   RESPONSE_STATUS_CONFIG,
 } from "~/lib/shared/response-configs";
-
-type GigResponseListItem =
-  RouterOutputs["gig"]["responses"]["list"]["items"][number] & {
-    interviewScoring?: {
-      score: number;
-      detailedScore: number;
-      analysis: string | null;
-    } | null;
-  };
 
 interface ResponseListCardProps {
   response: GigResponseListItem;

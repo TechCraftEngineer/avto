@@ -20,7 +20,7 @@ import {
   createGigResponseColumns,
   type GigResponseListItem,
   type GigTableMeta,
-} from "./table/gig-response-columns";
+} from "./table";
 
 type GigResponseWithScore = GigResponseListItem & { score?: number | null };
 

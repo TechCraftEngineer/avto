@@ -1,13 +1,11 @@
 "use client";
 
-import type { RouterOutputs } from "@qbs-autonaim/api";
+import type {
+  GigResponseDetail,
+  VacancyResponseDetail,
+} from "~/components/responses/types";
 import { Separator } from "@qbs-autonaim/ui";
 import { formatCurrency } from "../../../utils/constants";
-
-type GigResponseDetail = NonNullable<RouterOutputs["gig"]["responses"]["get"]>;
-type VacancyResponseDetail = NonNullable<
-  RouterOutputs["vacancy"]["responses"]["get"]
->;
 
 interface ProposalTabProps {
   response: GigResponseDetail | VacancyResponseDetail;

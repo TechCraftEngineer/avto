@@ -2,24 +2,8 @@
  * Конфигурация промпта для vacancy
  */
 
-import type { CandidateContextData } from "@qbs-autonaim/shared";
 import type { PromptConfig } from "../types";
-
-interface VacancyMainContext {
-  id: string;
-  title: string;
-  description: string | null;
-  requirements: unknown;
-  region: string | null;
-  workLocation: string | null;
-  customBotInstructions: string | null;
-}
-
-// Расширенный тип для vacancy с дополнительными полями
-interface VacancyCandidateData extends CandidateContextData {
-  salaryExpectationsAmount: number | null;
-  profileUrl: string | null;
-}
+import type { VacancyCandidateData, VacancyMainContext } from "../vacancy-types";
 
 function formatVacancyMain(ctx: Record<string, unknown>): string {
   const vac = ctx as unknown as VacancyMainContext;

@@ -16,6 +16,10 @@ import { protectedProcedure } from "../../../trpc";
 import { fetchRelatedData } from "./utils/fetch-related-data";
 import { mapResponseData } from "./utils/map-response-data";
 import { getFilteredResponseIds } from "./utils/screening-filters";
+import {
+  vacancyResponseSortFieldWorkspaceSchema,
+  sortDirectionSchema,
+} from "./utils/sort-types";
 import { buildOrderByClause, isScoreBasedSort } from "./utils/sort-builder";
 
 const EMPTY_RESULT = {
@@ -32,21 +36,8 @@ export const listWorkspace = protectedProcedure
       workspaceId: workspaceIdSchema,
       page: z.number().min(1).default(1),
       limit: z.number().min(1).max(100).default(20),
-      sortField: z
-        .enum([
-          "createdAt",
-          "score",
-          "detailedScore",
-          "potentialScore",
-          "careerTrajectoryScore",
-          "priorityScore",
-          "status",
-          "respondedAt",
-        ])
-        .optional()
-        .nullable()
-        .default(null),
-      sortDirection: z.enum(["asc", "desc"]).default("desc"),
+      sortField: vacancyResponseSortFieldWorkspaceSchema,
+      sortDirection: sortDirectionSchema,
       screeningFilter: z
         .enum(["all", "evaluated", "not-evaluated", "high-score", "low-score"])
         .default("all"),

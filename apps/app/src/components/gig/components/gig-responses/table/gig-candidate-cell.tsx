@@ -1,6 +1,6 @@
 "use client";
 
-import type { RouterOutputs } from "@qbs-autonaim/api";
+import type { GigResponseListItem } from "~/components/responses/types";
 import { calculateAge } from "@qbs-autonaim/lib/utils";
 import { getInitials } from "@qbs-autonaim/shared";
 import Link from "next/link";
@@ -8,9 +8,6 @@ import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { getAvatarUrl } from "~/lib/avatar";
 import { CandidateAvatar } from "~/components/vacancy/components/responses/response-row/candidate-avatar";
 import { CandidateInfo } from "~/components/vacancy/components/responses/response-row/candidate-info";
-
-type GigResponseListItem =
-  RouterOutputs["gig"]["responses"]["list"]["items"][number];
 
 interface GigCandidateCellProps {
   response: GigResponseListItem;

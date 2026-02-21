@@ -1,21 +1,7 @@
 import { useMemo, useState } from "react";
+import type { VacancyListItem } from "~/types/vacancy";
 
-interface Vacancy {
-  id: string;
-  title: string;
-  source: string;
-  region: string | null;
-  workLocation: string | null;
-  views?: number | null;
-  totalResponsesCount: number | null;
-  newResponses: number | null;
-  resumesInProgress: number | null;
-  isActive: boolean | null;
-  isFavorite: boolean;
-  createdAt: Date;
-}
-
-export function useVacancyFilters(vacancies: Vacancy[] | undefined) {
+export function useVacancyFilters(vacancies: VacancyListItem[] | undefined) {
   const [searchQuery, setSearchQuery] = useState("");
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");

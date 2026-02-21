@@ -4,24 +4,18 @@ import {
   responseScreening,
   response as responseTable,
 } from "@qbs-autonaim/db/schema";
+import type {
+  VacancyResponseSortDirection,
+  VacancyResponseSortField,
+} from "./sort-types";
 
-export type SortField =
-  | "createdAt"
-  | "score"
-  | "detailedScore"
-  | "potentialScore"
-  | "careerTrajectoryScore"
-  | "priorityScore"
-  | "salaryExpectationsAmount"
-  | "compositeScore"
-  | "status"
-  | "respondedAt";
-
-export type SortDirection = "asc" | "desc";
+/** Реэкспорт для обратной совместимости */
+export type SortField = VacancyResponseSortField;
+export type SortDirection = VacancyResponseSortDirection;
 
 export function getOrderByClause(
-  sortField: SortField | null,
-  sortDirection: SortDirection,
+  sortField: VacancyResponseSortField | null,
+  sortDirection: VacancyResponseSortDirection,
 ): SQL {
   if (sortField === "createdAt") {
     return sortDirection === "asc"
@@ -77,7 +71,9 @@ export function getOrderByClause(
   return desc(responseTable.createdAt);
 }
 
-export function needsScoreJoin(sortField: SortField | null): boolean {
+export function needsScoreJoin(
+  sortField: VacancyResponseSortField | null,
+): boolean {
   return (
     sortField === "score" ||
     sortField === "detailedScore" ||

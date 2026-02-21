@@ -1,6 +1,5 @@
 "use client";
 
-import type { RouterOutputs } from "@qbs-autonaim/api";
 import type { GlobalCandidate } from "@qbs-autonaim/db/schema";
 import { calculateAge, formatBirthDate } from "@qbs-autonaim/lib/utils";
 import { getInitials } from "@qbs-autonaim/shared";
@@ -33,15 +32,16 @@ import {
 } from "lucide-react";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { getAvatarUrl } from "~/lib/avatar";
+import type {
+  GigResponseDetail,
+  VacancyResponseDetail,
+} from "~/components/responses/types";
 import {
   formatDate,
   HR_STATUS_CONFIG,
   IMPORT_SOURCE_LABELS,
   STATUS_CONFIG,
 } from "../../utils/constants";
-
-type GigResponseDetail = RouterOutputs["gig"]["responses"]["get"];
-type VacancyResponseDetail = RouterOutputs["vacancy"]["responses"]["get"];
 
 interface ResponseHeaderCardProps {
   response: (GigResponseDetail | VacancyResponseDetail) & {
