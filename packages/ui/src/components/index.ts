@@ -93,6 +93,29 @@ export {
   ContextMenuRadioGroup,
 } from "./context-menu";
 
+// Kanban components
+export {
+  Kanban,
+  KanbanBoard,
+  KanbanColumn,
+  KanbanColumnContent,
+  KanbanColumnHandle,
+  KanbanItem,
+  KanbanItemHandle,
+  KanbanOverlay,
+} from "./reui/kanban";
+export type {
+  KanbanMoveEvent,
+  KanbanRootProps,
+  KanbanBoardProps,
+  KanbanColumnProps,
+  KanbanColumnHandleProps,
+  KanbanItemProps,
+  KanbanItemHandleProps,
+  KanbanColumnContentProps,
+  KanbanOverlayProps,
+} from "./reui/kanban";
+
 // Data Grid components
 export {
   DataGrid,
