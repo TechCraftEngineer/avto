@@ -23,7 +23,7 @@
     "@opentelemetry/sdk-node": "^0.212.0",
     "@qbs-autonaim/config": "workspace:*",
     "@qbs-autonaim/lib": "workspace:*",
-    "ai": "6.0.94",
+    "ai": "6.0.97",
     "langfuse": "3.38.6",
     "p-limit": "^7.3.0",
     "string-strip-html": "^13.5.3",

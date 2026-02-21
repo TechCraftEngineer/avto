@@ -302,6 +302,47 @@ export async function runResponsesImport(
       stage: "responses",
       current: 0,
       total: 1,
+      message: "Проверка вакансии...",
+    });
+
+    const checkResponse = await chrome.runtime.sendMessage({
+      type: "API_REQUEST",
+      payload: {
+        url: getExtensionApiUrl("hh-import/check-vacancy"),
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: {
+          workspaceId,
+          vacancyExternalId,
+        },
+      },
+    });
+
+    if (!checkResponse?.success) {
+      return {
+        success: false,
+        error:
+          checkResponse?.error ||
+          "Не удалось проверить наличие вакансии на сервере",
+      };
+    }
+
+    const checkData = checkResponse.data as { exists?: boolean };
+    if (checkData?.exists !== true) {
+      return {
+        success: false,
+        error:
+          "Вакансия не найдена в системе. Сначала импортируйте вакансию со страницы списка вакансий.",
+      };
+    }
+
+    onProgress?.({
+      stage: "responses",
+      current: 0,
+      total: 1,
       message: "Сбор откликов...",
     });
 

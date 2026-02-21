@@ -30,7 +30,7 @@
     "@trpc/client": "11.10.0",
     "@trpc/server": "11.10.0",
     "@trpc/tanstack-react-query": "^11.10.0",
-    "ai": "6.0.94",
+    "ai": "6.0.97",
     "dompurify": "^3.3.1",
     "lucide-react": "^0.574.0",
     "motion": "^12.34.1",
