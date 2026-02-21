@@ -1,43 +1,14 @@
 "use client";
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { createContext, useContext, useMemo } from "react";
+import type { OperationType } from "./types";
+import { useOperationHandlers } from "./use-operations-state";
+import { useOperationsState } from "./use-operations-state";
 
-/**
- * Типы операций с откликами
- */
-type OperationType = "refresh" | "archived" | "screenNew" | "screenAll";
-
-/**
- * Состояние операции
- */
-interface OperationState {
-  isRunning: boolean;
-  showConfirmation: boolean;
-  message?: string;
-  progress?: {
-    total: number;
-    processed: number;
-    failed: number;
-  } | null;
-}
-
-/**
- * Контекст для управления операциями с откликами вакансии
- */
+/** Контекст для управления операциями с откликами вакансии */
 interface VacancyResponsesContextValue {
   vacancyId: string;
-
-  // Состояния операций
-  operations: Record<OperationType, OperationState>;
-
-  // Действия
+  operations: ReturnType<typeof useOperationsState>["operations"];
   showConfirmation: (type: OperationType) => void;
   hideConfirmation: (type: OperationType) => void;
   startOperation: (type: OperationType) => void;
@@ -47,16 +18,10 @@ interface VacancyResponsesContextValue {
     message: string,
     progress?: { total: number; processed: number; failed: number } | null,
   ) => void;
-
-  // Обработчики операций (устанавливаются компонентами)
   setOperationHandler: (type: OperationType, handler: () => void) => void;
   executeOperation: (type: OperationType) => void;
-
-  // Колбэк при завершении синхронизации архивных (для handleRefreshComplete)
   registerOnArchivedSyncComplete: (cb: (() => void) | null) => void;
   getOnArchivedSyncComplete: () => (() => void) | null;
-
-  // Колбэки при анализе всех откликов (screen-all)
   registerOnScreenAllProgress: (
     cb:
       | ((
@@ -79,9 +44,6 @@ const VacancyResponsesContext = createContext<
   VacancyResponsesContextValue | undefined
 >(undefined);
 
-/**
- * Provider для управления состоянием операций с откликами
- */
 export function VacancyResponsesProvider({
   vacancyId,
   children,
@@ -89,157 +51,41 @@ export function VacancyResponsesProvider({
   vacancyId: string;
   children: React.ReactNode;
 }) {
-  const [operations, setOperations] = useState<
-    Record<OperationType, OperationState>
-  >({
-    refresh: { isRunning: false, showConfirmation: false },
-    archived: { isRunning: false, showConfirmation: false },
-    screenNew: { isRunning: false, showConfirmation: false },
-    screenAll: { isRunning: false, showConfirmation: false },
-  });
+  const state = useOperationsState();
+  const handlers = useOperationHandlers();
 
-  // Храним обработчики операций в ref, чтобы избежать ре-рендеров
-  const handlersRef = useRef<Partial<Record<OperationType, () => void>>>({});
-  const onArchivedSyncCompleteRef = useRef<(() => void) | null>(null);
-  const onScreenAllProgressRef = useRef<
-    | ((
-        message: string,
-        progress: { total: number; processed: number; failed: number } | null,
-      ) => void)
-    | null
-  >(null);
-  const onScreenAllCompleteRef = useRef<(() => void) | null>(null);
-
-  const showConfirmation = useCallback((type: OperationType) => {
-    setOperations((prev) => ({
-      ...prev,
-      [type]: { ...prev[type], showConfirmation: true },
-    }));
-  }, []);
-
-  const hideConfirmation = useCallback((type: OperationType) => {
-    setOperations((prev) => ({
-      ...prev,
-      [type]: { ...prev[type], showConfirmation: false },
-    }));
-  }, []);
-
-  const startOperation = useCallback((type: OperationType) => {
-    setOperations((prev) => ({
-      ...prev,
-      [type]: { isRunning: true, showConfirmation: false },
-    }));
-  }, []);
-
-  const completeOperation = useCallback((type: OperationType) => {
-    setOperations((prev) => ({
-      ...prev,
-      [type]: { ...prev[type], isRunning: false },
-    }));
-  }, []);
-
-  const updateProgress = useCallback(
-    (
-      type: OperationType,
-      message: string,
-      progress?: { total: number; processed: number; failed: number } | null,
-    ) => {
-      setOperations((prev) => ({
-        ...prev,
-        [type]: { ...prev[type], message, progress },
-      }));
-    },
-    [],
-  );
-
-  const setOperationHandler = useCallback(
-    (type: OperationType, handler: () => void) => {
-      handlersRef.current[type] = handler;
-    },
-    [],
-  );
-
-  const executeOperation = useCallback((type: OperationType) => {
-    const handler = handlersRef.current[type];
-    if (handler) {
-      handler();
-    } else {
-      console.warn(`No handler registered for operation: ${type}`);
-    }
-  }, []);
-
-  const registerOnArchivedSyncComplete = useCallback(
-    (cb: (() => void) | null) => {
-      onArchivedSyncCompleteRef.current = cb;
-    },
-    [],
-  );
-
-  const getOnArchivedSyncComplete = useCallback(
-    () => onArchivedSyncCompleteRef.current,
-    [],
-  );
-
-  const registerOnScreenAllProgress = useCallback(
-    (
-      cb:
-        | ((
-            message: string,
-            progress: {
-              total: number;
-              processed: number;
-              failed: number;
-            } | null,
-          ) => void)
-        | null,
-    ) => {
-      onScreenAllProgressRef.current = cb;
-    },
-    [],
-  );
-
-  const registerOnScreenAllComplete = useCallback((cb: (() => void) | null) => {
-    onScreenAllCompleteRef.current = cb;
-  }, []);
-
-  const getOnScreenAllProgress = useCallback(
-    () => onScreenAllProgressRef.current,
-    [],
-  );
-
-  const getOnScreenAllComplete = useCallback(
-    () => onScreenAllCompleteRef.current,
-    [],
+  const value = useMemo<VacancyResponsesContextValue>(
+    () => ({
+      vacancyId,
+      ...state,
+      ...handlers,
+    }),
+    [
+      vacancyId,
+      state.operations,
+      state.showConfirmation,
+      state.hideConfirmation,
+      state.startOperation,
+      state.completeOperation,
+      state.updateProgress,
+      handlers.setOperationHandler,
+      handlers.executeOperation,
+      handlers.registerOnArchivedSyncComplete,
+      handlers.getOnArchivedSyncComplete,
+      handlers.registerOnScreenAllProgress,
+      handlers.registerOnScreenAllComplete,
+      handlers.getOnScreenAllProgress,
+      handlers.getOnScreenAllComplete,
+    ],
   );
 
   return (
-    <VacancyResponsesContext.Provider
-      value={{
-        vacancyId,
-        operations,
-        showConfirmation,
-        hideConfirmation,
-        startOperation,
-        completeOperation,
-        updateProgress,
-        setOperationHandler,
-        executeOperation,
-        registerOnArchivedSyncComplete,
-        getOnArchivedSyncComplete,
-        registerOnScreenAllProgress,
-        registerOnScreenAllComplete,
-        getOnScreenAllProgress,
-        getOnScreenAllComplete,
-      }}
-    >
+    <VacancyResponsesContext.Provider value={value}>
       {children}
     </VacancyResponsesContext.Provider>
   );
 }
 
-/**
- * Hook для использования контекста операций с откликами
- */
 export function useVacancyResponses() {
   const context = useContext(VacancyResponsesContext);
   if (!context) {
@@ -250,13 +96,8 @@ export function useVacancyResponses() {
   return context;
 }
 
-/**
- * Hook для работы с конкретной операцией
- */
 export function useVacancyOperation(type: OperationType) {
   const context = useVacancyResponses();
-
-  // Мемоизируем весь объект, чтобы он был стабильным
   return useMemo(
     () => ({
       vacancyId: context.vacancyId,
@@ -279,3 +120,5 @@ export function useVacancyOperation(type: OperationType) {
     [context, type],
   );
 }
+
+export type { OperationType } from "./types";

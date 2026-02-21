@@ -1,6 +1,6 @@
 "use client";
 
-import type { VacancyRequirements } from "@qbs-autonaim/db";
+import type { VacancyRequirements } from "@qbs-autonaim/db/schema";
 import {
   Button,
   Card,

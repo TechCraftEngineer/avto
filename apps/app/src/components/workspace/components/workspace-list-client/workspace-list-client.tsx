@@ -1,6 +1,6 @@
 "use client";
 
-import type { OrganizationRole, Workspace } from "@qbs-autonaim/db";
+import type { OrganizationRole, Workspace } from "@qbs-autonaim/db/schema";
 import { Button } from "@qbs-autonaim/ui";
 import { Input } from "@qbs-autonaim/ui";
 import { Plus, Search } from "lucide-react";

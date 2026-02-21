@@ -40,7 +40,8 @@
     "typecheck": "turbo run typecheck",
     "ui-add": "turbo run ui-add",
     "deps:update": "bunx npm-check-updates -u \"apps/*/package.json\" \"packages/*/package.json\" && bun install",
-    "knip": "cross-env CI=true POSTGRES_URL=postgresql://postgres:postgres@localhost/qbs-dev knip"
+    "knip": "cross-env CI=true POSTGRES_URL=postgresql://postgres:postgres@localhost/qbs-dev knip",
+    "check:client-imports": "node scripts/check-client-imports.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.3",

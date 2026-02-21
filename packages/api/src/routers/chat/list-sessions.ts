@@ -1,4 +1,5 @@
 import { chatEntityTypeEnum } from "@qbs-autonaim/db/schema";
+import { paginationLimitSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { chatRegistry } from "../../services/chat/registry";
@@ -10,7 +11,7 @@ export const listSessions = protectedProcedure
       .object({
         entityType: z.enum(chatEntityTypeEnum.enumValues),
         entityId: z.string(),
-        limit: z.number().min(1).max(50).default(20),
+        limit: paginationLimitSchema({ default: 20, max: 50 }),
       })
       .refine(
         (v) => {

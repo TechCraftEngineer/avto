@@ -4,6 +4,7 @@
 export {
   paginationInputSchema,
   paginationLimitSchema,
+  paginationOffsetSchema,
   paginationPageSchema,
   type PaginationInput,
   screeningFilterSchema,

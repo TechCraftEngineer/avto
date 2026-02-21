@@ -2,6 +2,7 @@ import { pgEnum } from "drizzle-orm/pg-core";
 
 import {
   platformSourceValues,
+  responseStatusValues as statusValues,
   type PlatformSource,
 } from "@qbs-autonaim/types";
 
@@ -9,28 +10,14 @@ import {
  * Унифицированные enum'ы для всех типов откликов (gig, vacancy, project)
  */
 
-/**
- * Статус отклика
- */
+/** Статус отклика (pg enum для Drizzle) */
 export const responseStatusEnum = pgEnum("response_status", [
-  "NEW",
-  "EVALUATED",
-  "INTERVIEW",
-  "NEGOTIATION",
-  "COMPLETED",
-  "SKIPPED",
-]);
+  ...statusValues,
+] as [string, ...string[]]);
 
-export const responseStatusValues = [
-  "NEW",
-  "EVALUATED",
-  "INTERVIEW",
-  "NEGOTIATION",
-  "COMPLETED",
-  "SKIPPED",
-] as const;
-
-export type ResponseStatus = (typeof responseStatusValues)[number];
+/** Re-export из @qbs-autonaim/types для обратной совместимости */
+export { responseStatusValues } from "@qbs-autonaim/types";
+export type { ResponseStatus } from "@qbs-autonaim/types";
 
 /**
  * HR статус отбора

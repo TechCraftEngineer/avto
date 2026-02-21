@@ -1,7 +1,11 @@
 import { and, desc, eq, inArray, lt } from "@qbs-autonaim/db";
 import { response as responseTable, vacancy } from "@qbs-autonaim/db/schema";
 import { formatExperienceText } from "@qbs-autonaim/shared";
-import { uuidv7Schema, workspaceIdSchema } from "@qbs-autonaim/validators";
+import {
+  paginationLimitSchema,
+  uuidv7Schema,
+  workspaceIdSchema,
+} from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../trpc";
@@ -12,7 +16,7 @@ export const list = protectedProcedure
     z.object({
       workspaceId: workspaceIdSchema,
       vacancyId: z.string().optional(),
-      limit: z.number().int().min(1).max(100).default(50),
+      limit: paginationLimitSchema({ default: 50, max: 100 }),
       cursor: uuidv7Schema.optional(),
     }),
   )

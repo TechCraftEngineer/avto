@@ -47,7 +47,7 @@ const VacancyRequirementsEditor = dynamic(
   },
 );
 
-import type { VacancyRequirements } from "@qbs-autonaim/db";
+import type { VacancyRequirements } from "@qbs-autonaim/db/schema";
 import { vacancyRequirementsSchema } from "@qbs-autonaim/validators";
 import type { UseFormReturn } from "react-hook-form";
 import { useWorkspace } from "~/hooks/use-workspace";

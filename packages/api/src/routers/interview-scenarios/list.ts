@@ -1,5 +1,9 @@
 import { and, desc, eq, sql } from "@qbs-autonaim/db";
 import { interviewScenario } from "@qbs-autonaim/db/schema";
+import {
+  paginationLimitSchema,
+  paginationOffsetSchema,
+} from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../trpc";
@@ -8,8 +12,8 @@ export const list = protectedProcedure
   .input(
     z.object({
       workspaceId: z.string(),
-      limit: z.number().min(1).max(100).default(50),
-      offset: z.number().min(0).default(0),
+      limit: paginationLimitSchema({ default: 50, max: 100 }),
+      offset: paginationOffsetSchema,
     }),
   )
   .query(async ({ input, ctx }) => {

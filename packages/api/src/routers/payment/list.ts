@@ -1,4 +1,8 @@
 import { payment } from "@qbs-autonaim/db/schema";
+import {
+  paginationLimitSchema,
+  paginationOffsetSchema,
+} from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
@@ -21,8 +25,8 @@ export const list = protectedProcedure
     z.object({
       workspaceId: z.string().optional(),
       organizationId: z.string().optional(),
-      limit: z.number().min(1).max(100).default(20),
-      offset: z.number().min(0).default(0),
+      limit: paginationLimitSchema({ default: 20, max: 100 }),
+      offset: paginationOffsetSchema,
     }),
   )
   .query(async ({ input, ctx }) => {

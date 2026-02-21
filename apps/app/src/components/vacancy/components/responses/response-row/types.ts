@@ -1,7 +1,6 @@
-import type { RouterOutputs } from "@qbs-autonaim/api";
+import type { VacancyResponseListItem } from "~/types/api";
 
-export type ResponseRowData =
-  RouterOutputs["vacancy"]["responses"]["list"]["responses"][0];
+export type ResponseRowData = VacancyResponseListItem;
 
 export type ColumnId =
   | "candidate"

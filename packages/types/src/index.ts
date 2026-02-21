@@ -57,6 +57,13 @@ export type {
   ProfilePlatform,
   ProfileStatistics,
 } from "./profile-extended";
+// Response status (единый источник для db, validators, api)
+export {
+  responseStatusValues,
+  vacancyResponseStatusFilterValues,
+  type ResponseStatus,
+  type VacancyResponseStatusFilter,
+} from "./response-status";
 // Response
 export type {
   BaseResponseData,

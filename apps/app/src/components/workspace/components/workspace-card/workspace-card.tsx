@@ -1,7 +1,7 @@
 "use client";
 
 import { paths } from "@qbs-autonaim/config";
-import type { Workspace } from "@qbs-autonaim/db";
+import type { Workspace } from "@qbs-autonaim/db/schema";
 import { Avatar, AvatarFallback, AvatarImage } from "@qbs-autonaim/ui";
 import { Card } from "@qbs-autonaim/ui";
 import { Building2, ExternalLink } from "lucide-react";
