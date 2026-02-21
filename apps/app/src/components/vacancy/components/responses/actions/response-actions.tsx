@@ -1,8 +1,14 @@
 "use client";
 
 import { Button } from "@qbs-autonaim/ui/components/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@qbs-autonaim/ui/components/dropdown-menu";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@qbs-autonaim/ui/components/dropdown-menu";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Brain,
   ClipboardCopy,
@@ -17,7 +23,7 @@ import {
   UserCheck,
   UserX,
 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
   triggerAnalyzeSingleResponse,
@@ -26,6 +32,7 @@ import {
 } from "~/actions/trigger";
 import { useTRPC } from "~/trpc/react";
 import { useAnalyzeSingleResponse } from "../hooks/use-analyze-single-response";
+import { useCandidateOperations } from "../hooks/use-candidate-operations";
 import { useRefreshSingleResume } from "../hooks/use-refresh-single-resume";
 
 interface ResponseActionsProps {
@@ -63,17 +70,10 @@ export function ResponseActions({
   const queryClient = useQueryClient();
   const trpc = useTRPC();
 
-  const invalidateList = useCallback(() => {
-    if (vacancyId) {
-      void queryClient.invalidateQueries({
-        queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
-      });
-    } else {
-      void queryClient.invalidateQueries(
-        trpc.vacancy.responses.list.pathFilter(),
-      );
-    }
-  }, [queryClient, trpc, vacancyId]);
+  const { invite, reject, isInviting, isRejecting } = useCandidateOperations({
+    workspaceId,
+    vacancyId,
+  });
 
   const {
     progress: analyzeProgress,
@@ -90,44 +90,21 @@ export function ResponseActions({
     enabled: refreshEnabled,
   });
 
-  // Мутация для приглашения кандидата
-  const inviteMutation = useMutation(
-    trpc.candidates.inviteCandidate.mutationOptions({
-      onSuccess: () => {
-        toast.success("Кандидат приглашён на собеседование");
-        invalidateList();
-      },
-      onError: (error) => {
-        toast.error(error.message || "Не удалось пригласить кандидата");
-      },
-    }),
-  );
-
-  // Мутация для отклонения кандидата
-  const rejectMutation = useMutation(
-    trpc.candidates.rejectCandidate.mutationOptions({
-      onSuccess: () => {
-        toast.success("Кандидат отклонён");
-        invalidateList();
-      },
-      onError: (error) => {
-        toast.error(error.message || "Не удалось отклонить кандидата");
-      },
-    }),
-  );
-
   // Обрабатываем результат обновления резюме
   useEffect(() => {
     if (!result) return;
 
     if (result.success) {
       toast.success("Резюме успешно обновлено");
-      invalidateList();
+      if (vacancyId) {
+        void queryClient.invalidateQueries({
+          queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+        });
+      }
     } else {
       toast.error(result.error || "Не удалось обновить резюме");
     }
 
-    // Отключаем подписку сразу после получения результата
     setRefreshEnabled(false);
 
     const timer = setTimeout(() => {
@@ -135,7 +112,7 @@ export function ResponseActions({
     }, 3000);
 
     return () => clearTimeout(timer);
-  }, [result, reset, invalidateList]);
+  }, [result, reset, queryClient, trpc, vacancyId]);
 
   // Обрабатываем результат AI-оценки
   useEffect(() => {
@@ -143,7 +120,11 @@ export function ResponseActions({
 
     if (analyzeResult.success) {
       toast.success("AI-оценка завершена");
-      invalidateList();
+      if (vacancyId) {
+        void queryClient.invalidateQueries({
+          queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+        });
+      }
     } else {
       toast.error(analyzeResult.error || "Не удалось выполнить AI-оценку");
     }
@@ -155,7 +136,7 @@ export function ResponseActions({
     }, 3000);
 
     return () => clearTimeout(timer);
-  }, [analyzeResult, resetAnalyze, invalidateList]);
+  }, [analyzeResult, resetAnalyze, queryClient, trpc, vacancyId]);
 
   const handleAnalyze = async () => {
     try {
@@ -208,17 +189,11 @@ export function ResponseActions({
   };
 
   const handleInvite = () => {
-    inviteMutation.mutate({
-      candidateId: responseId,
-      workspaceId,
-    });
+    invite(responseId);
   };
 
   const handleReject = () => {
-    rejectMutation.mutate({
-      candidateId: responseId,
-      workspaceId,
-    });
+    reject(responseId);
   };
 
   const handleCopyContacts = () => {
@@ -250,11 +225,7 @@ export function ResponseActions({
     }
   };
 
-  const isLoading =
-    isRefreshing ||
-    isAnalyzing ||
-    inviteMutation.isPending ||
-    rejectMutation.isPending;
+  const isLoading = isRefreshing || isAnalyzing || isInviting || isRejecting;
 
   const hasContacts = !!(telegramUsername || phone || email);
   const isRejected = hrSelectionStatus === "REJECTED";
@@ -291,25 +262,20 @@ export function ResponseActions({
         </DropdownMenuItem>
 
         {!isInvited && !isRejected && (
-          <DropdownMenuItem
-            onClick={handleInvite}
-            disabled={inviteMutation.isPending}
-          >
+          <DropdownMenuItem onClick={handleInvite} disabled={isInviting}>
             <UserCheck className="h-4 w-4 mr-2" />
-            {inviteMutation.isPending
-              ? "Приглашение…"
-              : "Пригласить на собеседование"}
+            {isInviting ? "Приглашение…" : "Пригласить на собеседование"}
           </DropdownMenuItem>
         )}
 
         {!isRejected && (
           <DropdownMenuItem
             onClick={handleReject}
-            disabled={rejectMutation.isPending}
+            disabled={isRejecting}
             className="text-destructive focus:text-destructive"
           >
             <UserX className="h-4 w-4 mr-2" />
-            {rejectMutation.isPending ? "Отклонение…" : "Отклонить"}
+            {isRejecting ? "Отклонение…" : "Отклонить"}
           </DropdownMenuItem>
         )}
 

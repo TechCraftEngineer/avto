@@ -9,7 +9,6 @@ import {
   DataGridTableDnd,
 } from "@qbs-autonaim/ui/components/reui/data-grid";
 import { Table, TableBody } from "@qbs-autonaim/ui/components/table";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import {
   getCoreRowModel,
   getSortedRowModel,
@@ -18,7 +17,7 @@ import {
 import { useCallback, useEffect, useMemo } from "react";
 import { fetchRefreshVacancyResponsesToken } from "~/actions/realtime";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
+import { useVacancy, useVacancyResponses } from "../../hooks";
 import { BulkActionsBar } from "../actions/bulk-actions-bar";
 import { useVacancyOperation } from "../context/vacancy-responses-context";
 import { useColumnVisibility } from "../hooks/use-column-visibility";
@@ -27,11 +26,7 @@ import { useResponseActions } from "../hooks/use-response-actions";
 import { useResponseTable } from "../hooks/use-response-table";
 import type { ColumnId } from "../types";
 import { EmptyState } from "../ui/empty-state";
-import {
-  type ResponseListItem,
-  type ResponseTableMeta,
-  responseColumns,
-} from "./response-columns";
+import { type ResponseTableMeta, responseColumns } from "./response-columns";
 import { ResponseTableToolbar } from "./response-table-toolbar";
 
 interface ResponseTableProps {
@@ -75,7 +70,6 @@ export function ResponseTable({
   vacancyId,
   workspaceSlug,
 }: ResponseTableProps) {
-  const trpc = useTRPC();
   const { workspace, orgSlug } = useWorkspace();
   const archivedOp = useVacancyOperation("archived");
   const {
@@ -107,14 +101,7 @@ export function ResponseTable({
     setColumnOrder,
   } = useColumnVisibility();
 
-  const { data: vacancyData } = useQuery({
-    ...trpc.vacancy.get.queryOptions({
-      id: vacancyId,
-      workspaceId: workspace?.id ?? "",
-    }),
-    enabled: !!workspace?.id,
-    staleTime: 5 * 60 * 1000,
-  });
+  const { data: vacancyData } = useVacancy(vacancyId, workspace?.id ?? "");
 
   const isHHVacancy = useMemo(
     () => vacancyData?.source === "HH",
@@ -133,20 +120,16 @@ export function ResponseTable({
     [vacancyData?.publications],
   );
 
-  const { data, isLoading, isFetching, isFetched } = useQuery({
-    ...trpc.vacancy.responses.list.queryOptions({
-      workspaceId: workspace?.id ?? "",
-      vacancyId,
-      page: currentPage,
-      limit: ITEMS_PER_PAGE,
-      sortField,
-      sortDirection,
-      screeningFilter,
-      statusFilter: apiStatusFilter,
-      search: debouncedSearch,
-    }),
-    enabled: !!workspace?.id,
-    placeholderData: keepPreviousData,
+  const { data, isLoading, isFetching, isFetched } = useVacancyResponses({
+    workspaceId: workspace?.id ?? "",
+    vacancyId,
+    page: currentPage,
+    limit: ITEMS_PER_PAGE,
+    sortField,
+    sortDirection,
+    screeningFilter,
+    statusFilter: apiStatusFilter,
+    search: debouncedSearch,
   });
 
   const {

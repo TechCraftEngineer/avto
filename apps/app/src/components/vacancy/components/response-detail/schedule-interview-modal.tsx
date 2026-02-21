@@ -2,17 +2,27 @@
 
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { Calendar } from "@qbs-autonaim/ui/components/calendar";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@qbs-autonaim/ui/components/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@qbs-autonaim/ui/components/dialog";
 import { Label } from "@qbs-autonaim/ui/components/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbs-autonaim/ui/components/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@qbs-autonaim/ui/components/select";
 import { Textarea } from "@qbs-autonaim/ui/components/textarea";
-import { useMutation, useQuery } from "@tanstack/react-query";
 import { CalendarIcon, Clock, MapPin, Users } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { toast } from "sonner";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
+import { useCalendarOperations, useUserIntegrations } from "./hooks";
 import type { VacancyResponse } from "./types";
 
 interface ScheduleInterviewModalProps {
@@ -49,7 +59,6 @@ const LOCATION_LABELS: Record<string, string> = {
 export function ScheduleInterviewModal({
   response,
 }: ScheduleInterviewModalProps) {
-  const trpc = useTRPC();
   const { workspace } = useWorkspace();
   const [open, setOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>();
@@ -58,39 +67,19 @@ export function ScheduleInterviewModal({
   const [location, setLocation] = useState<string>();
   const [notes, setNotes] = useState<string>();
 
-  const workspaceId = (response as { workspaceId?: string }).workspaceId ?? workspace?.id ?? "";
+  const workspaceId =
+    (response as { workspaceId?: string }).workspaceId ?? workspace?.id ?? "";
 
-  const { data: userIntegrations } = useQuery(
-    trpc.userIntegration.list.queryOptions(),
-  );
+  const { data: userIntegrations } = useUserIntegrations();
+  const { createEvent, isCreating } = useCalendarOperations();
 
   const hasGoogleCalendar = userIntegrations?.some(
     (i) => i.type === "google_calendar",
   );
 
-  const createEventMutation = useMutation(
-    trpc.calendar.createEvent.mutationOptions({
-      onSuccess: (data) => {
-        toast.success("Событие добавлено в календарь", {
-          action: data.htmlLink
-            ? {
-                label: "Открыть",
-                onClick: () => window.open(data.htmlLink, "_blank"),
-              }
-            : undefined,
-        });
-        setOpen(false);
-        setSelectedDate(undefined);
-        setSelectedTime(undefined);
-      },
-      onError: (error) => {
-        toast.error(error.message);
-      },
-    }),
-  );
-
   const handleScheduleInterview = () => {
-    if (!selectedDate || !selectedTime || !interviewType || !workspaceId) return;
+    if (!selectedDate || !selectedTime || !interviewType || !workspaceId)
+      return;
 
     const [hours = 0, minutes = 0] = selectedTime.split(":").map(Number);
     const scheduledAt = new Date(selectedDate);
@@ -105,7 +94,7 @@ export function ScheduleInterviewModal({
       description += `\nМесто: ${LOCATION_LABELS[location] ?? location}`;
     }
 
-    createEventMutation.mutate({
+    createEvent({
       responseId: response.id,
       workspaceId,
       scheduledAt,
@@ -114,6 +103,10 @@ export function ScheduleInterviewModal({
       description: description.trim() || undefined,
       type: interviewType as "technical" | "hr" | "final" | "phone" | "video",
     });
+
+    setOpen(false);
+    setSelectedDate(undefined);
+    setSelectedTime(undefined);
   };
 
   const isFormValid = selectedDate && selectedTime && interviewType;
@@ -234,7 +227,7 @@ export function ScheduleInterviewModal({
           <div>
             <Label className="mb-2 block">Дополнительные заметки</Label>
             <Textarea
-              placeholder="Подготовка, вопросы для обсуждения..."
+              placeholder="Подготовка, вопросы для обсуждения…"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={3}
@@ -294,16 +287,10 @@ export function ScheduleInterviewModal({
           <div className="flex gap-3 pt-4 border-t">
             <Button
               onClick={handleScheduleInterview}
-              disabled={
-                !isFormValid ||
-                createEventMutation.isPending ||
-                !hasGoogleCalendar
-              }
+              disabled={!isFormValid || isCreating || !hasGoogleCalendar}
               className="flex-1"
             >
-              {createEventMutation.isPending
-                ? "Планируется..."
-                : "Добавить в календарь"}
+              {isCreating ? "Планируется…" : "Добавить в календарь"}
             </Button>
           </div>
         </div>

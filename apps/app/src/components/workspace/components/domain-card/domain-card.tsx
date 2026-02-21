@@ -1,11 +1,20 @@
 "use client";
 
 import type { CustomDomain } from "@qbs-autonaim/db/schema";
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@qbs-autonaim/ui/components/dropdown-menu";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@qbs-autonaim/ui/components/dropdown-menu";
 import {
   AlertCircle,
   CheckCircle2,
@@ -16,8 +25,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
-import { useTRPC } from "~/trpc/react";
+import { useDomainOperations } from "../../hooks";
 import { DeleteDomainDialog } from "../delete-domain-dialog";
 import { DnsInstructionsDialog } from "../dns-instructions-dialog";
 
@@ -27,48 +35,13 @@ interface DomainCardProps {
 }
 
 export function DomainCard({ domain, workspaceId }: DomainCardProps) {
-  const trpc = useTRPC();
-  const queryClient = useQueryClient();
   const [showDnsDialog, setShowDnsDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  const verifyMutation = useMutation(
-    trpc.customDomain.verify.mutationOptions({
-      onSuccess: () => {
-        toast.success("Домен верифицирован", {
-          description: "Теперь вы можете использовать этот домен",
-        });
-        queryClient.invalidateQueries({
-          queryKey: trpc.customDomain.list.queryKey({
-            workspaceId,
-          }),
-        });
-      },
-      onError: (error) => {
-        toast.error("Ошибка верификации", {
-          description: error.message,
-        });
-      },
-    }),
-  );
-
-  const setPrimaryMutation = useMutation(
-    trpc.customDomain.setPrimary.mutationOptions({
-      onSuccess: () => {
-        toast.success("Основной домен изменён");
-        queryClient.invalidateQueries({
-          queryKey: trpc.customDomain.list.queryKey({
-            workspaceId,
-          }),
-        });
-      },
-      onError: (error) => {
-        toast.error("Ошибка", {
-          description: error.message,
-        });
-      },
-    }),
-  );
+  const { verify, setPrimary, isVerifying, isSettingPrimary } =
+    useDomainOperations({
+      workspaceId,
+    });
 
   return (
     <>
@@ -112,10 +85,8 @@ export function DomainCard({ domain, workspaceId }: DomainCardProps) {
                 <DropdownMenuContent align="end">
                   {domain.isVerified && !domain.isPrimary && (
                     <DropdownMenuItem
-                      onClick={() =>
-                        setPrimaryMutation.mutate({ domainId: domain.id })
-                      }
-                      disabled={setPrimaryMutation.isPending}
+                      onClick={() => setPrimary({ domainId: domain.id })}
+                      disabled={isSettingPrimary}
                     >
                       <Star className="mr-2 h-4 w-4" />
                       Сделать основным
@@ -151,11 +122,11 @@ export function DomainCard({ domain, workspaceId }: DomainCardProps) {
                 </Button>
                 <Button
                   size="sm"
-                  onClick={() => verifyMutation.mutate({ domainId: domain.id })}
-                  disabled={verifyMutation.isPending}
+                  onClick={() => verify({ domainId: domain.id })}
+                  disabled={isVerifying}
                   className="flex-1"
                 >
-                  {verifyMutation.isPending && (
+                  {isVerifying && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
                   Проверить верификацию

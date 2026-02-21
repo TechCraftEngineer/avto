@@ -1,12 +1,17 @@
 "use client";
 
 import type { CustomDomain } from "@qbs-autonaim/db/schema";
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@qbs-autonaim/ui/components/dialog";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@qbs-autonaim/ui/components/dialog";
 import { AlertTriangle, Loader2 } from "lucide-react";
-import { toast } from "sonner";
-import { useTRPC } from "~/trpc/react";
+import { useDomainOperations } from "../../hooks";
 
 interface DeleteDomainDialogProps {
   domain: CustomDomain;
@@ -21,29 +26,18 @@ export function DeleteDomainDialog({
   open,
   onOpenChange,
 }: DeleteDomainDialogProps) {
-  const trpc = useTRPC();
-  const queryClient = useQueryClient();
+  const { deleteDomain, isDeleting } = useDomainOperations({ workspaceId });
 
-  const deleteMutation = useMutation(
-    trpc.customDomain.delete.mutationOptions({
-      onSuccess: () => {
-        toast.success("Домен удалён", {
-          description: `Домен ${domain.domain} успешно удалён`,
-        });
-        queryClient.invalidateQueries({
-          queryKey: trpc.customDomain.list.queryKey({
-            workspaceId,
-          }),
-        });
-        onOpenChange(false);
+  const handleDelete = () => {
+    deleteDomain(
+      { domainId: domain.id },
+      {
+        onSuccess: () => {
+          onOpenChange(false);
+        },
       },
-      onError: (error) => {
-        toast.error("Ошибка", {
-          description: error.message,
-        });
-      },
-    }),
-  );
+    );
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -69,18 +63,16 @@ export function DeleteDomainDialog({
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
-            disabled={deleteMutation.isPending}
+            disabled={isDeleting}
           >
             Отмена
           </Button>
           <Button
             variant="destructive"
-            onClick={() => deleteMutation.mutate({ domainId: domain.id })}
-            disabled={deleteMutation.isPending}
+            onClick={handleDelete}
+            disabled={isDeleting}
           >
-            {deleteMutation.isPending && (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            )}
+            {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Удалить домен
           </Button>
         </DialogFooter>

@@ -1,10 +1,9 @@
 "use client";
 
 import { Button } from "@qbs-autonaim/ui/components/button";
-import { useQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import { useTRPC } from "~/trpc/react";
+import { useDomains } from "../../hooks";
 import { AddDomainDialog } from "../add-domain-dialog";
 import { DomainCard } from "../domain-card";
 
@@ -16,18 +15,8 @@ export function CustomDomainsSection({
   workspaceId,
 }: CustomDomainsSectionProps) {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const trpc = useTRPC();
 
-  const {
-    data: domains,
-    isLoading,
-    error,
-    refetch,
-  } = useQuery(
-    trpc.customDomain.list.queryOptions({
-      workspaceId,
-    }),
-  );
+  const { data: domains, isLoading, error, refetch } = useDomains(workspaceId);
 
   if (isLoading) {
     return (

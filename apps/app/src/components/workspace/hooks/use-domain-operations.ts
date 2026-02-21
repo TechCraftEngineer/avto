@@ -1,0 +1,106 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { useTRPC } from "~/trpc/react";
+
+interface UseDomainOperationsProps {
+  workspaceId: string;
+}
+
+export function useDomainOperations({ workspaceId }: UseDomainOperationsProps) {
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+
+  const verifyMutation = useMutation(
+    trpc.customDomain.verify.mutationOptions({
+      onSuccess: () => {
+        toast.success("Домен верифицирован", {
+          description: "Теперь вы можете использовать этот домен",
+        });
+        queryClient.invalidateQueries({
+          queryKey: trpc.customDomain.list.queryKey({
+            workspaceId,
+          }),
+        });
+      },
+      onError: (error) => {
+        toast.error("Ошибка верификации", {
+          description: error.message,
+        });
+      },
+    }),
+  );
+
+  const setPrimaryMutation = useMutation(
+    trpc.customDomain.setPrimary.mutationOptions({
+      onSuccess: () => {
+        toast.success("Основной домен изменён");
+        queryClient.invalidateQueries({
+          queryKey: trpc.customDomain.list.queryKey({
+            workspaceId,
+          }),
+        });
+      },
+      onError: (error) => {
+        toast.error("Ошибка", {
+          description: error.message,
+        });
+      },
+    }),
+  );
+
+  const deleteMutation = useMutation(
+    trpc.customDomain.delete.mutationOptions({
+      onSuccess: () => {
+        toast.success("Домен удалён");
+        queryClient.invalidateQueries({
+          queryKey: trpc.customDomain.list.queryKey({
+            workspaceId,
+          }),
+        });
+      },
+      onError: (error) => {
+        toast.error("Ошибка", {
+          description: error.message,
+        });
+      },
+    }),
+  );
+
+  const createMutation = useMutation(
+    trpc.customDomain.create.mutationOptions({
+      onSuccess: () => {
+        toast.success("Домен добавлен", {
+          description: "Теперь настройте DNS записи для верификации",
+        });
+        queryClient.invalidateQueries({
+          queryKey: trpc.customDomain.list.queryKey({ workspaceId }),
+        });
+      },
+      onError: (error) => {
+        toast.error("Ошибка", {
+          description: error.message,
+        });
+      },
+    }),
+  );
+
+  return {
+    verify: verifyMutation.mutate,
+    setPrimary: setPrimaryMutation.mutate,
+    deleteDomain: deleteMutation.mutate,
+    create: createMutation.mutate,
+    isVerifying: verifyMutation.isPending,
+    isSettingPrimary: setPrimaryMutation.isPending,
+    isDeleting: deleteMutation.isPending,
+    isCreating: createMutation.isPending,
+  };
+}
+
+export function useDomains(workspaceId: string) {
+  const trpc = useTRPC();
+
+  return useQuery({
+    ...trpc.customDomain.list.queryOptions({ workspaceId }),
+    enabled: !!workspaceId,
+  });
+}

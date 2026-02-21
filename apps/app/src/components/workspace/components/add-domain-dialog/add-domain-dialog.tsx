@@ -1,12 +1,33 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@qbs-autonaim/ui/components/dialog"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@qbs-autonaim/ui/components/form"
-import { Input } from "@qbs-autonaim/ui/components/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbs-autonaim/ui/components/select";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@qbs-autonaim/ui/components/dialog";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@qbs-autonaim/ui/components/form";
+import { Input } from "@qbs-autonaim/ui/components/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@qbs-autonaim/ui/components/select";
+import { useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -14,6 +35,7 @@ import { toast } from "sonner";
 import { useDebouncedCallback } from "use-debounce";
 import { z } from "zod";
 import { useTRPC } from "~/trpc/react";
+import { useDomainOperations } from "../../hooks";
 
 const formSchema = z.object({
   domain: z
@@ -98,6 +120,8 @@ export function AddDomainDialog({
   const queryClient = useQueryClient();
   const [domainStatus, setDomainStatus] = useState<DomainStatus>("idle");
 
+  const { create, isCreating } = useDomainOperations({ workspaceId });
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -146,41 +170,30 @@ export function AddDomainDialog({
     }
   }, [domain, validateDomain]);
 
-  const createMutation = useMutation(
-    trpc.customDomain.create.mutationOptions({
-      onSuccess: () => {
-        toast.success("Домен добавлен", {
-          description: "Теперь настройте DNS записи для верификации",
-        });
-        queryClient.invalidateQueries({
-          queryKey: trpc.customDomain.list.queryKey({ workspaceId }),
-        });
-        form.reset({ domain: "", type: defaultType });
-        setDomainStatus("idle");
-        onOpenChange(false);
-      },
-      onError: (error) => {
-        if (error.message.includes("already exists")) {
-          setDomainStatus("conflict");
-        }
-        toast.error("Ошибка", {
-          description: error.message,
-        });
-      },
-    }),
-  );
-
   const onSubmit = (values: FormValues) => {
-    createMutation.mutate({
-      workspaceId,
-      domain: values.domain,
-      type: values.type,
-    });
+    create(
+      {
+        workspaceId,
+        domain: values.domain,
+        type: values.type,
+      },
+      {
+        onSuccess: () => {
+          form.reset({ domain: "", type: defaultType });
+          setDomainStatus("idle");
+          onOpenChange(false);
+        },
+        onError: (error) => {
+          if (error.message.includes("already exists")) {
+            setDomainStatus("conflict");
+          }
+        },
+      },
+    );
   };
 
   const saveDisabled =
-    !["available", "has-site"].includes(domainStatus) ||
-    createMutation.isPending;
+    !["available", "has-site"].includes(domainStatus) || isCreating;
 
   const currentStatus = STATUS_CONFIG[domainStatus];
   const StatusIcon = currentStatus.icon;
@@ -307,12 +320,12 @@ export function AddDomainDialog({
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
-                disabled={createMutation.isPending}
+                disabled={isCreating}
               >
                 Отмена
               </Button>
               <Button type="submit" disabled={saveDisabled}>
-                {createMutation.isPending && (
+                {isCreating && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
                 Добавить домен

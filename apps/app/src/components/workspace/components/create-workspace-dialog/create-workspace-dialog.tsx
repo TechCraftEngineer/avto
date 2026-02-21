@@ -2,21 +2,41 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { APP_CONFIG, paths } from "@qbs-autonaim/config";
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@qbs-autonaim/ui/components/dialog"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@qbs-autonaim/ui/components/form"
-import { Input } from "@qbs-autonaim/ui/components/input"
-import { Textarea } from "@qbs-autonaim/ui/components/textarea"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@qbs-autonaim/ui/components/tooltip";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@qbs-autonaim/ui/components/dialog";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@qbs-autonaim/ui/components/form";
+import { Input } from "@qbs-autonaim/ui/components/input";
+import { Textarea } from "@qbs-autonaim/ui/components/textarea";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@qbs-autonaim/ui/components/tooltip";
 import { createWorkspaceSchema } from "@qbs-autonaim/validators";
 import slugify from "@sindresorhus/slugify";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { Building2, HelpCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 import { useTRPC } from "~/trpc/react";
+import { useWorkspaceOperations } from "../../hooks";
 
 type CreateWorkspaceFormValues = z.infer<typeof createWorkspaceSchema>;
 
@@ -36,8 +56,8 @@ export function CreateWorkspaceDialog({
   const router = useRouter();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
+  const { createWorkspace, isCreatingWorkspace } = useWorkspaceOperations();
 
-  // Извлекаем домен из URL
   const appDomain = new URL(APP_CONFIG.url).host;
 
   const form = useForm<CreateWorkspaceFormValues>({
@@ -50,53 +70,45 @@ export function CreateWorkspaceDialog({
     },
   });
 
-  const createMutation = useMutation(
-    trpc.organization.createWorkspace.mutationOptions({
-      onSuccess: async (workspace) => {
-        toast.success("Рабочее пространство создано", {
-          description: `Рабочее пространство "${workspace.name}" успешно создано`,
-        });
-
-        // Инвалидируем кеш рабочих пространств и организаций
-        await queryClient.invalidateQueries(trpc.workspace.list.pathFilter());
-        await queryClient.invalidateQueries(
-          trpc.organization.list.pathFilter(),
-        );
-
-        onOpenChange(false);
-        form.reset();
-        // Перенаправляем на страницу нового рабочего пространства
-        router.push(
-          paths.workspace.root(organizationSlug, workspace?.slug ?? ""),
-        );
-        router.refresh();
-      },
-      onError: (error) => {
-        // Проверяем на дубликат slug
-        if (
-          error.message.includes("уже существует") ||
-          error.message.includes("already exists") ||
-          error.message.includes("duplicate") ||
-          error.message.includes("CONFLICT")
-        ) {
-          form.setError("slug", {
-            message:
-              "Рабочее пространство с таким slug уже существует в этой организации",
-          });
-        } else {
-          toast.error("Ошибка при создании рабочего пространства", {
-            description: error.message,
-          });
-        }
-      },
-    }),
-  );
-
   const handleSubmit = async (values: CreateWorkspaceFormValues) => {
-    createMutation.mutate({
-      organizationId,
-      workspace: values,
-    });
+    createWorkspace(
+      {
+        organizationId,
+        workspace: values,
+      },
+      {
+        onSuccess: async (workspace) => {
+          await queryClient.invalidateQueries(trpc.workspace.list.pathFilter());
+          await queryClient.invalidateQueries(
+            trpc.organization.list.pathFilter(),
+          );
+
+          onOpenChange(false);
+          form.reset();
+          router.push(
+            paths.workspace.root(organizationSlug, workspace?.slug ?? ""),
+          );
+          router.refresh();
+        },
+        onError: (error) => {
+          if (
+            error.message.includes("уже существует") ||
+            error.message.includes("already exists") ||
+            error.message.includes("duplicate") ||
+            error.message.includes("CONFLICT")
+          ) {
+            form.setError("slug", {
+              message:
+                "Рабочее пространство с таким slug уже существует в этой организации",
+            });
+          } else {
+            toast.error("Ошибка при создании рабочего пространства", {
+              description: error.message,
+            });
+          }
+        },
+      },
+    );
   };
 
   const handleOpenChange = (newOpen: boolean) => {
@@ -245,16 +257,16 @@ export function CreateWorkspaceDialog({
                 variant="outline"
                 className="flex-1"
                 onClick={() => handleOpenChange(false)}
-                disabled={createMutation.isPending}
+                disabled={isCreatingWorkspace}
               >
                 Отмена
               </Button>
               <Button
                 type="submit"
                 className="flex-1"
-                disabled={createMutation.isPending}
+                disabled={isCreatingWorkspace}
               >
-                {createMutation.isPending
+                {isCreatingWorkspace
                   ? "Создание…"
                   : "Создать рабочее пространство"}
               </Button>
