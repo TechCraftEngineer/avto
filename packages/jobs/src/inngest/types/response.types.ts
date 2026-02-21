@@ -33,6 +33,8 @@ export const parseNewResumesDataSchema = z.object({
 
 export const parseSingleResumeDataSchema = z.object({
   responseId: z.string().min(1, "Response ID is required"),
+  /** Текст резюме для парсинга (если передан, не читаем из coverLetter) */
+  resumeText: z.string().optional(),
 });
 
 export const refreshSingleResumeDataSchema = z.object({

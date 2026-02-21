@@ -1,6 +1,3 @@
-import { eq } from "@qbs-autonaim/db";
-import { db } from "@qbs-autonaim/db/client";
-import { response } from "@qbs-autonaim/db/schema";
 import { inngest } from "@qbs-autonaim/jobs/client";
 
 export function extractTextFromHtml(html: string): string {
@@ -18,18 +15,12 @@ export async function processResumeText(
 ): Promise<void> {
   const textContent = extractTextFromHtml(resumeTextHtml);
 
-  // Временно сохраняем текст резюме в coverLetter для парсинга
-  await db
-    .update(response)
-    .set({
-      coverLetter: textContent,
-    })
-    .where(eq(response.id, responseId));
-
+  // Передаём текст резюме в event, чтобы не перезаписывать coverLetter
   await inngest.send({
     name: "response/resume.parse-single",
     data: {
       responseId,
+      resumeText: textContent,
     },
   });
 }
