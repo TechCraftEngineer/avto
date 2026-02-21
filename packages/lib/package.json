@@ -49,8 +49,8 @@
   "dependencies": {
     "@ai-sdk/deepseek": "2.0.20",
     "@ai-sdk/openai": "3.0.30",
-    "@aws-sdk/client-s3": "3.992.0",
-    "@aws-sdk/s3-request-presigner": "3.992.0",
+    "@aws-sdk/client-s3": "3.995.0",
+    "@aws-sdk/s3-request-presigner": "3.995.0",
     "@langfuse/otel": "4.6.1",
     "@langfuse/tracing": "4.6.1",
     "@openrouter/ai-sdk-provider": "^2.2.3",
