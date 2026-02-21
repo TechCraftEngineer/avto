@@ -5,7 +5,7 @@
 import type {
   ExperienceItem,
   StoredProfileData,
-} from "@qbs-autonaim/db/schema";
+} from "@qbs-autonaim/types";
 
 /**
  * Извлекает опыт работы из profileData

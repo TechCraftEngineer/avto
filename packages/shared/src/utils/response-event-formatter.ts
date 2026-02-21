@@ -2,7 +2,7 @@
  * Утилиты для форматирования событий истории откликов
  */
 
-import type { ResponseEventType } from "@qbs-autonaim/db/schema";
+import type { ResponseEventType } from "@qbs-autonaim/types";
 
 /**
  * Получает человекочитаемое название события отклика

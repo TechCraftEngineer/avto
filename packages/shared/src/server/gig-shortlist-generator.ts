@@ -8,9 +8,9 @@
 import { and, eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { response } from "@qbs-autonaim/db/schema";
-import type { ContactInfo } from "../types/gig";
+import type { ContactInfo } from "@qbs-autonaim/types";
 
-export type { ContactInfo } from "../types/gig";
+export type { ContactInfo } from "@qbs-autonaim/types";
 
 /**
  * Опции генерации шортлиста для gig

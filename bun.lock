@@ -349,6 +349,7 @@
       "name": "@qbs-autonaim/db",
       "dependencies": {
         "@qbs-autonaim/config": "workspace:*",
+        "@qbs-autonaim/types": "workspace:*",
         "@qbs-autonaim/validators": "workspace:*",
         "@sindresorhus/slugify": "^3.0.0",
         "@vercel/postgres": "0.10.0",
@@ -630,6 +631,7 @@
         "@qbs-autonaim/ai": "workspace:*",
         "@qbs-autonaim/config": "workspace:*",
         "@qbs-autonaim/db": "workspace:*",
+        "@qbs-autonaim/types": "workspace:*",
         "random-word-slugs": "^0.1.7",
         "zod": "4.3.6",
       },
@@ -665,6 +667,14 @@
         "@types/mime-types": "^3.0.1",
         "@types/node": "25.3.0",
         "tsdown": "^0.20.3",
+        "typescript": "5.9.3",
+      },
+    },
+    "packages/types": {
+      "name": "@qbs-autonaim/types",
+      "version": "0.1.0",
+      "devDependencies": {
+        "@qbs-autonaim/tsconfig": "workspace:*",
         "typescript": "5.9.3",
       },
     },
@@ -740,6 +750,7 @@
     "packages/validators": {
       "name": "@qbs-autonaim/validators",
       "dependencies": {
+        "@qbs-autonaim/types": "workspace:*",
         "libphonenumber-js": "^1.12.36",
         "sanitize-html": "^2.17.1",
         "zod": "4.3.6",
@@ -1663,6 +1674,8 @@
     "@qbs-autonaim/tg-client": ["@qbs-autonaim/tg-client@workspace:packages/tg-client"],
 
     "@qbs-autonaim/tsconfig": ["@qbs-autonaim/tsconfig@workspace:tooling/typescript"],
+
+    "@qbs-autonaim/types": ["@qbs-autonaim/types@workspace:packages/types"],
 
     "@qbs-autonaim/ui": ["@qbs-autonaim/ui@workspace:packages/ui"],
 

@@ -2,9 +2,6 @@
  * Типы для gig заданий
  */
 
-/**
- * Контактная информация кандидата
- */
 export interface ContactInfo {
   email?: string;
   phone?: string;
@@ -12,9 +9,6 @@ export interface ContactInfo {
   platformProfile?: string;
 }
 
-/**
- * Базовые данные gig задания
- */
 export interface BaseGigData {
   id: string;
   title: string | null;
@@ -26,9 +20,6 @@ export interface BaseGigData {
   deadline: Date | null;
 }
 
-/**
- * Расширенные данные gig с кастомными настройками
- */
 export interface ExtendedGigData extends BaseGigData {
   customBotInstructions: string | null;
   customScreeningPrompt?: string | null;
@@ -37,9 +28,6 @@ export interface ExtendedGigData extends BaseGigData {
   requirements?: unknown;
 }
 
-/**
- * Контекст gig для UI компонентов
- */
 export interface GigContextData {
   id: string;
   title: string;

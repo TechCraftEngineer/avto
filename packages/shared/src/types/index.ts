@@ -1,8 +1,68 @@
 /**
- * Экспорты типов из пакета @qbs-autonaim/shared
+ * Экспорты типов из @qbs-autonaim/shared
+ * Domain-типы реэкспортируются из @qbs-autonaim/types
  */
 
-// Типы буферизации
+// Domain-типы из @qbs-autonaim/types
+export type {
+  // Profile
+  ExperienceItem,
+  EducationItem,
+  LanguageItem,
+  PersonalInfo,
+  StoredProfileData,
+  ProfilePlatform,
+  ProfileStatistics,
+  BaseProfileData,
+  ExtendedProfileData,
+  ParsedProfileData,
+  // Vacancy
+  VacancyRequirements,
+  VacancyRequirementsStrict,
+  BaseVacancyData,
+  ExtendedVacancyData,
+  VacancyEvaluationData,
+  ParsedVacancyData,
+  // Response
+  BaseResponseData,
+  ParsedResponseData,
+  ResponseData,
+  ResumeContactInfo,
+  ResumeExperience,
+  ResumeScreeningData,
+  // Evaluation
+  FitDecision,
+  HonestyLevel,
+  DimensionScore,
+  EvaluationResult,
+  ScreeningRecommendation,
+  ScreeningResult,
+  ScreeningDataForRecommendation,
+  PrequalificationResult,
+  // Workspace
+  BaseWorkspaceData,
+  ExtendedWorkspaceData,
+  CompanySettings,
+  OrganizationData,
+  // Candidate
+  BasicCandidateInfo,
+  WorkExperienceEntry,
+  EducationEntry,
+  CandidateContactInfo,
+  FreelancerProfileData,
+  BaseCandidateData,
+  ExtendedCandidateData,
+  CandidateDataFromResponse,
+  CandidateContextData,
+  FullCandidateData,
+  // Gig
+  ContactInfo,
+  BaseGigData,
+  ExtendedGigData,
+  GigContextData,
+} from "@qbs-autonaim/types";
+
+// Типы буферизации (остаются в shared)
 export type {
   BufferedMessage,
   BufferValue,
@@ -15,43 +75,7 @@ export type {
   QuestionAnswer,
 } from "./conversation";
 
-// Типы профилей
-export type {
-  ProfilePlatform,
-  ProfileStatistics,
-  BaseProfileData,
-  ExtendedProfileData,
-  ParsedProfileData,
-} from "./profile";
-
-// Типы gig заданий и контактов
-export type {
-  ContactInfo,
-  BaseGigData,
-  ExtendedGigData,
-  GigContextData,
-} from "./gig";
-
-// Типы вакансий
-export type {
-  VacancyRequirements,
-  VacancyRequirementsStrict,
-  BaseVacancyData,
-  ExtendedVacancyData,
-  VacancyEvaluationData,
-  ParsedVacancyData,
-} from "./vacancy";
-
-// Типы откликов
-export type {
-  BaseResponseData,
-  ParsedResponseData,
-  ResponseData,
-  ResumeContactInfo,
-  ResumeExperience,
-  ResumeScreeningData,
-} from "./response";
-
+// Типы gig заданий и контактов — реэкспорт ContactInfo из types, GigContextData и др. уже выше
 // Типы чата и сообщений
 export type {
   MessageRole,
@@ -86,37 +110,3 @@ export {
   hasReasoning,
   getReasoningText,
 } from "./ai-chat";
-
-// Типы оценки и скрининга
-export type {
-  FitDecision,
-  HonestyLevel,
-  EvaluationResult,
-  DimensionScore,
-  ScreeningResult,
-  ScreeningRecommendation,
-  ScreeningDataForRecommendation,
-  PrequalificationResult,
-} from "./evaluation";
-
-// Типы workspace и организаций
-export type {
-  BaseWorkspaceData,
-  ExtendedWorkspaceData,
-  CompanySettings,
-  OrganizationData,
-} from "./workspace";
-
-// Типы кандидатов
-export type {
-  BasicCandidateInfo,
-  WorkExperienceEntry,
-  EducationEntry,
-  CandidateContactInfo,
-  FreelancerProfileData,
-  BaseCandidateData,
-  ExtendedCandidateData,
-  CandidateDataFromResponse,
-  CandidateContextData,
-  FullCandidateData,
-} from "./candidate";

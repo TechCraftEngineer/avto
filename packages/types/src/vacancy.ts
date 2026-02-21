@@ -2,9 +2,6 @@
  * Типы для вакансий
  */
 
-/**
- * Строгие требования вакансии (обязательные поля для БД и скрининга)
- */
 export interface VacancyRequirementsStrict {
   job_title: string;
   summary: string;
@@ -23,11 +20,7 @@ export interface VacancyRequirementsStrict {
   keywords_for_matching: string[];
 }
 
-/**
- * Требования вакансии (расширенная версия с опциональными полями)
- */
 export interface VacancyRequirements extends Partial<VacancyRequirementsStrict> {
-  /** Альтернативные поля для совместимости */
   hardSkills?: string[];
   softSkills?: string[];
   minExperience?: number;
@@ -40,27 +33,18 @@ export interface VacancyRequirements extends Partial<VacancyRequirementsStrict> 
   other?: string[];
 }
 
-/**
- * Базовые данные вакансии
- */
 export interface BaseVacancyData {
   id: string;
   title: string;
   description?: string | null;
 }
 
-/**
- * Расширенные данные вакансии с требованиями
- */
 export interface ExtendedVacancyData extends BaseVacancyData {
   requirements?: VacancyRequirements | null;
   region?: string | null;
   workLocation?: string | null;
 }
 
-/**
- * Данные вакансии для оценки кандидатов
- */
 export interface VacancyEvaluationData extends ExtendedVacancyData {
   customBotInstructions?: string | null;
   customScreeningPrompt?: string | null;
@@ -68,9 +52,6 @@ export interface VacancyEvaluationData extends ExtendedVacancyData {
   customInterviewQuestions?: string | null;
 }
 
-/**
- * Данные вакансии из парсера (внешние источники)
- */
 export interface ParsedVacancyData {
   id: string;
   externalId?: string;

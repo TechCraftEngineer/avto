@@ -4,12 +4,14 @@
 
 import type {
   ResumeScreeningData as SharedResumeScreeningData,
+  ScreeningRecommendation as SharedScreeningRecommendation,
   ScreeningResult as SharedScreeningResult,
   VacancyRequirementsStrict,
 } from "@qbs-autonaim/shared";
 
 // Переэкспорты из shared
 export type ScreeningResult = SharedScreeningResult;
+export type ScreeningRecommendation = SharedScreeningRecommendation;
 export type ResumeScreeningData = SharedResumeScreeningData;
 export type VacancyRequirements = VacancyRequirementsStrict;
 

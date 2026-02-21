@@ -2,11 +2,8 @@
  * Типы для кандидатов
  */
 
-import type { StoredProfileData } from "@qbs-autonaim/db";
+import type { StoredProfileData } from "./profile";
 
-/**
- * Базовая информация о кандидате
- */
 export interface BasicCandidateInfo {
   fullName: string;
   currentPosition: string;
@@ -14,9 +11,6 @@ export interface BasicCandidateInfo {
   photoUrl: string | null;
 }
 
-/**
- * Запись об опыте работы
- */
 export interface WorkExperienceEntry {
   id?: string;
   position: string;
@@ -26,9 +20,6 @@ export interface WorkExperienceEntry {
   endDate: string | Date | null;
 }
 
-/**
- * Запись об образовании
- */
 export interface EducationEntry {
   id?: string;
   institution: string;
@@ -40,18 +31,12 @@ export interface EducationEntry {
   endDate?: string;
 }
 
-/**
- * Контактная информация кандидата
- */
 export interface CandidateContactInfo {
   email: string | null;
   phone: string | null;
   socialLinks?: string[];
 }
 
-/**
- * Данные профиля фрилансера
- */
 export interface FreelancerProfileData {
   id: string;
   name?: string | null;
@@ -65,9 +50,6 @@ export interface FreelancerProfileData {
   education?: EducationEntry[];
 }
 
-/**
- * Базовые данные кандидата для импорта/создания
- */
 export interface BaseCandidateData {
   fullName: string;
   firstName?: string | null;
@@ -83,9 +65,6 @@ export interface BaseCandidateData {
   experienceYears?: number | null;
 }
 
-/**
- * Расширенные данные кандидата с профилем
- */
 export interface ExtendedCandidateData extends BaseCandidateData {
   profileData?: {
     experience: WorkExperienceEntry[];
@@ -109,9 +88,6 @@ export interface ExtendedCandidateData extends BaseCandidateData {
   parsingStatus?: "COMPLETED" | "PENDING" | "FAILED";
 }
 
-/**
- * Данные кандидата из отклика
- */
 export interface CandidateDataFromResponse extends BaseCandidateData {
   organizationId: string;
   resumeUrl?: string | null;
@@ -140,9 +116,6 @@ export interface CandidateDataFromResponse extends BaseCandidateData {
   notes?: string | null;
 }
 
-/**
- * Данные кандидата для чата/контекста
- */
 export interface CandidateContextData {
   id: string;
   candidateId: string;
@@ -166,9 +139,6 @@ export interface CandidateContextData {
   interviewAnalysis?: string | null;
 }
 
-/**
- * Полная структура данных кандидата для расширения
- */
 export interface FullCandidateData {
   platform: string;
   profileUrl: string;

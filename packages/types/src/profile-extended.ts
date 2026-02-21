@@ -1,12 +1,9 @@
 /**
- * Типы для данных профилей кандидатов
+ * Расширенные типы профиля для парсинга и UI
  */
 
-import type { ExperienceItem, EducationItem } from "@qbs-autonaim/db/schema";
+import type { ExperienceItem, EducationItem } from "./profile";
 
-/**
- * Платформа источника профиля
- */
 export type ProfilePlatform =
   | "kwork"
   | "fl"
@@ -15,9 +12,6 @@ export type ProfilePlatform =
   | "linkedin"
   | "unknown";
 
-/**
- * Статистика профиля фрилансера
- */
 export interface ProfileStatistics {
   rating?: number;
   ordersCompleted?: number;
@@ -28,9 +22,6 @@ export interface ProfileStatistics {
   buyerLevel?: string;
 }
 
-/**
- * Базовые данные профиля (для парсинга)
- */
 export interface BaseProfileData {
   platform: ProfilePlatform;
   username: string;
@@ -42,9 +33,6 @@ export interface BaseProfileData {
   error?: string;
 }
 
-/**
- * Расширенные данные профиля (для UI и обработки)
- */
 export interface ExtendedProfileData {
   error?: string | null;
   name?: string | null;
@@ -62,9 +50,6 @@ export interface ExtendedProfileData {
   statistics?: ProfileStatistics | null;
 }
 
-/**
- * Результат парсинга профиля
- */
 export interface ParsedProfileData {
   isJson: boolean;
   data: ExtendedProfileData | null;

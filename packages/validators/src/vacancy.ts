@@ -1,3 +1,4 @@
+import type { VacancyRequirementsStrict } from "@qbs-autonaim/types";
 import { z } from "zod";
 
 export const updateVacancyDetailsSchema = z.object({
@@ -72,7 +73,7 @@ export const vacancyRequirementsSchema = z.object({
   ),
   location_type: z.string(),
   keywords_for_matching: z.array(z.string()),
-});
+}) satisfies z.ZodType<VacancyRequirementsStrict>;
 
 export type VacancyRequirementsInput = z.infer<
   typeof vacancyRequirementsSchema

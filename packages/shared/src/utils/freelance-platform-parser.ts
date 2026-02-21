@@ -1,4 +1,4 @@
-import type { PlatformSource } from "@qbs-autonaim/db/schema";
+import type { PlatformSource } from "@qbs-autonaim/types";
 
 export interface ParsedPlatformLink {
   source: PlatformSource;

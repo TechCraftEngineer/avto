@@ -74,6 +74,7 @@ export function validateScreeningResult(result: ScreeningResult): boolean {
     typeof result.match_percentage === "number" &&
     result.match_percentage >= 0 &&
     result.match_percentage <= 100 &&
+    result.recommendation != null &&
     ["invite", "reject", "need_info"].includes(result.recommendation) &&
     Array.isArray(result.strengths) &&
     Array.isArray(result.weaknesses) &&

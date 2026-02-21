@@ -1,5 +1,10 @@
 import { pgEnum } from "drizzle-orm/pg-core";
 
+import {
+  platformSourceValues,
+  type PlatformSource,
+} from "@qbs-autonaim/types";
+
 /**
  * Унифицированные enum'ы для всех типов откликов (gig, vacancy, project)
  */
@@ -79,26 +84,11 @@ export type GigHrSelectionStatus = (typeof gigHrSelectionStatusValues)[number];
 
 /**
  * Источник платформы (откуда пришла вакансия или отклик)
+ * Значения и тип из @qbs-autonaim/types
  */
-export const platformSourceValues = [
-  "MANUAL",
-  "HH",
-  "AVITO",
-  "SUPERJOB",
-  "HABR",
-  "KWORK",
-  "FL_RU",
-  "FREELANCE_RU",
-  "WEB_LINK",
-  "TELEGRAM",
-] as const;
+export { platformSourceValues, type PlatformSource } from "@qbs-autonaim/types";
 
-export const platformSourceEnum = pgEnum(
-  "platform_source",
-  platformSourceValues,
-);
-
-export type PlatformSource = (typeof platformSourceValues)[number];
+export const platformSourceEnum = pgEnum("platform_source", platformSourceValues);
 
 // Остальные значения для обратной совместимости, если нужно
 export const importSourceEnum = platformSourceEnum;

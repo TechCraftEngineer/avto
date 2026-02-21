@@ -17,25 +17,11 @@ import {
   platformSourceEnum,
   platformSourceValues,
 } from "../shared/response-enums";
+import type { VacancyRequirementsStrict } from "@qbs-autonaim/types";
 import { workspace } from "../workspace/workspace";
 
-export interface VacancyRequirements {
-  job_title: string;
-  summary: string;
-  mandatory_requirements: string[];
-  nice_to_have_skills: string[];
-  tech_stack: string[];
-  experience_years: {
-    min: number | null;
-    description: string;
-  };
-  languages: Array<{
-    language: string;
-    level: string;
-  }>;
-  location_type: string;
-  keywords_for_matching: string[];
-}
+/** Реэкспорт для совместимости со схемой БД */
+export type VacancyRequirements = VacancyRequirementsStrict;
 
 export const vacancy = pgTable(
   "vacancies",
@@ -64,7 +50,7 @@ export const vacancy = pgTable(
     region: varchar("region", { length: 200 }),
     workLocation: varchar("work_location", { length: 200 }),
     description: text("description"),
-    requirements: jsonb("requirements").$type<VacancyRequirements>(),
+    requirements: jsonb("requirements").$type<VacancyRequirementsStrict>(),
 
     // Источник вакансии (hh, avito, superjob)
     source: platformSourceEnum("source").notNull().default("HH"),

@@ -19,6 +19,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@qbs-autonaim/types": "workspace:*",
     "libphonenumber-js": "^1.12.36",
     "sanitize-html": "^2.17.1",
     "zod": "4.3.6"

@@ -71,6 +71,7 @@ export type {
   HonestyLevel,
   EvaluationResult,
   DimensionScore,
+  ScreeningRecommendation,
   ScreeningResult,
   ScreeningDataForRecommendation,
   PrequalificationResult,

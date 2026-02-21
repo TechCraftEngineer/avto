@@ -11,29 +11,15 @@ import {
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+import { responseEventTypeValues } from "@qbs-autonaim/types";
+
 import { user } from "../auth";
 import { response } from "./response";
 
-export const responseEventTypeEnum = pgEnum("response_event_type", [
-  "STATUS_CHANGED",
-  "HR_STATUS_CHANGED",
-  "TELEGRAM_USERNAME_ADDED",
-  "CHAT_ID_ADDED",
-  "PHONE_ADDED",
-  "EMAIL_ADDED",
-  "RESUME_UPDATED",
-  "PHOTO_ADDED",
-  "WELCOME_SENT",
-  "OFFER_SENT",
-  "COMMENT_ADDED",
-  "SALARY_UPDATED",
-  "CONTACT_INFO_UPDATED",
-  "CREATED",
-  "SCREENING_COMPLETED",
-  "INTERVIEW_STARTED",
-  "INTERVIEW_COMPLETED",
-  "CANDIDATE_LINKED",
-]);
+export const responseEventTypeEnum = pgEnum(
+  "response_event_type",
+  responseEventTypeValues,
+);
 
 /**
  * История изменений откликов
@@ -66,26 +52,8 @@ export const responseHistory = pgTable(
   ],
 );
 
-export const responseEventTypeValues = [
-  "STATUS_CHANGED",
-  "HR_STATUS_CHANGED",
-  "TELEGRAM_USERNAME_ADDED",
-  "CHAT_ID_ADDED",
-  "PHONE_ADDED",
-  "EMAIL_ADDED",
-  "RESUME_UPDATED",
-  "PHOTO_ADDED",
-  "WELCOME_SENT",
-  "OFFER_SENT",
-  "COMMENT_ADDED",
-  "SALARY_UPDATED",
-  "CONTACT_INFO_UPDATED",
-  "CREATED",
-  "SCREENING_COMPLETED",
-  "INTERVIEW_STARTED",
-  "INTERVIEW_COMPLETED",
-  "CANDIDATE_LINKED",
-] as const;
+export { responseEventTypeValues } from "@qbs-autonaim/types";
+export type { ResponseEventType } from "@qbs-autonaim/types";
 
 export const CreateResponseHistorySchema = createInsertSchema(responseHistory, {
   responseId: z.string().uuid(),
@@ -101,4 +69,3 @@ export const CreateResponseHistorySchema = createInsertSchema(responseHistory, {
 
 export type ResponseHistory = typeof responseHistory.$inferSelect;
 export type NewResponseHistory = typeof responseHistory.$inferInsert;
-export type ResponseEventType = (typeof responseEventTypeValues)[number];
