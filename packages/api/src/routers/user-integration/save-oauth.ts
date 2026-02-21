@@ -30,11 +30,21 @@ export const saveOAuth = protectedProcedure
       });
     }
 
+    const credentials: Record<string, string> = {
+      access_token: input.credentials.access_token,
+      ...(input.credentials.refresh_token && {
+        refresh_token: input.credentials.refresh_token,
+      }),
+      ...(input.credentials.expiry_date !== undefined && {
+        expiry_date: String(input.credentials.expiry_date),
+      }),
+    };
+
     const integration = await upsertUserIntegration(ctx.db, {
       userId: ctx.session.user.id,
       type: input.type,
       name: input.name,
-      credentials: input.credentials as Record<string, string>,
+      credentials,
       metadata: input.metadata,
       isActive: true,
     });

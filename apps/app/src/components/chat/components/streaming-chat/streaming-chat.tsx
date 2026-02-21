@@ -5,8 +5,10 @@ import { AlertCircle, Wifi, WifiOff } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { AIChatInput, AIMessages } from "~/components";
 import { useAIChatStream } from "~/hooks/use-ai-chat-stream";
-import type { AIChatMessage } from "~/types/ai-chat";
-import { convertLegacyMessage } from "~/types/ai-chat";
+import {
+  type AIChatMessage,
+  convertLegacyMessage,
+} from "@qbs-autonaim/shared";
 
 interface LegacyMessage {
   id: string;

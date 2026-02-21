@@ -91,6 +91,25 @@ export type {
   CandidateDataFromResponse,
   CandidateContextData,
   FullCandidateData,
+  // Типы AI чата
+  MessagePartType,
+  TextPart,
+  ReasoningPart,
+  FilePart,
+  ToolCallPart,
+  ToolResultPart,
+  MessagePart,
+  AIChatMessage,
+  Attachment,
+  ChatStatus,
+} from "./types";
+// AI чат — типы и утилиты
+export {
+  getPartKey,
+  convertLegacyMessage,
+  getMessageText,
+  hasReasoning,
+  getReasoningText,
 } from "./types";
 // Утилиты
 export {

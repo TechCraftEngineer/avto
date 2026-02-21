@@ -8,7 +8,7 @@ import {
   getPartKey,
   type MessagePart,
   type TextPart,
-} from "~/types/ai-chat";
+} from "@qbs-autonaim/shared";
 
 interface AIMessageProps {
   message: AIChatMessage;

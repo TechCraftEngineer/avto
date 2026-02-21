@@ -3,7 +3,7 @@
 import { cn } from "@qbs-autonaim/ui";
 import { AlertCircle } from "lucide-react";
 import { useAIChat } from "~/hooks/use-ai-chat";
-import type { AIChatMessage } from "~/types/ai-chat";
+import type { AIChatMessage } from "@qbs-autonaim/shared";
 import { AIChatInput } from "../ai-chat-input/ai-chat-input";
 import { AIMessages } from "../ai-messages/ai-messages";
 

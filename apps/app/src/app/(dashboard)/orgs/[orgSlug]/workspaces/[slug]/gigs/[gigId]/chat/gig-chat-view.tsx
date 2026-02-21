@@ -15,7 +15,7 @@ import { useAIChatStream } from "~/hooks/use-ai-chat-stream";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useWorkspaceParams } from "~/hooks/use-workspace-params";
 import { useTRPC } from "~/trpc/react";
-import { type AIChatMessage, getMessageText } from "~/types/ai-chat";
+import { type AIChatMessage, getMessageText } from "@qbs-autonaim/shared";
 
 interface GigChatViewProps {
   gigId: string;
