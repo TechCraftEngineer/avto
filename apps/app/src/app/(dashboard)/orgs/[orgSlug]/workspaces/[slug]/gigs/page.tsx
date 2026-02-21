@@ -1,5 +1,6 @@
 "use client";
 
+import type { SortDirection } from "@qbs-autonaim/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -63,7 +64,7 @@ export default function GigsPage() {
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("createdAt");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [displayMode, setDisplayMode] = useState<DisplayMode>("grid");
   const [quickFilter, setQuickFilter] = useState<string>("");
   const [groupBy, setGroupBy] = useState<"none" | "urgency">("none");
@@ -134,7 +135,7 @@ export default function GigsPage() {
   const handleTableSort = useCallback((field: string) => {
     setSortBy((prev) => {
       if (prev === field) {
-        setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
+        setSortDirection((d: SortDirection) => (d === "asc" ? "desc" : "asc"));
       } else {
         setSortDirection(field === "title" ? "asc" : "desc");
       }

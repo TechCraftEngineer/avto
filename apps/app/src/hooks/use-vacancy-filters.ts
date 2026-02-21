@@ -1,3 +1,4 @@
+import type { SortDirection } from "@qbs-autonaim/shared";
 import { useMemo, useState } from "react";
 import type { VacancyListItem } from "~/types/vacancy";
 
@@ -8,7 +9,7 @@ export function useVacancyFilters(vacancies: VacancyListItem[] | undefined) {
   const [sortBy, setSortBy] = useState<
     "createdAt" | "title" | "responses" | "newResponses"
   >("createdAt");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [sortOrder, setSortOrder] = useState<SortDirection>("desc");
   const [dateFrom, setDateFrom] = useState<string>("");
   const [dateTo, setDateTo] = useState<string>("");
 

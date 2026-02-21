@@ -1,3 +1,4 @@
+import type { SortDirection } from "@qbs-autonaim/shared";
 import { useMemo } from "react";
 
 export interface Gig {
@@ -25,7 +26,7 @@ export interface GigsFilters {
   typeFilter: string;
   statusFilter: string;
   sortBy: string;
-  sortDirection?: "asc" | "desc";
+  sortDirection?: SortDirection;
   quickFilter?: string;
   groupBy?: "none" | "urgency";
 }

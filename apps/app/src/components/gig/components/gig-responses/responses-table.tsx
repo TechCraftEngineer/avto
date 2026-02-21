@@ -1,5 +1,6 @@
 "use client";
 
+import type { SortDirection } from "@qbs-autonaim/shared";
 import type { DragEndEvent } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import {
@@ -95,7 +96,7 @@ interface ResponsesTableProps {
 function sortResponses(
   data: GigResponseWithScore[],
   sortField: GigSortField | null,
-  sortDirection: "asc" | "desc",
+  sortDirection: SortDirection,
 ): GigResponseWithScore[] {
   if (!sortField) return data;
 
@@ -173,7 +174,7 @@ export const ResponsesTable = memo(function ResponsesTable({
   isProcessing,
 }: ResponsesTableProps) {
   const [sortField, setSortField] = useState<GigSortField | null>("createdAt");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [columnOrder, setColumnOrderState] = useState<string[]>(() =>
     loadColumnOrder(),
   );
@@ -192,7 +193,7 @@ export const ResponsesTable = memo(function ResponsesTable({
   const handleSort = useCallback(
     (field: GigSortField) => {
       if (sortField === field) {
-        setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
+        setSortDirection((d: SortDirection) => (d === "asc" ? "desc" : "asc"));
       } else {
         setSortField(field);
         setSortDirection("desc");

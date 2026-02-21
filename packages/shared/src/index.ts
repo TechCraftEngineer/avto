@@ -26,6 +26,7 @@ export {
 } from "./schemas";
 // Типы
 export type {
+  SortDirection,
   BufferedMessage,
   BufferValue,
   ConversationMetadata,

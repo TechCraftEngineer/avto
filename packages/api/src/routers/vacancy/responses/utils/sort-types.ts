@@ -4,6 +4,7 @@
  */
 
 import { z } from "zod";
+import type { SortDirection } from "@qbs-autonaim/types";
 
 /** Поля для сортировки откликов на вакансию (полный набор для list) */
 export type VacancyResponseSortField =
@@ -24,7 +25,8 @@ export type VacancyResponseSortFieldWorkspace = Exclude<
   "salaryExpectationsAmount" | "compositeScore"
 > | null;
 
-export type VacancyResponseSortDirection = "asc" | "desc";
+/** Алиас для единообразия с общим SortDirection */
+export type VacancyResponseSortDirection = SortDirection;
 
 /** Zod-схема для list (включает salaryExpectationsAmount, compositeScore) */
 export const vacancyResponseSortFieldSchema = z

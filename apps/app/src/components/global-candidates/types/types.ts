@@ -1,4 +1,5 @@
 import type { RouterOutputs } from "@qbs-autonaim/api";
+import type { SortDirection } from "@qbs-autonaim/shared";
 
 export type GlobalCandidate =
   RouterOutputs["globalCandidates"]["list"]["items"][number];
@@ -40,7 +41,8 @@ export interface CandidateFilters {
 }
 
 export type SortField = "createdAt" | "updatedAt" | "fullName" | "lastActivity";
-export type SortOrder = "asc" | "desc";
+/** Алиас для единообразия */
+export type SortOrder = SortDirection;
 
 export interface CandidateSort {
   field: SortField;

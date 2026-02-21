@@ -5,6 +5,8 @@
 
 // Domain-типы из @qbs-autonaim/types
 export type {
+  // Common
+  SortDirection,
   // Profile
   ExperienceItem,
   EducationItem,

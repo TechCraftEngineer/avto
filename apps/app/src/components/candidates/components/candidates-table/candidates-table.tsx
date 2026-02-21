@@ -28,6 +28,7 @@ import {
 import { useMemo, useState } from "react";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { getAvatarUrl } from "~/lib/avatar";
+import type { SortDirection } from "@qbs-autonaim/shared";
 import type { FunnelCandidate } from "../../types/types";
 import type { ColumnVisibility } from "./column-visibility-toggle";
 
@@ -201,7 +202,6 @@ type SortField =
   | "matchScore"
   | "salaryExpectation"
   | "createdAt";
-type SortDirection = "asc" | "desc";
 
 interface CandidatesTableProps {
   candidates: FunnelCandidate[];
@@ -257,7 +257,7 @@ export function CandidatesTable({
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
-      setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
+      setSortDirection((d: SortDirection) => (d === "asc" ? "desc" : "asc"));
     } else {
       setSortField(field);
       setSortDirection("asc");

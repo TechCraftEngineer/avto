@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@qbs-autonaim/ui";
 import { IconPlus, IconSearch } from "@tabler/icons-react";
+import type { SortDirection } from "@qbs-autonaim/shared";
 import Link from "next/link";
 import { env } from "~/env";
 import type { VacancyListItem } from "../../types";
@@ -39,7 +40,7 @@ export function VacancyTable({
   onDeleteOpen,
 }: VacancyTableProps & {
   sortBy: string;
-  sortOrder: "asc" | "desc";
+  sortOrder: SortDirection;
   onSortChange: (
     field: "createdAt" | "title" | "responses" | "newResponses",
   ) => void;
