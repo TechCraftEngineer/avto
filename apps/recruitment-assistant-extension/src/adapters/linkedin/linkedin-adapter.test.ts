@@ -3,12 +3,17 @@
  */
 
 import { beforeEach, describe, expect, it } from "vitest";
+import { Window } from "happy-dom";
 import { LinkedInAdapter } from "./linkedin-adapter";
+
+const happyWindow = new Window();
 
 describe("LinkedInAdapter", () => {
   let adapter: LinkedInAdapter;
 
   beforeEach(() => {
+    (global as any).document = happyWindow.document;
+    (global as any).window = happyWindow;
     adapter = new LinkedInAdapter();
     document.body.innerHTML = "";
   });

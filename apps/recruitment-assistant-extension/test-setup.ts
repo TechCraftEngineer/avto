@@ -15,7 +15,12 @@ global.HTMLElement = happyWindow.HTMLElement as any;
 global.Element = happyWindow.Element as any;
 global.location = happyWindow.location as any;
 
-// Мок для chrome API
+// Мок для chrome API с поддержкой service-worker тестов
+const messageListeners: Array<
+  (message: unknown, sender: unknown, sendResponse: (response: unknown) => void) => unknown
+> = [];
+const installedListeners: Array<(details: unknown) => void> = [];
+
 (global as any).chrome = {
   storage: {
     local: {
@@ -26,5 +31,38 @@ global.location = happyWindow.location as any;
   },
   runtime: {
     openOptionsPage: () => {},
+    onMessage: {
+      addListener: (
+        cb: (
+          message: unknown,
+          sender: unknown,
+          sendResponse: (response: unknown) => void,
+        ) => unknown,
+      ) => {
+        messageListeners.push(cb);
+      },
+      get listeners() {
+        return messageListeners;
+      },
+    },
+    onInstalled: {
+      addListener: (cb: (details: unknown) => void) => {
+        installedListeners.push(cb);
+      },
+      get listeners() {
+        return installedListeners;
+      },
+    },
+    OnInstalledReason: {
+      INSTALL: "install",
+      UPDATE: "update",
+    },
+    getManifest: () => ({ content_scripts: [], version: "1.0.0" }),
+    scripting: {
+      executeScript: () => Promise.resolve([]),
+    },
+    tabs: {
+      sendMessage: () => Promise.resolve({}),
+    },
   },
 };

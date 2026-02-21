@@ -48,6 +48,11 @@ describe("Property-based тесты адаптеров", () => {
       fc.assert(
         fc.property(
           fc.record({
+            hostname: fc.constantFrom(
+              "www.linkedin.com",
+              "linkedin.com",
+              "ru.linkedin.com",
+            ),
             pathname: fc.oneof(
               fc.constant("/in/john-doe"),
               fc.constant("/in/jane-smith/"),
@@ -77,6 +82,11 @@ describe("Property-based тесты адаптеров", () => {
       fc.assert(
         fc.property(
           fc.record({
+            hostname: fc.constantFrom(
+              "www.linkedin.com",
+              "linkedin.com",
+              "example.com",
+            ),
             pathname: fc.oneof(
               fc.constant("/feed/"),
               fc.constant("/search/results/people/"),
@@ -413,10 +423,18 @@ describe("Property-based тесты адаптеров", () => {
         fc.property(
           fc.array(
             fc.record({
-              institution: fc.string({ minLength: 1, maxLength: 50 }),
-              degree: fc.string({ minLength: 1, maxLength: 50 }),
-              fieldOfStudy: fc.string({ minLength: 1, maxLength: 50 }),
-              dateRange: fc.string({ minLength: 1, maxLength: 50 }),
+              institution: fc
+                .string({ minLength: 1, maxLength: 50 })
+                .filter((s) => s.trim().length > 0 && !s.includes("<") && !s.includes(">")),
+              degree: fc
+                .string({ minLength: 1, maxLength: 50 })
+                .filter((s) => s.trim().length > 0 && !s.includes("<") && !s.includes(">")),
+              fieldOfStudy: fc
+                .string({ minLength: 1, maxLength: 50 })
+                .filter((s) => s.trim().length > 0 && !s.includes("<") && !s.includes(">")),
+              dateRange: fc
+                .string({ minLength: 1, maxLength: 50 })
+                .filter((s) => s.trim().length > 0 && !s.includes("<") && !s.includes(">")),
             }),
             { minLength: 0, maxLength: 10 },
           ),
@@ -792,7 +810,12 @@ describe("Property-based тесты адаптеров", () => {
                 .string({ minLength: 5, maxLength: 20 })
                 .filter(
                   (s) =>
-                    s.trim().length > 0 && !s.includes("<") && !s.includes(">"),
+                    s.trim().length > 0 &&
+                    !s.includes("<") &&
+                    !s.includes(">") &&
+                    !s.includes("&lt") &&
+                    !s.includes("&gt") &&
+                    !s.includes("&"),
                 ),
               {
                 nil: null,

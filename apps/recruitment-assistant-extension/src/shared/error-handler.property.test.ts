@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "bun:test";
 import fc from "fast-check";
+import { Window } from "happy-dom";
 import { ErrorHandler } from "./error-handler";
 import type { CandidateData } from "./types";
 
@@ -11,8 +12,10 @@ describe("ErrorHandler Property-based Tests", () => {
   let errorHandler: ErrorHandler;
   let mockChrome: any;
   let storedData: Map<string, any>;
+  let originalChrome: any;
 
   beforeEach(() => {
+    originalChrome = (global as any).chrome;
     errorHandler = new ErrorHandler();
     storedData = new Map();
 
@@ -78,6 +81,11 @@ describe("ErrorHandler Property-based Tests", () => {
   afterEach(() => {
     vi.clearAllMocks();
     storedData.clear();
+    (global as any).chrome = originalChrome;
+    // Восстанавливаем document для других тестов (error-handler мокает его)
+    const happyWindow = new Window();
+    (global as any).document = happyWindow.document;
+    (global as any).window = happyWindow;
   });
 
   /**
@@ -194,12 +202,12 @@ describe("ErrorHandler Property-based Tests", () => {
               // Небольшая задержка для гарантии уникальности timestamp
               await new Promise((resolve) => setTimeout(resolve, 2));
 
-              const callArgs =
-                mockChrome.storage.local.set.mock.calls[
-                  mockChrome.storage.local.set.mock.calls.length - 1
-                ][0];
-              const key = Object.keys(callArgs)[0];
-              keys.add(key);
+              // Берём ключи из storedData (мок сохраняет данные при вызове set)
+              for (const key of storedData.keys()) {
+                if (key.startsWith("temp_partial_")) {
+                  keys.add(key);
+                }
+              }
             }
 
             // Assert

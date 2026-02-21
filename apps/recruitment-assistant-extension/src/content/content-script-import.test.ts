@@ -9,8 +9,10 @@ vi.mock("../config", () => ({ API_URL: "https://api.example.com" }));
 
 describe("ContentScript - Import функциональность", () => {
   let mockCandidateData: CandidateData;
+  let originalChrome: any;
 
   beforeEach(() => {
+    originalChrome = (global as any).chrome;
     mockCandidateData = {
       platform: "LinkedIn",
       profileUrl: "https://linkedin.com/in/test-user",
@@ -77,6 +79,7 @@ describe("ContentScript - Import функциональность", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    (global as any).chrome = originalChrome;
   });
 
   describe("handleImport", () => {
@@ -169,17 +172,18 @@ describe("ContentScript - Import функциональность", () => {
     });
   });
 
-  describe("checkAuthentication", () => {
-    it("должен вернуть true если пользователь авторизован", async () => {
+  describe("checkApiConfiguration (через handleImport)", () => {
+    it("должен успешно импортировать если есть authToken и organizationId", async () => {
       const { ContentScript } = await import("./content-script");
       const contentScript = new (ContentScript as any)();
+      contentScript.currentData = mockCandidateData;
 
-      const result = await contentScript.checkAuthentication();
+      await contentScript.handleImport();
 
-      expect(result).toBe(true);
+      expect(global.fetch).toHaveBeenCalled();
     });
 
-    it("должен вернуть false если нет organizationId", async () => {
+    it("должен показать ошибку если нет organizationId", async () => {
       global.chrome.storage.local.get = vi.fn().mockResolvedValue({
         authToken: "test-token",
         userData: {},
@@ -187,13 +191,21 @@ describe("ContentScript - Import функциональность", () => {
 
       const { ContentScript } = await import("./content-script");
       const contentScript = new (ContentScript as any)();
+      contentScript.currentData = mockCandidateData;
+      const showNotificationSpy = vi.spyOn(contentScript, "showNotification");
 
-      const result = await contentScript.checkAuthentication();
+      await contentScript.handleImport();
 
-      expect(result).toBe(false);
+      expect(showNotificationSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "error",
+          message: expect.stringContaining("Войдите в систему"),
+        }),
+      );
+      expect(global.fetch).not.toHaveBeenCalled();
     });
 
-    it("должен вернуть false если пользователь не авторизован", async () => {
+    it("должен показать ошибку если пользователь не авторизован", async () => {
       global.chrome.storage.local.get = vi.fn().mockResolvedValue({
         authToken: null,
         userData: { organizationId: "org-123" },
@@ -201,10 +213,18 @@ describe("ContentScript - Import функциональность", () => {
 
       const { ContentScript } = await import("./content-script");
       const contentScript = new (ContentScript as any)();
+      contentScript.currentData = mockCandidateData;
+      const showNotificationSpy = vi.spyOn(contentScript, "showNotification");
 
-      const result = await contentScript.checkAuthentication();
+      await contentScript.handleImport();
 
-      expect(result).toBe(false);
+      expect(showNotificationSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "error",
+          message: expect.stringContaining("Войдите в систему"),
+        }),
+      );
+      expect(global.fetch).not.toHaveBeenCalled();
     });
   });
 });
