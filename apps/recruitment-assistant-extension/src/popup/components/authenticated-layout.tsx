@@ -52,7 +52,7 @@ export function AuthenticatedLayout({
         type: "API_REQUEST",
         payload: {
           url: getExtensionApiUrl(
-            `workspaces?organizationId=${encodeURIComponent(orgId)}`
+            `workspaces?organizationId=${encodeURIComponent(orgId)}`,
           ),
           method: "GET",
           headers: { Authorization: `Bearer ${token}` },
@@ -64,7 +64,9 @@ export function AuthenticatedLayout({
       }
     } catch (e) {
       onSettingsError(
-        e instanceof Error ? e.message : "Ошибка загрузки рабочего пространства"
+        e instanceof Error
+          ? e.message
+          : "Ошибка загрузки рабочего пространства",
       );
     }
   };

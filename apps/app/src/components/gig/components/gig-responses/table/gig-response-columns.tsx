@@ -12,7 +12,8 @@ import { GigCandidateCell } from "./gig-candidate-cell";
 import { GigResponseActions } from "./gig-response-actions";
 import { GigColumnHeader, type GigTableMeta } from "./gig-column-header";
 
-export type GigResponseListItem = RouterOutputs["gig"]["responses"]["list"]["items"][number];
+export type GigResponseListItem =
+  RouterOutputs["gig"]["responses"]["list"]["items"][number];
 
 export type { GigTableMeta };
 
@@ -32,9 +33,8 @@ function mapInterviewForHoverCard(
   scoring: GigResponseListItem["interviewScoring"],
 ): { score: number; detailedScore: number; analysis: string | null } | null {
   if (!scoring) return null;
-  const detailedScore = scoring.rating != null
-    ? scoring.rating * 20
-    : scoring.score;
+  const detailedScore =
+    scoring.rating != null ? scoring.rating * 20 : scoring.score;
   return {
     score: scoring.score,
     detailedScore,
@@ -93,8 +93,9 @@ export function createGigResponseColumns() {
             className="whitespace-nowrap rounded-md font-normal"
           >
             {Object.hasOwn(RESPONSE_STATUS_CONFIG, r.status)
-              ? RESPONSE_STATUS_CONFIG[r.status as keyof typeof RESPONSE_STATUS_CONFIG]
-                  .label
+              ? RESPONSE_STATUS_CONFIG[
+                  r.status as keyof typeof RESPONSE_STATUS_CONFIG
+                ].label
               : r.status}
           </Badge>
         );

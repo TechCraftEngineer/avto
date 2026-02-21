@@ -59,10 +59,7 @@ export async function createBotInstance(
   // Расшифровка apiId и apiHash, если они хранятся зашифрованными
   if (apiId && apiHash && isEncrypted(apiId)) {
     const encryptionKey = getEncryptionKey();
-    const decrypted = await decryptApiKeys(
-      { apiId, apiHash },
-      encryptionKey,
-    );
+    const decrypted = await decryptApiKeys({ apiId, apiHash }, encryptionKey);
     apiId = decrypted.apiId;
     apiHash = decrypted.apiHash;
   }

@@ -212,7 +212,9 @@ export default function GigsPage() {
   const toggleActiveMutation = useMutation(
     api.gig.toggleActive.mutationOptions({
       onSuccess: (data) => {
-        toast.success(data.isActive ? "Задание активировано" : "Задание деактивировано");
+        toast.success(
+          data.isActive ? "Задание активировано" : "Задание деактивировано",
+        );
         queryClient.invalidateQueries({
           queryKey: api.gig.list.queryKey(),
         });

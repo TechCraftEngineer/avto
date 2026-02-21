@@ -46,7 +46,7 @@ export function SettingsView({
         type: "API_REQUEST",
         payload: {
           url: getExtensionApiUrl(
-            `workspaces?organizationId=${encodeURIComponent(orgId)}`
+            `workspaces?organizationId=${encodeURIComponent(orgId)}`,
           ),
           method: "GET",
           headers: { Authorization: `Bearer ${token}` },
@@ -58,7 +58,9 @@ export function SettingsView({
       }
     } catch (e) {
       onError(
-        e instanceof Error ? e.message : "Ошибка загрузки рабочего пространства"
+        e instanceof Error
+          ? e.message
+          : "Ошибка загрузки рабочего пространства",
       );
     }
   };

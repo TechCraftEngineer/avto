@@ -140,8 +140,12 @@ export class RankingService {
     });
 
     // Создаём lookup maps
-    const screeningMap = new Map(screenings.map((s) => [s.responseId, s.overallScore]));
-    const interviewScoreMap = new Map(interviewScores.map((i) => [i.responseId, i.score]));
+    const screeningMap = new Map(
+      screenings.map((s) => [s.responseId, s.overallScore]),
+    );
+    const interviewScoreMap = new Map(
+      interviewScores.map((i) => [i.responseId, i.score]),
+    );
 
     const candidateInputs: CandidateInput[] = candidates.map((c) => ({
       id: c.id,

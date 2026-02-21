@@ -86,9 +86,7 @@ export function useScreenBatchProgress(
           queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
         });
       } else {
-        queryClient.invalidateQueries(
-          trpc.vacancy.responses.list.pathFilter(),
-        );
+        queryClient.invalidateQueries(trpc.vacancy.responses.list.pathFilter());
       }
     }
   }, [latestData]);

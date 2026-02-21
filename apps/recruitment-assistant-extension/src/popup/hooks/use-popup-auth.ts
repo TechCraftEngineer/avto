@@ -6,7 +6,9 @@ export function usePopupAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [selectedOrgId, setSelectedOrgId] = useState<string | null>(null);
-  const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<string | null>(null);
+  const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<string | null>(
+    null,
+  );
 
   const authService = useMemo(() => new AuthService(API_URL), []);
 
@@ -29,7 +31,10 @@ export function usePopupAuth() {
       });
     };
     refresh();
-    const listener = (changes: Record<string, chrome.storage.StorageChange>, areaName: string) => {
+    const listener = (
+      changes: Record<string, chrome.storage.StorageChange>,
+      areaName: string,
+    ) => {
       if (
         areaName === "local" &&
         (changes.authToken || changes.userData || changes.workspaceId)

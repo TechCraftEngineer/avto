@@ -42,7 +42,8 @@ export function PipelineBoardView({
   stageQueries,
 }: PipelineBoardViewProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [localCandidatesByStage, setLocalCandidatesByStage] = useState(candidatesByStage);
+  const [localCandidatesByStage, setLocalCandidatesByStage] =
+    useState(candidatesByStage);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -76,7 +77,9 @@ export function PipelineBoardView({
       let candidate: FunnelCandidate | undefined;
       let currentStage: FunnelStage | undefined;
 
-      for (const stage of Object.keys(localCandidatesByStage) as FunnelStage[]) {
+      for (const stage of Object.keys(
+        localCandidatesByStage,
+      ) as FunnelStage[]) {
         candidate = localCandidatesByStage[stage].items.find(
           (c) => c.id === candidateId,
         );
@@ -95,7 +98,9 @@ export function PipelineBoardView({
         // Удаляем из старой стадии
         updated[currentStage] = {
           ...updated[currentStage],
-          items: updated[currentStage].items.filter((c) => c.id !== candidateId),
+          items: updated[currentStage].items.filter(
+            (c) => c.id !== candidateId,
+          ),
           total: Math.max(0, updated[currentStage].total - 1),
         };
 

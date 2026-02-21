@@ -134,7 +134,6 @@ export function VacancyHeader({ vacancy }: VacancyHeaderProps) {
                   : `${daysActive} ${pluralize(daysActive, "день", "дня", "дней")} активна`}
               </span>
             </div>
-
           </div>
         </div>
 

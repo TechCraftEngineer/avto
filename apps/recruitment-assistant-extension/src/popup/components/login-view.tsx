@@ -21,11 +21,7 @@ export function LoginView() {
           Войдите для импорта кандидатов в систему
         </p>
       </div>
-      <Button
-        variant="outline"
-        className="w-full"
-        onClick={handleLoginViaSite}
-      >
+      <Button variant="outline" className="w-full" onClick={handleLoginViaSite}>
         Войти через сайт
       </Button>
       <p className="text-center text-xs text-muted-foreground">v{version}</p>

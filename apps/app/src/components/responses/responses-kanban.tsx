@@ -116,7 +116,9 @@ export function ResponsesKanban({
       if (!response || response.status === newStatus) return;
 
       setLocalResponses((prev) =>
-        prev.map((r) => (r.id === responseId ? { ...r, status: newStatus } : r)),
+        prev.map((r) =>
+          r.id === responseId ? { ...r, status: newStatus } : r,
+        ),
       );
     },
     [localResponses],

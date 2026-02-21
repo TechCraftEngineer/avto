@@ -177,7 +177,9 @@ export async function setupPageWithAuth(
     );
 
     if (!loggedIn) {
-      throw new Error("Авторизация слетела. Требуется повторная настройка интеграции HeadHunter");
+      throw new Error(
+        "Авторизация слетела. Требуется повторная настройка интеграции HeadHunter",
+      );
     }
 
     return { browser, page };

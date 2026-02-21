@@ -7,7 +7,9 @@ import type { ResumeStructurerOutput } from "@qbs-autonaim/ai";
  * Обрабатывает распарсенные данные резюме из ResumeStructurerAgent
  * Извлекает контакты, дату рождения, опыт работы в годах
  */
-export function processResumeStructuredData(structuredData: ResumeStructurerOutput): {
+export function processResumeStructuredData(
+  structuredData: ResumeStructurerOutput,
+): {
   contacts: HHContacts | null;
   phone?: string;
   email?: string;

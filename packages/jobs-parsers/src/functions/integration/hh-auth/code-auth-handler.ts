@@ -22,11 +22,27 @@ export async function handleCodeAuth(
   password: string | undefined,
   authType: "password" | "code",
 ): Promise<VerifyCredentialsStepResult> {
-  const { page, browser, dbInstance, workspaceId, publish, sleep, pollTimeoutMs, pollIntervalMs } = ctx;
+  const {
+    page,
+    browser,
+    dbInstance,
+    workspaceId,
+    publish,
+    sleep,
+    pollTimeoutMs,
+    pollIntervalMs,
+  } = ctx;
 
-  console.log("🔐 Требуется 2FA — ждём код от пользователя в открытом браузере");
+  console.log(
+    "🔐 Требуется 2FA — ждём код от пользователя в открытом браузере",
+  );
 
-  await setIntegrationSetupStatus(dbInstance, "hh", workspaceId, "pending_verification");
+  await setIntegrationSetupStatus(
+    dbInstance,
+    "hh",
+    workspaceId,
+    "pending_verification",
+  );
 
   await publish(
     verifyHHCredentialsChannel(workspaceId).result({
@@ -40,12 +56,18 @@ export async function handleCodeAuth(
 
   const startedAt = Date.now();
   while (Date.now() - startedAt < pollTimeoutMs) {
-    const resendRequested = await getAndClearHHResendRequested(dbInstance, workspaceId);
+    const resendRequested = await getAndClearHHResendRequested(
+      dbInstance,
+      workspaceId,
+    );
     if (resendRequested && page) {
       await resendVerificationCode(page);
     }
 
-    const code = await getAndClearHHPendingVerificationCode(dbInstance, workspaceId);
+    const code = await getAndClearHHPendingVerificationCode(
+      dbInstance,
+      workspaceId,
+    );
     if (code && page) {
       const codeResult = await submitVerificationCode(page, code);
       if (!codeResult.success) {
@@ -82,7 +104,10 @@ export async function handleCodeAuth(
             break;
           } catch (err) {
             const msg = err instanceof Error ? err.message : String(err);
-            if (msg.includes("Execution context was destroyed") && attempt < 2) {
+            if (
+              msg.includes("Execution context was destroyed") &&
+              attempt < 2
+            ) {
               await sleep(2000 * (attempt + 1));
               continue;
             }
@@ -94,10 +119,18 @@ export async function handleCodeAuth(
           workspaceId,
           type: "hh",
           name: "HeadHunter",
-          credentials: authType === "password" && password ? { email, password } : { email },
+          credentials:
+            authType === "password" && password
+              ? { email, password }
+              : { email },
         });
         await saveCookies("hh", cookies, workspaceId);
-        await setIntegrationSetupStatus(dbInstance, "hh", workspaceId, "completed");
+        await setIntegrationSetupStatus(
+          dbInstance,
+          "hh",
+          workspaceId,
+          "completed",
+        );
 
         await publish(
           verifyHHCredentialsChannel(workspaceId).result({

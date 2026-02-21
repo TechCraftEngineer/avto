@@ -48,10 +48,7 @@ export function GigResponseActionButtons({
                     aria-hidden="true"
                   />
                 ) : (
-                  <RefreshCw
-                    className="h-4 w-4 sm:mr-2"
-                    aria-hidden="true"
-                  />
+                  <RefreshCw className="h-4 w-4 sm:mr-2" aria-hidden="true" />
                 )}
                 <span className="hidden sm:inline">
                   {isSyncing ? "Загрузка…" : "Обновить отклики"}
@@ -83,10 +80,7 @@ export function GigResponseActionButtons({
                     aria-hidden="true"
                   />
                 ) : (
-                  <Sparkles
-                    className="h-4 w-4 sm:mr-2"
-                    aria-hidden="true"
-                  />
+                  <Sparkles className="h-4 w-4 sm:mr-2" aria-hidden="true" />
                 )}
                 <span className="hidden sm:inline">
                   {isAnalyzing ? "Анализ…" : "Проанализировать отклики"}

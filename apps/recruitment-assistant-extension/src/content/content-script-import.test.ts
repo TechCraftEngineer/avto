@@ -53,7 +53,8 @@ describe("ContentScript - Import функциональность", () => {
           get: vi.fn().mockImplementation((keys: string | string[]) => {
             const keyList = Array.isArray(keys) ? keys : [keys];
             const result: Record<string, unknown> = {};
-            if (keyList.includes("authToken")) result.authToken = "test-auth-token";
+            if (keyList.includes("authToken"))
+              result.authToken = "test-auth-token";
             if (keyList.includes("userData"))
               result.userData = { organizationId: "org-123" };
             return Promise.resolve(result);

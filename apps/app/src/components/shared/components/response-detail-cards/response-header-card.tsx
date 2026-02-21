@@ -88,9 +88,14 @@ export function ResponseHeaderCard({
   const photoUrl = useAvatarUrl(
     "photoFileId" in response ? response.photoFileId : null,
   );
-  const profileData = response.profileData as { kworkAvatarUrl?: string } | null | undefined;
+  const profileData = response.profileData as
+    | { kworkAvatarUrl?: string }
+    | null
+    | undefined;
   const fallbackAvatar =
-    !photoUrl && profileData?.kworkAvatarUrl ? profileData.kworkAvatarUrl : photoUrl;
+    !photoUrl && profileData?.kworkAvatarUrl
+      ? profileData.kworkAvatarUrl
+      : photoUrl;
   const candidateName = response.candidateName || response.candidateId;
   const avatarUrl = getAvatarUrl(fallbackAvatar, candidateName);
   const initials = getInitials(candidateName);

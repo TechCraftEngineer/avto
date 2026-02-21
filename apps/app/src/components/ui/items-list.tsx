@@ -12,7 +12,13 @@ import {
   Sparkles,
 } from "lucide-react";
 
-type ItemsListType = 'strengths' | 'weaknesses' | 'risks' | 'recommendations' | 'questions' | 'challenges';
+type ItemsListType =
+  | "strengths"
+  | "weaknesses"
+  | "risks"
+  | "recommendations"
+  | "questions"
+  | "challenges";
 
 interface ItemsListProps {
   /** List of items to display */
@@ -30,54 +36,57 @@ interface ItemsListProps {
 /**
  * Configuration for each list type
  */
-const LIST_CONFIG: Record<ItemsListType, {
-  icon: React.ComponentType<{ className?: string }>;
-  iconColor: string;
-  title: string;
-  badgeVariant: 'default' | 'secondary' | 'outline' | 'destructive';
-  textColor: string;
-}> = {
+const LIST_CONFIG: Record<
+  ItemsListType,
+  {
+    icon: React.ComponentType<{ className?: string }>;
+    iconColor: string;
+    title: string;
+    badgeVariant: "default" | "secondary" | "outline" | "destructive";
+    textColor: string;
+  }
+> = {
   strengths: {
     icon: CheckCircle,
-    iconColor: 'text-green-600 dark:text-green-400',
-    title: 'Сильные стороны',
-    badgeVariant: 'secondary',
-    textColor: 'text-green-600 dark:text-green-400',
+    iconColor: "text-green-600 dark:text-green-400",
+    title: "Сильные стороны",
+    badgeVariant: "secondary",
+    textColor: "text-green-600 dark:text-green-400",
   },
   weaknesses: {
     icon: AlertCircle,
-    iconColor: 'text-yellow-600 dark:text-yellow-400',
-    title: 'Слабые стороны',
-    badgeVariant: 'outline',
-    textColor: 'text-yellow-600 dark:text-yellow-400',
+    iconColor: "text-yellow-600 dark:text-yellow-400",
+    title: "Слабые стороны",
+    badgeVariant: "outline",
+    textColor: "text-yellow-600 dark:text-yellow-400",
   },
   risks: {
     icon: AlertOctagon,
-    iconColor: 'text-red-600 dark:text-red-400',
-    title: 'Риски',
-    badgeVariant: 'destructive',
-    textColor: 'text-red-600 dark:text-red-400',
+    iconColor: "text-red-600 dark:text-red-400",
+    title: "Риски",
+    badgeVariant: "destructive",
+    textColor: "text-red-600 dark:text-red-400",
   },
   recommendations: {
     icon: Sparkles,
-    iconColor: 'text-blue-600 dark:text-blue-400',
-    title: 'Рекомендации',
-    badgeVariant: 'default',
-    textColor: 'text-blue-600 dark:text-blue-400',
+    iconColor: "text-blue-600 dark:text-blue-400",
+    title: "Рекомендации",
+    badgeVariant: "default",
+    textColor: "text-blue-600 dark:text-blue-400",
   },
   questions: {
     icon: HelpCircle,
-    iconColor: 'text-primary',
-    title: 'Вопросы для интервью',
-    badgeVariant: 'secondary',
-    textColor: 'text-primary',
+    iconColor: "text-primary",
+    title: "Вопросы для интервью",
+    badgeVariant: "secondary",
+    textColor: "text-primary",
   },
   challenges: {
     icon: AlertTriangle,
-    iconColor: 'text-orange-600 dark:text-orange-400',
-    title: 'Потенциальные сложности',
-    badgeVariant: 'outline',
-    textColor: 'text-orange-600 dark:text-orange-400',
+    iconColor: "text-orange-600 dark:text-orange-400",
+    title: "Потенциальные сложности",
+    badgeVariant: "outline",
+    textColor: "text-orange-600 dark:text-orange-400",
   },
 };
 
@@ -122,7 +131,9 @@ export const ItemsList = memo(function ItemsList({
           className="flex items-start gap-2 text-sm text-muted-foreground"
         >
           {icon && (
-            <IconComponent className={cn("h-4 w-4 shrink-0 mt-0.5", config.iconColor)} />
+            <IconComponent
+              className={cn("h-4 w-4 shrink-0 mt-0.5", config.iconColor)}
+            />
           )}
           <span className="leading-relaxed">{item}</span>
         </li>

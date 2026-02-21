@@ -110,9 +110,12 @@ export async function triggerImportSelectedActiveVacancies(
     region?: string;
   }>,
 ): Promise<void> {
-  const payloadValidation = SelectedActiveVacanciesWithVacanciesSchema.safeParse(
-    { workspaceId, vacancyIds, vacancies },
-  );
+  const payloadValidation =
+    SelectedActiveVacanciesWithVacanciesSchema.safeParse({
+      workspaceId,
+      vacancyIds,
+      vacancies,
+    });
 
   if (!payloadValidation.success) {
     const errors = payloadValidation.error.issues
@@ -130,8 +133,6 @@ export async function triggerImportSelectedActiveVacancies(
     },
   });
 }
-
-
 
 /**
  * Server action для получения списка активных вакансий для предпросмотра.
@@ -170,7 +171,11 @@ export async function fetchActiveVacanciesList(workspaceId: string) {
 
   return {
     requestId,
-    token: token as unknown as { channel: string; topics: string[]; key: string },
+    token: token as unknown as {
+      channel: string;
+      topics: string[];
+      key: string;
+    },
   };
 }
 
@@ -211,7 +216,11 @@ export async function fetchArchivedVacanciesList(workspaceId: string) {
 
   return {
     requestId,
-    token: token as unknown as { channel: string; topics: string[]; key: string },
+    token: token as unknown as {
+      channel: string;
+      topics: string[];
+      key: string;
+    },
   };
 }
 

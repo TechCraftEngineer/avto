@@ -2,15 +2,18 @@
  * Типы для данных профилей кандидатов
  */
 
-import type {
-  ExperienceItem,
-  EducationItem,
-} from "@qbs-autonaim/db/schema";
+import type { ExperienceItem, EducationItem } from "@qbs-autonaim/db/schema";
 
 /**
  * Платформа источника профиля
  */
-export type ProfilePlatform = "kwork" | "fl" | "freelance" | "headhunter" | "linkedin" | "unknown";
+export type ProfilePlatform =
+  | "kwork"
+  | "fl"
+  | "freelance"
+  | "headhunter"
+  | "linkedin"
+  | "unknown";
 
 /**
  * Статистика профиля фрилансера

@@ -28,9 +28,10 @@ export const list = protectedProcedure
         title: vacancy.title,
         url: vacancy.url,
         totalResponsesCount: count(responseTable.id),
-        newResponses: sql<number>`CAST(COUNT(CASE WHEN ${responseTable.status} = 'NEW' THEN 1 END) AS INTEGER)`.as(
-          "newResponses",
-        ),
+        newResponses:
+          sql<number>`CAST(COUNT(CASE WHEN ${responseTable.status} = 'NEW' THEN 1 END) AS INTEGER)`.as(
+            "newResponses",
+          ),
         resumesInProgress: vacancy.resumesInProgress,
         suitableResumes: vacancy.suitableResumes,
         region: vacancy.region,

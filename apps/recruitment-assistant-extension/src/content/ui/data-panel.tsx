@@ -12,10 +12,7 @@ import { SkillsList } from "./skills-list";
 
 interface DataPanelProps {
   data: CandidateData | null;
-  onEdit: (
-    field: string,
-    value: string | string[] | null,
-  ) => void;
+  onEdit: (field: string, value: string | string[] | null) => void;
   onExport: (format: "json" | "clipboard") => Promise<void>;
   onImportToSystem: () => void;
   apiConfigured: boolean;
@@ -42,7 +39,9 @@ export function DataPanel({
       await onExport(format);
     } catch (error) {
       console.error("Ошибка экспорта:", error);
-      onExportError?.(error instanceof Error ? error : new Error(String(error)));
+      onExportError?.(
+        error instanceof Error ? error : new Error(String(error)),
+      );
     } finally {
       setIsExporting(false);
     }
@@ -227,7 +226,9 @@ export function DataPanel({
         <section style={{ marginBottom: "24px" }}>
           <ContactInfo
             contacts={data.contacts}
-            onEdit={(field, value) => onEdit(`contacts.${String(field)}`, value)}
+            onEdit={(field, value) =>
+              onEdit(`contacts.${String(field)}`, value)
+            }
           />
         </section>
       </div>

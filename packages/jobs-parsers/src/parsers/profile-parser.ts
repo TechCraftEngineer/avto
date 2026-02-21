@@ -33,10 +33,7 @@ function detectPlatform(url: string): ProfilePlatform {
 /**
  * Извлекает username из URL профиля
  */
-function extractUsername(
-  url: string,
-  platform: ProfilePlatform,
-): string {
+function extractUsername(url: string, platform: ProfilePlatform): string {
   try {
     const urlObj = new URL(url);
     const pathname = urlObj.pathname;

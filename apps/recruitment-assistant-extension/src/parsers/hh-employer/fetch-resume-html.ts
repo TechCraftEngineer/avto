@@ -65,7 +65,9 @@ export function fetchVacancyPrintHtml(vacancyUrl: string): Promise<string> {
 /**
  * Загрузка изображения (фото кандидата) через инжект в page context.
  */
-export function fetchPhotoAsBase64(photoUrl: string): Promise<{ base64: string; contentType: string }> {
+export function fetchPhotoAsBase64(
+  photoUrl: string,
+): Promise<{ base64: string; contentType: string }> {
   return new Promise((resolve, reject) => {
     const id = `hh-photo-fetch-${Date.now()}-${Math.random().toString(36).slice(2)}`;
     const handler = (event: MessageEvent) => {

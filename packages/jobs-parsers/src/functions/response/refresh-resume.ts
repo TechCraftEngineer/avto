@@ -8,10 +8,7 @@ import { Log } from "crawlee";
 import type { Page } from "puppeteer";
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
-import {
-  loadCookies,
-  performLogin,
-} from "../../parsers/hh/core/auth/auth";
+import { loadCookies, performLogin } from "../../parsers/hh/core/auth/auth";
 import {
   setupBrowser,
   setupPage,

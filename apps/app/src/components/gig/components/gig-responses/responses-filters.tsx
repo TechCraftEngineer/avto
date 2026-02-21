@@ -38,22 +38,22 @@ export function ResponsesFilters({
 }: ResponsesFiltersProps) {
   const [showAdvanced, setShowAdvanced] = React.useState(false);
   const [priceMin, setPriceMin] = React.useState(
-    filters.priceMin?.toString() ?? ""
+    filters.priceMin?.toString() ?? "",
   );
   const [priceMax, setPriceMax] = React.useState(
-    filters.priceMax?.toString() ?? ""
+    filters.priceMax?.toString() ?? "",
   );
   const [dateFrom, setDateFrom] = React.useState(
-    filters.dateFrom ? filters.dateFrom.toISOString().split("T")[0] : ""
+    filters.dateFrom ? filters.dateFrom.toISOString().split("T")[0] : "",
   );
   const [dateTo, setDateTo] = React.useState(
-    filters.dateTo ? filters.dateTo.toISOString().split("T")[0] : ""
+    filters.dateTo ? filters.dateTo.toISOString().split("T")[0] : "",
   );
   const [scoreMin, setScoreMin] = React.useState(
-    filters.scoreMin?.toString() ?? ""
+    filters.scoreMin?.toString() ?? "",
   );
   const [scoreMax, setScoreMax] = React.useState(
-    filters.scoreMax?.toString() ?? ""
+    filters.scoreMax?.toString() ?? "",
   );
 
   const hasAdvancedFilters =
@@ -115,10 +115,7 @@ export function ResponsesFilters({
         </div>
 
         {/* Status Filter */}
-        <Select
-          value={filters.statusFilter}
-          onValueChange={handleStatusChange}
-        >
+        <Select value={filters.statusFilter} onValueChange={handleStatusChange}>
           <SelectTrigger className="w-full sm:w-48 h-11 sm:h-10 touch-manipulation border-muted-foreground/20 focus:border-primary transition-colors">
             <Filter className="h-4 w-4 mr-2 shrink-0 text-muted-foreground" />
             <SelectValue placeholder="Статус" />
@@ -159,7 +156,7 @@ export function ResponsesFilters({
               <span className="hidden sm:inline">Фильтры</span>
               {hasAdvancedFilters && (
                 <span className="ml-1 bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs">
-                 !
+                  !
                 </span>
               )}
             </Button>
@@ -183,7 +180,10 @@ export function ResponsesFilters({
 
               {/* Price Range */}
               <div className="space-y-2">
-                <label htmlFor="filter-price-min" className="text-sm font-medium">
+                <label
+                  htmlFor="filter-price-min"
+                  className="text-sm font-medium"
+                >
                   Цена (₽)
                 </label>
                 <div className="flex gap-2">
@@ -215,7 +215,10 @@ export function ResponsesFilters({
 
               {/* Date Range */}
               <div className="space-y-2">
-                <label htmlFor="filter-date-from" className="text-sm font-medium">
+                <label
+                  htmlFor="filter-date-from"
+                  className="text-sm font-medium"
+                >
                   Дата отклика
                 </label>
                 <div className="flex gap-2">
@@ -237,7 +240,10 @@ export function ResponsesFilters({
 
               {/* Score Range */}
               <div className="space-y-2">
-                <label htmlFor="filter-score-min" className="text-sm font-medium">
+                <label
+                  htmlFor="filter-score-min"
+                  className="text-sm font-medium"
+                >
                   Оценка скрининга (%)
                 </label>
                 <div className="flex gap-2">
@@ -268,10 +274,7 @@ export function ResponsesFilters({
                 )}
               </div>
 
-              <Button
-                onClick={handleApplyAdvanced}
-                className="w-full"
-              >
+              <Button onClick={handleApplyAdvanced} className="w-full">
                 Применить фильтры
               </Button>
             </div>
@@ -287,9 +290,7 @@ export function ResponsesFilters({
               Цена от {filters.priceMin.toLocaleString()} ₽
               <button
                 type="button"
-                onClick={() =>
-                  onFiltersChange({ ...filters, priceMin: null })
-                }
+                onClick={() => onFiltersChange({ ...filters, priceMin: null })}
                 className="hover:bg-secondary/80 rounded"
               >
                 <X className="h-3 w-3" />
@@ -301,9 +302,7 @@ export function ResponsesFilters({
               Цена до {filters.priceMax.toLocaleString()} ₽
               <button
                 type="button"
-                onClick={() =>
-                  onFiltersChange({ ...filters, priceMax: null })
-                }
+                onClick={() => onFiltersChange({ ...filters, priceMax: null })}
                 className="hover:bg-secondary/80 rounded"
               >
                 <X className="h-3 w-3" />
@@ -315,9 +314,7 @@ export function ResponsesFilters({
               С {filters.dateFrom.toLocaleDateString("ru-RU")}
               <button
                 type="button"
-                onClick={() =>
-                  onFiltersChange({ ...filters, dateFrom: null })
-                }
+                onClick={() => onFiltersChange({ ...filters, dateFrom: null })}
                 className="hover:bg-secondary/80 rounded"
               >
                 <X className="h-3 w-3" />
@@ -329,9 +326,7 @@ export function ResponsesFilters({
               По {filters.dateTo.toLocaleDateString("ru-RU")}
               <button
                 type="button"
-                onClick={() =>
-                  onFiltersChange({ ...filters, dateTo: null })
-                }
+                onClick={() => onFiltersChange({ ...filters, dateTo: null })}
                 className="hover:bg-secondary/80 rounded"
               >
                 <X className="h-3 w-3" />
@@ -343,9 +338,7 @@ export function ResponsesFilters({
               Оценка от {filters.scoreMin}%
               <button
                 type="button"
-                onClick={() =>
-                  onFiltersChange({ ...filters, scoreMin: null })
-                }
+                onClick={() => onFiltersChange({ ...filters, scoreMin: null })}
                 className="hover:bg-secondary/80 rounded"
               >
                 <X className="h-3 w-3" />
@@ -357,9 +350,7 @@ export function ResponsesFilters({
               Оценка до {filters.scoreMax}%
               <button
                 type="button"
-                onClick={() =>
-                  onFiltersChange({ ...filters, scoreMax: null })
-                }
+                onClick={() => onFiltersChange({ ...filters, scoreMax: null })}
                 className="hover:bg-secondary/80 rounded"
               >
                 <X className="h-3 w-3" />

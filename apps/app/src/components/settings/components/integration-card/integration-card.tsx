@@ -15,7 +15,14 @@ import {
   IntegrationIcon,
 } from "@qbs-autonaim/ui";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AlertCircle, CheckCircle2, Edit, Plus, Trash2, XCircle } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Edit,
+  Plus,
+  Trash2,
+  XCircle,
+} from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import type { AVAILABLE_INTEGRATIONS } from "~/lib/integrations";
@@ -114,7 +121,10 @@ export function IntegrationCard({
               </h3>
               {isConnected ? (
                 needsSetup ? (
-                  <Badge variant="outline" className="gap-1 w-fit border-orange-500 text-orange-700 dark:text-orange-400">
+                  <Badge
+                    variant="outline"
+                    className="gap-1 w-fit border-orange-500 text-orange-700 dark:text-orange-400"
+                  >
                     <AlertCircle className="h-3 w-3" />
                     Требуется настройка
                   </Badge>
@@ -189,9 +199,9 @@ export function IntegrationCard({
           {canEdit ? (
             isConnected ? (
               <>
-                <Button 
-                  variant={needsSetup ? "default" : "outline"} 
-                  size="sm" 
+                <Button
+                  variant={needsSetup ? "default" : "outline"}
+                  size="sm"
                   onClick={onEdit}
                 >
                   <Edit className="h-4 w-4" />

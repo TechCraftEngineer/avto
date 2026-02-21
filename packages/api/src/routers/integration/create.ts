@@ -20,7 +20,11 @@ export const createIntegration = protectedProcedure
   )
   .mutation(async ({ input, ctx }) => {
     // HH и Kwork создаются только через verify flow
-    if (CREATE_VIA_VERIFY_ONLY.includes(input.type as (typeof CREATE_VIA_VERIFY_ONLY)[number])) {
+    if (
+      CREATE_VIA_VERIFY_ONLY.includes(
+        input.type as (typeof CREATE_VIA_VERIFY_ONLY)[number],
+      )
+    ) {
       throw new TRPCError({
         code: "BAD_REQUEST",
         message: `Интеграция ${input.type} создаётся только через настройку интеграции`,

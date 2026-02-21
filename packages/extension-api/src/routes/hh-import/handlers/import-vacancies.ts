@@ -22,7 +22,10 @@ export async function handleImportVacancies(c: Context) {
   const data = parsed.data;
 
   const workspaceRepository = new WorkspaceRepository(db);
-  const member = await workspaceRepository.checkAccess(data.workspaceId, userId);
+  const member = await workspaceRepository.checkAccess(
+    data.workspaceId,
+    userId,
+  );
   if (!member) {
     return c.json({ error: "Нет доступа к workspace" }, 403);
   }

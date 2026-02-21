@@ -28,9 +28,10 @@ function createWrapper() {
   queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
-  invalidateQueriesSpy = spyOn(queryClient, "invalidateQueries").mockResolvedValue(
-    undefined as never,
-  );
+  invalidateQueriesSpy = spyOn(
+    queryClient,
+    "invalidateQueries",
+  ).mockResolvedValue(undefined as never);
   return function Wrapper({ children }: { children: ReactNode }) {
     return (
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>

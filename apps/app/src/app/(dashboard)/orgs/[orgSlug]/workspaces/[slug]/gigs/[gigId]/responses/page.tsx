@@ -37,7 +37,11 @@ import {
 import type { ResponseFiltersState } from "~/components/gig/components/gig-responses/use-response-filters";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
-import { convertToCSV, downloadCSV, generateExportFilename } from "~/lib/export-csv";
+import {
+  convertToCSV,
+  downloadCSV,
+  generateExportFilename,
+} from "~/lib/export-csv";
 
 interface PageProps {
   params: Promise<{ orgSlug: string; slug: string; gigId: string }>;
@@ -147,10 +151,17 @@ export default function GigResponsesPage({ params }: PageProps) {
   }>({ open: false, responseId: "", action: "accept", candidateName: "" });
 
   // Selected responses for bulk operations
-  const [selectedResponses, setSelectedResponses] = React.useState<Set<string>>(new Set());
+  const [selectedResponses, setSelectedResponses] = React.useState<Set<string>>(
+    new Set(),
+  );
 
   // Bulk operations
-  const { handleAcceptMultiple, handleRejectMultiple, isAccepting, isRejecting } = useBulkOperations({
+  const {
+    handleAcceptMultiple,
+    handleRejectMultiple,
+    isAccepting,
+    isRejecting,
+  } = useBulkOperations({
     gigId,
     workspaceId: workspace?.id,
   });
@@ -166,7 +177,7 @@ export default function GigResponsesPage({ params }: PageProps) {
 
   const handleExport = React.useCallback(async () => {
     if (!workspace?.id) return;
-    
+
     try {
       const result = await exportData();
       if (result.data) {
@@ -490,7 +501,7 @@ export default function GigResponsesPage({ params }: PageProps) {
                 hasResponses={stats.total > 0}
               />
             </div>
-            
+
             {/* Bulk Actions */}
             <div className="mt-4 pt-4 border-t">
               <BulkActionButtons
@@ -503,10 +514,14 @@ export default function GigResponsesPage({ params }: PageProps) {
                 isExporting={isExporting}
               />
             </div>
-            {(filters.searchQuery || filters.statusFilter !== "all" ||
-              filters.priceMin !== null || filters.priceMax !== null ||
-              filters.dateFrom !== null || filters.dateTo !== null ||
-              filters.scoreMin !== null || filters.scoreMax !== null) &&
+            {(filters.searchQuery ||
+              filters.statusFilter !== "all" ||
+              filters.priceMin !== null ||
+              filters.priceMax !== null ||
+              filters.dateFrom !== null ||
+              filters.dateTo !== null ||
+              filters.scoreMin !== null ||
+              filters.scoreMax !== null) &&
               filteredResponses.length > 0 && (
                 <p className="mt-3 text-xs sm:text-sm text-muted-foreground">
                   Показано {filteredResponses.length} из {stats.total}
@@ -520,13 +535,13 @@ export default function GigResponsesPage({ params }: PageProps) {
           <EmptyState
             hasFilters={Boolean(
               filters.searchQuery ||
-              filters.statusFilter !== "all" ||
-              filters.priceMin !== null ||
-              filters.priceMax !== null ||
-              filters.dateFrom !== null ||
-              filters.dateTo !== null ||
-              filters.scoreMin !== null ||
-              filters.scoreMax !== null
+                filters.statusFilter !== "all" ||
+                filters.priceMin !== null ||
+                filters.priceMax !== null ||
+                filters.dateFrom !== null ||
+                filters.dateTo !== null ||
+                filters.scoreMin !== null ||
+                filters.scoreMax !== null,
             )}
           />
         ) : (

@@ -27,7 +27,11 @@ mock.module("next/font/google", () => ({
 }));
 
 const tokenFn = () =>
-  Promise.resolve({ channel: "test", topics: ["progress", "result"], key: "k" });
+  Promise.resolve({
+    channel: "test",
+    topics: ["progress", "result"],
+    key: "k",
+  });
 // Пробуем оба пути — Bun может разрешать ~ по-разному в preload
 const realtimeExports = () => ({
   fetchScreenNewResponsesToken: tokenFn,
@@ -53,5 +57,6 @@ mock.module("./src/actions/realtime", realtimeExports);
 const realContext = await import(
   "./src/components/vacancy/components/responses/context/vacancy-responses-context"
 );
-(globalThis as unknown as { __realVacancyResponsesContext: object }).__realVacancyResponsesContext =
-  realContext;
+(
+  globalThis as unknown as { __realVacancyResponsesContext: object }
+).__realVacancyResponsesContext = realContext;

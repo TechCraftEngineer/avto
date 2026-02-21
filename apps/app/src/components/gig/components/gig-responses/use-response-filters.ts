@@ -44,7 +44,9 @@ export const useResponseFilters = <T extends Response>({
         response.candidateName
           ?.toLowerCase()
           .includes(filters.searchQuery.toLowerCase()) ||
-        response.candidateId.toLowerCase().includes(filters.searchQuery.toLowerCase());
+        response.candidateId
+          .toLowerCase()
+          .includes(filters.searchQuery.toLowerCase());
 
       // Status filter
       let matchesStatus = true;
@@ -53,7 +55,8 @@ export const useResponseFilters = <T extends Response>({
       } else if (filters.statusFilter === "recommended") {
         matchesStatus = response.hrSelectionStatus === "RECOMMENDED";
       } else if (filters.statusFilter === "unprocessed") {
-        matchesStatus = response.status === "NEW" || response.status === "EVALUATED";
+        matchesStatus =
+          response.status === "NEW" || response.status === "EVALUATED";
       } else {
         matchesStatus = response.status === filters.statusFilter;
       }
@@ -63,13 +66,19 @@ export const useResponseFilters = <T extends Response>({
       if (filters.priceMin !== null && filters.priceMin !== undefined) {
         matchesPrice = (response.proposedPrice ?? 0) >= filters.priceMin;
       }
-      if (matchesPrice && filters.priceMax !== null && filters.priceMax !== undefined) {
+      if (
+        matchesPrice &&
+        filters.priceMax !== null &&
+        filters.priceMax !== undefined
+      ) {
         matchesPrice = (response.proposedPrice ?? Infinity) <= filters.priceMax;
       }
 
       // Date filter
       let matchesDate = true;
-      const responseDate = response.createdAt ? new Date(response.createdAt) : null;
+      const responseDate = response.createdAt
+        ? new Date(response.createdAt)
+        : null;
       if (responseDate) {
         if (filters.dateFrom) {
           matchesDate = responseDate >= filters.dateFrom;
@@ -89,12 +98,22 @@ export const useResponseFilters = <T extends Response>({
         if (filters.scoreMin !== null && filters.scoreMin !== undefined) {
           matchesScore = responseScore >= filters.scoreMin;
         }
-        if (matchesScore && filters.scoreMax !== null && filters.scoreMax !== undefined) {
+        if (
+          matchesScore &&
+          filters.scoreMax !== null &&
+          filters.scoreMax !== undefined
+        ) {
           matchesScore = responseScore <= filters.scoreMax;
         }
       }
 
-      return matchesSearch && matchesStatus && matchesPrice && matchesDate && matchesScore;
+      return (
+        matchesSearch &&
+        matchesStatus &&
+        matchesPrice &&
+        matchesDate &&
+        matchesScore
+      );
     });
   }, [responses, filters]);
 

@@ -121,7 +121,8 @@ export function IntegrationFormFields({
                   Интеграция включена
                 </FormLabel>
                 <FormDescription className="text-xs">
-                  Отключите интеграцию, чтобы приостановить её работу без удаления данных
+                  Отключите интеграцию, чтобы приостановить её работу без
+                  удаления данных
                 </FormDescription>
               </div>
               <FormControl>

@@ -26,7 +26,11 @@ export class Logger {
   /**
    * Логирует ошибку с timestamp, type, message, stack, context
    */
-  log(error: Error, type: ErrorLog["type"], context?: Record<string, unknown>): void {
+  log(
+    error: Error,
+    type: ErrorLog["type"],
+    context?: Record<string, unknown>,
+  ): void {
     const log: ErrorLog = {
       timestamp: new Date(),
       type,

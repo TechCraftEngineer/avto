@@ -9,7 +9,10 @@ interface UseBulkOperationsProps {
   workspaceId?: string;
 }
 
-export function useBulkOperations({ gigId, workspaceId }: UseBulkOperationsProps) {
+export function useBulkOperations({
+  gigId,
+  workspaceId,
+}: UseBulkOperationsProps) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 

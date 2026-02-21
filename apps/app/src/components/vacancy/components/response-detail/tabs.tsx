@@ -82,9 +82,11 @@ export function VacancyResponseTabs({
               <ScreeningResultsCard screening={screening} />
             ) : null}
             {/* Показываем карточку интервью или заглушку */}
-            {(hasInterviewScoring || hasConversation) ? (
+            {hasInterviewScoring || hasConversation ? (
               response.interviewScoring ? (
-                <InterviewScoringCard interviewScoring={response.interviewScoring} />
+                <InterviewScoringCard
+                  interviewScoring={response.interviewScoring}
+                />
               ) : (
                 <Card>
                   <CardHeader>
@@ -103,7 +105,8 @@ export function VacancyResponseTabs({
                         Оценка появится после прохождения интервью
                       </div>
                       <p className="text-xs text-muted-foreground mt-2">
-                        Результаты AI-анализа станут доступны, когда кандидат завершит интервью
+                        Результаты AI-анализа станут доступны, когда кандидат
+                        завершит интервью
                       </p>
                     </div>
                   </CardContent>

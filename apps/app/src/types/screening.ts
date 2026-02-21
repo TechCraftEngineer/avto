@@ -9,7 +9,12 @@ import type { ComponentType } from "react";
 // SCORE TYPES
 // ============================================
 
-export type ScoreTheme = 'excellent' | 'good' | 'satisfactory' | 'poor' | 'muted';
+export type ScoreTheme =
+  | "excellent"
+  | "good"
+  | "satisfactory"
+  | "poor"
+  | "muted";
 
 export const SCORE_THRESHOLDS = {
   EXCELLENT: 80,
@@ -62,15 +67,18 @@ export interface ScreeningPsychometricAnalysis {
   recommendations: string[];
 }
 
-export type CareerTrajectoryType = 
-  | 'growth' 
-  | 'stable' 
-  | 'decline' 
-  | 'jump' 
-  | 'role_change' 
+export type CareerTrajectoryType =
+  | "growth"
+  | "stable"
+  | "decline"
+  | "jump"
+  | "role_change"
   | null;
 
-export interface ScreeningData extends ScreeningScore, ScreeningAnalysis, HiddenFitData {
+export interface ScreeningData
+  extends ScreeningScore,
+    ScreeningAnalysis,
+    HiddenFitData {
   careerTrajectoryType?: CareerTrajectoryType;
   psychometricAnalysis?: ScreeningPsychometricAnalysis | null;
 }
@@ -81,8 +89,8 @@ export interface ScreeningData extends ScreeningScore, ScreeningAnalysis, Hidden
 
 export interface InterviewMessage {
   id: string;
-  sender: 'CANDIDATE' | 'BOT' | 'ADMIN';
-  contentType: 'TEXT' | 'VOICE';
+  sender: "CANDIDATE" | "BOT" | "ADMIN";
+  contentType: "TEXT" | "VOICE";
   content: string;
   voiceUrl?: string;
   voiceDuration?: string;
@@ -107,17 +115,17 @@ export interface InterviewConversation {
 // ============================================
 
 export type RecommendationLevel =
-  | 'HIGHLY_RECOMMENDED'
-  | 'RECOMMENDED'
-  | 'NEUTRAL'
-  | 'NOT_RECOMMENDED'
-  | 'hire'
-  | 'maybe'
-  | 'pass';
+  | "HIGHLY_RECOMMENDED"
+  | "RECOMMENDED"
+  | "NEUTRAL"
+  | "NOT_RECOMMENDED"
+  | "hire"
+  | "maybe"
+  | "pass";
 
 export interface RiskFactor {
   description: string;
-  severity?: 'low' | 'medium' | 'high';
+  severity?: "low" | "medium" | "high";
 }
 
 export interface CandidateRecommendation {
@@ -161,14 +169,14 @@ export interface ScoreDisplayProps {
   maxScore?: number;
   label: string;
   showProgress?: boolean;
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
   showBadge?: boolean;
   className?: string;
 }
 
 export interface ItemsListProps {
   items: string[];
-  type: 'strengths' | 'weaknesses' | 'risks' | 'recommendations' | 'questions';
+  type: "strengths" | "weaknesses" | "risks" | "recommendations" | "questions";
   icon?: boolean;
   className?: string;
 }

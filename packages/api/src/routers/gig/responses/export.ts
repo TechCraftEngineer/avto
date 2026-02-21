@@ -67,7 +67,9 @@ export const exportResponses = protectedProcedure
       screeningAnalysis: response.screening?.overallAnalysis || "",
       interviewScore: response.interviewScoring?.score || "",
       interviewRating: response.interviewScoring?.rating || "",
-      createdAt: response.createdAt ? new Date(response.createdAt).toLocaleString("ru-RU") : "",
+      createdAt: response.createdAt
+        ? new Date(response.createdAt).toLocaleString("ru-RU")
+        : "",
     }));
 
     // Заголовки CSV

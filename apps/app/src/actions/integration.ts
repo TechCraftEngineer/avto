@@ -8,7 +8,9 @@ const verifyHHCredentialsSchema = z
   .object({
     email: z.string().email("Неверный адрес электронной почты"),
     password: z.string().optional(),
-    workspaceId: z.string().min(1, "Идентификатор рабочего пространства обязателен"),
+    workspaceId: z
+      .string()
+      .min(1, "Идентификатор рабочего пространства обязателен"),
     authType: z.enum(["password", "code"]).default("password"),
   })
   .superRefine((data, ctx) => {

@@ -56,7 +56,7 @@ async function updateVacancyCounter(id: string) {
       process.exit(1);
     }
 
-        // Обновляем счетчики (views, responses, new_responses удалены из схемы)
+    // Обновляем счетчики (views, responses, new_responses удалены из схемы)
     const result = await db
       .update(vacancy)
       .set({

@@ -10,7 +10,12 @@ import {
 } from "@qbs-autonaim/ui";
 import { memo } from "react";
 import { AlertCircle } from "lucide-react";
-import { cn, getScoreTheme, getScoreColor, getProgressColor } from "~/lib/score-utils";
+import {
+  cn,
+  getScoreTheme,
+  getScoreColor,
+  getProgressColor,
+} from "~/lib/score-utils";
 import { getRecommendationConfig } from "~/lib/recommendation-config";
 import { ItemsListSection } from "~/components/ui/items-list";
 import type { OverallAssessmentData } from "~/types/screening";
@@ -40,7 +45,9 @@ export const OverallAssessment = memo(function OverallAssessment({
   strengths,
   weaknesses,
 }: OverallAssessmentProps) {
-  const recommendationConfig = recommendation ? getRecommendationConfig(recommendation) : null;
+  const recommendationConfig = recommendation
+    ? getRecommendationConfig(recommendation)
+    : null;
   const RecommendationIcon = recommendationConfig?.icon;
 
   const hasStrengths = strengths && strengths.length > 0;
@@ -76,7 +83,10 @@ export const OverallAssessment = memo(function OverallAssessment({
                 Итоговая оценка
               </span>
               <span
-                className={cn("text-2xl font-bold", getScoreColorValue(compositeScore))}
+                className={cn(
+                  "text-2xl font-bold",
+                  getScoreColorValue(compositeScore),
+                )}
               >
                 {compositeScore}/100
               </span>

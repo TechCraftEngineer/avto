@@ -103,8 +103,7 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
         with: { organization: { columns: { plan: true } } },
       });
 
-      const organizationPlan =
-        workspaceData?.organization?.plan ?? "free";
+      const organizationPlan = workspaceData?.organization?.plan ?? "free";
       const responsesLimit =
         getResponsesLimitByOrganizationPlan(organizationPlan);
 
@@ -122,99 +121,97 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
     let hasMore = true;
 
     while (hasMore) {
-      const pageResult = await step.run(
-        `sync-page-${pageIndex}`,
-        async () => {
-          try {
+      const pageResult = await step.run(`sync-page-${pageIndex}`, async () => {
+        try {
+          await publish(
+            syncArchivedResponsesChannel(vacancyId).progress({
+              vacancyId,
+              status: "processing",
+              message: `Синхронизация страницы ${pageIndex + 1}...`,
+            }),
+          );
+
+          let lastPublishTime = 0;
+          const THROTTLE_INTERVAL = 2000;
+
+          const onProgress = async (
+            processed: number,
+            total: number,
+            newCount: number,
+            currentName?: string,
+          ) => {
+            const now = Date.now();
+            if (
+              now - lastPublishTime < THROTTLE_INTERVAL &&
+              processed < total
+            ) {
+              return;
+            }
+            lastPublishTime = now;
+
+            const progressPercent =
+              total > 0 ? Math.round((processed / total) * 100) : 0;
+            const message = currentName
+              ? `Страница ${pageIndex + 1}: ${processed}/${total} (${progressPercent}%). ${currentName}`
+              : `Страница ${pageIndex + 1}: ${processed}/${total} (${progressPercent}%). Новых: ${newCount}`;
+
             await publish(
               syncArchivedResponsesChannel(vacancyId).progress({
                 vacancyId,
                 status: "processing",
-                message: `Синхронизация страницы ${pageIndex + 1}...`,
+                message,
+                syncedResponses: processed,
+                newResponses: newCount,
+                totalResponses: total,
               }),
             );
+          };
 
-            let lastPublishTime = 0;
-            const THROTTLE_INTERVAL = 2000;
+          const result = await runHHArchivedVacancyParserPage({
+            workspaceId,
+            vacancyId,
+            externalId: validation.externalId,
+            pageOptions: {
+              pageIndex,
+              accumulatedCount: accumulatedSynced,
+              accumulatedNewCount: accumulatedNew,
+              responsesLimit: validation.responsesLimit,
+            },
+            onProgress,
+          });
 
-            const onProgress = async (
-              processed: number,
-              total: number,
-              newCount: number,
-              currentName?: string,
-            ) => {
-              const now = Date.now();
-              if (now - lastPublishTime < THROTTLE_INTERVAL && processed < total) {
-                return;
-              }
-              lastPublishTime = now;
+          return result;
+        } catch (error) {
+          console.error(
+            `❌ Ошибка синхронизации страницы ${pageIndex} для вакансии ${vacancyId}:`,
+            error,
+          );
 
-              const progressPercent =
-                total > 0 ? Math.round((processed / total) * 100) : 0;
-              const message = currentName
-                ? `Страница ${pageIndex + 1}: ${processed}/${total} (${progressPercent}%). ${currentName}`
-                : `Страница ${pageIndex + 1}: ${processed}/${total} (${progressPercent}%). Новых: ${newCount}`;
-
-              await publish(
-                syncArchivedResponsesChannel(vacancyId).progress({
-                  vacancyId,
-                  status: "processing",
-                  message,
-                  syncedResponses: processed,
-                  newResponses: newCount,
-                  totalResponses: total,
-                }),
-              );
-            };
-
-            const result = await runHHArchivedVacancyParserPage({
-              workspaceId,
+          await publish(
+            syncArchivedResponsesChannel(vacancyId).progress({
               vacancyId,
-              externalId: validation.externalId,
-              pageOptions: {
-                pageIndex,
-                accumulatedCount: accumulatedSynced,
-                accumulatedNewCount: accumulatedNew,
-                responsesLimit: validation.responsesLimit,
-              },
-              onProgress,
-            });
+              status: "error",
+              message:
+                error instanceof Error ? error.message : "Ошибка синхронизации",
+            }),
+          );
 
-            return result;
-          } catch (error) {
-            console.error(
-              `❌ Ошибка синхронизации страницы ${pageIndex} для вакансии ${vacancyId}:`,
-              error,
-            );
-
+          if (isHHAuthError(error)) {
             await publish(
-              syncArchivedResponsesChannel(vacancyId).progress({
-                vacancyId,
-                status: "error",
+              workspaceNotificationsChannel(workspaceId)["integration-error"]({
+                workspaceId,
+                type: "hh-auth-failed",
                 message:
-                  error instanceof Error
-                    ? error.message
-                    : "Ошибка синхронизации",
+                  "Авторизация в HeadHunter слетела. Проверьте учётные данные в настройках интеграции.",
+                severity: "error",
+                timestamp: new Date().toISOString(),
               }),
             );
-
-            if (isHHAuthError(error)) {
-              await publish(
-                workspaceNotificationsChannel(workspaceId)["integration-error"]({
-                  workspaceId,
-                  type: "hh-auth-failed",
-                  message:
-                    "Авторизация в HeadHunter слетела. Проверьте учётные данные в настройках интеграции.",
-                  severity: "error",
-                  timestamp: new Date().toISOString(),
-                }),
-              );
-            }
-
-            throw error;
           }
-        },
-      );
+
+          throw error;
+        }
+      });
 
       accumulatedSynced += pageResult.syncedResponses;
       accumulatedNew += pageResult.newResponses;
@@ -249,11 +246,7 @@ export const syncArchivedVacancyResponsesFunction = inngest.createFunction(
         await runHHParseResponseDetailsForVacancy(
           workspaceId,
           vacancyId,
-          async (
-            processed: number,
-            total: number,
-            currentName?: string,
-          ) => {
+          async (processed: number, total: number, currentName?: string) => {
             await publish(
               syncArchivedResponsesChannel(vacancyId).progress({
                 vacancyId,

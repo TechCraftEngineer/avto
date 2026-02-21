@@ -1,6 +1,4 @@
-import {
-  getIntegrationCredentials,
-} from "@qbs-autonaim/db";
+import { getIntegrationCredentials } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import type { Browser, Page } from "puppeteer";
 import { validateCredentials } from "../core/auth/auth";

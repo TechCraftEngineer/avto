@@ -34,7 +34,9 @@ export function ResponseKanbanColumn({
       <legend className="sr-only">{`Колонка ${title}`}</legend>
       <div className="mb-3 flex shrink-0 items-center gap-2 px-1">
         <div className={cn("w-2 h-2 rounded-full shrink-0", color)} />
-        <h3 className="text-sm font-semibold truncate text-foreground/90">{title}</h3>
+        <h3 className="text-sm font-semibold truncate text-foreground/90">
+          {title}
+        </h3>
         <span className="text-xs font-medium text-muted-foreground bg-background/80 px-2.5 py-0.5 rounded-full tabular-nums ml-auto shrink-0">
           {total}
         </span>

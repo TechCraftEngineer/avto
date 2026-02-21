@@ -141,7 +141,7 @@ export async function checkAndPerformLogin(
 
     // Проверяем наличие формы регистрации - если есть, значит не авторизованы
     const signupForm = await page.$('form[data-qa="account-signup"]');
-    
+
     if (signupForm) {
       console.log("🔑 Требуется авторизация, выполняем логин...");
       loginAttempted = true;
@@ -175,9 +175,11 @@ export async function checkAndPerformLogin(
       });
 
       const stillHasSignupForm = await page.$('form[data-qa="account-signup"]');
-      
+
       if (stillHasSignupForm) {
-        console.log("❌ Авторизация не удалась - форма регистрации все еще присутствует");
+        console.log(
+          "❌ Авторизация не удалась - форма регистрации все еще присутствует",
+        );
         await markIntegrationAuthError(
           db,
           "hh",

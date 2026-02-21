@@ -6,7 +6,7 @@ export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
     <div
       className={cn(
         "rounded-xl border bg-card text-card-foreground shadow-sm",
-        className
+        className,
       )}
       {...props}
     />
@@ -42,10 +42,7 @@ export function CardDescription({
   ...props
 }: HTMLAttributes<HTMLParagraphElement>) {
   return (
-    <p
-      className={cn("text-sm text-muted-foreground", className)}
-      {...props}
-    />
+    <p className={cn("text-sm text-muted-foreground", className)} {...props} />
   );
 }
 
@@ -61,9 +58,6 @@ export function CardFooter({
   ...props
 }: HTMLAttributes<HTMLDivElement>) {
   return (
-    <div
-      className={cn("flex items-center p-4 pt-0", className)}
-      {...props}
-    />
+    <div className={cn("flex items-center p-4 pt-0", className)} {...props} />
   );
 }

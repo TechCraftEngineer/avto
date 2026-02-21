@@ -118,7 +118,6 @@ export function VacancyTableRow({
   // Валидируем и санитизируем URL платформы
   const safePlatformUrl = sanitizeUrl(vacancy.platformUrl);
 
-
   // Определяем приоритет вакансии для рекрутера
   const needsAttention = Boolean(
     vacancy.newResponses && vacancy.newResponses > 0,

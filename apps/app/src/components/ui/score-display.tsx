@@ -2,7 +2,13 @@
 
 import { memo, type ReactNode } from "react";
 import { Progress } from "@qbs-autonaim/ui";
-import { cn, getScoreTheme, getScoreColor, getProgressColor, formatScore } from "~/lib/score-utils";
+import {
+  cn,
+  getScoreTheme,
+  getScoreColor,
+  getProgressColor,
+  formatScore,
+} from "~/lib/score-utils";
 
 interface ScoreDisplayProps {
   /** Score value to display */
@@ -14,7 +20,7 @@ interface ScoreDisplayProps {
   /** Whether to show progress bar */
   showProgress?: boolean;
   /** Size variant */
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
   /** Additional CSS classes */
   className?: string;
   /** Accessibility label */
@@ -30,30 +36,36 @@ export const ScoreDisplay = memo(function ScoreDisplay({
   maxScore = 100,
   label,
   showProgress = true,
-  size = 'md',
+  size = "md",
   className,
   ariaLabel,
 }: ScoreDisplayProps) {
   const theme = getScoreTheme(score);
   const percentage = maxScore > 0 ? ((score ?? 0) / maxScore) * 100 : 0;
-  
+
   const sizeClasses = {
-    sm: 'text-sm',
-    md: 'text-lg',
-    lg: 'text-2xl',
+    sm: "text-sm",
+    md: "text-lg",
+    lg: "text-2xl",
   };
 
   const progressHeight = {
-    sm: 'h-1.5',
-    md: 'h-2',
-    lg: 'h-3',
+    sm: "h-1.5",
+    md: "h-2",
+    lg: "h-3",
   };
 
   return (
     <div className={cn("space-y-2", className)}>
       <div className="flex items-center justify-between">
         <span className="text-sm text-muted-foreground">{label}</span>
-        <span className={cn("font-bold tabular-nums", getScoreColor(theme), sizeClasses[size])}>
+        <span
+          className={cn(
+            "font-bold tabular-nums",
+            getScoreColor(theme),
+            sizeClasses[size],
+          )}
+        >
           {formatScore(score, { divisor: 1, multiplier: 1, max: maxScore })}
         </span>
       </div>
@@ -92,10 +104,10 @@ export const ScoreDisplayGrid = memo(function ScoreDisplayGrid({
   className,
 }: ScoreDisplayGridProps) {
   const gridClasses = {
-    1: 'grid-cols-1',
-    2: 'grid-cols-1 sm:grid-cols-2',
-    3: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
-    4: 'grid-cols-2 sm:grid-cols-2 lg:grid-cols-4',
+    1: "grid-cols-1",
+    2: "grid-cols-1 sm:grid-cols-2",
+    3: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+    4: "grid-cols-2 sm:grid-cols-2 lg:grid-cols-4",
   };
 
   return (

@@ -51,9 +51,7 @@ export const listIntegrations = protectedProcedure
 
       // Извлекаем информацию об ошибке авторизации из metadata
       const metadata = int.metadata as Record<string, unknown> | null;
-      const authError = metadata?.authError
-        ? String(metadata.authError)
-        : null;
+      const authError = metadata?.authError ? String(metadata.authError) : null;
       const authErrorAt = metadata?.authErrorAt
         ? String(metadata.authErrorAt)
         : null;

@@ -50,7 +50,10 @@ export async function screenNewResponsesForVacancy(
     (
       await db.query.responseScreening.findMany({
         where: (screening, { inArray }) =>
-          inArray(screening.responseId, allResponses.map((r) => r.id)),
+          inArray(
+            screening.responseId,
+            allResponses.map((r) => r.id),
+          ),
         columns: { responseId: true },
       })
     ).map((s) => s.responseId),

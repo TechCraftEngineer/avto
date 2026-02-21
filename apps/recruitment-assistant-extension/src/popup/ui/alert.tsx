@@ -16,7 +16,7 @@ export function Alert({
         variant === "destructive" &&
           "border-destructive/50 bg-destructive/10 text-destructive",
         variant === "default" && "bg-muted text-muted-foreground",
-        className
+        className,
       )}
       {...props}
     />

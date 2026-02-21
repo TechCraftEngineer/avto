@@ -1,10 +1,7 @@
 "use client";
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
-import {
-  Badge,
-  Separator,
-} from "@qbs-autonaim/ui";
+import { Badge, Separator } from "@qbs-autonaim/ui";
 import {
   AlertCircle,
   BadgeCheck,
@@ -57,10 +54,10 @@ function analyzeResponseQuality(response: GigResponseDetail): {
   // Проверка сопроводительного письма
   if (response.coverLetter) {
     const letterLength = response.coverLetter.length;
-    
+
     // Базовая оценка за наличие письма
     score += 10;
-    
+
     // Проверка длины
     if (letterLength >= 100) {
       score += 15;
@@ -69,38 +66,47 @@ function analyzeResponseQuality(response: GigResponseDetail): {
       issues.push("Слишком короткое письмо");
       suggestions.push("Расширьте описание своего предложения");
     }
-    
+
     // Проверка наличия ключевых слов (опыт, навыки)
     const hasExperience = /\d+\s*(лет|год|месяц)/i.test(response.coverLetter);
-    const hasSkills = /Python|HTML|CSS|JavaScript|React|Figma|SQL|TABLEAU|Kubernetes/i.test(response.coverLetter);
-    const hasPortfolio = /портфолио|кейс|проект|работа/i.test(response.coverLetter);
-    
+    const hasSkills =
+      /Python|HTML|CSS|JavaScript|React|Figma|SQL|TABLEAU|Kubernetes/i.test(
+        response.coverLetter,
+      );
+    const hasPortfolio = /портфолио|кейс|проект|работа/i.test(
+      response.coverLetter,
+    );
+
     if (hasExperience) {
       score += 10;
       completed.push("Указан опыт работы");
     } else {
       suggestions.push("Добавьте информацию об опыте");
     }
-    
+
     if (hasSkills) {
       score += 10;
       completed.push("Указаны навыки");
     }
-    
+
     if (hasPortfolio) {
       score += 10;
       completed.push("Есть упоминание портфолио");
     } else {
       suggestions.push("Добавьте ссылку на портфолио");
     }
-    
+
     // Проверка CTA (призыв к действию)
-    const hasCTA = /свяжитесь|обсудить|жду|готов|звоните|пишите/i.test(response.coverLetter);
+    const hasCTA = /свяжитесь|обсудить|жду|готов|звоните|пишите/i.test(
+      response.coverLetter,
+    );
     if (hasCTA) {
       score += 5;
       completed.push("Есть призыв к действию");
     } else {
-      suggestions.push('Добавьте призыв к действию (например: "Свяжитесь со мной для обсуждения")');
+      suggestions.push(
+        'Добавьте призыв к действию (например: "Свяжитесь со мной для обсуждения")',
+      );
     }
   } else {
     issues.push("Отсутствует сопроводительное письмо");
@@ -111,7 +117,8 @@ function analyzeResponseQuality(response: GigResponseDetail): {
 }
 
 function QualityBadge({ score }: { score: number }) {
-  let variant: "default" | "secondary" | "destructive" | "outline" = "secondary";
+  let variant: "default" | "secondary" | "destructive" | "outline" =
+    "secondary";
   let label = "Низкое качество";
   let Icon = AlertCircle;
 
@@ -144,17 +151,19 @@ export function GigProposalTab({ response }: GigProposalTabProps) {
     <div className="space-y-3 sm:space-y-4 mt-0">
       {/* Индикатор качества отклика */}
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <div className="text-xs sm:text-sm font-medium">
-          Оценка отклика
-        </div>
+        <div className="text-xs sm:text-sm font-medium">Оценка отклика</div>
         <QualityBadge score={quality.score} />
       </div>
 
       {/* Карточки с основной информацией */}
       <div className="grid gap-3 sm:gap-4 sm:grid-cols-3">
-        <div className={`rounded-lg border p-3 sm:p-4 ${
-          response.proposedPrice ? "bg-muted/20 border-border" : "bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-900"
-        }`}>
+        <div
+          className={`rounded-lg border p-3 sm:p-4 ${
+            response.proposedPrice
+              ? "bg-muted/20 border-border"
+              : "bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-900"
+          }`}
+        >
           <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
             {response.proposedPrice ? (
               <CheckCircle2 className="h-4 w-4 text-green-500" />
@@ -164,13 +173,19 @@ export function GigProposalTab({ response }: GigProposalTabProps) {
             Предложенная цена
           </div>
           <div className="mt-1 text-base sm:text-lg font-semibold">
-            {response.proposedPrice ? formatCurrency(response.proposedPrice) : "Не указана"}
+            {response.proposedPrice
+              ? formatCurrency(response.proposedPrice)
+              : "Не указана"}
           </div>
         </div>
 
-        <div className={`rounded-lg border p-3 sm:p-4 ${
-          response.proposedDeliveryDays ? "bg-muted/20 border-border" : "bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-900"
-        }`}>
+        <div
+          className={`rounded-lg border p-3 sm:p-4 ${
+            response.proposedDeliveryDays
+              ? "bg-muted/20 border-border"
+              : "bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-900"
+          }`}
+        >
           <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
             {response.proposedDeliveryDays ? (
               <Clock className="h-4 w-4 text-green-500" />
@@ -205,7 +220,10 @@ export function GigProposalTab({ response }: GigProposalTabProps) {
           </div>
           <ul className="space-y-1">
             {quality.suggestions.map((suggestion) => (
-              <li key={`suggestion-${suggestion.slice(0, 20)}`} className="text-xs sm:text-sm text-amber-700 dark:text-amber-300 flex items-start gap-2">
+              <li
+                key={`suggestion-${suggestion.slice(0, 20)}`}
+                className="text-xs sm:text-sm text-amber-700 dark:text-amber-300 flex items-start gap-2"
+              >
                 <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-amber-500 shrink-0" />
                 {suggestion}
               </li>
@@ -223,7 +241,10 @@ export function GigProposalTab({ response }: GigProposalTabProps) {
           </div>
           <ul className="space-y-1">
             {quality.completed.map((item) => (
-              <li key={`completed-${item.slice(0, 20)}`} className="text-xs sm:text-sm text-green-700 dark:text-green-300 flex items-start gap-2">
+              <li
+                key={`completed-${item.slice(0, 20)}`}
+                className="text-xs sm:text-sm text-green-700 dark:text-green-300 flex items-start gap-2"
+              >
                 <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
                 {item}
               </li>

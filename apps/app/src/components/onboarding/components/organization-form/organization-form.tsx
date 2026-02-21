@@ -30,7 +30,11 @@ import { useTRPC } from "~/trpc/react";
 type OrganizationFormValues = z.infer<typeof createOrganizationSchema>;
 
 interface OrganizationFormProps {
-  onSuccess?: (organization: { id: string; slug: string; name: string }) => void;
+  onSuccess?: (organization: {
+    id: string;
+    slug: string;
+    name: string;
+  }) => void;
 }
 
 export function OrganizationForm({ onSuccess }: OrganizationFormProps) {
@@ -69,7 +73,8 @@ export function OrganizationForm({ onSuccess }: OrganizationFormProps) {
           error.message.includes("CONFLICT")
         ) {
           form.setError("slug", {
-            message: "Организация с таким слагом уже существует. Попробуйте другой слаг.",
+            message:
+              "Организация с таким слагом уже существует. Попробуйте другой слаг.",
           });
         } else {
           toast.error("Ошибка при создании организации", {
@@ -102,7 +107,9 @@ export function OrganizationForm({ onSuccess }: OrganizationFormProps) {
 
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit((values) => createMutation.mutate(values))}
+          onSubmit={form.handleSubmit((values) =>
+            createMutation.mutate(values),
+          )}
           className="space-y-6 rounded-xl border bg-card p-8 shadow-lg backdrop-blur-sm"
         >
           <FormField
@@ -147,9 +154,9 @@ export function OrganizationForm({ onSuccess }: OrganizationFormProps) {
                       <TooltipContent className="max-w-xs">
                         <p>
                           Слаг — это уникальный идентификатор для адреса.
-                          Например, для организации &quot;Моя Компания&quot; слаг
-                          может быть &quot;moya-kompaniya&quot;. Используется
-                          только латиница, цифры и дефисы.
+                          Например, для организации &quot;Моя Компания&quot;
+                          слаг может быть &quot;moya-kompaniya&quot;.
+                          Используется только латиница, цифры и дефисы.
                         </p>
                       </TooltipContent>
                     </Tooltip>

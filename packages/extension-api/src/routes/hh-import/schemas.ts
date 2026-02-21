@@ -22,7 +22,8 @@ export const responseItemSchema = z.object({
   photoUrl: z
     .string()
     .regex(/^data:image\/(png|jpeg|jpg|gif|webp);base64,/, {
-      message: "photoUrl должен быть в формате base64 (data:image/...;base64,...)",
+      message:
+        "photoUrl должен быть в формате base64 (data:image/...;base64,...)",
     })
     .optional(),
   resumeTextHtml: z.string().optional(),

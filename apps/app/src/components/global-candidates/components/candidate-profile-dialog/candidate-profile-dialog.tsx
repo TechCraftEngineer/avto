@@ -246,14 +246,20 @@ function ProfileContent({
       <Separator className="my-4" />
 
       {/* Табы */}
-      <Tabs defaultValue="info" className="flex-1 min-h-0 overflow-hidden flex flex-col">
+      <Tabs
+        defaultValue="info"
+        className="flex-1 min-h-0 overflow-hidden flex flex-col"
+      >
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="info">Информация</TabsTrigger>
           <TabsTrigger value="responses">Отклики</TabsTrigger>
           <TabsTrigger value="notes">Заметки</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="info" className="mt-4 overflow-y-auto min-h-0 flex-1">
+        <TabsContent
+          value="info"
+          className="mt-4 overflow-y-auto min-h-0 flex-1"
+        >
           <div className="space-y-4">
             {/* Контакты */}
             <div className="space-y-2">
@@ -397,7 +403,10 @@ function ProfileContent({
           </div>
         </TabsContent>
 
-        <TabsContent value="responses" className="mt-4 overflow-y-auto min-h-0 flex-1">
+        <TabsContent
+          value="responses"
+          className="mt-4 overflow-y-auto min-h-0 flex-1"
+        >
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
@@ -437,7 +446,10 @@ function ProfileContent({
           )}
         </TabsContent>
 
-        <TabsContent value="notes" className="mt-4 overflow-y-auto min-h-0 flex-1">
+        <TabsContent
+          value="notes"
+          className="mt-4 overflow-y-auto min-h-0 flex-1"
+        >
           <div className="space-y-3">
             {isEditingNotes ? (
               <div className="space-y-3">

@@ -214,13 +214,16 @@ export const kworkChatImportHistoryFunction = inngest.createFunction(
     });
     const pd = (currentResponse?.profileData ?? {}) as Record<string, unknown>;
     if (!currentResponse?.photoFileId && !pd.kworkAvatarUrl) {
-      const dialogResult = await step.run("enrich-avatar-from-dialog", async () => {
-        return await executeWithKworkTokenRefresh(
-          db,
-          workspaceId,
-          (api, token) => getDialog(api, token, workerId),
-        );
-      });
+      const dialogResult = await step.run(
+        "enrich-avatar-from-dialog",
+        async () => {
+          return await executeWithKworkTokenRefresh(
+            db,
+            workspaceId,
+            (api, token) => getDialog(api, token, workerId),
+          );
+        },
+      );
       if (dialogResult.success && dialogResult.response) {
         const dialog = dialogResult.response as {
           profilepicture?: string;

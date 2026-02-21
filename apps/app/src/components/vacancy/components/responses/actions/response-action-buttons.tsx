@@ -45,8 +45,12 @@ export function ResponseActionButtons({
             size="sm"
             onClick={onSyncArchivedDialogOpen}
             className="h-9 shrink-0 bg-background/60 border-border/60 hover:bg-background/80 transition-colors [&>svg]:shrink-0"
-            aria-label={isSyncingArchived ? "Загрузка" : "Загрузить архивные отклики"}
-            title={isSyncingArchived ? "Загрузка" : "Загрузить архивные отклики"}
+            aria-label={
+              isSyncingArchived ? "Загрузка" : "Загрузить архивные отклики"
+            }
+            title={
+              isSyncingArchived ? "Загрузка" : "Загрузить архивные отклики"
+            }
           >
             {isSyncingArchived ? (
               <Loader2 className="h-4 w-4 sm:mr-2 animate-spin" />
@@ -101,7 +105,9 @@ export function ResponseActionButtons({
               size="sm"
               onClick={onReanalyzeDialogOpen}
               className="h-9 shrink-0 [&>svg]:shrink-0"
-              aria-label={isReanalyzing ? "Анализ" : "Проанализировать все отклики"}
+              aria-label={
+                isReanalyzing ? "Анализ" : "Проанализировать все отклики"
+              }
               title={isReanalyzing ? "Анализ" : "Проанализировать все отклики"}
             >
               {isReanalyzing ? (

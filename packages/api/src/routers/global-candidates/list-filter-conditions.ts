@@ -9,7 +9,10 @@ import {
   type SQL,
   sql,
 } from "@qbs-autonaim/db";
-import { candidateOrganization, globalCandidate } from "@qbs-autonaim/db/schema";
+import {
+  candidateOrganization,
+  globalCandidate,
+} from "@qbs-autonaim/db/schema";
 import type { ListInput } from "./list-schema";
 
 /** lastActivity: MAX(ответы) или updated_at связи */

@@ -167,10 +167,7 @@ async function collectAndSaveResponses(
           timeout: HH_CONFIG.timeouts.navigation,
         });
       } catch (error) {
-        console.error(
-          `❌ Ошибка загрузки страницы ${currentPage}:`,
-          error,
-        );
+        console.error(`❌ Ошибка загрузки страницы ${currentPage}:`, error);
         break;
       }
 
@@ -330,11 +327,7 @@ async function collectAndSaveResponses(
         break;
       }
 
-      if (
-        hasLimit &&
-        currentPage === 0 &&
-        responses.length >= responsesLimit
-      ) {
+      if (hasLimit && currentPage === 0 && responses.length >= responsesLimit) {
         console.log(
           `⏹️ Лимит исчерпан после первой страницы (${responsesLimit}), останавливаем парсинг`,
         );

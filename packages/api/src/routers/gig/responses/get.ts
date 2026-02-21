@@ -84,16 +84,18 @@ export const get = protectedProcedure
 
     return {
       ...response,
-      gig: existingGig ? {
-        id: existingGig.id,
-        title: existingGig.title,
-        description: existingGig.description,
-        budgetMin: existingGig.budgetMin,
-        budgetMax: existingGig.budgetMax,
-        deadline: existingGig.deadline,
-        estimatedDuration: existingGig.estimatedDuration,
-        requiredSkills: existingGig.requirements?.required_skills ?? [],
-      } : null,
+      gig: existingGig
+        ? {
+            id: existingGig.id,
+            title: existingGig.title,
+            description: existingGig.description,
+            budgetMin: existingGig.budgetMin,
+            budgetMax: existingGig.budgetMax,
+            deadline: existingGig.deadline,
+            estimatedDuration: existingGig.estimatedDuration,
+            requiredSkills: existingGig.requirements?.required_skills ?? [],
+          }
+        : null,
       interviewScoring: sessionInterviewScoring
         ? {
             score:

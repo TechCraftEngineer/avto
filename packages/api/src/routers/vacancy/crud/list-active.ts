@@ -50,9 +50,10 @@ export const listActive = protectedProcedure
         responses: sql<number>`CAST(COUNT(${responseTable.id}) AS INTEGER)`.as(
           "responses",
         ),
-        newResponses: sql<number>`CAST(COUNT(CASE WHEN ${responseTable.status} = 'NEW' THEN 1 END) AS INTEGER)`.as(
-          "newResponses",
-        ),
+        newResponses:
+          sql<number>`CAST(COUNT(CASE WHEN ${responseTable.status} = 'NEW' THEN 1 END) AS INTEGER)`.as(
+            "newResponses",
+          ),
       })
       .from(vacancy)
       .leftJoin(

@@ -37,7 +37,11 @@ export class AuthService {
   /**
    * Получение данных пользователя
    */
-  async getUserData(): Promise<{ id: string; email: string; organizationId?: string } | null> {
+  async getUserData(): Promise<{
+    id: string;
+    email: string;
+    organizationId?: string;
+  } | null> {
     const result = await chrome.storage.local.get("userData");
     const userData = result.userData;
     if (
@@ -70,5 +74,4 @@ export class AuthService {
       return false;
     }
   }
-
 }

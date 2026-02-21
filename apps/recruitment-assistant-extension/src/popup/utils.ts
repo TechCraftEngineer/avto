@@ -10,7 +10,10 @@ export function getPageContext(url: string): PageContext | null {
       if (path.startsWith("/resume/")) {
         return { type: "profile", platform: "HeadHunter" };
       }
-      if (path.includes("/employer/vacancyresponses") && u.searchParams.get("vacancyId")) {
+      if (
+        path.includes("/employer/vacancyresponses") &&
+        u.searchParams.get("vacancyId")
+      ) {
         return { type: "hh-responses" };
       }
       if (path.includes("/employer/vacancies")) {

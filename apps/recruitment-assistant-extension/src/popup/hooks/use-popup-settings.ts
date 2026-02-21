@@ -9,7 +9,7 @@ export function usePopupSettings(authService: AuthService) {
   const [isLoadingSettings, setIsLoadingSettings] = useState(false);
 
   const loadOrganizationsAndWorkspaces = async (
-    selectedOrgId: string | null
+    selectedOrgId: string | null,
   ): Promise<string | null> => {
     setIsLoadingSettings(true);
     try {
@@ -35,7 +35,7 @@ export function usePopupSettings(authService: AuthService) {
             type: "API_REQUEST",
             payload: {
               url: getExtensionApiUrl(
-                `workspaces?organizationId=${encodeURIComponent(selectedOrgId)}`
+                `workspaces?organizationId=${encodeURIComponent(selectedOrgId)}`,
               ),
               method: "GET",
               headers: { Authorization: `Bearer ${token}` },

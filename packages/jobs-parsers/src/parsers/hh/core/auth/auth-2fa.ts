@@ -262,7 +262,9 @@ export async function submitVerificationCode(
     }
 
     // 1. Единое поле magritte-pincode (data-qa, не id) — maxlength 6, принимает код
-    const pincodeInput = await page.$('[data-qa="magritte-pincode-input-field"]');
+    const pincodeInput = await page.$(
+      '[data-qa="magritte-pincode-input-field"]',
+    );
     if (pincodeInput) {
       await pincodeInput.click();
       await pincodeInput.type(code, { delay: 100 });
@@ -294,7 +296,9 @@ export async function submitVerificationCode(
             const container = document.querySelector(
               'div[data-qa="account-login-code-input"]',
             );
-            const inputs = Array.from(container?.querySelectorAll("input") ?? []);
+            const inputs = Array.from(
+              container?.querySelectorAll("input") ?? [],
+            );
             for (let s = 0; s < inputs.length; s++) {
               const chunk = digits.slice(s * p, (s + 1) * p).join("");
               const el = inputs[s] as HTMLInputElement | undefined;
@@ -336,8 +340,13 @@ export async function submitVerificationCode(
           logInfo("✅ Авторизация по коду успешна (URL изменился)");
           return { success: true };
         }
-        logError("❌ Контекст разрушен, но вход не подтверждён (URL/login или post-login селектор)");
-        return { success: false, error: "Не удалось подтвердить успешный вход" };
+        logError(
+          "❌ Контекст разрушен, но вход не подтверждён (URL/login или post-login селектор)",
+        );
+        return {
+          success: false,
+          error: "Не удалось подтвердить успешный вход",
+        };
       }
       throw clickErr;
     }
@@ -358,7 +367,9 @@ export async function submitVerificationCode(
     if (currentUrl && isLoginUrl(currentUrl)) {
       return checkCodePageErrors(page);
     }
-    logError("❌ Не удалось подтвердить вход (URL недоступен, post-login селектор не найден)");
+    logError(
+      "❌ Не удалось подтвердить вход (URL недоступен, post-login селектор не найден)",
+    );
     return { success: false, error: "Не удалось подтвердить успешный вход" };
   } catch (error) {
     const message =
@@ -389,9 +400,7 @@ export async function submitVerificationCode(
 /**
  * Проверяет страницу ввода кода на ошибки (остались после отправки)
  */
-async function checkCodePageErrors(
-  page: Page,
-): Promise<TwoFactorAuthResult> {
+async function checkCodePageErrors(page: Page): Promise<TwoFactorAuthResult> {
   try {
     const errorMessage = await page.$(
       '.form-field-error, [data-qa="account-login-code-error"], .error-message',
@@ -444,7 +453,9 @@ async function checkCodePageErrors(
         logInfo("✅ Авторизация по коду успешна (навигация)");
         return { success: true };
       }
-      logError("❌ Контекст разрушен в checkCodePageErrors, вход не подтверждён");
+      logError(
+        "❌ Контекст разрушен в checkCodePageErrors, вход не подтверждён",
+      );
       return { success: false, error: "Не удалось подтвердить успешный вход" };
     }
     throw err;

@@ -53,7 +53,9 @@ export function ResponsesView({
         return;
       }
 
-      let resp: { ok?: boolean; error?: string; responsesImported?: number } | undefined;
+      let resp:
+        | { ok?: boolean; error?: string; responsesImported?: number }
+        | undefined;
       try {
         resp = await chrome.tabs.sendMessage(tab.id, {
           type: "IMPORT_RESPONSES",
@@ -119,7 +121,10 @@ export function ResponsesView({
           {isImporting ? "Импорт…" : "Импортировать отклики"}
         </Button>
         {successMessage && (
-          <Alert variant="default" className="bg-green-50 text-green-900 border-green-200">
+          <Alert
+            variant="default"
+            className="bg-green-50 text-green-900 border-green-200"
+          >
             {successMessage}
           </Alert>
         )}

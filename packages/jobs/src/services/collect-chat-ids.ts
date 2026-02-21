@@ -47,7 +47,9 @@ function extractCoverLetter(chat: ChatItem): string | null {
   const hasResponseLetter =
     chat.lastMessage.resources?.RESPONSE_LETTER &&
     chat.lastMessage.resources.RESPONSE_LETTER.length > 0;
-  return hasResponseLetter && chat.lastMessage.text ? chat.lastMessage.text : null;
+  return hasResponseLetter && chat.lastMessage.text
+    ? chat.lastMessage.text
+    : null;
 }
 
 export interface CollectChatIdsOptions {
@@ -81,10 +83,12 @@ export async function collectChatIdsForVacancy(
 
   const vacancyData = await db.query.vacancy.findFirst({
     where: eq(vacancy.id, validatedVacancyId),
-    with: { workspace: { with: { organization: { columns: { plan: true } } } } },
+    with: {
+      workspace: { with: { organization: { columns: { plan: true } } } },
+    },
   });
 
-    if (!vacancyData) {
+  if (!vacancyData) {
     if (silent) return { success: true, updatedCount: 0 };
     throw new Error(`Вакансия ${validatedVacancyId} не найдена`);
   }
@@ -163,10 +167,8 @@ export async function collectChatIdsForVacancy(
 
   if (allChats.length === 0) return { success: true, updatedCount: 0 };
 
-  const organizationPlan =
-    vacancyData.workspace?.organization?.plan ?? "free";
-  const responsesLimit =
-    getResponsesLimitByOrganizationPlan(organizationPlan);
+  const organizationPlan = vacancyData.workspace?.organization?.plan ?? "free";
+  const responsesLimit = getResponsesLimitByOrganizationPlan(organizationPlan);
   const hasLimit = responsesLimit > 0;
 
   const baseQuery = db
@@ -186,7 +188,7 @@ export async function collectChatIdsForVacancy(
 
   let updatedCount = 0;
   for (const resp of responses) {
-      const resumeId = resp.profileUrl
+    const resumeId = resp.profileUrl
       ? extractResumeIdFromUrl(resp.profileUrl)
       : null;
     const chat = allChats.find((c) =>

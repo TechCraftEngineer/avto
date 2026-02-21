@@ -19,7 +19,12 @@ export default async function AuthLayout({
   const isLinkExtPage = pathname.startsWith("/auth/link-ext");
 
   // Если пользователь уже авторизован и это не страница верификации, сброса пароля или связки расширения, редиректим на главную
-  if (session?.user && !isVerifyEmailPage && !isResetPasswordPage && !isLinkExtPage) {
+  if (
+    session?.user &&
+    !isVerifyEmailPage &&
+    !isResetPasswordPage &&
+    !isLinkExtPage
+  ) {
     redirect(paths.dashboard.root);
   }
 

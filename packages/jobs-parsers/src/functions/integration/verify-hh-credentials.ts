@@ -4,7 +4,10 @@ import { verifyHHCredentialsChannel } from "@qbs-autonaim/jobs/channels";
 import { inngest } from "@qbs-autonaim/jobs/client";
 import type { Browser, Page } from "puppeteer";
 import puppeteer from "puppeteer";
-import { initiateCodeAuth, isWaitingForCode } from "../../parsers/hh/core/auth/auth-2fa";
+import {
+  initiateCodeAuth,
+  isWaitingForCode,
+} from "../../parsers/hh/core/auth/auth-2fa";
 import { closeBrowserSafely } from "../../parsers/hh/core/browser/browser-utils";
 import { HH_CONFIG } from "../../parsers/hh/core/config/config";
 import { saveCookies } from "../../utils/cookies";
@@ -12,7 +15,11 @@ import { resolveCaptchaLoop } from "./hh-auth/captcha-handler";
 import { handleCodeAuth } from "./hh-auth/code-auth-handler";
 import { handleAuthError } from "./hh-auth/error-handler";
 import { performPasswordLogin } from "./hh-auth/password-auth-handler";
-import type { AuthContext, AuthEventData, VerifyCredentialsStepResult } from "./hh-auth/types";
+import type {
+  AuthContext,
+  AuthEventData,
+  VerifyCredentialsStepResult,
+} from "./hh-auth/types";
 
 export const verifyHHCredentialsFunction = inngest.createFunction(
   {
@@ -33,7 +40,8 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
         let browser: Browser | undefined;
         let page: Page | undefined;
 
-        const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+        const sleep = (ms: number) =>
+          new Promise<void>((resolve) => setTimeout(resolve, ms));
 
         try {
           await upsertIntegration(db, {
@@ -52,7 +60,9 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
             timeout: HH_CONFIG.timeouts.navigation,
           });
 
-          await page.waitForNetworkIdle({ timeout: HH_CONFIG.timeouts.networkIdle });
+          await page.waitForNetworkIdle({
+            timeout: HH_CONFIG.timeouts.networkIdle,
+          });
 
           const ctx: AuthContext = {
             page,
@@ -65,11 +75,15 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
             pollIntervalMs: POLL_INTERVAL_MS,
           };
 
-          const loginInput = await page.$('input[type="text"][name="username"]');
+          const loginInput = await page.$(
+            'input[type="text"][name="username"]',
+          );
 
           if (loginInput) {
             const shouldUsePasswordAuth = authType === "password" && !!password;
-            const initiated = shouldUsePasswordAuth ? false : await initiateCodeAuth(page, email);
+            const initiated = shouldUsePasswordAuth
+              ? false
+              : await initiateCodeAuth(page, email);
 
             await resolveCaptchaLoop(ctx);
 
@@ -99,7 +113,12 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
                 await sleep(2000);
                 waitingForCode = await isWaitingForCode(page);
                 if (!waitingForCode) {
-                  await setIntegrationSetupStatus(db, "hh", workspaceId, "pending_verification");
+                  await setIntegrationSetupStatus(
+                    db,
+                    "hh",
+                    workspaceId,
+                    "pending_verification",
+                  );
                   await publish(
                     verifyHHCredentialsChannel(workspaceId).result({
                       success: false,
@@ -141,7 +160,10 @@ export const verifyHHCredentialsFunction = inngest.createFunction(
             workspaceId,
             type: "hh",
             name: "HeadHunter",
-            credentials: authType === "password" && password ? { email, password } : { email },
+            credentials:
+              authType === "password" && password
+                ? { email, password }
+                : { email },
           });
 
           await saveCookies("hh", cookies, workspaceId);

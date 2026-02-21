@@ -67,11 +67,18 @@ export function VerificationSubscription({
 
   useEffect(() => {
     if (latestData?.topic === "result") {
-      console.log(`🔔 WebSocket message received for ${verifyingType}:`, latestData);
+      console.log(
+        `🔔 WebSocket message received for ${verifyingType}:`,
+        latestData,
+      );
       const result = latestData.data as VerificationResult;
       onResult(result);
     } else if (latestData) {
-      console.log(`⚠️ Unexpected WebSocket topic for ${verifyingType}:`, latestData.topic, latestData);
+      console.log(
+        `⚠️ Unexpected WebSocket topic for ${verifyingType}:`,
+        latestData.topic,
+        latestData,
+      );
     }
   }, [latestData, onResult, verifyingType]);
 

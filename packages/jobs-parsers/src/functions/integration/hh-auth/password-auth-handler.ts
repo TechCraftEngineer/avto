@@ -34,7 +34,9 @@ export async function performPasswordLogin(
     visible: true,
     timeout: 15000,
   });
-  await page.type('input[type="password"][name="password"]', password, { delay: 100 });
+  await page.type('input[type="password"][name="password"]', password, {
+    delay: 100,
+  });
   await sleep(Math.random() * 1000 + 500);
   await page.click('button[type="submit"]');
   await sleep(5000);

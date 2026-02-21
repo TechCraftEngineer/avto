@@ -2,7 +2,10 @@
  * Вспомогательные функции для работы с опытом работы из profileData
  */
 
-import type { ExperienceItem, StoredProfileData } from "@qbs-autonaim/db/schema";
+import type {
+  ExperienceItem,
+  StoredProfileData,
+} from "@qbs-autonaim/db/schema";
 
 /**
  * Извлекает опыт работы из profileData

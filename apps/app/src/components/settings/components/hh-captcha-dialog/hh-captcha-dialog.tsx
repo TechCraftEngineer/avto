@@ -143,9 +143,7 @@ export function HHCaptchaDialog({
                       <span className="text-destructive">{error}</span>
                     </FormMessage>
                   )}
-                  {!error && form.formState.errors.captcha && (
-                    <FormMessage />
-                  )}
+                  {!error && form.formState.errors.captcha && <FormMessage />}
                 </FormItem>
               )}
             />

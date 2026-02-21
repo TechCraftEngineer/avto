@@ -62,7 +62,8 @@ export const duplicate = protectedProcedure
         customBotInstructions: existingGig.customBotInstructions,
         customScreeningPrompt: existingGig.customScreeningPrompt,
         customInterviewQuestions: existingGig.customInterviewQuestions,
-        customOrganizationalQuestions: existingGig.customOrganizationalQuestions,
+        customOrganizationalQuestions:
+          existingGig.customOrganizationalQuestions,
         customDomainId: existingGig.customDomainId,
         interviewScenarioId: existingGig.interviewScenarioId,
         // Сбрасываем счётчики

@@ -12,7 +12,8 @@ export async function handleAuthError(
   publish: PublishFn,
   dbInstance: typeof db,
 ): Promise<VerifyCredentialsStepResult> {
-  const errorMessage = error instanceof Error ? error.message : "Неизвестная ошибка";
+  const errorMessage =
+    error instanceof Error ? error.message : "Неизвестная ошибка";
 
   const isNavigationTimeout =
     errorMessage.includes("Navigation timeout") ||
@@ -55,7 +56,12 @@ export async function handleAuthError(
     /требуется\s*(.*\s+)?(капч|captcha)/i.test(errorMessage);
 
   if (isCaptchaRelated) {
-    await setIntegrationSetupStatus(dbInstance, "hh", workspaceId, "pending_captcha");
+    await setIntegrationSetupStatus(
+      dbInstance,
+      "hh",
+      workspaceId,
+      "pending_captcha",
+    );
 
     await publish(
       verifyHHCredentialsChannel(workspaceId).result({

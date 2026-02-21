@@ -29,7 +29,8 @@ import {
 } from "../context/vacancy-responses-context";
 
 function getRealContext() {
-  const ctx = (globalThis as { __realVacancyResponsesContext?: object }).__realVacancyResponsesContext;
+  const ctx = (globalThis as { __realVacancyResponsesContext?: object })
+    .__realVacancyResponsesContext;
   if (!ctx) throw new Error("__realVacancyResponsesContext not set");
   return ctx;
 }

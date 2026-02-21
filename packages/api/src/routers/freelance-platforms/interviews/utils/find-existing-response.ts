@@ -28,8 +28,7 @@ export async function findExistingResponse(
       freelancerInfo.platformProfileUrl,
     );
 
-    const field =
-      entityType === "vacancy" ? "profileUrl" : "candidateId";
+    const field = entityType === "vacancy" ? "profileUrl" : "candidateId";
 
     const result = await db
       .select()

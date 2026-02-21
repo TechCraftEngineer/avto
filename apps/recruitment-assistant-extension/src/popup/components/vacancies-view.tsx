@@ -59,7 +59,9 @@ export function VacanciesView({
         return;
       }
 
-      let resp: { ok?: boolean; error?: string; imported?: number; updated?: number } | undefined;
+      let resp:
+        | { ok?: boolean; error?: string; imported?: number; updated?: number }
+        | undefined;
       try {
         resp = await chrome.tabs.sendMessage(tab.id, {
           type: "IMPORT_SELECTED_VACANCIES",
@@ -85,16 +87,18 @@ export function VacanciesView({
         const imported = resp.imported ?? 0;
         const updated = resp.updated ?? 0;
         const total = imported + updated;
-        
+
         if (total > 0) {
           const parts = [];
           if (imported > 0) parts.push(`новых: ${imported}`);
           if (updated > 0) parts.push(`обновлено: ${updated}`);
-          setSuccessMessage(`Успешно импортировано вакансий (${parts.join(", ")})`);
+          setSuccessMessage(
+            `Успешно импортировано вакансий (${parts.join(", ")})`,
+          );
         } else {
           setSuccessMessage("Импорт завершен");
         }
-        
+
         onImportSuccess();
       }
     } catch (e) {
@@ -126,8 +130,9 @@ export function VacanciesView({
             {pageContext.isActive ? "Активные вакансии" : "Архивные вакансии"}
           </h2>
           <p className="text-muted-foreground text-sm">
-            Отметьте вакансии галочками на странице и загрузите выбранные в систему.
-            Для импорта с нескольких страниц — перейдите на первую страницу списка.
+            Отметьте вакансии галочками на странице и загрузите выбранные в
+            систему. Для импорта с нескольких страниц — перейдите на первую
+            страницу списка.
           </p>
         </div>
         <Button
@@ -140,7 +145,10 @@ export function VacanciesView({
             : `Загрузить выбранные (${selectedCount ?? 0})`}
         </Button>
         {successMessage && (
-          <Alert variant="default" className="bg-green-50 text-green-900 border-green-200">
+          <Alert
+            variant="default"
+            className="bg-green-50 text-green-900 border-green-200"
+          >
             {successMessage}
           </Alert>
         )}

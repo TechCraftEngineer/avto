@@ -32,7 +32,11 @@ const mockFetchSyncArchivedVacancyResponsesToken = mock(() =>
 
 // Общая заглушка для остальных экспортов realtime (нужны другим тестам)
 const tokenFn = () =>
-  Promise.resolve({ channel: "test", topics: ["progress", "result"], key: "k" });
+  Promise.resolve({
+    channel: "test",
+    topics: ["progress", "result"],
+    key: "k",
+  });
 
 // Mock модулей перед каждым тестом
 beforeEach(() => {

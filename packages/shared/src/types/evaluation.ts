@@ -44,30 +44,34 @@ export type ScreeningRecommendation = "invite" | "reject" | "need_info";
 export interface ScreeningResult {
   /** Процент соответствия резюме вакансии (0-100) */
   match_percentage: number;
-  
+
   /** Общая оценка (0-100) */
   overallScore: number;
-  
+
   /** Детальная оценка (0-100) */
   detailedScore?: number;
-  
+
   /** Анализ соответствия */
   analysis?: string;
-  
+
   /** Рекомендация: пригласить, отклонить или нужна доп. информация */
   recommendation?: ScreeningRecommendation;
-  
+
   /** Сильные стороны кандидата */
   strengths?: string[];
-  
+
   /** Слабые стороны или недостающие навыки */
   weaknesses?: string[];
-  
+
   /** Краткое резюме оценки */
   summary?: string;
-  
+
   /** Рекомендация для UI */
-  recommendationUI?: "HIGHLY_RECOMMENDED" | "RECOMMENDED" | "NEUTRAL" | "NOT_RECOMMENDED";
+  recommendationUI?:
+    | "HIGHLY_RECOMMENDED"
+    | "RECOMMENDED"
+    | "NEUTRAL"
+    | "NOT_RECOMMENDED";
 }
 
 /**

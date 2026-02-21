@@ -7,60 +7,66 @@ import axios from "axios";
 import { z } from "zod";
 import type { KworkErrorResponse, KworkUser } from "./types";
 
-const KworkUserSchema = z.object({
-  id: z.number(),
-  username: z.string().optional(),
-  status: z.string().optional(),
-  fullname: z.string().optional(),
-  profilepicture: z.string().optional(),
-  description: z.string().optional(),
-  slogan: z.string().optional(),
-  location: z.string().optional(),
-  rating: z.string().optional(),
-  rating_count: z.number().optional(),
-  level_description: z.string().optional(),
-  good_reviews: z.number().optional(),
-  bad_reviews: z.number().optional(),
-  reviews_count: z.number().optional(),
-  online: z.boolean().optional(),
-  live_date: z.number().optional(),
-  cover: z.string().optional(),
-  custom_request_min_budget: z.number().optional(),
-  is_allow_custom_request: z.boolean().optional(),
-  order_done_persent: z.number().optional(),
-  order_done_intime_persent: z.number().optional(),
-  order_done_repeat_persent: z.number().optional(),
-  timezoneId: z.number().optional(),
-  blocked_by_user: z.boolean().optional(),
-  allowedDialog: z.boolean().optional(),
-  addtime: z.number().optional(),
-  achievments_list: z.array(z.unknown()).optional(),
-  completed_orders_count: z.number().optional(),
-  specialization: z.string().optional(),
-  profession: z.string().optional(),
-  kworks_count: z.number().optional(),
-  kworks: z.array(z.unknown()).optional(),
-  portfolio_list: z.unknown().optional(),
-  reviews: z.unknown().optional(),
-  skills: z.array(z.unknown()).optional(),
-  is_verified_worker: z.boolean().optional(),
-  note: z.array(z.unknown()).optional(),
-  is_cashless_payment_available: z.boolean().optional(),
-}).passthrough();
+const KworkUserSchema = z
+  .object({
+    id: z.number(),
+    username: z.string().optional(),
+    status: z.string().optional(),
+    fullname: z.string().optional(),
+    profilepicture: z.string().optional(),
+    description: z.string().optional(),
+    slogan: z.string().optional(),
+    location: z.string().optional(),
+    rating: z.string().optional(),
+    rating_count: z.number().optional(),
+    level_description: z.string().optional(),
+    good_reviews: z.number().optional(),
+    bad_reviews: z.number().optional(),
+    reviews_count: z.number().optional(),
+    online: z.boolean().optional(),
+    live_date: z.number().optional(),
+    cover: z.string().optional(),
+    custom_request_min_budget: z.number().optional(),
+    is_allow_custom_request: z.boolean().optional(),
+    order_done_persent: z.number().optional(),
+    order_done_intime_persent: z.number().optional(),
+    order_done_repeat_persent: z.number().optional(),
+    timezoneId: z.number().optional(),
+    blocked_by_user: z.boolean().optional(),
+    allowedDialog: z.boolean().optional(),
+    addtime: z.number().optional(),
+    achievments_list: z.array(z.unknown()).optional(),
+    completed_orders_count: z.number().optional(),
+    specialization: z.string().optional(),
+    profession: z.string().optional(),
+    kworks_count: z.number().optional(),
+    kworks: z.array(z.unknown()).optional(),
+    portfolio_list: z.unknown().optional(),
+    reviews: z.unknown().optional(),
+    skills: z.array(z.unknown()).optional(),
+    is_verified_worker: z.boolean().optional(),
+    note: z.array(z.unknown()).optional(),
+    is_cashless_payment_available: z.boolean().optional(),
+  })
+  .passthrough();
 
-const KworkErrorResponseSchema = z.object({
-  code: z.number().optional(),
-  message: z.string().optional(),
-  recaptcha_pass_token: z.string().optional(),
-}).passthrough();
+const KworkErrorResponseSchema = z
+  .object({
+    code: z.number().optional(),
+    message: z.string().optional(),
+    recaptcha_pass_token: z.string().optional(),
+  })
+  .passthrough();
 
-const KworkUserApiResponseSchema = z.object({
-  success: z.boolean().optional(),
-  response: KworkUserSchema.optional(),
-  code: z.number().optional(),
-  message: z.string().optional(),
-  recaptcha_pass_token: z.string().optional(),
-}).passthrough();
+const KworkUserApiResponseSchema = z
+  .object({
+    success: z.boolean().optional(),
+    response: KworkUserSchema.optional(),
+    code: z.number().optional(),
+    message: z.string().optional(),
+    recaptcha_pass_token: z.string().optional(),
+  })
+  .passthrough();
 
 export async function getUser(
   api: AxiosInstance,

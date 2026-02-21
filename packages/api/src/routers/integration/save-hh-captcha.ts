@@ -1,7 +1,4 @@
-import {
-  getIntegration,
-  saveHHPendingCaptcha,
-} from "@qbs-autonaim/db";
+import { getIntegration, saveHHPendingCaptcha } from "@qbs-autonaim/db";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";

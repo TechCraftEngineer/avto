@@ -11,7 +11,11 @@ import {
   type ParsedResponse,
 } from "../../parsers/hh-employer";
 import { setSelectedIds } from "./storage";
-import { collectAllResponses, collectAllVacancies, collectSelectedVacancies } from "./collectors";
+import {
+  collectAllResponses,
+  collectAllVacancies,
+  collectSelectedVacancies,
+} from "./collectors";
 import type { ImportProgress, ImportResult } from "./types";
 import {
   getRandomDelay,
@@ -136,11 +140,11 @@ export async function runVacanciesImportSelected(
         } catch (_e) {
           // Пропускаем ошибки парсинга отдельных вакансий
         }
-        
+
         // Случайная задержка 2-3.5 секунды
         const delay = getRandomDelay(2000, 1500);
         await new Promise((r) => setTimeout(r, delay));
-        
+
         // Пауза после каждых 10 вакансий (5-10 секунд)
         await checkAndPauseIfNeeded(i, 10);
       }
@@ -263,11 +267,11 @@ export async function runVacanciesImport(
         } catch (_e) {
           // Пропускаем ошибки парсинга отдельных вакансий
         }
-        
+
         // Случайная задержка 2-3.5 секунды
         const delay = getRandomDelay(2000, 1500);
         await new Promise((r) => setTimeout(r, delay));
-        
+
         // Пауза после каждых 10 вакансий (5-10 секунд)
         await checkAndPauseIfNeeded(i, 10);
       }
@@ -338,7 +342,7 @@ export async function runResponsesImport(
     }));
 
     // Загрузка фото в base64 для всех откликов
-    const photosToLoad = responses.filter(r => r.photoUrl);
+    const photosToLoad = responses.filter((r) => r.photoUrl);
     if (photosToLoad.length > 0) {
       console.log(`[Import] Начинаем загрузку ${photosToLoad.length} фото`);
       onProgress?.({
@@ -359,7 +363,9 @@ export async function runResponsesImport(
             if (item && photoData?.base64) {
               const base64Url = `data:${photoData.contentType};base64,${photoData.base64}`;
               item.photoUrl = base64Url;
-              console.log(`[Import] Фото загружено для ${r.name}, размер base64: ${photoData.base64.length} символов`);
+              console.log(
+                `[Import] Фото загружено для ${r.name}, размер base64: ${photoData.base64.length} символов`,
+              );
             }
             photoCount++;
             onProgress?.({
@@ -374,7 +380,9 @@ export async function runResponsesImport(
           }
         }
       }
-      console.log(`[Import] Загрузка фото завершена: ${photoCount}/${photosToLoad.length}`);
+      console.log(
+        `[Import] Загрузка фото завершена: ${photoCount}/${photosToLoad.length}`,
+      );
     }
 
     // Загрузка текстовой версии резюме (HTML) для отправки на сервер
@@ -398,11 +406,11 @@ export async function runResponsesImport(
           } catch (_e) {
             // Пропускаем ошибки отдельных резюме
           }
-          
+
           // Случайная задержка 2-3.5 секунды
           const delay = getRandomDelay(2000, 1500);
           await new Promise((res) => setTimeout(res, delay));
-          
+
           // Пауза после каждых 15 резюме (5-10 секунд)
           await checkAndPauseIfNeeded(i, 15);
         }
@@ -461,4 +469,3 @@ export async function runResponsesImport(
     };
   }
 }
-

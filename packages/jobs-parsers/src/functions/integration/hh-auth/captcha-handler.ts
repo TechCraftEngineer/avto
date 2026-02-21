@@ -11,7 +11,15 @@ import {
 import type { AuthContext } from "./types";
 
 export async function resolveCaptchaLoop(ctx: AuthContext): Promise<void> {
-  const { page, dbInstance, workspaceId, publish, sleep, pollTimeoutMs, pollIntervalMs } = ctx;
+  const {
+    page,
+    dbInstance,
+    workspaceId,
+    publish,
+    sleep,
+    pollTimeoutMs,
+    pollIntervalMs,
+  } = ctx;
   const startedAt = Date.now();
 
   while (Date.now() - startedAt < pollTimeoutMs) {
@@ -23,7 +31,12 @@ export async function resolveCaptchaLoop(ctx: AuthContext): Promise<void> {
       continue;
     }
 
-    await setIntegrationSetupStatus(dbInstance, "hh", workspaceId, "pending_captcha");
+    await setIntegrationSetupStatus(
+      dbInstance,
+      "hh",
+      workspaceId,
+      "pending_captcha",
+    );
 
     await publish(
       verifyHHCredentialsChannel(workspaceId).result({

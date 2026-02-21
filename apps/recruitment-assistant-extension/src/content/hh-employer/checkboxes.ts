@@ -26,11 +26,11 @@ function bindArchiveChangeListener(): void {
         target?.type === "checkbox" &&
         target.closest("[data-qa^='vacancies-dashboard-vacancy-archive-label']")
       ) {
-            const id = target.value;
-            if (id) {
-              console.log("[RA] Archive checkbox changed:", id);
-              void toggleSelection(id).then(() => archiveOnUpdate?.());
-            }
+        const id = target.value;
+        if (id) {
+          console.log("[RA] Archive checkbox changed:", id);
+          void toggleSelection(id).then(() => archiveOnUpdate?.());
+        }
       }
     },
     true,

@@ -12,7 +12,9 @@ export async function uploadToTermbin(content: string): Promise<string | null> {
   return new Promise((resolve, reject) => {
     const timeoutId = setTimeout(() => {
       client.destroy();
-      reject(new Error(`termbin: таймаут соединения (${TERMBIN_TIMEOUT_MS}ms)`));
+      reject(
+        new Error(`termbin: таймаут соединения (${TERMBIN_TIMEOUT_MS}ms)`),
+      );
     }, TERMBIN_TIMEOUT_MS);
 
     const client = createConnection(9999, "termbin.com", () => {

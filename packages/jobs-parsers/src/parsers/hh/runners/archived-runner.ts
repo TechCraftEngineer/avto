@@ -126,13 +126,8 @@ export async function runHHArchivedVacancyParserPage(
   newResponses: number;
   hasMore: boolean;
 }> {
-  const {
-    workspaceId,
-    vacancyId,
-    externalId,
-    pageOptions,
-    onProgress,
-  } = options;
+  const { workspaceId, vacancyId, externalId, pageOptions, onProgress } =
+    options;
 
   console.log(
     `🚀 Синхронизация страницы ${pageOptions.pageIndex} для архивной вакансии ${vacancyId}`,
@@ -271,4 +266,3 @@ export async function importSingleVacancy(
     await closeBrowserSafely(browser);
   }
 }
-

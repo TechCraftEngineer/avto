@@ -88,8 +88,6 @@ export async function triggerScreenNewResponses(vacancyId: string) {
   }
 }
 
-
-
 export async function triggerRefreshVacancyResponses(
   vacancyId: string,
   workspaceId: string,

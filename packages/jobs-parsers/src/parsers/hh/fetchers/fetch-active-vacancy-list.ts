@@ -46,7 +46,6 @@ export async function fetchActiveVacanciesList(workspaceId: string): Promise<
       HH_CONFIG.delays.readingPage.max,
     );
 
-
     await page.waitForSelector('div[data-qa~="vacancies-dashboard-manager"]', {
       timeout: HH_CONFIG.timeouts.selector,
     });

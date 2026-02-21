@@ -37,7 +37,7 @@ export async function simulateScroll(): Promise<void> {
   for (let i = 0; i < scrollSteps; i++) {
     const targetScroll = Math.min(
       (i + 1) * scrollPerStep + (Math.random() - 0.5) * 100,
-      maxScroll
+      maxScroll,
     );
     window.scrollTo({
       top: targetScroll,
@@ -57,7 +57,7 @@ export async function simulateScroll(): Promise<void> {
  */
 export async function checkAndPauseIfNeeded(
   currentIndex: number,
-  pauseAfter: number = 10
+  pauseAfter: number = 10,
 ): Promise<void> {
   if ((currentIndex + 1) % pauseAfter === 0) {
     // Пауза 5-10 секунд после каждых N операций
@@ -80,7 +80,10 @@ export function handleRateLimitError(currentDelay: number): number {
  * @param count Количество элементов для импорта
  * @param maxLimit Максимальный лимит
  */
-export function checkImportLimit(count: number, maxLimit: number = 100): {
+export function checkImportLimit(
+  count: number,
+  maxLimit: number = 100,
+): {
   allowed: boolean;
   message?: string;
 } {

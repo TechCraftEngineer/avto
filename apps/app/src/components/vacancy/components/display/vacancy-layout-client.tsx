@@ -171,7 +171,10 @@ export function VacancyLayoutClient({
               asChild
             >
               <Link href={paths.workspace.vacancies(orgSlug, workspaceSlug)}>
-                <ArrowLeft className="mr-2 h-4 w-4 shrink-0" aria-hidden="true" />
+                <ArrowLeft
+                  className="mr-2 h-4 w-4 shrink-0"
+                  aria-hidden="true"
+                />
                 <span className="hidden sm:inline">Назад к списку</span>
                 <span className="sm:hidden">Назад</span>
               </Link>
@@ -213,7 +216,10 @@ export function VacancyLayoutClient({
                       "responses",
                     )}
                   >
-                    <IconMessage className="size-4 shrink-0" aria-hidden="true" />
+                    <IconMessage
+                      className="size-4 shrink-0"
+                      aria-hidden="true"
+                    />
                     <span className="hidden sm:inline">
                       Отклики ({responsesCount?.total ?? 0})
                     </span>
@@ -269,7 +275,10 @@ export function VacancyLayoutClient({
                       "settings",
                     )}
                   >
-                    <IconSettings className="size-4 shrink-0" aria-hidden="true" />
+                    <IconSettings
+                      className="size-4 shrink-0"
+                      aria-hidden="true"
+                    />
                     <span className="hidden sm:inline">Настройки</span>
                     <span className="sm:hidden">Настр.</span>
                   </Link>

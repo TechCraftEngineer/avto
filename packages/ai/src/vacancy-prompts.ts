@@ -6,19 +6,43 @@ import { z } from "zod";
 export const vacancyDataExtractionSchema = z.object({
   title: z.string().describe("Название вакансии"),
   company: z.string().optional().describe("Название компании/работодателя"),
-  salary: z.string().optional().describe("Зарплата как в тексте (например: от 150 000 ₽)"),
+  salary: z
+    .string()
+    .optional()
+    .describe("Зарплата как в тексте (например: от 150 000 ₽)"),
   region: z.string().optional().describe("Регион размещения вакансии"),
   workLocation: z.string().optional().describe("Адрес или локация работы"),
   /** Обязанности — текст дословно, оформлен в <ul><li> */
-  responsibilities: z.string().optional().describe("Обязанности в HTML: <ul><li>...</li></ul>, текст дословно из источника"),
+  responsibilities: z
+    .string()
+    .optional()
+    .describe(
+      "Обязанности в HTML: <ul><li>...</li></ul>, текст дословно из источника",
+    ),
   /** Требования — текст дословно, оформлен в <ul><li> */
-  requirements: z.string().optional().describe("Требования в HTML: <ul><li>...</li></ul>, текст дословно из источника"),
+  requirements: z
+    .string()
+    .optional()
+    .describe(
+      "Требования в HTML: <ul><li>...</li></ul>, текст дословно из источника",
+    ),
   /** Условия — текст дословно, оформлен в HTML */
-  conditions: z.string().optional().describe("Условия в HTML (<p> или <ul><li>), текст дословно из источника"),
+  conditions: z
+    .string()
+    .optional()
+    .describe("Условия в HTML (<p> или <ul><li>), текст дословно из источника"),
   /** Дополнительно — текст дословно, оформлен в HTML */
-  bonuses: z.string().optional().describe("Бонусы, премии в HTML, текст дословно из источника"),
+  bonuses: z
+    .string()
+    .optional()
+    .describe("Бонусы, премии в HTML, текст дословно из источника"),
   /** Общее описание — текст дословно, оформлен в HTML */
-  description: z.string().optional().describe("Вводный текст в HTML (<p>), не дублируй обязанности/требования/условия"),
+  description: z
+    .string()
+    .optional()
+    .describe(
+      "Вводный текст в HTML (<p>), не дублируй обязанности/требования/условия",
+    ),
 });
 
 export type VacancyDataExtraction = z.infer<typeof vacancyDataExtractionSchema>;
@@ -27,7 +51,9 @@ export type VacancyDataExtraction = z.infer<typeof vacancyDataExtractionSchema>;
  * Собирает description из структурированных полей в HTML-формате.
  * Поля от AI уже содержат HTML-разметку (ul/li, p).
  */
-export function buildDescriptionFromSections(data: VacancyDataExtraction): string {
+export function buildDescriptionFromSections(
+  data: VacancyDataExtraction,
+): string {
   const parts: string[] = [];
 
   if (data.description?.trim()) {

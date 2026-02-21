@@ -9,7 +9,8 @@ import { getAvatarUrl } from "~/lib/avatar";
 import { CandidateAvatar } from "~/components/vacancy/components/responses/response-row/candidate-avatar";
 import { CandidateInfo } from "~/components/vacancy/components/responses/response-row/candidate-info";
 
-type GigResponseListItem = RouterOutputs["gig"]["responses"]["list"]["items"][number];
+type GigResponseListItem =
+  RouterOutputs["gig"]["responses"]["list"]["items"][number];
 
 interface GigCandidateCellProps {
   response: GigResponseListItem;
@@ -23,7 +24,8 @@ const gigResponseUrl = (
   workspaceSlug: string,
   gigId: string,
   responseId: string,
-) => `/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs/${gigId}/responses/${responseId}`;
+) =>
+  `/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs/${gigId}/responses/${responseId}`;
 
 export function GigCandidateCell({
   response,
@@ -33,9 +35,14 @@ export function GigCandidateCell({
 }: GigCandidateCellProps) {
   const photoUrl = useAvatarUrl(response.photoFileId);
   const candidateName = response.candidateName || "Кандидат";
-  const profileData = response.profileData as { kworkAvatarUrl?: string } | null | undefined;
+  const profileData = response.profileData as
+    | { kworkAvatarUrl?: string }
+    | null
+    | undefined;
   const fallbackAvatar =
-    !photoUrl && profileData?.kworkAvatarUrl ? profileData.kworkAvatarUrl : photoUrl;
+    !photoUrl && profileData?.kworkAvatarUrl
+      ? profileData.kworkAvatarUrl
+      : photoUrl;
   const avatarUrl = getAvatarUrl(fallbackAvatar, candidateName);
   const initials = getInitials(candidateName);
   const age = response.birthDate ? calculateAge(response.birthDate) : null;

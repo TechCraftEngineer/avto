@@ -48,7 +48,9 @@
         const contentType =
           response.headers.get("content-type")?.split(";")[0]?.trim() ||
           "image/jpeg";
-        return response.arrayBuffer().then((buf) => ({ buffer: buf, contentType }));
+        return response
+          .arrayBuffer()
+          .then((buf) => ({ buffer: buf, contentType }));
       })
       .then(({ buffer, contentType }) => {
         const bytes = new Uint8Array(buffer);

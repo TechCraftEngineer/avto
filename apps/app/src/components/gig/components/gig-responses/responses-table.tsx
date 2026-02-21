@@ -63,7 +63,9 @@ function loadColumnOrder(): string[] {
     if (!result.success) return [...DEFAULT_COLUMN_ORDER];
     const savedOrder = result.data;
     const savedSet = new Set(savedOrder);
-    const missingDefaults = DEFAULT_COLUMN_ORDER.filter((id) => !savedSet.has(id));
+    const missingDefaults = DEFAULT_COLUMN_ORDER.filter(
+      (id) => !savedSet.has(id),
+    );
     return [...savedOrder, ...missingDefaults];
   } catch {
     return [...DEFAULT_COLUMN_ORDER];

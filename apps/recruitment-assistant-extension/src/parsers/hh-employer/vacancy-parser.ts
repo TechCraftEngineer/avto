@@ -17,7 +17,9 @@ export interface ParsedVacancy {
  * Парсит активные вакансии со страницы hh.ru/employer/vacancies
  */
 export function parseActiveVacanciesFromDOM(): ParsedVacancy[] {
-  const elements = document.querySelectorAll('[data-qa="vacancy-serp__vacancy"]');
+  const elements = document.querySelectorAll(
+    '[data-qa="vacancy-serp__vacancy"]',
+  );
   const vacancies: ParsedVacancy[] = [];
 
   elements.forEach((element) => {
@@ -53,7 +55,7 @@ export function parseActiveVacanciesFromDOM(): ParsedVacancy[] {
 }
 
 /** Контейнер архивных вакансий на HH */
-const ARCHIVE_CONTAINER = 'div.vacancy-dashboard-archive';
+const ARCHIVE_CONTAINER = "div.vacancy-dashboard-archive";
 
 /**
  * Парсит архивные вакансии со страницы hh.ru/employer/vacancies/archived

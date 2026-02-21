@@ -79,24 +79,26 @@ export function IntegrationDialog({
 
   return (
     <>
-      {open && workspaceId && (selectedType === "hh" || selectedType === "kwork") && (
-        <VerificationSubscription
-          key={workspaceId}
-          workspaceId={workspaceId}
-          isVerifying={isVerifying}
-          verifyingType={verifyingType}
-          onResult={
-            verifyingType === "hh"
-              ? handleHHVerificationResult
-              : handleKworkVerificationResult
-          }
-          onError={
-            verifyingType === "hh"
-              ? handleHHVerificationError
-              : handleKworkVerificationError
-          }
-        />
-      )}
+      {open &&
+        workspaceId &&
+        (selectedType === "hh" || selectedType === "kwork") && (
+          <VerificationSubscription
+            key={workspaceId}
+            workspaceId={workspaceId}
+            isVerifying={isVerifying}
+            verifyingType={verifyingType}
+            onResult={
+              verifyingType === "hh"
+                ? handleHHVerificationResult
+                : handleKworkVerificationResult
+            }
+            onError={
+              verifyingType === "hh"
+                ? handleHHVerificationError
+                : handleKworkVerificationError
+            }
+          />
+        )}
 
       {/* Диалог капчи для HH.ru */}
       {hhState.step === "captcha" && workspaceId && (

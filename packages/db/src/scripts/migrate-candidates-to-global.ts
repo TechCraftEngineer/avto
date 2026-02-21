@@ -142,10 +142,7 @@ async function migrate() {
             | "MANUAL"
             | "REFERRAL",
           originalSource: c.original_source,
-          parsingStatus: c.parsing_status as
-            | "PENDING"
-            | "COMPLETED"
-            | "FAILED",
+          parsingStatus: c.parsing_status as "PENDING" | "COMPLETED" | "FAILED",
           tags: c.tags,
           isSearchable: c.is_searchable,
           metadata: c.metadata as Record<string, unknown> | null,

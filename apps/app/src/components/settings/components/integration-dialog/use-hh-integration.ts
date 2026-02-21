@@ -124,7 +124,10 @@ export function useHHIntegration({ workspaceId }: UseHHIntegrationProps) {
       }
 
       // Ошибка
-      if (result.error || (result.success === false && result.isValid === false)) {
+      if (
+        result.error ||
+        (result.success === false && result.isValid === false)
+      ) {
         const errorMsg = result.error || "Ошибка проверки данных";
         console.error("❌ Ошибка HH верификации:", errorMsg);
         dispatch({

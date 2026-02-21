@@ -30,10 +30,16 @@ export const RecommendationCard = memo(function RecommendationCard({
   const Icon = config.icon;
 
   const hasStrengths = recommendation.strengths.length > 0;
-  const hasWeaknesses = recommendation.weaknesses && recommendation.weaknesses.length > 0;
-  const hasRisks = recommendation.riskFactors && recommendation.riskFactors.length > 0;
-  const hasQuestions = recommendation.interviewQuestions && recommendation.interviewQuestions.length > 0;
-  const hasActions = recommendation.actionSuggestions && recommendation.actionSuggestions.length > 0;
+  const hasWeaknesses =
+    recommendation.weaknesses && recommendation.weaknesses.length > 0;
+  const hasRisks =
+    recommendation.riskFactors && recommendation.riskFactors.length > 0;
+  const hasQuestions =
+    recommendation.interviewQuestions &&
+    recommendation.interviewQuestions.length > 0;
+  const hasActions =
+    recommendation.actionSuggestions &&
+    recommendation.actionSuggestions.length > 0;
 
   return (
     <Card>

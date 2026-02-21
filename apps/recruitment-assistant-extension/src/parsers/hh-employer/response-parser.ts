@@ -39,7 +39,7 @@ function parseRespondedAtFromElement(element: Element): string | undefined {
  */
 function parsePhotoUrlFromElement(element: Element): string | undefined {
   const avatarDiv = element.querySelector(
-    'div[data-qa="resume-card-avatar resume-card-avatar_with-user-photo"]'
+    'div[data-qa="resume-card-avatar resume-card-avatar_with-user-photo"]',
   );
   if (!avatarDiv) return undefined;
 

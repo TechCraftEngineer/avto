@@ -37,7 +37,8 @@ export function ResponseKanbanItem({
       {...attributes}
       className={cn(
         "will-change-transform", // Оптимизация для GPU
-        isDragging && "opacity-30 grayscale pointer-events-none cursor-grabbing",
+        isDragging &&
+          "opacity-30 grayscale pointer-events-none cursor-grabbing",
         !isDragging && "cursor-grab active:cursor-grabbing",
       )}
     >

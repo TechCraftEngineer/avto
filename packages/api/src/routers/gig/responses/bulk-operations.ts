@@ -1,5 +1,8 @@
 import { and, eq, inArray } from "@qbs-autonaim/db";
-import { response as responseTable, RESPONSE_STATUS } from "@qbs-autonaim/db/schema";
+import {
+  response as responseTable,
+  RESPONSE_STATUS,
+} from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import type { TRPCContext } from "../../../trpc";
 import { TRPCError } from "@trpc/server";
@@ -14,7 +17,9 @@ type BulkUpdateInput = {
 async function bulkUpdateStatus(
   ctx: TRPCContext,
   input: BulkUpdateInput,
-  targetStatus: typeof RESPONSE_STATUS.COMPLETED | typeof RESPONSE_STATUS.SKIPPED,
+  targetStatus:
+    | typeof RESPONSE_STATUS.COMPLETED
+    | typeof RESPONSE_STATUS.SKIPPED,
 ): Promise<{ success: boolean; updatedCount: number }> {
   const session = ctx.session;
   if (!session) {

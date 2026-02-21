@@ -13,8 +13,12 @@ import type { ColumnId } from "../types";
 import { VacancyResponsesProvider } from "../context/vacancy-responses-context";
 
 function getRealContext() {
-  const ctx = (globalThis as { __realVacancyResponsesContext?: object }).__realVacancyResponsesContext;
-  if (!ctx) throw new Error("__realVacancyResponsesContext not set — preload may have failed");
+  const ctx = (globalThis as { __realVacancyResponsesContext?: object })
+    .__realVacancyResponsesContext;
+  if (!ctx)
+    throw new Error(
+      "__realVacancyResponsesContext not set — preload may have failed",
+    );
   return ctx;
 }
 import { StatusIndicators } from "../status-indicators";

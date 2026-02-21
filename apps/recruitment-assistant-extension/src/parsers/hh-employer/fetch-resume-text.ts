@@ -32,11 +32,16 @@ export function getResumeTextUrl(
 /**
  * Загружает HTML текстовой версии резюме через background service worker
  */
-export function fetchResumeTextHtml(resumeUrl: string, candidateName?: string): Promise<string> {
+export function fetchResumeTextHtml(
+  resumeUrl: string,
+  candidateName?: string,
+): Promise<string> {
   const textUrl = getResumeTextUrl(resumeUrl, candidateName);
-  
+
   if (!textUrl) {
-    return Promise.reject(new Error("Не удалось сформировать URL текстовой версии"));
+    return Promise.reject(
+      new Error("Не удалось сформировать URL текстовой версии"),
+    );
   }
 
   return new Promise((resolve, reject) => {
@@ -54,9 +59,11 @@ export function fetchResumeTextHtml(resumeUrl: string, candidateName?: string): 
         if (response.success && response.data) {
           resolve(response.data);
         } else {
-          reject(new Error(response.error || "Ошибка загрузки текстовой версии"));
+          reject(
+            new Error(response.error || "Ошибка загрузки текстовой версии"),
+          );
         }
-      }
+      },
     );
   });
 }

@@ -23,9 +23,7 @@ async function createIcon(size: number): Promise<Buffer> {
       <path d="${letterAPath}" fill="white"/>
     </svg>
   `;
-  return sharp(Buffer.from(svg))
-    .png()
-    .toBuffer();
+  return sharp(Buffer.from(svg)).png().toBuffer();
 }
 
 async function main(): Promise<void> {

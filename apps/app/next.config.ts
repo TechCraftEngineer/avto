@@ -14,12 +14,12 @@ export default async function createNextConfig(): Promise<NextConfig> {
 
     /** Exclude packages using Node.js APIs or dynamic require from bundling */
     serverExternalPackages: [
-        "@qbs-autonaim/lib",
-        "@qbs-autonaim/document-processor",
-        "@qbs-autonaim/integration-clients",
-        "@qbs-autonaim/jobs-parsers",
-        "cheerio",
-      ],
+      "@qbs-autonaim/lib",
+      "@qbs-autonaim/document-processor",
+      "@qbs-autonaim/integration-clients",
+      "@qbs-autonaim/jobs-parsers",
+      "cheerio",
+    ],
 
     /** Build optimizations */
     experimental: {

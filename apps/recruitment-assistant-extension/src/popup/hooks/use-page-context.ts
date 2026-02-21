@@ -27,9 +27,14 @@ export function usePageContext() {
 
     updateCount();
 
-    const listener = (changes: Record<string, chrome.storage.StorageChange>, areaName: string) => {
+    const listener = (
+      changes: Record<string, chrome.storage.StorageChange>,
+      areaName: string,
+    ) => {
       if (areaName === "local" && changes[HH_SELECTED_STORAGE_KEY]) {
-        const arr = changes[HH_SELECTED_STORAGE_KEY].newValue as string[] | undefined;
+        const arr = changes[HH_SELECTED_STORAGE_KEY].newValue as
+          | string[]
+          | undefined;
         setSelectedCount(Array.isArray(arr) ? arr.length : 0);
       }
     };

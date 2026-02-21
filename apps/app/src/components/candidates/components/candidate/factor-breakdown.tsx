@@ -44,7 +44,7 @@ export const FactorBreakdown = memo(function FactorBreakdown({
               <Briefcase className="h-4 w-4 text-muted-foreground" />
               <h4 className="text-sm font-semibold">Опыт</h4>
             </div>
-            
+
             {experienceScore != null && experienceScore !== undefined && (
               <div className="pl-6">
                 <ScoreDisplay
@@ -55,7 +55,7 @@ export const FactorBreakdown = memo(function FactorBreakdown({
                 />
               </div>
             )}
-            
+
             {experienceReasoning ? (
               <p className="text-sm text-muted-foreground leading-relaxed pl-6">
                 {experienceReasoning}
@@ -75,7 +75,7 @@ export const FactorBreakdown = memo(function FactorBreakdown({
               <Award className="h-4 w-4 text-muted-foreground" />
               <h4 className="text-sm font-semibold">Навыки</h4>
             </div>
-            
+
             {skillsScore != null && skillsScore !== undefined && (
               <div className="pl-6">
                 <ScoreDisplay
@@ -86,7 +86,7 @@ export const FactorBreakdown = memo(function FactorBreakdown({
                 />
               </div>
             )}
-            
+
             {skillsReasoning ? (
               <p className="text-sm text-muted-foreground leading-relaxed pl-6">
                 {skillsReasoning}
@@ -119,11 +119,7 @@ export const FactorBreakdown = memo(function FactorBreakdown({
 
         {/* Risks - Using reusable ItemsListSection */}
         {hasRisks && (
-          <ItemsListSection
-            items={risks ?? []}
-            type="risks"
-            icon={true}
-          />
+          <ItemsListSection items={risks ?? []} type="risks" icon={true} />
         )}
       </CardContent>
     </Card>

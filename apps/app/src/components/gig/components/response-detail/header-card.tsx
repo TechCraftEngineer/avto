@@ -93,7 +93,7 @@ export function GigResponseHeaderCard({
 
   // Generate initials from candidate name
   const getInitials = (name: string | null | undefined): string => {
-    if (!name) return '?';
+    if (!name) return "?";
     const parts = name.trim().split(/\s+/);
     const firstPart = parts[0];
     const lastPart = parts[parts.length - 1];
@@ -119,7 +119,8 @@ export function GigResponseHeaderCard({
           <div className="flex items-center gap-3 text-xs text-muted-foreground shrink-0">
             <span className="flex items-center gap-1">
               <Wallet className="h-3 w-3" />
-              {gig.budgetMin?.toLocaleString() ?? "—"} - {gig.budgetMax?.toLocaleString() ?? "—"} ₽
+              {gig.budgetMin?.toLocaleString() ?? "—"} -{" "}
+              {gig.budgetMax?.toLocaleString() ?? "—"} ₽
             </span>
             <span className="flex items-center gap-1">
               <Clock className="h-3 w-3" />

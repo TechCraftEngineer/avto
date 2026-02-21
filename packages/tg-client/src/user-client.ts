@@ -179,13 +179,13 @@ export async function createUserClient(
     apiHash,
     storage,
     initConnectionOptions: {
-        deviceModel: "Windows PC",
-        systemVersion: "Windows 10",
-        appVersion: "1.0.0",
-        systemLangCode: "ru",
-        langPack: "",
-        langCode: "ru"
-      }
+      deviceModel: "Windows PC",
+      systemVersion: "Windows 10",
+      appVersion: "1.0.0",
+      systemLangCode: "ru",
+      langPack: "",
+      langCode: "ru",
+    },
   });
 
   // Подключаемся к Telegram без интерактивной авторизации

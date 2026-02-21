@@ -2,7 +2,10 @@
  * Утилита для экспорта данных в CSV
  */
 
-export function convertToCSV(headers: string[], rows: Record<string, string | number>[]): string {
+export function convertToCSV(
+  headers: string[],
+  rows: Record<string, string | number>[],
+): string {
   const escapeCSV = (value: string): string => {
     if (value.includes(",") || value.includes('"') || value.includes("\n")) {
       return `"${value.replace(/"/g, '""')}"`;
@@ -12,7 +15,7 @@ export function convertToCSV(headers: string[], rows: Record<string, string | nu
 
   const headerRow = headers.map(escapeCSV).join(",");
   const dataRows = rows.map((row) =>
-    headers.map((header) => escapeCSV(String(row[header] || ""))).join(",")
+    headers.map((header) => escapeCSV(String(row[header] || ""))).join(","),
   );
 
   return [headerRow, ...dataRows].join("\n");

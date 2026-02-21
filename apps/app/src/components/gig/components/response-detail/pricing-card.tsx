@@ -43,22 +43,29 @@ export function PricingCard({
     price && deliveryDays ? Math.round(price / deliveryDays) : null;
 
   // Используем данные из gig если доступны, иначе - средние значения
-  const marketAveragePrice = gig?.budgetMin && gig?.budgetMax
-    ? (gig.budgetMin + gig.budgetMax) / 2
-    : 15000;
-  
+  const marketAveragePrice =
+    gig?.budgetMin && gig?.budgetMax
+      ? (gig.budgetMin + gig.budgetMax) / 2
+      : 15000;
+
   // Parse estimatedDuration to number (e.g., "1-2 дня" -> 2, "неделя" -> 7)
   const parseDurationToDays = (duration: string | null): number => {
     if (!duration) return 7;
     const match = duration.match(/(\d+)/);
     if (match?.[1]) return parseInt(match[1], 10);
     if (duration.toLowerCase().includes("недел")) return 7;
-    if (duration.toLowerCase().includes("день") || duration.toLowerCase().includes("дней")) return 1;
+    if (
+      duration.toLowerCase().includes("день") ||
+      duration.toLowerCase().includes("дней")
+    )
+      return 1;
     if (duration.toLowerCase().includes("месяц")) return 30;
     return 7;
   };
-  
-  const marketAverageDays = gig ? parseDurationToDays(gig.estimatedDuration) : 7;
+
+  const marketAverageDays = gig
+    ? parseDurationToDays(gig.estimatedDuration)
+    : 7;
 
   const getPriceComparison = () => {
     if (!price) return null;

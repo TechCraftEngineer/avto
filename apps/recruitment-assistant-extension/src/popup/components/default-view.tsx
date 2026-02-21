@@ -55,9 +55,12 @@ export function DefaultView({
         </div>
         <div className="flex flex-col gap-1 text-center">
           <h2 className="text-base font-semibold leading-tight">Всё готово!</h2>
-          <p className="font-medium text-green-600">Расширение подключено к аккаунту</p>
+          <p className="font-medium text-green-600">
+            Расширение подключено к аккаунту
+          </p>
           <p className="text-muted-foreground text-sm leading-relaxed">
-            Откройте профиль на LinkedIn или hh.ru для извлечения и импорта данных.
+            Откройте профиль на LinkedIn или hh.ru для извлечения и импорта
+            данных.
           </p>
         </div>
       </div>

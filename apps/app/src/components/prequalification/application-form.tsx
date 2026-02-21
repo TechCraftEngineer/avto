@@ -100,7 +100,9 @@ export function ApplicationForm({
             email: draft.email || "",
             phone: draft.phone || "",
             coverLetter: draft.coverLetter || "",
-            preferredContact: (draft.preferredContact as FormValues["preferredContact"]) || "email",
+            preferredContact:
+              (draft.preferredContact as FormValues["preferredContact"]) ||
+              "email",
             availableFrom: draft.availableFrom || "",
           });
           toast.info("Черновик заявки восстановлен");
@@ -233,10 +235,7 @@ export function ApplicationForm({
 
       {/* Form */}
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(handleSubmit)}
-          className="space-y-6"
-        >
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
           {/* Step 1: Contacts */}
           {currentStep === 1 && (
             <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
@@ -255,9 +254,7 @@ export function ApplicationForm({
                         type="email"
                         placeholder="example@mail.ru"
                         value={formValues.email}
-                        onChange={(e) =>
-                          setValue("email", e.target.value)
-                        }
+                        onChange={(e) => setValue("email", e.target.value)}
                       />
                     </FormControl>
                     <FormDescription>
@@ -278,9 +275,7 @@ export function ApplicationForm({
                         type="tel"
                         placeholder="+7 (999) 123-45-67"
                         value={formValues.phone}
-                        onChange={(e) =>
-                          setValue("phone", e.target.value)
-                        }
+                        onChange={(e) => setValue("phone", e.target.value)}
                       />
                     </FormControl>
                     <FormMessage />
@@ -319,7 +314,9 @@ export function ApplicationForm({
                 name="availableFrom"
                 render={() => (
                   <FormItem>
-                    <FormLabel>Когда вы готовы выйти на работу? (необязательно)</FormLabel>
+                    <FormLabel>
+                      Когда вы готовы выйти на работу? (необязательно)
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="text"
@@ -366,8 +363,8 @@ export function ApplicationForm({
                       />
                     </FormControl>
                     <FormDescription>
-                      Минимум 10 символов. Расскажите о своём опыте и навыках, релевантных вакансии. 
-                      Это повысит шансы на успех!
+                      Минимум 10 символов. Расскажите о своём опыте и навыках,
+                      релевантных вакансии. Это повысит шансы на успех!
                     </FormDescription>
                     <div className="text-xs text-muted-foreground">
                       {formValues.coverLetter.length} / 5000 символов
@@ -406,12 +403,18 @@ export function ApplicationForm({
                 )}
                 <div>
                   <span className="text-sm font-medium">Способ связи:</span>
-                  <p className="text-sm capitalize">{formValues.preferredContact}</p>
+                  <p className="text-sm capitalize">
+                    {formValues.preferredContact}
+                  </p>
                 </div>
                 {formValues.coverLetter && (
                   <div>
-                    <span className="text-sm font-medium">Сопроводительное письмо:</span>
-                    <p className="text-sm line-clamp-3">{formValues.coverLetter}</p>
+                    <span className="text-sm font-medium">
+                      Сопроводительное письмо:
+                    </span>
+                    <p className="text-sm line-clamp-3">
+                      {formValues.coverLetter}
+                    </p>
                   </div>
                 )}
               </div>

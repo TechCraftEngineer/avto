@@ -17,7 +17,13 @@ import {
   Textarea,
 } from "@qbs-autonaim/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, ArrowRight, ChevronRight, Home, Loader2 } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  ChevronRight,
+  Home,
+  Loader2,
+} from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import { toast } from "sonner";
@@ -106,27 +112,33 @@ export default function GigResponseDetailPage({ params }: PageProps) {
   });
 
   // Calculate previous and next response IDs
-  const { prevResponseId, nextResponseId, currentIndex, totalResponses } = React.useMemo(() => {
-    if (!responsesData?.items) {
-      return { prevResponseId: null, nextResponseId: null, currentIndex: -1, totalResponses: 0 };
-    }
-    const items = responsesData.items;
-    const index = items.findIndex((r) => r.id === responseId);
-    if (index === -1) {
+  const { prevResponseId, nextResponseId, currentIndex, totalResponses } =
+    React.useMemo(() => {
+      if (!responsesData?.items) {
+        return {
+          prevResponseId: null,
+          nextResponseId: null,
+          currentIndex: -1,
+          totalResponses: 0,
+        };
+      }
+      const items = responsesData.items;
+      const index = items.findIndex((r) => r.id === responseId);
+      if (index === -1) {
+        return {
+          prevResponseId: null,
+          nextResponseId: null,
+          currentIndex: -1,
+          totalResponses: items.length,
+        };
+      }
       return {
-        prevResponseId: null,
-        nextResponseId: null,
-        currentIndex: -1,
+        prevResponseId: index > 0 ? items[index - 1]?.id : null,
+        nextResponseId: index < items.length - 1 ? items[index + 1]?.id : null,
+        currentIndex: index + 1,
         totalResponses: items.length,
       };
-    }
-    return {
-      prevResponseId: index > 0 ? items[index - 1]?.id : null,
-      nextResponseId: index < items.length - 1 ? items[index + 1]?.id : null,
-      currentIndex: index + 1,
-      totalResponses: items.length,
-    };
-  }, [responsesData, responseId]);
+    }, [responsesData, responseId]);
 
   // Приводим к GigResponse типу
   const gigResponse = response
@@ -156,7 +168,7 @@ export default function GigResponseDetailPage({ params }: PageProps) {
   const acceptMutation = useMutation(
     trpc.gig.responses.accept.mutationOptions({
       onSuccess: () => {
-        capture('gig_response_accepted', {
+        capture("gig_response_accepted", {
           response_id: responseId,
           gig_id: gigId,
           workspace_id: workspace?.id,
@@ -188,7 +200,7 @@ export default function GigResponseDetailPage({ params }: PageProps) {
   const rejectMutation = useMutation(
     trpc.gig.responses.reject.mutationOptions({
       onSuccess: () => {
-        capture('gig_response_rejected', {
+        capture("gig_response_rejected", {
           response_id: responseId,
           gig_id: gigId,
           workspace_id: workspace?.id,
@@ -220,7 +232,7 @@ export default function GigResponseDetailPage({ params }: PageProps) {
   const sendMessageMutation = useMutation(
     trpc.gig.responses.sendMessage.mutationOptions({
       onSuccess: () => {
-        capture('gig_response_message_sent', {
+        capture("gig_response_message_sent", {
           response_id: responseId,
           gig_id: gigId,
           workspace_id: workspace?.id,
@@ -247,8 +259,8 @@ export default function GigResponseDetailPage({ params }: PageProps) {
   // Track page view
   React.useEffect(() => {
     if (!workspace?.id || !responseId) return;
-    
-    capture('gig_response_viewed', {
+
+    capture("gig_response_viewed", {
       response_id: responseId,
       gig_id: gigId,
       workspace_id: workspace.id,
@@ -303,7 +315,7 @@ export default function GigResponseDetailPage({ params }: PageProps) {
   const evaluateMutation = useMutation(
     trpc.gig.responses.evaluate.mutationOptions({
       onSuccess: () => {
-        capture('gig_response_evaluation_started', {
+        capture("gig_response_evaluation_started", {
           response_id: responseId,
           gig_id: gigId,
           workspace_id: workspace?.id,
@@ -471,7 +483,7 @@ export default function GigResponseDetailPage({ params }: PageProps) {
               href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs/${gigId}`}
               className="text-muted-foreground hover:text-foreground transition-colors truncate max-w-[100px] sm:max-w-none"
             >
-              {response?.gig?.title || 'Gig'}
+              {response?.gig?.title || "Gig"}
             </Link>
           </li>
           <li className="flex items-center gap-1">
@@ -486,7 +498,7 @@ export default function GigResponseDetailPage({ params }: PageProps) {
           <li className="flex items-center gap-1">
             <ChevronRight className="h-3 w-3 text-muted-foreground" />
             <span className="text-foreground font-medium truncate max-w-[100px] sm:max-w-none">
-              {gigResponse?.candidateName || 'Кандидат'}
+              {gigResponse?.candidateName || "Кандидат"}
             </span>
           </li>
         </ol>
@@ -509,7 +521,7 @@ export default function GigResponseDetailPage({ params }: PageProps) {
               <span className="sm:hidden">Назад</span>
             </Link>
           </Button>
-          
+
           {/* Previous */}
           {prevResponseId && (
             <Button
@@ -526,7 +538,7 @@ export default function GigResponseDetailPage({ params }: PageProps) {
               </Link>
             </Button>
           )}
-          
+
           {/* Next */}
           {nextResponseId && (
             <Button
@@ -544,7 +556,7 @@ export default function GigResponseDetailPage({ params }: PageProps) {
             </Button>
           )}
         </div>
-        
+
         {/* Counter */}
         {totalResponses > 0 && currentIndex >= 0 && (
           <span className="text-sm text-muted-foreground">

@@ -59,9 +59,7 @@ export function GigResponseDetailCard({
       />
 
       {/* Summary Card */}
-      {gig && (
-        <ResponseSummaryCard response={response} gig={gig} />
-      )}
+      {gig && <ResponseSummaryCard response={response} gig={gig} />}
 
       {/* Parsed Profile Info */}
       {response.profileData && !response.profileData.error && (

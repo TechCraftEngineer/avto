@@ -26,7 +26,11 @@ export const gigTypesConfig: GigTypeConfig[] = [
   { value: "DATA_ENTRY", label: "Ввод данных" },
   { value: "RESEARCH", label: "Исследования" },
   { value: "CONSULTING", label: "Консультации" },
-  { value: "OTHER", label: "Другое", description: "Категория для заданий, не подходящих под остальные" },
+  {
+    value: "OTHER",
+    label: "Другое",
+    description: "Категория для заданий, не подходящих под остальные",
+  },
 ] as const;
 
 /**
@@ -37,7 +41,7 @@ export const gigTypeLabels: Record<GigType, string> = gigTypesConfig.reduce(
     acc[type.value] = type.label;
     return acc;
   },
-  {} as Record<GigType, string>
+  {} as Record<GigType, string>,
 );
 
 /**

@@ -51,25 +51,43 @@ export const updateIntegration = protectedProcedure
     }
 
     // credentials для HH и Kwork меняются только при настройке (verify)
-    if (CREDENTIALS_LOCKED_TYPES.includes(input.type as (typeof CREDENTIALS_LOCKED_TYPES)[number])) {
+    if (
+      CREDENTIALS_LOCKED_TYPES.includes(
+        input.type as (typeof CREDENTIALS_LOCKED_TYPES)[number],
+      )
+    ) {
       const [updated] = await ctx.db
         .update(integration)
         .set({
           name: input.name ?? existing.name,
-          metadata: (input.metadata ?? existing.metadata) as Record<string, unknown> | undefined,
+          metadata: (input.metadata ?? existing.metadata) as
+            | Record<string, unknown>
+            | undefined,
           isActive: input.isActive ?? existing.isActive,
           updatedAt: new Date(),
         })
         .where(eq(integration.id, existing.id))
-        .returning({ id: integration.id, type: integration.type, name: integration.name });
+        .returning({
+          id: integration.id,
+          type: integration.type,
+          name: integration.name,
+        });
 
-      if (!updated) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Ошибка обновления" });
+      if (!updated)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Ошибка обновления",
+        });
       return { id: updated.id, type: updated.type, name: updated.name };
     }
 
     const credentials =
       input.credentials ??
-      (await getIntegrationCredentials(ctx.db, input.type, input.workspaceId)) ??
+      (await getIntegrationCredentials(
+        ctx.db,
+        input.type,
+        input.workspaceId,
+      )) ??
       {};
 
     const updated = await upsertIntegration(ctx.db, {

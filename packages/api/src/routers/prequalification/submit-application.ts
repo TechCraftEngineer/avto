@@ -6,7 +6,12 @@
  * Публичная процедура - не требует авторизации пользователя.
  */
 
-import { and, eq, GlobalCandidateRepository, globalCandidate } from "@qbs-autonaim/db";
+import {
+  and,
+  eq,
+  GlobalCandidateRepository,
+  globalCandidate,
+} from "@qbs-autonaim/db";
 import {
   prequalificationSession,
   type Response,

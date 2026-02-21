@@ -13,12 +13,15 @@ interface User {
 export const usePostHog = () => {
   const posthog = usePostHogOriginal();
   const isEnabled = posthog?.__loaded ?? false;
-  
-  const capture = useCallback((event: string, properties?: Record<string, unknown>) => {
-    if (isEnabled && posthog) {
-      posthog.capture(event, properties);
-    }
-  }, [posthog, isEnabled]);
+
+  const capture = useCallback(
+    (event: string, properties?: Record<string, unknown>) => {
+      if (isEnabled && posthog) {
+        posthog.capture(event, properties);
+      }
+    },
+    [posthog, isEnabled],
+  );
 
   return {
     posthog,

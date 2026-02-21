@@ -299,8 +299,9 @@ async function syncKworkResponses(
       const val = values[i];
       if (!row || !val) continue;
 
-      const userData = (val.profileData as { kworkUserData?: Record<string, unknown> })
-        ?.kworkUserData;
+      const userData = (
+        val.profileData as { kworkUserData?: Record<string, unknown> }
+      )?.kworkUserData;
       const fullname = (userData?.fullname as string)?.trim();
       const candidateName = fullname || val.candidateName || "Кандидат Kwork";
       const headline =

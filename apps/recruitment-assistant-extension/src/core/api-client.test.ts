@@ -104,9 +104,7 @@ describe("ApiClient", () => {
       expect(callArgs[0]).toBe("https://api.example.com/api/candidates/import");
       expect(callArgs[1].method).toBe("POST");
       expect(callArgs[1].headers["Content-Type"]).toBe("application/json");
-      expect(callArgs[1].headers.Authorization).toBe(
-        "Bearer test-token-123",
-      );
+      expect(callArgs[1].headers.Authorization).toBe("Bearer test-token-123");
     });
 
     it("должен правильно извлекать имя и фамилию", async () => {

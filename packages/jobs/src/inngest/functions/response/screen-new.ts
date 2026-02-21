@@ -32,8 +32,9 @@ export const screenNewResponsesFunction = inngest.createFunction(
     );
 
     const result = await step.run("screen-new-responses", async () => {
-      const { processed, failed, total } =
-        await screenNewResponsesForVacancy(vacancyId, {
+      const { processed, failed, total } = await screenNewResponsesForVacancy(
+        vacancyId,
+        {
           onProgress: async (progress) => {
             await publish(
               screenNewResponsesChannel(vacancyId).progress({
@@ -46,7 +47,8 @@ export const screenNewResponsesFunction = inngest.createFunction(
               }),
             );
           },
-        });
+        },
+      );
 
       return { processed, failed, total };
     });

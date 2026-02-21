@@ -481,7 +481,11 @@ export async function uploadAvatarFromUrl(
       `Avatar downloaded: ${buffer.length} bytes, type: ${mimeType}, uploading to S3...`,
     );
 
-    const uploadResult = await uploadCandidatePhoto(buffer, identifier, mimeType);
+    const uploadResult = await uploadCandidatePhoto(
+      buffer,
+      identifier,
+      mimeType,
+    );
     if (!uploadResult.success) {
       throw new Error(uploadResult.error ?? "Upload failed");
     }

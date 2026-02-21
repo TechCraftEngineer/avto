@@ -38,11 +38,11 @@ export function cn(...inputs: ClassValue[]): string {
  * Get score theme based on value
  */
 export function getScoreTheme(score: number | null): ScoreTheme {
-  if (score === null) return 'muted';
-  if (score >= SCORE_THRESHOLDS.EXCELLENT) return 'excellent';
-  if (score >= SCORE_THRESHOLDS.GOOD) return 'good';
-  if (score >= SCORE_THRESHOLDS.SATISFACTORY) return 'satisfactory';
-  return 'poor';
+  if (score === null) return "muted";
+  if (score >= SCORE_THRESHOLDS.EXCELLENT) return "excellent";
+  if (score >= SCORE_THRESHOLDS.GOOD) return "good";
+  if (score >= SCORE_THRESHOLDS.SATISFACTORY) return "satisfactory";
+  return "poor";
 }
 
 /**
@@ -50,11 +50,11 @@ export function getScoreTheme(score: number | null): ScoreTheme {
  */
 export function getScoreColor(theme: ScoreTheme): string {
   const colors = {
-    excellent: 'text-green-600 dark:text-green-400',
-    good: 'text-blue-600 dark:text-blue-400',
-    satisfactory: 'text-yellow-600 dark:text-yellow-400',
-    poor: 'text-red-600 dark:text-red-400',
-    muted: 'text-muted-foreground',
+    excellent: "text-green-600 dark:text-green-400",
+    good: "text-blue-600 dark:text-blue-400",
+    satisfactory: "text-yellow-600 dark:text-yellow-400",
+    poor: "text-red-600 dark:text-red-400",
+    muted: "text-muted-foreground",
   };
   return colors[theme];
 }
@@ -64,11 +64,11 @@ export function getScoreColor(theme: ScoreTheme): string {
  */
 export function getProgressColor(theme: ScoreTheme): string {
   const colors = {
-    excellent: 'bg-green-500',
-    good: 'bg-blue-500',
-    satisfactory: 'bg-yellow-500',
-    poor: 'bg-red-500',
-    muted: 'bg-muted',
+    excellent: "bg-green-500",
+    good: "bg-blue-500",
+    satisfactory: "bg-yellow-500",
+    poor: "bg-red-500",
+    muted: "bg-muted",
   };
   return colors[theme];
 }
@@ -76,13 +76,15 @@ export function getProgressColor(theme: ScoreTheme): string {
 /**
  * Get badge variant based on score theme
  */
-export function getBadgeVariant(theme: ScoreTheme): "default" | "secondary" | "destructive" | "outline" {
+export function getBadgeVariant(
+  theme: ScoreTheme,
+): "default" | "secondary" | "destructive" | "outline" {
   const variants = {
-    excellent: 'default' as const,
-    good: 'secondary' as const,
-    satisfactory: 'secondary' as const,
-    poor: 'destructive' as const,
-    muted: 'outline' as const,
+    excellent: "default" as const,
+    good: "secondary" as const,
+    satisfactory: "secondary" as const,
+    poor: "destructive" as const,
+    muted: "outline" as const,
   };
   return variants[theme];
 }
@@ -90,7 +92,10 @@ export function getBadgeVariant(theme: ScoreTheme): "default" | "secondary" | "d
 /**
  * Calculate percentage from score
  */
-export function getScorePercentage(score: number | null | undefined, scale: ScoreScale = SCORE_SCALES.HUNDRED_POINT): number {
+export function getScorePercentage(
+  score: number | null | undefined,
+  scale: ScoreScale = SCORE_SCALES.HUNDRED_POINT,
+): number {
   if (score === null || score === undefined) return 0;
   return (score / scale.max) * 100;
 }
@@ -98,8 +103,11 @@ export function getScorePercentage(score: number | null | undefined, scale: Scor
 /**
  * Format score for display
  */
-export function formatScore(score: number | null | undefined, scale: ScoreScale = SCORE_SCALES.HUNDRED_POINT): string {
-  if (score === null || score === undefined) return 'N/A';
+export function formatScore(
+  score: number | null | undefined,
+  scale: ScoreScale = SCORE_SCALES.HUNDRED_POINT,
+): string {
+  if (score === null || score === undefined) return "N/A";
   return `${Math.round(score)}/${scale.max}`;
 }
 
@@ -107,45 +115,45 @@ export function formatScore(score: number | null | undefined, scale: ScoreScale 
 // CVA VARIANTS
 // ============================================
 
-export const scoreVariants = cva('', {
+export const scoreVariants = cva("", {
   variants: {
     theme: {
-      excellent: 'text-green-600 dark:text-green-400',
-      good: 'text-blue-600 dark:text-blue-400',
-      satisfactory: 'text-yellow-600 dark:text-yellow-400',
-      poor: 'text-red-600 dark:text-red-400',
-      muted: 'text-muted-foreground',
+      excellent: "text-green-600 dark:text-green-400",
+      good: "text-blue-600 dark:text-blue-400",
+      satisfactory: "text-yellow-600 dark:text-yellow-400",
+      poor: "text-red-600 dark:text-red-400",
+      muted: "text-muted-foreground",
     },
     size: {
-      sm: 'text-sm',
-      md: 'text-lg',
-      lg: 'text-2xl',
+      sm: "text-sm",
+      md: "text-lg",
+      lg: "text-2xl",
     },
   },
   defaultVariants: {
-    theme: 'muted',
-    size: 'md',
+    theme: "muted",
+    size: "md",
   },
 });
 
-export const progressVariants = cva('', {
+export const progressVariants = cva("", {
   variants: {
     theme: {
-      excellent: 'bg-green-500',
-      good: 'bg-blue-500',
-      satisfactory: 'bg-yellow-500',
-      poor: 'bg-red-500',
-      muted: 'bg-muted',
+      excellent: "bg-green-500",
+      good: "bg-blue-500",
+      satisfactory: "bg-yellow-500",
+      poor: "bg-red-500",
+      muted: "bg-muted",
     },
     size: {
-      sm: 'h-1',
-      md: 'h-2',
-      lg: 'h-3',
+      sm: "h-1",
+      md: "h-2",
+      lg: "h-3",
     },
   },
   defaultVariants: {
-    theme: 'muted',
-    size: 'md',
+    theme: "muted",
+    size: "md",
   },
 });
 

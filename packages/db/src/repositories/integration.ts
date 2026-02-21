@@ -35,12 +35,12 @@ export async function getIntegration(
 
 /**
  * Создать или обновить интеграцию
- * 
+ *
  * ВАЖНО: Эта функция должна вызываться минимально:
  * - Один раз в начале процесса верификации для создания записи
  * - При успешной авторизации для обновления credentials
  * - В API роутерах для защиты от race conditions
- * 
+ *
  * Для обновления статуса используйте setIntegrationSetupStatus()
  * Для работы с metadata используйте специализированные функции
  */
@@ -158,7 +158,9 @@ export async function setIntegrationSetupStatus(
 ): Promise<void> {
   const existing = await getIntegration(db, type, workspaceId);
   if (!existing) {
-    throw new Error(`Integration ${type} not found for workspace ${workspaceId}`);
+    throw new Error(
+      `Integration ${type} not found for workspace ${workspaceId}`,
+    );
   }
   const metadata = (existing.metadata as Record<string, unknown>) ?? {};
   await db
@@ -249,7 +251,8 @@ export async function saveHHPendingCaptcha(
       metadata: {
         ...metadata,
         [HH_PENDING_CAPTCHA_KEY]: captcha,
-        [INTEGRATION_SETUP_STATUS_KEY]: "pending_captcha" as IntegrationSetupStatus,
+        [INTEGRATION_SETUP_STATUS_KEY]:
+          "pending_captcha" as IntegrationSetupStatus,
       },
       updatedAt: new Date(),
     })

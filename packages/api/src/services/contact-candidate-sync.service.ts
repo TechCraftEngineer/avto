@@ -7,7 +7,11 @@
  */
 
 import type { DbClient } from "@qbs-autonaim/db";
-import { eq, GlobalCandidateRepository, globalCandidate } from "@qbs-autonaim/db";
+import {
+  eq,
+  GlobalCandidateRepository,
+  globalCandidate,
+} from "@qbs-autonaim/db";
 import { parseFullName } from "@qbs-autonaim/lib";
 
 export interface ContactData {
@@ -99,8 +103,9 @@ export class ContactCandidateSyncService {
 
     if (existing) {
       // Кандидат уже существует — мерджим входящие contactData в запись
-      const mergedData =
-        globalCandidateRepository.mergeGlobalCandidateData(existing, {
+      const mergedData = globalCandidateRepository.mergeGlobalCandidateData(
+        existing,
+        {
           fullName: name || existing.fullName || "Без имени",
           ...parseFullName(name || existing.fullName || "Без имени"),
           email: email || null,
@@ -115,7 +120,8 @@ export class ContactCandidateSyncService {
           skills: additionalData?.skills || null,
           salaryExpectationsAmount: additionalData?.salaryExpectations || null,
           resumeUrl: contactData.platformProfileUrl || null,
-        });
+        },
+      );
 
       let updatedCandidate = existing;
       if (Object.keys(mergedData).length > 0) {

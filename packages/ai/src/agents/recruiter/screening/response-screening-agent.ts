@@ -275,7 +275,9 @@ ${candidate.coverLetter ? `\nСопроводительное письмо:\n${c
     return prompt;
   }
 
-  private formatBirthDateSection(birthDate: Date | string | null | undefined): string {
+  private formatBirthDateSection(
+    birthDate: Date | string | null | undefined,
+  ): string {
     const formatted = formatBirthDateWithAge(birthDate);
     if (!formatted) return "";
     return `\nДата рождения: ${formatted}`;
