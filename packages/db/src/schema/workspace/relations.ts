@@ -4,6 +4,7 @@ import { customDomain } from "../custom-domain/custom-domain";
 import { integration } from "../integration/integration";
 import { organization } from "../organization/organization";
 import { payment } from "../payment/payment";
+import { userIntegration } from "../user-integration/user-integration";
 import { vacancy } from "../vacancy/vacancy";
 import { botSettings } from "./bot-settings";
 import { workspace } from "./workspace";
@@ -68,4 +69,5 @@ export const workspaceCustomDomainRelations = relations(
 export const userRelations = relations(user, ({ many }) => ({
   workspaceMembers: many(workspaceMember),
   payments: many(payment),
+  userIntegrations: many(userIntegration),
 }));

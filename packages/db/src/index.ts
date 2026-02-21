@@ -30,6 +30,7 @@ export type {
 export { GlobalCandidateRepository } from "./repositories/global-candidate.repository";
 // Integration repository exports - keeping as * since it has many functions
 export * from "./repositories/integration";
+export * from "./repositories/user-integration";
 export * from "./repositories/organization.repository";
 export * from "./repositories/response.repository";
 export * from "./repositories/response-history";

@@ -16,5 +16,6 @@ export * from "./response";
 export * from "./shared";
 export * from "./telegram";
 export * from "./types";
+export * from "./user-integration";
 export * from "./vacancy";
 export * from "./workspace";

@@ -1,6 +1,5 @@
 "use client";
 
-import { Badge } from "@qbs-autonaim/ui";
 import { Button } from "@qbs-autonaim/ui";
 import { Calendar } from "@qbs-autonaim/ui";
 import {
@@ -19,70 +18,120 @@ import {
   SelectValue,
 } from "@qbs-autonaim/ui";
 import { Textarea } from "@qbs-autonaim/ui";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { CalendarIcon, Clock, MapPin, Users } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
+import { toast } from "sonner";
+import { useWorkspace } from "~/hooks/use-workspace";
+import { useTRPC } from "~/trpc/react";
 import type { VacancyResponse } from "./types";
 
 interface ScheduleInterviewModalProps {
   response: VacancyResponse;
 }
 
+const AVAILABLE_SLOTS = [
+  "09:00",
+  "10:00",
+  "11:00",
+  "12:00",
+  "14:00",
+  "15:00",
+  "16:00",
+  "17:00",
+];
+
+const INTERVIEW_TYPE_LABELS: Record<string, string> = {
+  technical: "Техническое",
+  hr: "HR собеседование",
+  final: "Финальное",
+  phone: "По телефону",
+  video: "Видео звонок",
+};
+
+const LOCATION_LABELS: Record<string, string> = {
+  office: "Офис",
+  zoom: "Zoom",
+  "google-meet": "Google Meet",
+  phone: "По телефону",
+  remote: "Удалённо",
+};
+
 export function ScheduleInterviewModal({
   response,
 }: ScheduleInterviewModalProps) {
+  const trpc = useTRPC();
+  const { workspace } = useWorkspace();
+  const [open, setOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedTime, setSelectedTime] = useState<string>();
-  const [interviewType, setInterviewType] = useState<string>();
+  const [interviewType, setInterviewType] = useState<string>("video");
   const [location, setLocation] = useState<string>();
   const [notes, setNotes] = useState<string>();
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Mock доступные временные слоты
-  const availableSlots = [
-    "09:00",
-    "10:00",
-    "11:00",
-    "12:00",
-    "14:00",
-    "15:00",
-    "16:00",
-    "17:00",
-  ];
+  const workspaceId = (response as { workspaceId?: string }).workspaceId ?? workspace?.id ?? "";
 
-  // Mock занятые слоты (для демонстрации)
-  const busySlots = ["10:00", "15:00"];
+  const { data: userIntegrations } = useQuery(
+    trpc.userIntegration.list.queryOptions(),
+  );
 
-  const handleScheduleInterview = async () => {
-    if (!selectedDate || !selectedTime || !interviewType) return;
+  const hasGoogleCalendar = userIntegrations?.some(
+    (i) => i.type === "google_calendar",
+  );
 
-    setIsSubmitting(true);
+  const createEventMutation = useMutation(
+    trpc.calendar.createEvent.mutationOptions({
+      onSuccess: (data) => {
+        toast.success("Событие добавлено в календарь", {
+          action: data.htmlLink
+            ? {
+                label: "Открыть",
+                onClick: () => window.open(data.htmlLink, "_blank"),
+              }
+            : undefined,
+        });
+        setOpen(false);
+        setSelectedDate(undefined);
+        setSelectedTime(undefined);
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    }),
+  );
 
-    // Имитация API вызова
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+  const handleScheduleInterview = () => {
+    if (!selectedDate || !selectedTime || !interviewType || !workspaceId) return;
 
-    // Здесь будет реальный API вызов для создания события в календаре
-    console.log("Scheduling interview:", {
-      candidateId: response.id,
-      candidateName: response.candidateName,
-      date: selectedDate,
-      time: selectedTime,
-      type: interviewType,
-      location,
-      notes,
+    const [hours, minutes] = selectedTime.split(":").map(Number);
+    const scheduledAt = new Date(selectedDate);
+    scheduledAt.setHours(hours, minutes, 0, 0);
+
+    const typeLabel = INTERVIEW_TYPE_LABELS[interviewType] ?? interviewType;
+    const candidateName = response.candidateName ?? "Кандидат";
+    const title = `${typeLabel}: ${candidateName}`;
+
+    let description = notes ?? "";
+    if (location) {
+      description += `\nМесто: ${LOCATION_LABELS[location] ?? location}`;
+    }
+
+    createEventMutation.mutate({
+      responseId: response.id,
+      workspaceId,
+      scheduledAt,
+      durationMinutes: 60,
+      title,
+      description: description.trim() || undefined,
+      type: interviewType as "technical" | "hr" | "final" | "phone" | "video",
     });
-
-    setIsSubmitting(false);
-    // Закрыть модальное окно и показать уведомление
-    alert(
-      `Собеседование запланировано на ${selectedDate.toLocaleDateString("ru-RU")} в ${selectedTime}`,
-    );
   };
 
-  const isSlotAvailable = (time: string) => !busySlots.includes(time);
   const isFormValid = selectedDate && selectedTime && interviewType;
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2">
           <CalendarIcon className="h-4 w-4" />
@@ -102,7 +151,7 @@ export function ScheduleInterviewModal({
           <div className="p-4 bg-muted/50 rounded-lg">
             <h3 className="font-medium mb-2">Кандидат</h3>
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+              <div className="h-10 w-10 rounded-full bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center">
                 <Users className="h-5 w-5 text-white" />
               </div>
               <div>
@@ -142,21 +191,15 @@ export function ScheduleInterviewModal({
                   Выберите время
                 </Label>
                 <div className="grid grid-cols-2 gap-2">
-                  {availableSlots.map((time) => (
+                  {AVAILABLE_SLOTS.map((time) => (
                     <Button
                       key={time}
                       variant={selectedTime === time ? "default" : "outline"}
                       size="sm"
-                      disabled={!isSlotAvailable(time)}
                       onClick={() => setSelectedTime(time)}
                       className="h-8"
                     >
                       {time}
-                      {!isSlotAvailable(time) && (
-                        <Badge variant="secondary" className="ml-1 text-xs">
-                          Занято
-                        </Badge>
-                      )}
                     </Button>
                   ))}
                 </div>
@@ -225,11 +268,13 @@ export function ScheduleInterviewModal({
                   <strong>Время:</strong> {selectedTime}
                 </p>
                 <p>
-                  <strong>Тип:</strong> {interviewType}
+                  <strong>Тип:</strong>{" "}
+                  {INTERVIEW_TYPE_LABELS[interviewType] ?? interviewType}
                 </p>
                 {location && (
                   <p>
-                    <strong>Место:</strong> {location}
+                    <strong>Место:</strong>{" "}
+                    {LOCATION_LABELS[location] ?? location}
                   </p>
                 )}
                 {notes && (
@@ -241,17 +286,36 @@ export function ScheduleInterviewModal({
             </div>
           )}
 
+          {/* Подсказка подключить календарь */}
+          {!hasGoogleCalendar && (
+            <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/30">
+              <p className="text-sm text-amber-800 dark:text-amber-200">
+                Подключите Google Calendar в{" "}
+                <Link
+                  href="/account/settings/integrations"
+                  className="underline font-medium"
+                >
+                  настройках аккаунта
+                </Link>
+                , чтобы добавлять собеседования в свой календарь.
+              </p>
+            </div>
+          )}
+
           {/* Кнопки действий */}
           <div className="flex gap-3 pt-4 border-t">
             <Button
               onClick={handleScheduleInterview}
-              disabled={!isFormValid || isSubmitting}
+              disabled={
+                !isFormValid ||
+                createEventMutation.isPending ||
+                !hasGoogleCalendar
+              }
               className="flex-1"
             >
-              {isSubmitting ? "Планируется..." : "Запланировать собеседование"}
-            </Button>
-            <Button variant="outline" className="flex-1">
-              Добавить в календарь
+              {createEventMutation.isPending
+                ? "Планируется..."
+                : "Добавить в календарь"}
             </Button>
           </div>
         </div>

@@ -48,5 +48,8 @@ export * from "./vacancy";
 export * from "./vacancy-import";
 // Gig import
 export * from "./gig-import";
+// User integration
+export * from "./user-integration";
+
 // Workspace
 export * from "./workspace";

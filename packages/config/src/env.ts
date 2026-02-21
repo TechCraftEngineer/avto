@@ -27,6 +27,10 @@ export const env = createEnv({
     AUTH_GOOGLE_ID: z.string().optional(),
     AUTH_GOOGLE_SECRET: z.string().optional(),
 
+    // Google Calendar (OAuth для user-интеграций)
+    GOOGLE_CALENDAR_CLIENT_ID: z.string().optional(),
+    GOOGLE_CALENDAR_CLIENT_SECRET: z.string().optional(),
+
     // AWS S3
     AWS_S3_ENDPOINT: z.string().optional(),
     AWS_S3_FORCE_PATH_STYLE: z.string().optional(),
@@ -161,6 +165,8 @@ export const env = createEnv({
     AUTH_SECRET: process.env.AUTH_SECRET,
     AUTH_GOOGLE_ID: process.env.AUTH_GOOGLE_ID,
     AUTH_GOOGLE_SECRET: process.env.AUTH_GOOGLE_SECRET,
+    GOOGLE_CALENDAR_CLIENT_ID: process.env.GOOGLE_CALENDAR_CLIENT_ID,
+    GOOGLE_CALENDAR_CLIENT_SECRET: process.env.GOOGLE_CALENDAR_CLIENT_SECRET,
     AWS_S3_ENDPOINT: process.env.AWS_S3_ENDPOINT,
     AWS_S3_FORCE_PATH_STYLE: process.env.AWS_S3_FORCE_PATH_STYLE,
     AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,

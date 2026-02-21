@@ -11,6 +11,7 @@ export default function SettingsLayout({ children }: { children: ReactNode }) {
 
   const getCurrentTab = () => {
     if (pathname === "/account/settings/security") return "security";
+    if (pathname === "/account/settings/integrations") return "integrations";
     return "general";
   };
 
@@ -36,8 +37,9 @@ export default function SettingsLayout({ children }: { children: ReactNode }) {
         onValueChange={handleTabChange}
         className="w-full"
       >
-        <TabsList className="grid w-full max-w-lg grid-cols-2">
+        <TabsList className="grid w-full max-w-2xl grid-cols-3">
           <TabsTrigger value="general">Основное</TabsTrigger>
+          <TabsTrigger value="integrations">Интеграции</TabsTrigger>
           <TabsTrigger value="security">Безопасность</TabsTrigger>
         </TabsList>
 

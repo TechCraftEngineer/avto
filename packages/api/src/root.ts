@@ -1,4 +1,5 @@
 import { analyticsRouter } from "./routers/analytics";
+import { calendarRouter } from "./routers/calendar";
 import { candidatesRouter } from "./routers/candidates";
 import { chatRouter } from "./routers/chat";
 import { botRouter } from "./routers/company";
@@ -18,6 +19,7 @@ import { prequalificationRouter } from "./routers/prequalification";
 import { recruiterAgentRouter } from "./routers/recruiter-agent";
 import { telegramRouter } from "./routers/telegram";
 import { testRouter } from "./routers/test";
+import { userIntegrationRouter } from "./routers/user-integration";
 import { userRouter } from "./routers/user";
 import { vacancyRouter } from "./routers/vacancy";
 import { widgetConfigRouter } from "./routers/widget-config";
@@ -33,6 +35,8 @@ export const appRouter = createTRPCRouter({
   vacancy: vacancyRouter,
   gig: gigRouter,
   integration: integrationRouter,
+  userIntegration: userIntegrationRouter,
+  calendar: calendarRouter,
   interviewScenarios: interviewScenariosRouter,
   metaMatch: metaMatchRouter,
   bot: botRouter,

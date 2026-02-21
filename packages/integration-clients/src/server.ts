@@ -1,4 +1,5 @@
 export * from "./index";
+export * from "./google-calendar";
 
 import type { AxiosInstance } from "axios";
 import {
