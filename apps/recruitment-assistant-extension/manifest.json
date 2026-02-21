@@ -71,7 +71,7 @@
       ]
     },
     {
-      "resources": ["src/injected/fetch-page-context.js"],
+      "resources": ["src/injected/fetch-page-context.js","src/injected/spoiler-chat-interceptor.js"],
       "matches": [
         "https://hh.ru/*",
         "https://www.hh.ru/*",

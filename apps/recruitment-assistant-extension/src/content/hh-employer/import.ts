@@ -7,7 +7,7 @@ import {
   fetchResumeTextHtml,
   fetchVacancyPrintHtml,
   fetchPhotoAsBase64,
-  fetchCoverLettersBySearch,
+  fetchCoverLettersForPage,
   type HHEmployerPageType,
   type ParsedResponse,
 } from "../../parsers/hh-employer";
@@ -347,34 +347,33 @@ export async function runResponsesImport(
       message: "Сбор откликов...",
     });
 
-    const responses = await collectAllResponses(vacancyExternalId, (cur) => {
-      onProgress?.({
-        stage: "responses",
-        current: cur,
-        total: cur + 20,
-        message: `Собрано откликов: ${cur}`,
-      });
-    });
+    const responses = await collectAllResponses(
+      vacancyExternalId,
+      (cur) => {
+        onProgress?.({
+          stage: "responses",
+          current: cur,
+          total: cur + 20,
+          message: `Собрано откликов: ${cur}`,
+        });
+      },
+      async (pageResponses) => {
+        try {
+          await fetchCoverLettersForPage(pageResponses);
+        } catch (e) {
+          console.warn(
+            "[Import] Не удалось загрузить сопроводительные письма:",
+            e,
+          );
+        }
+      },
+    );
 
     if (responses.length === 0) {
       return {
         success: false,
         error: "Не найдено откликов на странице",
       };
-    }
-
-    // Загрузка сопроводительных писем через поиск Chatik (по имени кандидата)
-    try {
-      const coverLetterMap = await fetchCoverLettersBySearch(
-        responses.map((r) => ({ name: r.name, resumeId: r.resumeId })),
-        vacancyExternalId,
-      );
-      for (const r of responses) {
-        const letter = coverLetterMap.get(r.resumeId);
-        if (letter) r.coverLetter = letter;
-      }
-    } catch (e) {
-      console.warn("[Import] Не удалось загрузить сопроводительные письма:", e);
     }
 
     // Проверка лимита импорта
