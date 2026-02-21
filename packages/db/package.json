@@ -38,6 +38,8 @@
     "update-counter": "bun with-env bun src/scripts/update-vacancy-counter-by-id.ts",
     "check-vacancy": "bun with-env bun src/scripts/check-vacancy-data.ts",
     "migrate:candidates": "bun with-env bun src/scripts/migrate-candidates-to-global.ts",
+    "backup:users-workspaces-orgs": "bun with-env bun src/scripts/backup-users-workspaces-orgs.ts",
+    "restore:users-workspaces-orgs": "bun with-env bun src/scripts/restore-users-workspaces-orgs.ts",
     "typecheck": "npx tsc --noEmit",
     "with-env": "bun run --env-file ../../.env"
   },

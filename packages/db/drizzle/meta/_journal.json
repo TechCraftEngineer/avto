@@ -5,85 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1770289431815,
-      "tag": "0000_jazzy_nehzno",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1770475620954,
-      "tag": "0001_ambitious_gwen_stacy",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1770785785672,
-      "tag": "0002_absurd_agent_brand",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1770810856072,
-      "tag": "0003_fantastic_fabian_cortez",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1770990029643,
-      "tag": "0004_public_tyger_tiger",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1771238438187,
-      "tag": "0005_shocking_shiver_man",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1771482720365,
-      "tag": "0006_square_norrin_radd",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1771482800000,
-      "tag": "0007_drop_candidates_table",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "7",
-      "when": 1771482900000,
-      "tag": "0008_drop_vacancy_counters",
-      "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "7",
-      "when": 1771483000000,
-      "tag": "0009_consolidate_response_urls",
-      "breakpoints": true
-    },
-    {
-      "idx": 10,
-      "version": "7",
-      "when": 1771653942014,
-      "tag": "0010_magical_stepford_cuckoos",
-      "breakpoints": true
-    },
-    {
-      "idx": 11,
-      "version": "7",
-      "when": 1771654587013,
-      "tag": "0011_awesome_ben_parker",
+      "when": 1771656321357,
+      "tag": "0000_cooing_felicia_hardy",
       "breakpoints": true
     }
   ]

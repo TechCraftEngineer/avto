@@ -1,1 +1,0 @@
-ALTER TYPE "public"."organization_plan" ADD VALUE 'starter' BEFORE 'pro';

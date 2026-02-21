@@ -1,5 +1,5 @@
 {
-  "id": "a2384ce7-06fd-45e8-a1a5-b84daf9f536e",
+  "id": "27aef495-04ee-4433-9cff-c75736b43266",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -617,8 +617,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.candidates": {
-      "name": "candidates",
+    "public.candidate_organizations": {
+      "name": "candidate_organizations",
       "schema": "",
       "columns": {
         "id": {
@@ -628,11 +628,201 @@
           "notNull": true,
           "default": "uuid_generate_v7()"
         },
+        "candidate_id": {
+          "name": "candidate_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
         "organization_id": {
           "name": "organization_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "candidate_organization_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'ACTIVE'"
+        },
+        "applied_at": {
+          "name": "applied_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tags": {
+          "name": "tags",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "candidate_org_candidate_org_idx": {
+          "name": "candidate_org_candidate_org_idx",
+          "columns": [
+            {
+              "expression": "candidate_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "organization_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "candidate_org_candidate_idx": {
+          "name": "candidate_org_candidate_idx",
+          "columns": [
+            {
+              "expression": "candidate_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "candidate_org_organization_idx": {
+          "name": "candidate_org_organization_idx",
+          "columns": [
+            {
+              "expression": "organization_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "candidate_org_status_idx": {
+          "name": "candidate_org_status_idx",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "candidate_org_applied_at_idx": {
+          "name": "candidate_org_applied_at_idx",
+          "columns": [
+            {
+              "expression": "applied_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "candidate_organizations_candidate_id_global_candidates_id_fk": {
+          "name": "candidate_organizations_candidate_id_global_candidates_id_fk",
+          "tableFrom": "candidate_organizations",
+          "tableTo": "global_candidates",
+          "columnsFrom": [
+            "candidate_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "candidate_organizations_organization_id_organizations_id_fk": {
+          "name": "candidate_organizations_organization_id_organizations_id_fk",
+          "tableFrom": "candidate_organizations",
+          "tableTo": "organizations",
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "candidate_organization_unique": {
+          "name": "candidate_organization_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "candidate_id",
+            "organization_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.global_candidates": {
+      "name": "global_candidates",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "uuid_generate_v7()"
         },
         "first_name": {
           "name": "first_name",
@@ -672,7 +862,7 @@
         },
         "gender": {
           "name": "gender",
-          "type": "gender",
+          "type": "global_gender",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": false
@@ -752,14 +942,14 @@
         },
         "work_format": {
           "name": "work_format",
-          "type": "work_format",
+          "type": "global_work_format",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": false
         },
         "english_level": {
           "name": "english_level",
-          "type": "english_level",
+          "type": "global_english_level",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": false
@@ -773,7 +963,7 @@
         },
         "status": {
           "name": "status",
-          "type": "candidate_status",
+          "type": "global_candidate_status",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": false,
@@ -787,7 +977,7 @@
         },
         "source": {
           "name": "source",
-          "type": "candidate_source",
+          "type": "global_candidate_source",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
@@ -803,7 +993,7 @@
         },
         "parsing_status": {
           "name": "parsing_status",
-          "type": "parsing_status",
+          "type": "global_parsing_status",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
@@ -844,23 +1034,8 @@
         }
       },
       "indexes": {
-        "candidate_org_idx": {
-          "name": "candidate_org_idx",
-          "columns": [
-            {
-              "expression": "organization_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "candidate_email_idx": {
-          "name": "candidate_email_idx",
+        "global_candidate_email_idx": {
+          "name": "global_candidate_email_idx",
           "columns": [
             {
               "expression": "email",
@@ -874,8 +1049,8 @@
           "method": "btree",
           "with": {}
         },
-        "candidate_phone_idx": {
-          "name": "candidate_phone_idx",
+        "global_candidate_phone_idx": {
+          "name": "global_candidate_phone_idx",
           "columns": [
             {
               "expression": "phone",
@@ -889,8 +1064,8 @@
           "method": "btree",
           "with": {}
         },
-        "candidate_telegram_idx": {
-          "name": "candidate_telegram_idx",
+        "global_candidate_telegram_idx": {
+          "name": "global_candidate_telegram_idx",
           "columns": [
             {
               "expression": "telegram_username",
@@ -904,8 +1079,8 @@
           "method": "btree",
           "with": {}
         },
-        "candidate_skills_idx": {
-          "name": "candidate_skills_idx",
+        "global_candidate_skills_idx": {
+          "name": "global_candidate_skills_idx",
           "columns": [
             {
               "expression": "skills",
@@ -919,8 +1094,8 @@
           "method": "gin",
           "with": {}
         },
-        "candidate_profile_data_idx": {
-          "name": "candidate_profile_data_idx",
+        "global_candidate_profile_data_idx": {
+          "name": "global_candidate_profile_data_idx",
           "columns": [
             {
               "expression": "profile_data",
@@ -934,8 +1109,8 @@
           "method": "gin",
           "with": {}
         },
-        "candidate_tags_idx": {
-          "name": "candidate_tags_idx",
+        "global_candidate_tags_idx": {
+          "name": "global_candidate_tags_idx",
           "columns": [
             {
               "expression": "tags",
@@ -949,8 +1124,8 @@
           "method": "gin",
           "with": {}
         },
-        "candidate_status_idx": {
-          "name": "candidate_status_idx",
+        "global_candidate_status_idx": {
+          "name": "global_candidate_status_idx",
           "columns": [
             {
               "expression": "status",
@@ -964,8 +1139,8 @@
           "method": "btree",
           "with": {}
         },
-        "candidate_source_idx": {
-          "name": "candidate_source_idx",
+        "global_candidate_source_idx": {
+          "name": "global_candidate_source_idx",
           "columns": [
             {
               "expression": "source",
@@ -978,25 +1153,42 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
+        },
+        "global_candidate_full_name_idx": {
+          "name": "global_candidate_full_name_idx",
+          "columns": [
+            {
+              "expression": "full_name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "global_candidate_location_idx": {
+          "name": "global_candidate_location_idx",
+          "columns": [
+            {
+              "expression": "location",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         }
       },
       "foreignKeys": {
-        "candidates_organization_id_organizations_id_fk": {
-          "name": "candidates_organization_id_organizations_id_fk",
-          "tableFrom": "candidates",
-          "tableTo": "organizations",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "candidates_photo_file_id_files_id_fk": {
-          "name": "candidates_photo_file_id_files_id_fk",
-          "tableFrom": "candidates",
+        "global_candidates_photo_file_id_files_id_fk": {
+          "name": "global_candidates_photo_file_id_files_id_fk",
+          "tableFrom": "global_candidates",
           "tableTo": "files",
           "columnsFrom": [
             "photo_file_id"
@@ -1009,7 +1201,29 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "global_candidate_email_unique": {
+          "name": "global_candidate_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        },
+        "global_candidate_phone_unique": {
+          "name": "global_candidate_phone_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "phone"
+          ]
+        },
+        "global_candidate_telegram_unique": {
+          "name": "global_candidate_telegram_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "telegram_username"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -3935,6 +4149,20 @@
           "primaryKey": false,
           "notNull": true
         },
+        "plan": {
+          "name": "plan",
+          "type": "organization_plan",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'free'"
+        },
+        "billing_email": {
+          "name": "billing_email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp with time zone",
@@ -4252,6 +4480,253 @@
         }
       },
       "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.payments": {
+      "name": "payments",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "yookassa_id": {
+          "name": "yookassa_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "idempotence_key": {
+          "name": "idempotence_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "organization_id": {
+          "name": "organization_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "amount": {
+          "name": "amount",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "currency": {
+          "name": "currency",
+          "type": "payment_currency",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'RUB'"
+        },
+        "status": {
+          "name": "status",
+          "type": "payment_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending'"
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "return_url": {
+          "name": "return_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "confirmation_url": {
+          "name": "confirmation_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "completed_at": {
+          "name": "completed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "payment_user_idx": {
+          "name": "payment_user_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "payment_workspace_idx": {
+          "name": "payment_workspace_idx",
+          "columns": [
+            {
+              "expression": "workspace_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "payment_organization_idx": {
+          "name": "payment_organization_idx",
+          "columns": [
+            {
+              "expression": "organization_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "payment_status_idx": {
+          "name": "payment_status_idx",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "payment_yookassa_idx": {
+          "name": "payment_yookassa_idx",
+          "columns": [
+            {
+              "expression": "yookassa_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "payments_user_id_users_id_fk": {
+          "name": "payments_user_id_users_id_fk",
+          "tableFrom": "payments",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "payments_workspace_id_workspaces_id_fk": {
+          "name": "payments_workspace_id_workspaces_id_fk",
+          "tableFrom": "payments",
+          "tableTo": "workspaces",
+          "columnsFrom": [
+            "workspace_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "payments_organization_id_organizations_id_fk": {
+          "name": "payments_organization_id_organizations_id_fk",
+          "tableFrom": "payments",
+          "tableTo": "organizations",
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "payments_yookassa_id_unique": {
+          "name": "payments_yookassa_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "yookassa_id"
+          ]
+        },
+        "payments_idempotence_key_unique": {
+          "name": "payments_idempotence_key_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "idempotence_key"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -5331,18 +5806,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "resume_url": {
-          "name": "resume_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "platform_profile_url": {
-          "name": "platform_profile_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
         "salary_expectations_amount": {
           "name": "salary_expectations_amount",
           "type": "integer",
@@ -5586,21 +6049,6 @@
           "method": "btree",
           "with": {}
         },
-        "response_platform_profile_idx": {
-          "name": "response_platform_profile_idx",
-          "columns": [
-            {
-              "expression": "platform_profile_url",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
         "response_skills_idx": {
           "name": "response_skills_idx",
           "columns": [
@@ -5663,10 +6111,10 @@
         }
       },
       "foreignKeys": {
-        "responses_global_candidate_id_candidates_id_fk": {
-          "name": "responses_global_candidate_id_candidates_id_fk",
+        "responses_global_candidate_id_global_candidates_id_fk": {
+          "name": "responses_global_candidate_id_global_candidates_id_fk",
           "tableFrom": "responses",
-          "tableTo": "candidates",
+          "tableTo": "global_candidates",
           "columnsFrom": [
             "global_candidate_id"
           ],
@@ -6738,6 +7186,159 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.user_integrations": {
+      "name": "user_integrations",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "uuid_generate_v7()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "credentials": {
+          "name": "credentials",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "last_used_at": {
+          "name": "last_used_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "user_integration_user_idx": {
+          "name": "user_integration_user_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "user_integration_type_idx": {
+          "name": "user_integration_type_idx",
+          "columns": [
+            {
+              "expression": "type",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "user_integration_active_idx": {
+          "name": "user_integration_active_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "is_active",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"user_integrations\".\"is_active\" = true",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "user_integrations_user_id_users_id_fk": {
+          "name": "user_integrations_user_id_users_id_fk",
+          "tableFrom": "user_integrations",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "user_integrations_user_id_type_unique": {
+          "name": "user_integrations_user_id_type_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "user_id",
+            "type"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.freelance_import_history": {
       "name": "freelance_import_history",
       "schema": "",
@@ -6946,27 +7547,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "views": {
-          "name": "views",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "default": 0
-        },
-        "responses": {
-          "name": "responses",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "default": 0
-        },
-        "new_responses": {
-          "name": "new_responses",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "default": 0
-        },
         "resumes_in_progress": {
           "name": "resumes_in_progress",
           "type": "integer",
@@ -7016,12 +7596,6 @@
         "external_id": {
           "name": "external_id",
           "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "merged_into_vacancy_id": {
-          "name": "merged_into_vacancy_id",
-          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
@@ -7080,6 +7654,13 @@
           "primaryKey": false,
           "notNull": false,
           "default": true
+        },
+        "is_favorite": {
+          "name": "is_favorite",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
         },
         "created_at": {
           "name": "created_at",
@@ -7209,19 +7790,6 @@
             "id"
           ],
           "onDelete": "restrict",
-          "onUpdate": "no action"
-        },
-        "vacancies_merged_into_vacancy_id_vacancies_id_fk": {
-          "name": "vacancies_merged_into_vacancy_id_vacancies_id_fk",
-          "tableFrom": "vacancies",
-          "tableTo": "vacancies",
-          "columnsFrom": [
-            "merged_into_vacancy_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
           "onUpdate": "no action"
         }
       },
@@ -8039,8 +8607,17 @@
         "GIG"
       ]
     },
-    "public.candidate_source": {
-      "name": "candidate_source",
+    "public.candidate_organization_status": {
+      "name": "candidate_organization_status",
+      "schema": "public",
+      "values": [
+        "ACTIVE",
+        "BLACKLISTED",
+        "HIRED"
+      ]
+    },
+    "public.global_candidate_source": {
+      "name": "global_candidate_source",
       "schema": "public",
       "values": [
         "APPLICANT",
@@ -8050,8 +8627,8 @@
         "REFERRAL"
       ]
     },
-    "public.candidate_status": {
-      "name": "candidate_status",
+    "public.global_candidate_status": {
+      "name": "global_candidate_status",
       "schema": "public",
       "values": [
         "ACTIVE",
@@ -8060,8 +8637,8 @@
         "PASSIVE"
       ]
     },
-    "public.english_level": {
-      "name": "english_level",
+    "public.global_english_level": {
+      "name": "global_english_level",
       "schema": "public",
       "values": [
         "A1",
@@ -8072,8 +8649,8 @@
         "C2"
       ]
     },
-    "public.gender": {
-      "name": "gender",
+    "public.global_gender": {
+      "name": "global_gender",
       "schema": "public",
       "values": [
         "male",
@@ -8081,8 +8658,8 @@
         "other"
       ]
     },
-    "public.parsing_status": {
-      "name": "parsing_status",
+    "public.global_parsing_status": {
+      "name": "global_parsing_status",
       "schema": "public",
       "values": [
         "PENDING",
@@ -8090,8 +8667,8 @@
         "FAILED"
       ]
     },
-    "public.work_format": {
-      "name": "work_format",
+    "public.global_work_format": {
+      "name": "global_work_format",
       "schema": "public",
       "values": [
         "remote",
@@ -8243,6 +8820,32 @@
       "values": [
         "CANDIDATE",
         "BOT"
+      ]
+    },
+    "public.organization_plan": {
+      "name": "organization_plan",
+      "schema": "public",
+      "values": [
+        "free",
+        "starter",
+        "pro",
+        "enterprise"
+      ]
+    },
+    "public.payment_currency": {
+      "name": "payment_currency",
+      "schema": "public",
+      "values": [
+        "RUB"
+      ]
+    },
+    "public.payment_status": {
+      "name": "payment_status",
+      "schema": "public",
+      "values": [
+        "pending",
+        "succeeded",
+        "canceled"
       ]
     },
     "public.prequalification_analytics_event_type": {

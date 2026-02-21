@@ -45,6 +45,9 @@ bun.lockb
 # scripts with sensitive data
 scripts/cookies.json
 
+# db backups (may contain sensitive data)
+packages/db/backups/
+
 # vercel
 .vercel
 
