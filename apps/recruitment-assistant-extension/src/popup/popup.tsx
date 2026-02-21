@@ -54,7 +54,7 @@ function Popup() {
   if (auth.isAuthenticated === null) {
     const version = chrome.runtime.getManifest().version;
     return (
-      <div className="flex min-w-[400px] flex-col items-center justify-center gap-4 p-4 font-sans text-sm">
+      <div className="flex min-w-[360px] max-w-[420px] flex-col items-center justify-center gap-4 p-4 font-sans text-sm">
         <PopupHeader />
         <p className="text-muted-foreground">Загрузка…</p>
         <p className="text-center text-xs text-muted-foreground">v{version}</p>

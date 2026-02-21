@@ -106,7 +106,7 @@ export function ResponsesView({
     >
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
-          <h2 className="text-base font-semibold leading-tight">
+          <h2 className="text-base font-semibold leading-tight text-balance">
             Отклики по вакансии
           </h2>
           <p className="text-muted-foreground text-sm">
@@ -124,11 +124,21 @@ export function ResponsesView({
           <Alert
             variant="default"
             className="bg-green-50 text-green-900 border-green-200"
+            role="status"
+            aria-live="polite"
           >
             {successMessage}
           </Alert>
         )}
-        {error && <Alert variant="destructive">{error}</Alert>}
+        {error && (
+          <Alert
+            variant="destructive"
+            role="alert"
+            aria-live="polite"
+          >
+            {error}
+          </Alert>
+        )}
       </div>
     </AuthenticatedLayout>
   );

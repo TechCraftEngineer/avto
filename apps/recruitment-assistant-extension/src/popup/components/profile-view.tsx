@@ -85,7 +85,7 @@ export function ProfileView({
     >
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
-          <h2 className="text-base font-semibold leading-tight">
+          <h2 className="text-base font-semibold leading-tight text-balance">
             {isHeadHunter ? "Страница резюме" : "Профиль LinkedIn"}
           </h2>
           <p className="text-muted-foreground text-sm">
@@ -101,7 +101,11 @@ export function ProfileView({
         >
           {isExtracting ? "Извлечение…" : "Извлечь данные"}
         </Button>
-        {error && <Alert variant="destructive">{error}</Alert>}
+        {error && (
+          <Alert variant="destructive" role="alert" aria-live="polite">
+            {error}
+          </Alert>
+        )}
       </div>
     </AuthenticatedLayout>
   );

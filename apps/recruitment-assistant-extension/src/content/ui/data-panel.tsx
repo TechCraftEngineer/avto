@@ -20,6 +20,19 @@ interface DataPanelProps {
   onExportError?: (error: Error) => void;
 }
 
+function formatExtractedAt(date: Date | string): string {
+  try {
+    const d = typeof date === "string" ? new Date(date) : date;
+    return new Intl.DateTimeFormat("ru-RU", {
+      dateStyle: "short",
+      timeStyle: "short",
+    }).format(d);
+  } catch {
+    const d = typeof date === "string" ? new Date(date) : date;
+    return d.toLocaleString("ru-RU");
+  }
+}
+
 export function DataPanel({
   data,
   onEdit,
@@ -50,76 +63,18 @@ export function DataPanel({
   return (
     <section
       aria-label="Данные кандидата"
-      style={{
-        position: "fixed",
-        top: "80px",
-        right: "20px",
-        width: "420px",
-        maxHeight: "calc(100vh - 100px)",
-        backgroundColor: "white",
-        border: "1px solid #e5e7eb",
-        borderRadius: "12px",
-        boxShadow:
-          "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
-        display: "flex",
-        flexDirection: "column",
-        zIndex: 999999,
-        overflowY: "auto",
-        overscrollBehavior: "contain",
-      }}
+      className="ra-data-panel"
     >
-      {/* Header */}
-      <div
-        style={{
-          padding: "20px",
-          borderBottom: "1px solid #e5e7eb",
-          position: "sticky",
-          top: 0,
-          backgroundColor: "white",
-          borderTopLeftRadius: "12px",
-          borderTopRightRadius: "12px",
-          zIndex: 1,
-        }}
-      >
-        <h2
-          style={{
-            fontSize: "20px",
-            fontWeight: 700,
-            color: "#111827",
-            margin: 0,
-          }}
-        >
-          Данные кандидата
-        </h2>
-        <div
-          style={{
-            fontSize: "12px",
-            color: "#6b7280",
-            marginTop: "4px",
-          }}
-        >
-          {data.platform} • {new Date(data.extractedAt).toLocaleString("ru-RU")}
+      <div className="ra-data-panel__header">
+        <h2 className="ra-data-panel__title">Данные кандидата</h2>
+        <div className="ra-data-panel__meta tabular-nums">
+          {data.platform} • {formatExtractedAt(data.extractedAt)}
         </div>
       </div>
 
-      {/* Content */}
-      <div
-        style={{
-          padding: "20px",
-          flex: 1,
-          overflowY: "auto",
-        }}
-      >
-        {/* Basic Info */}
-        <section style={{ marginBottom: "24px" }}>
-          <h3
-            style={{
-              fontSize: "16px",
-              fontWeight: 600,
-              color: "#1f2937",
-              marginBottom: "12px",
-            }}
-          >
+      <div className="ra-data-panel__content">
+        <section className="ra-data-panel__section">
+          <h3 className="ra-data-panel__section-title">
             Основная информация
           </h3>
           <EditableField
@@ -138,45 +93,24 @@ export function DataPanel({
             onChange={(v) => onEdit("basicInfo.location", v)}
           />
           {data.basicInfo.photoUrl && (
-            <div style={{ marginBottom: "16px" }}>
-              <div
-                style={{
-                  fontSize: "14px",
-                  fontWeight: 500,
-                  color: "#374151",
-                  marginBottom: "4px",
-                }}
-              >
+            <div className="ra-data-panel__photo-wrap">
+              <div className="ra-data-panel__photo-label">
                 Фотография профиля
               </div>
               <img
                 src={data.basicInfo.photoUrl}
                 alt={`Фотография ${data.basicInfo.fullName}`}
-                style={{
-                  width: "80px",
-                  height: "80px",
-                  borderRadius: "8px",
-                  objectFit: "cover",
-                  border: "1px solid #e5e7eb",
-                }}
+                className="ra-data-panel__photo"
+                width={80}
+                height={80}
               />
             </div>
           )}
         </section>
 
-        {/* Experience */}
         {data.experience.length > 0 && (
-          <section style={{ marginBottom: "24px" }}>
-            <h3
-              style={{
-                fontSize: "16px",
-                fontWeight: 600,
-                color: "#1f2937",
-                marginBottom: "12px",
-              }}
-            >
-              Опыт работы
-            </h3>
+          <section className="ra-data-panel__section">
+            <h3 className="ra-data-panel__section-title">Опыт работы</h3>
             {data.experience.map((exp: ExperienceEntry, idx: number) => (
               <ExperienceCard
                 key={`${exp.company || ""}-${exp.position || ""}-${idx}`}
@@ -189,19 +123,9 @@ export function DataPanel({
           </section>
         )}
 
-        {/* Education */}
         {data.education.length > 0 && (
-          <section style={{ marginBottom: "24px" }}>
-            <h3
-              style={{
-                fontSize: "16px",
-                fontWeight: 600,
-                color: "#1f2937",
-                marginBottom: "12px",
-              }}
-            >
-              Образование
-            </h3>
+          <section className="ra-data-panel__section">
+            <h3 className="ra-data-panel__section-title">Образование</h3>
             {data.education.map((edu: EducationEntry, idx: number) => (
               <EducationCard
                 key={`${edu.institution || ""}-${edu.degree || ""}-${idx}`}
@@ -214,16 +138,14 @@ export function DataPanel({
           </section>
         )}
 
-        {/* Skills */}
-        <section style={{ marginBottom: "24px" }}>
+        <section className="ra-data-panel__section">
           <SkillsList
             skills={data.skills}
             onEdit={(skills) => onEdit("skills", skills)}
           />
         </section>
 
-        {/* Contacts */}
-        <section style={{ marginBottom: "24px" }}>
+        <section className="ra-data-panel__section">
           <ContactInfo
             contacts={data.contacts}
             onEdit={(field, value) =>
@@ -233,50 +155,12 @@ export function DataPanel({
         </section>
       </div>
 
-      {/* Footer */}
-      <div
-        style={{
-          padding: "20px",
-          borderTop: "1px solid #e5e7eb",
-          position: "sticky",
-          bottom: 0,
-          backgroundColor: "white",
-          borderBottomLeftRadius: "12px",
-          borderBottomRightRadius: "12px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "8px",
-        }}
-      >
+      <div className="ra-data-panel__footer">
         <button
           type="button"
           onClick={() => handleExport("json")}
           disabled={isExporting}
-          style={{
-            minWidth: "44px",
-            minHeight: "44px",
-            padding: "12px 16px",
-            backgroundColor: "white",
-            color: "#3b82f6",
-            border: "1px solid #3b82f6",
-            borderRadius: "6px",
-            fontSize: "14px",
-            fontWeight: 500,
-            cursor: isExporting ? "not-allowed" : "pointer",
-            touchAction: "manipulation",
-            opacity: isExporting ? 0.6 : 1,
-          }}
-          onFocus={(e) => {
-            if (!isExporting) {
-              e.currentTarget.style.outline = "2px solid #1d4ed8";
-              e.currentTarget.style.outlineOffset = "2px";
-              e.currentTarget.style.backgroundColor = "#eff6ff";
-            }
-          }}
-          onBlur={(e) => {
-            e.currentTarget.style.outline = "none";
-            e.currentTarget.style.backgroundColor = "white";
-          }}
+          className="ra-data-panel__btn ra-data-panel__btn--outline"
           aria-label="Экспортировать данные в формате JSON"
         >
           {isExporting ? "Экспорт…" : "Экспортировать в JSON"}
@@ -286,31 +170,7 @@ export function DataPanel({
           type="button"
           onClick={() => handleExport("clipboard")}
           disabled={isExporting}
-          style={{
-            minWidth: "44px",
-            minHeight: "44px",
-            padding: "12px 16px",
-            backgroundColor: "white",
-            color: "#3b82f6",
-            border: "1px solid #3b82f6",
-            borderRadius: "6px",
-            fontSize: "14px",
-            fontWeight: 500,
-            cursor: isExporting ? "not-allowed" : "pointer",
-            touchAction: "manipulation",
-            opacity: isExporting ? 0.6 : 1,
-          }}
-          onFocus={(e) => {
-            if (!isExporting) {
-              e.currentTarget.style.outline = "2px solid #1d4ed8";
-              e.currentTarget.style.outlineOffset = "2px";
-              e.currentTarget.style.backgroundColor = "#eff6ff";
-            }
-          }}
-          onBlur={(e) => {
-            e.currentTarget.style.outline = "none";
-            e.currentTarget.style.backgroundColor = "white";
-          }}
+          className="ra-data-panel__btn ra-data-panel__btn--outline"
           aria-label="Скопировать данные в буфер обмена"
         >
           {isExporting ? "Копирование…" : "Скопировать в буфер обмена"}
@@ -321,32 +181,7 @@ export function DataPanel({
             type="button"
             onClick={onImportToSystem}
             disabled={isImporting}
-            style={{
-              minWidth: "44px",
-              minHeight: "44px",
-              padding: "12px 16px",
-              backgroundColor: isImporting ? "#9ca3af" : "#3b82f6",
-              color: "white",
-              border: "none",
-              borderRadius: "6px",
-              fontSize: "14px",
-              fontWeight: 500,
-              cursor: isImporting ? "not-allowed" : "pointer",
-              touchAction: "manipulation",
-            }}
-            onFocus={(e) => {
-              if (!isImporting) {
-                e.currentTarget.style.outline = "2px solid #1d4ed8";
-                e.currentTarget.style.outlineOffset = "2px";
-                e.currentTarget.style.backgroundColor = "#2563eb";
-              }
-            }}
-            onBlur={(e) => {
-              e.currentTarget.style.outline = "none";
-              e.currentTarget.style.backgroundColor = isImporting
-                ? "#9ca3af"
-                : "#3b82f6";
-            }}
+            className="ra-data-panel__btn ra-data-panel__btn--primary"
             aria-label="Импортировать кандидата в систему"
           >
             {isImporting ? "Импорт…" : "Импортировать в систему"}

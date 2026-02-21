@@ -126,7 +126,7 @@ export function VacanciesView({
     >
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
-          <h2 className="text-base font-semibold leading-tight">
+          <h2 className="text-base font-semibold leading-tight text-balance">
             {pageContext.isActive ? "Активные вакансии" : "Архивные вакансии"}
           </h2>
           <p className="text-muted-foreground text-sm">
@@ -134,9 +134,19 @@ export function VacanciesView({
             систему. Для импорта с нескольких страниц — перейдите на первую
             страницу списка.
           </p>
+          {(selectedCount ?? 0) === 0 && !isImporting && (
+            <p
+              className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800"
+              role="status"
+              aria-live="polite"
+            >
+              Выберите вакансии галочками на странице, затем нажмите кнопку
+              импорта.
+            </p>
+          )}
         </div>
         <Button
-          className="w-full"
+          className="w-full tabular-nums"
           onClick={handleImportSelected}
           disabled={isImporting || (selectedCount ?? 0) === 0}
         >
@@ -148,11 +158,21 @@ export function VacanciesView({
           <Alert
             variant="default"
             className="bg-green-50 text-green-900 border-green-200"
+            role="status"
+            aria-live="polite"
           >
             {successMessage}
           </Alert>
         )}
-        {error && <Alert variant="destructive">{error}</Alert>}
+        {error && (
+          <Alert
+            variant="destructive"
+            role="alert"
+            aria-live="polite"
+          >
+            {error}
+          </Alert>
+        )}
       </div>
     </AuthenticatedLayout>
   );

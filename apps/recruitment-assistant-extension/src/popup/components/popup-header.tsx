@@ -1,7 +1,7 @@
 export function PopupHeader() {
   return (
-    <p className="text-center text-xs font-medium text-muted-foreground">
-      QBS Атонайм
-    </p>
+    <header className="text-center">
+      <h1 className="text-sm font-semibold text-foreground">QBS Атонайм</h1>
+    </header>
   );
 }

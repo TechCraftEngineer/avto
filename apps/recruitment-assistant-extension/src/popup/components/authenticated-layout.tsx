@@ -92,12 +92,18 @@ export function AuthenticatedLayout({
   };
 
   return (
-    <div className="flex min-w-[400px] flex-col gap-4 p-4 font-sans text-sm">
+    <div className="flex min-w-[360px] max-w-[420px] flex-col gap-4 p-4 font-sans text-sm">
       <PopupHeader />
-      {children}
+      <main aria-label="Действия">{children}</main>
 
-      <div className="flex flex-col gap-3 border-t border-border pt-3">
-        <h3 className="text-sm font-semibold leading-tight">
+      <section
+        aria-labelledby="settings-heading"
+        className="flex flex-col gap-3 border-t border-border pt-3"
+      >
+        <h2 id="settings-heading" className="text-sm font-semibold leading-tight">
+          Настройки
+        </h2>
+        <h3 id="org-ws-subheading" className="sr-only">
           Организация и рабочее пространство
         </h3>
         {isLoadingSettings ? (
@@ -157,15 +163,23 @@ export function AuthenticatedLayout({
             </Button>
           </div>
         )}
-      </div>
+      </section>
 
-      <p className="font-medium text-foreground">{userEmail}</p>
-      <div className="flex flex-col gap-2">
+      <section
+        aria-labelledby="account-heading"
+        className="flex flex-col gap-2 border-t border-border pt-3"
+      >
+        <h2 id="account-heading" className="sr-only">
+          Аккаунт
+        </h2>
+        <p className="font-medium text-foreground tabular-nums">{userEmail}</p>
         <Button variant="destructive" className="w-full" onClick={onLogout}>
           Выйти
         </Button>
-      </div>
-      <p className="text-center text-xs text-muted-foreground">v{version}</p>
+      </section>
+      <p className="text-center text-xs text-muted-foreground tabular-nums">
+        v{version}
+      </p>
     </div>
   );
 }
