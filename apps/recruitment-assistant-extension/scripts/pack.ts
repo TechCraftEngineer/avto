@@ -84,7 +84,7 @@ async function createCrxFile(): Promise<void> {
   const chromePaths = [
     "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
     "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-    process.env.LOCALAPPDATA + "\\Google\\Chrome\\Application\\chrome.exe",
+    `${process.env.LOCALAPPDATA}\\Google\\Chrome\\Application\\chrome.exe`,
   ];
 
   const chromePath = chromePaths.find((p) => existsSync(p));
@@ -105,7 +105,7 @@ async function createCrxFile(): Promise<void> {
     await $`"${chromePath}" --pack-extension="${distDir}" --pack-extension-key="${keyPath}"`;
 
     // Chrome создаёт .crx в родительской директории с именем папки
-    const generatedCrxPath = distDir + ".crx";
+    const generatedCrxPath = `${distDir}.crx`;
     if (existsSync(generatedCrxPath)) {
       await Bun.write(crxPath, await Bun.file(generatedCrxPath).arrayBuffer());
       rmSync(generatedCrxPath);

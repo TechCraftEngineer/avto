@@ -389,13 +389,12 @@ export const ScreeningResultsCard = memo(function ScreeningResultsCard({
         )}
 
         {/* Psychometric Analysis - Lazy loaded */}
-        {hasPsychometricAnalysis && (
+        {screening.psychometricAnalysis && (
           <>
             <Separator />
             <Suspense fallback={<ComponentSkeleton />}>
-              {/* biome-ignore lint/style/noNonNullAssertion: Проверка выполнена через hasPsychometricAnalysis */}
               <PsychometricAnalysis
-                analysis={screening.psychometricAnalysis!}
+                analysis={screening.psychometricAnalysis}
               />
             </Suspense>
           </>

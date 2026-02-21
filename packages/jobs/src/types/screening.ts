@@ -2,10 +2,7 @@
  * Типы для системы скрининга резюме
  */
 
-import type {
-  ScreeningResult as SharedScreeningResult,
-  ScreeningRecommendation,
-} from "@qbs-autonaim/shared";
+import type { ScreeningResult as SharedScreeningResult } from "@qbs-autonaim/shared";
 
 // Переэкспорт унифицированного типа
 export type ScreeningResult = SharedScreeningResult;
