@@ -8,6 +8,7 @@
   "exports": {
     ".": "./src/components/index.ts",
     "./components/*": "./src/components/*.tsx",
+    "./components/reui/data-grid": "./src/components/reui/data-grid/index.ts",
     "./utils": "./src/components/index.ts"
   },
   "license": "MIT",

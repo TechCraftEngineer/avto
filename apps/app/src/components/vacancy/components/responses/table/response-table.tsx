@@ -17,7 +17,7 @@ import {
 import { useCallback, useEffect, useMemo } from "react";
 import { fetchRefreshVacancyResponsesToken } from "~/actions/realtime";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useVacancy, useVacancyResponses } from "../../hooks";
+import { useVacancy, useVacancyResponses } from "../../../hooks";
 import { BulkActionsBar } from "../actions/bulk-actions-bar";
 import { useVacancyOperation } from "../context/vacancy-responses-context";
 import { useColumnVisibility } from "../hooks/use-column-visibility";
