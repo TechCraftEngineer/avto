@@ -1,12 +1,6 @@
-import {
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Skeleton,
-} from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
+import { Skeleton } from "@qbs-autonaim/ui/components/skeleton";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 

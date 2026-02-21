@@ -1,22 +1,10 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  Input,
-} from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@qbs-autonaim/ui/components/form"
+import { Input } from "@qbs-autonaim/ui/components/input";
 import {
   type UpdateVacancyDetailsInput,
   updateVacancyDetailsSchema,

@@ -1,13 +1,7 @@
-import {
-  Badge,
-  Button,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Input } from "@qbs-autonaim/ui/components/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbs-autonaim/ui/components/select";
 import {
   IconFilter,
   IconLayoutGrid,

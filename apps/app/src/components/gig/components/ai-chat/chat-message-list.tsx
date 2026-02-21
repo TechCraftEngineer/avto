@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@qbs-autonaim/ui";
+import { cn } from "@qbs-autonaim/ui/utils";
 import { Bot, User } from "lucide-react";
 import { useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";

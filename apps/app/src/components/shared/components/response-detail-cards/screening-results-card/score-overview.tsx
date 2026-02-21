@@ -1,4 +1,5 @@
-import { Badge, Progress } from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Progress } from "@qbs-autonaim/ui/components/progress";
 import { Sparkles, TrendingUp } from "lucide-react";
 
 interface ScoreOverviewProps {

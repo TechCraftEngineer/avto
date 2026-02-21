@@ -1,14 +1,8 @@
 "use client";
 
-import {
-  Badge,
-  Button,
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@qbs-autonaim/ui/components/sheet";
 import { CheckCircle2, XCircle } from "lucide-react";
 
 interface ScreeningResult {

@@ -1,4 +1,5 @@
-import { Alert, AlertDescription, AlertTitle, Button } from "@qbs-autonaim/ui";
+import { Alert, AlertDescription, AlertTitle } from "@qbs-autonaim/ui/components/alert"
+import { Button } from "@qbs-autonaim/ui/components/button";
 import { AlertCircle, Download, Link as LinkIcon } from "lucide-react";
 
 interface ImportActionsProps {

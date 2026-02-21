@@ -1,4 +1,4 @@
-import { Card, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui";
+import { Card, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card";
 import { Eye, Inbox, Loader } from "lucide-react";
 
 interface VacancyStatsProps {

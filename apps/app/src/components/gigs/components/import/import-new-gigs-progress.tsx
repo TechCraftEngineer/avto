@@ -4,17 +4,10 @@ import {
   InngestSubscriptionState,
   useInngestSubscription,
 } from "@bunworks/inngest-realtime/hooks";
-import {
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-  Progress,
-  Separator,
-} from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
+import { Progress } from "@qbs-autonaim/ui/components/progress"
+import { Separator } from "@qbs-autonaim/ui/components/separator";
 import { CheckCircle2, Loader2, RefreshCw, XCircle } from "lucide-react";
 import { useCallback, useState } from "react";
 import { fetchImportNewGigsToken } from "~/actions/gig-import";

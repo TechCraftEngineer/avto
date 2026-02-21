@@ -1,4 +1,4 @@
-import { Input } from "@qbs-autonaim/ui";
+import { Input } from "@qbs-autonaim/ui/components/input";
 import { Search } from "lucide-react";
 import type { ResponseStatusFilterUI } from "../hooks/use-response-table";
 import type { ScreeningFilter } from "../types";

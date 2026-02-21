@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button";
 import { IconArrowLeft, IconEdit, IconSparkles } from "@tabler/icons-react";
 import dynamic from "next/dynamic";
 import Link from "next/link";

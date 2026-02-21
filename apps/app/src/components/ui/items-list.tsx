@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { Badge } from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
 import { cn } from "~/lib/score-utils";
 import {
   CheckCircle,

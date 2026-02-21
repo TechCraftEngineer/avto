@@ -1,6 +1,8 @@
 "use client";
 
-import { Badge, CandidateAvatar, cn } from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { CandidateAvatar } from "@qbs-autonaim/ui/components/candidate-avatar"
+import { cn } from "@qbs-autonaim/ui/utils";
 import { IconClock, IconMessageCircle, IconStar } from "@tabler/icons-react";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { getAvatarUrl } from "~/lib/avatar";

@@ -1,17 +1,8 @@
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Switch,
-} from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbs-autonaim/ui/components/select"
+import { Switch } from "@qbs-autonaim/ui/components/switch";
 import { CheckCircle2, Filter } from "lucide-react";
 import { MIN_SCORE_OPTIONS } from "../shortlist-constants";
 

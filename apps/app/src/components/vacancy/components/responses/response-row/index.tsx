@@ -12,7 +12,9 @@ import {
 } from "@qbs-autonaim/db/schema";
 import { calculateAge } from "@qbs-autonaim/lib/utils";
 import { getInitials } from "@qbs-autonaim/shared";
-import { Badge, Checkbox, TableCell, TableRow } from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Checkbox } from "@qbs-autonaim/ui/components/checkbox"
+import { TableCell, TableRow } from "@qbs-autonaim/ui/components/table";
 import Link from "next/link";
 import { ResponseActions } from "~/components";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";

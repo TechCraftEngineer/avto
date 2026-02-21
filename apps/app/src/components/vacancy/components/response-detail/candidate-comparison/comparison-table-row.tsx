@@ -1,11 +1,6 @@
-import { Badge } from "@qbs-autonaim/ui";
-import { TableCell, TableRow } from "@qbs-autonaim/ui";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { TableCell, TableRow } from "@qbs-autonaim/ui/components/table";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@qbs-autonaim/ui/components/tooltip";
 import { Star } from "lucide-react";
 import type { CandidateMetrics } from "./types";
 import { getMatchScoreColor, getStatusColor } from "./utils";

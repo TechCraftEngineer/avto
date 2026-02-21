@@ -1,18 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Button,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  Input,
-  Label,
-  Textarea,
-} from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@qbs-autonaim/ui/components/dialog"
+import { Input } from "@qbs-autonaim/ui/components/input"
+import { Label } from "@qbs-autonaim/ui/components/label"
+import { Textarea } from "@qbs-autonaim/ui/components/textarea";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useEffect } from "react";

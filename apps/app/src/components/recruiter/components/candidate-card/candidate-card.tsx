@@ -1,9 +1,9 @@
 "use client";
 
-import { cn } from "@qbs-autonaim/ui";
-import { Badge } from "@qbs-autonaim/ui";
-import { Button } from "@qbs-autonaim/ui";
-import { Card } from "@qbs-autonaim/ui";
+import { cn } from "@qbs-autonaim/ui/utils";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import { Card } from "@qbs-autonaim/ui/components/card";
 import {
   AlertTriangle,
   Calendar,

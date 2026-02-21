@@ -1,8 +1,8 @@
 "use client";
 
-import { cn } from "@qbs-autonaim/ui";
-import { Badge } from "@qbs-autonaim/ui";
-import { ScrollArea } from "@qbs-autonaim/ui";
+import { cn } from "@qbs-autonaim/ui/utils";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { ScrollArea } from "@qbs-autonaim/ui/components/scroll-area";
 import { Bot, Mic, User } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 

@@ -1,21 +1,10 @@
 "use client";
 
-import {
-  Button,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Switch,
-} from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@qbs-autonaim/ui/components/form"
+import { Input } from "@qbs-autonaim/ui/components/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbs-autonaim/ui/components/select"
+import { Switch } from "@qbs-autonaim/ui/components/switch";
 import { Briefcase, Eye, EyeOff, LogIn, Mail, Smartphone } from "lucide-react";
 import type { Control } from "react-hook-form";
 import type { IntegrationFormValues } from "./integration-form-schema";

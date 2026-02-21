@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { Progress } from "@qbs-autonaim/ui";
+import { Progress } from "@qbs-autonaim/ui/components/progress";
 import {
   cn,
   getScoreTheme,

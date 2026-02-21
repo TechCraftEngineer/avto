@@ -1,13 +1,9 @@
 "use client";
 
 import { paths } from "@qbs-autonaim/config";
-import {
-  Button,
-  Skeleton,
-  Tabs,
-  TabsList,
-  TabsTrigger,
-} from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Skeleton } from "@qbs-autonaim/ui/components/skeleton"
+import { Tabs, TabsList, TabsTrigger } from "@qbs-autonaim/ui/components/tabs";
 import {
   IconEdit,
   IconEye,

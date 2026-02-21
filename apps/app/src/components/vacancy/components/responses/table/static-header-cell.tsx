@@ -1,4 +1,4 @@
-import { TableHead } from "@qbs-autonaim/ui";
+import { TableHead } from "@qbs-autonaim/ui/components/table";
 import { memo } from "react";
 
 interface StaticHeaderCellProps {

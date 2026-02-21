@@ -1,16 +1,8 @@
 "use client";
 
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@qbs-autonaim/ui";
+import { Alert, AlertDescription, AlertTitle } from "@qbs-autonaim/ui/components/alert"
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card";
 import { ImportByUrlSchema } from "@qbs-autonaim/validators";
 import { AlertCircle, Settings } from "lucide-react";
 import NextLink from "next/link";

@@ -1,17 +1,9 @@
 "use client";
 
 import { paths } from "@qbs-autonaim/config";
-import {
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-} from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@qbs-autonaim/ui/components/input-otp";
 import { loginFormSchema } from "@qbs-autonaim/validators";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";

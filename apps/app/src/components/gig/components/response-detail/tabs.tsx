@@ -1,15 +1,8 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  cn,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@qbs-autonaim/ui";
+import { Card, CardContent, CardHeader } from "@qbs-autonaim/ui/components/card"
+import { cn } from "@qbs-autonaim/ui/utils"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@qbs-autonaim/ui/components/tabs";
 import { Award, Banknote, Briefcase, Clock } from "lucide-react";
 import {
   FactorBreakdown,

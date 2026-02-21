@@ -1,7 +1,7 @@
 "use client";
 
 import { paths } from "@qbs-autonaim/config";
-import { cn } from "@qbs-autonaim/ui";
+import { cn } from "@qbs-autonaim/ui/utils";
 import {
   Bot,
   Globe,

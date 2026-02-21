@@ -1,6 +1,7 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage, cn } from "@qbs-autonaim/ui";
+import { Avatar, AvatarFallback, AvatarImage } from "@qbs-autonaim/ui/components/avatar"
+import { cn } from "@qbs-autonaim/ui/utils";
 import { Mail, MessageCircle, Phone } from "lucide-react";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { getAvatarUrl } from "~/lib/avatar";

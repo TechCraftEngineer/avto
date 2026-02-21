@@ -6,7 +6,9 @@
   "module": "./src/components/index.ts",
   "main": "./src/components/index.ts",
   "exports": {
-    ".": "./src/components/index.ts"
+    ".": "./src/components/index.ts",
+    "./components/*": "./src/components/*.tsx",
+    "./utils": "./src/components/index.ts"
   },
   "license": "MIT",
   "scripts": {

@@ -1,18 +1,12 @@
 "use client";
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Progress,
-  ScrollArea,
-  Separator,
-} from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
+import { Progress } from "@qbs-autonaim/ui/components/progress"
+import { ScrollArea } from "@qbs-autonaim/ui/components/scroll-area"
+import { Separator } from "@qbs-autonaim/ui/components/separator";
 import {
   AlertCircle,
   Award,

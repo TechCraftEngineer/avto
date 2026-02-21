@@ -1,6 +1,6 @@
 "use client";
 
-import { Skeleton } from "@qbs-autonaim/ui";
+import { Skeleton } from "@qbs-autonaim/ui/components/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { SecurityTab } from "~/components";
 import { useTRPC } from "~/trpc/react";

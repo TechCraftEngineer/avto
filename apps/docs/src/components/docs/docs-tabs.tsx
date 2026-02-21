@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@qbs-autonaim/ui";
+import { cn } from "@qbs-autonaim/ui/utils";
 import type React from "react";
 import { useState } from "react";
 

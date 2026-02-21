@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@qbs-autonaim/ui";
+import { cn } from "@qbs-autonaim/ui/utils";
 import { ChevronDown, Sparkles } from "lucide-react";
 import { memo, useState } from "react";
 import {

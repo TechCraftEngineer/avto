@@ -1,22 +1,11 @@
 "use client";
 
 import { parsePlatformLink } from "@qbs-autonaim/shared";
-import {
-  Button,
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Textarea,
-} from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@qbs-autonaim/ui/components/form"
+import { Input } from "@qbs-autonaim/ui/components/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbs-autonaim/ui/components/select"
+import { Textarea } from "@qbs-autonaim/ui/components/textarea";
 import { Check, Loader2 } from "lucide-react";
 import { useCallback, useEffect, useRef } from "react";
 import type { UseFormReturn } from "react-hook-form";

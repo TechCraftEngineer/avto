@@ -1,4 +1,4 @@
-import { cn } from "@qbs-autonaim/ui";
+import { cn } from "@qbs-autonaim/ui/utils";
 import { Sparkles } from "lucide-react";
 import { memo } from "react";
 import Markdown from "react-markdown";

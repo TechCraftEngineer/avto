@@ -1,18 +1,10 @@
 "use client";
 
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-  Button,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  Input,
-  Label,
-} from "@qbs-autonaim/ui";
+import { Alert, AlertDescription, AlertTitle } from "@qbs-autonaim/ui/components/alert"
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@qbs-autonaim/ui/components/dialog"
+import { Input } from "@qbs-autonaim/ui/components/input"
+import { Label } from "@qbs-autonaim/ui/components/label";
 import { AlertTriangle } from "lucide-react";
 import * as React from "react";
 

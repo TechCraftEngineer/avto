@@ -1,15 +1,10 @@
 "use client";
 
-import {
-  Button,
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  ScrollArea,
-  Separator,
-  Textarea,
-} from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Card, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
+import { ScrollArea } from "@qbs-autonaim/ui/components/scroll-area"
+import { Separator } from "@qbs-autonaim/ui/components/separator"
+import { Textarea } from "@qbs-autonaim/ui/components/textarea";
 import { Loader2, Send, Sparkles } from "lucide-react";
 import React from "react";
 import { ChatMessage, TypingIndicator } from "./chat-message";

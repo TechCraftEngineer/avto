@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge } from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
 
 interface ResponseHeaderProps {
   gigTitle: string;

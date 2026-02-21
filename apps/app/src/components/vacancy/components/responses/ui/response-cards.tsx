@@ -6,18 +6,9 @@ import {
   HR_SELECTION_STATUS_LABELS,
   RESPONSE_STATUS_LABELS,
 } from "@qbs-autonaim/db/schema";
-import {
-  Badge,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@qbs-autonaim/ui/components/tooltip";
 import { Send, User } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";

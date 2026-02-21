@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@qbs-autonaim/ui";
+import { cn } from "@qbs-autonaim/ui/utils";
 import { AlertCircle, Wifi, WifiOff } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { AIChatInput, AIMessages } from "~/components";

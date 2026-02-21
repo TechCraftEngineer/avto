@@ -1,7 +1,7 @@
 "use client";
 
-import { Badge } from "@qbs-autonaim/ui";
-import { Card, CardContent } from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { Card, CardContent } from "@qbs-autonaim/ui/components/card";
 import { Briefcase, Calendar, Clock } from "lucide-react";
 
 interface InterviewContext {

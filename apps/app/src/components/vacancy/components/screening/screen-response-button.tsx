@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader2, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";

@@ -1,4 +1,4 @@
-import { cn } from "@qbs-autonaim/ui";
+import { cn } from "@qbs-autonaim/ui/utils";
 
 export function Grid({
   cellSize = 80,

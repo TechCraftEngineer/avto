@@ -9,8 +9,9 @@ import {
   HR_SELECTION_STATUS_LABELS,
   RESPONSE_STATUS_LABELS,
 } from "@qbs-autonaim/db/schema";
-import { Badge, Checkbox } from "@qbs-autonaim/ui";
-import { InfoTooltip } from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Checkbox } from "@qbs-autonaim/ui/components/checkbox";
+import { InfoTooltip } from "@qbs-autonaim/ui/components/info-tooltip";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import { ResponseActions } from "~/components";
 import { ScreeningHoverCard } from "../../screening/screening-hover-card";

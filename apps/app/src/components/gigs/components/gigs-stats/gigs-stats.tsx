@@ -1,4 +1,4 @@
-import { Skeleton } from "@qbs-autonaim/ui";
+import { Skeleton } from "@qbs-autonaim/ui/components/skeleton";
 
 import type { GigsStats as GigsStatsType } from "../gigs-filters";
 

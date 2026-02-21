@@ -1,7 +1,7 @@
 "use client";
 
 import type { VacancyResponseDetail } from "~/components/responses/types";
-import { Separator } from "@qbs-autonaim/ui";
+import { Separator } from "@qbs-autonaim/ui/components/separator";
 import {
   ExternalLink,
   FileText,

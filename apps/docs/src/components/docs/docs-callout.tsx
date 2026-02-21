@@ -1,4 +1,4 @@
-import { cn } from "@qbs-autonaim/ui";
+import { cn } from "@qbs-autonaim/ui/utils";
 import { AlertCircle, AlertTriangle, Info, Lightbulb } from "lucide-react";
 import type React from "react";
 

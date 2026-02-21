@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge } from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
 import { IconTrendingUp } from "@tabler/icons-react";
 
 interface VacancyPerformanceBadgeProps {

@@ -1,16 +1,8 @@
 import { getInitials } from "@qbs-autonaim/shared";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-  Badge,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Separator,
-} from "@qbs-autonaim/ui";
+import { Avatar, AvatarFallback, AvatarImage } from "@qbs-autonaim/ui/components/avatar"
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
+import { Separator } from "@qbs-autonaim/ui/components/separator";
 import { MessageSquare } from "lucide-react";
 import { SafeHtml } from "~/components";
 import { getAvatarUrl } from "~/lib/avatar";

@@ -1,14 +1,8 @@
 "use client";
 
 import { useInngestSubscription } from "@bunworks/inngest-realtime/hooks";
-import {
-  Button,
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { fetchImportVacancyByUrlToken } from "~/actions/vacancy-import";

@@ -1,15 +1,9 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Button,
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  Input,
-} from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Form, FormField, FormItem, FormLabel, FormMessage } from "@qbs-autonaim/ui/components/form"
+import { Input } from "@qbs-autonaim/ui/components/input";
 import {
   type AccountFormValues,
   accountFormSchema,

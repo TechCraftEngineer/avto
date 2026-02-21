@@ -1,4 +1,4 @@
-import { Button } from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button";
 import { Download, Link as LinkIcon } from "lucide-react";
 
 interface GigImportActionsProps {

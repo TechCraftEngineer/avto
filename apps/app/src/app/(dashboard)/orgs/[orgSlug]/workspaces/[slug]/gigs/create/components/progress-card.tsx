@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent } from "@qbs-autonaim/ui";
+import { Card, CardContent } from "@qbs-autonaim/ui/components/card";
 import type { GigDraft } from "./types";
 
 interface ProgressCardProps {

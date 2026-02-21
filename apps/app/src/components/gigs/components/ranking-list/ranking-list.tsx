@@ -1,12 +1,8 @@
 "use client";
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-  Separator,
-} from "@qbs-autonaim/ui";
+import { Alert, AlertDescription, AlertTitle } from "@qbs-autonaim/ui/components/alert"
+import { Separator } from "@qbs-autonaim/ui/components/separator";
 import { Award, Trophy } from "lucide-react";
 import { RankedCandidateCard } from "../ranked-candidate-card";
 

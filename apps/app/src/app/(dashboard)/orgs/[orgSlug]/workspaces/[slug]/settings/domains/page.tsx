@@ -1,6 +1,6 @@
 "use client";
 
-import { Skeleton } from "@qbs-autonaim/ui";
+import { Skeleton } from "@qbs-autonaim/ui/components/skeleton";
 import { CustomDomainsSection } from "~/components/workspace/components";
 import { useWorkspace } from "~/hooks/use-workspace";
 

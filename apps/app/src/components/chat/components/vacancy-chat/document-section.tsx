@@ -1,8 +1,8 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui";
-import { Card } from "@qbs-autonaim/ui";
-import { Textarea } from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import { Card } from "@qbs-autonaim/ui/components/card";
+import { Textarea } from "@qbs-autonaim/ui/components/textarea";
 import { IconCheck, IconEdit, IconX } from "@tabler/icons-react";
 import { useState } from "react";
 import type { VacancyDocument } from "./types";

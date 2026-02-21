@@ -1,7 +1,8 @@
 "use client";
 
 import type { GigResponseDetail } from "~/components/responses/types";
-import { Badge, Separator } from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Separator } from "@qbs-autonaim/ui/components/separator";
 import {
   AlertCircle,
   BadgeCheck,

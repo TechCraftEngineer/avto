@@ -1,4 +1,4 @@
-import { cn } from "@qbs-autonaim/ui";
+import { cn } from "@qbs-autonaim/ui/utils";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import type { ProgressStatus } from "./types";
 

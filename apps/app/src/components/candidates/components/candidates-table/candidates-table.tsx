@@ -1,17 +1,8 @@
 "use client";
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-  cn,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@qbs-autonaim/ui";
+import { Avatar, AvatarFallback, AvatarImage } from "@qbs-autonaim/ui/components/avatar"
+import { cn } from "@qbs-autonaim/ui/utils"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@qbs-autonaim/ui/components/table";
 import {
   ArrowDown,
   ArrowUp,

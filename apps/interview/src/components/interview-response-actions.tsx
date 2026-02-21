@@ -1,12 +1,7 @@
 "use client";
 
-import {
-  Button,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@qbs-autonaim/ui/components/dropdown-menu";
 import { ExternalLink, MessageSquare, MoreVertical } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";

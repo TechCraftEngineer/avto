@@ -2,8 +2,8 @@
 
 import { useState, useMemo } from "react"
 import { Calculator, TrendingUp, Clock, Users, Sparkles, ArrowRight } from "lucide-react"
-import { Button } from "@qbs-autonaim/ui"
-import { Slider } from "@qbs-autonaim/ui"
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Slider } from "@qbs-autonaim/ui/components/slider"
 import { env } from "@/env"
 
 export function ROICalculator() {

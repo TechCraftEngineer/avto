@@ -1,19 +1,10 @@
 "use client";
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-  Input,
-} from "@qbs-autonaim/ui";
+import { Avatar, AvatarFallback, AvatarImage } from "@qbs-autonaim/ui/components/avatar"
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
+import { Input } from "@qbs-autonaim/ui/components/input";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Upload } from "lucide-react";
 import { useEffect, useState } from "react";

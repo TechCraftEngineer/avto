@@ -1,14 +1,8 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@qbs-autonaim/ui";
-import { Table, TableBody } from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@qbs-autonaim/ui/components/dialog";
+import { Table, TableBody } from "@qbs-autonaim/ui/components/table";
 import { GitCompare } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { VacancyResponse } from "../types";

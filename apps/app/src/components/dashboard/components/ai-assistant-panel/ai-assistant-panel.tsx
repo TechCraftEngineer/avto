@@ -1,13 +1,7 @@
 "use client";
 
-import {
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card";
 import { Bot, MessageSquare, TrendingUp, Users } from "lucide-react";
 import { useState } from "react";
 import { UniversalChatPanel } from "~/components/chat/components";

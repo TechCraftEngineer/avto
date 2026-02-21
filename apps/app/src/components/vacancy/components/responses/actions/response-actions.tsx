@@ -1,13 +1,7 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@qbs-autonaim/ui/components/dropdown-menu";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Brain,

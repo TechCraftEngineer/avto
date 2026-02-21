@@ -1,4 +1,4 @@
-import { Button } from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button";
 import { Loader2, Send, UserCheck } from "lucide-react";
 
 interface BulkActionsBarProps {

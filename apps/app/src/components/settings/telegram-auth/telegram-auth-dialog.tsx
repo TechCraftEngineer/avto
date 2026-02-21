@@ -1,13 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@qbs-autonaim/ui";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@qbs-autonaim/ui/components/dialog";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";

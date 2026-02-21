@@ -3,16 +3,9 @@
 import type { SortDirection } from "@qbs-autonaim/shared";
 import type { DragEndEvent } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
-import {
-  Card,
-  DataGrid,
-  DataGridContainer,
-  DataGridTableDnd,
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
-} from "@qbs-autonaim/ui";
+import { Card } from "@qbs-autonaim/ui/components/card"
+import { DataGrid, DataGridContainer, DataGridTableDnd } from "@qbs-autonaim/ui/components/reui/data-grid"
+import { Table, TableBody, TableCell, TableRow } from "@qbs-autonaim/ui/components/table";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { memo, useCallback, useMemo, useState } from "react";
 import { z } from "zod";

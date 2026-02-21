@@ -4,11 +4,11 @@ import {
   formatDateForInput,
   parseDateFromInput,
 } from "@qbs-autonaim/lib/utils";
-import { Badge } from "@qbs-autonaim/ui";
-import { Button } from "@qbs-autonaim/ui";
-import { Checkbox } from "@qbs-autonaim/ui";
-import { Input } from "@qbs-autonaim/ui";
-import { Label } from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import { Checkbox } from "@qbs-autonaim/ui/components/checkbox";
+import { Input } from "@qbs-autonaim/ui/components/input";
+import { Label } from "@qbs-autonaim/ui/components/label";
 import {
   skipToken,
   useMutation,

@@ -1,16 +1,10 @@
 "use client";
 
 import { paths } from "@qbs-autonaim/config";
-import {
-  Button,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  Input,
-  Skeleton,
-} from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@qbs-autonaim/ui/components/dialog"
+import { Input } from "@qbs-autonaim/ui/components/input"
+import { Skeleton } from "@qbs-autonaim/ui/components/skeleton";
 import { IconCheck, IconCopy, IconRefresh } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";

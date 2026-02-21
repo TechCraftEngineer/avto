@@ -1,12 +1,7 @@
 "use client";
 
-import {
-  Button,
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@qbs-autonaim/ui/components/tooltip";
 import { Loader2, RefreshCw, Sparkles } from "lucide-react";
 
 interface GigResponseActionButtonsProps {

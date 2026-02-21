@@ -1,15 +1,9 @@
 "use client";
 
-import {
-  Badge,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  cn,
-  Progress,
-} from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
+import { cn } from "@qbs-autonaim/ui/utils"
+import { Progress } from "@qbs-autonaim/ui/components/progress";
 import {
   AlertTriangle,
   ArrowRight,

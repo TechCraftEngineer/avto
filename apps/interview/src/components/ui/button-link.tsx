@@ -1,4 +1,4 @@
-import { cn } from "@qbs-autonaim/ui";
+import { cn } from "@qbs-autonaim/ui/utils";
 import Link from "next/link";
 import type { ReactNode } from "react";
 

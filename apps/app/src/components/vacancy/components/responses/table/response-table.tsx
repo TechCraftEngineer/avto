@@ -1,11 +1,8 @@
 "use client";
 
-import {
-  DataGrid,
-  DataGridContainer,
-  DataGridTableDnd,
-} from "@qbs-autonaim/ui";
-import { Pagination, Table, TableBody } from "@qbs-autonaim/ui";
+import { DataGrid, DataGridContainer, DataGridTableDnd } from "@qbs-autonaim/ui/components/reui/data-grid";
+import { Pagination } from "@qbs-autonaim/ui/components/pagination"
+import { Table, TableBody } from "@qbs-autonaim/ui/components/table";
 import type { DragEndEvent } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import {

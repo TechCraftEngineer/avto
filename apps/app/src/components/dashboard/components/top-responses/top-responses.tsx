@@ -1,16 +1,10 @@
 "use client";
 
 import { paths } from "@qbs-autonaim/config";
-import {
-  Badge,
-  CandidateAvatar,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  cn,
-} from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { CandidateAvatar } from "@qbs-autonaim/ui/components/candidate-avatar"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
+import { cn } from "@qbs-autonaim/ui/utils";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";

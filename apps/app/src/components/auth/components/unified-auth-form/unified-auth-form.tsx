@@ -2,28 +2,13 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { paths } from "@qbs-autonaim/config";
-import {
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  Input,
-  PasswordInput,
-  PasswordRequirements,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-  usePasswordRequirements,
-} from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@qbs-autonaim/ui/components/form"
+import { Input } from "@qbs-autonaim/ui/components/input"
+import { PasswordInput } from "@qbs-autonaim/ui/components/password-input"
+import { PasswordRequirements, usePasswordRequirements } from "@qbs-autonaim/ui/components/password-requirements"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@qbs-autonaim/ui/components/tabs";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";

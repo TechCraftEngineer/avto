@@ -1,32 +1,15 @@
 "use client";
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-  Badge,
-  Button,
-  cn,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-  Separator,
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-  Textarea,
-} from "@qbs-autonaim/ui";
+import { Avatar, AvatarFallback, AvatarImage } from "@qbs-autonaim/ui/components/avatar"
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { cn } from "@qbs-autonaim/ui/utils"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@qbs-autonaim/ui/components/dialog"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@qbs-autonaim/ui/components/dropdown-menu"
+import { Separator } from "@qbs-autonaim/ui/components/separator"
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@qbs-autonaim/ui/components/sheet"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@qbs-autonaim/ui/components/tabs"
+import { Textarea } from "@qbs-autonaim/ui/components/textarea";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Briefcase,

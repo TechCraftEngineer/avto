@@ -1,17 +1,9 @@
 "use client";
 
-import {
-  Button,
-  DialogFooter,
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  Input,
-} from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { DialogFooter } from "@qbs-autonaim/ui/components/dialog"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@qbs-autonaim/ui/components/form"
+import { Input } from "@qbs-autonaim/ui/components/input";
 import { Hash, Key, Phone, Send } from "lucide-react";
 import type { UseFormReturn } from "react-hook-form";
 import type { Step1Values } from "./types";

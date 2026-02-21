@@ -1,4 +1,4 @@
-import { Button } from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button";
 import { Briefcase, MessageSquare } from "lucide-react";
 import { CandidateComparisonModal } from "./candidate-comparison";
 import { ExportCandidateModal } from "./export-candidate-modal";

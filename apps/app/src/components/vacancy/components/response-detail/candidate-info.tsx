@@ -1,12 +1,8 @@
 import { calculateAge } from "@qbs-autonaim/lib/utils";
 import { getInitials } from "@qbs-autonaim/shared";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-  Badge,
-  CardTitle,
-} from "@qbs-autonaim/ui";
+import { Avatar, AvatarFallback, AvatarImage } from "@qbs-autonaim/ui/components/avatar"
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { CardTitle } from "@qbs-autonaim/ui/components/card";
 import { Cake, User } from "lucide-react";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { getAvatarUrl } from "~/lib/avatar";

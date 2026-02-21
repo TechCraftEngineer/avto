@@ -1,4 +1,4 @@
-import { Progress } from "@qbs-autonaim/ui";
+import { Progress } from "@qbs-autonaim/ui/components/progress";
 import type { ProgressData } from "./types";
 
 interface RefreshProgressContentProps {

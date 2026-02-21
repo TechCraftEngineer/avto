@@ -1,11 +1,7 @@
 "use client";
 
-import {
-  Button,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Popover, PopoverContent, PopoverTrigger } from "@qbs-autonaim/ui/components/popover";
 import { IconHelp } from "@tabler/icons-react";
 
 interface MetricExplanation {

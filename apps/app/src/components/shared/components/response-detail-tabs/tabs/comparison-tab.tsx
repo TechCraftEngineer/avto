@@ -1,8 +1,8 @@
 "use client";
 
-import { Badge } from "@qbs-autonaim/ui";
-import { Progress } from "@qbs-autonaim/ui";
-import { ScrollArea } from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { Progress } from "@qbs-autonaim/ui/components/progress";
+import { ScrollArea } from "@qbs-autonaim/ui/components/scroll-area";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";

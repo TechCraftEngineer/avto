@@ -1,18 +1,12 @@
 "use client";
 
 import type { GigResponseListItem } from "~/components/responses/types";
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-  Progress,
-  Separator,
-} from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Card, CardContent, CardHeader } from "@qbs-autonaim/ui/components/card"
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@qbs-autonaim/ui/components/hover-card"
+import { Progress } from "@qbs-autonaim/ui/components/progress"
+import { Separator } from "@qbs-autonaim/ui/components/separator";
 import {
   Award,
   Banknote,

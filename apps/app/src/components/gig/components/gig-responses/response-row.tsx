@@ -1,8 +1,8 @@
 "use client";
 
-import { Badge } from "@qbs-autonaim/ui";
-import { Button } from "@qbs-autonaim/ui";
-import { TableCell, TableRow } from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import { TableCell, TableRow } from "@qbs-autonaim/ui/components/table";
 import { Check, MessageSquare, X } from "lucide-react";
 import Link from "next/link";
 import {

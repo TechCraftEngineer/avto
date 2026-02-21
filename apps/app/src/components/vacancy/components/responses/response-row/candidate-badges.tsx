@@ -1,12 +1,8 @@
 "use client";
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
-import {
-  Badge,
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@qbs-autonaim/ui/components/hover-card";
 import { Send, TrendingUp, UserCheck } from "lucide-react";
 import { ChatIndicator } from "../../ui/chat-indicator";
 import { PriorityBadge } from "../../ui/priority-badge";

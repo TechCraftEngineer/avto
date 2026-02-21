@@ -1,25 +1,10 @@
 "use client";
 
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  type ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  ToggleGroup,
-  ToggleGroupItem,
-} from "@qbs-autonaim/ui";
-import { useIsMobile } from "@qbs-autonaim/ui";
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@qbs-autonaim/ui/components/chart"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbs-autonaim/ui/components/select"
+import { ToggleGroup, ToggleGroupItem } from "@qbs-autonaim/ui/components/toggle-group";
+import { useIsMobile } from "@qbs-autonaim/ui/components/use-mobile";
 import * as React from "react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 

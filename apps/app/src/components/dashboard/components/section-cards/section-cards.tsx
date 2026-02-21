@@ -1,12 +1,5 @@
-import {
-  Badge,
-  Card,
-  CardAction,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Card, CardAction, CardDescription, CardFooter, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card";
 import { IconTrendingDown, IconTrendingUp } from "@tabler/icons-react";
 
 export function SectionCards() {

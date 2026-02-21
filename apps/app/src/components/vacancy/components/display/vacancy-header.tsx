@@ -1,7 +1,7 @@
 "use client";
 
-import { Badge } from "@qbs-autonaim/ui";
-import { Button } from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { Button } from "@qbs-autonaim/ui/components/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ExternalLink, MapPin, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";

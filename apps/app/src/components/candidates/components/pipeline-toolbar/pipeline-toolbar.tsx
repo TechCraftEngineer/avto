@@ -1,19 +1,11 @@
-import {
-  Badge,
-  Button,
-  Checkbox,
-  Input,
-  Label,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Separator,
-} from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Checkbox } from "@qbs-autonaim/ui/components/checkbox"
+import { Input } from "@qbs-autonaim/ui/components/input"
+import { Label } from "@qbs-autonaim/ui/components/label"
+import { Popover, PopoverContent, PopoverTrigger } from "@qbs-autonaim/ui/components/popover"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbs-autonaim/ui/components/select"
+import { Separator } from "@qbs-autonaim/ui/components/separator";
 import { Briefcase, Search, SlidersHorizontal, UserPlus } from "lucide-react";
 import type { FunnelStage } from "../../types/types";
 import { STAGES } from "../constants";

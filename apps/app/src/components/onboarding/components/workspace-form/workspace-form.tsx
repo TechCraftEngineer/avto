@@ -1,16 +1,11 @@
 "use client";
 
 import { APP_CONFIG, env } from "@qbs-autonaim/config";
-import {
-  Button,
-  Input,
-  Label,
-  Textarea,
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Input } from "@qbs-autonaim/ui/components/input"
+import { Label } from "@qbs-autonaim/ui/components/label"
+import { Textarea } from "@qbs-autonaim/ui/components/textarea"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@qbs-autonaim/ui/components/tooltip";
 import { Briefcase, HelpCircle, Loader2 } from "lucide-react";
 import type { FormEvent } from "react";
 

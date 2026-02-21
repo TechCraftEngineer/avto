@@ -1,15 +1,9 @@
 "use client";
 
-import {
-  Badge,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Progress,
-  Separator,
-} from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
+import { Progress } from "@qbs-autonaim/ui/components/progress"
+import { Separator } from "@qbs-autonaim/ui/components/separator";
 import { Percent, Target, TrendingUp } from "lucide-react";
 import type { FunnelStageData } from "./types";
 

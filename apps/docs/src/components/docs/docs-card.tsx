@@ -1,4 +1,4 @@
-import { cn } from "@qbs-autonaim/ui";
+import { cn } from "@qbs-autonaim/ui/utils";
 import { ArrowRight, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import type React from "react";

@@ -1,21 +1,13 @@
 "use client";
 
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Input,
-  Label,
-  Switch,
-  Textarea,
-} from "@qbs-autonaim/ui";
+import { Alert, AlertDescription, AlertTitle } from "@qbs-autonaim/ui/components/alert"
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
+import { Input } from "@qbs-autonaim/ui/components/input"
+import { Label } from "@qbs-autonaim/ui/components/label"
+import { Switch } from "@qbs-autonaim/ui/components/switch"
+import { Textarea } from "@qbs-autonaim/ui/components/textarea";
 import { paths } from "@qbs-autonaim/config";
 import {
   IconAlertCircle,

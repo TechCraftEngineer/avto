@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui";
+import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card";
 import { memo } from "react";
 import { Briefcase, Award } from "lucide-react";
 import { ItemsListSection } from "~/components/ui/items-list";

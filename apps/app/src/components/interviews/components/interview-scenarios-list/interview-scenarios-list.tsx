@@ -1,13 +1,7 @@
 "use client";
 
-import {
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card";
 import { IconEdit, IconLoader2, IconTrash } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useWorkspace } from "~/hooks/use-workspace";

@@ -1,6 +1,6 @@
 "use client";
 
-import { Separator } from "@qbs-autonaim/ui";
+import { Separator } from "@qbs-autonaim/ui/components/separator";
 import { ExternalLink, Mail, MessageSquare, Phone } from "lucide-react";
 
 import type { GigResponseDetail } from "~/components/responses/types";

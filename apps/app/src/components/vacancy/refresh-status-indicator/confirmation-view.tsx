@@ -1,4 +1,4 @@
-import { Button } from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button";
 import {
   AlertCircle,
   Archive,

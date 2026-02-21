@@ -1,20 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Button,
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  Input,
-  Separator,
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Form, FormField, FormItem, FormLabel, FormMessage } from "@qbs-autonaim/ui/components/form"
+import { Input } from "@qbs-autonaim/ui/components/input"
+import { Separator } from "@qbs-autonaim/ui/components/separator"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@qbs-autonaim/ui/components/tooltip";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { HelpCircle, Trash2, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";

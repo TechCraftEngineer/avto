@@ -1,22 +1,14 @@
 "use client";
 
-import {
-  Badge,
-  Button,
-  Calendar,
-  Checkbox,
-  Input,
-  Label,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Separator,
-} from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Calendar } from "@qbs-autonaim/ui/components/calendar"
+import { Checkbox } from "@qbs-autonaim/ui/components/checkbox"
+import { Input } from "@qbs-autonaim/ui/components/input"
+import { Label } from "@qbs-autonaim/ui/components/label"
+import { Popover, PopoverContent, PopoverTrigger } from "@qbs-autonaim/ui/components/popover"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbs-autonaim/ui/components/select"
+import { Separator } from "@qbs-autonaim/ui/components/separator";
 import { useQuery } from "@tanstack/react-query";
 import { Briefcase, CalendarDays, Filter, Search, X } from "lucide-react";
 import { useCallback, useMemo } from "react";

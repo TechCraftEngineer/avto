@@ -1,17 +1,9 @@
 "use client";
-import {
-  Button,
-  Card,
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  Separator,
-  Textarea,
-} from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Card } from "@qbs-autonaim/ui/components/card"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@qbs-autonaim/ui/components/form"
+import { Separator } from "@qbs-autonaim/ui/components/separator"
+import { Textarea } from "@qbs-autonaim/ui/components/textarea";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, Save, Wand2 } from "lucide-react";
 import { useEffect, useState } from "react";

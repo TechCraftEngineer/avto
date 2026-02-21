@@ -1,15 +1,11 @@
 "use client";
 
 import { getInitials } from "@qbs-autonaim/shared";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-  Button,
-  Checkbox,
-  Label,
-  Textarea,
-} from "@qbs-autonaim/ui";
+import { Avatar, AvatarFallback, AvatarImage } from "@qbs-autonaim/ui/components/avatar"
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Checkbox } from "@qbs-autonaim/ui/components/checkbox"
+import { Label } from "@qbs-autonaim/ui/components/label"
+import { Textarea } from "@qbs-autonaim/ui/components/textarea";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Lock, Send } from "lucide-react";
 import { useState } from "react";

@@ -1,5 +1,5 @@
 import type { SortDirection } from "@qbs-autonaim/shared";
-import { Skeleton } from "@qbs-autonaim/ui";
+import { Skeleton } from "@qbs-autonaim/ui/components/skeleton";
 import { EmptyState } from "../empty-state";
 import { GigCard } from "../gig-card";
 import { GigsAttentionBlock } from "../gigs-attention-block";

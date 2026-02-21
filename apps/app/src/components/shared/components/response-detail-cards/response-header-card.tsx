@@ -4,18 +4,11 @@ import type { GlobalCandidate } from "@qbs-autonaim/db/schema";
 import { calculateAge, formatBirthDate } from "@qbs-autonaim/lib/utils";
 import { getInitials } from "@qbs-autonaim/shared";
 import { hasExperience as checkExperience } from "@qbs-autonaim/shared/utils";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Separator,
-} from "@qbs-autonaim/ui";
+import { Avatar, AvatarFallback, AvatarImage } from "@qbs-autonaim/ui/components/avatar"
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
+import { Separator } from "@qbs-autonaim/ui/components/separator";
 import {
   Cake,
   Calendar,

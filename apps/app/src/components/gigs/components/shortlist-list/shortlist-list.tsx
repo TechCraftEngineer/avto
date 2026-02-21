@@ -1,9 +1,9 @@
 "use client";
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
-import { Badge } from "@qbs-autonaim/ui";
-import { Progress } from "@qbs-autonaim/ui";
-import { Separator } from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { Progress } from "@qbs-autonaim/ui/components/progress";
+import { Separator } from "@qbs-autonaim/ui/components/separator";
 import { Award, BarChart3, Trophy, Users } from "lucide-react";
 import { ShortlistCandidateCard } from "../shortlist-candidate-card";
 

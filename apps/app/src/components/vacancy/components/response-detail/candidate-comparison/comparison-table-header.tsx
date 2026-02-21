@@ -1,5 +1,5 @@
-import { Button } from "@qbs-autonaim/ui";
-import { TableHead, TableHeader, TableRow } from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import { TableHead, TableHeader, TableRow } from "@qbs-autonaim/ui/components/table";
 import {
   Activity,
   ArrowDown,

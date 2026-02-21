@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@qbs-autonaim/ui";
+import { cn } from "@qbs-autonaim/ui/utils";
 import { FileText, Pause, Play } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 

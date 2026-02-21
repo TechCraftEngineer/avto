@@ -1,9 +1,9 @@
 "use client";
 
-import { Badge } from "@qbs-autonaim/ui";
-import { Button } from "@qbs-autonaim/ui";
-import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui";
-import { Textarea } from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card";
+import { Textarea } from "@qbs-autonaim/ui/components/textarea";
 import {
   Calendar,
   CheckCircle2,

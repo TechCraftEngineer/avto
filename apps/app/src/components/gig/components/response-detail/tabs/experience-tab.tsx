@@ -1,8 +1,8 @@
 "use client";
 
-import { Badge } from "@qbs-autonaim/ui";
-import { Button } from "@qbs-autonaim/ui";
-import { Separator } from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import { Separator } from "@qbs-autonaim/ui/components/separator";
 import { Award, ExternalLink } from "lucide-react";
 import { getProfileData } from "~/components/shared/utils/types";
 import { sanitizeHtmlFunction } from "~/lib/sanitize-html";

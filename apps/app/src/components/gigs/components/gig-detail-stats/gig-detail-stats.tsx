@@ -1,12 +1,7 @@
-import {
-  Badge,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Separator,
-  Skeleton,
-} from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
+import { Separator } from "@qbs-autonaim/ui/components/separator"
+import { Skeleton } from "@qbs-autonaim/ui/components/skeleton";
 import { Eye, MessageSquare, Users } from "lucide-react";
 import { memo } from "react";
 

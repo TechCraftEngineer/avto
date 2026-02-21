@@ -1,13 +1,8 @@
 "use client";
 
-import {
-  Badge,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Progress,
-} from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
+import { Progress } from "@qbs-autonaim/ui/components/progress";
 import { memo } from "react";
 import { AlertCircle } from "lucide-react";
 import {

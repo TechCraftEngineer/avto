@@ -1,23 +1,11 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui";
-import { Calendar } from "@qbs-autonaim/ui";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@qbs-autonaim/ui";
-import { Label } from "@qbs-autonaim/ui";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@qbs-autonaim/ui";
-import { Textarea } from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import { Calendar } from "@qbs-autonaim/ui/components/calendar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@qbs-autonaim/ui/components/dialog";
+import { Label } from "@qbs-autonaim/ui/components/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbs-autonaim/ui/components/select";
+import { Textarea } from "@qbs-autonaim/ui/components/textarea";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { CalendarIcon, Clock, MapPin, Users } from "lucide-react";
 import Link from "next/link";

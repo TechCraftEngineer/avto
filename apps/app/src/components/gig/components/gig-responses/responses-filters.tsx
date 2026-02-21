@@ -4,18 +4,10 @@ import {
   RESPONSE_STATUS,
   RESPONSE_STATUS_LABELS,
 } from "@qbs-autonaim/db/schema";
-import {
-  Button,
-  Input,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Input } from "@qbs-autonaim/ui/components/input"
+import { Popover, PopoverContent, PopoverTrigger } from "@qbs-autonaim/ui/components/popover"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbs-autonaim/ui/components/select";
 import { Filter, Search, SlidersHorizontal, X } from "lucide-react";
 import React from "react";
 import type { ResponseFiltersState } from "./use-response-filters";

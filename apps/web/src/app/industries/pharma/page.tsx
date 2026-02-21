@@ -12,9 +12,9 @@ import {
 import Link from "next/link"
 import type { Metadata } from "next"
 import { Footer, Header } from "~/components/layout"
-import { Badge } from "@qbs-autonaim/ui"
-import { Button } from "@qbs-autonaim/ui"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui"
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
 
 export const metadata: Metadata = {
   title: "Автоматизация найма в фармацевтике | QBS Автонайм",

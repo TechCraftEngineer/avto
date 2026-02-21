@@ -1,7 +1,7 @@
 "use client";
 
 import type { GigResponseDetail } from "~/components/responses/types";
-import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui";
+import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card";
 import { formatDate } from "../../utils/constants";
 
 interface MetadataCardProps {

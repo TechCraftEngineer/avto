@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button";
 import { AlertTriangle, Home, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useEffect } from "react";

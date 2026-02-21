@@ -2,18 +2,11 @@
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
 import { RESPONSE_STATUS_LABELS } from "@qbs-autonaim/db/schema";
-import {
-  Badge,
-  Button,
-  Skeleton,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@qbs-autonaim/ui";
-import { InfoTooltip } from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Skeleton } from "@qbs-autonaim/ui/components/skeleton"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@qbs-autonaim/ui/components/table";
+import { InfoTooltip } from "@qbs-autonaim/ui/components/info-tooltip";
 import { ArrowUpDown } from "lucide-react";
 import Link from "next/link";
 

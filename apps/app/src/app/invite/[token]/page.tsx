@@ -1,5 +1,5 @@
 import { paths } from "@qbs-autonaim/config";
-import { Button } from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSession } from "~/auth/server";

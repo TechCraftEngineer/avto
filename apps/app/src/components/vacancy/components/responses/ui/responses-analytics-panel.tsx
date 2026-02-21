@@ -1,11 +1,5 @@
-import {
-  Alert,
-  AlertDescription,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@qbs-autonaim/ui";
+import { Alert, AlertDescription } from "@qbs-autonaim/ui/components/alert"
+import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card";
 import {
   IconAlertCircle,
   IconBulb,

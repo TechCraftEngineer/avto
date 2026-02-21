@@ -1,13 +1,10 @@
 "use client";
 
-import {
-  Alert,
-  AlertDescription,
-  Badge,
-  Button,
-  Card,
-  Skeleton,
-} from "@qbs-autonaim/ui";
+import { Alert, AlertDescription } from "@qbs-autonaim/ui/components/alert"
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Card } from "@qbs-autonaim/ui/components/card"
+import { Skeleton } from "@qbs-autonaim/ui/components/skeleton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, Calendar, CheckCircle2, ExternalLink } from "lucide-react";
 import { useSearchParams } from "next/navigation";

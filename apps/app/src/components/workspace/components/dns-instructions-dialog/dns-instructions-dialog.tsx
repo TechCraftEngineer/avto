@@ -1,13 +1,7 @@
 "use client";
 
-import {
-  Button,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@qbs-autonaim/ui/components/dialog";
 import { Copy, Info } from "lucide-react";
 import { toast } from "sonner";
 

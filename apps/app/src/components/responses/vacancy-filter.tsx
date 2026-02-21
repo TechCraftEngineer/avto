@@ -1,16 +1,9 @@
 "use client";
 
-import { cn } from "@qbs-autonaim/ui";
-import { Button } from "@qbs-autonaim/ui";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@qbs-autonaim/ui";
-import { Popover, PopoverContent, PopoverTrigger } from "@qbs-autonaim/ui";
+import { cn } from "@qbs-autonaim/ui/utils";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@qbs-autonaim/ui/components/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@qbs-autonaim/ui/components/popover";
 import { IconCheck, IconChevronDown } from "@tabler/icons-react";
 import { useState } from "react";
 

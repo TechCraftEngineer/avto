@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui";
-import { Card } from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import { Card } from "@qbs-autonaim/ui/components/card";
 import { IconArrowLeft } from "@tabler/icons-react";
 import Link from "next/link";
 import { PageHeader } from "~/components/layout";

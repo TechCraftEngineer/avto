@@ -1,6 +1,9 @@
 "use client";
 
-import { Badge, Button, Card, IntegrationIcon } from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Card } from "@qbs-autonaim/ui/components/card"
+import { IntegrationIcon } from "@qbs-autonaim/ui/components/integration-icon";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, Plus, Trash2, XCircle } from "lucide-react";
 import { useState } from "react";

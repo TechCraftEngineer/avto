@@ -1,16 +1,10 @@
 "use client";
 
-import {
-  Badge,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  InfoTooltip,
-  Progress,
-  Separator,
-} from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
+import { InfoTooltip } from "@qbs-autonaim/ui/components/info-tooltip"
+import { Progress } from "@qbs-autonaim/ui/components/progress"
+import { Separator } from "@qbs-autonaim/ui/components/separator";
 import {
   AlertCircle,
   CheckCircle,

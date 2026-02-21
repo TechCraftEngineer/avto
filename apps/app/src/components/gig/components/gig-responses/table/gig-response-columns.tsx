@@ -3,7 +3,8 @@
 import type { GigResponseListItem } from "~/components/responses/types";
 import { HR_SELECTION_STATUS_LABELS } from "@qbs-autonaim/db/schema";
 import type { VacancyHrSelectionStatus } from "@qbs-autonaim/db/schema";
-import { Badge, InfoTooltip } from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { InfoTooltip } from "@qbs-autonaim/ui/components/info-tooltip";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import { ScreeningHoverCard } from "~/components/vacancy/components/screening/screening-hover-card";
 import { CoverLetterCell } from "~/components/vacancy/components/responses/response-row/cover-letter-cell";

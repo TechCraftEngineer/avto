@@ -1,4 +1,4 @@
-import { Button } from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button";
 import { IconMessage } from "@tabler/icons-react";
 import Link from "next/link";
 

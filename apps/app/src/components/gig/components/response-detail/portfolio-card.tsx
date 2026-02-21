@@ -1,14 +1,9 @@
 "use client";
 
 import { formatExperienceText } from "@qbs-autonaim/shared/utils";
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card";
 import {
   Download,
   ExternalLink,

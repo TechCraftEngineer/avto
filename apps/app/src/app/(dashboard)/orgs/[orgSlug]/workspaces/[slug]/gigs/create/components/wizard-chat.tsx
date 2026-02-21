@@ -1,15 +1,10 @@
 "use client";
 
-import {
-  Button,
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Input,
-  ScrollArea,
-  Separator,
-} from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Card, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
+import { Input } from "@qbs-autonaim/ui/components/input"
+import { ScrollArea } from "@qbs-autonaim/ui/components/scroll-area"
+import { Separator } from "@qbs-autonaim/ui/components/separator";
 import { Bot, Loader2, RotateCcw, Send, Sparkles } from "lucide-react";
 import React from "react";
 import {

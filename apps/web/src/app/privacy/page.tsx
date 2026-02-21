@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Button } from "@qbs-autonaim/ui"
+import { Button } from "@qbs-autonaim/ui/components/button"
 import { ArrowLeft, Zap } from "lucide-react"
 
 export default function PrivacyPolicyPage() {

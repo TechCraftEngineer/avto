@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
 import { Header, Footer } from "@/components/layout"
-import { Button } from "@qbs-autonaim/ui"
+import { Button } from "@qbs-autonaim/ui/components/button"
 import { ArrowRight, Github, Linkedin, Mail } from "lucide-react"
 
 export const metadata: Metadata = {

@@ -2,17 +2,10 @@
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
 import { paths } from "@qbs-autonaim/config";
-import {
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-  Label,
-  PasswordInput,
-} from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
+import { Label } from "@qbs-autonaim/ui/components/label"
+import { PasswordInput } from "@qbs-autonaim/ui/components/password-input";
 import { useMutation } from "@tanstack/react-query";
 import { Check, X } from "lucide-react";
 import { useRouter } from "next/navigation";

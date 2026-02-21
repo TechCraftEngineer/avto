@@ -1,6 +1,7 @@
 "use client";
 
-import { Card, cn } from "@qbs-autonaim/ui";
+import { Card } from "@qbs-autonaim/ui/components/card"
+import { cn } from "@qbs-autonaim/ui/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useVacancyResponses } from "~/components/vacancy/components/responses/context/vacancy-responses-context";
 import { useTRPC } from "~/trpc/react";

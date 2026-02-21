@@ -1,13 +1,7 @@
 "use client";
 
-import {
-  Badge,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card";
 import { Activity, Award, Clock, UserCheck, Users, UserX } from "lucide-react";
 import type { AnalyticsData, FunnelStageData } from "./types";
 

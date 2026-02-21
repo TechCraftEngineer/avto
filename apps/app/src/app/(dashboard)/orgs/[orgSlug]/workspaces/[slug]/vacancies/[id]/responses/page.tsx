@@ -1,6 +1,6 @@
 "use client";
 
-import { Card } from "@qbs-autonaim/ui";
+import { Card } from "@qbs-autonaim/ui/components/card";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { RecruiterAgentChat } from "~/components";

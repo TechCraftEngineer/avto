@@ -1,18 +1,10 @@
 "use client";
 
-import {
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Skeleton,
-  Textarea,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
+import { Skeleton } from "@qbs-autonaim/ui/components/skeleton"
+import { Textarea } from "@qbs-autonaim/ui/components/textarea"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@qbs-autonaim/ui/components/tooltip";
 import {
   IconCheck,
   IconCopy,

@@ -1,8 +1,8 @@
 "use client";
 
 import { paths } from "@qbs-autonaim/config";
-import { Button } from "@qbs-autonaim/ui";
-import { Card, CardContent } from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import { Card, CardContent } from "@qbs-autonaim/ui/components/card";
 import { Briefcase, MessageSquare, Plus, Users } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";

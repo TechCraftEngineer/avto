@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@qbs-autonaim/ui";
+import { cn } from "@qbs-autonaim/ui/utils";
 import { MessageSquare } from "lucide-react";
 import { BubbleIcon } from "@/components/ui/bubble-icon";
 import { ButtonLink } from "@/components/ui/button-link";

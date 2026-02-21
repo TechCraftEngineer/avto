@@ -1,7 +1,8 @@
 "use client";
 
 import type { SortDirection } from "@qbs-autonaim/shared";
-import { Button, cn } from "@qbs-autonaim/ui";
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { cn } from "@qbs-autonaim/ui/utils";
 import {
   IconFilter,
   IconLayoutKanban,

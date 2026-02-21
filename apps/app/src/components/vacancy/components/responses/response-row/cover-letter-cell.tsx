@@ -1,8 +1,4 @@
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@qbs-autonaim/ui";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@qbs-autonaim/ui/components/hover-card";
 
 interface CoverLetterCellProps {
   coverLetter: string | null;

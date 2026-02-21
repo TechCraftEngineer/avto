@@ -1,16 +1,8 @@
 "use client";
 
-import {
-  Badge,
-  Kanban,
-  KanbanBoard,
-  KanbanColumn,
-  KanbanColumnContent,
-  KanbanItem,
-  KanbanItemHandle,
-  KanbanOverlay,
-  cn,
-} from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Kanban, KanbanBoard, KanbanColumn, KanbanColumnContent, KanbanItem, KanbanItemHandle, KanbanOverlay } from "@qbs-autonaim/ui/components/reui/kanban"
+import { cn } from "@qbs-autonaim/ui/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -110,7 +102,7 @@ function ResponseKanbanColumn({
         <KanbanColumnContent
           value={value}
           className={cn(
-            "flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto rounded-xl p-3 shadow-sm transition-colors",
+            "flex min-h-[420px] flex-1 flex-col gap-3 overflow-y-auto rounded-xl p-3 shadow-sm transition-colors",
             "border border-border/50 bg-card/90 backdrop-blur-sm",
           )}
         >

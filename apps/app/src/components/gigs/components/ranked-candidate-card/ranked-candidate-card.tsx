@@ -1,17 +1,11 @@
 "use client";
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-  Progress,
-} from "@qbs-autonaim/ui";
+import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Card, CardContent, CardHeader } from "@qbs-autonaim/ui/components/card"
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@qbs-autonaim/ui/components/hover-card"
+import { Progress } from "@qbs-autonaim/ui/components/progress";
 import {
   AlertCircle,
   Award,

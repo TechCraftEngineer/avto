@@ -1,9 +1,4 @@
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@qbs-autonaim/ui";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@qbs-autonaim/ui/components/dropdown-menu";
 import { formatPhone } from "@qbs-autonaim/validators";
 import { Copy, Mail, Phone, PhoneCall } from "lucide-react";
 import { toast } from "sonner";

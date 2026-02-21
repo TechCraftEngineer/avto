@@ -4,17 +4,11 @@ import type React from "react"
 import { useState } from "react"
 import Link from "next/link"
 import { Header, Footer } from "@/components/layout"
-import {
-  Button,
-  Input,
-  Textarea,
-  Label,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@qbs-autonaim/ui"
+import { Button } from "@qbs-autonaim/ui/components/button"
+import { Input } from "@qbs-autonaim/ui/components/input"
+import { Textarea } from "@qbs-autonaim/ui/components/textarea"
+import { Label } from "@qbs-autonaim/ui/components/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbs-autonaim/ui/components/select"
 import {
   Mail,
   Phone,
