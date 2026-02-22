@@ -34,17 +34,17 @@
     - Логировать предупреждения для медленных операций (>5000ms)
     - _Requirements: 2.1, 2.2_
   
-  - [-] 3.2 Создать securityAudit middleware
+  - [x] 3.2 Создать securityAudit middleware
     - Реализовать логирование UNAUTHORIZED, FORBIDDEN, TOO_MANY_REQUESTS ошибок
     - Реализовать логирование mutations для аудита
     - Реализовать логирование медленных операций
     - _Requirements: 2.3, 2.4, 2.5, 2.6_
   
-  - [~] 3.3 Создать securityHeadersMiddleware
+  - [x] 3.3 Создать securityHeadersMiddleware
     - Добавить заглушку для security headers (headers устанавливаются в route handler)
     - _Requirements: 2.7_
   
-  - [~] 3.4 Написать property тесты для middleware
+  - [x] 3.4 Написать property тесты для middleware
     - **Property 3: Время выполнения логируется**
     - **Property 4: UNAUTHORIZED ошибки логируются**
     - **Property 5: FORBIDDEN ошибки логируются**
@@ -54,29 +54,29 @@
     - **Validates: Requirements 2.1, 2.3, 2.4, 2.5, 2.6, 2.7**
 
 - [ ] 4. Создание процедур (procedures)
-  - [~] 4.1 Создать publicProcedure
+  - [x] 4.1 Создать publicProcedure
     - Применить middleware: timingMiddleware, securityHeadersMiddleware, securityAudit
     - _Requirements: 3.1, 3.5_
   
-  - [~] 4.2 Создать protectedProcedure
+  - [x] 4.2 Создать protectedProcedure
     - Применить все middleware из publicProcedure
     - Добавить проверку авторизации с выбросом UNAUTHORIZED
     - Обеспечить типобезопасность ctx.session.user
     - _Requirements: 3.2, 3.3, 3.4, 3.5_
   
-  - [~] 4.3 Написать unit тесты для процедур
+  - [x] 4.3 Написать unit тесты для процедур
     - Тест: protectedProcedure выбрасывает UNAUTHORIZED без сессии
     - Тест: protectedProcedure выполняется успешно с валидной сессией
     - Тест: publicProcedure выполняется без авторизации
     - _Requirements: 3.3, 3.4_
   
-  - [~] 4.4 Написать property тесты для процедур
+  - [x] 4.4 Написать property тесты для процедур
     - **Property 9: protectedProcedure требует авторизации**
     - **Property 10: protectedProcedure гарантирует наличие user**
     - **Property 11: Middleware применяются к обоим типам процедур**
     - **Validates: Requirements 3.3, 3.4, 3.5**
 
-- [~] 5. Контрольная точка - Проверка базовой инфраструктуры
+- [x] 5. Контрольная точка - Проверка базовой инфраструктуры
   - Убедиться что все тесты проходят
   - Проверить что типы экспортируются корректно
   - Задать вопросы пользователю если что-то неясно
