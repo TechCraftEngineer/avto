@@ -11,13 +11,14 @@ import {
 } from "@qbs-autonaim/db/schema";
 import { calculateAge } from "@qbs-autonaim/lib/utils";
 import { getInitials } from "@qbs-autonaim/shared";
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { Checkbox } from "@qbs-autonaim/ui/components/checkbox"
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { Checkbox } from "@qbs-autonaim/ui/components/checkbox";
 import { TableCell, TableRow } from "@qbs-autonaim/ui/components/table";
 import Link from "next/link";
 import { ResponseActions } from "~/components";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { getAvatarUrl } from "~/lib/avatar";
+import type { VacancyResponseList } from "~/types/api";
 import { ScreeningHoverCard } from "../../screening/screening-hover-card";
 import { CandidateAvatar } from "./candidate-avatar";
 import { CandidateBadges } from "./candidate-badges";
@@ -263,6 +264,4 @@ export function ResponseRow({
       </TableCell>
     </TableRow>
   );
-import type { VacancyResponseList } from "~/types/api";
-
 }
