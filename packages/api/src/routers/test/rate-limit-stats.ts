@@ -1,5 +1,5 @@
-import { getRateLimitStats } from "@qbs-autonaim/server-utils";
 import { ORPCError } from "@orpc/server";
+import { getRateLimitStats } from "@qbs-autonaim/server-utils";
 import { publicProcedure } from "../../orpc";
 
 /**
@@ -7,7 +7,8 @@ import { publicProcedure } from "../../orpc";
  */
 export const rateLimitStats = publicProcedure.handler(async () => {
   if (process.env.NODE_ENV === "production") {
-    throw new ORPCError("FORBIDDEN", { message: "Доступно только в dev режиме",
+    throw new ORPCError("FORBIDDEN", {
+      message: "Доступно только в dev режиме",
     });
   }
 

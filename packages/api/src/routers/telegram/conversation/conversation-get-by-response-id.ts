@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/server";
 import {
   eq,
   interviewSession,
@@ -5,7 +6,6 @@ import {
   vacancy as vacancyTable,
 } from "@qbs-autonaim/db";
 import { uuidv7Schema, workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 import { verifyWorkspaceAccess } from "../utils";
@@ -24,7 +24,7 @@ export const getConversationByResponseIdRouter = protectedProcedure
     });
 
     if (!responseRow) {
-      throw new ORPCError("NOT_FOUND", { message: "Отклик не найден", });
+      throw new ORPCError("NOT_FOUND", { message: "Отклик не найден" });
     }
 
     // Check workspace access
@@ -34,7 +34,9 @@ export const getConversationByResponseIdRouter = protectedProcedure
     });
 
     if (!vacancy || vacancy.workspaceId !== input.workspaceId) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому отклику", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому отклику",
+      });
     }
 
     const session = await context.db.query.interviewSession.findFirst({

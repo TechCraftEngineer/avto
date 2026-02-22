@@ -1,9 +1,9 @@
+import { ORPCError } from "@orpc/client";
 import { optimizeLogo } from "@qbs-autonaim/lib/image";
 import {
   createWorkspaceSchema,
   organizationIdSchema,
 } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/client";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 
@@ -15,9 +15,10 @@ export const create = protectedProcedure
     }),
   )
   .handler(async ({ input, context }) => {
-    const organizations = await context.organizationRepository.getUserOrganizations(
-      context.session.user.id,
-    );
+    const organizations =
+      await context.organizationRepository.getUserOrganizations(
+        context.session.user.id,
+      );
 
     if (!organizations.length) {
       throw new ORPCError("NOT_FOUND", {

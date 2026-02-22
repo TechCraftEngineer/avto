@@ -12,8 +12,7 @@ export const getLink = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     const invite = await context.workspaceRepository.getActiveInviteLink(

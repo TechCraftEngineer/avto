@@ -13,7 +13,8 @@ export const responsesChart = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace",
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
       });
     }
 

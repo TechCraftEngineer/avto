@@ -1,7 +1,7 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq } from "@qbs-autonaim/db";
 import { telegramSession } from "@qbs-autonaim/db/schema";
 import { tgClientSDK } from "@qbs-autonaim/tg-client/sdk";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 import { handle2FAError, normalizePhone } from "../utils";
@@ -58,7 +58,7 @@ export const reauthorizeSessionRouter = protectedProcedure
         .returning();
 
       if (updated.length === 0) {
-        throw new ORPCError("NOT_FOUND", { message: "Сессия не найдена", });
+        throw new ORPCError("NOT_FOUND", { message: "Сессия не найдена" });
       }
 
       return {
@@ -77,6 +77,9 @@ export const reauthorizeSessionRouter = protectedProcedure
         };
       }
 
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: error instanceof Error ? error.message : "Ошибка реавторизации", });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message:
+          error instanceof Error ? error.message : "Ошибка реавторизации",
+      });
     }
   });

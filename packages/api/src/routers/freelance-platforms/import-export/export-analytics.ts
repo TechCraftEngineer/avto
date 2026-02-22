@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq, gte, lte, sql } from "@qbs-autonaim/db";
 import {
   responseScreening,
@@ -5,7 +6,6 @@ import {
   vacancy,
 } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
@@ -25,7 +25,9 @@ export const exportAnalytics = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
+      });
     }
 
     // Построение условий фильтрации

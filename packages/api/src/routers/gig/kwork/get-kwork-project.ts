@@ -2,9 +2,10 @@
  * Получение данных проекта Kwork для связки с gig
  * Использует Kwork Mobile API: https://api.kwork.ru/
  */
+
+import { ORPCError } from "@orpc/server";
 import { getProject } from "@qbs-autonaim/integration-clients";
 import { executeWithKworkTokenRefresh } from "@qbs-autonaim/jobs/services/kwork";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
@@ -22,7 +23,7 @@ export const getKworkProject = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     // biome-ignore lint/suspicious/noImplicitAnyLet: result assigned in try, typed by executeWithKworkTokenRefresh
@@ -35,19 +36,27 @@ export const getKworkProject = protectedProcedure
       );
     } catch (error) {
       const msg = error instanceof Error ? error.message : "Ошибка Kwork";
-      throw new ORPCError("UNAUTHORIZED", { message: msg.includes("авториз") || msg.includes("token")
+      throw new ORPCError("UNAUTHORIZED", {
+        message:
+          msg.includes("авториз") || msg.includes("token")
             ? "Токен Kwork истёк. Требуется повторная авторизация в настройках интеграции."
-            : msg, });
+            : msg,
+      });
     }
 
     if (!result.success || !result.response) {
-      throw new ORPCError("NOT_FOUND", { message: result.error?.message ??
-          "Проект не найден на Kwork. Проверьте, что интеграция активна.", });
+      throw new ORPCError("NOT_FOUND", {
+        message:
+          result.error?.message ??
+          "Проект не найден на Kwork. Проверьте, что интеграция активна.",
+      });
     }
 
     const project = result.response;
     if (!project) {
-      throw new ORPCError("NOT_FOUND", { message: "Проект не найден на Kwork", });
+      throw new ORPCError("NOT_FOUND", {
+        message: "Проект не найден на Kwork",
+      });
     }
 
     return {

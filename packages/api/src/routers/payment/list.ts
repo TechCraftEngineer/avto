@@ -1,9 +1,9 @@
+import { ORPCError } from "@orpc/server";
 import { payment } from "@qbs-autonaim/db/schema";
 import {
   paginationLimitSchema,
   paginationOffsetSchema,
 } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
@@ -40,7 +40,9 @@ export const list = protectedProcedure
       );
 
       if (!hasAccess) {
-        throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
+        throw new ORPCError("FORBIDDEN", {
+          message: "Нет доступа к workspace",
+        });
       }
     }
 
@@ -52,7 +54,9 @@ export const list = protectedProcedure
       );
 
       if (!hasAccess) {
-        throw new ORPCError("FORBIDDEN", { message: "Нет доступа к организации", });
+        throw new ORPCError("FORBIDDEN", {
+          message: "Нет доступа к организации",
+        });
       }
     }
 

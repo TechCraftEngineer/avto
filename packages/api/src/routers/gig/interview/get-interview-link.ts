@@ -1,8 +1,8 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq } from "@qbs-autonaim/db";
 import { gig, interviewLink } from "@qbs-autonaim/db/schema";
 import { getInterviewUrlFromEntity } from "@qbs-autonaim/server-utils";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
@@ -20,7 +20,9 @@ export const getInterviewLink = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
+      });
     }
 
     const foundGig = await context.db.query.gig.findFirst({
@@ -31,7 +33,7 @@ export const getInterviewLink = protectedProcedure
     });
 
     if (!foundGig) {
-      throw new ORPCError("NOT_FOUND", { message: "Гиг не найден", });
+      throw new ORPCError("NOT_FOUND", { message: "Гиг не найден" });
     }
 
     const link = await context.db.query.interviewLink.findFirst({

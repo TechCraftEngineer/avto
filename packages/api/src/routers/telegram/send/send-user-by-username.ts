@@ -1,6 +1,6 @@
+import { ORPCError } from "@orpc/server";
 import { eq, telegramSession } from "@qbs-autonaim/db";
 import { tgClientSDK } from "@qbs-autonaim/tg-client/sdk";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
@@ -25,7 +25,9 @@ export const sendUserMessageRouter = protectedProcedure
           });
 
       if (!session) {
-        throw new ORPCError("NOT_FOUND", { message: "Telegram сессия не найдена. Пожалуйста, авторизуйтесь.", });
+        throw new ORPCError("NOT_FOUND", {
+          message: "Telegram сессия не найдена. Пожалуйста, авторизуйтесь.",
+        });
       }
 
       const result = await tgClientSDK.sendMessageByUsername({
@@ -42,8 +44,11 @@ export const sendUserMessageRouter = protectedProcedure
       return result;
     } catch (error) {
       console.error("❌ Ошибка отправки сообщения:", error);
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: error instanceof Error
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message:
+          error instanceof Error
             ? error.message
-            : "Не удалось отправить сообщение", });
+            : "Не удалось отправить сообщение",
+      });
     }
   });

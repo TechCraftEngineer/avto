@@ -29,7 +29,8 @@ export const getVacancyAnalytics = protectedProcedure
     );
 
     if (!membership) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace",
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
       });
     }
 
@@ -46,10 +47,14 @@ export const getVacancyAnalytics = protectedProcedure
     } catch (error) {
       if (error instanceof AnalyticsError) {
         if (error.code === "VACANCY_NOT_FOUND") {
-          throw new ORPCError("NOT_FOUND", { message: error.userMessage, cause: error,
+          throw new ORPCError("NOT_FOUND", {
+            message: error.userMessage,
+            cause: error,
           });
         }
-        throw new ORPCError("BAD_REQUEST", { message: error.userMessage, cause: error,
+        throw new ORPCError("BAD_REQUEST", {
+          message: error.userMessage,
+          cause: error,
         });
       }
       throw error;

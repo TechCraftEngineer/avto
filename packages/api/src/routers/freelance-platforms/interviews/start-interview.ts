@@ -1,8 +1,8 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq } from "@qbs-autonaim/db";
 import { response as responseTable } from "@qbs-autonaim/db/schema";
 import { InterviewLinkGenerator } from "@qbs-autonaim/shared/server";
 import { phoneSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { publicProcedure } from "../../../orpc";
 
@@ -33,7 +33,9 @@ export const startInterview = publicProcedure
     const interviewLink = await linkGenerator.validateLink(input.token);
 
     if (!interviewLink) {
-      throw new ORPCError("NOT_FOUND", { message: "Ссылка на интервью недействительна или истекла", });
+      throw new ORPCError("NOT_FOUND", {
+        message: "Ссылка на интервью недействительна или истекла",
+      });
     }
 
     // Проверяем, что вакансия активна
@@ -42,7 +44,7 @@ export const startInterview = publicProcedure
     });
 
     if (!vacancy || !vacancy.isActive) {
-      throw new ORPCError("BAD_REQUEST", { message: "Вакансия закрыта", });
+      throw new ORPCError("BAD_REQUEST", { message: "Вакансия закрыта" });
     }
 
     // Проверяем дубликаты по platformProfileUrl + vacancyId
@@ -55,7 +57,9 @@ export const startInterview = publicProcedure
     });
 
     if (existingResponse) {
-      throw new ORPCError("CONFLICT", { message: "Вы уже откликнулись на эту вакансию", });
+      throw new ORPCError("CONFLICT", {
+        message: "Вы уже откликнулись на эту вакансию",
+      });
     }
 
     // Создаём отклик
@@ -81,7 +85,9 @@ export const startInterview = publicProcedure
       .returning();
 
     if (!response) {
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось создать отклик", });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Не удалось создать отклик",
+      });
     }
 
     return {

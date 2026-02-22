@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq, GlobalCandidateRepository, sql } from "@qbs-autonaim/db";
 import {
   gig,
@@ -6,10 +7,9 @@ import {
   response as responseTable,
 } from "@qbs-autonaim/db/schema";
 import { phoneSchema, workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { CandidateService } from "../../../services/candidate.service";
 import { protectedProcedure } from "../../../orpc";
+import { CandidateService } from "../../../services/candidate.service";
 
 const createResponseSchema = z.object({
   gigId: z.uuid(),
@@ -40,7 +40,9 @@ export const create = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
+      });
     }
 
     // Проверяем что gig существует и принадлежит workspace
@@ -52,7 +54,7 @@ export const create = protectedProcedure
     });
 
     if (!existingGig) {
-      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено", });
+      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено" });
     }
 
     // Получаем organizationId из workspace
@@ -62,7 +64,7 @@ export const create = protectedProcedure
     });
 
     if (!workspaceData) {
-      throw new ORPCError("NOT_FOUND", { message: "Workspace не найден", });
+      throw new ORPCError("NOT_FOUND", { message: "Workspace не найден" });
     }
 
     // Проверяем дубликат
@@ -75,14 +77,18 @@ export const create = protectedProcedure
     });
 
     if (existingResponse) {
-      throw new ORPCError("CONFLICT", { message: "Отклик от этого кандидата уже существует", });
+      throw new ORPCError("CONFLICT", {
+        message: "Отклик от этого кандидата уже существует",
+      });
     }
 
     // Создаем или находим кандидата в базе
     // Используем глобальную таблицу кандидатов и таблицу связей с организациями
     let globalCandidateId: string | null = null;
     try {
-      const globalCandidateRepository = new GlobalCandidateRepository(context.db);
+      const globalCandidateRepository = new GlobalCandidateRepository(
+        context.db,
+      );
       const candidateService = new CandidateService();
 
       // Создаем временный объект response для извлечения данных
@@ -167,13 +173,17 @@ export const create = protectedProcedure
         (error.message.includes("unique constraint") ||
           error.message.includes("duplicate key"))
       ) {
-        throw new ORPCError("CONFLICT", { message: "Отклик от этого кандидата уже существует", });
+        throw new ORPCError("CONFLICT", {
+          message: "Отклик от этого кандидата уже существует",
+        });
       }
       throw error;
     }
 
     if (!newResponse) {
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось создать отклик", });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Не удалось создать отклик",
+      });
     }
 
     // Атомарно обновляем счётчик откликов

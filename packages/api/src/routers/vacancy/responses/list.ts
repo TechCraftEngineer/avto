@@ -95,7 +95,8 @@ export const list = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace",
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
       });
     }
 
@@ -107,8 +108,7 @@ export const list = protectedProcedure
     });
 
     if (!vacancyExists) {
-      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена" });
     }
 
     // 3. Получаем ID откликов с учётом фильтра по скринингу

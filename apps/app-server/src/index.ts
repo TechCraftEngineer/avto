@@ -1,20 +1,14 @@
-import { createHash, randomBytes } from "node:crypto";
 import { RPCHandler } from "@orpc/server/fetch";
 import { appRouter, createContext } from "@qbs-autonaim/api";
 import { env } from "@qbs-autonaim/config";
-import { eq, upsertUserIntegration } from "@qbs-autonaim/db";
-import { db } from "@qbs-autonaim/db/client";
-import {
-  organization,
-  organizationMember,
-  user,
-  workspace,
-} from "@qbs-autonaim/db/schema";
 import { addAPISecurityHeaders } from "@qbs-autonaim/server-utils";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
-import { auth, getSession } from "./auth";
+import { auth } from "./auth";
+import { extensionTokenRoutes } from "./routes/extension-token";
+import { googleCalendarRoutes } from "./routes/google-calendar";
+import { testSetupRoutes } from "./routes/test-setup";
 import { handleVacancyChatGenerate } from "./routes/vacancy-chat-generate";
 
 const app = new Hono();
@@ -37,7 +31,11 @@ app.use(
   }),
 );
 
-// Better Auth — все пути /api/auth/*
+// Google Calendar OAuth + Extension token (до Better Auth catch-all)
+app.route("/api/auth", googleCalendarRoutes);
+app.route("/api/auth", extensionTokenRoutes);
+
+// Better Auth — все оставшиеся пути /api/auth/*
 app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
 // oRPC handler

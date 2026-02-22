@@ -49,7 +49,9 @@ export const trackEvent = publicProcedure
       };
     } catch (error) {
       if (error instanceof AnalyticsError) {
-        throw new ORPCError("BAD_REQUEST", { message: error.userMessage, cause: error,
+        throw new ORPCError("BAD_REQUEST", {
+          message: error.userMessage,
+          cause: error,
         });
       }
       throw error;

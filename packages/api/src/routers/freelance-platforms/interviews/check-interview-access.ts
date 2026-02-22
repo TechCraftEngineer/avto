@@ -26,7 +26,9 @@ export const checkInterviewAccess = publicProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому интервью", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому интервью",
+      });
     }
 
     // Получаем базовую информацию о сессии для подтверждения доступа
@@ -41,7 +43,7 @@ export const checkInterviewAccess = publicProcedure
     });
 
     if (!session) {
-      throw new ORPCError("NOT_FOUND", { message: "Интервью не найдено", });
+      throw new ORPCError("NOT_FOUND", { message: "Интервью не найдено" });
     }
 
     return {

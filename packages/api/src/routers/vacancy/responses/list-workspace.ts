@@ -65,7 +65,8 @@ export const listWorkspace = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace",
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
       });
     }
 

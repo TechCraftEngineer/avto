@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq, sql } from "@qbs-autonaim/db";
 import {
   gig,
@@ -6,7 +7,6 @@ import {
   response as responseTable,
 } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
@@ -26,7 +26,9 @@ export const updateStatus = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
+      });
     }
 
     const response = await context.db.query.response.findFirst({
@@ -37,7 +39,7 @@ export const updateStatus = protectedProcedure
     });
 
     if (!response) {
-      throw new ORPCError("NOT_FOUND", { message: "Отклик не найден", });
+      throw new ORPCError("NOT_FOUND", { message: "Отклик не найден" });
     }
 
     const existingGig = await context.db.query.gig.findFirst({
@@ -48,7 +50,9 @@ export const updateStatus = protectedProcedure
     });
 
     if (!existingGig) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому отклику", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому отклику",
+      });
     }
 
     const patch: {

@@ -1,8 +1,8 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq } from "@qbs-autonaim/db";
 import { gig, response as responseTable } from "@qbs-autonaim/db/schema";
 import { getInterviewUrlFromEntity } from "@qbs-autonaim/server-utils";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
@@ -40,7 +40,9 @@ export const getInvitation = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
+      });
     }
 
     // Получаем отклик
@@ -52,7 +54,7 @@ export const getInvitation = protectedProcedure
     });
 
     if (!response) {
-      throw new ORPCError("NOT_FOUND", { message: "Отклик не найден", });
+      throw new ORPCError("NOT_FOUND", { message: "Отклик не найден" });
     }
 
     const existingGig = await context.db.query.gig.findFirst({
@@ -63,7 +65,9 @@ export const getInvitation = protectedProcedure
     });
 
     if (!existingGig) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому отклику", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому отклику",
+      });
     }
 
     // Генерируем URL интервью на лету

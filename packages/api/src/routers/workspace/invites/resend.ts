@@ -14,7 +14,8 @@ export const resend = protectedProcedure
     );
 
     if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new ORPCError("FORBIDDEN", { message: "Недостаточно прав для отправки приглашений",
+      throw new ORPCError("FORBIDDEN", {
+        message: "Недостаточно прав для отправки приглашений",
       });
     }
 
@@ -24,8 +25,7 @@ export const resend = protectedProcedure
     );
 
     if (!existingInvite) {
-      throw new ORPCError("NOT_FOUND", { message: "Приглашение не найдено",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Приглашение не найдено" });
     }
 
     const workspace = await context.workspaceRepository.findById(
@@ -33,7 +33,8 @@ export const resend = protectedProcedure
     );
 
     if (!workspace) {
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Workspace не найден",
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Workspace не найден",
       });
     }
 

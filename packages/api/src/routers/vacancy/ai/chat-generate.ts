@@ -385,7 +385,8 @@ export const chatGenerate = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace",
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
       });
     }
 
@@ -419,7 +420,9 @@ export const chatGenerate = protectedProcedure
       // Безопасно извлекаем JSON
       const jsonString = extractJSON(fullText);
       if (!jsonString) {
-        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "AI не вернул валидный JSON. Попробуйте переформулировать запрос.",
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
+          message:
+            "AI не вернул валидный JSON. Попробуйте переформулировать запрос.",
         });
       }
 
@@ -429,7 +432,8 @@ export const chatGenerate = protectedProcedure
         parsed = JSON.parse(jsonString);
       } catch (error) {
         console.error("JSON parse error:", error, "Raw JSON:", jsonString);
-        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось распарсить ответ от AI. Попробуйте ещё раз.",
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
+          message: "Не удалось распарсить ответ от AI. Попробуйте ещё раз.",
         });
       }
 
@@ -442,7 +446,9 @@ export const chatGenerate = protectedProcedure
           "Parsed data:",
           parsed,
         );
-        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "AI вернул данные в неожиданном формате. Попробуйте ещё раз.",
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
+          message:
+            "AI вернул данные в неожиданном формате. Попробуйте ещё раз.",
         });
       }
 
@@ -529,12 +535,14 @@ export const chatGenerate = protectedProcedure
       }
 
       // Если дошли сюда, значит что-то пошло не так
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Неожиданный формат данных от AI",
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Неожиданный формат данных от AI",
       });
     } catch (error) {
       if (error instanceof ORPCError) throw error;
       console.error("Error generating vacancy:", error);
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось сгенерировать вакансию. Попробуйте позже.",
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Не удалось сгенерировать вакансию. Попробуйте позже.",
       });
     }
   });

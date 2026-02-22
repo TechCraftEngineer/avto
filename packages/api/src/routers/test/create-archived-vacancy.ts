@@ -1,6 +1,6 @@
+import { ORPCError } from "@orpc/server";
 import { db } from "@qbs-autonaim/db";
 import { vacancy, vacancyPublication } from "@qbs-autonaim/db/schema";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { publicProcedure } from "../../orpc";
 
@@ -20,7 +20,8 @@ export const createArchivedVacancy = publicProcedure
   )
   .handler(async ({ input }) => {
     if (!isTestMode) {
-      throw new ORPCError("FORBIDDEN", { message: "Тестовые эндпоинты доступны только в режиме разработки",
+      throw new ORPCError("FORBIDDEN", {
+        message: "Тестовые эндпоинты доступны только в режиме разработки",
       });
     }
 
@@ -37,7 +38,8 @@ export const createArchivedVacancy = publicProcedure
       .returning();
 
     if (!newVacancy) {
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось создать вакансию",
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Не удалось создать вакансию",
       });
     }
 

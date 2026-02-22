@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/server";
 import { desc, eq } from "@qbs-autonaim/db";
 import {
   globalCandidate,
@@ -6,14 +7,13 @@ import {
   vacancy,
 } from "@qbs-autonaim/db/schema";
 import { uuidv7Schema, workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
+import { protectedProcedure } from "../../orpc";
 import {
   getMetaMatchStatus,
   getRiskFlags,
   getSummaryLabels,
 } from "../../services/meta-match/evaluator";
-import { protectedProcedure } from "../../orpc";
 import { verifyWorkspaceAccess } from "../../utils/verify-workspace-access";
 
 const getLatestInputSchema = z.object({
@@ -36,7 +36,7 @@ export const getLatest = protectedProcedure
     });
 
     if (!response) {
-      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден", });
+      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден" });
     }
 
     const vacancyData = await context.db.query.vacancy.findFirst({
@@ -45,7 +45,9 @@ export const getLatest = protectedProcedure
     });
 
     if (!vacancyData || vacancyData.workspaceId !== input.workspaceId) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому кандидату", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому кандидату",
+      });
     }
 
     let birthDate: Date | null = null;

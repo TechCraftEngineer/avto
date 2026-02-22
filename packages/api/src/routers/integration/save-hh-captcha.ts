@@ -1,6 +1,6 @@
+import { ORPCError } from "@orpc/server";
 import { getIntegration, saveHHPendingCaptcha } from "@qbs-autonaim/db";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 
@@ -18,12 +18,14 @@ export const saveHHCaptcha = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     const existing = await getIntegration(context.db, "hh", input.workspaceId);
     if (!existing) {
-      throw new ORPCError("NOT_FOUND", { message: "Интеграция HH не найдена. Попробуйте заново.", });
+      throw new ORPCError("NOT_FOUND", {
+        message: "Интеграция HH не найдена. Попробуйте заново.",
+      });
     }
 
     await saveHHPendingCaptcha(context.db, input.workspaceId, input.captcha);

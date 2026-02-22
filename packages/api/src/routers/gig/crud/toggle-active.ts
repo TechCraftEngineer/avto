@@ -1,7 +1,7 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq, not } from "@qbs-autonaim/db";
 import { gig } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
@@ -19,7 +19,9 @@ export const toggleActive = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
+      });
     }
 
     const [updated] = await context.db
@@ -34,7 +36,7 @@ export const toggleActive = protectedProcedure
       .returning({ id: gig.id, title: gig.title, isActive: gig.isActive });
 
     if (!updated) {
-      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено", });
+      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено" });
     }
 
     return {

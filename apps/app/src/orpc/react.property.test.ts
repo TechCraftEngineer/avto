@@ -8,12 +8,12 @@
  * @see .kiro/specs/trpc-to-orpc-migration/design.md
  */
 
-import { describe, expect, it, beforeEach, afterEach } from "bun:test";
-import * as fc from "fast-check";
-import { QueryClient } from "@tanstack/react-query";
+import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { createORPCClient } from "@orpc/client";
 import { createRouterUtils } from "@orpc/tanstack-query";
 import type { AppRouter } from "@qbs-autonaim/api";
+import { QueryClient } from "@tanstack/react-query";
+import * as fc from "fast-check";
 import SuperJSON from "superjson";
 
 /**
@@ -73,9 +73,7 @@ describe("Property 18: Query keys генерируются корректно", 
 
         // Проверяем что keys различаются для разных процедур
         expect(JSON.stringify(listKey)).not.toBe(JSON.stringify(getKey));
-        expect(JSON.stringify(listKey)).not.toBe(
-          JSON.stringify(getBySlugKey),
-        );
+        expect(JSON.stringify(listKey)).not.toBe(JSON.stringify(getBySlugKey));
         expect(JSON.stringify(getKey)).not.toBe(JSON.stringify(getBySlugKey));
       }),
       { numRuns: 100 },
@@ -85,8 +83,12 @@ describe("Property 18: Query keys генерируются корректно", 
   it("должен генерировать различные query keys для одной процедуры с разными параметрами", async () => {
     await fc.assert(
       fc.asyncProperty(
-        fc.string({ minLength: 1, maxLength: 50 }).filter(s => s.trim().length > 0),
-        fc.string({ minLength: 1, maxLength: 50 }).filter(s => s.trim().length > 0),
+        fc
+          .string({ minLength: 1, maxLength: 50 })
+          .filter((s) => s.trim().length > 0),
+        fc
+          .string({ minLength: 1, maxLength: 50 })
+          .filter((s) => s.trim().length > 0),
         async (id1, id2) => {
           // Пропускаем если id одинаковые после trim
           fc.pre(id1.trim() !== id2.trim());
@@ -98,7 +100,7 @@ describe("Property 18: Query keys генерируются корректно", 
           // Проверяем что ключи не идентичны
           const key1Str = JSON.stringify(key1);
           const key2Str = JSON.stringify(key2);
-          
+
           // Если параметры различаются, ключи тоже должны различаться
           // Однако oRPC может не включать параметры в queryKey напрямую
           // Проверяем что структура ключей корректна
@@ -310,8 +312,8 @@ describe("Property 23: SuperJSON сериализация", () => {
         fc.record({
           id: fc.string({ minLength: 1, maxLength: 50 }),
           name: fc.string({ minLength: 1, maxLength: 100 }),
-          createdAt: fc.date().filter(d => !Number.isNaN(d.getTime())),
-          updatedAt: fc.date().filter(d => !Number.isNaN(d.getTime())),
+          createdAt: fc.date().filter((d) => !Number.isNaN(d.getTime())),
+          updatedAt: fc.date().filter((d) => !Number.isNaN(d.getTime())),
         }),
         async (obj) => {
           const serialized = SuperJSON.stringify(obj);
@@ -321,8 +323,12 @@ describe("Property 23: SuperJSON сериализация", () => {
           expect(deserialized.name).toBe(obj.name);
           expect(deserialized.createdAt).toBeInstanceOf(Date);
           expect(deserialized.updatedAt).toBeInstanceOf(Date);
-          expect(deserialized.createdAt.getTime()).toBe(obj.createdAt.getTime());
-          expect(deserialized.updatedAt.getTime()).toBe(obj.updatedAt.getTime());
+          expect(deserialized.createdAt.getTime()).toBe(
+            obj.createdAt.getTime(),
+          );
+          expect(deserialized.updatedAt.getTime()).toBe(
+            obj.updatedAt.getTime(),
+          );
         },
       ),
       { numRuns: 100 },
@@ -430,7 +436,7 @@ describe("Property 23: SuperJSON сериализация", () => {
           workspace: fc.record({
             id: fc.string({ minLength: 1, maxLength: 50 }),
             name: fc.string({ minLength: 1, maxLength: 100 }),
-            createdAt: fc.date().filter(d => !Number.isNaN(d.getTime())),
+            createdAt: fc.date().filter((d) => !Number.isNaN(d.getTime())),
             metadata: fc.record({
               tags: fc.array(fc.string({ minLength: 1, maxLength: 20 }), {
                 minLength: 0,
@@ -445,7 +451,7 @@ describe("Property 23: SuperJSON сериализация", () => {
           members: fc.array(
             fc.record({
               id: fc.string({ minLength: 1, maxLength: 50 }),
-              joinedAt: fc.date().filter(d => !Number.isNaN(d.getTime())),
+              joinedAt: fc.date().filter((d) => !Number.isNaN(d.getTime())),
             }),
             { minLength: 0, maxLength: 5 },
           ),
@@ -496,9 +502,12 @@ describe("Property 23: SuperJSON сериализация", () => {
           nullValue: fc.constant(null),
           undefinedValue: fc.constant(undefined),
           optionalDate: fc.option(fc.date(), { nil: undefined }),
-          optionalString: fc.option(fc.string({ minLength: 1, maxLength: 50 }), {
-            nil: null,
-          }),
+          optionalString: fc.option(
+            fc.string({ minLength: 1, maxLength: 50 }),
+            {
+              nil: null,
+            },
+          ),
         }),
         async (obj) => {
           const serialized = SuperJSON.stringify(obj);
@@ -597,37 +606,34 @@ describe("Property 19: Инвалидация конкретного запро�
 
   it("должен инвалидировать конкретный запрос с заданными параметрами", async () => {
     await fc.assert(
-      fc.asyncProperty(
-        fc.uuid(),
-        async (id) => {
-          // Создаем query key для запроса
-          const queryKey = utils.workspace.get.queryKey({ id });
+      fc.asyncProperty(fc.uuid(), async (id) => {
+        // Создаем query key для запроса
+        const queryKey = utils.workspace.get.queryKey({ id });
 
-          // Устанавливаем данные в кэш
-          queryClient.setQueryData(queryKey, {
-            id,
-            name: "Test Workspace",
-          });
+        // Устанавливаем данные в кэш
+        queryClient.setQueryData(queryKey, {
+          id,
+          name: "Test Workspace",
+        });
 
-          // Проверяем что запрос в кэше и не инвалидирован
-          expect(queryClient.getQueryData(queryKey)).toBeDefined();
-          const stateBefore = queryClient.getQueryState(queryKey);
-          expect(stateBefore?.isInvalidated).toBe(false);
+        // Проверяем что запрос в кэше и не инвалидирован
+        expect(queryClient.getQueryData(queryKey)).toBeDefined();
+        const stateBefore = queryClient.getQueryState(queryKey);
+        expect(stateBefore?.isInvalidated).toBe(false);
 
-          // Инвалидируем запрос
-          await queryClient.invalidateQueries({
-            queryKey,
-            exact: true,
-          });
+        // Инвалидируем запрос
+        await queryClient.invalidateQueries({
+          queryKey,
+          exact: true,
+        });
 
-          // Проверяем что запрос инвалидирован
-          const stateAfter = queryClient.getQueryState(queryKey);
-          expect(stateAfter?.isInvalidated).toBe(true);
+        // Проверяем что запрос инвалидирован
+        const stateAfter = queryClient.getQueryState(queryKey);
+        expect(stateAfter?.isInvalidated).toBe(true);
 
-          // Данные все еще доступны в кэше
-          expect(queryClient.getQueryData(queryKey)).toBeDefined();
-        },
-      ),
+        // Данные все еще доступны в кэше
+        expect(queryClient.getQueryData(queryKey)).toBeDefined();
+      }),
       { numRuns: 100 },
     );
   });
@@ -1298,7 +1304,7 @@ describe("Property 21: Оптимистичное обновление с отк
         async (workspaceId, newWorkspace) => {
           // Очищаем кэш перед тестом
           queryClient.clear();
-          
+
           const queryKey = utils.workspace.get.queryKey({ id: workspaceId });
 
           // Не устанавливаем данные в кэш (previousData будет undefined)

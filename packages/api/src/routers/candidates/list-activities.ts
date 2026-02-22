@@ -29,7 +29,7 @@ export const listActivities = protectedProcedure
     });
 
     if (!response) {
-      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден", });
+      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден" });
     }
 
     // Query vacancy separately using entityId
@@ -41,11 +41,15 @@ export const listActivities = protectedProcedure
     });
 
     if (!vacancy) {
-      throw new ORPCError("NOT_FOUND", { message: "Вакансия для этого кандидата не найдена", });
+      throw new ORPCError("NOT_FOUND", {
+        message: "Вакансия для этого кандидата не найдена",
+      });
     }
 
     if (vacancy.workspaceId !== workspaceId) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому кандидату", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому кандидату",
+      });
     }
 
     // Получаем историю активностей

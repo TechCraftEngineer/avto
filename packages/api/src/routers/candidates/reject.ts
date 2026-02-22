@@ -22,7 +22,7 @@ export const rejectCandidate = protectedProcedure
     });
 
     if (!candidate) {
-      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден", });
+      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден" });
     }
 
     // Query vacancy separately to check workspace access
@@ -34,7 +34,9 @@ export const rejectCandidate = protectedProcedure
     });
 
     if (!vacancy || vacancy.workspaceId !== workspaceId) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому кандидату", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому кандидату",
+      });
     }
 
     await context.db

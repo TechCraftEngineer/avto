@@ -30,7 +30,8 @@ export const exportData = protectedProcedure
     );
 
     if (!membership) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace",
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
       });
     }
 
@@ -63,7 +64,9 @@ export const exportData = protectedProcedure
       return exportResult;
     } catch (error) {
       if (error instanceof AnalyticsError) {
-        throw new ORPCError("BAD_REQUEST", { message: error.userMessage, cause: error,
+        throw new ORPCError("BAD_REQUEST", {
+          message: error.userMessage,
+          cause: error,
         });
       }
       throw error;

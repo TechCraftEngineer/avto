@@ -25,7 +25,7 @@ export const createEvent = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     const responseRow = await context.db.query.response.findFirst({
@@ -40,7 +40,7 @@ export const createEvent = protectedProcedure
     });
 
     if (!responseRow) {
-      throw new ORPCError("NOT_FOUND", { message: "Отклик не найден", });
+      throw new ORPCError("NOT_FOUND", { message: "Отклик не найден" });
     }
 
     const entityId = responseRow.entityId;
@@ -52,7 +52,9 @@ export const createEvent = protectedProcedure
         columns: { id: true },
       });
       if (!vacancyRow) {
-        throw new ORPCError("FORBIDDEN", { message: "Отклик не принадлежит этому workspace", });
+        throw new ORPCError("FORBIDDEN", {
+          message: "Отклик не принадлежит этому workspace",
+        });
       }
     } else if (responseRow.entityType === "gig") {
       const gigRow = await context.db.query.gig.findFirst({
@@ -61,10 +63,14 @@ export const createEvent = protectedProcedure
         columns: { id: true },
       });
       if (!gigRow) {
-        throw new ORPCError("FORBIDDEN", { message: "Отклик не принадлежит этому workspace", });
+        throw new ORPCError("FORBIDDEN", {
+          message: "Отклик не принадлежит этому workspace",
+        });
       }
     } else {
-      throw new ORPCError("BAD_REQUEST", { message: "Неподдерживаемый тип отклика для планирования", });
+      throw new ORPCError("BAD_REQUEST", {
+        message: "Неподдерживаемый тип отклика для планирования",
+      });
     }
 
     const credentials = await getUserIntegrationCredentials(
@@ -74,7 +80,10 @@ export const createEvent = protectedProcedure
     );
 
     if (!credentials?.access_token) {
-      throw new ORPCError("PRECONDITION_FAILED", { message: "Подключите Google Calendar в настройках аккаунта для планирования встреч", });
+      throw new ORPCError("PRECONDITION_FAILED", {
+        message:
+          "Подключите Google Calendar в настройках аккаунта для планирования встреч",
+      });
     }
 
     const endDate = new Date(input.scheduledAt);

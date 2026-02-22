@@ -48,8 +48,7 @@ export const getInterviewLink = protectedProcedure
     });
 
     if (!response) {
-      throw new ORPCError("NOT_FOUND", { message: "Отклик не найден",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Отклик не найден" });
     }
 
     // Получаем workspaceId в зависимости от типа entity
@@ -60,13 +59,15 @@ export const getInterviewLink = protectedProcedure
 
     // Проверяем что связанная сущность существует
     if (!workspaceId) {
-      throw new ORPCError("NOT_FOUND", { message: "Связанная сущность не найдена",
+      throw new ORPCError("NOT_FOUND", {
+        message: "Связанная сущность не найдена",
       });
     }
 
     // Проверяем соответствие workspace
     if (workspaceId !== input.workspaceId) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому отклику",
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому отклику",
       });
     }
 

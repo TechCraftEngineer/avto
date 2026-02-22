@@ -22,7 +22,7 @@ export const sendGreeting = protectedProcedure
     });
 
     if (!candidate) {
-      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден", });
+      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден" });
     }
 
     // Query vacancy separately to check workspace access
@@ -34,7 +34,9 @@ export const sendGreeting = protectedProcedure
     });
 
     if (!vacancy || vacancy.workspaceId !== workspaceId) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому кандидату", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому кандидату",
+      });
     }
 
     // Идемпотентное обновление: устанавливаем welcomeSentAt только если оно NULL
@@ -54,7 +56,9 @@ export const sendGreeting = protectedProcedure
     // Проверяем, была ли обновлена строка
     // Если 0 строк обновлено, значит приветствие уже было отправлено
     if (updateResult.length === 0) {
-      throw new ORPCError("BAD_REQUEST", { message: "Приветствие уже было отправлено", });
+      throw new ORPCError("BAD_REQUEST", {
+        message: "Приветствие уже было отправлено",
+      });
     }
 
     // Отправляем событие в Inngest для отправки приветственного сообщения
@@ -82,7 +86,9 @@ export const sendGreeting = protectedProcedure
           ),
         );
 
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось отправить приветствие. Попробуйте позже.", });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Не удалось отправить приветствие. Попробуйте позже.",
+      });
     }
 
     return { success: true };

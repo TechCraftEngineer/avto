@@ -14,7 +14,8 @@ export const add = protectedProcedure
     );
 
     if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new ORPCError("FORBIDDEN", { message: "Недостаточно прав для приглашения пользователей",
+      throw new ORPCError("FORBIDDEN", {
+        message: "Недостаточно прав для приглашения пользователей",
       });
     }
 
@@ -28,7 +29,8 @@ export const add = protectedProcedure
       );
 
       if (existingMember) {
-        throw new ORPCError("BAD_REQUEST", { message: "Пользователь уже является участником workspace",
+        throw new ORPCError("BAD_REQUEST", {
+          message: "Пользователь уже является участником workspace",
         });
       }
     }
@@ -39,7 +41,8 @@ export const add = protectedProcedure
     );
 
     if (existingInvite) {
-      throw new ORPCError("BAD_REQUEST", { message: "Приглашение для этого email уже существует",
+      throw new ORPCError("BAD_REQUEST", {
+        message: "Приглашение для этого email уже существует",
       });
     }
 

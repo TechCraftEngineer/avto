@@ -1,9 +1,9 @@
+import { ORPCError } from "@orpc/server";
 import {
   platformSourceValues,
   vacancyPublication,
 } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
@@ -57,7 +57,9 @@ export const addPublication = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
+      });
     }
 
     // Проверка существования вакансии и принадлежности к workspace
@@ -70,7 +72,7 @@ export const addPublication = protectedProcedure
     });
 
     if (!existingVacancy) {
-      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена", });
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена" });
     }
 
     // Парсим идентификатор

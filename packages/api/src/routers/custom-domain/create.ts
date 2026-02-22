@@ -1,9 +1,9 @@
+import { ORPCError } from "@orpc/server";
 import { db } from "@qbs-autonaim/db/client";
 import {
   createCustomDomainSchema,
   customDomain,
 } from "@qbs-autonaim/db/schema";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 
@@ -25,7 +25,9 @@ export const create = protectedProcedure
     });
 
     if (!member || (member.role !== "owner" && member.role !== "admin")) {
-      throw new ORPCError("FORBIDDEN", { message: "Недостаточно прав для добавления домена", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Недостаточно прав для добавления домена",
+      });
     }
 
     const existing = await db.query.customDomain.findFirst({
@@ -37,7 +39,9 @@ export const create = protectedProcedure
     });
 
     if (existing) {
-      throw new ORPCError("BAD_REQUEST", { message: "Домен уже используется для этого типа", });
+      throw new ORPCError("BAD_REQUEST", {
+        message: "Домен уже используется для этого типа",
+      });
     }
 
     const [created] = await db
@@ -53,7 +57,9 @@ export const create = protectedProcedure
       .returning();
 
     if (!created) {
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось создать домен", });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Не удалось создать домен",
+      });
     }
 
     return created;

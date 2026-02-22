@@ -1,7 +1,7 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq } from "@qbs-autonaim/db";
 import { gig } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
@@ -19,7 +19,9 @@ export const deleteGig = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
+      });
     }
 
     const existingGig = await context.db.query.gig.findFirst({
@@ -30,7 +32,7 @@ export const deleteGig = protectedProcedure
     });
 
     if (!existingGig) {
-      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено", });
+      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено" });
     }
 
     await context.db

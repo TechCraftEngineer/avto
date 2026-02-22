@@ -1,8 +1,8 @@
+import { ORPCError } from "@orpc/server";
 import { and, count, eq, sql } from "@qbs-autonaim/db";
 import { response as responseTable, vacancy } from "@qbs-autonaim/db/schema";
 import { getInterviewUrlFromDb } from "@qbs-autonaim/server-utils";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
@@ -21,7 +21,9 @@ export const getVacancyById = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
+      });
     }
 
     // Получаем вакансию
@@ -36,7 +38,7 @@ export const getVacancyById = protectedProcedure
     });
 
     if (!vacancyDataRaw) {
-      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена", });
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена" });
     }
 
     // Получаем статистику по источникам откликов

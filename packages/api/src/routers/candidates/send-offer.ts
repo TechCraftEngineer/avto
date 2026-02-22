@@ -29,7 +29,7 @@ export const sendOffer = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     const response = await context.db.query.response.findFirst({
@@ -40,7 +40,7 @@ export const sendOffer = protectedProcedure
     });
 
     if (!response) {
-      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден", });
+      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден" });
     }
 
     // Query vacancy separately to check workspace access
@@ -50,11 +50,13 @@ export const sendOffer = protectedProcedure
     });
 
     if (!vacancy) {
-      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена", });
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена" });
     }
 
     if (vacancy.workspaceId !== input.workspaceId) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому кандидату", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому кандидату",
+      });
     }
 
     // Сохраняем детали оффера в поле contacts как временное решение

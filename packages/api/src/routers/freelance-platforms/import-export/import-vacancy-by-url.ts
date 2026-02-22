@@ -1,5 +1,5 @@
-import { ImportByUrlSchema } from "@qbs-autonaim/validators";
 import { ORPCError } from "@orpc/server";
+import { ImportByUrlSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 import { verifyWorkspaceAccess } from "../../../utils/verify-workspace-access";
@@ -46,6 +46,8 @@ export const importVacancyByUrl = protectedProcedure
       };
     } catch (error) {
       console.error("Ошибка при отправке события импорта:", error);
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось запустить импорт вакансии", });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Не удалось запустить импорт вакансии",
+      });
     }
   });

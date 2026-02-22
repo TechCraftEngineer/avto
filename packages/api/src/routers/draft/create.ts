@@ -1,6 +1,6 @@
 import { CreateDraftInputSchema } from "@qbs-autonaim/shared";
-import { DraftService } from "../../services/draft.service";
 import { protectedProcedure } from "../../orpc";
+import { DraftService } from "../../services/draft.service";
 
 /**
  * Создать новый черновик вакансии

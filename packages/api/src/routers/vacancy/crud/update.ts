@@ -25,7 +25,8 @@ export const update = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace",
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
       });
     }
 
@@ -38,8 +39,7 @@ export const update = protectedProcedure
     });
 
     if (!existingVacancy) {
-      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена" });
     }
 
     // Обновляем настройки
@@ -90,8 +90,7 @@ export const update = protectedProcedure
 
     // Проверяем, что строка была обновлена (race condition: вакансия могла быть удалена)
     if (!result[0]) {
-      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена" });
     }
 
     // Отслеживаем изменения настроек каналов общения

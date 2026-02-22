@@ -16,8 +16,7 @@ export const getBySlug = protectedProcedure
     );
 
     if (!workspace) {
-      throw new ORPCError("NOT_FOUND", { message: "Workspace не найден",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Workspace не найден" });
     }
 
     const access = await context.workspaceRepository.checkAccess(
@@ -26,8 +25,7 @@ export const getBySlug = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     return { workspace, role: access.role };

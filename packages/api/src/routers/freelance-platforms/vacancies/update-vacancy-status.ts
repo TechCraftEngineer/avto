@@ -1,7 +1,7 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq } from "@qbs-autonaim/db";
 import { interviewLink, vacancy } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
@@ -21,7 +21,9 @@ export const updateVacancyStatus = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
+      });
     }
 
     // Проверяем существование вакансии
@@ -33,7 +35,7 @@ export const updateVacancyStatus = protectedProcedure
     });
 
     if (!existingVacancy) {
-      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена", });
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена" });
     }
 
     // Преобразуем статус в isActive

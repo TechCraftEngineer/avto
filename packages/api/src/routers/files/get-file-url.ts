@@ -1,6 +1,6 @@
+import { ORPCError } from "@orpc/server";
 import { getDownloadUrl } from "@qbs-autonaim/lib/s3";
 import { uuidv7Schema, workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 
@@ -22,7 +22,7 @@ export const getFileUrl = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     // Получаем файл из БД с проверкой принадлежности к workspace
@@ -45,7 +45,7 @@ export const getFileUrl = protectedProcedure
     });
 
     if (!fileRecord) {
-      throw new ORPCError("NOT_FOUND", { message: "Файл не найден", });
+      throw new ORPCError("NOT_FOUND", { message: "Файл не найден" });
     }
 
     // Get all response IDs to check workspace access
@@ -59,7 +59,7 @@ export const getFileUrl = protectedProcedure
     ].filter((id): id is string => id !== undefined);
 
     if (responseIds.length === 0) {
-      throw new ORPCError("NOT_FOUND", { message: "Файл не найден", });
+      throw new ORPCError("NOT_FOUND", { message: "Файл не найден" });
     }
 
     // Query all responses to get their vacancyIds
@@ -84,7 +84,7 @@ export const getFileUrl = protectedProcedure
     );
 
     if (!belongsToWorkspace) {
-      throw new ORPCError("NOT_FOUND", { message: "Файл не найден", });
+      throw new ORPCError("NOT_FOUND", { message: "Файл не найден" });
     }
 
     try {
@@ -97,6 +97,8 @@ export const getFileUrl = protectedProcedure
         fileName: fileRecord.fileName,
       };
     } catch {
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Ошибка при получении URL файла", });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Ошибка при получении URL файла",
+      });
     }
   });

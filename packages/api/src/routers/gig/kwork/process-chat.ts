@@ -1,8 +1,8 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq } from "@qbs-autonaim/db";
 import { gig, response as responseTable } from "@qbs-autonaim/db/schema";
 import { inngest } from "@qbs-autonaim/jobs/client";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
@@ -23,7 +23,7 @@ export const processChat = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     const response = await context.db.query.response.findFirst({
@@ -34,7 +34,7 @@ export const processChat = protectedProcedure
     });
 
     if (!response) {
-      throw new ORPCError("NOT_FOUND", { message: "Отклик не найден", });
+      throw new ORPCError("NOT_FOUND", { message: "Отклик не найден" });
     }
 
     const gigRecord = await context.db.query.gig.findFirst({
@@ -45,11 +45,13 @@ export const processChat = protectedProcedure
     });
 
     if (!gigRecord) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому отклику", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому отклику",
+      });
     }
 
     if (response.importSource !== "KWORK") {
-      throw new ORPCError("BAD_REQUEST", { message: "Отклик не с Kwork", });
+      throw new ORPCError("BAD_REQUEST", { message: "Отклик не с Kwork" });
     }
 
     const profileData = response.profileData as
@@ -57,7 +59,9 @@ export const processChat = protectedProcedure
       | null
       | undefined;
     if (!profileData?.kworkWorkerId) {
-      throw new ORPCError("BAD_REQUEST", { message: "У отклика нет Kwork worker ID", });
+      throw new ORPCError("BAD_REQUEST", {
+        message: "У отклика нет Kwork worker ID",
+      });
     }
 
     await inngest.send({

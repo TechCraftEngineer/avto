@@ -1,6 +1,6 @@
+import { ORPCError } from "@orpc/server";
 import { getDownloadUrl } from "@qbs-autonaim/lib/s3";
 import { uuidv7Schema, workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 
@@ -23,7 +23,7 @@ export const getImageUrl = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     const fileRecord = await context.db.query.file.findFirst({
@@ -43,7 +43,7 @@ export const getImageUrl = protectedProcedure
     });
 
     if (!fileRecord) {
-      throw new ORPCError("NOT_FOUND", { message: "Файл не найден", });
+      throw new ORPCError("NOT_FOUND", { message: "Файл не найден" });
     }
 
     // Get all response IDs to check workspace access
@@ -56,7 +56,7 @@ export const getImageUrl = protectedProcedure
     ].filter((id): id is string => id !== undefined);
 
     if (responseIds.length === 0) {
-      throw new ORPCError("NOT_FOUND", { message: "Файл не найден", });
+      throw new ORPCError("NOT_FOUND", { message: "Файл не найден" });
     }
 
     const responses = await context.db.query.response.findMany({
@@ -101,12 +101,14 @@ export const getImageUrl = protectedProcedure
       gigs.some((g) => g.workspaceId === input.workspaceId);
 
     if (!belongsToWorkspace) {
-      throw new ORPCError("NOT_FOUND", { message: "Файл не найден", });
+      throw new ORPCError("NOT_FOUND", { message: "Файл не найден" });
     }
 
     // Проверяем что это изображение
     if (!fileRecord.mimeType?.startsWith("image/")) {
-      throw new ORPCError("BAD_REQUEST", { message: "Файл не является изображением", });
+      throw new ORPCError("BAD_REQUEST", {
+        message: "Файл не является изображением",
+      });
     }
 
     try {
@@ -119,6 +121,8 @@ export const getImageUrl = protectedProcedure
         fileName: fileRecord.fileName,
       };
     } catch {
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Ошибка при получении URL файла", });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Ошибка при получении URL файла",
+      });
     }
   });

@@ -26,8 +26,7 @@ export const analyzeSingle = protectedProcedure
     });
 
     if (!response) {
-      throw new ORPCError("NOT_FOUND", { message: "Отклик не найден",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Отклик не найден" });
     }
 
     // Проверяем доступ через вакансию
@@ -39,12 +38,14 @@ export const analyzeSingle = protectedProcedure
     });
 
     if (!vacancy) {
-      throw new ORPCError("NOT_FOUND", { message: "Вакансия для отклика не найдена",
+      throw new ORPCError("NOT_FOUND", {
+        message: "Вакансия для отклика не найдена",
       });
     }
 
     if (vacancy.workspaceId !== workspaceId) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому отклику",
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому отклику",
       });
     }
 

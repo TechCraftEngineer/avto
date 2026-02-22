@@ -7,11 +7,11 @@
 
 import { ORPCError } from "@orpc/server";
 import { z } from "zod";
+import { protectedProcedure } from "../../orpc";
 import {
   WidgetConfigError,
   WidgetConfigService,
 } from "../../services/widget-config";
-import { protectedProcedure } from "../../orpc";
 
 const brandingConfigSchema = z
   .object({
@@ -77,12 +77,16 @@ export const updateConfig = protectedProcedure
     );
 
     if (!membership) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
+      });
     }
 
     // Check if user has admin role
     if (membership.role !== "admin" && membership.role !== "owner") {
-      throw new ORPCError("FORBIDDEN", { message: "Только администраторы могут изменять настройки виджета", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Только администраторы могут изменять настройки виджета",
+      });
     }
 
     const widgetConfigService = new WidgetConfigService(context.db);
@@ -120,8 +124,10 @@ export const updateConfig = protectedProcedure
       };
     } catch (error) {
       if (error instanceof WidgetConfigError) {
-        throw new ORPCError("BAD_REQUEST", { message: error.userMessage,
-          cause: error, });
+        throw new ORPCError("BAD_REQUEST", {
+          message: error.userMessage,
+          cause: error,
+        });
       }
       throw error;
     }

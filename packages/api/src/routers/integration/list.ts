@@ -1,9 +1,9 @@
+import { ORPCError } from "@orpc/server";
 import {
   decryptCredentials,
   getIntegrationsByWorkspace,
 } from "@qbs-autonaim/db";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 
@@ -17,7 +17,7 @@ export const listIntegrations = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     const integrations = await getIntegrationsByWorkspace(

@@ -17,7 +17,8 @@ export const createLink = protectedProcedure
     );
 
     if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new ORPCError("FORBIDDEN", { message: "Недостаточно прав для создания приглашений",
+      throw new ORPCError("FORBIDDEN", {
+        message: "Недостаточно прав для создания приглашений",
       });
     }
 

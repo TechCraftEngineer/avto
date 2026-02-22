@@ -1,6 +1,6 @@
+import { ORPCError } from "@orpc/server";
 import { inngest } from "@qbs-autonaim/jobs/client";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
@@ -25,7 +25,9 @@ export const recalculateRanking = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "��� ������� � ����� workspace", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "��� ������� � ����� workspace",
+      });
     }
 
     // ���������� ������� � Inngest ��� ������� ���������
@@ -48,7 +50,9 @@ export const recalculateRanking = protectedProcedure
         errorStack: (err as Error)?.stack,
       });
 
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "�� ������� ��������� �������� ��������", });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "�� ������� ��������� �������� ��������",
+      });
     }
 
     return {

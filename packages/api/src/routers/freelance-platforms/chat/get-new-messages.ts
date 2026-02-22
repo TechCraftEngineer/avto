@@ -17,7 +17,7 @@ export const getNewMessages = publicProcedure
     });
 
     if (!session) {
-      throw new ORPCError("NOT_FOUND", { message: "Интервью не найдено", });
+      throw new ORPCError("NOT_FOUND", { message: "Интервью не найдено" });
     }
 
     // Получаем новые сообщения от бота

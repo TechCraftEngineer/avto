@@ -23,7 +23,7 @@ export const updateSalaryExpectations = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     const response = await context.db.query.response.findFirst({
@@ -34,7 +34,7 @@ export const updateSalaryExpectations = protectedProcedure
     });
 
     if (!response) {
-      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден", });
+      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден" });
     }
 
     // Query vacancy separately to check workspace access
@@ -44,11 +44,13 @@ export const updateSalaryExpectations = protectedProcedure
     });
 
     if (!vacancy) {
-      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена", });
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена" });
     }
 
     if (vacancy.workspaceId !== input.workspaceId) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому кандидату", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому кандидату",
+      });
     }
 
     if (input.salaryExpectationsAmount === undefined) {

@@ -21,8 +21,7 @@ export const deleteVacancy = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     // Проверка существования вакансии
@@ -34,8 +33,7 @@ export const deleteVacancy = protectedProcedure
     });
 
     if (!existingVacancy) {
-      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена" });
     }
 
     // Выполняем удаление в зависимости от выбора пользователя
@@ -78,7 +76,9 @@ export const deleteVacancy = protectedProcedure
           message: "Вакансия архивирована, данные кандидатов анонимизированы",
         };
       } catch (error) {
-        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Ошибка при анонимизации данных вакансии", cause: error,
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
+          message: "Ошибка при анонимизации данных вакансии",
+          cause: error,
         });
       }
     }

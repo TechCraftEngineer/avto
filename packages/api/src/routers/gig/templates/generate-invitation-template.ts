@@ -1,8 +1,8 @@
+import { ORPCError } from "@orpc/server";
 import type { BotSettings } from "@qbs-autonaim/db/schema";
 import { gig as gigTable } from "@qbs-autonaim/db/schema";
 import { streamText } from "@qbs-autonaim/lib/ai";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
@@ -134,7 +134,9 @@ export const generateInvitationTemplate = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
+      });
     }
 
     // Получаем информацию о задании
@@ -144,7 +146,7 @@ export const generateInvitationTemplate = protectedProcedure
     });
 
     if (!gig) {
-      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено", });
+      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено" });
     }
 
     // Если шаблон уже существует, возвращаем его
@@ -190,7 +192,10 @@ export const generateInvitationTemplate = protectedProcedure
           "[generate-invitation-template] No JSON found in response:",
           fullText.substring(0, 500),
         );
-        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "AI не вернул валидный JSON. Попробуйте переформулировать запрос.", });
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
+          message:
+            "AI не вернул валидный JSON. Попробуйте переформулировать запрос.",
+        });
       }
 
       console.log(
@@ -206,7 +211,9 @@ export const generateInvitationTemplate = protectedProcedure
           "[generate-invitation-template] JSON parse error:",
           parseError,
         );
-        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось распарсить ответ от AI. Попробуйте ещё раз.", });
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
+          message: "Не удалось распарсить ответ от AI. Попробуйте ещё раз.",
+        });
       }
 
       const validationResult = invitationTemplateSchema.safeParse(parsed);
@@ -215,7 +222,10 @@ export const generateInvitationTemplate = protectedProcedure
           "[generate-invitation-template] Validation error:",
           validationResult.error,
         );
-        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "AI вернул данные в неожиданном формате. Попробуйте ещё раз.", });
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
+          message:
+            "AI вернул данные в неожиданном формате. Попробуйте ещё раз.",
+        });
       }
 
       const validated = validationResult.data;
@@ -241,6 +251,9 @@ export const generateInvitationTemplate = protectedProcedure
     } catch (error) {
       console.error("[generate-invitation-template] Error:", error);
       if (error instanceof ORPCError) throw error;
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось сгенерировать шаблон приглашения. Попробуйте позже.", });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message:
+          "Не удалось сгенерировать шаблон приглашения. Попробуйте позже.",
+      });
     }
   });

@@ -11,7 +11,8 @@ export const updateRole = protectedProcedure
     );
 
     if (!access || access.role !== "owner") {
-      throw new ORPCError("FORBIDDEN", { message: "Только owner может изменять роли",
+      throw new ORPCError("FORBIDDEN", {
+        message: "Только owner может изменять роли",
       });
     }
 

@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/server";
 import {
   eq,
   interviewMessage,
@@ -7,7 +8,6 @@ import {
 } from "@qbs-autonaim/db";
 import { getDownloadUrl } from "@qbs-autonaim/lib/s3";
 import { uuidv7Schema, workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 import { verifyWorkspaceAccess } from "../utils";
@@ -31,7 +31,9 @@ export const getMessagesByConversationIdRouter = protectedProcedure
     });
 
     if (!session) {
-      throw new ORPCError("NOT_FOUND", { message: "Сессия интервью не найдена", });
+      throw new ORPCError("NOT_FOUND", {
+        message: "Сессия интервью не найдена",
+      });
     }
 
     // Check workspace access through response
@@ -47,7 +49,9 @@ export const getMessagesByConversationIdRouter = protectedProcedure
         });
 
         if (!vacancy || vacancy.workspaceId !== input.workspaceId) {
-          throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этой сессии", });
+          throw new ORPCError("FORBIDDEN", {
+            message: "Нет доступа к этой сессии",
+          });
         }
       }
     }

@@ -1,10 +1,10 @@
+import { ORPCError } from "@orpc/server";
 import { and, desc, eq, inArray, sql } from "@qbs-autonaim/db";
 import {
   candidateOrganization,
   globalCandidate,
   response as responseTable,
 } from "@qbs-autonaim/db/schema";
-import { ORPCError } from "@orpc/server";
 import { protectedProcedure } from "../../orpc";
 import { buildFilterConditions } from "./list-filter-conditions";
 import { mapLinksToItems } from "./list-mapper";
@@ -49,7 +49,9 @@ export const list = protectedProcedure
       context.session.user.id,
     );
     if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к организации", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к организации",
+      });
     }
 
     const conditions = buildFilterConditions(input, {

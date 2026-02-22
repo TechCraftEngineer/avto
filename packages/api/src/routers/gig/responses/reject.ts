@@ -1,7 +1,7 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq, sql } from "@qbs-autonaim/db";
 import { gig, response as responseTable } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
@@ -19,7 +19,9 @@ export const reject = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "��� ������� � ����� workspace", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "��� ������� � ����� workspace",
+      });
     }
 
     const response = await context.db.query.response.findFirst({
@@ -30,7 +32,7 @@ export const reject = protectedProcedure
     });
 
     if (!response) {
-      throw new ORPCError("NOT_FOUND", { message: "������ �� ������", });
+      throw new ORPCError("NOT_FOUND", { message: "������ �� ������" });
     }
 
     const existingGig = await context.db.query.gig.findFirst({
@@ -41,7 +43,9 @@ export const reject = protectedProcedure
     });
 
     if (!existingGig) {
-      throw new ORPCError("FORBIDDEN", { message: "��� ������� � ����� �������", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "��� ������� � ����� �������",
+      });
     }
 
     const wasNew = response.status === "NEW";

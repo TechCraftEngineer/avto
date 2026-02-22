@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq } from "@qbs-autonaim/db";
 import {
   customDomain,
@@ -6,7 +7,6 @@ import {
   UpdateGigSettingsSchema,
 } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
@@ -27,7 +27,9 @@ export const update = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
+      });
     }
 
     const existingGig = await context.db.query.gig.findFirst({
@@ -38,7 +40,7 @@ export const update = protectedProcedure
     });
 
     if (!existingGig) {
-      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено", });
+      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено" });
     }
 
     const patch: {
@@ -82,20 +84,26 @@ export const update = protectedProcedure
         });
 
         if (!domain) {
-          throw new ORPCError("BAD_REQUEST", { message: "Домен не найден", });
+          throw new ORPCError("BAD_REQUEST", { message: "Домен не найден" });
         }
 
         if (!domain.isVerified) {
-          throw new ORPCError("BAD_REQUEST", { message: "Домен не верифицирован", });
+          throw new ORPCError("BAD_REQUEST", {
+            message: "Домен не верифицирован",
+          });
         }
 
         if (domain.type !== "interview") {
-          throw new ORPCError("BAD_REQUEST", { message: "Домен должен иметь тип 'interview'", });
+          throw new ORPCError("BAD_REQUEST", {
+            message: "Домен должен иметь тип 'interview'",
+          });
         }
 
         // Проверяем права доступа только для не-пресетных доменов
         if (!domain.isPreset && domain.workspaceId !== input.workspaceId) {
-          throw new ORPCError("FORBIDDEN", { message: "Домен не принадлежит этому workspace", });
+          throw new ORPCError("FORBIDDEN", {
+            message: "Домен не принадлежит этому workspace",
+          });
         }
       }
 
@@ -134,7 +142,7 @@ export const update = protectedProcedure
       .returning();
 
     if (!result[0]) {
-      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено", });
+      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено" });
     }
 
     return result[0];

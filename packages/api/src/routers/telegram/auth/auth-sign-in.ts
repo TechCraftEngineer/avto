@@ -1,8 +1,8 @@
+import { ORPCError } from "@orpc/server";
 import { eq } from "@qbs-autonaim/db";
 import { telegramSession } from "@qbs-autonaim/db/schema";
 import { encryptApiKeys, getEncryptionKey } from "@qbs-autonaim/server-utils";
 import { tgClientSDK } from "@qbs-autonaim/tg-client/sdk";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 import { handle2FAError, normalizePhone } from "../utils";
@@ -26,7 +26,10 @@ export const signInRouter = protectedProcedure
       });
 
       if (existingSession) {
-        throw new ORPCError("CONFLICT", { message: "В этом workspace уже подключен Telegram аккаунт. Удалите существующий аккаунт перед добавлением нового.", });
+        throw new ORPCError("CONFLICT", {
+          message:
+            "В этом workspace уже подключен Telegram аккаунт. Удалите существующий аккаунт перед добавлением нового.",
+        });
       }
 
       const phone = normalizePhone(input.phone);
@@ -87,6 +90,8 @@ export const signInRouter = protectedProcedure
         };
       }
 
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: error instanceof Error ? error.message : "Ошибка авторизации", });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: error instanceof Error ? error.message : "Ошибка авторизации",
+      });
     }
   });

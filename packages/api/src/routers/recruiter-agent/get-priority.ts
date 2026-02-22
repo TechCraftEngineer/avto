@@ -2,6 +2,7 @@
  * Get Priority procedure для получения приоритизированного списка кандидатов
  */
 
+import { ORPCError } from "@orpc/server";
 import {
   mapDBSettingsToRecruiterSettings,
   PriorityAgent,
@@ -9,7 +10,6 @@ import {
 } from "@qbs-autonaim/ai";
 import { getAIModel } from "@qbs-autonaim/lib/ai";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 import { checkRateLimit, checkWorkspaceAccess } from "./middleware";
@@ -36,7 +36,7 @@ export const getPriority = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     // Проверка rate limiting
@@ -44,7 +44,9 @@ export const getPriority = protectedProcedure
     const canProceed = await checkRateLimit(rateLimitKey, 20, 60);
 
     if (!canProceed) {
-      throw new ORPCError("TOO_MANY_REQUESTS", { message: "Превышен лимит запросов. Попробуйте через минуту.", });
+      throw new ORPCError("TOO_MANY_REQUESTS", {
+        message: "Превышен лимит запросов. Попробуйте через минуту.",
+      });
     }
 
     // Получаем отклики по вакансии
@@ -152,7 +154,9 @@ export const getPriority = protectedProcedure
     );
 
     if (!result.success || !result.data) {
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: result.error || "Не удалось определить приоритеты", });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: result.error || "Не удалось определить приоритеты",
+      });
     }
 
     return {

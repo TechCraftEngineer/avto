@@ -1,6 +1,6 @@
+import { ORPCError } from "@orpc/server";
 import { saveHHResendRequested } from "@qbs-autonaim/db";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 
@@ -13,7 +13,7 @@ export const requestHHResendCode = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     try {
@@ -24,7 +24,9 @@ export const requestHHResendCode = protectedProcedure
         msg.includes("not found") ||
         msg.includes("Integration hh not found")
       ) {
-        throw new ORPCError("NOT_FOUND", { message: "Интеграция HH не найдена", });
+        throw new ORPCError("NOT_FOUND", {
+          message: "Интеграция HH не найдена",
+        });
       }
       throw err;
     }

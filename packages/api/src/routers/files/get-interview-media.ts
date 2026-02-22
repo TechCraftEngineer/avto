@@ -1,8 +1,8 @@
+import { ORPCError } from "@orpc/server";
 import { eq } from "@qbs-autonaim/db";
 import { gig, gigInterviewMedia } from "@qbs-autonaim/db/schema";
 import { getDownloadUrl } from "@qbs-autonaim/lib/s3";
 import { uuidv7Schema, workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 
@@ -34,7 +34,7 @@ export const getInterviewMedia = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "��� ������� � workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "��� ������� � workspace" });
     }
 
     // �������� gig
@@ -43,11 +43,13 @@ export const getInterviewMedia = protectedProcedure
     });
 
     if (!gigRecord) {
-      throw new ORPCError("NOT_FOUND", { message: "������� �� �������", });
+      throw new ORPCError("NOT_FOUND", { message: "������� �� �������" });
     }
 
     if (gigRecord.workspaceId !== input.workspaceId) {
-      throw new ORPCError("FORBIDDEN", { message: "��� ������� � ����� �������", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "��� ������� � ����� �������",
+      });
     }
 
     // �������� ���������� ����� join table � relations

@@ -21,12 +21,16 @@ export const getInterviewByToken = publicProcedure
     });
 
     if (!link) {
-      throw new ORPCError("NOT_FOUND", { message: "Ссылка на интервью недействительна или истекла", });
+      throw new ORPCError("NOT_FOUND", {
+        message: "Ссылка на интервью недействительна или истекла",
+      });
     }
 
     // Проверяем срок действия
     if (link.expiresAt && link.expiresAt < new Date()) {
-      throw new ORPCError("NOT_FOUND", { message: "Ссылка на интервью истекла", });
+      throw new ORPCError("NOT_FOUND", {
+        message: "Ссылка на интервью истекла",
+      });
     }
 
     // Обработка по типу сущности
@@ -37,7 +41,7 @@ export const getInterviewByToken = publicProcedure
       });
 
       if (!foundGig) {
-        throw new ORPCError("NOT_FOUND", { message: "Задание не найдено", });
+        throw new ORPCError("NOT_FOUND", { message: "Задание не найдено" });
       }
 
       return {
@@ -71,7 +75,7 @@ export const getInterviewByToken = publicProcedure
       });
 
       if (!foundResponse) {
-        throw new ORPCError("NOT_FOUND", { message: "Отклик не найден", });
+        throw new ORPCError("NOT_FOUND", { message: "Отклик не найден" });
       }
 
       // Получаем данные вакансии/гига и проверяем статус
@@ -121,7 +125,7 @@ export const getInterviewByToken = publicProcedure
     });
 
     if (!foundVacancy) {
-      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена", });
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена" });
     }
 
     return {

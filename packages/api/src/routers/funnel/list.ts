@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/server";
 import { and, desc, eq, inArray, lt } from "@qbs-autonaim/db";
 import { response as responseTable, vacancy } from "@qbs-autonaim/db/schema";
 import { formatExperienceText } from "@qbs-autonaim/shared";
@@ -6,7 +7,6 @@ import {
   uuidv7Schema,
   workspaceIdSchema,
 } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 import { mapResponseToStage } from "./map-response-stage";
@@ -27,7 +27,7 @@ export const list = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     const vacancies = await context.db.query.vacancy.findMany({

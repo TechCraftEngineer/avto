@@ -1,7 +1,7 @@
+import { ORPCError } from "@orpc/server";
 import { eq } from "@qbs-autonaim/db";
 import { vacancyPublication } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
@@ -54,7 +54,9 @@ export const updatePublication = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
+      });
     }
 
     // Проверяем существование публикации и получаем связанную вакансию
@@ -70,12 +72,14 @@ export const updatePublication = protectedProcedure
     });
 
     if (!publication) {
-      throw new ORPCError("NOT_FOUND", { message: "Публикация не найдена", });
+      throw new ORPCError("NOT_FOUND", { message: "Публикация не найдена" });
     }
 
     // Проверяем, что публикация принадлежит к workspace
     if (publication.vacancy.workspaceId !== input.workspaceId) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этой публикации", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этой публикации",
+      });
     }
 
     // Парсим идентификатор
@@ -93,7 +97,9 @@ export const updatePublication = protectedProcedure
       .returning();
 
     if (!updatedPublication) {
-      throw new ORPCError("NOT_FOUND", { message: "Не удалось обновить публикацию", });
+      throw new ORPCError("NOT_FOUND", {
+        message: "Не удалось обновить публикацию",
+      });
     }
 
     return {

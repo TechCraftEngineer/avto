@@ -22,7 +22,8 @@ export const updateBotSettings = protectedProcedure
     );
 
     if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new ORPCError("FORBIDDEN", { message: "Недостаточно прав для обновления настроек бота",
+      throw new ORPCError("FORBIDDEN", {
+        message: "Недостаточно прав для обновления настроек бота",
       });
     }
 

@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq, GlobalCandidateRepository } from "@qbs-autonaim/db";
 import {
   freelanceImportHistory,
@@ -5,10 +6,9 @@ import {
   response as responseTable,
 } from "@qbs-autonaim/db/schema";
 import { phoneSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { CandidateService } from "../../../services/candidate.service";
 import { protectedProcedure } from "../../../orpc";
+import { CandidateService } from "../../../services/candidate.service";
 
 const importSingleResponseInputSchema = z.object({
   vacancyId: z.uuid(),
@@ -45,7 +45,9 @@ export const importSingleResponse = protectedProcedure
       input.contactInfo?.platformProfileUrl;
 
     if (!hasName && !hasContact) {
-      throw new ORPCError("BAD_REQUEST", { message: "Необходимо указать имя фрилансера или контактную информацию", });
+      throw new ORPCError("BAD_REQUEST", {
+        message: "Необходимо указать имя фрилансера или контактную информацию",
+      });
     }
 
     // Проверка существования вакансии
@@ -54,7 +56,7 @@ export const importSingleResponse = protectedProcedure
     });
 
     if (!existingVacancy) {
-      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена", });
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена" });
     }
 
     // Проверка доступа к workspace вакансии
@@ -64,7 +66,9 @@ export const importSingleResponse = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этой вакансии", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этой вакансии",
+      });
     }
 
     // Get workspace to obtain organizationId
@@ -74,7 +78,7 @@ export const importSingleResponse = protectedProcedure
     });
 
     if (!workspaceData) {
-      throw new ORPCError("NOT_FOUND", { message: "Workspace не найден", });
+      throw new ORPCError("NOT_FOUND", { message: "Workspace не найден" });
     }
 
     // Проверка дубликатов по platformProfileUrl + vacancyId
@@ -88,7 +92,9 @@ export const importSingleResponse = protectedProcedure
       });
 
       if (existingResponse) {
-        throw new ORPCError("BAD_REQUEST", { message: "Отклик от этого фрилансера уже существует", });
+        throw new ORPCError("BAD_REQUEST", {
+          message: "Отклик от этого фрилансера уже существует",
+        });
       }
     }
 
@@ -96,7 +102,9 @@ export const importSingleResponse = protectedProcedure
     // Используем глобальную таблицу кандидатов и таблицу связей с организациями
     let globalCandidateId: string | null = null;
     try {
-      const globalCandidateRepository = new GlobalCandidateRepository(context.db);
+      const globalCandidateRepository = new GlobalCandidateRepository(
+        context.db,
+      );
       const candidateService = new CandidateService();
 
       // Create temporary response object for data extraction
@@ -177,7 +185,9 @@ export const importSingleResponse = protectedProcedure
       .returning();
 
     if (!createdResponse) {
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось создать отклик", });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Не удалось создать отклик",
+      });
     }
 
     // Создаём запись в истории импорта

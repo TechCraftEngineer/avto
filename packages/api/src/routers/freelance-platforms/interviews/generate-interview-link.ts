@@ -1,6 +1,6 @@
+import { ORPCError } from "@orpc/server";
 import { InterviewLinkGenerator } from "@qbs-autonaim/shared/server";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
@@ -19,7 +19,9 @@ export const generateInterviewLink = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
+      });
     }
 
     // Проверяем, существует ли вакансия и принадлежит ли она workspace
@@ -32,7 +34,7 @@ export const generateInterviewLink = protectedProcedure
     });
 
     if (!vacancy) {
-      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена", });
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена" });
     }
 
     // Генерируем ссылку на интервью

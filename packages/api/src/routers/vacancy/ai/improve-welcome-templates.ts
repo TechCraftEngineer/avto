@@ -120,12 +120,14 @@ export const improveWelcomeTemplates = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace",
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
       });
     }
 
     if (!currentValue?.trim()) {
-      throw new ORPCError("BAD_REQUEST", { message: "Невозможно улучшить пустой текст",
+      throw new ORPCError("BAD_REQUEST", {
+        message: "Невозможно улучшить пустой текст",
       });
     }
 
@@ -154,7 +156,8 @@ export const improveWelcomeTemplates = protectedProcedure
       };
     } catch (error) {
       console.error("Error improving welcome template:", error);
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось улучшить шаблон приветствия. Попробуйте позже.",
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Не удалось улучшить шаблон приветствия. Попробуйте позже.",
       });
     }
   });

@@ -1,9 +1,9 @@
+import { ORPCError } from "@orpc/server";
 import { payment } from "@qbs-autonaim/db/schema";
 import { checkPaymentStatusSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { eq } from "drizzle-orm";
-import { createYookassaClient } from "../../services/yookassa/client";
 import { protectedProcedure } from "../../orpc";
+import { createYookassaClient } from "../../services/yookassa/client";
 
 /**
  * Процедура проверки статуса платежа
@@ -33,12 +33,14 @@ export const checkStatus = protectedProcedure
 
     // 2. Проверяем существование платежа
     if (!existingPayment) {
-      throw new ORPCError("NOT_FOUND", { message: "Платеж не найден", });
+      throw new ORPCError("NOT_FOUND", { message: "Платеж не найден" });
     }
 
     // 3. Проверяем доступ пользователя к платежу (через userId)
     if (existingPayment.userId !== userId) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому платежу", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому платежу",
+      });
     }
 
     // 4. Создаем клиент ЮКасса
@@ -46,9 +48,12 @@ export const checkStatus = protectedProcedure
     try {
       yookassa = createYookassaClient();
     } catch (error) {
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: error instanceof Error
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message:
+          error instanceof Error
             ? error.message
-            : "Ошибка конфигурации платежной системы", });
+            : "Ошибка конфигурации платежной системы",
+      });
     }
 
     try {
@@ -178,6 +183,9 @@ export const checkStatus = protectedProcedure
         }),
       );
 
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: error instanceof Error ? error.message : "Ошибка проверки статуса", });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message:
+          error instanceof Error ? error.message : "Ошибка проверки статуса",
+      });
     }
   });

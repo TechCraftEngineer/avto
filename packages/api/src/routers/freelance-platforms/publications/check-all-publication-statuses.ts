@@ -1,6 +1,6 @@
+import { ORPCError } from "@orpc/server";
 import { inngest } from "@qbs-autonaim/jobs/client";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
@@ -18,7 +18,9 @@ export const checkAllPublicationStatuses = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
+      });
     }
 
     try {
@@ -39,6 +41,8 @@ export const checkAllPublicationStatuses = protectedProcedure
         "Ошибка при запуске массовой проверки статусов публикаций:",
         error,
       );
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось запустить проверку статусов публикаций", });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Не удалось запустить проверку статусов публикаций",
+      });
     }
   });

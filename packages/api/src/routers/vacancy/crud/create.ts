@@ -32,8 +32,7 @@ export const create = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     // Формируем description из всех полей
@@ -63,7 +62,8 @@ export const create = protectedProcedure
       .returning();
 
     if (!newVacancy) {
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось создать вакансию",
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Не удалось создать вакансию",
       });
     }
 

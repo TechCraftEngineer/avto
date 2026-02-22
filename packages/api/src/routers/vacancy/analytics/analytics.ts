@@ -19,7 +19,8 @@ export const analytics = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace",
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
       });
     }
 
@@ -32,8 +33,7 @@ export const analytics = protectedProcedure
     });
 
     if (!vacancyCheck) {
-      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена" });
     }
     // Получаем общее количество откликов
     const totalResponsesResult = await context.db

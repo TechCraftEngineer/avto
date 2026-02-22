@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/server";
 import { and, desc, eq, inArray } from "@qbs-autonaim/db";
 import {
   candidateOrganization,
@@ -6,7 +7,6 @@ import {
   responseHistory,
   response as responseTable,
 } from "@qbs-autonaim/db/schema";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 
@@ -25,7 +25,9 @@ export const get = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к организации", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к организации",
+      });
     }
 
     // Получаем глобального кандидата
@@ -34,7 +36,7 @@ export const get = protectedProcedure
     });
 
     if (!candidate) {
-      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден", });
+      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден" });
     }
 
     // Получаем связь с организацией
@@ -46,7 +48,9 @@ export const get = protectedProcedure
     });
 
     if (!orgLink) {
-      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден в базе организации", });
+      throw new ORPCError("NOT_FOUND", {
+        message: "Кандидат не найден в базе организации",
+      });
     }
 
     // Получаем все отклики кандидата в организации

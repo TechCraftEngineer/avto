@@ -1,9 +1,9 @@
 import { promises as dns } from "node:dns";
+import { ORPCError } from "@orpc/server";
 import { env } from "@qbs-autonaim/config";
 import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { customDomain } from "@qbs-autonaim/db/schema";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 
@@ -42,7 +42,8 @@ export const verify = protectedProcedure
         workspace: {
           with: {
             members: {
-              where: (member, { eq }) => eq(member.userId, context.session.user.id),
+              where: (member, { eq }) =>
+                eq(member.userId, context.session.user.id),
             },
           },
         },
@@ -50,16 +51,20 @@ export const verify = protectedProcedure
     });
 
     if (!domain) {
-      throw new ORPCError("NOT_FOUND", { message: "Домен не найден", });
+      throw new ORPCError("NOT_FOUND", { message: "Домен не найден" });
     }
 
     if (!domain.workspace) {
-      throw new ORPCError("BAD_REQUEST", { message: "Невозможно верифицировать предустановленный домен", });
+      throw new ORPCError("BAD_REQUEST", {
+        message: "Невозможно верифицировать предустановленный домен",
+      });
     }
 
     const member = domain.workspace.members[0];
     if (!member || (member.role !== "owner" && member.role !== "admin")) {
-      throw new ORPCError("FORBIDDEN", { message: "Недостаточно прав для верификации домена", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Недостаточно прав для верификации домена",
+      });
     }
 
     if (domain.isVerified) {
@@ -69,7 +74,9 @@ export const verify = protectedProcedure
     const isValid = await checkDNSRecords(domain.domain);
 
     if (!isValid) {
-      throw new ORPCError("BAD_REQUEST", { message: "DNS записи не настроены корректно", });
+      throw new ORPCError("BAD_REQUEST", {
+        message: "DNS записи не настроены корректно",
+      });
     }
 
     const [updated] = await db

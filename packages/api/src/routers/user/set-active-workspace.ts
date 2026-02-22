@@ -38,7 +38,8 @@ export const setActiveWorkspace = protectedProcedure
     );
 
     if (!organizationAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к организации",
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к организации",
       });
     }
 
@@ -51,7 +52,8 @@ export const setActiveWorkspace = protectedProcedure
     });
 
     if (!workspaceData) {
-      throw new ORPCError("NOT_FOUND", { message: "Workspace не найден или не принадлежит указанной организации",
+      throw new ORPCError("NOT_FOUND", {
+        message: "Workspace не найден или не принадлежит указанной организации",
       });
     }
 
@@ -62,8 +64,7 @@ export const setActiveWorkspace = protectedProcedure
     );
 
     if (!workspaceAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     // Все проверки пройдены, обновляем lastActive поля

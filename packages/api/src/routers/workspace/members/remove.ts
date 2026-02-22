@@ -19,7 +19,8 @@ export const remove = protectedProcedure
     );
 
     if (!targetUserAccess) {
-      throw new ORPCError("NOT_FOUND", { message: "Пользователь не является участником workspace",
+      throw new ORPCError("NOT_FOUND", {
+        message: "Пользователь не является участником workspace",
       });
     }
 
@@ -30,7 +31,8 @@ export const remove = protectedProcedure
       );
 
       if (!access || (access.role !== "owner" && access.role !== "admin")) {
-        throw new ORPCError("FORBIDDEN", { message: "Недостаточно прав для удаления пользователей",
+        throw new ORPCError("FORBIDDEN", {
+          message: "Недостаточно прав для удаления пользователей",
         });
       }
     }
@@ -42,7 +44,9 @@ export const remove = protectedProcedure
       const ownerCount = members.filter((m) => m.role === "owner").length;
 
       if (ownerCount <= 1) {
-        throw new ORPCError("BAD_REQUEST", { message: "Невозможно удалить последнего владельца workspace. Назначьте другого владельца перед удалением.",
+        throw new ORPCError("BAD_REQUEST", {
+          message:
+            "Невозможно удалить последнего владельца workspace. Назначьте другого владельца перед удалением.",
         });
       }
     }

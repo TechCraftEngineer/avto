@@ -62,7 +62,7 @@ export const getById = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     const response = await context.db.query.response.findFirst({
@@ -73,7 +73,7 @@ export const getById = protectedProcedure
     });
 
     if (!response) {
-      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден", });
+      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден" });
     }
 
     const vacancyData = await context.db.query.vacancy.findFirst({
@@ -82,7 +82,9 @@ export const getById = protectedProcedure
     });
 
     if (!vacancyData || vacancyData.workspaceId !== input.workspaceId) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому кандидату", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому кандидату",
+      });
     }
 
     // Query related data separately

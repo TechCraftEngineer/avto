@@ -1,7 +1,7 @@
+import { ORPCError } from "@orpc/server";
 import type { BotSettings } from "@qbs-autonaim/db/schema";
 import { streamText } from "@qbs-autonaim/lib/ai";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
@@ -182,7 +182,9 @@ export const chatGenerate = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
+      });
     }
 
     const botSettings = await context.db.query.botSettings.findFirst({
@@ -214,7 +216,10 @@ export const chatGenerate = protectedProcedure
           "[gig.chatGenerate] Failed to extract JSON from:",
           fullText,
         );
-        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "AI не вернул валидный JSON. Попробуйте переформулировать запрос.", });
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
+          message:
+            "AI не вернул валидный JSON. Попробуйте переформулировать запрос.",
+        });
       }
 
       console.log("[gig.chatGenerate] Extracted JSON:", jsonString);
@@ -247,6 +252,8 @@ export const chatGenerate = protectedProcedure
     } catch (error) {
       console.error("[gig.chatGenerate] Error:", error);
       if (error instanceof ORPCError) throw error;
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось сгенерировать задание. Попробуйте позже.", });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Не удалось сгенерировать задание. Попробуйте позже.",
+      });
     }
   });

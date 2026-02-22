@@ -1,5 +1,5 @@
-import { db } from "@qbs-autonaim/db/client";
 import { ORPCError } from "@orpc/server";
+import { db } from "@qbs-autonaim/db/client";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 
@@ -57,7 +57,7 @@ export const checkAvailability = protectedProcedure
     });
 
     if (!member) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     const existingDomain = await db.query.customDomain.findFirst({

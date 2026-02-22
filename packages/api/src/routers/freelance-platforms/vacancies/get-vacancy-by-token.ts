@@ -1,5 +1,5 @@
-import { InterviewLinkGenerator } from "@qbs-autonaim/shared/server";
 import { ORPCError } from "@orpc/server";
+import { InterviewLinkGenerator } from "@qbs-autonaim/shared/server";
 import { z } from "zod";
 import { publicProcedure } from "../../../orpc";
 
@@ -14,7 +14,9 @@ export const getVacancyByToken = publicProcedure
     const linkGenerator = new InterviewLinkGenerator();
     const interviewLink = await linkGenerator.validateLink(input.token);
     if (!interviewLink) {
-      throw new ORPCError("NOT_FOUND", { message: "Ссылка на интервью недействительна или истекла", });
+      throw new ORPCError("NOT_FOUND", {
+        message: "Ссылка на интервью недействительна или истекла",
+      });
     }
 
     // Получаем вакансию
@@ -23,12 +25,12 @@ export const getVacancyByToken = publicProcedure
     });
 
     if (!vacancy) {
-      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена", });
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена" });
     }
 
     // Проверяем, что вакансия активна
     if (!vacancy.isActive) {
-      throw new ORPCError("BAD_REQUEST", { message: "Вакансия закрыта", });
+      throw new ORPCError("BAD_REQUEST", { message: "Вакансия закрыта" });
     }
 
     return {

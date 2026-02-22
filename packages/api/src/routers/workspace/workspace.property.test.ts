@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import * as fc from "fast-check";
-import { z, ZodError } from "zod";
 import { ORPCError } from "@orpc/client";
+import * as fc from "fast-check";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { ZodError, z } from "zod";
 
 /**
  * Property-based тесты для workspace роутера
@@ -43,7 +43,7 @@ describe("Workspace Router Property Tests", () => {
           // Проверяем что процедуры get и create имеют input валидацию
           expect(workspaceRouter.get).toBeDefined();
           expect(workspaceRouter.create).toBeDefined();
-          
+
           // Процедуры должны быть объектами с методами
           expect(typeof workspaceRouter.get).toBe("object");
           expect(typeof workspaceRouter.create).toBe("object");
@@ -149,7 +149,7 @@ describe("Workspace Router Property Tests", () => {
           expect(router).toBeDefined();
           expect(typeof router).toBe("object");
           expect(Object.keys(router).length).toBeGreaterThan(0);
-          
+
           // Проверяем что есть и основные процедуры и вложенные роутеры
           const keys = Object.keys(router);
           expect(keys).toContain("list");

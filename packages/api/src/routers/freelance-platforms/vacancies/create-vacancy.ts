@@ -1,10 +1,10 @@
+import { ORPCError } from "@orpc/server";
 import { vacancy } from "@qbs-autonaim/db/schema";
 import { InterviewLinkGenerator } from "@qbs-autonaim/shared/server";
 import {
   vacancyRequirementsSchema,
   workspaceIdSchema,
 } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 import { createErrorHandler } from "../../../utils/error-handler";

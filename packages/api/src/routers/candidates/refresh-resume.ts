@@ -25,7 +25,7 @@ export const refreshResume = protectedProcedure
     });
 
     if (!candidate) {
-      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден", });
+      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден" });
     }
 
     // Query vacancy separately using entityId
@@ -37,11 +37,15 @@ export const refreshResume = protectedProcedure
     });
 
     if (!vacancy) {
-      throw new ORPCError("NOT_FOUND", { message: "Вакансия для кандидата не найдена", });
+      throw new ORPCError("NOT_FOUND", {
+        message: "Вакансия для кандидата не найдена",
+      });
     }
 
     if (vacancy.workspaceId !== workspaceId) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому кандидату", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому кандидату",
+      });
     }
 
     // Отправляем событие в Inngest для обновления резюме

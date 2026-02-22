@@ -1,7 +1,7 @@
+import { ORPCError } from "@orpc/server";
 import { eq } from "@qbs-autonaim/db";
 import { vacancyPublication } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
@@ -20,7 +20,9 @@ export const validatePublication = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
+      });
     }
 
     // Получаем публикацию
@@ -36,12 +38,14 @@ export const validatePublication = protectedProcedure
     });
 
     if (!publication) {
-      throw new ORPCError("NOT_FOUND", { message: "Публикация не найдена", });
+      throw new ORPCError("NOT_FOUND", { message: "Публикация не найдена" });
     }
 
     // Проверяем, что публикация принадлежит к workspace
     if (publication.vacancy.workspaceId !== input.workspaceId) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этой публикации", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этой публикации",
+      });
     }
 
     // Валидация в зависимости от платформы

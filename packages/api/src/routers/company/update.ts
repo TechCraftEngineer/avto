@@ -1,6 +1,6 @@
+import { ORPCError } from "@orpc/server";
 import { botSettings, eq } from "@qbs-autonaim/db";
 import { companyFormSchema, workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 
@@ -19,7 +19,9 @@ export const update = protectedProcedure
     );
 
     if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new ORPCError("FORBIDDEN", { message: "Недостаточно прав для изменения настроек компании", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Недостаточно прав для изменения настроек компании",
+      });
     }
 
     // Проверяем существующие настройки

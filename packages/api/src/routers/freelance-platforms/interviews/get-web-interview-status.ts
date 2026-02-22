@@ -1,6 +1,6 @@
+import { ORPCError } from "@orpc/server";
 import type { InterviewSessionMetadata } from "@qbs-autonaim/db/schema";
 import { messageBufferService } from "@qbs-autonaim/jobs/services/buffer";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { publicProcedure } from "../../../orpc";
 
@@ -18,7 +18,7 @@ export const getWebInterviewStatus = publicProcedure
     });
 
     if (!session) {
-      throw new ORPCError("NOT_FOUND", { message: "Интервью не найдено", });
+      throw new ORPCError("NOT_FOUND", { message: "Интервью не найдено" });
     }
 
     // Получаем текущий номер вопроса из метаданных

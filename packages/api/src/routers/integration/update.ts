@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/server";
 import {
   eq,
   getIntegration,
@@ -5,7 +6,6 @@ import {
   integration,
   upsertIntegration,
 } from "@qbs-autonaim/db";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 
@@ -31,7 +31,9 @@ export const updateIntegration = protectedProcedure
     );
 
     if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new ORPCError("FORBIDDEN", { message: "Недостаточно прав для изменения интеграций", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Недостаточно прав для изменения интеграций",
+      });
     }
 
     const existing = await getIntegration(
@@ -41,7 +43,7 @@ export const updateIntegration = protectedProcedure
     );
 
     if (!existing) {
-      throw new ORPCError("NOT_FOUND", { message: "Интеграция не найдена", });
+      throw new ORPCError("NOT_FOUND", { message: "Интеграция не найдена" });
     }
 
     // credentials для HH и Kwork меняются только при настройке (verify)
@@ -68,7 +70,9 @@ export const updateIntegration = protectedProcedure
         });
 
       if (!updated)
-        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Ошибка обновления", });
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
+          message: "Ошибка обновления",
+        });
       return { id: updated.id, type: updated.type, name: updated.name };
     }
 

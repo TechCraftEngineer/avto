@@ -1,7 +1,7 @@
-import { UpdateDraftInputSchema } from "@qbs-autonaim/shared";
 import { ORPCError } from "@orpc/server";
-import { DraftService } from "../../services/draft.service";
+import { UpdateDraftInputSchema } from "@qbs-autonaim/shared";
 import { protectedProcedure } from "../../orpc";
+import { DraftService } from "../../services/draft.service";
 
 /**
  * Обновить существующий черновик вакансии
@@ -21,10 +21,13 @@ export const update = protectedProcedure
     } catch (error) {
       // Если черновик не найден
       if (error instanceof Error && error.message === "Черновик не найден") {
-        throw new ORPCError("NOT_FOUND", { message: "Черновик не найден", });
+        throw new ORPCError("NOT_FOUND", { message: "Черновик не найден" });
       }
 
       // Другие ошибки
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось сохранить изменения. Проверьте подключение к интернету", });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message:
+          "Не удалось сохранить изменения. Проверьте подключение к интернету",
+      });
     }
   });

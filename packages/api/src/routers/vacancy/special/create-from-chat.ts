@@ -174,8 +174,7 @@ export const createFromChat = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     // Формируем HTML описание
@@ -242,14 +241,16 @@ export const createFromChat = protectedProcedure
         .returning();
 
       if (!newVacancy) {
-        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось создать вакансию",
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
+          message: "Не удалось создать вакансию",
         });
       }
 
       return newVacancy;
     } catch (error) {
       console.error("Error creating vacancy from chat:", error);
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Ошибка при создании вакансии. Попробуйте ещё раз.",
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Ошибка при создании вакансии. Попробуйте ещё раз.",
       });
     }
   });

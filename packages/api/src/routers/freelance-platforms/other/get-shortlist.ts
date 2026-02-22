@@ -1,7 +1,7 @@
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
-import { ShortlistGenerator } from "../../../services";
 import { protectedProcedure } from "../../../orpc";
+import { ShortlistGenerator } from "../../../services";
 import { createErrorHandler } from "../../../utils/error-handler";
 
 const getShortlistInputSchema = z.object({

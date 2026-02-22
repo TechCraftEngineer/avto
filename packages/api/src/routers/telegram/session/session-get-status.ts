@@ -1,5 +1,5 @@
-import { telegramSession } from "@qbs-autonaim/db/schema";
 import { ORPCError } from "@orpc/server";
+import { telegramSession } from "@qbs-autonaim/db/schema";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
@@ -19,7 +19,7 @@ export const getSessionStatusRouter = protectedProcedure
       .limit(1);
 
     if (!session) {
-      throw new ORPCError("NOT_FOUND", { message: "Сессия не найдена", });
+      throw new ORPCError("NOT_FOUND", { message: "Сессия не найдена" });
     }
 
     return {

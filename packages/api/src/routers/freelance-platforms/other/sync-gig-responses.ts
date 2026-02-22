@@ -1,6 +1,6 @@
+import { ORPCError } from "@orpc/server";
 import { inngest } from "@qbs-autonaim/jobs/client";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
@@ -19,7 +19,7 @@ export const syncGigResponses = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     // Получаем gig
@@ -29,12 +29,14 @@ export const syncGigResponses = protectedProcedure
     });
 
     if (!gigRecord) {
-      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено", });
+      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено" });
     }
 
     // Проверяем, что у gig есть ссылка на фриланс-платформу
     if (!gigRecord.url || !gigRecord.externalId) {
-      throw new ORPCError("BAD_REQUEST", { message: "У задания нет ссылки на фриланс-платформу", });
+      throw new ORPCError("BAD_REQUEST", {
+        message: "У задания нет ссылки на фриланс-платформу",
+      });
     }
 
     await inngest.send({

@@ -1,6 +1,6 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq } from "@qbs-autonaim/db";
 import { response as responseTable } from "@qbs-autonaim/db/schema";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { publicProcedure } from "../../../orpc";
 import {
@@ -26,7 +26,9 @@ export const checkDuplicateResponse = publicProcedure
     const isAuthenticated = !!context.session?.user;
 
     if (!hasTokenAccess && !isAuthenticated) {
-      throw new ORPCError("UNAUTHORIZED", { message: "Требуется авторизация или валидный токен интервью", });
+      throw new ORPCError("UNAUTHORIZED", {
+        message: "Требуется авторизация или валидный токен интервью",
+      });
     }
 
     // Если пользователь авторизован, проверяем доступ к workspace вакансии
@@ -36,21 +38,24 @@ export const checkDuplicateResponse = publicProcedure
       });
 
       if (!vacancy) {
-        throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена", });
+        throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена" });
       }
 
       const userId = context.session?.user?.id;
       if (userId) {
-        const workspaceMember = await context.db.query.workspaceMember.findFirst({
-          where: (member, { eq, and }) =>
-            and(
-              eq(member.workspaceId, vacancy.workspaceId),
-              eq(member.userId, userId),
-            ),
-        });
+        const workspaceMember =
+          await context.db.query.workspaceMember.findFirst({
+            where: (member, { eq, and }) =>
+              and(
+                eq(member.workspaceId, vacancy.workspaceId),
+                eq(member.userId, userId),
+              ),
+          });
 
         if (!workspaceMember) {
-          throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этой вакансии", });
+          throw new ORPCError("FORBIDDEN", {
+            message: "Нет доступа к этой вакансии",
+          });
         }
       }
     }

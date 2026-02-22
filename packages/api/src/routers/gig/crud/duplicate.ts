@@ -1,7 +1,7 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq } from "@qbs-autonaim/db";
 import { gig } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
@@ -19,7 +19,9 @@ export const duplicate = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
+      });
     }
 
     const existingGig = await context.db.query.gig.findFirst({
@@ -30,7 +32,7 @@ export const duplicate = protectedProcedure
     });
 
     if (!existingGig) {
-      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено", });
+      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено" });
     }
 
     // Создаём копию задания (title ограничен 500 символами)
@@ -70,7 +72,9 @@ export const duplicate = protectedProcedure
       .returning({ id: gig.id, title: gig.title, isActive: gig.isActive });
 
     if (!newGig) {
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось создать копию задания", });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Не удалось создать копию задания",
+      });
     }
 
     return {

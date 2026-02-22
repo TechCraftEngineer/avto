@@ -6,5 +6,9 @@ import { protectedProcedure } from "../../orpc";
 export const deleteItem = protectedProcedure
   .input(z.object({ type: userIntegrationTypeSchema }))
   .handler(async ({ input, context }) => {
-    await deleteUserIntegration(context.db, context.session.user.id, input.type);
+    await deleteUserIntegration(
+      context.db,
+      context.session.user.id,
+      input.type,
+    );
   });

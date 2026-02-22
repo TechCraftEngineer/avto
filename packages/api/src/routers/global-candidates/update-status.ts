@@ -1,9 +1,9 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq } from "@qbs-autonaim/db";
 import {
   type CandidateOrganization,
   candidateOrganization,
 } from "@qbs-autonaim/db/schema";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 
@@ -24,19 +24,25 @@ export const updateStatus = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к организации", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к организации",
+      });
     }
 
     // Находим связь кандидата с организацией
-    const existingLink = await context.db.query.candidateOrganization.findFirst({
-      where: and(
-        eq(candidateOrganization.candidateId, input.candidateId),
-        eq(candidateOrganization.organizationId, input.organizationId),
-      ),
-    });
+    const existingLink = await context.db.query.candidateOrganization.findFirst(
+      {
+        where: and(
+          eq(candidateOrganization.candidateId, input.candidateId),
+          eq(candidateOrganization.organizationId, input.organizationId),
+        ),
+      },
+    );
 
     if (!existingLink) {
-      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден в базе организации", });
+      throw new ORPCError("NOT_FOUND", {
+        message: "Кандидат не найден в базе организации",
+      });
     }
 
     // Обновляем статус
@@ -56,7 +62,9 @@ export const updateStatus = protectedProcedure
       .returning();
 
     if (!updated) {
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось обновить статус кандидата", });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Не удалось обновить статус кандидата",
+      });
     }
 
     return {

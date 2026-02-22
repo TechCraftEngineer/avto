@@ -1,8 +1,8 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq } from "@qbs-autonaim/db";
 import { interviewLink, vacancy } from "@qbs-autonaim/db/schema";
 import { getInterviewUrlFromDb } from "@qbs-autonaim/server-utils";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
@@ -21,7 +21,9 @@ export const getInterviewLink = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
+      });
     }
 
     // Проверяем, существует ли вакансия и принадлежит ли она workspace
@@ -33,7 +35,7 @@ export const getInterviewLink = protectedProcedure
     });
 
     if (!vacancyData) {
-      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена", });
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена" });
     }
 
     // Получаем активную ссылку на интервью
@@ -46,7 +48,9 @@ export const getInterviewLink = protectedProcedure
     });
 
     if (!activeInterviewLink) {
-      throw new ORPCError("NOT_FOUND", { message: "Ссылка на интервью не найдена для этой вакансии", });
+      throw new ORPCError("NOT_FOUND", {
+        message: "Ссылка на интервью не найдена для этой вакансии",
+      });
     }
 
     const url = await getInterviewUrlFromDb(

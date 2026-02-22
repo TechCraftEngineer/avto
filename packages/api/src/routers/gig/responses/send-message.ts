@@ -1,10 +1,10 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { gig, response as responseTable } from "@qbs-autonaim/db/schema";
 import { sendMessage as kworkSendMessage } from "@qbs-autonaim/integration-clients";
 import { executeWithKworkTokenRefresh } from "@qbs-autonaim/jobs/services/kwork";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
@@ -23,7 +23,9 @@ export const sendMessage = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
+      });
     }
 
     const response = await context.db.query.response.findFirst({
@@ -34,7 +36,7 @@ export const sendMessage = protectedProcedure
     });
 
     if (!response) {
-      throw new ORPCError("NOT_FOUND", { message: "Отклик не найден", });
+      throw new ORPCError("NOT_FOUND", { message: "Отклик не найден" });
     }
 
     const existingGig = await context.db.query.gig.findFirst({
@@ -45,7 +47,9 @@ export const sendMessage = protectedProcedure
     });
 
     if (!existingGig) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому отклику", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому отклику",
+      });
     }
 
     const profileData = response.profileData as
@@ -56,7 +60,10 @@ export const sendMessage = protectedProcedure
     if (response.importSource === "KWORK") {
       const workerId = profileData?.kworkWorkerId;
       if (workerId == null) {
-        throw new ORPCError("BAD_REQUEST", { message: "Невозможно отправить сообщение: не найден Kwork user_id кандидата", });
+        throw new ORPCError("BAD_REQUEST", {
+          message:
+            "Невозможно отправить сообщение: не найден Kwork user_id кандидата",
+        });
       }
 
       // biome-ignore lint/suspicious/noImplicitAnyLet: result assigned in try, typed by executeWithKworkTokenRefresh
@@ -69,17 +76,25 @@ export const sendMessage = protectedProcedure
         );
       } catch (error) {
         const msg = error instanceof Error ? error.message : "Ошибка Kwork";
-        throw new ORPCError("UNAUTHORIZED", { message: msg.includes("авториз") || msg.includes("token")
+        throw new ORPCError("UNAUTHORIZED", {
+          message:
+            msg.includes("авториз") || msg.includes("token")
               ? "Токен Kwork истёк. Требуется повторная авторизация в настройках интеграции."
-              : msg, });
+              : msg,
+        });
       }
       if (!result.success) {
-        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: result.error?.message ?? "Ошибка отправки сообщения в Kwork", });
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
+          message: result.error?.message ?? "Ошибка отправки сообщения в Kwork",
+        });
       }
     } else if (response.telegramUsername) {
       // TODO: Integrate with telegram sending system for non-Kwork responses
     } else {
-      throw new ORPCError("BAD_REQUEST", { message: "Нет канала для отправки: укажите Telegram или отклик должен быть с Kwork", });
+      throw new ORPCError("BAD_REQUEST", {
+        message:
+          "Нет канала для отправки: укажите Telegram или отклик должен быть с Kwork",
+      });
     }
 
     const [updated] = await context.db

@@ -1,5 +1,5 @@
-import { tgClientSDK } from "@qbs-autonaim/tg-client/sdk";
 import { ORPCError } from "@orpc/server";
+import { tgClientSDK } from "@qbs-autonaim/tg-client/sdk";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 import { normalizePhone } from "../utils";
@@ -28,6 +28,9 @@ export const sendCodeRouter = protectedProcedure
       };
     } catch (error) {
       console.error("Ошибка отправки кода:", error);
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: error instanceof Error ? error.message : "Ошибка отправки кода", });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message:
+          error instanceof Error ? error.message : "Ошибка отправки кода",
+      });
     }
   });

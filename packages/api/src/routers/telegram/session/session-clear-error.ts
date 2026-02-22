@@ -1,6 +1,6 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq } from "@qbs-autonaim/db";
 import { telegramSession } from "@qbs-autonaim/db/schema";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
@@ -24,7 +24,7 @@ export const clearAuthErrorRouter = protectedProcedure
       .returning();
 
     if (result.length === 0) {
-      throw new ORPCError("NOT_FOUND", { message: "Сессия не найдена", });
+      throw new ORPCError("NOT_FOUND", { message: "Сессия не найдена" });
     }
 
     return { success: true };

@@ -1,5 +1,5 @@
-import { deleteIntegration } from "@qbs-autonaim/db";
 import { ORPCError } from "@orpc/server";
+import { deleteIntegration } from "@qbs-autonaim/db";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 
@@ -13,7 +13,9 @@ export const deleteIntegrationProcedure = protectedProcedure
     );
 
     if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new ORPCError("FORBIDDEN", { message: "Недостаточно прав для удаления интеграций", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Недостаточно прав для удаления интеграций",
+      });
     }
 
     await deleteIntegration(context.db, input.type, input.workspaceId);

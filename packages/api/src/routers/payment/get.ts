@@ -1,5 +1,5 @@
-import { payment } from "@qbs-autonaim/db/schema";
 import { ORPCError } from "@orpc/server";
+import { payment } from "@qbs-autonaim/db/schema";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
@@ -32,12 +32,14 @@ export const get = protectedProcedure
 
     // 2. Проверяем существование платежа
     if (!existingPayment) {
-      throw new ORPCError("NOT_FOUND", { message: "Платеж не найден", });
+      throw new ORPCError("NOT_FOUND", { message: "Платеж не найден" });
     }
 
     // 3. Проверяем доступ пользователя к платежу (через userId)
     if (existingPayment.userId !== userId) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому платежу", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому платежу",
+      });
     }
 
     // 4. Возвращаем данные платежа

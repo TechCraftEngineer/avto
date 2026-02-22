@@ -1,6 +1,6 @@
+import { ORPCError } from "@orpc/server";
 import { upsertUserIntegration } from "@qbs-autonaim/db";
 import { userIntegrationTypeSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 
@@ -24,7 +24,9 @@ export const saveOAuth = protectedProcedure
   )
   .handler(async ({ input, context }) => {
     if (input.type !== "google_calendar") {
-      throw new ORPCError("BAD_REQUEST", { message: "Неподдерживаемый тип интеграции", });
+      throw new ORPCError("BAD_REQUEST", {
+        message: "Неподдерживаемый тип интеграции",
+      });
     }
 
     const credentials: Record<string, string> = {

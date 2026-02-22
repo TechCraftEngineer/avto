@@ -1,5 +1,5 @@
-import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { ORPCError } from "@orpc/server";
+import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
@@ -26,11 +26,13 @@ export const getVacancyIntegrations = protectedProcedure
     });
 
     if (!vacancy) {
-      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена", });
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена" });
     }
 
     if (vacancy.workspaceId !== input.workspaceId) {
-      throw new ORPCError("FORBIDDEN", { message: "Вакансия не принадлежит указанному workspace", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Вакансия не принадлежит указанному workspace",
+      });
     }
 
     // Получаем активные интеграции для workspace

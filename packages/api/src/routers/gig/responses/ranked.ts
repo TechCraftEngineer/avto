@@ -1,7 +1,7 @@
+import { ORPCError } from "@orpc/server";
 import { getAIModel } from "@qbs-autonaim/lib/ai";
 import { RankingService } from "@qbs-autonaim/shared/server";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
@@ -36,7 +36,9 @@ export const ranked = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "��� ������� � ����� workspace", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "��� ������� � ����� workspace",
+      });
     }
 
     // ������� RankingService � AI �������������
