@@ -1,4 +1,4 @@
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const list = protectedProcedure.query(async ({ ctx }) => {
   const organizations = await ctx.organizationRepository.getUserOrganizations(

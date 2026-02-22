@@ -1,7 +1,7 @@
+import { ORPCError } from "@orpc/server";
 import { organizationIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const get = protectedProcedure
   .input(z.object({ id: organizationIdSchema }))
@@ -9,8 +9,7 @@ export const get = protectedProcedure
     const organization = await ctx.organizationRepository.findById(input.id);
 
     if (!organization) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
+      throw new ORPCError("NOT_FOUND", {
         message: "Организация не найдена",
       });
     }
@@ -21,8 +20,7 @@ export const get = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
+      throw new ORPCError("FORBIDDEN", {
         message: "Нет доступа к организации",
       });
     }

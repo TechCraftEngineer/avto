@@ -1,11 +1,11 @@
+import { ORPCError } from "@orpc/server";
 import { optimizeLogo } from "@qbs-autonaim/lib/image";
 import {
   createWorkspaceSchema,
   organizationIdSchema,
 } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const createWorkspace = protectedProcedure
   .input(
@@ -22,8 +22,7 @@ export const createWorkspace = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
+      throw new ORPCError("FORBIDDEN", {
         message: "Нет доступа к организации",
       });
     }
@@ -35,8 +34,7 @@ export const createWorkspace = protectedProcedure
     );
 
     if (existing) {
-      throw new TRPCError({
-        code: "CONFLICT",
+      throw new ORPCError("CONFLICT", {
         message: "Workspace с таким slug уже существует в этой организации",
       });
     }
@@ -54,16 +52,14 @@ export const createWorkspace = protectedProcedure
     });
 
     if (!workspace) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message: "Не удалось создать workspace",
       });
     }
 
     // Проверка что id был сгенерирован
     if (!workspace.id) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message: "Не удалось сгенерировать ID workspace",
       });
     }
@@ -86,8 +82,7 @@ export const createWorkspace = protectedProcedure
         });
       }
 
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message: "Не удалось назначить владельца workspace",
         cause: error,
       });

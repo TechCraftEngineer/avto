@@ -1,6 +1,6 @@
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const getBySlug = protectedProcedure
   .input(z.object({ slug: z.string() }))
@@ -10,8 +10,7 @@ export const getBySlug = protectedProcedure
     );
 
     if (!organization) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
+      throw new ORPCError("NOT_FOUND", {
         message: "Организация не найдена",
       });
     }
@@ -22,8 +21,7 @@ export const getBySlug = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
+      throw new ORPCError("FORBIDDEN", {
         message: "Нет доступа к организации",
       });
     }

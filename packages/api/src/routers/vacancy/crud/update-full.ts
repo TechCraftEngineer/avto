@@ -1,12 +1,12 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq } from "@qbs-autonaim/db";
 import { vacancy } from "@qbs-autonaim/db/schema";
 import {
   updateFullVacancySchema,
   workspaceIdSchema,
 } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const updateFull = protectedProcedure
   .input(
@@ -23,7 +23,7 @@ export const updateFull = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому workspace",
       });
@@ -37,7 +37,7 @@ export const updateFull = protectedProcedure
     });
 
     if (!existingVacancy) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Вакансия не найдена",
       });
@@ -63,7 +63,7 @@ export const updateFull = protectedProcedure
       .returning();
 
     if (!result[0]) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Вакансия не найдена",
       });

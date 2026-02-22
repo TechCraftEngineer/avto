@@ -4,10 +4,9 @@ import {
   updateVacancySettingsSchema,
   workspaceIdSchema,
 } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { protectedProcedure } from "../../../orpc";
 import { CommunicationChannelsAnalytics } from "../../../services/analytics/communication-channels";
-import { protectedProcedure } from "../../../trpc";
 
 export const update = protectedProcedure
   .input(
@@ -25,7 +24,7 @@ export const update = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому workspace",
       });
@@ -40,7 +39,7 @@ export const update = protectedProcedure
     });
 
     if (!existingVacancy) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Вакансия не найдена",
       });
@@ -94,7 +93,7 @@ export const update = protectedProcedure
 
     // Проверяем, что строка была обновлена (race condition: вакансия могла быть удалена)
     if (!result[0]) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Вакансия не найдена",
       });

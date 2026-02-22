@@ -222,23 +222,23 @@
     - Обновить index.ts с ORPCRouterRecord
     - _Requirements: 4.2, 4.5, 12.2, 12.3_
   
-  - [-] 16.2 Мигрировать organization роутер
+  - [x] 16.2 Мигрировать organization роутер
     - Изменить все импорты с tRPC на oRPC
     - Заменить TRPCError на ORPCError
     - Обновить index.ts с ORPCRouterRecord
     - _Requirements: 4.2, 4.5, 12.2, 12.3_
   
-  - [~] 16.3 Мигрировать vacancy роутер
+  - [x] 16.3 Мигрировать vacancy роутер
     - Изменить все импорты с tRPC на oRPC
     - Заменить TRPCError на ORPCError
     - Обновить index.ts с ORPCRouterRecord
     - _Requirements: 4.2, 4.5, 12.2, 12.3_
   
-  - [~] 16.4 Обновить root-orpc.ts с новыми роутерами
+  - [x] 16.4 Обновить root-orpc.ts с новыми роутерами
     - Добавить user, organization, vacancy в appRouter
     - _Requirements: 4.2_
   
-  - [~] 16.5 Написать integration тесты для мигрированных роутеров
+  - [-] 16.5 Написать integration тесты для мигрированных роутеров
     - Тест: user роутер работает идентично tRPC версии
     - Тест: organization роутер работает идентично tRPC версии
     - Тест: vacancy роутер работает идентично tRPC версии

@@ -1,9 +1,9 @@
 import { randomUUID } from "node:crypto";
+import { ORPCError } from "@orpc/server";
 import { organizationPlanSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { protectedProcedure } from "../../orpc";
 import { createYookassaClient } from "../../services/yookassa/client";
-import { protectedProcedure } from "../../trpc";
 
 /**
  * Создание платежа для оплаты тарифного плана организации
@@ -55,11 +55,11 @@ export const createPlanPayment = protectedProcedure
         ),
     }),
   )
-  .mutation(async ({ input, ctx }) => {
-    const userId = ctx.session.user.id;
+  .handler(async ({ input, context }) => {
+    const userId = context.session.user.id;
 
     // Проверяем существование организации
-    const org = await ctx.db.query.organization.findFirst({
+    const org = await context.db.query.organization.findFirst({
       where: (org, { eq }) => eq(org.id, input.organizationId),
       with: {
         members: {
@@ -74,8 +74,7 @@ export const createPlanPayment = protectedProcedure
     });
 
     if (!org) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
+      throw new ORPCError("NOT_FOUND", {
         message: "Организация не найдена",
       });
     }
@@ -83,16 +82,14 @@ export const createPlanPayment = protectedProcedure
     // Проверяем права доступа (только owner может оплачивать план)
     const member = org.members[0];
     if (!member || member.role !== "owner") {
-      throw new TRPCError({
-        code: "FORBIDDEN",
+      throw new ORPCError("FORBIDDEN", {
         message: "Только владелец организации может оплачивать тарифный план",
       });
     }
 
     const workspaceId = org.workspaces?.[0]?.id;
     if (!workspaceId) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
+      throw new ORPCError("BAD_REQUEST", {
         message:
           "Организация должна иметь хотя бы один workspace для оплаты тарифа",
       });
@@ -108,16 +105,14 @@ export const createPlanPayment = protectedProcedure
 
     const amount = planPrices[input.plan];
     if (amount === undefined) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
+      throw new ORPCError("BAD_REQUEST", {
         message: "Неизвестный тарифный план",
       });
     }
 
     // Бесплатный план не требует оплаты
     if (amount === 0) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
+      throw new ORPCError("BAD_REQUEST", {
         message: "Бесплатный план не требует оплаты",
       });
     }
@@ -127,8 +122,7 @@ export const createPlanPayment = protectedProcedure
     try {
       yookassa = createYookassaClient();
     } catch (error) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message:
           error instanceof Error
             ? error.message
@@ -177,7 +171,7 @@ export const createPlanPayment = protectedProcedure
       };
 
       try {
-        await ctx.db.insert(paymentSchema).values({
+        await context.db.insert(paymentSchema).values({
           yookassaId: yookassaPayment.id,
           idempotenceKey,
           userId,
@@ -220,8 +214,7 @@ export const createPlanPayment = protectedProcedure
           }),
         );
 
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
           message: "Не удалось сохранить информацию о платеже",
         });
       }
@@ -252,8 +245,7 @@ export const createPlanPayment = protectedProcedure
         }),
       );
 
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message:
           error instanceof Error ? error.message : "Ошибка создания платежа",
       });

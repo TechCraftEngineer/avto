@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq } from "@qbs-autonaim/db";
 import {
   response as responseTable,
@@ -5,9 +6,8 @@ import {
   vacancy as vacancyTable,
 } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const addTag = protectedProcedure
   .input(
@@ -24,7 +24,7 @@ export const addTag = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому workspace",
       });
@@ -38,7 +38,7 @@ export const addTag = protectedProcedure
     });
 
     if (!response) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Отклик не найден",
       });
@@ -50,7 +50,7 @@ export const addTag = protectedProcedure
     });
 
     if (!vacancy || vacancy.workspaceId !== input.workspaceId) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому отклику",
       });

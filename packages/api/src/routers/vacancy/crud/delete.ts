@@ -1,9 +1,9 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq } from "@qbs-autonaim/db";
 import { response as responseTable, vacancy } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 const deleteVacancyInputSchema = z.object({
   vacancyId: z.uuid(),
@@ -21,7 +21,7 @@ export const deleteVacancy = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к workspace",
       });
@@ -36,7 +36,7 @@ export const deleteVacancy = protectedProcedure
     });
 
     if (!existingVacancy) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Вакансия не найдена",
       });
@@ -82,7 +82,7 @@ export const deleteVacancy = protectedProcedure
           message: "Вакансия архивирована, данные кандидатов анонимизированы",
         };
       } catch (error) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Ошибка при анонимизации данных вакансии",
           cause: error,

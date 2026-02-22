@@ -1,7 +1,7 @@
+import { ORPCError } from "@orpc/server";
 import { organizationIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const updateMemberRole = protectedProcedure
   .input(
@@ -19,8 +19,7 @@ export const updateMemberRole = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
+      throw new ORPCError("FORBIDDEN", {
         message: "Нет доступа к организации",
       });
     }
@@ -32,8 +31,7 @@ export const updateMemberRole = protectedProcedure
     );
 
     if (!targetMember) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
+      throw new ORPCError("NOT_FOUND", {
         message: "Участник не найден в организации",
       });
     }
@@ -42,15 +40,13 @@ export const updateMemberRole = protectedProcedure
     // - owner может менять роли всех участников
     // - admin не может менять роли owner'ов
     if (access.role === "admin" && targetMember.role === "owner") {
-      throw new TRPCError({
-        code: "FORBIDDEN",
+      throw new ORPCError("FORBIDDEN", {
         message: "Admin не может изменять роль owner",
       });
     }
 
     if (access.role !== "owner" && access.role !== "admin") {
-      throw new TRPCError({
-        code: "FORBIDDEN",
+      throw new ORPCError("FORBIDDEN", {
         message: "Недостаточно прав для изменения ролей",
       });
     }

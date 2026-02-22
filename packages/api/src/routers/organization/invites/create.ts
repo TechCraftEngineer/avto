@@ -1,14 +1,13 @@
+import { ORPCError } from "@orpc/server";
 import { APP_CONFIG } from "@qbs-autonaim/config";
-
 import { OrganizationInviteEmail } from "@qbs-autonaim/emails";
 import { sendEmail } from "@qbs-autonaim/emails/send";
 import {
   inviteToOrganizationSchema,
   organizationIdSchema,
 } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const createInvite = protectedProcedure
   .input(
@@ -26,16 +25,14 @@ export const createInvite = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
+      throw new ORPCError("FORBIDDEN", {
         message: "Нет доступа к организации",
       });
     }
 
     // Проверка прав (только owner/admin могут приглашать)
     if (access.role !== "owner" && access.role !== "admin") {
-      throw new TRPCError({
-        code: "FORBIDDEN",
+      throw new ORPCError("FORBIDDEN", {
         message: "Недостаточно прав для приглашения участников",
       });
     }
@@ -59,8 +56,7 @@ export const createInvite = protectedProcedure
     );
 
     if (!organization) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
+      throw new ORPCError("NOT_FOUND", {
         message: "Организация не найдена",
       });
     }

@@ -1,8 +1,8 @@
+import { ORPCError } from "@orpc/server";
 import { InterviewLinkGenerator } from "@qbs-autonaim/shared/server";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 const getInterviewLinkInputSchema = z.object({
   vacancyId: z.string().uuid(),
@@ -22,7 +22,7 @@ export const getInterviewLink = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому workspace",
       });
@@ -38,7 +38,7 @@ export const getInterviewLink = protectedProcedure
     });
 
     if (!vacancy) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Вакансия не найдена",
       });

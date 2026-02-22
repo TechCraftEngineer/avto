@@ -1,16 +1,15 @@
+import { ORPCError } from "@orpc/server";
 import { organization, organizationMember } from "@qbs-autonaim/db";
 import { optimizeLogo } from "@qbs-autonaim/lib/image";
 import { createOrganizationSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const create = protectedProcedure
   .input(createOrganizationSchema)
   .mutation(async ({ input, ctx }) => {
     const existing = await ctx.organizationRepository.findBySlug(input.slug);
     if (existing) {
-      throw new TRPCError({
-        code: "CONFLICT",
+      throw new ORPCError("CONFLICT", {
         message: "Организация с таким slug уже существует",
       });
     }
@@ -49,8 +48,7 @@ export const create = protectedProcedure
 
       return result;
     } catch (error) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message:
           error instanceof Error
             ? error.message

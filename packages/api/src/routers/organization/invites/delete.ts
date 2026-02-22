@@ -1,7 +1,7 @@
+import { ORPCError } from "@orpc/server";
 import { organizationIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const deleteInvite = protectedProcedure
   .input(
@@ -18,16 +18,14 @@ export const deleteInvite = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
+      throw new ORPCError("FORBIDDEN", {
         message: "Нет доступа к организации",
       });
     }
 
     // Проверка прав (только owner/admin могут отменять приглашения)
     if (access.role !== "owner" && access.role !== "admin") {
-      throw new TRPCError({
-        code: "FORBIDDEN",
+      throw new ORPCError("FORBIDDEN", {
         message: "Недостаточно прав для отмены приглашений",
       });
     }
@@ -38,16 +36,14 @@ export const deleteInvite = protectedProcedure
     );
 
     if (!invite) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
+      throw new ORPCError("NOT_FOUND", {
         message: "Приглашение не найдено",
       });
     }
 
     // Проверка принадлежности приглашения к организации
     if (invite.organizationId !== input.organizationId) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
+      throw new ORPCError("FORBIDDEN", {
         message: "Нет доступа к организации",
       });
     }

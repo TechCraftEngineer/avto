@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { publicProcedure } from "../../trpc";
+import { publicProcedure } from "../../orpc";
 
 /**
  * Подписка на статус обновления откликов вакансии

@@ -1,4 +1,5 @@
-п»їimport { and, eq } from "@qbs-autonaim/db";
+import { ORPCError } from "@orpc/server";
+import { and, eq } from "@qbs-autonaim/db";
 import {
   interviewSession,
   response as responseTable,
@@ -6,9 +7,8 @@ import {
 } from "@qbs-autonaim/db/schema";
 import { inngest } from "@qbs-autonaim/jobs/client";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const sendWelcome = protectedProcedure
   .input(
@@ -21,20 +21,20 @@ export const sendWelcome = protectedProcedure
   .mutation(async ({ ctx, input }) => {
     const { responseId, username, workspaceId } = input;
 
-    // РџСЂРѕРІРµСЂРєР° РґРѕСЃС‚СѓРїР° Рє СЂР°Р±РѕС‡РµРјСѓ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІСѓ
+    // Проверка доступа к рабочему пространству
     const access = await ctx.workspaceRepository.checkAccess(
       workspaceId,
       ctx.session.user.id,
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
-        message: "РќРµС‚ РґРѕСЃС‚СѓРїР° Рє СЌС‚РѕРјСѓ СЂР°Р±РѕС‡РµРјСѓ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІСѓ",
+        message: "Нет доступа к этому рабочему пространству",
       });
     }
 
-    // РџРѕР»СѓС‡Р°РµРј РґР°РЅРЅС‹Рµ РѕС‚РєР»РёРєР°
+    // Получаем данные отклика
     const response = await ctx.db.query.response.findFirst({
       where: and(
         eq(responseTable.id, responseId),
@@ -43,9 +43,9 @@ export const sendWelcome = protectedProcedure
     });
 
     if (!response) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
-        message: "РћС‚РєР»РёРє РЅРµ РЅР°Р№РґРµРЅ",
+        message: "Отклик не найден",
       });
     }
 
@@ -56,36 +56,36 @@ export const sendWelcome = protectedProcedure
     });
 
     if (!vacancy) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
-        message: "Р’Р°РєР°РЅСЃРёСЏ РЅРµ РЅР°Р№РґРµРЅР°",
+        message: "Вакансия не найдена",
       });
     }
 
-    // РџСЂРѕРІРµСЂРєР° РїСЂРёРЅР°РґР»РµР¶РЅРѕСЃС‚Рё РІР°РєР°РЅСЃРёРё Рє СЂР°Р±РѕС‡РµРјСѓ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІСѓ
+    // Проверка принадлежности вакансии к рабочему пространству
     if (vacancy.workspaceId !== workspaceId) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
-        message: "РќРµС‚ РґРѕСЃС‚СѓРїР° Рє СЌС‚РѕРјСѓ РѕС‚РєР»РёРєСѓ",
+        message: "Нет доступа к этому отклику",
       });
     }
 
-    // РЎРѕР·РґР°РµРј РёР»Рё РѕР±РЅРѕРІР»СЏРµРј interviewSession
+    // Создаем или обновляем interviewSession
     const cleanUsername = username.startsWith("@")
       ? username.substring(1)
       : username;
 
-    // РџСЂРѕРІРµСЂСЏРµРј СЃСѓС‰РµСЃС‚РІСѓСЋС‰СѓСЋ interviewSession
+    // Проверяем существующую interviewSession
     const existingSession = await ctx.db.query.interviewSession.findFirst({
       where: eq(interviewSession.responseId, responseId),
     });
 
     if (existingSession) {
-      // РџРѕР»СѓС‡Р°РµРј СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёРµ РјРµС‚Р°РґР°РЅРЅС‹Рµ
+      // Получаем существующие метаданные
       const existingMetadata: Record<string, unknown> =
         existingSession.metadata || {};
 
-      // РћР±СЉРµРґРёРЅСЏРµРј СЃ РЅРѕРІС‹РјРё РґР°РЅРЅС‹РјРё
+      // Объединяем с новыми данными
       const updatedMetadata = {
         ...existingMetadata,
         telegramUsername: cleanUsername,
@@ -93,7 +93,7 @@ export const sendWelcome = protectedProcedure
         vacancyId: response.entityId,
       };
 
-      // РћР±РЅРѕРІР»СЏРµРј СЃСѓС‰РµСЃС‚РІСѓСЋС‰СѓСЋ session
+      // Обновляем существующую session
       await ctx.db
         .update(interviewSession)
         .set({
@@ -103,7 +103,7 @@ export const sendWelcome = protectedProcedure
         })
         .where(eq(interviewSession.id, existingSession.id));
     } else {
-      // РЎРѕР·РґР°РµРј РЅРѕРІСѓСЋ interviewSession
+      // Создаем новую interviewSession
       await ctx.db.insert(interviewSession).values({
         responseId: responseId,
         status: "active",
@@ -116,7 +116,7 @@ export const sendWelcome = protectedProcedure
       });
     }
 
-    // РћС‚РїСЂР°РІР»СЏРµРј СЃРѕР±С‹С‚РёРµ С‡РµСЂРµР· Inngest РєР»РёРµРЅС‚
+    // Отправляем событие через Inngest клиент
     await inngest.send({
       name: "candidate/welcome",
       data: {
@@ -127,6 +127,6 @@ export const sendWelcome = protectedProcedure
 
     return {
       success: true,
-      message: "РџСЂРёРІРµС‚СЃС‚РІРµРЅРЅРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ РѕС‚РїСЂР°РІР»РµРЅРѕ",
+      message: "Приветственное сообщение отправлено",
     };
   });

@@ -1,11 +1,11 @@
+import { ORPCError } from "@orpc/server";
 import { eq } from "@qbs-autonaim/db";
 import type { BotSettings } from "@qbs-autonaim/db/schema";
 import { botSettings as botSettingsTable } from "@qbs-autonaim/db/schema";
 import { streamText } from "@qbs-autonaim/lib/ai";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 // Схема для валидации ответа от AI
 const companySetupSchema = z.object({
@@ -385,7 +385,7 @@ export const chatGenerate = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому workspace",
       });
@@ -421,7 +421,7 @@ export const chatGenerate = protectedProcedure
       // Безопасно извлекаем JSON
       const jsonString = extractJSON(fullText);
       if (!jsonString) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "INTERNAL_SERVER_ERROR",
           message:
             "AI не вернул валидный JSON. Попробуйте переформулировать запрос.",
@@ -434,7 +434,7 @@ export const chatGenerate = protectedProcedure
         parsed = JSON.parse(jsonString);
       } catch (error) {
         console.error("JSON parse error:", error, "Raw JSON:", jsonString);
-        throw new TRPCError({
+        throw new ORPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Не удалось распарсить ответ от AI. Попробуйте ещё раз.",
         });
@@ -449,7 +449,7 @@ export const chatGenerate = protectedProcedure
           "Parsed data:",
           parsed,
         );
-        throw new TRPCError({
+        throw new ORPCError({
           code: "INTERNAL_SERVER_ERROR",
           message:
             "AI вернул данные в неожиданном формате. Попробуйте ещё раз.",
@@ -539,14 +539,14 @@ export const chatGenerate = protectedProcedure
       }
 
       // Если дошли сюда, значит что-то пошло не так
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Неожиданный формат данных от AI",
       });
     } catch (error) {
-      if (error instanceof TRPCError) throw error;
+      if (error instanceof ORPCError) throw error;
       console.error("Error generating vacancy:", error);
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Не удалось сгенерировать вакансию. Попробуйте позже.",
       });

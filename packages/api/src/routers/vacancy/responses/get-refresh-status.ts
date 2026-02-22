@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 /**
  * Получить детальный статус задания обновления откликов вакансии

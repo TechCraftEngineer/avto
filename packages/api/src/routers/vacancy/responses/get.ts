@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq } from "@qbs-autonaim/db";
 import {
   interviewScoring as interviewScoringTable,
@@ -8,9 +9,8 @@ import {
 } from "@qbs-autonaim/db/schema";
 import { getDownloadUrl } from "@qbs-autonaim/lib/s3";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 import { sanitizeHtml } from "../../utils/sanitize-html";
 import { mapScreeningToOutput } from "./mappers/screening-mapper";
 
@@ -24,7 +24,7 @@ export const get = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому workspace",
       });
@@ -48,7 +48,7 @@ export const get = protectedProcedure
     });
 
     if (!vacancy) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Вакансия не найдена",
       });
@@ -56,7 +56,7 @@ export const get = protectedProcedure
 
     // Проверка принадлежности вакансии к workspace
     if (vacancy.workspaceId !== input.workspaceId) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому отклику",
       });

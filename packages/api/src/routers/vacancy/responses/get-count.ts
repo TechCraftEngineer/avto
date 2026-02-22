@@ -1,9 +1,9 @@
-п»їimport { and, count as countFn, eq } from "@qbs-autonaim/db";
+import { ORPCError } from "@orpc/server";
+import { and, count as countFn, eq } from "@qbs-autonaim/db";
 import { response as responseTable, vacancy } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const getCount = protectedProcedure
   .input(
@@ -13,20 +13,20 @@ export const getCount = protectedProcedure
     }),
   )
   .query(async ({ ctx, input }) => {
-    // РџСЂРѕРІРµСЂРєР° РґРѕСЃС‚СѓРїР° Рє workspace
+    // Проверка доступа к workspace
     const access = await ctx.workspaceRepository.checkAccess(
       input.workspaceId,
       ctx.session.user.id,
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
-        message: "РќРµС‚ РґРѕСЃС‚СѓРїР° Рє СЌС‚РѕРјСѓ workspace",
+        message: "Нет доступа к этому workspace",
       });
     }
 
-    // РџСЂРѕРІРµСЂРєР° РїСЂРёРЅР°РґР»РµР¶РЅРѕСЃС‚Рё РІР°РєР°РЅСЃРёРё Рє workspace
+    // Проверка принадлежности вакансии к workspace
     const vacancyCheck = await ctx.db.query.vacancy.findFirst({
       where: and(
         eq(vacancy.id, input.vacancyId),
@@ -35,9 +35,9 @@ export const getCount = protectedProcedure
     });
 
     if (!vacancyCheck) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
-        message: "Р’Р°РєР°РЅСЃРёСЏ РЅРµ РЅР°Р№РґРµРЅР°",
+        message: "Вакансия не найдена",
       });
     }
 

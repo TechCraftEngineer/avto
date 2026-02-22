@@ -1,7 +1,7 @@
+import { ORPCError } from "@orpc/server";
 import { organizationIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const listMembers = protectedProcedure
   .input(z.object({ organizationId: organizationIdSchema }))
@@ -13,8 +13,7 @@ export const listMembers = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
+      throw new ORPCError("FORBIDDEN", {
         message: "Нет доступа к организации",
       });
     }

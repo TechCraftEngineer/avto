@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/server";
 import type { SQL } from "@qbs-autonaim/db";
 import { and, eq, ilike, inArray, sql } from "@qbs-autonaim/db";
 import {
@@ -13,9 +14,8 @@ import {
   vacancyResponseStatusFilterSchema,
   workspaceIdSchema,
 } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 import type { RawResponseBase } from "./types";
 import { fetchRelatedData } from "./utils/fetch-related-data";
 import { mapResponseData } from "./utils/map-response-data";
@@ -65,7 +65,7 @@ export const listWorkspace = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому workspace",
       });

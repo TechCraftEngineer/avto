@@ -1,12 +1,12 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq } from "@qbs-autonaim/db";
 import {
   responseStatusValues,
   response as responseTable,
   vacancy,
 } from "@qbs-autonaim/db/schema";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const updateStatus = protectedProcedure
   .input(
@@ -25,7 +25,7 @@ export const updateStatus = protectedProcedure
     });
 
     if (!response) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Отклик не найден",
       });
@@ -37,7 +37,7 @@ export const updateStatus = protectedProcedure
     });
 
     if (!existingVacancy) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Вакансия не найдена",
       });
@@ -50,7 +50,7 @@ export const updateStatus = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому отклику",
       });
@@ -69,7 +69,7 @@ export const updateStatus = protectedProcedure
         .for("update");
 
       if (!lockedResponse) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "NOT_FOUND",
           message: "Отклик не найден",
         });
@@ -85,7 +85,7 @@ export const updateStatus = protectedProcedure
         .returning();
 
       if (!result) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Не удалось обновить статус отклика",
         });

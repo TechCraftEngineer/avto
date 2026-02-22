@@ -1,7 +1,7 @@
+import { ORPCError } from "@orpc/server";
 import type { OrganizationMember } from "@qbs-autonaim/db";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const acceptInvite = protectedProcedure
   .input(
@@ -16,16 +16,14 @@ export const acceptInvite = protectedProcedure
     );
 
     if (!invite) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
+      throw new ORPCError("NOT_FOUND", {
         message: "Приглашение не найдено",
       });
     }
 
     // Проверка срока действия
     if (invite.expiresAt < new Date()) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
+      throw new ORPCError("BAD_REQUEST", {
         message: "Срок действия приглашения истек",
       });
     }
@@ -36,8 +34,7 @@ export const acceptInvite = protectedProcedure
     );
 
     if (!organization) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
+      throw new ORPCError("NOT_FOUND", {
         message: "Организация не найдена",
       });
     }
@@ -49,8 +46,7 @@ export const acceptInvite = protectedProcedure
     );
 
     if (existingMember) {
-      throw new TRPCError({
-        code: "CONFLICT",
+      throw new ORPCError("CONFLICT", {
         message: "Вы уже являетесь участником этой организации",
       });
     }
@@ -68,8 +64,7 @@ export const acceptInvite = protectedProcedure
       await ctx.organizationRepository.deleteInvite(invite.id);
     } catch (error) {
       // Если добавление не удалось, не удаляем приглашение
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message: "Не удалось добавить пользователя в организацию",
         cause: error,
       });

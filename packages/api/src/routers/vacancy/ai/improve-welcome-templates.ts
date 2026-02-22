@@ -1,8 +1,8 @@
+import { ORPCError } from "@orpc/server";
 import { generateText } from "@qbs-autonaim/lib/ai";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 const improveWelcomeTemplatesInputSchema = z.object({
   vacancyId: z.string(),
@@ -120,14 +120,14 @@ export const improveWelcomeTemplates = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому workspace",
       });
     }
 
     if (!currentValue?.trim()) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message: "Невозможно улучшить пустой текст",
       });
@@ -158,7 +158,7 @@ export const improveWelcomeTemplates = protectedProcedure
       };
     } catch (error) {
       console.error("Error improving welcome template:", error);
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Не удалось улучшить шаблон приветствия. Попробуйте позже.",
       });

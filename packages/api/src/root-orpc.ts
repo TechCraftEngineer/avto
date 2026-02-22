@@ -8,18 +8,22 @@
  */
 
 import { router } from "./orpc";
+import { organizationRouter } from "./routers/organization";
 import { userRouter } from "./routers/user";
+import { vacancyRouter } from "./routers/vacancy";
 import { workspaceRouter } from "./routers/workspace";
 
 /**
  * Главный роутер приложения
  *
  * Содержит все доменные роутеры, организованные по бизнес-доменам.
- * Включает workspace и user роутеры, остальные будут добавлены позже.
+ * Включает workspace, user, organization и vacancy роутеры.
  */
 export const appRouter = router({
   workspace: workspaceRouter,
   user: userRouter,
+  organization: organizationRouter,
+  vacancy: vacancyRouter,
 });
 
 /**

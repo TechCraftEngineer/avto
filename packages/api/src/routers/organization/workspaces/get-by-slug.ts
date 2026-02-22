@@ -1,7 +1,7 @@
+import { ORPCError } from "@orpc/server";
 import { organizationIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const getWorkspaceBySlug = protectedProcedure
   .input(
@@ -18,8 +18,7 @@ export const getWorkspaceBySlug = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
+      throw new ORPCError("FORBIDDEN", {
         message: "Нет доступа к организации",
       });
     }
@@ -31,8 +30,7 @@ export const getWorkspaceBySlug = protectedProcedure
     );
 
     if (!workspace) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
+      throw new ORPCError("NOT_FOUND", {
         message: "Workspace не найден",
       });
     }

@@ -1,11 +1,11 @@
+import { ORPCError } from "@orpc/server";
 import { optimizeLogo } from "@qbs-autonaim/lib/image";
 import {
   organizationIdSchema,
   updateOrganizationSchema,
 } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const update = protectedProcedure
   .input(
@@ -21,8 +21,7 @@ export const update = protectedProcedure
     );
 
     if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
+      throw new ORPCError("FORBIDDEN", {
         message: "Недостаточно прав для обновления организации",
       });
     }
@@ -32,8 +31,7 @@ export const update = protectedProcedure
         input.data.slug,
       );
       if (existing && existing.id !== input.id) {
-        throw new TRPCError({
-          code: "CONFLICT",
+        throw new ORPCError("CONFLICT", {
           message: "Организация с таким slug уже существует",
         });
       }

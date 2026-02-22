@@ -1,7 +1,7 @@
+import { ORPCError } from "@orpc/server";
 import { organizationIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const deleteOrganization = protectedProcedure
   .input(z.object({ id: organizationIdSchema }))
@@ -12,8 +12,7 @@ export const deleteOrganization = protectedProcedure
     );
 
     if (!access || access.role !== "owner") {
-      throw new TRPCError({
-        code: "FORBIDDEN",
+      throw new ORPCError("FORBIDDEN", {
         message: "Только owner может удалить организацию",
       });
     }

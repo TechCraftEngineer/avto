@@ -1,4 +1,4 @@
-import type { TRPCRouterRecord } from "@trpc/server";
+import type { ORPCRouterRecord } from "@orpc/server";
 
 import { addTag } from "./add-tag";
 import { analyzeSingle } from "./analyze-single";
@@ -40,4 +40,4 @@ export const responsesRouter = {
   getInterviewLink,
   updateStatus,
   debugList, // Временный debug endpoint
-} satisfies TRPCRouterRecord;
+} satisfies ORPCRouterRecord;

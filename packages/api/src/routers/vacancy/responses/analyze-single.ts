@@ -1,11 +1,11 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq } from "@qbs-autonaim/db";
 import {
   response as responseTable,
   vacancy as vacancyTable,
 } from "@qbs-autonaim/db/schema";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const analyzeSingle = protectedProcedure
   .input(
@@ -26,7 +26,7 @@ export const analyzeSingle = protectedProcedure
     });
 
     if (!response) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Отклик не найден",
       });
@@ -41,14 +41,14 @@ export const analyzeSingle = protectedProcedure
     });
 
     if (!vacancy) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Вакансия для отклика не найдена",
       });
     }
 
     if (vacancy.workspaceId !== workspaceId) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому отклику",
       });

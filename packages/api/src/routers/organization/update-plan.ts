@@ -1,9 +1,9 @@
+import { ORPCError } from "@orpc/server";
 import { organization } from "@qbs-autonaim/db/schema";
 import { organizationPlanSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 /**
  * Обновление тарифного плана организации
@@ -30,8 +30,7 @@ export const updatePlan = protectedProcedure
     });
 
     if (!org) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
+      throw new ORPCError("NOT_FOUND", {
         message: "Организация не найдена",
       });
     }
@@ -39,8 +38,7 @@ export const updatePlan = protectedProcedure
     // Проверяем права доступа (только owner может менять план)
     const member = org.members[0];
     if (!member || member.role !== "owner") {
-      throw new TRPCError({
-        code: "FORBIDDEN",
+      throw new ORPCError("FORBIDDEN", {
         message: "Только владелец организации может изменять тарифный план",
       });
     }

@@ -1,4 +1,4 @@
-import type { TRPCRouterRecord } from "@trpc/server";
+import type { ORPCRouterRecord } from "@orpc/server";
 
 import { create } from "./create";
 import { createPlanPayment } from "./create-plan-payment";
@@ -40,4 +40,4 @@ export const organizationRouter = {
   createWorkspace,
   listWorkspaces,
   getWorkspaceBySlug,
-} satisfies TRPCRouterRecord;
+} satisfies ORPCRouterRecord;

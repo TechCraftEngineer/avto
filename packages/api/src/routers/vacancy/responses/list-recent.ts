@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/server";
 import { and, desc, eq } from "@qbs-autonaim/db";
 import {
   interviewScoring,
@@ -6,9 +7,8 @@ import {
   vacancy,
 } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 import { sanitizeHtml } from "../../utils/sanitize-html";
 
 export const listRecent = protectedProcedure
@@ -21,7 +21,7 @@ export const listRecent = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому workspace",
       });

@@ -1,8 +1,8 @@
+import { ORPCError } from "@orpc/server";
 import { generateText } from "@qbs-autonaim/lib/ai";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 const improveInstructionsInputSchema = z.object({
   vacancyId: z.string(),
@@ -135,14 +135,14 @@ export const improveInstructions = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому workspace",
       });
     }
 
     if (!currentValue?.trim()) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message: "Невозможно улучшить пустой текст",
       });
@@ -172,7 +172,7 @@ export const improveInstructions = protectedProcedure
       };
     } catch (error) {
       console.error("Error improving instructions:", error);
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Не удалось улучшить текст. Попробуйте позже.",
       });

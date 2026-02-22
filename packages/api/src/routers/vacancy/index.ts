@@ -1,4 +1,4 @@
-import type { TRPCRouterRecord } from "@trpc/server";
+import type { ORPCRouterRecord } from "@orpc/server";
 import {
   chatGenerate,
   improveInstructions,
@@ -39,4 +39,4 @@ export const vacancyRouter = {
   improveWelcomeTemplates,
   chatGenerate,
   responses: responsesRouter,
-} satisfies TRPCRouterRecord;
+} satisfies ORPCRouterRecord;

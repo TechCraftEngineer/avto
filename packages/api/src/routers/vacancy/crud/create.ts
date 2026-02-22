@@ -1,12 +1,12 @@
+import { ORPCError } from "@orpc/server";
 import { vacancy } from "@qbs-autonaim/db/schema";
 import {
   sanitize,
   secureSchemas,
   workspaceIdSchema,
 } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 const createVacancySchema = z.object({
   workspaceId: workspaceIdSchema,
@@ -32,7 +32,7 @@ export const create = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к workspace",
       });
@@ -65,7 +65,7 @@ export const create = protectedProcedure
       .returning();
 
     if (!newVacancy) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Не удалось создать вакансию",
       });

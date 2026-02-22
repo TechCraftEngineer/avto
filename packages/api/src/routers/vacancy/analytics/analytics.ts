@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/server";
 import { and, count, eq, gte, sql } from "@qbs-autonaim/db";
 import {
   responseScreening,
@@ -5,9 +6,8 @@ import {
   vacancy,
 } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const analytics = protectedProcedure
   .input(z.object({ vacancyId: z.string(), workspaceId: workspaceIdSchema }))
@@ -19,7 +19,7 @@ export const analytics = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому workspace",
       });
@@ -34,7 +34,7 @@ export const analytics = protectedProcedure
     });
 
     if (!vacancyCheck) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Вакансия не найдена",
       });

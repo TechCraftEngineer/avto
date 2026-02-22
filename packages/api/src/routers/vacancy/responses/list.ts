@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/server";
 import { sql } from "@qbs-autonaim/db";
 import { response as responseTable } from "@qbs-autonaim/db/schema";
 import {
@@ -8,9 +9,8 @@ import {
   vacancyResponseStatusFilterSchema,
   workspaceIdSchema,
 } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 import { mapResponsesToOutput } from "./mappers/response-mapper";
 import {
   fetchCommentCounts,
@@ -95,7 +95,7 @@ export const list = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому workspace",
       });
@@ -109,7 +109,7 @@ export const list = protectedProcedure
     });
 
     if (!vacancyExists) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Вакансия не найдена",
       });
