@@ -135,16 +135,12 @@ export const improveInstructions = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace",
       });
     }
 
     if (!currentValue?.trim()) {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
-        message: "Невозможно улучшить пустой текст",
+      throw new ORPCError("BAD_REQUEST", { message: "Невозможно улучшить пустой текст",
       });
     }
 
@@ -172,9 +168,7 @@ export const improveInstructions = protectedProcedure
       };
     } catch (error) {
       console.error("Error improving instructions:", error);
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Не удалось улучшить текст. Попробуйте позже.",
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось улучшить текст. Попробуйте позже.",
       });
     }
   });

@@ -224,7 +224,7 @@ describe("protectedProcedure", () => {
     expect(result.userEmail).toBe("protected@example.com");
   });
 
-  it("должен гарантировать наличие ctx.session.user", async () => {
+  it("должен гарантировать наличие context.session.user", async () => {
     // Создаем процедуру которая обращается к ctx.session.user напрямую
     // без дополнительных проверок (TypeScript должен гарантировать что это безопасно)
     const testProcedure = protectedProcedure.handler(({ context }) => {

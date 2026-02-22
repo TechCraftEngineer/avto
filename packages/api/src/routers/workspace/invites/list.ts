@@ -12,9 +12,7 @@ export const list = protectedProcedure
     );
 
     if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Недостаточно прав для просмотра приглашений",
+      throw new ORPCError("FORBIDDEN", { message: "Недостаточно прав для просмотра приглашений",
       });
     }
 

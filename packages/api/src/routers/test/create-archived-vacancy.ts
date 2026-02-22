@@ -20,9 +20,7 @@ export const createArchivedVacancy = publicProcedure
   )
   .mutation(async ({ input }) => {
     if (!isTestMode) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Тестовые эндпоинты доступны только в режиме разработки",
+      throw new ORPCError("FORBIDDEN", { message: "Тестовые эндпоинты доступны только в режиме разработки",
       });
     }
 
@@ -39,9 +37,7 @@ export const createArchivedVacancy = publicProcedure
       .returning();
 
     if (!newVacancy) {
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Не удалось создать вакансию",
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось создать вакансию",
       });
     }
 

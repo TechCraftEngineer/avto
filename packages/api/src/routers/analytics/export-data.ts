@@ -22,21 +22,19 @@ const exportDataInputSchema = z.object({
 
 export const exportData = protectedProcedure
   .input(exportDataInputSchema)
-  .handler(async ({ ctx, input }) => {
+  .handler(async ({ context, input }) => {
     // Verify user has access to workspace
-    const membership = await ctx.workspaceRepository.checkAccess(
+    const membership = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!membership) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace",
       });
     }
 
-    const analyticsExporter = new AnalyticsExporter(ctx.db);
+    const analyticsExporter = new AnalyticsExporter(context.db);
 
     try {
       const exportResult = await analyticsExporter.exportData({
@@ -47,8 +45,8 @@ export const exportData = protectedProcedure
       });
 
       // Log audit event
-      await ctx.auditLogger.logAccess({
-        userId: ctx.session.user.id,
+      await context.auditLogger.logAccess({
+        userId: context.session.user.id,
         action: "VIEW",
         resourceType: "VACANCY", // Using existing enum value
         resourceId: input.workspaceId,
@@ -65,10 +63,7 @@ export const exportData = protectedProcedure
       return exportResult;
     } catch (error) {
       if (error instanceof AnalyticsError) {
-        throw new ORPCError({
-          code: "BAD_REQUEST",
-          message: error.userMessage,
-          cause: error,
+        throw new ORPCError("BAD_REQUEST", { message: error.userMessage, cause: error,
         });
       }
       throw error;

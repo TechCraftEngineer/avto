@@ -13,6 +13,6 @@ export {
   createTenantGuard,
   TenantGuard,
   TenantIsolationError,
-  toTRPCError,
+  toORPCError,
   withTenantGuard,
 } from "./tenant-guard";

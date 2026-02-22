@@ -23,9 +23,7 @@ export const withInterviewAccess = publicProcedure
     const actualSessionId = interviewSessionId || sessionId;
 
     if (!actualSessionId) {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
-        message: "Требуется interviewSessionId или sessionId",
+      throw new ORPCError("BAD_REQUEST", { message: "Требуется interviewSessionId или sessionId",
       });
     }
 
@@ -50,9 +48,7 @@ export const withInterviewAccess = publicProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому интервью",
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому интервью",
       });
     }
 

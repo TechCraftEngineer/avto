@@ -7,7 +7,7 @@ import { protectedProcedure } from "../../orpc";
 export const create = protectedProcedure
   .input(createOrganizationSchema)
   .handler(async ({ input, context: ctx }) => {
-    const existing = await ctx.organizationRepository.findBySlug(input.slug);
+    const existing = await context.organizationRepository.findBySlug(input.slug);
     if (existing) {
       throw new ORPCError("CONFLICT", {
         message: "Организация с таким slug уже существует",
@@ -20,7 +20,7 @@ export const create = protectedProcedure
     }
 
     try {
-      const result = await ctx.db.transaction(async (tx) => {
+      const result = await context.db.transaction(async (tx) => {
         const [newOrg] = await tx
           .insert(organization)
           .values(dataToCreate)
@@ -34,7 +34,7 @@ export const create = protectedProcedure
           .insert(organizationMember)
           .values({
             organizationId: newOrg.id,
-            userId: ctx.session.user.id,
+            userId: context.session.user.id,
             role: "owner",
           })
           .returning();

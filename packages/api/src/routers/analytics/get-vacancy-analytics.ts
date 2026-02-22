@@ -21,21 +21,19 @@ const getVacancyAnalyticsInputSchema = z.object({
 
 export const getVacancyAnalytics = protectedProcedure
   .input(getVacancyAnalyticsInputSchema)
-  .handler(async ({ ctx, input }) => {
+  .handler(async ({ context, input }) => {
     // Verify user has access to workspace
-    const membership = await ctx.workspaceRepository.checkAccess(
+    const membership = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!membership) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace",
       });
     }
 
-    const analyticsAggregator = new AnalyticsAggregator(ctx.db);
+    const analyticsAggregator = new AnalyticsAggregator(context.db);
 
     try {
       const vacancyAnalytics = await analyticsAggregator.getVacancyAnalytics({
@@ -48,16 +46,10 @@ export const getVacancyAnalytics = protectedProcedure
     } catch (error) {
       if (error instanceof AnalyticsError) {
         if (error.code === "VACANCY_NOT_FOUND") {
-          throw new ORPCError({
-            code: "NOT_FOUND",
-            message: error.userMessage,
-            cause: error,
+          throw new ORPCError("NOT_FOUND", { message: error.userMessage, cause: error,
           });
         }
-        throw new ORPCError({
-          code: "BAD_REQUEST",
-          message: error.userMessage,
-          cause: error,
+        throw new ORPCError("BAD_REQUEST", { message: error.userMessage, cause: error,
         });
       }
       throw error;

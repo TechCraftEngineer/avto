@@ -1,4 +1,3 @@
-import type { ORPCRouterRecord } from "@orpc/server";
 import { accept } from "./accept";
 import { acceptMultiple, rejectMultiple } from "./bulk-operations";
 import { countResponses } from "./count";
@@ -37,4 +36,4 @@ export const gigResponsesRouter = {
   acceptMultiple,
   rejectMultiple,
   exportResponses,
-} satisfies ORPCRouterRecord;
+};

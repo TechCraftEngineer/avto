@@ -1,4 +1,3 @@
-import type { ORPCRouterRecord } from "@orpc/server";
 
 import { get } from "./get";
 import { update } from "./update";
@@ -10,4 +9,4 @@ export const botRouter = {
   update,
   updatePartial,
   updateOnboarding,
-} satisfies ORPCRouterRecord;
+};

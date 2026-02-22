@@ -12,9 +12,7 @@ export const getBotSettings = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к workspace",
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace",
       });
     }
 

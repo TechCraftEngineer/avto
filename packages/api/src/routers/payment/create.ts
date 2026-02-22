@@ -21,10 +21,10 @@ import { createYookassaClient } from "../../services/yookassa/client";
 export const create = protectedProcedure
   .input(createPaymentSchema)
   .handler(async ({ input, context: ctx }) => {
-    const userId = ctx.session.user.id;
+    const userId = context.session.user.id;
 
     // 1. Получаем workspace и проверяем его существование (Требование 1.6)
-    const workspace = await ctx.workspaceRepository.findById(input.workspaceId);
+    const workspace = await context.workspaceRepository.findById(input.workspaceId);
 
     if (!workspace) {
       throw new ORPCError("NOT_FOUND", {
@@ -33,7 +33,7 @@ export const create = protectedProcedure
     }
 
     // 2. Проверяем доступ пользователя к workspace (Требование 1.6)
-    const hasAccess = await ctx.workspaceRepository.checkAccess(
+    const hasAccess = await context.workspaceRepository.checkAccess(
       input.workspaceId,
       userId,
     );
@@ -109,7 +109,7 @@ export const create = protectedProcedure
     // 7. Сохраняем платеж в БД (Требование 1.3, 5.3, 5.4, 5.6)
     let createdPayment: typeof payment.$inferSelect;
     try {
-      const [insertedPayment] = await ctx.db
+      const [insertedPayment] = await context.db
         .insert(payment)
         .values({
           yookassaId: yookassaPayment.id,

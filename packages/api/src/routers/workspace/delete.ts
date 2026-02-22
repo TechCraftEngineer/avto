@@ -12,9 +12,7 @@ export const deleteWorkspace = protectedProcedure
     );
 
     if (!access || access.role !== "owner") {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Только owner может удалить workspace",
+      throw new ORPCError("FORBIDDEN", { message: "Только owner может удалить workspace",
       });
     }
 

@@ -71,15 +71,13 @@ export const chat = protectedProcedure
 
     // Проверка доступа к workspace
     const hasAccess = await checkWorkspaceAccess(
-      ctx.workspaceRepository,
+      context.workspaceRepository,
       workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!hasAccess) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к workspace",
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace",
       });
     }
 
@@ -88,14 +86,12 @@ export const chat = protectedProcedure
     const canProceed = await checkRateLimit(rateLimitKey, 30, 60);
 
     if (!canProceed) {
-      throw new ORPCError({
-        code: "TOO_MANY_REQUESTS",
-        message: "Превышен лимит запросов. Попробуйте через минуту.",
+      throw new ORPCError("TOO_MANY_REQUESTS", { message: "Превышен лимит запросов. Попробуйте через минуту.",
       });
     }
 
     // Загружаем настройки компании (Requirements: 7.5)
-    const botSettings = await ctx.db.query.botSettings.findFirst({
+    const botSettings = await context.db.query.botSettings.findFirst({
       where: (cs, { eq }) => eq(cs.workspaceId, workspaceId),
     });
 
@@ -213,8 +209,8 @@ export const chat = protectedProcedure
       const output = await executionPromise;
 
       // Логируем в audit log
-      await ctx.auditLogger.logAccess({
-        userId: ctx.session.user.id,
+      await context.auditLogger.logAccess({
+        userId: context.session.user.id,
         workspaceId,
         action: "ACCESS",
         resourceType: "VACANCY",
@@ -225,8 +221,8 @@ export const chat = protectedProcedure
           actionsCount: output.actions.length,
           vacancyId,
         },
-        ipAddress: ctx.ipAddress,
-        userAgent: ctx.userAgent,
+        ipAddress: context.ipAddress,
+        userAgent: context.userAgent,
       });
     } catch (error) {
       const errorMessage =
@@ -240,9 +236,7 @@ export const chat = protectedProcedure
         code: "ORCHESTRATOR_ERROR",
       };
 
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Не удалось обработать запрос. Попробуйте позже.",
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось обработать запрос. Попробуйте позже.",
       });
     }
   });

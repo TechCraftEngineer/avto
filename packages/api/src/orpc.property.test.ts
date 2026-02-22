@@ -85,33 +85,33 @@ describe("Property 1: Контекст содержит все необходи�
         expect(ctx).toHaveProperty("headers");
 
         // Проверяем типы ключевых полей
-        expect(ctx.db).toBeDefined();
-        expect(ctx.workspaceRepository).toBeDefined();
-        expect(ctx.organizationRepository).toBeDefined();
-        expect(ctx.auditLogger).toBeDefined();
-        expect(ctx.inngest).toBeDefined();
-        expect(ctx.headers).toBeInstanceOf(Headers);
+        expect(context.db).toBeDefined();
+        expect(context.workspaceRepository).toBeDefined();
+        expect(context.organizationRepository).toBeDefined();
+        expect(context.auditLogger).toBeDefined();
+        expect(context.inngest).toBeDefined();
+        expect(context.headers).toBeInstanceOf(Headers);
 
         // Проверяем что ipAddress извлекается корректно
         if (headersObj["x-forwarded-for"]) {
-          expect(ctx.ipAddress).toBe(headersObj["x-forwarded-for"]);
+          expect(context.ipAddress).toBe(headersObj["x-forwarded-for"]);
         } else if (headersObj["x-real-ip"]) {
-          expect(ctx.ipAddress).toBe(headersObj["x-real-ip"]);
+          expect(context.ipAddress).toBe(headersObj["x-real-ip"]);
         } else {
-          expect(ctx.ipAddress).toBeUndefined();
+          expect(context.ipAddress).toBeUndefined();
         }
 
         // Проверяем что userAgent извлекается корректно
         if (headersObj["user-agent"]) {
           // Headers API trims leading/trailing whitespace from values
           const normalizedUserAgent = headers.get("user-agent");
-          expect(ctx.userAgent).toBe(normalizedUserAgent ?? undefined);
+          expect(context.userAgent).toBe(normalizedUserAgent ?? undefined);
         } else {
-          expect(ctx.userAgent).toBeUndefined();
+          expect(context.userAgent).toBeUndefined();
         }
 
         // Проверяем что headers сохраняются
-        expect(ctx.headers).toBe(headers);
+        expect(context.headers).toBe(headers);
       }),
       { numRuns: 100 },
     );
@@ -127,7 +127,7 @@ describe("Property 1: Контекст содержит все необходи�
         const ctx = await createContext({ headers, auth: null });
 
         // x-forwarded-for имеет приоритет над x-real-ip
-        expect(ctx.ipAddress).toBe(forwardedFor);
+        expect(context.ipAddress).toBe(forwardedFor);
       }),
       { numRuns: 100 },
     );
@@ -141,7 +141,7 @@ describe("Property 1: Контекст содержит все необходи�
 
         const ctx = await createContext({ headers, auth: null });
 
-        expect(ctx.ipAddress).toBe(realIp);
+        expect(context.ipAddress).toBe(realIp);
       }),
       { numRuns: 100 },
     );
@@ -164,7 +164,7 @@ describe("Property 1: Контекст содержит все необходи�
 
           const ctx = await createContext({ headers, auth: null });
 
-          expect(ctx.ipAddress).toBeUndefined();
+          expect(context.ipAddress).toBeUndefined();
         },
       ),
       { numRuns: 100 },
@@ -221,7 +221,7 @@ describe("Property 1: Контекст содержит все необходи�
         const ctx = await createContext({ headers, auth: null });
 
         // Headers API может нормализовать значения, поэтому проверяем что получили
-        expect(ctx.userAgent).toBe(headers.get("user-agent") ?? undefined);
+        expect(context.userAgent).toBe(headers.get("user-agent") ?? undefined);
       }),
       { numRuns: 100 },
     );
@@ -255,7 +255,7 @@ describe("Property 1: Контекст содержит все необходи�
           // Используем headers.get() для получения нормализованного значения
           for (const [key] of headerPairs) {
             const normalizedValue = headers.get(key.toLowerCase());
-            expect(ctx.headers.get(key.toLowerCase())).toBe(normalizedValue);
+            expect(context.headers.get(key.toLowerCase())).toBe(normalizedValue);
           }
         },
       ),
@@ -1031,7 +1031,7 @@ describe("Property 9: protectedProcedure требует авторизации",
  * **Validates: Requirements 3.4**
  */
 describe("Property 10: protectedProcedure гарантирует наличие user", () => {
-  it("должен гарантировать наличие ctx.session.user для любой валидной сессии", async () => {
+  it("должен гарантировать наличие context.session.user для любой валидной сессии", async () => {
     // Генератор для пользовательских данных
     const userArb = fc.record({
       id: fc.string({ minLength: 10, maxLength: 50 }),

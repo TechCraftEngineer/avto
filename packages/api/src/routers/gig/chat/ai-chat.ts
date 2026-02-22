@@ -6,7 +6,6 @@ import {
 } from "@qbs-autonaim/db/schema";
 import { streamText } from "@qbs-autonaim/lib/ai";
 import type { ChatHistoryMessage } from "@qbs-autonaim/shared";
-import type { ORPCRouterRecord } from "@orpc/server";
 import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import {
@@ -437,4 +436,4 @@ export const aiChatRouter = {
   sendMessage,
   getHistory,
   clearHistory,
-} satisfies ORPCRouterRecord;
+};

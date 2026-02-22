@@ -16,9 +16,7 @@ export const getBySlug = protectedProcedure
     );
 
     if (!workspace) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Workspace не найден",
+      throw new ORPCError("NOT_FOUND", { message: "Workspace не найден",
       });
     }
 
@@ -28,9 +26,7 @@ export const getBySlug = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к workspace",
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace",
       });
     }
 

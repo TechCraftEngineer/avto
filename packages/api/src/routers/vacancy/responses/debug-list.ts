@@ -25,9 +25,7 @@ export const debugList = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace",
       });
     }
 
@@ -40,9 +38,7 @@ export const debugList = protectedProcedure
     });
 
     if (!vacancyCheck) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Вакансия не найдена",
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена",
       });
     }
 

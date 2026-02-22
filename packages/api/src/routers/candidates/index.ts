@@ -1,4 +1,3 @@
-import type { ORPCRouterRecord } from "@orpc/server";
 import { addComment } from "./add-comment";
 import { getById } from "./get-by-id";
 import { inviteCandidate } from "./invite";
@@ -27,4 +26,4 @@ export const candidatesRouter = {
   inviteCandidate,
   rejectCandidate,
   refreshResume,
-} satisfies ORPCRouterRecord;
+};

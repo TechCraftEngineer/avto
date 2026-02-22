@@ -16,9 +16,7 @@ export const cleanup = publicProcedure
   )
   .mutation(async ({ input }) => {
     if (!isTestMode) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Тестовые эндпоинты доступны только в режиме разработки",
+      throw new ORPCError("FORBIDDEN", { message: "Тестовые эндпоинты доступны только в режиме разработки",
       });
     }
 
@@ -43,9 +41,7 @@ export const cleanup = publicProcedure
         };
       }
 
-      throw new ORPCError({
-        code: "BAD_REQUEST",
-        message: "Необходимо указать email пользователя или флаг all=true",
+      throw new ORPCError("BAD_REQUEST", { message: "Необходимо указать email пользователя или флаг all=true",
       });
     } catch (error) {
       // Если это уже TRPCError, пробрасываем его как есть
@@ -54,10 +50,7 @@ export const cleanup = publicProcedure
       }
 
       // Иначе оборачиваем в INTERNAL_SERVER_ERROR
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Ошибка при очистке тестовых данных",
-        cause: error,
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Ошибка при очистке тестовых данных", cause: error,
       });
     }
   });

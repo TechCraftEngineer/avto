@@ -1,4 +1,3 @@
-import type { ORPCRouterRecord } from "@orpc/server";
 
 import { checkPasswordRouter } from "./auth/auth-check-password";
 import { reauthorizeSessionRouter } from "./auth/auth-reauthorize";
@@ -52,4 +51,4 @@ export const telegramRouter = {
   reauthorizeSession: reauthorizeSessionRouter,
   sendUserMessage: sendUserMessageRouter,
   sendUserMessageByPhone: sendUserMessageByPhoneRouter,
-} satisfies ORPCRouterRecord;
+};

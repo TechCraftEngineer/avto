@@ -17,9 +17,7 @@ export const cancel = protectedProcedure
     );
 
     if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Недостаточно прав для отмены приглашений",
+      throw new ORPCError("FORBIDDEN", { message: "Недостаточно прав для отмены приглашений",
       });
     }
 
@@ -29,9 +27,7 @@ export const cancel = protectedProcedure
     );
 
     if (!invite) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Приглашение не найдено",
+      throw new ORPCError("NOT_FOUND", { message: "Приглашение не найдено",
       });
     }
 

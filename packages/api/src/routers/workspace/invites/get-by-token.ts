@@ -10,9 +10,7 @@ export const getByToken = protectedProcedure
     );
 
     if (!invite) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Приглашение не найдено",
+      throw new ORPCError("NOT_FOUND", { message: "Приглашение не найдено",
       });
     }
 

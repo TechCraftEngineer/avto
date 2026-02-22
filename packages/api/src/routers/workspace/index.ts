@@ -1,4 +1,3 @@
-import type { ORPCRouterRecord } from "@orpc/server";
 
 import { create } from "./create";
 import { deleteWorkspace } from "./delete";
@@ -22,4 +21,4 @@ export const workspaceRouter = {
   delete: deleteWorkspace,
   members: membersRouter,
   invites: invitesRouter,
-} satisfies ORPCRouterRecord;
+};

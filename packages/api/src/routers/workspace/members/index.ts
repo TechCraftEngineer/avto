@@ -1,4 +1,3 @@
-import type { ORPCRouterRecord } from "@orpc/server";
 
 import { add } from "./add";
 import { list } from "./list";
@@ -10,4 +9,4 @@ export const membersRouter = {
   add,
   remove,
   updateRole,
-} satisfies ORPCRouterRecord;
+};

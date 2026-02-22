@@ -98,6 +98,11 @@ const orpc = os.$context<Context>();
 export const router = orpc.router;
 
 /**
+ * Фабричная функция для создания роутеров (алиас для совместимости)
+ */
+export const createRouter = orpc.router;
+
+/**
  * Фабричная функция для создания middleware
  * Используется для добавления промежуточной логики (логирование, аудит, и т.д.)
  */

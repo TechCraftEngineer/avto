@@ -18,9 +18,7 @@ export const dashboardStats = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace",
       });
     }
 

@@ -31,8 +31,8 @@ const trackEventInputSchema = z.object({
 
 export const trackEvent = publicProcedure
   .input(trackEventInputSchema)
-  .handler(async ({ ctx, input }) => {
-    const analyticsTracker = new AnalyticsTracker(ctx.db);
+  .handler(async ({ context, input }) => {
+    const analyticsTracker = new AnalyticsTracker(context.db);
 
     try {
       const event = await analyticsTracker.trackEvent({
@@ -49,10 +49,7 @@ export const trackEvent = publicProcedure
       };
     } catch (error) {
       if (error instanceof AnalyticsError) {
-        throw new ORPCError({
-          code: "BAD_REQUEST",
-          message: error.userMessage,
-          cause: error,
+        throw new ORPCError("BAD_REQUEST", { message: error.userMessage, cause: error,
         });
       }
       throw error;

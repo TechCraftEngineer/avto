@@ -21,9 +21,7 @@ export const update = protectedProcedure
     );
 
     if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Недостаточно прав для обновления workspace",
+      throw new ORPCError("FORBIDDEN", { message: "Недостаточно прав для обновления workspace",
       });
     }
 
@@ -32,9 +30,7 @@ export const update = protectedProcedure
       input.id,
     );
     if (!currentWorkspace) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Workspace не найден",
+      throw new ORPCError("NOT_FOUND", { message: "Workspace не найден",
       });
     }
 
@@ -44,9 +40,7 @@ export const update = protectedProcedure
         currentWorkspace.organizationId,
       );
       if (existing && existing.id !== input.id) {
-        throw new ORPCError({
-          code: "CONFLICT",
-          message: "Workspace с таким slug уже существует",
+        throw new ORPCError("CONFLICT", { message: "Workspace с таким slug уже существует",
         });
       }
     }

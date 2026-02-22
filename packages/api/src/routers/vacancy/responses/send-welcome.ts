@@ -28,9 +28,7 @@ export const sendWelcome = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому рабочему пространству",
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому рабочему пространству",
       });
     }
 
@@ -43,9 +41,7 @@ export const sendWelcome = protectedProcedure
     });
 
     if (!response) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Отклик не найден",
+      throw new ORPCError("NOT_FOUND", { message: "Отклик не найден",
       });
     }
 
@@ -56,17 +52,13 @@ export const sendWelcome = protectedProcedure
     });
 
     if (!vacancy) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Вакансия не найдена",
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена",
       });
     }
 
     // Проверка принадлежности вакансии к рабочему пространству
     if (vacancy.workspaceId !== workspaceId) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому отклику",
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому отклику",
       });
     }
 

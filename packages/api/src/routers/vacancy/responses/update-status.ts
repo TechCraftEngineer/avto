@@ -25,9 +25,7 @@ export const updateStatus = protectedProcedure
     });
 
     if (!response) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Отклик не найден",
+      throw new ORPCError("NOT_FOUND", { message: "Отклик не найден",
       });
     }
 
@@ -37,9 +35,7 @@ export const updateStatus = protectedProcedure
     });
 
     if (!existingVacancy) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Вакансия не найдена",
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена",
       });
     }
 
@@ -50,9 +46,7 @@ export const updateStatus = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому отклику",
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому отклику",
       });
     }
 
@@ -69,9 +63,7 @@ export const updateStatus = protectedProcedure
         .for("update");
 
       if (!lockedResponse) {
-        throw new ORPCError({
-          code: "NOT_FOUND",
-          message: "Отклик не найден",
+        throw new ORPCError("NOT_FOUND", { message: "Отклик не найден",
         });
       }
 
@@ -85,9 +77,7 @@ export const updateStatus = protectedProcedure
         .returning();
 
       if (!result) {
-        throw new ORPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Не удалось обновить статус отклика",
+        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось обновить статус отклика",
         });
       }
 

@@ -27,16 +27,12 @@ export const setup = publicProcedure
   )
   .mutation(async ({ input, ctx }) => {
     if (!isTestMode) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Тестовые эндпоинты доступны только в режиме разработки",
+      throw new ORPCError("FORBIDDEN", { message: "Тестовые эндпоинты доступны только в режиме разработки",
       });
     }
 
-    if (!ctx.authApi) {
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Auth API недоступен",
+    if (!context.authApi) {
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Auth API недоступен",
       });
     }
 
@@ -54,7 +50,7 @@ export const setup = publicProcedure
       }
 
       // Создаем пользователя через better-auth
-      const signUpResult = await ctx.authApi.signUpEmail({
+      const signUpResult = await context.authApi.signUpEmail({
         body: {
           email,
           password,
@@ -63,9 +59,7 @@ export const setup = publicProcedure
       });
 
       if (!signUpResult) {
-        throw new ORPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Не удалось создать пользователя",
+        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось создать пользователя",
         });
       }
 
@@ -75,9 +69,7 @@ export const setup = publicProcedure
       });
 
       if (!userRecord) {
-        throw new ORPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Пользователь не найден после создания",
+        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Пользователь не найден после создания",
         });
       }
 
@@ -99,9 +91,7 @@ export const setup = publicProcedure
 
       const org = orgResult[0];
       if (!org) {
-        throw new ORPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Не удалось создать организацию",
+        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось создать организацию",
         });
       }
 
@@ -128,9 +118,7 @@ export const setup = publicProcedure
 
       const ws = wsResult[0];
       if (!ws) {
-        throw new ORPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Не удалось создать воркспейс",
+        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось создать воркспейс",
         });
       }
 
@@ -160,10 +148,7 @@ export const setup = publicProcedure
         dashboardUrl: `/orgs/${org.slug}/workspaces/${ws.slug}`,
       };
     } catch (error) {
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Ошибка при создании тестового пользователя",
-        cause: error,
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Ошибка при создании тестового пользователя", cause: error,
       });
     }
   });

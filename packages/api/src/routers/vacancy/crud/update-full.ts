@@ -23,9 +23,7 @@ export const updateFull = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace",
       });
     }
 
@@ -37,9 +35,7 @@ export const updateFull = protectedProcedure
     });
 
     if (!existingVacancy) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Вакансия не найдена",
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена",
       });
     }
 
@@ -63,9 +59,7 @@ export const updateFull = protectedProcedure
       .returning();
 
     if (!result[0]) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Вакансия не найдена",
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена",
       });
     }
 

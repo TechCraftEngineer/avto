@@ -24,9 +24,7 @@ export const get = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace",
       });
     }
 
@@ -48,17 +46,13 @@ export const get = protectedProcedure
     });
 
     if (!vacancy) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Вакансия не найдена",
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена",
       });
     }
 
     // Проверка принадлежности вакансии к workspace
     if (vacancy.workspaceId !== input.workspaceId) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому отклику",
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому отклику",
       });
     }
 

@@ -4,7 +4,6 @@
  * tRPC router для аналитики преквалификации.
  */
 
-import type { ORPCRouterRecord } from "@orpc/server";
 
 import { exportData } from "./export-data";
 import { getDashboard } from "./get-dashboard";
@@ -16,4 +15,4 @@ export const analyticsRouter = {
   getVacancyAnalytics,
   exportData,
   trackEvent,
-} satisfies ORPCRouterRecord;
+};

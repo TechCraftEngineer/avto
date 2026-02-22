@@ -13,9 +13,9 @@ export const syncArchivedVacancyResponses = protectedProcedure
   .input(syncArchivedVacancyResponsesInputSchema)
   .handler(async ({ input, context: ctx }) => {
     // Проверяем доступ к workspace
-    const hasAccess = await ctx.workspaceRepository.checkAccess(
+    const hasAccess = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!hasAccess) {
@@ -25,7 +25,7 @@ export const syncArchivedVacancyResponses = protectedProcedure
     }
 
     // Получаем вакансию и проверяем её существование
-    const vacancy = await ctx.db.query.vacancy.findFirst({
+    const vacancy = await context.db.query.vacancy.findFirst({
       where: (vacancy, { eq, and }) =>
         and(
           eq(vacancy.id, input.vacancyId),
@@ -40,7 +40,7 @@ export const syncArchivedVacancyResponses = protectedProcedure
     }
 
     // Получаем публикацию на HH.ru для этой вакансии
-    const publication = await ctx.db.query.vacancyPublication.findFirst({
+    const publication = await context.db.query.vacancyPublication.findFirst({
       where: (pub, { and, eq }) =>
         and(eq(pub.vacancyId, input.vacancyId), eq(pub.platform, "HH")),
     });

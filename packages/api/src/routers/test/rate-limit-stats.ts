@@ -7,9 +7,7 @@ import { publicProcedure } from "../../orpc";
  */
 export const rateLimitStats = publicProcedure.query(async () => {
   if (process.env.NODE_ENV === "production") {
-    throw new ORPCError({
-      code: "FORBIDDEN",
-      message: "Доступно только в dev режиме",
+    throw new ORPCError("FORBIDDEN", { message: "Доступно только в dev режиме",
     });
   }
 

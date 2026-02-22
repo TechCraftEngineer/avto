@@ -24,9 +24,7 @@ export const addTag = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace",
       });
     }
 
@@ -38,9 +36,7 @@ export const addTag = protectedProcedure
     });
 
     if (!response) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Отклик не найден",
+      throw new ORPCError("NOT_FOUND", { message: "Отклик не найден",
       });
     }
 
@@ -50,9 +46,7 @@ export const addTag = protectedProcedure
     });
 
     if (!vacancy || vacancy.workspaceId !== input.workspaceId) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому отклику",
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому отклику",
       });
     }
 

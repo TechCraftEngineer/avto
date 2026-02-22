@@ -1,4 +1,4 @@
-import type { inferRouterInputs, inferRouterOutputs } from "@orpc/server";
+import type { InferRouterInputs, InferRouterOutputs } from "@orpc/server";
 
 import type { AppRouter } from "./root";
 
@@ -8,7 +8,7 @@ import type { AppRouter } from "./root";
  * type PostByIdInput = RouterInputs['post']['byId']
  *      ^? { id: number }
  */
-type RouterInputs = inferRouterInputs<AppRouter>;
+type RouterInputs = InferRouterInputs<AppRouter>;
 
 /**
  * Inference helpers for output types
@@ -16,7 +16,7 @@ type RouterInputs = inferRouterInputs<AppRouter>;
  * type AllPostsOutput = RouterOutputs['post']['all']
  *      ^? Post[]
  */
-type RouterOutputs = inferRouterOutputs<AppRouter>;
+type RouterOutputs = InferRouterOutputs<AppRouter>;
 
 export type {
   TenantErrorCode,
@@ -29,7 +29,7 @@ export {
   createTenantGuard,
   TenantGuard,
   TenantIsolationError,
-  toORPCError,
+  toTRPCError,
   withTenantGuard,
 } from "./middleware";
 export { createContext } from "./orpc";

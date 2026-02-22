@@ -10,17 +10,13 @@ export const accept = protectedProcedure
     );
 
     if (!invite) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Приглашение не найдено",
+      throw new ORPCError("NOT_FOUND", { message: "Приглашение не найдено",
       });
     }
 
     // Проверка срока действия
     if (new Date(invite.expiresAt) < new Date()) {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
-        message: "Срок действия приглашения истек",
+      throw new ORPCError("BAD_REQUEST", { message: "Срок действия приглашения истек",
       });
     }
 
@@ -29,9 +25,7 @@ export const accept = protectedProcedure
       invite.invitedUserId &&
       invite.invitedUserId !== context.session.user.id
     ) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Это приглашение предназначено для другого пользователя",
+      throw new ORPCError("FORBIDDEN", { message: "Это приглашение предназначено для другого пользователя",
       });
     }
 
@@ -41,9 +35,7 @@ export const accept = protectedProcedure
       const invitedEmail = invite.invitedEmail.toLowerCase();
 
       if (!sessionEmail) {
-        throw new ORPCError({
-          code: "BAD_REQUEST",
-          message: "У вашего аккаунта не указан email",
+        throw new ORPCError("BAD_REQUEST", { message: "У вашего аккаунта не указан email",
         });
       }
 
@@ -52,9 +44,7 @@ export const accept = protectedProcedure
         console.warn(
           `Invite email mismatch: session=${sessionEmail}, invited=${invitedEmail}`,
         );
-        throw new ORPCError({
-          code: "FORBIDDEN",
-          message: "Это приглашение не предназначено для вашей учётной записи",
+        throw new ORPCError("FORBIDDEN", { message: "Это приглашение не предназначено для вашей учётной записи",
         });
       }
     }
@@ -66,9 +56,7 @@ export const accept = protectedProcedure
     );
 
     if (existingMember) {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
-        message: "Вы уже являетесь участником этого рабочего пространства",
+      throw new ORPCError("BAD_REQUEST", { message: "Вы уже являетесь участником этого рабочего пространства",
       });
     }
 
