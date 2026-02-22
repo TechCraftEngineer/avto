@@ -11,11 +11,11 @@ export const updateMemberRole = protectedProcedure
       role: z.enum(["owner", "admin", "member"]),
     }),
   )
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверка доступа к организации
-    const access = await ctx.organizationRepository.checkAccess(
+    const access = await context.organizationRepository.checkAccess(
       input.organizationId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
@@ -25,7 +25,7 @@ export const updateMemberRole = protectedProcedure
     }
 
     // Получаем информацию о целевом участнике
-    const targetMember = await ctx.organizationRepository.checkAccess(
+    const targetMember = await context.organizationRepository.checkAccess(
       input.organizationId,
       input.userId,
     );
@@ -52,7 +52,7 @@ export const updateMemberRole = protectedProcedure
     }
 
     // Обновление роли участника (метод сам проверит защиту последнего owner)
-    const updatedMember = await ctx.organizationRepository.updateMemberRole(
+    const updatedMember = await context.organizationRepository.updateMemberRole(
       input.organizationId,
       input.userId,
       input.role,

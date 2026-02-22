@@ -1,9 +1,9 @@
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
-export const pending = protectedProcedure.query(async ({ ctx }) => {
-  const invites = await ctx.workspaceRepository.getPendingInvitesByUser(
-    ctx.session.user.id,
-    ctx.session.user.email,
+export const pending = protectedProcedure.handler(async ({ context }) => {
+  const invites = await context.workspaceRepository.getPendingInvitesByUser(
+    context.session.user.id,
+    context.session.user.email,
   );
   return invites;
 });

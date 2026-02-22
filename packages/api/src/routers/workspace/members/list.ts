@@ -1,23 +1,25 @@
+import { ORPCError } from "@orpc/server";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const list = protectedProcedure
   .input(z.object({ workspaceId: workspaceIdSchema }))
-  .query(async ({ input, ctx }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ input, context }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к workspace",
       });
     }
 
-    const members = await ctx.workspaceRepository.getMembers(input.workspaceId);
+    const members = await context.workspaceRepository.getMembers(
+      input.workspaceId,
+    );
     return members;
   });

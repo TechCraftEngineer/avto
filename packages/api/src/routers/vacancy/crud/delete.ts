@@ -13,11 +13,11 @@ const deleteVacancyInputSchema = z.object({
 
 export const deleteVacancy = protectedProcedure
   .input(deleteVacancyInputSchema)
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверка доступа к workspace
-    const hasAccess = await ctx.workspaceRepository.checkAccess(
+    const hasAccess = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!hasAccess) {
@@ -28,7 +28,7 @@ export const deleteVacancy = protectedProcedure
     }
 
     // Проверка существования вакансии
-    const existingVacancy = await ctx.db.query.vacancy.findFirst({
+    const existingVacancy = await context.db.query.vacancy.findFirst({
       where: and(
         eq(vacancy.id, input.vacancyId),
         eq(vacancy.workspaceId, input.workspaceId),
@@ -45,7 +45,7 @@ export const deleteVacancy = protectedProcedure
     // Выполняем удаление в зависимости от выбора пользователя
     if (input.dataCleanupOption === "anonymize") {
       try {
-        await ctx.db.transaction(async (tx) => {
+        await context.db.transaction(async (tx) => {
           // Анонимизируем персональные данные кандидатов
           await tx
             .update(responseTable)
@@ -91,7 +91,7 @@ export const deleteVacancy = protectedProcedure
     }
 
     // Полное удаление вакансии
-    await ctx.db.transaction(async (tx) => {
+    await context.db.transaction(async (tx) => {
       // Удаляем отклики вакансии (полиморфная связь не поддерживает CASCADE)
       await tx
         .delete(responseTable)

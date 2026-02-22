@@ -16,11 +16,11 @@ export const updatePlan = protectedProcedure
       plan: organizationPlanSchema,
     }),
   )
-  .mutation(async ({ input, ctx }) => {
-    const userId = ctx.session.user.id;
+  .handler(async ({ input, context }) => {
+    const userId = context.session.user.id;
 
     // Проверяем существование организации
-    const org = await ctx.db.query.organization.findFirst({
+    const org = await context.db.query.organization.findFirst({
       where: (org, { eq }) => eq(org.id, input.organizationId),
       with: {
         members: {
@@ -44,7 +44,7 @@ export const updatePlan = protectedProcedure
     }
 
     // Обновляем план организации
-    const [updated] = await ctx.db
+    const [updated] = await context.db
       .update(organization)
       .set({ plan: input.plan })
       .where(eq(organization.id, input.organizationId))

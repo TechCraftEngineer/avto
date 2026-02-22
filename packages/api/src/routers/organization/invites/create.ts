@@ -17,11 +17,11 @@ export const createInvite = protectedProcedure
       role: inviteToOrganizationSchema.shape.role,
     }),
   )
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверка доступа к организации
-    const access = await ctx.organizationRepository.checkAccess(
+    const access = await context.organizationRepository.checkAccess(
       input.organizationId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
@@ -42,16 +42,16 @@ export const createInvite = protectedProcedure
     expiresAt.setDate(expiresAt.getDate() + 7);
 
     // Создание приглашения
-    const invite = await ctx.organizationRepository.createInvite({
+    const invite = await context.organizationRepository.createInvite({
       organizationId: input.organizationId,
       invitedEmail: input.email,
       role: input.role,
-      createdBy: ctx.session.user.id,
+      createdBy: context.session.user.id,
       expiresAt,
     });
 
     // Получаем данные организации для email
-    const organization = await ctx.organizationRepository.findById(
+    const organization = await context.organizationRepository.findById(
       input.organizationId,
     );
 
@@ -71,7 +71,7 @@ export const createInvite = protectedProcedure
         react: OrganizationInviteEmail({
           organizationName: organization.name,
           organizationLogo: organization.logo ?? undefined,
-          inviterName: ctx.session.user.name ?? "Пользователь",
+          inviterName: context.session.user.name ?? "Пользователь",
           inviteLink,
           role: input.role,
         }),

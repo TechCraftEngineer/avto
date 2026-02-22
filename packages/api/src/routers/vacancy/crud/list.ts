@@ -7,11 +7,11 @@ import { protectedProcedure } from "../../../orpc";
 
 export const list = protectedProcedure
   .input(z.object({ workspaceId: workspaceIdSchema }))
-  .query(async ({ ctx, input }) => {
+  .handler(async ({ context, input }) => {
     // Проверка доступа к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
@@ -21,7 +21,7 @@ export const list = protectedProcedure
       });
     }
 
-    const vacancies = await ctx.db
+    const vacancies = await context.db
       .select({
         id: vacancy.id,
         workspaceId: vacancy.workspaceId,

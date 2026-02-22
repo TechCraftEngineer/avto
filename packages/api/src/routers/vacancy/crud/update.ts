@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq } from "@qbs-autonaim/db";
 import { vacancy } from "@qbs-autonaim/db/schema";
 import {
@@ -16,11 +17,11 @@ export const update = protectedProcedure
       settings: updateVacancySettingsSchema,
     }),
   )
-  .mutation(async ({ ctx, input }) => {
+  .handler(async ({ context, input }) => {
     // Проверка доступа к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
@@ -31,7 +32,7 @@ export const update = protectedProcedure
     }
 
     // Проверяем, что вакансия существует и принадлежит workspace
-    const existingVacancy = await ctx.db.query.vacancy.findFirst({
+    const existingVacancy = await context.db.query.vacancy.findFirst({
       where: and(
         eq(vacancy.id, input.vacancyId),
         eq(vacancy.workspaceId, input.workspaceId),
@@ -80,7 +81,7 @@ export const update = protectedProcedure
           : settings.customDomainId;
     }
 
-    const result = await ctx.db
+    const result = await context.db
       .update(vacancy)
       .set(patch)
       .where(
@@ -102,7 +103,7 @@ export const update = protectedProcedure
     // Отслеживаем изменения настроек каналов общения
     if (settings.enabledCommunicationChannels) {
       try {
-        const analytics = new CommunicationChannelsAnalytics(ctx.db);
+        const analytics = new CommunicationChannelsAnalytics(context.db);
 
         // Отслеживаем только изменившиеся каналы
         for (const [channel, enabled] of Object.entries(
@@ -119,7 +120,7 @@ export const update = protectedProcedure
               channel: channel as "webChat" | "telegram",
               enabled: enabled as boolean,
               metadata: {
-                userId: ctx.session.user.id,
+                userId: context.session.user.id,
               },
             });
           }

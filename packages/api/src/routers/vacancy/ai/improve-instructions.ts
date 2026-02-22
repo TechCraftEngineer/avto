@@ -119,7 +119,7 @@ ${field.guidelines}
 
 export const improveInstructions = protectedProcedure
   .input(improveInstructionsInputSchema)
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const {
       vacancyId,
       workspaceId,
@@ -129,9 +129,9 @@ export const improveInstructions = protectedProcedure
       vacancyDescription,
     } = input;
 
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
@@ -163,7 +163,7 @@ export const improveInstructions = protectedProcedure
         metadata: {
           workspaceId,
           fieldType,
-          userId: ctx.session.user.id,
+          userId: context.session.user.id,
         },
       });
 

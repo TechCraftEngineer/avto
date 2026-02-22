@@ -12,11 +12,11 @@ export const listActive = protectedProcedure
       limit: z.number().min(1).max(100).default(5),
     }),
   )
-  .query(async ({ ctx, input }) => {
+  .handler(async ({ context, input }) => {
     // Проверка доступа к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
@@ -28,7 +28,7 @@ export const listActive = protectedProcedure
 
     // Подсчёт откликов из таблицы responses — закэшированные vacancy.responses
     // могут быть устаревшими (не обновляются при парсинге HH и т.д.)
-    const rows = await ctx.db
+    const rows = await context.db
       .select({
         id: vacancy.id,
         workspaceId: vacancy.workspaceId,

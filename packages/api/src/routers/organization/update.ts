@@ -14,10 +14,10 @@ export const update = protectedProcedure
       data: updateOrganizationSchema,
     }),
   )
-  .mutation(async ({ input, ctx }) => {
-    const access = await ctx.organizationRepository.checkAccess(
+  .handler(async ({ input, context }) => {
+    const access = await context.organizationRepository.checkAccess(
       input.id,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access || (access.role !== "owner" && access.role !== "admin")) {
@@ -27,7 +27,7 @@ export const update = protectedProcedure
     }
 
     if (input.data.slug) {
-      const existing = await ctx.organizationRepository.findBySlug(
+      const existing = await context.organizationRepository.findBySlug(
         input.data.slug,
       );
       if (existing && existing.id !== input.id) {
@@ -44,7 +44,7 @@ export const update = protectedProcedure
       dataToUpdate.logo = undefined;
     }
 
-    const updated = await ctx.organizationRepository.update(
+    const updated = await context.organizationRepository.update(
       input.id,
       dataToUpdate,
     );

@@ -7,15 +7,15 @@ import {
 } from "@qbs-autonaim/db/schema";
 import { protectedProcedure } from "../../orpc";
 
-export const me = protectedProcedure.query(async ({ ctx }) => {
-  const userData = await ctx.db.query.user.findFirst({
-    where: eq(user.id, ctx.session.user.id),
+export const me = protectedProcedure.handler(async ({ context }) => {
+  const userData = await context.db.query.user.findFirst({
+    where: eq(user.id, context.session.user.id),
   });
 
   if (!userData) return null;
 
-  const accounts = await ctx.db.query.account.findMany({
-    where: eq(account.userId, ctx.session.user.id),
+  const accounts = await context.db.query.account.findMany({
+    where: eq(account.userId, context.session.user.id),
     columns: {
       id: true,
       providerId: true,
@@ -28,13 +28,13 @@ export const me = protectedProcedure.query(async ({ ctx }) => {
 
   if (userData.lastActiveOrganizationId) {
     // Проверяем доступ к организации
-    const hasOrgAccess = await ctx.organizationRepository.checkAccess(
+    const hasOrgAccess = await context.organizationRepository.checkAccess(
       userData.lastActiveOrganizationId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (hasOrgAccess) {
-      lastActiveOrganization = await ctx.db.query.organization.findFirst({
+      lastActiveOrganization = await context.db.query.organization.findFirst({
         where: eq(organization.id, userData.lastActiveOrganizationId),
       });
     }
@@ -42,13 +42,13 @@ export const me = protectedProcedure.query(async ({ ctx }) => {
 
   if (userData.lastActiveWorkspaceId) {
     // Проверяем доступ к workspace
-    const hasWorkspaceAccess = await ctx.workspaceRepository.checkAccess(
+    const hasWorkspaceAccess = await context.workspaceRepository.checkAccess(
       userData.lastActiveWorkspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (hasWorkspaceAccess) {
-      lastActiveWorkspace = await ctx.db.query.workspace.findFirst({
+      lastActiveWorkspace = await context.db.query.workspace.findFirst({
         where: eq(workspace.id, userData.lastActiveWorkspaceId),
       });
     }

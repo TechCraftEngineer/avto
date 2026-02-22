@@ -1,42 +1,43 @@
-﻿import { env, paths } from "@qbs-autonaim/config";
-
+﻿import { ORPCError } from "@orpc/server";
+import { env, paths } from "@qbs-autonaim/config";
 import { WorkspaceInviteEmail } from "@qbs-autonaim/emails";
 import { sendEmail } from "@qbs-autonaim/emails/send";
 import { addUserToWorkspaceSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const resend = protectedProcedure
   .input(addUserToWorkspaceSchema)
-  .mutation(async ({ input, ctx }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ input, context }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Недостаточно прав для отправки приглашений",
       });
     }
 
-    const existingInvite = await ctx.workspaceRepository.findInviteByEmail(
+    const existingInvite = await context.workspaceRepository.findInviteByEmail(
       input.workspaceId,
       input.email,
     );
 
     if (!existingInvite) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Приглашение не найдено",
       });
     }
 
-    const workspace = await ctx.workspaceRepository.findById(input.workspaceId);
+    const workspace = await context.workspaceRepository.findById(
+      input.workspaceId,
+    );
 
     if (!workspace) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Workspace не найден",
       });
@@ -50,7 +51,7 @@ export const resend = protectedProcedure
       react: WorkspaceInviteEmail({
         workspaceName: workspace.name,
         workspaceLogo: workspace.logo || undefined,
-        inviterName: ctx.session.user.name || ctx.session.user.email,
+        inviterName: context.session.user.name || context.session.user.email,
         inviteLink,
         role: input.role,
       }),

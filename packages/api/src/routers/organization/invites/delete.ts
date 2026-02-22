@@ -10,11 +10,11 @@ export const deleteInvite = protectedProcedure
       inviteId: z.string().min(1, "ID приглашения обязателен"),
     }),
   )
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверка доступа к организации
-    const access = await ctx.organizationRepository.checkAccess(
+    const access = await context.organizationRepository.checkAccess(
       input.organizationId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
@@ -31,7 +31,7 @@ export const deleteInvite = protectedProcedure
     }
 
     // Загрузка приглашения
-    const invite = await ctx.organizationRepository.getInviteById(
+    const invite = await context.organizationRepository.getInviteById(
       input.inviteId,
     );
 
@@ -49,7 +49,7 @@ export const deleteInvite = protectedProcedure
     }
 
     // Отмена приглашения
-    await ctx.organizationRepository.deleteInvite(input.inviteId);
+    await context.organizationRepository.deleteInvite(input.inviteId);
 
     return { success: true };
   });

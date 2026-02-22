@@ -9,9 +9,9 @@ export const acceptInvite = protectedProcedure
       token: z.string().min(1, "Токен обязателен"),
     }),
   )
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Получение приглашения по токену
-    const invite = await ctx.organizationRepository.getInviteByToken(
+    const invite = await context.organizationRepository.getInviteByToken(
       input.token,
     );
 
@@ -29,7 +29,7 @@ export const acceptInvite = protectedProcedure
     }
 
     // Получение организации
-    const organization = await ctx.organizationRepository.findById(
+    const organization = await context.organizationRepository.findById(
       invite.organizationId,
     );
 
@@ -40,9 +40,9 @@ export const acceptInvite = protectedProcedure
     }
 
     // Проверка, не является ли пользователь уже участником
-    const existingMember = await ctx.organizationRepository.checkAccess(
+    const existingMember = await context.organizationRepository.checkAccess(
       invite.organizationId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (existingMember) {
@@ -54,14 +54,14 @@ export const acceptInvite = protectedProcedure
     // Добавление пользователя в организацию с указанной ролью
     let member: OrganizationMember;
     try {
-      member = await ctx.organizationRepository.addMember(
+      member = await context.organizationRepository.addMember(
         invite.organizationId,
-        ctx.session.user.id,
+        context.session.user.id,
         invite.role,
       );
 
       // Удаление приглашения только после успешного добавления
-      await ctx.organizationRepository.deleteInvite(invite.id);
+      await context.organizationRepository.deleteInvite(invite.id);
     } catch (error) {
       // Если добавление не удалось, не удаляем приглашение
       throw new ORPCError("INTERNAL_SERVER_ERROR", {

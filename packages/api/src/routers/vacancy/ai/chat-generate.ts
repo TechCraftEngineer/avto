@@ -375,13 +375,13 @@ ${
 
 export const chatGenerate = protectedProcedure
   .input(chatGenerateInputSchema)
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const { workspaceId, message, currentDocument, conversationHistory } =
       input;
 
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
@@ -392,7 +392,7 @@ export const chatGenerate = protectedProcedure
     }
 
     // Загружаем настройки компании для персонализации промпта
-    const botSettings = await ctx.db.query.botSettings.findFirst({
+    const botSettings = await context.db.query.botSettings.findFirst({
       where: (botSettings, { eq }) => eq(botSettings.workspaceId, workspaceId),
     });
 
@@ -471,13 +471,13 @@ export const chatGenerate = protectedProcedure
 
         if (botSettings) {
           // Обновляем существующие настройки
-          await ctx.db
+          await context.db
             .update(botSettingsTable)
             .set({ ...companyData, updatedAt: new Date() })
             .where(eq(botSettingsTable.workspaceId, workspaceId));
         } else {
           // Создаем новые настройки
-          await ctx.db
+          await context.db
             .insert(botSettingsTable)
             .values({ workspaceId, ...companyData });
         }

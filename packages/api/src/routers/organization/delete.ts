@@ -1,14 +1,14 @@
-import { ORPCError } from "@orpc/server";
+import { ORPCError } from "@orpc/client";
 import { organizationIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 
 export const deleteOrganization = protectedProcedure
   .input(z.object({ id: organizationIdSchema }))
-  .mutation(async ({ input, ctx }) => {
-    const access = await ctx.organizationRepository.checkAccess(
+  .handler(async ({ input, context }) => {
+    const access = await context.organizationRepository.checkAccess(
       input.id,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access || access.role !== "owner") {
@@ -17,6 +17,6 @@ export const deleteOrganization = protectedProcedure
       });
     }
 
-    await ctx.organizationRepository.delete(input.id);
+    await context.organizationRepository.delete(input.id);
     return { success: true };
   });

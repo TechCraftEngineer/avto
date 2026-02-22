@@ -11,7 +11,7 @@ export const refreshStatus = publicProcedure
       vacancyId: z.string(),
     }),
   )
-  .query(async ({ input }) => {
+  .handler(async ({ input }) => {
     // Возвращаем информацию о канале для подписки на фронтенде
     return {
       channelName: `vacancy-responses-refresh:${input.vacancyId}`,

@@ -104,7 +104,7 @@ ${interviewUrl ? "- Используй переменную {{interviewUrl}} д�
 
 export const improveWelcomeTemplates = protectedProcedure
   .input(improveWelcomeTemplatesInputSchema)
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const {
       vacancyId,
       workspaceId,
@@ -114,9 +114,9 @@ export const improveWelcomeTemplates = protectedProcedure
       vacancyDescription,
     } = input;
 
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
@@ -149,7 +149,7 @@ export const improveWelcomeTemplates = protectedProcedure
         metadata: {
           workspaceId,
           channel,
-          userId: ctx.session.user.id,
+          userId: context.session.user.id,
         },
       });
 

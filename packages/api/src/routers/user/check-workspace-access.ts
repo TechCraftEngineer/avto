@@ -8,19 +8,19 @@ export const checkWorkspaceAccess = protectedProcedure
       workspaceId: z.string().min(1),
     }),
   )
-  .query(async ({ ctx, input }) => {
-    const hasOrgAccess = await ctx.organizationRepository.checkAccess(
+  .handler(async ({ context, input }) => {
+    const hasOrgAccess = await context.organizationRepository.checkAccess(
       input.organizationId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!hasOrgAccess) {
       return { hasAccess: false };
     }
 
-    const hasWorkspaceAccess = await ctx.workspaceRepository.checkAccess(
+    const hasWorkspaceAccess = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     return { hasAccess: hasWorkspaceAccess };

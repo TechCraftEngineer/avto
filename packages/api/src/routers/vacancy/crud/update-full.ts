@@ -16,10 +16,10 @@ export const updateFull = protectedProcedure
       data: updateFullVacancySchema,
     }),
   )
-  .mutation(async ({ ctx, input }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ context, input }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
@@ -29,7 +29,7 @@ export const updateFull = protectedProcedure
       });
     }
 
-    const existingVacancy = await ctx.db.query.vacancy.findFirst({
+    const existingVacancy = await context.db.query.vacancy.findFirst({
       where: and(
         eq(vacancy.id, input.vacancyId),
         eq(vacancy.workspaceId, input.workspaceId),
@@ -43,7 +43,7 @@ export const updateFull = protectedProcedure
       });
     }
 
-    const result = await ctx.db
+    const result = await context.db
       .update(vacancy)
       .set({
         title: input.data.title,

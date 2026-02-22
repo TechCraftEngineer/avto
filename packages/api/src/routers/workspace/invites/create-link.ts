@@ -1,7 +1,7 @@
+import { ORPCError } from "@orpc/server";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const createLink = protectedProcedure
   .input(
@@ -10,22 +10,22 @@ export const createLink = protectedProcedure
       role: z.enum(["owner", "admin", "member"]).default("member"),
     }),
   )
-  .mutation(async ({ input, ctx }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ input, context }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Недостаточно прав для создания приглашений",
       });
     }
 
-    const invite = await ctx.workspaceRepository.createInviteLink(
+    const invite = await context.workspaceRepository.createInviteLink(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
       input.role,
     );
 

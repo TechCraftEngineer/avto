@@ -10,11 +10,11 @@ import { protectedProcedure } from "../../../orpc";
 
 export const dashboardStats = protectedProcedure
   .input(z.object({ workspaceId: workspaceIdSchema }))
-  .query(async ({ ctx, input }) => {
+  .handler(async ({ context, input }) => {
     // Проверка доступа к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {

@@ -1,12 +1,12 @@
+import { ORPCError } from "@orpc/server";
 import { eq } from "@qbs-autonaim/db";
 import { botSettings as botSettingsTable } from "@qbs-autonaim/db/schema";
 import {
   updateBotSettingsSchema,
   workspaceIdSchema,
 } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const updateBotSettings = protectedProcedure
   .input(
@@ -15,14 +15,14 @@ export const updateBotSettings = protectedProcedure
       data: updateBotSettingsSchema,
     }),
   )
-  .mutation(async ({ input, ctx }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ input, context }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Недостаточно прав для обновления настроек бота",
       });
@@ -31,13 +31,13 @@ export const updateBotSettings = protectedProcedure
     const { workspaceId, data } = input;
 
     // Проверяем, существует ли уже запись
-    const existing = await ctx.db.query.botSettings.findFirst({
+    const existing = await context.db.query.botSettings.findFirst({
       where: (botSettings, { eq }) => eq(botSettings.workspaceId, workspaceId),
     });
 
     if (existing) {
       // Обновляем существующую запись
-      const updated = await ctx.db
+      const updated = await context.db
         .update(botSettingsTable)
         .set({
           ...data,
@@ -51,7 +51,7 @@ export const updateBotSettings = protectedProcedure
       return updated[0];
     } else {
       // Создаем новую запись
-      const created = await ctx.db
+      const created = await context.db
         .insert(botSettingsTable)
         .values({
           workspaceId,

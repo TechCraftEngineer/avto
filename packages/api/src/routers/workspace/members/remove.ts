@@ -1,7 +1,7 @@
+import { ORPCError } from "@orpc/server";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const remove = protectedProcedure
   .input(
@@ -10,29 +10,29 @@ export const remove = protectedProcedure
       userId: z.string(),
     }),
   )
-  .mutation(async ({ input, ctx }) => {
-    const isSelfRemoval = input.userId === ctx.session.user.id;
+  .handler(async ({ input, context }) => {
+    const isSelfRemoval = input.userId === context.session.user.id;
 
-    const targetUserAccess = await ctx.workspaceRepository.checkAccess(
+    const targetUserAccess = await context.workspaceRepository.checkAccess(
       input.workspaceId,
       input.userId,
     );
 
     if (!targetUserAccess) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Пользователь не является участником workspace",
       });
     }
 
     if (!isSelfRemoval) {
-      const access = await ctx.workspaceRepository.checkAccess(
+      const access = await context.workspaceRepository.checkAccess(
         input.workspaceId,
-        ctx.session.user.id,
+        context.session.user.id,
       );
 
       if (!access || (access.role !== "owner" && access.role !== "admin")) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "FORBIDDEN",
           message: "Недостаточно прав для удаления пользователей",
         });
@@ -40,13 +40,13 @@ export const remove = protectedProcedure
     }
 
     if (targetUserAccess.role === "owner") {
-      const members = await ctx.workspaceRepository.getMembers(
+      const members = await context.workspaceRepository.getMembers(
         input.workspaceId,
       );
       const ownerCount = members.filter((m) => m.role === "owner").length;
 
       if (ownerCount <= 1) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "BAD_REQUEST",
           message:
             "Невозможно удалить последнего владельца workspace. Назначьте другого владельца перед удалением.",
@@ -54,6 +54,9 @@ export const remove = protectedProcedure
       }
     }
 
-    await ctx.workspaceRepository.removeUser(input.workspaceId, input.userId);
+    await context.workspaceRepository.removeUser(
+      input.workspaceId,
+      input.userId,
+    );
     return { success: true };
   });

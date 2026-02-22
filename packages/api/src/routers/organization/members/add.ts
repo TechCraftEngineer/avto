@@ -11,11 +11,11 @@ export const addMember = protectedProcedure
       role: z.enum(["admin", "member"]),
     }),
   )
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверка доступа к организации
-    const access = await ctx.organizationRepository.checkAccess(
+    const access = await context.organizationRepository.checkAccess(
       input.organizationId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
@@ -32,7 +32,7 @@ export const addMember = protectedProcedure
     }
 
     // Добавление участника с указанной ролью
-    const member = await ctx.organizationRepository.addMember(
+    const member = await context.organizationRepository.addMember(
       input.organizationId,
       input.userId,
       input.role,

@@ -10,11 +10,11 @@ export const removeMember = protectedProcedure
       userId: z.string().min(1, "ID пользователя обязателен"),
     }),
   )
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверка доступа к организации
-    const access = await ctx.organizationRepository.checkAccess(
+    const access = await context.organizationRepository.checkAccess(
       input.organizationId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
@@ -31,7 +31,7 @@ export const removeMember = protectedProcedure
     }
 
     // Удаление участника (метод сам проверит защиту последнего owner и выполнит каскадное удаление)
-    await ctx.organizationRepository.removeMember(
+    await context.organizationRepository.removeMember(
       input.organizationId,
       input.userId,
     );

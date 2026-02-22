@@ -17,24 +17,24 @@ export const setActiveWorkspace = protectedProcedure
         .nullable(),
     }),
   )
-  .mutation(async ({ ctx, input }) => {
+  .handler(async ({ context, input }) => {
     // Если оба поля null/пустые, очищаем активный workspace
     if (!input.organizationId || !input.workspaceId) {
-      await ctx.db
+      await context.db
         .update(user)
         .set({
           lastActiveOrganizationId: null,
           lastActiveWorkspaceId: null,
         })
-        .where(eq(user.id, ctx.session.user.id));
+        .where(eq(user.id, context.session.user.id));
 
       return { success: true };
     }
 
     // Проверка доступа к организации
-    const organizationAccess = await ctx.organizationRepository.checkAccess(
+    const organizationAccess = await context.organizationRepository.checkAccess(
       input.organizationId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!organizationAccess) {
@@ -45,7 +45,7 @@ export const setActiveWorkspace = protectedProcedure
     }
 
     // Проверка существования workspace и соответствия organizationId
-    const workspaceData = await ctx.db.query.workspace.findFirst({
+    const workspaceData = await context.db.query.workspace.findFirst({
       where: and(
         eq(workspace.id, input.workspaceId),
         eq(workspace.organizationId, input.organizationId),
@@ -60,9 +60,9 @@ export const setActiveWorkspace = protectedProcedure
     }
 
     // Проверка доступа к workspace
-    const workspaceAccess = await ctx.workspaceRepository.checkAccess(
+    const workspaceAccess = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!workspaceAccess) {
@@ -73,13 +73,13 @@ export const setActiveWorkspace = protectedProcedure
     }
 
     // Все проверки пройдены, обновляем lastActive поля
-    await ctx.db
+    await context.db
       .update(user)
       .set({
         lastActiveOrganizationId: input.organizationId,
         lastActiveWorkspaceId: input.workspaceId,
       })
-      .where(eq(user.id, ctx.session.user.id));
+      .where(eq(user.id, context.session.user.id));
 
     return { success: true };
   });

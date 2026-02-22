@@ -1,6 +1,6 @@
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const getBySlug = protectedProcedure
   .input(
@@ -9,26 +9,26 @@ export const getBySlug = protectedProcedure
       organizationId: z.string(),
     }),
   )
-  .query(async ({ input, ctx }) => {
-    const workspace = await ctx.workspaceRepository.findBySlug(
+  .handler(async ({ input, context }) => {
+    const workspace = await context.workspaceRepository.findBySlug(
       input.slug,
       input.organizationId,
     );
 
     if (!workspace) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Workspace не найден",
       });
     }
 
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       workspace.id,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к workspace",
       });

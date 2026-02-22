@@ -1,23 +1,23 @@
+import { ORPCError } from "@orpc/server";
 import { updateUserRoleSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const updateRole = protectedProcedure
   .input(updateUserRoleSchema)
-  .mutation(async ({ input, ctx }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ input, context }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access || access.role !== "owner") {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Только owner может изменять роли",
       });
     }
 
-    const updated = await ctx.workspaceRepository.updateUserRole(
+    const updated = await context.workspaceRepository.updateUserRole(
       input.workspaceId,
       input.userId,
       input.role,

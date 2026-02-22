@@ -1,11 +1,11 @@
+import { ORPCError } from "@orpc/server";
 import { optimizeLogo } from "@qbs-autonaim/lib/image";
 import {
   updateWorkspaceSchema,
   workspaceIdSchema,
 } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const update = protectedProcedure
   .input(
@@ -14,35 +14,37 @@ export const update = protectedProcedure
       data: updateWorkspaceSchema,
     }),
   )
-  .mutation(async ({ input, ctx }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ input, context }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.id,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Недостаточно прав для обновления workspace",
       });
     }
 
     // Получаем текущий workspace для проверки organizationId
-    const currentWorkspace = await ctx.workspaceRepository.findById(input.id);
+    const currentWorkspace = await context.workspaceRepository.findById(
+      input.id,
+    );
     if (!currentWorkspace) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Workspace не найден",
       });
     }
 
     if (input.data.slug) {
-      const existing = await ctx.workspaceRepository.findBySlug(
+      const existing = await context.workspaceRepository.findBySlug(
         input.data.slug,
         currentWorkspace.organizationId,
       );
       if (existing && existing.id !== input.id) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "CONFLICT",
           message: "Workspace с таким slug уже существует",
         });
@@ -70,7 +72,7 @@ export const update = protectedProcedure
       dataToUpdate.customDomainId = customDomainId || null;
     }
 
-    const updated = await ctx.workspaceRepository.update(
+    const updated = await context.workspaceRepository.update(
       input.id,
       dataToUpdate,
     );

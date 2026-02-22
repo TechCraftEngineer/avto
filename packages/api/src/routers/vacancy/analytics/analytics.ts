@@ -11,11 +11,11 @@ import { protectedProcedure } from "../../../orpc";
 
 export const analytics = protectedProcedure
   .input(z.object({ vacancyId: z.string(), workspaceId: workspaceIdSchema }))
-  .query(async ({ ctx, input }) => {
+  .handler(async ({ context, input }) => {
     // Проверка доступа к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
@@ -26,7 +26,7 @@ export const analytics = protectedProcedure
     }
 
     // Проверка принадлежности вакансии к workspace
-    const vacancyCheck = await ctx.db.query.vacancy.findFirst({
+    const vacancyCheck = await context.db.query.vacancy.findFirst({
       where: and(
         eq(vacancy.id, input.vacancyId),
         eq(vacancy.workspaceId, input.workspaceId),
@@ -40,7 +40,7 @@ export const analytics = protectedProcedure
       });
     }
     // Получаем общее количество откликов
-    const totalResponsesResult = await ctx.db
+    const totalResponsesResult = await context.db
       .select({ count: count() })
       .from(responseTable)
       .where(
@@ -53,7 +53,7 @@ export const analytics = protectedProcedure
     const totalResponses = totalResponsesResult[0]?.count ?? 0;
 
     // Получаем количество обработанных откликов (с скринингом)
-    const processedResponsesResult = await ctx.db
+    const processedResponsesResult = await context.db
       .select({ count: count() })
       .from(responseTable)
       .innerJoin(
@@ -70,7 +70,7 @@ export const analytics = protectedProcedure
     const processedResponses = processedResponsesResult[0]?.count ?? 0;
 
     // Получаем количество кандидатов со скорингом >= 3
-    const highScoreResponsesResult = await ctx.db
+    const highScoreResponsesResult = await context.db
       .select({ count: count() })
       .from(responseTable)
       .innerJoin(
@@ -88,7 +88,7 @@ export const analytics = protectedProcedure
     const highScoreResponses = highScoreResponsesResult[0]?.count ?? 0;
 
     // Получаем количество кандидатов со скорингом >= 4
-    const topScoreResponsesResult = await ctx.db
+    const topScoreResponsesResult = await context.db
       .select({ count: count() })
       .from(responseTable)
       .innerJoin(
@@ -106,7 +106,7 @@ export const analytics = protectedProcedure
     const topScoreResponses = topScoreResponsesResult[0]?.count ?? 0;
 
     // Получаем средний скоринг
-    const avgScoreResult = await ctx.db
+    const avgScoreResult = await context.db
       .select({
         avg: sql<number>`COALESCE(AVG(${responseScreening.overallScore}), 0)`,
       })

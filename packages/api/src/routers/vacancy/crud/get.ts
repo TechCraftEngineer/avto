@@ -7,10 +7,10 @@ import { protectedProcedure } from "../../../orpc";
 
 export const get = protectedProcedure
   .input(z.object({ id: z.string(), workspaceId: workspaceIdSchema }))
-  .query(async ({ ctx, input }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ context, input }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
@@ -20,7 +20,7 @@ export const get = protectedProcedure
       });
     }
 
-    const vacancyRow = await ctx.db.query.vacancy.findFirst({
+    const vacancyRow = await context.db.query.vacancy.findFirst({
       where: and(
         eq(vacancy.id, input.id),
         eq(vacancy.workspaceId, input.workspaceId),
@@ -32,7 +32,7 @@ export const get = protectedProcedure
 
     if (!vacancyRow) return null;
 
-    const [counts] = await ctx.db
+    const [counts] = await context.db
       .select({
         totalResponses: count(responseTable.id),
         newResponses: sql<number>`COUNT(*) FILTER (WHERE ${responseTable.status} = 'NEW')`,

@@ -6,7 +6,7 @@ import { protectedProcedure } from "../../orpc";
 
 export const update = protectedProcedure
   .input(accountFormSchema)
-  .mutation(async ({ ctx, input }) => {
+  .handler(async ({ context, input }) => {
     let optimizedImage = input.image;
 
     // Оптимизируем изображение, если оно передано
@@ -14,14 +14,14 @@ export const update = protectedProcedure
       optimizedImage = await optimizeAvatar(input.image);
     }
 
-    await ctx.db
+    await context.db
       .update(user)
       .set({
         name: input.name,
         image: optimizedImage,
         updatedAt: new Date(),
       })
-      .where(eq(user.id, ctx.session.user.id));
+      .where(eq(user.id, context.session.user.id));
 
     return { success: true };
   });

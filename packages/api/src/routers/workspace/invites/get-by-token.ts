@@ -1,14 +1,16 @@
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const getByToken = protectedProcedure
   .input(z.object({ token: z.string() }))
-  .query(async ({ input, ctx }) => {
-    const invite = await ctx.workspaceRepository.getInviteByToken(input.token);
+  .handler(async ({ input, context }) => {
+    const invite = await context.workspaceRepository.getInviteByToken(
+      input.token,
+    );
 
     if (!invite) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Приглашение не найдено",
       });

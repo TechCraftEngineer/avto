@@ -24,11 +24,11 @@ const createVacancySchema = z.object({
 
 export const create = protectedProcedure
   .input(createVacancySchema)
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверка доступа к workspace
-    const hasAccess = await ctx.workspaceRepository.checkAccess(
+    const hasAccess = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!hasAccess) {
@@ -52,14 +52,14 @@ export const create = protectedProcedure
       .trimStart();
 
     // Создание вакансии
-    const [newVacancy] = await ctx.db
+    const [newVacancy] = await context.db
       .insert(vacancy)
       .values({
         workspaceId: input.workspaceId,
         title: input.title,
         description: fullDescription || null,
         source: "MANUAL",
-        createdBy: ctx.session.user.id,
+        createdBy: context.session.user.id,
         isActive: true,
       })
       .returning();

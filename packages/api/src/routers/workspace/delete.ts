@@ -1,23 +1,23 @@
+import { ORPCError } from "@orpc/server";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const deleteWorkspace = protectedProcedure
   .input(z.object({ id: workspaceIdSchema }))
-  .mutation(async ({ input, ctx }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ input, context }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.id,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access || access.role !== "owner") {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Только owner может удалить workspace",
       });
     }
 
-    await ctx.workspaceRepository.delete(input.id);
+    await context.workspaceRepository.delete(input.id);
     return { success: true };
   });

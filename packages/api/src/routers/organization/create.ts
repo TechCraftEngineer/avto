@@ -1,4 +1,4 @@
-import { ORPCError } from "@orpc/server";
+import { ORPCError } from "@orpc/client";
 import { organization, organizationMember } from "@qbs-autonaim/db";
 import { optimizeLogo } from "@qbs-autonaim/lib/image";
 import { createOrganizationSchema } from "@qbs-autonaim/validators";
@@ -6,7 +6,7 @@ import { protectedProcedure } from "../../orpc";
 
 export const create = protectedProcedure
   .input(createOrganizationSchema)
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context: ctx }) => {
     const existing = await ctx.organizationRepository.findBySlug(input.slug);
     if (existing) {
       throw new ORPCError("CONFLICT", {

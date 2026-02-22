@@ -14,11 +14,11 @@ export const createWorkspace = protectedProcedure
       workspace: createWorkspaceSchema,
     }),
   )
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверка доступа к организации
-    const access = await ctx.organizationRepository.checkAccess(
+    const access = await context.organizationRepository.checkAccess(
       input.organizationId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
@@ -28,7 +28,7 @@ export const createWorkspace = protectedProcedure
     }
 
     // Проверка уникальности slug в рамках организации
-    const existing = await ctx.organizationRepository.getWorkspaceBySlug(
+    const existing = await context.organizationRepository.getWorkspaceBySlug(
       input.organizationId,
       input.workspace.slug,
     );
@@ -46,7 +46,7 @@ export const createWorkspace = protectedProcedure
     }
 
     // Создание workspace с organizationId
-    const workspace = await ctx.workspaceRepository.create({
+    const workspace = await context.workspaceRepository.create({
       ...dataToCreate,
       organizationId: input.organizationId,
     });
@@ -66,15 +66,15 @@ export const createWorkspace = protectedProcedure
 
     // Добавление создателя как owner с защитой от ошибок
     try {
-      await ctx.workspaceRepository.addUser(
+      await context.workspaceRepository.addUser(
         workspace.id,
-        ctx.session.user.id,
+        context.session.user.id,
         "owner",
       );
     } catch (error) {
       // Очистка: удаляем созданный workspace если не удалось добавить владельца
       try {
-        await ctx.workspaceRepository.delete(workspace.id);
+        await context.workspaceRepository.delete(workspace.id);
       } catch (cleanupError) {
         console.error("Failed to cleanup workspace after addUser failure:", {
           workspaceId: workspace.id,
