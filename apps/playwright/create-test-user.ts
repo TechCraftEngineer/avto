@@ -1,20 +1,20 @@
+import { createORPCClient, httpBatchLink } from "@orpc/client";
 import type { AppRouter } from "@qbs-autonaim/api";
-import { createTRPCClient, httpBatchLink } from "@trpc/client";
 import superjson from "superjson";
 
 const email = "playwright-test@example.com";
 const password = "TestPassword123";
 
-const trpc = createTRPCClient<AppRouter>({
+const orpc = createORPCClient<AppRouter>({
   links: [
     httpBatchLink({
-      url: "http://localhost:3000/api/trpc",
+      url: "http://localhost:3000/api/orpc",
       transformer: superjson,
     }),
   ],
 });
 
-trpc.test?.setup
+orpc.test?.setup
   .mutate({
     email,
     password,

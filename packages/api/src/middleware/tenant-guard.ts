@@ -9,8 +9,8 @@
  * @requirements 7.1, 7.2 - Multi-tenant изоляция
  */
 
+import { ORPCError } from "@orpc/server";
 import type { DbClient, WorkspaceRepository } from "@qbs-autonaim/db";
-import { TRPCError } from "@trpc/server";
 import type { AuditLoggerService } from "../services/audit-logger";
 
 /**
@@ -305,9 +305,9 @@ export function createTenantGuard(
 }
 
 /**
- * Утилита для преобразования TenantIsolationError в TRPCError
+ * Утилита для преобразования TenantIsolationError в ORPCError
  */
-export function toTRPCError(error: TenantIsolationError): TRPCError {
+export function toORPCError(error: TenantIsolationError): ORPCError {
   const codeMap: Record<TenantErrorCode, "NOT_FOUND" | "FORBIDDEN"> = {
     WORKSPACE_NOT_FOUND: "NOT_FOUND",
     ACCESS_DENIED: "FORBIDDEN",
@@ -315,7 +315,7 @@ export function toTRPCError(error: TenantIsolationError): TRPCError {
     INVALID_WORKSPACE_ID: "NOT_FOUND",
   };
 
-  return new TRPCError({
+  return new ORPCError({
     code: codeMap[error.code],
     message: error.message,
     cause: error,
@@ -340,7 +340,7 @@ export async function withTenantGuard<T>(
     return await operation(verificationResult);
   } catch (error) {
     if (error instanceof TenantIsolationError) {
-      throw toTRPCError(error);
+      throw toORPCError(error);
     }
     throw error;
   }

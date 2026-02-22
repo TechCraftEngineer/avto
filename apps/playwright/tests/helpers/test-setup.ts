@@ -1,6 +1,6 @@
+import { createORPCClient, httpBatchLink } from "@orpc/client";
 import type { Page } from "@playwright/test";
 import type { AppRouter } from "@qbs-autonaim/api";
-import { createTRPCClient, httpBatchLink } from "@trpc/client";
 import superjson from "superjson";
 
 export interface TestUser {
@@ -25,13 +25,13 @@ export interface TestUser {
 }
 
 /**
- * Создание TRPC клиента для тестов
+ * Создание oRPC клиента для тестов
  */
-function createTestTRPCClient(baseURL: string) {
-  return createTRPCClient<AppRouter>({
+function createTestORPCClient(baseURL: string) {
+  return createORPCClient<AppRouter>({
     links: [
       httpBatchLink({
-        url: `${baseURL}/api/trpc`,
+        url: `${baseURL}/api/orpc`,
         transformer: superjson,
       }),
     ],
@@ -39,7 +39,7 @@ function createTestTRPCClient(baseURL: string) {
 }
 
 /**
- * Быстрое создание тестового пользователя с организацией и workspace через TRPC
+ * Быстрое создание тестового пользователя с организацией и workspace через oRPC
  * Ускоряет тесты в 10+ раз по сравнению с UI онбордингом
  */
 export async function createTestUser(
@@ -58,7 +58,7 @@ export async function createTestUser(
   const email = options?.email || `test-${timestamp}-${random}@example.com`;
   const password = options?.password || "TestPassword123";
 
-  const trpc = createTestTRPCClient(baseURL);
+  const orpc = createTestORPCClient(baseURL);
 
   // Retry механизм для создания пользователя
   let lastError: Error | null = null;
@@ -69,7 +69,7 @@ export async function createTestUser(
       // Если пользователь уже существует, сначала удаляем его
       if (lastError?.message?.includes("User already exists")) {
         try {
-          await trpc.test?.cleanup.mutate({ email });
+          await orpc.test?.cleanup.mutate({ email });
           // Ждем немного после удаления
           await new Promise((resolve) => setTimeout(resolve, 500));
         } catch (cleanupError) {
@@ -78,7 +78,7 @@ export async function createTestUser(
         }
       }
 
-      const result = await trpc.test?.setup.mutate({
+      const result = await orpc.test?.setup.mutate({
         email,
         password,
         name: options?.name,
@@ -132,8 +132,8 @@ export async function createArchivedVacancy(
   baseURL = "http://localhost:3000",
   title?: string,
 ): Promise<ArchivedVacancy> {
-  const trpc = createTestTRPCClient(baseURL);
-  const result = await trpc.test.createArchivedVacancy.mutate({
+  const orpc = createTestORPCClient(baseURL);
+  const result = await orpc.test.createArchivedVacancy.mutate({
     workspaceId: testUser.workspace.id,
     createdBy: testUser.user.id,
     title,
@@ -142,13 +142,13 @@ export async function createArchivedVacancy(
 }
 
 /**
- * Удаление тестового пользователя и всех связанных данных через TRPC
+ * Удаление тестового пользователя и всех связанных данных через oRPC
  */
 export async function deleteTestUser(
   email: string,
   baseURL = "http://localhost:3000",
 ): Promise<void> {
-  const trpc = createTestTRPCClient(baseURL);
+  const orpc = createTestORPCClient(baseURL);
 
   // Retry механизм для удаления
   let lastError: Error | null = null;
@@ -156,7 +156,7 @@ export async function deleteTestUser(
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      await trpc.test?.cleanup.mutate({ email });
+      await orpc.test?.cleanup.mutate({ email });
       return; // Успешно удалили
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
@@ -211,7 +211,7 @@ export async function loginTestUser(
 }
 
 /**
- * Полная настройка теста: создание пользователя через TRPC + авторизация через UI
+ * Полная настройка теста: создание пользователя через oRPC + авторизация через UI
  * Использовать в beforeEach для быстрой подготовки тестов
  *
  * @example
@@ -239,7 +239,7 @@ export async function setupAuthenticatedTest(
 ): Promise<TestUser> {
   const baseURL = process.env.BASE_URL || "http://localhost:3000";
 
-  // Создаем пользователя через TRPC (быстро!)
+  // Создаем пользователя через oRPC (быстро!)
   const testUser = await createTestUser(baseURL, options);
 
   // Авторизуемся через UI

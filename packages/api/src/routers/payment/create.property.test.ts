@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 import { randomUUID } from "node:crypto";
+import { call } from "@orpc/server";
 import type { payment } from "@qbs-autonaim/db/schema";
 import type { YookassaPaymentResponse } from "@qbs-autonaim/validators";
 import * as fc from "fast-check";
@@ -201,13 +202,8 @@ describe("create payment - Property-Based Tests", () => {
               workspaceId: testData.workspaceId,
             };
 
-            await create({
-              ctx: mockContext as never,
-              input,
-              type: "mutation",
-              path: "payment.create",
-              getRawInput: async () => input,
-              next: async () => ({ ctx: mockContext }),
+            await call(create, input, {
+              context: mockContext as never,
             });
 
             // Проверяем полноту данных платежа

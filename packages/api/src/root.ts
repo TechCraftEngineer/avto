@@ -1,3 +1,4 @@
+import { createRouter } from "./orpc";
 import { analyticsRouter } from "./routers/analytics";
 import { calendarRouter } from "./routers/calendar";
 import { candidatesRouter } from "./routers/candidates";
@@ -25,12 +26,11 @@ import { vacancyRouter } from "./routers/vacancy";
 import { widgetConfigRouter } from "./routers/widget-config";
 import { workspaceRouter } from "./routers/workspace";
 import { registerChatEntities } from "./services/chat/register-entities";
-import { createTRPCRouter } from "./trpc";
 
 // Регистрация типов сущностей для AI чата
 registerChatEntities();
 
-export const appRouter = createTRPCRouter({
+export const appRouter = createRouter({
   user: userRouter,
   vacancy: vacancyRouter,
   gig: gigRouter,

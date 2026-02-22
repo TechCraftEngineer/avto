@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { randomUUID } from "node:crypto";
-import { ORPCError } from "@orpc/server";
+import { call, ORPCError } from "@orpc/server";
 import { get } from "./get";
 
 /**
@@ -77,12 +77,8 @@ describe("get payment - Unit Tests", () => {
     };
 
     // Выполняем процедуру
-    const result = await get({
-      ctx: mockContext as never,
-      input,
-      type: "query",
-      path: "payment.get",
-      getRawInput: async () => input,
+    const result = await call(get, input, {
+      context: mockContext as never,
     });
 
     // Проверки
@@ -137,18 +133,16 @@ describe("get payment - Unit Tests", () => {
 
     // Проверяем, что выбрасывается ошибка NOT_FOUND
     try {
-      await get({
-        ctx: mockContext as never,
-        input,
-        type: "query",
-        path: "payment.get",
-        getRawInput: async () => input,
+      await call(get, input, {
+        context: mockContext as never,
       });
       expect(true).toBe(false); // Не должно дойти до этой строки
     } catch (error) {
-      expect(error).toBeInstanceOf(TRPCError);
-      expect((error as TRPCError).code).toBe("NOT_FOUND");
-      expect((error as TRPCError).message).toBe("Платеж не найден");
+      expect(error).toBeInstanceOf(ORPCError);
+      expect((error as ORPCError<"NOT_FOUND", unknown>).code).toBe("NOT_FOUND");
+      expect((error as ORPCError<"NOT_FOUND", unknown>).message).toBe(
+        "Платеж не найден",
+      );
     }
   });
 
@@ -212,18 +206,16 @@ describe("get payment - Unit Tests", () => {
 
     // Проверяем, что выбрасывается ошибка FORBIDDEN
     try {
-      await get({
-        ctx: mockContext as never,
-        input,
-        type: "query",
-        path: "payment.get",
-        getRawInput: async () => input,
+      await call(get, input, {
+        context: mockContext as never,
       });
       expect(true).toBe(false); // Не должно дойти до этой строки
     } catch (error) {
-      expect(error).toBeInstanceOf(TRPCError);
-      expect((error as TRPCError).code).toBe("FORBIDDEN");
-      expect((error as TRPCError).message).toBe("Нет доступа к этому платежу");
+      expect(error).toBeInstanceOf(ORPCError);
+      expect((error as ORPCError<"FORBIDDEN", unknown>).code).toBe("FORBIDDEN");
+      expect((error as ORPCError<"FORBIDDEN", unknown>).message).toBe(
+        "Нет доступа к этому платежу",
+      );
     }
   });
 });

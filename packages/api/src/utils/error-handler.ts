@@ -1,4 +1,4 @@
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import type { AuditLogger } from "../services/audit-logger";
 
 /**
@@ -39,7 +39,7 @@ export interface ErrorDetails {
 }
 
 /**
- * Маппинг категорий ошибок на коды tRPC
+ * Маппинг категорий ошибок на коды oRPC
  */
 const ERROR_CODE_MAP: Record<
   ErrorCategory,
@@ -73,7 +73,7 @@ export class ErrorHandler {
   ) {}
 
   /**
-   * Обрабатывает ошибку: логирует, уведомляет администраторов при необходимости и выбрасывает TRPCError
+   * Обрабатывает ошибку: логирует, уведомляет администраторов при необходимости и выбрасывает ORPCError
    */
   async handleError(details: ErrorDetails): Promise<never> {
     // Логируем ошибку
@@ -87,9 +87,9 @@ export class ErrorHandler {
       await this.notifyAdministrators(details);
     }
 
-    // Выбрасываем TRPCError с соответствующим кодом
+    // Выбрасываем ORPCError с соответствующим кодом
     const code = ERROR_CODE_MAP[details.category];
-    throw new TRPCError({
+    throw new ORPCError({
       code,
       message: details.userMessage,
       cause: details.originalError,

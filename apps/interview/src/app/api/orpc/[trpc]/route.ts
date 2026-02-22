@@ -1,14 +1,14 @@
-import { appRouter, createTRPCContext } from "@qbs-autonaim/api";
-import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
+import { fetchRequestHandler } from "@orpc/server/adapters/fetch";
+import { appRouter, createContext } from "@qbs-autonaim/api";
 import type { NextRequest } from "next/server";
 
 const handler = (req: NextRequest) =>
   fetchRequestHandler({
-    endpoint: "/api/trpc",
+    endpoint: "/api/orpc",
     req,
     router: appRouter,
     createContext: () =>
-      createTRPCContext({
+      createContext({
         headers: req.headers,
         auth: null,
       }),
@@ -16,7 +16,7 @@ const handler = (req: NextRequest) =>
       process.env.NODE_ENV === "development"
         ? ({ path, error }) => {
             console.error(
-              `❌ tRPC failed on ${path ?? "<no-path>"}: ${error.message}`,
+              `❌ oRPC failed on ${path ?? "<no-path>"}: ${error.message}`,
             );
           }
         : undefined,

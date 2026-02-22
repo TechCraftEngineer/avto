@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import * as fc from "fast-check";
 import { z, ZodError } from "zod";
-import { ORPCError } from "@orpc/server";
+import { ORPCError } from "@orpc/client";
 
 /**
  * Property-based тесты для workspace роутера

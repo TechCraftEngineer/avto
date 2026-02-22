@@ -3,7 +3,7 @@ import { ThemeProvider } from "@qbs-autonaim/ui/components/theme";
 import { cn } from "@qbs-autonaim/ui/utils";
 import type { Metadata, Viewport } from "next";
 import { env } from "~/env";
-import { TRPCReactProvider } from "~/trpc/react";
+import { ORPCReactProvider } from "~/orpc/react";
 
 import "~/app/styles.css";
 
@@ -40,7 +40,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
         )}
       >
         <ThemeProvider>
-          <TRPCReactProvider>{props.children}</TRPCReactProvider>
+          <ORPCReactProvider>{props.children}</ORPCReactProvider>
           <Toaster />
         </ThemeProvider>
       </body>

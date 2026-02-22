@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 import { randomUUID } from "node:crypto";
+import { call, ORPCError } from "@orpc/server";
 import type { payment } from "@qbs-autonaim/db/schema";
 import type { YookassaPaymentResponse } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import type { YookassaClient } from "../../services/yookassa/client";
 import { create } from "./create";
 
@@ -68,7 +68,7 @@ describe("create payment - Unit Tests", () => {
     global.fetch = mock(async () => ({
       ok: true,
       json: async () => mockYookassaResponse,
-    })) as typeof global.fetch;
+    })) as unknown as typeof global.fetch;
 
     // Мокируем контекст tRPC
     const mockContext = {
@@ -136,13 +136,8 @@ describe("create payment - Unit Tests", () => {
       workspaceId: testWorkspaceId,
     };
 
-    const result = await create({
-      ctx: mockContext as never,
-      input,
-      type: "mutation",
-      path: "payment.create",
-      getRawInput: async () => input,
-      next: async () => ({ ctx: mockContext }),
+    const result = await call(create, input, {
+      context: mockContext as never,
     });
 
     // Проверки
@@ -213,24 +208,14 @@ describe("create payment - Unit Tests", () => {
 
     // Проверяем, что выбрасывается ошибка FORBIDDEN
     await expect(
-      create({
-        ctx: mockContext as never,
-        input,
-        type: "mutation",
-        path: "payment.create",
-        getRawInput: async () => input,
-        next: async () => ({ ctx: mockContext }),
+      call(create, input, {
+        context: mockContext as never,
       }),
-    ).rejects.toThrow(TRPCError);
+    ).rejects.toThrow(ORPCError);
 
     await expect(
-      create({
-        ctx: mockContext as never,
-        input,
-        type: "mutation",
-        path: "payment.create",
-        getRawInput: async () => input,
-        next: async () => ({ ctx: mockContext }),
+      call(create, input, {
+        context: mockContext as never,
       }),
     ).rejects.toThrow("Нет доступа к workspace");
   });
@@ -272,24 +257,14 @@ describe("create payment - Unit Tests", () => {
 
     // Проверяем, что выбрасывается ошибка NOT_FOUND
     await expect(
-      create({
-        ctx: mockContext as never,
-        input,
-        type: "mutation",
-        path: "payment.create",
-        getRawInput: async () => input,
-        next: async () => ({ ctx: mockContext }),
+      call(create, input, {
+        context: mockContext as never,
       }),
-    ).rejects.toThrow(TRPCError);
+    ).rejects.toThrow(ORPCError);
 
     await expect(
-      create({
-        ctx: mockContext as never,
-        input,
-        type: "mutation",
-        path: "payment.create",
-        getRawInput: async () => input,
-        next: async () => ({ ctx: mockContext }),
+      call(create, input, {
+        context: mockContext as never,
       }),
     ).rejects.toThrow("Workspace не найден");
   });
@@ -318,7 +293,7 @@ describe("create payment - Unit Tests", () => {
         code: "invalid_request",
         description: "Некорректная сумма платежа",
       }),
-    })) as typeof global.fetch;
+    })) as unknown as typeof global.fetch;
 
     // Мокируем контекст
     const mockContext = {
@@ -361,24 +336,14 @@ describe("create payment - Unit Tests", () => {
 
     // Проверяем, что ошибка ЮКасса обрабатывается
     await expect(
-      create({
-        ctx: mockContext as never,
-        input,
-        type: "mutation",
-        path: "payment.create",
-        getRawInput: async () => input,
-        next: async () => ({ ctx: mockContext }),
+      call(create, input, {
+        context: mockContext as never,
       }),
-    ).rejects.toThrow(TRPCError);
+    ).rejects.toThrow(ORPCError);
 
     await expect(
-      create({
-        ctx: mockContext as never,
-        input,
-        type: "mutation",
-        path: "payment.create",
-        getRawInput: async () => input,
-        next: async () => ({ ctx: mockContext }),
+      call(create, input, {
+        context: mockContext as never,
       }),
     ).rejects.toThrow("Ошибка создания платежа");
   });
@@ -417,7 +382,7 @@ describe("create payment - Unit Tests", () => {
     global.fetch = mock(async () => ({
       ok: true,
       json: async () => mockYookassaResponse,
-    })) as typeof global.fetch;
+    })) as unknown as typeof global.fetch;
 
     // Мокируем контекст с перехватом organizationId
     const mockContext = {
@@ -494,13 +459,8 @@ describe("create payment - Unit Tests", () => {
       workspaceId: testWorkspaceId,
     };
 
-    await create({
-      ctx: mockContext as never,
-      input,
-      type: "mutation",
-      path: "payment.create",
-      getRawInput: async () => input,
-      next: async () => ({ ctx: mockContext }),
+    await call(create, input, {
+      context: mockContext as never,
     });
 
     // Проверяем, что organizationId был корректно извлечен и сохранен

@@ -1,14 +1,14 @@
 "use client";
 
+import {
+  createORPCClient,
+  httpBatchStreamLink,
+  loggerLink,
+} from "@orpc/client";
+import { createORPCContext } from "@orpc/tanstack-react-query";
 import type { AppRouter } from "@qbs-autonaim/api";
 import type { QueryClient } from "@tanstack/react-query";
 import { QueryClientProvider } from "@tanstack/react-query";
-import {
-  createTRPCClient,
-  httpBatchStreamLink,
-  loggerLink,
-} from "@trpc/client";
-import { createTRPCContext } from "@trpc/tanstack-react-query";
 import { useState } from "react";
 import SuperJSON from "superjson";
 
@@ -24,13 +24,13 @@ const getQueryClient = () => {
   }
 };
 
-export const { useTRPC, TRPCProvider } = createTRPCContext<AppRouter>();
+export const { useORPC, ORPCProvider } = createORPCContext<AppRouter>();
 
-export function TRPCReactProvider(props: { children: React.ReactNode }) {
+export function ORPCReactProvider(props: { children: React.ReactNode }) {
   const queryClient = getQueryClient();
 
-  const [trpcClient] = useState(() =>
-    createTRPCClient<AppRouter>({
+  const [orpcClient] = useState(() =>
+    createORPCClient<AppRouter>({
       links: [
         loggerLink({
           enabled: (op) =>
@@ -39,10 +39,10 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
         }),
         httpBatchStreamLink({
           transformer: SuperJSON,
-          url: `${getBaseUrl()}/api/trpc`,
+          url: `${getBaseUrl()}/api/orpc`,
           headers() {
             const headers = new Headers();
-            headers.set("x-trpc-source", "nextjs-react");
+            headers.set("x-orpc-source", "nextjs-react");
 
             // Для интервью приложений добавляем токен из URL pathname
             if (typeof window !== "undefined") {
@@ -67,9 +67,9 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
+      <ORPCProvider orpcClient={orpcClient} queryClient={queryClient}>
         {props.children}
-      </TRPCProvider>
+      </ORPCProvider>
     </QueryClientProvider>
   );
 }

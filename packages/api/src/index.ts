@@ -1,4 +1,4 @@
-import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
+import type { inferRouterInputs, inferRouterOutputs } from "@orpc/server";
 
 import type { AppRouter } from "./root";
 
@@ -29,16 +29,16 @@ export {
   createTenantGuard,
   TenantGuard,
   TenantIsolationError,
-  toTRPCError,
+  toORPCError,
   withTenantGuard,
 } from "./middleware";
+export { createContext } from "./orpc";
 export { type AppRouter, appRouter } from "./root";
 export type {
   VacancyResponseSortDirection,
   VacancyResponseSortField,
 } from "./routers/vacancy/responses/utils/sort-types";
 export { AuditLoggerService } from "./services/audit-logger";
-export { createTRPCContext } from "./trpc";
 export type { RouterInputs, RouterOutputs };
 export type { ValidatedInterviewToken } from "./utils/interview-token-validator";
 export {

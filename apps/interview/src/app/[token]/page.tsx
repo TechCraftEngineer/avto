@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import { InterviewLandingForm } from "~/components/interview-landing-form";
 import { InterviewResponseActions } from "~/components/interview-response-actions";
-import { useTRPC } from "~/trpc/react";
+import { useTRPC } from "~/orpc/react";
 
 interface PageProps {
   params: Promise<{ token: string }>;

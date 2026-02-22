@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 import { randomUUID } from "node:crypto";
+import { call, ORPCError } from "@orpc/server";
 import type { YookassaPaymentResponse } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { checkStatus } from "./check-status";
 
 /**
@@ -83,7 +83,7 @@ describe("check-status payment - Unit Tests", () => {
     global.fetch = mock(async () => ({
       ok: true,
       json: async () => mockYookassaResponse,
-    })) as typeof global.fetch;
+    })) as unknown as typeof global.fetch;
 
     let updatedStatus: string | undefined;
     let updatedCompletedAt: Date | null | undefined;
@@ -121,12 +121,8 @@ describe("check-status payment - Unit Tests", () => {
     };
 
     // Выполняем процедуру
-    const result = await checkStatus({
-      ctx: mockContext as never,
-      input,
-      type: "query",
-      path: "payment.checkStatus",
-      getRawInput: async () => input,
+    const result = await call(checkStatus, input, {
+      context: mockContext as never,
     });
 
     // Проверки
@@ -186,7 +182,7 @@ describe("check-status payment - Unit Tests", () => {
     global.fetch = mock(async () => ({
       ok: true,
       json: async () => mockYookassaResponse,
-    })) as typeof global.fetch;
+    })) as unknown as typeof global.fetch;
 
     let updatedStatus: string | undefined;
     let updatedCompletedAt: Date | null | undefined;
@@ -224,12 +220,8 @@ describe("check-status payment - Unit Tests", () => {
     };
 
     // Выполняем процедуру
-    const result = await checkStatus({
-      ctx: mockContext as never,
-      input,
-      type: "query",
-      path: "payment.checkStatus",
-      getRawInput: async () => input,
+    const result = await call(checkStatus, input, {
+      context: mockContext as never,
     });
 
     // Проверки
@@ -289,7 +281,7 @@ describe("check-status payment - Unit Tests", () => {
     global.fetch = mock(async () => ({
       ok: true,
       json: async () => mockYookassaResponse,
-    })) as typeof global.fetch;
+    })) as unknown as typeof global.fetch;
 
     const updateMock = mock(() => ({
       set: mock(() => ({
@@ -322,12 +314,8 @@ describe("check-status payment - Unit Tests", () => {
     };
 
     // Выполняем процедуру
-    const result = await checkStatus({
-      ctx: mockContext as never,
-      input,
-      type: "query",
-      path: "payment.checkStatus",
-      getRawInput: async () => input,
+    const result = await call(checkStatus, input, {
+      context: mockContext as never,
     });
 
     // Проверки
@@ -376,18 +364,16 @@ describe("check-status payment - Unit Tests", () => {
 
     // Проверяем, что выбрасывается ошибка NOT_FOUND
     try {
-      await checkStatus({
-        ctx: mockContext as never,
-        input,
-        type: "query",
-        path: "payment.checkStatus",
-        getRawInput: async () => input,
+      await call(checkStatus, input, {
+        context: mockContext as never,
       });
       expect(true).toBe(false); // Не должно дойти до этой строки
     } catch (error) {
-      expect(error).toBeInstanceOf(TRPCError);
-      expect((error as TRPCError).code).toBe("NOT_FOUND");
-      expect((error as TRPCError).message).toBe("Платеж не найден");
+      expect(error).toBeInstanceOf(ORPCError);
+      expect((error as ORPCError<"NOT_FOUND", unknown>).code).toBe("NOT_FOUND");
+      expect((error as ORPCError<"NOT_FOUND", unknown>).message).toBe(
+        "Платеж не найден",
+      );
     }
   });
 
@@ -451,18 +437,16 @@ describe("check-status payment - Unit Tests", () => {
 
     // Проверяем, что выбрасывается ошибка FORBIDDEN
     try {
-      await checkStatus({
-        ctx: mockContext as never,
-        input,
-        type: "query",
-        path: "payment.checkStatus",
-        getRawInput: async () => input,
+      await call(checkStatus, input, {
+        context: mockContext as never,
       });
       expect(true).toBe(false); // Не должно дойти до этой строки
     } catch (error) {
-      expect(error).toBeInstanceOf(TRPCError);
-      expect((error as TRPCError).code).toBe("FORBIDDEN");
-      expect((error as TRPCError).message).toBe("Нет доступа к этому платежу");
+      expect(error).toBeInstanceOf(ORPCError);
+      expect((error as ORPCError<"FORBIDDEN", unknown>).code).toBe("FORBIDDEN");
+      expect((error as ORPCError<"FORBIDDEN", unknown>).message).toBe(
+        "Нет доступа к этому платежу",
+      );
     }
   });
 
@@ -514,7 +498,7 @@ describe("check-status payment - Unit Tests", () => {
     global.fetch = mock(async () => ({
       ok: true,
       json: async () => mockYookassaResponse,
-    })) as typeof global.fetch;
+    })) as unknown as typeof global.fetch;
 
     let capturedCompletedAt: Date | null | undefined;
 
@@ -550,12 +534,8 @@ describe("check-status payment - Unit Tests", () => {
     };
 
     // Выполняем процедуру
-    const result = await checkStatus({
-      ctx: mockContext as never,
-      input,
-      type: "query",
-      path: "payment.checkStatus",
-      getRawInput: async () => input,
+    const result = await call(checkStatus, input, {
+      context: mockContext as never,
     });
 
     // Проверки
@@ -613,7 +593,7 @@ describe("check-status payment - Unit Tests", () => {
         code: "not_found",
         description: "Платеж не найден",
       }),
-    })) as typeof global.fetch;
+    })) as unknown as typeof global.fetch;
 
     // Мокируем контекст
     const mockContext = {
@@ -640,18 +620,18 @@ describe("check-status payment - Unit Tests", () => {
 
     // Проверяем, что выбрасывается ошибка INTERNAL_SERVER_ERROR
     try {
-      await checkStatus({
-        ctx: mockContext as never,
-        input,
-        type: "query",
-        path: "payment.checkStatus",
-        getRawInput: async () => input,
+      await call(checkStatus, input, {
+        context: mockContext as never,
       });
       expect(true).toBe(false); // Не должно дойти до этой строки
     } catch (error) {
-      expect(error).toBeInstanceOf(TRPCError);
-      expect((error as TRPCError).code).toBe("INTERNAL_SERVER_ERROR");
-      expect((error as TRPCError).message).toContain("Платеж не найден");
+      expect(error).toBeInstanceOf(ORPCError);
+      expect((error as ORPCError<"INTERNAL_SERVER_ERROR", unknown>).code).toBe(
+        "INTERNAL_SERVER_ERROR",
+      );
+      expect(
+        (error as ORPCError<"INTERNAL_SERVER_ERROR", unknown>).message,
+      ).toContain("Платеж не найден");
     }
   });
 });

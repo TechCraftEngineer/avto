@@ -1,5 +1,6 @@
 import { describe, expect, it, mock } from "bun:test";
 import { ORPCError } from "@orpc/client";
+import { call } from "@orpc/server";
 import type { Session } from "@qbs-autonaim/auth";
 import type { Context } from "../../../orpc";
 
@@ -52,9 +53,8 @@ describe("syncArchivedVacancyResponses", () => {
     context: Context,
     input: { workspaceId: string; vacancyId: string },
   ) => {
-    // В oRPC процедуры вызываются напрямую через handler
-    // @ts-expect-error - accessing internal handler for testing
-    return syncArchivedVacancyResponses._def.handler({ context, input });
+    // В oRPC процедуры вызываются через call из @orpc/server
+    return call(syncArchivedVacancyResponses, input, { context });
   };
 
   it("должен выбросить FORBIDDEN если нет доступа к workspace", async () => {

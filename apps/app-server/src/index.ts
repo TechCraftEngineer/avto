@@ -1,5 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
-import { appRouter, createTRPCContext } from "@qbs-autonaim/api";
+import { fetchRequestHandler } from "@orpc/server/adapters/fetch";
+import { appRouter, createContext } from "@qbs-autonaim/api";
 import { env } from "@qbs-autonaim/config";
 import { eq, upsertUserIntegration } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
@@ -10,7 +11,6 @@ import {
   workspace,
 } from "@qbs-autonaim/db/schema";
 import { addAPISecurityHeaders } from "@qbs-autonaim/server-utils";
-import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
@@ -30,7 +30,7 @@ app.use(
     allowHeaders: [
       "Content-Type",
       "Authorization",
-      "X-TRPC-Source",
+      "X-ORPC-Source",
       "x-interview-token",
     ],
     credentials: true,
@@ -40,19 +40,19 @@ app.use(
 // Better Auth — все пути /api/auth/*
 app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
-// tRPC handler
-app.on(["GET", "POST"], "/api/trpc/*", async (c) => {
+// oRPC handler
+app.on(["GET", "POST"], "/api/orpc/*", async (c) => {
   const response = await fetchRequestHandler({
-    endpoint: "/api/trpc",
+    endpoint: "/api/orpc",
     router: appRouter,
     req: c.req.raw,
     createContext: () =>
-      createTRPCContext({
+      createContext({
         auth,
         headers: c.req.raw.headers,
       }),
     onError({ error, path }) {
-      console.error(`>>> tRPC Error on '${path}'`, error);
+      console.error(`>>> oRPC Error on '${path}'`, error);
     },
   });
 

@@ -1,23 +1,23 @@
 /**
- * Простой скрипт для тестирования TRPC API создания тестовых данных
+ * Простой скрипт для тестирования oRPC API создания тестовых данных
  */
 
+import { createORPCClient, httpBatchLink } from "@orpc/client";
 import type { AppRouter } from "@qbs-autonaim/api";
-import { createTRPCClient, httpBatchLink } from "@trpc/client";
 import superjson from "superjson";
 
-async function testTRPC() {
+async function testORPC() {
   const baseURL = "http://localhost:3000";
   const email = `test-${Date.now()}@example.com`;
   const password = "TestPassword123";
 
-  console.log("🧪 Тестируем TRPC API создания пользователя...");
+  console.log("🧪 Тестируем oRPC API создания пользователя...");
   console.log(`Email: ${email}`);
 
-  const trpc = createTRPCClient<AppRouter>({
+  const orpc = createORPCClient<AppRouter>({
     links: [
       httpBatchLink({
-        url: `${baseURL}/api/trpc`,
+        url: `${baseURL}/api/orpc`,
         transformer: superjson,
       }),
     ],
@@ -25,8 +25,8 @@ async function testTRPC() {
 
   try {
     // Создаем пользователя
-    console.log("\n1️⃣ Создаем пользователя через TRPC...");
-    const result = await trpc.test?.setup.mutate({
+    console.log("\n1️⃣ Создаем пользователя через oRPC...");
+    const result = await orpc.test?.setup.mutate({
       email,
       password,
       name: "Test User",
@@ -39,7 +39,7 @@ async function testTRPC() {
 
     // Удаляем пользователя
     console.log("\n2️⃣ Удаляем пользователя...");
-    await trpc.test?.cleanup.mutate({ email });
+    await orpc.test?.cleanup.mutate({ email });
 
     console.log("✅ Пользователь удален!");
     console.log("\n🎉 Все тесты прошли успешно!");
@@ -50,4 +50,4 @@ async function testTRPC() {
   }
 }
 
-testTRPC();
+testORPC();

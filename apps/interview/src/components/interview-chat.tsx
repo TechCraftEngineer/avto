@@ -12,7 +12,7 @@ import {
   convertToSDKMessage,
   convertUIMessage,
 } from "~/lib/message-converters";
-import { useTRPC } from "~/trpc/react";
+import { useTRPC } from "~/orpc/react";
 import type { ChatMessage, ChatStatus } from "~/types/chat";
 import { AIChatInput } from "./ai-chat-input";
 import { InterviewGreeting } from "./chat/interview-greeting";

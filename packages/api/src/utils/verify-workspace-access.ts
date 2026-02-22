@@ -1,5 +1,5 @@
+import { ORPCError } from "@orpc/server";
 import type { WorkspaceRepository } from "@qbs-autonaim/db";
-import { TRPCError } from "@trpc/server";
 
 export async function verifyWorkspaceAccess(
   workspaceRepository: WorkspaceRepository,
@@ -9,7 +9,7 @@ export async function verifyWorkspaceAccess(
   const access = await workspaceRepository.checkAccess(workspaceId, userId);
 
   if (!access) {
-    throw new TRPCError({
+    throw new ORPCError({
       code: "FORBIDDEN",
       message: "Нет доступа к этому workspace",
     });

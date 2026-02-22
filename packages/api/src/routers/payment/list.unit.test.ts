@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { randomUUID } from "node:crypto";
-import { ORPCError } from "@orpc/server";
+import { call, ORPCError } from "@orpc/server";
 import { list } from "./list";
 
 /**
@@ -105,12 +105,8 @@ describe("list payments - Unit Tests", () => {
     };
 
     // Выполняем процедуру
-    const result = await list({
-      ctx: mockContext as never,
-      input,
-      type: "query",
-      path: "payment.list",
-      getRawInput: async () => input,
+    const result = await call(list, input, {
+      context: mockContext as never,
     });
 
     // Проверки
@@ -194,12 +190,8 @@ describe("list payments - Unit Tests", () => {
     };
 
     // Выполняем процедуру
-    const result = await list({
-      ctx: mockContext as never,
-      input,
-      type: "query",
-      path: "payment.list",
-      getRawInput: async () => input,
+    const result = await call(list, input, {
+      context: mockContext as never,
     });
 
     // Проверки
@@ -303,12 +295,8 @@ describe("list payments - Unit Tests", () => {
     };
 
     // Выполняем процедуру
-    const result = await list({
-      ctx: mockContext as never,
-      input,
-      type: "query",
-      path: "payment.list",
-      getRawInput: async () => input,
+    const result = await call(list, input, {
+      context: mockContext as never,
     });
 
     // Проверки
@@ -396,12 +384,8 @@ describe("list payments - Unit Tests", () => {
     };
 
     // Выполняем процедуру
-    const result = await list({
-      ctx: mockContext as never,
-      input,
-      type: "query",
-      path: "payment.list",
-      getRawInput: async () => input,
+    const result = await call(list, input, {
+      context: mockContext as never,
     });
 
     // Проверки
@@ -445,18 +429,16 @@ describe("list payments - Unit Tests", () => {
 
     // Проверяем, что выбрасывается ошибка FORBIDDEN
     try {
-      await list({
-        ctx: mockContext as never,
-        input,
-        type: "query",
-        path: "payment.list",
-        getRawInput: async () => input,
+      await call(list, input, {
+        context: mockContext as never,
       });
       expect(true).toBe(false); // Не должно дойти до этой строки
     } catch (error) {
-      expect(error).toBeInstanceOf(TRPCError);
-      expect((error as TRPCError).code).toBe("FORBIDDEN");
-      expect((error as TRPCError).message).toBe("Нет доступа к workspace");
+      expect(error).toBeInstanceOf(ORPCError);
+      expect((error as ORPCError<"FORBIDDEN", unknown>).code).toBe("FORBIDDEN");
+      expect((error as ORPCError<"FORBIDDEN", unknown>).message).toBe(
+        "Нет доступа к workspace",
+      );
     }
   });
 
@@ -495,18 +477,16 @@ describe("list payments - Unit Tests", () => {
 
     // Проверяем, что выбрасывается ошибка FORBIDDEN
     try {
-      await list({
-        ctx: mockContext as never,
-        input,
-        type: "query",
-        path: "payment.list",
-        getRawInput: async () => input,
+      await call(list, input, {
+        context: mockContext as never,
       });
       expect(true).toBe(false); // Не должно дойти до этой строки
     } catch (error) {
-      expect(error).toBeInstanceOf(TRPCError);
-      expect((error as TRPCError).code).toBe("FORBIDDEN");
-      expect((error as TRPCError).message).toBe("Нет доступа к организации");
+      expect(error).toBeInstanceOf(ORPCError);
+      expect((error as ORPCError<"FORBIDDEN", unknown>).code).toBe("FORBIDDEN");
+      expect((error as ORPCError<"FORBIDDEN", unknown>).message).toBe(
+        "Нет доступа к организации",
+      );
     }
   });
 });

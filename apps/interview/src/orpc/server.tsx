@@ -1,17 +1,17 @@
+import { createORPCQueryUtils } from "@orpc/tanstack-react-query";
 import type { AppRouter } from "@qbs-autonaim/api";
-import { appRouter, createTRPCContext } from "@qbs-autonaim/api";
+import { appRouter, createContext } from "@qbs-autonaim/api";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-import { createTRPCOptionsProxy } from "@trpc/tanstack-react-query";
 import { headers } from "next/headers";
 import { cache } from "react";
 
 import { createQueryClient } from "./query-client";
 
-const createContext = cache(async () => {
+const createORPCContext = cache(async () => {
   const heads = new Headers(await headers());
-  heads.set("x-trpc-source", "rsc");
+  heads.set("x-orpc-source", "rsc");
 
-  return createTRPCContext({
+  return createContext({
     headers: heads,
     auth: null,
   });
@@ -19,14 +19,14 @@ const createContext = cache(async () => {
 
 const getQueryClient = cache(createQueryClient);
 
-export const trpc = createTRPCOptionsProxy<AppRouter>({
+export const orpc = createORPCQueryUtils<AppRouter>({
   router: appRouter,
-  ctx: createContext,
+  context: createORPCContext,
   queryClient: getQueryClient,
 });
 
 export const api = cache(async () => {
-  const context = await createContext();
+  const context = await createORPCContext();
   return appRouter.createCaller(context);
 });
 

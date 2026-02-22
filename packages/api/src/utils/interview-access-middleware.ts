@@ -1,6 +1,6 @@
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { publicProcedure } from "../trpc";
+import { publicProcedure } from "../orpc";
 import {
   hasInterviewAccess,
   validateInterviewToken,
@@ -18,12 +18,12 @@ export const withInterviewAccess = publicProcedure
       interviewToken: z.string().optional(),
     }),
   )
-  .use(async ({ ctx, next, input }) => {
+  .use(async ({ context, next, input }) => {
     const { interviewSessionId, sessionId, interviewToken } = input;
     const actualSessionId = interviewSessionId || sessionId;
 
     if (!actualSessionId) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message: "Требуется interviewSessionId или sessionId",
       });
@@ -33,7 +33,10 @@ export const withInterviewAccess = publicProcedure
     let validatedToken = null;
     if (interviewToken) {
       try {
-        validatedToken = await validateInterviewToken(interviewToken, ctx.db);
+        validatedToken = await validateInterviewToken(
+          interviewToken,
+          context.db,
+        );
       } catch (error) {
         console.error("Failed to validate interview token:", error);
       }
@@ -43,19 +46,19 @@ export const withInterviewAccess = publicProcedure
     const hasAccess = await hasInterviewAccess(
       actualSessionId,
       validatedToken,
-      ctx.db,
+      context.db,
     );
 
     if (!hasAccess) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому интервью",
       });
     }
 
     return next({
-      ctx: {
-        ...ctx,
+      context: {
+        ...context,
         // Добавляем информацию о проверенном доступе в контекст
         verifiedInterviewSessionId: actualSessionId,
         validatedInterviewToken: validatedToken,
