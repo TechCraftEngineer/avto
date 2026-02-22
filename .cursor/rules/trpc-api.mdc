@@ -1,8 +1,8 @@
 ---
-description: Стандарты и правила для tRPC API
+description: Стандарты и правила для oRPC API
 alwaysApply: false
 ---
-# Стандарты и правила для tRPC API
+# Стандарты и правила для oRPC API
 
 ## Принципы организации
 
@@ -24,8 +24,8 @@ packages/api/src/
 │   │       └── {action}.ts    # Действия вложенного роутера
 │   └── ...
 ├── utils/                     # Утилиты (middleware, helpers)
-├── root.ts                    # Главный роутер (объединяет все домены)
-├── trpc.ts                    # Конфигурация tRPC
+├── root-orpc.ts               # Главный роутер (объединяет все домены)
+├── orpc.ts                    # Конфигурация oRPC
 └── index.ts                   # Экспорт API
 ```
 
@@ -58,14 +58,14 @@ packages/api/src/
 
 ```typescript
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
+import { protectedProcedure } from "../../orpc";
 
 export const actionName = protectedProcedure
   .input(z.object({
     // Валидация входных данных
   }))
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Логика роута
     return result;
   });
@@ -77,15 +77,15 @@ export const actionName = protectedProcedure
 // Query - для чтения данных (GET)
 export const list = protectedProcedure
   .input(z.object({ workspaceId: z.string() }))
-  .query(async ({ input, ctx }) => {
-    return await ctx.db.workspace.findMany();
+  .handler(async ({ input, context }) => {
+    return await context.db.workspace.findMany();
   });
 
 // Mutation - для изменения данных (POST/PUT/DELETE)
 export const create = protectedProcedure
   .input(z.object({ name: z.string() }))
-  .mutation(async ({ input, ctx }) => {
-    return await ctx.db.workspace.create({ data: input });
+  .handler(async ({ input, context }) => {
+    return await context.db.workspace.create({ data: input });
   });
 ```
 
@@ -95,17 +95,17 @@ export const create = protectedProcedure
 // publicProcedure - доступен без авторизации
 export const getPublicInfo = publicProcedure
   .input(z.object({ slug: z.string() }))
-  .query(async ({ input, ctx }) => {
-    // ctx.session может быть null
+  .handler(async ({ input, context }) => {
+    // context.session может быть null
     return data;
   });
 
 // protectedProcedure - требует авторизации
 export const getPrivateData = protectedProcedure
   .input(z.object({ id: z.string() }))
-  .query(async ({ input, ctx }) => {
-    // ctx.session.user гарантированно существует
-    const userId = ctx.session.user.id;
+  .handler(async ({ input, context }) => {
+    // context.session.user гарантированно существует
+    const userId = context.session.user.id;
     return data;
   });
 ```
@@ -115,7 +115,6 @@ export const getPrivateData = protectedProcedure
 ### Простой роутер (без вложенности)
 
 ```typescript
-import type { TRPCRouterRecord } from "@trpc/server";
 
 import { create } from "./create";
 import { deleteItem } from "./delete";
@@ -129,13 +128,12 @@ export const domainRouter = {
   create,
   update,
   delete: deleteItem, // Переименование для избежания конфликта с ключевым словом
-} satisfies TRPCRouterRecord;
+};
 ```
 
 ### Роутер с вложенными роутерами
 
 ```typescript
-import type { TRPCRouterRecord } from "@trpc/server";
 
 import { create } from "./create";
 import { get } from "./get";
@@ -152,13 +150,12 @@ export const workspaceRouter = {
   // Вложенные роутеры
   members: membersRouter,
   invites: invitesRouter,
-} satisfies TRPCRouterRecord;
+};
 ```
 
 ### Вложенный роутер (subdomain/index.ts)
 
 ```typescript
-import type { TRPCRouterRecord } from "@trpc/server";
 
 import { add } from "./add";
 import { list } from "./list";
@@ -170,18 +167,18 @@ export const membersRouter = {
   add,
   remove,
   updateRole,
-} satisfies TRPCRouterRecord;
+};
 ```
 
 ## Регистрация в root.ts
 
 ```typescript
-import { createTRPCRouter } from "./trpc";
+import { router } from "./orpc";
 import { userRouter } from "./routers/user";
 import { workspaceRouter } from "./routers/workspace";
 import { vacancyRouter } from "./routers/vacancy";
 
-export const appRouter = createTRPCRouter({
+export const appRouter = {
   user: userRouter,
   workspace: workspaceRouter,
   vacancy: vacancyRouter,
@@ -189,7 +186,7 @@ export const appRouter = createTRPCRouter({
   ...(process.env.NODE_ENV !== "production" && { 
     test: testRouter 
   }),
-});
+};
 
 export type AppRouter = typeof appRouter;
 ```
@@ -207,7 +204,7 @@ export const get = protectedProcedure
   .input(z.object({ 
     id: workspaceIdSchema 
   }))
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // ...
   });
 
@@ -218,7 +215,7 @@ export const update = protectedProcedure
     name: z.string().min(1).max(100),
     description: z.string().optional(),
   }))
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // ...
   });
 ```
@@ -241,28 +238,25 @@ import { workspaceIdSchema } from "@qbs-autonaim/validators";
 ### Стандартные коды ошибок
 
 ```typescript
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 
 // NOT_FOUND - ресурс не найден
 if (!workspace) {
-  throw new TRPCError({
-    code: "NOT_FOUND",
+  throw new ORPCError("NOT_FOUND", {
     message: "Workspace не найден",
   });
 }
 
 // FORBIDDEN - нет доступа
 if (!hasAccess) {
-  throw new TRPCError({
-    code: "FORBIDDEN",
+  throw new ORPCError("FORBIDDEN", {
     message: "Нет доступа к workspace",
   });
 }
 
 // BAD_REQUEST - некорректные данные
 if (invalidData) {
-  throw new TRPCError({
-    code: "BAD_REQUEST",
+  throw new ORPCError("BAD_REQUEST", {
     message: "Некорректные данные",
   });
 }
@@ -276,23 +270,23 @@ if (invalidData) {
 ```typescript
 export const get = protectedProcedure
   .input(z.object({ id: workspaceIdSchema }))
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // 1. Проверка существования
-    const workspace = await ctx.workspaceRepository.findById(input.id);
+    const workspace = await context.workspaceRepository.findById(input.id);
     if (!workspace) {
-      throw new TRPCError({
+      throw new ORPCError(
         code: "NOT_FOUND",
         message: "Workspace не найден",
       });
     }
 
     // 2. Проверка доступа
-    const hasAccess = await ctx.workspaceRepository.checkAccess(
+    const hasAccess = await context.workspaceRepository.checkAccess(
       input.id,
-      ctx.session.user.id,
+      context.session.user.id,
     );
     if (!hasAccess) {
-      throw new TRPCError({
+      throw new ORPCError(
         code: "FORBIDDEN",
         message: "Нет доступа к workspace",
       });
@@ -310,14 +304,14 @@ export const get = protectedProcedure
 // В protectedProcedure
 export const me = protectedProcedure
   .query(async ({ ctx }) => {
-    const userId = ctx.session.user.id; // Гарантированно существует
-    return await ctx.db.user.findUnique({ where: { id: userId } });
+    const userId = context.session.user.id; // Гарантированно существует
+    return await context.db.user.findUnique({ where: { id: userId } });
   });
 
 // В publicProcedure
 export const getPublic = publicProcedure
   .query(async ({ ctx }) => {
-    if (ctx.session?.user) {
+    if (context.session?.user) {
       // Пользователь авторизован
     } else {
       // Анонимный пользователь
@@ -330,9 +324,9 @@ export const getPublic = publicProcedure
 ```typescript
 export const list = protectedProcedure
   .input(z.object({ workspaceId: z.string() }))
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Используем репозиторий из контекста
-    return await ctx.workspaceRepository.findMany(input.workspaceId);
+    return await context.workspaceRepository.findMany(input.workspaceId);
   });
 ```
 
@@ -341,12 +335,12 @@ export const list = protectedProcedure
 ```typescript
 export const create = protectedProcedure
   .input(z.object({ name: z.string() }))
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Прямой доступ к Prisma клиенту
-    return await ctx.db.workspace.create({
+    return await context.db.workspace.create({
       data: {
         name: input.name,
-        ownerId: ctx.session.user.id,
+        ownerId: context.session.user.id,
       },
     });
   });

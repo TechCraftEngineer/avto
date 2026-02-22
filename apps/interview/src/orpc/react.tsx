@@ -1,15 +1,10 @@
 "use client";
 
-import {
-  createORPCClient,
-  httpBatchStreamLink,
-  loggerLink,
-} from "@orpc/client";
-import { createORPCContext } from "@orpc/tanstack-react-query";
+import { createORPCClient } from "@orpc/client";
+import { createRouterUtils } from "@orpc/tanstack-query";
 import type { AppRouter } from "@qbs-autonaim/api";
 import type { QueryClient } from "@tanstack/react-query";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { useState } from "react";
 import SuperJSON from "superjson";
 
 import { env } from "~/env";
@@ -24,60 +19,72 @@ const getQueryClient = () => {
   }
 };
 
-export const { useORPC, ORPCProvider } = createORPCContext<AppRouter>();
+const getBaseUrl = () => {
+  if (typeof window !== "undefined") return window.location.origin;
+  if (env.VERCEL_URL) return `https://${env.VERCEL_URL}`;
+  // В development режиме используем interview-server на порту 3002
+  if (env.NODE_ENV === "development") {
+    return "http://localhost:3002";
+  }
+  return `http://localhost:${env.PORT}`;
+};
+
+const createORPCClientInstance = () => {
+  const client = createORPCClient<AppRouter>({
+    transformer: SuperJSON,
+    baseURL: `${getBaseUrl()}/api/orpc`,
+  } as any);
+
+  // Добавляем кастомные заголовки через перехват fetch
+  const originalFetch = client.fetch.bind(client);
+  client.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+    const headers = new Headers(init?.headers);
+    headers.set("x-orpc-source", "nextjs-react");
+
+    if (typeof window !== "undefined") {
+      const pathParts = window.location.pathname.split("/").filter(Boolean);
+      if (pathParts.length > 0) {
+        const token = pathParts[0];
+        if (token && !["interview", "auth", "api"].includes(token)) {
+          headers.set("x-interview-token", token);
+        }
+      }
+    }
+
+    return originalFetch(input, { ...init, headers });
+  };
+
+  return client;
+};
+
+let orpcClientSingleton:
+  | ReturnType<typeof createORPCClient<AppRouter>>
+  | undefined;
+const getORPCClient = () => {
+  if (typeof window === "undefined") {
+    return createORPCClientInstance();
+  } else {
+    return (orpcClientSingleton ??= createORPCClientInstance());
+  }
+};
+
+export const useORPC = () => {
+  const client = getORPCClient();
+  return createRouterUtils<AppRouter>(client, { path: [] });
+};
+
+export const useORPCClient = () => {
+  return getORPCClient();
+};
 
 export function ORPCReactProvider(props: { children: React.ReactNode }) {
   const queryClient = getQueryClient();
 
-  const [orpcClient] = useState(() =>
-    createORPCClient<AppRouter>({
-      links: [
-        loggerLink({
-          enabled: (op) =>
-            env.NODE_ENV === "development" ||
-            (op.direction === "down" && op.result instanceof Error),
-        }),
-        httpBatchStreamLink({
-          transformer: SuperJSON,
-          url: `${getBaseUrl()}/api/orpc`,
-          headers() {
-            const headers = new Headers();
-            headers.set("x-orpc-source", "nextjs-react");
-
-            // Для интервью приложений добавляем токен из URL pathname
-            if (typeof window !== "undefined") {
-              const pathParts = window.location.pathname
-                .split("/")
-                .filter(Boolean);
-              if (pathParts.length > 0) {
-                const token = pathParts[0];
-                // Проверяем что это не стандартный маршрут (interview, auth, etc.)
-                if (token && !["interview", "auth", "api"].includes(token)) {
-                  headers.set("x-interview-token", token);
-                }
-              }
-            }
-
-            return headers;
-          },
-        }),
-      ],
-    }),
-  );
-
   return (
     <QueryClientProvider client={queryClient}>
-      <ORPCProvider orpcClient={orpcClient} queryClient={queryClient}>
-        {props.children}
-      </ORPCProvider>
+      {props.children}
     </QueryClientProvider>
   );
 }
-
-const getBaseUrl = () => {
-  if (typeof window !== "undefined") return window.location.origin;
-  if (env.VERCEL_URL) return `https://${env.VERCEL_URL}`;
-  return `http://localhost:${env.PORT}`;
-};
 
 export type { RouterInputs, RouterOutputs } from "@qbs-autonaim/api";

@@ -1,5 +1,4 @@
-import { createORPCQueryUtils } from "@orpc/tanstack-react-query";
-import type { AppRouter } from "@qbs-autonaim/api";
+import { createServerCaller } from "@orpc/server";
 import { appRouter, createContext } from "@qbs-autonaim/api";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { headers } from "next/headers";
@@ -19,15 +18,9 @@ const createORPCContext = cache(async () => {
 
 const getQueryClient = cache(createQueryClient);
 
-export const orpc = createORPCQueryUtils<AppRouter>({
-  router: appRouter,
-  context: createORPCContext,
-  queryClient: getQueryClient,
-});
-
 export const api = cache(async () => {
   const context = await createORPCContext();
-  return appRouter.createCaller(context);
+  return createServerCaller(appRouter, context);
 });
 
 export function HydrateClient(props: { children: React.ReactNode }) {

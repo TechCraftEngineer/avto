@@ -60,9 +60,9 @@ const { data } = useSuspenseQuery(
 
 ```tsx
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
-import { createServerSideHelpers } from "@trpc/tanstack-react-query/server";
+import { createServerHelpers } from "~/orpc/server";
 
-const helpers = createServerSideHelpers({ router: appRouter, ctx: await createContext() });
+const helpers = await createServerHelpers();
 await helpers.brands.getById.prefetch({ id: params.id });
 
 return (
@@ -78,10 +78,11 @@ return (
 import { useInfiniteQuery } from "@tanstack/react-query";
 
 const { data, fetchNextPage, hasNextPage } = useInfiniteQuery(
-  trpc.brands.list.infiniteQueryOptions(
-    { limit: 10 },
-    { getNextPageParam: (lastPage) => lastPage.nextCursor }
-  )
+  orpc.brands.list.infiniteOptions({
+    input: (page: number) => ({ limit: 10, cursor: page }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+  })
 );
 ```
 
@@ -95,14 +96,14 @@ const { data, fetchNextPage, hasNextPage } = useInfiniteQuery(
 ```tsx
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-const trpc = useTRPC();
+const orpc = useORPC();
 const queryClient = useQueryClient();
 
 const { mutate, isPending } = useMutation(
-  trpc.brands.create.mutationOptions({
+  orpc.brands.create.mutationOptions({
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: trpc.brands.list.queryKey(),
+        queryKey: orpc.brands.list.queryKey(),
       });
     },
     onError: (error) => {
@@ -120,18 +121,18 @@ const { mutate, isPending } = useMutation(
 
 ```tsx
 const { mutate } = useMutation(
-  trpc.brands.update.mutationOptions({
+  orpc.brands.update.mutationOptions({
     onMutate: async (newData) => {
       await queryClient.cancelQueries({
-        queryKey: trpc.brands.getById.queryKey({ id: brand.id }),
+        queryKey: orpc.brands.getById.queryKey({ id: brand.id }),
       });
       
       const previousBrand = queryClient.getQueryData(
-        trpc.brands.getById.queryKey({ id: brand.id })
+        orpc.brands.getById.queryKey({ id: brand.id })
       );
       
       queryClient.setQueryData(
-        trpc.brands.getById.queryKey({ id: brand.id }),
+        orpc.brands.getById.queryKey({ id: brand.id }),
         { ...brand, ...newData }
       );
       
@@ -140,14 +141,14 @@ const { mutate } = useMutation(
     onError: (err, newData, context) => {
       if (context?.previousBrand) {
         queryClient.setQueryData(
-          trpc.brands.getById.queryKey({ id: brand.id }),
+          orpc.brands.getById.queryKey({ id: brand.id }),
           context.previousBrand
         );
       }
     },
     onSettled: () => {
       queryClient.invalidateQueries({
-        queryKey: trpc.brands.getById.queryKey({ id: brand.id }),
+        queryKey: orpc.brands.getById.queryKey({ id: brand.id }),
       });
     },
   })
@@ -161,17 +162,17 @@ const { mutate } = useMutation(
 ```tsx
 // Конкретный запрос
 queryClient.invalidateQueries({
-  queryKey: trpc.brands.getById.queryKey({ id: "123" }),
+  queryKey: orpc.brands.getById.queryKey({ id: "123" }),
 });
 
 // Весь роутер
 queryClient.invalidateQueries({
-  queryKey: trpc.brands.queryKey(),
+  queryKey: orpc.brands.queryKey(),
 });
 
-// Все tRPC запросы
+// Все oRPC запросы
 queryClient.invalidateQueries({
-  queryKey: trpc.queryKey(),
+  queryKey: orpc.queryKey(),
 });
 ```
 
@@ -180,12 +181,12 @@ queryClient.invalidateQueries({
 ```tsx
 // Prefetch (фоновая загрузка)
 await queryClient.prefetchQuery(
-  trpc.brands.getById.queryOptions({ id: "123" })
+  orpc.brands.getById.queryOptions({ id: "123" })
 );
 
 // Fetch (получить данные)
 const brand = await queryClient.fetchQuery(
-  trpc.brands.getById.queryOptions({ id: "123" })
+  orpc.brands.getById.queryOptions({ id: "123" })
 );
 ```
 
@@ -194,12 +195,12 @@ const brand = await queryClient.fetchQuery(
 ```tsx
 // Получить
 const brand = queryClient.getQueryData(
-  trpc.brands.getById.queryKey({ id: "123" })
+  orpc.brands.getById.queryKey({ id: "123" })
 );
 
 // Установить
 queryClient.setQueryData(
-  trpc.brands.getById.queryKey({ id: "123" }),
+  orpc.brands.getById.queryKey({ id: "123" }),
   { id: "123", name: "New Brand" }
 );
 ```
@@ -209,27 +210,27 @@ queryClient.setQueryData(
 ```tsx
 // Точная фильтрация
 queryClient.invalidateQueries(
-  trpc.brands.getById.queryFilter({ id: "123" })
+  orpc.brands.getById.queryFilter({ id: "123" })
 );
 
 // Весь роутер
 queryClient.invalidateQueries(
-  trpc.brands.pathFilter()
+  orpc.brands.pathFilter()
 );
 
 // Infinite queries
 queryClient.invalidateQueries(
-  trpc.brands.list.infiniteQueryFilter({ status: "active" })
+  orpc.brands.list.infiniteQueryFilter({ status: "active" })
 );
 ```
 
 ## Subscriptions
 
 ```tsx
-import { useSubscription } from "@trpc/tanstack-react-query";
+import { useSubscription } from "@orpc/tanstack-query";
 
 const subscription = useSubscription(
-  trpc.notifications.onNew.subscriptionOptions(
+  orpc.notifications.onNew.subscriptionOptions(
     { userId: "123" },
     {
       onData: (notification) => toast.info(notification.message),
@@ -247,7 +248,7 @@ const subscription = useSubscription(
 ```tsx
 // Для стриминга AI ответов
 const { data, isLoading } = useQuery(
-  trpc.ai.generateStream.queryOptions({
+  orpc.ai.generateStream.queryOptions({
     prompt: userInput,
     onData: (chunk) => {
       // Обработка каждого чанка стрима
@@ -258,7 +259,7 @@ const { data, isLoading } = useQuery(
 
 // Или с mutation для чатов
 const { mutate, isPending } = useMutation(
-  trpc.chat.sendMessage.mutationOptions({
+  orpc.chat.sendMessage.mutationOptions({
     onSuccess: (response) => {
       if (response.stream) {
         // Обработка стриминга ответа
@@ -274,7 +275,7 @@ const { mutate, isPending } = useMutation(
 ## Type Inference
 
 ```tsx
-import type { RouterInputs, RouterOutputs } from "~/trpc/react";
+import type { RouterInputs, RouterOutputs } from "@qbs-autonaim/api";
 
 type BrandCreateInput = RouterInputs["brands"]["create"];
 type Brand = RouterOutputs["brands"]["getById"];

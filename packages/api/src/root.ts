@@ -56,7 +56,7 @@ const baseRouter = {
   customDomain: customDomainRouter,
   chat: chatRouter,
   draft: draftRouter,
-};
+} as any;
 
 export const appRouter =
   process.env.NODE_ENV !== "production"
