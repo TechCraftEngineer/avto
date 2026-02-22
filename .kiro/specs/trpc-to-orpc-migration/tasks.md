@@ -29,12 +29,12 @@
     - **Validates: Requirements 1.1**
 
 - [ ] 3. Миграция middleware
-  - [-] 3.1 Создать timingMiddleware
+  - [x] 3.1 Создать timingMiddleware
     - Реализовать логирование времени выполнения процедур
     - Логировать предупреждения для медленных операций (>5000ms)
     - _Requirements: 2.1, 2.2_
   
-  - [~] 3.2 Создать securityAudit middleware
+  - [-] 3.2 Создать securityAudit middleware
     - Реализовать логирование UNAUTHORIZED, FORBIDDEN, TOO_MANY_REQUESTS ошибок
     - Реализовать логирование mutations для аудита
     - Реализовать логирование медленных операций

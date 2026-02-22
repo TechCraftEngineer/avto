@@ -120,23 +120,192 @@ export const procedure = orpc;
  *
  * @see Requirements 2.1, 2.2
  */
-export const timingMiddleware = middleware(async ({ next, context }) => {
+export const timingMiddleware = middleware(async ({ context, next, path }) => {
   const start = Date.now();
-  const result = await next({ context });
+  const result = await next({});
   const end = Date.now();
   const executionTime = end - start;
 
+  const pathStr = path.join(".");
+
   // Логируем в development режиме
   if (process.env.NODE_ENV === "development") {
-    console.log(`[ORPC] ${context.route?.path ?? "unknown"} выполнен за ${executionTime}мс`);
+    console.log(`[ORPC] ${pathStr} выполнен за ${executionTime}мс`);
   }
 
   // Предупреждение для медленных операций (>5000ms)
   if (executionTime > 5000) {
     console.warn(
-      `[Performance] Slow operation detected: ${context.route?.path ?? "unknown"} took ${executionTime}ms | IP: ${context.ipAddress || "unknown"}`,
+      `[Performance] Slow operation detected: ${pathStr} took ${executionTime}ms | IP: ${context.ipAddress || "unknown"}`,
     );
   }
 
   return result;
 });
+
+/**
+ * Security Headers Middleware
+ *
+ * Заглушка для security headers.
+ * В oRPC headers устанавливаются в Next.js route handler.
+ *
+ * @see Requirements 2.7
+ */
+export const securityHeadersMiddleware = middleware(async ({ next }) => {
+  const result = await next({});
+  // Headers устанавливаются в Next.js route handler
+  return result;
+});
+
+/**
+ * Security Audit Middleware
+ *
+ * Логирует события безопасности:
+ * - UNAUTHORIZED ошибки (попытки несанкционированного доступа)
+ * - FORBIDDEN ошибки (подозрительная активность)
+ * - TOO_MANY_REQUESTS ошибки (превышение rate limit)
+ * - Успешные mutations для аудита модификации данных
+ * - Медленные операции (>5000ms) для мониторинга производительности
+ *
+ * @see Requirements 2.3, 2.4, 2.5, 2.6
+ */
+export const securityAudit = middleware(async ({ context, next, path }) => {
+  const startTime = Date.now();
+  const userId = context.session?.user?.id;
+  const ipAddress = context.ipAddress;
+  const pathStr = path.join(".");
+  
+  // Определяем тип операции по пути (это упрощение, в реальности нужно использовать meta)
+  // В oRPC meta доступен только в handler, не в middleware
+  const isMutation = pathStr.includes("create") || 
+                     pathStr.includes("update") || 
+                     pathStr.includes("delete") || 
+                     pathStr.includes("remove") ||
+                     pathStr.includes("add");
+
+  // В dev режиме логируем информацию о запросе
+  if (process.env.NODE_ENV === "development") {
+    console.log(
+      `[Security Audit] ${isMutation ? "MUTATION" : "QUERY"} ${pathStr} | IP: ${ipAddress || "unknown"} | User: ${userId || "anonymous"}`,
+    );
+  }
+
+  try {
+    const result = await next({});
+
+    // Логирование успешных mutations для аудита
+    if (userId && isMutation) {
+      const { logSecurityEvent } = await import("@qbs-autonaim/server-utils");
+      logSecurityEvent.suspiciousActivity(
+        {
+          type: "data_modification",
+          operation: "MODIFY",
+          userId,
+        },
+        ipAddress,
+        userId,
+      );
+    }
+
+    return result;
+  } catch (error) {
+    // Логирование нарушений безопасности
+    const { ORPCError } = await import("@orpc/client");
+    const { logSecurityEvent } = await import("@qbs-autonaim/server-utils");
+
+    if (error instanceof ORPCError) {
+      if (error.status === 401) {
+        // UNAUTHORIZED
+        console.warn(
+          `[Security] UNAUTHORIZED access attempt | IP: ${ipAddress || "unknown"} | Path: ${pathStr}`,
+        );
+        logSecurityEvent.accessDenied(
+          userId || "anonymous",
+          "unknown",
+          ipAddress,
+        );
+      } else if (error.status === 429) {
+        // TOO_MANY_REQUESTS
+        logSecurityEvent.rateLimitExceeded(ipAddress, userId, "unknown");
+      } else if (error.status === 403) {
+        // FORBIDDEN
+        console.warn(
+          `[Security] FORBIDDEN access | IP: ${ipAddress || "unknown"} | User: ${userId || "anonymous"} | Path: ${pathStr}`,
+        );
+        logSecurityEvent.suspiciousActivity(
+          {
+            error: error.message,
+            code: error.code,
+          },
+          ipAddress,
+          userId,
+        );
+      }
+    }
+
+    throw error;
+  } finally {
+    // Логирование медленных операций
+    const executionTime = Date.now() - startTime;
+    if (executionTime > 5000) {
+      const { logSecurityEvent } = await import("@qbs-autonaim/server-utils");
+      console.warn(
+        `[Performance] Slow operation detected: ${pathStr} took ${executionTime}ms | IP: ${ipAddress || "unknown"}`,
+      );
+      logSecurityEvent.suspiciousActivity(
+        {
+          type: "slow_operation",
+          executionTime,
+        },
+        ipAddress,
+        userId,
+      );
+    }
+  }
+});
+
+/**
+ * Public Procedure
+ *
+ * Базовая процедура без требования авторизации.
+ * Применяет middleware: timingMiddleware, securityHeadersMiddleware, securityAudit.
+ * Используется для endpoints, доступных без авторизации.
+ *
+ * @see Requirements 3.1, 3.5
+ */
+export const publicProcedure = procedure
+  .use(timingMiddleware)
+  .use(securityHeadersMiddleware)
+  .use(securityAudit);
+
+/**
+ * Protected Procedure
+ *
+ * Процедура с требованием авторизации.
+ * Применяет все middleware из publicProcedure + проверку авторизации.
+ * Гарантирует наличие ctx.session.user.
+ * Выбрасывает ORPCError с status 401 если сессия отсутствует.
+ *
+ * @see Requirements 3.2, 3.3, 3.4, 3.5
+ */
+export const protectedProcedure = publicProcedure.use(
+  middleware(async ({ context, next }) => {
+    if (!context.session?.user) {
+      const { ORPCError } = await import("@orpc/client");
+      throw new ORPCError({
+        status: 401,
+        code: "UNAUTHORIZED",
+        message: "Требуется авторизация",
+      });
+    }
+
+    return next({
+      context: {
+        session: {
+          ...context.session,
+          user: context.session.user,
+        },
+      },
+    });
+  }),
+);
