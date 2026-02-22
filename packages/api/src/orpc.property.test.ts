@@ -454,7 +454,7 @@ describe("Property 5: FORBIDDEN ошибки логируются", () => {
 
             // Создаем процедуру которая выбрасывает FORBIDDEN
             const testProcedure = publicProcedure.handler(async () => {
-              const { ORPCError } = await import("@orpc/client");
+              const { ORPCError } = await import("@orpc/server");
               throw new ORPCError("FORBIDDEN", {
                 message: errorMessage,
               });
@@ -517,7 +517,7 @@ describe("Property 6: TOO_MANY_REQUESTS ошибки логируются", () =
 
           // Создаем процедуру которая выбрасывает TOO_MANY_REQUESTS
           const testProcedure = publicProcedure.handler(async () => {
-            const { ORPCError } = await import("@orpc/client");
+            const { ORPCError } = await import("@orpc/server");
             throw new ORPCError("TOO_MANY_REQUESTS", {
               message: "Превышен лимит запросов",
             });

@@ -214,7 +214,7 @@ export const securityAudit = middleware(async ({ context, next, path }) => {
     return result;
   } catch (error) {
     // Логирование нарушений безопасности
-    const { ORPCError } = await import("@orpc/client");
+    const { ORPCError } = await import("@orpc/server");
     const { logSecurityEvent } = await import("@qbs-autonaim/server-utils");
 
     if (error instanceof ORPCError) {
@@ -295,7 +295,7 @@ export const publicProcedure = procedure
 export const protectedProcedure = publicProcedure.use(
   middleware(async ({ context, next }) => {
     if (!context.session?.user) {
-      const { ORPCError } = await import("@orpc/client");
+      const { ORPCError } = await import("@orpc/server");
       throw new ORPCError("UNAUTHORIZED", {
         message: "Требуется авторизация",
       });

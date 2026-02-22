@@ -6,14 +6,14 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import { InterviewLandingForm } from "~/components/interview-landing-form";
 import { InterviewResponseActions } from "~/components/interview-response-actions";
-import { useTRPC } from "~/orpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface PageProps {
   params: Promise<{ token: string }>;
 }
 
 function InterviewLandingClient({ token }: { token: string }) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const router = useRouter();
   const [createdResponseId, setCreatedResponseId] = React.useState<
@@ -21,10 +21,10 @@ function InterviewLandingClient({ token }: { token: string }) {
   >(null);
 
   const { data, isLoading, error } = useQuery(
-    trpc.freelancePlatforms.getInterviewByToken.queryOptions({ token }),
+    orpc.freelancePlatforms.getInterviewByToken.queryOptions({ token }),
   );
   const startInterviewMutation = useMutation(
-    trpc.freelancePlatforms.startWebInterview.mutationOptions(),
+    orpc.freelancePlatforms.startWebInterview.mutationOptions(),
   );
   // Автоматический переход в чат если есть активная сессия
   React.useEffect(() => {
@@ -122,7 +122,7 @@ function InterviewLandingClient({ token }: { token: string }) {
       ) {
         // Перезагружаем данные, чтобы показать экран "закрыто"
         await queryClient.invalidateQueries({
-          queryKey: trpc.freelancePlatforms.getInterviewByToken.queryKey({
+          queryKey: orpc.freelancePlatforms.getInterviewByToken.queryKey({
             token,
           }),
         });
@@ -158,7 +158,7 @@ function InterviewLandingClient({ token }: { token: string }) {
         ) {
           // Перезагружаем данные, чтобы показать экран "закрыто"
           await queryClient.invalidateQueries({
-            queryKey: trpc.freelancePlatforms.getInterviewByToken.queryKey({
+            queryKey: orpc.freelancePlatforms.getInterviewByToken.queryKey({
               token,
             }),
           });
@@ -174,7 +174,7 @@ function InterviewLandingClient({ token }: { token: string }) {
     platformProfileUrl: string,
   ) => {
     const result = await queryClient.fetchQuery(
-      trpc.freelancePlatforms.checkDuplicateResponse.queryOptions({
+      orpc.freelancePlatforms.checkDuplicateResponse.queryOptions({
         vacancyId,
         platformProfileUrl,
       }),

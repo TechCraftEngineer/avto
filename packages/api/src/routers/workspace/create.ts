@@ -1,4 +1,4 @@
-import { ORPCError } from "@orpc/client";
+import { ORPCError } from "@orpc/server";
 import { optimizeLogo } from "@qbs-autonaim/lib/image";
 import {
   createWorkspaceSchema,

@@ -58,10 +58,7 @@ export async function POST(request: Request) {
     });
 
     if (!session) {
-      return Response.json(
-        { error: "Interview not found" },
-        { status: 404 },
-      );
+      return Response.json({ error: "Interview not found" }, { status: 404 });
     }
 
     if (session.status !== "active") {
@@ -153,9 +150,6 @@ export async function POST(request: Request) {
       );
     }
 
-    return Response.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    return Response.json({ error: "Internal server error" }, { status: 500 });
   }
 }

@@ -12,7 +12,7 @@ import {
   convertToSDKMessage,
   convertUIMessage,
 } from "~/lib/message-converters";
-import { useTRPC } from "~/orpc/react";
+import { useORPC } from "~/orpc/react";
 import type { ChatMessage, ChatStatus } from "~/types/chat";
 import { AIChatInput } from "./ai-chat-input";
 import { InterviewGreeting } from "./chat/interview-greeting";
@@ -37,19 +37,19 @@ function PureInterviewChat({
   apiEndpoint = "/api/interview/chat/stream",
   className,
 }: InterviewChatProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const isInitializedRef = useRef(false);
   const currentConversationIdRef = useRef(interviewSessionId);
 
   const { data: chatHistory, isLoading: isLoadingHistory } = useQuery(
-    trpc.freelancePlatforms.getChatHistory.queryOptions({
+    orpc.freelancePlatforms.getChatHistory.queryOptions({
       interviewSessionId,
       interviewToken,
     }),
   );
 
   const { data: interviewContext, isLoading: isLoadingContext } = useQuery({
-    ...trpc.freelancePlatforms.getInterviewContext.queryOptions({
+    ...orpc.freelancePlatforms.getInterviewContext.queryOptions({
       interviewSessionId,
       interviewToken,
     }),

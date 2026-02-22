@@ -1,15 +1,15 @@
 ---
-description: Ты работаешь с UI-кодом, использующим tRPC + TanStack Query.
+description: Ты работаешь с UI-кодом, использующим oRPC + TanStack Query.
 alwaysApply: false
 ---
-# tRPC + TanStack Query Standards
+# oRPC + TanStack Query Standards
 
 ## Core Rules
 
-- MUST: Получать клиент через `useTRPC()` для типобезопасности
+- MUST: Получать клиент через `useORPC()` для типобезопасности
 - MUST: Использовать фабрики `.queryOptions()` и `.mutationOptions()` вместо прямых хуков
 - MUST: Передавать результаты фабрик в нативные хуки TanStack Query (`useQuery`, `useMutation`, `useSuspenseQuery`)
-- NEVER: Вызывать `trpc.procedure.useQuery()` напрямую
+- NEVER: Вызывать `orpc.procedure.useQuery()` напрямую
 - MUST: Использовать `.queryKey()` для инвалидации и работы с кэшем
 - NEVER: Строить query keys вручную
 
@@ -18,12 +18,12 @@ alwaysApply: false
 ### Базовый паттерн
 
 ```tsx
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import { useQuery } from "@tanstack/react-query";
 
-const trpc = useTRPC();
+const orpc = useORPC();
 const { data, isPending } = useQuery(
-  trpc.brands.getById.queryOptions({ id: brandId })
+  orpc.brands.getById.queryOptions({ id: brandId })
 );
 ```
 
@@ -36,7 +36,7 @@ const { data, isPending } = useQuery(
 import { skipToken } from "@tanstack/react-query";
 
 const { data } = useQuery(
-  trpc.user.details.queryOptions(
+  orpc.user.details.queryOptions(
     userId ? { userId } : skipToken
   )
 );
@@ -50,7 +50,7 @@ const { data } = useQuery(
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 const { data } = useSuspenseQuery(
-  trpc.brands.getById.queryOptions({ id: brandId })
+  orpc.brands.getById.queryOptions({ id: brandId })
 );
 ```
 

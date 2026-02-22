@@ -10,8 +10,7 @@ import { POST as handleUploadVoice } from "./interview/upload-voice/handler";
 
 const app = new Hono();
 
-const corsOrigin =
-  env.CORS_ORIGIN ?? env.APP_URL ?? "http://localhost:3001";
+const corsOrigin = env.CORS_ORIGIN ?? env.APP_URL ?? "http://localhost:3001";
 
 app.use(logger());
 app.use(
