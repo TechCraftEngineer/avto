@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 type OnboardingStep = "welcome" | "organization" | "workspace";
 
@@ -17,7 +17,7 @@ interface CreatedOrganization {
 
 export function useOnboarding() {
   const router = useRouter();
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
 
   const [step, setStep] = useState<OnboardingStep>("welcome");
@@ -37,7 +37,7 @@ export function useOnboarding() {
   };
 
   const createWorkspace = useMutation(
-    trpc.organization.createWorkspace.mutationOptions({
+    orpc.organization.createWorkspace.mutationOptions({
       onSuccess: (workspace) => {
         toast.success("Воркспейс создан", {
           description: `Воркспейс "${workspace.name}" успешно создан`,
@@ -46,7 +46,7 @@ export function useOnboarding() {
         // Инвалидация кэша воркспейсов
         if (createdOrganization) {
           void queryClient.invalidateQueries({
-            queryKey: trpc.organization.listWorkspaces.queryKey({
+            queryKey: orpc.organization.listWorkspaces.queryKey({
               organizationId: createdOrganization.id,
             }),
           });

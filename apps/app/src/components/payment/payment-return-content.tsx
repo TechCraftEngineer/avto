@@ -5,12 +5,12 @@ import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, CheckCircle2, Clock, XCircle } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 export function PaymentReturnContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const paymentId = searchParams.get("paymentId");
 
   const {
@@ -18,7 +18,7 @@ export function PaymentReturnContent() {
     isLoading,
     error,
   } = useQuery({
-    ...trpc.payment.checkStatus.queryOptions(
+    ...orpc.payment.checkStatus.queryOptions(
       paymentId ? { paymentId } : { paymentId: "" },
     ),
     enabled: !!paymentId,

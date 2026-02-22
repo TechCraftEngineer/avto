@@ -32,7 +32,7 @@ import { z } from "zod";
 import { PageHeader } from "~/components/layout";
 import { env } from "~/env";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface PageProps {
   params: Promise<{ orgSlug: string; slug: string; gigId: string }>;
@@ -98,7 +98,7 @@ function EditGigSkeleton() {
 export default function EditGigPage({ params }: PageProps) {
   const { orgSlug, slug: workspaceSlug, gigId } = React.use(params);
   const router = useRouter();
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const { workspace } = useWorkspace();
 
@@ -107,7 +107,7 @@ export default function EditGigPage({ params }: PageProps) {
     isLoading,
     isError,
   } = useQuery({
-    ...trpc.gig.get.queryOptions({
+    ...orpc.gig.get.queryOptions({
       id: gigId,
       workspaceId: workspace?.id ?? "",
     }),
@@ -116,7 +116,7 @@ export default function EditGigPage({ params }: PageProps) {
 
   // Загружаем настройки бота для отображения
   const { data: botSettings } = useQuery({
-    ...trpc.workspace.getBotSettings.queryOptions({
+    ...orpc.workspace.getBotSettings.queryOptions({
       workspaceId: workspace?.id ?? "",
     }),
     enabled: !!workspace?.id,
@@ -134,17 +134,17 @@ export default function EditGigPage({ params }: PageProps) {
   });
 
   const { mutate: updateGig, isPending } = useMutation(
-    trpc.gig.update.mutationOptions({
+    orpc.gig.update.mutationOptions({
       onSuccess: () => {
         toast.success("Задание обновлено");
         queryClient.invalidateQueries({
-          queryKey: trpc.gig.get.queryKey({
+          queryKey: orpc.gig.get.queryKey({
             id: gigId,
             workspaceId: workspace?.id ?? "",
           }),
         });
         queryClient.invalidateQueries({
-          queryKey: trpc.gig.list.queryKey({
+          queryKey: orpc.gig.list.queryKey({
             workspaceId: workspace?.id ?? "",
           }),
         });

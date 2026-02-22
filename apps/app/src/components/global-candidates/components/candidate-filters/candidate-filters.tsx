@@ -23,7 +23,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Briefcase, CalendarDays, Filter, Search, X } from "lucide-react";
 import { useCallback, useMemo } from "react";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import type {
   CandidateStatus,
   CandidateFilters as TCandidateFilters,
@@ -42,11 +42,11 @@ export function CandidateFilters({
   onReset,
 }: CandidateFiltersProps) {
   const { workspace } = useWorkspaceContext();
-  const trpc = useTRPC();
+  const orpc = useORPC();
 
   // Получаем список активных вакансий воркспейса (лимит 100 для выбора в фильтре)
   const { data: vacanciesData } = useQuery({
-    ...trpc.vacancy.listActive.queryOptions({
+    ...orpc.vacancy.listActive.queryOptions({
       workspaceId: workspace?.id ?? "",
       limit: 100,
     }),

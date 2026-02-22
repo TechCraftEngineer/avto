@@ -4,17 +4,17 @@ import { Skeleton } from "@qbs-autonaim/ui/components/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { BotSettingsForm } from "~/components";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 export default function SettingsBotPage() {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const { workspace, isLoading: workspaceLoading } = useWorkspace();
 
   const workspaceId = workspace?.id;
   const userRole = workspace?.role;
 
   const { data: botSettings, isLoading } = useQuery({
-    ...trpc.workspace.getBotSettings.queryOptions({
+    ...orpc.workspace.getBotSettings.queryOptions({
       workspaceId: workspaceId || "",
     }),
     enabled: !!workspaceId,

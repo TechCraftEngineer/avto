@@ -3,7 +3,7 @@
 import { paths } from "@qbs-autonaim/config";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useWorkspaces } from "~/contexts/workspace-context";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 export interface GettingStartedStep {
   id: string;
@@ -15,31 +15,31 @@ export interface GettingStartedStep {
 }
 
 export function useGettingStarted() {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const { workspace } = useWorkspaces();
 
   // Получаем настройки бота
   const { data: botSettings, isLoading: isLoadingBot } = useQuery({
-    ...trpc.bot.get.queryOptions({ workspaceId: workspace?.id ?? "" }),
+    ...orpc.bot.get.queryOptions({ workspaceId: workspace?.id ?? "" }),
     enabled: !!workspace?.id,
   });
 
   // Получаем список вакансий
   const { data: vacancies, isLoading: isLoadingVacancies } = useQuery({
-    ...trpc.vacancy.list.queryOptions({ workspaceId: workspace?.id ?? "" }),
+    ...orpc.vacancy.list.queryOptions({ workspaceId: workspace?.id ?? "" }),
     enabled: !!workspace?.id,
   });
 
   // Получаем список интеграций
   const { data: integrations, isLoading: isLoadingIntegrations } = useQuery({
-    ...trpc.integration.list.queryOptions({ workspaceId: workspace?.id ?? "" }),
+    ...orpc.integration.list.queryOptions({ workspaceId: workspace?.id ?? "" }),
     enabled: !!workspace?.id,
   });
 
   // Получаем Telegram сессии
   const { data: sessions, isLoading: isLoadingSessions } = useQuery({
-    ...trpc.telegram.getSessions.queryOptions({
+    ...orpc.telegram.getSessions.queryOptions({
       workspaceId: workspace?.id ?? "",
     }),
     enabled: !!workspace?.id,
@@ -47,10 +47,10 @@ export function useGettingStarted() {
 
   // Мутация для обновления статуса онбординга
   const updateOnboardingMutation = useMutation(
-    trpc.bot.updateOnboarding.mutationOptions({
+    orpc.bot.updateOnboarding.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: trpc.bot.get.queryKey({
+          queryKey: orpc.bot.get.queryKey({
             workspaceId: workspace?.id ?? "",
           }),
         });

@@ -27,7 +27,7 @@ describe("ClientLayout - Структура провайдеров", () => {
     ).text();
 
     // Проверяем импорты обоих провайдеров
-    expect(layoutFile).toContain('from "~/trpc/react"');
+    expect(layoutFile).toContain('from "~/orpc/react"');
     expect(layoutFile).toContain('from "~/orpc/react"');
     expect(layoutFile).toContain("TRPCReactProvider");
     expect(layoutFile).toContain("ORPCReactProvider");
@@ -220,18 +220,18 @@ describe("ClientLayout - Хуки провайдеров", () => {
     expect(hasExport).toBe(true);
   });
 
-  it("должен экспортировать useTRPC хук", async () => {
+  it("должен экспортировать useORPC хук", async () => {
     const trpcFile = await Bun.file("apps/app/src/trpc/react.tsx").text();
 
-    // Проверяем что useTRPC создается через createTRPCContext
+    // Проверяем что useORPC создается через createTRPCContext
     expect(trpcFile).toContain("createTRPCContext");
-    expect(trpcFile).toContain("useTRPC");
+    expect(trpcFile).toContain("useORPC");
 
-    // Проверяем что useTRPC экспортируется
+    // Проверяем что useORPC экспортируется
     const hasExport =
-      trpcFile.includes("export const { useTRPC") ||
+      trpcFile.includes("export const { useORPC") ||
       trpcFile.includes("export const {") ||
-      trpcFile.includes("useTRPC");
+      trpcFile.includes("useORPC");
 
     expect(hasExport).toBe(true);
   });
@@ -242,10 +242,10 @@ describe("ClientLayout - Хуки провайдеров", () => {
     expect(orpcFile).toContain("useORPCClient");
   });
 
-  it("должен экспортировать useTRPCClient хук", async () => {
+  it("должен экспортировать useORPCClient хук", async () => {
     const trpcFile = await Bun.file("apps/app/src/trpc/react.tsx").text();
 
-    expect(trpcFile).toContain("useTRPCClient");
+    expect(trpcFile).toContain("useORPCClient");
   });
 });
 

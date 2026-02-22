@@ -28,7 +28,7 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 import { PageHeader } from "~/components/layout";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 type PlatformFilter = "all" | "KWORK" | "FL_RU" | "FREELANCE_RU";
 
@@ -38,7 +38,7 @@ export default function FreelanceDashboardPage() {
     slug: string;
   }>();
   const { workspace } = useWorkspace();
-  const api = useTRPC();
+  const api = useORPC();
 
   const [statusFilter, setStatusFilter] = useState<
     "all" | "active" | "inactive"

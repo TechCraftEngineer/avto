@@ -15,7 +15,7 @@ import { Lock, Send } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { getAvatarUrl } from "~/lib/avatar";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface CommentsSectionProps {
   candidateId: string;
@@ -28,11 +28,11 @@ export function CommentsSection({
 }: CommentsSectionProps) {
   const [newComment, setNewComment] = useState("");
   const [isPrivate, setIsPrivate] = useState(true);
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
 
   const { data: comments, isLoading } = useQuery({
-    ...trpc.candidates.listComments.queryOptions({
+    ...orpc.candidates.listComments.queryOptions({
       workspaceId,
       candidateId,
     }),
@@ -40,10 +40,10 @@ export function CommentsSection({
   });
 
   const { mutate: addComment, isPending: isAddingComment } = useMutation(
-    trpc.candidates.addComment.mutationOptions({
+    orpc.candidates.addComment.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: trpc.candidates.listComments.queryKey(),
+          queryKey: orpc.candidates.listComments.queryKey(),
         });
         setNewComment("");
         toast.success("Комментарий добавлен");

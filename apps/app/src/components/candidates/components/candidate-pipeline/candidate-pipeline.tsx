@@ -11,7 +11,7 @@ import {
   PipelineViewSwitcher,
 } from "~/components";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import type { FunnelCandidate, FunnelStage } from "../../types/types";
 import { useCandidateFilters } from "./hooks/use-candidate-filters";
 import { useStagePagination } from "./hooks/use-stage-pagination";
@@ -34,7 +34,7 @@ const STORAGE_KEY = "candidates-pipeline-column-visibility";
 
 export function CandidatePipeline() {
   const { workspaceId } = useWorkspaceContext();
-  const trpc = useTRPC();
+  const orpc = useORPC();
 
   const [activeView, setActiveView] = useState<"board" | "table">("board");
 
@@ -114,7 +114,7 @@ export function CandidatePipeline() {
   );
 
   const { data: vacancies } = useQuery({
-    ...trpc.vacancy.listActive.queryOptions({
+    ...orpc.vacancy.listActive.queryOptions({
       workspaceId: workspaceId ?? "",
     }),
     enabled: !!workspaceId,

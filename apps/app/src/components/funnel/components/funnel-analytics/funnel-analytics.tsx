@@ -22,7 +22,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Filter } from "lucide-react";
 import { useState } from "react";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import {
   ConversionCards,
   type FunnelStageData,
@@ -33,13 +33,13 @@ import {
 
 export function FunnelAnalytics() {
   const [selectedVacancyId, setSelectedVacancyId] = useState<string>("all");
-  const trpc = useTRPC();
+  const orpc = useORPC();
 
   const { workspace, isLoading: isLoadingWorkspace } = useWorkspace();
   const workspaceId = workspace?.id;
 
   const { data: vacanciesList } = useQuery({
-    ...trpc.vacancy.list.queryOptions({
+    ...orpc.vacancy.list.queryOptions({
       workspaceId: workspaceId ?? "",
     }),
     enabled: !!workspaceId,
@@ -51,7 +51,7 @@ export function FunnelAnalytics() {
     isError: analyticsError,
     error: analyticsErrorData,
   } = useQuery({
-    ...trpc.funnel.analytics.queryOptions({
+    ...orpc.funnel.analytics.queryOptions({
       workspaceId: workspaceId ?? "",
       vacancyId: selectedVacancyId === "all" ? undefined : selectedVacancyId,
     }),
@@ -63,7 +63,7 @@ export function FunnelAnalytics() {
     isError: vacancyStatsError,
     error: vacancyStatsErrorData,
   } = useQuery({
-    ...trpc.funnel.vacancyStats.queryOptions({
+    ...orpc.funnel.vacancyStats.queryOptions({
       workspaceId: workspaceId ?? "",
       vacancyId: selectedVacancyId === "all" ? undefined : selectedVacancyId,
     }),

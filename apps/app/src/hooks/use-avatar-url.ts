@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 /**
  * Хук для получения URL аватара с контролем доступа
@@ -12,10 +12,10 @@ import { useTRPC } from "~/trpc/react";
  */
 export function useAvatarUrl(fileId: string | null | undefined) {
   const { workspaceId } = useWorkspaceContext();
-  const trpc = useTRPC();
+  const orpc = useORPC();
 
   const { data } = useQuery({
-    ...trpc.files.getImageUrl.queryOptions({
+    ...orpc.files.getImageUrl.queryOptions({
       workspaceId: workspaceId ?? "",
       fileId: fileId ?? "",
     }),

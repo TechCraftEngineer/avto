@@ -33,7 +33,7 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 type InviteFormValues = z.infer<typeof inviteToOrganizationSchema>;
 
@@ -47,7 +47,7 @@ export function InviteMemberDialog({
   trigger,
 }: InviteMemberDialogProps) {
   const [open, setOpen] = React.useState(false);
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
 
   const form = useForm<InviteFormValues>({
@@ -59,7 +59,7 @@ export function InviteMemberDialog({
   });
 
   const inviteMutation = useMutation(
-    trpc.organization.createInvite.mutationOptions({
+    orpc.organization.createInvite.mutationOptions({
       onSuccess: () => {
         toast.success("Приглашение отправлено", {
           description: "Пользователь получит email с приглашением",

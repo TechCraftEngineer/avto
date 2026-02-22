@@ -35,7 +35,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import { useWorkspaceOperations } from "../../hooks";
 
 type CreateWorkspaceFormValues = z.infer<typeof createWorkspaceSchema>;
@@ -54,7 +54,7 @@ export function CreateWorkspaceDialog({
   onOpenChange,
 }: CreateWorkspaceDialogProps) {
   const router = useRouter();
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const { createWorkspace, isCreatingWorkspace } = useWorkspaceOperations();
 
@@ -78,9 +78,9 @@ export function CreateWorkspaceDialog({
       },
       {
         onSuccess: async (workspace) => {
-          await queryClient.invalidateQueries(trpc.workspace.list.pathFilter());
+          await queryClient.invalidateQueries(orpc.workspace.list.pathFilter());
           await queryClient.invalidateQueries(
-            trpc.organization.list.pathFilter(),
+            orpc.organization.list.pathFilter(),
           );
 
           onOpenChange(false);

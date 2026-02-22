@@ -35,7 +35,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CandidateComparison, RankingList } from "~/components/gig";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import type { GigRankedCandidate } from "~/types/api";
 
 interface RankingPageClientProps {
@@ -65,7 +65,7 @@ export function RankingPageClient({
   gigId,
 }: RankingPageClientProps) {
   const router = useRouter();
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const [selectedRecommendation, setSelectedRecommendation] =
     useState<string>("all");
@@ -80,7 +80,7 @@ export function RankingPageClient({
     isLoading,
     error,
   } = useQuery(
-    trpc.gig.responses.ranked.queryOptions({
+    orpc.gig.responses.ranked.queryOptions({
       gigId,
       workspaceId: workspaceSlug,
       recommendation:
@@ -103,10 +103,10 @@ export function RankingPageClient({
   // Recalculate ranking mutation
   const { mutate: recalculateRanking, isPending: isRecalculating } =
     useMutation(
-      trpc.gig.responses.recalculateRanking.mutationOptions({
+      orpc.gig.responses.recalculateRanking.mutationOptions({
         onSuccess: () => {
           queryClient.invalidateQueries({
-            queryKey: trpc.gig.responses.ranked.queryKey({
+            queryKey: orpc.gig.responses.ranked.queryKey({
               gigId,
               workspaceId: workspaceSlug,
             }),

@@ -1,9 +1,9 @@
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 export function useVacancy(vacancyId: string, workspaceId: string) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
 
-  return trpc.vacancy.get.useQuery(
+  return orpc.vacancy.get.useQuery(
     {
       id: vacancyId,
       workspaceId,
@@ -28,9 +28,9 @@ interface UseVacancyResponsesParams {
 }
 
 export function useVacancyResponses(params: UseVacancyResponsesParams) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
 
-  return trpc.vacancy.responses.list.useQuery(
+  return orpc.vacancy.responses.list.useQuery(
     {
       workspaceId: params.workspaceId,
       vacancyId: params.vacancyId,

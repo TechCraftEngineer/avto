@@ -12,7 +12,7 @@ import Markdown from "react-markdown";
 import { toast } from "sonner";
 import { AIChatInput } from "~/components";
 import { useScrollToBottom } from "~/hooks/use-scroll-to-bottom";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import { InterviewContextCard } from "../interview-context-card";
 
 // Типы для сообщений
@@ -332,20 +332,20 @@ export function InterviewChat({
   className,
   token,
 }: InterviewChatProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const isInitializedRef = useRef(false);
   const currentConversationIdRef = useRef(conversationId);
 
   // Загрузка истории чата
   const { data: chatHistory, isLoading: isLoadingHistory } = useQuery(
-    trpc.freelancePlatforms.getChatHistory.queryOptions({
+    orpc.freelancePlatforms.getChatHistory.queryOptions({
       interviewSessionId: conversationId,
     }),
   );
 
   // Загрузка контекста интервью (вакансия/задание)
   const { data: interviewContext, isLoading: isLoadingContext } = useQuery(
-    trpc.freelancePlatforms.getInterviewContext.queryOptions({
+    orpc.freelancePlatforms.getInterviewContext.queryOptions({
       interviewSessionId: conversationId,
     }),
   );

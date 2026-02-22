@@ -18,7 +18,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { CustomDomainSelect } from "~/components";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import { CommunicationChannelsSettings } from "./communication-channels-settings";
 import { WelcomeMessageTemplates } from "./welcome-message-templates";
 
@@ -80,14 +80,14 @@ export function VacancySettingsForm({
   onSave,
   onImprove,
 }: VacancySettingsFormProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [improvingField, setImprovingField] = useState<string | null>(null);
 
   // Получаем список интеграций для проверки наличия Telegram
   const integrationQuery = useQuery(
-    trpc.integration.list.queryOptions(
+    orpc.integration.list.queryOptions(
       {
         workspaceId: workspaceId ?? "",
       },

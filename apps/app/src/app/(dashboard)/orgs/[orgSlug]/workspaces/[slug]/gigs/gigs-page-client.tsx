@@ -16,7 +16,7 @@ import { PageHeader } from "~/components/layout";
 import { env } from "~/env";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useWorkspaceParams } from "~/hooks/use-workspace-params";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 const GIGS_PAGE_STORAGE_KEY = "gigs-page-settings";
 
@@ -55,7 +55,7 @@ function saveGigsSettings(settings: {
 
 export function GigsPageClient() {
   const { orgSlug, slug: workspaceSlug } = useWorkspaceParams();
-  const api = useTRPC();
+  const api = useORPC();
   const queryClient = useQueryClient();
   const { workspace } = useWorkspace();
 

@@ -18,7 +18,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 type BotSettingsFormValues = z.infer<typeof updateBotSettingsSchema>;
 
@@ -33,7 +33,7 @@ export function BotSettingsForm({
   workspaceId,
   userRole,
 }: BotSettingsFormProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
 
   const canEdit = userRole === "owner" || userRole === "admin";
@@ -50,10 +50,10 @@ export function BotSettingsForm({
   });
 
   const updateBotSettings = useMutation(
-    trpc.workspace.updateBotSettings.mutationOptions({
+    orpc.workspace.updateBotSettings.mutationOptions({
       onSuccess: async () => {
         await queryClient.invalidateQueries({
-          queryKey: trpc.workspace.getBotSettings.queryKey({ workspaceId }),
+          queryKey: orpc.workspace.getBotSettings.queryKey({ workspaceId }),
         });
         toast.success("Настройки бота сохранены");
       },

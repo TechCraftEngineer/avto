@@ -12,7 +12,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { triggerVerifyKworkCredentials } from "~/actions/integration";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import {
   INTEGRATION_TYPES,
   type IntegrationFormValues,
@@ -43,7 +43,7 @@ export function useIntegrationDialog({
   onClose,
   onVerify,
 }: UseIntegrationDialogProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const { workspace } = useWorkspace();
   const [showPassword, setShowPassword] = useState(false);
@@ -55,7 +55,7 @@ export function useIntegrationDialog({
   const hhIntegration = useHHIntegration({ workspaceId });
 
   const { data: integrations } = useQuery(
-    trpc.integration.list.queryOptions(
+    orpc.integration.list.queryOptions(
       workspaceId && isEditing ? { workspaceId } : skipToken,
     ),
   );
@@ -113,12 +113,12 @@ export function useIntegrationDialog({
   }, [currentType, form]);
 
   const createMutation = useMutation(
-    trpc.integration.create.mutationOptions({
+    orpc.integration.create.mutationOptions({
       onSuccess: (_, variables) => {
         toast.success("Интеграция успешно создана");
         if (workspaceId) {
           queryClient.invalidateQueries({
-            queryKey: trpc.integration.list.queryKey({ workspaceId }),
+            queryKey: orpc.integration.list.queryKey({ workspaceId }),
           });
         }
         handleClose();
@@ -140,12 +140,12 @@ export function useIntegrationDialog({
   );
 
   const updateMutation = useMutation(
-    trpc.integration.update.mutationOptions({
+    orpc.integration.update.mutationOptions({
       onSuccess: () => {
         toast.success("Интеграция успешно обновлена");
         if (workspaceId) {
           queryClient.invalidateQueries({
-            queryKey: trpc.integration.list.queryKey({ workspaceId }),
+            queryKey: orpc.integration.list.queryKey({ workspaceId }),
           });
         }
         handleClose();
@@ -245,7 +245,7 @@ export function useIntegrationDialog({
         toast.success("Данные успешно проверены");
         if (workspaceId) {
           queryClient.invalidateQueries({
-            queryKey: trpc.integration.list.queryKey({ workspaceId }),
+            queryKey: orpc.integration.list.queryKey({ workspaceId }),
           });
         }
         handleClose();
@@ -253,7 +253,7 @@ export function useIntegrationDialog({
         toast.error(result.error || "Ошибка проверки данных");
       }
     },
-    [workspaceId, queryClient, trpc.integration.list, handleClose],
+    [workspaceId, queryClient, orpc.integration.list, handleClose],
   );
 
   return {

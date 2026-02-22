@@ -21,7 +21,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { authClient } from "~/auth/client";
 import { getAvatarUrl } from "~/lib/avatar";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import type { UserMe } from "~/types/api";
 
 interface GeneralTabProps {
@@ -30,7 +30,7 @@ interface GeneralTabProps {
 
 export function GeneralTab({ user }: GeneralTabProps) {
   const queryClient = useQueryClient();
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const { refetch } = authClient.useSession();
 
   const [name, setName] = useState("");
@@ -46,11 +46,11 @@ export function GeneralTab({ user }: GeneralTabProps) {
     }
   }, [user]);
 
-  const updateUserMutation = trpc.user.update.mutationOptions({
+  const updateUserMutation = orpc.user.update.mutationOptions({
     onSuccess: async () => {
       toast.success("Изменения сохранены");
       await queryClient.invalidateQueries({
-        queryKey: trpc.user.me.queryKey(),
+        queryKey: orpc.user.me.queryKey(),
       });
       await refetch();
     },

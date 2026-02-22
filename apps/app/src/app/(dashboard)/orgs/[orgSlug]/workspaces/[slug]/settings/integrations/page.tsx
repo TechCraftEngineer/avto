@@ -17,10 +17,10 @@ import {
   AVAILABLE_INTEGRATIONS,
   INTEGRATION_CATEGORIES,
 } from "~/lib/integrations";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 export default function IntegrationsPage() {
-  const api = useTRPC();
+  const api = useORPC();
   const { workspace, isLoading: workspaceLoading } = useWorkspace();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedType, setSelectedType] = useState<string | null>(null);

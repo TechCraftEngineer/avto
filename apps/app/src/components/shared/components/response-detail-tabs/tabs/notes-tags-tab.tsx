@@ -13,7 +13,7 @@ import { MessageSquare, Plus, Send, Tag as TagIcon, X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "~/hooks/use-toast";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface NotesTagsTabProps {
   responseId: string;
@@ -21,7 +21,7 @@ interface NotesTagsTabProps {
 
 export function NotesTagsTab({ responseId }: NotesTagsTabProps) {
   const { workspace } = useWorkspace();
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
 
   const [newTag, setNewTag] = useState("");
@@ -30,7 +30,7 @@ export function NotesTagsTab({ responseId }: NotesTagsTabProps) {
 
   // Загрузка тегов
   const { data: tags, isLoading: tagsLoading } = useQuery({
-    ...trpc.vacancy.responses.listTags.queryOptions({
+    ...orpc.vacancy.responses.listTags.queryOptions({
       responseId,
       workspaceId: workspace?.id ?? "",
     }),
@@ -39,7 +39,7 @@ export function NotesTagsTab({ responseId }: NotesTagsTabProps) {
 
   // Загрузка комментариев
   const { data: comments, isLoading: commentsLoading } = useQuery({
-    ...trpc.candidates.listComments.queryOptions({
+    ...orpc.candidates.listComments.queryOptions({
       candidateId: responseId,
       workspaceId: workspace?.id ?? "",
     }),
@@ -48,11 +48,11 @@ export function NotesTagsTab({ responseId }: NotesTagsTabProps) {
 
   // Добавление тега
   const addTagMutation = useMutation(
-    trpc.vacancy.responses.addTag.mutationOptions({
+    orpc.vacancy.responses.addTag.mutationOptions({
       onSuccess: () => {
         if (!workspace?.id) return;
         queryClient.invalidateQueries({
-          queryKey: trpc.vacancy.responses.listTags.queryKey({
+          queryKey: orpc.vacancy.responses.listTags.queryKey({
             responseId,
             workspaceId: workspace.id,
           }),
@@ -68,11 +68,11 @@ export function NotesTagsTab({ responseId }: NotesTagsTabProps) {
 
   // Удаление тега
   const removeTagMutation = useMutation(
-    trpc.vacancy.responses.removeTag.mutationOptions({
+    orpc.vacancy.responses.removeTag.mutationOptions({
       onSuccess: () => {
         if (!workspace?.id) return;
         queryClient.invalidateQueries({
-          queryKey: trpc.vacancy.responses.listTags.queryKey({
+          queryKey: orpc.vacancy.responses.listTags.queryKey({
             responseId,
             workspaceId: workspace.id,
           }),
@@ -87,11 +87,11 @@ export function NotesTagsTab({ responseId }: NotesTagsTabProps) {
 
   // Добавление комментария
   const addCommentMutation = useMutation(
-    trpc.candidates.addComment.mutationOptions({
+    orpc.candidates.addComment.mutationOptions({
       onSuccess: () => {
         if (!workspace?.id) return;
         queryClient.invalidateQueries({
-          queryKey: trpc.candidates.listComments.queryKey({
+          queryKey: orpc.candidates.listComments.queryKey({
             candidateId: responseId,
             workspaceId: workspace.id,
           }),

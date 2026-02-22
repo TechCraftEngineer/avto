@@ -15,7 +15,7 @@ import {
 import { useAIChatStream } from "~/hooks/use-ai-chat-stream";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useWorkspaceParams } from "~/hooks/use-workspace-params";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface GigChatViewProps {
   gigId: string;
@@ -23,7 +23,7 @@ interface GigChatViewProps {
 }
 
 export function GigChatView({ gigId, sessionId }: GigChatViewProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const { orgSlug, slug: workspaceSlug } = useWorkspaceParams();
   const { workspace } = useWorkspace();
@@ -35,7 +35,7 @@ export function GigChatView({ gigId, sessionId }: GigChatViewProps) {
   const historyInitializedRef = useRef(false);
 
   const { data: gig } = useQuery({
-    ...trpc.gig.get.queryOptions({
+    ...orpc.gig.get.queryOptions({
       id: gigId,
       workspaceId: workspaceId ?? "",
     }),
@@ -44,7 +44,7 @@ export function GigChatView({ gigId, sessionId }: GigChatViewProps) {
   });
 
   const historyQuery = useQuery(
-    trpc.chat.getHistory.queryOptions({
+    orpc.chat.getHistory.queryOptions({
       sessionId,
       limit: 50,
     }),
@@ -66,14 +66,14 @@ export function GigChatView({ gigId, sessionId }: GigChatViewProps) {
     },
     onFinish: () => {
       queryClient.invalidateQueries({
-        queryKey: trpc.chat.listSessions.queryKey({
+        queryKey: orpc.chat.listSessions.queryKey({
           entityType: "gig",
           entityId: gigId,
           limit: 20,
         }),
       });
       queryClient.invalidateQueries({
-        queryKey: trpc.chat.getHistory.queryKey({
+        queryKey: orpc.chat.getHistory.queryKey({
           sessionId,
           limit: 50,
         }),
@@ -82,20 +82,20 @@ export function GigChatView({ gigId, sessionId }: GigChatViewProps) {
   });
 
   const clearHistoryMutation = useMutation(
-    trpc.chat.clearHistory.mutationOptions({
+    orpc.chat.clearHistory.mutationOptions({
       onSuccess: () => {
         setStreamMessages([]);
         setLastFailedMessage(null);
         historyInitializedRef.current = false;
         queryClient.invalidateQueries({
-          queryKey: trpc.chat.listSessions.queryKey({
+          queryKey: orpc.chat.listSessions.queryKey({
             entityType: "gig",
             entityId: gigId,
             limit: 20,
           }),
         });
         queryClient.invalidateQueries({
-          queryKey: trpc.chat.getHistory.queryKey({
+          queryKey: orpc.chat.getHistory.queryKey({
             sessionId,
             limit: 50,
           }),

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface UseCandidateOperationsProps {
   workspaceId: string;
@@ -11,23 +11,23 @@ export function useCandidateOperations({
   workspaceId,
   vacancyId,
 }: UseCandidateOperationsProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
 
   const invalidateList = () => {
     if (vacancyId) {
       void queryClient.invalidateQueries({
-        queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+        queryKey: orpc.vacancy.responses.list.queryKey({ vacancyId }),
       });
     } else {
       void queryClient.invalidateQueries(
-        trpc.vacancy.responses.list.pathFilter(),
+        orpc.vacancy.responses.list.pathFilter(),
       );
     }
   };
 
   const inviteMutation = useMutation(
-    trpc.candidates.inviteCandidate.mutationOptions({
+    orpc.candidates.inviteCandidate.mutationOptions({
       onSuccess: () => {
         toast.success("Кандидат приглашён на собеседование");
         invalidateList();
@@ -39,7 +39,7 @@ export function useCandidateOperations({
   );
 
   const rejectMutation = useMutation(
-    trpc.candidates.rejectCandidate.mutationOptions({
+    orpc.candidates.rejectCandidate.mutationOptions({
       onSuccess: () => {
         toast.success("Кандидат отклонён");
         invalidateList();

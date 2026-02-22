@@ -43,7 +43,7 @@ import {
   downloadCSV,
   generateExportFilename,
 } from "~/lib/export-csv";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface PageProps {
   params: Promise<{ orgSlug: string; slug: string; gigId: string }>;
@@ -123,7 +123,7 @@ export function ResponsesSkeleton() {
 
 export default function GigResponsesPage({ params }: PageProps) {
   const { orgSlug, slug: workspaceSlug, gigId } = React.use(params);
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const { workspace } = useWorkspace();
 
@@ -170,7 +170,7 @@ export default function GigResponsesPage({ params }: PageProps) {
 
   // Export query
   const { refetch: exportData, isFetching: isExporting } = useQuery({
-    ...trpc.gig.responses.exportResponses.queryOptions({
+    ...orpc.gig.responses.exportResponses.queryOptions({
       gigId,
       workspaceId: workspace?.id ?? "",
     }),
@@ -211,7 +211,7 @@ export default function GigResponsesPage({ params }: PageProps) {
     isLoading: isGigLoading,
     isError: isGigError,
   } = useQuery({
-    ...trpc.gig.get.queryOptions({
+    ...orpc.gig.get.queryOptions({
       id: gigId,
       workspaceId: workspace?.id ?? "",
     }),
@@ -220,7 +220,7 @@ export default function GigResponsesPage({ params }: PageProps) {
 
   // Fetch responses
   const { data: responses, isLoading } = useQuery({
-    ...trpc.gig.responses.list.queryOptions({
+    ...orpc.gig.responses.list.queryOptions({
       gigId,
       workspaceId: workspace?.id ?? "",
     }),
@@ -276,17 +276,17 @@ export default function GigResponsesPage({ params }: PageProps) {
   const stats = useResponseStats(responses?.items);
 
   const syncMutation = useMutation(
-    trpc.freelancePlatforms.syncGigResponses.mutationOptions({
+    orpc.freelancePlatforms.syncGigResponses.mutationOptions({
       onSuccess: () => {
         toast.success("Синхронизация откликов запущена");
         queryClient.invalidateQueries({
-          queryKey: trpc.gig.responses.list.queryKey({
+          queryKey: orpc.gig.responses.list.queryKey({
             gigId,
             workspaceId: workspace?.id ?? "",
           }),
         });
         queryClient.invalidateQueries({
-          queryKey: trpc.gig.responses.count.queryKey({
+          queryKey: orpc.gig.responses.count.queryKey({
             gigId,
             workspaceId: workspace?.id ?? "",
           }),
@@ -299,17 +299,17 @@ export default function GigResponsesPage({ params }: PageProps) {
   );
 
   const analyzeMutation = useMutation(
-    trpc.gig.responses.recalculateRanking.mutationOptions({
+    orpc.gig.responses.recalculateRanking.mutationOptions({
       onSuccess: () => {
         toast.success("Анализ откликов запущен");
         queryClient.invalidateQueries({
-          queryKey: trpc.gig.responses.list.queryKey({
+          queryKey: orpc.gig.responses.list.queryKey({
             gigId,
             workspaceId: workspace?.id ?? "",
           }),
         });
         queryClient.invalidateQueries({
-          queryKey: trpc.gig.responses.ranked.queryKey(),
+          queryKey: orpc.gig.responses.ranked.queryKey(),
         });
       },
       onError: (error) => {

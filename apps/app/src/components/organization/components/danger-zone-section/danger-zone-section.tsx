@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { DeleteOrganizationDialog } from "~/components/organization/components";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface DangerZoneSectionProps {
   organizationId: string;
@@ -18,12 +18,12 @@ export function DangerZoneSection({
   organizationId,
   organizationName,
 }: DangerZoneSectionProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const router = useRouter();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const deleteOrganization = useMutation(
-    trpc.organization.delete.mutationOptions({
+    orpc.organization.delete.mutationOptions({
       onSuccess: async () => {
         toast.success("Организация успешно удалена");
         router.push("/");

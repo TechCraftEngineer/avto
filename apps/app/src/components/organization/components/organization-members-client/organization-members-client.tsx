@@ -31,7 +31,7 @@ import { toast } from "sonner";
 import { PageHeader } from "~/components/layout";
 import { InviteMemberDialog } from "~/components/organization/components";
 import { getAvatarUrl } from "~/lib/avatar";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 type MemberRole = "owner" | "admin" | "member";
 
@@ -128,7 +128,7 @@ export function OrganizationMembersClient({
   currentUserId: string;
   currentUserRole?: MemberRole;
 }) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<MemberRole | "all">("all");
 
@@ -138,12 +138,12 @@ export function OrganizationMembersClient({
 
   // Получение участников
   const { data: members, isLoading: membersLoading } = useQuery(
-    trpc.organization.listMembers.queryOptions({ organizationId }),
+    orpc.organization.listMembers.queryOptions({ organizationId }),
   );
 
   // Получение приглашений (только для админов)
   const { data: invites, isLoading: invitesLoading } = useQuery({
-    ...trpc.organization.listInvites.queryOptions({ organizationId }),
+    ...orpc.organization.listInvites.queryOptions({ organizationId }),
     enabled: canManageMembers,
   });
 
@@ -304,15 +304,15 @@ function InviteRow({
   organizationId: string;
   canManageMembers: boolean;
 }) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const deleteInviteMutation = useMutation(
-    trpc.organization.deleteInvite.mutationOptions({
+    orpc.organization.deleteInvite.mutationOptions({
       onSuccess: () => {
         toast.success("Приглашение отменено");
-        queryClient.invalidateQueries(trpc.organization.pathFilter());
+        queryClient.invalidateQueries(orpc.organization.pathFilter());
         setShowDeleteDialog(false);
       },
       onError: (err) => {
@@ -445,7 +445,7 @@ function MemberRow({
   canManageMembers: boolean;
   isOwner: boolean;
 }) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const isCurrentUser = member.userId === currentUserId;
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -454,10 +454,10 @@ function MemberRow({
   const avatarUrl = getAvatarUrl(member.user.image, member.user.name);
 
   const updateRole = useMutation(
-    trpc.organization.updateMemberRole.mutationOptions({
+    orpc.organization.updateMemberRole.mutationOptions({
       onSuccess: () => {
         toast.success("Роль обновлена");
-        queryClient.invalidateQueries(trpc.organization.pathFilter());
+        queryClient.invalidateQueries(orpc.organization.pathFilter());
       },
       onError: (err) => {
         toast.error(err.message || "Не удалось обновить роль");
@@ -466,10 +466,10 @@ function MemberRow({
   );
 
   const removeMemberMutation = useMutation(
-    trpc.organization.removeMember.mutationOptions({
+    orpc.organization.removeMember.mutationOptions({
       onSuccess: () => {
         toast.success("Участник удалён");
-        queryClient.invalidateQueries(trpc.organization.pathFilter());
+        queryClient.invalidateQueries(orpc.organization.pathFilter());
         setShowDeleteDialog(false);
       },
       onError: (err) => {

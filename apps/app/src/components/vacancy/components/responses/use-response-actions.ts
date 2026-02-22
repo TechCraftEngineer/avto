@@ -11,7 +11,7 @@ import {
   triggerSendWelcomeBatch,
   triggerSyncArchivedVacancyResponses,
 } from "~/actions/trigger";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 export function useResponseActions(
   vacancyId: string,
@@ -26,7 +26,7 @@ export function useResponseActions(
   const [isSendingWelcome, setIsSendingWelcome] = useState(false);
   const [isSyncingArchived, setIsSyncingArchived] = useState(false);
 
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
 
   const handleBulkScreen = useCallback(async () => {
@@ -51,7 +51,7 @@ export function useResponseActions(
 
       setTimeout(() => {
         void queryClient.invalidateQueries({
-          queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+          queryKey: orpc.vacancy.responses.list.queryKey({ vacancyId }),
         });
       }, 2000);
     } finally {
@@ -74,7 +74,7 @@ export function useResponseActions(
 
       setTimeout(() => {
         void queryClient.invalidateQueries({
-          queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+          queryKey: orpc.vacancy.responses.list.queryKey({ vacancyId }),
         });
       }, 2000);
     } finally {
@@ -141,7 +141,7 @@ export function useResponseActions(
     setIsProcessingNew(false);
     // Обновляем список откликов только для текущей вакансии
     void queryClient.invalidateQueries({
-      queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+      queryKey: orpc.vacancy.responses.list.queryKey({ vacancyId }),
     });
   }, [queryClient, trpc, vacancyId]);
 
@@ -174,7 +174,7 @@ export function useResponseActions(
     setIsRefreshing(false);
     setIsSyncingArchived(false);
     void queryClient.invalidateQueries({
-      queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+      queryKey: orpc.vacancy.responses.list.queryKey({ vacancyId }),
     });
   }, [queryClient, trpc, vacancyId]);
 
@@ -200,7 +200,7 @@ export function useResponseActions(
 
       setTimeout(() => {
         void queryClient.invalidateQueries({
-          queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+          queryKey: orpc.vacancy.responses.list.queryKey({ vacancyId }),
         });
       }, 3000);
     } finally {

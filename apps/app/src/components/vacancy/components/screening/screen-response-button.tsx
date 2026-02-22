@@ -7,7 +7,7 @@ import { Loader2, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { triggerScreenResponse } from "~/actions/trigger";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import { ScreeningResultModal } from "./screening-result-modal";
 
 interface ScreenResponseButtonProps {
@@ -25,7 +25,7 @@ export function ScreenResponseButton({
   const [isLoading, setIsLoading] = useState(false);
   const [screeningResult, setScreeningResult] =
     useState<ScreeningDataForRecommendation | null>(null);
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const { workspace } = useWorkspace();
   const mountedRef = useRef(true);
@@ -95,7 +95,7 @@ export function ScreenResponseButton({
 
         try {
           const response = await queryClient.fetchQuery(
-            trpc.vacancy.responses.get.queryOptions({
+            orpc.vacancy.responses.get.queryOptions({
               id: responseId,
               workspaceId: workspace.id,
             }),
@@ -121,13 +121,13 @@ export function ScreenResponseButton({
               // Обновляем кэш только для текущей вакансии
               if (vacancyId) {
                 void queryClient.invalidateQueries({
-                  queryKey: trpc.vacancy.responses.list.queryKey({
+                  queryKey: orpc.vacancy.responses.list.queryKey({
                     vacancyId,
                   }),
                 });
               } else {
                 void queryClient.invalidateQueries(
-                  trpc.vacancy.responses.list.pathFilter(),
+                  orpc.vacancy.responses.list.pathFilter(),
                 );
               }
             }
@@ -204,11 +204,11 @@ export function ScreenResponseButton({
       setScreeningResult(null);
       if (vacancyId) {
         void queryClient.invalidateQueries({
-          queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+          queryKey: orpc.vacancy.responses.list.queryKey({ vacancyId }),
         });
       } else {
         void queryClient.invalidateQueries(
-          trpc.vacancy.responses.list.pathFilter(),
+          orpc.vacancy.responses.list.pathFilter(),
         );
       }
     }

@@ -16,7 +16,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface VacancyLayoutClientProps {
   children: React.ReactNode;
@@ -32,7 +32,7 @@ export function VacancyLayoutClient({
   vacancyId,
 }: VacancyLayoutClientProps) {
   const pathname = usePathname();
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const { workspaceId } = useWorkspaceContext();
 
   const {
@@ -40,7 +40,7 @@ export function VacancyLayoutClient({
     isLoading: vacancyLoading,
     isError: vacancyError,
   } = useQuery({
-    ...trpc.vacancy.get.queryOptions({
+    ...orpc.vacancy.get.queryOptions({
       id: vacancyId,
       workspaceId: workspaceId ?? "",
     }),
@@ -52,7 +52,7 @@ export function VacancyLayoutClient({
     isLoading: responsesLoading,
     isError: responsesError,
   } = useQuery({
-    ...trpc.vacancy.responses.count.queryOptions({
+    ...orpc.vacancy.responses.count.queryOptions({
       vacancyId: vacancyId,
       workspaceId: workspaceId ?? "",
     }),

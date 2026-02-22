@@ -60,7 +60,7 @@ beforeEach(() => {
   }));
 
   mock.module("~/trpc/react", () => ({
-    useTRPC: () => mockTrpc,
+    useORPC: () => mockTrpc,
   }));
 
   mockToastError.mockClear();

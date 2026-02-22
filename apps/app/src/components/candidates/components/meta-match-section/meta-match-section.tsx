@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import type { FunnelCandidateDetail } from "../types";
 
 interface MetaMatchSectionProps {
@@ -76,7 +76,7 @@ export function MetaMatchSection({
   workspaceId,
   candidateData,
 }: MetaMatchSectionProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const reportRef = useRef<HTMLDivElement>(null);
   const [birthDateInput, setBirthDateInput] = useState("");
@@ -87,7 +87,7 @@ export function MetaMatchSection({
   const [isExporting, setIsExporting] = useState(false);
 
   const { data, isLoading } = useQuery(
-    trpc.metaMatch.getLatest.queryOptions(
+    orpc.metaMatch.getLatest.queryOptions(
       candidateId && workspaceId ? { workspaceId, candidateId } : skipToken,
     ),
   );
@@ -137,10 +137,10 @@ export function MetaMatchSection({
   };
 
   const { mutate: evaluate, isPending } = useMutation(
-    trpc.metaMatch.evaluateCandidate.mutationOptions({
+    orpc.metaMatch.evaluateCandidate.mutationOptions({
       onSuccess: async () => {
         await queryClient.invalidateQueries({
-          queryKey: trpc.metaMatch.getLatest.queryKey({
+          queryKey: orpc.metaMatch.getLatest.queryKey({
             workspaceId,
             candidateId,
           }),

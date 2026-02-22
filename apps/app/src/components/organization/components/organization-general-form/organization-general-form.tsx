@@ -35,7 +35,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { DeleteOrganizationDialog } from "~/components/organization/components";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 type OrganizationFormValues = UpdateOrganizationInput;
 
@@ -48,7 +48,7 @@ export function OrganizationGeneralForm({
   organizationId: string;
   userRole?: string;
 }) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const router = useRouter();
   const [logoPreview, setLogoPreview] = useState<string | null>(
@@ -72,13 +72,13 @@ export function OrganizationGeneralForm({
   });
 
   const updateOrganization = useMutation(
-    trpc.organization.update.mutationOptions({
+    orpc.organization.update.mutationOptions({
       onSuccess: async (
         _data: unknown,
         variables: { data: { slug?: string } },
       ) => {
         toast.success("Организация успешно обновлена");
-        await queryClient.invalidateQueries(trpc.organization.pathFilter());
+        await queryClient.invalidateQueries(orpc.organization.pathFilter());
         if (variables.data.slug && variables.data.slug !== initialSlug) {
           router.push(`/orgs/${variables.data.slug}/settings`);
         }
@@ -94,7 +94,7 @@ export function OrganizationGeneralForm({
   );
 
   const deleteOrganization = useMutation(
-    trpc.organization.delete.mutationOptions({
+    orpc.organization.delete.mutationOptions({
       onSuccess: async () => {
         toast.success("Организация успешно удалена");
         router.push("/");

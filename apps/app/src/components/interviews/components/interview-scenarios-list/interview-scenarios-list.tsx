@@ -11,7 +11,7 @@ import {
 import { IconEdit, IconLoader2, IconTrash } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface InterviewScenariosListProps {
   onEditScenario: (scenarioId: string) => void;
@@ -20,11 +20,11 @@ interface InterviewScenariosListProps {
 export function InterviewScenariosList({
   onEditScenario,
 }: InterviewScenariosListProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const { workspace } = useWorkspace();
 
   const { data, isLoading, error } = useQuery({
-    ...trpc.interviewScenarios.list.queryOptions({
+    ...orpc.interviewScenarios.list.queryOptions({
       workspaceId: workspace?.id ?? "",
       limit: 50,
       offset: 0,

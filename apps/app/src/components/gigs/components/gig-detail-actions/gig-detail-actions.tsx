@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import type { GigShortlistCandidate } from "~/types/api";
 
 type ShortlistCandidate = GigShortlistCandidate;
@@ -323,12 +323,12 @@ export function GigDetailActions({
   responseCounts,
   onShare,
 }: GigDetailActionsProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const { workspace } = useWorkspace();
 
   // Получаем топ-3 кандидатов для краткого превью
   const { data: topCandidatesData } = useQuery(
-    trpc.gig.shortlist.queryOptions(
+    orpc.gig.shortlist.queryOptions(
       workspace?.id
         ? {
             gigId,

@@ -53,7 +53,7 @@ import type { VacancyRequirements } from "@qbs-autonaim/db/schema";
 import { vacancyRequirementsSchema } from "@qbs-autonaim/validators";
 import type { UseFormReturn } from "react-hook-form";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 const vacancyFormSchema = z.object({
   title: z.string().min(1, "Название обязательно").max(500),
@@ -78,7 +78,7 @@ interface VacancyFormProps {
 }
 
 export function VacancyForm({ onSuccess }: VacancyFormProps) {
-  const api = useTRPC();
+  const api = useORPC();
   const { workspace } = useWorkspace();
   const queryClient = useQueryClient();
 

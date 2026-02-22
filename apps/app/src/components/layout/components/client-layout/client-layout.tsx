@@ -6,7 +6,7 @@ import { ErrorBoundary } from "~/components/shared/error-boundary";
 import { ORPCReactProvider } from "~/orpc/react";
 import { PostHogAuthTracker } from "~/components/shared/posthog-auth-tracker";
 import { PostHogProvider } from "~/components/shared/posthog-provider";
-import { TRPCReactProvider } from "~/trpc/react";
+import { TRPCReactProvider } from "~/orpc/react";
 
 interface ClientLayoutProps {
   children: React.ReactNode;

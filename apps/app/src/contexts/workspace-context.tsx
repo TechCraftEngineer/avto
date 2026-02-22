@@ -3,7 +3,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { createContext, useContext, useEffect, useMemo } from "react";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 type WorkspaceWithRole = {
   id: string;
@@ -52,9 +52,9 @@ export function WorkspaceProvider({
 }) {
   const params = useParams();
   const workspaceSlug = params?.slug as string | undefined;
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const { mutate: setActiveWorkspace } = useMutation(
-    trpc.user.setActiveWorkspace.mutationOptions(),
+    orpc.user.setActiveWorkspace.mutationOptions(),
   );
 
   const workspace = useMemo(() => {

@@ -18,7 +18,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { authClient } from "~/auth/client";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import type { UserMe } from "~/types/api";
 import { DeleteAccountDialog } from "../delete-account-dialog";
 
@@ -27,7 +27,7 @@ interface SecurityTabProps {
 }
 
 export function SecurityTab({ user }: SecurityTabProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const router = useRouter();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
@@ -109,7 +109,7 @@ export function SecurityTab({ user }: SecurityTabProps) {
   };
 
   const deleteAccount = useMutation(
-    trpc.user.delete.mutationOptions({
+    orpc.user.delete.mutationOptions({
       onSuccess: async () => {
         toast.success("Аккаунт успешно удален");
         router.push(paths.auth.signin);

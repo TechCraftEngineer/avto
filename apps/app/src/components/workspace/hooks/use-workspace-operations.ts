@@ -1,17 +1,17 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 export function useWorkspaceOperations() {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
 
   const createWorkspaceMutation = useMutation(
-    trpc.organization.createWorkspace.mutationOptions({
+    orpc.organization.createWorkspace.mutationOptions({
       onSuccess: () => {
         toast.success("Workspace создан");
         queryClient.invalidateQueries({
-          queryKey: trpc.organization.listWorkspaces.queryKey(),
+          queryKey: orpc.organization.listWorkspaces.queryKey(),
         });
       },
       onError: (error) => {

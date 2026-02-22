@@ -29,7 +29,7 @@ import { useQuery } from "@tanstack/react-query";
 import * as React from "react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 const chartConfig = {
   responses: {
@@ -50,7 +50,7 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function ResponsesChart() {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const { workspace } = useWorkspace();
   const isMobile = useIsMobile();
   const [timeRange, setTimeRange] = React.useState("90d");
@@ -62,7 +62,7 @@ export function ResponsesChart() {
   }, [isMobile]);
 
   const { data: chartData, isLoading } = useQuery({
-    ...trpc.vacancy.responsesChart.queryOptions({
+    ...orpc.vacancy.responsesChart.queryOptions({
       workspaceId: workspace?.id ?? "",
     }),
     enabled: !!workspace?.id,

@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import type { FunnelCandidate, FunnelStage } from "../types";
 
 interface StageQuery {
@@ -11,11 +11,11 @@ interface StageQuery {
 }
 
 export function useStageUpdate(stageQueries: StageQuery[]) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
 
   return useMutation(
-    trpc.candidates.updateStage.mutationOptions({
+    orpc.candidates.updateStage.mutationOptions({
       onMutate: async (newStageData) => {
         await Promise.all(
           stageQueries.map((sq) =>

@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useVacancyChat, type VacancyDocument } from "~/hooks/use-vacancy-chat";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface VacancyChatInterfaceProps {
   workspaceId: string;
@@ -50,11 +50,11 @@ export function VacancyChatInterface({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-  const trpc = useTRPC();
+  const orpc = useORPC();
 
   // Subtask 5.2: Implement vacancy save mutation
   const createVacancyMutation = useMutation(
-    trpc.vacancy.createFromChat.mutationOptions({
+    orpc.vacancy.createFromChat.mutationOptions({
       onSuccess: (vacancy) => {
         // Subtask 5.3: Post-save navigation
         toast.success("Вакансия создана", {

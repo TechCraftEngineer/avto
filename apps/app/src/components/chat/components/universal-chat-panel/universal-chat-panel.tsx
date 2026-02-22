@@ -18,7 +18,7 @@ import {
   QuickReplies,
   TypingIndicator,
 } from "~/components";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface UniversalChatPanelProps {
   entityType: "gig" | "vacancy" | "project" | "team";
@@ -49,7 +49,7 @@ export function UniversalChatPanel({
   description = "Задавайте вопросы и получайте аналитику",
   welcomeMessage,
 }: UniversalChatPanelProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,7 +58,7 @@ export function UniversalChatPanel({
   );
 
   const historyQuery = useQuery(
-    trpc.chat.getHistory.queryOptions({
+    orpc.chat.getHistory.queryOptions({
       entityType,
       entityId,
       limit: 50,
@@ -83,7 +83,7 @@ export function UniversalChatPanel({
   }, [historyQuery.data]);
 
   const sendMessageMutation = useMutation(
-    trpc.chat.sendMessage.mutationOptions({
+    orpc.chat.sendMessage.mutationOptions({
       onMutate: async (variables) => {
         const userMessage: ChatMessage = {
           id: `temp-${Date.now()}`,
@@ -155,7 +155,7 @@ export function UniversalChatPanel({
   );
 
   const clearHistoryMutation = useMutation(
-    trpc.chat.clearHistory.mutationOptions({
+    orpc.chat.clearHistory.mutationOptions({
       onSuccess: () => {
         setMessages([]);
         setError(null);

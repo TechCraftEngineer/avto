@@ -22,7 +22,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 export function useInviteMemberModal(workspaceId: string) {
   const [showModal, setShowModal] = useState(false);
@@ -48,19 +48,19 @@ function InviteMemberModalContent({
   onOpenChange: (open: boolean) => void;
   workspaceId: string;
 }) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<"owner" | "admin" | "member">("member");
 
   const addUser = useMutation(
-    trpc.workspace.members.add.mutationOptions({
+    orpc.workspace.members.add.mutationOptions({
       onSuccess: () => {
         toast.success("Приглашение отправлено");
         setEmail("");
         setRole("member");
         onOpenChange(false);
-        queryClient.invalidateQueries(trpc.workspace.members.pathFilter());
+        queryClient.invalidateQueries(orpc.workspace.members.pathFilter());
       },
       onError: (err) => {
         toast.error(err.message || "Не удалось отправить приглашение");

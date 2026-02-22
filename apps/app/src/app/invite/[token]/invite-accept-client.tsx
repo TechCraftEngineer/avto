@@ -4,7 +4,7 @@ import { Button } from "@qbs-autonaim/ui/components/button";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import type { WorkspaceInvite } from "~/types/api";
 
 interface InviteAcceptClientProps {
@@ -13,11 +13,11 @@ interface InviteAcceptClientProps {
 }
 
 export function InviteAcceptClient({ invite, token }: InviteAcceptClientProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const router = useRouter();
 
   const acceptInvite = useMutation(
-    trpc.workspace.invites.accept.mutationOptions({
+    orpc.workspace.invites.accept.mutationOptions({
       onSuccess: () => {
         toast.success(`Вы присоединились к ${invite.workspace.name}`);
         router.push(

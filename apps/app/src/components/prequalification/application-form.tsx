@@ -27,7 +27,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { usePostHog } from "~/hooks/use-posthog";
 import { POSTHOG_EVENTS } from "~/lib/posthog-events";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 /** Progress steps for the application form */
 const APPLICATION_STEPS = [
@@ -71,7 +71,7 @@ export function ApplicationForm({
   vacancyTitle,
   onSuccess,
 }: ApplicationFormProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const { capture } = usePostHog();
   const [currentStep, setCurrentStep] = useState(1);
 
@@ -150,7 +150,7 @@ export function ApplicationForm({
   }, [saveDraft]);
 
   const submitMutation = useMutation(
-    trpc.prequalification.submitApplication.mutationOptions({
+    orpc.prequalification.submitApplication.mutationOptions({
       onSuccess: (data) => {
         toast.success(data.message);
         // Clear draft on success

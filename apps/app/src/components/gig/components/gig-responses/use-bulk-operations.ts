@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface UseBulkOperationsProps {
   gigId: string;
@@ -13,11 +13,11 @@ export function useBulkOperations({
   gigId,
   workspaceId,
 }: UseBulkOperationsProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
 
   const acceptMultipleMutation = useMutation(
-    trpc.gig.responses.acceptMultiple.mutationOptions({
+    orpc.gig.responses.acceptMultiple.mutationOptions({
       onSuccess: (data) => {
         toast.success(`Принято ${data.updatedCount} откликов`);
         queryClient.invalidateQueries({
@@ -44,7 +44,7 @@ export function useBulkOperations({
   );
 
   const rejectMultipleMutation = useMutation(
-    trpc.gig.responses.rejectMultiple.mutationOptions({
+    orpc.gig.responses.rejectMultiple.mutationOptions({
       onSuccess: (data) => {
         toast.success(`Отклонено ${data.updatedCount} откликов`);
         queryClient.invalidateQueries({

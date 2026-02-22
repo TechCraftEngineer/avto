@@ -8,24 +8,24 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, Plus, Trash2, XCircle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import { TelegramAuthDialog } from "../../telegram-auth";
 
 export function TelegramSessionsCard({ workspaceId }: { workspaceId: string }) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const { data: sessions, isLoading } = useQuery(
-    trpc.telegram.getSessions.queryOptions({ workspaceId }),
+    orpc.telegram.getSessions.queryOptions({ workspaceId }),
   );
 
   const deleteMutation = useMutation(
-    trpc.telegram.deleteSession.mutationOptions({
+    orpc.telegram.deleteSession.mutationOptions({
       onSuccess: () => {
         toast.success("Сессия удалена");
         queryClient.invalidateQueries({
-          queryKey: trpc.telegram.getSessions.queryKey({ workspaceId }),
+          queryKey: orpc.telegram.getSessions.queryKey({ workspaceId }),
         });
       },
       onError: (err) => {

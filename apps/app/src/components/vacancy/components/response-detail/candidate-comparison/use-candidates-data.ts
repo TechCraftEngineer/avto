@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import type { VacancyResponseFromList } from "../types";
 import type { CandidateMetrics } from "./types";
 import {
@@ -17,11 +17,11 @@ interface UseCandidatesDataProps {
 
 export function useCandidatesData({ vacancyId }: UseCandidatesDataProps) {
   const { workspace } = useWorkspace();
-  const trpc = useTRPC();
+  const orpc = useORPC();
 
   // Получаем все отклики вакансии
   const { data: responsesData, isLoading } = useQuery({
-    ...trpc.vacancy.responses.list.queryOptions({
+    ...orpc.vacancy.responses.list.queryOptions({
       workspaceId: workspace?.id ?? "",
       vacancyId,
       page: 1,

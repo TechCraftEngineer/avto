@@ -1,16 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 /** Платформы, которые поддерживают только импорт gigs (разовые задания) */
 const GIG_ONLY_PLATFORMS = ["kwork"] as const;
 
 export function usePlatformIntegration(workspaceId: string) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
 
   // Получаем список интеграций
   const { data: integrations, isLoading: isLoadingIntegrations } = useQuery({
-    ...trpc.integration.list.queryOptions({
+    ...orpc.integration.list.queryOptions({
       workspaceId,
     }),
     enabled: !!workspaceId,

@@ -1,13 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 export function useStageUpdate() {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
 
   return useMutation(
-    trpc.candidates.updateStage.mutationOptions({
+    orpc.candidates.updateStage.mutationOptions({
       onError: (error) => {
         toast.error(error.message || "Не удалось обновить стадию кандидата");
       },
@@ -16,7 +16,7 @@ export function useStageUpdate() {
       },
       onSettled: () => {
         queryClient.invalidateQueries({
-          queryKey: trpc.candidates.list.queryKey(),
+          queryKey: orpc.candidates.list.queryKey(),
         });
       },
     }),

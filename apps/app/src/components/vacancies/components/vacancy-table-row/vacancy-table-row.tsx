@@ -31,7 +31,7 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { toast } from "sonner";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import type { VacancyListItem } from "../../types";
 import { VacancyPerformanceBadge } from "../vacancy-performance-badge";
 
@@ -98,7 +98,7 @@ export function VacancyTableRow({
   workspaceId,
   onDeleteOpen,
 }: VacancyTableRowProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
 
   const source = SOURCE_CONFIG[vacancy.source] || {
@@ -116,7 +116,7 @@ export function VacancyTableRow({
 
   // Мутация для обновления статуса вакансии
   const updateStatusMutation = useMutation(
-    trpc.freelancePlatforms.updateVacancyStatus.mutationOptions({
+    orpc.freelancePlatforms.updateVacancyStatus.mutationOptions({
       onSuccess: async () => {
         toast.success(
           vacancy.isActive
@@ -124,7 +124,7 @@ export function VacancyTableRow({
             : "Вакансия активирована",
         );
         await queryClient.invalidateQueries({
-          queryKey: trpc.freelancePlatforms.getVacancies.queryKey(),
+          queryKey: orpc.freelancePlatforms.getVacancies.queryKey(),
         });
       },
       onError: (error) => {
@@ -135,7 +135,7 @@ export function VacancyTableRow({
 
   // Мутация для обновления статуса избранного
   const updateFavoriteMutation = useMutation(
-    trpc.freelancePlatforms.updateVacancyFavorite.mutationOptions({
+    orpc.freelancePlatforms.updateVacancyFavorite.mutationOptions({
       onSuccess: async () => {
         toast.success(
           vacancy.isFavorite
@@ -143,7 +143,7 @@ export function VacancyTableRow({
             : "Вакансия добавлена в избранные",
         );
         await queryClient.invalidateQueries({
-          queryKey: trpc.freelancePlatforms.getVacancies.queryKey(),
+          queryKey: orpc.freelancePlatforms.getVacancies.queryKey(),
         });
       },
       onError: (error) => {

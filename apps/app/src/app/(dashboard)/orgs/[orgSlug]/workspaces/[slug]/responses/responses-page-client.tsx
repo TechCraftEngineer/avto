@@ -23,13 +23,13 @@ import {
 import { env } from "~/env";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useWorkspaceParams } from "~/hooks/use-workspace-params";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 type ViewMode = "table" | "board";
 
 export function ResponsesPageClient() {
   const { orgSlug, slug: workspaceSlug } = useWorkspaceParams();
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const { workspace } = useWorkspace();
 
   const [viewMode, setViewMode] = useState<ViewMode>("board");
@@ -63,7 +63,7 @@ export function ResponsesPageClient() {
   );
 
   const { data: vacanciesData } = useQuery({
-    ...trpc.vacancy.listActive.queryOptions({
+    ...orpc.vacancy.listActive.queryOptions({
       workspaceId: workspace?.id ?? "",
       limit: 100,
     }),
@@ -71,7 +71,7 @@ export function ResponsesPageClient() {
   });
 
   const { data: responsesData, isLoading } = useQuery({
-    ...trpc.vacancy.responses.listWorkspace.queryOptions({
+    ...orpc.vacancy.responses.listWorkspace.queryOptions({
       workspaceId: workspace?.id ?? "",
       page: viewMode === "board" ? 1 : page,
       limit: viewMode === "board" ? 50 : 50,

@@ -12,7 +12,7 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface MediaFile {
   id: string;
@@ -39,10 +39,10 @@ export function InterviewMediaUpload({
   const [isDragging, setIsDragging] = useState(false);
   const [uploadingFiles, setUploadingFiles] = useState<Set<string>>(new Set());
 
-  const trpc = useTRPC();
+  const orpc = useORPC();
 
   const uploadMutation = useMutation(
-    trpc.files.uploadInterviewMedia.mutationOptions({
+    orpc.files.uploadInterviewMedia.mutationOptions({
       onError: (error) => {
         toast.error(error.message);
       },

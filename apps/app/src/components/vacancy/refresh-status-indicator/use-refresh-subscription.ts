@@ -8,7 +8,7 @@ import {
   fetchScreenNewResponsesToken,
   fetchSyncArchivedVacancyResponsesToken,
 } from "~/actions/realtime";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import { restoreProgressFromInitialStatus } from "./initial-status-handler";
 import { checkActiveTask, checkMatchingMode, getModeFlags } from "./mode-utils";
 import {
@@ -91,7 +91,7 @@ export function useRefreshSubscription({
   const [isConnecting, setIsConnecting] = useState(true);
 
   const queryClient = useQueryClient();
-  const trpc = useTRPC();
+  const orpc = useORPC();
 
   // Refs для колбэков — не включаем их в deps useEffect, иначе бесконечный цикл
   // при пересоздании колбэков родителем на каждом рендере

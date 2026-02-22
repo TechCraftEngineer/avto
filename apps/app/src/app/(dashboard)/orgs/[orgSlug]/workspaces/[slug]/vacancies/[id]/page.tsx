@@ -17,7 +17,7 @@ import {
   VacancySkeleton,
 } from "~/components/vacancy-detail";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 export default function VacancyDetailPage() {
   const {
@@ -30,7 +30,7 @@ export default function VacancyDetailPage() {
     slug: string;
   }>();
   const { workspace } = useWorkspace();
-  const api = useTRPC();
+  const api = useORPC();
 
   const { data, isLoading, error, isError } = useQuery({
     ...api.freelancePlatforms.getVacancyById.queryOptions({

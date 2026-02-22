@@ -16,7 +16,7 @@ import { Loader2, Wand2 } from "lucide-react";
 import type { Control } from "react-hook-form";
 import { useWatch } from "react-hook-form";
 import { toast } from "sonner";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import { WelcomeMessagePreview } from "./welcome-message-preview";
 
 interface WelcomeMessageTemplatesProps {
@@ -66,9 +66,9 @@ export function WelcomeMessageTemplates({
   interviewUrl,
   improvingField,
 }: WelcomeMessageTemplatesProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const improveWelcomeTemplateMutation = useMutation(
-    trpc.vacancy.improveWelcomeTemplates.mutationOptions(),
+    orpc.vacancy.improveWelcomeTemplates.mutationOptions(),
   );
 
   // Используем useWatch для получения значений

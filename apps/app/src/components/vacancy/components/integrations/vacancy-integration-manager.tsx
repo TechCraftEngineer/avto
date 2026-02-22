@@ -54,7 +54,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 const SOURCE_CONFIG: Record<string, { label: string; color: string }> = {
   HH: {
@@ -148,7 +148,7 @@ export function VacancyIntegrationManager({
   const [editingPublication, setEditingPublication] =
     useState<Publication | null>(null);
 
-  const api = useTRPC();
+  const api = useORPC();
   const queryClient = useQueryClient();
 
   // Получаем данные об интеграциях и публикациях

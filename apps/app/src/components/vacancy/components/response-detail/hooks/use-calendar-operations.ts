@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface CreateEventParams {
   responseId: string;
@@ -13,10 +13,10 @@ interface CreateEventParams {
 }
 
 export function useCalendarOperations() {
-  const trpc = useTRPC();
+  const orpc = useORPC();
 
   const createEventMutation = useMutation(
-    trpc.calendar.createEvent.mutationOptions({
+    orpc.calendar.createEvent.mutationOptions({
       onSuccess: (data) => {
         toast.success("Событие добавлено в календарь", {
           action: data.htmlLink
@@ -41,7 +41,7 @@ export function useCalendarOperations() {
 }
 
 export function useUserIntegrations() {
-  const trpc = useTRPC();
+  const orpc = useORPC();
 
-  return useQuery(trpc.userIntegration.list.queryOptions());
+  return useQuery(orpc.userIntegration.list.queryOptions());
 }

@@ -28,7 +28,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { RestorePrompt, SaveIndicator } from "~/components";
 import { useDraftPersistence } from "~/hooks/use-draft-persistence";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import { ChatMessage } from "./chat-message";
 import { DocumentPreview } from "./document-preview";
 import { TypingIndicator } from "./typing-indicator";
@@ -51,12 +51,12 @@ export function AIVacancyChat({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
 
   // Получаем настройки компании
   const { data: botSettings } = useQuery(
-    trpc.workspace.getBotSettings.queryOptions({
+    orpc.workspace.getBotSettings.queryOptions({
       workspaceId,
     }),
   );
@@ -232,7 +232,7 @@ export function AIVacancyChat({
 
   // Mutation для сохранения вакансии
   const createVacancyMutation = useMutation(
-    trpc.vacancy.createFromChat.mutationOptions({
+    orpc.vacancy.createFromChat.mutationOptions({
       onSuccess: async (vacancy) => {
         // Удаляем черновик после успешного создания вакансии
         await clearDraft();
@@ -254,13 +254,13 @@ export function AIVacancyChat({
 
   // Mutation для обновления настроек компании
   const updateSettingsMutation = useMutation(
-    trpc.workspace.updateBotSettings.mutationOptions({
+    orpc.workspace.updateBotSettings.mutationOptions({
       onSuccess: () => {
         toast.success("Настройки обновлены");
         setShowSettingsEdit(false);
         // Инвалидируем кэш для обновления настроек
         queryClient.invalidateQueries({
-          queryKey: trpc.workspace.getBotSettings.queryKey({ workspaceId }),
+          queryKey: orpc.workspace.getBotSettings.queryKey({ workspaceId }),
         });
         // Перезагружаем чат с новыми настройками
         clearChat();

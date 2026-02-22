@@ -12,7 +12,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import { Step1Credentials } from "./step1-credentials";
 import { Step2Code } from "./step2-code";
 import { Step3Password } from "./step3-password";
@@ -37,7 +37,7 @@ export function TelegramAuthDialog({
   onClose,
   workspaceId,
 }: TelegramAuthDialogProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [phoneCodeHash, setPhoneCodeHash] = useState("");
@@ -60,7 +60,7 @@ export function TelegramAuthDialog({
   });
 
   const sendCodeMutation = useMutation(
-    trpc.telegram.sendCode.mutationOptions({
+    orpc.telegram.sendCode.mutationOptions({
       onSuccess: (data) => {
         setPhoneCodeHash(data.phoneCodeHash);
         setSessionData(data.sessionData);
@@ -74,12 +74,12 @@ export function TelegramAuthDialog({
   );
 
   const signInMutation = useMutation(
-    trpc.telegram.signIn.mutationOptions({
+    orpc.telegram.signIn.mutationOptions({
       onSuccess: (data) => {
         if (data.success) {
           toast.success("Успешная авторизация!");
           queryClient.invalidateQueries({
-            queryKey: trpc.telegram.getSessions.queryKey({ workspaceId }),
+            queryKey: orpc.telegram.getSessions.queryKey({ workspaceId }),
           });
           handleClose();
         } else if ("requiresPassword" in data && data.requiresPassword) {
@@ -111,11 +111,11 @@ export function TelegramAuthDialog({
   );
 
   const checkPasswordMutation = useMutation(
-    trpc.telegram.checkPassword.mutationOptions({
+    orpc.telegram.checkPassword.mutationOptions({
       onSuccess: () => {
         toast.success("Успешная авторизация!");
         queryClient.invalidateQueries({
-          queryKey: trpc.telegram.getSessions.queryKey({ workspaceId }),
+          queryKey: orpc.telegram.getSessions.queryKey({ workspaceId }),
         });
         handleClose();
       },

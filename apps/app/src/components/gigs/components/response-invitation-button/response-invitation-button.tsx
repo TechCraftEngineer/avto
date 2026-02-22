@@ -19,7 +19,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface ResponseInvitationButtonProps {
   responseId: string;
@@ -32,12 +32,12 @@ export function ResponseInvitationButton({
 }: ResponseInvitationButtonProps) {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const _queryClient = useQueryClient();
   const { workspace } = useWorkspace();
 
   const { mutate: generateInvitation, isPending: isGenerating } = useMutation(
-    trpc.gig.responses.generateInvitation.mutationOptions({
+    orpc.gig.responses.generateInvitation.mutationOptions({
       onSuccess: (data) => {
         setInvitationData(data);
         toast.success("Приглашение сгенерировано");

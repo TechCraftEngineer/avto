@@ -9,7 +9,7 @@ import Link from "next/link";
 import { use } from "react";
 import { ResponseDetailCard } from "~/components/vacancy/components";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface ResponseDetailPageProps {
   params: Promise<{ orgSlug: string; slug: string; id: string }>;
@@ -19,11 +19,11 @@ export default function ResponseDetailPage({
   params,
 }: ResponseDetailPageProps) {
   const { orgSlug, slug: workspaceSlug, id } = use(params);
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const { workspaceId } = useWorkspaceContext();
 
   const { data: response, isLoading } = useQuery({
-    ...trpc.vacancy.responses.get.queryOptions({
+    ...orpc.vacancy.responses.get.queryOptions({
       id,
       workspaceId: workspaceId ?? "",
     }),

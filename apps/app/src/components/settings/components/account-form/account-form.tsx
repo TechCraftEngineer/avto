@@ -18,14 +18,14 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 export function AccountForm({
   initialData,
 }: {
   initialData?: Partial<AccountFormValues>;
 }) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
 
   const form = useForm<AccountFormValues>({
@@ -36,10 +36,10 @@ export function AccountForm({
   });
 
   const updateAccount = useMutation(
-    trpc.user.update.mutationOptions({
+    orpc.user.update.mutationOptions({
       onSuccess: async () => {
         toast.success("Аккаунт успешно обновлен");
-        await queryClient.invalidateQueries(trpc.user.pathFilter());
+        await queryClient.invalidateQueries(orpc.user.pathFilter());
       },
       onError: (err) => {
         toast.error(err.message || "Не удалось обновить аккаунт");

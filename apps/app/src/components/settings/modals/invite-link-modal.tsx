@@ -15,7 +15,7 @@ import { IconCheck, IconCopy, IconRefresh } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 export function useInviteLinkModal(workspaceId: string) {
   const [showModal, setShowModal] = useState(false);
@@ -41,22 +41,22 @@ function InviteLinkModalContent({
   onOpenChange: (open: boolean) => void;
   workspaceId: string;
 }) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const [copied, setCopied] = useState(false);
 
   // Получение существующей ссылки
   const { data: invite, isLoading } = useQuery(
-    trpc.workspace.invites.getLink.queryOptions({ workspaceId }),
+    orpc.workspace.invites.getLink.queryOptions({ workspaceId }),
   );
 
   // Создание новой ссылки
   const createInvite = useMutation(
-    trpc.workspace.invites.createLink.mutationOptions({
+    orpc.workspace.invites.createLink.mutationOptions({
       onSuccess: () => {
         toast.success("Ссылка создана");
         queryClient.invalidateQueries(
-          trpc.workspace.invites.getLink.pathFilter(),
+          orpc.workspace.invites.getLink.pathFilter(),
         );
       },
       onError: (err) => {

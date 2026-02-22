@@ -1,10 +1,10 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 export function useSidebarStats(workspaceId: string | undefined) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
 
   const {
     data: dashboardStats,
@@ -12,7 +12,7 @@ export function useSidebarStats(workspaceId: string | undefined) {
     isError,
     isLoading,
   } = useQuery({
-    ...trpc.vacancy.dashboardStats.queryOptions({
+    ...orpc.vacancy.dashboardStats.queryOptions({
       workspaceId: workspaceId ?? "",
     }),
     enabled: !!workspaceId,

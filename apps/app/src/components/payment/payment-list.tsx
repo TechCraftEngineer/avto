@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface PaymentListProps {
   workspaces?: Array<{
@@ -42,7 +42,7 @@ export function PaymentList({
 }: PaymentListProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const trpc = useTRPC();
+  const orpc = useORPC();
 
   const statusParam = (searchParams.get("status") as PaymentStatus) || "all";
   const workspaceParam = searchParams.get("workspace") || "";
@@ -73,7 +73,7 @@ export function PaymentList({
     error,
     refetch,
   } = useQuery(
-    trpc.payment.list.queryOptions({
+    orpc.payment.list.queryOptions({
       limit: ITEMS_PER_PAGE,
       offset,
       workspaceId: workspaceId || undefined,

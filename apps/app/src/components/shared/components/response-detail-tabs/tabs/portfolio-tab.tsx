@@ -13,7 +13,7 @@ import type {
   VacancyResponseDetail,
 } from "~/components/responses/types";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface PortfolioTabProps {
   response: GigResponseDetail | VacancyResponseDetail;
@@ -21,11 +21,11 @@ interface PortfolioTabProps {
 
 export function PortfolioTab({ response }: PortfolioTabProps) {
   const { workspace } = useWorkspace();
-  const trpc = useTRPC();
+  const orpc = useORPC();
 
   // Получаем URL фото если есть photoFileId
   const { data: photoData } = useQuery({
-    ...trpc.files.getImageUrl.queryOptions({
+    ...orpc.files.getImageUrl.queryOptions({
       workspaceId: workspace?.id ?? "",
       fileId: response.photoFileId ?? "",
     }),
@@ -38,7 +38,7 @@ export function PortfolioTab({ response }: PortfolioTabProps) {
     isPending: isPortfolioLoading,
     error: portfolioError,
   } = useQuery(
-    trpc.files.getFileUrl.queryOptions(
+    orpc.files.getFileUrl.queryOptions(
       workspace?.id && response.portfolioFileId
         ? {
             workspaceId: workspace.id,

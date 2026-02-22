@@ -1,7 +1,7 @@
 "use client";
 
 import { skipToken, useQuery } from "@tanstack/react-query";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import { CandidateNavigation } from "./candidate-navigation";
 import { VacancyResponseHeaderCard } from "./header-card";
 import { useVacancyResponseFlags } from "./hooks/use-vacancy-response-flags";
@@ -20,7 +20,7 @@ export function VacancyResponseDetailCard({
   isProcessing,
   isPolling,
 }: VacancyResponseDetailCardProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const {
     hasScreening,
     hasInterviewScoring,
@@ -32,7 +32,7 @@ export function VacancyResponseDetailCard({
 
   // Получаем presigned URL для PDF резюме
   const { data: resumePdfData } = useQuery(
-    trpc.files.getFileUrl.queryOptions(
+    orpc.files.getFileUrl.queryOptions(
       response.resumePdfFileId && response.workspaceId
         ? {
             workspaceId: response.workspaceId,

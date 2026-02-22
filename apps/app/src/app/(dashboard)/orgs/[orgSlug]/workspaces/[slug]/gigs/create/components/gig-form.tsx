@@ -24,7 +24,7 @@ import { useCallback, useEffect, useRef } from "react";
 import type { UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
 import { useDebouncedCallback } from "use-debounce";
-import { useTRPCClient } from "~/trpc/react";
+import { useORPCClient } from "~/orpc/react";
 import type { FormValues } from "./types";
 import { gigTypeOptions } from "./types";
 
@@ -63,7 +63,7 @@ export function GigForm({
   isCreating,
   workspaceId,
 }: GigFormProps) {
-  const trpcClient = useTRPCClient();
+  const trpcClient = useORPCClient();
   const lastImportedUrlRef = useRef<string | null>(null);
 
   const tryImportFromKwork = useCallback(

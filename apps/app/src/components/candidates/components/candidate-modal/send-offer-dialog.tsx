@@ -19,7 +19,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import type { FunnelCandidate, FunnelCandidateDetail } from "../types";
 
 interface SendOfferDialogProps {
@@ -76,7 +76,7 @@ export function SendOfferDialog({
   candidate,
   workspaceId,
 }: SendOfferDialogProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
 
   const {
@@ -118,10 +118,10 @@ export function SendOfferDialog({
   }, [errors, setFocus]);
 
   const { mutate: sendOffer, isPending: isSendingOffer } = useMutation(
-    trpc.candidates.sendOffer.mutationOptions({
+    orpc.candidates.sendOffer.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: trpc.candidates.list.queryKey(),
+          queryKey: orpc.candidates.list.queryKey(),
         });
         toast.success("Оффер успешно отправлен");
         onOpenChange(false);

@@ -24,7 +24,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import { DeleteWorkspaceDialog } from "../delete-workspace-dialog";
 
 const workspaceFormSchema = z.object({
@@ -53,7 +53,7 @@ export function WorkspaceForm({
   userRole?: string;
   appUrl?: string;
 }) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const router = useRouter();
   const [logoPreview, setLogoPreview] = useState<string | null>(
@@ -75,10 +75,10 @@ export function WorkspaceForm({
   });
 
   const updateWorkspace = useMutation(
-    trpc.workspace.update.mutationOptions({
+    orpc.workspace.update.mutationOptions({
       onSuccess: async (_data, variables) => {
         toast.success("Рабочее пространство успешно обновлено");
-        await queryClient.invalidateQueries(trpc.workspace.pathFilter());
+        await queryClient.invalidateQueries(orpc.workspace.pathFilter());
         if (variables.data.slug && variables.data.slug !== initialSlug) {
           router.push(`/${variables.data.slug}/settings`);
         }
@@ -94,7 +94,7 @@ export function WorkspaceForm({
   );
 
   const deleteWorkspace = useMutation(
-    trpc.workspace.delete.mutationOptions({
+    orpc.workspace.delete.mutationOptions({
       onSuccess: async () => {
         toast.success("Рабочее пространство успешно удалено");
         router.push("/");

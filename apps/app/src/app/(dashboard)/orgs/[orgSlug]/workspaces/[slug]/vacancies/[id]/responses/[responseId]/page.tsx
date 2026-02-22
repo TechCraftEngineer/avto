@@ -9,7 +9,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ResponseDetailCard } from "~/components/vacancy/components";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 export default function VacancyResponseDetailPage() {
   const {
@@ -23,11 +23,11 @@ export default function VacancyResponseDetailPage() {
     id: string;
     responseId: string;
   }>();
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const { workspaceId } = useWorkspaceContext();
 
   const { data: responseData, isLoading } = useQuery(
-    trpc.vacancy.responses.get.queryOptions(
+    orpc.vacancy.responses.get.queryOptions(
       workspaceId
         ? {
             id: responseId,
@@ -39,7 +39,7 @@ export default function VacancyResponseDetailPage() {
 
   // Получаем данные вакансии для требований
   const { data: vacancyData } = useQuery(
-    trpc.vacancy.get.queryOptions(
+    orpc.vacancy.get.queryOptions(
       workspaceId && vacancyId
         ? {
             id: vacancyId,
@@ -51,7 +51,7 @@ export default function VacancyResponseDetailPage() {
 
   // Получаем список всех откликов вакансии для навигации
   const { data: allResponsesData } = useQuery(
-    trpc.vacancy.responses.list.queryOptions(
+    orpc.vacancy.responses.list.queryOptions(
       workspaceId && vacancyId
         ? {
             workspaceId,

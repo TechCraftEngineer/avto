@@ -24,10 +24,10 @@ import {
 } from "~/components/chat/components";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 import { useWorkspaceParams } from "~/hooks/use-workspace-params";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 export function ChatView({ conversationId }: { conversationId: string }) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const { orgSlug, slug: workspaceSlug } = useWorkspaceParams();
   const { workspaceId } = useWorkspaceContext();
@@ -38,7 +38,7 @@ export function ChatView({ conversationId }: { conversationId: string }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const { data: currentConversation } = useQuery({
-    ...trpc.telegram.conversation.getById.queryOptions({
+    ...orpc.telegram.conversation.getById.queryOptions({
       id: conversationId,
       workspaceId: workspaceId ?? "",
     }),
@@ -54,7 +54,7 @@ export function ChatView({ conversationId }: { conversationId: string }) {
   const candidateResponseId = metadata?.responseId;
 
   const { data: responseData } = useQuery({
-    ...trpc.vacancy.responses.get.queryOptions({
+    ...orpc.vacancy.responses.get.queryOptions({
       id: candidateResponseId ?? "",
       workspaceId: workspaceId ?? "",
     }),
@@ -63,7 +63,7 @@ export function ChatView({ conversationId }: { conversationId: string }) {
   });
 
   const { data: _companyData } = useQuery({
-    ...trpc.bot.get.queryOptions({
+    ...orpc.bot.get.queryOptions({
       workspaceId: workspaceId ?? "",
     }),
     enabled: Boolean(workspaceId),
@@ -75,7 +75,7 @@ export function ChatView({ conversationId }: { conversationId: string }) {
     isPending,
     error,
   } = useQuery({
-    ...trpc.telegram.messages.getByConversationId.queryOptions({
+    ...orpc.telegram.messages.getByConversationId.queryOptions({
       sessionId: conversationId,
       workspaceId: workspaceId ?? "",
     }),
@@ -101,7 +101,7 @@ export function ChatView({ conversationId }: { conversationId: string }) {
     }
   }, [subscription.latestData, conversationId, queryClient]);
 
-  const sendMessageMutationOptions = trpc.telegram.send.send.mutationOptions({
+  const sendMessageMutationOptions = orpc.telegram.send.send.mutationOptions({
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [
@@ -122,7 +122,7 @@ export function ChatView({ conversationId }: { conversationId: string }) {
   );
 
   const transcribeVoiceMutationOptions =
-    trpc.telegram.transcribe.trigger.mutationOptions({
+    orpc.telegram.transcribe.trigger.mutationOptions({
       onSuccess: () => {
         if (toastId) {
           toast.success("Транскрибация запущена", {

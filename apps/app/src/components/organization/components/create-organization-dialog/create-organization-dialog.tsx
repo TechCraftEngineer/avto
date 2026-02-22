@@ -35,7 +35,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 type CreateOrganizationFormValues = z.infer<typeof createOrganizationSchema>;
 
@@ -48,7 +48,7 @@ export function CreateOrganizationDialog({
   open,
   onOpenChange,
 }: CreateOrganizationDialogProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const [_createdOrganization, setCreatedOrganization] = useState<{
     id: string;
@@ -70,7 +70,7 @@ export function CreateOrganizationDialog({
   });
 
   const createMutation = useMutation(
-    trpc.organization.create.mutationOptions({
+    orpc.organization.create.mutationOptions({
       onSuccess: async (organization) => {
         toast.success("Организация создана", {
           description: `Организация "${organization.name}" успешно создана`,
@@ -78,7 +78,7 @@ export function CreateOrganizationDialog({
 
         // Инвалидируем кеш организаций
         await queryClient.invalidateQueries(
-          trpc.organization.list.pathFilter(),
+          orpc.organization.list.pathFilter(),
         );
 
         onOpenChange(false);

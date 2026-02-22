@@ -27,7 +27,7 @@ import { Building2, HelpCircle, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 type OrganizationFormValues = z.infer<typeof createOrganizationSchema>;
 
@@ -40,7 +40,7 @@ interface OrganizationFormProps {
 }
 
 export function OrganizationForm({ onSuccess }: OrganizationFormProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const appDomain = new URL(APP_CONFIG.url).host;
 
@@ -55,12 +55,12 @@ export function OrganizationForm({ onSuccess }: OrganizationFormProps) {
   });
 
   const createMutation = useMutation(
-    trpc.organization.create.mutationOptions({
+    orpc.organization.create.mutationOptions({
       onSuccess: (organization) => {
         toast.success("Организация создана", {
           description: `Организация "${organization.name}" успешно создана`,
         });
-        void queryClient.invalidateQueries(trpc.organization.list.pathFilter());
+        void queryClient.invalidateQueries(orpc.organization.list.pathFilter());
         onSuccess?.({
           id: organization.id,
           slug: organization.slug,

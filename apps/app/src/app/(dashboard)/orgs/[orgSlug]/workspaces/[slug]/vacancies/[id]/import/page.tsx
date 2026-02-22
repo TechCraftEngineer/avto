@@ -32,7 +32,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { PageHeader } from "~/components/layout";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface ParsedResponseItem {
   freelancerName: string | null;
@@ -68,7 +68,7 @@ export default function ImportResponsesPage() {
   }>();
   const router = useRouter();
   const { workspace, organization } = useWorkspace();
-  const api = useTRPC();
+  const api = useORPC();
 
   const isFreePlan = (organization?.plan ?? "free") === "free";
 

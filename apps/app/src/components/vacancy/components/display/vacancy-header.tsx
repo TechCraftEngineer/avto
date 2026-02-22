@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { DeleteVacancyDialog } from "~/components/vacancies";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 /**
  * Маппинг источников вакансий на читаемые названия платформ
@@ -55,15 +55,15 @@ export function VacancyHeader({
 }: VacancyHeaderProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const router = useRouter();
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
 
   const { mutate: deleteVacancy, isPending: isDeleting } = useMutation(
-    trpc.vacancy.delete.mutationOptions({
+    orpc.vacancy.delete.mutationOptions({
       onSuccess: (data: { success: boolean; message: string }) => {
         toast.success(data.message);
         void queryClient.invalidateQueries({
-          queryKey: trpc.vacancy.list.queryKey(),
+          queryKey: orpc.vacancy.list.queryKey(),
         });
         setIsDeleteDialogOpen(false);
         router.push(`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies`);

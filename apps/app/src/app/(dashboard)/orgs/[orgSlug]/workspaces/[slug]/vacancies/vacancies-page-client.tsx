@@ -24,11 +24,11 @@ import { useVacanciesStats } from "~/hooks/use-vacancies-stats";
 import { useVacancyFilters } from "~/hooks/use-vacancy-filters";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useWorkspaceParams } from "~/hooks/use-workspace-params";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 export function VacanciesPageClient() {
   const { orgSlug, slug: workspaceSlug } = useWorkspaceParams();
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const { workspace } = useWorkspace();
   const queryClient = useQueryClient();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -57,7 +57,7 @@ export function VacanciesPageClient() {
   } = useVacancyFilters();
 
   const { data, isLoading } = useQuery(
-    trpc.freelancePlatforms.getVacancies.queryOptions(
+    orpc.freelancePlatforms.getVacancies.queryOptions(
       workspace?.id
         ? {
             workspaceId: workspace.id,
@@ -90,13 +90,13 @@ export function VacanciesPageClient() {
   const stats = useVacanciesStats(data?.stats, vacancies);
 
   const deleteVacancyMutation = useMutation({
-    ...trpc.freelancePlatforms.deleteVacancy.mutationOptions(),
+    ...orpc.freelancePlatforms.deleteVacancy.mutationOptions(),
     onSuccess: async () => {
       toast.success("Вакансия успешно удалена");
       setDeleteDialogOpen(false);
       setVacancyToDelete(null);
       await queryClient.invalidateQueries({
-        queryKey: trpc.freelancePlatforms.getVacancies.queryKey(),
+        queryKey: orpc.freelancePlatforms.getVacancies.queryKey(),
       });
     },
     onError: (error) => {

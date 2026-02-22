@@ -13,7 +13,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Briefcase, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 export function ActiveVacancies({
   orgSlug,
@@ -22,11 +22,11 @@ export function ActiveVacancies({
   orgSlug: string;
   workspaceSlug: string;
 }) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const { workspace } = useWorkspace();
 
   const { data: vacancies, isLoading } = useQuery({
-    ...trpc.vacancy.listActive.queryOptions({
+    ...orpc.vacancy.listActive.queryOptions({
       limit: 5,
       workspaceId: workspace?.id ?? "",
     }),

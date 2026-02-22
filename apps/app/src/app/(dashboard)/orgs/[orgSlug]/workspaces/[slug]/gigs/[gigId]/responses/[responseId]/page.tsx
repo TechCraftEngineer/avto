@@ -32,7 +32,7 @@ import { toast } from "sonner";
 import { triggerSendWelcome } from "~/actions/trigger";
 import { GigResponseDetailCard } from "~/components";
 import { usePostHog, useWorkspace } from "~/hooks";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface PageProps {
   params: Promise<{
@@ -74,7 +74,7 @@ function ResponseDetailSkeleton() {
 
 export default function GigResponseDetailPage({ params }: PageProps) {
   const { orgSlug, slug: workspaceSlug, gigId, responseId } = React.use(params);
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const { workspace } = useWorkspace();
   const { capture } = usePostHog();
@@ -96,7 +96,7 @@ export default function GigResponseDetailPage({ params }: PageProps) {
     isLoading,
     isError,
   } = useQuery({
-    ...trpc.gig.responses.get.queryOptions({
+    ...orpc.gig.responses.get.queryOptions({
       responseId,
       workspaceId: workspace?.id ?? "",
     }),
@@ -105,7 +105,7 @@ export default function GigResponseDetailPage({ params }: PageProps) {
 
   // Fetch all response IDs for navigation
   const { data: responsesData } = useQuery({
-    ...trpc.gig.responses.list.queryOptions({
+    ...orpc.gig.responses.list.queryOptions({
       gigId,
       workspaceId: workspace?.id ?? "",
       limit: 1000, // Get all responses for navigation
@@ -168,7 +168,7 @@ export default function GigResponseDetailPage({ params }: PageProps) {
 
   // Accept mutation
   const acceptMutation = useMutation(
-    trpc.gig.responses.accept.mutationOptions({
+    orpc.gig.responses.accept.mutationOptions({
       onSuccess: () => {
         capture("gig_response_accepted", {
           response_id: responseId,
@@ -178,13 +178,13 @@ export default function GigResponseDetailPage({ params }: PageProps) {
           screening_score: gigResponse?.screening?.overallScore,
         });
         queryClient.invalidateQueries({
-          queryKey: trpc.gig.responses.get.queryKey({
+          queryKey: orpc.gig.responses.get.queryKey({
             responseId,
             workspaceId: workspace?.id ?? "",
           }),
         });
         queryClient.invalidateQueries({
-          queryKey: trpc.gig.responses.list.queryKey({
+          queryKey: orpc.gig.responses.list.queryKey({
             gigId,
             workspaceId: workspace?.id ?? "",
           }),
@@ -200,7 +200,7 @@ export default function GigResponseDetailPage({ params }: PageProps) {
 
   // Reject mutation
   const rejectMutation = useMutation(
-    trpc.gig.responses.reject.mutationOptions({
+    orpc.gig.responses.reject.mutationOptions({
       onSuccess: () => {
         capture("gig_response_rejected", {
           response_id: responseId,
@@ -210,13 +210,13 @@ export default function GigResponseDetailPage({ params }: PageProps) {
           screening_score: gigResponse?.screening?.overallScore,
         });
         queryClient.invalidateQueries({
-          queryKey: trpc.gig.responses.get.queryKey({
+          queryKey: orpc.gig.responses.get.queryKey({
             responseId,
             workspaceId: workspace?.id ?? "",
           }),
         });
         queryClient.invalidateQueries({
-          queryKey: trpc.gig.responses.list.queryKey({
+          queryKey: orpc.gig.responses.list.queryKey({
             gigId,
             workspaceId: workspace?.id ?? "",
           }),
@@ -232,7 +232,7 @@ export default function GigResponseDetailPage({ params }: PageProps) {
 
   // Send message mutation
   const sendMessageMutation = useMutation(
-    trpc.gig.responses.sendMessage.mutationOptions({
+    orpc.gig.responses.sendMessage.mutationOptions({
       onSuccess: () => {
         capture("gig_response_message_sent", {
           response_id: responseId,
@@ -284,7 +284,7 @@ export default function GigResponseDetailPage({ params }: PageProps) {
       pollCount++;
 
       queryClient.invalidateQueries({
-        queryKey: trpc.gig.responses.get.queryKey({
+        queryKey: orpc.gig.responses.get.queryKey({
           responseId,
           workspaceId: workspace?.id ?? "",
         }),
@@ -299,7 +299,7 @@ export default function GigResponseDetailPage({ params }: PageProps) {
         setIsPolling(false);
       }
     }, 5000);
-  }, [queryClient, responseId, workspace?.id, trpc.gig.responses.get]);
+  }, [queryClient, responseId, workspace?.id, orpc.gig.responses.get]);
 
   // Stop polling when interview scoring appears
   React.useEffect(() => {
@@ -315,7 +315,7 @@ export default function GigResponseDetailPage({ params }: PageProps) {
 
   // Evaluate mutation
   const evaluateMutation = useMutation(
-    trpc.gig.responses.evaluate.mutationOptions({
+    orpc.gig.responses.evaluate.mutationOptions({
       onSuccess: () => {
         capture("gig_response_evaluation_started", {
           response_id: responseId,
@@ -344,7 +344,7 @@ export default function GigResponseDetailPage({ params }: PageProps) {
   };
 
   const startKworkChatMutation = useMutation(
-    trpc.gig.kwork.processChat.mutationOptions({
+    orpc.gig.kwork.processChat.mutationOptions({
       onSuccess: () => {
         toast.success("Обработка чата Kwork запущена");
       },

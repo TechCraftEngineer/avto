@@ -20,7 +20,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 function useAutoSave(
   value: CompanyFormValues,
@@ -70,7 +70,7 @@ export function CompanyForm({
   workspaceId: string;
   userRole?: string;
 }) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
 
   const canEdit = userRole === "owner" || userRole === "admin";
@@ -85,9 +85,9 @@ export function CompanyForm({
   });
 
   const updateCompany = useMutation(
-    trpc.bot.updatePartial.mutationOptions({
+    orpc.bot.updatePartial.mutationOptions({
       onSuccess: async () => {
-        await queryClient.invalidateQueries(trpc.bot.pathFilter());
+        await queryClient.invalidateQueries(orpc.bot.pathFilter());
       },
       onError: (err) => {
         toast.error(err.message || "Не удалось сохранить");

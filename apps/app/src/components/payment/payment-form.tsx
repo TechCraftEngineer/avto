@@ -12,7 +12,7 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface PaymentFormProps {
   workspaces: Array<{
@@ -29,7 +29,7 @@ export function PaymentForm({
   defaultWorkspaceId,
   onSuccess,
 }: PaymentFormProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
@@ -43,10 +43,10 @@ export function PaymentForm({
   const firstErrorRef = useRef<HTMLInputElement>(null);
 
   const { mutate: createPayment, isPending } = useMutation(
-    trpc.payment.create.mutationOptions({
+    orpc.payment.create.mutationOptions({
       onSuccess: (data) => {
         queryClient.invalidateQueries({
-          queryKey: trpc.payment.list.queryKey(),
+          queryKey: orpc.payment.list.queryKey(),
         });
 
         if (data.confirmationUrl) {

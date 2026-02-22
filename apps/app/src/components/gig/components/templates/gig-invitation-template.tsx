@@ -26,7 +26,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface GigInvitationTemplateProps {
   gigId: string;
@@ -54,12 +54,12 @@ export function GigInvitationTemplate({
 }: GigInvitationTemplateProps) {
   const [copied, setCopied] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const { workspace } = useWorkspace();
 
   const { data: interviewLink, isLoading: isLoadingLink } = useQuery({
-    ...trpc.gig.getInterviewLink.queryOptions({
+    ...orpc.gig.getInterviewLink.queryOptions({
       gigId,
       workspaceId: workspace?.id ?? "",
     }),
@@ -68,7 +68,7 @@ export function GigInvitationTemplate({
 
   // Загружаем AI-шаблон только если есть ссылка
   const { data: aiTemplate, isLoading: isLoadingTemplate } = useQuery({
-    ...trpc.gig.generateInvitationTemplate.queryOptions({
+    ...orpc.gig.generateInvitationTemplate.queryOptions({
       gigId,
       workspaceId: workspace?.id ?? "",
     }),
@@ -77,10 +77,10 @@ export function GigInvitationTemplate({
   });
 
   const { mutate: generateLink, isPending: isGenerating } = useMutation(
-    trpc.gig.generateInterviewLink.mutationOptions({
+    orpc.gig.generateInterviewLink.mutationOptions({
       onSuccess: (_data, variables) => {
         queryClient.invalidateQueries({
-          queryKey: trpc.gig.getInterviewLink.queryKey({
+          queryKey: orpc.gig.getInterviewLink.queryKey({
             gigId,
             workspaceId: variables.workspaceId,
           }),
@@ -151,14 +151,14 @@ export function GigInvitationTemplate({
 
     // Invalidate both queries to refresh the template
     queryClient.invalidateQueries({
-      queryKey: trpc.gig.getInterviewLink.queryKey({
+      queryKey: orpc.gig.getInterviewLink.queryKey({
         gigId,
         workspaceId: workspace.id,
       }),
     });
 
     queryClient.invalidateQueries({
-      queryKey: trpc.gig.generateInvitationTemplate.queryKey({
+      queryKey: orpc.gig.generateInvitationTemplate.queryKey({
         gigId,
         workspaceId: workspace.id,
       }),
@@ -167,8 +167,8 @@ export function GigInvitationTemplate({
     toast.success("Шаблон обновлен");
   }, [
     queryClient,
-    trpc.gig.getInterviewLink,
-    trpc.gig.generateInvitationTemplate,
+    orpc.gig.getInterviewLink,
+    orpc.gig.generateInvitationTemplate,
     gigId,
     workspace?.id,
   ]);

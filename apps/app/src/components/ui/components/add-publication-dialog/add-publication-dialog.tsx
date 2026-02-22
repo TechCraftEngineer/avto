@@ -34,7 +34,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 const addPublicationSchema = z.object({
   platform: z.enum(platformSourceValues),
@@ -62,7 +62,7 @@ export function AddPublicationDialog({
   workspaceId,
 }: AddPublicationDialogProps) {
   const [open, setOpen] = useState(false);
-  const api = useTRPC();
+  const api = useORPC();
   const queryClient = useQueryClient();
 
   const form = useForm<AddPublicationValues>({

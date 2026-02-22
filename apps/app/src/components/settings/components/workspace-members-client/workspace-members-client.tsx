@@ -37,7 +37,7 @@ import { useInviteLinkModal } from "~/components/settings/modals/invite-link-mod
 import { useInviteMemberModal } from "~/components/settings/modals/invite-member-modal";
 import { useMemberActionsMenu } from "~/components/settings/modals/member-actions-menu";
 import { getAvatarUrl } from "~/lib/avatar";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 type MemberRole = "owner" | "admin" | "member";
 
@@ -138,7 +138,7 @@ export function WorkspaceMembersClient({
   workspaceId: string;
   currentUserId: string;
 }) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<MemberRole | "all">("all");
 
@@ -149,7 +149,7 @@ export function WorkspaceMembersClient({
 
   // Получение участников
   const { data: members, isLoading: membersLoading } = useQuery(
-    trpc.workspace.members.list.queryOptions({ workspaceId }),
+    orpc.workspace.members.list.queryOptions({ workspaceId }),
   );
 
   // Определение роли текущего пользователя
@@ -164,7 +164,7 @@ export function WorkspaceMembersClient({
 
   // Получение приглашений (только для админов)
   const { data: invites, isLoading: invitesLoading } = useQuery({
-    ...trpc.workspace.invites.list.queryOptions({ workspaceId }),
+    ...orpc.workspace.invites.list.queryOptions({ workspaceId }),
     enabled: canManageMembers,
   });
 
@@ -425,7 +425,7 @@ function MemberRow({
   canManageMembers: boolean;
   isOwner: boolean;
 }) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const isCurrentUser = member.userId === currentUserId;
 
@@ -446,10 +446,10 @@ function MemberRow({
   const avatarUrl = getAvatarUrl(member.user.image, member.user.name);
 
   const updateRole = useMutation(
-    trpc.workspace.members.updateRole.mutationOptions({
+    orpc.workspace.members.updateRole.mutationOptions({
       onSuccess: () => {
         toast.success("Роль обновлена");
-        queryClient.invalidateQueries(trpc.workspace.members.pathFilter());
+        queryClient.invalidateQueries(orpc.workspace.members.pathFilter());
       },
       onError: (err) => {
         toast.error(err.message || "Не удалось обновить роль");

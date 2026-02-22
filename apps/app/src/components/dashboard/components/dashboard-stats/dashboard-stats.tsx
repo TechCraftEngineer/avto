@@ -13,14 +13,14 @@ import { cn } from "@qbs-autonaim/ui/utils";
 import { IconTrendingDown, IconTrendingUp } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 export function DashboardStats() {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const { workspace } = useWorkspace();
 
   const { data: stats, isLoading } = useQuery({
-    ...trpc.vacancy.dashboardStats.queryOptions({
+    ...orpc.vacancy.dashboardStats.queryOptions({
       workspaceId: workspace?.id ?? "",
     }),
     enabled: !!workspace?.id,

@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface RecentChatsProps {
   workspaceSlug: string;
@@ -13,12 +13,12 @@ export function RecentChats({
   workspaceSlug: _workspaceSlug,
   orgSlug: _orgSlug,
 }: RecentChatsProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const { workspace } = useWorkspace();
 
   // Получаем последние сообщения с помощью queryOptions
   const recentMessagesQueryOptions =
-    trpc.telegram.messages.getRecent.queryOptions({
+    orpc.telegram.messages.getRecent.queryOptions({
       limit: 5,
       workspaceId: workspace?.id ?? "",
     });

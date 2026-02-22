@@ -10,14 +10,14 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useWorkspaceParams } from "~/hooks/use-workspace-params";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface GigChatListProps {
   gigId: string;
 }
 
 export function GigChatList({ gigId }: GigChatListProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const router = useRouter();
   const pathname = usePathname();
@@ -26,7 +26,7 @@ export function GigChatList({ gigId }: GigChatListProps) {
   const workspaceId = workspace?.id;
 
   const gigQuery = useQuery({
-    ...trpc.gig.get.queryOptions({
+    ...orpc.gig.get.queryOptions({
       id: gigId,
       workspaceId: workspaceId ?? "",
     }),
@@ -35,7 +35,7 @@ export function GigChatList({ gigId }: GigChatListProps) {
   });
 
   const sessionsQuery = useQuery({
-    ...trpc.chat.listSessions.queryOptions({
+    ...orpc.chat.listSessions.queryOptions({
       entityType: "gig",
       entityId: gigId,
       limit: 20,
@@ -44,10 +44,10 @@ export function GigChatList({ gigId }: GigChatListProps) {
   });
 
   const createSessionMutation = useMutation(
-    trpc.chat.createSession.mutationOptions({
+    orpc.chat.createSession.mutationOptions({
       onSuccess: (session) => {
         queryClient.invalidateQueries({
-          queryKey: trpc.chat.listSessions.queryKey({
+          queryKey: orpc.chat.listSessions.queryKey({
             entityType: "gig",
             entityId: gigId,
             limit: 20,

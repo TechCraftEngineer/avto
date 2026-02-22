@@ -4,7 +4,7 @@ import { Card } from "@qbs-autonaim/ui/components/card";
 import { cn } from "@qbs-autonaim/ui/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useVacancyResponses } from "~/components/vacancy/components/responses/context/vacancy-responses-context";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import { ConfirmationView } from "./confirmation-view";
 import { ProgressView } from "./progress-view";
 import type { RefreshStatusIndicatorProps } from "./types";
@@ -22,7 +22,7 @@ export function RefreshStatusIndicator({
   message: externalMessage,
   progress: externalProgress,
 }: RefreshStatusIndicatorProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const {
     getOnArchivedSyncComplete,
     getOnScreenAllProgress,
@@ -30,7 +30,7 @@ export function RefreshStatusIndicator({
   } = useVacancyResponses();
 
   const { data: initialStatus } = useQuery({
-    ...trpc.vacancy.responses.getRefreshStatus.queryOptions({ vacancyId }),
+    ...orpc.vacancy.responses.getRefreshStatus.queryOptions({ vacancyId }),
     // Polling с увеличенным интервалом (10 сек) - подписка основной источник
     // Используем только как fallback для случаев когда подписка недоступна
     refetchInterval: (query) => {

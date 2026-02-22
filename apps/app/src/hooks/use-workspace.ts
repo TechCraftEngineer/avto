@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import type {
   OrganizationDetail,
   WorkspaceDetail,
@@ -28,19 +28,19 @@ export function useWorkspace(): UseWorkspaceReturn {
   const params = useParams();
   const orgSlug = params.orgSlug as string | undefined;
   const slug = params.slug as string | undefined;
-  const trpc = useTRPC();
+  const orpc = useORPC();
 
   const {
     data: organization,
     isLoading: organizationIsLoading,
     error: organizationError,
   } = useQuery({
-    ...trpc.organization.getBySlug.queryOptions({ slug: orgSlug ?? "" }),
+    ...orpc.organization.getBySlug.queryOptions({ slug: orgSlug ?? "" }),
     enabled: !!orgSlug,
   });
 
   const { data, isLoading, error } = useQuery({
-    ...trpc.workspace.getBySlug.queryOptions({
+    ...orpc.workspace.getBySlug.queryOptions({
       organizationId: organization?.id ?? "",
       slug: slug ?? "",
     }),

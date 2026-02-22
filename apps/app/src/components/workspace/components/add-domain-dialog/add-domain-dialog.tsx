@@ -34,7 +34,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useDebouncedCallback } from "use-debounce";
 import { z } from "zod";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import { useDomainOperations } from "../../hooks";
 
 const formSchema = z.object({
@@ -116,7 +116,7 @@ export function AddDomainDialog({
   onOpenChange,
   defaultType = "interview",
 }: AddDomainDialogProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const [domainStatus, setDomainStatus] = useState<DomainStatus>("idle");
 
@@ -142,7 +142,7 @@ export function AddDomainDialog({
 
     try {
       const result = await queryClient.fetchQuery(
-        trpc.customDomain.checkAvailability.queryOptions({
+        orpc.customDomain.checkAvailability.queryOptions({
           workspaceId,
           domain: value,
         }),

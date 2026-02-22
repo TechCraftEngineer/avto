@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import { getStatusColor, getStatusLabel } from "./header-card-utils";
 import type { VacancyResponse } from "./types";
 
@@ -44,12 +44,12 @@ interface TimelineEvent {
 
 export function StatusTimeline({ response }: StatusTimelineProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const { workspaceId } = useWorkspaceContext();
 
   // Получаем реальную историю событий
   const { data: historyData } = useQuery(
-    trpc.vacancy.responses.history.queryOptions(
+    orpc.vacancy.responses.history.queryOptions(
       workspaceId
         ? {
             responseId: response.id,

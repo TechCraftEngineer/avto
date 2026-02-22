@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { use } from "react";
 import { VacancyFullEditForm } from "~/components/vacancy/components";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface VacancyEditPageProps {
   params: Promise<{ orgSlug: string; slug: string; id: string }>;
@@ -13,12 +13,12 @@ interface VacancyEditPageProps {
 
 export default function VacancyEditPage({ params }: VacancyEditPageProps) {
   const { id } = use(params);
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const { workspaceId } = useWorkspaceContext();
   const queryClient = useQueryClient();
 
   const { data: vacancy } = useQuery({
-    ...trpc.vacancy.get.queryOptions({
+    ...orpc.vacancy.get.queryOptions({
       id,
       workspaceId: workspaceId ?? "",
     }),
@@ -26,16 +26,16 @@ export default function VacancyEditPage({ params }: VacancyEditPageProps) {
   });
 
   const updateFullMutation = useMutation(
-    trpc.vacancy.updateFull.mutationOptions({
+    orpc.vacancy.updateFull.mutationOptions({
       onSuccess: () => {
         void queryClient.invalidateQueries({
-          queryKey: trpc.vacancy.get.queryKey({
+          queryKey: orpc.vacancy.get.queryKey({
             id,
             workspaceId: workspaceId ?? "",
           }),
         });
         void queryClient.invalidateQueries({
-          queryKey: trpc.vacancy.list.queryKey(),
+          queryKey: orpc.vacancy.list.queryKey(),
         });
       },
     }),

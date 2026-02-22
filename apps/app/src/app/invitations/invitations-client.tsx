@@ -21,7 +21,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { getAvatarUrl } from "~/lib/avatar";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import type { WorkspaceInvite } from "~/types/api";
 
 type Invite = WorkspaceInvite;
@@ -32,9 +32,9 @@ export function InvitationsClient({ invites }: { invites: Invite[] }) {
     new Set(),
   );
 
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const acceptMutation = useMutation(
-    trpc.workspace.invites.accept.mutationOptions({
+    orpc.workspace.invites.accept.mutationOptions({
       onSuccess: (data) => {
         toast.success(`Вы присоединились к ${data.workspace.name}`);
         router.push(

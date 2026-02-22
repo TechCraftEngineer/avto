@@ -3,7 +3,7 @@
 import type { Draft, UpdateDraftInput } from "@qbs-autonaim/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import {
   DraftErrorHandler,
   type DraftErrorInfo,
@@ -72,7 +72,7 @@ interface UseDraftPersistenceOptions {
 export function useDraftPersistence(options: UseDraftPersistenceOptions = {}) {
   const { onRestore, debounceMs = 1000, userId } = options;
 
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
 
   // Состояние
@@ -90,13 +90,13 @@ export function useDraftPersistence(options: UseDraftPersistenceOptions = {}) {
 
   // Запрос текущего черновика
   const { data: currentDraft } = useQuery(
-    trpc.draft.getCurrent.queryOptions(undefined),
+    orpc.draft.getCurrent.queryOptions(undefined),
   );
 
   // Мутации
-  const createMutation = useMutation(trpc.draft.create.mutationOptions());
-  const updateMutation = useMutation(trpc.draft.update.mutationOptions());
-  const deleteMutation = useMutation(trpc.draft.delete.mutationOptions());
+  const createMutation = useMutation(orpc.draft.create.mutationOptions());
+  const updateMutation = useMutation(orpc.draft.update.mutationOptions());
+  const deleteMutation = useMutation(orpc.draft.delete.mutationOptions());
 
   // Проверка наличия черновика при монтировании
   useEffect(() => {
@@ -294,7 +294,7 @@ export function useDraftPersistence(options: UseDraftPersistenceOptions = {}) {
 
       // Инвалидировать кэш
       await queryClient.invalidateQueries({
-        queryKey: trpc.draft.getCurrent.queryKey(),
+        queryKey: orpc.draft.getCurrent.queryKey(),
       });
     } catch (error) {
       console.error("Ошибка при удалении черновика:", error);

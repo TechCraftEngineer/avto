@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { use, useEffect, useState } from "react";
 import { VacancySettingsForm } from "~/components/vacancy/components";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface VacancySettingsPageProps {
   params: Promise<{ workspaceSlug: string; id: string }>;
@@ -24,7 +24,7 @@ export default function VacancySettingsPage({
   params,
 }: VacancySettingsPageProps) {
   const { id } = use(params);
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const { workspaceId } = useWorkspaceContext();
   const queryClient = useQueryClient();
   const [interviewLink, setInterviewLink] = useState<InterviewLink | null>(
@@ -32,7 +32,7 @@ export default function VacancySettingsPage({
   );
 
   const { data: vacancy } = useQuery({
-    ...trpc.vacancy.get.queryOptions({
+    ...orpc.vacancy.get.queryOptions({
       id,
       workspaceId: workspaceId ?? "",
     }),
@@ -41,7 +41,7 @@ export default function VacancySettingsPage({
 
   // Получаем ссылку на интервью для вакансии
   const getInterviewLinkMutation = useMutation(
-    trpc.vacancy.getInterviewLink.mutationOptions({
+    orpc.vacancy.getInterviewLink.mutationOptions({
       onSuccess: (data) => {
         setInterviewLink(data);
       },
@@ -72,7 +72,7 @@ export default function VacancySettingsPage({
   ]);
 
   const updateSettingsMutation = useMutation(
-    trpc.vacancy.update.mutationOptions({
+    orpc.vacancy.update.mutationOptions({
       onSuccess: () => {
         void queryClient.invalidateQueries({
           queryKey: [
@@ -85,7 +85,7 @@ export default function VacancySettingsPage({
   );
 
   const improveInstructionsMutation = useMutation(
-    trpc.vacancy.improveInstructions.mutationOptions(),
+    orpc.vacancy.improveInstructions.mutationOptions(),
   );
 
   const handleSave = async (data: {

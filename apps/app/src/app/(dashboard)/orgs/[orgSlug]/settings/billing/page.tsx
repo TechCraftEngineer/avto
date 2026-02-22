@@ -32,7 +32,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { PageHeader } from "~/components/layout";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 type PlanId = "free" | "starter" | "pro" | "enterprise";
 
@@ -127,7 +127,7 @@ const plans = [
 export default function OrganizationBillingPage() {
   const params = useParams<{ orgSlug: string }>();
   const searchParams = useSearchParams();
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
 
   // Обработка успешного платежа
@@ -146,12 +146,12 @@ export default function OrganizationBillingPage() {
 
   // Получаем данные организации
   const { data: organization, isLoading } = useQuery(
-    trpc.organization.getBySlug.queryOptions({ slug: params.orgSlug }),
+    orpc.organization.getBySlug.queryOptions({ slug: params.orgSlug }),
   );
 
   // Получаем историю платежей организации
   const { data: payments, isLoading: isLoadingPayments } = useQuery(
-    trpc.payment.list.queryOptions(
+    orpc.payment.list.queryOptions(
       organization?.id
         ? {
             organizationId: organization.id,
@@ -163,11 +163,11 @@ export default function OrganizationBillingPage() {
 
   // Мутация для обновления плана
   const { mutate: updatePlan, isPending } = useMutation(
-    trpc.organization.updatePlan.mutationOptions({
+    orpc.organization.updatePlan.mutationOptions({
       onSuccess: () => {
         toast.success("Тарифный план успешно обновлён");
         queryClient.invalidateQueries({
-          queryKey: trpc.organization.getBySlug.queryKey({
+          queryKey: orpc.organization.getBySlug.queryKey({
             slug: params.orgSlug,
           }),
         });
@@ -180,7 +180,7 @@ export default function OrganizationBillingPage() {
 
   // Мутация для создания платежа
   const { mutate: createPayment, isPending: isCreatingPayment } = useMutation(
-    trpc.organization.createPlanPayment.mutationOptions({
+    orpc.organization.createPlanPayment.mutationOptions({
       onSuccess: (data) => {
         if (data.confirmationUrl) {
           window.location.href = data.confirmationUrl;

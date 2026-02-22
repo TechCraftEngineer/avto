@@ -15,7 +15,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import { ResponseKanbanCard } from "./response-kanban-card";
 import type { ResponseItem, ResponseStatus } from "./types";
 
@@ -157,7 +157,7 @@ export function ResponsesKanban({
   workspaceSlug,
 }: ResponsesKanbanProps) {
   const router = useRouter();
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
 
   const initialColumns = useMemo(
@@ -172,7 +172,7 @@ export function ResponsesKanban({
   }, [responses]);
 
   const { mutate: updateStatus } = useMutation(
-    trpc.vacancy.responses.updateStatus.mutationOptions({
+    orpc.vacancy.responses.updateStatus.mutationOptions({
       onError: () => {
         setColumns(responsesToColumns(responses));
         toast.error("Не удалось обновить статус");
@@ -182,7 +182,7 @@ export function ResponsesKanban({
       },
       onSettled: () => {
         queryClient.invalidateQueries({
-          queryKey: trpc.vacancy.responses.listWorkspace.queryKey(),
+          queryKey: orpc.vacancy.responses.listWorkspace.queryKey(),
         });
       },
     }),

@@ -75,7 +75,7 @@ beforeEach(() => {
   }));
 
   mock.module("~/trpc/react", () => ({
-    useTRPC: () => ({
+    useORPC: () => ({
       vacancy: {
         responses: {
           getRefreshStatus: {

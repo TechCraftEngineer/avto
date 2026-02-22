@@ -15,7 +15,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import type { FunnelCandidate, FunnelCandidateDetail } from "../types";
 
 interface RejectDialogProps {
@@ -32,14 +32,14 @@ export function RejectDialog({
   workspaceId,
 }: RejectDialogProps) {
   const [reason, setReason] = useState("");
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
 
   const { mutate: rejectCandidate, isPending: isRejecting } = useMutation(
-    trpc.candidates.rejectCandidate.mutationOptions({
+    orpc.candidates.rejectCandidate.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: trpc.candidates.list.queryKey(),
+          queryKey: orpc.candidates.list.queryKey(),
         });
         toast.success("Кандидат отклонён");
         onOpenChange(false);

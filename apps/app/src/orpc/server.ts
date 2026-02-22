@@ -1,7 +1,6 @@
 import type { AppRouter } from "@qbs-autonaim/api";
 import { createContext } from "@qbs-autonaim/api/orpc";
 import { appRouter } from "@qbs-autonaim/api/root-orpc";
-import { dehydrate, type HydrationBoundary } from "@tanstack/react-query";
 import { headers } from "next/headers";
 import { cache } from "react";
 
@@ -135,32 +134,3 @@ type ServerHelpers<TRouter> = {
       ? ServerHelpers<TRouter[K]>
       : never;
 };
-
-/**
- * Компонент для гидратации клиента
- * Передает prefetch данные с сервера клиенту через HydrationBoundary
- *
- * @see Requirements 11.3
- *
- * @example
- * ```tsx
- * export default async function Page() {
- *   const orpc = await createServerHelpers();
- *   await orpc.workspace.list.prefetch();
- *
- *   return (
- *     <HydrateClient>
- *       <WorkspaceList />
- *     </HydrateClient>
- *   );
- * }
- * ```
- */
-export function HydrateClient(props: { children: React.ReactNode }) {
-  const queryClient = getQueryClient();
-  return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      {props.children}
-    </HydrationBoundary>
-  );
-}

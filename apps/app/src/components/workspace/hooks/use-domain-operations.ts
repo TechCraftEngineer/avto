@@ -1,23 +1,23 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface UseDomainOperationsProps {
   workspaceId: string;
 }
 
 export function useDomainOperations({ workspaceId }: UseDomainOperationsProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
 
   const verifyMutation = useMutation(
-    trpc.customDomain.verify.mutationOptions({
+    orpc.customDomain.verify.mutationOptions({
       onSuccess: () => {
         toast.success("Домен верифицирован", {
           description: "Теперь вы можете использовать этот домен",
         });
         queryClient.invalidateQueries({
-          queryKey: trpc.customDomain.list.queryKey({
+          queryKey: orpc.customDomain.list.queryKey({
             workspaceId,
           }),
         });
@@ -31,11 +31,11 @@ export function useDomainOperations({ workspaceId }: UseDomainOperationsProps) {
   );
 
   const setPrimaryMutation = useMutation(
-    trpc.customDomain.setPrimary.mutationOptions({
+    orpc.customDomain.setPrimary.mutationOptions({
       onSuccess: () => {
         toast.success("Основной домен изменён");
         queryClient.invalidateQueries({
-          queryKey: trpc.customDomain.list.queryKey({
+          queryKey: orpc.customDomain.list.queryKey({
             workspaceId,
           }),
         });
@@ -49,11 +49,11 @@ export function useDomainOperations({ workspaceId }: UseDomainOperationsProps) {
   );
 
   const deleteMutation = useMutation(
-    trpc.customDomain.delete.mutationOptions({
+    orpc.customDomain.delete.mutationOptions({
       onSuccess: () => {
         toast.success("Домен удалён");
         queryClient.invalidateQueries({
-          queryKey: trpc.customDomain.list.queryKey({
+          queryKey: orpc.customDomain.list.queryKey({
             workspaceId,
           }),
         });
@@ -67,13 +67,13 @@ export function useDomainOperations({ workspaceId }: UseDomainOperationsProps) {
   );
 
   const createMutation = useMutation(
-    trpc.customDomain.create.mutationOptions({
+    orpc.customDomain.create.mutationOptions({
       onSuccess: () => {
         toast.success("Домен добавлен", {
           description: "Теперь настройте DNS записи для верификации",
         });
         queryClient.invalidateQueries({
-          queryKey: trpc.customDomain.list.queryKey({ workspaceId }),
+          queryKey: orpc.customDomain.list.queryKey({ workspaceId }),
         });
       },
       onError: (error) => {
@@ -97,10 +97,10 @@ export function useDomainOperations({ workspaceId }: UseDomainOperationsProps) {
 }
 
 export function useDomains(workspaceId: string) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
 
   return useQuery({
-    ...trpc.customDomain.list.queryOptions({ workspaceId }),
+    ...orpc.customDomain.list.queryOptions({ workspaceId }),
     enabled: !!workspaceId,
   });
 }

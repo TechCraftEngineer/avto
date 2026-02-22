@@ -17,7 +17,7 @@ import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import { CustomDomainSelect } from "../custom-domain-select";
 
 const InterviewMediaUpload = dynamic(
@@ -40,7 +40,7 @@ interface GigInterviewSettingsProps {
 }
 
 export function GigInterviewSettings({ gigId }: GigInterviewSettingsProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const { workspace } = useWorkspace();
 
@@ -56,7 +56,7 @@ export function GigInterviewSettings({ gigId }: GigInterviewSettingsProps) {
   const [hasChanges, setHasChanges] = useState(false);
 
   const { data: gig, isLoading } = useQuery({
-    ...trpc.gig.get.queryOptions({
+    ...orpc.gig.get.queryOptions({
       id: gigId,
       workspaceId: workspace?.id ?? "",
     }),
@@ -64,7 +64,7 @@ export function GigInterviewSettings({ gigId }: GigInterviewSettingsProps) {
   });
 
   const { data: interviewMediaFiles = [] } = useQuery(
-    trpc.files.getInterviewMedia.queryOptions({
+    orpc.files.getInterviewMedia.queryOptions({
       gigId,
       workspaceId: workspace?.id ?? "",
     }),
@@ -88,16 +88,16 @@ export function GigInterviewSettings({ gigId }: GigInterviewSettingsProps) {
   }, [interviewMediaFiles]);
 
   const { mutate: updateSettings, isPending } = useMutation(
-    trpc.gig.update.mutationOptions({
+    orpc.gig.update.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: trpc.gig.get.queryKey({
+          queryKey: orpc.gig.get.queryKey({
             id: gigId,
             workspaceId: workspace?.id ?? "",
           }),
         });
         queryClient.invalidateQueries({
-          queryKey: trpc.files.getInterviewMedia.queryKey({
+          queryKey: orpc.files.getInterviewMedia.queryKey({
             gigId,
             workspaceId: workspace?.id ?? "",
           }),

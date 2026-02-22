@@ -29,7 +29,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { type ReactNode, useState } from "react";
 import { toast } from "sonner";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface Member {
   id: string;
@@ -105,11 +105,11 @@ function MemberActionsDropdown({
   onAction: (action: DialogType) => void;
   children: ReactNode;
 }) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const [open, setOpen] = useState(false);
 
   const resendInvite = useMutation(
-    trpc.workspace.invites.resend.mutationOptions({
+    orpc.workspace.invites.resend.mutationOptions({
       onSuccess: () => {
         toast.success("Приглашение отправлено повторно");
         setOpen(false);
@@ -223,15 +223,15 @@ function RemoveMemberDialog({
   member: Member;
   workspaceId: string;
 }) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
 
   const removeUser = useMutation(
-    trpc.workspace.members.remove.mutationOptions({
+    orpc.workspace.members.remove.mutationOptions({
       onSuccess: () => {
         toast.success(`${member.name} удален из workspace`);
         onOpenChange(false);
-        queryClient.invalidateQueries(trpc.workspace.members.pathFilter());
+        queryClient.invalidateQueries(orpc.workspace.members.pathFilter());
       },
       onError: (err) => {
         toast.error(err.message || "Не удалось удалить участника");
@@ -285,16 +285,16 @@ function LeaveWorkspaceDialog({
   workspaceId: string;
   userId: string;
 }) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const router = useRouter();
 
   const leaveWorkspace = useMutation(
-    trpc.workspace.members.remove.mutationOptions({
+    orpc.workspace.members.remove.mutationOptions({
       onSuccess: () => {
         toast.success("Вы покинули workspace");
         onOpenChange(false);
-        queryClient.invalidateQueries(trpc.workspace.members.pathFilter());
+        queryClient.invalidateQueries(orpc.workspace.members.pathFilter());
         router.push("/");
       },
       onError: (err) => {
@@ -350,15 +350,15 @@ function CancelInviteDialog({
   member: Member;
   workspaceId: string;
 }) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
 
   const cancelInvite = useMutation(
-    trpc.workspace.invites.cancel.mutationOptions({
+    orpc.workspace.invites.cancel.mutationOptions({
       onSuccess: () => {
         toast.success("Приглашение отменено");
         onOpenChange(false);
-        queryClient.invalidateQueries(trpc.workspace.members.pathFilter());
+        queryClient.invalidateQueries(orpc.workspace.members.pathFilter());
       },
       onError: (err) => {
         toast.error(err.message || "Не удалось отменить приглашение");

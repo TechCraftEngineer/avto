@@ -11,7 +11,7 @@ import {
   triggerSendWelcomeBatch,
   triggerSyncArchivedVacancyResponses,
 } from "~/actions/trigger";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 export function useResponseActions(
   vacancyId: string,
@@ -26,7 +26,7 @@ export function useResponseActions(
   const [isSendingWelcome, setIsSendingWelcome] = useState(false);
   const [isSyncingArchived, setIsSyncingArchived] = useState(false);
 
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
 
   const handleBulkScreen = useCallback(async () => {
@@ -158,7 +158,7 @@ export function useResponseActions(
     setIsSyncingArchived(false);
     // Инвалидируем только текущую вакансию, чтобы не вызывать refetch для других
     void queryClient.invalidateQueries({
-      queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+      queryKey: orpc.vacancy.responses.list.queryKey({ vacancyId }),
     });
   }, [queryClient, trpc, vacancyId]);
 

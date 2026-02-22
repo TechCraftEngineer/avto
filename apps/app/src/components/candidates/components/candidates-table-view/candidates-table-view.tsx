@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import type { FunnelCandidate } from "../../types/types";
 import { useCandidateFilters } from "../candidate-pipeline/hooks/use-candidate-filters";
 import {
@@ -29,7 +29,7 @@ const STORAGE_KEY = "candidates-table-column-visibility";
 
 export function CandidatesTableView() {
   const { workspaceId } = useWorkspaceContext();
-  const trpc = useTRPC();
+  const orpc = useORPC();
 
   const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>(
     DEFAULT_COLUMN_VISIBILITY,
@@ -81,14 +81,14 @@ export function CandidatesTableView() {
   } = useCandidateFilters();
 
   const { data: vacancies } = useQuery({
-    ...trpc.vacancy.listActive.queryOptions({
+    ...orpc.vacancy.listActive.queryOptions({
       workspaceId: workspaceId ?? "",
     }),
     enabled: !!workspaceId,
   });
 
   const { data: candidatesData, isLoading } = useQuery({
-    ...trpc.candidates.list.queryOptions({
+    ...orpc.candidates.list.queryOptions({
       workspaceId: workspaceId ?? "",
       vacancyId: selectedVacancy || undefined,
       search: debouncedSearch || undefined,

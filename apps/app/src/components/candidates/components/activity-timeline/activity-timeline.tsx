@@ -13,7 +13,7 @@ import {
   TrendingUp,
   User,
 } from "lucide-react";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface ActivityTimelineProps {
   candidateId: string;
@@ -77,9 +77,9 @@ export function ActivityTimeline({
   candidateId,
   workspaceId,
 }: ActivityTimelineProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
 
-  const historyQueryOptions = trpc.vacancy.responses.history.queryOptions({
+  const historyQueryOptions = orpc.vacancy.responses.history.queryOptions({
     responseId: candidateId,
     workspaceId,
   });

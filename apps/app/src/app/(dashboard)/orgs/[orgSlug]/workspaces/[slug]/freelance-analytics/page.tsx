@@ -22,11 +22,11 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { PageHeader } from "~/components/layout";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 export default function FreelanceAnalyticsPage() {
   const { workspace } = useWorkspace();
-  const api = useTRPC();
+  const api = useORPC();
   const queryClient = useQueryClient();
 
   const [dateFrom] = useState<string | undefined>(undefined);

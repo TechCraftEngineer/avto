@@ -19,7 +19,7 @@ import {
   ShortlistStats,
 } from "~/components/gig";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface ShortlistPageClientProps {
   orgSlug: string;
@@ -33,7 +33,7 @@ export function ShortlistPageClient({
   gigId,
 }: ShortlistPageClientProps) {
   const _router = useRouter();
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const { workspace } = useWorkspace();
   const [selectedMinScore, setSelectedMinScore] = useState<string>("70");
@@ -48,7 +48,7 @@ export function ShortlistPageClient({
     isLoading,
     error,
   } = useQuery(
-    trpc.gig.shortlist.queryOptions(
+    orpc.gig.shortlist.queryOptions(
       workspace?.id
         ? {
             gigId,
@@ -65,10 +65,10 @@ export function ShortlistPageClient({
   // Recalculate shortlist mutation
   const { mutate: recalculateShortlist, isPending: isRecalculating } =
     useMutation(
-      trpc.gig.recalculateShortlist.mutationOptions({
+      orpc.gig.recalculateShortlist.mutationOptions({
         onSuccess: () => {
           queryClient.invalidateQueries({
-            queryKey: trpc.gig.shortlist.queryKey({
+            queryKey: orpc.gig.shortlist.queryKey({
               gigId,
               workspaceId: workspace?.id ?? "",
             }),

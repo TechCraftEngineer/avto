@@ -17,7 +17,7 @@ import { ru } from "date-fns/locale";
 import { Award } from "lucide-react";
 import Link from "next/link";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 export function TopResponses({
   orgSlug,
@@ -28,11 +28,11 @@ export function TopResponses({
   workspaceSlug: string;
   className?: string;
 }) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const { workspace } = useWorkspace();
 
   const { data: topResponses = [], isLoading } = useQuery({
-    ...trpc.vacancy.responses.listTop.queryOptions({
+    ...orpc.vacancy.responses.listTop.queryOptions({
       limit: 5,
       workspaceId: workspace?.id ?? "",
     }),

@@ -47,7 +47,7 @@ import {
   GigRequirements,
 } from "~/components";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface GigDetailClientProps {
   orgSlug: string;
@@ -60,7 +60,7 @@ export function GigDetailClient({
   workspaceSlug,
   gigId,
 }: GigDetailClientProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const router = useRouter();
   const queryClient = useQueryClient();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -79,7 +79,7 @@ export function GigDetailClient({
     error,
     isError,
   } = useQuery({
-    ...trpc.gig.get.queryOptions({
+    ...orpc.gig.get.queryOptions({
       id: gigId,
       workspaceId: workspaceId ?? "",
     }),
@@ -94,7 +94,7 @@ export function GigDetailClient({
   }, [gig]);
 
   const { data: responseCounts } = useQuery({
-    ...trpc.gig.responses.count.queryOptions({
+    ...orpc.gig.responses.count.queryOptions({
       gigId,
       workspaceId: workspaceId ?? "",
     }),
@@ -102,11 +102,11 @@ export function GigDetailClient({
   });
 
   const deleteMutation = useMutation(
-    trpc.gig.delete.mutationOptions({
+    orpc.gig.delete.mutationOptions({
       onSuccess: () => {
         toast.success("Задание удалено");
         queryClient.invalidateQueries({
-          queryKey: trpc.gig.list.queryKey(),
+          queryKey: orpc.gig.list.queryKey(),
         });
         router.push(`/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs`);
       },

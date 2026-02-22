@@ -26,7 +26,7 @@ import {
 import { useState } from "react";
 import { toast } from "sonner";
 import type { AVAILABLE_INTEGRATIONS } from "~/lib/integrations";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface IntegrationCardProps {
   availableIntegration: (typeof AVAILABLE_INTEGRATIONS)[number];
@@ -59,18 +59,18 @@ export function IntegrationCard({
   userRole,
   showDetailedDescription = false,
 }: IntegrationCardProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const canEdit = userRole === "owner" || userRole === "admin";
 
   const deleteMutation = useMutation(
-    trpc.integration.delete.mutationOptions({
+    orpc.integration.delete.mutationOptions({
       onSuccess: () => {
         toast.success("Интеграция успешно удалена");
         queryClient.invalidateQueries({
-          queryKey: trpc.integration.list.queryKey({ workspaceId }),
+          queryKey: orpc.integration.list.queryKey({ workspaceId }),
         });
         setDeleteDialogOpen(false);
       },

@@ -40,7 +40,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { PageHeader } from "~/components/layout";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 type SortOption = "score" | "responseScore" | "interviewScore" | "name";
 
@@ -55,7 +55,7 @@ export default function ShortlistPage() {
     slug: string;
   }>();
   const { workspace } = useWorkspace();
-  const api = useTRPC();
+  const api = useORPC();
 
   const [minScore, setMinScore] = useState<string>("0");
   const [sortBy, setSortBy] = useState<SortOption>("score");

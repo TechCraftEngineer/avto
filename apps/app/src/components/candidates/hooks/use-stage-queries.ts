@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import type { FunnelStage } from "../types";
 
 interface UseStageQueriesParams {
@@ -15,11 +15,11 @@ export function useStageQueries({
   debouncedSearch,
   stageLimits,
 }: UseStageQueriesParams) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const enabled = !!workspaceId;
 
   const screeningDoneQuery = useQuery({
-    ...trpc.candidates.list.queryOptions({
+    ...orpc.candidates.list.queryOptions({
       workspaceId: workspaceId ?? "",
       vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
       search: debouncedSearch || undefined,
@@ -31,7 +31,7 @@ export function useStageQueries({
   });
 
   const chatInterviewQuery = useQuery({
-    ...trpc.candidates.list.queryOptions({
+    ...orpc.candidates.list.queryOptions({
       workspaceId: workspaceId ?? "",
       vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
       search: debouncedSearch || undefined,
@@ -43,7 +43,7 @@ export function useStageQueries({
   });
 
   const offerSentQuery = useQuery({
-    ...trpc.candidates.list.queryOptions({
+    ...orpc.candidates.list.queryOptions({
       workspaceId: workspaceId ?? "",
       vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
       search: debouncedSearch || undefined,
@@ -55,7 +55,7 @@ export function useStageQueries({
   });
 
   const securityPassedQuery = useQuery({
-    ...trpc.candidates.list.queryOptions({
+    ...orpc.candidates.list.queryOptions({
       workspaceId: workspaceId ?? "",
       vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
       search: debouncedSearch || undefined,
@@ -67,7 +67,7 @@ export function useStageQueries({
   });
 
   const contractSentQuery = useQuery({
-    ...trpc.candidates.list.queryOptions({
+    ...orpc.candidates.list.queryOptions({
       workspaceId: workspaceId ?? "",
       vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
       search: debouncedSearch || undefined,
@@ -79,7 +79,7 @@ export function useStageQueries({
   });
 
   const onboardingQuery = useQuery({
-    ...trpc.candidates.list.queryOptions({
+    ...orpc.candidates.list.queryOptions({
       workspaceId: workspaceId ?? "",
       vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
       search: debouncedSearch || undefined,
@@ -91,7 +91,7 @@ export function useStageQueries({
   });
 
   const rejectedQuery = useQuery({
-    ...trpc.candidates.list.queryOptions({
+    ...orpc.candidates.list.queryOptions({
       workspaceId: workspaceId ?? "",
       vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
       search: debouncedSearch || undefined,
@@ -105,7 +105,7 @@ export function useStageQueries({
   return [
     {
       stage: "SCREENING_DONE" as FunnelStage,
-      queryKey: trpc.candidates.list.queryOptions({
+      queryKey: orpc.candidates.list.queryOptions({
         workspaceId: workspaceId ?? "",
         vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
         search: debouncedSearch || undefined,
@@ -116,7 +116,7 @@ export function useStageQueries({
     },
     {
       stage: "INTERVIEW" as FunnelStage,
-      queryKey: trpc.candidates.list.queryOptions({
+      queryKey: orpc.candidates.list.queryOptions({
         workspaceId: workspaceId ?? "",
         vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
         search: debouncedSearch || undefined,
@@ -127,7 +127,7 @@ export function useStageQueries({
     },
     {
       stage: "OFFER_SENT" as FunnelStage,
-      queryKey: trpc.candidates.list.queryOptions({
+      queryKey: orpc.candidates.list.queryOptions({
         workspaceId: workspaceId ?? "",
         vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
         search: debouncedSearch || undefined,
@@ -138,7 +138,7 @@ export function useStageQueries({
     },
     {
       stage: "SECURITY_PASSED" as FunnelStage,
-      queryKey: trpc.candidates.list.queryOptions({
+      queryKey: orpc.candidates.list.queryOptions({
         workspaceId: workspaceId ?? "",
         vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
         search: debouncedSearch || undefined,
@@ -149,7 +149,7 @@ export function useStageQueries({
     },
     {
       stage: "CONTRACT_SENT" as FunnelStage,
-      queryKey: trpc.candidates.list.queryOptions({
+      queryKey: orpc.candidates.list.queryOptions({
         workspaceId: workspaceId ?? "",
         vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
         search: debouncedSearch || undefined,
@@ -160,7 +160,7 @@ export function useStageQueries({
     },
     {
       stage: "ONBOARDING" as FunnelStage,
-      queryKey: trpc.candidates.list.queryOptions({
+      queryKey: orpc.candidates.list.queryOptions({
         workspaceId: workspaceId ?? "",
         vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
         search: debouncedSearch || undefined,
@@ -171,7 +171,7 @@ export function useStageQueries({
     },
     {
       stage: "REJECTED" as FunnelStage,
-      queryKey: trpc.candidates.list.queryOptions({
+      queryKey: orpc.candidates.list.queryOptions({
         workspaceId: workspaceId ?? "",
         vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
         search: debouncedSearch || undefined,

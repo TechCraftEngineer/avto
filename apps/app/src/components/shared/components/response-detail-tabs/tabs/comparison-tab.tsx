@@ -8,7 +8,7 @@ import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
 import { Award, TrendingDown, Users } from "lucide-react";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface ComparisonTabProps {
   responseId: string;
@@ -22,10 +22,10 @@ export function ComparisonTab({
   currentScore,
 }: ComparisonTabProps) {
   const { workspace } = useWorkspace();
-  const trpc = useTRPC();
+  const orpc = useORPC();
 
   const { data, isLoading } = useQuery({
-    ...trpc.vacancy.responses.compare.queryOptions({
+    ...orpc.vacancy.responses.compare.queryOptions({
       vacancyId,
       workspaceId: workspace?.id ?? "",
       limit: 10,

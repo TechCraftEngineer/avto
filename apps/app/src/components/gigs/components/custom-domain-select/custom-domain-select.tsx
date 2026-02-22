@@ -10,7 +10,7 @@ import {
 } from "@qbs-autonaim/ui/components/select";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface CustomDomainSelectProps {
   workspaceId: string;
@@ -23,7 +23,7 @@ export function CustomDomainSelect({
   value,
   onChange,
 }: CustomDomainSelectProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
 
   const {
     data: customDomains = [],
@@ -31,14 +31,14 @@ export function CustomDomainSelect({
     isError: isCustomError,
     error: customError,
   } = useQuery(
-    trpc.customDomain.list.queryOptions({
+    orpc.customDomain.list.queryOptions({
       workspaceId,
       type: "interview",
     }),
   );
 
   const { data: presetDomains = [], isLoading: isLoadingPresets } = useQuery(
-    trpc.customDomain.listPresets.queryOptions(),
+    orpc.customDomain.listPresets.queryOptions(),
   );
 
   const isLoading = isLoadingCustom || isLoadingPresets;

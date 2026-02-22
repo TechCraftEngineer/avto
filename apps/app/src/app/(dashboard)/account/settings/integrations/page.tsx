@@ -18,23 +18,23 @@ import {
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { toast } from "sonner";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 export default function AccountIntegrationsPage() {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
 
   const { data: integrations, isLoading } = useQuery(
-    trpc.userIntegration.list.queryOptions(),
+    orpc.userIntegration.list.queryOptions(),
   );
 
   const deleteMutation = useMutation(
-    trpc.userIntegration.delete.mutationOptions({
+    orpc.userIntegration.delete.mutationOptions({
       onSuccess: () => {
         toast.success("Google Calendar отключён");
         queryClient.invalidateQueries({
-          queryKey: trpc.userIntegration.list.queryKey(),
+          queryKey: orpc.userIntegration.list.queryKey(),
         });
       },
       onError: (error) => {
@@ -53,7 +53,7 @@ export default function AccountIntegrationsPage() {
     if (connected) {
       toast.success("Google Calendar успешно подключён");
       queryClient.invalidateQueries({
-        queryKey: trpc.userIntegration.list.queryKey(),
+        queryKey: orpc.userIntegration.list.queryKey(),
       });
       window.history.replaceState({}, "", "/account/settings/integrations");
     }
@@ -65,7 +65,7 @@ export default function AccountIntegrationsPage() {
       toast.error("Google Calendar не настроен. Обратитесь к администратору.");
       window.history.replaceState({}, "", "/account/settings/integrations");
     }
-  }, [searchParams, queryClient, trpc.userIntegration.list]);
+  }, [searchParams, queryClient, orpc.userIntegration.list]);
 
   const handleConnect = () => {
     window.location.href = "/api/auth/google-calendar";

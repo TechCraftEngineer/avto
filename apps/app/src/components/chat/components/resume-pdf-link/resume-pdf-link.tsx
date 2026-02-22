@@ -3,17 +3,17 @@
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { useQuery } from "@tanstack/react-query";
 import { ExternalLink } from "lucide-react";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface ResumePdfLinkProps {
   fileKey: string;
 }
 
 export function ResumePdfLink({ fileKey }: ResumePdfLinkProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
 
   const { data: fileData, isLoading } = useQuery({
-    ...trpc.telegram.file.getUrl.queryOptions({ key: fileKey }),
+    ...orpc.telegram.file.getUrl.queryOptions({ key: fileKey }),
   });
 
   const handleOpen = () => {

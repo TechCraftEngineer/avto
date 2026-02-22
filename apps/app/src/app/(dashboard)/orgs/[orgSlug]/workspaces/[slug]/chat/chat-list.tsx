@@ -20,18 +20,18 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useWorkspaceParams } from "~/hooks/use-workspace-params";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 export function ChatList() {
   const { orgSlug, slug: workspaceSlug } = useWorkspaceParams();
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const { workspace } = useWorkspace();
   const pathname = usePathname();
   const [selectedVacancyId, setSelectedVacancyId] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   const { data: vacancies = [] } = useQuery({
-    ...trpc.vacancy.list.queryOptions({ workspaceId: workspace?.id ?? "" }),
+    ...orpc.vacancy.list.queryOptions({ workspaceId: workspace?.id ?? "" }),
     enabled: !!workspace?.id,
   });
 
@@ -40,7 +40,7 @@ export function ChatList() {
     isPending,
     error,
   } = useQuery({
-    ...trpc.telegram.conversation.getAll.queryOptions({
+    ...orpc.telegram.conversation.getAll.queryOptions({
       workspaceId: workspace?.id ?? "",
       vacancyId: selectedVacancyId === "all" ? undefined : selectedVacancyId,
     }),

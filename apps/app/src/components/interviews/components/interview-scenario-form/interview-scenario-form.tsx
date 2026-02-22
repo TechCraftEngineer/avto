@@ -16,7 +16,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface InterviewScenarioFormProps {
   scenarioId?: string;
@@ -29,7 +29,7 @@ export function InterviewScenarioForm({
   onCancel,
   onSuccess,
 }: InterviewScenarioFormProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const { workspace } = useWorkspace();
 
@@ -46,7 +46,7 @@ export function InterviewScenarioForm({
 
   // Загружаем данные сценария при редактировании
   const { data: scenario, isLoading: isLoadingScenario } = useQuery({
-    ...trpc.interviewScenarios.get.queryOptions({
+    ...orpc.interviewScenarios.get.queryOptions({
       id: scenarioId ?? "",
       workspaceId: workspace?.id ?? "",
     }),
@@ -68,10 +68,10 @@ export function InterviewScenarioForm({
   }, [scenario]);
 
   const { mutate: createScenario, isPending: isCreating } = useMutation(
-    trpc.interviewScenarios.create.mutationOptions({
+    orpc.interviewScenarios.create.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: trpc.interviewScenarios.list.queryKey({
+          queryKey: orpc.interviewScenarios.list.queryKey({
             workspaceId: workspace?.id ?? "",
             limit: 50,
             offset: 0,
@@ -87,10 +87,10 @@ export function InterviewScenarioForm({
   );
 
   const { mutate: updateScenario, isPending: isUpdating } = useMutation(
-    trpc.interviewScenarios.update.mutationOptions({
+    orpc.interviewScenarios.update.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: trpc.interviewScenarios.list.queryKey({
+          queryKey: orpc.interviewScenarios.list.queryKey({
             workspaceId: workspace?.id ?? "",
             limit: 50,
             offset: 0,

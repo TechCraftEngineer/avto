@@ -30,7 +30,7 @@ import {
   triggerRefreshSingleResume,
   triggerSendWelcome,
 } from "~/actions/trigger";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import { useAnalyzeSingleResponse } from "../hooks/use-analyze-single-response";
 import { useCandidateOperations } from "../hooks/use-candidate-operations";
 import { useRefreshSingleResume } from "../hooks/use-refresh-single-resume";
@@ -68,7 +68,7 @@ export function ResponseActions({
   const [analyzeEnabled, setAnalyzeEnabled] = useState(false);
   const [refreshEnabled, setRefreshEnabled] = useState(false);
   const queryClient = useQueryClient();
-  const trpc = useTRPC();
+  const orpc = useORPC();
 
   const { invite, reject, isInviting, isRejecting } = useCandidateOperations({
     workspaceId,
@@ -98,7 +98,7 @@ export function ResponseActions({
       toast.success("Резюме успешно обновлено");
       if (vacancyId) {
         void queryClient.invalidateQueries({
-          queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+          queryKey: orpc.vacancy.responses.list.queryKey({ vacancyId }),
         });
       }
     } else {
@@ -122,7 +122,7 @@ export function ResponseActions({
       toast.success("AI-оценка завершена");
       if (vacancyId) {
         void queryClient.invalidateQueries({
-          queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+          queryKey: orpc.vacancy.responses.list.queryKey({ vacancyId }),
         });
       }
     } else {
@@ -212,7 +212,7 @@ export function ResponseActions({
   const handleCopyInterviewLink = async () => {
     try {
       const result = await queryClient.fetchQuery(
-        trpc.vacancy.responses.getInterviewLink.queryOptions({
+        orpc.vacancy.responses.getInterviewLink.queryOptions({
           responseId,
           workspaceId,
         }),

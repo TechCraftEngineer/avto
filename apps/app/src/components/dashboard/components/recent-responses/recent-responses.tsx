@@ -18,7 +18,7 @@ import Link from "next/link";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { getAvatarUrl } from "~/lib/avatar";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import type { VacancyResponseRecentItem } from "~/types/api";
 
 type RecentResponse = VacancyResponseRecentItem;
@@ -89,11 +89,11 @@ export function RecentResponses({
   orgSlug: string;
   workspaceSlug: string;
 }) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const { workspace } = useWorkspace();
 
   const { data: recentResponses, isLoading } = useQuery({
-    ...trpc.vacancy.responses.listRecent.queryOptions({
+    ...orpc.vacancy.responses.listRecent.queryOptions({
       workspaceId: workspace?.id ?? "",
     }),
     enabled: !!workspace?.id,

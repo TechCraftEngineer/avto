@@ -1,15 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 /** Интеграции фриланс-платформ, поддерживающих импорт gigs (пока только Kwork) */
 const GIG_IMPORT_PLATFORMS = ["kwork"] as const;
 
 export function useGigPlatformIntegration(workspaceId: string) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
 
   const { data: integrations, isLoading: isLoadingIntegrations } = useQuery({
-    ...trpc.integration.list.queryOptions({
+    ...orpc.integration.list.queryOptions({
       workspaceId,
     }),
     enabled: !!workspaceId,

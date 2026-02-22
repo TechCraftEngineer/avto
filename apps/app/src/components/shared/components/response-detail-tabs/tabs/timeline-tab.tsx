@@ -15,7 +15,7 @@ import {
   UserCheck,
 } from "lucide-react";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import type { JsonValue } from "./value-change-display";
 import { ValueChangeDisplay } from "./value-change-display";
 
@@ -63,10 +63,10 @@ const EVENT_LABELS = {
 
 export function TimelineTab({ responseId }: TimelineTabProps) {
   const { workspace } = useWorkspace();
-  const trpc = useTRPC();
+  const orpc = useORPC();
 
   const { data: history, isLoading } = useQuery({
-    ...trpc.vacancy.responses.history.queryOptions({
+    ...orpc.vacancy.responses.history.queryOptions({
       responseId,
       workspaceId: workspace?.id ?? "",
     }),

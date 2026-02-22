@@ -59,7 +59,7 @@ import { useWorkspaceContext } from "~/contexts/workspace-context";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { useMediaQuery } from "~/hooks/use-media-query";
 import { getAvatarUrl } from "~/lib/avatar";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import type { CandidateStatus, GlobalCandidate } from "../../types/types";
 import {
   CANDIDATE_STATUS_COLORS,
@@ -101,14 +101,14 @@ function ProfileContent({
   onStatusChange: (candidateId: string, status: CandidateStatus) => void;
   onOpenChange: (open: boolean) => void;
 }) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const [notes, setNotes] = useState("");
   const [isEditingNotes, setIsEditingNotes] = useState(false);
 
   // Получаем детальную информацию о кандидате
   const { data: candidateDetail, isLoading } = useQuery({
-    ...trpc.globalCandidates.get.queryOptions({
+    ...orpc.globalCandidates.get.queryOptions({
       candidateId: candidate.id,
       organizationId: organizationId ?? "",
     }),
@@ -117,10 +117,10 @@ function ProfileContent({
 
   // Мутация для обновления статуса
   const statusMutation = useMutation(
-    trpc.globalCandidates.updateStatus.mutationOptions({
+    orpc.globalCandidates.updateStatus.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: trpc.globalCandidates.list.queryKey(),
+          queryKey: orpc.globalCandidates.list.queryKey(),
         });
       },
     }),

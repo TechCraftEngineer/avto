@@ -7,10 +7,10 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useWorkspaceParams } from "~/hooks/use-workspace-params";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 export default function GigChatPage() {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const { orgSlug, slug: workspaceSlug } = useWorkspaceParams();
   const params = useParams();
   const gigId = params.gigId as string | undefined;
@@ -18,7 +18,7 @@ export default function GigChatPage() {
   const workspaceId = workspace?.id;
 
   const gigQuery = useQuery({
-    ...trpc.gig.get.queryOptions({
+    ...orpc.gig.get.queryOptions({
       id: gigId ?? "",
       workspaceId: workspaceId ?? "",
     }),

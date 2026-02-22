@@ -12,7 +12,7 @@ import { z } from "zod";
 import { PageHeader } from "~/components/layout";
 import { env } from "~/env";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 import { GigForm, GigPreview, ProgressCard } from "./components";
 import { type FormValues, formSchema, type GigDraft } from "./components/types";
@@ -84,7 +84,7 @@ interface PageProps {
 export default function CreateGigPage({ params }: PageProps) {
   const router = useRouter();
   const { orgSlug, slug: workspaceSlug } = React.use(params);
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const { workspace, isLoading: isWorkspaceLoading } = useWorkspace();
 
@@ -141,10 +141,10 @@ export default function CreateGigPage({ params }: PageProps) {
   });
 
   const { mutate: createGig, isPending: isCreating } = useMutation(
-    trpc.gig.create.mutationOptions({
+    orpc.gig.create.mutationOptions({
       onSuccess: () => {
         toast.success("Задание создано");
-        queryClient.invalidateQueries({ queryKey: trpc.gig.list.queryKey() });
+        queryClient.invalidateQueries({ queryKey: orpc.gig.list.queryKey() });
         router.push(`/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs`);
       },
       onError: (e) => toast.error(e.message || "Не удалось создать задание"),
@@ -152,7 +152,7 @@ export default function CreateGigPage({ params }: PageProps) {
   );
 
   const { mutateAsync: generateWithAi } = useMutation(
-    trpc.gig.chatGenerate.mutationOptions(),
+    orpc.gig.chatGenerate.mutationOptions(),
   );
 
   const handleWizardComplete = async (wizardStateParam: WizardState) => {

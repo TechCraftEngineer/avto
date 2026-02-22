@@ -3,11 +3,11 @@
 import { Skeleton } from "@qbs-autonaim/ui/components/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { GeneralTab } from "~/components";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 export default function AccountSettingsPage() {
-  const trpc = useTRPC();
-  const { data: user, isLoading } = useQuery(trpc.user.me.queryOptions());
+  const orpc = useORPC();
+  const { data: user, isLoading } = useQuery(orpc.user.me.queryOptions());
 
   if (isLoading) {
     return <Skeleton className="h-[400px] w-full" />;

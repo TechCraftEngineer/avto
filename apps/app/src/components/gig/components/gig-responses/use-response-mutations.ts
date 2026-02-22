@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { toast } from "sonner";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import type { Response } from "./use-response-filters";
 
 interface UseResponseMutationsProps {
@@ -15,14 +15,14 @@ export const useResponseMutations = ({
   workspaceId,
   responses: _responses,
 }: UseResponseMutationsProps) => {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
 
   const acceptMutation = useMutation(
-    trpc.gig.responses.accept.mutationOptions({
+    orpc.gig.responses.accept.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: trpc.gig.responses.list.queryKey({
+          queryKey: orpc.gig.responses.list.queryKey({
             gigId,
             workspaceId: workspaceId ?? "",
           }),
@@ -36,10 +36,10 @@ export const useResponseMutations = ({
   );
 
   const rejectMutation = useMutation(
-    trpc.gig.responses.reject.mutationOptions({
+    orpc.gig.responses.reject.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: trpc.gig.responses.list.queryKey({
+          queryKey: orpc.gig.responses.list.queryKey({
             gigId,
             workspaceId: workspaceId ?? "",
           }),
@@ -53,7 +53,7 @@ export const useResponseMutations = ({
   );
 
   const sendMessageMutation = useMutation(
-    trpc.gig.responses.sendMessage.mutationOptions({
+    orpc.gig.responses.sendMessage.mutationOptions({
       onSuccess: () => {
         toast.success("Сообщение отправлено");
       },

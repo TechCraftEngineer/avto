@@ -36,7 +36,7 @@ import { CreateOrganizationDialog } from "~/components/organization/components";
 import { CreateWorkspaceDialog } from "~/components/workspace/components";
 import { useWorkspaces } from "~/contexts/workspace-context";
 import { getPluralForm } from "~/lib/pluralization";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 const PLAN_LABELS: Record<string, string> = {
   free: "Бесплатный",
@@ -72,11 +72,11 @@ export function WorkspaceSwitcher({
   } = useWorkspaces();
   const { isMobile } = useSidebar();
   const router = useRouter();
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
 
   const { mutate: setActiveWorkspace } = useMutation(
-    trpc.user.setActiveWorkspace.mutationOptions(),
+    orpc.user.setActiveWorkspace.mutationOptions(),
   );
 
   // Используем воркспейс из контекста (определяется по URL) или fallback
@@ -137,8 +137,8 @@ export function WorkspaceSwitcher({
     );
 
     // Инвалидируем кэш для обновления данных
-    queryClient.invalidateQueries(trpc.workspace.list.pathFilter());
-    queryClient.invalidateQueries(trpc.organization.list.pathFilter());
+    queryClient.invalidateQueries(orpc.workspace.list.pathFilter());
+    queryClient.invalidateQueries(orpc.organization.list.pathFilter());
   };
 
   const handleOrganizationChange = (
@@ -168,8 +168,8 @@ export function WorkspaceSwitcher({
     }
 
     // Инвалидируем кэш для обновления данных
-    queryClient.invalidateQueries(trpc.workspace.list.pathFilter());
-    queryClient.invalidateQueries(trpc.organization.list.pathFilter());
+    queryClient.invalidateQueries(orpc.workspace.list.pathFilter());
+    queryClient.invalidateQueries(orpc.organization.list.pathFilter());
   };
 
   return (

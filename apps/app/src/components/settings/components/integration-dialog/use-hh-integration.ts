@@ -7,7 +7,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useReducer } from "react";
 import { toast } from "sonner";
 import { triggerVerifyHHCredentials } from "~/actions/integration";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import {
   hhIntegrationReducer,
   initialHHIntegrationState,
@@ -19,7 +19,7 @@ interface UseHHIntegrationProps {
 }
 
 export function useHHIntegration({ workspaceId }: UseHHIntegrationProps) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const [state, dispatch] = useReducer(
     hhIntegrationReducer,
@@ -27,15 +27,15 @@ export function useHHIntegration({ workspaceId }: UseHHIntegrationProps) {
   );
 
   const saveHH2FACodeMutation = useMutation(
-    trpc.integration.saveHH2FACode.mutationOptions(),
+    orpc.integration.saveHH2FACode.mutationOptions(),
   );
 
   const saveHHCaptchaMutation = useMutation(
-    trpc.integration.saveHHCaptcha.mutationOptions(),
+    orpc.integration.saveHHCaptcha.mutationOptions(),
   );
 
   const requestHHResendCodeMutation = useMutation(
-    trpc.integration.requestHHResendCode.mutationOptions({
+    orpc.integration.requestHHResendCode.mutationOptions({
       onSuccess: () => {
         toast.success("Новый код отправлен. Проверьте почту или SMS.");
       },
@@ -117,7 +117,7 @@ export function useHHIntegration({ workspaceId }: UseHHIntegrationProps) {
         console.log("✅ Успешная авторизация HH");
         dispatch({ type: "SUCCESS" });
         queryClient.invalidateQueries({
-          queryKey: trpc.integration.list.queryKey({ workspaceId }),
+          queryKey: orpc.integration.list.queryKey({ workspaceId }),
         });
         toast.success("Интеграция с HeadHunter успешно настроена");
         return;
@@ -141,7 +141,7 @@ export function useHHIntegration({ workspaceId }: UseHHIntegrationProps) {
       // Неожиданный результат
       console.warn("⚠️ Неожиданный результат верификации HH:", result);
     },
-    [workspaceId, queryClient, trpc.integration.list],
+    [workspaceId, queryClient, orpc.integration.list],
   );
 
   const submitCaptcha = useCallback(

@@ -17,7 +17,7 @@ import {
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 import { env } from "~/env";
 import { sanitizeHtmlFunction } from "~/lib/sanitize-html";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface VacancyDetailPageProps {
   params: Promise<{ orgSlug: string; slug: string; id: string }>;
@@ -25,11 +25,11 @@ interface VacancyDetailPageProps {
 
 export default function VacancyDetailPage({ params }: VacancyDetailPageProps) {
   const { orgSlug, slug: workspaceSlug, id } = use(params);
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const { workspaceId } = useWorkspaceContext();
 
   const { data: vacancy, isLoading } = useQuery({
-    ...trpc.vacancy.get.queryOptions({
+    ...orpc.vacancy.get.queryOptions({
       id,
       workspaceId: workspaceId ?? "",
     }),
@@ -37,7 +37,7 @@ export default function VacancyDetailPage({ params }: VacancyDetailPageProps) {
   });
 
   const { data: analytics } = useQuery({
-    ...trpc.vacancy.analytics.queryOptions({
+    ...orpc.vacancy.analytics.queryOptions({
       vacancyId: id,
       workspaceId: workspaceId ?? "",
     }),

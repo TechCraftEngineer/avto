@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Users } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 import {
   CandidateCard,
   CandidateFilters,
@@ -37,7 +37,7 @@ const DEFAULT_SORT = {
 
 export function GlobalCandidatesView() {
   const { workspace } = useWorkspaceContext();
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
 
   const organizationId = workspace?.organizationId;
@@ -62,7 +62,7 @@ export function GlobalCandidatesView() {
 
   // Запрос списка кандидатов
   const { data: candidatesData, isLoading } = useQuery({
-    ...trpc.globalCandidates.list.queryOptions({
+    ...orpc.globalCandidates.list.queryOptions({
       organizationId: organizationId ?? "",
       search: debouncedSearch || undefined,
       status: filters.status.length > 0 ? filters.status : undefined,
@@ -79,10 +79,10 @@ export function GlobalCandidatesView() {
 
   // Мутация для обновления статуса
   const statusMutation = useMutation(
-    trpc.globalCandidates.updateStatus.mutationOptions({
+    orpc.globalCandidates.updateStatus.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: trpc.globalCandidates.list.queryKey(),
+          queryKey: orpc.globalCandidates.list.queryKey(),
         });
       },
     }),

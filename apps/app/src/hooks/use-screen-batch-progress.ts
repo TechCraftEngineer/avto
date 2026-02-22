@@ -4,7 +4,7 @@ import { useInngestSubscription } from "@bunworks/inngest-realtime/hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { fetchScreenBatchToken } from "~/actions/realtime";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface ResponseScored {
   responseId: string;
@@ -38,7 +38,7 @@ export function useScreenBatchProgress(
   batchId: string | undefined,
   vacancyId?: string,
 ) {
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const [scoredResponses, setScoredResponses] = useState<ResponseScored[]>([]);
   const [progress, setProgress] = useState<BatchProgress | null>(null);
@@ -83,10 +83,10 @@ export function useScreenBatchProgress(
       // Инвалидируем список откликов после завершения (только vacancyId при указании)
       if (vacancyId) {
         queryClient.invalidateQueries({
-          queryKey: trpc.vacancy.responses.list.queryKey({ vacancyId }),
+          queryKey: orpc.vacancy.responses.list.queryKey({ vacancyId }),
         });
       } else {
-        queryClient.invalidateQueries(trpc.vacancy.responses.list.pathFilter());
+        queryClient.invalidateQueries(orpc.vacancy.responses.list.pathFilter());
       }
     }
   }, [latestData]);

@@ -14,7 +14,7 @@ import { MessageSquare, Pause, Play, Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { getAvatarUrl } from "~/lib/avatar";
-import { useTRPC } from "~/trpc/react";
+import { useORPC } from "~/orpc/react";
 
 interface ChatSectionProps {
   candidateId: string;
@@ -28,14 +28,14 @@ export function ChatSection({ candidateId, workspaceId }: ChatSectionProps) {
   const [showTranscription, setShowTranscription] = useState<
     Record<string, boolean>
   >({});
-  const trpc = useTRPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const { data: messages = [] } = useQuery({
-    ...trpc.candidates.listMessages.queryOptions({
+    ...orpc.candidates.listMessages.queryOptions({
       candidateId,
       workspaceId,
     }),
@@ -44,10 +44,10 @@ export function ChatSection({ candidateId, workspaceId }: ChatSectionProps) {
   const sessionId = messages[0]?.interviewSessionId as string | undefined;
 
   const { mutate: sendMessage, isPending: isSending } = useMutation(
-    trpc.telegram.send.send.mutationOptions({
+    orpc.telegram.send.send.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: trpc.candidates.listMessages.queryKey(),
+          queryKey: orpc.candidates.listMessages.queryKey(),
         });
         setMessageText("");
         textareaRef.current?.focus();
