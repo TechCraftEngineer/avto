@@ -23,7 +23,18 @@ export const env = createEnv({
       .default("QBS Автонайм <onboarding@avtonaim.qbsoft.ru>"),
 
     // Auth
-    AUTH_SECRET: z.string().optional(),
+    // Better Auth рекомендует использовать BETTER_AUTH_SECRET и BETTER_AUTH_URL
+    // Если они установлены, библиотека использует их автоматически
+    // AUTH_SECRET оставлен для обратной совместимости
+    AUTH_SECRET: z
+      .string()
+      .min(32, "AUTH_SECRET должен быть минимум 32 символа")
+      .optional(),
+    BETTER_AUTH_SECRET: z
+      .string()
+      .min(32, "BETTER_AUTH_SECRET должен быть минимум 32 символа")
+      .optional(),
+    BETTER_AUTH_URL: z.url().optional(),
     AUTH_GOOGLE_ID: z.string().optional(),
     AUTH_GOOGLE_SECRET: z.string().optional(),
 
@@ -163,6 +174,8 @@ export const env = createEnv({
     EMAIL_SANDBOX_HOST: process.env.EMAIL_SANDBOX_HOST,
     EMAIL_FROM: process.env.EMAIL_FROM,
     AUTH_SECRET: process.env.AUTH_SECRET,
+    BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
+    BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,
     AUTH_GOOGLE_ID: process.env.AUTH_GOOGLE_ID,
     AUTH_GOOGLE_SECRET: process.env.AUTH_GOOGLE_SECRET,
     GOOGLE_CALENDAR_CLIENT_ID: process.env.GOOGLE_CALENDAR_CLIENT_ID,

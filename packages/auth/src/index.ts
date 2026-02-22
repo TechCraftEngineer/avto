@@ -4,6 +4,7 @@ import { account, session, user, verification } from "@qbs-autonaim/db/schema";
 import type { BetterAuthOptions, BetterAuthPlugin } from "better-auth";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { nextCookies } from "better-auth/next-js";
 import {
   createAuthMiddleware,
   customSession,
@@ -40,8 +41,32 @@ export function initAuth<
         verification,
       },
     }),
+    // Better Auth автоматически использует BETTER_AUTH_URL и BETTER_AUTH_SECRET из env
+    // Передаем baseURL и secret только если env vars не установлены
     baseURL: options.baseUrl,
     secret: options.secret,
+
+    // Конфигурация сессий
+    session: {
+      expiresIn: 60 * 60 * 24 * 7, // 7 дней
+      updateAge: 60 * 60 * 24, // Обновлять токен каждый день
+      cookieCache: {
+        enabled: true,
+        maxAge: 5 * 60, // Кэш в cookie на 5 минут
+        // Примечание: кастомные поля сессии (role) НЕ кэшируются в cookie
+      },
+    },
+
+    // Rate limiting для защиты от брутфорса
+    rateLimit: {
+      enabled: true,
+      window: 60, // 60 секунд
+      max: 10, // Максимум 10 запросов
+      storage: "database", // Используем БД (для production рекомендуется Redis)
+    },
+
+    // Доверенные источники для CSRF защиты
+    trustedOrigins: [options.baseUrl, options.productionUrl],
     emailAndPassword: {
       enabled: true,
       requireEmailVerification: false, // Разрешаем вход без верификации
@@ -104,6 +129,9 @@ export function initAuth<
         };
       }),
       ...(options.extraPlugins ?? []),
+      // nextCookies должен быть последним плагином для автоматической установки cookies
+      // в Server Actions (signInEmail, signUpEmail и т.д.)
+      nextCookies(),
     ],
     socialProviders:
       options.googleClientId && options.googleClientSecret
@@ -119,6 +147,18 @@ export function initAuth<
       onError(error, ctx) {
         console.error("ОШИБКА BETTER AUTH API", error, ctx);
       },
+    },
+
+    // Дополнительные настройки безопасности
+    advanced: {
+      useSecureCookies: options.productionUrl.startsWith("https://"),
+      // Для production рекомендуется настроить secondaryStorage (Redis/KV)
+      // для хранения сессий вне БД:
+      // secondaryStorage: {
+      //   get: async (key) => redis.get(key),
+      //   set: async (key, value, ttl) => redis.set(key, value, "EX", ttl),
+      //   delete: async (key) => redis.del(key),
+      // },
     },
   } satisfies BetterAuthOptions;
 

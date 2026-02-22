@@ -7,6 +7,9 @@ import { pathnameSchema } from "~/lib/pathname-schema";
 const ENABLE_CSP = process.env.ENABLE_CSP === "true";
 const CSP_REPORT_ONLY = process.env.CSP_REPORT_ONLY === "true";
 
+// Примечание: В Next.js 16 proxy может использовать Node.js runtime для полной валидации сессии
+// Однако для производительности мы используем только проверку cookie
+// Полная валидация сессии должна выполняться в каждом защищенном route/page
 export async function proxy(request: NextRequest) {
   const response = NextResponse.next();
 
@@ -46,6 +49,10 @@ export async function proxy(request: NextRequest) {
 
   const sessionCookie = getSessionCookie(request);
   const { pathname } = request.nextUrl;
+
+  // ВАЖНО: getSessionCookie только проверяет наличие cookie, НЕ валидирует его
+  // Это оптимистичная проверка для редиректа
+  // Полная валидация сессии ОБЯЗАТЕЛЬНА в каждом защищенном route/page
 
   // Публичные маршруты (не требуют аутентификации)
   // /auth/verify-email доступен всем (и авторизованным, и нет)

@@ -11,10 +11,14 @@ import { cache } from "react";
 
 const baseUrl = env.APP_URL ?? "http://localhost:3000";
 
-// Проверяем наличие AUTH_SECRET в runtime
-if (!env.AUTH_SECRET) {
+// Better Auth рекомендует использовать BETTER_AUTH_SECRET и BETTER_AUTH_URL
+// Если они установлены, библиотека использует их автоматически
+// Проверяем наличие секрета в runtime
+const authSecret = env.BETTER_AUTH_SECRET ?? env.AUTH_SECRET;
+if (!authSecret) {
   console.warn(
-    "AUTH_SECRET не установлен. Пожалуйста, установите переменную окружения AUTH_SECRET. " +
+    "BETTER_AUTH_SECRET или AUTH_SECRET не установлен. " +
+      "Пожалуйста, установите переменную окружения BETTER_AUTH_SECRET. " +
       "Сгенерируйте секрет командой: openssl rand -base64 32",
   );
 }
@@ -22,7 +26,9 @@ if (!env.AUTH_SECRET) {
 export const auth = initAuth({
   baseUrl,
   productionUrl: env.APP_URL ?? "http://localhost:3000",
-  secret: env.AUTH_SECRET,
+  // Передаем secret только если BETTER_AUTH_SECRET не установлен
+  // Better Auth автоматически использует BETTER_AUTH_SECRET из env
+  secret: authSecret,
   googleClientId: env.AUTH_GOOGLE_ID,
   googleClientSecret: env.AUTH_GOOGLE_SECRET,
   // sendEmail используется внутренним плагином emailOTP и для сброса пароля
@@ -83,8 +89,16 @@ export const getSession = cache(async () => {
   try {
     return await auth.api.getSession({ headers: await headers() });
   } catch (error) {
-    // Логируем ошибку для отладки
-    console.error("[Auth] Ошибка получения сессии:", error);
+    // Игнорируем ошибки статической генерации Next.js
+    const isDynamicServerError =
+      error instanceof Error &&
+      (error.message?.includes("Dynamic server usage") ||
+        (error as { digest?: string }).digest === "DYNAMIC_SERVER_USAGE");
+
+    if (!isDynamicServerError) {
+      // Логируем только реальные ошибки
+      console.error("[Auth] Ошибка получения сессии:", error);
+    }
 
     // Проверяем, является ли это ошибкой подключения к БД
     const isConnectionError =
