@@ -13,11 +13,11 @@ const getAnalyticsInputSchema = z.object({
 
 export const getAnalytics = protectedProcedure
   .input(getAnalyticsInputSchema)
-  .query(async ({ ctx, input }) => {
+  .handler(async ({ context, input }) => {
     await verifyWorkspaceAccess(
-      ctx.workspaceRepository,
+      context.workspaceRepository,
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     const dateFilter = [];
@@ -29,7 +29,7 @@ export const getAnalytics = protectedProcedure
     }
 
     // Общее количество отчетов
-    const [totalReports] = await ctx.db
+    const [totalReports] = await context.db
       .select({ count: count() })
       .from(metaMatchReport)
       .innerJoin(response, eq(metaMatchReport.candidateId, response.id))
@@ -37,7 +37,7 @@ export const getAnalytics = protectedProcedure
       .where(and(eq(vacancy.workspaceId, input.workspaceId), ...dateFilter));
 
     // Количество отчетов с данными компании
-    const [reportsWithCompany] = await ctx.db
+    const [reportsWithCompany] = await context.db
       .select({ count: count() })
       .from(metaMatchReport)
       .innerJoin(response, eq(metaMatchReport.candidateId, response.id))
@@ -51,7 +51,7 @@ export const getAnalytics = protectedProcedure
       );
 
     // Количество отчетов с данными руководителя
-    const [reportsWithManager] = await ctx.db
+    const [reportsWithManager] = await context.db
       .select({ count: count() })
       .from(metaMatchReport)
       .innerJoin(response, eq(metaMatchReport.candidateId, response.id))
@@ -65,7 +65,7 @@ export const getAnalytics = protectedProcedure
       );
 
     // Количество отчетов с данными команды
-    const [reportsWithTeam] = await ctx.db
+    const [reportsWithTeam] = await context.db
       .select({ count: count() })
       .from(metaMatchReport)
       .innerJoin(response, eq(metaMatchReport.candidateId, response.id))
@@ -79,7 +79,7 @@ export const getAnalytics = protectedProcedure
       );
 
     // Средние значения метрик
-    const [avgMetrics] = await ctx.db
+    const [avgMetrics] = await context.db
       .select({
         avgSynergy: sql<number>`avg((${metaMatchReport.summaryMetrics}->>'synergy')::int)`,
         avgTemporalResonance: sql<number>`avg((${metaMatchReport.summaryMetrics}->>'temporalResonance')::int)`,

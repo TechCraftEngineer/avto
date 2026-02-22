@@ -20,11 +20,11 @@ export const get = protectedProcedure
       id: z.string().uuid("Некорректный ID платежа"),
     }),
   )
-  .query(async ({ input, ctx }) => {
-    const userId = ctx.session.user.id;
+  .handler(async ({ input, context }) => {
+    const userId = context.session.user.id;
 
     // 1. Находим платеж в БД по ID
-    const [existingPayment] = await ctx.db
+    const [existingPayment] = await context.db
       .select()
       .from(payment)
       .where(eq(payment.id, input.id))
@@ -32,18 +32,12 @@ export const get = protectedProcedure
 
     // 2. Проверяем существование платежа
     if (!existingPayment) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Платеж не найден",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Платеж не найден", });
     }
 
     // 3. Проверяем доступ пользователя к платежу (через userId)
     if (existingPayment.userId !== userId) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому платежу",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому платежу", });
     }
 
     // 4. Возвращаем данные платежа

@@ -16,20 +16,17 @@ export const processChat = protectedProcedure
       responseId: z.string().uuid(),
     }),
   )
-  .mutation(async ({ input, ctx }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ input, context }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
     }
 
-    const response = await ctx.db.query.response.findFirst({
+    const response = await context.db.query.response.findFirst({
       where: and(
         eq(responseTable.id, input.responseId),
         eq(responseTable.entityType, "gig"),
@@ -37,13 +34,10 @@ export const processChat = protectedProcedure
     });
 
     if (!response) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Отклик не найден",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Отклик не найден", });
     }
 
-    const gigRecord = await ctx.db.query.gig.findFirst({
+    const gigRecord = await context.db.query.gig.findFirst({
       where: and(
         eq(gig.id, response.entityId),
         eq(gig.workspaceId, input.workspaceId),
@@ -51,17 +45,11 @@ export const processChat = protectedProcedure
     });
 
     if (!gigRecord) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому отклику",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому отклику", });
     }
 
     if (response.importSource !== "KWORK") {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
-        message: "Отклик не с Kwork",
-      });
+      throw new ORPCError("BAD_REQUEST", { message: "Отклик не с Kwork", });
     }
 
     const profileData = response.profileData as
@@ -69,10 +57,7 @@ export const processChat = protectedProcedure
       | null
       | undefined;
     if (!profileData?.kworkWorkerId) {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
-        message: "У отклика нет Kwork worker ID",
-      });
+      throw new ORPCError("BAD_REQUEST", { message: "У отклика нет Kwork worker ID", });
     }
 
     await inngest.send({

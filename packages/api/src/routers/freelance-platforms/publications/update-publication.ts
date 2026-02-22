@@ -46,22 +46,19 @@ const updatePublicationInputSchema = z.object({
 
 export const updatePublication = protectedProcedure
   .input(updatePublicationInputSchema)
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверка доступа к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
     }
 
     // Проверяем существование публикации и получаем связанную вакансию
-    const publication = await ctx.db.query.vacancyPublication.findFirst({
+    const publication = await context.db.query.vacancyPublication.findFirst({
       where: (table, { eq: eqFn }) => eqFn(table.id, input.publicationId),
       with: {
         vacancy: {
@@ -73,25 +70,19 @@ export const updatePublication = protectedProcedure
     });
 
     if (!publication) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Публикация не найдена",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Публикация не найдена", });
     }
 
     // Проверяем, что публикация принадлежит к workspace
     if (publication.vacancy.workspaceId !== input.workspaceId) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этой публикации",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этой публикации", });
     }
 
     // Парсим идентификатор
     const parsed = parseIdentifier(input.identifier || "");
 
     // Обновляем публикацию
-    const [updatedPublication] = await ctx.db
+    const [updatedPublication] = await context.db
       .update(vacancyPublication)
       .set({
         externalId: parsed.externalId,
@@ -102,10 +93,7 @@ export const updatePublication = protectedProcedure
       .returning();
 
     if (!updatedPublication) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Не удалось обновить публикацию",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Не удалось обновить публикацию", });
     }
 
     return {

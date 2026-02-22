@@ -106,17 +106,17 @@ export const sendMessage = protectedProcedure
         },
       ),
   )
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const {
       sessionId,
       entityType: inputEntityType,
       entityId: inputEntityId,
       message,
     } = input;
-    const userId = ctx.session.user.id;
+    const userId = context.session.user.id;
 
     const existingSession = sessionId
-      ? await ctx.db.query.chatSession.findFirst({
+      ? await context.db.query.chatSession.findFirst({
           where: (chatSession, { and, eq }) =>
             and(eq(chatSession.id, sessionId), eq(chatSession.userId, userId)),
         })
@@ -126,10 +126,7 @@ export const sendMessage = protectedProcedure
     const entityId = existingSession?.entityId ?? inputEntityId;
 
     if (!entityType || !entityId) {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
-        message: "entityType/entityId обязательны",
-      });
+      throw new ORPCError("BAD_REQUEST", { message: "entityType/entityId обязательны", });
     }
 
     // Проверка rate limit
@@ -152,18 +149,12 @@ export const sendMessage = protectedProcedure
     // Загрузка контекста
     const loader = chatRegistry.getLoader(entityType);
     if (!loader) {
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Не удалось загрузить контекст",
-      });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось загрузить контекст", });
     }
 
-    const context = await loader.loadContext(ctx.db, entityId);
+    const context = await loader.loadContext(context.db, entityId);
     if (!context) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Сущность не найдена",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Сущность не найдена", });
     }
 
     // TODO: Проверка доступа к сущности (зависит от типа)
@@ -175,15 +166,12 @@ export const sendMessage = protectedProcedure
     let session = existingSession;
 
     if (!session && sessionId) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Сессия чата не найдена",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Сессия чата не найдена", });
     }
 
     if (!session) {
       // Use upsert to handle race conditions - either find existing or create new
-      const [upsertedSession] = await ctx.db
+      const [upsertedSession] = await context.db
         .insert(chatSession)
         .values({
           entityType,
@@ -205,17 +193,14 @@ export const sendMessage = protectedProcedure
         .returning();
 
       if (!upsertedSession) {
-        throw new ORPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Не удалось создать сессию чата",
-        });
+        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось создать сессию чата", });
       }
 
       session = upsertedSession;
     }
 
     // Загрузка истории диалога
-    const historyMessages = await ctx.db.query.chatMessage.findMany({
+    const historyMessages = await context.db.query.chatMessage.findMany({
       where: (chatMessage, { eq }) => eq(chatMessage.sessionId, session.id),
       orderBy: (chatMessage, { desc }) => [desc(chatMessage.createdAt)],
       limit: 10,
@@ -231,10 +216,7 @@ export const sendMessage = protectedProcedure
     // Построение промпта
     const promptConfig = chatRegistry.getPromptConfig(entityType);
     if (!promptConfig) {
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Не удалось загрузить конфигурацию промпта",
-      });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось загрузить конфигурацию промпта", });
     }
 
     const prompt = buildChatPrompt(
@@ -309,14 +291,14 @@ export const sendMessage = protectedProcedure
         entitiesMentioned: aiResponse.entitiesMentioned,
       };
 
-      await ctx.db.insert(chatMessage).values({
+      await context.db.insert(chatMessage).values({
         sessionId: session.id,
         userId,
         role: "user",
         content: message,
       });
 
-      await ctx.db.insert(chatMessage).values({
+      await context.db.insert(chatMessage).values({
         sessionId: session.id,
         userId: "system",
         role: "assistant",
@@ -325,7 +307,7 @@ export const sendMessage = protectedProcedure
         metadata,
       });
 
-      await ctx.db
+      await context.db
         .update(chatSession)
         .set({
           messageCount: session.messageCount + 2,
@@ -341,9 +323,6 @@ export const sendMessage = protectedProcedure
     } catch (error) {
       console.error(`[${entityType}-ai-chat] Error:`, error);
       if (error instanceof ORPCError) throw error;
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Не удалось получить ответ от AI. Попробуйте ещё раз.",
-      });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось получить ответ от AI. Попробуйте ещё раз.", });
     }
   });

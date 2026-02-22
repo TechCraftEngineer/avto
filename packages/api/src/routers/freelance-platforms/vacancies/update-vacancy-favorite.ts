@@ -13,30 +13,30 @@ const updateVacancyFavoriteInputSchema = z.object({
 
 export const updateVacancyFavorite = protectedProcedure
   .input(updateVacancyFavoriteInputSchema)
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const errorHandler = createErrorHandler(
-      ctx.auditLogger,
-      ctx.session.user.id,
-      ctx.ipAddress,
-      ctx.userAgent,
+      context.auditLogger,
+      context.session.user.id,
+      context.ipAddress,
+      context.userAgent,
     );
 
     try {
       // Проверка доступа к workspace
-      const access = await ctx.workspaceRepository.checkAccess(
+      const access = await context.workspaceRepository.checkAccess(
         input.workspaceId,
-        ctx.session.user.id,
+        context.session.user.id,
       );
 
       if (!access) {
         throw await errorHandler.handleAuthorizationError("workspace", {
           workspaceId: input.workspaceId,
-          userId: ctx.session.user.id,
+          userId: context.session.user.id,
         });
       }
 
       // Обновление статуса избранного
-      const updatedVacancy = await ctx.db
+      const updatedVacancy = await context.db
         .update(vacancy)
         .set({ isFavorite: input.isFavorite })
         .where(eq(vacancy.id, input.vacancyId))

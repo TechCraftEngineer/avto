@@ -11,10 +11,10 @@ export const rejectCandidate = protectedProcedure
       workspaceId: z.string(),
     }),
   )
-  .mutation(async ({ ctx, input }) => {
+  .handler(async ({ context, input }) => {
     const { candidateId, workspaceId } = input;
 
-    const candidate = await ctx.db.query.response.findFirst({
+    const candidate = await context.db.query.response.findFirst({
       where: and(
         eq(responseTable.id, candidateId),
         eq(responseTable.entityType, "vacancy"),
@@ -22,14 +22,11 @@ export const rejectCandidate = protectedProcedure
     });
 
     if (!candidate) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Кандидат не найден",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден", });
     }
 
     // Query vacancy separately to check workspace access
-    const vacancy = await ctx.db.query.vacancy.findFirst({
+    const vacancy = await context.db.query.vacancy.findFirst({
       where: (v, { eq }) => eq(v.id, candidate.entityId),
       columns: {
         workspaceId: true,
@@ -37,13 +34,10 @@ export const rejectCandidate = protectedProcedure
     });
 
     if (!vacancy || vacancy.workspaceId !== workspaceId) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому кандидату",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому кандидату", });
     }
 
-    await ctx.db
+    await context.db
       .update(responseTable)
       .set({
         hrSelectionStatus: "REJECTED",

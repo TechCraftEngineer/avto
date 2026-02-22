@@ -12,22 +12,19 @@ export const updateTags = protectedProcedure
       tags: z.array(z.string()),
     }),
   )
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверяем доступ к организации
-    const hasAccess = await ctx.organizationRepository.checkAccess(
+    const hasAccess = await context.organizationRepository.checkAccess(
       input.organizationId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!hasAccess) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к организации",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к организации", });
     }
 
     // Находим связь кандидата с организацией
-    const existingLink = await ctx.db.query.candidateOrganization.findFirst({
+    const existingLink = await context.db.query.candidateOrganization.findFirst({
       where: and(
         eq(candidateOrganization.candidateId, input.candidateId),
         eq(candidateOrganization.organizationId, input.organizationId),
@@ -35,24 +32,18 @@ export const updateTags = protectedProcedure
     });
 
     if (!existingLink) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Кандидат не найден в базе организации",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден в базе организации", });
     }
 
     // Обновляем теги
-    const [updated] = await ctx.db
+    const [updated] = await context.db
       .update(candidateOrganization)
       .set({ tags: input.tags })
       .where(eq(candidateOrganization.id, existingLink.id))
       .returning();
 
     if (!updated) {
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Не удалось обновить теги кандидата",
-      });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось обновить теги кандидата", });
     }
 
     return {

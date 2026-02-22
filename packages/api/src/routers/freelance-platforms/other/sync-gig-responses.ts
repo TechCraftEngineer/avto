@@ -11,39 +11,30 @@ const syncGigResponsesInputSchema = z.object({
 
 export const syncGigResponses = protectedProcedure
   .input(syncGigResponsesInputSchema)
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверяем доступ к workspace
-    const hasAccess = await ctx.workspaceRepository.checkAccess(
+    const hasAccess = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!hasAccess) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
     }
 
     // Получаем gig
-    const gigRecord = await ctx.db.query.gig.findFirst({
+    const gigRecord = await context.db.query.gig.findFirst({
       where: (gig, { eq, and }) =>
         and(eq(gig.id, input.gigId), eq(gig.workspaceId, input.workspaceId)),
     });
 
     if (!gigRecord) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Задание не найдено",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено", });
     }
 
     // Проверяем, что у gig есть ссылка на фриланс-платформу
     if (!gigRecord.url || !gigRecord.externalId) {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
-        message: "У задания нет ссылки на фриланс-платформу",
-      });
+      throw new ORPCError("BAD_REQUEST", { message: "У задания нет ссылки на фриланс-платформу", });
     }
 
     await inngest.send({

@@ -14,28 +14,22 @@ export const updatePartial = protectedProcedure
       data: companyPartialSchema,
     }),
   )
-  .mutation(async ({ ctx, input }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ context, input }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Недостаточно прав для изменения настроек компании",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Недостаточно прав для изменения настроек компании", });
     }
 
-    const existing = await ctx.db.query.botSettings.findFirst({
+    const existing = await context.db.query.botSettings.findFirst({
       where: eq(botSettings.workspaceId, input.workspaceId),
     });
 
     if (!existing) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Настройки компании не найдены",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Настройки компании не найдены", });
     }
 
     const updateData: Record<string, unknown> = { updatedAt: new Date() };
@@ -46,7 +40,7 @@ export const updatePartial = protectedProcedure
     if (input.data.description !== undefined)
       updateData.companyDescription = input.data.description || null;
 
-    const [updated] = await ctx.db
+    const [updated] = await context.db
       .update(botSettings)
       .set(updateData)
       .where(eq(botSettings.id, existing.id))

@@ -17,30 +17,30 @@ const getShortlistInputSchema = z.object({
 
 export const getShortlist = protectedProcedure
   .input(getShortlistInputSchema)
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const errorHandler = createErrorHandler(
-      ctx.auditLogger,
-      ctx.session.user.id,
-      ctx.ipAddress,
-      ctx.userAgent,
+      context.auditLogger,
+      context.session.user.id,
+      context.ipAddress,
+      context.userAgent,
     );
 
     try {
       // Проверяем доступ к workspace
-      const hasAccess = await ctx.workspaceRepository.checkAccess(
+      const hasAccess = await context.workspaceRepository.checkAccess(
         input.workspaceId,
-        ctx.session.user.id,
+        context.session.user.id,
       );
 
       if (!hasAccess) {
         throw await errorHandler.handleAuthorizationError("workspace", {
           workspaceId: input.workspaceId,
-          userId: ctx.session.user.id,
+          userId: context.session.user.id,
         });
       }
 
       // Проверяем существование вакансии и принадлежность к workspace
-      const vacancy = await ctx.db.query.vacancy.findFirst({
+      const vacancy = await context.db.query.vacancy.findFirst({
         where: (vacancy, { eq, and }) =>
           and(
             eq(vacancy.id, input.vacancyId),
@@ -65,11 +65,11 @@ export const getShortlist = protectedProcedure
 
       // Логируем доступ к персональным данным фрилансеров
       for (const candidate of shortlist.candidates) {
-        await ctx.auditLogger.logResponseView({
-          userId: ctx.session.user.id,
+        await context.auditLogger.logResponseView({
+          userId: context.session.user.id,
           responseId: candidate.responseId,
-          ipAddress: ctx.ipAddress,
-          userAgent: ctx.userAgent,
+          ipAddress: context.ipAddress,
+          userAgent: context.userAgent,
         });
       }
 

@@ -14,22 +14,19 @@ export const sendUserMessageByPhoneRouter = protectedProcedure
       firstName: z.string().optional(),
     }),
   )
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     try {
       const session = input.sessionId
-        ? await ctx.db.query.telegramSession.findFirst({
+        ? await context.db.query.telegramSession.findFirst({
             where: eq(telegramSession.id, input.sessionId),
           })
-        : await ctx.db.query.telegramSession.findFirst({
+        : await context.db.query.telegramSession.findFirst({
             where: eq(telegramSession.workspaceId, input.workspaceId),
             orderBy: (sessions, { desc }) => [desc(sessions.lastUsedAt)],
           });
 
       if (!session) {
-        throw new ORPCError({
-          code: "NOT_FOUND",
-          message: "Telegram сессия не найдена. Пожалуйста, авторизуйтесь.",
-        });
+        throw new ORPCError("NOT_FOUND", { message: "Telegram сессия не найдена. Пожалуйста, авторизуйтесь.", });
       }
 
       const result = await tgClientSDK.sendMessageByPhone({
@@ -39,7 +36,7 @@ export const sendUserMessageByPhoneRouter = protectedProcedure
         firstName: input.firstName,
       });
 
-      await ctx.db
+      await context.db
         .update(telegramSession)
         .set({ lastUsedAt: new Date() })
         .where(eq(telegramSession.id, session.id));
@@ -48,12 +45,8 @@ export const sendUserMessageByPhoneRouter = protectedProcedure
     } catch (error) {
       console.error("❌ Ошибка отправки сообщения по телефону:", error);
       if (error instanceof ORPCError) throw error;
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message:
-          error instanceof Error
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: error instanceof Error
             ? error.message
-            : "Не удалось отправить сообщение",
-      });
+            : "Не удалось отправить сообщение", });
     }
   });

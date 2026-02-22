@@ -12,22 +12,19 @@ export const updateOnboarding = protectedProcedure
       dismissedGettingStarted: z.boolean().optional(),
     }),
   )
-  .mutation(async ({ ctx, input }) => {
-    // Проверка доступа к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ context, input }) => {
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ workspace
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Недостаточно прав для изменения настроек онбординга",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", });
     }
 
-    // Проверяем существующие настройки
-    const existing = await ctx.db.query.botSettings.findFirst({
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    const existing = await context.db.query.botSettings.findFirst({
       where: eq(botSettings.workspaceId, input.workspaceId),
     });
 
@@ -50,8 +47,8 @@ export const updateOnboarding = protectedProcedure
     }
 
     if (existing) {
-      // Обновляем существующие
-      const [updated] = await ctx.db
+      // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+      const [updated] = await context.db
         .update(botSettings)
         .set(updateData)
         .where(eq(botSettings.id, existing.id))
@@ -60,12 +57,12 @@ export const updateOnboarding = protectedProcedure
       return updated;
     }
 
-    // Создаем новые с базовыми значениями
-    const [created] = await ctx.db
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    const [created] = await context.db
       .insert(botSettings)
       .values({
         workspaceId: input.workspaceId,
-        companyName: "Моя компания", // Значение по умолчанию
+        companyName: "пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         ...updateData,
       })
       .returning();

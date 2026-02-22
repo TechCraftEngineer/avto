@@ -11,28 +11,25 @@ export const update = protectedProcedure
       data: companyFormSchema,
     }),
   )
-  .mutation(async ({ ctx, input }) => {
+  .handler(async ({ context, input }) => {
     // Проверка доступа к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Недостаточно прав для изменения настроек компании",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Недостаточно прав для изменения настроек компании", });
     }
 
     // Проверяем существующие настройки
-    const existing = await ctx.db.query.botSettings.findFirst({
+    const existing = await context.db.query.botSettings.findFirst({
       where: eq(botSettings.workspaceId, input.workspaceId),
     });
 
     if (existing) {
       // Обновляем существующие
-      const [updated] = await ctx.db
+      const [updated] = await context.db
         .update(botSettings)
         .set({
           companyName: input.data.name,
@@ -47,7 +44,7 @@ export const update = protectedProcedure
     }
 
     // Создаем новые (с дефолтными значениями для бота)
-    const [created] = await ctx.db
+    const [created] = await context.db
       .insert(botSettings)
       .values({
         workspaceId: input.workspaceId,

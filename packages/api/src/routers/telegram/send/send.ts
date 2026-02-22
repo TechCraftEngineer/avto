@@ -18,12 +18,12 @@ const sendMessageInputSchema = z.object({
 
 export const sendMessageRouter = protectedProcedure
   .input(sendMessageInputSchema)
-  .mutation(async ({ input, ctx }) => {
-    const [message] = await ctx.db
+  .handler(async ({ input, context }) => {
+    const [message] = await context.db
       .insert(interviewMessage)
       .values({
         sessionId: input.sessionId,
-        role: "assistant", // Админ отправляет как assistant
+        role: "assistant", // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ assistant
         type: input.type,
         channel: "web",
         content: input.content,
@@ -36,8 +36,8 @@ export const sendMessageRouter = protectedProcedure
       throw new Error("Failed to create message");
     }
 
-    // Получаем данные сессии для отправки в Telegram
-    const sessionData = await ctx.db
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ Telegram
+    const sessionData = await context.db
       .select({
         id: interviewSession.id,
         chatId: responseTable.chatId,

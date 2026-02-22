@@ -19,18 +19,14 @@ export const signInRouter = protectedProcedure
       sessionData: z.string().optional(),
     }),
   )
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     try {
-      const existingSession = await ctx.db.query.telegramSession.findFirst({
+      const existingSession = await context.db.query.telegramSession.findFirst({
         where: eq(telegramSession.workspaceId, input.workspaceId),
       });
 
       if (existingSession) {
-        throw new ORPCError({
-          code: "CONFLICT",
-          message:
-            "В этом workspace уже подключен Telegram аккаунт. Удалите существующий аккаунт перед добавлением нового.",
-        });
+        throw new ORPCError("CONFLICT", { message: "В этом workspace уже подключен Telegram аккаунт. Удалите существующий аккаунт перед добавлением нового.", });
       }
 
       const phone = normalizePhone(input.phone);
@@ -56,7 +52,7 @@ export const signInRouter = protectedProcedure
         encryptionKey,
       );
 
-      const [session] = await ctx.db
+      const [session] = await context.db
         .insert(telegramSession)
         .values({
           workspaceId: input.workspaceId,
@@ -91,9 +87,6 @@ export const signInRouter = protectedProcedure
         };
       }
 
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: error instanceof Error ? error.message : "Ошибка авторизации",
-      });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: error instanceof Error ? error.message : "Ошибка авторизации", });
     }
   });

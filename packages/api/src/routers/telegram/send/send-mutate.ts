@@ -15,8 +15,8 @@ export const sendMutateRouter = protectedProcedure
       text: z.string().min(1),
     }),
   )
-  .mutation(async ({ input, ctx }) => {
-    const [message] = await ctx.db
+  .handler(async ({ input, context }) => {
+    const [message] = await context.db
       .insert(interviewMessage)
       .values({
         sessionId: input.sessionId,
@@ -31,7 +31,7 @@ export const sendMutateRouter = protectedProcedure
       throw new Error("Failed to create message");
     }
 
-    const sessionData = await ctx.db
+    const sessionData = await context.db
       .select({
         id: interviewSession.id,
         chatId: responseTable.chatId,

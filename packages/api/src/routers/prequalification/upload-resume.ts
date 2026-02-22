@@ -30,8 +30,8 @@ const uploadResumeInputSchema = z.object({
 
 export const uploadResume = publicProcedure
   .input(uploadResumeInputSchema)
-  .mutation(async ({ ctx, input }) => {
-    const sessionManager = new SessionManager(ctx.db);
+  .handler(async ({ context, input }) => {
+    const sessionManager = new SessionManager(context.db);
 
     // Verify session exists and belongs to workspace
     const session = await sessionManager.getSession(
@@ -40,10 +40,7 @@ export const uploadResume = publicProcedure
     );
 
     if (!session) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Сессия не найдена",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Сессия не найдена", });
     }
 
     if (session.status !== "resume_pending") {
@@ -62,10 +59,7 @@ export const uploadResume = publicProcedure
     // Validate file format
     const validation = resumeParser.validateFormat(input.filename);
     if (!validation.isValid) {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
-        message: validation.error ?? "Неподдерживаемый формат файла",
-      });
+      throw new ORPCError("BAD_REQUEST", { message: validation.error ?? "Неподдерживаемый формат файла", });
     }
 
     try {
@@ -96,11 +90,8 @@ export const uploadResume = publicProcedure
       };
     } catch (error) {
       if (error instanceof ResumeParserError) {
-        throw new ORPCError({
-          code: "BAD_REQUEST",
-          message: error.userMessage,
-          cause: error,
-        });
+        throw new ORPCError("BAD_REQUEST", { message: error.userMessage,
+          cause: error, });
       }
 
       if (error instanceof PrequalificationError) {
@@ -120,10 +111,7 @@ export const uploadResume = publicProcedure
         });
       }
 
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Внутренняя ошибка сервера",
-        cause: error,
-      });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Внутренняя ошибка сервера",
+        cause: error, });
     }
   });

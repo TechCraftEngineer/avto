@@ -18,7 +18,7 @@ export const createIntegration = protectedProcedure
       isActive: z.boolean().optional(),
     }),
   )
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // HH и Kwork создаются только через verify flow
     if (
       CREATE_VIA_VERIFY_ONLY.includes(
@@ -32,19 +32,16 @@ export const createIntegration = protectedProcedure
     }
 
     // Проверка доступа к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Недостаточно прав для создания интеграций",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Недостаточно прав для создания интеграций", });
     }
 
-    const integration = await upsertIntegration(ctx.db, {
+    const integration = await upsertIntegration(context.db, {
       workspaceId: input.workspaceId,
       type: input.type,
       name: input.name,

@@ -43,16 +43,13 @@ export const LIST_SELECT = {
 
 export const list = protectedProcedure
   .input(listInputSchema)
-  .query(async ({ input, ctx }) => {
-    const hasAccess = await ctx.organizationRepository.checkAccess(
+  .handler(async ({ input, context }) => {
+    const hasAccess = await context.organizationRepository.checkAccess(
       input.organizationId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
     if (!hasAccess) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к организации",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к организации", });
     }
 
     const conditions = buildFilterConditions(input, {
@@ -60,7 +57,7 @@ export const list = protectedProcedure
     });
     const orderBy = buildOrderBy(input);
 
-    const candidateLinks = await ctx.db
+    const candidateLinks = await context.db
       .select(LIST_SELECT)
       .from(candidateOrganization)
       .innerJoin(
@@ -78,7 +75,7 @@ export const list = protectedProcedure
     const links = candidateLinks.slice(0, input.limit);
 
     const totalConditions = buildFilterConditions(input);
-    const totalResult = await ctx.db
+    const totalResult = await context.db
       .select({ count: sql<number>`count(*)::int` })
       .from(candidateOrganization)
       .innerJoin(
@@ -93,7 +90,7 @@ export const list = protectedProcedure
     }
 
     const candidateIds = links.map((l) => l.candidateId);
-    const responses = await ctx.db.query.response.findMany({
+    const responses = await context.db.query.response.findMany({
       where: and(
         inArray(responseTable.globalCandidateId, candidateIds),
         eq(responseTable.entityType, "vacancy"),

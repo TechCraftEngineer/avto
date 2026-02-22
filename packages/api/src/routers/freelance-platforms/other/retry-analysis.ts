@@ -18,17 +18,17 @@ const retryAnalysisInputSchema = z.object({
  */
 export const retryAnalysis = protectedProcedure
   .input(retryAnalysisInputSchema)
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const errorHandler = createErrorHandler(
-      ctx.auditLogger,
-      ctx.session.user.id,
-      ctx.ipAddress,
-      ctx.userAgent,
+      context.auditLogger,
+      context.session.user.id,
+      context.ipAddress,
+      context.userAgent,
     );
 
     try {
       // Проверка существования отклика
-      const response = await ctx.db.query.response.findFirst({
+      const response = await context.db.query.response.findFirst({
         where: and(
           eq(responseTable.id, input.responseId),
           eq(responseTable.entityType, "vacancy"),
@@ -42,7 +42,7 @@ export const retryAnalysis = protectedProcedure
       }
 
       // Query vacancy separately to check workspace access
-      const vacancy = await ctx.db.query.vacancy.findFirst({
+      const vacancy = await context.db.query.vacancy.findFirst({
         where: eq(vacancyTable.id, response.entityId),
         columns: { workspaceId: true },
       });
@@ -54,16 +54,16 @@ export const retryAnalysis = protectedProcedure
       }
 
       // Проверка доступа к workspace вакансии
-      const hasAccess = await ctx.workspaceRepository.checkAccess(
+      const hasAccess = await context.workspaceRepository.checkAccess(
         vacancy.workspaceId,
-        ctx.session.user.id,
+        context.session.user.id,
       );
 
       if (!hasAccess) {
         throw await errorHandler.handleAuthorizationError("отклика", {
           responseId: input.responseId,
           workspaceId: vacancy.workspaceId,
-          userId: ctx.session.user.id,
+          userId: context.session.user.id,
         });
       }
 
@@ -76,8 +76,8 @@ export const retryAnalysis = protectedProcedure
       });
 
       // Логируем действие
-      await ctx.auditLogger.logAccess({
-        userId: ctx.session.user.id,
+      await context.auditLogger.logAccess({
+        userId: context.session.user.id,
         action: "UPDATE",
         resourceType: "VACANCY_RESPONSE",
         resourceId: input.responseId,
@@ -86,8 +86,8 @@ export const retryAnalysis = protectedProcedure
           vacancyId: response.entityId,
           candidateName: response.candidateName,
         },
-        ipAddress: ctx.ipAddress,
-        userAgent: ctx.userAgent,
+        ipAddress: context.ipAddress,
+        userAgent: context.userAgent,
       });
 
       return {

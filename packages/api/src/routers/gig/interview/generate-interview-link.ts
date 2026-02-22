@@ -13,20 +13,17 @@ export const generateInterviewLink = protectedProcedure
       workspaceId: workspaceIdSchema,
     }),
   )
-  .mutation(async ({ input, ctx }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ input, context }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
     }
 
-    const foundGig = await ctx.db.query.gig.findFirst({
+    const foundGig = await context.db.query.gig.findFirst({
       where: and(
         eq(gig.id, input.gigId),
         eq(gig.workspaceId, input.workspaceId),
@@ -34,10 +31,7 @@ export const generateInterviewLink = protectedProcedure
     });
 
     if (!foundGig) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Гиг не найден",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Гиг не найден", });
     }
 
     const linkGenerator = new GigInterviewLinkGenerator();

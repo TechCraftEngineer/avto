@@ -15,8 +15,8 @@ const getConfigInputSchema = z.object({
 
 export const getConfig = publicProcedure
   .input(getConfigInputSchema)
-  .query(async ({ ctx, input }) => {
-    const widgetConfigService = new WidgetConfigService(ctx.db);
+  .handler(async ({ context, input }) => {
+    const widgetConfigService = new WidgetConfigService(context.db);
 
     const config = await widgetConfigService.getConfig(input.workspaceId);
 

@@ -14,21 +14,18 @@ export const list = protectedProcedure
       cursor: z.string().uuid().optional(),
     }),
   )
-  .query(async ({ ctx, input }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ context, input }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
     }
 
     // Проверяем что gig принадлежит workspace
-    const existingGig = await ctx.db.query.gig.findFirst({
+    const existingGig = await context.db.query.gig.findFirst({
       where: and(
         eq(gig.id, input.gigId),
         eq(gig.workspaceId, input.workspaceId),
@@ -36,10 +33,7 @@ export const list = protectedProcedure
     });
 
     if (!existingGig) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Задание не найдено",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено", });
     }
 
     // Build where clause for pagination
@@ -55,7 +49,7 @@ export const list = protectedProcedure
         );
 
     // Get responses with pagination
-    const responses = await ctx.db.query.response.findMany({
+    const responses = await context.db.query.response.findMany({
       where: whereClause,
       with: {
         screening: true,
@@ -74,7 +68,7 @@ export const list = protectedProcedure
     }
 
     // Get total count
-    const countResult = await ctx.db
+    const countResult = await context.db
       .select({
         count: sql<number>`count(*)`,
       })

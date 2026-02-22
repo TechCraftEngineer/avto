@@ -33,21 +33,18 @@ const createResponseSchema = z.object({
 
 export const create = protectedProcedure
   .input(createResponseSchema)
-  .mutation(async ({ ctx, input }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ context, input }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
     }
 
     // Проверяем что gig существует и принадлежит workspace
-    const existingGig = await ctx.db.query.gig.findFirst({
+    const existingGig = await context.db.query.gig.findFirst({
       where: and(
         eq(gig.id, input.gigId),
         eq(gig.workspaceId, input.workspaceId),
@@ -55,27 +52,21 @@ export const create = protectedProcedure
     });
 
     if (!existingGig) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Задание не найдено",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено", });
     }
 
     // Получаем organizationId из workspace
-    const workspaceData = await ctx.db.query.workspace.findFirst({
+    const workspaceData = await context.db.query.workspace.findFirst({
       where: (ws, { eq }) => eq(ws.id, input.workspaceId),
       columns: { organizationId: true },
     });
 
     if (!workspaceData) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Workspace не найден",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Workspace не найден", });
     }
 
     // Проверяем дубликат
-    const existingResponse = await ctx.db.query.response.findFirst({
+    const existingResponse = await context.db.query.response.findFirst({
       where: and(
         eq(responseTable.entityType, "gig"),
         eq(responseTable.entityId, input.gigId),
@@ -84,17 +75,14 @@ export const create = protectedProcedure
     });
 
     if (existingResponse) {
-      throw new ORPCError({
-        code: "CONFLICT",
-        message: "Отклик от этого кандидата уже существует",
-      });
+      throw new ORPCError("CONFLICT", { message: "Отклик от этого кандидата уже существует", });
     }
 
     // Создаем или находим кандидата в базе
     // Используем глобальную таблицу кандидатов и таблицу связей с организациями
     let globalCandidateId: string | null = null;
     try {
-      const globalCandidateRepository = new GlobalCandidateRepository(ctx.db);
+      const globalCandidateRepository = new GlobalCandidateRepository(context.db);
       const candidateService = new CandidateService();
 
       // Создаем временный объект response для извлечения данных
@@ -148,7 +136,7 @@ export const create = protectedProcedure
 
     let newResponse: Response | undefined;
     try {
-      const result = await ctx.db
+      const result = await context.db
         .insert(responseTable)
         .values({
           entityType: "gig",
@@ -179,23 +167,17 @@ export const create = protectedProcedure
         (error.message.includes("unique constraint") ||
           error.message.includes("duplicate key"))
       ) {
-        throw new ORPCError({
-          code: "CONFLICT",
-          message: "Отклик от этого кандидата уже существует",
-        });
+        throw new ORPCError("CONFLICT", { message: "Отклик от этого кандидата уже существует", });
       }
       throw error;
     }
 
     if (!newResponse) {
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Не удалось создать отклик",
-      });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось создать отклик", });
     }
 
     // Атомарно обновляем счётчик откликов
-    await ctx.db
+    await context.db
       .update(gig)
       .set({
         responses: sql`COALESCE(${gig.responses}, 0) + 1`,

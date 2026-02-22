@@ -19,7 +19,7 @@ export const reauthorizeSessionRouter = protectedProcedure
       sessionData: z.string().optional(),
     }),
   )
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     try {
       const phone = normalizePhone(input.phone);
       const result = await tgClientSDK.signIn({
@@ -32,7 +32,7 @@ export const reauthorizeSessionRouter = protectedProcedure
       });
 
       const sessionDataObj = JSON.parse(result.sessionData);
-      const updated = await ctx.db
+      const updated = await context.db
         .update(telegramSession)
         .set({
           sessionData: sessionDataObj as Record<string, unknown>,
@@ -58,10 +58,7 @@ export const reauthorizeSessionRouter = protectedProcedure
         .returning();
 
       if (updated.length === 0) {
-        throw new ORPCError({
-          code: "NOT_FOUND",
-          message: "Сессия не найдена",
-        });
+        throw new ORPCError("NOT_FOUND", { message: "Сессия не найдена", });
       }
 
       return {
@@ -80,10 +77,6 @@ export const reauthorizeSessionRouter = protectedProcedure
         };
       }
 
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message:
-          error instanceof Error ? error.message : "Ошибка реавторизации",
-      });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: error instanceof Error ? error.message : "Ошибка реавторизации", });
     }
   });

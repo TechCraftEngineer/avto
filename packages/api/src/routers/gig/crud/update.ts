@@ -20,20 +20,17 @@ export const update = protectedProcedure
       }),
     }),
   )
-  .mutation(async ({ ctx, input }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ context, input }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
     }
 
-    const existingGig = await ctx.db.query.gig.findFirst({
+    const existingGig = await context.db.query.gig.findFirst({
       where: and(
         eq(gig.id, input.gigId),
         eq(gig.workspaceId, input.workspaceId),
@@ -41,10 +38,7 @@ export const update = protectedProcedure
     });
 
     if (!existingGig) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Задание не найдено",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено", });
     }
 
     const patch: {
@@ -83,37 +77,25 @@ export const update = protectedProcedure
       // Validate customDomainId if provided
       if (input.settings.customDomainId !== null) {
         // Проверяем домен в БД (включая пресеты)
-        const domain = await ctx.db.query.customDomain.findFirst({
+        const domain = await context.db.query.customDomain.findFirst({
           where: eq(customDomain.id, input.settings.customDomainId),
         });
 
         if (!domain) {
-          throw new ORPCError({
-            code: "BAD_REQUEST",
-            message: "Домен не найден",
-          });
+          throw new ORPCError("BAD_REQUEST", { message: "Домен не найден", });
         }
 
         if (!domain.isVerified) {
-          throw new ORPCError({
-            code: "BAD_REQUEST",
-            message: "Домен не верифицирован",
-          });
+          throw new ORPCError("BAD_REQUEST", { message: "Домен не верифицирован", });
         }
 
         if (domain.type !== "interview") {
-          throw new ORPCError({
-            code: "BAD_REQUEST",
-            message: "Домен должен иметь тип 'interview'",
-          });
+          throw new ORPCError("BAD_REQUEST", { message: "Домен должен иметь тип 'interview'", });
         }
 
         // Проверяем права доступа только для не-пресетных доменов
         if (!domain.isPreset && domain.workspaceId !== input.workspaceId) {
-          throw new ORPCError({
-            code: "FORBIDDEN",
-            message: "Домен не принадлежит этому workspace",
-          });
+          throw new ORPCError("FORBIDDEN", { message: "Домен не принадлежит этому workspace", });
         }
       }
 
@@ -122,7 +104,7 @@ export const update = protectedProcedure
 
     // Handle interview media files through join table
     if (input.settings.interviewMediaFileIds !== undefined) {
-      await ctx.db.transaction(async (tx) => {
+      await context.db.transaction(async (tx) => {
         // Delete existing associations
         await tx
           .delete(gigInterviewMedia)
@@ -143,7 +125,7 @@ export const update = protectedProcedure
       });
     }
 
-    const result = await ctx.db
+    const result = await context.db
       .update(gig)
       .set(patch)
       .where(
@@ -152,10 +134,7 @@ export const update = protectedProcedure
       .returning();
 
     if (!result[0]) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Задание не найдено",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено", });
     }
 
     return result[0];

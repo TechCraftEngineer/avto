@@ -22,30 +22,30 @@ export const getGigShortlist = protectedProcedure
       prioritizeBudgetFit: z.boolean().optional().default(false),
     }),
   )
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const errorHandler = createErrorHandler(
-      ctx.auditLogger,
-      ctx.session.user.id,
-      ctx.ipAddress,
-      ctx.userAgent,
+      context.auditLogger,
+      context.session.user.id,
+      context.ipAddress,
+      context.userAgent,
     );
 
     try {
       // Проверяем доступ к workspace
-      const hasAccess = await ctx.workspaceRepository.checkAccess(
+      const hasAccess = await context.workspaceRepository.checkAccess(
         input.workspaceId,
-        ctx.session.user.id,
+        context.session.user.id,
       );
 
       if (!hasAccess) {
         throw await errorHandler.handleAuthorizationError("workspace", {
           workspaceId: input.workspaceId,
-          userId: ctx.session.user.id,
+          userId: context.session.user.id,
         });
       }
 
       // Проверяем существование gig и принадлежность к workspace
-      const gig = await ctx.db.query.gig.findFirst({
+      const gig = await context.db.query.gig.findFirst({
         where: (gig, { eq, and }) =>
           and(eq(gig.id, input.gigId), eq(gig.workspaceId, input.workspaceId)),
       });
@@ -68,11 +68,11 @@ export const getGigShortlist = protectedProcedure
 
       // Логируем доступ к персональным данным кандидатов
       for (const candidate of shortlist.candidates) {
-        await ctx.auditLogger.logResponseView({
-          userId: ctx.session.user.id,
+        await context.auditLogger.logResponseView({
+          userId: context.session.user.id,
           responseId: candidate.responseId,
-          ipAddress: ctx.ipAddress,
-          userAgent: ctx.userAgent,
+          ipAddress: context.ipAddress,
+          userAgent: context.userAgent,
         });
       }
 
@@ -100,30 +100,30 @@ export const recalculateGigShortlist = protectedProcedure
       workspaceId: workspaceIdSchema,
     }),
   )
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const errorHandler = createErrorHandler(
-      ctx.auditLogger,
-      ctx.session.user.id,
-      ctx.ipAddress,
-      ctx.userAgent,
+      context.auditLogger,
+      context.session.user.id,
+      context.ipAddress,
+      context.userAgent,
     );
 
     try {
       // Проверяем доступ к workspace
-      const hasAccess = await ctx.workspaceRepository.checkAccess(
+      const hasAccess = await context.workspaceRepository.checkAccess(
         input.workspaceId,
-        ctx.session.user.id,
+        context.session.user.id,
       );
 
       if (!hasAccess) {
         throw await errorHandler.handleAuthorizationError("workspace", {
           workspaceId: input.workspaceId,
-          userId: ctx.session.user.id,
+          userId: context.session.user.id,
         });
       }
 
       // Проверяем существование gig
-      const gig = await ctx.db.query.gig.findFirst({
+      const gig = await context.db.query.gig.findFirst({
         where: (gig, { eq, and }) =>
           and(eq(gig.id, input.gigId), eq(gig.workspaceId, input.workspaceId)),
       });
@@ -141,7 +141,7 @@ export const recalculateGigShortlist = protectedProcedure
         data: {
           gigId: input.gigId,
           workspaceId: input.workspaceId,
-          triggeredBy: ctx.session.user.id,
+          triggeredBy: context.session.user.id,
         },
       });
 

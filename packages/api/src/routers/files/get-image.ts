@@ -15,21 +15,18 @@ export const getImageUrl = protectedProcedure
       fileId: uuidv7Schema,
     }),
   )
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверяем доступ к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
     }
 
-    const fileRecord = await ctx.db.query.file.findFirst({
+    const fileRecord = await context.db.query.file.findFirst({
       where: (files, { eq }) => eq(files.id, input.fileId),
       with: {
         // Проверяем связь через response (resumePdfFileId)
@@ -46,10 +43,7 @@ export const getImageUrl = protectedProcedure
     });
 
     if (!fileRecord) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Файл не найден",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Файл не найден", });
     }
 
     // Get all response IDs to check workspace access
@@ -62,13 +56,10 @@ export const getImageUrl = protectedProcedure
     ].filter((id): id is string => id !== undefined);
 
     if (responseIds.length === 0) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Файл не найден",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Файл не найден", });
     }
 
-    const responses = await ctx.db.query.response.findMany({
+    const responses = await context.db.query.response.findMany({
       where: (response, { inArray }) => inArray(response.id, responseIds),
       columns: { id: true, entityId: true, entityType: true },
     });
@@ -92,13 +83,13 @@ export const getImageUrl = protectedProcedure
 
     const [vacancies, gigs] = await Promise.all([
       vacancyIds.length > 0
-        ? ctx.db.query.vacancy.findMany({
+        ? context.db.query.vacancy.findMany({
             where: (v, { inArray }) => inArray(v.id, vacancyIds),
             columns: { workspaceId: true },
           })
         : Promise.resolve([]),
       gigIds.length > 0
-        ? ctx.db.query.gig.findMany({
+        ? context.db.query.gig.findMany({
             where: (g, { inArray }) => inArray(g.id, gigIds),
             columns: { workspaceId: true },
           })
@@ -110,18 +101,12 @@ export const getImageUrl = protectedProcedure
       gigs.some((g) => g.workspaceId === input.workspaceId);
 
     if (!belongsToWorkspace) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Файл не найден",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Файл не найден", });
     }
 
     // Проверяем что это изображение
     if (!fileRecord.mimeType?.startsWith("image/")) {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
-        message: "Файл не является изображением",
-      });
+      throw new ORPCError("BAD_REQUEST", { message: "Файл не является изображением", });
     }
 
     try {
@@ -134,9 +119,6 @@ export const getImageUrl = protectedProcedure
         fileName: fileRecord.fileName,
       };
     } catch {
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Ошибка при получении URL файла",
-      });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Ошибка при получении URL файла", });
     }
   });

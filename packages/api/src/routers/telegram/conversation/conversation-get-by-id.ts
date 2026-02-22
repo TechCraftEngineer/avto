@@ -12,14 +12,14 @@ import { verifyWorkspaceAccess } from "../utils";
 
 export const getConversationByIdRouter = protectedProcedure
   .input(z.object({ id: uuidv7Schema, workspaceId: workspaceIdSchema }))
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     await verifyWorkspaceAccess(
-      ctx.workspaceRepository,
+      context.workspaceRepository,
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
-    const session = await ctx.db.query.interviewSession.findFirst({
+    const session = await context.db.query.interviewSession.findFirst({
       where: eq(interviewSession.id, input.id),
     });
 
@@ -29,21 +29,18 @@ export const getConversationByIdRouter = protectedProcedure
 
     // Check workspace access through response
     if (session.responseId) {
-      const responseRow = await ctx.db.query.response.findFirst({
+      const responseRow = await context.db.query.response.findFirst({
         where: eq(responseTable.id, session.responseId),
       });
 
       if (responseRow) {
-        const vacancy = await ctx.db.query.vacancy.findFirst({
+        const vacancy = await context.db.query.vacancy.findFirst({
           where: eq(vacancyTable.id, responseRow.entityId),
           columns: { workspaceId: true },
         });
 
         if (!vacancy || vacancy.workspaceId !== input.workspaceId) {
-          throw new ORPCError({
-            code: "FORBIDDEN",
-            message: "Нет доступа к этой беседе",
-          });
+          throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этой беседе", });
         }
       }
     }

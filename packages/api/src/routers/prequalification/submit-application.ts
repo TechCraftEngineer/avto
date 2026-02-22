@@ -51,9 +51,9 @@ const submitApplicationInputSchema = z.object({
 
 export const submitApplication = publicProcedure
   .input(submitApplicationInputSchema)
-  .mutation(async ({ ctx, input }) => {
+  .handler(async ({ context, input }) => {
     // Validate that session has required data
-    const sessionManager = new SessionManager(ctx.db);
+    const sessionManager = new SessionManager(context.db);
 
     // Get session
     const session = await sessionManager.getSession(
@@ -62,10 +62,7 @@ export const submitApplication = publicProcedure
     );
 
     if (!session) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Сессия не найдена",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Сессия не найдена", });
     }
 
     // Verify session is in completed status
@@ -78,24 +75,17 @@ export const submitApplication = publicProcedure
 
     // Verify candidate can proceed (not_fit cannot submit)
     if (session.fitDecision === "not_fit") {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message:
-          "К сожалению, ваш профиль не соответствует требованиям вакансии",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "К сожалению, ваш профиль не соответствует требованиям вакансии", });
     }
 
     // Check if already submitted
     if (session.responseId) {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
-        message: "Заявка уже была подана",
-      });
+      throw new ORPCError("BAD_REQUEST", { message: "Заявка уже была подана", });
     }
 
     try {
       // Get vacancy data
-      const [vacancyData] = await ctx.db
+      const [vacancyData] = await context.db
         .select()
         .from(vacancy)
         .where(eq(vacancy.id, session.vacancyId))
@@ -109,7 +99,7 @@ export const submitApplication = publicProcedure
       }
 
       // Get workspace to obtain organizationId
-      const workspaceData = await ctx.db.query.workspace.findFirst({
+      const workspaceData = await context.db.query.workspace.findFirst({
         where: (ws, { eq }) => eq(ws.id, vacancyData.workspaceId),
         columns: { organizationId: true },
       });
@@ -152,7 +142,7 @@ export const submitApplication = publicProcedure
       // Create or find candidate in database
       let globalCandidateId: string | null = null;
       try {
-        const candidateSync = new ContactCandidateSyncService(ctx.db);
+        const candidateSync = new ContactCandidateSyncService(context.db);
 
         // Синхронизируем кандидата с контактными данными
         const syncResult = await candidateSync.syncCandidateFromContacts({
@@ -231,13 +221,13 @@ export const submitApplication = publicProcedure
 
             // Обновляем глобального кандидата дополнительными данными
             const existingCandidate =
-              await ctx.db.query.globalCandidate.findFirst({
+              await context.db.query.globalCandidate.findFirst({
                 where: eq(globalCandidate.id, globalCandidateId),
               });
 
             if (existingCandidate) {
               const globalCandidateRepository = new GlobalCandidateRepository(
-                ctx.db,
+                context.db,
               );
               const { organizationId: _orgId, ...candidateData } =
                 normalizedData;
@@ -247,7 +237,7 @@ export const submitApplication = publicProcedure
                   candidateData,
                 );
               if (Object.keys(mergedData).length > 0) {
-                await ctx.db
+                await context.db
                   .update(globalCandidate)
                   .set(mergedData)
                   .where(eq(globalCandidate.id, globalCandidateId));
@@ -263,7 +253,7 @@ export const submitApplication = publicProcedure
       // Create vacancy response
       // Note: response schema requires candidateId and entityType/entityId
       // For prequalification, we use the session ID as reference
-      const [newResponse] = await ctx.db
+      const [newResponse] = await context.db
         .insert(responseTable)
         .values({
           entityType: "vacancy",
@@ -295,7 +285,7 @@ export const submitApplication = publicProcedure
       }
 
       // Update session with responseId and status
-      await ctx.db
+      await context.db
         .update(prequalificationSession)
         .set({
           status: "submitted",
@@ -310,9 +300,9 @@ export const submitApplication = publicProcedure
 
       // Log audit event
       try {
-        await ctx.auditLogger.logAccess({
+        await context.auditLogger.logAccess({
           workspaceId: input.workspaceId,
-          userId: ctx.session?.user?.id ?? "anonymous",
+          userId: context.session?.user?.id ?? "anonymous",
           action: "CREATE",
           resourceType: "VACANCY_RESPONSE",
           resourceId: newResponse.id,

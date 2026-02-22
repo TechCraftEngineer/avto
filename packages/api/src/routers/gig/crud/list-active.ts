@@ -7,20 +7,17 @@ import { protectedProcedure } from "../../../orpc";
 
 export const listActive = protectedProcedure
   .input(z.object({ workspaceId: workspaceIdSchema }))
-  .query(async ({ ctx, input }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ context, input }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
     }
 
-    return ctx.db.query.gig.findMany({
+    return context.db.query.gig.findMany({
       where: and(
         eq(gig.workspaceId, input.workspaceId),
         eq(gig.isActive, true),

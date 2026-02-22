@@ -29,36 +29,30 @@ export const list = protectedProcedure
       offset: paginationOffsetSchema,
     }),
   )
-  .query(async ({ input, ctx }) => {
-    const userId = ctx.session.user.id;
+  .handler(async ({ input, context }) => {
+    const userId = context.session.user.id;
 
     // Проверка доступа к workspace (если указан)
     if (input.workspaceId) {
-      const hasAccess = await ctx.workspaceRepository.checkAccess(
+      const hasAccess = await context.workspaceRepository.checkAccess(
         input.workspaceId,
         userId,
       );
 
       if (!hasAccess) {
-        throw new ORPCError({
-          code: "FORBIDDEN",
-          message: "Нет доступа к workspace",
-        });
+        throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
       }
     }
 
     // Проверка доступа к organization (если указан)
     if (input.organizationId) {
-      const hasAccess = await ctx.organizationRepository.checkAccess(
+      const hasAccess = await context.organizationRepository.checkAccess(
         input.organizationId,
         userId,
       );
 
       if (!hasAccess) {
-        throw new ORPCError({
-          code: "FORBIDDEN",
-          message: "Нет доступа к организации",
-        });
+        throw new ORPCError("FORBIDDEN", { message: "Нет доступа к организации", });
       }
     }
 
@@ -74,7 +68,7 @@ export const list = protectedProcedure
     }
 
     // Получаем список платежей с пагинацией
-    const payments = await ctx.db
+    const payments = await context.db
       .select()
       .from(payment)
       .where(and(...conditions))

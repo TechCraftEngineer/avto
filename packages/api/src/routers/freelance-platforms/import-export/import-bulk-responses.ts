@@ -33,17 +33,17 @@ export interface ImportResult {
 
 export const importBulkResponses = protectedProcedure
   .input(importBulkResponsesInputSchema)
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const errorHandler = createErrorHandler(
-      ctx.auditLogger,
-      ctx.session.user.id,
-      ctx.ipAddress,
-      ctx.userAgent,
+      context.auditLogger,
+      context.session.user.id,
+      context.ipAddress,
+      context.userAgent,
     );
 
     try {
       // Проверка существования вакансии
-      const existingVacancy = await ctx.db.query.vacancy.findFirst({
+      const existingVacancy = await context.db.query.vacancy.findFirst({
         where: (vacancy, { eq }) => eq(vacancy.id, input.vacancyId),
       });
 
@@ -54,21 +54,21 @@ export const importBulkResponses = protectedProcedure
       }
 
       // Проверка доступа к workspace вакансии
-      const hasAccess = await ctx.workspaceRepository.checkAccess(
+      const hasAccess = await context.workspaceRepository.checkAccess(
         existingVacancy.workspaceId,
-        ctx.session.user.id,
+        context.session.user.id,
       );
 
       if (!hasAccess) {
         throw await errorHandler.handleAuthorizationError("вакансии", {
           vacancyId: input.vacancyId,
           workspaceId: existingVacancy.workspaceId,
-          userId: ctx.session.user.id,
+          userId: context.session.user.id,
         });
       }
 
       // Get workspace to obtain organizationId
-      const workspaceData = await ctx.db.query.workspace.findFirst({
+      const workspaceData = await context.db.query.workspace.findFirst({
         where: (ws, { eq }) => eq(ws.id, existingVacancy.workspaceId),
         columns: { organizationId: true },
       });
@@ -128,7 +128,7 @@ export const importBulkResponses = protectedProcedure
           }
 
           // Проверка дубликатов по platformProfileUrl + vacancyId
-          const existingResponse = await ctx.db.query.response.findFirst({
+          const existingResponse = await context.db.query.response.findFirst({
             where: and(
               eq(responseTable.entityId, input.vacancyId),
               eq(responseTable.entityType, "vacancy"),
@@ -150,7 +150,7 @@ export const importBulkResponses = protectedProcedure
           // Create or find candidate in database
           let globalCandidateId: string | null = null;
           try {
-            const candidateSync = new ContactCandidateSyncService(ctx.db);
+            const candidateSync = new ContactCandidateSyncService(context.db);
 
             const syncResult = await candidateSync.syncCandidateFromContacts({
               name: parsed.freelancerName ?? undefined,
@@ -194,7 +194,7 @@ export const importBulkResponses = protectedProcedure
 
           // Создаём запись отклика
           // platformProfile гарантированно существует после валидации выше
-          const [createdResponse] = await ctx.db
+          const [createdResponse] = await context.db
             .insert(responseTable)
             .values({
               entityId: input.vacancyId,
@@ -241,8 +241,8 @@ export const importBulkResponses = protectedProcedure
           failureCount++;
 
           // Логируем ошибку для каждого неудачного импорта
-          await ctx.auditLogger.logError({
-            userId: ctx.session.user.id,
+          await context.auditLogger.logError({
+            userId: context.session.user.id,
             category: "IMPORT",
             severity: "MEDIUM",
             message: `Failed to import response: ${error instanceof Error ? error.message : "Unknown error"}`,
@@ -253,16 +253,16 @@ export const importBulkResponses = protectedProcedure
               platformProfileUrl: parsed.contactInfo.platformProfile,
             },
             stack: error instanceof Error ? error.stack : undefined,
-            ipAddress: ctx.ipAddress,
-            userAgent: ctx.userAgent,
+            ipAddress: context.ipAddress,
+            userAgent: context.userAgent,
           });
         }
       }
 
       // Создаём запись в истории импорта
-      await ctx.db.insert(freelanceImportHistory).values({
+      await context.db.insert(freelanceImportHistory).values({
         vacancyId: input.vacancyId,
-        importedBy: ctx.session.user.id,
+        importedBy: context.session.user.id,
         importMode: "BULK",
         platformSource: input.platformSource,
         rawText: input.rawText,

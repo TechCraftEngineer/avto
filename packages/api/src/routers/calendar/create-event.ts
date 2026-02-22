@@ -18,20 +18,17 @@ const INTERVIEW_TYPE_LABELS: Record<string, string> = {
 
 export const createEvent = protectedProcedure
   .input(createCalendarEventSchema)
-  .mutation(async ({ input, ctx }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ input, context }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
     }
 
-    const responseRow = await ctx.db.query.response.findFirst({
+    const responseRow = await context.db.query.response.findFirst({
       where: (r, { eq }) => eq(r.id, input.responseId),
       columns: {
         id: true,
@@ -43,57 +40,41 @@ export const createEvent = protectedProcedure
     });
 
     if (!responseRow) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Отклик не найден",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Отклик не найден", });
     }
 
     const entityId = responseRow.entityId;
 
     if (responseRow.entityType === "vacancy") {
-      const vacancyRow = await ctx.db.query.vacancy.findFirst({
+      const vacancyRow = await context.db.query.vacancy.findFirst({
         where: (v, { and, eq }) =>
           and(eq(v.id, entityId), eq(v.workspaceId, input.workspaceId)),
         columns: { id: true },
       });
       if (!vacancyRow) {
-        throw new ORPCError({
-          code: "FORBIDDEN",
-          message: "Отклик не принадлежит этому workspace",
-        });
+        throw new ORPCError("FORBIDDEN", { message: "Отклик не принадлежит этому workspace", });
       }
     } else if (responseRow.entityType === "gig") {
-      const gigRow = await ctx.db.query.gig.findFirst({
+      const gigRow = await context.db.query.gig.findFirst({
         where: (g, { and, eq }) =>
           and(eq(g.id, entityId), eq(g.workspaceId, input.workspaceId)),
         columns: { id: true },
       });
       if (!gigRow) {
-        throw new ORPCError({
-          code: "FORBIDDEN",
-          message: "Отклик не принадлежит этому workspace",
-        });
+        throw new ORPCError("FORBIDDEN", { message: "Отклик не принадлежит этому workspace", });
       }
     } else {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
-        message: "Неподдерживаемый тип отклика для планирования",
-      });
+      throw new ORPCError("BAD_REQUEST", { message: "Неподдерживаемый тип отклика для планирования", });
     }
 
     const credentials = await getUserIntegrationCredentials(
-      ctx.db,
-      ctx.session.user.id,
+      context.db,
+      context.session.user.id,
       "google_calendar",
     );
 
     if (!credentials?.access_token) {
-      throw new ORPCError({
-        code: "PRECONDITION_FAILED",
-        message:
-          "Подключите Google Calendar в настройках аккаунта для планирования встреч",
-      });
+      throw new ORPCError("PRECONDITION_FAILED", { message: "Подключите Google Calendar в настройках аккаунта для планирования встреч", });
     }
 
     const endDate = new Date(input.scheduledAt);
@@ -117,8 +98,8 @@ export const createEvent = protectedProcedure
     }
 
     const userInt = await getUserIntegration(
-      ctx.db,
-      ctx.session.user.id,
+      context.db,
+      context.session.user.id,
       "google_calendar",
     );
     const metadata = (userInt?.metadata as Record<string, unknown>) ?? {};
@@ -143,8 +124,8 @@ export const createEvent = protectedProcedure
     );
 
     await updateUserIntegrationLastUsed(
-      ctx.db,
-      ctx.session.user.id,
+      context.db,
+      context.session.user.id,
       "google_calendar",
     );
 

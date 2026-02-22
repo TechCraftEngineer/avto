@@ -27,9 +27,9 @@ export const listSessions = protectedProcedure
         },
       ),
   )
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const { entityType, entityId, limit } = input;
-    const userId = ctx.session.user.id;
+    const userId = context.session.user.id;
 
     if (!chatRegistry.isRegistered(entityType)) {
       throw new ORPCError({
@@ -40,7 +40,7 @@ export const listSessions = protectedProcedure
 
     // TODO: Проверка доступа к сущности
 
-    const sessions = await ctx.db.query.chatSession.findMany({
+    const sessions = await context.db.query.chatSession.findMany({
       where: (chatSession, { and, eq }) =>
         and(
           eq(chatSession.entityType, entityType),
@@ -53,7 +53,7 @@ export const listSessions = protectedProcedure
 
     const sessionsWithPreview = await Promise.all(
       sessions.map(async (session) => {
-        const lastMessage = await ctx.db.query.chatMessage.findFirst({
+        const lastMessage = await context.db.query.chatMessage.findFirst({
           where: (chatMessage, { eq }) => eq(chatMessage.sessionId, session.id),
           orderBy: (chatMessage, { desc }) => [desc(chatMessage.createdAt)],
         });

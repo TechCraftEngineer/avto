@@ -38,19 +38,19 @@ export const getHistory = protectedProcedure
         },
       ),
   )
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const { sessionId, entityType, entityId, limit } = input;
-    const userId = ctx.session.user.id;
+    const userId = context.session.user.id;
 
     // TODO: Проверка доступа к сущности
 
     // Загрузка сессии
     const session = sessionId
-      ? await ctx.db.query.chatSession.findFirst({
+      ? await context.db.query.chatSession.findFirst({
           where: (chatSession, { and, eq }) =>
             and(eq(chatSession.id, sessionId), eq(chatSession.userId, userId)),
         })
-      : await ctx.db.query.chatSession.findFirst({
+      : await context.db.query.chatSession.findFirst({
           where: (chatSession, { and, eq }) =>
             and(
               eq(
@@ -73,7 +73,7 @@ export const getHistory = protectedProcedure
     }
 
     // Загрузка сообщений
-    const messages = await ctx.db.query.chatMessage.findMany({
+    const messages = await context.db.query.chatMessage.findMany({
       where: (chatMessage, { eq }) => eq(chatMessage.sessionId, session.id),
       orderBy: (chatMessage, { desc }) => [desc(chatMessage.createdAt)],
       limit: limit + 1,

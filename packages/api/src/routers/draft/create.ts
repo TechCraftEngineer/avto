@@ -12,7 +12,7 @@ import { protectedProcedure } from "../../orpc";
  */
 export const create = protectedProcedure
   .input(CreateDraftInputSchema)
-  .mutation(async ({ ctx, input }) => {
-    const draftService = new DraftService(ctx.db);
-    return await draftService.createDraft(ctx.session.user.id, input);
+  .handler(async ({ context, input }) => {
+    const draftService = new DraftService(context.db);
+    return await draftService.createDraft(context.session.user.id, input);
   });

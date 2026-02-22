@@ -10,15 +10,15 @@ const getVacancyIntegrationsInputSchema = z.object({
 
 export const getVacancyIntegrations = protectedProcedure
   .input(getVacancyIntegrationsInputSchema)
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверка доступа к workspace
-    await ctx.workspaceRepository.checkAccess(
+    await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     // Проверка, что вакансия принадлежит workspace
-    const vacancy = await ctx.db.query.vacancy.findFirst({
+    const vacancy = await context.db.query.vacancy.findFirst({
       where: (table, { eq: eqFn }) => eqFn(table.id, input.vacancyId),
       columns: {
         workspaceId: true,
@@ -26,21 +26,15 @@ export const getVacancyIntegrations = protectedProcedure
     });
 
     if (!vacancy) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Вакансия не найдена",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена", });
     }
 
     if (vacancy.workspaceId !== input.workspaceId) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Вакансия не принадлежит указанному workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Вакансия не принадлежит указанному workspace", });
     }
 
     // Получаем активные интеграции для workspace
-    const activeIntegrations = await ctx.db.query.integration.findMany({
+    const activeIntegrations = await context.db.query.integration.findMany({
       where: (table, { eq: eqFn, and }) =>
         and(
           eqFn(table.workspaceId, input.workspaceId),
@@ -56,7 +50,7 @@ export const getVacancyIntegrations = protectedProcedure
     });
 
     // Получаем публикации вакансии
-    const publications = await ctx.db.query.vacancyPublication.findMany({
+    const publications = await context.db.query.vacancyPublication.findMany({
       where: (table, { eq: eqFn }) => eqFn(table.vacancyId, input.vacancyId),
       orderBy: (table, { desc }) => [desc(table.createdAt)],
     });

@@ -17,8 +17,8 @@ export const addComment = protectedProcedure
       isPrivate: z.boolean().default(true),
     }),
   )
-  .mutation(async ({ input, ctx }) => {
-    const [candidate] = await ctx.db
+  .handler(async ({ input, context }) => {
+    const [candidate] = await context.db
       .select({
         id: responseTable.id,
         vacancyId: responseTable.entityId,
@@ -36,7 +36,7 @@ export const addComment = protectedProcedure
       throw new Error("Candidate not found");
     }
 
-    const [vacancyRecord] = await ctx.db
+    const [vacancyRecord] = await context.db
       .select({
         workspaceId: vacancy.workspaceId,
       })
@@ -48,11 +48,11 @@ export const addComment = protectedProcedure
       throw new Error("Candidate not found");
     }
 
-    const [comment] = await ctx.db
+    const [comment] = await context.db
       .insert(responseComment)
       .values({
         responseId: input.candidateId,
-        authorId: ctx.session.user.id,
+        authorId: context.session.user.id,
         content: input.content,
         isPrivate: input.isPrivate,
       })
@@ -68,7 +68,7 @@ export const addComment = protectedProcedure
       content: comment.content,
       isPrivate: comment.isPrivate,
       createdAt: comment.createdAt,
-      author: ctx.session.user.name ?? "Unknown",
-      authorAvatar: ctx.session.user.image,
+      author: context.session.user.name ?? "Unknown",
+      authorAvatar: context.session.user.image,
     };
   });

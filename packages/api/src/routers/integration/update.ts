@@ -23,31 +23,25 @@ export const updateIntegration = protectedProcedure
       isActive: z.boolean().optional(),
     }),
   )
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверка доступа к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Недостаточно прав для изменения интеграций",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Недостаточно прав для изменения интеграций", });
     }
 
     const existing = await getIntegration(
-      ctx.db,
+      context.db,
       input.type,
       input.workspaceId,
     );
 
     if (!existing) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Интеграция не найдена",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Интеграция не найдена", });
     }
 
     // credentials для HH и Kwork меняются только при настройке (verify)
@@ -56,7 +50,7 @@ export const updateIntegration = protectedProcedure
         input.type as (typeof CREDENTIALS_LOCKED_TYPES)[number],
       )
     ) {
-      const [updated] = await ctx.db
+      const [updated] = await context.db
         .update(integration)
         .set({
           name: input.name ?? existing.name,
@@ -74,23 +68,20 @@ export const updateIntegration = protectedProcedure
         });
 
       if (!updated)
-        throw new ORPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Ошибка обновления",
-        });
+        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Ошибка обновления", });
       return { id: updated.id, type: updated.type, name: updated.name };
     }
 
     const credentials =
       input.credentials ??
       (await getIntegrationCredentials(
-        ctx.db,
+        context.db,
         input.type,
         input.workspaceId,
       )) ??
       {};
 
-    const updated = await upsertIntegration(ctx.db, {
+    const updated = await upsertIntegration(context.db, {
       workspaceId: input.workspaceId,
       type: input.type,
       name: input.name ?? existing.name,

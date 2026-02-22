@@ -26,21 +26,18 @@ export const getInterviewQuestions = protectedProcedure
       responseId: z.string(),
     }),
   )
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const { workspaceId, vacancyId, responseId } = input;
 
     // Проверка доступа к workspace
     const hasAccess = await checkWorkspaceAccess(
-      ctx.workspaceRepository,
+      context.workspaceRepository,
       workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!hasAccess) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
     }
 
     // Проверка rate limiting
@@ -48,14 +45,11 @@ export const getInterviewQuestions = protectedProcedure
     const canProceed = await checkRateLimit(rateLimitKey, 20, 60);
 
     if (!canProceed) {
-      throw new ORPCError({
-        code: "TOO_MANY_REQUESTS",
-        message: "Превышен лимит запросов. Попробуйте через минуту.",
-      });
+      throw new ORPCError("TOO_MANY_REQUESTS", { message: "Превышен лимит запросов. Попробуйте через минуту.", });
     }
 
     // Получаем данные отклика
-    const response = await ctx.db.query.response.findFirst({
+    const response = await context.db.query.response.findFirst({
       where: (r, { eq, and }) =>
         and(
           eq(r.id, responseId),
@@ -72,14 +66,11 @@ export const getInterviewQuestions = protectedProcedure
     });
 
     if (!response) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Отклик не найден",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Отклик не найден", });
     }
 
     // Получаем скрининг для отклика
-    const screening = await ctx.db.query.responseScreening.findFirst({
+    const screening = await context.db.query.responseScreening.findFirst({
       where: (s, { eq }) => eq(s.responseId, responseId),
       columns: {
         overallScore: true,
@@ -88,7 +79,7 @@ export const getInterviewQuestions = protectedProcedure
     });
 
     // Получаем данные вакансии
-    const vacancy = await ctx.db.query.vacancy.findFirst({
+    const vacancy = await context.db.query.vacancy.findFirst({
       where: (v, { eq }) => eq(v.id, vacancyId),
       columns: {
         id: true,
@@ -99,10 +90,7 @@ export const getInterviewQuestions = protectedProcedure
     });
 
     if (!vacancy) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Вакансия не найдена",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена", });
     }
 
     // Формируем риск-факторы из скрининга (пока пустой массив, так как поле не существует в схеме)
@@ -113,7 +101,7 @@ export const getInterviewQuestions = protectedProcedure
     }> = [];
 
     // Загружаем настройки компании
-    const botSettings = await ctx.db.query.botSettings.findFirst({
+    const botSettings = await context.db.query.botSettings.findFirst({
       where: (cs, { eq }) => eq(cs.workspaceId, workspaceId),
     });
 
@@ -167,7 +155,7 @@ export const getInterviewQuestions = protectedProcedure
     // Выполняем генерацию вопросов
     const result = await questionsAgent.execute(agentInput, {
       workspaceId,
-      userId: ctx.session.user.id,
+      userId: context.session.user.id,
       currentVacancyId: vacancyId,
       recruiterConversationHistory: [],
       recruiterCompanySettings: recruiterSettings,
@@ -176,10 +164,7 @@ export const getInterviewQuestions = protectedProcedure
     });
 
     if (!result.success || !result.data) {
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: result.error || "Не удалось сгенерировать вопросы",
-      });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: result.error || "Не удалось сгенерировать вопросы", });
     }
 
     return result.data;

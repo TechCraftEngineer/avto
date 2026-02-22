@@ -35,17 +35,17 @@ const retryBulkImportInputSchema = z.object({
  */
 export const retryBulkImport = protectedProcedure
   .input(retryBulkImportInputSchema)
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const errorHandler = createErrorHandler(
-      ctx.auditLogger,
-      ctx.session.user.id,
-      ctx.ipAddress,
-      ctx.userAgent,
+      context.auditLogger,
+      context.session.user.id,
+      context.ipAddress,
+      context.userAgent,
     );
 
     try {
       // Проверка существования вакансии
-      const existingVacancy = await ctx.db.query.vacancy.findFirst({
+      const existingVacancy = await context.db.query.vacancy.findFirst({
         where: (vacancy, { eq }) => eq(vacancy.id, input.vacancyId),
       });
 
@@ -56,16 +56,16 @@ export const retryBulkImport = protectedProcedure
       }
 
       // Проверка доступа к workspace вакансии
-      const hasAccess = await ctx.workspaceRepository.checkAccess(
+      const hasAccess = await context.workspaceRepository.checkAccess(
         existingVacancy.workspaceId,
-        ctx.session.user.id,
+        context.session.user.id,
       );
 
       if (!hasAccess) {
         throw await errorHandler.handleAuthorizationError("вакансии", {
           vacancyId: input.vacancyId,
           workspaceId: existingVacancy.workspaceId,
-          userId: ctx.session.user.id,
+          userId: context.session.user.id,
         });
       }
 
@@ -96,7 +96,7 @@ export const retryBulkImport = protectedProcedure
 
           // Проверка дубликатов по platformProfileUrl + vacancyId
           if (parsed.contactInfo.platformProfile) {
-            const existingResponse = await ctx.db.query.response.findFirst({
+            const existingResponse = await context.db.query.response.findFirst({
               where: and(
                 eq(responseTable.entityId, input.vacancyId),
                 eq(responseTable.entityType, "vacancy"),
@@ -120,7 +120,7 @@ export const retryBulkImport = protectedProcedure
           }
 
           // Создаём запись отклика
-          const [createdResponse] = await ctx.db
+          const [createdResponse] = await context.db
             .insert(responseTable)
             .values({
               entityId: input.vacancyId,
@@ -174,8 +174,8 @@ export const retryBulkImport = protectedProcedure
           failureCount++;
 
           // Логируем ошибку для каждого неудачного импорта
-          await ctx.auditLogger.logError({
-            userId: ctx.session.user.id,
+          await context.auditLogger.logError({
+            userId: context.session.user.id,
             category: "IMPORT",
             severity: "MEDIUM",
             message: `Failed to retry import: ${error instanceof Error ? error.message : "Unknown error"}`,
@@ -186,16 +186,16 @@ export const retryBulkImport = protectedProcedure
               platformProfileUrl: failedRecord.platformProfileUrl,
             },
             stack: error instanceof Error ? error.stack : undefined,
-            ipAddress: ctx.ipAddress,
-            userAgent: ctx.userAgent,
+            ipAddress: context.ipAddress,
+            userAgent: context.userAgent,
           });
         }
       }
 
       // Создаём запись в истории импорта
-      await ctx.db.insert(freelanceImportHistory).values({
+      await context.db.insert(freelanceImportHistory).values({
         vacancyId: input.vacancyId,
-        importedBy: ctx.session.user.id,
+        importedBy: context.session.user.id,
         importMode: "BULK",
         platformSource: input.platformSource,
         rawText: `RETRY: ${input.failedRecords.length} записей`,
@@ -205,8 +205,8 @@ export const retryBulkImport = protectedProcedure
       });
 
       // Логируем действие
-      await ctx.auditLogger.logAccess({
-        userId: ctx.session.user.id,
+      await context.auditLogger.logAccess({
+        userId: context.session.user.id,
         action: "UPDATE",
         resourceType: "VACANCY_RESPONSE",
         resourceId: input.vacancyId,
@@ -217,8 +217,8 @@ export const retryBulkImport = protectedProcedure
           failureCount,
           platformSource: input.platformSource,
         },
-        ipAddress: ctx.ipAddress,
-        userAgent: ctx.userAgent,
+        ipAddress: context.ipAddress,
+        userAgent: context.userAgent,
       });
 
       return {

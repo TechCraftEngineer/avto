@@ -7,28 +7,22 @@ import { protectedProcedure } from "../../../orpc";
 
 export const get = protectedProcedure
   .input(z.object({ id: z.uuid(), workspaceId: workspaceIdSchema }))
-  .query(async ({ ctx, input }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ context, input }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
     }
 
-    const foundGig = await ctx.db.query.gig.findFirst({
+    const foundGig = await context.db.query.gig.findFirst({
       where: and(eq(gig.id, input.id), eq(gig.workspaceId, input.workspaceId)),
     });
 
     if (!foundGig) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Gig not found",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Gig not found", });
     }
 
     return foundGig;

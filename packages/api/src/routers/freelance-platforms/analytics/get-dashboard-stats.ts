@@ -31,25 +31,25 @@ const getDashboardStatsInputSchema = z.object({
 
 export const getDashboardStats = protectedProcedure
   .input(getDashboardStatsInputSchema)
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const errorHandler = createErrorHandler(
-      ctx.auditLogger,
-      ctx.session.user.id,
-      ctx.ipAddress,
-      ctx.userAgent,
+      context.auditLogger,
+      context.session.user.id,
+      context.ipAddress,
+      context.userAgent,
     );
 
     try {
       // Проверка доступа к workspace
-      const access = await ctx.workspaceRepository.checkAccess(
+      const access = await context.workspaceRepository.checkAccess(
         input.workspaceId,
-        ctx.session.user.id,
+        context.session.user.id,
       );
 
       if (!access) {
         throw await errorHandler.handleAuthorizationError("workspace", {
           workspaceId: input.workspaceId,
-          userId: ctx.session.user.id,
+          userId: context.session.user.id,
         });
       }
 
@@ -77,7 +77,7 @@ export const getDashboardStats = protectedProcedure
       }
 
       // Получаем обзорные метрики (подсчёт из таблицы responses)
-      const overviewMetrics = await ctx.db
+      const overviewMetrics = await context.db
         .select({
           totalJobs: count(vacancy.id),
           totalResponses: sql<number>`COALESCE(SUM(
@@ -95,7 +95,7 @@ export const getDashboardStats = protectedProcedure
         .where(and(...conditions));
 
       // Получаем список заданий с ключевой статистикой (подсчёт из responses)
-      const jobs = await ctx.db
+      const jobs = await context.db
         .select({
           id: vacancy.id,
           title: vacancy.title,

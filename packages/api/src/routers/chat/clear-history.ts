@@ -41,19 +41,19 @@ export const clearHistory = protectedProcedure
         },
       ),
   )
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const { sessionId, entityType, entityId } = input;
-    const userId = ctx.session.user.id;
+    const userId = context.session.user.id;
 
     // TODO: Проверка доступа к сущности
 
     // Загрузка сессии
     const session = sessionId
-      ? await ctx.db.query.chatSession.findFirst({
+      ? await context.db.query.chatSession.findFirst({
           where: (chatSession, { and, eq }) =>
             and(eq(chatSession.id, sessionId), eq(chatSession.userId, userId)),
         })
-      : await ctx.db.query.chatSession.findFirst({
+      : await context.db.query.chatSession.findFirst({
           where: (chatSession, { and, eq }) =>
             and(
               eq(
@@ -75,12 +75,12 @@ export const clearHistory = protectedProcedure
     }
 
     // Удаление сообщений
-    await ctx.db
+    await context.db
       .delete(chatMessage)
       .where(eq(chatMessage.sessionId, session.id));
 
     // Сброс счетчика
-    await ctx.db
+    await context.db
       .update(chatSession)
       .set({
         messageCount: 0,

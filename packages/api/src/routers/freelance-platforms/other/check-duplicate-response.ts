@@ -15,39 +15,33 @@ const checkDuplicateResponseInputSchema = z.object({
 
 export const checkDuplicateResponse = publicProcedure
   .input(checkDuplicateResponseInputSchema)
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Валидируем токен
-    const validatedToken = ctx.interviewToken
-      ? await validateInterviewToken(ctx.interviewToken, ctx.db)
+    const validatedToken = context.interviewToken
+      ? await validateInterviewToken(context.interviewToken, context.db)
       : null;
 
     // Проверяем авторизацию: либо валидный токен для этой вакансии, либо авторизованный пользователь
     const hasTokenAccess = hasVacancyAccess(validatedToken, input.vacancyId);
-    const isAuthenticated = !!ctx.session?.user;
+    const isAuthenticated = !!context.session?.user;
 
     if (!hasTokenAccess && !isAuthenticated) {
-      throw new ORPCError({
-        code: "UNAUTHORIZED",
-        message: "Требуется авторизация или валидный токен интервью",
-      });
+      throw new ORPCError("UNAUTHORIZED", { message: "Требуется авторизация или валидный токен интервью", });
     }
 
     // Если пользователь авторизован, проверяем доступ к workspace вакансии
     if (isAuthenticated && !hasTokenAccess) {
-      const vacancy = await ctx.db.query.vacancy.findFirst({
+      const vacancy = await context.db.query.vacancy.findFirst({
         where: (v, { eq }) => eq(v.id, input.vacancyId),
       });
 
       if (!vacancy) {
-        throw new ORPCError({
-          code: "NOT_FOUND",
-          message: "Вакансия не найдена",
-        });
+        throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена", });
       }
 
-      const userId = ctx.session?.user?.id;
+      const userId = context.session?.user?.id;
       if (userId) {
-        const workspaceMember = await ctx.db.query.workspaceMember.findFirst({
+        const workspaceMember = await context.db.query.workspaceMember.findFirst({
           where: (member, { eq, and }) =>
             and(
               eq(member.workspaceId, vacancy.workspaceId),
@@ -56,16 +50,13 @@ export const checkDuplicateResponse = publicProcedure
         });
 
         if (!workspaceMember) {
-          throw new ORPCError({
-            code: "FORBIDDEN",
-            message: "Нет доступа к этой вакансии",
-          });
+          throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этой вакансии", });
         }
       }
     }
 
     // Проверяем дубликаты по platformProfileUrl + vacancyId
-    const existingResponse = await ctx.db.query.response.findFirst({
+    const existingResponse = await context.db.query.response.findFirst({
       where: and(
         eq(responseTable.entityId, input.vacancyId),
         eq(responseTable.entityType, "vacancy"),

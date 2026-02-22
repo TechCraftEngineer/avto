@@ -22,20 +22,17 @@ export const sendOffer = protectedProcedure
       }),
     }),
   )
-  .mutation(async ({ input, ctx }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ input, context }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
     }
 
-    const response = await ctx.db.query.response.findFirst({
+    const response = await context.db.query.response.findFirst({
       where: and(
         eq(responseTable.id, input.candidateId),
         eq(responseTable.entityType, "vacancy"),
@@ -43,30 +40,21 @@ export const sendOffer = protectedProcedure
     });
 
     if (!response) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Кандидат не найден",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден", });
     }
 
     // Query vacancy separately to check workspace access
-    const vacancy = await ctx.db.query.vacancy.findFirst({
+    const vacancy = await context.db.query.vacancy.findFirst({
       where: eq(vacancyTable.id, response.entityId),
       columns: { workspaceId: true },
     });
 
     if (!vacancy) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Вакансия не найдена",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена", });
     }
 
     if (vacancy.workspaceId !== input.workspaceId) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому кандидату",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому кандидату", });
     }
 
     // Сохраняем детали оффера в поле contacts как временное решение
@@ -79,7 +67,7 @@ export const sendOffer = protectedProcedure
     };
 
     // Обновляем статус и сохраняем детали оффера
-    await ctx.db
+    await context.db
       .update(responseTable)
       .set({
         hrSelectionStatus: "OFFER",

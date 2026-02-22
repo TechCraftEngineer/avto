@@ -55,20 +55,17 @@ export const getById = protectedProcedure
       candidateId: uuidv7Schema,
     }),
   )
-  .query(async ({ input, ctx }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ input, context }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
     }
 
-    const response = await ctx.db.query.response.findFirst({
+    const response = await context.db.query.response.findFirst({
       where: and(
         eq(responseTable.id, input.candidateId),
         eq(responseTable.entityType, "vacancy"),
@@ -76,31 +73,25 @@ export const getById = protectedProcedure
     });
 
     if (!response) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Кандидат не найден",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден", });
     }
 
-    const vacancyData = await ctx.db.query.vacancy.findFirst({
+    const vacancyData = await context.db.query.vacancy.findFirst({
       where: eq(vacancy.id, response.entityId),
       columns: { id: true, title: true, workspaceId: true },
     });
 
     if (!vacancyData || vacancyData.workspaceId !== input.workspaceId) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому кандидату",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому кандидату", });
     }
 
     // Query related data separately
-    const screening = await ctx.db.query.responseScreening.findFirst({
+    const screening = await context.db.query.responseScreening.findFirst({
       where: eq(responseScreeningTable.responseId, response.id),
     });
 
     // Find interview session for this response
-    const interview = await ctx.db.query.interviewSession.findFirst({
+    const interview = await context.db.query.interviewSession.findFirst({
       where: eq(interviewSessionTable.responseId, response.id),
     });
 
@@ -108,11 +99,11 @@ export const getById = protectedProcedure
     let messageCount = 0;
 
     if (interview) {
-      interviewScoring = await ctx.db.query.interviewScoring.findFirst({
+      interviewScoring = await context.db.query.interviewScoring.findFirst({
         where: eq(interviewScoringTable.interviewSessionId, interview.id),
       });
 
-      const messages = await ctx.db.query.interviewMessage.findMany({
+      const messages = await context.db.query.interviewMessage.findMany({
         where: eq(interviewMessageTable.sessionId, interview.id),
         columns: { id: true },
       });
@@ -121,14 +112,14 @@ export const getById = protectedProcedure
 
     let photoFile = null;
     if (response.photoFileId) {
-      photoFile = await ctx.db.query.file.findFirst({
+      photoFile = await context.db.query.file.findFirst({
         where: eq(fileTable.id, response.photoFileId),
       });
     }
 
     let resumePdfFile = null;
     if (response.resumePdfFileId) {
-      resumePdfFile = await ctx.db.query.file.findFirst({
+      resumePdfFile = await context.db.query.file.findFirst({
         where: eq(fileTable.id, response.resumePdfFileId),
       });
     }
@@ -164,7 +155,7 @@ export const getById = protectedProcedure
     // Получаем информацию о глобальном кандидате, если он связан
     let globalCandidateData = null;
     if (response.globalCandidateId) {
-      globalCandidateData = await ctx.db.query.globalCandidate.findFirst({
+      globalCandidateData = await context.db.query.globalCandidate.findFirst({
         where: eq(globalCandidate.id, response.globalCandidateId),
         columns: {
           id: true,

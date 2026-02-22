@@ -11,22 +11,19 @@ const generateInterviewLinkInputSchema = z.object({
 
 export const generateInterviewLink = protectedProcedure
   .input(generateInterviewLinkInputSchema)
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверка доступа к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
     }
 
     // Проверяем, существует ли вакансия и принадлежит ли она workspace
-    const vacancy = await ctx.db.query.vacancy.findFirst({
+    const vacancy = await context.db.query.vacancy.findFirst({
       where: (vacancy, { and, eq }) =>
         and(
           eq(vacancy.id, input.vacancyId),
@@ -35,10 +32,7 @@ export const generateInterviewLink = protectedProcedure
     });
 
     if (!vacancy) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Вакансия не найдена",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена", });
     }
 
     // Генерируем ссылку на интервью

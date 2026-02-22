@@ -6,8 +6,8 @@ import { protectedProcedure } from "../../../orpc";
 
 export const deleteSessionRouter = protectedProcedure
   .input(z.object({ sessionId: z.string(), workspaceId: z.string() }))
-  .mutation(async ({ input, ctx }) => {
-    const result = await ctx.db
+  .handler(async ({ input, context }) => {
+    const result = await context.db
       .delete(telegramSession)
       .where(
         and(
@@ -18,10 +18,7 @@ export const deleteSessionRouter = protectedProcedure
       .returning();
 
     if (result.length === 0) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Сессия не найдена",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Сессия не найдена", });
     }
 
     return { success: true };

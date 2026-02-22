@@ -47,20 +47,17 @@ export const checkAvailability = protectedProcedure
         .transform((val) => val.toLowerCase().trim()),
     }),
   )
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const member = await db.query.workspaceMember.findFirst({
       where: (member, { eq, and }) =>
         and(
           eq(member.workspaceId, input.workspaceId),
-          eq(member.userId, ctx.session.user.id),
+          eq(member.userId, context.session.user.id),
         ),
     });
 
     if (!member) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
     }
 
     const existingDomain = await db.query.customDomain.findFirst({

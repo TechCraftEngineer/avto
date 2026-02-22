@@ -6,31 +6,25 @@ import { protectedProcedure } from "../../orpc";
 
 export const requestHHResendCode = protectedProcedure
   .input(z.object({ workspaceId: workspaceIdSchema }))
-  .mutation(async ({ input, ctx }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ input, context }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
     }
 
     try {
-      await saveHHResendRequested(ctx.db, input.workspaceId);
+      await saveHHResendRequested(context.db, input.workspaceId);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       if (
         msg.includes("not found") ||
         msg.includes("Integration hh not found")
       ) {
-        throw new ORPCError({
-          code: "NOT_FOUND",
-          message: "Интеграция HH не найдена",
-        });
+        throw new ORPCError("NOT_FOUND", { message: "Интеграция HH не найдена", });
       }
       throw err;
     }

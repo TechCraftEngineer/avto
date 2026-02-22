@@ -12,18 +12,15 @@ export const vacancyStats = protectedProcedure
       vacancyId: z.string().optional(),
     }),
   )
-  .query(async ({ input, ctx }) => {
-    const vacancies = await ctx.db.query.vacancy.findMany({
+  .handler(async ({ input, context }) => {
+    const vacancies = await context.db.query.vacancy.findMany({
       where: eq(vacancy.workspaceId, input.workspaceId),
     });
 
     const workspaceVacancyIds = new Set(vacancies.map((v) => v.id));
 
     if (input.vacancyId && !workspaceVacancyIds.has(input.vacancyId)) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Вакансия не найдена в указанном workspace",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ workspace", });
     }
 
     const vacancyIds = input.vacancyId
@@ -34,7 +31,7 @@ export const vacancyStats = protectedProcedure
       return [];
     }
 
-    const responses = await ctx.db.query.response.findMany({
+    const responses = await context.db.query.response.findMany({
       where: and(
         inArray(responseTable.entityId, vacancyIds),
         eq(responseTable.entityType, "vacancy"),
@@ -55,7 +52,7 @@ export const vacancyStats = protectedProcedure
 
     for (const response of responses) {
       const vacancyData = vacancies.find((v) => v.id === response.entityId);
-      const vacancyName = vacancyData?.title ?? "Неизвестная вакансия";
+      const vacancyName = vacancyData?.title ?? "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ";
 
       const stage = mapResponseToStage(
         response.status,

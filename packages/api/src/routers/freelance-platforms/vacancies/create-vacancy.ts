@@ -28,30 +28,30 @@ const createVacancyInputSchema = z.object({
 
 export const createVacancy = protectedProcedure
   .input(createVacancyInputSchema)
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const errorHandler = createErrorHandler(
-      ctx.auditLogger,
-      ctx.session.user.id,
-      ctx.ipAddress,
-      ctx.userAgent,
+      context.auditLogger,
+      context.session.user.id,
+      context.ipAddress,
+      context.userAgent,
     );
 
     try {
       // Проверка доступа к workspace
-      const access = await ctx.workspaceRepository.checkAccess(
+      const access = await context.workspaceRepository.checkAccess(
         input.workspaceId,
-        ctx.session.user.id,
+        context.session.user.id,
       );
 
       if (!access) {
         throw await errorHandler.handleAuthorizationError("workspace", {
           workspaceId: input.workspaceId,
-          userId: ctx.session.user.id,
+          userId: context.session.user.id,
         });
       }
 
       // Создаём вакансию
-      const [createdVacancy] = await ctx.db
+      const [createdVacancy] = await context.db
         .insert(vacancy)
         .values({
           workspaceId: input.workspaceId,
@@ -60,7 +60,7 @@ export const createVacancy = protectedProcedure
           requirements: input.requirements || null,
           source: input.platformSource,
           url: input.platformUrl,
-          createdBy: ctx.session.user.id,
+          createdBy: context.session.user.id,
           isActive: true,
         })
         .returning();

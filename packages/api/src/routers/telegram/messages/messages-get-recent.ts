@@ -19,14 +19,14 @@ export const getRecentMessagesRouter = protectedProcedure
       limit: z.number().min(1).max(100).default(10),
     }),
   )
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     await verifyWorkspaceAccess(
-      ctx.workspaceRepository,
+      context.workspaceRepository,
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
-    const messages = await ctx.db
+    const messages = await context.db
       .select({
         message: interviewMessage,
         session: interviewSession,

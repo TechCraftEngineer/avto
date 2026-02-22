@@ -7,10 +7,10 @@ import { protectedProcedure } from "../../orpc";
 
 export const list = protectedProcedure
   .input(z.object({}).optional())
-  .query(async ({ ctx }) => {
+  .handler(async ({ context }) => {
     const integrations = await getUserIntegrationsByUser(
-      ctx.db,
-      ctx.session.user.id,
+      context.db,
+      context.session.user.id,
     );
 
     return integrations.map((int) => {

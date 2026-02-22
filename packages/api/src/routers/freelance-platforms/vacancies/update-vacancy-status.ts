@@ -13,22 +13,19 @@ const updateVacancyStatusInputSchema = z.object({
 
 export const updateVacancyStatus = protectedProcedure
   .input(updateVacancyStatusInputSchema)
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверка доступа к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
     }
 
     // Проверяем существование вакансии
-    const existingVacancy = await ctx.db.query.vacancy.findFirst({
+    const existingVacancy = await context.db.query.vacancy.findFirst({
       where: and(
         eq(vacancy.id, input.id),
         eq(vacancy.workspaceId, input.workspaceId),
@@ -36,17 +33,14 @@ export const updateVacancyStatus = protectedProcedure
     });
 
     if (!existingVacancy) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Вакансия не найдена",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена", });
     }
 
     // Преобразуем статус в isActive
     const isActive = input.status === "active";
 
     // Обновляем статус вакансии
-    const [updatedVacancy] = await ctx.db
+    const [updatedVacancy] = await context.db
       .update(vacancy)
       .set({ isActive })
       .where(
@@ -59,7 +53,7 @@ export const updateVacancyStatus = protectedProcedure
 
     // Если вакансия закрывается, деактивируем ссылку на интервью
     if (input.status === "closed") {
-      await ctx.db
+      await context.db
         .update(interviewLink)
         .set({ isActive: false })
         .where(

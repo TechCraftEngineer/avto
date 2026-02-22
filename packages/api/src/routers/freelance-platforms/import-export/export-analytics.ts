@@ -17,18 +17,15 @@ const exportAnalyticsInputSchema = z.object({
 
 export const exportAnalytics = protectedProcedure
   .input(exportAnalyticsInputSchema)
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверка доступа к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
     }
 
     // Построение условий фильтрации
@@ -42,7 +39,7 @@ export const exportAnalytics = protectedProcedure
     }
 
     // Получаем детальные данные для экспорта
-    const analyticsData = await ctx.db
+    const analyticsData = await context.db
       .select({
         vacancyId: vacancy.id,
         vacancyTitle: vacancy.title,
@@ -87,13 +84,13 @@ export const exportAnalytics = protectedProcedure
 
     // Логируем экспорт данных для каждой вакансии
     for (const row of analyticsData) {
-      await ctx.auditLogger.logDataExport({
-        userId: ctx.session.user.id,
+      await context.auditLogger.logDataExport({
+        userId: context.session.user.id,
         resourceType: "VACANCY",
         resourceId: row.vacancyId,
         exportFormat: "csv",
-        ipAddress: ctx.ipAddress,
-        userAgent: ctx.userAgent,
+        ipAddress: context.ipAddress,
+        userAgent: context.userAgent,
       });
     }
 

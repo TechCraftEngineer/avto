@@ -17,25 +17,25 @@ const getAnalyticsInputSchema = z.object({
 
 export const getAnalytics = protectedProcedure
   .input(getAnalyticsInputSchema)
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const errorHandler = createErrorHandler(
-      ctx.auditLogger,
-      ctx.session.user.id,
-      ctx.ipAddress,
-      ctx.userAgent,
+      context.auditLogger,
+      context.session.user.id,
+      context.ipAddress,
+      context.userAgent,
     );
 
     try {
       // Проверка доступа к workspace
-      const access = await ctx.workspaceRepository.checkAccess(
+      const access = await context.workspaceRepository.checkAccess(
         input.workspaceId,
-        ctx.session.user.id,
+        context.session.user.id,
       );
 
       if (!access) {
         throw await errorHandler.handleAuthorizationError("workspace", {
           workspaceId: input.workspaceId,
-          userId: ctx.session.user.id,
+          userId: context.session.user.id,
         });
       }
 
@@ -51,7 +51,7 @@ export const getAnalytics = protectedProcedure
       }
 
       // Требование 15.1: Время до шортлиста
-      const timeToShortlist = await ctx.db
+      const timeToShortlist = await context.db
         .select({
           vacancyId: vacancy.id,
           vacancyTitle: vacancy.title,
@@ -78,7 +78,7 @@ export const getAnalytics = protectedProcedure
         .where(and(...conditions));
 
       // Требование 15.2: Коэффициент завершения интервью
-      const completionRates = await ctx.db
+      const completionRates = await context.db
         .select({
           source: vacancy.source,
           totalResponses: sql<number>`COUNT(DISTINCT ${responseTable.id})`,
@@ -111,7 +111,7 @@ export const getAnalytics = protectedProcedure
         .groupBy(vacancy.source);
 
       // Требование 15.3: Распределение оценок
-      const scoreDistribution = await ctx.db
+      const scoreDistribution = await context.db
         .select({
           scoreRange: sql<string>`CASE
           WHEN ${responseScreening.overallScore} >= 90 THEN '90-100'
@@ -141,7 +141,7 @@ export const getAnalytics = protectedProcedure
         .orderBy(sql`1 DESC`);
 
       // Требование 15.4: Сравнение между фриланс-платформами
-      const platformComparison = await ctx.db
+      const platformComparison = await context.db
         .select({
           platform: vacancy.source,
           totalVacancies: count(vacancy.id),
@@ -180,7 +180,7 @@ export const getAnalytics = protectedProcedure
         .groupBy(vacancy.source);
 
       // Требование 15.5: Сравнение фриланс vs HeadHunter
-      const sourceComparison = await ctx.db
+      const sourceComparison = await context.db
         .select({
           sourceType: sql<string>`CASE
           WHEN ${vacancy.source} = 'HH' THEN 'HeadHunter'

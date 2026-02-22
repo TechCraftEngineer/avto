@@ -35,7 +35,7 @@ const importSingleResponseInputSchema = z.object({
 
 export const importSingleResponse = protectedProcedure
   .input(importSingleResponseInputSchema)
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Валидация: требуется имя ИЛИ контактная информация
     const hasName = input.freelancerName && input.freelancerName.length > 0;
     const hasContact =
@@ -45,53 +45,41 @@ export const importSingleResponse = protectedProcedure
       input.contactInfo?.platformProfileUrl;
 
     if (!hasName && !hasContact) {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
-        message: "Необходимо указать имя фрилансера или контактную информацию",
-      });
+      throw new ORPCError("BAD_REQUEST", { message: "Необходимо указать имя фрилансера или контактную информацию", });
     }
 
     // Проверка существования вакансии
-    const existingVacancy = await ctx.db.query.vacancy.findFirst({
+    const existingVacancy = await context.db.query.vacancy.findFirst({
       where: (vacancy, { eq }) => eq(vacancy.id, input.vacancyId),
     });
 
     if (!existingVacancy) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Вакансия не найдена",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена", });
     }
 
     // Проверка доступа к workspace вакансии
-    const hasAccess = await ctx.workspaceRepository.checkAccess(
+    const hasAccess = await context.workspaceRepository.checkAccess(
       existingVacancy.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!hasAccess) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этой вакансии",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этой вакансии", });
     }
 
     // Get workspace to obtain organizationId
-    const workspaceData = await ctx.db.query.workspace.findFirst({
+    const workspaceData = await context.db.query.workspace.findFirst({
       where: (ws, { eq }) => eq(ws.id, existingVacancy.workspaceId),
       columns: { organizationId: true },
     });
 
     if (!workspaceData) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Workspace не найден",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Workspace не найден", });
     }
 
     // Проверка дубликатов по platformProfileUrl + vacancyId
     if (input.contactInfo?.platformProfileUrl) {
-      const existingResponse = await ctx.db.query.response.findFirst({
+      const existingResponse = await context.db.query.response.findFirst({
         where: and(
           eq(responseTable.entityId, input.vacancyId),
           eq(responseTable.entityType, "vacancy"),
@@ -100,10 +88,7 @@ export const importSingleResponse = protectedProcedure
       });
 
       if (existingResponse) {
-        throw new ORPCError({
-          code: "BAD_REQUEST",
-          message: "Отклик от этого фрилансера уже существует",
-        });
+        throw new ORPCError("BAD_REQUEST", { message: "Отклик от этого фрилансера уже существует", });
       }
     }
 
@@ -111,7 +96,7 @@ export const importSingleResponse = protectedProcedure
     // Используем глобальную таблицу кандидатов и таблицу связей с организациями
     let globalCandidateId: string | null = null;
     try {
-      const globalCandidateRepository = new GlobalCandidateRepository(ctx.db);
+      const globalCandidateRepository = new GlobalCandidateRepository(context.db);
       const candidateService = new CandidateService();
 
       // Create temporary response object for data extraction
@@ -164,7 +149,7 @@ export const importSingleResponse = protectedProcedure
     }
 
     // Создаём запись отклика
-    const [createdResponse] = await ctx.db
+    const [createdResponse] = await context.db
       .insert(responseTable)
       .values({
         entityId: input.vacancyId,
@@ -192,16 +177,13 @@ export const importSingleResponse = protectedProcedure
       .returning();
 
     if (!createdResponse) {
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Не удалось создать отклик",
-      });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось создать отклик", });
     }
 
     // Создаём запись в истории импорта
-    await ctx.db.insert(freelanceImportHistory).values({
+    await context.db.insert(freelanceImportHistory).values({
       vacancyId: input.vacancyId,
-      importedBy: ctx.session.user.id,
+      importedBy: context.session.user.id,
       importMode: "SINGLE",
       platformSource: input.platformSource,
       rawText: input.responseText,

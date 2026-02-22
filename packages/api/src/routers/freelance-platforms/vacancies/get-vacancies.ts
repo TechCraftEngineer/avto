@@ -49,25 +49,25 @@ const getVacanciesInputSchema = z.object({
 
 export const getVacancies = protectedProcedure
   .input(getVacanciesInputSchema)
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const errorHandler = createErrorHandler(
-      ctx.auditLogger,
-      ctx.session.user.id,
-      ctx.ipAddress,
-      ctx.userAgent,
+      context.auditLogger,
+      context.session.user.id,
+      context.ipAddress,
+      context.userAgent,
     );
 
     try {
       // Проверка доступа к workspace
-      const access = await ctx.workspaceRepository.checkAccess(
+      const access = await context.workspaceRepository.checkAccess(
         input.workspaceId,
-        ctx.session.user.id,
+        context.session.user.id,
       );
 
       if (!access) {
         throw await errorHandler.handleAuthorizationError("workspace", {
           workspaceId: input.workspaceId,
-          userId: ctx.session.user.id,
+          userId: context.session.user.id,
         });
       }
 
@@ -106,7 +106,7 @@ export const getVacancies = protectedProcedure
       const whereClause = and(...conditions);
 
       // Базовый запрос
-      const query = ctx.db
+      const query = context.db
         .select({
           id: vacancy.id,
           workspaceId: vacancy.workspaceId,
@@ -177,7 +177,7 @@ export const getVacancies = protectedProcedure
         .limit(input.limit)
         .offset(offset);
 
-      const countResult = await ctx.db
+      const countResult = await context.db
         .select({ count: sql<number>`count(*)` })
         .from(vacancy)
         .where(whereClause);
@@ -215,7 +215,7 @@ export const getVacancies = protectedProcedure
 
       if (hasNoFilters) {
         const [activeCount, totals] = await Promise.all([
-          ctx.db
+          context.db
             .select({ count: sql<number>`count(*)` })
             .from(vacancy)
             .where(
@@ -224,7 +224,7 @@ export const getVacancies = protectedProcedure
                 eq(vacancy.isActive, true),
               ),
             ),
-          ctx.db
+          context.db
             .select({
               totalResponses: sql<number>`COALESCE(SUM(
                 (SELECT COUNT(*)::int FROM ${responseTable} r

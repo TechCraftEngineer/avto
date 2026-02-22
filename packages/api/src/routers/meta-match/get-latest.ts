@@ -23,47 +23,41 @@ const getLatestInputSchema = z.object({
 
 export const getLatest = protectedProcedure
   .input(getLatestInputSchema)
-  .query(async ({ ctx, input }) => {
+  .handler(async ({ context, input }) => {
     await verifyWorkspaceAccess(
-      ctx.workspaceRepository,
+      context.workspaceRepository,
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
-    const response = await ctx.db.query.response.findFirst({
+    const response = await context.db.query.response.findFirst({
       where: eq(responseTable.id, input.candidateId),
       columns: { id: true, entityId: true, globalCandidateId: true },
     });
 
     if (!response) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Кандидат не найден",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден", });
     }
 
-    const vacancyData = await ctx.db.query.vacancy.findFirst({
+    const vacancyData = await context.db.query.vacancy.findFirst({
       where: eq(vacancy.id, response.entityId),
       columns: { id: true, workspaceId: true },
     });
 
     if (!vacancyData || vacancyData.workspaceId !== input.workspaceId) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому кандидату",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому кандидату", });
     }
 
     let birthDate: Date | null = null;
     if (response.globalCandidateId) {
-      const gc = await ctx.db.query.globalCandidate.findFirst({
+      const gc = await context.db.query.globalCandidate.findFirst({
         where: eq(globalCandidate.id, response.globalCandidateId),
         columns: { birthDate: true },
       });
       birthDate = gc?.birthDate ?? null;
     }
 
-    const report = await ctx.db.query.metaMatchReport.findFirst({
+    const report = await context.db.query.metaMatchReport.findFirst({
       where: eq(metaMatchReport.candidateId, response.id),
       orderBy: desc(metaMatchReport.createdAt),
     });
@@ -75,8 +69,8 @@ export const getLatest = protectedProcedure
 
     // Логируем просмотр Meta-Match отчета
     if (report) {
-      await ctx.auditLogger.logAccess({
-        userId: ctx.session.user.id,
+      await context.auditLogger.logAccess({
+        userId: context.session.user.id,
         workspaceId: input.workspaceId,
         action: "VIEW",
         resourceType: "CANDIDATE",
@@ -87,8 +81,8 @@ export const getLatest = protectedProcedure
           algorithmVersion: report.algorithmVersion,
           reportId: report.id,
         },
-        ipAddress: ctx.ipAddress,
-        userAgent: ctx.userAgent,
+        ipAddress: context.ipAddress,
+        userAgent: context.userAgent,
       });
     }
 

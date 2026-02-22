@@ -24,20 +24,17 @@ export const update = protectedProcedure
       resumeLanguage: z.string().max(10).nullish(),
     }),
   )
-  .mutation(async ({ ctx, input }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ context, input }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ workspace", });
     }
 
-    const response = await ctx.db.query.response.findFirst({
+    const response = await context.db.query.response.findFirst({
       where: and(
         eq(responseTable.id, input.responseId),
         eq(responseTable.entityType, "gig"),
@@ -45,13 +42,10 @@ export const update = protectedProcedure
     });
 
     if (!response) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Отклик не найден",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ", });
     }
 
-    const existingGig = await ctx.db.query.gig.findFirst({
+    const existingGig = await context.db.query.gig.findFirst({
       where: and(
         eq(gig.id, response.entityId),
         eq(gig.workspaceId, input.workspaceId),
@@ -59,23 +53,17 @@ export const update = protectedProcedure
     });
 
     if (!existingGig) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому отклику",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", });
     }
 
     const { responseId, workspaceId, ...updateData } = input;
 
     // Guard against empty updates
     if (Object.keys(updateData).length === 0) {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
-        message: "Не указаны поля для обновления",
-      });
+      throw new ORPCError("BAD_REQUEST", { message: "пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", });
     }
 
-    const [updated] = await ctx.db
+    const [updated] = await context.db
       .update(responseTable)
       .set({
         ...updateData,

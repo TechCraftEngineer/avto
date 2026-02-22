@@ -22,12 +22,9 @@ export const saveOAuth = protectedProcedure
       metadata: z.record(z.string(), z.unknown()).optional(),
     }),
   )
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     if (input.type !== "google_calendar") {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
-        message: "Неподдерживаемый тип интеграции",
-      });
+      throw new ORPCError("BAD_REQUEST", { message: "Неподдерживаемый тип интеграции", });
     }
 
     const credentials: Record<string, string> = {
@@ -40,8 +37,8 @@ export const saveOAuth = protectedProcedure
       }),
     };
 
-    const integration = await upsertUserIntegration(ctx.db, {
-      userId: ctx.session.user.id,
+    const integration = await upsertUserIntegration(context.db, {
+      userId: context.session.user.id,
       type: input.type,
       name: input.name,
       credentials,

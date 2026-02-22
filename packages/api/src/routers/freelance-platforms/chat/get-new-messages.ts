@@ -9,22 +9,19 @@ const getNewMessagesInputSchema = z.object({
 
 export const getNewMessages = publicProcedure
   .input(getNewMessagesInputSchema)
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверяем существование interview session
-    const session = await ctx.db.query.interviewSession.findFirst({
+    const session = await context.db.query.interviewSession.findFirst({
       where: (interviewSession, { eq }) =>
         eq(interviewSession.id, input.interviewSessionId),
     });
 
     if (!session) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Интервью не найдено",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Интервью не найдено", });
     }
 
     // Получаем новые сообщения от бота
-    const messages = await ctx.db.query.interviewMessage.findMany({
+    const messages = await context.db.query.interviewMessage.findMany({
       where: (message, { eq, and, gt }) => {
         const conditions = [
           eq(message.sessionId, input.interviewSessionId),

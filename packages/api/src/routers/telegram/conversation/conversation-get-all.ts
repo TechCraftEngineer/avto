@@ -20,14 +20,14 @@ export const getAllConversationsRouter = protectedProcedure
       vacancyId: z.string().optional(),
     }),
   )
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     await verifyWorkspaceAccess(
-      ctx.workspaceRepository,
+      context.workspaceRepository,
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
-    const sessions = await ctx.db
+    const sessions = await context.db
       .select()
       .from(interviewSession)
       .innerJoin(
@@ -54,7 +54,7 @@ export const getAllConversationsRouter = protectedProcedure
 
     const sessionIds = sessions.map((s) => s.interview_sessions.id);
 
-    const allMessages = await ctx.db
+    const allMessages = await context.db
       .select()
       .from(interviewMessage)
       .where(inArray(interviewMessage.sessionId, sessionIds))

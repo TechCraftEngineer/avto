@@ -17,21 +17,18 @@ export const syncResponseCounts = protectedProcedure
       forceSync: z.boolean().default(false), // Принудительная синхронизация
     }),
   )
-  .mutation(async ({ ctx, input }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ context, input }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
     }
 
     // Проверяем что gig принадлежит workspace
-    const existingGig = await ctx.db.query.gig.findFirst({
+    const existingGig = await context.db.query.gig.findFirst({
       where: and(
         eq(gig.id, input.gigId),
         eq(gig.workspaceId, input.workspaceId),
@@ -39,14 +36,11 @@ export const syncResponseCounts = protectedProcedure
     });
 
     if (!existingGig) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Задание не найдено",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено", });
     }
 
     // Получаем актуальные счетчики одним запросом
-    const countsResult = await ctx.db
+    const countsResult = await context.db
       .select({
         total: count(),
         newCount: sql<number>`count(case when ${response.status} = 'NEW' then 1 end)`,
@@ -65,7 +59,7 @@ export const syncResponseCounts = protectedProcedure
       actualCounts.newCount !== (existingGig.newResponses ?? 0);
 
     if (needsUpdate) {
-      await ctx.db
+      await context.db
         .update(gig)
         .set({
           responses: actualCounts.total,

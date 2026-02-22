@@ -28,10 +28,6 @@ export const sendCodeRouter = protectedProcedure
       };
     } catch (error) {
       console.error("Ошибка отправки кода:", error);
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message:
-          error instanceof Error ? error.message : "Ошибка отправки кода",
-      });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: error instanceof Error ? error.message : "Ошибка отправки кода", });
     }
   });

@@ -6,8 +6,8 @@ import { protectedProcedure } from "../../../orpc";
 
 export const getSessionStatusRouter = protectedProcedure
   .input(z.object({ sessionId: z.string(), workspaceId: z.string() }))
-  .query(async ({ input, ctx }) => {
-    const [session] = await ctx.db
+  .handler(async ({ input, context }) => {
+    const [session] = await context.db
       .select()
       .from(telegramSession)
       .where(
@@ -19,10 +19,7 @@ export const getSessionStatusRouter = protectedProcedure
       .limit(1);
 
     if (!session) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Сессия не найдена",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Сессия не найдена", });
     }
 
     return {

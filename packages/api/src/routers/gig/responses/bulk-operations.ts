@@ -21,28 +21,22 @@ async function bulkUpdateStatus(
     | typeof RESPONSE_STATUS.COMPLETED
     | typeof RESPONSE_STATUS.SKIPPED,
 ): Promise<{ success: boolean; updatedCount: number }> {
-  const session = ctx.session;
+  const session = context.session;
   if (!session) {
-    throw new ORPCError({
-      code: "UNAUTHORIZED",
-      message: "Требуется авторизация",
-    });
+    throw new ORPCError("UNAUTHORIZED", { message: "Требуется авторизация", });
   }
   const userId = session.user.id;
 
-  const access = await ctx.workspaceRepository.checkAccess(
+  const access = await context.workspaceRepository.checkAccess(
     input.workspaceId,
     userId,
   );
 
   if (!access) {
-    throw new ORPCError({
-      code: "FORBIDDEN",
-      message: "Нет доступа к этому workspace",
-    });
+    throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
   }
 
-  const responses = await ctx.db.query.response.findMany({
+  const responses = await context.db.query.response.findMany({
     where: inArray(responseTable.id, input.responseIds),
     with: {
       gig: {
@@ -55,10 +49,7 @@ async function bulkUpdateStatus(
   });
 
   if (responses.length !== input.responseIds.length) {
-    throw new ORPCError({
-      code: "NOT_FOUND",
-      message: "Некоторые отклики не найдены",
-    });
+    throw new ORPCError("NOT_FOUND", { message: "Некоторые отклики не найдены", });
   }
 
   const invalidResponses = responses.filter(
@@ -66,13 +57,10 @@ async function bulkUpdateStatus(
   );
 
   if (invalidResponses.length > 0) {
-    throw new ORPCError({
-      code: "FORBIDDEN",
-      message: "Некоторые отклики не принадлежат этому workspace",
-    });
+    throw new ORPCError("FORBIDDEN", { message: "Некоторые отклики не принадлежат этому workspace", });
   }
 
-  const updateResult = await ctx.db
+  const updateResult = await context.db
     .update(responseTable)
     .set({
       status: targetStatus,
@@ -98,7 +86,7 @@ export const acceptMultiple = protectedProcedure
       workspaceId: workspaceIdSchema,
     }),
   )
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     return bulkUpdateStatus(ctx, input, RESPONSE_STATUS.COMPLETED);
   });
 
@@ -109,6 +97,6 @@ export const rejectMultiple = protectedProcedure
       workspaceId: workspaceIdSchema,
     }),
   )
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     return bulkUpdateStatus(ctx, input, RESPONSE_STATUS.SKIPPED);
   });

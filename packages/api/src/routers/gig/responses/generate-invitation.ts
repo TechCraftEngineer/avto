@@ -32,21 +32,18 @@ export const generateInvitation = protectedProcedure
       workspaceId: workspaceIdSchema,
     }),
   )
-  .mutation(async ({ ctx, input }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ context, input }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
     }
 
     // Получаем отклик
-    const response = await ctx.db.query.response.findFirst({
+    const response = await context.db.query.response.findFirst({
       where: and(
         eq(responseTable.id, input.responseId),
         eq(responseTable.entityType, "gig"),
@@ -54,13 +51,10 @@ export const generateInvitation = protectedProcedure
     });
 
     if (!response) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Отклик не найден",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Отклик не найден", });
     }
 
-    const existingGig = await ctx.db.query.gig.findFirst({
+    const existingGig = await context.db.query.gig.findFirst({
       where: and(
         eq(gig.id, response.entityId),
         eq(gig.workspaceId, input.workspaceId),
@@ -68,10 +62,7 @@ export const generateInvitation = protectedProcedure
     });
 
     if (!existingGig) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому отклику",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому отклику", });
     }
 
     // Создаем индивидуальную ссылку на интервью для этого отклика

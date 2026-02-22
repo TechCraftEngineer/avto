@@ -15,20 +15,17 @@ export const create = protectedProcedure
       type: z.enum(["interview", "prequalification"]).default("interview"),
     }),
   )
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const member = await db.query.workspaceMember.findFirst({
       where: (member, { eq, and }) =>
         and(
           eq(member.workspaceId, input.workspaceId),
-          eq(member.userId, ctx.session.user.id),
+          eq(member.userId, context.session.user.id),
         ),
     });
 
     if (!member || (member.role !== "owner" && member.role !== "admin")) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Недостаточно прав для добавления домена",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Недостаточно прав для добавления домена", });
     }
 
     const existing = await db.query.customDomain.findFirst({
@@ -40,10 +37,7 @@ export const create = protectedProcedure
     });
 
     if (existing) {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
-        message: "Домен уже используется для этого типа",
-      });
+      throw new ORPCError("BAD_REQUEST", { message: "Домен уже используется для этого типа", });
     }
 
     const [created] = await db
@@ -59,10 +53,7 @@ export const create = protectedProcedure
       .returning();
 
     if (!created) {
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Не удалось создать домен",
-      });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось создать домен", });
     }
 
     return created;

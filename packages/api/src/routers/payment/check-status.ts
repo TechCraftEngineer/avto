@@ -21,11 +21,11 @@ import { protectedProcedure } from "../../orpc";
  */
 export const checkStatus = protectedProcedure
   .input(checkPaymentStatusSchema)
-  .query(async ({ input, ctx }) => {
-    const userId = ctx.session.user.id;
+  .handler(async ({ input, context }) => {
+    const userId = context.session.user.id;
 
     // 1. Находим платеж в БД по ID (Требование 4.1)
-    const [existingPayment] = await ctx.db
+    const [existingPayment] = await context.db
       .select()
       .from(payment)
       .where(eq(payment.id, input.paymentId))
@@ -33,18 +33,12 @@ export const checkStatus = protectedProcedure
 
     // 2. Проверяем существование платежа
     if (!existingPayment) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Платеж не найден",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Платеж не найден", });
     }
 
     // 3. Проверяем доступ пользователя к платежу (через userId)
     if (existingPayment.userId !== userId) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому платежу",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому платежу", });
     }
 
     // 4. Создаем клиент ЮКасса
@@ -52,13 +46,9 @@ export const checkStatus = protectedProcedure
     try {
       yookassa = createYookassaClient();
     } catch (error) {
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message:
-          error instanceof Error
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: error instanceof Error
             ? error.message
-            : "Ошибка конфигурации платежной системы",
-      });
+            : "Ошибка конфигурации платежной системы", });
     }
 
     try {
@@ -83,7 +73,7 @@ export const checkStatus = protectedProcedure
       // 7. Обновляем статус в БД, если изменился (Требование 4.2)
       if (newStatus !== existingPayment.status) {
         const now = new Date();
-        await ctx.db
+        await context.db
           .update(payment)
           .set({
             status: newStatus,
@@ -188,10 +178,6 @@ export const checkStatus = protectedProcedure
         }),
       );
 
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message:
-          error instanceof Error ? error.message : "Ошибка проверки статуса",
-      });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: error instanceof Error ? error.message : "Ошибка проверки статуса", });
     }
   });

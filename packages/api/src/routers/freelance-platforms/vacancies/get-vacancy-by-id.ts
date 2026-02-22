@@ -13,22 +13,19 @@ const getVacancyByIdInputSchema = z.object({
 
 export const getVacancyById = protectedProcedure
   .input(getVacancyByIdInputSchema)
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверка доступа к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
     }
 
     // Получаем вакансию
-    const vacancyDataRaw = await ctx.db.query.vacancy.findFirst({
+    const vacancyDataRaw = await context.db.query.vacancy.findFirst({
       where: and(
         eq(vacancy.id, input.id),
         eq(vacancy.workspaceId, input.workspaceId),
@@ -39,14 +36,11 @@ export const getVacancyById = protectedProcedure
     });
 
     if (!vacancyDataRaw) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Вакансия не найдена",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена", });
     }
 
     // Получаем статистику по источникам откликов
-    const responseStats = await ctx.db
+    const responseStats = await context.db
       .select({
         importSource: responseTable.importSource,
         count: sql<number>`COUNT(*)::int`,
@@ -61,7 +55,7 @@ export const getVacancyById = protectedProcedure
       .groupBy(responseTable.importSource);
 
     // Получаем активную ссылку на интервью
-    const activeInterviewLink = await ctx.db.query.interviewLink.findFirst({
+    const activeInterviewLink = await context.db.query.interviewLink.findFirst({
       where: (link, { eq, and }) =>
         and(
           eq(link.entityId, vacancyDataRaw.id),
@@ -79,7 +73,7 @@ export const getVacancyById = protectedProcedure
       }
     }
 
-    const [responseCounts] = await ctx.db
+    const [responseCounts] = await context.db
       .select({
         total: count(responseTable.id),
         newCount: sql<number>`COUNT(*) FILTER (WHERE ${responseTable.status} = 'NEW')`,

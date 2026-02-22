@@ -70,20 +70,17 @@ export const list = protectedProcedure
         .optional(),
     }),
   )
-  .query(async ({ input, ctx }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ input, context }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
     }
 
-    const vacancies = await ctx.db.query.vacancy.findMany({
+    const vacancies = await context.db.query.vacancy.findMany({
       where: eq(vacancy.workspaceId, input.workspaceId),
       columns: { id: true, title: true },
     });
@@ -183,12 +180,12 @@ export const list = protectedProcedure
       conditions.push(lt(responseTable.id, input.cursor));
     }
 
-    const totalCount = await ctx.db.query.response.findMany({
+    const totalCount = await context.db.query.response.findMany({
       where: and(...conditions),
       columns: { id: true },
     });
 
-    const responses = await ctx.db.query.response.findMany({
+    const responses = await context.db.query.response.findMany({
       where: and(...conditions),
       orderBy: [desc(responseTable.id)],
       limit: input.limit + 1,
@@ -202,19 +199,19 @@ export const list = protectedProcedure
 
     const responseIds = responses.map((r) => r.id);
 
-    const screenings = await ctx.db.query.responseScreening.findMany({
+    const screenings = await context.db.query.responseScreening.findMany({
       where: inArray(responseScreeningTable.responseId, responseIds),
     });
 
     // Find interview sessions for vacancy responses
-    const interviewSessions = await ctx.db.query.interviewSession.findMany({
+    const interviewSessions = await context.db.query.interviewSession.findMany({
       where: inArray(interviewSessionTable.responseId, responseIds),
     });
 
     const interviewSessionIds = interviewSessions.map((s) => s.id);
     const interviewScorings =
       interviewSessionIds.length > 0
-        ? await ctx.db.query.interviewScoring.findMany({
+        ? await context.db.query.interviewScoring.findMany({
             where: inArray(
               interviewScoringTable.interviewSessionId,
               interviewSessionIds,
@@ -225,7 +222,7 @@ export const list = protectedProcedure
     // Get message counts
     const messageCounts = new Map<string, number>();
     for (const session of interviewSessions) {
-      const messages = await ctx.db.query.interviewMessage.findMany({
+      const messages = await context.db.query.interviewMessage.findMany({
         where: eq(interviewMessageTable.sessionId, session.id),
         columns: { id: true },
       });
@@ -240,7 +237,7 @@ export const list = protectedProcedure
       .filter((id): id is string => id !== null);
     const photoFiles =
       photoFileIds.length > 0
-        ? await ctx.db.query.file.findMany({
+        ? await context.db.query.file.findMany({
             where: inArray(fileTable.id, photoFileIds),
           })
         : [];
@@ -252,7 +249,7 @@ export const list = protectedProcedure
 
     const globalCandidates =
       globalCandidateIds.length > 0
-        ? await ctx.db.query.globalCandidate.findMany({
+        ? await context.db.query.globalCandidate.findMany({
             where: inArray(globalCandidate.id, globalCandidateIds),
             columns: {
               id: true,

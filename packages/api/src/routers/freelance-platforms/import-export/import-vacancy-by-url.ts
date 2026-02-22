@@ -15,14 +15,14 @@ export const importVacancyByUrl = protectedProcedure
       url: ImportByUrlSchema.shape.url,
     }),
   )
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const { workspaceId, url } = input;
 
     // Проверка доступа к workspace
     await verifyWorkspaceAccess(
-      ctx.workspaceRepository,
+      context.workspaceRepository,
       workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     // Генерируем уникальный ID для отслеживания запроса
@@ -30,7 +30,7 @@ export const importVacancyByUrl = protectedProcedure
 
     // Отправляем событие в Inngest для асинхронной обработки
     try {
-      await ctx.inngest.send({
+      await context.inngest.send({
         name: "vacancy/import.by-url",
         data: {
           workspaceId,
@@ -46,9 +46,6 @@ export const importVacancyByUrl = protectedProcedure
       };
     } catch (error) {
       console.error("Ошибка при отправке события импорта:", error);
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Не удалось запустить импорт вакансии",
-      });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось запустить импорт вакансии", });
     }
   });

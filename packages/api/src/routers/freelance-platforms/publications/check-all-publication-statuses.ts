@@ -10,18 +10,15 @@ const checkAllPublicationStatusesInputSchema = z.object({
 
 export const checkAllPublicationStatuses = protectedProcedure
   .input(checkAllPublicationStatusesInputSchema)
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверка доступа к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
     }
 
     try {
@@ -42,9 +39,6 @@ export const checkAllPublicationStatuses = protectedProcedure
         "Ошибка при запуске массовой проверки статусов публикаций:",
         error,
       );
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Не удалось запустить проверку статусов публикаций",
-      });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось запустить проверку статусов публикаций", });
     }
   });

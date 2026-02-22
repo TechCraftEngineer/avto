@@ -1,6 +1,6 @@
 import { describe, expect, it, mock } from "bun:test";
+import { ORPCError } from "@orpc/client";
 import type { Session } from "@qbs-autonaim/auth";
-import { ORPCError } from "@orpc/server";
 import type { Context } from "../../../orpc";
 
 const mockInngestSend = mock(() => Promise.resolve({ ids: ["event-123"] }));
@@ -49,17 +49,12 @@ describe("syncArchivedVacancyResponses", () => {
     }) as unknown as Context;
 
   const callProcedure = async (
-    ctx: Context,
+    context: Context,
     input: { workspaceId: string; vacancyId: string },
   ) => {
-    return syncArchivedVacancyResponses({
-      ctx,
-      input,
-      type: "mutation",
-      path: "freelance-platforms.other.sync-archived-vacancy-responses",
-      getRawInput: async () => input,
-      next: async () => ({ ctx }),
-    });
+    // В oRPC процедуры вызываются напрямую через handler
+    // @ts-expect-error - accessing internal handler for testing
+    return syncArchivedVacancyResponses._def.handler({ context, input });
   };
 
   it("должен выбросить FORBIDDEN если нет доступа к workspace", async () => {
@@ -76,9 +71,9 @@ describe("syncArchivedVacancyResponses", () => {
       });
       expect(true).toBe(false); // Не должно дойти сюда
     } catch (error) {
-      expect(error).toBeInstanceOf(TRPCError);
-      expect((error as TRPCError).code).toBe("FORBIDDEN");
-      expect((error as TRPCError).message).toBe("Нет доступа к workspace");
+      expect(error).toBeInstanceOf(ORPCError);
+      expect((error as ORPCError).code).toBe("FORBIDDEN");
+      expect((error as ORPCError).message).toBe("Нет доступа к workspace");
     }
   });
 
@@ -103,9 +98,9 @@ describe("syncArchivedVacancyResponses", () => {
       });
       expect(true).toBe(false);
     } catch (error) {
-      expect(error).toBeInstanceOf(TRPCError);
-      expect((error as TRPCError).code).toBe("NOT_FOUND");
-      expect((error as TRPCError).message).toBe("Вакансия не найдена");
+      expect(error).toBeInstanceOf(ORPCError);
+      expect((error as ORPCError).code).toBe("NOT_FOUND");
+      expect((error as ORPCError).message).toBe("Вакансия не найдена");
     }
   });
 
@@ -136,9 +131,9 @@ describe("syncArchivedVacancyResponses", () => {
       });
       expect(true).toBe(false);
     } catch (error) {
-      expect(error).toBeInstanceOf(TRPCError);
-      expect((error as TRPCError).code).toBe("BAD_REQUEST");
-      expect((error as TRPCError).message).toBe(
+      expect(error).toBeInstanceOf(ORPCError);
+      expect((error as ORPCError).code).toBe("BAD_REQUEST");
+      expect((error as ORPCError).message).toBe(
         "Вакансия не опубликована на HH.ru (HeadHunter)",
       );
     }
@@ -179,9 +174,9 @@ describe("syncArchivedVacancyResponses", () => {
       });
       expect(true).toBe(false);
     } catch (error) {
-      expect(error).toBeInstanceOf(TRPCError);
-      expect((error as TRPCError).code).toBe("BAD_REQUEST");
-      expect((error as TRPCError).message).toBe(
+      expect(error).toBeInstanceOf(ORPCError);
+      expect((error as ORPCError).code).toBe("BAD_REQUEST");
+      expect((error as ORPCError).message).toBe(
         "У публикации нет внешнего идентификатора или ссылки для синхронизации",
       );
     }

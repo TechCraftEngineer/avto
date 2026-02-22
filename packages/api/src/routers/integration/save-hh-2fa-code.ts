@@ -18,29 +18,23 @@ const saveHH2FACodeSchema = z.object({
 
 export const saveHH2FACode = protectedProcedure
   .input(saveHH2FACodeSchema)
-  .mutation(async ({ input, ctx }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ input, context }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
     }
 
-    const existing = await getIntegration(ctx.db, "hh", input.workspaceId);
+    const existing = await getIntegration(context.db, "hh", input.workspaceId);
     if (!existing) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Интеграция HH не найдена. Запросите код заново.",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Интеграция HH не найдена. Запросите код заново.", });
     }
 
     await saveHHPendingVerificationCode(
-      ctx.db,
+      context.db,
       input.workspaceId,
       input.verificationCode,
     );

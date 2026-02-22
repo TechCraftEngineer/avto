@@ -172,23 +172,20 @@ function extractJSON(text: string): string | null {
 
 export const chatGenerate = protectedProcedure
   .input(chatGenerateInputSchema)
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const { workspaceId, message, currentDocument, conversationHistory } =
       input;
 
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
     }
 
-    const botSettings = await ctx.db.query.botSettings.findFirst({
+    const botSettings = await context.db.query.botSettings.findFirst({
       where: (botSettings, { eq }) => eq(botSettings.workspaceId, workspaceId),
     });
 
@@ -217,11 +214,7 @@ export const chatGenerate = protectedProcedure
           "[gig.chatGenerate] Failed to extract JSON from:",
           fullText,
         );
-        throw new ORPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message:
-            "AI не вернул валидный JSON. Попробуйте переформулировать запрос.",
-        });
+        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "AI не вернул валидный JSON. Попробуйте переформулировать запрос.", });
       }
 
       console.log("[gig.chatGenerate] Extracted JSON:", jsonString);
@@ -254,9 +247,6 @@ export const chatGenerate = protectedProcedure
     } catch (error) {
       console.error("[gig.chatGenerate] Error:", error);
       if (error instanceof ORPCError) throw error;
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Не удалось сгенерировать задание. Попробуйте позже.",
-      });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось сгенерировать задание. Попробуйте позже.", });
     }
   });

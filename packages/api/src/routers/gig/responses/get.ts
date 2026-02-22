@@ -17,20 +17,17 @@ export const get = protectedProcedure
       workspaceId: workspaceIdSchema,
     }),
   )
-  .query(async ({ ctx, input }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ context, input }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
     }
 
-    const response = await ctx.db.query.response.findFirst({
+    const response = await context.db.query.response.findFirst({
       where: and(
         eq(responseTable.id, input.responseId),
         eq(responseTable.entityType, "gig"),
@@ -42,13 +39,10 @@ export const get = protectedProcedure
     });
 
     if (!response) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Отклик не найден",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Отклик не найден", });
     }
 
-    const existingGig = await ctx.db.query.gig.findFirst({
+    const existingGig = await context.db.query.gig.findFirst({
       where: and(
         eq(gig.id, response.entityId),
         eq(gig.workspaceId, input.workspaceId),
@@ -56,14 +50,11 @@ export const get = protectedProcedure
     });
 
     if (!existingGig) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому отклику",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому отклику", });
     }
 
     // Получаем interviewSession с сообщениями
-    const sessionData = await ctx.db.query.interviewSession.findFirst({
+    const sessionData = await context.db.query.interviewSession.findFirst({
       where: eq(interviewSession.responseId, input.responseId),
       with: {
         messages: {
@@ -77,7 +68,7 @@ export const get = protectedProcedure
 
     // Query interview scoring separately (both from session and direct)
     const sessionInterviewScoring = sessionData
-      ? await ctx.db.query.interviewScoring.findFirst({
+      ? await context.db.query.interviewScoring.findFirst({
           where: eq(interviewScoring.interviewSessionId, sessionData.id),
         })
       : null;

@@ -20,20 +20,17 @@ export const list = protectedProcedure
       cursor: uuidv7Schema.optional(),
     }),
   )
-  .query(async ({ input, ctx }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ input, context }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
     }
 
-    const vacancies = await ctx.db.query.vacancy.findMany({
+    const vacancies = await context.db.query.vacancy.findMany({
       where: eq(vacancy.workspaceId, input.workspaceId),
       columns: { id: true, title: true },
     });
@@ -60,7 +57,7 @@ export const list = protectedProcedure
       conditions.push(lt(responseTable.id, input.cursor));
     }
 
-    const responses = await ctx.db.query.response.findMany({
+    const responses = await context.db.query.response.findMany({
       where: and(...conditions),
       orderBy: [desc(responseTable.id)],
       limit: input.limit + 1,
@@ -77,14 +74,14 @@ export const list = protectedProcedure
 
     const screenings =
       responseIds.length > 0
-        ? await ctx.db.query.responseScreening.findMany({
+        ? await context.db.query.responseScreening.findMany({
             where: (s, { inArray }) => inArray(s.responseId, responseIds),
           })
         : [];
 
     const interviewScorings =
       responseIds.length > 0
-        ? await ctx.db.query.interviewScoring.findMany({
+        ? await context.db.query.interviewScoring.findMany({
             where: (is, { inArray }) => inArray(is.responseId, responseIds),
           })
         : [];

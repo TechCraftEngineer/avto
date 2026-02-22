@@ -12,20 +12,17 @@ export const toggleActive = protectedProcedure
       workspaceId: workspaceIdSchema,
     }),
   )
-  .mutation(async ({ ctx, input }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ context, input }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
     }
 
-    const [updated] = await ctx.db
+    const [updated] = await context.db
       .update(gig)
       .set({
         isActive: not(gig.isActive),
@@ -37,10 +34,7 @@ export const toggleActive = protectedProcedure
       .returning({ id: gig.id, title: gig.title, isActive: gig.isActive });
 
     if (!updated) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Задание не найдено",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено", });
     }
 
     return {

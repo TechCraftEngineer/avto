@@ -9,35 +9,26 @@ const getVacancyByTokenInputSchema = z.object({
 
 export const getVacancyByToken = publicProcedure
   .input(getVacancyByTokenInputSchema)
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Валидируем токен через сервис
     const linkGenerator = new InterviewLinkGenerator();
     const interviewLink = await linkGenerator.validateLink(input.token);
     if (!interviewLink) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Ссылка на интервью недействительна или истекла",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Ссылка на интервью недействительна или истекла", });
     }
 
     // Получаем вакансию
-    const vacancy = await ctx.db.query.vacancy.findFirst({
+    const vacancy = await context.db.query.vacancy.findFirst({
       where: (vacancy, { eq }) => eq(vacancy.id, interviewLink.entityId),
     });
 
     if (!vacancy) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Вакансия не найдена",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена", });
     }
 
     // Проверяем, что вакансия активна
     if (!vacancy.isActive) {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
-        message: "Вакансия закрыта",
-      });
+      throw new ORPCError("BAD_REQUEST", { message: "Вакансия закрыта", });
     }
 
     return {

@@ -35,21 +35,18 @@ const evaluateCandidateInputSchema = z.object({
 
 export const evaluateCandidate = protectedProcedure
   .input(evaluateCandidateInputSchema)
-  .mutation(async ({ ctx, input }) => {
+  .handler(async ({ context, input }) => {
     if (!input.consentGranted) {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
-        message: "Нет согласия кандидата на обработку даты рождения",
-      });
+      throw new ORPCError("BAD_REQUEST", { message: "Нет согласия кандидата на обработку даты рождения", });
     }
 
     await verifyWorkspaceAccess(
-      ctx.workspaceRepository,
+      context.workspaceRepository,
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
-    const response = await ctx.db.query.response.findFirst({
+    const response = await context.db.query.response.findFirst({
       where: eq(responseTable.id, input.candidateId),
       columns: {
         id: true,
@@ -60,21 +57,18 @@ export const evaluateCandidate = protectedProcedure
     });
 
     if (!response) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Кандидат не найден",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден", });
     }
 
     let entityData: { id: string; workspaceId: string } | undefined;
 
     if (response.entityType === "vacancy") {
-      entityData = await ctx.db.query.vacancy.findFirst({
+      entityData = await context.db.query.vacancy.findFirst({
         where: eq(vacancy.id, response.entityId),
         columns: { id: true, workspaceId: true },
       });
     } else if (response.entityType === "gig") {
-      entityData = await ctx.db.query.gig.findFirst({
+      entityData = await context.db.query.gig.findFirst({
         where: eq(gig.id, response.entityId),
         columns: { id: true, workspaceId: true },
       });
@@ -86,15 +80,12 @@ export const evaluateCandidate = protectedProcedure
     }
 
     if (!entityData || entityData.workspaceId !== input.workspaceId) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому кандидату",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому кандидату", });
     }
 
     let resolvedBirthDate = input.birthDate ?? null;
     if (!resolvedBirthDate && response.globalCandidateId) {
-      const gc = await ctx.db.query.globalCandidate.findFirst({
+      const gc = await context.db.query.globalCandidate.findFirst({
         where: eq(globalCandidate.id, response.globalCandidateId),
         columns: { birthDate: true },
       });
@@ -102,10 +93,7 @@ export const evaluateCandidate = protectedProcedure
     }
 
     if (!resolvedBirthDate) {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
-        message: "Дата рождения не указана",
-      });
+      throw new ORPCError("BAD_REQUEST", { message: "Дата рождения не указана", });
     }
 
     const evaluation = evaluateMetaMatch(resolvedBirthDate, new Date(), {
@@ -113,9 +101,9 @@ export const evaluateCandidate = protectedProcedure
       managerBirthDate: input.managerBirthDate,
       teamData: input.teamData,
     });
-    const requestedBy = input.requestedBy ?? ctx.session.user.id;
+    const requestedBy = input.requestedBy ?? context.session.user.id;
 
-    const [report] = await ctx.db
+    const [report] = await context.db
       .insert(metaMatchReport)
       .values({
         candidateId: response.id,
@@ -134,14 +122,11 @@ export const evaluateCandidate = protectedProcedure
       .returning();
 
     if (!report) {
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Не удалось создать отчет о мета-матче",
-      });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось создать отчет о мета-матче", });
     }
 
-    await ctx.auditLogger.logAccess({
-      userId: ctx.session.user.id,
+    await context.auditLogger.logAccess({
+      userId: context.session.user.id,
       workspaceId: input.workspaceId,
       action: "EVALUATE",
       resourceType: "CANDIDATE",
@@ -155,8 +140,8 @@ export const evaluateCandidate = protectedProcedure
         hasManagerData: !!input.managerBirthDate,
         hasTeamData: !!(input.teamData && input.teamData.length > 0),
       },
-      ipAddress: ctx.ipAddress,
-      userAgent: ctx.userAgent,
+      ipAddress: context.ipAddress,
+      userAgent: context.userAgent,
     });
 
     return {

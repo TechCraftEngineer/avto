@@ -4,8 +4,8 @@ import { protectedProcedure } from "../../../orpc";
 
 export const getSessionsRouter = protectedProcedure
   .input(z.object({ workspaceId: z.string() }))
-  .query(async ({ input, ctx }) => {
-    const sessions = await ctx.db
+  .handler(async ({ input, context }) => {
+    const sessions = await context.db
       .select()
       .from(telegramSession)
       .where(eq(telegramSession.workspaceId, input.workspaceId));

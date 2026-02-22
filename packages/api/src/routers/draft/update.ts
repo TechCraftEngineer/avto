@@ -13,25 +13,18 @@ import { protectedProcedure } from "../../orpc";
  */
 export const update = protectedProcedure
   .input(UpdateDraftInputSchema)
-  .mutation(async ({ ctx, input }) => {
-    const draftService = new DraftService(ctx.db);
+  .handler(async ({ context, input }) => {
+    const draftService = new DraftService(context.db);
 
     try {
-      return await draftService.updateDraft(ctx.session.user.id, input);
+      return await draftService.updateDraft(context.session.user.id, input);
     } catch (error) {
       // Если черновик не найден
       if (error instanceof Error && error.message === "Черновик не найден") {
-        throw new ORPCError({
-          code: "NOT_FOUND",
-          message: "Черновик не найден",
-        });
+        throw new ORPCError("NOT_FOUND", { message: "Черновик не найден", });
       }
 
       // Другие ошибки
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message:
-          "Не удалось сохранить изменения. Проверьте подключение к интернету",
-      });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось сохранить изменения. Проверьте подключение к интернету", });
     }
   });

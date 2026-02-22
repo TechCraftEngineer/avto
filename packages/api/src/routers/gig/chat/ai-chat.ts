@@ -90,9 +90,9 @@ export const sendMessage = protectedProcedure
       message: z.string().min(1).max(2000),
     }),
   )
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const { gigId, message } = input;
-    const userId = ctx.session.user.id;
+    const userId = context.session.user.id;
 
     // 0. Check rate limit
     const rateLimitCheck = gigChatRateLimiter.check(userId);
@@ -104,7 +104,7 @@ export const sendMessage = protectedProcedure
     }
 
     // 1. Проверка доступа к workspace через gig
-    const gigData = await ctx.db.query.gig.findFirst({
+    const gigData = await context.db.query.gig.findFirst({
       where: (gig, { eq }) => eq(gig.id, gigId),
       columns: {
         id: true,
@@ -113,26 +113,20 @@ export const sendMessage = protectedProcedure
     });
 
     if (!gigData) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Задание не найдено",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено", });
     }
 
-    const hasAccess = await ctx.workspaceRepository.checkAccess(
+    const hasAccess = await context.workspaceRepository.checkAccess(
       gigData.workspaceId,
       userId,
     );
 
     if (!hasAccess) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому заданию",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому заданию", });
     }
 
     // 2. Загрузка или создание сессии (используем chatSession для админских чатов)
-    let session = await ctx.db.query.chatSession.findFirst({
+    let session = await context.db.query.chatSession.findFirst({
       where: (chatSession, { and, eq }) =>
         and(
           eq(chatSession.entityType, "gig"),
@@ -142,7 +136,7 @@ export const sendMessage = protectedProcedure
     });
 
     if (!session) {
-      const [newSession] = await ctx.db
+      const [newSession] = await context.db
         .insert(chatSession)
         .values({
           entityType: "gig",
@@ -153,28 +147,22 @@ export const sendMessage = protectedProcedure
         .returning();
 
       if (!newSession) {
-        throw new ORPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Не удалось создать сессию чата",
-        });
+        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось создать сессию чата", });
       }
 
       session = newSession;
     }
 
     // 3. Загрузка контекста gig и кандидатов
-    const gigContext = await loadGigContext(ctx.db, gigId);
+    const gigContext = await loadGigContext(context.db, gigId);
     if (!gigContext) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Не удалось загрузить контекст задания",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Не удалось загрузить контекст задания", });
     }
 
-    const candidatesContext = await loadCandidatesContext(ctx.db, gigId);
+    const candidatesContext = await loadCandidatesContext(context.db, gigId);
 
     // 4. Загрузка истории диалога (последние 10 сообщений)
-    const historyMessages = await ctx.db.query.chatMessage.findMany({
+    const historyMessages = await context.db.query.chatMessage.findMany({
       where: (chatMessage, { eq }) => eq(chatMessage.sessionId, session.id),
       orderBy: (chatMessage, { desc }) => [desc(chatMessage.createdAt)],
       limit: 10,
@@ -258,7 +246,7 @@ export const sendMessage = protectedProcedure
       };
 
       // Сохраняем сообщение пользователя
-      await ctx.db.insert(chatMessage).values({
+      await context.db.insert(chatMessage).values({
         sessionId: session.id,
         userId,
         role: "user",
@@ -266,7 +254,7 @@ export const sendMessage = protectedProcedure
       });
 
       // Сохраняем ответ ассистента
-      await ctx.db.insert(chatMessage).values({
+      await context.db.insert(chatMessage).values({
         sessionId: session.id,
         userId,
         role: "assistant",
@@ -276,7 +264,7 @@ export const sendMessage = protectedProcedure
       });
 
       // Обновляем счетчик сообщений и время последнего сообщения
-      await ctx.db
+      await context.db
         .update(chatSession)
         .set({
           messageCount: session.messageCount + 2,
@@ -292,10 +280,7 @@ export const sendMessage = protectedProcedure
     } catch (error) {
       console.error("[gig-ai-chat] Error:", error);
       if (error instanceof ORPCError) throw error;
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Не удалось получить ответ от AI. Попробуйте ещё раз.",
-      });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось получить ответ от AI. Попробуйте ещё раз.", });
     }
   });
 
@@ -309,12 +294,12 @@ export const getHistory = protectedProcedure
       limit: z.number().min(1).max(50).default(50),
     }),
   )
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const { gigId, limit } = input;
-    const userId = ctx.session.user.id;
+    const userId = context.session.user.id;
 
     // 1. Проверка доступа к workspace через gig
-    const gigData = await ctx.db.query.gig.findFirst({
+    const gigData = await context.db.query.gig.findFirst({
       where: (gig, { eq }) => eq(gig.id, gigId),
       columns: {
         id: true,
@@ -323,26 +308,20 @@ export const getHistory = protectedProcedure
     });
 
     if (!gigData) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Задание не найдено",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено", });
     }
 
-    const hasAccess = await ctx.workspaceRepository.checkAccess(
+    const hasAccess = await context.workspaceRepository.checkAccess(
       gigData.workspaceId,
       userId,
     );
 
     if (!hasAccess) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому заданию",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому заданию", });
     }
 
     // 2. Загрузка сессии
-    const session = await ctx.db.query.chatSession.findFirst({
+    const session = await context.db.query.chatSession.findFirst({
       where: (chatSession, { and, eq }) =>
         and(
           eq(chatSession.entityType, "gig"),
@@ -359,7 +338,7 @@ export const getHistory = protectedProcedure
     }
 
     // 3. Загрузка последних N сообщений
-    const messages = await ctx.db.query.chatMessage.findMany({
+    const messages = await context.db.query.chatMessage.findMany({
       where: (chatMessage, { eq }) => eq(chatMessage.sessionId, session.id),
       orderBy: (chatMessage, { desc }) => [desc(chatMessage.createdAt)],
       limit: limit + 1,
@@ -390,12 +369,12 @@ export const clearHistory = protectedProcedure
       gigId: z.string().uuid(),
     }),
   )
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const { gigId } = input;
-    const userId = ctx.session.user.id;
+    const userId = context.session.user.id;
 
     // 1. Проверка доступа к workspace через gig
-    const gigData = await ctx.db.query.gig.findFirst({
+    const gigData = await context.db.query.gig.findFirst({
       where: (gig, { eq }) => eq(gig.id, gigId),
       columns: {
         id: true,
@@ -404,26 +383,20 @@ export const clearHistory = protectedProcedure
     });
 
     if (!gigData) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Задание не найдено",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено", });
     }
 
-    const hasAccess = await ctx.workspaceRepository.checkAccess(
+    const hasAccess = await context.workspaceRepository.checkAccess(
       gigData.workspaceId,
       userId,
     );
 
     if (!hasAccess) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому заданию",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому заданию", });
     }
 
     // 2. Загрузка сессии
-    const session = await ctx.db.query.chatSession.findFirst({
+    const session = await context.db.query.chatSession.findFirst({
       where: (chatSession, { and, eq }) =>
         and(
           eq(chatSession.entityType, "gig"),
@@ -439,12 +412,12 @@ export const clearHistory = protectedProcedure
     }
 
     // 3. Удаление всех сообщений сессии
-    await ctx.db
+    await context.db
       .delete(chatMessage)
       .where(eq(chatMessage.sessionId, session.id));
 
     // 4. Сброс messageCount
-    await ctx.db
+    await context.db
       .update(chatSession)
       .set({
         messageCount: 0,

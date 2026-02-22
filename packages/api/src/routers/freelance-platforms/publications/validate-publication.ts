@@ -12,22 +12,19 @@ const validatePublicationInputSchema = z.object({
 
 export const validatePublication = protectedProcedure
   .input(validatePublicationInputSchema)
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверка доступа к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
     }
 
     // Получаем публикацию
-    const publication = await ctx.db.query.vacancyPublication.findFirst({
+    const publication = await context.db.query.vacancyPublication.findFirst({
       where: (table, { eq: eqFn }) => eqFn(table.id, input.publicationId),
       with: {
         vacancy: {
@@ -39,18 +36,12 @@ export const validatePublication = protectedProcedure
     });
 
     if (!publication) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Публикация не найдена",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Публикация не найдена", });
     }
 
     // Проверяем, что публикация принадлежит к workspace
     if (publication.vacancy.workspaceId !== input.workspaceId) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этой публикации",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этой публикации", });
     }
 
     // Валидация в зависимости от платформы
@@ -99,7 +90,7 @@ export const validatePublication = protectedProcedure
     }
 
     // Обновляем статус публикации
-    await ctx.db
+    await context.db
       .update(vacancyPublication)
       .set({
         isActive: isValid,

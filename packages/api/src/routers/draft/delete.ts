@@ -8,9 +8,9 @@ import { protectedProcedure } from "../../orpc";
  * Свойство 5: Замена черновика при создании нового
  * Свойство 11: Очистка черновика после создания вакансии
  */
-export const deleteDraft = protectedProcedure.mutation(async ({ ctx }) => {
-  const draftService = new DraftService(ctx.db);
-  await draftService.deleteDraft(ctx.session.user.id);
+export const deleteDraft = protectedProcedure.handler(async ({ context }) => {
+  const draftService = new DraftService(context.db);
+  await draftService.deleteDraft(context.session.user.id);
 
   return { success: true };
 });

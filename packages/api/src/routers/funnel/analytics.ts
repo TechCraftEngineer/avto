@@ -11,8 +11,8 @@ export const analytics = protectedProcedure
       vacancyId: z.string().optional(),
     }),
   )
-  .query(async ({ input, ctx }) => {
-    const vacancies = await ctx.db.query.vacancy.findMany({
+  .handler(async ({ input, context }) => {
+    const vacancies = await context.db.query.vacancy.findMany({
       where: eq(vacancy.workspaceId, input.workspaceId),
       columns: { id: true },
     });
@@ -43,7 +43,7 @@ export const analytics = protectedProcedure
       };
     }
 
-    const responses = await ctx.db.query.response.findMany({
+    const responses = await context.db.query.response.findMany({
       where: and(
         inArray(responseTable.entityId, vacancyIds),
         eq(responseTable.entityType, "vacancy"),
@@ -55,7 +55,7 @@ export const analytics = protectedProcedure
 
     const newThisWeek = responses.filter((r) => r.createdAt >= weekAgo).length;
 
-    // Используем единую функцию маппинга для подсчета
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     const byStage = {
       NEW: 0,
       REVIEW: 0,

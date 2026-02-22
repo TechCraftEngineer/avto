@@ -13,40 +13,31 @@ const getInterviewByTokenInputSchema = z.object({
  */
 export const getInterviewByToken = publicProcedure
   .input(getInterviewByTokenInputSchema)
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Ищем в универсальной таблице interview_links
-    const link = await ctx.db.query.interviewLink.findFirst({
+    const link = await context.db.query.interviewLink.findFirst({
       where: (l, { eq, and }) =>
         and(eq(l.token, input.token), eq(l.isActive, true)),
     });
 
     if (!link) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Ссылка на интервью недействительна или истекла",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Ссылка на интервью недействительна или истекла", });
     }
 
     // Проверяем срок действия
     if (link.expiresAt && link.expiresAt < new Date()) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Ссылка на интервью истекла",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Ссылка на интервью истекла", });
     }
 
     // Обработка по типу сущности
     if (link.entityType === "gig") {
       // Получаем гиг
-      const foundGig = await ctx.db.query.gig.findFirst({
+      const foundGig = await context.db.query.gig.findFirst({
         where: (g, { eq }) => eq(g.id, link.entityId),
       });
 
       if (!foundGig) {
-        throw new ORPCError({
-          code: "NOT_FOUND",
-          message: "Задание не найдено",
-        });
+        throw new ORPCError("NOT_FOUND", { message: "Задание не найдено", });
       }
 
       return {
@@ -69,7 +60,7 @@ export const getInterviewByToken = publicProcedure
     // Обработка индивидуальной ссылки на отклик
     if (link.entityType === "response") {
       // Получаем отклик с связанной сессией интервью
-      const foundResponse = await ctx.db.query.response.findFirst({
+      const foundResponse = await context.db.query.response.findFirst({
         where: (r, { eq }) => eq(r.id, link.entityId),
         with: {
           interviewSessions: {
@@ -80,10 +71,7 @@ export const getInterviewByToken = publicProcedure
       });
 
       if (!foundResponse) {
-        throw new ORPCError({
-          code: "NOT_FOUND",
-          message: "Отклик не найден",
-        });
+        throw new ORPCError("NOT_FOUND", { message: "Отклик не найден", });
       }
 
       // Получаем данные вакансии/гига и проверяем статус
@@ -92,14 +80,14 @@ export const getInterviewByToken = publicProcedure
       let source = "direct_link";
 
       if (foundResponse.entityType === "vacancy") {
-        const vacancy = await ctx.db.query.vacancy.findFirst({
+        const vacancy = await context.db.query.vacancy.findFirst({
           where: (v, { eq }) => eq(v.id, foundResponse.entityId),
         });
         isActive = vacancy?.isActive ?? false;
         title = vacancy?.title ?? "Вакансия";
         source = vacancy?.source ?? "direct_link";
       } else if (foundResponse.entityType === "gig") {
-        const gig = await ctx.db.query.gig.findFirst({
+        const gig = await context.db.query.gig.findFirst({
           where: (g, { eq }) => eq(g.id, foundResponse.entityId),
         });
         isActive = gig?.isActive ?? false;
@@ -128,15 +116,12 @@ export const getInterviewByToken = publicProcedure
     }
 
     // Обработка vacancy (по умолчанию)
-    const foundVacancy = await ctx.db.query.vacancy.findFirst({
+    const foundVacancy = await context.db.query.vacancy.findFirst({
       where: (v, { eq }) => eq(v.id, link.entityId),
     });
 
     if (!foundVacancy) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Вакансия не найдена",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена", });
     }
 
     return {

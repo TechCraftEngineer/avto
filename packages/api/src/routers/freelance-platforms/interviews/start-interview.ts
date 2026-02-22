@@ -27,32 +27,26 @@ const startInterviewInputSchema = z.object({
 
 export const startInterview = publicProcedure
   .input(startInterviewInputSchema)
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Валидируем токен
     const linkGenerator = new InterviewLinkGenerator();
     const interviewLink = await linkGenerator.validateLink(input.token);
 
     if (!interviewLink) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Ссылка на интервью недействительна или истекла",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Ссылка на интервью недействительна или истекла", });
     }
 
     // Проверяем, что вакансия активна
-    const vacancy = await ctx.db.query.vacancy.findFirst({
+    const vacancy = await context.db.query.vacancy.findFirst({
       where: (vacancy, { eq }) => eq(vacancy.id, interviewLink.entityId),
     });
 
     if (!vacancy || !vacancy.isActive) {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
-        message: "Вакансия закрыта",
-      });
+      throw new ORPCError("BAD_REQUEST", { message: "Вакансия закрыта", });
     }
 
     // Проверяем дубликаты по platformProfileUrl + vacancyId
-    const existingResponse = await ctx.db.query.response.findFirst({
+    const existingResponse = await context.db.query.response.findFirst({
       where: and(
         eq(responseTable.entityId, interviewLink.entityId),
         eq(responseTable.entityType, "vacancy"),
@@ -61,14 +55,11 @@ export const startInterview = publicProcedure
     });
 
     if (existingResponse) {
-      throw new ORPCError({
-        code: "CONFLICT",
-        message: "Вы уже откликнулись на эту вакансию",
-      });
+      throw new ORPCError("CONFLICT", { message: "Вы уже откликнулись на эту вакансию", });
     }
 
     // Создаём отклик
-    const [response] = await ctx.db
+    const [response] = await context.db
       .insert(responseTable)
       .values({
         entityId: interviewLink.entityId,
@@ -90,10 +81,7 @@ export const startInterview = publicProcedure
       .returning();
 
     if (!response) {
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Не удалось создать отклик",
-      });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось создать отклик", });
     }
 
     return {

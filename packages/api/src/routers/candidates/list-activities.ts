@@ -17,11 +17,11 @@ export const listActivities = protectedProcedure
       workspaceId: workspaceIdSchema,
     }),
   )
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const { candidateId, workspaceId } = input;
 
     // Проверяем существование отклика и доступ к workspace
-    const response = await ctx.db.query.response.findFirst({
+    const response = await context.db.query.response.findFirst({
       where: and(
         eq(responseTable.id, candidateId),
         eq(responseTable.entityType, "vacancy"),
@@ -29,14 +29,11 @@ export const listActivities = protectedProcedure
     });
 
     if (!response) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Кандидат не найден",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден", });
     }
 
     // Query vacancy separately using entityId
-    const vacancy = await ctx.db.query.vacancy.findFirst({
+    const vacancy = await context.db.query.vacancy.findFirst({
       where: eq(vacancyTable.id, response.entityId),
       columns: {
         workspaceId: true,
@@ -44,21 +41,15 @@ export const listActivities = protectedProcedure
     });
 
     if (!vacancy) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Вакансия для этого кандидата не найдена",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия для этого кандидата не найдена", });
     }
 
     if (vacancy.workspaceId !== workspaceId) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому кандидату",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому кандидату", });
     }
 
     // Получаем историю активностей
-    const activities = await ctx.db.query.responseHistory.findMany({
+    const activities = await context.db.query.responseHistory.findMany({
       where: eq(responseHistory.responseId, candidateId),
       with: {
         user: true,

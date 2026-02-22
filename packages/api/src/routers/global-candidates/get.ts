@@ -17,34 +17,28 @@ export const get = protectedProcedure
       organizationId: z.string(),
     }),
   )
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверяем доступ к организации
-    const hasAccess = await ctx.organizationRepository.checkAccess(
+    const hasAccess = await context.organizationRepository.checkAccess(
       input.organizationId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!hasAccess) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к организации",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к организации", });
     }
 
     // Получаем глобального кандидата
-    const candidate = await ctx.db.query.globalCandidate.findFirst({
+    const candidate = await context.db.query.globalCandidate.findFirst({
       where: eq(globalCandidate.id, input.candidateId),
     });
 
     if (!candidate) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Кандидат не найден",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден", });
     }
 
     // Получаем связь с организацией
-    const orgLink = await ctx.db.query.candidateOrganization.findFirst({
+    const orgLink = await context.db.query.candidateOrganization.findFirst({
       where: and(
         eq(candidateOrganization.candidateId, input.candidateId),
         eq(candidateOrganization.organizationId, input.organizationId),
@@ -52,14 +46,11 @@ export const get = protectedProcedure
     });
 
     if (!orgLink) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Кандидат не найден в базе организации",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден в базе организации", });
     }
 
     // Получаем все отклики кандидата в организации
-    const responses = await ctx.db.query.response.findMany({
+    const responses = await context.db.query.response.findMany({
       where: and(
         eq(responseTable.globalCandidateId, input.candidateId),
         eq(responseTable.entityType, "vacancy"),
@@ -78,7 +69,7 @@ export const get = protectedProcedure
     // Загружаем комментарии
     const comments =
       responseIds.length > 0
-        ? await ctx.db.query.responseComment.findMany({
+        ? await context.db.query.responseComment.findMany({
             where: inArray(responseComment.responseId, responseIds),
             with: {
               author: {
@@ -92,7 +83,7 @@ export const get = protectedProcedure
     // Загружаем историю изменений
     const history =
       responseIds.length > 0
-        ? await ctx.db.query.responseHistory.findMany({
+        ? await context.db.query.responseHistory.findMany({
             where: inArray(responseHistory.responseId, responseIds),
             orderBy: [desc(responseHistory.createdAt)],
           })

@@ -12,20 +12,17 @@ export const reject = protectedProcedure
       workspaceId: workspaceIdSchema,
     }),
   )
-  .mutation(async ({ ctx, input }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ context, input }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ workspace", });
     }
 
-    const response = await ctx.db.query.response.findFirst({
+    const response = await context.db.query.response.findFirst({
       where: and(
         eq(responseTable.id, input.responseId),
         eq(responseTable.entityType, "gig"),
@@ -33,13 +30,10 @@ export const reject = protectedProcedure
     });
 
     if (!response) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Отклик не найден",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ", });
     }
 
-    const existingGig = await ctx.db.query.gig.findFirst({
+    const existingGig = await context.db.query.gig.findFirst({
       where: and(
         eq(gig.id, response.entityId),
         eq(gig.workspaceId, input.workspaceId),
@@ -47,15 +41,12 @@ export const reject = protectedProcedure
     });
 
     if (!existingGig) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому отклику",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", });
     }
 
     const wasNew = response.status === "NEW";
 
-    const [updated] = await ctx.db
+    const [updated] = await context.db
       .update(responseTable)
       .set({
         status: "EVALUATED",
@@ -65,9 +56,9 @@ export const reject = protectedProcedure
       .where(eq(responseTable.id, input.responseId))
       .returning();
 
-    // Если отклик был NEW, уменьшаем счетчик новых откликов
+    // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ NEW, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     if (wasNew) {
-      await ctx.db
+      await context.db
         .update(gig)
         .set({
           newResponses: sql`GREATEST(COALESCE(${gig.newResponses}, 0) - 1, 0)`,

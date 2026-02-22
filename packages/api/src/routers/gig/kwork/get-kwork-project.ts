@@ -15,53 +15,39 @@ export const getKworkProject = protectedProcedure
       projectId: z.number().int().positive(),
     }),
   )
-  .query(async ({ input, ctx }) => {
-    const hasAccess = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ input, context }) => {
+    const hasAccess = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!hasAccess) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
     }
 
     // biome-ignore lint/suspicious/noImplicitAnyLet: result assigned in try, typed by executeWithKworkTokenRefresh
     let result;
     try {
       result = await executeWithKworkTokenRefresh(
-        ctx.db,
+        context.db,
         input.workspaceId,
         (api, token) => getProject(api, token, input.projectId),
       );
     } catch (error) {
       const msg = error instanceof Error ? error.message : "Ошибка Kwork";
-      throw new ORPCError({
-        code: "UNAUTHORIZED",
-        message:
-          msg.includes("авториз") || msg.includes("token")
+      throw new ORPCError("UNAUTHORIZED", { message: msg.includes("авториз") || msg.includes("token")
             ? "Токен Kwork истёк. Требуется повторная авторизация в настройках интеграции."
-            : msg,
-      });
+            : msg, });
     }
 
     if (!result.success || !result.response) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message:
-          result.error?.message ??
-          "Проект не найден на Kwork. Проверьте, что интеграция активна.",
-      });
+      throw new ORPCError("NOT_FOUND", { message: result.error?.message ??
+          "Проект не найден на Kwork. Проверьте, что интеграция активна.", });
     }
 
     const project = result.response;
     if (!project) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Проект не найден на Kwork",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Проект не найден на Kwork", });
     }
 
     return {

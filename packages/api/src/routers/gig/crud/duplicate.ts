@@ -12,20 +12,17 @@ export const duplicate = protectedProcedure
       workspaceId: workspaceIdSchema,
     }),
   )
-  .mutation(async ({ ctx, input }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ context, input }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
     }
 
-    const existingGig = await ctx.db.query.gig.findFirst({
+    const existingGig = await context.db.query.gig.findFirst({
       where: and(
         eq(gig.id, input.gigId),
         eq(gig.workspaceId, input.workspaceId),
@@ -33,10 +30,7 @@ export const duplicate = protectedProcedure
     });
 
     if (!existingGig) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Задание не найдено",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено", });
     }
 
     // Создаём копию задания (title ограничен 500 символами)
@@ -47,7 +41,7 @@ export const duplicate = protectedProcedure
         ? `${existingGig.title.slice(0, maxTitleLength)}${copySuffix}`
         : `${existingGig.title}${copySuffix}`;
 
-    const [newGig] = await ctx.db
+    const [newGig] = await context.db
       .insert(gig)
       .values({
         workspaceId: input.workspaceId,
@@ -76,10 +70,7 @@ export const duplicate = protectedProcedure
       .returning({ id: gig.id, title: gig.title, isActive: gig.isActive });
 
     if (!newGig) {
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Не удалось создать копию задания",
-      });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось создать копию задания", });
     }
 
     return {

@@ -17,21 +17,18 @@ export const syncAllResponseCounts = protectedProcedure
       forceSync: z.boolean().default(false), // Принудительная синхронизация всех
     }),
   )
-  .mutation(async ({ ctx, input }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ context, input }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
     }
 
     // Получаем актуальные счетчики для всех gigs одним запросом
-    const responseCounts = await ctx.db
+    const responseCounts = await context.db
       .select({
         entityId: response.entityId,
         total: count(),
@@ -58,7 +55,7 @@ export const syncAllResponseCounts = protectedProcedure
     );
 
     // Получаем все gig в workspace
-    const gigs = await ctx.db.query.gig.findMany({
+    const gigs = await context.db.query.gig.findMany({
       where: eq(gig.workspaceId, input.workspaceId),
       columns: {
         id: true,
@@ -82,7 +79,7 @@ export const syncAllResponseCounts = protectedProcedure
         actualCounts.total !== (gigItem.responses ?? 0) ||
         actualCounts.newCount !== (gigItem.newResponses ?? 0)
       ) {
-        await ctx.db
+        await context.db
           .update(gig)
           .set({
             responses: actualCounts.total,

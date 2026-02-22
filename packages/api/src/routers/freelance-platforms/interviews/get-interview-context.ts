@@ -12,27 +12,24 @@ const getInterviewContextInputSchema = z.object({
 
 export const getInterviewContext = withInterviewAccess
   .input(getInterviewContextInputSchema)
-  .query(async ({ ctx }) => {
+  .handler(async ({ context }) => {
     // Доступ уже проверен в middleware
 
-    const session = await ctx.db.query.interviewSession.findFirst({
+    const session = await context.db.query.interviewSession.findFirst({
       where: (interviewSession, { eq }) =>
-        eq(interviewSession.id, ctx.verifiedInterviewSessionId),
+        eq(interviewSession.id, context.verifiedInterviewSessionId),
       with: {
         response: true,
       },
     });
 
     if (!session || !session.response) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Интервью не найдено",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Интервью не найдено", });
     }
 
     // Определяем тип сущности и загружаем соответствующие данные
     if (session.response.entityType === "vacancy") {
-      const vacancy = await ctx.db.query.vacancy.findFirst({
+      const vacancy = await context.db.query.vacancy.findFirst({
         where: eq(vacancyTable.id, session.response.entityId),
       });
 
@@ -49,7 +46,7 @@ export const getInterviewContext = withInterviewAccess
 
     // Если это интервью по гигу
     if (session.response.entityType === "gig") {
-      const gig = await ctx.db.query.gig.findFirst({
+      const gig = await context.db.query.gig.findFirst({
         where: (g, { eq }) => eq(g.id, session.response.entityId),
       });
 
@@ -75,8 +72,5 @@ export const getInterviewContext = withInterviewAccess
       }
     }
 
-    throw new ORPCError({
-      code: "NOT_FOUND",
-      message: "Информация о вакансии или задании не найдена",
-    });
+    throw new ORPCError("NOT_FOUND", { message: "Информация о вакансии или задании не найдена", });
   });

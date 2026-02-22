@@ -40,17 +40,17 @@ const startWebInterviewInputSchema = z.object({
 
 export const startWebInterview = publicProcedure
   .input(startWebInterviewInputSchema)
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const errorHandler = createErrorHandler(
-      ctx.auditLogger,
+      context.auditLogger,
       undefined,
-      ctx.ipAddress,
-      ctx.userAgent,
+      context.ipAddress,
+      context.userAgent,
     );
 
     try {
       // Ищем токен в универсальной таблице interview_links
-      const link = await ctx.db.query.interviewLink.findFirst({
+      const link = await context.db.query.interviewLink.findFirst({
         where: (l, { eq, and }) =>
           and(eq(l.token, input.token), eq(l.isActive, true)),
       });
@@ -70,7 +70,7 @@ export const startWebInterview = publicProcedure
       // Обработка по типу сущности
       if (link.entityType === "gig") {
         return await handleGigInterview(
-          ctx.db,
+          context.db,
           link.entityId,
           input.freelancerInfo,
           errorHandler,
@@ -80,7 +80,7 @@ export const startWebInterview = publicProcedure
       // Обработка индивидуальной ссылки на отклик
       if (link.entityType === "response") {
         // Получаем отклик чтобы узнать entityId и entityType
-        const response = await ctx.db.query.response.findFirst({
+        const response = await context.db.query.response.findFirst({
           where: (r, { eq }) => eq(r.id, link.entityId),
         });
 
@@ -93,7 +93,7 @@ export const startWebInterview = publicProcedure
         // Перенаправляем на соответствующий обработчик с существующим responseId
         if (response.entityType === "gig") {
           return await handleGigInterview(
-            ctx.db,
+            context.db,
             response.entityId,
             input.freelancerInfo,
             errorHandler,
@@ -103,7 +103,7 @@ export const startWebInterview = publicProcedure
 
         // По умолчанию vacancy
         return await handleVacancyInterview(
-          ctx.db,
+          context.db,
           response.entityId,
           input.freelancerInfo,
           errorHandler,
@@ -113,7 +113,7 @@ export const startWebInterview = publicProcedure
 
       // По умолчанию vacancy
       return await handleVacancyInterview(
-        ctx.db,
+        context.db,
         link.entityId,
         input.freelancerInfo,
         errorHandler,

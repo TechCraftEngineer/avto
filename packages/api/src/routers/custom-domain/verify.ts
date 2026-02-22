@@ -35,14 +35,14 @@ export const verify = protectedProcedure
       domainId: z.string().uuid(),
     }),
   )
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const domain = await db.query.customDomain.findFirst({
       where: eq(customDomain.id, input.domainId),
       with: {
         workspace: {
           with: {
             members: {
-              where: (member, { eq }) => eq(member.userId, ctx.session.user.id),
+              where: (member, { eq }) => eq(member.userId, context.session.user.id),
             },
           },
         },
@@ -50,25 +50,16 @@ export const verify = protectedProcedure
     });
 
     if (!domain) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Домен не найден",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Домен не найден", });
     }
 
     if (!domain.workspace) {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
-        message: "Невозможно верифицировать предустановленный домен",
-      });
+      throw new ORPCError("BAD_REQUEST", { message: "Невозможно верифицировать предустановленный домен", });
     }
 
     const member = domain.workspace.members[0];
     if (!member || (member.role !== "owner" && member.role !== "admin")) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Недостаточно прав для верификации домена",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Недостаточно прав для верификации домена", });
     }
 
     if (domain.isVerified) {
@@ -78,10 +69,7 @@ export const verify = protectedProcedure
     const isValid = await checkDNSRecords(domain.domain);
 
     if (!isValid) {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
-        message: "DNS записи не настроены корректно",
-      });
+      throw new ORPCError("BAD_REQUEST", { message: "DNS записи не настроены корректно", });
     }
 
     const [updated] = await db

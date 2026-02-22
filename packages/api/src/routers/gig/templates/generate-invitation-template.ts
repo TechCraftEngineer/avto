@@ -124,33 +124,27 @@ ${companySection}
 
 export const generateInvitationTemplate = protectedProcedure
   .input(generateInvitationTemplateInputSchema)
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const { workspaceId, gigId } = input;
 
     // Проверка доступа к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
     }
 
     // Получаем информацию о задании
-    const gig = await ctx.db.query.gig.findFirst({
+    const gig = await context.db.query.gig.findFirst({
       where: (gig, { eq, and }) =>
         and(eq(gig.id, gigId), eq(gig.workspaceId, workspaceId)),
     });
 
     if (!gig) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Задание не найдено",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено", });
     }
 
     // Если шаблон уже существует, возвращаем его
@@ -165,7 +159,7 @@ export const generateInvitationTemplate = protectedProcedure
     }
 
     // Загружаем настройки компании для персонализации
-    const botSettings = await ctx.db.query.botSettings.findFirst({
+    const botSettings = await context.db.query.botSettings.findFirst({
       where: (botSettings, { eq }) => eq(botSettings.workspaceId, workspaceId),
     });
 
@@ -196,11 +190,7 @@ export const generateInvitationTemplate = protectedProcedure
           "[generate-invitation-template] No JSON found in response:",
           fullText.substring(0, 500),
         );
-        throw new ORPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message:
-            "AI не вернул валидный JSON. Попробуйте переформулировать запрос.",
-        });
+        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "AI не вернул валидный JSON. Попробуйте переформулировать запрос.", });
       }
 
       console.log(
@@ -216,10 +206,7 @@ export const generateInvitationTemplate = protectedProcedure
           "[generate-invitation-template] JSON parse error:",
           parseError,
         );
-        throw new ORPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Не удалось распарсить ответ от AI. Попробуйте ещё раз.",
-        });
+        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось распарсить ответ от AI. Попробуйте ещё раз.", });
       }
 
       const validationResult = invitationTemplateSchema.safeParse(parsed);
@@ -228,11 +215,7 @@ export const generateInvitationTemplate = protectedProcedure
           "[generate-invitation-template] Validation error:",
           validationResult.error,
         );
-        throw new ORPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message:
-            "AI вернул данные в неожиданном формате. Попробуйте ещё раз.",
-        });
+        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "AI вернул данные в неожиданном формате. Попробуйте ещё раз.", });
       }
 
       const validated = validationResult.data;
@@ -242,7 +225,7 @@ export const generateInvitationTemplate = protectedProcedure
       );
 
       // Сохраняем шаблон в базу данных
-      await ctx.db
+      await context.db
         .update(gigTable)
         .set({ invitationTemplate: validated.text })
         .where(eq(gigTable.id, gigId));
@@ -258,10 +241,6 @@ export const generateInvitationTemplate = protectedProcedure
     } catch (error) {
       console.error("[generate-invitation-template] Error:", error);
       if (error instanceof ORPCError) throw error;
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message:
-          "Не удалось сгенерировать шаблон приглашения. Попробуйте позже.",
-      });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось сгенерировать шаблон приглашения. Попробуйте позже.", });
     }
   });

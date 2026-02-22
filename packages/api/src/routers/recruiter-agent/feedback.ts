@@ -77,7 +77,7 @@ const getUserFeedbackHistoryInputSchema = z.object({
  */
 export const submitFeedback = protectedProcedure
   .input(submitFeedbackInputSchema)
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const {
       workspaceId,
       actionId,
@@ -92,24 +92,21 @@ export const submitFeedback = protectedProcedure
 
     // Проверка доступа к workspace
     const hasAccess = await checkWorkspaceAccess(
-      ctx.workspaceRepository,
+      context.workspaceRepository,
       workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!hasAccess) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
     }
 
     // Сохраняем feedback в БД
-    const [feedbackEntry] = await ctx.db
+    const [feedbackEntry] = await context.db
       .insert(agentFeedback)
       .values({
         workspaceId,
-        userId: ctx.session.user.id,
+        userId: context.session.user.id,
         actionId,
         recommendationId,
         feedbackType,
@@ -122,15 +119,12 @@ export const submitFeedback = protectedProcedure
       .returning();
 
     if (!feedbackEntry) {
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Не удалось сохранить feedback",
-      });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось сохранить feedback", });
     }
 
     // Логируем в audit log
-    await ctx.auditLogger.logAccess({
-      userId: ctx.session.user.id,
+    await context.auditLogger.logAccess({
+      userId: context.session.user.id,
       workspaceId,
       action: "CREATE",
       resourceType: "VACANCY_RESPONSE",
@@ -142,8 +136,8 @@ export const submitFeedback = protectedProcedure
         recommendationId,
         rating,
       },
-      ipAddress: ctx.ipAddress,
-      userAgent: ctx.userAgent,
+      ipAddress: context.ipAddress,
+      userAgent: context.userAgent,
     });
 
     return {
@@ -159,21 +153,18 @@ export const submitFeedback = protectedProcedure
  */
 export const getFeedback = protectedProcedure
   .input(getFeedbackInputSchema)
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const { workspaceId, limit, offset, feedbackType } = input;
 
     // Проверка доступа к workspace
     const hasAccess = await checkWorkspaceAccess(
-      ctx.workspaceRepository,
+      context.workspaceRepository,
       workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!hasAccess) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
     }
 
     // Строим условия фильтрации
@@ -184,7 +175,7 @@ export const getFeedback = protectedProcedure
     }
 
     // Получаем feedback из БД
-    const feedbackList = await ctx.db
+    const feedbackList = await context.db
       .select()
       .from(agentFeedback)
       .where(and(...conditions))
@@ -193,7 +184,7 @@ export const getFeedback = protectedProcedure
       .offset(offset);
 
     // Получаем общее количество
-    const [totalResult] = await ctx.db
+    const [totalResult] = await context.db
       .select({ count: count() })
       .from(agentFeedback)
       .where(and(...conditions));
@@ -225,21 +216,18 @@ export const getFeedback = protectedProcedure
  */
 export const getMetrics = protectedProcedure
   .input(getMetricsInputSchema)
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const { workspaceId, startDate, endDate } = input;
 
     // Проверка доступа к workspace
     const hasAccess = await checkWorkspaceAccess(
-      ctx.workspaceRepository,
+      context.workspaceRepository,
       workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!hasAccess) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
     }
 
     // Строим условия фильтрации
@@ -254,7 +242,7 @@ export const getMetrics = protectedProcedure
     }
 
     // Получаем агрегированные метрики
-    const metricsResult = await ctx.db
+    const metricsResult = await context.db
       .select({
         feedbackType: agentFeedback.feedbackType,
         count: count(),
@@ -337,38 +325,35 @@ export const getMetrics = protectedProcedure
  */
 export const getUserFeedbackHistory = protectedProcedure
   .input(getUserFeedbackHistoryInputSchema)
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const { workspaceId, limit } = input;
 
     // Проверка доступа к workspace
     const hasAccess = await checkWorkspaceAccess(
-      ctx.workspaceRepository,
+      context.workspaceRepository,
       workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!hasAccess) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
     }
 
     // Получаем feedback пользователя
-    const feedbackList = await ctx.db
+    const feedbackList = await context.db
       .select()
       .from(agentFeedback)
       .where(
         and(
           eq(agentFeedback.workspaceId, workspaceId),
-          eq(agentFeedback.userId, ctx.session.user.id),
+          eq(agentFeedback.userId, context.session.user.id),
         ),
       )
       .orderBy(desc(agentFeedback.createdAt))
       .limit(limit);
 
     // Рассчитываем статистику пользователя
-    const [statsResult] = await ctx.db
+    const [statsResult] = await context.db
       .select({
         total: count(),
         accepted: sql<number>`COUNT(*) FILTER (WHERE ${agentFeedback.feedbackType} = 'accepted')`,
@@ -379,7 +364,7 @@ export const getUserFeedbackHistory = protectedProcedure
       .where(
         and(
           eq(agentFeedback.workspaceId, workspaceId),
-          eq(agentFeedback.userId, ctx.session.user.id),
+          eq(agentFeedback.userId, context.session.user.id),
         ),
       );
 

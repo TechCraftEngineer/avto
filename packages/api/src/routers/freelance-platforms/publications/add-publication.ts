@@ -49,22 +49,19 @@ const addPublicationInputSchema = z.object({
 
 export const addPublication = protectedProcedure
   .input(addPublicationInputSchema)
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверка доступа к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
     }
 
     // Проверка существования вакансии и принадлежности к workspace
-    const existingVacancy = await ctx.db.query.vacancy.findFirst({
+    const existingVacancy = await context.db.query.vacancy.findFirst({
       where: (table, { and, eq }) =>
         and(
           eq(table.id, input.vacancyId),
@@ -73,17 +70,14 @@ export const addPublication = protectedProcedure
     });
 
     if (!existingVacancy) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Вакансия не найдена",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена", });
     }
 
     // Парсим идентификатор
     const parsed = parseIdentifier(input.identifier || "");
 
     // Создаем публикацию
-    const [createdPublication] = await ctx.db
+    const [createdPublication] = await context.db
       .insert(vacancyPublication)
       .values({
         vacancyId: input.vacancyId,

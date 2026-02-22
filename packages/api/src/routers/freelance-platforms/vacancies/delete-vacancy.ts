@@ -12,30 +12,30 @@ const deleteVacancyInputSchema = z.object({
 
 export const deleteVacancy = protectedProcedure
   .input(deleteVacancyInputSchema)
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const errorHandler = createErrorHandler(
-      ctx.auditLogger,
-      ctx.session.user.id,
-      ctx.ipAddress,
-      ctx.userAgent,
+      context.auditLogger,
+      context.session.user.id,
+      context.ipAddress,
+      context.userAgent,
     );
 
     try {
       // Проверяем доступ к workspace
-      const hasAccess = await ctx.workspaceRepository.checkAccess(
+      const hasAccess = await context.workspaceRepository.checkAccess(
         input.workspaceId,
-        ctx.session.user.id,
+        context.session.user.id,
       );
 
       if (!hasAccess) {
         throw await errorHandler.handleAuthorizationError("workspace", {
           workspaceId: input.workspaceId,
-          userId: ctx.session.user.id,
+          userId: context.session.user.id,
         });
       }
 
       // Проверяем существование вакансии и принадлежность к workspace
-      const existingVacancy = await ctx.db.query.vacancy.findFirst({
+      const existingVacancy = await context.db.query.vacancy.findFirst({
         where: (vacancy, { eq, and }) =>
           and(
             eq(vacancy.id, input.vacancyId),
@@ -51,16 +51,16 @@ export const deleteVacancy = protectedProcedure
       }
 
       // Логируем удаление перед фактическим удалением
-      await ctx.auditLogger.logVacancyDeletion({
-        userId: ctx.session.user.id,
+      await context.auditLogger.logVacancyDeletion({
+        userId: context.session.user.id,
         vacancyId: input.vacancyId,
         deletionType: "delete",
-        ipAddress: ctx.ipAddress,
-        userAgent: ctx.userAgent,
+        ipAddress: context.ipAddress,
+        userAgent: context.userAgent,
       });
 
       // Удаляем отклики вакансии (полиморфная связь не поддерживает CASCADE)
-      await ctx.db
+      await context.db
         .delete(response)
         .where(
           and(
@@ -70,7 +70,7 @@ export const deleteVacancy = protectedProcedure
         );
 
       // Удаляем вакансию
-      await ctx.db.delete(vacancy).where(eq(vacancy.id, input.vacancyId));
+      await context.db.delete(vacancy).where(eq(vacancy.id, input.vacancyId));
 
       return {
         success: true,

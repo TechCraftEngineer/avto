@@ -28,17 +28,14 @@ const createGigSchema = z.object({
 
 export const create = protectedProcedure
   .input(createGigSchema)
-  .mutation(async ({ input, ctx }) => {
-    const hasAccess = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ input, context }) => {
+    const hasAccess = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!hasAccess) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
     }
 
     // Формируем description из всех полей
@@ -67,7 +64,7 @@ export const create = protectedProcedure
       }
     }
 
-    const [newGig] = await ctx.db
+    const [newGig] = await context.db
       .insert(gig)
       .values({
         workspaceId: input.workspaceId,
@@ -87,10 +84,7 @@ export const create = protectedProcedure
       .returning();
 
     if (!newGig) {
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Не удалось создать задание",
-      });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось создать задание", });
     }
 
     return newGig;

@@ -17,21 +17,18 @@ export const listMessages = protectedProcedure
       workspaceId: workspaceIdSchema,
     }),
   )
-  .query(async ({ input, ctx }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ input, context }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
     }
 
     // Find interview session for this vacancy response
-    const interview = await ctx.db.query.interviewSession.findFirst({
+    const interview = await context.db.query.interviewSession.findFirst({
       where: eq(interviewSession.responseId, input.candidateId),
     });
 
@@ -40,12 +37,12 @@ export const listMessages = protectedProcedure
     }
 
     // Get vacancy response for candidate name
-    const response = await ctx.db.query.response.findFirst({
+    const response = await context.db.query.response.findFirst({
       where: eq(responseTable.id, input.candidateId),
       columns: { candidateName: true },
     });
 
-    const messages = await ctx.db.query.interviewMessage.findMany({
+    const messages = await context.db.query.interviewMessage.findMany({
       where: eq(interviewMessage.sessionId, interview.id),
       orderBy: desc(interviewMessage.createdAt),
       limit: 100,

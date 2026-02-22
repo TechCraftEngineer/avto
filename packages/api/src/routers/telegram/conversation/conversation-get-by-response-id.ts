@@ -12,38 +12,32 @@ import { verifyWorkspaceAccess } from "../utils";
 
 export const getConversationByResponseIdRouter = protectedProcedure
   .input(z.object({ responseId: uuidv7Schema, workspaceId: workspaceIdSchema }))
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     await verifyWorkspaceAccess(
-      ctx.workspaceRepository,
+      context.workspaceRepository,
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
-    const responseRow = await ctx.db.query.response.findFirst({
+    const responseRow = await context.db.query.response.findFirst({
       where: eq(responseTable.id, input.responseId),
     });
 
     if (!responseRow) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Отклик не найден",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Отклик не найден", });
     }
 
     // Check workspace access
-    const vacancy = await ctx.db.query.vacancy.findFirst({
+    const vacancy = await context.db.query.vacancy.findFirst({
       where: eq(vacancyTable.id, responseRow.entityId),
       columns: { workspaceId: true },
     });
 
     if (!vacancy || vacancy.workspaceId !== input.workspaceId) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому отклику",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому отклику", });
     }
 
-    const session = await ctx.db.query.interviewSession.findFirst({
+    const session = await context.db.query.interviewSession.findFirst({
       where: eq(interviewSession.responseId, input.responseId),
     });
 

@@ -13,22 +13,19 @@ const getInterviewLinkInputSchema = z.object({
 
 export const getInterviewLink = protectedProcedure
   .input(getInterviewLinkInputSchema)
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверка доступа к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
     }
 
     // Проверяем, существует ли вакансия и принадлежит ли она workspace
-    const vacancyData = await ctx.db.query.vacancy.findFirst({
+    const vacancyData = await context.db.query.vacancy.findFirst({
       where: and(
         eq(vacancy.id, input.vacancyId),
         eq(vacancy.workspaceId, input.workspaceId),
@@ -36,14 +33,11 @@ export const getInterviewLink = protectedProcedure
     });
 
     if (!vacancyData) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Вакансия не найдена",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена", });
     }
 
     // Получаем активную ссылку на интервью
-    const activeInterviewLink = await ctx.db.query.interviewLink.findFirst({
+    const activeInterviewLink = await context.db.query.interviewLink.findFirst({
       where: and(
         eq(interviewLink.entityType, "vacancy"),
         eq(interviewLink.entityId, input.vacancyId),
@@ -52,10 +46,7 @@ export const getInterviewLink = protectedProcedure
     });
 
     if (!activeInterviewLink) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Ссылка на интервью не найдена для этой вакансии",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Ссылка на интервью не найдена для этой вакансии", });
     }
 
     const url = await getInterviewUrlFromDb(

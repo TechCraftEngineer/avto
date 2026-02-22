@@ -12,28 +12,25 @@ const checkInterviewAccessInputSchema = z.object({
 
 export const checkInterviewAccess = publicProcedure
   .input(checkInterviewAccessInputSchema)
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Валидируем токен
-    const validatedToken = ctx.interviewToken
-      ? await validateInterviewToken(ctx.interviewToken, ctx.db)
+    const validatedToken = context.interviewToken
+      ? await validateInterviewToken(context.interviewToken, context.db)
       : null;
 
     // Проверяем доступ к interview session
     const hasAccess = await hasInterviewAccess(
       input.interviewSessionId,
       validatedToken,
-      ctx.db,
+      context.db,
     );
 
     if (!hasAccess) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому интервью",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому интервью", });
     }
 
     // Получаем базовую информацию о сессии для подтверждения доступа
-    const session = await ctx.db.query.interviewSession.findFirst({
+    const session = await context.db.query.interviewSession.findFirst({
       where: (interviewSession, { eq }) =>
         eq(interviewSession.id, input.interviewSessionId),
       columns: {
@@ -44,10 +41,7 @@ export const checkInterviewAccess = publicProcedure
     });
 
     if (!session) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Интервью не найдено",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Интервью не найдено", });
     }
 
     return {

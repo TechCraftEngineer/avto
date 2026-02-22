@@ -9,12 +9,12 @@ const validateInterviewTokenInputSchema = z.object({
 
 export const validateInterviewToken = publicProcedure
   .input(validateInterviewTokenInputSchema)
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const errorHandler = createErrorHandler(
-      ctx.auditLogger,
+      context.auditLogger,
       undefined,
-      ctx.ipAddress,
-      ctx.userAgent,
+      context.ipAddress,
+      context.userAgent,
     );
 
     try {

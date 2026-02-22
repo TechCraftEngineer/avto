@@ -19,46 +19,40 @@ export const getMessagesByConversationIdRouter = protectedProcedure
       workspaceId: workspaceIdSchema,
     }),
   )
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     await verifyWorkspaceAccess(
-      ctx.workspaceRepository,
+      context.workspaceRepository,
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
-    const session = await ctx.db.query.interviewSession.findFirst({
+    const session = await context.db.query.interviewSession.findFirst({
       where: eq(interviewSession.id, input.sessionId),
     });
 
     if (!session) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Сессия интервью не найдена",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Сессия интервью не найдена", });
     }
 
     // Check workspace access through response
     if (session.responseId) {
-      const responseRow = await ctx.db.query.response.findFirst({
+      const responseRow = await context.db.query.response.findFirst({
         where: eq(responseTable.id, session.responseId),
       });
 
       if (responseRow) {
-        const vacancy = await ctx.db.query.vacancy.findFirst({
+        const vacancy = await context.db.query.vacancy.findFirst({
           where: eq(vacancyTable.id, responseRow.entityId),
           columns: { workspaceId: true },
         });
 
         if (!vacancy || vacancy.workspaceId !== input.workspaceId) {
-          throw new ORPCError({
-            code: "FORBIDDEN",
-            message: "Нет доступа к этой сессии",
-          });
+          throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этой сессии", });
         }
       }
     }
 
-    const messages = await ctx.db.query.interviewMessage.findMany({
+    const messages = await context.db.query.interviewMessage.findMany({
       where: eq(interviewMessage.sessionId, input.sessionId),
       orderBy: [interviewMessage.createdAt],
       with: {

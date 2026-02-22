@@ -30,36 +30,36 @@ const sessionMetadataSchema = z
 
 export const sendChatMessage = withInterviewAccess
   .input(sendChatMessageInputSchema)
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const errorHandler = createErrorHandler(
-      ctx.auditLogger,
+      context.auditLogger,
       undefined,
-      ctx.ipAddress,
-      ctx.userAgent,
+      context.ipAddress,
+      context.userAgent,
     );
 
     try {
       // Доступ уже проверен в middleware
 
       // Проверяем существование interviewSession
-      const session = await ctx.db.query.interviewSession.findFirst({
+      const session = await context.db.query.interviewSession.findFirst({
         where: (interviewSession, { eq, and }) =>
           and(
-            eq(interviewSession.id, ctx.verifiedInterviewSessionId),
+            eq(interviewSession.id, context.verifiedInterviewSessionId),
             eq(interviewSession.lastChannel, "web"),
           ),
       });
 
       if (!session) {
         throw await errorHandler.handleNotFoundError("Интервью", {
-          sessionId: ctx.verifiedInterviewSessionId,
+          sessionId: context.verifiedInterviewSessionId,
         });
       }
 
       // Проверяем, что интервью активно
       if (session.status !== "active" && session.status !== "pending") {
         throw await errorHandler.handleValidationError("Интервью завершено", {
-          sessionId: ctx.verifiedInterviewSessionId,
+          sessionId: context.verifiedInterviewSessionId,
           status: session.status,
         });
       }
@@ -71,10 +71,10 @@ export const sendChatMessage = withInterviewAccess
       const interviewStep = parsedMetadata.questionAnswers.length + 1;
 
       // Сохраняем сообщение в interview_messages
-      const [savedMessage] = await ctx.db
+      const [savedMessage] = await context.db
         .insert(interviewMessage)
         .values({
-          sessionId: ctx.verifiedInterviewSessionId,
+          sessionId: context.verifiedInterviewSessionId,
           role: "user",
           type: "text",
           channel: "web",
@@ -86,7 +86,7 @@ export const sendChatMessage = withInterviewAccess
         throw await errorHandler.handleInternalError(
           new Error("Failed to save message"),
           {
-            sessionId: ctx.verifiedInterviewSessionId,
+            sessionId: context.verifiedInterviewSessionId,
           },
         );
       }
@@ -109,7 +109,7 @@ export const sendChatMessage = withInterviewAccess
 
       await messageBufferService.addMessage({
         userId: username,
-        chatSessionId: ctx.verifiedInterviewSessionId,
+        chatSessionId: context.verifiedInterviewSessionId,
         interviewStep,
         message: bufferedMessage,
       });
@@ -129,7 +129,7 @@ export const sendChatMessage = withInterviewAccess
               name: "interview/message.buffered",
               data: {
                 userId: username,
-                sessionId: ctx.verifiedInterviewSessionId,
+                sessionId: context.verifiedInterviewSessionId,
                 interviewStep,
                 messageId,
                 timestamp,
@@ -153,7 +153,7 @@ export const sendChatMessage = withInterviewAccess
       }
       // Все остальные ошибки обрабатываем через errorHandler
       throw await errorHandler.handleDatabaseError(error as Error, {
-        sessionId: ctx.verifiedInterviewSessionId,
+        sessionId: context.verifiedInterviewSessionId,
         operation: "send_chat_message",
       });
     }

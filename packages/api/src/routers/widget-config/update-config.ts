@@ -69,29 +69,23 @@ const updateConfigInputSchema = z.object({
 
 export const updateConfig = protectedProcedure
   .input(updateConfigInputSchema)
-  .mutation(async ({ ctx, input }) => {
+  .handler(async ({ context, input }) => {
     // Verify user has access to workspace
-    const membership = await ctx.workspaceRepository.checkAccess(
+    const membership = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!membership) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
     }
 
     // Check if user has admin role
     if (membership.role !== "admin" && membership.role !== "owner") {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Только администраторы могут изменять настройки виджета",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Только администраторы могут изменять настройки виджета", });
     }
 
-    const widgetConfigService = new WidgetConfigService(ctx.db);
+    const widgetConfigService = new WidgetConfigService(context.db);
 
     try {
       const updatedConfig = await widgetConfigService.updateConfig(
@@ -104,8 +98,8 @@ export const updateConfig = protectedProcedure
       );
 
       // Log audit event using existing method
-      await ctx.auditLogger.logAccess({
-        userId: ctx.session.user.id,
+      await context.auditLogger.logAccess({
+        userId: context.session.user.id,
         action: "UPDATE",
         resourceType: "VACANCY", // Using existing enum value
         resourceId: updatedConfig.id,
@@ -126,11 +120,8 @@ export const updateConfig = protectedProcedure
       };
     } catch (error) {
       if (error instanceof WidgetConfigError) {
-        throw new ORPCError({
-          code: "BAD_REQUEST",
-          message: error.userMessage,
-          cause: error,
-        });
+        throw new ORPCError("BAD_REQUEST", { message: error.userMessage,
+          cause: error, });
       }
       throw error;
     }

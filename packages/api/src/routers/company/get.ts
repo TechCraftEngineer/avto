@@ -6,8 +6,8 @@ import { protectedProcedure } from "../../orpc";
 
 export const get = protectedProcedure
   .input(z.object({ workspaceId: workspaceIdSchema }))
-  .query(async ({ ctx, input }) => {
-    const result = await ctx.db.query.botSettings.findFirst({
+  .handler(async ({ context, input }) => {
+    const result = await context.db.query.botSettings.findFirst({
       where: eq(botSettings.workspaceId, input.workspaceId),
     });
 

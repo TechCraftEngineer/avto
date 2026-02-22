@@ -72,21 +72,18 @@ const approveActionInputSchema = z.object({
  */
 export const executeAction = protectedProcedure
   .input(executeActionInputSchema)
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const { workspaceId, actionType, candidateId, vacancyId, params } = input;
 
     // Проверка доступа к workspace
     const hasAccess = await checkWorkspaceAccess(
-      ctx.workspaceRepository,
+      context.workspaceRepository,
       workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!hasAccess) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
     }
 
     // Проверка прав на действие
@@ -103,17 +100,14 @@ export const executeAction = protectedProcedure
     };
 
     const hasPermission = await checkActionPermission(
-      ctx.workspaceRepository,
+      context.workspaceRepository,
       workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
       permissionMap[actionType],
     );
 
     if (!hasPermission) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет прав на выполнение этого действия",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет прав на выполнение этого действия", });
     }
 
     // Проверка rate limiting (100 действий в час)
@@ -121,10 +115,7 @@ export const executeAction = protectedProcedure
     const canProceed = await checkRateLimit(rateLimitKey, 100, 3600);
 
     if (!canProceed) {
-      throw new ORPCError({
-        code: "TOO_MANY_REQUESTS",
-        message: "Превышен лимит действий. Попробуйте через час.",
-      });
+      throw new ORPCError("TOO_MANY_REQUESTS", { message: "Превышен лимит действий. Попробуйте через час.", });
     }
 
     // Получаем ActionExecutor
@@ -167,12 +158,12 @@ export const executeAction = protectedProcedure
         candidateData,
         workspaceId,
         vacancyId,
-        ctx.session.user.id,
+        context.session.user.id,
       );
 
       // Логируем в audit log
-      await ctx.auditLogger.logAccess({
-        userId: ctx.session.user.id,
+      await context.auditLogger.logAccess({
+        userId: context.session.user.id,
         workspaceId,
         action: "UPDATE",
         resourceType: "VACANCY_RESPONSE",
@@ -184,8 +175,8 @@ export const executeAction = protectedProcedure
           params,
           status: result.status,
         },
-        ipAddress: ctx.ipAddress,
-        userAgent: ctx.userAgent,
+        ipAddress: context.ipAddress,
+        userAgent: context.userAgent,
       });
 
       return {
@@ -213,64 +204,52 @@ export const executeAction = protectedProcedure
  */
 export const undoAction = protectedProcedure
   .input(undoActionInputSchema)
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const { workspaceId, actionId } = input;
 
     // Проверка доступа к workspace
     const hasAccess = await checkWorkspaceAccess(
-      ctx.workspaceRepository,
+      context.workspaceRepository,
       workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!hasAccess) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
     }
 
     // Проверка прав на отмену
     const hasPermission = await checkActionPermission(
-      ctx.workspaceRepository,
+      context.workspaceRepository,
       workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
       "undo_action",
     );
 
     if (!hasPermission) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет прав на отмену действия",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет прав на отмену действия", });
     }
 
     const actionExecutor = getActionExecutor();
 
     // Проверяем, можно ли отменить действие
     if (!actionExecutor.canUndoAction(actionId)) {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
-        message: "Действие не может быть отменено",
-      });
+      throw new ORPCError("BAD_REQUEST", { message: "Действие не может быть отменено", });
     }
 
     try {
       const result = await actionExecutor.undoAction(
         actionId,
-        ctx.session.user.id,
+        context.session.user.id,
       );
 
       if (!result.success) {
-        throw new ORPCError({
-          code: "BAD_REQUEST",
-          message: result.error ?? "Не удалось отменить действие",
-        });
+        throw new ORPCError("BAD_REQUEST", { message: result.error ?? "Не удалось отменить действие", });
       }
 
       // Логируем в audit log
-      await ctx.auditLogger.logAccess({
-        userId: ctx.session.user.id,
+      await context.auditLogger.logAccess({
+        userId: context.session.user.id,
         workspaceId,
         action: "UPDATE",
         resourceType: "VACANCY_RESPONSE",
@@ -279,8 +258,8 @@ export const undoAction = protectedProcedure
           type: "recruiter_agent_undo",
           actionId,
         },
-        ipAddress: ctx.ipAddress,
-        userAgent: ctx.userAgent,
+        ipAddress: context.ipAddress,
+        userAgent: context.userAgent,
       });
 
       return {
@@ -305,36 +284,30 @@ export const undoAction = protectedProcedure
  */
 export const approveAction = protectedProcedure
   .input(approveActionInputSchema)
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const { workspaceId, approvalId } = input;
 
     // Проверка доступа к workspace
     const hasAccess = await checkWorkspaceAccess(
-      ctx.workspaceRepository,
+      context.workspaceRepository,
       workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!hasAccess) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
     }
 
     // Проверка прав на выполнение правил
     const hasPermission = await checkActionPermission(
-      ctx.workspaceRepository,
+      context.workspaceRepository,
       workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
       "execute_rule",
     );
 
     if (!hasPermission) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет прав на подтверждение действия",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет прав на подтверждение действия", });
     }
 
     const actionExecutor = getActionExecutor();
@@ -343,19 +316,16 @@ export const approveAction = protectedProcedure
       const result = await actionExecutor.executeApprovedAction(
         approvalId,
         workspaceId,
-        ctx.session.user.id,
+        context.session.user.id,
       );
 
       if (!result) {
-        throw new ORPCError({
-          code: "NOT_FOUND",
-          message: "Запрос на подтверждение не найден или истёк",
-        });
+        throw new ORPCError("NOT_FOUND", { message: "Запрос на подтверждение не найден или истёк", });
       }
 
       // Логируем в audit log
-      await ctx.auditLogger.logAccess({
-        userId: ctx.session.user.id,
+      await context.auditLogger.logAccess({
+        userId: context.session.user.id,
         workspaceId,
         action: "UPDATE",
         resourceType: "VACANCY_RESPONSE",
@@ -366,8 +336,8 @@ export const approveAction = protectedProcedure
           ruleId: result.ruleId,
           status: result.status,
         },
-        ipAddress: ctx.ipAddress,
-        userAgent: ctx.userAgent,
+        ipAddress: context.ipAddress,
+        userAgent: context.userAgent,
       });
 
       return {

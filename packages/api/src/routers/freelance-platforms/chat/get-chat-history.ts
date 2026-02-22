@@ -2,10 +2,10 @@ import { getDownloadUrl } from "@qbs-autonaim/lib/s3";
 import { ORPCError } from "@orpc/server";
 import { withInterviewAccess } from "../../../utils/interview-access-middleware";
 
-export const getChatHistory = withInterviewAccess.query(async ({ ctx }) => {
-  const session = await ctx.db.query.interviewSession.findFirst({
+export const getChatHistory = withInterviewAccess.handler(async ({ context }) => {
+  const session = await context.db.query.interviewSession.findFirst({
     where: (interviewSession, { eq }) =>
-      eq(interviewSession.id, ctx.verifiedInterviewSessionId),
+      eq(interviewSession.id, context.verifiedInterviewSessionId),
     with: {
       messages: {
         with: {
@@ -17,19 +17,16 @@ export const getChatHistory = withInterviewAccess.query(async ({ ctx }) => {
   });
 
   if (!session) {
-    throw new ORPCError({
-      code: "NOT_FOUND",
-      message: "Интервью не найдено",
-    });
+    throw new ORPCError("NOT_FOUND", { message: "Интервью не найдено", });
   }
 
   // Логируем доступ к интервью (если пользователь авторизован)
-  if (ctx.session?.user) {
-    await ctx.auditLogger.logConversationAccess({
-      userId: ctx.session.user.id,
-      conversationId: ctx.verifiedInterviewSessionId,
-      ipAddress: ctx.ipAddress,
-      userAgent: ctx.userAgent,
+  if (context.session?.user) {
+    await context.auditLogger.logConversationAccess({
+      userId: context.session.user.id,
+      conversationId: context.verifiedInterviewSessionId,
+      ipAddress: context.ipAddress,
+      userAgent: context.userAgent,
     });
   }
 

@@ -14,22 +14,19 @@ export const getFileUrl = protectedProcedure
       fileId: uuidv7Schema,
     }),
   )
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверяем доступ к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
     }
 
     // Получаем файл из БД с проверкой принадлежности к workspace
-    const fileRecord = await ctx.db.query.file.findFirst({
+    const fileRecord = await context.db.query.file.findFirst({
       where: (files, { eq }) => eq(files.id, input.fileId),
       with: {
         // Проверяем связь через response (resumePdfFileId)
@@ -48,10 +45,7 @@ export const getFileUrl = protectedProcedure
     });
 
     if (!fileRecord) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Файл не найден",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Файл не найден", });
     }
 
     // Get all response IDs to check workspace access
@@ -65,14 +59,11 @@ export const getFileUrl = protectedProcedure
     ].filter((id): id is string => id !== undefined);
 
     if (responseIds.length === 0) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Файл не найден",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Файл не найден", });
     }
 
     // Query all responses to get their vacancyIds
-    const responses = await ctx.db.query.response.findMany({
+    const responses = await context.db.query.response.findMany({
       where: (response, { inArray }) => inArray(response.id, responseIds),
       columns: { id: true, entityId: true, entityType: true },
     });
@@ -82,7 +73,7 @@ export const getFileUrl = protectedProcedure
     );
 
     // Query all vacancies to check workspace access
-    const vacancies = await ctx.db.query.vacancy.findMany({
+    const vacancies = await context.db.query.vacancy.findMany({
       where: (vacancy, { inArray }) => inArray(vacancy.id, vacancyIds),
       columns: { id: true, workspaceId: true },
     });
@@ -93,10 +84,7 @@ export const getFileUrl = protectedProcedure
     );
 
     if (!belongsToWorkspace) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Файл не найден",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Файл не найден", });
     }
 
     try {
@@ -109,9 +97,6 @@ export const getFileUrl = protectedProcedure
         fileName: fileRecord.fileName,
       };
     } catch {
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Ошибка при получении URL файла",
-      });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Ошибка при получении URL файла", });
     }
   });

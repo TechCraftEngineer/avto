@@ -27,9 +27,9 @@ const getResultInputSchema = z.object({
 
 export const getResult = publicProcedure
   .input(getResultInputSchema)
-  .query(async ({ ctx, input }) => {
-    const sessionManager = new SessionManager(ctx.db);
-    const dialogueHandler = new DialogueHandler(ctx.db);
+  .handler(async ({ context, input }) => {
+    const sessionManager = new SessionManager(context.db);
+    const dialogueHandler = new DialogueHandler(context.db);
 
     // Get session
     const session = await sessionManager.getSession(
@@ -38,10 +38,7 @@ export const getResult = publicProcedure
     );
 
     if (!session) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Сессия не найдена",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Сессия не найдена", });
     }
 
     // If already completed or submitted, return cached result
@@ -76,7 +73,7 @@ export const getResult = publicProcedure
       const config = await sessionManager.getWorkspaceConfig(input.workspaceId);
 
       // Get vacancy data
-      const [vacancyData] = await ctx.db
+      const [vacancyData] = await context.db
         .select()
         .from(vacancy)
         .where(eq(vacancy.id, session.vacancyId))
@@ -161,7 +158,7 @@ export const getResult = publicProcedure
       );
 
       // Update session with evaluation results
-      await ctx.db
+      await context.db
         .update(prequalificationSession)
         .set({
           status: "completed",

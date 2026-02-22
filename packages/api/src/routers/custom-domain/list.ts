@@ -10,20 +10,17 @@ export const list = protectedProcedure
       type: z.enum(["interview", "prequalification"]).optional(),
     }),
   )
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const member = await db.query.workspaceMember.findFirst({
       where: (member, { eq, and }) =>
         and(
           eq(member.workspaceId, input.workspaceId),
-          eq(member.userId, ctx.session.user.id),
+          eq(member.userId, context.session.user.id),
         ),
     });
 
     if (!member) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
-        message: "Нет доступа к workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
     }
 
     return await db.query.customDomain.findMany({

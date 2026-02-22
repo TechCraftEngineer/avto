@@ -32,9 +32,9 @@ export const createSession = protectedProcedure
         },
       ),
   )
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const { entityType, entityId, title } = input;
-    const userId = ctx.session.user.id;
+    const userId = context.session.user.id;
 
     if (!chatRegistry.isRegistered(entityType)) {
       throw new ORPCError({
@@ -45,7 +45,7 @@ export const createSession = protectedProcedure
 
     // TODO: Проверка доступа к сущности
 
-    const [session] = await ctx.db
+    const [session] = await context.db
       .insert(chatSession)
       .values({
         entityType,
@@ -57,29 +57,26 @@ export const createSession = protectedProcedure
       .returning();
 
     if (!session) {
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Не удалось создать сессию чата",
-      });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось создать сессию чата", });
     }
 
     // Отслеживаем начало веб-чата для вакансий
     if (entityType === "vacancy") {
       try {
         // Получаем workspaceId из вакансии
-        const vacancyData = await ctx.db.query.vacancy.findFirst({
+        const vacancyData = await context.db.query.vacancy.findFirst({
           where: eq(vacancy.id, entityId),
           columns: { workspaceId: true },
         });
 
         if (vacancyData) {
-          const analytics = new CommunicationChannelsAnalytics(ctx.db);
+          const analytics = new CommunicationChannelsAnalytics(context.db);
           await analytics.trackWebChatStart({
             workspaceId: vacancyData.workspaceId,
             vacancyId: entityId,
             sessionId: session.id,
             metadata: {
-              userId: ctx.session.user.id,
+              userId: context.session.user.id,
             },
           });
         }

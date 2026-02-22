@@ -10,18 +10,15 @@ const getWebInterviewStatusInputSchema = z.object({
 
 export const getWebInterviewStatus = publicProcedure
   .input(getWebInterviewStatusInputSchema)
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверяем существование interview session
-    const session = await ctx.db.query.interviewSession.findFirst({
+    const session = await context.db.query.interviewSession.findFirst({
       where: (interviewSession, { eq }) =>
         eq(interviewSession.id, input.interviewSessionId),
     });
 
     if (!session) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
-        message: "Интервью не найдено",
-      });
+      throw new ORPCError("NOT_FOUND", { message: "Интервью не найдено", });
     }
 
     // Получаем текущий номер вопроса из метаданных
