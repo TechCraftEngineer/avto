@@ -10,7 +10,6 @@ import { db } from "@qbs-autonaim/db/client";
 import { file, interviewMessage } from "@qbs-autonaim/db/schema";
 import { inngest } from "@qbs-autonaim/jobs/client";
 import { uploadFile } from "@qbs-autonaim/lib/s3";
-import { NextResponse } from "next/server";
 import { z } from "zod";
 
 const requestSchema = z.object({
@@ -50,7 +49,7 @@ export async function POST(request: Request) {
     const hasAccess = await hasInterviewAccess(sessionId, validatedToken, db);
 
     if (!hasAccess) {
-      return NextResponse.json({ error: "Access denied" }, { status: 403 });
+      return Response.json({ error: "Access denied" }, { status: 403 });
     }
 
     // Проверяем что interview session существует и это WEB интервью
@@ -59,14 +58,14 @@ export async function POST(request: Request) {
     });
 
     if (!session) {
-      return NextResponse.json(
+      return Response.json(
         { error: "Interview not found" },
         { status: 404 },
       );
     }
 
     if (session.status !== "active") {
-      return NextResponse.json(
+      return Response.json(
         { error: "Interview is not active" },
         { status: 403 },
       );
@@ -78,7 +77,7 @@ export async function POST(request: Request) {
 
     // Проверяем размер (макс 25MB)
     if (fileBuffer.length > 25 * 1024 * 1024) {
-      return NextResponse.json(
+      return Response.json(
         { error: "File too large. Maximum size is 25MB" },
         { status: 400 },
       );
@@ -139,7 +138,7 @@ export async function POST(request: Request) {
       // Не падаем, если Inngest недоступен
     }
 
-    return NextResponse.json({
+    return Response.json({
       success: true,
       messageId: message.id,
       fileId: fileRecord.id,
@@ -148,13 +147,13 @@ export async function POST(request: Request) {
     console.error("[Interview Upload Voice] Error:", error);
 
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
+      return Response.json(
         { error: "Invalid request", details: error.issues },
         { status: 400 },
       );
     }
 
-    return NextResponse.json(
+    return Response.json(
       { error: "Internal server error" },
       { status: 500 },
     );

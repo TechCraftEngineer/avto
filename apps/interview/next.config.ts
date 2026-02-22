@@ -6,8 +6,19 @@ export default async function createNextConfig(): Promise<NextConfig> {
 
   await jiti.import("./src/env");
 
+  const interviewServerUrl =
+    process.env.INTERVIEW_SERVER_URL ?? "http://localhost:3002";
+
   const config: NextConfig = {
     output: "standalone",
+
+    /** Proxy API to interview-server */
+    rewrites: async () => [
+      {
+        source: "/api/:path*",
+        destination: `${interviewServerUrl}/api/:path*`,
+      },
+    ],
 
     /** Exclude packages using Node.js APIs or dynamic require from bundling */
     serverExternalPackages: [

@@ -1,0 +1,35 @@
+{
+  "name": "@qbs-autonaim/interview-server",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsdown",
+    "check-types": "tsc -b",
+    "dev": "bun run --hot src/index.ts",
+    "start": "bun run dist/index.mjs"
+  },
+  "dependencies": {
+    "@langfuse/tracing": "4.6.1",
+    "@opentelemetry/api": "^1.9.0",
+    "@orpc/server": "^1.13.5",
+    "@qbs-autonaim/ai": "workspace:*",
+    "@qbs-autonaim/api": "workspace:*",
+    "@qbs-autonaim/config": "workspace:*",
+    "@qbs-autonaim/db": "workspace:*",
+    "@qbs-autonaim/jobs": "workspace:*",
+    "@qbs-autonaim/lib": "workspace:*",
+    "@qbs-autonaim/server-utils": "workspace:*",
+    "ai": "6.0.97",
+    "hono": "^4.12.1",
+    "resumable-stream": "^2.2.10",
+    "superjson": "2.2.6",
+    "zod": "4.3.6"
+  },
+  "devDependencies": {
+    "@qbs-autonaim/tsconfig": "workspace:*",
+    "@types/bun": "1.3.9",
+    "tsdown": "^0.20.3",
+    "typescript": "5.9.3"
+  }
+}

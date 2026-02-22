@@ -15,7 +15,6 @@ import { getAIModel } from "@qbs-autonaim/lib/ai";
 import "@qbs-autonaim/lib/instrumentation";
 import { InterviewSDKError } from "@qbs-autonaim/lib/errors";
 import { createUIMessageStream, createUIMessageStreamResponse } from "ai";
-import { NextResponse } from "next/server";
 import { z } from "zod";
 import { checkInterviewAccess, loadInterviewSession } from "./access-control";
 import { loadInterviewContext } from "./context-loader";
@@ -61,12 +60,12 @@ async function handler(request: Request) {
   } catch (error) {
     console.error("[Interview Stream] Ошибка парсинга:", error);
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
+      return Response.json(
         { error: "Неверный запрос", details: error.issues },
         { status: 400 },
       );
     }
-    return NextResponse.json({ error: "Неверный запрос" }, { status: 400 });
+    return Response.json({ error: "Неверный запрос" }, { status: 400 });
   }
 
   try {
@@ -185,7 +184,7 @@ async function handler(request: Request) {
         "[Interview Stream] Ошибка анализа контекста:",
         contextAnalysis.error,
       );
-      return NextResponse.json({
+      return Response.json({
         acknowledged: false,
         error: "context analysis failed",
       });
@@ -368,7 +367,7 @@ async function handler(request: Request) {
       return errorToResponse(error);
     }
 
-    return NextResponse.json(
+    return Response.json(
       { error: "Внутренняя ошибка сервера" },
       { status: 500 },
     );
