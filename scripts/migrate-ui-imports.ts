@@ -436,7 +436,7 @@ function migrateImports(content: string): {
     /import\s+(?:type\s+)?{([^}]+)}\s+from\s+["']@qbs-autonaim\/ui["']/g;
 
   let changed = false;
-  const newContent = content.replace(importRegex, (match, imports) => {
+  const newContent = content.replace(importRegex, (_match, imports) => {
     changed = true;
 
     // Парсим импорты
@@ -462,7 +462,7 @@ function migrateImports(content: string): {
       if (!fileGroups.has(file)) {
         fileGroups.set(file, []);
       }
-      fileGroups.get(file)!.push(imp);
+      fileGroups.get(file)?.push(imp);
     }
 
     // Генерируем новые импорты

@@ -3,7 +3,7 @@
  * Инжектируется в page context для перехвата сетевых запросов.
  * Результат отправляется через CustomEvent на document.
  */
-(function () {
+(() => {
   const SPOILER_CHAT_PATTERN =
     /chatik\.hh\.ru\/chatik\/proxy_components\/spoiler_chat/;
 
@@ -28,10 +28,10 @@
   }
 
   const originalFetch = window.fetch;
-  window.fetch = function (input, init) {
+  window.fetch = function (input, _init) {
     const url = typeof input === "string" ? input : input?.url;
     if (url && SPOILER_CHAT_PATTERN.test(url)) {
-      return originalFetch.apply(this, arguments).then(async (response) => {
+      return originalFetch.call(this, input, _init).then(async (response) => {
         const clone = response.clone();
         try {
           const data = await clone.json();
@@ -40,23 +40,23 @@
         return response;
       });
     }
-    return originalFetch.apply(this, arguments);
+    return originalFetch.call(this, input, _init);
   };
 
   const OriginalXHR = window.XMLHttpRequest;
-  window.XMLHttpRequest = function () {
+  window.XMLHttpRequest = () => {
     const xhr = new OriginalXHR();
     const origOpen = xhr.open;
-    xhr.open = function (method, url) {
+    xhr.open = function (_method, url, ...args) {
       if (url && SPOILER_CHAT_PATTERN.test(url)) {
-        xhr.addEventListener("load", function () {
+        xhr.addEventListener("load", () => {
           try {
             const data = JSON.parse(xhr.responseText);
             extractAndDispatch(data);
           } catch (_) {}
         });
       }
-      return origOpen.apply(this, arguments);
+      return origOpen.call(this, _method, url, ...args);
     };
     return xhr;
   };

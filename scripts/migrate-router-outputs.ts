@@ -8,7 +8,7 @@
  * - RouterOutputs["..."] в интерфейсах → централизованные типы
  */
 
-import { readFileSync, writeFileSync } from "fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { glob } from "glob";
 
 interface Replacement {
@@ -188,7 +188,7 @@ async function migrateFile(filePath: string): Promise<boolean> {
       // Добавляем типы к существующему импорту
       content = content.replace(
         /import\s+type\s+{([^}]+)}\s+from\s+["']~\/types\/api["'];?/,
-        (match, types) => {
+        (_match, types) => {
           const existingTypes = types.split(",").map((t: string) => t.trim());
           const allTypes = [
             ...new Set([...existingTypes, ...neededImports]),

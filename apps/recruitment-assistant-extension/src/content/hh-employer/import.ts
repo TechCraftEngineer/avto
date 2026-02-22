@@ -4,25 +4,24 @@
 
 import { getExtensionApiUrl } from "../../config";
 import {
+  fetchCoverLettersForPage,
+  fetchPhotoAsBase64,
   fetchResumeTextHtml,
   fetchVacancyPrintHtml,
-  fetchPhotoAsBase64,
-  fetchCoverLettersForPage,
   type HHEmployerPageType,
-  type ParsedResponse,
 } from "../../parsers/hh-employer";
-import { setSelectedIds } from "./storage";
+import {
+  checkAndPauseIfNeeded,
+  checkImportLimit,
+  getRandomDelay,
+} from "../../utils/stealth";
 import {
   collectAllResponses,
   collectAllVacancies,
   collectSelectedVacancies,
 } from "./collectors";
+import { setSelectedIds } from "./storage";
 import type { ImportProgress, ImportResult } from "./types";
-import {
-  getRandomDelay,
-  checkAndPauseIfNeeded,
-  checkImportLimit,
-} from "../../utils/stealth";
 
 export type { ImportProgress, ImportResult } from "./types";
 

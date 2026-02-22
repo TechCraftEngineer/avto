@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import type { Organization, Workspace } from "../types";
 import type { AuthService } from "../../core/auth-service";
 import { IMPORT_PROGRESS_KEY } from "../../shared/import-progress";
-import { AuthenticatedLayout } from "./authenticated-layout";
+import type { Organization, Workspace } from "../types";
 import { Alert, Button } from "../ui";
+import { AuthenticatedLayout } from "./authenticated-layout";
 
 interface ResponsesViewProps {
   userEmail: string | null;
@@ -146,13 +146,9 @@ export function ResponsesView({
           </Button>
         </div>
         {isImporting && progressMessage && (
-          <p
-            className="text-muted-foreground text-sm"
-            role="status"
-            aria-live="polite"
-          >
+          <output className="text-muted-foreground text-sm" aria-live="polite">
             {progressMessage}
-          </p>
+          </output>
         )}
         {successMessage && (
           <Alert
@@ -165,11 +161,7 @@ export function ResponsesView({
           </Alert>
         )}
         {error && (
-          <Alert
-            variant="destructive"
-            role="alert"
-            aria-live="polite"
-          >
+          <Alert variant="destructive" role="alert" aria-live="polite">
             {error}
           </Alert>
         )}

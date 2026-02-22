@@ -2,8 +2,10 @@
 
 import { createContext, useContext, useMemo } from "react";
 import type { OperationType } from "./types";
-import { useOperationHandlers } from "./use-operations-state";
-import { useOperationsState } from "./use-operations-state";
+import {
+  useOperationHandlers,
+  useOperationsState,
+} from "./use-operations-state";
 
 /** Контекст для управления операциями с откликами вакансии */
 interface VacancyResponsesContextValue {
@@ -60,23 +62,7 @@ export function VacancyResponsesProvider({
       ...state,
       ...handlers,
     }),
-    [
-      vacancyId,
-      state.operations,
-      state.showConfirmation,
-      state.hideConfirmation,
-      state.startOperation,
-      state.completeOperation,
-      state.updateProgress,
-      handlers.setOperationHandler,
-      handlers.executeOperation,
-      handlers.registerOnArchivedSyncComplete,
-      handlers.getOnArchivedSyncComplete,
-      handlers.registerOnScreenAllProgress,
-      handlers.registerOnScreenAllComplete,
-      handlers.getOnScreenAllProgress,
-      handlers.getOnScreenAllComplete,
-    ],
+    [vacancyId, state, handlers],
   );
 
   return (

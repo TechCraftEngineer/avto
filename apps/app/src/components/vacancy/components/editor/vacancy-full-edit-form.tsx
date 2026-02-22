@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { RouterOutputs } from "@qbs-autonaim/api";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import {
   Card,

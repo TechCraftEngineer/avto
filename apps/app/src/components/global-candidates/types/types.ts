@@ -1,28 +1,21 @@
-
 import type { SortDirection } from "@qbs-autonaim/shared";
-import type { GlobalCandidateDetail, GlobalCandidateListItem } from "~/types/api";
+import type { GlobalCandidateListItem } from "~/types/api";
 
-
-export type GlobalCandidate =
-  GlobalCandidateListItem;
-
-export type GlobalCandidateDetail = GlobalCandidateDetail;
+export type GlobalCandidate = GlobalCandidateListItem;
 
 export type CandidateStatus = "ACTIVE" | "BLACKLISTED" | "HIRED";
 
-export const CANDIDATE_STATUS_LABELS: Record<
-  CandidateStatus,
-  string
-> & { [key: string]: string } = {
+export const CANDIDATE_STATUS_LABELS: Record<CandidateStatus, string> & {
+  [key: string]: string;
+} = {
   ACTIVE: "Активен",
   BLACKLISTED: "В чёрном списке",
   HIRED: "Нанят",
 };
 
-export const CANDIDATE_STATUS_COLORS: Record<
-  CandidateStatus,
-  string
-> & { [key: string]: string } = {
+export const CANDIDATE_STATUS_COLORS: Record<CandidateStatus, string> & {
+  [key: string]: string;
+} = {
   ACTIVE:
     "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-400",
   BLACKLISTED:
