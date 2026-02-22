@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from "node:crypto";
-import { fetchRequestHandler } from "@orpc/server/adapters/fetch";
+import { RPCHandler } from "@orpc/server/fetch";
 import { appRouter, createContext } from "@qbs-autonaim/api";
 import { env } from "@qbs-autonaim/config";
 import { eq, upsertUserIntegration } from "@qbs-autonaim/db";
@@ -41,18 +41,17 @@ app.use(
 app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
 // oRPC handler
+const rpcHandler = new RPCHandler(appRouter);
+
 app.on(["GET", "POST"], "/api/orpc/*", async (c) => {
-  const response = await fetchRequestHandler({
-    endpoint: "/api/orpc",
-    router: appRouter,
-    req: c.req.raw,
-    createContext: () =>
-      createContext({
-        auth,
-        headers: c.req.raw.headers,
-      }),
-    onError({ error, path }) {
-      console.error(`>>> oRPC Error on '${path}'`, error);
+  const response = await rpcHandler.handle(c.req.raw, {
+    prefix: "/api/orpc",
+    context: await createContext({
+      auth,
+      headers: c.req.raw.headers,
+    }),
+    onError({ error, path }: { error: Error; path: string[] }) {
+      console.error(`>>> oRPC Error on '${path.join(".")}'`, error);
     },
   });
 
@@ -281,7 +280,7 @@ app.post("/api/test/setup", async (c) => {
       body: {
         email,
         password,
-        name: name || (email as string).split("@")[0],
+        name: name || email.split("@")[0],
       },
     });
 

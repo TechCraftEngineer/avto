@@ -6,12 +6,12 @@ import { messageBufferService } from "@qbs-autonaim/jobs/services/buffer";
 import type { BufferedMessage } from "@qbs-autonaim/shared";
 import { z } from "zod";
 import { createErrorHandler } from "../../../utils/error-handler";
-import { withInterviewAccess } from "../../../utils/interview-access-middleware";
+import {
+  interviewAccessInputSchema,
+  withInterviewAccess,
+} from "../../../utils/interview-access-middleware";
 
-const sendChatMessageInputSchema = z.object({
-  sessionId: z.uuid().optional(),
-  interviewSessionId: z.uuid().optional(),
-  interviewToken: z.string().optional(),
+const sendChatMessageInputSchema = interviewAccessInputSchema.extend({
   message: z.string().min(1, "Сообщение не может быть пустым").max(10000),
 });
 
@@ -42,12 +42,14 @@ export const sendChatMessage = withInterviewAccess
       // Доступ уже проверен в middleware
 
       // Проверяем существование interviewSession
+      const { interviewSession } = await import("@qbs-autonaim/db/schema");
+      const { eq, and } = await import("drizzle-orm");
+
       const session = await context.db.query.interviewSession.findFirst({
-        where: (interviewSession, { eq, and }) =>
-          and(
-            eq(interviewSession.id, context.verifiedInterviewSessionId),
-            eq(interviewSession.lastChannel, "web"),
-          ),
+        where: and(
+          eq(interviewSession.id, context.verifiedInterviewSessionId),
+          eq(interviewSession.lastChannel, "web"),
+        ),
       });
 
       if (!session) {
@@ -147,7 +149,7 @@ export const sendChatMessage = withInterviewAccess
         messageId: savedMessage.id,
       };
     } catch (error) {
-      // Пробрасываем TRPC ошибки как есть
+      // Пробрасываем ORPC ошибки как есть
       if (error instanceof ORPCError) {
         throw error;
       }
