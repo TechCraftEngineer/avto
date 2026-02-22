@@ -1,12 +1,20 @@
 "use client";
 
-import { Alert, AlertDescription } from "@qbs-autonaim/ui/components/alert"
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Card } from "@qbs-autonaim/ui/components/card"
+import { Alert, AlertDescription } from "@qbs-autonaim/ui/components/alert";
+
+export const dynamic = "force-dynamic";
+
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import { Card } from "@qbs-autonaim/ui/components/card";
 import { Skeleton } from "@qbs-autonaim/ui/components/skeleton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertCircle, Calendar, CheckCircle2, ExternalLink } from "lucide-react";
+import {
+  AlertCircle,
+  Calendar,
+  CheckCircle2,
+  ExternalLink,
+} from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { toast } from "sonner";
@@ -35,7 +43,9 @@ export default function AccountIntegrationsPage() {
     }),
   );
 
-  const googleCalendar = integrations?.find((i) => i.type === "google_calendar");
+  const googleCalendar = integrations?.find(
+    (i) => i.type === "google_calendar",
+  );
 
   useEffect(() => {
     const connected = searchParams.get("google_calendar") === "connected";
@@ -89,9 +99,8 @@ export default function AccountIntegrationsPage() {
         <AlertCircle className="h-4 w-4" />
         <AlertDescription className="text-sm">
           <strong>Как это работает:</strong> Подключите Google Calendar — при
-          планировании собеседования с кандидатом событие автоматически
-          появится в вашем календаре. Кандидат может получить приглашение на
-          email.
+          планировании собеседования с кандидатом событие автоматически появится
+          в вашем календаре. Кандидат может получить приглашение на email.
         </AlertDescription>
       </Alert>
 

@@ -1,9 +1,15 @@
 import { paths } from "@qbs-autonaim/config";
-import { SidebarInset, SidebarProvider } from "@qbs-autonaim/ui/components/sidebar";
+import {
+  SidebarInset,
+  SidebarProvider,
+} from "@qbs-autonaim/ui/components/sidebar";
 import { redirect } from "next/navigation";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import type { ReactNode } from "react";
 import { getSession } from "~/auth/server";
+
+export const dynamic = "force-dynamic";
+
 import { EmailVerificationBanner } from "~/components/auth";
 import { SiteHeader } from "~/components/layout";
 import { DatabaseErrorFallback } from "~/components/shared/database-error-fallback";
