@@ -2,7 +2,7 @@ import { eq } from "@qbs-autonaim/db";
 import { user } from "@qbs-autonaim/db/schema";
 import { optimizeAvatar } from "@qbs-autonaim/lib/image";
 import { accountFormSchema } from "@qbs-autonaim/validators";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const update = protectedProcedure
   .input(accountFormSchema)

@@ -1,8 +1,8 @@
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
-export const list = protectedProcedure.query(async ({ ctx }) => {
-  const workspaces = await ctx.workspaceRepository.findByUserId(
-    ctx.session.user.id,
+export const list = protectedProcedure.handler(async ({ context }) => {
+  const workspaces = await context.workspaceRepository.findByUserId(
+    context.session.user.id,
   );
   return workspaces;
 });

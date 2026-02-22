@@ -10,6 +10,14 @@
     "./services": {
       "types": "./src/services/index.ts",
       "default": "./src/services/index.ts"
+    },
+    "./orpc": {
+      "types": "./src/orpc.ts",
+      "default": "./src/orpc.ts"
+    },
+    "./root-orpc": {
+      "types": "./src/root-orpc.ts",
+      "default": "./src/root-orpc.ts"
     }
   },
   "license": "MIT",

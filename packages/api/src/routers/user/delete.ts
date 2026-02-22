@@ -1,6 +1,6 @@
 import { eq } from "@qbs-autonaim/db";
 import { user } from "@qbs-autonaim/db/schema";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const deleteUser = protectedProcedure.mutation(async ({ ctx }) => {
   // Удаляем пользователя (каскадное удаление должно быть настроено в БД)

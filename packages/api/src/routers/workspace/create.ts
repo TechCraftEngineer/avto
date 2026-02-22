@@ -3,9 +3,9 @@ import {
   createWorkspaceSchema,
   organizationIdSchema,
 } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/client";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const create = protectedProcedure
   .input(
@@ -14,14 +14,13 @@ export const create = protectedProcedure
       workspace: createWorkspaceSchema,
     }),
   )
-  .mutation(async ({ input, ctx }) => {
-    const organizations = await ctx.organizationRepository.getUserOrganizations(
-      ctx.session.user.id,
+  .handler(async ({ input, context }) => {
+    const organizations = await context.organizationRepository.getUserOrganizations(
+      context.session.user.id,
     );
 
     if (!organizations.length) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
+      throw new ORPCError("NOT_FOUND", {
         message: "У пользователя нет организаций",
       });
     }
@@ -35,8 +34,7 @@ export const create = protectedProcedure
       );
 
       if (!hasAccess) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
+        throw new ORPCError("FORBIDDEN", {
           message: "Нет доступа к указанной организации",
         });
       }
@@ -46,21 +44,19 @@ export const create = protectedProcedure
       // Fallback to first organization if organizationId is omitted
       const firstOrg = organizations[0];
       if (!firstOrg) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
+        throw new ORPCError("NOT_FOUND", {
           message: "У пользователя нет организаций",
         });
       }
       organizationId = firstOrg.id;
     }
 
-    const existing = await ctx.workspaceRepository.findBySlug(
+    const existing = await context.workspaceRepository.findBySlug(
       input.workspace.slug,
       organizationId,
     );
     if (existing) {
-      throw new TRPCError({
-        code: "CONFLICT",
+      throw new ORPCError("CONFLICT", {
         message: "Workspace с таким slug уже существует",
       });
     }
@@ -70,21 +66,20 @@ export const create = protectedProcedure
       dataToCreate.logo = await optimizeLogo(dataToCreate.logo);
     }
 
-    const workspace = await ctx.workspaceRepository.create({
+    const workspace = await context.workspaceRepository.create({
       ...dataToCreate,
       organizationId,
     });
 
     if (!workspace || !workspace.id) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message: "Не удалось создать workspace",
       });
     }
 
-    await ctx.workspaceRepository.addUser(
+    await context.workspaceRepository.addUser(
       workspace.id,
-      ctx.session.user.id,
+      context.session.user.id,
       "owner",
     );
 

@@ -5,7 +5,7 @@ import {
   user,
   workspace,
 } from "@qbs-autonaim/db/schema";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const me = protectedProcedure.query(async ({ ctx }) => {
   const userData = await ctx.db.query.user.findFirst({
