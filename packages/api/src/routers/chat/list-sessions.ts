@@ -1,9 +1,9 @@
+import { ORPCError } from "@orpc/server";
 import { chatEntityTypeEnum } from "@qbs-autonaim/db/schema";
 import { paginationLimitSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { chatRegistry } from "../../services/chat/registry";
 import { protectedProcedure } from "../../orpc";
+import { chatRegistry } from "../../services/chat/registry";
 
 export const listSessions = protectedProcedure
   .input(
@@ -32,8 +32,7 @@ export const listSessions = protectedProcedure
     const userId = context.session.user.id;
 
     if (!chatRegistry.isRegistered(entityType)) {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
+      throw new ORPCError("BAD_REQUEST", {
         message: `Тип сущности ${entityType} не поддерживается`,
       });
     }

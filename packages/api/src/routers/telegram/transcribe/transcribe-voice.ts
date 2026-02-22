@@ -10,7 +10,7 @@ export const transcribeVoiceRouter = protectedProcedure
       fileId: uuidv7Schema,
     }),
   )
-  .mutation(async ({ input }) => {
+  .handler(async ({ input }) => {
     await inngest.send({
       name: "telegram/voice.transcribe",
       data: {

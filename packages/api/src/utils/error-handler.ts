@@ -89,8 +89,7 @@ export class ErrorHandler {
 
     // Выбрасываем ORPCError с соответствующим кодом
     const code = ERROR_CODE_MAP[details.category];
-    throw new ORPCError({
-      code,
+    throw new ORPCError(code, {
       message: details.userMessage,
       cause: details.originalError,
     });

@@ -60,7 +60,7 @@ const chatInputSchema = z.object({
  */
 export const chat = protectedProcedure
   .input(chatInputSchema)
-  .subscription(async function* ({ input, ctx }) {
+  .handler(async function* ({ input, ctx }) {
     const {
       workspaceId,
       message,

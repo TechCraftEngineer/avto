@@ -25,7 +25,7 @@ export const setup = publicProcedure
       workspaceName: z.string().optional(),
     }),
   )
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, ctx }) => {
     if (!isTestMode) {
       throw new ORPCError("FORBIDDEN", { message: "Тестовые эндпоинты доступны только в режиме разработки",
       });

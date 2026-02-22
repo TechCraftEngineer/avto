@@ -14,7 +14,7 @@ export const cleanup = publicProcedure
       all: z.boolean().optional().default(false),
     }),
   )
-  .mutation(async ({ input }) => {
+  .handler(async ({ input }) => {
     if (!isTestMode) {
       throw new ORPCError("FORBIDDEN", { message: "Тестовые эндпоинты доступны только в режиме разработки",
       });

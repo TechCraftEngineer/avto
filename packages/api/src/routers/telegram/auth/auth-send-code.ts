@@ -12,7 +12,7 @@ export const sendCodeRouter = protectedProcedure
       phone: z.string().trim(),
     }),
   )
-  .mutation(async ({ input }) => {
+  .handler(async ({ input }) => {
     try {
       const phone = normalizePhone(input.phone);
       const result = await tgClientSDK.sendCode({

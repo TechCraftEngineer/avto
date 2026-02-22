@@ -25,7 +25,7 @@ export interface PreviewItem {
 
 export const previewBulkImport = publicProcedure
   .input(previewBulkImportInputSchema)
-  .query(async ({ input }) => {
+  .handler(async ({ input }) => {
     // Парсим текст
     const parser = new ResponseParser();
     const parsedResponses = parser.parseBulk(input.rawText);

@@ -29,7 +29,7 @@ export {
   createTenantGuard,
   TenantGuard,
   TenantIsolationError,
-  toTRPCError,
+  toORPCError,
   withTenantGuard,
 } from "./middleware";
 export { createContext } from "./orpc";

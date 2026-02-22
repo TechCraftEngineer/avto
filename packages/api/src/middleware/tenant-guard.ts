@@ -307,7 +307,9 @@ export function createTenantGuard(
 /**
  * Утилита для преобразования TenantIsolationError в ORPCError
  */
-export function toORPCError(error: TenantIsolationError): ORPCError {
+export function toORPCError(
+  error: TenantIsolationError,
+): ORPCError<"NOT_FOUND" | "FORBIDDEN", unknown> {
   const codeMap: Record<TenantErrorCode, "NOT_FOUND" | "FORBIDDEN"> = {
     WORKSPACE_NOT_FOUND: "NOT_FOUND",
     ACCESS_DENIED: "FORBIDDEN",
@@ -315,8 +317,7 @@ export function toORPCError(error: TenantIsolationError): ORPCError {
     INVALID_WORKSPACE_ID: "NOT_FOUND",
   };
 
-  return new ORPCError({
-    code: codeMap[error.code],
+  return new ORPCError(codeMap[error.code], {
     message: error.message,
     cause: error,
   });

@@ -18,7 +18,7 @@ export const createArchivedVacancy = publicProcedure
         .default("Няня для двух девочек 4 и 6 лет (м. Бутырская)"),
     }),
   )
-  .mutation(async ({ input }) => {
+  .handler(async ({ input }) => {
     if (!isTestMode) {
       throw new ORPCError("FORBIDDEN", { message: "Тестовые эндпоинты доступны только в режиме разработки",
       });

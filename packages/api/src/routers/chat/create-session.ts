@@ -1,14 +1,14 @@
+import { ORPCError } from "@orpc/server";
 import { eq } from "@qbs-autonaim/db";
 import {
   chatEntityTypeEnum,
   chatSession,
   vacancy,
 } from "@qbs-autonaim/db/schema";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
+import { protectedProcedure } from "../../orpc";
 import { CommunicationChannelsAnalytics } from "../../services/analytics/communication-channels";
 import { chatRegistry } from "../../services/chat/registry";
-import { protectedProcedure } from "../../orpc";
 
 export const createSession = protectedProcedure
   .input(
@@ -37,8 +37,7 @@ export const createSession = protectedProcedure
     const userId = context.session.user.id;
 
     if (!chatRegistry.isRegistered(entityType)) {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
+      throw new ORPCError("BAD_REQUEST", {
         message: `Тип сущности ${entityType} не поддерживается`,
       });
     }
@@ -57,7 +56,9 @@ export const createSession = protectedProcedure
       .returning();
 
     if (!session) {
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось создать сессию чата", });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Не удалось создать сессию чата",
+      });
     }
 
     // Отслеживаем начало веб-чата для вакансий
