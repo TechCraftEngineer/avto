@@ -174,14 +174,15 @@ export const securityAudit = middleware(async ({ context, next, path }) => {
   const userId = context.session?.user?.id;
   const ipAddress = context.ipAddress;
   const pathStr = path.join(".");
-  
+
   // Определяем тип операции по пути (это упрощение, в реальности нужно использовать meta)
   // В oRPC meta доступен только в handler, не в middleware
-  const isMutation = pathStr.includes("create") || 
-                     pathStr.includes("update") || 
-                     pathStr.includes("delete") || 
-                     pathStr.includes("remove") ||
-                     pathStr.includes("add");
+  const isMutation =
+    pathStr.includes("create") ||
+    pathStr.includes("update") ||
+    pathStr.includes("delete") ||
+    pathStr.includes("remove") ||
+    pathStr.includes("add");
 
   // В dev режиме логируем информацию о запросе
   if (process.env.NODE_ENV === "development") {
@@ -284,7 +285,7 @@ export const publicProcedure = procedure
  * Процедура с требованием авторизации.
  * Применяет все middleware из publicProcedure + проверку авторизации.
  * Гарантирует наличие ctx.session.user.
- * Выбрасывает ORPCError с status 401 если сессия отсутствует.
+ * Выбрасывает ORPCError с кодом UNAUTHORIZED если сессия отсутствует.
  *
  * @see Requirements 3.2, 3.3, 3.4, 3.5
  */
@@ -292,9 +293,7 @@ export const protectedProcedure = publicProcedure.use(
   middleware(async ({ context, next }) => {
     if (!context.session?.user) {
       const { ORPCError } = await import("@orpc/client");
-      throw new ORPCError({
-        status: 401,
-        code: "UNAUTHORIZED",
+      throw new ORPCError("UNAUTHORIZED", {
         message: "Требуется авторизация",
       });
     }

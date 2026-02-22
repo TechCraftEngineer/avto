@@ -29,6 +29,8 @@ export function initAuth<
     email: string;
     username: string;
   }) => Promise<void>;
+  /** Use Next.js cookies plugin (default: true). Set false for standalone server (Hono, etc.) */
+  useNextCookies?: boolean;
   extraPlugins?: TExtraPlugins;
 }) {
   const config = {
@@ -129,9 +131,9 @@ export function initAuth<
         };
       }),
       ...(options.extraPlugins ?? []),
-      // nextCookies должен быть последним плагином для автоматической установки cookies
-      // в Server Actions (signInEmail, signUpEmail и т.д.)
-      nextCookies(),
+      // nextCookies должен быть последним плагином для Next.js Server Actions
+      // В standalone сервере (Hono) не используем - Better Auth работает с cookie headers
+      ...(options.useNextCookies !== false ? [nextCookies()] : []),
     ],
     socialProviders:
       options.googleClientId && options.googleClientSecret

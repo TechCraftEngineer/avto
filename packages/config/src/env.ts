@@ -83,6 +83,8 @@ export const env = createEnv({
 
     // App URL
     APP_URL: z.url().optional().default("http://localhost:3000"),
+    // CORS origin for app-server (defaults to APP_URL)
+    CORS_ORIGIN: z.string().optional(),
     APP_NAME: z.string().optional().default("QBS Автонайм"),
     CUSTOM_DOMAIN_TARGET: z.string().optional().default("cname.qbs.ru"),
 
@@ -208,6 +210,7 @@ export const env = createEnv({
     INNGEST_SIGNING_KEY: process.env.INNGEST_SIGNING_KEY,
     INNGEST_EVENT_API_BASE_URL: process.env.INNGEST_EVENT_API_BASE_URL,
     APP_URL: process.env.APP_URL,
+    CORS_ORIGIN: process.env.CORS_ORIGIN,
     APP_NAME: process.env.APP_NAME,
     CUSTOM_DOMAIN_TARGET: process.env.CUSTOM_DOMAIN_TARGET,
     INTERVIEW_BUFFER_DEBOUNCE_TIMEOUT:

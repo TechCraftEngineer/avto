@@ -1,5 +1,5 @@
 {
-  "name": "server",
+  "name": "@qbs-autonaim/app-server",
   "type": "module",
   "main": "src/index.ts",
   "scripts": {
@@ -10,25 +10,23 @@
     "start": "bun run dist/index.mjs"
   },
   "dependencies": {
-    "@ai-sdk/devtools": "^0.0.2",
-    "@ai-sdk/google": "^3.0.1",
-    "@my-better-t-app/api": "workspace:*",
-    "@my-better-t-app/auth": "workspace:*",
-    "@my-better-t-app/db": "workspace:*",
-    "@my-better-t-app/env": "workspace:*",
-    "@orpc/openapi": "catalog:",
-    "@orpc/server": "catalog:",
-    "@orpc/zod": "catalog:",
-    "ai": "catalog:",
-    "better-auth": "catalog:",
-    "dotenv": "catalog:",
-    "hono": "catalog:",
-    "zod": "catalog:"
+    "@qbs-autonaim/api": "workspace:*",
+    "@qbs-autonaim/auth": "workspace:*",
+    "@qbs-autonaim/config": "workspace:*",
+    "@qbs-autonaim/db": "workspace:*",
+    "@qbs-autonaim/emails": "workspace:*",
+    "@qbs-autonaim/lib": "workspace:*",
+    "@qbs-autonaim/server-utils": "workspace:*",
+    "@trpc/server": "^11.10.0",
+    "better-auth": "1.4.18",
+    "hono": "^4.12.0",
+    "superjson": "2.2.6",
+    "zod": "4.3.6"
   },
   "devDependencies": {
-    "@my-better-t-app/config": "workspace:*",
-    "@types/bun": "catalog:",
+    "@qbs-autonaim/tsconfig": "workspace:*",
+    "@types/bun": "^1.2.15",
     "tsdown": "^0.16.5",
-    "typescript": "catalog:"
+    "typescript": "5.9.3"
   }
 }
