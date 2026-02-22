@@ -1,8 +1,8 @@
 /**
  * Get Session Procedure
  *
- * �������� ������� ��������� ������ ���������������.
- * ��������� ��������� - �� ������� ����������� ������������.
+ * Получает текущее состояние сессии предквалификации.
+ * Публичная процедура - не требует авторизации пользователя.
  */
 
 import { ORPCError } from "@orpc/server";
@@ -12,8 +12,8 @@ import { SessionManager } from "../../services/prequalification";
 import { PrequalificationError } from "../../services/prequalification/types";
 
 const getSessionInputSchema = z.object({
-  sessionId: z.uuid("sessionId ������ ���� UUID"),
-  workspaceId: z.string().min(1, "workspaceId ����������"),
+  sessionId: z.uuid("sessionId должен быть UUID"),
+  workspaceId: z.string().min(1, "workspaceId обязателен"),
 });
 
 export const getSession = publicProcedure
@@ -28,7 +28,7 @@ export const getSession = publicProcedure
       );
 
       if (!session) {
-        throw new ORPCError("NOT_FOUND", { message: "������ �� �������" });
+        throw new ORPCError("NOT_FOUND", { message: "Сессия не найдена" });
       }
 
       return {
@@ -45,7 +45,7 @@ export const getSession = publicProcedure
       };
     } catch (error) {
       if (error instanceof PrequalificationError) {
-        // ������� ����� ������ PrequalificationError �� TRPC ����
+        // Маппинг кодов ошибок PrequalificationError на TRPC коды
         const codeMap: Record<
           string,
           "NOT_FOUND" | "FORBIDDEN" | "BAD_REQUEST" | "INTERNAL_SERVER_ERROR"

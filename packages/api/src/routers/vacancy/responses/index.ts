@@ -1,4 +1,3 @@
-
 import { addTag } from "./add-tag";
 import { analyzeSingle } from "./analyze-single";
 import { compare } from "./compare";

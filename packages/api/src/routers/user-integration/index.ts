@@ -1,4 +1,3 @@
-import type { RouterRecord } from '@orpc/server';
 
 import { deleteItem } from "./delete";
 import { list } from "./list";
@@ -8,4 +7,4 @@ export const userIntegrationRouter = {
   list,
   delete: deleteItem,
   saveOAuth,
-} satisfies RouterRecord;
+};

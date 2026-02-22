@@ -1,16 +1,3 @@
-/**
- * Recruiter Agent Router
- *
- * tRPC router для AI-ассистента рекрутера
- * Предоставляет API для:
- * - chat: диалог с агентом (streaming)
- * - executeAction: выполнение действий
- * - getRecommendations: получение рекомендаций
- * - configureRules: настройка правил автоматизации
- * - feedback: отправка обратной связи
- */
-
-
 import { chat } from "./chat";
 import { configureRules } from "./configure-rules";
 import { approveAction, executeAction, undoAction } from "./execute-action";

@@ -1,4 +1,3 @@
-import type { RouterRecord } from "@orpc/server";
 import { create } from "./create";
 import { deleteDraft } from "./delete";
 import { getCurrent } from "./get-current";
@@ -17,4 +16,4 @@ export const draftRouter = {
   create,
   update,
   delete: deleteDraft,
-} satisfies RouterRecord;
+};

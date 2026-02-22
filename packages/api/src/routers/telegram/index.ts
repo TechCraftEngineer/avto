@@ -1,4 +1,3 @@
-
 import { checkPasswordRouter } from "./auth/auth-check-password";
 import { reauthorizeSessionRouter } from "./auth/auth-reauthorize";
 import { sendCodeRouter } from "./auth/auth-send-code";

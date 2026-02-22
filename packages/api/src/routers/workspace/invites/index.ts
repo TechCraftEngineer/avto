@@ -1,4 +1,3 @@
-
 import { accept } from "./accept";
 import { cancel } from "./cancel";
 import { createLink } from "./create-link";
