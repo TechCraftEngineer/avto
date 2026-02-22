@@ -1,6 +1,5 @@
 "use client";
 
-import type { RouterOutputs } from "@qbs-autonaim/api";
 import { paths } from "@qbs-autonaim/config";
 import type {
   VacancyHrSelectionStatus,
@@ -28,7 +27,7 @@ import { ScoreCell } from "./score-cell";
 import type { ColumnId } from "./types";
 
 interface ResponseRowProps {
-  response: RouterOutputs["vacancy"]["responses"]["list"]["responses"][0];
+  response: VacancyResponseList[0];
   orgSlug: string;
   workspaceSlug: string;
   workspaceId: string;
@@ -264,4 +263,6 @@ export function ResponseRow({
       </TableCell>
     </TableRow>
   );
+import type { VacancyResponseList } from "~/types/api";
+
 }

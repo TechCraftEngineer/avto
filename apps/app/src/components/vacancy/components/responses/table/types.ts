@@ -1,8 +1,7 @@
-import type { RouterOutputs } from "@qbs-autonaim/api";
+import type { VacancyResponseListItem } from "~/types/api";
 import type { ColumnId, SortDirection, SortField } from "../types";
 
-export type ResponseListItem =
-  RouterOutputs["vacancy"]["responses"]["list"]["responses"][0];
+export type ResponseListItem = VacancyResponseListItem;
 
 export interface ResponseTableMeta {
   orgSlug: string;

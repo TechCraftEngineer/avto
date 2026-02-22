@@ -1,6 +1,5 @@
 "use client";
 
-import type { RouterOutputs } from "@qbs-autonaim/api";
 import { Badge } from "@qbs-autonaim/ui/components/badge"
 import { Button } from "@qbs-autonaim/ui/components/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
@@ -22,9 +21,11 @@ import {
 import Link from "next/link";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
+import type { GigShortlistCandidate } from "~/types/api";
+
 
 type ShortlistCandidate =
-  RouterOutputs["gig"]["shortlist"]["candidates"][number];
+  GigShortlistCandidate;
 
 interface TopCandidatesPreviewProps {
   candidates: ShortlistCandidate[];

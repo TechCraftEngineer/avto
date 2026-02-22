@@ -2,9 +2,23 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { RouterOutputs } from "@qbs-autonaim/api";
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@qbs-autonaim/ui/components/form"
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@qbs-autonaim/ui/components/form";
 import { Input } from "@qbs-autonaim/ui/components/input";
 import {
   type UpdateFullVacancyInput,
@@ -26,12 +40,11 @@ const TiptapEditor = dynamic(
   },
 );
 
+import type { VacancyDetail } from "~/types/api";
 import { VacancyRequirementsEditor } from "./vacancy-requirements-editor";
 
-type Vacancy = NonNullable<RouterOutputs["vacancy"]["get"]>;
-
 interface VacancyFullEditFormProps {
-  vacancy: Vacancy;
+  vacancy: VacancyDetail;
   onSave: (data: UpdateFullVacancyInput) => Promise<void>;
   onCancel?: () => void;
 }

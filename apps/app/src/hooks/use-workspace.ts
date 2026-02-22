@@ -1,17 +1,18 @@
 "use client";
 
-import type { RouterOutputs } from "@qbs-autonaim/api";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useTRPC } from "~/trpc/react";
+import type { OrganizationDetail, WorkspaceDetail, WorkspaceRole } from "~/types/api";
+
 
 interface UseWorkspaceReturn {
   workspace:
-    | (RouterOutputs["workspace"]["getBySlug"]["workspace"] & {
-        role: RouterOutputs["workspace"]["getBySlug"]["role"];
+    | (WorkspaceDetail & {
+        role: WorkspaceRole;
       })
     | undefined;
-  organization: RouterOutputs["organization"]["getBySlug"] | undefined;
+  organization: OrganizationDetail | undefined;
   orgSlug: string | undefined;
   slug: string | undefined;
   isLoading: boolean;

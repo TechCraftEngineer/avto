@@ -1,6 +1,5 @@
 "use client";
 
-import type { RouterOutputs } from "@qbs-autonaim/api";
 import { Alert, AlertDescription, AlertTitle } from "@qbs-autonaim/ui/components/alert"
 import { Badge } from "@qbs-autonaim/ui/components/badge"
 import { Button } from "@qbs-autonaim/ui/components/button"
@@ -22,6 +21,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CandidateComparison, RankingList } from "~/components/gig";
 import { useTRPC } from "~/trpc/react";
+import type { GigRankedCandidate } from "~/types/api";
+
 
 interface RankingPageClientProps {
   orgSlug: string;
@@ -202,7 +203,7 @@ export function RankingPageClient({
                   {
                     candidates.filter(
                       (
-                        c: RouterOutputs["gig"]["responses"]["ranked"]["candidates"][number],
+                        c: GigRankedCandidate,
                       ) => c.screening?.recommendation === "HIGHLY_RECOMMENDED",
                     ).length
                   }
@@ -214,7 +215,7 @@ export function RankingPageClient({
                   {
                     candidates.filter(
                       (
-                        c: RouterOutputs["gig"]["responses"]["ranked"]["candidates"][number],
+                        c: GigRankedCandidate,
                       ) => c.screening?.recommendation === "RECOMMENDED",
                     ).length
                   }
@@ -228,7 +229,7 @@ export function RankingPageClient({
                         candidates.reduce(
                           (
                             sum: number,
-                            c: RouterOutputs["gig"]["responses"]["ranked"]["candidates"][number],
+                            c: GigRankedCandidate,
                           ) => sum + (c.screening?.overallScore ?? 0),
                           0,
                         ) / candidates.length,

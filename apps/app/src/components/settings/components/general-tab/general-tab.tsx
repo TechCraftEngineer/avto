@@ -1,6 +1,5 @@
 "use client";
 
-import type { RouterOutputs } from "@qbs-autonaim/api";
 import { Avatar, AvatarFallback, AvatarImage } from "@qbs-autonaim/ui/components/avatar"
 import { Button } from "@qbs-autonaim/ui/components/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
@@ -12,9 +11,11 @@ import { toast } from "sonner";
 import { authClient } from "~/auth/client";
 import { getAvatarUrl } from "~/lib/avatar";
 import { useTRPC } from "~/trpc/react";
+import type { UserMe } from "~/types/api";
+
 
 interface GeneralTabProps {
-  user: RouterOutputs["user"]["me"];
+  user: UserMe;
 }
 
 export function GeneralTab({ user }: GeneralTabProps) {

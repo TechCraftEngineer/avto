@@ -1,6 +1,5 @@
 "use client";
 
-import type { RouterOutputs } from "@qbs-autonaim/api";
 import { Badge } from "@qbs-autonaim/ui/components/badge"
 import { Button } from "@qbs-autonaim/ui/components/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
@@ -17,9 +16,11 @@ import {
   User,
   X,
 } from "lucide-react";
+import type { GigRankedCandidate } from "~/types/api";
+
 
 type RankedCandidate =
-  RouterOutputs["gig"]["responses"]["ranked"]["candidates"][number];
+  GigRankedCandidate;
 
 interface CandidateComparisonProps {
   candidates: RankedCandidate[];

@@ -1,6 +1,5 @@
 "use client";
 
-import type { RouterOutputs } from "@qbs-autonaim/api";
 import { paths } from "@qbs-autonaim/config";
 import { Badge } from "@qbs-autonaim/ui/components/badge"
 import { CandidateAvatar } from "@qbs-autonaim/ui/components/candidate-avatar"
@@ -14,9 +13,11 @@ import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { getAvatarUrl } from "~/lib/avatar";
 import { useTRPC } from "~/trpc/react";
+import type { VacancyResponseRecentItem } from "~/types/api";
+
 
 type RecentResponse =
-  RouterOutputs["vacancy"]["responses"]["listRecent"][number];
+  VacancyResponseRecentItem;
 
 interface RecentResponseItemProps {
   response: RecentResponse;

@@ -1,10 +1,12 @@
-import type { RouterOutputs } from "@qbs-autonaim/api";
+
 import type { SortDirection } from "@qbs-autonaim/shared";
+import type { GlobalCandidateDetail, GlobalCandidateListItem } from "~/types/api";
+
 
 export type GlobalCandidate =
-  RouterOutputs["globalCandidates"]["list"]["items"][number];
+  GlobalCandidateListItem;
 
-export type GlobalCandidateDetail = RouterOutputs["globalCandidates"]["get"];
+export type GlobalCandidateDetail = GlobalCandidateDetail;
 
 export type CandidateStatus = "ACTIVE" | "BLACKLISTED" | "HIRED";
 

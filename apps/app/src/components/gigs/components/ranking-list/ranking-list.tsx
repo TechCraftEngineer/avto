@@ -1,13 +1,14 @@
 "use client";
 
-import type { RouterOutputs } from "@qbs-autonaim/api";
 import { Alert, AlertDescription, AlertTitle } from "@qbs-autonaim/ui/components/alert"
 import { Separator } from "@qbs-autonaim/ui/components/separator";
 import { Award, Trophy } from "lucide-react";
 import { RankedCandidateCard } from "../ranked-candidate-card";
+import type { GigRankedCandidate } from "~/types/api";
+
 
 type RankedCandidate =
-  RouterOutputs["gig"]["responses"]["ranked"]["candidates"][number];
+  GigRankedCandidate;
 
 interface RankingListProps {
   candidates: RankedCandidate[];

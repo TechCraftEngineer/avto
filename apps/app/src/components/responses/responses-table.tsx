@@ -2,16 +2,23 @@
 
 import type { RouterOutputs } from "@qbs-autonaim/api";
 import { RESPONSE_STATUS_LABELS } from "@qbs-autonaim/db/schema";
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Skeleton } from "@qbs-autonaim/ui/components/skeleton"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@qbs-autonaim/ui/components/table";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { Button } from "@qbs-autonaim/ui/components/button";
 import { InfoTooltip } from "@qbs-autonaim/ui/components/info-tooltip";
+import { Skeleton } from "@qbs-autonaim/ui/components/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@qbs-autonaim/ui/components/table";
 import { ArrowUpDown } from "lucide-react";
 import Link from "next/link";
+import type { VacancyResponseListWorkspaceItem } from "~/types/api";
 
-type Response =
-  RouterOutputs["vacancy"]["responses"]["listWorkspace"]["responses"][number];
+type Response = VacancyResponseListWorkspaceItem;
 
 interface ResponsesTableProps {
   responses: Response[];

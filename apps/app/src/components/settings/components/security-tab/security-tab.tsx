@@ -1,6 +1,5 @@
 "use client";
 
-import type { RouterOutputs } from "@qbs-autonaim/api";
 import { paths } from "@qbs-autonaim/config";
 import { Button } from "@qbs-autonaim/ui/components/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
@@ -14,9 +13,11 @@ import { toast } from "sonner";
 import { authClient } from "~/auth/client";
 import { useTRPC } from "~/trpc/react";
 import { DeleteAccountDialog } from "../delete-account-dialog";
+import type { UserMe } from "~/types/api";
+
 
 interface SecurityTabProps {
-  user: RouterOutputs["user"]["me"];
+  user: UserMe;
 }
 
 export function SecurityTab({ user }: SecurityTabProps) {

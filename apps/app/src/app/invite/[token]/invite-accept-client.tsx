@@ -1,14 +1,15 @@
 "use client";
 
-import type { RouterOutputs } from "@qbs-autonaim/api";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useTRPC } from "~/trpc/react";
+import type { WorkspaceInvite } from "~/types/api";
+
 
 interface InviteAcceptClientProps {
-  invite: RouterOutputs["workspace"]["invites"]["list"][number];
+  invite: WorkspaceInvite;
   token: string;
 }
 

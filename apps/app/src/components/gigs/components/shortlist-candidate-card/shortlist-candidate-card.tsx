@@ -1,6 +1,5 @@
 "use client";
 
-import type { RouterOutputs } from "@qbs-autonaim/api";
 import { Badge } from "@qbs-autonaim/ui/components/badge";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { Card, CardContent, CardHeader } from "@qbs-autonaim/ui/components/card";
@@ -19,9 +18,11 @@ import {
   User,
 } from "lucide-react";
 import Link from "next/link";
+import type { GigShortlistCandidate } from "~/types/api";
+
 
 type ShortlistCandidate =
-  RouterOutputs["gig"]["shortlist"]["candidates"][number];
+  GigShortlistCandidate;
 
 interface ShortlistCandidateCardProps {
   candidate: ShortlistCandidate;

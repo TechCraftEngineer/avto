@@ -1,25 +1,17 @@
 // Специфичные типы для vacancy откликов
 
-import type { RouterOutputs } from "@qbs-autonaim/api";
+import type {
+  VacancyDetail,
+  VacancyResponseDetail,
+  VacancyResponseListItem,
+} from "~/types/api";
 
 /**
- * Vacancy отклик - inferred тип из API
+ * Re-export централизованных типов для обратной совместимости
  */
-export type VacancyResponse = NonNullable<
-  RouterOutputs["vacancy"]["responses"]["get"]
->;
-
-/**
- * Vacancy - inferred тип из API
- */
-export type Vacancy = NonNullable<RouterOutputs["vacancy"]["get"]>;
-
-/**
- * Vacancy Response from list - inferred тип из API list
- */
-export type VacancyResponseFromList = NonNullable<
-  RouterOutputs["vacancy"]["responses"]["list"]
->["responses"][0];
+export type VacancyResponse = VacancyResponseDetail;
+export type Vacancy = VacancyDetail;
+export type VacancyResponseFromList = VacancyResponseListItem;
 
 /**
  * Маппированный тип screening из API (для обратной совместимости)

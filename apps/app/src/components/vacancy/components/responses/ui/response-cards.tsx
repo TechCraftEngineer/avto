@@ -1,6 +1,5 @@
 "use client";
 
-import type { RouterOutputs } from "@qbs-autonaim/api";
 import { paths } from "@qbs-autonaim/config";
 import {
   HR_SELECTION_STATUS_LABELS,
@@ -23,7 +22,7 @@ const vacancyIdSchema = z
   .min(1, "vacancyId must be a non-empty string");
 
 interface ResponseCardsProps {
-  responses: RouterOutputs["vacancy"]["responses"]["list"]["responses"];
+  responses: VacancyResponseList;
   orgSlug: string;
   workspaceSlug: string;
   workspaceId: string;
@@ -154,6 +153,8 @@ export function ResponseCards({
             </CardContent>
           </Card>
         );
+import type { VacancyResponseList } from "~/types/api";
+
       })}
     </div>
   );

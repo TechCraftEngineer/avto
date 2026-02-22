@@ -1,7 +1,9 @@
 // Специфичные типы для gig откликов
 
-import type { RouterOutputs } from "@qbs-autonaim/api";
+
 import type { GigContextData } from "@qbs-autonaim/shared";
+import type { GigResponseDetail } from "~/types/api";
+
 
 /** Реэкспорт для GigResponseDetailCard, header-card, pricing-card, summary-card */
 export type { GigContextData };
@@ -9,7 +11,7 @@ export type { GigContextData };
 /**
  * Gig отклик - inferred тип из API
  */
-export type GigResponse = NonNullable<RouterOutputs["gig"]["responses"]["get"]>;
+export type GigResponse = GigResponseDetail;
 
 /**
  * Пропсы для gig response detail card
