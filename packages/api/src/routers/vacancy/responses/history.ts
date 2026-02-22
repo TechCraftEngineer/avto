@@ -11,10 +11,10 @@ import { protectedProcedure } from "../../../orpc";
 
 export const getHistory = protectedProcedure
   .input(z.object({ responseId: z.uuid(), workspaceId: workspaceIdSchema }))
-  .query(async ({ ctx, input }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ context, input }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
@@ -24,7 +24,7 @@ export const getHistory = protectedProcedure
       });
     }
 
-    const response = await ctx.db.query.response.findFirst({
+    const response = await context.db.query.response.findFirst({
       where: eq(responseTable.id, input.responseId),
     });
 
@@ -36,7 +36,7 @@ export const getHistory = protectedProcedure
     }
 
     // Query vacancy separately to check workspace access
-    const vacancy = await ctx.db.query.vacancy.findFirst({
+    const vacancy = await context.db.query.vacancy.findFirst({
       where: eq(vacancyTable.id, response.entityId),
       columns: { workspaceId: true },
     });
@@ -55,7 +55,7 @@ export const getHistory = protectedProcedure
       });
     }
 
-    const history = await ctx.db.query.responseHistory.findMany({
+    const history = await context.db.query.responseHistory.findMany({
       where: eq(responseHistory.responseId, input.responseId),
       orderBy: [desc(responseHistory.createdAt)],
     });

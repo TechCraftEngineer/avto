@@ -12,22 +12,22 @@ export const getCount = protectedProcedure
       workspaceId: workspaceIdSchema,
     }),
   )
-  .query(async ({ ctx, input }) => {
-    // Проверка доступа к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ context, input }) => {
+    // РџСЂРѕРІРµСЂРєР° РґРѕСЃС‚СѓРїР° Рє workspace
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
       throw new ORPCError({
         code: "FORBIDDEN",
-        message: "Нет доступа к этому workspace",
+        message: "РќРµС‚ РґРѕСЃС‚СѓРїР° Рє СЌС‚РѕРјСѓ workspace",
       });
     }
 
-    // Проверка принадлежности вакансии к workspace
-    const vacancyCheck = await ctx.db.query.vacancy.findFirst({
+    // РџСЂРѕРІРµСЂРєР° РїСЂРёРЅР°РґР»РµР¶РЅРѕСЃС‚Рё РІР°РєР°РЅСЃРёРё Рє workspace
+    const vacancyCheck = await context.db.query.vacancy.findFirst({
       where: and(
         eq(vacancy.id, input.vacancyId),
         eq(vacancy.workspaceId, input.workspaceId),
@@ -37,11 +37,11 @@ export const getCount = protectedProcedure
     if (!vacancyCheck) {
       throw new ORPCError({
         code: "NOT_FOUND",
-        message: "Вакансия не найдена",
+        message: "Р’Р°РєР°РЅСЃРёСЏ РЅРµ РЅР°Р№РґРµРЅР°",
       });
     }
 
-    const result = await ctx.db
+    const result = await context.db
       .select({ count: countFn() })
       .from(responseTable)
       .where(

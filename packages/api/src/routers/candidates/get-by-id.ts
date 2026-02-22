@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq } from "@qbs-autonaim/db";
 import {
   file as fileTable,
@@ -12,9 +13,8 @@ import {
 import { getDownloadUrl } from "@qbs-autonaim/lib/s3";
 import { formatExperienceText } from "@qbs-autonaim/shared";
 import { uuidv7Schema, workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 const mapResponseToStage = (
   status: string,
@@ -62,7 +62,7 @@ export const getById = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к workspace",
       });
@@ -76,7 +76,7 @@ export const getById = protectedProcedure
     });
 
     if (!response) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Кандидат не найден",
       });
@@ -88,7 +88,7 @@ export const getById = protectedProcedure
     });
 
     if (!vacancyData || vacancyData.workspaceId !== input.workspaceId) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому кандидату",
       });

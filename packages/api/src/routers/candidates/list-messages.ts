@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/server";
 import { desc, eq } from "@qbs-autonaim/db";
 import {
   interviewMessage,
@@ -6,9 +7,8 @@ import {
 } from "@qbs-autonaim/db/schema";
 import { getDownloadUrl } from "@qbs-autonaim/lib/s3";
 import { uuidv7Schema, workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const listMessages = protectedProcedure
   .input(
@@ -24,7 +24,7 @@ export const listMessages = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к workspace",
       });

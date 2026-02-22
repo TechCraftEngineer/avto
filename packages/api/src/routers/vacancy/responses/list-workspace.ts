@@ -45,7 +45,7 @@ export const listWorkspace = protectedProcedure
       search: z.string().optional(),
     }),
   )
-  .query(async ({ ctx, input }) => {
+  .handler(async ({ context, input }) => {
     const {
       workspaceId,
       page,
@@ -59,9 +59,9 @@ export const listWorkspace = protectedProcedure
     } = input;
     const offset = (page - 1) * limit;
 
-    const hasAccess = await ctx.workspaceRepository.checkAccess(
+    const hasAccess = await context.workspaceRepository.checkAccess(
       workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!hasAccess) {
@@ -71,7 +71,7 @@ export const listWorkspace = protectedProcedure
       });
     }
 
-    const workspaceVacancies = await ctx.db.query.vacancy.findMany({
+    const workspaceVacancies = await context.db.query.vacancy.findMany({
       where: eq(vacancy.workspaceId, workspaceId),
       columns: { id: true },
     });
@@ -87,7 +87,7 @@ export const listWorkspace = protectedProcedure
     }
 
     const filteredResponseIds = await getFilteredResponseIds(
-      ctx.db,
+      context.db,
       vacancyIds,
       screeningFilter,
     );
@@ -123,7 +123,7 @@ export const listWorkspace = protectedProcedure
     let responsesRaw: RawResponseBase[];
 
     if (isScoreBasedSort(sortField)) {
-      responsesRaw = (await ctx.db
+      responsesRaw = (await context.db
         .select({
           id: responseTable.id,
           entityId: responseTable.entityId,
@@ -150,7 +150,7 @@ export const listWorkspace = protectedProcedure
         .limit(needsPrioritySort ? fetchLimit : limit)
         .offset(needsPrioritySort ? 0 : offset)) as RawResponseBase[];
     } else {
-      responsesRaw = (await ctx.db.query.response.findMany({
+      responsesRaw = (await context.db.query.response.findMany({
         where: whereCondition,
         orderBy: [orderByClause],
         limit: needsPrioritySort ? fetchLimit : limit,
@@ -176,7 +176,7 @@ export const listWorkspace = protectedProcedure
 
     const responseIds = responsesRaw.map((r) => r.id);
     const { screenings, interviewScorings, sessions, messageCountsMap } =
-      await fetchRelatedData(ctx.db, responseIds);
+      await fetchRelatedData(context.db, responseIds);
 
     const responsesMapped = mapResponseData(
       responsesRaw,
@@ -187,7 +187,7 @@ export const listWorkspace = protectedProcedure
     );
 
     if (needsPrioritySort) {
-      const totalCountResult = await ctx.db
+      const totalCountResult = await context.db
         .select({ count: sql<number>`count(*)` })
         .from(responseTable)
         .where(whereCondition);
@@ -209,7 +209,7 @@ export const listWorkspace = protectedProcedure
       };
     }
 
-    const totalResult = await ctx.db
+    const totalResult = await context.db
       .select({ count: sql<number>`count(*)` })
       .from(responseTable)
       .where(whereCondition);

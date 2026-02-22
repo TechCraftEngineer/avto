@@ -15,13 +15,13 @@ export const debugList = protectedProcedure
       vacancyId: z.string(),
     }),
   )
-  .query(async ({ ctx, input }) => {
+  .handler(async ({ context, input }) => {
     const { workspaceId, vacancyId } = input;
 
     // Проверка доступа к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
@@ -32,7 +32,7 @@ export const debugList = protectedProcedure
     }
 
     // Проверка принадлежности вакансии к workspace
-    const vacancyCheck = await ctx.db.query.vacancy.findFirst({
+    const vacancyCheck = await context.db.query.vacancy.findFirst({
       where: and(
         eq(vacancy.id, vacancyId),
         eq(vacancy.workspaceId, workspaceId),
@@ -47,7 +47,7 @@ export const debugList = protectedProcedure
     }
 
     // Получаем все отклики без фильтров
-    const allResponses = await ctx.db
+    const allResponses = await context.db
       .select({
         id: responseTable.id,
         entityType: responseTable.entityType,
@@ -64,7 +64,7 @@ export const debugList = protectedProcedure
     );
 
     // Получаем отклики через query builder
-    const responsesViaQuery = await ctx.db.query.response.findMany({
+    const responsesViaQuery = await context.db.query.response.findMany({
       where: and(
         eq(responseTable.entityType, "vacancy"),
         eq(responseTable.entityId, vacancyId),

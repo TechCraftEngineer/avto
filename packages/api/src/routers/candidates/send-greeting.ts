@@ -1,8 +1,8 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq, isNull } from "@qbs-autonaim/db";
 import { response as responseTable } from "@qbs-autonaim/db/schema";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const sendGreeting = protectedProcedure
   .input(
@@ -22,7 +22,7 @@ export const sendGreeting = protectedProcedure
     });
 
     if (!candidate) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Кандидат не найден",
       });
@@ -37,7 +37,7 @@ export const sendGreeting = protectedProcedure
     });
 
     if (!vacancy || vacancy.workspaceId !== workspaceId) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому кандидату",
       });
@@ -60,7 +60,7 @@ export const sendGreeting = protectedProcedure
     // Проверяем, была ли обновлена строка
     // Если 0 строк обновлено, значит приветствие уже было отправлено
     if (updateResult.length === 0) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message: "Приветствие уже было отправлено",
       });
@@ -91,7 +91,7 @@ export const sendGreeting = protectedProcedure
           ),
         );
 
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Не удалось отправить приветствие. Попробуйте позже.",
       });

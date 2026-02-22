@@ -4,8 +4,8 @@ import { protectedProcedure } from "../../orpc";
 
 export const getBySlug = protectedProcedure
   .input(z.object({ slug: z.string() }))
-  .query(async ({ input, ctx }) => {
-    const organization = await ctx.organizationRepository.findBySlug(
+  .handler(async ({ input, context }) => {
+    const organization = await context.organizationRepository.findBySlug(
       input.slug,
     );
 
@@ -15,9 +15,9 @@ export const getBySlug = protectedProcedure
       });
     }
 
-    const access = await ctx.organizationRepository.checkAccess(
+    const access = await context.organizationRepository.checkAccess(
       organization.id,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {

@@ -17,10 +17,10 @@ export const addTag = protectedProcedure
       workspaceId: workspaceIdSchema,
     }),
   )
-  .mutation(async ({ ctx, input }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ context, input }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
@@ -30,7 +30,7 @@ export const addTag = protectedProcedure
       });
     }
 
-    const response = await ctx.db.query.response.findFirst({
+    const response = await context.db.query.response.findFirst({
       where: and(
         eq(responseTable.id, input.responseId),
         eq(responseTable.entityType, "vacancy"),
@@ -44,7 +44,7 @@ export const addTag = protectedProcedure
       });
     }
 
-    const vacancy = await ctx.db.query.vacancy.findFirst({
+    const vacancy = await context.db.query.vacancy.findFirst({
       where: eq(vacancyTable.id, response.entityId),
       columns: { workspaceId: true },
     });
@@ -56,7 +56,7 @@ export const addTag = protectedProcedure
       });
     }
 
-    const [tag] = await ctx.db
+    const [tag] = await context.db
       .insert(responseTag)
       .values({
         responseId: input.responseId,

@@ -5,8 +5,10 @@ import { protectedProcedure } from "../../orpc";
 
 export const get = protectedProcedure
   .input(z.object({ id: organizationIdSchema }))
-  .query(async ({ input, ctx }) => {
-    const organization = await ctx.organizationRepository.findById(input.id);
+  .handler(async ({ input, context }) => {
+    const organization = await context.organizationRepository.findById(
+      input.id,
+    );
 
     if (!organization) {
       throw new ORPCError("NOT_FOUND", {
@@ -14,9 +16,9 @@ export const get = protectedProcedure
       });
     }
 
-    const access = await ctx.organizationRepository.checkAccess(
+    const access = await context.organizationRepository.checkAccess(
       input.id,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {

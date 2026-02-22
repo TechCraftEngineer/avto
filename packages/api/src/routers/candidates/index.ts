@@ -1,4 +1,4 @@
-import { createTRPCRouter } from "../../trpc";
+import type { ORPCRouterRecord } from "@orpc/server";
 import { addComment } from "./add-comment";
 import { getById } from "./get-by-id";
 import { inviteCandidate } from "./invite";
@@ -13,7 +13,7 @@ import { sendOffer } from "./send-offer";
 import { updateSalaryExpectations } from "./update-salary";
 import { updateStage } from "./update-stage";
 
-export const candidatesRouter = createTRPCRouter({
+export const candidatesRouter = {
   list,
   getById,
   updateStage,
@@ -27,4 +27,4 @@ export const candidatesRouter = createTRPCRouter({
   inviteCandidate,
   rejectCandidate,
   refreshResume,
-});
+} satisfies ORPCRouterRecord;

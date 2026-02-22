@@ -17,13 +17,13 @@ export const sendByUsername = protectedProcedure
       workspaceId: workspaceIdSchema,
     }),
   )
-  .mutation(async ({ ctx, input }) => {
+  .handler(async ({ context, input }) => {
     const { responseId, username, workspaceId } = input;
 
     // Проверка доступа к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
@@ -34,7 +34,7 @@ export const sendByUsername = protectedProcedure
     }
 
     // Проверяем, что отклик существует
-    const response = await ctx.db.query.response.findFirst({
+    const response = await context.db.query.response.findFirst({
       where: eq(responseTable.id, responseId),
     });
 
@@ -46,7 +46,7 @@ export const sendByUsername = protectedProcedure
     }
 
     // Query vacancy separately to check workspace access
-    const vacancy = await ctx.db.query.vacancy.findFirst({
+    const vacancy = await context.db.query.vacancy.findFirst({
       where: eq(vacancyTable.id, response.entityId),
       columns: { workspaceId: true },
     });

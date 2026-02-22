@@ -16,10 +16,10 @@ export const listTags = protectedProcedure
       workspaceId: workspaceIdSchema,
     }),
   )
-  .query(async ({ ctx, input }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ context, input }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
@@ -29,7 +29,7 @@ export const listTags = protectedProcedure
       });
     }
 
-    const response = await ctx.db.query.response.findFirst({
+    const response = await context.db.query.response.findFirst({
       where: and(
         eq(responseTable.id, input.responseId),
         eq(responseTable.entityType, "vacancy"),
@@ -43,7 +43,7 @@ export const listTags = protectedProcedure
       });
     }
 
-    const vacancy = await ctx.db.query.vacancy.findFirst({
+    const vacancy = await context.db.query.vacancy.findFirst({
       where: eq(vacancyTable.id, response.entityId),
       columns: { workspaceId: true },
     });
@@ -55,7 +55,7 @@ export const listTags = protectedProcedure
       });
     }
 
-    const tags = await ctx.db.query.responseTag.findMany({
+    const tags = await context.db.query.responseTag.findMany({
       where: eq(responseTag.responseId, input.responseId),
       orderBy: (tags, { asc }) => [asc(tags.createdAt)],
     });

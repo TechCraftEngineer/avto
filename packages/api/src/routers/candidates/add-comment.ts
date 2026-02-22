@@ -6,7 +6,7 @@ import {
   vacancy,
 } from "@qbs-autonaim/db";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const addComment = protectedProcedure
   .input(

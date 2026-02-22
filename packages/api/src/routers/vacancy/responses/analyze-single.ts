@@ -14,11 +14,11 @@ export const analyzeSingle = protectedProcedure
       workspaceId: z.string(),
     }),
   )
-  .mutation(async ({ ctx, input }) => {
+  .handler(async ({ context, input }) => {
     const { responseId, workspaceId } = input;
 
     // Проверяем существование отклика
-    const response = await ctx.db.query.response.findFirst({
+    const response = await context.db.query.response.findFirst({
       where: and(
         eq(responseTable.id, responseId),
         eq(responseTable.entityType, "vacancy"),
@@ -33,7 +33,7 @@ export const analyzeSingle = protectedProcedure
     }
 
     // Проверяем доступ через вакансию
-    const vacancy = await ctx.db.query.vacancy.findFirst({
+    const vacancy = await context.db.query.vacancy.findFirst({
       where: eq(vacancyTable.id, response.entityId),
       columns: {
         workspaceId: true,
@@ -55,7 +55,7 @@ export const analyzeSingle = protectedProcedure
     }
 
     // Отправляем событие в Inngest для анализа
-    await ctx.inngest.send({
+    await context.inngest.send({
       name: "response/analyze.single",
       data: {
         responseId,

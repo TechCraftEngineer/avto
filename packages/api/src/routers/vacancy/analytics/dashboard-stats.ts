@@ -24,7 +24,7 @@ export const dashboardStats = protectedProcedure
       });
     }
 
-    const userVacancies = await ctx.db.query.vacancy.findMany({
+    const userVacancies = await context.db.query.vacancy.findMany({
       where: (vacancy, { eq }) => eq(vacancy.workspaceId, input.workspaceId),
       orderBy: (vacancy, { desc }) => [desc(vacancy.createdAt)],
     });
@@ -47,7 +47,7 @@ export const dashboardStats = protectedProcedure
     const totalVacancies = userVacancies.length;
     const activeVacancies = userVacancies.filter((v) => v.isActive).length;
 
-    const totalResponsesResult = await ctx.db
+    const totalResponsesResult = await context.db
       .select({ count: count() })
       .from(responseTable)
       .where(
@@ -62,7 +62,7 @@ export const dashboardStats = protectedProcedure
 
     const totalResponses = totalResponsesResult[0]?.count ?? 0;
 
-    const processedResponsesResult = await ctx.db
+    const processedResponsesResult = await context.db
       .select({ count: count() })
       .from(responseTable)
       .innerJoin(
@@ -81,7 +81,7 @@ export const dashboardStats = protectedProcedure
 
     const processedResponses = processedResponsesResult[0]?.count ?? 0;
 
-    const highScoreResponsesResult = await ctx.db
+    const highScoreResponsesResult = await context.db
       .select({ count: count() })
       .from(responseTable)
       .innerJoin(
@@ -101,7 +101,7 @@ export const dashboardStats = protectedProcedure
 
     const highScoreResponses = highScoreResponsesResult[0]?.count ?? 0;
 
-    const topScoreResponsesResult = await ctx.db
+    const topScoreResponsesResult = await context.db
       .select({ count: count() })
       .from(responseTable)
       .innerJoin(
@@ -121,7 +121,7 @@ export const dashboardStats = protectedProcedure
 
     const topScoreResponses = topScoreResponsesResult[0]?.count ?? 0;
 
-    const avgScoreResult = await ctx.db
+    const avgScoreResult = await context.db
       .select({
         avg: sql<number>`COALESCE(AVG(${responseScreening.overallScore}), 0)`,
       })
@@ -142,7 +142,7 @@ export const dashboardStats = protectedProcedure
 
     const avgScore = avgScoreResult[0]?.avg ?? 0;
 
-    const newResponsesResult = await ctx.db
+    const newResponsesResult = await context.db
       .select({ count: count() })
       .from(responseTable)
       .leftJoin(

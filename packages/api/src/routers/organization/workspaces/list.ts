@@ -5,11 +5,11 @@ import { protectedProcedure } from "../../../orpc";
 
 export const listWorkspaces = protectedProcedure
   .input(z.object({ organizationId: organizationIdSchema }))
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверка доступа к организации
-    const access = await ctx.organizationRepository.checkAccess(
+    const access = await context.organizationRepository.checkAccess(
       input.organizationId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
@@ -19,7 +19,7 @@ export const listWorkspaces = protectedProcedure
     }
 
     // Получение всех workspaces организации
-    const workspaces = await ctx.organizationRepository.getWorkspaces(
+    const workspaces = await context.organizationRepository.getWorkspaces(
       input.organizationId,
     );
 

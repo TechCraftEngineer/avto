@@ -15,16 +15,16 @@ const getInterviewLinkInputSchema = z.object({
  */
 export const getInterviewLink = protectedProcedure
   .input(getInterviewLinkInputSchema)
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверяем доступ к workspace
     await verifyWorkspaceAccess(
-      ctx.workspaceRepository,
+      context.workspaceRepository,
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     // Проверяем существование отклика и доступ к нему
-    const response = await ctx.db.query.response.findFirst({
+    const response = await context.db.query.response.findFirst({
       where: (fields, { eq }) => eq(fields.id, input.responseId),
       columns: {
         id: true,

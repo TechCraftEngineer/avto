@@ -13,11 +13,11 @@ import { sanitizeHtml } from "../../utils/sanitize-html";
 
 export const listRecent = protectedProcedure
   .input(z.object({ workspaceId: workspaceIdSchema }))
-  .query(async ({ ctx, input }) => {
+  .handler(async ({ context, input }) => {
     // Проверка доступа к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
@@ -27,7 +27,7 @@ export const listRecent = protectedProcedure
       });
     }
 
-    const responses = await ctx.db
+    const responses = await context.db
       .select({
         response: responseTable,
         vacancy: vacancy,
@@ -46,12 +46,12 @@ export const listRecent = protectedProcedure
     // Получаем screening и interviewScoring для каждого отклика
     const responsesWithRelations = await Promise.all(
       responses.map(async (r) => {
-        const screening = await ctx.db.query.responseScreening.findFirst({
+        const screening = await context.db.query.responseScreening.findFirst({
           where: eq(responseScreening.responseId, r.response.id),
           orderBy: desc(responseScreening.updatedAt),
         });
 
-        const scoring = await ctx.db.query.interviewScoring.findFirst({
+        const scoring = await context.db.query.interviewScoring.findFirst({
           where: eq(interviewScoring.responseId, r.response.id),
           orderBy: desc(interviewScoring.createdAt),
         });

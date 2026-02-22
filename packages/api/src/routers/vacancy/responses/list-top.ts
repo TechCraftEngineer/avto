@@ -13,11 +13,11 @@ export const listTop = protectedProcedure
       limit: z.number().int().min(1).max(20).default(5),
     }),
   )
-  .query(async ({ ctx, input }) => {
+  .handler(async ({ context, input }) => {
     // Проверка доступа к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
@@ -27,7 +27,7 @@ export const listTop = protectedProcedure
       });
     }
 
-    const allResponses = await ctx.db.query.response.findMany({
+    const allResponses = await context.db.query.response.findMany({
       orderBy: [desc(responseTable.createdAt)],
       where: eq(responseTable.entityType, "vacancy"),
       columns: {
@@ -41,7 +41,7 @@ export const listTop = protectedProcedure
 
     // Get all vacancy IDs to query separately
     const vacancyIds = [...new Set(allResponses.map((r) => r.entityId))];
-    const vacancies = await ctx.db.query.vacancy.findMany({
+    const vacancies = await context.db.query.vacancy.findMany({
       where: (vacancy, { inArray }) => inArray(vacancy.id, vacancyIds),
       columns: {
         id: true,
@@ -54,7 +54,7 @@ export const listTop = protectedProcedure
 
     // Get all screenings separately
     const responseIds = allResponses.map((r) => r.id);
-    const screenings = await ctx.db.query.responseScreening.findMany({
+    const screenings = await context.db.query.responseScreening.findMany({
       where: (screening, { inArray }) =>
         inArray(screening.responseId, responseIds),
       columns: {
@@ -72,7 +72,7 @@ export const listTop = protectedProcedure
 
     const photoFiles =
       photoFileIds.length > 0
-        ? await ctx.db.query.file.findMany({
+        ? await context.db.query.file.findMany({
             where: (file, { inArray }) => inArray(file.id, photoFileIds),
             columns: { id: true, key: true },
           })

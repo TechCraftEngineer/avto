@@ -5,11 +5,11 @@ import { protectedProcedure } from "../../../orpc";
 
 export const responsesChart = protectedProcedure
   .input(z.object({ workspaceId: workspaceIdSchema }))
-  .query(async ({ ctx, input }) => {
+  .handler(async ({ context, input }) => {
     // Проверка доступа к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
@@ -19,7 +19,7 @@ export const responsesChart = protectedProcedure
       });
     }
 
-    const userVacancies = await ctx.db.query.vacancy.findMany({
+    const userVacancies = await context.db.query.vacancy.findMany({
       where: (vacancy, { eq }) => eq(vacancy.workspaceId, input.workspaceId),
       orderBy: (vacancy, { desc }) => [desc(vacancy.createdAt)],
     });
@@ -34,7 +34,7 @@ export const responsesChart = protectedProcedure
     const ninetyDaysAgo = new Date();
     ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
 
-    const responses = await ctx.db.query.response.findMany({
+    const responses = await context.db.query.response.findMany({
       where: (response, { and, inArray, gte, eq }) =>
         and(
           eq(response.entityType, "vacancy"),
@@ -51,7 +51,7 @@ export const responsesChart = protectedProcedure
     const responseIds = responses.map((r) => r.id);
     const screenings =
       responseIds.length > 0
-        ? await ctx.db.query.responseScreening.findMany({
+        ? await context.db.query.responseScreening.findMany({
             where: (screening, { inArray }) =>
               inArray(screening.responseId, responseIds),
             columns: {

@@ -17,10 +17,10 @@ export const compare = protectedProcedure
       limit: z.number().min(1).max(50).default(10),
     }),
   )
-  .query(async ({ ctx, input }) => {
-    const access = await ctx.workspaceRepository.checkAccess(
+  .handler(async ({ context, input }) => {
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
@@ -30,7 +30,7 @@ export const compare = protectedProcedure
       });
     }
 
-    const vacancy = await ctx.db.query.vacancy.findFirst({
+    const vacancy = await context.db.query.vacancy.findFirst({
       where: eq(vacancyTable.id, input.vacancyId),
       columns: { workspaceId: true },
     });
@@ -50,7 +50,7 @@ export const compare = protectedProcedure
     }
 
     // Получаем топ откликов по overallScore из responseScreening
-    const topResponses = await ctx.db
+    const topResponses = await context.db
       .select({
         id: responseTable.id,
         candidateName: responseTable.candidateName,
@@ -79,7 +79,7 @@ export const compare = protectedProcedure
       .limit(input.limit);
 
     // Вычисляем статистику
-    const stats = await ctx.db
+    const stats = await context.db
       .select({
         avgScore: sql<number>`AVG(${responseScreening.overallScore})`,
         maxScore: sql<number>`MAX(${responseScreening.overallScore})`,

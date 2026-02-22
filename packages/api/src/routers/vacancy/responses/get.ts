@@ -16,11 +16,11 @@ import { mapScreeningToOutput } from "./mappers/screening-mapper";
 
 export const get = protectedProcedure
   .input(z.object({ id: z.string(), workspaceId: workspaceIdSchema }))
-  .query(async ({ ctx, input }) => {
+  .handler(async ({ context, input }) => {
     // Проверка доступа к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
@@ -30,7 +30,7 @@ export const get = protectedProcedure
       });
     }
 
-    const response = await ctx.db.query.response.findFirst({
+    const response = await context.db.query.response.findFirst({
       where: and(
         eq(responseTable.id, input.id),
         eq(responseTable.entityType, "vacancy"),
@@ -42,7 +42,7 @@ export const get = protectedProcedure
     }
 
     // Query vacancy separately to check workspace access
-    const vacancy = await ctx.db.query.vacancy.findFirst({
+    const vacancy = await context.db.query.vacancy.findFirst({
       where: eq(vacancyTable.id, response.entityId),
       columns: { workspaceId: true },
     });
@@ -65,18 +65,18 @@ export const get = protectedProcedure
     // Query resumePdfFile separately if exists
     const resumePdfFileId = response.resumePdfFileId;
     const resumePdfFile = resumePdfFileId
-      ? await ctx.db.query.file.findFirst({
+      ? await context.db.query.file.findFirst({
           where: (f, { eq }) => eq(f.id, resumePdfFileId),
         })
       : null;
 
     // Query screening separately
-    const screening = await ctx.db.query.responseScreening.findFirst({
+    const screening = await context.db.query.responseScreening.findFirst({
       where: eq(responseScreeningTable.responseId, response.id),
     });
 
     // Query interviewSession separately
-    const session = await ctx.db.query.interviewSession.findFirst({
+    const session = await context.db.query.interviewSession.findFirst({
       where: eq(interviewSession.responseId, response.id),
       with: {
         messages: {
@@ -90,13 +90,13 @@ export const get = protectedProcedure
 
     // Query interview scoring separately (both from session and direct)
     const sessionInterviewScoring = session
-      ? await ctx.db.query.interviewScoring.findFirst({
+      ? await context.db.query.interviewScoring.findFirst({
           where: eq(interviewScoringTable.interviewSessionId, session.id),
         })
       : null;
 
     const directInterviewScoring =
-      await ctx.db.query.interviewScoring.findFirst({
+      await context.db.query.interviewScoring.findFirst({
         where: eq(interviewScoringTable.responseId, response.id),
       });
 

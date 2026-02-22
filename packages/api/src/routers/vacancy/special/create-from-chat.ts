@@ -166,11 +166,11 @@ const scheduleLabels: Record<string, string> = {
 
 export const createFromChat = protectedProcedure
   .input(createVacancyFromChatSchema)
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверка доступа к workspace
-    const hasAccess = await ctx.workspaceRepository.checkAccess(
+    const hasAccess = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!hasAccess) {
@@ -224,7 +224,7 @@ export const createFromChat = protectedProcedure
 
     // Создание вакансии
     try {
-      const [newVacancy] = await ctx.db
+      const [newVacancy] = await context.db
         .insert(vacancy)
         .values({
           workspaceId: input.workspaceId,
@@ -233,7 +233,7 @@ export const createFromChat = protectedProcedure
           region: experienceText || null,
           workLocation: workConditions.join(" • ") || null,
           source: "MANUAL",
-          createdBy: ctx.session.user.id,
+          createdBy: context.session.user.id,
           isActive: true,
           customBotInstructions: input.customBotInstructions || null,
           customScreeningPrompt: input.customScreeningPrompt || null,

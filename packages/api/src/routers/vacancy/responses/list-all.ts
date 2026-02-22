@@ -19,11 +19,11 @@ export const listAll = protectedProcedure
       cursor: z.coerce.date().optional(),
     }),
   )
-  .query(async ({ ctx, input }) => {
+  .handler(async ({ context, input }) => {
     // Проверка доступа к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
@@ -34,7 +34,7 @@ export const listAll = protectedProcedure
     }
 
     // Запрашиваем limit + 1 для определения hasMore
-    const responses = await ctx.db
+    const responses = await context.db
       .select({
         response: responseTable,
         vacancy: vacancy,
@@ -66,13 +66,13 @@ export const listAll = protectedProcedure
     const responseIds = items.map((r) => r.response.id);
 
     // Батчевый запрос screening
-    const screenings = await ctx.db
+    const screenings = await context.db
       .select()
       .from(responseScreening)
       .where(inArray(responseScreening.responseId, responseIds));
 
     // Батчевый запрос interviewScoring
-    const interviewScorings = await ctx.db
+    const interviewScorings = await context.db
       .select()
       .from(interviewScoring)
       .where(inArray(interviewScoring.responseId, responseIds));

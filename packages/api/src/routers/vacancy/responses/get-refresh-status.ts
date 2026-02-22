@@ -29,7 +29,7 @@ export const getRefreshStatus = protectedProcedure
       vacancyId: z.string().min(1, "ID вакансии обязателен"),
     }),
   )
-  .query(async ({ input }) => {
+  .handler(async ({ input }) => {
     const { vacancyId } = input;
 
     try {

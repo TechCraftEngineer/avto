@@ -74,7 +74,7 @@ function paginatedResponse(
 
 export const list = protectedProcedure
   .input(listInputSchema)
-  .query(async ({ ctx, input }) => {
+  .handler(async ({ context, input }) => {
     const {
       workspaceId,
       vacancyId,
@@ -89,9 +89,9 @@ export const list = protectedProcedure
     const offset = (page - 1) * limit;
 
     // 1. Проверка доступа к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
@@ -102,7 +102,7 @@ export const list = protectedProcedure
     }
 
     // 2. Проверка принадлежности вакансии к workspace
-    const vacancyExists = await ctx.db.query.vacancy.findFirst({
+    const vacancyExists = await context.db.query.vacancy.findFirst({
       where: (v, { and, eq }) =>
         and(eq(v.id, vacancyId), eq(v.workspaceId, workspaceId)),
       columns: { id: true },
@@ -117,7 +117,7 @@ export const list = protectedProcedure
 
     // 3. Получаем ID откликов с учётом фильтра по скринингу
     const filteredResponseIds = await getFilteredResponseIds(
-      ctx.db,
+      context.db,
       [vacancyId],
       screeningFilter,
     );
@@ -146,14 +146,14 @@ export const list = protectedProcedure
     const responsesRaw: RawResponse[] = (
       needsScoreJoin(sortField)
         ? await fetchResponsesWithScoreJoin(
-            ctx.db,
+            context.db,
             whereCondition,
             orderByClause,
             fetchLimit,
             fetchOffset,
           )
         : await fetchResponsesWithoutJoin(
-            ctx.db,
+            context.db,
             whereCondition,
             orderByClause,
             fetchLimit,
@@ -181,17 +181,17 @@ export const list = protectedProcedure
     // 8. Загружаем связанные данные параллельно
     const [globalCandidates, screenings, interviewScorings, sessions] =
       await Promise.all([
-        fetchGlobalCandidates(ctx.db, globalCandidateIds),
-        fetchScreenings(ctx.db, responseIds),
-        fetchInterviewScorings(ctx.db, responseIds),
-        fetchInterviewSessions(ctx.db, responseIds),
+        fetchGlobalCandidates(context.db, globalCandidateIds),
+        fetchScreenings(context.db, responseIds),
+        fetchInterviewScorings(context.db, responseIds),
+        fetchInterviewSessions(context.db, responseIds),
       ]);
 
     // 9. Загружаем счётчики сообщений и комментариев параллельно
     const sessionIds = sessions.map((s) => s.id);
     const [messageCountsMap, commentCountsMap] = await Promise.all([
-      fetchMessageCounts(ctx.db, sessionIds),
-      fetchCommentCounts(ctx.db, responseIds),
+      fetchMessageCounts(context.db, sessionIds),
+      fetchCommentCounts(context.db, responseIds),
     ]);
 
     // 10. Формируем ответ с маппингом данных
@@ -223,7 +223,7 @@ export const list = protectedProcedure
     }
 
     // 12. Получаем общее количество для пагинации
-    const totalResult = await ctx.db
+    const totalResult = await context.db
       .select({ count: sql<number>`count(*)` })
       .from(responseTable)
       .where(whereCondition);

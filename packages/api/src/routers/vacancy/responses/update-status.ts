@@ -15,9 +15,9 @@ export const updateStatus = protectedProcedure
       status: z.enum(responseStatusValues),
     }),
   )
-  .mutation(async ({ ctx, input }) => {
+  .handler(async ({ context, input }) => {
     // Получаем отклик
-    const response = await ctx.db.query.response.findFirst({
+    const response = await context.db.query.response.findFirst({
       where: and(
         eq(responseTable.id, input.responseId),
         eq(responseTable.entityType, "vacancy"),
@@ -32,7 +32,7 @@ export const updateStatus = protectedProcedure
     }
 
     // Получаем вакансию для проверки доступа
-    const existingVacancy = await ctx.db.query.vacancy.findFirst({
+    const existingVacancy = await context.db.query.vacancy.findFirst({
       where: eq(vacancy.id, response.entityId),
     });
 
@@ -44,9 +44,9 @@ export const updateStatus = protectedProcedure
     }
 
     // Проверяем доступ к workspace
-    const hasAccess = await ctx.workspaceRepository.checkAccess(
+    const hasAccess = await context.workspaceRepository.checkAccess(
       existingVacancy.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!hasAccess) {
@@ -56,7 +56,7 @@ export const updateStatus = protectedProcedure
       });
     }
 
-    const updated = await ctx.db.transaction(async (tx) => {
+    const updated = await context.db.transaction(async (tx) => {
       const [lockedResponse] = await tx
         .select()
         .from(responseTable)

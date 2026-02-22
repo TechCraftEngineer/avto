@@ -10,11 +10,11 @@ export const getWorkspaceBySlug = protectedProcedure
       slug: z.string().min(1),
     }),
   )
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверка доступа к организации
-    const access = await ctx.organizationRepository.checkAccess(
+    const access = await context.organizationRepository.checkAccess(
       input.organizationId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
@@ -24,7 +24,7 @@ export const getWorkspaceBySlug = protectedProcedure
     }
 
     // Получение workspace по slug
-    const workspace = await ctx.organizationRepository.getWorkspaceBySlug(
+    const workspace = await context.organizationRepository.getWorkspaceBySlug(
       input.organizationId,
       input.slug,
     );

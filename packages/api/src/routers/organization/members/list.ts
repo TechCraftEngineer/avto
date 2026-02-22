@@ -5,11 +5,11 @@ import { protectedProcedure } from "../../../orpc";
 
 export const listMembers = protectedProcedure
   .input(z.object({ organizationId: organizationIdSchema }))
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверка доступа к организации
-    const access = await ctx.organizationRepository.checkAccess(
+    const access = await context.organizationRepository.checkAccess(
       input.organizationId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
@@ -19,7 +19,7 @@ export const listMembers = protectedProcedure
     }
 
     // Получение списка участников с user данными
-    const members = await ctx.organizationRepository.getMembers(
+    const members = await context.organizationRepository.getMembers(
       input.organizationId,
     );
 

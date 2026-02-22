@@ -14,11 +14,11 @@ const getInterviewLinkInputSchema = z.object({
  */
 export const getInterviewLink = protectedProcedure
   .input(getInterviewLinkInputSchema)
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверка доступа к workspace
-    const access = await ctx.workspaceRepository.checkAccess(
+    const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!access) {
@@ -29,7 +29,7 @@ export const getInterviewLink = protectedProcedure
     }
 
     // Проверяем, существует ли вакансия и принадлежит ли она workspace
-    const vacancy = await ctx.db.query.vacancy.findFirst({
+    const vacancy = await context.db.query.vacancy.findFirst({
       where: (vacancy, { and, eq }) =>
         and(
           eq(vacancy.id, input.vacancyId),
