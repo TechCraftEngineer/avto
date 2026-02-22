@@ -1,4 +1,3 @@
-
 import { create } from "./create";
 import { deleteItem } from "./delete";
 import { get } from "./get";
@@ -11,4 +10,4 @@ export const interviewScenariosRouter = {
   create,
   update,
   delete: deleteItem,
-};
+} as any;

@@ -1,7 +1,7 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq, sql } from "@qbs-autonaim/db";
 import { gig, response as responseTable } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
@@ -19,7 +19,9 @@ export const accept = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "��� ������� � ����� workspace", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
+      });
     }
 
     const response = await context.db.query.response.findFirst({
@@ -30,7 +32,7 @@ export const accept = protectedProcedure
     });
 
     if (!response) {
-      throw new ORPCError("NOT_FOUND", { message: "������ �� ������", });
+      throw new ORPCError("NOT_FOUND", { message: "Отклик не найден" });
     }
 
     const existingGig = await context.db.query.gig.findFirst({
@@ -41,7 +43,9 @@ export const accept = protectedProcedure
     });
 
     if (!existingGig) {
-      throw new ORPCError("FORBIDDEN", { message: "��� ������� � ����� �������", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому проекту",
+      });
     }
 
     const wasNew = response.status === "NEW";
@@ -56,7 +60,7 @@ export const accept = protectedProcedure
       .where(eq(responseTable.id, input.responseId))
       .returning();
 
-    // ���� ������ ��� NEW, ��������� ������� ����� ��������
+    // Если статус был NEW, обновляем счетчик новых откликов
     if (wasNew) {
       await context.db
         .update(gig)

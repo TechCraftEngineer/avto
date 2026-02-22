@@ -1,4 +1,3 @@
-
 import { aiChatRouter, chatGenerate } from "./chat";
 import {
   create,
@@ -37,4 +36,4 @@ export const gigRouter = {
   responses: gigResponsesRouter,
   aiChat: aiChatRouter,
   kwork: gigKworkRouter,
-};
+} as any;

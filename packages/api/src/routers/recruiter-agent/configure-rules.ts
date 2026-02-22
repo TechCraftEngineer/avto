@@ -1,15 +1,16 @@
 /**
- * Configure Rules procedure ��� AI-���������� ���������
+ * Configure Rules procedure для AI-рекрутера агента
  *
- * ���������� ��������� �������������:
- * - �������� ������
- * - ���������� ������
- * - �������� ������
- * - ���������/���������� ������
+ * Позволяет управлять правилами автоматизации:
+ * - Создание правил
+ * - Обновление правил
+ * - Удаление правил
+ * - Включение/выключение правил
  *
  * Requirements: 6.1, 6.2, 6.4
  */
 
+import { ORPCError } from "@orpc/server";
 import {
   type AutomationRule,
   type CompositeCondition,
@@ -19,13 +20,12 @@ import {
   RuleEngine,
 } from "@qbs-autonaim/ai";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 import { checkActionPermission, checkWorkspaceAccess } from "./middleware";
 
 /**
- * ����� ������� �������
+ * Схема простого условия
  */
 const ruleConditionSchema: z.ZodType<RuleCondition> = z.object({
   field: z.enum([
@@ -51,7 +51,7 @@ const ruleConditionSchema: z.ZodType<RuleCondition> = z.object({
 });
 
 /**
- * ����� ���������� �������
+ * Схема составного условия
  */
 const compositeConditionSchema: z.ZodType<CompositeCondition> = z.lazy(() =>
   z.object({
@@ -63,7 +63,7 @@ const compositeConditionSchema: z.ZodType<CompositeCondition> = z.lazy(() =>
 );
 
 /**
- * ����� �������� �������
+ * Схема действия правила
  */
 const ruleActionSchema: z.ZodType<RuleAction> = z.object({
   type: z.enum([
@@ -85,7 +85,7 @@ const ruleActionSchema: z.ZodType<RuleAction> = z.object({
 });
 
 /**
- * ����� ��� �������� �������
+ * Схема для создания правила
  */
 const createRuleInputSchema = z.object({
   workspaceId: workspaceIdSchema,
@@ -100,7 +100,7 @@ const createRuleInputSchema = z.object({
 });
 
 /**
- * ����� ��� ���������� �������
+ * Схема для обновления правила
  */
 const updateRuleInputSchema = z.object({
   workspaceId: workspaceIdSchema,
@@ -117,7 +117,7 @@ const updateRuleInputSchema = z.object({
 });
 
 /**
- * ����� ��� �������� �������
+ * Схема для удаления правила
  */
 const deleteRuleInputSchema = z.object({
   workspaceId: workspaceIdSchema,
@@ -125,7 +125,7 @@ const deleteRuleInputSchema = z.object({
 });
 
 /**
- * ����� ��� ��������� ������
+ * Схема для получения правил
  */
 const getRulesInputSchema = z.object({
   workspaceId: workspaceIdSchema,
@@ -150,7 +150,7 @@ export const createRule = protectedProcedure
       enabled,
     } = input;
 
-    // �������� ������� � workspace
+    // Проверка доступа к workspace
     const hasAccess = await checkWorkspaceAccess(
       context.workspaceRepository,
       workspaceId,
@@ -158,10 +158,10 @@ export const createRule = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "��� ������� � workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
-    // �������� ���� �� ��������� ������
+    // Проверка прав на настройку правил
     const hasPermission = await checkActionPermission(
       context.workspaceRepository,
       workspaceId,
@@ -170,12 +170,14 @@ export const createRule = protectedProcedure
     );
 
     if (!hasPermission) {
-      throw new ORPCError("FORBIDDEN", { message: "��� ���� �� ��������� ������", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет прав на настройку правил",
+      });
     }
 
     const ruleEngine = getRuleEngine();
 
-    // ������ �������
+    // Создаем правило
     const rule = RuleEngine.createRule({
       workspaceId,
       vacancyId,
@@ -190,7 +192,7 @@ export const createRule = protectedProcedure
 
     ruleEngine.addRule(rule);
 
-    // �������� � audit log
+    // Логируем в audit log
     await context.auditLogger.logAccess({
       userId: context.session.user.id,
       workspaceId,
@@ -233,7 +235,7 @@ export const updateRule = protectedProcedure
   .handler(async ({ input, context }) => {
     const { workspaceId, ruleId, ...updates } = input;
 
-    // �������� ������� � workspace
+    // Проверка доступа к workspace
     const hasAccess = await checkWorkspaceAccess(
       context.workspaceRepository,
       workspaceId,
@@ -241,10 +243,10 @@ export const updateRule = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "��� ������� � workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
-    // �������� ���� �� ��������� ������
+    // Проверка прав на настройку правил
     const hasPermission = await checkActionPermission(
       context.workspaceRepository,
       workspaceId,
@@ -253,22 +255,26 @@ export const updateRule = protectedProcedure
     );
 
     if (!hasPermission) {
-      throw new ORPCError("FORBIDDEN", { message: "��� ���� �� ��������� ������", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет прав на настройку правил",
+      });
     }
 
     const ruleEngine = getRuleEngine();
     const existingRule = ruleEngine.getRule(ruleId);
 
     if (!existingRule) {
-      throw new ORPCError("NOT_FOUND", { message: "������� �� �������", });
+      throw new ORPCError("NOT_FOUND", { message: "Правило не найдено" });
     }
 
-    // ���������, ��� ������� ����������� workspace
+    // Проверяем, что правило принадлежит workspace
     if (existingRule.workspaceId !== workspaceId) {
-      throw new ORPCError("FORBIDDEN", { message: "������� �� ����������� ����� workspace", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Правило не принадлежит этому workspace",
+      });
     }
 
-    // ��������� �������
+    // Обновляем правило
     const updatedRule: AutomationRule = {
       ...existingRule,
       ...updates,
@@ -277,7 +283,7 @@ export const updateRule = protectedProcedure
 
     ruleEngine.addRule(updatedRule);
 
-    // �������� � audit log
+    // Логируем в audit log
     await context.auditLogger.logAccess({
       userId: context.session.user.id,
       workspaceId,
@@ -318,7 +324,7 @@ export const deleteRule = protectedProcedure
   .handler(async ({ input, context }) => {
     const { workspaceId, ruleId } = input;
 
-    // �������� ������� � workspace
+    // Проверка доступа к workspace
     const hasAccess = await checkWorkspaceAccess(
       context.workspaceRepository,
       workspaceId,
@@ -326,10 +332,10 @@ export const deleteRule = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "��� ������� � workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
-    // �������� ���� �� ��������� ������
+    // Проверка прав на настройку правил
     const hasPermission = await checkActionPermission(
       context.workspaceRepository,
       workspaceId,
@@ -338,28 +344,34 @@ export const deleteRule = protectedProcedure
     );
 
     if (!hasPermission) {
-      throw new ORPCError("FORBIDDEN", { message: "��� ���� �� ��������� ������", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет прав на настройку правил",
+      });
     }
 
     const ruleEngine = getRuleEngine();
     const existingRule = ruleEngine.getRule(ruleId);
 
     if (!existingRule) {
-      throw new ORPCError("NOT_FOUND", { message: "������� �� �������", });
+      throw new ORPCError("NOT_FOUND", { message: "Правило не найдено" });
     }
 
-    // ���������, ��� ������� ����������� workspace
+    // Проверяем, что правило принадлежит workspace
     if (existingRule.workspaceId !== workspaceId) {
-      throw new ORPCError("FORBIDDEN", { message: "������� �� ����������� ����� workspace", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Правило не принадлежит этому workspace",
+      });
     }
 
     const deleted = ruleEngine.removeRule(ruleId);
 
     if (!deleted) {
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "�� ������� ������� �������", });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Не удалось удалить правило",
+      });
     }
 
-    // �������� � audit log
+    // Логируем в audit log
     await context.auditLogger.logAccess({
       userId: context.session.user.id,
       workspaceId,
@@ -376,7 +388,7 @@ export const deleteRule = protectedProcedure
 
     return {
       success: true,
-      message: "������� ������� �������",
+      message: "Правило успешно удалено",
     };
   });
 
@@ -388,7 +400,7 @@ export const getRules = protectedProcedure
   .handler(async ({ input, context }) => {
     const { workspaceId, vacancyId } = input;
 
-    // �������� ������� � workspace
+    // Проверка доступа к workspace
     const hasAccess = await checkWorkspaceAccess(
       context.workspaceRepository,
       workspaceId,
@@ -396,7 +408,7 @@ export const getRules = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "��� ������� � workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     const ruleEngine = getRuleEngine();
@@ -438,7 +450,7 @@ export const toggleRule = protectedProcedure
   .handler(async ({ input, context }) => {
     const { workspaceId, ruleId, enabled } = input;
 
-    // �������� ������� � workspace
+    // Проверка доступа к workspace
     const hasAccess = await checkWorkspaceAccess(
       context.workspaceRepository,
       workspaceId,
@@ -446,10 +458,10 @@ export const toggleRule = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "��� ������� � workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
-    // �������� ���� �� ��������� ������
+    // Проверка прав на настройку правил
     const hasPermission = await checkActionPermission(
       context.workspaceRepository,
       workspaceId,
@@ -458,28 +470,34 @@ export const toggleRule = protectedProcedure
     );
 
     if (!hasPermission) {
-      throw new ORPCError("FORBIDDEN", { message: "��� ���� �� ��������� ������", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет прав на настройку правил",
+      });
     }
 
     const ruleEngine = getRuleEngine();
     const existingRule = ruleEngine.getRule(ruleId);
 
     if (!existingRule) {
-      throw new ORPCError("NOT_FOUND", { message: "������� �� �������", });
+      throw new ORPCError("NOT_FOUND", { message: "Правило не найдено" });
     }
 
-    // ���������, ��� ������� ����������� workspace
+    // Проверяем, что правило принадлежит workspace
     if (existingRule.workspaceId !== workspaceId) {
-      throw new ORPCError("FORBIDDEN", { message: "������� �� ����������� ����� workspace", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Правило не принадлежит этому workspace",
+      });
     }
 
     const success = ruleEngine.setRuleEnabled(ruleId, enabled);
 
     if (!success) {
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "�� ������� �������� ������ �������", });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Не удалось изменить статус правила",
+      });
     }
 
-    // �������� � audit log
+    // Логируем в audit log
     await context.auditLogger.logAccess({
       userId: context.session.user.id,
       workspaceId,
@@ -500,12 +518,12 @@ export const toggleRule = protectedProcedure
     return {
       success: true,
       enabled,
-      message: enabled ? "������� ��������" : "������� ���������",
+      message: enabled ? "Правило включено" : "Правило выключено",
     };
   });
 
 /**
- * ������������ ������� ��� configure-rules
+ * Экспортируемые процедуры для configure-rules
  */
 export const configureRules = {
   create: createRule,
@@ -513,4 +531,4 @@ export const configureRules = {
   delete: deleteRule,
   list: getRules,
   toggle: toggleRule,
-};
+} as any;

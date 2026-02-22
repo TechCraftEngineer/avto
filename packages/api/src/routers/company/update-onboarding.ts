@@ -1,6 +1,6 @@
+import { ORPCError } from "@orpc/server";
 import { botSettings, eq } from "@qbs-autonaim/db";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 
@@ -13,17 +13,19 @@ export const updateOnboarding = protectedProcedure
     }),
   )
   .handler(async ({ context, input }) => {
-    // �������� ������� � workspace
+    // Проверка доступа к workspace
     const access = await context.workspaceRepository.checkAccess(
       input.workspaceId,
       context.session.user.id,
     );
 
     if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new ORPCError("FORBIDDEN", { message: "������������ ���� ��� ��������� �������� ����������", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Недостаточно прав для изменения настроек онбординга",
+      });
     }
 
-    // ��������� ������������ ���������
+    // Получаем существующие настройки
     const existing = await context.db.query.botSettings.findFirst({
       where: eq(botSettings.workspaceId, input.workspaceId),
     });
@@ -47,7 +49,7 @@ export const updateOnboarding = protectedProcedure
     }
 
     if (existing) {
-      // ��������� ������������
+      // Обновляем существующие
       const [updated] = await context.db
         .update(botSettings)
         .set(updateData)
@@ -57,12 +59,12 @@ export const updateOnboarding = protectedProcedure
       return updated;
     }
 
-    // ������� ����� � �������� ����������
+    // Создаем новую с дефолтными значениями
     const [created] = await context.db
       .insert(botSettings)
       .values({
         workspaceId: input.workspaceId,
-        companyName: "��� ��������", // �������� �� ���������
+        companyName: "Моя компания", // Значение по умолчанию
         ...updateData,
       })
       .returning();

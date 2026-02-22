@@ -23,7 +23,7 @@ export const sendMessageRouter = protectedProcedure
       .insert(interviewMessage)
       .values({
         sessionId: input.sessionId,
-        role: "assistant", // ����� ���������� ��� assistant
+        role: "assistant", // Всегда сохраняем как assistant
         type: input.type,
         channel: "web",
         content: input.content,
@@ -36,7 +36,7 @@ export const sendMessageRouter = protectedProcedure
       throw new Error("Failed to create message");
     }
 
-    // �������� ������ ������ ��� �������� � Telegram
+    // Получаем данные сессии для отправки в Telegram
     const sessionData = await context.db
       .select({
         id: interviewSession.id,

@@ -1,4 +1,3 @@
-
 import { checkWorkspaceAccess } from "./check-workspace-access";
 import { clearActiveWorkspace } from "./clear-active-workspace";
 import { deleteUser } from "./delete";
@@ -13,4 +12,4 @@ export const userRouter = {
   setActiveWorkspace,
   checkWorkspaceAccess,
   clearActiveWorkspace,
-};
+} as any;

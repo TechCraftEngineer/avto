@@ -8,4 +8,4 @@ export const membersRouter = {
   add,
   remove,
   updateRole,
-};
+} as any;

@@ -4,4 +4,4 @@ import { updateConfig } from "./update-config";
 export const widgetConfigRouter = {
   getConfig,
   updateConfig,
-};
+} as any;

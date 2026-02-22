@@ -1,8 +1,8 @@
 /**
  * Create Prequalification Session Procedure
  *
- * ������ ����� ������ ��������������� ��� ���������.
- * ��������� ��������� - �� ������� ����������� ������������.
+ * Создает новую сессию предквалификации для кандидата.
+ * Публичная процедура - не требует авторизации пользователя.
  */
 
 import { ORPCError } from "@orpc/server";
@@ -12,8 +12,8 @@ import { SessionManager } from "../../services/prequalification";
 import { PrequalificationError } from "../../services/prequalification/types";
 
 const createSessionInputSchema = z.object({
-  workspaceId: z.string().min(1, "workspaceId ����������"),
-  vacancyId: z.uuid("vacancyId ������ ���� UUID"),
+  workspaceId: z.string().min(1, "workspaceId обязателен"),
+  vacancyId: z.uuid("vacancyId должен быть UUID"),
   candidateConsent: z.boolean(),
   source: z.enum(["widget", "direct"]).default("widget"),
 });
@@ -57,7 +57,7 @@ export const createSession = publicProcedure
 
       // Wrap unknown errors to prevent leaking implementation details
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
-        message: "���������� ������ �������",
+        message: "Внутренняя ошибка сервера",
         cause: error,
       });
     }

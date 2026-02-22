@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq } from "@qbs-autonaim/db";
 import {
   gig,
@@ -6,7 +7,6 @@ import {
 } from "@qbs-autonaim/db/schema";
 import { inngest } from "@qbs-autonaim/jobs/client";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
@@ -24,7 +24,9 @@ export const evaluate = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "��� ������� � ����� workspace", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
+      });
     }
 
     const response = await context.db.query.response.findFirst({
@@ -35,7 +37,7 @@ export const evaluate = protectedProcedure
     });
 
     if (!response) {
-      throw new ORPCError("NOT_FOUND", { message: "������ �� ������", });
+      throw new ORPCError("NOT_FOUND", { message: "Отклик не найден" });
     }
 
     const existingGig = await context.db.query.gig.findFirst({
@@ -46,7 +48,9 @@ export const evaluate = protectedProcedure
     });
 
     if (!existingGig) {
-      throw new ORPCError("FORBIDDEN", { message: "��� ������� � ����� �������", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому проекту",
+      });
     }
 
     const sessionData = await context.db.query.interviewSession.findFirst({
@@ -54,7 +58,9 @@ export const evaluate = protectedProcedure
     });
 
     if (!sessionData) {
-      throw new ORPCError("NOT_FOUND", { message: "������ �������� �� ������� ��� ����� �������", });
+      throw new ORPCError("NOT_FOUND", {
+        message: "Сессия интервью не найдена для этого отклика",
+      });
     }
 
     try {
@@ -69,16 +75,18 @@ export const evaluate = protectedProcedure
 
       return {
         success: true,
-        message: "������ ��������",
+        message: "Оценка сохранена",
       };
     } catch (error) {
-      console.error("������ �������� ������� ������:", {
+      console.error("Ошибка сохранения оценки отклика:", {
         error,
         responseId: input.responseId,
         workspaceId: input.workspaceId,
         sessionId: sessionData.id,
       });
 
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "�� ������� ��������� ������", });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Не удалось сохранить оценку",
+      });
     }
   });

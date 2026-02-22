@@ -8,4 +8,4 @@ export const botRouter = {
   update,
   updatePartial,
   updateOnboarding,
-};
+} as any;

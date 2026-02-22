@@ -1,4 +1,3 @@
-
 import { checkStatus } from "./check-status";
 import { create } from "./create";
 import { get } from "./get";
@@ -17,4 +16,4 @@ export const paymentRouter = {
   get,
   list,
   checkStatus,
-};
+} as any;

@@ -1,6 +1,6 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq, inArray } from "@qbs-autonaim/db";
 import { response as responseTable, vacancy } from "@qbs-autonaim/db/schema";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 import { mapResponseToStage } from "./map-response-stage";
@@ -20,7 +20,9 @@ export const vacancyStats = protectedProcedure
     const workspaceVacancyIds = new Set(vacancies.map((v) => v.id));
 
     if (input.vacancyId && !workspaceVacancyIds.has(input.vacancyId)) {
-      throw new ORPCError("NOT_FOUND", { message: "�������� �� ������� � ��������� workspace", });
+      throw new ORPCError("NOT_FOUND", {
+        message: "Вакансия не найдена в указанном workspace",
+      });
     }
 
     const vacancyIds = input.vacancyId
@@ -52,7 +54,7 @@ export const vacancyStats = protectedProcedure
 
     for (const response of responses) {
       const vacancyData = vacancies.find((v) => v.id === response.entityId);
-      const vacancyName = vacancyData?.title ?? "����������� ��������";
+      const vacancyName = vacancyData?.title ?? "Неизвестная вакансия";
 
       const stage = mapResponseToStage(
         response.status,

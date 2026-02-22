@@ -70,7 +70,7 @@ export const getSession = publicProcedure
         });
       }
 
-      // ������������ ������ ������
+      // Пробрасываем другие ошибки
       throw error;
     }
   });

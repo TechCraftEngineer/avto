@@ -447,4 +447,4 @@ export const aiChatRouter = {
   sendMessage,
   getHistory,
   clearHistory,
-};
+} as any;

@@ -1,7 +1,7 @@
+import { ORPCError } from "@orpc/server";
 import { and, count, eq } from "@qbs-autonaim/db";
 import { gig, response as responseTable } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
@@ -19,10 +19,12 @@ export const countResponses = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "��� ������� � ����� workspace", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому workspace",
+      });
     }
 
-    // ��������� ��� gig ����������� workspace
+    // Получаем gig принадлежащий workspace
     const existingGig = await context.db.query.gig.findFirst({
       where: and(
         eq(gig.id, input.gigId),
@@ -31,10 +33,10 @@ export const countResponses = protectedProcedure
     });
 
     if (!existingGig) {
-      throw new ORPCError("NOT_FOUND", { message: "������� �� �������", });
+      throw new ORPCError("NOT_FOUND", { message: "Проект не найден" });
     }
 
-    // ������������ �������� ���������� ��������
+    // Подсчитываем общее количество откликов
     const totalResult = await context.db
       .select({ count: count() })
       .from(responseTable)
@@ -47,7 +49,7 @@ export const countResponses = protectedProcedure
 
     const total = totalResult[0]?.count ?? 0;
 
-    // ������������ ����� ������� (������ NEW)
+    // Подсчитываем новые отклики (статус NEW)
     const newResult = await context.db
       .select({ count: count() })
       .from(responseTable)
@@ -64,10 +66,10 @@ export const countResponses = protectedProcedure
     return {
       total,
       new: newCount,
-      // ���������� ����� �������� �� ������� gig ��� ���������
+      // Сохраненные ранее значения из таблицы gig для сравнения
       gigResponses: existingGig.responses ?? 0,
       gigNewResponses: existingGig.newResponses ?? 0,
-      // ���� ����������������
+      // Флаг синхронизации
       isSynced:
         total === (existingGig.responses ?? 0) &&
         newCount === (existingGig.newResponses ?? 0),

@@ -44,7 +44,7 @@ registerChatEntities();
  *
  * Содержит все доменные роутеры, организованные по бизнес-доменам.
  */
-export const appRouter = router({
+const baseRouter = {
   user: userRouter,
   vacancy: vacancyRouter,
   gig: gigRouter,
@@ -70,8 +70,13 @@ export const appRouter = router({
   customDomain: customDomainRouter,
   chat: chatRouter,
   draft: draftRouter,
-  ...(process.env.NODE_ENV !== "production" && { test: testRouter }),
-});
+};
+
+export const appRouter = (
+  process.env.NODE_ENV !== "production"
+    ? { ...baseRouter, test: testRouter }
+    : baseRouter
+) as any;
 
 /**
  * Тип главного роутера

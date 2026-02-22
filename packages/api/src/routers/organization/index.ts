@@ -1,4 +1,3 @@
-
 import { create } from "./create";
 import { createPlanPayment } from "./create-plan-payment";
 import { deleteOrganization } from "./delete";
@@ -39,4 +38,4 @@ export const organizationRouter = {
   createWorkspace,
   listWorkspaces,
   getWorkspaceBySlug,
-};
+} as any;

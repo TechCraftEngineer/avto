@@ -55,7 +55,7 @@ export const analytics = protectedProcedure
 
     const newThisWeek = responses.filter((r) => r.createdAt >= weekAgo).length;
 
-    // ���������� ������ ������� �������� ��� ��������
+    // Группируем отклики согласно текущему статусу
     const byStage = {
       NEW: 0,
       REVIEW: 0,

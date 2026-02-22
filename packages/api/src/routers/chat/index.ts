@@ -10,4 +10,4 @@ export const chatRouter = {
   clearHistory,
   listSessions,
   createSession,
-};
+} as any;

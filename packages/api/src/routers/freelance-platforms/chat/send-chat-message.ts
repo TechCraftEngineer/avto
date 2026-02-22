@@ -33,6 +33,12 @@ export const sendChatMessage = publicProcedure
   .input(sendChatMessageInputSchema)
   .use(interviewAccessMiddleware)
   .handler(async ({ input, context }) => {
+    // Type assertion для расширенного контекста
+    const extendedContext = context as typeof context & {
+      verifiedInterviewSessionId: string;
+      validatedInterviewToken: string | null;
+    };
+
     const errorHandler = createErrorHandler(
       context.auditLogger,
       undefined,
@@ -49,21 +55,21 @@ export const sendChatMessage = publicProcedure
 
       const session = await context.db.query.interviewSession.findFirst({
         where: and(
-          eq(interviewSession.id, context.verifiedInterviewSessionId),
+          eq(interviewSession.id, extendedContext.verifiedInterviewSessionId),
           eq(interviewSession.lastChannel, "web"),
         ),
       });
 
       if (!session) {
         throw await errorHandler.handleNotFoundError("Интервью", {
-          sessionId: context.verifiedInterviewSessionId,
+          sessionId: extendedContext.verifiedInterviewSessionId,
         });
       }
 
       // Проверяем, что интервью активно
       if (session.status !== "active" && session.status !== "pending") {
         throw await errorHandler.handleValidationError("Интервью завершено", {
-          sessionId: context.verifiedInterviewSessionId,
+          sessionId: extendedContext.verifiedInterviewSessionId,
           status: session.status,
         });
       }
@@ -78,7 +84,7 @@ export const sendChatMessage = publicProcedure
       const [savedMessage] = await context.db
         .insert(interviewMessage)
         .values({
-          sessionId: context.verifiedInterviewSessionId,
+          sessionId: extendedContext.verifiedInterviewSessionId,
           role: "user",
           type: "text",
           channel: "web",
@@ -90,7 +96,7 @@ export const sendChatMessage = publicProcedure
         throw await errorHandler.handleInternalError(
           new Error("Failed to save message"),
           {
-            sessionId: context.verifiedInterviewSessionId,
+            sessionId: extendedContext.verifiedInterviewSessionId,
           },
         );
       }
@@ -113,7 +119,7 @@ export const sendChatMessage = publicProcedure
 
       await messageBufferService.addMessage({
         userId: username,
-        chatSessionId: context.verifiedInterviewSessionId,
+        chatSessionId: extendedContext.verifiedInterviewSessionId,
         interviewStep,
         message: bufferedMessage,
       });
@@ -133,7 +139,7 @@ export const sendChatMessage = publicProcedure
               name: "interview/message.buffered",
               data: {
                 userId: username,
-                sessionId: context.verifiedInterviewSessionId,
+                sessionId: extendedContext.verifiedInterviewSessionId,
                 interviewStep,
                 messageId,
                 timestamp,
@@ -157,7 +163,7 @@ export const sendChatMessage = publicProcedure
       }
       // Все остальные ошибки обрабатываем через errorHandler
       throw await errorHandler.handleDatabaseError(error as Error, {
-        sessionId: context.verifiedInterviewSessionId,
+        sessionId: extendedContext.verifiedInterviewSessionId,
         operation: "send_chat_message",
       });
     }

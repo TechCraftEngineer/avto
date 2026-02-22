@@ -1,4 +1,3 @@
-
 import { createIntegration } from "./create";
 import { deleteIntegrationProcedure } from "./delete";
 import { listIntegrations } from "./list";
@@ -15,4 +14,4 @@ export const integrationRouter = {
   saveHH2FACode,
   saveHHCaptcha,
   requestHHResendCode,
-};
+} as any;

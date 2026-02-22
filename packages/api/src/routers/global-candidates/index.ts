@@ -8,4 +8,4 @@ export const globalCandidatesRouter = {
   get,
   updateStatus,
   updateTags,
-};
+} as any;

@@ -1,14 +1,15 @@
 /**
- * Get Recommendations procedure ��� AI-���������� ���������
+ * Get Recommendations procedure для AI-рекрутера агента
  *
- * �������� ������������ ������ ���:
- * - ���������� (�� ������ ������)
- * - �������� (���������)
+ * Получает рекомендации разных типов:
+ * - Кандидатов (на основе правил)
+ * - Действий (ожидающих)
  * - Pending approvals
  *
  * Requirements: 1.1, 1.2, 6.1, 6.2
  */
 
+import { ORPCError } from "@orpc/server";
 import {
   type AuditLogEntry,
   type CandidateRuleData,
@@ -19,13 +20,12 @@ import {
   type RuleApplicationResult,
 } from "@qbs-autonaim/ai";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 import { checkWorkspaceAccess } from "./middleware";
 
 /**
- * ����� ��� ��������� ������������ �� ���������
+ * Схема для получения рекомендаций по кандидату
  */
 const getCandidateRecommendationsInputSchema = z.object({
   workspaceId: workspaceIdSchema,
@@ -45,14 +45,14 @@ const getCandidateRecommendationsInputSchema = z.object({
 });
 
 /**
- * ����� ��� ��������� pending approvals
+ * Схема для получения pending approvals
  */
 const getPendingApprovalsInputSchema = z.object({
   workspaceId: workspaceIdSchema,
 });
 
 /**
- * ����� ��� ��������� undoable actions
+ * Схема для получения undoable actions
  */
 const getUndoableActionsInputSchema = z.object({
   workspaceId: workspaceIdSchema,
@@ -61,14 +61,14 @@ const getUndoableActionsInputSchema = z.object({
 /**
  * Get Candidate Recommendations procedure
  *
- * ��������� ������� � ��������� � ���������� ������������
+ * Применяет правила к кандидату и возвращает рекомендации
  */
 export const getRecommendations = protectedProcedure
   .input(getCandidateRecommendationsInputSchema)
   .handler(async ({ input, context }) => {
     const { workspaceId, candidateId, vacancyId, candidateData } = input;
 
-    // �������� ������� � workspace
+    // Проверка доступа к workspace
     const hasAccess = await checkWorkspaceAccess(
       context.workspaceRepository,
       workspaceId,
@@ -76,12 +76,12 @@ export const getRecommendations = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "��� ������� � workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     const ruleEngine = getRuleEngine();
 
-    // ����������� ������ ���������
+    // Подготавливаем данные кандидата
     const ruleData: CandidateRuleData = {
       id: candidateId,
       fitScore: candidateData.fitScore,
@@ -93,19 +93,19 @@ export const getRecommendations = protectedProcedure
       skills: candidateData.skills,
     };
 
-    // ��������� �������
+    // Применяем правила
     const results: RuleApplicationResult[] = ruleEngine.applyRules(
       ruleData,
       workspaceId,
       vacancyId,
     );
 
-    // ��������� ������ ����������� �������
+    // Фильтруем только сработавшие правила
     const matchedRules = results.filter(
       (r: RuleApplicationResult) => r.matched,
     );
 
-    // ��������� ������������
+    // Формируем рекомендации
     const recommendations = matchedRules.map(
       (result: RuleApplicationResult) => ({
         ruleId: result.ruleId,
@@ -129,14 +129,14 @@ export const getRecommendations = protectedProcedure
 /**
  * Get Pending Approvals procedure
  *
- * ���������� ������ ��������, ��������� �������������
+ * Возвращает список действий, ожидающих подтверждения
  */
 export const getPendingApprovals = protectedProcedure
   .input(getPendingApprovalsInputSchema)
   .handler(async ({ input, context }) => {
     const { workspaceId } = input;
 
-    // �������� ������� � workspace
+    // Проверка доступа к workspace
     const hasAccess = await checkWorkspaceAccess(
       context.workspaceRepository,
       workspaceId,
@@ -144,7 +144,7 @@ export const getPendingApprovals = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "��� ������� � workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     const actionExecutor = getActionExecutor();
@@ -170,14 +170,14 @@ export const getPendingApprovals = protectedProcedure
 /**
  * Get Undoable Actions procedure
  *
- * ���������� ������ ��������, ������� ����� ��������
+ * Возвращает список действий, которые можно отменить
  */
 export const getUndoableActions = protectedProcedure
   .input(getUndoableActionsInputSchema)
   .handler(async ({ input, context }) => {
     const { workspaceId } = input;
 
-    // �������� ������� � workspace
+    // Проверка доступа к workspace
     const hasAccess = await checkWorkspaceAccess(
       context.workspaceRepository,
       workspaceId,
@@ -185,7 +185,7 @@ export const getUndoableActions = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "��� ������� � workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     const actionExecutor = getActionExecutor();
@@ -213,7 +213,7 @@ export const getUndoableActions = protectedProcedure
 /**
  * Get Audit Log procedure
  *
- * ���������� audit log ��� workspace
+ * Возвращает audit log для workspace
  */
 export const getAuditLog = protectedProcedure
   .input(
@@ -226,7 +226,7 @@ export const getAuditLog = protectedProcedure
   .handler(async ({ input, context }) => {
     const { workspaceId, limit, offset } = input;
 
-    // �������� ������� � workspace
+    // Проверка доступа к workspace
     const hasAccess = await checkWorkspaceAccess(
       context.workspaceRepository,
       workspaceId,
@@ -234,13 +234,13 @@ export const getAuditLog = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "��� ������� � workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     const actionExecutor = getActionExecutor();
     const auditLog: AuditLogEntry[] = actionExecutor.getAuditLog(workspaceId);
 
-    // ��������� �� ������� (����� �������) � ��������� ���������
+    // Сортируем по времени (новые первыми) и применяем пагинацию
     const sortedLog = auditLog
       .sort(
         (a: AuditLogEntry, b: AuditLogEntry) =>

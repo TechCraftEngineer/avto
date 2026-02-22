@@ -38,4 +38,4 @@ export const responsesRouter = {
   getInterviewLink,
   updateStatus,
   debugList, // Временный debug endpoint
-};
+} as any;

@@ -12,11 +12,17 @@ const getInterviewContextInputSchema = z.object({
 
 export const getInterviewContext = withInterviewAccess.handler(
   async ({ context }) => {
+    // Type assertion для расширенного контекста
+    const extendedContext = context as typeof context & {
+      verifiedInterviewSessionId: string;
+      validatedInterviewToken: string | null;
+    };
+
     // Доступ уже проверен в middleware
 
     const session = await context.db.query.interviewSession.findFirst({
       where: (interviewSession, { eq }) =>
-        eq(interviewSession.id, context.verifiedInterviewSessionId),
+        eq(interviewSession.id, extendedContext.verifiedInterviewSessionId),
       with: {
         response: true,
       },

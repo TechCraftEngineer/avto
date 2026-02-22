@@ -29,50 +29,53 @@ export type InterviewContext = Context & {
  * Middleware для проверки доступа к интервью
  * Добавляет verifiedInterviewSessionId в контекст
  */
-export const interviewAccessMiddleware = middleware<
-  typeof interviewAccessInputSchema
->(async ({ input, context, next }) => {
-  const actualSessionId = input.interviewSessionId || input.sessionId;
+export const interviewAccessMiddleware = middleware(
+  async (
+    { context, next },
+    input: z.infer<typeof interviewAccessInputSchema>,
+  ) => {
+    const actualSessionId = input.interviewSessionId || input.sessionId;
 
-  if (!actualSessionId) {
-    throw new ORPCError("BAD_REQUEST", {
-      message: "Требуется interviewSessionId или sessionId",
-    });
-  }
-
-  // Валидируем токен
-  let validatedToken = null;
-  if (input.interviewToken) {
-    try {
-      validatedToken = await validateInterviewToken(
-        input.interviewToken,
-        context.db,
-      );
-    } catch (error) {
-      console.error("Failed to validate interview token:", error);
+    if (!actualSessionId) {
+      throw new ORPCError("BAD_REQUEST", {
+        message: "Требуется interviewSessionId или sessionId",
+      });
     }
-  }
 
-  // Проверяем доступ
-  const hasAccess = await hasInterviewAccess(
-    actualSessionId,
-    validatedToken,
-    context.db,
-  );
+    // Валидируем токен
+    let validatedToken = null;
+    if (input.interviewToken) {
+      try {
+        validatedToken = await validateInterviewToken(
+          input.interviewToken,
+          context.db,
+        );
+      } catch (error) {
+        console.error("Failed to validate interview token:", error);
+      }
+    }
 
-  if (!hasAccess) {
-    throw new ORPCError("FORBIDDEN", {
-      message: "Нет доступа к этому интервью",
+    // Проверяем доступ
+    const hasAccess = await hasInterviewAccess(
+      actualSessionId,
+      validatedToken,
+      context.db,
+    );
+
+    if (!hasAccess) {
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому интервью",
+      });
+    }
+
+    return next({
+      context: {
+        verifiedInterviewSessionId: actualSessionId,
+        validatedInterviewToken: validatedToken,
+      },
     });
-  }
-
-  return next({
-    context: {
-      verifiedInterviewSessionId: actualSessionId,
-      validatedInterviewToken: validatedToken,
-    },
-  });
-});
+  },
+);
 
 /**
  * Процедура с проверкой доступа к интервью

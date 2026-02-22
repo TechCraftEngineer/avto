@@ -14,4 +14,4 @@ export const customDomainRouter = {
   setPrimary,
   checkAvailability,
   delete: deleteDomain,
-};
+} as any;

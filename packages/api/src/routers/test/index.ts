@@ -6,4 +6,4 @@ export const testRouter = {
   setup,
   cleanup,
   createArchivedVacancy,
-};
+} as any;

@@ -9,6 +9,7 @@
  * Requirements: 10.1, 10.2, 10.4
  */
 
+import { ORPCError } from "@orpc/server";
 import {
   agentFeedback,
   and,
@@ -20,7 +21,6 @@ import {
   sql,
 } from "@qbs-autonaim/db";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 import { checkWorkspaceAccess } from "./middleware";
@@ -98,7 +98,7 @@ export const submitFeedback = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     // Сохраняем feedback в БД
@@ -119,7 +119,9 @@ export const submitFeedback = protectedProcedure
       .returning();
 
     if (!feedbackEntry) {
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось сохранить feedback", });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Не удалось сохранить feedback",
+      });
     }
 
     // Логируем в audit log
@@ -164,7 +166,7 @@ export const getFeedback = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     // Строим условия фильтрации
@@ -227,7 +229,7 @@ export const getMetrics = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     // Строим условия фильтрации
@@ -336,7 +338,7 @@ export const getUserFeedbackHistory = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     // Получаем feedback пользователя
@@ -405,7 +407,7 @@ export const feedback = {
   list: getFeedback,
   metrics: getMetrics,
   userHistory: getUserFeedbackHistory,
-};
+} as any;
 
 /**
  * Функция для получения feedback history пользователя (для использования в агентах)

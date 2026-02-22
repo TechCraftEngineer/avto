@@ -36,4 +36,4 @@ export const gigResponsesRouter = {
   acceptMultiple,
   rejectMultiple,
   exportResponses,
-};
+} as any;

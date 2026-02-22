@@ -16,4 +16,4 @@ export const invitesRouter = {
   accept,
   resend,
   cancel,
-};
+} as any;

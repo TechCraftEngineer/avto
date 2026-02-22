@@ -20,4 +20,4 @@ export const workspaceRouter = {
   delete: deleteWorkspace,
   members: membersRouter,
   invites: invitesRouter,
-};
+} as any;

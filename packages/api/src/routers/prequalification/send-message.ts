@@ -1,8 +1,8 @@
 /**
  * Send Message Procedure
  *
- * ���������� ��������� �� ��������� � ������ ���������������.
- * ��������� ��������� - �� ������� ����������� ������������.
+ * Отправляет сообщение от кандидата в сессию предквалификации.
+ * Публичная процедура - не требует авторизации пользователя.
  */
 
 import { ORPCError } from "@orpc/server";
@@ -16,12 +16,12 @@ import {
 import { PrequalificationError } from "../../services/prequalification/types";
 
 const sendMessageInputSchema = z.object({
-  sessionId: z.string().uuid("sessionId ������ ���� UUID"),
-  workspaceId: z.string().min(1, "workspaceId ����������"),
+  sessionId: z.string().uuid("sessionId должен быть UUID"),
+  workspaceId: z.string().min(1, "workspaceId обязателен"),
   message: z
     .string()
-    .min(1, "message ����������")
-    .max(5000, "��������� ������� �������"),
+    .min(1, "message обязателен")
+    .max(5000, "Сообщение слишком длинное"),
 });
 
 export const sendMessage = publicProcedure
@@ -37,7 +37,7 @@ export const sendMessage = publicProcedure
     );
 
     if (!session) {
-      throw new ORPCError("NOT_FOUND", { message: "������ �� �������" });
+      throw new ORPCError("NOT_FOUND", { message: "Сессия не найдена" });
     }
 
     if (session.status !== "dialogue_active") {
@@ -190,63 +190,63 @@ function buildDialoguePrompt(
 ): string {
   const toneInstruction =
     config.tone === "formal"
-      ? "��������� ����������, ������� ����� �������. ��������� �� '��'."
-      : "��������� �����������, �� ���������������� �����. ����� ���������� �� '��'.";
+      ? "Общайтесь официально, держите деловой тон. Обращайтесь на 'Вы'."
+      : "Общайтесь дружелюбно, но профессионально тепло. Можно обращаться на 'ты'.";
 
   const resumeInfo = context.parsedResume?.structured
     ? `
-������ ���������:
-���: ${context.parsedResume.structured.personalInfo?.name ?? "�� �������"}
-����: ${context.parsedResume.structured.experience?.map((e) => `${e.position} � ${e.company}`).join(", ") ?? "�� ������"}
-������: ${context.parsedResume.structured.skills?.join(", ") ?? "�� �������"}
+Данные кандидата:
+Имя: ${context.parsedResume.structured.personalInfo?.name ?? "не указано"}
+Опыт: ${context.parsedResume.structured.experience?.map((e) => `${e.position} в ${e.company}`).join(", ") ?? "не указан"}
+Навыки: ${context.parsedResume.structured.skills?.join(", ") ?? "не указаны"}
 `
     : "";
 
   const historyText = context.conversationHistory
     .map(
       (msg) =>
-        `${msg.role === "assistant" ? "AI" : "��������"}: ${msg.content}`,
+        `${msg.role === "assistant" ? "AI" : "Кандидат"}: ${msg.content}`,
     )
     .join("\n\n");
 
   const mandatoryQuestionsText =
     config.mandatoryQuestions.length > 0
-      ? `\n������������ ������� (����� �� � ���� �������):\n${config.mandatoryQuestions.map((q, i) => `${i + 1}. ${q}`).join("\n")}`
+      ? `\nОбязательные вопросы (задай их в ходе беседы):\n${config.mandatoryQuestions.map((q, i) => `${i + 1}. ${q}`).join("\n")}`
       : "";
 
-  return `�� � AI-��������� �� ������� ���������, ���������� ��������������� ���������.
+  return `Ты — AI-ассистент по подбору персонала, проводящий предварительное собеседование.
 
 ${toneInstruction}
 
-��������:
-��������: ${context.vacancyTitle}
-��������: ${context.vacancyDescription ?? "�� �������"}
-${context.vacancyRequirements ? `����������: ${JSON.stringify(context.vacancyRequirements)}` : ""}
+Контекст:
+Вакансия: ${context.vacancyTitle}
+Описание: ${context.vacancyDescription ?? "не указано"}
+${context.vacancyRequirements ? `Требования: ${JSON.stringify(context.vacancyRequirements)}` : ""}
 
 ${resumeInfo}
 ${mandatoryQuestionsText}
 
-${historyText ? `������� �������:\n${historyText}\n` : ""}
+${historyText ? `История беседы:\n${historyText}\n` : ""}
 
-������� ��������� ���������:
+Текущее сообщение кандидата:
 ${userMessage}
 
-������:
+Задача:
 ${
   isFirstExchange
-    ? "��� ������ �������. ������������� ���������, ����������� �� ������� � �������� � ����� ������ ������ ��� ������ ������������."
-    : "�������� ������. ���������� �� ����� ��������� � ����� ��������� ����������� ������ ��� ������ ������������ ��������."
+    ? "Это первый контакт. Поприветствуй кандидата, представься от компании и задачи и задай первый вопрос для оценки соответствия."
+    : "Продолжи беседу. Отталкивайся от ранее сказанного и задай следующий релевантный вопрос для оценки соответствия кандидата."
 }
 
-�������� ��������� � �������: ${config.maxDialogueTurns}. ������� ���������� �������: ${Math.floor(context.conversationHistory.length / 2) + 1}.
+Лимиты сообщений в диалоге: ${config.maxDialogueTurns}. Текущее количество реплик: ${Math.floor(context.conversationHistory.length / 2) + 1}.
 
-���������� � ������:
-1. ������� ������ � �� ���� (2-4 �����������)
-2. ������� ���� ���������� ������ �� ���
-3. �� �������� ��� �������� �������
-4. ����������� �� ������ ������������ ����������� ��������
+Требования к ответу:
+1. Отвечай кратко и по делу (2-4 предложения)
+2. Задавай один конкретный вопрос за раз
+3. Не повторяй уже заданные вопросы
+4. Ориентируйся на оценку соответствия требованиям вакансии
 
-����� (������ ����� ������, ��� �������������� ������������):`;
+Ответ (только твоя реплика, без дополнительных комментариев):`;
 }
 
 /**

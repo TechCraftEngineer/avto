@@ -6,7 +6,6 @@
  * так как используются виджетом на внешних сайтах.
  */
 
-
 import { createSession } from "./create-session";
 import { getResult } from "./get-result";
 import { getSession } from "./get-session";
@@ -21,4 +20,4 @@ export const prequalificationRouter = {
   sendMessage,
   getResult,
   submitApplication,
-};
+} as any;

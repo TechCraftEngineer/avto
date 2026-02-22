@@ -16,4 +16,4 @@ export const draftRouter = {
   create,
   update,
   delete: deleteDraft,
-};
+} as any;

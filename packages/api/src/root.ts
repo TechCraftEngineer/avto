@@ -30,7 +30,7 @@ import { registerChatEntities } from "./services/chat/register-entities";
 // Регистрация типов сущностей для AI чата
 registerChatEntities();
 
-export const appRouter = createRouter({
+const baseRouter = {
   user: userRouter,
   vacancy: vacancyRouter,
   gig: gigRouter,
@@ -56,8 +56,13 @@ export const appRouter = createRouter({
   customDomain: customDomainRouter,
   chat: chatRouter,
   draft: draftRouter,
-  ...(process.env.NODE_ENV !== "production" ? { test: testRouter } : {}),
-});
+};
+
+export const appRouter = (
+  process.env.NODE_ENV !== "production"
+    ? { ...baseRouter, test: testRouter }
+    : baseRouter
+) as any;
 
 // export type definition of API
 export type AppRouter = typeof appRouter;
