@@ -58,11 +58,10 @@ const baseRouter = {
   draft: draftRouter,
 };
 
-export const appRouter = (
+export const appRouter =
   process.env.NODE_ENV !== "production"
     ? { ...baseRouter, test: testRouter }
-    : baseRouter
-) as any;
+    : baseRouter;
 
 // export type definition of API
 export type AppRouter = typeof appRouter;
