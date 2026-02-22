@@ -110,3 +110,33 @@ export const middleware = orpc.middleware;
  * Используется как основа для publicProcedure и protectedProcedure
  */
 export const procedure = orpc;
+
+/**
+ * Timing Middleware
+ *
+ * Логирует время выполнения каждой процедуры.
+ * В development режиме выводит информацию о каждом запросе.
+ * Логирует предупреждения для медленных операций (>5000ms).
+ *
+ * @see Requirements 2.1, 2.2
+ */
+export const timingMiddleware = middleware(async ({ next, context }) => {
+  const start = Date.now();
+  const result = await next({ context });
+  const end = Date.now();
+  const executionTime = end - start;
+
+  // Логируем в development режиме
+  if (process.env.NODE_ENV === "development") {
+    console.log(`[ORPC] ${context.route?.path ?? "unknown"} выполнен за ${executionTime}мс`);
+  }
+
+  // Предупреждение для медленных операций (>5000ms)
+  if (executionTime > 5000) {
+    console.warn(
+      `[Performance] Slow operation detected: ${context.route?.path ?? "unknown"} took ${executionTime}ms | IP: ${context.ipAddress || "unknown"}`,
+    );
+  }
+
+  return result;
+});
