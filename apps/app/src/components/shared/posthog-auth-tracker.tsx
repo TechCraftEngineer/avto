@@ -1,16 +1,19 @@
 "use client";
 
+import { useSession } from "~/auth/client";
 import { useIdentifyUser } from "~/hooks/use-posthog";
 
-interface PostHogAuthTrackerProps {
-  user?: {
-    id: string;
-    email?: string;
-    name?: string;
-  } | null;
-}
+export function PostHogAuthTracker() {
+  const { data: session } = useSession();
 
-export function PostHogAuthTracker({ user }: PostHogAuthTrackerProps) {
-  useIdentifyUser(user ?? null);
+  const user = session?.user
+    ? {
+        id: session.user.id,
+        email: session.user.email ?? undefined,
+        name: session.user.name ?? undefined,
+      }
+    : null;
+
+  useIdentifyUser(user);
   return null;
 }

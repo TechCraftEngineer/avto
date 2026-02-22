@@ -9,14 +9,13 @@ import { TRPCReactProvider } from "~/trpc/react";
 
 interface ClientLayoutProps {
   children: React.ReactNode;
-  user?: { id: string; email?: string; name?: string } | null;
 }
 
-export function ClientLayout({ children, user }: ClientLayoutProps) {
+export function ClientLayout({ children }: ClientLayoutProps) {
   return (
     <ThemeProvider>
       <PostHogProvider>
-        <PostHogAuthTracker user={user ?? undefined} />
+        <PostHogAuthTracker />
         <ErrorBoundary>
           <TRPCReactProvider>{children}</TRPCReactProvider>
         </ErrorBoundary>
