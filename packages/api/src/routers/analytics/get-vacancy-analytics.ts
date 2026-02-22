@@ -5,11 +5,10 @@
  * Защищённая процедура - требует авторизации.
  */
 
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-
+import { protectedProcedure } from "../../orpc";
 import { AnalyticsAggregator, AnalyticsError } from "../../services/analytics";
-import { protectedProcedure } from "../../trpc";
 
 const getVacancyAnalyticsInputSchema = z.object({
   workspaceId: z.string().min(1, "workspaceId обязателен"),
@@ -22,7 +21,7 @@ const getVacancyAnalyticsInputSchema = z.object({
 
 export const getVacancyAnalytics = protectedProcedure
   .input(getVacancyAnalyticsInputSchema)
-  .query(async ({ ctx, input }) => {
+  .handler(async ({ ctx, input }) => {
     // Verify user has access to workspace
     const membership = await ctx.workspaceRepository.checkAccess(
       input.workspaceId,
@@ -30,7 +29,7 @@ export const getVacancyAnalytics = protectedProcedure
     );
 
     if (!membership) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому workspace",
       });
@@ -49,13 +48,13 @@ export const getVacancyAnalytics = protectedProcedure
     } catch (error) {
       if (error instanceof AnalyticsError) {
         if (error.code === "VACANCY_NOT_FOUND") {
-          throw new TRPCError({
+          throw new ORPCError({
             code: "NOT_FOUND",
             message: error.userMessage,
             cause: error,
           });
         }
-        throw new TRPCError({
+        throw new ORPCError({
           code: "BAD_REQUEST",
           message: error.userMessage,
           cause: error,

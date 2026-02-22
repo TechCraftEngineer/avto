@@ -3,9 +3,9 @@ import {
   companyPartialSchema,
   workspaceIdSchema,
 } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const updatePartial = protectedProcedure
   .input(
@@ -21,7 +21,7 @@ export const updatePartial = protectedProcedure
     );
 
     if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Недостаточно прав для изменения настроек компании",
       });
@@ -32,7 +32,7 @@ export const updatePartial = protectedProcedure
     });
 
     if (!existing) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Настройки компании не найдены",
       });

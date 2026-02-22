@@ -13,9 +13,9 @@ import {
 } from "@qbs-autonaim/ai";
 import { getAIModel } from "@qbs-autonaim/lib/ai";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 import { checkRateLimit, checkWorkspaceAccess } from "./middleware";
 
 /**
@@ -77,7 +77,7 @@ export const chat = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к workspace",
       });
@@ -88,7 +88,7 @@ export const chat = protectedProcedure
     const canProceed = await checkRateLimit(rateLimitKey, 30, 60);
 
     if (!canProceed) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "TOO_MANY_REQUESTS",
         message: "Превышен лимит запросов. Попробуйте через минуту.",
       });
@@ -240,7 +240,7 @@ export const chat = protectedProcedure
         code: "ORCHESTRATOR_ERROR",
       };
 
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Не удалось обработать запрос. Попробуйте позже.",
       });

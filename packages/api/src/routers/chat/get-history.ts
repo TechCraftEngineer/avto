@@ -1,7 +1,7 @@
 import { chatEntityTypeEnum } from "@qbs-autonaim/db/schema";
 import { paginationLimitSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const getHistory = protectedProcedure
   .input(

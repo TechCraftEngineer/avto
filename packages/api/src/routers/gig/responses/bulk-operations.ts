@@ -4,10 +4,10 @@ import {
   response as responseTable,
 } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import type { TRPCContext } from "../../../trpc";
-import { protectedProcedure } from "../../../trpc";
+import type { TRPCContext } from "../../../orpc";
+import { protectedProcedure } from "../../../orpc";
 
 type BulkUpdateInput = {
   responseIds: string[];
@@ -23,7 +23,7 @@ async function bulkUpdateStatus(
 ): Promise<{ success: boolean; updatedCount: number }> {
   const session = ctx.session;
   if (!session) {
-    throw new TRPCError({
+    throw new ORPCError({
       code: "UNAUTHORIZED",
       message: "Требуется авторизация",
     });
@@ -36,7 +36,7 @@ async function bulkUpdateStatus(
   );
 
   if (!access) {
-    throw new TRPCError({
+    throw new ORPCError({
       code: "FORBIDDEN",
       message: "Нет доступа к этому workspace",
     });
@@ -55,7 +55,7 @@ async function bulkUpdateStatus(
   });
 
   if (responses.length !== input.responseIds.length) {
-    throw new TRPCError({
+    throw new ORPCError({
       code: "NOT_FOUND",
       message: "Некоторые отклики не найдены",
     });
@@ -66,7 +66,7 @@ async function bulkUpdateStatus(
   );
 
   if (invalidResponses.length > 0) {
-    throw new TRPCError({
+    throw new ORPCError({
       code: "FORBIDDEN",
       message: "Некоторые отклики не принадлежат этому workspace",
     });

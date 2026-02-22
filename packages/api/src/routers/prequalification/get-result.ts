@@ -8,7 +8,7 @@
 
 import { and, eq } from "@qbs-autonaim/db";
 import { prequalificationSession, vacancy } from "@qbs-autonaim/db/schema";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { evaluatorService } from "../../services/evaluation/evaluator";
 import { feedbackGeneratorService } from "../../services/evaluation/feedback-generator";
@@ -18,7 +18,7 @@ import {
   SessionManager,
 } from "../../services/prequalification";
 import { PrequalificationError } from "../../services/prequalification/types";
-import { publicProcedure } from "../../trpc";
+import { publicProcedure } from "../../orpc";
 
 const getResultInputSchema = z.object({
   sessionId: z.uuid("sessionId должен быть UUID"),
@@ -38,7 +38,7 @@ export const getResult = publicProcedure
     );
 
     if (!session) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Сессия не найдена",
       });
@@ -65,7 +65,7 @@ export const getResult = publicProcedure
 
     // If not in evaluating status, return current status
     if (session.status !== "evaluating") {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message: `Результат недоступен в статусе: ${session.status}`,
       });
@@ -199,7 +199,7 @@ export const getResult = publicProcedure
           TENANT_MISMATCH: "FORBIDDEN",
         };
 
-        throw new TRPCError({
+        throw new ORPCError({
           code: codeMap[error.code] ?? "INTERNAL_SERVER_ERROR",
           message: error.userMessage,
           cause: error,

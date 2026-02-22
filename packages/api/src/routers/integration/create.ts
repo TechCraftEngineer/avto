@@ -1,8 +1,8 @@
 import { upsertIntegration } from "@qbs-autonaim/db";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 /** Типы интеграций, которые создаются только через verify (настройка) */
 const CREATE_VIA_VERIFY_ONLY = ["hh", "kwork"] as const;
@@ -25,7 +25,7 @@ export const createIntegration = protectedProcedure
         input.type as (typeof CREATE_VIA_VERIFY_ONLY)[number],
       )
     ) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message: `Интеграция ${input.type} создаётся только через настройку интеграции`,
       });
@@ -38,7 +38,7 @@ export const createIntegration = protectedProcedure
     );
 
     if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Недостаточно прав для создания интеграций",
       });

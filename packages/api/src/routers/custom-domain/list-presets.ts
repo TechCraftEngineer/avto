@@ -1,5 +1,5 @@
 import { presetInterviewDomains } from "@qbs-autonaim/db/schema";
-import { publicProcedure } from "../../trpc";
+import { publicProcedure } from "../../orpc";
 
 export const listPresets = publicProcedure.query(async () => {
   return presetInterviewDomains.map((preset) => ({

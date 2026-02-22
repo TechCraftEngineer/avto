@@ -1,4 +1,4 @@
-import type { TRPCRouterRecord } from "@trpc/server";
+import type { ORPCRouterRecord } from "@orpc/server";
 
 import { checkStatus } from "./check-status";
 import { create } from "./create";
@@ -18,4 +18,4 @@ export const paymentRouter = {
   get,
   list,
   checkStatus,
-} satisfies TRPCRouterRecord;
+} satisfies ORPCRouterRecord;

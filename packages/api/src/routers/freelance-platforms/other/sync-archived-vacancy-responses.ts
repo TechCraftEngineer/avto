@@ -1,8 +1,8 @@
 import { inngest } from "@qbs-autonaim/jobs/client";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 const syncArchivedVacancyResponsesInputSchema = z.object({
   workspaceId: workspaceIdSchema,
@@ -19,7 +19,7 @@ export const syncArchivedVacancyResponses = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к workspace",
       });
@@ -35,7 +35,7 @@ export const syncArchivedVacancyResponses = protectedProcedure
     });
 
     if (!vacancy) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Вакансия не найдена",
       });
@@ -48,14 +48,14 @@ export const syncArchivedVacancyResponses = protectedProcedure
     });
 
     if (!publication) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message: "Вакансия не опубликована на HH.ru (HeadHunter)",
       });
     }
 
     if (!publication.externalId && !publication.url) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message:
           "У публикации нет внешнего идентификатора или ссылки для синхронизации",
@@ -83,7 +83,7 @@ export const syncArchivedVacancyResponses = protectedProcedure
     } catch (error) {
       console.error("Ошибка синхронизации архивных откликов:", error);
 
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Ошибка при синхронизации откликов с архивной вакансии",
         cause: error instanceof Error ? error.message : "Неизвестная ошибка",

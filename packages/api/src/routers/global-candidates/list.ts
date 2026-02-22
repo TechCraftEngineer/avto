@@ -4,8 +4,8 @@ import {
   globalCandidate,
   response as responseTable,
 } from "@qbs-autonaim/db/schema";
-import { TRPCError } from "@trpc/server";
-import { protectedProcedure } from "../../trpc";
+import { ORPCError } from "@orpc/server";
+import { protectedProcedure } from "../../orpc";
 import { buildFilterConditions } from "./list-filter-conditions";
 import { mapLinksToItems } from "./list-mapper";
 import { buildOrderBy } from "./list-order-by";
@@ -49,7 +49,7 @@ export const list = protectedProcedure
       ctx.session.user.id,
     );
     if (!hasAccess) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к организации",
       });

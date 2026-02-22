@@ -1,8 +1,8 @@
 import { and, eq } from "@qbs-autonaim/db";
 import { telegramSession } from "@qbs-autonaim/db/schema";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const clearAuthErrorRouter = protectedProcedure
   .input(z.object({ sessionId: z.string(), workspaceId: z.string() }))
@@ -24,7 +24,7 @@ export const clearAuthErrorRouter = protectedProcedure
       .returning();
 
     if (result.length === 0) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Сессия не найдена",
       });

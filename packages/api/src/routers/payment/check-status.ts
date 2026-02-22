@@ -1,9 +1,9 @@
 import { payment } from "@qbs-autonaim/db/schema";
 import { checkPaymentStatusSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { eq } from "drizzle-orm";
 import { createYookassaClient } from "../../services/yookassa/client";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 /**
  * Процедура проверки статуса платежа
@@ -33,7 +33,7 @@ export const checkStatus = protectedProcedure
 
     // 2. Проверяем существование платежа
     if (!existingPayment) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Платеж не найден",
       });
@@ -41,7 +41,7 @@ export const checkStatus = protectedProcedure
 
     // 3. Проверяем доступ пользователя к платежу (через userId)
     if (existingPayment.userId !== userId) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому платежу",
       });
@@ -52,7 +52,7 @@ export const checkStatus = protectedProcedure
     try {
       yookassa = createYookassaClient();
     } catch (error) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message:
           error instanceof Error
@@ -188,7 +188,7 @@ export const checkStatus = protectedProcedure
         }),
       );
 
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message:
           error instanceof Error ? error.message : "Ошибка проверки статуса",

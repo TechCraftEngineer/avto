@@ -1,7 +1,7 @@
 import { tgClientSDK } from "@qbs-autonaim/tg-client/sdk";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 import { normalizePhone } from "../utils";
 
 export const sendCodeRouter = protectedProcedure
@@ -28,7 +28,7 @@ export const sendCodeRouter = protectedProcedure
       };
     } catch (error) {
       console.error("Ошибка отправки кода:", error);
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message:
           error instanceof Error ? error.message : "Ошибка отправки кода",

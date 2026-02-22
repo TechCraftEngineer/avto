@@ -1,9 +1,9 @@
 import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { customDomain } from "@qbs-autonaim/db/schema";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const deleteDomain = protectedProcedure
   .input(
@@ -26,14 +26,14 @@ export const deleteDomain = protectedProcedure
     });
 
     if (!domain) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Домен не найден",
       });
     }
 
     if (!domain.workspace) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message: "Невозможно удалить предустановленный домен",
       });
@@ -41,7 +41,7 @@ export const deleteDomain = protectedProcedure
 
     const member = domain.workspace.members[0];
     if (!member || (member.role !== "owner" && member.role !== "admin")) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Недостаточно прав для удаления домена",
       });

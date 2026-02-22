@@ -1,7 +1,7 @@
 import { UpdateDraftInputSchema } from "@qbs-autonaim/shared";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { DraftService } from "../../services/draft.service";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 /**
  * Обновить существующий черновик вакансии
@@ -21,14 +21,14 @@ export const update = protectedProcedure
     } catch (error) {
       // Если черновик не найден
       if (error instanceof Error && error.message === "Черновик не найден") {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "NOT_FOUND",
           message: "Черновик не найден",
         });
       }
 
       // Другие ошибки
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message:
           "Не удалось сохранить изменения. Проверьте подключение к интернету",

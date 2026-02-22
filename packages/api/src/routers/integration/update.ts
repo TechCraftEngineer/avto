@@ -5,9 +5,9 @@ import {
   integration,
   upsertIntegration,
 } from "@qbs-autonaim/db";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 /** Типы интеграций, у которых credentials меняются только при настройке (verify) */
 const CREDENTIALS_LOCKED_TYPES = ["hh", "kwork"] as const;
@@ -31,7 +31,7 @@ export const updateIntegration = protectedProcedure
     );
 
     if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Недостаточно прав для изменения интеграций",
       });
@@ -44,7 +44,7 @@ export const updateIntegration = protectedProcedure
     );
 
     if (!existing) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Интеграция не найдена",
       });
@@ -74,7 +74,7 @@ export const updateIntegration = protectedProcedure
         });
 
       if (!updated)
-        throw new TRPCError({
+        throw new ORPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Ошибка обновления",
         });

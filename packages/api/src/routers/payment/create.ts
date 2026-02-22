@@ -1,9 +1,9 @@
 import { randomUUID } from "node:crypto";
 import { payment } from "@qbs-autonaim/db/schema";
 import { createPaymentSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { createYookassaClient } from "../../services/yookassa/client";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 /**
  * Процедура создания платежа через ЮКасса
@@ -27,7 +27,7 @@ export const create = protectedProcedure
     const workspace = await ctx.workspaceRepository.findById(input.workspaceId);
 
     if (!workspace) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Workspace не найден",
       });
@@ -40,7 +40,7 @@ export const create = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к workspace",
       });
@@ -54,7 +54,7 @@ export const create = protectedProcedure
     try {
       yookassa = createYookassaClient();
     } catch (error) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message:
           error instanceof Error
@@ -103,7 +103,7 @@ export const create = protectedProcedure
         }),
       );
 
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message:
           error instanceof Error ? error.message : "Ошибка создания платежа",
@@ -209,7 +209,7 @@ export const create = protectedProcedure
       }
 
       // Пробрасываем исходную ошибку БД
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Не удалось сохранить платеж",
       });

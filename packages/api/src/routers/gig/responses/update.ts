@@ -1,12 +1,12 @@
-п»їimport { and, eq } from "@qbs-autonaim/db";
+import { and, eq } from "@qbs-autonaim/db";
 import { gig, response as responseTable } from "@qbs-autonaim/db/schema";
 import {
   phoneNullishSchema,
   workspaceIdSchema,
 } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const update = protectedProcedure
   .input(
@@ -31,9 +31,9 @@ export const update = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
-        message: "РќРµС‚ РґРѕСЃС‚СѓРїР° Рє СЌС‚РѕРјСѓ workspace",
+        message: "Нет доступа к этому workspace",
       });
     }
 
@@ -45,9 +45,9 @@ export const update = protectedProcedure
     });
 
     if (!response) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
-        message: "РћС‚РєР»РёРє РЅРµ РЅР°Р№РґРµРЅ",
+        message: "Отклик не найден",
       });
     }
 
@@ -59,9 +59,9 @@ export const update = protectedProcedure
     });
 
     if (!existingGig) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
-        message: "РќРµС‚ РґРѕСЃС‚СѓРїР° Рє СЌС‚РѕРјСѓ РѕС‚РєР»РёРєСѓ",
+        message: "Нет доступа к этому отклику",
       });
     }
 
@@ -69,9 +69,9 @@ export const update = protectedProcedure
 
     // Guard against empty updates
     if (Object.keys(updateData).length === 0) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
-        message: "РќРµ СѓРєР°Р·Р°РЅС‹ РїРѕР»СЏ РґР»СЏ РѕР±РЅРѕРІР»РµРЅРёСЏ",
+        message: "Не указаны поля для обновления",
       });
     }
 

@@ -1,7 +1,7 @@
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 const getVacancyIntegrationsInputSchema = z.object({
   workspaceId: workspaceIdSchema,
@@ -26,14 +26,14 @@ export const getVacancyIntegrations = protectedProcedure
     });
 
     if (!vacancy) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Вакансия не найдена",
       });
     }
 
     if (vacancy.workspaceId !== input.workspaceId) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Вакансия не принадлежит указанному workspace",
       });

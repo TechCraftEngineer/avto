@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/server";
 import {
   getUserIntegration,
   getUserIntegrationCredentials,
@@ -5,8 +6,7 @@ import {
 } from "@qbs-autonaim/db";
 import { createCalendarEvent as createGoogleCalendarEvent } from "@qbs-autonaim/integration-clients/server";
 import { createCalendarEventSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 const INTERVIEW_TYPE_LABELS: Record<string, string> = {
   technical: "Техническое собеседование",
@@ -25,7 +25,7 @@ export const createEvent = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к workspace",
       });
@@ -43,7 +43,7 @@ export const createEvent = protectedProcedure
     });
 
     if (!responseRow) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Отклик не найден",
       });
@@ -58,7 +58,7 @@ export const createEvent = protectedProcedure
         columns: { id: true },
       });
       if (!vacancyRow) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "FORBIDDEN",
           message: "Отклик не принадлежит этому workspace",
         });
@@ -70,13 +70,13 @@ export const createEvent = protectedProcedure
         columns: { id: true },
       });
       if (!gigRow) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "FORBIDDEN",
           message: "Отклик не принадлежит этому workspace",
         });
       }
     } else {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message: "Неподдерживаемый тип отклика для планирования",
       });
@@ -89,7 +89,7 @@ export const createEvent = protectedProcedure
     );
 
     if (!credentials?.access_token) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "PRECONDITION_FAILED",
         message:
           "Подключите Google Calendar в настройках аккаунта для планирования встреч",

@@ -3,10 +3,10 @@ import {
   paginationLimitSchema,
   paginationOffsetSchema,
 } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 /**
  * Процедура получения списка платежей пользователя
@@ -40,7 +40,7 @@ export const list = protectedProcedure
       );
 
       if (!hasAccess) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "FORBIDDEN",
           message: "Нет доступа к workspace",
         });
@@ -55,7 +55,7 @@ export const list = protectedProcedure
       );
 
       if (!hasAccess) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "FORBIDDEN",
           message: "Нет доступа к организации",
         });

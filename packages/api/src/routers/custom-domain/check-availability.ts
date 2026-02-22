@@ -1,7 +1,7 @@
 import { db } from "@qbs-autonaim/db/client";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 async function checkDomainHasSite(domain: string): Promise<boolean> {
   // Попытка HTTPS
@@ -57,7 +57,7 @@ export const checkAvailability = protectedProcedure
     });
 
     if (!member) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к workspace",
       });

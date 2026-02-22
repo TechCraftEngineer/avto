@@ -5,11 +5,10 @@
  * Публичная процедура - используется виджетом на внешних сайтах.
  */
 
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-
+import { publicProcedure } from "../../orpc";
 import { AnalyticsError, AnalyticsTracker } from "../../services/analytics";
-import { publicProcedure } from "../../trpc";
 
 const trackEventInputSchema = z.object({
   workspaceId: z.string().min(1, "workspaceId обязателен"),
@@ -32,7 +31,7 @@ const trackEventInputSchema = z.object({
 
 export const trackEvent = publicProcedure
   .input(trackEventInputSchema)
-  .mutation(async ({ ctx, input }) => {
+  .handler(async ({ ctx, input }) => {
     const analyticsTracker = new AnalyticsTracker(ctx.db);
 
     try {
@@ -50,7 +49,7 @@ export const trackEvent = publicProcedure
       };
     } catch (error) {
       if (error instanceof AnalyticsError) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "BAD_REQUEST",
           message: error.userMessage,
           cause: error,

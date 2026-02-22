@@ -1,8 +1,8 @@
 import { upsertUserIntegration } from "@qbs-autonaim/db";
 import { userIntegrationTypeSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 /**
  * Сохранить user-интеграцию после OAuth callback.
@@ -24,7 +24,7 @@ export const saveOAuth = protectedProcedure
   )
   .mutation(async ({ input, ctx }) => {
     if (input.type !== "google_calendar") {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message: "Неподдерживаемый тип интеграции",
       });

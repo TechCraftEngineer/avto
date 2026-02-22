@@ -5,7 +5,7 @@ import {
 } from "@qbs-autonaim/db/schema";
 import { inngest } from "@qbs-autonaim/jobs/client";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 import { createErrorHandler } from "../../../utils/error-handler";
 
 const retryAnalysisInputSchema = z.object({

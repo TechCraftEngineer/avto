@@ -1,8 +1,8 @@
 import { payment } from "@qbs-autonaim/db/schema";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 /**
  * Процедура получения платежа по ID
@@ -32,7 +32,7 @@ export const get = protectedProcedure
 
     // 2. Проверяем существование платежа
     if (!existingPayment) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Платеж не найден",
       });
@@ -40,7 +40,7 @@ export const get = protectedProcedure
 
     // 3. Проверяем доступ пользователя к платежу (через userId)
     if (existingPayment.userId !== userId) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому платежу",
       });

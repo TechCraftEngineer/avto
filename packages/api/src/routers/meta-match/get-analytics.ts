@@ -2,7 +2,7 @@ import { and, count, eq, gte, lte, sql } from "@qbs-autonaim/db";
 import { metaMatchReport, response, vacancy } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 import { verifyWorkspaceAccess } from "../../utils/verify-workspace-access";
 
 const getAnalyticsInputSchema = z.object({

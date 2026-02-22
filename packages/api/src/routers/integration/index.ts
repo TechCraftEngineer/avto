@@ -1,4 +1,4 @@
-import type { TRPCRouterRecord } from "@trpc/server";
+import type { ORPCRouterRecord } from "@orpc/server";
 
 import { createIntegration } from "./create";
 import { deleteIntegrationProcedure } from "./delete";
@@ -16,4 +16,4 @@ export const integrationRouter = {
   saveHH2FACode,
   saveHHCaptcha,
   requestHHResendCode,
-} satisfies TRPCRouterRecord;
+} satisfies ORPCRouterRecord;

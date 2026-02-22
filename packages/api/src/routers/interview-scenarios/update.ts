@@ -1,11 +1,11 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq } from "@qbs-autonaim/db";
 import {
   interviewScenario,
   UpdateInterviewScenarioSchema,
 } from "@qbs-autonaim/db/schema";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const update = protectedProcedure
   .input(
@@ -15,24 +15,23 @@ export const update = protectedProcedure
       data: UpdateInterviewScenarioSchema,
     }),
   )
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const { id, workspaceId, data } = input;
 
     // Проверяем доступ к workspace
-    const hasAccess = await ctx.workspaceRepository.checkAccess(
+    const hasAccess = await context.workspaceRepository.checkAccess(
       workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!hasAccess) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
+      throw new ORPCError("FORBIDDEN", {
         message: "Нет доступа к workspace",
       });
     }
 
     // Проверяем существование сценария
-    const scenario = await ctx.db.query.interviewScenario.findFirst({
+    const scenario = await context.db.query.interviewScenario.findFirst({
       where: and(
         eq(interviewScenario.id, id),
         eq(interviewScenario.workspaceId, workspaceId),
@@ -41,22 +40,20 @@ export const update = protectedProcedure
     });
 
     if (!scenario) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
+      throw new ORPCError("NOT_FOUND", {
         message: "Сценарий не найден",
       });
     }
 
     // Обновляем сценарий
-    const updatedScenario = await ctx.db
+    const updatedScenario = await context.db
       .update(interviewScenario)
       .set(data)
       .where(eq(interviewScenario.id, id))
       .returning();
 
     if (!updatedScenario[0]) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message: "Не удалось обновить сценарий",
       });
     }

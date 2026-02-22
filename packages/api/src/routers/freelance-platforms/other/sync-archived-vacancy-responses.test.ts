@@ -1,7 +1,7 @@
 import { describe, expect, it, mock } from "bun:test";
 import type { Session } from "@qbs-autonaim/auth";
-import { TRPCError } from "@trpc/server";
-import type { Context } from "../../../trpc";
+import { ORPCError } from "@orpc/server";
+import type { Context } from "../../../orpc";
 
 const mockInngestSend = mock(() => Promise.resolve({ ids: ["event-123"] }));
 

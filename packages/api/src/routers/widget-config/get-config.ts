@@ -7,7 +7,7 @@
 
 import { z } from "zod";
 import { WidgetConfigService } from "../../services/widget-config";
-import { publicProcedure } from "../../trpc";
+import { publicProcedure } from "../../orpc";
 
 const getConfigInputSchema = z.object({
   workspaceId: z.string().min(1, "workspaceId обязателен"),

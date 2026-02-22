@@ -1,8 +1,8 @@
 import { getDownloadUrl } from "@qbs-autonaim/lib/s3";
 import { uuidv7Schema, workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 /**
  * Получение presigned URL для файла с контролем доступа
@@ -22,7 +22,7 @@ export const getFileUrl = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к workspace",
       });
@@ -48,7 +48,7 @@ export const getFileUrl = protectedProcedure
     });
 
     if (!fileRecord) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Файл не найден",
       });
@@ -65,7 +65,7 @@ export const getFileUrl = protectedProcedure
     ].filter((id): id is string => id !== undefined);
 
     if (responseIds.length === 0) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Файл не найден",
       });
@@ -93,7 +93,7 @@ export const getFileUrl = protectedProcedure
     );
 
     if (!belongsToWorkspace) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Файл не найден",
       });
@@ -109,7 +109,7 @@ export const getFileUrl = protectedProcedure
         fileName: fileRecord.fileName,
       };
     } catch {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Ошибка при получении URL файла",
       });

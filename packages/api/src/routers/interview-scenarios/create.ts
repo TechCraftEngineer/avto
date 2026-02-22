@@ -1,7 +1,7 @@
+import { ORPCError } from "@orpc/server";
 import { interviewScenario } from "@qbs-autonaim/db/schema";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const create = protectedProcedure
   .input(
@@ -13,24 +13,23 @@ export const create = protectedProcedure
       settings: z.record(z.string(), z.unknown()).optional(),
     }),
   )
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const { workspaceId, ...data } = input;
 
     // Проверяем доступ к workspace
-    const hasAccess = await ctx.workspaceRepository.checkAccess(
+    const hasAccess = await context.workspaceRepository.checkAccess(
       workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!hasAccess) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
+      throw new ORPCError("FORBIDDEN", {
         message: "Нет доступа к workspace",
       });
     }
 
     // Создаем сценарий интервью
-    const result = await ctx.db
+    const result = await context.db
       .insert(interviewScenario)
       .values({
         ...data,
@@ -42,8 +41,7 @@ export const create = protectedProcedure
       .returning();
 
     if (!result[0]) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message: "Не удалось создать сценарий интервью",
       });
     }

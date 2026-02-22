@@ -1,7 +1,7 @@
 import { deleteUserIntegration } from "@qbs-autonaim/db";
 import { userIntegrationTypeSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const deleteItem = protectedProcedure
   .input(z.object({ type: userIntegrationTypeSchema }))

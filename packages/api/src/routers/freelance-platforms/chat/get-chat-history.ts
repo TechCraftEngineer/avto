@@ -1,5 +1,5 @@
 import { getDownloadUrl } from "@qbs-autonaim/lib/s3";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { withInterviewAccess } from "../../../utils/interview-access-middleware";
 
 export const getChatHistory = withInterviewAccess.query(async ({ ctx }) => {
@@ -17,7 +17,7 @@ export const getChatHistory = withInterviewAccess.query(async ({ ctx }) => {
   });
 
   if (!session) {
-    throw new TRPCError({
+    throw new ORPCError({
       code: "NOT_FOUND",
       message: "Интервью не найдено",
     });

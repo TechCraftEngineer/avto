@@ -1,12 +1,12 @@
+import { ORPCError } from "@orpc/server";
 import { and, desc, eq, sql } from "@qbs-autonaim/db";
 import { interviewScenario } from "@qbs-autonaim/db/schema";
 import {
   paginationLimitSchema,
   paginationOffsetSchema,
 } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const list = protectedProcedure
   .input(
@@ -16,24 +16,23 @@ export const list = protectedProcedure
       offset: paginationOffsetSchema,
     }),
   )
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const { workspaceId, limit, offset } = input;
 
     // Проверяем доступ к workspace
-    const hasAccess = await ctx.workspaceRepository.checkAccess(
+    const hasAccess = await context.workspaceRepository.checkAccess(
       workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!hasAccess) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
+      throw new ORPCError("FORBIDDEN", {
         message: "Нет доступа к workspace",
       });
     }
 
     // Получаем список сценариев
-    const scenarios = await ctx.db
+    const scenarios = await context.db
       .select()
       .from(interviewScenario)
       .where(
@@ -47,7 +46,7 @@ export const list = protectedProcedure
       .offset(offset);
 
     // Получаем общее количество
-    const totalResult = await ctx.db
+    const totalResult = await context.db
       .select({ count: sql<number>`count(*)` })
       .from(interviewScenario)
       .where(

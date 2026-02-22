@@ -1,8 +1,8 @@
 import { db } from "@qbs-autonaim/db";
 import { vacancy, vacancyPublication } from "@qbs-autonaim/db/schema";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { publicProcedure } from "../../trpc";
+import { publicProcedure } from "../../orpc";
 
 const isTestMode =
   process.env.NODE_ENV === "test" || process.env.NODE_ENV === "development";
@@ -20,7 +20,7 @@ export const createArchivedVacancy = publicProcedure
   )
   .mutation(async ({ input }) => {
     if (!isTestMode) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Тестовые эндпоинты доступны только в режиме разработки",
       });
@@ -39,7 +39,7 @@ export const createArchivedVacancy = publicProcedure
       .returning();
 
     if (!newVacancy) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Не удалось создать вакансию",
       });

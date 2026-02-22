@@ -1,8 +1,8 @@
 import { getDownloadUrl } from "@qbs-autonaim/lib/s3";
 import { uuidv7Schema, workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 /**
  * Получение presigned URL для изображения с контролем доступа
@@ -23,7 +23,7 @@ export const getImageUrl = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к workspace",
       });
@@ -46,7 +46,7 @@ export const getImageUrl = protectedProcedure
     });
 
     if (!fileRecord) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Файл не найден",
       });
@@ -62,7 +62,7 @@ export const getImageUrl = protectedProcedure
     ].filter((id): id is string => id !== undefined);
 
     if (responseIds.length === 0) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Файл не найден",
       });
@@ -110,7 +110,7 @@ export const getImageUrl = protectedProcedure
       gigs.some((g) => g.workspaceId === input.workspaceId);
 
     if (!belongsToWorkspace) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Файл не найден",
       });
@@ -118,7 +118,7 @@ export const getImageUrl = protectedProcedure
 
     // Проверяем что это изображение
     if (!fileRecord.mimeType?.startsWith("image/")) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message: "Файл не является изображением",
       });
@@ -134,7 +134,7 @@ export const getImageUrl = protectedProcedure
         fileName: fileRecord.fileName,
       };
     } catch {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Ошибка при получении URL файла",
       });

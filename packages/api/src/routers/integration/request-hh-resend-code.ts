@@ -1,8 +1,8 @@
 import { saveHHResendRequested } from "@qbs-autonaim/db";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const requestHHResendCode = protectedProcedure
   .input(z.object({ workspaceId: workspaceIdSchema }))
@@ -13,7 +13,7 @@ export const requestHHResendCode = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к workspace",
       });
@@ -27,7 +27,7 @@ export const requestHHResendCode = protectedProcedure
         msg.includes("not found") ||
         msg.includes("Integration hh not found")
       ) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "NOT_FOUND",
           message: "Интеграция HH не найдена",
         });

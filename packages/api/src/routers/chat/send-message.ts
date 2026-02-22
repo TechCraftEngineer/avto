@@ -6,13 +6,13 @@ import {
   chatSession,
 } from "@qbs-autonaim/db/schema";
 import { streamText } from "@qbs-autonaim/lib/ai";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { buildChatPrompt } from "../../services/chat/prompt-builder";
 import { chatRateLimiter } from "../../services/chat/rate-limiter";
 import { chatRegistry } from "../../services/chat/registry";
 import type { ChatHistoryMessage } from "../../services/chat/types";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 const aiChatResponseSchema = z.object({
   message: z.string(),
@@ -126,7 +126,7 @@ export const sendMessage = protectedProcedure
     const entityId = existingSession?.entityId ?? inputEntityId;
 
     if (!entityType || !entityId) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message: "entityType/entityId обязательны",
       });
@@ -135,7 +135,7 @@ export const sendMessage = protectedProcedure
     // Проверка rate limit
     const rateLimitCheck = chatRateLimiter.check(userId, entityType);
     if (!rateLimitCheck.allowed) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "TOO_MANY_REQUESTS",
         message: `Слишком много запросов. Подождите ${rateLimitCheck.retryAfter} секунд`,
       });
@@ -143,7 +143,7 @@ export const sendMessage = protectedProcedure
 
     // Проверка регистрации типа
     if (!chatRegistry.isRegistered(entityType)) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message: `Тип сущности ${entityType} не поддерживается`,
       });
@@ -152,7 +152,7 @@ export const sendMessage = protectedProcedure
     // Загрузка контекста
     const loader = chatRegistry.getLoader(entityType);
     if (!loader) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Не удалось загрузить контекст",
       });
@@ -160,7 +160,7 @@ export const sendMessage = protectedProcedure
 
     const context = await loader.loadContext(ctx.db, entityId);
     if (!context) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Сущность не найдена",
       });
@@ -175,7 +175,7 @@ export const sendMessage = protectedProcedure
     let session = existingSession;
 
     if (!session && sessionId) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Сессия чата не найдена",
       });
@@ -205,7 +205,7 @@ export const sendMessage = protectedProcedure
         .returning();
 
       if (!upsertedSession) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Не удалось создать сессию чата",
         });
@@ -231,7 +231,7 @@ export const sendMessage = protectedProcedure
     // Построение промпта
     const promptConfig = chatRegistry.getPromptConfig(entityType);
     if (!promptConfig) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Не удалось загрузить конфигурацию промпта",
       });
@@ -340,8 +340,8 @@ export const sendMessage = protectedProcedure
       };
     } catch (error) {
       console.error(`[${entityType}-ai-chat] Error:`, error);
-      if (error instanceof TRPCError) throw error;
-      throw new TRPCError({
+      if (error instanceof ORPCError) throw error;
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Не удалось получить ответ от AI. Попробуйте ещё раз.",
       });

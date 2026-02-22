@@ -1,4 +1,4 @@
-import type { TRPCRouterRecord } from "@trpc/server";
+import type { ORPCRouterRecord } from "@orpc/server";
 
 import { create } from "./create";
 import { deleteDraft } from "./delete";
@@ -18,4 +18,4 @@ export const draftRouter = {
   create,
   update,
   delete: deleteDraft,
-} satisfies TRPCRouterRecord;
+} satisfies ORPCRouterRecord;

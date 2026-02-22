@@ -1,8 +1,8 @@
 import { and, eq } from "@qbs-autonaim/db";
 import { response as responseTable } from "@qbs-autonaim/db/schema";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { publicProcedure } from "../../../trpc";
+import { publicProcedure } from "../../../orpc";
 import {
   hasVacancyAccess,
   validateInterviewToken,
@@ -26,7 +26,7 @@ export const checkDuplicateResponse = publicProcedure
     const isAuthenticated = !!ctx.session?.user;
 
     if (!hasTokenAccess && !isAuthenticated) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "UNAUTHORIZED",
         message: "Требуется авторизация или валидный токен интервью",
       });
@@ -39,7 +39,7 @@ export const checkDuplicateResponse = publicProcedure
       });
 
       if (!vacancy) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "NOT_FOUND",
           message: "Вакансия не найдена",
         });
@@ -56,7 +56,7 @@ export const checkDuplicateResponse = publicProcedure
         });
 
         if (!workspaceMember) {
-          throw new TRPCError({
+          throw new ORPCError({
             code: "FORBIDDEN",
             message: "Нет доступа к этой вакансии",
           });

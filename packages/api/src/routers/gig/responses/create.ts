@@ -6,10 +6,10 @@ import {
   response as responseTable,
 } from "@qbs-autonaim/db/schema";
 import { phoneSchema, workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { CandidateService } from "../../../services/candidate.service";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 const createResponseSchema = z.object({
   gigId: z.uuid(),
@@ -40,7 +40,7 @@ export const create = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому workspace",
       });
@@ -55,7 +55,7 @@ export const create = protectedProcedure
     });
 
     if (!existingGig) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Задание не найдено",
       });
@@ -68,7 +68,7 @@ export const create = protectedProcedure
     });
 
     if (!workspaceData) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Workspace не найден",
       });
@@ -84,7 +84,7 @@ export const create = protectedProcedure
     });
 
     if (existingResponse) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "CONFLICT",
         message: "Отклик от этого кандидата уже существует",
       });
@@ -179,7 +179,7 @@ export const create = protectedProcedure
         (error.message.includes("unique constraint") ||
           error.message.includes("duplicate key"))
       ) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "CONFLICT",
           message: "Отклик от этого кандидата уже существует",
         });
@@ -188,7 +188,7 @@ export const create = protectedProcedure
     }
 
     if (!newResponse) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Не удалось создать отклик",
       });

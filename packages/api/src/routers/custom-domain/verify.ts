@@ -3,9 +3,9 @@ import { env } from "@qbs-autonaim/config";
 import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { customDomain } from "@qbs-autonaim/db/schema";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 async function checkDNSRecords(domain: string): Promise<boolean> {
   try {
@@ -50,14 +50,14 @@ export const verify = protectedProcedure
     });
 
     if (!domain) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Домен не найден",
       });
     }
 
     if (!domain.workspace) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message: "Невозможно верифицировать предустановленный домен",
       });
@@ -65,7 +65,7 @@ export const verify = protectedProcedure
 
     const member = domain.workspace.members[0];
     if (!member || (member.role !== "owner" && member.role !== "admin")) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Недостаточно прав для верификации домена",
       });
@@ -78,7 +78,7 @@ export const verify = protectedProcedure
     const isValid = await checkDNSRecords(domain.domain);
 
     if (!isValid) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message: "DNS записи не настроены корректно",
       });

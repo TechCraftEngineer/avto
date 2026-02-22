@@ -6,7 +6,7 @@ import {
 import { z } from "zod";
 import { ContactCandidateSyncService } from "../../../services/contact-candidate-sync.service";
 import { ResponseParser } from "../../../services/response-parser";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 import { createErrorHandler } from "../../../utils/error-handler";
 
 const importBulkResponsesInputSchema = z.object({

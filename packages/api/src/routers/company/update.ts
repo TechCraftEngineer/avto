@@ -1,8 +1,8 @@
 import { botSettings, eq } from "@qbs-autonaim/db";
 import { companyFormSchema, workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const update = protectedProcedure
   .input(
@@ -19,7 +19,7 @@ export const update = protectedProcedure
     );
 
     if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Недостаточно прав для изменения настроек компании",
       });

@@ -1,9 +1,9 @@
-п»їimport { and, eq, sql } from "@qbs-autonaim/db";
+import { and, eq, sql } from "@qbs-autonaim/db";
 import { gig, response as responseTable } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const accept = protectedProcedure
   .input(
@@ -19,9 +19,9 @@ export const accept = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
-        message: "РќРµС‚ РґРѕСЃС‚СѓРїР° Рє СЌС‚РѕРјСѓ workspace",
+        message: "Нет доступа к этому workspace",
       });
     }
 
@@ -33,9 +33,9 @@ export const accept = protectedProcedure
     });
 
     if (!response) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
-        message: "РћС‚РєР»РёРє РЅРµ РЅР°Р№РґРµРЅ",
+        message: "Отклик не найден",
       });
     }
 
@@ -47,9 +47,9 @@ export const accept = protectedProcedure
     });
 
     if (!existingGig) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
-        message: "РќРµС‚ РґРѕСЃС‚СѓРїР° Рє СЌС‚РѕРјСѓ РѕС‚РєР»РёРєСѓ",
+        message: "Нет доступа к этому отклику",
       });
     }
 
@@ -65,7 +65,7 @@ export const accept = protectedProcedure
       .where(eq(responseTable.id, input.responseId))
       .returning();
 
-    // Р•СЃР»Рё РѕС‚РєР»РёРє Р±С‹Р» NEW, СѓРјРµРЅСЊС€Р°РµРј СЃС‡РµС‚С‡РёРє РЅРѕРІС‹С… РѕС‚РєР»РёРєРѕРІ
+    // Если отклик был NEW, уменьшаем счетчик новых откликов
     if (wasNew) {
       await ctx.db
         .update(gig)

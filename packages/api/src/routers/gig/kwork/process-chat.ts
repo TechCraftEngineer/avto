@@ -2,9 +2,9 @@ import { and, eq } from "@qbs-autonaim/db";
 import { gig, response as responseTable } from "@qbs-autonaim/db/schema";
 import { inngest } from "@qbs-autonaim/jobs/client";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 /**
  * Запуск обработки Kwork-чата для отклика (опрос новых сообщений и автоответ AI)
@@ -23,7 +23,7 @@ export const processChat = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к workspace",
       });
@@ -37,7 +37,7 @@ export const processChat = protectedProcedure
     });
 
     if (!response) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Отклик не найден",
       });
@@ -51,14 +51,14 @@ export const processChat = protectedProcedure
     });
 
     if (!gigRecord) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому отклику",
       });
     }
 
     if (response.importSource !== "KWORK") {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message: "Отклик не с Kwork",
       });
@@ -69,7 +69,7 @@ export const processChat = protectedProcedure
       | null
       | undefined;
     if (!profileData?.kworkWorkerId) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message: "У отклика нет Kwork worker ID",
       });

@@ -6,14 +6,14 @@ import {
   vacancy,
 } from "@qbs-autonaim/db/schema";
 import { uuidv7Schema, workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import {
   getMetaMatchStatus,
   getRiskFlags,
   getSummaryLabels,
 } from "../../services/meta-match/evaluator";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 import { verifyWorkspaceAccess } from "../../utils/verify-workspace-access";
 
 const getLatestInputSchema = z.object({
@@ -36,7 +36,7 @@ export const getLatest = protectedProcedure
     });
 
     if (!response) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Кандидат не найден",
       });
@@ -48,7 +48,7 @@ export const getLatest = protectedProcedure
     });
 
     if (!vacancyData || vacancyData.workspaceId !== input.workspaceId) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому кандидату",
       });

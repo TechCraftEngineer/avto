@@ -1,9 +1,9 @@
 import { and, eq, not } from "@qbs-autonaim/db";
 import { gig } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const toggleActive = protectedProcedure
   .input(
@@ -19,7 +19,7 @@ export const toggleActive = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому workspace",
       });
@@ -37,7 +37,7 @@ export const toggleActive = protectedProcedure
       .returning({ id: gig.id, title: gig.title, isActive: gig.isActive });
 
     if (!updated) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Задание не найдено",
       });

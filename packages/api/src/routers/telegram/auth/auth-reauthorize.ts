@@ -1,9 +1,9 @@
 import { and, eq } from "@qbs-autonaim/db";
 import { telegramSession } from "@qbs-autonaim/db/schema";
 import { tgClientSDK } from "@qbs-autonaim/tg-client/sdk";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 import { handle2FAError, normalizePhone } from "../utils";
 
 export const reauthorizeSessionRouter = protectedProcedure
@@ -58,7 +58,7 @@ export const reauthorizeSessionRouter = protectedProcedure
         .returning();
 
       if (updated.length === 0) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "NOT_FOUND",
           message: "Сессия не найдена",
         });
@@ -80,7 +80,7 @@ export const reauthorizeSessionRouter = protectedProcedure
         };
       }
 
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message:
           error instanceof Error ? error.message : "Ошибка реавторизации",

@@ -3,7 +3,7 @@ import { env } from "@qbs-autonaim/config";
 import { interviewMessage } from "@qbs-autonaim/db/schema";
 import { messageBufferService } from "@qbs-autonaim/jobs/services/buffer";
 import type { BufferedMessage } from "@qbs-autonaim/shared";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { createErrorHandler } from "../../../utils/error-handler";
 import { withInterviewAccess } from "../../../utils/interview-access-middleware";
@@ -148,7 +148,7 @@ export const sendChatMessage = withInterviewAccess
       };
     } catch (error) {
       // Пробрасываем TRPC ошибки как есть
-      if (error instanceof TRPCError) {
+      if (error instanceof ORPCError) {
         throw error;
       }
       // Все остальные ошибки обрабатываем через errorHandler

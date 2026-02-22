@@ -1,13 +1,13 @@
 import { getRateLimitStats } from "@qbs-autonaim/server-utils";
-import { TRPCError } from "@trpc/server";
-import { publicProcedure } from "../../trpc";
+import { ORPCError } from "@orpc/server";
+import { publicProcedure } from "../../orpc";
 
 /**
  * Получить статистику rate limiting (только для dev)
  */
 export const rateLimitStats = publicProcedure.query(async () => {
   if (process.env.NODE_ENV === "production") {
-    throw new TRPCError({
+    throw new ORPCError({
       code: "FORBIDDEN",
       message: "Доступно только в dev режиме",
     });

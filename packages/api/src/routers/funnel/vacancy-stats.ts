@@ -1,8 +1,8 @@
-п»їimport { and, eq, inArray } from "@qbs-autonaim/db";
+import { and, eq, inArray } from "@qbs-autonaim/db";
 import { response as responseTable, vacancy } from "@qbs-autonaim/db/schema";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 import { mapResponseToStage } from "./map-response-stage";
 
 export const vacancyStats = protectedProcedure
@@ -20,9 +20,9 @@ export const vacancyStats = protectedProcedure
     const workspaceVacancyIds = new Set(vacancies.map((v) => v.id));
 
     if (input.vacancyId && !workspaceVacancyIds.has(input.vacancyId)) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
-        message: "Р’Р°РєР°РЅСЃРёСЏ РЅРµ РЅР°Р№РґРµРЅР° РІ СѓРєР°Р·Р°РЅРЅРѕРј workspace",
+        message: "Вакансия не найдена в указанном workspace",
       });
     }
 
@@ -55,7 +55,7 @@ export const vacancyStats = protectedProcedure
 
     for (const response of responses) {
       const vacancyData = vacancies.find((v) => v.id === response.entityId);
-      const vacancyName = vacancyData?.title ?? "РќРµРёР·РІРµСЃС‚РЅР°СЏ РІР°РєР°РЅСЃРёСЏ";
+      const vacancyName = vacancyData?.title ?? "Неизвестная вакансия";
 
       const stage = mapResponseToStage(
         response.status,

@@ -1,8 +1,8 @@
 import { telegramSession } from "@qbs-autonaim/db/schema";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const getSessionStatusRouter = protectedProcedure
   .input(z.object({ sessionId: z.string(), workspaceId: z.string() }))
@@ -19,7 +19,7 @@ export const getSessionStatusRouter = protectedProcedure
       .limit(1);
 
     if (!session) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Сессия не найдена",
       });

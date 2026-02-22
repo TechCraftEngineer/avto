@@ -1,4 +1,4 @@
-import type { TRPCRouterRecord } from "@trpc/server";
+import type { ORPCRouterRecord } from "@orpc/server";
 import { clearHistory } from "./clear-history";
 import { createSession } from "./create-session";
 import { getHistory } from "./get-history";
@@ -11,4 +11,4 @@ export const chatRouter = {
   clearHistory,
   listSessions,
   createSession,
-} satisfies TRPCRouterRecord;
+} satisfies ORPCRouterRecord;

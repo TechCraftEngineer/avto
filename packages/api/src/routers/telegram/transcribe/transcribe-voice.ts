@@ -1,7 +1,7 @@
 import { inngest } from "@qbs-autonaim/jobs/client";
 import { uuidv7Schema } from "@qbs-autonaim/validators";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const transcribeVoiceRouter = protectedProcedure
   .input(

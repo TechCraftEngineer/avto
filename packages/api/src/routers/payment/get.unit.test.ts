@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { randomUUID } from "node:crypto";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { get } from "./get";
 
 /**

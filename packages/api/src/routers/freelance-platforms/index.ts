@@ -1,4 +1,4 @@
-import type { TRPCRouterRecord } from "@trpc/server";
+import type { ORPCRouterRecord } from "@orpc/server";
 // Analytics
 import { getAnalytics } from "./analytics/get-analytics";
 import { getDashboardStats } from "./analytics/get-dashboard-stats";
@@ -88,4 +88,4 @@ export const freelancePlatformsRouter = {
   syncGigResponses,
   syncArchivedVacancyResponses,
   // subscribeToChatMessages, // TODO: Requires wsLink or httpSubscriptionLink setup on client
-} satisfies TRPCRouterRecord;
+} satisfies ORPCRouterRecord;

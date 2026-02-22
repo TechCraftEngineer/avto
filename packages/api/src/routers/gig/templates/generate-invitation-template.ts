@@ -2,10 +2,10 @@ import type { BotSettings } from "@qbs-autonaim/db/schema";
 import { gig as gigTable } from "@qbs-autonaim/db/schema";
 import { streamText } from "@qbs-autonaim/lib/ai";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 const invitationTemplateSchema = z.object({
   text: z.string(),
@@ -134,7 +134,7 @@ export const generateInvitationTemplate = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому workspace",
       });
@@ -147,7 +147,7 @@ export const generateInvitationTemplate = protectedProcedure
     });
 
     if (!gig) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Задание не найдено",
       });
@@ -196,7 +196,7 @@ export const generateInvitationTemplate = protectedProcedure
           "[generate-invitation-template] No JSON found in response:",
           fullText.substring(0, 500),
         );
-        throw new TRPCError({
+        throw new ORPCError({
           code: "INTERNAL_SERVER_ERROR",
           message:
             "AI не вернул валидный JSON. Попробуйте переформулировать запрос.",
@@ -216,7 +216,7 @@ export const generateInvitationTemplate = protectedProcedure
           "[generate-invitation-template] JSON parse error:",
           parseError,
         );
-        throw new TRPCError({
+        throw new ORPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Не удалось распарсить ответ от AI. Попробуйте ещё раз.",
         });
@@ -228,7 +228,7 @@ export const generateInvitationTemplate = protectedProcedure
           "[generate-invitation-template] Validation error:",
           validationResult.error,
         );
-        throw new TRPCError({
+        throw new ORPCError({
           code: "INTERNAL_SERVER_ERROR",
           message:
             "AI вернул данные в неожиданном формате. Попробуйте ещё раз.",
@@ -257,8 +257,8 @@ export const generateInvitationTemplate = protectedProcedure
       };
     } catch (error) {
       console.error("[generate-invitation-template] Error:", error);
-      if (error instanceof TRPCError) throw error;
-      throw new TRPCError({
+      if (error instanceof ORPCError) throw error;
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message:
           "Не удалось сгенерировать шаблон приглашения. Попробуйте позже.",

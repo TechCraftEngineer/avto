@@ -7,10 +7,10 @@ import {
   vacancy,
 } from "@qbs-autonaim/db/schema";
 import { uuidv7Schema, workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { evaluateMetaMatch } from "../../services/meta-match/evaluator";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 import { verifyWorkspaceAccess } from "../../utils/verify-workspace-access";
 
 const evaluateCandidateInputSchema = z.object({
@@ -37,7 +37,7 @@ export const evaluateCandidate = protectedProcedure
   .input(evaluateCandidateInputSchema)
   .mutation(async ({ ctx, input }) => {
     if (!input.consentGranted) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message: "Нет согласия кандидата на обработку даты рождения",
       });
@@ -60,7 +60,7 @@ export const evaluateCandidate = protectedProcedure
     });
 
     if (!response) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Кандидат не найден",
       });
@@ -79,14 +79,14 @@ export const evaluateCandidate = protectedProcedure
         columns: { id: true, workspaceId: true },
       });
     } else {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message: `Неподдерживаемый тип сущности: ${response.entityType}, entityId: ${response.entityId}`,
       });
     }
 
     if (!entityData || entityData.workspaceId !== input.workspaceId) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому кандидату",
       });
@@ -102,7 +102,7 @@ export const evaluateCandidate = protectedProcedure
     }
 
     if (!resolvedBirthDate) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message: "Дата рождения не указана",
       });
@@ -134,7 +134,7 @@ export const evaluateCandidate = protectedProcedure
       .returning();
 
     if (!report) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Не удалось создать отчет о мета-матче",
       });

@@ -2,9 +2,9 @@ import { eq } from "@qbs-autonaim/db";
 import { telegramSession } from "@qbs-autonaim/db/schema";
 import { encryptApiKeys, getEncryptionKey } from "@qbs-autonaim/server-utils";
 import { tgClientSDK } from "@qbs-autonaim/tg-client/sdk";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 import { handle2FAError, normalizePhone } from "../utils";
 
 export const signInRouter = protectedProcedure
@@ -26,7 +26,7 @@ export const signInRouter = protectedProcedure
       });
 
       if (existingSession) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "CONFLICT",
           message:
             "В этом workspace уже подключен Telegram аккаунт. Удалите существующий аккаунт перед добавлением нового.",
@@ -91,7 +91,7 @@ export const signInRouter = protectedProcedure
         };
       }
 
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: error instanceof Error ? error.message : "Ошибка авторизации",
       });

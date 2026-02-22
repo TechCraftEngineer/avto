@@ -3,9 +3,9 @@ import {
   saveHHPendingVerificationCode,
 } from "@qbs-autonaim/db";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 const saveHH2FACodeSchema = z.object({
   workspaceId: workspaceIdSchema,
@@ -25,7 +25,7 @@ export const saveHH2FACode = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к workspace",
       });
@@ -33,7 +33,7 @@ export const saveHH2FACode = protectedProcedure
 
     const existing = await getIntegration(ctx.db, "hh", input.workspaceId);
     if (!existing) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Интеграция HH не найдена. Запросите код заново.",
       });

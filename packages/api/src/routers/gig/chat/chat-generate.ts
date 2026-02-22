@@ -1,9 +1,9 @@
 import type { BotSettings } from "@qbs-autonaim/db/schema";
 import { streamText } from "@qbs-autonaim/lib/ai";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 const aiResponseSchema = z.object({
   title: z.string().optional(),
@@ -182,7 +182,7 @@ export const chatGenerate = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому workspace",
       });
@@ -217,7 +217,7 @@ export const chatGenerate = protectedProcedure
           "[gig.chatGenerate] Failed to extract JSON from:",
           fullText,
         );
-        throw new TRPCError({
+        throw new ORPCError({
           code: "INTERNAL_SERVER_ERROR",
           message:
             "AI не вернул валидный JSON. Попробуйте переформулировать запрос.",
@@ -253,8 +253,8 @@ export const chatGenerate = protectedProcedure
       return response;
     } catch (error) {
       console.error("[gig.chatGenerate] Error:", error);
-      if (error instanceof TRPCError) throw error;
-      throw new TRPCError({
+      if (error instanceof ORPCError) throw error;
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Не удалось сгенерировать задание. Попробуйте позже.",
       });

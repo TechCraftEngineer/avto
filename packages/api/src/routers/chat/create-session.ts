@@ -4,11 +4,11 @@ import {
   chatSession,
   vacancy,
 } from "@qbs-autonaim/db/schema";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { CommunicationChannelsAnalytics } from "../../services/analytics/communication-channels";
 import { chatRegistry } from "../../services/chat/registry";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const createSession = protectedProcedure
   .input(
@@ -37,7 +37,7 @@ export const createSession = protectedProcedure
     const userId = ctx.session.user.id;
 
     if (!chatRegistry.isRegistered(entityType)) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message: `Тип сущности ${entityType} не поддерживается`,
       });
@@ -57,7 +57,7 @@ export const createSession = protectedProcedure
       .returning();
 
     if (!session) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Не удалось создать сессию чата",
       });

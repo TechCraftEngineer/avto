@@ -1,8 +1,8 @@
 import type { InterviewSessionMetadata } from "@qbs-autonaim/db/schema";
 import { messageBufferService } from "@qbs-autonaim/jobs/services/buffer";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { publicProcedure } from "../../../trpc";
+import { publicProcedure } from "../../../orpc";
 
 const getWebInterviewStatusInputSchema = z.object({
   interviewSessionId: z.string().uuid(),
@@ -18,7 +18,7 @@ export const getWebInterviewStatus = publicProcedure
     });
 
     if (!session) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Интервью не найдено",
       });

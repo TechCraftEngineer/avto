@@ -2,9 +2,9 @@ import { and, eq } from "@qbs-autonaim/db";
 import { response as responseTable } from "@qbs-autonaim/db/schema";
 import { InterviewLinkGenerator } from "@qbs-autonaim/shared/server";
 import { phoneSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { publicProcedure } from "../../../trpc";
+import { publicProcedure } from "../../../orpc";
 
 const platformProfileUrlSchema = z
   .string()
@@ -33,7 +33,7 @@ export const startInterview = publicProcedure
     const interviewLink = await linkGenerator.validateLink(input.token);
 
     if (!interviewLink) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Ссылка на интервью недействительна или истекла",
       });
@@ -45,7 +45,7 @@ export const startInterview = publicProcedure
     });
 
     if (!vacancy || !vacancy.isActive) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message: "Вакансия закрыта",
       });
@@ -61,7 +61,7 @@ export const startInterview = publicProcedure
     });
 
     if (existingResponse) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "CONFLICT",
         message: "Вы уже откликнулись на эту вакансию",
       });
@@ -90,7 +90,7 @@ export const startInterview = publicProcedure
       .returning();
 
     if (!response) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Не удалось создать отклик",
       });

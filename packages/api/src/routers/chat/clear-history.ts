@@ -5,7 +5,7 @@ import {
   chatSession,
 } from "@qbs-autonaim/db/schema";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const clearHistory = protectedProcedure
   .input(

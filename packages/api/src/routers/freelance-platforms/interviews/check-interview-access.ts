@@ -1,6 +1,6 @@
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { publicProcedure } from "../../../trpc";
+import { publicProcedure } from "../../../orpc";
 import {
   hasInterviewAccess,
   validateInterviewToken,
@@ -26,7 +26,7 @@ export const checkInterviewAccess = publicProcedure
     );
 
     if (!hasAccess) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому интервью",
       });
@@ -44,7 +44,7 @@ export const checkInterviewAccess = publicProcedure
     });
 
     if (!session) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Интервью не найдено",
       });

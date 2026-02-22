@@ -6,7 +6,7 @@
  */
 
 import { getAIModel, langfuse } from "@qbs-autonaim/lib/ai";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { SessionManager } from "../../services/prequalification";
 import { PrequalificationError } from "../../services/prequalification/types";
@@ -14,7 +14,7 @@ import {
   ResumeParserError,
   ResumeParserService,
 } from "../../services/resume-parser";
-import { publicProcedure } from "../../trpc";
+import { publicProcedure } from "../../orpc";
 
 const uploadResumeInputSchema = z.object({
   sessionId: z.uuid("sessionId должен быть UUID"),
@@ -40,14 +40,14 @@ export const uploadResume = publicProcedure
     );
 
     if (!session) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Сессия не найдена",
       });
     }
 
     if (session.status !== "resume_pending") {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message: `Загрузка резюме недоступна в статусе: ${session.status}`,
       });
@@ -62,7 +62,7 @@ export const uploadResume = publicProcedure
     // Validate file format
     const validation = resumeParser.validateFormat(input.filename);
     if (!validation.isValid) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message: validation.error ?? "Неподдерживаемый формат файла",
       });
@@ -96,7 +96,7 @@ export const uploadResume = publicProcedure
       };
     } catch (error) {
       if (error instanceof ResumeParserError) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "BAD_REQUEST",
           message: error.userMessage,
           cause: error,
@@ -113,14 +113,14 @@ export const uploadResume = publicProcedure
           TENANT_MISMATCH: "FORBIDDEN",
         };
 
-        throw new TRPCError({
+        throw new ORPCError({
           code: codeMap[error.code] ?? "INTERNAL_SERVER_ERROR",
           message: error.userMessage,
           cause: error,
         });
       }
 
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Внутренняя ошибка сервера",
         cause: error,

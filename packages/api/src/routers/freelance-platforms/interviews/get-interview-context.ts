@@ -1,6 +1,6 @@
 import { eq } from "@qbs-autonaim/db";
 import { vacancy as vacancyTable } from "@qbs-autonaim/db/schema";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { withInterviewAccess } from "../../../utils/interview-access-middleware";
 
@@ -24,7 +24,7 @@ export const getInterviewContext = withInterviewAccess
     });
 
     if (!session || !session.response) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Интервью не найдено",
       });
@@ -75,7 +75,7 @@ export const getInterviewContext = withInterviewAccess
       }
     }
 
-    throw new TRPCError({
+    throw new ORPCError({
       code: "NOT_FOUND",
       message: "Информация о вакансии или задании не найдена",
     });

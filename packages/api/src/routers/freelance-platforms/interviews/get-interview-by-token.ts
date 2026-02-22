@@ -1,6 +1,6 @@
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { publicProcedure } from "../../../trpc";
+import { publicProcedure } from "../../../orpc";
 
 const getInterviewByTokenInputSchema = z.object({
   token: z.string().min(1),
@@ -21,7 +21,7 @@ export const getInterviewByToken = publicProcedure
     });
 
     if (!link) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Ссылка на интервью недействительна или истекла",
       });
@@ -29,7 +29,7 @@ export const getInterviewByToken = publicProcedure
 
     // Проверяем срок действия
     if (link.expiresAt && link.expiresAt < new Date()) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Ссылка на интервью истекла",
       });
@@ -43,7 +43,7 @@ export const getInterviewByToken = publicProcedure
       });
 
       if (!foundGig) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "NOT_FOUND",
           message: "Задание не найдено",
         });
@@ -80,7 +80,7 @@ export const getInterviewByToken = publicProcedure
       });
 
       if (!foundResponse) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "NOT_FOUND",
           message: "Отклик не найден",
         });
@@ -133,7 +133,7 @@ export const getInterviewByToken = publicProcedure
     });
 
     if (!foundVacancy) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Вакансия не найдена",
       });

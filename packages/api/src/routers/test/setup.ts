@@ -6,9 +6,9 @@ import {
   workspace,
   workspaceMember,
 } from "@qbs-autonaim/db/schema";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { publicProcedure } from "../../trpc";
+import { publicProcedure } from "../../orpc";
 import { cleanupTestUser } from "./utils";
 
 // Только в development/test режиме
@@ -27,14 +27,14 @@ export const setup = publicProcedure
   )
   .mutation(async ({ input, ctx }) => {
     if (!isTestMode) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Тестовые эндпоинты доступны только в режиме разработки",
       });
     }
 
     if (!ctx.authApi) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Auth API недоступен",
       });
@@ -63,7 +63,7 @@ export const setup = publicProcedure
       });
 
       if (!signUpResult) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Не удалось создать пользователя",
         });
@@ -75,7 +75,7 @@ export const setup = publicProcedure
       });
 
       if (!userRecord) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Пользователь не найден после создания",
         });
@@ -99,7 +99,7 @@ export const setup = publicProcedure
 
       const org = orgResult[0];
       if (!org) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Не удалось создать организацию",
         });
@@ -128,7 +128,7 @@ export const setup = publicProcedure
 
       const ws = wsResult[0];
       if (!ws) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Не удалось создать воркспейс",
         });
@@ -160,7 +160,7 @@ export const setup = publicProcedure
         dashboardUrl: `/orgs/${org.slug}/workspaces/${ws.slug}`,
       };
     } catch (error) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Ошибка при создании тестового пользователя",
         cause: error,

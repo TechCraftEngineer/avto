@@ -1,5 +1,5 @@
 import { DraftService } from "../../services/draft.service";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 /**
  * Получить активный черновик текущего пользователя

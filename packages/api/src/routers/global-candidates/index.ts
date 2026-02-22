@@ -1,4 +1,4 @@
-import type { TRPCRouterRecord } from "@trpc/server";
+import type { ORPCRouterRecord } from "@orpc/server";
 import { get } from "./get";
 import { list } from "./list";
 import { updateStatus } from "./update-status";
@@ -9,4 +9,4 @@ export const globalCandidatesRouter = {
   get,
   updateStatus,
   updateTags,
-} satisfies TRPCRouterRecord;
+} satisfies ORPCRouterRecord;

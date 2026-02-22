@@ -6,7 +6,7 @@
  * так как используются виджетом на внешних сайтах.
  */
 
-import type { TRPCRouterRecord } from "@trpc/server";
+import type { ORPCRouterRecord } from "@orpc/server";
 
 import { createSession } from "./create-session";
 import { getResult } from "./get-result";
@@ -22,4 +22,4 @@ export const prequalificationRouter = {
   sendMessage,
   getResult,
   submitApplication,
-} satisfies TRPCRouterRecord;
+} satisfies ORPCRouterRecord;

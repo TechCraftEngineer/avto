@@ -4,9 +4,9 @@ import {
   platformSourceValues,
 } from "@qbs-autonaim/db/schema";
 import { parsePlatformLink } from "@qbs-autonaim/shared";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 const createGigSchema = z.object({
   workspaceId: z.string().min(1),
@@ -35,7 +35,7 @@ export const create = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к workspace",
       });
@@ -87,7 +87,7 @@ export const create = protectedProcedure
       .returning();
 
     if (!newGig) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Не удалось создать задание",
       });

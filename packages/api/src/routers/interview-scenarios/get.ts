@@ -1,8 +1,8 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq } from "@qbs-autonaim/db";
 import { interviewScenario } from "@qbs-autonaim/db/schema";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const get = protectedProcedure
   .input(
@@ -11,24 +11,23 @@ export const get = protectedProcedure
       workspaceId: z.string(),
     }),
   )
-  .query(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     const { id, workspaceId } = input;
 
     // Проверяем доступ к workspace
-    const hasAccess = await ctx.workspaceRepository.checkAccess(
+    const hasAccess = await context.workspaceRepository.checkAccess(
       workspaceId,
-      ctx.session.user.id,
+      context.session.user.id,
     );
 
     if (!hasAccess) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
+      throw new ORPCError("FORBIDDEN", {
         message: "Нет доступа к workspace",
       });
     }
 
     // Получаем сценарий
-    const scenario = await ctx.db.query.interviewScenario.findFirst({
+    const scenario = await context.db.query.interviewScenario.findFirst({
       where: and(
         eq(interviewScenario.id, id),
         eq(interviewScenario.workspaceId, workspaceId),
@@ -37,8 +36,7 @@ export const get = protectedProcedure
     });
 
     if (!scenario) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
+      throw new ORPCError("NOT_FOUND", {
         message: "Сценарий не найден",
       });
     }

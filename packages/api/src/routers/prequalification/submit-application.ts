@@ -18,14 +18,14 @@ import {
   response as responseTable,
   vacancy,
 } from "@qbs-autonaim/db/schema";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { nanoid } from "nanoid";
 import { z } from "zod";
 import { CandidateService } from "../../services/candidate.service";
 import { ContactCandidateSyncService } from "../../services/contact-candidate-sync.service";
 import { SessionManager } from "../../services/prequalification";
 import { PrequalificationError } from "../../services/prequalification/types";
-import { publicProcedure } from "../../trpc";
+import { publicProcedure } from "../../orpc";
 
 const submitApplicationInputSchema = z.object({
   sessionId: z.uuid("sessionId должен быть UUID"),
@@ -62,7 +62,7 @@ export const submitApplication = publicProcedure
     );
 
     if (!session) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Сессия не найдена",
       });
@@ -70,7 +70,7 @@ export const submitApplication = publicProcedure
 
     // Verify session is in completed status
     if (session.status !== "completed") {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message: `Подача заявки недоступна в статусе: ${session.status}`,
       });
@@ -78,7 +78,7 @@ export const submitApplication = publicProcedure
 
     // Verify candidate can proceed (not_fit cannot submit)
     if (session.fitDecision === "not_fit") {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message:
           "К сожалению, ваш профиль не соответствует требованиям вакансии",
@@ -87,7 +87,7 @@ export const submitApplication = publicProcedure
 
     // Check if already submitted
     if (session.responseId) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message: "Заявка уже была подана",
       });
@@ -349,7 +349,7 @@ export const submitApplication = publicProcedure
           ALREADY_SUBMITTED: "BAD_REQUEST",
         };
 
-        throw new TRPCError({
+        throw new ORPCError({
           code: codeMap[error.code] ?? "INTERNAL_SERVER_ERROR",
           message: error.userMessage,
           cause: error,

@@ -10,7 +10,7 @@ import {
 } from "@qbs-autonaim/db";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 import { verifyWorkspaceAccess } from "../utils";
 
 export const getAllConversationsRouter = protectedProcedure

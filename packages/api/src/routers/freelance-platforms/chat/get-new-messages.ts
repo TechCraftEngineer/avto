@@ -1,6 +1,6 @@
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { publicProcedure } from "../../../trpc";
+import { publicProcedure } from "../../../orpc";
 
 const getNewMessagesInputSchema = z.object({
   interviewSessionId: z.string().uuid(),
@@ -17,7 +17,7 @@ export const getNewMessages = publicProcedure
     });
 
     if (!session) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Интервью не найдено",
       });

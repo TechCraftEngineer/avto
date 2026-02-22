@@ -1,8 +1,8 @@
 import { and, eq } from "@qbs-autonaim/db";
 import { candidateOrganization } from "@qbs-autonaim/db/schema";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const updateTags = protectedProcedure
   .input(
@@ -20,7 +20,7 @@ export const updateTags = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к организации",
       });
@@ -35,7 +35,7 @@ export const updateTags = protectedProcedure
     });
 
     if (!existingLink) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Кандидат не найден в базе организации",
       });
@@ -49,7 +49,7 @@ export const updateTags = protectedProcedure
       .returning();
 
     if (!updated) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Не удалось обновить теги кандидата",
       });

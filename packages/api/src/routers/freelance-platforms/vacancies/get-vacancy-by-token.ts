@@ -1,7 +1,7 @@
 import { InterviewLinkGenerator } from "@qbs-autonaim/shared/server";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { publicProcedure } from "../../../trpc";
+import { publicProcedure } from "../../../orpc";
 
 const getVacancyByTokenInputSchema = z.object({
   token: z.string().min(1),
@@ -14,7 +14,7 @@ export const getVacancyByToken = publicProcedure
     const linkGenerator = new InterviewLinkGenerator();
     const interviewLink = await linkGenerator.validateLink(input.token);
     if (!interviewLink) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Ссылка на интервью недействительна или истекла",
       });
@@ -26,7 +26,7 @@ export const getVacancyByToken = publicProcedure
     });
 
     if (!vacancy) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Вакансия не найдена",
       });
@@ -34,7 +34,7 @@ export const getVacancyByToken = publicProcedure
 
     // Проверяем, что вакансия активна
     if (!vacancy.isActive) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message: "Вакансия закрыта",
       });

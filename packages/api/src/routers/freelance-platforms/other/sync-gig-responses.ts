@@ -1,8 +1,8 @@
 import { inngest } from "@qbs-autonaim/jobs/client";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 const syncGigResponsesInputSchema = z.object({
   workspaceId: workspaceIdSchema,
@@ -19,7 +19,7 @@ export const syncGigResponses = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к workspace",
       });
@@ -32,7 +32,7 @@ export const syncGigResponses = protectedProcedure
     });
 
     if (!gigRecord) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Задание не найдено",
       });
@@ -40,7 +40,7 @@ export const syncGigResponses = protectedProcedure
 
     // Проверяем, что у gig есть ссылка на фриланс-платформу
     if (!gigRecord.url || !gigRecord.externalId) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message: "У задания нет ссылки на фриланс-платформу",
       });

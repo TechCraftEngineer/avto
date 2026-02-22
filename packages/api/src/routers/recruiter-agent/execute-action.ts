@@ -12,9 +12,9 @@
 
 import { getActionExecutor, type RuleActionType } from "@qbs-autonaim/ai";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 import {
   checkActionPermission,
   checkRateLimit,
@@ -83,7 +83,7 @@ export const executeAction = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к workspace",
       });
@@ -110,7 +110,7 @@ export const executeAction = protectedProcedure
     );
 
     if (!hasPermission) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет прав на выполнение этого действия",
       });
@@ -121,7 +121,7 @@ export const executeAction = protectedProcedure
     const canProceed = await checkRateLimit(rateLimitKey, 100, 3600);
 
     if (!canProceed) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "TOO_MANY_REQUESTS",
         message: "Превышен лимит действий. Попробуйте через час.",
       });
@@ -201,7 +201,7 @@ export const executeAction = protectedProcedure
       const errorMessage =
         error instanceof Error ? error.message : "Неизвестная ошибка";
 
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: `Не удалось выполнить действие: ${errorMessage}`,
       });
@@ -224,7 +224,7 @@ export const undoAction = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к workspace",
       });
@@ -239,7 +239,7 @@ export const undoAction = protectedProcedure
     );
 
     if (!hasPermission) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет прав на отмену действия",
       });
@@ -249,7 +249,7 @@ export const undoAction = protectedProcedure
 
     // Проверяем, можно ли отменить действие
     if (!actionExecutor.canUndoAction(actionId)) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message: "Действие не может быть отменено",
       });
@@ -262,7 +262,7 @@ export const undoAction = protectedProcedure
       );
 
       if (!result.success) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "BAD_REQUEST",
           message: result.error ?? "Не удалось отменить действие",
         });
@@ -288,12 +288,12 @@ export const undoAction = protectedProcedure
         message: "Действие успешно отменено",
       };
     } catch (error) {
-      if (error instanceof TRPCError) throw error;
+      if (error instanceof ORPCError) throw error;
 
       const errorMessage =
         error instanceof Error ? error.message : "Неизвестная ошибка";
 
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: `Не удалось отменить действие: ${errorMessage}`,
       });
@@ -316,7 +316,7 @@ export const approveAction = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к workspace",
       });
@@ -331,7 +331,7 @@ export const approveAction = protectedProcedure
     );
 
     if (!hasPermission) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет прав на подтверждение действия",
       });
@@ -347,7 +347,7 @@ export const approveAction = protectedProcedure
       );
 
       if (!result) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "NOT_FOUND",
           message: "Запрос на подтверждение не найден или истёк",
         });
@@ -379,12 +379,12 @@ export const approveAction = protectedProcedure
         error: result.error,
       };
     } catch (error) {
-      if (error instanceof TRPCError) throw error;
+      if (error instanceof ORPCError) throw error;
 
       const errorMessage =
         error instanceof Error ? error.message : "Неизвестная ошибка";
 
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: `Не удалось подтвердить действие: ${errorMessage}`,
       });

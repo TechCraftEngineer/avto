@@ -7,9 +7,9 @@ import {
 } from "@qbs-autonaim/db";
 import { getDownloadUrl } from "@qbs-autonaim/lib/s3";
 import { uuidv7Schema, workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 import { verifyWorkspaceAccess } from "../utils";
 
 export const getMessagesByConversationIdRouter = protectedProcedure
@@ -31,7 +31,7 @@ export const getMessagesByConversationIdRouter = protectedProcedure
     });
 
     if (!session) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Сессия интервью не найдена",
       });
@@ -50,7 +50,7 @@ export const getMessagesByConversationIdRouter = protectedProcedure
         });
 
         if (!vacancy || vacancy.workspaceId !== input.workspaceId) {
-          throw new TRPCError({
+          throw new ORPCError({
             code: "FORBIDDEN",
             message: "Нет доступа к этой сессии",
           });

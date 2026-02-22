@@ -1,7 +1,7 @@
 import { deleteIntegration } from "@qbs-autonaim/db";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const deleteIntegrationProcedure = protectedProcedure
   .input(z.object({ type: z.string(), workspaceId: z.string() }))
@@ -13,7 +13,7 @@ export const deleteIntegrationProcedure = protectedProcedure
     );
 
     if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Недостаточно прав для удаления интеграций",
       });

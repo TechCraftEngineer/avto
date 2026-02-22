@@ -1,7 +1,7 @@
-п»їimport { and, eq, inArray } from "@qbs-autonaim/db";
+import { and, eq, inArray } from "@qbs-autonaim/db";
 import { response as responseTable, vacancy } from "@qbs-autonaim/db/schema";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 import { mapResponseToStage } from "./map-response-stage";
 
 export const analytics = protectedProcedure
@@ -55,7 +55,7 @@ export const analytics = protectedProcedure
 
     const newThisWeek = responses.filter((r) => r.createdAt >= weekAgo).length;
 
-    // РСЃРїРѕР»СЊР·СѓРµРј РµРґРёРЅСѓСЋ С„СѓРЅРєС†РёСЋ РјР°РїРїРёРЅРіР° РґР»СЏ РїРѕРґСЃС‡РµС‚Р°
+    // Используем единую функцию маппинга для подсчета
     const byStage = {
       NEW: 0,
       REVIEW: 0,

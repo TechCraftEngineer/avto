@@ -5,10 +5,10 @@ import {
   response as responseTable,
 } from "@qbs-autonaim/db/schema";
 import { phoneSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { CandidateService } from "../../../services/candidate.service";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 const importSingleResponseInputSchema = z.object({
   vacancyId: z.uuid(),
@@ -45,7 +45,7 @@ export const importSingleResponse = protectedProcedure
       input.contactInfo?.platformProfileUrl;
 
     if (!hasName && !hasContact) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message: "Необходимо указать имя фрилансера или контактную информацию",
       });
@@ -57,7 +57,7 @@ export const importSingleResponse = protectedProcedure
     });
 
     if (!existingVacancy) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Вакансия не найдена",
       });
@@ -70,7 +70,7 @@ export const importSingleResponse = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этой вакансии",
       });
@@ -83,7 +83,7 @@ export const importSingleResponse = protectedProcedure
     });
 
     if (!workspaceData) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Workspace не найден",
       });
@@ -100,7 +100,7 @@ export const importSingleResponse = protectedProcedure
       });
 
       if (existingResponse) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "BAD_REQUEST",
           message: "Отклик от этого фрилансера уже существует",
         });
@@ -192,7 +192,7 @@ export const importSingleResponse = protectedProcedure
       .returning();
 
     if (!createdResponse) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Не удалось создать отклик",
       });

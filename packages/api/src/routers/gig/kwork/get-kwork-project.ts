@@ -4,9 +4,9 @@
  */
 import { getProject } from "@qbs-autonaim/integration-clients";
 import { executeWithKworkTokenRefresh } from "@qbs-autonaim/jobs/services/kwork";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const getKworkProject = protectedProcedure
   .input(
@@ -22,7 +22,7 @@ export const getKworkProject = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к workspace",
       });
@@ -38,7 +38,7 @@ export const getKworkProject = protectedProcedure
       );
     } catch (error) {
       const msg = error instanceof Error ? error.message : "Ошибка Kwork";
-      throw new TRPCError({
+      throw new ORPCError({
         code: "UNAUTHORIZED",
         message:
           msg.includes("авториз") || msg.includes("token")
@@ -48,7 +48,7 @@ export const getKworkProject = protectedProcedure
     }
 
     if (!result.success || !result.response) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message:
           result.error?.message ??
@@ -58,7 +58,7 @@ export const getKworkProject = protectedProcedure
 
     const project = result.response;
     if (!project) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Проект не найден на Kwork",
       });

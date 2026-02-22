@@ -2,7 +2,7 @@ import { and, eq } from "@qbs-autonaim/db";
 import { response, vacancy } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 import { createErrorHandler } from "../../../utils/error-handler";
 
 const deleteVacancyInputSchema = z.object({

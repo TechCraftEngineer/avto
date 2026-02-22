@@ -6,9 +6,9 @@ import {
   responseHistory,
   response as responseTable,
 } from "@qbs-autonaim/db/schema";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const get = protectedProcedure
   .input(
@@ -25,7 +25,7 @@ export const get = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к организации",
       });
@@ -37,7 +37,7 @@ export const get = protectedProcedure
     });
 
     if (!candidate) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Кандидат не найден",
       });
@@ -52,7 +52,7 @@ export const get = protectedProcedure
     });
 
     if (!orgLink) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Кандидат не найден в базе организации",
       });

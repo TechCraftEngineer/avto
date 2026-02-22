@@ -5,11 +5,10 @@
  * Защищённая процедура - требует авторизации.
  */
 
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-
+import { protectedProcedure } from "../../orpc";
 import { AnalyticsError, AnalyticsExporter } from "../../services/analytics";
-import { protectedProcedure } from "../../trpc";
 
 const exportDataInputSchema = z.object({
   workspaceId: z.string().min(1, "workspaceId обязателен"),
@@ -23,7 +22,7 @@ const exportDataInputSchema = z.object({
 
 export const exportData = protectedProcedure
   .input(exportDataInputSchema)
-  .mutation(async ({ ctx, input }) => {
+  .handler(async ({ ctx, input }) => {
     // Verify user has access to workspace
     const membership = await ctx.workspaceRepository.checkAccess(
       input.workspaceId,
@@ -31,7 +30,7 @@ export const exportData = protectedProcedure
     );
 
     if (!membership) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому workspace",
       });
@@ -66,7 +65,7 @@ export const exportData = protectedProcedure
       return exportResult;
     } catch (error) {
       if (error instanceof AnalyticsError) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "BAD_REQUEST",
           message: error.userMessage,
           cause: error,

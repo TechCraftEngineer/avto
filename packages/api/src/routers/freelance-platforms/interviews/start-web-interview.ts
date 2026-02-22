@@ -1,6 +1,6 @@
 import { phoneSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
-import { publicProcedure } from "../../../trpc";
+import { publicProcedure } from "../../../orpc";
 import { createErrorHandler } from "../../../utils/error-handler";
 import { handleGigInterview } from "./handlers/gig-interview";
 import { handleVacancyInterview } from "./handlers/vacancy-interview";

@@ -249,45 +249,45 @@
   - Проверить что мигрированные роутеры работают корректно
   - Задать вопросы пользователю если что-то неясно
 
-- [ ] 18. Миграция остальных роутеров (batch 2: candidate, interview, assessment)
+- [x] 18. Миграция остальных роутеров (batch 2: candidate, interview, assessment)
   - [x] 18.1 Мигрировать candidate роутер
     - Изменить все импорты с tRPC на oRPC
     - Заменить TRPCError на ORPCError
     - Обновить index.ts с ORPCRouterRecord
     - _Requirements: 4.2, 4.5, 12.2, 12.3_
   
-  - [-] 18.2 Мигрировать interview роутер
+  - [x] 18.2 Мигрировать interview роутер
     - Изменить все импорты с tRPC на oRPC
     - Заменить TRPCError на ORPCError
     - Обновить index.ts с ORPCRouterRecord
     - _Requirements: 4.2, 4.5, 12.2, 12.3_
   
-  - [~] 18.3 Мигрировать assessment роутер
+  - [x] 18.3 Мигрировать assessment роутер
     - Изменить все импорты с tRPC на oRPC
     - Заменить TRPCError на ORPCError
     - Обновить index.ts с ORPCRouterRecord
     - _Requirements: 4.2, 4.5, 12.2, 12.3_
   
-  - [~] 18.4 Обновить root-orpc.ts с новыми роутерами
+  - [x] 18.4 Обновить root-orpc.ts с новыми роутерами
     - Добавить candidate, interview, assessment в appRouter
     - _Requirements: 4.2_
   
-  - [~] 18.5 Написать integration тесты для мигрированных роутеров
+  - [x] 18.5 Написать integration тесты для мигрированных роутеров
     - _Requirements: 12.3, 13.4_
 
 - [ ] 19. Миграция остальных роутеров (batch 3: все оставшиеся)
-  - [~] 19.1 Мигрировать оставшиеся роутеры (template, notification, analytics, и т.д.)
+  - [x] 19.1 Мигрировать оставшиеся роутеры (template, notification, analytics, и т.д.)
     - Изменить все импорты с tRPC на oRPC
     - Заменить TRPCError на ORPCError
     - Обновить index.ts с ORPCRouterRecord для каждого
     - _Requirements: 4.2, 4.5, 12.2, 12.3_
   
-  - [~] 19.2 Обновить root-orpc.ts со всеми роутерами
+  - [x] 19.2 Обновить root-orpc.ts со всеми роутерами
     - Добавить все оставшиеся роутеры в appRouter
     - Убедиться что структура идентична root.ts (tRPC версии)
     - _Requirements: 4.2, 4.3_
   
-  - [~] 19.3 Написать сравнительные тесты
+  - [-] 19.3 Написать сравнительные тесты
     - **Property 25: Идентичность API путей**
     - **Property 26: Идентичность сигнатур процедур**
     - **Property 27: Совместимость тестов**

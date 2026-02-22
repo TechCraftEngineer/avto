@@ -1,8 +1,8 @@
 import { eq, telegramSession } from "@qbs-autonaim/db";
 import { tgClientSDK } from "@qbs-autonaim/tg-client/sdk";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const sendUserMessageRouter = protectedProcedure
   .input(
@@ -25,7 +25,7 @@ export const sendUserMessageRouter = protectedProcedure
           });
 
       if (!session) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "NOT_FOUND",
           message: "Telegram сессия не найдена. Пожалуйста, авторизуйтесь.",
         });
@@ -45,7 +45,7 @@ export const sendUserMessageRouter = protectedProcedure
       return result;
     } catch (error) {
       console.error("❌ Ошибка отправки сообщения:", error);
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message:
           error instanceof Error

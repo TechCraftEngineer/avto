@@ -2,9 +2,9 @@ import { and, eq } from "@qbs-autonaim/db";
 import { interviewLink, vacancy } from "@qbs-autonaim/db/schema";
 import { getInterviewUrlFromDb } from "@qbs-autonaim/server-utils";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 const getInterviewLinkInputSchema = z.object({
   vacancyId: z.uuid(),
@@ -21,7 +21,7 @@ export const getInterviewLink = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому workspace",
       });
@@ -36,7 +36,7 @@ export const getInterviewLink = protectedProcedure
     });
 
     if (!vacancyData) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Вакансия не найдена",
       });
@@ -52,7 +52,7 @@ export const getInterviewLink = protectedProcedure
     });
 
     if (!activeInterviewLink) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Ссылка на интервью не найдена для этой вакансии",
       });

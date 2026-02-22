@@ -1,6 +1,6 @@
 import { InterviewLinkGenerator } from "@qbs-autonaim/shared/server";
 import { z } from "zod";
-import { publicProcedure } from "../../../trpc";
+import { publicProcedure } from "../../../orpc";
 import { createErrorHandler } from "../../../utils/error-handler";
 
 const validateInterviewTokenInputSchema = z.object({

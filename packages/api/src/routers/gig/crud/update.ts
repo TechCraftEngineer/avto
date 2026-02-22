@@ -6,9 +6,9 @@ import {
   UpdateGigSettingsSchema,
 } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const update = protectedProcedure
   .input(
@@ -27,7 +27,7 @@ export const update = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому workspace",
       });
@@ -41,7 +41,7 @@ export const update = protectedProcedure
     });
 
     if (!existingGig) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Задание не найдено",
       });
@@ -88,21 +88,21 @@ export const update = protectedProcedure
         });
 
         if (!domain) {
-          throw new TRPCError({
+          throw new ORPCError({
             code: "BAD_REQUEST",
             message: "Домен не найден",
           });
         }
 
         if (!domain.isVerified) {
-          throw new TRPCError({
+          throw new ORPCError({
             code: "BAD_REQUEST",
             message: "Домен не верифицирован",
           });
         }
 
         if (domain.type !== "interview") {
-          throw new TRPCError({
+          throw new ORPCError({
             code: "BAD_REQUEST",
             message: "Домен должен иметь тип 'interview'",
           });
@@ -110,7 +110,7 @@ export const update = protectedProcedure
 
         // Проверяем права доступа только для не-пресетных доменов
         if (!domain.isPreset && domain.workspaceId !== input.workspaceId) {
-          throw new TRPCError({
+          throw new ORPCError({
             code: "FORBIDDEN",
             message: "Домен не принадлежит этому workspace",
           });
@@ -152,7 +152,7 @@ export const update = protectedProcedure
       .returning();
 
     if (!result[0]) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Задание не найдено",
       });

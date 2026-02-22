@@ -4,7 +4,7 @@ import {
   ResponseParser,
   type ValidationResult,
 } from "../../../services/response-parser";
-import { publicProcedure } from "../../../trpc";
+import { publicProcedure } from "../../../orpc";
 
 const previewBulkImportInputSchema = z.object({
   rawText: z.string().min(1),

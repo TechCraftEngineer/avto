@@ -5,7 +5,7 @@ import {
 } from "@qbs-autonaim/db/schema";
 import { z } from "zod";
 import { ResponseParser } from "../../../services/response-parser";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 import { createErrorHandler } from "../../../utils/error-handler";
 import type { ImportResult } from "./import-bulk-responses";
 

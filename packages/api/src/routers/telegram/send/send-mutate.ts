@@ -6,7 +6,7 @@ import {
 } from "@qbs-autonaim/db";
 import { inngest } from "@qbs-autonaim/jobs/client";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const sendMutateRouter = protectedProcedure
   .input(

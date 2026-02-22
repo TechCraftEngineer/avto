@@ -2,9 +2,9 @@ import { and, eq } from "@qbs-autonaim/db";
 import { gig, interviewLink } from "@qbs-autonaim/db/schema";
 import { getInterviewUrlFromEntity } from "@qbs-autonaim/server-utils";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const getInterviewLink = protectedProcedure
   .input(
@@ -20,7 +20,7 @@ export const getInterviewLink = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому workspace",
       });
@@ -34,7 +34,7 @@ export const getInterviewLink = protectedProcedure
     });
 
     if (!foundGig) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Гиг не найден",
       });

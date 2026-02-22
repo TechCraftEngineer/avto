@@ -5,13 +5,13 @@
  * Защищённая процедура - требует авторизации и прав администратора.
  */
 
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import {
   WidgetConfigError,
   WidgetConfigService,
 } from "../../services/widget-config";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 const brandingConfigSchema = z
   .object({
@@ -77,7 +77,7 @@ export const updateConfig = protectedProcedure
     );
 
     if (!membership) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому workspace",
       });
@@ -85,7 +85,7 @@ export const updateConfig = protectedProcedure
 
     // Check if user has admin role
     if (membership.role !== "admin" && membership.role !== "owner") {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Только администраторы могут изменять настройки виджета",
       });
@@ -126,7 +126,7 @@ export const updateConfig = protectedProcedure
       };
     } catch (error) {
       if (error instanceof WidgetConfigError) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "BAD_REQUEST",
           message: error.userMessage,
           cause: error,

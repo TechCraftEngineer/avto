@@ -2,7 +2,7 @@ import { eq } from "@qbs-autonaim/db";
 import { botSettings } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const get = protectedProcedure
   .input(z.object({ workspaceId: workspaceIdSchema }))

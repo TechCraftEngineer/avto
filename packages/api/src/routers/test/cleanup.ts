@@ -1,6 +1,6 @@
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { publicProcedure } from "../../trpc";
+import { publicProcedure } from "../../orpc";
 import { cleanupAllTestData, cleanupTestUser } from "./utils";
 
 // Только в development/test режиме
@@ -16,7 +16,7 @@ export const cleanup = publicProcedure
   )
   .mutation(async ({ input }) => {
     if (!isTestMode) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Тестовые эндпоинты доступны только в режиме разработки",
       });
@@ -43,18 +43,18 @@ export const cleanup = publicProcedure
         };
       }
 
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message: "Необходимо указать email пользователя или флаг all=true",
       });
     } catch (error) {
       // Если это уже TRPCError, пробрасываем его как есть
-      if (error instanceof TRPCError) {
+      if (error instanceof ORPCError) {
         throw error;
       }
 
       // Иначе оборачиваем в INTERNAL_SERVER_ERROR
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Ошибка при очистке тестовых данных",
         cause: error,

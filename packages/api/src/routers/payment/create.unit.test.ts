@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 import { randomUUID } from "node:crypto";
 import type { payment } from "@qbs-autonaim/db/schema";
 import type { YookassaPaymentResponse } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import type { YookassaClient } from "../../services/yookassa/client";
 import { create } from "./create";
 

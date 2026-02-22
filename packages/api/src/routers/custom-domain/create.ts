@@ -3,9 +3,9 @@ import {
   createCustomDomainSchema,
   customDomain,
 } from "@qbs-autonaim/db/schema";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 
 export const create = protectedProcedure
   .input(
@@ -25,7 +25,7 @@ export const create = protectedProcedure
     });
 
     if (!member || (member.role !== "owner" && member.role !== "admin")) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Недостаточно прав для добавления домена",
       });
@@ -40,7 +40,7 @@ export const create = protectedProcedure
     });
 
     if (existing) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message: "Домен уже используется для этого типа",
       });
@@ -59,7 +59,7 @@ export const create = protectedProcedure
       .returning();
 
     if (!created) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Не удалось создать домен",
       });

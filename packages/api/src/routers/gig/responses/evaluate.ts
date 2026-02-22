@@ -1,4 +1,4 @@
-п»їimport { and, eq } from "@qbs-autonaim/db";
+import { and, eq } from "@qbs-autonaim/db";
 import {
   gig,
   interviewSession,
@@ -6,9 +6,9 @@ import {
 } from "@qbs-autonaim/db/schema";
 import { inngest } from "@qbs-autonaim/jobs/client";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const evaluate = protectedProcedure
   .input(
@@ -24,9 +24,9 @@ export const evaluate = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
-        message: "РќРµС‚ РґРѕСЃС‚СѓРїР° Рє СЌС‚РѕРјСѓ workspace",
+        message: "Нет доступа к этому workspace",
       });
     }
 
@@ -38,9 +38,9 @@ export const evaluate = protectedProcedure
     });
 
     if (!response) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
-        message: "РћС‚РєР»РёРє РЅРµ РЅР°Р№РґРµРЅ",
+        message: "Отклик не найден",
       });
     }
 
@@ -52,9 +52,9 @@ export const evaluate = protectedProcedure
     });
 
     if (!existingGig) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
-        message: "РќРµС‚ РґРѕСЃС‚СѓРїР° Рє СЌС‚РѕРјСѓ РѕС‚РєР»РёРєСѓ",
+        message: "Нет доступа к этому отклику",
       });
     }
 
@@ -63,9 +63,9 @@ export const evaluate = protectedProcedure
     });
 
     if (!sessionData) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
-        message: "РЎРµСЃСЃРёСЏ РёРЅС‚РµСЂРІСЊСЋ РЅРµ РЅР°Р№РґРµРЅР° РґР»СЏ СЌС‚РѕРіРѕ РѕС‚РєР»РёРєР°",
+        message: "Сессия интервью не найдена для этого отклика",
       });
     }
 
@@ -81,19 +81,19 @@ export const evaluate = protectedProcedure
 
       return {
         success: true,
-        message: "РћС†РµРЅРєР° Р·Р°РїСѓС‰РµРЅР°",
+        message: "Оценка запущена",
       };
     } catch (error) {
-      console.error("РћС€РёР±РєР° РѕС‚РїСЂР°РІРєРё СЃРѕР±С‹С‚РёСЏ РѕС†РµРЅРєРё:", {
+      console.error("Ошибка отправки события оценки:", {
         error,
         responseId: input.responseId,
         workspaceId: input.workspaceId,
         sessionId: sessionData.id,
       });
 
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
-        message: "РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РїСѓСЃС‚РёС‚СЊ РѕС†РµРЅРєСѓ",
+        message: "Не удалось запустить оценку",
       });
     }
   });

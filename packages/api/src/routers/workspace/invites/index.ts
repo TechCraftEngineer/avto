@@ -1,4 +1,4 @@
-import type { TRPCRouterRecord } from "@trpc/server";
+import type { ORPCRouterRecord } from "@orpc/server";
 
 import { accept } from "./accept";
 import { cancel } from "./cancel";
@@ -18,4 +18,4 @@ export const invitesRouter = {
   accept,
   resend,
   cancel,
-} satisfies TRPCRouterRecord;
+} satisfies ORPCRouterRecord;

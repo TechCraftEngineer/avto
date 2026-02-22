@@ -4,9 +4,9 @@ import { gig, response as responseTable } from "@qbs-autonaim/db/schema";
 import { sendMessage as kworkSendMessage } from "@qbs-autonaim/integration-clients";
 import { executeWithKworkTokenRefresh } from "@qbs-autonaim/jobs/services/kwork";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 export const sendMessage = protectedProcedure
   .input(
@@ -23,7 +23,7 @@ export const sendMessage = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому workspace",
       });
@@ -37,7 +37,7 @@ export const sendMessage = protectedProcedure
     });
 
     if (!response) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Отклик не найден",
       });
@@ -51,7 +51,7 @@ export const sendMessage = protectedProcedure
     });
 
     if (!existingGig) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому отклику",
       });
@@ -65,7 +65,7 @@ export const sendMessage = protectedProcedure
     if (response.importSource === "KWORK") {
       const workerId = profileData?.kworkWorkerId;
       if (workerId == null) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "BAD_REQUEST",
           message:
             "Невозможно отправить сообщение: не найден Kwork user_id кандидата",
@@ -82,7 +82,7 @@ export const sendMessage = protectedProcedure
         );
       } catch (error) {
         const msg = error instanceof Error ? error.message : "Ошибка Kwork";
-        throw new TRPCError({
+        throw new ORPCError({
           code: "UNAUTHORIZED",
           message:
             msg.includes("авториз") || msg.includes("token")
@@ -91,7 +91,7 @@ export const sendMessage = protectedProcedure
         });
       }
       if (!result.success) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: result.error?.message ?? "Ошибка отправки сообщения в Kwork",
         });
@@ -99,7 +99,7 @@ export const sendMessage = protectedProcedure
     } else if (response.telegramUsername) {
       // TODO: Integrate with telegram sending system for non-Kwork responses
     } else {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "BAD_REQUEST",
         message:
           "Нет канала для отправки: укажите Telegram или отклик должен быть с Kwork",

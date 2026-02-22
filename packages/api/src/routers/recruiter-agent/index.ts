@@ -10,7 +10,7 @@
  * - feedback: отправка обратной связи
  */
 
-import type { TRPCRouterRecord } from "@trpc/server";
+import type { ORPCRouterRecord } from "@orpc/server";
 
 import { chat } from "./chat";
 import { configureRules } from "./configure-rules";
@@ -49,4 +49,4 @@ export const recruiterAgentRouter = {
 
   // Feedback
   feedback,
-} satisfies TRPCRouterRecord;
+} satisfies ORPCRouterRecord;

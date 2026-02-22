@@ -1,4 +1,4 @@
-import type { TRPCRouterRecord } from "@trpc/server";
+import type { RouterRecord } from "@orpc/server";
 
 import { create } from "./create";
 import { deleteItem } from "./delete";
@@ -12,4 +12,4 @@ export const interviewScenariosRouter = {
   create,
   update,
   delete: deleteItem,
-} satisfies TRPCRouterRecord;
+} satisfies RouterRecord;

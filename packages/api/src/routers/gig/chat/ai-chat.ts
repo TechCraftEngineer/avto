@@ -6,8 +6,8 @@ import {
 } from "@qbs-autonaim/db/schema";
 import { streamText } from "@qbs-autonaim/lib/ai";
 import type { ChatHistoryMessage } from "@qbs-autonaim/shared";
-import type { TRPCRouterRecord } from "@trpc/server";
-import { TRPCError } from "@trpc/server";
+import type { ORPCRouterRecord } from "@orpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import {
   loadCandidatesContext,
@@ -15,7 +15,7 @@ import {
 } from "../../../services/gig-chat/context-loader";
 import { buildGigAIChatPrompt } from "../../../services/gig-chat/prompt-builder";
 import { gigChatRateLimiter } from "../../../services/gig-chat/rate-limiter";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 /**
  * Схема ответа от AI
@@ -97,7 +97,7 @@ export const sendMessage = protectedProcedure
     // 0. Check rate limit
     const rateLimitCheck = gigChatRateLimiter.check(userId);
     if (!rateLimitCheck.allowed) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "TOO_MANY_REQUESTS",
         message: `Слишком много запросов. Подождите ${rateLimitCheck.retryAfter} секунд`,
       });
@@ -113,7 +113,7 @@ export const sendMessage = protectedProcedure
     });
 
     if (!gigData) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Задание не найдено",
       });
@@ -125,7 +125,7 @@ export const sendMessage = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому заданию",
       });
@@ -153,7 +153,7 @@ export const sendMessage = protectedProcedure
         .returning();
 
       if (!newSession) {
-        throw new TRPCError({
+        throw new ORPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Не удалось создать сессию чата",
         });
@@ -165,7 +165,7 @@ export const sendMessage = protectedProcedure
     // 3. Загрузка контекста gig и кандидатов
     const gigContext = await loadGigContext(ctx.db, gigId);
     if (!gigContext) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Не удалось загрузить контекст задания",
       });
@@ -291,8 +291,8 @@ export const sendMessage = protectedProcedure
       };
     } catch (error) {
       console.error("[gig-ai-chat] Error:", error);
-      if (error instanceof TRPCError) throw error;
-      throw new TRPCError({
+      if (error instanceof ORPCError) throw error;
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Не удалось получить ответ от AI. Попробуйте ещё раз.",
       });
@@ -323,7 +323,7 @@ export const getHistory = protectedProcedure
     });
 
     if (!gigData) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Задание не найдено",
       });
@@ -335,7 +335,7 @@ export const getHistory = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому заданию",
       });
@@ -404,7 +404,7 @@ export const clearHistory = protectedProcedure
     });
 
     if (!gigData) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Задание не найдено",
       });
@@ -416,7 +416,7 @@ export const clearHistory = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому заданию",
       });
@@ -464,4 +464,4 @@ export const aiChatRouter = {
   sendMessage,
   getHistory,
   clearHistory,
-} satisfies TRPCRouterRecord;
+} satisfies ORPCRouterRecord;

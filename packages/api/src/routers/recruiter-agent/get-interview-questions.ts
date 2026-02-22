@@ -10,9 +10,9 @@ import {
 import { getAIModel } from "@qbs-autonaim/lib/ai";
 import { formatExperienceText } from "@qbs-autonaim/shared";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure } from "../../orpc";
 import { checkRateLimit, checkWorkspaceAccess } from "./middleware";
 
 /**
@@ -37,7 +37,7 @@ export const getInterviewQuestions = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к workspace",
       });
@@ -48,7 +48,7 @@ export const getInterviewQuestions = protectedProcedure
     const canProceed = await checkRateLimit(rateLimitKey, 20, 60);
 
     if (!canProceed) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "TOO_MANY_REQUESTS",
         message: "Превышен лимит запросов. Попробуйте через минуту.",
       });
@@ -72,7 +72,7 @@ export const getInterviewQuestions = protectedProcedure
     });
 
     if (!response) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Отклик не найден",
       });
@@ -99,7 +99,7 @@ export const getInterviewQuestions = protectedProcedure
     });
 
     if (!vacancy) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Вакансия не найдена",
       });
@@ -176,7 +176,7 @@ export const getInterviewQuestions = protectedProcedure
     });
 
     if (!result.success || !result.data) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: result.error || "Не удалось сгенерировать вопросы",
       });

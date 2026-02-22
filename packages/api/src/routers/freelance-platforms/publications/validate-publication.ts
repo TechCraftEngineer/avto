@@ -1,9 +1,9 @@
 import { eq } from "@qbs-autonaim/db";
 import { vacancyPublication } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { TRPCError } from "@trpc/server";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { protectedProcedure } from "../../../trpc";
+import { protectedProcedure } from "../../../orpc";
 
 const validatePublicationInputSchema = z.object({
   workspaceId: workspaceIdSchema,
@@ -20,7 +20,7 @@ export const validatePublication = protectedProcedure
     );
 
     if (!access) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этому workspace",
       });
@@ -39,7 +39,7 @@ export const validatePublication = protectedProcedure
     });
 
     if (!publication) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "NOT_FOUND",
         message: "Публикация не найдена",
       });
@@ -47,7 +47,7 @@ export const validatePublication = protectedProcedure
 
     // Проверяем, что публикация принадлежит к workspace
     if (publication.vacancy.workspaceId !== input.workspaceId) {
-      throw new TRPCError({
+      throw new ORPCError({
         code: "FORBIDDEN",
         message: "Нет доступа к этой публикации",
       });
