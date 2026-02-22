@@ -51,8 +51,10 @@ const ALLOWED_HOSTS = [
   "hooks.avtonaim.qbsoft.ru",
   "localhost",
   "127.0.0.1",
-  "api.example.com", // для unit-тестов (RFC 2606 — зарезервированный домен)
-];
+  ...(typeof process !== "undefined" && process.env?.NODE_ENV === "test"
+    ? ["api.example.com"]
+    : []),
+] as const;
 
 function isUrlAllowed(url: URL): boolean {
   const host = url.hostname.toLowerCase();

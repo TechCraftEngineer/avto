@@ -742,9 +742,49 @@ export class ContentScript {
    * Экспортирует данные в указанном формате
    */
   private async handleExport(format: "json" | "clipboard"): Promise<void> {
-    // TODO: Реализовать экспорт данных
-    // Будет реализовано в задаче 21.7
-    console.log("[Recruitment Assistant] Экспорт данных в формате:", format);
+    if (!this.currentData) {
+      this.showNotification({
+        type: "error",
+        message: "Нет данных для экспорта",
+      });
+      return;
+    }
+
+    try {
+      const json = JSON.stringify(this.currentData, null, 2);
+
+      if (format === "json") {
+        const blob = new Blob([json], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `candidate-${this.currentData.basicInfo.fullName.replace(/\s+/g, "-") || "export"}-${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        this.showNotification({
+          type: "success",
+          message: "Файл JSON сохранён",
+        });
+      } else {
+        await navigator.clipboard.writeText(json);
+        this.showNotification({
+          type: "success",
+          message: "Данные скопированы в буфер обмена",
+        });
+      }
+    } catch (error) {
+      console.error("[Recruitment Assistant] Ошибка экспорта:", error);
+      this.showNotification({
+        type: "error",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Не удалось экспортировать данные",
+      });
+      throw error;
+    }
   }
 
   /**

@@ -8,17 +8,17 @@
  * @see .kiro/specs/trpc-to-orpc-migration/design.md
  */
 
-import { call } from "@orpc/server";
 import { describe, expect, it } from "bun:test";
+import { call } from "@orpc/server";
 import * as fc from "fast-check";
 import {
+  type Context,
   createContext,
   middleware,
   procedure,
-  publicProcedure,
   protectedProcedure,
+  publicProcedure,
   timingMiddleware,
-  type Context,
 } from "./orpc";
 
 /**
@@ -287,33 +287,30 @@ describe("Property 3: Время выполнения логируется", () 
 
     try {
       await fc.assert(
-        fc.asyncProperty(
-          fc.integer({ min: 0, max: 50 }),
-          async (delay) => {
-            logs.length = 0;
+        fc.asyncProperty(fc.integer({ min: 0, max: 50 }), async (delay) => {
+          logs.length = 0;
 
-            // Создаем тестовую процедуру с задержкой
-            const testProcedure = procedure
-              .use(timingMiddleware)
-              .handler(async () => {
-                await new Promise((resolve) => setTimeout(resolve, delay));
-                return "test";
-              });
+          // Создаем тестовую процедуру с задержкой
+          const testProcedure = procedure
+            .use(timingMiddleware)
+            .handler(async () => {
+              await new Promise((resolve) => setTimeout(resolve, delay));
+              return "test";
+            });
 
-            // Создаем минимальный контекст
-            const mockContext = {
-              ipAddress: "127.0.0.1",
-            } as Context;
+          // Создаем минимальный контекст
+          const mockContext = {
+            ipAddress: "127.0.0.1",
+          } as Context;
 
-            // Выполняем процедуру через call
-            await call(testProcedure, undefined, { context: mockContext });
+          // Выполняем процедуру через call
+          await call(testProcedure, undefined, { context: mockContext });
 
-            // Проверяем что есть лог с временем выполнения
-            const relevantLog = logs.find((log) => log.includes("выполнен за"));
-            expect(relevantLog).toBeDefined();
-            expect(relevantLog).toMatch(/выполнен за \d+мс/);
-          },
-        ),
+          // Проверяем что есть лог с временем выполнения
+          const relevantLog = logs.find((log) => log.includes("выполнен за"));
+          expect(relevantLog).toBeDefined();
+          expect(relevantLog).toMatch(/выполнен за \d+мс/);
+        }),
         { numRuns: 100 },
       );
     } finally {
@@ -874,10 +871,9 @@ describe("Property 9: protectedProcedure требует авторизации",
       fc.asyncProperty(
         fc.record({
           ipAddress: fc.option(fc.ipV4(), { nil: undefined }),
-          userAgent: fc.option(
-            fc.string({ minLength: 10, maxLength: 100 }),
-            { nil: undefined },
-          ),
+          userAgent: fc.option(fc.string({ minLength: 10, maxLength: 100 }), {
+            nil: undefined,
+          }),
           // Генерируем различные варианты "отсутствия" сессии
           sessionVariant: fc.constantFrom(
             "null",
@@ -947,10 +943,9 @@ describe("Property 9: protectedProcedure требует авторизации",
       fc.asyncProperty(
         fc.record({
           ipAddress: fc.option(fc.ipV4(), { nil: undefined }),
-          userAgent: fc.option(
-            fc.string({ minLength: 10, maxLength: 100 }),
-            { nil: undefined },
-          ),
+          userAgent: fc.option(fc.string({ minLength: 10, maxLength: 100 }), {
+            nil: undefined,
+          }),
           hasDb: fc.boolean(),
           hasRepositories: fc.boolean(),
         }),
@@ -1190,10 +1185,9 @@ describe("Property 10: protectedProcedure гарантирует наличие 
           userId: fc.string({ minLength: 10, maxLength: 50 }),
           userEmail: fc.emailAddress(),
           ipAddress: fc.option(fc.ipV4(), { nil: undefined }),
-          userAgent: fc.option(
-            fc.string({ minLength: 10, maxLength: 100 }),
-            { nil: undefined },
-          ),
+          userAgent: fc.option(fc.string({ minLength: 10, maxLength: 100 }), {
+            nil: undefined,
+          }),
           interviewToken: fc.option(
             fc.string({ minLength: 32, maxLength: 64 }),
             { nil: null },
@@ -1263,10 +1257,9 @@ describe("Property 11: Middleware применяются к обоим типа�
         fc.asyncProperty(
           fc.record({
             ipAddress: fc.option(fc.ipV4(), { nil: undefined }),
-            userAgent: fc.option(
-              fc.string({ minLength: 10, maxLength: 100 }),
-              { nil: undefined },
-            ),
+            userAgent: fc.option(fc.string({ minLength: 10, maxLength: 100 }), {
+              nil: undefined,
+            }),
           }),
           async ({ ipAddress, userAgent }) => {
             logs.length = 0;
@@ -1296,9 +1289,7 @@ describe("Property 11: Middleware применяются к обоим типа�
             expect(timingLog).toBeDefined();
 
             // Проверяем что security audit middleware сработал
-            const auditLog = logs.find((log) =>
-              log.includes("Security Audit"),
-            );
+            const auditLog = logs.find((log) => log.includes("Security Audit"));
             expect(auditLog).toBeDefined();
           },
         ),
@@ -1327,10 +1318,9 @@ describe("Property 11: Middleware применяются к обоим типа�
             userId: fc.string({ minLength: 10, maxLength: 50 }),
             userEmail: fc.emailAddress(),
             ipAddress: fc.option(fc.ipV4(), { nil: undefined }),
-            userAgent: fc.option(
-              fc.string({ minLength: 10, maxLength: 100 }),
-              { nil: undefined },
-            ),
+            userAgent: fc.option(fc.string({ minLength: 10, maxLength: 100 }), {
+              nil: undefined,
+            }),
           }),
           async ({ userId, userEmail, ipAddress, userAgent }) => {
             logs.length = 0;
@@ -1361,8 +1351,7 @@ describe("Property 11: Middleware применяются к обоим типа�
 
             // Проверяем что security audit middleware сработал
             const auditLog = logs.find(
-              (log) =>
-                log.includes("Security Audit") && log.includes(userId),
+              (log) => log.includes("Security Audit") && log.includes(userId),
             );
             expect(auditLog).toBeDefined();
           },
@@ -1551,9 +1540,7 @@ describe("Property 11: Middleware применяются к обоим типа�
             }
 
             // Security audit middleware должен сработать даже если процедура выбросила ошибку
-            const auditLog = logs.find((log) =>
-              log.includes("Security Audit"),
-            );
+            const auditLog = logs.find((log) => log.includes("Security Audit"));
             expect(auditLog).toBeDefined();
 
             // Timing middleware логирует только в случае успешного выполнения или после обработки ошибки

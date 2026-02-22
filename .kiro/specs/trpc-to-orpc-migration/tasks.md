@@ -12,7 +12,7 @@
   - Запустить `bun install` для установки зависимостей
   - _Requirements: 1.1, 1.2, 7.1, 7.7_
 
-- [ ] 2. Создание серверной конфигурации oRPC
+- [x] 2. Создание серверной конфигурации oRPC
   - [x] 2.1 Создать packages/api/src/orpc.ts с функцией createContext
     - Реализовать createContext с теми же зависимостями что и в tRPC (auth, db, repositories, auditLogger, ipAddress, userAgent, interviewToken, inngest, headers)
     - Экспортировать тип Context
@@ -28,7 +28,7 @@
     - **Property 1: Контекст содержит все необходимые зависимости**
     - **Validates: Requirements 1.1**
 
-- [ ] 3. Миграция middleware
+- [x] 3. Миграция middleware
   - [x] 3.1 Создать timingMiddleware
     - Реализовать логирование времени выполнения процедур
     - Логировать предупреждения для медленных операций (>5000ms)
@@ -53,7 +53,7 @@
     - **Property 8: Middleware применяются в правильном порядке**
     - **Validates: Requirements 2.1, 2.3, 2.4, 2.5, 2.6, 2.7**
 
-- [ ] 4. Создание процедур (procedures)
+- [x] 4. Создание процедур (procedures)
   - [x] 4.1 Создать publicProcedure
     - Применить middleware: timingMiddleware, securityHeadersMiddleware, securityAudit
     - _Requirements: 3.1, 3.5_
@@ -81,7 +81,7 @@
   - Проверить что типы экспортируются корректно
   - Задать вопросы пользователю если что-то неясно
 
-- [ ] 6. Миграция первого роутера (workspace)
+- [~] 6. Миграция первого роутера (workspace)
   - [~] 6.1 Мигрировать workspace.list процедуру
     - Изменить импорт с ../../trpc на ../../orpc
     - Сохранить логику процедуры без изменений
@@ -110,7 +110,7 @@
     - **Property 14: Именованные экспорты роутеров**
     - **Validates: Requirements 4.1, 4.4, 5.1**
 
-- [ ] 7. Создание главного роутера
+- [~] 7. Создание главного роутера
   - [~] 7.1 Создать packages/api/src/root-orpc.ts
     - Импортировать createRouter из ./orpc
     - Создать appRouter с workspace роутером
@@ -123,7 +123,7 @@
     - **Property 17: Автокомплит имен процедур**
     - **Validates: Requirements 10.4, 10.5, 10.6**
 
-- [ ] 8. Создание Next.js route handler
+- [~] 8. Создание Next.js route handler
   - [~] 8.1 Создать apps/app/src/app/api/orpc/[...orpc]/route.ts
     - Импортировать fetchRequestHandler из @orpc/server/adapters/fetch
     - Настроить endpoint /api/orpc
@@ -142,7 +142,7 @@
   - Проверить что API endpoint /api/orpc доступен
   - Задать вопросы пользователю если что-то неясно
 
-- [ ] 10. Создание клиентской конфигурации
+- [~] 10. Создание клиентской конфигурации
   - [~] 10.1 Создать apps/app/src/orpc/react.tsx
     - Импортировать createORPCClient, httpBatchStreamLink из @orpc/client
     - Импортировать createORPCContext из @orpc/tanstack-react-query
@@ -162,7 +162,7 @@
     - **Property 23: SuperJSON сериализация**
     - **Validates: Requirements 7.7, 8.1, 15.1, 15.3**
 
-- [ ] 11. Обновление layout.tsx для использования ORPCProvider
+- [~] 11. Обновление layout.tsx для использования ORPCProvider
   - [~] 11.1 Добавить ORPCReactProvider в apps/app/src/app/layout.tsx
     - Импортировать ORPCReactProvider из ~/orpc/react
     - Обернуть children в ORPCReactProvider параллельно с TRPCReactProvider
@@ -174,7 +174,7 @@
     - Тест: oRPC клиент доступен через useORPC
     - _Requirements: 12.1_
 
-- [ ] 12. Создание примера использования на клиенте
+- [~] 12. Создание примера использования на клиенте
   - [~] 12.1 Создать тестовый компонент с использованием oRPC
     - Создать apps/app/src/components/test-orpc.tsx
     - Реализовать query с useQuery и orpc.workspace.list.queryOptions()
@@ -192,7 +192,7 @@
   - Проверить что тестовый компонент работает корректно
   - Задать вопросы пользователю если что-то неясно
 
-- [ ] 14. Реализация оптимистичных обновлений
+- [~] 14. Реализация оптимистичных обновлений
   - [~] 14.1 Создать пример оптимистичного обновления
     - Создать apps/app/src/hooks/use-optimistic-workspace.ts
     - Реализовать onMutate с отменой запросов и сохранением предыдущего состояния
@@ -204,7 +204,7 @@
     - **Property 21: Оптимистичное обновление с откатом**
     - **Validates: Requirements 9.4**
 
-- [ ] 15. Реализация server-side prefetch
+- [~] 15. Реализация server-side prefetch
   - [~] 15.1 Создать пример серверного компонента с prefetch
     - Создать apps/app/src/app/test-orpc/page.tsx
     - Использовать серверный хелпер для prefetch workspace.list
@@ -215,7 +215,7 @@
     - **Property 24: Prefetch на сервере**
     - **Validates: Requirements 7.5, 11.3**
 
-- [ ] 16. Миграция остальных роутеров (batch 1: user, organization, vacancy)
+- [~] 16. Миграция остальных роутеров (batch 1: user, organization, vacancy)
   - [~] 16.1 Мигрировать user роутер
     - Изменить все импорты с tRPC на oRPC
     - Заменить TRPCError на ORPCError
@@ -249,7 +249,7 @@
   - Проверить что мигрированные роутеры работают корректно
   - Задать вопросы пользователю если что-то неясно
 
-- [ ] 18. Миграция остальных роутеров (batch 2: candidate, interview, assessment)
+- [~] 18. Миграция остальных роутеров (batch 2: candidate, interview, assessment)
   - [~] 18.1 Мигрировать candidate роутер
     - Изменить все импорты с tRPC на oRPC
     - Заменить TRPCError на ORPCError
@@ -275,7 +275,7 @@
   - [~] 18.5 Написать integration тесты для мигрированных роутеров
     - _Requirements: 12.3, 13.4_
 
-- [ ] 19. Миграция остальных роутеров (batch 3: все оставшиеся)
+- [~] 19. Миграция остальных роутеров (batch 3: все оставшиеся)
   - [~] 19.1 Мигрировать оставшиеся роутеры (template, notification, analytics, и т.д.)
     - Изменить все импорты с tRPC на oRPC
     - Заменить TRPCError на ORPCError
@@ -299,7 +299,7 @@
   - Проверить что структура root-orpc.ts идентична root.ts
   - Задать вопросы пользователю если что-то неясно
 
-- [ ] 21. Обновление клиентского кода для использования oRPC
+- [~] 21. Обновление клиентского кода для использования oRPC
   - [~] 21.1 Создать скрипт для поиска всех использований useTRPC
     - Найти все файлы с импортом useTRPC
     - Создать список файлов для миграции
@@ -316,7 +316,7 @@
     - Тест: Обработка ошибок работает корректно
     - _Requirements: 7.2, 7.3_
 
-- [ ] 22. Обновление серверных компонентов для использования oRPC prefetch
+- [~] 22. Обновление серверных компонентов для использования oRPC prefetch
   - [~] 22.1 Найти все использования tRPC server helpers
     - Найти все файлы с server-side prefetch
     - Создать список файлов для миграции
@@ -327,7 +327,7 @@
     - Обновить HydrationBoundary для использования oRPC
     - _Requirements: 7.5, 11.2, 11.3_
 
-- [ ] 23. Финальное тестирование
+- [~] 23. Финальное тестирование
   - [~] 23.1 Запустить все unit тесты
     - Выполнить `bun test:unit`
     - Убедиться что все тесты проходят
@@ -354,7 +354,7 @@
   - Проверить что нет breaking changes
   - Задать вопросы пользователю если что-то неясно
 
-- [ ] 25. Удаление tRPC зависимостей (опционально, после подтверждения)
+- [~] 25. Удаление tRPC зависимостей (опционально, после подтверждения)
   - [ ] 25.1 Удалить TRPCReactProvider из layout.tsx
     - Оставить только ORPCReactProvider
     - _Requirements: 12.1_
@@ -375,7 +375,7 @@
     - Убедиться что приложение работает без tRPC
     - _Requirements: 12.5_
 
-- [ ] 26. Создание примеров использования
+- [~] 26. Создание примеров использования
   - [~] 26.1 Создать примеры в документации
     - Пример простой query процедуры
     - Пример mutation процедуры

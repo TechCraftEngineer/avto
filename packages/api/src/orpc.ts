@@ -12,8 +12,6 @@ import type { Auth } from "@qbs-autonaim/auth";
 import { OrganizationRepository, WorkspaceRepository } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { inngest } from "@qbs-autonaim/jobs/client";
-import SuperJSON from "superjson";
-import { ZodError } from "zod";
 import { AuditLoggerService } from "./services/audit-logger";
 import { extractTokenFromHeaders } from "./utils/interview-token-validator";
 
@@ -85,9 +83,9 @@ export type Context = Awaited<ReturnType<typeof createContext>>;
 /**
  * Инициализация oRPC с конфигурацией
  *
- * Настраивает:
- * - SuperJSON как transformer для сериализации Date, Map, Set и других типов
- * - errorFormatter с поддержкой Zod flattenError для структурированных ошибок валидации
+ * Настраивает базовый builder с контекстом.
+ * SuperJSON используется автоматически в oRPC для сериализации Date, Map, Set и других типов.
+ * Zod ошибки автоматически форматируются oRPC.
  *
  * @see Requirements 1.2, 1.3, 1.5
  */

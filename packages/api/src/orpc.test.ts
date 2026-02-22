@@ -10,13 +10,9 @@
  * @see .kiro/specs/trpc-to-orpc-migration/requirements.md (Requirements 3.3, 3.4)
  */
 
-import { call } from "@orpc/server";
 import { describe, expect, it } from "bun:test";
-import {
-  publicProcedure,
-  protectedProcedure,
-  type Context,
-} from "./orpc";
+import { call } from "@orpc/server";
+import { type Context, protectedProcedure, publicProcedure } from "./orpc";
 
 /**
  * Создает минимальный mock контекст для тестирования
@@ -325,8 +321,7 @@ describe("protectedProcedure", () => {
       // Проверяем что security audit middleware сработал
       const auditLog = logs.find(
         (log) =>
-          log.includes("Security Audit") &&
-          log.includes("user-middleware"),
+          log.includes("Security Audit") && log.includes("user-middleware"),
       );
       expect(auditLog).toBeDefined();
     } finally {
@@ -340,7 +335,9 @@ describe("Сравнение publicProcedure и protectedProcedure", () => {
   it("publicProcedure и protectedProcedure должны иметь разное поведение авторизации", async () => {
     // Создаем идентичные процедуры
     const publicProc = publicProcedure.handler(() => ({ type: "public" }));
-    const protectedProc = protectedProcedure.handler(() => ({ type: "protected" }));
+    const protectedProc = protectedProcedure.handler(() => ({
+      type: "protected",
+    }));
 
     const mockContextNoAuth = createMockContext({
       session: null,

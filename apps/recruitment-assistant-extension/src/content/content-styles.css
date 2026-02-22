@@ -253,3 +253,20 @@
     transition: none;
   }
 }
+
+/* EditableField: focus-visible вместо outline:none (accessibility) */
+.ra-editable-field-input {
+  outline: none;
+}
+.ra-editable-field-input:focus-visible {
+  outline: 2px solid #1d4ed8;
+  outline-offset: 2px;
+}
+
+.ra-editable-field-btn {
+  outline: none;
+}
+.ra-editable-field-btn:focus-visible {
+  outline: 2px solid #1d4ed8;
+  outline-offset: 2px;
+}

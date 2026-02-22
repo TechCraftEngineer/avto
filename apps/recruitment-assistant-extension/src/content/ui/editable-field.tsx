@@ -88,10 +88,10 @@ export function EditableField({
                 fontSize: "16px",
                 border: "2px solid #3b82f6",
                 borderRadius: "6px",
-                outline: "none",
                 fontFamily: "inherit",
                 resize: "vertical",
               }}
+              className="ra-editable-field-input"
               aria-label={`Редактирование ${label}`}
             />
           ) : (
@@ -107,8 +107,8 @@ export function EditableField({
                 fontSize: "16px",
                 border: "2px solid #3b82f6",
                 borderRadius: "6px",
-                outline: "none",
               }}
+              className="ra-editable-field-input"
               aria-label={`Редактирование ${label}`}
             />
           )}
@@ -117,6 +117,7 @@ export function EditableField({
             <button
               type="button"
               onClick={handleSave}
+              className="ra-editable-field-btn ra-editable-field-btn--primary"
               style={{
                 minWidth: "44px",
                 minHeight: "44px",
@@ -130,13 +131,6 @@ export function EditableField({
                 cursor: "pointer",
                 touchAction: "manipulation",
               }}
-              onFocus={(e) => {
-                e.currentTarget.style.outline = "2px solid #1d4ed8";
-                e.currentTarget.style.outlineOffset = "2px";
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.outline = "none";
-              }}
               aria-label="Сохранить изменения"
             >
               Сохранить
@@ -144,6 +138,7 @@ export function EditableField({
             <button
               type="button"
               onClick={handleCancel}
+              className="ra-editable-field-btn ra-editable-field-btn--secondary"
               style={{
                 minWidth: "44px",
                 minHeight: "44px",
@@ -156,13 +151,6 @@ export function EditableField({
                 fontWeight: 500,
                 cursor: "pointer",
                 touchAction: "manipulation",
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.outline = "2px solid #1d4ed8";
-                e.currentTarget.style.outlineOffset = "2px";
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.outline = "none";
               }}
               aria-label="Отменить изменения"
             >
@@ -198,6 +186,7 @@ export function EditableField({
             <button
               type="button"
               onClick={() => setIsEditing(true)}
+              className="ra-editable-field-btn ra-editable-field-btn--outline"
               style={{
                 minWidth: "44px",
                 minHeight: "44px",
@@ -210,13 +199,6 @@ export function EditableField({
                 fontWeight: 500,
                 cursor: "pointer",
                 touchAction: "manipulation",
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.outline = "2px solid #1d4ed8";
-                e.currentTarget.style.outlineOffset = "2px";
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.outline = "none";
               }}
               aria-label={`Редактировать ${label}`}
             >

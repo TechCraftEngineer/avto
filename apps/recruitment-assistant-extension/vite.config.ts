@@ -1,7 +1,19 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import react from "@vitejs/plugin-react";
-import { resolve } from "path";
 import { defineConfig } from "vite";
 import webExtension from "vite-plugin-web-extension";
+
+function getManifest() {
+  const manifest = JSON.parse(
+    readFileSync(resolve(__dirname, "manifest.json"), "utf-8"),
+  ) as Record<string, unknown>;
+  const pkg = JSON.parse(
+    readFileSync(resolve(__dirname, "package.json"), "utf-8"),
+  ) as { version: string };
+  manifest.version = pkg.version;
+  return manifest;
+}
 
 export default defineConfig({
   define: {
@@ -14,8 +26,9 @@ export default defineConfig({
   },
   plugins: [
     react(),
+    // biome-ignore lint/suspicious/noExplicitAny: vite-plugin-web-extension имеет несовместимые типы с Vite 7
     webExtension({
-      manifest: "./manifest.json",
+      manifest: getManifest,
       additionalInputs: [
         "src/callback.html",
         "src/injected/fetch-page-context.js",
