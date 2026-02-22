@@ -1,7 +1,7 @@
 import { paths } from "@qbs-autonaim/config";
 import { redirect } from "next/navigation";
 import { getSession } from "~/auth/server";
-import { api } from "~/trpc/server";
+import { api } from "~/orpc/server";
 
 export default async function Page() {
   const session = await getSession();

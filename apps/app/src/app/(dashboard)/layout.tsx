@@ -15,7 +15,7 @@ import { SiteHeader } from "~/components/layout";
 import { DatabaseErrorFallback } from "~/components/shared/database-error-fallback";
 import { AppSidebarWrapper } from "~/components/sidebar";
 import { WorkspaceProvider } from "~/contexts/workspace-context";
-import { api } from "~/trpc/server";
+import { api } from "~/orpc/server";
 
 export default async function DashboardLayout({
   children,

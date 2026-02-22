@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { api, getQueryClient, HydrateClient, trpc } from "~/trpc/server";
+import { api, getQueryClient, HydrateClient, orpc } from "~/orpc/server";
 import { GigsPageClient } from "./gigs-page-client";
 
 export default async function GigsPage({
@@ -20,7 +20,7 @@ export default async function GigsPage({
 
   const queryClient = getQueryClient();
   await queryClient.prefetchQuery(
-    trpc.gig.list.queryOptions({ workspaceId: workspace.id }),
+    orpc.gig.list.queryOptions({ workspaceId: workspace.id }),
   );
 
   return (

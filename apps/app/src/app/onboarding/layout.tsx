@@ -2,7 +2,7 @@ import { paths } from "@qbs-autonaim/config";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { getSession } from "~/auth/server";
-import { api } from "~/trpc/server";
+import { api } from "~/orpc/server";
 
 export default async function OnboardingLayout({
   children,

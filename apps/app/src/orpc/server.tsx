@@ -1,12 +1,12 @@
 import type { AppRouter } from "@qbs-autonaim/api";
-import { appRouter } from "@qbs-autonaim/api/root-orpc";
 import { createContext } from "@qbs-autonaim/api/orpc";
+import { appRouter } from "@qbs-autonaim/api/root-orpc";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { headers } from "next/headers";
 import { cache } from "react";
 
 import { auth } from "~/auth/server";
-import { createQueryClient } from "~/trpc/query-client";
+import { createQueryClient } from "./query-client";
 
 /**
  * Создание контекста для oRPC на сервере
@@ -32,6 +32,54 @@ const createServerContext = cache(async () => {
 export const getQueryClient = cache(createQueryClient);
 
 /**
+ * Server-side oRPC caller для прямого вызова процедур в Server Components
+ * Создает прокси для вызова процедур роутера с серверным контекстом
+ *
+ * @see Requirements 11.2
+ *
+ * @example
+ * ```tsx
+ * const caller = await api();
+ * const workspaces = await caller.workspace.list();
+ * ```
+ */
+export const api = cache(async () => {
+  const ctx = await createServerContext();
+
+  /**
+   * Создает прокси для вызова процедур роутера
+   */
+  function createRouterCaller(router: any, path: string[] = []): any {
+    return new Proxy(
+      {},
+      {
+        get(_, prop: string) {
+          const currentPath = [...path, prop];
+          const value = router[prop];
+
+          // Если это процедура oRPC (имеет метод handler)
+          if (value && typeof value === "object" && "handler" in value) {
+            // Возвращаем функцию для вызова процедуры
+            return async (input?: any) => {
+              return value.handler({ input, context: ctx });
+            };
+          }
+
+          // Если это вложенный роутер
+          if (value && typeof value === "object") {
+            return createRouterCaller(value, currentPath);
+          }
+
+          return undefined;
+        },
+      },
+    );
+  }
+
+  return createRouterCaller(appRouter) as any;
+});
+
+/**
  * Утилиты для prefetch данных в Server Components
  * Предоставляет методы для предзагрузки данных на сервере
  *
@@ -42,10 +90,10 @@ export const getQueryClient = cache(createQueryClient);
  * // В Server Component
  * export default async function Page({ params }: { params: { id: string } }) {
  *   const orpc = await createServerHelpers();
- *   
+ *
  *   // Prefetch данных
  *   await orpc.workspace.get.prefetch({ id: params.id });
- *   
+ *
  *   return (
  *     <HydrateClient>
  *       <WorkspaceDetails id={params.id} />
@@ -137,6 +185,60 @@ type ServerHelpers<TRouter> = {
 };
 
 /**
+ * Прокси для prefetch с queryOptions (аналог tRPC trpc proxy)
+ * Используется для prefetch данных в Server Components
+ *
+ * @see Requirements 7.5, 11.2, 11.3
+ *
+ * @example
+ * ```tsx
+ * const queryClient = getQueryClient();
+ * await queryClient.prefetchQuery(
+ *   orpc.workspace.list.queryOptions({ workspaceId: "123" })
+ * );
+ * ```
+ */
+export const orpc = (() => {
+  /**
+   * Создает хелперы для конкретного роутера
+   */
+  function createRouterHelpers(router: any, path: string[]): any {
+    const helpers: Record<string, any> = {};
+
+    for (const [key, value] of Object.entries(router)) {
+      const currentPath = [...path, key];
+
+      // Если это процедура oRPC (имеет метод handler)
+      if (value && typeof value === "object" && "handler" in value) {
+        helpers[key] = {
+          /**
+           * Получить queryOptions для использования с prefetchQuery
+           */
+          queryOptions: (input?: any) => {
+            const queryKey = ["orpc", ...currentPath, { input }];
+            return {
+              queryKey,
+              queryFn: async () => {
+                const ctx = await createServerContext();
+                return value.handler({ input, context: ctx });
+              },
+            };
+          },
+        };
+      }
+      // Если это вложенный роутер
+      else if (value && typeof value === "object") {
+        helpers[key] = createRouterHelpers(value, currentPath);
+      }
+    }
+
+    return helpers;
+  }
+
+  return createRouterHelpers(appRouter, []) as any;
+})();
+
+/**
  * Компонент для гидратации клиента
  * Передает prefetch данные с сервера клиенту через HydrationBoundary
  *
@@ -147,7 +249,7 @@ type ServerHelpers<TRouter> = {
  * export default async function Page() {
  *   const orpc = await createServerHelpers();
  *   await orpc.workspace.list.prefetch();
- *   
+ *
  *   return (
  *     <HydrateClient>
  *       <WorkspaceList />

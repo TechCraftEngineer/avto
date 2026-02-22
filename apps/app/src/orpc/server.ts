@@ -5,7 +5,7 @@ import { headers } from "next/headers";
 import { cache } from "react";
 
 import { auth } from "~/auth/server";
-import { createQueryClient } from "~/trpc/query-client";
+import { createQueryClient } from "./query-client";
 
 /**
  * Создание контекста для oRPC на сервере

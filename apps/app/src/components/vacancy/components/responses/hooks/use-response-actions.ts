@@ -160,7 +160,7 @@ export function useResponseActions(
     void queryClient.invalidateQueries({
       queryKey: orpc.vacancy.responses.list.queryKey({ vacancyId }),
     });
-  }, [queryClient, trpc, vacancyId]);
+  }, [queryClient, orpc, vacancyId]);
 
   const handleSendWelcomeBatch = useCallback(async () => {
     if (selectedIds.size === 0) return;

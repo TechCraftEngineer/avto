@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { api, getQueryClient, HydrateClient, trpc } from "~/trpc/server";
+import { api, getQueryClient, HydrateClient, orpc } from "~/orpc/server";
 import { ResponsesPageClient } from "./responses-page-client";
 
 export default async function ResponsesPage({
@@ -21,13 +21,13 @@ export default async function ResponsesPage({
   const queryClient = getQueryClient();
   await Promise.all([
     queryClient.prefetchQuery(
-      trpc.vacancy.listActive.queryOptions({
+      orpc.vacancy.listActive.queryOptions({
         workspaceId: workspace.id,
         limit: 100,
       }),
     ),
     queryClient.prefetchQuery(
-      trpc.vacancy.responses.listWorkspace.queryOptions({
+      orpc.vacancy.responses.listWorkspace.queryOptions({
         workspaceId: workspace.id,
         page: 1,
         limit: 50,

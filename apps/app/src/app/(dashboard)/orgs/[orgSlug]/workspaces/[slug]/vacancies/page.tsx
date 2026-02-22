@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { api, getQueryClient, HydrateClient, trpc } from "~/trpc/server";
+import { api, getQueryClient, HydrateClient, orpc } from "~/orpc/server";
 import { VacanciesPageClient } from "./vacancies-page-client";
 
 export default async function VacanciesPage({
@@ -19,7 +19,7 @@ export default async function VacanciesPage({
   if (!workspace) notFound();
 
   const queryClient = getQueryClient();
-  const queryOptions = trpc.freelancePlatforms.getVacancies.queryOptions({
+  const queryOptions = orpc.freelancePlatforms.getVacancies.queryOptions({
     workspaceId: workspace.id,
     statusFilter: "all",
     sortBy: "createdAt",

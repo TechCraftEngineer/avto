@@ -3,7 +3,7 @@ import { Button } from "@qbs-autonaim/ui/components/button";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSession } from "~/auth/server";
-import { api } from "~/trpc/server";
+import { api } from "~/orpc/server";
 import { InviteAcceptClient } from "./invite-accept-client";
 
 export default async function InvitePage({

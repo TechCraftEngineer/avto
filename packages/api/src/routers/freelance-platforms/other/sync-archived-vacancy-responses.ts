@@ -1,6 +1,6 @@
+import { ORPCError } from "@orpc/client";
 import { inngest } from "@qbs-autonaim/jobs/client";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
@@ -11,7 +11,7 @@ const syncArchivedVacancyResponsesInputSchema = z.object({
 
 export const syncArchivedVacancyResponses = protectedProcedure
   .input(syncArchivedVacancyResponsesInputSchema)
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context: ctx }) => {
     // Проверяем доступ к workspace
     const hasAccess = await ctx.workspaceRepository.checkAccess(
       input.workspaceId,
@@ -19,8 +19,7 @@ export const syncArchivedVacancyResponses = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
+      throw new ORPCError("FORBIDDEN", {
         message: "Нет доступа к workspace",
       });
     }
@@ -35,8 +34,7 @@ export const syncArchivedVacancyResponses = protectedProcedure
     });
 
     if (!vacancy) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
+      throw new ORPCError("NOT_FOUND", {
         message: "Вакансия не найдена",
       });
     }
@@ -48,15 +46,13 @@ export const syncArchivedVacancyResponses = protectedProcedure
     });
 
     if (!publication) {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
+      throw new ORPCError("BAD_REQUEST", {
         message: "Вакансия не опубликована на HH.ru (HeadHunter)",
       });
     }
 
     if (!publication.externalId && !publication.url) {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
+      throw new ORPCError("BAD_REQUEST", {
         message:
           "У публикации нет внешнего идентификатора или ссылки для синхронизации",
       });
@@ -83,8 +79,7 @@ export const syncArchivedVacancyResponses = protectedProcedure
     } catch (error) {
       console.error("Ошибка синхронизации архивных откликов:", error);
 
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message: "Ошибка при синхронизации откликов с архивной вакансии",
         cause: error instanceof Error ? error.message : "Неизвестная ошибка",
       });

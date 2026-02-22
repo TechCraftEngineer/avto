@@ -2,7 +2,7 @@ import { paths } from "@qbs-autonaim/config";
 import { redirect } from "next/navigation";
 import { getSession } from "~/auth/server";
 import { WorkspaceMembersClient } from "~/components";
-import { api } from "~/trpc/server";
+import { api } from "~/orpc/server";
 
 export default async function MembersPage({
   params,

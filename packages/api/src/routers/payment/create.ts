@@ -1,9 +1,9 @@
 import { randomUUID } from "node:crypto";
+import { ORPCError } from "@orpc/client";
 import { payment } from "@qbs-autonaim/db/schema";
 import { createPaymentSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
-import { createYookassaClient } from "../../services/yookassa/client";
 import { protectedProcedure } from "../../orpc";
+import { createYookassaClient } from "../../services/yookassa/client";
 
 /**
  * Процедура создания платежа через ЮКасса
@@ -20,15 +20,14 @@ import { protectedProcedure } from "../../orpc";
  */
 export const create = protectedProcedure
   .input(createPaymentSchema)
-  .mutation(async ({ input, ctx }) => {
+  .handler(async ({ input, context: ctx }) => {
     const userId = ctx.session.user.id;
 
     // 1. Получаем workspace и проверяем его существование (Требование 1.6)
     const workspace = await ctx.workspaceRepository.findById(input.workspaceId);
 
     if (!workspace) {
-      throw new ORPCError({
-        code: "NOT_FOUND",
+      throw new ORPCError("NOT_FOUND", {
         message: "Workspace не найден",
       });
     }
@@ -40,8 +39,7 @@ export const create = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError({
-        code: "FORBIDDEN",
+      throw new ORPCError("FORBIDDEN", {
         message: "Нет доступа к workspace",
       });
     }
@@ -54,8 +52,7 @@ export const create = protectedProcedure
     try {
       yookassa = createYookassaClient();
     } catch (error) {
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message:
           error instanceof Error
             ? error.message
@@ -103,8 +100,7 @@ export const create = protectedProcedure
         }),
       );
 
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message:
           error instanceof Error ? error.message : "Ошибка создания платежа",
       });
@@ -209,8 +205,7 @@ export const create = protectedProcedure
       }
 
       // Пробрасываем исходную ошибку БД
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message: "Не удалось сохранить платеж",
       });
     }
