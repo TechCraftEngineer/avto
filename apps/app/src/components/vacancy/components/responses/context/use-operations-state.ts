@@ -103,7 +103,11 @@ export function useOperationHandlers() {
   );
 
   const registerOnScreenAllProgress = useCallback(
-    (cb: ((message: string, progress: OperationProgress | null) => void) | null) => {
+    (
+      cb:
+        | ((message: string, progress: OperationProgress | null) => void)
+        | null,
+    ) => {
       onScreenAllProgressRef.current = cb;
     },
     [],

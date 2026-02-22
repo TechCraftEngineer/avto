@@ -1,16 +1,16 @@
 "use client";
 
-import { memo } from "react";
 import { Badge } from "@qbs-autonaim/ui/components/badge";
-import { cn } from "~/lib/score-utils";
 import {
-  CheckCircle,
   AlertCircle,
-  AlertTriangle,
-  HelpCircle,
   AlertOctagon,
+  AlertTriangle,
+  CheckCircle,
+  HelpCircle,
   Sparkles,
 } from "lucide-react";
+import { memo } from "react";
+import { cn } from "~/lib/score-utils";
 import type { ItemsListProps, ItemsListType } from "~/types/screening";
 
 /** Реэкспорт для внешнего использования */

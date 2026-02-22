@@ -1,7 +1,15 @@
 "use client";
 
-import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@qbs-autonaim/ui/components/alert-dialog"
-import { Button } from "@qbs-autonaim/ui/components/button"
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@qbs-autonaim/ui/components/alert-dialog";
+import { Button } from "@qbs-autonaim/ui/components/button";
 import { Textarea } from "@qbs-autonaim/ui/components/textarea";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";

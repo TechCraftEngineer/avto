@@ -4,8 +4,8 @@ import { Button } from "@qbs-autonaim/ui/components/button";
 import { Card } from "@qbs-autonaim/ui/components/card";
 import { IconArrowLeft } from "@tabler/icons-react";
 import Link from "next/link";
-import { PageHeader } from "~/components/layout";
 import { GigImportSection } from "~/components/gigs";
+import { PageHeader } from "~/components/layout";
 import { useWorkspaceParams } from "~/hooks/use-workspace-params";
 
 export default function GigsImportPage() {

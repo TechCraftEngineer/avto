@@ -1,4 +1,8 @@
-import { Card, CardContent, CardHeader } from "@qbs-autonaim/ui/components/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+} from "@qbs-autonaim/ui/components/card";
 
 export function VacancySkeleton() {
   return (

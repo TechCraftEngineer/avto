@@ -1,8 +1,8 @@
 import { InterviewLinkGenerator } from "@qbs-autonaim/shared/server";
 import { generateWelcomeMessage } from "../../../../services/messaging";
+import { isHHAuthError } from "../../../../utils/hh-auth-error";
 import { workspaceNotificationsChannel } from "../../../channels/client";
 import { inngest } from "../../../client";
-import { isHHAuthError } from "../../../../utils/hh-auth-error";
 import { fetchResponseData } from "./data-fetchers";
 import {
   sendHHWelcome,

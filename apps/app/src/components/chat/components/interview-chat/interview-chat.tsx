@@ -1,6 +1,7 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
+import type { ChatStatus } from "@qbs-autonaim/shared";
 import { cn } from "@qbs-autonaim/ui/utils";
 import { useQuery } from "@tanstack/react-query";
 import { DefaultChatTransport } from "ai";
@@ -12,7 +13,6 @@ import { toast } from "sonner";
 import { AIChatInput } from "~/components";
 import { useScrollToBottom } from "~/hooks/use-scroll-to-bottom";
 import { useTRPC } from "~/trpc/react";
-import type { ChatStatus } from "@qbs-autonaim/shared";
 import { InterviewContextCard } from "../interview-context-card";
 
 // Типы для сообщений

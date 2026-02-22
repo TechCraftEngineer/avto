@@ -1,8 +1,20 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@qbs-autonaim/ui/components/avatar"
-import { cn } from "@qbs-autonaim/ui/utils"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@qbs-autonaim/ui/components/table";
+import type { SortDirection } from "@qbs-autonaim/shared";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@qbs-autonaim/ui/components/avatar";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@qbs-autonaim/ui/components/table";
+import { cn } from "@qbs-autonaim/ui/utils";
 import {
   ArrowDown,
   ArrowUp,
@@ -19,7 +31,6 @@ import {
 import { useMemo, useState } from "react";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { getAvatarUrl } from "~/lib/avatar";
-import type { SortDirection } from "@qbs-autonaim/shared";
 import type { FunnelCandidate } from "../../types/types";
 import type { ColumnVisibility } from "./column-visibility-toggle";
 

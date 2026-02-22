@@ -3,10 +3,10 @@ import { db } from "@qbs-autonaim/db/client";
 import { vacancy } from "@qbs-autonaim/db/schema";
 import { inngest } from "@qbs-autonaim/jobs/client";
 import { updateVacancyDescription } from "@qbs-autonaim/jobs/services/vacancy";
-import { extractVacancyDataWithAI } from "../../parsers/hh/parsers/vacancy/ai-vacancy-extractor";
 import { validateCredentials } from "../../parsers/hh/core/auth/auth";
 import { setupPageWithAuth } from "../../parsers/hh/core/browser/browser-setup";
 import { closeBrowserSafely } from "../../parsers/hh/core/browser/browser-utils";
+import { extractVacancyDataWithAI } from "../../parsers/hh/parsers/vacancy/ai-vacancy-extractor";
 
 /**
  * Функция Inngest для обновления одиночной вакансии

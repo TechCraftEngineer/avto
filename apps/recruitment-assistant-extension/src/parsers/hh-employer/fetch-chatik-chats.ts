@@ -62,7 +62,11 @@ export function fetchChatikChats(
         type: "FETCH_CHATIK_CHATS",
         payload: { vacancyExternalId },
       },
-      (response: { success: boolean; data?: ChatikChatItem[]; error?: string }) => {
+      (response: {
+        success: boolean;
+        data?: ChatikChatItem[];
+        error?: string;
+      }) => {
         if (chrome.runtime.lastError) {
           reject(new Error(chrome.runtime.lastError.message));
           return;
@@ -92,7 +96,11 @@ function fetchChatikSearch(
         type: "FETCH_CHATIK_SEARCH",
         payload: { query: query.trim(), vacancyExternalId },
       },
-      (response: { success: boolean; data?: ChatikChatItem[]; error?: string }) => {
+      (response: {
+        success: boolean;
+        data?: ChatikChatItem[];
+        error?: string;
+      }) => {
         if (chrome.runtime.lastError) {
           reject(new Error(chrome.runtime.lastError.message));
           return;
@@ -118,9 +126,7 @@ export async function fetchCoverLettersBySearch(
 ): Promise<Map<string, string>> {
   const map = new Map<string, string>();
   const uniqueNames = [
-    ...new Set(
-      responses.map((r) => r.name.trim()).filter((n) => n.length > 0),
-    ),
+    ...new Set(responses.map((r) => r.name.trim()).filter((n) => n.length > 0)),
   ];
 
   for (let i = 0; i < uniqueNames.length; i++) {

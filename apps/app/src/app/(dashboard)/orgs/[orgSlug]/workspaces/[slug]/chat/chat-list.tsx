@@ -1,9 +1,15 @@
 "use client";
 
 import { paths } from "@qbs-autonaim/config";
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { Input } from "@qbs-autonaim/ui/components/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbs-autonaim/ui/components/select"
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { Input } from "@qbs-autonaim/ui/components/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@qbs-autonaim/ui/components/select";
 import { Skeleton } from "@qbs-autonaim/ui/components/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";

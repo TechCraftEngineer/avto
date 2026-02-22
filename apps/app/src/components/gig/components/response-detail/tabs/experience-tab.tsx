@@ -4,10 +4,9 @@ import { Badge } from "@qbs-autonaim/ui/components/badge";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { Separator } from "@qbs-autonaim/ui/components/separator";
 import { Award, ExternalLink } from "lucide-react";
+import type { GigResponseDetail } from "~/components/responses/types";
 import { getProfileData } from "~/components/shared/utils/types";
 import { sanitizeHtmlFunction } from "~/lib/sanitize-html";
-
-import type { GigResponseDetail } from "~/components/responses/types";
 
 interface GigExperienceTabProps {
   response: GigResponseDetail;

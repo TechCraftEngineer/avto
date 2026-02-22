@@ -1,11 +1,25 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@qbs-autonaim/ui/components/form"
-import { Input } from "@qbs-autonaim/ui/components/input"
-import { Skeleton } from "@qbs-autonaim/ui/components/skeleton"
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@qbs-autonaim/ui/components/form";
+import { Input } from "@qbs-autonaim/ui/components/input";
+import { Skeleton } from "@qbs-autonaim/ui/components/skeleton";
 import { Textarea } from "@qbs-autonaim/ui/components/textarea";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Save } from "lucide-react";

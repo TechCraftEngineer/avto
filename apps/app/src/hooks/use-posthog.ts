@@ -1,7 +1,7 @@
 "use client";
 
 import { usePostHog as usePostHogOriginal } from "posthog-js/react";
-import { useEffect, useCallback } from "react";
+import { useCallback, useEffect } from "react";
 
 interface User {
   id: string;

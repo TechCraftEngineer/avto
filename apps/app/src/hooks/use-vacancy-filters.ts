@@ -4,7 +4,7 @@
  */
 
 import type { SortDirection } from "@qbs-autonaim/shared";
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 
 export type VacancyFiltersState = {
   searchQuery: string;

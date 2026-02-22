@@ -1,5 +1,5 @@
-import type { Realtime } from "@bunworks/inngest-realtime";
 import { beforeEach, describe, expect, it, mock } from "bun:test";
+import type { Realtime } from "@bunworks/inngest-realtime";
 import {
   fireEvent,
   render,

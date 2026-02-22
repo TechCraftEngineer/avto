@@ -1,5 +1,14 @@
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@qbs-autonaim/ui/components/dropdown-menu"
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@qbs-autonaim/ui/components/hover-card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@qbs-autonaim/ui/components/dropdown-menu";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@qbs-autonaim/ui/components/hover-card";
 import { formatPhone } from "@qbs-autonaim/validators";
 import { Copy, Mail, Phone, PhoneCall } from "lucide-react";
 import { toast } from "sonner";

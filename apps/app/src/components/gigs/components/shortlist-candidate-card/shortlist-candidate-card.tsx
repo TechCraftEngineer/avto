@@ -2,7 +2,11 @@
 
 import { Badge } from "@qbs-autonaim/ui/components/badge";
 import { Button } from "@qbs-autonaim/ui/components/button";
-import { Card, CardContent, CardHeader } from "@qbs-autonaim/ui/components/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+} from "@qbs-autonaim/ui/components/card";
 import {
   AlertCircle,
   Banknote,
@@ -20,9 +24,7 @@ import {
 import Link from "next/link";
 import type { GigShortlistCandidate } from "~/types/api";
 
-
-type ShortlistCandidate =
-  GigShortlistCandidate;
+type ShortlistCandidate = GigShortlistCandidate;
 
 interface ShortlistCandidateCardProps {
   candidate: ShortlistCandidate;

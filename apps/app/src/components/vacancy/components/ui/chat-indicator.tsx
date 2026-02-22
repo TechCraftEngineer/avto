@@ -1,6 +1,11 @@
 import { paths } from "@qbs-autonaim/config";
-import { cn } from "@qbs-autonaim/ui/utils"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@qbs-autonaim/ui/components/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@qbs-autonaim/ui/components/tooltip";
+import { cn } from "@qbs-autonaim/ui/utils";
 import { MessageCircle } from "lucide-react";
 import Link from "next/link";
 

@@ -360,7 +360,10 @@ chrome.runtime.onMessage.addListener(
           message.payload as { vacancyExternalId?: string }
         )?.vacancyExternalId;
         if (typeof vacancyExternalId !== "string" || !vacancyExternalId) {
-          sendResponse({ success: false, error: "Не указан vacancyExternalId" });
+          sendResponse({
+            success: false,
+            error: "Не указан vacancyExternalId",
+          });
           return false;
         }
 
@@ -378,9 +381,7 @@ chrome.runtime.onMessage.addListener(
             let hasNextPage = true;
 
             while (hasNextPage) {
-              const url = new URL(
-                "https://chatik.hh.ru/chatik/api/chats",
-              );
+              const url = new URL("https://chatik.hh.ru/chatik/api/chats");
               url.searchParams.set("vacancyIds", vacancyExternalId);
               url.searchParams.set("filterUnread", "false");
               url.searchParams.set("do_not_track_session_events", "true");
@@ -476,7 +477,10 @@ chrome.runtime.onMessage.addListener(
               (data && "items" in data && data.items) ??
               [];
 
-            sendResponse({ success: true, data: Array.isArray(items) ? items : [] });
+            sendResponse({
+              success: true,
+              data: Array.isArray(items) ? items : [],
+            });
           } catch (err) {
             logError("FETCH_CHATIK_SEARCH", err);
             sendResponse({

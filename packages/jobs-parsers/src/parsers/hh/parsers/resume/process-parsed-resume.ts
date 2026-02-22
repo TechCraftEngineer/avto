@@ -1,7 +1,7 @@
+import type { ResumeStructurerOutput } from "@qbs-autonaim/ai";
 import type { HHContacts } from "@qbs-autonaim/jobs";
 import { parseBirthDate } from "@qbs-autonaim/lib";
 import { formatPhone, normalizePhone } from "@qbs-autonaim/validators";
-import type { ResumeStructurerOutput } from "@qbs-autonaim/ai";
 
 /**
  * Обрабатывает распарсенные данные резюме из ResumeStructurerAgent

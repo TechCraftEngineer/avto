@@ -1,4 +1,9 @@
-import { Card, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
 import { CheckCircle, FileText, Inbox, Sparkles } from "lucide-react";
 
 interface ResponsesStatsProps {

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "bun:test";
-import { render, fireEvent } from "@testing-library/react";
+import { fireEvent, render } from "@testing-library/react";
 import { ConfirmationView } from "./confirmation-view";
 
 describe("ConfirmationView", () => {

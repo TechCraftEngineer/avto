@@ -1,8 +1,8 @@
 import { useState } from "react";
 import type {
   CandidateData,
-  ExperienceEntry,
   EducationEntry,
+  ExperienceEntry,
 } from "../../shared/types";
 import { ContactInfo } from "./contact-info";
 import { EditableField } from "./editable-field";
@@ -61,10 +61,7 @@ export function DataPanel({
   };
 
   return (
-    <section
-      aria-label="Данные кандидата"
-      className="ra-data-panel"
-    >
+    <section aria-label="Данные кандидата" className="ra-data-panel">
       <div className="ra-data-panel__header">
         <h2 className="ra-data-panel__title">Данные кандидата</h2>
         <div className="ra-data-panel__meta tabular-nums">
@@ -74,9 +71,7 @@ export function DataPanel({
 
       <div className="ra-data-panel__content">
         <section className="ra-data-panel__section">
-          <h3 className="ra-data-panel__section-title">
-            Основная информация
-          </h3>
+          <h3 className="ra-data-panel__section-title">Основная информация</h3>
           <EditableField
             label="Полное имя"
             value={data.basicInfo.fullName}

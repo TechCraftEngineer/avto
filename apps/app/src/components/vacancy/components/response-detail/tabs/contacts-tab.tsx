@@ -1,6 +1,5 @@
 "use client";
 
-import type { VacancyResponseDetail } from "~/components/responses/types";
 import { Separator } from "@qbs-autonaim/ui/components/separator";
 import {
   ExternalLink,
@@ -9,6 +8,7 @@ import {
   MessageSquare,
   Phone,
 } from "lucide-react";
+import type { VacancyResponseDetail } from "~/components/responses/types";
 
 interface VacancyContactsTabProps {
   response: VacancyResponseDetail;

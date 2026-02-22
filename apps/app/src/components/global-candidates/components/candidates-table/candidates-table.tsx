@@ -1,10 +1,27 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@qbs-autonaim/ui/components/avatar"
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { cn } from "@qbs-autonaim/ui/utils"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@qbs-autonaim/ui/components/dropdown-menu"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@qbs-autonaim/ui/components/table";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@qbs-autonaim/ui/components/avatar";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@qbs-autonaim/ui/components/dropdown-menu";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@qbs-autonaim/ui/components/table";
+import { cn } from "@qbs-autonaim/ui/utils";
 import {
   ArrowDown,
   ArrowUp,

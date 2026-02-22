@@ -1,4 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
 
 interface ShortlistStatsProps {
   candidatesCount: number;

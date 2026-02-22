@@ -1,8 +1,15 @@
 "use client";
 
-import { Card } from "@qbs-autonaim/ui/components/card"
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@qbs-autonaim/ui/components/form"
-import { Separator } from "@qbs-autonaim/ui/components/separator"
+import { Card } from "@qbs-autonaim/ui/components/card";
+import {
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@qbs-autonaim/ui/components/form";
+import { Separator } from "@qbs-autonaim/ui/components/separator";
 import { Textarea } from "@qbs-autonaim/ui/components/textarea";
 import { useMutation } from "@tanstack/react-query";
 import { Loader2, Wand2 } from "lucide-react";

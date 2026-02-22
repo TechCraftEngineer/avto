@@ -1,7 +1,13 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbs-autonaim/ui/components/select";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@qbs-autonaim/ui/components/select";
 import { useQuery } from "@tanstack/react-query";
 import {
   CheckCircle2,

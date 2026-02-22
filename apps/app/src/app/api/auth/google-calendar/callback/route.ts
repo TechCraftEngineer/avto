@@ -1,9 +1,9 @@
-import { db } from "@qbs-autonaim/db/client";
+import { createHash } from "node:crypto";
 import { env } from "@qbs-autonaim/config";
 import { upsertUserIntegration } from "@qbs-autonaim/db";
-import { getSession } from "~/auth/server";
-import { createHash } from "node:crypto";
+import { db } from "@qbs-autonaim/db/client";
 import { type NextRequest, NextResponse } from "next/server";
+import { getSession } from "~/auth/server";
 
 const TOKEN_URL = "https://oauth2.googleapis.com/token";
 
@@ -12,7 +12,10 @@ export async function GET(request: NextRequest) {
 
   if (!session?.user) {
     return NextResponse.redirect(
-      new URL("/auth/sign-in?callbackUrl=/account/settings/integrations", env.APP_URL),
+      new URL(
+        "/auth/sign-in?callbackUrl=/account/settings/integrations",
+        env.APP_URL,
+      ),
     );
   }
 
@@ -50,8 +53,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(errorUrl);
   }
 
-  const clientId =
-    env.GOOGLE_CALENDAR_CLIENT_ID ?? env.AUTH_GOOGLE_ID;
+  const clientId = env.GOOGLE_CALENDAR_CLIENT_ID ?? env.AUTH_GOOGLE_ID;
   const clientSecret =
     env.GOOGLE_CALENDAR_CLIENT_SECRET ?? env.AUTH_GOOGLE_SECRET;
 

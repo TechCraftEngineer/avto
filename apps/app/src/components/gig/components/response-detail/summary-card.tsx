@@ -9,7 +9,7 @@ import {
   Wallet,
   XCircle,
 } from "lucide-react";
-import type { GigResponse, GigContextData } from "./types";
+import type { GigContextData, GigResponse } from "./types";
 
 interface SummaryCardProps {
   response: GigResponse;

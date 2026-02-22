@@ -76,8 +76,7 @@ export function parseResponsesFromDOM(
         "data-resume-hash",
       );
     const resumeIdMatch = resumeUrl.match(/\/resume\/([a-f0-9]+)/);
-    const resumeId =
-      resumeIdFromAttr?.trim() || resumeIdMatch?.[1] || "";
+    const resumeId = resumeIdFromAttr?.trim() || resumeIdMatch?.[1] || "";
 
     const nameEl = element.querySelector(NAME_SELECTOR);
     const name = nameEl?.textContent?.trim() || "";

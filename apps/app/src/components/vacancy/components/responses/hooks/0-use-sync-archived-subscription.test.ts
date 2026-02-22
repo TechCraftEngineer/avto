@@ -1,5 +1,5 @@
-import type { Realtime } from "@bunworks/inngest-realtime";
 import { beforeEach, describe, expect, it, mock } from "bun:test";
+import type { Realtime } from "@bunworks/inngest-realtime";
 import { renderHook, waitFor } from "@testing-library/react";
 
 // Mock, уникальный для этого файла — не конфликтует с archived-vacancies-selector

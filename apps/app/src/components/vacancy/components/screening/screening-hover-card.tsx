@@ -1,7 +1,11 @@
 "use client";
 
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@qbs-autonaim/ui/components/hover-card";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@qbs-autonaim/ui/components/hover-card";
 import { CheckCircle2, Info, XCircle } from "lucide-react";
 
 interface ScreeningData {

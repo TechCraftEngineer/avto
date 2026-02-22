@@ -124,29 +124,29 @@ function injectCheckboxesForActive(
     if (!externalId) return;
 
     selectedIdsPromise.then((ids) => {
-        const wrap = document.createElement("div");
-        wrap.className = `${CHECKBOX_CLASS}-wrap`;
-        wrap.style.cssText =
-          "display:inline-flex;align-items:center;margin-right:8px;flex-shrink:0;";
+      const wrap = document.createElement("div");
+      wrap.className = `${CHECKBOX_CLASS}-wrap`;
+      wrap.style.cssText =
+        "display:inline-flex;align-items:center;margin-right:8px;flex-shrink:0;";
 
-        const cb = document.createElement("input");
-        cb.type = "checkbox";
-        cb.className = CHECKBOX_CLASS;
-        cb.dataset.externalId = externalId;
-        cb.checked = ids.has(externalId);
-        cb.title = "Выбрать для импорта";
-        cb.style.cssText =
-          "width:18px;height:18px;cursor:pointer;accent-color:#2563eb;";
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.className = CHECKBOX_CLASS;
+      cb.dataset.externalId = externalId;
+      cb.checked = ids.has(externalId);
+      cb.title = "Выбрать для импорта";
+      cb.style.cssText =
+        "width:18px;height:18px;cursor:pointer;accent-color:#2563eb;";
 
-        cb.addEventListener("change", async () => {
-          await toggleSelection(externalId);
-          onUpdate();
-        });
-
-        wrap.appendChild(cb);
-        row.insertBefore(wrap, row.firstChild);
+      cb.addEventListener("change", async () => {
+        await toggleSelection(externalId);
+        onUpdate();
       });
+
+      wrap.appendChild(cb);
+      row.insertBefore(wrap, row.firstChild);
     });
+  });
 
   const observer = new MutationObserver(() => {
     injectCheckboxesForActive(pageType, onUpdate);

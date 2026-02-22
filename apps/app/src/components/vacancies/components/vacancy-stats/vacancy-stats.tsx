@@ -1,7 +1,12 @@
 "use client";
 
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { Card, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
 import { cn } from "@qbs-autonaim/ui/utils";
 import {
   IconBriefcase,

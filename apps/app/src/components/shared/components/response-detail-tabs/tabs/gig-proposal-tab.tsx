@@ -1,7 +1,6 @@
 "use client";
 
-import type { GigResponseDetail } from "~/components/responses/types";
-import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Badge } from "@qbs-autonaim/ui/components/badge";
 import { Separator } from "@qbs-autonaim/ui/components/separator";
 import {
   AlertCircle,
@@ -11,6 +10,7 @@ import {
   HelpCircle,
   TrendingUp,
 } from "lucide-react";
+import type { GigResponseDetail } from "~/components/responses/types";
 import { formatCurrency } from "../../../utils/constants";
 
 interface GigProposalTabProps {

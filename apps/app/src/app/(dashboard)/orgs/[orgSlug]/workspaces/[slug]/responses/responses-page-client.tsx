@@ -1,7 +1,7 @@
 "use client";
 
 import type { SortDirection } from "@qbs-autonaim/shared";
-import { Button } from "@qbs-autonaim/ui/components/button"
+import { Button } from "@qbs-autonaim/ui/components/button";
 import { cn } from "@qbs-autonaim/ui/utils";
 import {
   IconFilter,
@@ -22,8 +22,8 @@ import {
 } from "~/components/responses";
 import { env } from "~/env";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
 import { useWorkspaceParams } from "~/hooks/use-workspace-params";
+import { useTRPC } from "~/trpc/react";
 
 type ViewMode = "table" | "board";
 
@@ -299,9 +299,7 @@ export function ResponsesPageClient() {
                     variant="outline"
                     size="sm"
                     onClick={() =>
-                      setPage((p) =>
-                        Math.min(responsesData.totalPages, p + 1),
-                      )
+                      setPage((p) => Math.min(responsesData.totalPages, p + 1))
                     }
                     disabled={page === responsesData.totalPages}
                   >

@@ -1,17 +1,17 @@
 "use client";
 
-import type { GigResponseListItem } from "~/components/responses/types";
-import { HR_SELECTION_STATUS_LABELS } from "@qbs-autonaim/db/schema";
 import type { VacancyHrSelectionStatus } from "@qbs-autonaim/db/schema";
-import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { HR_SELECTION_STATUS_LABELS } from "@qbs-autonaim/db/schema";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
 import { InfoTooltip } from "@qbs-autonaim/ui/components/info-tooltip";
-import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
-import { ScreeningHoverCard } from "~/components/vacancy/components/screening/screening-hover-card";
+import { type ColumnDef, createColumnHelper } from "@tanstack/react-table";
+import type { GigResponseListItem } from "~/components/responses/types";
 import { CoverLetterCell } from "~/components/vacancy/components/responses/response-row/cover-letter-cell";
+import { ScreeningHoverCard } from "~/components/vacancy/components/screening/screening-hover-card";
 import { RESPONSE_STATUS_CONFIG } from "~/lib/shared/response-configs";
 import { GigCandidateCell } from "./gig-candidate-cell";
-import { GigResponseActions } from "./gig-response-actions";
 import { GigColumnHeader, type GigTableMeta } from "./gig-column-header";
+import { GigResponseActions } from "./gig-response-actions";
 
 export type { GigResponseListItem } from "~/components/responses/types";
 export type { GigTableMeta };

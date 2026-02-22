@@ -19,7 +19,8 @@ function injectInterceptor(): Promise<void> {
       interceptorInjected = true;
       resolve();
     };
-    script.onerror = () => reject(new Error("Не удалось загрузить spoiler interceptor"));
+    script.onerror = () =>
+      reject(new Error("Не удалось загрузить spoiler interceptor"));
     (document.head ?? document.documentElement).appendChild(script);
   });
 }

@@ -1,6 +1,10 @@
 "use client";
 
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@qbs-autonaim/ui/components/hover-card";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@qbs-autonaim/ui/components/hover-card";
 import { formatPhone } from "@qbs-autonaim/validators";
 import { Cake, Check, Copy, Mail, MapPin, Phone } from "lucide-react";
 import { useState } from "react";

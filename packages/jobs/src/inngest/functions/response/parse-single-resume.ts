@@ -148,7 +148,9 @@ export const parseSingleResumeFunction = inngest.createFunction(
         eventResumeText ??
         (typeof resp.coverLetter === "string" ? resp.coverLetter : null);
       if (!resumeText || !resumeText.trim()) {
-        throw new Error("Текст резюме не найден (coverLetter пуст и resumeText не передан)");
+        throw new Error(
+          "Текст резюме не найден (coverLetter пуст и resumeText не передан)",
+        );
       }
 
       // Получаем workspaceId через отдельный запрос

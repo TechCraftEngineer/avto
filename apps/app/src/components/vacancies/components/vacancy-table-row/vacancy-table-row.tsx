@@ -1,12 +1,23 @@
 "use client";
 
 import { paths, ROUTE_SEGMENTS } from "@qbs-autonaim/config";
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@qbs-autonaim/ui/components/dropdown-menu"
-import { Switch } from "@qbs-autonaim/ui/components/switch"
-import { TableCell, TableRow } from "@qbs-autonaim/ui/components/table"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@qbs-autonaim/ui/components/tooltip";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@qbs-autonaim/ui/components/dropdown-menu";
+import { Switch } from "@qbs-autonaim/ui/components/switch";
+import { TableCell, TableRow } from "@qbs-autonaim/ui/components/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@qbs-autonaim/ui/components/tooltip";
 import {
   IconBriefcase,
   IconDots,

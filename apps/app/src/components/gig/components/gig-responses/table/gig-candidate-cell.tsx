@@ -1,13 +1,13 @@
 "use client";
 
-import type { GigResponseListItem } from "~/components/responses/types";
 import { calculateAge } from "@qbs-autonaim/lib/utils";
 import { getInitials } from "@qbs-autonaim/shared";
 import Link from "next/link";
-import { useAvatarUrl } from "~/hooks/use-avatar-url";
-import { getAvatarUrl } from "~/lib/avatar";
+import type { GigResponseListItem } from "~/components/responses/types";
 import { CandidateAvatar } from "~/components/vacancy/components/responses/response-row/candidate-avatar";
 import { CandidateInfo } from "~/components/vacancy/components/responses/response-row/candidate-info";
+import { useAvatarUrl } from "~/hooks/use-avatar-url";
+import { getAvatarUrl } from "~/lib/avatar";
 
 interface GigCandidateCellProps {
   response: GigResponseListItem;

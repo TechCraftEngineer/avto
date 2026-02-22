@@ -21,10 +21,7 @@ export async function handleCheckVacancy(c: Context) {
 
   const parsed = checkVacancyBodySchema.safeParse(body);
   if (!parsed.success) {
-    return c.json(
-      { error: "Требуется workspaceId и vacancyExternalId" },
-      400,
-    );
+    return c.json({ error: "Требуется workspaceId и vacancyExternalId" }, 400);
   }
   const { workspaceId, vacancyExternalId } = parsed.data;
 

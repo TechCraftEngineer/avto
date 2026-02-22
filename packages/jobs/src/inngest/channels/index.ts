@@ -10,6 +10,7 @@ export {
   conversationMessagesChannel,
   fetchActiveListChannel,
   fetchArchivedListChannel,
+  type IntegrationErrorEvent,
   importArchivedVacanciesChannel,
   importGigByUrlChannel,
   importNewGigsChannel,
@@ -27,6 +28,5 @@ export {
   verifyHHCredentialsChannel,
   verifyKworkCredentialsChannel,
   workspaceNotificationsChannel,
-  type IntegrationErrorEvent,
   workspaceStatsChannel,
 } from "./client";

@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import type { DbClient } from "../index";
-import { userIntegration, type NewUserIntegration } from "../schema";
+import { type NewUserIntegration, userIntegration } from "../schema";
 import { decryptCredentials, encryptCredentials } from "../utils/encryption";
 
 /**
@@ -15,10 +15,7 @@ export async function getUserIntegration(
     .select()
     .from(userIntegration)
     .where(
-      and(
-        eq(userIntegration.userId, userId),
-        eq(userIntegration.type, type),
-      ),
+      and(eq(userIntegration.userId, userId), eq(userIntegration.type, type)),
     )
     .limit(1);
 
@@ -68,10 +65,7 @@ export async function upsertUserIntegration(
 /**
  * Получить все user-интеграции пользователя
  */
-export async function getUserIntegrationsByUser(
-  db: DbClient,
-  userId: string,
-) {
+export async function getUserIntegrationsByUser(db: DbClient, userId: string) {
   return db
     .select()
     .from(userIntegration)

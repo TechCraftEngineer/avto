@@ -1,5 +1,5 @@
-import type { Organization, Workspace } from "../types";
 import type { AuthService } from "../../core/auth-service";
+import type { Organization, Workspace } from "../types";
 import { AuthenticatedLayout } from "./authenticated-layout";
 
 interface DefaultViewProps {

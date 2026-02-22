@@ -14,9 +14,16 @@ import type {
   RankingResult,
 } from "@qbs-autonaim/ai";
 import { RankingOrchestrator } from "@qbs-autonaim/ai";
+import {
+  and,
+  desc,
+  eq,
+  gig,
+  response,
+  responseScreening,
+  sql,
+} from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
-import { response, responseScreening, gig } from "@qbs-autonaim/db";
-import { and, eq, desc, sql } from "@qbs-autonaim/db";
 import { z } from "zod";
 import { formatExperienceText } from "../utils/experience-helpers";
 

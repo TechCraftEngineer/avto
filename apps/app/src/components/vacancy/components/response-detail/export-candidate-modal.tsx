@@ -3,7 +3,13 @@
 import { Badge } from "@qbs-autonaim/ui/components/badge";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { Checkbox } from "@qbs-autonaim/ui/components/checkbox";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@qbs-autonaim/ui/components/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@qbs-autonaim/ui/components/dialog";
 import { Label } from "@qbs-autonaim/ui/components/label";
 import {
   Award,

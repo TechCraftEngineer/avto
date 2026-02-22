@@ -1,8 +1,13 @@
 "use client";
 
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
 import { Separator } from "@qbs-autonaim/ui/components/separator";
 import { skipToken, useQuery } from "@tanstack/react-query";
 import {
@@ -23,9 +28,7 @@ import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";
 import type { GigShortlistCandidate } from "~/types/api";
 
-
-type ShortlistCandidate =
-  GigShortlistCandidate;
+type ShortlistCandidate = GigShortlistCandidate;
 
 interface TopCandidatesPreviewProps {
   candidates: ShortlistCandidate[];

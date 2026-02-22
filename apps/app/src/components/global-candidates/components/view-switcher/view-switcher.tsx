@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui/components/button"
+import { Button } from "@qbs-autonaim/ui/components/button";
 import { cn } from "@qbs-autonaim/ui/utils";
 import { LayoutGrid, List } from "lucide-react";
 import type { ViewMode } from "../../types/types";

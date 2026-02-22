@@ -1,7 +1,8 @@
 "use client";
 
-import { cn } from "@qbs-autonaim/ui/utils";
+import type { ChatStatus } from "@qbs-autonaim/shared";
 import { Button } from "@qbs-autonaim/ui/components/button";
+import { cn } from "@qbs-autonaim/ui/utils";
 import {
   ArrowUp,
   FileText,
@@ -23,7 +24,6 @@ import {
 } from "react";
 import { toast } from "sonner";
 import { formatDuration, useVoiceRecorder } from "~/hooks/use-voice-recorder";
-import type { ChatStatus } from "@qbs-autonaim/shared";
 
 interface AudioAttachment {
   file: File;

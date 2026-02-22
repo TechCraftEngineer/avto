@@ -921,7 +921,12 @@ describe("Service Worker - Русскоязычные сообщения", () =>
     handler({ type: "PING" }, mockSender, mockSendResponse);
 
     const logCalls = (console.log as any).mock?.calls ?? [];
-    const russianKeywords = ["Проксирование", "запрос", "Получен", "Расширение"];
+    const russianKeywords = [
+      "Проксирование",
+      "запрос",
+      "Получен",
+      "Расширение",
+    ];
     const hasRussian = logCalls.some((call: any[]) =>
       call?.some(
         (arg: any) =>

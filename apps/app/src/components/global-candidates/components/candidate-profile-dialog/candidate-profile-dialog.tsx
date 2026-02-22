@@ -1,15 +1,40 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@qbs-autonaim/ui/components/avatar"
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { cn } from "@qbs-autonaim/ui/utils"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@qbs-autonaim/ui/components/dialog"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@qbs-autonaim/ui/components/dropdown-menu"
-import { Separator } from "@qbs-autonaim/ui/components/separator"
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@qbs-autonaim/ui/components/sheet"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@qbs-autonaim/ui/components/tabs"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@qbs-autonaim/ui/components/avatar";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@qbs-autonaim/ui/components/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@qbs-autonaim/ui/components/dropdown-menu";
+import { Separator } from "@qbs-autonaim/ui/components/separator";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@qbs-autonaim/ui/components/sheet";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@qbs-autonaim/ui/components/tabs";
 import { Textarea } from "@qbs-autonaim/ui/components/textarea";
+import { cn } from "@qbs-autonaim/ui/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Briefcase,
@@ -30,9 +55,9 @@ import {
   UserX,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { useMediaQuery } from "~/hooks/use-media-query";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
+import { useMediaQuery } from "~/hooks/use-media-query";
 import { getAvatarUrl } from "~/lib/avatar";
 import { useTRPC } from "~/trpc/react";
 import type { CandidateStatus, GlobalCandidate } from "../../types/types";

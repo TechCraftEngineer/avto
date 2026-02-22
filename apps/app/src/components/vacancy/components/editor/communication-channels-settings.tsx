@@ -1,7 +1,14 @@
 "use client";
 
-import { Card } from "@qbs-autonaim/ui/components/card"
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@qbs-autonaim/ui/components/form"
+import { Card } from "@qbs-autonaim/ui/components/card";
+import {
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@qbs-autonaim/ui/components/form";
 import { Switch } from "@qbs-autonaim/ui/components/switch";
 import { AlertCircle } from "lucide-react";
 import type { Control } from "react-hook-form";

@@ -1,12 +1,18 @@
 "use client";
 
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
 import { Separator } from "@qbs-autonaim/ui/components/separator";
 import { ArrowRight, Lightbulb } from "lucide-react";
 import { memo } from "react";
-import { getRecommendationConfig } from "~/lib/recommendation-config";
 import { ItemsListSection } from "~/components/ui/items-list";
+import { getRecommendationConfig } from "~/lib/recommendation-config";
 import type { CandidateRecommendation } from "~/types/screening";
 
 interface RecommendationCardProps {

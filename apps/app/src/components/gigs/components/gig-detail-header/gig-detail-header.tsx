@@ -1,7 +1,18 @@
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@qbs-autonaim/ui/components/dropdown-menu";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@qbs-autonaim/ui/components/dropdown-menu";
 import {
   Calendar,
   Clock,

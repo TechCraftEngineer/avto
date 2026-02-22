@@ -39,9 +39,7 @@ export const updateVacancyFavorite = protectedProcedure
       const updatedVacancy = await ctx.db
         .update(vacancy)
         .set({ isFavorite: input.isFavorite })
-        .where(
-          eq(vacancy.id, input.vacancyId),
-        )
+        .where(eq(vacancy.id, input.vacancyId))
         .returning({ id: vacancy.id, isFavorite: vacancy.isFavorite });
 
       if (updatedVacancy.length === 0) {

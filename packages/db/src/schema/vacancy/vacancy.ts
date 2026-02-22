@@ -1,3 +1,4 @@
+import type { VacancyRequirementsStrict } from "@qbs-autonaim/types";
 import { sql } from "drizzle-orm";
 import {
   boolean,
@@ -17,7 +18,6 @@ import {
   platformSourceEnum,
   platformSourceValues,
 } from "../shared/response-enums";
-import type { VacancyRequirementsStrict } from "@qbs-autonaim/types";
 import { workspace } from "../workspace/workspace";
 
 /** Реэкспорт для совместимости со схемой БД */

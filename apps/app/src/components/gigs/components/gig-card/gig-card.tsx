@@ -1,8 +1,23 @@
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@qbs-autonaim/ui/components/dropdown-menu"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@qbs-autonaim/ui/components/tooltip";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@qbs-autonaim/ui/components/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@qbs-autonaim/ui/components/tooltip";
 import {
   Calendar,
   Clock,
@@ -17,7 +32,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { IMPORT_SOURCE_LABELS } from "~/lib/shared/response-configs";
-import { getGigTypeLabel, getGigTypeDescription } from "../gig-config";
+import { getGigTypeDescription, getGigTypeLabel } from "../gig-config";
 
 // Импортируем только функцию, без зависимостей от DB
 const getPlatformDisplayName = (source: string) => {

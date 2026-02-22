@@ -1,10 +1,21 @@
 "use client";
 
 import { getInitials } from "@qbs-autonaim/shared";
-import { Avatar, AvatarFallback, AvatarImage } from "@qbs-autonaim/ui/components/avatar"
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@qbs-autonaim/ui/components/avatar";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -12,7 +23,6 @@ import { toast } from "sonner";
 import { getAvatarUrl } from "~/lib/avatar";
 import { useTRPC } from "~/trpc/react";
 import type { WorkspaceInvite } from "~/types/api";
-
 
 type Invite = WorkspaceInvite;
 

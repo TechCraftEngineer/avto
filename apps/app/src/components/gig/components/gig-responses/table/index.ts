@@ -4,8 +4,8 @@ export {
   type GigSortField,
   type GigTableMeta,
 } from "./gig-column-header";
+export { GigResponseActions } from "./gig-response-actions";
 export {
   createGigResponseColumns,
   type GigResponseListItem,
 } from "./gig-response-columns";
-export { GigResponseActions } from "./gig-response-actions";

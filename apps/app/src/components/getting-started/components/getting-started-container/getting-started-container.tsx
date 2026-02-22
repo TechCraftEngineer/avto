@@ -1,7 +1,16 @@
 "use client";
 
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@qbs-autonaim/ui/components/dropdown-menu"
-import { Popover, PopoverContent, PopoverTrigger } from "@qbs-autonaim/ui/components/popover";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@qbs-autonaim/ui/components/dropdown-menu";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@qbs-autonaim/ui/components/popover";
 import {
   IconCheck,
   IconChevronDown,

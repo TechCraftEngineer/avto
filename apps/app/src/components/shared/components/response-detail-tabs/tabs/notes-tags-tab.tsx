@@ -1,10 +1,10 @@
 "use client";
 
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Input } from "@qbs-autonaim/ui/components/input"
-import { ScrollArea } from "@qbs-autonaim/ui/components/scroll-area"
-import { Separator } from "@qbs-autonaim/ui/components/separator"
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import { Input } from "@qbs-autonaim/ui/components/input";
+import { ScrollArea } from "@qbs-autonaim/ui/components/scroll-area";
+import { Separator } from "@qbs-autonaim/ui/components/separator";
 import { Textarea } from "@qbs-autonaim/ui/components/textarea";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";

@@ -14,9 +14,7 @@ export const createCalendarEventSchema = z.object({
   title: z.string().min(1).max(500),
   description: z.string().max(2000).optional(),
   meetingUrl: z.string().url().optional().or(z.literal("")),
-  type: z
-    .enum(["technical", "hr", "final", "phone", "video"])
-    .default("video"),
+  type: z.enum(["technical", "hr", "final", "phone", "video"]).default("video"),
 });
 
 export type CreateCalendarEventInput = z.infer<

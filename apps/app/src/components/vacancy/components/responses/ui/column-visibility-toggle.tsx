@@ -1,7 +1,14 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@qbs-autonaim/ui/components/dropdown-menu";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@qbs-autonaim/ui/components/dropdown-menu";
 import { Settings2Icon } from "lucide-react";
 import { useMemo } from "react";
 import type { ColumnId } from "../types";

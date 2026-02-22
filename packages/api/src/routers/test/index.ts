@@ -1,7 +1,6 @@
 import type { TRPCRouterRecord } from "@trpc/server";
-
-import { createArchivedVacancy } from "./create-archived-vacancy";
 import { cleanup } from "./cleanup";
+import { createArchivedVacancy } from "./create-archived-vacancy";
 import { setup } from "./setup";
 
 export const testRouter = {

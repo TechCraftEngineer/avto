@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { useTRPC } from "~/trpc/react";
 import type { WorkspaceInvite } from "~/types/api";
 
-
 interface InviteAcceptClientProps {
   invite: WorkspaceInvite;
   token: string;

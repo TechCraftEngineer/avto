@@ -1,12 +1,15 @@
 "use client";
 
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@qbs-autonaim/ui/components/hover-card";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@qbs-autonaim/ui/components/hover-card";
 import { Send, TrendingUp, UserCheck } from "lucide-react";
+import type { VacancyResponseList } from "~/types/api";
 import { ChatIndicator } from "../../ui/chat-indicator";
 import { PriorityBadge } from "../../ui/priority-badge";
-import type { VacancyResponseList } from "~/types/api";
-
 
 interface CandidateBadgesProps {
   response: VacancyResponseList[0];

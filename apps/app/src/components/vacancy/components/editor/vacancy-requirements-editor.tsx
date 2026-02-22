@@ -1,11 +1,23 @@
 "use client";
 
 import type { VacancyRequirements } from "@qbs-autonaim/db/schema";
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
-import { FormDescription, FormLabel } from "@qbs-autonaim/ui/components/form"
-import { Input } from "@qbs-autonaim/ui/components/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbs-autonaim/ui/components/select"
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
+import { FormDescription, FormLabel } from "@qbs-autonaim/ui/components/form";
+import { Input } from "@qbs-autonaim/ui/components/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@qbs-autonaim/ui/components/select";
 import { Textarea } from "@qbs-autonaim/ui/components/textarea";
 import { Plus, X } from "lucide-react";
 import React from "react";

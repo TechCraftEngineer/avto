@@ -1,9 +1,15 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
-import { Input } from "@qbs-autonaim/ui/components/input"
-import { Label } from "@qbs-autonaim/ui/components/label"
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
+import { Input } from "@qbs-autonaim/ui/components/input";
+import { Label } from "@qbs-autonaim/ui/components/label";
 import { Textarea } from "@qbs-autonaim/ui/components/textarea";
 import { IconDeviceFloppy, IconLoader2, IconX } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";

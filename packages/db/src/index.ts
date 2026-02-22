@@ -12,15 +12,6 @@ export {
   canManageOrganization,
   hasOrganizationAccess,
 } from "./permissions/organization";
-
-// Repositories
-export type {
-  ExperienceItem,
-  EducationItem,
-  LanguageItem,
-  PersonalInfo,
-  StoredProfileData,
-} from "./schema/types";
 export { DraftRepository } from "./repositories/draft.repository";
 export type {
   CandidateOrganizationLinkData,
@@ -30,14 +21,21 @@ export type {
 export { GlobalCandidateRepository } from "./repositories/global-candidate.repository";
 // Integration repository exports - keeping as * since it has many functions
 export * from "./repositories/integration";
-export * from "./repositories/user-integration";
 export * from "./repositories/organization.repository";
 export * from "./repositories/response.repository";
 export * from "./repositories/response-history";
+export * from "./repositories/user-integration";
 export { WorkspaceRepository } from "./repositories/workspace.repository";
-
 // Schema - keeping as * since schema files are typically imported entirely
 export * from "./schema";
+// Repositories
+export type {
+  EducationItem,
+  ExperienceItem,
+  LanguageItem,
+  PersonalInfo,
+  StoredProfileData,
+} from "./schema/types";
 
 // Utils
 export * from "./utils/encryption";

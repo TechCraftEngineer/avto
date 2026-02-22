@@ -4,8 +4,8 @@
  */
 
 export type {
-  ExperienceItem,
   EducationItem,
+  ExperienceItem,
   LanguageItem,
   PersonalInfo,
   StoredProfileData,

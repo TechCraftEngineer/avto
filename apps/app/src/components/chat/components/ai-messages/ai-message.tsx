@@ -1,14 +1,14 @@
 "use client";
 
-import { cn } from "@qbs-autonaim/ui/utils";
-import { ChevronDown, Sparkles } from "lucide-react";
-import { memo, useState } from "react";
 import {
   type AIChatMessage,
   getPartKey,
   type MessagePart,
   type TextPart,
 } from "@qbs-autonaim/shared";
+import { cn } from "@qbs-autonaim/ui/utils";
+import { ChevronDown, Sparkles } from "lucide-react";
+import { memo, useState } from "react";
 
 interface AIMessageProps {
   message: AIChatMessage;

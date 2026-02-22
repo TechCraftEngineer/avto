@@ -24,10 +24,10 @@ export interface ApiResponse {
 
 import type {
   BasicCandidateInfo,
-  WorkExperienceEntry,
-  EducationEntry,
   CandidateContactInfo,
+  EducationEntry,
   FullCandidateData,
+  WorkExperienceEntry,
 } from "@qbs-autonaim/shared";
 
 // Переэкспорт типов с псевдонимами для удобства

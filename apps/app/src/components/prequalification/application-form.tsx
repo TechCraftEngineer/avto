@@ -1,19 +1,33 @@
 "use client";
 
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@qbs-autonaim/ui/components/form";
+import { Input } from "@qbs-autonaim/ui/components/input";
+import { Progress } from "@qbs-autonaim/ui/components/progress";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@qbs-autonaim/ui/components/select";
+import { Textarea } from "@qbs-autonaim/ui/components/textarea";
+import { useMutation } from "@tanstack/react-query";
+import { Loader2, Save } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@qbs-autonaim/ui/components/form"
-import { Input } from "@qbs-autonaim/ui/components/input"
-import { Progress } from "@qbs-autonaim/ui/components/progress"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbs-autonaim/ui/components/select"
-import { Textarea } from "@qbs-autonaim/ui/components/textarea";
-import { Loader2, Save } from "lucide-react";
-import { useTRPC } from "~/trpc/react";
 import { usePostHog } from "~/hooks/use-posthog";
 import { POSTHOG_EVENTS } from "~/lib/posthog-events";
+import { useTRPC } from "~/trpc/react";
 
 /** Progress steps for the application form */
 const APPLICATION_STEPS = [

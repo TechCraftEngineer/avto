@@ -1,10 +1,21 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
-import { cn } from "@qbs-autonaim/ui/utils"
-import { Progress } from "@qbs-autonaim/ui/components/progress"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@qbs-autonaim/ui/components/tooltip";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
+import { Progress } from "@qbs-autonaim/ui/components/progress";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@qbs-autonaim/ui/components/tooltip";
+import { cn } from "@qbs-autonaim/ui/utils";
 import {
   IconCheck,
   IconChevronDown,

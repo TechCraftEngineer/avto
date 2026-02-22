@@ -1,13 +1,13 @@
 "use client";
 
-import { memo } from "react";
 import { Progress } from "@qbs-autonaim/ui/components/progress";
+import { memo } from "react";
 import {
   cn,
-  getScoreTheme,
-  getScoreColor,
-  getProgressColor,
   formatScore,
+  getProgressColor,
+  getScoreColor,
+  getScoreTheme,
 } from "~/lib/score-utils";
 import type {
   ScoreDisplayGridProps,

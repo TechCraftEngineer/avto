@@ -1,18 +1,23 @@
 "use client";
 
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
 import { Progress } from "@qbs-autonaim/ui/components/progress";
-import { memo } from "react";
 import { AlertCircle } from "lucide-react";
+import { memo } from "react";
+import { ItemsListSection } from "~/components/ui/items-list";
+import { getRecommendationConfig } from "~/lib/recommendation-config";
 import {
   cn,
-  getScoreTheme,
-  getScoreColor,
   getProgressColor,
+  getScoreColor,
+  getScoreTheme,
 } from "~/lib/score-utils";
-import { getRecommendationConfig } from "~/lib/recommendation-config";
-import { ItemsListSection } from "~/components/ui/items-list";
 import type { OverallAssessmentData } from "~/types/screening";
 
 interface OverallAssessmentProps extends OverallAssessmentData {}

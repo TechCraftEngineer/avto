@@ -1,7 +1,17 @@
 "use client";
 
 import { paths } from "@qbs-autonaim/config";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@qbs-autonaim/ui/components/sidebar";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@qbs-autonaim/ui/components/sidebar";
 import {
   IconArrowLeft,
   IconChartBar,

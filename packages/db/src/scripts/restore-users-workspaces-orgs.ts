@@ -7,7 +7,7 @@
  * Или:    bun with-env bun src/scripts/restore-users-workspaces-orgs.ts  (последний бэкап из ./backups/)
  */
 
-import { readFileSync, readdirSync, existsSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { db } from "../client";
 import {
@@ -123,9 +123,7 @@ async function restore() {
     await db
       .insert(user)
       .values(
-        tables.users.map(
-          (r) => parseDates(r) as typeof user.$inferInsert,
-        ),
+        tables.users.map((r) => parseDates(r) as typeof user.$inferInsert),
       )
       .onConflictDoNothing();
   }
@@ -159,8 +157,8 @@ async function restore() {
     await db
       .insert(verification)
       .values(
-        tables.verifications.map((r) =>
-          parseDates(r) as typeof verification.$inferInsert,
+        tables.verifications.map(
+          (r) => parseDates(r) as typeof verification.$inferInsert,
         ),
       )
       .onConflictDoNothing();
@@ -171,8 +169,8 @@ async function restore() {
     await db
       .insert(organizationMember)
       .values(
-        tables.organization_members.map((r) =>
-          parseDates(r) as typeof organizationMember.$inferInsert,
+        tables.organization_members.map(
+          (r) => parseDates(r) as typeof organizationMember.$inferInsert,
         ),
       )
       .onConflictDoNothing();
@@ -183,8 +181,8 @@ async function restore() {
     await db
       .insert(workspaceMember)
       .values(
-        tables.workspace_members.map((r) =>
-          parseDates(r) as typeof workspaceMember.$inferInsert,
+        tables.workspace_members.map(
+          (r) => parseDates(r) as typeof workspaceMember.$inferInsert,
         ),
       )
       .onConflictDoNothing();
@@ -195,8 +193,8 @@ async function restore() {
     await db
       .insert(organizationInvite)
       .values(
-        tables.organization_invites.map((r) =>
-          parseDates(r) as typeof organizationInvite.$inferInsert,
+        tables.organization_invites.map(
+          (r) => parseDates(r) as typeof organizationInvite.$inferInsert,
         ),
       )
       .onConflictDoNothing();
@@ -207,8 +205,8 @@ async function restore() {
     await db
       .insert(workspaceInvite)
       .values(
-        tables.workspace_invites.map((r) =>
-          parseDates(r) as typeof workspaceInvite.$inferInsert,
+        tables.workspace_invites.map(
+          (r) => parseDates(r) as typeof workspaceInvite.$inferInsert,
         ),
       )
       .onConflictDoNothing();

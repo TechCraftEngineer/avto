@@ -1,5 +1,11 @@
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@qbs-autonaim/ui/components/dialog";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@qbs-autonaim/ui/components/dialog";
 import { Loader2 } from "lucide-react";
 import type { ScreeningProgress } from "../hooks/use-screening-subscription";
 

@@ -26,6 +26,7 @@
     "sync-gig-counts": "bun run --env-file ../../.env src/scripts/sync-gig-response-counts.ts"
   },
   "dependencies": {
+    "@orpc/server": "^1.13.5",
     "@qbs-autonaim/ai": "workspace:*",
     "@qbs-autonaim/auth": "workspace:*",
     "@qbs-autonaim/config": "workspace:*",

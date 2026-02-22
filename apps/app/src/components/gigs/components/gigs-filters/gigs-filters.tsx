@@ -1,7 +1,13 @@
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Input } from "@qbs-autonaim/ui/components/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbs-autonaim/ui/components/select";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import { Input } from "@qbs-autonaim/ui/components/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@qbs-autonaim/ui/components/select";
 import {
   IconFilter,
   IconLayoutGrid,
@@ -10,7 +16,7 @@ import {
   IconTable,
 } from "@tabler/icons-react";
 import Link from "next/link";
-import { gigTypesConfig, type DisplayMode } from "../gig-config";
+import { type DisplayMode, gigTypesConfig } from "../gig-config";
 
 // Константы для фильтров
 const DEADLINE_WARNING_DAYS = 7;

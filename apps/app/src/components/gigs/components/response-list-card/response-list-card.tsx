@@ -1,11 +1,18 @@
 "use client";
 
-import type { GigResponseListItem } from "~/components/responses/types";
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Card, CardContent, CardHeader } from "@qbs-autonaim/ui/components/card"
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@qbs-autonaim/ui/components/hover-card"
-import { Progress } from "@qbs-autonaim/ui/components/progress"
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+} from "@qbs-autonaim/ui/components/card";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@qbs-autonaim/ui/components/hover-card";
+import { Progress } from "@qbs-autonaim/ui/components/progress";
 import { Separator } from "@qbs-autonaim/ui/components/separator";
 import {
   Award,
@@ -21,6 +28,7 @@ import {
   XCircle,
 } from "lucide-react";
 import Link from "next/link";
+import type { GigResponseListItem } from "~/components/responses/types";
 import {
   formatCurrency,
   formatDate,

@@ -1,8 +1,23 @@
 "use client";
 
-import { Card, CardContent, CardHeader } from "@qbs-autonaim/ui/components/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbs-autonaim/ui/components/select"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@qbs-autonaim/ui/components/tabs";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+} from "@qbs-autonaim/ui/components/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@qbs-autonaim/ui/components/select";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@qbs-autonaim/ui/components/tabs";
 import { useQuery } from "@tanstack/react-query";
 import { Filter } from "lucide-react";
 import { useState } from "react";

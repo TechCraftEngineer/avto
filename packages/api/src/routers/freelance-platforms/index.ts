@@ -35,8 +35,8 @@ import { getVacancies } from "./vacancies/get-vacancies";
 import { getVacancyById } from "./vacancies/get-vacancy-by-id";
 import { getVacancyByToken } from "./vacancies/get-vacancy-by-token";
 import { getVacancyIntegrations } from "./vacancies/get-vacancy-integrations";
-import { updateVacancyStatus } from "./vacancies/update-vacancy-status";
 import { updateVacancyFavorite } from "./vacancies/update-vacancy-favorite";
+import { updateVacancyStatus } from "./vacancies/update-vacancy-status";
 // import { subscribeToChatMessages } from "./chat/subscribe-to-chat-messages";
 
 // Other

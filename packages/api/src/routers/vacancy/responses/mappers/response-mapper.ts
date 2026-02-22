@@ -1,8 +1,8 @@
 import type { ResponseScreening } from "@qbs-autonaim/db/schema";
 import { formatContacts } from "../../../../utils/format-contacts";
 import { sanitizeHtml } from "../../../utils/sanitize-html";
-import { calculatePriorityScore } from "../utils/priority-score";
 import type { RawResponse } from "../types";
+import { calculatePriorityScore } from "../utils/priority-score";
 import { mapScreeningToOutput } from "./screening-mapper";
 
 interface InterviewScoringData {

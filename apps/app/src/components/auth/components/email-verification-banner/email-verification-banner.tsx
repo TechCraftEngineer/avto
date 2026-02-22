@@ -1,7 +1,11 @@
 "use client";
 
 import { paths } from "@qbs-autonaim/config";
-import { Alert, AlertDescription, AlertTitle } from "@qbs-autonaim/ui/components/alert";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@qbs-autonaim/ui/components/alert";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { Mail, X } from "lucide-react";
 import { useRouter } from "next/navigation";

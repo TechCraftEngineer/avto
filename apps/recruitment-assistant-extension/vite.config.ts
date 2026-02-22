@@ -16,7 +16,7 @@ export default defineConfig({
     react(),
     webExtension({
       manifest: "./manifest.json",
-        additionalInputs: [
+      additionalInputs: [
         "src/callback.html",
         "src/injected/fetch-page-context.js",
         "src/injected/spoiler-chat-interceptor.js",

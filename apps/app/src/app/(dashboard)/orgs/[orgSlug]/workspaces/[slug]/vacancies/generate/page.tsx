@@ -2,8 +2,8 @@
 
 import { PageHeader } from "~/components/layout";
 import { VacancyCreatorContainer } from "~/components/vacancies/components/vacancy-creator/vacancy-creator-container";
-import { useWorkspace } from "~/hooks/use-workspace";
 import { env } from "~/env";
+import { useWorkspace } from "~/hooks/use-workspace";
 import { useWorkspaceParams } from "~/hooks/use-workspace-params";
 
 export default function VacancyGeneratePage() {

@@ -98,8 +98,12 @@ async function backup() {
     createdAt: new Date().toISOString(),
     tables: {
       users: usersRows.map((r) => serializeRow(r as Record<string, unknown>)),
-      accounts: accountsRows.map((r) => serializeRow(r as Record<string, unknown>)),
-      sessions: sessionsRows.map((r) => serializeRow(r as Record<string, unknown>)),
+      accounts: accountsRows.map((r) =>
+        serializeRow(r as Record<string, unknown>),
+      ),
+      sessions: sessionsRows.map((r) =>
+        serializeRow(r as Record<string, unknown>),
+      ),
       verifications: verificationsRows.map((r) =>
         serializeRow(r as Record<string, unknown>),
       ),

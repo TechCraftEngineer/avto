@@ -1,6 +1,6 @@
 "use client";
 
-import { Dialog, DialogContent } from "@qbs-autonaim/ui/components/dialog"
+import { Dialog, DialogContent } from "@qbs-autonaim/ui/components/dialog";
 import { Input } from "@qbs-autonaim/ui/components/input";
 import { ArrowRight, FileText, Search } from "lucide-react";
 import { useRouter } from "next/navigation";

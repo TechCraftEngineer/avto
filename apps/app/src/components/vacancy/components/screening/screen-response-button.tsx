@@ -1,10 +1,10 @@
 "use client";
 
+import type { ScreeningDataForRecommendation } from "@qbs-autonaim/shared";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader2, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import type { ScreeningDataForRecommendation } from "@qbs-autonaim/shared";
 import { triggerScreenResponse } from "~/actions/trigger";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useTRPC } from "~/trpc/react";

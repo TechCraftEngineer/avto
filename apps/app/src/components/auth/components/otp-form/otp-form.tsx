@@ -2,11 +2,29 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { paths } from "@qbs-autonaim/config";
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
-import { Field, FieldLabel } from "@qbs-autonaim/ui/components/field"
-import { Form, FormControl, FormField, FormItem, FormMessage } from "@qbs-autonaim/ui/components/form"
-import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "@qbs-autonaim/ui/components/input-otp";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
+import { Field, FieldLabel } from "@qbs-autonaim/ui/components/field";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@qbs-autonaim/ui/components/form";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "@qbs-autonaim/ui/components/input-otp";
 import { type OTPFormData, otpFormSchema } from "@qbs-autonaim/validators";
 import { RefreshCwIcon } from "lucide-react";
 import Link from "next/link";

@@ -1,6 +1,13 @@
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@qbs-autonaim/ui/components/dialog"
-import { Input } from "@qbs-autonaim/ui/components/input"
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@qbs-autonaim/ui/components/dialog";
+import { Input } from "@qbs-autonaim/ui/components/input";
 import { Label } from "@qbs-autonaim/ui/components/label";
 
 interface ImportDialogsProps {

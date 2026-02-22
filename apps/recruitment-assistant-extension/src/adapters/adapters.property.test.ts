@@ -425,16 +425,28 @@ describe("Property-based тесты адаптеров", () => {
             fc.record({
               institution: fc
                 .string({ minLength: 1, maxLength: 50 })
-                .filter((s) => s.trim().length > 0 && !s.includes("<") && !s.includes(">")),
+                .filter(
+                  (s) =>
+                    s.trim().length > 0 && !s.includes("<") && !s.includes(">"),
+                ),
               degree: fc
                 .string({ minLength: 1, maxLength: 50 })
-                .filter((s) => s.trim().length > 0 && !s.includes("<") && !s.includes(">")),
+                .filter(
+                  (s) =>
+                    s.trim().length > 0 && !s.includes("<") && !s.includes(">"),
+                ),
               fieldOfStudy: fc
                 .string({ minLength: 1, maxLength: 50 })
-                .filter((s) => s.trim().length > 0 && !s.includes("<") && !s.includes(">")),
+                .filter(
+                  (s) =>
+                    s.trim().length > 0 && !s.includes("<") && !s.includes(">"),
+                ),
               dateRange: fc
                 .string({ minLength: 1, maxLength: 50 })
-                .filter((s) => s.trim().length > 0 && !s.includes("<") && !s.includes(">")),
+                .filter(
+                  (s) =>
+                    s.trim().length > 0 && !s.includes("<") && !s.includes(">"),
+                ),
             }),
             { minLength: 0, maxLength: 10 },
           ),

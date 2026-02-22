@@ -1,7 +1,12 @@
 import { getInitials } from "@qbs-autonaim/shared";
-import { Avatar, AvatarFallback } from "@qbs-autonaim/ui/components/avatar"
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card";
+import { Avatar, AvatarFallback } from "@qbs-autonaim/ui/components/avatar";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
 import { IconArrowRight, IconStar, IconUsers } from "@tabler/icons-react";
 import Link from "next/link";
 

@@ -3,7 +3,6 @@
  * Replaces duplicated RECOMMENDATION_CONFIG in multiple components
  */
 
-import type { ComponentType } from "react";
 import {
   AlertCircle,
   CheckCircle,
@@ -11,6 +10,7 @@ import {
   TrendingUp,
   XCircle,
 } from "lucide-react";
+import type { ComponentType } from "react";
 import type { RecommendationLevel } from "~/types/screening";
 
 export interface RecommendationConfig {

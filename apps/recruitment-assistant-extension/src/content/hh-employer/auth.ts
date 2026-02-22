@@ -29,12 +29,18 @@ export type ResolveAuthResult = AuthResult | AuthErrorResult;
  * При отсутствии выбора автоматически выбирает первую организацию и workspace.
  */
 export async function resolveAuth(): Promise<ResolveAuthResult> {
-  const { authToken, userData, workspaceId: storedWorkspaceId } =
-    await chrome.storage.local.get(["authToken", "userData", "workspaceId"]);
+  const {
+    authToken,
+    userData,
+    workspaceId: storedWorkspaceId,
+  } = await chrome.storage.local.get(["authToken", "userData", "workspaceId"]);
   const token = authToken as string | undefined;
-  const user = userData as { organizationId?: string; workspaceId?: string } | undefined;
+  const user = userData as
+    | { organizationId?: string; workspaceId?: string }
+    | undefined;
   let organizationId = user?.organizationId;
-  let workspaceId = (storedWorkspaceId as string | undefined) ?? user?.workspaceId;
+  let workspaceId =
+    (storedWorkspaceId as string | undefined) ?? user?.workspaceId;
 
   if (!token) {
     return {

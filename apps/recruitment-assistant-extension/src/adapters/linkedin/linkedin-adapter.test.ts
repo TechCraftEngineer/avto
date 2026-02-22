@@ -2,8 +2,8 @@
  * Тесты для LinkedIn адаптера
  */
 
-import { beforeEach, describe, expect, it } from "vitest";
 import { Window } from "happy-dom";
+import { beforeEach, describe, expect, it } from "vitest";
 import { LinkedInAdapter } from "./linkedin-adapter";
 
 const happyWindow = new Window();

@@ -22,11 +22,17 @@ export function LoginView() {
         </p>
       </div>
       <div className="flex justify-center">
-        <Button variant="outline" className="w-fit" onClick={handleLoginViaSite}>
+        <Button
+          variant="outline"
+          className="w-fit"
+          onClick={handleLoginViaSite}
+        >
           Войти через сайт
         </Button>
       </div>
-      <p className="text-center text-xs text-muted-foreground tabular-nums">v{version}</p>
+      <p className="text-center text-xs text-muted-foreground tabular-nums">
+        v{version}
+      </p>
     </div>
   );
 }

@@ -1,10 +1,10 @@
 "use client";
 
+import type { AIChatMessage, ChatStatus } from "@qbs-autonaim/shared";
 import { cn } from "@qbs-autonaim/ui/utils";
 import { ArrowDown } from "lucide-react";
 import { memo } from "react";
 import { useChatMessages } from "~/hooks/use-chat-messages";
-import type { AIChatMessage, ChatStatus } from "@qbs-autonaim/shared";
 import { AIMessage } from "./ai-message";
 import { ThinkingIndicator } from "./thinking-indicator";
 

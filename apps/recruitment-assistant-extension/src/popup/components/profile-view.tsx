@@ -1,8 +1,8 @@
 import { useState } from "react";
-import type { PageContext, Organization, Workspace } from "../types";
 import type { AuthService } from "../../core/auth-service";
-import { AuthenticatedLayout } from "./authenticated-layout";
+import type { Organization, PageContext, Workspace } from "../types";
 import { Alert, Button } from "../ui";
+import { AuthenticatedLayout } from "./authenticated-layout";
 
 interface ProfileViewProps {
   pageContext: Extract<PageContext, { type: "profile" }>;

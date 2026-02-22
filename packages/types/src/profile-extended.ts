@@ -2,7 +2,7 @@
  * Расширенные типы профиля для парсинга и UI
  */
 
-import type { ExperienceItem, EducationItem } from "./profile";
+import type { EducationItem, ExperienceItem } from "./profile";
 
 export type ProfilePlatform =
   | "kwork"

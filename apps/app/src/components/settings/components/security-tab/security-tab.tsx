@@ -1,9 +1,16 @@
 "use client";
 
 import { paths } from "@qbs-autonaim/config";
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
-import { Label } from "@qbs-autonaim/ui/components/label"
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
+import { Label } from "@qbs-autonaim/ui/components/label";
 import { PasswordInput } from "@qbs-autonaim/ui/components/password-input";
 import { useMutation } from "@tanstack/react-query";
 import { Check, X } from "lucide-react";
@@ -12,9 +19,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { authClient } from "~/auth/client";
 import { useTRPC } from "~/trpc/react";
-import { DeleteAccountDialog } from "../delete-account-dialog";
 import type { UserMe } from "~/types/api";
-
+import { DeleteAccountDialog } from "../delete-account-dialog";
 
 interface SecurityTabProps {
   user: UserMe;

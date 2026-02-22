@@ -1,8 +1,8 @@
 "use client";
 
-import type { VacancyResponseDetail } from "~/components/responses/types";
 import { Separator } from "@qbs-autonaim/ui/components/separator";
 import { Award } from "lucide-react";
+import type { VacancyResponseDetail } from "~/components/responses/types";
 import { getProfileData } from "~/components/shared/utils/types";
 import { sanitizeHtmlFunction } from "~/lib/sanitize-html";
 import { ResumeProfile } from "./resume-profile";

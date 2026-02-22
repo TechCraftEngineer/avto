@@ -2,14 +2,14 @@
  * Zod схемы валидации для Recruitment Assistant Extension
  */
 
-import { z } from "zod";
 import type {
-  WorkExperienceEntry,
-  EducationEntry,
-  CandidateContactInfo,
   BasicCandidateInfo,
+  CandidateContactInfo,
+  EducationEntry,
   FullCandidateData,
+  WorkExperienceEntry,
 } from "@qbs-autonaim/shared";
+import { z } from "zod";
 
 /**
  * Схема для записи об опыте работы

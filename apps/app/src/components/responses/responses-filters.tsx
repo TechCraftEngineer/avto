@@ -1,7 +1,13 @@
 "use client";
 
-import { Input } from "@qbs-autonaim/ui/components/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbs-autonaim/ui/components/select";
+import { Input } from "@qbs-autonaim/ui/components/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@qbs-autonaim/ui/components/select";
 import { Search } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 

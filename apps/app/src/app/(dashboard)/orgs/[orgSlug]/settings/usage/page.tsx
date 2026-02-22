@@ -2,10 +2,21 @@ import { paths } from "@qbs-autonaim/config";
 import { OrganizationRepository } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
-import { Progress } from "@qbs-autonaim/ui/components/progress"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@qbs-autonaim/ui/components/tabs";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
+import { Progress } from "@qbs-autonaim/ui/components/progress";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@qbs-autonaim/ui/components/tabs";
 import {
   IconBriefcase,
   IconMessageCircle,

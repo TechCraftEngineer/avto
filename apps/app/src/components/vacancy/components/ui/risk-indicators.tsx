@@ -1,7 +1,12 @@
 "use client";
 
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@qbs-autonaim/ui/components/tooltip";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@qbs-autonaim/ui/components/tooltip";
 import { AlertTriangle } from "lucide-react";
 
 interface RiskFactor {

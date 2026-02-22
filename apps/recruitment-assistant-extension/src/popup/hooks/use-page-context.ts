@@ -9,7 +9,7 @@ function fetchPageContextFromActiveTab(
 ): void {
   chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
     const url = tab?.url;
-    cb(url ? getPageContext(url) ?? null : null);
+    cb(url ? (getPageContext(url) ?? null) : null);
   });
 }
 
@@ -37,12 +37,15 @@ export function usePageContext() {
       tab: chrome.tabs.Tab,
     ) => {
       if (changeInfo.status !== "complete") return;
-      chrome.tabs.query({ active: true, lastFocusedWindow: true }, ([active]) => {
-        if (active?.id === tabId) {
-          const url = changeInfo.url ?? tab?.url;
-          if (url) setPageContext(getPageContext(url) ?? null);
-        }
-      });
+      chrome.tabs.query(
+        { active: true, lastFocusedWindow: true },
+        ([active]) => {
+          if (active?.id === tabId) {
+            const url = changeInfo.url ?? tab?.url;
+            if (url) setPageContext(getPageContext(url) ?? null);
+          }
+        },
+      );
     };
 
     chrome.tabs.onActivated.addListener(onActivated);

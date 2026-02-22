@@ -2,7 +2,12 @@
 
 import { Badge } from "@qbs-autonaim/ui/components/badge";
 import { Button } from "@qbs-autonaim/ui/components/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
 import { Textarea } from "@qbs-autonaim/ui/components/textarea";
 import {
   Calendar,

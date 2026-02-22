@@ -1,6 +1,6 @@
-import { cn } from "@qbs-autonaim/ui/utils";
 import { Toaster } from "@qbs-autonaim/ui/components/sonner";
 import { ThemeProvider } from "@qbs-autonaim/ui/components/theme";
+import { cn } from "@qbs-autonaim/ui/utils";
 import type { Metadata, Viewport } from "next";
 import { env } from "~/env";
 import { TRPCReactProvider } from "~/trpc/react";

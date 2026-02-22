@@ -2,14 +2,13 @@
 
 // Constants
 export { HH_USER_AGENT } from "./constants/hh";
+// Types
+export type { ResponseNeedingDetails } from "./services/response";
 export {
   getResponsesNeedingDetailsForVacancy,
   hasDetailedInfo,
   updateResponseDetails,
 } from "./services/response";
-
-// Types
-export type { ResponseNeedingDetails } from "./services/response";
 export type { SaveResponseData } from "./types/response";
 
 // Utils

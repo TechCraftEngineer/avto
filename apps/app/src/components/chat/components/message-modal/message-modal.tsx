@@ -1,8 +1,15 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@qbs-autonaim/ui/components/dialog"
-import { Label } from "@qbs-autonaim/ui/components/label"
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@qbs-autonaim/ui/components/dialog";
+import { Label } from "@qbs-autonaim/ui/components/label";
 import { Textarea } from "@qbs-autonaim/ui/components/textarea";
 import { Loader2, Send } from "lucide-react";
 import React from "react";

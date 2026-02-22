@@ -1,5 +1,6 @@
 import type { Database } from "../../../../types/database";
 import type { ErrorHandler } from "../../../../utils/error-handler";
+import type { FreelancerInfo } from "../types";
 import {
   createInterviewSession,
   generateWelcomeMessage,
@@ -10,7 +11,6 @@ import { findExistingResponse } from "../utils/find-existing-response";
 import { handleExistingSession } from "../utils/handle-existing-session";
 import { syncCandidateToGlobalPool } from "../utils/sync-candidate";
 import { triggerProfileParsing } from "../utils/trigger-profile-parsing";
-import type { FreelancerInfo } from "../types";
 
 export async function handleGigInterview(
   db: Database,

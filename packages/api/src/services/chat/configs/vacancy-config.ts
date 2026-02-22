@@ -3,7 +3,10 @@
  */
 
 import type { PromptConfig } from "../types";
-import type { VacancyCandidateData, VacancyMainContext } from "../vacancy-types";
+import type {
+  VacancyCandidateData,
+  VacancyMainContext,
+} from "../vacancy-types";
 
 function formatVacancyMain(ctx: Record<string, unknown>): string {
   const vac = ctx as unknown as VacancyMainContext;

@@ -3,7 +3,11 @@
 import { useInngestSubscription } from "@bunworks/inngest-realtime/hooks";
 import { paths } from "@qbs-autonaim/config";
 import { Button } from "@qbs-autonaim/ui/components/button";
-import { Sheet, SheetContent, SheetTrigger } from "@qbs-autonaim/ui/components/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@qbs-autonaim/ui/components/sheet";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Info } from "lucide-react";
 import Link from "next/link";

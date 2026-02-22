@@ -1,6 +1,11 @@
-import type { VacancyResponseDetail } from "~/components/responses/types";
-import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
 import { AlertTriangle, Award, CheckCircle2, XCircle } from "lucide-react";
+import type { VacancyResponseDetail } from "~/components/responses/types";
 import { analyzeSkillMatch } from "./utils";
 
 interface SkillMatchAnalysisProps {

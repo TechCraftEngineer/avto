@@ -1,5 +1,5 @@
-import type { Browser, Page } from "puppeteer";
 import type { db } from "@qbs-autonaim/db/client";
+import type { Browser, Page } from "puppeteer";
 
 export interface TwoFactorRequiredResult {
   success: boolean;

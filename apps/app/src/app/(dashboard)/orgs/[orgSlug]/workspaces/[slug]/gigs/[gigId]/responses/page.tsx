@@ -1,15 +1,29 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
-import { Skeleton } from "@qbs-autonaim/ui/components/skeleton"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@qbs-autonaim/ui/components/table";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
+import { Skeleton } from "@qbs-autonaim/ui/components/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@qbs-autonaim/ui/components/table";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import { toast } from "sonner";
 import {
+  BulkActionButtons,
   ConfirmDialog,
   EmptyState,
   GigResponseActionButtons,
@@ -17,20 +31,19 @@ import {
   ResponseHeader,
   ResponsesFilters,
   ResponsesTable,
+  useBulkOperations,
   useResponseFilters,
   useResponseMutations,
   useResponseStats,
-  BulkActionButtons,
-  useBulkOperations,
 } from "~/components/gig/components/gig-responses";
 import type { ResponseFiltersState } from "~/components/gig/components/gig-responses/use-response-filters";
 import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
 import {
   convertToCSV,
   downloadCSV,
   generateExportFilename,
 } from "~/lib/export-csv";
+import { useTRPC } from "~/trpc/react";
 
 interface PageProps {
   params: Promise<{ orgSlug: string; slug: string; gigId: string }>;

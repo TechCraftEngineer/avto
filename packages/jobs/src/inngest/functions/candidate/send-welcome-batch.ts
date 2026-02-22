@@ -15,9 +15,9 @@ import {
   generateWelcomeMessage,
   sendHHChatMessage,
 } from "../../../services/messaging";
+import { isHHAuthError } from "../../../utils/hh-auth-error";
 import { workspaceNotificationsChannel } from "../../channels/client";
 import { inngest } from "../../client";
-import { isHHAuthError } from "../../../utils/hh-auth-error";
 
 /**
  * Inngest функция для массовой отправки приветственных сообщений кандидатам

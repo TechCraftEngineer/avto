@@ -3,6 +3,8 @@
  * Позволяет выбирать вакансии галочками и импортировать через popup
  */
 
+import { getVacancyIdFromResponsesPage } from "../parsers/hh-employer";
+import { IMPORT_PROGRESS_KEY } from "../shared/import-progress";
 import {
   detectHHEmployerPageType,
   getSelectedIds,
@@ -11,8 +13,6 @@ import {
   runVacanciesImportSelected,
 } from "./hh-employer";
 import { resolveAuth } from "./hh-employer/auth";
-import { getVacancyIdFromResponsesPage } from "../parsers/hh-employer";
-import { IMPORT_PROGRESS_KEY } from "../shared/import-progress";
 
 function reportProgress(message: string) {
   void chrome.storage.local.set({ [IMPORT_PROGRESS_KEY]: { message } });

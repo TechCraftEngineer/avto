@@ -2,7 +2,12 @@
 
 import { getResponseEventTitle } from "@qbs-autonaim/shared";
 import { Badge } from "@qbs-autonaim/ui/components/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
 import { skipToken, useQuery } from "@tanstack/react-query";
 import {
   Briefcase,

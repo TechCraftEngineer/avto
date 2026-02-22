@@ -1,9 +1,15 @@
 "use client";
 
 import { paths } from "@qbs-autonaim/config";
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { CandidateAvatar } from "@qbs-autonaim/ui/components/candidate-avatar"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { CandidateAvatar } from "@qbs-autonaim/ui/components/candidate-avatar";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
@@ -15,9 +21,7 @@ import { getAvatarUrl } from "~/lib/avatar";
 import { useTRPC } from "~/trpc/react";
 import type { VacancyResponseRecentItem } from "~/types/api";
 
-
-type RecentResponse =
-  VacancyResponseRecentItem;
+type RecentResponse = VacancyResponseRecentItem;
 
 interface RecentResponseItemProps {
   response: RecentResponse;

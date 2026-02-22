@@ -1,4 +1,8 @@
-import { Alert, AlertDescription, AlertTitle } from "@qbs-autonaim/ui/components/alert";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@qbs-autonaim/ui/components/alert";
 import { AlertCircle } from "lucide-react";
 
 export function ShortlistError() {

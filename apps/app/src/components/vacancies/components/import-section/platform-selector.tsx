@@ -1,5 +1,11 @@
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbs-autonaim/ui/components/select";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@qbs-autonaim/ui/components/select";
 
 interface PlatformSelectorProps {
   activeIntegrations: Array<{ id: string; type: string }>;

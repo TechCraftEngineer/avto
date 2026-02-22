@@ -1,6 +1,10 @@
 "use client";
 
-import { Card, CardContent, CardHeader } from "@qbs-autonaim/ui/components/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+} from "@qbs-autonaim/ui/components/card";
 import { CandidateActions } from "./candidate-actions";
 import { CandidateInfo } from "./candidate-info";
 import { CandidateKeyInfo } from "./candidate-key-info";

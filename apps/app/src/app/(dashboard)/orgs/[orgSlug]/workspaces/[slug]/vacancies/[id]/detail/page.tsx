@@ -15,8 +15,8 @@ import {
   VacancyStats,
 } from "~/components/vacancy/components";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
-import { sanitizeHtmlFunction } from "~/lib/sanitize-html";
 import { env } from "~/env";
+import { sanitizeHtmlFunction } from "~/lib/sanitize-html";
 import { useTRPC } from "~/trpc/react";
 
 interface VacancyDetailPageProps {

@@ -1,9 +1,16 @@
 "use client";
 
 import { useInngestSubscription } from "@bunworks/inngest-realtime/hooks";
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
-import { Progress } from "@qbs-autonaim/ui/components/progress"
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
+import { Progress } from "@qbs-autonaim/ui/components/progress";
 import { Separator } from "@qbs-autonaim/ui/components/separator";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { useEffect, useRef } from "react";

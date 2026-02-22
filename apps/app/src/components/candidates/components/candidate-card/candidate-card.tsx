@@ -1,6 +1,10 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@qbs-autonaim/ui/components/avatar";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@qbs-autonaim/ui/components/avatar";
 import { MapPin } from "lucide-react";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { getAvatarUrl } from "~/lib/avatar";

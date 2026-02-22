@@ -5,12 +5,12 @@ import {
   type ProgressData,
   refreshVacancyResponses,
 } from "@qbs-autonaim/jobs-parsers";
+import { isHHAuthError } from "../../../utils/hh-auth-error";
 import {
   refreshVacancyResponsesChannel,
   vacancyStatsChannel,
   workspaceNotificationsChannel,
 } from "../../channels/client";
-import { isHHAuthError } from "../../../utils/hh-auth-error";
 import { inngest } from "../../client";
 
 /**

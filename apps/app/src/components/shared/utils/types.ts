@@ -1,6 +1,6 @@
 import type {
-  ExperienceItem,
   EducationItem,
+  ExperienceItem,
   PersonalInfo,
 } from "@qbs-autonaim/db/schema";
 import type {

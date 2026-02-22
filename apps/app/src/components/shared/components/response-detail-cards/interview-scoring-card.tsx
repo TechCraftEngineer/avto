@@ -1,7 +1,13 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
-import { Progress } from "@qbs-autonaim/ui/components/progress"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
+import { Progress } from "@qbs-autonaim/ui/components/progress";
 import { Separator } from "@qbs-autonaim/ui/components/separator";
 import { MessageSquare } from "lucide-react";
 import { SafeHtml } from "~/components";

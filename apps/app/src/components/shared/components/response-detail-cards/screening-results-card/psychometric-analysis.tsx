@@ -1,4 +1,4 @@
-import { Badge } from "@qbs-autonaim/ui/components/badge"
+import { Badge } from "@qbs-autonaim/ui/components/badge";
 import { InfoTooltip } from "@qbs-autonaim/ui/components/info-tooltip";
 import { AlertCircle, Brain, Heart, Sparkles } from "lucide-react";
 import { sanitizeHtmlFunction } from "~/lib/sanitize-html";

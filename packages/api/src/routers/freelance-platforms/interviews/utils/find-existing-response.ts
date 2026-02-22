@@ -1,9 +1,8 @@
 import { and, eq } from "@qbs-autonaim/db";
 import { response as responseTable } from "@qbs-autonaim/db/schema";
 import type { Database } from "../../../../types/database";
-import { normalizeProfileUrl } from "./normalize-profile-url";
-
 import type { FreelancerInfo } from "../types";
+import { normalizeProfileUrl } from "./normalize-profile-url";
 
 export async function findExistingResponse(
   db: Database,

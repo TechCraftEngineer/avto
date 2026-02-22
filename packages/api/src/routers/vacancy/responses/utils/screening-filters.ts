@@ -1,7 +1,7 @@
 import { and, eq, gte, inArray, lt, sql } from "@qbs-autonaim/db";
 import {
-  response as responseTable,
   responseScreening,
+  response as responseTable,
 } from "@qbs-autonaim/db/schema";
 import type { Database } from "../../../../types/database";
 

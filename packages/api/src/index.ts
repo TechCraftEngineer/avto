@@ -25,10 +25,6 @@ export type {
   TenantVerificationParams,
   TenantVerificationResult,
 } from "./middleware";
-export type {
-  VacancyResponseSortDirection,
-  VacancyResponseSortField,
-} from "./routers/vacancy/responses/utils/sort-types";
 export {
   createTenantGuard,
   TenantGuard,
@@ -37,6 +33,10 @@ export {
   withTenantGuard,
 } from "./middleware";
 export { type AppRouter, appRouter } from "./root";
+export type {
+  VacancyResponseSortDirection,
+  VacancyResponseSortField,
+} from "./routers/vacancy/responses/utils/sort-types";
 export { AuditLoggerService } from "./services/audit-logger";
 export { createTRPCContext } from "./trpc";
 export type { RouterInputs, RouterOutputs };

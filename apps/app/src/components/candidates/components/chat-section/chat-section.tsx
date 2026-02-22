@@ -1,9 +1,13 @@
 "use client";
 
 import { getInitials } from "@qbs-autonaim/shared";
-import { Avatar, AvatarFallback, AvatarImage } from "@qbs-autonaim/ui/components/avatar"
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { ScrollArea } from "@qbs-autonaim/ui/components/scroll-area"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@qbs-autonaim/ui/components/avatar";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import { ScrollArea } from "@qbs-autonaim/ui/components/scroll-area";
 import { Textarea } from "@qbs-autonaim/ui/components/textarea";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MessageSquare, Pause, Play, Send } from "lucide-react";

@@ -3,8 +3,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useTRPC } from "~/trpc/react";
-import type { OrganizationDetail, WorkspaceDetail, WorkspaceRole } from "~/types/api";
-
+import type {
+  OrganizationDetail,
+  WorkspaceDetail,
+  WorkspaceRole,
+} from "~/types/api";
 
 interface UseWorkspaceReturn {
   workspace:

@@ -3,8 +3,8 @@
 import { ParsedProfileCard } from "~/components/shared/components/response-detail-cards";
 import { GigResponseHeaderCard } from "./header-card";
 import { useGigResponseFlags } from "./hooks/use-gig-response-flags";
-import { GigResponseTabs } from "./tabs";
 import { ResponseSummaryCard } from "./summary-card";
+import { GigResponseTabs } from "./tabs";
 import type { GigResponseDetailCardProps } from "./types";
 
 export function GigResponseDetailCard({

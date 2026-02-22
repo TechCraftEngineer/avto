@@ -1,10 +1,10 @@
 import { importMultipleVacancies } from "@qbs-autonaim/jobs-parsers";
 import { z } from "zod";
+import { isHHAuthError } from "../../../utils/hh-auth-error";
 import {
   importArchivedVacanciesChannel,
   workspaceNotificationsChannel,
 } from "../../channels/client";
-import { isHHAuthError } from "../../../utils/hh-auth-error";
 import { inngest } from "../../client";
 import { pluralizeVacancy } from "./pluralize-vacancy";
 

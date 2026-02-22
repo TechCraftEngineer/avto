@@ -3,9 +3,7 @@ import {
   getUserIntegrationCredentials,
   updateUserIntegrationLastUsed,
 } from "@qbs-autonaim/db";
-import {
-  createCalendarEvent as createGoogleCalendarEvent,
-} from "@qbs-autonaim/integration-clients/server";
+import { createCalendarEvent as createGoogleCalendarEvent } from "@qbs-autonaim/integration-clients/server";
 import { createCalendarEventSchema } from "@qbs-autonaim/validators";
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure } from "../../trpc";
@@ -101,8 +99,7 @@ export const createEvent = protectedProcedure
     const endDate = new Date(input.scheduledAt);
     endDate.setMinutes(endDate.getMinutes() + input.durationMinutes);
 
-    const typeLabel =
-      INTERVIEW_TYPE_LABELS[input.type] ?? "Собеседование";
+    const typeLabel = INTERVIEW_TYPE_LABELS[input.type] ?? "Собеседование";
     const candidateName = responseRow.candidateName ?? "Кандидат";
     const summary = `${typeLabel}: ${candidateName}`;
 
@@ -125,8 +122,7 @@ export const createEvent = protectedProcedure
       "google_calendar",
     );
     const metadata = (userInt?.metadata as Record<string, unknown>) ?? {};
-    const calendarId =
-      (metadata.calendar_id as string) || "primary";
+    const calendarId = (metadata.calendar_id as string) || "primary";
 
     const result = await createGoogleCalendarEvent(
       {

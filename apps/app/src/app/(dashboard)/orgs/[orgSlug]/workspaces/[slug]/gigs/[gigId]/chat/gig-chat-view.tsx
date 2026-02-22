@@ -1,5 +1,6 @@
 "use client";
 
+import { type AIChatMessage, getMessageText } from "@qbs-autonaim/shared";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, ExternalLink, RefreshCw } from "lucide-react";
@@ -15,7 +16,6 @@ import { useAIChatStream } from "~/hooks/use-ai-chat-stream";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useWorkspaceParams } from "~/hooks/use-workspace-params";
 import { useTRPC } from "~/trpc/react";
-import { type AIChatMessage, getMessageText } from "@qbs-autonaim/shared";
 
 interface GigChatViewProps {
   gigId: string;

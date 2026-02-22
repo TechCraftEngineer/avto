@@ -2,12 +2,12 @@ import { and, eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { vacancy } from "@qbs-autonaim/db/schema";
 import { importMultipleVacancies } from "@qbs-autonaim/jobs-parsers";
+import { isHHAuthError } from "../../../utils/hh-auth-error";
 import {
   importNewVacanciesChannel,
   workspaceNotificationsChannel,
   workspaceStatsChannel,
 } from "../../channels/client";
-import { isHHAuthError } from "../../../utils/hh-auth-error";
 import { inngest } from "../../client";
 import { vacancyImportNewSelectedDataSchema } from "../../types/vacancy.types";
 import { pluralizeVacancy } from "./pluralize-vacancy";

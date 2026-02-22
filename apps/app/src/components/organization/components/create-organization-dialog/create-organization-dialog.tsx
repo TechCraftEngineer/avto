@@ -2,12 +2,31 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { APP_CONFIG } from "@qbs-autonaim/config";
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@qbs-autonaim/ui/components/dialog"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@qbs-autonaim/ui/components/form"
-import { Input } from "@qbs-autonaim/ui/components/input"
-import { Textarea } from "@qbs-autonaim/ui/components/textarea"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@qbs-autonaim/ui/components/tooltip";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@qbs-autonaim/ui/components/dialog";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@qbs-autonaim/ui/components/form";
+import { Input } from "@qbs-autonaim/ui/components/input";
+import { Textarea } from "@qbs-autonaim/ui/components/textarea";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@qbs-autonaim/ui/components/tooltip";
 import { createOrganizationSchema } from "@qbs-autonaim/validators";
 import slugify from "@sindresorhus/slugify";
 import { useMutation, useQueryClient } from "@tanstack/react-query";

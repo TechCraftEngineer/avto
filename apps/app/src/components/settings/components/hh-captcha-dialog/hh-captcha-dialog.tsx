@@ -1,8 +1,22 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@qbs-autonaim/ui/components/dialog"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@qbs-autonaim/ui/components/form"
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@qbs-autonaim/ui/components/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@qbs-autonaim/ui/components/form";
 import { Input } from "@qbs-autonaim/ui/components/input";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";

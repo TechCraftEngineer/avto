@@ -1,13 +1,13 @@
-import { Log } from "crawlee";
-import type { Page } from "puppeteer";
 import {
   clearIntegrationAuthError,
   markIntegrationAuthError,
 } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
+import { Log } from "crawlee";
+import type { Page } from "puppeteer";
 import { loadCookies } from "../../../../utils/cookies";
-import { HHAuthError } from "./auth-errors";
 import { HH_CONFIG } from "../config/config";
+import { HHAuthError } from "./auth-errors";
 
 export async function performLogin(
   page: Page,

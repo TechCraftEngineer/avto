@@ -1,7 +1,16 @@
 "use client";
 
-import { Alert, AlertDescription, AlertTitle } from "@qbs-autonaim/ui/components/alert"
-import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@qbs-autonaim/ui/components/alert";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
 import {
   IconAlertTriangle,
   IconBulb,

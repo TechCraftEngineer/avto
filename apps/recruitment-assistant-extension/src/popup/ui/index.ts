@@ -1,3 +1,4 @@
+export { Alert } from "./alert";
 export { Button } from "./button";
 export {
   Card,
@@ -8,6 +9,5 @@ export {
   CardTitle,
 } from "./card";
 export { cn } from "./cn";
-export { Alert } from "./alert";
 export { Label } from "./label";
 export { Select } from "./select";

@@ -1,9 +1,17 @@
 "use client";
 
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Card, CardContent, CardHeader } from "@qbs-autonaim/ui/components/card"
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@qbs-autonaim/ui/components/hover-card"
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+} from "@qbs-autonaim/ui/components/card";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@qbs-autonaim/ui/components/hover-card";
 import { Progress } from "@qbs-autonaim/ui/components/progress";
 import {
   AlertCircle,
@@ -20,9 +28,7 @@ import {
 import Link from "next/link";
 import type { GigRankedCandidate } from "~/types/api";
 
-
-type RankedCandidate =
-  GigRankedCandidate;
+type RankedCandidate = GigRankedCandidate;
 
 interface RankedCandidateCardProps {
   candidate: RankedCandidate;

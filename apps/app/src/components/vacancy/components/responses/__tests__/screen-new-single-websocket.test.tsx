@@ -9,11 +9,11 @@ import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
-import type { ColumnId } from "../types";
 import {
-  VacancyResponsesProvider,
   useVacancyOperation,
+  VacancyResponsesProvider,
 } from "../context/vacancy-responses-context";
+import type { ColumnId } from "../types";
 
 function getRealContext() {
   const ctx = (globalThis as { __realVacancyResponsesContext?: object })
@@ -21,6 +21,7 @@ function getRealContext() {
   if (!ctx) throw new Error("__realVacancyResponsesContext not set");
   return ctx;
 }
+
 import { StatusIndicators } from "../status-indicators";
 import { ResponseTableToolbar } from "../table/response-table-toolbar";
 

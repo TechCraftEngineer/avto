@@ -1,7 +1,14 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@qbs-autonaim/ui/components/dialog"
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@qbs-autonaim/ui/components/dialog";
 import { Form } from "@qbs-autonaim/ui/components/form";
 import { Briefcase } from "lucide-react";
 import { HHCaptchaDialog } from "../hh-captcha-dialog/hh-captcha-dialog";

@@ -3,8 +3,6 @@
  * Domain types — единый источник правды для структуры данных
  */
 
-// Common
-export type { SortDirection } from "./common";
 // Candidate
 export type {
   BaseCandidateData,
@@ -18,6 +16,8 @@ export type {
   FullCandidateData,
   WorkExperienceEntry,
 } from "./candidate";
+// Common
+export type { SortDirection } from "./common";
 // Evaluation
 export type {
   DimensionScore,
@@ -57,13 +57,6 @@ export type {
   ProfilePlatform,
   ProfileStatistics,
 } from "./profile-extended";
-// Response status (единый источник для db, validators, api)
-export {
-  responseStatusValues,
-  vacancyResponseStatusFilterValues,
-  type ResponseStatus,
-  type VacancyResponseStatusFilter,
-} from "./response-status";
 // Response
 export type {
   BaseResponseData,
@@ -77,6 +70,13 @@ export {
   type ResponseEventType,
   responseEventTypeValues,
 } from "./response-event";
+// Response status (единый источник для db, validators, api)
+export {
+  type ResponseStatus,
+  responseStatusValues,
+  type VacancyResponseStatusFilter,
+  vacancyResponseStatusFilterValues,
+} from "./response-status";
 // Vacancy
 export type {
   BaseVacancyData,

@@ -5,6 +5,7 @@ import {
   chatSession,
 } from "@qbs-autonaim/db/schema";
 import { streamText } from "@qbs-autonaim/lib/ai";
+import type { ChatHistoryMessage } from "@qbs-autonaim/shared";
 import type { TRPCRouterRecord } from "@trpc/server";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
@@ -12,7 +13,6 @@ import {
   loadCandidatesContext,
   loadGigContext,
 } from "../../../services/gig-chat/context-loader";
-import type { ChatHistoryMessage } from "@qbs-autonaim/shared";
 import { buildGigAIChatPrompt } from "../../../services/gig-chat/prompt-builder";
 import { gigChatRateLimiter } from "../../../services/gig-chat/rate-limiter";
 import { protectedProcedure } from "../../../trpc";

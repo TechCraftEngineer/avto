@@ -20,7 +20,8 @@ export interface VacancyRequirementsStrict {
   keywords_for_matching: string[];
 }
 
-export interface VacancyRequirements extends Partial<VacancyRequirementsStrict> {
+export interface VacancyRequirements
+  extends Partial<VacancyRequirementsStrict> {
   hardSkills?: string[];
   softSkills?: string[];
   minExperience?: number;

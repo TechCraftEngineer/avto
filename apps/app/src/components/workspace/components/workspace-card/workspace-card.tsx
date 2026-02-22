@@ -2,7 +2,11 @@
 
 import { paths } from "@qbs-autonaim/config";
 import type { Workspace } from "@qbs-autonaim/db/schema";
-import { Avatar, AvatarFallback, AvatarImage } from "@qbs-autonaim/ui/components/avatar";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@qbs-autonaim/ui/components/avatar";
 import { Card } from "@qbs-autonaim/ui/components/card";
 import { Building2, ExternalLink } from "lucide-react";
 import Link from "next/link";

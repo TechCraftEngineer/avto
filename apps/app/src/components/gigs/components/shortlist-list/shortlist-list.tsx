@@ -4,12 +4,10 @@ import { Badge } from "@qbs-autonaim/ui/components/badge";
 import { Progress } from "@qbs-autonaim/ui/components/progress";
 import { Separator } from "@qbs-autonaim/ui/components/separator";
 import { Award, BarChart3, Trophy, Users } from "lucide-react";
-import { ShortlistCandidateCard } from "../shortlist-candidate-card";
 import type { GigShortlistCandidate } from "~/types/api";
+import { ShortlistCandidateCard } from "../shortlist-candidate-card";
 
-
-type ShortlistCandidate =
-  GigShortlistCandidate;
+type ShortlistCandidate = GigShortlistCandidate;
 
 interface ShortlistListProps {
   candidates: ShortlistCandidate[];

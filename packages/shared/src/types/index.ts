@@ -5,110 +5,105 @@
 
 // Domain-типы из @qbs-autonaim/types
 export type {
-  // Common
-  SortDirection,
-  // Profile
-  ExperienceItem,
-  EducationItem,
-  LanguageItem,
-  PersonalInfo,
-  StoredProfileData,
-  ProfilePlatform,
-  ProfileStatistics,
+  BaseCandidateData,
+  BaseGigData,
   BaseProfileData,
-  ExtendedProfileData,
-  ParsedProfileData,
-  // Vacancy
-  VacancyRequirements,
-  VacancyRequirementsStrict,
-  BaseVacancyData,
-  ExtendedVacancyData,
-  VacancyEvaluationData,
-  ParsedVacancyData,
   // Response
   BaseResponseData,
+  BaseVacancyData,
+  // Workspace
+  BaseWorkspaceData,
+  // Candidate
+  BasicCandidateInfo,
+  CandidateContactInfo,
+  CandidateContextData,
+  CandidateDataFromResponse,
+  CompanySettings,
+  // Gig
+  ContactInfo,
+  DimensionScore,
+  EducationEntry,
+  EducationItem,
+  EvaluationResult,
+  // Profile
+  ExperienceItem,
+  ExtendedCandidateData,
+  ExtendedGigData,
+  ExtendedProfileData,
+  ExtendedVacancyData,
+  ExtendedWorkspaceData,
+  // Evaluation
+  FitDecision,
+  FreelancerProfileData,
+  FullCandidateData,
+  GigContextData,
+  HonestyLevel,
+  LanguageItem,
+  OrganizationData,
+  ParsedProfileData,
   ParsedResponseData,
+  ParsedVacancyData,
+  PersonalInfo,
+  PrequalificationResult,
+  ProfilePlatform,
+  ProfileStatistics,
   ResponseData,
   ResumeContactInfo,
   ResumeExperience,
   ResumeScreeningData,
-  // Evaluation
-  FitDecision,
-  HonestyLevel,
-  DimensionScore,
-  EvaluationResult,
+  ScreeningDataForRecommendation,
   ScreeningRecommendation,
   ScreeningResult,
-  ScreeningDataForRecommendation,
-  PrequalificationResult,
-  // Workspace
-  BaseWorkspaceData,
-  ExtendedWorkspaceData,
-  CompanySettings,
-  OrganizationData,
-  // Candidate
-  BasicCandidateInfo,
+  // Common
+  SortDirection,
+  StoredProfileData,
+  VacancyEvaluationData,
+  // Vacancy
+  VacancyRequirements,
+  VacancyRequirementsStrict,
   WorkExperienceEntry,
-  EducationEntry,
-  CandidateContactInfo,
-  FreelancerProfileData,
-  BaseCandidateData,
-  ExtendedCandidateData,
-  CandidateDataFromResponse,
-  CandidateContextData,
-  FullCandidateData,
-  // Gig
-  ContactInfo,
-  BaseGigData,
-  ExtendedGigData,
-  GigContextData,
 } from "@qbs-autonaim/types";
-
+// Типы AI чата
+export type {
+  AIChatMessage,
+  Attachment,
+  ChatStatus,
+  FilePart,
+  MessagePart,
+  MessagePartType,
+  ReasoningPart,
+  TextPart,
+  ToolCallPart,
+  ToolResultPart,
+} from "./ai-chat";
+export {
+  convertLegacyMessage,
+  getMessageText,
+  getPartKey,
+  getReasoningText,
+  hasReasoning,
+} from "./ai-chat";
 // Типы буферизации (остаются в shared)
 export type {
   BufferedMessage,
   BufferValue,
   MessageBufferService,
 } from "./buffer";
-
+// Типы gig заданий и контактов — реэкспорт ContactInfo из types, GigContextData и др. уже выше
+// Типы чата и сообщений
+export type {
+  BaseChatMessage,
+  BotSettings,
+  ChatContext,
+  ChatHistoryMessage,
+  ChatMessageMetadata,
+  ChatMessageWithId,
+  ConversationMessage,
+  InterviewMessageSender,
+  MessageRole,
+} from "./chat";
 // Типы conversation
 export type {
   ConversationMetadata,
   QuestionAnswer,
 } from "./conversation";
-
-// Типы gig заданий и контактов — реэкспорт ContactInfo из types, GigContextData и др. уже выше
-// Типы чата и сообщений
-export type {
-  MessageRole,
-  InterviewMessageSender,
-  BaseChatMessage,
-  ChatMessageWithId,
-  ChatHistoryMessage,
-  ConversationMessage,
-  ChatMessageMetadata,
-  BotSettings,
-  ChatContext,
-} from "./chat";
-
-// Типы AI чата
-export type {
-  MessagePartType,
-  TextPart,
-  ReasoningPart,
-  FilePart,
-  ToolCallPart,
-  ToolResultPart,
-  MessagePart,
-  AIChatMessage,
-  Attachment,
-  ChatStatus,
-} from "./ai-chat";
-
-export {
-  getPartKey,
-  convertLegacyMessage,
-  getMessageText,
-  hasReasoning,
-  getReasoningText,
-} from "./ai-chat";

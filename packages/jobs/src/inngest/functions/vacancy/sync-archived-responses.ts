@@ -6,13 +6,13 @@ import {
   runHHParseResponseDetailsForVacancy,
 } from "@qbs-autonaim/jobs-parsers";
 import { getResponsesLimitByOrganizationPlan } from "@qbs-autonaim/jobs-shared";
+import { collectChatIdsForVacancy } from "../../../services/collect-chat-ids";
+import { isHHAuthError } from "../../../utils/hh-auth-error";
 import {
   syncArchivedResponsesChannel,
   workspaceNotificationsChannel,
 } from "../../channels/client";
-import { isHHAuthError } from "../../../utils/hh-auth-error";
 import { inngest } from "../../client";
-import { collectChatIdsForVacancy } from "../../../services/collect-chat-ids";
 
 /**
  * Inngest функция для синхронизации всех откликов архивной вакансии.

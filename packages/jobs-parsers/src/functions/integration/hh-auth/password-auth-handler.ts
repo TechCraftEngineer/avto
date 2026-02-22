@@ -1,6 +1,6 @@
 import { HH_CONFIG } from "../../../parsers/hh/core/config/config";
-import type { AuthContext } from "./types";
 import { resolveCaptchaLoop } from "./captcha-handler";
+import type { AuthContext } from "./types";
 
 export async function performPasswordLogin(
   ctx: AuthContext,

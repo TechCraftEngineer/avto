@@ -1,10 +1,25 @@
 "use client";
 
-import { Alert, AlertDescription, AlertTitle } from "@qbs-autonaim/ui/components/alert"
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbs-autonaim/ui/components/select"
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@qbs-autonaim/ui/components/alert";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@qbs-autonaim/ui/components/select";
 import { Skeleton } from "@qbs-autonaim/ui/components/skeleton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -22,7 +37,6 @@ import { useState } from "react";
 import { CandidateComparison, RankingList } from "~/components/gig";
 import { useTRPC } from "~/trpc/react";
 import type { GigRankedCandidate } from "~/types/api";
-
 
 interface RankingPageClientProps {
   orgSlug: string;
@@ -202,9 +216,8 @@ export function RankingPageClient({
                 <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                   {
                     candidates.filter(
-                      (
-                        c: GigRankedCandidate,
-                      ) => c.screening?.recommendation === "HIGHLY_RECOMMENDED",
+                      (c: GigRankedCandidate) =>
+                        c.screening?.recommendation === "HIGHLY_RECOMMENDED",
                     ).length
                   }
                 </p>
@@ -214,9 +227,8 @@ export function RankingPageClient({
                 <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                   {
                     candidates.filter(
-                      (
-                        c: GigRankedCandidate,
-                      ) => c.screening?.recommendation === "RECOMMENDED",
+                      (c: GigRankedCandidate) =>
+                        c.screening?.recommendation === "RECOMMENDED",
                     ).length
                   }
                 </p>
@@ -227,10 +239,8 @@ export function RankingPageClient({
                   {candidates.length > 0
                     ? Math.round(
                         candidates.reduce(
-                          (
-                            sum: number,
-                            c: GigRankedCandidate,
-                          ) => sum + (c.screening?.overallScore ?? 0),
+                          (sum: number, c: GigRankedCandidate) =>
+                            sum + (c.screening?.overallScore ?? 0),
                           0,
                         ) / candidates.length,
                       )

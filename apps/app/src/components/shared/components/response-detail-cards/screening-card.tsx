@@ -1,5 +1,11 @@
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
 import { Award } from "lucide-react";
 import { SafeHtml } from "~/components";
 import { getScoreBadgeVariant } from "../../utils";

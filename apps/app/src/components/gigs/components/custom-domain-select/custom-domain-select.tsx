@@ -1,7 +1,13 @@
 "use client";
 
-import { Label } from "@qbs-autonaim/ui/components/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbs-autonaim/ui/components/select";
+import { Label } from "@qbs-autonaim/ui/components/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@qbs-autonaim/ui/components/select";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";
 import { useTRPC } from "~/trpc/react";

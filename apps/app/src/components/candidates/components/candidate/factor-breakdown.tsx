@@ -1,8 +1,13 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
+import { Award, Briefcase } from "lucide-react";
 import { memo } from "react";
-import { Briefcase, Award } from "lucide-react";
 import { ItemsListSection } from "~/components/ui/items-list";
 import { ScoreDisplay } from "~/components/ui/score-display";
 import type { FactorBreakdownData } from "~/types/screening";

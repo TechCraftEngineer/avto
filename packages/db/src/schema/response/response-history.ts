@@ -1,3 +1,4 @@
+import { responseEventTypeValues } from "@qbs-autonaim/types";
 import { sql } from "drizzle-orm";
 import {
   index,
@@ -10,8 +11,6 @@ import {
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
-
-import { responseEventTypeValues } from "@qbs-autonaim/types";
 
 import { user } from "../auth";
 import { response } from "./response";
@@ -52,8 +51,8 @@ export const responseHistory = pgTable(
   ],
 );
 
-export { responseEventTypeValues } from "@qbs-autonaim/types";
 export type { ResponseEventType } from "@qbs-autonaim/types";
+export { responseEventTypeValues } from "@qbs-autonaim/types";
 
 export const CreateResponseHistorySchema = createInsertSchema(responseHistory, {
   responseId: z.string().uuid(),

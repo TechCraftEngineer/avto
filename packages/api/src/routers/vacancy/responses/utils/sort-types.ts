@@ -3,9 +3,9 @@
  * Используются в list, list-workspace, sorting, sort-builder
  */
 
+import type { SortDirection } from "@qbs-autonaim/types";
 import { sortDirectionSchema as validatorsSortDirectionSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
-import type { SortDirection } from "@qbs-autonaim/types";
 
 /** Re-export для обратной совместимости */
 export const sortDirectionSchema =
@@ -65,4 +65,3 @@ export const vacancyResponseSortFieldWorkspaceSchema = z
   .optional()
   .nullable()
   .default(null);
-

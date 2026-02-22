@@ -1,8 +1,20 @@
 "use client";
 
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@qbs-autonaim/ui/components/collapsible"
-import { cn } from "@qbs-autonaim/ui/utils"
-import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem } from "@qbs-autonaim/ui/components/sidebar";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@qbs-autonaim/ui/components/collapsible";
+import {
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuBadge,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@qbs-autonaim/ui/components/sidebar";
+import { cn } from "@qbs-autonaim/ui/utils";
 import type { Icon } from "@tabler/icons-react";
 import { IconChevronDown } from "@tabler/icons-react";
 import Link from "next/link";

@@ -1,12 +1,12 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
 import type {
   AIChatMessage,
   ChatStatus,
   MessagePart,
   TextPart,
 } from "@qbs-autonaim/shared";
+import { useCallback, useRef, useState } from "react";
 
 interface UseAIChatStreamOptions {
   apiEndpoint: string;

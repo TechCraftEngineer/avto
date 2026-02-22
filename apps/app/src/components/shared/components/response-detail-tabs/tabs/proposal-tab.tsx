@@ -1,10 +1,10 @@
 "use client";
 
+import { Separator } from "@qbs-autonaim/ui/components/separator";
 import type {
   GigResponseDetail,
   VacancyResponseDetail,
 } from "~/components/responses/types";
-import { Separator } from "@qbs-autonaim/ui/components/separator";
 import { formatCurrency } from "../../../utils/constants";
 
 interface ProposalTabProps {

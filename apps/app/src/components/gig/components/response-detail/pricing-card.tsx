@@ -1,8 +1,13 @@
 "use client";
 
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
 import {
   Calendar,
   CheckCircle,
@@ -11,7 +16,7 @@ import {
   TrendingUp,
   Wallet,
 } from "lucide-react";
-import type { GigResponse, GigContextData } from "./types";
+import type { GigContextData, GigResponse } from "./types";
 
 interface PricingCardProps {
   response: GigResponse;

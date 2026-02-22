@@ -56,7 +56,10 @@ export function usePopupSettings(authService: AuthService) {
             const effectiveWorkspaceId =
               selectedWorkspaceId ?? (wss.length > 0 ? wss[0]?.id : null);
 
-            if (effectiveWorkspaceId && (!selectedOrgId || !selectedWorkspaceId)) {
+            if (
+              effectiveWorkspaceId &&
+              (!selectedOrgId || !selectedWorkspaceId)
+            ) {
               const { userData } = await chrome.storage.local.get(["userData"]);
               const user = userData as Record<string, unknown> | undefined;
               await chrome.storage.local.set({

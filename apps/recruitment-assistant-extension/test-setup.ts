@@ -17,7 +17,11 @@ global.location = happyWindow.location as any;
 
 // Мок для chrome API с поддержкой service-worker тестов
 const messageListeners: Array<
-  (message: unknown, sender: unknown, sendResponse: (response: unknown) => void) => unknown
+  (
+    message: unknown,
+    sender: unknown,
+    sendResponse: (response: unknown) => void,
+  ) => unknown
 > = [];
 const installedListeners: Array<(details: unknown) => void> = [];
 

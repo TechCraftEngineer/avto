@@ -8,13 +8,12 @@ import {
   FileText,
   Image as ImageIcon,
 } from "lucide-react";
-import { useWorkspace } from "~/hooks/use-workspace";
-import { useTRPC } from "~/trpc/react";
-
 import type {
   GigResponseDetail,
   VacancyResponseDetail,
 } from "~/components/responses/types";
+import { useWorkspace } from "~/hooks/use-workspace";
+import { useTRPC } from "~/trpc/react";
 
 interface PortfolioTabProps {
   response: GigResponseDetail | VacancyResponseDetail;

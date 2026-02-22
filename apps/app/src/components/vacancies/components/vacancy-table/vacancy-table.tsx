@@ -1,10 +1,17 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Skeleton } from "@qbs-autonaim/ui/components/skeleton"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@qbs-autonaim/ui/components/table";
-import { IconPlus, IconSearch } from "@tabler/icons-react";
 import type { SortDirection } from "@qbs-autonaim/shared";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import { Skeleton } from "@qbs-autonaim/ui/components/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@qbs-autonaim/ui/components/table";
+import { IconPlus, IconSearch } from "@tabler/icons-react";
 import Link from "next/link";
 import { env } from "~/env";
 import type { VacancyListItem } from "../../types";

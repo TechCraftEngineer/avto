@@ -1,9 +1,7 @@
 // Специфичные типы для gig откликов
 
-
 import type { GigContextData } from "@qbs-autonaim/shared";
 import type { GigResponseDetail } from "~/types/api";
-
 
 /** Реэкспорт для GigResponseDetailCard, header-card, pricing-card, summary-card */
 export type { GigContextData };

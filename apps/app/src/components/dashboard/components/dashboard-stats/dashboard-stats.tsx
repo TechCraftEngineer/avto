@@ -1,7 +1,14 @@
 "use client";
 
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { Card, CardAction, CardDescription, CardFooter, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import {
+  Card,
+  CardAction,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
 import { cn } from "@qbs-autonaim/ui/utils";
 import { IconTrendingDown, IconTrendingUp } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";

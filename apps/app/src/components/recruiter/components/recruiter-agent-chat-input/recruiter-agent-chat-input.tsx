@@ -1,7 +1,7 @@
 "use client";
 
-import { cn } from "@qbs-autonaim/ui/utils";
 import { Button } from "@qbs-autonaim/ui/components/button";
+import { cn } from "@qbs-autonaim/ui/utils";
 import { ArrowUp, Square } from "lucide-react";
 import {
   type ChangeEvent,

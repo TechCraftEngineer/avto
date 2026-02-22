@@ -1,9 +1,15 @@
 "use client";
 
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card"
-import { InfoTooltip } from "@qbs-autonaim/ui/components/info-tooltip"
-import { Progress } from "@qbs-autonaim/ui/components/progress"
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
+import { InfoTooltip } from "@qbs-autonaim/ui/components/info-tooltip";
+import { Progress } from "@qbs-autonaim/ui/components/progress";
 import { Separator } from "@qbs-autonaim/ui/components/separator";
 import {
   AlertCircle,
@@ -12,17 +18,17 @@ import {
   Star,
   UserCheck,
 } from "lucide-react";
-import { lazy, Suspense, memo, useMemo } from "react";
-import { ScoreDisplay } from "~/components/ui/score-display";
+import { lazy, memo, Suspense, useMemo } from "react";
 import { ItemsListSection } from "~/components/ui/items-list";
-import {
-  getScoreTheme,
-  getScoreColor,
-  getProgressColor,
-  cn,
-} from "~/lib/score-utils";
+import { ScoreDisplay } from "~/components/ui/score-display";
 import { getRecommendationConfig } from "~/lib/recommendation-config";
-import type { ScreeningData, RecommendationLevel } from "~/types/screening";
+import {
+  cn,
+  getProgressColor,
+  getScoreColor,
+  getScoreTheme,
+} from "~/lib/score-utils";
+import type { RecommendationLevel, ScreeningData } from "~/types/screening";
 import { SCREENING_TOOLTIPS } from "./screening-tooltips";
 
 // Lazy load heavy components for performance
@@ -387,9 +393,7 @@ export const ScreeningResultsCard = memo(function ScreeningResultsCard({
           <>
             <Separator />
             <Suspense fallback={<ComponentSkeleton />}>
-              <PsychometricAnalysis
-                analysis={screening.psychometricAnalysis}
-              />
+              <PsychometricAnalysis analysis={screening.psychometricAnalysis} />
             </Suspense>
           </>
         )}

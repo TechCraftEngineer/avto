@@ -1,8 +1,8 @@
 "use client";
 
 import type { SortDirection } from "@qbs-autonaim/shared";
-import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import type { HeaderContext } from "@tanstack/react-table";
+import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 
 export type GigSortField =
   | "candidateName"

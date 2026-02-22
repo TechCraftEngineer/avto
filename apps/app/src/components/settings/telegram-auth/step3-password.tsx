@@ -1,8 +1,16 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { DialogFooter } from "@qbs-autonaim/ui/components/dialog"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@qbs-autonaim/ui/components/form"
+import { Button } from "@qbs-autonaim/ui/components/button";
+import { DialogFooter } from "@qbs-autonaim/ui/components/dialog";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@qbs-autonaim/ui/components/form";
 import { Input } from "@qbs-autonaim/ui/components/input";
 import { Eye, EyeOff, Key } from "lucide-react";
 import { useState } from "react";

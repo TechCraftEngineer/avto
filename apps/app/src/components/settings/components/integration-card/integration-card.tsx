@@ -1,9 +1,18 @@
 "use client";
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@qbs-autonaim/ui/components/alert-dialog"
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Card } from "@qbs-autonaim/ui/components/card"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@qbs-autonaim/ui/components/alert-dialog";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import { Card } from "@qbs-autonaim/ui/components/card";
 import { IntegrationIcon } from "@qbs-autonaim/ui/components/integration-icon";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {

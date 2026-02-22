@@ -86,18 +86,12 @@ export const getVacancies = protectedProcedure
       }
       if (input.dateFrom) {
         conditions.push(
-          gte(
-            vacancy.createdAt,
-            new Date(`${input.dateFrom}T00:00:00.000Z`),
-          ),
+          gte(vacancy.createdAt, new Date(`${input.dateFrom}T00:00:00.000Z`)),
         );
       }
       if (input.dateTo) {
         conditions.push(
-          lte(
-            vacancy.createdAt,
-            new Date(`${input.dateTo}T23:59:59.999Z`),
-          ),
+          lte(vacancy.createdAt, new Date(`${input.dateTo}T23:59:59.999Z`)),
         );
       }
       if (input.search?.trim()) {

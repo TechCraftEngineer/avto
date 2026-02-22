@@ -2,13 +2,23 @@
 
 import type { Realtime } from "@bunworks/inngest-realtime";
 import { useInngestSubscription } from "@bunworks/inngest-realtime/hooks";
-import { Alert, AlertDescription, AlertTitle } from "@qbs-autonaim/ui/components/alert"
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Checkbox } from "@qbs-autonaim/ui/components/checkbox"
-import { Input } from "@qbs-autonaim/ui/components/input"
-import { ScrollArea } from "@qbs-autonaim/ui/components/scroll-area"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbs-autonaim/ui/components/select"
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@qbs-autonaim/ui/components/alert";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import { Checkbox } from "@qbs-autonaim/ui/components/checkbox";
+import { Input } from "@qbs-autonaim/ui/components/input";
+import { ScrollArea } from "@qbs-autonaim/ui/components/scroll-area";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@qbs-autonaim/ui/components/select";
 import { Tabs, TabsList, TabsTrigger } from "@qbs-autonaim/ui/components/tabs";
 import { AlertCircle, CheckCircle2, Loader2, Search } from "lucide-react";
 import { useMemo, useState } from "react";

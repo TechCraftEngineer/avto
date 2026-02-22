@@ -27,9 +27,7 @@ export const userIntegration = pgTable(
     type: text("type").notNull(),
     name: text("name").notNull(),
 
-    credentials: jsonb("credentials")
-      .notNull()
-      .$type<Record<string, string>>(),
+    credentials: jsonb("credentials").notNull().$type<Record<string, string>>(),
 
     metadata: jsonb("metadata").$type<Record<string, unknown>>(),
 

@@ -1,7 +1,13 @@
 "use client";
 
 import { Button } from "@qbs-autonaim/ui/components/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@qbs-autonaim/ui/components/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@qbs-autonaim/ui/components/dialog";
 import { Table, TableBody } from "@qbs-autonaim/ui/components/table";
 import { GitCompare } from "lucide-react";
 import { useMemo, useState } from "react";

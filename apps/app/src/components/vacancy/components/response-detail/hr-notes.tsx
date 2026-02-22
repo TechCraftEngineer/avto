@@ -1,4 +1,4 @@
-import { Button } from "@qbs-autonaim/ui/components/button"
+import { Button } from "@qbs-autonaim/ui/components/button";
 import { Textarea } from "@qbs-autonaim/ui/components/textarea";
 import { MessageSquare } from "lucide-react";
 import { useState } from "react";

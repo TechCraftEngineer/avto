@@ -1,6 +1,6 @@
-import puppeteer from "puppeteer";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import puppeteer from "puppeteer";
 
 async function main() {
   const cookiesPath = process.argv[2] || "./scripts/cookies.json";

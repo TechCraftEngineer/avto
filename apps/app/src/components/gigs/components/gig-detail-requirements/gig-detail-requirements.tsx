@@ -1,5 +1,10 @@
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@qbs-autonaim/ui/components/card";
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
 import {
   CheckCircle,
   FileText,

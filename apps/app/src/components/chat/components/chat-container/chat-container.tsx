@@ -1,7 +1,7 @@
 "use client";
 
-import { cn } from "@qbs-autonaim/ui/utils";
 import { ScrollArea } from "@qbs-autonaim/ui/components/scroll-area";
+import { cn } from "@qbs-autonaim/ui/utils";
 import { format, isToday, isYesterday } from "date-fns";
 import { ru } from "date-fns/locale";
 import { useEffect, useRef, useState } from "react";

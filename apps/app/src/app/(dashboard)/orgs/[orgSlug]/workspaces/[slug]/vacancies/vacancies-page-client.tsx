@@ -19,11 +19,11 @@ import {
   VacancyStats,
   VacancyTable,
 } from "~/components/vacancies/components";
+import { env } from "~/env";
 import { useVacanciesStats } from "~/hooks/use-vacancies-stats";
 import { useVacancyFilters } from "~/hooks/use-vacancy-filters";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useWorkspaceParams } from "~/hooks/use-workspace-params";
-import { env } from "~/env";
 import { useTRPC } from "~/trpc/react";
 
 export function VacanciesPageClient() {

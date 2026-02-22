@@ -1,6 +1,12 @@
 "use client";
 
-import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@qbs-autonaim/ui/components/sidebar";
+import {
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@qbs-autonaim/ui/components/sidebar";
 import { IconPlus } from "@tabler/icons-react";
 import Link from "next/link";
 

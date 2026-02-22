@@ -1,14 +1,16 @@
 "use client";
 
-import { Alert, AlertDescription, AlertTitle } from "@qbs-autonaim/ui/components/alert"
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@qbs-autonaim/ui/components/alert";
 import { Separator } from "@qbs-autonaim/ui/components/separator";
 import { Award, Trophy } from "lucide-react";
-import { RankedCandidateCard } from "../ranked-candidate-card";
 import type { GigRankedCandidate } from "~/types/api";
+import { RankedCandidateCard } from "../ranked-candidate-card";
 
-
-type RankedCandidate =
-  GigRankedCandidate;
+type RankedCandidate = GigRankedCandidate;
 
 interface RankingListProps {
   candidates: RankedCandidate[];

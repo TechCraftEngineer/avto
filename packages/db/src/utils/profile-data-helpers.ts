@@ -1,6 +1,5 @@
-import type { StoredProfileData } from "../schema/types";
-
 import type { PersonalInfo } from "@qbs-autonaim/db/schema";
+import type { StoredProfileData } from "../schema/types";
 
 /**
  * Создает структурированный profileData для резюме HH.ru

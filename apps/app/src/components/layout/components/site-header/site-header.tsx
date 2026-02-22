@@ -2,15 +2,31 @@
 
 import { paths } from "@qbs-autonaim/config";
 import { getInitials } from "@qbs-autonaim/shared";
-import { Avatar, AvatarFallback, AvatarImage } from "@qbs-autonaim/ui/components/avatar"
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@qbs-autonaim/ui/components/dropdown-menu"
-import { Input } from "@qbs-autonaim/ui/components/input"
-import { Kbd, KbdGroup } from "@qbs-autonaim/ui/components/kbd"
-import { Progress } from "@qbs-autonaim/ui/components/progress"
-import { Separator } from "@qbs-autonaim/ui/components/separator"
-import { SidebarTrigger } from "@qbs-autonaim/ui/components/sidebar"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@qbs-autonaim/ui/components/tooltip";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@qbs-autonaim/ui/components/avatar";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@qbs-autonaim/ui/components/dropdown-menu";
+import { Input } from "@qbs-autonaim/ui/components/input";
+import { Kbd, KbdGroup } from "@qbs-autonaim/ui/components/kbd";
+import { Progress } from "@qbs-autonaim/ui/components/progress";
+import { Separator } from "@qbs-autonaim/ui/components/separator";
+import { SidebarTrigger } from "@qbs-autonaim/ui/components/sidebar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@qbs-autonaim/ui/components/tooltip";
 import {
   BadgeCheck,
   Bell,

@@ -4,9 +4,9 @@
  */
 
 import { cva } from "class-variance-authority";
-import { clsx, type ClassValue } from "clsx";
+import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import type { ScoreTheme, ScoreScale } from "~/types/screening";
+import type { ScoreScale, ScoreTheme } from "~/types/screening";
 
 // ============================================
 // CONSTANTS

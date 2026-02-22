@@ -1,10 +1,10 @@
 import { setIntegrationSetupStatus } from "@qbs-autonaim/db";
+import type { db } from "@qbs-autonaim/db/client";
 import {
   verifyHHCredentialsChannel,
   workspaceNotificationsChannel,
 } from "@qbs-autonaim/jobs/channels";
 import type { PublishFn, VerifyCredentialsStepResult } from "./types";
-import type { db } from "@qbs-autonaim/db/client";
 
 export async function handleAuthError(
   error: unknown,

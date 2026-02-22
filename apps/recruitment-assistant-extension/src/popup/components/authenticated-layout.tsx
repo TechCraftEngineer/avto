@@ -100,7 +100,10 @@ export function AuthenticatedLayout({
         aria-labelledby="settings-heading"
         className="flex flex-col gap-3 border-t border-border pt-3"
       >
-        <h2 id="settings-heading" className="text-sm font-semibold leading-tight">
+        <h2
+          id="settings-heading"
+          className="text-sm font-semibold leading-tight"
+        >
           Настройки
         </h2>
         <h3 id="org-ws-subheading" className="sr-only">

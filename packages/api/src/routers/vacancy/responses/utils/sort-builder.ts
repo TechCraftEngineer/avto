@@ -1,8 +1,8 @@
 import type { SQL } from "@qbs-autonaim/db";
 import { asc, desc, sql } from "@qbs-autonaim/db";
 import {
-  response as responseTable,
   responseScreening,
+  response as responseTable,
 } from "@qbs-autonaim/db/schema";
 import type {
   VacancyResponseSortDirection,

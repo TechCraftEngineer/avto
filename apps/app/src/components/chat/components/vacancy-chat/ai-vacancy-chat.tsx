@@ -1,10 +1,17 @@
 "use client";
 
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@qbs-autonaim/ui/components/dialog"
-import { Input } from "@qbs-autonaim/ui/components/input"
-import { Label } from "@qbs-autonaim/ui/components/label"
-import { ScrollArea } from "@qbs-autonaim/ui/components/scroll-area"
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@qbs-autonaim/ui/components/dialog";
+import { Input } from "@qbs-autonaim/ui/components/input";
+import { Label } from "@qbs-autonaim/ui/components/label";
+import { ScrollArea } from "@qbs-autonaim/ui/components/scroll-area";
 import { Textarea } from "@qbs-autonaim/ui/components/textarea";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {

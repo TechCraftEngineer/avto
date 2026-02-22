@@ -4,8 +4,8 @@
 import type { AxiosInstance } from "axios";
 import axios from "axios";
 import type {
-  KworkDialogsParams,
   KworkDialog,
+  KworkDialogsParams,
   KworkErrorResponse,
   KworkInboxMessage,
   KworkInboxTracksParams,

@@ -1,5 +1,10 @@
-import { Button } from "@qbs-autonaim/ui/components/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@qbs-autonaim/ui/components/dropdown-menu";
+import { Button } from "@qbs-autonaim/ui/components/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@qbs-autonaim/ui/components/dropdown-menu";
 import { ChevronDown, Loader2, RefreshCw, Sparkles } from "lucide-react";
 
 interface ResponseActionButtonsProps {

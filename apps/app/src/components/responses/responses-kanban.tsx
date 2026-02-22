@@ -1,7 +1,15 @@
 "use client";
 
-import { Badge } from "@qbs-autonaim/ui/components/badge"
-import { Kanban, KanbanBoard, KanbanColumn, KanbanColumnContent, KanbanItem, KanbanItemHandle, KanbanOverlay } from "@qbs-autonaim/ui/components/reui/kanban"
+import { Badge } from "@qbs-autonaim/ui/components/badge";
+import {
+  Kanban,
+  KanbanBoard,
+  KanbanColumn,
+  KanbanColumnContent,
+  KanbanItem,
+  KanbanItemHandle,
+  KanbanOverlay,
+} from "@qbs-autonaim/ui/components/reui/kanban";
 import { cn } from "@qbs-autonaim/ui/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
@@ -26,7 +34,9 @@ const STATUS_COLUMNS: { id: ResponseStatus; label: string; color: string }[] = [
   { id: "SKIPPED", label: "Пропущенные", color: "bg-gray-500" },
 ];
 
-function responsesToColumns(responses: ResponseItem[]): Record<string, ResponseItem[]> {
+function responsesToColumns(
+  responses: ResponseItem[],
+): Record<string, ResponseItem[]> {
   const columns: Record<string, ResponseItem[]> = {};
   for (const col of STATUS_COLUMNS) {
     columns[col.id] = responses.filter((r) => r.status === col.id);
@@ -86,7 +96,10 @@ function ResponseKanbanColumn({
   isOverlay = false,
 }: ResponseKanbanColumnProps) {
   return (
-    <KanbanColumn value={value} className="flex min-h-full w-[320px] shrink-0 flex-col">
+    <KanbanColumn
+      value={value}
+      className="flex min-h-full w-[320px] shrink-0 flex-col"
+    >
       <fieldset className="flex min-h-full flex-col border-0 p-0 m-0">
         <legend className="sr-only">{`Колонка ${label}`}</legend>
         <div className="mb-3 flex shrink-0 items-center gap-2 px-1">
@@ -203,10 +216,7 @@ export function ResponsesKanban({
         if (!movedItem) return prev;
         next[activeContainer] = activeItems;
         const updatedItem: ResponseItem = { ...item, status: newStatus };
-        next[overContainer] = [
-          ...(prev[overContainer] ?? []),
-          updatedItem,
-        ];
+        next[overContainer] = [...(prev[overContainer] ?? []), updatedItem];
         return next;
       });
 

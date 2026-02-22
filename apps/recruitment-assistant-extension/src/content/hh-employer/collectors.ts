@@ -4,11 +4,11 @@
 
 import {
   getNextPageButton,
+  type ParsedResponse,
+  type ParsedVacancy,
   parseActiveVacanciesFromDOM,
   parseArchivedVacanciesFromDOM,
   parseResponsesFromDOM,
-  type ParsedResponse,
-  type ParsedVacancy,
 } from "../../parsers/hh-employer";
 
 /**

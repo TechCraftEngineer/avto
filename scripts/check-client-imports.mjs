@@ -4,19 +4,47 @@
  * серверные пакеты. См. .cursor/rules/client-server-bundles.mdc
  */
 
-import { readFileSync, readdirSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const FORBIDDEN_PATTERNS = [
-  { pattern: /from\s+['"]@qbs-autonaim\/db['"]|from\s+['"]@qbs-autonaim\/db\/client['"]/g, msg: "@qbs-autonaim/db или db/client" },
-  { pattern: /from\s+['"]@qbs-autonaim\/lib\/ai['"]/g, msg: "@qbs-autonaim/lib/ai" },
-  { pattern: /from\s+['"]@qbs-autonaim\/lib\/s3['"]/g, msg: "@qbs-autonaim/lib/s3" },
-  { pattern: /from\s+['"]@qbs-autonaim\/lib\/image['"]/g, msg: "@qbs-autonaim/lib/image" },
-  { pattern: /from\s+['"]@qbs-autonaim\/lib\/server['"]/g, msg: "@qbs-autonaim/lib/server" },
-  { pattern: /from\s+['"]@qbs-autonaim\/integration-clients\/server['"]/g, msg: "@qbs-autonaim/integration-clients/server" },
-  { pattern: /from\s+['"]@qbs-autonaim\/jobs-parsers['"]/g, msg: "@qbs-autonaim/jobs-parsers" },
-  { pattern: /from\s+['"]@qbs-autonaim\/server-utils['"]/g, msg: "@qbs-autonaim/server-utils" },
-  { pattern: /from\s+['"]@qbs-autonaim\/shared\/server['"]/g, msg: "@qbs-autonaim/shared/server" },
+  {
+    pattern:
+      /from\s+['"]@qbs-autonaim\/db['"]|from\s+['"]@qbs-autonaim\/db\/client['"]/g,
+    msg: "@qbs-autonaim/db или db/client",
+  },
+  {
+    pattern: /from\s+['"]@qbs-autonaim\/lib\/ai['"]/g,
+    msg: "@qbs-autonaim/lib/ai",
+  },
+  {
+    pattern: /from\s+['"]@qbs-autonaim\/lib\/s3['"]/g,
+    msg: "@qbs-autonaim/lib/s3",
+  },
+  {
+    pattern: /from\s+['"]@qbs-autonaim\/lib\/image['"]/g,
+    msg: "@qbs-autonaim/lib/image",
+  },
+  {
+    pattern: /from\s+['"]@qbs-autonaim\/lib\/server['"]/g,
+    msg: "@qbs-autonaim/lib/server",
+  },
+  {
+    pattern: /from\s+['"]@qbs-autonaim\/integration-clients\/server['"]/g,
+    msg: "@qbs-autonaim/integration-clients/server",
+  },
+  {
+    pattern: /from\s+['"]@qbs-autonaim\/jobs-parsers['"]/g,
+    msg: "@qbs-autonaim/jobs-parsers",
+  },
+  {
+    pattern: /from\s+['"]@qbs-autonaim\/server-utils['"]/g,
+    msg: "@qbs-autonaim/server-utils",
+  },
+  {
+    pattern: /from\s+['"]@qbs-autonaim\/shared\/server['"]/g,
+    msg: "@qbs-autonaim/shared/server",
+  },
 ];
 
 function* walkClientFiles(dir, base = dir) {
@@ -28,7 +56,10 @@ function* walkClientFiles(dir, base = dir) {
       yield* walkClientFiles(full, base);
     } else if (/\.(tsx?|jsx?)$/.test(e.name)) {
       const content = readFileSync(full, "utf-8");
-      if (content.includes('"use client"') || content.includes("'use client'")) {
+      if (
+        content.includes('"use client"') ||
+        content.includes("'use client'")
+      ) {
         yield { path: full.replace(base, "").replace(/^\//, ""), content };
       }
     }
@@ -38,7 +69,10 @@ function* walkClientFiles(dir, base = dir) {
 const appSrc = join(process.cwd(), "apps", "app", "src");
 let hasErrors = false;
 
-for (const { path: filePath, content } of walkClientFiles(appSrc, process.cwd())) {
+for (const { path: filePath, content } of walkClientFiles(
+  appSrc,
+  process.cwd(),
+)) {
   for (const { pattern, msg } of FORBIDDEN_PATTERNS) {
     const matches = content.match(pattern);
     if (matches) {
