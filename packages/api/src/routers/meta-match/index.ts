@@ -6,4 +6,4 @@ export const metaMatchRouter = {
   getLatest,
   evaluateCandidate,
   getAnalytics,
-} as any;
+};

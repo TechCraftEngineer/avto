@@ -10,4 +10,4 @@ export const interviewScenariosRouter = {
   create,
   update,
   delete: deleteItem,
-} as any;
+};

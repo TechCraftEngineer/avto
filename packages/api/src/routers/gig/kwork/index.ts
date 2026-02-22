@@ -4,4 +4,4 @@ import { processChat } from "./process-chat";
 export const gigKworkRouter = {
   getProject: getKworkProject,
   processChat,
-} as any;
+};

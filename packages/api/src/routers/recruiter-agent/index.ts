@@ -35,4 +35,4 @@ export const recruiterAgentRouter = {
 
   // Feedback
   feedback,
-} as any;
+};

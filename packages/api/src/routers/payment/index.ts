@@ -16,4 +16,4 @@ export const paymentRouter = {
   get,
   list,
   checkStatus,
-} as any;
+};

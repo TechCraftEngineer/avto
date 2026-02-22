@@ -407,7 +407,7 @@ export const feedback = {
   list: getFeedback,
   metrics: getMetrics,
   userHistory: getUserFeedbackHistory,
-} as any;
+};
 
 /**
  * Функция для получения feedback history пользователя (для использования в агентах)

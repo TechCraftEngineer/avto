@@ -1,14 +1,24 @@
 "use client";
 
 import { createORPCClient } from "@orpc/client";
+import { RPCLink } from "@orpc/client/fetch";
+import type { RouterClient } from "@orpc/server";
 import { createRouterUtils } from "@orpc/tanstack-query";
-import type { AppRouter } from "@qbs-autonaim/api";
+import type { appRouter } from "@qbs-autonaim/api";
 import type { QueryClient } from "@tanstack/react-query";
 import { QueryClientProvider } from "@tanstack/react-query";
-import SuperJSON from "superjson";
 
 import { env } from "~/env";
 import { createQueryClient } from "./query-client";
+
+/**
+ * Глобальная переменная для SSR оптимизации
+ * Устанавливается в orpc/server.ts
+ */
+declare global {
+  // eslint-disable-next-line no-var
+  var $client: RouterClient<typeof appRouter> | undefined;
+}
 
 let clientQueryClientSingleton: QueryClient | undefined;
 const getQueryClient = () => {
@@ -29,52 +39,40 @@ const getBaseUrl = () => {
   return `http://localhost:${env.PORT}`;
 };
 
-const createORPCClientInstance = () => {
-  const client = createORPCClient<AppRouter>({
-    transformer: SuperJSON,
-    baseURL: `${getBaseUrl()}/api/orpc`,
-  } as any);
-
-  // Добавляем кастомные заголовки через перехват fetch
-  const originalFetch = client.fetch.bind(client);
-  client.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
-    const headers = new Headers(init?.headers);
-    headers.set("x-orpc-source", "nextjs-react");
+// Создаем RPCLink с кастомными заголовками
+const link = new RPCLink({
+  url: `${getBaseUrl()}/api/orpc`,
+  headers: () => {
+    const headers: Record<string, string> = {
+      "x-orpc-source": "nextjs-react",
+    };
 
     if (typeof window !== "undefined") {
       const pathParts = window.location.pathname.split("/").filter(Boolean);
       if (pathParts.length > 0) {
         const token = pathParts[0];
         if (token && !["interview", "auth", "api"].includes(token)) {
-          headers.set("x-interview-token", token);
+          headers["x-interview-token"] = token;
         }
       }
     }
 
-    return originalFetch(input, { ...init, headers });
-  };
+    return headers;
+  },
+});
 
-  return client;
-};
+// Создаем oRPC клиент (используем глобальный $client если доступен для SSR оптимизации)
+const client: RouterClient<typeof appRouter> =
+  globalThis.$client ?? createORPCClient(link);
 
-let orpcClientSingleton:
-  | ReturnType<typeof createORPCClient<AppRouter>>
-  | undefined;
-const getORPCClient = () => {
-  if (typeof window === "undefined") {
-    return createORPCClientInstance();
-  } else {
-    return (orpcClientSingleton ??= createORPCClientInstance());
-  }
-};
+// Создаем утилиты для TanStack Query - предоставляет .queryOptions(), .mutationOptions(), .queryKey()
+export const orpc = createRouterUtils(client);
 
+/**
+ * Хук для получения типизированного oRPC клиента с TanStack Query утилитами
+ */
 export const useORPC = () => {
-  const client = getORPCClient();
-  return createRouterUtils<AppRouter>(client, { path: [] });
-};
-
-export const useORPCClient = () => {
-  return getORPCClient();
+  return orpc;
 };
 
 export function ORPCReactProvider(props: { children: React.ReactNode }) {

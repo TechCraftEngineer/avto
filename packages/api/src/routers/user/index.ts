@@ -12,4 +12,4 @@ export const userRouter = {
   setActiveWorkspace,
   checkWorkspaceAccess,
   clearActiveWorkspace,
-} as any;
+};

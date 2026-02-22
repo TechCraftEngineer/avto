@@ -531,4 +531,4 @@ export const configureRules = {
   delete: deleteRule,
   list: getRules,
   toggle: toggleRule,
-} as any;
+};

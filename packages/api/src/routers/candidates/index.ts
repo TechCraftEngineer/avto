@@ -26,4 +26,4 @@ export const candidatesRouter = {
   inviteCandidate,
   rejectCandidate,
   refreshResume,
-} as any;
+};

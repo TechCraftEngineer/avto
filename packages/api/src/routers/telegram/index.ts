@@ -50,4 +50,4 @@ export const telegramRouter = {
   reauthorizeSession: reauthorizeSessionRouter,
   sendUserMessage: sendUserMessageRouter,
   sendUserMessageByPhone: sendUserMessageByPhoneRouter,
-} as any;
+};

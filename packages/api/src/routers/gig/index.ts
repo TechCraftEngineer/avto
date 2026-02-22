@@ -36,4 +36,4 @@ export const gigRouter = {
   responses: gigResponsesRouter,
   aiChat: aiChatRouter,
   kwork: gigKworkRouter,
-} as any;
+};

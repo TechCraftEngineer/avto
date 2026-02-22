@@ -38,4 +38,4 @@ export const organizationRouter = {
   createWorkspace,
   listWorkspaces,
   getWorkspaceBySlug,
-} as any;
+};

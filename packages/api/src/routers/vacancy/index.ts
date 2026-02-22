@@ -38,4 +38,4 @@ export const vacancyRouter = {
   improveWelcomeTemplates,
   chatGenerate,
   responses: responsesRouter,
-} as any;
+};

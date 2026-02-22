@@ -8,4 +8,4 @@ export const filesRouter = {
   getImageUrl,
   getInterviewMedia,
   uploadInterviewMedia,
-} as any;
+};

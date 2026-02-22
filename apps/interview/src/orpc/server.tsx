@@ -1,12 +1,16 @@
-import { createServerCaller } from "@orpc/server";
-import { appRouter, createContext } from "@qbs-autonaim/api";
+import "server-only";
+
+import { createRouterClient } from "@orpc/server";
+import type { AppRouter } from "@qbs-autonaim/api";
+import { createContext } from "@qbs-autonaim/api/orpc";
+import { appRouter } from "@qbs-autonaim/api/root-orpc";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { headers } from "next/headers";
 import { cache } from "react";
 
 import { createQueryClient } from "./query-client";
 
-const createORPCContext = cache(async () => {
+const createServerContext = cache(async () => {
   const heads = new Headers(await headers());
   heads.set("x-orpc-source", "rsc");
 
@@ -16,11 +20,15 @@ const createORPCContext = cache(async () => {
   });
 });
 
-const getQueryClient = cache(createQueryClient);
+export const getQueryClient = cache(createQueryClient);
 
-export const api = cache(async () => {
-  const context = await createORPCContext();
-  return createServerCaller(appRouter, context);
+/**
+ * Server-side oRPC caller для прямого вызова процедур в Server Components
+ */
+export const api = cache(() => {
+  return createRouterClient<AppRouter>(appRouter, {
+    context: createServerContext,
+  });
 });
 
 export function HydrateClient(props: { children: React.ReactNode }) {

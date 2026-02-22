@@ -6,4 +6,4 @@ export const userIntegrationRouter = {
   list,
   delete: deleteItem,
   saveOAuth,
-} as any;
+};

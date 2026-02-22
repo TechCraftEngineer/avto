@@ -87,4 +87,4 @@ export const freelancePlatformsRouter = {
   syncGigResponses,
   syncArchivedVacancyResponses,
   // subscribeToChatMessages, // TODO: Requires wsLink or httpSubscriptionLink setup on client
-} as any;
+};

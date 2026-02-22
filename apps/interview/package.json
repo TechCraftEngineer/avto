@@ -19,7 +19,7 @@
     "@opentelemetry/api": "^1.9.0",
     "@orpc/client": "^1.13.5",
     "@orpc/server": "^1.13.5",
-    "@orpc/tanstack-query": "^1.7.11",
+    "@orpc/tanstack-query": "^1.13.5",
     "@qbs-autonaim/api": "workspace:*",
     "@qbs-autonaim/auth": "workspace:*",
     "@qbs-autonaim/config": "workspace:*",

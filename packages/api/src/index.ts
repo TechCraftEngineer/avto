@@ -1,6 +1,6 @@
 import type { InferRouterInputs, InferRouterOutputs } from "@orpc/server";
 
-import type { AppRouter } from "./root";
+import type { AppRouter } from "./root-orpc";
 
 /**
  * Inference helpers for input types
@@ -33,7 +33,8 @@ export {
   withTenantGuard,
 } from "./middleware";
 export { createContext } from "./orpc";
-export { type AppRouter, appRouter } from "./root";
+export type { AppRouter } from "./root-orpc";
+export { appRouter } from "./root-orpc";
 export type {
   VacancyResponseSortDirection,
   VacancyResponseSortField,

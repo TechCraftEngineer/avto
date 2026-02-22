@@ -8,4 +8,4 @@ export const funnelRouter = {
   analytics,
   updateStage,
   vacancyStats,
-} as any;
+};

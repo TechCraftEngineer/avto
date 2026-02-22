@@ -14,4 +14,4 @@ export const integrationRouter = {
   saveHH2FACode,
   saveHHCaptcha,
   requestHHResendCode,
-} as any;
+};

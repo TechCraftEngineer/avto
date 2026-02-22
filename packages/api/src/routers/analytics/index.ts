@@ -14,4 +14,4 @@ export const analyticsRouter = {
   getVacancyAnalytics,
   exportData,
   trackEvent,
-} as any;
+};

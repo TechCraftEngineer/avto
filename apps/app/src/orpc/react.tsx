@@ -1,13 +1,23 @@
 "use client";
 
 import { createORPCClient } from "@orpc/client";
+import { RPCLink } from "@orpc/client/fetch";
+import type { RouterClient } from "@orpc/server";
 import { createRouterUtils } from "@orpc/tanstack-query";
-import type { AppRouter } from "@qbs-autonaim/api";
+import type { appRouter } from "@qbs-autonaim/api";
 import type { QueryClient } from "@tanstack/react-query";
 import { QueryClientProvider } from "@tanstack/react-query";
-import SuperJSON from "superjson";
 
 import { createQueryClient } from "./query-client";
+
+/**
+ * Глобальная переменная для SSR оптимизации
+ * Устанавливается в orpc/server.ts
+ */
+declare global {
+  // eslint-disable-next-line no-var
+  var $client: RouterClient<typeof appRouter> | undefined;
+}
 
 let clientQueryClientSingleton: QueryClient | undefined;
 const getQueryClient = () => {
@@ -26,38 +36,23 @@ const getBaseUrl = () => {
   return `http://localhost:${process.env.PORT || 3000}`;
 };
 
-// Создаем oRPC клиент для использования в хуках
-const createORPCClientInstance = () =>
-  createORPCClient<AppRouter>({
-    transformer: SuperJSON,
-    baseURL: `${getBaseUrl()}/api/orpc`,
-  });
+// Создаем RPCLink
+const link = new RPCLink({
+  url: `${getBaseUrl()}/api/orpc`,
+});
 
-// Создаем утилиты роутера для использования в компонентах
-let orpcClientSingleton:
-  | ReturnType<typeof createORPCClient<AppRouter>>
-  | undefined;
-const getORPCClient = () => {
-  if (typeof window === "undefined") {
-    return createORPCClientInstance();
-  } else {
-    return (orpcClientSingleton ??= createORPCClientInstance());
-  }
-};
+// Создаем oRPC клиент (используем глобальный $client если доступен для SSR оптимизации)
+const client: RouterClient<typeof appRouter> =
+  globalThis.$client ?? createORPCClient(link);
+
+// Создаем утилиты для TanStack Query - предоставляет .queryOptions(), .mutationOptions(), .queryKey()
+export const orpc = createRouterUtils(client);
 
 /**
- * Хук для получения типизированного oRPC клиента
+ * Хук для получения типизированного oRPC клиента с TanStack Query утилитами
  */
 export const useORPC = () => {
-  const client = getORPCClient();
-  return createRouterUtils<AppRouter>(client, { path: [] });
-};
-
-/**
- * Хук для получения базового oRPC клиента
- */
-export const useORPCClient = () => {
-  return getORPCClient();
+  return orpc;
 };
 
 export function ORPCReactProvider(props: { children: React.ReactNode }) {

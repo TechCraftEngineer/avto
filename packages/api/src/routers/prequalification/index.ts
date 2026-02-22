@@ -20,4 +20,4 @@ export const prequalificationRouter = {
   sendMessage,
   getResult,
   submitApplication,
-} as any;
+};

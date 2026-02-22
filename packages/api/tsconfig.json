@@ -1,7 +1,30 @@
 {
   "extends": "@qbs-autonaim/tsconfig/compiled-package.json",
   "compilerOptions": {
-    "rootDir": "./src"
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ESNext"],
+    "verbatimModuleSyntax": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
+    "types": ["bun"],
+    "declaration": false,
+    "declarationMap": false,
+    "emitDeclarationOnly": false,
+    "sourceMap": true,
+    "outDir": "dist",
+    "composite": false,
+    "strictNullChecks": true
   },
   "include": ["src"],
   "exclude": ["node_modules", "**/*.test.ts", "**/*.property.test.ts", "**/*.unit.test.ts"]
