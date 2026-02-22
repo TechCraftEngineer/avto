@@ -1,3 +1,4 @@
+import type { RouterRecord } from '@orpc/server';
 
 import { aiChatRouter, chatGenerate } from "./chat";
 import {
@@ -37,4 +38,4 @@ export const gigRouter = {
   responses: gigResponsesRouter,
   aiChat: aiChatRouter,
   kwork: gigKworkRouter,
-};
+} satisfies RouterRecord;

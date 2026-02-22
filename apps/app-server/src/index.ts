@@ -44,19 +44,25 @@ app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 const rpcHandler = new RPCHandler(appRouter);
 
 app.on(["GET", "POST"], "/api/orpc/*", async (c) => {
-  const response = await rpcHandler.handle(c.req.raw, {
-    prefix: "/api/orpc",
-    context: await createContext({
-      auth,
-      headers: c.req.raw.headers,
-    }),
-    onError({ error, path }: { error: Error; path: string[] }) {
-      console.error(`>>> oRPC Error on '${path.join(".")}'`, error);
-    },
-  });
+  try {
+    const result = await rpcHandler.handle(c.req.raw, {
+      prefix: "/api/orpc",
+      context: await createContext({
+        auth,
+        headers: c.req.raw.headers,
+      }),
+    });
 
-  const modifiedResponse = addAPISecurityHeaders(response);
-  return c.newResponse(modifiedResponse.body, modifiedResponse);
+    if (!result.matched) {
+      return c.notFound();
+    }
+
+    const modifiedResponse = addAPISecurityHeaders(result.response);
+    return modifiedResponse;
+  } catch (error) {
+    console.error(">>> oRPC Error", error);
+    return c.json({ error: "Internal Server Error" }, 500);
+  }
 });
 
 // Google Calendar OAuth — init

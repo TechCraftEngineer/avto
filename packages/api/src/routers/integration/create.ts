@@ -1,6 +1,6 @@
+import { ORPCError } from "@orpc/server";
 import { upsertIntegration } from "@qbs-autonaim/db";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 
@@ -25,8 +25,7 @@ export const createIntegration = protectedProcedure
         input.type as (typeof CREATE_VIA_VERIFY_ONLY)[number],
       )
     ) {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
+      throw new ORPCError("BAD_REQUEST", {
         message: `Интеграция ${input.type} создаётся только через настройку интеграции`,
       });
     }
@@ -38,7 +37,9 @@ export const createIntegration = protectedProcedure
     );
 
     if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new ORPCError("FORBIDDEN", { message: "Недостаточно прав для создания интеграций", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Недостаточно прав для создания интеграций",
+      });
     }
 
     const integration = await upsertIntegration(context.db, {

@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/server";
 import { eq } from "@qbs-autonaim/db";
 import {
   gig,
@@ -7,10 +8,9 @@ import {
   vacancy,
 } from "@qbs-autonaim/db/schema";
 import { uuidv7Schema, workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { evaluateMetaMatch } from "../../services/meta-match/evaluator";
 import { protectedProcedure } from "../../orpc";
+import { evaluateMetaMatch } from "../../services/meta-match/evaluator";
 import { verifyWorkspaceAccess } from "../../utils/verify-workspace-access";
 
 const evaluateCandidateInputSchema = z.object({
@@ -37,7 +37,9 @@ export const evaluateCandidate = protectedProcedure
   .input(evaluateCandidateInputSchema)
   .handler(async ({ context, input }) => {
     if (!input.consentGranted) {
-      throw new ORPCError("BAD_REQUEST", { message: "Нет согласия кандидата на обработку даты рождения", });
+      throw new ORPCError("BAD_REQUEST", {
+        message: "Нет согласия кандидата на обработку даты рождения",
+      });
     }
 
     await verifyWorkspaceAccess(
@@ -57,7 +59,7 @@ export const evaluateCandidate = protectedProcedure
     });
 
     if (!response) {
-      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден", });
+      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден" });
     }
 
     let entityData: { id: string; workspaceId: string } | undefined;
@@ -73,14 +75,15 @@ export const evaluateCandidate = protectedProcedure
         columns: { id: true, workspaceId: true },
       });
     } else {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
+      throw new ORPCError("BAD_REQUEST", {
         message: `Неподдерживаемый тип сущности: ${response.entityType}, entityId: ${response.entityId}`,
       });
     }
 
     if (!entityData || entityData.workspaceId !== input.workspaceId) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому кандидату", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому кандидату",
+      });
     }
 
     let resolvedBirthDate = input.birthDate ?? null;
@@ -93,7 +96,9 @@ export const evaluateCandidate = protectedProcedure
     }
 
     if (!resolvedBirthDate) {
-      throw new ORPCError("BAD_REQUEST", { message: "Дата рождения не указана", });
+      throw new ORPCError("BAD_REQUEST", {
+        message: "Дата рождения не указана",
+      });
     }
 
     const evaluation = evaluateMetaMatch(resolvedBirthDate, new Date(), {
@@ -122,7 +127,9 @@ export const evaluateCandidate = protectedProcedure
       .returning();
 
     if (!report) {
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось создать отчет о мета-матче", });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Не удалось создать отчет о мета-матче",
+      });
     }
 
     await context.auditLogger.logAccess({

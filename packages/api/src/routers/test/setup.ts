@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/server";
 import { db, eq } from "@qbs-autonaim/db";
 import {
   organization,
@@ -6,7 +7,6 @@ import {
   workspace,
   workspaceMember,
 } from "@qbs-autonaim/db/schema";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { publicProcedure } from "../../orpc";
 import { cleanupTestUser } from "./utils";
@@ -25,14 +25,16 @@ export const setup = publicProcedure
       workspaceName: z.string().optional(),
     }),
   )
-  .handler(async ({ input, ctx }) => {
+  .handler(async ({ input, context }) => {
     if (!isTestMode) {
-      throw new ORPCError("FORBIDDEN", { message: "Тестовые эндпоинты доступны только в режиме разработки",
+      throw new ORPCError("FORBIDDEN", {
+        message: "Тестовые эндпоинты доступны только в режиме разработки",
       });
     }
 
     if (!context.authApi) {
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Auth API недоступен",
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Auth API недоступен",
       });
     }
 
@@ -59,7 +61,8 @@ export const setup = publicProcedure
       });
 
       if (!signUpResult) {
-        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось создать пользователя",
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
+          message: "Не удалось создать пользователя",
         });
       }
 
@@ -69,7 +72,8 @@ export const setup = publicProcedure
       });
 
       if (!userRecord) {
-        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Пользователь не найден после создания",
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
+          message: "Пользователь не найден после создания",
         });
       }
 
@@ -91,7 +95,8 @@ export const setup = publicProcedure
 
       const org = orgResult[0];
       if (!org) {
-        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось создать организацию",
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
+          message: "Не удалось создать организацию",
         });
       }
 
@@ -118,7 +123,8 @@ export const setup = publicProcedure
 
       const ws = wsResult[0];
       if (!ws) {
-        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось создать воркспейс",
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
+          message: "Не удалось создать воркспейс",
         });
       }
 
@@ -148,7 +154,9 @@ export const setup = publicProcedure
         dashboardUrl: `/orgs/${org.slug}/workspaces/${ws.slug}`,
       };
     } catch (error) {
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Ошибка при создании тестового пользователя", cause: error,
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Ошибка при создании тестового пользователя",
+        cause: error,
       });
     }
   });

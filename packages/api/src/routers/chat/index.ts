@@ -1,3 +1,4 @@
+import type { RouterRecord } from "@orpc/server";
 import { clearHistory } from "./clear-history";
 import { createSession } from "./create-session";
 import { getHistory } from "./get-history";
@@ -10,4 +11,4 @@ export const chatRouter = {
   clearHistory,
   listSessions,
   createSession,
-};
+} satisfies RouterRecord;

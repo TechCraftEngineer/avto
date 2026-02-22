@@ -1,3 +1,4 @@
+import type { RouterRecord } from '@orpc/server';
 
 import { checkWorkspaceAccess } from "./check-workspace-access";
 import { clearActiveWorkspace } from "./clear-active-workspace";
@@ -13,4 +14,4 @@ export const userRouter = {
   setActiveWorkspace,
   checkWorkspaceAccess,
   clearActiveWorkspace,
-};
+} satisfies RouterRecord;

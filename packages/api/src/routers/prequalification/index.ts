@@ -1,3 +1,4 @@
+import type { RouterRecord } from '@orpc/server';
 /**
  * Prequalification Router
  *
@@ -21,4 +22,4 @@ export const prequalificationRouter = {
   sendMessage,
   getResult,
   submitApplication,
-};
+} satisfies RouterRecord;

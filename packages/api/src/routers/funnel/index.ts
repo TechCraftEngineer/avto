@@ -1,3 +1,4 @@
+import type { RouterRecord } from '@orpc/server';
 import { analytics } from "./analytics";
 import { list } from "./list";
 import { updateStage } from "./update-stage";
@@ -8,4 +9,4 @@ export const funnelRouter = {
   analytics,
   updateStage,
   vacancyStats,
-};
+} satisfies RouterRecord;

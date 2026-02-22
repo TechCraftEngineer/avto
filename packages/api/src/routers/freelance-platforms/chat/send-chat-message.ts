@@ -5,10 +5,11 @@ import { interviewMessage } from "@qbs-autonaim/db/schema";
 import { messageBufferService } from "@qbs-autonaim/jobs/services/buffer";
 import type { BufferedMessage } from "@qbs-autonaim/shared";
 import { z } from "zod";
+import { publicProcedure } from "../../../orpc";
 import { createErrorHandler } from "../../../utils/error-handler";
 import {
   interviewAccessInputSchema,
-  withInterviewAccess,
+  interviewAccessMiddleware,
 } from "../../../utils/interview-access-middleware";
 
 const sendChatMessageInputSchema = interviewAccessInputSchema.extend({
@@ -28,8 +29,9 @@ const sessionMetadataSchema = z
   })
   .default({ questionAnswers: [] });
 
-export const sendChatMessage = withInterviewAccess
+export const sendChatMessage = publicProcedure
   .input(sendChatMessageInputSchema)
+  .use(interviewAccessMiddleware)
   .handler(async ({ input, context }) => {
     const errorHandler = createErrorHandler(
       context.auditLogger,

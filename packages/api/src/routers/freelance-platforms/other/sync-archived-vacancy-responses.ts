@@ -1,4 +1,4 @@
-import { ORPCError } from "@orpc/client";
+import { ORPCError } from "@orpc/server";
 import { inngest } from "@qbs-autonaim/jobs/client";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
@@ -11,7 +11,7 @@ const syncArchivedVacancyResponsesInputSchema = z.object({
 
 export const syncArchivedVacancyResponses = protectedProcedure
   .input(syncArchivedVacancyResponsesInputSchema)
-  .handler(async ({ input, context: ctx }) => {
+  .handler(async ({ input, context }) => {
     // Проверяем доступ к workspace
     const hasAccess = await context.workspaceRepository.checkAccess(
       input.workspaceId,

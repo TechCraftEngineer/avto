@@ -1,3 +1,4 @@
+import type { RouterRecord } from '@orpc/server';
 
 import { checkStatus } from "./check-status";
 import { create } from "./create";
@@ -17,4 +18,4 @@ export const paymentRouter = {
   get,
   list,
   checkStatus,
-};
+} satisfies RouterRecord;

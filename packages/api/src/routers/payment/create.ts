@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { ORPCError } from "@orpc/client";
+import { ORPCError } from "@orpc/server";
 import { payment } from "@qbs-autonaim/db/schema";
 import { createPaymentSchema } from "@qbs-autonaim/validators";
 import { protectedProcedure } from "../../orpc";
@@ -20,11 +20,13 @@ import { createYookassaClient } from "../../services/yookassa/client";
  */
 export const create = protectedProcedure
   .input(createPaymentSchema)
-  .handler(async ({ input, context: ctx }) => {
+  .handler(async ({ input, context }) => {
     const userId = context.session.user.id;
 
     // 1. Получаем workspace и проверяем его существование (Требование 1.6)
-    const workspace = await context.workspaceRepository.findById(input.workspaceId);
+    const workspace = await context.workspaceRepository.findById(
+      input.workspaceId,
+    );
 
     if (!workspace) {
       throw new ORPCError("NOT_FOUND", {

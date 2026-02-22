@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/server";
 import { eq } from "@qbs-autonaim/db";
 import {
   type ChatMessageMetadata,
@@ -6,15 +7,14 @@ import {
 } from "@qbs-autonaim/db/schema";
 import { streamText } from "@qbs-autonaim/lib/ai";
 import type { ChatHistoryMessage } from "@qbs-autonaim/shared";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
+import { protectedProcedure } from "../../../orpc";
 import {
   loadCandidatesContext,
   loadGigContext,
 } from "../../../services/gig-chat/context-loader";
 import { buildGigAIChatPrompt } from "../../../services/gig-chat/prompt-builder";
 import { gigChatRateLimiter } from "../../../services/gig-chat/rate-limiter";
-import { protectedProcedure } from "../../../orpc";
 
 /**
  * Схема ответа от AI
@@ -96,8 +96,7 @@ export const sendMessage = protectedProcedure
     // 0. Check rate limit
     const rateLimitCheck = gigChatRateLimiter.check(userId);
     if (!rateLimitCheck.allowed) {
-      throw new ORPCError({
-        code: "TOO_MANY_REQUESTS",
+      throw new ORPCError("TOO_MANY_REQUESTS", {
         message: `Слишком много запросов. Подождите ${rateLimitCheck.retryAfter} секунд`,
       });
     }
@@ -112,7 +111,7 @@ export const sendMessage = protectedProcedure
     });
 
     if (!gigData) {
-      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено", });
+      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено" });
     }
 
     const hasAccess = await context.workspaceRepository.checkAccess(
@@ -121,7 +120,9 @@ export const sendMessage = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому заданию", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому заданию",
+      });
     }
 
     // 2. Загрузка или создание сессии (используем chatSession для админских чатов)
@@ -146,7 +147,9 @@ export const sendMessage = protectedProcedure
         .returning();
 
       if (!newSession) {
-        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось создать сессию чата", });
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
+          message: "Не удалось создать сессию чата",
+        });
       }
 
       session = newSession;
@@ -155,7 +158,9 @@ export const sendMessage = protectedProcedure
     // 3. Загрузка контекста gig и кандидатов
     const gigContext = await loadGigContext(context.db, gigId);
     if (!gigContext) {
-      throw new ORPCError("NOT_FOUND", { message: "Не удалось загрузить контекст задания", });
+      throw new ORPCError("NOT_FOUND", {
+        message: "Не удалось загрузить контекст задания",
+      });
     }
 
     const candidatesContext = await loadCandidatesContext(context.db, gigId);
@@ -279,7 +284,9 @@ export const sendMessage = protectedProcedure
     } catch (error) {
       console.error("[gig-ai-chat] Error:", error);
       if (error instanceof ORPCError) throw error;
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось получить ответ от AI. Попробуйте ещё раз.", });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Не удалось получить ответ от AI. Попробуйте ещё раз.",
+      });
     }
   });
 
@@ -307,7 +314,7 @@ export const getHistory = protectedProcedure
     });
 
     if (!gigData) {
-      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено", });
+      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено" });
     }
 
     const hasAccess = await context.workspaceRepository.checkAccess(
@@ -316,7 +323,9 @@ export const getHistory = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому заданию", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому заданию",
+      });
     }
 
     // 2. Загрузка сессии
@@ -382,7 +391,7 @@ export const clearHistory = protectedProcedure
     });
 
     if (!gigData) {
-      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено", });
+      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено" });
     }
 
     const hasAccess = await context.workspaceRepository.checkAccess(
@@ -391,7 +400,9 @@ export const clearHistory = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому заданию", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет доступа к этому заданию",
+      });
     }
 
     // 2. Загрузка сессии

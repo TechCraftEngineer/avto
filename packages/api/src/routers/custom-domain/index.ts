@@ -1,4 +1,4 @@
-
+import type { RouterRecord } from "@orpc/server";
 import { checkAvailability } from "./check-availability";
 import { create } from "./create";
 import { deleteDomain } from "./delete";
@@ -15,4 +15,4 @@ export const customDomainRouter = {
   setPrimary,
   checkAvailability,
   delete: deleteDomain,
-};
+} satisfies RouterRecord;

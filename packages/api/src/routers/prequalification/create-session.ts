@@ -7,9 +7,9 @@
 
 import { ORPCError } from "@orpc/server";
 import { z } from "zod";
+import { publicProcedure } from "../../orpc";
 import { SessionManager } from "../../services/prequalification";
 import { PrequalificationError } from "../../services/prequalification/types";
-import { publicProcedure } from "../../orpc";
 
 const createSessionInputSchema = z.object({
   workspaceId: z.string().min(1, "workspaceId ����������"),
@@ -49,15 +49,16 @@ export const createSession = publicProcedure
           TENANT_MISMATCH: "FORBIDDEN",
         };
 
-        throw new ORPCError({
-          code: codeMap[error.code] ?? "INTERNAL_SERVER_ERROR",
+        throw new ORPCError(codeMap[error.code] ?? "INTERNAL_SERVER_ERROR", {
           message: error.userMessage,
           cause: error,
         });
       }
 
       // Wrap unknown errors to prevent leaking implementation details
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "���������� ������ �������",
-        cause: error, });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "���������� ������ �������",
+        cause: error,
+      });
     }
   });

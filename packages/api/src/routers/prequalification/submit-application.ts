@@ -6,6 +6,7 @@
  * Публичная процедура - не требует авторизации пользователя.
  */
 
+import { ORPCError } from "@orpc/server";
 import {
   and,
   eq,
@@ -18,14 +19,13 @@ import {
   response as responseTable,
   vacancy,
 } from "@qbs-autonaim/db/schema";
-import { ORPCError } from "@orpc/server";
 import { nanoid } from "nanoid";
 import { z } from "zod";
+import { publicProcedure } from "../../orpc";
 import { CandidateService } from "../../services/candidate.service";
 import { ContactCandidateSyncService } from "../../services/contact-candidate-sync.service";
 import { SessionManager } from "../../services/prequalification";
 import { PrequalificationError } from "../../services/prequalification/types";
-import { publicProcedure } from "../../orpc";
 
 const submitApplicationInputSchema = z.object({
   sessionId: z.uuid("sessionId должен быть UUID"),
@@ -62,25 +62,27 @@ export const submitApplication = publicProcedure
     );
 
     if (!session) {
-      throw new ORPCError("NOT_FOUND", { message: "Сессия не найдена", });
+      throw new ORPCError("NOT_FOUND", { message: "Сессия не найдена" });
     }
 
     // Verify session is in completed status
     if (session.status !== "completed") {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
+      throw new ORPCError("BAD_REQUEST", {
         message: `Подача заявки недоступна в статусе: ${session.status}`,
       });
     }
 
     // Verify candidate can proceed (not_fit cannot submit)
     if (session.fitDecision === "not_fit") {
-      throw new ORPCError("FORBIDDEN", { message: "К сожалению, ваш профиль не соответствует требованиям вакансии", });
+      throw new ORPCError("FORBIDDEN", {
+        message:
+          "К сожалению, ваш профиль не соответствует требованиям вакансии",
+      });
     }
 
     // Check if already submitted
     if (session.responseId) {
-      throw new ORPCError("BAD_REQUEST", { message: "Заявка уже была подана", });
+      throw new ORPCError("BAD_REQUEST", { message: "Заявка уже была подана" });
     }
 
     try {
@@ -339,8 +341,7 @@ export const submitApplication = publicProcedure
           ALREADY_SUBMITTED: "BAD_REQUEST",
         };
 
-        throw new ORPCError({
-          code: codeMap[error.code] ?? "INTERNAL_SERVER_ERROR",
+        throw new ORPCError(codeMap[error.code] ?? "INTERNAL_SERVER_ERROR", {
           message: error.userMessage,
           cause: error,
         });

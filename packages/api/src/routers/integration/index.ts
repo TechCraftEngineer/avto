@@ -1,3 +1,4 @@
+import type { RouterRecord } from '@orpc/server';
 
 import { createIntegration } from "./create";
 import { deleteIntegrationProcedure } from "./delete";
@@ -15,4 +16,4 @@ export const integrationRouter = {
   saveHH2FACode,
   saveHHCaptcha,
   requestHHResendCode,
-};
+} satisfies RouterRecord;

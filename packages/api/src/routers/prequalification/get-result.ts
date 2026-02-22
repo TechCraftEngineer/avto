@@ -6,10 +6,11 @@
  * Публичная процедура - не требует авторизации пользователя.
  */
 
+import { ORPCError } from "@orpc/server";
 import { and, eq } from "@qbs-autonaim/db";
 import { prequalificationSession, vacancy } from "@qbs-autonaim/db/schema";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
+import { publicProcedure } from "../../orpc";
 import { evaluatorService } from "../../services/evaluation/evaluator";
 import { feedbackGeneratorService } from "../../services/evaluation/feedback-generator";
 import type { EvaluationResult } from "../../services/evaluation/types";
@@ -18,7 +19,6 @@ import {
   SessionManager,
 } from "../../services/prequalification";
 import { PrequalificationError } from "../../services/prequalification/types";
-import { publicProcedure } from "../../orpc";
 
 const getResultInputSchema = z.object({
   sessionId: z.uuid("sessionId должен быть UUID"),
@@ -38,7 +38,7 @@ export const getResult = publicProcedure
     );
 
     if (!session) {
-      throw new ORPCError("NOT_FOUND", { message: "Сессия не найдена", });
+      throw new ORPCError("NOT_FOUND", { message: "Сессия не найдена" });
     }
 
     // If already completed or submitted, return cached result
@@ -62,8 +62,7 @@ export const getResult = publicProcedure
 
     // If not in evaluating status, return current status
     if (session.status !== "evaluating") {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
+      throw new ORPCError("BAD_REQUEST", {
         message: `Результат недоступен в статусе: ${session.status}`,
       });
     }
@@ -196,8 +195,7 @@ export const getResult = publicProcedure
           TENANT_MISMATCH: "FORBIDDEN",
         };
 
-        throw new ORPCError({
-          code: codeMap[error.code] ?? "INTERNAL_SERVER_ERROR",
+        throw new ORPCError(codeMap[error.code] ?? "INTERNAL_SERVER_ERROR", {
           message: error.userMessage,
           cause: error,
         });

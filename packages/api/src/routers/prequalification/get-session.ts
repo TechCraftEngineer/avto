@@ -7,9 +7,9 @@
 
 import { ORPCError } from "@orpc/server";
 import { z } from "zod";
+import { publicProcedure } from "../../orpc";
 import { SessionManager } from "../../services/prequalification";
 import { PrequalificationError } from "../../services/prequalification/types";
-import { publicProcedure } from "../../orpc";
 
 const getSessionInputSchema = z.object({
   sessionId: z.uuid("sessionId ������ ���� UUID"),
@@ -28,7 +28,7 @@ export const getSession = publicProcedure
       );
 
       if (!session) {
-        throw new ORPCError("NOT_FOUND", { message: "������ �� �������", });
+        throw new ORPCError("NOT_FOUND", { message: "������ �� �������" });
       }
 
       return {
@@ -65,8 +65,7 @@ export const getSession = publicProcedure
 
         const trpcCode = codeMap[error.code] ?? "INTERNAL_SERVER_ERROR";
 
-        throw new ORPCError({
-          code: trpcCode,
+        throw new ORPCError(trpcCode, {
           message: error.userMessage,
         });
       }

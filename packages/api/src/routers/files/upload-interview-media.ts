@@ -1,8 +1,8 @@
+import { ORPCError } from "@orpc/server";
 import { db } from "@qbs-autonaim/db/client";
 import { file, gigInterviewMedia } from "@qbs-autonaim/db/schema";
 import { uploadFile } from "@qbs-autonaim/lib/s3";
 import { uuidv7Schema, workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 
@@ -42,7 +42,7 @@ export const uploadInterviewMedia = protectedProcedure
     );
 
     if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "��� ������� � workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "��� ������� � workspace" });
     }
 
     // ��������� ��� gig ����������� workspace
@@ -51,11 +51,13 @@ export const uploadInterviewMedia = protectedProcedure
     });
 
     if (!gigRecord) {
-      throw new ORPCError("NOT_FOUND", { message: "������� �� �������", });
+      throw new ORPCError("NOT_FOUND", { message: "������� �� �������" });
     }
 
     if (gigRecord.workspaceId !== input.workspaceId) {
-      throw new ORPCError("FORBIDDEN", { message: "��� ������� � ����� �������", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "��� ������� � ����� �������",
+      });
     }
 
     // ���������� base64
@@ -63,14 +65,15 @@ export const uploadInterviewMedia = protectedProcedure
     try {
       fileBuffer = Buffer.from(input.fileData, "base64");
     } catch {
-      throw new ORPCError("BAD_REQUEST", { message: "������������ ������ �����", });
+      throw new ORPCError("BAD_REQUEST", {
+        message: "������������ ������ �����",
+      });
     }
 
     // ��������� ������
     if (fileBuffer.length > MAX_FILE_SIZE) {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
-        message: `������ ����� ��������� ${MAX_FILE_SIZE / 1024 / 1024}MB`,
+      throw new ORPCError("BAD_REQUEST", {
+        message: `Размер файла превышает ${MAX_FILE_SIZE / 1024 / 1024}MB`,
       });
     }
 
@@ -96,7 +99,9 @@ export const uploadInterviewMedia = protectedProcedure
         .returning();
 
       if (!fileRecord) {
-        throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "�� ������� ������� ������ �����", });
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
+          message: "�� ������� ������� ������ �����",
+        });
       }
 
       // ��������� ���� � gig ����� join-�������
@@ -115,6 +120,8 @@ export const uploadInterviewMedia = protectedProcedure
       if (error instanceof ORPCError) {
         throw error;
       }
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "������ ��� �������� �����", });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "������ ��� �������� �����",
+      });
     }
   });

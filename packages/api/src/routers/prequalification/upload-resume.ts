@@ -5,16 +5,16 @@
  * Публичная процедура - не требует авторизации пользователя.
  */
 
-import { getAIModel, langfuse } from "@qbs-autonaim/lib/ai";
 import { ORPCError } from "@orpc/server";
+import { getAIModel, langfuse } from "@qbs-autonaim/lib/ai";
 import { z } from "zod";
+import { publicProcedure } from "../../orpc";
 import { SessionManager } from "../../services/prequalification";
 import { PrequalificationError } from "../../services/prequalification/types";
 import {
   ResumeParserError,
   ResumeParserService,
 } from "../../services/resume-parser";
-import { publicProcedure } from "../../orpc";
 
 const uploadResumeInputSchema = z.object({
   sessionId: z.uuid("sessionId должен быть UUID"),
@@ -40,12 +40,11 @@ export const uploadResume = publicProcedure
     );
 
     if (!session) {
-      throw new ORPCError("NOT_FOUND", { message: "Сессия не найдена", });
+      throw new ORPCError("NOT_FOUND", { message: "Сессия не найдена" });
     }
 
     if (session.status !== "resume_pending") {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
+      throw new ORPCError("BAD_REQUEST", {
         message: `Загрузка резюме недоступна в статусе: ${session.status}`,
       });
     }
@@ -59,7 +58,9 @@ export const uploadResume = publicProcedure
     // Validate file format
     const validation = resumeParser.validateFormat(input.filename);
     if (!validation.isValid) {
-      throw new ORPCError("BAD_REQUEST", { message: validation.error ?? "Неподдерживаемый формат файла", });
+      throw new ORPCError("BAD_REQUEST", {
+        message: validation.error ?? "Неподдерживаемый формат файла",
+      });
     }
 
     try {
@@ -90,8 +91,10 @@ export const uploadResume = publicProcedure
       };
     } catch (error) {
       if (error instanceof ResumeParserError) {
-        throw new ORPCError("BAD_REQUEST", { message: error.userMessage,
-          cause: error, });
+        throw new ORPCError("BAD_REQUEST", {
+          message: error.userMessage,
+          cause: error,
+        });
       }
 
       if (error instanceof PrequalificationError) {
@@ -104,14 +107,15 @@ export const uploadResume = publicProcedure
           TENANT_MISMATCH: "FORBIDDEN",
         };
 
-        throw new ORPCError({
-          code: codeMap[error.code] ?? "INTERNAL_SERVER_ERROR",
+        throw new ORPCError(codeMap[error.code] ?? "INTERNAL_SERVER_ERROR", {
           message: error.userMessage,
           cause: error,
         });
       }
 
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Внутренняя ошибка сервера",
-        cause: error, });
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Внутренняя ошибка сервера",
+        cause: error,
+      });
     }
   });

@@ -10,9 +10,9 @@
  * Requirements: 1.1, 9.1, 9.4
  */
 
+import { ORPCError } from "@orpc/server";
 import { getActionExecutor, type RuleActionType } from "@qbs-autonaim/ai";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 import {
@@ -83,7 +83,7 @@ export const executeAction = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     // Проверка прав на действие
@@ -107,7 +107,9 @@ export const executeAction = protectedProcedure
     );
 
     if (!hasPermission) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет прав на выполнение этого действия", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет прав на выполнение этого действия",
+      });
     }
 
     // Проверка rate limiting (100 действий в час)
@@ -115,7 +117,9 @@ export const executeAction = protectedProcedure
     const canProceed = await checkRateLimit(rateLimitKey, 100, 3600);
 
     if (!canProceed) {
-      throw new ORPCError("TOO_MANY_REQUESTS", { message: "Превышен лимит действий. Попробуйте через час.", });
+      throw new ORPCError("TOO_MANY_REQUESTS", {
+        message: "Превышен лимит действий. Попробуйте через час.",
+      });
     }
 
     // Получаем ActionExecutor
@@ -192,8 +196,7 @@ export const executeAction = protectedProcedure
       const errorMessage =
         error instanceof Error ? error.message : "Неизвестная ошибка";
 
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message: `Не удалось выполнить действие: ${errorMessage}`,
       });
     }
@@ -215,7 +218,7 @@ export const undoAction = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     // Проверка прав на отмену
@@ -227,14 +230,18 @@ export const undoAction = protectedProcedure
     );
 
     if (!hasPermission) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет прав на отмену действия", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет прав на отмену действия",
+      });
     }
 
     const actionExecutor = getActionExecutor();
 
     // Проверяем, можно ли отменить действие
     if (!actionExecutor.canUndoAction(actionId)) {
-      throw new ORPCError("BAD_REQUEST", { message: "Действие не может быть отменено", });
+      throw new ORPCError("BAD_REQUEST", {
+        message: "Действие не может быть отменено",
+      });
     }
 
     try {
@@ -244,7 +251,9 @@ export const undoAction = protectedProcedure
       );
 
       if (!result.success) {
-        throw new ORPCError("BAD_REQUEST", { message: result.error ?? "Не удалось отменить действие", });
+        throw new ORPCError("BAD_REQUEST", {
+          message: result.error ?? "Не удалось отменить действие",
+        });
       }
 
       // Логируем в audit log
@@ -272,8 +281,7 @@ export const undoAction = protectedProcedure
       const errorMessage =
         error instanceof Error ? error.message : "Неизвестная ошибка";
 
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message: `Не удалось отменить действие: ${errorMessage}`,
       });
     }
@@ -295,7 +303,7 @@ export const approveAction = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace", });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     // Проверка прав на выполнение правил
@@ -307,7 +315,9 @@ export const approveAction = protectedProcedure
     );
 
     if (!hasPermission) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет прав на подтверждение действия", });
+      throw new ORPCError("FORBIDDEN", {
+        message: "Нет прав на подтверждение действия",
+      });
     }
 
     const actionExecutor = getActionExecutor();
@@ -320,7 +330,9 @@ export const approveAction = protectedProcedure
       );
 
       if (!result) {
-        throw new ORPCError("NOT_FOUND", { message: "Запрос на подтверждение не найден или истёк", });
+        throw new ORPCError("NOT_FOUND", {
+          message: "Запрос на подтверждение не найден или истёк",
+        });
       }
 
       // Логируем в audit log
@@ -354,8 +366,7 @@ export const approveAction = protectedProcedure
       const errorMessage =
         error instanceof Error ? error.message : "Неизвестная ошибка";
 
-      throw new ORPCError({
-        code: "INTERNAL_SERVER_ERROR",
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
         message: `Не удалось подтвердить действие: ${errorMessage}`,
       });
     }

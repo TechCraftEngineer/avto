@@ -1,12 +1,12 @@
+import { ORPCError } from "@orpc/server";
 import { and, eq, inArray } from "@qbs-autonaim/db";
 import {
   RESPONSE_STATUS,
   response as responseTable,
 } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import type { TRPCContext } from "../../../orpc";
+import type { Context } from "../../../orpc";
 import { protectedProcedure } from "../../../orpc";
 
 type BulkUpdateInput = {
@@ -15,7 +15,7 @@ type BulkUpdateInput = {
 };
 
 async function bulkUpdateStatus(
-  ctx: TRPCContext,
+  context: Context,
   input: BulkUpdateInput,
   targetStatus:
     | typeof RESPONSE_STATUS.COMPLETED
@@ -23,7 +23,7 @@ async function bulkUpdateStatus(
 ): Promise<{ success: boolean; updatedCount: number }> {
   const session = context.session;
   if (!session) {
-    throw new ORPCError("UNAUTHORIZED", { message: "Требуется авторизация", });
+    throw new ORPCError("UNAUTHORIZED", { message: "Требуется авторизация" });
   }
   const userId = session.user.id;
 
@@ -33,7 +33,9 @@ async function bulkUpdateStatus(
   );
 
   if (!access) {
-    throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace", });
+    throw new ORPCError("FORBIDDEN", {
+      message: "Нет доступа к этому workspace",
+    });
   }
 
   const responses = await context.db.query.response.findMany({
@@ -49,7 +51,9 @@ async function bulkUpdateStatus(
   });
 
   if (responses.length !== input.responseIds.length) {
-    throw new ORPCError("NOT_FOUND", { message: "Некоторые отклики не найдены", });
+    throw new ORPCError("NOT_FOUND", {
+      message: "Некоторые отклики не найдены",
+    });
   }
 
   const invalidResponses = responses.filter(
@@ -57,7 +61,9 @@ async function bulkUpdateStatus(
   );
 
   if (invalidResponses.length > 0) {
-    throw new ORPCError("FORBIDDEN", { message: "Некоторые отклики не принадлежат этому workspace", });
+    throw new ORPCError("FORBIDDEN", {
+      message: "Некоторые отклики не принадлежат этому workspace",
+    });
   }
 
   const updateResult = await context.db
@@ -87,7 +93,7 @@ export const acceptMultiple = protectedProcedure
     }),
   )
   .handler(async ({ input, context }) => {
-    return bulkUpdateStatus(ctx, input, RESPONSE_STATUS.COMPLETED);
+    return bulkUpdateStatus(context, input, RESPONSE_STATUS.COMPLETED);
   });
 
 export const rejectMultiple = protectedProcedure
@@ -98,5 +104,5 @@ export const rejectMultiple = protectedProcedure
     }),
   )
   .handler(async ({ input, context }) => {
-    return bulkUpdateStatus(ctx, input, RESPONSE_STATUS.SKIPPED);
+    return bulkUpdateStatus(context, input, RESPONSE_STATUS.SKIPPED);
   });

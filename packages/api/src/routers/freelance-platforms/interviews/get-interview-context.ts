@@ -1,6 +1,6 @@
+import { ORPCError } from "@orpc/server";
 import { eq } from "@qbs-autonaim/db";
 import { vacancy as vacancyTable } from "@qbs-autonaim/db/schema";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { withInterviewAccess } from "../../../utils/interview-access-middleware";
 
@@ -10,9 +10,8 @@ const getInterviewContextInputSchema = z.object({
   interviewToken: z.string().optional(),
 });
 
-export const getInterviewContext = withInterviewAccess
-  .input(getInterviewContextInputSchema)
-  .handler(async ({ context }) => {
+export const getInterviewContext = withInterviewAccess.handler(
+  async ({ context }) => {
     // Доступ уже проверен в middleware
 
     const session = await context.db.query.interviewSession.findFirst({
@@ -24,7 +23,7 @@ export const getInterviewContext = withInterviewAccess
     });
 
     if (!session || !session.response) {
-      throw new ORPCError("NOT_FOUND", { message: "Интервью не найдено", });
+      throw new ORPCError("NOT_FOUND", { message: "Интервью не найдено" });
     }
 
     // Определяем тип сущности и загружаем соответствующие данные
@@ -72,5 +71,8 @@ export const getInterviewContext = withInterviewAccess
       }
     }
 
-    throw new ORPCError("NOT_FOUND", { message: "Информация о вакансии или задании не найдена", });
-  });
+    throw new ORPCError("NOT_FOUND", {
+      message: "Информация о вакансии или задании не найдена",
+    });
+  },
+);

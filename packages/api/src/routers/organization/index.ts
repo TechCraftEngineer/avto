@@ -1,3 +1,4 @@
+import type { RouterRecord } from '@orpc/server';
 
 import { create } from "./create";
 import { createPlanPayment } from "./create-plan-payment";
@@ -39,4 +40,4 @@ export const organizationRouter = {
   createWorkspace,
   listWorkspaces,
   getWorkspaceBySlug,
-};
+} satisfies RouterRecord;

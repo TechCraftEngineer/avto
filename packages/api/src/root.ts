@@ -56,7 +56,7 @@ export const appRouter = createRouter({
   customDomain: customDomainRouter,
   chat: chatRouter,
   draft: draftRouter,
-  ...(process.env.NODE_ENV !== "production" && { test: testRouter }),
+  ...(process.env.NODE_ENV !== "production" ? { test: testRouter } : {}),
 });
 
 // export type definition of API

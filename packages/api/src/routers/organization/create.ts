@@ -1,4 +1,4 @@
-import { ORPCError } from "@orpc/client";
+import { ORPCError } from "@orpc/server";
 import { organization, organizationMember } from "@qbs-autonaim/db";
 import { optimizeLogo } from "@qbs-autonaim/lib/image";
 import { createOrganizationSchema } from "@qbs-autonaim/validators";
@@ -6,8 +6,10 @@ import { protectedProcedure } from "../../orpc";
 
 export const create = protectedProcedure
   .input(createOrganizationSchema)
-  .handler(async ({ input, context: ctx }) => {
-    const existing = await context.organizationRepository.findBySlug(input.slug);
+  .handler(async ({ input, context }) => {
+    const existing = await context.organizationRepository.findBySlug(
+      input.slug,
+    );
     if (existing) {
       throw new ORPCError("CONFLICT", {
         message: "Организация с таким slug уже существует",

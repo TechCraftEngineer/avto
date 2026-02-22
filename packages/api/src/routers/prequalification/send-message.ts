@@ -5,15 +5,15 @@
  * ��������� ��������� - �� ������� ����������� ������������.
  */
 
-import { generateText } from "@qbs-autonaim/lib/ai";
 import { ORPCError } from "@orpc/server";
+import { generateText } from "@qbs-autonaim/lib/ai";
 import { z } from "zod";
+import { publicProcedure } from "../../orpc";
 import {
   DialogueHandler,
   SessionManager,
 } from "../../services/prequalification";
 import { PrequalificationError } from "../../services/prequalification/types";
-import { publicProcedure } from "../../orpc";
 
 const sendMessageInputSchema = z.object({
   sessionId: z.string().uuid("sessionId ������ ���� UUID"),
@@ -37,13 +37,12 @@ export const sendMessage = publicProcedure
     );
 
     if (!session) {
-      throw new ORPCError("NOT_FOUND", { message: "������ �� �������", });
+      throw new ORPCError("NOT_FOUND", { message: "������ �� �������" });
     }
 
     if (session.status !== "dialogue_active") {
-      throw new ORPCError({
-        code: "BAD_REQUEST",
-        message: `�������� ��������� ���������� � �������: ${session.status}`,
+      throw new ORPCError("BAD_REQUEST", {
+        message: `Отправка сообщений недоступна в статусе: ${session.status}`,
       });
     }
 
@@ -170,8 +169,7 @@ export const sendMessage = publicProcedure
           INTERVIEW_SESSION_CREATION_FAILED: "INTERNAL_SERVER_ERROR",
         };
 
-        throw new ORPCError({
-          code: codeMap[error.code] ?? "INTERNAL_SERVER_ERROR",
+        throw new ORPCError(codeMap[error.code] ?? "INTERNAL_SERVER_ERROR", {
           message: error.userMessage,
           cause: error,
         });

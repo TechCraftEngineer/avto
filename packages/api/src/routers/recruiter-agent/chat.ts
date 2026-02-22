@@ -5,6 +5,7 @@
  * Requirements: 1.1, 1.2, 1.3, 7.5, 10.2
  */
 
+import { ORPCError } from "@orpc/server";
 import {
   type ConversationMessage,
   mapDBSettingsToRecruiterSettings,
@@ -13,7 +14,6 @@ import {
 } from "@qbs-autonaim/ai";
 import { getAIModel } from "@qbs-autonaim/lib/ai";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 import { checkRateLimit, checkWorkspaceAccess } from "./middleware";
@@ -60,7 +60,7 @@ const chatInputSchema = z.object({
  */
 export const chat = protectedProcedure
   .input(chatInputSchema)
-  .handler(async function* ({ input, ctx }) {
+  .handler(async function* ({ input, context }) {
     const {
       workspaceId,
       message,
@@ -77,8 +77,7 @@ export const chat = protectedProcedure
     );
 
     if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace",
-      });
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
     }
 
     // Проверка rate limiting (30 запросов в минуту)
@@ -86,7 +85,8 @@ export const chat = protectedProcedure
     const canProceed = await checkRateLimit(rateLimitKey, 30, 60);
 
     if (!canProceed) {
-      throw new ORPCError("TOO_MANY_REQUESTS", { message: "Превышен лимит запросов. Попробуйте через минуту.",
+      throw new ORPCError("TOO_MANY_REQUESTS", {
+        message: "Превышен лимит запросов. Попробуйте через минуту.",
       });
     }
 
@@ -236,7 +236,8 @@ export const chat = protectedProcedure
         code: "ORCHESTRATOR_ERROR",
       };
 
-      throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Не удалось обработать запрос. Попробуйте позже.",
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Не удалось обработать запрос. Попробуйте позже.",
       });
     }
   });
