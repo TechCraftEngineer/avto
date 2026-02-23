@@ -1,5 +1,14 @@
 import type { VacancyRequirementsStrict } from "@qbs-autonaim/types";
 import { z } from "zod";
+import { workspaceIdSchema } from "./workspace";
+
+/** Схема для операций с вакансией (vacancyId + workspaceId) */
+export const vacancyWorkspaceInputSchema = z.object({
+  vacancyId: z.string(),
+  workspaceId: workspaceIdSchema,
+});
+
+export type VacancyWorkspaceInput = z.infer<typeof vacancyWorkspaceInputSchema>;
 
 export const updateVacancyDetailsSchema = z.object({
   title: z

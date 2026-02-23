@@ -118,7 +118,8 @@ export const executeAction = protectedProcedure
 
     if (!canProceed) {
       throw new ORPCError("TOO_MANY_REQUESTS", {
-        message: "Превышен лимит действий. Попробуйте через час.",
+        message: "Превышен лимит действий",
+        data: { retryAfter: 3600 },
       });
     }
 

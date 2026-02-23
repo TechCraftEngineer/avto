@@ -7,6 +7,8 @@ import {
 } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
+import { ensureFound } from "../../../utils/ensure-found";
+import { verifyWorkspaceAccess } from "../../../utils/verify-workspace-access";
 
 const createVacancySchema = z.object({
   workspaceId: workspaceIdSchema,
@@ -25,15 +27,11 @@ const createVacancySchema = z.object({
 export const create = protectedProcedure
   .input(createVacancySchema)
   .handler(async ({ input, context }) => {
-    // Проверка доступа к workspace
-    const hasAccess = await context.workspaceRepository.checkAccess(
+    await verifyWorkspaceAccess(
+      context.workspaceRepository,
       input.workspaceId,
       context.session.user.id,
     );
-
-    if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
-    }
 
     // Формируем description из всех полей
     const fullDescription = [
@@ -61,11 +59,5 @@ export const create = protectedProcedure
       })
       .returning();
 
-    if (!newVacancy) {
-      throw new ORPCError("INTERNAL_SERVER_ERROR", {
-        message: "Не удалось создать вакансию",
-      });
-    }
-
-    return newVacancy;
+    return ensureFound(newVacancy, "Не удалось создать вакансию");
   });

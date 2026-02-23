@@ -82,6 +82,14 @@ export const updateBotSettingsSchema = z.object({
   botRole: z.string().min(1, "Роль бота обязательна").max(100),
 });
 
+/** Схема для операций с gig (gigId + workspaceId) */
+export const gigWorkspaceInputSchema = z.object({
+  gigId: z.string().uuid(),
+  workspaceId: workspaceIdSchema,
+});
+
+export type GigWorkspaceInput = z.infer<typeof gigWorkspaceInputSchema>;
+
 export type CreateWorkspaceInput = z.infer<typeof createWorkspaceSchema>;
 export type UpdateWorkspaceInput = z.infer<typeof updateWorkspaceSchema>;
 export type UpdateBotSettingsInput = z.infer<typeof updateBotSettingsSchema>;

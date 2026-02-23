@@ -12,6 +12,7 @@ import type { Auth } from "@qbs-autonaim/auth";
 import { OrganizationRepository, WorkspaceRepository } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { inngest } from "@qbs-autonaim/jobs/client";
+import { z } from "zod";
 import { AuditLoggerService } from "./services/audit-logger";
 import { extractTokenFromHeaders } from "./utils/interview-token-validator";
 
@@ -83,13 +84,27 @@ export type Context = Awaited<ReturnType<typeof createContext>>;
 /**
  * Инициализация oRPC с конфигурацией
  *
- * Настраивает базовый builder с контекстом.
+ * Настраивает базовый builder с контекстом и типизированными ошибками.
  * SuperJSON используется автоматически в oRPC для сериализации Date, Map, Set и других типов.
  * Zod ошибки автоматически форматируются oRPC.
  *
+ * Type-safe errors: клиент получает типизацию error.data через isDefinedError.
+ * ORPCError.data передаётся клиенту — не включайте чувствительные данные.
+ *
+ * @see https://orpc.dev/docs/error-handling
  * @see Requirements 1.2, 1.3, 1.5
  */
-const orpc = os.$context<Context>();
+const orpc = os.$context<Context>().errors({
+  UNAUTHORIZED: { message: "Требуется авторизация" },
+  FORBIDDEN: { message: "Нет доступа" },
+  NOT_FOUND: { message: "Ресурс не найден" },
+  BAD_REQUEST: { message: "Некорректные данные" },
+  CONFLICT: { message: "Конфликт данных" },
+  TOO_MANY_REQUESTS: {
+    data: z.object({ retryAfter: z.number().int().min(1) }),
+    message: "Превышен лимит запросов",
+  },
+});
 
 /**
  * Фабричная функция для создания роутеров

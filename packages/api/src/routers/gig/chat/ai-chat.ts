@@ -97,7 +97,8 @@ export const sendMessage = protectedProcedure
     const rateLimitCheck = gigChatRateLimiter.check(userId);
     if (!rateLimitCheck.allowed) {
       throw new ORPCError("TOO_MANY_REQUESTS", {
-        message: `Слишком много запросов. Подождите ${rateLimitCheck.retryAfter} секунд`,
+        message: "Превышен лимит запросов",
+        data: { retryAfter: rateLimitCheck.retryAfter },
       });
     }
 

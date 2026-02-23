@@ -3,44 +3,36 @@ import { and, eq } from "@qbs-autonaim/db";
 import { vacancy } from "@qbs-autonaim/db/schema";
 import {
   updateVacancySettingsSchema,
-  workspaceIdSchema,
+  vacancyWorkspaceInputSchema,
 } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 import { CommunicationChannelsAnalytics } from "../../../services/analytics/communication-channels";
+import { ensureFound } from "../../../utils/ensure-found";
+import { verifyWorkspaceAccess } from "../../../utils/verify-workspace-access";
 
 export const update = protectedProcedure
   .input(
-    z.object({
-      vacancyId: z.string(),
-      workspaceId: workspaceIdSchema,
-      settings: updateVacancySettingsSchema,
-    }),
+    vacancyWorkspaceInputSchema.merge(
+      z.object({ settings: updateVacancySettingsSchema }),
+    ),
   )
   .handler(async ({ context, input }) => {
-    // Проверка доступа к workspace
-    const access = await context.workspaceRepository.checkAccess(
+    await verifyWorkspaceAccess(
+      context.workspaceRepository,
       input.workspaceId,
       context.session.user.id,
     );
 
-    if (!access) {
-      throw new ORPCError("FORBIDDEN", {
-        message: "Нет доступа к этому workspace",
-      });
-    }
-
-    // Проверяем, что вакансия существует и принадлежит workspace
-    const existingVacancy = await context.db.query.vacancy.findFirst({
-      where: and(
-        eq(vacancy.id, input.vacancyId),
-        eq(vacancy.workspaceId, input.workspaceId),
-      ),
-    });
-
-    if (!existingVacancy) {
-      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена" });
-    }
+    ensureFound(
+      await context.db.query.vacancy.findFirst({
+        where: and(
+          eq(vacancy.id, input.vacancyId),
+          eq(vacancy.workspaceId, input.workspaceId),
+        ),
+      }),
+      "Вакансия не найдена",
+    );
 
     // Обновляем настройки
     // Строим патч только с определенными полями (не undefined)
@@ -88,10 +80,7 @@ export const update = protectedProcedure
       )
       .returning();
 
-    // Проверяем, что строка была обновлена (race condition: вакансия могла быть удалена)
-    if (!result[0]) {
-      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена" });
-    }
+    ensureFound(result[0], "Вакансия не найдена");
 
     // Отслеживаем изменения настроек каналов общения
     if (settings.enabledCommunicationChannels) {

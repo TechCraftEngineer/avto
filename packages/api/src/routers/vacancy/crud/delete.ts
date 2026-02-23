@@ -4,6 +4,8 @@ import { response as responseTable, vacancy } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
+import { ensureFound } from "../../../utils/ensure-found";
+import { verifyWorkspaceAccess } from "../../../utils/verify-workspace-access";
 
 const deleteVacancyInputSchema = z.object({
   vacancyId: z.uuid(),
@@ -14,27 +16,21 @@ const deleteVacancyInputSchema = z.object({
 export const deleteVacancy = protectedProcedure
   .input(deleteVacancyInputSchema)
   .handler(async ({ input, context }) => {
-    // Проверка доступа к workspace
-    const hasAccess = await context.workspaceRepository.checkAccess(
+    await verifyWorkspaceAccess(
+      context.workspaceRepository,
       input.workspaceId,
       context.session.user.id,
     );
 
-    if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
-    }
-
-    // Проверка существования вакансии
-    const existingVacancy = await context.db.query.vacancy.findFirst({
-      where: and(
-        eq(vacancy.id, input.vacancyId),
-        eq(vacancy.workspaceId, input.workspaceId),
-      ),
-    });
-
-    if (!existingVacancy) {
-      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена" });
-    }
+    ensureFound(
+      await context.db.query.vacancy.findFirst({
+        where: and(
+          eq(vacancy.id, input.vacancyId),
+          eq(vacancy.workspaceId, input.workspaceId),
+        ),
+      }),
+      "Вакансия не найдена",
+    );
 
     // Выполняем удаление в зависимости от выбора пользователя
     if (input.dataCleanupOption === "anonymize") {

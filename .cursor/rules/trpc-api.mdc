@@ -265,6 +265,23 @@ if (invalidData) {
 // INTERNAL_SERVER_ERROR - внутренняя ошибка (по умолчанию)
 ```
 
+### Type-safe ошибки и ORPCError.data
+
+В orpc.ts настроены типизированные ошибки через `.errors()` — клиент получает автокомплит для `error.data`.
+
+**TOO_MANY_REQUESTS** — передавайте `retryAfter` в data (секунды):
+
+```typescript
+throw new ORPCError("TOO_MANY_REQUESTS", {
+  message: "Превышен лимит запросов",
+  data: { retryAfter: 60 },
+});
+```
+
+**ВАЖНО:** `ORPCError.data` передаётся клиенту. Не включайте чувствительные данные (userId, tokens, stack traces).
+
+См. https://orpc.dev/docs/error-handling
+
 ### Проверка доступа
 
 ```typescript
@@ -387,7 +404,7 @@ requireWorkspaceRole(access, ["owner", "admin"]);
 Для процедур, требующих определённую роль (owner/admin), добавьте проверку после `verifyWorkspaceAccess`:
 
 ```typescript
-// utils/workspace-access.ts
+// utils/verify-workspace-access.ts
 export function requireWorkspaceRole(
   access: { role: string },
   allowedRoles: readonly string[],
@@ -420,20 +437,14 @@ export const list = workspaceProcedure
 
 ### 3. Схемы vacancyId + workspaceId — переиспользовать
 
-Для операций с вакансией/гигом храните общие схемы в `@qbs-autonaim/validators`:
+Для операций с вакансией/гигом используйте общие схемы из `@qbs-autonaim/validators`:
 
 ```typescript
-// packages/validators/src/vacancy.ts
-export const vacancyWorkspaceInputSchema = z.object({
-  vacancyId: z.string(),
-  workspaceId: workspaceIdSchema,
-});
-
-// packages/validators/src/gig.ts
-export const gigWorkspaceInputSchema = z.object({
-  gigId: z.uuid(),
-  workspaceId: workspaceIdSchema,
-});
+// packages/validators — vacancyWorkspaceInputSchema, gigWorkspaceInputSchema
+import {
+  vacancyWorkspaceInputSchema,
+  gigWorkspaceInputSchema,
+} from "@qbs-autonaim/validators";
 ```
 
 Используйте `.merge()` для расширения:

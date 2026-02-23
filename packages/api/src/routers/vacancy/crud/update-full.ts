@@ -1,43 +1,36 @@
-import { ORPCError } from "@orpc/server";
 import { and, eq } from "@qbs-autonaim/db";
 import { vacancy } from "@qbs-autonaim/db/schema";
 import {
   updateFullVacancySchema,
-  workspaceIdSchema,
+  vacancyWorkspaceInputSchema,
 } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
+import { ensureFound } from "../../../utils/ensure-found";
+import { verifyWorkspaceAccess } from "../../../utils/verify-workspace-access";
 
 export const updateFull = protectedProcedure
   .input(
-    z.object({
-      vacancyId: z.string(),
-      workspaceId: workspaceIdSchema,
-      data: updateFullVacancySchema,
-    }),
+    vacancyWorkspaceInputSchema.merge(
+      z.object({ data: updateFullVacancySchema }),
+    ),
   )
   .handler(async ({ context, input }) => {
-    const access = await context.workspaceRepository.checkAccess(
+    await verifyWorkspaceAccess(
+      context.workspaceRepository,
       input.workspaceId,
       context.session.user.id,
     );
 
-    if (!access) {
-      throw new ORPCError("FORBIDDEN", {
-        message: "Нет доступа к этому workspace",
-      });
-    }
-
-    const existingVacancy = await context.db.query.vacancy.findFirst({
-      where: and(
-        eq(vacancy.id, input.vacancyId),
-        eq(vacancy.workspaceId, input.workspaceId),
-      ),
-    });
-
-    if (!existingVacancy) {
-      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена" });
-    }
+    const existingVacancy = ensureFound(
+      await context.db.query.vacancy.findFirst({
+        where: and(
+          eq(vacancy.id, input.vacancyId),
+          eq(vacancy.workspaceId, input.workspaceId),
+        ),
+      }),
+      "Вакансия не найдена",
+    );
 
     const result = await context.db
       .update(vacancy)
@@ -58,9 +51,5 @@ export const updateFull = protectedProcedure
       )
       .returning();
 
-    if (!result[0]) {
-      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена" });
-    }
-
-    return result[0];
+    return ensureFound(result[0], "Вакансия не найдена");
   });

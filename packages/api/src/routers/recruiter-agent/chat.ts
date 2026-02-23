@@ -86,7 +86,8 @@ export const chat = protectedProcedure
 
     if (!canProceed) {
       throw new ORPCError("TOO_MANY_REQUESTS", {
-        message: "Превышен лимит запросов. Попробуйте через минуту.",
+        message: "Превышен лимит запросов",
+        data: { retryAfter: 60 },
       });
     }
 

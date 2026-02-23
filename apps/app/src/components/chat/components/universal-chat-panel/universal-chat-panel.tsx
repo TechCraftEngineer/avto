@@ -111,15 +111,18 @@ export function UniversalChatPanel({
         setLastFailedMessage(null);
       },
       onError: (err: unknown) => {
-        const oerr = err as { data?: { code?: string }; message?: string };
-        const errorCode = oerr.data?.code;
+        const oerr = err as {
+          code?: string;
+          data?: { code?: string; retryAfter?: number };
+          message?: string;
+        };
+        const errorCode = oerr.code ?? oerr.data?.code;
         let errorMessage =
           oerr.message ?? (err instanceof Error ? err.message : "Ошибка");
 
         if (errorCode === "TOO_MANY_REQUESTS") {
-          const retryMatch = errorMessage.match(/(\d+)\s+секунд/);
-          const retrySeconds = retryMatch ? retryMatch[1] : "60";
-          errorMessage = `Слишком много запросов. Подождите ${retrySeconds} секунд`;
+          const retryAfter = oerr.data?.retryAfter ?? 60;
+          errorMessage = `Подождите ${retryAfter} секунд`;
           toast.error("Превышен лимит запросов", {
             description: errorMessage,
           });

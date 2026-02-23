@@ -16,3 +16,18 @@ export async function verifyWorkspaceAccess(
 
   return access;
 }
+
+/**
+ * Требует определённую роль в workspace.
+ * Вызвать после verifyWorkspaceAccess.
+ */
+export function requireWorkspaceRole(
+  access: { role: string },
+  allowedRoles: readonly string[],
+): void {
+  if (!allowedRoles.includes(access.role)) {
+    throw new ORPCError("FORBIDDEN", {
+      message: "Недостаточно прав для этого действия",
+    });
+  }
+}

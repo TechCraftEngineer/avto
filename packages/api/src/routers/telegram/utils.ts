@@ -1,19 +1,6 @@
-import { ORPCError } from "@orpc/server";
-import type { WorkspaceRepository } from "@qbs-autonaim/db";
+import { verifyWorkspaceAccess } from "../../utils/verify-workspace-access";
 
-export async function verifyWorkspaceAccess(
-  workspaceRepository: WorkspaceRepository,
-  workspaceId: string,
-  userId: string,
-) {
-  const access = await workspaceRepository.checkAccess(workspaceId, userId);
-
-  if (!access) {
-    throw new ORPCError("FORBIDDEN", {
-      message: "Нет доступа к этому workspace",
-    });
-  }
-}
+export { verifyWorkspaceAccess };
 
 export function normalizePhone(phone: string): string {
   return phone.trim().replace(/\s+/g, "");
