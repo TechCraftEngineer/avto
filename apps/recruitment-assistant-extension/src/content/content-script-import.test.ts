@@ -6,6 +6,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { CandidateData } from "../shared/types";
 
 vi.mock("../config", () => ({ API_URL: "https://api.example.com" }));
+vi.mock("./lib/notifications", () => ({
+  showError: vi.fn(),
+  showNotification: vi.fn(),
+}));
 
 describe("ContentScript - Import функциональность", () => {
   let mockCandidateData: CandidateData;
@@ -82,14 +86,14 @@ describe("ContentScript - Import функциональность", () => {
     (global as any).chrome = originalChrome;
   });
 
-  describe("handleImport", () => {
+  describe("triggerImport", () => {
     it("должен успешно импортировать данные кандидата в систему", async () => {
       const { ContentScript } = await import("./content-script");
+      const { showNotification } = await import("./lib/notifications");
       const contentScript = new (ContentScript as any)();
       contentScript.currentData = mockCandidateData;
-      const showNotificationSpy = vi.spyOn(contentScript, "showNotification");
 
-      await contentScript.handleImport();
+      await contentScript.triggerImport();
 
       expect(global.fetch).toHaveBeenCalledWith(
         "https://api.example.com/api/candidates/import",
@@ -102,7 +106,7 @@ describe("ContentScript - Import функциональность", () => {
         }),
       );
 
-      expect(showNotificationSpy).toHaveBeenCalledWith(
+      expect(showNotification).toHaveBeenCalledWith(
         expect.objectContaining({
           type: "success",
           message: expect.stringContaining("успешно импортирован"),
@@ -115,7 +119,7 @@ describe("ContentScript - Import функциональность", () => {
       const contentScript = new (ContentScript as any)();
       contentScript.currentData = mockCandidateData;
 
-      await contentScript.handleImport();
+      await contentScript.triggerImport();
 
       expect(global.fetch).toHaveBeenCalledWith(
         expect.any(String),

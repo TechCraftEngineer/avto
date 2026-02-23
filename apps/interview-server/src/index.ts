@@ -99,7 +99,7 @@ app.onError((err, c) => {
   );
 });
 
-const port = Number(process.env.INTERVIEW_SERVER_PORT ?? 7001);
+const port = Number(process.env.PORT ?? 7001);
 
 console.log(
   `[interview-server] Running on http://localhost:${port} (env: ${process.env.NODE_ENV ?? "development"})`,

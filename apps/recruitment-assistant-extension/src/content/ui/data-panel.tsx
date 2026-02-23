@@ -1,4 +1,3 @@
-import { useState } from "react";
 import type {
   CandidateData,
   EducationEntry,
@@ -13,11 +12,6 @@ import { SkillsList } from "./skills-list";
 interface DataPanelProps {
   data: CandidateData | null;
   onEdit: (field: string, value: string | string[] | null) => void;
-  onExport: (format: "json" | "clipboard") => Promise<void>;
-  onImportToSystem: () => void;
-  apiConfigured: boolean;
-  isImporting?: boolean;
-  onExportError?: (error: Error) => void;
 }
 
 function formatExtractedAt(date: Date | string): string {
@@ -33,32 +27,8 @@ function formatExtractedAt(date: Date | string): string {
   }
 }
 
-export function DataPanel({
-  data,
-  onEdit,
-  onExport,
-  onImportToSystem,
-  apiConfigured,
-  isImporting = false,
-  onExportError,
-}: DataPanelProps) {
-  const [isExporting, setIsExporting] = useState(false);
-
+export function DataPanel({ data, onEdit }: DataPanelProps) {
   if (!data) return null;
-
-  const handleExport = async (format: "json" | "clipboard") => {
-    setIsExporting(true);
-    try {
-      await onExport(format);
-    } catch (error) {
-      console.error("Ошибка экспорта:", error);
-      onExportError?.(
-        error instanceof Error ? error : new Error(String(error)),
-      );
-    } finally {
-      setIsExporting(false);
-    }
-  };
 
   return (
     <section aria-label="Данные кандидата" className="ra-data-panel">
@@ -148,40 +118,6 @@ export function DataPanel({
             }
           />
         </section>
-      </div>
-
-      <div className="ra-data-panel__footer">
-        <button
-          type="button"
-          onClick={() => handleExport("json")}
-          disabled={isExporting}
-          className="ra-data-panel__btn ra-data-panel__btn--outline"
-          aria-label="Экспортировать данные в формате JSON"
-        >
-          {isExporting ? "Экспорт…" : "Экспортировать в JSON"}
-        </button>
-
-        <button
-          type="button"
-          onClick={() => handleExport("clipboard")}
-          disabled={isExporting}
-          className="ra-data-panel__btn ra-data-panel__btn--outline"
-          aria-label="Скопировать данные в буфер обмена"
-        >
-          {isExporting ? "Копирование…" : "Скопировать в буфер обмена"}
-        </button>
-
-        {apiConfigured && (
-          <button
-            type="button"
-            onClick={onImportToSystem}
-            disabled={isImporting}
-            className="ra-data-panel__btn ra-data-panel__btn--primary"
-            aria-label="Импортировать кандидата в систему"
-          >
-            {isImporting ? "Импорт…" : "Импортировать в систему"}
-          </button>
-        )}
       </div>
     </section>
   );

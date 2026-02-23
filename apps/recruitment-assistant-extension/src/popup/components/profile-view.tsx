@@ -39,30 +39,52 @@ export function ProfileView({
 }: ProfileViewProps) {
   const [error, setError] = useState<string | null>(null);
   const [isExtracting, setIsExtracting] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+
+  const sendToTab = async (type: string) => {
+    setError(null);
+    const [tab] = await chrome.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
+    if (!tab?.id) {
+      setError("Вкладка не найдена");
+      return { ok: false as const, error: "Вкладка не найдена" };
+    }
+    try {
+      const resp = await chrome.tabs.sendMessage(tab.id, { type });
+      return resp as { ok: boolean; error?: string };
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg);
+      return { ok: false as const, error: msg };
+    }
+  };
 
   const handleExtract = async () => {
-    setError(null);
     setIsExtracting(true);
-    try {
-      const [tab] = await chrome.tabs.query({
-        active: true,
-        currentWindow: true,
-      });
-      if (tab?.id) {
-        const resp = await chrome.tabs.sendMessage(tab.id, {
-          type: "EXTRACT_DATA",
-        });
-        if (resp?.ok === false) {
-          setError(resp.error ?? "Ошибка извлечения");
-        }
-      } else {
-        setError("Вкладка не найдена");
-      }
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Не удалось извлечь данные");
-    } finally {
-      setIsExtracting(false);
-    }
+    const resp = await sendToTab("EXTRACT_DATA");
+    if (resp?.ok === false) setError(resp.error ?? "Ошибка извлечения");
+    setIsExtracting(false);
+  };
+
+  const handleExportJson = async () => {
+    setIsExporting(true);
+    await sendToTab("EXPORT_JSON");
+    setIsExporting(false);
+  };
+
+  const handleExportClipboard = async () => {
+    setIsExporting(true);
+    await sendToTab("EXPORT_CLIPBOARD");
+    setIsExporting(false);
+  };
+
+  const handleImport = async () => {
+    setIsImporting(true);
+    await sendToTab("IMPORT_TO_SYSTEM");
+    setIsImporting(false);
   };
 
   const isHeadHunter = pageContext.platform === "HeadHunter";
@@ -94,14 +116,43 @@ export function ProfileView({
               : "Извлеките данные профиля и импортируйте в систему"}
           </p>
         </div>
-        <div className="flex justify-center">
+        <div className="flex flex-col gap-2">
           <Button
-            className="w-fit"
+            className="w-full"
             onClick={handleExtract}
             disabled={isExtracting}
           >
             {isExtracting ? "Извлечение…" : "Извлечь данные"}
           </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1"
+              onClick={handleExportJson}
+              disabled={isExporting}
+            >
+              {isExporting ? "…" : "Экспорт JSON"}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1"
+              onClick={handleExportClipboard}
+              disabled={isExporting}
+            >
+              {isExporting ? "…" : "Копировать"}
+            </Button>
+            <Button
+              variant="default"
+              size="sm"
+              className="flex-1"
+              onClick={handleImport}
+              disabled={isImporting}
+            >
+              {isImporting ? "Импорт…" : "Импортировать"}
+            </Button>
+          </div>
         </div>
         {error && (
           <Alert variant="destructive" role="alert" aria-live="polite">
