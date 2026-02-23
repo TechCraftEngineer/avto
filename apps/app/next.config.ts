@@ -83,6 +83,35 @@ export default async function createNextConfig(): Promise<NextConfig> {
         },
       ];
     },
+
+    /** Proxy API routes to app-server */
+    async rewrites() {
+      const appServerUrl =
+        process.env.APP_SERVER_URL || "http://localhost:3001";
+
+      return [
+        {
+          source: "/api/auth/:path*",
+          destination: `${appServerUrl}/api/auth/:path*`,
+        },
+        {
+          source: "/api/orpc/:path*",
+          destination: `${appServerUrl}/api/orpc/:path*`,
+        },
+        {
+          source: "/api/chat/stream",
+          destination: `${appServerUrl}/api/chat/stream`,
+        },
+        {
+          source: "/api/vacancy/chat-generate",
+          destination: `${appServerUrl}/api/vacancy/chat-generate`,
+        },
+        {
+          source: "/api/test/:path*",
+          destination: `${appServerUrl}/api/test/:path*`,
+        },
+      ];
+    },
   };
 
   return config;

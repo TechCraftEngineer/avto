@@ -1,8 +1,14 @@
 import { Sparkles } from "lucide-react";
-import type {
-  SupportedEntityType,
-  WelcomeMessageConfig,
-} from "~/app/api/interview/chat/stream/strategies/types";
+
+type SupportedEntityType = "gig" | "vacancy" | "project";
+
+interface WelcomeMessageConfig {
+  title: string;
+  subtitle: string;
+  placeholder: string;
+  greeting: string;
+  suggestedQuestions?: string[];
+}
 
 interface InterviewGreetingProps {
   entityType?: SupportedEntityType;

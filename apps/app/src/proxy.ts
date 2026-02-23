@@ -94,16 +94,12 @@ export async function proxy(request: NextRequest) {
       request.headers.get("x-real-ip") ||
       "unknown";
 
-    // Исключаем streaming endpoints и webhooks из rate limiting или применяем более высокие лимиты
-    const isStreamEndpoint =
-      request.nextUrl.pathname.startsWith("/api/vacancy/chat-generate") ||
-      request.nextUrl.pathname.startsWith("/api/chat/stream");
-
+    // Исключаем webhooks и health checks из rate limiting
     const isWebhook = request.nextUrl.pathname.startsWith("/api/webhook/");
     const isHealthCheck = request.nextUrl.pathname === "/api/health";
 
     // Пропускаем rate limiting для специальных endpoints
-    if (isStreamEndpoint || isWebhook || isHealthCheck) {
+    if (isWebhook || isHealthCheck) {
       return response;
     }
 
