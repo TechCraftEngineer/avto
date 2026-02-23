@@ -1,26 +1,30 @@
 import { notFound } from "next/navigation";
+import { use } from "react";
 import { api, HydrateClient, makeQueryClient, orpc } from "~/orpc/server";
 import { GigsPageClient } from "./gigs-page-client";
 
-export default async function GigsPage({
+export default function GigsPage({
   params,
 }: {
   params: Promise<{ orgSlug: string; slug: string }>;
 }) {
-  const { orgSlug, slug } = await params;
-  const caller = api;
-  const organization = await caller.organization.getBySlug({ slug: orgSlug });
+  const { orgSlug, slug } = use(params);
+  const organization = use(api.organization.getBySlug({ slug: orgSlug }));
   if (!organization) notFound();
 
-  const workspace = await caller.organization.getWorkspaceBySlug({
-    organizationId: organization.id,
-    slug,
-  });
+  const workspace = use(
+    api.organization.getWorkspaceBySlug({
+      organizationId: organization.id,
+      slug,
+    }),
+  );
   if (!workspace) notFound();
 
   const queryClient = makeQueryClient();
-  await queryClient.prefetchQuery(
-    orpc.gig.list.queryOptions({ input: { workspaceId: workspace.id } }),
+  use(
+    queryClient.prefetchQuery(
+      orpc.gig.list.queryOptions({ input: { workspaceId: workspace.id } }),
+    ),
   );
 
   return (
