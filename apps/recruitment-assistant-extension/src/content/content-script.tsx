@@ -22,7 +22,6 @@ export class ContentScript {
   private isInitialized = false;
   private currentData: CandidateData | null = null;
   private currentAdapter: PlatformAdapter | null = null;
-  private buttonContainer: HTMLDivElement | null = null;
   private panelContainer: HTMLDivElement | null = null;
   private panelRoot: Root | null = null;
   private isLoading = false;

@@ -3,7 +3,7 @@ on:
   push:
     branches: [main]
     paths:
-      - "apps/demo-server/**"
+      - "apps/app-server/**"
       - "packages/**"
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -34,7 +34,7 @@ jobs:
           CR_REPOSITORY: demo-server
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -f apps/demo-server/Dockerfile --build-arg POSTGRES_URL="${{ secrets.POSTGRES_URL }}" -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:latest .
+          docker build -f apps/app-server/Dockerfile --build-arg POSTGRES_URL="${{ secrets.POSTGRES_URL }}" -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:latest .
           docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG
           docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:latest
 
