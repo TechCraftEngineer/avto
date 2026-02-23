@@ -5,5 +5,9 @@ export default defineConfig({
   format: "esm",
   outDir: "./dist",
   clean: true,
+  sourcemap: false,
+  inlineOnly: true,
+  treeshake: true,
+  minify: true,
   noExternal: [/@qbs-autonaim\/.*/],
 });
