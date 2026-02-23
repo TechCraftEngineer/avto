@@ -27,6 +27,7 @@ export const createQueryClient = () =>
         shouldRedactErrors: () => process.env.NODE_ENV !== "development",
       },
       hydrate: {
+        // biome-ignore lint/suspicious/noExplicitAny: Требуется для совместимости с TanStack Query
         deserializeData(data: any) {
           return serializer.deserialize(data.json, data.meta);
         },

@@ -2,7 +2,7 @@
 
 import { useChat } from "@ai-sdk/react";
 import { cn } from "@qbs-autonaim/ui/utils";
-import { useQuery } from "@tanstack/react-query";
+import { skipToken, useQuery } from "@tanstack/react-query";
 import { DefaultChatTransport } from "ai";
 import { AlertCircle, Sparkles } from "lucide-react";
 import { memo, useCallback, useEffect, useMemo, useRef } from "react";
@@ -43,18 +43,23 @@ function PureInterviewChat({
 
   const { data: chatHistory, isLoading: isLoadingHistory } = useQuery(
     orpc.freelancePlatforms.getChatHistory.queryOptions({
-      interviewSessionId,
-      interviewToken,
+      input: {
+        interviewSessionId,
+        interviewToken,
+      },
     }),
   );
 
-  const { data: interviewContext, isLoading: isLoadingContext } = useQuery({
-    ...orpc.freelancePlatforms.getInterviewContext.queryOptions({
-      interviewSessionId,
-      interviewToken,
-    }),
-    enabled: !!chatHistory,
-  });
+  const { data: interviewContext, isLoading: isLoadingContext } = useQuery(
+    chatHistory
+      ? orpc.freelancePlatforms.getInterviewContext.queryOptions({
+          input: {
+            interviewSessionId,
+            interviewToken,
+          },
+        })
+      : skipToken,
+  );
 
   const historyMessages = useMemo(() => {
     if (!chatHistory?.messages) return [];

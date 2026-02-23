@@ -108,7 +108,7 @@ export function TestORPCClient() {
 
     // Временное использование any для обхода проблем с типизацией oRPC
     // TODO: Исправить после обновления типов oRPC
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // biome-ignore lint/suspicious/noExplicitAny: Временное решение до обновления типов oRPC
     (createWorkspace as any)({
       workspace: {
         name: workspaceName,

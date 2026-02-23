@@ -13,3 +13,5 @@ export interface ChatMessage {
 }
 
 export type { ChatStatus } from "@qbs-autonaim/shared";
+
+export type SupportedEntityType = "gig" | "vacancy" | "project";

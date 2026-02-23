@@ -10,7 +10,7 @@ import {
 } from "@qbs-autonaim/ui/components/collapsible";
 import { Briefcase, Calendar, ChevronDown, Clock, MapPin } from "lucide-react";
 import { useState } from "react";
-import type { SupportedEntityType } from "~/app/api/interview/chat/stream/strategies/types";
+import type { SupportedEntityType } from "~/types/chat";
 
 interface InterviewContext {
   type: "vacancy" | "gig";
