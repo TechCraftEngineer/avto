@@ -6,6 +6,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { auth } from "./auth";
+import { handleChatStream } from "./routes/chat-stream";
 import { extensionTokenRoutes } from "./routes/extension-token";
 import { googleCalendarRoutes } from "./routes/google-calendar";
 import { testSetupRoutes } from "./routes/test-setup";
@@ -62,6 +63,9 @@ app.on(["GET", "POST"], "/api/orpc/*", async (c) => {
     return c.json({ error: "Internal Server Error" }, 500);
   }
 });
+
+// Chat stream (streaming)
+app.post("/api/chat/stream", handleChatStream);
 
 // Vacancy chat generate (streaming)
 app.post("/api/vacancy/chat-generate", handleVacancyChatGenerate);

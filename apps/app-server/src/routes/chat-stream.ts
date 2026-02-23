@@ -2,9 +2,9 @@ import { chatMessage, chatSession, eq, gig, vacancy } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { getAIModel, streamText } from "@qbs-autonaim/lib/ai";
 import { createUIMessageStream, JsonToSseTransformStream } from "ai";
-import { NextResponse } from "next/server";
+import type { Context } from "hono";
 import { z } from "zod";
-import { getSession } from "~/auth/server";
+import { getSession } from "../auth";
 
 const textPartSchema = z.object({
   type: z.literal("text"),
@@ -25,32 +25,30 @@ const requestSchema = z.object({
   conversationId: z.string().optional(),
 });
 
-export const maxDuration = 60;
-
 function generateUUID(): string {
   return crypto.randomUUID();
 }
 
-export async function POST(request: Request) {
+export async function handleChatStream(c: Context) {
   let requestBody: z.infer<typeof requestSchema>;
 
   try {
-    const json = await request.json();
+    const json = await c.req.json();
     requestBody = requestSchema.parse(json);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
+      return c.json(
         { error: "Invalid request", details: error.issues },
         { status: 400 },
       );
     }
-    return NextResponse.json({ error: "Bad request" }, { status: 400 });
+    return c.json({ error: "Bad request" }, { status: 400 });
   }
 
   try {
-    const session = await getSession();
+    const session = await getSession(c.req.raw.headers);
     if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return c.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { message, messages, chatSessionId, conversationId, id } =
@@ -58,7 +56,7 @@ export async function POST(request: Request) {
 
     const resolvedChatSessionId = chatSessionId ?? conversationId ?? id;
     if (!resolvedChatSessionId) {
-      return NextResponse.json({ error: "Bad request" }, { status: 400 });
+      return c.json({ error: "Bad request" }, { status: 400 });
     }
 
     // Проверка доступа к chatSession
@@ -72,11 +70,11 @@ export async function POST(request: Request) {
       });
 
       if (!chat) {
-        return NextResponse.json({ error: "Not found" }, { status: 404 });
+        return c.json({ error: "Not found" }, { status: 404 });
       }
 
       if (chat.userId && chat.userId !== session.user.id) {
-        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        return c.json({ error: "Forbidden" }, { status: 403 });
       }
 
       // Получаем контекст в зависимости от типа сущности
@@ -98,7 +96,7 @@ export async function POST(request: Request) {
             });
 
             if (!member) {
-              return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+              return c.json({ error: "Forbidden" }, { status: 403 });
             }
           }
 
@@ -128,7 +126,7 @@ export async function POST(request: Request) {
             });
 
             if (!member) {
-              return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+              return c.json({ error: "Forbidden" }, { status: 403 });
             }
           }
 
@@ -247,9 +245,6 @@ ${historyContext}
     });
   } catch (error) {
     console.error("Chat stream error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    return c.json({ error: "Internal server error" }, { status: 500 });
   }
 }

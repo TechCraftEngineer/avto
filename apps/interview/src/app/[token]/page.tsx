@@ -21,7 +21,9 @@ function InterviewLandingClient({ token }: { token: string }) {
   >(null);
 
   const { data, isLoading, error } = useQuery(
-    orpc.freelancePlatforms.getInterviewByToken.queryOptions({ token }),
+    orpc.freelancePlatforms.getInterviewByToken.queryOptions({
+      input: { token },
+    }),
   );
   const startInterviewMutation = useMutation(
     orpc.freelancePlatforms.startWebInterview.mutationOptions(),
@@ -123,7 +125,7 @@ function InterviewLandingClient({ token }: { token: string }) {
         // Перезагружаем данные, чтобы показать экран "закрыто"
         await queryClient.invalidateQueries({
           queryKey: orpc.freelancePlatforms.getInterviewByToken.queryKey({
-            token,
+            input: { token },
           }),
         });
         // Не пробрасываем ошибку дальше - компонент перерендерится с новыми данными
@@ -159,7 +161,7 @@ function InterviewLandingClient({ token }: { token: string }) {
           // Перезагружаем данные, чтобы показать экран "закрыто"
           await queryClient.invalidateQueries({
             queryKey: orpc.freelancePlatforms.getInterviewByToken.queryKey({
-              token,
+              input: { token },
             }),
           });
         } else {
@@ -175,8 +177,7 @@ function InterviewLandingClient({ token }: { token: string }) {
   ) => {
     const result = await queryClient.fetchQuery(
       orpc.freelancePlatforms.checkDuplicateResponse.queryOptions({
-        vacancyId,
-        platformProfileUrl,
+        input: { vacancyId, platformProfileUrl },
       }),
     );
     return { isDuplicate: result.isDuplicate };

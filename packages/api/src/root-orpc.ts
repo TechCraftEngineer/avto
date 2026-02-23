@@ -7,7 +7,6 @@
  * @see Requirements 4.2, 10.1
  */
 
-import { router } from "./orpc";
 import { analyticsRouter } from "./routers/analytics";
 import { calendarRouter } from "./routers/calendar";
 import { candidatesRouter } from "./routers/candidates";
@@ -70,7 +69,6 @@ export const appRouter = {
   customDomain: customDomainRouter,
   chat: chatRouter,
   draft: draftRouter,
-  ...(process.env.NODE_ENV !== "production" && { test: testRouter }),
 };
 
 /**

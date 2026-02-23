@@ -3,7 +3,7 @@
 import { createORPCClient } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
 import type { RouterClient } from "@orpc/server";
-import { createRouterUtils } from "@orpc/tanstack-query";
+import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import type { appRouter } from "@qbs-autonaim/api";
 import type { QueryClient } from "@tanstack/react-query";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -66,7 +66,7 @@ const client: RouterClient<typeof appRouter> =
   globalThis.$client ?? createORPCClient(link);
 
 // Создаем утилиты для TanStack Query - предоставляет .queryOptions(), .mutationOptions(), .queryKey()
-export const orpc = createRouterUtils(client);
+export const orpc = createTanstackQueryUtils(client);
 
 /**
  * Хук для получения типизированного oRPC клиента с TanStack Query утилитами
