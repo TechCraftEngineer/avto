@@ -1,7 +1,7 @@
 import { paths } from "@qbs-autonaim/config";
 import { redirect } from "next/navigation";
 import { getSession } from "~/auth/server";
-import { client } from "~/orpc/react";
+import { api } from "~/orpc/server";
 
 export default async function Page() {
   const session = await getSession();
@@ -12,7 +12,7 @@ export default async function Page() {
   }
 
   // Получаем данные пользователя с последним активным воркспейсом
-  const userData = await client.user.me();
+  const userData = await api.user.me();
 
   // Если есть последний активный воркспейс, редирект на него
   if (userData?.lastActiveWorkspace && userData?.lastActiveOrganization) {
@@ -25,7 +25,7 @@ export default async function Page() {
   }
 
   // Получаем workspaces пользователя
-  const userWorkspaces = await client.workspace.list();
+  const userWorkspaces = await api.workspace.list();
 
   // Если есть workspaces, редирект на первый
   const firstWorkspace = userWorkspaces[0];
@@ -39,7 +39,7 @@ export default async function Page() {
   }
 
   // Проверяем наличие pending invitations
-  const pendingInvites = await client.workspace.invites.pending();
+  const pendingInvites = await api.workspace.invites.pending();
   if (pendingInvites.length > 0) {
     redirect(paths.invitations.root);
   }

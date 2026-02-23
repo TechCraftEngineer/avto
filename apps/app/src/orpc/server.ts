@@ -8,6 +8,7 @@ import { dehydrate } from "@tanstack/react-query";
 import { headers } from "next/headers";
 import { cache } from "react";
 
+import { auth } from "~/auth/server";
 import { createQueryClient } from "./query-client";
 
 const createServerContext = cache(async () => {
@@ -16,7 +17,7 @@ const createServerContext = cache(async () => {
 
   return createContext({
     headers: heads,
-    auth: null,
+    auth,
   });
 });
 /**
