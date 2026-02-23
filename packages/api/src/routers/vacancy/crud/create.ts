@@ -7,7 +7,6 @@ import {
 } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
-import { ensureFound } from "../../../utils/ensure-found";
 import { verifyWorkspaceAccess } from "../../../utils/verify-workspace-access";
 
 const createVacancySchema = z.object({
@@ -59,5 +58,10 @@ export const create = protectedProcedure
       })
       .returning();
 
-    return ensureFound(newVacancy, "Не удалось создать вакансию");
+    if (!newVacancy) {
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Не удалось создать вакансию",
+      });
+    }
+    return newVacancy;
   });

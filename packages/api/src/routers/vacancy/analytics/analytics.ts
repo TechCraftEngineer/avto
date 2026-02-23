@@ -1,40 +1,32 @@
-import { ORPCError } from "@orpc/server";
 import { and, count, eq, gte, sql } from "@qbs-autonaim/db";
 import {
   responseScreening,
   response as responseTable,
   vacancy,
 } from "@qbs-autonaim/db/schema";
-import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { z } from "zod";
+import { vacancyWorkspaceInputSchema } from "@qbs-autonaim/validators";
 import { protectedProcedure } from "../../../orpc";
+import { ensureFound } from "../../../utils/ensure-found";
+import { verifyWorkspaceAccess } from "../../../utils/verify-workspace-access";
 
 export const analytics = protectedProcedure
-  .input(z.object({ vacancyId: z.string(), workspaceId: workspaceIdSchema }))
+  .input(vacancyWorkspaceInputSchema)
   .handler(async ({ context, input }) => {
-    // Проверка доступа к workspace
-    const access = await context.workspaceRepository.checkAccess(
+    await verifyWorkspaceAccess(
+      context.workspaceRepository,
       input.workspaceId,
       context.session.user.id,
     );
 
-    if (!access) {
-      throw new ORPCError("FORBIDDEN", {
-        message: "Нет доступа к этому workspace",
-      });
-    }
-
-    // Проверка принадлежности вакансии к workspace
-    const vacancyCheck = await context.db.query.vacancy.findFirst({
-      where: and(
-        eq(vacancy.id, input.vacancyId),
-        eq(vacancy.workspaceId, input.workspaceId),
-      ),
-    });
-
-    if (!vacancyCheck) {
-      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена" });
-    }
+    ensureFound(
+      await context.db.query.vacancy.findFirst({
+        where: and(
+          eq(vacancy.id, input.vacancyId),
+          eq(vacancy.workspaceId, input.workspaceId),
+        ),
+      }),
+      "Вакансия не найдена",
+    );
     // Получаем общее количество откликов
     const totalResponsesResult = await context.db
       .select({ count: count() })

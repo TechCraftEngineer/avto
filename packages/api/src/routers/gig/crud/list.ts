@@ -1,23 +1,18 @@
-import { ORPCError } from "@orpc/server";
 import { desc, eq } from "@qbs-autonaim/db";
 import { gig } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
+import { verifyWorkspaceAccess } from "../../../utils/verify-workspace-access";
 
 export const list = protectedProcedure
   .input(z.object({ workspaceId: workspaceIdSchema }))
   .handler(async ({ context, input }) => {
-    const access = await context.workspaceRepository.checkAccess(
+    await verifyWorkspaceAccess(
+      context.workspaceRepository,
       input.workspaceId,
       context.session.user.id,
     );
-
-    if (!access) {
-      throw new ORPCError("FORBIDDEN", {
-        message: "Нет доступа к этому workspace",
-      });
-    }
 
     return context.db.query.gig.findMany({
       where: eq(gig.workspaceId, input.workspaceId),

@@ -1,23 +1,23 @@
-﻿import { ORPCError } from "@orpc/server";
+import { ORPCError } from "@orpc/server";
 import { env, paths } from "@qbs-autonaim/config";
 import { WorkspaceInviteEmail } from "@qbs-autonaim/emails";
 import { sendEmail } from "@qbs-autonaim/emails/send";
 import { addUserToWorkspaceSchema } from "@qbs-autonaim/validators";
 import { protectedProcedure } from "../../../orpc";
+import {
+  requireWorkspaceRole,
+  verifyWorkspaceAccess,
+} from "../../../utils/verify-workspace-access";
 
 export const add = protectedProcedure
   .input(addUserToWorkspaceSchema)
   .handler(async ({ input, context }) => {
-    const access = await context.workspaceRepository.checkAccess(
+    const access = await verifyWorkspaceAccess(
+      context.workspaceRepository,
       input.workspaceId,
       context.session.user.id,
     );
-
-    if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new ORPCError("FORBIDDEN", {
-        message: "Недостаточно прав для приглашения пользователей",
-      });
-    }
+    requireWorkspaceRole(access, ["owner", "admin"]);
 
     const user = await context.workspaceRepository.findUserByEmail(input.email);
     const userId = user?.id || null;

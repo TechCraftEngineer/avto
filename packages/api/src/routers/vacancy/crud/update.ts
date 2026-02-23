@@ -24,7 +24,7 @@ export const update = protectedProcedure
       context.session.user.id,
     );
 
-    ensureFound(
+    const existingVacancy = ensureFound(
       await context.db.query.vacancy.findFirst({
         where: and(
           eq(vacancy.id, input.vacancyId),
@@ -80,7 +80,7 @@ export const update = protectedProcedure
       )
       .returning();
 
-    ensureFound(result[0], "Вакансия не найдена");
+    const updatedVacancy = ensureFound(result[0], "Вакансия не найдена");
 
     // Отслеживаем изменения настроек каналов общения
     if (settings.enabledCommunicationChannels) {
@@ -113,5 +113,5 @@ export const update = protectedProcedure
       }
     }
 
-    return result[0];
+    return updatedVacancy;
   });
