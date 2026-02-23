@@ -35,6 +35,8 @@ globalThis.$client = createRouterClient(appRouter, {
 
 export const api = globalThis.$client;
 
+export const orpc = createTanstackQueryUtils(globalThis.$client!);
+
 /**
  * Создаёт server helpers для prefetch и гидратации.
  * Используется в серверных компонентах для загрузки данных на сервере.
@@ -62,4 +64,3 @@ export async function createServerHelpers() {
 export { HydrateClient } from "./hydrate-client";
 
 export { createQueryClient as makeQueryClient } from "./query-client";
-export { orpc } from "./react";

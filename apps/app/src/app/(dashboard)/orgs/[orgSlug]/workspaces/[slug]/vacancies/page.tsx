@@ -1,22 +1,23 @@
 import { notFound } from "next/navigation";
+import { use } from "react";
 import { api, HydrateClient, makeQueryClient, orpc } from "~/orpc/server";
 import { VacanciesPageClient } from "./vacancies-page-client";
 
-export default async function VacanciesPage({
+export default function VacanciesPage({
   params,
 }: {
   params: Promise<{ orgSlug: string; slug: string }>;
 }) {
-  const { orgSlug, slug } = await params;
-  const organization = await api.organization.getBySlug({
-    slug: orgSlug,
-  });
+  const { orgSlug, slug } = use(params);
+  const organization = use(api.organization.getBySlug({ slug: orgSlug }));
   if (!organization) notFound();
 
-  const workspace = await api.organization.getWorkspaceBySlug({
-    organizationId: organization.id,
-    slug,
-  });
+  const workspace = use(
+    api.organization.getWorkspaceBySlug({
+      organizationId: organization.id,
+      slug,
+    }),
+  );
   if (!workspace) notFound();
 
   const queryClient = makeQueryClient();
@@ -30,7 +31,7 @@ export default async function VacanciesPage({
       limit: 50,
     },
   });
-  await queryClient.prefetchQuery(queryOptions);
+  use(queryClient.prefetchQuery(queryOptions));
 
   return (
     <HydrateClient>
