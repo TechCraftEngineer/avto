@@ -83,7 +83,8 @@ export function ResponseHeaderCard({
   isProcessing,
   isPolling,
 }: ResponseHeaderCardProps) {
-  const statusConfig = STATUS_CONFIG[response.status];
+  const statusConfig =
+    STATUS_CONFIG[response.status as keyof typeof STATUS_CONFIG];
   const StatusIcon = statusConfig?.icon;
 
   // Получаем URL аватарки: photoFileId → kworkAvatarUrl (из dialogs) → fallback на инициалы

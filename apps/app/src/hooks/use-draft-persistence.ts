@@ -90,7 +90,7 @@ export function useDraftPersistence(options: UseDraftPersistenceOptions = {}) {
 
   // Запрос текущего черновика
   const { data: currentDraft } = useQuery(
-    orpc.draft.getCurrent.queryOptions({ input: undefined }),
+    orpc.draft.getCurrent.queryOptions({}),
   );
 
   // Мутации
@@ -255,7 +255,7 @@ export function useDraftPersistence(options: UseDraftPersistenceOptions = {}) {
   const startNew = async () => {
     try {
       if (restoredDraft) {
-        await deleteMutation.mutateAsync();
+        await deleteMutation.mutateAsync(undefined as void);
       }
       setShowRestorePrompt(false);
       setRestoredDraft(null);
@@ -281,7 +281,7 @@ export function useDraftPersistence(options: UseDraftPersistenceOptions = {}) {
    */
   const clearDraft = async () => {
     try {
-      await deleteMutation.mutateAsync();
+      await deleteMutation.mutateAsync(undefined as void);
       hasDraftRef.current = false;
       setSaveStatus("idle");
       setLastSavedAt(null);
@@ -294,7 +294,7 @@ export function useDraftPersistence(options: UseDraftPersistenceOptions = {}) {
 
       // Инвалидировать кэш
       await queryClient.invalidateQueries({
-        queryKey: orpc.draft.getCurrent.queryKey({ input: undefined }),
+        queryKey: orpc.draft.getCurrent.queryKey({}),
       });
     } catch (error) {
       console.error("Ошибка при удалении черновика:", error);

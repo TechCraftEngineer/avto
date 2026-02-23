@@ -82,8 +82,7 @@ export function AddPublicationDialog({
         form.reset();
         await queryClient.invalidateQueries({
           queryKey: api.freelancePlatforms.getVacancyById.queryKey({
-            id: vacancyId,
-            workspaceId,
+            input: { id: vacancyId, workspaceId },
           }),
         });
       },

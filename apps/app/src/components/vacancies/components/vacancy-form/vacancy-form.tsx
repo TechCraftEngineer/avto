@@ -98,7 +98,12 @@ export function VacancyForm({ onSuccess }: VacancyFormProps) {
       onSuccess: async () => {
         await queryClient.invalidateQueries({
           queryKey: api.freelancePlatforms.getVacancies.queryKey({
-            input: { workspaceId: workspace?.id ?? "" },
+            input: {
+              workspaceId: workspace?.id ?? "",
+              sortOrder: "desc",
+              page: 1,
+              limit: 50,
+            },
           }),
         });
         toast.success("Вакансия создана");

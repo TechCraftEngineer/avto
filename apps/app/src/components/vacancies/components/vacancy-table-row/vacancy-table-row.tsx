@@ -125,7 +125,12 @@ export function VacancyTableRow({
         );
         await queryClient.invalidateQueries({
           queryKey: orpc.freelancePlatforms.getVacancies.queryKey({
-            input: { workspaceId: workspaceId ?? "" },
+            input: {
+              workspaceId: workspaceId ?? "",
+              sortOrder: "desc",
+              page: 1,
+              limit: 50,
+            },
           }),
         });
       },
@@ -146,7 +151,12 @@ export function VacancyTableRow({
         );
         await queryClient.invalidateQueries({
           queryKey: orpc.freelancePlatforms.getVacancies.queryKey({
-            input: { workspaceId: workspaceId ?? "" },
+            input: {
+              workspaceId: workspaceId ?? "",
+              sortOrder: "desc",
+              page: 1,
+              limit: 50,
+            },
           }),
         });
       },

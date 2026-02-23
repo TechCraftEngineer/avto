@@ -158,9 +158,15 @@ export function useResponseActions(
     setIsSyncingArchived(false);
     // Инвалидируем только текущую вакансию, чтобы не вызывать refetch для других
     void queryClient.invalidateQueries({
-      queryKey: orpc.vacancy.responses.list.queryKey({ vacancyId }),
+      queryKey: (orpc.vacancy.responses.list.queryKey as any)({
+        input: {
+          workspaceId,
+          vacancyId,
+          sortDirection: "desc",
+        },
+      }),
     });
-  }, [queryClient, orpc, vacancyId]);
+  }, [queryClient, orpc, vacancyId, workspaceId]);
 
   const handleSendWelcomeBatch = useCallback(async () => {
     if (selectedIds.size === 0) return;

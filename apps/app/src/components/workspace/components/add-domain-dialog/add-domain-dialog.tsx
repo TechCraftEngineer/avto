@@ -143,8 +143,7 @@ export function AddDomainDialog({
     try {
       const result = await queryClient.fetchQuery(
         orpc.customDomain.checkAvailability.queryOptions({
-          workspaceId,
-          domain: value,
+          input: { workspaceId, domain: value },
         }),
       );
 

@@ -81,11 +81,17 @@ export function useScreenBatchProgress(
       setCompleted(completedData);
 
       // Инвалидируем список откликов после завершения (только vacancyId при указании)
-      queryClient.invalidateQueries({
-        queryKey: orpc.vacancy.responses.list.queryKey({
-          input: { workspaceId: workspaceId ?? "", vacancyId },
-        }),
-      });
+      if (vacancyId) {
+        queryClient.invalidateQueries({
+          queryKey: orpc.vacancy.responses.list.queryKey({
+            input: {
+              workspaceId: workspaceId ?? "",
+              vacancyId,
+              sortDirection: "desc",
+            },
+          }),
+        });
+      }
     }
   }, [latestData]);
 

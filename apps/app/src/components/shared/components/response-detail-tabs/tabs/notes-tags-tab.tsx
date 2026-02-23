@@ -57,8 +57,7 @@ export function NotesTagsTab({ responseId }: NotesTagsTabProps) {
         if (!workspace?.id) return;
         queryClient.invalidateQueries({
           queryKey: orpc.vacancy.responses.listTags.queryKey({
-            responseId,
-            workspaceId: workspace.id,
+            input: { responseId, workspaceId: workspace.id },
           }),
         });
         setNewTag("");
@@ -77,8 +76,7 @@ export function NotesTagsTab({ responseId }: NotesTagsTabProps) {
         if (!workspace?.id) return;
         queryClient.invalidateQueries({
           queryKey: orpc.vacancy.responses.listTags.queryKey({
-            responseId,
-            workspaceId: workspace.id,
+            input: { responseId, workspaceId: workspace.id },
           }),
         });
         toast("Тег удален");
@@ -96,8 +94,7 @@ export function NotesTagsTab({ responseId }: NotesTagsTabProps) {
         if (!workspace?.id) return;
         queryClient.invalidateQueries({
           queryKey: orpc.candidates.listComments.queryKey({
-            candidateId: responseId,
-            workspaceId: workspace.id,
+            input: { candidateId: responseId, workspaceId: workspace.id },
           }),
         });
         setNewComment("");

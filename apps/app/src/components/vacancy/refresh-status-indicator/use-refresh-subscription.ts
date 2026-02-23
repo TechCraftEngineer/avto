@@ -18,6 +18,7 @@ import {
   handleArchivedResult,
   handleRefreshProgress,
   handleRefreshResult,
+  type MessageHandlerContext,
 } from "./subscription-handlers";
 import type {
   AnalyzeCompletedData,
@@ -242,7 +243,7 @@ export function useRefreshSubscription({
       vacancyId,
       workspaceId,
       queryClient,
-      trpc: orpc,
+      trpc: orpc as unknown as MessageHandlerContext["trpc"],
       onVisibilityChange: (visible: boolean) =>
         onVisibilityChangeRef.current?.(visible),
       onTaskComplete: () => onTaskCompleteRef.current?.(),

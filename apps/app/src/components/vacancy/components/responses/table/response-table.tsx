@@ -116,7 +116,10 @@ export function ResponseTable({
   }, [vacancyData?.publications]);
 
   const hasActiveIntegrations = useMemo(
-    () => vacancyData?.publications?.some((pub) => pub.isActive) ?? false,
+    () =>
+      vacancyData?.publications?.some(
+        (pub: { platform: string; isActive: boolean }) => pub.isActive,
+      ) ?? false,
     [vacancyData?.publications],
   );
 
@@ -192,7 +195,7 @@ export function ResponseTable({
   const handleSelectAll = useCallback(
     (selectAll: boolean) => {
       if (selectAll) {
-        setSelectedIds(new Set(responses.map((r) => r.id)));
+        setSelectedIds(new Set(responses.map((r: { id: string }) => r.id)));
       } else {
         setSelectedIds(new Set());
       }

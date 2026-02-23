@@ -121,12 +121,18 @@ export function ScreenResponseButton({
               if (vacancyId) {
                 void queryClient.invalidateQueries({
                   queryKey: orpc.vacancy.responses.list.queryKey({
-                    input: { workspaceId: workspace.id, vacancyId },
+                    input: {
+                      workspaceId: workspace.id,
+                      vacancyId,
+                      sortDirection: "desc",
+                    },
                   }),
                 });
               } else {
                 void queryClient.invalidateQueries({
-                  queryKey: orpc.vacancy.queryKey(),
+                  queryKey: orpc.vacancy.list.queryKey({
+                    input: { workspaceId: workspace.id },
+                  }),
                 });
               }
             }
@@ -204,12 +210,18 @@ export function ScreenResponseButton({
       if (vacancyId && workspace?.id) {
         void queryClient.invalidateQueries({
           queryKey: orpc.vacancy.responses.list.queryKey({
-            input: { workspaceId: workspace.id, vacancyId },
+            input: {
+              workspaceId: workspace.id,
+              vacancyId,
+              sortDirection: "desc",
+            },
           }),
         });
       } else if (workspace?.id) {
         void queryClient.invalidateQueries({
-          queryKey: orpc.vacancy.queryKey(),
+          queryKey: orpc.vacancy.list.queryKey({
+            input: { workspaceId: workspace.id },
+          }),
         });
       }
     }

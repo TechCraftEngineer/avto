@@ -39,18 +39,15 @@ export function PortfolioTab({ response }: PortfolioTabProps) {
     data: portfolioData,
     isPending: isPortfolioLoading,
     error: portfolioError,
-  } = useQuery(
-    orpc.files.getFileUrl.queryOptions(
-      workspace?.id && response.portfolioFileId
-        ? {
-            input: {
-              workspaceId: workspace.id,
-              fileId: response.portfolioFileId,
-            },
-          }
-        : skipToken,
-    ),
-  );
+  } = useQuery({
+    ...orpc.files.getFileUrl.queryOptions({
+      input: {
+        workspaceId: workspace?.id ?? "",
+        fileId: response.portfolioFileId ?? "",
+      },
+    }),
+    enabled: !!workspace?.id && !!response.portfolioFileId,
+  });
 
   const handleViewPhoto = () => {
     if (photoData?.url) {

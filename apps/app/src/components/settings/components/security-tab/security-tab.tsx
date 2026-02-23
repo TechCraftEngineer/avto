@@ -123,7 +123,7 @@ export function SecurityTab({ user }: SecurityTabProps) {
   );
 
   const handleDeleteAccount = () => {
-    deleteAccount.mutate();
+    deleteAccount.mutate(undefined as void);
   };
 
   return (

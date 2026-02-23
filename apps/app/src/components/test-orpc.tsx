@@ -73,23 +73,23 @@ export function TestORPC() {
         toast.success("Рабочее пространство создано");
         setWorkspaceName("");
       },
-      onError: (error: ORPCErrorType) => {
-        // Обработка различных типов ошибок с русскими сообщениями
-        if (error.code === "CONFLICT") {
+      onError: (error: Error) => {
+        const err = error as unknown as ORPCErrorType;
+        if (err.code === "CONFLICT") {
           toast.error("Рабочее пространство с таким именем уже существует");
-        } else if (error.code === "FORBIDDEN") {
+        } else if (err.code === "FORBIDDEN") {
           toast.error("Нет доступа для создания рабочего пространства");
-        } else if (error.code === "UNAUTHORIZED") {
+        } else if (err.code === "UNAUTHORIZED") {
           toast.error("Требуется авторизация");
-        } else if (error.code === "NOT_FOUND") {
+        } else if (err.code === "NOT_FOUND") {
           toast.error("Организация не найдена");
-        } else if (error.code === "BAD_REQUEST") {
+        } else if (err.code === "BAD_REQUEST") {
           toast.error("Некорректные данные", {
-            description: error.message,
+            description: err.message,
           });
         } else {
           toast.error("Ошибка при создании рабочего пространства", {
-            description: error.message,
+            description: err.message,
           });
         }
       },

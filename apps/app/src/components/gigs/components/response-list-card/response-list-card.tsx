@@ -56,7 +56,10 @@ export function ResponseListCard({
   onReject,
   onMessage,
 }: ResponseListCardProps) {
-  const statusConfig = RESPONSE_STATUS_CONFIG[response.status];
+  const statusConfig =
+    RESPONSE_STATUS_CONFIG[
+      response.status as keyof typeof RESPONSE_STATUS_CONFIG
+    ] ?? RESPONSE_STATUS_CONFIG.NEW;
   const StatusIcon = statusConfig.icon;
   const hasScreening = !!response.screening;
   const hasInterviewScoring = !!response.interviewScoring;
