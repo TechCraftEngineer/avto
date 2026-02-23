@@ -87,7 +87,7 @@ export default async function createNextConfig(): Promise<NextConfig> {
     /** Proxy API routes to app-server */
     async rewrites() {
       const appServerUrl =
-        process.env.APP_SERVER_URL || "http://localhost:3001";
+        process.env.APP_SERVER_URL || "http://localhost:7000";
 
       return [
         {

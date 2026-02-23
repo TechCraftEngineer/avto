@@ -14,18 +14,18 @@ export function useAvatarUrl(fileId: string | null | undefined) {
   const { workspaceId } = useWorkspaceContext();
   const orpc = useORPC();
 
-  const { data } = useQuery({
-    ...orpc.files.getImageUrl.queryOptions({
+  const { data } = useQuery(
+    orpc.files.getImageUrl.queryOptions({
       input: {
         workspaceId: workspaceId ?? "",
         fileId: fileId ?? "",
       },
+      enabled: !!workspaceId && !!fileId,
+      // Кэшируем на 4 минуты (URL живет 5 минут)
+      staleTime: 4 * 60 * 1000,
+      gcTime: 5 * 60 * 1000,
     }),
-    enabled: !!workspaceId && !!fileId,
-    // Кэшируем на 4 минуты (URL живет 5 минут)
-    staleTime: 4 * 60 * 1000,
-    gcTime: 5 * 60 * 1000,
-  });
+  );
 
   return data?.url ?? null;
 }

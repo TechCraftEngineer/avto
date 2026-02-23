@@ -34,22 +34,22 @@ export function useWorkspace(): UseWorkspaceReturn {
     data: organization,
     isLoading: organizationIsLoading,
     error: organizationError,
-  } = useQuery({
-    ...orpc.organization.getBySlug.queryOptions({
+  } = useQuery(
+    orpc.organization.getBySlug.queryOptions({
       input: { slug: orgSlug ?? "" },
+      enabled: !!orgSlug,
     }),
-    enabled: !!orgSlug,
-  });
+  );
 
-  const { data, isLoading, error } = useQuery({
-    ...orpc.workspace.getBySlug.queryOptions({
+  const { data, isLoading, error } = useQuery(
+    orpc.workspace.getBySlug.queryOptions({
       input: {
         organizationId: organization?.id ?? "",
         slug: slug ?? "",
       },
+      enabled: !!organization?.id && !!slug,
     }),
-    enabled: !!organization?.id && !!slug,
-  });
+  );
 
   return {
     workspace: data ? { ...data.workspace, role: data.role } : undefined,

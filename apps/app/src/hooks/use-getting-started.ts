@@ -20,38 +20,38 @@ export function useGettingStarted() {
   const { workspace } = useWorkspaces();
 
   // Получаем настройки бота
-  const { data: botSettings, isLoading: isLoadingBot } = useQuery({
-    ...orpc.bot.get.queryOptions({
+  const { data: botSettings, isLoading: isLoadingBot } = useQuery(
+    orpc.bot.get.queryOptions({
       input: { workspaceId: workspace?.id ?? "" },
+      enabled: !!workspace?.id,
     }),
-    enabled: !!workspace?.id,
-  });
+  );
 
   // Получаем список вакансий
-  const { data: vacancies, isLoading: isLoadingVacancies } = useQuery({
-    ...orpc.vacancy.list.queryOptions({
+  const { data: vacancies, isLoading: isLoadingVacancies } = useQuery(
+    orpc.vacancy.list.queryOptions({
       input: { workspaceId: workspace?.id ?? "" },
+      enabled: !!workspace?.id,
     }),
-    enabled: !!workspace?.id,
-  });
+  );
 
   // Получаем список интеграций
-  const { data: integrations, isLoading: isLoadingIntegrations } = useQuery({
-    ...orpc.integration.list.queryOptions({
+  const { data: integrations, isLoading: isLoadingIntegrations } = useQuery(
+    orpc.integration.list.queryOptions({
       input: { workspaceId: workspace?.id ?? "" },
+      enabled: !!workspace?.id,
     }),
-    enabled: !!workspace?.id,
-  });
+  );
 
   // Получаем Telegram сессии
-  const { data: sessions, isLoading: isLoadingSessions } = useQuery({
-    ...orpc.telegram.getSessions.queryOptions({
+  const { data: sessions, isLoading: isLoadingSessions } = useQuery(
+    orpc.telegram.getSessions.queryOptions({
       input: {
         workspaceId: workspace?.id ?? "",
       },
+      enabled: !!workspace?.id,
     }),
-    enabled: !!workspace?.id,
-  });
+  );
 
   // Мутация для обновления статуса онбординга
   const updateOnboardingMutation = useMutation(
