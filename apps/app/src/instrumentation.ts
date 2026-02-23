@@ -4,6 +4,6 @@ export async function register() {
       "./lib/posthog-error-tracking"
     );
     registerPostHogErrorTracking();
+    await import("./orpc/server");
   }
-  await import("./orpc/server");
 }

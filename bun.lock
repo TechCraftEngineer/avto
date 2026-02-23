@@ -105,6 +105,7 @@
     "apps/app-server": {
       "name": "@qbs-autonaim/app-server",
       "dependencies": {
+        "@orpc/server": "^1.13.5",
         "@qbs-autonaim/api": "workspace:*",
         "@qbs-autonaim/auth": "workspace:*",
         "@qbs-autonaim/config": "workspace:*",
