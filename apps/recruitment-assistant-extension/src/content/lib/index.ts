@@ -1,4 +1,4 @@
-export { type ExportFormat, exportCandidateData } from "./export-candidate";
+export { exportCandidateData } from "./export-candidate";
 export { extractCandidateData } from "./extract-candidate-data";
 export { importCandidateData } from "./import-candidate";
 export { showError, showNotification } from "./notifications";

@@ -69,12 +69,6 @@ export function ProfileView({
     setIsExtracting(false);
   };
 
-  const handleExportJson = async () => {
-    setIsExporting(true);
-    await sendToTab("EXPORT_JSON");
-    setIsExporting(false);
-  };
-
   const handleExportClipboard = async () => {
     setIsExporting(true);
     await sendToTab("EXPORT_CLIPBOARD");
@@ -125,15 +119,6 @@ export function ProfileView({
             {isExtracting ? "Извлечение…" : "Извлечь данные"}
           </Button>
           <div className="flex flex-wrap gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-1"
-              onClick={handleExportJson}
-              disabled={isExporting}
-            >
-              {isExporting ? "…" : "Экспорт JSON"}
-            </Button>
             <Button
               variant="outline"
               size="sm"

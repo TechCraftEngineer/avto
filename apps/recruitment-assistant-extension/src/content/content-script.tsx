@@ -50,8 +50,8 @@ export class ContentScript {
     return this.handleExtract();
   }
 
-  triggerExport(format: "json" | "clipboard"): Promise<void> {
-    return this.handleExport(format);
+  triggerExport(): Promise<void> {
+    return this.handleExport();
   }
 
   triggerImport(): Promise<void> {
@@ -109,20 +109,20 @@ export class ContentScript {
       setNestedValue(updatedData, field.split("."), value);
       this.currentData = updatedData;
       this.renderDataPanel(updatedData);
-    } catch (error) {
+    } catch {
       showError(
         "Не удалось обновить поле. Попробуйте еще раз или обновите страницу.",
       );
     }
   }
 
-  private async handleExport(format: "json" | "clipboard"): Promise<void> {
+  private async handleExport(): Promise<void> {
     if (!this.currentData) {
       showNotification({ type: "error", message: "Нет данных для экспорта" });
       return;
     }
     try {
-      await exportCandidateData(this.currentData, format);
+      await exportCandidateData(this.currentData);
     } catch (error) {
       const msg =
         error instanceof Error ? error.message : "Не удалось экспортировать";
@@ -175,7 +175,6 @@ if (typeof process === "undefined" || process.env.NODE_ENV !== "test") {
 
   const MESSAGE_TYPES = [
     "EXTRACT_DATA",
-    "EXPORT_JSON",
     "EXPORT_CLIPBOARD",
     "IMPORT_TO_SYSTEM",
   ] as const;
@@ -183,15 +182,13 @@ if (typeof process === "undefined" || process.env.NODE_ENV !== "test") {
   chrome.runtime.onMessage.addListener(
     (msg: { type?: string }, _s, sendResponse) => {
       const t = msg?.type;
-      if (!t || !MESSAGE_TYPES.includes(t)) return false;
+      if (!t || !(MESSAGE_TYPES as readonly string[]).includes(t)) return false;
 
       const run = async () => {
         try {
           if (t === "EXTRACT_DATA") await contentScript.triggerExtract();
-          else if (t === "EXPORT_JSON")
-            await contentScript.triggerExport("json");
           else if (t === "EXPORT_CLIPBOARD")
-            await contentScript.triggerExport("clipboard");
+            await contentScript.triggerExport();
           else if (t === "IMPORT_TO_SYSTEM")
             await contentScript.triggerImport();
           return { ok: true as const };
