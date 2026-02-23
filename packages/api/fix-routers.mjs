@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from "fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { glob } from "glob";
 
 // Находим все index.ts файлы в роутерах
@@ -32,7 +32,7 @@ files.forEach((file) => {
 
   // Определяем путь к orpc.ts
   const depth = file.split("/").length - 3; // src/routers/... -> глубина от src
-  const orpcPath = "../".repeat(depth) + "orpc";
+  const orpcPath = `${"../".repeat(depth)}orpc`;
 
   // Добавляем импорт router, если его нет
   if (!hasRouterImport) {

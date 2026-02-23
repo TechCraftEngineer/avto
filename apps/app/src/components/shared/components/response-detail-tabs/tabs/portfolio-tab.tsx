@@ -24,13 +24,15 @@ export function PortfolioTab({ response }: PortfolioTabProps) {
   const orpc = useORPC();
 
   // Получаем URL фото если есть photoFileId
-  const { data: photoData } = useQuery({
-    ...orpc.files.getImageUrl.queryOptions({
-      workspaceId: workspace?.id ?? "",
-      fileId: response.photoFileId ?? "",
+  const { data: photoData } = useQuery(
+    orpc.files.getImageUrl.queryOptions({
+      input: {
+        workspaceId: workspace?.id ?? "",
+        fileId: response.photoFileId ?? "",
+      },
+      enabled: Boolean(workspace?.id && response.photoFileId),
     }),
-    enabled: Boolean(workspace?.id && response.photoFileId),
-  });
+  );
 
   // Получаем URL портфолио файла если есть portfolioFileId
   const {
@@ -41,8 +43,10 @@ export function PortfolioTab({ response }: PortfolioTabProps) {
     orpc.files.getFileUrl.queryOptions(
       workspace?.id && response.portfolioFileId
         ? {
-            workspaceId: workspace.id,
-            fileId: response.portfolioFileId,
+            input: {
+              workspaceId: workspace.id,
+              fileId: response.portfolioFileId,
+            },
           }
         : skipToken,
     ),

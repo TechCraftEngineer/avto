@@ -182,7 +182,7 @@ async function main() {
   }
 
   // Выводим статистику
-  console.log("\n" + "=".repeat(60));
+  console.log(`\n${"=".repeat(60)}`);
   console.log("📊 Статистика исправлений:");
   console.log("=".repeat(60));
   console.log(`Всего файлов проверено: ${stats.totalFiles}`);

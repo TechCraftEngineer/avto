@@ -92,12 +92,14 @@ export function RecentResponses({
   const orpc = useORPC();
   const { workspace } = useWorkspace();
 
-  const { data: recentResponses, isLoading } = useQuery({
-    ...orpc.vacancy.responses.listRecent.queryOptions({
-      workspaceId: workspace?.id ?? "",
+  const { data: recentResponses, isLoading } = useQuery(
+    orpc.vacancy.responses.listRecent.queryOptions({
+      input: {
+        workspaceId: workspace?.id ?? "",
+      },
+      enabled: !!workspace?.id,
     }),
-    enabled: !!workspace?.id,
-  });
+  );
 
   if (isLoading) {
     return (

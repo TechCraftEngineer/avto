@@ -9,12 +9,14 @@ export function usePlatformIntegration(workspaceId: string) {
   const orpc = useORPC();
 
   // Получаем список интеграций
-  const { data: integrations, isLoading: isLoadingIntegrations } = useQuery({
-    ...orpc.integration.list.queryOptions({
-      workspaceId,
+  const { data: integrations, isLoading: isLoadingIntegrations } = useQuery(
+    orpc.integration.list.queryOptions({
+      input: {
+        workspaceId,
+      },
+      enabled: !!workspaceId,
     }),
-    enabled: !!workspaceId,
-  });
+  );
 
   // Получаем активные интеграции для вакансий (исключая gig-платформы)
   const activeIntegrations = useMemo(

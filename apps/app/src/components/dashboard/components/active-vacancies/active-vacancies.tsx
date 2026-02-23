@@ -25,13 +25,15 @@ export function ActiveVacancies({
   const orpc = useORPC();
   const { workspace } = useWorkspace();
 
-  const { data: vacancies, isLoading } = useQuery({
-    ...orpc.vacancy.listActive.queryOptions({
-      limit: 5,
-      workspaceId: workspace?.id ?? "",
+  const { data: vacancies, isLoading } = useQuery(
+    orpc.vacancy.listActive.queryOptions({
+      input: {
+        limit: 5,
+        workspaceId: workspace?.id ?? "",
+      },
+      enabled: !!workspace?.id,
     }),
-    enabled: !!workspace?.id,
-  });
+  );
 
   if (isLoading) {
     return (

@@ -99,10 +99,10 @@ export function useDomainOperations({ workspaceId }: UseDomainOperationsProps) {
 export function useDomains(workspaceId: string) {
   const orpc = useORPC();
 
-  return useQuery({
-    ...orpc.customDomain.list.queryOptions({
+  return useQuery(
+    orpc.customDomain.list.queryOptions({
       input: { workspaceId },
+      enabled: !!workspaceId,
     }),
-    enabled: !!workspaceId,
-  });
+  );
 }

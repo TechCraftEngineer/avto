@@ -5,4 +5,5 @@ export async function register() {
     );
     registerPostHogErrorTracking();
   }
+  await import("./orpc/server");
 }

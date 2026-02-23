@@ -29,19 +29,21 @@ export function RefreshStatusIndicator({
     getOnScreenAllComplete,
   } = useVacancyResponses();
 
-  const { data: initialStatus } = useQuery({
-    ...orpc.vacancy.responses.getRefreshStatus.queryOptions({ vacancyId }),
-    // Polling с увеличенным интервалом (10 сек) - подписка основной источник
-    // Используем только как fallback для случаев когда подписка недоступна
-    refetchInterval: (query) => {
-      const isRunning = query.state.data?.isRunning ?? false;
-      return isRunning ? 10000 : false;
-    },
-    // Не обновляем при фокусе - подписка сама обновит
-    refetchOnWindowFocus: false,
-    // Данные считаются свежими на 30 секунд
-    staleTime: 30000,
-  });
+  const { data: initialStatus } = useQuery(
+    orpc.vacancy.responses.getRefreshStatus.queryOptions({
+      input: { vacancyId },
+      // Polling с увеличенным интервалом (10 сек) - подписка основной источник
+      // Используем только как fallback для случаев когда подписка недоступна
+      refetchInterval: (query) => {
+        const isRunning = query.state.data?.isRunning ?? false;
+        return isRunning ? 10000 : false;
+      },
+      // Не обновляем при фокусе - подписка сама обновит
+      refetchOnWindowFocus: false,
+      // Данные считаются свежими на 30 секунд
+      staleTime: 30000,
+    }),
+  );
 
   const visibility = useRefreshVisibility({
     showConfirmationProp: externalShowConfirmation,

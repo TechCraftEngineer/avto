@@ -69,6 +69,7 @@ export const appRouter = {
   customDomain: customDomainRouter,
   chat: chatRouter,
   draft: draftRouter,
+  test: testRouter,
 };
 
 /**

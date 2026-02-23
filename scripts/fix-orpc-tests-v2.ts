@@ -96,8 +96,8 @@ function fixOrpcTests(content: string): {
   ) {
     // Находим первый импорт и добавляем после него
     const importMatch = fixed.match(/^import\s+.*?;$/m);
-    if (importMatch) {
-      const insertPos = importMatch.index! + importMatch[0].length;
+    if (importMatch && importMatch.index !== undefined) {
+      const insertPos = importMatch.index + importMatch[0].length;
       fixed =
         fixed.slice(0, insertPos) +
         '\nimport { call } from "@orpc/server";' +
@@ -185,7 +185,7 @@ async function main() {
   }
 
   // Выводим статистику
-  console.log("\n" + "=".repeat(60));
+  console.log(`\n${"=".repeat(60)}`);
   console.log("📊 Статистика исправлений:");
   console.log("=".repeat(60));
   console.log(`Всего файлов проверено: ${stats.totalFiles}`);

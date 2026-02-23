@@ -98,8 +98,8 @@ describe("Property 18: Query keys генерируются корректно", 
 
           // Query keys должны различаться для разных параметров
           // Проверяем что ключи не идентичны
-          const key1Str = JSON.stringify(key1);
-          const key2Str = JSON.stringify(key2);
+          const _key1Str = JSON.stringify(key1);
+          const _key2Str = JSON.stringify(key2);
 
           // Если параметры различаются, ключи тоже должны различаться
           // Однако oRPC может не включать параметры в queryKey напрямую

@@ -107,13 +107,15 @@ function ProfileContent({
   const [isEditingNotes, setIsEditingNotes] = useState(false);
 
   // Получаем детальную информацию о кандидате
-  const { data: candidateDetail, isLoading } = useQuery({
-    ...orpc.globalCandidates.get.queryOptions({
-      candidateId: candidate.id,
-      organizationId: organizationId ?? "",
+  const { data: candidateDetail, isLoading } = useQuery(
+    orpc.globalCandidates.get.queryOptions({
+      input: {
+        candidateId: candidate.id,
+        organizationId: organizationId ?? "",
+      },
+      enabled: !!candidate.id && !!organizationId,
     }),
-    enabled: !!candidate.id && !!organizationId,
-  });
+  );
 
   // Мутация для обновления статуса
   const statusMutation = useMutation(

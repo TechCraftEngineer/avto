@@ -42,7 +42,7 @@ const link = new RPCLink({
 });
 
 // Создаем oRPC клиент (используем глобальный $client если доступен для SSR оптимизации)
-const client: RouterClient<typeof appRouter> =
+export const client: RouterClient<typeof appRouter> =
   globalThis.$client ?? createORPCClient(link);
 
 // Создаем утилиты для TanStack Query - предоставляет .queryOptions(), .mutationOptions(), .queryKey()

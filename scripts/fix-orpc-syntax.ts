@@ -199,7 +199,7 @@ function fixOrpcSyntax(content: string): {
   const orpcErrorPattern =
     /new\s+ORPCError\(\s*\{\s*code:\s*["']([A-Z_]+)["']\s*,\s*message:\s*([^}]+)\}\s*\)/g;
   if (orpcErrorPattern.test(fixed)) {
-    fixed = fixed.replace(orpcErrorPattern, (match, code, message) => {
+    fixed = fixed.replace(orpcErrorPattern, (_match, code, message) => {
       return `new ORPCError("${code}", { message: ${message.trim()} })`;
     });
     hasChanges = true;
@@ -260,7 +260,7 @@ async function main() {
   }
 
   // Выводим статистику
-  console.log("\n" + "=".repeat(60));
+  console.log(`\n${"=".repeat(60)}`);
   console.log("📊 Статистика исправлений:");
   console.log("=".repeat(60));
   console.log(`Всего файлов проверено: ${stats.totalFiles}`);
@@ -279,7 +279,9 @@ async function main() {
 
   if (stats.errors.length > 0) {
     console.log("\n❌ Ошибки:");
-    stats.errors.forEach((error) => console.log(`  - ${error}`));
+    for (const error of stats.errors) {
+      console.log(`  - ${error}`);
+    }
   }
 
   console.log("\n✅ Готово!");

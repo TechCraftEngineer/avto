@@ -61,12 +61,14 @@ export function ResponsesChart() {
     }
   }, [isMobile]);
 
-  const { data: chartData, isLoading } = useQuery({
-    ...orpc.vacancy.responsesChart.queryOptions({
-      workspaceId: workspace?.id ?? "",
+  const { data: chartData, isLoading } = useQuery(
+    orpc.vacancy.responsesChart.queryOptions({
+      input: {
+        workspaceId: workspace?.id ?? "",
+      },
+      enabled: !!workspace?.id,
     }),
-    enabled: !!workspace?.id,
-  });
+  );
 
   const filteredData = React.useMemo(() => {
     if (!chartData) return [];

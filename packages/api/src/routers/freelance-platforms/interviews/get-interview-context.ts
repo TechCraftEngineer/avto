@@ -4,7 +4,7 @@ import { vacancy as vacancyTable } from "@qbs-autonaim/db/schema";
 import { z } from "zod";
 import { withInterviewAccess } from "../../../utils/interview-access-middleware";
 
-const getInterviewContextInputSchema = z.object({
+const _getInterviewContextInputSchema = z.object({
   interviewSessionId: z.uuid().optional(),
   sessionId: z.uuid().optional(),
   interviewToken: z.string().optional(),

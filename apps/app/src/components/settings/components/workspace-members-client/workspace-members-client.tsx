@@ -149,7 +149,9 @@ export function WorkspaceMembersClient({
 
   // Получение участников
   const { data: members, isLoading: membersLoading } = useQuery(
-    orpc.workspace.members.list.queryOptions({ workspaceId }),
+    orpc.workspace.members.list.queryOptions({
+      input: { workspaceId },
+    }),
   );
 
   // Определение роли текущего пользователя
@@ -163,10 +165,12 @@ export function WorkspaceMembersClient({
   const canManageMembers = isOwner || isAdmin;
 
   // Получение приглашений (только для админов)
-  const { data: invites, isLoading: invitesLoading } = useQuery({
-    ...orpc.workspace.invites.list.queryOptions({ workspaceId }),
-    enabled: canManageMembers,
-  });
+  const { data: invites, isLoading: invitesLoading } = useQuery(
+    orpc.workspace.invites.list.queryOptions({
+      input: { workspaceId },
+      enabled: canManageMembers,
+    }),
+  );
 
   const isLoading = membersLoading || (canManageMembers && invitesLoading);
 

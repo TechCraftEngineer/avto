@@ -164,7 +164,10 @@ async function main() {
   console.log(`\n✅ Отчет сохранен в ${relative(process.cwd(), reportPath)}`);
 }
 
-function generateMarkdownReport(usages: FileUsage[], stats: any): string {
+function generateMarkdownReport(
+  usages: FileUsage[],
+  stats: { totalFiles: number; totalUsages: number },
+): string {
   let report = `# Список файлов для миграции клиентского кода с tRPC на oRPC
 
 Сгенерировано: ${new Date().toLocaleString("ru-RU")}

@@ -39,25 +39,29 @@ export function VacancyLayoutClient({
     data: vacancy,
     isLoading: vacancyLoading,
     isError: vacancyError,
-  } = useQuery({
-    ...orpc.vacancy.get.queryOptions({
-      id: vacancyId,
-      workspaceId: workspaceId ?? "",
+  } = useQuery(
+    orpc.vacancy.get.queryOptions({
+      input: {
+        id: vacancyId,
+        workspaceId: workspaceId ?? "",
+      },
+      enabled: Boolean(workspaceId),
     }),
-    enabled: Boolean(workspaceId),
-  });
+  );
 
   const {
     data: responsesCount,
     isLoading: responsesLoading,
     isError: responsesError,
-  } = useQuery({
-    ...orpc.vacancy.responses.count.queryOptions({
-      vacancyId: vacancyId,
-      workspaceId: workspaceId ?? "",
+  } = useQuery(
+    orpc.vacancy.responses.count.queryOptions({
+      input: {
+        vacancyId: vacancyId,
+        workspaceId: workspaceId ?? "",
+      },
+      enabled: Boolean(workspaceId),
     }),
-    enabled: Boolean(workspaceId),
-  });
+  );
 
   // Определяем активный таб на основе pathname
   const getActiveTab = () => {

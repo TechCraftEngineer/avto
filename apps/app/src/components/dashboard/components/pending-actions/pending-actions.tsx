@@ -38,14 +38,16 @@ export function PendingActions({
     isLoading,
     isError,
     error,
-  } = useQuery({
-    ...orpc.vacancy.responses.listRecent.queryOptions({
-      workspaceId: workspace?.id ?? "",
+  } = useQuery(
+    orpc.vacancy.responses.listRecent.queryOptions({
+      input: {
+        workspaceId: workspace?.id ?? "",
+      },
+      enabled: !!workspace?.id,
+      select: (data) =>
+        data.filter((response) => !response.screening).slice(0, 5),
     }),
-    enabled: !!workspace?.id,
-    select: (data) =>
-      data.filter((response) => !response.screening).slice(0, 5),
-  });
+  );
 
   if (isLoading) {
     return (

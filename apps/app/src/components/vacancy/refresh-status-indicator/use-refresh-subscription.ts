@@ -8,7 +8,6 @@ import {
   fetchScreenNewResponsesToken,
   fetchSyncArchivedVacancyResponsesToken,
 } from "~/actions/realtime";
-import { useORPC } from "~/orpc/react";
 import { restoreProgressFromInitialStatus } from "./initial-status-handler";
 import { checkActiveTask, checkMatchingMode, getModeFlags } from "./mode-utils";
 import {
@@ -91,7 +90,6 @@ export function useRefreshSubscription({
   const [isConnecting, setIsConnecting] = useState(true);
 
   const queryClient = useQueryClient();
-  const orpc = useORPC();
 
   // Refs для колбэков — не включаем их в deps useEffect, иначе бесконечный цикл
   // при пересоздании колбэков родителем на каждом рендере
@@ -279,14 +277,13 @@ export function useRefreshSubscription({
     }
     lastProcessedLengthRef.current = data.length;
   }, [
-    data,
-    isArchivedMode,
-    isAnalyzeMode,
-    isScreeningMode,
-    mode,
-    queryClient,
-    trpc,
-    vacancyId,
+    data, 
+    isArchivedMode, 
+    isAnalyzeMode, 
+    isScreeningMode, 
+    mode, 
+    queryClient, 
+    vacancyId
   ]);
 
   // Очищаем таймер при размонтировании

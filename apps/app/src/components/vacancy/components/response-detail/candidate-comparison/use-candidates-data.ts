@@ -20,17 +20,19 @@ export function useCandidatesData({ vacancyId }: UseCandidatesDataProps) {
   const orpc = useORPC();
 
   // Получаем все отклики вакансии
-  const { data: responsesData, isLoading } = useQuery({
-    ...orpc.vacancy.responses.list.queryOptions({
-      workspaceId: workspace?.id ?? "",
-      vacancyId,
-      page: 1,
-      limit: 100, // Получаем больше для сравнения
-      sortField: "createdAt",
-      sortDirection: "desc",
+  const { data: responsesData, isLoading } = useQuery(
+    orpc.vacancy.responses.list.queryOptions({
+      input: {
+        workspaceId: workspace?.id ?? "",
+        vacancyId,
+        page: 1,
+        limit: 100, // Получаем больше для сравнения
+        sortField: "createdAt",
+        sortDirection: "desc",
+      },
+      enabled: !!workspace?.id,
     }),
-    enabled: !!workspace?.id,
-  });
+  );
 
   // Преобразуем отклики в метрики кандидатов
   const candidates = useMemo<CandidateMetrics[]>(() => {

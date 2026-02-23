@@ -11,14 +11,16 @@ export function useSidebarStats(workspaceId: string | undefined) {
     error,
     isError,
     isLoading,
-  } = useQuery({
-    ...orpc.vacancy.dashboardStats.queryOptions({
-      workspaceId: workspaceId ?? "",
+  } = useQuery(
+    orpc.vacancy.dashboardStats.queryOptions({
+      input: {
+        workspaceId: workspaceId ?? "",
+      },
+      enabled: !!workspaceId,
+      staleTime: 30_000, // 30 секунд — не перезапрашиваем слишком часто
+      refetchInterval: 60_000, // Обновляем каждую минуту
     }),
-    enabled: !!workspaceId,
-    staleTime: 30_000, // 30 секунд — не перезапрашиваем слишком часто
-    refetchInterval: 60_000, // Обновляем каждую минуту
-  });
+  );
 
   if (isError) {
     console.error(

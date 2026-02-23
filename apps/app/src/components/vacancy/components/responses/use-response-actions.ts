@@ -57,7 +57,7 @@ export function useResponseActions(
     } finally {
       setIsProcessing(false);
     }
-  }, [selectedIds, setSelectedIds, queryClient, trpc, workspaceId, vacancyId]);
+  }, [selectedIds, setSelectedIds, queryClient, workspaceId, vacancyId, orpc.vacancy.responses.list.queryKey]);
 
   const handleScreenAll = useCallback(async () => {
     setIsProcessingAll(true);
@@ -80,7 +80,7 @@ export function useResponseActions(
     } finally {
       setIsProcessingAll(false);
     }
-  }, [vacancyId, queryClient, trpc]);
+  }, [vacancyId, queryClient, orpc.vacancy.responses.list.queryKey]);
 
   const handleScreenNew = useCallback(async () => {
     setIsProcessingNew(true);
@@ -143,7 +143,7 @@ export function useResponseActions(
     void queryClient.invalidateQueries({
       queryKey: orpc.vacancy.responses.list.queryKey({ vacancyId }),
     });
-  }, [queryClient, trpc, vacancyId]);
+  }, [queryClient, vacancyId, orpc.vacancy.responses.list.queryKey]);
 
   const handleRefreshResponses = useCallback(async () => {
     setIsRefreshing(true);
@@ -176,7 +176,7 @@ export function useResponseActions(
     void queryClient.invalidateQueries({
       queryKey: orpc.vacancy.responses.list.queryKey({ vacancyId }),
     });
-  }, [queryClient, trpc, vacancyId]);
+  }, [queryClient, vacancyId, orpc.vacancy.responses.list.queryKey]);
 
   const handleSendWelcomeBatch = useCallback(async () => {
     if (selectedIds.size === 0) return;
@@ -206,7 +206,7 @@ export function useResponseActions(
     } finally {
       setIsSendingWelcome(false);
     }
-  }, [selectedIds, setSelectedIds, queryClient, trpc, vacancyId]);
+  }, [selectedIds, setSelectedIds, queryClient, vacancyId, orpc.vacancy.responses.list.queryKey]);
 
   return {
     isProcessing,

@@ -10,8 +10,8 @@
  * throw new ORPCError("NOT_FOUND", { message: "..." })
  */
 
-import { readdir, readFile, writeFile } from "fs/promises";
-import { join } from "path";
+import { readdir, readFile, writeFile } from "node:fs/promises";
+import { join } from "node:path";
 
 const PACKAGES_API_SRC = join(process.cwd(), "packages/api/src");
 
@@ -43,7 +43,7 @@ function fixORPCErrorUsage(content: string): string {
   const pattern =
     /throw new ORPCError\(\s*\{\s*code:\s*"([^"]+)"\s*,\s*message:\s*([^}]+)\}\s*\)/g;
 
-  return content.replace(pattern, (match, code, message) => {
+  return content.replace(pattern, (_match, code, message) => {
     return `throw new ORPCError("${code}", { message: ${message}})`;
   });
 }
@@ -55,7 +55,7 @@ function fixORPCErrorWithCause(content: string): string {
   const pattern =
     /throw new ORPCError\(\s*\{\s*code:\s*"([^"]+)"\s*,\s*message:\s*([^,]+),\s*cause:\s*([^}]+)\}\s*\)/g;
 
-  return content.replace(pattern, (match, code, message, cause) => {
+  return content.replace(pattern, (_match, code, message, cause) => {
     return `throw new ORPCError("${code}", { message: ${message}, cause: ${cause}})`;
   });
 }

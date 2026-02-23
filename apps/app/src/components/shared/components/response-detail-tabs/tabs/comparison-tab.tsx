@@ -24,14 +24,16 @@ export function ComparisonTab({
   const { workspace } = useWorkspace();
   const orpc = useORPC();
 
-  const { data, isLoading } = useQuery({
-    ...orpc.vacancy.responses.compare.queryOptions({
-      vacancyId,
-      workspaceId: workspace?.id ?? "",
-      limit: 10,
+  const { data, isLoading } = useQuery(
+    orpc.vacancy.responses.compare.queryOptions({
+      input: {
+        vacancyId,
+        workspaceId: workspace?.id ?? "",
+        limit: 10,
+      },
+      enabled: !!workspace?.id,
     }),
-    enabled: !!workspace?.id,
-  });
+  );
 
   if (isLoading) {
     return (

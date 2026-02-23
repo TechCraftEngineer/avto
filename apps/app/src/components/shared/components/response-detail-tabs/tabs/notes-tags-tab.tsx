@@ -29,22 +29,26 @@ export function NotesTagsTab({ responseId }: NotesTagsTabProps) {
   const [isPrivate, setIsPrivate] = useState(true);
 
   // Загрузка тегов
-  const { data: tags, isLoading: tagsLoading } = useQuery({
-    ...orpc.vacancy.responses.listTags.queryOptions({
-      responseId,
-      workspaceId: workspace?.id ?? "",
+  const { data: tags, isLoading: tagsLoading } = useQuery(
+    orpc.vacancy.responses.listTags.queryOptions({
+      input: {
+        responseId,
+        workspaceId: workspace?.id ?? "",
+      },
+      enabled: !!workspace?.id,
     }),
-    enabled: !!workspace?.id,
-  });
+  );
 
   // Загрузка комментариев
-  const { data: comments, isLoading: commentsLoading } = useQuery({
-    ...orpc.candidates.listComments.queryOptions({
-      candidateId: responseId,
-      workspaceId: workspace?.id ?? "",
+  const { data: comments, isLoading: commentsLoading } = useQuery(
+    orpc.candidates.listComments.queryOptions({
+      input: {
+        candidateId: responseId,
+        workspaceId: workspace?.id ?? "",
+      },
+      enabled: !!workspace?.id,
     }),
-    enabled: !!workspace?.id,
-  });
+  );
 
   // Добавление тега
   const addTagMutation = useMutation(

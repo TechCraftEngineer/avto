@@ -19,12 +19,14 @@ export function DashboardStats() {
   const orpc = useORPC();
   const { workspace } = useWorkspace();
 
-  const { data: stats, isLoading } = useQuery({
-    ...orpc.vacancy.dashboardStats.queryOptions({
-      workspaceId: workspace?.id ?? "",
+  const { data: stats, isLoading } = useQuery(
+    orpc.vacancy.dashboardStats.queryOptions({
+      input: {
+        workspaceId: workspace?.id ?? "",
+      },
+      enabled: !!workspace?.id,
     }),
-    enabled: !!workspace?.id,
-  });
+  );
 
   if (isLoading || !stats) {
     return (

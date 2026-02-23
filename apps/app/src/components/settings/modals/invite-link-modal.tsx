@@ -47,7 +47,9 @@ function InviteLinkModalContent({
 
   // Получение существующей ссылки
   const { data: invite, isLoading } = useQuery(
-    orpc.workspace.invites.getLink.queryOptions({ workspaceId }),
+    orpc.workspace.invites.getLink.queryOptions({
+      input: { workspaceId },
+    }),
   );
 
   // Создание новой ссылки

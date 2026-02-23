@@ -31,13 +31,15 @@ export function TopResponses({
   const orpc = useORPC();
   const { workspace } = useWorkspace();
 
-  const { data: topResponses = [], isLoading } = useQuery({
-    ...orpc.vacancy.responses.listTop.queryOptions({
-      limit: 5,
-      workspaceId: workspace?.id ?? "",
+  const { data: topResponses = [], isLoading } = useQuery(
+    orpc.vacancy.responses.listTop.queryOptions({
+      input: {
+        limit: 5,
+        workspaceId: workspace?.id ?? "",
+      },
+      enabled: !!workspace?.id,
     }),
-    enabled: !!workspace?.id,
-  });
+  );
 
   if (isLoading) {
     return (

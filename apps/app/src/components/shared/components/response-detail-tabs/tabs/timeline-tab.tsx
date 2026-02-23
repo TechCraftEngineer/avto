@@ -65,13 +65,15 @@ export function TimelineTab({ responseId }: TimelineTabProps) {
   const { workspace } = useWorkspace();
   const orpc = useORPC();
 
-  const { data: history, isLoading } = useQuery({
-    ...orpc.vacancy.responses.history.queryOptions({
-      responseId,
-      workspaceId: workspace?.id ?? "",
+  const { data: history, isLoading } = useQuery(
+    orpc.vacancy.responses.history.queryOptions({
+      input: {
+        responseId,
+        workspaceId: workspace?.id ?? "",
+      },
+      enabled: !!workspace?.id,
     }),
-    enabled: !!workspace?.id,
-  });
+  );
 
   if (isLoading) {
     return (

@@ -4,7 +4,7 @@
  * Финальный скрипт для исправления оставшихся ошибок ORPCError
  */
 
-import { readFile, writeFile } from "fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 
 const filesToFix = [
   "packages/api/src/routers/chat/send-message.ts",
@@ -28,7 +28,7 @@ async function fixFile(filePath: string) {
     // Исправляем старый синтаксис ORPCError с code в объекте
     content = content.replace(
       /throw new ORPCError\(\s*\{\s*code:\s*"([^"]+)"\s*,\s*message:\s*([^}]+)\}\s*\)/g,
-      (match, code, message) => {
+      (_match, code, message) => {
         return `throw new ORPCError("${code}", { message: ${message}})`;
       },
     );
@@ -36,7 +36,7 @@ async function fixFile(filePath: string) {
     // Исправляем с cause
     content = content.replace(
       /throw new ORPCError\(\s*\{\s*code:\s*"([^"]+)"\s*,\s*message:\s*([^,]+),\s*cause:\s*([^}]+)\}\s*\)/g,
-      (match, code, message, cause) => {
+      (_match, code, message, cause) => {
         return `throw new ORPCError("${code}", { message: ${message}, cause: ${cause}})`;
       },
     );
