@@ -15,7 +15,7 @@ export default function SettingsBotPage() {
 
   const { data: botSettings, isLoading } = useQuery({
     ...orpc.workspace.getBotSettings.queryOptions({
-      workspaceId: workspaceId || "",
+      input: { workspaceId: workspaceId || "" },
     }),
     enabled: !!workspaceId,
   });

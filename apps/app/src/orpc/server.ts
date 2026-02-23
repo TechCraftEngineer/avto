@@ -1,10 +1,14 @@
 import "server-only";
 
 import { createRouterClient } from "@orpc/server";
+import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { appRouter } from "@qbs-autonaim/api";
 import { createContext } from "@qbs-autonaim/api/orpc";
+import { dehydrate } from "@tanstack/react-query";
 import { headers } from "next/headers";
 import { cache } from "react";
+
+import { createQueryClient } from "./query-client";
 
 const createServerContext = cache(async () => {
   const heads = new Headers(await headers());
@@ -29,6 +33,31 @@ globalThis.$client = createRouterClient(appRouter, {
 });
 
 export const api = globalThis.$client;
+
+/**
+ * Создаёт server helpers для prefetch и гидратации.
+ * Используется в серверных компонентах для загрузки данных на сервере.
+ */
+export async function createServerHelpers() {
+  const queryClient = createQueryClient();
+  const orpc = createTanstackQueryUtils(globalThis.$client!);
+
+  return {
+    queryClient,
+    /** Prefetch данные для передачи клиенту через dehydrate */
+    prefetch: {
+      workspace: {
+        list: {
+          prefetch: () =>
+            queryClient.prefetchQuery(orpc.workspace.list.queryOptions()),
+        },
+      },
+    },
+    /** Состояние для HydrationBoundary */
+    dehydrate: () => dehydrate(queryClient),
+  };
+}
+
 export { HydrateClient } from "./hydrate-client";
 
 export { createQueryClient as makeQueryClient } from "./query-client";

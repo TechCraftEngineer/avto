@@ -3,19 +3,45 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useORPC } from "~/orpc/react";
-import type {
-  OrganizationDetail,
-  WorkspaceDetail,
-  WorkspaceRole,
-} from "~/types/api";
+import type { WorkspaceRole } from "~/types/api";
 
 interface UseWorkspaceReturn {
   workspace:
-    | (WorkspaceDetail & {
+    | {
         role: WorkspaceRole;
-      })
+        id: string;
+        name: string;
+        createdAt: Date;
+        description: string | null;
+        externalId: string | null;
+        logo: string | null;
+        slug: string;
+        plan: "free" | "pro" | "enterprise";
+        updatedAt: Date;
+        organizationId: string;
+        organizationSlug: string;
+        website: string | null;
+        memberCount: number;
+        dismissedGettingStartedAt: Date | null;
+      }
     | undefined;
-  organization: OrganizationDetail | undefined;
+  organization:
+    | {
+        id: string;
+        name: string;
+        createdAt: Date;
+        description: string | null;
+        externalId: string | null;
+        logo: string | null;
+        slug: string;
+        plan: "free" | "starter" | "pro" | "enterprise";
+        billingEmail: string | null;
+        updatedAt: Date;
+        website: string | null;
+        memberCount?: number;
+        workspaceCount?: number;
+      }
+    | undefined;
   orgSlug: string | undefined;
   slug: string | undefined;
   isLoading: boolean;
@@ -52,7 +78,14 @@ export function useWorkspace(): UseWorkspaceReturn {
   );
 
   return {
-    workspace: data ? { ...data.workspace, role: data.role } : undefined,
+    workspace: data
+      ? {
+          ...data.workspace,
+          role: data.role,
+          organizationSlug: organization?.slug ?? "",
+          memberCount: 0,
+        }
+      : undefined,
     organization,
     orgSlug,
     slug,

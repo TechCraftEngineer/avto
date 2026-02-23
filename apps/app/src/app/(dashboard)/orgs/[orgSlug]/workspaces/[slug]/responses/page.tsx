@@ -8,11 +8,10 @@ export default async function ResponsesPage({
   params: Promise<{ orgSlug: string; slug: string }>;
 }) {
   const { orgSlug, slug } = await params;
-  const caller = api;
-  const organization = await caller.organization.getBySlug({ slug: orgSlug });
+  const organization = await api.organization.getBySlug({ slug: orgSlug });
   if (!organization) notFound();
 
-  const workspace = await caller.organization.getWorkspaceBySlug({
+  const workspace = await api.organization.getWorkspaceBySlug({
     organizationId: organization.id,
     slug,
   });
@@ -22,21 +21,22 @@ export default async function ResponsesPage({
   await Promise.all([
     queryClient.prefetchQuery(
       orpc.vacancy.listActive.queryOptions({
-        workspaceId: workspace.id,
-        limit: 100,
+        input: { workspaceId: workspace.id, limit: 100 },
       }),
     ),
     queryClient.prefetchQuery(
       orpc.vacancy.responses.listWorkspace.queryOptions({
-        workspaceId: workspace.id,
-        page: 1,
-        limit: 50,
-        sortField: null,
-        sortDirection: "desc",
-        screeningFilter: "all",
-        statusFilter: undefined,
-        vacancyIds: undefined,
-        search: undefined,
+        input: {
+          workspaceId: workspace.id,
+          page: 1,
+          limit: 50,
+          sortField: null,
+          sortDirection: "desc",
+          screeningFilter: "all",
+          statusFilter: undefined,
+          vacancyIds: undefined,
+          search: undefined,
+        },
       }),
     ),
   ]);

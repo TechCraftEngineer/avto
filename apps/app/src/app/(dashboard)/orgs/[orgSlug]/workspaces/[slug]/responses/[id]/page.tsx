@@ -24,8 +24,7 @@ export default function ResponseDetailPage({
 
   const { data: response, isLoading } = useQuery({
     ...orpc.vacancy.responses.get.queryOptions({
-      id,
-      workspaceId: workspaceId ?? "",
+      input: { id, workspaceId: workspaceId ?? "" },
     }),
     enabled: Boolean(workspaceId),
   });

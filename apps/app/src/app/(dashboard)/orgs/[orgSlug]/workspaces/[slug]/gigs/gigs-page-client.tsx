@@ -55,7 +55,7 @@ function saveGigsSettings(settings: {
 
 export function GigsPageClient() {
   const { orgSlug, slug: workspaceSlug } = useWorkspaceParams();
-  const api = useORPC();
+  const orpc = useORPC();
   const queryClient = useQueryClient();
   const { workspace } = useWorkspace();
 
@@ -96,8 +96,8 @@ export function GigsPageClient() {
   } | null>(null);
 
   const { data: gigs, isLoading } = useQuery({
-    ...api.gig.list.queryOptions({
-      workspaceId: workspace?.id ?? "",
+    ...orpc.gig.list.queryOptions({
+      input: { workspaceId: workspace?.id ?? "" },
     }),
     enabled: !!workspace?.id,
   });
@@ -163,11 +163,13 @@ export function GigsPageClient() {
   );
 
   const deleteMutation = useMutation(
-    api.gig.delete.mutationOptions({
+    orpc.gig.delete.mutationOptions({
       onSuccess: () => {
         toast.success("Задание удалено");
         queryClient.invalidateQueries({
-          queryKey: api.gig.list.queryKey(),
+          queryKey: orpc.gig.list.queryKey({
+            input: { workspaceId: workspace?.id ?? "" },
+          }),
         });
         setDeleteDialogOpen(false);
         setGigToDelete(null);
@@ -179,11 +181,13 @@ export function GigsPageClient() {
   );
 
   const syncResponsesMutation = useMutation(
-    api.freelancePlatforms.syncGigResponses.mutationOptions({
+    orpc.freelancePlatforms.syncGigResponses.mutationOptions({
       onSuccess: () => {
         toast.success("Синхронизация откликов запущена");
         queryClient.invalidateQueries({
-          queryKey: api.gig.list.queryKey(),
+          queryKey: orpc.gig.list.queryKey({
+            input: { workspaceId: workspace?.id ?? "" },
+          }),
         });
       },
       onError: (error) => {
@@ -193,11 +197,13 @@ export function GigsPageClient() {
   );
 
   const duplicateMutation = useMutation(
-    api.gig.duplicate.mutationOptions({
+    orpc.gig.duplicate.mutationOptions({
       onSuccess: (_data) => {
         toast.success("Задание дублировано");
         queryClient.invalidateQueries({
-          queryKey: api.gig.list.queryKey(),
+          queryKey: orpc.gig.list.queryKey({
+            input: { workspaceId: workspace?.id ?? "" },
+          }),
         });
       },
       onError: (error) => {
@@ -207,13 +213,15 @@ export function GigsPageClient() {
   );
 
   const toggleActiveMutation = useMutation(
-    api.gig.toggleActive.mutationOptions({
+    orpc.gig.toggleActive.mutationOptions({
       onSuccess: (data) => {
         toast.success(
           data.isActive ? "Задание активировано" : "Задание деактивировано",
         );
         queryClient.invalidateQueries({
-          queryKey: api.gig.list.queryKey(),
+          queryKey: orpc.gig.list.queryKey({
+            input: { workspaceId: workspace?.id ?? "" },
+          }),
         });
       },
       onError: (error) => {

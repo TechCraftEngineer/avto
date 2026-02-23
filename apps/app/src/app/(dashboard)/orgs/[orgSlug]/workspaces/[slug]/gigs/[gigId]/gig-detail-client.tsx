@@ -110,7 +110,9 @@ export function GigDetailClient({
       onSuccess: () => {
         toast.success("Задание удалено");
         queryClient.invalidateQueries({
-          queryKey: orpc.gig.list.queryKey({ input: {} }),
+          queryKey: orpc.gig.list.queryKey({
+            input: { workspaceId: workspaceId ?? "" },
+          }),
         });
         router.push(`/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs`);
       },

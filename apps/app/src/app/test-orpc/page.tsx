@@ -1,4 +1,5 @@
-import { createServerHelpers, HydrateClient } from "~/orpc/server";
+import { HydrationBoundary } from "@tanstack/react-query";
+import { createServerHelpers } from "~/orpc/server";
 import { TestORPCClient } from "./test-orpc-client";
 
 /**
@@ -6,22 +7,20 @@ import { TestORPCClient } from "./test-orpc-client";
  *
  * Демонстрирует:
  * - Server-side prefetch с использованием createServerHelpers()
- * - Передачу prefetch данных клиенту через HydrateClient (HydrationBoundary)
+ * - Передачу prefetch данных клиенту через HydrationBoundary
  * - Интеграцию серверных и клиентских компонентов
  *
  * @see Requirements 7.5, 11.2, 11.3
  */
 export default async function TestORPCPage() {
-  // Создаем серверные хелперы для prefetch
-  const orpc = await createServerHelpers();
+  const helpers = await createServerHelpers();
 
   // Prefetch данных на сервере
-  // Данные будут загружены на сервере и переданы клиенту через HydrationBoundary
-  await orpc.workspace.list.prefetch();
+  await helpers.prefetch.workspace.list.prefetch();
 
   return (
-    <HydrateClient>
+    <HydrationBoundary state={helpers.dehydrate()}>
       <TestORPCClient />
-    </HydrateClient>
+    </HydrationBoundary>
   );
 }

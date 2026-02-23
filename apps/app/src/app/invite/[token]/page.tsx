@@ -22,8 +22,7 @@ export default async function InvitePage({
   }
 
   try {
-    const caller = await api();
-    const invite = await caller.workspace.invites.getByToken({ token });
+    const invite = await api.workspace.invites.getByToken({ token });
 
     if (!invite) {
       return (
@@ -60,9 +59,10 @@ export default async function InvitePage({
     }
 
     // Случай 2: Пользователь уже является участником
-    const userWorkspaces = await caller.workspace.list();
+    const userWorkspaces = await api.workspace.list();
     const isAlreadyMember = userWorkspaces.some(
-      (uw) => uw.workspace.id === invite.workspaceId,
+      (uw: (typeof userWorkspaces)[number]) =>
+        uw.workspace.id === invite.workspaceId,
     );
 
     if (isAlreadyMember) {

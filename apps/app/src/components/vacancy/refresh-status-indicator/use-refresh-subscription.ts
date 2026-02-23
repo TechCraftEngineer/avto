@@ -277,13 +277,13 @@ export function useRefreshSubscription({
     }
     lastProcessedLengthRef.current = data.length;
   }, [
-    data, 
-    isArchivedMode, 
-    isAnalyzeMode, 
-    isScreeningMode, 
-    mode, 
-    queryClient, 
-    vacancyId
+    data,
+    isArchivedMode,
+    isAnalyzeMode,
+    isScreeningMode,
+    mode,
+    queryClient,
+    vacancyId,
   ]);
 
   // Очищаем таймер при размонтировании

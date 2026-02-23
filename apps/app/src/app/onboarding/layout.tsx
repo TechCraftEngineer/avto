@@ -16,8 +16,7 @@ export default async function OnboardingLayout({
   }
 
   // Проверяем, есть ли у пользователя workspaces
-  const caller = await api();
-  const userWorkspaces = await caller.workspace.list();
+  const userWorkspaces = await api.workspace.list();
 
   // Если есть workspaces, редиректим на главную
   if (userWorkspaces.length > 0) {

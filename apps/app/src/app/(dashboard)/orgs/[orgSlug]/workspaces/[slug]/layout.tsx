@@ -20,15 +20,14 @@ export default async function WorkspaceLayout({
   const { orgSlug, slug } = await params;
 
   // Получаем организацию и проверяем доступ
-  const caller = await api();
-  const organization = await caller.organization.getBySlug({ slug: orgSlug });
+  const organization = await api.organization.getBySlug({ slug: orgSlug });
 
   if (!organization) {
     notFound();
   }
 
   // Получаем workspace по slug в рамках организации
-  const workspace = await caller.organization.getWorkspaceBySlug({
+  const workspace = await api.organization.getWorkspaceBySlug({
     organizationId: organization.id,
     slug,
   });

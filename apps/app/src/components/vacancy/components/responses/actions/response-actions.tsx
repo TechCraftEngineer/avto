@@ -112,7 +112,13 @@ export function ResponseActions({
     }, 3000);
 
     return () => clearTimeout(timer);
-  }, [result, reset, queryClient, vacancyId, orpc.vacancy.responses.list.queryKey]);
+  }, [
+    result,
+    reset,
+    queryClient,
+    vacancyId,
+    orpc.vacancy.responses.list.queryKey,
+  ]);
 
   // Обрабатываем результат AI-оценки
   useEffect(() => {
@@ -136,7 +142,13 @@ export function ResponseActions({
     }, 3000);
 
     return () => clearTimeout(timer);
-  }, [analyzeResult, resetAnalyze, queryClient, vacancyId, orpc.vacancy.responses.list.queryKey]);
+  }, [
+    analyzeResult,
+    resetAnalyze,
+    queryClient,
+    vacancyId,
+    orpc.vacancy.responses.list.queryKey,
+  ]);
 
   const handleAnalyze = async () => {
     try {

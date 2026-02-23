@@ -16,9 +16,8 @@ export default async function MembersPage({
     redirect(paths.auth.signin);
   }
 
-  const caller = await api();
-  const orgData = await caller.organization.getBySlug({ slug: orgSlug });
-  const workspaceData = await caller.workspace.getBySlug({
+  const orgData = await api.organization.getBySlug({ slug: orgSlug });
+  const workspaceData = await api.workspace.getBySlug({
     slug: workspaceSlug,
     organizationId: orgData.id,
   });

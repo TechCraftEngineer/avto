@@ -30,7 +30,7 @@ export default function IntegrationsPage() {
   const userRole = workspace?.role;
 
   const { data: integrations, isLoading } = useQuery({
-    ...api.integration.list.queryOptions({ workspaceId }),
+    ...api.integration.list.queryOptions({ input: { workspaceId } }),
     enabled: !!workspaceId,
   });
 

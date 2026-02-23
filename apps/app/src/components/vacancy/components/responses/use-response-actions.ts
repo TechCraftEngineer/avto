@@ -57,7 +57,14 @@ export function useResponseActions(
     } finally {
       setIsProcessing(false);
     }
-  }, [selectedIds, setSelectedIds, queryClient, workspaceId, vacancyId, orpc.vacancy.responses.list.queryKey]);
+  }, [
+    selectedIds,
+    setSelectedIds,
+    queryClient,
+    workspaceId,
+    vacancyId,
+    orpc.vacancy.responses.list.queryKey,
+  ]);
 
   const handleScreenAll = useCallback(async () => {
     setIsProcessingAll(true);
@@ -206,7 +213,13 @@ export function useResponseActions(
     } finally {
       setIsSendingWelcome(false);
     }
-  }, [selectedIds, setSelectedIds, queryClient, vacancyId, orpc.vacancy.responses.list.queryKey]);
+  }, [
+    selectedIds,
+    setSelectedIds,
+    queryClient,
+    vacancyId,
+    orpc.vacancy.responses.list.queryKey,
+  ]);
 
   return {
     isProcessing,

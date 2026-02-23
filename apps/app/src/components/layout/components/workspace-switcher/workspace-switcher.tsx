@@ -137,8 +137,14 @@ export function WorkspaceSwitcher({
     );
 
     // Инвалидируем кэш для обновления данных
-    queryClient.invalidateQueries(orpc.workspace.list.pathFilter());
-    queryClient.invalidateQueries(orpc.organization.list.pathFilter());
+    queryClient.invalidateQueries({
+      predicate: (q) =>
+        q.queryKey[0] === "workspace" && q.queryKey[1] === "list",
+    });
+    queryClient.invalidateQueries({
+      predicate: (q) =>
+        q.queryKey[0] === "organization" && q.queryKey[1] === "list",
+    });
   };
 
   const handleOrganizationChange = (
@@ -168,8 +174,14 @@ export function WorkspaceSwitcher({
     }
 
     // Инвалидируем кэш для обновления данных
-    queryClient.invalidateQueries(orpc.workspace.list.pathFilter());
-    queryClient.invalidateQueries(orpc.organization.list.pathFilter());
+    queryClient.invalidateQueries({
+      predicate: (q) =>
+        q.queryKey[0] === "workspace" && q.queryKey[1] === "list",
+    });
+    queryClient.invalidateQueries({
+      predicate: (q) =>
+        q.queryKey[0] === "organization" && q.queryKey[1] === "list",
+    });
   };
 
   return (
