@@ -21,12 +21,7 @@ import {
   CardTitle,
 } from "@qbs-autonaim/ui/components/card";
 import { cn } from "@qbs-autonaim/ui/utils";
-import {
-  skipToken,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, Minus } from "lucide-react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -146,20 +141,21 @@ export default function OrganizationBillingPage() {
 
   // Получаем данные организации
   const { data: organization, isLoading } = useQuery(
-    orpc.organization.getBySlug.queryOptions({ slug: params.orgSlug }),
+    orpc.organization.getBySlug.queryOptions({
+      input: { slug: params.orgSlug },
+    }),
   );
 
   // Получаем историю платежей организации
-  const { data: payments, isLoading: isLoadingPayments } = useQuery(
-    orpc.payment.list.queryOptions(
-      organization?.id
-        ? {
-            organizationId: organization.id,
-            limit: 10,
-          }
-        : skipToken,
-    ),
-  );
+  const { data: payments, isLoading: isLoadingPayments } = useQuery({
+    ...orpc.payment.list.queryOptions({
+      input: {
+        organizationId: organization?.id ?? "",
+        limit: 10,
+      },
+    }),
+    enabled: !!organization?.id,
+  });
 
   // Мутация для обновления плана
   const { mutate: updatePlan, isPending } = useMutation(
@@ -168,7 +164,7 @@ export default function OrganizationBillingPage() {
         toast.success("Тарифный план успешно обновлён");
         queryClient.invalidateQueries({
           queryKey: orpc.organization.getBySlug.queryKey({
-            slug: params.orgSlug,
+            input: { slug: params.orgSlug },
           }),
         });
       },

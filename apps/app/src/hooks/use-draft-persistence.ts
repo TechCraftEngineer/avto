@@ -90,7 +90,7 @@ export function useDraftPersistence(options: UseDraftPersistenceOptions = {}) {
 
   // Запрос текущего черновика
   const { data: currentDraft } = useQuery(
-    orpc.draft.getCurrent.queryOptions(undefined),
+    orpc.draft.getCurrent.queryOptions({ input: undefined }),
   );
 
   // Мутации
@@ -294,7 +294,7 @@ export function useDraftPersistence(options: UseDraftPersistenceOptions = {}) {
 
       // Инвалидировать кэш
       await queryClient.invalidateQueries({
-        queryKey: orpc.draft.getCurrent.queryKey(),
+        queryKey: orpc.draft.getCurrent.queryKey({ input: undefined }),
       });
     } catch (error) {
       console.error("Ошибка при удалении черновика:", error);

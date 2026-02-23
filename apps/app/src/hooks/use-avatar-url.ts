@@ -16,8 +16,10 @@ export function useAvatarUrl(fileId: string | null | undefined) {
 
   const { data } = useQuery({
     ...orpc.files.getImageUrl.queryOptions({
-      workspaceId: workspaceId ?? "",
-      fileId: fileId ?? "",
+      input: {
+        workspaceId: workspaceId ?? "",
+        fileId: fileId ?? "",
+      },
     }),
     enabled: !!workspaceId && !!fileId,
     // Кэшируем на 4 минуты (URL живет 5 минут)

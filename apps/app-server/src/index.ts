@@ -107,7 +107,7 @@ app.onError((err, c) => {
   );
 });
 
-const port = Number(process.env.APP_SERVER_PORT ?? 3001);
+const port = Number(process.env.APP_SERVER_PORT ?? 7000);
 
 console.log(
   `[app-server] Running on http://localhost:${port} (env: ${process.env.NODE_ENV ?? "development"})`,

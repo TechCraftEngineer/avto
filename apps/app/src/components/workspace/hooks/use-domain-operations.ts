@@ -18,7 +18,7 @@ export function useDomainOperations({ workspaceId }: UseDomainOperationsProps) {
         });
         queryClient.invalidateQueries({
           queryKey: orpc.customDomain.list.queryKey({
-            workspaceId,
+            input: { workspaceId },
           }),
         });
       },
@@ -36,7 +36,7 @@ export function useDomainOperations({ workspaceId }: UseDomainOperationsProps) {
         toast.success("Основной домен изменён");
         queryClient.invalidateQueries({
           queryKey: orpc.customDomain.list.queryKey({
-            workspaceId,
+            input: { workspaceId },
           }),
         });
       },
@@ -54,7 +54,7 @@ export function useDomainOperations({ workspaceId }: UseDomainOperationsProps) {
         toast.success("Домен удалён");
         queryClient.invalidateQueries({
           queryKey: orpc.customDomain.list.queryKey({
-            workspaceId,
+            input: { workspaceId },
           }),
         });
       },
@@ -73,7 +73,7 @@ export function useDomainOperations({ workspaceId }: UseDomainOperationsProps) {
           description: "Теперь настройте DNS записи для верификации",
         });
         queryClient.invalidateQueries({
-          queryKey: orpc.customDomain.list.queryKey({ workspaceId }),
+          queryKey: orpc.customDomain.list.queryKey({ input: { workspaceId } }),
         });
       },
       onError: (error) => {
@@ -100,7 +100,9 @@ export function useDomains(workspaceId: string) {
   const orpc = useORPC();
 
   return useQuery({
-    ...orpc.customDomain.list.queryOptions({ workspaceId }),
+    ...orpc.customDomain.list.queryOptions({
+      input: { workspaceId },
+    }),
     enabled: !!workspaceId,
   });
 }

@@ -21,26 +21,34 @@ export function useGettingStarted() {
 
   // Получаем настройки бота
   const { data: botSettings, isLoading: isLoadingBot } = useQuery({
-    ...orpc.bot.get.queryOptions({ workspaceId: workspace?.id ?? "" }),
+    ...orpc.bot.get.queryOptions({
+      input: { workspaceId: workspace?.id ?? "" },
+    }),
     enabled: !!workspace?.id,
   });
 
   // Получаем список вакансий
   const { data: vacancies, isLoading: isLoadingVacancies } = useQuery({
-    ...orpc.vacancy.list.queryOptions({ workspaceId: workspace?.id ?? "" }),
+    ...orpc.vacancy.list.queryOptions({
+      input: { workspaceId: workspace?.id ?? "" },
+    }),
     enabled: !!workspace?.id,
   });
 
   // Получаем список интеграций
   const { data: integrations, isLoading: isLoadingIntegrations } = useQuery({
-    ...orpc.integration.list.queryOptions({ workspaceId: workspace?.id ?? "" }),
+    ...orpc.integration.list.queryOptions({
+      input: { workspaceId: workspace?.id ?? "" },
+    }),
     enabled: !!workspace?.id,
   });
 
   // Получаем Telegram сессии
   const { data: sessions, isLoading: isLoadingSessions } = useQuery({
     ...orpc.telegram.getSessions.queryOptions({
-      workspaceId: workspace?.id ?? "",
+      input: {
+        workspaceId: workspace?.id ?? "",
+      },
     }),
     enabled: !!workspace?.id,
   });
@@ -51,7 +59,7 @@ export function useGettingStarted() {
       onSuccess: () => {
         queryClient.invalidateQueries({
           queryKey: orpc.bot.get.queryKey({
-            workspaceId: workspace?.id ?? "",
+            input: { workspaceId: workspace?.id ?? "" },
           }),
         });
       },

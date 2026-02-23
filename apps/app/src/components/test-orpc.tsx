@@ -58,7 +58,7 @@ export function TestORPC() {
 
   // Query: получение списка workspace
   const { data: workspaces, isPending: isLoadingWorkspaces } = useQuery(
-    orpc.workspace.list.queryOptions(),
+    orpc.workspace.list.queryOptions({ input: undefined }),
   );
 
   // Mutation: создание workspace
@@ -67,7 +67,7 @@ export function TestORPC() {
       onSuccess: () => {
         // Инвалидация кэша для обновления списка
         queryClient.invalidateQueries({
-          queryKey: orpc.workspace.list.queryKey(),
+          queryKey: orpc.workspace.list.queryKey({ input: undefined }),
         });
 
         toast.success("Рабочее пространство создано");

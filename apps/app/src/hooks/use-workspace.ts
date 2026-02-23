@@ -35,14 +35,18 @@ export function useWorkspace(): UseWorkspaceReturn {
     isLoading: organizationIsLoading,
     error: organizationError,
   } = useQuery({
-    ...orpc.organization.getBySlug.queryOptions({ slug: orgSlug ?? "" }),
+    ...orpc.organization.getBySlug.queryOptions({
+      input: { slug: orgSlug ?? "" },
+    }),
     enabled: !!orgSlug,
   });
 
   const { data, isLoading, error } = useQuery({
     ...orpc.workspace.getBySlug.queryOptions({
-      organizationId: organization?.id ?? "",
-      slug: slug ?? "",
+      input: {
+        organizationId: organization?.id ?? "",
+        slug: slug ?? "",
+      },
     }),
     enabled: !!organization?.id && !!slug,
   });
