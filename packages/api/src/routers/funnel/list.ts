@@ -1,4 +1,3 @@
-import { ORPCError } from "@orpc/server";
 import { and, desc, eq, inArray, lt } from "@qbs-autonaim/db";
 import { response as responseTable, vacancy } from "@qbs-autonaim/db/schema";
 import { formatExperienceText } from "@qbs-autonaim/shared";
@@ -9,6 +8,7 @@ import {
 } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
+import { verifyWorkspaceAccess } from "../../utils/verify-workspace-access";
 import { mapResponseToStage } from "./map-response-stage";
 
 export const list = protectedProcedure
@@ -21,14 +21,11 @@ export const list = protectedProcedure
     }),
   )
   .handler(async ({ input, context }) => {
-    const access = await context.workspaceRepository.checkAccess(
+    await verifyWorkspaceAccess(
+      context.workspaceRepository,
       input.workspaceId,
       context.session.user.id,
     );
-
-    if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
-    }
 
     const vacancies = await context.db.query.vacancy.findMany({
       where: eq(vacancy.workspaceId, input.workspaceId),

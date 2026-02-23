@@ -1,9 +1,10 @@
-import { ORPCError } from "@orpc/server";
 import { and, count, eq, sql } from "@qbs-autonaim/db";
 import { gig, response } from "@qbs-autonaim/db/schema";
-import { workspaceIdSchema } from "@qbs-autonaim/validators";
+import { gigWorkspaceInputSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
+import { ensureFound } from "../../../utils/ensure-found";
+import { verifyWorkspaceAccess } from "../../../utils/verify-workspace-access";
 
 /**
  * Синхронизирует счетчики откликов в таблице gig с реальными данными
@@ -11,35 +12,28 @@ import { protectedProcedure } from "../../../orpc";
  */
 export const syncResponseCounts = protectedProcedure
   .input(
-    z.object({
-      gigId: z.uuid(),
-      workspaceId: workspaceIdSchema,
-      forceSync: z.boolean().default(false), // Принудительная синхронизация
-    }),
+    gigWorkspaceInputSchema.merge(
+      z.object({
+        forceSync: z.boolean().default(false),
+      }),
+    ),
   )
   .handler(async ({ context, input }) => {
-    const access = await context.workspaceRepository.checkAccess(
+    await verifyWorkspaceAccess(
+      context.workspaceRepository,
       input.workspaceId,
       context.session.user.id,
     );
 
-    if (!access) {
-      throw new ORPCError("FORBIDDEN", {
-        message: "Нет доступа к этому workspace",
-      });
-    }
-
-    // Проверяем что gig принадлежит workspace
-    const existingGig = await context.db.query.gig.findFirst({
-      where: and(
-        eq(gig.id, input.gigId),
-        eq(gig.workspaceId, input.workspaceId),
-      ),
-    });
-
-    if (!existingGig) {
-      throw new ORPCError("NOT_FOUND", { message: "Задание не найдено" });
-    }
+    const existingGig = ensureFound(
+      await context.db.query.gig.findFirst({
+        where: and(
+          eq(gig.id, input.gigId),
+          eq(gig.workspaceId, input.workspaceId),
+        ),
+      }),
+      "Задание не найдено",
+    );
 
     // Получаем актуальные счетчики одним запросом
     const countsResult = await context.db

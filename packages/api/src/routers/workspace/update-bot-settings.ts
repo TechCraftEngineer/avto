@@ -1,4 +1,3 @@
-import { ORPCError } from "@orpc/server";
 import { eq } from "@qbs-autonaim/db";
 import { botSettings as botSettingsTable } from "@qbs-autonaim/db/schema";
 import {
@@ -7,6 +6,10 @@ import {
 } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
+import {
+  requireWorkspaceRole,
+  verifyWorkspaceAccess,
+} from "../../utils/verify-workspace-access";
 
 export const updateBotSettings = protectedProcedure
   .input(
@@ -16,16 +19,12 @@ export const updateBotSettings = protectedProcedure
     }),
   )
   .handler(async ({ input, context }) => {
-    const access = await context.workspaceRepository.checkAccess(
+    const access = await verifyWorkspaceAccess(
+      context.workspaceRepository,
       input.workspaceId,
       context.session.user.id,
     );
-
-    if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new ORPCError("FORBIDDEN", {
-        message: "Недостаточно прав для обновления настроек бота",
-      });
-    }
+    requireWorkspaceRole(access, ["owner", "admin"]);
 
     const { workspaceId, data } = input;
 

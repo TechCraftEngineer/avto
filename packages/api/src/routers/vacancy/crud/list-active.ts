@@ -1,9 +1,9 @@
-import { ORPCError } from "@orpc/server";
 import { and, desc, eq, sql } from "@qbs-autonaim/db";
 import { response as responseTable, vacancy } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
+import { verifyWorkspaceAccess } from "../../../utils/verify-workspace-access";
 
 export const listActive = protectedProcedure
   .input(
@@ -13,17 +13,11 @@ export const listActive = protectedProcedure
     }),
   )
   .handler(async ({ context, input }) => {
-    // Проверка доступа к workspace
-    const access = await context.workspaceRepository.checkAccess(
+    await verifyWorkspaceAccess(
+      context.workspaceRepository,
       input.workspaceId,
       context.session.user.id,
     );
-
-    if (!access) {
-      throw new ORPCError("FORBIDDEN", {
-        message: "Нет доступа к этому workspace",
-      });
-    }
 
     // Подсчёт откликов из таблицы responses — закэшированные vacancy.responses
     // могут быть устаревшими (не обновляются при парсинге HH и т.д.)

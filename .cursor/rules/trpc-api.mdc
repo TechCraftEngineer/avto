@@ -419,21 +419,26 @@ export function requireWorkspaceRole(
 
 ### 2. workspaceProcedure — процедура с проверкой доступа
 
-Для роутов с `workspaceId` в input используйте `workspaceProcedure` (если реализована в orpc.ts) вместо `protectedProcedure`:
+Для роутов с `workspaceId` в input используйте `workspaceProcedure` (реализована в orpc.ts):
 
 ```typescript
-// orpc.ts — процедура с автоматической проверкой workspace
-export const workspaceProcedure = protectedProcedure
-  .input(z.object({ workspaceId: workspaceIdSchema }).passthrough())
-  .use(workspaceAccessMiddleware);
+// orpc.ts — workspaceProcedure, workspaceInputSchema, workspaceAccessMiddleware
+// Только workspaceId — используйте .handler() напрямую
+export const list = workspaceProcedure.handler(async ({ input, context }) => {
+  return await context.db.query.integration.findMany({ ... });
+});
 
-// В роуте — не нужна ручная проверка
-export const list = workspaceProcedure
-  .input(z.object({ workspaceId: workspaceIdSchema }))
+// Дополнительные поля — protectedProcedure + workspaceInputSchema.merge() + workspaceAccessMiddleware
+export const update = protectedProcedure
+  .input(workspaceInputSchema.merge(z.object({ type: z.string(), name: z.string() })))
+  .use(workspaceAccessMiddleware)
   .handler(async ({ input, context }) => {
-    return await context.db.query.vacancy.findMany({ ... });
+    requireWorkspaceRole(context.workspaceAccess!, ["owner", "admin"]);
+    // ...
   });
 ```
+
+`workspaceAccessMiddleware` добавляет `workspaceAccess` в context — используйте `requireWorkspaceRole()` для проверки роли.
 
 ### 3. Схемы vacancyId + workspaceId — переиспользовать
 

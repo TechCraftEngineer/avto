@@ -11,23 +11,18 @@ import { getDownloadUrl } from "@qbs-autonaim/lib/s3";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
+import { verifyWorkspaceAccess } from "../../../utils/verify-workspace-access";
 import { sanitizeHtml } from "../../utils/sanitize-html";
 import { mapScreeningToOutput } from "./mappers/screening-mapper";
 
 export const get = protectedProcedure
   .input(z.object({ id: z.string(), workspaceId: workspaceIdSchema }))
   .handler(async ({ context, input }) => {
-    // Проверка доступа к workspace
-    const access = await context.workspaceRepository.checkAccess(
+    await verifyWorkspaceAccess(
+      context.workspaceRepository,
       input.workspaceId,
       context.session.user.id,
     );
-
-    if (!access) {
-      throw new ORPCError("FORBIDDEN", {
-        message: "Нет доступа к этому workspace",
-      });
-    }
 
     const response = await context.db.query.response.findFirst({
       where: and(

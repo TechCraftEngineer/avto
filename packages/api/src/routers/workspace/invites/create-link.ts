@@ -1,7 +1,10 @@
-import { ORPCError } from "@orpc/server";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
+import {
+  requireWorkspaceRole,
+  verifyWorkspaceAccess,
+} from "../../../utils/verify-workspace-access";
 
 export const createLink = protectedProcedure
   .input(
@@ -11,16 +14,12 @@ export const createLink = protectedProcedure
     }),
   )
   .handler(async ({ input, context }) => {
-    const access = await context.workspaceRepository.checkAccess(
+    const access = await verifyWorkspaceAccess(
+      context.workspaceRepository,
       input.workspaceId,
       context.session.user.id,
     );
-
-    if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new ORPCError("FORBIDDEN", {
-        message: "Недостаточно прав для создания приглашений",
-      });
-    }
+    requireWorkspaceRole(access, ["owner", "admin"]);
 
     const invite = await context.workspaceRepository.createInviteLink(
       input.workspaceId,

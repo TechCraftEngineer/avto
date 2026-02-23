@@ -1,9 +1,9 @@
-import { ORPCError } from "@orpc/server";
 import { and, count, eq, sql } from "@qbs-autonaim/db";
 import { gig, response } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
+import { verifyWorkspaceAccess } from "../../../utils/verify-workspace-access";
 
 /**
  * Синхронизирует счетчики откликов для всех gig в workspace
@@ -14,20 +14,15 @@ export const syncAllResponseCounts = protectedProcedure
   .input(
     z.object({
       workspaceId: workspaceIdSchema,
-      forceSync: z.boolean().default(false), // Принудительная синхронизация всех
+      forceSync: z.boolean().default(false),
     }),
   )
   .handler(async ({ context, input }) => {
-    const access = await context.workspaceRepository.checkAccess(
+    await verifyWorkspaceAccess(
+      context.workspaceRepository,
       input.workspaceId,
       context.session.user.id,
     );
-
-    if (!access) {
-      throw new ORPCError("FORBIDDEN", {
-        message: "Нет доступа к этому workspace",
-      });
-    }
 
     // Получаем актуальные счетчики для всех gigs одним запросом
     const responseCounts = await context.db

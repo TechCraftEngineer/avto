@@ -1,6 +1,7 @@
-import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
+import { ensureFound } from "../../utils/ensure-found";
+import { verifyWorkspaceAccess } from "../../utils/verify-workspace-access";
 
 export const getBySlug = protectedProcedure
   .input(
@@ -10,23 +11,19 @@ export const getBySlug = protectedProcedure
     }),
   )
   .handler(async ({ input, context }) => {
-    const workspace = await context.workspaceRepository.findBySlug(
-      input.slug,
-      input.organizationId,
+    const workspace = ensureFound(
+      await context.workspaceRepository.findBySlug(
+        input.slug,
+        input.organizationId,
+      ),
+      "Workspace не найден",
     );
 
-    if (!workspace) {
-      throw new ORPCError("NOT_FOUND", { message: "Workspace не найден" });
-    }
-
-    const access = await context.workspaceRepository.checkAccess(
+    const access = await verifyWorkspaceAccess(
+      context.workspaceRepository,
       workspace.id,
       context.session.user.id,
     );
-
-    if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
-    }
 
     return { workspace, role: access.role };
   });

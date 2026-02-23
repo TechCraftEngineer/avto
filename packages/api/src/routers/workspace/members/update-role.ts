@@ -1,20 +1,19 @@
-import { ORPCError } from "@orpc/server";
 import { updateUserRoleSchema } from "@qbs-autonaim/validators";
 import { protectedProcedure } from "../../../orpc";
+import {
+  requireWorkspaceRole,
+  verifyWorkspaceAccess,
+} from "../../../utils/verify-workspace-access";
 
 export const updateRole = protectedProcedure
   .input(updateUserRoleSchema)
   .handler(async ({ input, context }) => {
-    const access = await context.workspaceRepository.checkAccess(
+    const access = await verifyWorkspaceAccess(
+      context.workspaceRepository,
       input.workspaceId,
       context.session.user.id,
     );
-
-    if (!access || access.role !== "owner") {
-      throw new ORPCError("FORBIDDEN", {
-        message: "Только owner может изменять роли",
-      });
-    }
+    requireWorkspaceRole(access, ["owner"]);
 
     const updated = await context.workspaceRepository.updateUserRole(
       input.workspaceId,

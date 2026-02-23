@@ -7,6 +7,7 @@ import {
 } from "@qbs-autonaim/db/schema";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
+import { verifyWorkspaceAccess } from "../../../utils/verify-workspace-access";
 
 export const updateStatus = protectedProcedure
   .input(
@@ -37,17 +38,11 @@ export const updateStatus = protectedProcedure
       throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена" });
     }
 
-    // Проверяем доступ к workspace
-    const hasAccess = await context.workspaceRepository.checkAccess(
+    await verifyWorkspaceAccess(
+      context.workspaceRepository,
       existingVacancy.workspaceId,
       context.session.user.id,
     );
-
-    if (!hasAccess) {
-      throw new ORPCError("FORBIDDEN", {
-        message: "Нет доступа к этому отклику",
-      });
-    }
 
     const updated = await context.db.transaction(async (tx) => {
       const [lockedResponse] = await tx

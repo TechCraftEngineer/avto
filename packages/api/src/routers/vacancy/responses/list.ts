@@ -11,6 +11,7 @@ import {
 } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
+import { verifyWorkspaceAccess } from "../../../utils/verify-workspace-access";
 import { mapResponsesToOutput } from "./mappers/response-mapper";
 import {
   fetchCommentCounts,
@@ -88,19 +89,13 @@ export const list = protectedProcedure
     } = input;
     const offset = (page - 1) * limit;
 
-    // 1. Проверка доступа к workspace
-    const access = await context.workspaceRepository.checkAccess(
+    await verifyWorkspaceAccess(
+      context.workspaceRepository,
       workspaceId,
       context.session.user.id,
     );
 
-    if (!access) {
-      throw new ORPCError("FORBIDDEN", {
-        message: "Нет доступа к этому workspace",
-      });
-    }
-
-    // 2. Проверка принадлежности вакансии к workspace
+    // Проверка принадлежности вакансии к workspace
     const vacancyExists = await context.db.query.vacancy.findFirst({
       where: (v, { and, eq }) =>
         and(eq(v.id, vacancyId), eq(v.workspaceId, workspaceId)),

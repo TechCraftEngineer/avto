@@ -7,34 +7,31 @@ import {
   upsertIntegration,
 } from "@qbs-autonaim/db";
 import { z } from "zod";
-import { protectedProcedure } from "../../orpc";
+import {
+  protectedProcedure,
+  requireWorkspaceRole,
+  workspaceAccessMiddleware,
+  workspaceInputSchema,
+} from "../../orpc";
 
 /** Типы интеграций, у которых credentials меняются только при настройке (verify) */
 const CREDENTIALS_LOCKED_TYPES = ["hh", "kwork"] as const;
 
-export const updateIntegration = protectedProcedure
-  .input(
-    z.object({
-      workspaceId: z.string(),
-      type: z.string(),
-      name: z.string().optional(),
-      credentials: z.record(z.string(), z.string()).optional(),
-      metadata: z.record(z.string(), z.any()).optional(),
-      isActive: z.boolean().optional(),
-    }),
-  )
-  .handler(async ({ input, context }) => {
-    // Проверка доступа к workspace
-    const access = await context.workspaceRepository.checkAccess(
-      input.workspaceId,
-      context.session.user.id,
-    );
+const updateIntegrationInputSchema = workspaceInputSchema.merge(
+  z.object({
+    type: z.string(),
+    name: z.string().optional(),
+    credentials: z.record(z.string(), z.string()).optional(),
+    metadata: z.record(z.string(), z.any()).optional(),
+    isActive: z.boolean().optional(),
+  }),
+);
 
-    if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new ORPCError("FORBIDDEN", {
-        message: "Недостаточно прав для изменения интеграций",
-      });
-    }
+export const updateIntegration = protectedProcedure
+  .input(updateIntegrationInputSchema)
+  .use(workspaceAccessMiddleware)
+  .handler(async ({ input, context }) => {
+    requireWorkspaceRole(context.workspaceAccess!, ["owner", "admin"]);
 
     const existing = await getIntegration(
       context.db,

@@ -6,6 +6,11 @@ import {
 } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
+import { ensureFound } from "../../utils/ensure-found";
+import {
+  requireWorkspaceRole,
+  verifyWorkspaceAccess,
+} from "../../utils/verify-workspace-access";
 
 export const update = protectedProcedure
   .input(
@@ -15,24 +20,17 @@ export const update = protectedProcedure
     }),
   )
   .handler(async ({ input, context }) => {
-    const access = await context.workspaceRepository.checkAccess(
+    const access = await verifyWorkspaceAccess(
+      context.workspaceRepository,
       input.id,
       context.session.user.id,
     );
+    requireWorkspaceRole(access, ["owner", "admin"]);
 
-    if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new ORPCError("FORBIDDEN", {
-        message: "Недостаточно прав для обновления workspace",
-      });
-    }
-
-    // Получаем текущий workspace для проверки organizationId
-    const currentWorkspace = await context.workspaceRepository.findById(
-      input.id,
+    const currentWorkspace = ensureFound(
+      await context.workspaceRepository.findById(input.id),
+      "Workspace не найден",
     );
-    if (!currentWorkspace) {
-      throw new ORPCError("NOT_FOUND", { message: "Workspace не найден" });
-    }
 
     if (input.data.slug) {
       const existing = await context.workspaceRepository.findBySlug(

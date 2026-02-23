@@ -1,40 +1,29 @@
-import { ORPCError } from "@orpc/server";
 import { and, eq } from "@qbs-autonaim/db";
 import { gig } from "@qbs-autonaim/db/schema";
-import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { z } from "zod";
+import { gigWorkspaceInputSchema } from "@qbs-autonaim/validators";
 import { protectedProcedure } from "../../../orpc";
 import { GigInterviewLinkGenerator } from "../../../services";
+import { ensureFound } from "../../../utils/ensure-found";
+import { verifyWorkspaceAccess } from "../../../utils/verify-workspace-access";
 
 export const generateInterviewLink = protectedProcedure
-  .input(
-    z.object({
-      gigId: z.uuid(),
-      workspaceId: workspaceIdSchema,
-    }),
-  )
+  .input(gigWorkspaceInputSchema)
   .handler(async ({ input, context }) => {
-    const access = await context.workspaceRepository.checkAccess(
+    await verifyWorkspaceAccess(
+      context.workspaceRepository,
       input.workspaceId,
       context.session.user.id,
     );
 
-    if (!access) {
-      throw new ORPCError("FORBIDDEN", {
-        message: "Нет доступа к этому workspace",
-      });
-    }
-
-    const foundGig = await context.db.query.gig.findFirst({
-      where: and(
-        eq(gig.id, input.gigId),
-        eq(gig.workspaceId, input.workspaceId),
-      ),
-    });
-
-    if (!foundGig) {
-      throw new ORPCError("NOT_FOUND", { message: "Гиг не найден" });
-    }
+    ensureFound(
+      await context.db.query.gig.findFirst({
+        where: and(
+          eq(gig.id, input.gigId),
+          eq(gig.workspaceId, input.workspaceId),
+        ),
+      }),
+      "Гиг не найден",
+    );
 
     const linkGenerator = new GigInterviewLinkGenerator();
     const link = await linkGenerator.generateLink(input.gigId);

@@ -1,19 +1,16 @@
-import { ORPCError } from "@orpc/server";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
+import { verifyWorkspaceAccess } from "../../utils/verify-workspace-access";
 
 export const getBotSettings = protectedProcedure
   .input(z.object({ workspaceId: workspaceIdSchema }))
   .handler(async ({ input, context }) => {
-    const access = await context.workspaceRepository.checkAccess(
+    await verifyWorkspaceAccess(
+      context.workspaceRepository,
       input.workspaceId,
       context.session.user.id,
     );
-
-    if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
-    }
 
     const botSettings = await context.db.query.botSettings.findFirst({
       where: (botSettings, { eq }) =>

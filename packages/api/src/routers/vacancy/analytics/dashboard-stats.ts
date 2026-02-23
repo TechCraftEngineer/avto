@@ -1,4 +1,3 @@
-import { ORPCError } from "@orpc/server";
 import { and, count, eq, gte, isNull, sql } from "@qbs-autonaim/db";
 import {
   responseScreening,
@@ -7,21 +6,16 @@ import {
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
+import { verifyWorkspaceAccess } from "../../../utils/verify-workspace-access";
 
 export const dashboardStats = protectedProcedure
   .input(z.object({ workspaceId: workspaceIdSchema }))
   .handler(async ({ context, input }) => {
-    // Проверка доступа к workspace
-    const access = await context.workspaceRepository.checkAccess(
+    await verifyWorkspaceAccess(
+      context.workspaceRepository,
       input.workspaceId,
       context.session.user.id,
     );
-
-    if (!access) {
-      throw new ORPCError("FORBIDDEN", {
-        message: "Нет доступа к этому workspace",
-      });
-    }
 
     const userVacancies = await context.db.query.vacancy.findMany({
       where: (vacancy, { eq }) => eq(vacancy.workspaceId, input.workspaceId),

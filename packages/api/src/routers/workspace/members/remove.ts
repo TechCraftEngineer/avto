@@ -2,6 +2,11 @@ import { ORPCError } from "@orpc/server";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
+import { ensureFound } from "../../../utils/ensure-found";
+import {
+  requireWorkspaceRole,
+  verifyWorkspaceAccess,
+} from "../../../utils/verify-workspace-access";
 
 export const remove = protectedProcedure
   .input(
@@ -13,29 +18,22 @@ export const remove = protectedProcedure
   .handler(async ({ input, context }) => {
     const isSelfRemoval = input.userId === context.session.user.id;
 
-    const targetUserAccess = await context.workspaceRepository.checkAccess(
+    const access = await verifyWorkspaceAccess(
+      context.workspaceRepository,
       input.workspaceId,
-      input.userId,
+      context.session.user.id,
     );
-
-    if (!targetUserAccess) {
-      throw new ORPCError("NOT_FOUND", {
-        message: "Пользователь не является участником workspace",
-      });
-    }
-
     if (!isSelfRemoval) {
-      const access = await context.workspaceRepository.checkAccess(
-        input.workspaceId,
-        context.session.user.id,
-      );
-
-      if (!access || (access.role !== "owner" && access.role !== "admin")) {
-        throw new ORPCError("FORBIDDEN", {
-          message: "Недостаточно прав для удаления пользователей",
-        });
-      }
+      requireWorkspaceRole(access, ["owner", "admin"]);
     }
+
+    const targetUserAccess = ensureFound(
+      await context.workspaceRepository.checkAccess(
+        input.workspaceId,
+        input.userId,
+      ),
+      "Пользователь не является участником workspace",
+    );
 
     if (targetUserAccess.role === "owner") {
       const members = await context.workspaceRepository.getMembers(

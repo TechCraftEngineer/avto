@@ -1,21 +1,9 @@
 import { ORPCError } from "@orpc/server";
 import { saveHHResendRequested } from "@qbs-autonaim/db";
-import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { z } from "zod";
-import { protectedProcedure } from "../../orpc";
+import { workspaceProcedure } from "../../orpc";
 
-export const requestHHResendCode = protectedProcedure
-  .input(z.object({ workspaceId: workspaceIdSchema }))
-  .handler(async ({ input, context }) => {
-    const access = await context.workspaceRepository.checkAccess(
-      input.workspaceId,
-      context.session.user.id,
-    );
-
-    if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
-    }
-
+export const requestHHResendCode = workspaceProcedure.handler(
+  async ({ input, context }) => {
     try {
       await saveHHResendRequested(context.db, input.workspaceId);
     } catch (err) {
@@ -32,4 +20,5 @@ export const requestHHResendCode = protectedProcedure
     }
 
     return { ok: true };
-  });
+  },
+);

@@ -12,9 +12,13 @@ import type { Auth } from "@qbs-autonaim/auth";
 import { OrganizationRepository, WorkspaceRepository } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { inngest } from "@qbs-autonaim/jobs/client";
+import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { AuditLoggerService } from "./services/audit-logger";
 import { extractTokenFromHeaders } from "./utils/interview-token-validator";
+import { verifyWorkspaceAccess } from "./utils/verify-workspace-access";
+
+export { requireWorkspaceRole } from "./utils/verify-workspace-access";
 
 /**
  * Создание контекста для oRPC
@@ -326,3 +330,45 @@ export const protectedProcedure = publicProcedure.use(
     });
   }),
 );
+
+/**
+ * Схема input для процедур с workspaceId.
+ * passthrough() позволяет добавлять поля через .merge() в дочерних процедурах.
+ */
+export const workspaceInputSchema = z
+  .object({ workspaceId: workspaceIdSchema })
+  .passthrough();
+
+/**
+ * Middleware проверки доступа к workspace.
+ * Добавляет workspaceAccess в контекст — используйте requireWorkspaceRole(access, ['owner','admin']) при необходимости.
+ * Экспортируется для процедур с расширенным input: .input(workspaceInputSchema.merge(...)).use(workspaceAccessMiddleware).
+ */
+export const workspaceAccessMiddleware = middleware(
+  async ({ context, next }, input: { workspaceId: string }) => {
+    const access = await verifyWorkspaceAccess(
+      context.workspaceRepository,
+      input.workspaceId,
+      context.session!.user.id,
+    );
+    return next({ context: { workspaceAccess: access } });
+  },
+);
+
+/**
+ * workspaceProcedure — процедура с проверкой доступа к workspace.
+ * Input должен содержать workspaceId. Для дополнительных полей используйте .input(workspaceInputSchema.merge(...)).
+ *
+ * @example
+ * // Только workspaceId
+ * export const list = workspaceProcedure.handler(async ({ input }) => {...});
+ *
+ * @example
+ * // workspaceId + дополнительные поля
+ * export const update = workspaceProcedure
+ *   .input(workspaceInputSchema.merge(z.object({ id: z.string() })))
+ *   .handler(async ({ input }) => {...});
+ */
+export const workspaceProcedure = protectedProcedure
+  .input(workspaceInputSchema)
+  .use(workspaceAccessMiddleware);

@@ -1,21 +1,20 @@
-import { ORPCError } from "@orpc/server";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
+import {
+  requireWorkspaceRole,
+  verifyWorkspaceAccess,
+} from "../../../utils/verify-workspace-access";
 
 export const list = protectedProcedure
   .input(z.object({ workspaceId: workspaceIdSchema }))
   .handler(async ({ input, context }) => {
-    const access = await context.workspaceRepository.checkAccess(
+    const access = await verifyWorkspaceAccess(
+      context.workspaceRepository,
       input.workspaceId,
       context.session.user.id,
     );
-
-    if (!access || (access.role !== "owner" && access.role !== "admin")) {
-      throw new ORPCError("FORBIDDEN", {
-        message: "Недостаточно прав для просмотра приглашений",
-      });
-    }
+    requireWorkspaceRole(access, ["owner", "admin"]);
 
     const invites = await context.workspaceRepository.getInvites(
       input.workspaceId,

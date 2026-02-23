@@ -1,25 +1,11 @@
-import { ORPCError } from "@orpc/server";
 import {
   decryptCredentials,
   getIntegrationsByWorkspace,
 } from "@qbs-autonaim/db";
-import { workspaceIdSchema } from "@qbs-autonaim/validators";
-import { z } from "zod";
-import { protectedProcedure } from "../../orpc";
+import { workspaceProcedure } from "../../orpc";
 
-export const listIntegrations = protectedProcedure
-  .input(z.object({ workspaceId: workspaceIdSchema }))
-  .handler(async ({ input, context }) => {
-    // Проверка доступа к workspace
-    const access = await context.workspaceRepository.checkAccess(
-      input.workspaceId,
-      context.session.user.id,
-    );
-
-    if (!access) {
-      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
-    }
-
+export const listIntegrations = workspaceProcedure.handler(
+  async ({ input, context }) => {
     const integrations = await getIntegrationsByWorkspace(
       context.db,
       input.workspaceId,
@@ -74,4 +60,5 @@ export const listIntegrations = protectedProcedure
         setupStatus,
       };
     });
-  });
+  },
+);

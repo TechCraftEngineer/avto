@@ -5,9 +5,10 @@ export default defineConfig({
   format: "esm",
   outDir: "./dist",
   clean: true,
-  sourcemap: false,
+  sourcemap: true,
   inlineOnly: false,
   treeshake: true,
-  minify: true,
+  minify: false,
   noExternal: [/@qbs-autonaim\/.*/],
+  external: ["postcss", "postcss-*", "sanitize-html"],
 });

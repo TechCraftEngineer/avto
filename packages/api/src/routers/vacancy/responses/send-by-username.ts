@@ -8,6 +8,7 @@ import { inngest } from "@qbs-autonaim/jobs/client";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
+import { verifyWorkspaceAccess } from "../../../utils/verify-workspace-access";
 
 export const sendByUsername = protectedProcedure
   .input(
@@ -20,17 +21,11 @@ export const sendByUsername = protectedProcedure
   .handler(async ({ context, input }) => {
     const { responseId, username, workspaceId } = input;
 
-    // Проверка доступа к workspace
-    const access = await context.workspaceRepository.checkAccess(
+    await verifyWorkspaceAccess(
+      context.workspaceRepository,
       workspaceId,
       context.session.user.id,
     );
-
-    if (!access) {
-      throw new ORPCError("FORBIDDEN", {
-        message: "Нет доступа к этому workspace",
-      });
-    }
 
     // Проверяем, что отклик существует
     const response = await context.db.query.response.findFirst({
