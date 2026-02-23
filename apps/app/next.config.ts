@@ -10,7 +10,7 @@ export default async function createNextConfig(): Promise<NextConfig> {
   /** @type {import("next").NextConfig} */
   const config: NextConfig = {
     /** Enables hot reloading for local packages without a build step */
-    output: "standalone",
+    ...(process.env.CI === "true" && { output: "standalone" }),
 
     /** Exclude packages using Node.js APIs or dynamic require from bundling */
     serverExternalPackages: [
