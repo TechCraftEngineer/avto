@@ -8,6 +8,7 @@ import {
   fetchScreenNewResponsesToken,
   fetchSyncArchivedVacancyResponsesToken,
 } from "~/actions/realtime";
+import { useORPC } from "~/orpc/react";
 import { restoreProgressFromInitialStatus } from "./initial-status-handler";
 import { checkActiveTask, checkMatchingMode, getModeFlags } from "./mode-utils";
 import {
@@ -29,6 +30,7 @@ import type {
 
 interface UseRefreshSubscriptionProps {
   vacancyId: string;
+  workspaceId: string;
   mode: SyncMode;
   onVisibilityChange: (visible: boolean) => void;
   /** Флаг что пользователь только что запустил задание (до того как API вернёт isRunning) */
@@ -65,6 +67,7 @@ interface UseRefreshSubscriptionProps {
 
 export function useRefreshSubscription({
   vacancyId,
+  workspaceId,
   mode,
   onVisibilityChange,
   taskStarted = false,
@@ -90,6 +93,7 @@ export function useRefreshSubscription({
   const [isConnecting, setIsConnecting] = useState(true);
 
   const queryClient = useQueryClient();
+  const orpc = useORPC();
 
   // Refs для колбэков — не включаем их в deps useEffect, иначе бесконечный цикл
   // при пересоздании колбэков родителем на каждом рендере
@@ -236,8 +240,9 @@ export function useRefreshSubscription({
 
     const context = {
       vacancyId,
+      workspaceId,
       queryClient,
-      trpc,
+      trpc: orpc,
       onVisibilityChange: (visible: boolean) =>
         onVisibilityChangeRef.current?.(visible),
       onTaskComplete: () => onTaskCompleteRef.current?.(),

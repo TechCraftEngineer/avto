@@ -2,12 +2,7 @@
 
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { IconDownload, IconPlus } from "@tabler/icons-react";
-import {
-  skipToken,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -56,36 +51,33 @@ export function VacanciesPageClient() {
     hasFilters,
   } = useVacancyFilters();
 
-  const { data, isLoading } = useQuery(
-    orpc.freelancePlatforms.getVacancies.queryOptions(
-      workspace?.id
-        ? {
-            input: {
-              workspaceId: workspace.id,
-              search: searchQuery || undefined,
-              source:
-                sourceFilter !== "all"
-                  ? (sourceFilter as
-                      | "HH"
-                      | "FL_RU"
-                      | "FREELANCE_RU"
-                      | "WEB_LINK"
-                      | "AVITO"
-                      | "SUPERJOB"
-                      | "HABR")
-                  : undefined,
-              statusFilter: statusFilter as "all" | "active" | "inactive",
-              sortBy,
-              sortOrder,
-              dateFrom: dateFrom || undefined,
-              dateTo: dateTo || undefined,
-              page,
-              limit: 50,
-            },
-          }
-        : skipToken,
-    ),
-  );
+  const { data, isLoading } = useQuery({
+    ...orpc.freelancePlatforms.getVacancies.queryOptions({
+      input: {
+        workspaceId: workspace?.id ?? "",
+        search: searchQuery || undefined,
+        source:
+          sourceFilter !== "all"
+            ? (sourceFilter as
+                | "HH"
+                | "FL_RU"
+                | "FREELANCE_RU"
+                | "WEB_LINK"
+                | "AVITO"
+                | "SUPERJOB"
+                | "HABR")
+            : undefined,
+        statusFilter: statusFilter as "all" | "active" | "inactive",
+        sortBy,
+        sortOrder,
+        dateFrom: dateFrom || undefined,
+        dateTo: dateTo || undefined,
+        page,
+        limit: 50,
+      },
+    }),
+    enabled: !!workspace?.id,
+  });
 
   const vacancies = data?.vacancies ?? [];
   const total = data?.total ?? 0;

@@ -1,12 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  skipToken,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -54,11 +49,12 @@ export function useIntegrationDialog({
   // HH интеграция с машиной состояний
   const hhIntegration = useHHIntegration({ workspaceId });
 
-  const { data: integrations } = useQuery(
-    orpc.integration.list.queryOptions(
-      workspaceId && isEditing ? { workspaceId } : skipToken,
-    ),
-  );
+  const { data: integrations } = useQuery({
+    ...orpc.integration.list.queryOptions({
+      input: { workspaceId },
+    }),
+    enabled: !!workspaceId && isEditing,
+  });
 
   const existingIntegration = integrations?.find(
     (i) => i.type === selectedType,
@@ -118,7 +114,9 @@ export function useIntegrationDialog({
         toast.success("Интеграция успешно создана");
         if (workspaceId) {
           queryClient.invalidateQueries({
-            queryKey: orpc.integration.list.queryKey({ workspaceId }),
+            queryKey: orpc.integration.list.queryKey({
+              input: { workspaceId },
+            }),
           });
         }
         handleClose();
@@ -145,7 +143,9 @@ export function useIntegrationDialog({
         toast.success("Интеграция успешно обновлена");
         if (workspaceId) {
           queryClient.invalidateQueries({
-            queryKey: orpc.integration.list.queryKey({ workspaceId }),
+            queryKey: orpc.integration.list.queryKey({
+              input: { workspaceId },
+            }),
           });
         }
         handleClose();
@@ -245,7 +245,9 @@ export function useIntegrationDialog({
         toast.success("Данные успешно проверены");
         if (workspaceId) {
           queryClient.invalidateQueries({
-            queryKey: orpc.integration.list.queryKey({ workspaceId }),
+            queryKey: orpc.integration.list.queryKey({
+              input: { workspaceId },
+            }),
           });
         }
         handleClose();

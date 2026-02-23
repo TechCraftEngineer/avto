@@ -13,6 +13,7 @@ import { useRefreshVisibility } from "./use-refresh-visibility";
 
 export function RefreshStatusIndicator({
   vacancyId,
+  workspaceId,
   className,
   showConfirmation: externalShowConfirmation,
   onConfirmationClose,
@@ -62,6 +63,7 @@ export function RefreshStatusIndicator({
     clearAutoCloseTimer,
   } = useRefreshSubscription({
     vacancyId,
+    workspaceId,
     mode,
     onVisibilityChange: visibility.setIsVisible,
     taskStarted: visibility.taskStarted,

@@ -51,6 +51,7 @@ export interface AnalyzeCompletedData {
 
 export interface RefreshStatusIndicatorProps {
   vacancyId: string;
+  workspaceId: string;
   className?: string;
   showConfirmation?: boolean;
   onConfirmationClose?: () => void;

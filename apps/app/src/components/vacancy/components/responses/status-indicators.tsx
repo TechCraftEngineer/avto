@@ -16,6 +16,7 @@ export function StatusIndicators() {
     <div className="space-y-2">
       <RefreshStatusIndicator
         vacancyId={refreshOp.vacancyId}
+        workspaceId={refreshOp.workspaceId}
         mode="refresh"
         showConfirmation={refreshOp.showConfirmation}
         onConfirmationClose={refreshOp.closeConfirmation}
@@ -23,6 +24,7 @@ export function StatusIndicators() {
       />
       <RefreshStatusIndicator
         vacancyId={archivedOp.vacancyId}
+        workspaceId={archivedOp.workspaceId}
         mode="archived"
         showConfirmation={archivedOp.showConfirmation}
         onConfirmationClose={archivedOp.closeConfirmation}
@@ -30,6 +32,7 @@ export function StatusIndicators() {
       />
       <RefreshStatusIndicator
         vacancyId={screenNewOp.vacancyId}
+        workspaceId={screenNewOp.workspaceId}
         mode="screening"
         showConfirmation={screenNewOp.showConfirmation}
         onConfirmationClose={screenNewOp.closeConfirmation}
@@ -39,6 +42,7 @@ export function StatusIndicators() {
       />
       <RefreshStatusIndicator
         vacancyId={screenAllOp.vacancyId}
+        workspaceId={screenAllOp.workspaceId}
         mode="analyze"
         showConfirmation={screenAllOp.showConfirmation}
         onConfirmationClose={screenAllOp.closeConfirmation}

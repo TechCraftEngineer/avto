@@ -3,7 +3,7 @@
 import { paths } from "@qbs-autonaim/config";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { Skeleton } from "@qbs-autonaim/ui/components/skeleton";
-import { skipToken, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";

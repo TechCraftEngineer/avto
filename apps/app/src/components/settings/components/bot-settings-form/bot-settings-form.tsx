@@ -53,7 +53,9 @@ export function BotSettingsForm({
     orpc.workspace.updateBotSettings.mutationOptions({
       onSuccess: async () => {
         await queryClient.invalidateQueries({
-          queryKey: orpc.workspace.getBotSettings.queryKey({ workspaceId }),
+          queryKey: orpc.workspace.getBotSettings.queryKey({
+            input: { workspaceId },
+          }),
         });
         toast.success("Настройки бота сохранены");
       },

@@ -117,7 +117,9 @@ export function useHHIntegration({ workspaceId }: UseHHIntegrationProps) {
         console.log("✅ Успешная авторизация HH");
         dispatch({ type: "SUCCESS" });
         queryClient.invalidateQueries({
-          queryKey: orpc.integration.list.queryKey({ workspaceId }),
+          queryKey: orpc.integration.list.queryKey({
+            input: { workspaceId },
+          }),
         });
         toast.success("Интеграция с HeadHunter успешно настроена");
         return;

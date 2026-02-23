@@ -16,16 +16,20 @@ export function TelegramSessionsCard({ workspaceId }: { workspaceId: string }) {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const { data: sessions, isLoading } = useQuery(
-    orpc.telegram.getSessions.queryOptions({ workspaceId }),
-  );
+  const { data: sessions, isLoading } = useQuery({
+    ...orpc.telegram.getSessions.queryOptions({
+      input: { workspaceId },
+    }),
+  });
 
   const deleteMutation = useMutation(
     orpc.telegram.deleteSession.mutationOptions({
       onSuccess: () => {
         toast.success("Сессия удалена");
         queryClient.invalidateQueries({
-          queryKey: orpc.telegram.getSessions.queryKey({ workspaceId }),
+          queryKey: orpc.telegram.getSessions.queryKey({
+            input: { workspaceId },
+          }),
         });
       },
       onError: (err) => {

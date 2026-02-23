@@ -79,7 +79,9 @@ export function TelegramAuthDialog({
         if (data.success) {
           toast.success("Успешная авторизация!");
           queryClient.invalidateQueries({
-            queryKey: orpc.telegram.getSessions.queryKey({ workspaceId }),
+            queryKey: orpc.telegram.getSessions.queryKey({
+              input: { workspaceId },
+            }),
           });
           handleClose();
         } else if ("requiresPassword" in data && data.requiresPassword) {

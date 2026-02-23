@@ -70,7 +70,9 @@ export function IntegrationCard({
       onSuccess: () => {
         toast.success("Интеграция успешно удалена");
         queryClient.invalidateQueries({
-          queryKey: orpc.integration.list.queryKey({ workspaceId }),
+          queryKey: orpc.integration.list.queryKey({
+            input: { workspaceId },
+          }),
         });
         setDeleteDialogOpen(false);
       },

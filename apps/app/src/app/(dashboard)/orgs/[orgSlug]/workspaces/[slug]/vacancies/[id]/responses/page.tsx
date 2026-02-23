@@ -7,16 +7,18 @@ import { RecruiterAgentChat } from "~/components";
 import { ResponseTable } from "~/components/vacancy/components";
 import { VacancyResponsesProvider } from "~/components/vacancy/components/responses/context/vacancy-responses-context";
 import { StatusIndicators } from "~/components/vacancy/components/responses/status-indicators";
+import { useWorkspaceContext } from "~/contexts/workspace-context";
 
 export default function VacancyResponsesPage() {
   const { slug: workspaceSlug, id } = useParams<{
     slug: string;
     id: string;
   }>();
+  const { workspaceId } = useWorkspaceContext();
   const [isChatOpen, setIsChatOpen] = useState(false);
 
   return (
-    <VacancyResponsesProvider vacancyId={id}>
+    <VacancyResponsesProvider vacancyId={id} workspaceId={workspaceId ?? ""}>
       <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between px-1">
           <div>

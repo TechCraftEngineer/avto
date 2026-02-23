@@ -10,6 +10,7 @@ import {
 /** Контекст для управления операциями с откликами вакансии */
 interface VacancyResponsesContextValue {
   vacancyId: string;
+  workspaceId: string;
   operations: ReturnType<typeof useOperationsState>["operations"];
   showConfirmation: (type: OperationType) => void;
   hideConfirmation: (type: OperationType) => void;
@@ -48,9 +49,11 @@ const VacancyResponsesContext = createContext<
 
 export function VacancyResponsesProvider({
   vacancyId,
+  workspaceId,
   children,
 }: {
   vacancyId: string;
+  workspaceId: string;
   children: React.ReactNode;
 }) {
   const state = useOperationsState();
@@ -59,10 +62,11 @@ export function VacancyResponsesProvider({
   const value = useMemo<VacancyResponsesContextValue>(
     () => ({
       vacancyId,
+      workspaceId,
       ...state,
       ...handlers,
     }),
-    [vacancyId, state, handlers],
+    [vacancyId, workspaceId, state, handlers],
   );
 
   return (
@@ -87,6 +91,7 @@ export function useVacancyOperation(type: OperationType) {
   return useMemo(
     () => ({
       vacancyId: context.vacancyId,
+      workspaceId: context.workspaceId,
       isRunning: context.operations[type].isRunning,
       showConfirmation: context.operations[type].showConfirmation,
       message: context.operations[type].message,

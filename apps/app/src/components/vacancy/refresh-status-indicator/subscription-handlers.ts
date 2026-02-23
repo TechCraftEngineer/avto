@@ -15,14 +15,21 @@ import type {
   ResultData,
 } from "./types";
 
-type TRPCClient = {
+type ORPCClient = {
   vacancy: {
     responses: {
       list: {
-        queryKey: (input: { vacancyId: string }) => unknown[];
+        queryKey: (input: {
+          input: {
+            workspaceId: string;
+            vacancyId: string;
+            sortDirection: string;
+            [key: string]: unknown;
+          };
+        }) => unknown[];
       };
       getRefreshStatus: {
-        queryKey: (input: { vacancyId: string }) => unknown[];
+        queryKey: (input: { input: { vacancyId: string } }) => unknown[];
       };
     };
   };
@@ -30,8 +37,9 @@ type TRPCClient = {
 
 export interface MessageHandlerContext {
   vacancyId: string;
+  workspaceId: string;
   queryClient: QueryClient;
-  trpc: TRPCClient;
+  trpc: ORPCClient;
   onVisibilityChange: (visible: boolean) => void;
   onTaskComplete?: () => void;
   /** Вызывается при завершении sync archived (handleRefreshComplete) */
@@ -71,13 +79,17 @@ export function handleArchivedProgress(
     // Финальная инвалидация при ошибке (как в handleArchivedResult)
     context.queryClient.invalidateQueries({
       queryKey: context.trpc.vacancy.responses.list.queryKey({
-        vacancyId: context.vacancyId,
+        input: {
+          workspaceId: context.workspaceId,
+          vacancyId: context.vacancyId,
+          sortDirection: "desc",
+        },
       }),
     });
 
     context.queryClient.invalidateQueries({
       queryKey: context.trpc.vacancy.responses.getRefreshStatus.queryKey({
-        vacancyId: context.vacancyId,
+        input: { vacancyId: context.vacancyId },
       }),
     });
 
@@ -122,14 +134,18 @@ export function handleArchivedResult(
   // Финальная инвалидация при завершении
   context.queryClient.invalidateQueries({
     queryKey: context.trpc.vacancy.responses.list.queryKey({
-      vacancyId: context.vacancyId,
+      input: {
+        workspaceId: context.workspaceId,
+        vacancyId: context.vacancyId,
+        sortDirection: "desc",
+      },
     }),
   });
 
   // Инвалидируем статус задания, чтобы отключить подписку
   context.queryClient.invalidateQueries({
     queryKey: context.trpc.vacancy.responses.getRefreshStatus.queryKey({
-      vacancyId: context.vacancyId,
+      input: { vacancyId: context.vacancyId },
     }),
   });
 
@@ -219,14 +235,18 @@ export function handleAnalyzeResult(
   // Финальная инвалидация при завершении
   context.queryClient.invalidateQueries({
     queryKey: context.trpc.vacancy.responses.list.queryKey({
-      vacancyId: context.vacancyId,
+      input: {
+        workspaceId: context.workspaceId,
+        vacancyId: context.vacancyId,
+        sortDirection: "desc",
+      },
     }),
   });
 
   // Инвалидируем статус задания, чтобы отключить подписку
   context.queryClient.invalidateQueries({
     queryKey: context.trpc.vacancy.responses.getRefreshStatus.queryKey({
-      vacancyId: context.vacancyId,
+      input: { vacancyId: context.vacancyId },
     }),
   });
 
@@ -278,14 +298,18 @@ export function handleRefreshResult(
   // Финальная инвалидация при завершении
   context.queryClient.invalidateQueries({
     queryKey: context.trpc.vacancy.responses.list.queryKey({
-      vacancyId: context.vacancyId,
+      input: {
+        workspaceId: context.workspaceId,
+        vacancyId: context.vacancyId,
+        sortDirection: "desc",
+      },
     }),
   });
 
   // Инвалидируем статус задания, чтобы отключить подписку
   context.queryClient.invalidateQueries({
     queryKey: context.trpc.vacancy.responses.getRefreshStatus.queryKey({
-      vacancyId: context.vacancyId,
+      input: { vacancyId: context.vacancyId },
     }),
   });
 
