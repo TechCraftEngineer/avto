@@ -97,7 +97,9 @@ export function VacancyForm({ onSuccess }: VacancyFormProps) {
     api.freelancePlatforms.createVacancy.mutationOptions({
       onSuccess: async () => {
         await queryClient.invalidateQueries({
-          queryKey: api.freelancePlatforms.getVacancies.queryKey(),
+          queryKey: api.freelancePlatforms.getVacancies.queryKey({
+            input: { workspaceId: workspace?.id ?? "" },
+          }),
         });
         toast.success("Вакансия создана");
         form.reset();

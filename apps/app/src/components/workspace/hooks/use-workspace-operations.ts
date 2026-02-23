@@ -8,10 +8,12 @@ export function useWorkspaceOperations() {
 
   const createWorkspaceMutation = useMutation(
     orpc.organization.createWorkspace.mutationOptions({
-      onSuccess: () => {
+      onSuccess: (_data, variables) => {
         toast.success("Workspace создан");
         queryClient.invalidateQueries({
-          queryKey: orpc.organization.listWorkspaces.queryKey(),
+          queryKey: orpc.organization.listWorkspaces.queryKey({
+            input: { organizationId: variables.organizationId },
+          }),
         });
       },
       onError: (error) => {

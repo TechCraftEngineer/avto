@@ -319,6 +319,7 @@ export function ResponsesPageClient() {
                 isLoading={isLoading}
                 orgSlug={orgSlug ?? ""}
                 workspaceSlug={workspaceSlug ?? ""}
+                workspaceId={workspace?.id ?? ""}
               />
             </div>
           )}

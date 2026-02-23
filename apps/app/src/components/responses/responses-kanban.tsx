@@ -24,6 +24,7 @@ interface ResponsesKanbanProps {
   isLoading: boolean;
   orgSlug: string;
   workspaceSlug: string;
+  workspaceId: string;
 }
 
 const STATUS_COLUMNS: { id: ResponseStatus; label: string; color: string }[] = [
@@ -155,6 +156,7 @@ export function ResponsesKanban({
   isLoading,
   orgSlug,
   workspaceSlug,
+  workspaceId,
 }: ResponsesKanbanProps) {
   const router = useRouter();
   const orpc = useORPC();
@@ -182,7 +184,16 @@ export function ResponsesKanban({
       },
       onSettled: () => {
         queryClient.invalidateQueries({
-          queryKey: orpc.vacancy.responses.listWorkspace.queryKey(),
+          queryKey: orpc.vacancy.responses.listWorkspace.queryKey({
+            input: {
+              workspaceId,
+              page: 1,
+              limit: 50,
+              sortField: null,
+              sortDirection: "desc",
+              screeningFilter: "all",
+            },
+          }),
         });
       },
     }),

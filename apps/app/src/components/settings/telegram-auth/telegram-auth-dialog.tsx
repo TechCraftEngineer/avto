@@ -117,7 +117,9 @@ export function TelegramAuthDialog({
       onSuccess: () => {
         toast.success("Успешная авторизация!");
         queryClient.invalidateQueries({
-          queryKey: orpc.telegram.getSessions.queryKey({ workspaceId }),
+          queryKey: orpc.telegram.getSessions.queryKey({
+            input: { workspaceId },
+          }),
         });
         handleClose();
       },

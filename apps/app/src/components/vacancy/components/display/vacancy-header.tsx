@@ -63,7 +63,9 @@ export function VacancyHeader({
       onSuccess: (data: { success: boolean; message: string }) => {
         toast.success(data.message);
         void queryClient.invalidateQueries({
-          queryKey: orpc.vacancy.list.queryKey(),
+          queryKey: orpc.vacancy.list.queryKey({
+            input: { workspaceId },
+          }),
         });
         setIsDeleteDialogOpen(false);
         router.push(`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies`);

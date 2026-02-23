@@ -46,7 +46,9 @@ export function PaymentForm({
     orpc.payment.create.mutationOptions({
       onSuccess: (data) => {
         queryClient.invalidateQueries({
-          queryKey: orpc.payment.list.queryKey(),
+          queryKey: orpc.payment.list.queryKey({
+            input: { limit: 20, offset: 0 },
+          }),
         });
 
         if (data.confirmationUrl) {

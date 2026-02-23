@@ -124,7 +124,9 @@ export function VacancyTableRow({
             : "Вакансия активирована",
         );
         await queryClient.invalidateQueries({
-          queryKey: orpc.freelancePlatforms.getVacancies.queryKey(),
+          queryKey: orpc.freelancePlatforms.getVacancies.queryKey({
+            input: { workspaceId: workspaceId ?? "" },
+          }),
         });
       },
       onError: (error) => {
@@ -143,7 +145,9 @@ export function VacancyTableRow({
             : "Вакансия добавлена в избранные",
         );
         await queryClient.invalidateQueries({
-          queryKey: orpc.freelancePlatforms.getVacancies.queryKey(),
+          queryKey: orpc.freelancePlatforms.getVacancies.queryKey({
+            input: { workspaceId: workspaceId ?? "" },
+          }),
         });
       },
       onError: (error) => {

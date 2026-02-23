@@ -15,9 +15,14 @@ export function useCandidateOperations({
   const queryClient = useQueryClient();
 
   const invalidateList = () => {
+    if (!vacancyId) return;
     void queryClient.invalidateQueries({
       queryKey: orpc.vacancy.responses.list.queryKey({
-        input: { workspaceId, vacancyId },
+        input: {
+          workspaceId,
+          vacancyId,
+          sortDirection: "desc",
+        },
       }),
     });
   };

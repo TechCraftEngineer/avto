@@ -18,9 +18,9 @@ export function PaymentReturnContent() {
     isLoading,
     error,
   } = useQuery({
-    ...orpc.payment.checkStatus.queryOptions(
-      paymentId ? { paymentId } : { paymentId: "" },
-    ),
+    ...orpc.payment.checkStatus.queryOptions({
+      input: { paymentId: paymentId ?? "" },
+    }),
     enabled: !!paymentId,
     retry: 1,
   });

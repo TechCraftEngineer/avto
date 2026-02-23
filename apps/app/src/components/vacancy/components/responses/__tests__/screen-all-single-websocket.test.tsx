@@ -158,7 +158,10 @@ describe("screen-all (анализ всех откликов) — один WebSo
 
     render(
       <TestWrapper>
-        <VacancyResponsesProvider vacancyId={vacancyId}>
+        <VacancyResponsesProvider
+          vacancyId={vacancyId}
+          workspaceId="test-workspace-id"
+        >
           <StatusIndicators />
           <ResponseTableToolbar {...toolbarProps} />
           <AnalyzeTestTrigger />

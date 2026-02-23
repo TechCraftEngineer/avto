@@ -47,7 +47,7 @@ export function useOnboarding() {
         if (createdOrganization) {
           void queryClient.invalidateQueries({
             queryKey: orpc.organization.listWorkspaces.queryKey({
-              organizationId: createdOrganization.id,
+              input: { organizationId: createdOrganization.id },
             }),
           });
         }

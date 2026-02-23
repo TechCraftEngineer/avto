@@ -99,7 +99,11 @@ export function ResponseActions({
       if (vacancyId) {
         void queryClient.invalidateQueries({
           queryKey: orpc.vacancy.responses.list.queryKey({
-            input: { workspaceId, vacancyId },
+            input: {
+              workspaceId,
+              vacancyId,
+              sortDirection: "desc",
+            },
           }),
         });
       }
@@ -131,7 +135,11 @@ export function ResponseActions({
       if (vacancyId) {
         void queryClient.invalidateQueries({
           queryKey: orpc.vacancy.responses.list.queryKey({
-            input: { workspaceId, vacancyId },
+            input: {
+              workspaceId,
+              vacancyId,
+              sortDirection: "desc",
+            },
           }),
         });
       }
@@ -198,7 +206,11 @@ export function ResponseActions({
         if (vacancyId) {
           void queryClient.invalidateQueries({
             queryKey: orpc.vacancy.responses.list.queryKey({
-              input: { workspaceId, vacancyId },
+              input: {
+                workspaceId,
+                vacancyId,
+                sortDirection: "desc",
+              },
             }),
           });
         }

@@ -140,7 +140,10 @@ describe("скрининг новых откликов — один WebSocket", 
 
     render(
       <TestWrapper>
-        <VacancyResponsesProvider vacancyId={vacancyId}>
+        <VacancyResponsesProvider
+          vacancyId={vacancyId}
+          workspaceId="test-workspace-id"
+        >
           <StatusIndicators />
           <ResponseTableToolbar {...toolbarProps} />
           <ScreeningTestTrigger />
