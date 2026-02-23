@@ -9,7 +9,8 @@ export default defineConfig({
   minify: false,
   target: "es2022",
   outDir: "./dist",
-  treeshake: true,
+  treeshake: false,
   inlineOnly: false,
   noExternal: [/@qbs-autonaim\/.*/],
+  external: ["sanitize-html"],
 });
