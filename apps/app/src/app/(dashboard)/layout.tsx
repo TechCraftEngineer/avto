@@ -23,11 +23,9 @@ export default async function DashboardLayout({
   children: ReactNode;
 }) {
   let session: Awaited<ReturnType<typeof getSession>>;
-  let userWorkspaces: Awaited<
-    ReturnType<Awaited<ReturnType<typeof api>>["workspace"]["list"]>
-  >;
+  let userWorkspaces: Awaited<ReturnType<(typeof api)["workspace"]["list"]>>;
   let userOrganizations: Awaited<
-    ReturnType<Awaited<ReturnType<typeof api>>["organization"]["list"]>
+    ReturnType<(typeof api)["organization"]["list"]>
   >;
 
   try {
@@ -58,7 +56,7 @@ export default async function DashboardLayout({
   }
 
   try {
-    const caller = await api();
+    const caller = api;
     [userWorkspaces, userOrganizations] = await Promise.all([
       caller.workspace.list(),
       caller.organization.list(),

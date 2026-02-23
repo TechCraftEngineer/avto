@@ -20,7 +20,7 @@ export default async function GigsPage({
 
   const queryClient = makeQueryClient();
   await queryClient.prefetchQuery(
-    orpc.gig.list.queryOptions({ workspaceId: workspace.id }),
+    orpc.gig.list.queryOptions({ input: { workspaceId: workspace.id } }),
   );
 
   return (

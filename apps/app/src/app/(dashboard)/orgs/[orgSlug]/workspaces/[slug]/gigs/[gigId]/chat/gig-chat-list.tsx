@@ -27,8 +27,10 @@ export function GigChatList({ gigId }: GigChatListProps) {
 
   const gigQuery = useQuery({
     ...orpc.gig.get.queryOptions({
-      id: gigId,
-      workspaceId: workspaceId ?? "",
+      input: {
+        id: gigId,
+        workspaceId: workspaceId ?? "",
+      },
     }),
     enabled: Boolean(workspaceId),
     staleTime: 30000,
@@ -36,9 +38,11 @@ export function GigChatList({ gigId }: GigChatListProps) {
 
   const sessionsQuery = useQuery({
     ...orpc.chat.listSessions.queryOptions({
-      entityType: "gig",
-      entityId: gigId,
-      limit: 20,
+      input: {
+        entityType: "gig",
+        entityId: gigId,
+        limit: 20,
+      },
     }),
     staleTime: 10000,
   });
@@ -48,9 +52,11 @@ export function GigChatList({ gigId }: GigChatListProps) {
       onSuccess: (session) => {
         queryClient.invalidateQueries({
           queryKey: orpc.chat.listSessions.queryKey({
-            entityType: "gig",
-            entityId: gigId,
-            limit: 20,
+            input: {
+              entityType: "gig",
+              entityId: gigId,
+              limit: 20,
+            },
           }),
         });
 

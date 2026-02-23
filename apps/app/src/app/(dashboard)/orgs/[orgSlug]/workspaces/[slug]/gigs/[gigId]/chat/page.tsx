@@ -19,8 +19,10 @@ export default function GigChatPage() {
 
   const gigQuery = useQuery({
     ...orpc.gig.get.queryOptions({
-      id: gigId ?? "",
-      workspaceId: workspaceId ?? "",
+      input: {
+        id: gigId ?? "",
+        workspaceId: workspaceId ?? "",
+      },
     }),
     enabled: Boolean(gigId) && Boolean(workspaceId),
     staleTime: 30000,

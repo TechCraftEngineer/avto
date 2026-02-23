@@ -108,8 +108,10 @@ export default function EditGigPage({ params }: PageProps) {
     isError,
   } = useQuery({
     ...orpc.gig.get.queryOptions({
-      id: gigId,
-      workspaceId: workspace?.id ?? "",
+      input: {
+        id: gigId,
+        workspaceId: workspace?.id ?? "",
+      },
     }),
     enabled: !!workspace?.id,
   });
@@ -117,7 +119,9 @@ export default function EditGigPage({ params }: PageProps) {
   // Загружаем настройки бота для отображения
   const { data: botSettings } = useQuery({
     ...orpc.workspace.getBotSettings.queryOptions({
-      workspaceId: workspace?.id ?? "",
+      input: {
+        workspaceId: workspace?.id ?? "",
+      },
     }),
     enabled: !!workspace?.id,
   });
@@ -139,13 +143,17 @@ export default function EditGigPage({ params }: PageProps) {
         toast.success("Задание обновлено");
         queryClient.invalidateQueries({
           queryKey: orpc.gig.get.queryKey({
-            id: gigId,
-            workspaceId: workspace?.id ?? "",
+            input: {
+              id: gigId,
+              workspaceId: workspace?.id ?? "",
+            },
           }),
         });
         queryClient.invalidateQueries({
           queryKey: orpc.gig.list.queryKey({
-            workspaceId: workspace?.id ?? "",
+            input: {
+              workspaceId: workspace?.id ?? "",
+            },
           }),
         });
         router.push(

@@ -47,9 +47,11 @@ export default function FreelanceDashboardPage() {
 
   const { data, isLoading } = useQuery({
     ...api.freelancePlatforms.getDashboardStats.queryOptions({
-      workspaceId: workspace?.id ?? "",
-      status: statusFilter,
-      platformSource: platformFilter === "all" ? undefined : platformFilter,
+      input: {
+        workspaceId: workspace?.id ?? "",
+        status: statusFilter,
+        platformSource: platformFilter === "all" ? undefined : platformFilter,
+      },
     }),
     enabled: !!workspace?.id,
   });

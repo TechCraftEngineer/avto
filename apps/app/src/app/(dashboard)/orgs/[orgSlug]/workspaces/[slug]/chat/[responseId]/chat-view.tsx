@@ -39,8 +39,10 @@ export function ChatView({ conversationId }: { conversationId: string }) {
 
   const { data: currentConversation } = useQuery({
     ...orpc.telegram.conversation.getById.queryOptions({
-      id: conversationId,
-      workspaceId: workspaceId ?? "",
+      input: {
+        id: conversationId,
+        workspaceId: workspaceId ?? "",
+      },
     }),
     enabled: Boolean(workspaceId),
     staleTime: 30000,
@@ -55,8 +57,10 @@ export function ChatView({ conversationId }: { conversationId: string }) {
 
   const { data: responseData } = useQuery({
     ...orpc.vacancy.responses.get.queryOptions({
-      id: candidateResponseId ?? "",
-      workspaceId: workspaceId ?? "",
+      input: {
+        id: candidateResponseId ?? "",
+        workspaceId: workspaceId ?? "",
+      },
     }),
     enabled: Boolean(candidateResponseId) && Boolean(workspaceId),
     staleTime: 60000,
@@ -64,7 +68,9 @@ export function ChatView({ conversationId }: { conversationId: string }) {
 
   const { data: _companyData } = useQuery({
     ...orpc.bot.get.queryOptions({
-      workspaceId: workspaceId ?? "",
+      input: {
+        workspaceId: workspaceId ?? "",
+      },
     }),
     enabled: Boolean(workspaceId),
     staleTime: 300000,
@@ -76,8 +82,10 @@ export function ChatView({ conversationId }: { conversationId: string }) {
     error,
   } = useQuery({
     ...orpc.telegram.messages.getByConversationId.queryOptions({
-      sessionId: conversationId,
-      workspaceId: workspaceId ?? "",
+      input: {
+        sessionId: conversationId,
+        workspaceId: workspaceId ?? "",
+      },
     }),
     enabled: Boolean(conversationId) && Boolean(workspaceId),
   });

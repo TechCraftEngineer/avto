@@ -34,9 +34,11 @@ export default function FreelanceAnalyticsPage() {
 
   const { data, isLoading } = useQuery({
     ...api.freelancePlatforms.getAnalytics.queryOptions({
-      workspaceId: workspace?.id ?? "",
-      dateFrom,
-      dateTo,
+      input: {
+        workspaceId: workspace?.id ?? "",
+        dateFrom,
+        dateTo,
+      },
     }),
     enabled: !!workspace?.id,
   });
@@ -46,9 +48,11 @@ export default function FreelanceAnalyticsPage() {
 
     const result = await queryClient.fetchQuery(
       api.freelancePlatforms.exportAnalytics.queryOptions({
-        workspaceId: workspace.id,
-        dateFrom,
-        dateTo,
+        input: {
+          workspaceId: workspace.id,
+          dateFrom,
+          dateTo,
+        },
       }),
     );
 

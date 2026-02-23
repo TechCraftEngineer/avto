@@ -31,7 +31,9 @@ export function ChatList() {
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   const { data: vacancies = [] } = useQuery({
-    ...orpc.vacancy.list.queryOptions({ workspaceId: workspace?.id ?? "" }),
+    ...orpc.vacancy.list.queryOptions({
+      input: { workspaceId: workspace?.id ?? "" },
+    }),
     enabled: !!workspace?.id,
   });
 
@@ -41,8 +43,10 @@ export function ChatList() {
     error,
   } = useQuery({
     ...orpc.telegram.conversation.getAll.queryOptions({
-      workspaceId: workspace?.id ?? "",
-      vacancyId: selectedVacancyId === "all" ? undefined : selectedVacancyId,
+      input: {
+        workspaceId: workspace?.id ?? "",
+        vacancyId: selectedVacancyId === "all" ? undefined : selectedVacancyId,
+      },
     }),
     enabled: !!workspace?.id,
     staleTime: 10000,

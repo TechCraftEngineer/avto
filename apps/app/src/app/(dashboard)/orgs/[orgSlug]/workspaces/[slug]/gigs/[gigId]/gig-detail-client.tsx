@@ -80,8 +80,10 @@ export function GigDetailClient({
     isError,
   } = useQuery({
     ...orpc.gig.get.queryOptions({
-      id: gigId,
-      workspaceId: workspaceId ?? "",
+      input: {
+        id: gigId,
+        workspaceId: workspaceId ?? "",
+      },
     }),
     enabled: !!workspaceId,
   });
@@ -95,8 +97,10 @@ export function GigDetailClient({
 
   const { data: responseCounts } = useQuery({
     ...orpc.gig.responses.count.queryOptions({
-      gigId,
-      workspaceId: workspaceId ?? "",
+      input: {
+        gigId,
+        workspaceId: workspaceId ?? "",
+      },
     }),
     enabled: !!workspaceId,
   });
@@ -106,7 +110,7 @@ export function GigDetailClient({
       onSuccess: () => {
         toast.success("Задание удалено");
         queryClient.invalidateQueries({
-          queryKey: orpc.gig.list.queryKey(),
+          queryKey: orpc.gig.list.queryKey({ input: {} }),
         });
         router.push(`/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs`);
       },

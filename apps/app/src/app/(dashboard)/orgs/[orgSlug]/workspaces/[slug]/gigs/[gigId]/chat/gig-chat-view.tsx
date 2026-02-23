@@ -36,8 +36,10 @@ export function GigChatView({ gigId, sessionId }: GigChatViewProps) {
 
   const { data: gig } = useQuery({
     ...orpc.gig.get.queryOptions({
-      id: gigId,
-      workspaceId: workspaceId ?? "",
+      input: {
+        id: gigId,
+        workspaceId: workspaceId ?? "",
+      },
     }),
     enabled: Boolean(workspaceId),
     staleTime: 30000,
@@ -45,8 +47,10 @@ export function GigChatView({ gigId, sessionId }: GigChatViewProps) {
 
   const historyQuery = useQuery(
     orpc.chat.getHistory.queryOptions({
-      sessionId,
-      limit: 50,
+      input: {
+        sessionId,
+        limit: 50,
+      },
     }),
   );
 
@@ -67,15 +71,19 @@ export function GigChatView({ gigId, sessionId }: GigChatViewProps) {
     onFinish: () => {
       queryClient.invalidateQueries({
         queryKey: orpc.chat.listSessions.queryKey({
-          entityType: "gig",
-          entityId: gigId,
-          limit: 20,
+          input: {
+            entityType: "gig",
+            entityId: gigId,
+            limit: 20,
+          },
         }),
       });
       queryClient.invalidateQueries({
         queryKey: orpc.chat.getHistory.queryKey({
-          sessionId,
-          limit: 50,
+          input: {
+            sessionId,
+            limit: 50,
+          },
         }),
       });
     },
@@ -89,15 +97,19 @@ export function GigChatView({ gigId, sessionId }: GigChatViewProps) {
         historyInitializedRef.current = false;
         queryClient.invalidateQueries({
           queryKey: orpc.chat.listSessions.queryKey({
-            entityType: "gig",
-            entityId: gigId,
-            limit: 20,
+            input: {
+              entityType: "gig",
+              entityId: gigId,
+              limit: 20,
+            },
           }),
         });
         queryClient.invalidateQueries({
           queryKey: orpc.chat.getHistory.queryKey({
-            sessionId,
-            limit: 50,
+            input: {
+              sessionId,
+              limit: 50,
+            },
           }),
         });
       },
