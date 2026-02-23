@@ -99,6 +99,19 @@ services:
       - PORT=3000
       - HOSTNAME=0.0.0.0
       - MCP_ROOT_PATH=/srv/mcp
+  app-server:
+    restart: always
+    build:
+      context: .
+      dockerfile: apps/app-server/Dockerfile
+    container_name: app-server
+    ports:
+      - 4000:4000
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
   web:
     restart: always
     build:
@@ -116,6 +129,19 @@ services:
       - NODE_ENV=production
       - PORT=3000
       - HOSTNAME=0.0.0.0
+  interview-server:
+    restart: always
+    build:
+      context: .
+      dockerfile: apps/interview-server/Dockerfile
+    container_name: interview-server
+    ports:
+      - 4001:4001
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - PORT=4001
   telegram-bot:
     restart: always
     build:
