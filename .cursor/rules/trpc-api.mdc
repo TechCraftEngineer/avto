@@ -346,6 +346,149 @@ export const create = protectedProcedure
   });
 ```
 
+## Рекомендации по устранению дублирования
+
+Принцип: **DRY в рамках функционального стиля** — выносить повторяющуюся логику в утилиты и middleware, а не в классы.
+
+### 1. Workspace Access — использовать verifyWorkspaceAccess
+
+**Не дублируйте** проверку доступа к workspace в каждом хендлере:
+
+```typescript
+// ❌ Дублирование
+const access = await context.workspaceRepository.checkAccess(
+  input.workspaceId,
+  context.session.user.id,
+);
+if (!access) throw new ORPCError("FORBIDDEN", { message: "Нет доступа к этому workspace" });
+```
+
+**Используйте** утилиту из `utils/verify-workspace-access.ts`:
+
+```typescript
+// ✅ Правильно (базовая проверка)
+import { verifyWorkspaceAccess } from "../../../utils/verify-workspace-access";
+
+await verifyWorkspaceAccess(
+  context.workspaceRepository,
+  input.workspaceId,
+  context.session.user.id,
+);
+
+// Для проверки ролей (owner/admin) — сохраните результат
+const access = await verifyWorkspaceAccess(
+  context.workspaceRepository,
+  input.workspaceId,
+  context.session.user.id,
+);
+requireWorkspaceRole(access, ["owner", "admin"]);
+```
+
+Для процедур, требующих определённую роль (owner/admin), добавьте проверку после `verifyWorkspaceAccess`:
+
+```typescript
+// utils/workspace-access.ts
+export function requireWorkspaceRole(
+  access: { role: string },
+  allowedRoles: readonly string[],
+): void {
+  if (!allowedRoles.includes(access.role)) {
+    throw new ORPCError("FORBIDDEN", {
+      message: "Недостаточно прав для этого действия",
+    });
+  }
+}
+```
+
+### 2. workspaceProcedure — процедура с проверкой доступа
+
+Для роутов с `workspaceId` в input используйте `workspaceProcedure` (если реализована в orpc.ts) вместо `protectedProcedure`:
+
+```typescript
+// orpc.ts — процедура с автоматической проверкой workspace
+export const workspaceProcedure = protectedProcedure
+  .input(z.object({ workspaceId: workspaceIdSchema }).passthrough())
+  .use(workspaceAccessMiddleware);
+
+// В роуте — не нужна ручная проверка
+export const list = workspaceProcedure
+  .input(z.object({ workspaceId: workspaceIdSchema }))
+  .handler(async ({ input, context }) => {
+    return await context.db.query.vacancy.findMany({ ... });
+  });
+```
+
+### 3. Схемы vacancyId + workspaceId — переиспользовать
+
+Для операций с вакансией/гигом храните общие схемы в `@qbs-autonaim/validators`:
+
+```typescript
+// packages/validators/src/vacancy.ts
+export const vacancyWorkspaceInputSchema = z.object({
+  vacancyId: z.string(),
+  workspaceId: workspaceIdSchema,
+});
+
+// packages/validators/src/gig.ts
+export const gigWorkspaceInputSchema = z.object({
+  gigId: z.uuid(),
+  workspaceId: workspaceIdSchema,
+});
+```
+
+Используйте `.merge()` для расширения:
+
+```typescript
+.input(vacancyWorkspaceInputSchema.merge(z.object({ limit: z.number().optional() })))
+```
+
+### 4. ensureFound — хелпер для NOT_FOUND
+
+Вместо повторяющегося паттерна «найти → если null, throw»:
+
+```typescript
+// ❌ Дублирование
+const vacancy = await context.db.query.vacancy.findFirst({ ... });
+if (!vacancy) throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена" });
+```
+
+Используйте утилиту `ensureFound`:
+
+```typescript
+// packages/api/src/utils/ensure-found.ts
+import { ORPCError } from "@orpc/server";
+
+export function ensureFound<T>(
+  value: T | null | undefined,
+  message: string,
+): T {
+  if (value == null) {
+    throw new ORPCError("NOT_FOUND", { message });
+  }
+  return value;
+}
+
+// В хендлере
+const vacancy = ensureFound(
+  await context.db.query.vacancy.findFirst({ ... }),
+  "Вакансия не найдена",
+);
+```
+
+### 5. Единый источник для verifyWorkspaceAccess
+
+Не дублируйте `verifyWorkspaceAccess` в доменных utils (например, `telegram/utils.ts`). Импортируйте из `packages/api/src/utils/verify-workspace-access.ts`.
+
+### 6. Приоритет внедрения
+
+| Рекомендация | Эффект | Сложность |
+|--------------|--------|-----------|
+| workspaceProcedure / middleware | Высокий | Средняя |
+| verifyWorkspaceAccess везде | Средний | Низкая |
+| ensureFound хелпер | Средний | Низкая |
+| vacancyWorkspaceInputSchema, gigWorkspaceInputSchema | Средний | Низкая |
+| requireWorkspaceRole | Низкий | Низкая |
+
 ## Примеры структур
 
 ### Простой домен (CRUD)
@@ -382,11 +525,12 @@ user/
 4. **Документируйте сложные роуты** - добавляйте комментарии для неочевидной логики
 5. **Проверяйте существование перед доступом** - сначала NOT_FOUND, потом FORBIDDEN
 6. **Используйте транзакции** - для связанных операций с БД
+7. **Используйте verifyWorkspaceAccess и ensureFound** - см. раздел «Рекомендации по устранению дублирования»
 
 ### NEVER (никогда)
 
 1. **Не смешивайте домены** - каждый домен в своей папке
-2. **Не дублируйте логику** - выносите в utils или репозитории
+2. **Не дублируйте логику** - выносите в utils или репозитории; не копируйте verifyWorkspaceAccess в доменные utils
 3. **Не игнорируйте ошибки** - всегда обрабатывайте исключения
 4. **Не используйте any** - всегда типизируйте данные
 5. **Не создавайте миграции в роутах** - только в отдельных миграциях
