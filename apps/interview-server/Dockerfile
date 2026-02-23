@@ -49,7 +49,7 @@ USER bunuser
 # Copy built application
 COPY --from=installer --chown=bunuser:nodejs /app/apps/interview-server/dist ./dist
 COPY --from=installer --chown=bunuser:nodejs /app/apps/interview-server/package.json ./package.json
-
+COPY --from=installer --chown=bunuser:nodejs /app/node_modules ./node_modules
 # Expose port
 EXPOSE 7001
 
