@@ -57,16 +57,14 @@ export function GigInterviewSettings({ gigId }: GigInterviewSettingsProps) {
 
   const { data: gig, isLoading } = useQuery({
     ...orpc.gig.get.queryOptions({
-      id: gigId,
-      workspaceId: workspace?.id ?? "",
+      input: { id: gigId, workspaceId: workspace?.id ?? "" },
     }),
     enabled: !!workspace?.id,
   });
 
   const { data: interviewMediaFiles = [] } = useQuery(
     orpc.files.getInterviewMedia.queryOptions({
-      gigId,
-      workspaceId: workspace?.id ?? "",
+      input: { gigId, workspaceId: workspace?.id ?? "" },
     }),
   );
 
@@ -92,14 +90,12 @@ export function GigInterviewSettings({ gigId }: GigInterviewSettingsProps) {
       onSuccess: () => {
         queryClient.invalidateQueries({
           queryKey: orpc.gig.get.queryKey({
-            id: gigId,
-            workspaceId: workspace?.id ?? "",
+            input: { id: gigId, workspaceId: workspace?.id ?? "" },
           }),
         });
         queryClient.invalidateQueries({
           queryKey: orpc.files.getInterviewMedia.queryKey({
-            gigId,
-            workspaceId: workspace?.id ?? "",
+            input: { gigId, workspaceId: workspace?.id ?? "" },
           }),
         });
         setHasChanges(false);

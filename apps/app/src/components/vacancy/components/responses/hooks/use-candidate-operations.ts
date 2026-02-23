@@ -15,15 +15,11 @@ export function useCandidateOperations({
   const queryClient = useQueryClient();
 
   const invalidateList = () => {
-    if (vacancyId) {
-      void queryClient.invalidateQueries({
-        queryKey: orpc.vacancy.responses.list.queryKey({ vacancyId }),
-      });
-    } else {
-      void queryClient.invalidateQueries(
-        orpc.vacancy.responses.list.pathFilter(),
-      );
-    }
+    void queryClient.invalidateQueries({
+      queryKey: orpc.vacancy.responses.list.queryKey({
+        input: { workspaceId, vacancyId },
+      }),
+    });
   };
 
   const inviteMutation = useMutation(

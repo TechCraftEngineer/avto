@@ -47,8 +47,7 @@ export function CandidateFilters({
   // Получаем список активных вакансий воркспейса (лимит 100 для выбора в фильтре)
   const { data: vacanciesData } = useQuery({
     ...orpc.vacancy.listActive.queryOptions({
-      workspaceId: workspace?.id ?? "",
-      limit: 100,
+      input: { workspaceId: workspace?.id ?? "", limit: 100 },
     }),
     enabled: !!workspace?.id,
   });

@@ -47,22 +47,19 @@ export function ShortlistPageClient({
     data: shortlistData,
     isLoading,
     error,
-  } = useQuery(
-    orpc.gig.shortlist.queryOptions(
-      workspace?.id
-        ? {
-            input: {
-              gigId,
-              workspaceId: workspace.id,
-              minScore: Number.parseInt(selectedMinScore, 10),
-              maxCandidates: 20, // Fixed limit for shortlist
-              includeOnlyHighlyRecommended,
-              prioritizeBudgetFit,
-            },
-          }
-        : skipToken,
-    ),
-  );
+  } = useQuery({
+    ...orpc.gig.shortlist.queryOptions({
+      input: {
+        gigId,
+        workspaceId: workspace?.id ?? "",
+        minScore: Number.parseInt(selectedMinScore, 10),
+        maxCandidates: 20, // Fixed limit for shortlist
+        includeOnlyHighlyRecommended,
+        prioritizeBudgetFit,
+      },
+    }),
+    enabled: !!workspace?.id,
+  });
 
   // Recalculate shortlist mutation
   const { mutate: recalculateShortlist, isPending: isRecalculating } =
@@ -71,7 +68,14 @@ export function ShortlistPageClient({
         onSuccess: () => {
           queryClient.invalidateQueries({
             queryKey: orpc.gig.shortlist.queryKey({
-              input: { gigId, workspaceId: workspace?.id ?? "" },
+              input: {
+                gigId,
+                workspaceId: workspace?.id ?? "",
+                minScore: Number.parseInt(selectedMinScore, 10),
+                maxCandidates: 20,
+                includeOnlyHighlyRecommended,
+                prioritizeBudgetFit,
+              },
             }),
           });
           toast.success("Шортлист пересчитан");

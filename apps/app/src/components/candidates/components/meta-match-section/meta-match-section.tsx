@@ -9,12 +9,7 @@ import { Button } from "@qbs-autonaim/ui/components/button";
 import { Checkbox } from "@qbs-autonaim/ui/components/checkbox";
 import { Input } from "@qbs-autonaim/ui/components/input";
 import { Label } from "@qbs-autonaim/ui/components/label";
-import {
-  skipToken,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Download,
   Loader2,
@@ -86,11 +81,12 @@ export function MetaMatchSection({
   const [birthDateError, setBirthDateError] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
 
-  const { data, isLoading } = useQuery(
-    orpc.metaMatch.getLatest.queryOptions(
-      candidateId && workspaceId ? { workspaceId, candidateId } : skipToken,
-    ),
-  );
+  const { data, isLoading } = useQuery({
+    ...orpc.metaMatch.getLatest.queryOptions({
+      input: { workspaceId: workspaceId ?? "", candidateId: candidateId ?? "" },
+    }),
+    enabled: !!candidateId && !!workspaceId,
+  });
 
   // Автозаполнение DOB из профиля кандидата
   useEffect(() => {
@@ -141,8 +137,7 @@ export function MetaMatchSection({
       onSuccess: async () => {
         await queryClient.invalidateQueries({
           queryKey: orpc.metaMatch.getLatest.queryKey({
-            workspaceId,
-            candidateId,
+            input: { workspaceId, candidateId },
           }),
         });
         toast.success("Meta-Match отчет сформирован");

@@ -78,7 +78,9 @@ export function OrganizationGeneralForm({
         variables: { data: { slug?: string } },
       ) => {
         toast.success("Организация успешно обновлена");
-        await queryClient.invalidateQueries(orpc.organization.pathFilter());
+        await queryClient.invalidateQueries({
+          queryKey: orpc.organization.list.queryKey({ input: {} }),
+        });
         if (variables.data.slug && variables.data.slug !== initialSlug) {
           router.push(`/orgs/${variables.data.slug}/settings`);
         }

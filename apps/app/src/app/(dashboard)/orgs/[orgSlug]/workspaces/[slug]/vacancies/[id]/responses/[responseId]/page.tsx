@@ -26,44 +26,35 @@ export default function VacancyResponseDetailPage() {
   const orpc = useORPC();
   const { workspaceId } = useWorkspaceContext();
 
-  const { data: responseData, isLoading } = useQuery(
-    orpc.vacancy.responses.get.queryOptions(
-      workspaceId
-        ? {
-            input: { id: responseId, workspaceId },
-          }
-        : skipToken,
-    ),
-  );
+  const { data: responseData, isLoading } = useQuery({
+    ...orpc.vacancy.responses.get.queryOptions({
+      input: { id: responseId, workspaceId: workspaceId ?? "" },
+    }),
+    enabled: !!workspaceId,
+  });
 
   // Получаем данные вакансии для требований
-  const { data: vacancyData } = useQuery(
-    orpc.vacancy.get.queryOptions(
-      workspaceId && vacancyId
-        ? {
-            input: { id: vacancyId, workspaceId },
-          }
-        : skipToken,
-    ),
-  );
+  const { data: vacancyData } = useQuery({
+    ...orpc.vacancy.get.queryOptions({
+      input: { id: vacancyId ?? "", workspaceId: workspaceId ?? "" },
+    }),
+    enabled: !!workspaceId && !!vacancyId,
+  });
 
   // Получаем список всех откликов вакансии для навигации
-  const { data: allResponsesData } = useQuery(
-    orpc.vacancy.responses.list.queryOptions(
-      workspaceId && vacancyId
-        ? {
-            input: {
-              workspaceId,
-              vacancyId,
-              page: 1,
-              limit: 100,
-              sortField: null,
-              sortDirection: "desc",
-            },
-          }
-        : skipToken,
-    ),
-  );
+  const { data: allResponsesData } = useQuery({
+    ...orpc.vacancy.responses.list.queryOptions({
+      input: {
+        workspaceId: workspaceId ?? "",
+        vacancyId: vacancyId ?? "",
+        page: 1,
+        limit: 100,
+        sortField: null,
+        sortDirection: "desc",
+      },
+    }),
+    enabled: !!workspaceId && !!vacancyId,
+  });
 
   if (!workspaceId) {
     return (

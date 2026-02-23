@@ -453,7 +453,11 @@ function MemberRow({
     orpc.workspace.members.updateRole.mutationOptions({
       onSuccess: () => {
         toast.success("Роль обновлена");
-        queryClient.invalidateQueries(orpc.workspace.members.pathFilter());
+        queryClient.invalidateQueries({
+          queryKey: orpc.workspace.members.list.queryKey({
+            input: { workspaceId },
+          }),
+        });
       },
       onError: (err) => {
         toast.error(err.message || "Не удалось обновить роль");

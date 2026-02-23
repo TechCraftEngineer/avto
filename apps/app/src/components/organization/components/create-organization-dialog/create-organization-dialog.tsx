@@ -77,9 +77,9 @@ export function CreateOrganizationDialog({
         });
 
         // Инвалидируем кеш организаций
-        await queryClient.invalidateQueries(
-          orpc.organization.list.pathFilter(),
-        );
+        await queryClient.invalidateQueries({
+          queryKey: orpc.organization.list.queryKey({ input: {} }),
+        });
 
         onOpenChange(false);
         form.reset();

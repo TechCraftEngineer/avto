@@ -78,7 +78,9 @@ export function WorkspaceForm({
     orpc.workspace.update.mutationOptions({
       onSuccess: async (_data, variables) => {
         toast.success("Рабочее пространство успешно обновлено");
-        await queryClient.invalidateQueries(orpc.workspace.pathFilter());
+        await queryClient.invalidateQueries({
+          queryKey: orpc.workspace.list.queryKey({ input: {} }),
+        });
         if (variables.data.slug && variables.data.slug !== initialSlug) {
           router.push(`/${variables.data.slug}/settings`);
         }

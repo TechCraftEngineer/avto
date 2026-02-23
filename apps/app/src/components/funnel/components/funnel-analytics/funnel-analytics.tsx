@@ -40,7 +40,7 @@ export function FunnelAnalytics() {
 
   const { data: vacanciesList } = useQuery({
     ...orpc.vacancy.list.queryOptions({
-      workspaceId: workspaceId ?? "",
+      input: { workspaceId: workspaceId ?? "" },
     }),
     enabled: !!workspaceId,
   });
@@ -52,8 +52,10 @@ export function FunnelAnalytics() {
     error: analyticsErrorData,
   } = useQuery({
     ...orpc.funnel.analytics.queryOptions({
-      workspaceId: workspaceId ?? "",
-      vacancyId: selectedVacancyId === "all" ? undefined : selectedVacancyId,
+      input: {
+        workspaceId: workspaceId ?? "",
+        vacancyId: selectedVacancyId === "all" ? undefined : selectedVacancyId,
+      },
     }),
     enabled: !!workspaceId,
   });
@@ -64,8 +66,10 @@ export function FunnelAnalytics() {
     error: vacancyStatsErrorData,
   } = useQuery({
     ...orpc.funnel.vacancyStats.queryOptions({
-      workspaceId: workspaceId ?? "",
-      vacancyId: selectedVacancyId === "all" ? undefined : selectedVacancyId,
+      input: {
+        workspaceId: workspaceId ?? "",
+        vacancyId: selectedVacancyId === "all" ? undefined : selectedVacancyId,
+      },
     }),
     enabled: !!workspaceId,
   });

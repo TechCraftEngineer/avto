@@ -122,7 +122,9 @@ function ProfileContent({
     orpc.globalCandidates.updateStatus.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: orpc.globalCandidates.list.queryKey(),
+          queryKey: orpc.globalCandidates.list.queryKey({
+            input: { organizationId: organizationId ?? "" },
+          }),
         });
       },
     }),

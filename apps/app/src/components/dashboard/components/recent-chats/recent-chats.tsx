@@ -19,8 +19,7 @@ export function RecentChats({
   // Получаем последние сообщения с помощью queryOptions
   const recentMessagesQueryOptions =
     orpc.telegram.messages.getRecent.queryOptions({
-      limit: 5,
-      workspaceId: workspace?.id ?? "",
+      input: { limit: 5, workspaceId: workspace?.id ?? "" },
     });
 
   const { data: recentMessages = [], isPending } = useQuery(

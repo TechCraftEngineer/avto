@@ -59,9 +59,7 @@ export function UniversalChatPanel({
 
   const historyQuery = useQuery(
     orpc.chat.getHistory.queryOptions({
-      entityType,
-      entityId,
-      limit: 50,
+      input: { entityType, entityId, limit: 50 },
     }),
   );
 
@@ -112,12 +110,14 @@ export function UniversalChatPanel({
         setIsLoading(false);
         setLastFailedMessage(null);
       },
-      onError: (err) => {
-        const errorCode = err.data?.code;
-        let errorMessage = err.message;
+      onError: (err: unknown) => {
+        const oerr = err as { data?: { code?: string }; message?: string };
+        const errorCode = oerr.data?.code;
+        let errorMessage =
+          oerr.message ?? (err instanceof Error ? err.message : "Ошибка");
 
         if (errorCode === "TOO_MANY_REQUESTS") {
-          const retryMatch = err.message.match(/(\d+)\s+секунд/);
+          const retryMatch = errorMessage.match(/(\d+)\s+секунд/);
           const retrySeconds = retryMatch ? retryMatch[1] : "60";
           errorMessage = `Слишком много запросов. Подождите ${retrySeconds} секунд`;
           toast.error("Превышен лимит запросов", {

@@ -74,10 +74,12 @@ export function PaymentList({
     refetch,
   } = useQuery(
     orpc.payment.list.queryOptions({
-      limit: ITEMS_PER_PAGE,
-      offset,
-      workspaceId: workspaceId || undefined,
-      organizationId: organizationId || undefined,
+      input: {
+        limit: ITEMS_PER_PAGE,
+        offset,
+        workspaceId: workspaceId || undefined,
+        organizationId: organizationId || undefined,
+      },
     }),
   );
 

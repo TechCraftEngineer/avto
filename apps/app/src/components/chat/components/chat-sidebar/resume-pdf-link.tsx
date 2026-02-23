@@ -13,7 +13,9 @@ export function ResumePdfLink({ fileKey }: ResumePdfLinkProps) {
   const orpc = useORPC();
 
   const { data: fileData, isLoading } = useQuery({
-    ...orpc.telegram.file.getUrl.queryOptions({ key: fileKey }),
+    ...orpc.telegram.file.getUrl.queryOptions({
+      input: { key: fileKey },
+    }),
   });
 
   const handleOpen = () => {

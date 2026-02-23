@@ -60,7 +60,9 @@ export function OrganizationForm({ onSuccess }: OrganizationFormProps) {
         toast.success("Организация создана", {
           description: `Организация "${organization.name}" успешно создана`,
         });
-        void queryClient.invalidateQueries(orpc.organization.list.pathFilter());
+        void queryClient.invalidateQueries({
+          queryKey: orpc.organization.list.queryKey({ input: {} }),
+        });
         onSuccess?.({
           id: organization.id,
           slug: organization.slug,

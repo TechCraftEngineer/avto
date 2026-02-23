@@ -231,7 +231,11 @@ function RemoveMemberDialog({
       onSuccess: () => {
         toast.success(`${member.name} удален из workspace`);
         onOpenChange(false);
-        queryClient.invalidateQueries(orpc.workspace.members.pathFilter());
+        queryClient.invalidateQueries({
+          queryKey: orpc.workspace.members.list.queryKey({
+            input: { workspaceId },
+          }),
+        });
       },
       onError: (err) => {
         toast.error(err.message || "Не удалось удалить участника");
@@ -294,7 +298,11 @@ function LeaveWorkspaceDialog({
       onSuccess: () => {
         toast.success("Вы покинули workspace");
         onOpenChange(false);
-        queryClient.invalidateQueries(orpc.workspace.members.pathFilter());
+        queryClient.invalidateQueries({
+          queryKey: orpc.workspace.members.list.queryKey({
+            input: { workspaceId },
+          }),
+        });
         router.push("/");
       },
       onError: (err) => {
@@ -358,7 +366,11 @@ function CancelInviteDialog({
       onSuccess: () => {
         toast.success("Приглашение отменено");
         onOpenChange(false);
-        queryClient.invalidateQueries(orpc.workspace.members.pathFilter());
+        queryClient.invalidateQueries({
+          queryKey: orpc.workspace.members.list.queryKey({
+            input: { workspaceId },
+          }),
+        });
       },
       onError: (err) => {
         toast.error(err.message || "Не удалось отменить приглашение");

@@ -339,14 +339,14 @@ export function InterviewChat({
   // Загрузка истории чата
   const { data: chatHistory, isLoading: isLoadingHistory } = useQuery(
     orpc.freelancePlatforms.getChatHistory.queryOptions({
-      interviewSessionId: conversationId,
+      input: { interviewSessionId: conversationId },
     }),
   );
 
   // Загрузка контекста интервью (вакансия/задание)
   const { data: interviewContext, isLoading: isLoadingContext } = useQuery(
     orpc.freelancePlatforms.getInterviewContext.queryOptions({
-      interviewSessionId: conversationId,
+      input: { interviewSessionId: conversationId },
     }),
   );
 

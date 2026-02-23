@@ -57,7 +57,7 @@ export function AIVacancyChat({
   // Получаем настройки компании
   const { data: botSettings } = useQuery(
     orpc.workspace.getBotSettings.queryOptions({
-      workspaceId,
+      input: { workspaceId },
     }),
   );
 
@@ -260,7 +260,9 @@ export function AIVacancyChat({
         setShowSettingsEdit(false);
         // Инвалидируем кэш для обновления настроек
         queryClient.invalidateQueries({
-          queryKey: orpc.workspace.getBotSettings.queryKey({ workspaceId }),
+          queryKey: orpc.workspace.getBotSettings.queryKey({
+            input: { workspaceId },
+          }),
         });
         // Перезагружаем чат с новыми настройками
         clearChat();

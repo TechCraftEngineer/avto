@@ -60,8 +60,7 @@ export function GigInvitationTemplate({
 
   const { data: interviewLink, isLoading: isLoadingLink } = useQuery({
     ...orpc.gig.getInterviewLink.queryOptions({
-      gigId,
-      workspaceId: workspace?.id ?? "",
+      input: { gigId, workspaceId: workspace?.id ?? "" },
     }),
     enabled: !!workspace?.id,
   });
@@ -69,8 +68,7 @@ export function GigInvitationTemplate({
   // Загружаем AI-шаблон только если есть ссылка
   const { data: aiTemplate, isLoading: isLoadingTemplate } = useQuery({
     ...orpc.gig.generateInvitationTemplate.queryOptions({
-      gigId,
-      workspaceId: workspace?.id ?? "",
+      input: { gigId, workspaceId: workspace?.id ?? "" },
     }),
     enabled: !!workspace?.id && !!interviewLink,
     staleTime: 5 * 60 * 1000, // Кэшируем на 5 минут
@@ -81,8 +79,7 @@ export function GigInvitationTemplate({
       onSuccess: (_data, variables) => {
         queryClient.invalidateQueries({
           queryKey: orpc.gig.getInterviewLink.queryKey({
-            gigId,
-            workspaceId: variables.workspaceId,
+            input: { gigId, workspaceId: variables.workspaceId },
           }),
         });
         toast.success("Ссылка на чат создана");
@@ -152,15 +149,13 @@ export function GigInvitationTemplate({
     // Invalidate both queries to refresh the template
     queryClient.invalidateQueries({
       queryKey: orpc.gig.getInterviewLink.queryKey({
-        gigId,
-        workspaceId: workspace.id,
+        input: { gigId, workspaceId: workspace.id },
       }),
     });
 
     queryClient.invalidateQueries({
       queryKey: orpc.gig.generateInvitationTemplate.queryKey({
-        gigId,
-        workspaceId: workspace.id,
+        input: { gigId, workspaceId: workspace.id },
       }),
     });
 

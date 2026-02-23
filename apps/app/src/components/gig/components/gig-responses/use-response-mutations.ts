@@ -23,8 +23,7 @@ export const useResponseMutations = ({
       onSuccess: () => {
         queryClient.invalidateQueries({
           queryKey: orpc.gig.responses.list.queryKey({
-            gigId,
-            workspaceId: workspaceId ?? "",
+            input: { gigId, workspaceId: workspaceId ?? "" },
           }),
         });
         toast.success("Отклик принят");
@@ -40,8 +39,7 @@ export const useResponseMutations = ({
       onSuccess: () => {
         queryClient.invalidateQueries({
           queryKey: orpc.gig.responses.list.queryKey({
-            gigId,
-            workspaceId: workspaceId ?? "",
+            input: { gigId, workspaceId: workspaceId ?? "" },
           }),
         });
         toast.success("Отклик отклонен");

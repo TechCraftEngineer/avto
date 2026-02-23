@@ -10,7 +10,7 @@ export function useGigPlatformIntegration(workspaceId: string) {
 
   const { data: integrations, isLoading: isLoadingIntegrations } = useQuery({
     ...orpc.integration.list.queryOptions({
-      workspaceId,
+      input: { workspaceId },
     }),
     enabled: !!workspaceId,
   });

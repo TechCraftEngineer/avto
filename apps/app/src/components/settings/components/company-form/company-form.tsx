@@ -87,7 +87,11 @@ export function CompanyForm({
   const updateCompany = useMutation(
     orpc.bot.updatePartial.mutationOptions({
       onSuccess: async () => {
-        await queryClient.invalidateQueries(orpc.bot.pathFilter());
+        await queryClient.invalidateQueries({
+          queryKey: orpc.workspace.getBotSettings.queryKey({
+            input: { workspaceId },
+          }),
+        });
       },
       onError: (err) => {
         toast.error(err.message || "Не удалось сохранить");

@@ -32,8 +32,7 @@ export function CustomDomainSelect({
     error: customError,
   } = useQuery(
     orpc.customDomain.list.queryOptions({
-      workspaceId,
-      type: "interview",
+      input: { workspaceId, type: "interview" },
     }),
   );
 

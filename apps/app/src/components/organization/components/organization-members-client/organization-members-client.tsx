@@ -138,12 +138,16 @@ export function OrganizationMembersClient({
 
   // Получение участников
   const { data: members, isLoading: membersLoading } = useQuery(
-    orpc.organization.listMembers.queryOptions({ organizationId }),
+    orpc.organization.listMembers.queryOptions({
+      input: { organizationId },
+    }),
   );
 
   // Получение приглашений (только для админов)
   const { data: invites, isLoading: invitesLoading } = useQuery({
-    ...orpc.organization.listInvites.queryOptions({ organizationId }),
+    ...orpc.organization.listInvites.queryOptions({
+      input: { organizationId },
+    }),
     enabled: canManageMembers,
   });
 
@@ -312,7 +316,11 @@ function InviteRow({
     orpc.organization.deleteInvite.mutationOptions({
       onSuccess: () => {
         toast.success("Приглашение отменено");
-        queryClient.invalidateQueries(orpc.organization.pathFilter());
+        queryClient.invalidateQueries({
+          queryKey: orpc.organization.listInvites.queryKey({
+            input: { organizationId },
+          }),
+        });
         setShowDeleteDialog(false);
       },
       onError: (err) => {
@@ -457,7 +465,11 @@ function MemberRow({
     orpc.organization.updateMemberRole.mutationOptions({
       onSuccess: () => {
         toast.success("Роль обновлена");
-        queryClient.invalidateQueries(orpc.organization.pathFilter());
+        queryClient.invalidateQueries({
+          queryKey: orpc.organization.listMembers.queryKey({
+            input: { organizationId },
+          }),
+        });
       },
       onError: (err) => {
         toast.error(err.message || "Не удалось обновить роль");
@@ -469,7 +481,11 @@ function MemberRow({
     orpc.organization.removeMember.mutationOptions({
       onSuccess: () => {
         toast.success("Участник удалён");
-        queryClient.invalidateQueries(orpc.organization.pathFilter());
+        queryClient.invalidateQueries({
+          queryKey: orpc.organization.listMembers.queryKey({
+            input: { organizationId },
+          }),
+        });
         setShowDeleteDialog(false);
       },
       onError: (err) => {

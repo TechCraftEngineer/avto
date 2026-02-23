@@ -47,8 +47,10 @@ export function InterviewScenarioForm({
   // Загружаем данные сценария при редактировании
   const { data: scenario, isLoading: isLoadingScenario } = useQuery({
     ...orpc.interviewScenarios.get.queryOptions({
-      id: scenarioId ?? "",
-      workspaceId: workspace?.id ?? "",
+      input: {
+        id: scenarioId ?? "",
+        workspaceId: workspace?.id ?? "",
+      },
     }),
     enabled: isEditing && !!workspace?.id && !!scenarioId,
   });
@@ -72,9 +74,11 @@ export function InterviewScenarioForm({
       onSuccess: () => {
         queryClient.invalidateQueries({
           queryKey: orpc.interviewScenarios.list.queryKey({
-            workspaceId: workspace?.id ?? "",
-            limit: 50,
-            offset: 0,
+            input: {
+              workspaceId: workspace?.id ?? "",
+              limit: 50,
+              offset: 0,
+            },
           }),
         });
         toast.success("Сценарий создан");
@@ -91,9 +95,11 @@ export function InterviewScenarioForm({
       onSuccess: () => {
         queryClient.invalidateQueries({
           queryKey: orpc.interviewScenarios.list.queryKey({
-            workspaceId: workspace?.id ?? "",
-            limit: 50,
-            offset: 0,
+            input: {
+              workspaceId: workspace?.id ?? "",
+              limit: 50,
+              offset: 0,
+            },
           }),
         });
         toast.success("Сценарий обновлен");

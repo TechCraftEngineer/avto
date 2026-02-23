@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@qbs-autonaim/ui/components/card";
 import { Separator } from "@qbs-autonaim/ui/components/separator";
-import { skipToken, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
   AlertCircle,
   Award,
@@ -327,20 +327,19 @@ export function GigDetailActions({
   const { workspace } = useWorkspace();
 
   // Получаем топ-3 кандидатов для краткого превью
-  const { data: topCandidatesData } = useQuery(
-    orpc.gig.shortlist.queryOptions(
-      workspace?.id
-        ? {
-            gigId,
-            workspaceId: workspace.id,
-            minScore: 70,
-            maxCandidates: 3, // Только топ-3 кандидата
-            includeOnlyHighlyRecommended: false,
-            prioritizeBudgetFit: false,
-          }
-        : skipToken,
-    ),
-  );
+  const { data: topCandidatesData } = useQuery({
+    ...orpc.gig.shortlist.queryOptions({
+      input: {
+        gigId,
+        workspaceId: workspace?.id ?? "",
+        minScore: 70,
+        maxCandidates: 3,
+        includeOnlyHighlyRecommended: false,
+        prioritizeBudgetFit: false,
+      },
+    }),
+    enabled: !!workspace?.id,
+  });
 
   const topCandidates = topCandidatesData?.candidates ?? [];
 

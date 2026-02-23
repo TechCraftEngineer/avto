@@ -63,16 +63,18 @@ export function GlobalCandidatesView() {
   // Запрос списка кандидатов
   const { data: candidatesData, isLoading } = useQuery({
     ...orpc.globalCandidates.list.queryOptions({
-      organizationId: organizationId ?? "",
-      search: debouncedSearch || undefined,
-      status: filters.status.length > 0 ? filters.status : undefined,
-      vacancyId: filters.vacancyId,
-      skills: filters.skills.length > 0 ? filters.skills : undefined,
-      lastActivityFrom: filters.lastActivityFrom,
-      lastActivityTo: filters.lastActivityTo,
-      sortBy: sort.field,
-      sortOrder: sort.order,
-      limit: 100,
+      input: {
+        organizationId: organizationId ?? "",
+        search: debouncedSearch || undefined,
+        status: filters.status.length > 0 ? filters.status : undefined,
+        vacancyId: filters.vacancyId,
+        skills: filters.skills.length > 0 ? filters.skills : undefined,
+        lastActivityFrom: filters.lastActivityFrom,
+        lastActivityTo: filters.lastActivityTo,
+        sortBy: sort.field,
+        sortOrder: sort.order,
+        limit: 100,
+      },
     }),
     enabled: !!organizationId,
   });
@@ -82,7 +84,9 @@ export function GlobalCandidatesView() {
     orpc.globalCandidates.updateStatus.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: orpc.globalCandidates.list.queryKey(),
+          queryKey: orpc.globalCandidates.list.queryKey({
+            input: { organizationId: organizationId ?? "" },
+          }),
         });
       },
     }),

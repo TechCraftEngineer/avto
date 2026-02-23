@@ -60,7 +60,11 @@ function InviteMemberModalContent({
         setEmail("");
         setRole("member");
         onOpenChange(false);
-        queryClient.invalidateQueries(orpc.workspace.members.pathFilter());
+        queryClient.invalidateQueries({
+          queryKey: orpc.workspace.members.list.queryKey({
+            input: { workspaceId },
+          }),
+        });
       },
       onError: (err) => {
         toast.error(err.message || "Не удалось отправить приглашение");

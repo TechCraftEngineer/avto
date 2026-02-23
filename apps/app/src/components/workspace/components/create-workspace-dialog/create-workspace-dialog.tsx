@@ -78,10 +78,12 @@ export function CreateWorkspaceDialog({
       },
       {
         onSuccess: async (workspace) => {
-          await queryClient.invalidateQueries(orpc.workspace.list.pathFilter());
-          await queryClient.invalidateQueries(
-            orpc.organization.list.pathFilter(),
-          );
+          await queryClient.invalidateQueries({
+            queryKey: orpc.workspace.list.queryKey({ input: {} }),
+          });
+          await queryClient.invalidateQueries({
+            queryKey: orpc.organization.list.queryKey({ input: {} }),
+          });
 
           onOpenChange(false);
           form.reset();

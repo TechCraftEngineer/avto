@@ -25,9 +25,11 @@ export function InterviewScenariosList({
 
   const { data, isLoading, error } = useQuery({
     ...orpc.interviewScenarios.list.queryOptions({
-      workspaceId: workspace?.id ?? "",
-      limit: 50,
-      offset: 0,
+      input: {
+        workspaceId: workspace?.id ?? "",
+        limit: 50,
+        offset: 0,
+      },
     }),
     enabled: !!workspace?.id,
   });

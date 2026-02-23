@@ -57,9 +57,11 @@ function InviteLinkModalContent({
     orpc.workspace.invites.createLink.mutationOptions({
       onSuccess: () => {
         toast.success("Ссылка создана");
-        queryClient.invalidateQueries(
-          orpc.workspace.invites.getLink.pathFilter(),
-        );
+        queryClient.invalidateQueries({
+          queryKey: orpc.workspace.invites.getLink.queryKey({
+            input: { workspaceId },
+          }),
+        });
       },
       onError: (err) => {
         toast.error(err.message || "Не удалось создать ссылку");

@@ -39,7 +39,9 @@ export function AccountForm({
     orpc.user.update.mutationOptions({
       onSuccess: async () => {
         toast.success("Аккаунт успешно обновлен");
-        await queryClient.invalidateQueries(orpc.user.pathFilter());
+        await queryClient.invalidateQueries({
+          queryKey: orpc.user.me.queryKey({ input: {} }),
+        });
       },
       onError: (err) => {
         toast.error(err.message || "Не удалось обновить аккаунт");
