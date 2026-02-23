@@ -138,13 +138,13 @@ describe("ContentScript - Import функциональность", () => {
       });
 
       const { ContentScript } = await import("./content-script");
+      const { showNotification } = await import("./lib/notifications");
       const contentScript = new (ContentScript as any)();
       contentScript.currentData = mockCandidateData;
-      const showNotificationSpy = vi.spyOn(contentScript, "showNotification");
 
-      await contentScript.handleImport();
+      await expect(contentScript.triggerImport()).rejects.toThrow();
 
-      expect(showNotificationSpy).toHaveBeenCalledWith(
+      expect(showNotification).toHaveBeenCalledWith(
         expect.objectContaining({
           type: "error",
           message: expect.stringContaining("Войдите в систему"),
@@ -160,13 +160,13 @@ describe("ContentScript - Import функциональность", () => {
       });
 
       const { ContentScript } = await import("./content-script");
+      const { showNotification } = await import("./lib/notifications");
       const contentScript = new (ContentScript as any)();
       contentScript.currentData = mockCandidateData;
-      const showNotificationSpy = vi.spyOn(contentScript, "showNotification");
 
-      await contentScript.handleImport();
+      await expect(contentScript.triggerImport()).rejects.toThrow();
 
-      expect(showNotificationSpy).toHaveBeenCalledWith(
+      expect(showNotification).toHaveBeenCalledWith(
         expect.objectContaining({
           type: "error",
           message: expect.stringContaining("Войдите в систему"),
@@ -176,13 +176,13 @@ describe("ContentScript - Import функциональность", () => {
     });
   });
 
-  describe("checkApiConfiguration (через handleImport)", () => {
+  describe("checkApiConfiguration (через triggerImport)", () => {
     it("должен успешно импортировать если есть authToken и organizationId", async () => {
       const { ContentScript } = await import("./content-script");
       const contentScript = new (ContentScript as any)();
       contentScript.currentData = mockCandidateData;
 
-      await contentScript.handleImport();
+      await contentScript.triggerImport();
 
       expect(global.fetch).toHaveBeenCalled();
     });
@@ -194,13 +194,13 @@ describe("ContentScript - Import функциональность", () => {
       });
 
       const { ContentScript } = await import("./content-script");
+      const { showNotification } = await import("./lib/notifications");
       const contentScript = new (ContentScript as any)();
       contentScript.currentData = mockCandidateData;
-      const showNotificationSpy = vi.spyOn(contentScript, "showNotification");
 
-      await contentScript.handleImport();
+      await expect(contentScript.triggerImport()).rejects.toThrow();
 
-      expect(showNotificationSpy).toHaveBeenCalledWith(
+      expect(showNotification).toHaveBeenCalledWith(
         expect.objectContaining({
           type: "error",
           message: expect.stringContaining("Войдите в систему"),
@@ -216,13 +216,13 @@ describe("ContentScript - Import функциональность", () => {
       });
 
       const { ContentScript } = await import("./content-script");
+      const { showNotification } = await import("./lib/notifications");
       const contentScript = new (ContentScript as any)();
       contentScript.currentData = mockCandidateData;
-      const showNotificationSpy = vi.spyOn(contentScript, "showNotification");
 
-      await contentScript.handleImport();
+      await expect(contentScript.triggerImport()).rejects.toThrow();
 
-      expect(showNotificationSpy).toHaveBeenCalledWith(
+      expect(showNotification).toHaveBeenCalledWith(
         expect.objectContaining({
           type: "error",
           message: expect.stringContaining("Войдите в систему"),
