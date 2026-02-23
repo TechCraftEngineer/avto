@@ -6,7 +6,7 @@ export default defineConfig({
   outDir: "./dist",
   clean: true,
   sourcemap: false,
-  inlineOnly: true,
+  inlineOnly: false,
   treeshake: true,
   minify: true,
   noExternal: [/@qbs-autonaim\/.*/],
