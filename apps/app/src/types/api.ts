@@ -17,12 +17,12 @@ import type { RouterOutputs } from "@qbs-autonaim/api";
 
 // Vacancy - основные типы
 export type VacancyDetail = NonNullable<RouterOutputs["vacancy"]["get"]>;
-export type VacancyListItem = RouterOutputs["vacancy"]["list"]["items"][number];
+export type VacancyListItem = RouterOutputs["vacancy"]["list"][number];
 export type VacancyById = RouterOutputs["freelancePlatforms"]["getVacancyById"];
 
 // Vacancy - вложенные типы
-export type VacancyOwner = NonNullable<VacancyDetail["owner"]>;
-export type VacancyCreator = VacancyDetail["createdByUser"];
+export type VacancyOwner = VacancyDetail["createdBy"];
+export type VacancyCreator = VacancyDetail["createdBy"];
 export type VacancyRequirements = VacancyDetail["requirements"];
 export type VacancyCommunicationChannels =
   VacancyDetail["enabledCommunicationChannels"];
@@ -37,33 +37,36 @@ export type VacancyCandidateFilters = VacancyDetail["candidateFilters"];
 export type VacancyResponseDetail = NonNullable<
   RouterOutputs["vacancy"]["responses"]["get"]
 >;
-export type VacancyResponseListItem = VacancyResponseListItem;
-export type VacancyResponseListWorkspaceItem = VacancyResponseListWorkspaceItem;
-export type VacancyResponseRecentItem = VacancyResponseRecentItem;
+export type VacancyResponseListItem =
+  RouterOutputs["vacancy"]["responses"]["list"]["responses"][number];
+export type VacancyResponseListWorkspaceItem =
+  RouterOutputs["vacancy"]["responses"]["listWorkspace"]["responses"][number];
+export type VacancyResponseRecentItem =
+  RouterOutputs["vacancy"]["responses"]["listRecent"][number];
 
 // Response - списки
-export type VacancyResponseList = VacancyResponseList;
+export type VacancyResponseList =
+  RouterOutputs["vacancy"]["responses"]["list"]["responses"];
 export type VacancyResponseListWorkspace =
   RouterOutputs["vacancy"]["responses"]["listWorkspace"]["responses"];
 
 // Response - вложенные типы
-export type ResponseCandidate = NonNullable<VacancyResponseDetail["candidate"]>;
-export type ResponseVacancy = NonNullable<VacancyResponseDetail["vacancy"]>;
-export type ResponseScreeningResult = VacancyResponseDetail["screeningResult"];
-export type ResponseEvaluationResult =
-  VacancyResponseDetail["evaluationResult"];
+export type ResponseCandidate = VacancyResponseDetail;
+export type ResponseVacancy = VacancyResponseDetail;
+export type ResponseScreeningResult = VacancyResponseDetail["screening"];
+export type ResponseEvaluationResult = VacancyResponseDetail["screening"];
 
 // ============================================================================
 // GIG
 // ============================================================================
 
 // Gig - основные типы
-export type GigDetail = GigDetail;
-export type GigListItem = GigListItem;
+export type GigDetail = NonNullable<RouterOutputs["gig"]["get"]>;
+export type GigListItem = RouterOutputs["gig"]["list"][number];
 
 // Gig - вложенные типы
-export type GigOwner = NonNullable<GigDetail["owner"]>;
-export type GigCreator = GigDetail["createdByUser"];
+export type GigOwner = string;
+export type GigCreator = string;
 
 // ============================================================================
 // GIG RESPONSES
@@ -73,14 +76,17 @@ export type GigCreator = GigDetail["createdByUser"];
 export type GigResponseDetail = NonNullable<
   RouterOutputs["gig"]["responses"]["get"]
 >;
-export type GigResponseListItem = GigResponseListItem;
+export type GigResponseListItem =
+  RouterOutputs["gig"]["responses"]["list"]["items"][number];
 
 // Gig Response - ранжирование и шортлист
-export type GigRankedCandidate = GigRankedCandidate;
-export type GigShortlistCandidate = GigShortlistCandidate;
+export type GigRankedCandidate =
+  RouterOutputs["gig"]["responses"]["ranked"]["candidates"][number];
+export type GigShortlistCandidate =
+  RouterOutputs["gig"]["shortlist"]["candidates"][number];
 
 // Gig Response - вложенные типы
-export type GigResponseCandidate = NonNullable<GigResponseDetail["candidate"]>;
+export type GigResponseCandidate = GigResponseDetail;
 export type GigResponseGig = NonNullable<GigResponseDetail["gig"]>;
 
 // ============================================================================
@@ -95,21 +101,24 @@ export type FunnelCandidateDetail = RouterOutputs["candidates"]["getById"];
 // GLOBAL CANDIDATES (Talent Pool)
 // ============================================================================
 
-export type GlobalCandidateListItem = GlobalCandidateListItem;
-export type GlobalCandidateDetail = NonNullable<GlobalCandidateDetail>;
+export type GlobalCandidateListItem =
+  RouterOutputs["globalCandidates"]["list"]["items"][number];
+export type GlobalCandidateDetail = NonNullable<
+  RouterOutputs["globalCandidates"]["get"]
+>;
 
 // Global Candidate - вложенные типы
-export type GlobalCandidateProfile = NonNullable<
-  GlobalCandidateDetail["profileData"]
->;
-export type GlobalCandidateOrganizationLink =
-  GlobalCandidateDetail["organizationLinks"][number];
+export type GlobalCandidateProfile = GlobalCandidateDetail;
+export type GlobalCandidateOrganizationLink = {
+  organizationName: string;
+  position: string;
+};
 
 // ============================================================================
 // USER & AUTHENTICATION
 // ============================================================================
 
-export type UserMe = UserMe;
+export type UserMe = RouterOutputs["user"]["me"];
 export type UserProfile = NonNullable<UserMe>;
 
 // ============================================================================
@@ -117,22 +126,27 @@ export type UserProfile = NonNullable<UserMe>;
 // ============================================================================
 
 // Workspace - основные типы
-export type WorkspaceDetail = WorkspaceDetail;
-export type WorkspaceRole = WorkspaceRole;
+export type WorkspaceDetail = NonNullable<RouterOutputs["workspace"]["get"]>;
+export type WorkspaceRole = "owner" | "admin" | "member";
 export type WorkspaceWithRole = WorkspaceDetail & {
   role: WorkspaceRole;
 };
-export type WorkspaceListItem = WorkspaceListItem;
+export type WorkspaceListItem = RouterOutputs["workspace"]["list"][number];
 
 // Workspace - члены и приглашения
-export type WorkspaceMember = WorkspaceMember;
-export type WorkspaceInvite = WorkspaceInvite;
+export type WorkspaceMember =
+  RouterOutputs["workspace"]["members"]["list"][number];
+export type WorkspaceInvite =
+  RouterOutputs["workspace"]["invites"]["list"][number];
 
 // Organization
-export type OrganizationDetail = OrganizationDetail;
-export type OrganizationListItem = OrganizationListItem;
+export type OrganizationDetail = NonNullable<
+  RouterOutputs["organization"]["get"]
+>;
+export type OrganizationListItem =
+  RouterOutputs["organization"]["list"][number];
 export type OrganizationMember =
-  RouterOutputs["organization"]["members"]["list"][number];
+  RouterOutputs["organization"]["listMembers"][number];
 
 // ============================================================================
 // DEPRECATED ALIASES (для обратной совместимости)

@@ -27,3 +27,9 @@ globalThis.$client = createRouterClient(appRouter, {
    */
   context: createServerContext,
 });
+
+export const api = globalThis.$client;
+export { HydrateClient } from "./hydrate-client";
+
+export { createQueryClient as makeQueryClient } from "./query-client";
+export { orpc } from "./react";

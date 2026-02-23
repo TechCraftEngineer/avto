@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { api, getQueryClient, HydrateClient, orpc } from "~/orpc/server";
+import { api, HydrateClient, makeQueryClient, orpc } from "~/orpc/server";
 import { VacanciesPageClient } from "./vacancies-page-client";
 
 export default async function VacanciesPage({
@@ -8,7 +8,7 @@ export default async function VacanciesPage({
   params: Promise<{ orgSlug: string; slug: string }>;
 }) {
   const { orgSlug, slug } = await params;
-  const caller = await api();
+  const caller = api;
   const organization = await caller.organization.getBySlug({ slug: orgSlug });
   if (!organization) notFound();
 
@@ -18,7 +18,7 @@ export default async function VacanciesPage({
   });
   if (!workspace) notFound();
 
-  const queryClient = getQueryClient();
+  const queryClient = makeQueryClient();
   const queryOptions = orpc.freelancePlatforms.getVacancies.queryOptions({
     workspaceId: workspace.id,
     statusFilter: "all",

@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { api, getQueryClient, HydrateClient, orpc } from "~/orpc/server";
+import { api, HydrateClient, makeQueryClient, orpc } from "~/orpc/server";
 import { ResponsesPageClient } from "./responses-page-client";
 
 export default async function ResponsesPage({
@@ -8,7 +8,7 @@ export default async function ResponsesPage({
   params: Promise<{ orgSlug: string; slug: string }>;
 }) {
   const { orgSlug, slug } = await params;
-  const caller = await api();
+  const caller = api;
   const organization = await caller.organization.getBySlug({ slug: orgSlug });
   if (!organization) notFound();
 
@@ -18,7 +18,7 @@ export default async function ResponsesPage({
   });
   if (!workspace) notFound();
 
-  const queryClient = getQueryClient();
+  const queryClient = makeQueryClient();
   await Promise.all([
     queryClient.prefetchQuery(
       orpc.vacancy.listActive.queryOptions({
