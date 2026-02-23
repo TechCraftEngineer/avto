@@ -21,6 +21,7 @@
     "@qbs-autonaim/lib": "workspace:*",
     "@qbs-autonaim/server-utils": "workspace:*",
     "ai": "6.0.97",
+    "drizzle-orm": "0.45.1",
     "hono": "^4.12.2",
     "resumable-stream": "^2.2.10",
     "superjson": "2.2.6",
