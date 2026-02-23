@@ -51,7 +51,9 @@ export function useResponseActions(
 
       setTimeout(() => {
         void queryClient.invalidateQueries({
-          queryKey: orpc.vacancy.responses.list.queryKey({ vacancyId }),
+          queryKey: orpc.vacancy.responses.list.queryKey({
+            input: { workspaceId, vacancyId },
+          }),
         });
       }, 2000);
     } finally {
@@ -81,13 +83,20 @@ export function useResponseActions(
 
       setTimeout(() => {
         void queryClient.invalidateQueries({
-          queryKey: orpc.vacancy.responses.list.queryKey({ vacancyId }),
+          queryKey: orpc.vacancy.responses.list.queryKey({
+            input: { workspaceId, vacancyId },
+          }),
         });
       }, 2000);
     } finally {
       setIsProcessingAll(false);
     }
-  }, [vacancyId, queryClient, orpc.vacancy.responses.list.queryKey]);
+  }, [
+    vacancyId,
+    workspaceId,
+    queryClient,
+    orpc.vacancy.responses.list.queryKey,
+  ]);
 
   const handleScreenNew = useCallback(async () => {
     setIsProcessingNew(true);
@@ -148,9 +157,16 @@ export function useResponseActions(
     setIsProcessingNew(false);
     // Обновляем список откликов только для текущей вакансии
     void queryClient.invalidateQueries({
-      queryKey: orpc.vacancy.responses.list.queryKey({ vacancyId }),
+      queryKey: orpc.vacancy.responses.list.queryKey({
+        input: { workspaceId, vacancyId },
+      }),
     });
-  }, [queryClient, vacancyId, orpc.vacancy.responses.list.queryKey]);
+  }, [
+    queryClient,
+    vacancyId,
+    workspaceId,
+    orpc.vacancy.responses.list.queryKey,
+  ]);
 
   const handleRefreshResponses = useCallback(async () => {
     setIsRefreshing(true);
@@ -181,9 +197,16 @@ export function useResponseActions(
     setIsRefreshing(false);
     setIsSyncingArchived(false);
     void queryClient.invalidateQueries({
-      queryKey: orpc.vacancy.responses.list.queryKey({ vacancyId }),
+      queryKey: orpc.vacancy.responses.list.queryKey({
+        input: { workspaceId, vacancyId },
+      }),
     });
-  }, [queryClient, vacancyId, orpc.vacancy.responses.list.queryKey]);
+  }, [
+    queryClient,
+    vacancyId,
+    workspaceId,
+    orpc.vacancy.responses.list.queryKey,
+  ]);
 
   const handleSendWelcomeBatch = useCallback(async () => {
     if (selectedIds.size === 0) return;
@@ -207,7 +230,9 @@ export function useResponseActions(
 
       setTimeout(() => {
         void queryClient.invalidateQueries({
-          queryKey: orpc.vacancy.responses.list.queryKey({ vacancyId }),
+          queryKey: orpc.vacancy.responses.list.queryKey({
+            input: { workspaceId, vacancyId },
+          }),
         });
       }, 3000);
     } finally {
@@ -218,6 +243,7 @@ export function useResponseActions(
     setSelectedIds,
     queryClient,
     vacancyId,
+    workspaceId,
     orpc.vacancy.responses.list.queryKey,
   ]);
 

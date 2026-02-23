@@ -63,8 +63,7 @@ export default function ShortlistPage() {
   // Получаем данные вакансии
   const { data: vacancyData } = useQuery({
     ...api.freelancePlatforms.getVacancyById.queryOptions({
-      id: vacancyId,
-      workspaceId: workspace?.id ?? "",
+      input: { id: vacancyId, workspaceId: workspace?.id ?? "" },
     }),
     enabled: !!workspace?.id && !!vacancyId,
   });
@@ -72,8 +71,7 @@ export default function ShortlistPage() {
   // Получаем шортлист
   const { data: shortlistData, isLoading } = useQuery({
     ...api.freelancePlatforms.getShortlist.queryOptions({
-      vacancyId,
-      workspaceId: workspace?.id ?? "",
+      input: { vacancyId, workspaceId: workspace?.id ?? "" },
     }),
     enabled: !!workspace?.id && !!vacancyId,
   });

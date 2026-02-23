@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useORPC } from "~/orpc/react";
 
-export function useStageUpdate() {
+export function useStageUpdate(workspaceId: string) {
   const orpc = useORPC();
   const queryClient = useQueryClient();
 
@@ -16,7 +16,9 @@ export function useStageUpdate() {
       },
       onSettled: () => {
         queryClient.invalidateQueries({
-          queryKey: orpc.candidates.list.queryKey(),
+          queryKey: orpc.candidates.list.queryKey({
+            input: { workspaceId },
+          }),
         });
       },
     }),

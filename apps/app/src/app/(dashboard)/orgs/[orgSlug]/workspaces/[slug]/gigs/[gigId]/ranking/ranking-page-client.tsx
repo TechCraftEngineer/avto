@@ -81,22 +81,24 @@ export function RankingPageClient({
     error,
   } = useQuery(
     orpc.gig.responses.ranked.queryOptions({
-      gigId,
-      workspaceId: workspaceSlug,
-      recommendation:
-        selectedRecommendation === "all"
-          ? undefined
-          : (selectedRecommendation as
-              | "HIGHLY_RECOMMENDED"
-              | "RECOMMENDED"
-              | "NEUTRAL"
-              | "NOT_RECOMMENDED"),
-      minScore:
-        selectedMinScore === "0"
-          ? undefined
-          : Number.parseInt(selectedMinScore, 10),
-      limit,
-      offset: page * limit,
+      input: {
+        gigId,
+        workspaceId: workspaceSlug,
+        recommendation:
+          selectedRecommendation === "all"
+            ? undefined
+            : (selectedRecommendation as
+                | "HIGHLY_RECOMMENDED"
+                | "RECOMMENDED"
+                | "NEUTRAL"
+                | "NOT_RECOMMENDED"),
+        minScore:
+          selectedMinScore === "0"
+            ? undefined
+            : Number.parseInt(selectedMinScore, 10),
+        limit,
+        offset: page * limit,
+      },
     }),
   );
 
@@ -107,8 +109,7 @@ export function RankingPageClient({
         onSuccess: () => {
           queryClient.invalidateQueries({
             queryKey: orpc.gig.responses.ranked.queryKey({
-              gigId,
-              workspaceId: workspaceSlug,
+              input: { gigId, workspaceId: workspaceSlug },
             }),
           });
         },

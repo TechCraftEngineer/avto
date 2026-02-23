@@ -98,7 +98,9 @@ export function ResponseActions({
       toast.success("Резюме успешно обновлено");
       if (vacancyId) {
         void queryClient.invalidateQueries({
-          queryKey: orpc.vacancy.responses.list.queryKey({ vacancyId }),
+          queryKey: orpc.vacancy.responses.list.queryKey({
+            input: { workspaceId, vacancyId },
+          }),
         });
       }
     } else {
@@ -128,7 +130,9 @@ export function ResponseActions({
       toast.success("AI-оценка завершена");
       if (vacancyId) {
         void queryClient.invalidateQueries({
-          queryKey: orpc.vacancy.responses.list.queryKey({ vacancyId }),
+          queryKey: orpc.vacancy.responses.list.queryKey({
+            input: { workspaceId, vacancyId },
+          }),
         });
       }
     } else {
@@ -191,7 +195,13 @@ export function ResponseActions({
       );
       if (welcomeResult.success) {
         toast.success("Приветствие отправлено");
-        invalidateList();
+        if (vacancyId) {
+          void queryClient.invalidateQueries({
+            queryKey: orpc.vacancy.responses.list.queryKey({
+              input: { workspaceId, vacancyId },
+            }),
+          });
+        }
       } else {
         toast.error("Не удалось отправить приветствие");
       }
@@ -225,8 +235,7 @@ export function ResponseActions({
     try {
       const result = await queryClient.fetchQuery(
         orpc.vacancy.responses.getInterviewLink.queryOptions({
-          responseId,
-          workspaceId,
+          input: { responseId, workspaceId },
         }),
       );
 

@@ -64,24 +64,25 @@ export function ResponsesPageClient() {
 
   const { data: vacanciesData } = useQuery({
     ...orpc.vacancy.listActive.queryOptions({
-      workspaceId: workspace?.id ?? "",
-      limit: 100,
+      input: { workspaceId: workspace?.id ?? "", limit: 100 },
     }),
     enabled: Boolean(workspace?.id),
   });
 
   const { data: responsesData, isLoading } = useQuery({
     ...orpc.vacancy.responses.listWorkspace.queryOptions({
-      workspaceId: workspace?.id ?? "",
-      page: viewMode === "board" ? 1 : page,
-      limit: viewMode === "board" ? 50 : 50,
-      sortField,
-      sortDirection,
-      screeningFilter,
-      statusFilter: statusFilter.length > 0 ? statusFilter : undefined,
-      vacancyIds:
-        selectedVacancyIds.length > 0 ? selectedVacancyIds : undefined,
-      search: search.trim() || undefined,
+      input: {
+        workspaceId: workspace?.id ?? "",
+        page: viewMode === "board" ? 1 : page,
+        limit: viewMode === "board" ? 50 : 50,
+        sortField,
+        sortDirection,
+        screeningFilter,
+        statusFilter: statusFilter.length > 0 ? statusFilter : undefined,
+        vacancyIds:
+          selectedVacancyIds.length > 0 ? selectedVacancyIds : undefined,
+        search: search.trim() || undefined,
+      },
     }),
     enabled: Boolean(workspace?.id),
   });
@@ -271,8 +272,8 @@ export function ResponsesPageClient() {
               <ResponsesTable
                 responses={responsesData?.responses ?? []}
                 isLoading={isLoading}
-                orgSlug={orgSlug}
-                workspaceSlug={workspaceSlug}
+                orgSlug={orgSlug ?? ""}
+                workspaceSlug={workspaceSlug ?? ""}
                 sortField={sortField}
                 onSortChange={handleSort}
                 hasFilters={
@@ -316,8 +317,8 @@ export function ResponsesPageClient() {
               <ResponsesKanban
                 responses={responsesData?.responses ?? []}
                 isLoading={isLoading}
-                orgSlug={orgSlug}
-                workspaceSlug={workspaceSlug}
+                orgSlug={orgSlug ?? ""}
+                workspaceSlug={workspaceSlug ?? ""}
               />
             </div>
           )}

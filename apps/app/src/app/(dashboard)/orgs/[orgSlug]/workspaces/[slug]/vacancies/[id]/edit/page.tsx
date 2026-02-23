@@ -19,8 +19,7 @@ export default function VacancyEditPage({ params }: VacancyEditPageProps) {
 
   const { data: vacancy } = useQuery({
     ...orpc.vacancy.get.queryOptions({
-      id,
-      workspaceId: workspaceId ?? "",
+      input: { id, workspaceId: workspaceId ?? "" },
     }),
     enabled: Boolean(workspaceId),
   });
@@ -30,12 +29,13 @@ export default function VacancyEditPage({ params }: VacancyEditPageProps) {
       onSuccess: () => {
         void queryClient.invalidateQueries({
           queryKey: orpc.vacancy.get.queryKey({
-            id,
-            workspaceId: workspaceId ?? "",
+            input: { id, workspaceId: workspaceId ?? "" },
           }),
         });
         void queryClient.invalidateQueries({
-          queryKey: orpc.vacancy.list.queryKey(),
+          queryKey: orpc.vacancy.list.queryKey({
+            input: { workspaceId: workspaceId ?? "" },
+          }),
         });
       },
     }),

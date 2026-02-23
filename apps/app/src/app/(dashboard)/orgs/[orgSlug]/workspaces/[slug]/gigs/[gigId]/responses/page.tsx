@@ -171,8 +171,7 @@ export default function GigResponsesPage({ params }: PageProps) {
   // Export query
   const { refetch: exportData, isFetching: isExporting } = useQuery({
     ...orpc.gig.responses.exportResponses.queryOptions({
-      gigId,
-      workspaceId: workspace?.id ?? "",
+      input: { gigId, workspaceId: workspace?.id ?? "" },
     }),
     enabled: false, // Manual trigger only
   });
@@ -212,8 +211,7 @@ export default function GigResponsesPage({ params }: PageProps) {
     isError: isGigError,
   } = useQuery({
     ...orpc.gig.get.queryOptions({
-      id: gigId,
-      workspaceId: workspace?.id ?? "",
+      input: { id: gigId, workspaceId: workspace?.id ?? "" },
     }),
     enabled: !!workspace?.id,
   });
@@ -221,8 +219,7 @@ export default function GigResponsesPage({ params }: PageProps) {
   // Fetch responses
   const { data: responses, isLoading } = useQuery({
     ...orpc.gig.responses.list.queryOptions({
-      gigId,
-      workspaceId: workspace?.id ?? "",
+      input: { gigId, workspaceId: workspace?.id ?? "" },
     }),
     enabled: !!workspace?.id,
   });
@@ -281,14 +278,12 @@ export default function GigResponsesPage({ params }: PageProps) {
         toast.success("Синхронизация откликов запущена");
         queryClient.invalidateQueries({
           queryKey: orpc.gig.responses.list.queryKey({
-            gigId,
-            workspaceId: workspace?.id ?? "",
+            input: { gigId, workspaceId: workspace?.id ?? "" },
           }),
         });
         queryClient.invalidateQueries({
           queryKey: orpc.gig.responses.count.queryKey({
-            gigId,
-            workspaceId: workspace?.id ?? "",
+            input: { gigId, workspaceId: workspace?.id ?? "" },
           }),
         });
       },
@@ -304,12 +299,13 @@ export default function GigResponsesPage({ params }: PageProps) {
         toast.success("Анализ откликов запущен");
         queryClient.invalidateQueries({
           queryKey: orpc.gig.responses.list.queryKey({
-            gigId,
-            workspaceId: workspace?.id ?? "",
+            input: { gigId, workspaceId: workspace?.id ?? "" },
           }),
         });
         queryClient.invalidateQueries({
-          queryKey: orpc.gig.responses.ranked.queryKey(),
+          queryKey: orpc.gig.responses.ranked.queryKey({
+            input: { gigId, workspaceId: workspace?.id ?? "" },
+          }),
         });
       },
       onError: (error) => {

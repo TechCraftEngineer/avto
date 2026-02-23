@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@qbs-autonaim/ui/components/card";
 import {
+  type ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,

@@ -80,8 +80,7 @@ export function ActivityTimeline({
   const orpc = useORPC();
 
   const historyQueryOptions = orpc.vacancy.responses.history.queryOptions({
-    responseId: candidateId,
-    workspaceId,
+    input: { responseId: candidateId, workspaceId },
   });
 
   const { data, isPending } = useQuery(historyQueryOptions);

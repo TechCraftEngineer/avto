@@ -39,7 +39,9 @@ export function RejectDialog({
     orpc.candidates.rejectCandidate.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: orpc.candidates.list.queryKey(),
+          queryKey: orpc.candidates.list.queryKey({
+            input: { workspaceId },
+          }),
         });
         toast.success("Кандидат отклонён");
         onOpenChange(false);

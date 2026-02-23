@@ -8,11 +8,12 @@ export default async function VacanciesPage({
   params: Promise<{ orgSlug: string; slug: string }>;
 }) {
   const { orgSlug, slug } = await params;
-  const caller = api;
-  const organization = await caller.organization.getBySlug({ slug: orgSlug });
+  const organization = await api.organization.getBySlug({
+    slug: orgSlug,
+  });
   if (!organization) notFound();
 
-  const workspace = await caller.organization.getWorkspaceBySlug({
+  const workspace = await api.organization.getWorkspaceBySlug({
     organizationId: organization.id,
     slug,
   });
@@ -20,12 +21,14 @@ export default async function VacanciesPage({
 
   const queryClient = makeQueryClient();
   const queryOptions = orpc.freelancePlatforms.getVacancies.queryOptions({
-    workspaceId: workspace.id,
-    statusFilter: "all",
-    sortBy: "createdAt",
-    sortOrder: "desc",
-    page: 1,
-    limit: 50,
+    input: {
+      workspaceId: workspace.id,
+      statusFilter: "all",
+      sortBy: "createdAt",
+      sortOrder: "desc",
+      page: 1,
+      limit: 50,
+    },
   });
   await queryClient.prefetchQuery(queryOptions);
 

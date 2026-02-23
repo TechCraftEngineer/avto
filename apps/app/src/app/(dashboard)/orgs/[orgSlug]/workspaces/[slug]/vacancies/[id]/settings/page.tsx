@@ -33,8 +33,7 @@ export default function VacancySettingsPage({
 
   const { data: vacancy } = useQuery({
     ...orpc.vacancy.get.queryOptions({
-      id,
-      workspaceId: workspaceId ?? "",
+      input: { id, workspaceId: workspaceId ?? "" },
     }),
     enabled: Boolean(workspaceId),
   });

@@ -97,8 +97,7 @@ export default function GigResponseDetailPage({ params }: PageProps) {
     isError,
   } = useQuery({
     ...orpc.gig.responses.get.queryOptions({
-      responseId,
-      workspaceId: workspace?.id ?? "",
+      input: { responseId, workspaceId: workspace?.id ?? "" },
     }),
     enabled: !!workspace?.id,
   });
@@ -106,9 +105,11 @@ export default function GigResponseDetailPage({ params }: PageProps) {
   // Fetch all response IDs for navigation
   const { data: responsesData } = useQuery({
     ...orpc.gig.responses.list.queryOptions({
-      gigId,
-      workspaceId: workspace?.id ?? "",
-      limit: 1000, // Get all responses for navigation
+      input: {
+        gigId,
+        workspaceId: workspace?.id ?? "",
+        limit: 1000, // Get all responses for navigation
+      },
     }),
     enabled: !!workspace?.id && !!gigId,
   });
@@ -179,14 +180,12 @@ export default function GigResponseDetailPage({ params }: PageProps) {
         });
         queryClient.invalidateQueries({
           queryKey: orpc.gig.responses.get.queryKey({
-            responseId,
-            workspaceId: workspace?.id ?? "",
+            input: { responseId, workspaceId: workspace?.id ?? "" },
           }),
         });
         queryClient.invalidateQueries({
           queryKey: orpc.gig.responses.list.queryKey({
-            gigId,
-            workspaceId: workspace?.id ?? "",
+            input: { gigId, workspaceId: workspace?.id ?? "" },
           }),
         });
         toast.success("Отклик принят");
@@ -211,14 +210,12 @@ export default function GigResponseDetailPage({ params }: PageProps) {
         });
         queryClient.invalidateQueries({
           queryKey: orpc.gig.responses.get.queryKey({
-            responseId,
-            workspaceId: workspace?.id ?? "",
+            input: { responseId, workspaceId: workspace?.id ?? "" },
           }),
         });
         queryClient.invalidateQueries({
           queryKey: orpc.gig.responses.list.queryKey({
-            gigId,
-            workspaceId: workspace?.id ?? "",
+            input: { gigId, workspaceId: workspace?.id ?? "" },
           }),
         });
         toast.success("Отклик отклонен");
@@ -285,8 +282,7 @@ export default function GigResponseDetailPage({ params }: PageProps) {
 
       queryClient.invalidateQueries({
         queryKey: orpc.gig.responses.get.queryKey({
-          responseId,
-          workspaceId: workspace?.id ?? "",
+          input: { responseId, workspaceId: workspace?.id ?? "" },
         }),
       });
 

@@ -60,26 +60,28 @@ export function VacanciesPageClient() {
     orpc.freelancePlatforms.getVacancies.queryOptions(
       workspace?.id
         ? {
-            workspaceId: workspace.id,
-            search: searchQuery || undefined,
-            source:
-              sourceFilter !== "all"
-                ? (sourceFilter as
-                    | "HH"
-                    | "FL_RU"
-                    | "FREELANCE_RU"
-                    | "WEB_LINK"
-                    | "AVITO"
-                    | "SUPERJOB"
-                    | "HABR")
-                : undefined,
-            statusFilter: statusFilter as "all" | "active" | "inactive",
-            sortBy,
-            sortOrder,
-            dateFrom: dateFrom || undefined,
-            dateTo: dateTo || undefined,
-            page,
-            limit: 50,
+            input: {
+              workspaceId: workspace.id,
+              search: searchQuery || undefined,
+              source:
+                sourceFilter !== "all"
+                  ? (sourceFilter as
+                      | "HH"
+                      | "FL_RU"
+                      | "FREELANCE_RU"
+                      | "WEB_LINK"
+                      | "AVITO"
+                      | "SUPERJOB"
+                      | "HABR")
+                  : undefined,
+              statusFilter: statusFilter as "all" | "active" | "inactive",
+              sortBy,
+              sortOrder,
+              dateFrom: dateFrom || undefined,
+              dateTo: dateTo || undefined,
+              page,
+              limit: 50,
+            },
           }
         : skipToken,
     ),
@@ -96,7 +98,16 @@ export function VacanciesPageClient() {
       setDeleteDialogOpen(false);
       setVacancyToDelete(null);
       await queryClient.invalidateQueries({
-        queryKey: orpc.freelancePlatforms.getVacancies.queryKey(),
+        queryKey: orpc.freelancePlatforms.getVacancies.queryKey({
+          input: {
+            workspaceId: workspace?.id ?? "",
+            statusFilter,
+            sortBy,
+            sortOrder,
+            page,
+            limit: 50,
+          },
+        }),
       });
     },
     onError: (error) => {

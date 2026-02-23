@@ -30,8 +30,7 @@ export default function VacancyResponseDetailPage() {
     orpc.vacancy.responses.get.queryOptions(
       workspaceId
         ? {
-            id: responseId,
-            workspaceId,
+            input: { id: responseId, workspaceId },
           }
         : skipToken,
     ),
@@ -42,8 +41,7 @@ export default function VacancyResponseDetailPage() {
     orpc.vacancy.get.queryOptions(
       workspaceId && vacancyId
         ? {
-            id: vacancyId,
-            workspaceId,
+            input: { id: vacancyId, workspaceId },
           }
         : skipToken,
     ),
@@ -54,12 +52,14 @@ export default function VacancyResponseDetailPage() {
     orpc.vacancy.responses.list.queryOptions(
       workspaceId && vacancyId
         ? {
-            workspaceId,
-            vacancyId,
-            page: 1,
-            limit: 100,
-            sortField: null,
-            sortDirection: "desc",
+            input: {
+              workspaceId,
+              vacancyId,
+              page: 1,
+              limit: 100,
+              sortField: null,
+              sortDirection: "desc",
+            },
           }
         : skipToken,
     ),

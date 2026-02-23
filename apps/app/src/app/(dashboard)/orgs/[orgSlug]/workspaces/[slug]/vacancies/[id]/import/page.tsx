@@ -81,8 +81,7 @@ export default function ImportResponsesPage() {
   // Получаем информацию о вакансии
   const { data: vacancyData } = useQuery({
     ...api.freelancePlatforms.getVacancyById.queryOptions({
-      id: vacancyId,
-      workspaceId: workspace?.id ?? "",
+      input: { id: vacancyId, workspaceId: workspace?.id ?? "" },
     }),
     enabled: !!workspace?.id && !!vacancyId,
   });

@@ -30,16 +30,14 @@ export default function VacancyDetailPage({ params }: VacancyDetailPageProps) {
 
   const { data: vacancy, isLoading } = useQuery({
     ...orpc.vacancy.get.queryOptions({
-      id,
-      workspaceId: workspaceId ?? "",
+      input: { id, workspaceId: workspaceId ?? "" },
     }),
     enabled: Boolean(workspaceId),
   });
 
   const { data: analytics } = useQuery({
     ...orpc.vacancy.analytics.queryOptions({
-      vacancyId: id,
-      workspaceId: workspaceId ?? "",
+      input: { vacancyId: id, workspaceId: workspaceId ?? "" },
     }),
     enabled: Boolean(id) && Boolean(workspaceId),
   });

@@ -154,8 +154,7 @@ export function VacancyIntegrationManager({
   // Получаем данные об интеграциях и публикациях
   const { data, isLoading } = useQuery(
     api.freelancePlatforms.getVacancyIntegrations.queryOptions({
-      vacancyId,
-      workspaceId,
+      input: { vacancyId, workspaceId },
     }),
   );
 
@@ -183,8 +182,7 @@ export function VacancyIntegrationManager({
         addPublicationForm.reset();
         queryClient.invalidateQueries({
           queryKey: api.freelancePlatforms.getVacancyIntegrations.queryKey({
-            vacancyId,
-            workspaceId,
+            input: { vacancyId, workspaceId },
           }),
         });
       },
@@ -207,8 +205,7 @@ export function VacancyIntegrationManager({
         updatePublicationForm.reset();
         queryClient.invalidateQueries({
           queryKey: api.freelancePlatforms.getVacancyIntegrations.queryKey({
-            vacancyId,
-            workspaceId,
+            input: { vacancyId, workspaceId },
           }),
         });
       },
@@ -229,8 +226,7 @@ export function VacancyIntegrationManager({
         toast.success(result.message);
         queryClient.invalidateQueries({
           queryKey: api.freelancePlatforms.getVacancyIntegrations.queryKey({
-            vacancyId,
-            workspaceId,
+            input: { vacancyId, workspaceId },
           }),
         });
       },
@@ -251,8 +247,7 @@ export function VacancyIntegrationManager({
         toast.success(result.message);
         queryClient.invalidateQueries({
           queryKey: api.freelancePlatforms.getVacancyIntegrations.queryKey({
-            vacancyId,
-            workspaceId,
+            input: { vacancyId, workspaceId },
           }),
         });
       },

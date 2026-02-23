@@ -96,8 +96,7 @@ export function ScreenResponseButton({
         try {
           const response = await queryClient.fetchQuery(
             orpc.vacancy.responses.get.queryOptions({
-              id: responseId,
-              workspaceId: workspace.id,
+              input: { id: responseId, workspaceId: workspace.id },
             }),
           );
 
@@ -122,13 +121,13 @@ export function ScreenResponseButton({
               if (vacancyId) {
                 void queryClient.invalidateQueries({
                   queryKey: orpc.vacancy.responses.list.queryKey({
-                    vacancyId,
+                    input: { workspaceId: workspace.id, vacancyId },
                   }),
                 });
               } else {
-                void queryClient.invalidateQueries(
-                  orpc.vacancy.responses.list.pathFilter(),
-                );
+                void queryClient.invalidateQueries({
+                  queryKey: orpc.vacancy.queryKey(),
+                });
               }
             }
             resolve();
@@ -202,14 +201,16 @@ export function ScreenResponseButton({
     setShowModal(open);
     if (!open) {
       setScreeningResult(null);
-      if (vacancyId) {
+      if (vacancyId && workspace?.id) {
         void queryClient.invalidateQueries({
-          queryKey: orpc.vacancy.responses.list.queryKey({ vacancyId }),
+          queryKey: orpc.vacancy.responses.list.queryKey({
+            input: { workspaceId: workspace.id, vacancyId },
+          }),
         });
-      } else {
-        void queryClient.invalidateQueries(
-          orpc.vacancy.responses.list.pathFilter(),
-        );
+      } else if (workspace?.id) {
+        void queryClient.invalidateQueries({
+          queryKey: orpc.vacancy.queryKey(),
+        });
       }
     }
   };

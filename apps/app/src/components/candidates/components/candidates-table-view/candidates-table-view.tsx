@@ -82,17 +82,19 @@ export function CandidatesTableView() {
 
   const { data: vacancies } = useQuery({
     ...orpc.vacancy.listActive.queryOptions({
-      workspaceId: workspaceId ?? "",
+      input: { workspaceId: workspaceId ?? "" },
     }),
     enabled: !!workspaceId,
   });
 
   const { data: candidatesData, isLoading } = useQuery({
     ...orpc.candidates.list.queryOptions({
-      workspaceId: workspaceId ?? "",
-      vacancyId: selectedVacancy || undefined,
-      search: debouncedSearch || undefined,
-      limit: 200,
+      input: {
+        workspaceId: workspaceId ?? "",
+        vacancyId: selectedVacancy || undefined,
+        search: debouncedSearch || undefined,
+        limit: 200,
+      },
     }),
     enabled: !!workspaceId,
   });

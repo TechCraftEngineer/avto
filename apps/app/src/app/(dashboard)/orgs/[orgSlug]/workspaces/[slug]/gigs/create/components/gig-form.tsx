@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@qbs-autonaim/ui/components/select";
 import { Textarea } from "@qbs-autonaim/ui/components/textarea";
+import { useQueryClient } from "@tanstack/react-query";
 import { Check, Loader2 } from "lucide-react";
 import { useCallback, useEffect, useRef } from "react";
 import type { UseFormReturn } from "react-hook-form";
@@ -63,7 +64,8 @@ export function GigForm({
   isCreating,
   workspaceId,
 }: GigFormProps) {
-  const trpc = useORPC();
+  const orpc = useORPC();
+  const queryClient = useQueryClient();
   const lastImportedUrlRef = useRef<string | null>(null);
 
   const tryImportFromKwork = useCallback(
@@ -76,10 +78,11 @@ export function GigForm({
 
       lastImportedUrlRef.current = normalizedUrl;
       try {
-        const project = await trpc.gig.kwork.getProject.query({
-          workspaceId,
-          projectId,
-        });
+        const project = await queryClient.fetchQuery(
+          orpc.gig.kwork.getProject.queryOptions({
+            input: { workspaceId, projectId },
+          }),
+        );
         if (lastImportedUrlRef.current !== normalizedUrl) return;
         form.setValue("title", project.title || form.getValues("title"));
         form.setValue(
@@ -99,7 +102,7 @@ export function GigForm({
         }
       }
     },
-    [workspaceId, trpc, form],
+    [workspaceId, orpc, form],
   );
 
   const debouncedImportFromKwork = useDebouncedCallback(

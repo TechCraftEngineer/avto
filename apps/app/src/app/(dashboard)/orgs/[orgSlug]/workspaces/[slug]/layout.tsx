@@ -20,7 +20,9 @@ export default async function WorkspaceLayout({
   const { orgSlug, slug } = await params;
 
   // Получаем организацию и проверяем доступ
-  const organization = await api.organization.getBySlug({ slug: orgSlug });
+  const organization = await api.organization.getBySlug({
+    slug: orgSlug,
+  });
 
   if (!organization) {
     notFound();

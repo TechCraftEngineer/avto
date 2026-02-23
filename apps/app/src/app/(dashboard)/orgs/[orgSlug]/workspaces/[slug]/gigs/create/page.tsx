@@ -144,7 +144,11 @@ export default function CreateGigPage({ params }: PageProps) {
     orpc.gig.create.mutationOptions({
       onSuccess: () => {
         toast.success("Задание создано");
-        queryClient.invalidateQueries({ queryKey: orpc.gig.list.queryKey() });
+        queryClient.invalidateQueries({
+          queryKey: orpc.gig.list.queryKey({
+            input: { workspaceId: workspace?.id ?? "" },
+          }),
+        });
         router.push(`/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs`);
       },
       onError: (e) => toast.error(e.message || "Не удалось создать задание"),

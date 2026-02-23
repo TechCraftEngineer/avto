@@ -99,7 +99,7 @@ export function CandidatePipeline() {
     stageLimits,
   });
 
-  const updateStageMutation = useStageUpdate();
+  const updateStageMutation = useStageUpdate(workspaceId ?? "");
 
   const handleDragEnd = useCallback(
     (candidateId: string, newStage: FunnelStage) => {
@@ -115,7 +115,7 @@ export function CandidatePipeline() {
 
   const { data: vacancies } = useQuery({
     ...orpc.vacancy.listActive.queryOptions({
-      workspaceId: workspaceId ?? "",
+      input: { workspaceId: workspaceId ?? "" },
     }),
     enabled: !!workspaceId,
   });

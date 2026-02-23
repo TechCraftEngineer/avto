@@ -20,11 +20,13 @@ export function useStageQueries({
 
   const screeningDoneQuery = useQuery({
     ...orpc.candidates.list.queryOptions({
-      workspaceId: workspaceId ?? "",
-      vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
-      search: debouncedSearch || undefined,
-      stages: ["SCREENING_DONE"],
-      limit: stageLimits.SCREENING_DONE,
+      input: {
+        workspaceId: workspaceId ?? "",
+        vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
+        search: debouncedSearch || undefined,
+        stages: ["SCREENING_DONE"],
+        limit: stageLimits.SCREENING_DONE,
+      },
     }),
     enabled,
     placeholderData: (previousData) => previousData,
@@ -32,11 +34,13 @@ export function useStageQueries({
 
   const chatInterviewQuery = useQuery({
     ...orpc.candidates.list.queryOptions({
-      workspaceId: workspaceId ?? "",
-      vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
-      search: debouncedSearch || undefined,
-      stages: ["INTERVIEW"],
-      limit: stageLimits.INTERVIEW,
+      input: {
+        workspaceId: workspaceId ?? "",
+        vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
+        search: debouncedSearch || undefined,
+        stages: ["INTERVIEW"],
+        limit: stageLimits.INTERVIEW,
+      },
     }),
     enabled,
     placeholderData: (previousData) => previousData,
@@ -44,11 +48,13 @@ export function useStageQueries({
 
   const offerSentQuery = useQuery({
     ...orpc.candidates.list.queryOptions({
-      workspaceId: workspaceId ?? "",
-      vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
-      search: debouncedSearch || undefined,
-      stages: ["OFFER_SENT"],
-      limit: stageLimits.OFFER_SENT,
+      input: {
+        workspaceId: workspaceId ?? "",
+        vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
+        search: debouncedSearch || undefined,
+        stages: ["OFFER_SENT"],
+        limit: stageLimits.OFFER_SENT,
+      },
     }),
     enabled,
     placeholderData: (previousData) => previousData,
@@ -56,11 +62,13 @@ export function useStageQueries({
 
   const securityPassedQuery = useQuery({
     ...orpc.candidates.list.queryOptions({
-      workspaceId: workspaceId ?? "",
-      vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
-      search: debouncedSearch || undefined,
-      stages: ["SECURITY_PASSED"],
-      limit: stageLimits.SECURITY_PASSED,
+      input: {
+        workspaceId: workspaceId ?? "",
+        vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
+        search: debouncedSearch || undefined,
+        stages: ["SECURITY_PASSED"],
+        limit: stageLimits.SECURITY_PASSED,
+      },
     }),
     enabled,
     placeholderData: (previousData) => previousData,
@@ -68,11 +76,13 @@ export function useStageQueries({
 
   const contractSentQuery = useQuery({
     ...orpc.candidates.list.queryOptions({
-      workspaceId: workspaceId ?? "",
-      vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
-      search: debouncedSearch || undefined,
-      stages: ["CONTRACT_SENT"],
-      limit: stageLimits.CONTRACT_SENT,
+      input: {
+        workspaceId: workspaceId ?? "",
+        vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
+        search: debouncedSearch || undefined,
+        stages: ["CONTRACT_SENT"],
+        limit: stageLimits.CONTRACT_SENT,
+      },
     }),
     enabled,
     placeholderData: (previousData) => previousData,
@@ -80,11 +90,13 @@ export function useStageQueries({
 
   const onboardingQuery = useQuery({
     ...orpc.candidates.list.queryOptions({
-      workspaceId: workspaceId ?? "",
-      vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
-      search: debouncedSearch || undefined,
-      stages: ["ONBOARDING"],
-      limit: stageLimits.ONBOARDING,
+      input: {
+        workspaceId: workspaceId ?? "",
+        vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
+        search: debouncedSearch || undefined,
+        stages: ["ONBOARDING"],
+        limit: stageLimits.ONBOARDING,
+      },
     }),
     enabled,
     placeholderData: (previousData) => previousData,
@@ -92,11 +104,13 @@ export function useStageQueries({
 
   const rejectedQuery = useQuery({
     ...orpc.candidates.list.queryOptions({
-      workspaceId: workspaceId ?? "",
-      vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
-      search: debouncedSearch || undefined,
-      stages: ["REJECTED"],
-      limit: stageLimits.REJECTED,
+      input: {
+        workspaceId: workspaceId ?? "",
+        vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
+        search: debouncedSearch || undefined,
+        stages: ["REJECTED"],
+        limit: stageLimits.REJECTED,
+      },
     }),
     enabled,
     placeholderData: (previousData) => previousData,
@@ -105,79 +119,93 @@ export function useStageQueries({
   return [
     {
       stage: "SCREENING_DONE" as FunnelStage,
-      queryKey: orpc.candidates.list.queryOptions({
-        workspaceId: workspaceId ?? "",
-        vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
-        search: debouncedSearch || undefined,
-        stages: ["SCREENING_DONE"],
-        limit: stageLimits.SCREENING_DONE,
-      }).queryKey,
+      queryKey: orpc.candidates.list.queryKey({
+        input: {
+          workspaceId: workspaceId ?? "",
+          vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
+          search: debouncedSearch || undefined,
+          stages: ["SCREENING_DONE"],
+          limit: stageLimits.SCREENING_DONE,
+        },
+      }),
       query: screeningDoneQuery,
     },
     {
       stage: "INTERVIEW" as FunnelStage,
-      queryKey: orpc.candidates.list.queryOptions({
-        workspaceId: workspaceId ?? "",
-        vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
-        search: debouncedSearch || undefined,
-        stages: ["INTERVIEW"],
-        limit: stageLimits.INTERVIEW,
-      }).queryKey,
+      queryKey: orpc.candidates.list.queryKey({
+        input: {
+          workspaceId: workspaceId ?? "",
+          vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
+          search: debouncedSearch || undefined,
+          stages: ["INTERVIEW"],
+          limit: stageLimits.INTERVIEW,
+        },
+      }),
       query: chatInterviewQuery,
     },
     {
       stage: "OFFER_SENT" as FunnelStage,
-      queryKey: orpc.candidates.list.queryOptions({
-        workspaceId: workspaceId ?? "",
-        vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
-        search: debouncedSearch || undefined,
-        stages: ["OFFER_SENT"],
-        limit: stageLimits.OFFER_SENT,
-      }).queryKey,
+      queryKey: orpc.candidates.list.queryKey({
+        input: {
+          workspaceId: workspaceId ?? "",
+          vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
+          search: debouncedSearch || undefined,
+          stages: ["OFFER_SENT"],
+          limit: stageLimits.OFFER_SENT,
+        },
+      }),
       query: offerSentQuery,
     },
     {
       stage: "SECURITY_PASSED" as FunnelStage,
-      queryKey: orpc.candidates.list.queryOptions({
-        workspaceId: workspaceId ?? "",
-        vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
-        search: debouncedSearch || undefined,
-        stages: ["SECURITY_PASSED"],
-        limit: stageLimits.SECURITY_PASSED,
-      }).queryKey,
+      queryKey: orpc.candidates.list.queryKey({
+        input: {
+          workspaceId: workspaceId ?? "",
+          vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
+          search: debouncedSearch || undefined,
+          stages: ["SECURITY_PASSED"],
+          limit: stageLimits.SECURITY_PASSED,
+        },
+      }),
       query: securityPassedQuery,
     },
     {
       stage: "CONTRACT_SENT" as FunnelStage,
-      queryKey: orpc.candidates.list.queryOptions({
-        workspaceId: workspaceId ?? "",
-        vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
-        search: debouncedSearch || undefined,
-        stages: ["CONTRACT_SENT"],
-        limit: stageLimits.CONTRACT_SENT,
-      }).queryKey,
+      queryKey: orpc.candidates.list.queryKey({
+        input: {
+          workspaceId: workspaceId ?? "",
+          vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
+          search: debouncedSearch || undefined,
+          stages: ["CONTRACT_SENT"],
+          limit: stageLimits.CONTRACT_SENT,
+        },
+      }),
       query: contractSentQuery,
     },
     {
       stage: "ONBOARDING" as FunnelStage,
-      queryKey: orpc.candidates.list.queryOptions({
-        workspaceId: workspaceId ?? "",
-        vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
-        search: debouncedSearch || undefined,
-        stages: ["ONBOARDING"],
-        limit: stageLimits.ONBOARDING,
-      }).queryKey,
+      queryKey: orpc.candidates.list.queryKey({
+        input: {
+          workspaceId: workspaceId ?? "",
+          vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
+          search: debouncedSearch || undefined,
+          stages: ["ONBOARDING"],
+          limit: stageLimits.ONBOARDING,
+        },
+      }),
       query: onboardingQuery,
     },
     {
       stage: "REJECTED" as FunnelStage,
-      queryKey: orpc.candidates.list.queryOptions({
-        workspaceId: workspaceId ?? "",
-        vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
-        search: debouncedSearch || undefined,
-        stages: ["REJECTED"],
-        limit: stageLimits.REJECTED,
-      }).queryKey,
+      queryKey: orpc.candidates.list.queryKey({
+        input: {
+          workspaceId: workspaceId ?? "",
+          vacancyId: selectedVacancy === "all" ? undefined : selectedVacancy,
+          search: debouncedSearch || undefined,
+          stages: ["REJECTED"],
+          limit: stageLimits.REJECTED,
+        },
+      }),
       query: rejectedQuery,
     },
   ];

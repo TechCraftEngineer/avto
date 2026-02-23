@@ -8,7 +8,9 @@ export default async function ResponsesPage({
   params: Promise<{ orgSlug: string; slug: string }>;
 }) {
   const { orgSlug, slug } = await params;
-  const organization = await api.organization.getBySlug({ slug: orgSlug });
+  const organization = await api.organization.getBySlug({
+    slug: orgSlug,
+  });
   if (!organization) notFound();
 
   const workspace = await api.organization.getWorkspaceBySlug({

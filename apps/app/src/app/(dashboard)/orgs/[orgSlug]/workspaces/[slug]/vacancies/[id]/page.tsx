@@ -34,16 +34,14 @@ export default function VacancyDetailPage() {
 
   const { data, isLoading, error, isError } = useQuery({
     ...api.freelancePlatforms.getVacancyById.queryOptions({
-      id,
-      workspaceId: workspace?.id ?? "",
+      input: { id, workspaceId: workspace?.id ?? "" },
     }),
     enabled: !!workspace?.id && !!id,
   });
 
   const { data: shortlistData, isLoading: shortlistLoading } = useQuery({
     ...api.freelancePlatforms.getShortlist.queryOptions({
-      vacancyId: id,
-      workspaceId: workspace?.id ?? "",
+      input: { vacancyId: id, workspaceId: workspace?.id ?? "" },
     }),
     enabled: !!workspace?.id && !!id,
   });

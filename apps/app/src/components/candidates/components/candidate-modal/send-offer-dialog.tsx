@@ -121,7 +121,9 @@ export function SendOfferDialog({
     orpc.candidates.sendOffer.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: orpc.candidates.list.queryKey(),
+          queryKey: orpc.candidates.list.queryKey({
+            input: { workspaceId },
+          }),
         });
         toast.success("Оффер успешно отправлен");
         onOpenChange(false);

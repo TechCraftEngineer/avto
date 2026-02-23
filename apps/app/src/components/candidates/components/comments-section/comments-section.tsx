@@ -33,8 +33,7 @@ export function CommentsSection({
 
   const { data: comments, isLoading } = useQuery({
     ...orpc.candidates.listComments.queryOptions({
-      workspaceId,
-      candidateId,
+      input: { workspaceId, candidateId },
     }),
     enabled: !!workspaceId && !!candidateId,
   });
@@ -43,7 +42,9 @@ export function CommentsSection({
     orpc.candidates.addComment.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: orpc.candidates.listComments.queryKey(),
+          queryKey: orpc.candidates.listComments.queryKey({
+            input: { workspaceId, candidateId },
+          }),
         });
         setNewComment("");
         toast.success("Комментарий добавлен");

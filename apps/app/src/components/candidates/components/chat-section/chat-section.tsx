@@ -36,8 +36,7 @@ export function ChatSection({ candidateId, workspaceId }: ChatSectionProps) {
 
   const { data: messages = [] } = useQuery({
     ...orpc.candidates.listMessages.queryOptions({
-      candidateId,
-      workspaceId,
+      input: { candidateId, workspaceId },
     }),
   });
 
@@ -47,7 +46,9 @@ export function ChatSection({ candidateId, workspaceId }: ChatSectionProps) {
     orpc.telegram.send.send.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: orpc.candidates.listMessages.queryKey(),
+          queryKey: orpc.candidates.listMessages.queryKey({
+            input: { candidateId, workspaceId },
+          }),
         });
         setMessageText("");
         textareaRef.current?.focus();
