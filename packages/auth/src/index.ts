@@ -61,7 +61,7 @@ export function initAuth<
 
     // Rate limiting для защиты от брутфорса
     rateLimit: {
-      enabled: true,
+      enabled: false,
       window: 60, // 60 секунд
       max: 10, // Максимум 10 запросов
       storage: "database", // Используем БД (для production рекомендуется Redis)
