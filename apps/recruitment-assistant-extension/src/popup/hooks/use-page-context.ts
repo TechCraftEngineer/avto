@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import type { PageContext } from "../types";
 import { getPageContext } from "../utils";
 
-const HH_SELECTED_STORAGE_KEY = "hh-selected-vacancy-ids";
-
 function fetchPageContextFromActiveTab(
   cb: (ctx: PageContext | null) => void,
 ): void {
@@ -13,10 +11,17 @@ function fetchPageContextFromActiveTab(
   });
 }
 
+/** Запрашивает count у content script — источник правды (DOM страницы) */
 function fetchSelectedCount(cb: (n: number) => void): void {
-  chrome.storage.local.get(HH_SELECTED_STORAGE_KEY).then((r) => {
-    const arr = r[HH_SELECTED_STORAGE_KEY] as string[] | undefined;
-    cb(Array.isArray(arr) ? arr.length : 0);
+  chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
+    if (!tab?.id) {
+      cb(0);
+      return;
+    }
+    chrome.tabs
+      .sendMessage(tab.id, { type: "GET_SELECTED_VACANCIES_COUNT" })
+      .then((resp: { count?: number }) => cb(resp?.count ?? 0))
+      .catch(() => cb(0));
   });
 }
 
@@ -60,35 +65,17 @@ export function usePageContext() {
     if (pageContext?.type !== "hh-vacancies") return;
 
     const updateCount = () => fetchSelectedCount(setSelectedCount);
-
     updateCount();
-
-    const listener = (
-      changes: Record<string, chrome.storage.StorageChange>,
-      areaName: string,
-    ) => {
-      if (areaName === "local" && changes[HH_SELECTED_STORAGE_KEY]) {
-        const arr = changes[HH_SELECTED_STORAGE_KEY].newValue as
-          | string[]
-          | undefined;
-        setSelectedCount(Array.isArray(arr) ? arr.length : 0);
-      }
-    };
 
     const onVisibilityChange = () => {
       if (document.visibilityState === "visible") updateCount();
     };
-
-    // Опрос: popup при закрытии уничтожается, и при повторном открытии
-    // нужен актуальный count. storage.onChanged срабатывает только пока popup открыт.
     const pollInterval = setInterval(updateCount, 1500);
 
-    chrome.storage.onChanged.addListener(listener);
     document.addEventListener("visibilitychange", onVisibilityChange);
 
     return () => {
       clearInterval(pollInterval);
-      chrome.storage.onChanged.removeListener(listener);
       document.removeEventListener("visibilitychange", onVisibilityChange);
     };
   }, [pageContext]);

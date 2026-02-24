@@ -5,6 +5,7 @@
 
 export type { HHEmployerPageType } from "../../parsers/hh-employer";
 export { detectHHEmployerPageType } from "../../parsers/hh-employer";
+export { getCheckedCountFromDOM } from "./checkboxes";
 export {
   type ImportProgress,
   type ImportResult,

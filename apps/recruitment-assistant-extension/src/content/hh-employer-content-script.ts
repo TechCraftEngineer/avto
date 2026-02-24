@@ -7,6 +7,7 @@ import { getVacancyIdFromResponsesPage } from "../parsers/hh-employer";
 import { IMPORT_PROGRESS_KEY } from "../shared/import-progress";
 import {
   detectHHEmployerPageType,
+  getCheckedCountFromDOM,
   getSelectedIds,
   initHHEmployerContentScript,
   runResponsesImport,
@@ -136,10 +137,16 @@ chrome.runtime.onMessage.addListener(
     }
 
     if (msg?.type === "GET_SELECTED_VACANCIES_COUNT") {
-      getSelectedIds().then((ids) => {
-        sendResponse({ count: ids.size });
-      });
-      return true;
+      const pageType = detectHHEmployerPageType();
+      if (
+        pageType !== "active-vacancies" &&
+        pageType !== "archived-vacancies"
+      ) {
+        sendResponse({ count: 0 });
+        return false;
+      }
+      sendResponse({ count: getCheckedCountFromDOM(pageType) });
+      return false;
     }
 
     return false;

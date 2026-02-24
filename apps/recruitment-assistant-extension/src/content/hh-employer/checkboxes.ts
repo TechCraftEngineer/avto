@@ -161,3 +161,18 @@ function injectCheckboxesForActive(
 export function getCheckboxClass(): string {
   return CHECKBOX_CLASS;
 }
+
+/** Считает отмеченные чекбоксы по DOM — источник правды для текущей страницы */
+export function getCheckedCountFromDOM(
+  pageType: "active-vacancies" | "archived-vacancies",
+): number {
+  if (pageType === "archived-vacancies") {
+    const inputs = document.querySelectorAll<HTMLInputElement>(
+      ARCHIVE_CHECKBOX_SELECTOR,
+    );
+    return [...inputs].filter((cb) => cb.checked).length;
+  }
+  return document.querySelectorAll<HTMLInputElement>(
+    `input.${CHECKBOX_CLASS}:checked`,
+  ).length;
+}
