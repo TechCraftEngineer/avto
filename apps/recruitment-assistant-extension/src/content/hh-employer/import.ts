@@ -427,6 +427,11 @@ export async function runResponsesImport(
       for (const item of batch) {
         if (item.resumePdfBase64) {
           try {
+            console.log(
+              "[Import] Загрузка PDF резюме для",
+              item.name,
+              "через /hh-import/upload-resume-pdf",
+            );
             await chrome.runtime.sendMessage({
               type: "API_REQUEST",
               payload: {
@@ -477,7 +482,12 @@ export async function runResponsesImport(
           // пропускаем ошибки
         }
         try {
-          const pdfUrl = getResumePdfUrl(r.resumeUrl, r.name);
+          // Используем origin текущей страницы для same-origin fetch (обход CORS на regional subdomain: volokolamsk.hh.ru и т.д.)
+          const pdfUrl = getResumePdfUrl(
+            r.resumeUrl,
+            r.name,
+            typeof window !== "undefined" ? window.location.origin : undefined,
+          );
           if (pdfUrl) {
             const pdfData = await fetchResumePdfAsBase64(pdfUrl);
             if (pdfData?.base64) {

@@ -3,11 +3,13 @@
  */
 
 /**
- * Формирует URL PDF версии резюме
+ * Формирует URL PDF версии резюме.
+ * @param baseOrigin - origin текущей страницы (window.location.origin) для обхода CORS при regional subdomain (volokolamsk.hh.ru и т.д.)
  */
 export function getResumePdfUrl(
   resumeUrl: string,
   candidateName?: string,
+  baseOrigin = "https://hh.ru",
 ): string | null {
   try {
     const urlMatch = resumeUrl.match(/\/resume\/([a-f0-9]+)/);
@@ -20,8 +22,9 @@ export function getResumePdfUrl(
     const resumeHash = urlMatch[1];
     const vacancyId = vacancyIdMatch?.[1] || "";
     const fileName = candidateName || "resume";
+    const origin = baseOrigin.replace(/\/$/, "");
 
-    return `https://hh.ru/resume_converter/${encodeURIComponent(fileName)}.pdf?hash=${resumeHash}${vacancyId ? `&vacancyId=${vacancyId}` : ""}&type=pdf&hhtmSource=resume&hhtmFrom=employer_vacancy_responses`;
+    return `${origin}/resume_converter/${encodeURIComponent(fileName)}.pdf?hash=${resumeHash}${vacancyId ? `&vacancyId=${vacancyId}` : ""}&type=pdf&hhtmSource=resume&hhtmFrom=employer_vacancy_responses`;
   } catch {
     return null;
   }
