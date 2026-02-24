@@ -135,7 +135,6 @@ export function useGettingStarted() {
       href: paths.account.integrations,
       completed: !!userIntegrations?.some((i) => i.type === "google_calendar"),
     },
-   
 
     {
       id: "telegram-setup",
