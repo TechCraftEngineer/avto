@@ -1,5 +1,4 @@
 import { paths } from "@qbs-autonaim/config";
-import { RATE_LIMITS, rateLimit } from "@qbs-autonaim/server-utils";
 import { getSessionCookie } from "better-auth/cookies";
 import { type NextRequest, NextResponse } from "next/server";
 import { pathnameSchema } from "~/lib/pathname-schema";
@@ -56,9 +55,8 @@ export async function proxy(request: NextRequest) {
 
   // Публичные маршруты (не требуют аутентификации)
   // /auth/verify-email доступен всем (и авторизованным, и нет)
-  const publicPaths = ["/auth", "/api", "/invite"];
+  const publicPaths = ["/auth", "/invite"];
   const isPublicPath = publicPaths.some((path) => pathname.startsWith(path));
-
   // Если нет cookie сессии и пытается зайти на защищенный маршрут
   if (!sessionCookie && !isPublicPath) {
     const signInUrl = new URL(paths.auth.signin, request.url);
@@ -86,63 +84,6 @@ export async function proxy(request: NextRequest) {
     "Permissions-Policy",
     "camera=(), microphone=(), geolocation=()",
   );
-
-  // Apply rate limiting for API routes
-  if (request.nextUrl.pathname.startsWith("/api/")) {
-    const clientIP =
-      request.headers.get("x-forwarded-for") ||
-      request.headers.get("x-real-ip") ||
-      "unknown";
-
-    // Исключаем webhooks и health checks из rate limiting
-    const isWebhook = request.nextUrl.pathname.startsWith("/api/webhook/");
-    const isHealthCheck = request.nextUrl.pathname === "/api/health";
-
-    // Пропускаем rate limiting для специальных endpoints
-    if (isWebhook || isHealthCheck) {
-      return response;
-    }
-
-    // Different rate limits for different endpoints
-    let rateLimitConfig: { limit: number; windowMs: number } =
-      RATE_LIMITS.api.default;
-    if (request.nextUrl.pathname.startsWith("/api/auth/")) {
-      rateLimitConfig = RATE_LIMITS.auth.signIn;
-    }
-
-    const rateLimitResult = rateLimit(
-      clientIP,
-      rateLimitConfig.limit,
-      rateLimitConfig.windowMs,
-    );
-
-    // Set rate limit headers
-    response.headers.set("X-Rate-Limit-Limit", String(rateLimitConfig.limit));
-    response.headers.set(
-      "X-Rate-Limit-Remaining",
-      String(rateLimitResult.remaining),
-    );
-    response.headers.set(
-      "X-Rate-Limit-Reset",
-      String(rateLimitResult.resetTime),
-    );
-
-    // Return 429 if rate limit exceeded
-    if (!rateLimitResult.success) {
-      return new NextResponse("Too Many Requests", {
-        status: 429,
-        headers: {
-          ...Object.fromEntries(response.headers.entries()),
-          "Retry-After": String(
-            Math.max(
-              0,
-              Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000),
-            ),
-          ),
-        },
-      });
-    }
-  }
 
   return response;
 }

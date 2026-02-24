@@ -30,6 +30,7 @@ export default async function DashboardLayout({
 
   try {
     session = await getSession();
+    console.log("session", session);
   } catch (error) {
     console.error("[DashboardLayout] Ошибка получения сессии:", error);
 
