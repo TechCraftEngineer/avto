@@ -12,7 +12,7 @@ export const ARCHIVE_CHECKBOX_SELECTOR =
 
 /** Нативные чекбоксы HH для активных вакансий (span[data-qa="vacancies-dashboard-vacancy-input"] input) */
 export const ACTIVE_CHECKBOX_SELECTOR =
-  '[data-qa="vacancies-dashboard-vacancy-input"] input[type="checkbox"]';
+  '[data-qa="vacancies-dashboard-vacancy-label"] input[type="checkbox"]';
 
 let archiveOnUpdate: (() => void) | null = null;
 let archiveListenerBound = false;
@@ -46,7 +46,7 @@ function bindActiveChangeListener(): void {
       const target = e.target as HTMLInputElement;
       if (
         target?.type === "checkbox" &&
-        target.closest("[data-qa='vacancies-dashboard-vacancy-input']")
+        target.closest("[data-qa='vacancies-dashboard-vacancy-label']")
       ) {
         activeOnUpdate?.();
       }

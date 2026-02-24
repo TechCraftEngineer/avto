@@ -50,14 +50,24 @@ export async function collectAllVacancies(
   return all;
 }
 
+/** Прогресс сбора откликов: собрано и опционально прогресс по письмам на текущей странице */
+export type ResponsesCollectProgress = {
+  collected: number;
+  estimatedTotal: number;
+  coverLetters?: { done: number; total: number };
+};
+
 /**
  * Собирает все отклики (с пагинацией).
  * Если передан fetchCoverLetters, после каждой страницы вызывает его для сбора сопроводительных писем.
  */
 export async function collectAllResponses(
   vacancyExternalId: string,
-  onProgress?: (current: number, total: number) => void,
-  fetchCoverLetters?: (pageResponses: ParsedResponse[]) => Promise<void>,
+  onProgress?: (info: ResponsesCollectProgress) => void,
+  fetchCoverLetters?: (
+    pageResponses: ParsedResponse[],
+    onLetterProgress?: (done: number, total: number) => void,
+  ) => Promise<void>,
 ): Promise<ParsedResponse[]> {
   const all: ParsedResponse[] = [];
   let pageNum = 0;
@@ -72,11 +82,21 @@ export async function collectAllResponses(
       }
     }
 
-    if (pageItems.length > 0 && fetchCoverLetters) {
-      await fetchCoverLetters(pageItems);
-    }
+    // Прогресс сразу после парсинга страницы — пользователь видит результат без ожидания писем
+    onProgress?.({
+      collected: all.length,
+      estimatedTotal: all.length + (pageItems.length > 0 ? 20 : 0),
+    });
 
-    onProgress?.(all.length, all.length + (pageItems.length > 0 ? 20 : 0));
+    if (pageItems.length > 0 && fetchCoverLetters) {
+      await fetchCoverLetters(pageItems, (lettersDone, lettersTotal) => {
+        onProgress?.({
+          collected: all.length,
+          estimatedTotal: all.length + 20,
+          coverLetters: { done: lettersDone, total: lettersTotal },
+        });
+      });
+    }
 
     const nextBtn = document.querySelector('[data-qa="pager-next"]');
     if (!nextBtn) break;

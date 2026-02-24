@@ -338,17 +338,23 @@ export async function runResponsesImport(
 
     const responses = await collectAllResponses(
       vacancyExternalId,
-      (cur) => {
+      (info) => {
+        let message: string;
+        if (info.coverLetters && info.coverLetters.total > 0) {
+          message = `Собрано откликов: ${info.collected}, письма: ${info.coverLetters.done}/${info.coverLetters.total}`;
+        } else {
+          message = `Собрано откликов: ${info.collected}`;
+        }
         onProgress?.({
           stage: "responses",
-          current: cur,
-          total: cur + 20,
-          message: `Собрано откликов: ${cur}`,
+          current: info.collected,
+          total: info.estimatedTotal,
+          message,
         });
       },
-      async (pageResponses) => {
+      async (pageResponses, onLetterProgress) => {
         try {
-          await fetchCoverLettersForPage(pageResponses);
+          await fetchCoverLettersForPage(pageResponses, onLetterProgress);
         } catch (e) {
           console.warn(
             "[Import] Не удалось загрузить сопроводительные письма:",

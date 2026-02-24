@@ -13,9 +13,10 @@ import {
   runVacanciesImportSelected,
 } from "./hh-employer";
 import { resolveAuth } from "./hh-employer/auth";
+import type { ImportProgress } from "./hh-employer/types";
 
-function reportProgress(message: string) {
-  void chrome.storage.local.set({ [IMPORT_PROGRESS_KEY]: { message } });
+function reportProgress(p: ImportProgress) {
+  void chrome.storage.local.set({ [IMPORT_PROGRESS_KEY]: p });
 }
 
 function clearProgress() {
@@ -59,7 +60,7 @@ chrome.runtime.onMessage.addListener(
             pageType,
             auth.context.workspaceId,
             auth.context.token,
-            (p) => reportProgress(p.message),
+            reportProgress,
           );
           clearProgress();
           sendResponse({
@@ -109,7 +110,7 @@ chrome.runtime.onMessage.addListener(
             auth.context.workspaceId,
             auth.context.token,
             true, // fetchResumeDetails: парсим текст резюме и фото
-            (p) => reportProgress(p.message),
+            reportProgress,
           );
           clearProgress();
           sendResponse({

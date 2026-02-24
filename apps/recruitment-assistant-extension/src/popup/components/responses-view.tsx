@@ -41,6 +41,12 @@ export function ResponsesView({
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [progressMessage, setProgressMessage] = useState<string | null>(null);
 
+  const [progressInfo, setProgressInfo] = useState<{
+    message: string;
+    current?: number;
+    total?: number;
+  } | null>(null);
+
   useEffect(() => {
     if (!isImporting) return;
     const listener = (
@@ -49,15 +55,30 @@ export function ResponsesView({
     ) => {
       if (areaName === "local" && changes[IMPORT_PROGRESS_KEY]) {
         const val = changes[IMPORT_PROGRESS_KEY].newValue as
-          | { message?: string }
+          | { message?: string; current?: number; total?: number }
           | undefined;
-        setProgressMessage(val?.message ?? null);
+        if (val) {
+          setProgressMessage(val.message ?? null);
+          setProgressInfo(
+            val.message
+              ? {
+                  message: val.message,
+                  current: val.current,
+                  total: val.total,
+                }
+              : null,
+          );
+        } else {
+          setProgressMessage(null);
+          setProgressInfo(null);
+        }
       }
     };
     chrome.storage.onChanged.addListener(listener);
     return () => {
       chrome.storage.onChanged.removeListener(listener);
       setProgressMessage(null);
+      setProgressInfo(null);
     };
   }, [isImporting]);
 
@@ -150,9 +171,29 @@ export function ResponsesView({
           </Button>
         </div>
         {isImporting && progressMessage && (
-          <output className="text-muted-foreground text-sm" aria-live="polite">
-            {progressMessage}
-          </output>
+          <div className="flex flex-col gap-1.5">
+            {progressInfo?.total != null &&
+              progressInfo.total > 0 &&
+              typeof progressInfo.current === "number" && (
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="h-full bg-primary transition-all duration-300"
+                    style={{
+                      width: `${Math.min(
+                        100,
+                        (100 * progressInfo.current) / progressInfo.total,
+                      )}%`,
+                    }}
+                  />
+                </div>
+              )}
+            <output
+              className="text-muted-foreground text-sm"
+              aria-live="polite"
+            >
+              {progressMessage}
+            </output>
+          </div>
         )}
         {successMessage && (
           <Alert

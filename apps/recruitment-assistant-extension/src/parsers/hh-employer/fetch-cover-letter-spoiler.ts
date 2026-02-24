@@ -40,17 +40,25 @@ function waitForCoverLetter(): Promise<string | null> {
 /**
  * Собирает coverLetter для откликов на текущей странице.
  * Инжектирует перехватчик, для каждого отклика кликает по кнопке, ждёт ответ.
+ * @param onProgress - вызывается после каждого загруженного письма: (done, total)
  */
 export async function fetchCoverLettersForPage(
   responses: Array<{ resumeId: string; coverLetter?: string }>,
+  onProgress?: (done: number, total: number) => void,
 ): Promise<void> {
   if (responses.length === 0) return;
 
   await injectInterceptor();
 
   const buttons = document.querySelectorAll(BUTTON_SELECTOR);
+  const limit = Math.min(responses.length, buttons.length);
+  const totalToFetch = Array.from(
+    { length: limit },
+    (_, i) => responses[i],
+  ).filter((r) => r && !r.coverLetter).length;
+  let doneCount = 0;
 
-  for (let i = 0; i < Math.min(responses.length, buttons.length); i++) {
+  for (let i = 0; i < limit; i++) {
     const btn = buttons[i] as HTMLButtonElement;
     const resp = responses[i];
     if (!resp || !btn) continue;
@@ -60,6 +68,9 @@ export async function fetchCoverLettersForPage(
     btn.click();
     const text = await letterPromise;
     if (text) resp.coverLetter = text;
+
+    doneCount++;
+    onProgress?.(doneCount, totalToFetch);
 
     await new Promise((r) => setTimeout(r, 200));
   }
