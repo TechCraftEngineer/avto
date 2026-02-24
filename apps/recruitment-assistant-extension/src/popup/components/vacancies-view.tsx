@@ -159,14 +159,19 @@ export function VacanciesView({
         </div>
         {(selectedCount ?? 0) === 0 && !isImporting ? (
           <Hint className="border-amber-200 bg-amber-50/80 text-amber-900">
-            <strong>Шаг 1:</strong> Отметьте галочками нужные вакансии на
-            странице. <strong>Шаг 2:</strong> Нажмите «Загрузить выбранные». Для
-            импорта с нескольких страниц — перейдите на первую страницу списка.
+            <span className="block">
+              <strong>Шаг 1.</strong> Отметьте галочками нужные вакансии на
+              странице.
+            </span>
+            <span className="block mt-1">
+              <strong>Шаг 2.</strong> Нажмите «Загрузить выбранные» — в систему
+              попадут только вакансии с текущей страницы.
+            </span>
           </Hint>
         ) : (
           <Hint>
-            Выбрано вакансий: {selectedCount ?? 0}. Нажмите кнопку ниже, чтобы
-            загрузить их в систему.
+            Выбрано {selectedCount ?? 0} вакансий на текущей странице. Нажмите
+            кнопку ниже для загрузки.
           </Hint>
         )}
         <div className="flex justify-center">

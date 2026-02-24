@@ -70,9 +70,13 @@ export function DefaultView({
           </p>
         </div>
         <Hint icon="steps">
-          <strong>Как добавить кандидата:</strong> откройте страницу резюме на
-          hh.ru или профиль на LinkedIn → нажмите «Извлечь данные» в этом окне →
-          затем «Импортировать».
+          <span className="block">
+            <strong>Как добавить кандидата:</strong>
+          </span>
+          <span className="mt-1 block">
+            Откройте резюме на hh.ru или профиль на LinkedIn → нажмите «Извлечь
+            данные» → затем «Импортировать».
+          </span>
         </Hint>
         <div className="flex flex-wrap justify-center gap-2 text-xs">
           <a

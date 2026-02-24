@@ -15,12 +15,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(__dirname, "..");
 const distDir = join(rootDir, "dist");
 
-const pkg = JSON.parse(
-  readFileSync(join(rootDir, "package.json"), "utf-8"),
-) as { version: string };
-const archiveName = `recruitment-assistant-extension-${pkg.version}.zip`;
-const archivePath = join(rootDir, archiveName);
-
 const PRODUCTION_API_URL = "https://app.avtonaim.qbsoft.ru";
 const PRODUCTION_EXTENSION_API_BASE =
   "https://hooks.avtonaim.qbsoft.ru/ext-api";
@@ -32,6 +26,12 @@ async function main(): Promise<void> {
   await $`bun run ${join(__dirname, "bump-version.ts")} ${bumpType}`.cwd(
     rootDir,
   );
+
+  const pkg = JSON.parse(
+    readFileSync(join(rootDir, "package.json"), "utf-8"),
+  ) as { version: string };
+  const archiveName = `recruitment-assistant-extension-${pkg.version}.zip`;
+  const archivePath = join(rootDir, archiveName);
 
   const apiUrl = process.env.EXTENSION_API_URL ?? PRODUCTION_API_URL;
   const apiBase =
