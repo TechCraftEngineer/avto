@@ -10,6 +10,7 @@ import {
   parseArchivedVacanciesFromDOM,
   parseResponsesFromDOM,
 } from "../../parsers/hh-employer";
+import { ACTIVE_CHECKBOX_SELECTOR } from "./checkboxes";
 
 /**
  * Собирает все вакансии (с пагинацией)
@@ -104,14 +105,27 @@ export function collectSelectedVacanciesFromCurrentPage(
   const selected: ParsedVacancy[] = [];
 
   if (isActive) {
-    // Для активных вакансий - проверяем наши инжектированные чекбоксы
-    const CHECKBOX_CLASS = "recruitment-assistant-vacancy-checkbox";
-    const checkedBoxes = document.querySelectorAll<HTMLInputElement>(
-      `input.${CHECKBOX_CLASS}:checked`,
+    const checkedIds = new Set<string>();
+    // Сначала проверяем нативные чекбоксы HH
+    const nativeChecked = document.querySelectorAll<HTMLInputElement>(
+      `${ACTIVE_CHECKBOX_SELECTOR}:checked`,
     );
-    const checkedIds = new Set(
-      [...checkedBoxes].map((cb) => cb.dataset.externalId).filter(Boolean),
-    );
+    if (nativeChecked.length > 0) {
+      nativeChecked.forEach((cb) => {
+        const val = cb.value?.trim();
+        if (val && val !== "on") checkedIds.add(val);
+      });
+    } else {
+      // Fallback: инжектированные чекбоксы (страница vacancy-serp)
+      const CHECKBOX_CLASS = "recruitment-assistant-vacancy-checkbox";
+      const injectedChecked = document.querySelectorAll<HTMLInputElement>(
+        `input.${CHECKBOX_CLASS}:checked`,
+      );
+      injectedChecked.forEach((cb) => {
+        const id = cb.dataset.externalId;
+        if (id) checkedIds.add(id);
+      });
+    }
 
     for (const v of allVacancies) {
       if (checkedIds.has(v.externalId)) {

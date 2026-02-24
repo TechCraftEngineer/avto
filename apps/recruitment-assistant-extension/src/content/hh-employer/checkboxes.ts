@@ -6,23 +6,18 @@ import type { HHEmployerPageType } from "../../parsers/hh-employer";
 
 const CHECKBOX_CLASS = "recruitment-assistant-vacancy-checkbox";
 
-/** Нативные чекбоксы HH: span[data-qa^="vacancies-dashboard-vacancy-archive-label"] input[type="checkbox"] */
+/** Нативные чекбоксы HH для архивных вакансий */
 export const ARCHIVE_CHECKBOX_SELECTOR =
   '[data-qa^="vacancies-dashboard-vacancy-archive-label"] input[type="checkbox"]';
 
+/** Нативные чекбоксы HH для активных вакансий (span[data-qa="vacancies-dashboard-vacancy-input"] input) */
+export const ACTIVE_CHECKBOX_SELECTOR =
+  '[data-qa="vacancies-dashboard-vacancy-input"] input[type="checkbox"]';
+
 let archiveOnUpdate: (() => void) | null = null;
 let archiveListenerBound = false;
-
-/** Извлекает externalId вакансии из чекбокса или родительской строки (HH не всегда ставит value) */
-function getArchiveVacancyId(checkbox: HTMLInputElement): string | null {
-  const val = checkbox.value?.trim();
-  if (val && val !== "on") return val;
-
-  const row = checkbox.closest('div[data-qa^="vacancy-archive_"]');
-  const dataQa = row?.getAttribute("data-qa") || "";
-  const match = dataQa.match(/vacancy-archive_(\d+)/);
-  return match?.[1] ?? null;
-}
+let activeOnUpdate: (() => void) | null = null;
+let activeListenerBound = false;
 
 function bindArchiveChangeListener(): void {
   if (archiveListenerBound) return;
@@ -40,6 +35,44 @@ function bindArchiveChangeListener(): void {
     },
     true,
   );
+}
+
+function bindActiveChangeListener(): void {
+  if (activeListenerBound) return;
+  activeListenerBound = true;
+  document.addEventListener(
+    "change",
+    (e) => {
+      const target = e.target as HTMLInputElement;
+      if (
+        target?.type === "checkbox" &&
+        target.closest("[data-qa='vacancies-dashboard-vacancy-input']")
+      ) {
+        activeOnUpdate?.();
+      }
+    },
+    true,
+  );
+}
+
+/** Есть ли на странице нативные чекбоксы активных вакансий */
+function hasNativeActiveCheckboxes(): boolean {
+  return document.querySelector(ACTIVE_CHECKBOX_SELECTOR) !== null;
+}
+
+/** Ждёт появления нативных чекбоксов активных вакансий */
+function whenActiveReady(cb: () => void): void {
+  if (hasNativeActiveCheckboxes()) {
+    cb();
+    return;
+  }
+  const observer = new MutationObserver(() => {
+    if (hasNativeActiveCheckboxes()) {
+      observer.disconnect();
+      cb();
+    }
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
 }
 
 /** Ждёт появления контейнера архивных вакансий (HH грузит их асинхронно) */
@@ -73,7 +106,28 @@ export function runNativeCheckboxBinding(
     return;
   }
 
-  injectCheckboxesForActive(pageType, onUpdate);
+  // Активные: если есть нативные чекбоксы HH — используем их, иначе инжектируем свои
+  if (hasNativeActiveCheckboxes()) {
+    activeOnUpdate = onUpdate;
+    bindActiveChangeListener();
+    onUpdate();
+    return;
+  }
+  let injected = false;
+  whenActiveReady(() => {
+    if (injected) return;
+    if (hasNativeActiveCheckboxes()) {
+      activeOnUpdate = onUpdate;
+      bindActiveChangeListener();
+      onUpdate();
+    }
+  });
+  // Если нативные не появились за 1.5 с — страница vacancy-serp, инжектируем
+  setTimeout(() => {
+    if (hasNativeActiveCheckboxes() || injected) return;
+    injected = true;
+    injectCheckboxesForActive(pageType, onUpdate);
+  }, 1500);
 }
 
 /** Извлекает externalId из строки активной вакансии (поддержка разных структур HH) */
@@ -145,6 +199,13 @@ export function getCheckedCountFromDOM(
       ARCHIVE_CHECKBOX_SELECTOR,
     );
     return [...inputs].filter((cb) => cb.checked).length;
+  }
+  // Активные: нативные чекбоксы HH или инжектированные
+  const nativeInputs = document.querySelectorAll<HTMLInputElement>(
+    `${ACTIVE_CHECKBOX_SELECTOR}:checked`,
+  );
+  if (nativeInputs.length > 0) {
+    return nativeInputs.length;
   }
   return document.querySelectorAll<HTMLInputElement>(
     `input.${CHECKBOX_CLASS}:checked`,

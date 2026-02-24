@@ -15,23 +15,32 @@ export interface ParsedVacancy {
 
 /**
  * Парсит активные вакансии со страницы hh.ru/employer/vacancies
+ * Поддержка двух версток: vacancy-serp (список) и vacancy-active_ (таблица dashboard)
  */
 export function parseActiveVacanciesFromDOM(): ParsedVacancy[] {
-  const elements = document.querySelectorAll(
+  const vacancySerp = document.querySelectorAll(
     '[data-qa="vacancy-serp__vacancy"]',
   );
+  const vacancyDashboard = document.querySelectorAll(
+    'div[data-qa^="vacancy-active_"]',
+  );
+  const elements = vacancyDashboard.length > 0 ? vacancyDashboard : vacancySerp;
   const vacancies: ParsedVacancy[] = [];
 
   elements.forEach((element) => {
+    // vacancy-active_ (dashboard): data-qa="vacancy-active_123", ссылка в a[data-qa="vacancies-dashboard-vacancy-name"]
+    const dataQa = element.getAttribute("data-qa") || "";
+    const fromDataQa = dataQa.match(/vacancy-active_(\d+)/)?.[1];
+
     const titleEl = element.querySelector(
-      '[data-qa="vacancy-serp__vacancy-title"]',
+      '[data-qa="vacancy-serp__vacancy-title"], a[data-qa="vacancies-dashboard-vacancy-name"]',
     ) as HTMLAnchorElement;
     const url = titleEl?.href || "";
     const idMatch = url.match(/\/vacancy\/(\d+)/);
-    const externalId = idMatch?.[1] || "";
+    const externalId = fromDataQa || idMatch?.[1] || "";
 
     const locationEl = element.querySelector(
-      '[data-qa="vacancy-serp__vacancy-address"]',
+      '[data-qa="vacancy-serp__vacancy-address"], div[data-qa="table-flexible-cell-area"]',
     );
     const viewsEl = element.querySelector(
       '[data-qa="vacancy-serp__vacancy-views"]',
