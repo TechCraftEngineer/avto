@@ -8,11 +8,12 @@ export {
   FETCH_DELAY_MS,
   fetchPhotoAsBase64,
   fetchResumeHtml,
+  fetchResumePdfAsBase64,
   fetchVacancyPrintHtml,
   getVacancyPrintUrl,
   parseResumeFromHtml,
 } from "./fetch-resume-html";
-export { fetchResumeTextHtml } from "./fetch-resume-text";
+export { fetchResumeTextHtml, getResumePdfUrl } from "./fetch-resume-text";
 export type { HHEmployerPageType } from "./page-detector";
 export {
   detectHHEmployerPageType,

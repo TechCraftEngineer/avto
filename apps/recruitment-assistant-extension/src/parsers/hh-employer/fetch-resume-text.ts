@@ -1,6 +1,31 @@
 /**
- * Загрузка текстовой версии резюме с HH.ru (аналог downloadResumeText из jobs-parsers)
+ * Загрузка текстовой и PDF версии резюме с HH.ru (аналог downloadResumeText/downloadResumePdf из jobs-parsers)
  */
+
+/**
+ * Формирует URL PDF версии резюме
+ */
+export function getResumePdfUrl(
+  resumeUrl: string,
+  candidateName?: string,
+): string | null {
+  try {
+    const urlMatch = resumeUrl.match(/\/resume\/([a-f0-9]+)/);
+    const vacancyIdMatch = resumeUrl.match(/vacancyId=(\d+)/);
+
+    if (!urlMatch?.[1]) {
+      return null;
+    }
+
+    const resumeHash = urlMatch[1];
+    const vacancyId = vacancyIdMatch?.[1] || "";
+    const fileName = candidateName || "resume";
+
+    return `https://hh.ru/resume_converter/${encodeURIComponent(fileName)}.pdf?hash=${resumeHash}${vacancyId ? `&vacancyId=${vacancyId}` : ""}&type=pdf&hhtmSource=resume&hhtmFrom=employer_vacancy_responses`;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Формирует URL текстовой версии резюме

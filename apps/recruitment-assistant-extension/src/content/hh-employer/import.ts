@@ -6,8 +6,10 @@ import { getExtensionApiUrl } from "../../config";
 import {
   fetchCoverLettersForPage,
   fetchPhotoAsBase64,
+  fetchResumePdfAsBase64,
   fetchResumeTextHtml,
   fetchVacancyPrintHtml,
+  getResumePdfUrl,
   type HHEmployerPageType,
 } from "../../parsers/hh-employer";
 import {
@@ -382,6 +384,7 @@ export async function runResponsesImport(
       coverLetter: string;
       photoUrl?: string;
       resumeTextHtml?: string;
+      resumePdfBase64?: string;
     }> = [];
     let totalImported = 0;
 
@@ -434,11 +437,23 @@ export async function runResponsesImport(
       }
 
       let resumeTextHtml: string | undefined;
+      let resumePdfBase64: string | undefined;
       if (fetchResumeDetails && r.resumeUrl) {
         try {
           resumeTextHtml = await fetchResumeTextHtml(r.resumeUrl, r.name);
         } catch (_e) {
           // пропускаем ошибки
+        }
+        try {
+          const pdfUrl = getResumePdfUrl(r.resumeUrl, r.name);
+          if (pdfUrl) {
+            const pdfData = await fetchResumePdfAsBase64(pdfUrl);
+            if (pdfData?.base64) {
+              resumePdfBase64 = `data:${pdfData.contentType};base64,${pdfData.base64}`;
+            }
+          }
+        } catch (e) {
+          console.error(`[Import] Ошибка загрузки PDF для ${r.name}:`, e);
         }
         const delay = getRandomDelay(2000, 1500);
         await new Promise((res) => setTimeout(res, delay));
@@ -454,6 +469,7 @@ export async function runResponsesImport(
         coverLetter: r.coverLetter ?? "",
         photoUrl,
         resumeTextHtml,
+        resumePdfBase64,
       });
 
       if (buffer.length >= FLUSH_BATCH_SIZE) {

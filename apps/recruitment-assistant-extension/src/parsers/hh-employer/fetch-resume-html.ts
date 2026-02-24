@@ -63,6 +63,42 @@ export function fetchVacancyPrintHtml(vacancyUrl: string): Promise<string> {
 }
 
 /**
+ * Загрузка PDF резюме через инжект в page context (с куками HH).
+ */
+export function fetchResumePdfAsBase64(
+  pdfUrl: string,
+): Promise<{ base64: string; contentType: string }> {
+  return new Promise((resolve, reject) => {
+    const id = `hh-pdf-fetch-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const handler = (event: MessageEvent) => {
+      if (event.data?.type === "HH_PDF_RESULT" && event.data?.id === id) {
+        window.removeEventListener("message", handler);
+        if (event.data.error) {
+          reject(new Error(event.data.error));
+        } else {
+          resolve({
+            base64: event.data.base64,
+            contentType: event.data.contentType || "application/pdf",
+          });
+        }
+      }
+    };
+    window.addEventListener("message", handler);
+    const script = document.createElement("script");
+    script.src = chrome.runtime.getURL("src/injected/fetch-page-context.js");
+    script.dataset.fetchId = id;
+    script.dataset.fetchUrl = pdfUrl;
+    script.dataset.fetchType = "pdf";
+    document.documentElement.appendChild(script);
+    script.remove();
+    setTimeout(() => {
+      window.removeEventListener("message", handler);
+      reject(new Error("Таймаут загрузки PDF"));
+    }, 15000);
+  });
+}
+
+/**
  * Загрузка изображения (фото кандидата) через инжект в page context.
  */
 export function fetchPhotoAsBase64(

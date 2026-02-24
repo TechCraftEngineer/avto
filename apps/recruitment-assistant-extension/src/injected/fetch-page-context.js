@@ -37,9 +37,13 @@
           ? "HH_RESUME_TEXT_HTML_RESULT"
           : type === "image"
             ? "HH_IMAGE_RESULT"
-            : "HH_RESUME_HTML_RESULT";
+            : type === "pdf"
+              ? "HH_PDF_RESULT"
+              : "HH_RESUME_HTML_RESULT";
 
-  if (type === "image") {
+  if (type === "image" || type === "pdf") {
+    const defaultContentType =
+      type === "pdf" ? "application/pdf" : "image/jpeg";
     fetch(url, { credentials: "include" })
       .then((response) => {
         if (!response.ok) {
@@ -47,7 +51,7 @@
         }
         const contentType =
           response.headers.get("content-type")?.split(";")[0]?.trim() ||
-          "image/jpeg";
+          defaultContentType;
         return response
           .arrayBuffer()
           .then((buf) => ({ buffer: buf, contentType }));
