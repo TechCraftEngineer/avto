@@ -79,10 +79,15 @@ export function usePageContext() {
       if (document.visibilityState === "visible") updateCount();
     };
 
+    // Опрос: popup при закрытии уничтожается, и при повторном открытии
+    // нужен актуальный count. storage.onChanged срабатывает только пока popup открыт.
+    const pollInterval = setInterval(updateCount, 1500);
+
     chrome.storage.onChanged.addListener(listener);
     document.addEventListener("visibilitychange", onVisibilityChange);
 
     return () => {
+      clearInterval(pollInterval);
       chrome.storage.onChanged.removeListener(listener);
       document.removeEventListener("visibilitychange", onVisibilityChange);
     };

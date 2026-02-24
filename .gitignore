@@ -48,6 +48,11 @@ scripts/cookies.json
 # db backups (may contain sensitive data)
 packages/db/backups/
 
+# demo photos (not committed to repo)
+packages/demo/data/photos/*
+!packages/demo/data/photos/.gitkeep
+!packages/demo/data/photos/README.md
+
 # vercel
 .vercel
 

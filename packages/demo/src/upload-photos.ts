@@ -1,11 +1,10 @@
 #!/usr/bin/env bun
 
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { extname, join } from "node:path";
 import { db } from "@qbs-autonaim/db";
 import { file } from "@qbs-autonaim/db/schema";
 import { uploadBufferToS3 } from "@qbs-autonaim/lib/s3";
-import axios from "axios";
 
 interface CandidatePhoto {
   candidateId: string;
@@ -34,50 +33,44 @@ async function uploadCandidatePhotos() {
       console.log(`📥 Загружаем фото для ${photo.candidateName}...`);
 
       try {
-        // Загружаем изображение с retry логикой через axios
-        let imageData: Buffer | null = null;
-        let lastError: Error | null = null;
-        const maxRetries = 3;
+        // Ищем локальный файл фотографии
+        const photosDir = join(__dirname, "../data/photos");
+        const possibleExtensions = [".jpg", ".jpeg", ".png", ".webp"];
 
-        for (let attempt = 1; attempt <= maxRetries; attempt++) {
-          try {
-            const response = await axios.get(photo.photoUrl, {
-              responseType: "arraybuffer",
-              timeout: 10000, // 10 секунд таймаут
-              headers: {
-                "User-Agent": "Mozilla/5.0 (compatible; QBS-AutoNaim/1.0)",
-              },
-            });
+        let localPhotoPath: string | null = null;
+        let fileExtension = "jpg";
 
-            imageData = Buffer.from(response.data);
-            break; // Успешно загрузили
-          } catch (error) {
-            lastError = error as Error;
-            const errorMessage =
-              axios.isAxiosError(error) && error.response
-                ? `HTTP ${error.response.status}: ${error.response.statusText}`
-                : (error as Error).message;
-
-            console.log(
-              `⚠️  Попытка ${attempt}/${maxRetries} не удалась: ${errorMessage}`,
-            );
-
-            if (attempt < maxRetries) {
-              // Экспоненциальная задержка: 1s, 2s, 4s
-              const delay = 2 ** (attempt - 1) * 1000;
-              console.log(`⏳ Ожидание ${delay}ms перед следующей попыткой...`);
-              await new Promise((resolve) => setTimeout(resolve, delay));
-            }
+        for (const ext of possibleExtensions) {
+          const candidatePath = join(photosDir, `${photo.candidateId}${ext}`);
+          if (existsSync(candidatePath)) {
+            localPhotoPath = candidatePath;
+            fileExtension = ext.slice(1); // убираем точку
+            break;
           }
         }
 
-        if (!imageData) {
-          throw lastError || new Error("Failed to fetch image after retries");
+        if (!localPhotoPath) {
+          console.error(
+            `❌ Файл фото не найден для ${photo.candidateName} (${photo.candidateId})`,
+          );
+          console.log(
+            `   Ожидаемое расположение: ${photosDir}/${photo.candidateId}.{jpg,jpeg,png,webp}`,
+          );
+          continue;
         }
 
-        // Определяем тип файла из URL (по умолчанию JPG)
-        const fileExtension = photo.photoUrl.includes(".png") ? "png" : "jpg";
-        const mimeType = fileExtension === "png" ? "image/png" : "image/jpeg";
+        // Читаем локальный файл
+        const imageData = readFileSync(localPhotoPath);
+        console.log(`📁 Прочитан локальный файл: ${localPhotoPath}`);
+
+        // Определяем MIME тип
+        const mimeTypeMap: Record<string, string> = {
+          jpg: "image/jpeg",
+          jpeg: "image/jpeg",
+          png: "image/png",
+          webp: "image/webp",
+        };
+        const mimeType = mimeTypeMap[fileExtension] || "image/jpeg";
 
         // Генерируем ключ для S3
         const s3Key = `candidates/${photo.candidateId}_photo.${fileExtension}`;

@@ -38,16 +38,10 @@ export { requireWorkspaceRole } from "./utils/verify-workspace-access";
  *
  * @see Requirements 1.1, 1.4
  */
-export const createContext = async (opts: {
-  headers: Headers;
-  auth: Auth | null;
-}) => {
-  const authApi = opts.auth?.api;
-  const session = authApi
-    ? await authApi.getSession({
-        headers: opts.headers,
-      })
-    : null;
+export const createContext = async (opts: { headers: Headers; auth: Auth }) => {
+  const session = await opts.auth.api.getSession({
+    headers: opts.headers,
+  });
 
   // Создаем экземпляры репозиториев с db
   const workspaceRepository = new WorkspaceRepository(db);
@@ -65,7 +59,6 @@ export const createContext = async (opts: {
   const interviewToken = extractTokenFromHeaders(opts.headers);
 
   return {
-    authApi,
     session,
     db,
     workspaceRepository,
@@ -192,6 +185,7 @@ export const securityHeadersMiddleware = middleware(async ({ next }) => {
  * @see Requirements 2.3, 2.4, 2.5, 2.6
  */
 export const securityAudit = middleware(async ({ context, next, path }) => {
+  console.log("[securityAudit] START - path:", path.join("."));
   const startTime = Date.now();
   const userId = context.session?.user?.id;
   const ipAddress = context.ipAddress;
@@ -232,6 +226,12 @@ export const securityAudit = middleware(async ({ context, next, path }) => {
 
     return result;
   } catch (error) {
+    console.error("[securityAudit] Middleware error:", error);
+    console.error(
+      "[securityAudit] Error stack:",
+      error instanceof Error ? error.stack : "No stack",
+    );
+
     // Логирование нарушений безопасности
     const { ORPCError } = await import("@orpc/server");
     const { logSecurityEvent } = await import("@qbs-autonaim/server-utils");

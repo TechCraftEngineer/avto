@@ -1,3 +1,4 @@
+import { onError } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
 import { appRouter, createContext } from "@qbs-autonaim/api";
 import { env } from "@qbs-autonaim/config";
@@ -40,26 +41,59 @@ app.route("/api/auth", extensionTokenRoutes);
 app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
 // oRPC handler
-const rpcHandler = new RPCHandler(appRouter);
+const rpcHandler = new RPCHandler(appRouter, {
+  interceptors: [
+    onError((error) => {
+      console.error(">>> RPCHandler onError:", error);
+      console.error(
+        ">>> Error stack:",
+        error instanceof Error ? error.stack : "No stack",
+      );
+    }),
+  ],
+});
 
 app.on(["GET", "POST"], "/api/orpc/*", async (c) => {
+  console.log("[oRPC] Incoming request:", c.req.path);
   try {
+    const context = await createContext({
+      auth,
+      headers: c.req.raw.headers,
+    });
+    console.log(
+      "[oRPC] Context created, session:",
+      context.session?.user?.id || "no session",
+    );
+
     const result = await rpcHandler.handle(c.req.raw, {
       prefix: "/api/orpc",
-      context: await createContext({
-        auth,
-        headers: c.req.raw.headers,
-      }),
+      context,
     });
 
     if (!result.matched) {
       return c.notFound();
     }
 
+    // Проверяем статус ответа
+    if (result.response.status >= 400) {
+      const responseClone = result.response.clone();
+      const body = await responseClone.text();
+      console.error(">>> oRPC Error Response:", {
+        status: result.response.status,
+        path: c.req.path,
+        body: body.substring(0, 500), // Первые 500 символов
+      });
+    }
+
     const modifiedResponse = addAPISecurityHeaders(result.response);
     return modifiedResponse;
   } catch (error) {
-    console.error(">>> oRPC Error", error);
+    console.error(">>> oRPC Error:", error);
+    console.error(
+      ">>> Stack:",
+      error instanceof Error ? error.stack : "No stack",
+    );
+    console.error(">>> Path:", c.req.path);
     return c.json({ error: "Internal Server Error" }, 500);
   }
 });

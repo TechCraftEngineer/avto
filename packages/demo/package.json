@@ -6,6 +6,7 @@
   "main": "index.js",
   "scripts": {
     "load": "bun run --env-file ../../.env src/load-demo-data.ts",
+    "download-photos": "bun run src/download-photos.ts",
     "upload-photos": "bun run --env-file ../../.env src/upload-photos.ts"
   },
   "dependencies": {
