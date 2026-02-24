@@ -3,7 +3,6 @@
  */
 
 import type { HHEmployerPageType } from "../../parsers/hh-employer";
-import { getSelectedIds, setSelectedIds, toggleSelection } from "./storage";
 
 const CHECKBOX_CLASS = "recruitment-assistant-vacancy-checkbox";
 
@@ -36,10 +35,7 @@ function bindArchiveChangeListener(): void {
         target?.type === "checkbox" &&
         target.closest("[data-qa^='vacancies-dashboard-vacancy-archive-label']")
       ) {
-        const id = getArchiveVacancyId(target);
-        if (id) {
-          void toggleSelection(id).then(() => archiveOnUpdate?.());
-        }
+        archiveOnUpdate?.();
       }
     },
     true,
@@ -70,31 +66,14 @@ export function runNativeCheckboxBinding(
 
   if (pageType === "archived-vacancies") {
     archiveOnUpdate = onUpdate;
-    // Вешаем listener сразу на document — сработает для любых чекбоксов, включая появившиеся позже
     bindArchiveChangeListener();
-    // Sync и update — после появления списка
     whenArchiveReady(() => {
-      void syncStorageFromNativeCheckboxes(pageType);
       onUpdate();
     });
     return;
   }
 
   injectCheckboxesForActive(pageType, onUpdate);
-}
-
-export async function syncStorageFromNativeCheckboxes(
-  pageType: HHEmployerPageType,
-): Promise<void> {
-  if (pageType !== "archived-vacancies") return;
-
-  const ids = await getSelectedIds();
-  document.querySelectorAll(ARCHIVE_CHECKBOX_SELECTOR).forEach((input) => {
-    const cb = input as HTMLInputElement;
-    const id = getArchiveVacancyId(cb);
-    if (id && cb.checked) ids.add(id);
-  });
-  await setSelectedIds(ids);
 }
 
 /** Извлекает externalId из строки активной вакансии (поддержка разных структур HH) */
@@ -113,8 +92,6 @@ function injectCheckboxesForActive(
   pageType: HHEmployerPageType,
   onUpdate: () => void,
 ): void {
-  const selectedIdsPromise = getSelectedIds();
-
   const rowSelectors =
     '[data-qa="vacancy-serp__vacancy"], div[data-qa^="vacancy-active_"]';
   document.querySelectorAll(rowSelectors).forEach((row) => {
@@ -123,29 +100,26 @@ function injectCheckboxesForActive(
     const externalId = getActiveVacancyId(row);
     if (!externalId) return;
 
-    selectedIdsPromise.then((ids) => {
-      const wrap = document.createElement("div");
-      wrap.className = `${CHECKBOX_CLASS}-wrap`;
-      wrap.style.cssText =
-        "display:inline-flex;align-items:center;margin-right:8px;flex-shrink:0;";
+    const wrap = document.createElement("div");
+    wrap.className = `${CHECKBOX_CLASS}-wrap`;
+    wrap.style.cssText =
+      "display:inline-flex;align-items:center;margin-right:8px;flex-shrink:0;";
 
-      const cb = document.createElement("input");
-      cb.type = "checkbox";
-      cb.className = CHECKBOX_CLASS;
-      cb.dataset.externalId = externalId;
-      cb.checked = ids.has(externalId);
-      cb.title = "Выбрать для импорта";
-      cb.style.cssText =
-        "width:18px;height:18px;cursor:pointer;accent-color:#2563eb;";
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.className = CHECKBOX_CLASS;
+    cb.dataset.externalId = externalId;
+    cb.checked = false;
+    cb.title = "Выбрать для импорта";
+    cb.style.cssText =
+      "width:18px;height:18px;cursor:pointer;accent-color:#2563eb;";
 
-      cb.addEventListener("change", async () => {
-        await toggleSelection(externalId);
-        onUpdate();
-      });
-
-      wrap.appendChild(cb);
-      row.insertBefore(wrap, row.firstChild);
+    cb.addEventListener("change", () => {
+      onUpdate();
     });
+
+    wrap.appendChild(cb);
+    row.insertBefore(wrap, row.firstChild);
   });
 
   const observer = new MutationObserver(() => {

@@ -90,9 +90,72 @@ export async function collectAllResponses(
 }
 
 /**
+ * Собирает только выбранные вакансии из DOM (без пагинации).
+ * Берет только те вакансии, у которых отмечен чекбокс на текущей странице.
+ */
+export function collectSelectedVacanciesFromCurrentPage(
+  isActive: boolean,
+): ParsedVacancy[] {
+  const parseFn = isActive
+    ? parseActiveVacanciesFromDOM
+    : parseArchivedVacanciesFromDOM;
+
+  const allVacancies = parseFn();
+  const selected: ParsedVacancy[] = [];
+
+  if (isActive) {
+    // Для активных вакансий - проверяем наши инжектированные чекбоксы
+    const CHECKBOX_CLASS = "recruitment-assistant-vacancy-checkbox";
+    const checkedBoxes = document.querySelectorAll<HTMLInputElement>(
+      `input.${CHECKBOX_CLASS}:checked`,
+    );
+    const checkedIds = new Set(
+      [...checkedBoxes].map((cb) => cb.dataset.externalId).filter(Boolean),
+    );
+
+    for (const v of allVacancies) {
+      if (checkedIds.has(v.externalId)) {
+        selected.push(v);
+      }
+    }
+  } else {
+    // Для архивных - проверяем нативные чекбоксы HH
+    const ARCHIVE_CHECKBOX_SELECTOR =
+      '[data-qa^="vacancies-dashboard-vacancy-archive-label"] input[type="checkbox"]';
+    const checkedBoxes = document.querySelectorAll<HTMLInputElement>(
+      ARCHIVE_CHECKBOX_SELECTOR,
+    );
+    const checkedIds = new Set<string>();
+
+    checkedBoxes.forEach((cb) => {
+      if (!cb.checked) return;
+      // Извлекаем ID из value или из родительской строки
+      const val = cb.value?.trim();
+      if (val && val !== "on") {
+        checkedIds.add(val);
+      } else {
+        const row = cb.closest('div[data-qa^="vacancy-archive_"]');
+        const dataQa = row?.getAttribute("data-qa") || "";
+        const match = dataQa.match(/vacancy-archive_(\d+)/);
+        if (match?.[1]) checkedIds.add(match[1]);
+      }
+    });
+
+    for (const v of allVacancies) {
+      if (checkedIds.has(v.externalId)) {
+        selected.push(v);
+      }
+    }
+  }
+
+  return selected;
+}
+
+/**
  * Собирает только выбранные вакансии (с пагинацией).
  * Проходит страницы начиная с текущей. Для импорта выбранных с предыдущих
  * страниц перейдите на первую страницу списка.
+ * @deprecated Используйте collectSelectedVacanciesFromCurrentPage вместо этого
  */
 export async function collectSelectedVacancies(
   selectedIds: Set<string>,

@@ -8,7 +8,6 @@ import { IMPORT_PROGRESS_KEY } from "../shared/import-progress";
 import {
   detectHHEmployerPageType,
   getCheckedCountFromDOM,
-  getSelectedIds,
   initHHEmployerContentScript,
   runResponsesImport,
   runVacanciesImportSelected,
@@ -43,13 +42,7 @@ chrome.runtime.onMessage.addListener(
         return false;
       }
 
-      getSelectedIds().then(async (ids) => {
-        if (ids.size === 0) {
-          sendResponse({ ok: false, error: "Выберите вакансии галочками" });
-          return;
-        }
-
-        const auth = await resolveAuth();
+      resolveAuth().then(async (auth) => {
         if (!auth.ok) {
           sendResponse({
             ok: false,
@@ -63,7 +56,6 @@ chrome.runtime.onMessage.addListener(
 
         try {
           const result = await runVacanciesImportSelected(
-            [...ids],
             pageType,
             auth.context.workspaceId,
             auth.context.token,

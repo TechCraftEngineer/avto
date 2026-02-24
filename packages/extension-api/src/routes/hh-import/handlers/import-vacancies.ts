@@ -51,9 +51,13 @@ export async function handleImportVacancies(c: Context) {
 
     const result = await saveBasicVacancy(vacancyData, data.workspaceId);
     if (result.success && result.data) {
-      if (result.data.isNew) imported++;
-      else updated++;
-      savedExternalIds.push(v.externalId);
+      if (result.data.isNew) {
+        imported++;
+        // Добавляем в список для парсинга только новые вакансии
+        savedExternalIds.push(v.externalId);
+      } else {
+        updated++;
+      }
     }
   }
 

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Recruitment Assistant",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAygY09bA7BR3yuLlXWCHmNVAlx5+RnIkcCP3b7sQvCU0unmp9LnOmPlQBX9YgMON//iOZgPCASC7v29Rp4URQtI05nfXm15gGPCbKRx/p3tQwbjNVIIW+Qu6dBsCr4jwXlXRYwwxk2xMLjpZyJId26r/0Ad1q+zgE326m96ISci3R9c+IeqOVV5KnP77+oS4254i8xjPOuK6YedJupiJThWIKuSPjAzRAGpOuesEZBiupE2b5LdDOuGOEei2ljKbf90sN99paXTXIap+PZyIgXG6b1p2s4LbL+uXuyzuL/88zAAI/WEzpQtd4m1x1zc4nplwVgqKM2YJrZilQX6DyTwIDAQAB",
   "description": "Расширение для автоматизации работы рекрутеров с профилями кандидатов на LinkedIn и HeadHunter",
   "icons": {
@@ -9,7 +9,12 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "permissions": ["storage", "activeTab", "tabs", "scripting"],
+  "permissions": [
+    "storage",
+    "activeTab",
+    "tabs",
+    "scripting"
+  ],
   "host_permissions": [
     "https://www.linkedin.com/*",
     "https://linkedin.com/*",
@@ -31,20 +36,26 @@
         "https://www.hh.ru/resume/*",
         "*://*.hh.ru/*"
       ],
-      "js": ["src/content/content-script.tsx"],
-      "css": ["src/content/content-styles.css"],
+      "js": [
+        "src/content/content-script.tsx"
+      ],
+      "css": [
+        "src/content/content-styles.css"
+      ],
       "run_at": "document_idle"
     },
-  {
-    "matches": [
-      "https://hh.ru/employer/*",
-      "https://www.hh.ru/employer/*",
-      "https://employer.hh.ru/*",
-      "*://*.hh.ru/*"
-    ],
-    "js": ["src/content/hh-employer-content-script.ts"],
-    "run_at": "document_idle"
-  }
+    {
+      "matches": [
+        "https://hh.ru/employer/*",
+        "https://www.hh.ru/employer/*",
+        "https://employer.hh.ru/*",
+        "*://*.hh.ru/*"
+      ],
+      "js": [
+        "src/content/hh-employer-content-script.ts"
+      ],
+      "run_at": "document_idle"
+    }
   ],
   "action": {
     "default_popup": "src/popup/popup.html",
@@ -57,27 +68,34 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["content/*.css", "icons/*"],
+      "resources": [
+        "content/*.css",
+        "icons/*"
+      ],
       "matches": [
         "https://www.linkedin.com/*",
         "https://linkedin.com/*"
       ]
     },
     {
-      "resources": ["src/callback.html"],
+      "resources": [
+        "src/callback.html"
+      ],
       "matches": [
         "https://app.avtonaim.qbsoft.ru/*",
         "http://localhost:3000/*"
       ]
     },
     {
-      "resources": ["src/injected/fetch-page-context.js","src/injected/spoiler-chat-interceptor.js"],
+      "resources": [
+        "src/injected/fetch-page-context.js",
+        "src/injected/spoiler-chat-interceptor.js"
+      ],
       "matches": [
         "https://hh.ru/*",
         "https://www.hh.ru/*",
         "https://employer.hh.ru/*",
         "*://*.hh.ru/*"
-
       ]
     }
   ]

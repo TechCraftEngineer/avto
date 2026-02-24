@@ -19,53 +19,43 @@ import {
   collectAllResponses,
   collectAllVacancies,
   collectSelectedVacancies,
+  collectSelectedVacanciesFromCurrentPage,
 } from "./collectors";
-import { setSelectedIds } from "./storage";
 import type { ImportProgress, ImportResult } from "./types";
 
 export type { ImportProgress, ImportResult } from "./types";
 
 export async function runVacanciesImportSelected(
-  selectedIds: string[],
   pageType: HHEmployerPageType,
   workspaceId: string,
   token: string,
   onProgress?: (p: ImportProgress) => void,
 ): Promise<ImportResult> {
-  const idsSet = new Set(selectedIds);
-  if (idsSet.size === 0) {
-    return { success: false, error: "Выберите вакансии галочками" };
-  }
-
   const isActive = pageType === "active-vacancies";
 
   try {
     onProgress?.({
       stage: "vacancies",
       current: 0,
-      total: idsSet.size,
+      total: 1,
       message: "Сбор выбранных вакансий...",
     });
 
-    const vacancies = await collectSelectedVacancies(
-      idsSet,
-      isActive,
-      (cur, total) => {
-        onProgress?.({
-          stage: "vacancies",
-          current: cur,
-          total,
-          message: `Собрано: ${cur} из ${total}`,
-        });
-      },
-    );
+    const vacancies = collectSelectedVacanciesFromCurrentPage(isActive);
 
     if (vacancies.length === 0) {
       return {
         success: false,
-        error: "Выбранные вакансии не найдены. Откройте страницу с ними.",
+        error: "Выберите вакансии галочками на текущей странице",
       };
     }
+
+    onProgress?.({
+      stage: "vacancies",
+      current: vacancies.length,
+      total: vacancies.length,
+      message: `Найдено выбранных: ${vacancies.length}`,
+    });
 
     const response = await chrome.runtime.sendMessage({
       type: "API_REQUEST",
@@ -149,7 +139,6 @@ export async function runVacanciesImportSelected(
       }
     }
 
-    await setSelectedIds(new Set());
     return { success: true, vacanciesImported: imported };
   } catch (e) {
     return {

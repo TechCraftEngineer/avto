@@ -6,6 +6,7 @@
 export type { HHEmployerPageType } from "../../parsers/hh-employer";
 export { detectHHEmployerPageType } from "../../parsers/hh-employer";
 export { getCheckedCountFromDOM } from "./checkboxes";
+export { collectSelectedVacanciesFromCurrentPage } from "./collectors";
 export {
   type ImportProgress,
   type ImportResult,
@@ -14,4 +15,3 @@ export {
   runVacanciesImportSelected,
 } from "./import";
 export { initHHEmployerContentScript } from "./panel";
-export { getSelectedIds } from "./storage";

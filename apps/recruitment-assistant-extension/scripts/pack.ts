@@ -26,11 +26,16 @@ const PRODUCTION_EXTENSION_API_BASE =
   "https://hooks.avtonaim.qbsoft.ru/ext-api";
 
 async function main(): Promise<void> {
+  const bumpType = process.env.BUMP_VERSION || "patch";
+  
+  console.log(`Bumping version (${bumpType})...`);
+  await $`bun run ${join(__dirname, "bump-version.ts")} ${bumpType}`.cwd(rootDir);
+
   const apiUrl = process.env.EXTENSION_API_URL ?? PRODUCTION_API_URL;
   const apiBase =
     process.env.EXTENSION_API_BASE ?? PRODUCTION_EXTENSION_API_BASE;
 
-  console.log("Building extension (production)...");
+  console.log("\nBuilding extension (production)...");
   console.log(`  EXTENSION_API_URL=${apiUrl}`);
   console.log(`  EXTENSION_API_BASE=${apiBase}`);
 
