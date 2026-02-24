@@ -155,10 +155,7 @@ export function OTPForm({ ...props }: React.ComponentProps<typeof Card>) {
                 <FormItem className="gap-4">
                   <Field className="gap-4" orientation="vertical">
                     <div className="flex items-center justify-between">
-                      <FieldLabel
-                        htmlFor="otp-verification"
-                        className="sr-only"
-                      >
+                      <FieldLabel htmlFor="otp-verification">
                         Код подтверждения
                       </FieldLabel>
                       <Button
