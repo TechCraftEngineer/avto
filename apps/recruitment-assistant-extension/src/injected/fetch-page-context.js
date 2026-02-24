@@ -41,34 +41,79 @@
               ? "HH_PDF_RESULT"
               : "HH_RESUME_HTML_RESULT";
 
+  // Для image и pdf — страница HH может подменять fetch и XMLHttpRequest.
+  // Пробуем нативный XHR из iframe, при ошибке — fetch.
+  if (type === "image" || type === "pdf") {
+    const defaultContentType =
+      type === "pdf" ? "application/pdf" : "image/jpeg";
+    const sendResult = (base64, contentType) =>
+      window.postMessage({ type: messageType, id, base64, contentType }, "*");
+    const sendError = (err) =>
+      window.postMessage({ type: messageType, id, error: err }, "*");
+
+    let useXHR = false;
+    try {
+      const iframe = document.createElement("iframe");
+      iframe.style.cssText = "display:none;position:absolute;width:0;height:0;";
+      iframe.src = "about:blank";
+      document.documentElement.appendChild(iframe);
+      const XHR = iframe.contentWindow?.XMLHttpRequest;
+      iframe.remove();
+      if (typeof XHR === "function") {
+        const xhr = new XHR();
+        xhr.open("GET", url, true);
+        xhr.withCredentials = true;
+        xhr.responseType = "arraybuffer";
+        xhr.onload = () => {
+          if (xhr.status < 200 || xhr.status >= 300) {
+            sendError("HTTP " + xhr.status + ": " + xhr.statusText);
+            return;
+          }
+          const ct =
+            xhr.getResponseHeader("content-type")?.split(";")[0]?.trim() ||
+            defaultContentType;
+          const buf = xhr.response;
+          const bytes = new Uint8Array(buf);
+          let b = "";
+          for (let i = 0; i < bytes.byteLength; i++)
+            b += String.fromCharCode(bytes[i] ?? 0);
+          sendResult(btoa(b), ct);
+        };
+        xhr.onerror = () => sendError("Failed to fetch");
+        xhr.send();
+        useXHR = true;
+      }
+    } catch (_) {}
+
+    if (useXHR) return;
+  }
+
   if (type === "image" || type === "pdf") {
     const defaultContentType =
       type === "pdf" ? "application/pdf" : "image/jpeg";
     fetch(url, { credentials: "include" })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        const contentType =
-          response.headers.get("content-type")?.split(";")[0]?.trim() ||
-          defaultContentType;
-        return response
-          .arrayBuffer()
-          .then((buf) => ({ buffer: buf, contentType }));
+      .then((res) => {
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return res.arrayBuffer().then((buf) => ({
+          buffer: buf,
+          contentType:
+            res.headers.get("content-type")?.split(";")[0]?.trim() ||
+            defaultContentType,
+        }));
       })
       .then(({ buffer, contentType }) => {
         const bytes = new Uint8Array(buffer);
-        let binary = "";
-        const len = bytes.byteLength;
-        for (let i = 0; i < len; i++) {
-          binary += String.fromCharCode(bytes[i] ?? 0);
-        }
-        const base64 = btoa(binary);
-        window.postMessage({ type: messageType, id, base64, contentType }, "*");
+        let b = "";
+        for (let i = 0; i < bytes.byteLength; i++)
+          b += String.fromCharCode(bytes[i] ?? 0);
+        window.postMessage(
+          { type: messageType, id, base64: btoa(b), contentType },
+          "*",
+        );
       })
-      .catch((err) => {
-        window.postMessage({ type: messageType, id, error: err.message }, "*");
-      });
+      .catch((e) =>
+        window.postMessage({ type: messageType, id, error: e.message }, "*"),
+      );
     return;
   }
 

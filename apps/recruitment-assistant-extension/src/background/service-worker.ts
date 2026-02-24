@@ -16,6 +16,7 @@ type MessageType =
   | "EXECUTE_IMPORT_SELECTED_VACANCIES"
   | "EXECUTE_IMPORT_RESPONSES"
   | "FETCH_RESUME_TEXT"
+  | "FETCH_RESUME_PDF"
   | "FETCH_CHATIK_CHATS"
   | "FETCH_CHATIK_SEARCH";
 
@@ -190,18 +191,23 @@ async function proxyApiRequest(request: ApiRequest): Promise<ApiResponse> {
 }
 
 /**
+ * Типы ответов от service worker
+ */
+type ServiceWorkerResponse =
+  | ApiResponse
+  | { success: boolean; message?: string; error?: string }
+  | { success: boolean; base64?: string; contentType?: string; error?: string }
+  | { success: boolean; data?: unknown; error?: string }
+  | { ok?: boolean; error?: string };
+
+/**
  * Обработка сообщений от content script
  */
 chrome.runtime.onMessage.addListener(
   (
     message: Message,
     sender: chrome.runtime.MessageSender,
-    sendResponse: (
-      response:
-        | ApiResponse
-        | { success: boolean; message?: string; error?: string }
-        | { ok?: boolean; error?: string },
-    ) => void,
+    sendResponse: (response: ServiceWorkerResponse) => void,
   ) => {
     log("Получено сообщение", { type: message.type, sender: sender.tab?.url });
 
@@ -304,6 +310,58 @@ chrome.runtime.onMessage.addListener(
             sendResponse({
               ok: false,
               error: err instanceof Error ? err.message : "Ошибка выполнения",
+            });
+          }
+        })();
+        return true;
+      }
+
+      case "FETCH_RESUME_PDF": {
+        const url = (message.payload as { url?: string })?.url;
+        if (typeof url !== "string") {
+          sendResponse({ success: false, error: "Неверный URL" });
+          return false;
+        }
+
+        (async () => {
+          try {
+            log("Загрузка PDF резюме", { url });
+            const response = await fetch(url, {
+              credentials: "include",
+              headers: {
+                Accept:
+                  "text/html,application/xhtml+xml,application/xml;q=0.9,application/pdf,*/*;q=0.8",
+              },
+            });
+
+            if (!response.ok) {
+              throw new Error(
+                `HTTP ${response.status}: ${response.statusText}`,
+              );
+            }
+
+            const buffer = await response.arrayBuffer();
+            const bytes = new Uint8Array(buffer);
+            let binary = "";
+            const len = bytes.byteLength;
+            for (let i = 0; i < len; i++) {
+              binary += String.fromCharCode(bytes[i] ?? 0);
+            }
+            const base64 = btoa(binary);
+            const contentType =
+              response.headers.get("content-type")?.split(";")[0]?.trim() ||
+              "application/pdf";
+
+            sendResponse({
+              success: true,
+              base64,
+              contentType,
+            });
+          } catch (err) {
+            logError("FETCH_RESUME_PDF", err);
+            sendResponse({
+              success: false,
+              error: err instanceof Error ? err.message : "Ошибка загрузки PDF",
             });
           }
         })();

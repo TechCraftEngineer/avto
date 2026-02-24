@@ -63,38 +63,35 @@ export function fetchVacancyPrintHtml(vacancyUrl: string): Promise<string> {
 }
 
 /**
- * Загрузка PDF резюме через инжект в page context (с куками HH).
+ * Загрузка PDF резюме через service worker.
+ * Extension fetch не ограничен CORS для host_permissions (*.hh.ru), в отличие от page context.
  */
 export function fetchResumePdfAsBase64(
   pdfUrl: string,
 ): Promise<{ base64: string; contentType: string }> {
   return new Promise((resolve, reject) => {
-    const id = `hh-pdf-fetch-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    const handler = (event: MessageEvent) => {
-      if (event.data?.type === "HH_PDF_RESULT" && event.data?.id === id) {
-        window.removeEventListener("message", handler);
-        if (event.data.error) {
-          reject(new Error(event.data.error));
-        } else {
-          resolve({
-            base64: event.data.base64,
-            contentType: event.data.contentType || "application/pdf",
-          });
+    chrome.runtime.sendMessage(
+      { type: "FETCH_RESUME_PDF", payload: { url: pdfUrl } },
+      (response: {
+        success: boolean;
+        base64?: string;
+        contentType?: string;
+        error?: string;
+      }) => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+          return;
         }
-      }
-    };
-    window.addEventListener("message", handler);
-    const script = document.createElement("script");
-    script.src = chrome.runtime.getURL("src/injected/fetch-page-context.js");
-    script.dataset.fetchId = id;
-    script.dataset.fetchUrl = pdfUrl;
-    script.dataset.fetchType = "pdf";
-    document.documentElement.appendChild(script);
-    script.remove();
-    setTimeout(() => {
-      window.removeEventListener("message", handler);
-      reject(new Error("Таймаут загрузки PDF"));
-    }, 15000);
+        if (response?.success && response.base64) {
+          resolve({
+            base64: response.base64,
+            contentType: response.contentType || "application/pdf",
+          });
+        } else {
+          reject(new Error(response?.error || "Ошибка загрузки PDF резюме"));
+        }
+      },
+    );
   });
 }
 

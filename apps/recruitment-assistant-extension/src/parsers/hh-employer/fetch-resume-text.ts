@@ -4,12 +4,13 @@
 
 /**
  * Формирует URL PDF версии резюме.
- * @param baseOrigin - origin текущей страницы (window.location.origin) для обхода CORS при regional subdomain (volokolamsk.hh.ru и т.д.)
+ * Важно: используйте origin текущей страницы (window.location.origin), а не hh.ru,
+ * иначе CORS блокирует на regional subdomain (volokolamsk.hh.ru и т.д.).
  */
 export function getResumePdfUrl(
   resumeUrl: string,
   candidateName?: string,
-  baseOrigin = "https://hh.ru",
+  baseOrigin?: string,
 ): string | null {
   try {
     const urlMatch = resumeUrl.match(/\/resume\/([a-f0-9]+)/);
@@ -22,9 +23,15 @@ export function getResumePdfUrl(
     const resumeHash = urlMatch[1];
     const vacancyId = vacancyIdMatch?.[1] || "";
     const fileName = candidateName || "resume";
-    const origin = baseOrigin.replace(/\/$/, "");
+    // Всегда домен текущей страницы; fallback из resumeUrl если передан полный URL
+    const origin =
+      baseOrigin ||
+      (typeof window !== "undefined" ? window.location.origin : null) ||
+      (resumeUrl.startsWith("http") ? new URL(resumeUrl).origin : null) ||
+      "https://hh.ru";
+    const cleanOrigin = origin.replace(/\/$/, "");
 
-    return `${origin}/resume_converter/${encodeURIComponent(fileName)}.pdf?hash=${resumeHash}${vacancyId ? `&vacancyId=${vacancyId}` : ""}&type=pdf&hhtmSource=resume&hhtmFrom=employer_vacancy_responses`;
+    return `${cleanOrigin}/resume_converter/${encodeURIComponent(fileName)}.pdf?hash=${resumeHash}${vacancyId ? `&vacancyId=${vacancyId}` : ""}&type=pdf&hhtmSource=resume&hhtmFrom=employer_vacancy_responses`;
   } catch {
     return null;
   }

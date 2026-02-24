@@ -482,11 +482,11 @@ export async function runResponsesImport(
           // пропускаем ошибки
         }
         try {
-          // Используем origin текущей страницы для same-origin fetch (обход CORS на regional subdomain: volokolamsk.hh.ru и т.д.)
+          // Обязательно домен текущей страницы (volokolamsk.hh.ru и т.д.), не hh.ru
           const pdfUrl = getResumePdfUrl(
             r.resumeUrl,
             r.name,
-            typeof window !== "undefined" ? window.location.origin : undefined,
+            window.location.origin,
           );
           if (pdfUrl) {
             const pdfData = await fetchResumePdfAsBase64(pdfUrl);
