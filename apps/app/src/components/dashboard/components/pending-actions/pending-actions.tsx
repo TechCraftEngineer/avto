@@ -1,7 +1,6 @@
 "use client";
 
 import { paths } from "@qbs-autonaim/config";
-import { Badge } from "@qbs-autonaim/ui/components/badge";
 import { CandidateAvatar } from "@qbs-autonaim/ui/components/candidate-avatar";
 import {
   Card,
@@ -10,14 +9,30 @@ import {
   CardHeader,
   CardTitle,
 } from "@qbs-autonaim/ui/components/card";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@qbs-autonaim/ui/components/empty";
+import {
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemHeader,
+  ItemMedia,
+  ItemTitle,
+} from "@qbs-autonaim/ui/components/item";
+import { Skeleton } from "@qbs-autonaim/ui/components/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
-import { ru } from "date-fns/locale";
 import { AlertCircle, Clock } from "lucide-react";
 import Link from "next/link";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { getAvatarUrl } from "~/lib/avatar";
+import { ruNoAbout } from "~/lib/date-locale-ru-no-about";
 import { useORPC } from "~/orpc/react";
 
 interface PendingActionsProps {
@@ -54,10 +69,10 @@ export function PendingActions({
       <Card className="@container/card">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-orange-500" />
-            Требуют внимания
+            <Skeleton className="size-5 rounded" />
+            <Skeleton className="h-5 w-24" />
           </CardTitle>
-          <CardDescription>Необработанные отклики</CardDescription>
+          <CardDescription>Отклики без скрининга</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -65,12 +80,12 @@ export function PendingActions({
               (key) => (
                 <div
                   key={key}
-                  className="flex items-center gap-3 rounded-lg border p-3 animate-pulse"
+                  className="flex items-center gap-3 rounded-lg border p-3"
                 >
-                  <div className="h-10 w-10 rounded-full bg-muted" />
+                  <Skeleton className="size-10 rounded-full" />
                   <div className="flex-1 space-y-2">
-                    <div className="h-4 w-3/4 bg-muted rounded" />
-                    <div className="h-3 w-1/2 bg-muted rounded" />
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-3 w-1/2" />
                   </div>
                 </div>
               ),
@@ -86,21 +101,23 @@ export function PendingActions({
       <Card className="@container/card">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-red-500" />
-            Требуют внимания
+            <AlertCircle className="h-5 w-5 text-destructive" />
+            Оценить
           </CardTitle>
           <CardDescription>Ошибка загрузки откликов</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <AlertCircle className="h-12 w-12 text-red-500/50 mb-3" />
-            <p className="text-sm text-muted-foreground">
-              Не удалось загрузить отклики
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              {error?.message || "Произошла ошибка при загрузке данных"}
-            </p>
-          </div>
+          <Empty>
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <AlertCircle className="size-6 text-destructive/70" />
+              </EmptyMedia>
+              <EmptyTitle>Не удалось загрузить отклики</EmptyTitle>
+              <EmptyDescription>
+                {error?.message || "Произошла ошибка при загрузке данных"}
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
         </CardContent>
       </Card>
     );
@@ -111,21 +128,24 @@ export function PendingActions({
       <Card className="@container/card">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-green-500" />
-            Требуют внимания
+            <AlertCircle className="h-5 w-5 text-chart-2" />
+            Оценить
           </CardTitle>
-          <CardDescription>Необработанные отклики</CardDescription>
+          <CardDescription>Отклики без скрининга</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <Clock className="h-12 w-12 text-muted-foreground/50 mb-3" />
-            <p className="text-sm text-muted-foreground">
-              Все отклики обработаны
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Отличная работа! 🎉
-            </p>
-          </div>
+          <Empty>
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <Clock className="size-6 text-muted-foreground" />
+              </EmptyMedia>
+              <EmptyTitle>Нечего оценивать</EmptyTitle>
+              <EmptyDescription>
+                Новые отклики появятся здесь. После скрининга подходящие попадут
+                в «На рассмотрении»
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
         </CardContent>
       </Card>
     );
@@ -135,11 +155,11 @@ export function PendingActions({
     <Card className="@container/card">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <AlertCircle className="h-5 w-5 text-orange-500" />
-          Требуют внимания
+          <AlertCircle className="h-5 w-5 text-chart-4" />
+          Оценить
         </CardTitle>
         <CardDescription>
-          {pendingResponses.length} необработанных откликов
+          {pendingResponses.length} откликов без оценки
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -177,46 +197,41 @@ function PendingResponseItem({
   const avatarUrl = getAvatarUrl(photoUrl, response.candidateName ?? "");
 
   return (
-    <Link
-      href={
-        response.vacancy?.id
-          ? paths.workspace.vacancyResponse(
-              orgSlug,
-              workspaceSlug,
-              response.vacancy.id,
-              response.id,
-            )
-          : paths.workspace.responses(orgSlug, workspaceSlug, response.id)
-      }
-      className="flex items-center gap-3 rounded-lg border border-orange-200 bg-orange-50/50 p-3 transition-colors hover:bg-orange-100/50 dark:border-orange-900/50 dark:bg-orange-950/20 dark:hover:bg-orange-950/30"
-    >
-      <CandidateAvatar
-        name={response.candidateName}
-        photoUrl={avatarUrl}
-        className="h-10 w-10"
-      />
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
-          <p className="text-sm font-medium truncate">
-            {response.candidateName || "Без имени"}
-          </p>
-          <Badge
-            variant="outline"
-            className="h-5 border-orange-500/50 bg-orange-500/10 text-orange-700 dark:text-orange-400"
-          >
-            Новый
-          </Badge>
-        </div>
-        <p className="text-xs text-muted-foreground truncate">
-          {response.vacancy?.title || "Вакансия"}
-        </p>
-      </div>
-      <div className="text-xs text-muted-foreground whitespace-nowrap">
-        {formatDistanceToNow(new Date(response.createdAt), {
-          addSuffix: true,
-          locale: ru,
-        })}
-      </div>
-    </Link>
+    <Item asChild variant="muted" size="sm">
+      <Link
+        href={
+          response.vacancy?.id
+            ? paths.workspace.vacancyResponse(
+                orgSlug,
+                workspaceSlug,
+                response.vacancy.id,
+                response.id,
+              )
+            : paths.workspace.responses(orgSlug, workspaceSlug, response.id)
+        }
+      >
+        <ItemMedia variant="image">
+          <CandidateAvatar
+            name={response.candidateName}
+            photoUrl={avatarUrl}
+            className="size-10"
+          />
+        </ItemMedia>
+        <ItemContent>
+          <ItemHeader>
+            <ItemTitle>{response.candidateName || "Без имени"}</ItemTitle>
+          </ItemHeader>
+          <ItemDescription>
+            {response.vacancy?.title || "Вакансия"}
+          </ItemDescription>
+        </ItemContent>
+        <span className="shrink-0 text-xs text-muted-foreground whitespace-nowrap">
+          {formatDistanceToNow(new Date(response.createdAt), {
+            addSuffix: true,
+            locale: ruNoAbout,
+          })}
+        </span>
+      </Link>
+    </Item>
   );
 }

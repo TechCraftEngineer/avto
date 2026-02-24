@@ -10,75 +10,85 @@ import {
   CardHeader,
   CardTitle,
 } from "@qbs-autonaim/ui/components/card";
+import {
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemHeader,
+  ItemMedia,
+  ItemTitle,
+} from "@qbs-autonaim/ui/components/item";
+import { Skeleton } from "@qbs-autonaim/ui/components/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
-import { ru } from "date-fns/locale";
-import { FileText, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import Link from "next/link";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { getAvatarUrl } from "~/lib/avatar";
+import { ruNoAbout } from "~/lib/date-locale-ru-no-about";
 import { useORPC } from "~/orpc/react";
-import type { VacancyResponseRecentItem } from "~/types/api";
+import type { VacancyResponseNeedsReviewItem } from "~/types/api";
 
-type RecentResponse = VacancyResponseRecentItem;
+type NeedsReviewResponse = VacancyResponseNeedsReviewItem;
 
-interface RecentResponseItemProps {
-  response: RecentResponse;
+interface NeedsReviewResponseItemProps {
+  response: NeedsReviewResponse;
   orgSlug: string;
   workspaceSlug: string;
 }
 
-function RecentResponseItem({
+function NeedsReviewResponseItem({
   response,
   orgSlug,
   workspaceSlug,
-}: RecentResponseItemProps) {
+}: NeedsReviewResponseItemProps) {
   const photoUrl = useAvatarUrl(response.photoFileId);
   const avatarUrl = getAvatarUrl(photoUrl, response.candidateName ?? "");
 
   return (
-    <Link
-      href={
-        response.vacancy?.id
-          ? paths.workspace.vacancyResponse(
-              orgSlug,
-              workspaceSlug,
-              response.vacancy.id,
-              response.id,
-            )
-          : paths.workspace.responses(orgSlug, workspaceSlug, response.id)
-      }
-      className="flex items-center gap-3 rounded-lg border p-3 transition-colors hover:bg-muted/50"
-    >
-      <CandidateAvatar
-        name={response.candidateName}
-        photoUrl={avatarUrl}
-        className="h-10 w-10"
-      />
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
-          <p className="text-sm font-medium truncate">
-            {response.candidateName || "Без имени"}
-          </p>
-          {response.screening && (
-            <Badge variant="outline" className="h-5 px-1.5">
-              <Star className="h-3 w-3 mr-1" />
-              {response.screening.overallScore.toFixed(1)}
-            </Badge>
-          )}
-        </div>
-        <p className="text-xs text-muted-foreground truncate">
-          {response.vacancy?.title || "Вакансия"}
-        </p>
-      </div>
-      <div className="text-xs text-muted-foreground whitespace-nowrap">
-        {formatDistanceToNow(new Date(response.createdAt), {
-          addSuffix: true,
-          locale: ru,
-        })}
-      </div>
-    </Link>
+    <Item asChild variant="outline" size="sm">
+      <Link
+        href={
+          response.vacancy?.id
+            ? paths.workspace.vacancyResponse(
+                orgSlug,
+                workspaceSlug,
+                response.vacancy.id,
+                response.id,
+              )
+            : paths.workspace.responses(orgSlug, workspaceSlug, response.id)
+        }
+      >
+        <ItemMedia variant="image">
+          <CandidateAvatar
+            name={response.candidateName}
+            photoUrl={avatarUrl}
+            className="size-10"
+          />
+        </ItemMedia>
+        <ItemContent>
+          <ItemHeader>
+            <ItemTitle>{response.candidateName || "Без имени"}</ItemTitle>
+            {response.screening && (
+              <Badge variant="outline" className="gap-1">
+                <Star className="size-3" />
+                {response.screening.overallScore.toFixed(1)}
+              </Badge>
+            )}
+          </ItemHeader>
+          <ItemDescription>
+            {response.vacancy?.title || "Вакансия"}
+          </ItemDescription>
+        </ItemContent>
+        <span className="shrink-0 text-xs text-muted-foreground whitespace-nowrap">
+          {formatDistanceToNow(new Date(response.createdAt), {
+            addSuffix: true,
+            locale: ruNoAbout,
+          })}
+        </span>
+      </Link>
+    </Item>
   );
 }
 
@@ -92,10 +102,11 @@ export function RecentResponses({
   const orpc = useORPC();
   const { workspace } = useWorkspace();
 
-  const { data: recentResponses, isLoading } = useQuery(
-    orpc.vacancy.responses.listRecent.queryOptions({
+  const { data: needsReviewResponses, isLoading } = useQuery(
+    orpc.vacancy.responses.listNeedsReview.queryOptions({
       input: {
         workspaceId: workspace?.id ?? "",
+        limit: 5,
       },
       enabled: !!workspace?.id,
     }),
@@ -105,8 +116,10 @@ export function RecentResponses({
     return (
       <Card className="@container/card">
         <CardHeader>
-          <CardTitle>Последние отклики</CardTitle>
-          <CardDescription>Недавно полученные отклики</CardDescription>
+          <CardTitle>На рассмотрении</CardTitle>
+          <CardDescription>
+            Оценённые отклики, ожидающие решения
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -114,12 +127,12 @@ export function RecentResponses({
               (key) => (
                 <div
                   key={key}
-                  className="flex items-center gap-3 rounded-lg border p-3 animate-pulse"
+                  className="flex items-center gap-3 rounded-lg border p-3"
                 >
-                  <div className="h-10 w-10 rounded-full bg-muted" />
+                  <Skeleton className="size-10 rounded-full" />
                   <div className="flex-1 space-y-2">
-                    <div className="h-4 w-3/4 bg-muted rounded" />
-                    <div className="h-3 w-1/2 bg-muted rounded" />
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-3 w-1/2" />
                   </div>
                 </div>
               ),
@@ -130,34 +143,20 @@ export function RecentResponses({
     );
   }
 
-  if (recentResponses?.length === 0)
-    return (
-      <Card className="@container/card">
-        <CardHeader>
-          <CardTitle>Последние отклики</CardTitle>
-          <CardDescription>Недавно полученные отклики</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <FileText className="h-12 w-12 text-muted-foreground/50 mb-3" />
-            <p className="text-sm text-muted-foreground">
-              Пока нет откликов на вакансии
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-    );
+  if (needsReviewResponses?.length === 0) return null;
 
   return (
     <Card className="@container/card">
       <CardHeader>
-        <CardTitle>Последние отклики</CardTitle>
-        <CardDescription>Недавно полученные отклики</CardDescription>
+        <CardTitle>На рассмотрении</CardTitle>
+        <CardDescription>
+          Оценённые отклики, ожидающие решения — пригласить или отклонить
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          {recentResponses?.map((response) => (
-            <RecentResponseItem
+          {needsReviewResponses?.map((response) => (
+            <NeedsReviewResponseItem
               key={response.id}
               response={response}
               orgSlug={orgSlug}

@@ -9,6 +9,7 @@ import { getRefreshStatus } from "./get-refresh-status";
 import { getHistory } from "./history";
 import { list } from "./list";
 import { listAll } from "./list-all";
+import { listNeedsReview } from "./list-needs-review";
 import { listRecent } from "./list-recent";
 import { listTags } from "./list-tags";
 import { listTop } from "./list-top";
@@ -22,6 +23,7 @@ export const responsesRouter = {
   list,
   listAll,
   listWorkspace,
+  listNeedsReview,
   listRecent,
   listTop,
   get,

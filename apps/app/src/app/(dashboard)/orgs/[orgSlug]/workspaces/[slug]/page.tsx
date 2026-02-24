@@ -28,13 +28,13 @@ export default function WorkspacePage({
 
         {/* Основной контент */}
         <div className="grid flex-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {/* Требуют внимания */}
+          {/* Оценить — отклики без скрининга */}
           <PendingActions orgSlug={orgSlug} workspaceSlug={workspaceSlug} />
 
-          {/* Последние отклики */}
+          {/* На рассмотрении — оценённые, ждут решения */}
           <RecentResponses orgSlug={orgSlug} workspaceSlug={workspaceSlug} />
 
-          {/* Активные вакансии */}
+          {/* Вакансии в работе — с новыми в приоритете */}
           <ActiveVacancies orgSlug={orgSlug} workspaceSlug={workspaceSlug} />
         </div>
       </div>

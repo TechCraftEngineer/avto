@@ -43,6 +43,8 @@ export type VacancyResponseListWorkspaceItem =
   RouterOutputs["vacancy"]["responses"]["listWorkspace"]["responses"][number];
 export type VacancyResponseRecentItem =
   RouterOutputs["vacancy"]["responses"]["listRecent"][number];
+export type VacancyResponseNeedsReviewItem =
+  RouterOutputs["vacancy"]["responses"]["listNeedsReview"][number];
 
 // Response - списки
 export type VacancyResponseList =
