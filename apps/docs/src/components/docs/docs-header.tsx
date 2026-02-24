@@ -2,23 +2,16 @@
 
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { cn } from "@qbs-autonaim/ui/utils";
-import { Menu, Moon, Sun, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { docsConfig } from "@/lib/docs-config";
 import { DocsSearch } from "./docs-search";
 
 export function DocsHeader() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -57,22 +50,6 @@ export function DocsHeader() {
           <div className="hidden lg:block">
             <DocsSearch />
           </div>
-
-          {mounted && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="h-9 w-9"
-            >
-              {theme === "dark" ? (
-                <Sun className="h-4 w-4" />
-              ) : (
-                <Moon className="h-4 w-4" />
-              )}
-              <span className="sr-only">Переключить тему</span>
-            </Button>
-          )}
 
           <Button
             variant="ghost"
