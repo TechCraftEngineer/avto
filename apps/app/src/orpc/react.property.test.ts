@@ -540,7 +540,13 @@ describe("Property 23: SuperJSON сериализация", () => {
           fc.oneof(
             fc.string({ minLength: 1, maxLength: 50 }),
             fc.integer({ min: 0, max: 1000 }),
-            fc.date(),
+            // Исключаем invalid Date (NaN) — SuperJSON сериализует их в null
+            fc
+              .date({
+                min: new Date(-8640000000000000),
+                max: new Date(8640000000000000),
+              })
+              .filter((d) => !Number.isNaN(d.getTime())),
             fc.boolean(),
           ),
           { minLength: 0, maxLength: 10 },

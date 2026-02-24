@@ -3,14 +3,20 @@
  */
 
 import { beforeEach, describe, expect, it } from "bun:test";
+import { Window } from "happy-dom";
 import { HeadHunterAdapter } from "./headhunter-adapter";
+
+const happyWindow = new Window();
 
 describe("HeadHunterAdapter", () => {
   let adapter: HeadHunterAdapter;
 
   beforeEach(() => {
-    adapter = new HeadHunterAdapter();
+    (global as any).document = happyWindow.document;
+    (global as any).window = happyWindow;
+    (happyWindow as any).SyntaxError ??= (global as any).SyntaxError;
     document.body.innerHTML = "";
+    adapter = new HeadHunterAdapter();
   });
 
   describe("isProfilePage", () => {

@@ -2,16 +2,27 @@
  * Unit-тесты для DataExtractor
  */
 
-import { beforeEach, describe, expect, it, vi } from "bun:test";
+import { afterEach, beforeEach, describe, expect, it, vi } from "bun:test";
+import { Window } from "happy-dom";
 import { HeadHunterAdapter } from "../adapters/headhunter/headhunter-adapter";
 import { LinkedInAdapter } from "../adapters/linkedin/linkedin-adapter";
 import { DataExtractor } from "./data-extractor";
+
+const happyWindow = new Window();
 
 describe("DataExtractor", () => {
   let extractor: DataExtractor;
 
   beforeEach(() => {
+    (global as any).document = happyWindow.document;
+    (global as any).window = happyWindow;
+    (happyWindow as any).SyntaxError ??= (global as any).SyntaxError;
+    document.body.innerHTML = "";
     extractor = new DataExtractor();
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = "";
   });
 
   describe("detectPlatform", () => {

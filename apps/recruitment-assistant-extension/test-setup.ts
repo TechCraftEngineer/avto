@@ -15,6 +15,9 @@ global.HTMLElement = happyWindow.HTMLElement as any;
 global.Element = happyWindow.Element as any;
 global.location = happyWindow.location as any;
 
+// happy-dom использует this.window.SyntaxError — в Bun/Node нужен явный полифилл
+(global.window as any).SyntaxError ??= (global as any).SyntaxError;
+
 // Мок для chrome API с поддержкой service-worker тестов
 const messageListeners: Array<
   (

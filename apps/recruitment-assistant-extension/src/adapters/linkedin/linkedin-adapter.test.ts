@@ -14,6 +14,7 @@ describe("LinkedInAdapter", () => {
   beforeEach(() => {
     (global as any).document = happyWindow.document;
     (global as any).window = happyWindow;
+    (happyWindow as any).SyntaxError ??= (global as any).SyntaxError;
     adapter = new LinkedInAdapter();
     document.body.innerHTML = "";
   });
@@ -26,9 +27,12 @@ describe("LinkedInAdapter", () => {
 
   describe("isProfilePage", () => {
     it("должен вернуть true для URL профиля LinkedIn", () => {
-      // Arrange
+      // Arrange - hostname обязателен, т.к. адаптер проверяет и hostname и pathname
       Object.defineProperty(window, "location", {
-        value: { pathname: "/in/john-doe/" },
+        value: {
+          hostname: "www.linkedin.com",
+          pathname: "/in/john-doe/",
+        },
         writable: true,
       });
 
@@ -41,7 +45,10 @@ describe("LinkedInAdapter", () => {
 
     it("должен вернуть true для URL профиля с дополнительными параметрами", () => {
       Object.defineProperty(window, "location", {
-        value: { pathname: "/in/john-doe/details/experience/" },
+        value: {
+          hostname: "www.linkedin.com",
+          pathname: "/in/john-doe/details/experience/",
+        },
         writable: true,
       });
 
@@ -52,7 +59,10 @@ describe("LinkedInAdapter", () => {
 
     it("должен вернуть false для URL ленты", () => {
       Object.defineProperty(window, "location", {
-        value: { pathname: "/feed/" },
+        value: {
+          hostname: "www.linkedin.com",
+          pathname: "/feed/",
+        },
         writable: true,
       });
 
@@ -63,7 +73,10 @@ describe("LinkedInAdapter", () => {
 
     it("должен вернуть false для URL поиска", () => {
       Object.defineProperty(window, "location", {
-        value: { pathname: "/search/results/people/" },
+        value: {
+          hostname: "www.linkedin.com",
+          pathname: "/search/results/people/",
+        },
         writable: true,
       });
 
@@ -74,7 +87,10 @@ describe("LinkedInAdapter", () => {
 
     it("должен вернуть false для пустого pathname", () => {
       Object.defineProperty(window, "location", {
-        value: { pathname: "/" },
+        value: {
+          hostname: "www.linkedin.com",
+          pathname: "/",
+        },
         writable: true,
       });
 

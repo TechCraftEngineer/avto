@@ -28,10 +28,10 @@ export const ExperienceEntrySchema: z.ZodType<WorkExperienceEntry> = z.object({
  */
 export const EducationEntrySchema: z.ZodType<EducationEntry> = z.object({
   institution: z.string(),
-  degree: z.string().nullable(),
-  field: z.string().nullable(),
-  fieldOfStudy: z.string(),
-  graduationYear: z.number().nullable(),
+  degree: z.string().nullable().optional(),
+  field: z.string().nullable().optional(),
+  fieldOfStudy: z.string().optional(),
+  graduationYear: z.number().nullable().optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
   id: z.string().optional(),
@@ -41,8 +41,8 @@ export const EducationEntrySchema: z.ZodType<EducationEntry> = z.object({
  * Схема для контактной информации
  */
 export const ContactInfoSchema: z.ZodType<CandidateContactInfo> = z.object({
-  email: z.string().email().nullable(),
-  phone: z.string().nullable(),
+  email: z.string().email().nullable().optional(),
+  phone: z.string().nullable().optional(),
   socialLinks: z.array(z.string().url()).optional(),
 });
 
@@ -50,7 +50,13 @@ export const ContactInfoSchema: z.ZodType<CandidateContactInfo> = z.object({
  * Схема для базовой информации
  */
 export const BasicInfoSchema: z.ZodType<BasicCandidateInfo> = z.object({
-  fullName: z.string().min(1, "Имя обязательно"),
+  fullName: z
+    .string()
+    .min(1, "Имя обязательно")
+    .refine(
+      (s) => s.trim().length >= 1,
+      "Имя не может состоять только из пробелов",
+    ),
   currentPosition: z.string(),
   location: z.string(),
   photoUrl: z.string().url().nullable(),
