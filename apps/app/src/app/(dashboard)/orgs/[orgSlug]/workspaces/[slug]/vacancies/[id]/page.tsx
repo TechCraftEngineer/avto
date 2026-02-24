@@ -81,12 +81,6 @@ export default function VacancyDetailPage() {
   }
 
   const { vacancy, responseStats, interviewLink } = data;
-  const isFreelancePlatform = [
-    "FL_RU",
-    "FREELANCE_RU",
-    "AVITO",
-    "SUPERJOB",
-  ].includes(vacancy.source.toUpperCase());
 
   const totalResponses = Object.values(responseStats).reduce(
     (acc, val) => acc + val,
@@ -115,18 +109,6 @@ export default function VacancyDetailPage() {
 
       {/* ПРАВАЯ КОЛОНКА - Действия и статистика */}
       <div className="space-y-6">
-        {/* Кнопка импорта откликов */}
-        {isFreelancePlatform && (
-          <Button asChild className="w-full h-11 gap-2 font-semibold shadow-sm">
-            <Link
-              href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies/${id}/import`}
-            >
-              <IconUpload className="size-4" />
-              Импортировать отклики
-            </Link>
-          </Button>
-        )}
-
         {/* AI-интервью */}
         {interviewLink && (
           <AIInterviewCard
