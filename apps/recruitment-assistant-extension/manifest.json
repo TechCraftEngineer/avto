@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Recruitment Assistant",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAygY09bA7BR3yuLlXWCHmNVAlx5+RnIkcCP3b7sQvCU0unmp9LnOmPlQBX9YgMON//iOZgPCASC7v29Rp4URQtI05nfXm15gGPCbKRx/p3tQwbjNVIIW+Qu6dBsCr4jwXlXRYwwxk2xMLjpZyJId26r/0Ad1q+zgE326m96ISci3R9c+IeqOVV5KnP77+oS4254i8xjPOuK6YedJupiJThWIKuSPjAzRAGpOuesEZBiupE2b5LdDOuGOEei2ljKbf90sN99paXTXIap+PZyIgXG6b1p2s4LbL+uXuyzuL/88zAAI/WEzpQtd4m1x1zc4nplwVgqKM2YJrZilQX6DyTwIDAQAB",
   "description": "Расширение для автоматизации работы рекрутеров с профилями кандидатов на LinkedIn и HeadHunter",
   "icons": {
