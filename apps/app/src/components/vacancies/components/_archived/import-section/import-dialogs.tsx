@@ -11,18 +11,15 @@ import { Input } from "@qbs-autonaim/ui/components/input";
 import { Label } from "@qbs-autonaim/ui/components/label";
 
 interface ImportDialogsProps {
-  // New vacancies dialog
   isConfirmNewDialogOpen: boolean;
   onConfirmNewDialogChange: (open: boolean) => void;
   onConfirmNew: () => void;
   currentPlatformName?: string;
 
-  // Archived vacancies dialog
   isConfirmArchivedDialogOpen: boolean;
   onConfirmArchivedDialogChange: (open: boolean) => void;
   onConfirmArchived: () => void;
 
-  // URL dialog
   isUrlDialogOpen: boolean;
   onUrlDialogChange: (open: boolean) => void;
   vacancyUrl: string;
@@ -50,7 +47,6 @@ export function ImportDialogs({
 }: ImportDialogsProps) {
   return (
     <>
-      {/* Confirm New Vacancies Dialog */}
       <Dialog
         open={isConfirmNewDialogOpen}
         onOpenChange={onConfirmNewDialogChange}
@@ -86,7 +82,6 @@ export function ImportDialogs({
         </DialogContent>
       </Dialog>
 
-      {/* Confirm Archived Vacancies Dialog */}
       <Dialog
         open={isConfirmArchivedDialogOpen}
         onOpenChange={onConfirmArchivedDialogChange}
@@ -121,7 +116,6 @@ export function ImportDialogs({
         </DialogContent>
       </Dialog>
 
-      {/* URL Input Dialog */}
       <Dialog open={isUrlDialogOpen} onOpenChange={onUrlDialogChange}>
         <DialogContent>
           <DialogHeader>
