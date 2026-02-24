@@ -4,11 +4,6 @@ dist/
 /out/
 
 # dev
-.yarn/
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
 .vscode/*
 !.vscode/launch.json
 !.vscode/*.code-snippets
