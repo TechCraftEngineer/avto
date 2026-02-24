@@ -237,7 +237,7 @@
     },
     "apps/recruitment-assistant-extension": {
       "name": "@qbs-autonaim/recruitment-assistant-extension",
-      "version": "0.0.14",
+      "version": "0.0.15",
       "dependencies": {
         "@qbs-autonaim/shared": "workspace:*",
         "@qbs-autonaim/tailwind-config": "workspace:*",
