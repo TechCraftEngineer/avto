@@ -2,12 +2,19 @@ import { Badge } from "@qbs-autonaim/ui/components/badge";
 import {
   Card,
   CardAction,
+  CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@qbs-autonaim/ui/components/card";
-import { cn } from "@qbs-autonaim/ui/utils";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@qbs-autonaim/ui/components/empty";
 import { IconTrendingDown, IconTrendingUp } from "@tabler/icons-react";
 
 interface VacancyAnalyticsProps {
@@ -68,45 +75,38 @@ export function VacancyAnalytics({
   // Если нет откликов вообще - показываем красивое пустое состояние
   if (totalResponses === 0) {
     return (
-      <Card className="border-dashed bg-card shadow-sm">
-        <CardHeader className="text-center py-12">
-          <div className="flex justify-center mb-4">
-            <div className="relative">
-              <div className="absolute inset-0 bg-primary/10 rounded-full blur-2xl" />
-              <div className="relative bg-linear-to-br from-primary/20 to-primary/5 rounded-full p-6">
-                <IconTrendingUp className="h-12 w-12 text-primary" />
-              </div>
-            </div>
-          </div>
-          <CardTitle className="text-xl mb-2">
-            Аналитика появится после первых откликов
-          </CardTitle>
-          <CardDescription className="text-base max-w-md mx-auto">
-            Здесь будет отображаться статистика по обработке откликов, скорингу
-            кандидатов и средним баллам. Данные обновляются автоматически после
-            обработки откликов AI-системой
-          </CardDescription>
-        </CardHeader>
+      <Card className="@container/card">
+        <CardContent className="py-12">
+          <Empty className="border-dashed">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <IconTrendingUp className="size-6" />
+              </EmptyMedia>
+              <EmptyTitle>Аналитика появится после первых откликов</EmptyTitle>
+              <EmptyDescription>
+                Здесь будет отображаться статистика по обработке откликов,
+                скорингу кандидатов и средним баллам. Данные обновляются
+                автоматически после обработки откликов AI-системой
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        </CardContent>
       </Card>
     );
   }
 
   return (
-    <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-sm dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 *:data-[slot=card]:bg-linear-to-t @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>Обработано откликов</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+          <CardTitle className="text-2xl font-semibold tabular-nums">
             {processedResponses}
           </CardTitle>
           <CardAction>
             <Badge
-              variant="outline"
-              className={cn(
-                isGrowingProcessed
-                  ? "border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-400"
-                  : "border-red-500/50 bg-red-500/10 text-red-700 dark:text-red-400",
-              )}
+              variant={isGrowingProcessed ? "success" : "warning"}
+              className="gap-1"
             >
               {isGrowingProcessed ? (
                 <IconTrendingUp className="size-4" />
@@ -135,17 +135,13 @@ export function VacancyAnalytics({
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>Скоринг ≥ 3</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+          <CardTitle className="text-2xl font-semibold tabular-nums">
             {highScoreResponses}
           </CardTitle>
           <CardAction>
             <Badge
-              variant="outline"
-              className={cn(
-                isGrowingHighScore
-                  ? "border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-400"
-                  : "border-red-500/50 bg-red-500/10 text-red-700 dark:text-red-400",
-              )}
+              variant={isGrowingHighScore ? "success" : "warning"}
+              className="gap-1"
             >
               {isGrowingHighScore ? (
                 <IconTrendingUp className="size-4" />
@@ -172,17 +168,13 @@ export function VacancyAnalytics({
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>Скоринг ≥ 4</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+          <CardTitle className="text-2xl font-semibold tabular-nums">
             {topScoreResponses}
           </CardTitle>
           <CardAction>
             <Badge
-              variant="outline"
-              className={cn(
-                isGrowingTopScore
-                  ? "border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-400"
-                  : "border-red-500/50 bg-red-500/10 text-red-700 dark:text-red-400",
-              )}
+              variant={isGrowingTopScore ? "success" : "warning"}
+              className="gap-1"
             >
               {isGrowingTopScore ? (
                 <IconTrendingUp className="size-4" />
@@ -211,17 +203,13 @@ export function VacancyAnalytics({
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>Средний балл</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+          <CardTitle className="text-2xl font-semibold tabular-nums">
             {processedResponses > 0 ? avgScore.toFixed(1) : "—"}
           </CardTitle>
           <CardAction>
             <Badge
-              variant="outline"
-              className={cn(
-                isGoodAvgScore
-                  ? "border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-400"
-                  : "border-red-500/50 bg-red-500/10 text-red-700 dark:text-red-400",
-              )}
+              variant={isGoodAvgScore ? "success" : "warning"}
+              className="gap-1"
             >
               {isGoodAvgScore ? (
                 <IconTrendingUp className="size-4" />
@@ -271,205 +259,184 @@ export function VacancyRequirements({
 
   if (!hasAnyData) {
     return (
-      <div className="rounded-xl border border-dashed border-border bg-card shadow-md">
-        <div className="text-center py-8 space-y-4">
-          <div className="flex justify-center">
-            <div className="relative">
-              <div className="absolute inset-0 bg-primary/10 rounded-full blur-2xl" />
-              <div className="relative bg-linear-to-br from-primary/20 to-primary/5 rounded-full p-6">
-                <Badge className="h-12 w-12 flex items-center justify-center text-lg">
+      <Card className="@container/card">
+        <CardContent className="py-8">
+          <Empty className="border-dashed">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <Badge variant="secondary" className="text-sm">
                   AI
                 </Badge>
-              </div>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <h3 className="text-lg font-semibold text-foreground">
-              Требования не сгенерированы
-            </h3>
-            <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
-              AI-анализ требований к вакансии будет доступен после обработки
-              описания вакансии. Система автоматически извлечет ключевые
-              требования, технологии и навыки
-            </p>
-          </div>
-        </div>
-      </div>
+              </EmptyMedia>
+              <EmptyTitle>Требования не сгенерированы</EmptyTitle>
+              <EmptyDescription>
+                AI-анализ требований к вакансии будет доступен после обработки
+                описания вакансии. Система автоматически извлечет ключевые
+                требования, технологии и навыки
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="rounded-xl border border-border bg-card p-6 shadow-md space-y-8">
-      <div className="flex items-center justify-between border-b border-border pb-4">
-        <h2 className="text-xl font-bold tracking-tight">
-          Сгенерированные требования
-        </h2>
-        <Badge
-          variant="outline"
-          className="bg-primary/5 text-primary border-primary/20"
-        >
-          AI Анализ
-        </Badge>
-      </div>
-
-      {data.summary && (
-        <div className="rounded-lg border border-border bg-background/80 p-5 space-y-2">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">
-            Краткое описание
-          </h3>
-          <p className="text-sm leading-relaxed text-foreground/90">
-            {data.summary}
-          </p>
-        </div>
-      )}
-
-      <div className="grid gap-4 md:grid-cols-3">
-        {data.job_title && (
-          <div className="rounded-lg border border-border bg-background/90 p-4 transition-colors hover:bg-background">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80 mb-1.5">
-              Должность
-            </h3>
-            <p className="text-sm font-semibold">{data.job_title}</p>
-          </div>
-        )}
-
-        {data.location_type && (
-          <div className="rounded-lg border border-border bg-background/90 p-4 transition-colors hover:bg-background">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80 mb-1.5">
-              Формат работы
-            </h3>
-            <p className="text-sm font-semibold">{data.location_type}</p>
-          </div>
-        )}
-
-        {data.experience_years && (
-          <div className="rounded-lg border border-border bg-background/90 p-4 transition-colors hover:bg-background">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80 mb-1.5">
-              Опыт работы
-            </h3>
-            <p className="text-sm font-semibold">
-              {data.experience_years.description ||
-                `${data.experience_years.min}${data.experience_years.max ? `-${data.experience_years.max}` : "+"} лет`}
+    <Card className="@container/card">
+      <CardHeader className="flex flex-row items-center justify-between gap-4">
+        <CardTitle>Сгенерированные требования</CardTitle>
+        <Badge variant="secondary">AI Анализ</Badge>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {data.summary && (
+          <div className="space-y-2">
+            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              Краткое описание
             </p>
+            <p className="text-sm leading-relaxed">{data.summary}</p>
           </div>
         )}
-      </div>
 
-      <div className="space-y-6">
-        {data.mandatory_requirements &&
-          data.mandatory_requirements.length > 0 && (
-            <div className="space-y-3">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-primary flex items-center gap-2">
-                <div className="size-1.5 rounded-full bg-primary" />
-                Обязательные требования
-              </h3>
-              <div className="grid gap-2">
-                {data.mandatory_requirements.map((req, i) => (
-                  <div
-                    key={`req-${i}-${req.slice(0, 20)}`}
-                    className="flex gap-3 p-3 rounded-md border border-border bg-background/70 text-sm items-start"
-                  >
-                    <div className="size-5 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5 text-[10px] font-bold">
-                      {i + 1}
+        <div className="grid gap-4 md:grid-cols-3">
+          {data.job_title && (
+            <div className="rounded-lg border bg-muted/50 p-4">
+              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1.5">
+                Должность
+              </p>
+              <p className="text-sm font-medium">{data.job_title}</p>
+            </div>
+          )}
+
+          {data.location_type && (
+            <div className="rounded-lg border bg-muted/50 p-4">
+              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1.5">
+                Формат работы
+              </p>
+              <p className="text-sm font-medium">{data.location_type}</p>
+            </div>
+          )}
+
+          {data.experience_years && (
+            <div className="rounded-lg border bg-muted/50 p-4">
+              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1.5">
+                Опыт работы
+              </p>
+              <p className="text-sm font-medium">
+                {data.experience_years.description ||
+                  `${data.experience_years.min}${data.experience_years.max ? `-${data.experience_years.max}` : "+"} лет`}
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-6">
+          {data.mandatory_requirements &&
+            data.mandatory_requirements.length > 0 && (
+              <div className="space-y-3">
+                <p className="text-sm font-medium flex items-center gap-2">
+                  <span className="size-1.5 rounded-full bg-primary" />
+                  Обязательные требования
+                </p>
+                <div className="grid gap-2">
+                  {data.mandatory_requirements.map((req, i) => (
+                    <div
+                      key={`req-${i}-${req.slice(0, 20)}`}
+                      className="flex gap-3 rounded-lg border p-3 text-sm items-start"
+                    >
+                      <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-medium text-primary">
+                        {i + 1}
+                      </span>
+                      <span className="text-muted-foreground leading-relaxed">
+                        {req}
+                      </span>
                     </div>
-                    <span className="text-muted-foreground leading-relaxed italic">
-                      {req}
-                    </span>
-                  </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+          {data.tech_stack && data.tech_stack.length > 0 && (
+            <div className="space-y-3">
+              <p className="text-sm font-medium flex items-center gap-2">
+                <span className="size-1.5 rounded-full bg-primary" />
+                Технологический стек
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {data.tech_stack.map((tech) => (
+                  <Badge key={tech} variant="secondary">
+                    {tech}
+                  </Badge>
                 ))}
               </div>
             </div>
           )}
 
-        {data.tech_stack && data.tech_stack.length > 0 && (
-          <div className="space-y-3">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-primary flex items-center gap-2">
-              <div className="size-1.5 rounded-full bg-primary" />
-              Технологический стек
-            </h3>
-            <div className="flex flex-wrap gap-2 p-4 rounded-lg border border-border bg-background/70">
-              {data.tech_stack.map((tech) => (
-                <Badge
-                  key={tech}
-                  variant="secondary"
-                  className="bg-primary/10 text-primary border-primary/10 hover:bg-primary/20"
-                >
-                  {tech}
-                </Badge>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {data.nice_to_have_skills && data.nice_to_have_skills.length > 0 && (
-          <div className="space-y-3">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-primary flex items-center gap-2">
-              <div className="size-1.5 rounded-full bg-primary" />
-              Будет плюсом
-            </h3>
-            <ul className="grid gap-2">
-              {data.nice_to_have_skills.map((skill, i) => (
-                <li
-                  key={`skill-${i}-${skill.slice(0, 20)}`}
-                  className="group flex gap-3 p-3 rounded-md border border-dashed border-border bg-background/60 text-sm items-start hover:border-primary/50 transition-colors"
-                >
-                  <div className="size-1.5 rounded-full bg-muted-foreground/30 mt-2 group-hover:bg-primary/50" />
-                  <span className="text-muted-foreground leading-relaxed">
-                    {skill}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        <div className="grid gap-6 md:grid-cols-2">
-          {data.languages && data.languages.length > 0 && (
+          {data.nice_to_have_skills && data.nice_to_have_skills.length > 0 && (
             <div className="space-y-3">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">
-                Языки
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {data.languages.map((lang, index) => {
-                  const label =
-                    typeof lang === "string"
-                      ? lang
-                      : `${lang.language}${lang.level ? ` (${lang.level})` : ""}`;
-                  return (
-                    <Badge
-                      key={`lang-${index}-${label}`}
-                      variant="outline"
-                      className="bg-background border-border"
-                    >
-                      {label}
-                    </Badge>
-                  );
-                })}
-              </div>
+              <p className="text-sm font-medium flex items-center gap-2">
+                <span className="size-1.5 rounded-full bg-primary" />
+                Будет плюсом
+              </p>
+              <ul className="grid gap-2">
+                {data.nice_to_have_skills.map((skill, i) => (
+                  <li
+                    key={`skill-${i}-${skill.slice(0, 20)}`}
+                    className="flex gap-3 rounded-lg border border-dashed p-3 text-sm items-start"
+                  >
+                    <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-muted-foreground/30" />
+                    <span className="text-muted-foreground leading-relaxed">
+                      {skill}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
 
-          {data.keywords_for_matching &&
-            data.keywords_for_matching.length > 0 && (
+          <div className="grid gap-6 md:grid-cols-2">
+            {data.languages && data.languages.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">
-                  Ключевые слова
-                </h3>
+                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Языки
+                </p>
                 <div className="flex flex-wrap gap-2">
-                  {data.keywords_for_matching.map((keyword, i) => (
-                    <Badge
-                      key={`keyword-${i}-${keyword}`}
-                      variant="outline"
-                      className="bg-background border-border text-[10px]"
-                    >
-                      {keyword}
-                    </Badge>
-                  ))}
+                  {data.languages.map((lang, index) => {
+                    const label =
+                      typeof lang === "string"
+                        ? lang
+                        : `${lang.language}${lang.level ? ` (${lang.level})` : ""}`;
+                    return (
+                      <Badge key={`lang-${index}-${label}`} variant="outline">
+                        {label}
+                      </Badge>
+                    );
+                  })}
                 </div>
               </div>
             )}
+
+            {data.keywords_for_matching &&
+              data.keywords_for_matching.length > 0 && (
+                <div className="space-y-3">
+                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    Ключевые слова
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {data.keywords_for_matching.map((keyword, i) => (
+                      <Badge
+                        key={`keyword-${i}-${keyword}`}
+                        variant="outline"
+                        className="text-[10px]"
+                      >
+                        {keyword}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+          </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
