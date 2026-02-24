@@ -21,10 +21,14 @@ const PRODUCTION_EXTENSION_API_BASE = "https://ext-api.avtonaim.qbsoft.ru";
 async function main(): Promise<void> {
   const bumpType = process.env.BUMP_VERSION || "patch";
 
-  console.log(`Bumping version (${bumpType})...`);
-  await $`bun run ${join(__dirname, "bump-version.ts")} ${bumpType}`.cwd(
-    rootDir,
-  );
+  if (bumpType !== "skip") {
+    console.log(`Bumping version (${bumpType})...`);
+    await $`bun run ${join(__dirname, "bump-version.ts")} ${bumpType}`.cwd(
+      rootDir,
+    );
+  } else {
+    console.log("Пропуск обновления версии");
+  }
 
   const pkg = JSON.parse(
     readFileSync(join(rootDir, "package.json"), "utf-8"),
@@ -57,7 +61,9 @@ async function main(): Promise<void> {
 
   const isWindows = process.platform === "win32";
   if (isWindows) {
-    await $`powershell -NoProfile -Command "Compress-Archive -Path '${distDir}\\*' -DestinationPath '${archivePath}' -Force"`;
+    // PowerShell Compress-Archive с правильным путём к содержимому
+    const distContent = `${distDir}\\*`;
+    await $`powershell -NoProfile -ExecutionPolicy Bypass -Command "Compress-Archive -Path '${distContent}' -DestinationPath '${archivePath}' -CompressionLevel Optimal -Force"`;
   } else {
     await $`cd ${distDir} && zip -r ${archivePath} .`;
   }

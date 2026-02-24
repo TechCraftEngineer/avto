@@ -28,11 +28,16 @@ function bumpVersion(version: string, type: BumpType): string {
 async function main(): Promise<void> {
   const bumpType = (process.argv[2] || "patch") as BumpType;
 
-  if (!["patch", "minor", "major"].includes(bumpType)) {
+  if (!["patch", "minor", "major", "skip"].includes(bumpType)) {
     console.error(
-      "Использование: bun run scripts/bump-version.ts [patch|minor|major]",
+      "Использование: bun run scripts/bump-version.ts [patch|minor|major|skip]",
     );
     process.exit(1);
+  }
+
+  if (bumpType === "skip") {
+    console.log("Пропуск обновления версии");
+    return;
   }
 
   const packageJsonPath = join(rootDir, "package.json");
