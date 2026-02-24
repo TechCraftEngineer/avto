@@ -1,4 +1,3 @@
-import { Badge } from "@qbs-autonaim/ui/components/badge";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { Input } from "@qbs-autonaim/ui/components/input";
 import {
@@ -9,12 +8,10 @@ import {
   SelectValue,
 } from "@qbs-autonaim/ui/components/select";
 import {
-  IconFilter,
-  IconLayoutGrid,
-  IconSearch,
-  IconSparkles,
-  IconTable,
-} from "@tabler/icons-react";
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@qbs-autonaim/ui/components/toggle-group";
+import { Filter, LayoutGrid, Search, Sparkles, Table2 } from "lucide-react";
 import Link from "next/link";
 import { type DisplayMode, gigTypesConfig } from "../gig-config";
 
@@ -77,49 +74,46 @@ export function GigsFilters({
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="flex flex-1 flex-col gap-3 md:flex-row md:items-center">
           <div className="relative flex-1 md:max-w-sm">
-            <IconSearch
+            <Search
               className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-              aria-hidden="true"
+              aria-hidden
             />
             <Input
               type="search"
               placeholder="Поиск по названию…"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="pl-9 bg-card shadow-sm"
+              className="pl-9"
               aria-label="Поиск заданий"
             />
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {/* Переключатель режима отображения */}
-            <div className="flex items-center rounded-md border bg-card shadow-sm p-1">
-              <Button
-                variant={displayMode === "grid" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => onDisplayModeChange("grid")}
-                className="h-8 px-2"
-                title="Карточки"
-              >
-                <IconLayoutGrid className="size-4" />
-              </Button>
-              <Button
-                variant={displayMode === "table" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => onDisplayModeChange("table")}
-                className="h-8 px-2"
-                title="Таблица"
-              >
-                <IconTable className="size-4" />
-              </Button>
-            </div>
+            <ToggleGroup
+              type="single"
+              value={displayMode}
+              onValueChange={(v) =>
+                v && onDisplayModeChange(v as "grid" | "table")
+              }
+              variant="outline"
+              size="sm"
+              spacing={0}
+              className="w-fit"
+            >
+              <ToggleGroupItem value="grid" title="Карточки">
+                <LayoutGrid className="size-4" />
+              </ToggleGroupItem>
+              <ToggleGroupItem value="table" title="Таблица">
+                <Table2 className="size-4" />
+              </ToggleGroupItem>
+            </ToggleGroup>
 
             <Select value={typeFilter} onValueChange={onTypeFilterChange}>
               <SelectTrigger
-                className="w-full sm:w-[160px] bg-card shadow-sm"
+                className="w-full sm:w-[160px]"
                 aria-label="Фильтр по типу"
               >
-                <IconFilter className="size-4" aria-hidden="true" />
+                <Filter className="size-4" aria-hidden />
                 <SelectValue placeholder="Тип" />
               </SelectTrigger>
               <SelectContent>
@@ -134,7 +128,7 @@ export function GigsFilters({
 
             <Select value={statusFilter} onValueChange={onStatusFilterChange}>
               <SelectTrigger
-                className="w-full sm:w-[140px] bg-card shadow-sm"
+                className="w-full sm:w-[140px]"
                 aria-label="Фильтр по статусу"
               >
                 <SelectValue placeholder="Статус" />
@@ -148,7 +142,7 @@ export function GigsFilters({
 
             <Select value={sortBy} onValueChange={onSortByChange}>
               <SelectTrigger
-                className="w-full sm:w-[160px] bg-card shadow-sm"
+                className="w-full sm:w-[160px]"
                 aria-label="Сортировка"
               >
                 <SelectValue placeholder="Сортировка" />
@@ -165,25 +159,28 @@ export function GigsFilters({
               </SelectContent>
             </Select>
 
-            <div className="flex items-center rounded-md border bg-card shadow-sm p-1">
-              <Button
-                variant={groupBy === "none" ? "ghost" : "default"}
-                size="sm"
-                onClick={() =>
-                  onGroupByChange(groupBy === "none" ? "urgency" : "none")
-                }
-                className="h-8 px-2 text-xs"
-                title={
-                  groupBy === "urgency" ? "Снять группировку" : "По срочности"
-                }
-              >
+            <ToggleGroup
+              type="single"
+              value={groupBy}
+              onValueChange={(v) =>
+                v && onGroupByChange(v as "none" | "urgency")
+              }
+              variant="outline"
+              size="sm"
+              spacing={0}
+              className="w-fit"
+            >
+              <ToggleGroupItem value="none" title="Без группировки">
                 Группа
-              </Button>
-            </div>
+              </ToggleGroupItem>
+              <ToggleGroupItem value="urgency" title="По срочности">
+                По срочности
+              </ToggleGroupItem>
+            </ToggleGroup>
           </div>
         </div>
 
-        <div className="flex w-full flex-wrap gap-2 md:w-auto md:flex-shrink-0">
+        <div className="flex w-full flex-wrap gap-2 md:w-auto md:shrink-0">
           <Button asChild variant="outline" className="flex-1 md:flex-initial">
             <Link
               href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs/import`}
@@ -197,38 +194,40 @@ export function GigsFilters({
               href={`/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs/create`}
               aria-label="Создать разовое задание"
             >
-              <IconSparkles className="size-4" aria-hidden="true" />
+              <Sparkles className="size-4" aria-hidden />
               Создать задание
             </Link>
           </Button>
         </div>
       </div>
 
-      {/* Быстрые фильтры */}
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-xs text-muted-foreground">Быстро:</span>
-        {quickFilterOptions.map(
-          (opt) =>
-            opt.value && (
-              <Badge
-                key={opt.value}
-                variant={quickFilter === opt.value ? "default" : "outline"}
-                className="cursor-pointer transition-colors hover:bg-muted/70"
-                onClick={() =>
-                  onQuickFilterChange(
-                    quickFilter === opt.value ? "" : opt.value,
-                  )
-                }
-              >
-                {opt.label}
-                {opt.value === "hasNewResponses" && newResponsesCount > 0 && (
-                  <span className="ml-1 rounded bg-orange-200 px-1 text-xs dark:bg-orange-800">
-                    {newResponsesCount}
-                  </span>
-                )}
-              </Badge>
-            ),
-        )}
+        <ToggleGroup
+          type="single"
+          value={quickFilter || "all"}
+          onValueChange={(v) =>
+            onQuickFilterChange(v === "all" ? "" : (v ?? ""))
+          }
+          variant="outline"
+          size="sm"
+          className="w-fit flex-wrap"
+        >
+          <ToggleGroupItem value="all">Все</ToggleGroupItem>
+          {quickFilterOptions.map(
+            (opt) =>
+              opt.value && (
+                <ToggleGroupItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                  {opt.value === "hasNewResponses" && newResponsesCount > 0 && (
+                    <span className="ml-1.5 rounded-md bg-primary/15 px-1.5 py-0.5 text-xs tabular-nums">
+                      {newResponsesCount}
+                    </span>
+                  )}
+                </ToggleGroupItem>
+              ),
+          )}
+        </ToggleGroup>
       </div>
     </div>
   );

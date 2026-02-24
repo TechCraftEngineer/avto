@@ -1,3 +1,4 @@
+import { Alert, AlertTitle } from "@qbs-autonaim/ui/components/alert";
 import { AlertTriangle } from "lucide-react";
 import { GigCard } from "../gig-card";
 import { GigCompactItem } from "../gig-compact-item";
@@ -50,16 +51,19 @@ export function GigsAttentionBlock({
   if (attentionGigs.length === 0) return null;
 
   return (
-    <div className="mb-4 max-w-3xl rounded-lg border border-amber-200 bg-amber-50/50 shadow-sm p-3 dark:border-amber-800 dark:bg-amber-950/20">
-      <div className="mb-2 flex items-center gap-2 text-sm font-medium text-amber-800 dark:text-amber-200">
-        <AlertTriangle className="size-4 shrink-0" />
+    <Alert
+      variant="default"
+      className="mb-4 max-w-3xl border-amber-200 bg-amber-50/50 dark:border-amber-800 dark:bg-amber-950/20"
+    >
+      <AlertTriangle className="size-4 shrink-0" />
+      <AlertTitle className="text-amber-800 dark:text-amber-200">
         Требуют внимания ({attentionGigs.length})
-      </div>
+      </AlertTitle>
       <div
         className={
           displayMode === "grid"
-            ? "grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2"
-            : "space-y-1.5"
+            ? "col-start-2 mt-2 grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2"
+            : "col-start-2 mt-2 space-y-1.5"
         }
       >
         {attentionGigs.map((gig) =>
@@ -82,6 +86,6 @@ export function GigsAttentionBlock({
           ),
         )}
       </div>
-    </div>
+    </Alert>
   );
 }

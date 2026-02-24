@@ -72,9 +72,10 @@ export function GigsTable({
     children: React.ReactNode;
   }) => (
     <TableHead>
-      <button
-        type="button"
-        className="flex items-center gap-1 hover:underline"
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-auto gap-1 p-0 font-medium hover:underline"
         onClick={() => onSort(field)}
       >
         {children}
@@ -83,7 +84,7 @@ export function GigsTable({
             {sortDirection === "asc" ? "↑" : "↓"}
           </span>
         )}
-      </button>
+      </Button>
     </TableHead>
   );
 
@@ -118,13 +119,13 @@ export function GigsTable({
                   </Link>
                   <div className="flex items-center gap-1.5 mt-0.5">
                     <Badge
-                      variant={gig.isActive ? "default" : "outline"}
-                      className={`text-xs px-1 py-0 ${gig.isActive ? "bg-green-100 text-green-800" : ""}`}
+                      variant={gig.isActive ? "success" : "outline"}
+                      className="text-xs px-1 py-0"
                     >
                       {gig.isActive ? "●" : "○"}
                     </Badge>
                     {(gig.newResponses ?? 0) > 0 && (
-                      <Badge className="text-xs px-1 py-0 bg-orange-100 text-orange-800">
+                      <Badge variant="warning" className="text-xs px-1 py-0">
                         +{gig.newResponses}
                       </Badge>
                     )}

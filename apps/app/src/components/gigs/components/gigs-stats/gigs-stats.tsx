@@ -1,3 +1,4 @@
+import { Card, CardContent } from "@qbs-autonaim/ui/components/card";
 import { Skeleton } from "@qbs-autonaim/ui/components/skeleton";
 
 import type { GigsStats as GigsStatsType } from "../gigs-filters";
@@ -11,74 +12,117 @@ interface GigsStatsProps {
 }
 
 export function GigsStats({ stats, isLoading, onCardClick }: GigsStatsProps) {
-  const cardClass =
-    "rounded-lg border bg-card shadow-sm p-4 transition-all hover:bg-muted/60 hover:shadow-md w-full text-left";
-  const clickableClass = onCardClick ? "cursor-pointer" : "";
-
   const cardProps = (
     card: "total" | "active" | "responses" | "newResponses" | "overdue",
   ) =>
     onCardClick
       ? {
-          type: "button" as const,
+          role: "button" as const,
+          tabIndex: 0,
           onClick: () => onCardClick(card),
+          onKeyDown: (e: React.KeyboardEvent) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              onCardClick(card);
+            }
+          },
         }
       : {};
-
-  const Card = onCardClick ? "button" : "div";
 
   return (
     <div className="grid gap-4 px-4 sm:grid-cols-2 lg:grid-cols-5 lg:px-6">
       <Card
-        className={`${cardClass} ${clickableClass}`}
+        size="sm"
+        className={
+          onCardClick
+            ? "cursor-pointer transition-shadow hover:bg-muted/60 hover:shadow-md"
+            : ""
+        }
         {...cardProps("total")}
       >
-        <p className="text-sm text-muted-foreground">Всего заданий</p>
-        <div className="text-2xl font-bold tabular-nums">
-          {isLoading ? <Skeleton className="h-8 w-16" /> : stats.totalGigs}
-        </div>
+        <CardContent className="pt-0">
+          <p className="text-sm text-muted-foreground">Всего заданий</p>
+          <div className="text-2xl font-bold tabular-nums">
+            {isLoading ? <Skeleton className="h-8 w-16" /> : stats.totalGigs}
+          </div>
+        </CardContent>
       </Card>
       <Card
-        className={`${cardClass} ${clickableClass}`}
+        size="sm"
+        className={
+          onCardClick
+            ? "cursor-pointer transition-shadow hover:bg-muted/60 hover:shadow-md"
+            : ""
+        }
         {...cardProps("active")}
       >
-        <p className="text-sm text-muted-foreground">Активных</p>
-        <div className="text-2xl font-bold tabular-nums">
-          {isLoading ? <Skeleton className="h-8 w-16" /> : stats.activeGigs}
-        </div>
+        <CardContent className="pt-0">
+          <p className="text-sm text-muted-foreground">Активных</p>
+          <div className="text-2xl font-bold tabular-nums">
+            {isLoading ? <Skeleton className="h-8 w-16" /> : stats.activeGigs}
+          </div>
+        </CardContent>
       </Card>
       <Card
-        className={`${cardClass} ${clickableClass}`}
+        size="sm"
+        className={
+          onCardClick
+            ? "cursor-pointer transition-shadow hover:bg-muted/60 hover:shadow-md"
+            : ""
+        }
         {...cardProps("responses")}
       >
-        <p className="text-sm text-muted-foreground">Всего откликов</p>
-        <div className="text-2xl font-bold tabular-nums">
-          {isLoading ? <Skeleton className="h-8 w-16" /> : stats.totalResponses}
-        </div>
+        <CardContent className="pt-0">
+          <p className="text-sm text-muted-foreground">Всего откликов</p>
+          <div className="text-2xl font-bold tabular-nums">
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              stats.totalResponses
+            )}
+          </div>
+        </CardContent>
       </Card>
       <Card
-        className={`${cardClass} ${clickableClass}`}
+        size="sm"
+        className={
+          onCardClick
+            ? "cursor-pointer transition-shadow hover:bg-muted/60 hover:shadow-md"
+            : ""
+        }
         {...cardProps("newResponses")}
       >
-        <p className="text-sm text-muted-foreground">Новых откликов</p>
-        <div className="text-2xl font-bold tabular-nums text-green-600">
-          {isLoading ? <Skeleton className="h-8 w-16" /> : stats.newResponses}
-        </div>
+        <CardContent className="pt-0">
+          <p className="text-sm text-muted-foreground">Новых откликов</p>
+          <div className="text-2xl font-bold tabular-nums text-chart-2">
+            {isLoading ? <Skeleton className="h-8 w-16" /> : stats.newResponses}
+          </div>
+        </CardContent>
       </Card>
       <Card
-        className={`${cardClass} ${clickableClass} ${stats.overdueCount > 0 ? "border-red-200 bg-red-50/50 dark:border-red-900 dark:bg-red-950/20" : ""}`}
+        size="sm"
+        className={[
+          onCardClick &&
+            "cursor-pointer transition-shadow hover:bg-muted/60 hover:shadow-md",
+          (stats.overdueCount ?? 0) > 0 &&
+            "border border-destructive/30 bg-destructive/5 hover:bg-destructive/10",
+        ]
+          .filter(Boolean)
+          .join(" ")}
         {...cardProps("overdue")}
       >
-        <p className="text-sm text-muted-foreground">Просрочено</p>
-        <div
-          className={`text-2xl font-bold tabular-nums ${stats.overdueCount > 0 ? "text-destructive" : ""}`}
-        >
-          {isLoading ? (
-            <Skeleton className="h-8 w-16" />
-          ) : (
-            (stats.overdueCount ?? 0)
-          )}
-        </div>
+        <CardContent className="pt-0">
+          <p className="text-sm text-muted-foreground">Просрочено</p>
+          <div
+            className={`text-2xl font-bold tabular-nums ${(stats.overdueCount ?? 0) > 0 ? "text-destructive" : ""}`}
+          >
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              (stats.overdueCount ?? 0)
+            )}
+          </div>
+        </CardContent>
       </Card>
     </div>
   );

@@ -62,10 +62,7 @@ export function GigCompactItem({
           {gig.responses || 0}
         </span>
         {(gig.newResponses ?? 0) > 0 && (
-          <Badge
-            variant="default"
-            className="px-1.5 py-0 text-xs bg-orange-100 text-orange-800"
-          >
+          <Badge variant="warning" className="px-1.5 py-0 text-xs">
             +{gig.newResponses}
           </Badge>
         )}

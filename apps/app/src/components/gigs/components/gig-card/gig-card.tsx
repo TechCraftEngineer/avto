@@ -171,10 +171,7 @@ export function GigCard({
               )}
 
               {(gig.newResponses || 0) > 0 && (
-                <Badge
-                  variant="default"
-                  className="text-xs px-1.5 py-0.5 bg-orange-100 text-orange-800 hover:bg-orange-200"
-                >
+                <Badge variant="warning" className="text-xs px-1.5 py-0.5">
                   +{gig.newResponses}
                 </Badge>
               )}

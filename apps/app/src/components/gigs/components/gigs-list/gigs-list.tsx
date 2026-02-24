@@ -1,4 +1,5 @@
 import type { SortDirection } from "@qbs-autonaim/shared";
+import { Card, CardContent } from "@qbs-autonaim/ui/components/card";
 import { Skeleton } from "@qbs-autonaim/ui/components/skeleton";
 import { EmptyState } from "../empty-state";
 import { GigCard } from "../gig-card";
@@ -81,8 +82,8 @@ export function GigsList({
     return (
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2">
         {skeletonKeys.map((key) => (
-          <div key={key} className="rounded-lg border bg-card shadow-sm p-6">
-            <div className="space-y-3">
+          <Card key={key} size="sm">
+            <CardContent className="space-y-3 pt-0">
               <div className="flex items-center gap-2">
                 <Skeleton className="h-5 w-20" />
                 <Skeleton className="h-5 w-16" />
@@ -97,8 +98,8 @@ export function GigsList({
                   <Skeleton className="h-4 w-8" />
                 </div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
     );
