@@ -48,7 +48,7 @@ const FETCH_TIMEOUT_MS = 10000;
 /** Разрешённые хосты для API-запросов (защита от SSRF) */
 const ALLOWED_HOSTS = [
   "app.avtonaim.qbsoft.ru",
-  "hooks.avtonaim.qbsoft.ru",
+  "ext-api.avtonaim.qbsoft.ru",
   "localhost",
   "127.0.0.1",
   ...(typeof process !== "undefined" && process.env?.NODE_ENV === "test"
