@@ -204,7 +204,7 @@
       "name": "@qbs-autonaim/interview-server",
       "dependencies": {
         "@langfuse/tracing": "4.6.1",
-        "@opentelemetry/api": "^1.9.0",
+        "@opentelemetry/api": "1.9.0",
         "@orpc/server": "1.13.5",
         "@qbs-autonaim/ai": "workspace:*",
         "@qbs-autonaim/api": "workspace:*",
