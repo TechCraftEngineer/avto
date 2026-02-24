@@ -6,13 +6,15 @@ import { z } from "zod";
 import { processResumePdf } from "../utils/resume-pdf";
 
 const uploadResumePdfSchema = z.object({
-  workspaceId: z.string().uuid(),
+  workspaceId: z.string().min(1),
   vacancyExternalId: z.string(),
-  resumeId: z.string(),
-  resumePdfBase64: z.string().regex(/^data:application\/pdf;base64,/, {
-    message:
-      "resumePdfBase64 должен быть в формате data:application/pdf;base64,...",
-  }),
+  resumeId: z.string().min(1),
+  resumePdfBase64: z
+    .string()
+    .regex(/^data:(application\/pdf|application\/octet-stream);base64,/, {
+      message:
+        "resumePdfBase64 должен быть в формате data:application/pdf;base64,... или data:application/octet-stream;base64,...",
+    }),
 });
 
 export async function handleUploadResumePdf(c: Context) {

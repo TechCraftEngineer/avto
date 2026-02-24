@@ -10,13 +10,13 @@ export async function processResumePdf(
 ): Promise<void> {
   try {
     const matches = resumePdfBase64.match(
-      /^data:application\/pdf;base64,(.+)$/,
+      /^data:(application\/pdf|application\/octet-stream);base64,(.+)$/,
     );
-    if (!matches?.[1]) {
+    if (!matches?.[2]) {
       return;
     }
 
-    const pdfBuffer = Buffer.from(matches[1], "base64");
+    const pdfBuffer = Buffer.from(matches[2], "base64");
 
     const uploadResult = await uploadResumePdf(pdfBuffer, resumeId);
 

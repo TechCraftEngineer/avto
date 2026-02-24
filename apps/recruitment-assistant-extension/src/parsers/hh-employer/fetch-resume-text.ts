@@ -30,7 +30,6 @@ export function getResumePdfUrl(
       (resumeUrl.startsWith("http") ? new URL(resumeUrl).origin : null) ||
       "https://hh.ru";
     const cleanOrigin = origin.replace(/\/$/, "");
-
     return `${cleanOrigin}/resume_converter/${encodeURIComponent(fileName)}.pdf?hash=${resumeHash}${vacancyId ? `&vacancyId=${vacancyId}` : ""}&type=pdf&hhtmSource=resume&hhtmFrom=employer_vacancy_responses`;
   } catch {
     return null;
