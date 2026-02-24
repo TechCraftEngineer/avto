@@ -5,7 +5,6 @@ import { saveBasicResponse } from "@qbs-autonaim/jobs/services/response";
 import type { Context } from "hono";
 import { responsesBodySchema } from "../schemas";
 import { processPhotoUpload } from "../utils/photo";
-import { processResumePdf } from "../utils/resume-pdf";
 import { processResumeText } from "../utils/resume-text";
 
 export async function handleImportResponses(c: Context) {
@@ -85,10 +84,6 @@ export async function handleImportResponses(c: Context) {
 
       if (r.resumeTextHtml?.trim()) {
         await processResumeText(r.resumeTextHtml, responseId);
-      }
-
-      if (r.resumePdfBase64) {
-        await processResumePdf(r.resumePdfBase64, responseId, r.resumeId);
       }
     }
   }

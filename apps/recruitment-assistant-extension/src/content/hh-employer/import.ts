@@ -393,6 +393,11 @@ export async function runResponsesImport(
       const batch = [...buffer];
       buffer.length = 0;
 
+      // Отправляем batch без PDF — большие base64 могут превысить лимит размера запроса
+      const responsesWithoutPdf = batch.map(
+        ({ resumePdfBase64: _pdf, ...rest }) => rest,
+      );
+
       const response = await chrome.runtime.sendMessage({
         type: "API_REQUEST",
         payload: {
@@ -406,7 +411,7 @@ export async function runResponsesImport(
             workspaceId,
             vacancyId: vacancyId || undefined,
             vacancyExternalId,
-            responses: batch,
+            responses: responsesWithoutPdf,
           },
         },
       });
@@ -417,6 +422,33 @@ export async function runResponsesImport(
 
       const data = response.data as { imported?: number };
       totalImported += data?.imported ?? batch.length;
+
+      // PDF загружаем отдельным запросом для каждого отклика (избегаем лимитов размера)
+      for (const item of batch) {
+        if (item.resumePdfBase64) {
+          try {
+            await chrome.runtime.sendMessage({
+              type: "API_REQUEST",
+              payload: {
+                url: getExtensionApiUrl("hh-import/upload-resume-pdf"),
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+                body: {
+                  workspaceId,
+                  vacancyExternalId,
+                  resumeId: item.resumeId,
+                  resumePdfBase64: item.resumePdfBase64,
+                },
+              },
+            });
+          } catch (e) {
+            console.error(`[Import] Ошибка загрузки PDF для ${item.name}:`, e);
+          }
+        }
+      }
     };
 
     for (let i = 0; i < responses.length; i++) {

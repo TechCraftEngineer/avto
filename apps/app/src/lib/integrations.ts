@@ -17,6 +17,7 @@ export const AVAILABLE_INTEGRATIONS = [
   {
     type: "hh",
     name: "HeadHunter",
+    hidden: true, // Временно скрыта в настройках
     description: "Автоматизация откликов на вакансии на hh.ru",
     detailedDescription:
       "Подключите свой аккаунт HeadHunter для автоматического поиска и отклика на подходящие вакансии. Система будет анализировать вакансии и отправлять отклики от вашего имени.",

@@ -71,7 +71,9 @@ export const integrationFormSchema = z
 
 export type IntegrationFormValues = z.infer<typeof integrationFormSchema>;
 
-export const INTEGRATION_TYPES = AVAILABLE_INTEGRATIONS.map((int) => ({
+export const INTEGRATION_TYPES = AVAILABLE_INTEGRATIONS.filter(
+  (i) => !("hidden" in i && i.hidden),
+).map((int) => ({
   value: int.type,
   label: int.name,
   fields: int.fields,

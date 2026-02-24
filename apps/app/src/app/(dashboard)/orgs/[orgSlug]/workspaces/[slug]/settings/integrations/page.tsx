@@ -61,7 +61,10 @@ export default function IntegrationsPage() {
     );
   }
 
-  const integrationsByCategory = AVAILABLE_INTEGRATIONS.reduce(
+  const visibleIntegrations = AVAILABLE_INTEGRATIONS.filter(
+    (i) => !("hidden" in i && i.hidden),
+  );
+  const integrationsByCategory = visibleIntegrations.reduce(
     (acc, integration) => {
       const category = integration.category;
       if (!acc[category]) {
@@ -70,7 +73,7 @@ export default function IntegrationsPage() {
       acc[category]?.push(integration);
       return acc;
     },
-    {} as Record<string, Array<(typeof AVAILABLE_INTEGRATIONS)[number]>>,
+    {} as Record<string, Array<(typeof visibleIntegrations)[number]>>,
   );
 
   return (

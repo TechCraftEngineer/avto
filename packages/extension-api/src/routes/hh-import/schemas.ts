@@ -27,13 +27,6 @@ export const responseItemSchema = z.object({
     })
     .optional(),
   resumeTextHtml: z.string().optional(),
-  resumePdfBase64: z
-    .string()
-    .regex(/^data:application\/pdf;base64,/, {
-      message:
-        "resumePdfBase64 должен быть в формате data:application/pdf;base64,...",
-    })
-    .optional(),
 });
 
 export const responsesBodySchema = z.object({
