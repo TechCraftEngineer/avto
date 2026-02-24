@@ -24,7 +24,7 @@ export { requireWorkspaceRole } from "./utils/verify-workspace-access";
  * Создание контекста для oRPC
  *
  * Контекст содержит все зависимости, необходимые для выполнения процедур:
- * - authApi: API для работы с аутентификацией
+ * - authApi: API для работы с аутентификацией (better-auth)
  * - session: Сессия пользователя (если авторизован)
  * - db: Клиент базы данных Prisma
  * - workspaceRepository: Репозиторий для работы с рабочими областями
@@ -59,6 +59,7 @@ export const createContext = async (opts: { headers: Headers; auth: Auth }) => {
   const interviewToken = extractTokenFromHeaders(opts.headers);
 
   return {
+    authApi: opts.auth.api,
     session,
     db,
     workspaceRepository,
