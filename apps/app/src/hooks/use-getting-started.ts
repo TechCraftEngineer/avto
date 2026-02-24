@@ -2,8 +2,12 @@
 
 import { paths } from "@qbs-autonaim/config";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { useWorkspaces } from "~/contexts/workspace-context";
 import { useORPC } from "~/orpc/react";
+
+const CHROME_EXTENSION_URL =
+  "https://chromewebstore.google.com/detail/recruitment-assistant";
 
 export interface GettingStartedStep {
   id: string;
@@ -11,6 +15,7 @@ export interface GettingStartedStep {
   description: string;
   completed: boolean;
   href: string;
+  external?: boolean;
   action?: () => void;
 }
 
@@ -19,25 +24,14 @@ export function useGettingStarted() {
   const queryClient = useQueryClient();
   const { workspace } = useWorkspaces();
 
-  // Получаем настройки бота
-  const { data: botSettings, isLoading: isLoadingBot } = useQuery(
-    orpc.bot.get.queryOptions({
-      input: { workspaceId: workspace?.id ?? "" },
-      enabled: !!workspace?.id,
-    }),
+  // Получаем личные интеграции (Google Calendar — на уровне аккаунта)
+  const { data: userIntegrations, isLoading: isLoadingIntegrations } = useQuery(
+    orpc.userIntegration.list.queryOptions(),
   );
 
   // Получаем список вакансий
   const { data: vacancies, isLoading: isLoadingVacancies } = useQuery(
     orpc.vacancy.list.queryOptions({
-      input: { workspaceId: workspace?.id ?? "" },
-      enabled: !!workspace?.id,
-    }),
-  );
-
-  // Получаем список интеграций
-  const { data: integrations, isLoading: isLoadingIntegrations } = useQuery(
-    orpc.integration.list.queryOptions({
       input: { workspaceId: workspace?.id ?? "" },
       enabled: !!workspace?.id,
     }),
@@ -84,25 +78,26 @@ export function useGettingStarted() {
   };
 
   const isLoading =
-    isLoadingBot ||
-    isLoadingVacancies ||
-    isLoadingIntegrations ||
-    isLoadingSessions;
+    isLoadingIntegrations || isLoadingVacancies || isLoadingSessions;
+
+  // Состояние «установил расширение» — при клике помечаем шаг выполненным
+  const [extensionMarkedInstalled, setExtensionMarkedInstalled] =
+    useState(false);
+  const getExtensionStorageKey = () =>
+    `chromeExtensionInstalled_${workspace?.id}`;
+  const isExtensionMarkedInstalled = () => {
+    if (extensionMarkedInstalled) return true;
+    if (typeof window === "undefined" || !workspace?.id || !window.localStorage)
+      return false;
+    try {
+      return localStorage.getItem(getExtensionStorageKey()) === "true";
+    } catch {
+      return false;
+    }
+  };
 
   // Определяем шаги онбординга
   const steps: GettingStartedStep[] = [
-    {
-      id: "bot-setup",
-      title: "Настроить бота",
-      description: "Добавьте название, описание и настройки бота",
-      href: paths.workspace.settings.bot(
-        workspace?.organizationSlug || "",
-        workspace?.slug || "",
-      ),
-      completed: !!(
-        botSettings?.companyName && botSettings.companyName !== "Моя компания"
-      ),
-    },
     {
       id: "create-vacancy",
       title: "Создать первую вакансию",
@@ -114,15 +109,34 @@ export function useGettingStarted() {
       completed: !!(vacancies && vacancies.length > 0),
     },
     {
-      id: "hh-integration",
-      title: "Подключить HH.ru",
-      description: "Интегрируйтесь с HeadHunter для автоматического поиска",
-      href: paths.workspace.settings.integrations(
-        workspace?.organizationSlug || "",
-        workspace?.slug || "",
-      ),
-      completed: !!integrations?.some((i) => i.type === "hh"),
+      id: "chrome-extension",
+      title: "Установить Chrome extension",
+      description:
+        "Расширение «Помощник рекрутера» для загрузки откликов с HH.ru",
+      href: CHROME_EXTENSION_URL,
+      external: true,
+      completed: isExtensionMarkedInstalled(),
+      action: () => {
+        window.open(CHROME_EXTENSION_URL, "_blank", "noopener,noreferrer");
+        if (workspace?.id && typeof window !== "undefined") {
+          try {
+            localStorage.setItem(getExtensionStorageKey(), "true");
+          } catch {
+            // ignore
+          }
+          setExtensionMarkedInstalled(true);
+        }
+      },
     },
+    {
+      id: "google-calendar",
+      title: "Настроить Google Calendar",
+      description: "Подключите календарь для планирования встреч с кандидатами",
+      href: paths.account.integrations,
+      completed: !!userIntegrations?.some((i) => i.type === "google_calendar"),
+    },
+   
+
     {
       id: "telegram-setup",
       title: "Настроить Telegram",
@@ -146,8 +160,7 @@ export function useGettingStarted() {
   // Определяем, показывать ли виджет
   const shouldShowWidget =
     !isLoading &&
-    workspace?.id &&
-    !botSettings && // Remove dismissedGettingStarted check since it doesn't exist in schema
+    !!workspace?.id &&
     !isLocallyDismissed() &&
     progressPercentage < 100;
 

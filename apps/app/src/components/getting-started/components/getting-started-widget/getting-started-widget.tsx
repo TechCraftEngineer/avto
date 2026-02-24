@@ -23,6 +23,7 @@ import {
   IconDots,
 } from "@tabler/icons-react";
 import { AnimatePresence, motion } from "motion/react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useGettingStarted } from "~/hooks/use-getting-started";
 
@@ -288,16 +289,43 @@ export function GettingStartedWidget() {
                           </p>
                         </div>
 
-                        {!step.completed && step.action && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-11 px-3 text-xs focus-visible:ring-2 focus-visible:ring-ring"
-                            onClick={step.action}
-                          >
-                            Настроить
-                          </Button>
-                        )}
+                        {!step.completed &&
+                          (step.action ? (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-11 px-3 text-xs focus-visible:ring-2 focus-visible:ring-ring"
+                              onClick={step.action}
+                            >
+                              Настроить
+                            </Button>
+                          ) : step.href ? (
+                            step.external ? (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-11 px-3 text-xs focus-visible:ring-2 focus-visible:ring-ring"
+                                asChild
+                              >
+                                <a
+                                  href={step.href}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  Установить
+                                </a>
+                              </Button>
+                            ) : (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-11 px-3 text-xs focus-visible:ring-2 focus-visible:ring-ring"
+                                asChild
+                              >
+                                <Link href={step.href}>Перейти</Link>
+                              </Button>
+                            )
+                          ) : null)}
                       </li>
                     ))}
                   </ol>

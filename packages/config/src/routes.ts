@@ -40,6 +40,7 @@ export const paths = {
   account: {
     root: ROOTS.ACCOUNT,
     settings: `${ROOTS.ACCOUNT}/settings`,
+    integrations: `${ROOTS.ACCOUNT}/settings/integrations`,
   },
   workspace: {
     root: (orgSlug: string, slug: string) =>

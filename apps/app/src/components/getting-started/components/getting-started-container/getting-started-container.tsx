@@ -85,12 +85,6 @@ export function GettingStartedContainer() {
             aria-label={`Начало работы: ${progressPercentage}% завершено`}
           >
             <span>Начало работы</span>
-            <span
-              className="text-neutral-400 dark:text-neutral-600"
-              style={{ fontVariantNumeric: "tabular-nums" }}
-            >
-              {progressPercentage}%&nbsp;завершено
-            </span>
           </motion.button>
         </PopoverTrigger>
 
