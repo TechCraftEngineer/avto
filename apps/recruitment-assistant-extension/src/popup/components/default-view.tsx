@@ -1,5 +1,6 @@
 import type { AuthService } from "../../core/auth-service";
 import type { Organization, Workspace } from "../types";
+import { Hint } from "../ui";
 import { AuthenticatedLayout } from "./authenticated-layout";
 
 interface DefaultViewProps {
@@ -64,36 +65,41 @@ export function DefaultView({
             Расширение подключено к аккаунту
           </p>
           <p className="text-muted-foreground text-sm leading-relaxed text-balance">
-            Откройте профиль на LinkedIn или hh.ru для извлечения и импорта
-            данных.
+            Чтобы импортировать кандидата — откройте его профиль на одной из
+            платформ.
           </p>
-          <div className="mt-2 flex flex-wrap justify-center gap-2 text-xs">
-            <a
-              href="https://hh.ru/employer"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary underline-offset-4 hover:underline"
-              onClick={(e) => {
-                e.preventDefault();
-                chrome.tabs.create({ url: "https://hh.ru/employer" });
-              }}
-            >
-              Открыть hh.ru
-            </a>
-            <span className="text-muted-foreground">·</span>
-            <a
-              href="https://www.linkedin.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary underline-offset-4 hover:underline"
-              onClick={(e) => {
-                e.preventDefault();
-                chrome.tabs.create({ url: "https://www.linkedin.com" });
-              }}
-            >
-              Открыть LinkedIn
-            </a>
-          </div>
+        </div>
+        <Hint icon="steps">
+          <strong>Как добавить кандидата:</strong> откройте страницу резюме на
+          hh.ru или профиль на LinkedIn → нажмите «Извлечь данные» в этом окне →
+          затем «Импортировать».
+        </Hint>
+        <div className="flex flex-wrap justify-center gap-2 text-xs">
+          <a
+            href="https://hh.ru/employer"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary underline-offset-4 hover:underline"
+            onClick={(e) => {
+              e.preventDefault();
+              chrome.tabs.create({ url: "https://hh.ru/employer" });
+            }}
+          >
+            Открыть hh.ru
+          </a>
+          <span className="text-muted-foreground">·</span>
+          <a
+            href="https://www.linkedin.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary underline-offset-4 hover:underline"
+            onClick={(e) => {
+              e.preventDefault();
+              chrome.tabs.create({ url: "https://www.linkedin.com" });
+            }}
+          >
+            Открыть LinkedIn
+          </a>
         </div>
       </div>
     </AuthenticatedLayout>

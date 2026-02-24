@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import type { AuthService } from "../../core/auth-service";
 import { IMPORT_PROGRESS_KEY } from "../../shared/import-progress";
 import type { Organization, Workspace } from "../types";
-import { Alert, Button } from "../ui";
+import { Alert, Button, Hint } from "../ui";
 import { AuthenticatedLayout } from "./authenticated-layout";
 
 interface ResponsesViewProps {
@@ -136,6 +136,10 @@ export function ResponsesView({
             Импортируйте отклики кандидатов в систему
           </p>
         </div>
+        <Hint>
+          Вы на странице откликов по вакансии hh.ru. Импортируются кандидаты из
+          списка откликов — они появятся в системе как соискатели.
+        </Hint>
         <div className="flex justify-center">
           <Button
             className="w-fit"

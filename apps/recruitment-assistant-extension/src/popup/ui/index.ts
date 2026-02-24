@@ -9,5 +9,6 @@ export {
   CardTitle,
 } from "./card";
 export { cn } from "./cn";
+export { Hint } from "./hint";
 export { Label } from "./label";
 export { Select } from "./select";

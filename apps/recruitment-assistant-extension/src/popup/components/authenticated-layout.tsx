@@ -1,7 +1,7 @@
 import { getExtensionApiUrl } from "../../config";
 import type { AuthService } from "../../core/auth-service";
 import type { Organization, Workspace } from "../types";
-import { Alert, Button, Label, Select } from "../ui";
+import { Alert, Button, Hint, Label, Select } from "../ui";
 import { PopupHeader } from "./popup-header";
 
 interface AuthenticatedLayoutProps {
@@ -106,6 +106,10 @@ export function AuthenticatedLayout({
         >
           Настройки
         </h2>
+        <Hint className="text-xs">
+          Перед импортом выберите организацию и рабочее пространство, затем
+          нажмите «Сохранить настройки».
+        </Hint>
         <h3 id="org-ws-subheading" className="sr-only">
           Организация и рабочее пространство
         </h3>

@@ -1,5 +1,5 @@
 import { API_URL } from "../../config";
-import { Button } from "../ui";
+import { Button, Hint } from "../ui";
 import { PopupHeader } from "./popup-header";
 
 export function LoginView() {
@@ -21,6 +21,10 @@ export function LoginView() {
           Войдите для импорта кандидатов в систему
         </p>
       </div>
+      <Hint>
+        Откроется новая вкладка. Войдите в аккаунт или зарегистрируйтесь на
+        сайте — расширение автоматически получит доступ.
+      </Hint>
       <div className="flex justify-center">
         <Button
           variant="outline"

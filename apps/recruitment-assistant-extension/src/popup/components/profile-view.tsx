@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { AuthService } from "../../core/auth-service";
 import type { Organization, PageContext, Workspace } from "../types";
-import { Alert, Button } from "../ui";
+import { Alert, Button, Hint } from "../ui";
 import { AuthenticatedLayout } from "./authenticated-layout";
 
 interface ProfileViewProps {
@@ -110,6 +110,11 @@ export function ProfileView({
               : "Извлеките данные профиля и импортируйте в систему"}
           </p>
         </div>
+        <Hint icon="steps">
+          Сначала нажмите «Извлечь данные» — на странице появится панель с
+          данными. Затем «Импортировать», чтобы добавить кандидата в систему.
+          «Копировать» — для буфера обмена.
+        </Hint>
         <div className="flex flex-col gap-2">
           <Button
             className="w-full"

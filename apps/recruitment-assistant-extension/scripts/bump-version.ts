@@ -29,7 +29,9 @@ async function main(): Promise<void> {
   const bumpType = (process.argv[2] || "patch") as BumpType;
 
   if (!["patch", "minor", "major"].includes(bumpType)) {
-    console.error("Использование: bun run scripts/bump-version.ts [patch|minor|major]");
+    console.error(
+      "Использование: bun run scripts/bump-version.ts [patch|minor|major]",
+    );
     process.exit(1);
   }
 

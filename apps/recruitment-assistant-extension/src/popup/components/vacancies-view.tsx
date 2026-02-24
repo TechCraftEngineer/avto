@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import type { AuthService } from "../../core/auth-service";
 import { IMPORT_PROGRESS_KEY } from "../../shared/import-progress";
 import type { Organization, PageContext, Workspace } from "../types";
-import { Alert, Button } from "../ui";
+import { Alert, Button, Hint } from "../ui";
 import { AuthenticatedLayout } from "./authenticated-layout";
 
 interface VacanciesViewProps {
@@ -154,19 +154,21 @@ export function VacanciesView({
           </h2>
           <p className="text-muted-foreground text-sm">
             Отметьте вакансии галочками на странице и загрузите выбранные в
-            систему. Для импорта с нескольких страниц — перейдите на первую
-            страницу списка.
+            систему.
           </p>
-          {(selectedCount ?? 0) === 0 && !isImporting && (
-            <output
-              className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 block"
-              aria-live="polite"
-            >
-              Выберите вакансии галочками на странице, затем нажмите кнопку
-              импорта.
-            </output>
-          )}
         </div>
+        {(selectedCount ?? 0) === 0 && !isImporting ? (
+          <Hint className="border-amber-200 bg-amber-50/80 text-amber-900">
+            <strong>Шаг 1:</strong> Отметьте галочками нужные вакансии на
+            странице. <strong>Шаг 2:</strong> Нажмите «Загрузить выбранные». Для
+            импорта с нескольких страниц — перейдите на первую страницу списка.
+          </Hint>
+        ) : (
+          <Hint>
+            Выбрано вакансий: {selectedCount ?? 0}. Нажмите кнопку ниже, чтобы
+            загрузить их в систему.
+          </Hint>
+        )}
         <div className="flex justify-center">
           <Button
             className="w-fit tabular-nums"

@@ -27,9 +27,11 @@ const PRODUCTION_EXTENSION_API_BASE =
 
 async function main(): Promise<void> {
   const bumpType = process.env.BUMP_VERSION || "patch";
-  
+
   console.log(`Bumping version (${bumpType})...`);
-  await $`bun run ${join(__dirname, "bump-version.ts")} ${bumpType}`.cwd(rootDir);
+  await $`bun run ${join(__dirname, "bump-version.ts")} ${bumpType}`.cwd(
+    rootDir,
+  );
 
   const apiUrl = process.env.EXTENSION_API_URL ?? PRODUCTION_API_URL;
   const apiBase =
