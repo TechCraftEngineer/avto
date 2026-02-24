@@ -3,7 +3,10 @@ export {
   fetchChatikChats,
   fetchCoverLettersBySearch,
 } from "./fetch-chatik-chats";
-export { fetchCoverLettersForPage } from "./fetch-cover-letter-spoiler";
+export {
+  fetchCoverLetterForOne,
+  fetchCoverLettersForPage,
+} from "./fetch-cover-letter-spoiler";
 export {
   FETCH_DELAY_MS,
   fetchPhotoAsBase64,

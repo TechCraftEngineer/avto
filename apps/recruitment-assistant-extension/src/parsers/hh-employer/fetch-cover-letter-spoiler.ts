@@ -38,6 +38,26 @@ function waitForCoverLetter(): Promise<string | null> {
 }
 
 /**
+ * Загружает cover letter для одного отклика по клику на кнопку.
+ * Используется при потоковой обработке (по одному отклику).
+ */
+export async function fetchCoverLetterForOne(
+  response: { coverLetter?: string },
+  button: HTMLButtonElement,
+): Promise<void> {
+  if (response.coverLetter) return;
+
+  await injectInterceptor();
+
+  const letterPromise = waitForCoverLetter();
+  button.click();
+  const text = await letterPromise;
+  if (text) response.coverLetter = text;
+
+  await new Promise((r) => setTimeout(r, 200));
+}
+
+/**
  * Собирает coverLetter для откликов на текущей странице.
  * Инжектирует перехватчик, для каждого отклика кликает по кнопке, ждёт ответ.
  * @param onProgress - вызывается после каждого загруженного письма: (done, total)

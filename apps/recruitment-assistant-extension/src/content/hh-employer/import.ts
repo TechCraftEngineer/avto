@@ -4,13 +4,13 @@
 
 import { getExtensionApiUrl } from "../../config";
 import {
-  fetchCoverLettersForPage,
   fetchPhotoAsBase64,
   fetchResumePdfAsBase64,
   fetchResumeTextHtml,
   fetchVacancyPrintHtml,
   getResumePdfUrl,
   type HHEmployerPageType,
+  type ParsedResponse,
 } from "../../parsers/hh-employer";
 import {
   checkAndPauseIfNeeded,
@@ -18,8 +18,8 @@ import {
   getRandomDelay,
 } from "../../utils/stealth";
 import {
-  collectAllResponses,
   collectAllVacancies,
+  collectResponsesStreaming,
   collectSelectedVacancies,
   collectSelectedVacanciesFromCurrentPage,
 } from "./collectors";
@@ -333,46 +333,10 @@ export async function runResponsesImport(
       stage: "responses",
       current: 0,
       total: 1,
-      message: "Сбор откликов...",
+      message: "Импорт откликов...",
     });
 
-    const responses = await collectAllResponses(
-      vacancyExternalId,
-      (info) => {
-        let message: string;
-        if (info.coverLetters && info.coverLetters.total > 0) {
-          message = `Собрано откликов: ${info.collected}, письма: ${info.coverLetters.done}/${info.coverLetters.total}`;
-        } else {
-          message = `Собрано откликов: ${info.collected}`;
-        }
-        onProgress?.({
-          stage: "responses",
-          current: info.collected,
-          total: info.estimatedTotal,
-          message,
-        });
-      },
-      async (pageResponses, onLetterProgress) => {
-        try {
-          await fetchCoverLettersForPage(pageResponses, onLetterProgress);
-        } catch (e) {
-          console.warn(
-            "[Import] Не удалось загрузить сопроводительные письма:",
-            e,
-          );
-        }
-      },
-    );
-
-    if (responses.length === 0) {
-      return {
-        success: false,
-        error: "Не найдено откликов на странице",
-      };
-    }
-
-    // Проверка лимита импорта
-    const limitCheck = checkImportLimit(responses.length, 100);
+    const limitCheck = checkImportLimit(100, 100);
     if (!limitCheck.allowed) {
       return {
         success: false,
@@ -380,92 +344,9 @@ export async function runResponsesImport(
       };
     }
 
-    const FLUSH_BATCH_SIZE = 5;
-    const buffer: Array<{
-      resumeId: string;
-      resumeUrl: string;
-      name: string;
-      respondedAt?: string;
-      status?: string;
-      coverLetter: string;
-      photoUrl?: string;
-      resumeTextHtml?: string;
-      resumePdfBase64?: string;
-    }> = [];
     let totalImported = 0;
 
-    const flushBuffer = async () => {
-      if (buffer.length === 0) return;
-      const batch = [...buffer];
-      buffer.length = 0;
-
-      // Отправляем batch без PDF — большие base64 могут превысить лимит размера запроса
-      const responsesWithoutPdf = batch.map(
-        ({ resumePdfBase64: _pdf, ...rest }) => rest,
-      );
-
-      const response = await chrome.runtime.sendMessage({
-        type: "API_REQUEST",
-        payload: {
-          url: getExtensionApiUrl("hh-import/responses"),
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: {
-            workspaceId,
-            vacancyId: vacancyId || undefined,
-            vacancyExternalId,
-            responses: responsesWithoutPdf,
-          },
-        },
-      });
-
-      if (!response?.success) {
-        throw new Error(response?.error || "Ошибка при импорте откликов");
-      }
-
-      const data = response.data as { imported?: number };
-      totalImported += data?.imported ?? batch.length;
-
-      // PDF загружаем отдельным запросом для каждого отклика (избегаем лимитов размера)
-      for (const item of batch) {
-        if (item.resumePdfBase64) {
-          try {
-            console.log(
-              "[Import] Загрузка PDF резюме для",
-              item.name,
-              "через /hh-import/upload-resume-pdf",
-            );
-            await chrome.runtime.sendMessage({
-              type: "API_REQUEST",
-              payload: {
-                url: getExtensionApiUrl("hh-import/upload-resume-pdf"),
-                method: "POST",
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  "Content-Type": "application/json",
-                },
-                body: {
-                  workspaceId,
-                  vacancyExternalId,
-                  resumeId: item.resumeId,
-                  resumePdfBase64: item.resumePdfBase64,
-                },
-              },
-            });
-          } catch (e) {
-            console.error(`[Import] Ошибка загрузки PDF для ${item.name}:`, e);
-          }
-        }
-      }
-    };
-
-    for (let i = 0; i < responses.length; i++) {
-      const r = responses[i];
-      if (!r) continue;
-
+    const processOneResponse = async (r: ParsedResponse, index: number) => {
       let photoUrl: string | undefined = r.photoUrl;
       if (photoUrl) {
         try {
@@ -488,7 +369,6 @@ export async function runResponsesImport(
           // пропускаем ошибки
         }
         try {
-          // Обязательно домен текущей страницы (volokolamsk.hh.ru и т.д.), не hh.ru
           const pdfUrl = getResumePdfUrl(
             r.resumeUrl,
             r.name,
@@ -503,12 +383,9 @@ export async function runResponsesImport(
         } catch (e) {
           console.error(`[Import] Ошибка загрузки PDF для ${r.name}:`, e);
         }
-        const delay = getRandomDelay(2000, 1500);
-        await new Promise((res) => setTimeout(res, delay));
-        await checkAndPauseIfNeeded(i, 15);
       }
 
-      buffer.push({
+      const item = {
         resumeId: r.resumeId,
         resumeUrl: r.resumeUrl,
         name: r.name,
@@ -518,21 +395,96 @@ export async function runResponsesImport(
         photoUrl,
         resumeTextHtml,
         resumePdfBase64,
+      };
+
+      const response = await chrome.runtime.sendMessage({
+        type: "API_REQUEST",
+        payload: {
+          url: getExtensionApiUrl("hh-import/responses"),
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: {
+            workspaceId,
+            vacancyId: vacancyId || undefined,
+            vacancyExternalId,
+            responses: [
+              {
+                resumeId: item.resumeId,
+                resumeUrl: item.resumeUrl,
+                name: item.name,
+                respondedAt: item.respondedAt,
+                status: item.status,
+                coverLetter: item.coverLetter,
+                photoUrl: item.photoUrl,
+                resumeTextHtml: item.resumeTextHtml,
+              },
+            ],
+          },
+        },
       });
 
-      if (buffer.length >= FLUSH_BATCH_SIZE) {
-        await flushBuffer();
+      if (!response?.success) {
+        throw new Error(response?.error || "Ошибка при импорте откликов");
       }
 
-      onProgress?.({
-        stage: "resume-details",
-        current: i + 1,
-        total: responses.length,
-        message: `Обработано: ${i + 1}/${responses.length} (импортировано: ${totalImported})`,
-      });
-    }
+      const data = response.data as { imported?: number };
+      totalImported += data?.imported ?? 1;
 
-    await flushBuffer();
+      if (item.resumePdfBase64) {
+        try {
+          await chrome.runtime.sendMessage({
+            type: "API_REQUEST",
+            payload: {
+              url: getExtensionApiUrl("hh-import/upload-resume-pdf"),
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+              body: {
+                workspaceId,
+                vacancyExternalId,
+                resumeId: item.resumeId,
+                resumePdfBase64: item.resumePdfBase64,
+              },
+            },
+          });
+        } catch (e) {
+          console.error(`[Import] Ошибка загрузки PDF для ${item.name}:`, e);
+        }
+      }
+
+      if (fetchResumeDetails && r.resumeUrl) {
+        const delay = getRandomDelay(2000, 1500);
+        await new Promise((res) => setTimeout(res, delay));
+      }
+
+      await checkAndPauseIfNeeded(index, 15);
+    };
+
+    const processed = await collectResponsesStreaming(
+      vacancyExternalId,
+      processOneResponse,
+      (processedCount, estimatedTotal) => {
+        onProgress?.({
+          stage: "responses",
+          current: processedCount,
+          total: estimatedTotal,
+          message: `Обработано: ${processedCount}, импортировано: ${totalImported}`,
+        });
+      },
+      { maxResponses: 100 },
+    );
+
+    if (processed === 0) {
+      return {
+        success: false,
+        error: "Не найдено откликов на странице",
+      };
+    }
 
     return {
       success: true,

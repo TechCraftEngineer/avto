@@ -3,6 +3,7 @@
  */
 
 import {
+  fetchCoverLetterForOne,
   getNextPageButton,
   type ParsedResponse,
   type ParsedVacancy,
@@ -108,6 +109,69 @@ export async function collectAllResponses(
   }
 
   return all;
+}
+
+const RESPONSE_PAGER_NEXT_SELECTOR = '[data-qa="pager-next"]';
+const COVER_LETTER_BUTTON_SELECTOR = 'button[data-qa="show-resume-messages"]';
+
+/** Опции потокового сбора откликов */
+export type CollectResponsesStreamingOptions = {
+  /** Максимум откликов для обработки (по умолчанию 100) */
+  maxResponses?: number;
+};
+
+/**
+ * Потоковый сбор откликов: для каждого отклика сразу вызывается processResponse.
+ * Страница → отклик 1 (письмо → process) → отклик 2 → ... → следующая страница.
+ * Пользователь видит прогресс с первого отклика без долгой фазы "Сбор откликов".
+ */
+export async function collectResponsesStreaming(
+  vacancyExternalId: string,
+  processResponse: (response: ParsedResponse, index: number) => Promise<void>,
+  onProgress?: (processed: number, estimatedTotal: number) => void,
+  options?: CollectResponsesStreamingOptions,
+): Promise<number> {
+  const maxResponses = options?.maxResponses ?? 100;
+  let processed = 0;
+
+  for (let pageNum = 0; pageNum < 100; pageNum++) {
+    const pageItems = parseResponsesFromDOM(vacancyExternalId);
+    const buttons = document.querySelectorAll<HTMLButtonElement>(
+      COVER_LETTER_BUTTON_SELECTOR,
+    );
+
+    for (let i = 0; i < pageItems.length; i++) {
+      if (processed >= maxResponses) return processed;
+
+      const r = pageItems[i];
+      if (!r) continue;
+
+      try {
+        if (r.coverLetter === undefined) {
+          const btn = buttons[i];
+          if (btn) {
+            await fetchCoverLetterForOne(r, btn);
+          }
+        }
+
+        await processResponse(r, processed);
+        processed++;
+
+        onProgress?.(processed, processed + (pageItems.length > 0 ? 20 : 0));
+      } catch (e) {
+        console.error(`[Import] Ошибка обработки отклика ${r.name}:`, e);
+        throw e;
+      }
+    }
+
+    const nextBtn = document.querySelector(RESPONSE_PAGER_NEXT_SELECTOR);
+    if (!nextBtn) break;
+
+    (nextBtn as HTMLElement).click();
+    await new Promise((r) => setTimeout(r, 1500));
+  }
+
+  return processed;
 }
 
 /**
