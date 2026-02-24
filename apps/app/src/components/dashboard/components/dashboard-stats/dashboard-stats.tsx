@@ -3,15 +3,19 @@
 import { Badge } from "@qbs-autonaim/ui/components/badge";
 import {
   Card,
-  CardAction,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@qbs-autonaim/ui/components/card";
-import { cn } from "@qbs-autonaim/ui/utils";
-import { IconTrendingDown, IconTrendingUp } from "@tabler/icons-react";
+import { Skeleton } from "@qbs-autonaim/ui/components/skeleton";
 import { useQuery } from "@tanstack/react-query";
+import {
+  Briefcase,
+  Inbox,
+  Sparkles,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useORPC } from "~/orpc/react";
 
@@ -29,18 +33,20 @@ export function DashboardStats() {
   );
 
   if (isLoading || !stats) {
+    const skeletonKeys = ["new", "pending", "candidates", "vacancies"] as const;
     return (
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(min(200px,100%),1fr))] gap-4">
-        {Array.from({ length: 4 }, (_, index) => `skeleton-${index}`).map(
-          (key) => (
-            <Card key={key} className="animate-pulse">
-              <CardHeader>
-                <CardDescription>Загрузка...</CardDescription>
-                <CardTitle className="text-3xl font-semibold">—</CardTitle>
-              </CardHeader>
-            </Card>
-          ),
-        )}
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        {skeletonKeys.map((key) => (
+          <Card key={key}>
+            <CardHeader>
+              <div className="flex items-center gap-2 mb-1">
+                <Skeleton className="size-4 rounded" />
+                <Skeleton className="h-4 w-24" />
+              </div>
+              <Skeleton className="h-9 w-16" />
+            </CardHeader>
+          </Card>
+        ))}
       </div>
     );
   }
@@ -49,97 +55,69 @@ export function DashboardStats() {
   const hasNewResponses = stats.newResponses > 0;
   const hasPendingResponses = pendingResponses > 0;
 
+  const cards = [
+    {
+      icon: hasNewResponses ? TrendingUp : TrendingDown,
+      description: "Новые отклики",
+      value: stats.newResponses,
+      badge: (
+        <Badge variant={hasNewResponses ? "success" : "secondary"}>
+          {hasNewResponses ? (
+            <TrendingUp className="size-3.5" />
+          ) : (
+            <TrendingDown className="size-3.5" />
+          )}
+          {hasNewResponses ? "Есть новые" : "Нет новых"}
+        </Badge>
+      ),
+      footer: "за последние 24 часа",
+    },
+    {
+      icon: Inbox,
+      description: "Ожидают обработки",
+      value: pendingResponses,
+      badge: (
+        <Badge variant={hasPendingResponses ? "warning" : "success"}>
+          {hasPendingResponses ? "Требуют внимания" : "Все обработаны"}
+        </Badge>
+      ),
+      footer: `из ${stats.totalResponses} всего`,
+    },
+    {
+      icon: Sparkles,
+      description: "Подходящие кандидаты",
+      value: stats.highScoreResponses,
+      badge: <Badge variant="default">Оценка ≥ 3.0</Badge>,
+      footer: "готовы к интервью",
+    },
+    {
+      icon: Briefcase,
+      description: "Активные вакансии",
+      value: stats.totalVacancies,
+      badge: <Badge variant="outline">В работе</Badge>,
+      footer: "открытых позиций",
+    },
+  ];
+
   return (
-    <div className="grid grid-cols-[repeat(auto-fit,minmax(min(200px,100%),1fr))] gap-4">
-      <Card>
-        <CardHeader>
-          <CardDescription>Новые отклики</CardDescription>
-          <CardTitle className="text-3xl font-semibold tabular-nums">
-            {stats.newResponses}
-          </CardTitle>
-          <CardAction>
-            <Badge
-              variant="outline"
-              className={cn(
-                hasNewResponses
-                  ? "border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-400"
-                  : "border-muted-foreground/50 bg-muted/10 text-muted-foreground",
-              )}
-            >
-              {hasNewResponses ? (
-                <IconTrendingUp className="size-4" />
-              ) : (
-                <IconTrendingDown className="size-4" />
-              )}
-              {hasNewResponses ? "Есть новые" : "Нет новых"}
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="text-sm text-muted-foreground">
-          за последние 24 часа
-        </CardFooter>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardDescription>Ожидают обработки</CardDescription>
-          <CardTitle className="text-3xl font-semibold tabular-nums">
-            {pendingResponses}
-          </CardTitle>
-          <CardAction>
-            <Badge
-              variant="outline"
-              className={cn(
-                hasPendingResponses
-                  ? "border-orange-500/50 bg-orange-500/10 text-orange-700 dark:text-orange-400"
-                  : "border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-400",
-              )}
-            >
-              {hasPendingResponses ? "Требуют внимания" : "Все обработаны"}
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="text-sm text-muted-foreground">
-          из {stats.totalResponses} всего
-        </CardFooter>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardDescription>Подходящие кандидаты</CardDescription>
-          <CardTitle className="text-3xl font-semibold tabular-nums">
-            {stats.highScoreResponses}
-          </CardTitle>
-          <CardAction>
-            <Badge
-              variant="outline"
-              className="border-primary/50 bg-primary/10 text-primary"
-            >
-              Оценка ≥ 3.0
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="text-sm text-muted-foreground">
-          готовы к интервью
-        </CardFooter>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardDescription>Активные вакансии</CardDescription>
-          <CardTitle className="text-3xl font-semibold tabular-nums">
-            {stats.totalVacancies}
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline" className="border-muted-foreground/50">
-              В работе
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="text-sm text-muted-foreground">
-          открытых позиций
-        </CardFooter>
-      </Card>
+    <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      {cards.map(({ icon: Icon, description, value, badge, footer }) => (
+        <Card key={description} className="@container/card">
+          <CardHeader className="flex flex-row items-start justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <Icon className="size-4 text-muted-foreground" />
+                <CardDescription>{description}</CardDescription>
+              </div>
+              <CardTitle className="text-2xl font-semibold tabular-nums">
+                {value}
+              </CardTitle>
+              <p className="text-xs text-muted-foreground">{footer}</p>
+            </div>
+            {badge}
+          </CardHeader>
+        </Card>
+      ))}
     </div>
   );
 }
