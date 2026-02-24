@@ -23,6 +23,7 @@
 ### Почему это работает без простоя
 
 **Обратная совместимость миграций:**
+
 - Новые колонки добавляются с DEFAULT или NULL
 - Старые колонки не удаляются сразу
 - Изменения типов через промежуточные колонки
@@ -42,6 +43,7 @@ ALTER TABLE users DROP COLUMN old_field;
 ```
 
 **Rolling Update в Kubernetes:**
+
 ```yaml
 strategy:
   type: RollingUpdate
@@ -76,11 +78,13 @@ stringData:
 ## Ручной запуск миграции
 
 ### Через GitHub Actions
+
 1. Actions → DB Migrate (Manual)
 2. Run workflow
 3. Выберите ветку
 
 ### Через kubectl
+
 ```bash
 kubectl apply -f - <<EOF
 apiVersion: batch/v1
@@ -95,7 +99,7 @@ spec:
       restartPolicy: Never
       containers:
       - name: migrate
-        image: cr.yandex/crpqovavgc2mbmvv32ko/db-migrate:latest
+        image: cr.yandex/crpl5fte5jrniapk2mka/db-migrate:latest
         env:
         - name: POSTGRES_URL
           valueFrom:
@@ -111,6 +115,7 @@ kubectl logs job/db-migrate-manual -n qbs -f
 ## Правила написания миграций
 
 ### ✅ Безопасные операции
+
 - Добавление новых таблиц
 - Добавление nullable колонок
 - Добавление колонок с DEFAULT
@@ -118,12 +123,14 @@ kubectl logs job/db-migrate-manual -n qbs -f
 - Добавление CHECK constraints как NOT VALID, затем VALIDATE
 
 ### ⚠️ Требуют двухэтапного деплоя
+
 - Переименование колонок (добавить новую → копировать данные → удалить старую)
 - Изменение типов (добавить новую → мигрировать → удалить старую)
 - Удаление колонок (сначала убрать из кода → потом из БД)
 - Удаление таблиц (сначала убрать из кода → потом из БД)
 
 ### ❌ Опасные операции
+
 - DROP COLUMN в одном деплое с изменением кода
 - ALTER COLUMN TYPE без промежуточного шага
 - Добавление NOT NULL без DEFAULT (блокирует таблицу)
@@ -132,6 +139,7 @@ kubectl logs job/db-migrate-manual -n qbs -f
 ## Откат
 
 ### Откат приложения
+
 ```bash
 # Откатить deployment на предыдущую версию
 kubectl rollout undo deployment/app -n qbs
@@ -142,6 +150,7 @@ kubectl rollout undo deployment/app --to-revision=2 -n qbs
 ```
 
 ### Откат миграции
+
 Миграции не откатываются автоматически. Для отката:
 
 1. Создайте новую миграцию с обратными изменениями
@@ -172,6 +181,7 @@ kubectl rollout history deployment/app -n qbs
 ## Troubleshooting
 
 ### Миграция зависла
+
 ```bash
 # Проверить статус Job
 kubectl describe job db-migrate-<sha> -n qbs
@@ -184,9 +194,11 @@ kubectl delete job db-migrate-<sha> -n qbs
 ```
 
 ### Миграция упала, но деплой продолжился
+
 Это невозможно — workflow останавливается при ошибке миграции.
 
 ### Нужно срочно откатить
+
 ```bash
 # 1. Откатить приложение
 kubectl rollout undo deployment/app -n qbs

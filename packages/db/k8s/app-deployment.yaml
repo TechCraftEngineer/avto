@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
       - name: app
-        image: cr.yandex/crpqovavgc2mbmvv32ko/app:latest
+        image: cr.yandex/crpl5fte5jrniapk2mka/app:latest
         ports:
         - containerPort: 3000
           name: http

@@ -30,7 +30,7 @@ jobs:
 
       - name: Build, tag, and push image
         env:
-          CR_REGISTRY: crpqovavgc2mbmvv32ko
+          CR_REGISTRY: crpl5fte5jrniapk2mka
           CR_REPOSITORY: demo-server
           IMAGE_TAG: ${{ github.sha }}
         run: |
@@ -42,7 +42,7 @@ jobs:
         uses: kodermax/kubectl-aws-eks@main
         env:
           KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
-          CR_REGISTRY: crpqovavgc2mbmvv32ko
+          CR_REGISTRY: crpl5fte5jrniapk2mka
           CR_REPOSITORY: demo-server
           IMAGE_TAG: ${{ github.sha }}
         with:
