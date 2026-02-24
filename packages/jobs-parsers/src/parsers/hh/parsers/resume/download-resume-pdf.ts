@@ -38,7 +38,10 @@ export async function downloadResumePdf(
     const vacancyId = vacancyIdMatch?.[1] || "";
     const fileName = candidateName || "resume";
 
-    const fileUrl = `https://hh.ru/resume_converter/${encodeURIComponent(fileName)}.pdf?hash=${resumeHash}${vacancyId ? `&vacancyId=${vacancyId}` : ""}&type=pdf&hhtmSource=resume&hhtmFrom=employer_vacancy_responses`;
+    const parsedUrl = new URL(resumeUrl);
+    const origin = parsedUrl.origin;
+    const host = parsedUrl.host;
+    const fileUrl = `${origin}/resume_converter/${encodeURIComponent(fileName)}.pdf?hash=${resumeHash}${vacancyId ? `&vacancyId=${vacancyId}` : ""}&type=pdf&hhtmSource=resume&hhtmFrom=employer_vacancy_responses`;
 
     console.log(`📄 URL: ${fileUrl}`);
 
@@ -56,7 +59,7 @@ export async function downloadResumePdf(
         "Cache-Control": "no-cache",
         Connection: "keep-alive",
         Cookie: cookieString,
-        Host: "hh.ru",
+        Host: host,
         Pragma: "no-cache",
         Referer: resumeUrl,
         "Sec-Ch-Ua":
