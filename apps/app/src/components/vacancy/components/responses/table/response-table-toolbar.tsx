@@ -24,6 +24,7 @@ interface ResponseTableToolbarProps {
   onScreenNew: () => void;
   onScreenAll: () => void;
   onSyncArchived: (workspaceId: string) => void;
+  onChromePluginDialogOpen: () => void;
   onScreeningComplete: () => void;
   visibleColumns: ReadonlySet<ColumnId>;
   onToggleColumn: (columnId: ColumnId) => void;
@@ -47,6 +48,7 @@ export function ResponseTableToolbar({
   onScreenNew,
   onScreenAll,
   onSyncArchived,
+  onChromePluginDialogOpen,
   onScreeningComplete,
   visibleColumns,
   onToggleColumn,
@@ -91,7 +93,7 @@ export function ResponseTableToolbar({
             isSyncingArchived={archivedOp.isRunning}
             isReanalyzing={screenAllOp.isRunning}
             onRefreshDialogOpen={refreshOp.openConfirmation}
-            onSyncArchivedDialogOpen={archivedOp.openConfirmation}
+            onChromePluginDialogOpen={onChromePluginDialogOpen}
             onAnalyzeNewDialogOpen={screenNewOp.openConfirmation}
             onReanalyzeDialogOpen={screenAllOp.openConfirmation}
             isHHVacancy={isHHVacancy}

@@ -7,7 +7,8 @@ interface EmptyStateProps {
   colSpan: number;
   isLoading?: boolean;
   onRefresh?: () => void;
-  onSyncArchivedDialogOpen?: () => void;
+  /** При клике на «Загрузить архивные отклики» — показать сообщение о Chrome-расширении */
+  onChromePluginDialogOpen?: () => void;
   isRefreshing?: boolean;
   isSyncingArchived?: boolean;
   source?: string | null;
@@ -20,7 +21,7 @@ export function EmptyState({
   colSpan,
   isLoading = false,
   onRefresh: _onRefresh,
-  onSyncArchivedDialogOpen,
+  onChromePluginDialogOpen,
   isRefreshing: _isRefreshing,
   isSyncingArchived = false,
   source,
@@ -44,7 +45,7 @@ export function EmptyState({
     !hasResponses &&
     isFromHH &&
     isArchivedVacancy &&
-    onSyncArchivedDialogOpen &&
+    onChromePluginDialogOpen &&
     externalId;
 
   return (
@@ -91,7 +92,7 @@ export function EmptyState({
               {hasResponses
                 ? "Попробуйте изменить параметры фильтрации или сбросить все фильтры, чтобы увидеть больше результатов"
                 : isFromHH && isArchivedVacancy
-                  ? "Архивная вакансия успешно импортирована, но отклики нужно загрузить отдельно. Нажмите кнопку ниже, чтобы начать загрузку архивных откликов с платформы"
+                  ? "Архивная вакансия успешно импортирована. Загрузите отклики через расширение «Помощник рекрутера» в Chrome — откройте страницу вакансии на hh.ru и экспортируйте отклики"
                   : "Отклики появятся здесь после того, как кандидаты начнут откликаться на вашу вакансию"}
             </div>
           </div>
@@ -105,8 +106,7 @@ export function EmptyState({
             <div className="flex flex-col items-center gap-4 pt-2">
               <Button
                 type="button"
-                onClick={onSyncArchivedDialogOpen}
-                disabled={isSyncingArchived}
+                onClick={onChromePluginDialogOpen}
                 size="lg"
                 className="min-w-[200px]"
                 aria-label="Загрузить архивные отклики"
@@ -114,38 +114,10 @@ export function EmptyState({
                 <Download />
                 Загрузить архивные отклики
               </Button>
-              <p className="text-xs text-muted-foreground/70">
-                Это может занять несколько минут
+              <p className="text-xs text-muted-foreground/70 max-w-sm">
+                Вы можете загрузить архивные отклики через расширение «Помощник
+                рекрутера» в Chrome
               </p>
-
-              {/* Информация о процессе */}
-              <div className="mt-2 space-y-2 border-t pt-4 max-w-md">
-                <p className="text-xs text-muted-foreground/80 font-medium text-center">
-                  💡 Что произойдёт дальше:
-                </p>
-                <ul className="text-xs text-muted-foreground/70 space-y-1.5 text-left">
-                  <li className="flex items-start gap-2">
-                    <span className="text-primary mt-0.5 shrink-0">•</span>
-                    <span>
-                      Система загрузит все архивные отклики с платформы
-                      HeadHunter
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-primary mt-0.5 shrink-0">•</span>
-                    <span>
-                      Отклики появятся в таблице и будут доступны для анализа
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-primary mt-0.5 shrink-0">•</span>
-                    <span>
-                      Вы сможете использовать AI для оценки и приоритизации
-                      кандидатов
-                    </span>
-                  </li>
-                </ul>
-              </div>
             </div>
           ) : null}
         </div>

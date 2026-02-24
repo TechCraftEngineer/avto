@@ -53,13 +53,11 @@ test.describe("Синхронизация архивных откликов", ()
     });
 
     await expect(
-      page.getByText(
-        /архивная вакансия успешно импортирована.*загрузить отдельно/i,
-      ),
+      page.getByText(/помощник рекрутера|расширен/i),
     ).toBeVisible();
   });
 
-  test("открывает диалог подтверждения при клике на кнопку загрузки", async ({
+  test("открывает диалог с информацией о Chrome-расширении при клике", async ({
     page,
   }) => {
     await page.goto(
@@ -71,62 +69,15 @@ test.describe("Синхронизация архивных откликов", ()
       .click();
 
     await expect(
-      page.getByRole("heading", { name: /синхронизация архивных откликов/i }),
+      page.getByRole("heading", { name: /загрузка архивных откликов/i }),
     ).toBeVisible();
 
     await expect(
-      page.getByText(/получение всех откликов с headhunter/i).first(),
+      page.getByText(/помощник рекрутера|chrome/i).first(),
     ).toBeVisible();
 
     await expect(
-      page.getByRole("button", { name: /начать синхронизацию/i }),
+      page.getByRole("link", { name: /установить расширение/i }),
     ).toBeVisible();
-  });
-
-  test("можно закрыть диалог подтверждения без запуска синхронизации", async ({
-    page,
-  }) => {
-    await page.goto(
-      `/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies/${vacancyId}/responses`,
-    );
-
-    await page
-      .getByRole("button", { name: /загрузить архивные отклики/i })
-      .click();
-
-    await expect(
-      page.getByRole("heading", { name: /синхронизация архивных откликов/i }),
-    ).toBeVisible();
-
-    await page.getByRole("button", { name: /отмена/i }).click();
-
-    await expect(
-      page.getByRole("heading", { name: /синхронизация архивных откликов/i }),
-    ).not.toBeVisible();
-  });
-
-  test("запускает синхронизацию при подтверждении в диалоге", async ({
-    page,
-  }) => {
-    await page.goto(
-      `/orgs/${orgSlug}/workspaces/${workspaceSlug}/vacancies/${vacancyId}/responses`,
-    );
-
-    await page
-      .getByRole("button", { name: /загрузить архивные отклики/i })
-      .click();
-
-    await expect(
-      page.getByRole("button", { name: /начать синхронизацию/i }),
-    ).toBeVisible();
-
-    await page.getByRole("button", { name: /начать синхронизацию/i }).click();
-
-    // Ожидаем toast — успешный запуск или сообщение об ошибке (если Inngest недоступен)
-    await expect(
-      page.getByText(/архивн.*отклик|отклик.*архивн/i).first(),
-    ).toBeVisible({
-      timeout: 10000,
-    });
   });
 });

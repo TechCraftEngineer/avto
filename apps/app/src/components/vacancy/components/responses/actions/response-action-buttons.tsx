@@ -12,7 +12,8 @@ interface ResponseActionButtonsProps {
   isSyncingArchived: boolean;
   isReanalyzing: boolean;
   onRefreshDialogOpen: () => void;
-  onSyncArchivedDialogOpen: () => void;
+  /** При клике на «Загрузить архивные отклики» — показать сообщение о Chrome-расширении */
+  onChromePluginDialogOpen: () => void;
   onReanalyzeDialogOpen: () => void;
   onAnalyzeNewDialogOpen: () => void;
   isHHVacancy?: boolean;
@@ -25,7 +26,7 @@ export function ResponseActionButtons({
   isSyncingArchived,
   isReanalyzing,
   onRefreshDialogOpen,
-  onSyncArchivedDialogOpen,
+  onChromePluginDialogOpen,
   onReanalyzeDialogOpen,
   onAnalyzeNewDialogOpen,
   isHHVacancy = false,
@@ -40,26 +41,15 @@ export function ResponseActionButtons({
       <div className="flex flex-wrap items-center gap-2">
         {isArchivedPublication ? (
           <Button
-            disabled={isAnyRefreshing}
             variant="outline"
             size="sm"
-            onClick={onSyncArchivedDialogOpen}
+            onClick={onChromePluginDialogOpen}
             className="h-9 shrink-0 bg-background/60 border-border/60 hover:bg-background/80 transition-colors [&>svg]:shrink-0"
-            aria-label={
-              isSyncingArchived ? "Загрузка" : "Загрузить архивные отклики"
-            }
-            title={
-              isSyncingArchived ? "Загрузка" : "Загрузить архивные отклики"
-            }
+            aria-label="Загрузить архивные отклики"
+            title="Загрузить архивные отклики"
           >
-            {isSyncingArchived ? (
-              <Loader2 className="h-4 w-4 sm:mr-2 animate-spin" />
-            ) : (
-              <RefreshCw className="h-4 w-4 sm:mr-2" />
-            )}
-            <span className="hidden sm:inline">
-              {isSyncingArchived ? "Загрузка..." : "Загрузить архивные отклики"}
-            </span>
+            <RefreshCw className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Загрузить архивные отклики</span>
           </Button>
         ) : (
           <Button

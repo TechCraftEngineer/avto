@@ -2,10 +2,10 @@ import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { fireEvent, render, within } from "@testing-library/react";
 import { EmptyState } from "./empty-state";
 
-const mockOnSyncArchivedDialogOpen = mock(() => {});
+const mockOnChromePluginDialogOpen = mock(() => {});
 
 beforeEach(() => {
-  mockOnSyncArchivedDialogOpen.mockClear();
+  mockOnChromePluginDialogOpen.mockClear();
 });
 
 function renderEmptyState(props: React.ComponentProps<typeof EmptyState>) {
@@ -27,7 +27,7 @@ describe("EmptyState", () => {
         source: "HH",
         externalId: "hh-123",
         isActive: false,
-        onSyncArchivedDialogOpen: mockOnSyncArchivedDialogOpen,
+        onChromePluginDialogOpen: mockOnChromePluginDialogOpen,
       });
 
       const w = within(result.container);
@@ -44,13 +44,13 @@ describe("EmptyState", () => {
         source: "HH",
         externalId: "hh-123",
         isActive: true,
-        onSyncArchivedDialogOpen: mockOnSyncArchivedDialogOpen,
+        onChromePluginDialogOpen: mockOnChromePluginDialogOpen,
       });
 
       expect(within(result.container).queryByRole("button")).toBeNull();
     });
 
-    it("не должен показывать кнопку без onSyncArchivedDialogOpen", () => {
+    it("не должен показывать кнопку без onChromePluginDialogOpen", () => {
       const result = renderEmptyState({
         hasResponses: false,
         colSpan: 5,
@@ -69,7 +69,7 @@ describe("EmptyState", () => {
         source: "HH",
         externalId: null,
         isActive: false,
-        onSyncArchivedDialogOpen: mockOnSyncArchivedDialogOpen,
+        onChromePluginDialogOpen: mockOnChromePluginDialogOpen,
       });
 
       expect(within(result.container).queryByRole("button")).toBeNull();
@@ -82,20 +82,20 @@ describe("EmptyState", () => {
         source: "SuperJob",
         externalId: "sj-123",
         isActive: false,
-        onSyncArchivedDialogOpen: mockOnSyncArchivedDialogOpen,
+        onChromePluginDialogOpen: mockOnChromePluginDialogOpen,
       });
 
       expect(within(result.container).queryByRole("button")).toBeNull();
     });
 
-    it("должен вызывать onSyncArchivedDialogOpen при клике", () => {
+    it("должен вызывать onChromePluginDialogOpen при клике", () => {
       const result = renderEmptyState({
         hasResponses: false,
         colSpan: 5,
         source: "HH",
         externalId: "hh-123",
         isActive: false,
-        onSyncArchivedDialogOpen: mockOnSyncArchivedDialogOpen,
+        onChromePluginDialogOpen: mockOnChromePluginDialogOpen,
       });
 
       const button = within(result.container).getByRole("button", {
@@ -103,24 +103,7 @@ describe("EmptyState", () => {
       });
       fireEvent.click(button);
 
-      expect(mockOnSyncArchivedDialogOpen).toHaveBeenCalledTimes(1);
-    });
-
-    it("должен отключать кнопку при isSyncingArchived=true", () => {
-      const result = renderEmptyState({
-        hasResponses: false,
-        colSpan: 5,
-        source: "HH",
-        externalId: "hh-123",
-        isActive: false,
-        onSyncArchivedDialogOpen: mockOnSyncArchivedDialogOpen,
-        isSyncingArchived: true,
-      });
-
-      const button = within(result.container).getByRole("button", {
-        name: /Загрузить архивные отклики/i,
-      });
-      expect(button).toHaveProperty("disabled", true);
+      expect(mockOnChromePluginDialogOpen).toHaveBeenCalledTimes(1);
     });
 
     it("должен показывать текст 'Отклики ещё не загружены' для архивной HH вакансии", () => {
@@ -130,7 +113,7 @@ describe("EmptyState", () => {
         source: "HH",
         externalId: "hh-123",
         isActive: false,
-        onSyncArchivedDialogOpen: mockOnSyncArchivedDialogOpen,
+        onChromePluginDialogOpen: mockOnChromePluginDialogOpen,
       });
 
       expect(

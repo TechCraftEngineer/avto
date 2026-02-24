@@ -3,13 +3,13 @@ import { fireEvent, render, within } from "@testing-library/react";
 import { ResponseActionButtons } from "./response-action-buttons";
 
 const mockOnRefreshDialogOpen = mock(() => {});
-const mockOnSyncArchivedDialogOpen = mock(() => {});
+const mockOnChromePluginDialogOpen = mock(() => {});
 const mockOnReanalyzeDialogOpen = mock(() => {});
 const mockOnAnalyzeNewDialogOpen = mock(() => {});
 
 beforeEach(() => {
   mockOnRefreshDialogOpen.mockClear();
-  mockOnSyncArchivedDialogOpen.mockClear();
+  mockOnChromePluginDialogOpen.mockClear();
   mockOnReanalyzeDialogOpen.mockClear();
   mockOnAnalyzeNewDialogOpen.mockClear();
 });
@@ -23,7 +23,7 @@ describe("ResponseActionButtons", () => {
           isSyncingArchived={false}
           isReanalyzing={false}
           onRefreshDialogOpen={mockOnRefreshDialogOpen}
-          onSyncArchivedDialogOpen={mockOnSyncArchivedDialogOpen}
+          onChromePluginDialogOpen={mockOnChromePluginDialogOpen}
           onReanalyzeDialogOpen={mockOnReanalyzeDialogOpen}
           onAnalyzeNewDialogOpen={mockOnAnalyzeNewDialogOpen}
           isHHVacancy={true}
@@ -38,32 +38,14 @@ describe("ResponseActionButtons", () => {
       ).toBeDefined();
     });
 
-    it("должен отображать 'Загрузка...' при isSyncingArchived=true", () => {
-      const { container } = render(
-        <ResponseActionButtons
-          isRefreshing={false}
-          isSyncingArchived={true}
-          isReanalyzing={false}
-          onRefreshDialogOpen={mockOnRefreshDialogOpen}
-          onSyncArchivedDialogOpen={mockOnSyncArchivedDialogOpen}
-          onReanalyzeDialogOpen={mockOnReanalyzeDialogOpen}
-          onAnalyzeNewDialogOpen={mockOnAnalyzeNewDialogOpen}
-          isHHVacancy={true}
-          isArchivedPublication={true}
-        />,
-      );
-
-      expect(within(container).getByText("Загрузка...")).toBeDefined();
-    });
-
-    it("должен вызывать onSyncArchivedDialogOpen при клике на кнопку загрузки архивных", () => {
+    it("должен вызывать onChromePluginDialogOpen при клике на кнопку загрузки архивных", () => {
       const { container } = render(
         <ResponseActionButtons
           isRefreshing={false}
           isSyncingArchived={false}
           isReanalyzing={false}
           onRefreshDialogOpen={mockOnRefreshDialogOpen}
-          onSyncArchivedDialogOpen={mockOnSyncArchivedDialogOpen}
+          onChromePluginDialogOpen={mockOnChromePluginDialogOpen}
           onReanalyzeDialogOpen={mockOnReanalyzeDialogOpen}
           onAnalyzeNewDialogOpen={mockOnAnalyzeNewDialogOpen}
           isHHVacancy={true}
@@ -76,28 +58,7 @@ describe("ResponseActionButtons", () => {
       });
       fireEvent.click(button);
 
-      expect(mockOnSyncArchivedDialogOpen).toHaveBeenCalledTimes(1);
-    });
-
-    it("должен отключать кнопку при isSyncingArchived=true", () => {
-      const { container } = render(
-        <ResponseActionButtons
-          isRefreshing={false}
-          isSyncingArchived={true}
-          isReanalyzing={false}
-          onRefreshDialogOpen={mockOnRefreshDialogOpen}
-          onSyncArchivedDialogOpen={mockOnSyncArchivedDialogOpen}
-          onReanalyzeDialogOpen={mockOnReanalyzeDialogOpen}
-          onAnalyzeNewDialogOpen={mockOnAnalyzeNewDialogOpen}
-          isHHVacancy={true}
-          isArchivedPublication={true}
-        />,
-      );
-
-      const button = within(container).getByRole("button", {
-        name: /Загрузка/i,
-      });
-      expect(button).toHaveProperty("disabled", true);
+      expect(mockOnChromePluginDialogOpen).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -109,7 +70,7 @@ describe("ResponseActionButtons", () => {
           isSyncingArchived={false}
           isReanalyzing={false}
           onRefreshDialogOpen={mockOnRefreshDialogOpen}
-          onSyncArchivedDialogOpen={mockOnSyncArchivedDialogOpen}
+          onChromePluginDialogOpen={mockOnChromePluginDialogOpen}
           onReanalyzeDialogOpen={mockOnReanalyzeDialogOpen}
           onAnalyzeNewDialogOpen={mockOnAnalyzeNewDialogOpen}
           isHHVacancy={true}

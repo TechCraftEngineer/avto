@@ -14,17 +14,17 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { fetchRefreshVacancyResponsesToken } from "~/actions/realtime";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useVacancy, useVacancyResponses } from "../../../hooks";
 import { BulkActionsBar } from "../actions/bulk-actions-bar";
-import { useVacancyOperation } from "../context/vacancy-responses-context";
 import { useColumnVisibility } from "../hooks/use-column-visibility";
 import { useRefreshSubscription } from "../hooks/use-refresh-subscription";
 import { useResponseActions } from "../hooks/use-response-actions";
 import { useResponseTable } from "../hooks/use-response-table";
 import type { ColumnId } from "../types";
+import { ChromePluginArchivedDialog } from "../ui/chrome-plugin-archived-dialog";
 import { EmptyState } from "../ui/empty-state";
 import { type ResponseTableMeta, responseColumns } from "./response-columns";
 import { ResponseTableToolbar } from "./response-table-toolbar";
@@ -71,7 +71,7 @@ export function ResponseTable({
   workspaceSlug,
 }: ResponseTableProps) {
   const { workspace, orgSlug } = useWorkspace();
-  const archivedOp = useVacancyOperation("archived");
+  const [chromePluginDialogOpen, setChromePluginDialogOpen] = useState(false);
   const {
     currentPage,
     setCurrentPage,
@@ -319,6 +319,7 @@ export function ResponseTable({
         onScreenNew={handleScreenNew}
         onScreenAll={handleScreenAll}
         onSyncArchived={handleSyncArchived}
+        onChromePluginDialogOpen={() => setChromePluginDialogOpen(true)}
         onScreeningComplete={handleScreeningDialogClose}
         visibleColumns={visibleColumns}
         onToggleColumn={toggleColumn}
@@ -348,7 +349,9 @@ export function ResponseTable({
                   hasResponses={total > 0}
                   colSpan={visibleColumnCount}
                   onRefresh={handleRefreshResponses}
-                  onSyncArchivedDialogOpen={archivedOp.openConfirmation}
+                  onChromePluginDialogOpen={() =>
+                    setChromePluginDialogOpen(true)
+                  }
                   isRefreshing={isRefreshing}
                   isSyncingArchived={isSyncingArchived}
                   source={vacancyData?.source}
@@ -394,6 +397,11 @@ export function ResponseTable({
           </div>
         )}
       </div>
+
+      <ChromePluginArchivedDialog
+        open={chromePluginDialogOpen}
+        onOpenChange={setChromePluginDialogOpen}
+      />
     </div>
   );
 }
