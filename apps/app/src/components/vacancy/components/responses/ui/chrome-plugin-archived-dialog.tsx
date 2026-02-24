@@ -2,7 +2,7 @@
 
 /**
  * Диалог с информацией о загрузке архивных откликов через расширение Chrome.
- * Старый flow (синхронизация через API) заархивирован — см. _archived/use-sync-archived-state.ts
+ * Старый flow (синхронизация через API) заархивирован — см. _archived/README.md
  */
 
 const EXTENSION_INSTALL_URL =

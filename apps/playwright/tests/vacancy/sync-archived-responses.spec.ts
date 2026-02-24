@@ -52,9 +52,7 @@ test.describe("Синхронизация архивных откликов", ()
       timeout: 10000,
     });
 
-    await expect(
-      page.getByText(/помощник рекрутера|расширен/i),
-    ).toBeVisible();
+    await expect(page.getByText(/помощник рекрутера|расширен/i)).toBeVisible();
   });
 
   test("открывает диалог с информацией о Chrome-расширении при клике", async ({
