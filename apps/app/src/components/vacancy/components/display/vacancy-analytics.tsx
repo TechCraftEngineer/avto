@@ -68,7 +68,7 @@ export function VacancyAnalytics({
   // Если нет откликов вообще - показываем красивое пустое состояние
   if (totalResponses === 0) {
     return (
-      <Card className="border-dashed">
+      <Card className="border-dashed bg-card shadow-sm">
         <CardHeader className="text-center py-12">
           <div className="flex justify-center mb-4">
             <div className="relative">
@@ -92,7 +92,7 @@ export function VacancyAnalytics({
   }
 
   return (
-    <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 *:data-[slot=card]:bg-linear-to-t *:data-[slot=card]:shadow-xs @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
+    <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-sm dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 *:data-[slot=card]:bg-linear-to-t @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>Обработано откликов</CardDescription>
@@ -271,7 +271,7 @@ export function VacancyRequirements({
 
   if (!hasAnyData) {
     return (
-      <div className="rounded-xl border border-dashed bg-card/50 backdrop-blur-sm p-6 shadow-md">
+      <div className="rounded-xl border border-dashed border-border bg-card shadow-md">
         <div className="text-center py-8 space-y-4">
           <div className="flex justify-center">
             <div className="relative">
@@ -299,8 +299,8 @@ export function VacancyRequirements({
   }
 
   return (
-    <div className="rounded-xl border bg-card/50 backdrop-blur-sm p-6 shadow-md space-y-8">
-      <div className="flex items-center justify-between border-b pb-4">
+    <div className="rounded-xl border border-border bg-card p-6 shadow-md space-y-8">
+      <div className="flex items-center justify-between border-b border-border pb-4">
         <h2 className="text-xl font-bold tracking-tight">
           Сгенерированные требования
         </h2>
@@ -313,7 +313,7 @@ export function VacancyRequirements({
       </div>
 
       {data.summary && (
-        <div className="rounded-lg border bg-muted/30 p-5 space-y-2">
+        <div className="rounded-lg border border-border bg-background/80 p-5 space-y-2">
           <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">
             Краткое описание
           </h3>
@@ -325,7 +325,7 @@ export function VacancyRequirements({
 
       <div className="grid gap-4 md:grid-cols-3">
         {data.job_title && (
-          <div className="rounded-lg border bg-background/50 p-4 transition-colors hover:bg-background/80">
+          <div className="rounded-lg border border-border bg-background/90 p-4 transition-colors hover:bg-background">
             <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80 mb-1.5">
               Должность
             </h3>
@@ -334,7 +334,7 @@ export function VacancyRequirements({
         )}
 
         {data.location_type && (
-          <div className="rounded-lg border bg-background/50 p-4 transition-colors hover:bg-background/80">
+          <div className="rounded-lg border border-border bg-background/90 p-4 transition-colors hover:bg-background">
             <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80 mb-1.5">
               Формат работы
             </h3>
@@ -343,7 +343,7 @@ export function VacancyRequirements({
         )}
 
         {data.experience_years && (
-          <div className="rounded-lg border bg-background/50 p-4 transition-colors hover:bg-background/80">
+          <div className="rounded-lg border border-border bg-background/90 p-4 transition-colors hover:bg-background">
             <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80 mb-1.5">
               Опыт работы
             </h3>
@@ -367,7 +367,7 @@ export function VacancyRequirements({
                 {data.mandatory_requirements.map((req, i) => (
                   <div
                     key={`req-${i}-${req.slice(0, 20)}`}
-                    className="flex gap-3 p-3 rounded-md border bg-background/40 text-sm items-start"
+                    className="flex gap-3 p-3 rounded-md border border-border bg-background/70 text-sm items-start"
                   >
                     <div className="size-5 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5 text-[10px] font-bold">
                       {i + 1}
@@ -387,7 +387,7 @@ export function VacancyRequirements({
               <div className="size-1.5 rounded-full bg-primary" />
               Технологический стек
             </h3>
-            <div className="flex flex-wrap gap-2 p-4 rounded-lg border bg-background/40">
+            <div className="flex flex-wrap gap-2 p-4 rounded-lg border border-border bg-background/70">
               {data.tech_stack.map((tech) => (
                 <Badge
                   key={tech}
@@ -411,7 +411,7 @@ export function VacancyRequirements({
               {data.nice_to_have_skills.map((skill, i) => (
                 <li
                   key={`skill-${i}-${skill.slice(0, 20)}`}
-                  className="group flex gap-3 p-3 rounded-md border border-dashed bg-background/20 text-sm items-start hover:border-primary/50 transition-colors"
+                  className="group flex gap-3 p-3 rounded-md border border-dashed border-border bg-background/60 text-sm items-start hover:border-primary/50 transition-colors"
                 >
                   <div className="size-1.5 rounded-full bg-muted-foreground/30 mt-2 group-hover:bg-primary/50" />
                   <span className="text-muted-foreground leading-relaxed">
@@ -439,7 +439,7 @@ export function VacancyRequirements({
                     <Badge
                       key={`lang-${index}-${label}`}
                       variant="outline"
-                      className="bg-background"
+                      className="bg-background border-border"
                     >
                       {label}
                     </Badge>
@@ -460,7 +460,7 @@ export function VacancyRequirements({
                     <Badge
                       key={`keyword-${i}-${keyword}`}
                       variant="outline"
-                      className="bg-background text-[10px]"
+                      className="bg-background border-border text-[10px]"
                     >
                       {keyword}
                     </Badge>
