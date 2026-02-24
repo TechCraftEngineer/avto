@@ -41,9 +41,9 @@ export const EducationEntrySchema: z.ZodType<EducationEntry> = z.object({
  * Схема для контактной информации
  */
 export const ContactInfoSchema: z.ZodType<CandidateContactInfo> = z.object({
-  email: z.string().email().nullable().optional(),
-  phone: z.string().nullable().optional(),
-  socialLinks: z.array(z.string().url()).optional(),
+  email: z.email().nullable(),
+  phone: z.string().nullable(),
+  socialLinks: z.array(z.url()).optional(),
 });
 
 /**

@@ -16,8 +16,7 @@ const rootDir = join(__dirname, "..");
 const distDir = join(rootDir, "dist");
 
 const PRODUCTION_API_URL = "https://app.avtonaim.qbsoft.ru";
-const PRODUCTION_EXTENSION_API_BASE =
-  "https://hooks.avtonaim.qbsoft.ru/ext-api";
+const PRODUCTION_EXTENSION_API_BASE = "https://ext-api.avtonaim.qbsoft.ru";
 
 async function main(): Promise<void> {
   const bumpType = process.env.BUMP_VERSION || "patch";
