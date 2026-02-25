@@ -210,12 +210,12 @@ export function OTPForm({ ...props }: React.ComponentProps<typeof Card>) {
               )}
             />
           </CardContent>
-          <CardFooter className="flex flex-col gap-4 pt-6">
+          <CardFooter className="flex flex-col gap-4 border-t pt-6">
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Проверка…" : "Подтвердить"}
             </Button>
-            <p className="text-muted-foreground text-center text-sm">
-              Проблемы со входом?{" "}
+            <p className="text-center text-sm">
+              <span className="text-muted-foreground">Проблемы со входом?</span>{" "}
               <Link
                 href={paths.auth.signin}
                 className="text-primary underline-offset-4 transition-colors hover:underline"
