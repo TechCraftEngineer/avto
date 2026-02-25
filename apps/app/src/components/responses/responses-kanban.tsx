@@ -1,16 +1,19 @@
 "use client";
 
+import { Button } from "@qbs-autonaim/ui/components/button";
 import { Badge } from "@qbs-autonaim/ui/components/reui/badge";
 import {
   Kanban,
   KanbanBoard,
   KanbanColumn,
   KanbanColumnContent,
+  KanbanColumnHandle,
   KanbanItem,
   KanbanItemHandle,
   KanbanOverlay,
 } from "@qbs-autonaim/ui/components/reui/kanban";
 import { cn } from "@qbs-autonaim/ui/utils";
+import { IconGripVertical } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -67,9 +70,11 @@ function ResponseKanbanItem({
   );
 
   return (
-    <KanbanItem value={response.id}>
+    <KanbanItem value={response.id} className="w-full min-w-0">
       {asHandle && !isOverlay ? (
-        <KanbanItemHandle>{cardContent}</KanbanItemHandle>
+        <KanbanItemHandle className="w-full min-w-0">
+          {cardContent}
+        </KanbanItemHandle>
       ) : (
         cardContent
       )}
@@ -104,6 +109,15 @@ function ResponseKanbanColumn({
       <fieldset className="flex min-h-full flex-col border-0 p-0 m-0">
         <legend className="sr-only">{`Колонка ${label}`}</legend>
         <div className="mb-3 flex shrink-0 items-center gap-2 px-1">
+          {!isOverlay && (
+            <KanbanColumnHandle
+              render={(props) => (
+                <Button {...props} size="icon-xs" variant="ghost">
+                  <IconGripVertical className="size-3.5" />
+                </Button>
+              )}
+            />
+          )}
           <div className={cn("w-2 h-2 rounded-full shrink-0", color)} />
           <h3 className="text-sm font-semibold truncate text-foreground/90">
             {label}
@@ -116,7 +130,7 @@ function ResponseKanbanColumn({
         <KanbanColumnContent
           value={value}
           className={cn(
-            "flex min-h-[420px] flex-1 flex-col gap-3 overflow-y-auto rounded-xl p-3 transition-colors",
+            "flex min-h-[420px] min-w-0 flex-1 flex-col gap-3 overflow-y-auto overflow-x-hidden rounded-xl p-3 transition-colors",
             "border border-border/60 bg-card/95 backdrop-blur-sm shadow-sm",
           )}
         >
@@ -265,7 +279,25 @@ export function ResponsesKanban({
         </KanbanBoard>
       </div>
       <KanbanOverlay className="rounded-lg">
-        {({ value }) => {
+        {({ value, variant }) => {
+          if (variant === "column") {
+            const columnId = String(value);
+            const colData = STATUS_COLUMNS.find((c) => c.id === columnId);
+            const columnResponses = columns[columnId] ?? [];
+            if (!colData) return null;
+            return (
+              <ResponseKanbanColumn
+                value={colData.id}
+                label={colData.label}
+                color={colData.color}
+                responses={columnResponses}
+                isLoading={isLoading}
+                onCardClick={() => {}}
+                isOverlay
+              />
+            );
+          }
+
           const response = Object.values(columns)
             .flat()
             .find((r) => r.id === value);

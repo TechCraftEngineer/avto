@@ -38,7 +38,7 @@ export function ResponseKanbanCard({
   return (
     <div
       className={cn(
-        "bg-card border border-border rounded-xl flex flex-col group relative shadow-sm ring-1 ring-foreground/5",
+        "w-full min-w-0 bg-card border border-border rounded-xl flex flex-col group relative shadow-sm ring-1 ring-foreground/5",
         getBorderColor(),
         // Отключаем transition при перетаскивании для предотвращения конфликта с dnd-kit
         isDragging
