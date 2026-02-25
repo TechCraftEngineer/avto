@@ -1,7 +1,7 @@
 "use client";
 
 import { RESPONSE_STATUS_LABELS } from "@qbs-autonaim/db/schema";
-import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { Badge } from "@qbs-autonaim/ui/components/reui/badge";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { InfoTooltip } from "@qbs-autonaim/ui/components/info-tooltip";
 import { Skeleton } from "@qbs-autonaim/ui/components/skeleton";
@@ -50,7 +50,7 @@ export function ResponsesTable({
 }: ResponsesTableProps) {
   if (isLoading) {
     return (
-      <div className="rounded-md border bg-card">
+      <div className="rounded-xl border border-border bg-card shadow-sm">
         <Table>
           <TableHeader>
             <TableRow>
@@ -94,7 +94,7 @@ export function ResponsesTable({
 
   if (responses.length === 0) {
     return (
-      <div className="rounded-md border border-dashed bg-card/50 text-center py-12">
+      <div className="rounded-xl border border-dashed border-border bg-muted/30 text-center py-12">
         <p className="text-sm text-muted-foreground">
           {hasFilters ? "Отклики не найдены" : "Пока нет откликов"}
         </p>
@@ -123,7 +123,7 @@ export function ResponsesTable({
   );
 
   return (
-    <div className="rounded-md border bg-card">
+    <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow>
@@ -175,8 +175,9 @@ export function ResponsesTable({
                 {response.screening?.score ? (
                   <Badge
                     variant={
-                      response.screening.score >= 4 ? "default" : "secondary"
+                      response.screening.score >= 4 ? "success" : "outline"
                     }
+                    size="sm"
                   >
                     {response.screening.score.toFixed(1)}
                   </Badge>
@@ -186,7 +187,7 @@ export function ResponsesTable({
               </TableCell>
               <TableCell>
                 {response.priorityScore ? (
-                  <Badge variant="outline">
+                  <Badge variant="secondary" size="sm">
                     {response.priorityScore.toFixed(1)}
                   </Badge>
                 ) : (
@@ -194,7 +195,7 @@ export function ResponsesTable({
                 )}
               </TableCell>
               <TableCell>
-                <Badge variant="secondary">
+                <Badge variant="outline" size="sm">
                   {RESPONSE_STATUS_LABELS[response.status]}
                 </Badge>
               </TableCell>

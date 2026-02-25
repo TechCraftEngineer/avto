@@ -1,6 +1,10 @@
 "use client";
 
-import { Input } from "@qbs-autonaim/ui/components/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@qbs-autonaim/ui/components/input-group";
 import {
   Select,
   SelectContent,
@@ -39,15 +43,16 @@ export function ResponsesFilters({
 }: ResponsesFiltersProps) {
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-      <div className="relative flex-1 sm:min-w-[320px]">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
+      <InputGroup className="flex-1 sm:min-w-[320px]">
+        <InputGroupAddon>
+          <Search className="size-4" />
+        </InputGroupAddon>
+        <InputGroupInput
           placeholder="Поиск по имени кандидата…"
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-9 bg-background"
         />
-      </div>
+      </InputGroup>
 
       <Select
         value={screeningFilter}
@@ -62,7 +67,7 @@ export function ResponsesFilters({
           )
         }
       >
-        <SelectTrigger className="w-full sm:w-[200px] bg-background">
+        <SelectTrigger className="w-full sm:w-[200px]">
           <SelectValue placeholder="Фильтр по оценке" />
         </SelectTrigger>
         <SelectContent>
@@ -80,7 +85,7 @@ export function ResponsesFilters({
           onSortFieldChange(value === "createdAt" ? null : value)
         }
       >
-        <SelectTrigger className="w-full sm:w-[200px] bg-background">
+        <SelectTrigger className="w-full sm:w-[200px]">
           <SelectValue placeholder="Сортировка" />
         </SelectTrigger>
         <SelectContent>

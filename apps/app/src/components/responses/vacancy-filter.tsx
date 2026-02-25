@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@qbs-autonaim/ui/components/button";
+import { Checkbox } from "@qbs-autonaim/ui/components/checkbox";
 import {
   Command,
   CommandEmpty,
@@ -14,8 +15,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@qbs-autonaim/ui/components/popover";
-import { cn } from "@qbs-autonaim/ui/utils";
-import { IconCheck, IconChevronDown } from "@tabler/icons-react";
+import { IconChevronDown } from "@tabler/icons-react";
 import { useState } from "react";
 
 interface Vacancy {
@@ -81,18 +81,13 @@ export function VacancyFilter({
             <CommandGroup>
               <CommandItem
                 onSelect={handleSelectAll}
-                className="cursor-pointer"
+                className="cursor-pointer gap-2"
               >
-                <div
-                  className={cn(
-                    "mr-2 flex size-4 items-center justify-center rounded-sm border border-primary",
-                    selectedCount === 0
-                      ? "bg-primary text-primary-foreground"
-                      : "opacity-50",
-                  )}
-                >
-                  {selectedCount === 0 && <IconCheck className="size-3" />}
-                </div>
+                <Checkbox
+                  checked={selectedCount === 0}
+                  aria-label="Все вакансии"
+                  className="pointer-events-none"
+                />
                 <span className="font-medium">Все вакансии</span>
               </CommandItem>
               {vacancies.map((vacancy) => {
@@ -101,18 +96,13 @@ export function VacancyFilter({
                   <CommandItem
                     key={vacancy.id}
                     onSelect={() => handleToggle(vacancy.id)}
-                    className="cursor-pointer"
+                    className="cursor-pointer gap-2"
                   >
-                    <div
-                      className={cn(
-                        "mr-2 flex size-4 items-center justify-center rounded-sm border border-primary",
-                        isSelected
-                          ? "bg-primary text-primary-foreground"
-                          : "opacity-50",
-                      )}
-                    >
-                      {isSelected && <IconCheck className="size-3" />}
-                    </div>
+                    <Checkbox
+                      checked={isSelected}
+                      aria-label={vacancy.title}
+                      className="pointer-events-none"
+                    />
                     <span className="truncate">{vacancy.title}</span>
                   </CommandItem>
                 );

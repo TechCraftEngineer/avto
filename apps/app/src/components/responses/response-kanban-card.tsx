@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { Badge } from "@qbs-autonaim/ui/components/reui/badge";
 import { CandidateAvatar } from "@qbs-autonaim/ui/components/candidate-avatar";
 import { cn } from "@qbs-autonaim/ui/utils";
 import { IconClock, IconMessageCircle, IconStar } from "@tabler/icons-react";
@@ -38,7 +38,7 @@ export function ResponseKanbanCard({
   return (
     <div
       className={cn(
-        "bg-background border border-border rounded-lg shadow-sm flex flex-col group relative",
+        "bg-card border border-border rounded-xl shadow-sm flex flex-col group relative ring-1 ring-foreground/5",
         getBorderColor(),
         // Отключаем transition при перетаскивании для предотвращения конфликта с dnd-kit
         isDragging
@@ -46,12 +46,12 @@ export function ResponseKanbanCard({
           : "transition-shadow duration-200 hover:shadow-md hover:border-primary/30",
       )}
     >
-      <div className="flex items-center justify-between gap-2 px-3 py-2 border-b">
+      <div className="flex items-center justify-between gap-2 px-3 py-2 border-b border-border">
         <div className="flex items-center gap-2 min-w-0">
           {response.priorityScore !== null && (
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
               <span className="font-medium">Приоритет:</span>
-              <Badge variant="outline" className="text-xs">
+              <Badge variant="outline" size="sm">
                 {response.priorityScore.toFixed(1)}
               </Badge>
             </div>
@@ -68,7 +68,8 @@ export function ResponseKanbanCard({
         </div>
         {score !== null && score !== undefined && (
           <Badge
-            variant={score >= 60 ? "default" : "secondary"}
+            variant={score >= 60 ? "success" : "secondary"}
+            size="sm"
             className="shrink-0"
           >
             <IconStar className="size-3 mr-1" />
@@ -105,7 +106,7 @@ export function ResponseKanbanCard({
               </span>
             </div>
             {hasInterview && (
-              <Badge variant="default" className="text-xs w-fit">
+              <Badge variant="info-light" size="sm" className="w-fit">
                 Есть интервью
               </Badge>
             )}

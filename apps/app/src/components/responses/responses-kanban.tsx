@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge } from "@qbs-autonaim/ui/components/badge";
+import { Badge } from "@qbs-autonaim/ui/components/reui/badge";
 import {
   Kanban,
   KanbanBoard,
@@ -108,7 +108,7 @@ function ResponseKanbanColumn({
           <h3 className="text-sm font-semibold truncate text-foreground/90">
             {label}
           </h3>
-          <Badge variant="outline" className="ml-auto shrink-0">
+          <Badge variant="secondary" size="sm" className="ml-auto shrink-0">
             {responses.length}
           </Badge>
         </div>
@@ -131,7 +131,7 @@ function ResponseKanbanColumn({
               ))}
             </div>
           ) : responses.length === 0 ? (
-            <div className="flex flex-1 flex-col items-center justify-center py-12 text-muted-foreground rounded-lg border border-dashed border-border/40">
+            <div className="flex flex-1 flex-col items-center justify-center py-12 text-muted-foreground rounded-lg border border-dashed border-border bg-muted/20">
               <p className="text-sm">Нет откликов</p>
             </div>
           ) : (
