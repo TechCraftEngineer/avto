@@ -50,7 +50,7 @@ export function ResponsesTable({
 }: ResponsesTableProps) {
   if (isLoading) {
     return (
-      <div className="rounded-xl border border-border bg-card shadow-sm">
+      <div className="rounded-xl border border-border bg-card/95 shadow-sm backdrop-blur-sm">
         <Table>
           <TableHeader>
             <TableRow>
@@ -94,7 +94,7 @@ export function ResponsesTable({
 
   if (responses.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-border bg-muted/30 text-center py-12">
+      <div className="rounded-xl border border-dashed border-border bg-background/50 text-center py-12">
         <p className="text-sm text-muted-foreground">
           {hasFilters ? "Отклики не найдены" : "Пока нет откликов"}
         </p>
@@ -123,7 +123,7 @@ export function ResponsesTable({
   );
 
   return (
-    <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+    <div className="rounded-xl border border-border bg-card/95 shadow-sm backdrop-blur-sm overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow>

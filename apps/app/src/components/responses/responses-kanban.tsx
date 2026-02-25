@@ -116,8 +116,8 @@ function ResponseKanbanColumn({
         <KanbanColumnContent
           value={value}
           className={cn(
-            "flex min-h-[420px] flex-1 flex-col gap-3 overflow-y-auto rounded-xl p-3 shadow-sm transition-colors",
-            "border border-border/50 bg-card/90 backdrop-blur-sm",
+            "flex min-h-[420px] flex-1 flex-col gap-3 overflow-y-auto rounded-xl p-3 transition-colors",
+            "border border-border/60 bg-card/95 backdrop-blur-sm shadow-sm",
           )}
         >
           {isLoading ? (
@@ -131,7 +131,7 @@ function ResponseKanbanColumn({
               ))}
             </div>
           ) : responses.length === 0 ? (
-            <div className="flex flex-1 flex-col items-center justify-center py-12 text-muted-foreground rounded-lg border border-dashed border-border bg-muted/20">
+            <div className="flex flex-1 flex-col items-center justify-center py-12 text-muted-foreground rounded-lg border border-dashed border-border bg-background/50">
               <p className="text-sm">Нет откликов</p>
             </div>
           ) : (

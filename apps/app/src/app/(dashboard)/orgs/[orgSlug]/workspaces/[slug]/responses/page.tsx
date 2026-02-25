@@ -281,7 +281,10 @@ export default function ResponsesPage() {
           </div>
 
           {viewMode === "table" ? (
-            <>
+            <div
+              className="flex min-h-0 flex-1 flex-col gap-4 overflow-auto rounded-2xl bg-muted/40 p-4"
+              style={{ minHeight: "calc(100dvh - 320px)" }}
+            >
               <ResponsesTable
                 responses={responsesData?.responses ?? []}
                 isLoading={isLoading}
@@ -303,7 +306,7 @@ export default function ResponsesPage() {
                   onPageChange={setPage}
                 />
               )}
-            </>
+            </div>
           ) : (
             <div
               className="kanban-page flex min-h-0 flex-1 flex-col"
