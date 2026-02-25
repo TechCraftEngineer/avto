@@ -21,6 +21,9 @@ import {
 import { parseFullName } from "@qbs-autonaim/lib";
 import type { Context } from "hono";
 import { z } from "zod";
+import { processPdfUpload } from "./hh-import/utils/pdf";
+import { processPhotoUpload } from "./hh-import/utils/photo";
+import { processResumeText } from "./hh-import/utils/resume-text";
 
 const platformSourceEnum = z.enum([
   "HH",
@@ -266,6 +269,31 @@ export async function handleImportResume(c: Context) {
   if (!createdResponse) {
     return c.json({ error: "Не удалось создать отклик" }, 500);
   }
+
+  const resumeId = normalizeCandidateId(input.contactInfo?.platformProfileUrl);
+  const candidateName = input.freelancerName ?? "Кандидат";
+
+  await Promise.all([
+    input.photoUrl
+      ? processPhotoUpload(
+          input.photoUrl,
+          createdResponse.id,
+          resumeId,
+          candidateName,
+        )
+      : Promise.resolve(),
+    input.resumePdfBase64
+      ? processPdfUpload(
+          input.resumePdfBase64,
+          createdResponse.id,
+          resumeId,
+          candidateName,
+        )
+      : Promise.resolve(),
+    input.resumeTextHtml?.trim()
+      ? processResumeText(input.resumeTextHtml, createdResponse.id)
+      : Promise.resolve(),
+  ]);
 
   await db.insert(freelanceImportHistory).values({
     vacancyId: input.vacancyId,

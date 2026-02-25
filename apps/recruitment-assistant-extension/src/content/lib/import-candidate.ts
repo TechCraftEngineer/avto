@@ -65,6 +65,10 @@ async function importToVacancy(
       ? "HH"
       : "WEB_LINK";
 
+  const profileUrl =
+    data.profileUrl ||
+    (typeof window !== "undefined" ? window.location.href : undefined);
+
   const responseText = [
     data.basicInfo.currentPosition || "",
     data.basicInfo.location ? `Локация: ${data.basicInfo.location}` : "",
@@ -73,20 +77,72 @@ async function importToVacancy(
     .filter(Boolean)
     .join("\n\n");
 
+  const candidateName = data.basicInfo.fullName ?? "Кандидат";
+
+  let photoUrl: string | undefined;
+  let resumePdfBase64: string | undefined;
+  let resumeTextHtml: string | undefined;
+
+  if (platformSource === "HH" && typeof document !== "undefined") {
+    const { fetchPhotoAsBase64, fetchResumeHtml, fetchResumePdfAsBase64 } =
+      await import("../../parsers/hh-employer/fetch-resume-html");
+    const { getResumePdfUrl } = await import(
+      "../../parsers/hh-employer/fetch-resume-text"
+    );
+
+    const photoImg = document.querySelector<HTMLImageElement>(
+      'div[data-qa="resume-photo"] img',
+    );
+    const photoSrc = photoImg?.src || data.basicInfo?.photoUrl || undefined;
+
+    if (
+      photoSrc &&
+      !photoSrc.includes("placeholder") &&
+      !photoSrc.includes("no-photo")
+    ) {
+      try {
+        const { base64, contentType } = await fetchPhotoAsBase64(photoSrc);
+        photoUrl = `data:${contentType};base64,${base64}`;
+      } catch {
+        // Продолжаем без фото
+      }
+    }
+
+    if (profileUrl) {
+      try {
+        resumeTextHtml = await fetchResumeHtml(profileUrl);
+      } catch {
+        // Продолжаем без HTML
+      }
+
+      const pdfUrl = getResumePdfUrl(profileUrl, candidateName);
+      if (pdfUrl) {
+        try {
+          const { base64 } = await fetchResumePdfAsBase64(pdfUrl);
+          resumePdfBase64 = base64;
+        } catch {
+          // Продолжаем без PDF
+        }
+      }
+    }
+  }
+
   const { getExtensionApiUrl } = await import("../../config");
-  const body = {
+  const body: Record<string, unknown> = {
     vacancyId,
     platformSource,
     freelancerName: data.basicInfo.fullName || undefined,
     contactInfo: {
       email: data.contacts?.email || undefined,
       phone: data.contacts?.phone || undefined,
-      platformProfileUrl:
-        data.profileUrl ||
-        (typeof window !== "undefined" ? window.location.href : undefined),
+      platformProfileUrl: profileUrl,
     },
     responseText: responseText || "Импортировано из расширения",
   };
+
+  if (photoUrl) body.photoUrl = photoUrl;
+  if (resumePdfBase64) body.resumePdfBase64 = resumePdfBase64;
+  if (resumeTextHtml) body.resumeTextHtml = resumeTextHtml;
 
   const resp = await chrome.runtime.sendMessage({
     type: "API_REQUEST",
