@@ -147,7 +147,7 @@ export function OTPForm({ ...props }: React.ComponentProps<typeof Card>) {
               Введите код, который вы получили.
             </CardDescription>
           </CardHeader>
-          <CardContent className="pt-2">
+          <CardContent className="space-y-6 pt-2 pb-6">
             <FormField
               control={form.control}
               name="otp"
@@ -210,7 +210,7 @@ export function OTPForm({ ...props }: React.ComponentProps<typeof Card>) {
               )}
             />
           </CardContent>
-          <CardFooter className="flex flex-col gap-4 border-t pt-6">
+          <CardFooter className="flex flex-col gap-4 pt-6">
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Проверка…" : "Подтвердить"}
             </Button>

@@ -125,7 +125,13 @@ app.get("/google-calendar/callback", async (c: Context) => {
 
   if (!tokenResponse.ok) {
     const errText = await tokenResponse.text();
-    console.error("[Google Calendar OAuth] Token exchange failed:", errText);
+    console.error("[Google Calendar OAuth] Token exchange failed:", {
+      status: tokenResponse.status,
+      statusText: tokenResponse.statusText,
+      error: errText,
+      redirectUri,
+      clientId: `${clientId.substring(0, 20)}...`,
+    });
     return c.redirect(errorUrl, 302);
   }
 

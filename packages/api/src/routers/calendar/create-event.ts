@@ -2,6 +2,7 @@ import { ORPCError } from "@orpc/server";
 import {
   getUserIntegration,
   getUserIntegrationCredentials,
+  updateUserIntegrationCredentials,
   updateUserIntegrationLastUsed,
 } from "@qbs-autonaim/db";
 import { createCalendarEvent as createGoogleCalendarEvent } from "@qbs-autonaim/integration-clients/server";
@@ -114,23 +115,55 @@ export const createEvent = protectedProcedure
     const metadata = (userInt?.metadata as Record<string, unknown>) ?? {};
     const calendarId = (metadata.calendar_id as string) || "primary";
 
-    const result = await createGoogleCalendarEvent(
-      {
-        access_token: credentials.access_token,
-        refresh_token: credentials.refresh_token,
-        expiry_date: credentials.expiry_date
-          ? Number(credentials.expiry_date)
-          : undefined,
-      },
-      calendarId,
-      {
-        summary,
-        description: description.trim() || undefined,
-        start: input.scheduledAt,
-        end: endDate,
-        attendees: attendees.length > 0 ? attendees : undefined,
-      },
-    );
+    let result: Awaited<ReturnType<typeof createGoogleCalendarEvent>>;
+    try {
+      result = await createGoogleCalendarEvent(
+        {
+          access_token: credentials.access_token,
+          refresh_token: credentials.refresh_token,
+          expiry_date: credentials.expiry_date
+            ? Number(credentials.expiry_date)
+            : undefined,
+        },
+        calendarId,
+        {
+          summary,
+          description: description.trim() || undefined,
+          start: input.scheduledAt,
+          end: endDate,
+          attendees: attendees.length > 0 ? attendees : undefined,
+        },
+      );
+    } catch (error: unknown) {
+      // Если ошибка связана с токеном, возвращаем понятное сообщение
+      if (
+        error &&
+        typeof error === "object" &&
+        "message" in error &&
+        typeof error.message === "string"
+      ) {
+        throw new ORPCError("PRECONDITION_FAILED", {
+          message: error.message,
+        });
+      }
+      throw error;
+    }
+
+    // Если токен обновился, сохраняем новые credentials
+    if (result.updatedCredentials) {
+      await updateUserIntegrationCredentials(
+        context.db,
+        context.session.user.id,
+        "google_calendar",
+        {
+          access_token: result.updatedCredentials.access_token,
+          refresh_token: result.updatedCredentials.refresh_token ?? "",
+          expiry_date: result.updatedCredentials.expiry_date
+            ? String(result.updatedCredentials.expiry_date)
+            : "",
+        },
+      );
+    }
 
     await updateUserIntegrationLastUsed(
       context.db,

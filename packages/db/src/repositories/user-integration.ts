@@ -115,3 +115,24 @@ export async function updateUserIntegrationLastUsed(
       .where(eq(userIntegration.id, existing.id));
   }
 }
+
+/**
+ * Обновить credentials для user-интеграции
+ */
+export async function updateUserIntegrationCredentials(
+  db: DbClient,
+  userId: string,
+  type: string,
+  credentials: Record<string, string>,
+) {
+  const existing = await getUserIntegration(db, userId, type);
+  if (existing) {
+    await db
+      .update(userIntegration)
+      .set({
+        credentials: encryptCredentials(credentials),
+        updatedAt: new Date(),
+      })
+      .where(eq(userIntegration.id, existing.id));
+  }
+}
