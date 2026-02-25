@@ -22,6 +22,7 @@ jobs:
         id: migration-changes
         uses: dorny/paths-filter@v3
         with:
+          base: ${{ github.ref }}
           filters: |
             db-migrations:
               - 'packages/db/drizzle/**'

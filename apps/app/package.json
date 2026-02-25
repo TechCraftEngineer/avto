@@ -44,7 +44,7 @@
     "@tiptap/pm": "3.20.0",
     "@tiptap/react": "3.20.0",
     "@tiptap/starter-kit": "3.20.0",
-    "ai": "6.0.97",
+    "ai": "6.0.99",
     "better-auth": "1.4.19",
     "date-fns": "4.1.0",
     "jspdf": "^4.2.0",
