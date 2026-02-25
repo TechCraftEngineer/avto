@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
+import { getExtensionApiUrl } from "../../config";
 import type { AuthService } from "../../core/auth-service";
 import type { Organization, PageContext, Workspace } from "../types";
 import { Alert, Button, Hint, Label, Select } from "../ui";
 import { AuthenticatedLayout } from "./authenticated-layout";
-import { getExtensionApiUrl } from "../../config";
 
 interface ProfileViewProps {
   pageContext: Extract<PageContext, { type: "profile" }>;
@@ -40,9 +40,9 @@ export function ProfileView({
 }: ProfileViewProps) {
   const [error, setError] = useState<string | null>(null);
   const [isImporting, setIsImporting] = useState(false);
-  const [vacancies, setVacancies] = useState<Array<{ id: string; title: string; isFavorite: boolean }>>(
-    [],
-  );
+  const [vacancies, setVacancies] = useState<
+    Array<{ id: string; title: string; isFavorite: boolean }>
+  >([]);
   const [selectedVacancyId, setSelectedVacancyId] = useState<string>("");
   const [isLoadingVacancies, setIsLoadingVacancies] = useState(false);
 
@@ -68,14 +68,11 @@ export function ProfileView({
             headers: { Authorization: `Bearer ${token}` },
           },
         });
-        if (
-          !cancelled &&
-          resp?.success &&
-          Array.isArray(resp.data)
-        ) {
+        if (!cancelled && resp?.success && Array.isArray(resp.data)) {
           setVacancies(resp.data);
           setSelectedVacancyId((prev) =>
-            resp.data.length > 0 && !resp.data.some((v: { id: string }) => v.id === prev)
+            resp.data.length > 0 &&
+            !resp.data.some((v: { id: string }) => v.id === prev)
               ? resp.data[0].id
               : prev,
           );
@@ -118,7 +115,9 @@ export function ProfileView({
       return;
     }
     if (vacancies.length === 0) {
-      setError("Нет вакансий. Сначала сохраните настройки и создайте вакансии в workspace.");
+      setError(
+        "Нет вакансий. Сначала сохраните настройки и создайте вакансии в workspace.",
+      );
       return;
     }
     setIsImporting(true);
@@ -195,7 +194,9 @@ export function ProfileView({
               size="sm"
               className="w-full"
               onClick={handleImport}
-              disabled={isImporting || vacancies.length === 0 || !selectedVacancyId}
+              disabled={
+                isImporting || vacancies.length === 0 || !selectedVacancyId
+              }
             >
               {isImporting ? "Импорт…" : "Импортировать"}
             </Button>

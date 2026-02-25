@@ -6,7 +6,12 @@
  */
 
 import { createHash } from "node:crypto";
-import { and, eq, GlobalCandidateRepository, WorkspaceRepository } from "@qbs-autonaim/db";
+import {
+  and,
+  eq,
+  GlobalCandidateRepository,
+  WorkspaceRepository,
+} from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import {
   freelanceImportHistory,
@@ -40,6 +45,18 @@ const bodySchema = z.object({
     })
     .optional(),
   responseText: z.string(),
+  /** Фото кандидата в формате data:image/...;base64,... */
+  photoUrl: z
+    .string()
+    .regex(/^data:image\/(png|jpeg|jpg|gif|webp);base64,/, {
+      message:
+        "photoUrl должен быть в формате base64 (data:image/...;base64,...)",
+    })
+    .optional(),
+  /** PDF резюме в base64 */
+  resumePdfBase64: z.string().optional(),
+  /** HTML текст резюме для парсинга */
+  resumeTextHtml: z.string().optional(),
 });
 
 function mapPlatformToSource(
@@ -50,7 +67,14 @@ function mapPlatformToSource(
 
 function mapOriginalSource(
   src: z.infer<typeof platformSourceEnum>,
-): "HH" | "AVITO" | "SUPERJOB" | "HABR" | "FL_RU" | "FREELANCE_RU" | "WEB_LINK" {
+):
+  | "HH"
+  | "AVITO"
+  | "SUPERJOB"
+  | "HABR"
+  | "FL_RU"
+  | "FREELANCE_RU"
+  | "WEB_LINK" {
   return src;
 }
 
@@ -61,7 +85,9 @@ function normalizeCandidateId(platformProfileUrl: string | undefined): string {
   if (platformProfileUrl.length <= 100) return platformProfileUrl;
 
   // HH: извлекаем resume ID из пути (напр. /resume/7021c5d7000fa7472d004a23a134657a4a5063)
-  const hhResumeMatch = platformProfileUrl.match(/\/resume\/([a-f0-9]{32,48})/i);
+  const hhResumeMatch = platformProfileUrl.match(
+    /\/resume\/([a-f0-9]{32,48})/i,
+  );
   if (hhResumeMatch?.[1]) return hhResumeMatch[1];
 
   // LinkedIn, другие: хеш сохраняет уникальность и укладывается в 64 символа
@@ -77,7 +103,14 @@ function normalizeCandidateData(data: {
   telegramUsername?: string | null;
   resumeUrl?: string | null;
   source: "APPLICANT" | "SOURCING" | "IMPORT" | "MANUAL" | "REFERRAL";
-  originalSource?: "HH" | "AVITO" | "SUPERJOB" | "HABR" | "FL_RU" | "FREELANCE_RU" | "WEB_LINK";
+  originalSource?:
+    | "HH"
+    | "AVITO"
+    | "SUPERJOB"
+    | "HABR"
+    | "FL_RU"
+    | "FREELANCE_RU"
+    | "WEB_LINK";
 }) {
   const normalized = { ...data };
   if (normalized.email) {
@@ -89,7 +122,9 @@ function normalizeCandidateData(data: {
     if (normalized.phone.length < 10) normalized.phone = null;
   }
   if (normalized.telegramUsername) {
-    normalized.telegramUsername = normalized.telegramUsername.replace("@", "").trim();
+    normalized.telegramUsername = normalized.telegramUsername
+      .replace("@", "")
+      .trim();
   }
   if (normalized.fullName) {
     normalized.fullName = normalized.fullName.trim();
@@ -110,7 +145,10 @@ export async function handleImportResume(c: Context) {
 
   const parsed = bodySchema.safeParse(body);
   if (!parsed.success) {
-    return c.json({ error: "Некорректные данные", details: parsed.error.flatten() }, 400);
+    return c.json(
+      { error: "Некорректные данные", details: parsed.error.flatten() },
+      400,
+    );
   }
 
   const input = parsed.data;
@@ -138,7 +176,10 @@ export async function handleImportResume(c: Context) {
   }
 
   const workspaceRepo = new WorkspaceRepository(db);
-  const hasAccess = await workspaceRepo.checkAccess(vacancy.workspaceId, userId);
+  const hasAccess = await workspaceRepo.checkAccess(
+    vacancy.workspaceId,
+    userId,
+  );
   if (!hasAccess) {
     return c.json({ error: "Нет доступа к этой вакансии" }, 403);
   }
@@ -152,7 +193,10 @@ export async function handleImportResume(c: Context) {
       ),
     });
     if (existing) {
-      return c.json({ error: "Отклик от этого фрилансера уже существует" }, 400);
+      return c.json(
+        { error: "Отклик от этого фрилансера уже существует" },
+        400,
+      );
     }
   }
 

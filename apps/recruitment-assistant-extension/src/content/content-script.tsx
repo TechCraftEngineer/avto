@@ -69,7 +69,8 @@ export class ContentScript {
     if (!data) {
       showNotification({
         type: "error",
-        message: "Не удалось извлечь данные профиля. Попробуйте обновить страницу.",
+        message:
+          "Не удалось извлечь данные профиля. Попробуйте обновить страницу.",
       });
       return;
     }
