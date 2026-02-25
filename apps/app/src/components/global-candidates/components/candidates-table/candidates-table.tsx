@@ -74,7 +74,7 @@ function SortHeader({ field, label, currentSort, onSort }: SortHeaderProps) {
   return (
     <button
       type="button"
-      className="flex items-center gap-1 hover:text-foreground transition-colors"
+      className="flex items-center gap-1 hover:text-foreground transition-colors rounded-md -m-1 px-1 py-0.5"
       onClick={() => onSort(field)}
     >
       {label}
@@ -131,7 +131,7 @@ function CandidateRow({
 
   return (
     <TableRow
-      className="cursor-pointer hover:bg-muted/50 transition-colors group"
+      className="cursor-pointer hover:bg-muted/40 transition-colors group border-b"
       onClick={() => onRowClick(candidate)}
       tabIndex={0}
       onKeyDown={(e) => {
@@ -142,8 +142,8 @@ function CandidateRow({
       }}
       aria-label={`Открыть профиль ${candidate.fullName}`}
     >
-      <TableCell>
-        <div className="flex items-center gap-3">
+      <TableCell className="px-3 py-2 w-[160px] min-w-[140px] max-w-[180px]">
+        <div className="flex items-center gap-3 min-w-0">
           <Avatar className="h-10 w-10 border shrink-0">
             <AvatarImage src={avatarUrl} alt={candidate.fullName} />
             <AvatarFallback className="text-xs font-medium bg-primary/10 text-primary">
@@ -161,7 +161,7 @@ function CandidateRow({
         </div>
       </TableCell>
 
-      <TableCell>
+      <TableCell className="px-3 py-2">
         <Badge
           variant="outline"
           className={cn("text-xs", CANDIDATE_STATUS_COLORS[candidate.status])}
@@ -170,7 +170,7 @@ function CandidateRow({
         </Badge>
       </TableCell>
 
-      <TableCell>
+      <TableCell className="px-3 py-2">
         <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
           <MapPin className="h-3.5 w-3.5 shrink-0" />
           <span className="truncate max-w-[120px]">
@@ -179,7 +179,7 @@ function CandidateRow({
         </div>
       </TableCell>
 
-      <TableCell>
+      <TableCell className="px-3 py-2">
         <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
           <Briefcase className="h-3.5 w-3.5 shrink-0" />
           <span>
@@ -191,11 +191,11 @@ function CandidateRow({
         </div>
       </TableCell>
 
-      <TableCell className="font-medium tabular-nums text-sm">
+      <TableCell className="px-3 py-2 font-medium tabular-nums text-sm">
         {formatSalary(candidate.salaryExpectationsAmount)}
       </TableCell>
 
-      <TableCell>
+      <TableCell className="px-3 py-2">
         <div className="flex flex-wrap gap-1 max-w-[200px]">
           {candidate.skills.slice(0, 2).map((skill) => (
             <Badge
@@ -214,7 +214,7 @@ function CandidateRow({
         </div>
       </TableCell>
 
-      <TableCell>
+      <TableCell className="px-3 py-2">
         <div className="flex flex-col gap-0.5 text-sm">
           {candidate.email && (
             <div className="flex items-center gap-1 truncate">
@@ -242,7 +242,7 @@ function CandidateRow({
         </div>
       </TableCell>
 
-      <TableCell>
+      <TableCell className="px-3 py-2">
         <div className="flex items-center gap-1.5 text-muted-foreground text-sm">
           <Calendar className="h-3.5 w-3.5 shrink-0" />
           <span className="tabular-nums">
@@ -254,7 +254,7 @@ function CandidateRow({
         </div>
       </TableCell>
 
-      <TableCell onClick={(e) => e.stopPropagation()}>
+      <TableCell className="px-3 py-2" onClick={(e) => e.stopPropagation()}>
         <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
           <DropdownMenuTrigger asChild>
             <button
@@ -339,12 +339,12 @@ export function CandidatesTable({
   }
 
   return (
-    <div className="rounded-lg border bg-card overflow-hidden">
+    <div className="rounded-lg border border-border bg-card shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead className="min-w-[200px]">
+            <TableRow className="bg-muted/40 hover:bg-muted/40 border-b">
+              <TableHead className="w-[160px] min-w-[140px] max-w-[180px] px-3 h-9 text-muted-foreground font-medium">
                 <SortHeader
                   field="fullName"
                   label="Кандидат"
@@ -352,18 +352,28 @@ export function CandidatesTable({
                   onSort={handleSort}
                 />
               </TableHead>
-              <TableHead className="w-[120px]">Статус</TableHead>
-              <TableHead className="w-[130px]">Локация</TableHead>
-              <TableHead className="w-[100px]">Опыт</TableHead>
-              <TableHead className="w-[120px]">
+              <TableHead className="w-[120px] px-3 h-9 text-muted-foreground font-medium">
+                Статус
+              </TableHead>
+              <TableHead className="w-[130px] px-3 h-9 text-muted-foreground font-medium">
+                Локация
+              </TableHead>
+              <TableHead className="w-[100px] px-3 h-9 text-muted-foreground font-medium">
+                Опыт
+              </TableHead>
+              <TableHead className="w-[120px] px-3 h-9 text-muted-foreground font-medium">
                 <div className="flex items-center gap-1">
                   <Star className="h-3.5 w-3.5" />
                   <span>Зарплата</span>
                 </div>
               </TableHead>
-              <TableHead className="w-[150px]">Навыки</TableHead>
-              <TableHead className="w-[180px]">Контакты</TableHead>
-              <TableHead className="w-[120px]">
+              <TableHead className="w-[150px] px-3 h-9 text-muted-foreground font-medium">
+                Навыки
+              </TableHead>
+              <TableHead className="w-[180px] px-3 h-9 text-muted-foreground font-medium">
+                Контакты
+              </TableHead>
+              <TableHead className="w-[120px] px-3 h-9 text-muted-foreground font-medium">
                 <SortHeader
                   field="lastActivity"
                   label="Активность"
@@ -371,7 +381,7 @@ export function CandidatesTable({
                   onSort={handleSort}
                 />
               </TableHead>
-              <TableHead className="w-[50px]" />
+              <TableHead className="w-[50px] px-3 h-9" />
             </TableRow>
           </TableHeader>
           <TableBody>
