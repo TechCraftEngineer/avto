@@ -40,6 +40,7 @@ import {
   Briefcase,
   Building2,
   Clock,
+  ExternalLink,
   FileText,
   Globe,
   Languages,
@@ -54,6 +55,7 @@ import {
   UserMinus,
   UserX,
 } from "lucide-react";
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
@@ -427,27 +429,31 @@ function ProfileContent({
             candidateDetail.responses.length > 0 ? (
             <div className="space-y-3">
               {candidateDetail.responses.map((response) => (
-                <div
+                <Link
                   key={response.id}
-                  className="p-3 rounded-lg border bg-muted/30"
+                  href={`/orgs/${response.orgSlug}/workspaces/${response.workspaceSlug}/responses/${response.id}`}
+                  className="block p-3 rounded-lg border bg-muted/30 hover:bg-muted/50 transition-colors group"
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <p className="font-medium text-sm">
-                        {response.vacancyTitle}
-                      </p>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-sm truncate">
+                          {response.vacancyTitle}
+                        </p>
+                        <ExternalLink className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                      </div>
                       <p className="text-xs text-muted-foreground">
                         Статус: {response.status}
                       </p>
                     </div>
-                    <div className="text-xs text-muted-foreground text-right">
+                    <div className="text-xs text-muted-foreground text-right shrink-0">
                       <div className="flex items-center gap-1">
                         <Clock className="h-3 w-3" />
                         {formatDate(response.updatedAt)}
                       </div>
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           ) : (
