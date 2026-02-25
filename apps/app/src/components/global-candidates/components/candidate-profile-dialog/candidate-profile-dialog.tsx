@@ -67,6 +67,7 @@ import {
   CANDIDATE_STATUS_COLORS,
   CANDIDATE_STATUS_LABELS,
 } from "../../types/types";
+import { PersonalChatSection } from "../personal-chat-section";
 
 interface CandidateProfileDialogProps {
   candidate: GlobalCandidate | null;
@@ -264,8 +265,9 @@ function ProfileContent({
         defaultValue="info"
         className="flex-1 min-h-0 overflow-hidden flex flex-col"
       >
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="info">Информация</TabsTrigger>
+          <TabsTrigger value="chat">Сообщения</TabsTrigger>
           <TabsTrigger value="responses">Отклики</TabsTrigger>
           <TabsTrigger value="notes">Заметки</TabsTrigger>
         </TabsList>
@@ -415,6 +417,20 @@ function ProfileContent({
               </div>
             )}
           </div>
+        </TabsContent>
+
+        <TabsContent
+          value="chat"
+          className="mt-4 overflow-y-auto min-h-0 flex-1"
+        >
+          {organizationId && (
+            <PersonalChatSection
+              candidateId={candidate.id}
+              candidateName={candidate.fullName}
+              organizationId={organizationId}
+              telegramUsername={candidate.telegramUsername}
+            />
+          )}
         </TabsContent>
 
         <TabsContent
