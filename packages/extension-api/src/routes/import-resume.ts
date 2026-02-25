@@ -1,0 +1,223 @@
+/**
+ * POST /import-resume
+ *
+ * Импорт резюме в конкретную вакансию.
+ * Вызывается расширением Recruitment Assistant при выборе вакансии.
+ */
+
+import { and, eq, GlobalCandidateRepository, WorkspaceRepository } from "@qbs-autonaim/db";
+import { db } from "@qbs-autonaim/db/client";
+import {
+  freelanceImportHistory,
+  response as responseTable,
+  vacancy as vacancySchema,
+} from "@qbs-autonaim/db/schema";
+import { parseFullName } from "@qbs-autonaim/lib";
+import type { Context } from "hono";
+import { z } from "zod";
+
+const platformSourceEnum = z.enum([
+  "HH",
+  "AVITO",
+  "SUPERJOB",
+  "HABR",
+  "FL_RU",
+  "FREELANCE_RU",
+  "WEB_LINK",
+]);
+
+const bodySchema = z.object({
+  vacancyId: z.string().uuid(),
+  platformSource: platformSourceEnum,
+  freelancerName: z.string().max(500).optional(),
+  contactInfo: z
+    .object({
+      email: z.string().email().optional(),
+      phone: z.string().max(50).optional(),
+      telegram: z.string().max(100).optional(),
+      platformProfileUrl: z.string().max(1000).optional(),
+    })
+    .optional(),
+  responseText: z.string(),
+});
+
+function mapPlatformToSource(
+  src: z.infer<typeof platformSourceEnum>,
+): "APPLICANT" | "SOURCING" | "IMPORT" | "MANUAL" | "REFERRAL" {
+  return "SOURCING";
+}
+
+function mapOriginalSource(
+  src: z.infer<typeof platformSourceEnum>,
+): "HH" | "AVITO" | "SUPERJOB" | "HABR" | "FL_RU" | "FREELANCE_RU" | "WEB_LINK" {
+  return src;
+}
+
+function normalizeCandidateData(data: {
+  fullName: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  telegramUsername?: string | null;
+  resumeUrl?: string | null;
+  source: "APPLICANT" | "SOURCING" | "IMPORT" | "MANUAL" | "REFERRAL";
+  originalSource?: "HH" | "AVITO" | "SUPERJOB" | "HABR" | "FL_RU" | "FREELANCE_RU" | "WEB_LINK";
+}) {
+  const normalized = { ...data };
+  if (normalized.email) {
+    normalized.email = normalized.email.toLowerCase().trim();
+    if (!normalized.email.includes("@")) normalized.email = null;
+  }
+  if (normalized.phone) {
+    normalized.phone = normalized.phone.replace(/[^\d+]/g, "").trim();
+    if (normalized.phone.length < 10) normalized.phone = null;
+  }
+  if (normalized.telegramUsername) {
+    normalized.telegramUsername = normalized.telegramUsername.replace("@", "").trim();
+  }
+  if (normalized.fullName) {
+    normalized.fullName = normalized.fullName.trim();
+    if (normalized.fullName.length < 2) normalized.fullName = "Без имени";
+  }
+  return normalized;
+}
+
+export async function handleImportResume(c: Context) {
+  const userId = c.get("userId");
+
+  let body: unknown;
+  try {
+    body = await c.req.json();
+  } catch {
+    return c.json({ error: "Некорректный JSON" }, 400);
+  }
+
+  const parsed = bodySchema.safeParse(body);
+  if (!parsed.success) {
+    return c.json({ error: "Некорректные данные", details: parsed.error.flatten() }, 400);
+  }
+
+  const input = parsed.data;
+  const hasName = input.freelancerName && input.freelancerName.length > 0;
+  const hasContact =
+    input.contactInfo?.email ||
+    input.contactInfo?.phone ||
+    input.contactInfo?.telegram ||
+    input.contactInfo?.platformProfileUrl;
+
+  if (!hasName && !hasContact) {
+    return c.json(
+      { error: "Необходимо указать имя или контактную информацию" },
+      400,
+    );
+  }
+
+  const vacancy = await db.query.vacancy.findFirst({
+    where: eq(vacancySchema.id, input.vacancyId),
+    columns: { id: true, workspaceId: true },
+  });
+
+  if (!vacancy) {
+    return c.json({ error: "Вакансия не найдена" }, 404);
+  }
+
+  const workspaceRepo = new WorkspaceRepository(db);
+  const hasAccess = await workspaceRepo.checkAccess(vacancy.workspaceId, userId);
+  if (!hasAccess) {
+    return c.json({ error: "Нет доступа к этой вакансии" }, 403);
+  }
+
+  if (input.contactInfo?.platformProfileUrl) {
+    const existing = await db.query.response.findFirst({
+      where: and(
+        eq(responseTable.entityId, input.vacancyId),
+        eq(responseTable.entityType, "vacancy"),
+        eq(responseTable.profileUrl, input.contactInfo.platformProfileUrl),
+      ),
+    });
+    if (existing) {
+      return c.json({ error: "Отклик от этого фрилансера уже существует" }, 400);
+    }
+  }
+
+  const workspaceData = await db.query.workspace.findFirst({
+    where: (ws, { eq }) => eq(ws.id, vacancy.workspaceId),
+    columns: { organizationId: true },
+  });
+  if (!workspaceData) {
+    return c.json({ error: "Workspace не найден" }, 404);
+  }
+
+  const nameParts = parseFullName(input.freelancerName ?? null);
+  const candidateData = normalizeCandidateData({
+    fullName: input.freelancerName ?? "Без имени",
+    firstName: nameParts.firstName,
+    lastName: nameParts.lastName,
+    email: input.contactInfo?.email ?? null,
+    phone: input.contactInfo?.phone ?? null,
+    telegramUsername: input.contactInfo?.telegram ?? null,
+    resumeUrl: input.contactInfo?.platformProfileUrl ?? null,
+    source: mapPlatformToSource(input.platformSource),
+    originalSource: mapOriginalSource(input.platformSource),
+  });
+
+  let globalCandidateId: string | null = null;
+  try {
+    const globalRepo = new GlobalCandidateRepository(db);
+    const { candidate } = await globalRepo.findOrCreateWithOrganizationLink(
+      candidateData,
+      {
+        organizationId: workspaceData.organizationId,
+        status: "ACTIVE",
+        appliedAt: new Date(),
+      },
+    );
+    globalCandidateId = candidate.id;
+  } catch (err) {
+    console.error("[extension-api] import-resume candidate create:", err);
+  }
+
+  const [createdResponse] = await db
+    .insert(responseTable)
+    .values({
+      entityId: input.vacancyId,
+      entityType: "vacancy",
+      candidateId: input.contactInfo?.platformProfileUrl || crypto.randomUUID(),
+      candidateName: input.freelancerName,
+      coverLetter: input.responseText,
+      importSource: input.platformSource,
+      profileUrl: input.contactInfo?.platformProfileUrl,
+      phone: input.contactInfo?.phone,
+      telegramUsername: input.contactInfo?.telegram,
+      globalCandidateId,
+      contacts: input.contactInfo
+        ? {
+            email: input.contactInfo.email,
+            phone: input.contactInfo.phone,
+            telegram: input.contactInfo.telegram,
+            platformProfileUrl: input.contactInfo.platformProfileUrl,
+          }
+        : undefined,
+      status: "NEW",
+      respondedAt: new Date(),
+    })
+    .returning();
+
+  if (!createdResponse) {
+    return c.json({ error: "Не удалось создать отклик" }, 500);
+  }
+
+  await db.insert(freelanceImportHistory).values({
+    vacancyId: input.vacancyId,
+    importedBy: userId,
+    importMode: "SINGLE",
+    platformSource: input.platformSource,
+    rawText: input.responseText,
+    parsedCount: 1,
+    successCount: 1,
+    failureCount: 0,
+  });
+
+  return c.json({ response: createdResponse, success: true });
+}

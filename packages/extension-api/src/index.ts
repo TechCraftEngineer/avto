@@ -3,8 +3,10 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { env } from "./env";
 import { authMiddleware } from "./middleware/auth";
+import { handleImportResume } from "./routes/import-resume";
 import { hhImportRouter } from "./routes/hh-import";
 import { organizationsRouter } from "./routes/organizations";
+import { vacanciesRouter } from "./routes/vacancies";
 import { workspacesRouter } from "./routes/workspaces";
 
 /**
@@ -29,7 +31,9 @@ app.get("/health", (c) => {
 const protectedRoutes = new Hono();
 protectedRoutes.use("*", authMiddleware());
 protectedRoutes.route("/hh-import", hhImportRouter);
+protectedRoutes.post("/import-resume", handleImportResume);
 protectedRoutes.route("/organizations", organizationsRouter);
+protectedRoutes.route("/vacancies", vacanciesRouter);
 protectedRoutes.route("/workspaces", workspacesRouter);
 
 app.route("/", protectedRoutes);

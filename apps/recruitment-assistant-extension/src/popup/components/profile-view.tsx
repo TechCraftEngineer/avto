@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { AuthService } from "../../core/auth-service";
 import type { Organization, PageContext, Workspace } from "../types";
-import { Alert, Button, Hint } from "../ui";
+import { Alert, Button, Hint, Label, Select } from "../ui";
 import { AuthenticatedLayout } from "./authenticated-layout";
+import { getExtensionApiUrl } from "../../config";
 
 interface ProfileViewProps {
   pageContext: Extract<PageContext, { type: "profile" }>;
@@ -41,8 +42,59 @@ export function ProfileView({
   const [isExtracting, setIsExtracting] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
+  const [vacancies, setVacancies] = useState<Array<{ id: string; title: string; isFavorite: boolean }>>(
+    [],
+  );
+  const [selectedVacancyId, setSelectedVacancyId] = useState<string>("");
+  const [isLoadingVacancies, setIsLoadingVacancies] = useState(false);
 
-  const sendToTab = async (type: string) => {
+  useEffect(() => {
+    if (!selectedWorkspaceId) {
+      setVacancies([]);
+      setSelectedVacancyId("");
+      return;
+    }
+    let cancelled = false;
+    const load = async () => {
+      setIsLoadingVacancies(true);
+      try {
+        const token = await authService.getToken();
+        if (!token) return;
+        const resp = await chrome.runtime.sendMessage({
+          type: "API_REQUEST",
+          payload: {
+            url: getExtensionApiUrl(
+              `vacancies?workspaceId=${encodeURIComponent(selectedWorkspaceId)}`,
+            ),
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        });
+        if (
+          !cancelled &&
+          resp?.success &&
+          Array.isArray(resp.data)
+        ) {
+          setVacancies(resp.data);
+          setSelectedVacancyId((prev) =>
+            resp.data.length > 0 && !resp.data.some((v: { id: string }) => v.id === prev)
+              ? resp.data[0].id
+              : prev,
+          );
+        }
+      } catch {
+        if (!cancelled) setVacancies([]);
+      } finally {
+        if (!cancelled) setIsLoadingVacancies(false);
+      }
+    };
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedWorkspaceId, authService]);
+
+  const sendToTab = async (type: string, payload?: { vacancyId?: string }) => {
     setError(null);
     const [tab] = await chrome.tabs.query({
       active: true,
@@ -53,7 +105,7 @@ export function ProfileView({
       return { ok: false as const, error: "Вкладка не найдена" };
     }
     try {
-      const resp = await chrome.tabs.sendMessage(tab.id, { type });
+      const resp = await chrome.tabs.sendMessage(tab.id, { type, payload });
       return resp as { ok: boolean; error?: string };
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -76,8 +128,20 @@ export function ProfileView({
   };
 
   const handleImport = async () => {
+    if (vacancies.length > 0 && !selectedVacancyId) {
+      setError("Выберите вакансию для импорта");
+      return;
+    }
+    if (vacancies.length === 0) {
+      setError("Нет вакансий. Сначала сохраните настройки и создайте вакансии в workspace.");
+      return;
+    }
     setIsImporting(true);
-    await sendToTab("IMPORT_TO_SYSTEM");
+    setError(null);
+    const resp = await sendToTab("IMPORT_TO_SYSTEM", {
+      vacancyId: selectedVacancyId || undefined,
+    });
+    if (resp?.ok === false) setError(resp.error ?? "Ошибка импорта");
     setIsImporting(false);
   };
 
@@ -128,6 +192,29 @@ export function ProfileView({
           >
             {isExtracting ? "Извлечение…" : "Извлечь данные"}
           </Button>
+          {selectedWorkspaceId && (
+            <div className="space-y-1.5">
+              <Label htmlFor="vacancy-select" className="text-xs">
+                Вакансия для импорта
+              </Label>
+              <Select
+                id="vacancy-select"
+                value={selectedVacancyId}
+                onChange={(e) => setSelectedVacancyId(e.target.value)}
+                disabled={isLoadingVacancies}
+              >
+                <option value="">
+                  {isLoadingVacancies ? "Загрузка…" : "Выберите вакансию"}
+                </option>
+                {vacancies.map((v) => (
+                  <option key={v.id} value={v.id}>
+                    {v.isFavorite ? "★ " : ""}
+                    {v.title}
+                  </option>
+                ))}
+              </Select>
+            </div>
+          )}
           <div className="flex flex-wrap gap-2">
             <Button
               variant="outline"
@@ -143,7 +230,7 @@ export function ProfileView({
               size="sm"
               className="flex-1"
               onClick={handleImport}
-              disabled={isImporting}
+              disabled={isImporting || vacancies.length === 0 || !selectedVacancyId}
             >
               {isImporting ? "Импорт…" : "Импортировать"}
             </Button>

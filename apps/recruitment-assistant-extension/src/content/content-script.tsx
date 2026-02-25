@@ -54,8 +54,8 @@ export class ContentScript {
     return this.handleExport();
   }
 
-  triggerImport(): Promise<void> {
-    return this.handleImport();
+  triggerImport(payload?: { vacancyId?: string }): Promise<void> {
+    return this.handleImport(payload);
   }
 
   private async handleExtract(): Promise<void> {
@@ -131,13 +131,15 @@ export class ContentScript {
     }
   }
 
-  private async handleImport(): Promise<void> {
+  private async handleImport(payload?: { vacancyId?: string }): Promise<void> {
     if (!this.currentData) {
       showNotification({ type: "error", message: "Нет данных для импорта" });
       return;
     }
     try {
-      await importCandidateData(this.currentData);
+      await importCandidateData(this.currentData, {
+        vacancyId: payload?.vacancyId,
+      });
     } catch (error) {
       const msg =
         error instanceof Error ? error.message : "Не удалось импортировать";
@@ -190,7 +192,9 @@ if (typeof process === "undefined" || process.env.NODE_ENV !== "test") {
           else if (t === "EXPORT_CLIPBOARD")
             await contentScript.triggerExport();
           else if (t === "IMPORT_TO_SYSTEM")
-            await contentScript.triggerImport();
+            await contentScript.triggerImport(
+              (msg as { payload?: { vacancyId?: string } })?.payload,
+            );
           return { ok: true as const };
         } catch (e) {
           return { ok: false as const, error: String(e) };
