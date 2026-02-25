@@ -4,11 +4,21 @@ import { Badge } from "@qbs-autonaim/ui/components/badge";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { Calendar } from "@qbs-autonaim/ui/components/calendar";
 import { Checkbox } from "@qbs-autonaim/ui/components/checkbox";
-import { Input } from "@qbs-autonaim/ui/components/input";
-import { Label } from "@qbs-autonaim/ui/components/label";
+import {
+  Field,
+  FieldContent,
+  FieldTitle,
+} from "@qbs-autonaim/ui/components/field";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@qbs-autonaim/ui/components/input-group";
 import {
   Popover,
   PopoverContent,
+  PopoverHeader,
+  PopoverTitle,
   PopoverTrigger,
 } from "@qbs-autonaim/ui/components/popover";
 import {
@@ -100,15 +110,16 @@ export function CandidateFilters({
   }, [filters]);
 
   return (
-    <div className="flex flex-col gap-3 p-3 sm:p-4 bg-card rounded-lg border shadow-sm">
+    <div className="border-input bg-card flex flex-col gap-3 rounded-md border p-3 shadow-sm sm:p-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-3 flex-1">
+        <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:gap-3">
           {/* Поиск */}
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
+          <InputGroup className="max-w-md flex-1">
+            <InputGroupAddon align="inline-start">
+              <Search className="size-4" />
+            </InputGroupAddon>
+            <InputGroupInput
               placeholder="Поиск по имени, email, телефону…"
-              className="pl-9 h-10 bg-background"
               value={filters.search}
               onChange={(e) => handleSearchChange(e.target.value)}
               aria-label="Поиск кандидатов"
@@ -116,17 +127,20 @@ export function CandidateFilters({
               autoComplete="off"
               spellCheck={false}
             />
-          </div>
+          </InputGroup>
 
-          <Separator orientation="vertical" className="hidden sm:block h-8" />
+          <Separator
+            orientation="vertical"
+            className="border-border hidden h-8 shrink-0 sm:block"
+          />
 
           {/* Фильтр по вакансии */}
           <Select
             value={filters.vacancyId ?? "all"}
             onValueChange={handleVacancyChange}
           >
-            <SelectTrigger className="w-full sm:w-[200px] h-10 gap-2 bg-background">
-              <Briefcase className="h-4 w-4 text-muted-foreground shrink-0" />
+            <SelectTrigger className="h-9 w-full gap-2 sm:w-[200px]">
+              <Briefcase className="size-4 shrink-0 text-muted-foreground" />
               <SelectValue placeholder="Все вакансии" />
             </SelectTrigger>
             <SelectContent>
@@ -141,122 +155,132 @@ export function CandidateFilters({
         </div>
 
         {/* Кнопка фильтров */}
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2 h-10 px-4">
-                <Filter className="h-4 w-4" />
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 gap-2 px-3 has-data-[slot=badge]:pr-2"
+              >
+                <Filter className="size-4" />
                 <span className="hidden sm:inline">Фильтры</span>
                 {activeFiltersCount > 0 && (
                   <Badge
                     variant="secondary"
-                    className="ml-1 px-1.5 py-0.5 h-5 text-[10px] min-w-5 justify-center text-foreground font-semibold"
+                    className="rounded-md px-1.5 py-0 font-medium"
                   >
                     {activeFiltersCount}
                   </Badge>
                 )}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-72 p-4" align="end">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-medium text-sm">Фильтры</h4>
-                  {activeFiltersCount > 0 && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-auto p-0 text-xs text-muted-foreground hover:text-foreground"
-                      onClick={onReset}
-                    >
-                      Сбросить все
-                    </Button>
-                  )}
-                </div>
-
+            <PopoverContent className="w-72 p-0" align="end">
+              <PopoverHeader className="flex-row items-center justify-between gap-2 border-b border-border px-4 py-3">
+                <PopoverTitle className="text-sm font-medium">
+                  Фильтры
+                </PopoverTitle>
+                {activeFiltersCount > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-auto px-0 py-0 text-xs text-muted-foreground hover:text-foreground"
+                    onClick={onReset}
+                  >
+                    Сбросить все
+                  </Button>
+                )}
+              </PopoverHeader>
+              <div className="p-4 space-y-4">
                 {/* Статус */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Статус</Label>
-                  <div className="space-y-2">
-                    {(
-                      ["ACTIVE", "BLACKLISTED", "HIRED"] as CandidateStatus[]
-                    ).map((status) => (
-                      <div key={status} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`status-${status}`}
-                          checked={filters.status.includes(status)}
-                          onCheckedChange={() => handleStatusToggle(status)}
-                        />
-                        <Label
+                <Field>
+                  <FieldTitle>Статус</FieldTitle>
+                  <FieldContent>
+                    <div className="flex flex-col gap-2">
+                      {(
+                        ["ACTIVE", "BLACKLISTED", "HIRED"] as CandidateStatus[]
+                      ).map((status) => (
+                        <label
+                          key={status}
                           htmlFor={`status-${status}`}
-                          className="text-sm font-normal cursor-pointer flex-1"
+                          className="hover:bg-accent hover:text-accent-foreground flex cursor-pointer items-center gap-2 rounded-sm py-1.5 pr-2 pl-1.5 -ml-1.5 -mr-1"
                         >
-                          {CANDIDATE_STATUS_LABELS[status]}
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                          <Checkbox
+                            id={`status-${status}`}
+                            checked={filters.status.includes(status)}
+                            onCheckedChange={() => handleStatusToggle(status)}
+                          />
+                          <span className="text-sm">
+                            {CANDIDATE_STATUS_LABELS[status]}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </FieldContent>
+                </Field>
 
                 <Separator />
 
                 {/* Дата последней активности */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">
-                    Последняя активность
-                  </Label>
-                  <div className="flex flex-col gap-2">
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="justify-start text-left font-normal h-9"
-                        >
-                          <Calendar className="mr-2 h-4 w-4" />
-                          {filters.lastActivityFrom
-                            ? filters.lastActivityFrom.toLocaleDateString(
-                                "ru-RU",
-                              )
-                            : "От"}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={filters.lastActivityFrom}
-                          onSelect={(date) =>
-                            handleDateChange("lastActivityFrom", date)
-                          }
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="justify-start text-left font-normal h-9"
-                        >
-                          <CalendarDays className="mr-2 h-4 w-4" />
-                          {filters.lastActivityTo
-                            ? filters.lastActivityTo.toLocaleDateString("ru-RU")
-                            : "До"}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={filters.lastActivityTo}
-                          onSelect={(date) =>
-                            handleDateChange("lastActivityTo", date)
-                          }
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                </div>
+                <Field>
+                  <FieldTitle>Последняя активность</FieldTitle>
+                  <FieldContent>
+                    <div className="flex flex-col gap-2">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-9 w-full justify-start font-normal"
+                          >
+                            <Calendar className="mr-2 size-4 shrink-0" />
+                            {filters.lastActivityFrom
+                              ? filters.lastActivityFrom.toLocaleDateString(
+                                  "ru-RU",
+                                )
+                              : "От"}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={filters.lastActivityFrom}
+                            onSelect={(date) =>
+                              handleDateChange("lastActivityFrom", date)
+                            }
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-9 w-full justify-start font-normal"
+                          >
+                            <CalendarDays className="mr-2 size-4 shrink-0" />
+                            {filters.lastActivityTo
+                              ? filters.lastActivityTo.toLocaleDateString(
+                                  "ru-RU",
+                                )
+                              : "До"}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={filters.lastActivityTo}
+                            onSelect={(date) =>
+                              handleDateChange("lastActivityTo", date)
+                            }
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                  </FieldContent>
+                </Field>
               </div>
             </PopoverContent>
           </Popover>
@@ -265,11 +289,12 @@ export function CandidateFilters({
           {activeFiltersCount > 0 && (
             <Button
               variant="ghost"
-              size="sm"
-              className="h-10 px-3"
+              size="icon-sm"
+              className="size-9"
               onClick={onReset}
+              aria-label="Сбросить фильтры"
             >
-              <X className="h-4 w-4" />
+              <X className="size-4" />
             </Button>
           )}
         </div>
