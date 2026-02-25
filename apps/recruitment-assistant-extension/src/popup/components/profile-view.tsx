@@ -39,8 +39,6 @@ export function ProfileView({
   onSettingsError,
 }: ProfileViewProps) {
   const [error, setError] = useState<string | null>(null);
-  const [isExtracting, setIsExtracting] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [vacancies, setVacancies] = useState<Array<{ id: string; title: string; isFavorite: boolean }>>(
     [],
@@ -114,19 +112,6 @@ export function ProfileView({
     }
   };
 
-  const handleExtract = async () => {
-    setIsExtracting(true);
-    const resp = await sendToTab("EXTRACT_DATA");
-    if (resp?.ok === false) setError(resp.error ?? "Ошибка извлечения");
-    setIsExtracting(false);
-  };
-
-  const handleExportClipboard = async () => {
-    setIsExporting(true);
-    await sendToTab("EXPORT_CLIPBOARD");
-    setIsExporting(false);
-  };
-
   const handleImport = async () => {
     if (vacancies.length > 0 && !selectedVacancyId) {
       setError("Выберите вакансию для импорта");
@@ -170,28 +155,17 @@ export function ProfileView({
           </h2>
           <p className="text-muted-foreground text-sm">
             {isHeadHunter
-              ? "Извлеките данные кандидата и импортируйте в систему"
-              : "Извлеките данные профиля и импортируйте в систему"}
+              ? "Импортируйте данные кандидата в систему"
+              : "Импортируйте данные профиля в систему"}
           </p>
         </div>
         <Hint icon="steps">
           <span className="block">
-            <strong>Шаг 1.</strong> «Извлечь данные» — на странице появится
-            панель с данными.
-          </span>
-          <span className="mt-1 block">
-            <strong>Шаг 2.</strong> «Импортировать» — добавить в систему, или
-            «Копировать» — в буфер обмена.
+            Нажмите «Импортировать» — данные будут извлечены со страницы и
+            добавлены в выбранную вакансию.
           </span>
         </Hint>
         <div className="flex flex-col gap-2">
-          <Button
-            className="w-full"
-            onClick={handleExtract}
-            disabled={isExtracting}
-          >
-            {isExtracting ? "Извлечение…" : "Извлечь данные"}
-          </Button>
           {selectedWorkspaceId && (
             <div className="space-y-1.5">
               <Label htmlFor="vacancy-select" className="text-xs">
@@ -217,18 +191,9 @@ export function ProfileView({
           )}
           <div className="flex flex-wrap gap-2">
             <Button
-              variant="outline"
-              size="sm"
-              className="flex-1"
-              onClick={handleExportClipboard}
-              disabled={isExporting}
-            >
-              {isExporting ? "…" : "Копировать"}
-            </Button>
-            <Button
               variant="default"
               size="sm"
-              className="flex-1"
+              className="w-full"
               onClick={handleImport}
               disabled={isImporting || vacancies.length === 0 || !selectedVacancyId}
             >

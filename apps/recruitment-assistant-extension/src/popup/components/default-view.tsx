@@ -74,8 +74,8 @@ export function DefaultView({
             <strong>Как добавить кандидата:</strong>
           </span>
           <span className="mt-1 block">
-            Откройте резюме на hh.ru или профиль на LinkedIn → нажмите «Извлечь
-            данные» → затем «Импортировать».
+            Откройте резюме на hh.ru или профиль на LinkedIn → нажмите
+            «Импортировать» в popup.
           </span>
         </Hint>
         <div className="flex flex-wrap justify-center gap-2 text-xs">

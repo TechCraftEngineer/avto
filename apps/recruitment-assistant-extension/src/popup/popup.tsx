@@ -32,7 +32,7 @@ const settingsProps = (
 
 /**
  * Popup расширения — авторизация и контекстные действия.
- * На страницах hh.ru/LinkedIn показывает кнопку «Извлечь данные».
+ * На страницах hh.ru/LinkedIn показывает кнопку «Импортировать».
  */
 function Popup() {
   const [settingsError, setSettingsError] = useState<string | null>(null);

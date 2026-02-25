@@ -82,7 +82,8 @@ async function importToVacancy(
       email: data.contacts?.email || undefined,
       phone: data.contacts?.phone || undefined,
       platformProfileUrl:
-        typeof window !== "undefined" ? window.location.href : undefined,
+        data.profileUrl ||
+        (typeof window !== "undefined" ? window.location.href : undefined),
     },
     responseText: responseText || "Импортировано из расширения",
   };

@@ -5,6 +5,7 @@
  * Вызывается расширением Recruitment Assistant при выборе вакансии.
  */
 
+import { createHash } from "node:crypto";
 import { and, eq, GlobalCandidateRepository, WorkspaceRepository } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import {
@@ -51,6 +52,20 @@ function mapOriginalSource(
   src: z.infer<typeof platformSourceEnum>,
 ): "HH" | "AVITO" | "SUPERJOB" | "HABR" | "FL_RU" | "FREELANCE_RU" | "WEB_LINK" {
   return src;
+}
+
+/** candidate_id ограничен varchar(100) — укорачиваем URL при необходимости */
+function normalizeCandidateId(platformProfileUrl: string | undefined): string {
+  if (!platformProfileUrl) return crypto.randomUUID();
+
+  if (platformProfileUrl.length <= 100) return platformProfileUrl;
+
+  // HH: извлекаем resume ID из пути (напр. /resume/7021c5d7000fa7472d004a23a134657a4a5063)
+  const hhResumeMatch = platformProfileUrl.match(/\/resume\/([a-f0-9]{32,48})/i);
+  if (hhResumeMatch?.[1]) return hhResumeMatch[1];
+
+  // LinkedIn, другие: хеш сохраняет уникальность и укладывается в 64 символа
+  return createHash("sha256").update(platformProfileUrl).digest("hex");
 }
 
 function normalizeCandidateData(data: {
@@ -183,7 +198,7 @@ export async function handleImportResume(c: Context) {
     .values({
       entityId: input.vacancyId,
       entityType: "vacancy",
-      candidateId: input.contactInfo?.platformProfileUrl || crypto.randomUUID(),
+      candidateId: normalizeCandidateId(input.contactInfo?.platformProfileUrl),
       candidateName: input.freelancerName,
       coverLetter: input.responseText,
       importSource: input.platformSource,
