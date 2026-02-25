@@ -130,8 +130,8 @@ function ResponseKanbanColumn({
         <KanbanColumnContent
           value={value}
           className={cn(
-            "flex min-h-[420px] min-w-0 flex-1 flex-col gap-3 overflow-y-auto overflow-x-hidden rounded-xl p-3 transition-colors",
-            "border border-border/60 bg-card/95 backdrop-blur-sm shadow-sm",
+            "flex min-h-[420px] min-w-0 flex-1 flex-col gap-3 overflow-y-auto overflow-x-hidden rounded-lg p-3 transition-colors",
+            "border-border bg-card shadow-sm",
           )}
         >
           {isLoading ? (
@@ -145,7 +145,7 @@ function ResponseKanbanColumn({
               ))}
             </div>
           ) : responses.length === 0 ? (
-            <div className="flex flex-1 flex-col items-center justify-center py-12 text-muted-foreground rounded-lg border border-dashed border-border bg-background/50">
+            <div className="flex flex-1 flex-col items-center justify-center py-12 text-muted-foreground rounded-lg border border-dashed border-border bg-muted/30">
               <p className="text-sm">Нет откликов</p>
             </div>
           ) : (
@@ -260,7 +260,7 @@ export function ResponsesKanban({
       getItemValue={(item) => item.id}
       onMove={handleMove}
     >
-      <div className="flex min-h-0 flex-1 flex-col overflow-x-auto rounded-2xl bg-muted/40 p-4">
+      <div className="flex min-h-0 flex-1 flex-col overflow-x-auto rounded-lg">
         <KanbanBoard
           className="flex min-h-full min-w-max flex-1 gap-3 pb-2 md:gap-4 items-stretch"
           aria-label="Канбан-доска откликов"

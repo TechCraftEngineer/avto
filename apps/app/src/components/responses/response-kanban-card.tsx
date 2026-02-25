@@ -38,7 +38,7 @@ export function ResponseKanbanCard({
   return (
     <div
       className={cn(
-        "w-full min-w-0 bg-card border border-border rounded-xl flex flex-col group relative shadow-sm ring-1 ring-foreground/5",
+        "w-full min-w-0 bg-card border-border rounded-lg flex flex-col group relative shadow-sm",
         getBorderColor(),
         // Отключаем transition при перетаскивании для предотвращения конфликта с dnd-kit
         isDragging
@@ -80,7 +80,7 @@ export function ResponseKanbanCard({
 
       <button
         onClick={onClick}
-        className="flex-1 p-3 cursor-pointer text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-b-xl"
+        className="flex-1 p-3 cursor-pointer text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-b-lg"
         type="button"
       >
         <div className="flex gap-3">

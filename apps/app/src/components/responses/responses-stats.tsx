@@ -30,7 +30,7 @@ export function ResponsesStats({
           <Card
             key={`skeleton-${i}`}
             size="sm"
-            className="border border-border bg-card/95 backdrop-blur-sm"
+            className="border-border bg-card shadow-sm"
           >
             <CardHeader>
               <Skeleton className="h-4 w-24" />
@@ -44,10 +44,7 @@ export function ResponsesStats({
 
   return (
     <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-      <Card
-        size="sm"
-        className="border border-border bg-card/95 backdrop-blur-sm"
-      >
+      <Card size="sm" className="border-border bg-card shadow-sm">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardDescription className="flex items-center gap-2">
             <FileText className="h-4 w-4 text-muted-foreground" />
@@ -61,10 +58,7 @@ export function ResponsesStats({
         </CardContent>
       </Card>
 
-      <Card
-        size="sm"
-        className="border border-border bg-card/95 backdrop-blur-sm"
-      >
+      <Card size="sm" className="border-border bg-card shadow-sm">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardDescription className="flex items-center gap-2">
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
@@ -78,10 +72,7 @@ export function ResponsesStats({
         </CardContent>
       </Card>
 
-      <Card
-        size="sm"
-        className="border border-border bg-card/95 backdrop-blur-sm"
-      >
+      <Card size="sm" className="border-border bg-card shadow-sm">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardDescription className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-muted-foreground" />
@@ -95,10 +86,7 @@ export function ResponsesStats({
         </CardContent>
       </Card>
 
-      <Card
-        size="sm"
-        className="border border-border bg-card/95 backdrop-blur-sm"
-      >
+      <Card size="sm" className="border-border bg-card shadow-sm">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardDescription className="flex items-center gap-2">
             <Inbox className="h-4 w-4 text-muted-foreground" />

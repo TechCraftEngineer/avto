@@ -1,6 +1,7 @@
 "use client";
 
 import type { SortDirection } from "@qbs-autonaim/shared";
+import { Card, CardContent } from "@qbs-autonaim/ui/components/card";
 import { Pagination } from "@qbs-autonaim/ui/components/pagination";
 import {
   ToggleGroup,
@@ -207,26 +208,30 @@ export default function ResponsesPage() {
           isLoading={isLoading}
         />
 
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm font-medium text-muted-foreground">
-            Быстрые фильтры:
-          </span>
-          <ToggleGroup
-            type="single"
-            value={activeQuickFilter}
-            onValueChange={handleQuickFilterChange}
-            variant="outline"
-            size="sm"
-            className="flex-wrap"
-          >
-            {quickFilters.map((filter) => (
-              <ToggleGroupItem key={filter.label} value={filter.label}>
-                <filter.icon className="size-3.5" />
-                {filter.label}
-              </ToggleGroupItem>
-            ))}
-          </ToggleGroup>
-        </div>
+        <Card className="border-border bg-card shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-medium text-muted-foreground">
+                Быстрые фильтры:
+              </span>
+              <ToggleGroup
+                type="single"
+                value={activeQuickFilter}
+                onValueChange={handleQuickFilterChange}
+                variant="outline"
+                size="sm"
+                className="flex-wrap"
+              >
+                {quickFilters.map((filter) => (
+                  <ToggleGroupItem key={filter.label} value={filter.label}>
+                    <filter.icon className="size-3.5" />
+                    {filter.label}
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
+            </div>
+          </CardContent>
+        </Card>
 
         <div
           className={cn(
@@ -234,39 +239,43 @@ export default function ResponsesPage() {
             viewMode === "board" && "min-h-0 flex-1",
           )}
         >
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <VacancyFilter
-              vacancies={(vacanciesData ?? []).map((v) => ({
-                id: v.id,
-                title: v.title,
-              }))}
-              selectedVacancyIds={selectedVacancyIds}
-              onSelectionChange={setSelectedVacancyIds}
-              isLoading={!vacanciesData}
-            />
-            <ResponsesFilters
-              search={search}
-              onSearchChange={setSearch}
-              screeningFilter={screeningFilter}
-              onScreeningFilterChange={setScreeningFilter}
-              sortField={sortField}
-              onSortFieldChange={(field) => {
-                if (field === null || field === "createdAt") {
-                  setSortField(null);
-                } else if (
-                  field === "score" ||
-                  field === "detailedScore" ||
-                  field === "potentialScore" ||
-                  field === "careerTrajectoryScore" ||
-                  field === "priorityScore" ||
-                  field === "status" ||
-                  field === "respondedAt"
-                ) {
-                  setSortField(field);
-                }
-              }}
-            />
-          </div>
+          <Card className="border-border bg-card shadow-sm">
+            <CardContent className="p-4">
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <VacancyFilter
+                  vacancies={(vacanciesData ?? []).map((v) => ({
+                    id: v.id,
+                    title: v.title,
+                  }))}
+                  selectedVacancyIds={selectedVacancyIds}
+                  onSelectionChange={setSelectedVacancyIds}
+                  isLoading={!vacanciesData}
+                />
+                <ResponsesFilters
+                  search={search}
+                  onSearchChange={setSearch}
+                  screeningFilter={screeningFilter}
+                  onScreeningFilterChange={setScreeningFilter}
+                  sortField={sortField}
+                  onSortFieldChange={(field) => {
+                    if (field === null || field === "createdAt") {
+                      setSortField(null);
+                    } else if (
+                      field === "score" ||
+                      field === "detailedScore" ||
+                      field === "potentialScore" ||
+                      field === "careerTrajectoryScore" ||
+                      field === "priorityScore" ||
+                      field === "status" ||
+                      field === "respondedAt"
+                    ) {
+                      setSortField(field);
+                    }
+                  }}
+                />
+              </div>
+            </CardContent>
+          </Card>
 
           <div className="flex items-center justify-between px-1">
             {!isLoading && responsesData && (
@@ -281,45 +290,49 @@ export default function ResponsesPage() {
           </div>
 
           {viewMode === "table" ? (
-            <div
-              className="flex min-h-0 flex-1 flex-col gap-4 overflow-auto rounded-2xl bg-muted/40 p-4"
+            <Card
+              className="flex min-h-0 flex-1 flex-col overflow-hidden border-border bg-card shadow-sm"
               style={{ minHeight: "calc(100dvh - 320px)" }}
             >
-              <ResponsesTable
-                responses={responsesData?.responses ?? []}
-                isLoading={isLoading}
-                orgSlug={orgSlug ?? ""}
-                workspaceSlug={workspaceSlug ?? ""}
-                sortField={sortField}
-                onSortChange={handleSort}
-                hasFilters={
-                  search.trim() !== "" ||
-                  screeningFilter !== "all" ||
-                  statusFilter.length > 0
-                }
-              />
-
-              {responsesData && responsesData.totalPages > 1 && (
-                <Pagination
-                  currentPage={page}
-                  totalPages={responsesData.totalPages}
-                  onPageChange={setPage}
+              <CardContent className="flex flex-1 flex-col gap-4 overflow-auto p-4">
+                <ResponsesTable
+                  responses={responsesData?.responses ?? []}
+                  isLoading={isLoading}
+                  orgSlug={orgSlug ?? ""}
+                  workspaceSlug={workspaceSlug ?? ""}
+                  sortField={sortField}
+                  onSortChange={handleSort}
+                  hasFilters={
+                    search.trim() !== "" ||
+                    screeningFilter !== "all" ||
+                    statusFilter.length > 0
+                  }
                 />
-              )}
-            </div>
+
+                {responsesData && responsesData.totalPages > 1 && (
+                  <Pagination
+                    currentPage={page}
+                    totalPages={responsesData.totalPages}
+                    onPageChange={setPage}
+                  />
+                )}
+              </CardContent>
+            </Card>
           ) : (
-            <div
-              className="kanban-page flex min-h-0 flex-1 flex-col"
+            <Card
+              className="kanban-page flex min-h-0 flex-1 flex-col overflow-hidden border-border bg-card shadow-sm"
               style={{ minHeight: "calc(100dvh - 320px)" }}
             >
-              <ResponsesKanban
-                responses={responsesData?.responses ?? []}
-                isLoading={isLoading}
-                orgSlug={orgSlug ?? ""}
-                workspaceSlug={workspaceSlug ?? ""}
-                workspaceId={workspace?.id ?? ""}
-              />
-            </div>
+              <CardContent className="flex flex-1 flex-col overflow-hidden p-4">
+                <ResponsesKanban
+                  responses={responsesData?.responses ?? []}
+                  isLoading={isLoading}
+                  orgSlug={orgSlug ?? ""}
+                  workspaceSlug={workspaceSlug ?? ""}
+                  workspaceId={workspace?.id ?? ""}
+                />
+              </CardContent>
+            </Card>
           )}
         </div>
       </div>
