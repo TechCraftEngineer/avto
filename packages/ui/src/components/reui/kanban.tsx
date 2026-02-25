@@ -419,6 +419,7 @@ function KanbanColumn({
   const style = {
     transition,
     transform: CSS.Transform.toString(transform),
+    ...(isSortableDragging ? { zIndex: 50 } : {}),
   } as CSSProperties
 
   const Comp = asChild ? Slot.Root : "div"
@@ -530,6 +531,7 @@ function KanbanItem({
   const style = {
     transition,
     transform: CSS.Transform.toString(transform),
+    ...(isSortableDragging ? { zIndex: 50 } : {}),
   } as CSSProperties
 
   const Comp = asChild ? Slot.Root : "div"

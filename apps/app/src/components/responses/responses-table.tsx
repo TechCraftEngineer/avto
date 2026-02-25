@@ -1,9 +1,9 @@
 "use client";
 
 import { RESPONSE_STATUS_LABELS } from "@qbs-autonaim/db/schema";
-import { Badge } from "@qbs-autonaim/ui/components/reui/badge";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { InfoTooltip } from "@qbs-autonaim/ui/components/info-tooltip";
+import { Badge } from "@qbs-autonaim/ui/components/reui/badge";
 import { Skeleton } from "@qbs-autonaim/ui/components/skeleton";
 import {
   Table,

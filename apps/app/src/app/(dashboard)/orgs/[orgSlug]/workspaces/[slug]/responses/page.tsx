@@ -220,10 +220,7 @@ export default function ResponsesPage() {
             className="flex-wrap"
           >
             {quickFilters.map((filter) => (
-              <ToggleGroupItem
-                key={filter.label}
-                value={filter.label}
-              >
+              <ToggleGroupItem key={filter.label} value={filter.label}>
                 <filter.icon className="size-3.5" />
                 {filter.label}
               </ToggleGroupItem>

@@ -48,7 +48,9 @@ export function ResponsesStats({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-2xl font-semibold tabular-nums">{totalResponses}</p>
+          <p className="text-2xl font-semibold tabular-nums">
+            {totalResponses}
+          </p>
         </CardContent>
       </Card>
 
