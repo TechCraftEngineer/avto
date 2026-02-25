@@ -1,6 +1,10 @@
 "use client";
 
 import {
+  RESPONSE_STATUS_LABELS,
+  type ResponseStatus,
+} from "@qbs-autonaim/db/schema";
+import {
   Avatar,
   AvatarFallback,
   AvatarImage,
@@ -459,7 +463,10 @@ function ProfileContent({
                         <ExternalLink className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        Статус: {response.status}
+                        Статус:{" "}
+                        {RESPONSE_STATUS_LABELS[
+                          response.status as ResponseStatus
+                        ] || response.status}
                       </p>
                     </div>
                     <div className="text-xs text-muted-foreground text-right shrink-0">
