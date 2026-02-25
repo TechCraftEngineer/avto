@@ -249,12 +249,6 @@ export function VacancyTableRow({
                 {vacancy.title}
               </TooltipContent>
             </Tooltip>
-            {needsAttention && (
-              <div
-                className="size-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] animate-pulse shrink-0 mt-1.5"
-                title="Есть новые отклики"
-              />
-            )}
           </div>
           <div className="flex items-center gap-2">
             <VacancyPerformanceBadge
@@ -313,16 +307,9 @@ export function VacancyTableRow({
       </TableCell>
       <TableCell className="text-right tabular-nums hidden md:table-cell">
         {vacancy.resumesInProgress && vacancy.resumesInProgress > 0 ? (
-          <div className="flex flex-col items-end gap-0.5">
-            <span className="font-medium text-foreground">
-              {vacancy.resumesInProgress}
-            </span>
-            {vacancy.totalResponsesCount && vacancy.totalResponsesCount > 0 && (
-              <span className="text-xs text-muted-foreground">
-                из {vacancy.totalResponsesCount}
-              </span>
-            )}
-          </div>
+          <span className="font-medium text-foreground">
+            {vacancy.resumesInProgress}
+          </span>
         ) : (
           <span className="text-muted-foreground">—</span>
         )}
@@ -358,25 +345,16 @@ export function VacancyTableRow({
           </Tooltip>
           <Tooltip delayDuration={300}>
             <TooltipTrigger asChild>
-              <div className="flex items-center gap-2">
-                <div
-                  className={`size-2 rounded-full ${
-                    vacancy.isActive === true
-                      ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]"
-                      : vacancy.isActive === false
-                        ? "bg-zinc-300"
-                        : "bg-amber-400"
-                  }`}
-                  aria-hidden="true"
-                />
-                <span className="text-sm font-medium">
-                  {vacancy.isActive === true
-                    ? "Активна"
+              <div
+                className={`size-2 rounded-full ${
+                  vacancy.isActive === true
+                    ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]"
                     : vacancy.isActive === false
-                      ? "Закрыта"
-                      : "Неизвестно"}
-                </span>
-              </div>
+                      ? "bg-zinc-300"
+                      : "bg-amber-400"
+                }`}
+                aria-hidden="true"
+              />
             </TooltipTrigger>
             <TooltipContent side="top" className="max-w-xs text-sm">
               {vacancy.isActive === null

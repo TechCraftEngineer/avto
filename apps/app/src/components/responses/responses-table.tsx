@@ -141,9 +141,7 @@ export function ResponsesTable({
                 <InfoTooltip content="Приоритет обработки отклика (0-100). Учитывает соответствие требованиям (40%), свежесть отклика (20%), наличие скрининга (20%) и статус обработки (20%). Высокий приоритет означает, что отклик требует первоочередного внимания." />
               </div>
             </TableHead>
-            <TableHead>
-              <SortButton field="status">Статус</SortButton>
-            </TableHead>
+            <TableHead>Статус</TableHead>
             <TableHead>
               <div className="flex items-center gap-1.5">
                 <SortButton field="respondedAt">Дата</SortButton>
