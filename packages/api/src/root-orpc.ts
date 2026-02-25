@@ -24,6 +24,7 @@ import { interviewScenariosRouter } from "./routers/interview-scenarios";
 import { metaMatchRouter } from "./routers/meta-match";
 import { organizationRouter } from "./routers/organization";
 import { paymentRouter } from "./routers/payment";
+import { personalTelegramRouter } from "./routers/personal-telegram";
 import { prequalificationRouter } from "./routers/prequalification";
 import { recruiterAgentRouter } from "./routers/recruiter-agent";
 import { telegramRouter } from "./routers/telegram";
@@ -54,6 +55,7 @@ export const appRouter = {
   metaMatch: metaMatchRouter,
   bot: botRouter,
   telegram: telegramRouter,
+  personalTelegram: personalTelegramRouter,
   workspace: workspaceRouter,
   organization: organizationRouter,
   payment: paymentRouter,

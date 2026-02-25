@@ -51,6 +51,35 @@ export const telegramUnidentifiedMessageSendDataSchema = z.object({
   workspaceId: z.string().min(1, "Workspace ID is required"),
 });
 
+export const personalMessageReceivedDataSchema = z.object({
+  userId: z.string().min(1, "User ID is required"),
+  messageData: z
+    .object({
+      id: z.number(),
+      chatId: z.string().min(1, "Chat ID is required"),
+      text: z.string().optional(),
+      isOutgoing: z.boolean(),
+      media: z
+        .object({
+          type: z.string(),
+          fileId: z.string().optional(),
+          mimeType: z.string().optional(),
+          duration: z.number().optional(),
+        })
+        .passthrough()
+        .optional(),
+      sender: z
+        .object({
+          type: z.string(),
+          username: z.string().optional(),
+          firstName: z.string().optional(),
+        })
+        .passthrough()
+        .optional(),
+    })
+    .passthrough(),
+});
+
 export const conversationMessageReceivedDataSchema = z.object({
   workspaceId: z.string().min(1, "Workspace ID is required"),
   messageData: z
@@ -106,4 +135,7 @@ export type TelegramUnidentifiedMessageSendPayload = z.infer<
 >;
 export type TelegramMessageReceivedPayload = z.infer<
   typeof conversationMessageReceivedDataSchema
+>;
+export type PersonalMessageReceivedPayload = z.infer<
+  typeof personalMessageReceivedDataSchema
 >;

@@ -53,6 +53,12 @@ export const sendMessageByUsernameSchema = z.object({
   text: z.string().min(1),
 });
 
+export const sendPersonalMessageByUsernameSchema = z.object({
+  userId: z.string().min(1),
+  username: z.string().min(1),
+  text: z.string().min(1),
+});
+
 export const sendMessageByPhoneSchema = z.object({
   workspaceId: z.string().min(1),
   phone: z

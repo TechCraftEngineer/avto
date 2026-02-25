@@ -30,6 +30,7 @@ import {
   parseFreelanceProfileDataSchema,
   parseNewResumesDataSchema,
   parseSingleResumeDataSchema,
+  personalMessageReceivedDataSchema,
   recommendationGenerateDataSchema,
   refreshAllResumesDataSchema,
   refreshSingleResumeDataSchema,
@@ -102,6 +103,7 @@ export const inngest = new Inngest({
     "freelance/notification.send": sendFreelanceNotificationDataSchema,
     "freelance/profile.parse": parseFreelanceProfileDataSchema,
     "telegram/message.received": conversationMessageReceivedDataSchema,
+    "telegram/personal.message.received": personalMessageReceivedDataSchema,
     "telegram/message.send": conversationMessageSendDataSchema,
     "telegram/message.send.by-username":
       telegramUnidentifiedMessageSendDataSchema,

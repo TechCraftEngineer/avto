@@ -1,6 +1,6 @@
 import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
-import { telegramSession } from "@qbs-autonaim/db/schema";
+import { telegramSession, userTelegramSession } from "@qbs-autonaim/db/schema";
 import type { BotManager } from "../bot-manager";
 
 /**
@@ -59,16 +59,27 @@ export class SessionWatcher {
   }
 
   /**
-   * Загрузить известные сессии из БД
+   * Загрузить известные сессии из БД (workspace + user)
    */
   private async loadKnownSessions(): Promise<void> {
-    const sessions = await db
-      .select({ id: telegramSession.id })
-      .from(telegramSession)
-      .where(eq(telegramSession.isActive, true));
+    const [workspaceSessions, userSessions] = await Promise.all([
+      db
+        .select({ id: telegramSession.id })
+        .from(telegramSession)
+        .where(eq(telegramSession.isActive, true)),
+      db
+        .select({ id: userTelegramSession.id })
+        .from(userTelegramSession)
+        .where(eq(userTelegramSession.isActive, true)),
+    ]);
 
-    this.knownSessions = new Set(sessions.map((s) => s.id));
-    console.log(`📋 Загружено ${this.knownSessions.size} известных сессий`);
+    this.knownSessions = new Set([
+      ...workspaceSessions.map((s) => `w:${s.id}`),
+      ...userSessions.map((s) => `u:${s.id}`),
+    ]);
+    console.log(
+      `📋 Загружено ${this.knownSessions.size} известных сессий (${workspaceSessions.length} workspace + ${userSessions.length} user)`,
+    );
   }
 
   /**
@@ -76,45 +87,67 @@ export class SessionWatcher {
    */
   private async checkNewSessions(): Promise<void> {
     try {
-      const sessions = await db
-        .select()
-        .from(telegramSession)
-        .where(eq(telegramSession.isActive, true));
+      const [workspaceSessions, userSessions] = await Promise.all([
+        db
+          .select()
+          .from(telegramSession)
+          .where(eq(telegramSession.isActive, true)),
+        db
+          .select()
+          .from(userTelegramSession)
+          .where(eq(userTelegramSession.isActive, true)),
+      ]);
 
-      // Успешный запрос — сбрасываем счётчик ошибок
       this.consecutiveErrors = 0;
 
-      const newSessions = sessions.filter((s) => !this.knownSessions.has(s.id));
+      const newWorkspace = workspaceSessions.filter(
+        (s) => !this.knownSessions.has(`w:${s.id}`),
+      );
+      const newUser = userSessions.filter(
+        (s) => !this.knownSessions.has(`u:${s.id}`),
+      );
 
-      if (newSessions.length === 0) {
+      if (newWorkspace.length === 0 && newUser.length === 0) {
         return;
       }
 
-      console.log(`🆕 Обнаружено ${newSessions.length} новых сессий`);
+      console.log(
+        `🆕 Обнаружено ${newWorkspace.length} workspace + ${newUser.length} user новых сессий`,
+      );
 
-      for (const session of newSessions) {
+      for (const session of newWorkspace) {
         try {
-          // Проверяем, не запущена ли уже сессия для этого workspace
           if (this.botManager.isRunningForWorkspace(session.workspaceId)) {
-            console.log(
-              `⚠️ Сессия для workspace ${session.workspaceId} уже запущена`,
-            );
-            this.knownSessions.add(session.id);
+            this.knownSessions.add(`w:${session.id}`);
             continue;
           }
-
           console.log(
             `🚀 Запуск новой сессии для workspace ${session.workspaceId}...`,
           );
           await this.botManager.restartBot(session.workspaceId);
-
-          this.knownSessions.add(session.id);
-          console.log(
-            `✅ Сессия для workspace ${session.workspaceId} успешно запущена`,
-          );
+          this.knownSessions.add(`w:${session.id}`);
         } catch (error) {
           console.error(
-            `❌ Ошибка запуска сессии ${session.id}:`,
+            `❌ Ошибка запуска workspace сессии ${session.id}:`,
+            error instanceof Error ? error.message : error,
+          );
+        }
+      }
+
+      for (const session of newUser) {
+        try {
+          if (this.botManager.isRunningForUser(session.userId)) {
+            this.knownSessions.add(`u:${session.id}`);
+            continue;
+          }
+          console.log(
+            `🚀 Запуск новой личной сессии для user ${session.userId}...`,
+          );
+          await this.botManager.restartUserBot(session.userId);
+          this.knownSessions.add(`u:${session.id}`);
+        } catch (error) {
+          console.error(
+            `❌ Ошибка запуска user сессии ${session.id}:`,
             error instanceof Error ? error.message : error,
           );
         }

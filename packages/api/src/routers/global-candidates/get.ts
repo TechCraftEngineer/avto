@@ -62,6 +62,16 @@ export const get = protectedProcedure
       with: {
         vacancy: {
           columns: { id: true, title: true },
+          with: {
+            workspace: {
+              columns: { slug: true },
+              with: {
+                organization: {
+                  columns: { slug: true },
+                },
+              },
+            },
+          },
         },
       },
       orderBy: [desc(responseTable.updatedAt)],
@@ -98,6 +108,8 @@ export const get = protectedProcedure
       id: response.id,
       vacancyId: response.entityId,
       vacancyTitle: response.vacancy?.title || "Неизвестная вакансия",
+      workspaceSlug: response.vacancy?.workspace?.slug || "",
+      orgSlug: response.vacancy?.workspace?.organization?.slug || "",
       status: response.status,
       hrSelectionStatus: response.hrSelectionStatus,
       createdAt: response.createdAt,

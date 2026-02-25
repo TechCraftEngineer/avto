@@ -1,0 +1,234 @@
+"use client";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@qbs-autonaim/ui/components/dialog";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { useORPC } from "~/orpc/react";
+import { Step1Credentials } from "../telegram-auth/step1-credentials";
+import { Step2Code } from "../telegram-auth/step2-code";
+import { Step3Password } from "../telegram-auth/step3-password";
+import type {
+  ApiData,
+  Step1Values,
+  Step2Values,
+  Step3Values,
+} from "../telegram-auth/types";
+import { step1Schema, step2Schema, step3Schema } from "../telegram-auth/types";
+
+interface PersonalTelegramAuthDialogProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+export function PersonalTelegramAuthDialog({
+  open,
+  onClose,
+}: PersonalTelegramAuthDialogProps) {
+  const orpc = useORPC();
+  const queryClient = useQueryClient();
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [phoneCodeHash, setPhoneCodeHash] = useState("");
+  const [apiData, setApiData] = useState<ApiData | null>(null);
+  const [sessionData, setSessionData] = useState<string>("");
+
+  const form1 = useForm<Step1Values>({
+    resolver: zodResolver(step1Schema),
+    defaultValues: { apiId: "", apiHash: "", phone: "" },
+  });
+
+  const form2 = useForm<Step2Values>({
+    resolver: zodResolver(step2Schema),
+    defaultValues: { phoneCode: "" },
+  });
+
+  const form3 = useForm<Step3Values>({
+    resolver: zodResolver(step3Schema),
+    defaultValues: { password: "" },
+  });
+
+  const sendCodeMutation = useMutation(
+    orpc.personalTelegram.sendCode.mutationOptions({
+      onSuccess: (data) => {
+        setPhoneCodeHash(data.phoneCodeHash);
+        setSessionData(data.sessionData);
+        setStep(2);
+        toast.success("Код отправлен на ваш телефон");
+      },
+      onError: (err) => {
+        toast.error(err.message || "Не удалось отправить код");
+      },
+    }),
+  );
+
+  const signInMutation = useMutation(
+    orpc.personalTelegram.signIn.mutationOptions({
+      onSuccess: (data) => {
+        if (data.success) {
+          toast.success("Личный Telegram подключен!");
+          queryClient.invalidateQueries({
+            queryKey: orpc.personalTelegram.getSessions.queryKey(),
+          });
+          handleClose();
+        } else if ("requiresPassword" in data && data.requiresPassword) {
+          if (data.sessionData) {
+            setSessionData(data.sessionData);
+          }
+          setStep(3);
+          toast.info("Требуется пароль 2FA");
+        }
+      },
+      onError: (err) => {
+        if (err.message === "PHONE_CODE_EXPIRED") {
+          toast.error("Код истёк. Отправьте новый код");
+          form2.reset();
+          setSessionData("");
+        } else if (err.message === "PHONE_CODE_INVALID") {
+          toast.error("Неверный код");
+          form2.reset();
+        } else if (err.message.includes("уже подключен")) {
+          toast.error(
+            "Личный Telegram уже подключен. Удалите существующий аккаунт перед добавлением нового.",
+          );
+          handleClose();
+        } else {
+          toast.error(err.message || "Ошибка авторизации");
+        }
+      },
+    }),
+  );
+
+  const checkPasswordMutation = useMutation(
+    orpc.personalTelegram.checkPassword.mutationOptions({
+      onSuccess: () => {
+        toast.success("Личный Telegram подключен!");
+        queryClient.invalidateQueries({
+          queryKey: orpc.personalTelegram.getSessions.queryKey(),
+        });
+        handleClose();
+      },
+      onError: (err) => {
+        if (err.message.includes("уже подключен")) {
+          toast.error(
+            "Личный Telegram уже подключен. Удалите существующий аккаунт перед добавлением нового.",
+          );
+          handleClose();
+        } else {
+          toast.error(err.message || "Неверный пароль");
+        }
+      },
+    }),
+  );
+
+  const handleClose = () => {
+    form1.reset();
+    form2.reset();
+    form3.reset();
+    setStep(1);
+    setPhoneCodeHash("");
+    setApiData(null);
+    setSessionData("");
+    onClose();
+  };
+
+  const onStep1Submit = (data: Step1Values) => {
+    const apiId = Number.parseInt(data.apiId, 10);
+    if (Number.isNaN(apiId)) {
+      toast.error("API ID должен быть числом");
+      return;
+    }
+    setApiData({ apiId, apiHash: data.apiHash, phone: data.phone });
+    sendCodeMutation.mutate({
+      apiId,
+      apiHash: data.apiHash,
+      phone: data.phone,
+    });
+  };
+
+  const onStep2Submit = (data: Step2Values) => {
+    if (!apiData) return;
+    signInMutation.mutate({
+      ...apiData,
+      phoneCode: data.phoneCode,
+      phoneCodeHash,
+      sessionData,
+    });
+  };
+
+  const handleResendCode = () => {
+    if (!apiData) return;
+    sendCodeMutation.mutate({
+      apiId: apiData.apiId,
+      apiHash: apiData.apiHash,
+      phone: apiData.phone,
+    });
+  };
+
+  const onStep3Submit = (data: Step3Values) => {
+    if (!apiData) return;
+    checkPasswordMutation.mutate({
+      ...apiData,
+      password: data.password,
+      sessionData,
+    });
+  };
+
+  const stepDescriptions = {
+    1: "Введите данные вашего Telegram приложения (my.telegram.org)",
+    2: "Введите код из SMS",
+    3: "Введите пароль 2FA",
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader className="space-y-3">
+          <DialogTitle className="text-2xl font-semibold">
+            Подключить личный Telegram
+          </DialogTitle>
+          <DialogDescription className="text-base">
+            {stepDescriptions[step]}
+          </DialogDescription>
+        </DialogHeader>
+
+        {step === 1 && (
+          <Step1Credentials
+            form={form1}
+            onSubmit={onStep1Submit}
+            onCancel={handleClose}
+            isLoading={sendCodeMutation.isPending}
+          />
+        )}
+
+        {step === 2 && (
+          <Step2Code
+            form={form2}
+            onSubmit={onStep2Submit}
+            onCancel={handleClose}
+            onResend={handleResendCode}
+            phone={apiData?.phone || ""}
+            isLoading={signInMutation.isPending}
+            isResending={sendCodeMutation.isPending}
+          />
+        )}
+
+        {step === 3 && (
+          <Step3Password
+            form={form3}
+            onSubmit={onStep3Submit}
+            onCancel={handleClose}
+            isLoading={checkPasswordMutation.isPending}
+          />
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}

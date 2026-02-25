@@ -6,6 +6,7 @@ import {
   sendMessageByPhoneSchema,
   sendMessageByUsernameSchema,
   sendMessageSchema,
+  sendPersonalMessageByUsernameSchema,
 } from "../schemas";
 import { cleanUsername, handleError } from "../utils";
 
@@ -104,6 +105,41 @@ messages.post("/send", async (c) => {
 
     const messageResult = await withFloodWaitRetry(() =>
       client.sendText(peer, text),
+    );
+
+    return c.json({
+      success: true,
+      messageId: messageResult.id.toString(),
+      chatId: messageResult.chat.id.toString(),
+      senderId: messageResult.sender.id.toString(),
+    });
+  } catch (error) {
+    return c.json({ error: handleError(error, "Failed to send message") }, 500);
+  }
+});
+
+messages.post("/send-personal-by-username", async (c) => {
+  try {
+    const body = await c.req.json();
+    const result = sendPersonalMessageByUsernameSchema.safeParse(body);
+    if (!result.success) {
+      return c.json(
+        { error: "Invalid request data", details: result.error.issues },
+        400,
+      );
+    }
+
+    const { userId, username, text } = result.data;
+    const client = botManager.getClientForUser(userId);
+    if (!client) {
+      return c.json(
+        { error: `Personal bot not running for user ${userId}` },
+        404,
+      );
+    }
+    const cleanedUsername = cleanUsername(username);
+    const messageResult = await withFloodWaitRetry(() =>
+      client.sendText(cleanedUsername, text),
     );
 
     return c.json({

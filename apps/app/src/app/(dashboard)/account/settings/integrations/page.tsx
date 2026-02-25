@@ -18,6 +18,7 @@ import {
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { toast } from "sonner";
+import { PersonalTelegramSessionsCard } from "~/components/settings/personal-telegram-auth";
 import { useORPC } from "~/orpc/react";
 
 export default function AccountIntegrationsPage() {
@@ -103,6 +104,11 @@ export default function AccountIntegrationsPage() {
           в вашем календаре. Кандидат может получить приглашение на email.
         </AlertDescription>
       </Alert>
+
+      <div className="space-y-4">
+        <h3 className="font-medium">Личный Telegram</h3>
+        <PersonalTelegramSessionsCard />
+      </div>
 
       <Card className="p-6">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">

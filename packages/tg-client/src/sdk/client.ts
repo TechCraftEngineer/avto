@@ -101,6 +101,17 @@ export class TgClientSDK {
   }
 
   /**
+   * Отправить сообщение из личного Telegram по username
+   */
+  async sendPersonalMessageByUsername(params: {
+    userId: string;
+    username: string;
+    text: string;
+  }): Promise<SendMessageResponse> {
+    return this.request("/messages/send-personal-by-username", params);
+  }
+
+  /**
    * Отправить сообщение по телефону
    */
   async sendMessageByPhone(
