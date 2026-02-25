@@ -20,7 +20,7 @@ async function loadAllDemoData() {
 
   try {
     // 1. Создаем организацию и workspace
-    const { workspaceId } = await createDemoOrganization();
+    const { workspaceId, organizationId } = await createDemoOrganization();
 
     // 2. Удаляем старые демо-данные для этого workspace
     console.log("\n🗑️  Очищаем старые демо-данные...");
@@ -88,18 +88,22 @@ async function loadAllDemoData() {
     // 5. Загружаем задания (gigs)
     const { insertedGigs, gigMapping } = await loadGigs();
 
-    // 7. Загружаем отклики на вакансии
-    const vacancyResponses = await loadVacancyResponses(
-      vacancyMapping,
-      photoMapping,
-      insertedVacancies[0]?.id || "",
-    );
+    // 7. Загружаем отклики на вакансии (с созданием global candidates)
+    const { responses: vacancyResponses, candidateMapping } =
+      await loadVacancyResponses(
+        vacancyMapping,
+        photoMapping,
+        insertedVacancies[0]?.id || "",
+        organizationId,
+      );
 
-    // 8. Загружаем отклики на задания
+    // 8. Загружаем отклики на задания (кандидаты попадают в global_candidates)
     const gigResponses = await loadGigResponses(
       gigMapping,
       photoMapping,
       insertedGigs[0]?.id || "",
+      organizationId,
+      candidateMapping,
     );
 
     // 9. Создаем маппинг откликов для интервью

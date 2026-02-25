@@ -2,8 +2,19 @@
 
 import { paths } from "@qbs-autonaim/config";
 import { Button } from "@qbs-autonaim/ui/components/button";
-import { Card, CardContent } from "@qbs-autonaim/ui/components/card";
-import { Briefcase, MessageSquare, Plus, Users } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@qbs-autonaim/ui/components/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@qbs-autonaim/ui/components/tooltip";
+import { Briefcase, MessageSquare, Plus, Users, Zap } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { UniversalChatPanel } from "~/components/chat/components";
@@ -42,9 +53,18 @@ export function QuickActions({ orgSlug, workspaceSlug }: QuickActionsProps) {
 
   return (
     <>
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-wrap gap-3">
+      <Card className="@container/card">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Zap className="size-5 text-primary" />
+            Быстрые действия
+          </CardTitle>
+          <CardDescription>
+            Создание вакансий, просмотр откликов и AI-ассистент
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-2">
             {actions.map((action) => (
               <Button
                 key={action.label}
@@ -53,24 +73,33 @@ export function QuickActions({ orgSlug, workspaceSlug }: QuickActionsProps) {
                 asChild
               >
                 <Link href={action.href}>
-                  <action.icon className="h-4 w-4 mr-2" />
+                  <action.icon className="size-4" />
                   {action.label}
                 </Link>
               </Button>
             ))}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                if (isWorkspaceReady) {
-                  setIsChatOpen(true);
-                }
-              }}
-              disabled={!isWorkspaceReady}
-            >
-              <MessageSquare className="h-4 w-4 mr-2" />
-              AI-Ассистент
-            </Button>
+            {isWorkspaceReady ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsChatOpen(true)}
+              >
+                <MessageSquare className="size-4" />
+                AI-Ассистент
+              </Button>
+            ) : (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="inline-flex">
+                    <Button variant="outline" size="sm" disabled>
+                      <MessageSquare className="size-4" />
+                      AI-Ассистент
+                    </Button>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>Дождитесь загрузки пространства</TooltipContent>
+              </Tooltip>
+            )}
           </div>
         </CardContent>
       </Card>

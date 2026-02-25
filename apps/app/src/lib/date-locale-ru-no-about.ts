@@ -21,12 +21,8 @@ const formatDistanceNoAbout: NonNullable<Locale["formatDistance"]> = (
   count,
   options,
 ) => {
-  const plainToken = aboutToPlain[token];
-  return originalFormatDistance(
-    plainToken as FormatDistanceToken,
-    count,
-    options,
-  );
+  const plainToken = (aboutToPlain[token] ?? token) as FormatDistanceToken;
+  return originalFormatDistance(plainToken, count, options);
 };
 
 export const ruNoAbout: Locale = {
