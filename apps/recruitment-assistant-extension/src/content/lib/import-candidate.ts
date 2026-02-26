@@ -111,7 +111,6 @@ async function importToVacancy(
       try {
         resumeTextHtml = await fetchResumeTextHtml(profileUrl, candidateName, {
           baseOrigin: window.location.origin,
-          vacancyId,
         });
       } catch {
         // Продолжаем без HTML
