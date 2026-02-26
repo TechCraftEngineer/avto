@@ -140,6 +140,11 @@ function Kanban<T>({
   const columns = value
   const setColumns = onValueChange
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null)
+  const dragStartRef = React.useRef<{
+    activeContainer: string
+    activeIndex: number
+    item: T
+  } | null>(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -170,16 +175,36 @@ function Kanban<T>({
     [columns, columnIds, getItemValue, isColumn],
   )
 
-  const handleDragStart = useCallback((event: DragStartEvent) => {
-    setActiveId(event.active.id)
-  }, [])
+  const handleDragStart = useCallback(
+    (event: DragStartEvent) => {
+      setActiveId(event.active.id)
+      if (!isColumn(event.active.id)) {
+        const container = findContainer(event.active.id)
+        if (container) {
+          const items = columns[container] ?? []
+          const idx = items.findIndex(
+            (item: T) => getItemValue(item) === event.active.id,
+          )
+          if (idx >= 0) {
+            const item = items[idx]
+            if (item !== undefined) {
+              dragStartRef.current = {
+                activeContainer: container,
+                activeIndex: idx,
+                item,
+              }
+            }
+            return
+          }
+        }
+      }
+      dragStartRef.current = null
+    },
+    [columns, findContainer, getItemValue, isColumn],
+  )
 
   const handleDragOver = useCallback(
     (event: DragOverEvent) => {
-      if (onMove) {
-        return
-      }
-
       const { active, over } = event
       if (!over) return
 
@@ -240,8 +265,30 @@ function Kanban<T>({
   )
 
   const handleDragCancel = useCallback(() => {
+    const dragStart = dragStartRef.current
+    if (dragStart && activeId) {
+      const currentContainer = findContainer(activeId)
+      if (currentContainer && currentContainer !== dragStart.activeContainer) {
+        const next = { ...columns }
+        const fromItems = [...(next[currentContainer] ?? [])]
+        const toItems = [...(next[dragStart.activeContainer] ?? [])]
+        const idx = fromItems.findIndex(
+          (item: T) => getItemValue(item) === activeId,
+        )
+        if (idx >= 0) {
+          const [moved] = fromItems.splice(idx, 1)
+          if (moved !== undefined) {
+            toItems.splice(dragStart.activeIndex, 0, moved)
+            next[currentContainer] = fromItems
+            next[dragStart.activeContainer] = toItems
+            setColumns(next)
+          }
+        }
+      }
+    }
     setActiveId(null)
-  }, [])
+    dragStartRef.current = null
+  }, [activeId, columns, findContainer, getItemValue, setColumns])
 
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
@@ -251,15 +298,11 @@ function Kanban<T>({
       if (!over) return
 
       if (onMove && !isColumn(active.id)) {
-        const activeContainer = findContainer(active.id)
+        const dragStart = dragStartRef.current
         const overContainer = findContainer(over.id)
 
-        if (activeContainer && overContainer) {
-          const activeItems = columns[activeContainer] ?? []
+        if (dragStart && overContainer && dragStart.activeContainer !== overContainer) {
           const overItems = columns[overContainer] ?? []
-          const activeIndex = activeItems.findIndex(
-            (item: T) => getItemValue(item) === active.id,
-          )
           const overIndex = isColumn(over.id)
             ? overItems.length
             : overItems.findIndex(
@@ -268,14 +311,17 @@ function Kanban<T>({
 
           onMove({
             event,
-            activeContainer,
-            activeIndex,
+            activeContainer: dragStart.activeContainer,
+            activeIndex: dragStart.activeIndex,
             overContainer,
             overIndex,
           })
         }
+        dragStartRef.current = null
         return
       }
+
+      dragStartRef.current = null
 
       if (isColumn(active.id) && isColumn(over.id)) {
         const activeIndex = columnIds.indexOf(active.id as string)

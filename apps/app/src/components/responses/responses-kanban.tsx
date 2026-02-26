@@ -242,27 +242,22 @@ export function ResponsesKanban({
 
   const handleMove = useCallback(
     (event: {
+      event: { active: { id: unknown } };
       activeContainer: string;
       activeIndex: number;
       overContainer: string;
     }) => {
-      const { activeContainer, activeIndex, overContainer } = event;
-      const item = columns[activeContainer]?.[activeIndex];
+      const { activeContainer, overContainer, event: dndEvent } = event;
+      const activeId = String(dndEvent.active.id);
+      // После оптимистичного обновления элемент уже в overContainer
+      const item =
+        columns[overContainer]?.find((r) => r.id === activeId) ??
+        columns[activeContainer]?.[event.activeIndex];
       if (!item || activeContainer === overContainer) return;
 
       const newStatus = overContainer as ResponseStatus;
 
-      setColumns((prev) => {
-        const next = { ...prev };
-        const activeItems = [...(prev[activeContainer] ?? [])];
-        const [movedItem] = activeItems.splice(activeIndex, 1);
-        if (!movedItem) return prev;
-        next[activeContainer] = activeItems;
-        const updatedItem: ResponseItem = { ...item, status: newStatus };
-        next[overContainer] = [...(prev[overContainer] ?? []), updatedItem];
-        return next;
-      });
-
+      // UI уже обновлён оптимистично в handleDragOver, остаётся только синхронизация с API
       updateStatus({
         responseId: item.id,
         status: newStatus,
