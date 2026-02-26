@@ -297,41 +297,8 @@ export function ResponsesKanban({
           ))}
         </KanbanBoard>
       </div>
-      <KanbanOverlay className="rounded-lg">
-        {({ value, variant }) => {
-          if (variant === "column") {
-            const columnId = String(value);
-            const colData = STATUS_COLUMNS.find((c) => c.id === columnId);
-            const columnResponses = columns[columnId] ?? [];
-            if (!colData) return null;
-            return (
-              <ResponseKanbanColumn
-                value={colData.id}
-                label={colData.label}
-                color={colData.color}
-                responses={columnResponses}
-                isLoading={isLoading}
-                onCardClick={() => {}}
-                isOverlay
-                vacancyMap={vacancyMap}
-              />
-            );
-          }
-
-          const response = Object.values(columns)
-            .flat()
-            .find((r) => r.id === value);
-          return response ? (
-            <ResponseKanbanCard
-              response={response}
-              onClick={() => {}}
-              isDragging
-              vacancyTitle={
-                response ? vacancyMap.get(response.entityId) : undefined
-              }
-            />
-          ) : null;
-        }}
+      <KanbanOverlay className="bg-muted/10 rounded-lg border-2 border-dashed border-border">
+        <div className="h-24 min-w-[200px]" aria-hidden />
       </KanbanOverlay>
     </Kanban>
   );
