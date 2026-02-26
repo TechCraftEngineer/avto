@@ -39,6 +39,7 @@ export function ProfileView({
   onSettingsError,
 }: ProfileViewProps) {
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isImporting, setIsImporting] = useState(false);
   const [vacancies, setVacancies] = useState<
     Array<{ id: string; title: string; isFavorite: boolean }>
@@ -91,6 +92,7 @@ export function ProfileView({
 
   const sendToTab = async (type: string, payload?: { vacancyId?: string }) => {
     setError(null);
+    setSuccessMessage(null);
     const [tab] = await chrome.tabs.query({
       active: true,
       currentWindow: true,
@@ -122,10 +124,15 @@ export function ProfileView({
     }
     setIsImporting(true);
     setError(null);
+    setSuccessMessage(null);
     const resp = await sendToTab("IMPORT_TO_SYSTEM", {
       vacancyId: selectedVacancyId || undefined,
     });
-    if (resp?.ok === false) setError(resp.error ?? "Ошибка импорта");
+    if (resp?.ok === false) {
+      setError(resp.error ?? "Ошибка импорта");
+    } else if (resp?.ok === true) {
+      setSuccessMessage("Резюме успешно добавлено в вакансию");
+    }
     setIsImporting(false);
   };
 
@@ -205,6 +212,11 @@ export function ProfileView({
         {error && (
           <Alert variant="destructive" role="alert" aria-live="polite">
             {error}
+          </Alert>
+        )}
+        {successMessage && (
+          <Alert variant="default" role="status" aria-live="polite">
+            {successMessage}
           </Alert>
         )}
       </div>
