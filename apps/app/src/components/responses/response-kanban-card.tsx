@@ -75,13 +75,15 @@ export function ResponseKanbanCard({
     >
       <div className="flex items-center justify-between gap-2 px-3 py-2 border-b border-border">
         <div className="flex items-center gap-2 min-w-0">
-          {response.priorityScore !== null && (
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
-              <span className="font-medium">Приоритет:</span>
-              <Badge variant="outline" size="sm">
-                {response.priorityScore.toFixed(1)}
-              </Badge>
-            </div>
+          {score !== null && score !== undefined && (
+            <Badge
+              variant={score >= 60 ? "success" : "secondary"}
+              size="sm"
+              className="shrink-0"
+            >
+              <IconStar className="size-3 mr-1" />
+              {score.toFixed(0)}
+            </Badge>
           )}
           {messageCount > 0 && (
             <div
@@ -93,16 +95,6 @@ export function ResponseKanbanCard({
             </div>
           )}
         </div>
-        {score !== null && score !== undefined && (
-          <Badge
-            variant={score >= 60 ? "success" : "secondary"}
-            size="sm"
-            className="shrink-0"
-          >
-            <IconStar className="size-3 mr-1" />
-            {score.toFixed(0)}
-          </Badge>
-        )}
       </div>
 
       <button

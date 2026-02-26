@@ -210,7 +210,7 @@ function Kanban<T>({
       overItemsLength: number,
     ): number => {
       const { active, over, delta } = event
-      if (isColumn(over.id)) return overItemsLength
+      if (!over || isColumn(over.id)) return overItemsLength
       if (overIndex < 0) return overItemsLength
 
       const rectRef = active.rect as React.RefObject<{
@@ -287,6 +287,8 @@ function Kanban<T>({
         const baseOverIndex = containerItems.findIndex(
           (item: T) => getItemValue(item) === over.id,
         )
+        if (baseOverIndex < 0) return
+
         const insertIndex = getInsertIndex(
           event,
           baseOverIndex,
@@ -296,6 +298,7 @@ function Kanban<T>({
         if (activeIndex !== insertIndex) {
           const toIndex =
             activeIndex < insertIndex ? insertIndex - 1 : insertIndex
+          if (toIndex < 0) return
           setColumns({
             ...columns,
             [container]: arrayMove(containerItems, activeIndex, toIndex),
