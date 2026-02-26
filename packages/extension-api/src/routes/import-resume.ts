@@ -210,16 +210,15 @@ export async function handleImportResume(c: Context) {
 
   let targetResponse: { id: string } & Record<string, unknown>;
 
-  const existing =
-    input.contactInfo?.platformProfileUrl
-      ? await db.query.response.findFirst({
-          where: and(
-            eq(responseTable.entityId, input.vacancyId),
-            eq(responseTable.entityType, "vacancy"),
-            eq(responseTable.profileUrl, input.contactInfo.platformProfileUrl),
-          ),
-        })
-      : null;
+  const existing = input.contactInfo?.platformProfileUrl
+    ? await db.query.response.findFirst({
+        where: and(
+          eq(responseTable.entityId, input.vacancyId),
+          eq(responseTable.entityType, "vacancy"),
+          eq(responseTable.profileUrl, input.contactInfo.platformProfileUrl),
+        ),
+      })
+    : null;
 
   if (existing) {
     const [updated] = await db
@@ -266,7 +265,9 @@ export async function handleImportResume(c: Context) {
       .values({
         entityId: input.vacancyId,
         entityType: "vacancy",
-        candidateId: normalizeCandidateId(input.contactInfo?.platformProfileUrl),
+        candidateId: normalizeCandidateId(
+          input.contactInfo?.platformProfileUrl,
+        ),
         candidateName: input.freelancerName,
         coverLetter: input.responseText,
         importSource: input.platformSource,

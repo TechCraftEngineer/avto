@@ -82,12 +82,12 @@ async function importToVacancy(
   let resumeTextHtml: string | undefined;
 
   if (platformSource === "HH" && typeof document !== "undefined") {
-    const { fetchPhotoAsBase64, fetchResumePdfAsBase64 } =
-      await import("../../parsers/hh-employer/fetch-resume-html");
-    const {
-      getResumePdfUrl,
-      fetchResumeTextHtml,
-    } = await import("../../parsers/hh-employer/fetch-resume-text");
+    const { fetchPhotoAsBase64, fetchResumePdfAsBase64 } = await import(
+      "../../parsers/hh-employer/fetch-resume-html"
+    );
+    const { getResumePdfUrl, fetchResumeTextHtml } = await import(
+      "../../parsers/hh-employer/fetch-resume-text"
+    );
 
     const photoImg = document.querySelector<HTMLImageElement>(
       'div[data-qa="resume-photo"] img',

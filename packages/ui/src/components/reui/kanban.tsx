@@ -209,20 +209,24 @@ function Kanban<T>({
       overIndex: number,
       overItemsLength: number,
     ): number => {
-      const { active, over } = event
+      const { active, over, delta } = event
       if (isColumn(over.id)) return overItemsLength
       if (overIndex < 0) return overItemsLength
 
-      const rectSource = active.rect as
-        | { current?: { translated?: DOMRect; initial?: DOMRect }; translated?: DOMRect; initial?: DOMRect }
-        | undefined
-      const rect = rectSource?.current ?? rectSource
-      const activeRect = rect?.translated ?? rect?.initial
+      const rectRef = active.rect as React.RefObject<{
+        initial: { top: number; height: number } | null
+        translated: { top: number; height: number } | null
+      }> | null
+      const rectData = rectRef?.current ?? (active.rect as { initial?: { top: number; height: number }; translated?: { top: number; height: number } })
+      const rect = rectData?.translated ?? rectData?.initial
       const overRect = over.rect as { top: number; height: number } | undefined
 
-      if (!activeRect || !overRect) return overIndex
+      if (!rect || !overRect) return overIndex
 
-      const activeCenterY = activeRect.top + activeRect.height / 2
+      const currentTop = rectData?.translated
+        ? rect.top
+        : rect.top + (delta?.y ?? 0)
+      const activeCenterY = currentTop + rect.height / 2
       const overCenterY = overRect.top + overRect.height / 2
 
       return activeCenterY < overCenterY ? overIndex : overIndex + 1
@@ -251,6 +255,8 @@ function Kanban<T>({
         const activeIndex = activeItems.findIndex(
           (item: T) => getItemValue(item) === active.id,
         )
+        if (activeIndex < 0) return
+
         let overIndex = overItems.findIndex(
           (item: T) => getItemValue(item) === over.id,
         )

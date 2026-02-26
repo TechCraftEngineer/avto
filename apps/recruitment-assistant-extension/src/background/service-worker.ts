@@ -182,11 +182,13 @@ async function proxyApiRequest(request: ApiRequest): Promise<ApiResponse> {
       // Безопасное извлечение сообщения об ошибке (error — extension-api, message — типичный REST)
       const errorMessage =
         typeof data === "object" && data !== null
-          ? ("error" in data && typeof (data as { error?: string }).error === "string"
-              ? (data as { error: string }).error
-              : "message" in data && typeof (data as { message?: string }).message === "string"
-                ? (data as { message: string }).message
-                : response.statusText || "Ошибка запроса к API")
+          ? "error" in data &&
+            typeof (data as { error?: string }).error === "string"
+            ? (data as { error: string }).error
+            : "message" in data &&
+                typeof (data as { message?: string }).message === "string"
+              ? (data as { message: string }).message
+              : response.statusText || "Ошибка запроса к API"
           : response.statusText || "Ошибка запроса к API";
 
       return {
@@ -354,7 +356,10 @@ chrome.runtime.onMessage.addListener(
       }
 
       case "EXECUTE_IMPORT_TO_SYSTEM": {
-        const payload = message.payload as { tabId?: number; vacancyId?: string };
+        const payload = message.payload as {
+          tabId?: number;
+          vacancyId?: string;
+        };
         const tabId = payload?.tabId;
         if (typeof tabId !== "number") {
           sendResponse({ ok: false, error: "Неверный tabId" });
@@ -458,7 +463,8 @@ chrome.runtime.onMessage.addListener(
           sendResponse({ success: false, error: "Неверный URL" });
           return false;
         }
-        const referer = typeof payload?.referer === "string" ? payload.referer : url;
+        const referer =
+          typeof payload?.referer === "string" ? payload.referer : url;
 
         (async () => {
           try {
