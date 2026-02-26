@@ -102,7 +102,23 @@ export function ProfileView({
       return { ok: false as const, error: "Вкладка не найдена" };
     }
     try {
-      const resp = await chrome.tabs.sendMessage(tab.id, { type, payload });
+      let resp: { ok?: boolean; error?: string } | undefined;
+      try {
+        resp = await chrome.tabs.sendMessage(tab.id, { type, payload });
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        if (
+          msg.includes("Receiving end") ||
+          msg.includes("Could not establish connection")
+        ) {
+          resp = await chrome.runtime.sendMessage({
+            type: "EXECUTE_IMPORT_TO_SYSTEM",
+            payload: { tabId: tab.id, vacancyId: payload?.vacancyId },
+          });
+        } else {
+          throw e;
+        }
+      }
       return resp as { ok: boolean; error?: string };
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -215,7 +231,7 @@ export function ProfileView({
           </Alert>
         )}
         {successMessage && (
-          <Alert variant="default" role="status" aria-live="polite">
+          <Alert variant="success" role="status" aria-live="polite">
             {successMessage}
           </Alert>
         )}

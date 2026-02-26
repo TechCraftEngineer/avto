@@ -57,8 +57,6 @@ async function importToVacancy(
   token: string,
   vacancyId: string,
 ): Promise<void> {
-  showNotification({ type: "info", message: "Импорт резюме в вакансию…" });
-
   const platformSource =
     data.platform?.toLowerCase().includes("headhunter") ||
     data.platform?.toLowerCase().includes("hh")
@@ -84,11 +82,12 @@ async function importToVacancy(
   let resumeTextHtml: string | undefined;
 
   if (platformSource === "HH" && typeof document !== "undefined") {
-    const { fetchPhotoAsBase64, fetchResumeHtml, fetchResumePdfAsBase64 } =
+    const { fetchPhotoAsBase64, fetchResumePdfAsBase64 } =
       await import("../../parsers/hh-employer/fetch-resume-html");
-    const { getResumePdfUrl } = await import(
-      "../../parsers/hh-employer/fetch-resume-text"
-    );
+    const {
+      getResumePdfUrl,
+      fetchResumeTextHtml,
+    } = await import("../../parsers/hh-employer/fetch-resume-text");
 
     const photoImg = document.querySelector<HTMLImageElement>(
       'div[data-qa="resume-photo"] img',
@@ -110,7 +109,10 @@ async function importToVacancy(
 
     if (profileUrl) {
       try {
-        resumeTextHtml = await fetchResumeHtml(profileUrl);
+        resumeTextHtml = await fetchResumeTextHtml(profileUrl, candidateName, {
+          baseOrigin: window.location.origin,
+          vacancyId,
+        });
       } catch {
         // Продолжаем без HTML
       }
@@ -160,9 +162,4 @@ async function importToVacancy(
   if (!resp?.success) {
     throw new Error(resp?.error ?? "Ошибка импорта");
   }
-
-  showNotification({
-    type: "success",
-    message: "Резюме успешно добавлено в вакансию",
-  });
 }

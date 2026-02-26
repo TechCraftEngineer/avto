@@ -187,22 +187,6 @@ export async function handleImportResume(c: Context) {
     return c.json({ error: "Нет доступа к этой вакансии" }, 403);
   }
 
-  if (input.contactInfo?.platformProfileUrl) {
-    const existing = await db.query.response.findFirst({
-      where: and(
-        eq(responseTable.entityId, input.vacancyId),
-        eq(responseTable.entityType, "vacancy"),
-        eq(responseTable.profileUrl, input.contactInfo.platformProfileUrl),
-      ),
-    });
-    if (existing) {
-      return c.json(
-        { error: "Отклик от этого фрилансера уже существует" },
-        400,
-      );
-    }
-  }
-
   const workspaceData = await db.query.workspace.findFirst({
     where: (ws, { eq }) => eq(ws.id, vacancy.workspaceId),
     columns: { organizationId: true },
@@ -224,50 +208,89 @@ export async function handleImportResume(c: Context) {
     originalSource: mapOriginalSource(input.platformSource),
   });
 
-  let globalCandidateId: string | null = null;
-  try {
-    const globalRepo = new GlobalCandidateRepository(db);
-    const { candidate } = await globalRepo.findOrCreateWithOrganizationLink(
-      candidateData,
-      {
-        organizationId: workspaceData.organizationId,
-        status: "ACTIVE",
-        appliedAt: new Date(),
-      },
-    );
-    globalCandidateId = candidate.id;
-  } catch (err) {
-    console.error("[extension-api] import-resume candidate create:", err);
-  }
+  let targetResponse: { id: string } & Record<string, unknown>;
 
-  const [createdResponse] = await db
-    .insert(responseTable)
-    .values({
-      entityId: input.vacancyId,
-      entityType: "vacancy",
-      candidateId: normalizeCandidateId(input.contactInfo?.platformProfileUrl),
-      candidateName: input.freelancerName,
-      coverLetter: input.responseText,
-      importSource: input.platformSource,
-      profileUrl: input.contactInfo?.platformProfileUrl,
-      phone: input.contactInfo?.phone,
-      telegramUsername: input.contactInfo?.telegram,
-      globalCandidateId,
-      contacts: input.contactInfo
-        ? {
-            email: input.contactInfo.email,
-            phone: input.contactInfo.phone,
-            telegram: input.contactInfo.telegram,
-            platformProfileUrl: input.contactInfo.platformProfileUrl,
-          }
-        : undefined,
-      status: "NEW",
-      respondedAt: new Date(),
-    })
-    .returning();
+  const existing =
+    input.contactInfo?.platformProfileUrl
+      ? await db.query.response.findFirst({
+          where: and(
+            eq(responseTable.entityId, input.vacancyId),
+            eq(responseTable.entityType, "vacancy"),
+            eq(responseTable.profileUrl, input.contactInfo.platformProfileUrl),
+          ),
+        })
+      : null;
 
-  if (!createdResponse) {
-    return c.json({ error: "Не удалось создать отклик" }, 500);
+  if (existing) {
+    const [updated] = await db
+      .update(responseTable)
+      .set({
+        candidateName: input.freelancerName,
+        coverLetter: input.responseText,
+        phone: input.contactInfo?.phone,
+        telegramUsername: input.contactInfo?.telegram,
+        contacts: input.contactInfo
+          ? {
+              email: input.contactInfo.email,
+              phone: input.contactInfo.phone,
+              telegram: input.contactInfo.telegram,
+              platformProfileUrl: input.contactInfo.platformProfileUrl,
+            }
+          : undefined,
+      })
+      .where(eq(responseTable.id, existing.id))
+      .returning();
+    if (!updated) {
+      return c.json({ error: "Не удалось обновить отклик" }, 500);
+    }
+    targetResponse = updated;
+  } else {
+    let globalCandidateId: string | null = null;
+    try {
+      const globalRepo = new GlobalCandidateRepository(db);
+      const { candidate } = await globalRepo.findOrCreateWithOrganizationLink(
+        candidateData,
+        {
+          organizationId: workspaceData.organizationId,
+          status: "ACTIVE",
+          appliedAt: new Date(),
+        },
+      );
+      globalCandidateId = candidate.id;
+    } catch (err) {
+      console.error("[extension-api] import-resume candidate create:", err);
+    }
+
+    const [createdResponse] = await db
+      .insert(responseTable)
+      .values({
+        entityId: input.vacancyId,
+        entityType: "vacancy",
+        candidateId: normalizeCandidateId(input.contactInfo?.platformProfileUrl),
+        candidateName: input.freelancerName,
+        coverLetter: input.responseText,
+        importSource: input.platformSource,
+        profileUrl: input.contactInfo?.platformProfileUrl,
+        phone: input.contactInfo?.phone,
+        telegramUsername: input.contactInfo?.telegram,
+        globalCandidateId,
+        contacts: input.contactInfo
+          ? {
+              email: input.contactInfo.email,
+              phone: input.contactInfo.phone,
+              telegram: input.contactInfo.telegram,
+              platformProfileUrl: input.contactInfo.platformProfileUrl,
+            }
+          : undefined,
+        status: "NEW",
+        respondedAt: new Date(),
+      })
+      .returning();
+
+    if (!createdResponse) {
+      return c.json({ error: "Не удалось создать отклик" }, 500);
+    }
+    targetResponse = createdResponse;
   }
 
   const resumeId = normalizeCandidateId(input.contactInfo?.platformProfileUrl);
@@ -277,7 +300,7 @@ export async function handleImportResume(c: Context) {
     input.photoUrl
       ? processPhotoUpload(
           input.photoUrl,
-          createdResponse.id,
+          targetResponse.id,
           resumeId,
           candidateName,
         )
@@ -285,13 +308,13 @@ export async function handleImportResume(c: Context) {
     input.resumePdfBase64
       ? processPdfUpload(
           input.resumePdfBase64,
-          createdResponse.id,
+          targetResponse.id,
           resumeId,
           candidateName,
         )
       : Promise.resolve(),
     input.resumeTextHtml?.trim()
-      ? processResumeText(input.resumeTextHtml, createdResponse.id)
+      ? processResumeText(input.resumeTextHtml, targetResponse.id)
       : Promise.resolve(),
   ]);
 
@@ -306,5 +329,5 @@ export async function handleImportResume(c: Context) {
     failureCount: 0,
   });
 
-  return c.json({ response: createdResponse, success: true });
+  return c.json({ response: targetResponse, success: true });
 }

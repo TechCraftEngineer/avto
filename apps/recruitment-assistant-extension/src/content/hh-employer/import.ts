@@ -364,7 +364,12 @@ export async function runResponsesImport(
       let resumePdfBase64: string | undefined;
       if (fetchResumeDetails && r.resumeUrl) {
         try {
-          resumeTextHtml = await fetchResumeTextHtml(r.resumeUrl, r.name);
+          resumeTextHtml = await fetchResumeTextHtml(r.resumeUrl, r.name, {
+            baseOrigin:
+              r.resumeUrl.startsWith("http")
+                ? new URL(r.resumeUrl).origin
+                : window.location.origin,
+          });
         } catch (_e) {
           // пропускаем ошибки
         }

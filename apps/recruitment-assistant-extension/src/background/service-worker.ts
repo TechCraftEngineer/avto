@@ -15,6 +15,7 @@ type MessageType =
   | "PING"
   | "EXECUTE_IMPORT_SELECTED_VACANCIES"
   | "EXECUTE_IMPORT_RESPONSES"
+  | "EXECUTE_IMPORT_TO_SYSTEM"
   | "FETCH_RESUME_TEXT"
   | "FETCH_RESUME_PDF"
   | "FETCH_CHATIK_CHATS"
@@ -25,7 +26,11 @@ type MessageType =
  */
 interface Message {
   type: MessageType;
-  payload?: ApiRequest | { tabId: number } | Record<string, unknown>;
+  payload?:
+    | ApiRequest
+    | { tabId: number }
+    | { tabId: number; vacancyId?: string }
+    | Record<string, unknown>;
 }
 
 /**
@@ -62,6 +67,37 @@ function isUrlAllowed(url: URL): boolean {
   return ALLOWED_HOSTS.some(
     (allowed) => host === allowed || host.endsWith(`.${allowed}`),
   );
+}
+
+/**
+ * Извлекает innerHTML div.resume из HTML (аналог cheerio $('div[class="resume"]').html())
+ * Service Worker не имеет DOMParser — используем подсчёт вложенных div
+ */
+function extractDivResume(html: string): string | null {
+  const openMatch = html.match(
+    /<div[^>]*\bclass=["']resume(\s+[^"']*)?["'][^>]*>/i,
+  );
+  if (!openMatch) return null;
+  const openTag = openMatch[0];
+  const startIdx = html.indexOf(openTag) + openTag.length;
+  let depth = 1;
+  let i = startIdx;
+  while (depth > 0 && i < html.length) {
+    const nextClose = html.indexOf("</div>", i);
+    if (nextClose === -1) break;
+    const nextOpen = html.indexOf("<div", i);
+    if (nextOpen !== -1 && nextOpen < nextClose) {
+      depth++;
+      i = nextOpen + 4;
+    } else {
+      depth--;
+      if (depth === 0) {
+        return html.slice(startIdx, nextClose).trim();
+      }
+      i = nextClose + 6;
+    }
+  }
+  return null;
 }
 
 /**
@@ -317,6 +353,52 @@ chrome.runtime.onMessage.addListener(
         return true;
       }
 
+      case "EXECUTE_IMPORT_TO_SYSTEM": {
+        const payload = message.payload as { tabId?: number; vacancyId?: string };
+        const tabId = payload?.tabId;
+        if (typeof tabId !== "number") {
+          sendResponse({ ok: false, error: "Неверный tabId" });
+          return false;
+        }
+        (async () => {
+          try {
+            const manifest = chrome.runtime.getManifest();
+            const profileEntry = manifest.content_scripts?.find((cs) =>
+              cs.js?.some(
+                (p) =>
+                  p.includes("content-script") && !p.includes("hh-employer"),
+              ),
+            );
+            const scriptPath = profileEntry?.js?.[0];
+            const cssPath = profileEntry?.css?.[0];
+            if (scriptPath) {
+              if (cssPath) {
+                await chrome.scripting.insertCSS({
+                  target: { tabId },
+                  files: [cssPath],
+                });
+              }
+              await chrome.scripting.executeScript({
+                target: { tabId },
+                files: [scriptPath],
+              });
+            }
+            const resp = await chrome.tabs.sendMessage(tabId, {
+              type: "IMPORT_TO_SYSTEM",
+              payload: { vacancyId: payload.vacancyId },
+            });
+            sendResponse(resp ?? { ok: false, error: "Нет ответа" });
+          } catch (err) {
+            logError("EXECUTE_IMPORT_TO_SYSTEM", err);
+            sendResponse({
+              ok: false,
+              error: err instanceof Error ? err.message : "Ошибка выполнения",
+            });
+          }
+        })();
+        return true;
+      }
+
       case "FETCH_RESUME_PDF": {
         const url = (message.payload as { url?: string })?.url;
         if (typeof url !== "string") {
@@ -370,11 +452,13 @@ chrome.runtime.onMessage.addListener(
       }
 
       case "FETCH_RESUME_TEXT": {
-        const url = (message.payload as { url?: string })?.url;
+        const payload = message.payload as { url?: string; referer?: string };
+        const url = payload?.url;
         if (typeof url !== "string") {
           sendResponse({ success: false, error: "Неверный URL" });
           return false;
         }
+        const referer = typeof payload?.referer === "string" ? payload.referer : url;
 
         (async () => {
           try {
@@ -384,6 +468,7 @@ chrome.runtime.onMessage.addListener(
               headers: {
                 Accept:
                   "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                Referer: referer,
               },
             });
 
@@ -395,16 +480,26 @@ chrome.runtime.onMessage.addListener(
 
             const html = await response.text();
 
-            // Извлекаем содержимое <body> через регулярное выражение
-            // Service Worker не имеет доступа к DOMParser
-            const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-
-            if (!bodyMatch || !bodyMatch[1]) {
-              throw new Error("Не найден элемент body в HTML");
+            // HH возвращает conversion_error при ошибке конвертации
+            if (html.includes("conversion_error")) {
+              throw new Error("HH.ru: ошибка конвертации резюме");
             }
 
-            const content = bodyMatch[1].trim();
-            sendResponse({ success: true, data: content });
+            // Извлекаем innerHTML div.resume (как в download-resume-html)
+            // Service Worker не имеет DOMParser — используем подсчёт вложенных div
+            const content = extractDivResume(html);
+            if (!content) {
+              // Fallback: весь body если div.resume не найден
+              const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+              const fallback = bodyMatch?.[1]?.trim();
+              if (fallback && !fallback.includes("conversion_error")) {
+                sendResponse({ success: true, data: fallback });
+              } else {
+                throw new Error("Не найден div.resume и body в HTML");
+              }
+            } else {
+              sendResponse({ success: true, data: content });
+            }
           } catch (err) {
             logError("FETCH_RESUME_TEXT", err);
             sendResponse({
