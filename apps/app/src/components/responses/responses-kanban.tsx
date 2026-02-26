@@ -13,10 +13,14 @@ import {
   KanbanOverlay,
 } from "@qbs-autonaim/ui/components/reui/kanban";
 import { cn } from "@qbs-autonaim/ui/utils";
-import { IconGripVertical } from "@tabler/icons-react";
+import {
+  IconChevronLeft,
+  IconChevronRight,
+  IconGripVertical,
+} from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useORPC } from "~/orpc/react";
 import { ResponseKanbanCard } from "./response-kanban-card";
@@ -52,6 +56,108 @@ function responsesToColumns(
     columns[col.id] = responses.filter((r) => r.status === col.id);
   }
   return columns;
+}
+
+function HorizontalScrollWithHints({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [scrollState, setScrollState] = useState({
+    canScrollLeft: false,
+    canScrollRight: false,
+  });
+
+  const updateScrollState = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    const canScrollLeft = scrollLeft > 0;
+    const canScrollRight = scrollLeft + clientWidth < scrollWidth - 1;
+    setScrollState((prev) => {
+      if (
+        prev.canScrollLeft === canScrollLeft &&
+        prev.canScrollRight === canScrollRight
+      )
+        return prev;
+      return { canScrollLeft, canScrollRight };
+    });
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    updateScrollState();
+    const ro = new ResizeObserver(updateScrollState);
+    ro.observe(el);
+    el.addEventListener("scroll", updateScrollState);
+    return () => {
+      ro.disconnect();
+      el.removeEventListener("scroll", updateScrollState);
+    };
+  }, [updateScrollState]);
+
+  const scroll = (direction: "left" | "right") => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const step = el.clientWidth * 0.8;
+    el.scrollBy({
+      left: direction === "left" ? -step : step,
+      behavior: "smooth",
+    });
+  };
+
+  const hasOverflow = scrollState.canScrollLeft || scrollState.canScrollRight;
+
+  return (
+    <div className="relative flex min-h-0 flex-1 flex-col min-w-0">
+      <div
+        ref={scrollRef}
+        className="flex min-h-0 flex-1 flex-col overflow-x-auto overflow-y-hidden rounded-lg scroll-smooth"
+      >
+        {children}
+      </div>
+      {hasOverflow && (
+        <>
+          {scrollState.canScrollLeft && (
+            <>
+              <div
+                className="pointer-events-none absolute left-0 top-0 bottom-0 w-12 z-10 rounded-l-lg bg-gradient-to-r from-background via-background/60 to-transparent"
+                aria-hidden
+              />
+              <Button
+                variant="secondary"
+                size="icon"
+                className="absolute left-2 top-1/2 -translate-y-1/2 z-20 size-8 rounded-full shadow-md"
+                onClick={() => scroll("left")}
+                aria-label="Прокрутить влево"
+              >
+                <IconChevronLeft className="size-4" />
+              </Button>
+            </>
+          )}
+          {scrollState.canScrollRight && (
+            <>
+              <div
+                className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 z-10 rounded-r-lg bg-gradient-to-l from-background via-background/60 to-transparent"
+                aria-hidden
+              />
+              <Button
+                variant="secondary"
+                size="icon"
+                className="absolute right-2 top-1/2 -translate-y-1/2 z-20 size-8 rounded-full shadow-md"
+                onClick={() => scroll("right")}
+                aria-label="Прокрутить вправо"
+              >
+                <IconChevronRight className="size-4" />
+              </Button>
+            </>
+          )}
+        </>
+      )}
+    </div>
+  );
 }
 
 interface ResponseKanbanItemProps {
@@ -331,7 +437,7 @@ export function ResponsesKanban({
       onMove={handleMove}
       className="flex min-h-0 flex-1 flex-col"
     >
-      <div className="flex min-h-0 flex-1 flex-col overflow-x-auto overflow-y-hidden rounded-lg">
+      <HorizontalScrollWithHints>
         <KanbanBoard
           className="flex min-h-full min-w-max flex-1 gap-3 pb-2 md:gap-4 items-stretch"
           aria-label="Канбан-доска откликов"
@@ -349,7 +455,7 @@ export function ResponsesKanban({
             />
           ))}
         </KanbanBoard>
-      </div>
+      </HorizontalScrollWithHints>
       <KanbanOverlay className="bg-muted/10 rounded-lg border-2 border-dashed border-border">
         <div className="h-24 min-w-[200px]" aria-hidden />
       </KanbanOverlay>
