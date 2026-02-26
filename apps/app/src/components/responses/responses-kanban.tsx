@@ -115,7 +115,7 @@ function ResponseKanbanColumn({
   return (
     <KanbanColumn
       value={value}
-      className="flex min-h-full w-[320px] shrink-0 flex-col"
+      className="flex min-h-full w-[360px] shrink-0 flex-col"
     >
       <fieldset className="flex min-h-full flex-col border-0 p-0 m-0">
         <legend className="sr-only">{`Колонка ${label}`}</legend>
