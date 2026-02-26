@@ -8,15 +8,10 @@ import {
   ToggleGroupItem,
 } from "@qbs-autonaim/ui/components/toggle-group";
 import { cn } from "@qbs-autonaim/ui/utils";
-import {
-  IconFilter,
-  IconLayoutKanban,
-  IconSparkles,
-  IconTable,
-} from "@tabler/icons-react";
+import { IconLayoutKanban, IconTable } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { PageHeader } from "~/components/layout";
 import {
   ResponsesFilters,
@@ -43,9 +38,9 @@ export default function ResponsesPage() {
   const [screeningFilter, setScreeningFilter] = useState<
     "all" | "evaluated" | "not-evaluated" | "high-score" | "low-score"
   >("all");
-  const [statusFilter, setStatusFilter] = useState<
-    Array<"NEW" | "EVALUATED" | "INTERVIEW" | "COMPLETED" | "SKIPPED">
-  >([]);
+  const statusFilter: Array<
+    "NEW" | "EVALUATED" | "INTERVIEW" | "COMPLETED" | "SKIPPED"
+  > = [];
   const [sortField, setSortField] = useState<
     | "createdAt"
     | "score"
@@ -58,10 +53,6 @@ export default function ResponsesPage() {
     | null
   >(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
-  const [priorityFilter, setPriorityFilter] = useState<
-    "all" | "high" | "medium" | "low"
-  >("all");
-
   const [selectedVacancyIds, setSelectedVacancyIds] = useQueryState(
     "vacancies",
     parseAsArrayOf(parseAsString).withDefault([]),
@@ -91,6 +82,11 @@ export default function ResponsesPage() {
     }),
     enabled: Boolean(workspace?.id),
   });
+
+  const responses = useMemo(
+    () => responsesData?.responses ?? [],
+    [responsesData?.responses],
+  );
 
   const stats = {
     totalResponses: responsesData?.total ?? 0,
@@ -130,51 +126,8 @@ export default function ResponsesPage() {
     }
   };
 
-  const quickFilters = [
-    {
-      label: "Требуют внимания",
-      icon: IconSparkles,
-      active: screeningFilter === "high-score" && statusFilter.includes("NEW"),
-      onClick: () => {
-        setScreeningFilter("high-score");
-        setStatusFilter(["NEW"]);
-        setPriorityFilter("all");
-      },
-    },
-    {
-      label: "Высокий приоритет",
-      icon: IconFilter,
-      active: priorityFilter === "high",
-      onClick: () => {
-        setPriorityFilter("high");
-        setScreeningFilter("all");
-      },
-    },
-    {
-      label: "Не оценённые",
-      icon: IconFilter,
-      active: screeningFilter === "not-evaluated",
-      onClick: () => {
-        setScreeningFilter("not-evaluated");
-        setStatusFilter([]);
-        setPriorityFilter("all");
-      },
-    },
-  ];
-
-  const activeQuickFilter = quickFilters.find((f) => f.active)?.label;
-  const handleQuickFilterChange = (v: string | undefined) => {
-    if (!v) {
-      setScreeningFilter("all");
-      setStatusFilter([]);
-      setPriorityFilter("all");
-      return;
-    }
-    quickFilters.find((f) => f.label === v)?.onClick();
-  };
-
   return (
-    <div className="flex flex-1 flex-col">
+    <div className="flex min-h-0 flex-1 flex-col">
       <PageHeader
         title="Отклики"
         description="Управление откликами кандидатов на ваши вакансии"
@@ -199,7 +152,7 @@ export default function ResponsesPage() {
         </ToggleGroup>
       </PageHeader>
 
-      <div className="@container/main mx-auto flex w-full max-w-[1600px] flex-1 flex-col gap-6 px-4 py-6 md:px-6">
+      <div className="@container/main mx-auto flex min-h-0 w-full max-w-[1600px] flex-1 flex-col gap-6 overflow-hidden px-4 py-6 md:px-6">
         <ResponsesStats
           totalResponses={stats.totalResponses}
           evaluatedResponses={stats.evaluatedResponses}
@@ -208,35 +161,10 @@ export default function ResponsesPage() {
           isLoading={isLoading}
         />
 
-        <Card className="border-border bg-card shadow-sm">
-          <CardContent className="p-4">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-medium text-muted-foreground">
-                Быстрые фильтры:
-              </span>
-              <ToggleGroup
-                type="single"
-                value={activeQuickFilter}
-                onValueChange={handleQuickFilterChange}
-                variant="outline"
-                size="sm"
-                className="flex-wrap"
-              >
-                {quickFilters.map((filter) => (
-                  <ToggleGroupItem key={filter.label} value={filter.label}>
-                    <filter.icon className="size-3.5" />
-                    {filter.label}
-                  </ToggleGroupItem>
-                ))}
-              </ToggleGroup>
-            </div>
-          </CardContent>
-        </Card>
-
         <div
           className={cn(
-            "flex flex-col gap-5",
-            viewMode === "board" && "min-h-0 flex-1",
+            "flex min-h-0 flex-col gap-5",
+            viewMode === "board" && "flex-1",
           )}
         >
           <Card className="border-border bg-card shadow-sm">
@@ -296,7 +224,7 @@ export default function ResponsesPage() {
             >
               <CardContent className="flex flex-1 flex-col gap-4 overflow-auto p-4">
                 <ResponsesTable
-                  responses={responsesData?.responses ?? []}
+                  responses={responses}
                   isLoading={isLoading}
                   orgSlug={orgSlug ?? ""}
                   workspaceSlug={workspaceSlug ?? ""}
@@ -321,11 +249,14 @@ export default function ResponsesPage() {
           ) : (
             <Card
               className="kanban-page flex min-h-0 flex-1 flex-col overflow-hidden border-border bg-card shadow-sm"
-              style={{ minHeight: "calc(100dvh - 320px)" }}
+              style={{
+                minHeight:
+                  "calc(100dvh - var(--header-height, 3.5rem) - 320px)",
+              }}
             >
               <CardContent className="flex flex-1 flex-col overflow-hidden p-4">
                 <ResponsesKanban
-                  responses={responsesData?.responses ?? []}
+                  responses={responses}
                   isLoading={isLoading}
                   orgSlug={orgSlug ?? ""}
                   workspaceSlug={workspaceSlug ?? ""}

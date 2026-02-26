@@ -195,9 +195,35 @@ export function ResponsesKanban({
   );
   const [columns, setColumns] = useState(initialColumns);
 
-  // Синхронизируем с сервером при изменении responses
+  // Синхронизируем с сервером при изменении responses, сохраняя локальный порядок
+  // (порядок карточек после drag) и подставляя свежие данные с сервера
   useEffect(() => {
-    setColumns(responsesToColumns(responses));
+    const serverColumns = responsesToColumns(responses);
+    const responseById = new Map(responses.map((r) => [r.id, r]));
+
+    setColumns((prev) => {
+      const merged: Record<string, ResponseItem[]> = {};
+      for (const col of STATUS_COLUMNS) {
+        const colId = col.id;
+        const prevItems = prev[colId] ?? [];
+        const serverItems = serverColumns[colId] ?? [];
+        const serverIds = new Set(serverItems.map((r) => r.id));
+
+        const mergedItems: ResponseItem[] = [];
+        for (const item of prevItems) {
+          if (serverIds.has(item.id)) {
+            mergedItems.push(responseById.get(item.id) ?? item);
+          }
+        }
+        for (const item of serverItems) {
+          if (!mergedItems.some((m) => m.id === item.id)) {
+            mergedItems.push(item);
+          }
+        }
+        merged[colId] = mergedItems;
+      }
+      return merged;
+    });
   }, [responses]);
 
   const { mutate: updateStatus } = useMutation(
@@ -225,6 +251,9 @@ export function ResponsesKanban({
       },
     }),
   );
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const vacancyMap = useMemo(
     () => new Map(vacancies.map((v) => [v.id, v.title])),
@@ -266,14 +295,43 @@ export function ResponsesKanban({
     [columns, updateStatus],
   );
 
+  if (!mounted) {
+    return (
+      <div className="flex min-h-0 flex-1 flex-col overflow-x-auto overflow-y-hidden rounded-lg">
+        <div className="flex min-h-full min-w-max flex-1 gap-3 pb-2 md:gap-4 items-stretch">
+          {STATUS_COLUMNS.map((col) => (
+            <div
+              key={col.id}
+              className={cn(
+                "flex min-h-full w-[360px] shrink-0 flex-col rounded-lg border-2 border-dashed border-border bg-muted/5 p-3",
+              )}
+            >
+              <div className="mb-3 flex items-center gap-2">
+                <div
+                  className={cn("h-2 w-2 rounded-full shrink-0", col.color)}
+                />
+                <div className="h-4 w-24 animate-pulse rounded bg-muted" />
+                <Badge variant="secondary" size="sm" className="ml-auto">
+                  0
+                </Badge>
+              </div>
+              <div className="min-h-[420px]" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Kanban<ResponseItem>
       value={columns}
       onValueChange={setColumns}
       getItemValue={(item) => item.id}
       onMove={handleMove}
+      className="flex min-h-0 flex-1 flex-col"
     >
-      <div className="flex min-h-0 flex-1 flex-col overflow-x-auto rounded-lg">
+      <div className="flex min-h-0 flex-1 flex-col overflow-x-auto overflow-y-hidden rounded-lg">
         <KanbanBoard
           className="flex min-h-full min-w-max flex-1 gap-3 pb-2 md:gap-4 items-stretch"
           aria-label="Канбан-доска откликов"

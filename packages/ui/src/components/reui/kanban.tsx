@@ -14,7 +14,7 @@ import {
   useState,
 } from "react"
 import {
-  closestCenter,
+  closestCorners,
   defaultDropAnimationSideEffects,
   DndContext,
   type DragEndEvent,
@@ -298,7 +298,7 @@ function Kanban<T>({
         if (activeIndex !== insertIndex) {
           const toIndex =
             activeIndex < insertIndex ? insertIndex - 1 : insertIndex
-          if (toIndex < 0) return
+          if (toIndex < 0 || toIndex === activeIndex) return
           setColumns({
             ...columns,
             [container]: arrayMove(containerItems, activeIndex, toIndex),
@@ -468,7 +468,7 @@ function Kanban<T>({
     <KanbanContext.Provider value={contextValue as KanbanContextProps<any>}>
       <DndContext
         sensors={sensors}
-        collisionDetection={closestCenter}
+        collisionDetection={closestCorners}
         onDragStart={handleDragStart}
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
