@@ -203,6 +203,33 @@ function Kanban<T>({
     [columns, findContainer, getItemValue, isColumn],
   )
 
+  const getInsertIndex = useCallback(
+    (
+      event: DragOverEvent,
+      overIndex: number,
+      overItemsLength: number,
+    ): number => {
+      const { active, over } = event
+      if (isColumn(over.id)) return overItemsLength
+      if (overIndex < 0) return overItemsLength
+
+      const rectSource = active.rect as
+        | { current?: { translated?: DOMRect; initial?: DOMRect }; translated?: DOMRect; initial?: DOMRect }
+        | undefined
+      const rect = rectSource?.current ?? rectSource
+      const activeRect = rect?.translated ?? rect?.initial
+      const overRect = over.rect as { top: number; height: number } | undefined
+
+      if (!activeRect || !overRect) return overIndex
+
+      const activeCenterY = activeRect.top + activeRect.height / 2
+      const overCenterY = overRect.top + overRect.height / 2
+
+      return activeCenterY < overCenterY ? overIndex : overIndex + 1
+    },
+    [isColumn],
+  )
+
   const handleDragOver = useCallback(
     (event: DragOverEvent) => {
       const { active, over } = event
@@ -230,6 +257,8 @@ function Kanban<T>({
 
         if (isColumn(over.id)) {
           overIndex = overItems.length
+        } else {
+          overIndex = getInsertIndex(event, overIndex, overItems.length)
         }
 
         const newActiveItems = [...activeItems]
@@ -249,19 +278,33 @@ function Kanban<T>({
         const activeIndex = containerItems.findIndex(
           (item: T) => getItemValue(item) === active.id,
         )
-        const overIndex = containerItems.findIndex(
+        const baseOverIndex = containerItems.findIndex(
           (item: T) => getItemValue(item) === over.id,
         )
+        const insertIndex = getInsertIndex(
+          event,
+          baseOverIndex,
+          containerItems.length,
+        )
 
-        if (activeIndex !== overIndex) {
+        if (activeIndex !== insertIndex) {
+          const toIndex =
+            activeIndex < insertIndex ? insertIndex - 1 : insertIndex
           setColumns({
             ...columns,
-            [container]: arrayMove(containerItems, activeIndex, overIndex),
+            [container]: arrayMove(containerItems, activeIndex, toIndex),
           })
         }
       }
     },
-    [findContainer, getItemValue, isColumn, setColumns, columns, onMove],
+    [
+      findContainer,
+      getInsertIndex,
+      getItemValue,
+      isColumn,
+      setColumns,
+      columns,
+    ],
   )
 
   const handleDragCancel = useCallback(() => {
@@ -303,11 +346,16 @@ function Kanban<T>({
 
         if (dragStart && overContainer && dragStart.activeContainer !== overContainer) {
           const overItems = columns[overContainer] ?? []
-          const overIndex = isColumn(over.id)
+          const baseOverIndex = isColumn(over.id)
             ? overItems.length
             : overItems.findIndex(
                 (item: T) => getItemValue(item) === over.id,
               )
+          const overIndex = getInsertIndex(
+            event as unknown as DragOverEvent,
+            baseOverIndex,
+            overItems.length,
+          )
 
           onMove({
             event,
@@ -350,19 +398,35 @@ function Kanban<T>({
         const activeIndex = containerItems.findIndex(
           (item: T) => getItemValue(item) === active.id,
         )
-        const overIndex = containerItems.findIndex(
+        const baseOverIndex = containerItems.findIndex(
           (item: T) => getItemValue(item) === over.id,
         )
+        const insertIndex = getInsertIndex(
+          event as unknown as DragOverEvent,
+          baseOverIndex,
+          containerItems.length,
+        )
 
-        if (activeIndex !== overIndex) {
+        if (activeIndex !== insertIndex) {
+          const toIndex =
+            activeIndex < insertIndex ? insertIndex - 1 : insertIndex
           setColumns({
             ...columns,
-            [container]: arrayMove(containerItems, activeIndex, overIndex),
+            [container]: arrayMove(containerItems, activeIndex, toIndex),
           })
         }
       }
     },
-    [columnIds, columns, findContainer, getItemValue, isColumn, setColumns, onMove],
+    [
+      columnIds,
+      columns,
+      findContainer,
+      getInsertIndex,
+      getItemValue,
+      isColumn,
+      setColumns,
+      onMove,
+    ],
   )
 
   const contextValue = useMemo(
