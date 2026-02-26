@@ -48,10 +48,10 @@ export function CandidateKanbanColumn({
       <div
         ref={setNodeRef}
         className={cn(
-          "flex flex-col gap-3 flex-1 p-3 rounded-xl border-2 border-dashed transition-colors overflow-y-auto",
+          "flex flex-col gap-3 flex-1 p-3 rounded-xl border-2 border-dashed transition-colors overflow-y-auto min-h-[420px]",
           isOver
             ? "border-primary/50 bg-primary/5"
-            : "border-border/50 bg-background/50",
+            : "border-border/60 bg-muted/20",
         )}
       >
         {isLoading ? (

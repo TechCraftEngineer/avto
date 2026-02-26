@@ -330,6 +330,10 @@ export default function ResponsesPage() {
                   orgSlug={orgSlug ?? ""}
                   workspaceSlug={workspaceSlug ?? ""}
                   workspaceId={workspace?.id ?? ""}
+                  vacancies={(vacanciesData ?? []).map((v) => ({
+                    id: v.id,
+                    title: v.title,
+                  }))}
                 />
               </CardContent>
             </Card>

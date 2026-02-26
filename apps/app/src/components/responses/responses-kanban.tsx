@@ -22,12 +22,18 @@ import { useORPC } from "~/orpc/react";
 import { ResponseKanbanCard } from "./response-kanban-card";
 import type { ResponseItem, ResponseStatus } from "./types";
 
+interface VacancyOption {
+  id: string;
+  title: string;
+}
+
 interface ResponsesKanbanProps {
   responses: ResponseItem[];
   isLoading: boolean;
   orgSlug: string;
   workspaceSlug: string;
   workspaceId: string;
+  vacancies?: VacancyOption[];
 }
 
 const STATUS_COLUMNS: { id: ResponseStatus; label: string; color: string }[] = [
@@ -53,6 +59,7 @@ interface ResponseKanbanItemProps {
   onCardClick: (response: ResponseItem) => void;
   asHandle: boolean;
   isOverlay: boolean;
+  vacancyTitle?: string;
 }
 
 function ResponseKanbanItem({
@@ -60,12 +67,14 @@ function ResponseKanbanItem({
   onCardClick,
   asHandle,
   isOverlay,
+  vacancyTitle,
 }: ResponseKanbanItemProps) {
   const cardContent = (
     <ResponseKanbanCard
       response={response}
       onClick={() => onCardClick(response)}
       isDragging={isOverlay}
+      vacancyTitle={vacancyTitle}
     />
   );
 
@@ -90,6 +99,7 @@ interface ResponseKanbanColumnProps {
   isLoading: boolean;
   onCardClick: (response: ResponseItem) => void;
   isOverlay?: boolean;
+  vacancyMap?: Map<string, string>;
 }
 
 function ResponseKanbanColumn({
@@ -100,6 +110,7 @@ function ResponseKanbanColumn({
   isLoading,
   onCardClick,
   isOverlay = false,
+  vacancyMap,
 }: ResponseKanbanColumnProps) {
   return (
     <KanbanColumn
@@ -131,7 +142,7 @@ function ResponseKanbanColumn({
           value={value}
           className={cn(
             "flex min-h-[420px] min-w-0 flex-1 flex-col gap-3 overflow-y-auto overflow-x-hidden rounded-lg p-3 transition-colors",
-            "border-border bg-card shadow-sm",
+            "border border-border/60 bg-muted/20",
           )}
         >
           {isLoading ? (
@@ -145,7 +156,7 @@ function ResponseKanbanColumn({
               ))}
             </div>
           ) : responses.length === 0 ? (
-            <div className="flex flex-1 flex-col items-center justify-center py-12 text-muted-foreground rounded-lg border border-dashed border-border bg-muted/30">
+            <div className="flex flex-1 flex-col items-center justify-center py-12 text-muted-foreground rounded-lg border border-dashed border-border/60 bg-background/50">
               <p className="text-sm">Нет откликов</p>
             </div>
           ) : (
@@ -156,6 +167,7 @@ function ResponseKanbanColumn({
                 onCardClick={onCardClick}
                 asHandle={!isOverlay}
                 isOverlay={isOverlay}
+                vacancyTitle={vacancyMap?.get(response.entityId)}
               />
             ))
           )}
@@ -171,6 +183,7 @@ export function ResponsesKanban({
   orgSlug,
   workspaceSlug,
   workspaceId,
+  vacancies = [],
 }: ResponsesKanbanProps) {
   const router = useRouter();
   const orpc = useORPC();
@@ -211,6 +224,11 @@ export function ResponsesKanban({
         });
       },
     }),
+  );
+
+  const vacancyMap = useMemo(
+    () => new Map(vacancies.map((v) => [v.id, v.title])),
+    [vacancies],
   );
 
   const handleCardClick = useCallback(
@@ -274,6 +292,7 @@ export function ResponsesKanban({
               responses={columns[col.id] ?? []}
               isLoading={isLoading}
               onCardClick={handleCardClick}
+              vacancyMap={vacancyMap}
             />
           ))}
         </KanbanBoard>
@@ -294,6 +313,7 @@ export function ResponsesKanban({
                 isLoading={isLoading}
                 onCardClick={() => {}}
                 isOverlay
+                vacancyMap={vacancyMap}
               />
             );
           }
@@ -306,6 +326,9 @@ export function ResponsesKanban({
               response={response}
               onClick={() => {}}
               isDragging
+              vacancyTitle={
+                response ? vacancyMap.get(response.entityId) : undefined
+              }
             />
           ) : null;
         }}
