@@ -64,10 +64,16 @@ function HorizontalScrollWithHints({
   children: React.ReactNode;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [scrollState, setScrollState] = useState({
     canScrollLeft: false,
     canScrollRight: false,
   });
+  const [arrowStyle, setArrowStyle] = useState<{
+    useFixed: boolean;
+    left?: number;
+    right?: number;
+  }>({ useFixed: false });
 
   const updateScrollState = useCallback(() => {
     const el = scrollRef.current;
@@ -85,18 +91,59 @@ function HorizontalScrollWithHints({
     });
   }, []);
 
+  const updateArrowPosition = useCallback(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const vh = window.innerHeight;
+    const useFixed = rect.height > vh * 0.8;
+    setArrowStyle((prev) => {
+      const next = useFixed
+        ? {
+            useFixed: true,
+            left: rect.left + 8,
+            right: window.innerWidth - rect.right + 8,
+          }
+        : { useFixed: false };
+      if (
+        prev.useFixed === next.useFixed &&
+        prev.left === next.left &&
+        prev.right === next.right
+      )
+        return prev;
+      return next;
+    });
+  }, []);
+
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
     updateScrollState();
-    const ro = new ResizeObserver(updateScrollState);
+    const ro = new ResizeObserver(() => {
+      updateScrollState();
+      updateArrowPosition();
+    });
     ro.observe(el);
     el.addEventListener("scroll", updateScrollState);
     return () => {
       ro.disconnect();
       el.removeEventListener("scroll", updateScrollState);
     };
-  }, [updateScrollState]);
+  }, [updateScrollState, updateArrowPosition]);
+
+  useEffect(() => {
+    updateArrowPosition();
+    const ro = new ResizeObserver(updateArrowPosition);
+    const el = containerRef.current;
+    if (el) ro.observe(el);
+    window.addEventListener("scroll", updateArrowPosition, true);
+    window.addEventListener("resize", updateArrowPosition);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("scroll", updateArrowPosition, true);
+      window.removeEventListener("resize", updateArrowPosition);
+    };
+  }, [updateArrowPosition]);
 
   const scroll = (direction: "left" | "right") => {
     const el = scrollRef.current;
@@ -110,8 +157,13 @@ function HorizontalScrollWithHints({
 
   const hasOverflow = scrollState.canScrollLeft || scrollState.canScrollRight;
 
+  const buttonClass = "size-8 rounded-full shadow-md pointer-events-auto z-20";
+
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col min-w-0">
+    <div
+      ref={containerRef}
+      className="relative flex min-h-0 flex-1 flex-col min-w-0"
+    >
       <div
         ref={scrollRef}
         className="flex min-h-0 flex-1 flex-col overflow-x-auto overflow-y-hidden rounded-lg scroll-smooth"
@@ -126,15 +178,34 @@ function HorizontalScrollWithHints({
                 className="pointer-events-none absolute left-0 top-0 bottom-0 w-12 z-10 rounded-l-lg bg-gradient-to-r from-background via-background/60 to-transparent"
                 aria-hidden
               />
-              <Button
-                variant="secondary"
-                size="icon"
-                className="absolute left-2 top-1/2 -translate-y-1/2 z-20 size-8 rounded-full shadow-md"
-                onClick={() => scroll("left")}
-                aria-label="Прокрутить влево"
-              >
-                <IconChevronLeft className="size-4" />
-              </Button>
+              {arrowStyle.useFixed && arrowStyle.left != null ? (
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className={buttonClass}
+                  style={{
+                    position: "fixed",
+                    top: "calc(50vh - 1rem)",
+                    left: arrowStyle.left,
+                  }}
+                  onClick={() => scroll("left")}
+                  aria-label="Прокрутить влево"
+                >
+                  <IconChevronLeft className="size-4" />
+                </Button>
+              ) : (
+                <div className="absolute left-0 top-0 bottom-0 w-14 flex items-center justify-center pointer-events-none">
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className={buttonClass}
+                    onClick={() => scroll("left")}
+                    aria-label="Прокрутить влево"
+                  >
+                    <IconChevronLeft className="size-4" />
+                  </Button>
+                </div>
+              )}
             </>
           )}
           {scrollState.canScrollRight && (
@@ -143,15 +214,34 @@ function HorizontalScrollWithHints({
                 className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 z-10 rounded-r-lg bg-gradient-to-l from-background via-background/60 to-transparent"
                 aria-hidden
               />
-              <Button
-                variant="secondary"
-                size="icon"
-                className="absolute right-2 top-1/2 -translate-y-1/2 z-20 size-8 rounded-full shadow-md"
-                onClick={() => scroll("right")}
-                aria-label="Прокрутить вправо"
-              >
-                <IconChevronRight className="size-4" />
-              </Button>
+              {arrowStyle.useFixed && arrowStyle.right != null ? (
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className={buttonClass}
+                  style={{
+                    position: "fixed",
+                    top: "calc(50vh - 1rem)",
+                    right: arrowStyle.right,
+                  }}
+                  onClick={() => scroll("right")}
+                  aria-label="Прокрутить вправо"
+                >
+                  <IconChevronRight className="size-4" />
+                </Button>
+              ) : (
+                <div className="absolute right-0 top-0 bottom-0 w-14 flex items-center justify-center pointer-events-none">
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className={buttonClass}
+                    onClick={() => scroll("right")}
+                    aria-label="Прокрутить вправо"
+                  >
+                    <IconChevronRight className="size-4" />
+                  </Button>
+                </div>
+              )}
             </>
           )}
         </>
