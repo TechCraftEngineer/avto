@@ -14,7 +14,6 @@ import {
   useState,
 } from "react"
 import {
-  closestCorners,
   defaultDropAnimationSideEffects,
   DndContext,
   type DragEndEvent,
@@ -24,7 +23,9 @@ import {
   type DropAnimation,
   KeyboardSensor,
   type Modifiers,
+  pointerWithin,
   PointerSensor,
+  rectIntersection,
   type UniqueIdentifier,
   useSensor,
   useSensors,
@@ -96,6 +97,13 @@ const IsOverlayContext = createContext(false)
 
 const animateLayoutChanges: AnimateLayoutChanges = (args) =>
   defaultAnimateLayoutChanges({ ...args, wasDragging: true })
+
+/** pointerWithin first для пустых колонок, rectIntersection как fallback */
+const collisionDetection: CollisionDetection = (args) => {
+  const pointerCollisions = pointerWithin(args)
+  if (pointerCollisions.length > 0) return pointerCollisions
+  return rectIntersection(args)
+}
 
 const dropAnimationConfig: DropAnimation = {
   sideEffects: defaultDropAnimationSideEffects({
@@ -468,7 +476,7 @@ function Kanban<T>({
     <KanbanContext.Provider value={contextValue as KanbanContextProps<any>}>
       <DndContext
         sensors={sensors}
-        collisionDetection={closestCorners}
+        collisionDetection={collisionDetection}
         onDragStart={handleDragStart}
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
