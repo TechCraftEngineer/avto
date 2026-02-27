@@ -11,7 +11,9 @@ export const deleteIntegrationProcedure = protectedProcedure
   .input(workspaceInputSchema.merge(z.object({ type: z.string() })))
   .use(workspaceAccessMiddleware)
   .handler(async ({ input, context }) => {
-    requireWorkspaceRole(context.workspaceAccess!, ["owner", "admin"]);
+    const access = context.workspaceAccess;
+    if (!access) throw new Error("Workspace access required");
+    requireWorkspaceRole(access, ["owner", "admin"]);
 
     await deleteIntegration(context.db, input.type, input.workspaceId);
     return { success: true };

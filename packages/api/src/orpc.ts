@@ -348,7 +348,10 @@ export const workspaceInputSchema = z
 export const workspaceAccessMiddleware = middleware(
   async ({ context, next }, input: { workspaceId: string }) => {
     // workspaceProcedure extends protectedProcedure — session.user гарантирован
-    const userId = context.session!.user.id;
+    const session = context.session;
+    if (!session?.user?.id)
+      throw new Error("Session required (workspaceProcedure)");
+    const userId = session.user.id;
     const access = await verifyWorkspaceAccess(
       context.workspaceRepository,
       input.workspaceId,

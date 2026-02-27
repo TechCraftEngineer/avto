@@ -97,7 +97,12 @@ export const sendMessageRouter = protectedProcedure
           },
         })
         .returning();
-      session = newSession!;
+      const inserted = newSession;
+      if (!inserted)
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
+          message: "Не удалось создать сессию чата",
+        });
+      session = inserted;
     } else if (session.telegramChatId !== result.chatId) {
       await context.db
         .update(personalChatSession)
@@ -124,5 +129,9 @@ export const sendMessageRouter = protectedProcedure
       .set({ lastMessageAt: new Date() })
       .where(eq(personalChatSession.id, session.id));
 
-    return message!;
+    if (!message)
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Не удалось сохранить сообщение",
+      });
+    return message;
   });
