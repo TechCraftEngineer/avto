@@ -31,7 +31,7 @@ export function PortfolioTab({ response }: PortfolioTabProps) {
         fileId: response.photoFileId ?? "",
       },
     }),
-    enabled: Boolean(workspace?.id && response.photoFileId),
+    enabled: !!workspace?.id && !!response.photoFileId,
   });
 
   // Получаем URL портфолио файла если есть portfolioFileId

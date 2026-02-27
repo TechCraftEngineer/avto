@@ -4,10 +4,18 @@ import { z } from "zod";
  * Общие типы для демо данных
  */
 
+const safeIdRegex = /^[a-zA-Z0-9_-]+$/;
+
 export const CandidatePhotoSchema = z.object({
-  candidateId: z.string(),
+  candidateId: z
+    .string()
+    .min(1)
+    .regex(
+      safeIdRegex,
+      "candidateId must contain only alphanumerics, dashes, and underscores",
+    ),
   candidateName: z.string(),
-  photoUrl: z.string(),
+  photoUrl: z.string().url(),
   photoDescription: z.string(),
 });
 

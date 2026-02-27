@@ -1,8 +1,10 @@
 "use client";
 
 import type { Draft, UpdateDraftInput } from "@qbs-autonaim/shared";
+import { VacancyDataSchema } from "@qbs-autonaim/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { z } from "zod";
 import { useORPC } from "~/orpc/react";
 import {
   DraftErrorHandler,
@@ -10,6 +12,21 @@ import {
   DraftErrorType,
   LocalDraftStorage,
 } from "~/utils/draft-error-handler";
+
+/** Схема для валидации draftData из API (timestamp как строка) */
+const RawMessageSchema = z.object({
+  role: z.enum(["user", "assistant"]),
+  content: z.string(),
+  timestamp: z.union([z.string(), z.date()]),
+  quickReplies: z.array(z.unknown()).optional(),
+  isMultiSelect: z.boolean().optional(),
+});
+
+const DraftDataSchema = z.object({
+  conversationHistory: z.array(RawMessageSchema).optional().default([]),
+  vacancyData: VacancyDataSchema.optional().default({}),
+  currentStep: z.string().optional().default("initial"),
+});
 
 /**
  * Статус сохранения черновика
@@ -85,6 +102,8 @@ export function useDraftPersistence(options: UseDraftPersistenceOptions = {}) {
 
   // Refs
   const saveTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const statusResetTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const isMountedRef = useRef(true);
   const hasDraftRef = useRef(false);
   const pendingDataRef = useRef<UpdateDraftInput | null>(null);
 
@@ -98,46 +117,41 @@ export function useDraftPersistence(options: UseDraftPersistenceOptions = {}) {
   const updateMutation = useMutation(orpc.draft.update.mutationOptions());
   const deleteMutation = useMutation(orpc.draft.delete.mutationOptions());
 
+  // Отслеживание монтирования
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
   // Проверка наличия черновика при монтировании
   useEffect(() => {
     if (currentDraft && !hasDraftRef.current) {
-      // Маппинг из БД формата в доменный формат
+      const parsed = DraftDataSchema.safeParse(currentDraft.draftData);
+      if (!parsed.success) {
+        console.error("Ошибка валидации draftData:", parsed.error.message);
+        return;
+      }
+      const data = parsed.data;
+
       const mappedDraft: Draft = {
         id: currentDraft.id,
         userId: currentDraft.userId,
-        conversationHistory:
-          (
-            currentDraft.draftData as {
-              conversationHistory: Array<{
-                role: "user" | "assistant";
-                content: string;
-                timestamp: string;
-              }>;
-            }
-          ).conversationHistory?.map((msg) => ({
-            role: msg.role,
-            content: msg.content,
-            timestamp: new Date(msg.timestamp),
-          })) ?? [],
-        vacancyData:
-          (
-            currentDraft.draftData as {
-              vacancyData: {
-                title?: string;
-                description?: string;
-                requirements?: string[];
-                conditions?: string[];
-                salary?: {
-                  min?: number;
-                  max?: number;
-                  currency?: string;
-                };
-              };
-            }
-          ).vacancyData ?? {},
-        currentStep:
-          (currentDraft.draftData as { currentStep: string }).currentStep ??
-          "initial",
+        conversationHistory: data.conversationHistory.map((msg) => ({
+          role: msg.role,
+          content: msg.content,
+          timestamp:
+            msg.timestamp instanceof Date
+              ? msg.timestamp
+              : new Date(msg.timestamp),
+          ...(msg.quickReplies && { quickReplies: msg.quickReplies }),
+          ...(msg.isMultiSelect !== undefined && {
+            isMultiSelect: msg.isMultiSelect,
+          }),
+        })),
+        vacancyData: data.vacancyData,
+        currentStep: data.currentStep,
         createdAt: currentDraft.createdAt,
         updatedAt: currentDraft.updatedAt,
       };
@@ -181,36 +195,38 @@ export function useDraftPersistence(options: UseDraftPersistenceOptions = {}) {
     saveTimeoutRef.current = setTimeout(async () => {
       try {
         if (hasDraftRef.current) {
-          // Обновить существующий черновик
           await updateMutation.mutateAsync(data);
         } else {
-          // Создать новый черновик
           await createMutation.mutateAsync(data);
           hasDraftRef.current = true;
         }
 
+        if (!isMountedRef.current) return;
         setSaveStatus("saved");
         setLastSavedAt(new Date());
         setUseLocalStorage(false);
 
-        // Очистить локальное хранилище после успешного сохранения
         if (userId) {
           LocalDraftStorage.clear();
         }
 
-        // Сбросить статус через 2 секунды
-        setTimeout(() => {
-          setSaveStatus("idle");
+        if (statusResetTimeoutRef.current) {
+          clearTimeout(statusResetTimeoutRef.current);
+        }
+        statusResetTimeoutRef.current = setTimeout(() => {
+          if (isMountedRef.current) {
+            setSaveStatus("idle");
+          }
+          statusResetTimeoutRef.current = undefined;
         }, 2000);
       } catch (error) {
         console.error("Ошибка сохранения черновика:", error);
 
-        // Обработать ошибку
         const errorDetails = DraftErrorHandler.handle(error);
+        if (!isMountedRef.current) return;
         setErrorInfo(errorDetails);
         setSaveStatus("error");
 
-        // Graceful degradation: сохранить в localStorage при сетевых ошибках
         if (
           errorDetails.type === DraftErrorType.NETWORK &&
           userId &&
@@ -223,7 +239,9 @@ export function useDraftPersistence(options: UseDraftPersistenceOptions = {}) {
             vacancyData: data.vacancyData,
             currentStep: data.currentStep,
           });
-          setUseLocalStorage(true);
+          if (isMountedRef.current) {
+            setUseLocalStorage(true);
+          }
           console.log(
             "Черновик сохранен локально. Будет синхронизирован при восстановлении соединения.",
           );
@@ -253,21 +271,29 @@ export function useDraftPersistence(options: UseDraftPersistenceOptions = {}) {
    * Свойство 5: Замена черновика при создании нового
    */
   const startNew = async () => {
-    try {
-      if (restoredDraft) {
-        await deleteMutation.mutateAsync(undefined);
-      }
-      setShowRestorePrompt(false);
-      setRestoredDraft(null);
-      hasDraftRef.current = false;
-      setErrorInfo(null);
+    const snapshot = {
+      showRestorePrompt,
+      restoredDraft,
+      hasDraft: hasDraftRef.current,
+    };
 
-      // Очистить локальное хранилище
-      if (userId) {
-        LocalDraftStorage.clear();
+    setShowRestorePrompt(false);
+    setRestoredDraft(null);
+    hasDraftRef.current = false;
+    setErrorInfo(null);
+    if (userId) {
+      LocalDraftStorage.clear();
+    }
+
+    try {
+      if (snapshot.restoredDraft) {
+        await deleteMutation.mutateAsync(undefined);
       }
     } catch (error) {
       console.error("Ошибка при удалении черновика:", error);
+      setShowRestorePrompt(snapshot.showRestorePrompt);
+      setRestoredDraft(snapshot.restoredDraft);
+      hasDraftRef.current = snapshot.hasDraft;
       const errorDetails = DraftErrorHandler.handle(error);
       setErrorInfo(errorDetails);
     }
@@ -280,24 +306,31 @@ export function useDraftPersistence(options: UseDraftPersistenceOptions = {}) {
    * Свойство 11: Очистка черновика после создания вакансии
    */
   const clearDraft = async () => {
+    const snapshot = {
+      hasDraft: hasDraftRef.current,
+      saveStatus,
+      lastSavedAt,
+      errorInfo,
+    };
+
+    hasDraftRef.current = false;
+    setSaveStatus("idle");
+    setLastSavedAt(null);
+    setErrorInfo(null);
+    if (userId) {
+      LocalDraftStorage.clear();
+    }
+
     try {
       await deleteMutation.mutateAsync(undefined);
-      hasDraftRef.current = false;
-      setSaveStatus("idle");
-      setLastSavedAt(null);
-      setErrorInfo(null);
-
-      // Очистить локальное хранилище
-      if (userId) {
-        LocalDraftStorage.clear();
-      }
-
-      // Инвалидировать кэш
       await queryClient.invalidateQueries({
         queryKey: orpc.draft.getCurrent.queryKey({}),
       });
     } catch (error) {
       console.error("Ошибка при удалении черновика:", error);
+      hasDraftRef.current = snapshot.hasDraft;
+      setSaveStatus(snapshot.saveStatus);
+      setLastSavedAt(snapshot.lastSavedAt);
       const errorDetails = DraftErrorHandler.handle(error);
       setErrorInfo(errorDetails);
     }
@@ -358,11 +391,16 @@ export function useDraftPersistence(options: UseDraftPersistenceOptions = {}) {
     }
   }, [useLocalStorage, syncLocalData]);
 
-  // Очистка таймера при размонтировании
+  // Очистка таймеров при размонтировании
   useEffect(() => {
     return () => {
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
+        saveTimeoutRef.current = undefined;
+      }
+      if (statusResetTimeoutRef.current) {
+        clearTimeout(statusResetTimeoutRef.current);
+        statusResetTimeoutRef.current = undefined;
       }
     };
   }, []);

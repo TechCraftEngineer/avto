@@ -26,6 +26,14 @@ import { toast } from "sonner";
 import { useORPC } from "~/orpc/react";
 import type { VacancyResponse } from "./types";
 
+type SectionId =
+  | "personal"
+  | "contact"
+  | "experience"
+  | "skills"
+  | "portfolio"
+  | "assessment";
+
 interface ExportCandidateModalProps {
   response: VacancyResponse;
 }
@@ -34,7 +42,7 @@ export function ExportCandidateModal({ response }: ExportCandidateModalProps) {
   const orpc = useORPC();
   const [open, setOpen] = useState(false);
   const [selectedFormat, setSelectedFormat] = useState<string>("pdf");
-  const [selectedSections, setSelectedSections] = useState<string[]>([
+  const [selectedSections, setSelectedSections] = useState<SectionId[]>([
     "personal",
     "contact",
     "experience",
@@ -85,7 +93,12 @@ export function ExportCandidateModal({ response }: ExportCandidateModalProps) {
     },
   ];
 
-  const availableSections = [
+  const availableSections: {
+    id: SectionId;
+    name: string;
+    description: string;
+    icon: typeof Users;
+  }[] = [
     {
       id: "personal",
       name: "Личные данные",
@@ -124,7 +137,7 @@ export function ExportCandidateModal({ response }: ExportCandidateModalProps) {
     },
   ];
 
-  const handleSectionToggle = (sectionId: string) => {
+  const handleSectionToggle = (sectionId: SectionId) => {
     setSelectedSections((prev) =>
       prev.includes(sectionId)
         ? prev.filter((id) => id !== sectionId)
@@ -143,14 +156,7 @@ export function ExportCandidateModal({ response }: ExportCandidateModalProps) {
       exportPdf({
         responseId: response.id,
         workspaceId: response.workspaceId,
-        sections: selectedSections as (
-          | "personal"
-          | "contact"
-          | "experience"
-          | "skills"
-          | "portfolio"
-          | "assessment"
-        )[],
+        sections: selectedSections,
       });
     } else {
       toast.info("Экспорт в Excel будет доступен позже");
@@ -296,7 +302,7 @@ export function ExportCandidateModal({ response }: ExportCandidateModalProps) {
           </div>
 
           {/* Предварительный просмотр */}
-          <div className="p-4 bg-gray-50 border rounded-lg">
+          <div className="p-4 bg-gray-50 dark:bg-gray-800 border dark:border-gray-700 rounded-lg">
             <h4 className="font-medium mb-2 flex items-center gap-2">
               {selectedFormatData && (
                 <selectedFormatData.icon

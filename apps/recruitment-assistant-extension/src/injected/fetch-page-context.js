@@ -9,10 +9,23 @@
  */
 
 (() => {
-  const formatHttpError = (status, statusText) =>
-    statusText
-      ? `Ошибка HTTP ${status}: ${statusText}`
-      : `Ошибка HTTP ${status}`;
+  const MAX_STATUS_TEXT_LENGTH = 100;
+  const SAFE_CHAR_REGEX = /[^\x20-\x7E\u0400-\u04FF]/g;
+  const ANGLE_BRACKET_REGEX = /[<>]/g;
+
+  const sanitizeStatusText = (text) => {
+    if (!text || typeof text !== "string") return "";
+    return text
+      .trim()
+      .replace(SAFE_CHAR_REGEX, "")
+      .replace(ANGLE_BRACKET_REGEX, "")
+      .slice(0, MAX_STATUS_TEXT_LENGTH);
+  };
+
+  const formatHttpError = (status, statusText) => {
+    const safe = sanitizeStatusText(statusText);
+    return safe ? `Ошибка HTTP ${status}: ${safe}` : `Ошибка HTTP ${status}`;
+  };
 
   const currentScript = document.currentScript;
   if (!currentScript) {
