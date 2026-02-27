@@ -5,6 +5,7 @@ import {
   type Response,
   response as responseTable,
 } from "@qbs-autonaim/db/schema";
+import { normalizePlatformProfileUrl } from "@qbs-autonaim/lib";
 import { phoneSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
@@ -81,13 +82,18 @@ export const importSingleResponse = protectedProcedure
       throw new ORPCError("NOT_FOUND", { message: "Workspace не найден" });
     }
 
+    const rawProfileUrl = input.contactInfo?.platformProfileUrl;
+    const normalizedProfileUrl = rawProfileUrl
+      ? normalizePlatformProfileUrl(rawProfileUrl)
+      : undefined;
+
     // Проверка дубликатов по platformProfileUrl + vacancyId
-    if (input.contactInfo?.platformProfileUrl) {
+    if (normalizedProfileUrl) {
       const existingResponse = await context.db.query.response.findFirst({
         where: and(
           eq(responseTable.entityId, input.vacancyId),
           eq(responseTable.entityType, "vacancy"),
-          eq(responseTable.profileUrl, input.contactInfo.platformProfileUrl),
+          eq(responseTable.profileUrl, normalizedProfileUrl),
         ),
       });
 
@@ -113,7 +119,7 @@ export const importSingleResponse = protectedProcedure
         email: input.contactInfo?.email ?? null,
         phone: input.contactInfo?.phone ?? null,
         telegramUsername: input.contactInfo?.telegram ?? null,
-        profileUrl: input.contactInfo?.platformProfileUrl ?? null,
+        profileUrl: normalizedProfileUrl ?? null,
         skills: null,
         importSource: input.platformSource,
         profileData: null,
@@ -122,7 +128,7 @@ export const importSingleResponse = protectedProcedure
               email: input.contactInfo.email,
               phone: input.contactInfo.phone,
               telegram: input.contactInfo.telegram,
-              platformProfileUrl: input.contactInfo.platformProfileUrl,
+              platformProfileUrl: normalizedProfileUrl,
             }
           : null,
       };
@@ -162,12 +168,11 @@ export const importSingleResponse = protectedProcedure
       .values({
         entityId: input.vacancyId,
         entityType: "vacancy",
-        candidateId:
-          input.contactInfo?.platformProfileUrl || crypto.randomUUID(),
+        candidateId: rawProfileUrl || crypto.randomUUID(),
         candidateName: input.freelancerName,
         coverLetter: input.responseText,
         importSource: input.platformSource,
-        profileUrl: input.contactInfo?.platformProfileUrl,
+        profileUrl: normalizedProfileUrl,
         phone: input.contactInfo?.phone,
         telegramUsername: input.contactInfo?.telegram,
         globalCandidateId,
@@ -176,7 +181,7 @@ export const importSingleResponse = protectedProcedure
               email: input.contactInfo.email,
               phone: input.contactInfo.phone,
               telegram: input.contactInfo.telegram,
-              platformProfileUrl: input.contactInfo.platformProfileUrl,
+              platformProfileUrl: normalizedProfileUrl,
             }
           : undefined,
         status: "NEW",

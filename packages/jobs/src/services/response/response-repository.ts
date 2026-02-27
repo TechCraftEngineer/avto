@@ -2,6 +2,7 @@ import { and, eq, isNull, logResponseEvent } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { file, RESPONSE_STATUS, response } from "@qbs-autonaim/db/schema";
 import type { SaveResponseData } from "@qbs-autonaim/jobs-shared";
+import { normalizePlatformProfileUrl } from "@qbs-autonaim/lib";
 import { uploadFile } from "@qbs-autonaim/lib/s3";
 import axios from "axios";
 import {
@@ -120,7 +121,10 @@ export async function saveBasicResponse(
       return { id: existingResponse.id, isNew: false };
     }
 
-    const url = options?.profileUrl ?? profileUrl;
+    const rawUrl = options?.profileUrl ?? profileUrl;
+    const profileUrlNormalized = rawUrl
+      ? normalizePlatformProfileUrl(rawUrl)
+      : null;
 
     const [inserted] = await db
       .insert(response)
@@ -129,7 +133,7 @@ export async function saveBasicResponse(
         entityId,
         candidateId: resumeId,
         resumeId,
-        profileUrl: url || null,
+        profileUrl: profileUrlNormalized,
         coverLetter: options?.coverLetter || null,
         candidateName,
         status: RESPONSE_STATUS.NEW,
@@ -507,7 +511,9 @@ export async function saveResponseToDb(
         entityId: responseData.vacancyId,
         candidateId: responseData.resumeId,
         resumeId: responseData.resumeId,
-        profileUrl: responseData.resumeUrl ?? null,
+        profileUrl: responseData.resumeUrl
+          ? normalizePlatformProfileUrl(responseData.resumeUrl)
+          : null,
         candidateName: responseData.candidateName,
         status: RESPONSE_STATUS.NEW,
         importSource: "HH",

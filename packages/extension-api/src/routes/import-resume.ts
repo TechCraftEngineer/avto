@@ -18,7 +18,7 @@ import {
   response as responseTable,
   vacancy as vacancySchema,
 } from "@qbs-autonaim/db/schema";
-import { parseFullName } from "@qbs-autonaim/lib";
+import { normalizePlatformProfileUrl, parseFullName } from "@qbs-autonaim/lib";
 import type { Context } from "hono";
 import { z } from "zod";
 import { processPdfUpload } from "./hh-import/utils/pdf";
@@ -195,6 +195,11 @@ export async function handleImportResume(c: Context) {
     return c.json({ error: "Workspace не найден" }, 404);
   }
 
+  const rawProfileUrl = input.contactInfo?.platformProfileUrl;
+  const normalizedProfileUrl = rawProfileUrl
+    ? normalizePlatformProfileUrl(rawProfileUrl)
+    : undefined;
+
   const nameParts = parseFullName(input.freelancerName ?? null);
   const candidateData = normalizeCandidateData({
     fullName: input.freelancerName ?? "Без имени",
@@ -203,22 +208,23 @@ export async function handleImportResume(c: Context) {
     email: input.contactInfo?.email ?? null,
     phone: input.contactInfo?.phone ?? null,
     telegramUsername: input.contactInfo?.telegram ?? null,
-    resumeUrl: input.contactInfo?.platformProfileUrl ?? null,
+    resumeUrl: normalizedProfileUrl ?? null,
     source: mapPlatformToSource(input.platformSource),
     originalSource: mapOriginalSource(input.platformSource),
   });
 
   let targetResponse: { id: string } & Record<string, unknown>;
+  const candidateId = normalizeCandidateId(rawProfileUrl);
 
-  const existing = input.contactInfo?.platformProfileUrl
-    ? await db.query.response.findFirst({
-        where: and(
-          eq(responseTable.entityId, input.vacancyId),
-          eq(responseTable.entityType, "vacancy"),
-          eq(responseTable.profileUrl, input.contactInfo.platformProfileUrl),
-        ),
-      })
-    : null;
+  // Проверка дубликатов по candidateId (совпадает с unique constraint БД).
+  // profileUrl может отличаться query-параметрами (HH), а candidateId стабилен.
+  const existing = await db.query.response.findFirst({
+    where: and(
+      eq(responseTable.entityId, input.vacancyId),
+      eq(responseTable.entityType, "vacancy"),
+      eq(responseTable.candidateId, candidateId),
+    ),
+  });
 
   if (existing) {
     const [updated] = await db
@@ -226,6 +232,7 @@ export async function handleImportResume(c: Context) {
       .set({
         candidateName: input.freelancerName,
         coverLetter: input.responseText,
+        profileUrl: normalizedProfileUrl,
         phone: input.contactInfo?.phone,
         telegramUsername: input.contactInfo?.telegram,
         contacts: input.contactInfo
@@ -233,7 +240,7 @@ export async function handleImportResume(c: Context) {
               email: input.contactInfo.email,
               phone: input.contactInfo.phone,
               telegram: input.contactInfo.telegram,
-              platformProfileUrl: input.contactInfo.platformProfileUrl,
+              platformProfileUrl: normalizedProfileUrl,
             }
           : undefined,
       })
@@ -260,31 +267,48 @@ export async function handleImportResume(c: Context) {
       console.error("[extension-api] import-resume candidate create:", err);
     }
 
+    const insertValues = {
+      entityId: input.vacancyId,
+      entityType: "vacancy" as const,
+      candidateId,
+      candidateName: input.freelancerName,
+      coverLetter: input.responseText,
+      importSource: input.platformSource,
+      profileUrl: normalizedProfileUrl,
+      phone: input.contactInfo?.phone,
+      telegramUsername: input.contactInfo?.telegram,
+      globalCandidateId,
+      contacts: input.contactInfo
+        ? {
+            email: input.contactInfo.email,
+            phone: input.contactInfo.phone,
+            telegram: input.contactInfo.telegram,
+            platformProfileUrl: normalizedProfileUrl,
+          }
+        : undefined,
+      status: "NEW" as const,
+      respondedAt: new Date(),
+    };
+
     const [createdResponse] = await db
       .insert(responseTable)
-      .values({
-        entityId: input.vacancyId,
-        entityType: "vacancy",
-        candidateId: normalizeCandidateId(
-          input.contactInfo?.platformProfileUrl,
-        ),
-        candidateName: input.freelancerName,
-        coverLetter: input.responseText,
-        importSource: input.platformSource,
-        profileUrl: input.contactInfo?.platformProfileUrl,
-        phone: input.contactInfo?.phone,
-        telegramUsername: input.contactInfo?.telegram,
-        globalCandidateId,
-        contacts: input.contactInfo
-          ? {
-              email: input.contactInfo.email,
-              phone: input.contactInfo.phone,
-              telegram: input.contactInfo.telegram,
-              platformProfileUrl: input.contactInfo.platformProfileUrl,
-            }
-          : undefined,
-        status: "NEW",
-        respondedAt: new Date(),
+      .values(insertValues)
+      .onConflictDoUpdate({
+        target: [
+          responseTable.entityType,
+          responseTable.entityId,
+          responseTable.candidateId,
+        ],
+        set: {
+          candidateName: input.freelancerName,
+          coverLetter: input.responseText,
+          profileUrl: normalizedProfileUrl,
+          phone: input.contactInfo?.phone,
+          telegramUsername: input.contactInfo?.telegram,
+          globalCandidateId: globalCandidateId ?? undefined,
+          contacts: insertValues.contacts,
+          updatedAt: new Date(),
+        },
       })
       .returning();
 
@@ -294,7 +318,7 @@ export async function handleImportResume(c: Context) {
     targetResponse = createdResponse;
   }
 
-  const resumeId = normalizeCandidateId(input.contactInfo?.platformProfileUrl);
+  const resumeId = candidateId;
   const candidateName = input.freelancerName ?? "Кандидат";
 
   await Promise.all([

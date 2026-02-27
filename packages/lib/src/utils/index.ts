@@ -13,5 +13,7 @@ export {
   parseDateFromInput,
 } from "./date-utils";
 
+// Platform profile URL normalization (HH subdomains → hh.ru)
+export { normalizePlatformProfileUrl } from "./normalize-profile-url";
 // Sanitization utilities
 export { removeNullBytes, sanitizeObject } from "./sanitize";

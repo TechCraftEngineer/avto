@@ -64,7 +64,9 @@ export async function createGigResponse(
       entityId: gigId,
       candidateId: normalizedCandidateId,
       candidateName: freelancerInfo.name,
-      profileUrl: freelancerInfo.platformProfileUrl,
+      profileUrl: freelancerInfo.platformProfileUrl
+        ? normalizeProfileUrl(freelancerInfo.platformProfileUrl)
+        : null,
       phone: freelancerInfo.phone,
       email: freelancerInfo.email,
       telegramUsername: freelancerInfo.telegram,

@@ -39,6 +39,8 @@ export {
 } from "./utils/date-utils";
 // Name parsing utilities
 export { parseFullName } from "./utils/name-utils";
+// Platform profile URL normalization
+export { normalizePlatformProfileUrl } from "./utils/normalize-profile-url";
 
 // Sanitization utilities
 export { removeNullBytes, sanitizeObject } from "./utils/sanitize";
