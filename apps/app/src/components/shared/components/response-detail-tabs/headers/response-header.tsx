@@ -29,6 +29,7 @@ import { ResumeActions } from "../actions/resume-actions";
 
 interface ResponseHeaderProps {
   response: {
+    id?: string | null;
     candidateName: string | null;
     status: ResponseStatus;
     hrSelectionStatus: HrSelectionStatus | null;
@@ -152,6 +153,7 @@ export function ResponseHeader({ response }: ResponseHeaderProps) {
           <ResumeActions
             resumeUrl={response.resumeUrl}
             resumePdfUrl={response.resumePdfUrl}
+            responseId={response.id}
           />
         )}
       </CardContent>

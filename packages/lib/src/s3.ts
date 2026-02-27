@@ -99,6 +99,38 @@ export async function getDownloadUrl(key: string): Promise<string> {
   return getSignedUrl(getS3Client(), command, { expiresIn: 300 }); // 5 minutes
 }
 
+/**
+ * Скачивает файл из S3 и возвращает его тело как Web ReadableStream.
+ * Используется для проксирования файлов с установкой Content-Disposition.
+ */
+export async function getFileStreamFromS3(key: string): Promise<{
+  body: ReadableStream<Uint8Array>;
+  contentType?: string;
+  contentLength?: number;
+}> {
+  const command = new GetObjectCommand({
+    Bucket: BUCKET_NAME,
+    Key: key,
+  });
+
+  const response = await getS3Client().send(command);
+
+  if (!response.Body) {
+    throw new Error(`S3 returned empty body for key: ${key}`);
+  }
+
+  // AWS SDK v3: Body имеет transformToWebStream() для Web ReadableStream
+  const body = (
+    response.Body as { transformToWebStream(): ReadableStream<Uint8Array> }
+  ).transformToWebStream();
+
+  return {
+    body,
+    contentType: response.ContentType,
+    contentLength: response.ContentLength,
+  };
+}
+
 export function getFileUrl(fileKey: string): string {
   // Для dev окружения с MinIO используем endpoint
   const s3Endpoint = env.AWS_S3_ENDPOINT;

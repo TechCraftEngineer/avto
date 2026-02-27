@@ -6,9 +6,15 @@ import Link from "next/link";
 interface ResumeActionsProps {
   resumeUrl: string;
   resumePdfUrl?: string | null;
+  /** responseId для скачивания PDF с именем ФИО.pdf */
+  responseId?: string | null;
 }
 
-export function ResumeActions({ resumeUrl, resumePdfUrl }: ResumeActionsProps) {
+export function ResumeActions({
+  resumeUrl,
+  resumePdfUrl,
+  responseId,
+}: ResumeActionsProps) {
   return (
     <>
       <Separator />
@@ -19,16 +25,27 @@ export function ResumeActions({ resumeUrl, resumePdfUrl }: ResumeActionsProps) {
             Открыть резюме
           </Button>
         </Link>
-        {resumePdfUrl && (
-          <Link
-            href={resumePdfUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            download
-          >
+        {resumePdfUrl && responseId && (
+          <>
+            <Link href={resumePdfUrl} target="_blank" rel="noopener noreferrer">
+              <Button variant="outline" size="sm">
+                <ExternalLink className="mr-2 h-4 w-4" />
+                Открыть PDF
+              </Button>
+            </Link>
+            <Link href={`/api/resume/${responseId}/download`}>
+              <Button variant="outline" size="sm">
+                <Download className="mr-2 h-4 w-4" />
+                Скачать PDF
+              </Button>
+            </Link>
+          </>
+        )}
+        {resumePdfUrl && !responseId && (
+          <Link href={resumePdfUrl} target="_blank" rel="noopener noreferrer">
             <Button variant="outline" size="sm">
-              <Download className="mr-2 h-4 w-4" />
-              Скачать PDF
+              <ExternalLink className="mr-2 h-4 w-4" />
+              Открыть PDF
             </Button>
           </Link>
         )}

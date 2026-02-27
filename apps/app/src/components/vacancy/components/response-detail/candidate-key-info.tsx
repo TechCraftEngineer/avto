@@ -67,22 +67,39 @@ export function CandidateKeyInfo({
           <KeyInfoRow icon={FileText} label="Резюме">
             <div className="flex flex-wrap items-center gap-2">
               {resumePdfUrl ? (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  asChild
-                  className="h-7 text-xs"
-                >
-                  <a
-                    href={resumePdfUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    download={getResumeDownloadFilename(response.candidateName)}
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
+                    className="h-7 text-xs"
                   >
-                    <Download className="h-3.5 w-3.5 mr-1.5" />
-                    Скачать PDF
-                  </a>
-                </Button>
+                    <a
+                      href={resumePdfUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
+                      Открыть PDF
+                    </a>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
+                    className="h-7 text-xs"
+                  >
+                    <a
+                      href={`/api/resume/${response.id}/download`}
+                      download={getResumeDownloadFilename(
+                        response.candidateName,
+                      )}
+                    >
+                      <Download className="h-3.5 w-3.5 mr-1.5" />
+                      Скачать PDF
+                    </a>
+                  </Button>
+                </>
               ) : (
                 <span className="text-muted-foreground text-xs">
                   Доступно в профиле

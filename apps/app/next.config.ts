@@ -107,6 +107,10 @@ export default async function createNextConfig(): Promise<NextConfig> {
           destination: `${appServerUrl}/api/vacancy/chat-generate`,
         },
         {
+          source: "/api/resume/:path*",
+          destination: `${appServerUrl}/api/resume/:path*`,
+        },
+        {
           source: "/api/test/:path*",
           destination: `${appServerUrl}/api/test/:path*`,
         },

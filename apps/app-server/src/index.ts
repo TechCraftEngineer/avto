@@ -10,6 +10,7 @@ import { auth } from "./auth";
 import { handleChatStream } from "./routes/chat-stream";
 import { extensionTokenRoutes } from "./routes/extension-token";
 import { googleCalendarRoutes } from "./routes/google-calendar";
+import { resumeDownloadRoutes } from "./routes/resume-download";
 import { testSetupRoutes } from "./routes/test-setup";
 import { handleVacancyChatGenerate } from "./routes/vacancy-chat-generate";
 
@@ -103,6 +104,9 @@ app.post("/api/chat/stream", handleChatStream);
 
 // Vacancy chat generate (streaming)
 app.post("/api/vacancy/chat-generate", handleVacancyChatGenerate);
+
+// Resume PDF download (с именем ФИО.pdf)
+app.route("/api/resume", resumeDownloadRoutes);
 
 // Test setup (только в dev)
 app.route("/api/test", testSetupRoutes);
