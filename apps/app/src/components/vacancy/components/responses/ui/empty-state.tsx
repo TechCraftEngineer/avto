@@ -6,10 +6,13 @@ interface EmptyStateProps {
   hasResponses: boolean;
   colSpan: number;
   isLoading?: boolean;
+  /** TODO: планируется для ручного обновления списка откликов */
   onRefresh?: () => void;
   /** При клике на «Загрузить архивные отклики» — показать сообщение о Chrome-расширении */
   onChromePluginDialogOpen?: () => void;
+  /** TODO: планируется для индикации обновления */
   isRefreshing?: boolean;
+  /** TODO: планируется для индикации синхронизации архивных откликов */
   isSyncingArchived?: boolean;
   source?: string | null;
   externalId?: string | null;
@@ -53,10 +56,14 @@ export function EmptyState({
       <TableCell colSpan={colSpan} className="h-[500px] p-0">
         <div className="flex h-full flex-col items-center justify-center gap-6 px-4 py-10">
           {/* Анимированный список скелетонов */}
-          <div className="animate-fade-in h-36 w-full max-w-64 overflow-hidden px-4 mask-[linear-gradient(transparent,black_10%,black_90%,transparent)]">
+          <div className="motion-safe:animate-fade-in motion-reduce:animate-none h-36 w-full max-w-64 overflow-hidden px-4 mask-[linear-gradient(transparent,black_10%,black_90%,transparent)]">
             <div
-              className="animate-infinite-scroll-y flex flex-col animation-duration-[10s]"
-              style={{ "--scroll": "-50%" } as React.CSSProperties}
+              className="motion-safe:animate-infinite-scroll-y motion-reduce:animate-none flex flex-col animation-duration-[10s]"
+              style={
+                {
+                  "--scroll": "var(--scroll, -50%)",
+                } as React.CSSProperties
+              }
             >
               {Array.from({ length: 8 }, (_, i) => `empty-skeleton-${i}`).map(
                 (key) => (

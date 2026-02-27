@@ -1,5 +1,7 @@
 import {
   defaultShouldDehydrateQuery,
+  MutationCache,
+  QueryCache,
   QueryClient,
 } from "@tanstack/react-query";
 import SuperJSON from "superjson";
@@ -25,15 +27,20 @@ function captureApiErrorToPostHog(error: unknown) {
   }
 }
 
+const queryCache = new QueryCache({
+  onError: captureApiErrorToPostHog,
+});
+const mutationCache = new MutationCache({
+  onError: captureApiErrorToPostHog,
+});
+
 export const createQueryClient = () =>
   new QueryClient({
+    queryCache,
+    mutationCache,
     defaultOptions: {
       queries: {
         staleTime: 30 * 1000,
-        onError: captureApiErrorToPostHog,
-      },
-      mutations: {
-        onError: captureApiErrorToPostHog,
       },
       dehydrate: {
         serializeData: SuperJSON.serialize,

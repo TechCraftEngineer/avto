@@ -5,13 +5,16 @@ import { join } from "node:path";
 import { db } from "@qbs-autonaim/db";
 import { file } from "@qbs-autonaim/db/schema";
 import { uploadBufferToS3 } from "@qbs-autonaim/lib/s3";
+import { z } from "zod";
 
-interface CandidatePhoto {
-  candidateId: string;
-  candidateName: string;
-  photoUrl: string;
-  photoDescription: string;
-}
+const CandidatePhotoSchema = z.object({
+  candidateId: z.string(),
+  candidateName: z.string(),
+  photoUrl: z.string(),
+  photoDescription: z.string(),
+});
+
+type CandidatePhoto = z.infer<typeof CandidatePhotoSchema>;
 
 /**
  * Скрипт для загрузки фото кандидатов в систему файлов
@@ -21,9 +24,14 @@ async function uploadCandidatePhotos() {
 
   try {
     const photosPath = join(__dirname, "../data/candidate-photos.json");
-    const photosData: CandidatePhoto[] = JSON.parse(
-      readFileSync(photosPath, "utf-8"),
-    );
+    const parsed = JSON.parse(readFileSync(photosPath, "utf-8"));
+    const result = z.array(CandidatePhotoSchema).safeParse(parsed);
+    if (!result.success) {
+      throw new Error(
+        `Невалидный формат candidate-photos.json: ${result.error.message}`,
+      );
+    }
+    const photosData = result.data;
 
     console.log(`👥 Найдено ${photosData.length} фото кандидатов`);
 
@@ -99,7 +107,7 @@ async function uploadCandidatePhotos() {
           .returning();
 
         if (!uploadedFile) {
-          throw new Error("Failed to insert file record");
+          throw new Error("Не удалось вставить запись файла");
         }
 
         uploadedFiles.push({

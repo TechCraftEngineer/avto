@@ -15,6 +15,26 @@ function getPostHogClient(): PostHog | null {
     : env.POSTHOG_HOST;
 
   posthogClient = new PostHog(key, { host });
+
+  let exitHandlerRegistered = false;
+  const shutdown = async () => {
+    if (!posthogClient) return;
+    try {
+      await posthogClient.shutdown();
+    } catch (e) {
+      console.error("[posthog] shutdown error:", e);
+    }
+  };
+  const onExit = () => {
+    if (!exitHandlerRegistered) {
+      exitHandlerRegistered = true;
+      void shutdown();
+    }
+  };
+  process.once("beforeExit", onExit);
+  process.once("SIGTERM", onExit);
+  process.once("SIGINT", onExit);
+
   return posthogClient;
 }
 
