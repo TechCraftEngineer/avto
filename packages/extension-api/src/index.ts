@@ -77,19 +77,11 @@ app.onError((err, c) => {
     }),
   );
 
-  let distinctId = "extension-api";
-  try {
-    const userId = c.get("userId");
-    if (userId) distinctId = userId;
-  } catch {
-    // userId не установлен (ошибка до auth middleware)
-  }
   captureExceptionToPostHog({
     message: err instanceof Error ? err.message : String(err),
     type: err.constructor?.name ?? "Error",
     stack: err instanceof Error ? err.stack : undefined,
     context,
-    distinctId,
   });
 
   return c.json(
