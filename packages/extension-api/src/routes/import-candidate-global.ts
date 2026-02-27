@@ -151,10 +151,11 @@ export async function handleImportCandidateGlobal(c: Context) {
 
   const globalRepo = new GlobalCandidateRepository(db);
 
-  if (input.globalCandidateId) {
+  const globalCandidateId = input.globalCandidateId;
+  if (globalCandidateId) {
     // Уже есть кандидат — только связываем с организацией
     const existing = await db.query.globalCandidate.findFirst({
-      where: (gc, { eq }) => eq(gc.id, input.globalCandidateId!),
+      where: (gc, { eq }) => eq(gc.id, globalCandidateId),
       columns: { id: true },
     });
     if (!existing) {
@@ -163,7 +164,7 @@ export async function handleImportCandidateGlobal(c: Context) {
 
     const { link: orgLink } =
       await globalRepo.createOrUpdateCandidateOrganizationLink(
-        input.globalCandidateId,
+        globalCandidateId,
         {
           organizationId: workspaceData.organizationId,
           status: "ACTIVE",
@@ -173,7 +174,7 @@ export async function handleImportCandidateGlobal(c: Context) {
 
     return c.json({
       success: true,
-      candidateId: input.globalCandidateId,
+      candidateId: globalCandidateId,
       organizationLinkId: orgLink.id,
       message: "Кандидат уже в базе, добавлена связь с организацией",
     });

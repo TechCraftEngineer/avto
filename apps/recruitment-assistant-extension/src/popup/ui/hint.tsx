@@ -9,8 +9,7 @@ interface HintProps {
 /** Компактная подсказка для пользователя */
 export function Hint({ children, className, icon = "info" }: HintProps) {
   return (
-    <div
-      role="status"
+    <output
       className={cn(
         "flex gap-2.5 rounded-lg border px-3 py-2.5 text-left text-[13px] leading-normal",
         "border-blue-200/80 bg-blue-50/70 text-blue-900",
@@ -21,6 +20,6 @@ export function Hint({ children, className, icon = "info" }: HintProps) {
         {icon === "steps" ? "1️⃣" : "💡"}
       </span>
       <span className="min-w-0 flex-1 [text-wrap:balance]">{children}</span>
-    </div>
+    </output>
   );
 }

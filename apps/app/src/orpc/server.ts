@@ -35,7 +35,13 @@ globalThis.$client = createRouterClient(appRouter, {
 
 export const api = globalThis.$client;
 
-export const orpc = createTanstackQueryUtils(globalThis.$client!);
+const getClient = () => {
+  const client = globalThis.$client;
+  if (!client) throw new Error("oRPC client not initialized");
+  return client;
+};
+
+export const orpc = createTanstackQueryUtils(getClient());
 
 /**
  * Создаёт server helpers для prefetch и гидратации.
@@ -43,7 +49,7 @@ export const orpc = createTanstackQueryUtils(globalThis.$client!);
  */
 export async function createServerHelpers() {
   const queryClient = createQueryClient();
-  const orpc = createTanstackQueryUtils(globalThis.$client!);
+  const orpc = createTanstackQueryUtils(getClient());
 
   return {
     queryClient,

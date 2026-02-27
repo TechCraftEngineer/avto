@@ -31,8 +31,8 @@ interface DuplicateCandidateViewProps {
 
 export function DuplicateCandidateView({
   existingCandidate,
-  vacancyId,
-  selectedVacancyTitle,
+  vacancyId: _vacancyId,
+  selectedVacancyTitle: _selectedVacancyTitle,
   selectedOrgId,
   selectedWorkspaceId,
   organizations,

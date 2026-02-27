@@ -31,7 +31,9 @@ export const updateIntegration = protectedProcedure
   .input(updateIntegrationInputSchema)
   .use(workspaceAccessMiddleware)
   .handler(async ({ input, context }) => {
-    requireWorkspaceRole(context.workspaceAccess!, ["owner", "admin"]);
+    const access = context.workspaceAccess;
+    if (!access) throw new Error("Workspace access required");
+    requireWorkspaceRole(access, ["owner", "admin"]);
 
     const existing = await getIntegration(
       context.db,
