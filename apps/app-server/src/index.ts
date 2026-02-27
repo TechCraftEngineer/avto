@@ -2,7 +2,10 @@ import { onError } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
 import { appRouter, createContext } from "@qbs-autonaim/api";
 import { env } from "@qbs-autonaim/config";
-import { addAPISecurityHeaders } from "@qbs-autonaim/server-utils";
+import {
+  addAPISecurityHeaders,
+  captureExceptionToPostHog,
+} from "@qbs-autonaim/server-utils";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
@@ -41,6 +44,19 @@ app.route("/api/auth", extensionTokenRoutes);
 // Better Auth — все оставшиеся пути /api/auth/*
 app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
+// Вспомогательная функция для отправки ошибок в PostHog
+function captureError(error: unknown, context?: Record<string, unknown>) {
+  const isORPC = error && typeof error === "object" && "code" in error;
+  const err = error instanceof Error ? error : new Error(String(error));
+  captureExceptionToPostHog({
+    message: err.message,
+    type: isORPC ? "ORPCError" : err.name || "Error",
+    stack: err.stack,
+    context,
+    level: isORPC ? "error" : "fatal",
+  });
+}
+
 // oRPC handler
 const rpcHandler = new RPCHandler(appRouter, {
   interceptors: [
@@ -50,6 +66,7 @@ const rpcHandler = new RPCHandler(appRouter, {
         ">>> Error stack:",
         error instanceof Error ? error.stack : "No stack",
       );
+      captureError(error, { source: "orpc", service: "app-server" });
     }),
   ],
 });
@@ -75,14 +92,14 @@ app.on(["GET", "POST"], "/api/orpc/*", async (c) => {
       return c.notFound();
     }
 
-    // Проверяем статус ответа
+    // Проверяем статус ответа (ошибки API уже зафиксированы в onError)
     if (result.response.status >= 400) {
       const responseClone = result.response.clone();
       const body = await responseClone.text();
       console.error(">>> oRPC Error Response:", {
         status: result.response.status,
         path: c.req.path,
-        body: body.substring(0, 500), // Первые 500 символов
+        body: body.substring(0, 500),
       });
     }
 
@@ -95,6 +112,11 @@ app.on(["GET", "POST"], "/api/orpc/*", async (c) => {
       error instanceof Error ? error.stack : "No stack",
     );
     console.error(">>> Path:", c.req.path);
+    captureError(error, {
+      source: "orpc-catch",
+      service: "app-server",
+      path: c.req.path,
+    });
     return c.json({ error: "Internal Server Error" }, 500);
   }
 });
@@ -136,6 +158,11 @@ app.notFound((c) =>
 // Error handler
 app.onError((err, c) => {
   console.error("App server error:", err);
+  captureError(err, {
+    source: "hono",
+    service: "app-server",
+    path: c.req.path,
+  });
   return c.json(
     {
       error: "Internal Server Error",

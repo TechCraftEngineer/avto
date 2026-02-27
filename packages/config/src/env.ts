@@ -153,6 +153,14 @@ export const env = createEnv({
 
     // Gotenberg — конвертация HTML в PDF
     GOTENBERG_URL: z.string().optional().default("http://localhost:3010"),
+
+    // PostHog (серверная аналитика, ошибки)
+    POSTHOG_KEY: z.string().min(1).optional(),
+    POSTHOG_HOST: z
+      .string()
+      .url()
+      .optional()
+      .default("https://eu.i.posthog.com"),
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.url().optional().default("http://localhost:3000"),
@@ -242,6 +250,9 @@ export const env = createEnv({
     YOOKASSA_SECRET_KEY: process.env.YOOKASSA_SECRET_KEY,
     YOOKASSA_API_URL: process.env.YOOKASSA_API_URL,
     GOTENBERG_URL: process.env.GOTENBERG_URL,
+    POSTHOG_KEY: process.env.POSTHOG_KEY ?? process.env.NEXT_PUBLIC_POSTHOG_KEY,
+    POSTHOG_HOST:
+      process.env.POSTHOG_HOST ?? process.env.NEXT_PUBLIC_POSTHOG_HOST,
   },
   skipValidation:
     !!process.env.CI || process.env.npm_lifecycle_event === "lint",
