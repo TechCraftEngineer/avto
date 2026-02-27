@@ -7,7 +7,6 @@
 
 import { createHash } from "node:crypto";
 import {
-  and,
   eq,
   GlobalCandidateRepository,
   WorkspaceRepository,
@@ -213,109 +212,72 @@ export async function handleImportResume(c: Context) {
     originalSource: mapOriginalSource(input.platformSource),
   });
 
-  let targetResponse: { id: string } & Record<string, unknown>;
   const candidateId = normalizeCandidateId(rawProfileUrl);
 
-  // Проверка дубликатов по candidateId (совпадает с unique constraint БД).
-  // profileUrl может отличаться query-параметрами (HH), а candidateId стабилен.
-  const existing = await db.query.response.findFirst({
-    where: and(
-      eq(responseTable.entityId, input.vacancyId),
-      eq(responseTable.entityType, "vacancy"),
-      eq(responseTable.candidateId, candidateId),
-    ),
-  });
+  let globalCandidateId: string | null = null;
+  try {
+    const globalRepo = new GlobalCandidateRepository(db);
+    const { candidate } = await globalRepo.findOrCreateWithOrganizationLink(
+      candidateData,
+      {
+        organizationId: workspaceData.organizationId,
+        status: "ACTIVE",
+        appliedAt: new Date(),
+      },
+    );
+    globalCandidateId = candidate.id;
+  } catch (err) {
+    console.error("[extension-api] import-resume candidate create:", err);
+  }
 
-  if (existing) {
-    const [updated] = await db
-      .update(responseTable)
-      .set({
+  const insertValues = {
+    entityId: input.vacancyId,
+    entityType: "vacancy" as const,
+    candidateId,
+    candidateName: input.freelancerName,
+    coverLetter: input.responseText,
+    importSource: input.platformSource,
+    profileUrl: normalizedProfileUrl,
+    phone: input.contactInfo?.phone,
+    telegramUsername: input.contactInfo?.telegram,
+    globalCandidateId,
+    contacts: input.contactInfo
+      ? {
+          email: input.contactInfo.email,
+          phone: input.contactInfo.phone,
+          telegram: input.contactInfo.telegram,
+          platformProfileUrl: normalizedProfileUrl,
+        }
+      : undefined,
+    status: "NEW" as const,
+    respondedAt: new Date(),
+  };
+
+  // Upsert: при повторном импорте того же резюме просто перезаписываем данные
+  const [targetResponse] = await db
+    .insert(responseTable)
+    .values(insertValues)
+    .onConflictDoUpdate({
+      target: [
+        responseTable.entityType,
+        responseTable.entityId,
+        responseTable.candidateId,
+      ],
+      set: {
         candidateName: input.freelancerName,
         coverLetter: input.responseText,
         profileUrl: normalizedProfileUrl,
         phone: input.contactInfo?.phone,
         telegramUsername: input.contactInfo?.telegram,
-        contacts: input.contactInfo
-          ? {
-              email: input.contactInfo.email,
-              phone: input.contactInfo.phone,
-              telegram: input.contactInfo.telegram,
-              platformProfileUrl: normalizedProfileUrl,
-            }
-          : undefined,
-      })
-      .where(eq(responseTable.id, existing.id))
-      .returning();
-    if (!updated) {
-      return c.json({ error: "Не удалось обновить отклик" }, 500);
-    }
-    targetResponse = updated;
-  } else {
-    let globalCandidateId: string | null = null;
-    try {
-      const globalRepo = new GlobalCandidateRepository(db);
-      const { candidate } = await globalRepo.findOrCreateWithOrganizationLink(
-        candidateData,
-        {
-          organizationId: workspaceData.organizationId,
-          status: "ACTIVE",
-          appliedAt: new Date(),
-        },
-      );
-      globalCandidateId = candidate.id;
-    } catch (err) {
-      console.error("[extension-api] import-resume candidate create:", err);
-    }
+        globalCandidateId: globalCandidateId ?? undefined,
+        contacts: insertValues.contacts,
+        updatedAt: new Date(),
+      },
+    })
+    .returning();
 
-    const insertValues = {
-      entityId: input.vacancyId,
-      entityType: "vacancy" as const,
-      candidateId,
-      candidateName: input.freelancerName,
-      coverLetter: input.responseText,
-      importSource: input.platformSource,
-      profileUrl: normalizedProfileUrl,
-      phone: input.contactInfo?.phone,
-      telegramUsername: input.contactInfo?.telegram,
-      globalCandidateId,
-      contacts: input.contactInfo
-        ? {
-            email: input.contactInfo.email,
-            phone: input.contactInfo.phone,
-            telegram: input.contactInfo.telegram,
-            platformProfileUrl: normalizedProfileUrl,
-          }
-        : undefined,
-      status: "NEW" as const,
-      respondedAt: new Date(),
-    };
-
-    const [createdResponse] = await db
-      .insert(responseTable)
-      .values(insertValues)
-      .onConflictDoUpdate({
-        target: [
-          responseTable.entityType,
-          responseTable.entityId,
-          responseTable.candidateId,
-        ],
-        set: {
-          candidateName: input.freelancerName,
-          coverLetter: input.responseText,
-          profileUrl: normalizedProfileUrl,
-          phone: input.contactInfo?.phone,
-          telegramUsername: input.contactInfo?.telegram,
-          globalCandidateId: globalCandidateId ?? undefined,
-          contacts: insertValues.contacts,
-          updatedAt: new Date(),
-        },
-      })
-      .returning();
-
-    if (!createdResponse) {
-      return c.json({ error: "Не удалось создать отклик" }, 500);
-    }
-    targetResponse = createdResponse;
+  if (!targetResponse) {
+    return c.json({ error: "Не удалось сохранить отклик" }, 500);
   }
 
   const resumeId = candidateId;
