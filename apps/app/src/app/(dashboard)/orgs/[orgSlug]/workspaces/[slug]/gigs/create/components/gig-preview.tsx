@@ -18,6 +18,7 @@ import {
   Sparkles,
   Wand2,
 } from "lucide-react";
+import { formatBudget } from "~/components/gigs";
 import type { GigDraft } from "./types";
 import { gigTypeOptions } from "./types";
 
@@ -163,24 +164,7 @@ function PreviewContent({
         <div className="flex items-center gap-2 pt-2 border-t">
           <span className="text-sm font-medium">💰 Бюджет:</span>
           <span className="text-sm tabular-nums">
-            {draft.budgetMin === draft.budgetMax
-              ? new Intl.NumberFormat("ru-RU", {
-                  style: "currency",
-                  currency: "RUB",
-                  maximumFractionDigits: 0,
-                }).format(draft.budgetMin || 0)
-              : `${new Intl.NumberFormat("ru-RU", {
-                  style: "currency",
-                  currency: "RUB",
-                  maximumFractionDigits: 0,
-                }).format(draft.budgetMin || 0)} – ${new Intl.NumberFormat(
-                  "ru-RU",
-                  {
-                    style: "currency",
-                    currency: "RUB",
-                    maximumFractionDigits: 0,
-                  },
-                ).format(draft.budgetMax || 0)}`}
+            {formatBudget(draft.budgetMin, draft.budgetMax)}
           </span>
         </div>
       )}
