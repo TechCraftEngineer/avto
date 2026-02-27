@@ -359,14 +359,18 @@ chrome.runtime.onMessage.addListener(
       case "EXECUTE_IMPORT_TO_SYSTEM": {
         const payload = message.payload as {
           tabId?: number;
-          vacancyId?: string;
-          workspaceId?: string;
+          vacancyId?: unknown;
+          workspaceId?: unknown;
         };
         const tabId = payload?.tabId;
         if (typeof tabId !== "number") {
           sendResponse({ ok: false, error: "Неверный tabId" });
           return false;
         }
+        const vacancyId =
+          payload.vacancyId != null ? String(payload.vacancyId) : undefined;
+        const workspaceId =
+          payload.workspaceId != null ? String(payload.workspaceId) : undefined;
         (async () => {
           try {
             const manifest = chrome.runtime.getManifest();
@@ -393,8 +397,8 @@ chrome.runtime.onMessage.addListener(
             const resp = await chrome.tabs.sendMessage(tabId, {
               type: "IMPORT_TO_SYSTEM",
               payload: {
-                vacancyId: payload.vacancyId,
-                workspaceId: payload.workspaceId,
+                vacancyId,
+                workspaceId,
               },
             });
             sendResponse(resp ?? { ok: false, error: "Нет ответа" });

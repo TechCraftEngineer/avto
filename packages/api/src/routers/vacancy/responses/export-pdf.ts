@@ -6,40 +6,44 @@ import {
   response as responseTable,
   vacancy as vacancyTable,
 } from "@qbs-autonaim/db/schema";
-import { workspaceIdSchema } from "@qbs-autonaim/validators";
+import { getFileBufferFromS3 } from "@qbs-autonaim/lib/s3";
 import slugify from "@sindresorhus/slugify";
 import { z } from "zod";
-import { protectedProcedure } from "../../../orpc";
+import { workspaceInputSchema, workspaceProcedure } from "../../../orpc";
 import { convertHtmlToPdf } from "../../../utils/gotenberg";
-import { verifyWorkspaceAccess } from "../../../utils/verify-workspace-access";
 import {
   buildCandidateExportHtml,
   type ExportResponseData,
+  type ExportSectionId,
 } from "./export-candidate-html";
 import { mapScreeningToOutput } from "./mappers/screening-mapper";
 
-const exportSectionsSchema = z.array(z.string()).min(1).max(10);
+const exportSectionIdEnum = z.enum([
+  "personal",
+  "contact",
+  "experience",
+  "skills",
+  "portfolio",
+  "assessment",
+] as [ExportSectionId, ...ExportSectionId[]]);
+const exportSectionsSchema = z.array(exportSectionIdEnum).min(1).max(10);
 
-export const exportPdf = protectedProcedure
-  .input(
-    z.object({
-      responseId: z.string().uuid(),
-      workspaceId: workspaceIdSchema,
-      sections: exportSectionsSchema,
-    }),
-  )
+const exportPdfInputSchema = z.object({
+  responseId: z.string().uuid(),
+  sections: exportSectionsSchema,
+});
+
+export const exportPdf = workspaceProcedure
+  .input(workspaceInputSchema.merge(exportPdfInputSchema))
   .handler(async ({ context, input }) => {
-    await verifyWorkspaceAccess(
-      context.workspaceRepository,
-      input.workspaceId,
-      context.session.user.id,
-    );
-
     const response = await context.db.query.response.findFirst({
       where: and(
         eq(responseTable.id, input.responseId),
         eq(responseTable.entityType, "vacancy"),
       ),
+      with: {
+        photoFile: { columns: { key: true, mimeType: true } },
+      },
     });
 
     if (!response) {
@@ -72,8 +76,24 @@ export const exportPdf = protectedProcedure
         where: eq(interviewScoringTable.responseId, response.id),
       });
 
+    let photoDataUrl: string | null = null;
+    if (response.photoFile?.key) {
+      try {
+        const { buffer, contentType } = await getFileBufferFromS3(
+          response.photoFile.key,
+        );
+        const mime = contentType?.startsWith("image/")
+          ? contentType
+          : "image/jpeg";
+        photoDataUrl = `data:${mime};base64,${buffer.toString("base64")}`;
+      } catch {
+        // Фото недоступно — продолжаем без него
+      }
+    }
+
     const responseData = {
       ...response,
+      photoDataUrl,
       screening: screening ? mapScreeningToOutput(screening) : null,
       interviewScoring: directInterviewScoring
         ? {
@@ -96,10 +116,19 @@ export const exportPdf = protectedProcedure
       slugify(`${rawName}_profile`, { lowercase: false }) ||
       "candidate_profile";
 
-    const pdfBuffer = await convertHtmlToPdf({
-      html,
-      filename,
-    });
+    let pdfBuffer: Buffer;
+    try {
+      pdfBuffer = await convertHtmlToPdf({
+        html,
+        filename,
+      });
+    } catch (err) {
+      console.error("[exportPdf] convertHtmlToPdf error:", err);
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message:
+          "Не удалось сформировать PDF. Сервис конвертации временно недоступен.",
+      });
+    }
 
     return {
       pdfBase64: pdfBuffer.toString("base64"),

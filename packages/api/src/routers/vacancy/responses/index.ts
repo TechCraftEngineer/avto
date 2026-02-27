@@ -1,3 +1,4 @@
+import type { ORPCRouterRecord } from "@orpc/server";
 import { addTag } from "./add-tag";
 import { analyzeSingle } from "./analyze-single";
 import { compare } from "./compare";
@@ -42,4 +43,4 @@ export const responsesRouter = {
   updateStatus,
   exportPdf,
   debugList, // Временный debug endpoint
-};
+} satisfies ORPCRouterRecord;

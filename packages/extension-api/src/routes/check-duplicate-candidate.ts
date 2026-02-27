@@ -75,29 +75,39 @@ export async function handleCheckDuplicateCandidate(c: Context) {
   }
 
   const repo = new GlobalCandidateRepository(db);
-  let existing = await repo.findGlobalCandidateByContacts({
-    email: email ?? undefined,
-    phone: phone ?? undefined,
-    telegramUsername: telegram ?? undefined,
-  });
+  let existing;
+  try {
+    existing = await repo.findGlobalCandidateByContacts({
+      email: email ?? undefined,
+      phone: phone ?? undefined,
+      telegramUsername: telegram ?? undefined,
+    });
 
-  if (!existing && normalizedProfileUrl) {
-    existing = await repo.findGlobalCandidateByResumeUrl(normalizedProfileUrl);
-  }
+    if (!existing && normalizedProfileUrl) {
+      existing =
+        await repo.findGlobalCandidateByResumeUrl(normalizedProfileUrl);
+    }
 
-  if (!existing) {
-    return c.json({ existing: false });
-  }
-
-  // При указании organizationId — дубликат только если кандидат уже связан с этой организацией
-  if (input.organizationId) {
-    const link = await repo.findCandidateOrganizationLink(
-      existing.id,
-      input.organizationId,
-    );
-    if (!link) {
+    if (!existing) {
       return c.json({ existing: false });
     }
+
+    // При указании organizationId — дубликат только если кандидат уже связан с этой организацией
+    if (input.organizationId) {
+      const link = await repo.findCandidateOrganizationLink(
+        existing.id,
+        input.organizationId,
+      );
+      if (!link) {
+        return c.json({ existing: false });
+      }
+    }
+  } catch (err) {
+    console.error(
+      "[check-duplicate-candidate] findGlobalCandidate error:",
+      err,
+    );
+    return c.json({ error: "Внутренняя ошибка сервера" }, 500);
   }
 
   return c.json({

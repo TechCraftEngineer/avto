@@ -5,7 +5,7 @@
  * Вызывается расширением Recruitment Assistant при выборе вакансии.
  */
 
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import {
   eq,
   GlobalCandidateRepository,
@@ -84,7 +84,7 @@ function mapOriginalSource(
 
 /** candidate_id ограничен varchar(100) — укорачиваем URL при необходимости */
 function normalizeCandidateId(platformProfileUrl: string | undefined): string {
-  if (!platformProfileUrl) return crypto.randomUUID();
+  if (!platformProfileUrl) return randomUUID();
 
   if (platformProfileUrl.length <= 100) return platformProfileUrl;
 
@@ -193,7 +193,7 @@ export async function handleImportResume(c: Context) {
     columns: { organizationId: true },
   });
   if (!workspaceData) {
-    return c.json({ error: "Workspace не найден" }, 404);
+    return c.json({ error: "Рабочее пространство не найдено" }, 404);
   }
 
   const rawProfileUrl = input.contactInfo?.platformProfileUrl;
@@ -231,13 +231,7 @@ export async function handleImportResume(c: Context) {
       globalCandidateId = candidate.id;
     } catch (err) {
       console.error("[extension-api] import-resume candidate create:", err);
-      return c.json(
-        {
-          error:
-            err instanceof Error ? err.message : "Не удалось создать кандидата",
-        },
-        500,
-      );
+      return c.json({ error: "Не удалось создать кандидата" }, 500);
     }
   } else {
     // Проверяем, что кандидат существует, и обновляем связь с организацией

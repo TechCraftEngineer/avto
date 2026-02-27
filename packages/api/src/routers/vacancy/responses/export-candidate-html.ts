@@ -55,6 +55,8 @@ export interface ExportResponseData {
   rating: string | null;
   salaryExpectationsAmount: number | null;
   salaryExpectationsComment: string | null;
+  /** data URL (data:image/...;base64,...) для встраивания в HTML */
+  photoDataUrl?: string | null;
   screening: {
     score?: number;
     analysis?: string | null;
@@ -110,15 +112,21 @@ export function buildCandidateExportHtml(
 
   // personal
   if (hasSection("personal")) {
+    const photoHtml = response.photoDataUrl
+      ? `<div class="candidate-photo"><img src="${response.photoDataUrl}" alt="Фото кандидата" width="96" height="96" /></div>`
+      : "";
     body += `
       <section class="block">
         <h2>Личные данные</h2>
-        <dl class="grid">
-          <dt>Имя</dt><dd>${escapeHtml(response.candidateName) || "—"}</dd>
-          <dt>Дата отклика</dt><dd>${formatDate(response.respondedAt)}</dd>
-          <dt>Статус</dt><dd>${escapeHtml(statusLabel[response.status ?? ""] ?? response.status ?? "—")}</dd>
-          ${response.birthDate ? `<dt>Дата рождения</dt><dd>${formatDate(response.birthDate)}</dd>` : ""}
-        </dl>
+        <div class="personal-header">
+          ${photoHtml}
+          <dl class="grid">
+            <dt>Имя</dt><dd>${escapeHtml(response.candidateName) || "—"}</dd>
+            <dt>Дата отклика</dt><dd>${formatDate(response.respondedAt)}</dd>
+            <dt>Статус</dt><dd>${escapeHtml(statusLabel[response.status ?? ""] ?? response.status ?? "—")}</dd>
+            ${response.birthDate ? `<dt>Дата рождения</dt><dd>${formatDate(response.birthDate)}</dd>` : ""}
+          </dl>
+        </div>
       </section>`;
   }
 
@@ -148,7 +156,7 @@ export function buildCandidateExportHtml(
       <section class="block">
         <h2>Контакты</h2>
         <ul class="compact">${contacts.length ? contacts.map((c) => `<li>${c}</li>`).join("") : "<li>—</li>"}</ul>
-        ${response.coverLetter ? `<div class="cover"><strong>Сопроводительное письмо</strong><div class="content">${response.coverLetter}</div></div>` : ""}
+        ${response.coverLetter ? `<div class="cover"><strong>Сопроводительное письмо</strong><div class="content">${escapeHtml(response.coverLetter)}</div></div>` : ""}
       </section>`;
   }
 
@@ -221,13 +229,13 @@ export function buildCandidateExportHtml(
     if (scr) {
       assessHtml += `<div class="assess-item"><strong>Скрининг</strong> — балл: ${scr.score ?? "—"}`;
       if (scr.analysis)
-        assessHtml += `<div class="content">${scr.analysis}</div>`;
+        assessHtml += `<div class="content">${escapeHtml(scr.analysis)}</div>`;
       assessHtml += "</div>";
     }
     if (intScr) {
       assessHtml += `<div class="assess-item"><strong>Интервью</strong> — балл: ${intScr.score ?? "—"}`;
       if (intScr.analysis)
-        assessHtml += `<div class="content">${intScr.analysis}</div>`;
+        assessHtml += `<div class="content">${escapeHtml(intScr.analysis)}</div>`;
       assessHtml += "</div>";
     }
     body += `
@@ -248,6 +256,8 @@ export function buildCandidateExportHtml(
     h1 { font-size: 18pt; margin: 0 0 24px; }
     h2 { font-size: 14pt; margin: 0 0 12px; color: #333; border-bottom: 1px solid #e0e0e0; padding-bottom: 4px; }
     .block { margin-bottom: 24px; }
+    .personal-header { display: flex; align-items: flex-start; gap: 24px; }
+    .candidate-photo img { border-radius: 8px; object-fit: cover; }
     .grid { display: grid; grid-template-columns: 140px 1fr; gap: 4px 16px; }
     dt { color: #666; }
     dd { margin: 0; }
