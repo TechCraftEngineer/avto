@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { z } from "zod";
 import { getExtensionApiUrl } from "../../config";
 import type { AuthService } from "../../core/auth-service";
 import type {
@@ -27,6 +28,19 @@ interface ProfileViewProps {
   settingsError: string | null;
   onSettingsError: (err: string | null) => void;
 }
+
+const ExistingCandidateSchema = z.object({
+  id: z.string(),
+  fullName: z.string(),
+  firstName: z.string().nullable().optional(),
+  lastName: z.string().nullable().optional(),
+  email: z.string().nullable().optional(),
+  phone: z.string().nullable().optional(),
+  telegramUsername: z.string().nullable().optional(),
+  headline: z.string().nullable().optional(),
+  location: z.string().nullable().optional(),
+  resumeUrl: z.string().nullable().optional(),
+});
 
 export function ProfileView({
   pageContext,
@@ -179,9 +193,12 @@ export function ProfileView({
       "existingCandidate" in resp &&
       resp.existingCandidate
     ) {
-      setDuplicateState({
-        existingCandidate: resp.existingCandidate as ExistingCandidateInfo,
-      });
+      const parsed = ExistingCandidateSchema.safeParse(resp.existingCandidate);
+      if (parsed.success) {
+        setDuplicateState({ existingCandidate: parsed.data });
+      } else {
+        setError("Некорректные данные кандидата");
+      }
     } else if (resp?.ok === false) {
       setError(resp.error ?? "Ошибка импорта");
     } else if (resp?.ok === true) {
@@ -227,9 +244,12 @@ export function ProfileView({
       "existingCandidate" in resp &&
       resp.existingCandidate
     ) {
-      setDuplicateState({
-        existingCandidate: resp.existingCandidate as ExistingCandidateInfo,
-      });
+      const parsed = ExistingCandidateSchema.safeParse(resp.existingCandidate);
+      if (parsed.success) {
+        setDuplicateState({ existingCandidate: parsed.data });
+      } else {
+        setError("Некорректные данные кандидата");
+      }
     } else if (resp?.ok === false) {
       setError(resp.error ?? "Ошибка");
     } else if (resp?.ok === true) {
@@ -243,9 +263,12 @@ export function ProfileView({
     setIsProcessing(true);
     setError(null);
     setSuccessMessage(null);
+    const platformSource =
+      pageContext.platform === "HeadHunter" ? "HH" : "WEB_LINK";
     const resp = await sendToTab("SAVE_TO_GLOBAL_EXISTING", {
       globalCandidateId: duplicateState.existingCandidate.id,
       workspaceId: selectedWorkspaceId,
+      platformSource,
     });
     if (resp?.ok === false) {
       setError(resp.error ?? "Ошибка");

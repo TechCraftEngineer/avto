@@ -89,6 +89,17 @@ export async function handleCheckDuplicateCandidate(c: Context) {
     return c.json({ existing: false });
   }
 
+  // При указании organizationId — дубликат только если кандидат уже связан с этой организацией
+  if (input.organizationId) {
+    const link = await repo.findCandidateOrganizationLink(
+      existing.id,
+      input.organizationId,
+    );
+    if (!link) {
+      return c.json({ existing: false });
+    }
+  }
+
   return c.json({
     existing: true,
     candidate: {

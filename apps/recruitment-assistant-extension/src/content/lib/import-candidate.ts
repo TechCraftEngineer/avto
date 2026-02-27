@@ -96,9 +96,21 @@ export async function importToVacancyWithExisting(
   );
 }
 
+function inferPlatformSourceFromContext(): "HH" | "WEB_LINK" {
+  if (typeof window !== "undefined") {
+    const host = window.location.host.toLowerCase();
+    if (host.includes("hh.") || host.includes("headhunter")) return "HH";
+  }
+  return "WEB_LINK";
+}
+
 export async function importToGlobalOnly(
   options:
-    | { globalCandidateId: string; workspaceId: string }
+    | {
+        globalCandidateId: string;
+        workspaceId: string;
+        platformSource?: string;
+      }
     | {
         workspaceId: string;
         candidateData: {
@@ -128,14 +140,17 @@ export async function importToGlobalOnly(
     "globalCandidateId" in options
       ? {
           globalCandidateId: options.globalCandidateId,
-          platformSource: "HH" as const,
+          platformSource:
+            (options.platformSource as "HH" | "WEB_LINK") ??
+            inferPlatformSourceFromContext(),
           freelancerName: "",
           responseText: "",
         }
       : {
           ...options.candidateData,
           platformSource:
-            (options.candidateData.platformSource as "HH") || "HH",
+            options.candidateData.platformSource ||
+            inferPlatformSourceFromContext(),
         };
 
   const { getExtensionApiUrl } = await import("../../config");

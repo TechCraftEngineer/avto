@@ -137,7 +137,13 @@ export function DuplicateCandidateView({
           >
             Сохранить без вакансии
           </Button>
-          <Button variant="ghost" size="sm" className="w-full" onClick={onBack}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full"
+            onClick={onBack}
+            disabled={isProcessing}
+          >
             Назад
           </Button>
         </div>

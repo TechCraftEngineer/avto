@@ -150,6 +150,9 @@ export const env = createEnv({
     YOOKASSA_SHOP_ID: z.string().min(1).optional(),
     YOOKASSA_SECRET_KEY: z.string().min(1).optional(),
     YOOKASSA_API_URL: z.url().optional().default("https://api.yookassa.ru/v3"),
+
+    // Gotenberg — конвертация HTML в PDF
+    GOTENBERG_URL: z.string().optional().default("http://localhost:3010"),
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.url().optional().default("http://localhost:3000"),
@@ -238,6 +241,7 @@ export const env = createEnv({
     YOOKASSA_SHOP_ID: process.env.YOOKASSA_SHOP_ID,
     YOOKASSA_SECRET_KEY: process.env.YOOKASSA_SECRET_KEY,
     YOOKASSA_API_URL: process.env.YOOKASSA_API_URL,
+    GOTENBERG_URL: process.env.GOTENBERG_URL,
   },
   skipValidation:
     !!process.env.CI || process.env.npm_lifecycle_event === "lint",

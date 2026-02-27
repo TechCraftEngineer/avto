@@ -231,10 +231,21 @@ export async function handleImportResume(c: Context) {
       globalCandidateId = candidate.id;
     } catch (err) {
       console.error("[extension-api] import-resume candidate create:", err);
+      return c.json(
+        {
+          error:
+            err instanceof Error ? err.message : "Не удалось создать кандидата",
+        },
+        500,
+      );
     }
   } else {
     // Проверяем, что кандидат существует, и обновляем связь с организацией
     const globalRepo = new GlobalCandidateRepository(db);
+    const existing = await globalRepo.findById(globalCandidateId);
+    if (!existing) {
+      return c.json({ error: "Кандидат не найден" }, 404);
+    }
     await globalRepo.createOrUpdateCandidateOrganizationLink(
       globalCandidateId,
       {
