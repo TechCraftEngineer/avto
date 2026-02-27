@@ -20,8 +20,8 @@
     "@qbs-autonaim/jobs": "workspace:*",
     "@qbs-autonaim/lib": "workspace:*",
     "@qbs-autonaim/server-utils": "workspace:*",
-    "ai": "6.0.99",
-    "hono": "4.12.2",
+    "ai": "6.0.104",
+    "hono": "4.12.3",
     "resumable-stream": "^2.2.10",
     "superjson": "2.2.6",
     "zod": "4.3.6"

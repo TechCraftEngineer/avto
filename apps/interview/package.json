@@ -31,7 +31,7 @@
     "@qbs-autonaim/ui": "workspace:*",
     "@t3-oss/env-nextjs": "0.13.10",
     "@tanstack/react-query": "5.90.21",
-    "ai": "6.0.99",
+    "ai": "6.0.104",
     "dompurify": "^3.3.1",
     "lucide-react": "^0.575.0",
     "motion": "^12.34.3",
@@ -47,7 +47,7 @@
   "devDependencies": {
     "@qbs-autonaim/tailwind-config": "workspace:*",
     "@qbs-autonaim/tsconfig": "workspace:*",
-    "@types/node": "25.3.0",
+    "@types/node": "25.3.2",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@types/sanitize-html": "^2.16.0",
