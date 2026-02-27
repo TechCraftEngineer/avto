@@ -7,10 +7,12 @@ import {
   vacancy as vacancyTable,
 } from "@qbs-autonaim/db/schema";
 import { getFileBufferFromS3 } from "@qbs-autonaim/lib/s3";
+import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import slugify from "@sindresorhus/slugify";
 import { z } from "zod";
-import { workspaceInputSchema, workspaceProcedure } from "../../../orpc";
+import { protectedProcedure } from "../../../orpc";
 import { convertHtmlToPdf } from "../../../utils/gotenberg";
+import { verifyWorkspaceAccess } from "../../../utils/verify-workspace-access";
 import {
   buildCandidateExportHtml,
   type ExportResponseData,
@@ -29,13 +31,20 @@ const exportSectionIdEnum = z.enum([
 const exportSectionsSchema = z.array(exportSectionIdEnum).min(1).max(10);
 
 const exportPdfInputSchema = z.object({
+  workspaceId: workspaceIdSchema,
   responseId: z.string().uuid(),
   sections: exportSectionsSchema,
 });
 
-export const exportPdf = workspaceProcedure
-  .input(workspaceInputSchema.merge(exportPdfInputSchema))
+export const exportPdf = protectedProcedure
+  .input(exportPdfInputSchema)
   .handler(async ({ context, input }) => {
+    await verifyWorkspaceAccess(
+      context.workspaceRepository,
+      input.workspaceId,
+      context.session.user.id,
+    );
+
     const response = await context.db.query.response.findFirst({
       where: and(
         eq(responseTable.id, input.responseId),

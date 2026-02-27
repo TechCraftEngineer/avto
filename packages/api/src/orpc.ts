@@ -350,7 +350,7 @@ export const workspaceAccessMiddleware = middleware(
     const access = await verifyWorkspaceAccess(
       context.workspaceRepository,
       input.workspaceId,
-      context.session!.user.id,
+      context.session?.user.id,
     );
     return next({ context: { workspaceAccess: access } });
   },

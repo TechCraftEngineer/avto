@@ -50,7 +50,7 @@ const bodySchema = z.object({
 });
 
 function mapPlatformToSource(
-  src: z.infer<typeof platformSourceEnum>,
+  _src: z.infer<typeof platformSourceEnum>,
 ): "APPLICANT" | "SOURCING" | "IMPORT" | "MANUAL" | "REFERRAL" {
   return "SOURCING";
 }

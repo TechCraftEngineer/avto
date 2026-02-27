@@ -290,6 +290,8 @@ export function useRefreshSubscription({
     mode,
     queryClient,
     vacancyId,
+    orpc,
+    workspaceId,
   ]);
 
   // Очищаем таймер при размонтировании

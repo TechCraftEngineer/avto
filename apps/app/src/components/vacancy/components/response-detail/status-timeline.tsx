@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@qbs-autonaim/ui/components/card";
-import { skipToken, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
   Briefcase,
   Calendar,

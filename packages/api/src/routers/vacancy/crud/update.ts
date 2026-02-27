@@ -1,4 +1,3 @@
-import { ORPCError } from "@orpc/server";
 import { and, eq } from "@qbs-autonaim/db";
 import { vacancy } from "@qbs-autonaim/db/schema";
 import {

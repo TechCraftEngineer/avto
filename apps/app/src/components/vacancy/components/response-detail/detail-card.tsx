@@ -30,15 +30,16 @@ export function VacancyResponseDetailCard({
     getDefaultTab,
   } = useVacancyResponseFlags(response);
 
-  // Получаем presigned URL для PDF резюме
+  // Получаем presigned URL для PDF резюме (enabled гарантирует наличие resumePdfFileId)
+  const resumePdfFileId = response.resumePdfFileId;
   const { data: resumePdfData } = useQuery({
     ...orpc.files.getFileUrl.queryOptions({
       input: {
         workspaceId: response.workspaceId,
-        fileId: response.resumePdfFileId!,
+        fileId: resumePdfFileId ?? "",
       },
     }),
-    enabled: !!response.resumePdfFileId && !!response.workspaceId,
+    enabled: !!resumePdfFileId && !!response.workspaceId,
   });
 
   return (

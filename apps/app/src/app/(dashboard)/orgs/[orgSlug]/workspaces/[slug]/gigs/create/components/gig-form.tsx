@@ -102,7 +102,7 @@ export function GigForm({
         }
       }
     },
-    [workspaceId, orpc, form],
+    [workspaceId, orpc, form, queryClient],
   );
 
   const debouncedImportFromKwork = useDebouncedCallback(

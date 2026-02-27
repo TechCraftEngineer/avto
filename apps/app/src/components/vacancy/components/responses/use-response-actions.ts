@@ -51,7 +51,7 @@ export function useResponseActions(
 
       setTimeout(() => {
         void queryClient.invalidateQueries({
-          queryKey: (orpc.vacancy.responses.list.queryKey as any)({
+          queryKey: orpc.vacancy.responses.list.queryKey({
             input: {
               workspaceId,
               vacancyId,
@@ -87,7 +87,7 @@ export function useResponseActions(
 
       setTimeout(() => {
         void queryClient.invalidateQueries({
-          queryKey: (orpc.vacancy.responses.list.queryKey as any)({
+          queryKey: orpc.vacancy.responses.list.queryKey({
             input: {
               workspaceId,
               vacancyId,
@@ -165,7 +165,7 @@ export function useResponseActions(
     setIsProcessingNew(false);
     // Обновляем список откликов только для текущей вакансии
     void queryClient.invalidateQueries({
-      queryKey: (orpc.vacancy.responses.list.queryKey as any)({
+      queryKey: orpc.vacancy.responses.list.queryKey({
         input: {
           workspaceId,
           vacancyId: vacancyId ?? "",
@@ -209,7 +209,7 @@ export function useResponseActions(
     setIsRefreshing(false);
     setIsSyncingArchived(false);
     void queryClient.invalidateQueries({
-      queryKey: (orpc.vacancy.responses.list.queryKey as any)({
+      queryKey: orpc.vacancy.responses.list.queryKey({
         input: {
           workspaceId,
           vacancyId: vacancyId ?? "",
@@ -246,7 +246,7 @@ export function useResponseActions(
 
       setTimeout(() => {
         void queryClient.invalidateQueries({
-          queryKey: (orpc.vacancy.responses.list.queryKey as any)({
+          queryKey: orpc.vacancy.responses.list.queryKey({
             input: {
               workspaceId,
               vacancyId,

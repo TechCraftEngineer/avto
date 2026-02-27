@@ -25,13 +25,8 @@ export function ResponsesStats({
   if (isLoading) {
     return (
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        {[...Array(4)].map((_, i) => (
-          // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton items
-          <Card
-            key={`skeleton-${i}`}
-            size="sm"
-            className="border-border bg-card shadow-sm"
-          >
+        {["skeleton-0", "skeleton-1", "skeleton-2", "skeleton-3"].map((key) => (
+          <Card key={key} size="sm" className="border-border bg-card shadow-sm">
             <CardHeader>
               <Skeleton className="h-4 w-24" />
               <Skeleton className="h-8 w-16 mt-2" />

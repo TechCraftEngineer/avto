@@ -123,6 +123,7 @@ export function ResponseActions({
     reset,
     queryClient,
     vacancyId,
+    workspaceId,
     orpc.vacancy.responses.list.queryKey,
   ]);
 
@@ -159,6 +160,7 @@ export function ResponseActions({
     resetAnalyze,
     queryClient,
     vacancyId,
+    workspaceId,
     orpc.vacancy.responses.list.queryKey,
   ]);
 

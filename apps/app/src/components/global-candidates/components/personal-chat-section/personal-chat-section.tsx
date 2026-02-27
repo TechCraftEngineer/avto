@@ -1,11 +1,7 @@
 "use client";
 
 import { getInitials } from "@qbs-autonaim/shared";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@qbs-autonaim/ui/components/avatar";
+import { Avatar, AvatarFallback } from "@qbs-autonaim/ui/components/avatar";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { ScrollArea } from "@qbs-autonaim/ui/components/scroll-area";
 import { Textarea } from "@qbs-autonaim/ui/components/textarea";
@@ -13,7 +9,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MessageSquare, Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { getAvatarUrl } from "~/lib/avatar";
 import { useORPC } from "~/orpc/react";
 
 interface PersonalChatSectionProps {
@@ -25,7 +20,7 @@ interface PersonalChatSectionProps {
 
 export function PersonalChatSection({
   candidateId,
-  candidateName,
+  candidateName: _candidateName,
   organizationId,
   telegramUsername,
 }: PersonalChatSectionProps) {
@@ -67,6 +62,7 @@ export function PersonalChatSection({
     }),
   );
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: messages триггерит прокрутку вниз при новых сообщениях
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@qbs-autonaim/ui/components/button";
-import { skipToken, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
   Download,
   ExternalLink,
