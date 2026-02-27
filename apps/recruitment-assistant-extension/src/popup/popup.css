@@ -10,11 +10,17 @@
     background-color: var(--background);
     color: var(--foreground);
     font-family: system-ui, -apple-system, sans-serif;
+    min-width: 440px;
   }
 }
 
-/* Popup scroll when content is tall */
+/* Один скролл на уровне документа */
 #root {
-  max-height: 500px;
+  min-width: 440px;
+  max-height: 640px;
+}
+
+html {
   overflow-y: auto;
+  overflow-x: hidden;
 }

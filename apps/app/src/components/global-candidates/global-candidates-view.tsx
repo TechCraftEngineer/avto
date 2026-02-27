@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Users } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 import { useORPC } from "~/orpc/react";
@@ -39,8 +40,12 @@ export function GlobalCandidatesView() {
   const { workspace } = useWorkspaceContext();
   const orpc = useORPC();
   const queryClient = useQueryClient();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
 
   const organizationId = workspace?.organizationId;
+  const candidateIdFromUrl = searchParams.get("candidateId");
 
   // Состояния
   const [filters, setFilters] = useState<TCandidateFilters>(DEFAULT_FILTERS);
@@ -59,6 +64,67 @@ export function GlobalCandidatesView() {
     }, 300);
     return () => clearTimeout(timer);
   }, [filters.search]);
+
+  // Загрузка кандидата по candidateId из URL (для перехода из плагина)
+  const { data: candidateFromUrl } = useQuery({
+    ...orpc.globalCandidates.get.queryOptions({
+      input: {
+        candidateId: candidateIdFromUrl ?? "",
+        organizationId: organizationId ?? "",
+      },
+    }),
+    enabled:
+      !!candidateIdFromUrl &&
+      !!organizationId &&
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        candidateIdFromUrl,
+      ),
+  });
+
+  useEffect(() => {
+    if (!candidateFromUrl || !candidateIdFromUrl) return;
+    const mapped: GlobalCandidate = {
+      id: candidateFromUrl.id,
+      linkId: candidateFromUrl.id,
+      fullName: candidateFromUrl.fullName ?? "Неизвестный кандидат",
+      firstName: candidateFromUrl.firstName,
+      lastName: candidateFromUrl.lastName,
+      middleName: candidateFromUrl.middleName,
+      headline: candidateFromUrl.headline,
+      email: candidateFromUrl.email,
+      phone: candidateFromUrl.phone,
+      telegramUsername: candidateFromUrl.telegramUsername,
+      location: candidateFromUrl.location,
+      skills: candidateFromUrl.skills ?? [],
+      experienceYears: candidateFromUrl.experienceYears,
+      salaryExpectationsAmount: candidateFromUrl.salaryExpectationsAmount,
+      workFormat: candidateFromUrl.workFormat,
+      englishLevel: candidateFromUrl.englishLevel,
+      readyForRelocation: candidateFromUrl.readyForRelocation ?? false,
+      avatarFileId: candidateFromUrl.avatarFileId ?? null,
+      status: candidateFromUrl.orgStatus ?? "ACTIVE",
+      tags: candidateFromUrl.orgTags ?? [],
+      notes: candidateFromUrl.orgNotes,
+      source: candidateFromUrl.source,
+      originalSource: candidateFromUrl.originalSource,
+      resumeUrl: candidateFromUrl.resumeUrl,
+      relatedVacancies:
+        candidateFromUrl.responses?.map((r) => r.vacancyTitle) ?? [],
+      lastActivity: candidateFromUrl.lastActivity ?? new Date(),
+      appliedAt: candidateFromUrl.appliedAt,
+      createdAt: candidateFromUrl.linkedAt ?? new Date(),
+      updatedAt: candidateFromUrl.lastActivity ?? new Date(),
+      globalCandidateId: candidateFromUrl.id,
+    };
+    setSelectedCandidate(mapped);
+    setIsProfileOpen(true);
+    const params = new URLSearchParams(searchParams);
+    params.delete("candidateId");
+    router.replace(
+      `${pathname}${params.toString() ? `?${params.toString()}` : ""}`,
+      { scroll: false },
+    );
+  }, [candidateFromUrl, candidateIdFromUrl, pathname, router, searchParams]);
 
   // Запрос списка кандидатов
   const { data: candidatesData, isLoading } = useQuery({

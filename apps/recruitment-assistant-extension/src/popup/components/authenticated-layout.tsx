@@ -92,7 +92,7 @@ export function AuthenticatedLayout({
   };
 
   return (
-    <div className="flex min-w-[360px] max-w-[420px] flex-col gap-4 p-4 font-sans text-sm">
+    <div className="flex min-w-[440px] max-w-[560px] flex-col gap-4 p-4 font-sans text-sm">
       <PopupHeader />
       <main aria-label="Действия">{children}</main>
 

@@ -11,7 +11,7 @@ export function LoginView() {
   const version = chrome.runtime.getManifest().version;
 
   return (
-    <div className="flex min-w-[360px] max-w-[420px] flex-col gap-4 p-4 font-sans text-sm">
+    <div className="flex min-w-[440px] max-w-[560px] flex-col gap-4 p-4 font-sans text-sm">
       <PopupHeader />
       <div className="flex flex-col gap-1">
         <h2 className="text-base font-semibold leading-tight text-balance">
