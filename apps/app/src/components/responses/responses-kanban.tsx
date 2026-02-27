@@ -24,7 +24,50 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useORPC } from "~/orpc/react";
 import { ResponseKanbanCard } from "./response-kanban-card";
-import type { ResponseItem, ResponseStatus } from "./types";
+import type { ResponseItem } from "./types";
+
+/** Стадии воронки рекрутинга (единые с кандидатами) */
+type ResponseStage =
+  | "SCREENING_DONE"
+  | "INTERVIEW"
+  | "OFFER_SENT"
+  | "SECURITY_PASSED"
+  | "CONTRACT_SENT"
+  | "ONBOARDING"
+  | "REJECTED";
+
+const STAGE_COLUMNS: { id: ResponseStage; label: string; color: string }[] = [
+  { id: "SCREENING_DONE", label: "На рассмотрении", color: "bg-blue-500" },
+  { id: "INTERVIEW", label: "Собеседование", color: "bg-cyan-500" },
+  { id: "OFFER_SENT", label: "Оффер", color: "bg-indigo-500" },
+  { id: "SECURITY_PASSED", label: "СБ пройдена", color: "bg-violet-500" },
+  { id: "CONTRACT_SENT", label: "Договор отправлен", color: "bg-amber-500" },
+  { id: "ONBOARDING", label: "Онбординг", color: "bg-emerald-500" },
+  { id: "REJECTED", label: "Отказ", color: "bg-rose-500" },
+];
+
+/**
+ * Маппинг status + hrSelectionStatus → stage (совпадает с candidates.list)
+ */
+function mapResponseToStage(
+  status: string,
+  hrSelectionStatus: string | null,
+): ResponseStage {
+  if (hrSelectionStatus === "ONBOARDING") return "ONBOARDING";
+  if (hrSelectionStatus === "CONTRACT_SENT") return "CONTRACT_SENT";
+  if (hrSelectionStatus === "SECURITY_PASSED") return "SECURITY_PASSED";
+  if (hrSelectionStatus === "OFFER") return "OFFER_SENT";
+  if (hrSelectionStatus === "INVITE" || hrSelectionStatus === "RECOMMENDED")
+    return "OFFER_SENT";
+  if (
+    hrSelectionStatus === "REJECTED" ||
+    hrSelectionStatus === "NOT_RECOMMENDED" ||
+    status === "SKIPPED"
+  )
+    return "REJECTED";
+  if (status === "EVALUATED") return "SCREENING_DONE";
+  return "INTERVIEW";
+}
 
 interface VacancyOption {
   id: string;
@@ -42,21 +85,15 @@ interface ResponsesKanbanProps {
   sortKey?: string;
 }
 
-const STATUS_COLUMNS: { id: ResponseStatus; label: string; color: string }[] = [
-  { id: "NEW", label: "Новые", color: "bg-blue-500" },
-  { id: "EVALUATED", label: "Оценённые", color: "bg-purple-500" },
-  { id: "INTERVIEW", label: "Собеседование", color: "bg-amber-500" },
-  { id: "NEGOTIATION", label: "Переговоры", color: "bg-cyan-500" },
-  { id: "COMPLETED", label: "Завершённые", color: "bg-green-500" },
-  { id: "SKIPPED", label: "Пропущенные", color: "bg-gray-500" },
-];
-
 function responsesToColumns(
   responses: ResponseItem[],
 ): Record<string, ResponseItem[]> {
   const columns: Record<string, ResponseItem[]> = {};
-  for (const col of STATUS_COLUMNS) {
-    columns[col.id] = responses.filter((r) => r.status === col.id);
+  for (const col of STAGE_COLUMNS) {
+    columns[col.id] = responses.filter(
+      (r) =>
+        mapResponseToStage(r.status, r.hrSelectionStatus ?? null) === col.id,
+    );
   }
   return columns;
 }
@@ -291,7 +328,7 @@ function ResponseKanbanItem({
 }
 
 interface ResponseKanbanColumnProps {
-  value: ResponseStatus;
+  value: ResponseStage;
   label: string;
   color: string;
   responses: ResponseItem[];
@@ -412,7 +449,7 @@ export function ResponsesKanban({
     const responseById = new Map(responses.map((r) => [r.id, r]));
     setColumns((prev) => {
       const merged: Record<string, ResponseItem[]> = {};
-      for (const col of STATUS_COLUMNS) {
+      for (const col of STAGE_COLUMNS) {
         const colId = col.id;
         const prevItems = prev[colId] ?? [];
         const serverItems = serverColumns[colId] ?? [];
@@ -435,27 +472,31 @@ export function ResponsesKanban({
     });
   }, [responses, sortKey]);
 
-  const { mutate: updateStatus } = useMutation(
-    orpc.vacancy.responses.updateStatus.mutationOptions({
+  const listWorkspaceQueryKey = {
+    input: {
+      workspaceId,
+      page: 1,
+      limit: 50,
+      sortField: null as const,
+      sortDirection: "desc" as const,
+      screeningFilter: "all" as const,
+    },
+  };
+
+  const { mutate: updateStage } = useMutation(
+    orpc.candidates.updateStage.mutationOptions({
       onError: () => {
         setColumns(responsesToColumns(responses));
-        toast.error("Не удалось обновить статус");
+        toast.error("Не удалось обновить этап");
       },
       onSuccess: () => {
-        toast.success("Статус отклика обновлён");
+        toast.success("Этап обновлён");
       },
       onSettled: () => {
         queryClient.invalidateQueries({
-          queryKey: orpc.vacancy.responses.listWorkspace.queryKey({
-            input: {
-              workspaceId,
-              page: 1,
-              limit: 50,
-              sortField: null,
-              sortDirection: "desc",
-              screeningFilter: "all",
-            },
-          }),
+          queryKey: orpc.vacancy.responses.listWorkspace.queryKey(
+            listWorkspaceQueryKey,
+          ),
         });
       },
     }),
@@ -493,22 +534,23 @@ export function ResponsesKanban({
         columns[activeContainer]?.[event.activeIndex];
       if (!item || activeContainer === overContainer) return;
 
-      const newStatus = overContainer as ResponseStatus;
+      const newStage = overContainer as ResponseStage;
 
       // UI уже обновлён оптимистично в handleDragOver, остаётся только синхронизация с API
-      updateStatus({
-        responseId: item.id,
-        status: newStatus,
+      updateStage({
+        candidateId: item.id,
+        workspaceId,
+        stage: newStage,
       });
     },
-    [columns, updateStatus],
+    [columns, updateStage, workspaceId],
   );
 
   if (!mounted) {
     return (
       <div className="flex min-h-0 flex-1 flex-col overflow-x-auto overflow-y-hidden rounded-lg">
         <div className="flex min-h-full min-w-max flex-1 gap-3 pb-2 md:gap-4 items-stretch">
-          {STATUS_COLUMNS.map((col) => (
+          {STAGE_COLUMNS.map((col) => (
             <div
               key={col.id}
               className={cn(
@@ -545,7 +587,7 @@ export function ResponsesKanban({
           className="flex min-h-full min-w-max flex-1 gap-3 pb-2 md:gap-4 items-stretch"
           aria-label="Канбан-доска откликов"
         >
-          {STATUS_COLUMNS.map((col) => (
+          {STAGE_COLUMNS.map((col) => (
             <ResponseKanbanColumn
               key={col.id}
               value={col.id}
