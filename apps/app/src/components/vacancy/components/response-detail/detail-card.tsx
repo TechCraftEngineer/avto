@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { skipToken, useQuery } from "@tanstack/react-query";
 import { useORPC } from "~/orpc/react";
 import { CandidateNavigation } from "./candidate-navigation";
 import { VacancyResponseHeaderCard } from "./header-card";
@@ -32,15 +32,16 @@ export function VacancyResponseDetailCard({
 
   // Получаем presigned URL для PDF резюме
   const resumePdfFileId = response.resumePdfFileId;
-  const { data: resumePdfData } = useQuery({
-    ...orpc.files.getFileUrl.queryOptions({
-      input: {
-        workspaceId: response.workspaceId,
-        fileId: resumePdfFileId ?? "",
-      },
-    }),
-    enabled: !!resumePdfFileId && !!response.workspaceId,
-  });
+  const { data: resumePdfData } = useQuery(
+    orpc.files.getFileUrl.queryOptions(
+      resumePdfFileId && response.workspaceId
+        ? {
+            workspaceId: response.workspaceId,
+            fileId: resumePdfFileId,
+          }
+        : skipToken,
+    ),
+  );
 
   return (
     <div className="space-y-4 sm:space-y-6">
