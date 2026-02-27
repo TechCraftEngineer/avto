@@ -12,7 +12,10 @@ import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 import { convertHtmlToPdf } from "../../../utils/gotenberg";
 import { verifyWorkspaceAccess } from "../../../utils/verify-workspace-access";
-import { buildCandidateExportHtml } from "./export-candidate-html";
+import {
+  buildCandidateExportHtml,
+  type ExportResponseData,
+} from "./export-candidate-html";
 import { mapScreeningToOutput } from "./mappers/screening-mapper";
 
 const exportSectionsSchema = z.array(z.string()).min(1).max(10);
@@ -25,7 +28,7 @@ export const exportPdf = protectedProcedure
       sections: exportSectionsSchema,
     }),
   )
-  .mutation(async ({ context, input }) => {
+  .handler(async ({ context, input }) => {
     await verifyWorkspaceAccess(
       context.workspaceRepository,
       input.workspaceId,
@@ -82,7 +85,10 @@ export const exportPdf = protectedProcedure
         : null,
     };
 
-    const html = buildCandidateExportHtml(responseData, input.sections);
+    const html = buildCandidateExportHtml(
+      responseData as ExportResponseData,
+      input.sections,
+    );
 
     const candidateName =
       response.candidateName?.replace(/[/\\:*?"<>|]/g, "_") || "candidate";

@@ -38,7 +38,7 @@ interface ProfileData {
   [key: string]: unknown;
 }
 
-interface ExportResponseData {
+export interface ExportResponseData {
   id: string;
   candidateName: string | null;
   respondedAt: Date | null;
