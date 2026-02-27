@@ -270,22 +270,40 @@ export function CandidateDetailView({
                 </div>
               </>
             )}
-            {existingCandidate.resumeUrl && (
-              <>
-                <Separator />
-                <div className="flex items-center gap-2.5">
-                  <IconExternalLink />
-                  <a
-                    href={existingCandidate.resumeUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-primary underline-offset-4 hover:underline"
-                  >
-                    Резюме
-                  </a>
-                </div>
-              </>
-            )}
+            {existingCandidate.resumeUrl &&
+              (() => {
+                const validatedHref = (() => {
+                  try {
+                    const parsed = new URL(existingCandidate.resumeUrl);
+                    if (
+                      parsed.protocol === "http:" ||
+                      parsed.protocol === "https:"
+                    ) {
+                      return parsed.href;
+                    }
+                  } catch {
+                    // невалидный URL — не рендерим ссылку
+                  }
+                  return null;
+                })();
+                if (!validatedHref) return null;
+                return (
+                  <>
+                    <Separator />
+                    <div className="flex items-center gap-2.5">
+                      <IconExternalLink />
+                      <a
+                        href={validatedHref}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-primary underline-offset-4 hover:underline"
+                      >
+                        Резюме
+                      </a>
+                    </div>
+                  </>
+                );
+              })()}
           </CardContent>
         </Card>
 

@@ -5,7 +5,12 @@ import { Avatar, AvatarFallback } from "@qbs-autonaim/ui/components/avatar";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { ScrollArea } from "@qbs-autonaim/ui/components/scroll-area";
 import { Textarea } from "@qbs-autonaim/ui/components/textarea";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  skipToken,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { MessageSquare, Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -27,15 +32,16 @@ export function PersonalChatSection({
   const [messageText, setMessageText] = useState("");
   const orpc = useORPC();
   const queryClient = useQueryClient();
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const { data: messages = [] } = useQuery({
-    ...orpc.personalTelegram.listMessages.queryOptions({
-      input: { candidateId, organizationId },
-    }),
-    enabled: !!candidateId && !!organizationId,
-  });
+  const { data: messages = [] } = useQuery(
+    candidateId && organizationId
+      ? orpc.personalTelegram.listMessages.queryOptions({
+          input: { candidateId, organizationId },
+        })
+      : skipToken,
+  );
 
   const { data: sessions = [] } = useQuery({
     ...orpc.personalTelegram.getSessions.queryOptions(),
@@ -64,8 +70,11 @@ export function PersonalChatSection({
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: messages триггерит прокрутку вниз при новых сообщениях
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    const viewport = scrollAreaRef.current?.querySelector(
+      '[data-slot="scroll-area-viewport"]',
+    ) as HTMLElement | undefined;
+    if (viewport) {
+      viewport.scrollTop = viewport.scrollHeight;
     }
   }, [messages]);
 
@@ -132,9 +141,9 @@ export function PersonalChatSection({
 
   return (
     <div className="flex flex-col h-[400px]">
-      <div className="flex-1 overflow-hidden">
+      <div ref={scrollAreaRef} className="flex-1 overflow-hidden">
         <ScrollArea className="h-full">
-          <div ref={scrollRef} className="px-4 py-3">
+          <div className="px-4 py-3">
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-[300px] text-center text-muted-foreground">
                 <MessageSquare className="h-16 w-16 mb-4 opacity-20" />

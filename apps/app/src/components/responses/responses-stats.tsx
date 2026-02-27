@@ -27,10 +27,12 @@ export function ResponsesStats({
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {["skeleton-0", "skeleton-1", "skeleton-2", "skeleton-3"].map((key) => (
           <Card key={key} size="sm" className="border-border bg-card shadow-sm">
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-8 w-16 mt-2" />
             </CardHeader>
+            <CardContent>
+              <Skeleton className="h-8 w-16" />
+            </CardContent>
           </Card>
         ))}
       </div>

@@ -8,6 +8,7 @@ import type { GlobalCandidate } from "./types/types";
 export function mapCandidateDetailToGlobalCandidate(
   candidateFromUrl: GlobalCandidateDetail,
 ): GlobalCandidate {
+  const now = new Date();
   return {
     id: candidateFromUrl.id,
     linkId: candidateFromUrl.id,
@@ -35,10 +36,10 @@ export function mapCandidateDetailToGlobalCandidate(
     resumeUrl: candidateFromUrl.resumeUrl,
     relatedVacancies:
       candidateFromUrl.responses?.map((r) => r.vacancyTitle) ?? [],
-    lastActivity: candidateFromUrl.lastActivity ?? new Date(),
+    lastActivity: candidateFromUrl.lastActivity ?? now,
     appliedAt: candidateFromUrl.appliedAt,
-    createdAt: candidateFromUrl.linkedAt ?? new Date(),
-    updatedAt: candidateFromUrl.lastActivity ?? new Date(),
+    createdAt: candidateFromUrl.linkedAt ?? now,
+    updatedAt: candidateFromUrl.lastActivity ?? now,
     globalCandidateId: candidateFromUrl.id,
   };
 }

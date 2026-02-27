@@ -347,10 +347,12 @@ export const workspaceInputSchema = z
  */
 export const workspaceAccessMiddleware = middleware(
   async ({ context, next }, input: { workspaceId: string }) => {
+    // workspaceProcedure extends protectedProcedure — session.user гарантирован
+    const userId = context.session!.user.id;
     const access = await verifyWorkspaceAccess(
       context.workspaceRepository,
       input.workspaceId,
-      context.session?.user.id,
+      userId,
     );
     return next({ context: { workspaceAccess: access } });
   },

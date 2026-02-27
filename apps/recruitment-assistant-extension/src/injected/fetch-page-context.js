@@ -66,7 +66,10 @@
         xhr.responseType = "arraybuffer";
         xhr.onload = () => {
           if (xhr.status < 200 || xhr.status >= 300) {
-            sendError(`HTTP ${xhr.status}: ${xhr.statusText}`);
+            const msg = xhr.statusText
+              ? `Ошибка HTTP ${xhr.status}: ${xhr.statusText}`
+              : `Ошибка HTTP ${xhr.status}`;
+            sendError(msg);
             return;
           }
           const ct =
@@ -79,7 +82,7 @@
             b += String.fromCharCode(bytes[i] ?? 0);
           sendResult(btoa(b), ct);
         };
-        xhr.onerror = () => sendError("Failed to fetch");
+        xhr.onerror = () => sendError("Ошибка загрузки");
         xhr.send();
         useXHR = true;
       }
@@ -93,7 +96,14 @@
       type === "pdf" ? "application/pdf" : "image/jpeg";
     fetch(url, { credentials: "include" })
       .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!res.ok) {
+          const statusText = res.statusText || "";
+          throw new Error(
+            statusText
+              ? `Ошибка HTTP ${res.status}: ${statusText}`
+              : `Ошибка HTTP ${res.status}`,
+          );
+        }
         return res.arrayBuffer().then((buf) => ({
           buffer: buf,
           contentType:
@@ -120,7 +130,12 @@
   fetch(url, { credentials: "include" })
     .then((response) => {
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        const st = response.statusText || "";
+        throw new Error(
+          st
+            ? `Ошибка HTTP ${response.status}: ${st}`
+            : `Ошибка HTTP ${response.status}`,
+        );
       }
       return response.text();
     })

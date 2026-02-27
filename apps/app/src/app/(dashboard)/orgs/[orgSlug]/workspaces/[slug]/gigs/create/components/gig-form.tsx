@@ -95,10 +95,12 @@ export function GigForm({
         }
         form.setValue("platformSource", "KWORK");
         toast.success("Данные загружены с Kwork");
-      } catch {
+      } catch (err) {
         if (lastImportedUrlRef.current === normalizedUrl) {
           lastImportedUrlRef.current = null;
           form.setValue("platformSource", "KWORK");
+          console.error("[gig-form] Ошибка импорта с Kwork:", err);
+          toast.error("Не удалось загрузить данные с Kwork. Проверьте ссылку.");
         }
       }
     },
@@ -220,7 +222,7 @@ export function GigForm({
                 <FormControl>
                   <Input
                     type="number"
-                    placeholder="50000"
+                    placeholder="50 000 ₽…"
                     {...field}
                     value={field.value ?? ""}
                     onChange={(e) => {
@@ -251,7 +253,7 @@ export function GigForm({
                 <FormControl>
                   <Input
                     type="number"
-                    placeholder="100000"
+                    placeholder="100 000 ₽…"
                     {...field}
                     value={field.value ?? ""}
                     onChange={(e) => {

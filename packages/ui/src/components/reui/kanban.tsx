@@ -16,6 +16,7 @@ import {
 import {
   defaultDropAnimationSideEffects,
   DndContext,
+  type CollisionDetection,
   type DragEndEvent,
   type DragOverEvent,
   DragOverlay,

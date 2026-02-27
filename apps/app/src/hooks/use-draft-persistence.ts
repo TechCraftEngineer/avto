@@ -255,7 +255,7 @@ export function useDraftPersistence(options: UseDraftPersistenceOptions = {}) {
   const startNew = async () => {
     try {
       if (restoredDraft) {
-        await deleteMutation.mutateAsync(undefined as undefined);
+        await deleteMutation.mutateAsync();
       }
       setShowRestorePrompt(false);
       setRestoredDraft(null);
@@ -281,7 +281,7 @@ export function useDraftPersistence(options: UseDraftPersistenceOptions = {}) {
    */
   const clearDraft = async () => {
     try {
-      await deleteMutation.mutateAsync(undefined as undefined);
+      await deleteMutation.mutateAsync();
       hasDraftRef.current = false;
       setSaveStatus("idle");
       setLastSavedAt(null);
