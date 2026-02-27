@@ -36,6 +36,8 @@ const platformSourceEnum = z.enum([
 
 const bodySchema = z.object({
   vacancyId: z.string().uuid(),
+  /** Если передан — используем существующего кандидата вместо findOrCreate */
+  globalCandidateId: z.string().uuid().optional(),
   platformSource: platformSourceEnum,
   freelancerName: z.string().max(500).optional(),
   contactInfo: z
@@ -214,20 +216,33 @@ export async function handleImportResume(c: Context) {
 
   const candidateId = normalizeCandidateId(rawProfileUrl);
 
-  let globalCandidateId: string | null = null;
-  try {
+  let globalCandidateId: string | null = input.globalCandidateId ?? null;
+  if (!globalCandidateId) {
+    try {
+      const globalRepo = new GlobalCandidateRepository(db);
+      const { candidate } = await globalRepo.findOrCreateWithOrganizationLink(
+        candidateData,
+        {
+          organizationId: workspaceData.organizationId,
+          status: "ACTIVE",
+          appliedAt: new Date(),
+        },
+      );
+      globalCandidateId = candidate.id;
+    } catch (err) {
+      console.error("[extension-api] import-resume candidate create:", err);
+    }
+  } else {
+    // Проверяем, что кандидат существует, и обновляем связь с организацией
     const globalRepo = new GlobalCandidateRepository(db);
-    const { candidate } = await globalRepo.findOrCreateWithOrganizationLink(
-      candidateData,
+    await globalRepo.createOrUpdateCandidateOrganizationLink(
+      globalCandidateId,
       {
         organizationId: workspaceData.organizationId,
         status: "ACTIVE",
         appliedAt: new Date(),
       },
     );
-    globalCandidateId = candidate.id;
-  } catch (err) {
-    console.error("[extension-api] import-resume candidate create:", err);
   }
 
   const insertValues = {

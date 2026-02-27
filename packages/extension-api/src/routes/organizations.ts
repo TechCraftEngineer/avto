@@ -12,7 +12,9 @@ organizationsRouter.get("/", async (c) => {
 
   try {
     const organizations = await orgRepo.getUserOrganizations(userId);
-    return c.json(organizations.map((o) => ({ id: o.id, name: o.name })));
+    return c.json(
+      organizations.map((o) => ({ id: o.id, name: o.name, slug: o.slug })),
+    );
   } catch (error) {
     console.error("[extension-api] organizations error:", error);
     return c.json({ error: "Внутренняя ошибка сервера" }, 500);

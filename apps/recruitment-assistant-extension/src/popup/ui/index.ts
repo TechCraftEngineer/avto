@@ -12,3 +12,4 @@ export { cn } from "./cn";
 export { Hint } from "./hint";
 export { Label } from "./label";
 export { Select } from "./select";
+export { Separator } from "./separator";
