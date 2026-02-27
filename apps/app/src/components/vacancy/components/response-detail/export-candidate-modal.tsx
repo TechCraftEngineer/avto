@@ -143,7 +143,14 @@ export function ExportCandidateModal({ response }: ExportCandidateModalProps) {
       exportPdf({
         responseId: response.id,
         workspaceId: response.workspaceId,
-        sections: selectedSections,
+        sections: selectedSections as (
+          | "personal"
+          | "contact"
+          | "experience"
+          | "skills"
+          | "portfolio"
+          | "assessment"
+        )[],
       });
     } else {
       toast.info("Экспорт в Excel будет доступен позже");

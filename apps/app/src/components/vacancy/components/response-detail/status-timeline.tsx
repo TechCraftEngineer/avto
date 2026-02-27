@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@qbs-autonaim/ui/components/card";
-import { skipToken, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
   Briefcase,
   Calendar,
@@ -48,13 +48,12 @@ export function StatusTimeline({ response }: StatusTimelineProps) {
   const { workspaceId } = useWorkspaceContext();
 
   // Получаем реальную историю событий
-  const { data: historyData } = useQuery(
-    workspaceId
-      ? orpc.vacancy.responses.history.queryOptions({
-          input: { responseId: response.id, workspaceId },
-        })
-      : skipToken,
-  );
+  const { data: historyData } = useQuery({
+    ...orpc.vacancy.responses.history.queryOptions({
+      input: { responseId: response.id, workspaceId: workspaceId ?? "" },
+    }),
+    enabled: !!workspaceId,
+  });
 
   // Функция для получения иконки по типу события
   const getEventIcon = (eventType: string) => {

@@ -25,10 +25,11 @@ function getPostHogClient(): PostHog | null {
       console.error("[posthog] shutdown error:", e);
     }
   };
-  const onExit = () => {
+  const onExit = async () => {
     if (!exitHandlerRegistered) {
       exitHandlerRegistered = true;
-      void shutdown();
+      await shutdown();
+      process.exit(0);
     }
   };
   process.once("beforeExit", onExit);

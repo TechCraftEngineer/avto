@@ -59,11 +59,7 @@ export function EmptyState({
           <div className="motion-safe:animate-fade-in motion-reduce:animate-none h-36 w-full max-w-64 overflow-hidden px-4 mask-[linear-gradient(transparent,black_10%,black_90%,transparent)]">
             <div
               className="motion-safe:animate-infinite-scroll-y motion-reduce:animate-none flex flex-col animation-duration-[10s]"
-              style={
-                {
-                  "--scroll": "var(--scroll, -50%)",
-                } as React.CSSProperties
-              }
+              style={{ "--scroll": "-50%" } as React.CSSProperties}
             >
               {Array.from({ length: 8 }, (_, i) => `empty-skeleton-${i}`).map(
                 (key) => (

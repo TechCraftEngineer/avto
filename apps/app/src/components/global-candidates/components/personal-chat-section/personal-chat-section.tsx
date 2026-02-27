@@ -5,12 +5,7 @@ import { Avatar, AvatarFallback } from "@qbs-autonaim/ui/components/avatar";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { ScrollArea } from "@qbs-autonaim/ui/components/scroll-area";
 import { Textarea } from "@qbs-autonaim/ui/components/textarea";
-import {
-  skipToken,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MessageSquare, Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -35,13 +30,12 @@ export function PersonalChatSection({
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const { data: messages = [] } = useQuery(
-    candidateId && organizationId
-      ? orpc.personalTelegram.listMessages.queryOptions({
-          input: { candidateId, organizationId },
-        })
-      : skipToken,
-  );
+  const { data: messages = [] } = useQuery({
+    ...orpc.personalTelegram.listMessages.queryOptions({
+      input: { candidateId, organizationId },
+    }),
+    enabled: !!candidateId && !!organizationId,
+  });
 
   const { data: sessions = [] } = useQuery({
     ...orpc.personalTelegram.getSessions.queryOptions(),
@@ -70,11 +64,11 @@ export function PersonalChatSection({
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: messages триггерит прокрутку вниз при новых сообщениях
   useEffect(() => {
-    const viewport = scrollAreaRef.current?.querySelector(
+    const viewportEl = scrollAreaRef.current?.querySelector(
       '[data-slot="scroll-area-viewport"]',
-    ) as HTMLElement | undefined;
-    if (viewport) {
-      viewport.scrollTop = viewport.scrollHeight;
+    );
+    if (viewportEl instanceof HTMLElement) {
+      viewportEl.scrollTop = viewportEl.scrollHeight;
     }
   }, [messages]);
 
