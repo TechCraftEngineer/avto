@@ -2,7 +2,6 @@
 
 import { Badge } from "@qbs-autonaim/ui/components/badge";
 import { Button } from "@qbs-autonaim/ui/components/button";
-import { Checkbox } from "@qbs-autonaim/ui/components/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -138,7 +137,7 @@ export function ExportCandidateModal({ response }: ExportCandidateModalProps) {
 
     if (selectedFormat === "pdf") {
       if (!response.workspaceId) {
-        toast.error("Workspace не найден");
+        toast.error("Рабочее пространство не найдено");
         return;
       }
       exportPdf({
@@ -161,7 +160,7 @@ export function ExportCandidateModal({ response }: ExportCandidateModalProps) {
           Экспорт
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto min-w-fit">
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto overscroll-contain min-w-fit">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Download className="h-5 w-5" />
@@ -202,12 +201,10 @@ export function ExportCandidateModal({ response }: ExportCandidateModalProps) {
                     type="button"
                     key={format.id}
                     disabled={disabled}
-                    className={`p-4 border rounded-lg transition-colors text-left ${
+                    className={`p-4 border rounded-lg transition-colors text-left outline-none ${
                       disabled
                         ? "opacity-50 cursor-not-allowed border-gray-200"
-                        : selectedFormat === format.id
-                          ? "border-blue-500 bg-blue-50 dark:bg-blue-950 cursor-pointer"
-                          : "border-gray-200 hover:border-gray-300 cursor-pointer"
+                        : `${selectedFormat === format.id ? "border-blue-500 bg-blue-50 dark:bg-blue-950 cursor-pointer" : "border-gray-200 hover:border-gray-300 cursor-pointer"} focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white`
                     }`}
                     onClick={() => !disabled && setSelectedFormat(format.id)}
                   >
@@ -244,19 +241,37 @@ export function ExportCandidateModal({ response }: ExportCandidateModalProps) {
                   <button
                     type="button"
                     key={section.id}
-                    className={`p-3 border rounded-lg cursor-pointer transition-colors text-left ${
+                    className={`p-3 border rounded-lg cursor-pointer transition-colors text-left outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white ${
                       isSelected
                         ? "border-blue-500 bg-blue-50 dark:bg-blue-950"
                         : "border-gray-200 hover:border-gray-300"
                     }`}
                     onClick={() => handleSectionToggle(section.id)}
+                    aria-pressed={isSelected}
                   >
                     <div className="flex items-start gap-3">
-                      <Checkbox
-                        checked={isSelected}
-                        onChange={() => handleSectionToggle(section.id)}
-                        className="mt-1"
-                      />
+                      <span
+                        className="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-[4px] border border-input bg-background"
+                        aria-hidden
+                      >
+                        {isSelected ? (
+                          <svg
+                            className="h-3.5 w-3.5 text-primary"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            aria-hidden
+                          >
+                            <title>Выбрано</title>
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M5 13l4 4L19 7"
+                            />
+                          </svg>
+                        ) : null}
+                      </span>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <Icon className="h-4 w-4 text-muted-foreground" />
@@ -307,7 +322,7 @@ export function ExportCandidateModal({ response }: ExportCandidateModalProps) {
               {isExporting ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent mr-2" />
-                  Экспортируется...
+                  Экспорт…
                 </>
               ) : (
                 <>

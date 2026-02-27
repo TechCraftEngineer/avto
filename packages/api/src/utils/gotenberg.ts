@@ -36,11 +36,31 @@ export async function convertHtmlToPdf(
     "Gotenberg-Output-Filename": base,
   };
 
-  const response = await fetch(url, {
-    method: "POST",
-    headers,
-    body: formData,
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10_000);
+
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: formData,
+      signal: controller.signal,
+    });
+  } catch (err) {
+    clearTimeout(timeoutId);
+    if (err instanceof Error) {
+      if (err.name === "AbortError") {
+        throw new Error(
+          `Gotenberg timeout (10s): ${url} — сервис не ответил вовремя`,
+        );
+      }
+      throw new Error(`Gotenberg network error: ${url} — ${err.message}`);
+    }
+    throw err;
+  }
+
+  clearTimeout(timeoutId);
 
   if (!response.ok) {
     const text = await response.text();

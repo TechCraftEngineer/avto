@@ -148,7 +148,7 @@ export function buildCandidateExportHtml(
       <section class="block">
         <h2>Контакты</h2>
         <ul class="compact">${contacts.length ? contacts.map((c) => `<li>${c}</li>`).join("") : "<li>—</li>"}</ul>
-        ${response.coverLetter ? `<div class="cover"><strong>Сопроводительное письмо</strong><div class="content">${response.coverLetter}</div></div>` : ""}
+        ${response.coverLetter ? `<div class="cover"><strong>Сопроводительное письмо</strong><div class="content">${escapeHtml(response.coverLetter)}</div></div>` : ""}
       </section>`;
   }
 
@@ -221,13 +221,13 @@ export function buildCandidateExportHtml(
     if (scr) {
       assessHtml += `<div class="assess-item"><strong>Скрининг</strong> — балл: ${scr.score ?? "—"}`;
       if (scr.analysis)
-        assessHtml += `<div class="content">${scr.analysis}</div>`;
+        assessHtml += `<div class="content">${escapeHtml(scr.analysis)}</div>`;
       assessHtml += "</div>";
     }
     if (intScr) {
       assessHtml += `<div class="assess-item"><strong>Интервью</strong> — балл: ${intScr.score ?? "—"}`;
       if (intScr.analysis)
-        assessHtml += `<div class="content">${intScr.analysis}</div>`;
+        assessHtml += `<div class="content">${escapeHtml(intScr.analysis)}</div>`;
       assessHtml += "</div>";
     }
     body += `

@@ -96,7 +96,17 @@ export async function importToVacancyWithExisting(
   );
 }
 
-function inferPlatformSourceFromContext(): "HH" | "WEB_LINK" {
+const VALID_PLATFORM_SOURCES = ["HH", "WEB_LINK"] as const;
+type ValidPlatformSource = (typeof VALID_PLATFORM_SOURCES)[number];
+
+function isValidPlatformSource(value: unknown): value is ValidPlatformSource {
+  return (
+    typeof value === "string" &&
+    VALID_PLATFORM_SOURCES.includes(value as ValidPlatformSource)
+  );
+}
+
+function inferPlatformSourceFromContext(): ValidPlatformSource {
   if (typeof window !== "undefined") {
     const host = window.location.host.toLowerCase();
     if (host.includes("hh.") || host.includes("headhunter")) return "HH";
@@ -140,17 +150,19 @@ export async function importToGlobalOnly(
     "globalCandidateId" in options
       ? {
           globalCandidateId: options.globalCandidateId,
-          platformSource:
-            (options.platformSource as "HH" | "WEB_LINK") ??
-            inferPlatformSourceFromContext(),
+          platformSource: isValidPlatformSource(options.platformSource)
+            ? options.platformSource
+            : inferPlatformSourceFromContext(),
           freelancerName: "",
           responseText: "",
         }
       : {
           ...options.candidateData,
-          platformSource:
-            options.candidateData.platformSource ||
-            inferPlatformSourceFromContext(),
+          platformSource: isValidPlatformSource(
+            options.candidateData.platformSource,
+          )
+            ? options.candidateData.platformSource
+            : inferPlatformSourceFromContext(),
         };
 
   const { getExtensionApiUrl } = await import("../../config");
