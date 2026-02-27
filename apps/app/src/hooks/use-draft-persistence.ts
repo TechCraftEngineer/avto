@@ -1,7 +1,7 @@
 "use client";
 
 import type { Draft, UpdateDraftInput } from "@qbs-autonaim/shared";
-import { VacancyDataSchema } from "@qbs-autonaim/shared";
+import { QuickReplySchema, VacancyDataSchema } from "@qbs-autonaim/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { z } from "zod";
@@ -18,7 +18,7 @@ const RawMessageSchema = z.object({
   role: z.enum(["user", "assistant"]),
   content: z.string(),
   timestamp: z.union([z.string(), z.date()]),
-  quickReplies: z.array(z.unknown()).optional(),
+  quickReplies: z.array(QuickReplySchema).optional(),
   isMultiSelect: z.boolean().optional(),
 });
 
