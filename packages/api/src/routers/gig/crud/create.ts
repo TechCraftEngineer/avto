@@ -13,8 +13,14 @@ const createGigSchema = z.object({
   title: z.string().min(1).max(500),
   description: z.string().optional(),
   type: z.enum(gigTypeValues).default("OTHER"),
-  budgetMin: z.number().int().positive().optional(),
-  budgetMax: z.number().int().positive().optional(),
+  budgetMin: z.preprocess(
+    (val) => (val === 0 || val === "" || val === null ? undefined : val),
+    z.number().int().positive().optional(),
+  ),
+  budgetMax: z.preprocess(
+    (val) => (val === 0 || val === "" || val === null ? undefined : val),
+    z.number().int().positive().optional(),
+  ),
 
   deadline: z.coerce.date().optional(),
   estimatedDuration: z.string().max(100).optional(),
