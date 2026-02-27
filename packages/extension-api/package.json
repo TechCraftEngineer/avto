@@ -14,6 +14,7 @@
     "@qbs-autonaim/html-parsers": "workspace:*",
     "@qbs-autonaim/jobs": "workspace:*",
     "@qbs-autonaim/lib": "workspace:*",
+    "@qbs-autonaim/server-utils": "workspace:*",
     "@qbs-autonaim/validators": "workspace:*",
     "@t3-oss/env-core": "0.13.10",
     "hono": "4.12.2",

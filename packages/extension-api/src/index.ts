@@ -1,3 +1,4 @@
+import { captureExceptionToPostHog } from "@qbs-autonaim/server-utils";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
@@ -57,6 +58,11 @@ app.notFound((c) => {
 });
 
 app.onError((err, c) => {
+  const context = {
+    path: c.req.path,
+    method: c.req.method,
+    service: "extension-api",
+  };
   console.error(
     JSON.stringify({
       level: "error",
@@ -66,11 +72,25 @@ app.onError((err, c) => {
         errorType: err.constructor.name,
         errorMessage: err.message,
         stack: err.stack,
-        path: c.req.path,
-        method: c.req.method,
+        ...context,
       },
     }),
   );
+
+  let distinctId = "extension-api";
+  try {
+    const userId = c.get("userId");
+    if (userId) distinctId = userId;
+  } catch {
+    // userId не установлен (ошибка до auth middleware)
+  }
+  captureExceptionToPostHog({
+    message: err instanceof Error ? err.message : String(err),
+    type: err.constructor?.name ?? "Error",
+    stack: err instanceof Error ? err.stack : undefined,
+    context,
+    distinctId,
+  });
 
   return c.json(
     {

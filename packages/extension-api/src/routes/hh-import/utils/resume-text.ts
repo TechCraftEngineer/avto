@@ -15,12 +15,20 @@ export async function processResumeText(
 ): Promise<void> {
   const textContent = extractTextFromHtml(resumeTextHtml);
 
-  // Передаём текст резюме в event, чтобы не перезаписывать coverLetter
-  await inngest.send({
-    name: "response/resume.parse-single",
-    data: {
-      responseId,
-      resumeText: textContent,
-    },
-  });
+  try {
+    await inngest.send({
+      name: "response/resume.parse-single",
+      data: {
+        responseId,
+        resumeText: textContent,
+      },
+    });
+  } catch (err) {
+    // Inngest может быть недоступен (офлайн, сеть, dev без тунеля)
+    // Импорт резюме успешен, парсинг отложится до восстановления связи
+    console.warn(
+      `[extension-api] Inngest недоступен, парсинг резюме ${responseId} отложен:`,
+      err instanceof Error ? err.message : String(err),
+    );
+  }
 }
