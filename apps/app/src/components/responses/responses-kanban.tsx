@@ -38,6 +38,8 @@ interface ResponsesKanbanProps {
   workspaceSlug: string;
   workspaceId: string;
   vacancies?: VacancyOption[];
+  /** Ключ сортировки/фильтров: при его смене используется порядок с сервера */
+  sortKey?: string;
 }
 
 const STATUS_COLUMNS: { id: ResponseStatus; label: string; color: string }[] = [
@@ -381,6 +383,7 @@ export function ResponsesKanban({
   workspaceSlug,
   workspaceId,
   vacancies = [],
+  sortKey = "",
 }: ResponsesKanbanProps) {
   const router = useRouter();
   const orpc = useORPC();
@@ -392,12 +395,21 @@ export function ResponsesKanban({
   );
   const [columns, setColumns] = useState(initialColumns);
 
-  // Синхронизируем с сервером при изменении responses, сохраняя локальный порядок
-  // (порядок карточек после drag) и подставляя свежие данные с сервера
+  const prevSortKeyRef = useRef<string>("");
+
+  // Синхронизируем с сервером при изменении responses:
+  // - при смене sortKey (сортировка/фильтры) — используем порядок с сервера
+  // - при refetch с теми же параметрами — сохраняем локальный порядок (после drag)
   useEffect(() => {
     const serverColumns = responsesToColumns(responses);
-    const responseById = new Map(responses.map((r) => [r.id, r]));
+    const useServerOrder = sortKey !== prevSortKeyRef.current;
+    if (useServerOrder) {
+      prevSortKeyRef.current = sortKey;
+      setColumns(serverColumns);
+      return;
+    }
 
+    const responseById = new Map(responses.map((r) => [r.id, r]));
     setColumns((prev) => {
       const merged: Record<string, ResponseItem[]> = {};
       for (const col of STATUS_COLUMNS) {
@@ -421,7 +433,7 @@ export function ResponsesKanban({
       }
       return merged;
     });
-  }, [responses]);
+  }, [responses, sortKey]);
 
   const { mutate: updateStatus } = useMutation(
     orpc.vacancy.responses.updateStatus.mutationOptions({

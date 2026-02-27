@@ -1,5 +1,7 @@
 "use client";
 
+import type { SortDirection } from "@qbs-autonaim/shared";
+import { Button } from "@qbs-autonaim/ui/components/button";
 import {
   InputGroup,
   InputGroupAddon,
@@ -12,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@qbs-autonaim/ui/components/select";
+import { IconArrowDown, IconArrowUp } from "@tabler/icons-react";
 import { Search } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 
@@ -30,7 +33,9 @@ interface ResponsesFiltersProps {
     >
   >;
   sortField: string | null;
+  sortDirection: SortDirection;
   onSortFieldChange: (field: string | null) => void;
+  onSortDirectionChange: Dispatch<SetStateAction<SortDirection>>;
 }
 
 export function ResponsesFilters({
@@ -39,7 +44,9 @@ export function ResponsesFilters({
   screeningFilter,
   onScreeningFilterChange,
   sortField,
+  sortDirection,
   onSortFieldChange,
+  onSortDirectionChange,
 }: ResponsesFiltersProps) {
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
@@ -79,22 +86,46 @@ export function ResponsesFilters({
         </SelectContent>
       </Select>
 
-      <Select
-        value={sortField ?? "createdAt"}
-        onValueChange={(value) =>
-          onSortFieldChange(value === "createdAt" ? null : value)
-        }
-      >
-        <SelectTrigger className="w-full sm:w-[200px]">
-          <SelectValue placeholder="Сортировка" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="createdAt">По дате</SelectItem>
-          <SelectItem value="score">По оценке</SelectItem>
-          <SelectItem value="priorityScore">По приоритету</SelectItem>
-          <SelectItem value="status">По статусу</SelectItem>
-        </SelectContent>
-      </Select>
+      <div className="flex items-center gap-1">
+        <Select
+          value={sortField ?? "createdAt"}
+          onValueChange={(value) =>
+            onSortFieldChange(value === "createdAt" ? null : value)
+          }
+        >
+          <SelectTrigger className="w-full sm:w-[200px]">
+            <SelectValue placeholder="Сортировка" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="createdAt">По дате</SelectItem>
+            <SelectItem value="score">По оценке</SelectItem>
+            <SelectItem value="priorityScore">По приоритету</SelectItem>
+            <SelectItem value="status">По статусу</SelectItem>
+          </SelectContent>
+        </Select>
+        {sortField != null && (
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            className="shrink-0"
+            onClick={() =>
+              onSortDirectionChange(sortDirection === "asc" ? "desc" : "asc")
+            }
+            aria-label={
+              sortDirection === "asc"
+                ? "По возрастанию (нажмите для убывания)"
+                : "По убыванию (нажмите для возрастания)"
+            }
+          >
+            {sortDirection === "asc" ? (
+              <IconArrowUp className="size-4" />
+            ) : (
+              <IconArrowDown className="size-4" />
+            )}
+          </Button>
+        )}
+      </div>
     </div>
   );
 }

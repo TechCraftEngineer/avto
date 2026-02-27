@@ -173,6 +173,7 @@ export default function ResponsesPage() {
                   screeningFilter={screeningFilter}
                   onScreeningFilterChange={setScreeningFilter}
                   sortField={sortField}
+                  sortDirection={sortDirection}
                   onSortFieldChange={(field) => {
                     if (field === null || field === "createdAt") {
                       setSortField(null);
@@ -188,6 +189,7 @@ export default function ResponsesPage() {
                       setSortField(field);
                     }
                   }}
+                  onSortDirectionChange={setSortDirection}
                 />
               </div>
             </CardContent>
@@ -253,6 +255,7 @@ export default function ResponsesPage() {
                     id: v.id,
                     title: v.title,
                   }))}
+                  sortKey={`${sortField ?? "createdAt"}-${sortDirection}-${screeningFilter}-${search}`}
                 />
               </CardContent>
             </Card>

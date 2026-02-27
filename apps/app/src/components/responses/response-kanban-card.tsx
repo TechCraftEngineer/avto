@@ -1,13 +1,14 @@
 "use client";
 
+import { calculateAge } from "@qbs-autonaim/lib/utils";
 import { CandidateAvatar } from "@qbs-autonaim/ui/components/candidate-avatar";
 import { Badge } from "@qbs-autonaim/ui/components/reui/badge";
 import { cn } from "@qbs-autonaim/ui/utils";
 import {
-  IconClock,
   IconMessageCircle,
   IconSend,
   IconStar,
+  IconUser,
 } from "@tabler/icons-react";
 import { useAvatarUrl } from "~/hooks/use-avatar-url";
 import { getAvatarUrl } from "~/lib/avatar";
@@ -34,6 +35,8 @@ export function ResponseKanbanCard({
   vacancyTitle,
 }: ResponseKanbanCardProps) {
   const score = response.screening?.score;
+  const age =
+    response.birthDate != null ? calculateAge(response.birthDate) : null;
   const hasInterview = response.interviewSession !== null;
   const messageCount = response.interviewSession?.messageCount ?? 0;
   const photoUrl = useAvatarUrl(response.photoFileId);
@@ -118,17 +121,20 @@ export function ResponseKanbanCard({
                 {vacancyTitle}
               </p>
             )}
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <IconClock className="size-3 shrink-0" />
-              <span className="truncate">
-                {response.respondedAt
-                  ? new Date(response.respondedAt).toLocaleDateString("ru-RU", {
-                      day: "numeric",
-                      month: "short",
-                    })
-                  : "Нет даты"}
-              </span>
-            </div>
+            {age !== null && (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <IconUser className="size-3 shrink-0" />
+                <span className="truncate">
+                  {age}{" "}
+                  {age % 10 === 1 && age % 100 !== 11
+                    ? "год"
+                    : [2, 3, 4].includes(age % 10) &&
+                        ![12, 13, 14].includes(age % 100)
+                      ? "года"
+                      : "лет"}
+                </span>
+              </div>
+            )}
             <div className="flex flex-wrap gap-1.5 mt-0.5">
               {hasInterview && (
                 <Badge variant="info-light" size="sm" className="text-xs">

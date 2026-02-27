@@ -15,6 +15,7 @@ export interface RawResponseBase {
   entityId: string;
   candidateName: string | null;
   photoFileId: string | null;
+  birthDate: Date | null;
   status: ResponseStatus;
   hrSelectionStatus: HrSelectionStatus | null;
   contacts: Record<string, unknown> | null;

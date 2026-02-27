@@ -18,6 +18,12 @@ interface CandidateKeyInfoProps {
 
 const SALARY_COMMENT_PREVIEW_LENGTH = 100;
 
+function getResumeDownloadFilename(candidateName: string | null): string {
+  const base =
+    candidateName?.trim().replace(/[/\\:*?"<>|]/g, "_") || "Кандидат";
+  return `${base}.pdf`;
+}
+
 function KeyInfoRow({
   icon: Icon,
   label,
@@ -71,7 +77,7 @@ export function CandidateKeyInfo({
                     href={resumePdfUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    download
+                    download={getResumeDownloadFilename(response.candidateName)}
                   >
                     <Download className="h-3.5 w-3.5 mr-1.5" />
                     Скачать PDF
