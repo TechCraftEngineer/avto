@@ -14,6 +14,7 @@ import { db } from "@qbs-autonaim/db/client";
 import { getAIModel } from "@qbs-autonaim/lib/ai";
 import "@qbs-autonaim/lib/instrumentation";
 import { InterviewSDKError } from "@qbs-autonaim/lib/errors";
+import { captureExceptionToPostHog } from "@qbs-autonaim/server-utils";
 import { createUIMessageStream, createUIMessageStreamResponse } from "ai";
 import { z } from "zod";
 import { checkInterviewAccess, loadInterviewSession } from "./access-control";
@@ -366,6 +367,21 @@ async function handler(request: Request) {
     if (error instanceof InterviewSDKError) {
       return errorToResponse(error);
     }
+
+    captureExceptionToPostHog({
+      message: error instanceof Error ? error.message : String(error),
+      type: error instanceof Error ? error.name : "UnknownError",
+      stack: error instanceof Error ? error.stack : undefined,
+      context: {
+        source: "interview-chat-stream",
+        service: "interview-server",
+        sessionId: errorContext.sessionId,
+        entityType: errorContext.entityType,
+        vacancyId: errorContext.vacancyId,
+        gigId: errorContext.gigId,
+      },
+      level: "fatal",
+    });
 
     return Response.json(
       { error: "Внутренняя ошибка сервера" },

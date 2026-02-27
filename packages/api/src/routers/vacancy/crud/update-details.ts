@@ -22,7 +22,7 @@ export const updateDetails = protectedProcedure
       context.session.user.id,
     );
 
-    const existingVacancy = ensureFound(
+    const _existingVacancy = ensureFound(
       await context.db.query.vacancy.findFirst({
         where: and(
           eq(vacancy.id, input.vacancyId),

@@ -191,7 +191,7 @@ export async function createUserBotInstance(
     }
   });
 
-  dp.onError(async (err, upd) => {
+  dp.onError(async (err, _upd) => {
     const authCheck = isAuthError(err);
     if (authCheck.isAuth) {
       await onAuthError(

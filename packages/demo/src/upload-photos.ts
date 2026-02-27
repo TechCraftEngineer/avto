@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
-import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { extname, join } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { db } from "@qbs-autonaim/db";
 import { file } from "@qbs-autonaim/db/schema";
 import { uploadBufferToS3 } from "@qbs-autonaim/lib/s3";

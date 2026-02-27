@@ -1,7 +1,10 @@
 import { RPCHandler } from "@orpc/server/fetch";
 import { appRouter, createContext } from "@qbs-autonaim/api";
 import { env } from "@qbs-autonaim/config";
-import { addAPISecurityHeaders } from "@qbs-autonaim/server-utils";
+import {
+  addAPISecurityHeaders,
+  captureExceptionToPostHog,
+} from "@qbs-autonaim/server-utils";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
@@ -49,6 +52,18 @@ app.on(["GET", "POST"], "/api/orpc/*", async (c) => {
     return modifiedResponse;
   } catch (error) {
     console.error(">>> oRPC Error", error);
+    const err = error instanceof Error ? error : new Error(String(error));
+    captureExceptionToPostHog({
+      message: err.message,
+      type: err.name || "Error",
+      stack: err.stack,
+      context: {
+        source: "orpc",
+        service: "interview-server",
+        path: c.req.path,
+      },
+      level: "fatal",
+    });
     return c.json({ error: "Internal Server Error" }, 500);
   }
 });
@@ -90,6 +105,14 @@ app.notFound((c) =>
 // Error handler
 app.onError((err, c) => {
   console.error("Interview server error:", err);
+  const error = err instanceof Error ? err : new Error(String(err));
+  captureExceptionToPostHog({
+    message: error.message,
+    type: error.name || "Error",
+    stack: error.stack,
+    context: { source: "hono", service: "interview-server", path: c.req.path },
+    level: "fatal",
+  });
   return c.json(
     {
       error: "Internal Server Error",

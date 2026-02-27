@@ -66,7 +66,7 @@
         xhr.responseType = "arraybuffer";
         xhr.onload = () => {
           if (xhr.status < 200 || xhr.status >= 300) {
-            sendError("HTTP " + xhr.status + ": " + xhr.statusText);
+            sendError(`HTTP ${xhr.status}: ${xhr.statusText}`);
             return;
           }
           const ct =
@@ -93,7 +93,7 @@
       type === "pdf" ? "application/pdf" : "image/jpeg";
     fetch(url, { credentials: "include" })
       .then((res) => {
-        if (!res.ok) throw new Error("HTTP " + res.status);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.arrayBuffer().then((buf) => ({
           buffer: buf,
           contentType:

@@ -5,7 +5,10 @@
  * Используется расширением перед импортом для отображения экрана с дубликатом.
  */
 
-import { GlobalCandidateRepository } from "@qbs-autonaim/db";
+import {
+  type GlobalCandidate,
+  GlobalCandidateRepository,
+} from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { normalizePlatformProfileUrl } from "@qbs-autonaim/lib";
 import { organizationIdSchema } from "@qbs-autonaim/validators";
@@ -75,7 +78,7 @@ export async function handleCheckDuplicateCandidate(c: Context) {
   }
 
   const repo = new GlobalCandidateRepository(db);
-  let existing;
+  let existing: GlobalCandidate | null = null;
   try {
     existing = await repo.findGlobalCandidateByContacts({
       email: email ?? undefined,

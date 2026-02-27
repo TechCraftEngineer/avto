@@ -20,7 +20,6 @@ import {
 import {
   collectAllVacancies,
   collectResponsesStreaming,
-  collectSelectedVacancies,
   collectSelectedVacanciesFromCurrentPage,
 } from "./collectors";
 import type { ImportProgress, ImportResult } from "./types";

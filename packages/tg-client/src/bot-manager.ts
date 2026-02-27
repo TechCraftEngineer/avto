@@ -175,7 +175,7 @@ export class BotManager {
   private async handleUserAuthError(
     sessionId: string,
     userId: string,
-    phone: string,
+    _phone: string,
     errorType: string,
     errorMessage: string,
   ): Promise<void> {
@@ -339,7 +339,7 @@ export class BotManager {
     phone: string;
     username?: string;
   }> {
-    return Array.from(this.bots.entries()).map(([key, bot]) => {
+    return Array.from(this.bots.entries()).map(([_key, bot]) => {
       if (isUserBotInstance(bot)) {
         return {
           type: "user" as const,

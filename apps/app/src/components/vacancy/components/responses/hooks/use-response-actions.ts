@@ -158,7 +158,7 @@ export function useResponseActions(
     setIsSyncingArchived(false);
     // Инвалидируем только текущую вакансию, чтобы не вызывать refetch для других
     void queryClient.invalidateQueries({
-      queryKey: (orpc.vacancy.responses.list.queryKey as any)({
+      queryKey: orpc.vacancy.responses.list.queryKey({
         input: {
           workspaceId,
           vacancyId,

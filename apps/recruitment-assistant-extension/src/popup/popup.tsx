@@ -7,6 +7,7 @@ import { PopupHeader } from "./components/popup-header";
 import { ProfileView } from "./components/profile-view";
 import { ResponsesView } from "./components/responses-view";
 import { VacanciesView } from "./components/vacancies-view";
+import { POPUP_WIDTH_CLASSES } from "./constants";
 import { usePageContext } from "./hooks/use-page-context";
 import { usePopupAuth } from "./hooks/use-popup-auth";
 import { usePopupSettings } from "./hooks/use-popup-settings";
@@ -57,7 +58,9 @@ function Popup() {
   if (auth.isAuthenticated === null) {
     const version = chrome.runtime.getManifest().version;
     return (
-      <div className="flex min-w-[440px] max-w-[560px] flex-col items-center justify-center gap-4 p-4 font-sans text-sm">
+      <div
+        className={`flex ${POPUP_WIDTH_CLASSES} flex-col items-center justify-center gap-4 p-4 font-sans text-sm`}
+      >
         <PopupHeader />
         <p className="text-muted-foreground">Загрузка…</p>
         <p className="text-center text-xs text-muted-foreground">v{version}</p>

@@ -1,5 +1,6 @@
 import { getExtensionApiUrl } from "../../config";
 import type { AuthService } from "../../core/auth-service";
+import { POPUP_WIDTH_CLASSES } from "../constants";
 import type { Organization, Workspace } from "../types";
 import { Alert, Button, Hint, Label, Select } from "../ui";
 import { PopupHeader } from "./popup-header";
@@ -92,7 +93,9 @@ export function AuthenticatedLayout({
   };
 
   return (
-    <div className="flex min-w-[440px] max-w-[560px] flex-col gap-4 p-4 font-sans text-sm">
+    <div
+      className={`flex ${POPUP_WIDTH_CLASSES} flex-col gap-4 p-4 font-sans text-sm`}
+    >
       <PopupHeader />
       <main aria-label="Действия">{children}</main>
 

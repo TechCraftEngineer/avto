@@ -32,7 +32,11 @@ export {
   getInterviewUrlFromEntity,
   getInterviewUrlWithResponseId,
 } from "./get-interview-url";
-
+// Экспорты PostHog для серверной аналитики
+export {
+  type CaptureExceptionOptions,
+  captureExceptionToPostHog,
+} from "./posthog";
 // Экспорты rate limiting утилит
 export {
   cleanupExpiredRecords,

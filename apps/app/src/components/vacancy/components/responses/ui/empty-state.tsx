@@ -23,7 +23,7 @@ export function EmptyState({
   onRefresh: _onRefresh,
   onChromePluginDialogOpen,
   isRefreshing: _isRefreshing,
-  isSyncingArchived = false,
+  isSyncingArchived: _isSyncingArchived = false,
   source,
   externalId,
   isActive = true,

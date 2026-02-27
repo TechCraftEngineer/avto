@@ -4,11 +4,36 @@ import {
 } from "@tanstack/react-query";
 import SuperJSON from "superjson";
 
+function captureApiErrorToPostHog(error: unknown) {
+  if (typeof window === "undefined") return;
+  const posthog = (
+    window as { posthog?: { capture: (e: string, p?: object) => void } }
+  ).posthog;
+  if (!posthog) return;
+  try {
+    const message = error instanceof Error ? error.message : String(error);
+    const stack = error instanceof Error ? error.stack : undefined;
+    posthog.capture("$exception", {
+      $exception_message: message,
+      $exception_type: "APIError",
+      $exception_level: "error",
+      $exception_stack_trace_raw: stack,
+      source: "tanstack-query",
+    });
+  } catch {
+    // Не ломаем приложение при ошибке отправки в PostHog
+  }
+}
+
 export const createQueryClient = () =>
   new QueryClient({
     defaultOptions: {
       queries: {
         staleTime: 30 * 1000,
+        onError: captureApiErrorToPostHog,
+      },
+      mutations: {
+        onError: captureApiErrorToPostHog,
       },
       dehydrate: {
         serializeData: SuperJSON.serialize,

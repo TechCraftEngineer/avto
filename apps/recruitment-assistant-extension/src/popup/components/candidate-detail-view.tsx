@@ -279,7 +279,7 @@ export function CandidateDetailView({
                     href={existingCandidate.resumeUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-primary underline-offset-4 hover:underline break-all"
+                    className="text-sm text-primary underline-offset-4 hover:underline"
                   >
                     Резюме
                   </a>

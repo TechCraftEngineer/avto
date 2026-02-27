@@ -52,8 +52,8 @@ async function main(): Promise<void> {
   packageJson.version = newVersion;
   manifestJson.version = newVersion;
 
-  writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + "\n");
-  writeFileSync(manifestJsonPath, JSON.stringify(manifestJson, null, 2) + "\n");
+  writeFileSync(packageJsonPath, `${JSON.stringify(packageJson, null, 2)}\n`);
+  writeFileSync(manifestJsonPath, `${JSON.stringify(manifestJson, null, 2)}\n`);
 
   console.log(`✓ Версия обновлена: ${oldVersion} → ${newVersion}`);
 }
