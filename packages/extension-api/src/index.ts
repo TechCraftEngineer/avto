@@ -3,7 +3,9 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { env } from "./env";
 import { authMiddleware } from "./middleware/auth";
+import { handleCheckDuplicateCandidate } from "./routes/check-duplicate-candidate";
 import { hhImportRouter } from "./routes/hh-import";
+import { handleImportCandidateGlobal } from "./routes/import-candidate-global";
 import { handleImportResume } from "./routes/import-resume";
 import { organizationsRouter } from "./routes/organizations";
 import { vacanciesRouter } from "./routes/vacancies";
@@ -31,6 +33,11 @@ app.get("/health", (c) => {
 const protectedRoutes = new Hono();
 protectedRoutes.use("*", authMiddleware());
 protectedRoutes.route("/hh-import", hhImportRouter);
+protectedRoutes.post(
+  "/check-duplicate-candidate",
+  handleCheckDuplicateCandidate,
+);
+protectedRoutes.post("/import-candidate-global", handleImportCandidateGlobal);
 protectedRoutes.post("/import-resume", handleImportResume);
 protectedRoutes.route("/organizations", organizationsRouter);
 protectedRoutes.route("/vacancies", vacanciesRouter);

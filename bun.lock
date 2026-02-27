@@ -237,7 +237,7 @@
     },
     "apps/recruitment-assistant-extension": {
       "name": "@qbs-autonaim/recruitment-assistant-extension",
-      "version": "0.0.21",
+      "version": "0.0.26",
       "dependencies": {
         "@qbs-autonaim/shared": "workspace:*",
         "@qbs-autonaim/tailwind-config": "workspace:*",
@@ -490,6 +490,7 @@
         "@qbs-autonaim/html-parsers": "workspace:*",
         "@qbs-autonaim/jobs": "workspace:*",
         "@qbs-autonaim/lib": "workspace:*",
+        "@qbs-autonaim/validators": "workspace:*",
         "@t3-oss/env-core": "0.13.10",
         "hono": "4.12.2",
         "zod": "4.3.6",

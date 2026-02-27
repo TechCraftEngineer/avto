@@ -1,9 +1,15 @@
 import { useEffect, useState } from "react";
 import { getExtensionApiUrl } from "../../config";
 import type { AuthService } from "../../core/auth-service";
-import type { Organization, PageContext, Workspace } from "../types";
+import type {
+  ExistingCandidateInfo,
+  Organization,
+  PageContext,
+  Workspace,
+} from "../types";
 import { Alert, Button, Hint, Label, Select } from "../ui";
 import { AuthenticatedLayout } from "./authenticated-layout";
+import { CandidateDetailView } from "./candidate-detail-view";
 
 interface ProfileViewProps {
   pageContext: Extract<PageContext, { type: "profile" }>;
@@ -41,6 +47,11 @@ export function ProfileView({
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isImporting, setIsImporting] = useState(false);
+  const [duplicateState, setDuplicateState] = useState<{
+    existingCandidate: ExistingCandidateInfo;
+  } | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isSavingToGlobal, setIsSavingToGlobal] = useState(false);
   const [vacancies, setVacancies] = useState<
     Array<{ id: string; title: string; isFavorite: boolean }>
   >([]);
@@ -90,7 +101,7 @@ export function ProfileView({
     };
   }, [selectedWorkspaceId, authService]);
 
-  const sendToTab = async (type: string, payload?: { vacancyId?: string }) => {
+  const sendToTab = async (type: string, payload?: Record<string, unknown>) => {
     setError(null);
     setSuccessMessage(null);
     const [tab] = await chrome.tabs.query({
@@ -107,14 +118,30 @@ export function ProfileView({
         resp = await chrome.tabs.sendMessage(tab.id, { type, payload });
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
-        if (
+        const isConnectionError =
           msg.includes("Receiving end") ||
-          msg.includes("Could not establish connection")
+          msg.includes("Could not establish connection");
+        if (
+          isConnectionError &&
+          (type === "IMPORT_TO_SYSTEM" ||
+            type === "CHECK_AND_IMPORT" ||
+            type === "CHECK_AND_SAVE_TO_GLOBAL")
         ) {
+          const fallbackType =
+            type === "CHECK_AND_SAVE_TO_GLOBAL"
+              ? "EXECUTE_CHECK_AND_SAVE_TO_GLOBAL"
+              : "EXECUTE_IMPORT_TO_SYSTEM";
           resp = await chrome.runtime.sendMessage({
-            type: "EXECUTE_IMPORT_TO_SYSTEM",
-            payload: { tabId: tab.id, vacancyId: payload?.vacancyId },
+            type: fallbackType,
+            payload: {
+              tabId: tab.id,
+              vacancyId: payload?.vacancyId,
+              workspaceId: payload?.workspaceId,
+            },
           });
+        } else if (isConnectionError) {
+          setError("Обновите страницу и попробуйте снова");
+          return { ok: false as const, error: "Нет связи с вкладкой" };
         } else {
           throw e;
         }
@@ -141,10 +168,21 @@ export function ProfileView({
     setIsImporting(true);
     setError(null);
     setSuccessMessage(null);
-    const resp = await sendToTab("IMPORT_TO_SYSTEM", {
-      vacancyId: selectedVacancyId || undefined,
+    setDuplicateState(null);
+    const resp = await sendToTab("CHECK_AND_IMPORT", {
+      vacancyId: selectedVacancyId,
     });
-    if (resp?.ok === false) {
+    if (
+      resp?.ok === true &&
+      "duplicate" in resp &&
+      resp.duplicate &&
+      "existingCandidate" in resp &&
+      resp.existingCandidate
+    ) {
+      setDuplicateState({
+        existingCandidate: resp.existingCandidate as ExistingCandidateInfo,
+      });
+    } else if (resp?.ok === false) {
       setError(resp.error ?? "Ошибка импорта");
     } else if (resp?.ok === true) {
       setSuccessMessage("Резюме успешно добавлено в вакансию");
@@ -152,7 +190,103 @@ export function ProfileView({
     setIsImporting(false);
   };
 
+  const handleTakeToVacancy = async () => {
+    if (!duplicateState || !selectedVacancyId || !selectedWorkspaceId) return;
+    setIsProcessing(true);
+    setError(null);
+    setSuccessMessage(null);
+    const resp = await sendToTab("IMPORT_TO_VACANCY_EXISTING", {
+      vacancyId: selectedVacancyId,
+      globalCandidateId: duplicateState.existingCandidate.id,
+    });
+    if (resp?.ok === false) {
+      setError(resp.error ?? "Ошибка");
+    } else {
+      setSuccessMessage("Кандидат добавлен на вакансию");
+      setDuplicateState(null);
+    }
+    setIsProcessing(false);
+  };
+
+  const handleSaveToGlobalOnly = async () => {
+    if (!selectedWorkspaceId) {
+      setError("Выберите рабочее пространство");
+      return;
+    }
+    setIsSavingToGlobal(true);
+    setError(null);
+    setSuccessMessage(null);
+    setDuplicateState(null);
+    const resp = await sendToTab("CHECK_AND_SAVE_TO_GLOBAL", {
+      workspaceId: selectedWorkspaceId,
+    });
+    if (
+      resp?.ok === true &&
+      "duplicate" in resp &&
+      resp.duplicate &&
+      "existingCandidate" in resp &&
+      resp.existingCandidate
+    ) {
+      setDuplicateState({
+        existingCandidate: resp.existingCandidate as ExistingCandidateInfo,
+      });
+    } else if (resp?.ok === false) {
+      setError(resp.error ?? "Ошибка");
+    } else if (resp?.ok === true) {
+      setSuccessMessage("Кандидат сохранён в базу без привязки к вакансии");
+    }
+    setIsSavingToGlobal(false);
+  };
+
+  const handleSaveWithoutVacancy = async () => {
+    if (!duplicateState || !selectedWorkspaceId) return;
+    setIsProcessing(true);
+    setError(null);
+    setSuccessMessage(null);
+    const resp = await sendToTab("SAVE_TO_GLOBAL_EXISTING", {
+      globalCandidateId: duplicateState.existingCandidate.id,
+      workspaceId: selectedWorkspaceId,
+    });
+    if (resp?.ok === false) {
+      setError(resp.error ?? "Ошибка");
+    } else {
+      setSuccessMessage("Кандидат сохранён в базу без привязки к вакансии");
+      setDuplicateState(null);
+    }
+    setIsProcessing(false);
+  };
+
   const isHeadHunter = pageContext.platform === "HeadHunter";
+  const selectedVacancy = vacancies.find((v) => v.id === selectedVacancyId);
+
+  if (duplicateState) {
+    return (
+      <CandidateDetailView
+        existingCandidate={duplicateState.existingCandidate}
+        vacancyId={selectedVacancyId}
+        selectedVacancyTitle={selectedVacancy?.title ?? ""}
+        selectedOrgId={selectedOrgId}
+        selectedWorkspaceId={selectedWorkspaceId}
+        organizations={organizations}
+        workspaces={workspaces}
+        userEmail={userEmail}
+        onLogout={onLogout}
+        authService={authService}
+        setSelectedOrgId={setSelectedOrgId}
+        setSelectedWorkspaceId={setSelectedWorkspaceId}
+        setWorkspaces={setWorkspaces}
+        isLoadingSettings={isLoadingSettings}
+        settingsError={settingsError}
+        onSettingsError={onSettingsError}
+        onTakeToVacancy={handleTakeToVacancy}
+        onSaveWithoutVacancy={handleSaveWithoutVacancy}
+        onBack={() => setDuplicateState(null)}
+        error={error}
+        successMessage={successMessage}
+        isProcessing={isProcessing}
+      />
+    );
+  }
 
   return (
     <AuthenticatedLayout
@@ -218,10 +352,24 @@ export function ProfileView({
               className="w-full"
               onClick={handleImport}
               disabled={
-                isImporting || vacancies.length === 0 || !selectedVacancyId
+                isImporting ||
+                vacancies.length === 0 ||
+                !selectedVacancyId ||
+                isSavingToGlobal
               }
             >
               {isImporting ? "Импорт…" : "Импортировать"}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full"
+              onClick={handleSaveToGlobalOnly}
+              disabled={isImporting || isSavingToGlobal || !selectedWorkspaceId}
+            >
+              {isSavingToGlobal
+                ? "Сохранение…"
+                : "Сохранить в базу (без вакансии)"}
             </Button>
           </div>
         </div>

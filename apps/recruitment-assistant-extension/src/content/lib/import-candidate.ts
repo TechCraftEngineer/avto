@@ -8,9 +8,165 @@
 import type { CandidateData } from "../../shared/types";
 import { showNotification } from "./notifications";
 
+export interface CheckDuplicateResult {
+  existing: boolean;
+  candidate?: {
+    id: string;
+    fullName: string;
+    firstName?: string | null;
+    lastName?: string | null;
+    email?: string | null;
+    phone?: string | null;
+    telegramUsername?: string | null;
+    headline?: string | null;
+    location?: string | null;
+    resumeUrl?: string | null;
+  };
+}
+
+export async function checkDuplicateCandidate(
+  data: CandidateData,
+): Promise<CheckDuplicateResult> {
+  const result = await chrome.storage.local.get(["authToken", "userData"]);
+  const token = result.authToken as string | undefined;
+  const userData = result.userData as { organizationId?: string } | undefined;
+
+  if (!token || !userData?.organizationId) {
+    throw new Error("Требуется авторизация");
+  }
+
+  const profileUrl =
+    data.profileUrl ||
+    (typeof window !== "undefined" ? window.location.href : undefined);
+
+  const { getExtensionApiUrl } = await import("../../config");
+  const body = {
+    freelancerName: data.basicInfo.fullName || undefined,
+    contactInfo: {
+      email: data.contacts?.email || undefined,
+      phone: data.contacts?.phone || undefined,
+      platformProfileUrl: profileUrl,
+    },
+    organizationId: userData.organizationId,
+  };
+
+  const resp = await chrome.runtime.sendMessage({
+    type: "API_REQUEST",
+    payload: {
+      url: getExtensionApiUrl("check-duplicate-candidate"),
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body,
+    },
+  });
+
+  if (!resp?.success) {
+    throw new Error(resp?.error ?? "Ошибка проверки дубликата");
+  }
+
+  return {
+    existing: resp.data?.existing ?? false,
+    candidate: resp.data?.candidate,
+  };
+}
+
+export async function importToVacancyWithExisting(
+  data: CandidateData,
+  options: { vacancyId: string; globalCandidateId: string },
+): Promise<void> {
+  const result = await chrome.storage.local.get(["authToken", "userData"]);
+  const token = result.authToken as string | undefined;
+
+  if (!token) {
+    showNotification({
+      type: "error",
+      message: "Войдите в систему через расширение.",
+    });
+    throw new Error("Требуется авторизация");
+  }
+
+  await importToVacancy(
+    data,
+    token,
+    options.vacancyId,
+    options.globalCandidateId,
+  );
+}
+
+export async function importToGlobalOnly(
+  options:
+    | { globalCandidateId: string; workspaceId: string }
+    | {
+        workspaceId: string;
+        candidateData: {
+          platformSource: string;
+          freelancerName?: string;
+          contactInfo?: {
+            email?: string;
+            phone?: string;
+            platformProfileUrl?: string;
+          };
+          responseText?: string;
+        };
+      },
+): Promise<void> {
+  const result = await chrome.storage.local.get(["authToken"]);
+  const token = result.authToken as string | undefined;
+
+  if (!token) {
+    showNotification({
+      type: "error",
+      message: "Войдите в систему через расширение.",
+    });
+    throw new Error("Требуется авторизация");
+  }
+
+  const body =
+    "globalCandidateId" in options
+      ? {
+          globalCandidateId: options.globalCandidateId,
+          platformSource: "HH" as const,
+          freelancerName: "",
+          responseText: "",
+        }
+      : {
+          ...options.candidateData,
+          platformSource:
+            (options.candidateData.platformSource as "HH") || "HH",
+        };
+
+  const { getExtensionApiUrl } = await import("../../config");
+  const resp = await chrome.runtime.sendMessage({
+    type: "API_REQUEST",
+    payload: {
+      url: getExtensionApiUrl(
+        `import-candidate-global?workspaceId=${encodeURIComponent(options.workspaceId)}`,
+      ),
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body,
+    },
+  });
+
+  if (!resp?.success) {
+    throw new Error(resp?.error ?? "Ошибка сохранения");
+  }
+
+  showNotification({
+    type: "success",
+    message: "Кандидат добавлен в базу без привязки к вакансии",
+  });
+}
+
 export async function importCandidateData(
   data: CandidateData,
-  options?: { vacancyId?: string },
+  options?: { vacancyId?: string; globalCandidateId?: string },
 ): Promise<void> {
   const result = await chrome.storage.local.get(["authToken", "userData"]);
   const token = result.authToken as string | undefined;
@@ -25,7 +181,12 @@ export async function importCandidateData(
   }
 
   if (options?.vacancyId) {
-    await importToVacancy(data, token, options.vacancyId);
+    await importToVacancy(
+      data,
+      token,
+      options.vacancyId,
+      options.globalCandidateId,
+    );
     return;
   }
 
@@ -56,6 +217,7 @@ async function importToVacancy(
   data: CandidateData,
   token: string,
   vacancyId: string,
+  globalCandidateId?: string,
 ): Promise<void> {
   const platformSource =
     data.platform?.toLowerCase().includes("headhunter") ||
@@ -131,6 +293,7 @@ async function importToVacancy(
   const { getExtensionApiUrl } = await import("../../config");
   const body: Record<string, unknown> = {
     vacancyId,
+    ...(globalCandidateId ? { globalCandidateId } : {}),
     platformSource,
     freelancerName: data.basicInfo.fullName || undefined,
     contactInfo: {

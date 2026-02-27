@@ -16,6 +16,7 @@ type MessageType =
   | "EXECUTE_IMPORT_SELECTED_VACANCIES"
   | "EXECUTE_IMPORT_RESPONSES"
   | "EXECUTE_IMPORT_TO_SYSTEM"
+  | "EXECUTE_CHECK_AND_SAVE_TO_GLOBAL"
   | "FETCH_RESUME_TEXT"
   | "FETCH_RESUME_PDF"
   | "FETCH_CHATIK_CHATS"
@@ -29,7 +30,7 @@ interface Message {
   payload?:
     | ApiRequest
     | { tabId: number }
-    | { tabId: number; vacancyId?: string }
+    | { tabId: number; vacancyId?: string; workspaceId?: string }
     | Record<string, unknown>;
 }
 
@@ -359,6 +360,7 @@ chrome.runtime.onMessage.addListener(
         const payload = message.payload as {
           tabId?: number;
           vacancyId?: string;
+          workspaceId?: string;
         };
         const tabId = payload?.tabId;
         if (typeof tabId !== "number") {
@@ -395,6 +397,56 @@ chrome.runtime.onMessage.addListener(
             sendResponse(resp ?? { ok: false, error: "Нет ответа" });
           } catch (err) {
             logError("EXECUTE_IMPORT_TO_SYSTEM", err);
+            sendResponse({
+              ok: false,
+              error: err instanceof Error ? err.message : "Ошибка выполнения",
+            });
+          }
+        })();
+        return true;
+      }
+
+      case "EXECUTE_CHECK_AND_SAVE_TO_GLOBAL": {
+        const payload = message.payload as {
+          tabId?: number;
+          workspaceId?: string;
+        };
+        const tabId = payload?.tabId;
+        const workspaceId = payload?.workspaceId;
+        if (typeof tabId !== "number" || typeof workspaceId !== "string") {
+          sendResponse({ ok: false, error: "Неверный tabId или workspaceId" });
+          return false;
+        }
+        (async () => {
+          try {
+            const manifest = chrome.runtime.getManifest();
+            const profileEntry = manifest.content_scripts?.find((cs) =>
+              cs.js?.some(
+                (p) =>
+                  p.includes("content-script") && !p.includes("hh-employer"),
+              ),
+            );
+            const scriptPath = profileEntry?.js?.[0];
+            const cssPath = profileEntry?.css?.[0];
+            if (scriptPath) {
+              if (cssPath) {
+                await chrome.scripting.insertCSS({
+                  target: { tabId },
+                  files: [cssPath],
+                });
+              }
+              await chrome.scripting.executeScript({
+                target: { tabId },
+                files: [scriptPath],
+              });
+            }
+            const resp = await chrome.tabs.sendMessage(tabId, {
+              type: "CHECK_AND_SAVE_TO_GLOBAL",
+              payload: { workspaceId },
+            });
+            sendResponse(resp ?? { ok: false, error: "Нет ответа" });
+          } catch (err) {
+            logError("EXECUTE_CHECK_AND_SAVE_TO_GLOBAL", err);
             sendResponse({
               ok: false,
               error: err instanceof Error ? err.message : "Ошибка выполнения",
