@@ -4,6 +4,7 @@
  */
 
 import { env } from "@qbs-autonaim/config";
+import slugify from "@sindresorhus/slugify";
 
 const GOTENBERG_ENDPOINT = "/forms/chromium/convert/html";
 
@@ -26,8 +27,13 @@ export async function convertHtmlToPdf(
   const htmlBlob = new Blob([html], { type: "text/html" });
   formData.append("files", htmlBlob, "index.html");
 
+  // HTTP headers must be ASCII-only; slugify transliterates Cyrillic etc.
+  const base =
+    slugify(filename.replace(/\.pdf$/i, ""), { lowercase: false }) ||
+    "document";
+
   const headers: Record<string, string> = {
-    "Gotenberg-Output-Filename": filename.replace(/\.pdf$/i, ""),
+    "Gotenberg-Output-Filename": base,
   };
 
   const response = await fetch(url, {

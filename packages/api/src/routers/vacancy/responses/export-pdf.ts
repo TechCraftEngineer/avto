@@ -2,12 +2,12 @@ import { ORPCError } from "@orpc/server";
 import { and, eq } from "@qbs-autonaim/db";
 import {
   interviewScoring as interviewScoringTable,
-  interviewSession,
   responseScreening as responseScreeningTable,
   response as responseTable,
   vacancy as vacancyTable,
 } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
+import slugify from "@sindresorhus/slugify";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 import { convertHtmlToPdf } from "../../../utils/gotenberg";
@@ -90,9 +90,11 @@ export const exportPdf = protectedProcedure
       input.sections,
     );
 
-    const candidateName =
+    const rawName =
       response.candidateName?.replace(/[/\\:*?"<>|]/g, "_") || "candidate";
-    const filename = `${candidateName}_profile`;
+    const filename =
+      slugify(`${rawName}_profile`, { lowercase: false }) ||
+      "candidate_profile";
 
     const pdfBuffer = await convertHtmlToPdf({
       html,
