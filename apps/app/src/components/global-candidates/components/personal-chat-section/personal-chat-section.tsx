@@ -5,12 +5,7 @@ import { Avatar, AvatarFallback } from "@qbs-autonaim/ui/components/avatar";
 import { Button } from "@qbs-autonaim/ui/components/button";
 import { ScrollArea } from "@qbs-autonaim/ui/components/scroll-area";
 import { Textarea } from "@qbs-autonaim/ui/components/textarea";
-import {
-  skipToken,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MessageSquare, Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -35,13 +30,12 @@ export function PersonalChatSection({
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const { data: messages = [] } = useQuery(
-    orpc.personalTelegram.listMessages.queryOptions(
-      candidateId && organizationId
-        ? { candidateId, organizationId }
-        : skipToken,
-    ),
-  );
+  const { data: messages = [] } = useQuery({
+    ...orpc.personalTelegram.listMessages.queryOptions({
+      input: { candidateId, organizationId },
+    }),
+    enabled: !!(candidateId && organizationId),
+  });
 
   const { data: sessions = [] } = useQuery({
     ...orpc.personalTelegram.getSessions.queryOptions(),
