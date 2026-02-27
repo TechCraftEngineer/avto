@@ -152,7 +152,7 @@ export function CandidateDetailView({
   const workspace = workspaces.find((w) => w.id === selectedWorkspaceId);
   const viewUrl =
     org?.slug && workspace?.slug
-      ? `${API_URL}/orgs/${org.slug}/workspaces/${workspace.slug}/candidates`
+      ? `${API_URL}/orgs/${org.slug}/workspaces/${workspace.slug}/candidates?candidateId=${encodeURIComponent(existingCandidate.id)}`
       : null;
 
   const hasContacts =
@@ -224,7 +224,7 @@ export function CandidateDetailView({
                         <IconMail />
                         <a
                           href={`mailto:${existingCandidate.email}`}
-                          className="text-sm text-primary underline-offset-4 hover:underline"
+                          className="text-sm text-primary underline-offset-4 hover:underline break-all"
                         >
                           {existingCandidate.email}
                         </a>
@@ -279,7 +279,7 @@ export function CandidateDetailView({
                     href={existingCandidate.resumeUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-primary underline-offset-4 hover:underline truncate max-w-full"
+                    className="text-sm text-primary underline-offset-4 hover:underline break-all"
                   >
                     Резюме
                   </a>
