@@ -21,6 +21,14 @@ function sanitizeFilename(name: string | null): string {
   return `${base}.pdf`;
 }
 
+/** Формирует Content-Disposition с RFC 5987 для UTF-8 имён */
+function contentDisposition(filename: string, inline: boolean): string {
+  const disposition = inline ? "inline" : "attachment";
+  const asciiFallback = "resume.pdf";
+  const utf8Encoded = encodeURIComponent(filename);
+  return `${disposition}; filename="${asciiFallback}"; filename*=UTF-8''${utf8Encoded}`;
+}
+
 const app = new Hono();
 
 app.get("/:responseId/download", async (c) => {
@@ -97,12 +105,13 @@ app.get("/:responseId/download", async (c) => {
   try {
     const { body, contentType } = await getFileStreamFromS3(fileRecord.key);
     const filename = sanitizeFilename(responseRecord.candidateName);
+    const openInline = c.req.query("open") === "1";
 
     return new Response(body, {
       status: 200,
       headers: {
         "Content-Type": contentType || "application/pdf",
-        "Content-Disposition": `attachment; filename="${filename}"`,
+        "Content-Disposition": contentDisposition(filename, openInline),
       },
     });
   } catch (error) {

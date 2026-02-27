@@ -75,7 +75,7 @@ export function CandidateKeyInfo({
                     className="h-7 text-xs"
                   >
                     <a
-                      href={resumePdfUrl}
+                      href={`/api/resume/${response.id}/download?open=1`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

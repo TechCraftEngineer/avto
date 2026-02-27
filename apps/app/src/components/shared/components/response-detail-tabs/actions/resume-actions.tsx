@@ -27,7 +27,11 @@ export function ResumeActions({
         </Link>
         {resumePdfUrl && responseId && (
           <>
-            <Link href={resumePdfUrl} target="_blank" rel="noopener noreferrer">
+            <Link
+              href={`/api/resume/${responseId}/download?open=1`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Button variant="outline" size="sm">
                 <ExternalLink className="mr-2 h-4 w-4" />
                 Открыть PDF
