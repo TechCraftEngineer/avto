@@ -27,15 +27,14 @@ function captureApiErrorToPostHog(error: unknown) {
   }
 }
 
-const queryCache = new QueryCache({
-  onError: captureApiErrorToPostHog,
-});
-const mutationCache = new MutationCache({
-  onError: captureApiErrorToPostHog,
-});
-
-export const createQueryClient = () =>
-  new QueryClient({
+export const createQueryClient = () => {
+  const queryCache = new QueryCache({
+    onError: captureApiErrorToPostHog,
+  });
+  const mutationCache = new MutationCache({
+    onError: captureApiErrorToPostHog,
+  });
+  return new QueryClient({
     queryCache,
     mutationCache,
     defaultOptions: {
@@ -54,3 +53,4 @@ export const createQueryClient = () =>
       },
     },
   });
+};

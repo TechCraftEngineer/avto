@@ -477,7 +477,7 @@ export function ResponsesKanban({
       workspaceId,
       page: 1,
       limit: 50,
-      sortField: null as const,
+      sortField: null,
       sortDirection: "desc" as const,
       screeningFilter: "all" as const,
     },

@@ -1,13 +1,17 @@
+import { z } from "zod";
+
 /**
  * Общие типы для демо данных
  */
 
-export interface CandidatePhoto {
-  candidateId: string;
-  candidateName: string;
-  photoUrl: string;
-  photoDescription: string;
-}
+export const CandidatePhotoSchema = z.object({
+  candidateId: z.string(),
+  candidateName: z.string(),
+  photoUrl: z.string(),
+  photoDescription: z.string(),
+});
+
+export type CandidatePhoto = z.infer<typeof CandidatePhotoSchema>;
 
 export interface DemoUserIds {
   recruiterId: string;

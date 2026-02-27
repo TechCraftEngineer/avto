@@ -9,6 +9,11 @@
  */
 
 (() => {
+  const formatHttpError = (status, statusText) =>
+    statusText
+      ? `Ошибка HTTP ${status}: ${statusText}`
+      : `Ошибка HTTP ${status}`;
+
   const currentScript = document.currentScript;
   if (!currentScript) {
     console.error("[fetch-page-context] currentScript не найден");
@@ -66,10 +71,7 @@
         xhr.responseType = "arraybuffer";
         xhr.onload = () => {
           if (xhr.status < 200 || xhr.status >= 300) {
-            const msg = xhr.statusText
-              ? `Ошибка HTTP ${xhr.status}: ${xhr.statusText}`
-              : `Ошибка HTTP ${xhr.status}`;
-            sendError(msg);
+            sendError(formatHttpError(xhr.status, xhr.statusText));
             return;
           }
           const ct =
@@ -97,12 +99,7 @@
     fetch(url, { credentials: "include" })
       .then((res) => {
         if (!res.ok) {
-          const statusText = res.statusText || "";
-          throw new Error(
-            statusText
-              ? `Ошибка HTTP ${res.status}: ${statusText}`
-              : `Ошибка HTTP ${res.status}`,
-          );
+          throw new Error(formatHttpError(res.status, res.statusText || ""));
         }
         return res.arrayBuffer().then((buf) => ({
           buffer: buf,
@@ -130,11 +127,8 @@
   fetch(url, { credentials: "include" })
     .then((response) => {
       if (!response.ok) {
-        const st = response.statusText || "";
         throw new Error(
-          st
-            ? `Ошибка HTTP ${response.status}: ${st}`
-            : `Ошибка HTTP ${response.status}`,
+          formatHttpError(response.status, response.statusText || ""),
         );
       }
       return response.text();

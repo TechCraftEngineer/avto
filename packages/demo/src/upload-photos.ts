@@ -6,15 +6,7 @@ import { db } from "@qbs-autonaim/db";
 import { file } from "@qbs-autonaim/db/schema";
 import { uploadBufferToS3 } from "@qbs-autonaim/lib/s3";
 import { z } from "zod";
-
-const CandidatePhotoSchema = z.object({
-  candidateId: z.string(),
-  candidateName: z.string(),
-  photoUrl: z.string(),
-  photoDescription: z.string(),
-});
-
-type CandidatePhoto = z.infer<typeof CandidatePhotoSchema>;
+import { CandidatePhotoSchema } from "./types";
 
 /**
  * Скрипт для загрузки фото кандидатов в систему файлов

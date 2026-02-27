@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@qbs-autonaim/ui/components/button";
-import { skipToken, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
   Download,
   ExternalLink,
@@ -24,32 +24,30 @@ export function PortfolioTab({ response }: PortfolioTabProps) {
   const orpc = useORPC();
 
   // Получаем URL фото если есть photoFileId
-  const { data: photoData } = useQuery(
-    workspace?.id && response.photoFileId
-      ? orpc.files.getImageUrl.queryOptions({
-          input: {
-            workspaceId: workspace.id,
-            fileId: response.photoFileId,
-          },
-        })
-      : skipToken,
-  );
+  const { data: photoData } = useQuery({
+    ...orpc.files.getImageUrl.queryOptions({
+      input: {
+        workspaceId: workspace?.id ?? "",
+        fileId: response.photoFileId ?? "",
+      },
+    }),
+    enabled: Boolean(workspace?.id && response.photoFileId),
+  });
 
   // Получаем URL портфолио файла если есть portfolioFileId
   const {
     data: portfolioData,
     isPending: isPortfolioLoading,
     error: portfolioError,
-  } = useQuery(
-    workspace?.id && response.portfolioFileId
-      ? orpc.files.getFileUrl.queryOptions({
-          input: {
-            workspaceId: workspace.id,
-            fileId: response.portfolioFileId,
-          },
-        })
-      : skipToken,
-  );
+  } = useQuery({
+    ...orpc.files.getFileUrl.queryOptions({
+      input: {
+        workspaceId: workspace?.id ?? "",
+        fileId: response.portfolioFileId ?? "",
+      },
+    }),
+    enabled: !!workspace?.id && !!response.portfolioFileId,
+  });
 
   const handleViewPhoto = () => {
     if (photoData?.url) {

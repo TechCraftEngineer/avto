@@ -9,11 +9,7 @@ import {
 import { getFileBufferFromS3 } from "@qbs-autonaim/lib/s3";
 import slugify from "@sindresorhus/slugify";
 import { z } from "zod";
-import {
-  protectedProcedure,
-  workspaceAccessMiddleware,
-  workspaceInputSchema,
-} from "../../../orpc";
+import { workspaceInputSchema, workspaceProcedure } from "../../../orpc";
 import { convertHtmlToPdf } from "../../../utils/gotenberg";
 import {
   buildCandidateExportHtml,
@@ -37,9 +33,8 @@ const exportPdfInputSchema = z.object({
   sections: exportSectionsSchema,
 });
 
-export const exportPdf = protectedProcedure
+export const exportPdf = workspaceProcedure
   .input(workspaceInputSchema.merge(exportPdfInputSchema))
-  .use(workspaceAccessMiddleware)
   .handler(async ({ context, input }) => {
     const response = await context.db.query.response.findFirst({
       where: and(
