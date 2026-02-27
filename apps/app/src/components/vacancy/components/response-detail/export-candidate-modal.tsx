@@ -11,6 +11,7 @@ import {
   DialogTrigger,
 } from "@qbs-autonaim/ui/components/dialog";
 import { Label } from "@qbs-autonaim/ui/components/label";
+import { useMutation } from "@tanstack/react-query";
 import {
   Award,
   Briefcase,
@@ -22,6 +23,8 @@ import {
   Users,
 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
+import { useORPC } from "~/orpc/react";
 import type { VacancyResponse } from "./types";
 
 interface ExportCandidateModalProps {
@@ -29,6 +32,8 @@ interface ExportCandidateModalProps {
 }
 
 export function ExportCandidateModal({ response }: ExportCandidateModalProps) {
+  const orpc = useORPC();
+  const [open, setOpen] = useState(false);
   const [selectedFormat, setSelectedFormat] = useState<string>("pdf");
   const [selectedSections, setSelectedSections] = useState<string[]>([
     "personal",
@@ -36,7 +41,31 @@ export function ExportCandidateModal({ response }: ExportCandidateModalProps) {
     "experience",
     "skills",
   ]);
-  const [isExporting, setIsExporting] = useState(false);
+
+  const { mutate: exportPdf, isPending: isExporting } = useMutation(
+    orpc.vacancy.responses.exportPdf.mutationOptions({
+      onSuccess: (data) => {
+        const byteCharacters = atob(data.pdfBase64);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = data.filename;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.success("Профиль экспортирован");
+        setOpen(false);
+      },
+      onError: (error) => {
+        toast.error(error.message || "Не удалось экспортировать профиль");
+      },
+    }),
+  );
 
   const exportFormats = [
     {
@@ -45,13 +74,15 @@ export function ExportCandidateModal({ response }: ExportCandidateModalProps) {
       description: "Полный профиль кандидата в PDF формате",
       icon: FileText,
       color: "text-red-600",
+      disabled: false,
     },
     {
       id: "excel",
       name: "Excel таблица",
-      description: "Структурированные данные для отчетности",
+      description: "Структурированные данные для отчетности (в разработке)",
       icon: FileSpreadsheet,
       color: "text-green-600",
+      disabled: true,
     },
   ];
 
@@ -102,40 +133,28 @@ export function ExportCandidateModal({ response }: ExportCandidateModalProps) {
     );
   };
 
-  const handleExport = async () => {
+  const handleExport = () => {
     if (selectedSections.length === 0) return;
 
-    setIsExporting(true);
-
-    // Имитация экспорта
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    // Собираем данные для экспорта
-    const exportData = {
-      candidate: {
-        id: response.id,
-        name: response.candidateName,
-        respondedAt: response.respondedAt,
-        status: response.status,
-      },
-      sections: selectedSections,
-      format: selectedFormat,
-      exportedAt: new Date().toISOString(),
-    };
-
-    console.log("Exporting candidate data:", exportData);
-
-    // Имитация скачивания файла
-    const fileName = `${response.candidateName || "candidate"}_profile_${selectedFormat}`;
-    alert(`Файл ${fileName} готов к скачиванию!`);
-
-    setIsExporting(false);
+    if (selectedFormat === "pdf") {
+      if (!response.workspaceId) {
+        toast.error("Workspace не найден");
+        return;
+      }
+      exportPdf({
+        responseId: response.id,
+        workspaceId: response.workspaceId,
+        sections: selectedSections,
+      });
+    } else {
+      toast.info("Экспорт в Excel будет доступен позже");
+    }
   };
 
   const selectedFormatData = exportFormats.find((f) => f.id === selectedFormat);
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2">
           <Download className="h-4 w-4" />
@@ -177,16 +196,20 @@ export function ExportCandidateModal({ response }: ExportCandidateModalProps) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {exportFormats.map((format) => {
                 const Icon = format.icon;
+                const disabled = "disabled" in format && format.disabled;
                 return (
                   <button
                     type="button"
                     key={format.id}
-                    className={`p-4 border rounded-lg cursor-pointer transition-colors text-left ${
-                      selectedFormat === format.id
-                        ? "border-blue-500 bg-blue-50 dark:bg-blue-950"
-                        : "border-gray-200 hover:border-gray-300"
+                    disabled={disabled}
+                    className={`p-4 border rounded-lg transition-colors text-left ${
+                      disabled
+                        ? "opacity-50 cursor-not-allowed border-gray-200"
+                        : selectedFormat === format.id
+                          ? "border-blue-500 bg-blue-50 dark:bg-blue-950 cursor-pointer"
+                          : "border-gray-200 hover:border-gray-300 cursor-pointer"
                     }`}
-                    onClick={() => setSelectedFormat(format.id)}
+                    onClick={() => !disabled && setSelectedFormat(format.id)}
                   >
                     <div className="flex items-center gap-3 mb-2">
                       <Icon className={`h-5 w-5 ${format.color}`} />
@@ -197,7 +220,7 @@ export function ExportCandidateModal({ response }: ExportCandidateModalProps) {
                         </p>
                       </div>
                     </div>
-                    {selectedFormat === format.id && (
+                    {selectedFormat === format.id && !disabled && (
                       <Badge variant="secondary" className="text-xs">
                         Выбран
                       </Badge>
@@ -292,9 +315,6 @@ export function ExportCandidateModal({ response }: ExportCandidateModalProps) {
                   Экспортировать
                 </>
               )}
-            </Button>
-            <Button variant="outline" className="flex-1">
-              Предварительный просмотр
             </Button>
           </div>
         </div>

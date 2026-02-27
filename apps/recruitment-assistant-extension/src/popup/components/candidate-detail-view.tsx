@@ -184,6 +184,7 @@ export function CandidateDetailView({
             size="sm"
             className="-ml-1 w-fit text-muted-foreground hover:text-foreground"
             onClick={onBack}
+            disabled={isProcessing}
           >
             ← Назад
           </Button>

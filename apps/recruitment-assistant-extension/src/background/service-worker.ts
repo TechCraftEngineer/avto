@@ -392,7 +392,10 @@ chrome.runtime.onMessage.addListener(
             }
             const resp = await chrome.tabs.sendMessage(tabId, {
               type: "IMPORT_TO_SYSTEM",
-              payload: { vacancyId: payload.vacancyId },
+              payload: {
+                vacancyId: payload.vacancyId,
+                workspaceId: payload.workspaceId,
+              },
             });
             sendResponse(resp ?? { ok: false, error: "Нет ответа" });
           } catch (err) {

@@ -48,11 +48,14 @@ export class ContentScript {
     return this.handleImport(payload);
   }
 
-  async checkAndImport(payload: {
-    vacancyId: string;
-  }): Promise<
-    | { ok: true; duplicate: false }
-    | { ok: true; duplicate: true; existingCandidate: unknown }
+  private async ensureDataAndCheckDuplicate(): Promise<
+    | { ok: true; data: CandidateData; duplicate: false }
+    | {
+        ok: true;
+        data: CandidateData;
+        duplicate: true;
+        existingCandidate: unknown;
+      }
     | { ok: false; error: string }
   > {
     let data = this.currentData;
@@ -83,11 +86,37 @@ export class ContentScript {
       if (duplicateResult.existing && duplicateResult.candidate) {
         return {
           ok: true,
+          data,
           duplicate: true,
           existingCandidate: duplicateResult.candidate,
         };
       }
-      await importCandidateData(data, {
+      return { ok: true, data, duplicate: false };
+    } catch (error) {
+      const msg =
+        error instanceof Error ? error.message : "Ошибка проверки дубликата";
+      return { ok: false, error: msg };
+    }
+  }
+
+  async checkAndImport(payload: {
+    vacancyId: string;
+  }): Promise<
+    | { ok: true; duplicate: false }
+    | { ok: true; duplicate: true; existingCandidate: unknown }
+    | { ok: false; error: string }
+  > {
+    const result = await this.ensureDataAndCheckDuplicate();
+    if (!result.ok) return result;
+    if (result.duplicate) {
+      return {
+        ok: true,
+        duplicate: true,
+        existingCandidate: result.existingCandidate,
+      };
+    }
+    try {
+      await importCandidateData(result.data, {
         vacancyId: payload.vacancyId,
       });
       return { ok: true, duplicate: false };
@@ -124,8 +153,36 @@ export class ContentScript {
   async triggerSaveToGlobalExisting(payload: {
     globalCandidateId: string;
     workspaceId: string;
+    platformSource?: string;
   }): Promise<void> {
     await importToGlobalOnly(payload);
+  }
+
+  private prepareCandidatePayload(data: CandidateData): {
+    platformSource: string;
+    profileUrl: string | undefined;
+    responseText: string;
+  } {
+    const platformSource =
+      data.platform?.toLowerCase().includes("headhunter") ||
+      data.platform?.toLowerCase().includes("hh")
+        ? "HH"
+        : "WEB_LINK";
+    const profileUrl =
+      data.profileUrl ||
+      (typeof window !== "undefined" ? window.location.href : undefined);
+    const responseText = [
+      data.basicInfo.currentPosition || "",
+      data.basicInfo.location ? `Локация: ${data.basicInfo.location}` : "",
+      data.skills?.length ? `Навыки: ${data.skills.join(", ")}` : "",
+    ]
+      .filter(Boolean)
+      .join("\n\n");
+    return {
+      platformSource,
+      profileUrl,
+      responseText: responseText || "Импортировано из расширения",
+    };
   }
 
   async checkAndSaveToGlobal(payload: {
@@ -135,64 +192,29 @@ export class ContentScript {
     | { ok: true; duplicate: true; existingCandidate: unknown }
     | { ok: false; error: string }
   > {
-    let data = this.currentData;
-    if (!data) {
-      if (!this.currentAdapter) {
-        return { ok: false, error: "Страница не поддерживается для импорта" };
-      }
-      try {
-        data = await extractCandidateData(this.currentAdapter);
-        if (data) this.currentData = data;
-      } catch (error) {
-        const msg =
-          error instanceof Error
-            ? error.message
-            : "Не удалось извлечь данные профиля";
-        return { ok: false, error: msg };
-      }
-    }
-    if (!data) {
+    const result = await this.ensureDataAndCheckDuplicate();
+    if (!result.ok) return result;
+    if (result.duplicate) {
       return {
-        ok: false,
-        error:
-          "Не удалось извлечь данные профиля. Попробуйте обновить страницу.",
+        ok: true,
+        duplicate: true,
+        existingCandidate: result.existingCandidate,
       };
     }
     try {
-      const duplicateResult = await checkDuplicateCandidate(data);
-      if (duplicateResult.existing && duplicateResult.candidate) {
-        return {
-          ok: true,
-          duplicate: true,
-          existingCandidate: duplicateResult.candidate,
-        };
-      }
-      const platformSource =
-        data.platform?.toLowerCase().includes("headhunter") ||
-        data.platform?.toLowerCase().includes("hh")
-          ? "HH"
-          : "WEB_LINK";
-      const profileUrl =
-        data.profileUrl ||
-        (typeof window !== "undefined" ? window.location.href : undefined);
-      const responseText = [
-        data.basicInfo.currentPosition || "",
-        data.basicInfo.location ? `Локация: ${data.basicInfo.location}` : "",
-        data.skills?.length ? `Навыки: ${data.skills.join(", ")}` : "",
-      ]
-        .filter(Boolean)
-        .join("\n\n");
+      const { platformSource, profileUrl, responseText } =
+        this.prepareCandidatePayload(result.data);
       await importToGlobalOnly({
         workspaceId: payload.workspaceId,
         candidateData: {
           platformSource,
-          freelancerName: data.basicInfo.fullName || undefined,
+          freelancerName: result.data.basicInfo.fullName || undefined,
           contactInfo: {
-            email: data.contacts?.email || undefined,
-            phone: data.contacts?.phone || undefined,
+            email: result.data.contacts?.email || undefined,
+            phone: result.data.contacts?.phone || undefined,
             platformProfileUrl: profileUrl,
           },
-          responseText: responseText || "Импортировано из расширения",
+          responseText,
         },
       });
       return { ok: true, duplicate: false };
@@ -222,21 +244,8 @@ export class ContentScript {
     if (!data) {
       throw new Error("Не удалось извлечь данные профиля");
     }
-    const platformSource =
-      data.platform?.toLowerCase().includes("headhunter") ||
-      data.platform?.toLowerCase().includes("hh")
-        ? "HH"
-        : "WEB_LINK";
-    const profileUrl =
-      data.profileUrl ||
-      (typeof window !== "undefined" ? window.location.href : undefined);
-    const responseText = [
-      data.basicInfo.currentPosition || "",
-      data.basicInfo.location ? `Локация: ${data.basicInfo.location}` : "",
-      data.skills?.length ? `Навыки: ${data.skills.join(", ")}` : "",
-    ]
-      .filter(Boolean)
-      .join("\n\n");
+    const { platformSource, profileUrl, responseText } =
+      this.prepareCandidatePayload(data);
     await importToGlobalOnly({
       workspaceId: payload.workspaceId,
       candidateData: {
@@ -247,7 +256,7 @@ export class ContentScript {
           phone: data.contacts?.phone || undefined,
           platformProfileUrl: profileUrl,
         },
-        responseText: responseText || "Импортировано из расширения",
+        responseText,
       },
     });
   }

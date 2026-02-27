@@ -2,6 +2,7 @@ import { addTag } from "./add-tag";
 import { analyzeSingle } from "./analyze-single";
 import { compare } from "./compare";
 import { debugList } from "./debug-list";
+import { exportPdf } from "./export-pdf";
 import { get } from "./get";
 import { getCount } from "./get-count";
 import { getInterviewLink } from "./get-interview-link";
@@ -39,5 +40,6 @@ export const responsesRouter = {
   analyzeSingle,
   getInterviewLink,
   updateStatus,
+  exportPdf,
   debugList, // Временный debug endpoint
 };

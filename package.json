@@ -21,7 +21,7 @@
     "db:studio": "turbo -F @qbs-autonaim/db studio",
     "db:generate-key": "bun --filter @qbs-autonaim/db generate-key",
     "dev": "turbo watch dev --continue",
-    "dev:app": "turbo watch dev --only -F @qbs-autonaim/app -F @qbs-autonaim/app-server",
+    "dev:app": "turbo watch dev --only -F @qbs-autonaim/app -F @qbs-autonaim/app-server -F @qbs-autonaim/jobs -F @qbs-autonaim/extension-api",
     "dev:jobs": "turbo watch dev --only -F @qbs-autonaim/jobs",
     "dev:webhooks": "turbo watch dev -F @qbs-autonaim/webhooks",
     "dev:interview": "turbo watch dev -F @qbs-autonaim/interview -F @qbs-autonaim/interview-server",
@@ -48,13 +48,13 @@
     "arch:all": "bun run arch:check && bun run arch:deps"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.3",
-    "@turbo/gen": "2.8.10",
+    "@biomejs/biome": "2.4.4",
+    "@turbo/gen": "2.8.11",
     "@types/node": "^25.3.0",
     "concurrently": "^9.2.1",
     "cross-env": "^10.1.0",
     "diff": "^8.0.3",
-    "turbo": "2.8.10",
+    "turbo": "2.8.11",
     "typescript": "^5.9.3"
   },
   "packageManager": "bun@1.3.9",
@@ -72,7 +72,7 @@
     "tmp": "^0.2.5"
   },
   "dependencies": {
-    "knip": "^5.83.1",
+    "knip": "^5.85.0",
     "ts-pattern": "^5.9.0"
   }
 }
