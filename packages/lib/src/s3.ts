@@ -131,6 +131,43 @@ export async function getFileStreamFromS3(key: string): Promise<{
   };
 }
 
+/**
+ * Скачивает файл из S3 и возвращает тело как Buffer.
+ * Используется для встраивания в HTML (например, base64 для изображений).
+ */
+export async function getFileBufferFromS3(key: string): Promise<{
+  buffer: Buffer;
+  contentType?: string;
+}> {
+  const command = new GetObjectCommand({
+    Bucket: BUCKET_NAME,
+    Key: key,
+  });
+
+  const response = await getS3Client().send(command);
+
+  if (!response.Body) {
+    throw new Error(`S3 returned empty body for key: ${key}`);
+  }
+
+  const stream = (
+    response.Body as { transformToWebStream(): ReadableStream<Uint8Array> }
+  ).transformToWebStream();
+  const reader = stream.getReader();
+  const chunks: Uint8Array[] = [];
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+  }
+  const buffer = Buffer.concat(chunks);
+
+  return {
+    buffer,
+    contentType: response.ContentType,
+  };
+}
+
 export function getFileUrl(fileKey: string): string {
   // Для dev окружения с MinIO используем endpoint
   const s3Endpoint = env.AWS_S3_ENDPOINT;

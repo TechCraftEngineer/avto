@@ -6,6 +6,7 @@ import {
   response as responseTable,
   vacancy as vacancyTable,
 } from "@qbs-autonaim/db/schema";
+import { getFileBufferFromS3 } from "@qbs-autonaim/lib/s3";
 import slugify from "@sindresorhus/slugify";
 import { z } from "zod";
 import { workspaceInputSchema, workspaceProcedure } from "../../../orpc";
@@ -40,6 +41,9 @@ export const exportPdf = workspaceProcedure
         eq(responseTable.id, input.responseId),
         eq(responseTable.entityType, "vacancy"),
       ),
+      with: {
+        photoFile: { columns: { key: true, mimeType: true } },
+      },
     });
 
     if (!response) {
@@ -72,8 +76,24 @@ export const exportPdf = workspaceProcedure
         where: eq(interviewScoringTable.responseId, response.id),
       });
 
+    let photoDataUrl: string | null = null;
+    if (response.photoFile?.key) {
+      try {
+        const { buffer, contentType } = await getFileBufferFromS3(
+          response.photoFile.key,
+        );
+        const mime = contentType?.startsWith("image/")
+          ? contentType
+          : "image/jpeg";
+        photoDataUrl = `data:${mime};base64,${buffer.toString("base64")}`;
+      } catch {
+        // Фото недоступно — продолжаем без него
+      }
+    }
+
     const responseData = {
       ...response,
+      photoDataUrl,
       screening: screening ? mapScreeningToOutput(screening) : null,
       interviewScoring: directInterviewScoring
         ? {

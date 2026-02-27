@@ -215,6 +215,9 @@ services:
     ports:
       - 3010:3000
     command: ["gotenberg", "--chromium-disable-javascript=true", "--chromium-allow-list=file:///tmp/.*"]
+    environment:
+      - XDG_CONFIG_HOME=/tmp/.chromium
+      - XDG_CACHE_HOME=/tmp/.chromium
     read_only: true
     tmpfs:
       - /tmp
