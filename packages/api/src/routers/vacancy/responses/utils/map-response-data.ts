@@ -3,6 +3,18 @@ import { sanitizeHtml } from "../../../utils/sanitize-html";
 import type { RawResponseBase } from "../types";
 import { calculatePriorityScore } from "./priority-score";
 
+function buildLookupMap<T>(
+  items: T[],
+  keyExtractor: (item: T) => string | null,
+): Map<string, T> {
+  const map = new Map<string, T>();
+  for (const item of items) {
+    const key = keyExtractor(item);
+    if (key !== null) map.set(key, item);
+  }
+  return map;
+}
+
 export function mapResponseData(
   responsesRaw: RawResponseBase[],
   screenings: Array<{
@@ -33,13 +45,18 @@ export function mapResponseData(
   }>,
   messageCountsMap: Map<string, number>,
 ) {
+  const screeningByResponseId = buildLookupMap(screenings, (s) => s.responseId);
+  const scoringByResponseId = buildLookupMap(
+    interviewScorings,
+    (s) => s.responseId,
+  );
+  const sessionByResponseId = buildLookupMap(sessions, (s) => s.responseId);
+
   return responsesRaw.map((r) => {
-    const screening = screenings.find((s) => s.responseId === r.id);
-    const interviewScoring = interviewScorings.find(
-      (is) => is.responseId === r.id,
-    );
-    const session = sessions.find((s) => s.responseId === r.id);
-    const priorityScore = calculatePriorityScore(r, screening);
+    const screening = screeningByResponseId.get(r.id) ?? null;
+    const interviewScoring = scoringByResponseId.get(r.id);
+    const session = sessionByResponseId.get(r.id);
+    const priorityScore = calculatePriorityScore(r, screening ?? undefined);
 
     return {
       ...r,

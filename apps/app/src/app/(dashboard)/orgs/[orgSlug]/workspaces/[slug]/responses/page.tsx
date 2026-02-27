@@ -90,21 +90,9 @@ export default function ResponsesPage() {
 
   const stats = {
     totalResponses: responsesData?.total ?? 0,
-    evaluatedResponses:
-      responsesData?.responses.filter(
-        (r: { screening: unknown }) => r.screening !== null,
-      ).length ?? 0,
-    highScoreResponses:
-      responsesData?.responses.filter(
-        (r) =>
-          r.screening !== null &&
-          r.screening.score !== null &&
-          r.screening.score >= 4,
-      ).length ?? 0,
-    interviewResponses:
-      responsesData?.responses.filter(
-        (r: { interviewSession: unknown }) => r.interviewSession !== null,
-      ).length ?? 0,
+    evaluatedResponses: responsesData?.evaluatedCount ?? 0,
+    highScoreResponses: responsesData?.highScoreCount ?? 0,
+    interviewResponses: responsesData?.interviewCount ?? 0,
   };
 
   const handleSort = (

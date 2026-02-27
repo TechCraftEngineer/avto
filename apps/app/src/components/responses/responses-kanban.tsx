@@ -44,6 +44,7 @@ const STATUS_COLUMNS: { id: ResponseStatus; label: string; color: string }[] = [
   { id: "NEW", label: "Новые", color: "bg-blue-500" },
   { id: "EVALUATED", label: "Оценённые", color: "bg-purple-500" },
   { id: "INTERVIEW", label: "Собеседование", color: "bg-amber-500" },
+  { id: "NEGOTIATION", label: "Переговоры", color: "bg-cyan-500" },
   { id: "COMPLETED", label: "Завершённые", color: "bg-green-500" },
   { id: "SKIPPED", label: "Пропущенные", color: "bg-gray-500" },
 ];

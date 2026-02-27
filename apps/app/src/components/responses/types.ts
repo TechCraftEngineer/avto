@@ -12,5 +12,6 @@ export type ResponseStatus =
   | "NEW"
   | "EVALUATED"
   | "INTERVIEW"
+  | "NEGOTIATION"
   | "COMPLETED"
   | "SKIPPED";
