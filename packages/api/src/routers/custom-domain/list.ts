@@ -1,4 +1,3 @@
-import { db } from "@qbs-autonaim/db/client";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
@@ -18,7 +17,7 @@ export const list = protectedProcedure
       context.session.user.id,
     );
 
-    return await db.query.customDomain.findMany({
+    return await context.db.query.customDomain.findMany({
       where: (domain, { eq, and }) => {
         if (input.type) {
           return and(

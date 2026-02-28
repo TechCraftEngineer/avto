@@ -9,6 +9,7 @@ import {
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
+import { verifyWorkspaceAccess } from "../../utils/verify-workspace-access";
 
 export const addComment = protectedProcedure
   .input(
@@ -20,6 +21,12 @@ export const addComment = protectedProcedure
     }),
   )
   .handler(async ({ input, context }) => {
+    await verifyWorkspaceAccess(
+      context.workspaceRepository,
+      input.workspaceId,
+      context.session.user.id,
+    );
+
     const [candidate] = await context.db
       .select({
         id: responseTable.id,
@@ -47,7 +54,7 @@ export const addComment = protectedProcedure
       .limit(1);
 
     if (!vacancyRecord || vacancyRecord.workspaceId !== input.workspaceId) {
-      throw new Error("Candidate not found");
+      throw new ORPCError("NOT_FOUND", { message: "Кандидат не найден" });
     }
 
     const [comment] = await context.db
@@ -61,7 +68,9 @@ export const addComment = protectedProcedure
       .returning();
 
     if (!comment) {
-      throw new Error("Failed to create comment");
+      throw new ORPCError("INTERNAL_SERVER_ERROR", {
+        message: "Не удалось создать комментарий",
+      });
     }
 
     return {

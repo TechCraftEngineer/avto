@@ -7,7 +7,7 @@ export const getHistory = protectedProcedure
   .input(
     z
       .object({
-        sessionId: z.string().uuid().optional(),
+        sessionId: z.uuid().optional(),
         entityType: z.enum(chatEntityTypeEnum.enumValues).optional(),
         entityId: z.string().optional(),
         limit: paginationLimitSchema({ default: 50, max: 50 }),
@@ -28,7 +28,7 @@ export const getHistory = protectedProcedure
             v.entityType &&
             ["gig", "vacancy"].includes(v.entityType)
           ) {
-            return z.string().uuid().safeParse(v.entityId).success;
+            return z.uuid().safeParse(v.entityId).success;
           }
           return true;
         },

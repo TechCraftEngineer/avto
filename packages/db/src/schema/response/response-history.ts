@@ -55,7 +55,7 @@ export type { ResponseEventType } from "@qbs-autonaim/types";
 export { responseEventTypeValues } from "@qbs-autonaim/types";
 
 export const CreateResponseHistorySchema = createInsertSchema(responseHistory, {
-  responseId: z.string().uuid(),
+  responseId: z.uuid(),
   eventType: z.enum(responseEventTypeValues),
   userId: z.string().optional(),
   oldValue: z.any().optional(),

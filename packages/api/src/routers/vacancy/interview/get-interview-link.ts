@@ -5,7 +5,7 @@ import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
 const getInterviewLinkInputSchema = z.object({
-  vacancyId: z.string().uuid(),
+  vacancyId: z.uuid(),
   workspaceId: workspaceIdSchema,
 });
 

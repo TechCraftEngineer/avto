@@ -85,7 +85,7 @@ function extractJSON(text: string): string | null {
 export const sendMessage = protectedProcedure
   .input(
     z.object({
-      gigId: z.string().uuid(),
+      gigId: z.uuid(),
       message: z.string().min(1).max(2000),
     }),
   )
@@ -297,7 +297,7 @@ export const sendMessage = protectedProcedure
 export const getHistory = protectedProcedure
   .input(
     z.object({
-      gigId: z.string().uuid(),
+      gigId: z.uuid(),
       limit: z.number().min(1).max(50).default(50),
     }),
   )
@@ -375,7 +375,7 @@ export const getHistory = protectedProcedure
 export const clearHistory = protectedProcedure
   .input(
     z.object({
-      gigId: z.string().uuid(),
+      gigId: z.uuid(),
     }),
   )
   .handler(async ({ input, context }) => {

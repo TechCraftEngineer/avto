@@ -48,7 +48,7 @@ export const responseComment = pgTable(
 );
 
 export const CreateResponseCommentSchema = createInsertSchema(responseComment, {
-  responseId: z.string().uuid(),
+  responseId: z.uuid(),
   authorId: z.string(),
   content: z.string().min(1),
   isPrivate: z.boolean().default(true),

@@ -52,7 +52,7 @@ export const gigScoringSchema = z.object({
   // Метаданные
   metadata: z.object({
     version: z.literal("v3-gig"),
-    evaluatedAt: z.string().datetime().optional(),
+    evaluatedAt: z.iso.datetime().optional(),
   }),
 
   // Итоговая сводка
@@ -110,7 +110,7 @@ export const vacancyScoringSchema = z.object({
   // Метаданные
   metadata: z.object({
     version: z.literal("v2"),
-    evaluatedAt: z.string().datetime().optional(),
+    evaluatedAt: z.iso.datetime().optional(),
   }),
 
   // Итоговая сводка

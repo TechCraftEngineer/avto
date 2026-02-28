@@ -16,7 +16,7 @@ import {
 import { PrequalificationError } from "../../services/prequalification/types";
 
 const sendMessageInputSchema = z.object({
-  sessionId: z.string().uuid("sessionId должен быть UUID"),
+  sessionId: z.uuid({ error: "sessionId должен быть UUID" }),
   workspaceId: z.string().min(1, "workspaceId обязателен"),
   message: z
     .string()

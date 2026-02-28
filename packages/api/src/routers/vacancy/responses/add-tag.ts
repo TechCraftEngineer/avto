@@ -13,7 +13,7 @@ import { verifyWorkspaceAccess } from "../../../utils/verify-workspace-access";
 export const addTag = protectedProcedure
   .input(
     z.object({
-      responseId: z.string().uuid(),
+      responseId: z.uuid(),
       tag: z.string().min(1).max(50),
       workspaceId: workspaceIdSchema,
     }),

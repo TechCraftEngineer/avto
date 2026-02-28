@@ -11,7 +11,7 @@ export const clearHistory = protectedProcedure
   .input(
     z
       .object({
-        sessionId: z.string().uuid().optional(),
+        sessionId: z.uuid().optional(),
         entityType: z.enum(chatEntityTypeEnum.enumValues).optional(),
         entityId: z.string().optional(),
       })
@@ -23,7 +23,7 @@ export const clearHistory = protectedProcedure
             v.entityType &&
             ["gig", "vacancy"].includes(v.entityType)
           ) {
-            return z.string().uuid().safeParse(v.entityId).success;
+            return z.uuid().safeParse(v.entityId).success;
           }
           return true;
         },

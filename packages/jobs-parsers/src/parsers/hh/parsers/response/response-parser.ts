@@ -25,7 +25,7 @@ export async function parseResponses(
 }> {
   // Input validation
   const InputSchema = z.object({
-    url: z.string().url("Некорректный URL"),
+    url: z.url({ error: "Некорректный URL" }),
     externalVacancyId: z
       .string()
       .min(1, "externalVacancyId не может быть пустым"),

@@ -35,7 +35,7 @@ export const responseTag = pgTable(
 );
 
 export const CreateResponseTagSchema = createInsertSchema(responseTag, {
-  responseId: z.string().uuid(),
+  responseId: z.uuid(),
   tag: z.string().min(1).max(50),
 }).omit({
   id: true,

@@ -84,7 +84,7 @@ export const updateBotSettingsSchema = z.object({
 
 /** Схема для операций с gig (gigId + workspaceId) */
 export const gigWorkspaceInputSchema = z.object({
-  gigId: z.string().uuid(),
+  gigId: z.uuid(),
   workspaceId: workspaceIdSchema,
 });
 

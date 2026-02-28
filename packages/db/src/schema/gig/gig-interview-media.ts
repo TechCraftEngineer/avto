@@ -37,8 +37,8 @@ export const gigInterviewMedia = pgTable(
 export const CreateGigInterviewMediaSchema = createInsertSchema(
   gigInterviewMedia,
   {
-    gigId: z.string().uuid(),
-    fileId: z.string().uuid(),
+    gigId: z.uuid(),
+    fileId: z.uuid(),
   },
 ).omit({
   createdAt: true,

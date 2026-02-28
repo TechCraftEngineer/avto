@@ -10,7 +10,7 @@ import { protectedProcedure } from "../../../orpc";
 export const analyzeSingle = protectedProcedure
   .input(
     z.object({
-      responseId: z.string().uuid(),
+      responseId: z.uuid(),
       workspaceId: z.string(),
     }),
   )

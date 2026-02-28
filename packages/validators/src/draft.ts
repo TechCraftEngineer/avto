@@ -74,7 +74,7 @@ export const VacancyDataSchema = z.object({
 
 // Схема черновика
 export const DraftSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   userId: z.string(),
   conversationHistory: z.array(MessageSchema),
   vacancyData: VacancyDataSchema,

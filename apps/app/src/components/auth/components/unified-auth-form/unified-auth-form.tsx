@@ -48,7 +48,7 @@ const passwordSchema = z
 
 const createEmailPasswordSchema = (mode: "signin" | "signup") =>
   z.object({
-    email: z.string().email("Неверный email адрес"),
+    email: z.email({ error: "Неверный email адрес" }),
     password:
       mode === "signup"
         ? passwordSchema
@@ -56,7 +56,7 @@ const createEmailPasswordSchema = (mode: "signin" | "signup") =>
   });
 
 const emailOtpSchema = z.object({
-  email: z.string().email("Неверный email адрес"),
+  email: z.email({ error: "Неверный email адрес" }),
 });
 
 type EmailPasswordData = z.infer<ReturnType<typeof createEmailPasswordSchema>>;

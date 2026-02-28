@@ -31,7 +31,7 @@ const submitApplicationInputSchema = z.object({
   sessionId: z.uuid("sessionId должен быть UUID"),
   workspaceId: z.string().min(1, "workspaceId обязателен"),
   /** Required contact email from parsed resume */
-  email: z.string().email("Укажите корректный email").optional(),
+  email: z.email({ error: "Укажите корректный email" }).optional(),
   /** Optional additional message from candidate - minimum 10 characters for meaningful content */
   coverLetter: z
     .string()

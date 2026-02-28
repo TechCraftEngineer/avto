@@ -33,7 +33,7 @@ const exportSectionIdEnum = z.enum([
 const exportSectionsSchema = z.array(exportSectionIdEnum).min(1).max(10);
 
 const exportPdfInputSchema = z.object({
-  responseId: z.string().uuid(),
+  responseId: z.uuid(),
   sections: exportSectionsSchema,
 });
 

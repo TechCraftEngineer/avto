@@ -7,7 +7,7 @@ import { protectedProcedure } from "../../../orpc";
 
 const validatePublicationInputSchema = z.object({
   workspaceId: workspaceIdSchema,
-  publicationId: z.string().uuid(),
+  publicationId: z.uuid(),
 });
 
 export const validatePublication = protectedProcedure

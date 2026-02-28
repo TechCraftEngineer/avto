@@ -35,7 +35,7 @@ const createGigSchema = z.object({
 
   // Ссылка на фриланс-платформу
   platformSource: z.enum(platformSourceValues).optional(),
-  platformUrl: z.string().url().optional(),
+  platformUrl: z.url().optional(),
 });
 
 export const create = protectedProcedure

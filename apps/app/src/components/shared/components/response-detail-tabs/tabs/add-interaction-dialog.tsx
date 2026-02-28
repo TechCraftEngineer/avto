@@ -36,6 +36,7 @@ import {
   CalendarIcon,
   CircleSlash,
   Clock,
+  Loader2,
   Mail,
   MessageCircle,
   MessageSquare,
@@ -109,6 +110,8 @@ export function AddInteractionDialog({
   const [channel, setChannel] = useState<string>(CHANNEL_NONE);
   const [note, setNote] = useState("");
 
+  const [hours = "00", minutes = "00"] = (timeValue ?? "00:00").split(":");
+
   const { mutate, isPending } = useMutation(
     orpc.vacancy.responses.createInteraction.mutationOptions({
       onSuccess: () => {
@@ -147,7 +150,7 @@ export function AddInteractionDialog({
         interactionType as (typeof INTERACTION_TYPE_OPTIONS)[number]["value"],
       happenedAt: happenedAtDate,
       channel:
-        channel && channel !== CHANNEL_NONE
+        channel !== CHANNEL_NONE
           ? (channel as (typeof CHANNEL_OPTIONS)[number]["value"])
           : undefined,
       note: note || undefined,
@@ -252,10 +255,8 @@ export function AddInteractionDialog({
                 <PopoverContent className="w-auto p-3" align="start">
                   <div className="flex items-center gap-2">
                     <Select
-                      value={timeValue.split(":")[0]}
-                      onValueChange={(h) =>
-                        setTimeValue(`${h}:${timeValue.split(":")[1] ?? "00"}`)
-                      }
+                      value={hours}
+                      onValueChange={(h) => setTimeValue(`${h}:${minutes}`)}
                     >
                       <SelectTrigger className="w-[72px]" aria-label="Часы">
                         <SelectValue />
@@ -270,10 +271,11 @@ export function AddInteractionDialog({
                     </Select>
                     <span className="text-muted-foreground font-medium">:</span>
                     <Select
-                      value={timeValue.split(":")[1] ?? "00"}
-                      onValueChange={(m) =>
-                        setTimeValue(`${timeValue.split(":")[0] ?? "00"}:${m}`)
-                      }
+                      value={minutes}
+                      onValueChange={(m) => {
+                        setTimeValue(`${hours}:${m}`);
+                        setTimeOpen(false);
+                      }}
                     >
                       <SelectTrigger className="w-[72px]" aria-label="Минуты">
                         <SelectValue />
@@ -341,6 +343,7 @@ export function AddInteractionDialog({
               Отмена
             </Button>
             <Button onClick={handleSubmit} disabled={isPending}>
+              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isPending ? "Сохранение…" : "Добавить"}
             </Button>
           </div>

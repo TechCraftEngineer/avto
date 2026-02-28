@@ -39,7 +39,7 @@ import { useORPC } from "~/orpc/react";
 const addPublicationSchema = z.object({
   platform: z.enum(platformSourceValues),
   externalId: z.string().max(100).optional(),
-  url: z.string().url("Введите корректный URL").optional().or(z.literal("")),
+  url: z.url({ error: "Введите корректный URL" }).optional().or(z.literal("")),
 });
 
 type AddPublicationValues = z.infer<typeof addPublicationSchema>;

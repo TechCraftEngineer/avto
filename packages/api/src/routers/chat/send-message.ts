@@ -75,7 +75,7 @@ export const sendMessage = protectedProcedure
   .input(
     z
       .object({
-        sessionId: z.string().uuid().optional(),
+        sessionId: z.uuid().optional(),
         entityType: z.enum(chatEntityTypeEnum.enumValues).optional(),
         entityId: z.string().optional(),
         message: z.string().min(1).max(2000),
@@ -88,7 +88,7 @@ export const sendMessage = protectedProcedure
             v.entityType &&
             ["gig", "vacancy"].includes(v.entityType)
           ) {
-            return z.string().uuid().safeParse(v.entityId).success;
+            return z.uuid().safeParse(v.entityId).success;
           }
           return true;
         },

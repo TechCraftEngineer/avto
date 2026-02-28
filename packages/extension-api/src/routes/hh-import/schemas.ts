@@ -39,7 +39,7 @@ export const responsesBodySchema = z.object({
 export const parseVacancyHtmlSchema = z.object({
   workspaceId: z.string(),
   vacancyExternalId: z.string(),
-  vacancyUrl: z.string().url(),
+  vacancyUrl: z.url(),
   htmlContent: z.string(),
   isArchived: z.boolean().optional(),
   region: z.string().optional(),

@@ -32,7 +32,7 @@ async function checkDNSRecords(domain: string): Promise<boolean> {
 export const verify = protectedProcedure
   .input(
     z.object({
-      domainId: z.string().uuid(),
+      domainId: z.uuid(),
     }),
   )
   .handler(async ({ input, context }) => {

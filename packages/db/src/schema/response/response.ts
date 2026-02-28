@@ -133,21 +133,21 @@ export const response = pgTable(
 
 export const CreateResponseSchema = createInsertSchema(response, {
   entityType: z.enum(responseEntityTypeEnum.enumValues),
-  entityId: z.string().uuid(),
-  globalCandidateId: z.string().uuid().optional(),
+  entityId: z.uuid(),
+  globalCandidateId: z.uuid().optional(),
   candidateId: z.string().max(100),
   candidateName: z.string().max(500).optional(),
-  profileUrl: z.string().url().optional(),
+  profileUrl: z.url().optional(),
   telegramUsername: z.string().max(100).optional(),
   chatId: z.string().max(100).optional(),
   phone: phoneSchema,
-  email: z.string().email().max(255).optional(),
+  email: z.email().max(255).optional(),
   resumeLanguage: z.string().max(10).default("ru").optional(),
   telegramPinCode: z.string().length(4).optional(),
   // Gig fields
   proposedPrice: z.number().int().positive().optional(),
   proposedDeliveryDays: z.number().int().positive().optional(),
-  portfolioLinks: z.array(z.string().url()).optional(),
+  portfolioLinks: z.array(z.url()).optional(),
   // Vacancy fields
   resumeId: z.string().max(100).optional(),
   salaryExpectationsAmount: z.number().int().optional(),

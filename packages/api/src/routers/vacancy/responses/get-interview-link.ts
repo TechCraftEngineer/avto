@@ -6,7 +6,7 @@ import { protectedProcedure } from "../../../orpc";
 import { verifyWorkspaceAccess } from "../../../utils/verify-workspace-access";
 
 const getInterviewLinkInputSchema = z.object({
-  responseId: z.string().uuid(),
+  responseId: z.uuid(),
   workspaceId: workspaceIdSchema,
 });
 

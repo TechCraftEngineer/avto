@@ -7,7 +7,7 @@ import { ensureFound } from "../../../utils/ensure-found";
 import { verifyWorkspaceAccess } from "../../../utils/verify-workspace-access";
 
 export const get = protectedProcedure
-  .input(z.object({ id: z.string().uuid(), workspaceId: workspaceIdSchema }))
+  .input(z.object({ id: z.uuid(), workspaceId: workspaceIdSchema }))
   .handler(async ({ context, input }) => {
     await verifyWorkspaceAccess(
       context.workspaceRepository,
