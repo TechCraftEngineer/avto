@@ -98,7 +98,7 @@ function responsesToColumns(
   for (const s of stages) {
     if (s.legacyKey) legacyToStageId.set(s.legacyKey, s.id);
   }
-  const firstStageId = stages[0]!.id;
+  const firstStageId = stages[0]?.id ?? "";
   const columns: Record<string, ResponseItem[]> = {};
   for (const s of stages) {
     columns[s.id] = [];
@@ -114,7 +114,8 @@ function responsesToColumns(
       );
       stageId = legacyToStageId.get(legacyKey) ?? firstStageId;
     }
-    columns[stageId]!.push(r);
+    const col = columns[stageId];
+    if (col) col.push(r);
   }
   return columns;
 }

@@ -1,5 +1,5 @@
 import { ORPCError } from "@orpc/server";
-import { and, eq } from "@qbs-autonaim/db";
+import { eq } from "@qbs-autonaim/db";
 import {
   gig as gigTable,
   pipelineStage,
