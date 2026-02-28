@@ -2,6 +2,7 @@ import {
   eq,
   interviewMessage,
   interviewSession,
+  logResponseInteraction,
   response,
   telegramSession,
 } from "@qbs-autonaim/db";
@@ -117,6 +118,14 @@ export const sendTelegramMessageFunction = inngest.createFunction(
           .update(telegramSession)
           .set({ lastUsedAt: new Date() })
           .where(eq(telegramSession.id, tgSession.id));
+
+        await logResponseInteraction({
+          db,
+          responseId: resp.id,
+          interactionType: "message_sent",
+          source: "auto",
+          channel: "telegram",
+        });
 
         console.log("✅ Сообщение отправлено в Telegram", {
           messageId,

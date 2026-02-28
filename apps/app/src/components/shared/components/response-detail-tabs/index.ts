@@ -6,9 +6,11 @@ export { ScreeningResultsCard } from "../response-detail-cards/screening-results
 export { ResumeActions } from "./actions/resume-actions";
 export { VoicePlayer } from "./actions/voice-player";
 export { ResponseHeader } from "./headers/response-header";
+export { AddInteractionDialog } from "./tabs/add-interaction-dialog";
 export { ComparisonTab } from "./tabs/comparison-tab";
 export { DialogTab } from "./tabs/dialog-tab";
 export { GigProposalTab } from "./tabs/gig-proposal-tab";
+export { InteractionsTab } from "./tabs/interactions-tab";
 export { NotesTagsTab } from "./tabs/notes-tags-tab";
 export { ProposalTab } from "./tabs/proposal-tab";
 export { TimelineTab } from "./tabs/timeline-tab";

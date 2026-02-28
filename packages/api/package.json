@@ -46,6 +46,7 @@
     "@qbs-autonaim/lib": "workspace:*",
     "@qbs-autonaim/server-utils": "workspace:*",
     "@qbs-autonaim/shared": "workspace:*",
+    "@qbs-autonaim/tg-client": "workspace:*",
     "@qbs-autonaim/types": "workspace:*",
     "@qbs-autonaim/validators": "workspace:*",
     "@sindresorhus/slugify": "3.0.0",

@@ -1,5 +1,5 @@
 import { ORPCError } from "@orpc/server";
-import { and, eq } from "@qbs-autonaim/db";
+import { and, eq, logResponseInteraction } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { gig, response as responseTable } from "@qbs-autonaim/db/schema";
 import { sendMessage as kworkSendMessage } from "@qbs-autonaim/integration-clients";
@@ -88,6 +88,14 @@ export const sendMessage = protectedProcedure
           message: result.error?.message ?? "Ошибка отправки сообщения в Kwork",
         });
       }
+
+      await logResponseInteraction({
+        db: context.db,
+        responseId: input.responseId,
+        interactionType: "message_sent",
+        source: "auto",
+        channel: "kwork",
+      });
     } else if (response.telegramUsername) {
       // TODO: Integrate with telegram sending system for non-Kwork responses
     } else {

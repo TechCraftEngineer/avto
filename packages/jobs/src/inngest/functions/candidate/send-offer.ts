@@ -1,4 +1,4 @@
-import { eq, logResponseEvent } from "@qbs-autonaim/db";
+import { eq, logResponseEvent, logResponseInteraction } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import {
   type InterviewChannel,
@@ -108,6 +108,14 @@ ${offerDetails.message ? `\n${offerDetails.message}\n` : ""}
         responseId,
         eventType: "OFFER_SENT",
         metadata: { offerDetails },
+      });
+
+      await logResponseInteraction({
+        db,
+        responseId,
+        interactionType: "offer_sent",
+        source: "auto",
+        channel: "telegram",
       });
     });
 

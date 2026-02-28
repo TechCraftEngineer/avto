@@ -16,12 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@qbs-autonaim/ui/components/select";
-import {
-  skipToken,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Briefcase, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -48,9 +43,12 @@ export function AttachToVacancyDialog({
   const organizationId = workspace?.organizationId;
 
   // Загрузка вакансий текущего workspace
-  const { data: vacancies, isLoading: isLoadingVacancies } = useQuery(
-    workspaceId ? orpc.vacancy.list.queryOptions({ workspaceId }) : skipToken,
-  );
+  const { data: vacancies, isLoading: isLoadingVacancies } = useQuery({
+    ...orpc.vacancy.list.queryOptions({
+      input: { workspaceId: workspaceId ?? "" },
+    }),
+    enabled: !!workspaceId,
+  });
 
   const attachMutation = useMutation(
     orpc.globalCandidates.attachToVacancy.mutationOptions({

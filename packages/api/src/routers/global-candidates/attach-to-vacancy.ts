@@ -12,7 +12,11 @@ import {
   vacancy,
 } from "@qbs-autonaim/db/schema";
 import { z } from "zod";
-import { workspaceInputSchema, workspaceProcedure } from "../../orpc";
+import {
+  protectedProcedure,
+  workspaceAccessMiddleware,
+  workspaceInputSchema,
+} from "../../orpc";
 
 const attachInputSchema = workspaceInputSchema.merge(
   z.object({
@@ -21,8 +25,9 @@ const attachInputSchema = workspaceInputSchema.merge(
   }),
 );
 
-export const attachToVacancy = workspaceProcedure
+export const attachToVacancy = protectedProcedure
   .input(attachInputSchema)
+  .use(workspaceAccessMiddleware)
   .handler(async ({ context, input }) => {
     // 1. Проверяем, что вакансия существует и принадлежит workspace (workspaceProcedure уже проверил доступ)
     const vacancyRow = await context.db.query.vacancy.findFirst({
