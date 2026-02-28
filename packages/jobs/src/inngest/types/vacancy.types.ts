@@ -33,7 +33,10 @@ export const syncArchivedVacancyResponsesDataSchema = z.object({
 });
 
 export const checkPublicationStatusDataSchema = z.object({
-  publicationId: z.uuid({ error: "ID публикации обязателен" }),
+  publicationId: z
+    .string()
+    .min(1, "ID публикации обязателен")
+    .uuid({ error: "Неверный формат UUID публикации" }),
 });
 
 export const checkAllPublicationStatusesDataSchema = z.object({
@@ -81,7 +84,7 @@ export const vacancyImportNewSelectedDataSchema = z.object({
       z.object({
         id: z.string(),
         title: z.string(),
-        url: z.string().url({ message: "Неверный URL вакансии" }),
+        url: z.string().url({ error: "Неверный URL вакансии" }),
         region: z.string().optional(),
       }),
     )

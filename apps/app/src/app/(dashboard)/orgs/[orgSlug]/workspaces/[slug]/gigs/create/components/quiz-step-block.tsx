@@ -79,7 +79,7 @@ export function QuizStepBlock({
             onChange={(e) => setCustomValue(e.target.value)}
             placeholder={inputPlaceholder}
             disabled={disabled}
-            className="flex-1 min-w-0 bg-transparent text-sm placeholder:text-muted-foreground focus:outline-none"
+            className="flex-1 min-w-0 bg-transparent text-base placeholder:text-muted-foreground focus:outline-none"
             autoComplete="off"
           />
         </div>

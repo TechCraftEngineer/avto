@@ -1,18 +1,13 @@
 "use client";
 
+import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { useCallback, useRef, useState } from "react";
 import { z } from "zod";
 
 const MIN_REQUEST_INTERVAL = 2000;
 
-const UUID_REGEX =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
 const payloadSchema = z.object({
-  workspaceId: z
-    .string()
-    .min(1, "Укажите рабочее пространство")
-    .refine((id) => UUID_REGEX.test(id), "Некорректный ID workspace"),
+  workspaceId: workspaceIdSchema,
   message: z
     .string()
     .trim()
@@ -127,7 +122,8 @@ export function useGigChat({
       }>,
     ): Promise<GigChatSendResult | null> => {
       if (!content.trim()) return null;
-      if (!workspaceId || !UUID_REGEX.test(workspaceId)) {
+      const wsValidation = workspaceIdSchema.safeParse(workspaceId);
+      if (!wsValidation.success) {
         setError("Workspace не загружен. Подождите или обновите страницу.");
         setStatus("idle");
         return null;

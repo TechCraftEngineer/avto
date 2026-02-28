@@ -7,6 +7,7 @@ import React from "react";
 import type { Resolver } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { z } from "zod";
 import { type GigDocument, useGigChat } from "~/hooks/use-gig-chat";
 import { useWorkspace } from "~/hooks/use-workspace";
 import { useORPC } from "~/orpc/react";
@@ -30,6 +31,10 @@ export interface UseCreateGigOptions {
   workspaceSlug: string;
 }
 
+const messageSchema = z.string().trim().min(1, "Введите сообщение").max(2000);
+
+const RATE_LIMIT_MS = 1000;
+
 const initialDraft: GigDraft = {
   title: "",
   description: "",
@@ -48,6 +53,8 @@ export function useCreateGig({ orgSlug, workspaceSlug }: UseCreateGigOptions) {
   const { workspace, isLoading: isWorkspaceLoading } = useWorkspace();
 
   const isMountedRef = React.useRef(true);
+  const lastMessageTimestampRef = React.useRef(0);
+  const conversationMessagesRef = React.useRef<ConversationMessage[]>([]);
 
   const [draft, setDraft] = React.useState<GigDraft>(initialDraft);
   const [showForm, setShowForm] = React.useState(false);
@@ -56,11 +63,17 @@ export function useCreateGig({ orgSlug, workspaceSlug }: UseCreateGigOptions) {
   >([]);
 
   React.useEffect(() => {
+    conversationMessagesRef.current = conversationMessages;
+  }, [conversationMessages]);
+
+  React.useEffect(() => {
     return () => {
       isMountedRef.current = false;
     };
   }, []);
 
+  // Workaround: приведение типа необходимо из-за несовместимости zodResolver
+  // с Generic Resolver<FormValues> в useForm; убрать после обновления @hookform/resolvers
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema) as Resolver<FormValues>,
     defaultValues: {
@@ -118,14 +131,28 @@ export function useCreateGig({ orgSlug, workspaceSlug }: UseCreateGigOptions) {
         return;
       }
 
+      const parsed = messageSchema.safeParse(message);
+      if (!parsed.success) {
+        toast.error(parsed.error.errors[0]?.message ?? "Неверное сообщение");
+        return;
+      }
+      const trimmedMessage = parsed.data;
+
+      const now = Date.now();
+      if (now - lastMessageTimestampRef.current < RATE_LIMIT_MS) {
+        toast.error("Подождите перед следующим сообщением");
+        return;
+      }
+      lastMessageTimestampRef.current = now;
+
       const userMsg: ConversationMessage = {
         id: crypto.randomUUID(),
         role: "user",
-        content: message,
+        content: trimmedMessage,
       };
       setConversationMessages((prev) => [...prev, userMsg]);
 
-      const history = [...conversationMessages, userMsg].slice(-10);
+      const history = [...conversationMessagesRef.current, userMsg].slice(-10);
       const historyForApi = history.map(({ role, content }) => ({
         role,
         content,
@@ -133,7 +160,7 @@ export function useCreateGig({ orgSlug, workspaceSlug }: UseCreateGigOptions) {
 
       try {
         const result = await sendMessage(
-          message,
+          trimmedMessage,
           {
             title: draft.title,
             description: draft.description,
@@ -186,7 +213,7 @@ export function useCreateGig({ orgSlug, workspaceSlug }: UseCreateGigOptions) {
         if (gigChatError) toast.error(gigChatError);
       }
     },
-    [workspace?.id, draft, sendMessage, conversationMessages, gigChatError],
+    [workspace?.id, draft, sendMessage, gigChatError],
   );
 
   const handleReset = React.useCallback(() => {
@@ -253,14 +280,7 @@ export function useCreateGig({ orgSlug, workspaceSlug }: UseCreateGigOptions) {
     setShowForm((prev) => !prev);
   }, [form, draft]);
 
-  const chatMessages = React.useMemo(() => {
-    return conversationMessages.map((m) => ({
-      id: m.id,
-      role: m.role,
-      content: m.content,
-      quickReplies: m.quickReplies,
-    }));
-  }, [conversationMessages]);
+  const chatMessages = conversationMessages;
 
   return {
     draft,
