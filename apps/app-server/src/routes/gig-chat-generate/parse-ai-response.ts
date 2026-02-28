@@ -4,6 +4,12 @@ import {
   gigAIResponseSchema,
 } from "./types";
 
+export interface ValidationErrorDetail {
+  path?: string;
+  message: string;
+  code?: string;
+}
+
 function getStringFromDoc(text: string, field: string): string {
   const regex = new RegExp(
     `"${field}"\\s*:\\s*"((?:[^"\\\\]|\\\\.)*)(?:"|$)`,
@@ -78,7 +84,7 @@ export function parseGigAIResponse(
 ): {
   response: GigAIResponse;
   isComplete: boolean;
-  validationErrors?: unknown;
+  validationErrors?: ValidationErrorDetail[];
 } {
   let cleanText = text.trim();
   if (cleanText.startsWith("```json")) {
@@ -182,10 +188,20 @@ export function parseGigAIResponse(
     if (validated.success) {
       return { response: validated.data, isComplete: true };
     }
+    const flat = validated.error.flatten();
+    const validationErrors: ValidationErrorDetail[] = [];
+    if (flat.formErrors.length) {
+      validationErrors.push(...flat.formErrors.map((m) => ({ message: m })));
+    }
+    for (const [path, msgs] of Object.entries(flat.fieldErrors)) {
+      for (const m of Array.isArray(msgs) ? msgs : [msgs]) {
+        if (m) validationErrors.push({ path, message: String(m) });
+      }
+    }
     return {
       response,
       isComplete: false,
-      validationErrors: validated.error.flatten(),
+      validationErrors,
     };
   } catch {
     return {

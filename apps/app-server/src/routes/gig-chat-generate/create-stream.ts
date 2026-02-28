@@ -6,7 +6,11 @@ import {
 import { streamText } from "@qbs-autonaim/lib/ai";
 import { buildGigPrompt } from "./build-prompt";
 import { parseGigAIResponse } from "./parse-ai-response";
-import type { GigAIResponse, GigDocument } from "./types";
+import {
+  GIG_CHAT_MESSAGE_MAX_LENGTH,
+  type GigAIResponse,
+  type GigDocument,
+} from "./types";
 
 const GIG_FIELD_LIMITS = {
   title: 200,
@@ -86,7 +90,10 @@ export function createGigStream(params: CreateGigStreamParams): ReadableStream {
   const { message, currentDocument, conversationHistory, companySettings } =
     params;
 
-  const sanitizedMessage = truncateText(sanitizePromptText(message), 5000);
+  const sanitizedMessage = truncateText(
+    sanitizePromptText(message),
+    GIG_CHAT_MESSAGE_MAX_LENGTH,
+  );
   const sanitizedHistory = conversationHistory
     ? conversationHistory
         .slice(0, 10)
@@ -140,7 +147,7 @@ export function createGigStream(params: CreateGigStreamParams): ReadableStream {
               );
               const sanitizedMsg = filterAIContent(
                 partialResponse.message,
-                2000,
+                GIG_CHAT_MESSAGE_MAX_LENGTH,
               );
               controller.enqueue(
                 encoder.encode(
@@ -160,7 +167,10 @@ export function createGigStream(params: CreateGigStreamParams): ReadableStream {
           currentDocument,
         );
         const sanitizedDoc = sanitizeGigDocument(finalResponse.document);
-        const sanitizedMsg = filterAIContent(finalResponse.message, 2000);
+        const sanitizedMsg = filterAIContent(
+          finalResponse.message,
+          GIG_CHAT_MESSAGE_MAX_LENGTH,
+        );
         const sanitizedReplies = (finalResponse.quickReplies ?? [])
           .slice(0, 5)
           .map((r) => filterAIContent(r, 100));
@@ -192,7 +202,10 @@ export function createGigStream(params: CreateGigStreamParams): ReadableStream {
           currentDocument,
         );
         const sanitizedDoc = sanitizeGigDocument(recoveredResponse.document);
-        const sanitizedMsg = filterAIContent(recoveredResponse.message, 2000);
+        const sanitizedMsg = filterAIContent(
+          recoveredResponse.message,
+          GIG_CHAT_MESSAGE_MAX_LENGTH,
+        );
         const sanitizedReplies = (recoveredResponse.quickReplies ?? [])
           .slice(0, 5)
           .map((r) => filterAIContent(r, 100));

@@ -51,7 +51,26 @@ export async function handleGigChatGenerate(c: Context) {
     const { workspaceId, message, currentDocument, conversationHistory } =
       validationResult.data;
 
-    const rateLimitKey = `gig-chat:${session.user.id}:${workspaceId}`;
+    const workspaceData = await db.query.workspace.findFirst({
+      where: eq(workspace.id, workspaceId),
+      with: {
+        members: {
+          where: eq(workspaceMember.userId, session.user.id),
+        },
+      },
+    });
+
+    if (
+      !workspaceData ||
+      !workspaceData.members ||
+      workspaceData.members.length === 0
+    ) {
+      return c.json({ error: "Нет доступа к рабочему пространству" }, 403);
+    }
+
+    // Rate limit after validation — use validated workspaceId to prevent bypass
+    const workspaceIdForLimit = workspaceId;
+    const rateLimitKey = `gig-chat:${session.user.id}:${workspaceIdForLimit}`;
     const rateLimitResult = getRateLimiter().check(rateLimitKey, 10, 60_000);
     if (!rateLimitResult.allowed) {
       const resetInSeconds = Math.max(
@@ -70,23 +89,6 @@ export async function handleGigChatGenerate(c: Context) {
           },
         },
       );
-    }
-
-    const workspaceData = await db.query.workspace.findFirst({
-      where: eq(workspace.id, workspaceId),
-      with: {
-        members: {
-          where: eq(workspaceMember.userId, session.user.id),
-        },
-      },
-    });
-
-    if (
-      !workspaceData ||
-      !workspaceData.members ||
-      workspaceData.members.length === 0
-    ) {
-      return c.json({ error: "Нет доступа к рабочему пространству" }, 403);
     }
 
     const botSettingsRow = await db.query.botSettings.findFirst({

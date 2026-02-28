@@ -4,6 +4,7 @@ import {
   gig,
   interviewScoring,
   interviewSession,
+  responseScheduledInterview as responseScheduledInterviewTable,
   response as responseTable,
 } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
@@ -77,6 +78,11 @@ export const get = protectedProcedure
         })
       : null;
 
+    const scheduledInterview =
+      await context.db.query.responseScheduledInterview.findFirst({
+        where: eq(responseScheduledInterviewTable.responseId, response.id),
+      });
+
     return {
       ...response,
       gig: existingGig
@@ -102,5 +108,12 @@ export const get = protectedProcedure
           }
         : null,
       interviewSession: sessionData,
+      scheduledInterview: scheduledInterview
+        ? {
+            scheduledAt: scheduledInterview.scheduledAt,
+            durationMinutes: scheduledInterview.durationMinutes,
+            calendarEventUrl: scheduledInterview.calendarEventUrl,
+          }
+        : null,
     };
   });

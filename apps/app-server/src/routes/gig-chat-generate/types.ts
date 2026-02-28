@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+/** Максимальная длина сообщения в запросе gig-chat (должна совпадать в schema и truncate) */
+export const GIG_CHAT_MESSAGE_MAX_LENGTH = 2000;
+
 export interface GigDocument {
   title?: string;
   description?: string;
@@ -36,7 +39,7 @@ export const gigChatRequestSchema = z.object({
     .string()
     .trim()
     .min(1, "Сообщение не должно быть пустым")
-    .max(2000),
+    .max(GIG_CHAT_MESSAGE_MAX_LENGTH),
   currentDocument: z
     .object({
       title: z.string().max(200).optional(),
@@ -51,7 +54,7 @@ export const gigChatRequestSchema = z.object({
     .array(
       z.object({
         role: z.enum(["user", "assistant"]),
-        content: z.string().trim().min(1).max(2000),
+        content: z.string().trim().min(1).max(GIG_CHAT_MESSAGE_MAX_LENGTH),
       }),
     )
     .max(20)

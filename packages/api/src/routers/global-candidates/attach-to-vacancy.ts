@@ -11,30 +11,20 @@ import {
   response as responseTable,
   vacancy,
 } from "@qbs-autonaim/db/schema";
-import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
-import { protectedProcedure } from "../../orpc";
-import { verifyWorkspaceAccess } from "../../utils/verify-workspace-access";
+import { workspaceInputSchema, workspaceProcedure } from "../../orpc";
 
-const inputSchema = z.object({
-  candidateId: z.string().uuid("ID кандидата должен быть UUID"),
-  vacancyId: z.string().uuid("ID вакансии должен быть UUID"),
-  workspaceId: workspaceIdSchema,
-});
+const attachInputSchema = workspaceInputSchema.merge(
+  z.object({
+    candidateId: z.string().uuid("ID кандидата должен быть UUID"),
+    vacancyId: z.string().uuid("ID вакансии должен быть UUID"),
+  }),
+);
 
-export const attachToVacancy = protectedProcedure
-  .input(inputSchema)
+export const attachToVacancy = workspaceProcedure
+  .input(attachInputSchema)
   .handler(async ({ context, input }) => {
-    const userId = context.session.user.id;
-
-    // 1. Проверяем доступ к workspace
-    await verifyWorkspaceAccess(
-      context.workspaceRepository,
-      input.workspaceId,
-      userId,
-    );
-
-    // 2. Проверяем, что вакансия существует и принадлежит workspace
+    // 1. Проверяем, что вакансия существует и принадлежит workspace (workspaceProcedure уже проверил доступ)
     const vacancyRow = await context.db.query.vacancy.findFirst({
       where: and(
         eq(vacancy.id, input.vacancyId),
@@ -55,7 +45,7 @@ export const attachToVacancy = protectedProcedure
 
     const organizationId = vacancyRow.workspace.organizationId;
 
-    // 3. Проверяем, что кандидат существует
+    // 2. Проверяем, что кандидат существует
     const candidateRow = await context.db.query.globalCandidate.findFirst({
       where: eq(globalCandidate.id, input.candidateId),
     });
@@ -66,7 +56,7 @@ export const attachToVacancy = protectedProcedure
       });
     }
 
-    // 4. Проверяем, что кандидат привязан к организации
+    // 3. Проверяем, что кандидат привязан к организации
     const orgLink = await context.db.query.candidateOrganization.findFirst({
       where: and(
         eq(candidateOrganization.candidateId, input.candidateId),
@@ -81,7 +71,7 @@ export const attachToVacancy = protectedProcedure
       });
     }
 
-    // 5. Проверяем, нет ли уже отклика на эту вакансию
+    // 4. Проверяем, нет ли уже отклика на эту вакансию
     const candidateIdForResponse = `gc-${input.candidateId}`;
     const existingResponse = await context.db.query.response.findFirst({
       where: and(
@@ -97,7 +87,7 @@ export const attachToVacancy = protectedProcedure
       });
     }
 
-    // 6. Создаём response
+    // 5. Создаём response
     const [newResponse] = await context.db
       .insert(responseTable)
       .values({

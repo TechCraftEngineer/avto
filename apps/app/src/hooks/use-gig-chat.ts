@@ -254,7 +254,7 @@ export function useGigChat({
             }
 
             if (chunk.data.done) {
-              const finalDoc = chunk.data.document as GigDocument | undefined;
+              const finalDoc = chunk.data.document;
               finalDocument = {
                 ...(finalDocument ?? currentDocument ?? {}),
                 ...(finalDoc ?? {}),

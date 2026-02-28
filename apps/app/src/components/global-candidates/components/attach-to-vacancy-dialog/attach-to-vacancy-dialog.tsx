@@ -23,6 +23,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { Briefcase, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useWorkspaceContext } from "~/contexts/workspace-context";
 import { useORPC } from "~/orpc/react";
@@ -76,11 +77,17 @@ export function AttachToVacancyDialog({
     }),
   );
 
-  const handleAttach = (vacancyId: string) => {
-    if (!candidate?.id || !workspaceId) return;
+  const [selectedVacancy, setSelectedVacancy] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!open) setSelectedVacancy(null);
+  }, [open]);
+
+  const handleAttach = () => {
+    if (!candidate?.id || !workspaceId || !selectedVacancy) return;
     attachMutation.mutate({
       candidateId: candidate.id,
-      vacancyId,
+      vacancyId: selectedVacancy,
       workspaceId,
     });
   };
@@ -117,7 +124,7 @@ export function AttachToVacancyDialog({
             <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-8 text-center">
               <Briefcase className="mb-2 h-10 w-10 text-muted-foreground" />
               <p className="text-sm text-muted-foreground">
-                Нет активных вакансий в текущем workspace
+                Нет активных вакансий в текущей рабочей области
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
                 Создайте вакансию, чтобы прикрепить к ней кандидата
@@ -125,7 +132,8 @@ export function AttachToVacancyDialog({
             </div>
           ) : (
             <Select
-              onValueChange={handleAttach}
+              onValueChange={setSelectedVacancy}
+              value={selectedVacancy ?? ""}
               disabled={attachMutation.isPending}
             >
               <SelectTrigger className="w-full">
@@ -154,6 +162,25 @@ export function AttachToVacancyDialog({
             disabled={attachMutation.isPending}
           >
             Отмена
+          </Button>
+          <Button
+            onClick={handleAttach}
+            disabled={
+              !selectedVacancy ||
+              attachMutation.isPending ||
+              !candidate?.id ||
+              !workspaceId
+            }
+            aria-busy={attachMutation.isPending}
+          >
+            {attachMutation.isPending ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                Прикрепить
+              </>
+            ) : (
+              "Прикрепить"
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -9,6 +9,7 @@ import { vacancy } from "../vacancy/vacancy";
 import { response } from "./response";
 import { responseComment } from "./response-comment";
 import { responseHistory } from "./response-history";
+import { responseScheduledInterview } from "./response-scheduled-interview";
 import { responseScreening } from "./response-screening";
 import { responseTag } from "./response-tag";
 
@@ -48,6 +49,10 @@ export const responseRelations = relations(response, ({ one, many }) => ({
   interviewScoring: one(interviewScoring, {
     fields: [response.id],
     references: [interviewScoring.responseId],
+  }),
+  scheduledInterview: one(responseScheduledInterview, {
+    fields: [response.id],
+    references: [responseScheduledInterview.responseId],
   }),
   interviewSessions: many(interviewSession),
   comments: many(responseComment),
@@ -99,3 +104,13 @@ export const responseTagRelations = relations(responseTag, ({ one }) => ({
     references: [response.id],
   }),
 }));
+
+export const responseScheduledInterviewRelations = relations(
+  responseScheduledInterview,
+  ({ one }) => ({
+    response: one(response, {
+      fields: [responseScheduledInterview.responseId],
+      references: [response.id],
+    }),
+  }),
+);

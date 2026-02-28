@@ -15,6 +15,13 @@
       "when": 1772025418482,
       "tag": "0001_curious_magdalene",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1772269872316,
+      "tag": "0002_tough_terror",
+      "breakpoints": true
     }
   ]
 }
