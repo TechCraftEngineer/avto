@@ -3,6 +3,7 @@ import { and, eq } from "@qbs-autonaim/db";
 import {
   interviewScoring as interviewScoringTable,
   interviewSession,
+  responseScheduledInterview as responseScheduledInterviewTable,
   responseScreening as responseScreeningTable,
   response as responseTable,
   vacancy as vacancyTable,
@@ -90,6 +91,11 @@ export const get = protectedProcedure
         where: eq(interviewScoringTable.responseId, response.id),
       });
 
+    const scheduledInterview =
+      await context.db.query.responseScheduledInterview.findFirst({
+        where: eq(responseScheduledInterviewTable.responseId, response.id),
+      });
+
     let resumePdfUrl: string | null = null;
     if (resumePdfFile) {
       resumePdfUrl = await getDownloadUrl(resumePdfFile.key);
@@ -153,6 +159,13 @@ export const get = protectedProcedure
               : null,
           } as unknown)
         : undefined,
+      scheduledInterview: scheduledInterview
+        ? {
+            scheduledAt: scheduledInterview.scheduledAt,
+            durationMinutes: scheduledInterview.durationMinutes,
+            calendarEventUrl: scheduledInterview.calendarEventUrl,
+          }
+        : null,
       globalCandidateId: null,
     };
   });

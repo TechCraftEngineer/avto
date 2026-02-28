@@ -2,6 +2,7 @@ import { ORPCError } from "@orpc/server";
 import {
   getUserIntegration,
   getUserIntegrationCredentials,
+  responseScheduledInterview,
   updateUserIntegrationCredentials,
   updateUserIntegrationLastUsed,
 } from "@qbs-autonaim/db";
@@ -170,6 +171,26 @@ export const createEvent = protectedProcedure
       context.session.user.id,
       "google_calendar",
     );
+
+    // Сохраняем снимок в БД для отображения в приложении
+    await context.db
+      .insert(responseScheduledInterview)
+      .values({
+        responseId: input.responseId,
+        scheduledAt: input.scheduledAt,
+        durationMinutes: input.durationMinutes,
+        calendarEventId: result.id,
+        calendarEventUrl: result.htmlLink,
+      })
+      .onConflictDoUpdate({
+        target: responseScheduledInterview.responseId,
+        set: {
+          scheduledAt: input.scheduledAt,
+          durationMinutes: input.durationMinutes,
+          calendarEventId: result.id,
+          calendarEventUrl: result.htmlLink,
+        },
+      });
 
     return {
       eventId: result.id,

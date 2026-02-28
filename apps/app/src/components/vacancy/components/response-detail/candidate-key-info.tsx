@@ -1,5 +1,6 @@
 import { Button } from "@qbs-autonaim/ui/components/button";
 import {
+  CalendarClock,
   ChevronDown,
   ChevronUp,
   Download,
@@ -46,16 +47,29 @@ function KeyInfoRow({
   );
 }
 
+function formatScheduledInterview(date: Date): string {
+  return new Intl.DateTimeFormat("ru-RU", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(date));
+}
+
 export function CandidateKeyInfo({
   response,
   resumePdfUrl,
 }: CandidateKeyInfoProps) {
   const [isSalaryCommentExpanded, setIsSalaryCommentExpanded] = useState(false);
 
+  const scheduledInterview =
+    "scheduledInterview" in response ? response.scheduledInterview : null;
+
   const hasResume = response.resumeId || resumePdfUrl;
   const hasProfile = response.profileUrl;
   const hasSalary = Boolean(response.salaryExpectationsAmount);
-  const hasAny = hasResume || hasProfile || hasSalary;
+  const hasScheduledInterview = !!scheduledInterview?.scheduledAt;
+  const hasAny = hasResume || hasProfile || hasSalary || hasScheduledInterview;
 
   if (!hasAny) return null;
 
@@ -63,6 +77,32 @@ export function CandidateKeyInfo({
     <div className="p-4 bg-muted/30 rounded-lg border">
       <h3 className="text-sm font-medium mb-1">Ключевая информация</h3>
       <div className="space-y-0">
+        {hasScheduledInterview && scheduledInterview && (
+          <KeyInfoRow icon={CalendarClock} label="Собеседование">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-medium">
+                {formatScheduledInterview(scheduledInterview.scheduledAt)}
+              </span>
+              {scheduledInterview.calendarEventUrl && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  asChild
+                  className="h-7 text-xs shrink-0"
+                >
+                  <a
+                    href={scheduledInterview.calendarEventUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5 mr-1.5" />В календаре
+                  </a>
+                </Button>
+              )}
+            </div>
+          </KeyInfoRow>
+        )}
+
         {hasResume && (
           <KeyInfoRow icon={FileText} label="Резюме">
             <div className="flex flex-wrap items-center gap-2">
