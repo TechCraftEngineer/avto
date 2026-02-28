@@ -1,6 +1,7 @@
 import { addTag } from "./add-tag";
 import { analyzeSingle } from "./analyze-single";
 import { compare } from "./compare";
+import { createInteraction } from "./create-interaction";
 import { debugList } from "./debug-list";
 import { exportPdf } from "./export-pdf";
 import { get } from "./get";
@@ -10,6 +11,7 @@ import { getRefreshStatus } from "./get-refresh-status";
 import { getHistory } from "./history";
 import { list } from "./list";
 import { listAll } from "./list-all";
+import { listInteractions } from "./list-interactions";
 import { listNeedsReview } from "./list-needs-review";
 import { listRecent } from "./list-recent";
 import { listTags } from "./list-tags";
@@ -42,4 +44,6 @@ export const responsesRouter = {
   updateStatus,
   exportPdf,
   debugList, // Временный debug endpoint
+  listInteractions,
+  createInteraction,
 };

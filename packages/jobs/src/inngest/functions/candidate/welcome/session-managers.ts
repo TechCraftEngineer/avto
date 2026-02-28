@@ -1,4 +1,4 @@
-import { eq, logResponseEvent } from "@qbs-autonaim/db";
+import { eq, logResponseEvent, logResponseInteraction } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import {
   interviewMessage,
@@ -106,5 +106,13 @@ export const updateWelcomeSent = async (responseId: string, chatId: string) => {
     responseId,
     eventType: "WELCOME_SENT",
     metadata: { chatId },
+  });
+
+  await logResponseInteraction({
+    db,
+    responseId,
+    interactionType: "welcome_sent",
+    source: "auto",
+    channel: "telegram",
   });
 };

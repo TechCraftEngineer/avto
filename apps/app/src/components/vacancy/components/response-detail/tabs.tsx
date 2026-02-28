@@ -14,6 +14,7 @@ import {
 } from "@qbs-autonaim/ui/components/tabs";
 import {
   DialogTab,
+  InteractionsTab,
   InterviewScoringCard,
   ScreeningResultsCard,
   VacancyProposalTab,
@@ -37,7 +38,7 @@ export function VacancyResponseTabs({
     <Card>
       <Tabs defaultValue={defaultTab} className="w-full">
         <CardHeader className="pb-3">
-          <TabsList className="grid w-full h-auto gap-1 p-1 grid-cols-3 sm:grid-cols-6">
+          <TabsList className="grid w-full h-auto gap-1 p-1 grid-cols-4 sm:grid-cols-7">
             <TabsTrigger
               value="analysis"
               className="min-h-11 sm:min-h-9 text-xs sm:text-sm touch-manipulation"
@@ -73,6 +74,12 @@ export function VacancyResponseTabs({
               className="min-h-11 sm:min-h-9 text-xs sm:text-sm touch-manipulation"
             >
               Контакты
+            </TabsTrigger>
+            <TabsTrigger
+              value="interactions"
+              className="min-h-11 sm:min-h-9 text-xs sm:text-sm touch-manipulation"
+            >
+              Взаимодействия
             </TabsTrigger>
           </TabsList>
         </CardHeader>
@@ -160,6 +167,14 @@ export function VacancyResponseTabs({
           {/* Contacts Tab */}
           <TabsContent value="contacts" className="space-y-3 sm:space-y-4 mt-0">
             <VacancyContactsTab response={response} />
+          </TabsContent>
+
+          {/* Interactions Tab */}
+          <TabsContent
+            value="interactions"
+            className="space-y-3 sm:space-y-4 mt-0"
+          >
+            <InteractionsTab responseId={response.id} />
           </TabsContent>
         </CardContent>
       </Tabs>

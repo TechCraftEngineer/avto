@@ -1,5 +1,5 @@
 import { env } from "@qbs-autonaim/config";
-import { eq, inArray } from "@qbs-autonaim/db";
+import { eq, inArray, logResponseInteraction } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import {
   interviewMessage,
@@ -210,6 +210,14 @@ export const sendCandidateWelcomeBatchFunction = inngest.createFunction(
                   })
                   .where(eq(response.id, responseItem.id));
 
+                await logResponseInteraction({
+                  db,
+                  responseId: responseItem.id,
+                  interactionType: "welcome_sent",
+                  source: "auto",
+                  channel: "other",
+                });
+
                 return {
                   responseId: responseItem.id,
                   username: responseItem.telegramUsername,
@@ -327,6 +335,14 @@ export const sendCandidateWelcomeBatchFunction = inngest.createFunction(
                 welcomeSentAt: new Date(),
               })
               .where(eq(response.id, responseItem.id));
+
+            await logResponseInteraction({
+              db,
+              responseId: responseItem.id,
+              interactionType: "welcome_sent",
+              source: "auto",
+              channel: "telegram",
+            });
 
             console.log(
               `✅ Приветствие отправлено: ${responseItem.id} (@${responseItem.telegramUsername})`,

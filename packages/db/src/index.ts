@@ -24,6 +24,7 @@ export * from "./repositories/integration";
 export * from "./repositories/organization.repository";
 export * from "./repositories/response.repository";
 export * from "./repositories/response-history";
+export * from "./repositories/response-interaction-log";
 export * from "./repositories/user-integration";
 export { WorkspaceRepository } from "./repositories/workspace.repository";
 // Schema - keeping as * since schema files are typically imported entirely

@@ -9,6 +9,7 @@ import { vacancy } from "../vacancy/vacancy";
 import { response } from "./response";
 import { responseComment } from "./response-comment";
 import { responseHistory } from "./response-history";
+import { responseInteractionLog } from "./response-interaction-log";
 import { responseScheduledInterview } from "./response-scheduled-interview";
 import { responseScreening } from "./response-screening";
 import { responseTag } from "./response-tag";
@@ -57,6 +58,7 @@ export const responseRelations = relations(response, ({ one, many }) => ({
   interviewSessions: many(interviewSession),
   comments: many(responseComment),
   history: many(responseHistory),
+  interactionLog: many(responseInteractionLog),
   tags: many(responseTag),
 }));
 
@@ -93,6 +95,20 @@ export const responseHistoryRelations = relations(
     }),
     user: one(user, {
       fields: [responseHistory.userId],
+      references: [user.id],
+    }),
+  }),
+);
+
+export const responseInteractionLogRelations = relations(
+  responseInteractionLog,
+  ({ one }) => ({
+    response: one(response, {
+      fields: [responseInteractionLog.responseId],
+      references: [response.id],
+    }),
+    createdByUser: one(user, {
+      fields: [responseInteractionLog.createdByUserId],
       references: [user.id],
     }),
   }),
