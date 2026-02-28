@@ -147,7 +147,7 @@ export function createGigStream(params: CreateGigStreamParams): ReadableStream {
               );
               const sanitizedMsg = filterAIContent(
                 partialResponse.message,
-                2000,
+                GIG_CHAT_MESSAGE_MAX_LENGTH,
               );
               controller.enqueue(
                 encoder.encode(
@@ -167,7 +167,10 @@ export function createGigStream(params: CreateGigStreamParams): ReadableStream {
           currentDocument,
         );
         const sanitizedDoc = sanitizeGigDocument(finalResponse.document);
-        const sanitizedMsg = filterAIContent(finalResponse.message, 2000);
+        const sanitizedMsg = filterAIContent(
+          finalResponse.message,
+          GIG_CHAT_MESSAGE_MAX_LENGTH,
+        );
         const sanitizedReplies = (finalResponse.quickReplies ?? [])
           .slice(0, 5)
           .map((r) => filterAIContent(r, 100));
@@ -199,7 +202,10 @@ export function createGigStream(params: CreateGigStreamParams): ReadableStream {
           currentDocument,
         );
         const sanitizedDoc = sanitizeGigDocument(recoveredResponse.document);
-        const sanitizedMsg = filterAIContent(recoveredResponse.message, 2000);
+        const sanitizedMsg = filterAIContent(
+          recoveredResponse.message,
+          GIG_CHAT_MESSAGE_MAX_LENGTH,
+        );
         const sanitizedReplies = (recoveredResponse.quickReplies ?? [])
           .slice(0, 5)
           .map((r) => filterAIContent(r, 100));

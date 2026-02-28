@@ -48,12 +48,14 @@ function KeyInfoRow({
 }
 
 function formatScheduledInterview(date: Date): string {
+  const d = new Date(date);
+  if (!Number.isFinite(d.getTime())) return "—";
   return new Intl.DateTimeFormat("ru-RU", {
     day: "numeric",
     month: "short",
     hour: "2-digit",
     minute: "2-digit",
-  }).format(new Date(date));
+  }).format(d);
 }
 
 export function CandidateKeyInfo({
@@ -88,14 +90,19 @@ export function CandidateKeyInfo({
                   variant="outline"
                   size="sm"
                   asChild
-                  className="h-7 text-xs shrink-0"
+                  className="min-h-[44px] sm:min-h-9 text-xs shrink-0"
                 >
                   <a
                     href={scheduledInterview.calendarEventUrl}
                     target="_blank"
                     rel="noopener noreferrer"
+                    aria-label="Открыть в календаре"
                   >
-                    <ExternalLink className="h-3.5 w-3.5 mr-1.5" />В календаре
+                    <ExternalLink
+                      className="h-3.5 w-3.5 mr-1.5"
+                      aria-hidden="true"
+                    />
+                    В календаре
                   </a>
                 </Button>
               )}

@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
-  index,
+  check,
   integer,
   pgTable,
   timestamp,
@@ -33,7 +33,10 @@ export const responseScheduledInterview = pgTable(
       .notNull(),
   },
   (table) => [
-    index("response_scheduled_interview_response_idx").on(table.responseId),
+    check(
+      "response_scheduled_interview_duration_check",
+      sql`${table.durationMinutes} > 0`,
+    ),
   ],
 );
 

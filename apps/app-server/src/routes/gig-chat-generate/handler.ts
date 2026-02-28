@@ -36,34 +36,6 @@ export async function handleGigChatGenerate(c: Context) {
       );
     }
 
-    const rawWorkspaceId =
-      body && typeof body === "object" && "workspaceId" in body
-        ? (body as { workspaceId?: unknown }).workspaceId
-        : undefined;
-    const workspaceIdForLimit =
-      typeof rawWorkspaceId === "string" ? rawWorkspaceId : "unknown";
-
-    const rateLimitKey = `gig-chat:${session.user.id}:${workspaceIdForLimit}`;
-    const rateLimitResult = getRateLimiter().check(rateLimitKey, 10, 60_000);
-    if (!rateLimitResult.allowed) {
-      const resetInSeconds = Math.max(
-        1,
-        Math.ceil((rateLimitResult.resetAt - Date.now()) / 1000),
-      );
-      return c.json(
-        {
-          error: "Превышен лимит запросов",
-          retryAfter: resetInSeconds,
-        },
-        {
-          status: 429,
-          headers: {
-            "Retry-After": resetInSeconds.toString(),
-          },
-        },
-      );
-    }
-
     const validationResult = gigChatRequestSchema.safeParse(body);
 
     if (!validationResult.success) {
@@ -94,6 +66,29 @@ export async function handleGigChatGenerate(c: Context) {
       workspaceData.members.length === 0
     ) {
       return c.json({ error: "Нет доступа к рабочему пространству" }, 403);
+    }
+
+    // Rate limit after validation — use validated workspaceId to prevent bypass
+    const workspaceIdForLimit = workspaceId;
+    const rateLimitKey = `gig-chat:${session.user.id}:${workspaceIdForLimit}`;
+    const rateLimitResult = getRateLimiter().check(rateLimitKey, 10, 60_000);
+    if (!rateLimitResult.allowed) {
+      const resetInSeconds = Math.max(
+        1,
+        Math.ceil((rateLimitResult.resetAt - Date.now()) / 1000),
+      );
+      return c.json(
+        {
+          error: "Превышен лимит запросов",
+          retryAfter: resetInSeconds,
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": resetInSeconds.toString(),
+          },
+        },
+      );
     }
 
     const botSettingsRow = await db.query.botSettings.findFirst({

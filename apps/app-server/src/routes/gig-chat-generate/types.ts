@@ -54,7 +54,7 @@ export const gigChatRequestSchema = z.object({
     .array(
       z.object({
         role: z.enum(["user", "assistant"]),
-        content: z.string().trim().min(1).max(2000),
+        content: z.string().trim().min(1).max(GIG_CHAT_MESSAGE_MAX_LENGTH),
       }),
     )
     .max(20)

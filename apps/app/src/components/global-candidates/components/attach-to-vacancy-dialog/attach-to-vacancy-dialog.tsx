@@ -171,9 +171,13 @@ export function AttachToVacancyDialog({
               !candidate?.id ||
               !workspaceId
             }
+            aria-busy={attachMutation.isPending}
           >
             {attachMutation.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <>
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                Прикрепить
+              </>
             ) : (
               "Прикрепить"
             )}

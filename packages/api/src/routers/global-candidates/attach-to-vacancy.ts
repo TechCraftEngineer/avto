@@ -24,7 +24,7 @@ const attachInputSchema = workspaceInputSchema.merge(
 export const attachToVacancy = workspaceProcedure
   .input(attachInputSchema)
   .handler(async ({ context, input }) => {
-    // 1. Проверяем, что вакансия существует и принадлежит workspace
+    // 1. Проверяем, что вакансия существует и принадлежит workspace (workspaceProcedure уже проверил доступ)
     const vacancyRow = await context.db.query.vacancy.findFirst({
       where: and(
         eq(vacancy.id, input.vacancyId),
@@ -45,7 +45,7 @@ export const attachToVacancy = workspaceProcedure
 
     const organizationId = vacancyRow.workspace.organizationId;
 
-    // 3. Проверяем, что кандидат существует
+    // 2. Проверяем, что кандидат существует
     const candidateRow = await context.db.query.globalCandidate.findFirst({
       where: eq(globalCandidate.id, input.candidateId),
     });
@@ -56,7 +56,7 @@ export const attachToVacancy = workspaceProcedure
       });
     }
 
-    // 4. Проверяем, что кандидат привязан к организации
+    // 3. Проверяем, что кандидат привязан к организации
     const orgLink = await context.db.query.candidateOrganization.findFirst({
       where: and(
         eq(candidateOrganization.candidateId, input.candidateId),
@@ -71,7 +71,7 @@ export const attachToVacancy = workspaceProcedure
       });
     }
 
-    // 5. Проверяем, нет ли уже отклика на эту вакансию
+    // 4. Проверяем, нет ли уже отклика на эту вакансию
     const candidateIdForResponse = `gc-${input.candidateId}`;
     const existingResponse = await context.db.query.response.findFirst({
       where: and(
@@ -87,7 +87,7 @@ export const attachToVacancy = workspaceProcedure
       });
     }
 
-    // 6. Создаём response
+    // 5. Создаём response
     const [newResponse] = await context.db
       .insert(responseTable)
       .values({
