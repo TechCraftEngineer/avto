@@ -4,14 +4,20 @@ import {
   type interactionTypeValues,
   responseInteractionLog,
 } from "@qbs-autonaim/db/schema";
+import { z } from "zod";
 
 type InteractionType = (typeof interactionTypeValues)[number];
 type InteractionChannel = (typeof interactionChannelValues)[number];
 
-interface ResponseForInteractions {
-  id: string;
-  respondedAt: Date | null;
-}
+const loadResponseInteractionsInputSchema = z.object({
+  responses: z.array(
+    z.object({
+      id: z.string().uuid(),
+      respondedAt: z.date().nullable(),
+    }),
+  ),
+  recruiterId: z.string().min(1, "recruiterId обязателен"),
+});
 
 const DEMO_INTERACTIONS: Array<{
   type: InteractionType;
@@ -59,9 +65,20 @@ function addDays(date: Date, days: number): Date {
 }
 
 export async function loadResponseInteractions(
-  responses: ResponseForInteractions[],
+  responses: Array<{ id: string; respondedAt: Date | null }>,
   recruiterId: string,
 ): Promise<number> {
+  const parsed = loadResponseInteractionsInputSchema.safeParse({
+    responses,
+    recruiterId,
+  });
+  if (!parsed.success) {
+    const msg = parsed.error.errors.map((e) => e.message).join("; ");
+    throw new Error(`loadResponseInteractions: неверные аргументы — ${msg}`);
+  }
+
+  const { responses: validResponses } = parsed.data;
+
   console.log("\n📋 Загружаем хронологию взаимодействий для откликов...");
 
   const baseDate = new Date();
@@ -77,8 +94,8 @@ export async function loadResponseInteractions(
     note: string | null;
   }> = [];
 
-  for (let i = 0; i < responses.length; i++) {
-    const resp = responses[i];
+  for (let i = 0; i < validResponses.length; i++) {
+    const resp = validResponses[i];
     if (!resp) continue;
     const respondedAt = resp.respondedAt ?? baseDate;
 
@@ -98,7 +115,8 @@ export async function loadResponseInteractions(
     }
 
     if (i % 3 === 0) {
-      const extra = EXTRA_INTERACTIONS[i % EXTRA_INTERACTIONS.length];
+      const extra =
+        EXTRA_INTERACTIONS[Math.floor(i / 3) % EXTRA_INTERACTIONS.length];
       if (extra) {
         const happenedAt = addDays(respondedAt, extra.daysOffset);
         if (happenedAt <= new Date()) {

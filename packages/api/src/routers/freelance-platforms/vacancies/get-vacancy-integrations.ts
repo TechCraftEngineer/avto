@@ -2,6 +2,7 @@ import { ORPCError } from "@orpc/server";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
+import { ensureFound } from "../../../utils/ensure-found";
 
 const getVacancyIntegrationsInputSchema = z.object({
   workspaceId: workspaceIdSchema,
@@ -18,16 +19,15 @@ export const getVacancyIntegrations = protectedProcedure
     );
 
     // Проверка, что вакансия принадлежит workspace
-    const vacancy = await context.db.query.vacancy.findFirst({
-      where: (table, { eq: eqFn }) => eqFn(table.id, input.vacancyId),
-      columns: {
-        workspaceId: true,
-      },
-    });
-
-    if (!vacancy) {
-      throw new ORPCError("NOT_FOUND", { message: "Вакансия не найдена" });
-    }
+    const vacancy = ensureFound(
+      await context.db.query.vacancy.findFirst({
+        where: (table, { eq: eqFn }) => eqFn(table.id, input.vacancyId),
+        columns: {
+          workspaceId: true,
+        },
+      }),
+      "Вакансия не найдена",
+    );
 
     if (vacancy.workspaceId !== input.workspaceId) {
       throw new ORPCError("FORBIDDEN", {

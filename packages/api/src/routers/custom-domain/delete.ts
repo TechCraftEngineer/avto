@@ -2,15 +2,12 @@ import { ORPCError } from "@orpc/server";
 import { eq } from "@qbs-autonaim/db";
 import { db } from "@qbs-autonaim/db/client";
 import { customDomain } from "@qbs-autonaim/db/schema";
+import { domainIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 
 export const deleteDomain = protectedProcedure
-  .input(
-    z.object({
-      domainId: z.uuid(),
-    }),
-  )
+  .input(z.object({ domainId: domainIdSchema }))
   .handler(async ({ input, context }) => {
     const domain = await db.query.customDomain.findFirst({
       where: eq(customDomain.id, input.domainId),

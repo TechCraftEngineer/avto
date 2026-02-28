@@ -11,6 +11,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@qbs-autonaim/ui/components/popover";
+import { ProgressCircle } from "@qbs-autonaim/ui/components/progress-circle";
 import {
   IconCheck,
   IconChevronDown,
@@ -75,7 +76,7 @@ export function GettingStartedContainer() {
               prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.9 }
             }
             transition={animationConfig}
-            className="flex h-12 flex-col items-center justify-center rounded-full border border-neutral-950 bg-neutral-950 px-6 text-xs font-medium leading-tight text-white shadow-md transition-all hover:bg-neutral-800 hover:ring-4 hover:ring-neutral-200 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-neutral-200 active:scale-95 dark:border-neutral-50 dark:bg-neutral-50 dark:text-neutral-950 dark:hover:bg-neutral-200 dark:hover:ring-neutral-800 dark:focus-visible:ring-neutral-800"
+            className="animate-slide-up-fade flex h-8 items-center justify-center gap-1.5 rounded-full border border-neutral-950 bg-neutral-950 px-3 text-xs font-medium leading-tight text-white shadow-md transition-all [--offset:10px] hover:bg-neutral-800 hover:ring-4 hover:ring-neutral-200 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-neutral-200 active:scale-95 dark:border-neutral-50 dark:bg-neutral-50 dark:text-neutral-950 dark:hover:bg-neutral-200 dark:hover:ring-neutral-800 dark:focus-visible:ring-neutral-800"
             style={{
               touchAction: "manipulation",
               WebkitTapHighlightColor: "transparent",
@@ -85,6 +86,11 @@ export function GettingStartedContainer() {
             aria-label={`Начало работы: ${progressPercentage}% завершено`}
           >
             <span>Начало работы</span>
+            <ProgressCircle
+              progress={progressPercentage / 100}
+              className="text-white/80 [--track-color:#fff3]"
+              strokeWidth={2.5}
+            />
           </motion.button>
         </PopoverTrigger>
 

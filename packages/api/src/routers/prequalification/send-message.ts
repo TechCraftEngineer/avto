@@ -21,7 +21,17 @@ const sendMessageInputSchema = z.object({
   message: z
     .string()
     .min(1, "message обязателен")
-    .max(5000, "Сообщение слишком длинное"),
+    .max(2000, "Сообщение слишком длинное"),
+  context: z.record(z.string(), z.unknown()).optional(),
+  conversationHistory: z
+    .array(
+      z.object({
+        role: z.string().min(1),
+        content: z.string().min(1),
+      }),
+    )
+    .max(20)
+    .optional(),
 });
 
 export const sendMessage = publicProcedure

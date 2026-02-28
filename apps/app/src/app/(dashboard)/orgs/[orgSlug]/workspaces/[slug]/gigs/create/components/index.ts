@@ -1,9 +1,11 @@
 export { ChatMessage, TypingIndicator } from "./chat-message";
 export { ChatPanel } from "./chat-panel";
+export { GigConversationChat } from "./gig-conversation-chat";
 export { GigForm } from "./gig-form";
 export { GigPreview } from "./gig-preview";
 export { ProgressCard } from "./progress-card";
 export { QuickReplies } from "./quick-replies";
+export { QuizStepBlock } from "./quiz-step-block";
 export * from "./types";
 export { WizardChat } from "./wizard-chat";
 export * from "./wizard-types";

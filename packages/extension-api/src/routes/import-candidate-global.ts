@@ -26,12 +26,14 @@ const platformSourceEnum = z.enum([
 
 const bodySchema = z.object({
   /** Если передан — используем существующего кандидата, только обновляем связь с организацией */
-  globalCandidateId: z.uuid().optional(),
+  globalCandidateId: z
+    .uuid({ error: "Некорректный формат ID кандидата" })
+    .optional(),
   platformSource: platformSourceEnum,
   freelancerName: z.string().max(500).optional(),
   contactInfo: z
     .object({
-      email: z.email().optional(),
+      email: z.email({ error: "Некорректный формат email" }).optional(),
       phone: z.string().max(50).optional(),
       telegram: z.string().max(100).optional(),
       platformProfileUrl: z.string().max(1000).optional(),

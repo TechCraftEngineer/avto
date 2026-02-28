@@ -15,7 +15,7 @@ export const addComment = protectedProcedure
   .input(
     z.object({
       workspaceId: workspaceIdSchema,
-      candidateId: z.string(),
+      candidateId: z.uuid({ error: "Некорректный формат ID кандидата" }),
       content: z.string().min(1),
       isPrivate: z.boolean().default(true),
     }),

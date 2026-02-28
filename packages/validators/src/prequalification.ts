@@ -327,10 +327,15 @@ export const registerDomainInputSchema = z.object({
 export type RegisterDomainInput = z.infer<typeof registerDomainInputSchema>;
 
 /**
+ * Shared domain ID schema for custom domain routes
+ */
+export const domainIdSchema = z.uuid({ error: "Неверный формат ID домена" });
+
+/**
  * Verify domain input validation
  */
 export const verifyDomainInputSchema = z.object({
-  domainId: z.uuid({ error: "Неверный формат ID домена" }),
+  domainId: domainIdSchema,
 });
 
 export type VerifyDomainInput = z.infer<typeof verifyDomainInputSchema>;
@@ -339,7 +344,7 @@ export type VerifyDomainInput = z.infer<typeof verifyDomainInputSchema>;
  * Get domain status input validation
  */
 export const getDomainStatusInputSchema = z.object({
-  domainId: z.uuid({ error: "Неверный формат ID домена" }),
+  domainId: domainIdSchema,
 });
 
 export type GetDomainStatusInput = z.infer<typeof getDomainStatusInputSchema>;
@@ -348,7 +353,7 @@ export type GetDomainStatusInput = z.infer<typeof getDomainStatusInputSchema>;
  * Delete domain input validation
  */
 export const deleteDomainInputSchema = z.object({
-  domainId: z.uuid({ error: "Неверный формат ID домена" }),
+  domainId: domainIdSchema,
 });
 
 export type DeleteDomainInput = z.infer<typeof deleteDomainInputSchema>;

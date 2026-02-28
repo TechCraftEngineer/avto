@@ -83,9 +83,13 @@ export const checkPasswordRouter = protectedProcedure
         user: result.user,
       };
     } catch (error) {
+      if (error instanceof ORPCError) {
+        throw error;
+      }
       console.error("Ошибка проверки пароля:", error);
       throw new ORPCError("INTERNAL_SERVER_ERROR", {
-        message: "Неверный пароль",
+        message: error instanceof Error ? error.message : "Неверный пароль",
+        cause: error,
       });
     }
   });

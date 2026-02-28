@@ -107,8 +107,13 @@ async function loadAllDemoData() {
       candidateMapping,
     );
 
-    // 9. Создаем маппинг откликов для интервью
+    // 9. Создаем маппинг откликов для интервью (только отклики demo workspace)
+    const allResponseIds = [
+      ...vacancyResponses.map((r) => r.id),
+      ...gigResponses.map((r) => r.id),
+    ];
     const allResponses = await db.query.response.findMany({
+      where: (r, { inArray }) => inArray(r.id, allResponseIds),
       columns: { id: true, candidateId: true, respondedAt: true },
     });
 

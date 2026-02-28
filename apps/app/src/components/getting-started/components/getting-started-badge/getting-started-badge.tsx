@@ -1,5 +1,6 @@
 "use client";
 
+import { ProgressCircle } from "@qbs-autonaim/ui/components/progress-circle";
 import { cn } from "@qbs-autonaim/ui/utils";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
@@ -52,11 +53,10 @@ export function GettingStartedBadge({
       transition={animationConfig}
       onClick={onClick}
       className={cn(
-        "flex h-12 flex-col items-center justify-center rounded-full",
-        "border border-neutral-950 bg-neutral-950 px-6",
-        "text-xs font-medium leading-tight text-white",
-        "shadow-md",
-        "transition-all duration-200",
+        "animate-slide-up-fade flex h-8 items-center justify-center gap-1.5 rounded-full",
+        "border border-neutral-950 bg-neutral-950 px-3",
+        "text-xs font-medium leading-tight text-white shadow-md",
+        "transition-all [--offset:10px]",
         "hover:bg-neutral-800 hover:ring-4 hover:ring-neutral-200",
         "focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-neutral-200",
         "active:scale-95",
@@ -74,6 +74,11 @@ export function GettingStartedBadge({
       aria-label={`Начало работы: ${progressPercentage}% завершено`}
     >
       <span>Начало работы</span>
+      <ProgressCircle
+        progress={progressPercentage / 100}
+        className="text-white/80 [--track-color:#fff3]"
+        strokeWidth={2.5}
+      />
     </motion.button>
   );
 }

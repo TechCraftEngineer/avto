@@ -1,22 +1,21 @@
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
-import { protectedProcedure } from "../../orpc";
-import { verifyWorkspaceAccess } from "../../utils/verify-workspace-access";
+import {
+  protectedProcedure,
+  workspaceAccessMiddleware,
+  workspaceInputSchema,
+} from "../../orpc";
 
 export const list = protectedProcedure
   .input(
-    z.object({
-      workspaceId: workspaceIdSchema,
-      type: z.enum(["interview", "prequalification"]).optional(),
-    }),
+    workspaceInputSchema.merge(
+      z.object({
+        type: z.enum(["interview", "prequalification"]).optional(),
+      }),
+    ),
   )
+  .use(workspaceAccessMiddleware)
   .handler(async ({ input, context }) => {
-    await verifyWorkspaceAccess(
-      context.workspaceRepository,
-      input.workspaceId,
-      context.session.user.id,
-    );
-
     return await context.db.query.customDomain.findMany({
       where: (domain, { eq, and }) => {
         if (input.type) {

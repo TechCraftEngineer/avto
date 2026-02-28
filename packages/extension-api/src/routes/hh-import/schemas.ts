@@ -3,7 +3,7 @@ import { z } from "zod";
 export const vacancyItemSchema = z.object({
   externalId: z.string(),
   title: z.string(),
-  url: z.string(),
+  url: z.string().url(),
   region: z.string().optional(),
   isActive: z.boolean().optional(),
 });
@@ -15,7 +15,7 @@ export const vacanciesBodySchema = z.object({
 
 export const responseItemSchema = z.object({
   resumeId: z.string(),
-  resumeUrl: z.string(),
+  resumeUrl: z.string().url(),
   name: z.string(),
   respondedAt: z.string().optional(),
   coverLetter: z.string().optional(),
