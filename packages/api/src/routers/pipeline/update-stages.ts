@@ -1,0 +1,126 @@
+import { ORPCError } from "@orpc/server";
+import { and, asc, eq, inArray, isNull, sql } from "@qbs-autonaim/db";
+import {
+  pipelineStage,
+  response as responseTable,
+} from "@qbs-autonaim/db/schema";
+import { workspaceIdSchema } from "@qbs-autonaim/validators";
+import { z } from "zod";
+import { protectedProcedure } from "../../orpc";
+
+const stageInputSchema = z.object({
+  id: z.string().uuid().optional(),
+  label: z.string().min(1).max(200),
+  position: z.number().int().min(0),
+  color: z.string().max(50).optional().nullable(),
+});
+
+export const updateStages = protectedProcedure
+  .input(
+    z.object({
+      workspaceId: workspaceIdSchema,
+      entityType: z.enum(["gig", "vacancy", "project"]),
+      entityId: z.string().uuid().optional(),
+      stages: z.array(stageInputSchema).min(1),
+    }),
+  )
+  .handler(async ({ input, context }) => {
+    const access = await context.workspaceRepository.checkAccess(
+      input.workspaceId,
+      context.session.user.id,
+    );
+
+    if (!access) {
+      throw new ORPCError("FORBIDDEN", { message: "Нет доступа к workspace" });
+    }
+
+    const entityId = input.entityId ?? null;
+
+    return context.db.transaction(async (tx) => {
+      const existingStages = await tx.query.pipelineStage.findMany({
+        where: and(
+          eq(pipelineStage.workspaceId, input.workspaceId),
+          eq(pipelineStage.entityType, input.entityType),
+          entityId === null
+            ? isNull(pipelineStage.entityId)
+            : eq(pipelineStage.entityId, entityId),
+        ),
+        columns: { id: true, position: true },
+      });
+
+      const inputIds = new Set(
+        input.stages.map((s) => s.id).filter((id): id is string => !!id),
+      );
+      const toDelete = existingStages.filter((s) => !inputIds.has(s.id));
+
+      // Check if stages to delete have responses
+      for (const stage of toDelete) {
+        const countResult = await tx
+          .select({ count: sql<number>`count(*)` })
+          .from(responseTable)
+          .where(eq(responseTable.pipelineStageId, stage.id));
+
+        const count = Number(countResult[0]?.count ?? 0);
+        if (count > 0) {
+          throw new ORPCError("BAD_REQUEST", {
+            message: `Этап содержит ${count} откликов. Переместите их перед удалением.`,
+          });
+        }
+      }
+
+      // Delete removed stages
+      if (toDelete.length > 0) {
+        await tx.delete(pipelineStage).where(
+          inArray(
+            pipelineStage.id,
+            toDelete.map((s) => s.id),
+          ),
+        );
+      }
+
+      for (let i = 0; i < input.stages.length; i++) {
+        const s = input.stages[i];
+        if (!s) continue;
+        if (s.id) {
+          await tx
+            .update(pipelineStage)
+            .set({
+              label: s.label,
+              position: i,
+              color: s.color ?? null,
+              updatedAt: new Date(),
+            })
+            .where(eq(pipelineStage.id, s.id));
+        } else {
+          await tx.insert(pipelineStage).values({
+            workspaceId: input.workspaceId,
+            entityType: input.entityType,
+            entityId,
+            label: s.label,
+            position: i,
+            color: s.color ?? null,
+          });
+        }
+      }
+
+      const stages = await tx.query.pipelineStage.findMany({
+        where: and(
+          eq(pipelineStage.workspaceId, input.workspaceId),
+          eq(pipelineStage.entityType, input.entityType),
+          entityId === null
+            ? isNull(pipelineStage.entityId)
+            : eq(pipelineStage.entityId, entityId),
+        ),
+        orderBy: [asc(pipelineStage.position)],
+        columns: {
+          id: true,
+          label: true,
+          position: true,
+          color: true,
+          legacyKey: true,
+        },
+      });
+
+      return { stages };
+    });
+  });

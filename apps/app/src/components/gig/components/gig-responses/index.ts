@@ -2,6 +2,7 @@ export { BulkActionButtons } from "./bulk-action-buttons";
 export { ConfirmDialog } from "./confirm-dialog";
 export { EmptyState } from "./empty-state";
 export { GigResponseActionButtons } from "./gig-response-action-buttons";
+export { GigResponsesKanban } from "./gig-responses-kanban";
 export { MessageDialog } from "./message-dialog";
 export { ResponseHeader } from "./response-header";
 export * from "./response-helpers";

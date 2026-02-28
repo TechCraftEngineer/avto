@@ -5,6 +5,7 @@ import { file } from "../file";
 import { gig } from "../gig/gig";
 import { interviewSession } from "../interview/interview-session";
 import { interviewScoring } from "../interview/scoring";
+import { pipelineStage } from "../pipeline/pipeline-stage";
 import { vacancy } from "../vacancy/vacancy";
 import { response } from "./response";
 import { responseComment } from "./response-comment";
@@ -60,6 +61,10 @@ export const responseRelations = relations(response, ({ one, many }) => ({
   history: many(responseHistory),
   interactionLog: many(responseInteractionLog),
   tags: many(responseTag),
+  pipelineStage: one(pipelineStage, {
+    fields: [response.pipelineStageId],
+    references: [pipelineStage.id],
+  }),
 }));
 
 export const responseScreeningRelations = relations(

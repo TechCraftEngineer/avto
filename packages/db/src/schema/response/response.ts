@@ -94,6 +94,9 @@ export const response = pgTable(
     // Статусы
     ...responseStatusColumns,
 
+    // Этап канбана (nullable: при null используется legacy status)
+    pipelineStageId: uuid("pipeline_stage_id"),
+
     // Временные метки
     ...responseTimestampColumns,
   },
@@ -120,6 +123,7 @@ export const response = pgTable(
       table.entityId,
       table.hrSelectionStatus,
     ),
+    index("response_pipeline_stage_idx").on(table.pipelineStageId),
     // Поиск по кандидату
     index("response_candidate_idx").on(table.candidateId),
     index("response_profile_url_idx").on(table.profileUrl),

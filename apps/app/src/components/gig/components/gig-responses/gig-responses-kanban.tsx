@@ -25,42 +25,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+import type { GigResponseListItem } from "~/components/responses/types";
 import { useORPC } from "~/orpc/react";
-import { ResponseKanbanCard } from "./response-kanban-card";
-import type { ResponseItem } from "./types";
-
-/** Legacy ключи для маппинга status/hrSelectionStatus → stage */
-type LegacyStageKey =
-  | "SCREENING_DONE"
-  | "INTERVIEW"
-  | "OFFER_SENT"
-  | "SECURITY_PASSED"
-  | "CONTRACT_SENT"
-  | "ONBOARDING"
-  | "REJECTED";
-
-/**
- * Маппинг status + hrSelectionStatus → legacy_key (для fallback при отсутствии pipeline_stage_id)
- */
-function mapResponseToLegacyStage(
-  status: string,
-  hrSelectionStatus: string | null,
-): LegacyStageKey {
-  if (hrSelectionStatus === "ONBOARDING") return "ONBOARDING";
-  if (hrSelectionStatus === "CONTRACT_SENT") return "CONTRACT_SENT";
-  if (hrSelectionStatus === "SECURITY_PASSED") return "SECURITY_PASSED";
-  if (hrSelectionStatus === "OFFER") return "OFFER_SENT";
-  if (hrSelectionStatus === "INVITE" || hrSelectionStatus === "RECOMMENDED")
-    return "OFFER_SENT";
-  if (
-    hrSelectionStatus === "REJECTED" ||
-    hrSelectionStatus === "NOT_RECOMMENDED" ||
-    status === "SKIPPED"
-  )
-    return "REJECTED";
-  if (status === "EVALUATED") return "SCREENING_DONE";
-  return "INTERVIEW";
-}
+import { GigResponseKanbanCard } from "./gig-response-kanban-card";
 
 type PipelineStage = {
   id: string;
@@ -70,51 +37,37 @@ type PipelineStage = {
   legacyKey: string | null;
 };
 
-interface VacancyOption {
-  id: string;
-  title: string;
-}
-
-interface ResponsesKanbanProps {
-  responses: ResponseItem[];
+interface GigResponsesKanbanProps {
+  responses: GigResponseListItem[];
   isLoading: boolean;
   orgSlug: string;
   workspaceSlug: string;
   workspaceId: string;
-  vacancies?: VacancyOption[];
-  /** Для per-vacancy pipeline (пока не используется) */
+  gigId: string;
+  /** Для per-gig pipeline */
   entityId?: string;
-  /** Ключ сортировки/фильтров: при его смене используется порядок с сервера */
   sortKey?: string;
 }
 
-function responsesToColumns(
-  responses: ResponseItem[],
+function gigResponsesToColumns(
+  responses: GigResponseListItem[],
   stages: PipelineStage[],
-): Record<string, ResponseItem[]> {
+): Record<string, GigResponseListItem[]> {
   if (stages.length === 0) return {};
   const stageIds = new Set(stages.map((s) => s.id));
-  const legacyToStageId = new Map<string, string>();
-  for (const s of stages) {
-    if (s.legacyKey) legacyToStageId.set(s.legacyKey, s.id);
-  }
-  const firstStageId = stages[0]!.id;
-  const columns: Record<string, ResponseItem[]> = {};
+  const firstStage = stages[0];
+  const firstStageId = firstStage ? firstStage.id : "";
+  const columns: Record<string, GigResponseListItem[]> = {};
   for (const s of stages) {
     columns[s.id] = [];
   }
   for (const r of responses) {
-    let stageId: string;
-    if (r.pipelineStageId && stageIds.has(r.pipelineStageId)) {
-      stageId = r.pipelineStageId;
-    } else {
-      const legacyKey = mapResponseToLegacyStage(
-        r.status,
-        r.hrSelectionStatus ?? null,
-      );
-      stageId = legacyToStageId.get(legacyKey) ?? firstStageId;
-    }
-    columns[stageId]!.push(r);
+    const stageId =
+      r.pipelineStageId && stageIds.has(r.pipelineStageId)
+        ? r.pipelineStageId
+        : firstStageId;
+    const col = columns[stageId];
+    if (col) col.push(r);
   }
   return columns;
 }
@@ -217,7 +170,6 @@ function HorizontalScrollWithHints({
   };
 
   const hasOverflow = scrollState.canScrollLeft || scrollState.canScrollRight;
-
   const buttonClass = "size-8 rounded-full shadow-md pointer-events-auto z-20";
 
   return (
@@ -311,27 +263,22 @@ function HorizontalScrollWithHints({
   );
 }
 
-interface ResponseKanbanItemProps {
-  response: ResponseItem;
-  onCardClick: (response: ResponseItem) => void;
-  asHandle: boolean;
-  isOverlay: boolean;
-  vacancyTitle?: string;
-}
-
-function ResponseKanbanItem({
+function GigKanbanItem({
   response,
   onCardClick,
   asHandle,
   isOverlay,
-  vacancyTitle,
-}: ResponseKanbanItemProps) {
+}: {
+  response: GigResponseListItem;
+  onCardClick: (response: GigResponseListItem) => void;
+  asHandle: boolean;
+  isOverlay: boolean;
+}) {
   const cardContent = (
-    <ResponseKanbanCard
+    <GigResponseKanbanCard
       response={response}
       onClick={() => onCardClick(response)}
       isDragging={isOverlay}
-      vacancyTitle={vacancyTitle}
     />
   );
 
@@ -348,18 +295,7 @@ function ResponseKanbanItem({
   );
 }
 
-interface ResponseKanbanColumnProps {
-  value: string;
-  label: string;
-  color: string;
-  responses: ResponseItem[];
-  isLoading: boolean;
-  onCardClick: (response: ResponseItem) => void;
-  isOverlay?: boolean;
-  vacancyMap?: Map<string, string>;
-}
-
-function ResponseKanbanColumn({
+function GigKanbanColumn({
   value,
   label,
   color,
@@ -367,8 +303,15 @@ function ResponseKanbanColumn({
   isLoading,
   onCardClick,
   isOverlay = false,
-  vacancyMap,
-}: ResponseKanbanColumnProps) {
+}: {
+  value: string;
+  label: string;
+  color: string;
+  responses: GigResponseListItem[];
+  isLoading: boolean;
+  onCardClick: (response: GigResponseListItem) => void;
+  isOverlay?: boolean;
+}) {
   return (
     <KanbanColumn
       value={value}
@@ -418,13 +361,12 @@ function ResponseKanbanColumn({
             </div>
           ) : (
             responses.map((response) => (
-              <ResponseKanbanItem
+              <GigKanbanItem
                 key={response.id}
                 response={response}
                 onCardClick={onCardClick}
                 asHandle={!isOverlay}
                 isOverlay={isOverlay}
-                vacancyTitle={vacancyMap?.get(response.entityId)}
               />
             ))
           )}
@@ -434,23 +376,29 @@ function ResponseKanbanColumn({
   );
 }
 
-export function ResponsesKanban({
+export function GigResponsesKanban({
   responses,
   isLoading,
   orgSlug,
   workspaceSlug,
   workspaceId,
-  vacancies = [],
+  gigId,
   entityId,
   sortKey = "",
-}: ResponsesKanbanProps) {
+}: GigResponsesKanbanProps) {
   const router = useRouter();
   const orpc = useORPC();
   const queryClient = useQueryClient();
 
+  const effectiveEntityId = entityId ?? gigId;
+
   const { data: stagesData, isLoading: stagesLoading } = useQuery({
     ...orpc.pipeline.getStages.queryOptions({
-      input: { workspaceId, entityType: "vacancy", entityId },
+      input: {
+        workspaceId,
+        entityType: "gig",
+        entityId: effectiveEntityId,
+      },
     }),
     enabled: Boolean(workspaceId),
   });
@@ -462,18 +410,15 @@ export function ResponsesKanban({
   );
 
   const initialColumns = useMemo(
-    () => responsesToColumns(responses, stagesSorted),
+    () => gigResponsesToColumns(responses, stagesSorted),
     [responses, stagesSorted],
   );
   const [columns, setColumns] = useState(initialColumns);
 
   const prevSortKeyRef = useRef<string>("");
 
-  // Синхронизируем с сервером при изменении responses или stages:
-  // - при смене sortKey (сортировка/фильтры) — используем порядок с сервера
-  // - при refetch с теми же параметрами — сохраняем локальный порядок (после drag)
   useEffect(() => {
-    const serverColumns = responsesToColumns(responses, stagesSorted);
+    const serverColumns = gigResponsesToColumns(responses, stagesSorted);
     const useServerOrder = sortKey !== prevSortKeyRef.current;
     if (useServerOrder) {
       prevSortKeyRef.current = sortKey;
@@ -483,14 +428,14 @@ export function ResponsesKanban({
 
     const responseById = new Map(responses.map((r) => [r.id, r]));
     setColumns((prev) => {
-      const merged: Record<string, ResponseItem[]> = {};
+      const merged: Record<string, GigResponseListItem[]> = {};
       for (const s of stagesSorted) {
         const colId = s.id;
         const prevItems = prev[colId] ?? [];
         const serverItems = serverColumns[colId] ?? [];
         const serverIds = new Set(serverItems.map((r) => r.id));
 
-        const mergedItems: ResponseItem[] = [];
+        const mergedItems: GigResponseListItem[] = [];
         for (const item of prevItems) {
           if (serverIds.has(item.id)) {
             mergedItems.push(responseById.get(item.id) ?? item);
@@ -507,21 +452,14 @@ export function ResponsesKanban({
     });
   }, [responses, sortKey, stagesSorted]);
 
-  const listWorkspaceQueryKey = {
-    input: {
-      workspaceId,
-      page: 1,
-      limit: 50,
-      sortField: null,
-      sortDirection: "desc" as const,
-      screeningFilter: "all" as const,
-    },
+  const listQueryKey = {
+    input: { gigId, workspaceId, limit: 50 },
   };
 
   const { mutate: moveResponse } = useMutation(
     orpc.pipeline.moveResponse.mutationOptions({
       onError: () => {
-        setColumns(responsesToColumns(responses, stagesSorted));
+        setColumns(gigResponsesToColumns(responses, stagesSorted));
         toast.error("Не удалось переместить отклик");
       },
       onSuccess: () => {
@@ -529,9 +467,7 @@ export function ResponsesKanban({
       },
       onSettled: () => {
         queryClient.invalidateQueries({
-          queryKey: orpc.vacancy.responses.listWorkspace.queryKey(
-            listWorkspaceQueryKey,
-          ),
+          queryKey: orpc.gig.responses.list.queryKey(listQueryKey),
         });
       },
     }),
@@ -540,18 +476,13 @@ export function ResponsesKanban({
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  const vacancyMap = useMemo(
-    () => new Map(vacancies.map((v) => [v.id, v.title])),
-    [vacancies],
-  );
-
   const handleCardClick = useCallback(
-    (response: ResponseItem) => {
+    (response: GigResponseListItem) => {
       router.push(
-        `/orgs/${orgSlug}/workspaces/${workspaceSlug}/responses/${response.id}`,
+        `/orgs/${orgSlug}/workspaces/${workspaceSlug}/gigs/${gigId}/responses/${response.id}`,
       );
     },
-    [router, orgSlug, workspaceSlug],
+    [router, orgSlug, workspaceSlug, gigId],
   );
 
   const handleMove = useCallback(
@@ -563,17 +494,14 @@ export function ResponsesKanban({
     }) => {
       const { activeContainer, overContainer, event: dndEvent } = event;
       const activeId = String(dndEvent.active.id);
-      // После оптимистичного обновления элемент уже в overContainer
       const item =
         columns[overContainer]?.find((r) => r.id === activeId) ??
         columns[activeContainer]?.[event.activeIndex];
       if (!item || activeContainer === overContainer) return;
 
-      const pipelineStageId = overContainer;
-
       moveResponse({
         responseId: item.id,
-        pipelineStageId,
+        pipelineStageId: overContainer,
       });
     },
     [columns, moveResponse],
@@ -632,7 +560,7 @@ export function ResponsesKanban({
           </Link>
         </Button>
       </div>
-      <Kanban<ResponseItem>
+      <Kanban<GigResponseListItem>
         value={columns}
         onValueChange={setColumns}
         getItemValue={(item) => item.id}
@@ -642,10 +570,10 @@ export function ResponsesKanban({
         <HorizontalScrollWithHints>
           <KanbanBoard
             className="flex min-h-full min-w-max flex-1 gap-3 pb-2 md:gap-4 items-stretch"
-            aria-label="Канбан-доска откликов"
+            aria-label="Канбан-доска откликов на задание"
           >
             {stagesSorted.map((col) => (
-              <ResponseKanbanColumn
+              <GigKanbanColumn
                 key={col.id}
                 value={col.id}
                 label={col.label}
@@ -653,7 +581,6 @@ export function ResponsesKanban({
                 responses={columns[col.id] ?? []}
                 isLoading={isLoading}
                 onCardClick={handleCardClick}
-                vacancyMap={vacancyMap}
               />
             ))}
           </KanbanBoard>

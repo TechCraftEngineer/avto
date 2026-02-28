@@ -4,6 +4,7 @@ import { customDomain } from "../custom-domain/custom-domain";
 import { integration } from "../integration/integration";
 import { organization } from "../organization/organization";
 import { payment } from "../payment/payment";
+import { pipelineStage } from "../pipeline/pipeline-stage";
 import { userIntegration } from "../user-integration/user-integration";
 import { vacancy } from "../vacancy/vacancy";
 import { botSettings } from "./bot-settings";
@@ -30,6 +31,7 @@ export const workspaceRelations = relations(workspace, ({ many, one }) => ({
     references: [botSettings.workspaceId],
   }),
   payments: many(payment),
+  pipelineStages: many(pipelineStage),
 }));
 
 export const workspaceInviteRelations = relations(
