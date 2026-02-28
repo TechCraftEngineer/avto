@@ -1,6 +1,9 @@
 import { randomUUID } from "node:crypto";
 import { ORPCError } from "@orpc/server";
-import { organizationPlanSchema } from "@qbs-autonaim/validators";
+import {
+  organizationIdSchema,
+  organizationPlanSchema,
+} from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 import { createYookassaClient } from "../../services/yookassa/client";
@@ -12,7 +15,7 @@ import { createYookassaClient } from "../../services/yookassa/client";
 export const createPlanPayment = protectedProcedure
   .input(
     z.object({
-      organizationId: z.string().min(1, "ID организации обязателен"),
+      organizationId: organizationIdSchema,
       plan: organizationPlanSchema,
       returnUrl: z
         .string()

@@ -1,12 +1,13 @@
 import { ORPCError } from "@orpc/server";
 import { db } from "@qbs-autonaim/db/client";
+import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 
 export const list = protectedProcedure
   .input(
     z.object({
-      workspaceId: z.string(),
+      workspaceId: workspaceIdSchema,
       type: z.enum(["interview", "prequalification"]).optional(),
     }),
   )

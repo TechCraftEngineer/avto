@@ -7,6 +7,7 @@ import {
   responseHistory,
   response as responseTable,
 } from "@qbs-autonaim/db/schema";
+import { organizationIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 
@@ -14,7 +15,7 @@ export const get = protectedProcedure
   .input(
     z.object({
       candidateId: z.string().uuid(),
-      organizationId: z.string(),
+      organizationId: organizationIdSchema,
     }),
   )
   .handler(async ({ input, context }) => {

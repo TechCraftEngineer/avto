@@ -5,13 +5,14 @@ import {
   response as responseTable,
   vacancy,
 } from "@qbs-autonaim/db";
+import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 
 export const addComment = protectedProcedure
   .input(
     z.object({
-      workspaceId: z.string(),
+      workspaceId: workspaceIdSchema,
       candidateId: z.string(),
       content: z.string().min(1),
       isPrivate: z.boolean().default(true),

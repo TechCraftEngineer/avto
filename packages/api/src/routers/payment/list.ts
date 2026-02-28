@@ -1,8 +1,10 @@
 import { ORPCError } from "@orpc/server";
 import { payment } from "@qbs-autonaim/db/schema";
 import {
+  organizationIdSchema,
   paginationLimitSchema,
   paginationOffsetSchema,
+  workspaceIdSchema,
 } from "@qbs-autonaim/validators";
 import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
@@ -23,8 +25,8 @@ import { protectedProcedure } from "../../orpc";
 export const list = protectedProcedure
   .input(
     z.object({
-      workspaceId: z.string().optional(),
-      organizationId: z.string().optional(),
+      workspaceId: workspaceIdSchema.optional(),
+      organizationId: organizationIdSchema.optional(),
       limit: paginationLimitSchema({ default: 20, max: 100 }),
       offset: paginationOffsetSchema,
     }),

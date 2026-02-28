@@ -4,13 +4,14 @@ import {
   createCustomDomainSchema,
   customDomain,
 } from "@qbs-autonaim/db/schema";
+import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 
 export const create = protectedProcedure
   .input(
     z.object({
-      workspaceId: z.string(),
+      workspaceId: workspaceIdSchema,
       domain: createCustomDomainSchema.shape.domain,
       type: z.enum(["interview", "prequalification"]).default("interview"),
     }),

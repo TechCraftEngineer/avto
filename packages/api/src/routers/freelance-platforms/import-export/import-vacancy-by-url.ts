@@ -1,5 +1,5 @@
 import { ORPCError } from "@orpc/server";
-import { ImportByUrlSchema } from "@qbs-autonaim/validators";
+import { ImportByUrlSchema, workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 import { verifyWorkspaceAccess } from "../../../utils/verify-workspace-access";
@@ -11,7 +11,7 @@ import { verifyWorkspaceAccess } from "../../../utils/verify-workspace-access";
 export const importVacancyByUrl = protectedProcedure
   .input(
     z.object({
-      workspaceId: z.string(),
+      workspaceId: workspaceIdSchema,
       url: ImportByUrlSchema.shape.url,
     }),
   )
