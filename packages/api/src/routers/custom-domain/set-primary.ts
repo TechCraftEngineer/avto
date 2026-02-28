@@ -8,7 +8,7 @@ import { protectedProcedure } from "../../orpc";
 export const setPrimary = protectedProcedure
   .input(
     z.object({
-      domainId: z.string().uuid(),
+      domainId: z.uuid(),
     }),
   )
   .handler(async ({ input, context }) => {

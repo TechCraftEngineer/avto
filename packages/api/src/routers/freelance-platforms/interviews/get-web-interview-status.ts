@@ -5,7 +5,7 @@ import { z } from "zod";
 import { publicProcedure } from "../../../orpc";
 
 const getWebInterviewStatusInputSchema = z.object({
-  interviewSessionId: z.string().uuid(),
+  interviewSessionId: z.uuid(),
 });
 
 export const getWebInterviewStatus = publicProcedure

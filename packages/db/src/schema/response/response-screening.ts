@@ -131,7 +131,7 @@ export const responseScreening = pgTable(
 export const CreateResponseScreeningSchema = createInsertSchema(
   responseScreening,
   {
-    responseId: z.string().uuid(),
+    responseId: z.uuid(),
     overallScore: z.number().int().min(0).max(100),
     skillsMatchScore: z.number().int().min(0).max(100).optional(),
     experienceScore: z.number().int().min(0).max(100).optional(),

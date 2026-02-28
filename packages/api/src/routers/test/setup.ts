@@ -18,7 +18,7 @@ const isTestMode =
 export const setup = publicProcedure
   .input(
     z.object({
-      email: z.string().email("Некорректный email адрес"),
+      email: z.email({ error: "Некорректный email адрес" }),
       password: z.string().min(8, "Пароль должен содержать минимум 8 символов"),
       name: z.string().optional(),
       orgName: z.string().optional(),

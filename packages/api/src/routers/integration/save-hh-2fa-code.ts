@@ -12,7 +12,7 @@ import {
 
 const saveHH2FACodeSchema = workspaceInputSchema.merge(
   z.object({
-    email: z.string().email("Некорректный email"),
+    email: z.email({ error: "Некорректный email" }),
     verificationCode: z
       .string()
       .min(1, "Введите код")

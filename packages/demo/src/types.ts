@@ -15,7 +15,7 @@ export const CandidatePhotoSchema = z.object({
       "candidateId must contain only alphanumerics, dashes, and underscores",
     ),
   candidateName: z.string(),
-  photoUrl: z.string().url(),
+  photoUrl: z.url(),
   photoDescription: z.string(),
 });
 

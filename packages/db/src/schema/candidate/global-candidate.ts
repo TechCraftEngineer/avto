@@ -190,7 +190,7 @@ export const CreateGlobalCandidateSchema = createInsertSchema(globalCandidate, {
   firstName: z.string().max(100).optional(),
   lastName: z.string().max(100).optional(),
   middleName: z.string().max(100).optional(),
-  email: z.string().email().optional().or(z.literal("")),
+  email: z.email().optional().or(z.literal("")),
   phone: phoneSchema,
   birthDate: z.coerce.date().optional(),
   citizenship: z.string().max(100).optional(),

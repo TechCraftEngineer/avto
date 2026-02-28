@@ -6,7 +6,7 @@ import { protectedProcedure } from "../../../orpc";
 
 const syncArchivedVacancyResponsesInputSchema = z.object({
   workspaceId: workspaceIdSchema,
-  vacancyId: z.string().uuid(),
+  vacancyId: z.uuid(),
 });
 
 export const syncArchivedVacancyResponses = protectedProcedure

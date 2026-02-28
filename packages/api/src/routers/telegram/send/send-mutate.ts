@@ -11,7 +11,7 @@ import { protectedProcedure } from "../../../orpc";
 export const sendMutateRouter = protectedProcedure
   .input(
     z.object({
-      sessionId: z.string().uuid(),
+      sessionId: z.uuid(),
       text: z.string().min(1),
     }),
   )

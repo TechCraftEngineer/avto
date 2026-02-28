@@ -29,7 +29,7 @@ export function extractExternalIdFromUrl(url: string): string | null {
 export const HhImportVacancyDataSchema = z.object({
   title: z.string().min(1, "Название вакансии обязательно"),
   description: z.string().min(1, "Описание вакансии обязательно"),
-  url: z.string().url("Некорректная ссылка на вакансию"),
+  url: z.url({ error: "Некорректная ссылка на вакансию" }),
   externalId: z.string().min(1, "Внешний идентификатор обязателен"),
   source: z.literal("HH"),
   isActive: z.boolean().default(true),

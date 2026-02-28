@@ -28,7 +28,7 @@ import { authClient } from "~/auth/client";
 import { translateAuthError } from "~/lib/auth-error-messages";
 
 const forgotPasswordSchema = z.object({
-  email: z.string().email("Неверный email адрес"),
+  email: z.email({ error: "Неверный email адрес" }),
 });
 
 type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;

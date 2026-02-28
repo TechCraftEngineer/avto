@@ -42,7 +42,7 @@ function parseIdentifier(identifier: string): {
 
 const addPublicationInputSchema = z.object({
   workspaceId: workspaceIdSchema,
-  vacancyId: z.string().uuid(),
+  vacancyId: z.uuid(),
   platform: z.enum(platformSourceValues),
   identifier: z.string().max(200).optional(),
 });

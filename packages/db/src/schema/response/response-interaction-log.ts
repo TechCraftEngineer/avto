@@ -95,7 +95,7 @@ export type InteractionChannel = (typeof interactionChannelValues)[number];
 export const CreateResponseInteractionLogSchema = createInsertSchema(
   responseInteractionLog,
   {
-    responseId: z.string().uuid(),
+    responseId: z.uuid(),
     interactionType: z.enum(interactionTypeValues),
     source: z.enum(interactionSourceValues),
     happenedAt: z.coerce.date(),

@@ -33,7 +33,7 @@ export const syncArchivedVacancyResponsesDataSchema = z.object({
 });
 
 export const checkPublicationStatusDataSchema = z.object({
-  publicationId: z.string().uuid("Publication ID is required"),
+  publicationId: z.uuid({ error: "Publication ID is required" }),
 });
 
 export const checkAllPublicationStatusesDataSchema = z.object({
@@ -57,7 +57,7 @@ export const vacancyImportArchivedSelectedDataSchema = z.object({
 
 export const vacancyImportByUrlDataSchema = z.object({
   workspaceId: z.string().min(1, "ID рабочей области обязателен"),
-  url: z.string().url("Некорректная ссылка"),
+  url: z.url({ error: "Некорректная ссылка" }),
   requestId: z.string().min(1, "ID запроса обязателен"),
 });
 
@@ -81,7 +81,7 @@ export const vacancyImportNewSelectedDataSchema = z.object({
       z.object({
         id: z.string(),
         title: z.string(),
-        url: z.string().url(),
+        url: z.url(),
         region: z.string().optional(),
       }),
     )

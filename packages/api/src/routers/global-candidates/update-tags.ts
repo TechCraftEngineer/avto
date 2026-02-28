@@ -7,7 +7,7 @@ import { protectedProcedure } from "../../orpc";
 export const updateTags = protectedProcedure
   .input(
     z.object({
-      candidateId: z.string().uuid(),
+      candidateId: z.uuid(),
       organizationId: z.string(),
       tags: z.array(z.string()),
     }),

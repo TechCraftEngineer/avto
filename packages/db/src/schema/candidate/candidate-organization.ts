@@ -100,7 +100,7 @@ export const candidateOrganization = pgTable(
 export const CreateCandidateOrganizationSchema = createInsertSchema(
   candidateOrganization,
   {
-    candidateId: z.string().uuid(),
+    candidateId: z.uuid(),
     organizationId: organizationIdSchema,
     status: z
       .enum(candidateOrganizationStatusEnum.enumValues)

@@ -85,7 +85,7 @@ export async function fetchImportVacancyByUrlToken(
 const VacancyDataSchema = z.object({
   id: z.string().min(1, "ID вакансии обязателен"),
   title: z.string().min(1, "Название вакансии обязательно"),
-  url: z.string().url("Неверный формат URL"),
+  url: z.url({ error: "Неверный формат URL" }),
   region: z.string().optional(),
 });
 

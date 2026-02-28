@@ -5,7 +5,7 @@ import { protectedProcedure } from "../../../orpc";
 
 const getVacancyIntegrationsInputSchema = z.object({
   workspaceId: workspaceIdSchema,
-  vacancyId: z.string().uuid(),
+  vacancyId: z.uuid(),
 });
 
 export const getVacancyIntegrations = protectedProcedure

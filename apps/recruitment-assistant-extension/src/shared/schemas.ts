@@ -59,7 +59,7 @@ export const BasicInfoSchema: z.ZodType<BasicCandidateInfo> = z.object({
     ),
   currentPosition: z.string(),
   location: z.string(),
-  photoUrl: z.string().url().nullable(),
+  photoUrl: z.url().nullable(),
 });
 
 /**
@@ -67,7 +67,7 @@ export const BasicInfoSchema: z.ZodType<BasicCandidateInfo> = z.object({
  */
 export const CandidateDataSchema: z.ZodType<FullCandidateData> = z.object({
   platform: z.string(),
-  profileUrl: z.string().url(),
+  profileUrl: z.url(),
   basicInfo: BasicInfoSchema,
   experience: z.array(ExperienceEntrySchema),
   education: z.array(EducationEntrySchema),
@@ -80,7 +80,7 @@ export const CandidateDataSchema: z.ZodType<FullCandidateData> = z.object({
  * Схема для настроек расширения
  */
 export const SettingsSchema = z.object({
-  apiUrl: z.string().url(),
+  apiUrl: z.url(),
   apiToken: z.string().min(10),
   organizationId: z.string(),
   fieldsToExtract: z.object({

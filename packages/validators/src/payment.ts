@@ -10,7 +10,7 @@ export const createPaymentSchema = z.object({
     .trim()
     .max(128, "Описание не может превышать 128 символов")
     .optional(),
-  returnUrl: z.string().url("Некорректный URL для возврата"),
+  returnUrl: z.url({ error: "Некорректный URL для возврата" }),
   workspaceId: workspaceIdSchema,
   metadata: z.record(z.string(), z.any()).optional(),
 });
@@ -19,7 +19,7 @@ export type CreatePaymentInput = z.infer<typeof createPaymentSchema>;
 
 // Схема для проверки статуса платежа
 export const checkPaymentStatusSchema = z.object({
-  paymentId: z.string().uuid("Некорректный ID платежа"),
+  paymentId: z.uuid({ error: "Некорректный ID платежа" }),
 });
 
 export type CheckPaymentStatusInput = z.infer<typeof checkPaymentStatusSchema>;
@@ -36,7 +36,7 @@ export const yookassaPaymentResponseSchema = z.object({
   confirmation: z
     .object({
       type: z.literal("redirect"),
-      confirmation_url: z.string().url(),
+      confirmation_url: z.url(),
     })
     .optional(),
   created_at: z.string(),

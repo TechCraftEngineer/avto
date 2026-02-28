@@ -11,7 +11,7 @@ export const list = protectedProcedure
       gigId: z.uuid(),
       workspaceId: workspaceIdSchema,
       limit: z.number().min(1).max(100).default(20),
-      cursor: z.string().uuid().optional(),
+      cursor: z.uuid().optional(),
     }),
   )
   .handler(async ({ context, input }) => {

@@ -75,7 +75,7 @@ export const CreateVacancyPublicationSchema = createInsertSchema(
   {
     platform: z.enum(platformSourceValues),
     externalId: z.string().max(100).optional(),
-    url: z.string().url().optional(),
+    url: z.url().optional(),
   },
 ).omit({
   id: true,

@@ -12,7 +12,7 @@ export const env = createEnv({
     VERCEL_ENV: z.enum(["production", "preview", "development"]).optional(),
     VERCEL_URL: z.string().optional(),
     /** URL interview-server (для proxy API) */
-    INTERVIEW_SERVER_URL: z.string().url().optional(),
+    INTERVIEW_SERVER_URL: z.url().optional(),
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.url().default("http://localhost:3001"),

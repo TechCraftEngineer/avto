@@ -11,6 +11,7 @@ import {
   loadInterviewMessages,
   loadInterviewSessions,
   loadPhotos,
+  loadResponseInteractions,
   loadVacancies,
   loadVacancyResponses,
 } from "./loaders";
@@ -108,7 +109,7 @@ async function loadAllDemoData() {
 
     // 9. Создаем маппинг откликов для интервью
     const allResponses = await db.query.response.findMany({
-      columns: { id: true, candidateId: true },
+      columns: { id: true, candidateId: true, respondedAt: true },
     });
 
     const responseMapping: Record<string, string> = {};
@@ -116,24 +117,30 @@ async function loadAllDemoData() {
       responseMapping[resp.candidateId] = resp.id;
     }
 
-    // 10. Загружаем интервью-сессии
+    // 10. Загружаем хронологию взаимодействий для откликов
+    const interactionCount = await loadResponseInteractions(
+      allResponses,
+      userIds.recruiterId,
+    );
+
+    // 11. Загружаем интервью-сессии
     const { sessions: interviewSessions, sessionMapping } =
       await loadInterviewSessions(responseMapping, allResponses[0]?.id || "");
 
-    // 11. Загружаем сообщения интервью
+    // 12. Загружаем сообщения интервью
     const interviewMessages = await loadInterviewMessages(
       sessionMapping,
       interviewSessions[0]?.id || "",
     );
 
-    // 12. Загружаем чат-сессии
+    // 13. Загружаем чат-сессии
     const insertedVacancyIds = insertedVacancies.map((v) => v.id);
     const insertedGigIds = insertedGigs.map((g) => g.id);
 
     const { sessions: chatSessions, sessionMapping: chatSessionMapping } =
       await loadChatSessions(userIds, insertedVacancyIds, insertedGigIds);
 
-    // 13. Загружаем сообщения чатов
+    // 14. Загружаем сообщения чатов
     const chatMessages = await loadChatMessages(
       userIds,
       chatSessionMapping,
@@ -149,6 +156,7 @@ async function loadAllDemoData() {
       `  - ${vacancyResponses.length + gigResponses.length} откликов`,
     );
     console.log(`  - ${Object.keys(photoMapping).length} фото`);
+    console.log(`  - ${interactionCount} записей хронологии взаимодействий`);
     console.log(`  - ${interviewSessions.length} интервью-сессий`);
     console.log(`  - ${interviewMessages.length} сообщений интервью`);
     console.log(`  - ${chatSessions.length} чат-сессий`);

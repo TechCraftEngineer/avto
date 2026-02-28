@@ -6,7 +6,7 @@ import { protectedProcedure } from "../../../orpc";
 
 const syncGigResponsesInputSchema = z.object({
   workspaceId: workspaceIdSchema,
-  gigId: z.string().uuid(),
+  gigId: z.uuid(),
 });
 
 export const syncGigResponses = protectedProcedure

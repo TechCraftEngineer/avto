@@ -17,7 +17,7 @@ export const listSessions = protectedProcedure
         (v) => {
           // Для gig и vacancy требуется UUID
           if (["gig", "vacancy"].includes(v.entityType)) {
-            return z.string().uuid().safeParse(v.entityId).success;
+            return z.uuid().safeParse(v.entityId).success;
           }
           return true;
         },

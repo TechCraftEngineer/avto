@@ -81,7 +81,7 @@ export type MetaMatchSummaryMetrics = z.infer<
 >;
 
 export const CreateMetaMatchReportSchema = createInsertSchema(metaMatchReport, {
-  candidateId: z.string().uuid(),
+  candidateId: z.uuid(),
   birthDate: z.coerce.date(),
   companyBirthDate: z.coerce.date().optional(),
   managerBirthDate: z.coerce.date().optional(),

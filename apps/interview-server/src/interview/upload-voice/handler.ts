@@ -13,7 +13,7 @@ import { uploadFile } from "@qbs-autonaim/lib/s3";
 import { z } from "zod";
 
 const requestSchema = z.object({
-  sessionId: z.string().uuid(),
+  sessionId: z.uuid(),
   interviewToken: z.string().optional(),
   audioFile: z.string(), // base64
   fileName: z.string(),

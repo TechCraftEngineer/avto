@@ -34,7 +34,7 @@ export const gigAIResponseSchema = z.object({
 });
 
 export const gigChatRequestSchema = z.object({
-  workspaceId: z.string().uuid(),
+  workspaceId: z.uuid(),
   message: z
     .string()
     .trim()

@@ -10,7 +10,7 @@ const isTestMode =
 export const cleanup = publicProcedure
   .input(
     z.object({
-      email: z.string().email("Некорректный email адрес").optional(),
+      email: z.email({ error: "Некорректный email адрес" }).optional(),
       all: z.boolean().optional().default(false),
     }),
   )

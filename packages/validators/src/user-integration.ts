@@ -7,13 +7,13 @@ export const userIntegrationTypeSchema = z.enum(["google_calendar"]);
 export type UserIntegrationType = z.infer<typeof userIntegrationTypeSchema>;
 
 export const createCalendarEventSchema = z.object({
-  responseId: z.string().uuid(),
+  responseId: z.uuid(),
   workspaceId: workspaceIdSchema,
   scheduledAt: z.coerce.date(),
   durationMinutes: z.number().int().min(15).max(480).default(60),
   title: z.string().min(1).max(500),
   description: z.string().max(2000).optional(),
-  meetingUrl: z.string().url().optional().or(z.literal("")),
+  meetingUrl: z.url().optional().or(z.literal("")),
   type: z.enum(["technical", "hr", "final", "phone", "video"]).default("video"),
 });
 

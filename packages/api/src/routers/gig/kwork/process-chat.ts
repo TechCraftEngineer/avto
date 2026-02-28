@@ -13,7 +13,7 @@ export const processChat = protectedProcedure
   .input(
     z.object({
       workspaceId: workspaceIdSchema,
-      responseId: z.string().uuid(),
+      responseId: z.uuid(),
     }),
   )
   .handler(async ({ input, context }) => {

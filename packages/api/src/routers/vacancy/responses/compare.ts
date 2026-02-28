@@ -12,7 +12,7 @@ import { protectedProcedure } from "../../../orpc";
 export const compare = protectedProcedure
   .input(
     z.object({
-      vacancyId: z.string().uuid(),
+      vacancyId: z.uuid(),
       workspaceId: workspaceIdSchema,
       limit: z.number().min(1).max(50).default(10),
     }),

@@ -20,8 +20,8 @@ import {
 
 const attachInputSchema = workspaceInputSchema.merge(
   z.object({
-    candidateId: z.string().uuid("ID кандидата должен быть UUID"),
-    vacancyId: z.string().uuid("ID вакансии должен быть UUID"),
+    candidateId: z.uuid({ error: "ID кандидата должен быть UUID" }),
+    vacancyId: z.uuid({ error: "ID вакансии должен быть UUID" }),
   }),
 );
 

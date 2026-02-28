@@ -42,7 +42,7 @@ const passwordSchema = z
 
 const createSignInSchema = (mode: "signin" | "signup") =>
   z.object({
-    email: z.string().email("Неверный email адрес"),
+    email: z.email({ error: "Неверный email адрес" }),
     password:
       mode === "signup"
         ? passwordSchema

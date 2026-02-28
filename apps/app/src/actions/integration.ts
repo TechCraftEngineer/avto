@@ -6,7 +6,7 @@ import { z } from "zod";
 
 const verifyHHCredentialsSchema = z
   .object({
-    email: z.string().email("Неверный адрес электронной почты"),
+    email: z.email({ error: "Неверный адрес электронной почты" }),
     password: z.string().optional(),
     workspaceId: z
       .string()

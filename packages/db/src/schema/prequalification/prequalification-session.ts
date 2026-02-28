@@ -209,7 +209,7 @@ export const CreatePrequalificationSessionSchema = createInsertSchema(
   prequalificationSession,
   {
     workspaceId: z.string().min(1),
-    vacancyId: z.string().uuid(),
+    vacancyId: z.uuid(),
     status: z
       .enum(prequalificationStatusEnum.enumValues)
       .default("consent_pending"),

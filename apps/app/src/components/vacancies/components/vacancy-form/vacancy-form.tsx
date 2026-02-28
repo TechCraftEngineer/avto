@@ -68,7 +68,10 @@ const vacancyFormSchema = z.object({
     "FREELANCE_RU",
     "WEB_LINK",
   ]),
-  platformUrl: z.string().url("Некорректный URL").optional().or(z.literal("")),
+  platformUrl: z
+    .url({ error: "Некорректный URL" })
+    .optional()
+    .or(z.literal("")),
 });
 
 type VacancyFormValues = z.infer<typeof vacancyFormSchema>;

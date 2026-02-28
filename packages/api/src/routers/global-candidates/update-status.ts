@@ -11,7 +11,7 @@ import { protectedProcedure } from "../../orpc";
 export const updateStatus = protectedProcedure
   .input(
     z.object({
-      candidateId: z.string().uuid(),
+      candidateId: z.uuid(),
       organizationId: organizationIdSchema,
       status: z.enum(["ACTIVE", "BLACKLISTED", "HIRED"]),
       notes: z.string().optional(),

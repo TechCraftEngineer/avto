@@ -16,9 +16,7 @@ import {
 import { ensureFound } from "../../../utils/ensure-found";
 
 export const listInteractions = protectedProcedure
-  .input(
-    workspaceInputSchema.merge(z.object({ responseId: z.string().uuid() })),
-  )
+  .input(workspaceInputSchema.merge(z.object({ responseId: z.uuid() })))
   .use(workspaceAccessMiddleware)
   .handler(async ({ context, input }) => {
     const response = ensureFound(

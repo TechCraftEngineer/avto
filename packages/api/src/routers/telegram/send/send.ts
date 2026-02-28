@@ -9,10 +9,10 @@ import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 
 const sendMessageInputSchema = z.object({
-  sessionId: z.string().uuid(),
+  sessionId: z.uuid(),
   content: z.string().min(1),
   type: z.enum(["text", "voice", "file"]).default("text"),
-  fileId: z.string().uuid().optional(),
+  fileId: z.uuid().optional(),
   voiceDuration: z.number().int().positive().optional(),
 });
 

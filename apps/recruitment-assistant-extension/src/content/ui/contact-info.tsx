@@ -23,7 +23,7 @@ export function ContactInfo({ contacts, onEdit }: ContactInfoProps) {
     if (!trimmed) return;
     if (socialLinks.includes(trimmed)) return;
 
-    const parsed = z.string().url().safeParse(trimmed);
+    const parsed = z.url().safeParse(trimmed);
     if (!parsed.success) {
       setLinkError("Введите корректный URL (например, https://example.com)");
       return;

@@ -14,7 +14,7 @@ import { protectedProcedure } from "../../orpc";
 export const get = protectedProcedure
   .input(
     z.object({
-      candidateId: z.string().uuid(),
+      candidateId: z.uuid(),
       organizationId: organizationIdSchema,
     }),
   )

@@ -61,7 +61,7 @@ export const updateVacancySettingsSchema = z.object({
         .optional(),
     })
     .optional(),
-  customDomainId: z.string().uuid().or(z.literal("")).nullish(),
+  customDomainId: z.uuid().or(z.literal("")).nullish(),
 });
 
 export const vacancyRequirementsSchema = z.object({

@@ -7,7 +7,7 @@ import { createErrorHandler } from "../../../utils/error-handler";
 
 const updateVacancyFavoriteInputSchema = z.object({
   workspaceId: workspaceIdSchema,
-  vacancyId: z.string().uuid(),
+  vacancyId: z.uuid(),
   isFavorite: z.boolean(),
 });
 

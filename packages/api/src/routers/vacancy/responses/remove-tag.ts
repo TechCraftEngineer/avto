@@ -13,7 +13,7 @@ import { verifyWorkspaceAccess } from "../../../utils/verify-workspace-access";
 export const removeTag = protectedProcedure
   .input(
     z.object({
-      responseId: z.string().uuid(),
+      responseId: z.uuid(),
       tag: z.string(),
       workspaceId: workspaceIdSchema,
     }),

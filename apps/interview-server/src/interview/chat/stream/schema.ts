@@ -13,26 +13,15 @@ const filePartSchema = z.object({
   type: z.literal("file"),
   mediaType: z.enum(["audio/webm", "audio/wav", "audio/mp3", "audio/mpeg"]),
   name: z.string().min(1).max(100),
-  url: z
-    .string()
-    .url()
-    .refine(
-      (url) => {
-        try {
-          const parsed = new URL(url);
-          return ["https:", "http:"].includes(parsed.protocol);
-        } catch {
-          return false;
-        }
-      },
-      { message: "URL должен использовать протокол https: или http:" },
-    ),
+  url: z.httpUrl({
+    error: "URL должен использовать протокол https: или http:",
+  }),
 });
 
 const partSchema = z.union([textPartSchema, filePartSchema]);
 
 const userMessageSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   role: z.literal("user"),
   parts: z.array(partSchema).min(1),
 });
@@ -56,8 +45,8 @@ const messageSchema = z.object({
 
 export const requestSchema = z
   .object({
-    id: z.string().uuid().optional(),
-    sessionId: z.string().uuid(),
+    id: z.uuid().optional(),
+    sessionId: z.uuid(),
     interviewToken: z.string().nullable().optional(),
     // Либо одно новое сообщение, либо все сообщения (для tool approvals)
     message: userMessageSchema.optional(),

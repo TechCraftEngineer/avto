@@ -3,8 +3,8 @@ import { z } from "zod";
 import { publicProcedure } from "../../../orpc";
 
 const getNewMessagesInputSchema = z.object({
-  interviewSessionId: z.string().uuid(),
-  lastMessageId: z.string().uuid().optional(),
+  interviewSessionId: z.uuid(),
+  lastMessageId: z.uuid().optional(),
 });
 
 export const getNewMessages = publicProcedure

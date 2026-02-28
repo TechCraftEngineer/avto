@@ -16,7 +16,7 @@ export const update = protectedProcedure
       gigId: z.uuid(),
       workspaceId: workspaceIdSchema,
       settings: UpdateGigSettingsSchema.extend({
-        interviewMediaFileIds: z.array(z.string().uuid()).nullish(),
+        interviewMediaFileIds: z.array(z.uuid()).nullish(),
       }),
     }),
   )
