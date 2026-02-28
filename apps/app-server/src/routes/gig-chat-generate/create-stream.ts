@@ -8,6 +8,49 @@ import { buildGigPrompt } from "./build-prompt";
 import { parseGigAIResponse } from "./parse-ai-response";
 import type { GigAIResponse, GigDocument } from "./types";
 
+function filterAIContent(value: string | null | undefined): string {
+  if (value == null || typeof value !== "string") return "";
+  return truncateText(sanitizePromptText(value), 5000);
+}
+
+function sanitizeGigDocument(doc: GigDocument | undefined): GigDocument {
+  if (!doc) return {};
+  return {
+    title: doc.title ? filterAIContent(doc.title) : undefined,
+    description: doc.description ? filterAIContent(doc.description) : undefined,
+    deliverables: doc.deliverables
+      ? filterAIContent(doc.deliverables)
+      : undefined,
+    requiredSkills: doc.requiredSkills
+      ? filterAIContent(doc.requiredSkills)
+      : undefined,
+    budgetRange: doc.budgetRange ? filterAIContent(doc.budgetRange) : undefined,
+    timeline: doc.timeline ? filterAIContent(doc.timeline) : undefined,
+  };
+}
+
+function sanitizeCompanySettings(
+  cs:
+    | {
+        companyName?: string;
+        companyDescription?: string;
+        botName?: string;
+        botRole?: string;
+      }
+    | null
+    | undefined,
+): typeof cs {
+  if (!cs) return cs;
+  return {
+    companyName: cs.companyName ? filterAIContent(cs.companyName) : undefined,
+    companyDescription: cs.companyDescription
+      ? filterAIContent(cs.companyDescription)
+      : undefined,
+    botName: cs.botName ? filterAIContent(cs.botName) : undefined,
+    botRole: cs.botRole ? filterAIContent(cs.botRole) : undefined,
+  };
+}
+
 export interface CreateGigStreamParams {
   message: string;
   currentDocument?: GigDocument;
@@ -30,12 +73,16 @@ export function createGigStream(params: CreateGigStreamParams): ReadableStream {
         .slice(0, 10)
         .map((msg) => sanitizeConversationMessage(msg))
     : undefined;
+  const sanitizedCurrentDocument = currentDocument
+    ? sanitizeGigDocument(currentDocument)
+    : undefined;
+  const sanitizedCompanySettings = sanitizeCompanySettings(companySettings);
 
   const prompt = buildGigPrompt(
     sanitizedMessage,
-    currentDocument,
+    sanitizedCurrentDocument,
     sanitizedHistory,
-    companySettings,
+    sanitizedCompanySettings,
   );
 
   let result: ReturnType<typeof streamText>;
@@ -69,11 +116,15 @@ export function createGigStream(params: CreateGigStreamParams): ReadableStream {
 
             if (responseString !== lastResponseString) {
               lastSentResponse = partialResponse;
+              const sanitizedDoc = sanitizeGigDocument(
+                partialResponse.document,
+              );
+              const sanitizedMsg = filterAIContent(partialResponse.message);
               controller.enqueue(
                 encoder.encode(
                   `data: ${JSON.stringify({
-                    document: partialResponse.document,
-                    message: partialResponse.message,
+                    document: sanitizedDoc,
+                    message: sanitizedMsg,
                     partial: true,
                   })}\n\n`,
                 ),
@@ -86,13 +137,17 @@ export function createGigStream(params: CreateGigStreamParams): ReadableStream {
           fullText,
           currentDocument,
         );
-
+        const sanitizedDoc = sanitizeGigDocument(finalResponse.document);
+        const sanitizedMsg = filterAIContent(finalResponse.message);
+        const sanitizedReplies = (finalResponse.quickReplies ?? []).map((r) =>
+          filterAIContent(r),
+        );
         controller.enqueue(
           encoder.encode(
             `data: ${JSON.stringify({
-              document: finalResponse.document,
-              message: finalResponse.message,
-              quickReplies: finalResponse.quickReplies ?? [],
+              document: sanitizedDoc,
+              message: sanitizedMsg,
+              quickReplies: sanitizedReplies,
               done: true,
             })}\n\n`,
           ),
@@ -100,23 +155,32 @@ export function createGigStream(params: CreateGigStreamParams): ReadableStream {
 
         controller.close();
       } catch (streamError) {
-        console.error("[gig-chat-generate] Stream error:", streamError);
+        if (streamError instanceof Error) {
+          console.error(
+            "[gig-chat-generate] Stream error:",
+            streamError,
+            streamError.stack,
+          );
+        } else {
+          console.error("[gig-chat-generate] Stream error:", streamError);
+        }
 
         const { response: recoveredResponse } = parseGigAIResponse(
           fullText,
           currentDocument,
         );
-
+        const sanitizedDoc = sanitizeGigDocument(recoveredResponse.document);
+        const sanitizedMsg = filterAIContent(recoveredResponse.message);
+        const sanitizedReplies = (recoveredResponse.quickReplies ?? []).map(
+          (r) => filterAIContent(r),
+        );
         controller.enqueue(
           encoder.encode(
             `data: ${JSON.stringify({
-              document: recoveredResponse.document,
-              message: recoveredResponse.message,
-              quickReplies: recoveredResponse.quickReplies ?? [],
-              error:
-                streamError instanceof Error
-                  ? streamError.message
-                  : "Ошибка генерации",
+              document: sanitizedDoc,
+              message: sanitizedMsg,
+              quickReplies: sanitizedReplies,
+              error: "Ошибка генерации",
               done: true,
             })}\n\n`,
           ),

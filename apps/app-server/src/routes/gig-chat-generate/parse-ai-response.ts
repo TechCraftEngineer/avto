@@ -1,10 +1,34 @@
-import type { GigAIResponse, GigDocument } from "./types";
+import {
+  type GigAIResponse,
+  type GigDocument,
+  gigAIResponseSchema,
+} from "./types";
+
+function getStringFromDoc(text: string, field: string): string {
+  const regex = new RegExp(
+    `"${field}"\\s*:\\s*"((?:[^"\\\\]|\\\\.)*)(?:"|$)`,
+    "s",
+  );
+  const match = text.match(regex);
+  if (!match?.[1]) return "";
+  try {
+    return JSON.parse(`"${match[1]}"`);
+  } catch {
+    return match[1]
+      .replace(/\\n/g, "\n")
+      .replace(/\\"/g, '"')
+      .replace(/\\\\/g, "\\");
+  }
+}
 
 export function extractPartialGigResponse(
   text: string,
   fallback?: GigDocument,
 ): GigAIResponse {
-  const result: GigAIResponse = { document: { ...fallback } };
+  const result: GigAIResponse = {
+    document: { ...fallback },
+    message: "",
+  };
 
   const cleanText = text
     .replace(/^```json\s*/i, "")
@@ -24,22 +48,11 @@ export function extractPartialGigResponse(
   const docText = startIndex >= 0 ? cleanText.slice(startIndex) : cleanText;
 
   for (const field of docFields) {
-    const regex = new RegExp(
-      `"${field}"\\s*:\\s*"((?:[^"\\\\]|\\\\.)*)(?:"|$)`,
-      "s",
-    );
-    const match = docText.match(regex);
-    if (match?.[1] && result.document) {
-      try {
-        result.document[field] = JSON.parse(`"${match[1]}"`);
-      } catch {
-        result.document[field] = match[1]
-          .replace(/\\n/g, "\n")
-          .replace(/\\"/g, '"')
-          .replace(/\\\\/g, "\\");
-      }
-    }
+    const val = getStringFromDoc(docText, field);
+    if (val && result.document) result.document[field] = val;
   }
+
+  result.message = getStringFromDoc(docText, "message") || "";
 
   const quickRepliesMatch = docText.match(
     /"quickReplies"\s*:\s*\[([\s\S]*?)\]/,
@@ -84,17 +97,40 @@ export function parseGigAIResponse(
 
   let braceCount = 0;
   let endIndex = -1;
+  let inString = false;
+  let stringChar: string | null = null;
+  let i = startIndex;
 
-  for (let i = startIndex; i < cleanText.length; i++) {
+  while (i < cleanText.length) {
     const char = cleanText[i];
-    if (char === "{") braceCount++;
-    else if (char === "}") {
+    if (inString) {
+      if (char === "\\" && i + 1 < cleanText.length) {
+        i += 2;
+        continue;
+      }
+      if (char === stringChar) {
+        inString = false;
+        stringChar = null;
+      }
+      i++;
+      continue;
+    }
+    if (char === '"' || char === "'") {
+      inString = true;
+      stringChar = char;
+      i++;
+      continue;
+    }
+    if (char === "{") {
+      braceCount++;
+    } else if (char === "}") {
       braceCount--;
       if (braceCount === 0) {
         endIndex = i;
         break;
       }
     }
+    i++;
   }
 
   if (endIndex === -1) {
@@ -132,11 +168,16 @@ export function parseGigAIResponse(
         budgetRange: getString("budgetRange", fallback?.budgetRange ?? ""),
         timeline: getString("timeline", fallback?.timeline ?? ""),
       },
+      message: typeof data.message === "string" ? data.message : "",
       quickReplies: Array.isArray(data.quickReplies)
         ? data.quickReplies.filter((r): r is string => typeof r === "string")
         : [],
     };
 
+    const validated = gigAIResponseSchema.safeParse(response);
+    if (validated.success) {
+      return { response: validated.data, isComplete: true };
+    }
     return { response, isComplete: true };
   } catch {
     return {

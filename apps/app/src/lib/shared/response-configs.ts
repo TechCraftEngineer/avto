@@ -80,3 +80,10 @@ export function formatCurrency(amount: number | null) {
 
 export type StatusKey = keyof typeof RESPONSE_STATUS_CONFIG;
 export type HRStatusKey = keyof typeof HR_STATUS_CONFIG;
+
+export function getStatusLabel(status: string): string {
+  if (status in RESPONSE_STATUS_CONFIG) {
+    return RESPONSE_STATUS_CONFIG[status as StatusKey].label;
+  }
+  return status;
+}

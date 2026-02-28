@@ -1,4 +1,7 @@
+import { getStatusLabel } from "~/lib/shared/response-configs";
 import type { VacancyResponse } from "./types";
+
+export { getStatusLabel };
 
 export function calculateMatchScore(response: VacancyResponse): number {
   // Используем реальную оценку навыков из AI-скрининга
@@ -76,25 +79,6 @@ export function getStatusColor(status: string): string {
       return "bg-gray-100 text-gray-800 border-gray-200";
     default:
       return "bg-gray-100 text-gray-800 border-gray-200";
-  }
-}
-
-export function getStatusLabel(status: string): string {
-  switch (status) {
-    case "NEW":
-      return "Новый";
-    case "EVALUATED":
-      return "Оценено";
-    case "INTERVIEW":
-      return "Собеседование";
-    case "NEGOTIATION":
-      return "Переговоры";
-    case "COMPLETED":
-      return "Завершено";
-    case "SKIPPED":
-      return "Пропущено";
-    default:
-      return status;
   }
 }
 

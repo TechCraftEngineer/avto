@@ -1,4 +1,4 @@
-import { RESPONSE_STATUS_CONFIG } from "~/lib/shared/response-configs";
+import { getStatusLabel } from "~/lib/shared/response-configs";
 import type { VacancyResponse, VacancyResponseFromList } from "../types";
 
 /**
@@ -69,15 +69,7 @@ export function getExperienceFromProfile(
   return "Не указано";
 }
 
-/**
- * Русская метка для статуса
- */
-export function getStatusLabel(status: string): string {
-  return (
-    (RESPONSE_STATUS_CONFIG as Record<string, { label: string }>)[status]
-      ?.label ?? status
-  );
-}
+export { getStatusLabel };
 
 /**
  * Цвет для статуса

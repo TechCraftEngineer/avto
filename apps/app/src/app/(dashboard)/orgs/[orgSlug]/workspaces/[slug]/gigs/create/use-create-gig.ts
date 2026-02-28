@@ -255,14 +255,14 @@ export function useCreateGig({ orgSlug, workspaceSlug }: UseCreateGigOptions) {
     }
     createGig({
       workspaceId: workspace.id,
-      title: draft.title,
-      description: draft.description || undefined,
+      title: draft.title.trim(),
+      description: draft.description?.trim() || undefined,
       type: draft.type,
       budgetMin: draft.budgetMin,
       budgetMax: draft.budgetMax,
-      estimatedDuration: draft.estimatedDuration || undefined,
-      deliverables: draft.deliverables || undefined,
-      requiredSkills: draft.requiredSkills || undefined,
+      estimatedDuration: draft.estimatedDuration?.trim() || undefined,
+      deliverables: draft.deliverables?.trim() || undefined,
+      requiredSkills: draft.requiredSkills?.trim() || undefined,
     });
   }, [workspace?.id, draft, createGig]);
 
@@ -274,17 +274,17 @@ export function useCreateGig({ orgSlug, workspaceSlug }: UseCreateGigOptions) {
       }
       createGig({
         workspaceId: workspace.id,
-        title: v.title,
-        description: v.description || undefined,
+        title: v.title.trim(),
+        description: v.description?.trim() || undefined,
         type: v.type,
         budgetMin: v.budgetMin,
         budgetMax: v.budgetMax,
         deadline: v.deadline ? new Date(v.deadline).toISOString() : undefined,
-        estimatedDuration: v.estimatedDuration || undefined,
-        deliverables: v.deliverables || undefined,
-        requiredSkills: v.requiredSkills || undefined,
+        estimatedDuration: v.estimatedDuration?.trim() || undefined,
+        deliverables: v.deliverables?.trim() || undefined,
+        requiredSkills: v.requiredSkills?.trim() || undefined,
         platformSource: v.platformSource,
-        platformUrl: v.platformUrl || undefined,
+        platformUrl: v.platformUrl?.trim() || undefined,
       });
     },
     [workspace?.id, createGig],
