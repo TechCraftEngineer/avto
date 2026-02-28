@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import React from "react";
-import type { Resolver } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -72,10 +71,8 @@ export function useCreateGig({ orgSlug, workspaceSlug }: UseCreateGigOptions) {
     };
   }, []);
 
-  // Workaround: приведение типа необходимо из-за несовместимости zodResolver
-  // с Generic Resolver<FormValues> в useForm; убрать после обновления @hookform/resolvers
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema) as Resolver<FormValues>,
+    resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
       description: "",
