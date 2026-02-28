@@ -8,25 +8,42 @@ import { buildGigPrompt } from "./build-prompt";
 import { parseGigAIResponse } from "./parse-ai-response";
 import type { GigAIResponse, GigDocument } from "./types";
 
-function filterAIContent(value: string | null | undefined): string {
+const GIG_FIELD_LIMITS = {
+  title: 200,
+  description: 5000,
+  deliverables: 3000,
+  requiredSkills: 1000,
+  budgetRange: 100,
+  timeline: 100,
+} as const;
+
+function filterAIContent(
+  value: string | null | undefined,
+  maxLength: number,
+): string {
   if (value == null || typeof value !== "string") return "";
-  return truncateText(sanitizePromptText(value), 5000);
+  return truncateText(sanitizePromptText(value), maxLength);
 }
 
 function sanitizeGigDocument(doc: GigDocument | undefined): GigDocument {
   if (!doc) return {};
-  return {
-    title: doc.title ? filterAIContent(doc.title) : undefined,
-    description: doc.description ? filterAIContent(doc.description) : undefined,
-    deliverables: doc.deliverables
-      ? filterAIContent(doc.deliverables)
-      : undefined,
-    requiredSkills: doc.requiredSkills
-      ? filterAIContent(doc.requiredSkills)
-      : undefined,
-    budgetRange: doc.budgetRange ? filterAIContent(doc.budgetRange) : undefined,
-    timeline: doc.timeline ? filterAIContent(doc.timeline) : undefined,
-  };
+  const result: GigDocument = {};
+  const entries: Array<keyof GigDocument> = [
+    "title",
+    "description",
+    "deliverables",
+    "requiredSkills",
+    "budgetRange",
+    "timeline",
+  ];
+  for (const key of entries) {
+    const val = doc[key];
+    if (val) {
+      const sanitized = filterAIContent(val, GIG_FIELD_LIMITS[key]);
+      if (sanitized) result[key] = sanitized;
+    }
+  }
+  return result;
 }
 
 function sanitizeCompanySettings(
@@ -42,12 +59,14 @@ function sanitizeCompanySettings(
 ): typeof cs {
   if (!cs) return cs;
   return {
-    companyName: cs.companyName ? filterAIContent(cs.companyName) : undefined,
-    companyDescription: cs.companyDescription
-      ? filterAIContent(cs.companyDescription)
+    companyName: cs.companyName
+      ? filterAIContent(cs.companyName, 500)
       : undefined,
-    botName: cs.botName ? filterAIContent(cs.botName) : undefined,
-    botRole: cs.botRole ? filterAIContent(cs.botRole) : undefined,
+    companyDescription: cs.companyDescription
+      ? filterAIContent(cs.companyDescription, 500)
+      : undefined,
+    botName: cs.botName ? filterAIContent(cs.botName, 200) : undefined,
+    botRole: cs.botRole ? filterAIContent(cs.botRole, 500) : undefined,
   };
 }
 
@@ -87,7 +106,7 @@ export function createGigStream(params: CreateGigStreamParams): ReadableStream {
 
   let result: ReturnType<typeof streamText>;
   try {
-    result = streamText({ prompt });
+    result = streamText({ prompt, maxTokens: 1000 });
   } catch (aiError) {
     console.error("[gig-chat-generate] AI error:", aiError);
     throw new Error("Не удалось сгенерировать задание. Попробуйте позже.");
@@ -119,7 +138,10 @@ export function createGigStream(params: CreateGigStreamParams): ReadableStream {
               const sanitizedDoc = sanitizeGigDocument(
                 partialResponse.document,
               );
-              const sanitizedMsg = filterAIContent(partialResponse.message);
+              const sanitizedMsg = filterAIContent(
+                partialResponse.message,
+                2000,
+              );
               controller.enqueue(
                 encoder.encode(
                   `data: ${JSON.stringify({
@@ -138,10 +160,10 @@ export function createGigStream(params: CreateGigStreamParams): ReadableStream {
           currentDocument,
         );
         const sanitizedDoc = sanitizeGigDocument(finalResponse.document);
-        const sanitizedMsg = filterAIContent(finalResponse.message);
-        const sanitizedReplies = (finalResponse.quickReplies ?? []).map((r) =>
-          filterAIContent(r),
-        );
+        const sanitizedMsg = filterAIContent(finalResponse.message, 2000);
+        const sanitizedReplies = (finalResponse.quickReplies ?? [])
+          .slice(0, 5)
+          .map((r) => filterAIContent(r, 100));
         controller.enqueue(
           encoder.encode(
             `data: ${JSON.stringify({
@@ -170,10 +192,10 @@ export function createGigStream(params: CreateGigStreamParams): ReadableStream {
           currentDocument,
         );
         const sanitizedDoc = sanitizeGigDocument(recoveredResponse.document);
-        const sanitizedMsg = filterAIContent(recoveredResponse.message);
-        const sanitizedReplies = (recoveredResponse.quickReplies ?? []).map(
-          (r) => filterAIContent(r),
-        );
+        const sanitizedMsg = filterAIContent(recoveredResponse.message, 2000);
+        const sanitizedReplies = (recoveredResponse.quickReplies ?? [])
+          .slice(0, 5)
+          .map((r) => filterAIContent(r, 100));
         controller.enqueue(
           encoder.encode(
             `data: ${JSON.stringify({

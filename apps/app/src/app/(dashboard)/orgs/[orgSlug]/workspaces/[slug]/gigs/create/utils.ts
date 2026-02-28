@@ -64,12 +64,12 @@ const BUDGET_MAX = 1000000;
 const DURATION_MIN = 1;
 const DURATION_MAX = 365;
 
-function clampBudget(val: number | undefined): number | undefined {
+export function clampBudget(val: number | undefined): number | undefined {
   if (val == null || !Number.isFinite(val)) return undefined;
   return Math.max(BUDGET_MIN, Math.min(BUDGET_MAX, val));
 }
 
-function clampDuration(val: string | undefined): string | undefined {
+export function clampDuration(val: string | undefined): string | undefined {
   if (!val) return undefined;
   const num = Number.parseInt(val, 10);
   if (!Number.isFinite(num)) return undefined;
@@ -131,22 +131,35 @@ export function computeAssistantMessageFromChanges(
   prev: GigDraft,
 ): string {
   const budgetFromAI = parseBudgetRange(doc.budgetRange);
+  const normBudgetMin = clampBudget(budgetFromAI.budgetMin);
+  const normBudgetMax = clampBudget(budgetFromAI.budgetMax);
+
   const rawDuration = doc.timeline ?? undefined;
   const estimatedDuration =
-    rawDuration != null ? String(rawDuration) : prev.estimatedDuration;
+    clampDuration(rawDuration != null ? String(rawDuration) : undefined) ??
+    prev.estimatedDuration;
 
   const changes: string[] = [];
-  if (doc.title && doc.title !== prev.title) changes.push("название");
-  if (doc.description && doc.description !== prev.description)
+  if (doc.title && doc.title.trim() !== prev.title.trim())
+    changes.push("название");
+  if (
+    doc.description?.trim() &&
+    doc.description.trim() !== prev.description.trim()
+  )
     changes.push("описание");
-  if (doc.deliverables && doc.deliverables !== prev.deliverables)
+  if (
+    doc.deliverables?.trim() &&
+    doc.deliverables.trim() !== prev.deliverables.trim()
+  )
     changes.push("результаты");
-  if (doc.requiredSkills && doc.requiredSkills !== prev.requiredSkills)
+  if (
+    doc.requiredSkills?.trim() &&
+    doc.requiredSkills.trim() !== prev.requiredSkills.trim()
+  )
     changes.push("навыки");
   if (
     doc.budgetRange &&
-    (budgetFromAI.budgetMin !== prev.budgetMin ||
-      budgetFromAI.budgetMax !== prev.budgetMax)
+    (normBudgetMin !== prev.budgetMin || normBudgetMax !== prev.budgetMax)
   )
     changes.push("бюджет");
   if (doc.timeline && estimatedDuration !== prev.estimatedDuration)

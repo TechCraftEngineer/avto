@@ -249,13 +249,14 @@ export function useCreateGig({ orgSlug, workspaceSlug }: UseCreateGigOptions) {
       toast.error("Workspace не загружен");
       return;
     }
-    if (!draft.title) {
+    const trimmedTitle = draft.title?.trim();
+    if (!trimmedTitle) {
       toast.error("Укажите название задания");
       return;
     }
     createGig({
       workspaceId: workspace.id,
-      title: draft.title.trim(),
+      title: trimmedTitle,
       description: draft.description?.trim() || undefined,
       type: draft.type,
       budgetMin: draft.budgetMin,

@@ -75,7 +75,11 @@ export function extractPartialGigResponse(
 export function parseGigAIResponse(
   text: string,
   fallback?: GigDocument,
-): { response: GigAIResponse; isComplete: boolean } {
+): {
+  response: GigAIResponse;
+  isComplete: boolean;
+  validationErrors?: unknown;
+} {
   let cleanText = text.trim();
   if (cleanText.startsWith("```json")) {
     cleanText = cleanText.slice(7);
@@ -178,7 +182,11 @@ export function parseGigAIResponse(
     if (validated.success) {
       return { response: validated.data, isComplete: true };
     }
-    return { response, isComplete: true };
+    return {
+      response,
+      isComplete: false,
+      validationErrors: validated.error.flatten(),
+    };
   } catch {
     return {
       response: extractPartialGigResponse(cleanText, fallback),
