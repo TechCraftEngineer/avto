@@ -19,7 +19,6 @@ export default function CreateGigPage({ params }: PageProps) {
   const {
     draft,
     form,
-    quickReplies,
     chatMessages,
     isGenerating,
     isCreating,

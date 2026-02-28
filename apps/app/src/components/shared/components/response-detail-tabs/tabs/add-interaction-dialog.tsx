@@ -52,6 +52,14 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useORPC } from "~/orpc/react";
 
+type ValidChannel =
+  | "phone"
+  | "email"
+  | "telegram"
+  | "whatsapp"
+  | "in_person"
+  | "other";
+
 const INTERACTION_TYPE_OPTIONS = [
   { value: "call", label: "Звонок", icon: Phone },
   { value: "email_sent", label: "Письмо", icon: Mail },
@@ -79,7 +87,7 @@ const HOURS = Array.from({ length: 24 }, (_, i) =>
 const MINUTES = ["00", "30"];
 
 function roundToNearest30(hhmm: string): string {
-  const [h, m] = hhmm.split(":").map(Number);
+  const [h = 0, m = 0] = hhmm.split(":").map(Number);
   const rounded = m < 15 ? 0 : m < 45 ? 30 : 0;
   const hour = m >= 45 ? (h + 1) % 24 : h;
   return `${hour.toString().padStart(2, "0")}:${rounded.toString().padStart(2, "0")}`;
@@ -149,10 +157,7 @@ export function AddInteractionDialog({
       interactionType:
         interactionType as (typeof INTERACTION_TYPE_OPTIONS)[number]["value"],
       happenedAt: happenedAtDate,
-      channel:
-        channel !== CHANNEL_NONE
-          ? (channel as (typeof CHANNEL_OPTIONS)[number]["value"])
-          : undefined,
+      channel: channel !== CHANNEL_NONE ? (channel as ValidChannel) : undefined,
       note: note || undefined,
     });
   };

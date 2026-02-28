@@ -22,7 +22,7 @@ const sendMessageInputSchema = z.object({
     .string()
     .min(1, "message обязателен")
     .max(2000, "Сообщение слишком длинное"),
-  context: z.record(z.unknown()).optional(),
+  context: z.record(z.string(), z.unknown()).optional(),
   conversationHistory: z
     .array(
       z.object({
