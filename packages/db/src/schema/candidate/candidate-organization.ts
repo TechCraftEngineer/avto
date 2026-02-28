@@ -4,6 +4,7 @@
  * Хранит базовую информацию о связи - остальные данные (статусы, рейтинги) в responses.
  */
 
+import { organizationIdSchema } from "@qbs-autonaim/validators";
 import { sql } from "drizzle-orm";
 import {
   index,
@@ -100,7 +101,7 @@ export const CreateCandidateOrganizationSchema = createInsertSchema(
   candidateOrganization,
   {
     candidateId: z.string().uuid(),
-    organizationId: z.string(),
+    organizationId: organizationIdSchema,
     status: z
       .enum(candidateOrganizationStatusEnum.enumValues)
       .default("ACTIVE"),

@@ -28,11 +28,12 @@ export function useCalendarOperations() {
         durationMinutes: variables.durationMinutes,
         calendarEventUrl: null as string | null,
       };
-      queryClient.setQueryData(queryKey, (old: unknown) => {
-        if (old && typeof old === "object" && old !== null) {
-          return { ...old, scheduledInterview: optimisticScheduledInterview };
-        }
-        return old;
+      queryClient.setQueryData(queryKey, (old) => {
+        if (!old || typeof old !== "object") return old;
+        return {
+          ...old,
+          scheduledInterview: optimisticScheduledInterview,
+        } as typeof old;
       });
       return { previousData, queryKey };
     },

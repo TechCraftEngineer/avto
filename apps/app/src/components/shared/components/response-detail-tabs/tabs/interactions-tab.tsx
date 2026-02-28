@@ -176,11 +176,14 @@ export function InteractionsTab({ responseId }: InteractionsTabProps) {
   if (isLoading) {
     return (
       <div className="space-y-3">
-        {Array.from({ length: 5 }, (_, index) => (
-          <div
-            key={`interactions-skeleton-${index}`}
-            className="flex gap-3 animate-pulse"
-          >
+        {[
+          "skeleton-1",
+          "skeleton-2",
+          "skeleton-3",
+          "skeleton-4",
+          "skeleton-5",
+        ].map((id) => (
+          <div key={id} className="flex gap-3 animate-pulse">
             <div className="w-8 h-8 rounded-full bg-muted" />
             <div className="flex-1 space-y-2">
               <div className="h-4 bg-muted rounded w-1/3" />

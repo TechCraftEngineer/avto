@@ -1,3 +1,4 @@
+import { organizationIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 import { ensureFound } from "../../utils/ensure-found";
@@ -7,7 +8,7 @@ export const getBySlug = protectedProcedure
   .input(
     z.object({
       slug: z.string(),
-      organizationId: z.string(),
+      organizationId: organizationIdSchema,
     }),
   )
   .handler(async ({ input, context }) => {

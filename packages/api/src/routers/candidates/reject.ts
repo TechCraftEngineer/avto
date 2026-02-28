@@ -1,6 +1,7 @@
 import { ORPCError } from "@orpc/server";
 import { and, eq } from "@qbs-autonaim/db";
 import { response as responseTable } from "@qbs-autonaim/db/schema";
+import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 
@@ -8,7 +9,7 @@ export const rejectCandidate = protectedProcedure
   .input(
     z.object({
       candidateId: z.uuid(),
-      workspaceId: z.string(),
+      workspaceId: workspaceIdSchema,
     }),
   )
   .handler(async ({ context, input }) => {

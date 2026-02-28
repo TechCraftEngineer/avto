@@ -3,6 +3,7 @@ import { eq } from "@qbs-autonaim/db";
 import { telegramSession } from "@qbs-autonaim/db/schema";
 import { encryptApiKeys, getEncryptionKey } from "@qbs-autonaim/server-utils";
 import { tgClientSDK } from "@qbs-autonaim/tg-client/sdk";
+import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 import { normalizePhone } from "../utils";
@@ -10,7 +11,7 @@ import { normalizePhone } from "../utils";
 export const checkPasswordRouter = protectedProcedure
   .input(
     z.object({
-      workspaceId: z.string(),
+      workspaceId: workspaceIdSchema,
       apiId: z.number(),
       apiHash: z.string(),
       phone: z.string().trim(),

@@ -2,6 +2,7 @@ import { ORPCError } from "@orpc/server";
 import { and, eq } from "@qbs-autonaim/db";
 import { telegramSession } from "@qbs-autonaim/db/schema";
 import { tgClientSDK } from "@qbs-autonaim/tg-client/sdk";
+import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
 import { handle2FAError, normalizePhone } from "../utils";
@@ -10,7 +11,7 @@ export const reauthorizeSessionRouter = protectedProcedure
   .input(
     z.object({
       sessionId: z.string(),
-      workspaceId: z.string(),
+      workspaceId: workspaceIdSchema,
       apiId: z.number(),
       apiHash: z.string(),
       phone: z.string().trim(),

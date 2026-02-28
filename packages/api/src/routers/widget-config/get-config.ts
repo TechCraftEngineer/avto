@@ -5,12 +5,13 @@
  * Публичная процедура - используется виджетом на внешних сайтах.
  */
 
+import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { publicProcedure } from "../../orpc";
 import { WidgetConfigService } from "../../services/widget-config";
 
 const getConfigInputSchema = z.object({
-  workspaceId: z.string().min(1, "workspaceId обязателен"),
+  workspaceId: workspaceIdSchema,
 });
 
 export const getConfig = publicProcedure

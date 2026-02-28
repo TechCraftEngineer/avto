@@ -4,6 +4,7 @@ import { interviewScenario } from "@qbs-autonaim/db/schema";
 import {
   paginationLimitSchema,
   paginationOffsetSchema,
+  workspaceIdSchema,
 } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
@@ -11,7 +12,7 @@ import { protectedProcedure } from "../../orpc";
 export const list = protectedProcedure
   .input(
     z.object({
-      workspaceId: z.string(),
+      workspaceId: workspaceIdSchema,
       limit: paginationLimitSchema({ default: 50, max: 100 }),
       offset: paginationOffsetSchema,
     }),

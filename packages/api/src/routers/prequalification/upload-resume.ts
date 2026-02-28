@@ -7,6 +7,7 @@
 
 import { ORPCError } from "@orpc/server";
 import { getAIModel, langfuse } from "@qbs-autonaim/lib/ai";
+import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { publicProcedure } from "../../orpc";
 import { SessionManager } from "../../services/prequalification";
@@ -18,7 +19,7 @@ import {
 
 const uploadResumeInputSchema = z.object({
   sessionId: z.uuid("sessionId должен быть UUID"),
-  workspaceId: z.string().min(1, "workspaceId обязателен"),
+  workspaceId: workspaceIdSchema,
   /** Base64-encoded file content */
   fileContent: z
     .string()

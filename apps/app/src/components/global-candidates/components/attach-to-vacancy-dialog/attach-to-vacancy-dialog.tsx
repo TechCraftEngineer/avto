@@ -61,7 +61,9 @@ export function AttachToVacancyDialog({
           });
         }
         queryClient.invalidateQueries({
-          queryKey: orpc.globalCandidates.list.queryKey(),
+          queryKey: orpc.globalCandidates.list.queryKey({
+            input: { organizationId: organizationId ?? "" },
+          }),
         });
         toast.success(
           `Кандидат прикреплён к вакансии «${result.vacancyTitle}»`,

@@ -33,7 +33,6 @@ const mapToInteractionChannel = (
       return "telegram";
     case "WEB_CHAT":
       return "web_chat";
-    case "HH":
     default:
       return "other"; // HH and unknown channels
   }

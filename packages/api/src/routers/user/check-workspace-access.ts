@@ -1,11 +1,15 @@
+import {
+  organizationIdSchema,
+  workspaceIdSchema,
+} from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 
 export const checkWorkspaceAccess = protectedProcedure
   .input(
     z.object({
-      organizationId: z.string().min(1),
-      workspaceId: z.string().min(1),
+      organizationId: organizationIdSchema,
+      workspaceId: workspaceIdSchema,
     }),
   )
   .handler(async ({ context, input }) => {

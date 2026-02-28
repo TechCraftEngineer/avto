@@ -4,6 +4,7 @@ import {
   type CandidateOrganization,
   candidateOrganization,
 } from "@qbs-autonaim/db/schema";
+import { organizationIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
 
@@ -11,7 +12,7 @@ export const updateStatus = protectedProcedure
   .input(
     z.object({
       candidateId: z.string().uuid(),
-      organizationId: z.string(),
+      organizationId: organizationIdSchema,
       status: z.enum(["ACTIVE", "BLACKLISTED", "HIRED"]),
       notes: z.string().optional(),
     }),

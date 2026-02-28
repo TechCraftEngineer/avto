@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { workspaceIdSchema } from "./workspace";
 
 // Схема для создания платежа
 export const createPaymentSchema = z.object({
@@ -10,7 +11,7 @@ export const createPaymentSchema = z.object({
     .max(128, "Описание не может превышать 128 символов")
     .optional(),
   returnUrl: z.string().url("Некорректный URL для возврата"),
-  workspaceId: z.string().min(1, "Workspace ID обязателен"),
+  workspaceId: workspaceIdSchema,
   metadata: z.record(z.string(), z.any()).optional(),
 });
 
