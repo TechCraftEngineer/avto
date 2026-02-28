@@ -6,6 +6,7 @@ import { tgClientSDK } from "@qbs-autonaim/tg-client/sdk";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc";
+import { verifyWorkspaceAccess } from "../../../utils/verify-workspace-access";
 import { normalizePhone } from "../utils";
 
 export const checkPasswordRouter = protectedProcedure
@@ -20,6 +21,12 @@ export const checkPasswordRouter = protectedProcedure
     }),
   )
   .handler(async ({ input, context }) => {
+    await verifyWorkspaceAccess(
+      context.workspaceRepository,
+      input.workspaceId,
+      context.session.user.id,
+    );
+
     try {
       const existingSession = await context.db.query.telegramSession.findFirst({
         where: eq(telegramSession.workspaceId, input.workspaceId),

@@ -41,6 +41,8 @@ const INTERACTION_TYPE_OPTIONS = [
   { value: "followup_sent", label: "Напоминание" },
 ] as const;
 
+const CHANNEL_NONE = "__none__";
+
 const CHANNEL_OPTIONS = [
   { value: "phone", label: "Телефон" },
   { value: "email", label: "Email" },
@@ -81,7 +83,7 @@ export function AddInteractionDialog({
   const [interactionType, setInteractionType] = useState<string>("call");
   const [happenedAt, setHappenedAt] = useState<Date>(() => new Date());
   const [timeSlot, setTimeSlot] = useState<string>("14:00");
-  const [channel, setChannel] = useState<string>("");
+  const [channel, setChannel] = useState<string>(CHANNEL_NONE);
   const [note, setNote] = useState("");
 
   const { mutate, isPending } = useMutation(

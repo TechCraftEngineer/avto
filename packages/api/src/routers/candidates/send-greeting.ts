@@ -4,6 +4,7 @@ import { response as responseTable } from "@qbs-autonaim/db/schema";
 import { workspaceIdSchema } from "@qbs-autonaim/validators";
 import { z } from "zod";
 import { protectedProcedure } from "../../orpc";
+import { verifyWorkspaceAccess } from "../../utils/verify-workspace-access";
 
 export const sendGreeting = protectedProcedure
   .input(
@@ -14,6 +15,12 @@ export const sendGreeting = protectedProcedure
   )
   .handler(async ({ context, input }) => {
     const { candidateId, workspaceId } = input;
+
+    await verifyWorkspaceAccess(
+      context.workspaceRepository,
+      workspaceId,
+      context.session.user.id,
+    );
 
     const candidate = await context.db.query.response.findFirst({
       where: and(
